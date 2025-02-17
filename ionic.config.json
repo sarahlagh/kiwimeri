@@ -1,5 +1,7 @@
 {
   "name": "writerApp",
-  "integrations": {},
+  "integrations": {
+    "capacitor": {}
+  },
   "type": "react-vite"
 }
