@@ -1,0 +1,16 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2025-02-20 20:23+0100\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: en\n"
+
+#: src/components/Menu.tsx:41
+msgid "list of notes"
+msgstr "list of notes"
+
+#: src/components/Menu.tsx:40
+msgid "Writer App"
+msgstr "Writer App"
