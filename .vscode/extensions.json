@@ -3,7 +3,6 @@
     "ionic.ionic",
     "esbenp.prettier-vscode",
     "dbaeumer.vscode-eslint",
-    "christian-kohler.path-intellisense",
-    "mike-co.import-sorter"
+    "christian-kohler.path-intellisense"
   ]
 }
