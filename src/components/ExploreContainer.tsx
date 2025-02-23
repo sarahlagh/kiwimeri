@@ -1,11 +1,14 @@
-import { Trans } from "@lingui/react/macro";
 import './ExploreContainer.css';
 
 interface ContainerProps {
   name: string;
 }
 
-const ExploreContainer: React.FC<ContainerProps> = ({ name }) => {
+const ExploreContainer: React.FC<ContainerProps> = ({
+  name
+}: {
+  name: string;
+}) => {
   return (
     <div id="container">
       <strong>{name}</strong>

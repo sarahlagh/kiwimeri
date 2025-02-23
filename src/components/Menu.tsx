@@ -1,3 +1,8 @@
+import './Menu.css';
+
+import { mailOutline, mailSharp } from 'ionicons/icons';
+import { useLocation } from 'react-router-dom';
+
 import {
   IonContent,
   IonIcon,
@@ -7,13 +12,9 @@ import {
   IonListHeader,
   IonMenu,
   IonMenuToggle,
-  IonNote,
+  IonNote
 } from '@ionic/react';
-import { Trans } from "@lingui/react/macro";
-
-import { mailOutline, mailSharp } from 'ionicons/icons';
-import { useLocation } from 'react-router-dom';
-import './Menu.css';
+import { Trans } from '@lingui/react/macro';
 
 interface AppPage {
   url: string;
@@ -37,13 +38,30 @@ const Menu: React.FC = () => {
     <IonMenu contentId="main" type="overlay">
       <IonContent>
         <IonList id="notes-list">
-          <IonListHeader><Trans>Writer App</Trans></IonListHeader>
-          <IonNote><Trans>list of notes</Trans></IonNote>
+          <IonListHeader>
+            <Trans>Writer App</Trans>
+          </IonListHeader>
+          <IonNote>
+            <Trans>list of notes</Trans>
+          </IonNote>
           {appPages.map((appPage, index) => {
             return (
               <IonMenuToggle key={index} autoHide={false}>
-                <IonItem className={location.pathname === appPage.url ? 'selected' : ''} routerLink={appPage.url} routerDirection="none" lines="none" detail={false}>
-                  <IonIcon aria-hidden="true" slot="start" ios={appPage.iosIcon} md={appPage.mdIcon} />
+                <IonItem
+                  className={
+                    location.pathname === appPage.url ? 'selected' : ''
+                  }
+                  routerLink={appPage.url}
+                  routerDirection="none"
+                  lines="none"
+                  detail={false}
+                >
+                  <IonIcon
+                    aria-hidden="true"
+                    slot="start"
+                    ios={appPage.iosIcon}
+                    md={appPage.mdIcon}
+                  />
                   <IonLabel>{appPage.title}</IonLabel>
                 </IonItem>
               </IonMenuToggle>
