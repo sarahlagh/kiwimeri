@@ -7,5 +7,13 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[java][bat]": {
     "editor.formatOnSave": false
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/*.code-search": true,
+    "**/android": true,
+    "**/electron": true,
+    "yarn.lock": true
   }
 }

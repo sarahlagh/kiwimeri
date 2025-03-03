@@ -23,21 +23,13 @@ import '@ionic/react/css/palettes/dark.system.css';
 /* Theme variables */
 import './theme/variables.css';
 
-import { Redirect, Route } from 'react-router-dom';
-
-import {
-  IonApp,
-  IonRouterOutlet,
-  IonSplitPane,
-  setupIonicReact
-} from '@ionic/react';
-import { IonReactRouter } from '@ionic/react-router';
+import { IonApp, setupIonicReact } from '@ionic/react';
 import { i18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/react';
 
-import Menu from './components/Menu';
+import { IonReactRouter } from '@ionic/react-router';
+import MainLayout from './app/MainLayout';
 import { messages as enMessages } from './locales/en/messages';
-import Page from './pages/Page';
 
 setupIonicReact();
 i18n.load('en', enMessages);
@@ -48,17 +40,7 @@ const App: React.FC = () => {
     <I18nProvider i18n={i18n}>
       <IonApp>
         <IonReactRouter>
-          <IonSplitPane contentId="main">
-            <Menu />
-            <IonRouterOutlet id="main">
-              <Route path="/" exact={true}>
-                <Redirect to="/folder/default" />
-              </Route>
-              <Route path="/folder/:name" exact={true}>
-                <Page />
-              </Route>
-            </IonRouterOutlet>
-          </IonSplitPane>
+          <MainLayout></MainLayout>
         </IonReactRouter>
       </IonApp>
     </I18nProvider>
