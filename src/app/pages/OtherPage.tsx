@@ -1,6 +1,10 @@
-import { IonContent } from '@ionic/react';
+import { IonContent, IonPage } from '@ionic/react';
 
-function OtherPage() {
-  return <IonContent>Just a page test</IonContent>;
-}
+const OtherPage = () => {
+  return (
+    <IonPage>
+      <IonContent>Just a page test</IonContent>
+    </IonPage>
+  );
+};
 export default OtherPage;

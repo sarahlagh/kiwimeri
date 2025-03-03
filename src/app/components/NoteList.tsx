@@ -27,7 +27,7 @@ const notes: AppPage[] = [
   }
 ];
 
-export const NoteList: React.FC = () => {
+export const NoteList = () => {
   const location = useLocation();
   return (
     <IonList id="note-explorer-menu-list">

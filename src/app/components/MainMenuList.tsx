@@ -17,7 +17,7 @@ interface AppPage {
   title: string;
 }
 
-const MainMenuList: React.FC = () => {
+const MainMenuList = () => {
   const { t } = useLingui();
 
   const appPages: AppPage[] = [
