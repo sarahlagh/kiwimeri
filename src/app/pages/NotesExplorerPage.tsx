@@ -24,18 +24,20 @@ const NotesExplorerPage: React.FC<NotesExplorerPageProps> = ({
         </IonContent>
       </IonMenu>
 
-      {match.params.id && (
-        <div className="ion-page" id="noteExplorer">
-          <IonHeader>
-            <IonToolbar>
-              <IonTitle>Note {match.params.id}</IonTitle>
-            </IonToolbar>
-          </IonHeader>
-          <IonContent className="ion-padding">
-            Content of Note {match.params.id}
-          </IonContent>
-        </div>
-      )}
+      <div className="ion-page" id="noteExplorer">
+        {match.params.id && (
+          <>
+            <IonHeader>
+              <IonToolbar>
+                <IonTitle>Note {match.params.id}</IonTitle>
+              </IonToolbar>
+            </IonHeader>
+            <IonContent className="ion-padding">
+              Content of Note {match.params.id}
+            </IonContent>
+          </>
+        )}
+      </div>
     </IonSplitPane>
   );
 };
