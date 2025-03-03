@@ -1,2 +1,7 @@
 /* For information on how to create your own theme, please see:
 http://ionicframework.com/docs/theming/ */
+
+ion-input.invisible,
+ion-textarea.invisible {
+  --highlight-color-focused: rgba(var(--highlight-color-focused), 0);
+}

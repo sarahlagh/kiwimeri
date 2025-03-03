@@ -1,13 +1,6 @@
-import {
-  IonContent,
-  IonHeader,
-  IonMenu,
-  IonPage,
-  IonSplitPane,
-  IonTitle,
-  IonToolbar
-} from '@ionic/react';
+import { IonContent, IonMenu, IonPage, IonSplitPane } from '@ionic/react';
 import { RouteComponentProps } from 'react-router-dom';
+import NoteEditor from '../../notes/components/NoteEditor';
 import NoteList from '../components/NoteList';
 
 type NotesExplorerPageProps = RouteComponentProps<{
@@ -25,16 +18,7 @@ const NotesExplorerPage = ({ match }: NotesExplorerPageProps) => {
         </IonMenu>
 
         <div className="ion-page" id="noteExplorer">
-          <>
-            <IonHeader>
-              <IonToolbar>
-                <IonTitle>Note {match.params.id}</IonTitle>
-              </IonToolbar>
-            </IonHeader>
-            <IonContent className="ion-padding">
-              Content of Note {match.params.id}
-            </IonContent>
-          </>
+          <NoteEditor id={match.params.id}></NoteEditor>
         </div>
       </IonSplitPane>
     </IonPage>
