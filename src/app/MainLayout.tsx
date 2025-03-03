@@ -12,7 +12,7 @@ import { useLingui } from '@lingui/react/macro';
 import AppRouterOutlet from './AppRouterOutlet';
 import MainMenuList from './components/MainMenuList';
 
-const MainLayout: React.FC = () => {
+const MainLayout = () => {
   const { t } = useLingui();
   const title = t`Writer App`;
   return (
@@ -23,7 +23,7 @@ const MainLayout: React.FC = () => {
             <IonTitle>{title}</IonTitle>
           </IonToolbar>
         </IonHeader>
-        <IonContent className="ion-padding">
+        <IonContent>
           <MainMenuList></MainMenuList>
         </IonContent>
       </IonMenu>
@@ -36,7 +36,7 @@ const MainLayout: React.FC = () => {
             <IonTitle>{title}</IonTitle>
           </IonToolbar>
         </IonHeader>
-        <IonContent className="ion-padding">
+        <IonContent>
           <AppRouterOutlet></AppRouterOutlet>
         </IonContent>
       </IonPage>

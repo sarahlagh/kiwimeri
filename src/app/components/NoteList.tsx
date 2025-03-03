@@ -35,7 +35,7 @@ export const NoteList: React.FC = () => {
         return (
           <IonItem
             key={index}
-            className={location.pathname === note.url ? 'selected' : ''}
+            color={location.pathname === note.url ? 'primary' : ''}
             routerLink={note.url}
             routerDirection="none"
             lines="none"

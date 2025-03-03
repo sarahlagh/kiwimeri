@@ -4,7 +4,7 @@ import NotesExplorerPage from './pages/NotesExplorerPage';
 import NotesListPage from './pages/NotesListPage';
 import OtherPage from './pages/OtherPage';
 
-const AppRouterOutlet: React.FC = () => (
+const AppRouterOutlet = () => (
   <IonRouterOutlet>
     <Route path="/explore" component={NotesListPage} exact={true} />
     <Route path="/explore/note/:id" component={NotesExplorerPage} />

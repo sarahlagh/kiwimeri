@@ -2,6 +2,7 @@ import {
   IonContent,
   IonHeader,
   IonMenu,
+  IonPage,
   IonSplitPane,
   IonTitle,
   IonToolbar
@@ -13,19 +14,17 @@ type NotesExplorerPageProps = RouteComponentProps<{
   id: string;
 }>;
 
-const NotesExplorerPage: React.FC<NotesExplorerPageProps> = ({
-  match
-}: NotesExplorerPageProps) => {
+const NotesExplorerPage = ({ match }: NotesExplorerPageProps) => {
   return (
-    <IonSplitPane when="md" contentId="noteExplorer">
-      <IonMenu contentId="noteExplorer">
-        <IonContent className="ion-padding">
-          <NoteList></NoteList>
-        </IonContent>
-      </IonMenu>
+    <IonPage>
+      <IonSplitPane when="md" contentId="noteExplorer">
+        <IonMenu contentId="noteExplorer">
+          <IonContent>
+            <NoteList></NoteList>
+          </IonContent>
+        </IonMenu>
 
-      <div className="ion-page" id="noteExplorer">
-        {match.params.id && (
+        <div className="ion-page" id="noteExplorer">
           <>
             <IonHeader>
               <IonToolbar>
@@ -36,9 +35,9 @@ const NotesExplorerPage: React.FC<NotesExplorerPageProps> = ({
               Content of Note {match.params.id}
             </IonContent>
           </>
-        )}
-      </div>
-    </IonSplitPane>
+        </div>
+      </IonSplitPane>
+    </IonPage>
   );
 };
 export default NotesExplorerPage;

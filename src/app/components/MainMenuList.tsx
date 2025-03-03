@@ -42,7 +42,7 @@ const MainMenuList: React.FC = () => {
         return (
           <IonMenuToggle key={index} autoHide={true}>
             <IonItem
-              className={location.pathname === appPage.url ? 'selected' : ''}
+              color={location.pathname.startsWith(appPage.url) ? 'primary' : ''}
               routerLink={appPage.url}
               routerDirection="none"
               lines="none"

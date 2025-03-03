@@ -35,7 +35,7 @@ setupIonicReact();
 i18n.load('en', enMessages);
 i18n.activate('en');
 
-const App: React.FC = () => {
+const App = () => {
   return (
     <I18nProvider i18n={i18n}>
       <IonApp>
