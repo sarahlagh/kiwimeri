@@ -30,7 +30,7 @@ const NoteEditor = ({ id }: NoteEditorProps) => {
 
   return (
     <>
-      <IonHeader>
+      <IonHeader class="ion-hide-md-down">
         <IonToolbar>
           <IonTitle>
             <IonInput

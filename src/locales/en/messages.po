@@ -13,14 +13,23 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: src/app/pages/NotesListPage.tsx:11
+#: src/app/pages/NotesExplorerPage.tsx:37
+msgid "Documents"
+msgstr "Documents"
+
 #: src/app/components/MainMenuList.tsx:25
 msgid "Explore"
 msgstr "Explore"
+
+#: src/app/pages/OtherPage.tsx:10
+msgid "Other"
+msgstr "Other"
 
 #: src/app/components/MainMenuList.tsx:31
 msgid "Test"
 msgstr "Test"
 
-#: src/app/MainLayout.tsx:17
+#: src/app/MainLayout.tsx:15
 msgid "Writer App"
 msgstr "Writer App"

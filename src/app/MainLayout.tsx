@@ -1,9 +1,7 @@
 import {
-  IonButtons,
   IonContent,
   IonHeader,
   IonMenu,
-  IonMenuButton,
   IonPage,
   IonTitle,
   IonToolbar
@@ -28,17 +26,7 @@ const MainLayout = () => {
         </IonContent>
       </IonMenu>
       <IonPage id="main-content">
-        <IonHeader>
-          <IonToolbar>
-            <IonButtons slot="start">
-              <IonMenuButton></IonMenuButton>
-            </IonButtons>
-            <IonTitle>{title}</IonTitle>
-          </IonToolbar>
-        </IonHeader>
-        <IonContent>
-          <AppRouterOutlet></AppRouterOutlet>
-        </IonContent>
+        <AppRouterOutlet></AppRouterOutlet>
       </IonPage>
     </>
   );
