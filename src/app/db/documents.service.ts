@@ -30,6 +30,17 @@ class DocumentsService {
     );
   }
 
+  public addDocument() {
+    storageService.getStore().addRow(this.documentTable, {
+      title: 'New Note',
+      content: 'This is your note content'
+    });
+  }
+
+  public deleteDocument(rowId: Id) {
+    return storageService.getStore().delRow(this.documentTable, rowId);
+  }
+
   public getDocument(rowId: Id) {
     return storageService
       .getStore()
