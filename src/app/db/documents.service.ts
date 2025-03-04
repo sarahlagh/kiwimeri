@@ -1,39 +1,69 @@
 import { Id } from 'tinybase/common/with-schemas';
-import { useTable } from 'tinybase/ui-react';
-import { Note } from '../../notes/note';
-import storageService from './storage.service';
+import { useResultSortedRowIds, useTable } from 'tinybase/ui-react';
+import { createQueries, Queries } from 'tinybase/with-schemas';
+import { Document } from '../../notes/document';
+import storageService, { StoreType } from './storage.service';
 
 class DocumentsService {
   private readonly documentTable = 'documents';
+  private readonly fetchAllDocumentsQuery = 'fetchAllDocuments';
 
-  public getDocuments() {
-    const table = storageService.getStore().getTable(this.documentTable);
-    return Object.keys(table).map(
-      docId =>
-        ({
-          id: docId,
-          title: table[docId].title,
-          content: table[docId].content
-        }) as Note
+  private queries: Queries<StoreType>;
+  public constructor() {
+    this.queries = createQueries(storageService.getStore());
+    this.queries.setQueryDefinition(
+      this.fetchAllDocumentsQuery,
+      this.documentTable,
+      ({ select }) => {
+        select('title');
+        select('content');
+        select('created');
+        select('updated');
+      }
     );
   }
 
-  public useDocuments() {
+  public getQueries() {
+    return this.queries;
+  }
+
+  public getDocuments(
+    sortBy: 'created' | 'updated' = 'created',
+    descending = false
+  ) {
+    return this.queries
+      .getResultSortedRowIds(this.fetchAllDocumentsQuery, sortBy, descending)
+      .map(rowId => {
+        const row = this.queries.getResultRow(
+          this.fetchAllDocumentsQuery,
+          rowId
+        );
+        return { ...row, id: rowId } as Document;
+      });
+  }
+
+  public useDocuments(
+    sortBy: 'created' | 'updated' = 'created',
+    descending = false
+  ) {
     const table = useTable(this.documentTable);
-    return Object.keys(table).map(
-      docId =>
-        ({
-          id: docId,
-          title: table[docId].title,
-          content: table[docId].content
-        }) as Note
-    );
+    return useResultSortedRowIds(
+      this.fetchAllDocumentsQuery,
+      sortBy,
+      descending
+    ).map(rowId => {
+      const row = table[rowId];
+      return { ...row, id: rowId } as Document;
+    });
   }
 
   public addDocument() {
+    const now = Date.now();
     storageService.getStore().addRow(this.documentTable, {
       title: 'New Note',
-      content: 'This is your note content'
+      content: 'This is your note content',
+      created: now,
+      updated: now
     });
   }
 
@@ -44,7 +74,7 @@ class DocumentsService {
   public getDocument(rowId: Id) {
     return storageService
       .getStore()
-      .getRow(this.documentTable, rowId) as unknown as Note;
+      .getRow(this.documentTable, rowId) as unknown as Document;
   }
 
   public getDocumentTitle(rowId: Id) {
@@ -60,12 +90,18 @@ class DocumentsService {
     storageService
       .getStore()
       .setCell(this.documentTable, rowId, 'title', title);
+    storageService
+      .getStore()
+      .setCell(this.documentTable, rowId, 'updated', Date.now());
   }
 
   public setDocumentContent(rowId: Id, content: string) {
     storageService
       .getStore()
       .setCell(this.documentTable, rowId, 'content', () => content);
+    storageService
+      .getStore()
+      .setCell(this.documentTable, rowId, 'updated', Date.now());
   }
 }
 

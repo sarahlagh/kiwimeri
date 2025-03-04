@@ -6,10 +6,10 @@ import {
   NoValuesSchema,
   Store
 } from 'tinybase/store/with-schemas';
-import { Note } from '../../notes/note';
+import { Document } from '../../notes/document';
 
-type NoteKeyEnum = keyof Required<Omit<Note, 'id'>>;
-type StoreType = [
+type NoteKeyEnum = keyof Required<Omit<Document, 'id'>>;
+export type StoreType = [
   {
     documents: {
       [cellId in NoteKeyEnum]: CellSchema;
@@ -26,7 +26,9 @@ class StorageService {
     this.store = createStore().setTablesSchema({
       documents: {
         title: { type: 'string' } as CellSchema,
-        content: { type: 'string' } as CellSchema
+        content: { type: 'string' } as CellSchema,
+        created: { type: 'number' } as CellSchema,
+        updated: { type: 'number' } as CellSchema
       }
     });
 
