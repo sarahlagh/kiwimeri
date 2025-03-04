@@ -13,8 +13,8 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/app/pages/NotesListPage.tsx:11
-#: src/app/pages/NotesExplorerPage.tsx:37
+#: src/app/pages/DocumentListPage.tsx:12
+#: src/app/pages/DocumentExplorerPage.tsx:38
 msgid "Documents"
 msgstr "Documents"
 

@@ -1,22 +1,22 @@
 import { IonContent, IonHeader, IonPage } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
-import AddNoteButton from '../../common/buttons/AddNoteButton';
+import AddDocumentButton from '../../common/buttons/AddDocumentButton';
+import DocumentList from '../components/DocumentList';
 import MainHeader from '../components/MainHeader';
-import NoteList from '../components/NoteList';
 
-const NotesListPage = () => {
+const DocumentListPage = () => {
   const { t } = useLingui();
   return (
     <IonPage>
       <IonHeader>
         <MainHeader title={t`Documents`}>
-          <AddNoteButton></AddNoteButton>
+          <AddDocumentButton></AddDocumentButton>
         </MainHeader>
       </IonHeader>
       <IonContent>
-        <NoteList></NoteList>
+        <DocumentList></DocumentList>
       </IonContent>
     </IonPage>
   );
 };
-export default NotesListPage;
+export default DocumentListPage;

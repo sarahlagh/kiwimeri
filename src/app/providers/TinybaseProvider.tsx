@@ -3,8 +3,8 @@ import { Queries } from 'tinybase/queries';
 import { Store } from 'tinybase/store';
 import { Provider } from 'tinybase/ui-react';
 import { Inspector } from 'tinybase/ui-react-inspector';
-import documentsService from '../db/documents.service';
-import storageService from '../db/storage.service';
+import documentsService from '../../db/documents.service';
+import storageService from '../../db/storage.service';
 
 const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
   useEffect(() => {

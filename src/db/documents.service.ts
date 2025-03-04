@@ -1,7 +1,7 @@
 import { Id } from 'tinybase/common/with-schemas';
 import { useResultSortedRowIds, useTable } from 'tinybase/ui-react';
 import { createQueries, Queries } from 'tinybase/with-schemas';
-import { Document } from '../../notes/document';
+import { Document } from '../documents/document';
 import storageService, { StoreType } from './storage.service';
 
 class DocumentsService {
@@ -60,8 +60,8 @@ class DocumentsService {
   public addDocument() {
     const now = Date.now();
     storageService.getStore().addRow(this.documentTable, {
-      title: 'New Note',
-      content: 'This is your note content',
+      title: 'New document',
+      content: 'This is your document content',
       created: now,
       updated: now
     });

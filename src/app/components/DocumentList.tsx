@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 
 import { IonIcon, IonItem, IonLabel, IonList } from '@ionic/react';
 
-import documentsService from '../db/documents.service';
+import documentsService from '../../db/documents.service';
 
 interface AppPage {
   url: string;
@@ -12,12 +12,12 @@ interface AppPage {
   title: string;
 }
 
-export const NoteList = () => {
-  const notes: AppPage[] = documentsService.useDocuments().map(
-    note =>
+export const DocumentList = () => {
+  const documents: AppPage[] = documentsService.useDocuments().map(
+    document =>
       ({
-        title: note.title,
-        url: `/explore/note/${note.id}`,
+        title: document.title,
+        url: `/explore/document/${document.id}`,
         iosIcon: folderOutline,
         mdIcon: folderSharp
       }) as AppPage
@@ -25,13 +25,13 @@ export const NoteList = () => {
 
   const location = useLocation();
   return (
-    <IonList id="note-explorer-menu-list">
-      {notes.map((note, index) => {
+    <IonList id="document-explorer-menu-list">
+      {documents.map((document, index) => {
         return (
           <IonItem
             key={index}
-            color={location.pathname === note.url ? 'primary' : ''}
-            routerLink={note.url}
+            color={location.pathname === document.url ? 'primary' : ''}
+            routerLink={document.url}
             routerDirection="none"
             lines="none"
             detail={false}
@@ -39,10 +39,10 @@ export const NoteList = () => {
             <IonIcon
               aria-hidden="true"
               slot="start"
-              ios={note.iosIcon}
-              md={note.mdIcon}
+              ios={document.iosIcon}
+              md={document.mdIcon}
             />
-            <IonLabel>{note.title}</IonLabel>
+            <IonLabel>{document.title}</IonLabel>
           </IonItem>
         );
       })}
@@ -50,4 +50,4 @@ export const NoteList = () => {
   );
 };
 
-export default NoteList;
+export default DocumentList;

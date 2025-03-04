@@ -10,7 +10,7 @@ const Writer = ({ content, onIonInput }: WriterProps) => {
     <IonTextarea
       class="invisible"
       onIonInput={onIonInput}
-      aria-label="Note Content"
+      aria-label="document Content"
       autoGrow={true}
       value={content}
     ></IonTextarea>

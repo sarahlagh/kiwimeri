@@ -1,8 +1,8 @@
 import { IonButton, IonIcon } from '@ionic/react';
 import { add } from 'ionicons/icons';
-import documentsService from '../../app/db/documents.service';
+import documentsService from '../../db/documents.service';
 
-const AddNoteButton = () => {
+const AddDocumentButton = () => {
   function onIonClick() {
     documentsService.addDocument();
   }
@@ -12,4 +12,4 @@ const AddNoteButton = () => {
     </IonButton>
   );
 };
-export default AddNoteButton;
+export default AddDocumentButton;

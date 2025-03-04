@@ -5,17 +5,17 @@ import {
   IonTitle,
   IonToolbar
 } from '@ionic/react';
-import documentsService from '../../app/db/documents.service';
-import { onContentChangeFn, onTitleChangeFn } from '../../app/events/events';
-import DeleteNoteButton from '../../common/buttons/DeleteNoteButton';
+import DeleteDocumentButton from '../../common/buttons/DeleteDocumentButton';
+import { onContentChangeFn, onTitleChangeFn } from '../../common/events/events';
+import documentsService from '../../db/documents.service';
 import Writer from './Writer';
 
-interface NoteEditorProps {
+interface DocumentEditorProps {
   id: string;
 }
 
-const NoteEditor = ({ id }: NoteEditorProps) => {
-  const note = documentsService.getDocument(id);
+const DocumentEditor = ({ id }: DocumentEditorProps) => {
+  const document = documentsService.getDocument(id);
   const onTitleChange = onTitleChangeFn(id);
   const onContentChange = onContentChangeFn(id);
   return (
@@ -25,17 +25,20 @@ const NoteEditor = ({ id }: NoteEditorProps) => {
           <IonTitle>
             <IonInput
               class="invisible"
-              value={note.title}
+              value={document.title}
               onIonInput={onTitleChange}
             ></IonInput>
           </IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        <DeleteNoteButton id={id}></DeleteNoteButton>
-        <Writer content={note.content} onIonInput={onContentChange}></Writer>
+        <DeleteDocumentButton id={id}></DeleteDocumentButton>
+        <Writer
+          content={document.content}
+          onIonInput={onContentChange}
+        ></Writer>
       </IonContent>
     </>
   );
 };
-export default NoteEditor;
+export default DocumentEditor;

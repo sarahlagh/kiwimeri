@@ -6,13 +6,13 @@ import {
   NoValuesSchema,
   Store
 } from 'tinybase/store/with-schemas';
-import { Document } from '../../notes/document';
+import { Document } from '../documents/document';
 
-type NoteKeyEnum = keyof Required<Omit<Document, 'id'>>;
+type documentKeyEnum = keyof Required<Omit<Document, 'id'>>;
 export type StoreType = [
   {
     documents: {
-      [cellId in NoteKeyEnum]: CellSchema;
+      [cellId in documentKeyEnum]: CellSchema;
     };
   },
   NoValuesSchema

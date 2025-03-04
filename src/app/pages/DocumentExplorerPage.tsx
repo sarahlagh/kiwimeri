@@ -7,21 +7,21 @@ import {
 } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
 import { RouteComponentProps } from 'react-router-dom';
-import AddNoteButton from '../../common/buttons/AddNoteButton';
-import NoteEditor from '../../notes/components/NoteEditor';
+import AddDocumentButton from '../../common/buttons/AddDocumentButton';
+import { onTitleChangeFn } from '../../common/events/events';
+import documentsService from '../../db/documents.service';
+import DocumentEditor from '../../documents/components/DocumentEditor';
+import DocumentList from '../components/DocumentList';
 import MainHeader from '../components/MainHeader';
-import NoteList from '../components/NoteList';
-import documentsService from '../db/documents.service';
-import { onTitleChangeFn } from '../events/events';
 
-type NotesExplorerPageProps = RouteComponentProps<{
+type DocumentExplorerPageProps = RouteComponentProps<{
   id: string;
 }>;
 
-const NotesExplorerPage = ({ match }: NotesExplorerPageProps) => {
+const DocumentExplorerPage = ({ match }: DocumentExplorerPageProps) => {
   const { t } = useLingui();
   const id = match.params.id;
-  const title = documentsService.getDocumentTitle(id) || 'Unknown Note';
+  const title = documentsService.getDocumentTitle(id) || 'Unknown document';
   const onTitleChange = onTitleChangeFn(id);
   return (
     <IonPage>
@@ -36,24 +36,24 @@ const NotesExplorerPage = ({ match }: NotesExplorerPageProps) => {
       {/* header on large screens */}
       <IonHeader class="ion-hide-md-down">
         <MainHeader title={t`Documents`} editable={false}>
-          <AddNoteButton></AddNoteButton>
+          <AddDocumentButton></AddDocumentButton>
         </MainHeader>
       </IonHeader>
       {/* content */}
       <IonContent>
-        <IonSplitPane when="md" contentId="noteExplorer">
-          <IonMenu contentId="noteExplorer">
+        <IonSplitPane when="md" contentId="documentExplorer">
+          <IonMenu contentId="documentExplorer">
             <IonContent>
-              <NoteList></NoteList>
+              <DocumentList></DocumentList>
             </IonContent>
           </IonMenu>
 
-          <div className="ion-page" id="noteExplorer">
-            <NoteEditor id={match.params.id}></NoteEditor>
+          <div className="ion-page" id="documentExplorer">
+            <DocumentEditor id={match.params.id}></DocumentEditor>
           </div>
         </IonSplitPane>
       </IonContent>
     </IonPage>
   );
 };
-export default NotesExplorerPage;
+export default DocumentExplorerPage;
