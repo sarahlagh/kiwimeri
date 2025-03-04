@@ -7,6 +7,7 @@ import {
 } from '@ionic/react';
 import documentsService from '../../app/db/documents.service';
 import { onContentChangeFn, onTitleChangeFn } from '../../app/events/events';
+import DeleteNoteButton from '../../common/buttons/DeleteNoteButton';
 import Writer from './Writer';
 
 interface NoteEditorProps {
@@ -31,6 +32,7 @@ const NoteEditor = ({ id }: NoteEditorProps) => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
+        <DeleteNoteButton id={id}></DeleteNoteButton>
         <Writer content={note.content} onIonInput={onContentChange}></Writer>
       </IonContent>
     </>
