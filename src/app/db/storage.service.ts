@@ -1,3 +1,5 @@
+import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db/with-schemas';
+import { Persister } from 'tinybase/persisters/with-schemas';
 import {
   CellSchema,
   createStore,
@@ -7,18 +9,18 @@ import {
 import { Note } from '../../notes/note';
 
 type NoteKeyEnum = keyof Required<Omit<Note, 'id'>>;
+type StoreType = [
+  {
+    documents: {
+      [cellId in NoteKeyEnum]: CellSchema;
+    };
+  },
+  NoValuesSchema
+];
 
 class StorageService {
-  private store: Store<
-    [
-      {
-        documents: {
-          [cellId in NoteKeyEnum]: CellSchema;
-        };
-      },
-      NoValuesSchema
-    ]
-  >;
+  private store!: Store<StoreType>;
+  private persister!: Persister<StoreType>;
 
   public constructor() {
     this.store = createStore().setTablesSchema({
@@ -28,16 +30,12 @@ class StorageService {
       }
     });
 
-    this.store
-      // add 2 notes
-      .setRow('documents', '1', {
-        title: 'Title 1',
-        content: 'Content 1'
-      })
-      .setRow('documents', '2', {
-        title: 'Title 2',
-        content: 'Content 2'
-      });
+    this.persister = createIndexedDbPersister(this.store, 'writerAppStore');
+  }
+
+  public async start() {
+    await this.persister.load();
+    await this.persister.startAutoSave();
   }
 
   public getStore() {
