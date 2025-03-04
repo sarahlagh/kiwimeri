@@ -16,12 +16,18 @@ const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
 
   const store = storageService.getStore();
   const queries = documentsService.getQueries();
+
+  // TODO find a better way maybe
+  const _isDev: boolean =
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any)['__REACT_DEVTOOLS_GLOBAL_HOOK__'] != undefined;
+
   return (
     <Provider
       store={store as unknown as Store}
       queries={queries as unknown as Queries}
     >
-      <Inspector />
+      {_isDev && <Inspector />}
       {children}
     </Provider>
   );
