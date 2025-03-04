@@ -5,8 +5,8 @@ import {
   IonTitle,
   IonToolbar
 } from '@ionic/react';
-import { useState } from 'react';
-import { Note } from '../note';
+import documentsService from '../../app/db/documents.service';
+import { onContentChangeFn, onTitleChangeFn } from '../../app/events/events';
 import Writer from './Writer';
 
 interface NoteEditorProps {
@@ -14,20 +14,9 @@ interface NoteEditorProps {
 }
 
 const NoteEditor = ({ id }: NoteEditorProps) => {
-  const [note, setNote] = useState(
-    () => ({ id, title: 'Title of ' + id, content: 'Content of ' + id }) as Note
-  );
-
-  const onTitleChange = (event: Event) => {
-    const title = (event.target as HTMLInputElement).value;
-    setNote({ ...note, title });
-  };
-
-  const onContentChange = (event: Event) => {
-    const content = (event.target as HTMLInputElement).value;
-    setNote({ ...note, content });
-  };
-
+  const note = documentsService.getDocument(id);
+  const onTitleChange = onTitleChangeFn(id);
+  const onContentChange = onContentChangeFn(id);
   return (
     <>
       <IonHeader class="ion-hide-md-down">

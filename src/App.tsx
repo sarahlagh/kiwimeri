@@ -29,6 +29,7 @@ import { I18nProvider } from '@lingui/react';
 
 import { IonReactRouter } from '@ionic/react-router';
 import MainLayout from './app/MainLayout';
+import TinybaseProvider from './app/providers/TinybaseProvider';
 import { messages as enMessages } from './locales/en/messages';
 
 setupIonicReact();
@@ -37,13 +38,15 @@ i18n.activate('en');
 
 const App = () => {
   return (
-    <I18nProvider i18n={i18n}>
-      <IonApp>
-        <IonReactRouter>
-          <MainLayout></MainLayout>
-        </IonReactRouter>
-      </IonApp>
-    </I18nProvider>
+    <TinybaseProvider>
+      <I18nProvider i18n={i18n}>
+        <IonApp>
+          <IonReactRouter>
+            <MainLayout></MainLayout>
+          </IonReactRouter>
+        </IonApp>
+      </I18nProvider>
+    </TinybaseProvider>
   );
 };
 

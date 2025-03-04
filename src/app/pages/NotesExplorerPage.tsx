@@ -6,12 +6,13 @@ import {
   IonSplitPane
 } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
-import { useState } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import AddNoteButton from '../../common/buttons/AddNoteButton';
 import NoteEditor from '../../notes/components/NoteEditor';
 import MainHeader from '../components/MainHeader';
 import NoteList from '../components/NoteList';
+import documentsService from '../db/documents.service';
+import { onTitleChangeFn } from '../events/events';
 
 type NotesExplorerPageProps = RouteComponentProps<{
   id: string;
@@ -19,12 +20,9 @@ type NotesExplorerPageProps = RouteComponentProps<{
 
 const NotesExplorerPage = ({ match }: NotesExplorerPageProps) => {
   const { t } = useLingui();
-  const [title, setTitle] = useState(() => 'Title of ' + match.params.id);
-  const onTitleChange = (event: Event) => {
-    const title = (event.target as HTMLInputElement).value;
-    setTitle(title);
-  };
-
+  const id = match.params.id;
+  const title = documentsService.getDocumentTitle(id) || 'Unknown Note';
+  const onTitleChange = onTitleChangeFn(id);
   return (
     <IonPage>
       {/* header on small screens */}

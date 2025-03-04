@@ -5,12 +5,12 @@ import {
   IonTitle,
   IonToolbar
 } from '@ionic/react';
+import { ReactNode } from 'react';
 
 interface MainHeaderProps {
   title: string;
   editable?: boolean;
   onIonInput?: (e: Event) => void;
-  children?: React.ReactNode;
 }
 
 const MainHeader = ({
@@ -18,7 +18,7 @@ const MainHeader = ({
   editable = false,
   onIonInput,
   children
-}: MainHeaderProps) => {
+}: MainHeaderProps & { readonly children?: ReactNode }) => {
   return (
     <IonToolbar>
       <IonButtons slot="start">

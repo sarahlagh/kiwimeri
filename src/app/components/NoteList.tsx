@@ -1,9 +1,9 @@
-// import './NoteList.css';
-
 import { folderOutline, folderSharp } from 'ionicons/icons';
 import { useLocation } from 'react-router-dom';
 
 import { IonIcon, IonItem, IonLabel, IonList } from '@ionic/react';
+
+import documentsService from '../db/documents.service';
 
 interface AppPage {
   url: string;
@@ -12,22 +12,17 @@ interface AppPage {
   title: string;
 }
 
-const notes: AppPage[] = [
-  {
-    title: 'Test Note 1',
-    url: '/explore/note/1',
-    iosIcon: folderOutline,
-    mdIcon: folderSharp
-  },
-  {
-    title: 'Test Note 2',
-    url: '/explore/note/testid2',
-    iosIcon: folderOutline,
-    mdIcon: folderSharp
-  }
-];
-
 export const NoteList = () => {
+  const notes: AppPage[] = documentsService.useDocuments().map(
+    note =>
+      ({
+        title: note.title,
+        url: `/explore/note/${note.id}`,
+        iosIcon: folderOutline,
+        mdIcon: folderSharp
+      }) as AppPage
+  );
+
   const location = useLocation();
   return (
     <IonList id="note-explorer-menu-list">
