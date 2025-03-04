@@ -8,6 +8,7 @@ import {
 import { useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
+import AddNoteButton from '../../common/buttons/AddNoteButton';
 import NoteEditor from '../../notes/components/NoteEditor';
 import MainHeader from '../components/MainHeader';
 import NoteList from '../components/NoteList';
@@ -26,6 +27,7 @@ const NotesExplorerPage = ({ match }: NotesExplorerPageProps) => {
 
   return (
     <IonPage>
+      {/* header on small screens */}
       <IonHeader class="ion-hide-md-up">
         <MainHeader
           title={title}
@@ -33,9 +35,13 @@ const NotesExplorerPage = ({ match }: NotesExplorerPageProps) => {
           onIonInput={onTitleChange}
         ></MainHeader>
       </IonHeader>
+      {/* header on large screens */}
       <IonHeader class="ion-hide-md-down">
-        <MainHeader title={t`Documents`} editable={false}></MainHeader>
+        <MainHeader title={t`Documents`} editable={false}>
+          <AddNoteButton></AddNoteButton>
+        </MainHeader>
       </IonHeader>
+      {/* content */}
       <IonContent>
         <IonSplitPane when="md" contentId="noteExplorer">
           <IonMenu contentId="noteExplorer">

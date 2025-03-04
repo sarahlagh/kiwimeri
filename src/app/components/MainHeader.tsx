@@ -10,12 +10,14 @@ interface MainHeaderProps {
   title: string;
   editable?: boolean;
   onIonInput?: (e: Event) => void;
+  children?: React.ReactNode;
 }
 
 const MainHeader = ({
   title,
   editable = false,
-  onIonInput
+  onIonInput,
+  children
 }: MainHeaderProps) => {
   return (
     <IonToolbar>
@@ -30,6 +32,8 @@ const MainHeader = ({
           onIonInput={onIonInput}
         ></IonInput>
       )}
+
+      <IonButtons slot="end">{children}</IonButtons>
     </IonToolbar>
   );
 };
