@@ -25,6 +25,9 @@ const ImportExportSettings = () => {
     }
   };
 
+  const dateStr = new Date().toISOString().substring(0, 10);
+  const exportFileName = `${dateStr}-backup.json`;
+
   return (
     <IonCard>
       <IonCardHeader>
@@ -40,7 +43,11 @@ const ImportExportSettings = () => {
       </IonButton>
       <IonButton fill="clear" onClick={onExport}>
         <Trans>Export</Trans>
-        <a ref={inputElement} download="content.json" className="ion-hide"></a>
+        <a
+          ref={inputElement}
+          download={exportFileName}
+          className="ion-hide"
+        ></a>
       </IonButton>
     </IonCard>
   );

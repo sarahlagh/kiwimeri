@@ -11,7 +11,7 @@ import AddDocumentButton from '../../common/buttons/AddDocumentButton';
 import { onTitleChangeFn } from '../../common/events/events';
 import documentsService from '../../db/documents.service';
 import DocumentEditor from '../../documents/components/DocumentEditor';
-import DocumentList from '../components/DocumentList';
+import DocumentList from '../../documents/components/DocumentList';
 import MainHeader from '../components/MainHeader';
 
 type DocumentExplorerPageProps = RouteComponentProps<{

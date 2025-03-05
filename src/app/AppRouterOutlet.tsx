@@ -2,13 +2,13 @@ import { IonRouterOutlet } from '@ionic/react';
 import { Redirect, Route } from 'react-router';
 import DocumentExplorerPage from './pages/DocumentExplorerPage';
 import DocumentListPage from './pages/DocumentListPage';
-import OtherPage from './pages/OtherPage';
+import SettingsPage from './pages/SettingsPage';
 
 const AppRouterOutlet = () => (
   <IonRouterOutlet>
     <Route path="/explore" component={DocumentListPage} exact={true} />
     <Route path="/explore/document/:id" component={DocumentExplorerPage} />
-    <Route path="/other" component={OtherPage} />
+    <Route path="/settings" component={SettingsPage} />
     <Redirect exact from="/" to="/explore" />
   </IonRouterOutlet>
 );

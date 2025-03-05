@@ -18,17 +18,38 @@ msgstr ""
 msgid "Documents"
 msgstr "Documents"
 
-#: src/app/components/MainMenuList.tsx:25
+#: src/app/components/MainMenuList.tsx:30
 msgid "Explore"
 msgstr "Explore"
 
-#: src/app/pages/OtherPage.tsx:10
-msgid "Other"
-msgstr "Other"
+#: src/settings/storage/ImportExportSettings.tsx:32
+msgid "Export"
+msgstr "Export"
 
-#: src/app/components/MainMenuList.tsx:31
-msgid "Test"
-msgstr "Test"
+#: src/settings/components/Settings.tsx:18
+msgid "Filesystem"
+msgstr "Filesystem"
+
+#: src/settings/storage/ImportExportSettings.tsx:29
+msgid "Import"
+msgstr "Import"
+
+#: src/settings/storage/ImportExportSettings.tsx:22
+msgid "Import & Export"
+msgstr "Import & Export"
+
+#: src/settings/storage/ImportExportSettings.tsx:25
+msgid "Manually backup or restore your collection"
+msgstr "Manually backup or restore your collection"
+
+#: src/app/pages/SettingsPage.tsx:11
+#: src/app/components/MainMenuList.tsx:36
+msgid "Settings"
+msgstr "Settings"
+
+#: src/settings/components/Settings.tsx:21
+msgid "Synchronize your collection on the filesystem"
+msgstr "Synchronize your collection on the filesystem"
 
 #: src/app/MainLayout.tsx:15
 msgid "Writer App"

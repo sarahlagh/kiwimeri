@@ -1,4 +1,9 @@
-import { mailOutline, mailSharp } from 'ionicons/icons';
+import {
+  folderOutline,
+  folderSharp,
+  settingsOutline,
+  settingsSharp
+} from 'ionicons/icons';
 import { useLocation } from 'react-router-dom';
 
 import {
@@ -24,14 +29,14 @@ const MainMenuList = () => {
     {
       title: t`Explore`,
       url: '/explore',
-      iosIcon: mailOutline,
-      mdIcon: mailSharp
+      iosIcon: folderOutline,
+      mdIcon: folderSharp
     },
     {
-      title: t`Test`,
-      url: '/other',
-      iosIcon: mailOutline,
-      mdIcon: mailSharp
+      title: t`Settings`,
+      url: '/settings',
+      iosIcon: settingsOutline,
+      mdIcon: settingsSharp
     }
   ];
 
