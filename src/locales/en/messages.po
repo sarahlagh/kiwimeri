@@ -13,6 +13,10 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: src/settings/storage/ImportExportCollectionSettings.tsx:16
+msgid "An error occurred loading the file"
+msgstr "An error occurred loading the file"
+
 #: src/app/pages/DocumentListPage.tsx:12
 #: src/app/pages/DocumentExplorerPage.tsx:38
 msgid "Documents"
@@ -22,32 +26,36 @@ msgstr "Documents"
 msgid "Explore"
 msgstr "Explore"
 
-#: src/settings/storage/ImportExportSettings.tsx:32
+#: src/settings/storage/ImportExportCollectionSettings.tsx:91
 msgid "Export"
 msgstr "Export"
 
-#: src/settings/components/Settings.tsx:18
+#: src/settings/components/Settings.tsx:21
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/settings/storage/ImportExportSettings.tsx:29
-msgid "Import"
-msgstr "Import"
+#: src/settings/storage/ImportExportCollectionSettings.tsx:84
+msgid "Import & export your collection"
+msgstr "Import & export your collection"
 
-#: src/settings/storage/ImportExportSettings.tsx:22
-msgid "Import & Export"
-msgstr "Import & Export"
-
-#: src/settings/storage/ImportExportSettings.tsx:25
+#: src/settings/storage/ImportExportCollectionSettings.tsx:87
 msgid "Manually backup or restore your collection"
 msgstr "Manually backup or restore your collection"
+
+#: src/settings/storage/ImportExportCollectionSettings.tsx:99
+msgid "Restore"
+msgstr "Restore"
 
 #: src/app/pages/SettingsPage.tsx:11
 #: src/app/components/MainMenuList.tsx:36
 msgid "Settings"
 msgstr "Settings"
 
-#: src/settings/components/Settings.tsx:21
+#: src/settings/storage/ImportExportCollectionSettings.tsx:17
+msgid "Success!"
+msgstr "Success!"
+
+#: src/settings/components/Settings.tsx:24
 msgid "Synchronize your collection on the filesystem"
 msgstr "Synchronize your collection on the filesystem"
 

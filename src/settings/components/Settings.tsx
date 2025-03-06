@@ -1,18 +1,21 @@
 import {
+  getPlatforms,
   IonCard,
   IonCardContent,
   IonCardHeader,
   IonCardSubtitle,
-  IonCardTitle
+  IonCardTitle,
+  isPlatform
 } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
-import ImportExportSettings from '../storage/ImportExportSettings';
-
+import ImportExportCollectionSettings from '../storage/ImportExportCollectionSettings';
 const Settings = () => {
+  const isWeb = isPlatform('desktop') && getPlatforms().length === 1;
+
   return (
     <>
-      <ImportExportSettings></ImportExportSettings>
-      <IonCard disabled={true}>
+      <ImportExportCollectionSettings></ImportExportCollectionSettings>
+      <IonCard disabled={isWeb}>
         <IonCardHeader>
           <IonCardTitle>
             <Trans>Filesystem</Trans>
