@@ -1,4 +1,6 @@
 import {
+  constructOutline,
+  constructSharp,
   folderOutline,
   folderSharp,
   settingsOutline,
@@ -37,6 +39,12 @@ const MainMenuList = () => {
       url: '/settings',
       iosIcon: settingsOutline,
       mdIcon: settingsSharp
+    },
+    {
+      title: t`Debug`,
+      url: '/debug',
+      iosIcon: constructOutline,
+      mdIcon: constructSharp
     }
   ];
 

@@ -5,11 +5,11 @@ import {
   IonCardHeader,
   IonCardSubtitle,
   IonCardTitle,
-  IonToast,
-  isPlatform
+  IonToast
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import React, { useState } from 'react';
+import platformService from '../../common/services/platform.service';
 import storageService from '../../db/storage.service';
 
 const ImportExportCollectionSettings = () => {
@@ -70,7 +70,7 @@ const ImportExportCollectionSettings = () => {
     const content = storageService.getStore().getJson();
     const fileName = `${new Date().toISOString().substring(0, 19).replaceAll(/[:T]/g, '-')}-backup.json`;
 
-    if (isPlatform('android')) {
+    if (platformService.isAndroid()) {
       Filesystem.writeFile({
         path: fileName,
         data: content,

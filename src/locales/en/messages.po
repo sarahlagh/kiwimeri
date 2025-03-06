@@ -13,49 +13,59 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/settings/storage/ImportExportCollectionSettings.tsx:16
+#: src/settings/storage/ImportExportCollectionSettings.tsx:18
 msgid "An error occurred loading the file"
 msgstr "An error occurred loading the file"
+
+#: src/app/pages/DebugPage.tsx:19
+#: src/app/components/MainMenuList.tsx:44
+msgid "Debug"
+msgstr "Debug"
 
 #: src/app/pages/DocumentListPage.tsx:12
 #: src/app/pages/DocumentExplorerPage.tsx:38
 msgid "Documents"
 msgstr "Documents"
 
-#: src/app/components/MainMenuList.tsx:30
+#: src/app/components/MainMenuList.tsx:32
 msgid "Explore"
 msgstr "Explore"
 
-#: src/settings/storage/ImportExportCollectionSettings.tsx:91
+#: src/settings/storage/ImportExportCollectionSettings.tsx:105
 msgid "Export"
 msgstr "Export"
 
-#: src/settings/components/Settings.tsx:21
+#: src/settings/storage/FilesystemSyncSettings.tsx:15
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/settings/storage/ImportExportCollectionSettings.tsx:84
+#: src/settings/storage/ImportExportCollectionSettings.tsx:98
 msgid "Import & export your collection"
 msgstr "Import & export your collection"
 
-#: src/settings/storage/ImportExportCollectionSettings.tsx:87
+#: src/settings/storage/ImportExportCollectionSettings.tsx:101
 msgid "Manually backup or restore your collection"
 msgstr "Manually backup or restore your collection"
 
-#: src/settings/storage/ImportExportCollectionSettings.tsx:99
+#: src/app/pages/DebugPage.tsx:25
+msgid "Platform(s)"
+msgstr "Platform(s)"
+
+#: src/settings/storage/ImportExportCollectionSettings.tsx:109
 msgid "Restore"
 msgstr "Restore"
 
 #: src/app/pages/SettingsPage.tsx:11
-#: src/app/components/MainMenuList.tsx:36
+#: src/app/components/MainMenuList.tsx:38
 msgid "Settings"
 msgstr "Settings"
 
-#: src/settings/storage/ImportExportCollectionSettings.tsx:17
+#: src/settings/storage/ImportExportCollectionSettings.tsx:19
+#: src/settings/storage/ImportExportCollectionSettings.tsx:80
 msgid "Success!"
 msgstr "Success!"
 
-#: src/settings/components/Settings.tsx:24
+#: src/settings/storage/FilesystemSyncSettings.tsx:18
 msgid "Synchronize your collection on the filesystem"
 msgstr "Synchronize your collection on the filesystem"
 

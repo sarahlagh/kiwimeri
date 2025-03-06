@@ -1,18 +1,15 @@
 import {
-  getPlatforms,
   IonCard,
   IonCardContent,
   IonCardHeader,
   IonCardSubtitle,
-  IonCardTitle,
-  isPlatform
+  IonCardTitle
 } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
+import platformService from '../../common/services/platform.service';
 const FilesystemSyncSettings = () => {
-  const isWeb = isPlatform('desktop') && getPlatforms().length === 1;
-
   return (
-    <IonCard disabled={isWeb}>
+    <IonCard disabled={platformService.isWeb()}>
       <IonCardHeader>
         <IonCardTitle>
           <Trans>Filesystem</Trans>
