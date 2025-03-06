@@ -1,10 +1,12 @@
+import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
 import {
   IonButton,
   IonCard,
   IonCardHeader,
   IonCardSubtitle,
   IonCardTitle,
-  IonToast
+  IonToast,
+  isPlatform
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import React, { useState } from 'react';
@@ -20,6 +22,15 @@ const ImportExportCollectionSettings = () => {
   const restoreElement = React.useRef(null);
   const toast = React.useRef(null);
 
+  function setToast(msg: string, color: string) {
+    if (toast.current) {
+      const current = toast.current as HTMLIonToastElement;
+      current.message = msg;
+      current.color = color;
+      setIsOpen(true);
+    }
+  }
+
   // open the file picker
   const onRestore: React.MouseEventHandler<HTMLIonButtonElement> = () => {
     if (restoreElement.current) {
@@ -31,14 +42,6 @@ const ImportExportCollectionSettings = () => {
   const onRestoreFileChange: React.ChangeEventHandler<
     HTMLInputElement
   > = event => {
-    function setToast(msg: string, color: string) {
-      if (toast.current) {
-        const current = toast.current as HTMLIonToastElement;
-        current.message = msg;
-        current.color = color;
-        setIsOpen(true);
-      }
-    }
     if (event.target.files && event.target.files.length > 0) {
       const file = event.target.files[0];
       const reader = new FileReader();
@@ -64,18 +67,29 @@ const ImportExportCollectionSettings = () => {
 
   // export
   const onExport: React.MouseEventHandler<HTMLIonButtonElement> = () => {
-    if (exportElement.current) {
-      const content = storageService.getStore().getJson();
-      const blob = new Blob([content], { type: 'application/json' });
-      const url = window.URL.createObjectURL(blob);
-      const current = exportElement.current as HTMLLinkElement;
-      current.href = url;
-      current.click();
+    const content = storageService.getStore().getJson();
+    const fileName = `${new Date().toISOString().substring(0, 19).replaceAll(/[:T]/g, '-')}-backup.json`;
+
+    if (isPlatform('android')) {
+      Filesystem.writeFile({
+        path: fileName,
+        data: content,
+        directory: Directory.Documents,
+        encoding: Encoding.UTF8
+      }).then(() => {
+        setToast(t`Success!`, 'success');
+      });
+    } else {
+      if (exportElement.current) {
+        const blob = new Blob([content], { type: 'application/json' });
+        const url = window.URL.createObjectURL(blob);
+        const current = exportElement.current as HTMLAnchorElement;
+        current.href = url;
+        current.download = fileName;
+        current.click();
+      }
     }
   };
-
-  const dateStr = new Date().toISOString().substring(0, 10);
-  const exportFileName = `${dateStr}-backup.json`;
 
   return (
     <IonCard>
@@ -89,11 +103,7 @@ const ImportExportCollectionSettings = () => {
       </IonCardHeader>
       <IonButton fill="clear" onClick={onExport}>
         <Trans>Export</Trans>
-        <a
-          ref={exportElement}
-          download={exportFileName}
-          className="ion-hide"
-        ></a>
+        <a ref={exportElement} className="ion-hide"></a>
       </IonButton>
       <IonButton fill="clear" onClick={onRestore} color="danger">
         <Trans>Restore</Trans>
