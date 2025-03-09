@@ -12,7 +12,7 @@ const DeleteDocumentButton = ({ id }: DeleteDocumentButtonProps) => {
   function onIonClick(e: { preventDefault: () => void }) {
     e.preventDefault();
     documentsService.deleteDocument(id);
-    history.push('/explore');
+    history.push('/collection');
   }
   return (
     <IonFab slot="fixed" vertical="bottom" horizontal="end">

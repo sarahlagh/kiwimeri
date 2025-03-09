@@ -1,15 +1,19 @@
 import {
+  IonButton,
   IonCard,
   IonCardContent,
   IonCardHeader,
   IonCardSubtitle,
-  IonCardTitle
+  IonCardTitle,
+  IonInput
 } from '@ionic/react';
-import { Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import platformService from '../../common/services/platform.service';
 const FilesystemSyncSettings = () => {
+  const { t } = useLingui();
+
   return (
-    <IonCard disabled={platformService.isWeb()}>
+    <IonCard disabled={platformService.isWeb()} className="primary">
       <IonCardHeader>
         <IonCardTitle>
           <Trans>Filesystem</Trans>
@@ -19,7 +23,17 @@ const FilesystemSyncSettings = () => {
         </IonCardSubtitle>
       </IonCardHeader>
 
-      <IonCardContent>Form goes here</IonCardContent>
+      <IonCardContent>
+        <IonButton></IonButton>
+        <IonInput
+          aria-label={t`Pick a directory for your backups`}
+          placeholder={t`Pick a directory for your backups`}
+          value=""
+        ></IonInput>
+        <IonButton fill="clear">
+          <Trans>Pick a directory for your backups</Trans>
+        </IonButton>
+      </IonCardContent>
     </IonCard>
   );
 };

@@ -2,8 +2,8 @@ import ImportExportCollectionSettings from '../storage/ImportExportCollectionSet
 const Settings = () => {
   return (
     <>
-      <ImportExportCollectionSettings></ImportExportCollectionSettings>
       {/* <FilesystemSyncSettings></FilesystemSyncSettings> */}
+      <ImportExportCollectionSettings></ImportExportCollectionSettings>
     </>
   );
 };

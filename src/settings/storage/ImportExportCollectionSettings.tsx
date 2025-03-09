@@ -1,7 +1,7 @@
-import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
 import {
   IonButton,
   IonCard,
+  IonCardContent,
   IonCardHeader,
   IonCardSubtitle,
   IonCardTitle,
@@ -9,6 +9,7 @@ import {
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import React, { useState } from 'react';
+import filesystemService from '../../common/services/filesystem.service';
 import platformService from '../../common/services/platform.service';
 import storageService from '../../db/storage.service';
 
@@ -18,7 +19,6 @@ const ImportExportCollectionSettings = () => {
   const errorMessage = t`An error occurred loading the file`;
   const successMessage = t`Success!`;
 
-  const exportElement = React.useRef(null);
   const restoreElement = React.useRef(null);
   const toast = React.useRef(null);
 
@@ -44,51 +44,30 @@ const ImportExportCollectionSettings = () => {
   > = event => {
     if (event.target.files && event.target.files.length > 0) {
       const file = event.target.files[0];
-      const reader = new FileReader();
-      reader.addEventListener(
-        'load',
-        () => {
-          const json = reader.result as string;
-          try {
-            const content = JSON.parse(json);
-            storageService.getStore().setContent(content);
+      filesystemService.readFile(file).then(content => {
+        try {
+          const json = JSON.parse(content);
+          storageService.getStore().setContent(json);
 
-            setToast(successMessage, 'success');
-          } catch (e) {
-            console.error(e);
-            setToast(errorMessage, 'warning');
-          }
-        },
-        false
-      );
-      reader.readAsText(file);
+          setToast(successMessage, 'success');
+        } catch (e) {
+          console.error(e);
+          setToast(errorMessage, 'warning');
+        }
+      });
     }
   };
 
   // export
   const onExport: React.MouseEventHandler<HTMLIonButtonElement> = () => {
     const content = storageService.getStore().getJson();
-    const fileName = `${new Date().toISOString().substring(0, 19).replaceAll(/[:T]/g, '-')}-backup.json`;
+    const fileName = `${new Date().toISOString().substring(0, 19).replaceAll(/[:T]/g, '-')}-${platformService.getPlatform()}-backup.json`;
 
-    if (platformService.isAndroid()) {
-      Filesystem.writeFile({
-        path: fileName,
-        data: content,
-        directory: Directory.Documents,
-        encoding: Encoding.UTF8
-      }).then(() => {
+    filesystemService.exportToFile(fileName, content).then(() => {
+      if (platformService.isAndroid()) {
         setToast(t`Success!`, 'success');
-      });
-    } else {
-      if (exportElement.current) {
-        const blob = new Blob([content], { type: 'application/json' });
-        const url = window.URL.createObjectURL(blob);
-        const current = exportElement.current as HTMLAnchorElement;
-        current.href = url;
-        current.download = fileName;
-        current.click();
       }
-    }
+    });
   };
 
   return (
@@ -101,9 +80,17 @@ const ImportExportCollectionSettings = () => {
           <Trans>Manually backup or restore your collection</Trans>
         </IonCardSubtitle>
       </IonCardHeader>
+
+      {platformService.isAndroid() && (
+        <IonCardContent>
+          <Trans>
+            Your backups will be exported to the Documents/WriterApp directory
+          </Trans>
+        </IonCardContent>
+      )}
+
       <IonButton fill="clear" onClick={onExport}>
         <Trans>Export</Trans>
-        <a ref={exportElement} className="ion-hide"></a>
       </IonButton>
       <IonButton fill="clear" onClick={onRestore} color="danger">
         <Trans>Restore</Trans>

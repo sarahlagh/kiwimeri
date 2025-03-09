@@ -17,7 +17,7 @@ export const DocumentList = () => {
     document =>
       ({
         title: document.title,
-        url: `/explore/document/${document.id}`,
+        url: `/collection/document/${document.id}`,
         iosIcon: folderOutline,
         mdIcon: folderSharp
       }) as AppPage

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 const BackButton = () => {
   return (
-    <Link to="/explore">
+    <Link to="/collection">
       <IonIcon
         aria-hidden="true"
         slot="start"

@@ -13,11 +13,15 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/settings/storage/ImportExportCollectionSettings.tsx:18
+#: src/settings/storage/ImportExportCollectionSettings.tsx:19
 msgid "An error occurred loading the file"
 msgstr "An error occurred loading the file"
 
-#: src/app/pages/DebugPage.tsx:19
+#: src/app/components/MainMenuList.tsx:32
+msgid "Collection"
+msgstr "Collection"
+
+#: src/app/pages/DebugPage.tsx:27
 #: src/app/components/MainMenuList.tsx:44
 msgid "Debug"
 msgstr "Debug"
@@ -27,31 +31,37 @@ msgstr "Debug"
 msgid "Documents"
 msgstr "Documents"
 
-#: src/app/components/MainMenuList.tsx:32
-msgid "Explore"
-msgstr "Explore"
-
-#: src/settings/storage/ImportExportCollectionSettings.tsx:105
+#: src/settings/storage/ImportExportCollectionSettings.tsx:93
 msgid "Export"
 msgstr "Export"
 
-#: src/settings/storage/FilesystemSyncSettings.tsx:15
+#: src/settings/storage/FilesystemSyncSettings.tsx:19
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/settings/storage/ImportExportCollectionSettings.tsx:98
+#: src/settings/storage/ImportExportCollectionSettings.tsx:77
 msgid "Import & export your collection"
 msgstr "Import & export your collection"
 
-#: src/settings/storage/ImportExportCollectionSettings.tsx:101
+#: src/settings/storage/ImportExportCollectionSettings.tsx:80
 msgid "Manually backup or restore your collection"
 msgstr "Manually backup or restore your collection"
 
-#: src/app/pages/DebugPage.tsx:25
+#: src/app/pages/DebugPage.tsx:49
+msgid "Operations"
+msgstr "Operations"
+
+#: src/settings/storage/FilesystemSyncSettings.tsx:29
+#: src/settings/storage/FilesystemSyncSettings.tsx:30
+#: src/settings/storage/FilesystemSyncSettings.tsx:34
+msgid "Pick a directory for your backups"
+msgstr "Pick a directory for your backups"
+
+#: src/app/pages/DebugPage.tsx:33
 msgid "Platform(s)"
 msgstr "Platform(s)"
 
-#: src/settings/storage/ImportExportCollectionSettings.tsx:109
+#: src/settings/storage/ImportExportCollectionSettings.tsx:96
 msgid "Restore"
 msgstr "Restore"
 
@@ -60,15 +70,19 @@ msgstr "Restore"
 msgid "Settings"
 msgstr "Settings"
 
-#: src/settings/storage/ImportExportCollectionSettings.tsx:19
-#: src/settings/storage/ImportExportCollectionSettings.tsx:80
+#: src/settings/storage/ImportExportCollectionSettings.tsx:20
+#: src/settings/storage/ImportExportCollectionSettings.tsx:68
 msgid "Success!"
 msgstr "Success!"
 
-#: src/settings/storage/FilesystemSyncSettings.tsx:18
+#: src/settings/storage/FilesystemSyncSettings.tsx:22
 msgid "Synchronize your collection on the filesystem"
 msgstr "Synchronize your collection on the filesystem"
 
 #: src/app/MainLayout.tsx:15
 msgid "Writer App"
 msgstr "Writer App"
+
+#: src/settings/storage/ImportExportCollectionSettings.tsx:86
+msgid "Your backups will be exported to the Documents/WriterApp directory"
+msgstr "Your backups will be exported to the Documents/WriterApp directory"

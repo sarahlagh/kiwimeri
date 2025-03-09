@@ -29,8 +29,8 @@ const MainMenuList = () => {
 
   const appPages: AppPage[] = [
     {
-      title: t`Explore`,
-      url: '/explore',
+      title: t`Collection`,
+      url: '/collection',
       iosIcon: folderOutline,
       mdIcon: folderSharp
     },
