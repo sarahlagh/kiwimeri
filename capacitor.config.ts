@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'writerApp',
+  appId: 'io.kiwimeri',
+  appName: 'kiwimeriApp',
   webDir: 'dist',
   plugins: {
     StatusBar: {

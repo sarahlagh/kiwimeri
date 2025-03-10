@@ -32,7 +32,7 @@ class StorageService {
       }
     });
 
-    this.persister = createIndexedDbPersister(this.store, 'writerAppStore');
+    this.persister = createIndexedDbPersister(this.store, 'kiwimeriAppStore');
   }
 
   public async start() {

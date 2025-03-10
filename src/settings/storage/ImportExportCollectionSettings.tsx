@@ -84,7 +84,7 @@ const ImportExportCollectionSettings = () => {
       {platformService.isAndroid() && (
         <IonCardContent>
           <Trans>
-            Your backups will be exported to the Documents/WriterApp directory
+            Your backups will be exported to the Documents/KiwimeriApp directory
           </Trans>
         </IonCardContent>
       )}
