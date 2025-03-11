@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">kiwimeriApp</string>
-    <string name="title_activity_main">kiwimeriApp</string>
+    <string name="app_name">Kiwimeri</string>
+    <string name="title_activity_main">Kiwimeri</string>
     <string name="package_name">io.kiwimeri</string>
     <string name="custom_url_scheme">io.kiwimeri</string>
 </resources>

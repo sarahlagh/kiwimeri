@@ -1,17 +1,9 @@
 {
-  "appId": "com.yourdoamnin.yourapp",
+  "appId": "io.kiwimeri",
   "directories": {
     "buildResources": "resources"
   },
-  "files": [
-    "assets/**/*",
-    "build/**/*",
-    "capacitor.config.*",
-    "app/**/*"
-  ],
-  "publish": {
-    "provider": "github"
-  },
+  "files": ["assets/**/*", "build/**/*", "capacitor.config.*", "app/**/*"],
   "nsis": {
     "allowElevation": true,
     "oneClick": false,
@@ -21,8 +13,16 @@
     "target": "nsis",
     "icon": "assets/appIcon.ico"
   },
-  "mac": {
-    "category": "your.app.category.type",
-    "target": "dmg"
+  "linux": {
+    "category": "Utility",
+    "icon": "assets/appIcon.png",
+    "target": ["AppImage"],
+    "executableName": "kiwimeri-app",
+    "desktop": {
+      "Name": "Kiwi Meri",
+      "Comment": "A Pleasant Note App",
+      "Terminal": false,
+      "Type": "Application"
+    }
   }
 }

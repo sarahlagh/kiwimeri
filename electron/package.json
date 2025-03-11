@@ -1,10 +1,10 @@
 {
-  "name": "kiwimeriApp",
-  "version": "1.0.0",
-  "description": "An Amazing Capacitor App",
+  "name": "kiwimeri-app",
+  "version": "0.0.1",
+  "description": "A Pleasant Note App",
   "author": {
     "name": "",
-    "email": ""
+    "email": "sarah@laghribi.fr"
   },
   "repository": {
     "type": "git",
@@ -15,9 +15,9 @@
   "scripts": {
     "build": "tsc && electron-rebuild",
     "electron:start-live": "node ./live-runner.js",
-    "electron:start": "npm run build && electron --inspect=5858 ./",
-    "electron:pack": "npm run build && electron-builder build --dir -c ./electron-builder.config.json",
-    "electron:make": "npm run build && electron-builder build -c ./electron-builder.config.json -p always"
+    "electron:start": "yarn electron --inspect=5858 ./",
+    "electron:pack": "yarn build && electron-builder build --dir -c ./electron-builder.config.json",
+    "electron:make": "yarn build && electron-builder build -c ./electron-builder.config.json -p always"
   },
   "dependencies": {
     "@capacitor-community/electron": "^5.0.0",
