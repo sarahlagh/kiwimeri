@@ -1,0 +1,10 @@
+name: kiwimeri
+services:
+  kiwimeri:
+    container_name: kiwimeri
+    build:
+      dockerfile: docker/Dockerfile
+      context: .
+    env_file: '.env'
+    ports:
+      - 8110:80
