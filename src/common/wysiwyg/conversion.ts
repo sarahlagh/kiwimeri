@@ -7,7 +7,3 @@ export const initialContent = () => {
 export const serialize = (obj: any) => {
   return JSON.stringify(obj);
 };
-
-export const deserialize = (str: string) => {
-  return JSON.parse(str);
-};

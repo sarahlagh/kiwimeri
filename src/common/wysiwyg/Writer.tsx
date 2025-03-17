@@ -1,3 +1,6 @@
+import { LinkNode } from '@lexical/link';
+import { ListItemNode, ListNode } from '@lexical/list';
+import { MarkNode } from '@lexical/mark';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
@@ -5,6 +8,9 @@ import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
+import { HeadingNode, QuoteNode } from '@lexical/rich-text';
+import { serialize } from './conversion';
+import KiwimeriToolbarPlugin from './lexical/KiwimeriToolbarPlugin';
 import ParseInitialStatePlugin from './lexical/ParseInitialStatePlugin';
 
 interface WriterProps {
@@ -34,9 +40,18 @@ const Writer = ({ content, onContentChange }: WriterProps) => {
         namespace: 'writer',
         theme,
         onError,
+        nodes: [
+          MarkNode,
+          HeadingNode,
+          QuoteNode,
+          LinkNode,
+          ListNode,
+          ListItemNode
+        ],
         editorState: EMPTY_CONTENT
       }}
     >
+      <KiwimeriToolbarPlugin />
       <RichTextPlugin
         contentEditable={
           <ContentEditable
@@ -49,7 +64,7 @@ const Writer = ({ content, onContentChange }: WriterProps) => {
       <ParseInitialStatePlugin content={content} />
       <OnChangePlugin
         onChange={editorState => {
-          onContentChange(JSON.stringify(editorState.toJSON()));
+          onContentChange(serialize(editorState.toJSON()));
         }}
       />
       <HistoryPlugin />
