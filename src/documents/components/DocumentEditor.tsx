@@ -6,9 +6,9 @@ import {
   IonToolbar
 } from '@ionic/react';
 import DeleteDocumentButton from '../../common/buttons/DeleteDocumentButton';
-import { onContentChangeFn, onTitleChangeFn } from '../../common/events/events';
+import { onTitleChangeFn } from '../../common/events/events';
+import Writer from '../../common/wysiwyg/Writer';
 import documentsService from '../../db/documents.service';
-import Writer from './Writer';
 
 interface DocumentEditorProps {
   id: string;
@@ -17,7 +17,10 @@ interface DocumentEditorProps {
 const DocumentEditor = ({ id }: DocumentEditorProps) => {
   const document = documentsService.getDocument(id);
   const onTitleChange = onTitleChangeFn(id);
-  const onContentChange = onContentChangeFn(id);
+  const onContentChange = (content: string) => {
+    console.log('writing to db', id, content);
+    documentsService.setDocumentContent(id, content);
+  };
   return (
     <>
       <IonHeader class="ion-hide-md-down">
@@ -31,11 +34,11 @@ const DocumentEditor = ({ id }: DocumentEditorProps) => {
           </IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding">
+      <IonContent className="ion-padding scroll" scroll-overflow="true">
         <DeleteDocumentButton id={id}></DeleteDocumentButton>
         <Writer
           content={document.content}
-          onIonInput={onContentChange}
+          onContentChange={onContentChange}
         ></Writer>
       </IonContent>
     </>
