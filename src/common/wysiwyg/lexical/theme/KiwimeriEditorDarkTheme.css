@@ -1,9 +1,0 @@
-.ion-palette-dark .toolbar .divider {
-  background-color: #222222;
-}
-.ion-palette-dark .toolbar ion-icon {
-  color: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.54);
-}
-.ion-palette-dark .toolbar .toolbar-item:hover:not([disabled]) ion-icon {
-  color: rgba(var(--color, 0, 0, 0), 0.54);
-}

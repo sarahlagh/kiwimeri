@@ -357,6 +357,9 @@ pre::-webkit-scrollbar-thumb {
   background-color: #eee;
   margin: 0 4px;
 }
+.ion-palette-dark .toolbar .divider {
+  background-color: #222222;
+}
 
 .toolbar .toolbar-item .text {
   display: flex;
@@ -391,6 +394,10 @@ pre::-webkit-scrollbar-thumb {
 }
 .toolbar ion-icon {
   font-size: 16px;
+  color: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.54);
+}
+.toolbar .toolbar-item:hover:not([disabled]) ion-icon {
+  color: rgba(var(--color, 0, 0, 0), 0.54);
 }
 
 #show-writer-debug-view {
