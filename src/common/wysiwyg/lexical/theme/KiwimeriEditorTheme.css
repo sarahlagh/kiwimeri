@@ -1,15 +1,3 @@
-.other a {
-  color: #777;
-  text-decoration: underline;
-  font-size: 14px;
-}
-
-.other ul {
-  padding: 0;
-  margin: 0;
-  list-style-type: none;
-}
-
 .ltr {
   text-align: left;
 }
@@ -229,17 +217,15 @@
 .editor-list-ol {
   padding: 0;
   margin: 0;
-  margin-left: 16px;
 }
 
 .editor-list-ul {
   padding: 0;
   margin: 0;
-  margin-left: 16px;
 }
 
 .editor-listitem {
-  margin: 8px 32px 8px 32px;
+  margin: 8px 16px;
 }
 
 .editor-nested-listitem {

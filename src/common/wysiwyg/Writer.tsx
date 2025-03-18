@@ -13,6 +13,7 @@ import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import ParseInitialStatePlugin from './lexical/ParseInitialStatePlugin';
 
+import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { useLingui } from '@lingui/react/macro';
 import React from 'react';
 import platformService from '../services/platform.service';
@@ -82,6 +83,7 @@ const Writer = (
       />
       <HistoryPlugin />
       <AutoFocusPlugin />
+      <ListPlugin />
       <HorizontalRulePlugin />
 
       {platformService.isDev() && <DebugTreeViewPlugin />}

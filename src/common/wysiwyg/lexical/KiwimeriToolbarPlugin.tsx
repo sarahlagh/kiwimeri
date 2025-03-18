@@ -1,14 +1,29 @@
 import { IonIcon } from '@ionic/react';
+import {
+  $isListNode,
+  INSERT_ORDERED_LIST_COMMAND,
+  INSERT_UNORDERED_LIST_COMMAND,
+  ListNode
+} from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/react/LexicalHorizontalRuleNode';
-import { $createHeadingNode, $isHeadingNode } from '@lexical/rich-text';
+import {
+  $createHeadingNode,
+  $createQuoteNode,
+  $isHeadingNode
+} from '@lexical/rich-text';
 import { $setBlocksType } from '@lexical/selection';
-import { $findMatchingParent, mergeRegister } from '@lexical/utils';
+import {
+  $findMatchingParent,
+  $getNearestNodeOfType,
+  mergeRegister
+} from '@lexical/utils';
 import {
   $createParagraphNode,
   $getSelection,
   $isRangeSelection,
   $isRootOrShadowRoot,
+  $isTextNode,
   CAN_REDO_COMMAND,
   CAN_UNDO_COMMAND,
   FORMAT_ELEMENT_COMMAND,
@@ -27,6 +42,7 @@ function Divider() {
 export default function ToolbarPlugin() {
   const [editor] = useLexicalComposerContext();
   const toolbarRef = useRef(null);
+  const [isEditable, setIsEditable] = useState(true);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
   const [isH1, setIsH1] = useState(false);
@@ -36,6 +52,9 @@ export default function ToolbarPlugin() {
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
   const [isStrikethrough, setIsStrikethrough] = useState(false);
+  const [isBlockQuote, setIsBlockQuote] = useState(false);
+  const [isUnorderedList, setIsUnorderedList] = useState(false);
+  const [isOrderedList, setIsOrderedList] = useState(false);
 
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -46,6 +65,7 @@ export default function ToolbarPlugin() {
       setIsUnderline(selection.hasFormat('underline'));
       setIsStrikethrough(selection.hasFormat('strikethrough'));
 
+      // const node = getSelectedNode(selection);
       const anchorNode = selection.anchor.getNode();
       let element =
         anchorNode.getKey() === 'root'
@@ -59,13 +79,27 @@ export default function ToolbarPlugin() {
         element = anchorNode.getTopLevelElementOrThrow();
       }
 
-      const type = $isHeadingNode(element)
-        ? element.getTag()
-        : element.getType();
+      let type;
+      if ($isListNode(element)) {
+        const parentList = $getNearestNodeOfType<ListNode>(
+          anchorNode,
+          ListNode
+        );
+        type = parentList ? parentList.getListType() : element.getListType();
+
+        // updateToolbarState('blockType', type);
+      } else {
+        type = $isHeadingNode(element) ? element.getTag() : element.getType();
+      }
+
+      console.debug('type', type);
 
       setIsH1(type === 'h1');
       setIsH2(type === 'h2');
       setIsH3(type === 'h3');
+      setIsBlockQuote(type === 'quote');
+      setIsUnorderedList(type === 'bullet');
+      setIsOrderedList(type === 'number');
     }
   }, []);
 
@@ -107,11 +141,21 @@ export default function ToolbarPlugin() {
   return (
     <div className="toolbar" ref={toolbarRef}>
       <button
+        onClick={() => {
+          editor.setEditable(!editor.isEditable());
+          setIsEditable(editor.isEditable());
+        }}
+        className={'toolbar-item ' + (!isEditable ? 'active' : '')}
+        aria-label="Read Mode"
+      >
+        <IonIcon className="format" src="writer/book.svg"></IonIcon>
+      </button>
+      <button
         disabled={!canUndo}
         onClick={() => {
           editor.dispatchCommand(UNDO_COMMAND, undefined);
         }}
-        className="toolbar-item spaced"
+        className="toolbar-item"
         aria-label="Undo"
       >
         <IonIcon
@@ -139,7 +183,7 @@ export default function ToolbarPlugin() {
             );
           });
         }}
-        className={'toolbar-item spaced ' + (isH1 ? 'active' : '')}
+        className={'toolbar-item ' + (isH1 ? 'active' : '')}
         aria-label="Header 1"
       >
         <IonIcon className="format" src="writer/type-h1.svg"></IonIcon>
@@ -153,7 +197,7 @@ export default function ToolbarPlugin() {
             );
           });
         }}
-        className={'toolbar-item spaced ' + (isH2 ? 'active' : '')}
+        className={'toolbar-item ' + (isH2 ? 'active' : '')}
         aria-label="Header 1"
       >
         <IonIcon className="format" src="writer/type-h2.svg"></IonIcon>
@@ -167,7 +211,7 @@ export default function ToolbarPlugin() {
             );
           });
         }}
-        className={'toolbar-item spaced ' + (isH3 ? 'active' : '')}
+        className={'toolbar-item ' + (isH3 ? 'active' : '')}
         aria-label="Header 3"
       >
         <IonIcon className="format" src="writer/type-h3.svg"></IonIcon>
@@ -177,7 +221,7 @@ export default function ToolbarPlugin() {
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
         }}
-        className={'toolbar-item spaced ' + (isBold ? 'active' : '')}
+        className={'toolbar-item ' + (isBold ? 'active' : '')}
         aria-label="Format Bold"
       >
         <IonIcon className="format" src="writer/type-bold.svg"></IonIcon>
@@ -186,7 +230,7 @@ export default function ToolbarPlugin() {
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
         }}
-        className={'toolbar-item spaced ' + (isItalic ? 'active' : '')}
+        className={'toolbar-item ' + (isItalic ? 'active' : '')}
         aria-label="Format Italics"
       >
         <IonIcon className="format" src="writer/type-italic.svg"></IonIcon>
@@ -195,7 +239,7 @@ export default function ToolbarPlugin() {
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
         }}
-        className={'toolbar-item spaced ' + (isUnderline ? 'active' : '')}
+        className={'toolbar-item ' + (isUnderline ? 'active' : '')}
         aria-label="Format Underline"
       >
         <IonIcon className="format" src="writer/type-underline.svg"></IonIcon>
@@ -204,7 +248,7 @@ export default function ToolbarPlugin() {
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough');
         }}
-        className={'toolbar-item spaced ' + (isStrikethrough ? 'active' : '')}
+        className={'toolbar-item ' + (isStrikethrough ? 'active' : '')}
         aria-label="Format Strikethrough"
       >
         <IonIcon
@@ -212,12 +256,59 @@ export default function ToolbarPlugin() {
           src="writer/type-strikethrough.svg"
         ></IonIcon>
       </button>
+      <button
+        onClick={() => {
+          editor.update(() => {
+            const selection = $getSelection();
+            $setBlocksType(selection, () =>
+              !isBlockQuote ? $createQuoteNode() : $createParagraphNode()
+            );
+          });
+        }}
+        className={'toolbar-item ' + (isBlockQuote ? 'active' : '')}
+        aria-label="Block Quote"
+      >
+        <IonIcon className="format" src="writer/quote.svg"></IonIcon>
+      </button>
+      <Divider />
+      <button
+        onClick={() => {
+          if (!isUnorderedList) {
+            editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+          } else {
+            editor.update(() => {
+              const selection = $getSelection();
+              $setBlocksType(selection, () => $createParagraphNode());
+            });
+          }
+        }}
+        className={'toolbar-item ' + (isUnorderedList ? 'active' : '')}
+        aria-label="Insert Unordered List"
+      >
+        <IonIcon className="format" src="writer/list-ul.svg"></IonIcon>
+      </button>
+      <button
+        onClick={() => {
+          if (!isOrderedList) {
+            editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
+          } else {
+            editor.update(() => {
+              const selection = $getSelection();
+              $setBlocksType(selection, () => $createParagraphNode());
+            });
+          }
+        }}
+        className={'toolbar-item ' + (isOrderedList ? 'active' : '')}
+        aria-label="Insert Ordered List"
+      >
+        <IonIcon className="format" src="writer/list-ol.svg"></IonIcon>
+      </button>
       <Divider />
       <button
         onClick={() => {
           editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'left');
         }}
-        className="toolbar-item spaced"
+        className="toolbar-item"
         aria-label="Left Align"
       >
         <IonIcon className="format" src="writer/text-left.svg"></IonIcon>
@@ -226,7 +317,7 @@ export default function ToolbarPlugin() {
         onClick={() => {
           editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'center');
         }}
-        className="toolbar-item spaced"
+        className="toolbar-item"
         aria-label="Center Align"
       >
         <IonIcon className="format" src="writer/text-center.svg"></IonIcon>
@@ -235,7 +326,7 @@ export default function ToolbarPlugin() {
         onClick={() => {
           editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'right');
         }}
-        className="toolbar-item spaced"
+        className="toolbar-item"
         aria-label="Right Align"
       >
         <IonIcon className="format" src="writer/text-right.svg"></IonIcon>
@@ -258,6 +349,25 @@ export default function ToolbarPlugin() {
         aria-label="Insert Horizontal Bar"
       >
         <IonIcon className="format" src="writer/hr.svg"></IonIcon>
+      </button>
+      <button
+        onClick={() => {
+          editor.update(() => {
+            const selection = $getSelection();
+            if ($isRangeSelection(selection)) {
+              selection.getNodes().forEach(node => {
+                if ($isTextNode(node)) {
+                  node.setFormat(0);
+                }
+              });
+            }
+            $setBlocksType(selection, () => $createParagraphNode());
+          });
+        }}
+        className="toolbar-item"
+        aria-label="Clear Format"
+      >
+        <IonIcon className="format" src="writer/x-square.svg"></IonIcon>
       </button>{' '}
     </div>
   );
