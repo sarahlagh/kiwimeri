@@ -1,19 +1,14 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
 import { IonIcon } from '@ionic/react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/react/LexicalHorizontalRuleNode';
-import { $createHeadingNode } from '@lexical/rich-text';
+import { $createHeadingNode, $isHeadingNode } from '@lexical/rich-text';
 import { $setBlocksType } from '@lexical/selection';
-import { mergeRegister } from '@lexical/utils';
+import { $findMatchingParent, mergeRegister } from '@lexical/utils';
 import {
+  $createParagraphNode,
   $getSelection,
   $isRangeSelection,
+  $isRootOrShadowRoot,
   CAN_REDO_COMMAND,
   CAN_UNDO_COMMAND,
   FORMAT_ELEMENT_COMMAND,
@@ -50,6 +45,27 @@ export default function ToolbarPlugin() {
       setIsItalic(selection.hasFormat('italic'));
       setIsUnderline(selection.hasFormat('underline'));
       setIsStrikethrough(selection.hasFormat('strikethrough'));
+
+      const anchorNode = selection.anchor.getNode();
+      let element =
+        anchorNode.getKey() === 'root'
+          ? anchorNode
+          : $findMatchingParent(anchorNode, e => {
+              const parent = e.getParent();
+              return parent !== null && $isRootOrShadowRoot(parent);
+            });
+
+      if (element === null) {
+        element = anchorNode.getTopLevelElementOrThrow();
+      }
+
+      const type = $isHeadingNode(element)
+        ? element.getTag()
+        : element.getType();
+
+      setIsH1(type === 'h1');
+      setIsH2(type === 'h2');
+      setIsH3(type === 'h3');
     }
   }, []);
 
@@ -118,7 +134,9 @@ export default function ToolbarPlugin() {
         onClick={() => {
           editor.update(() => {
             const selection = $getSelection();
-            $setBlocksType(selection, () => $createHeadingNode('h1'));
+            $setBlocksType(selection, () =>
+              !isH1 ? $createHeadingNode('h1') : $createParagraphNode()
+            );
           });
         }}
         className={'toolbar-item spaced ' + (isH1 ? 'active' : '')}
@@ -130,7 +148,9 @@ export default function ToolbarPlugin() {
         onClick={() => {
           editor.update(() => {
             const selection = $getSelection();
-            $setBlocksType(selection, () => $createHeadingNode('h2'));
+            $setBlocksType(selection, () =>
+              !isH2 ? $createHeadingNode('h2') : $createParagraphNode()
+            );
           });
         }}
         className={'toolbar-item spaced ' + (isH2 ? 'active' : '')}
@@ -142,7 +162,9 @@ export default function ToolbarPlugin() {
         onClick={() => {
           editor.update(() => {
             const selection = $getSelection();
-            $setBlocksType(selection, () => $createHeadingNode('h3'));
+            $setBlocksType(selection, () =>
+              !isH3 ? $createHeadingNode('h3') : $createParagraphNode()
+            );
           });
         }}
         className={'toolbar-item spaced ' + (isH3 ? 'active' : '')}
