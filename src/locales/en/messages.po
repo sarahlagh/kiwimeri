@@ -36,8 +36,8 @@ msgid "Documents"
 msgstr "Documents"
 
 #: src/common/wysiwyg/Writer.tsx:62
-msgid "Enter some text...'"
-msgstr "Enter some text...'"
+#~ msgid "Enter some text...'"
+#~ msgstr "Enter some text...'"
 
 #: src/settings/storage/ImportExportCollectionSettings.tsx:93
 msgid "Export"
@@ -100,8 +100,12 @@ msgid "Synchronize your collection on the filesystem"
 msgstr "Synchronize your collection on the filesystem"
 
 #: src/common/wysiwyg/Writer.tsx:65
-msgid "Text..."
-msgstr "Text..."
+#~ msgid "Text..."
+#~ msgstr "Text..."
+
+#: src/common/wysiwyg/Writer.tsx:44
+msgid "Text...'"
+msgstr "Text...'"
 
 #: src/settings/components/Settings.tsx:21
 msgid "Theme"

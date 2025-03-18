@@ -14,8 +14,10 @@ import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import { serialize } from './conversion';
 import ParseInitialStatePlugin from './lexical/ParseInitialStatePlugin';
 
-import { Trans, useLingui } from '@lingui/react/macro';
+import { useLingui } from '@lingui/react/macro';
 import React from 'react';
+import platformService from '../services/platform.service';
+import DebugTreeViewPlugin from './lexical/DebugTreeViewPlugin';
 import KiwimeriToolbarPlugin from './lexical/KiwimeriToolbarPlugin';
 import KiwimeriEditorTheme from './lexical/theme/KiwimeriEditorTheme';
 
@@ -39,6 +41,7 @@ const Writer = (
   ref: React.LegacyRef<HTMLDivElement> | undefined
 ) => {
   const { t } = useLingui();
+  const placeholder = t`Text...`;
   return (
     <LexicalComposer
       initialConfig={{
@@ -63,12 +66,10 @@ const Writer = (
         contentEditable={
           <ContentEditable
             ref={ref}
-            className="editor-content-editable"
-            aria-placeholder={t`Enter some text...'`}
+            className="editor-input"
+            aria-placeholder={placeholder}
             placeholder={
-              <div>
-                <Trans>Text...</Trans>
-              </div>
+              <div className="editor-placeholder">{placeholder}</div>
             }
           />
         }
@@ -84,7 +85,7 @@ const Writer = (
       <AutoFocusPlugin />
       <HorizontalRulePlugin />
 
-      {/* {platformService.isDev() && <DebugTreeViewPlugin />} */}
+      {platformService.isDev() && <DebugTreeViewPlugin />}
     </LexicalComposer>
   );
 };

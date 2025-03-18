@@ -1,9 +1,3 @@
-div.editor-content-editable[role='textbox'] {
-  outline: none;
-  padding-left: 10px;
-  padding-right: 10px;
-}
-
 .other a {
   color: #777;
   text-decoration: underline;
@@ -50,17 +44,16 @@ div.editor-content-editable[role='textbox'] {
   position: relative;
   tab-size: 1;
   outline: 0;
-  padding: 15px 10px;
+  padding: 0px 10px;
   caret-color: #444;
 }
 
 .editor-placeholder {
-  color: #999;
+  opacity: 20%;
   overflow: hidden;
   position: absolute;
-  text-overflow: ellipsis;
-  top: 15px;
-  left: 10px;
+  top: 44px;
+  left: 12px;
   font-size: 15px;
   user-select: none;
   display: inline-block;
@@ -398,4 +391,11 @@ pre::-webkit-scrollbar-thumb {
 }
 .toolbar ion-icon {
   font-size: 16px;
+}
+
+#show-writer-debug-view {
+  position: fixed;
+  z-index: 999999;
+  opacity: 20%;
+  bottom: 0;
 }
