@@ -58,6 +58,7 @@ const Writer = ({ content, onContentChange }: WriterProps) => {
       <RichTextPlugin
         contentEditable={
           <ContentEditable
+            style={{ outline: 'none' }}
             aria-placeholder={'Enter some text...'}
             placeholder={<div></div>}
           />

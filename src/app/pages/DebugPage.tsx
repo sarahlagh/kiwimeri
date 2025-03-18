@@ -14,6 +14,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import platformService from '../../common/services/platform.service';
 import { appConfig } from '../../config';
 import storageService from '../../db/storage.service';
+import userSettingsService from '../../db/user-settings.service';
 import MainHeader from '../components/MainHeader';
 
 const DebugPage = () => {
@@ -53,6 +54,32 @@ const DebugPage = () => {
           <IonCardContent>
             <IonButton fill="clear" onClick={onClear} color="danger">
               nuke db
+            </IonButton>
+
+            <IonButton onClick={onClear}>nuke db</IonButton>
+          </IonCardContent>
+        </IonCard>
+        <IonCard>
+          <IonCardHeader>
+            <IonCardTitle>
+              <Trans>Misc Settings</Trans>
+            </IonCardTitle>
+          </IonCardHeader>
+
+          <IonCardContent>
+            <IonButton
+              onClick={() => {
+                userSettingsService.setTheme('light');
+              }}
+            >
+              light
+            </IonButton>
+            <IonButton
+              onClick={() => {
+                userSettingsService.setTheme('dark');
+              }}
+            >
+              dark
             </IonButton>
           </IonCardContent>
         </IonCard>
