@@ -1,7 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import {
   getPlatforms,
-  IonButton,
   IonCard,
   IonCardContent,
   IonCardHeader,
@@ -13,15 +12,10 @@ import {
 import { Trans, useLingui } from '@lingui/react/macro';
 import platformService from '../../common/services/platform.service';
 import { appConfig } from '../../config';
-import storageService from '../../db/storage.service';
-import userSettingsService from '../../db/user-settings.service';
 import MainHeader from '../components/MainHeader';
 
 const DebugPage = () => {
   const { t } = useLingui();
-  const onClear: React.MouseEventHandler<HTMLIonButtonElement> = () => {
-    storageService.getStore().setContent([{}, {}]);
-  };
   return (
     <IonPage>
       <IonHeader>
@@ -42,45 +36,6 @@ const DebugPage = () => {
             <p>is web: {platformService.isWeb() ? 'yes' : 'no'}</p>
             <p>config: {JSON.stringify(appConfig)}</p>
             <p>capacitor debug: {Capacitor.DEBUG}</p>
-          </IonCardContent>
-        </IonCard>
-        <IonCard>
-          <IonCardHeader>
-            <IonCardTitle>
-              <Trans>Operations</Trans>
-            </IonCardTitle>
-          </IonCardHeader>
-
-          <IonCardContent>
-            <IonButton fill="clear" onClick={onClear} color="danger">
-              nuke db
-            </IonButton>
-
-            <IonButton onClick={onClear}>nuke db</IonButton>
-          </IonCardContent>
-        </IonCard>
-        <IonCard>
-          <IonCardHeader>
-            <IonCardTitle>
-              <Trans>Misc Settings</Trans>
-            </IonCardTitle>
-          </IonCardHeader>
-
-          <IonCardContent>
-            <IonButton
-              onClick={() => {
-                userSettingsService.setTheme('light');
-              }}
-            >
-              light
-            </IonButton>
-            <IonButton
-              onClick={() => {
-                userSettingsService.setTheme('dark');
-              }}
-            >
-              dark
-            </IonButton>
           </IonCardContent>
         </IonCard>
       </IonContent>
