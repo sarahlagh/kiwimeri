@@ -72,6 +72,10 @@ class DocumentsService {
     return storageService.getStore().delRow(this.documentTable, rowId);
   }
 
+  public documentExists(rowId: Id) {
+    return storageService.getStore().hasRow(this.documentTable, rowId);
+  }
+
   public getDocument(rowId: Id) {
     return storageService
       .getStore()

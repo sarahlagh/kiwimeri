@@ -1,15 +1,7 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
-.other h2 {
-  font-size: 18px;
-  color: #444;
-  margin-bottom: 7px;
+div.editor-content-editable[role='textbox'] {
+  outline: none;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .other a {
@@ -22,16 +14,6 @@
   padding: 0;
   margin: 0;
   list-style-type: none;
-}
-
-.App {
-  font-family: sans-serif;
-  text-align: center;
-}
-
-h1 {
-  font-size: 24px;
-  color: #333;
 }
 
 .ltr {
@@ -144,7 +126,6 @@ h1 {
   margin-top: 8px;
   margin-bottom: 8px;
   tab-size: 2;
-  /* white-space: pre; */
   overflow-x: auto;
   position: relative;
 }
@@ -209,6 +190,7 @@ h1 {
   margin: 0;
   margin-bottom: 8px;
   position: relative;
+  line-height: 20px;
 }
 
 .editor-paragraph:last-child {
@@ -216,8 +198,8 @@ h1 {
 }
 
 .editor-heading-h1 {
-  font-size: 24px;
-  color: rgb(5, 5, 5);
+  color: var(--color);
+  font-size: 28px;
   font-weight: 400;
   margin: 0;
   margin-bottom: 12px;
@@ -225,13 +207,19 @@ h1 {
 }
 
 .editor-heading-h2 {
-  font-size: 15px;
-  color: rgb(101, 103, 107);
-  font-weight: 700;
+  font-size: 24px;
+  font-weight: 400;
+  margin: 0;
+  margin-bottom: 10px;
+  padding: 0;
+}
+
+.editor-heading-h3 {
+  font-size: 20px;
+  font-weight: 400;
   margin: 0;
   margin-top: 10px;
   padding: 0;
-  text-transform: uppercase;
 }
 
 .editor-quote {
@@ -319,9 +307,11 @@ pre::-webkit-scrollbar-thumb {
   margin-bottom: 1px;
   background: var(--ion-background-color, #fff);
   padding: 4px;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
   vertical-align: middle;
+  overflow-x: auto;
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 
 .toolbar button.toolbar-item {
@@ -389,67 +379,6 @@ pre::-webkit-scrollbar-thumb {
   text-align: left;
 }
 
-.toolbar .toolbar-item .icon {
-  display: flex;
-  width: 20px;
-  height: 20px;
-  user-select: none;
-  margin-right: 8px;
-  line-height: 16px;
-  background-size: contain;
-}
-
-i.undo {
-  background-image: url(writer/arrow-counterclockwise.svg);
-}
-
-i.redo {
-  background-image: url(writer/arrow-clockwise.svg);
-}
-
-i.bold {
-  background-image: url(writer/type-bold.svg);
-}
-
-i.italic {
-  background-image: url(writer/type-italic.svg);
-}
-
-i.underline {
-  background-image: url(writer/type-underline.svg);
-}
-
-i.strikethrough {
-  background-image: url(writer/type-strikethrough.svg);
-}
-
-i.left-align {
-  background-image: url(writer/text-left.svg);
-}
-
-i.center-align {
-  background-image: url(writer/text-center.svg);
-}
-
-i.right-align {
-  background-image: url(writer/text-right.svg);
-}
-
-i.justify-align {
-  background-image: url(writer/justify.svg);
-}
-i.insert-hr {
-  background-image: url(writer/hr.svg);
-}
-i.header-1 {
-  background-image: url(writer/type-h1.svg);
-}
-i.header-2 {
-  background-image: url(writer/type-h2.svg);
-}
-i.header-3 {
-  background-image: url(writer/type-h3.svg);
-}
 .editor-hr {
   padding: 2px 2px;
   border: none;
@@ -466,4 +395,7 @@ i.header-3 {
 .editor-hr.editor-hr-selected {
   outline: 2px solid rgb(60, 132, 244);
   user-select: none;
+}
+.toolbar ion-icon {
+  font-size: 16px;
 }

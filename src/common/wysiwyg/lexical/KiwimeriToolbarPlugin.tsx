@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
+import { IonIcon } from '@ionic/react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/react/LexicalHorizontalRuleNode';
 import { $createHeadingNode } from '@lexical/rich-text';
@@ -97,7 +98,10 @@ export default function ToolbarPlugin() {
         className="toolbar-item spaced"
         aria-label="Undo"
       >
-        <i className="format undo" />
+        <IonIcon
+          className="format"
+          src="writer/arrow-counterclockwise.svg"
+        ></IonIcon>
       </button>
       <button
         disabled={!canRedo}
@@ -107,7 +111,7 @@ export default function ToolbarPlugin() {
         className="toolbar-item"
         aria-label="Redo"
       >
-        <i className="format redo" />
+        <IonIcon className="format" src="writer/arrow-clockwise.svg"></IonIcon>
       </button>
       <Divider />
       <button
@@ -120,7 +124,7 @@ export default function ToolbarPlugin() {
         className={'toolbar-item spaced ' + (isH1 ? 'active' : '')}
         aria-label="Header 1"
       >
-        <i className="format header-1" />
+        <IonIcon className="format" src="writer/type-h1.svg"></IonIcon>
       </button>
       <button
         onClick={() => {
@@ -132,7 +136,7 @@ export default function ToolbarPlugin() {
         className={'toolbar-item spaced ' + (isH2 ? 'active' : '')}
         aria-label="Header 1"
       >
-        <i className="format header-2" />
+        <IonIcon className="format" src="writer/type-h2.svg"></IonIcon>
       </button>
       <button
         onClick={() => {
@@ -144,7 +148,7 @@ export default function ToolbarPlugin() {
         className={'toolbar-item spaced ' + (isH3 ? 'active' : '')}
         aria-label="Header 3"
       >
-        <i className="format header-3" />
+        <IonIcon className="format" src="writer/type-h3.svg"></IonIcon>
       </button>
       <Divider />
       <button
@@ -154,7 +158,7 @@ export default function ToolbarPlugin() {
         className={'toolbar-item spaced ' + (isBold ? 'active' : '')}
         aria-label="Format Bold"
       >
-        <i className="format bold" />
+        <IonIcon className="format" src="writer/type-bold.svg"></IonIcon>
       </button>
       <button
         onClick={() => {
@@ -163,7 +167,7 @@ export default function ToolbarPlugin() {
         className={'toolbar-item spaced ' + (isItalic ? 'active' : '')}
         aria-label="Format Italics"
       >
-        <i className="format italic" />
+        <IonIcon className="format" src="writer/type-italic.svg"></IonIcon>
       </button>
       <button
         onClick={() => {
@@ -172,7 +176,7 @@ export default function ToolbarPlugin() {
         className={'toolbar-item spaced ' + (isUnderline ? 'active' : '')}
         aria-label="Format Underline"
       >
-        <i className="format underline" />
+        <IonIcon className="format" src="writer/type-underline.svg"></IonIcon>
       </button>
       <button
         onClick={() => {
@@ -181,7 +185,10 @@ export default function ToolbarPlugin() {
         className={'toolbar-item spaced ' + (isStrikethrough ? 'active' : '')}
         aria-label="Format Strikethrough"
       >
-        <i className="format strikethrough" />
+        <IonIcon
+          className="format"
+          src="writer/type-strikethrough.svg"
+        ></IonIcon>
       </button>
       <Divider />
       <button
@@ -191,7 +198,7 @@ export default function ToolbarPlugin() {
         className="toolbar-item spaced"
         aria-label="Left Align"
       >
-        <i className="format left-align" />
+        <IonIcon className="format" src="writer/text-left.svg"></IonIcon>
       </button>
       <button
         onClick={() => {
@@ -200,7 +207,7 @@ export default function ToolbarPlugin() {
         className="toolbar-item spaced"
         aria-label="Center Align"
       >
-        <i className="format center-align" />
+        <IonIcon className="format" src="writer/text-center.svg"></IonIcon>
       </button>
       <button
         onClick={() => {
@@ -209,7 +216,7 @@ export default function ToolbarPlugin() {
         className="toolbar-item spaced"
         aria-label="Right Align"
       >
-        <i className="format right-align" />
+        <IonIcon className="format" src="writer/text-right.svg"></IonIcon>
       </button>
       <button
         onClick={() => {
@@ -218,7 +225,7 @@ export default function ToolbarPlugin() {
         className="toolbar-item"
         aria-label="Justify Align"
       >
-        <i className="format justify-align" />
+        <IonIcon className="format" src="writer/justify.svg"></IonIcon>
       </button>
       <Divider />
       <button
@@ -228,7 +235,7 @@ export default function ToolbarPlugin() {
         className="toolbar-item"
         aria-label="Insert Horizontal Bar"
       >
-        <i className="format insert-hr" />
+        <IonIcon className="format" src="writer/hr.svg"></IonIcon>
       </button>{' '}
     </div>
   );

@@ -18,8 +18,10 @@ const DocumentEditor = ({ id }: DocumentEditorProps) => {
   const document = documentsService.getDocument(id);
   const onTitleChange = onTitleChangeFn(id);
   const onContentChange = (content: string) => {
-    console.log('writing to db', id, content);
-    documentsService.setDocumentContent(id, content);
+    // workaround because "delete" button triggers the event - find a better way
+    if (documentsService.documentExists(id)) {
+      documentsService.setDocumentContent(id, content);
+    }
   };
   return (
     <>
@@ -34,7 +36,7 @@ const DocumentEditor = ({ id }: DocumentEditorProps) => {
           </IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding scroll" scroll-overflow="true">
+      <IonContent>
         <DeleteDocumentButton id={id}></DeleteDocumentButton>
         <Writer
           content={document.content}

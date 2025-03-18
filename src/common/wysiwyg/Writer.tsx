@@ -11,11 +11,10 @@ import { HorizontalRulePlugin } from '@lexical/react/LexicalHorizontalRulePlugin
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
-import platformService from '../services/platform.service';
 import { serialize } from './conversion';
-import DebugTreeViewPlugin from './lexical/DebugTreeViewPlugin';
 import ParseInitialStatePlugin from './lexical/ParseInitialStatePlugin';
 
+import { Trans, useLingui } from '@lingui/react/macro';
 import KiwimeriToolbarPlugin from './lexical/KiwimeriToolbarPlugin';
 import KiwimeriEditorTheme from './lexical/theme/KiwimeriEditorTheme';
 
@@ -35,6 +34,7 @@ const EMPTY_CONTENT =
   '{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1}],"direction":null,"format":"","indent":0,"type":"root","version":1}}';
 
 const Writer = ({ content, onContentChange }: WriterProps) => {
+  const { t } = useLingui();
   return (
     <LexicalComposer
       initialConfig={{
@@ -58,9 +58,13 @@ const Writer = ({ content, onContentChange }: WriterProps) => {
       <RichTextPlugin
         contentEditable={
           <ContentEditable
-            style={{ outline: 'none' }}
-            aria-placeholder={'Enter some text...'}
-            placeholder={<div></div>}
+            className="editor-content-editable"
+            aria-placeholder={t`Enter some text...'`}
+            placeholder={
+              <div>
+                <Trans>Text...</Trans>
+              </div>
+            }
           />
         }
         ErrorBoundary={LexicalErrorBoundary}
@@ -75,7 +79,7 @@ const Writer = ({ content, onContentChange }: WriterProps) => {
       <AutoFocusPlugin />
       <HorizontalRulePlugin />
 
-      {platformService.isDev() && <DebugTreeViewPlugin />}
+      {/* {platformService.isDev() && <DebugTreeViewPlugin />} */}
     </LexicalComposer>
   );
 };

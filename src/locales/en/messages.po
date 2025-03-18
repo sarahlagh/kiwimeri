@@ -21,7 +21,11 @@ msgstr "An error occurred loading the file"
 msgid "Collection"
 msgstr "Collection"
 
-#: src/app/pages/DebugPage.tsx:27
+#: src/settings/components/Settings.tsx:38
+msgid "Dark"
+msgstr "Dark"
+
+#: src/app/pages/DebugPage.tsx:22
 #: src/app/components/MainMenuList.tsx:44
 msgid "Debug"
 msgstr "Debug"
@@ -30,6 +34,10 @@ msgstr "Debug"
 #: src/app/pages/DocumentExplorerPage.tsx:38
 msgid "Documents"
 msgstr "Documents"
+
+#: src/common/wysiwyg/Writer.tsx:62
+msgid "Enter some text...'"
+msgstr "Enter some text...'"
 
 #: src/settings/storage/ImportExportCollectionSettings.tsx:93
 msgid "Export"
@@ -43,15 +51,23 @@ msgstr "Filesystem"
 msgid "Import & export your collection"
 msgstr "Import & export your collection"
 
-#: src/app/MainLayout.tsx:20
+#: src/app/MainLayout.tsx:27
 msgid "Kiwi Meri"
 msgstr "Kiwi Meri"
+
+#: src/settings/components/Settings.tsx:31
+msgid "Light"
+msgstr "Light"
 
 #: src/settings/storage/ImportExportCollectionSettings.tsx:80
 msgid "Manually backup or restore your collection"
 msgstr "Manually backup or restore your collection"
 
-#: src/app/pages/DebugPage.tsx:49
+#: src/settings/components/Settings.tsx:58
+msgid "nuke db"
+msgstr "nuke db"
+
+#: src/settings/components/Settings.tsx:46
 msgid "Operations"
 msgstr "Operations"
 
@@ -61,7 +77,7 @@ msgstr "Operations"
 msgid "Pick a directory for your backups"
 msgstr "Pick a directory for your backups"
 
-#: src/app/pages/DebugPage.tsx:33
+#: src/app/pages/DebugPage.tsx:28
 msgid "Platform(s)"
 msgstr "Platform(s)"
 
@@ -82,6 +98,14 @@ msgstr "Success!"
 #: src/settings/storage/FilesystemSyncSettings.tsx:22
 msgid "Synchronize your collection on the filesystem"
 msgstr "Synchronize your collection on the filesystem"
+
+#: src/common/wysiwyg/Writer.tsx:65
+msgid "Text..."
+msgstr "Text..."
+
+#: src/settings/components/Settings.tsx:21
+msgid "Theme"
+msgstr "Theme"
 
 #: src/settings/storage/ImportExportCollectionSettings.tsx:86
 msgid "Your backups will be exported to the Documents/KiwimeriApp directory"
