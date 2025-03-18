@@ -15,6 +15,7 @@ import { serialize } from './conversion';
 import ParseInitialStatePlugin from './lexical/ParseInitialStatePlugin';
 
 import { Trans, useLingui } from '@lingui/react/macro';
+import React from 'react';
 import KiwimeriToolbarPlugin from './lexical/KiwimeriToolbarPlugin';
 import KiwimeriEditorTheme from './lexical/theme/KiwimeriEditorTheme';
 
@@ -33,7 +34,10 @@ function onError(error: any) {
 const EMPTY_CONTENT =
   '{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1}],"direction":null,"format":"","indent":0,"type":"root","version":1}}';
 
-const Writer = ({ content, onContentChange }: WriterProps) => {
+const Writer = (
+  { content, onContentChange }: WriterProps,
+  ref: React.LegacyRef<HTMLDivElement> | undefined
+) => {
   const { t } = useLingui();
   return (
     <LexicalComposer
@@ -58,6 +62,7 @@ const Writer = ({ content, onContentChange }: WriterProps) => {
       <RichTextPlugin
         contentEditable={
           <ContentEditable
+            ref={ref}
             className="editor-content-editable"
             aria-placeholder={t`Enter some text...'`}
             placeholder={
@@ -83,4 +88,4 @@ const Writer = ({ content, onContentChange }: WriterProps) => {
     </LexicalComposer>
   );
 };
-export default Writer;
+export default React.forwardRef(Writer);

@@ -5,6 +5,7 @@ import {
   IonTitle,
   IonToolbar
 } from '@ionic/react';
+import { useRef } from 'react';
 import DeleteDocumentButton from '../../common/buttons/DeleteDocumentButton';
 import { onTitleChangeFn } from '../../common/events/events';
 import Writer from '../../common/wysiwyg/Writer';
@@ -15,12 +16,28 @@ interface DocumentEditorProps {
 }
 
 const DocumentEditor = ({ id }: DocumentEditorProps) => {
+  const refWriter = useRef(null);
   const document = documentsService.getDocument(id);
   const onTitleChange = onTitleChangeFn(id);
   const onContentChange = (content: string) => {
     // workaround because "delete" button triggers the event - find a better way
     if (documentsService.documentExists(id)) {
       documentsService.setDocumentContent(id, content);
+    }
+  };
+  const onClickedAnywhere: React.MouseEventHandler<HTMLIonContentElement> = (
+    event: React.MouseEvent<HTMLIonContentElement, MouseEvent>
+  ) => {
+    const target = event.target as HTMLIonContentElement;
+    // exclude text area & toolbar from this handler
+    // focus the text editor when clicking on empty ion-content
+    if (
+      refWriter.current &&
+      target.role === 'main' &&
+      target.localName === 'ion-content'
+    ) {
+      const ref = refWriter.current as HTMLBaseElement;
+      ref.focus();
     }
   };
   return (
@@ -36,9 +53,10 @@ const DocumentEditor = ({ id }: DocumentEditorProps) => {
           </IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent>
+      <IonContent onClick={onClickedAnywhere}>
         <DeleteDocumentButton id={id}></DeleteDocumentButton>
         <Writer
+          ref={refWriter}
           content={document.content}
           onContentChange={onContentChange}
         ></Writer>
