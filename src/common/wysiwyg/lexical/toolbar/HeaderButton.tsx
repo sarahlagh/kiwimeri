@@ -16,9 +16,5 @@ export default function HeaderButton({ editor, tag }: HeaderButtonProps) {
     });
   };
 
-  return (
-    <>
-      <IonButton onClick={onClick}>{tag.toUpperCase()}</IonButton>
-    </>
-  );
+  return <IonButton onClick={onClick}>{tag.toUpperCase()}</IonButton>;
 }
