@@ -6,20 +6,6 @@
  *
  */
 
-body {
-  margin: 0;
-  background: #eee;
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    '.SFNSText-Regular',
-    sans-serif;
-  font-weight: 500;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 .other h2 {
   font-size: 18px;
   color: #444;
@@ -331,7 +317,7 @@ pre::-webkit-scrollbar-thumb {
 .toolbar {
   display: flex;
   margin-bottom: 1px;
-  background: #fff;
+  background: var(--ion-background-color, #fff);
   padding: 4px;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
