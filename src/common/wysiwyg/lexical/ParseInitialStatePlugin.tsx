@@ -1,7 +1,7 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useEffect } from 'react';
 import { initialContent } from '../../../db/documents.service';
-import { unminimizeFromStorage } from '../conversion';
+import { unminimizeFromStorage } from '../compress-storage';
 
 interface ParseInitialStatePluginProps {
   content: string;
@@ -12,12 +12,20 @@ export default function ParseInitialStatePlugin({
 }: ParseInitialStatePluginProps) {
   const [editor] = useLexicalComposerContext();
   const serializedEditorState = content
-    ? unminimizeFromStorage(content)
+    ? content.startsWith('{"root":{')
+      ? content
+      : unminimizeFromStorage(content)
     : initialContent();
-  const state = editor.parseEditorState(serializedEditorState);
-  useEffect(() => {
-    editor.setEditorState(state);
-  }, [content]);
-
+  try {
+    const state = editor.parseEditorState(serializedEditorState);
+    useEffect(() => {
+      editor.setEditorState(state);
+    }, [content]);
+  } catch (e) {
+    console.error(
+      '[kiwimeri] an unexpected error occurred parsing editor state',
+      e
+    );
+  }
   return null;
 }

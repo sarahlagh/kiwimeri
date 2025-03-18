@@ -1,7 +1,10 @@
 import { Id } from 'tinybase/common/with-schemas';
 import { useResultSortedRowIds, useTable } from 'tinybase/ui-react';
 import { createQueries, Queries } from 'tinybase/with-schemas';
-import { minimizeForStorage } from '../common/wysiwyg/conversion';
+import {
+  minimizeForStorage,
+  unminimizeFromStorage
+} from '../common/wysiwyg/compress-storage';
 import { Document } from '../documents/document';
 import storageService, { StoreType } from './storage.service';
 
@@ -106,11 +109,24 @@ class DocumentsService {
   }
 
   public setDocumentContent(rowId: Id, content: string) {
+    const minimized = minimizeForStorage(content);
+    console.debug(
+      'minimized',
+      content.length + ' -> ' + minimized.length,
+      -(content.length - minimized.length),
+      -((content.length - minimized.length) / content.length) * 100,
+      minimized
+    );
+    const unminimized = unminimizeFromStorage(minimized);
+    console.debug(
+      'unminimized',
+      unminimized === content,
+      content.length - unminimized.length,
+      unminimized
+    );
     storageService
       .getStore()
-      .setCell(this.documentTable, rowId, 'content', () =>
-        minimizeForStorage(content)
-      );
+      .setCell(this.documentTable, rowId, 'content', () => minimized);
     storageService
       .getStore()
       .setCell(this.documentTable, rowId, 'updated', Date.now());
