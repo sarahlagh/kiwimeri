@@ -14,10 +14,10 @@ import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import platformService from '../services/platform.service';
 import { serialize } from './conversion';
 import DebugTreeViewPlugin from './lexical/DebugTreeViewPlugin';
-import KiwimeriToolbarPlugin from './lexical/KiwimeriToolbarPlugin';
 import ParseInitialStatePlugin from './lexical/ParseInitialStatePlugin';
 
-import PlaygroundEditorTheme from './lexical/theme/PlaygroundEditorTheme';
+import KiwimeriToolbarPlugin from './lexical/KiwimeriToolbarPlugin';
+import KiwimeriEditorTheme from './lexical/theme/KiwimeriEditorTheme';
 
 interface WriterProps {
   content: string;
@@ -39,7 +39,7 @@ const Writer = ({ content, onContentChange }: WriterProps) => {
     <LexicalComposer
       initialConfig={{
         namespace: 'writer',
-        theme: PlaygroundEditorTheme,
+        theme: KiwimeriEditorTheme,
         onError,
         // https://github.com/facebook/lexical/discussions/3638
         nodes: [
