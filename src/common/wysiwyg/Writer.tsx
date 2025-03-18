@@ -11,7 +11,6 @@ import { HorizontalRulePlugin } from '@lexical/react/LexicalHorizontalRulePlugin
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
-import { serialize } from './conversion';
 import ParseInitialStatePlugin from './lexical/ParseInitialStatePlugin';
 
 import { useLingui } from '@lingui/react/macro';
@@ -78,7 +77,7 @@ const Writer = (
       <ParseInitialStatePlugin content={content} />
       <OnChangePlugin
         onChange={editorState => {
-          onContentChange(serialize(editorState.toJSON()));
+          onContentChange(JSON.stringify(editorState.toJSON()));
         }}
       />
       <HistoryPlugin />
