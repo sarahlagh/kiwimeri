@@ -15,5 +15,6 @@ COPY *.config.js /app/
 RUN ls && ionic build --prod
 
 FROM nginx:alpine
+COPY ./docker/nginx.conf /etc/nginx/templates/default.conf.template
 RUN rm -rf /usr/share/nginx/html/*
 COPY --from=build /app/dist/ /usr/share/nginx/html/
