@@ -1,4 +1,4 @@
-import { folderOutline, folderSharp } from 'ionicons/icons';
+import { folderSharp } from 'ionicons/icons';
 import { useLocation } from 'react-router-dom';
 
 import { IonIcon, IonItem, IonLabel, IonList } from '@ionic/react';
@@ -6,8 +6,8 @@ import { IonIcon, IonItem, IonLabel, IonList } from '@ionic/react';
 import documentsService from '../../db/documents.service';
 
 interface AppPage {
+  key: string;
   url: string;
-  iosIcon: string;
   mdIcon: string;
   title: string;
 }
@@ -16,9 +16,9 @@ export const DocumentList = () => {
   const documents: AppPage[] = documentsService.useDocuments().map(
     document =>
       ({
+        key: document.id,
         title: document.title,
         url: `/collection/document/${document.id}`,
-        iosIcon: folderOutline,
         mdIcon: folderSharp
       }) as AppPage
   );
@@ -26,10 +26,10 @@ export const DocumentList = () => {
   const location = useLocation();
   return (
     <IonList id="document-explorer-menu-list">
-      {documents.map((document, index) => {
+      {documents.map(document => {
         return (
           <IonItem
-            key={index}
+            key={document.key}
             color={location.pathname === document.url ? 'primary' : ''}
             routerLink={document.url}
             routerDirection="none"
@@ -39,7 +39,7 @@ export const DocumentList = () => {
             <IonIcon
               aria-hidden="true"
               slot="start"
-              ios={document.iosIcon}
+              ios={document.mdIcon}
               md={document.mdIcon}
             />
             <IonLabel>{document.title}</IonLabel>

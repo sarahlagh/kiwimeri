@@ -8,7 +8,11 @@ import SettingsPage from './pages/SettingsPage';
 const AppRouterOutlet = () => (
   <IonRouterOutlet>
     <Route path="/collection" component={DocumentListPage} exact={true} />
-    <Route path="/collection/document/:id" component={DocumentExplorerPage} />
+    <Route
+      path="/collection/document/:id"
+      component={DocumentExplorerPage}
+      exact={true}
+    />
     <Route path="/settings" component={SettingsPage} />
     <Route path="/debug" component={DebugPage} />
     <Redirect exact from="/" to="/collection" />

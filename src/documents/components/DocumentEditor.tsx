@@ -19,12 +19,6 @@ const DocumentEditor = ({ id }: DocumentEditorProps) => {
   const refWriter = useRef(null);
   const document = documentsService.useDocument(id);
   const onTitleChange = onTitleChangeFn(id);
-  const onContentChange = (content: string) => {
-    // workaround because "delete" button triggers the event - find a better way
-    if (documentsService.documentExists(id)) {
-      documentsService.setDocumentContent(id, content);
-    }
-  };
   const onClickedAnywhere: React.MouseEventHandler<HTMLIonContentElement> = (
     event: React.MouseEvent<HTMLIonContentElement, MouseEvent>
   ) => {
@@ -56,11 +50,7 @@ const DocumentEditor = ({ id }: DocumentEditorProps) => {
       <IonContent onClick={onClickedAnywhere}>
         <DeleteDocumentButton id={id}></DeleteDocumentButton>
         {document.content && (
-          <Writer
-            ref={refWriter}
-            content={document.content}
-            onContentChange={onContentChange}
-          ></Writer>
+          <Writer ref={refWriter} id={id} content={document.content}></Writer>
         )}
       </IonContent>
     </>

@@ -2,28 +2,31 @@ import { LinkNode } from '@lexical/link';
 import { ListItemNode, ListNode } from '@lexical/list';
 import { MarkNode } from '@lexical/mark';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
-import { LexicalComposer } from '@lexical/react/LexicalComposer';
+import {
+  InitialEditorStateType,
+  LexicalComposer
+} from '@lexical/react/LexicalComposer';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { HorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode';
 import { HorizontalRulePlugin } from '@lexical/react/LexicalHorizontalRulePlugin';
+import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
-import ParseInitialStatePlugin from './lexical/ParseInitialStatePlugin';
-
-import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { useLingui } from '@lingui/react/macro';
-import React from 'react';
+import React, { useState } from 'react';
+import documentsService, { initialContent } from '../../db/documents.service';
 import platformService from '../services/platform.service';
+import { unminimizeFromStorage } from './compress-storage';
 import DebugTreeViewPlugin from './lexical/DebugTreeViewPlugin';
 import KiwimeriToolbarPlugin from './lexical/KiwimeriToolbarPlugin';
 import KiwimeriEditorTheme from './lexical/theme/KiwimeriEditorTheme';
 
 interface WriterProps {
+  id: string;
   content: string;
-  onContentChange: (content: string) => void;
 }
 
 // Catch any errors that occur during Lexical updates and log them
@@ -33,15 +36,23 @@ interface WriterProps {
 function onError(error: any) {
   console.error(error);
 }
-const EMPTY_CONTENT =
-  '{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1}],"direction":null,"format":"","indent":0,"type":"root","version":1}}';
 
 const Writer = (
-  { content, onContentChange }: WriterProps,
+  { id, content }: WriterProps,
   ref: React.LegacyRef<HTMLDivElement> | undefined
 ) => {
   const { t } = useLingui();
   const placeholder = t`Text...`;
+  const [hasUserChanges, setHasUserChanges] = useState(false);
+
+  function createInitialState(): InitialEditorStateType {
+    return content
+      ? content.startsWith('{"root":{')
+        ? content
+        : unminimizeFromStorage(content)
+      : initialContent();
+  }
+
   return (
     <LexicalComposer
       initialConfig={{
@@ -58,7 +69,7 @@ const Writer = (
           ListItemNode,
           HorizontalRuleNode
         ],
-        editorState: EMPTY_CONTENT
+        editorState: createInitialState()
       }}
     >
       <KiwimeriToolbarPlugin />
@@ -75,10 +86,16 @@ const Writer = (
         }
         ErrorBoundary={LexicalErrorBoundary}
       />
-      <ParseInitialStatePlugin content={content} />
       <OnChangePlugin
+        ignoreSelectionChange
         onChange={editorState => {
-          onContentChange(JSON.stringify(editorState.toJSON()));
+          const changes = JSON.stringify(editorState.toJSON());
+          if (hasUserChanges) {
+            documentsService.setDocumentContent(id, changes);
+          }
+          if (!hasUserChanges) {
+            setHasUserChanges(true);
+          }
         }}
       />
       <HistoryPlugin />

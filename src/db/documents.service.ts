@@ -1,10 +1,12 @@
 import { Id } from 'tinybase/common/with-schemas';
-import { useResultSortedRowIds, useRow, useTable } from 'tinybase/ui-react';
-import { createQueries, Queries } from 'tinybase/with-schemas';
 import {
-  minimizeForStorage,
-  unminimizeFromStorage
-} from '../common/wysiwyg/compress-storage';
+  useCell,
+  useResultSortedRowIds,
+  useRow,
+  useTable
+} from 'tinybase/ui-react';
+import { createQueries, Queries } from 'tinybase/with-schemas';
+import { minimizeForStorage } from '../common/wysiwyg/compress-storage';
 import { Document } from '../documents/document';
 import storageService, { StoreType } from './storage.service';
 
@@ -88,6 +90,12 @@ class DocumentsService {
     return useRow(this.documentTable, rowId) as unknown as Document;
   }
 
+  public useDocumentTitle(rowId: Id) {
+    return (
+      (useCell(this.documentTable, rowId, 'title')?.valueOf() as string) || null
+    );
+  }
+
   public getDocumentTitle(rowId: Id) {
     return (
       (storageService
@@ -108,20 +116,6 @@ class DocumentsService {
 
   public setDocumentContent(rowId: Id, content: string) {
     const minimized = minimizeForStorage(content);
-    console.debug(
-      'minimized',
-      content.length + ' -> ' + minimized.length,
-      -(content.length - minimized.length),
-      -((content.length - minimized.length) / content.length) * 100,
-      minimized
-    );
-    const unminimized = unminimizeFromStorage(minimized);
-    console.debug(
-      'unminimized',
-      unminimized === content,
-      content.length - unminimized.length,
-      unminimized
-    );
     storageService
       .getStore()
       .setCell(this.documentTable, rowId, 'content', () => minimized);
