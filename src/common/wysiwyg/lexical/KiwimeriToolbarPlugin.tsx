@@ -86,13 +86,9 @@ export default function ToolbarPlugin() {
           ListNode
         );
         type = parentList ? parentList.getListType() : element.getListType();
-
-        // updateToolbarState('blockType', type);
       } else {
         type = $isHeadingNode(element) ? element.getTag() : element.getType();
       }
-
-      console.debug('type', type);
 
       setIsH1(type === 'h1');
       setIsH2(type === 'h2');

@@ -1,5 +1,5 @@
 import { Id } from 'tinybase/common/with-schemas';
-import { useResultSortedRowIds, useTable } from 'tinybase/ui-react';
+import { useResultSortedRowIds, useRow, useTable } from 'tinybase/ui-react';
 import { createQueries, Queries } from 'tinybase/with-schemas';
 import {
   minimizeForStorage,
@@ -84,10 +84,8 @@ class DocumentsService {
     return storageService.getStore().hasRow(this.documentTable, rowId);
   }
 
-  public getDocument(rowId: Id) {
-    return storageService
-      .getStore()
-      .getRow(this.documentTable, rowId) as unknown as Document;
+  public useDocument(rowId: Id) {
+    return useRow(this.documentTable, rowId) as unknown as Document;
   }
 
   public getDocumentTitle(rowId: Id) {

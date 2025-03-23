@@ -17,7 +17,7 @@ interface DocumentEditorProps {
 
 const DocumentEditor = ({ id }: DocumentEditorProps) => {
   const refWriter = useRef(null);
-  const document = documentsService.getDocument(id);
+  const document = documentsService.useDocument(id);
   const onTitleChange = onTitleChangeFn(id);
   const onContentChange = (content: string) => {
     // workaround because "delete" button triggers the event - find a better way
@@ -55,11 +55,13 @@ const DocumentEditor = ({ id }: DocumentEditorProps) => {
       </IonHeader>
       <IonContent onClick={onClickedAnywhere}>
         <DeleteDocumentButton id={id}></DeleteDocumentButton>
-        <Writer
-          ref={refWriter}
-          content={document.content}
-          onContentChange={onContentChange}
-        ></Writer>
+        {document.content && (
+          <Writer
+            ref={refWriter}
+            content={document.content}
+            onContentChange={onContentChange}
+          ></Writer>
+        )}
       </IonContent>
     </>
   );
