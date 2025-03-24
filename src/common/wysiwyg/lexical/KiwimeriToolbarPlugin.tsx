@@ -35,6 +35,8 @@ import {
 import { useCallback, useEffect, useRef, useState } from 'react';
 const LowPriority = 1;
 
+import './theme/KiwimeriToolbarPlugin.css';
+
 function Divider() {
   return <div className="divider" />;
 }

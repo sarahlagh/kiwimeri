@@ -4,6 +4,8 @@ import { IonButton } from '@ionic/react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { TreeView } from '@lexical/react/LexicalTreeView';
 
+import './theme/DebugTreeViewPlugin.css';
+
 export default function DebugTreeViewPlugin(): JSX.Element {
   const [editor] = useLexicalComposerContext();
   const [minimize, setMinimize] = useState(false);
