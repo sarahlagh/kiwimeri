@@ -1,3 +1,4 @@
+import { CodeNode } from '@lexical/code';
 import { LinkNode } from '@lexical/link';
 import { ListItemNode, ListNode } from '@lexical/list';
 import { MarkNode } from '@lexical/mark';
@@ -12,8 +13,11 @@ import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { HorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode';
 import { HorizontalRulePlugin } from '@lexical/react/LexicalHorizontalRulePlugin';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
+import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
+import { SelectionAlwaysOnDisplay } from '@lexical/react/LexicalSelectionAlwaysOnDisplay';
+import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import { useLingui } from '@lingui/react/macro';
 import React, { useState } from 'react';
@@ -63,6 +67,7 @@ const Writer = (
         nodes: [
           MarkNode,
           HeadingNode,
+          CodeNode,
           QuoteNode,
           LinkNode,
           ListNode,
@@ -102,6 +107,9 @@ const Writer = (
       <AutoFocusPlugin />
       <ListPlugin />
       <HorizontalRulePlugin />
+      <TabIndentationPlugin />
+      <SelectionAlwaysOnDisplay />
+      <MarkdownShortcutPlugin />
 
       {platformService.isDev() && <DebugTreeViewPlugin />}
     </LexicalComposer>
