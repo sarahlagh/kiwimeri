@@ -30,6 +30,7 @@ import { I18nProvider } from '@lingui/react';
 import { IonReactRouter } from '@ionic/react-router';
 import MainLayout from './app/MainLayout';
 import TinybaseProvider from './app/providers/TinybaseProvider';
+import platformService from './common/services/platform.service';
 import { messages as enMessages } from './locales/en/messages';
 
 setupIonicReact();
@@ -40,7 +41,7 @@ const App = () => {
   return (
     <TinybaseProvider>
       <I18nProvider i18n={i18n}>
-        <IonApp>
+        <IonApp className={platformService.getPlatform()}>
           <IonReactRouter>
             <MainLayout></MainLayout>
           </IonReactRouter>
