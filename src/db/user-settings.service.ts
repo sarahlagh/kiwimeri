@@ -9,6 +9,14 @@ class UserSettingsService {
   public setTheme(theme: 'light' | 'dark') {
     storageService.getStore().setValue('theme', theme);
   }
+
+  public useCurrentFolder() {
+    return useValue('currentFolder');
+  }
+
+  public setCurrentFolder(parent: string) {
+    storageService.getStore().setValue('currentFolder', parent);
+  }
 }
 
 const userSettingsService = new UserSettingsService();

@@ -1,9 +1,9 @@
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db/with-schemas';
 import { Persister } from 'tinybase/persisters/with-schemas';
 import { CellSchema, createStore, Store } from 'tinybase/store/with-schemas';
-import { Document } from '../documents/document';
+import { DocumentNode } from '../documents/document';
 
-type documentKeyEnum = keyof Required<Omit<Document, 'id'>>;
+type documentKeyEnum = keyof Required<Omit<DocumentNode, 'id'>>;
 export type StoreType = [
   {
     documents: {
@@ -12,6 +12,7 @@ export type StoreType = [
   },
   {
     theme: { type: 'string'; default: 'dark' };
+    currentFolder: { type: 'string'; default: 'home' };
   }
 ];
 
@@ -24,13 +25,17 @@ class StorageService {
       .setTablesSchema({
         documents: {
           title: { type: 'string' } as CellSchema,
+          parent: { type: 'string' } as CellSchema,
+          type: { type: 'string' } as CellSchema,
           content: { type: 'string' } as CellSchema,
           created: { type: 'number' } as CellSchema,
-          updated: { type: 'number' } as CellSchema
+          updated: { type: 'number' } as CellSchema,
+          deleted: { type: 'boolean' } as CellSchema
         }
       })
       .setValuesSchema({
-        theme: { type: 'string', default: 'dark' }
+        theme: { type: 'string', default: 'dark' },
+        currentFolder: { type: 'string', default: 'home' }
       });
 
     this.persister = createIndexedDbPersister(this.store, 'kiwimeriAppStore');

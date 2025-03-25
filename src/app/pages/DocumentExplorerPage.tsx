@@ -21,7 +21,7 @@ import MainHeader from '../components/MainHeader';
 const DocumentExplorerPage = () => {
   const { t } = useLingui();
 
-  const { id: docId } = useParams<{ id: string }>();
+  const { id: docId, parent } = useParams<{ id: string; parent: string }>();
 
   const title = documentsService.useDocumentTitle(docId) || 'Unknown document';
   const onTitleChange = onTitleChangeFn(docId);
@@ -33,7 +33,6 @@ const DocumentExplorerPage = () => {
       <>
         <IonButton
           onClick={() => {
-            console.debug('on click ellipsis', title);
             setHideDocumentActions(!hideDocumentActions);
           }}
         >
@@ -62,7 +61,7 @@ const DocumentExplorerPage = () => {
         <IonSplitPane when="md" contentId="documentExplorer">
           <IonMenu contentId="documentExplorer">
             <IonContent>
-              <DocumentList></DocumentList>
+              <DocumentList parent={parent}></DocumentList>
             </IonContent>
           </IonMenu>
 

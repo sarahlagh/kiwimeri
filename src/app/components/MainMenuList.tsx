@@ -24,6 +24,7 @@ import { useLingui } from '@lingui/react/macro';
 import userSettingsService from '../../db/user-settings.service';
 
 interface AppPage {
+  key: string;
   url: string;
   iosIcon: string;
   mdIcon: string;
@@ -35,18 +36,21 @@ const MainMenuList = () => {
 
   const appPages: AppPage[] = [
     {
+      key: 'collection',
       title: t`Collection`,
-      url: '/collection',
+      url: `/collection/${userSettingsService.useCurrentFolder()}`,
       iosIcon: folderOutline,
       mdIcon: folderSharp
     },
     {
+      key: 'settings',
       title: t`Settings`,
       url: '/settings',
       iosIcon: settingsOutline,
       mdIcon: settingsSharp
     },
     {
+      key: 'debug',
       title: t`Debug`,
       url: '/debug',
       iosIcon: constructOutline,
@@ -59,9 +63,9 @@ const MainMenuList = () => {
   return (
     <>
       <IonList id="main-menu-list" style={{ height: 'calc(100% - 56px)' }}>
-        {appPages.map((appPage, index) => {
+        {appPages.map(appPage => {
           return (
-            <IonMenuToggle key={index} autoHide={true}>
+            <IonMenuToggle key={appPage.key} autoHide={true}>
               <IonItem
                 color={
                   location.pathname.startsWith(appPage.url) ? 'primary' : ''

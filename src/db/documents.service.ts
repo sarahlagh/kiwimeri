@@ -7,7 +7,7 @@ import {
 } from 'tinybase/ui-react';
 import { createQueries, Queries } from 'tinybase/with-schemas';
 import { minimizeForStorage } from '../common/wysiwyg/compress-storage';
-import { Document } from '../documents/document';
+import { DocumentNode, DocumentNodeType } from '../documents/document';
 import storageService, { StoreType } from './storage.service';
 
 export const initialContent = () => {
@@ -17,64 +17,72 @@ export const initialContent = () => {
 
 class DocumentsService {
   private readonly documentTable = 'documents';
-  private readonly fetchAllDocumentsQuery = 'fetchAllDocuments';
 
   private queries: Queries<StoreType>;
   public constructor() {
     this.queries = createQueries(storageService.getStore());
-    this.queries.setQueryDefinition(
-      this.fetchAllDocumentsQuery,
-      this.documentTable,
-      ({ select }) => {
-        select('title');
-        select('content');
-        select('created');
-        select('updated');
-      }
-    );
   }
 
   public getQueries() {
     return this.queries;
   }
 
-  public getDocuments(
-    sortBy: 'created' | 'updated' = 'created',
-    descending = false
-  ) {
-    return this.queries
-      .getResultSortedRowIds(this.fetchAllDocumentsQuery, sortBy, descending)
-      .map(rowId => {
-        const row = this.queries.getResultRow(
-          this.fetchAllDocumentsQuery,
-          rowId
-        );
-        return { ...row, id: rowId } as Document;
-      });
+  public generateFetchAllDocumentNodesQuery(parent: string) {
+    const queryId = this.queries.getQueryIds().find(id => id === parent);
+    const queryName = `fetchAllDocumentNodesFor${parent}`;
+    if (!queryId) {
+      this.queries.setQueryDefinition(
+        queryName,
+        this.documentTable,
+        ({ select, where }) => {
+          select('title');
+          select('parent');
+          select('type');
+          select('content');
+          select('created');
+          select('updated');
+          where('parent', parent);
+        }
+      );
+    }
+    return queryName;
   }
 
-  public useDocuments(
+  public useDocumentNodes(
+    parent: string,
     sortBy: 'created' | 'updated' = 'created',
     descending = false
   ) {
     const table = useTable(this.documentTable);
-    return useResultSortedRowIds(
-      this.fetchAllDocumentsQuery,
-      sortBy,
-      descending
-    ).map(rowId => {
+    const queryName = `fetchAllDocumentNodesFor${parent}`;
+    return useResultSortedRowIds(queryName, sortBy, descending).map(rowId => {
       const row = table[rowId];
-      return { ...row, id: rowId } as Document;
+      return { ...row, id: rowId } as DocumentNode;
     });
   }
 
-  public addDocument() {
+  public addDocument(parent: string) {
     const now = Date.now();
     storageService.getStore().addRow(this.documentTable, {
       title: 'New document',
+      parent: parent,
       content: initialContent(),
       created: now,
-      updated: now
+      updated: now,
+      type: DocumentNodeType.document,
+      deleted: false
+    });
+  }
+
+  public addFolder(parent: string) {
+    const now = Date.now();
+    storageService.getStore().addRow(this.documentTable, {
+      title: 'New folder',
+      parent: parent,
+      created: now,
+      updated: now,
+      type: DocumentNodeType.folder,
+      deleted: false
     });
   }
 
@@ -87,7 +95,7 @@ class DocumentsService {
   }
 
   public useDocument(rowId: Id) {
-    return useRow(this.documentTable, rowId) as unknown as Document;
+    return useRow(this.documentTable, rowId) as unknown as DocumentNode;
   }
 
   public useDocumentTitle(rowId: Id) {
