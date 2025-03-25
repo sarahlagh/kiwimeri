@@ -3,19 +3,25 @@ import {
   constructSharp,
   folderOutline,
   folderSharp,
+  moonOutline,
+  moonSharp,
   settingsOutline,
   settingsSharp
 } from 'ionicons/icons';
 import { useLocation } from 'react-router-dom';
 
 import {
+  IonButton,
   IonIcon,
   IonItem,
   IonLabel,
   IonList,
-  IonMenuToggle
+  IonMenuToggle,
+  IonTitle,
+  IonToolbar
 } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
+import userSettingsService from '../../db/user-settings.service';
 
 interface AppPage {
   url: string;
@@ -48,31 +54,48 @@ const MainMenuList = () => {
     }
   ];
 
+  const theme = userSettingsService.useTheme();
   const location = useLocation();
   return (
-    <IonList id="main-menu-list">
-      {appPages.map((appPage, index) => {
-        return (
-          <IonMenuToggle key={index} autoHide={true}>
-            <IonItem
-              color={location.pathname.startsWith(appPage.url) ? 'primary' : ''}
-              routerLink={appPage.url}
-              routerDirection="none"
-              lines="none"
-              detail={false}
-            >
-              <IonIcon
-                aria-hidden="true"
-                slot="start"
-                ios={appPage.iosIcon}
-                md={appPage.mdIcon}
-              />
-              <IonLabel>{appPage.title}</IonLabel>
-            </IonItem>
-          </IonMenuToggle>
-        );
-      })}
-    </IonList>
+    <>
+      <IonList id="main-menu-list" style={{ height: 'calc(100% - 56px)' }}>
+        {appPages.map((appPage, index) => {
+          return (
+            <IonMenuToggle key={index} autoHide={true}>
+              <IonItem
+                color={
+                  location.pathname.startsWith(appPage.url) ? 'primary' : ''
+                }
+                routerLink={appPage.url}
+                routerDirection="none"
+                lines="none"
+                detail={false}
+              >
+                <IonIcon
+                  aria-hidden="true"
+                  slot="start"
+                  ios={appPage.iosIcon}
+                  md={appPage.mdIcon}
+                />
+                <IonLabel>{appPage.title}</IonLabel>
+              </IonItem>
+            </IonMenuToggle>
+          );
+        })}
+      </IonList>
+      <IonToolbar>
+        <IonTitle>
+          <IonButton
+            onClick={() => {
+              userSettingsService.setTheme(theme === 'dark' ? 'light' : 'dark');
+            }}
+          >
+            {theme === 'light' && <IonIcon icon={moonOutline}></IonIcon>}
+            {theme === 'dark' && <IonIcon icon={moonSharp}></IonIcon>}
+          </IonButton>
+        </IonTitle>
+      </IonToolbar>
+    </>
   );
 };
 
