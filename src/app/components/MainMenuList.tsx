@@ -21,6 +21,11 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
+import {
+  DEBUG_ROUTE,
+  GET_FOLDER_ROUTE,
+  SETTINGS_ROUTE
+} from '../../common/routes';
 import userSettingsService from '../../db/user-settings.service';
 
 interface AppPage {
@@ -38,21 +43,21 @@ const MainMenuList = () => {
     {
       key: 'collection',
       title: t`Collection`,
-      url: `/collection/${userSettingsService.useCurrentFolder()}`,
+      url: GET_FOLDER_ROUTE(`${userSettingsService.useCurrentFolder()}`),
       iosIcon: folderOutline,
       mdIcon: folderSharp
     },
     {
       key: 'settings',
       title: t`Settings`,
-      url: '/settings',
+      url: SETTINGS_ROUTE,
       iosIcon: settingsOutline,
       mdIcon: settingsSharp
     },
     {
       key: 'debug',
       title: t`Debug`,
-      url: '/debug',
+      url: DEBUG_ROUTE,
       iosIcon: constructOutline,
       mdIcon: constructSharp
     }

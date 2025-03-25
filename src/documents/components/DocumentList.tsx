@@ -18,6 +18,7 @@ import {
 } from '@ionic/react';
 
 import { useEffect } from 'react';
+import { GET_DOCUMENT_ROUTE, GET_FOLDER_ROUTE } from '../../common/routes';
 import { ROOT_FOLDER } from '../../constants';
 import documentsService from '../../db/documents.service';
 import userSettingsService from '../../db/user-settings.service';
@@ -49,8 +50,8 @@ export const DocumentList = ({ parent: folder }: DocumentListProps) => {
         title: document.title,
         url:
           document.type === DocumentNodeType.document
-            ? `/collection/${document.parent}/document/${document.id}`
-            : `/collection/${document.id}`,
+            ? GET_DOCUMENT_ROUTE(document.parent, document.id!)
+            : GET_FOLDER_ROUTE(document.id!),
         mdIcon:
           document.type === DocumentNodeType.document
             ? documentTextOutline
@@ -60,7 +61,7 @@ export const DocumentList = ({ parent: folder }: DocumentListProps) => {
 
   const current = documentsService.useDocument(folder);
   useEffect(() => {
-    if (location.pathname === `/collection/${folder}`) {
+    if (location.pathname === GET_FOLDER_ROUTE(folder)) {
       userSettingsService.setCurrentFolder(folder);
     }
   }, [folder, current]);
@@ -97,7 +98,7 @@ export const DocumentList = ({ parent: folder }: DocumentListProps) => {
           <IonButton
             disabled={folder === ROOT_FOLDER}
             onClick={() => {
-              history.push(`/collection/${current.parent}`);
+              history.push(GET_FOLDER_ROUTE(current.parent));
             }}
           >
             <IonIcon icon={chevronBack}></IonIcon>

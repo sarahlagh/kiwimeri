@@ -10,6 +10,10 @@ class UserSettingsService {
     storageService.getStore().setValue('theme', theme);
   }
 
+  public getCurrentFolder() {
+    return storageService.getStore().getValue('currentFolder');
+  }
+
   public useCurrentFolder() {
     return useValue('currentFolder');
   }
