@@ -7,6 +7,7 @@ import {
 } from 'tinybase/ui-react';
 import { createQueries, Queries } from 'tinybase/with-schemas';
 import { minimizeForStorage } from '../common/wysiwyg/compress-storage';
+import { ROOT_FOLDER } from '../constants';
 import { DocumentNode, DocumentNodeType } from '../documents/document';
 import storageService, { StoreType } from './storage.service';
 
@@ -72,6 +73,7 @@ class DocumentsService {
       type: DocumentNodeType.document,
       deleted: false
     });
+    this.updateParentRecursive(parent);
   }
 
   public addFolder(parent: string) {
@@ -87,11 +89,18 @@ class DocumentsService {
   }
 
   public deleteDocument(rowId: Id) {
+    this.updateParentRecursive(this.getDocument(rowId).parent);
     return storageService.getStore().delRow(this.documentTable, rowId);
   }
 
   public documentExists(rowId: Id) {
     return storageService.getStore().hasRow(this.documentTable, rowId);
+  }
+
+  public getDocument(rowId: Id) {
+    return storageService
+      .getStore()
+      .getRow(this.documentTable, rowId) as unknown as DocumentNode;
   }
 
   public useDocument(rowId: Id) {
@@ -120,6 +129,7 @@ class DocumentsService {
     storageService
       .getStore()
       .setCell(this.documentTable, rowId, 'updated', Date.now());
+    this.updateParentRecursive(this.getDocument(rowId).parent);
   }
 
   public setDocumentContent(rowId: Id, content: string) {
@@ -130,6 +140,17 @@ class DocumentsService {
     storageService
       .getStore()
       .setCell(this.documentTable, rowId, 'updated', Date.now());
+    this.updateParentRecursive(this.getDocument(rowId).parent);
+  }
+
+  private updateParentRecursive(folder: string) {
+    if (folder === ROOT_FOLDER) {
+      return;
+    }
+    storageService
+      .getStore()
+      .setCell(this.documentTable, folder, 'updated', Date.now());
+    this.updateParentRecursive(this.getDocument(folder).parent);
   }
 }
 
