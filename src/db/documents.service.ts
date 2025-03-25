@@ -65,7 +65,7 @@ class DocumentsService {
   public addDocument(parent: string) {
     const now = Date.now();
     storageService.getStore().addRow(this.documentTable, {
-      title: 'New document',
+      title: 'New document', // TODO translate
       parent: parent,
       content: initialContent(),
       created: now,
@@ -79,7 +79,7 @@ class DocumentsService {
   public addFolder(parent: string) {
     const now = Date.now();
     storageService.getStore().addRow(this.documentTable, {
-      title: 'New folder',
+      title: 'New folder', // TODO translate,
       parent: parent,
       created: now,
       updated: now,
@@ -88,32 +88,32 @@ class DocumentsService {
     });
   }
 
-  public deleteDocument(rowId: Id) {
-    this.updateParentRecursive(this.getDocument(rowId).parent);
+  public deleteNodeDocument(rowId: Id) {
+    this.updateParentRecursive(this.getDocumentNode(rowId).parent);
     return storageService.getStore().delRow(this.documentTable, rowId);
   }
 
-  public documentExists(rowId: Id) {
+  public documentNodeExists(rowId: Id) {
     return storageService.getStore().hasRow(this.documentTable, rowId);
   }
 
-  public getDocument(rowId: Id) {
+  public getDocumentNode(rowId: Id) {
     return storageService
       .getStore()
       .getRow(this.documentTable, rowId) as unknown as DocumentNode;
   }
 
-  public useDocument(rowId: Id) {
+  public useDocumentNode(rowId: Id) {
     return useRow(this.documentTable, rowId) as unknown as DocumentNode;
   }
 
-  public useDocumentTitle(rowId: Id) {
+  public useDocumentNodeTitle(rowId: Id) {
     return (
       (useCell(this.documentTable, rowId, 'title')?.valueOf() as string) || null
     );
   }
 
-  public getDocumentTitle(rowId: Id) {
+  public getDocumentNodeTitle(rowId: Id) {
     return (
       (storageService
         .getStore()
@@ -122,14 +122,14 @@ class DocumentsService {
     );
   }
 
-  public setDocumentTitle(rowId: Id, title: string) {
+  public setDocumentNodeTitle(rowId: Id, title: string) {
     storageService
       .getStore()
       .setCell(this.documentTable, rowId, 'title', title);
     storageService
       .getStore()
       .setCell(this.documentTable, rowId, 'updated', Date.now());
-    this.updateParentRecursive(this.getDocument(rowId).parent);
+    this.updateParentRecursive(this.getDocumentNode(rowId).parent);
   }
 
   public setDocumentContent(rowId: Id, content: string) {
@@ -140,7 +140,7 @@ class DocumentsService {
     storageService
       .getStore()
       .setCell(this.documentTable, rowId, 'updated', Date.now());
-    this.updateParentRecursive(this.getDocument(rowId).parent);
+    this.updateParentRecursive(this.getDocumentNode(rowId).parent);
   }
 
   private updateParentRecursive(folder: string) {
@@ -150,7 +150,7 @@ class DocumentsService {
     storageService
       .getStore()
       .setCell(this.documentTable, folder, 'updated', Date.now());
-    this.updateParentRecursive(this.getDocument(folder).parent);
+    this.updateParentRecursive(this.getDocumentNode(folder).parent);
   }
 }
 

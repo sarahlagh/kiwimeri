@@ -13,7 +13,7 @@ const DeleteDocumentButton = ({ id }: DeleteDocumentButtonProps) => {
   const history = useHistory();
   function onIonClick(e: { preventDefault: () => void }) {
     e.preventDefault();
-    documentsService.deleteDocument(id);
+    documentsService.deleteNodeDocument(id);
     history.push(GET_FOLDER_ROUTE(userSettingsService.getCurrentFolder()));
   }
   return (

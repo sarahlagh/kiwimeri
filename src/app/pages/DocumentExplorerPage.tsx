@@ -23,7 +23,8 @@ const DocumentExplorerPage = () => {
 
   const { id: docId, parent } = useParams<{ id: string; parent: string }>();
 
-  const title = documentsService.useDocumentTitle(docId) || 'Unknown document';
+  const title =
+    documentsService.useDocumentNodeTitle(docId) || 'Unknown document';
   const onTitleChange = onTitleChangeFn(docId);
 
   const [hideDocumentActions, setHideDocumentActions] = useState(true);

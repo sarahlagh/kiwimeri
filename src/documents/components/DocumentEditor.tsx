@@ -16,7 +16,7 @@ interface DocumentEditorProps {
 
 const DocumentEditor = ({ id }: DocumentEditorProps) => {
   const refWriter = useRef(null);
-  const document = documentsService.useDocument(id);
+  const document = documentsService.useDocumentNode(id);
   const onTitleChange = onTitleChangeFn(id);
   const onClickedAnywhere: React.MouseEventHandler<HTMLIonContentElement> = (
     event: React.MouseEvent<HTMLIonContentElement, MouseEvent>
