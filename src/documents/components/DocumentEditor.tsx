@@ -6,7 +6,6 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { useRef } from 'react';
-import DeleteDocumentButton from '../../common/buttons/DeleteDocumentButton';
 import { onTitleChangeFn } from '../../common/events/events';
 import Writer from '../../common/wysiwyg/Writer';
 import documentsService from '../../db/documents.service';
@@ -48,7 +47,6 @@ const DocumentEditor = ({ id }: DocumentEditorProps) => {
         </IonToolbar>
       </IonHeader>
       <IonContent onClick={onClickedAnywhere}>
-        <DeleteDocumentButton id={id}></DeleteDocumentButton>
         {document.content && (
           <Writer ref={refWriter} id={id} content={document.content}></Writer>
         )}

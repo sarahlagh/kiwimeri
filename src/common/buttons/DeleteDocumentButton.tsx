@@ -1,4 +1,4 @@
-import { IonFab, IonFabButton, IonIcon } from '@ionic/react';
+import { IonButton, IonIcon } from '@ionic/react';
 import { trashOutline } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { Id } from 'tinybase/with-schemas';
@@ -15,11 +15,9 @@ const DeleteDocumentButton = ({ id }: DeleteDocumentButtonProps) => {
     history.push('/collection');
   }
   return (
-    <IonFab slot="fixed" vertical="bottom" horizontal="end">
-      <IonFabButton onClick={onIonClick}>
-        <IonIcon icon={trashOutline}></IonIcon>
-      </IonFabButton>
-    </IonFab>
+    <IonButton onClick={onIonClick}>
+      <IonIcon icon={trashOutline}></IonIcon>
+    </IonButton>
   );
 };
 export default DeleteDocumentButton;

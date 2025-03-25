@@ -12,12 +12,12 @@ import { useLocation } from 'react-router-dom';
 
 import {
   IonButton,
+  IonButtons,
   IonIcon,
   IonItem,
   IonLabel,
   IonList,
   IonMenuToggle,
-  IonTitle,
   IonToolbar
 } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
@@ -84,7 +84,7 @@ const MainMenuList = () => {
         })}
       </IonList>
       <IonToolbar>
-        <IonTitle>
+        <IonButtons slot="end">
           <IonButton
             onClick={() => {
               userSettingsService.setTheme(theme === 'dark' ? 'light' : 'dark');
@@ -93,7 +93,7 @@ const MainMenuList = () => {
             {theme === 'light' && <IonIcon icon={moonOutline}></IonIcon>}
             {theme === 'dark' && <IonIcon icon={moonSharp}></IonIcon>}
           </IonButton>
-        </IonTitle>
+        </IonButtons>
       </IonToolbar>
     </>
   );
