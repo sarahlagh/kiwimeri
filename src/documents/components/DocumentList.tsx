@@ -3,7 +3,8 @@ import {
   albums,
   chevronBack,
   documentTextOutline,
-  folderSharp
+  folderSharp,
+  home
 } from 'ionicons/icons';
 import { useHistory, useLocation } from 'react-router-dom';
 
@@ -95,6 +96,14 @@ export const DocumentList = ({ parent: folder }: DocumentListProps) => {
       </IonList>
       <IonToolbar>
         <IonButtons slot="start">
+          <IonButton
+            disabled={folder === ROOT_FOLDER}
+            onClick={() => {
+              history.push(GET_FOLDER_ROUTE(ROOT_FOLDER));
+            }}
+          >
+            <IonIcon icon={home}></IonIcon>
+          </IonButton>
           <IonButton
             disabled={folder === ROOT_FOLDER}
             onClick={() => {

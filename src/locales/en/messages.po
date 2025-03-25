@@ -17,23 +17,23 @@ msgstr ""
 msgid "An error occurred loading the file"
 msgstr "An error occurred loading the file"
 
-#: src/app/components/MainMenuList.tsx:32
+#: src/app/components/MainMenuList.tsx:45
 msgid "Collection"
 msgstr "Collection"
 
 #: src/settings/components/Settings.tsx:38
-msgid "Dark"
-msgstr "Dark"
+#~ msgid "Dark"
+#~ msgstr "Dark"
 
 #: src/app/pages/DebugPage.tsx:22
-#: src/app/components/MainMenuList.tsx:44
+#: src/app/components/MainMenuList.tsx:59
 msgid "Debug"
 msgstr "Debug"
 
 #: src/app/pages/DocumentListPage.tsx:12
 #: src/app/pages/DocumentExplorerPage.tsx:38
-msgid "Documents"
-msgstr "Documents"
+#~ msgid "Documents"
+#~ msgstr "Documents"
 
 #: src/common/wysiwyg/Writer.tsx:62
 #~ msgid "Enter some text...'"
@@ -47,6 +47,11 @@ msgstr "Export"
 msgid "Filesystem"
 msgstr "Filesystem"
 
+#: src/app/pages/DocumentListPage.tsx:13
+#: src/app/pages/DocumentExplorerPage.tsx:29
+msgid "Home"
+msgstr "Home"
+
 #: src/settings/storage/ImportExportCollectionSettings.tsx:77
 msgid "Import & export your collection"
 msgstr "Import & export your collection"
@@ -56,18 +61,18 @@ msgid "Kiwi Meri"
 msgstr "Kiwi Meri"
 
 #: src/settings/components/Settings.tsx:31
-msgid "Light"
-msgstr "Light"
+#~ msgid "Light"
+#~ msgstr "Light"
 
 #: src/settings/storage/ImportExportCollectionSettings.tsx:80
 msgid "Manually backup or restore your collection"
 msgstr "Manually backup or restore your collection"
 
-#: src/settings/components/Settings.tsx:58
+#: src/settings/components/Settings.tsx:32
 msgid "nuke db"
 msgstr "nuke db"
 
-#: src/settings/components/Settings.tsx:46
+#: src/settings/components/Settings.tsx:20
 msgid "Operations"
 msgstr "Operations"
 
@@ -86,7 +91,7 @@ msgid "Restore"
 msgstr "Restore"
 
 #: src/app/pages/SettingsPage.tsx:11
-#: src/app/components/MainMenuList.tsx:38
+#: src/app/components/MainMenuList.tsx:52
 msgid "Settings"
 msgstr "Settings"
 
@@ -99,17 +104,21 @@ msgstr "Success!"
 msgid "Synchronize your collection on the filesystem"
 msgstr "Synchronize your collection on the filesystem"
 
-#: src/common/wysiwyg/Writer.tsx:65
-#~ msgid "Text..."
-#~ msgstr "Text..."
+#: src/common/wysiwyg/Writer.tsx:49
+msgid "Text..."
+msgstr "Text..."
 
 #: src/common/wysiwyg/Writer.tsx:44
-msgid "Text...'"
-msgstr "Text...'"
+#~ msgid "Text...'"
+#~ msgstr "Text...'"
 
 #: src/settings/components/Settings.tsx:21
-msgid "Theme"
-msgstr "Theme"
+#~ msgid "Theme"
+#~ msgstr "Theme"
+
+#: src/app/pages/DocumentExplorerPage.tsx:28
+msgid "Unknown document"
+msgstr "Unknown document"
 
 #: src/settings/storage/ImportExportCollectionSettings.tsx:86
 msgid "Your backups will be exported to the Documents/KiwimeriApp directory"
