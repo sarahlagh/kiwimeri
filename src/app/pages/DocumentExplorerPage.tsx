@@ -12,6 +12,7 @@ import { ellipsisVertical } from 'ionicons/icons';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { onTitleChangeFn } from '../../common/events/events';
+import { ROOT_FOLDER } from '../../constants';
 import documentsService from '../../db/documents.service';
 import DocumentActionsToolbar from '../../documents/components/DocumentActionsToolbar';
 import DocumentEditor from '../../documents/components/DocumentEditor';
@@ -24,8 +25,10 @@ const DocumentExplorerPage = () => {
   const { id: docId, parent } = useParams<{ id: string; parent: string }>();
 
   const title =
-    documentsService.useDocumentNodeTitle(docId) || 'Unknown document';
+    documentsService.useDocumentNodeTitle(docId) || t`Unknown document`;
+  const folderTitle = documentsService.useDocumentNodeTitle(parent) || t`Home`;
   const onTitleChange = onTitleChangeFn(docId);
+  const onFolderTitleChange = onTitleChangeFn(parent);
 
   const [hideDocumentActions, setHideDocumentActions] = useState(true);
 
@@ -53,7 +56,11 @@ const DocumentExplorerPage = () => {
       </IonHeader>
       {/* header on large screens */}
       <IonHeader class="ion-hide-md-down">
-        <MainHeader title={t`Documents`} editable={false}>
+        <MainHeader
+          title={folderTitle}
+          editable={parent !== ROOT_FOLDER}
+          onIonInput={onFolderTitleChange}
+        >
           <DocumentNodeActionsMenu />
         </MainHeader>
       </IonHeader>

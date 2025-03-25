@@ -61,7 +61,6 @@ export const DocumentList = ({ parent: folder }: DocumentListProps) => {
 
   const current = documentsService.useDocumentNode(folder);
   useEffect(() => {
-    console.log(location.pathname, GET_FOLDER_ROUTE(folder));
     if (location.pathname === GET_FOLDER_ROUTE(folder)) {
       userSettingsService.setCurrentFolder(folder);
     }
