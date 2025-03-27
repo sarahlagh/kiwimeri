@@ -4,16 +4,16 @@ import TemplateActionsToolbar, {
   TemplateActionsToolbarProps
 } from './TemplateActionsToolbar';
 
-type DocumentActionsToolbarProps = {
+type FolderActionsToolbarProps = {
   id: string;
   title?: string;
 } & TemplateActionsToolbarProps;
 
-const DocumentActionsToolbar = ({
+const FolderActionsToolbar = ({
   id,
   title,
   rows
-}: DocumentActionsToolbarProps) => {
+}: FolderActionsToolbarProps) => {
   return (
     <TemplateActionsToolbar rows={rows}>
       <IonLabel slot="start">{title}</IonLabel>
@@ -23,4 +23,4 @@ const DocumentActionsToolbar = ({
     </TemplateActionsToolbar>
   );
 };
-export default DocumentActionsToolbar;
+export default FolderActionsToolbar;

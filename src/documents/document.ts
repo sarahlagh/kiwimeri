@@ -4,10 +4,12 @@ export enum DocumentNodeType {
   page = 'p'
 }
 
+export type DocumentNodeTypeValues = 'f' | 'd' | 'p';
+
 export interface DocumentNode {
   id?: string;
   parent: string;
-  type: 'f' | 'd' | 'p';
+  type: DocumentNodeTypeValues;
   title: string;
   content: string;
   created: number;
