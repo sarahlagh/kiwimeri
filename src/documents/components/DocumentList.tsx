@@ -15,7 +15,8 @@ import {
   IonItem,
   IonLabel,
   IonList,
-  IonToolbar
+  IonToolbar,
+  useIonViewDidEnter
 } from '@ionic/react';
 
 import { useEffect } from 'react';
@@ -61,11 +62,9 @@ export const DocumentList = ({ parent: folder }: DocumentListProps) => {
   );
 
   const current = documentsService.useDocumentNode(folder);
-  useEffect(() => {
-    if (location.pathname === GET_FOLDER_ROUTE(folder)) {
-      userSettingsService.setCurrentFolder(folder);
-    }
-  }, [folder, current]);
+  useIonViewDidEnter(() => {
+    userSettingsService.setCurrentFolder(folder);
+  });
 
   return (
     <>
