@@ -1,12 +1,4 @@
-import {
-  IonButton,
-  IonContent,
-  IonHeader,
-  IonIcon,
-  IonMenu,
-  IonPage,
-  IonSplitPane
-} from '@ionic/react';
+import { IonButton, IonIcon } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
 import { ellipsisVertical } from 'ionicons/icons';
 import { useState } from 'react';
@@ -17,7 +9,7 @@ import documentsService from '../../db/documents.service';
 import DocumentActionsToolbar from '../../documents/components/DocumentActionsToolbar';
 import DocumentEditor from '../../documents/components/DocumentEditor';
 import DocumentList from '../../documents/components/DocumentList';
-import MainHeader from '../components/MainHeader';
+import TemplateCompactableSplitPage from './TemplateCompactableSplitPage';
 
 const DocumentExplorerPage = () => {
   const { t } = useLingui();
@@ -47,39 +39,26 @@ const DocumentExplorerPage = () => {
   };
 
   return (
-    <IonPage>
-      {/* header on small screens */}
-      <IonHeader class="ion-hide-md-up">
-        <MainHeader title={title} editable={true} onIonInput={onTitleChange}>
-          <DocumentNodeActionsMenu />
-        </MainHeader>
-      </IonHeader>
-      {/* header on large screens */}
-      <IonHeader class="ion-hide-md-down">
-        <MainHeader
-          title={folderTitle}
-          editable={parent !== ROOT_FOLDER}
-          onIonInput={onFolderTitleChange}
-        >
-          <DocumentNodeActionsMenu />
-        </MainHeader>
-      </IonHeader>
-      {/* content */}
-      <IonContent>
-        <IonSplitPane when="md" contentId="documentExplorer">
-          <IonMenu contentId="documentExplorer">
-            <IonContent>
-              <DocumentList parent={parent}></DocumentList>
-            </IonContent>
-          </IonMenu>
-
-          <div className="ion-page" id="documentExplorer">
-            {!hideDocumentActions && <DocumentActionsToolbar id={docId} />}
-            <DocumentEditor id={docId}></DocumentEditor>
-          </div>
-        </IonSplitPane>
-      </IonContent>
-    </IonPage>
+    <TemplateCompactableSplitPage
+      headerIfCompact={{
+        title,
+        editable: true,
+        onIonInput: onTitleChange,
+        children: <DocumentNodeActionsMenu />
+      }}
+      headerIfWide={{
+        title: folderTitle, // to replace with breadcrumb
+        editable: parent !== ROOT_FOLDER,
+        onIonInput: onFolderTitleChange,
+        // TODO: remove that and move it to editor toolbar
+        children: <DocumentNodeActionsMenu />
+      }}
+      menu={<DocumentList parent={parent}></DocumentList>}
+      contentId="documentExplorer"
+    >
+      {!hideDocumentActions && <DocumentActionsToolbar id={docId} />}
+      <DocumentEditor id={docId}></DocumentEditor>
+    </TemplateCompactableSplitPage>
   );
 };
 export default DocumentExplorerPage;

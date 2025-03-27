@@ -7,18 +7,18 @@ import {
 } from '@ionic/react';
 import { ReactNode } from 'react';
 
-export interface MainHeaderProps {
+export type MainHeaderProps = {
   title: string;
   editable?: boolean;
   onIonInput?: (e: Event) => void;
-}
+} & { readonly children?: ReactNode };
 
 const MainHeader = ({
   title,
   editable = false,
   onIonInput,
   children
-}: MainHeaderProps & { readonly children?: ReactNode }) => {
+}: MainHeaderProps) => {
   return (
     <IonToolbar>
       <IonButtons slot="start">
