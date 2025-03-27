@@ -12,13 +12,14 @@ type DocumentActionsToolbarProps = {
 const DocumentActionsToolbar = ({
   id,
   title,
-  rows
+  rows,
+  onClose
 }: DocumentActionsToolbarProps) => {
   return (
     <TemplateActionsToolbar rows={rows}>
       <IonLabel slot="start">{title}</IonLabel>
       <IonButtons slot="end">
-        <DeleteDocumentButton id={id} />
+        <DeleteDocumentButton id={id} onClose={onClose} />
       </IonButtons>
     </TemplateActionsToolbar>
   );

@@ -12,13 +12,14 @@ type FolderActionsToolbarProps = {
 const FolderActionsToolbar = ({
   id,
   title,
-  rows
+  rows,
+  onClose
 }: FolderActionsToolbarProps) => {
   return (
     <TemplateActionsToolbar rows={rows}>
       <IonLabel slot="start">{title}</IonLabel>
       <IonButtons slot="end">
-        <DeleteDocumentButton id={id} />
+        <DeleteDocumentButton id={id} onClose={onClose} />
       </IonButtons>
     </TemplateActionsToolbar>
   );

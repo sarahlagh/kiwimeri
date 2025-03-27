@@ -1,9 +1,9 @@
 import { IonToolbar } from '@ionic/react';
-import { ReactNode } from 'react';
 
 export type TemplateActionsToolbarProps = {
   rows?: number;
-} & { readonly children?: ReactNode };
+  onClose?: (confirmed: boolean) => void;
+} & React.HTMLAttributes<HTMLIonToolbarElement>;
 
 const TemplateActionsToolbar = ({
   rows = 1,

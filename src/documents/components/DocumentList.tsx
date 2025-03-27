@@ -123,6 +123,7 @@ export const DocumentList = ({ parent: folder }: DocumentListProps) => {
             id={selectedNode.id}
             title={selectedNode.title}
             rows={2}
+            onClose={() => setSelectedNode(null)}
           />
         )}
         {selectedNode?.type === DocumentNodeType.document && (
@@ -130,6 +131,7 @@ export const DocumentList = ({ parent: folder }: DocumentListProps) => {
             id={selectedNode.id}
             title={selectedNode.title}
             rows={2}
+            onClose={() => setSelectedNode(null)}
           />
         )}
         {!selectedNode && (
