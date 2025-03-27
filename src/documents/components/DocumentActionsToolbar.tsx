@@ -7,7 +7,7 @@ interface DocumentActionsToolbarProps {
 
 const DocumentActionsToolbar = ({ id }: DocumentActionsToolbarProps) => {
   return (
-    <IonToolbar>
+    <IonToolbar color="medium">
       <IonButtons slot="end">
         <DeleteDocumentButton id={id} />
       </IonButtons>

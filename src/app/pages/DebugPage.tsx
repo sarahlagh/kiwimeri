@@ -5,22 +5,17 @@ import {
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
-  IonContent,
-  IonHeader,
-  IonPage
+  IonContent
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import platformService from '../../common/services/platform.service';
 import { appConfig } from '../../config';
-import MainHeader from '../components/MainHeader';
+import TemplateMainPage from './TemplateMainPage';
 
 const DebugPage = () => {
   const { t } = useLingui();
   return (
-    <IonPage>
-      <IonHeader>
-        <MainHeader title={t`Debug`}></MainHeader>
-      </IonHeader>
+    <TemplateMainPage title={t`Debug`}>
       <IonContent>
         <IonCard>
           <IonCardHeader>
@@ -39,7 +34,7 @@ const DebugPage = () => {
           </IonCardContent>
         </IonCard>
       </IonContent>
-    </IonPage>
+    </TemplateMainPage>
   );
 };
 export default DebugPage;

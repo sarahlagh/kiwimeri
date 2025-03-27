@@ -13,6 +13,8 @@ import { useLocation } from 'react-router-dom';
 import {
   IonButton,
   IonButtons,
+  IonContent,
+  IonFooter,
   IonIcon,
   IonItem,
   IonLabel,
@@ -67,43 +69,49 @@ const MainMenuList = () => {
   const location = useLocation();
   return (
     <>
-      <IonList id="main-menu-list" style={{ height: 'calc(100% - 56px)' }}>
-        {appPages.map(appPage => {
-          return (
-            <IonMenuToggle key={appPage.key} autoHide={true}>
-              <IonItem
-                color={
-                  location.pathname.startsWith(appPage.url) ? 'primary' : ''
-                }
-                routerLink={appPage.url}
-                routerDirection="none"
-                lines="none"
-                detail={false}
-              >
-                <IonIcon
-                  aria-hidden="true"
-                  slot="start"
-                  ios={appPage.iosIcon}
-                  md={appPage.mdIcon}
-                />
-                <IonLabel>{appPage.title}</IonLabel>
-              </IonItem>
-            </IonMenuToggle>
-          );
-        })}
-      </IonList>
-      <IonToolbar>
-        <IonButtons slot="end">
-          <IonButton
-            onClick={() => {
-              userSettingsService.setTheme(theme === 'dark' ? 'light' : 'dark');
-            }}
-          >
-            {theme === 'light' && <IonIcon icon={moonOutline}></IonIcon>}
-            {theme === 'dark' && <IonIcon icon={moonSharp}></IonIcon>}
-          </IonButton>
-        </IonButtons>
-      </IonToolbar>
+      <IonContent>
+        <IonList id="main-menu-list">
+          {appPages.map(appPage => {
+            return (
+              <IonMenuToggle key={appPage.key} autoHide={true}>
+                <IonItem
+                  color={
+                    location.pathname.startsWith(appPage.url) ? 'primary' : ''
+                  }
+                  routerLink={appPage.url}
+                  routerDirection="none"
+                  lines="none"
+                  detail={false}
+                >
+                  <IonIcon
+                    aria-hidden="true"
+                    slot="start"
+                    ios={appPage.iosIcon}
+                    md={appPage.mdIcon}
+                  />
+                  <IonLabel>{appPage.title}</IonLabel>
+                </IonItem>
+              </IonMenuToggle>
+            );
+          })}
+        </IonList>
+      </IonContent>
+      <IonFooter>
+        <IonToolbar>
+          <IonButtons slot="end">
+            <IonButton
+              onClick={() => {
+                userSettingsService.setTheme(
+                  theme === 'dark' ? 'light' : 'dark'
+                );
+              }}
+            >
+              {theme === 'light' && <IonIcon icon={moonOutline}></IonIcon>}
+              {theme === 'dark' && <IonIcon icon={moonSharp}></IonIcon>}
+            </IonButton>
+          </IonButtons>
+        </IonToolbar>
+      </IonFooter>
     </>
   );
 };

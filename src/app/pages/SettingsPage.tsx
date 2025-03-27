@@ -1,19 +1,16 @@
-import { IonContent, IonHeader, IonPage } from '@ionic/react';
+import { IonContent } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
 import Settings from '../../settings/components/Settings';
-import MainHeader from '../components/MainHeader';
+import TemplateMainPage from './TemplateMainPage';
 
 const SettingsPage = () => {
   const { t } = useLingui();
   return (
-    <IonPage>
-      <IonHeader>
-        <MainHeader title={t`Settings`}></MainHeader>
-      </IonHeader>
+    <TemplateMainPage title={t`Settings`}>
       <IonContent>
         <Settings></Settings>
       </IonContent>
-    </IonPage>
+    </TemplateMainPage>
   );
 };
 export default SettingsPage;

@@ -1,5 +1,4 @@
 import {
-  IonContent,
   IonHeader,
   IonMenu,
   IonPage,
@@ -28,9 +27,7 @@ const MainLayout = () => {
             </IonTitle>
           </IonToolbar>
         </IonHeader>
-        <IonContent>
-          <MainMenuList></MainMenuList>
-        </IonContent>
+        <MainMenuList></MainMenuList>
       </IonMenu>
       <IonPage id="main-content">
         <AppRouterOutlet></AppRouterOutlet>

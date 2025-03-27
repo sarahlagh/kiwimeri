@@ -7,7 +7,7 @@ import {
 } from '@ionic/react';
 import { ReactNode } from 'react';
 
-interface MainHeaderProps {
+export interface MainHeaderProps {
   title: string;
   editable?: boolean;
   onIonInput?: (e: Event) => void;
