@@ -6,7 +6,7 @@ import {
   IonSplitPane
 } from '@ionic/react';
 import { ReactNode } from 'react';
-import { useMediaQueryMatch } from '../../common/hooks/useMediaQueryMatch';
+import platformService from '../../common/services/platform.service';
 import MainHeader, { MainHeaderProps } from '../components/MainHeader';
 
 type TemplateCompactableSplitPageProps = {
@@ -27,7 +27,7 @@ const TemplateCompactableSplitPage = ({
   contentId,
   children
 }: TemplateCompactableSplitPageProps) => {
-  const isWideEnough = useMediaQueryMatch('md');
+  const isWideEnough = platformService.isWideEnough();
   return (
     <IonPage>
       {!isWideEnough && (

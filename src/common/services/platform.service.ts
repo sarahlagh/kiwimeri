@@ -1,5 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { appConfig } from '../../config';
+import { useMediaQueryMatch } from '../hooks/useMediaQueryMatch';
 
 class PlatformService {
   public isAndroid() {
@@ -20,6 +21,10 @@ class PlatformService {
 
   public getPlatform() {
     return Capacitor.getPlatform();
+  }
+
+  public isWideEnough() {
+    return useMediaQueryMatch('md');
   }
 }
 

@@ -1,7 +1,7 @@
 import { IonButton, IonIcon } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
 import { ellipsisVertical } from 'ionicons/icons';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { onTitleChangeFn } from '../../common/events/events';
 import { useSearchParams } from '../../common/hooks/useSearchParams';
 import { ROOT_FOLDER } from '../../constants';
@@ -25,6 +25,10 @@ const DocumentEditorPage = () => {
   const folderTitle = documentsService.useDocumentNodeTitle(parent) || t`Home`;
   const onTitleChange = onTitleChangeFn(docId);
   const onFolderTitleChange = onTitleChangeFn(parent);
+
+  useEffect(() => {
+    setHideDocumentActions(true);
+  }, [docId]);
 
   const DocumentNodeActionsMenu = () => {
     return (

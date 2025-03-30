@@ -24,7 +24,8 @@ import {
 
 import { useEffect, useState } from 'react';
 import { useSearchParams } from '../../common/hooks/useSearchParams';
-import { GET_DOCUMENT_ROUTE, GET_FOLDER_ROUTE } from '../../common/routes';
+import { GET_NODE_ROUTE } from '../../common/routes';
+import platformService from '../../common/services/platform.service';
 import { ROOT_FOLDER } from '../../constants';
 import documentsService from '../../db/documents.service';
 import userSettingsService from '../../db/user-settings.service';
@@ -37,17 +38,18 @@ interface DocumentListProps {
 }
 
 const DocumentListNodeItem = ({
+  openedDocument,
   document,
   onClick
 }: {
+  openedDocument: string | undefined;
   document: DocumentNodeResult;
   onClick: (e: Event) => void;
 }) => {
-  const searchParams = useSearchParams();
   const url =
     document.type === DocumentNodeType.document
-      ? GET_DOCUMENT_ROUTE(document.parent, document.id)
-      : GET_FOLDER_ROUTE(document.id);
+      ? GET_NODE_ROUTE(document.parent, document.id)
+      : GET_NODE_ROUTE(document.id, openedDocument);
   const icon =
     document.type === DocumentNodeType.document
       ? documentTextOutline
@@ -55,7 +57,7 @@ const DocumentListNodeItem = ({
   return (
     <IonItem
       key={document.id}
-      color={searchParams?.document === document.id ? 'primary' : ''}
+      color={openedDocument === document.id ? 'primary' : ''}
       routerLink={url}
       routerDirection="none"
       lines="none"
@@ -82,27 +84,49 @@ const DocumentListNodeItem = ({
 
 const DocumentListToolbar = ({
   folderId,
-  parentId
+  parentId,
+  openedDocument
 }: {
   folderId: string;
   parentId: string;
+  openedDocument: string | undefined;
 }) => {
   const history = useHistory();
+  const openedDocumentFolder = openedDocument
+    ? documentsService.getDocumentNodeParent(openedDocument)
+    : null;
   return (
     <IonToolbar>
       <IonButtons slot="start">
+        {/* go to home button */}
         <IonButton
           disabled={folderId === ROOT_FOLDER}
           onClick={() => {
-            history.push(GET_FOLDER_ROUTE(ROOT_FOLDER));
+            history.push(GET_NODE_ROUTE(ROOT_FOLDER, openedDocument));
           }}
         >
           <IonIcon icon={home}></IonIcon>
         </IonButton>
+        {/* go to current opened document parent folder */}
+        {platformService.isWideEnough() && (
+          <IonButton
+            disabled={folderId === openedDocumentFolder}
+            onClick={() => {
+              if (openedDocumentFolder) {
+                history.push(
+                  GET_NODE_ROUTE(openedDocumentFolder, openedDocument)
+                );
+              }
+            }}
+          >
+            <IonIcon icon={folderSharp}></IonIcon>
+          </IonButton>
+        )}
+        {/* go to current folder parent */}
         <IonButton
           disabled={folderId === ROOT_FOLDER}
           onClick={() => {
-            history.push(GET_FOLDER_ROUTE(parentId));
+            history.push(GET_NODE_ROUTE(parentId, openedDocument));
           }}
         >
           <IonIcon icon={chevronBack}></IonIcon>
@@ -130,6 +154,8 @@ const DocumentListToolbar = ({
 };
 
 export const DocumentList = ({ parent: folder }: DocumentListProps) => {
+  const searchParams = useSearchParams();
+  const openedDocument = searchParams?.document;
   const parentFolder = documentsService.getDocumentNodeParent(folder);
   const documents: DocumentNodeResult[] =
     documentsService.useDocumentNodes(folder);
@@ -176,6 +202,7 @@ export const DocumentList = ({ parent: folder }: DocumentListProps) => {
             return (
               <DocumentListNodeItem
                 key={document.id}
+                openedDocument={openedDocument}
                 document={document}
                 onClick={event => {
                   setSelectedNode(document);
@@ -191,7 +218,11 @@ export const DocumentList = ({ parent: folder }: DocumentListProps) => {
       </IonContent>
 
       <IonFooter>
-        <DocumentListToolbar folderId={folder} parentId={parentFolder} />
+        <DocumentListToolbar
+          folderId={folder}
+          parentId={parentFolder}
+          openedDocument={openedDocument}
+        />
       </IonFooter>
     </>
   );
