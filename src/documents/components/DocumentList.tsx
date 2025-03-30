@@ -7,7 +7,7 @@ import {
   folderSharp,
   home
 } from 'ionicons/icons';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 
 import {
   IonButton,
@@ -18,10 +18,12 @@ import {
   IonItem,
   IonLabel,
   IonList,
-  IonToolbar
+  IonToolbar,
+  useIonPopover
 } from '@ionic/react';
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from '../../common/hooks/useSearchParams';
 import { GET_DOCUMENT_ROUTE, GET_FOLDER_ROUTE } from '../../common/routes';
 import { ROOT_FOLDER } from '../../constants';
 import documentsService from '../../db/documents.service';
@@ -34,24 +36,14 @@ interface DocumentListProps {
   parent: string;
 }
 
-type SetSelectedNodeType = React.Dispatch<
-  React.SetStateAction<DocumentNodeResult | null>
->;
-// type ModalPresentType = (
-//   options?: Omit<ModalOptions, 'component' | 'componentProps'> &
-//     HookOverlayOptions
-// ) => void;
-
 const DocumentListNodeItem = ({
   document,
-  setSelectedNode
-  // present
+  onClick
 }: {
   document: DocumentNodeResult;
-  setSelectedNode: SetSelectedNodeType;
-  // present: ModalPresentType;
+  onClick: (e: Event) => void;
 }) => {
-  const location = useLocation();
+  const searchParams = useSearchParams();
   const url =
     document.type === DocumentNodeType.document
       ? GET_DOCUMENT_ROUTE(document.parent, document.id)
@@ -63,7 +55,7 @@ const DocumentListNodeItem = ({
   return (
     <IonItem
       key={document.id}
-      color={location.pathname === url ? 'primary' : ''}
+      color={searchParams?.document === document.id ? 'primary' : ''}
       routerLink={url}
       routerDirection="none"
       lines="none"
@@ -74,21 +66,11 @@ const DocumentListNodeItem = ({
         slot="end"
         fill="clear"
         color="medium"
+        id="click-trigger"
         onClick={e => {
-          console.log('is it the modal?');
-          setSelectedNode(document);
-          // present({
-          //   cssClass: 'context-menu-sheet-modal',
-          //   htmlAttributes: {
-          //     height: '116px'
-          //   },
-          //   keyboardClose: true,
-          //   breakpoints: [0, 0.15, 0.5],
-          //   initialBreakpoint: 0.15,
-          //   handleBehavior: 'cycle'
-          // });
           e.stopPropagation();
           e.preventDefault();
+          onClick(e.nativeEvent);
         }}
       >
         <IonIcon aria-hidden="true" icon={ellipsisVertical} />
@@ -106,7 +88,6 @@ const DocumentListToolbar = ({
   parentId: string;
 }) => {
   const history = useHistory();
-  // const folderId = currentFolder.id!;
   return (
     <IonToolbar>
       <IonButtons slot="start">
@@ -152,6 +133,7 @@ export const DocumentList = ({ parent: folder }: DocumentListProps) => {
   const parentFolder = documentsService.getDocumentNodeParent(folder);
   const documents: DocumentNodeResult[] =
     documentsService.useDocumentNodes(folder);
+
   const [selectedNode, setSelectedNode] = useState<DocumentNodeResult | null>(
     null
   );
@@ -161,32 +143,30 @@ export const DocumentList = ({ parent: folder }: DocumentListProps) => {
     userSettingsService.setCurrentFolder(folder);
   }, [folder]);
 
-  // const [present, dismiss] = useIonModal(() => (
-  //   <>
-  //     {selectedNode?.type === DocumentNodeType.folder && (
-  //       <FolderActionsToolbar
-  //         id={selectedNode.id || ''}
-  //         title={selectedNode.title}
-  //         rows={2}
-  //         onClose={() => {
-  //           dismiss();
-  //           setSelectedNode(null);
-  //         }}
-  //       />
-  //     )}
-  //     {selectedNode?.type === DocumentNodeType.document && (
-  //       <DocumentActionsToolbar
-  //         id={selectedNode.id || ''}
-  //         title={selectedNode.title}
-  //         rows={2}
-  //         onClose={() => {
-  //           dismiss();
-  //           setSelectedNode(null);
-  //         }}
-  //       />
-  //     )}
-  //   </>
-  // ));
+  const [present, dismiss] = useIonPopover(() => (
+    <>
+      {selectedNode?.type === DocumentNodeType.folder && (
+        <FolderActionsToolbar
+          id={selectedNode.id}
+          title={selectedNode.title}
+          onClose={() => {
+            dismiss();
+            setSelectedNode(null);
+          }}
+        />
+      )}
+      {selectedNode?.type === DocumentNodeType.document && (
+        <DocumentActionsToolbar
+          id={selectedNode.id}
+          title={selectedNode.title}
+          onClose={() => {
+            dismiss();
+            setSelectedNode(null);
+          }}
+        />
+      )}
+    </>
+  ));
 
   return (
     <>
@@ -194,12 +174,16 @@ export const DocumentList = ({ parent: folder }: DocumentListProps) => {
         <IonList id="document-explorer-menu-list">
           {documents.map(document => {
             return (
-              // eslint-disable-next-line react/prop-types
               <DocumentListNodeItem
                 key={document.id}
                 document={document}
-                setSelectedNode={setSelectedNode}
-                // present={present}
+                onClick={event => {
+                  setSelectedNode(document);
+                  present({
+                    event,
+                    alignment: 'end'
+                  });
+                }}
               />
             );
           })}
@@ -207,32 +191,6 @@ export const DocumentList = ({ parent: folder }: DocumentListProps) => {
       </IonContent>
 
       <IonFooter>
-        {selectedNode && (
-          <>
-            {selectedNode?.type === DocumentNodeType.folder && (
-              <FolderActionsToolbar
-                id={selectedNode.id}
-                title={selectedNode.title}
-                rows={2}
-                onClose={() => {
-                  // dismiss();
-                  setSelectedNode(null);
-                }}
-              />
-            )}
-            {selectedNode?.type === DocumentNodeType.document && (
-              <DocumentActionsToolbar
-                id={selectedNode.id}
-                title={selectedNode.title}
-                rows={2}
-                onClose={() => {
-                  // dismiss();
-                  setSelectedNode(null);
-                }}
-              />
-            )}
-          </>
-        )}
         <DocumentListToolbar folderId={folder} parentId={parentFolder} />
       </IonFooter>
     </>

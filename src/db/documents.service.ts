@@ -154,13 +154,13 @@ class DocumentsService {
   }
 
   private updateParentRecursive(folder: string) {
-    // if (folder === ROOT_FOLDER) {
-    //   return;
-    // }
-    // storageService
-    //   .getStore()
-    //   .setCell(this.documentTable, folder, 'updated', Date.now());
-    // this.updateParentRecursive(this.getDocumentNode(folder).parent);
+    if (folder === ROOT_FOLDER) {
+      return;
+    }
+    storageService
+      .getStore()
+      .setCell(this.documentTable, folder, 'updated', Date.now());
+    this.updateParentRecursive(this.getDocumentNodeParent(folder));
   }
 }
 

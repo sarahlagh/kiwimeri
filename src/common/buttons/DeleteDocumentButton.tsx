@@ -14,7 +14,6 @@ type DeleteDocumentButtonProps = {
 
 const DeleteDocumentButton = ({ id, onClose }: DeleteDocumentButtonProps) => {
   const history = useHistory();
-
   return (
     <>
       <IonButton id="open-modal" expand="block">
@@ -25,9 +24,11 @@ const DeleteDocumentButton = ({ id, onClose }: DeleteDocumentButtonProps) => {
         onClose={confirmed => {
           if (confirmed) {
             documentsService.deleteNodeDocument(id);
-            history.push(
-              GET_FOLDER_ROUTE(userSettingsService.getCurrentFolder())
-            );
+            if (history) {
+              history.push(
+                GET_FOLDER_ROUTE(userSettingsService.getCurrentFolder())
+              );
+            }
           }
           if (onClose) onClose(confirmed);
         }}
