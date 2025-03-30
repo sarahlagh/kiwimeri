@@ -16,7 +16,8 @@ interface DocumentEditorProps {
 
 const DocumentEditor = ({ id }: DocumentEditorProps) => {
   const refWriter = useRef(null);
-  const document = documentsService.useDocumentNode(id);
+  const documentTitle = documentsService.getDocumentNodeTitle(id);
+  const documentContent = documentsService.useDocumentNodeContent(id);
   const onTitleChange = onTitleChangeFn(id);
   const onClickedAnywhere: React.MouseEventHandler<HTMLIonContentElement> = (
     event: React.MouseEvent<HTMLIonContentElement, MouseEvent>
@@ -40,15 +41,15 @@ const DocumentEditor = ({ id }: DocumentEditorProps) => {
           <IonTitle>
             <IonInput
               class="invisible"
-              value={document.title}
+              value={documentTitle}
               onIonInput={onTitleChange}
             ></IonInput>
           </IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent onClick={onClickedAnywhere}>
-        {document.content && (
-          <Writer ref={refWriter} id={id} content={document.content}></Writer>
+        {documentContent && (
+          <Writer ref={refWriter} id={id} content={documentContent}></Writer>
         )}
       </IonContent>
     </>

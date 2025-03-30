@@ -16,3 +16,10 @@ export interface DocumentNode {
   updated: number;
   deleted: boolean;
 }
+
+export type DocumentNodeResult = Required<
+  Pick<
+    DocumentNode,
+    'id' | 'parent' | 'title' | 'type' | 'created' | 'updated' | 'deleted'
+  >
+>;

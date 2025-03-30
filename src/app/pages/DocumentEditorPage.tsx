@@ -11,12 +11,12 @@ import DocumentEditor from '../../documents/components/DocumentEditor';
 import DocumentList from '../../documents/components/DocumentList';
 import TemplateCompactableSplitPage from './TemplateCompactableSplitPage';
 
-const DocumentExplorerPage = () => {
+const DocumentEditorPage = () => {
   const { t } = useLingui();
 
   const searchParams = useSearchParams();
-  const docId = searchParams?.document || '0';
-  const parent = searchParams?.folder || '0';
+  const docId = searchParams?.document || '-1';
+  const parent = searchParams?.folder || '-1';
 
   const [hideDocumentActions, setHideDocumentActions] = useState(true);
 
@@ -63,4 +63,4 @@ const DocumentExplorerPage = () => {
     </TemplateCompactableSplitPage>
   );
 };
-export default DocumentExplorerPage;
+export default DocumentEditorPage;

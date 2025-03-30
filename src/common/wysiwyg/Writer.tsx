@@ -3,10 +3,7 @@ import { LinkNode } from '@lexical/link';
 import { ListItemNode, ListNode } from '@lexical/list';
 import { MarkNode } from '@lexical/mark';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
-import {
-  InitialEditorStateType,
-  LexicalComposer
-} from '@lexical/react/LexicalComposer';
+import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
@@ -20,11 +17,12 @@ import { SelectionAlwaysOnDisplay } from '@lexical/react/LexicalSelectionAlwaysO
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import { useLingui } from '@lingui/react/macro';
-import React, { useState } from 'react';
-import documentsService, { initialContent } from '../../db/documents.service';
+import React, { useEffect, useState } from 'react';
+import documentsService from '../../db/documents.service';
 import platformService from '../services/platform.service';
-import { unminimizeFromStorage } from './compress-storage';
+import { minimizeForStorage } from './compress-storage';
 import DebugTreeViewPlugin from './lexical/DebugTreeViewPlugin';
+import KiwimeriReloadContentPlugin from './lexical/KiwimeriReloadContentPlugin';
 import KiwimeriToolbarPlugin from './lexical/KiwimeriToolbarPlugin';
 import KiwimeriEditorTheme from './lexical/theme/KiwimeriEditorTheme';
 
@@ -49,13 +47,9 @@ const Writer = (
   const placeholder = t`Text...`;
   const [hasUserChanges, setHasUserChanges] = useState(false);
 
-  function createInitialState(): InitialEditorStateType {
-    return content
-      ? content.startsWith('{"root":{')
-        ? content
-        : unminimizeFromStorage(content)
-      : initialContent();
-  }
+  useEffect(() => {
+    setHasUserChanges(false);
+  }, [id]);
 
   return (
     <LexicalComposer
@@ -73,8 +67,7 @@ const Writer = (
           ListNode,
           ListItemNode,
           HorizontalRuleNode
-        ],
-        editorState: createInitialState()
+        ]
       }}
     >
       <KiwimeriToolbarPlugin />
@@ -91,12 +84,14 @@ const Writer = (
         }
         ErrorBoundary={LexicalErrorBoundary}
       />
+      <KiwimeriReloadContentPlugin id={id} content={content} />
       <OnChangePlugin
         ignoreSelectionChange
         onChange={editorState => {
-          const changes = JSON.stringify(editorState.toJSON());
           if (hasUserChanges) {
-            documentsService.setDocumentContent(id, changes);
+            const changes = JSON.stringify(editorState.toJSON());
+            const minimized = minimizeForStorage(changes);
+            documentsService.setDocumentContent(id, minimized);
           }
           if (!hasUserChanges) {
             setHasUserChanges(true);

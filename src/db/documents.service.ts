@@ -1,14 +1,8 @@
 import { Id } from 'tinybase/common/with-schemas';
-import {
-  useCell,
-  useResultSortedRowIds,
-  useRow,
-  useTable
-} from 'tinybase/ui-react';
+import { useCell, useResultSortedRowIds, useTable } from 'tinybase/ui-react';
 import { createQueries, Queries } from 'tinybase/with-schemas';
-import { minimizeForStorage } from '../common/wysiwyg/compress-storage';
 import { ROOT_FOLDER } from '../constants';
-import { DocumentNode, DocumentNodeType } from '../documents/document';
+import { DocumentNodeResult, DocumentNodeType } from '../documents/document';
 import storageService, { StoreType } from './storage.service';
 
 export const initialContent = () => {
@@ -28,21 +22,23 @@ class DocumentsService {
     return this.queries;
   }
 
-  public generateFetchAllDocumentNodesQuery(parent: string) {
+  public generateFetchAllDocumentNodesQuery(
+    parent: string,
+    deleted: boolean = false
+  ) {
     const queryId = this.queries.getQueryIds().find(id => id === parent);
     const queryName = `fetchAllDocumentNodesFor${parent}`;
-    if (!queryId) {
+    if (!queryId && parent !== '-1') {
       this.queries.setQueryDefinition(
         queryName,
         this.documentTable,
         ({ select, where }) => {
           select('title');
-          select('parent');
           select('type');
-          select('content');
           select('created');
           select('updated');
           where('parent', parent);
+          where('deleted', deleted);
         }
       );
     }
@@ -53,12 +49,12 @@ class DocumentsService {
     parent: string,
     sortBy: 'created' | 'updated' = 'created',
     descending = false
-  ) {
+  ): DocumentNodeResult[] {
     const table = useTable(this.documentTable);
     const queryName = `fetchAllDocumentNodesFor${parent}`;
     return useResultSortedRowIds(queryName, sortBy, descending).map(rowId => {
       const row = table[rowId];
-      return { ...row, id: rowId } as DocumentNode;
+      return { ...row, id: rowId } as DocumentNodeResult;
     });
   }
 
@@ -89,7 +85,7 @@ class DocumentsService {
   }
 
   public deleteNodeDocument(rowId: Id) {
-    this.updateParentRecursive(this.getDocumentNode(rowId).parent);
+    this.updateParentRecursive(this.getDocumentNodeParent(rowId));
     return storageService.getStore().delRow(this.documentTable, rowId);
   }
 
@@ -97,14 +93,13 @@ class DocumentsService {
     return storageService.getStore().hasRow(this.documentTable, rowId);
   }
 
-  public getDocumentNode(rowId: Id) {
-    return storageService
-      .getStore()
-      .getRow(this.documentTable, rowId) as unknown as DocumentNode;
-  }
-
-  public useDocumentNode(rowId: Id) {
-    return useRow(this.documentTable, rowId) as unknown as DocumentNode;
+  public getDocumentNodeParent(rowId: Id) {
+    return (
+      (storageService
+        .getStore()
+        .getCell(this.documentTable, rowId, 'parent')
+        ?.valueOf() as string) || ROOT_FOLDER
+    );
   }
 
   public useDocumentNodeTitle(rowId: Id) {
@@ -129,28 +124,43 @@ class DocumentsService {
     storageService
       .getStore()
       .setCell(this.documentTable, rowId, 'updated', Date.now());
-    this.updateParentRecursive(this.getDocumentNode(rowId).parent);
+    this.updateParentRecursive(this.getDocumentNodeParent(rowId));
+  }
+
+  public getDocumentNodeContent(rowId: Id) {
+    return (
+      (storageService
+        .getStore()
+        .getCell(this.documentTable, rowId, 'content')
+        ?.valueOf() as string) || null
+    );
+  }
+
+  public useDocumentNodeContent(rowId: Id) {
+    return (
+      (useCell(this.documentTable, rowId, 'content')?.valueOf() as string) ||
+      null
+    );
   }
 
   public setDocumentContent(rowId: Id, content: string) {
-    const minimized = minimizeForStorage(content);
     storageService
       .getStore()
-      .setCell(this.documentTable, rowId, 'content', () => minimized);
+      .setCell(this.documentTable, rowId, 'content', () => content);
     storageService
       .getStore()
       .setCell(this.documentTable, rowId, 'updated', Date.now());
-    this.updateParentRecursive(this.getDocumentNode(rowId).parent);
+    this.updateParentRecursive(this.getDocumentNodeParent(rowId));
   }
 
   private updateParentRecursive(folder: string) {
-    if (folder === ROOT_FOLDER) {
-      return;
-    }
-    storageService
-      .getStore()
-      .setCell(this.documentTable, folder, 'updated', Date.now());
-    this.updateParentRecursive(this.getDocumentNode(folder).parent);
+    // if (folder === ROOT_FOLDER) {
+    //   return;
+    // }
+    // storageService
+    //   .getStore()
+    //   .setCell(this.documentTable, folder, 'updated', Date.now());
+    // this.updateParentRecursive(this.getDocumentNode(folder).parent);
   }
 }
 

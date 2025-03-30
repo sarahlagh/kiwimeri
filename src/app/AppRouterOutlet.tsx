@@ -7,7 +7,7 @@ import {
   SETTINGS_ROUTE
 } from '../common/routes';
 import DebugPage from './pages/DebugPage';
-import DocumentExplorerPage from './pages/DocumentExplorerPage';
+import DocumentEditorPage from './pages/DocumentEditorPage';
 import DocumentListPage from './pages/DocumentListPage';
 import SettingsPage from './pages/SettingsPage';
 
@@ -17,7 +17,7 @@ const AppRouterOutlet = () => (
       <DocumentListPage />
     </Route>
     <Route path={DOCUMENT_ROUTE}>
-      <DocumentExplorerPage />
+      <DocumentEditorPage />
     </Route>
     <Route path={SETTINGS_ROUTE} component={SettingsPage} />
     <Route path={DEBUG_ROUTE} component={DebugPage} />
