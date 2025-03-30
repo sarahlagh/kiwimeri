@@ -2,8 +2,8 @@ import { IonButton, IonIcon } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
 import { ellipsisVertical } from 'ionicons/icons';
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
 import { onTitleChangeFn } from '../../common/events/events';
+import { useSearchParams } from '../../common/hooks/useSearchParams';
 import { ROOT_FOLDER } from '../../constants';
 import documentsService from '../../db/documents.service';
 import DocumentActionsToolbar from '../../documents/components/DocumentActionsToolbar';
@@ -14,15 +14,17 @@ import TemplateCompactableSplitPage from './TemplateCompactableSplitPage';
 const DocumentExplorerPage = () => {
   const { t } = useLingui();
 
-  const { id: docId, parent } = useParams<{ id: string; parent: string }>();
+  const searchParams = useSearchParams();
+  const docId = searchParams?.document || '0';
+  const parent = searchParams?.folder || '0';
+
+  const [hideDocumentActions, setHideDocumentActions] = useState(true);
 
   const title =
     documentsService.useDocumentNodeTitle(docId) || t`Unknown document`;
   const folderTitle = documentsService.useDocumentNodeTitle(parent) || t`Home`;
   const onTitleChange = onTitleChangeFn(docId);
   const onFolderTitleChange = onTitleChangeFn(parent);
-
-  const [hideDocumentActions, setHideDocumentActions] = useState(true);
 
   const DocumentNodeActionsMenu = () => {
     return (
