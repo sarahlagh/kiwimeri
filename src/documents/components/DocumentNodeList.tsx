@@ -11,7 +11,7 @@ import {
 } from '@ionic/react';
 import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactProps';
 import { documentTextOutline, folderSharp } from 'ionicons/icons';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import documentsService from '../../db/documents.service';
 import { DocumentNodeResult, DocumentNodeType } from '../document';
 
@@ -49,15 +49,21 @@ const DocumentNodeListItem = ({
   onSelectedNode,
   onRenamingDone
 }: DocumentListNodeItemProps) => {
+  const inputRenaming = useRef<HTMLIonInputElement>(null);
   const [renaming, setRenaming] = useState<boolean>(false);
   useEffect(() => {
     setRenaming(itemRenaming === node.id);
   }, [itemRenaming]);
 
+  if (inputRenaming.current) {
+    inputRenaming.current.setFocus();
+  }
+
   const url = getUrl && !renaming ? getUrl(node) : undefined;
   const routerDirection = getUrl && !renaming ? 'none' : undefined;
   const icon =
     node.type === DocumentNodeType.document ? documentTextOutline : folderSharp;
+
   return (
     <IonItem
       id={itemId ? `${itemId}-${node.id}` : undefined}
@@ -105,6 +111,7 @@ const DocumentNodeListItem = ({
       {renaming && (
         <IonInput
           class="invisible"
+          ref={inputRenaming}
           value={node.title}
           onIonChange={(e: InputCustomEvent) => {
             if (itemRenaming && e.detail.value) {

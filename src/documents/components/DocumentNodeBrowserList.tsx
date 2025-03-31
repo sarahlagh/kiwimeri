@@ -120,6 +120,7 @@ export const DocumentNodeBrowserList = ({
   useEffect(() => {
     documentsService.generateFetchAllDocumentNodesQuery(folder);
     userSettingsService.setCurrentFolder(folder);
+    setItemRenaming(undefined);
   }, [folder]);
 
   const [present, dismiss] = useIonPopover(CommonActionsToolbar, {
@@ -147,6 +148,7 @@ export const DocumentNodeBrowserList = ({
       itemRenaming={itemRenaming}
       onClickActions={(event, node) => {
         setSelectedNode(node);
+        setItemRenaming(undefined);
         present({
           event,
           alignment: 'end'
