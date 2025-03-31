@@ -23,11 +23,13 @@ import { IonReactRouter } from '@ionic/react-router';
 import MainLayout from './app/MainLayout';
 import TinybaseProvider from './app/providers/TinybaseProvider';
 import platformService from './common/services/platform.service';
+import { initGlobalTrans } from './config';
 import { messages as enMessages } from './locales/en/messages';
 
 setupIonicReact();
 i18n.load('en', enMessages);
 i18n.activate('en');
+initGlobalTrans();
 
 const App = () => {
   return (

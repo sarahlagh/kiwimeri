@@ -1,4 +1,5 @@
 import {
+  InputCustomEvent,
   IonButtons,
   IonInput,
   IonMenuButton,
@@ -10,13 +11,13 @@ import { ReactNode } from 'react';
 export type MainHeaderProps = {
   title: string;
   editable?: boolean;
-  onIonInput?: (e: Event) => void;
+  onEdited?: (textEdited: string) => void;
 } & { readonly children?: ReactNode };
 
 const MainHeader = ({
   title,
   editable = false,
-  onIonInput,
+  onEdited,
   children
 }: MainHeaderProps) => {
   return (
@@ -29,7 +30,11 @@ const MainHeader = ({
         <IonInput
           class="invisible"
           value={title}
-          onIonInput={onIonInput}
+          onIonChange={(e: InputCustomEvent) => {
+            if (onEdited && typeof e.detail.value === 'string') {
+              onEdited(e.detail.value || '');
+            }
+          }}
         ></IonInput>
       )}
 

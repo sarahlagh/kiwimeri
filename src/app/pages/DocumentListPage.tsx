@@ -1,4 +1,3 @@
-import { useLingui } from '@lingui/react/macro';
 import { useEffect } from 'react';
 import { useHistory, useLocation } from 'react-router';
 import { onTitleChangeFn } from '../../common/events/events';
@@ -9,12 +8,11 @@ import BrowseDocumentList from '../../documents/components/BrowseDocumentList';
 import TemplateMainPage from './TemplateMainPage';
 
 const DocumentListPage = () => {
-  const { t } = useLingui();
   const location = useLocation();
   const history = useHistory();
   const searchParams = useSearchParams();
   const parent = searchParams?.folder || ROOT_FOLDER;
-  const folderTitle = documentsService.useDocumentNodeTitle(parent) || t`Home`;
+  const folderTitle = documentsService.useDocumentNodeTitle(parent);
   const onFolderTitleChange = onTitleChangeFn(parent);
 
   useEffect(() => {
@@ -30,7 +28,7 @@ const DocumentListPage = () => {
     <TemplateMainPage
       title={folderTitle}
       editable={parent !== ROOT_FOLDER}
-      onIonInput={onFolderTitleChange}
+      onEdited={onFolderTitleChange}
     >
       <BrowseDocumentList parent={parent}></BrowseDocumentList>
     </TemplateMainPage>

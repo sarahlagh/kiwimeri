@@ -1,6 +1,7 @@
 import { Id } from 'tinybase/common/with-schemas';
 import { useCell, useResultSortedRowIds, useTable } from 'tinybase/ui-react';
 import { createQueries, Queries } from 'tinybase/with-schemas';
+import { getGlobalTrans } from '../config';
 import { ROOT_FOLDER } from '../constants';
 import { DocumentNodeResult, DocumentNodeType } from '../documents/document';
 import storageService, { StoreType } from './storage.service';
@@ -110,17 +111,22 @@ class DocumentsService {
   }
 
   public useDocumentNodeTitle(rowId: Id) {
+    const defaultValue =
+      rowId === ROOT_FOLDER ? getGlobalTrans().homeTitle : '';
     return (
-      (useCell(this.documentTable, rowId, 'title')?.valueOf() as string) || null
+      (useCell(this.documentTable, rowId, 'title')?.valueOf() as string) ||
+      defaultValue
     );
   }
 
   public getDocumentNodeTitle(rowId: Id) {
+    const defaultValue =
+      rowId === ROOT_FOLDER ? getGlobalTrans().homeTitle : '';
     return (
       (storageService
         .getStore()
         .getCell(this.documentTable, rowId, 'title')
-        ?.valueOf() as string) || null
+        ?.valueOf() as string) || defaultValue
     );
   }
 

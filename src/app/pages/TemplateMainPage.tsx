@@ -9,7 +9,7 @@ type TemplateMainPageProps = MainHeaderProps & {
 const TemplateMainPage = ({
   title,
   editable,
-  onIonInput,
+  onEdited,
   children
 }: TemplateMainPageProps) => {
   return (
@@ -18,7 +18,7 @@ const TemplateMainPage = ({
         <MainHeader
           title={title}
           editable={editable}
-          onIonInput={onIonInput}
+          onEdited={onEdited}
         ></MainHeader>
       </IonHeader>
       {children}

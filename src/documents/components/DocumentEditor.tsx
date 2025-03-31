@@ -1,4 +1,5 @@
 import {
+  InputCustomEvent,
   IonContent,
   IonHeader,
   IonInput,
@@ -42,7 +43,11 @@ const DocumentEditor = ({ id }: DocumentEditorProps) => {
             <IonInput
               class="invisible"
               value={documentTitle}
-              onIonInput={onTitleChange}
+              onIonChange={(e: InputCustomEvent) => {
+                if (typeof e.detail.value === 'string') {
+                  onTitleChange(e.detail.value || '');
+                }
+              }}
             ></IonInput>
           </IonTitle>
         </IonToolbar>

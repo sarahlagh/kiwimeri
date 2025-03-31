@@ -1,5 +1,4 @@
 import { IonButton, IonIcon } from '@ionic/react';
-import { useLingui } from '@lingui/react/macro';
 import { ellipsisVertical } from 'ionicons/icons';
 import { useEffect, useState } from 'react';
 import { onTitleChangeFn } from '../../common/events/events';
@@ -12,17 +11,14 @@ import DocumentEditor from '../../documents/components/DocumentEditor';
 import TemplateCompactableSplitPage from './TemplateCompactableSplitPage';
 
 const DocumentEditorPage = () => {
-  const { t } = useLingui();
-
   const searchParams = useSearchParams();
   const docId = searchParams?.document || '-1';
   const parent = searchParams?.folder || '-1';
 
   const [hideDocumentActions, setHideDocumentActions] = useState(true);
 
-  const title =
-    documentsService.useDocumentNodeTitle(docId) || t`Unknown document`;
-  const folderTitle = documentsService.useDocumentNodeTitle(parent) || t`Home`;
+  const title = documentsService.useDocumentNodeTitle(docId);
+  const folderTitle = documentsService.useDocumentNodeTitle(parent);
   const onTitleChange = onTitleChangeFn(docId);
   const onFolderTitleChange = onTitleChangeFn(parent);
 
@@ -49,13 +45,13 @@ const DocumentEditorPage = () => {
       headerIfCompact={{
         title,
         editable: true,
-        onIonInput: onTitleChange,
+        onEdited: onTitleChange,
         children: <DocumentNodeActionsMenu />
       }}
       headerIfWide={{
         title: folderTitle, // to replace with breadcrumb
         editable: parent !== ROOT_FOLDER,
-        onIonInput: onFolderTitleChange,
+        onEdited: onFolderTitleChange,
         // TODO: remove that and move it to editor toolbar
         children: <DocumentNodeActionsMenu />
       }}

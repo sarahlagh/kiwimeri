@@ -35,7 +35,7 @@ const TemplateCompactableSplitPage = ({
           <MainHeader
             title={headerIfCompact.title}
             editable={headerIfCompact.editable}
-            onIonInput={headerIfCompact.onIonInput}
+            onEdited={headerIfCompact.onEdited}
           >
             {headerIfCompact.children}
           </MainHeader>
@@ -46,7 +46,7 @@ const TemplateCompactableSplitPage = ({
           <MainHeader
             title={headerIfWide.title}
             editable={headerIfWide.editable}
-            onIonInput={headerIfWide.onIonInput}
+            onEdited={headerIfWide.onEdited}
           >
             {headerIfWide.children}
           </MainHeader>
