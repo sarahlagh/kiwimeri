@@ -5,7 +5,7 @@ import { onTitleChangeFn } from '../../common/events/events';
 import { useSearchParams } from '../../common/hooks/useSearchParams';
 import { ROOT_FOLDER } from '../../constants';
 import documentsService from '../../db/documents.service';
-import DocumentActionsToolbar from '../../documents/components/DocumentActionsToolbar';
+import CommonActionsToolbar from '../../documents/components/CommonActionsToolbar';
 import DocumentEditor from '../../documents/components/DocumentEditor';
 import DocumentNodeBrowserList from '../../documents/components/DocumentNodeBrowserList';
 import TemplateCompactableSplitPage from './TemplateCompactableSplitPage';
@@ -59,7 +59,7 @@ const DocumentEditorPage = () => {
       contentId="documentExplorer"
     >
       {!hideDocumentActions && (
-        <DocumentActionsToolbar
+        <CommonActionsToolbar
           id={docId}
           onClose={() => {
             setHideDocumentActions(true);

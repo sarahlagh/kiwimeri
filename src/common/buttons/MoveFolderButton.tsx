@@ -6,7 +6,7 @@ import ChooseFolderModal from '../modals/ChooseFolderModal';
 
 type MoveFolderButtonProps = {
   id: Id;
-  onClose: (confirmed: boolean) => void;
+  onClose: (role?: string) => void;
 };
 
 const MoveFolderButton = ({ id, onClose }: MoveFolderButtonProps) => {
@@ -22,7 +22,7 @@ const MoveFolderButton = ({ id, onClose }: MoveFolderButtonProps) => {
         documentsService.setDocumentNodeParent(id, parentId);
       }
       dismiss(parentId, parentId === undefined ? 'cancel' : 'choose');
-      onClose(parentId !== undefined);
+      onClose(parentId !== undefined ? 'confirm' : 'cancel');
     }
   });
   return (

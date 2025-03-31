@@ -9,7 +9,7 @@ import { GET_FOLDER_ROUTE } from '../routes';
 
 type DeleteNodeButtonProps = {
   id: Id;
-  onClose?: (confirmed: boolean) => void;
+  onClose?: (role?: string) => void;
 };
 
 const DeleteNodeButton = ({ id, onClose }: DeleteNodeButtonProps) => {
@@ -30,7 +30,7 @@ const DeleteNodeButton = ({ id, onClose }: DeleteNodeButtonProps) => {
               );
             }
           }
-          if (onClose) onClose(confirmed);
+          if (onClose) onClose(confirmed ? 'confirm' : 'cancel');
         }}
       />
     </>

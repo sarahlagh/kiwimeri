@@ -6,7 +6,7 @@ import {
   IonTitle,
   IonToolbar
 } from '@ionic/react';
-import { Trans, useLingui } from '@lingui/react/macro';
+import { Trans } from '@lingui/react/macro';
 import {
   add,
   chevronBack,
@@ -16,6 +16,7 @@ import {
   openOutline
 } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
+import { getGlobalTrans } from '../../config';
 import { ROOT_FOLDER } from '../../constants';
 import documentsService from '../../db/documents.service';
 import DocumentNodeList from '../../documents/components/DocumentNodeList';
@@ -97,18 +98,19 @@ const ChooseFolderModal = ({
   currentType,
   onClose
 }: ChooseFolderModalProps) => {
-  const { t } = useLingui();
   const [folder, setFolder] = useState<string>(currentParent);
   const [selected, setSelected] = useState<DocumentNodeResult | null>(null);
-  const [renaming, setRenaming] = useState<string | null>(null);
+  const [itemRenaming, setItemRenaming] = useState<string | undefined>(
+    undefined
+  );
 
   const root = {
     id: ROOT_FOLDER,
     parent: '',
-    title: t`Home`,
+    title: getGlobalTrans().homeTitle,
     type: DocumentNodeType.folder,
-    created: Date.now(),
-    updated: Date.now(),
+    created: 0,
+    updated: 0,
     deleted: false
   };
 
@@ -145,24 +147,23 @@ const ChooseFolderModal = ({
             ? { style: { fontWeight: 'bold' } }
             : undefined
         }
-        itemRenaming={node => node.id !== ROOT_FOLDER && node.id === renaming}
+        itemRenaming={itemRenaming}
         itemDisabled={node =>
           currentType === DocumentNodeType.folder ? node.id === id : false
         }
         onSelectedNode={node => {
           if (node.id !== currentParent) {
             setSelected(selected?.id === node.id ? null : node);
-            setRenaming(null);
+            setItemRenaming(undefined);
           }
         }}
         onClickActions={(e, node) => {
           setFolder(node.id);
           setSelected(null);
-          setRenaming(null);
+          setItemRenaming(undefined);
         }}
-        onItemRenamed={newTitle => {
-          documentsService.setDocumentNodeTitle(renaming!, newTitle);
-          setRenaming(null);
+        onRenamingDone={() => {
+          setItemRenaming(undefined);
         }}
         actionsIcon={openOutline}
         footer={
@@ -173,10 +174,10 @@ const ChooseFolderModal = ({
               if (role === 'gointo') {
                 setFolder(newFolderId);
                 setSelected(null);
-                setRenaming(null);
+                setItemRenaming(undefined);
               }
               if (role === 'rename') {
-                setRenaming(renaming ? null : newFolderId);
+                setItemRenaming(itemRenaming ? undefined : newFolderId);
               }
               if (role === 'choose') {
                 onClose(newFolderId);

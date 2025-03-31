@@ -24,9 +24,8 @@ import { ROOT_FOLDER } from '../../constants';
 import documentsService from '../../db/documents.service';
 import userSettingsService from '../../db/user-settings.service';
 import { DocumentNodeResult, DocumentNodeType } from '../document';
-import DocumentActionsToolbar from './DocumentActionsToolbar';
+import CommonActionsToolbar from './CommonActionsToolbar';
 import DocumentNodeList from './DocumentNodeList';
-import FolderActionsToolbar from './FolderActionsToolbar';
 
 interface DocumentNodeBrowserListProps {
   parent: string;
@@ -111,7 +110,9 @@ export const DocumentNodeBrowserList = ({
   const parentFolder = documentsService.getDocumentNodeParent(folder);
   const documents: DocumentNodeResult[] =
     documentsService.useDocumentNodes(folder);
-
+  const [itemRenaming, setItemRenaming] = useState<string | undefined>(
+    undefined
+  );
   const [selectedNode, setSelectedNode] = useState<DocumentNodeResult | null>(
     null
   );
@@ -121,30 +122,17 @@ export const DocumentNodeBrowserList = ({
     userSettingsService.setCurrentFolder(folder);
   }, [folder]);
 
-  const [present, dismiss] = useIonPopover(() => (
-    <>
-      {selectedNode?.type === DocumentNodeType.folder && (
-        <FolderActionsToolbar
-          id={selectedNode.id}
-          title={selectedNode.title}
-          onClose={() => {
-            dismiss();
-            setSelectedNode(null);
-          }}
-        />
-      )}
-      {selectedNode?.type === DocumentNodeType.document && (
-        <DocumentActionsToolbar
-          id={selectedNode.id}
-          title={selectedNode.title}
-          onClose={() => {
-            dismiss();
-            setSelectedNode(null);
-          }}
-        />
-      )}
-    </>
-  ));
+  const [present, dismiss] = useIonPopover(CommonActionsToolbar, {
+    id: selectedNode?.id,
+    showRename: true,
+    onClose: (role: string, data?: string) => {
+      if (role === 'rename') {
+        setItemRenaming(data);
+      }
+      dismiss();
+      setSelectedNode(null);
+    }
+  });
 
   return (
     <DocumentNodeList
@@ -156,12 +144,16 @@ export const DocumentNodeBrowserList = ({
           : GET_NODE_ROUTE(document.id, openedDocument)
       }
       actionsIcon={ellipsisVertical}
+      itemRenaming={itemRenaming}
       onClickActions={(event, node) => {
         setSelectedNode(node);
         present({
           event,
           alignment: 'end'
         });
+      }}
+      onRenamingDone={() => {
+        setItemRenaming(undefined);
       }}
       footer={
         <DocumentNodeBrowserListToolbar

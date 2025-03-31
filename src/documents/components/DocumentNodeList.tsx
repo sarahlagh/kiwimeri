@@ -11,7 +11,8 @@ import {
 } from '@ionic/react';
 import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactProps';
 import { documentTextOutline, folderSharp } from 'ionicons/icons';
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
+import documentsService from '../../db/documents.service';
 import { DocumentNodeResult, DocumentNodeType } from '../document';
 
 type DocumentListNodeItemProps = {
@@ -19,14 +20,14 @@ type DocumentListNodeItemProps = {
   actionsIcon?: string;
   selected?: string;
   itemId?: string;
+  itemRenaming?: string;
   itemProps?: (document: DocumentNodeResult) => IonicReactProps | undefined;
-  itemRenaming?: (document: DocumentNodeResult) => boolean;
   itemDisabled?: (document: DocumentNodeResult) => boolean;
   actionDisabled?: (document: DocumentNodeResult) => boolean;
   getUrl?: (document: DocumentNodeResult) => string;
-  onItemRenamed?: (newTitle: string) => void;
   onClickActions?: (e: Event, selectedNode: DocumentNodeResult) => void;
   onSelectedNode?: (selectedNode: DocumentNodeResult) => void;
+  onRenamingDone?: () => void;
 };
 
 type DocumentNodeListProps = {
@@ -44,11 +45,15 @@ const DocumentNodeListItem = ({
   itemDisabled,
   actionDisabled,
   getUrl,
-  onItemRenamed,
   onClickActions,
-  onSelectedNode
+  onSelectedNode,
+  onRenamingDone
 }: DocumentListNodeItemProps) => {
-  const renaming = itemRenaming && itemRenaming(node);
+  const [renaming, setRenaming] = useState<boolean>(false);
+  useEffect(() => {
+    setRenaming(itemRenaming === node.id);
+  }, [itemRenaming]);
+
   const url = getUrl && !renaming ? getUrl(node) : undefined;
   const routerDirection = getUrl && !renaming ? 'none' : undefined;
   const icon =
@@ -102,8 +107,13 @@ const DocumentNodeListItem = ({
           class="invisible"
           value={node.title}
           onIonChange={(e: InputCustomEvent) => {
-            if (onItemRenamed && e.detail.value) {
-              onItemRenamed(e.detail.value);
+            if (itemRenaming && e.detail.value) {
+              documentsService.setDocumentNodeTitle(
+                itemRenaming,
+                e.detail.value
+              );
+              setRenaming(false);
+              if (onRenamingDone) onRenamingDone();
             }
           }}
         ></IonInput>
@@ -122,9 +132,9 @@ const DocumentNodeList = ({
   itemDisabled,
   actionDisabled,
   getUrl,
-  onItemRenamed,
   onSelectedNode,
   onClickActions,
+  onRenamingDone,
   selected,
   footer
 }: DocumentNodeListProps) => {
@@ -145,7 +155,7 @@ const DocumentNodeList = ({
                 itemDisabled={itemDisabled}
                 actionDisabled={actionDisabled}
                 getUrl={getUrl}
-                onItemRenamed={onItemRenamed}
+                onRenamingDone={onRenamingDone}
                 onSelectedNode={onSelectedNode}
                 onClickActions={event => {
                   if (onClickActions) {
