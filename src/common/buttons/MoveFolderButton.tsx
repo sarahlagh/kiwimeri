@@ -1,5 +1,5 @@
 import { IonButton, IonIcon, useIonModal } from '@ionic/react';
-import { albumsOutline } from 'ionicons/icons';
+import { exitOutline } from 'ionicons/icons';
 import { Id } from 'tinybase/with-schemas';
 import documentsService from '../../db/documents.service';
 import ChooseFolderModal from '../modals/ChooseFolderModal';
@@ -11,8 +11,11 @@ type MoveFolderButtonProps = {
 
 const MoveFolderButton = ({ id, onClose }: MoveFolderButtonProps) => {
   const currentParent = documentsService.getDocumentNodeParent(id);
+  const currentType = documentsService.getDocumentType(id);
 
   const [present, dismiss] = useIonModal(ChooseFolderModal, {
+    id,
+    currentType,
     currentParent,
     onClose: (parentId?: string) => {
       if (parentId && parentId !== currentParent) {
@@ -30,8 +33,7 @@ const MoveFolderButton = ({ id, onClose }: MoveFolderButtonProps) => {
           present();
         }}
       >
-        {/* TODO change icon */}
-        <IonIcon icon={albumsOutline}></IonIcon>
+        <IonIcon icon={exitOutline}></IonIcon>
       </IonButton>
     </>
   );

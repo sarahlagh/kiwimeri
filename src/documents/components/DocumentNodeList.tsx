@@ -51,7 +51,6 @@ const DocumentNodeListItem = ({
   const icon =
     node.type === DocumentNodeType.document ? documentTextOutline : folderSharp;
   return (
-    // https://github.com/ionic-team/ionic-framework/issues/28819 onClick won't fire
     <IonItem
       id={itemId ? `${itemId}-${node.id}` : undefined}
       disabled={itemDisabled ? itemDisabled(node) : false}

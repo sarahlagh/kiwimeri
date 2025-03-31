@@ -160,6 +160,15 @@ class DocumentsService {
     this.updateParentUpdatedRecursive(this.getDocumentNodeParent(rowId));
   }
 
+  public getDocumentType(rowId: Id) {
+    return (
+      (storageService
+        .getStore()
+        .getCell(this.documentTable, rowId, 'type')
+        ?.valueOf() as string) || null
+    );
+  }
+
   private updateParentUpdatedRecursive(folder: string) {
     if (folder === ROOT_FOLDER) {
       return;

@@ -1,5 +1,5 @@
 import { IonButtons, IonToolbar } from '@ionic/react';
-import DeleteDocumentButton from '../../common/buttons/DeleteDocumentButton';
+import DeleteNodeButton from '../../common/buttons/DeleteNodeButton';
 import MoveFolderButton from '../../common/buttons/MoveFolderButton';
 
 export type CommonActionsToolbarProps = {
@@ -19,7 +19,7 @@ const CommonActionsToolbar = ({
       <IonButtons slot="end">
         {children}
         <MoveFolderButton id={id} onClose={onClose} />
-        <DeleteDocumentButton id={id} onClose={onClose} />
+        <DeleteNodeButton id={id} onClose={onClose} />
       </IonButtons>
     </IonToolbar>
   );

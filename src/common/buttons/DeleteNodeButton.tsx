@@ -7,12 +7,12 @@ import userSettingsService from '../../db/user-settings.service';
 import ConfirmYesNoDialog from '../modals/ConfirmYesNoDialog';
 import { GET_FOLDER_ROUTE } from '../routes';
 
-type DeleteDocumentButtonProps = {
+type DeleteNodeButtonProps = {
   id: Id;
   onClose?: (confirmed: boolean) => void;
 };
 
-const DeleteDocumentButton = ({ id, onClose }: DeleteDocumentButtonProps) => {
+const DeleteNodeButton = ({ id, onClose }: DeleteNodeButtonProps) => {
   const history = useHistory();
   return (
     <>
@@ -36,4 +36,4 @@ const DeleteDocumentButton = ({ id, onClose }: DeleteDocumentButtonProps) => {
     </>
   );
 };
-export default DeleteDocumentButton;
+export default DeleteNodeButton;

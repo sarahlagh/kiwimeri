@@ -39,7 +39,7 @@ const Toolbar = ({
         </IonButton>
         {/* go to current folder parent */}
         <IonButton
-          disabled={folderId === ROOT_FOLDER}
+          disabled={folderId === ROOT_FOLDER || folderId === FAKE_ROOT}
           onClick={() => {
             const parentId = documentsService.getDocumentNodeParent(folderId);
             onClick('gointo', parentId);
@@ -78,12 +78,16 @@ const Toolbar = ({
 };
 
 type ChooseFolderModalProps = {
+  id: string;
   currentParent: string;
+  currentType: string;
   onClose: (parentId?: string) => void;
 } & React.HTMLAttributes<HTMLIonModalElement>;
 
 const ChooseFolderModal = ({
+  id,
   currentParent,
+  currentType,
   onClose
 }: ChooseFolderModalProps) => {
   const { t } = useLingui();
@@ -130,6 +134,9 @@ const ChooseFolderModal = ({
         documents={nodes}
         selected={selected?.id}
         itemRenaming={node => node.id !== ROOT_FOLDER && node.id === renaming}
+        itemDisabled={node =>
+          currentType === DocumentNodeType.folder ? node.id === id : false
+        }
         actionDisabled={node => node.id === currentParent}
         onSelectedNode={node => {
           setFolder(node.id);
