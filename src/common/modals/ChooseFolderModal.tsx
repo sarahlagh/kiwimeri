@@ -140,6 +140,11 @@ const ChooseFolderModal = ({
         itemId="modal-item"
         documents={nodes}
         selected={selected?.id}
+        itemProps={node =>
+          node.id === currentParent
+            ? { style: { fontWeight: 'bold' } }
+            : undefined
+        }
         itemRenaming={node => node.id !== ROOT_FOLDER && node.id === renaming}
         itemDisabled={node =>
           currentType === DocumentNodeType.folder ? node.id === id : false

@@ -9,6 +9,7 @@ import {
   IonLabel,
   IonList
 } from '@ionic/react';
+import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactProps';
 import { documentTextOutline, folderSharp } from 'ionicons/icons';
 import { ReactNode } from 'react';
 import { DocumentNodeResult, DocumentNodeType } from '../document';
@@ -18,6 +19,7 @@ type DocumentListNodeItemProps = {
   actionsIcon?: string;
   selected?: string;
   itemId?: string;
+  itemProps?: (document: DocumentNodeResult) => IonicReactProps | undefined;
   itemRenaming?: (document: DocumentNodeResult) => boolean;
   itemDisabled?: (document: DocumentNodeResult) => boolean;
   actionDisabled?: (document: DocumentNodeResult) => boolean;
@@ -37,6 +39,7 @@ const DocumentNodeListItem = ({
   selected,
   actionsIcon,
   node,
+  itemProps,
   itemRenaming,
   itemDisabled,
   actionDisabled,
@@ -53,6 +56,8 @@ const DocumentNodeListItem = ({
   return (
     <IonItem
       id={itemId ? `${itemId}-${node.id}` : undefined}
+      className={itemProps ? itemProps(node)?.className : undefined}
+      style={itemProps ? itemProps(node)?.style : undefined}
       disabled={itemDisabled ? itemDisabled(node) : false}
       button={!url}
       key={node.id}
@@ -112,6 +117,7 @@ const DocumentNodeList = ({
   itemId,
   documents,
   actionsIcon,
+  itemProps,
   itemRenaming,
   itemDisabled,
   actionDisabled,
@@ -134,6 +140,7 @@ const DocumentNodeList = ({
                 actionsIcon={actionsIcon}
                 selected={selected}
                 node={node}
+                itemProps={itemProps}
                 itemRenaming={itemRenaming}
                 itemDisabled={itemDisabled}
                 actionDisabled={actionDisabled}
