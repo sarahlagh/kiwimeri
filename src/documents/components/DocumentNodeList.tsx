@@ -1,8 +1,10 @@
 import {
+  InputCustomEvent,
   IonButton,
   IonContent,
   IonFooter,
   IonIcon,
+  IonInput,
   IonItem,
   IonLabel,
   IonList
@@ -16,9 +18,11 @@ type DocumentListNodeItemProps = {
   actionsIcon?: string;
   selected?: string;
   itemId?: string;
+  itemRenaming?: (document: DocumentNodeResult) => boolean;
   itemDisabled?: (document: DocumentNodeResult) => boolean;
   actionDisabled?: (document: DocumentNodeResult) => boolean;
   getUrl?: (document: DocumentNodeResult) => string;
+  onItemRenamed?: (newTitle: string) => void;
   onClickActions?: (e: Event, selectedNode: DocumentNodeResult) => void;
   onSelectedNode?: (selectedNode: DocumentNodeResult) => void;
 };
@@ -33,14 +37,17 @@ const DocumentNodeListItem = ({
   selected,
   actionsIcon,
   node,
+  itemRenaming,
   itemDisabled,
   actionDisabled,
   getUrl,
+  onItemRenamed,
   onClickActions,
   onSelectedNode
 }: DocumentListNodeItemProps) => {
-  const url = getUrl ? getUrl(node) : undefined;
-  const routerDirection = getUrl ? 'none' : undefined;
+  const renaming = itemRenaming && itemRenaming(node);
+  const url = getUrl && !renaming ? getUrl(node) : undefined;
+  const routerDirection = getUrl && !renaming ? 'none' : undefined;
   const icon =
     node.type === DocumentNodeType.document ? documentTextOutline : folderSharp;
   return (
@@ -55,7 +62,12 @@ const DocumentNodeListItem = ({
       routerDirection={routerDirection}
       lines="none"
       detail={false}
-      onClick={() => {
+      onClick={e => {
+        if (renaming) {
+          e.stopPropagation();
+          e.preventDefault();
+          return;
+        }
         if (!url && onSelectedNode) {
           onSelectedNode(node);
         }
@@ -72,13 +84,27 @@ const DocumentNodeListItem = ({
           onClick={e => {
             e.stopPropagation();
             e.preventDefault();
+            if (renaming) {
+              return;
+            }
             onClickActions(e.nativeEvent, node);
           }}
         >
           <IonIcon aria-hidden="true" icon={actionsIcon} />
         </IonButton>
       )}
-      <IonLabel>{node.title}</IonLabel>
+      {renaming && (
+        <IonInput
+          class="invisible"
+          value={node.title}
+          onIonChange={(e: InputCustomEvent) => {
+            if (onItemRenamed && e.detail.value) {
+              onItemRenamed(e.detail.value);
+            }
+          }}
+        ></IonInput>
+      )}
+      {!renaming && <IonLabel>{node.title}</IonLabel>}
     </IonItem>
   );
 };
@@ -87,9 +113,11 @@ const DocumentNodeList = ({
   itemId,
   documents,
   actionsIcon,
+  itemRenaming,
   itemDisabled,
   actionDisabled,
   getUrl,
+  onItemRenamed,
   onSelectedNode,
   onClickActions,
   selected,
@@ -107,9 +135,11 @@ const DocumentNodeList = ({
                 actionsIcon={actionsIcon}
                 selected={selected}
                 node={node}
+                itemRenaming={itemRenaming}
                 itemDisabled={itemDisabled}
                 actionDisabled={actionDisabled}
                 getUrl={getUrl}
+                onItemRenamed={onItemRenamed}
                 onSelectedNode={onSelectedNode}
                 onClickActions={event => {
                   if (onClickActions) {

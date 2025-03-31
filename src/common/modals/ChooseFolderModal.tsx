@@ -6,9 +6,9 @@ import {
   IonTitle,
   IonToolbar
 } from '@ionic/react';
-import { Trans } from '@lingui/react/macro';
-import { albumsOutline, chevronBack, close, home } from 'ionicons/icons';
-import React, { useState } from 'react';
+import { Trans, useLingui } from '@lingui/react/macro';
+import { add, albumsOutline, chevronBack, close, home } from 'ionicons/icons';
+import React, { useEffect, useState } from 'react';
 import { ROOT_FOLDER } from '../../constants';
 import documentsService from '../../db/documents.service';
 import DocumentNodeList from '../../documents/components/DocumentNodeList';
@@ -23,7 +23,7 @@ const Toolbar = ({
 }: {
   selected?: string;
   folderId: string;
-  onClick: (role: 'gointo' | 'choose', newFolderId: string) => void;
+  onClick: (role: 'gointo' | 'rename' | 'choose', newFolderId: string) => void;
 }) => {
   return (
     <IonToolbar>
@@ -48,15 +48,31 @@ const Toolbar = ({
           <IonIcon icon={chevronBack}></IonIcon>
         </IonButton>
       </IonButtons>
-      <IonButton
-        disabled={!selected}
-        slot="end"
-        onClick={() => {
-          onClick('choose', selected!);
-        }}
-      >
-        <Trans>Choose</Trans>
-      </IonButton>
+      <IonButtons slot="end">
+        <IonButton
+          onClick={() => {
+            documentsService.addFolder(folderId);
+          }}
+        >
+          <IonIcon aria-hidden="true" icon={add} />
+        </IonButton>
+        <IonButton
+          disabled={selected === ROOT_FOLDER || !selected}
+          onClick={() => {
+            onClick('rename', selected!);
+          }}
+        >
+          <Trans>Rename</Trans>
+        </IonButton>
+        <IonButton
+          disabled={!selected}
+          onClick={() => {
+            onClick('choose', selected!);
+          }}
+        >
+          <Trans>Choose</Trans>
+        </IonButton>
+      </IonButtons>
     </IonToolbar>
   );
 };
@@ -70,18 +86,25 @@ const ChooseFolderModal = ({
   currentParent,
   onClose
 }: ChooseFolderModalProps) => {
+  const { t } = useLingui();
   const [folder, setFolder] = useState<string>(currentParent);
   const [selected, setSelected] = useState<DocumentNodeResult | null>(null);
+  const [renaming, setRenaming] = useState<string | null>(null);
 
   const root = {
     id: ROOT_FOLDER,
     parent: '',
-    title: 'Home',
+    title: t`Home`,
     type: DocumentNodeType.folder,
     created: Date.now(),
     updated: Date.now(),
     deleted: false
   };
+
+  useEffect(() => {
+    documentsService.generateFetchAllDocumentNodesQuery(folder);
+  }, [folder]);
+
   const documents: DocumentNodeResult[] = documentsService
     .useDocumentNodes(folder)
     .filter(node => node.type === DocumentNodeType.folder);
@@ -106,13 +129,20 @@ const ChooseFolderModal = ({
         itemId="modal-item"
         documents={nodes}
         selected={selected?.id}
+        itemRenaming={node => node.id !== ROOT_FOLDER && node.id === renaming}
         actionDisabled={node => node.id === currentParent}
         onSelectedNode={node => {
           setFolder(node.id);
           setSelected(null);
+          setRenaming(null);
         }}
         onClickActions={(e, node) => {
           setSelected(selected?.id === node.id ? null : node);
+          setRenaming(null);
+        }}
+        onItemRenamed={newTitle => {
+          documentsService.setDocumentNodeTitle(renaming!, newTitle);
+          setRenaming(null);
         }}
         actionsIcon={albumsOutline}
         footer={
@@ -123,6 +153,10 @@ const ChooseFolderModal = ({
               if (role === 'gointo') {
                 setFolder(newFolderId);
                 setSelected(null);
+                setRenaming(null);
+              }
+              if (role === 'rename') {
+                setRenaming(renaming ? null : newFolderId);
               }
               if (role === 'choose') {
                 onClose(newFolderId);

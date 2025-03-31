@@ -103,7 +103,6 @@ const BrowseDocumentListToolbar = ({
   );
 };
 
-// TODO: rename
 export const BrowseDocumentList = ({
   parent: folder
 }: BrowseDocumentListProps) => {
