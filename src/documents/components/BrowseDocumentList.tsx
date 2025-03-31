@@ -2,7 +2,6 @@ import {
   add,
   albums,
   chevronBack,
-  documentTextOutline,
   ellipsisVertical,
   folderSharp,
   home
@@ -12,12 +11,7 @@ import { useHistory } from 'react-router-dom';
 import {
   IonButton,
   IonButtons,
-  IonContent,
-  IonFooter,
   IonIcon,
-  IonItem,
-  IonLabel,
-  IonList,
   IonToolbar,
   useIonPopover
 } from '@ionic/react';
@@ -31,58 +25,14 @@ import documentsService from '../../db/documents.service';
 import userSettingsService from '../../db/user-settings.service';
 import { DocumentNodeResult, DocumentNodeType } from '../document';
 import DocumentActionsToolbar from './DocumentActionsToolbar';
+import DocumentNodeList from './DocumentNodeList';
 import FolderActionsToolbar from './FolderActionsToolbar';
 
-interface DocumentListProps {
+interface BrowseDocumentListProps {
   parent: string;
 }
 
-const DocumentListNodeItem = ({
-  openedDocument,
-  document,
-  onClick
-}: {
-  openedDocument: string | undefined;
-  document: DocumentNodeResult;
-  onClick: (e: Event) => void;
-}) => {
-  const url =
-    document.type === DocumentNodeType.document
-      ? GET_NODE_ROUTE(document.parent, document.id)
-      : GET_NODE_ROUTE(document.id, openedDocument);
-  const icon =
-    document.type === DocumentNodeType.document
-      ? documentTextOutline
-      : folderSharp;
-  return (
-    <IonItem
-      key={document.id}
-      color={openedDocument === document.id ? 'primary' : ''}
-      routerLink={url}
-      routerDirection="none"
-      lines="none"
-      detail={false}
-    >
-      <IonIcon aria-hidden="true" slot="start" icon={icon} />
-      <IonButton
-        slot="end"
-        fill="clear"
-        color="medium"
-        id="click-trigger"
-        onClick={e => {
-          e.stopPropagation();
-          e.preventDefault();
-          onClick(e.nativeEvent);
-        }}
-      >
-        <IonIcon aria-hidden="true" icon={ellipsisVertical} />
-      </IonButton>
-      <IonLabel>{document.title}</IonLabel>
-    </IonItem>
-  );
-};
-
-const DocumentListToolbar = ({
+const BrowseDocumentListToolbar = ({
   folderId,
   parentId,
   openedDocument
@@ -153,7 +103,10 @@ const DocumentListToolbar = ({
   );
 };
 
-export const DocumentList = ({ parent: folder }: DocumentListProps) => {
+// TODO: rename
+export const BrowseDocumentList = ({
+  parent: folder
+}: BrowseDocumentListProps) => {
   const searchParams = useSearchParams();
   const openedDocument = searchParams?.document;
   const parentFolder = documentsService.getDocumentNodeParent(folder);
@@ -195,37 +148,31 @@ export const DocumentList = ({ parent: folder }: DocumentListProps) => {
   ));
 
   return (
-    <>
-      <IonContent>
-        <IonList id="document-explorer-menu-list">
-          {documents.map(document => {
-            return (
-              <DocumentListNodeItem
-                key={document.id}
-                openedDocument={openedDocument}
-                document={document}
-                onClick={event => {
-                  setSelectedNode(document);
-                  present({
-                    event,
-                    alignment: 'end'
-                  });
-                }}
-              />
-            );
-          })}
-        </IonList>
-      </IonContent>
-
-      <IonFooter>
-        <DocumentListToolbar
+    <DocumentNodeList
+      documents={documents}
+      selected={openedDocument}
+      getUrl={document =>
+        document.type === DocumentNodeType.document
+          ? GET_NODE_ROUTE(document.parent, document.id)
+          : GET_NODE_ROUTE(document.id, openedDocument)
+      }
+      actionsIcon={ellipsisVertical}
+      onClickActions={(event, node) => {
+        setSelectedNode(node);
+        present({
+          event,
+          alignment: 'end'
+        });
+      }}
+      footer={
+        <BrowseDocumentListToolbar
           folderId={folder}
           parentId={parentFolder}
           openedDocument={openedDocument}
         />
-      </IonFooter>
-    </>
+      }
+    />
   );
 };
 
-export default DocumentList;
+export default BrowseDocumentList;

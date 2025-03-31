@@ -16,11 +16,11 @@ const DeleteDocumentButton = ({ id, onClose }: DeleteDocumentButtonProps) => {
   const history = useHistory();
   return (
     <>
-      <IonButton id="open-modal" expand="block">
+      <IonButton id="open-modal-delete-document-node" expand="block">
         <IonIcon icon={trashOutline}></IonIcon>
       </IonButton>
       <ConfirmYesNoDialog
-        trigger="open-modal"
+        trigger="open-modal-delete-document-node"
         onClose={confirmed => {
           if (confirmed) {
             documentsService.deleteNodeDocument(id);

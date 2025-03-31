@@ -69,7 +69,7 @@ class DocumentsService {
       type: DocumentNodeType.document,
       deleted: false
     });
-    this.updateParentRecursive(parent);
+    this.updateParentUpdatedRecursive(parent);
   }
 
   public addFolder(parent: string) {
@@ -85,7 +85,7 @@ class DocumentsService {
   }
 
   public deleteNodeDocument(rowId: Id) {
-    this.updateParentRecursive(this.getDocumentNodeParent(rowId));
+    this.updateParentUpdatedRecursive(this.getDocumentNodeParent(rowId));
     return storageService.getStore().delRow(this.documentTable, rowId);
   }
 
@@ -100,6 +100,13 @@ class DocumentsService {
         .getCell(this.documentTable, rowId, 'parent')
         ?.valueOf() as string) || ROOT_FOLDER
     );
+  }
+
+  public setDocumentNodeParent(rowId: Id, parentId: Id) {
+    storageService
+      .getStore()
+      .setCell(this.documentTable, rowId, 'parent', parentId);
+    this.updateParentUpdatedRecursive(this.getDocumentNodeParent(rowId));
   }
 
   public useDocumentNodeTitle(rowId: Id) {
@@ -124,7 +131,7 @@ class DocumentsService {
     storageService
       .getStore()
       .setCell(this.documentTable, rowId, 'updated', Date.now());
-    this.updateParentRecursive(this.getDocumentNodeParent(rowId));
+    this.updateParentUpdatedRecursive(this.getDocumentNodeParent(rowId));
   }
 
   public getDocumentNodeContent(rowId: Id) {
@@ -150,17 +157,17 @@ class DocumentsService {
     storageService
       .getStore()
       .setCell(this.documentTable, rowId, 'updated', Date.now());
-    this.updateParentRecursive(this.getDocumentNodeParent(rowId));
+    this.updateParentUpdatedRecursive(this.getDocumentNodeParent(rowId));
   }
 
-  private updateParentRecursive(folder: string) {
+  private updateParentUpdatedRecursive(folder: string) {
     if (folder === ROOT_FOLDER) {
       return;
     }
     storageService
       .getStore()
       .setCell(this.documentTable, folder, 'updated', Date.now());
-    this.updateParentRecursive(this.getDocumentNodeParent(folder));
+    this.updateParentUpdatedRecursive(this.getDocumentNodeParent(folder));
   }
 }
 

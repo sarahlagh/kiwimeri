@@ -5,7 +5,7 @@ import { onTitleChangeFn } from '../../common/events/events';
 import { useSearchParams } from '../../common/hooks/useSearchParams';
 import { ROOT_FOLDER } from '../../constants';
 import documentsService from '../../db/documents.service';
-import DocumentList from '../../documents/components/DocumentList';
+import BrowseDocumentList from '../../documents/components/BrowseDocumentList';
 import TemplateMainPage from './TemplateMainPage';
 
 const DocumentListPage = () => {
@@ -32,7 +32,7 @@ const DocumentListPage = () => {
       editable={parent !== ROOT_FOLDER}
       onIonInput={onFolderTitleChange}
     >
-      <DocumentList parent={parent}></DocumentList>
+      <BrowseDocumentList parent={parent}></BrowseDocumentList>
     </TemplateMainPage>
   );
 };

@@ -6,9 +6,9 @@ import { onTitleChangeFn } from '../../common/events/events';
 import { useSearchParams } from '../../common/hooks/useSearchParams';
 import { ROOT_FOLDER } from '../../constants';
 import documentsService from '../../db/documents.service';
+import BrowseDocumentList from '../../documents/components/BrowseDocumentList';
 import DocumentActionsToolbar from '../../documents/components/DocumentActionsToolbar';
 import DocumentEditor from '../../documents/components/DocumentEditor';
-import DocumentList from '../../documents/components/DocumentList';
 import TemplateCompactableSplitPage from './TemplateCompactableSplitPage';
 
 const DocumentEditorPage = () => {
@@ -59,10 +59,17 @@ const DocumentEditorPage = () => {
         // TODO: remove that and move it to editor toolbar
         children: <DocumentNodeActionsMenu />
       }}
-      menu={<DocumentList parent={parent}></DocumentList>}
+      menu={<BrowseDocumentList parent={parent}></BrowseDocumentList>}
       contentId="documentExplorer"
     >
-      {!hideDocumentActions && <DocumentActionsToolbar id={docId} />}
+      {!hideDocumentActions && (
+        <DocumentActionsToolbar
+          id={docId}
+          onClose={() => {
+            setHideDocumentActions(true);
+          }}
+        />
+      )}
       <DocumentEditor id={docId}></DocumentEditor>
     </TemplateCompactableSplitPage>
   );
