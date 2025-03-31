@@ -1,12 +1,10 @@
-import { IonButtons } from '@ionic/react';
-import DeleteDocumentButton from '../../common/buttons/DeleteDocumentButton';
-import TemplateActionsToolbar, {
-  TemplateActionsToolbarProps
-} from './TemplateActionsToolbar';
+import CommonActionsToolbar, {
+  CommonActionsToolbarProps
+} from './CommonActionsToolbar';
 
 type FolderActionsToolbarProps = {
   id: string;
-} & TemplateActionsToolbarProps;
+} & CommonActionsToolbarProps;
 
 const FolderActionsToolbar = ({
   id,
@@ -14,11 +12,11 @@ const FolderActionsToolbar = ({
   onClose
 }: FolderActionsToolbarProps) => {
   return (
-    <TemplateActionsToolbar rows={rows}>
-      <IonButtons slot="end">
-        <DeleteDocumentButton id={id} onClose={onClose} />
-      </IonButtons>
-    </TemplateActionsToolbar>
+    <CommonActionsToolbar
+      id={id}
+      rows={rows}
+      onClose={onClose}
+    ></CommonActionsToolbar>
   );
 };
 export default FolderActionsToolbar;
