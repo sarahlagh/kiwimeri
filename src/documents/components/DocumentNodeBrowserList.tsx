@@ -28,11 +28,11 @@ import DocumentActionsToolbar from './DocumentActionsToolbar';
 import DocumentNodeList from './DocumentNodeList';
 import FolderActionsToolbar from './FolderActionsToolbar';
 
-interface BrowseDocumentListProps {
+interface DocumentNodeBrowserListProps {
   parent: string;
 }
 
-const BrowseDocumentListToolbar = ({
+const DocumentNodeBrowserListToolbar = ({
   folderId,
   parentId,
   openedDocument
@@ -103,9 +103,9 @@ const BrowseDocumentListToolbar = ({
   );
 };
 
-export const BrowseDocumentList = ({
+export const DocumentNodeBrowserList = ({
   parent: folder
-}: BrowseDocumentListProps) => {
+}: DocumentNodeBrowserListProps) => {
   const searchParams = useSearchParams();
   const openedDocument = searchParams?.document;
   const parentFolder = documentsService.getDocumentNodeParent(folder);
@@ -164,7 +164,7 @@ export const BrowseDocumentList = ({
         });
       }}
       footer={
-        <BrowseDocumentListToolbar
+        <DocumentNodeBrowserListToolbar
           folderId={folder}
           parentId={parentFolder}
           openedDocument={openedDocument}
@@ -174,4 +174,4 @@ export const BrowseDocumentList = ({
   );
 };
 
-export default BrowseDocumentList;
+export default DocumentNodeBrowserList;
