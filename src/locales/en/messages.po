@@ -41,23 +41,10 @@ msgstr "Collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/settings/components/Settings.tsx:38
-#~ msgid "Dark"
-#~ msgstr "Dark"
-
 #: src/app/pages/DebugPage.tsx:18
 #: src/app/components/MainMenuList.tsx:61
 msgid "Debug"
 msgstr "Debug"
-
-#: src/app/pages/DocumentListPage.tsx:12
-#: src/app/pages/DocumentExplorerPage.tsx:38
-#~ msgid "Documents"
-#~ msgstr "Documents"
-
-#: src/common/wysiwyg/Writer.tsx:62
-#~ msgid "Enter some text...'"
-#~ msgstr "Enter some text...'"
 
 #: src/settings/storage/ImportExportCollectionSettings.tsx:93
 msgid "Export"
@@ -67,9 +54,8 @@ msgstr "Export"
 msgid "Filesystem"
 msgstr "Filesystem"
 
+#: src/constants.ts:4
 #: src/common/modals/ChooseFolderModal.tsx:108
-#: src/app/pages/DocumentListPage.tsx:17
-#: src/app/pages/DocumentEditorPage.tsx:25
 msgid "Home"
 msgstr "Home"
 
@@ -80,10 +66,6 @@ msgstr "Import & export your collection"
 #: src/app/MainLayout.tsx:26
 msgid "Kiwi Meri"
 msgstr "Kiwi Meri"
-
-#: src/settings/components/Settings.tsx:31
-#~ msgid "Light"
-#~ msgstr "Light"
 
 #: src/settings/storage/ImportExportCollectionSettings.tsx:80
 msgid "Manually backup or restore your collection"
@@ -107,10 +89,6 @@ msgstr "Pick a directory for your backups"
 msgid "Platform(s)"
 msgstr "Platform(s)"
 
-#: src/common/modals/ChooseFolderModal.tsx:65
-#~ msgid "Rename"
-#~ msgstr "Rename"
-
 #: src/settings/storage/ImportExportCollectionSettings.tsx:96
 msgid "Restore"
 msgstr "Restore"
@@ -132,18 +110,6 @@ msgstr "Synchronize your collection on the filesystem"
 #: src/common/wysiwyg/Writer.tsx:47
 msgid "Text..."
 msgstr "Text..."
-
-#: src/common/wysiwyg/Writer.tsx:44
-#~ msgid "Text...'"
-#~ msgstr "Text...'"
-
-#: src/settings/components/Settings.tsx:21
-#~ msgid "Theme"
-#~ msgstr "Theme"
-
-#: src/app/pages/DocumentEditorPage.tsx:24
-msgid "Unknown document"
-msgstr "Unknown document"
 
 #: src/settings/storage/ImportExportCollectionSettings.tsx:86
 msgid "Your backups will be exported to the Documents/KiwimeriApp directory"
