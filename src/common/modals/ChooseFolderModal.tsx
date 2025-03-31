@@ -7,7 +7,14 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { add, albumsOutline, chevronBack, close, home } from 'ionicons/icons';
+import {
+  add,
+  chevronBack,
+  close,
+  createOutline,
+  home,
+  openOutline
+} from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
 import { ROOT_FOLDER } from '../../constants';
 import documentsService from '../../db/documents.service';
@@ -62,7 +69,7 @@ const Toolbar = ({
             onClick('rename', selected!);
           }}
         >
-          <Trans>Rename</Trans>
+          <IonIcon icon={createOutline}></IonIcon>
         </IonButton>
         <IonButton
           disabled={!selected}
@@ -137,21 +144,22 @@ const ChooseFolderModal = ({
         itemDisabled={node =>
           currentType === DocumentNodeType.folder ? node.id === id : false
         }
-        actionDisabled={node => node.id === currentParent}
         onSelectedNode={node => {
-          setFolder(node.id);
-          setSelected(null);
-          setRenaming(null);
+          if (node.id !== currentParent) {
+            setSelected(selected?.id === node.id ? null : node);
+            setRenaming(null);
+          }
         }}
         onClickActions={(e, node) => {
-          setSelected(selected?.id === node.id ? null : node);
+          setFolder(node.id);
+          setSelected(null);
           setRenaming(null);
         }}
         onItemRenamed={newTitle => {
           documentsService.setDocumentNodeTitle(renaming!, newTitle);
           setRenaming(null);
         }}
-        actionsIcon={albumsOutline}
+        actionsIcon={openOutline}
         footer={
           <Toolbar
             selected={selected?.id}

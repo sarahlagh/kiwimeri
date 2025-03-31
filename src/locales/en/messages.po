@@ -17,16 +17,36 @@ msgstr ""
 msgid "An error occurred loading the file"
 msgstr "An error occurred loading the file"
 
-#: src/app/components/MainMenuList.tsx:45
+#: src/common/modals/ConfirmYesNoDialog.tsx:28
+msgid "Are you sure?"
+msgstr "Are you sure?"
+
+#: src/common/modals/ConfirmYesNoDialog.tsx:32
+msgid "Cancel"
+msgstr "Cancel"
+
+#: src/common/modals/ChooseFolderModal.tsx:80
+msgid "Choose"
+msgstr "Choose"
+
+#: src/common/modals/ChooseFolderModal.tsx:130
+msgid "Choose a new folder"
+msgstr "Choose a new folder"
+
+#: src/app/components/MainMenuList.tsx:47
 msgid "Collection"
 msgstr "Collection"
+
+#: src/common/modals/ConfirmYesNoDialog.tsx:40
+msgid "Confirm"
+msgstr "Confirm"
 
 #: src/settings/components/Settings.tsx:38
 #~ msgid "Dark"
 #~ msgstr "Dark"
 
-#: src/app/pages/DebugPage.tsx:22
-#: src/app/components/MainMenuList.tsx:59
+#: src/app/pages/DebugPage.tsx:18
+#: src/app/components/MainMenuList.tsx:61
 msgid "Debug"
 msgstr "Debug"
 
@@ -47,8 +67,9 @@ msgstr "Export"
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/app/pages/DocumentListPage.tsx:13
-#: src/app/pages/DocumentExplorerPage.tsx:29
+#: src/common/modals/ChooseFolderModal.tsx:108
+#: src/app/pages/DocumentListPage.tsx:17
+#: src/app/pages/DocumentEditorPage.tsx:25
 msgid "Home"
 msgstr "Home"
 
@@ -56,7 +77,7 @@ msgstr "Home"
 msgid "Import & export your collection"
 msgstr "Import & export your collection"
 
-#: src/app/MainLayout.tsx:27
+#: src/app/MainLayout.tsx:26
 msgid "Kiwi Meri"
 msgstr "Kiwi Meri"
 
@@ -82,16 +103,20 @@ msgstr "Operations"
 msgid "Pick a directory for your backups"
 msgstr "Pick a directory for your backups"
 
-#: src/app/pages/DebugPage.tsx:28
+#: src/app/pages/DebugPage.tsx:23
 msgid "Platform(s)"
 msgstr "Platform(s)"
+
+#: src/common/modals/ChooseFolderModal.tsx:65
+#~ msgid "Rename"
+#~ msgstr "Rename"
 
 #: src/settings/storage/ImportExportCollectionSettings.tsx:96
 msgid "Restore"
 msgstr "Restore"
 
-#: src/app/pages/SettingsPage.tsx:11
-#: src/app/components/MainMenuList.tsx:52
+#: src/app/pages/SettingsPage.tsx:9
+#: src/app/components/MainMenuList.tsx:54
 msgid "Settings"
 msgstr "Settings"
 
@@ -104,7 +129,7 @@ msgstr "Success!"
 msgid "Synchronize your collection on the filesystem"
 msgstr "Synchronize your collection on the filesystem"
 
-#: src/common/wysiwyg/Writer.tsx:49
+#: src/common/wysiwyg/Writer.tsx:47
 msgid "Text..."
 msgstr "Text..."
 
@@ -116,7 +141,7 @@ msgstr "Text..."
 #~ msgid "Theme"
 #~ msgstr "Theme"
 
-#: src/app/pages/DocumentExplorerPage.tsx:28
+#: src/app/pages/DocumentEditorPage.tsx:24
 msgid "Unknown document"
 msgstr "Unknown document"
 
