@@ -18,6 +18,9 @@ import {
   trashOutline
 } from 'ionicons/icons';
 
+export const DEFAULT_SPACE_ID = 'default';
+export const DEFAULT_NOTEBOOK_ID = '0';
+
 export const ROOT_FOLDER = 'home';
 export const ROOT_FOLDER_TITLE = msg`Home`;
 

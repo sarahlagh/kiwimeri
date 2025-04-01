@@ -1,9 +1,12 @@
+import { Store } from 'tinybase/store';
 import { useValue } from 'tinybase/ui-react';
 import storageService from './storage.service';
 
 class UserSettingsService {
+  private readonly spaceSettingsTable = 'spaceSettings';
+
   public useTheme() {
-    return useValue('theme');
+    return useValue('theme', storageService.getStore() as unknown as Store);
   }
 
   public setTheme(theme: 'light' | 'dark') {
@@ -11,15 +14,32 @@ class UserSettingsService {
   }
 
   public getCurrentFolder() {
-    return storageService.getStore().getValue('currentFolder');
+    return storageService
+      .getStore()
+      .getCell(
+        this.spaceSettingsTable,
+        storageService.getCurrentSpace(),
+        'currentFolder'
+      )
+      ?.valueOf() as string;
   }
 
   public useCurrentFolder() {
-    return useValue('currentFolder');
+    return useValue(
+      'currentFolder',
+      storageService.getStore() as unknown as Store
+    );
   }
 
   public setCurrentFolder(parent: string) {
-    storageService.getStore().setValue('currentFolder', parent);
+    storageService
+      .getStore()
+      .setCell(
+        this.spaceSettingsTable,
+        storageService.getCurrentSpace(),
+        'currentFolder',
+        parent
+      );
   }
 }
 

@@ -4,7 +4,7 @@ import { createQueries, Queries } from 'tinybase/with-schemas';
 import { getGlobalTrans } from '../config';
 import { FAKE_ROOT, ROOT_FOLDER } from '../constants';
 import { DocumentNodeResult, DocumentNodeType } from '../documents/document';
-import storageService, { StoreType } from './storage.service';
+import storageService, { SpaceType } from './storage.service';
 
 export const initialContent = () => {
   // 'empty' editor
@@ -14,23 +14,29 @@ export const initialContent = () => {
 class DocumentsService {
   private readonly documentTable = 'documents';
 
-  private queries: Queries<StoreType>;
+  private queries: Map<string, Queries<SpaceType>> = new Map();
   public constructor() {
-    this.queries = createQueries(storageService.getStore());
+    // TODO create queries dynamically with the loaded spaces
+    this.queries.set(
+      storageService.getCurrentSpace(),
+      createQueries(storageService.getSpace())
+    );
   }
 
-  public getQueries() {
-    return this.queries;
+  public getQueries(space?: string) {
+    return this.queries.get(space ? space : storageService.getCurrentSpace())!;
   }
 
   public generateFetchAllDocumentNodesQuery(
     parent: string,
     deleted: boolean = false
   ) {
-    const queryId = this.queries.getQueryIds().find(id => id === parent);
+    const queryId = this.getQueries()
+      .getQueryIds()
+      .find(id => id === parent);
     const queryName = `fetchAllDocumentNodesFor${parent}`;
     if (!queryId && parent !== FAKE_ROOT) {
-      this.queries.setQueryDefinition(
+      this.getQueries().setQueryDefinition(
         queryName,
         this.documentTable,
         ({ select, where }) => {
@@ -61,7 +67,7 @@ class DocumentsService {
 
   public addDocument(parent: string) {
     const now = Date.now();
-    storageService.getStore().addRow(this.documentTable, {
+    storageService.getSpace().addRow(this.documentTable, {
       title: 'New document', // TODO translate
       parent: parent,
       content: initialContent(),
@@ -75,7 +81,7 @@ class DocumentsService {
 
   public addFolder(parent: string) {
     const now = Date.now();
-    storageService.getStore().addRow(this.documentTable, {
+    storageService.getSpace().addRow(this.documentTable, {
       title: 'New folder', // TODO translate,
       parent: parent,
       created: now,
@@ -87,17 +93,20 @@ class DocumentsService {
 
   public deleteNodeDocument(rowId: Id) {
     this.updateParentUpdatedRecursive(this.getDocumentNodeParent(rowId));
-    return storageService.getStore().delRow(this.documentTable, rowId);
+    return storageService.getSpace().delRow(this.documentTable, rowId);
   }
 
   public documentNodeExists(rowId: Id) {
-    return storageService.getStore().hasRow(this.documentTable, rowId);
+    if (rowId === ROOT_FOLDER) {
+      return true;
+    }
+    return storageService.getSpace().hasRow(this.documentTable, rowId);
   }
 
   public getDocumentNodeParent(rowId: Id) {
     return (
       (storageService
-        .getStore()
+        .getSpace()
         .getCell(this.documentTable, rowId, 'parent')
         ?.valueOf() as string) || ROOT_FOLDER
     );
@@ -105,7 +114,7 @@ class DocumentsService {
 
   public setDocumentNodeParent(rowId: Id, parentId: Id) {
     storageService
-      .getStore()
+      .getSpace()
       .setCell(this.documentTable, rowId, 'parent', parentId);
     this.updateParentUpdatedRecursive(this.getDocumentNodeParent(rowId));
   }
@@ -124,7 +133,7 @@ class DocumentsService {
       rowId === ROOT_FOLDER ? getGlobalTrans().homeTitle : '';
     return (
       (storageService
-        .getStore()
+        .getSpace()
         .getCell(this.documentTable, rowId, 'title')
         ?.valueOf() as string) || defaultValue
     );
@@ -132,10 +141,10 @@ class DocumentsService {
 
   public setDocumentNodeTitle(rowId: Id, title: string) {
     storageService
-      .getStore()
+      .getSpace()
       .setCell(this.documentTable, rowId, 'title', title);
     storageService
-      .getStore()
+      .getSpace()
       .setCell(this.documentTable, rowId, 'updated', Date.now());
     this.updateParentUpdatedRecursive(this.getDocumentNodeParent(rowId));
   }
@@ -143,7 +152,7 @@ class DocumentsService {
   public getDocumentNodeContent(rowId: Id) {
     return (
       (storageService
-        .getStore()
+        .getSpace()
         .getCell(this.documentTable, rowId, 'content')
         ?.valueOf() as string) || null
     );
@@ -158,10 +167,10 @@ class DocumentsService {
 
   public setDocumentContent(rowId: Id, content: string) {
     storageService
-      .getStore()
+      .getSpace()
       .setCell(this.documentTable, rowId, 'content', () => content);
     storageService
-      .getStore()
+      .getSpace()
       .setCell(this.documentTable, rowId, 'updated', Date.now());
     this.updateParentUpdatedRecursive(this.getDocumentNodeParent(rowId));
   }
@@ -169,7 +178,7 @@ class DocumentsService {
   public getDocumentType(rowId: Id) {
     return (
       (storageService
-        .getStore()
+        .getSpace()
         .getCell(this.documentTable, rowId, 'type')
         ?.valueOf() as string) || null
     );
@@ -190,7 +199,7 @@ class DocumentsService {
       return;
     }
     storageService
-      .getStore()
+      .getSpace()
       .setCell(this.documentTable, folder, 'updated', Date.now());
     this.updateParentUpdatedRecursive(this.getDocumentNodeParent(folder));
   }

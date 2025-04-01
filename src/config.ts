@@ -5,13 +5,25 @@ import { ROOT_FOLDER_TITLE } from './constants';
 type AppConfig = {
   /* meant for overriding the platform in dev mode, not production */
   VITE_OVERRIDE_PLATFORM: 'web' | 'android' | 'electron' | undefined;
+  VITE_ENABLE_SPACE_INSPECTOR: boolean;
+  VITE_ENABLE_STORE_INSPECTOR: boolean;
 };
 
 const defaultConfig: AppConfig = {
-  VITE_OVERRIDE_PLATFORM: undefined
+  VITE_OVERRIDE_PLATFORM: undefined,
+  VITE_ENABLE_SPACE_INSPECTOR: true,
+  VITE_ENABLE_STORE_INSPECTOR: true
 };
 
-export const appConfig = { ...defaultConfig, ...import.meta.env };
+const metaEnv = import.meta.env;
+export const appConfig = {
+  ...defaultConfig,
+  ...metaEnv,
+  VITE_ENABLE_SPACE_INSPECTOR:
+    metaEnv['VITE_ENABLE_SPACE_INSPECTOR'] !== 'false',
+  VITE_ENABLE_STORE_INSPECTOR:
+    metaEnv['VITE_ENABLE_STORE_INSPECTOR'] !== 'false'
+};
 
 // for where using lingui macros isn't possible
 const I18N = {

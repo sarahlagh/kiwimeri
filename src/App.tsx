@@ -21,9 +21,11 @@ import { I18nProvider } from '@lingui/react';
 
 import { IonReactRouter } from '@ionic/react-router';
 import MainLayout from './app/MainLayout';
+import DebugTinybaseProvider from './app/providers/DebugTinybaseProvider';
+import InitialRoutingProvider from './app/providers/InitialRoutingProvider';
 import TinybaseProvider from './app/providers/TinybaseProvider';
 import platformService from './common/services/platform.service';
-import { initGlobalTrans } from './config';
+import { appConfig, initGlobalTrans } from './config';
 import { messages as enMessages } from './locales/en/messages';
 
 setupIonicReact();
@@ -33,15 +35,23 @@ initGlobalTrans();
 
 const App = () => {
   return (
-    <TinybaseProvider>
-      <I18nProvider i18n={i18n}>
-        <IonApp className={platformService.getPlatform()}>
-          <IonReactRouter>
-            <MainLayout></MainLayout>
-          </IonReactRouter>
-        </IonApp>
-      </I18nProvider>
-    </TinybaseProvider>
+    <>
+      <TinybaseProvider>
+        <I18nProvider i18n={i18n}>
+          <IonApp className={platformService.getPlatform()}>
+            <IonReactRouter>
+              <InitialRoutingProvider>
+                <MainLayout></MainLayout>
+              </InitialRoutingProvider>
+            </IonReactRouter>
+          </IonApp>
+        </I18nProvider>
+      </TinybaseProvider>
+
+      {platformService.isDev() && appConfig.VITE_ENABLE_STORE_INSPECTOR && (
+        <DebugTinybaseProvider></DebugTinybaseProvider>
+      )}
+    </>
   );
 };
 

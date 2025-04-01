@@ -4,6 +4,7 @@ import { Store } from 'tinybase/store';
 import { Provider } from 'tinybase/ui-react';
 import { Inspector } from 'tinybase/ui-react-inspector';
 import platformService from '../../common/services/platform.service';
+import { appConfig } from '../../config';
 import documentsService from '../../db/documents.service';
 import storageService from '../../db/storage.service';
 
@@ -15,7 +16,7 @@ const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
     load();
   }, []);
 
-  const store = storageService.getStore();
+  const store = storageService.getSpace();
   const queries = documentsService.getQueries();
 
   return (
@@ -23,7 +24,9 @@ const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
       store={store as unknown as Store}
       queries={queries as unknown as Queries}
     >
-      {platformService.isDev() && <Inspector />}
+      {platformService.isDev() && appConfig.VITE_ENABLE_SPACE_INSPECTOR && (
+        <Inspector />
+      )}
       {children}
     </Provider>
   );

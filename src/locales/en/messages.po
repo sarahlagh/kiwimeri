@@ -25,15 +25,15 @@ msgstr "Are you sure?"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: src/common/modals/ChooseFolderModal.tsx:80
+#: src/common/modals/ChooseFolderModal.tsx:51
 msgid "Choose"
 msgstr "Choose"
 
-#: src/common/modals/ChooseFolderModal.tsx:130
+#: src/common/modals/ChooseFolderModal.tsx:102
 msgid "Choose a new folder"
 msgstr "Choose a new folder"
 
-#: src/app/components/MainMenuList.tsx:47
+#: src/app/components/MainMenuList.tsx:37
 msgid "Collection"
 msgstr "Collection"
 
@@ -41,8 +41,8 @@ msgstr "Collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/app/pages/DebugPage.tsx:18
-#: src/app/components/MainMenuList.tsx:61
+#: src/app/pages/DebugPage.tsx:17
+#: src/app/components/MainMenuList.tsx:49
 msgid "Debug"
 msgstr "Debug"
 
@@ -54,8 +54,7 @@ msgstr "Export"
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/constants.ts:4
-#: src/common/modals/ChooseFolderModal.tsx:108
+#: src/constants.ts:25
 msgid "Home"
 msgstr "Home"
 
@@ -71,9 +70,13 @@ msgstr "Kiwi Meri"
 msgid "Manually backup or restore your collection"
 msgstr "Manually backup or restore your collection"
 
+#: src/settings/components/Settings.tsx:41
+msgid "nuke space"
+msgstr "nuke space"
+
 #: src/settings/components/Settings.tsx:32
-msgid "nuke db"
-msgstr "nuke db"
+msgid "nuke store"
+msgstr "nuke store"
 
 #: src/settings/components/Settings.tsx:20
 msgid "Operations"
@@ -85,7 +88,7 @@ msgstr "Operations"
 msgid "Pick a directory for your backups"
 msgstr "Pick a directory for your backups"
 
-#: src/app/pages/DebugPage.tsx:23
+#: src/app/pages/DebugPage.tsx:22
 msgid "Platform(s)"
 msgstr "Platform(s)"
 
@@ -94,7 +97,7 @@ msgid "Restore"
 msgstr "Restore"
 
 #: src/app/pages/SettingsPage.tsx:9
-#: src/app/components/MainMenuList.tsx:54
+#: src/app/components/MainMenuList.tsx:43
 msgid "Settings"
 msgstr "Settings"
 

@@ -29,7 +29,16 @@ const Settings = () => {
             }}
             color="danger"
           >
-            <Trans>nuke db</Trans>
+            <Trans>nuke store</Trans>
+          </IonButton>
+          <IonButton
+            fill="clear"
+            onClick={() => {
+              storageService.getSpace().setContent([{}, {}]);
+            }}
+            color="danger"
+          >
+            <Trans>nuke space</Trans>
           </IonButton>
         </IonCardContent>
       </IonCard>
