@@ -36,8 +36,9 @@ initGlobalTrans();
 const App = () => {
   return (
     <>
-      <TinybaseProvider>
-        <I18nProvider i18n={i18n}>
+      <I18nProvider i18n={i18n}>
+        <TinybaseProvider>
+          {/* TODO check if storage service is started here? */}
           <IonApp className={platformService.getPlatform()}>
             <IonReactRouter>
               <InitialRoutingProvider>
@@ -45,8 +46,8 @@ const App = () => {
               </InitialRoutingProvider>
             </IonReactRouter>
           </IonApp>
-        </I18nProvider>
-      </TinybaseProvider>
+        </TinybaseProvider>
+      </I18nProvider>
 
       {platformService.isDev() && appConfig.VITE_ENABLE_STORE_INSPECTOR && (
         <DebugTinybaseProvider></DebugTinybaseProvider>

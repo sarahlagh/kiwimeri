@@ -1,24 +1,29 @@
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Queries } from 'tinybase/queries';
 import { Store } from 'tinybase/store';
 import { Provider } from 'tinybase/ui-react';
 import { Inspector } from 'tinybase/ui-react-inspector';
 import platformService from '../../common/services/platform.service';
 import { appConfig } from '../../config';
-import documentsService from '../../db/documents.service';
 import storageService from '../../db/storage.service';
+import Loading from '../components/Loading';
 
 const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
+  const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     async function load() {
       await storageService.start();
+      setIsLoading(false);
     }
     load();
   }, []);
 
   const store = storageService.getSpace();
-  const queries = documentsService.getQueries();
+  const queries = storageService.getQueries();
 
+  if (isLoading) {
+    return <Loading />;
+  }
   return (
     <Provider
       store={store as unknown as Store}

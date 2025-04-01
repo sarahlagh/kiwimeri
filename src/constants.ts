@@ -22,11 +22,16 @@ export const DEFAULT_SPACE_ID = 'default';
 export const DEFAULT_NOTEBOOK_ID = '0';
 
 export const ROOT_FOLDER = 'home';
-export const ROOT_FOLDER_TITLE = msg`Home`;
 
 // useful for showing home in modals and getting empty queries on load
 export const FAKE_ROOT = 'root';
 
+// messages
+export const ROOT_FOLDER_TITLE = msg`Home`;
+export const NEW_DOC_TITLE = msg`New document`;
+export const NEW_FOLDER_TITLE = msg`New folder`;
+
+// icons
 export const APPICONS = {
   collectionPage: folderSharp,
   settingsPage: settingsSharp,

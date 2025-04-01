@@ -54,7 +54,7 @@ msgstr "Export"
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/constants.ts:25
+#: src/constants.ts:30
 msgid "Home"
 msgstr "Home"
 
@@ -66,9 +66,21 @@ msgstr "Import & export your collection"
 msgid "Kiwi Meri"
 msgstr "Kiwi Meri"
 
+#: src/app/components/Loading.tsx:4
+msgid "Loading..."
+msgstr "Loading..."
+
 #: src/settings/storage/ImportExportCollectionSettings.tsx:80
 msgid "Manually backup or restore your collection"
 msgstr "Manually backup or restore your collection"
+
+#: src/constants.ts:31
+msgid "New document"
+msgstr "New document"
+
+#: src/constants.ts:32
+msgid "New folder"
+msgstr "New folder"
 
 #: src/settings/components/Settings.tsx:41
 msgid "nuke space"

@@ -16,6 +16,7 @@ type InitialRoutingProviderProps = {
 const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
   const location = useLocation();
   const searchParams = getSearchParams(location.search);
+
   if (
     location.pathname === FOLDER_ROUTE ||
     location.pathname === DOCUMENT_ROUTE

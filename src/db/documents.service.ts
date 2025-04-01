@@ -1,10 +1,9 @@
 import { Id } from 'tinybase/common/with-schemas';
 import { useCell, useResultSortedRowIds, useTable } from 'tinybase/ui-react';
-import { createQueries, Queries } from 'tinybase/with-schemas';
 import { getGlobalTrans } from '../config';
 import { FAKE_ROOT, ROOT_FOLDER } from '../constants';
 import { DocumentNodeResult, DocumentNodeType } from '../documents/document';
-import storageService, { SpaceType } from './storage.service';
+import storageService from './storage.service';
 
 export const initialContent = () => {
   // 'empty' editor
@@ -14,29 +13,15 @@ export const initialContent = () => {
 class DocumentsService {
   private readonly documentTable = 'documents';
 
-  private queries: Map<string, Queries<SpaceType>> = new Map();
-  public constructor() {
-    // TODO create queries dynamically with the loaded spaces
-    this.queries.set(
-      storageService.getCurrentSpace(),
-      createQueries(storageService.getSpace())
-    );
-  }
-
-  public getQueries(space?: string) {
-    return this.queries.get(space ? space : storageService.getCurrentSpace())!;
-  }
-
   public generateFetchAllDocumentNodesQuery(
     parent: string,
     deleted: boolean = false
   ) {
-    const queryId = this.getQueries()
-      .getQueryIds()
-      .find(id => id === parent);
+    const queries = storageService.getQueries();
+    const queryId = queries.getQueryIds().find(id => id === parent);
     const queryName = `fetchAllDocumentNodesFor${parent}`;
     if (!queryId && parent !== FAKE_ROOT) {
-      this.getQueries().setQueryDefinition(
+      queries.setQueryDefinition(
         queryName,
         this.documentTable,
         ({ select, where }) => {
@@ -68,7 +53,7 @@ class DocumentsService {
   public addDocument(parent: string) {
     const now = Date.now();
     storageService.getSpace().addRow(this.documentTable, {
-      title: 'New document', // TODO translate
+      title: getGlobalTrans().newDocTitle,
       parent: parent,
       content: initialContent(),
       created: now,
@@ -82,7 +67,7 @@ class DocumentsService {
   public addFolder(parent: string) {
     const now = Date.now();
     storageService.getSpace().addRow(this.documentTable, {
-      title: 'New folder', // TODO translate,
+      title: getGlobalTrans().newFolderTitle,
       parent: parent,
       created: now,
       updated: now,
