@@ -175,6 +175,16 @@ class DocumentsService {
     );
   }
 
+  public getBreadcrumb(folder: string) {
+    let parent = folder;
+    let breadcrumb: string[] = [folder];
+    while (parent !== ROOT_FOLDER) {
+      parent = this.getDocumentNodeParent(parent);
+      breadcrumb = [parent, ...breadcrumb];
+    }
+    return breadcrumb;
+  }
+
   private updateParentUpdatedRecursive(folder: string) {
     if (folder === ROOT_FOLDER) {
       return;

@@ -3,6 +3,7 @@ import {
   IonButton,
   IonContent,
   IonFooter,
+  IonHeader,
   IonIcon,
   IonInput,
   IonItem,
@@ -19,7 +20,6 @@ type DocumentListNodeItemProps = {
   node: DocumentNodeResult;
   actionsIcon?: string;
   selected?: string;
-  itemId?: string;
   itemRenaming?: string;
   itemProps?: (document: DocumentNodeResult) => IonicReactProps | undefined;
   itemDisabled?: (document: DocumentNodeResult) => boolean;
@@ -32,11 +32,11 @@ type DocumentListNodeItemProps = {
 
 type DocumentNodeListProps = {
   documents: DocumentNodeResult[];
+  header?: ReactNode;
   footer?: ReactNode;
 } & Omit<DocumentListNodeItemProps, 'node'>;
 
 const DocumentNodeListItem = ({
-  itemId,
   selected,
   actionsIcon,
   node,
@@ -66,7 +66,6 @@ const DocumentNodeListItem = ({
 
   return (
     <IonItem
-      id={itemId ? `${itemId}-${node.id}` : undefined}
       className={itemProps ? itemProps(node)?.className : undefined}
       style={itemProps ? itemProps(node)?.style : undefined}
       disabled={itemDisabled ? itemDisabled(node) : false}
@@ -131,7 +130,6 @@ const DocumentNodeListItem = ({
 };
 
 const DocumentNodeList = ({
-  itemId,
   documents,
   actionsIcon,
   itemProps,
@@ -143,16 +141,17 @@ const DocumentNodeList = ({
   onClickActions,
   onRenamingDone,
   selected,
+  header,
   footer
 }: DocumentNodeListProps) => {
   return (
     <>
+      {header && <IonHeader>{header}</IonHeader>}
       <IonContent>
         <IonList>
           {documents.map(node => {
             return (
               <DocumentNodeListItem
-                itemId={itemId}
                 key={node.id}
                 actionsIcon={actionsIcon}
                 selected={selected}

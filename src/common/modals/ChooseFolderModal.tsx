@@ -19,6 +19,7 @@ import React, { useEffect, useState } from 'react';
 import { getGlobalTrans } from '../../config';
 import { ROOT_FOLDER } from '../../constants';
 import documentsService from '../../db/documents.service';
+import DocumentNodeBreadcrumb from '../../documents/components/DocumentNodeBreadcrumb';
 import DocumentNodeList from '../../documents/components/DocumentNodeList';
 import { DocumentNodeResult, DocumentNodeType } from '../../documents/document';
 
@@ -139,7 +140,16 @@ const ChooseFolderModal = ({
         </IonToolbar>
       </IonHeader>
       <DocumentNodeList
-        itemId="modal-item"
+        header={
+          <DocumentNodeBreadcrumb
+            folder={folder}
+            onClick={node => {
+              setFolder(node);
+              setSelected(null);
+              setItemRenaming(undefined);
+            }}
+          />
+        }
         documents={nodes}
         selected={selected?.id}
         itemProps={node =>

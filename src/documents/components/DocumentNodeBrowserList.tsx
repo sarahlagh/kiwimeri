@@ -25,6 +25,7 @@ import documentsService from '../../db/documents.service';
 import userSettingsService from '../../db/user-settings.service';
 import { DocumentNodeResult, DocumentNodeType } from '../document';
 import CommonActionsToolbar from './CommonActionsToolbar';
+import DocumentNodeBreadcrumb from './DocumentNodeBreadcrumb';
 import DocumentNodeList from './DocumentNodeList';
 
 interface DocumentNodeBrowserListProps {
@@ -106,6 +107,7 @@ export const DocumentNodeBrowserList = ({
   parent: folder
 }: DocumentNodeBrowserListProps) => {
   const searchParams = useSearchParams();
+  const history = useHistory();
   const openedDocument = searchParams?.document;
   const parentFolder = documentsService.getDocumentNodeParent(folder);
   const documents: DocumentNodeResult[] =
@@ -137,6 +139,14 @@ export const DocumentNodeBrowserList = ({
 
   return (
     <DocumentNodeList
+      header={
+        <DocumentNodeBreadcrumb
+          folder={folder}
+          onClick={node => {
+            history.push(GET_NODE_ROUTE(node, openedDocument));
+          }}
+        />
+      }
       documents={documents}
       selected={openedDocument}
       getUrl={document =>
