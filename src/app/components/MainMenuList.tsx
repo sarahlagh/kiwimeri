@@ -15,6 +15,8 @@ import {
 import { useLingui } from '@lingui/react/macro';
 import {
   DEBUG_ROUTE,
+  DOCUMENT_ROUTE,
+  FOLDER_ROUTE,
   GET_FOLDER_ROUTE,
   SETTINGS_ROUTE
 } from '../../common/routes';
@@ -26,17 +28,33 @@ interface AppPage {
   url: string;
   icon: string;
   title: string;
+  isActive?: () => boolean;
 }
 
 const MainMenuList = () => {
   const { t } = useLingui();
+  const location = useLocation();
+  const theme = userSettingsService.useTheme();
+
+  function isActive(appPage: AppPage) {
+    if (appPage.isActive) {
+      return appPage.isActive();
+    }
+    const idx = appPage.url.indexOf('?');
+    return location.pathname.startsWith(
+      idx >= 0 ? appPage.url.substring(0, idx) : appPage.url
+    );
+  }
 
   const appPages: AppPage[] = [
     {
       key: 'collection',
       title: t`Collection`,
       url: GET_FOLDER_ROUTE(`${userSettingsService.useCurrentFolder()}`),
-      icon: APPICONS.collectionPage
+      icon: APPICONS.collectionPage,
+      isActive: () =>
+        location.pathname === FOLDER_ROUTE ||
+        location.pathname === DOCUMENT_ROUTE
     },
     {
       key: 'settings',
@@ -52,8 +70,8 @@ const MainMenuList = () => {
     }
   ];
 
-  const theme = userSettingsService.useTheme();
-  const location = useLocation();
+  console.debug(location.pathname);
+
   return (
     <>
       <IonContent>
@@ -62,9 +80,7 @@ const MainMenuList = () => {
             return (
               <IonMenuToggle key={appPage.key} autoHide={true}>
                 <IonItem
-                  color={
-                    location.pathname.startsWith(appPage.url) ? 'primary' : ''
-                  }
+                  color={isActive(appPage) ? 'primary' : ''}
                   routerLink={appPage.url}
                   routerDirection="none"
                   lines="none"
