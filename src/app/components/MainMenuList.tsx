@@ -1,13 +1,3 @@
-import {
-  constructOutline,
-  constructSharp,
-  folderOutline,
-  folderSharp,
-  moonOutline,
-  moonSharp,
-  settingsOutline,
-  settingsSharp
-} from 'ionicons/icons';
 import { useLocation } from 'react-router-dom';
 
 import {
@@ -28,13 +18,13 @@ import {
   GET_FOLDER_ROUTE,
   SETTINGS_ROUTE
 } from '../../common/routes';
+import { APPICONS } from '../../constants';
 import userSettingsService from '../../db/user-settings.service';
 
 interface AppPage {
   key: string;
   url: string;
-  iosIcon: string;
-  mdIcon: string;
+  icon: string;
   title: string;
 }
 
@@ -46,22 +36,19 @@ const MainMenuList = () => {
       key: 'collection',
       title: t`Collection`,
       url: GET_FOLDER_ROUTE(`${userSettingsService.useCurrentFolder()}`),
-      iosIcon: folderOutline,
-      mdIcon: folderSharp
+      icon: APPICONS.collectionPage
     },
     {
       key: 'settings',
       title: t`Settings`,
       url: SETTINGS_ROUTE,
-      iosIcon: settingsOutline,
-      mdIcon: settingsSharp
+      icon: APPICONS.settingsPage
     },
     {
       key: 'debug',
       title: t`Debug`,
       url: DEBUG_ROUTE,
-      iosIcon: constructOutline,
-      mdIcon: constructSharp
+      icon: APPICONS.debugPage
     }
   ];
 
@@ -86,8 +73,7 @@ const MainMenuList = () => {
                   <IonIcon
                     aria-hidden="true"
                     slot="start"
-                    ios={appPage.iosIcon}
-                    md={appPage.mdIcon}
+                    icon={appPage.icon}
                   />
                   <IonLabel>{appPage.title}</IonLabel>
                 </IonItem>
@@ -106,8 +92,12 @@ const MainMenuList = () => {
                 );
               }}
             >
-              {theme === 'light' && <IonIcon icon={moonOutline}></IonIcon>}
-              {theme === 'dark' && <IonIcon icon={moonSharp}></IonIcon>}
+              {theme === 'light' && (
+                <IonIcon icon={APPICONS.themeLight}></IonIcon>
+              )}
+              {theme === 'dark' && (
+                <IonIcon icon={APPICONS.themeDark}></IonIcon>
+              )}
             </IonButton>
           </IonButtons>
         </IonToolbar>

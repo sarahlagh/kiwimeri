@@ -1,5 +1,22 @@
 import { msg } from '@lingui/core/macro';
-import { ellipsisVertical, locateOutline } from 'ionicons/icons';
+import {
+  add,
+  albums,
+  close,
+  constructSharp,
+  createOutline,
+  documentTextOutline,
+  ellipsisVertical,
+  exitOutline,
+  folderSharp,
+  home,
+  locateOutline,
+  moonOutline,
+  moonSharp,
+  openOutline,
+  settingsSharp,
+  trashOutline
+} from 'ionicons/icons';
 
 export const ROOT_FOLDER = 'home';
 export const ROOT_FOLDER_TITLE = msg`Home`;
@@ -8,6 +25,22 @@ export const ROOT_FOLDER_TITLE = msg`Home`;
 export const FAKE_ROOT = 'root';
 
 export const APPICONS = {
+  collectionPage: folderSharp,
+  settingsPage: settingsSharp,
+  debugPage: constructSharp,
+  themeLight: moonOutline,
+  themeDark: moonSharp,
+  home: home,
+  document: documentTextOutline,
+  folder: folderSharp,
   nodeActions: ellipsisVertical,
-  goToCurrentFolder: locateOutline
+  goToCurrentFolder: locateOutline,
+  deleteAction: trashOutline,
+  moveAction: exitOutline,
+  renameAction: createOutline,
+  closeAction: close,
+  goIntoAction: openOutline,
+  addFolder: albums,
+  addDocument: add,
+  addNodeGeneric: add
 };

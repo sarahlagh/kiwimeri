@@ -11,8 +11,8 @@ import {
   IonList
 } from '@ionic/react';
 import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactProps';
-import { documentTextOutline, folderSharp } from 'ionicons/icons';
 import { ReactNode, useEffect, useRef, useState } from 'react';
+import { APPICONS } from '../../constants';
 import documentsService from '../../db/documents.service';
 import { DocumentNodeResult, DocumentNodeType } from '../document';
 
@@ -62,7 +62,9 @@ const DocumentNodeListItem = ({
   const url = getUrl && !renaming ? getUrl(node) : undefined;
   const routerDirection = getUrl && !renaming ? 'none' : undefined;
   const icon =
-    node.type === DocumentNodeType.document ? documentTextOutline : folderSharp;
+    node.type === DocumentNodeType.document
+      ? APPICONS.document
+      : APPICONS.folder;
 
   return (
     <IonItem

@@ -1,9 +1,8 @@
 import { IonButton, IonIcon } from '@ionic/react';
-import { ellipsisVertical } from 'ionicons/icons';
 import { useEffect, useState } from 'react';
 import { onTitleChangeFn } from '../../common/events/events';
 import { useSearchParams } from '../../common/hooks/useSearchParams';
-import { FAKE_ROOT, ROOT_FOLDER } from '../../constants';
+import { APPICONS, FAKE_ROOT, ROOT_FOLDER } from '../../constants';
 import documentsService from '../../db/documents.service';
 import CommonActionsToolbar from '../../documents/components/CommonActionsToolbar';
 import DocumentEditor from '../../documents/components/DocumentEditor';
@@ -34,7 +33,7 @@ const DocumentEditorPage = () => {
             setHideDocumentActions(!hideDocumentActions);
           }}
         >
-          <IonIcon icon={ellipsisVertical}></IonIcon>
+          <IonIcon icon={APPICONS.nodeActions}></IonIcon>
         </IonButton>
       </>
     );

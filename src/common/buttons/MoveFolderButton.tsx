@@ -1,6 +1,6 @@
 import { IonButton, IonIcon, useIonModal } from '@ionic/react';
-import { exitOutline } from 'ionicons/icons';
 import { Id } from 'tinybase/with-schemas';
+import { APPICONS } from '../../constants';
 import documentsService from '../../db/documents.service';
 import ChooseFolderModal from '../modals/ChooseFolderModal';
 
@@ -33,7 +33,7 @@ const MoveFolderButton = ({ id, onClose }: MoveFolderButtonProps) => {
           present();
         }}
       >
-        <IonIcon icon={exitOutline}></IonIcon>
+        <IonIcon icon={APPICONS.moveAction}></IonIcon>
       </IonButton>
     </>
   );

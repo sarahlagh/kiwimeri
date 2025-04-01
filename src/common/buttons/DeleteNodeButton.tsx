@@ -1,7 +1,7 @@
 import { IonButton, IonIcon } from '@ionic/react';
-import { trashOutline } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { Id } from 'tinybase/with-schemas';
+import { APPICONS } from '../../constants';
 import documentsService from '../../db/documents.service';
 import userSettingsService from '../../db/user-settings.service';
 import ConfirmYesNoDialog from '../modals/ConfirmYesNoDialog';
@@ -17,7 +17,7 @@ const DeleteNodeButton = ({ id, onClose }: DeleteNodeButtonProps) => {
   return (
     <>
       <IonButton id="open-modal-delete-document-node" expand="block">
-        <IonIcon icon={trashOutline}></IonIcon>
+        <IonIcon icon={APPICONS.deleteAction}></IonIcon>
       </IonButton>
       <ConfirmYesNoDialog
         trigger="open-modal-delete-document-node"

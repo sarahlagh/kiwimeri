@@ -7,10 +7,9 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
-import { add, close, createOutline, openOutline } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
 import { getGlobalTrans } from '../../config';
-import { FAKE_ROOT, ROOT_FOLDER } from '../../constants';
+import { APPICONS, FAKE_ROOT, ROOT_FOLDER } from '../../constants';
 import documentsService from '../../db/documents.service';
 import DocumentNodeBreadcrumb from '../../documents/components/DocumentNodeBreadcrumb';
 import DocumentNodeList from '../../documents/components/DocumentNodeList';
@@ -33,7 +32,7 @@ const Toolbar = ({
             documentsService.addFolder(folderId);
           }}
         >
-          <IonIcon aria-hidden="true" icon={add} />
+          <IonIcon aria-hidden="true" icon={APPICONS.addNodeGeneric} />
         </IonButton>
         <IonButton
           disabled={selected === ROOT_FOLDER || !selected}
@@ -41,7 +40,7 @@ const Toolbar = ({
             onClick('rename', selected!);
           }}
         >
-          <IonIcon icon={createOutline}></IonIcon>
+          <IonIcon icon={APPICONS.renameAction}></IonIcon>
         </IonButton>
         <IonButton
           disabled={!selected}
@@ -104,7 +103,7 @@ const ChooseFolderModal = ({
           </IonTitle>
           <IonButtons slot="end">
             <IonButton onClick={() => onClose()}>
-              <IonIcon icon={close} />
+              <IonIcon icon={APPICONS.closeAction} />
             </IonButton>
           </IonButtons>
         </IonToolbar>
@@ -145,7 +144,7 @@ const ChooseFolderModal = ({
         onRenamingDone={() => {
           setItemRenaming(undefined);
         }}
-        actionsIcon={openOutline}
+        actionsIcon={APPICONS.goIntoAction}
         footer={
           <Toolbar
             selected={selected?.id}

@@ -4,9 +4,8 @@ import {
   IonButton,
   IonIcon
 } from '@ionic/react';
-import { home } from 'ionicons/icons';
 import { useState } from 'react';
-import { FAKE_ROOT, ROOT_FOLDER } from '../../constants';
+import { APPICONS, FAKE_ROOT, ROOT_FOLDER } from '../../constants';
 import documentsService from '../../db/documents.service';
 
 const DocumentNodeBreadcrumb = ({
@@ -51,7 +50,7 @@ const DocumentNodeBreadcrumb = ({
               if (onClick) onClick(node);
             }}
           >
-            {node === ROOT_FOLDER && <IonIcon icon={home} />}
+            {node === ROOT_FOLDER && <IonIcon icon={APPICONS.home} />}
             {node !== ROOT_FOLDER && (
               <>{documentsService.getDocumentNodeTitle(node)}</>
             )}

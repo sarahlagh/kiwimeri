@@ -1,6 +1,6 @@
 import { IonButton, IonIcon } from '@ionic/react';
-import { createOutline } from 'ionicons/icons';
 import { Id } from 'tinybase/with-schemas';
+import { APPICONS } from '../../constants';
 
 type RenameNodeButtonProps = {
   id: Id;
@@ -16,7 +16,7 @@ const RenameNodeButton = ({ id, onClose }: RenameNodeButtonProps) => {
           onClose('rename', id);
         }}
       >
-        <IonIcon icon={createOutline}></IonIcon>
+        <IonIcon icon={APPICONS.renameAction}></IonIcon>
       </IonButton>
     </>
   );

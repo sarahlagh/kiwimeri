@@ -1,4 +1,3 @@
-import { add, albums } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 
 import {
@@ -58,14 +57,14 @@ const DocumentNodeBrowserListToolbar = ({
             documentsService.addFolder(folderId);
           }}
         >
-          <IonIcon aria-hidden="true" ios={albums} md={albums} />
+          <IonIcon aria-hidden="true" icon={APPICONS.addFolder} />
         </IonButton>
         <IonButton
           onClick={() => {
             documentsService.addDocument(folderId);
           }}
         >
-          <IonIcon aria-hidden="true" ios={add} md={add} />
+          <IonIcon aria-hidden="true" icon={APPICONS.addDocument} />
         </IonButton>
       </IonButtons>
     </IonToolbar>
