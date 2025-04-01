@@ -31,14 +31,14 @@ class UserSettingsService {
     );
   }
 
-  public setCurrentFolder(parent: string) {
+  public setCurrentFolder(folder: string) {
     storageService
       .getStore()
       .setCell(
         this.spaceSettingsTable,
         storageService.getCurrentSpace(),
         'currentFolder',
-        parent
+        folder
       );
   }
 }

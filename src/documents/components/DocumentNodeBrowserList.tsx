@@ -1,4 +1,4 @@
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 
 import {
   IonButton,
@@ -9,7 +9,7 @@ import {
 } from '@ionic/react';
 
 import { useEffect, useState } from 'react';
-import { useSearchParams } from '../../common/hooks/useSearchParams';
+import { getSearchParams } from '../../common/getSearchParams';
 import { GET_NODE_ROUTE } from '../../common/routes';
 import { APPICONS } from '../../constants';
 import documentsService from '../../db/documents.service';
@@ -74,11 +74,13 @@ const DocumentNodeBrowserListToolbar = ({
 export const DocumentNodeBrowserList = ({
   parent: folder
 }: DocumentNodeBrowserListProps) => {
-  const searchParams = useSearchParams();
   const history = useHistory();
+  const location = useLocation();
+  const searchParams = getSearchParams(location.search);
   const openedDocument = searchParams?.document;
   const documents: DocumentNodeResult[] =
     documentsService.useDocumentNodes(folder);
+
   const [itemRenaming, setItemRenaming] = useState<string | undefined>(
     undefined
   );
@@ -87,8 +89,10 @@ export const DocumentNodeBrowserList = ({
   );
 
   useEffect(() => {
-    documentsService.generateFetchAllDocumentNodesQuery(folder);
-    userSettingsService.setCurrentFolder(folder);
+    if (folder) {
+      documentsService.generateFetchAllDocumentNodesQuery(folder);
+      userSettingsService.setCurrentFolder(folder);
+    }
     setItemRenaming(undefined);
   }, [folder]);
 

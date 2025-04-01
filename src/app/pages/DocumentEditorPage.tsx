@@ -1,7 +1,8 @@
 import { IonButton, IonIcon } from '@ionic/react';
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router';
 import { onTitleChangeFn } from '../../common/events/events';
-import { useSearchParams } from '../../common/hooks/useSearchParams';
+import { getSearchParams } from '../../common/getSearchParams';
 import { APPICONS, FAKE_ROOT, ROOT_FOLDER } from '../../constants';
 import documentsService from '../../db/documents.service';
 import CommonActionsToolbar from '../../documents/components/CommonActionsToolbar';
@@ -10,7 +11,8 @@ import DocumentNodeBrowserList from '../../documents/components/DocumentNodeBrow
 import TemplateCompactableSplitPage from './TemplateCompactableSplitPage';
 
 const DocumentEditorPage = () => {
-  const searchParams = useSearchParams();
+  const location = useLocation();
+  const searchParams = getSearchParams(location.search);
   const docId = searchParams?.document || FAKE_ROOT;
   const parent = searchParams?.folder || FAKE_ROOT;
 

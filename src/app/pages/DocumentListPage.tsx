@@ -1,26 +1,24 @@
 import { useEffect } from 'react';
 import { useHistory, useLocation } from 'react-router';
 import { onTitleChangeFn } from '../../common/events/events';
-import { useSearchParams } from '../../common/hooks/useSearchParams';
+import { getSearchParams } from '../../common/getSearchParams';
+import { GET_FOLDER_ROUTE } from '../../common/routes';
 import { ROOT_FOLDER } from '../../constants';
 import documentsService from '../../db/documents.service';
 import DocumentNodeBrowserList from '../../documents/components/DocumentNodeBrowserList';
 import TemplateMainPage from './TemplateMainPage';
 
 const DocumentListPage = () => {
-  const location = useLocation();
   const history = useHistory();
-  const searchParams = useSearchParams();
+  const location = useLocation();
+  const searchParams = getSearchParams(location.search);
   const parent = searchParams?.folder || ROOT_FOLDER;
   const folderTitle = documentsService.useDocumentNodeTitle(parent);
   const onFolderTitleChange = onTitleChangeFn(parent);
 
   useEffect(() => {
     if (searchParams) {
-      history.push({
-        pathname: location.pathname,
-        search: `?folder=${parent}`
-      });
+      history.replace(GET_FOLDER_ROUTE(ROOT_FOLDER));
     }
   }, [searchParams !== null]);
 

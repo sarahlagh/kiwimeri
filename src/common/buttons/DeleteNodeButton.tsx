@@ -25,7 +25,7 @@ const DeleteNodeButton = ({ id, onClose }: DeleteNodeButtonProps) => {
           if (confirmed) {
             documentsService.deleteNodeDocument(id);
             if (history) {
-              history.push(
+              history.replace(
                 GET_FOLDER_ROUTE(userSettingsService.getCurrentFolder())
               );
             }
