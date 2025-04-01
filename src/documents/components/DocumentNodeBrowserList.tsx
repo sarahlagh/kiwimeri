@@ -1,11 +1,4 @@
-import {
-  add,
-  albums,
-  chevronBack,
-  ellipsisVertical,
-  folderSharp,
-  home
-} from 'ionicons/icons';
+import { add, albums } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 
 import {
@@ -19,8 +12,7 @@ import {
 import { useEffect, useState } from 'react';
 import { useSearchParams } from '../../common/hooks/useSearchParams';
 import { GET_NODE_ROUTE } from '../../common/routes';
-import platformService from '../../common/services/platform.service';
-import { ROOT_FOLDER } from '../../constants';
+import { APPICONS } from '../../constants';
 import documentsService from '../../db/documents.service';
 import userSettingsService from '../../db/user-settings.service';
 import { DocumentNodeResult, DocumentNodeType } from '../document';
@@ -34,11 +26,9 @@ interface DocumentNodeBrowserListProps {
 
 const DocumentNodeBrowserListToolbar = ({
   folderId,
-  parentId,
   openedDocument
 }: {
   folderId: string;
-  parentId: string;
   openedDocument: string | undefined;
 }) => {
   const history = useHistory();
@@ -48,38 +38,17 @@ const DocumentNodeBrowserListToolbar = ({
   return (
     <IonToolbar>
       <IonButtons slot="start">
-        {/* go to home button */}
         <IonButton
-          disabled={folderId === ROOT_FOLDER}
+          disabled={folderId === openedDocumentFolder}
           onClick={() => {
-            history.push(GET_NODE_ROUTE(ROOT_FOLDER, openedDocument));
+            if (openedDocumentFolder) {
+              history.push(
+                GET_NODE_ROUTE(openedDocumentFolder, openedDocument)
+              );
+            }
           }}
         >
-          <IonIcon icon={home}></IonIcon>
-        </IonButton>
-        {/* go to current opened document parent folder */}
-        {platformService.isWideEnough() && (
-          <IonButton
-            disabled={folderId === openedDocumentFolder}
-            onClick={() => {
-              if (openedDocumentFolder) {
-                history.push(
-                  GET_NODE_ROUTE(openedDocumentFolder, openedDocument)
-                );
-              }
-            }}
-          >
-            <IonIcon icon={folderSharp}></IonIcon>
-          </IonButton>
-        )}
-        {/* go to current folder parent */}
-        <IonButton
-          disabled={folderId === ROOT_FOLDER}
-          onClick={() => {
-            history.push(GET_NODE_ROUTE(parentId, openedDocument));
-          }}
-        >
-          <IonIcon icon={chevronBack}></IonIcon>
+          <IonIcon icon={APPICONS.goToCurrentFolder}></IonIcon>
         </IonButton>
       </IonButtons>
 
@@ -109,7 +78,6 @@ export const DocumentNodeBrowserList = ({
   const searchParams = useSearchParams();
   const history = useHistory();
   const openedDocument = searchParams?.document;
-  const parentFolder = documentsService.getDocumentNodeParent(folder);
   const documents: DocumentNodeResult[] =
     documentsService.useDocumentNodes(folder);
   const [itemRenaming, setItemRenaming] = useState<string | undefined>(
@@ -154,7 +122,7 @@ export const DocumentNodeBrowserList = ({
           ? GET_NODE_ROUTE(document.parent, document.id)
           : GET_NODE_ROUTE(document.id, openedDocument)
       }
-      actionsIcon={ellipsisVertical}
+      actionsIcon={APPICONS.nodeActions}
       itemRenaming={itemRenaming}
       onClickActions={(event, node) => {
         setSelectedNode(node);
@@ -170,7 +138,6 @@ export const DocumentNodeBrowserList = ({
       footer={
         <DocumentNodeBrowserListToolbar
           folderId={folder}
-          parentId={parentFolder}
           openedDocument={openedDocument}
         />
       }

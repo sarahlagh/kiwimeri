@@ -7,14 +7,7 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
-import {
-  add,
-  chevronBack,
-  close,
-  createOutline,
-  home,
-  openOutline
-} from 'ionicons/icons';
+import { add, close, createOutline, openOutline } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
 import { getGlobalTrans } from '../../config';
 import { FAKE_ROOT, ROOT_FOLDER } from '../../constants';
@@ -34,27 +27,6 @@ const Toolbar = ({
 }) => {
   return (
     <IonToolbar>
-      <IonButtons slot="start">
-        {/* go to home button */}
-        <IonButton
-          disabled={folderId === FAKE_ROOT}
-          onClick={() => {
-            onClick('gointo', FAKE_ROOT);
-          }}
-        >
-          <IonIcon icon={home}></IonIcon>
-        </IonButton>
-        {/* go to current folder parent */}
-        <IonButton
-          disabled={folderId === ROOT_FOLDER || folderId === FAKE_ROOT}
-          onClick={() => {
-            const parentId = documentsService.getDocumentNodeParent(folderId);
-            onClick('gointo', parentId);
-          }}
-        >
-          <IonIcon icon={chevronBack}></IonIcon>
-        </IonButton>
-      </IonButtons>
       <IonButtons slot="end">
         <IonButton
           onClick={() => {
