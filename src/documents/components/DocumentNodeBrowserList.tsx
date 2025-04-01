@@ -38,7 +38,7 @@ const DocumentNodeBrowserListToolbar = ({
     <IonToolbar>
       <IonButtons slot="start">
         <IonButton
-          disabled={folderId === openedDocumentFolder}
+          disabled={folderId === openedDocumentFolder || !openedDocument}
           onClick={() => {
             if (openedDocumentFolder) {
               history.push(
