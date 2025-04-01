@@ -17,13 +17,11 @@ import {
 } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
 import { getGlobalTrans } from '../../config';
-import { ROOT_FOLDER } from '../../constants';
+import { FAKE_ROOT, ROOT_FOLDER } from '../../constants';
 import documentsService from '../../db/documents.service';
 import DocumentNodeBreadcrumb from '../../documents/components/DocumentNodeBreadcrumb';
 import DocumentNodeList from '../../documents/components/DocumentNodeList';
 import { DocumentNodeResult, DocumentNodeType } from '../../documents/document';
-
-const FAKE_ROOT = 'root'; // to allow choosing root in the modal
 
 const Toolbar = ({
   selected,

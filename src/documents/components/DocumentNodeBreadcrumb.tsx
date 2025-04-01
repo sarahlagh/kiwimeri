@@ -6,24 +6,26 @@ import {
 } from '@ionic/react';
 import { home } from 'ionicons/icons';
 import { useState } from 'react';
-import { ROOT_FOLDER } from '../../constants';
+import { FAKE_ROOT, ROOT_FOLDER } from '../../constants';
 import documentsService from '../../db/documents.service';
 
 const DocumentNodeBreadcrumb = ({
   folder,
-  id,
   onClick
 }: {
   folder: string;
-  id?: string;
   onClick?: (node: string) => void;
 }) => {
   const [maxBreadcrumbs, setMaxBreadcrumbs] = useState<number | undefined>(3);
   const [breadcrumb, setBreadcrumb] = useState<string[]>([]);
 
-  if (!breadcrumb.find(b => b === folder)) {
-    setBreadcrumb(documentsService.getBreadcrumb(id ? id : folder));
+  if (folder !== FAKE_ROOT && !breadcrumb.find(b => b === folder)) {
+    setBreadcrumb(documentsService.getBreadcrumb(folder));
     setMaxBreadcrumbs(3);
+  }
+
+  if (breadcrumb.length < 2) {
+    return <></>;
   }
 
   return (

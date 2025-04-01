@@ -3,7 +3,7 @@ import { ellipsisVertical } from 'ionicons/icons';
 import { useEffect, useState } from 'react';
 import { onTitleChangeFn } from '../../common/events/events';
 import { useSearchParams } from '../../common/hooks/useSearchParams';
-import { ROOT_FOLDER } from '../../constants';
+import { FAKE_ROOT, ROOT_FOLDER } from '../../constants';
 import documentsService from '../../db/documents.service';
 import CommonActionsToolbar from '../../documents/components/CommonActionsToolbar';
 import DocumentEditor from '../../documents/components/DocumentEditor';
@@ -12,8 +12,8 @@ import TemplateCompactableSplitPage from './TemplateCompactableSplitPage';
 
 const DocumentEditorPage = () => {
   const searchParams = useSearchParams();
-  const docId = searchParams?.document || '-1';
-  const parent = searchParams?.folder || '-1';
+  const docId = searchParams?.document || FAKE_ROOT;
+  const parent = searchParams?.folder || FAKE_ROOT;
 
   const [hideDocumentActions, setHideDocumentActions] = useState(true);
 

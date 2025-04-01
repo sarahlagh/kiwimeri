@@ -2,7 +2,7 @@ import { Id } from 'tinybase/common/with-schemas';
 import { useCell, useResultSortedRowIds, useTable } from 'tinybase/ui-react';
 import { createQueries, Queries } from 'tinybase/with-schemas';
 import { getGlobalTrans } from '../config';
-import { ROOT_FOLDER } from '../constants';
+import { FAKE_ROOT, ROOT_FOLDER } from '../constants';
 import { DocumentNodeResult, DocumentNodeType } from '../documents/document';
 import storageService, { StoreType } from './storage.service';
 
@@ -29,7 +29,7 @@ class DocumentsService {
   ) {
     const queryId = this.queries.getQueryIds().find(id => id === parent);
     const queryName = `fetchAllDocumentNodesFor${parent}`;
-    if (!queryId && parent !== '-1') {
+    if (!queryId && parent !== FAKE_ROOT) {
       this.queries.setQueryDefinition(
         queryName,
         this.documentTable,
