@@ -1,47 +1,11 @@
-import {
-  IonButton,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardTitle
-} from '@ionic/react';
-import { Trans } from '@lingui/react/macro';
-import storageService from '../../db/storage.service';
 import ImportExportCollectionSettings from '../storage/ImportExportCollectionSettings';
+import OperationSettings from '../storage/OperationsSettings';
 const Settings = () => {
   return (
     <>
       {/* <FilesystemSyncSettings></FilesystemSyncSettings> */}
-      <ImportExportCollectionSettings></ImportExportCollectionSettings>
-
-      <IonCard>
-        <IonCardHeader>
-          <IonCardTitle>
-            <Trans>Operations</Trans>
-          </IonCardTitle>
-        </IonCardHeader>
-
-        <IonCardContent>
-          <IonButton
-            fill="clear"
-            onClick={() => {
-              storageService.getStore().setContent([{}, {}]);
-            }}
-            color="danger"
-          >
-            <Trans>nuke store</Trans>
-          </IonButton>
-          <IonButton
-            fill="clear"
-            onClick={() => {
-              storageService.getSpace().setContent([{}, {}]);
-            }}
-            color="danger"
-          >
-            <Trans>nuke space</Trans>
-          </IonButton>
-        </IonCardContent>
-      </IonCard>
+      <ImportExportCollectionSettings />
+      <OperationSettings />
     </>
   );
 };

@@ -47,7 +47,7 @@ const ImportExportCollectionSettings = () => {
       filesystemService.readFile(file).then(content => {
         try {
           const json = JSON.parse(content);
-          storageService.getStore().setContent(json);
+          storageService.getSpace().setContent(json);
 
           setToast(successMessage, 'success');
         } catch (e) {
@@ -60,7 +60,7 @@ const ImportExportCollectionSettings = () => {
 
   // export
   const onExport: React.MouseEventHandler<HTMLIonButtonElement> = () => {
-    const content = storageService.getStore().getJson();
+    const content = storageService.getSpace().getJson();
     const fileName = `${new Date().toISOString().substring(0, 19).replaceAll(/[:T]/g, '-')}-${platformService.getPlatform()}-backup.json`;
 
     filesystemService.exportToFile(fileName, content).then(() => {
