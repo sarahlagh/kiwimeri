@@ -26,6 +26,7 @@ type StoreType = [
     spaceSettings: {
       currentNotebook: CellSchema;
       currentFolder: CellSchema;
+      currentDocument: CellSchema;
     };
   },
   {
@@ -51,7 +52,8 @@ class StorageService {
             type: 'string',
             default: DEFAULT_NOTEBOOK_ID
           } as CellSchema,
-          currentFolder: { type: 'string', default: ROOT_FOLDER } as CellSchema
+          currentFolder: { type: 'string', default: ROOT_FOLDER } as CellSchema,
+          currentDocument: { type: 'string' } as CellSchema
         }
       })
       .setValuesSchema({

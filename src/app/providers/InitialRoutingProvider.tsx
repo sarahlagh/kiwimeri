@@ -18,8 +18,9 @@ const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
   useEffect(() => {
     if (isCollectionRoute(location.pathname)) {
       userSettingsService.setCurrentFolder(folder);
+      userSettingsService.setCurrentDocument(searchParams?.document);
     }
-  }, [folder]);
+  }, [folder, searchParams?.document]);
 
   if (isCollectionRoute(location.pathname)) {
     if (!searchParams?.folder) {
@@ -37,7 +38,6 @@ const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
     ) {
       return <Redirect to={GET_FOLDER_ROUTE(folder)} />;
     }
-    userSettingsService.setCurrentFolder(folder);
   }
   return <>{children}</>;
 };
