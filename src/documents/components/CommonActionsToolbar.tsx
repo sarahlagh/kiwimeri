@@ -1,4 +1,5 @@
 import { IonButtons, IonToolbar } from '@ionic/react';
+import CloseDocumentButton from '../../common/buttons/CloseDocumentButton';
 import DeleteNodeButton from '../../common/buttons/DeleteNodeButton';
 import MoveFolderButton from '../../common/buttons/MoveFolderButton';
 import RenameNodeButton from '../../common/buttons/RenameNodeButton';
@@ -8,12 +9,14 @@ export type CommonActionsToolbarProps = {
   rows?: number;
   onClose: (role?: string, data?: unknown) => void;
   showRename?: boolean;
+  showClose?: boolean;
 } & React.HTMLAttributes<HTMLIonToolbarElement>;
 
 const CommonActionsToolbar = ({
   id,
   rows = 1,
   showRename = false,
+  showClose = false,
   onClose,
   children
 }: CommonActionsToolbarProps) => {
@@ -24,6 +27,7 @@ const CommonActionsToolbar = ({
         {showRename && <RenameNodeButton id={id} onClose={onClose} />}
         <MoveFolderButton id={id} onClose={onClose} />
         <DeleteNodeButton id={id} onClose={onClose} />
+        {showClose && <CloseDocumentButton id={id} onClose={onClose} />}
       </IonButtons>
     </IonToolbar>
   );

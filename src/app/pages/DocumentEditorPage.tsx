@@ -62,6 +62,7 @@ const DocumentEditorPage = () => {
       {!hideDocumentActions && (
         <CommonActionsToolbar
           id={docId}
+          showClose={true}
           onClose={() => {
             setHideDocumentActions(true);
           }}
