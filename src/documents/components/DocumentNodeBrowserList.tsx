@@ -88,6 +88,7 @@ export const DocumentNodeBrowserList = ({
   );
 
   useEffect(() => {
+    documentsService.generateFetchAllDocumentNodesQuery(folder);
     setItemRenaming(undefined);
   }, [folder]);
 

@@ -17,7 +17,6 @@ const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
 
   useEffect(() => {
     if (isCollectionRoute(location.pathname)) {
-      documentsService.generateFetchAllDocumentNodesQuery(folder);
       userSettingsService.setCurrentFolder(folder);
     }
   }, [folder]);
