@@ -38,7 +38,6 @@ const App = () => {
     <>
       <I18nProvider i18n={i18n}>
         <TinybaseProvider>
-          {/* TODO check if storage service is started here? */}
           <IonApp className={platformService.getPlatform()}>
             <IonReactRouter>
               <InitialRoutingProvider>

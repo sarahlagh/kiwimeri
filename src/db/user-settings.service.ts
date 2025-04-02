@@ -1,5 +1,6 @@
 import { Store } from 'tinybase/store';
-import { useValue } from 'tinybase/ui-react';
+import { useCell, useValue } from 'tinybase/ui-react';
+import { ROOT_FOLDER } from '../constants';
 import storageService from './storage.service';
 
 class UserSettingsService {
@@ -14,20 +15,26 @@ class UserSettingsService {
   }
 
   public getCurrentFolder() {
-    return storageService
-      .getStore()
-      .getCell(
-        this.spaceSettingsTable,
-        storageService.getCurrentSpace(),
-        'currentFolder'
-      )
-      ?.valueOf() as string;
+    return (
+      (storageService
+        .getStore()
+        .getCell(
+          this.spaceSettingsTable,
+          storageService.getCurrentSpace(),
+          'currentFolder'
+        )
+        ?.valueOf() as string) || ROOT_FOLDER
+    );
   }
 
   public useCurrentFolder() {
-    return useValue(
-      'currentFolder',
-      storageService.getStore() as unknown as Store
+    return (
+      useCell(
+        this.spaceSettingsTable,
+        storageService.getCurrentSpace(),
+        'currentFolder',
+        storageService.getStore() as unknown as Store
+      )?.valueOf() || ROOT_FOLDER
     );
   }
 

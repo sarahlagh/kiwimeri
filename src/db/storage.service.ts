@@ -100,7 +100,9 @@ class StorageService {
       await this.startPersister(
         this.spacePersisters.get(this.getCurrentSpace())!
       );
+      return true;
     }
+    return false;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

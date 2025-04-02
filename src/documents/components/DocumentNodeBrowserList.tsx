@@ -13,7 +13,6 @@ import { getSearchParams } from '../../common/getSearchParams';
 import { GET_NODE_ROUTE } from '../../common/routes';
 import { APPICONS } from '../../constants';
 import documentsService from '../../db/documents.service';
-import userSettingsService from '../../db/user-settings.service';
 import { DocumentNodeResult, DocumentNodeType } from '../document';
 import CommonActionsToolbar from './CommonActionsToolbar';
 import DocumentNodeBreadcrumb from './DocumentNodeBreadcrumb';
@@ -89,10 +88,6 @@ export const DocumentNodeBrowserList = ({
   );
 
   useEffect(() => {
-    if (folder) {
-      documentsService.generateFetchAllDocumentNodesQuery(folder);
-      userSettingsService.setCurrentFolder(folder);
-    }
     setItemRenaming(undefined);
   }, [folder]);
 

@@ -1,13 +1,10 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { Redirect, useLocation } from 'react-router';
 import { getSearchParams } from '../../common/getSearchParams';
-import {
-  DOCUMENT_ROUTE,
-  FOLDER_ROUTE,
-  GET_FOLDER_ROUTE
-} from '../../common/routes';
+import { GET_FOLDER_ROUTE, isCollectionRoute } from '../../common/routes';
 import { ROOT_FOLDER } from '../../constants';
 import documentsService from '../../db/documents.service';
+import userSettingsService from '../../db/user-settings.service';
 
 type InitialRoutingProviderProps = {
   readonly children?: ReactNode;
@@ -16,24 +13,32 @@ type InitialRoutingProviderProps = {
 const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
   const location = useLocation();
   const searchParams = getSearchParams(location.search);
+  const folder = searchParams?.folder ? searchParams.folder : ROOT_FOLDER;
 
-  if (
-    location.pathname === FOLDER_ROUTE ||
-    location.pathname === DOCUMENT_ROUTE
-  ) {
+  useEffect(() => {
+    if (isCollectionRoute(location.pathname)) {
+      documentsService.generateFetchAllDocumentNodesQuery(folder);
+      userSettingsService.setCurrentFolder(folder);
+    }
+  }, [folder]);
+
+  if (isCollectionRoute(location.pathname)) {
+    if (!searchParams?.folder) {
+      return <Redirect to={GET_FOLDER_ROUTE(ROOT_FOLDER)} />;
+    }
     if (
       searchParams?.folder &&
       !documentsService.documentNodeExists(searchParams.folder)
     ) {
       return <Redirect to={GET_FOLDER_ROUTE(ROOT_FOLDER)} />;
     }
-    const folder = searchParams.folder ? searchParams.folder : ROOT_FOLDER;
     if (
       searchParams?.document &&
       !documentsService.documentNodeExists(searchParams.document)
     ) {
       return <Redirect to={GET_FOLDER_ROUTE(folder)} />;
     }
+    userSettingsService.setCurrentFolder(folder);
   }
   return <>{children}</>;
 };

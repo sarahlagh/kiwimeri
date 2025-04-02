@@ -9,3 +9,7 @@ export const GET_DOCUMENT_ROUTE = (parent: string, id: string) =>
   `${DOCUMENT_ROUTE}?folder=${parent}&document=${id}`;
 export const GET_NODE_ROUTE = (parent: string, id?: string) =>
   id ? GET_DOCUMENT_ROUTE(parent, id) : GET_FOLDER_ROUTE(parent);
+
+export const isCollectionRoute = (pathname: string) => {
+  return pathname === FOLDER_ROUTE || pathname === DOCUMENT_ROUTE;
+};

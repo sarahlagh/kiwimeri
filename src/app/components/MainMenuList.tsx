@@ -15,9 +15,8 @@ import {
 import { useLingui } from '@lingui/react/macro';
 import {
   DEBUG_ROUTE,
-  DOCUMENT_ROUTE,
-  FOLDER_ROUTE,
   GET_FOLDER_ROUTE,
+  isCollectionRoute,
   SETTINGS_ROUTE
 } from '../../common/routes';
 import { APPICONS } from '../../constants';
@@ -52,9 +51,7 @@ const MainMenuList = () => {
       title: t`Collection`,
       url: GET_FOLDER_ROUTE(`${userSettingsService.useCurrentFolder()}`),
       icon: APPICONS.collectionPage,
-      isActive: () =>
-        location.pathname === FOLDER_ROUTE ||
-        location.pathname === DOCUMENT_ROUTE
+      isActive: () => isCollectionRoute(location.pathname)
     },
     {
       key: 'settings',
@@ -69,8 +66,6 @@ const MainMenuList = () => {
       icon: APPICONS.debugPage
     }
   ];
-
-  console.debug(location.pathname);
 
   return (
     <>
