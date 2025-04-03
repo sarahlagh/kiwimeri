@@ -10,7 +10,7 @@ type CloseDocumentButtonProps = {
   onClose?: (role?: string) => void;
 };
 
-const CloseDocumentButton = ({ id, onClose }: CloseDocumentButtonProps) => {
+const CloseDocumentButton = ({ id }: CloseDocumentButtonProps) => {
   const history = useHistory();
   const parent = documentsService.getDocumentNodeParent(id);
   return (

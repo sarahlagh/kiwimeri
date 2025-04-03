@@ -28,6 +28,7 @@ const DebugPage = () => {
             <p>is dev: {platformService.isDev() ? 'yes' : 'no'}</p>
             <p>is android: {platformService.isAndroid() ? 'yes' : 'no'}</p>
             <p>is web: {platformService.isWeb() ? 'yes' : 'no'}</p>
+            <p>is electron: {platformService.isElectron() ? 'yes' : 'no'}</p>
             <p>is wide: {platformService.isWideEnough() ? 'yes' : 'no'}</p>
             <p>config: {JSON.stringify(appConfig)}</p>
           </IonCardContent>

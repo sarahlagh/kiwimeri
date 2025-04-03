@@ -4,15 +4,19 @@ import { useMediaQueryMatch } from '../hooks/useMediaQueryMatch';
 
 class PlatformService {
   public isAndroid() {
-    return appConfig.VITE_OVERRIDE_PLATFORM
-      ? appConfig.VITE_OVERRIDE_PLATFORM === 'android'
-      : this.getPlatform() === 'android';
+    return this.getPlatform() === 'android';
   }
 
   public isWeb() {
-    return appConfig.VITE_OVERRIDE_PLATFORM
-      ? appConfig.VITE_OVERRIDE_PLATFORM === 'web'
-      : this.getPlatform() === 'web';
+    return this.getPlatform() === 'web';
+  }
+
+  public isElectron() {
+    return this.getPlatform() === 'electron';
+  }
+
+  public is(platforms: string[]) {
+    return platforms.find(platform => platform === this.getPlatform());
   }
 
   public isDev() {
@@ -20,7 +24,9 @@ class PlatformService {
   }
 
   public getPlatform() {
-    return Capacitor.getPlatform();
+    return appConfig.OVERRIDE_PLATFORM
+      ? appConfig.OVERRIDE_PLATFORM
+      : Capacitor.getPlatform();
   }
 
   public isWideEnough() {

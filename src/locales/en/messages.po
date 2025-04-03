@@ -33,7 +33,7 @@ msgstr "Choose"
 msgid "Choose a new folder"
 msgstr "Choose a new folder"
 
-#: src/app/components/MainMenuList.tsx:37
+#: src/app/components/MainMenuList.tsx:51
 msgid "Collection"
 msgstr "Collection"
 
@@ -42,7 +42,7 @@ msgid "Confirm"
 msgstr "Confirm"
 
 #: src/app/pages/DebugPage.tsx:17
-#: src/app/components/MainMenuList.tsx:49
+#: src/app/components/MainMenuList.tsx:67
 msgid "Debug"
 msgstr "Debug"
 
@@ -82,15 +82,15 @@ msgstr "New document"
 msgid "New folder"
 msgstr "New folder"
 
-#: src/settings/components/Settings.tsx:41
+#: src/settings/storage/OperationsSettings.tsx:30
 msgid "nuke space"
 msgstr "nuke space"
 
-#: src/settings/components/Settings.tsx:32
+#: src/settings/storage/OperationsSettings.tsx:21
 msgid "nuke store"
 msgstr "nuke store"
 
-#: src/settings/components/Settings.tsx:20
+#: src/settings/storage/OperationsSettings.tsx:10
 msgid "Operations"
 msgstr "Operations"
 
@@ -109,7 +109,7 @@ msgid "Restore"
 msgstr "Restore"
 
 #: src/app/pages/SettingsPage.tsx:9
-#: src/app/components/MainMenuList.tsx:43
+#: src/app/components/MainMenuList.tsx:61
 msgid "Settings"
 msgstr "Settings"
 
@@ -122,9 +122,17 @@ msgstr "Success!"
 msgid "Synchronize your collection on the filesystem"
 msgstr "Synchronize your collection on the filesystem"
 
+#: src/settings/cloud/WebdavSettings.tsx:45
+msgid "Synchronize your collection with a WebDAV server"
+msgstr "Synchronize your collection with a WebDAV server"
+
 #: src/common/wysiwyg/Writer.tsx:47
 msgid "Text..."
 msgstr "Text..."
+
+#: src/settings/cloud/WebdavSettings.tsx:42
+msgid "Webdav"
+msgstr "Webdav"
 
 #: src/settings/storage/ImportExportCollectionSettings.tsx:86
 msgid "Your backups will be exported to the Documents/KiwimeriApp directory"
