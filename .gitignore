@@ -21,6 +21,7 @@
 /.nx
 /.nx/cache
 .idea
+.turbo
 
 npm-debug.log*
 yarn-debug.log*

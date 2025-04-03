@@ -20,6 +20,7 @@ import { i18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/react';
 
 import { IonReactRouter } from '@ionic/react-router';
+import { add } from '@repo/kiwimeri-sync-core';
 import MainLayout from './app/MainLayout';
 import DebugTinybaseProvider from './app/providers/DebugTinybaseProvider';
 import InitialRoutingProvider from './app/providers/InitialRoutingProvider';
@@ -34,6 +35,7 @@ i18n.activate('en');
 initGlobalTrans();
 
 const App = () => {
+  console.debug('test package', add(1, 2));
   return (
     <>
       <I18nProvider i18n={i18n}>
