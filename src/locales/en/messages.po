@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/settings/storage/ImportExportCollectionSettings.tsx:19
+#: src/settings/components/storage/ImportExportCollectionSettings.tsx:19
 msgid "An error occurred loading the file"
 msgstr "An error occurred loading the file"
 
@@ -46,11 +46,11 @@ msgstr "Confirm"
 msgid "Debug"
 msgstr "Debug"
 
-#: src/settings/storage/ImportExportCollectionSettings.tsx:93
+#: src/settings/components/storage/ImportExportCollectionSettings.tsx:93
 msgid "Export"
 msgstr "Export"
 
-#: src/settings/storage/FilesystemSyncSettings.tsx:19
+#: src/settings/components/storage/FilesystemSyncSettings.tsx:19
 msgid "Filesystem"
 msgstr "Filesystem"
 
@@ -58,7 +58,7 @@ msgstr "Filesystem"
 msgid "Home"
 msgstr "Home"
 
-#: src/settings/storage/ImportExportCollectionSettings.tsx:77
+#: src/settings/components/storage/ImportExportCollectionSettings.tsx:77
 msgid "Import & export your collection"
 msgstr "Import & export your collection"
 
@@ -70,7 +70,7 @@ msgstr "Kiwi Meri"
 msgid "Loading..."
 msgstr "Loading..."
 
-#: src/settings/storage/ImportExportCollectionSettings.tsx:80
+#: src/settings/components/storage/ImportExportCollectionSettings.tsx:80
 msgid "Manually backup or restore your collection"
 msgstr "Manually backup or restore your collection"
 
@@ -82,21 +82,25 @@ msgstr "New document"
 msgid "New folder"
 msgstr "New folder"
 
-#: src/settings/storage/OperationsSettings.tsx:30
+#: src/settings/components/storage/OperationsSettings.tsx:30
 msgid "nuke space"
 msgstr "nuke space"
 
-#: src/settings/storage/OperationsSettings.tsx:21
+#: src/settings/components/storage/OperationsSettings.tsx:21
 msgid "nuke store"
 msgstr "nuke store"
 
-#: src/settings/storage/OperationsSettings.tsx:10
+#: src/settings/components/storage/OperationsSettings.tsx:10
 msgid "Operations"
 msgstr "Operations"
 
-#: src/settings/storage/FilesystemSyncSettings.tsx:29
-#: src/settings/storage/FilesystemSyncSettings.tsx:30
-#: src/settings/storage/FilesystemSyncSettings.tsx:34
+#: src/settings/components/cloud/PCloudSettings.tsx:41
+msgid "PCloud"
+msgstr "PCloud"
+
+#: src/settings/components/storage/FilesystemSyncSettings.tsx:29
+#: src/settings/components/storage/FilesystemSyncSettings.tsx:30
+#: src/settings/components/storage/FilesystemSyncSettings.tsx:34
 msgid "Pick a directory for your backups"
 msgstr "Pick a directory for your backups"
 
@@ -104,7 +108,7 @@ msgstr "Pick a directory for your backups"
 msgid "Platform(s)"
 msgstr "Platform(s)"
 
-#: src/settings/storage/ImportExportCollectionSettings.tsx:96
+#: src/settings/components/storage/ImportExportCollectionSettings.tsx:96
 msgid "Restore"
 msgstr "Restore"
 
@@ -113,27 +117,31 @@ msgstr "Restore"
 msgid "Settings"
 msgstr "Settings"
 
-#: src/settings/storage/ImportExportCollectionSettings.tsx:20
-#: src/settings/storage/ImportExportCollectionSettings.tsx:68
+#: src/settings/components/storage/ImportExportCollectionSettings.tsx:20
+#: src/settings/components/storage/ImportExportCollectionSettings.tsx:68
 msgid "Success!"
 msgstr "Success!"
 
-#: src/settings/storage/FilesystemSyncSettings.tsx:22
+#: src/settings/components/storage/FilesystemSyncSettings.tsx:22
 msgid "Synchronize your collection on the filesystem"
 msgstr "Synchronize your collection on the filesystem"
 
-#: src/settings/cloud/WebdavSettings.tsx:45
+#: src/settings/components/cloud/WebdavSettings.tsx:54
 msgid "Synchronize your collection with a WebDAV server"
 msgstr "Synchronize your collection with a WebDAV server"
+
+#: src/settings/components/cloud/PCloudSettings.tsx:44
+msgid "Synchronize your collection with your PCloud account"
+msgstr "Synchronize your collection with your PCloud account"
 
 #: src/common/wysiwyg/Writer.tsx:47
 msgid "Text..."
 msgstr "Text..."
 
-#: src/settings/cloud/WebdavSettings.tsx:42
-msgid "Webdav"
-msgstr "Webdav"
+#: src/settings/components/cloud/WebdavSettings.tsx:51
+msgid "WebDAV"
+msgstr "WebDAV"
 
-#: src/settings/storage/ImportExportCollectionSettings.tsx:86
+#: src/settings/components/storage/ImportExportCollectionSettings.tsx:86
 msgid "Your backups will be exported to the Documents/KiwimeriApp directory"
 msgstr "Your backups will be exported to the Documents/KiwimeriApp directory"

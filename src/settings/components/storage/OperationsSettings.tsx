@@ -1,6 +1,6 @@
 import { IonButton, IonCard, IonCardHeader, IonCardTitle } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
-import storageService from '../../db/storage.service';
+import storageService from '../../../db/storage.service';
 
 const OperationSettings = () => {
   return (

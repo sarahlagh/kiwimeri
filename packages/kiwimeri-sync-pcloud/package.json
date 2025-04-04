@@ -1,0 +1,16 @@
+{
+  "name": "@repo/kiwimeri-sync-pcloud",
+  "version": "0.0.1",
+  "main": "./lib/index.ts",
+  "types": "./lib/index.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@repo/kiwimeri-sync-core": "*",
+    "@types/node": "^22.14.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.2"
+  }
+}

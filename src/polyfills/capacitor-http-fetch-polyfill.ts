@@ -1,14 +1,15 @@
-import { Capacitor, CapacitorHttp, HttpOptions } from '@capacitor/core';
+import { Capacitor, CapacitorHttp } from '@capacitor/core';
 
 if (Capacitor.getPlatform() === 'android') {
   window.fetch = async (...args) => {
-    let [resource, config] = args;
-    const options: HttpOptions = {
+    const [resource, config] = args;
+    const options = {
       url: resource.toString(),
       ...config
     };
-    const response = await CapacitorHttp.request(options);
-
-    return response;
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    return CapacitorHttp.request(options as any).then(
+      res => res as unknown as Response
+    );
   };
 }

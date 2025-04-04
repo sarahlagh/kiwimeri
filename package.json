@@ -31,7 +31,7 @@
     "@lexical/react": "^0.27.2",
     "@lingui/react": "^5.2.0",
     "@repo/kiwimeri-sync-core": "*",
-    "@repo/kiwimeri-sync-webdav": "*",
+    "@repo/kiwimeri-sync-pcloud": "*",
     "@types/node": "^22.13.9",
     "@types/react-router": "^5.1.20",
     "@types/react-router-dom": "^5.3.3",
