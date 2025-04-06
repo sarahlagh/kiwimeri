@@ -1,12 +1,16 @@
 import {
   InputCustomEvent,
+  IonButton,
   IonButtons,
+  IonIcon,
   IonInput,
   IonMenuButton,
   IonTitle,
   IonToolbar
 } from '@ionic/react';
 import { ReactNode } from 'react';
+import { APPICONS } from '../../constants';
+import storageService from '../../db/storage.service';
 
 export type MainHeaderProps = {
   title: string;
@@ -38,7 +42,15 @@ const MainHeader = ({
         ></IonInput>
       )}
 
-      <IonButtons slot="end">{children}</IonButtons>
+      <IonButtons slot="end">
+        <IonButton onClick={async () => await storageService.push()}>
+          <IonIcon icon={APPICONS.cloudUpload}></IonIcon>
+        </IonButton>
+        <IonButton onClick={async () => await storageService.pull()}>
+          <IonIcon icon={APPICONS.cloudDownload}></IonIcon>
+        </IonButton>
+        {children}
+      </IonButtons>
     </IonToolbar>
   );
 };

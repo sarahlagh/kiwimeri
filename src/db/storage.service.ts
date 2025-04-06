@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
+import { pcloudClient } from '@repo/kiwimeri-sync-pcloud';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db/with-schemas';
 import { Persister } from 'tinybase/persisters/with-schemas';
 import { createQueries, Queries } from 'tinybase/queries/with-schemas';
@@ -127,6 +128,16 @@ class StorageService {
 
   public getStore() {
     return this.store;
+  }
+
+  public async push() {
+    const content = this.getSpace().getJson();
+    await pcloudClient.push(content);
+  }
+
+  public async pull() {
+    const content = await pcloudClient.pull();
+    this.getSpace().setContent(content);
   }
 }
 

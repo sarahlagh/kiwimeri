@@ -3,6 +3,8 @@ import {
   add,
   albums,
   close,
+  cloudDownloadOutline,
+  cloudUploadOutline,
   constructSharp,
   createOutline,
   documentTextOutline,
@@ -50,5 +52,7 @@ export const APPICONS = {
   goIntoAction: openOutline,
   addFolder: albums,
   addDocument: add,
-  addNodeGeneric: add
+  addNodeGeneric: add,
+  cloudUpload: cloudUploadOutline,
+  cloudDownload: cloudDownloadOutline
 };

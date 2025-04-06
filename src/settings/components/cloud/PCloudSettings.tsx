@@ -12,23 +12,29 @@ import { bugOutline, checkmarkOutline } from 'ionicons/icons';
 import { useEffect, useState } from 'react';
 import platformService from '../../../common/services/platform.service';
 import { appConfig } from '../../../config';
+import storageService from '../../../db/storage.service';
 
 const PCloudSettings = () => {
   const [connectionOK, setConnectionOK] = useState(false);
 
   useEffect(() => {
     const init = async () => {
-      let serverUrl = import.meta.env['VITE_PCLOUD_API'];
+      let proxy = undefined;
       if (platformService.is(['web', 'electron']) && appConfig.HTTP_PROXY) {
-        serverUrl = `${appConfig.HTTP_PROXY}/${serverUrl}`;
+        proxy = appConfig.HTTP_PROXY;
       }
       pcloudClient.configure({
-        serverUrl,
+        proxy,
+        serverUrl: import.meta.env['VITE_PCLOUD_API'],
         username: import.meta.env['VITE_PCLOUD_USERNAME'],
         password: import.meta.env['VITE_PCLOUD_PASSWORD'],
-        folderId: import.meta.env['VITE_PCLOUD_FOLDER_ID']
+        path: import.meta.env['VITE_PCLOUD_FOLDER_PATH']
       });
-      setConnectionOK(await pcloudClient.test());
+      const ok = await pcloudClient.test();
+      setConnectionOK(ok);
+      if (ok) {
+        await pcloudClient.init(storageService.getCurrentSpace());
+      }
     };
     init();
   }, []);
