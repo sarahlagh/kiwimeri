@@ -1,4 +1,4 @@
-// import { KMStorageProvider } from '@repo/kiwimeri-sync-core';
+import { KMStorageProvider } from '@repo/kiwimeri-sync-core';
 import {
   PCloudLinkResponse,
   PCloudListResponse,
@@ -6,26 +6,37 @@ import {
   PCloudUploadResponse
 } from './types';
 
-type PCloudConf = {
+export type PCloudConf = {
   proxy?: string;
   username: string;
   password: string;
-  serverUrl: string;
+  serverLocation: 'us' | 'eu';
   path?: string;
   folderid?: string;
   fileid?: string;
 };
 
-class KMPCloudClient /*implements KMStorageProvider*/ {
+class KMPCloudClient implements KMStorageProvider {
   private config: PCloudConf | null = null;
-
+  private isInit = false;
+  private serverUrl!: string;
   private filename!: string;
+
+  private api = {
+    us: 'https://api.pcloud.com',
+    eu: 'https://eapi.pcloud.com'
+  };
+
+  public getIsInit() {
+    return this.isInit;
+  }
 
   public configure(config: PCloudConf) {
     this.config = config;
     if (!this.config.folderid && !this.config.path) {
       this.config.path = '/';
     }
+    this.serverUrl = `${this.api[this.config.serverLocation]}`;
     if (this.config.proxy) {
       if (this.config.proxy.endsWith('/')) {
         this.config.proxy = this.config.proxy.substring(
@@ -33,7 +44,7 @@ class KMPCloudClient /*implements KMStorageProvider*/ {
           this.config.proxy.length - 1
         );
       }
-      this.config.serverUrl = `${this.config.proxy}/${this.config.serverUrl}`;
+      this.serverUrl = `${this.config.proxy}/${this.serverUrl}`;
     }
     console.log('[pCloud] client configured', {
       ...this.config,
@@ -64,25 +75,7 @@ class KMPCloudClient /*implements KMStorageProvider*/ {
         console.error('[pCloud] error:', res);
         return false;
       }
-    }
-    console.log('[pCloud] connection tested OK');
-    return ok;
-  }
-
-  // after all, move to core
-  public async init(spaceId: string) {
-    if (!this.config) {
-      throw new Error('uninitialized pcloud config');
-    }
-    this.filename = `kiwimeri-${spaceId}.json`;
-
-    if (!this.config.folderid || !this.config.fileid) {
-      const res = await this.getFetch<PCloudListResponse>('listfolder', {
-        path: this.config.path
-      });
-      if (!this.config.folderid) {
-        this.config.folderid = `${res.metadata!.folderid!}`;
-      }
+      this.config.folderid = `${res.metadata!.folderid!}`;
       if (!this.config.fileid && res.metadata?.contents) {
         const file = res.metadata.contents.find(
           content => content.name === this.filename
@@ -92,12 +85,29 @@ class KMPCloudClient /*implements KMStorageProvider*/ {
         }
       }
     }
+    console.log('[pCloud] connection tested OK');
+    return ok;
+  }
+
+  // after all, move to core
+  public async init(spaceId: string) {
+    this.isInit = false;
+    if (!this.config) {
+      throw new Error('uninitialized pcloud config');
+    }
+    this.filename = `kiwimeri-${spaceId}.json`;
+
+    const ok = await this.test();
 
     console.log('[pCloud] client initialized', {
       ...this.config,
       password: '*******'
     });
-    return this.config;
+    this.isInit = ok;
+    return {
+      test: ok,
+      config: this.config
+    };
   }
 
   public async push(content: string) {
@@ -124,14 +134,19 @@ class KMPCloudClient /*implements KMStorageProvider*/ {
     if (!this.config.fileid) {
       return;
     }
-    // get file download link
+    return this.downloadFile(this.config.fileid);
+  }
+
+  private async downloadFile(fileid: string) {
     console.log('[pCloud] fetching file link');
     const res = await this.getFetch<PCloudLinkResponse>('getfilelink', {
-      fileid: this.config.fileid,
+      fileid: fileid,
       skipfilename: '1'
     });
     const linkUrl = `https://${res.hosts[0]}${res.path}`;
-    const url = this.config.proxy ? `${this.config.proxy}/${linkUrl}` : linkUrl;
+    const url = this.config!.proxy
+      ? `${this.config!.proxy}/${linkUrl}`
+      : linkUrl;
     // download file content
     console.log('[pCloud] downloading file');
     const data = await fetch(url);
@@ -174,7 +189,7 @@ class KMPCloudClient /*implements KMStorageProvider*/ {
   }
 
   private getUrl(opName: string) {
-    return `${this.config!.serverUrl}/${opName}?username=${this.config!.username}&password=${this.config!.password}`;
+    return `${this.serverUrl}/${opName}?username=${this.config!.username}&password=${this.config!.password}`;
   }
 }
 export const pcloudClient = new KMPCloudClient();

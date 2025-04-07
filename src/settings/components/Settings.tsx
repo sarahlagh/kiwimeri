@@ -6,8 +6,8 @@ const Settings = () => {
     <>
       {/* <FilesystemSyncSettings></FilesystemSyncSettings> */}
       <ImportExportCollectionSettings />
-      <OperationSettings />
       <PCloudSettings />
+      <OperationSettings />
     </>
   );
 };

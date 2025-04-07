@@ -4,14 +4,14 @@ import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-
 import { Persister } from 'tinybase/persisters/with-schemas';
 import { createQueries, Queries } from 'tinybase/queries/with-schemas';
 import { CellSchema, createStore, Store } from 'tinybase/store/with-schemas';
-import platformService from '../common/services/platform.service';
-import { appConfig } from '../config';
 import {
   DEFAULT_NOTEBOOK_ID,
   DEFAULT_SPACE_ID,
   ROOT_FOLDER
 } from '../constants';
 import { DocumentNode } from '../documents/document';
+import { SyncConfiguration } from './db-types';
+import { syncConfigurationsService } from './sync-configurations.service';
 
 type documentKeyEnum = keyof Required<Omit<DocumentNode, 'id'>>;
 type SpaceType = [
@@ -23,6 +23,7 @@ type SpaceType = [
   {} // could include overrides for theme, currentXXX on user demand
 ];
 
+type syncConfigurationEnum = keyof Required<Omit<SyncConfiguration, 'id'>>;
 type StoreType = [
   {
     // settings per space that won't be persisted outside of the current client
@@ -30,6 +31,9 @@ type StoreType = [
       currentNotebook: CellSchema;
       currentFolder: CellSchema;
       currentDocument: CellSchema;
+    };
+    syncConfigurations: {
+      [cellId in syncConfigurationEnum]: CellSchema;
     };
   },
   {
@@ -57,6 +61,10 @@ class StorageService {
           } as CellSchema,
           currentFolder: { type: 'string', default: ROOT_FOLDER } as CellSchema,
           currentDocument: { type: 'string' } as CellSchema
+        },
+        syncConfigurations: {
+          test: { type: 'boolean' } as CellSchema,
+          config: { type: 'string' } as CellSchema
         }
       })
       .setValuesSchema({
@@ -100,34 +108,21 @@ class StorageService {
   public async start() {
     if (!this.started) {
       this.started = true;
-      await this.startPersister(this.storePersister);
-      // later: do that dynamically
-      await this.startPersister(
-        this.spacePersisters.get(this.getCurrentSpace())!
-      );
+      // only start persister for the current space
+      // later: when switching space, only re init space persister
+      await Promise.all([
+        this.startPersister(this.storePersister),
+        this.startPersister(this.spacePersisters.get(this.getCurrentSpace())!)
+      ]);
       // in a timeout, don't want to block app start for this
       setTimeout(async () => {
-        await this.initPCloud();
+        await syncConfigurationsService.initSyncConnection(
+          this.getCurrentSpace()
+        );
       });
       return true;
     }
     return false;
-  }
-
-  private async initPCloud() {
-    let proxy = undefined;
-    if (platformService.is(['web', 'electron']) && appConfig.HTTP_PROXY) {
-      proxy = appConfig.HTTP_PROXY;
-    }
-    pcloudClient.configure({
-      proxy,
-      serverUrl: import.meta.env['VITE_PCLOUD_API'],
-      username: import.meta.env['VITE_PCLOUD_USERNAME'],
-      password: import.meta.env['VITE_PCLOUD_PASSWORD'],
-      path: import.meta.env['VITE_PCLOUD_FOLDER_PATH']
-    });
-    await pcloudClient.init(storageService.getCurrentSpace());
-    // TODO store new conf
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

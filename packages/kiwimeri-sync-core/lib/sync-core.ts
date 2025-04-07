@@ -1,7 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface KMStorageProvider {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   configure: (conf: any) => void; // accept user input and save in local store
-  test: () => Promise<boolean>; // test connection to report to user
-  push: () => void; // push space to provider
-  pull: () => void; // pull space from provider
+  init: (spaceId: string) => Promise<{ test: boolean; config: any }>;
+  push: (content: string) => Promise<void>; // push space to provider
+  pull: () => Promise<string>; // pull space from provider
 }

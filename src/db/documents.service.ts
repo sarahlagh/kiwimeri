@@ -18,9 +18,8 @@ class DocumentsService {
     deleted: boolean = false
   ) {
     const queries = storageService.getQueries();
-    const queryId = queries.getQueryIds().find(id => id === parent);
     const queryName = `fetchAllDocumentNodesFor${parent}`;
-    if (!queryId && parent !== FAKE_ROOT) {
+    if (parent !== FAKE_ROOT) {
       queries.setQueryDefinition(
         queryName,
         this.documentTable,

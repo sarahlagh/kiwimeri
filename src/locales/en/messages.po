@@ -41,10 +41,26 @@ msgstr "Collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/app/pages/DebugPage.tsx:19
+#: src/settings/components/cloud/PCloudSettings.tsx:125
+msgid "Connection"
+msgstr "Connection"
+
+#: src/app/pages/DebugPage.tsx:18
 #: src/app/components/MainMenuList.tsx:67
 msgid "Debug"
 msgstr "Debug"
+
+#: src/settings/components/cloud/PCloudSettings.tsx:117
+msgid "Enter your password"
+msgstr "Enter your password"
+
+#: src/settings/components/cloud/PCloudSettings.tsx:107
+msgid "Enter your username"
+msgstr "Enter your username"
+
+#: src/settings/components/cloud/PCloudSettings.tsx:81
+msgid "EU"
+msgstr "EU"
 
 #: src/settings/components/storage/ImportExportCollectionSettings.tsx:93
 msgid "Export"
@@ -54,7 +70,7 @@ msgstr "Export"
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/constants.ts:32
+#: src/constants.ts:35
 msgid "Home"
 msgstr "Home"
 
@@ -70,7 +86,7 @@ msgstr "Kiwi Meri"
 msgid "Loading..."
 msgstr "Loading..."
 
-#: src/app/pages/DebugPage.tsx:41
+#: src/app/pages/DebugPage.tsx:40
 msgid "Logs"
 msgstr "Logs"
 
@@ -78,11 +94,11 @@ msgstr "Logs"
 msgid "Manually backup or restore your collection"
 msgstr "Manually backup or restore your collection"
 
-#: src/constants.ts:33
+#: src/constants.ts:36
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:34
+#: src/constants.ts:37
 msgid "New folder"
 msgstr "New folder"
 
@@ -98,9 +114,25 @@ msgstr "nuke store"
 msgid "Operations"
 msgstr "Operations"
 
-#: src/settings/components/cloud/PCloudSettings.tsx:47
+#: src/settings/components/cloud/PCloudSettings.tsx:113
+msgid "Password"
+msgstr "Password"
+
+#: src/settings/components/cloud/PCloudSettings.tsx:93
+msgid "Path"
+msgstr "Path"
+
+#: src/settings/components/cloud/PCloudSettings.tsx:97
+msgid "Path inside your drive, leave empty for root"
+msgstr "Path inside your drive, leave empty for root"
+
+#: src/settings/components/cloud/PCloudSettings.tsx:60
 msgid "PCloud"
 msgstr "PCloud"
+
+#: src/settings/components/cloud/PCloudSettings.tsx:71
+msgid "PCloud Server"
+msgstr "PCloud Server"
 
 #: src/settings/components/storage/FilesystemSyncSettings.tsx:29
 #: src/settings/components/storage/FilesystemSyncSettings.tsx:30
@@ -108,7 +140,7 @@ msgstr "PCloud"
 msgid "Pick a directory for your backups"
 msgstr "Pick a directory for your backups"
 
-#: src/app/pages/DebugPage.tsx:24
+#: src/app/pages/DebugPage.tsx:23
 msgid "Platform(s)"
 msgstr "Platform(s)"
 
@@ -134,13 +166,21 @@ msgstr "Synchronize your collection on the filesystem"
 msgid "Synchronize your collection with a WebDAV server"
 msgstr "Synchronize your collection with a WebDAV server"
 
-#: src/settings/components/cloud/PCloudSettings.tsx:50
+#: src/settings/components/cloud/PCloudSettings.tsx:63
 msgid "Synchronize your collection with your PCloud account"
 msgstr "Synchronize your collection with your PCloud account"
 
 #: src/common/wysiwyg/Writer.tsx:47
 msgid "Text..."
 msgstr "Text..."
+
+#: src/settings/components/cloud/PCloudSettings.tsx:86
+msgid "US"
+msgstr "US"
+
+#: src/settings/components/cloud/PCloudSettings.tsx:103
+msgid "Username"
+msgstr "Username"
 
 #: src/settings/components/cloud/WebdavSettings.tsx:51
 msgid "WebDAV"

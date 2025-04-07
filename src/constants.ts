@@ -2,6 +2,8 @@ import { msg } from '@lingui/core/macro';
 import {
   add,
   albums,
+  bugOutline,
+  checkmarkOutline,
   close,
   cloudDownloadOutline,
   cloudUploadOutline,
@@ -11,6 +13,7 @@ import {
   ellipsisVertical,
   exitOutline,
   folderSharp,
+  helpOutline,
   home,
   locateOutline,
   moonOutline,
@@ -54,5 +57,8 @@ export const APPICONS = {
   addDocument: add,
   addNodeGeneric: add,
   cloudUpload: cloudUploadOutline,
-  cloudDownload: cloudDownloadOutline
+  cloudDownload: cloudDownloadOutline,
+  ok: checkmarkOutline,
+  ko: bugOutline,
+  unknown: helpOutline
 };
