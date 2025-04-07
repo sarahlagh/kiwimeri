@@ -9,7 +9,7 @@ if (Capacitor.getPlatform() === 'android') {
     };
     /* eslint-disable @typescript-eslint/no-explicit-any */
     return CapacitorHttp.request(options as any).then(
-      res => res as unknown as Response
+      res => ({ ...res, json: async () => res.data }) as unknown as Response
     );
   };
 }

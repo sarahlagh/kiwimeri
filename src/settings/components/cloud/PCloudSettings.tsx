@@ -30,7 +30,9 @@ const PCloudSettings = () => {
         password: import.meta.env['VITE_PCLOUD_PASSWORD'],
         path: import.meta.env['VITE_PCLOUD_FOLDER_PATH']
       });
-      const ok = await pcloudClient.test();
+      const ok = await pcloudClient.test().catch(() => {
+        return false;
+      });
       setConnectionOK(ok);
       if (ok) {
         await pcloudClient.init(storageService.getCurrentSpace());
