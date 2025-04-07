@@ -28,9 +28,13 @@ async function readFile(file: File): Promise<string> {
 }
 
 class AndroidFilesystemService implements FilesystemService {
-  async exportToFile(fileName: string, content: string) {
+  async exportToFile(
+    fileName: string,
+    content: string,
+    folder = 'KiwimeriApp/'
+  ) {
     await Filesystem.writeFile({
-      path: 'KiwimeriApp/' + fileName,
+      path: folder + fileName,
       data: content,
       directory: Directory.Documents,
       encoding: Encoding.UTF8,

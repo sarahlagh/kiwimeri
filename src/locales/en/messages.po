@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/settings/components/storage/ImportExportCollectionSettings.tsx:19
+#: src/settings/components/storage/ImportExportSettings.tsx:34
 msgid "An error occurred loading the file"
 msgstr "An error occurred loading the file"
 
@@ -58,7 +58,7 @@ msgstr "Enter your username"
 msgid "EU"
 msgstr "EU"
 
-#: src/settings/components/storage/ImportExportCollectionSettings.tsx:93
+#: src/settings/components/storage/ImportExportSettings.tsx:105
 msgid "Export"
 msgstr "Export"
 
@@ -70,7 +70,11 @@ msgstr "Filesystem"
 msgid "Home"
 msgstr "Home"
 
-#: src/settings/components/storage/ImportExportCollectionSettings.tsx:77
+#: src/settings/components/storage/ImportExportStoreSettings.tsx:9
+msgid "Import & export your app settings"
+msgstr "Import & export your app settings"
+
+#: src/settings/components/storage/ImportExportCollectionSettings.tsx:10
 msgid "Import & export your collection"
 msgstr "Import & export your collection"
 
@@ -90,9 +94,23 @@ msgstr "Loading..."
 msgid "Logs"
 msgstr "Logs"
 
-#: src/settings/components/storage/ImportExportCollectionSettings.tsx:80
-msgid "Manually backup or restore your collection"
-msgstr "Manually backup or restore your collection"
+#: src/settings/components/storage/ImportExportStoreSettings.tsx:10
+msgid ""
+"Manually backup or restore your app settings - this is different\n"
+"            than the import / export of the collection. Your collection consists\n"
+"            of your files and folders, and can be configured to synchronize with\n"
+"            a cloud provider. The app settings consist of anything configured in\n"
+"            this page, including the settings for your cloud provider."
+msgstr ""
+"Manually backup or restore your app settings - this is different\n"
+"            than the import / export of the collection. Your collection consists\n"
+"            of your files and folders, and can be configured to synchronize with\n"
+"            a cloud provider. The app settings consist of anything configured in\n"
+"            this page, including the settings for your cloud provider."
+
+#: src/settings/components/storage/ImportExportCollectionSettings.tsx:11
+msgid "Manually backup or restore your collection."
+msgstr "Manually backup or restore your collection."
 
 #: src/constants.ts:36
 msgid "New document"
@@ -138,7 +156,7 @@ msgstr "Pick a directory for your backups"
 msgid "Platform(s)"
 msgstr "Platform(s)"
 
-#: src/settings/components/storage/ImportExportCollectionSettings.tsx:96
+#: src/settings/components/storage/ImportExportSettings.tsx:108
 msgid "Restore"
 msgstr "Restore"
 
@@ -151,8 +169,8 @@ msgstr "Server"
 msgid "Settings"
 msgstr "Settings"
 
-#: src/settings/components/storage/ImportExportCollectionSettings.tsx:20
-#: src/settings/components/storage/ImportExportCollectionSettings.tsx:68
+#: src/settings/components/storage/ImportExportSettings.tsx:35
+#: src/settings/components/storage/ImportExportSettings.tsx:84
 msgid "Success!"
 msgstr "Success!"
 
@@ -185,6 +203,6 @@ msgstr "Username"
 msgid "WebDAV"
 msgstr "WebDAV"
 
-#: src/settings/components/storage/ImportExportCollectionSettings.tsx:86
-msgid "Your backups will be exported to the Documents/KiwimeriApp directory"
-msgstr "Your backups will be exported to the Documents/KiwimeriApp directory"
+#: src/settings/components/storage/ImportExportSettings.tsx:98
+msgid "Your backups will be exported to the `{androidFolder}` directory"
+msgstr "Your backups will be exported to the `{androidFolder}` directory"
