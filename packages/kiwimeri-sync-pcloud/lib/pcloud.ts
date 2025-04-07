@@ -20,7 +20,6 @@ class KMPCloudClient /*implements KMStorageProvider*/ {
   private config: PCloudConf | null = null;
 
   private filename!: string;
-  private fileLinkUrl?: string;
 
   public configure(config: PCloudConf) {
     this.config = config;
@@ -36,6 +35,10 @@ class KMPCloudClient /*implements KMStorageProvider*/ {
       }
       this.config.serverUrl = `${this.config.proxy}/${this.config.serverUrl}`;
     }
+    console.log('[pCloud] client configured', {
+      ...this.config,
+      password: '*******'
+    });
   }
 
   public async test() {
@@ -46,15 +49,23 @@ class KMPCloudClient /*implements KMStorageProvider*/ {
       .catch(() => false)
       .then(() => true);
 
-    if (ok && this.config.path !== '/') {
-      const res = await this.getFetch<PCloudListResponse>('listfolder', {
-        path: this.config.path
-      });
-      if (res.result !== PCloudResult.ok) {
-        console.log('pcloud error:', res);
+    if (ok) {
+      let res;
+      if (this.config.path !== '/' && !this.config.folderid) {
+        res = await this.getFetch<PCloudListResponse>('listfolder', {
+          path: this.config.path
+        });
+      } else if (this.config.folderid) {
+        res = await this.getFetch<PCloudListResponse>('listfolder', {
+          folderid: this.config.folderid
+        });
+      }
+      if (res && res.result !== PCloudResult.ok) {
+        console.error('[pCloud] error:', res);
         return false;
       }
     }
+    console.log('[pCloud] connection tested OK');
     return ok;
   }
 
@@ -82,6 +93,10 @@ class KMPCloudClient /*implements KMStorageProvider*/ {
       }
     }
 
+    console.log('[pCloud] client initialized', {
+      ...this.config,
+      password: '*******'
+    });
     return this.config;
   }
 
@@ -107,11 +122,17 @@ class KMPCloudClient /*implements KMStorageProvider*/ {
       }
     );
     const json = (await res.json()) as PCloudUploadResponse;
+    console.log('[pCloud] uploaded changes', json);
+    if (json.result !== PCloudResult.ok || json.checksums.length === 0) {
+      console.log('[pCloud] error uploading changes');
+      // TODO handle error
+      return;
+    }
     if (!this.config.fileid) {
       this.config.fileid = `${json.fileids[0]}`;
     }
-    this.fileLinkUrl = undefined;
   }
+
   public async pull() {
     if (!this.config) {
       throw new Error('uninitialized pcloud config');
@@ -121,19 +142,16 @@ class KMPCloudClient /*implements KMStorageProvider*/ {
       return;
     }
     // get file download link
-    if (!this.fileLinkUrl) {
-      const fileLink = await this.getFetch<PCloudLinkResponse>('getfilelink', {
-        fileid: this.config.fileid,
-        skipfilename: '1'
-      });
-      const url = `https://${fileLink.hosts[0]}${fileLink.path}`;
-      this.fileLinkUrl = this.config.proxy
-        ? `${this.config.proxy}/${url}`
-        : url;
-      // TODO check link expiration
-    }
+    console.log('[pCloud] fetching file link');
+    const res = await this.getFetch<PCloudLinkResponse>('getfilelink', {
+      fileid: this.config.fileid,
+      skipfilename: '1'
+    });
+    const linkUrl = `https://${res.hosts[0]}${res.path}`;
+    const url = this.config.proxy ? `${this.config.proxy}/${linkUrl}` : linkUrl;
     // download file content
-    const data = await fetch(this.fileLinkUrl);
+    console.log('[pCloud] downloading file');
+    const data = await fetch(url);
     return await data.json();
   }
 

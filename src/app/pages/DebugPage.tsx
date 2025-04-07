@@ -44,8 +44,9 @@ const DebugPage = () => {
             {appLog.getLogs().map(log => {
               return (
                 <p key={log.key}>
-                  {new Date(log.ts).toISOString()} {log.level}{' '}
-                  {JSON.stringify({ m: log.message, args: log.optionalParams })}
+                  {new Date(log.ts).toLocaleTimeString()} {log.level} &nbsp;
+                  {JSON.stringify(log.message)} &nbsp;
+                  {log.optionalParams && JSON.stringify(log.optionalParams)}
                 </p>
               );
             })}

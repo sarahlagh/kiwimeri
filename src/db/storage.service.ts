@@ -4,6 +4,8 @@ import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-
 import { Persister } from 'tinybase/persisters/with-schemas';
 import { createQueries, Queries } from 'tinybase/queries/with-schemas';
 import { CellSchema, createStore, Store } from 'tinybase/store/with-schemas';
+import platformService from '../common/services/platform.service';
+import { appConfig } from '../config';
 import {
   DEFAULT_NOTEBOOK_ID,
   DEFAULT_SPACE_ID,
@@ -103,9 +105,29 @@ class StorageService {
       await this.startPersister(
         this.spacePersisters.get(this.getCurrentSpace())!
       );
+      // in a timeout, don't want to block app start for this
+      setTimeout(async () => {
+        await this.initPCloud();
+      });
       return true;
     }
     return false;
+  }
+
+  private async initPCloud() {
+    let proxy = undefined;
+    if (platformService.is(['web', 'electron']) && appConfig.HTTP_PROXY) {
+      proxy = appConfig.HTTP_PROXY;
+    }
+    pcloudClient.configure({
+      proxy,
+      serverUrl: import.meta.env['VITE_PCLOUD_API'],
+      username: import.meta.env['VITE_PCLOUD_USERNAME'],
+      password: import.meta.env['VITE_PCLOUD_PASSWORD'],
+      path: import.meta.env['VITE_PCLOUD_FOLDER_PATH']
+    });
+    await pcloudClient.init(storageService.getCurrentSpace());
+    // TODO store new conf
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
