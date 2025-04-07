@@ -41,24 +41,20 @@ msgstr "Collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/settings/components/cloud/PCloudSettings.tsx:125
-msgid "Connection"
-msgstr "Connection"
-
 #: src/app/pages/DebugPage.tsx:18
 #: src/app/components/MainMenuList.tsx:67
 msgid "Debug"
 msgstr "Debug"
 
-#: src/settings/components/cloud/PCloudSettings.tsx:117
+#: src/settings/components/cloud/PCloudSettings.tsx:130
 msgid "Enter your password"
 msgstr "Enter your password"
 
-#: src/settings/components/cloud/PCloudSettings.tsx:107
+#: src/settings/components/cloud/PCloudSettings.tsx:117
 msgid "Enter your username"
 msgstr "Enter your username"
 
-#: src/settings/components/cloud/PCloudSettings.tsx:81
+#: src/settings/components/cloud/PCloudSettings.tsx:87
 msgid "EU"
 msgstr "EU"
 
@@ -81,6 +77,10 @@ msgstr "Import & export your collection"
 #: src/app/MainLayout.tsx:26
 msgid "Kiwi Meri"
 msgstr "Kiwi Meri"
+
+#: src/settings/components/cloud/PCloudSettings.tsx:105
+msgid "Leave empty for root"
+msgstr "Leave empty for root"
 
 #: src/app/components/Loading.tsx:4
 msgid "Loading..."
@@ -114,25 +114,19 @@ msgstr "nuke store"
 msgid "Operations"
 msgstr "Operations"
 
-#: src/settings/components/cloud/PCloudSettings.tsx:113
+#: src/settings/components/cloud/PCloudSettings.tsx:123
+#: src/settings/components/cloud/PCloudSettings.tsx:127
 msgid "Password"
 msgstr "Password"
 
-#: src/settings/components/cloud/PCloudSettings.tsx:93
+#: src/settings/components/cloud/PCloudSettings.tsx:99
+#: src/settings/components/cloud/PCloudSettings.tsx:102
 msgid "Path"
 msgstr "Path"
 
-#: src/settings/components/cloud/PCloudSettings.tsx:97
-msgid "Path inside your drive, leave empty for root"
-msgstr "Path inside your drive, leave empty for root"
-
-#: src/settings/components/cloud/PCloudSettings.tsx:60
+#: src/settings/components/cloud/PCloudSettings.tsx:66
 msgid "PCloud"
 msgstr "PCloud"
-
-#: src/settings/components/cloud/PCloudSettings.tsx:71
-msgid "PCloud Server"
-msgstr "PCloud Server"
 
 #: src/settings/components/storage/FilesystemSyncSettings.tsx:29
 #: src/settings/components/storage/FilesystemSyncSettings.tsx:30
@@ -147,6 +141,10 @@ msgstr "Platform(s)"
 #: src/settings/components/storage/ImportExportCollectionSettings.tsx:96
 msgid "Restore"
 msgstr "Restore"
+
+#: src/settings/components/cloud/PCloudSettings.tsx:77
+msgid "Server"
+msgstr "Server"
 
 #: src/app/pages/SettingsPage.tsx:9
 #: src/app/components/MainMenuList.tsx:61
@@ -166,7 +164,7 @@ msgstr "Synchronize your collection on the filesystem"
 msgid "Synchronize your collection with a WebDAV server"
 msgstr "Synchronize your collection with a WebDAV server"
 
-#: src/settings/components/cloud/PCloudSettings.tsx:63
+#: src/settings/components/cloud/PCloudSettings.tsx:69
 msgid "Synchronize your collection with your PCloud account"
 msgstr "Synchronize your collection with your PCloud account"
 
@@ -174,11 +172,12 @@ msgstr "Synchronize your collection with your PCloud account"
 msgid "Text..."
 msgstr "Text..."
 
-#: src/settings/components/cloud/PCloudSettings.tsx:86
+#: src/settings/components/cloud/PCloudSettings.tsx:92
 msgid "US"
 msgstr "US"
 
-#: src/settings/components/cloud/PCloudSettings.tsx:103
+#: src/settings/components/cloud/PCloudSettings.tsx:111
+#: src/settings/components/cloud/PCloudSettings.tsx:114
 msgid "Username"
 msgstr "Username"
 

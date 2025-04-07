@@ -11,7 +11,7 @@ import {
 } from '../constants';
 import { DocumentNode } from '../documents/document';
 import { SyncConfiguration } from './db-types';
-import { syncConfigurationsService } from './sync-configurations.service';
+import { syncConfService } from './sync-configurations.service';
 
 type documentKeyEnum = keyof Required<Omit<DocumentNode, 'id'>>;
 type SpaceType = [
@@ -116,9 +116,7 @@ class StorageService {
       ]);
       // in a timeout, don't want to block app start for this
       setTimeout(async () => {
-        await syncConfigurationsService.initSyncConnection(
-          this.getCurrentSpace()
-        );
+        await syncConfService.initSyncConnection(this.getCurrentSpace());
       });
       return true;
     }

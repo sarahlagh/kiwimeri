@@ -27,6 +27,10 @@ class SyncConfigurationsService {
     }
   }
 
+  public getCurrentType() {
+    return 'pcloud'; // TODO
+  }
+
   public async configure(
     type: string,
     storageProvider: KMStorageProvider,
@@ -47,7 +51,10 @@ class SyncConfigurationsService {
     return newConf.test;
   }
 
-  public getCurrentTestStatus(type: string) {
+  public getCurrentTestStatus(type?: string) {
+    if (!type) {
+      type = this.getCurrentType();
+    }
     return (
       (storageService
         .getStore()
@@ -56,7 +63,10 @@ class SyncConfigurationsService {
     );
   }
 
-  public useCurrentTestStatus(type: string) {
+  public useCurrentTestStatus(type?: string) {
+    if (!type) {
+      type = this.getCurrentType();
+    }
     return (
       (useCell(
         this.table,
@@ -115,4 +125,4 @@ class SyncConfigurationsService {
   }
 }
 
-export const syncConfigurationsService = new SyncConfigurationsService();
+export const syncConfService = new SyncConfigurationsService();

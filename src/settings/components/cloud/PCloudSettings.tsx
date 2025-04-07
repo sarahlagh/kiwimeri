@@ -17,17 +17,17 @@ import {
 import { Trans, useLingui } from '@lingui/react/macro';
 import { pcloudClient, PCloudConf } from '@repo/kiwimeri-sync-pcloud';
 import { useState } from 'react';
+import platformService from '../../../common/services/platform.service';
 import { APPICONS } from '../../../constants';
-import { syncConfigurationsService } from '../../../db/sync-configurations.service';
+import { syncConfService } from '../../../db/sync-configurations.service';
 
 const PCloudSettings = () => {
   const type = 'pcloud';
   const { t } = useLingui();
   const [checking, setChecking] = useState(false);
-  const syncStatus = syncConfigurationsService.useCurrentTestStatus(type);
-  console.debug('syncStatus', syncStatus);
+  const syncStatus = syncConfService.useCurrentTestStatus(type);
   const syncConf: PCloudConf =
-    syncConfigurationsService.useCurrentConfig(type) ||
+    syncConfService.useCurrentConfig(type) ||
     ({
       serverLocation: 'eu'
     } as PCloudConf);
@@ -38,20 +38,26 @@ const PCloudSettings = () => {
     } else {
       syncConf.serverLocation = (e.detail.value as 'eu' | 'us') || 'eu';
     }
-    syncConfigurationsService.setCurrentConfig(type, syncConf);
+    syncConfService.setCurrentConfig(type, syncConf);
     if (syncConf.username && syncConf.password) {
       setChecking(true);
-      console.debug('syncConfig ready to test', syncConf);
-      const test = await syncConfigurationsService.configure(
+      const test = await syncConfService.configure(
         type,
         pcloudClient,
-        syncConf
+        // don't send full object, want to erase folderid & fileid
+        {
+          path: syncConf.path,
+          username: syncConf.username,
+          password: syncConf.password,
+          serverLocation: syncConf.serverLocation
+        }
       );
-      console.debug('syncConfig tested', test);
-      syncConfigurationsService.setCurrentTestStatus(type, test);
+      syncConfService.setCurrentTestStatus(type, test);
       setChecking(false);
     }
   };
+
+  const labelPlacement = platformService.isWideEnough() ? undefined : 'stacked';
 
   return (
     <IonCard className="primary">
@@ -68,7 +74,7 @@ const PCloudSettings = () => {
         <IonList>
           <IonItem>
             <IonLabel slot="start">
-              <Trans>PCloud Server</Trans>
+              <Trans>Server</Trans>
             </IonLabel>
             <IonSegment
               value={syncConf.serverLocation}
@@ -89,30 +95,37 @@ const PCloudSettings = () => {
             </IonSegment>
           </IonItem>
           <IonItem>
-            <IonLabel slot="start">
+            <IonLabel slot="start" className="ion-hide-md-down">
               <Trans>Path</Trans>
             </IonLabel>
             <IonInput
+              label={labelPlacement ? t`Path` : undefined}
+              labelPlacement={labelPlacement}
               onIonChange={e => onChange('path', e)}
-              placeholder={t`Path inside your drive, leave empty for root`}
+              placeholder={t`Leave empty for root`}
               value={syncConf.path}
             ></IonInput>
           </IonItem>
           <IonItem>
-            <IonLabel slot="start">
+            <IonLabel slot="start" className="ion-hide-md-down">
               <Trans>Username</Trans>
             </IonLabel>
             <IonInput
+              label={labelPlacement ? t`Username` : undefined}
+              labelPlacement={labelPlacement}
               onIonChange={e => onChange('username', e)}
               placeholder={t`Enter your username`}
               value={syncConf.username}
             ></IonInput>
           </IonItem>
           <IonItem>
-            <IonLabel slot="start">
+            <IonLabel slot="start" className="ion-hide-md-down">
               <Trans>Password</Trans>
             </IonLabel>
             <IonInput
+              type="password"
+              label={labelPlacement ? t`Password` : undefined}
+              labelPlacement={labelPlacement}
               onIonChange={e => onChange('password', e)}
               placeholder={t`Enter your password`}
               value={syncConf.password}
@@ -121,11 +134,9 @@ const PCloudSettings = () => {
             </IonInput>
           </IonItem>
           <IonItem lines="none" disabled={!syncStatus || checking}>
-            <IonLabel>
-              <Trans>Connection</Trans>
-            </IonLabel>
             {!checking && (
               <IonIcon
+                slot="start"
                 color={syncStatus ? 'success' : 'danger'}
                 icon={syncStatus ? APPICONS.ok : APPICONS.ko}
               ></IonIcon>

@@ -11,6 +11,7 @@ import {
 import { ReactNode } from 'react';
 import { APPICONS } from '../../constants';
 import storageService from '../../db/storage.service';
+import { syncConfService } from '../../db/sync-configurations.service';
 
 export type MainHeaderProps = {
   title: string;
@@ -43,10 +44,16 @@ const MainHeader = ({
       )}
 
       <IonButtons slot="end">
-        <IonButton onClick={async () => await storageService.push()}>
+        <IonButton
+          disabled={!syncConfService.useCurrentTestStatus()}
+          onClick={async () => await storageService.push()}
+        >
           <IonIcon icon={APPICONS.cloudUpload}></IonIcon>
         </IonButton>
-        <IonButton onClick={async () => await storageService.pull()}>
+        <IonButton
+          disabled={!syncConfService.useCurrentTestStatus()}
+          onClick={async () => await storageService.pull()}
+        >
           <IonIcon icon={APPICONS.cloudDownload}></IonIcon>
         </IonButton>
         {children}
