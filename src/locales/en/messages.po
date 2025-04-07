@@ -41,7 +41,7 @@ msgstr "Collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/app/pages/DebugPage.tsx:17
+#: src/app/pages/DebugPage.tsx:19
 #: src/app/components/MainMenuList.tsx:67
 msgid "Debug"
 msgstr "Debug"
@@ -54,7 +54,7 @@ msgstr "Export"
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/constants.ts:30
+#: src/constants.ts:32
 msgid "Home"
 msgstr "Home"
 
@@ -70,15 +70,19 @@ msgstr "Kiwi Meri"
 msgid "Loading..."
 msgstr "Loading..."
 
+#: src/app/pages/DebugPage.tsx:41
+msgid "Logs"
+msgstr "Logs"
+
 #: src/settings/components/storage/ImportExportCollectionSettings.tsx:80
 msgid "Manually backup or restore your collection"
 msgstr "Manually backup or restore your collection"
 
-#: src/constants.ts:31
+#: src/constants.ts:33
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:32
+#: src/constants.ts:34
 msgid "New folder"
 msgstr "New folder"
 
@@ -94,7 +98,7 @@ msgstr "nuke store"
 msgid "Operations"
 msgstr "Operations"
 
-#: src/settings/components/cloud/PCloudSettings.tsx:41
+#: src/settings/components/cloud/PCloudSettings.tsx:47
 msgid "PCloud"
 msgstr "PCloud"
 
@@ -104,7 +108,7 @@ msgstr "PCloud"
 msgid "Pick a directory for your backups"
 msgstr "Pick a directory for your backups"
 
-#: src/app/pages/DebugPage.tsx:22
+#: src/app/pages/DebugPage.tsx:24
 msgid "Platform(s)"
 msgstr "Platform(s)"
 
@@ -130,7 +134,7 @@ msgstr "Synchronize your collection on the filesystem"
 msgid "Synchronize your collection with a WebDAV server"
 msgstr "Synchronize your collection with a WebDAV server"
 
-#: src/settings/components/cloud/PCloudSettings.tsx:44
+#: src/settings/components/cloud/PCloudSettings.tsx:50
 msgid "Synchronize your collection with your PCloud account"
 msgstr "Synchronize your collection with your PCloud account"
 

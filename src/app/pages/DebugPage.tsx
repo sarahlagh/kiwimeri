@@ -9,6 +9,7 @@ import {
 import { Trans, useLingui } from '@lingui/react/macro';
 import platformService from '../../common/services/platform.service';
 import { appConfig } from '../../config';
+import { appLog } from '../../log/log';
 import TemplateMainPage from './TemplateMainPage';
 
 const DebugPage = () => {
@@ -31,6 +32,23 @@ const DebugPage = () => {
             <p>is electron: {platformService.isElectron() ? 'yes' : 'no'}</p>
             <p>is wide: {platformService.isWideEnough() ? 'yes' : 'no'}</p>
             <p>config: {JSON.stringify(appConfig)}</p>
+          </IonCardContent>
+        </IonCard>
+        <IonCard>
+          <IonCardHeader>
+            <IonCardTitle>
+              <Trans>Logs</Trans>
+            </IonCardTitle>
+          </IonCardHeader>
+          <IonCardContent>
+            {appLog.getLogs().map(log => {
+              return (
+                <p key={log.key}>
+                  {new Date(log.ts).toISOString()} {log.level}{' '}
+                  {JSON.stringify({ m: log.message, args: log.optionalParams })}
+                </p>
+              );
+            })}
           </IonCardContent>
         </IonCard>
       </IonContent>
