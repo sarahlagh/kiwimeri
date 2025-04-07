@@ -104,32 +104,15 @@ class KMPCloudClient /*implements KMStorageProvider*/ {
     if (!this.config) {
       throw new Error('uninitialized pcloud config');
     }
-    const file = new File(
-      [new Blob([content], { type: 'application/json' })],
-      this.filename
-    );
-    const form = new FormData();
-    form.append(
-      'file', // the name is ignored
-      file
-    );
-
-    const res = await fetch(
-      `${this.getUrl('uploadfile')}&folderid=${this.config.folderid}&nopartial=1`,
-      {
-        method: 'POST',
-        body: form
-      }
-    );
-    const json = (await res.json()) as PCloudUploadResponse;
-    console.log('[pCloud] uploaded changes', json);
-    if (json.result !== PCloudResult.ok || json.checksums.length === 0) {
+    const resp = await this.uploadFile(content, this.filename);
+    console.log('[pCloud] uploaded changes', resp);
+    if (resp.result !== PCloudResult.ok || resp.checksums.length === 0) {
       console.log('[pCloud] error uploading changes');
       // TODO handle error
       return;
     }
     if (!this.config.fileid) {
-      this.config.fileid = `${json.fileids[0]}`;
+      this.config.fileid = `${resp.fileids[0]}`;
     }
   }
 
@@ -153,6 +136,20 @@ class KMPCloudClient /*implements KMStorageProvider*/ {
     console.log('[pCloud] downloading file');
     const data = await fetch(url);
     return await data.json();
+  }
+
+  private async uploadFile(content: string, filename: string) {
+    const res = await fetch(
+      `${this.getUrl('uploadfile')}&folderid=${this.config!.folderid}&filename=${filename}&nopartial=1`,
+      {
+        method: 'PUT',
+        body: content,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    return (await res.json()) as PCloudUploadResponse;
   }
 
   private async getFetch<T>(

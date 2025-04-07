@@ -12,8 +12,13 @@ if (Capacitor.getPlatform() === 'android') {
     }
     const options = {
       url: resource.toString(),
+      data: config?.body,
       ...config
     };
+    // TODO: support multipart form
+    // https://github.com/ionic-team/capacitor/pull/6708#issuecomment-1653366077
+    // https://github.com/ionic-team/capacitor/pull/6206
+
     /* eslint-disable @typescript-eslint/no-explicit-any */
     return CapacitorHttp.request(options as any).then(
       res => ({ ...res, json: async () => res.data }) as unknown as Response
