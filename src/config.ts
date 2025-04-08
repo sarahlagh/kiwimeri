@@ -8,6 +8,7 @@ import {
 
 // use zod if it gets complex
 type AppConfig = {
+  KIWIMERI_VERSION: string;
   HTTP_PROXY?: string;
   /* meant for overriding the platform in dev mode, not production */
   OVERRIDE_PLATFORM: 'web' | 'android' | 'electron' | undefined;
@@ -17,6 +18,7 @@ type AppConfig = {
 };
 
 const defaultConfig = {
+  VITE_KIWIMERI_VERSION: '0.0.0',
   VITE_HTTP_PROXY: undefined,
   VITE_OVERRIDE_PLATFORM: undefined,
   VITE_ENABLE_SPACE_INSPECTOR: true,

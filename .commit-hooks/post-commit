@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if [ ! -f .env ]; then
+    echo "[post-commit] warning: no .env set"
+    exit
+fi
+
+source .env.prod
+main=${VITE_KIWIMERI_VERSION}
+ref=$(git rev-parse --short HEAD)
+
+sed -i -r "s|VITE_KIWIMERI_VERSION=(.*)|VITE_KIWIMERI_VERSION=${main}~${ref}|" .env

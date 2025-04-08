@@ -19,6 +19,7 @@ import {
   isCollectionRoute,
   SETTINGS_ROUTE
 } from '../../common/routes';
+import { appConfig } from '../../config';
 import { APPICONS } from '../../constants';
 import userSettingsService from '../../db/user-settings.service';
 
@@ -98,6 +99,9 @@ const MainMenuList = () => {
       </IonContent>
       <IonFooter>
         <IonToolbar>
+          <IonItem slot="start" lines="none">
+            <IonLabel>{appConfig.KIWIMERI_VERSION}</IonLabel>
+          </IonItem>
           <IonButtons slot="end">
             <IonButton
               onClick={() => {
