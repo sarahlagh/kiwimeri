@@ -5,6 +5,7 @@ import {
   IonCardHeader,
   IonCardSubtitle,
   IonCardTitle,
+  IonText,
   IonToast
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -14,7 +15,8 @@ import platformService from '../../../common/services/platform.service';
 
 type ImportExportSettingsProps = {
   title: string;
-  description: string;
+  subtitle: string;
+  description?: string;
   onRestoreContent: (content: string) => void;
   getContentToExport: () => string;
   androidFolder: string;
@@ -23,6 +25,7 @@ type ImportExportSettingsProps = {
 
 const ImportExportSettings = ({
   title,
+  subtitle,
   description,
   onRestoreContent,
   getContentToExport,
@@ -90,14 +93,22 @@ const ImportExportSettings = ({
     <IonCard>
       <IonCardHeader>
         <IonCardTitle>{title}</IonCardTitle>
-        <IonCardSubtitle>{description}</IonCardSubtitle>
+        <IonCardSubtitle>{subtitle}</IonCardSubtitle>
       </IonCardHeader>
-
-      {platformService.isAndroid() && (
+      {(description || platformService.isAndroid()) && (
         <IonCardContent>
-          <Trans>
-            Your backups will be exported to the `{androidFolder}` directory
-          </Trans>
+          {description}
+          {platformService.isAndroid() && (
+            <IonText color={'secondary'}>
+              {description && <p>&nbsp;</p>}
+              <p>
+                <Trans>
+                  Your backups will be exported to the `{androidFolder}`
+                  directory
+                </Trans>
+              </p>
+            </IonText>
+          )}
         </IonCardContent>
       )}
 

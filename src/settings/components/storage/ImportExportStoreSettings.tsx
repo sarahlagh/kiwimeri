@@ -7,7 +7,8 @@ const ImportExportCollectionSettings = () => {
   return (
     <ImportExportSettings
       title={t`Import & export your app settings`}
-      description={t`Manually backup or restore your app settings - this is different
+      subtitle={t`Manually backup or restore your app settings`}
+      description={t`This is different
             than the import / export of the collection. Your collection consists
             of your files and folders, and can be configured to synchronize with
             a cloud provider. The app settings consist of anything configured in

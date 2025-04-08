@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/settings/components/storage/ImportExportSettings.tsx:34
+#: src/settings/components/storage/ImportExportSettings.tsx:37
 msgid "An error occurred loading the file"
 msgstr "An error occurred loading the file"
 
@@ -58,7 +58,7 @@ msgstr "Enter your username"
 msgid "EU"
 msgstr "EU"
 
-#: src/settings/components/storage/ImportExportSettings.tsx:105
+#: src/settings/components/storage/ImportExportSettings.tsx:112
 msgid "Export"
 msgstr "Export"
 
@@ -95,18 +95,8 @@ msgid "Logs"
 msgstr "Logs"
 
 #: src/settings/components/storage/ImportExportStoreSettings.tsx:10
-msgid ""
-"Manually backup or restore your app settings - this is different\n"
-"            than the import / export of the collection. Your collection consists\n"
-"            of your files and folders, and can be configured to synchronize with\n"
-"            a cloud provider. The app settings consist of anything configured in\n"
-"            this page, including the settings for your cloud provider."
-msgstr ""
-"Manually backup or restore your app settings - this is different\n"
-"            than the import / export of the collection. Your collection consists\n"
-"            of your files and folders, and can be configured to synchronize with\n"
-"            a cloud provider. The app settings consist of anything configured in\n"
-"            this page, including the settings for your cloud provider."
+msgid "Manually backup or restore your app settings"
+msgstr "Manually backup or restore your app settings"
 
 #: src/settings/components/storage/ImportExportCollectionSettings.tsx:11
 msgid "Manually backup or restore your collection."
@@ -156,7 +146,7 @@ msgstr "Pick a directory for your backups"
 msgid "Platform(s)"
 msgstr "Platform(s)"
 
-#: src/settings/components/storage/ImportExportSettings.tsx:108
+#: src/settings/components/storage/ImportExportSettings.tsx:115
 msgid "Restore"
 msgstr "Restore"
 
@@ -169,8 +159,8 @@ msgstr "Server"
 msgid "Settings"
 msgstr "Settings"
 
-#: src/settings/components/storage/ImportExportSettings.tsx:35
-#: src/settings/components/storage/ImportExportSettings.tsx:84
+#: src/settings/components/storage/ImportExportSettings.tsx:38
+#: src/settings/components/storage/ImportExportSettings.tsx:87
 msgid "Success!"
 msgstr "Success!"
 
@@ -190,6 +180,20 @@ msgstr "Synchronize your collection with your PCloud account"
 msgid "Text..."
 msgstr "Text..."
 
+#: src/settings/components/storage/ImportExportStoreSettings.tsx:11
+msgid ""
+"This is different\n"
+"            than the import / export of the collection. Your collection consists\n"
+"            of your files and folders, and can be configured to synchronize with\n"
+"            a cloud provider. The app settings consist of anything configured in\n"
+"            this page, including the settings for your cloud provider."
+msgstr ""
+"This is different\n"
+"            than the import / export of the collection. Your collection consists\n"
+"            of your files and folders, and can be configured to synchronize with\n"
+"            a cloud provider. The app settings consist of anything configured in\n"
+"            this page, including the settings for your cloud provider."
+
 #: src/settings/components/cloud/PCloudSettings.tsx:92
 msgid "US"
 msgstr "US"
@@ -203,6 +207,6 @@ msgstr "Username"
 msgid "WebDAV"
 msgstr "WebDAV"
 
-#: src/settings/components/storage/ImportExportSettings.tsx:98
+#: src/settings/components/storage/ImportExportSettings.tsx:103
 msgid "Your backups will be exported to the `{androidFolder}` directory"
 msgstr "Your backups will be exported to the `{androidFolder}` directory"
