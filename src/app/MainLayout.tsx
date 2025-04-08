@@ -1,16 +1,19 @@
 import {
+  IonButton,
   IonHeader,
+  IonIcon,
   IonMenu,
   IonPage,
   IonTitle,
   IonToolbar
 } from '@ionic/react';
-import { Trans } from '@lingui/react/macro';
+import useAppInfo from '../common/hooks/useAppInfo';
 import userSettingsService from '../db/user-settings.service';
 import AppRouterOutlet from './AppRouterOutlet';
 import MainMenuList from './components/MainMenuList';
 
 const MainLayout = () => {
+  const appName = useAppInfo();
   const theme = userSettingsService.useTheme();
   document.documentElement.classList.toggle(
     'ion-palette-dark',
@@ -22,8 +25,11 @@ const MainLayout = () => {
       <IonMenu contentId="main-content">
         <IonHeader>
           <IonToolbar>
-            <IonTitle>
-              <Trans>Kiwi Meri</Trans>
+            <IonButton slot="start" fill="clear">
+              <IonIcon size={'large'} src="icon.svg"></IonIcon>
+            </IonButton>
+            <IonTitle style={{ paddingLeft: '6px' }}>
+              {appName?.short_name}
             </IonTitle>
           </IonToolbar>
         </IonHeader>

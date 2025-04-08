@@ -58,7 +58,7 @@ msgstr "Enter your username"
 msgid "EU"
 msgstr "EU"
 
-#: src/settings/components/storage/ImportExportSettings.tsx:112
+#: src/settings/components/storage/ImportExportSettings.tsx:116
 msgid "Export"
 msgstr "Export"
 
@@ -77,10 +77,6 @@ msgstr "Import & export your app settings"
 #: src/settings/components/storage/ImportExportCollectionSettings.tsx:10
 msgid "Import & export your collection"
 msgstr "Import & export your collection"
-
-#: src/app/MainLayout.tsx:26
-msgid "Kiwi Meri"
-msgstr "Kiwi Meri"
 
 #: src/settings/components/cloud/PCloudSettings.tsx:105
 msgid "Leave empty for root"
@@ -146,7 +142,7 @@ msgstr "Pick a directory for your backups"
 msgid "Platform(s)"
 msgstr "Platform(s)"
 
-#: src/settings/components/storage/ImportExportSettings.tsx:115
+#: src/settings/components/storage/ImportExportSettings.tsx:119
 msgid "Restore"
 msgstr "Restore"
 
@@ -207,6 +203,6 @@ msgstr "Username"
 msgid "WebDAV"
 msgstr "WebDAV"
 
-#: src/settings/components/storage/ImportExportSettings.tsx:103
+#: src/settings/components/storage/ImportExportSettings.tsx:105
 msgid "Your backups will be exported to the `{androidFolder}` directory"
 msgstr "Your backups will be exported to the `{androidFolder}` directory"
