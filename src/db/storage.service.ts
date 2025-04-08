@@ -1,16 +1,17 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-import { pcloudClient } from '@repo/kiwimeri-sync-pcloud';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db/with-schemas';
 import { Persister } from 'tinybase/persisters/with-schemas';
 import { createQueries, Queries } from 'tinybase/queries/with-schemas';
+import { Store as UntypedStore } from 'tinybase/store';
 import { CellSchema, createStore, Store } from 'tinybase/store/with-schemas';
+import { useCell } from 'tinybase/ui-react';
 import {
   DEFAULT_NOTEBOOK_ID,
   DEFAULT_SPACE_ID,
   ROOT_FOLDER
 } from '../constants';
 import { DocumentNode } from '../documents/document';
-import { SyncConfiguration } from './db-types';
+import { Space, SyncConfiguration } from './db-types';
 import { syncConfService } from './sync-configurations.service';
 
 type documentKeyEnum = keyof Required<Omit<DocumentNode, 'id'>>;
@@ -23,14 +24,13 @@ type SpaceType = [
   {} // could include overrides for theme, currentXXX on user demand
 ];
 
+type spacesEnum = keyof Required<Space>;
 type syncConfigurationEnum = keyof Required<Omit<SyncConfiguration, 'id'>>;
 type StoreType = [
   {
     // settings per space that won't be persisted outside of the current client
-    spaceSettings: {
-      currentNotebook: CellSchema;
-      currentFolder: CellSchema;
-      currentDocument: CellSchema;
+    spaces: {
+      [cellId in spacesEnum]: CellSchema;
     };
     syncConfigurations: {
       [cellId in syncConfigurationEnum]: CellSchema;
@@ -54,17 +54,19 @@ class StorageService {
   public constructor() {
     this.store = createStore()
       .setTablesSchema({
-        spaceSettings: {
+        spaces: {
           currentNotebook: {
             type: 'string',
             default: DEFAULT_NOTEBOOK_ID
           } as CellSchema,
           currentFolder: { type: 'string', default: ROOT_FOLDER } as CellSchema,
-          currentDocument: { type: 'string' } as CellSchema
+          currentDocument: { type: 'string' } as CellSchema,
+          lastLocalChange: { type: 'number' } as CellSchema
         },
         syncConfigurations: {
           test: { type: 'boolean' } as CellSchema,
-          config: { type: 'string' } as CellSchema
+          config: { type: 'string' } as CellSchema,
+          lastRemoteChange: { type: 'number' } as CellSchema
         }
       })
       .setValuesSchema({
@@ -92,6 +94,7 @@ class StorageService {
         }
       })
     );
+
     this.queries.set(
       DEFAULT_SPACE_ID,
       createQueries(this.getSpace(DEFAULT_SPACE_ID))
@@ -147,12 +150,45 @@ class StorageService {
 
   public async push() {
     const content = this.getSpace().getJson();
-    await pcloudClient.push(content);
+    const lastModified = await syncConfService
+      .getCurrentProvider()
+      .push(content);
+
+    this.getStore().transaction(() => {
+      this.setLastLocalChange(lastModified);
+      syncConfService.setCurrentLastRemoteChange(lastModified as number);
+    });
   }
 
   public async pull() {
-    const content = await pcloudClient.pull();
-    this.getSpace().setContent(content);
+    const resp = await syncConfService.getCurrentProvider().pull();
+    if (resp && resp.content) {
+      this.getSpace().setContent(resp.content);
+      this.getStore().transaction(() => {
+        this.setLastLocalChange(resp.lastRemoteChange!);
+        syncConfService.setCurrentLastRemoteChange(resp.lastRemoteChange!);
+      });
+    }
+  }
+
+  public useLastLocalChange() {
+    return (
+      (useCell(
+        'spaces',
+        this.getCurrentSpace(),
+        'lastLocalChange',
+        this.getStore() as unknown as UntypedStore
+      )?.valueOf() as number) || 0
+    );
+  }
+
+  public setLastLocalChange(now: number) {
+    this.getStore().setCell(
+      'spaces',
+      this.getCurrentSpace(),
+      'lastLocalChange',
+      now
+    );
   }
 }
 

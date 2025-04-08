@@ -15,6 +15,9 @@ const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
       const ok = await storageService.start();
       if (ok) {
         setIsLoading(false);
+        storageService.getSpace()?.addTablesListener(() => {
+          storageService.setLastLocalChange(Date.now());
+        });
       }
     }
     load();

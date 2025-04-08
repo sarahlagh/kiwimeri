@@ -3,8 +3,16 @@ export interface AnyData {
   [k: string]: any;
 }
 
+export interface Space {
+  currentNotebook?: string;
+  currentFolder?: string;
+  currentDocument?: string;
+  lastLocalChange: number;
+}
+
 export interface SyncConfiguration {
   id?: string;
   test?: boolean;
   config?: AnyData;
+  lastRemoteChange: number;
 }

@@ -4,7 +4,7 @@ import { ROOT_FOLDER } from '../constants';
 import storageService from './storage.service';
 
 class UserSettingsService {
-  private readonly spaceSettingsTable = 'spaceSettings';
+  private readonly spacesTable = 'spaces';
 
   public useTheme() {
     return useValue('theme', storageService.getStore() as unknown as Store);
@@ -19,7 +19,7 @@ class UserSettingsService {
       (storageService
         .getStore()
         .getCell(
-          this.spaceSettingsTable,
+          this.spacesTable,
           storageService.getCurrentSpace(),
           'currentFolder'
         )
@@ -30,7 +30,7 @@ class UserSettingsService {
   public useCurrentFolder() {
     return (
       useCell(
-        this.spaceSettingsTable,
+        this.spacesTable,
         storageService.getCurrentSpace(),
         'currentFolder',
         storageService.getStore() as unknown as Store
@@ -42,7 +42,7 @@ class UserSettingsService {
     storageService
       .getStore()
       .setCell(
-        this.spaceSettingsTable,
+        this.spacesTable,
         storageService.getCurrentSpace(),
         'currentFolder',
         folder
@@ -54,7 +54,7 @@ class UserSettingsService {
       (storageService
         .getStore()
         .getCell(
-          this.spaceSettingsTable,
+          this.spacesTable,
           storageService.getCurrentSpace(),
           'currentDocument'
         )
@@ -67,7 +67,7 @@ class UserSettingsService {
       storageService
         .getStore()
         .setCell(
-          this.spaceSettingsTable,
+          this.spacesTable,
           storageService.getCurrentSpace(),
           'currentDocument',
           doc
@@ -76,7 +76,7 @@ class UserSettingsService {
       storageService
         .getStore()
         .delCell(
-          this.spaceSettingsTable,
+          this.spacesTable,
           storageService.getCurrentSpace(),
           'currentDocument'
         );

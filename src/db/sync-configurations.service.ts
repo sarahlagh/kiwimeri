@@ -31,6 +31,10 @@ class SyncConfigurationsService {
     return 'pcloud'; // TODO
   }
 
+  public getCurrentProvider(): KMStorageProvider {
+    return pcloudClient; // TODO factory
+  }
+
   public async configure(
     type: string,
     storageProvider: KMStorageProvider,
@@ -47,7 +51,8 @@ class SyncConfigurationsService {
     const newConf = await storageProvider.init(
       storageService.getCurrentSpace()
     );
-    this.setCurrentConfig(type, newConf.config);
+    this.setCurrentConfig(newConf.config, type);
+    this.setCurrentLastRemoteChange(newConf.lastRemoteChange, type);
     return newConf.test;
   }
 
@@ -58,7 +63,7 @@ class SyncConfigurationsService {
     return (
       (storageService
         .getStore()
-        .getCell(this.table, this.getRowId(type), 'test')
+        .getCell(this.table, this.getRowId(this.getCurrentType()), 'test')
         ?.valueOf() as boolean) || false
     );
   }
@@ -77,13 +82,20 @@ class SyncConfigurationsService {
     );
   }
 
-  public setCurrentTestStatus(type: string, test: boolean) {
+  public setCurrentTestStatus(test: boolean, type?: string) {
+    if (!type) {
+      type = this.getCurrentType();
+    }
     storageService
+
       .getStore()
       .setCell(this.table, this.getRowId(type), 'test', test);
   }
 
-  public getCurrentConfig(type: string) {
+  public getCurrentConfig(type?: string) {
+    if (!type) {
+      type = this.getCurrentType();
+    }
     const config = storageService
       .getStore()
       .getCell(this.table, this.getRowId(type), 'config')
@@ -94,7 +106,10 @@ class SyncConfigurationsService {
     return undefined;
   }
 
-  public useCurrentConfig(type: string) {
+  public useCurrentConfig(type?: string) {
+    if (!type) {
+      type = this.getCurrentType();
+    }
     const config = useCell(
       this.table,
       this.getRowId(type),
@@ -108,7 +123,10 @@ class SyncConfigurationsService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public setCurrentConfig(type: string, config: any) {
+  public setCurrentConfig(config: any, type?: string) {
+    if (!type) {
+      type = this.getCurrentType();
+    }
     storageService
       .getStore()
       .setCell(
@@ -117,6 +135,33 @@ class SyncConfigurationsService {
         'config',
         JSON.stringify(config)
       );
+  }
+
+  public setCurrentLastRemoteChange(lastRemoteChange: number, type?: string) {
+    if (!type) {
+      type = this.getCurrentType();
+    }
+    storageService
+      .getStore()
+      .setCell(
+        this.table,
+        this.getRowId(type),
+        'lastRemoteChange',
+        lastRemoteChange
+      );
+  }
+
+  public useCurrentHasLocalChanges() {
+    const lastRemoteChange =
+      (useCell(
+        this.table,
+        this.getRowId(this.getCurrentType()),
+        'lastRemoteChange',
+        storageService.getStore() as unknown as Store
+      )?.valueOf() as number) || 0;
+
+    const lastLocalChange = storageService.useLastLocalChange();
+    return lastLocalChange > lastRemoteChange;
   }
 
   private getRowId(type: string) {

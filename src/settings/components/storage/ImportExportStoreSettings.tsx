@@ -22,7 +22,7 @@ const ImportExportCollectionSettings = () => {
         const content = storageService.getStore().getContent();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const [contentToExport, valuesToExport]: [any, any] = content;
-        delete contentToExport['spaceSettings'];
+        delete contentToExport['spaces'];
         delete valuesToExport['currentSpace'];
         return JSON.stringify([contentToExport, valuesToExport]);
       }}

@@ -47,7 +47,7 @@ export type PCloudLinkResponse = {
 } & PCloudResponse;
 
 export type PCloudUploadResponse = {
-  metadata?: PCloudMetadata[];
+  metadata: PCloudMetadata[];
   checksums: { sha1: string; sha256: string }[];
   fileids: number[];
 } & PCloudResponse;

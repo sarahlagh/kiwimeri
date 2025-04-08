@@ -21,6 +21,7 @@ class KMPCloudClient implements KMStorageProvider {
   private isInit = false;
   private serverUrl!: string;
   private filename!: string;
+  private remoteLastModified: number = 0;
 
   private api = {
     us: 'https://api.pcloud.com',
@@ -61,27 +62,29 @@ class KMPCloudClient implements KMStorageProvider {
       .then(() => true);
 
     if (ok) {
-      let res;
-      if (this.config.path !== '/' && !this.config.folderid) {
+      let res: PCloudListResponse;
+      if (!this.config.folderid) {
         res = await this.getFetch<PCloudListResponse>('listfolder', {
           path: this.config.path
         });
-      } else if (this.config.folderid) {
+      } else {
         res = await this.getFetch<PCloudListResponse>('listfolder', {
           folderid: this.config.folderid
         });
       }
-      if (res && res.result !== PCloudResult.ok) {
+      if (res.result !== PCloudResult.ok) {
         console.error('[pCloud] error:', res);
         return false;
       }
       this.config.folderid = `${res.metadata!.folderid!}`;
-      if (!this.config.fileid && res.metadata?.contents) {
+      if (res.metadata?.contents) {
         const file = res.metadata.contents.find(
           content => content.name === this.filename
         );
         if (file) {
           this.config.fileid = `${file.fileid}`;
+          // TODO: timezone consideration here?
+          this.remoteLastModified = new Date(file.modified).getTime();
         }
       }
     }
@@ -89,7 +92,6 @@ class KMPCloudClient implements KMStorageProvider {
     return ok;
   }
 
-  // after all, move to core
   public async init(spaceId: string) {
     this.isInit = false;
     if (!this.config) {
@@ -106,7 +108,8 @@ class KMPCloudClient implements KMStorageProvider {
     this.isInit = ok;
     return {
       test: ok,
-      config: this.config
+      config: this.config,
+      lastRemoteChange: this.remoteLastModified
     };
   }
 
@@ -116,14 +119,16 @@ class KMPCloudClient implements KMStorageProvider {
     }
     const resp = await this.uploadFile(content, this.filename);
     console.log('[pCloud] uploaded changes', resp);
-    if (resp.result !== PCloudResult.ok || resp.checksums.length === 0) {
+    if (resp.result !== PCloudResult.ok || resp.metadata.length === 0) {
       console.log('[pCloud] error uploading changes');
       // TODO handle error
-      return;
+      return this.remoteLastModified;
     }
     if (!this.config.fileid) {
       this.config.fileid = `${resp.fileids[0]}`;
     }
+    this.remoteLastModified = new Date(resp.metadata[0].modified).getTime();
+    return this.remoteLastModified;
   }
 
   public async pull() {
@@ -132,9 +137,11 @@ class KMPCloudClient implements KMStorageProvider {
     }
     // on first pull, it might not exist
     if (!this.config.fileid) {
-      return;
+      return {};
     }
-    return this.downloadFile(this.config.fileid);
+    const content = await this.downloadFile(this.config.fileid);
+    // TODO update remoteLastModified too
+    return { content, lastRemoteChange: this.remoteLastModified };
   }
 
   private async downloadFile(fileid: string) {

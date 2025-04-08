@@ -8,7 +8,7 @@ import {
   IonTitle,
   IonToolbar
 } from '@ionic/react';
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import { APPICONS } from '../../constants';
 import storageService from '../../db/storage.service';
 import { syncConfService } from '../../db/sync-configurations.service';
@@ -25,6 +25,14 @@ const MainHeader = ({
   onEdited,
   children
 }: MainHeaderProps) => {
+  const [isSyncing, setIsSyncing] = useState(false);
+  const isInit = syncConfService.useCurrentTestStatus();
+  const hasChanges = syncConfService.useCurrentHasLocalChanges();
+  const pushEnabled = !isSyncing && isInit && hasChanges;
+  const pullEnabled = !isSyncing && isInit;
+  const pushColor = isSyncing ? 'warning' : !pushEnabled ? undefined : 'danger';
+  const pullColor = isSyncing ? 'warning' : undefined;
+
   return (
     <IonToolbar>
       <IonButtons slot="start">
@@ -45,14 +53,23 @@ const MainHeader = ({
 
       <IonButtons slot="end">
         <IonButton
-          disabled={!syncConfService.useCurrentTestStatus()}
-          onClick={async () => await storageService.push()}
+          disabled={!pushEnabled}
+          onClick={async () => {
+            setIsSyncing(true);
+            await storageService.push();
+            setIsSyncing(false);
+          }}
         >
-          <IonIcon icon={APPICONS.cloudUpload}></IonIcon>
+          <IonIcon color={pushColor} icon={APPICONS.cloudUpload}></IonIcon>
         </IonButton>
         <IonButton
-          disabled={!syncConfService.useCurrentTestStatus()}
-          onClick={async () => await storageService.pull()}
+          disabled={!pullEnabled}
+          color={pullColor}
+          onClick={async () => {
+            setIsSyncing(true);
+            await storageService.pull();
+            setIsSyncing(false);
+          }}
         >
           <IonIcon icon={APPICONS.cloudDownload}></IonIcon>
         </IonButton>

@@ -38,7 +38,7 @@ const PCloudSettings = () => {
     } else {
       syncConf.serverLocation = (e.detail.value as 'eu' | 'us') || 'eu';
     }
-    syncConfService.setCurrentConfig(type, syncConf);
+    syncConfService.setCurrentConfig(syncConf, type);
     if (syncConf.username && syncConf.password) {
       setChecking(true);
       const test = await syncConfService.configure(
@@ -52,7 +52,7 @@ const PCloudSettings = () => {
           serverLocation: syncConf.serverLocation
         }
       );
-      syncConfService.setCurrentTestStatus(type, test);
+      syncConfService.setCurrentTestStatus(test, type);
       setChecking(false);
     }
   };
