@@ -44,10 +44,7 @@ class SyncConfigurationsService {
     if (platformService.is(['web', 'electron']) && appConfig.HTTP_PROXY) {
       proxy = appConfig.HTTP_PROXY;
     }
-    storageProvider.configure({
-      proxy,
-      ...initConfig
-    });
+    storageProvider.configure(initConfig, proxy);
     const newConf = await storageProvider.init(
       storageService.getCurrentSpace()
     );

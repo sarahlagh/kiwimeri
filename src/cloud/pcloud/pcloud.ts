@@ -7,7 +7,6 @@ import {
 } from './types';
 
 export type PCloudConf = {
-  proxy?: string;
   username: string;
   password: string;
   serverLocation: 'us' | 'eu';
@@ -17,6 +16,7 @@ export type PCloudConf = {
 };
 
 class KMPCloudClient implements KMStorageProvider {
+  private proxy?: string;
   private config: PCloudConf | null = null;
   private isInit = false;
   private serverUrl!: string;
@@ -32,20 +32,18 @@ class KMPCloudClient implements KMStorageProvider {
     return this.isInit;
   }
 
-  public configure(config: PCloudConf) {
+  public configure(config: PCloudConf, proxy?: string) {
     this.config = config;
     if (!this.config.folderid && !this.config.path) {
       this.config.path = '/';
     }
     this.serverUrl = `${this.api[this.config.serverLocation]}`;
-    if (this.config.proxy) {
-      if (this.config.proxy.endsWith('/')) {
-        this.config.proxy = this.config.proxy.substring(
-          0,
-          this.config.proxy.length - 1
-        );
+    this.proxy = proxy;
+    if (proxy) {
+      if (proxy.endsWith('/')) {
+        this.proxy = proxy.substring(0, proxy.length - 1);
       }
-      this.serverUrl = `${this.config.proxy}/${this.serverUrl}`;
+      this.serverUrl = `${this.proxy}/${this.serverUrl}`;
     }
     console.log('[pCloud] client configured', {
       ...this.config,
@@ -151,9 +149,7 @@ class KMPCloudClient implements KMStorageProvider {
       skipfilename: '1'
     });
     const linkUrl = `https://${res.hosts[0]}${res.path}`;
-    const url = this.config!.proxy
-      ? `${this.config!.proxy}/${linkUrl}`
-      : linkUrl;
+    const url = this.proxy ? `${this.proxy}/${linkUrl}` : linkUrl;
     // download file content
     console.log('[pCloud] downloading file');
     const data = await fetch(url);
