@@ -1,7 +1,7 @@
-import { KMStorageProvider } from '@repo/kiwimeri-sync-core';
-import { pcloudClient, PCloudConf } from '@repo/kiwimeri-sync-pcloud';
 import { Store } from 'tinybase/store';
 import { useCell } from 'tinybase/ui-react';
+import { pcloudClient, PCloudConf } from '../cloud/pcloud/pcloud';
+import { KMStorageProvider } from '../cloud/sync-core';
 import platformService from '../common/services/platform.service';
 import { appConfig } from '../config';
 import storageService from './storage.service';

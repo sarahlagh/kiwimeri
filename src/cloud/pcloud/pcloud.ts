@@ -1,4 +1,4 @@
-import { KMStorageProvider } from '@repo/kiwimeri-sync-core';
+import { KMStorageProvider } from '../sync-core';
 import {
   PCloudLinkResponse,
   PCloudListResponse,

@@ -1,1 +1,0 @@
-# `kiwimeri-sync-webdav`
