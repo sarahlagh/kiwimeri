@@ -33,7 +33,7 @@ msgstr "Choose"
 msgid "Choose a new folder"
 msgstr "Choose a new folder"
 
-#: src/app/components/MainMenuList.tsx:51
+#: src/app/components/MainMenuList.tsx:53
 msgid "Collection"
 msgstr "Collection"
 
@@ -42,7 +42,7 @@ msgid "Confirm"
 msgstr "Confirm"
 
 #: src/app/pages/DebugPage.tsx:18
-#: src/app/components/MainMenuList.tsx:67
+#: src/app/components/MainMenuList.tsx:71
 msgid "Debug"
 msgstr "Debug"
 
@@ -106,6 +106,10 @@ msgstr "New document"
 msgid "New folder"
 msgstr "New folder"
 
+#: src/app/components/NotFound.tsx:4
+msgid "Not Found"
+msgstr "Not Found"
+
 #: src/settings/components/storage/OperationsSettings.tsx:30
 msgid "nuke space"
 msgstr "nuke space"
@@ -151,7 +155,7 @@ msgid "Server"
 msgstr "Server"
 
 #: src/app/pages/SettingsPage.tsx:9
-#: src/app/components/MainMenuList.tsx:61
+#: src/app/components/MainMenuList.tsx:63
 msgid "Settings"
 msgstr "Settings"
 
@@ -163,10 +167,6 @@ msgstr "Success!"
 #: src/settings/components/storage/FilesystemSyncSettings.tsx:22
 msgid "Synchronize your collection on the filesystem"
 msgstr "Synchronize your collection on the filesystem"
-
-#: src/settings/components/cloud/WebdavSettings.tsx:54
-msgid "Synchronize your collection with a WebDAV server"
-msgstr "Synchronize your collection with a WebDAV server"
 
 #: src/settings/components/cloud/PCloudSettings.tsx:69
 msgid "Synchronize your collection with your PCloud account"
@@ -198,10 +198,6 @@ msgstr "US"
 #: src/settings/components/cloud/PCloudSettings.tsx:114
 msgid "Username"
 msgstr "Username"
-
-#: src/settings/components/cloud/WebdavSettings.tsx:51
-msgid "WebDAV"
-msgstr "WebDAV"
 
 #: src/settings/components/storage/ImportExportSettings.tsx:105
 msgid "Your backups will be exported to the `{androidFolder}` directory"

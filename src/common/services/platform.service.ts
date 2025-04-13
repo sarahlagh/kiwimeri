@@ -23,6 +23,10 @@ class PlatformService {
     return this.isWeb() && appConfig.DEV;
   }
 
+  public isRelease() {
+    return appConfig.IS_RELEASE;
+  }
+
   public getPlatform() {
     return appConfig.DEV_OVERRIDE_PLATFORM
       ? appConfig.DEV_OVERRIDE_PLATFORM

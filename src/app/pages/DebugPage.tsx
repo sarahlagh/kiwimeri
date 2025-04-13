@@ -1,3 +1,4 @@
+import NotFound from '@/app/components/NotFound';
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
 import { appLog } from '@/log';
@@ -14,6 +15,9 @@ import TemplateMainPage from './TemplateMainPage';
 
 const DebugPage = () => {
   const { t } = useLingui();
+  if (platformService.isRelease()) {
+    return <NotFound />;
+  }
   return (
     <TemplateMainPage title={t`Debug`}>
       <IonContent>

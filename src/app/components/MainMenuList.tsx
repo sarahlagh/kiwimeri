@@ -6,6 +6,7 @@ import {
   isCollectionRoute,
   SETTINGS_ROUTE
 } from '@/common/routes';
+import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
 import { APPICONS } from '@/constants';
 import userSettingsService from '@/db/user-settings.service';
@@ -62,14 +63,16 @@ const MainMenuList = () => {
       title: t`Settings`,
       url: SETTINGS_ROUTE,
       icon: APPICONS.settingsPage
-    },
-    {
+    }
+  ];
+  if (!platformService.isRelease()) {
+    appPages.push({
       key: 'debug',
       title: t`Debug`,
       url: DEBUG_ROUTE,
       icon: APPICONS.debugPage
-    }
-  ];
+    });
+  }
 
   return (
     <>
