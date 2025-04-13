@@ -1,6 +1,6 @@
 import type { EditorThemeClasses } from 'lexical';
 
-import './KiwimeriEditorTheme.css';
+import './KiwimeriEditorTheme.scss';
 
 const theme: EditorThemeClasses = {
   code: 'editor-code',
