@@ -34,7 +34,7 @@ const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
       store={store as unknown as Store}
       queries={queries as unknown as Queries}
     >
-      {platformService.isDev() && appConfig.ENABLE_SPACE_INSPECTOR && (
+      {platformService.isDev() && appConfig.DEV_ENABLE_SPACE_INSPECTOR && (
         <Inspector />
       )}
       {children}

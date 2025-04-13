@@ -5,6 +5,7 @@ services:
     build:
       dockerfile: docker/Dockerfile
       context: .
-    env_file: '.env'
+    environment:
+      - VITE_HTTP_PROXY=http://localhost:8110/api
     ports:
       - 8110:80

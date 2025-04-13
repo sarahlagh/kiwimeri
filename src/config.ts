@@ -6,40 +6,65 @@ import {
   ROOT_FOLDER_TITLE
 } from './constants';
 
-// use zod if it gets complex
-type AppConfig = {
-  KIWIMERI_VERSION: string;
-  HTTP_PROXY?: string;
-  /* meant for overriding the platform in dev mode, not production */
-  OVERRIDE_PLATFORM: 'web' | 'android' | 'electron' | undefined;
-  ENABLE_SPACE_INSPECTOR: boolean;
-  ENABLE_STORE_INSPECTOR: boolean;
-  [k: string]: string | number | boolean | undefined;
-};
-
-const defaultConfig = {
-  VITE_KIWIMERI_VERSION: '0.0.0',
-  VITE_HTTP_PROXY: undefined,
-  VITE_OVERRIDE_PLATFORM: undefined,
-  VITE_ENABLE_SPACE_INSPECTOR: true,
-  VITE_ENABLE_STORE_INSPECTOR: true
+// hack to override VITE_ vars with docker container env
+const dynConfig = {
+  VITE_HTTP_PROXY: '__dyn__',
+  VITE_DEV_USE_HTTP_IF_POSSIBLE: '__dyn__',
+  VITE_DEV_OVERRIDE_PLATFORM: '__dyn__'
 } as any;
 
-const metaEnv = import.meta.env;
-const viteAppConfig = {
-  ...defaultConfig,
-  ...metaEnv,
-  VITE_ENABLE_SPACE_INSPECTOR:
-    metaEnv['VITE_ENABLE_SPACE_INSPECTOR'] !== 'false',
-  VITE_ENABLE_STORE_INSPECTOR:
-    metaEnv['VITE_ENABLE_STORE_INSPECTOR'] !== 'false'
-};
+class AppConfig implements ImportMetaEnv {
+  KIWIMERI_VERSION = '0.0.0';
+  HTTP_PROXY?: string;
+  DEV_USE_HTTP_IF_POSSIBLE = false;
+  DEV_OVERRIDE_PLATFORM?: 'web' | 'android' | 'electron';
+  DEV_ENABLE_SPACE_INSPECTOR = true;
+  DEV_ENABLE_STORE_INSPECTOR = true;
 
-const transformedConfig = {} as any;
-Object.keys(viteAppConfig).forEach(
-  k => (transformedConfig[k.replace('VITE_', '')] = viteAppConfig[k])
-);
-export const appConfig = transformedConfig as AppConfig;
+  constructor(metaEnv: ImportMetaEnv) {
+    // transform VITE_ env from .env file
+    const defaultConfig = { ...(this as any) };
+    const viteAppConfig = { ...defaultConfig, ...metaEnv };
+    const transformedConfig = {} as any;
+    Object.keys(viteAppConfig).forEach(k => {
+      const finalKey = k.replace('VITE_', '');
+      if (finalKey !== k) {
+        // transform boolean into correct type
+        if (typeof defaultConfig[finalKey] === 'boolean') {
+          viteAppConfig[k] =
+            metaEnv[k] !== undefined
+              ? metaEnv[k] === 'true'
+              : defaultConfig[finalKey];
+        }
+      }
+      transformedConfig[finalKey] = viteAppConfig[k];
+    });
+
+    // hack to override VITE_ vars with docker container env
+    Object.keys(dynConfig).forEach(k => {
+      if (dynConfig[k] && dynConfig[k] !== '__dyn__') {
+        const finalKey = k.replace('VITE_', '');
+        if (dynConfig[k] === 'true' || dynConfig[k] === 'false') {
+          dynConfig[k] = dynConfig[k] === 'true';
+        }
+        transformedConfig[finalKey] = dynConfig[k];
+      }
+    });
+
+    Object.assign(this, transformedConfig);
+  }
+
+  // implements ImportMetaEnv
+  BASE_URL!: string;
+  MODE!: string;
+  DEV!: boolean;
+  PROD!: boolean;
+  SSR!: boolean;
+  [key: string]: any;
+}
+
+const metaEnv = import.meta.env;
+export const appConfig = new AppConfig(metaEnv);
 
 // for where using lingui macros isn't possible
 const I18N = {

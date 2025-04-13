@@ -48,7 +48,7 @@ const App = () => {
         </TinybaseProvider>
       </I18nProvider>
 
-      {platformService.isDev() && appConfig.ENABLE_STORE_INSPECTOR && (
+      {platformService.isDev() && appConfig.DEV_ENABLE_STORE_INSPECTOR && (
         <DebugTinybaseProvider></DebugTinybaseProvider>
       )}
     </>

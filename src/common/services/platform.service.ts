@@ -24,8 +24,8 @@ class PlatformService {
   }
 
   public getPlatform() {
-    return appConfig.OVERRIDE_PLATFORM
-      ? appConfig.OVERRIDE_PLATFORM
+    return appConfig.DEV_OVERRIDE_PLATFORM
+      ? appConfig.DEV_OVERRIDE_PLATFORM
       : Capacitor.getPlatform();
   }
 
