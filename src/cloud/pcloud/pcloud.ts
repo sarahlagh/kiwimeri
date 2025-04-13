@@ -59,7 +59,10 @@ class KMPCloudClient implements KMStorageProvider {
       throw new Error('uninitialized pcloud config');
     }
     const ok = await fetch(this.getUrl('userinfo'))
-      .catch(() => false)
+      .catch(res => {
+        console.error('[pCloud] error', res);
+        return false;
+      })
       .then(() => true);
 
     if (ok) {

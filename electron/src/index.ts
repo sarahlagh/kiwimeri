@@ -4,7 +4,7 @@ import {
   setupElectronDeepLinking
 } from '@capacitor-community/electron';
 import type { MenuItemConstructorOptions } from 'electron';
-import { app, MenuItem } from 'electron';
+import { app, ipcMain, MenuItem } from 'electron';
 import electronIsDev from 'electron-is-dev';
 import unhandled from 'electron-unhandled';
 
@@ -82,3 +82,11 @@ app.on('activate', async function () {
 });
 
 // Place all ipc or other electron api calls and custom functionality under this line
+import fetch from 'electron-fetch';
+
+ipcMain.handle('capacitor:fetch', async (event, args) => {
+  const [resource, config] = args;
+  const res = await fetch(resource, config);
+  const data = await res.json();
+  return JSON.parse(JSON.stringify({ ...res, data })); // avoids 'An object could not be cloned' error
+});

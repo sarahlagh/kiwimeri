@@ -41,7 +41,7 @@ class SyncConfigurationsService {
     initConfig: PCloudConf
   ) {
     let proxy = undefined;
-    if (platformService.is(['web', 'electron']) && appConfig.HTTP_PROXY) {
+    if (platformService.isWeb() && appConfig.HTTP_PROXY) {
       proxy = appConfig.HTTP_PROXY;
     }
     storageProvider.configure(initConfig, proxy);

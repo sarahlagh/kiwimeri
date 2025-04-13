@@ -7,10 +7,14 @@ const originalConsole = { ...console };
 
 const fnFactory =
   (origMethod: Method, level: 'trace' | 'debug' | 'log' | 'warn' | 'error') =>
-  (message?: any, optionalParams?: any[]) => {
-    appLog.addLog(level, message, optionalParams);
-    if (optionalParams) origMethod(message, optionalParams);
-    else origMethod(message);
+  (message?: any, ...optionalParams: any[]) => {
+    if (optionalParams) {
+      appLog.addLog(level, message, optionalParams);
+      origMethod(message, ...optionalParams);
+    } else {
+      appLog.addLog(level, message);
+      origMethod(message);
+    }
   };
 
 console.trace = fnFactory(originalConsole.trace, 'trace');

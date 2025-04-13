@@ -25,3 +25,30 @@ if (Capacitor.getPlatform() === 'android') {
     );
   };
 }
+
+if (Capacitor.getPlatform() === 'electron' && (window as any).electronAPI) {
+  const electronAPI = (window as any).electronAPI;
+  window.fetch = async (...args) => {
+    const [resource, config] = args;
+    if (
+      !resource.toString().startsWith('http://') &&
+      !resource.toString().startsWith('https://')
+    ) {
+      return origFetch(resource, config);
+    }
+    const newConfig = config ? config : {};
+    let headers = newConfig.headers ? newConfig.headers : {};
+    headers = {
+      ...headers,
+      Accept: 'application/json, text/plain, */*',
+      Connection: 'keep-alive'
+    };
+    newConfig.headers = headers;
+    return electronAPI
+      .forwardRequest(resource, newConfig)
+      .then(
+        (res: { data: any }) =>
+          ({ ...res, json: async () => res.data }) as unknown as Response
+      );
+  };
+}
