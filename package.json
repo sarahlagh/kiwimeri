@@ -14,7 +14,8 @@
     "lint": "eslint",
     "format": "prettier --write \"src/\"",
     "i18n": "lingui extract --clean && lingui compile --typescript",
-    "release:docker": "node scripts/release-docker.cjs"
+    "release:docker": "node scripts/release-docker.cjs",
+    "release:electron": "node --env-file=.env.local scripts/release-electron.cjs"
   },
   "dependencies": {
     "@capacitor-community/electron": "^5.0.1",
