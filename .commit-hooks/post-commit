@@ -5,8 +5,9 @@ if [ ! -f .env ]; then
     exit
 fi
 
-source .env.prod
+source .env.production
 main=${VITE_KIWIMERI_VERSION}
 ref=$(git rev-parse --short HEAD)
 
 sed -i -r "s|VITE_KIWIMERI_VERSION=(.*)|VITE_KIWIMERI_VERSION=${main}~${ref}|" .env
+sed -i -r "s|VITE_KIWIMERI_VERSION=(.*)|VITE_KIWIMERI_VERSION=${main}~${ref}|" .env.production.local

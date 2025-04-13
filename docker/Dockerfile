@@ -11,7 +11,7 @@ COPY index.html /app/
 COPY *.json /app/
 COPY *.config.ts /app/
 COPY *.config.js /app/
-COPY .env.prod /app/.env
+COPY .env.production /app/.env
 
 RUN ionic build --prod
 

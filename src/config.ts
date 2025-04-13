@@ -8,14 +8,14 @@ import {
 
 // hack to override VITE_ vars with docker container env
 const dynConfig = {
-  VITE_HTTP_PROXY: '__dyn__',
+  VITE_INTERNAL_HTTP_PROXY: '__dyn__',
   VITE_DEV_USE_HTTP_IF_POSSIBLE: '__dyn__',
   VITE_DEV_OVERRIDE_PLATFORM: '__dyn__'
 } as any;
 
 class AppConfig implements ImportMetaEnv {
   KIWIMERI_VERSION = '0.0.0';
-  HTTP_PROXY?: string;
+  INTERNAL_HTTP_PROXY?: string;
   DEV_USE_HTTP_IF_POSSIBLE = false;
   DEV_OVERRIDE_PLATFORM?: 'web' | 'android' | 'electron';
   DEV_ENABLE_SPACE_INSPECTOR = true;
