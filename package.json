@@ -14,7 +14,7 @@
     "lint": "eslint",
     "format": "prettier --write \"src/\"",
     "i18n": "lingui extract --clean && lingui compile --typescript",
-    "electron": "ionic cap build electron"
+    "release:docker": "node scripts/release-docker.cjs"
   },
   "dependencies": {
     "@capacitor-community/electron": "^5.0.1",

@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { appConfig } from './config';
+
 class AppLog {
   private internalId = 0;
   private log: {
@@ -15,13 +17,15 @@ class AppLog {
     message?: any,
     optionalParams?: any[]
   ) {
-    this.log.push({
-      key: this.internalId++,
-      ts: Date.now(),
-      level,
-      message,
-      optionalParams
-    });
+    if (!appConfig.IS_RELEASE) {
+      this.log.push({
+        key: this.internalId++,
+        ts: Date.now(),
+        level,
+        message,
+        optionalParams
+      });
+    }
   }
 
   public getLogs() {

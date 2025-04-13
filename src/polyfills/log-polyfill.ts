@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { appLog } from '@/log';
 
 type Method = (message?: any, ...optionalParams: any[]) => void;

@@ -1,7 +1,6 @@
 var host = process.env.HOST || '0.0.0.0';
 var port = process.env.PORT || 8080;
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 var cors_proxy = require('cors-anywhere');
 cors_proxy
   .createServer({
