@@ -1,3 +1,5 @@
+import useAppInfo from '@/common/hooks/useAppInfo';
+import userSettingsService from '@/db/user-settings.service';
 import {
   IonButton,
   IonHeader,
@@ -7,8 +9,6 @@ import {
   IonTitle,
   IonToolbar
 } from '@ionic/react';
-import useAppInfo from '../common/hooks/useAppInfo';
-import userSettingsService from '../db/user-settings.service';
 import AppRouterOutlet from './AppRouterOutlet';
 import MainMenuList from './components/MainMenuList';
 

@@ -1,6 +1,6 @@
+import platformService from '@/common/services/platform.service';
+import storageService from '@/db/storage.service';
 import { useLingui } from '@lingui/react/macro';
-import platformService from '../../../common/services/platform.service';
-import storageService from '../../../db/storage.service';
 import ImportExportSettings from './ImportExportSettings';
 
 const ImportExportCollectionSettings = () => {

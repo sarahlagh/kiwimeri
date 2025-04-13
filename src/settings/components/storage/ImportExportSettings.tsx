@@ -1,3 +1,5 @@
+import filesystemService from '@/common/services/filesystem.service';
+import platformService from '@/common/services/platform.service';
 import {
   IonButton,
   IonCard,
@@ -10,8 +12,6 @@ import {
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import React, { useState } from 'react';
-import filesystemService from '../../../common/services/filesystem.service';
-import platformService from '../../../common/services/platform.service';
 
 type ImportExportSettingsProps = {
   title: string;

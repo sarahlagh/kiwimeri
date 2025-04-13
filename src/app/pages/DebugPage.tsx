@@ -1,3 +1,6 @@
+import platformService from '@/common/services/platform.service';
+import { appConfig } from '@/config';
+import { appLog } from '@/log';
 import {
   getPlatforms,
   IonCard,
@@ -7,9 +10,6 @@ import {
   IonContent
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
-import platformService from '../../common/services/platform.service';
-import { appConfig } from '../../config';
-import { appLog } from '../../log/log';
 import TemplateMainPage from './TemplateMainPage';
 
 const DebugPage = () => {

@@ -1,6 +1,15 @@
 import { useLocation } from 'react-router-dom';
 
 import {
+  DEBUG_ROUTE,
+  GET_NODE_ROUTE,
+  isCollectionRoute,
+  SETTINGS_ROUTE
+} from '@/common/routes';
+import { appConfig } from '@/config';
+import { APPICONS } from '@/constants';
+import userSettingsService from '@/db/user-settings.service';
+import {
   IonButton,
   IonButtons,
   IonContent,
@@ -13,15 +22,6 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
-import {
-  DEBUG_ROUTE,
-  GET_NODE_ROUTE,
-  isCollectionRoute,
-  SETTINGS_ROUTE
-} from '../../common/routes';
-import { appConfig } from '../../config';
-import { APPICONS } from '../../constants';
-import userSettingsService from '../../db/user-settings.service';
 
 interface AppPage {
   key: string;

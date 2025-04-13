@@ -1,3 +1,7 @@
+import { pcloudClient, PCloudConf } from '@/cloud/pcloud/pcloud';
+import platformService from '@/common/services/platform.service';
+import { APPICONS } from '@/constants';
+import { syncConfService } from '@/db/sync-configurations.service';
 import {
   InputCustomEvent,
   IonCard,
@@ -16,10 +20,6 @@ import {
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
-import { pcloudClient, PCloudConf } from '../../../cloud/pcloud/pcloud';
-import platformService from '../../../common/services/platform.service';
-import { APPICONS } from '../../../constants';
-import { syncConfService } from '../../../db/sync-configurations.service';
 
 const PCloudSettings = () => {
   const type = 'pcloud';

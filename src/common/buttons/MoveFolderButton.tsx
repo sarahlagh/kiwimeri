@@ -1,8 +1,8 @@
+import ChooseFolderModal from '@/common/modals/ChooseFolderModal';
+import { APPICONS } from '@/constants';
+import documentsService from '@/db/documents.service';
 import { IonButton, IonIcon, useIonModal } from '@ionic/react';
 import { Id } from 'tinybase/with-schemas';
-import { APPICONS } from '../../constants';
-import documentsService from '../../db/documents.service';
-import ChooseFolderModal from '../modals/ChooseFolderModal';
 
 type MoveFolderButtonProps = {
   id: Id;

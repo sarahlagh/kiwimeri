@@ -1,3 +1,9 @@
+import { getGlobalTrans } from '@/config';
+import { APPICONS, FAKE_ROOT, ROOT_FOLDER } from '@/constants';
+import documentsService from '@/db/documents.service';
+import DocumentNodeBreadcrumb from '@/documents/components/DocumentNodeBreadcrumb';
+import DocumentNodeList from '@/documents/components/DocumentNodeList';
+import { DocumentNodeResult, DocumentNodeType } from '@/documents/document';
 import {
   IonButton,
   IonButtons,
@@ -8,12 +14,6 @@ import {
 } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 import React, { useEffect, useState } from 'react';
-import { getGlobalTrans } from '../../config';
-import { APPICONS, FAKE_ROOT, ROOT_FOLDER } from '../../constants';
-import documentsService from '../../db/documents.service';
-import DocumentNodeBreadcrumb from '../../documents/components/DocumentNodeBreadcrumb';
-import DocumentNodeList from '../../documents/components/DocumentNodeList';
-import { DocumentNodeResult, DocumentNodeType } from '../../documents/document';
 
 const Toolbar = ({
   selected,

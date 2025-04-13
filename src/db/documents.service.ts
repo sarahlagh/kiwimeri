@@ -1,8 +1,8 @@
+import { getGlobalTrans } from '@/config';
+import { FAKE_ROOT, ROOT_FOLDER } from '@/constants';
+import { DocumentNodeResult, DocumentNodeType } from '@/documents/document';
 import { Id } from 'tinybase/common/with-schemas';
 import { useCell, useResultSortedRowIds, useTable } from 'tinybase/ui-react';
-import { getGlobalTrans } from '../config';
-import { FAKE_ROOT, ROOT_FOLDER } from '../constants';
-import { DocumentNodeResult, DocumentNodeType } from '../documents/document';
 import storageService from './storage.service';
 
 export const initialContent = () => {

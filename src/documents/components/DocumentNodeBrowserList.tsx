@@ -8,12 +8,12 @@ import {
   useIonPopover
 } from '@ionic/react';
 
+import { getSearchParams } from '@/common/getSearchParams';
+import { GET_NODE_ROUTE } from '@/common/routes';
+import { APPICONS } from '@/constants';
+import documentsService from '@/db/documents.service';
+import { DocumentNodeResult, DocumentNodeType } from '@/documents/document';
 import { useEffect, useState } from 'react';
-import { getSearchParams } from '../../common/getSearchParams';
-import { GET_NODE_ROUTE } from '../../common/routes';
-import { APPICONS } from '../../constants';
-import documentsService from '../../db/documents.service';
-import { DocumentNodeResult, DocumentNodeType } from '../document';
 import CommonActionsToolbar from './CommonActionsToolbar';
 import DocumentNodeBreadcrumb from './DocumentNodeBreadcrumb';
 import DocumentNodeList from './DocumentNodeList';

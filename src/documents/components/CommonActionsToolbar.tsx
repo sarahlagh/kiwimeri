@@ -1,8 +1,8 @@
+import CloseDocumentButton from '@/common/buttons/CloseDocumentButton';
+import DeleteNodeButton from '@/common/buttons/DeleteNodeButton';
+import MoveFolderButton from '@/common/buttons/MoveFolderButton';
+import RenameNodeButton from '@/common/buttons/RenameNodeButton';
 import { IonButtons, IonToolbar } from '@ionic/react';
-import CloseDocumentButton from '../../common/buttons/CloseDocumentButton';
-import DeleteNodeButton from '../../common/buttons/DeleteNodeButton';
-import MoveFolderButton from '../../common/buttons/MoveFolderButton';
-import RenameNodeButton from '../../common/buttons/RenameNodeButton';
 
 export type CommonActionsToolbarProps = {
   id: string;

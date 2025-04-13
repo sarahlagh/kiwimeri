@@ -1,3 +1,5 @@
+import platformService from '@/common/services/platform.service';
+import documentsService from '@/db/documents.service';
 import { CodeNode } from '@lexical/code';
 import { LinkNode } from '@lexical/link';
 import { ListItemNode, ListNode } from '@lexical/list';
@@ -18,8 +20,6 @@ import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import { useLingui } from '@lingui/react/macro';
 import React, { useEffect, useState } from 'react';
-import documentsService from '../../db/documents.service';
-import platformService from '../services/platform.service';
 import { minimizeForStorage } from './compress-storage';
 import DebugTreeViewPlugin from './lexical/DebugTreeViewPlugin';
 import KiwimeriReloadContentPlugin from './lexical/KiwimeriReloadContentPlugin';

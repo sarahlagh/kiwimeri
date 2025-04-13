@@ -1,6 +1,6 @@
+import { useMediaQueryMatch } from '@/common/hooks/useMediaQueryMatch';
+import { appConfig } from '@/config';
 import { Capacitor } from '@capacitor/core';
-import { appConfig } from '../../config';
-import { useMediaQueryMatch } from '../hooks/useMediaQueryMatch';
 
 class PlatformService {
   public isAndroid() {

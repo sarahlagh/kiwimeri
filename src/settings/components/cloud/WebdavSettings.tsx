@@ -10,8 +10,8 @@
 // // import { webdavClient } from '@repo/kiwimeri-sync-webdav';
 // import { bugOutline, checkmarkOutline } from 'ionicons/icons';
 // import { useEffect, useState } from 'react';
-// import platformService from '../../../common/services/platform.service';
-// import { appConfig } from '../../../config';
+// import platformService from '@/common/services/platform.service';
+// import { appConfig } from '@/config';
 
 // const WebdavSettings = () => {
 //   const [connectionOK, setConnectionOK] = useState(false);

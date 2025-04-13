@@ -1,3 +1,6 @@
+import { APPICONS } from '@/constants';
+import documentsService from '@/db/documents.service';
+import { DocumentNodeResult, DocumentNodeType } from '@/documents/document';
 import {
   InputCustomEvent,
   IonButton,
@@ -12,9 +15,6 @@ import {
 } from '@ionic/react';
 import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactProps';
 import { ReactNode, useEffect, useRef, useState } from 'react';
-import { APPICONS } from '../../constants';
-import documentsService from '../../db/documents.service';
-import { DocumentNodeResult, DocumentNodeType } from '../document';
 
 type DocumentListNodeItemProps = {
   node: DocumentNodeResult;

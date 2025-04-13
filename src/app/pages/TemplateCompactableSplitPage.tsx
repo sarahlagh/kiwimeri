@@ -1,3 +1,5 @@
+import MainHeader, { MainHeaderProps } from '@/app/components/MainHeader';
+import platformService from '@/common/services/platform.service';
 import {
   IonContent,
   IonHeader,
@@ -6,8 +8,6 @@ import {
   IonSplitPane
 } from '@ionic/react';
 import { ReactNode } from 'react';
-import platformService from '../../common/services/platform.service';
-import MainHeader, { MainHeaderProps } from '../components/MainHeader';
 
 type TemplateCompactableSplitPageProps = {
   headerIfCompact: MainHeaderProps;

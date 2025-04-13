@@ -1,3 +1,6 @@
+import { onTitleChangeFn } from '@/common/events/events';
+import Writer from '@/common/wysiwyg/Writer';
+import documentsService from '@/db/documents.service';
 import {
   InputCustomEvent,
   IonContent,
@@ -7,9 +10,6 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { useRef } from 'react';
-import { onTitleChangeFn } from '../../common/events/events';
-import Writer from '../../common/wysiwyg/Writer';
-import documentsService from '../../db/documents.service';
 
 interface DocumentEditorProps {
   id: string;

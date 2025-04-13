@@ -1,6 +1,6 @@
+import { unminimizeFromStorage } from '@/common/wysiwyg/compress-storage';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useEffect } from 'react';
-import { unminimizeFromStorage } from '../compress-storage';
 
 export default function KiwimeriReloadContentPlugin({
   id,

@@ -1,5 +1,5 @@
+import storageService from '@/db/storage.service';
 import { useLingui } from '@lingui/react/macro';
-import storageService from '../../../db/storage.service';
 import ImportExportSettings from './ImportExportSettings';
 
 const ImportExportCollectionSettings = () => {

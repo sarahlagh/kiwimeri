@@ -1,6 +1,6 @@
+import { ROOT_FOLDER } from '@/constants';
 import { Store } from 'tinybase/store';
 import { useCell, useValue } from 'tinybase/ui-react';
-import { ROOT_FOLDER } from '../constants';
 import storageService from './storage.service';
 
 class UserSettingsService {

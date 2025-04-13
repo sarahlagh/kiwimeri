@@ -1,3 +1,4 @@
+import platformService from '@/common/services/platform.service';
 import {
   IonButton,
   IonCard,
@@ -8,7 +9,6 @@ import {
   IonInput
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
-import platformService from '../../../common/services/platform.service';
 const FilesystemSyncSettings = () => {
   const { t } = useLingui();
 

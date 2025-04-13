@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
+import {
+  DEFAULT_NOTEBOOK_ID,
+  DEFAULT_SPACE_ID,
+  ROOT_FOLDER
+} from '@/constants';
+import { DocumentNode } from '@/documents/document';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db/with-schemas';
 import { Persister } from 'tinybase/persisters/with-schemas';
 import { createQueries, Queries } from 'tinybase/queries/with-schemas';
 import { Store as UntypedStore } from 'tinybase/store';
 import { CellSchema, createStore, Store } from 'tinybase/store/with-schemas';
 import { useCell } from 'tinybase/ui-react';
-import {
-  DEFAULT_NOTEBOOK_ID,
-  DEFAULT_SPACE_ID,
-  ROOT_FOLDER
-} from '../constants';
-import { DocumentNode } from '../documents/document';
 import { Space, SyncConfiguration } from './db-types';
 import { syncConfService } from './sync-configurations.service';
 

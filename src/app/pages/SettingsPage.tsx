@@ -1,6 +1,6 @@
+import Settings from '@/settings/components/Settings';
 import { IonContent } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
-import Settings from '../../settings/components/Settings';
 import TemplateMainPage from './TemplateMainPage';
 
 const SettingsPage = () => {

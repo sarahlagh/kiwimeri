@@ -1,9 +1,9 @@
+import { onTitleChangeFn } from '@/common/events/events';
+import { getSearchParams } from '@/common/getSearchParams';
+import { ROOT_FOLDER } from '@/constants';
+import documentsService from '@/db/documents.service';
+import DocumentNodeBrowserList from '@/documents/components/DocumentNodeBrowserList';
 import { useLocation } from 'react-router';
-import { onTitleChangeFn } from '../../common/events/events';
-import { getSearchParams } from '../../common/getSearchParams';
-import { ROOT_FOLDER } from '../../constants';
-import documentsService from '../../db/documents.service';
-import DocumentNodeBrowserList from '../../documents/components/DocumentNodeBrowserList';
 import TemplateMainPage from './TemplateMainPage';
 
 const DocumentListPage = () => {

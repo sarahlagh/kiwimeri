@@ -1,11 +1,11 @@
+import ConfirmYesNoDialog from '@/common/modals/ConfirmYesNoDialog';
+import { GET_FOLDER_ROUTE } from '@/common/routes';
+import { APPICONS } from '@/constants';
+import documentsService from '@/db/documents.service';
+import userSettingsService from '@/db/user-settings.service';
 import { IonButton, IonIcon } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { Id } from 'tinybase/with-schemas';
-import { APPICONS } from '../../constants';
-import documentsService from '../../db/documents.service';
-import userSettingsService from '../../db/user-settings.service';
-import ConfirmYesNoDialog from '../modals/ConfirmYesNoDialog';
-import { GET_FOLDER_ROUTE } from '../routes';
 
 type DeleteNodeButtonProps = {
   id: Id;

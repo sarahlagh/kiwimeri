@@ -1,5 +1,5 @@
-import { appConfig } from '../../config';
-import { KMStorageProvider } from '../sync-core';
+import { KMStorageProvider } from '@/cloud/sync-core';
+import { appConfig } from '@/config';
 import {
   PCloudLinkResponse,
   PCloudListResponse,

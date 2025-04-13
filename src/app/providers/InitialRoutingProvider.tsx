@@ -1,10 +1,10 @@
+import { getSearchParams } from '@/common/getSearchParams';
+import { GET_FOLDER_ROUTE, isCollectionRoute } from '@/common/routes';
+import { ROOT_FOLDER } from '@/constants';
+import documentsService from '@/db/documents.service';
+import userSettingsService from '@/db/user-settings.service';
 import { ReactNode, useEffect } from 'react';
 import { Redirect, useLocation } from 'react-router';
-import { getSearchParams } from '../../common/getSearchParams';
-import { GET_FOLDER_ROUTE, isCollectionRoute } from '../../common/routes';
-import { ROOT_FOLDER } from '../../constants';
-import documentsService from '../../db/documents.service';
-import userSettingsService from '../../db/user-settings.service';
 
 type InitialRoutingProviderProps = {
   readonly children?: ReactNode;

@@ -1,11 +1,11 @@
-import { IonRouterOutlet } from '@ionic/react';
-import { Redirect, Route } from 'react-router';
 import {
   DEBUG_ROUTE,
   DOCUMENT_ROUTE,
   FOLDER_ROUTE,
   SETTINGS_ROUTE
-} from '../common/routes';
+} from '@/common/routes';
+import { IonRouterOutlet } from '@ionic/react';
+import { Redirect, Route } from 'react-router';
 import DebugPage from './pages/DebugPage';
 import DocumentEditorPage from './pages/DocumentEditorPage';
 import DocumentListPage from './pages/DocumentListPage';

@@ -1,6 +1,6 @@
+import { APPICONS } from '@/constants';
 import { IonButton, IonIcon } from '@ionic/react';
 import { Id } from 'tinybase/with-schemas';
-import { APPICONS } from '../../constants';
 
 type RenameNodeButtonProps = {
   id: Id;

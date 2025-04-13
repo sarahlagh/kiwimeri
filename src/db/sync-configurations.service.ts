@@ -1,9 +1,9 @@
+import { pcloudClient, PCloudConf } from '@/cloud/pcloud/pcloud';
+import { KMStorageProvider } from '@/cloud/sync-core';
+import platformService from '@/common/services/platform.service';
+import { appConfig } from '@/config';
 import { Store } from 'tinybase/store';
 import { useCell } from 'tinybase/ui-react';
-import { pcloudClient, PCloudConf } from '../cloud/pcloud/pcloud';
-import { KMStorageProvider } from '../cloud/sync-core';
-import platformService from '../common/services/platform.service';
-import { appConfig } from '../config';
 import storageService from './storage.service';
 
 class SyncConfigurationsService {

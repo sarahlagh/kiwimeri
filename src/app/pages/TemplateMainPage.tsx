@@ -1,6 +1,6 @@
+import MainHeader, { MainHeaderProps } from '@/app/components/MainHeader';
 import { IonHeader, IonPage } from '@ionic/react';
 import { ReactNode } from 'react';
-import MainHeader, { MainHeaderProps } from '../components/MainHeader';
 
 type TemplateMainPageProps = MainHeaderProps & {
   readonly children?: ReactNode;

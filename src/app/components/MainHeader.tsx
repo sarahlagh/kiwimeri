@@ -1,3 +1,6 @@
+import { APPICONS } from '@/constants';
+import storageService from '@/db/storage.service';
+import { syncConfService } from '@/db/sync-configurations.service';
 import {
   InputCustomEvent,
   IonButton,
@@ -9,9 +12,6 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { ReactNode, useState } from 'react';
-import { APPICONS } from '../../constants';
-import storageService from '../../db/storage.service';
-import { syncConfService } from '../../db/sync-configurations.service';
 
 export type MainHeaderProps = {
   title: string;

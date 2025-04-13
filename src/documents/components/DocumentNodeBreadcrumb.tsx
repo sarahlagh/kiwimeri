@@ -1,3 +1,5 @@
+import { APPICONS, FAKE_ROOT, ROOT_FOLDER } from '@/constants';
+import documentsService from '@/db/documents.service';
 import {
   IonBreadcrumb,
   IonBreadcrumbs,
@@ -5,8 +7,6 @@ import {
   IonIcon
 } from '@ionic/react';
 import { useState } from 'react';
-import { APPICONS, FAKE_ROOT, ROOT_FOLDER } from '../../constants';
-import documentsService from '../../db/documents.service';
 
 const DocumentNodeBreadcrumb = ({
   folder,

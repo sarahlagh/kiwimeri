@@ -1,7 +1,7 @@
+import storageService from '@/db/storage.service';
 import { Store } from 'tinybase/store';
 import { Provider } from 'tinybase/ui-react';
 import { Inspector } from 'tinybase/ui-react-inspector';
-import storageService from '../../db/storage.service';
 
 const DebugTinybaseProvider = () => {
   const store = storageService.getStore();
