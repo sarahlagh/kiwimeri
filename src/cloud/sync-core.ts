@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface KMStorageProvider {
-  configure: (conf: any, proxy?: string) => void; // accept user input and save in local store
+  configure: (conf: any, proxy?: string, useHttp?: boolean) => void; // accept user input and save in local store
   init: (
     spaceId: string
   ) => Promise<{ test: boolean; config: any; lastRemoteChange: number }>;

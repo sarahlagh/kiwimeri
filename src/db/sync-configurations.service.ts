@@ -41,10 +41,12 @@ class SyncConfigurationsService {
     initConfig: PCloudConf
   ) {
     let proxy = undefined;
-    if (platformService.isWeb() && appConfig.INTERNAL_HTTP_PROXY) {
+    let useHttp = false;
+    if (platformService.isWeb()) {
       proxy = appConfig.INTERNAL_HTTP_PROXY;
+      useHttp = appConfig.DEV_USE_HTTP_IF_POSSIBLE;
     }
-    storageProvider.configure(initConfig, proxy);
+    storageProvider.configure(initConfig, proxy, useHttp);
     const newConf = await storageProvider.init(
       storageService.getCurrentSpace()
     );

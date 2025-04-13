@@ -1,5 +1,4 @@
 import { KMStorageProvider } from '@/cloud/sync-core';
-import { appConfig } from '@/config';
 import {
   PCloudLinkResponse,
   PCloudListResponse,
@@ -33,12 +32,12 @@ class KMPCloudClient implements KMStorageProvider {
     return this.isInit;
   }
 
-  public configure(config: PCloudConf, proxy?: string) {
+  public configure(config: PCloudConf, proxy?: string, useHttp?: boolean) {
     this.config = config;
     if (!this.config.folderid && !this.config.path) {
       this.config.path = '/';
     }
-    const protocol = appConfig.DEV_USE_HTTP_IF_POSSIBLE ? 'http' : 'https';
+    const protocol = useHttp ? 'http' : 'https';
     this.serverUrl = `${protocol}://${this.api[this.config.serverLocation]}`;
     this.proxy = proxy;
     if (proxy) {
