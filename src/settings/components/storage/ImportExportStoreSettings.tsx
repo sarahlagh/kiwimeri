@@ -1,4 +1,5 @@
 import storageService from '@/db/storage.service';
+import { syncConfService } from '@/db/sync-configurations.service';
 import { useLingui } from '@lingui/react/macro';
 import ImportExportSettings from './ImportExportSettings';
 
@@ -15,9 +16,12 @@ const ImportExportCollectionSettings = () => {
             this page, including the settings for your cloud provider.`}
       androidFolder="Downloads"
       exportFileSuffix="app-settings"
-      onRestoreContent={(content: string) => {
+      onRestoreContent={async (content: string) => {
         const json = JSON.parse(content);
         storageService.getStore().setContent(json);
+        await syncConfService.initSyncConnection(
+          storageService.getCurrentSpace()
+        );
       }}
       getContentToExport={() => {
         const content = storageService.getStore().getContent();

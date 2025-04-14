@@ -11,7 +11,7 @@ const ImportExportCollectionSettings = () => {
       subtitle={t`Manually backup or restore your collection.`}
       androidFolder="Documents/KiwimeriApp"
       exportFileSuffix={`${platformService.getPlatform()}-backup`}
-      onRestoreContent={(content: string) => {
+      onRestoreContent={async (content: string) => {
         const json = JSON.parse(content);
         storageService.getSpace().setContent(json);
       }}

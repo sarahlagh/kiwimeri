@@ -17,7 +17,7 @@ type ImportExportSettingsProps = {
   title: string;
   subtitle: string;
   description?: string;
-  onRestoreContent: (content: string) => void;
+  onRestoreContent: (content: string) => Promise<void>;
   getContentToExport: () => string;
   androidFolder: string;
   exportFileSuffix: string;
@@ -62,9 +62,9 @@ const ImportExportSettings = ({
   > = event => {
     if (event.target.files && event.target.files.length > 0) {
       const file = event.target.files[0];
-      filesystemService.readFile(file).then(content => {
+      filesystemService.readFile(file).then(async content => {
         try {
-          onRestoreContent(content);
+          await onRestoreContent(content);
 
           setToast(successMessage, 'success');
         } catch (e) {
