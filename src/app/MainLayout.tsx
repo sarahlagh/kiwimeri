@@ -1,7 +1,6 @@
 import useAppInfo from '@/common/hooks/useAppInfo';
 import userSettingsService from '@/db/user-settings.service';
 import {
-  IonButton,
   IonHeader,
   IonIcon,
   IonMenu,
@@ -24,13 +23,13 @@ const MainLayout = () => {
     <>
       <IonMenu contentId="main-content">
         <IonHeader>
-          <IonToolbar>
-            <IonButton slot="start" fill="clear">
-              <IonIcon size={'large'} src="icon.svg"></IonIcon>
-            </IonButton>
-            <IonTitle style={{ paddingLeft: '6px' }}>
-              {appName?.short_name}
-            </IonTitle>
+          <IonToolbar style={{ paddingLeft: '16px' }}>
+            <IonIcon
+              slot="start"
+              src="icon.svg"
+              style={{ fontSize: '26px' }}
+            ></IonIcon>
+            <IonTitle>{appName?.short_name}</IonTitle>
           </IonToolbar>
         </IonHeader>
         <MainMenuList></MainMenuList>
