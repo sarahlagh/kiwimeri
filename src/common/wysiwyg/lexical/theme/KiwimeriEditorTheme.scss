@@ -32,6 +32,9 @@
   display: inline-block;
   pointer-events: none;
 }
+.android .editor-placeholder {
+  top: 52px; // account for the bigger icon size
+}
 
 .editor-text-bold {
   font-weight: bold;
