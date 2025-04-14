@@ -72,11 +72,12 @@ const PCloudSettings = () => {
 
       <IonCardContent>
         <IonList>
-          <IonItem>
+          <IonItem lines="none">
             <IonLabel slot="start">
               <Trans>Server</Trans>
             </IonLabel>
             <IonSegment
+              mode="ios"
               value={syncConf.serverLocation}
               onIonChange={e =>
                 onChange('serverLocation', e as unknown as InputCustomEvent)
