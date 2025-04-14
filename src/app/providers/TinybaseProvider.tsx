@@ -7,20 +7,28 @@ import { Queries } from 'tinybase/queries';
 import { Store } from 'tinybase/store';
 import { Provider } from 'tinybase/ui-react';
 import { Inspector } from 'tinybase/ui-react-inspector';
+import { Id } from 'tinybase/with-schemas';
 
 const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
+  let listenerId: Id;
   useEffect(() => {
     async function load() {
       const ok = await storageService.start();
       if (ok) {
         setIsLoading(false);
-        storageService.getSpace()?.addTablesListener(() => {
+        listenerId = storageService.getSpace()?.addTablesListener(() => {
           storageService.setLastLocalChange(Date.now());
         });
       }
     }
     load();
+
+    return () => {
+      if (listenerId) {
+        storageService.getSpace().delListener(listenerId);
+      }
+    };
   }, []);
 
   const store = storageService.getSpace();
