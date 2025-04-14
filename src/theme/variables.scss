@@ -6,13 +6,27 @@ ion-textarea.invisible {
   --highlight-color-focused: rgba(var(--highlight-color-focused), 0);
 }
 
+ion-header.subheader {
+  /* fix breadcrumb in light mode on android */
+  background: var(--ion-color-primary-contrast, #fff);
+  -webkit-box-shadow:
+    0 2px 4px -2px rgba(0, 0, 0, 0.8) inset,
+    0 2px 4px -1px rgba(0, 0, 0, 0.2),
+    0 4px 5px 0 rgba(0, 0, 0, 0.14),
+    0 1px 10px 0 rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0 2px 4px -2px rgba(0, 0, 0, 0.6) inset,
+    0 2px 4px -1px rgba(0, 0, 0, 0.2),
+    0 4px 5px 0 rgba(0, 0, 0, 0.14),
+    0 1px 10px 0 rgba(0, 0, 0, 0.12);
+}
+
 ion-breadcrumb::part(native),
 ion-breadcrumb::part(collapsed-indicator) {
   padding: 0;
 }
 ion-breadcrumb::part(collapsed-indicator) {
   margin: 0;
-  margin-left: 4px;
   width: 22px;
 }
 ion-breadcrumb {

@@ -148,7 +148,7 @@ const DocumentNodeList = ({
 }: DocumentNodeListProps) => {
   return (
     <>
-      {header && <IonHeader>{header}</IonHeader>}
+      {header && <IonHeader class="subheader">{header}</IonHeader>}
       <IonContent>
         <IonList>
           {documents.map(node => {

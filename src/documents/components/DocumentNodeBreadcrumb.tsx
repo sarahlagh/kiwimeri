@@ -29,7 +29,7 @@ const DocumentNodeBreadcrumb = ({
 
   return (
     <IonBreadcrumbs
-      style={{ marginLeft: '4px', overflowX: 'auto', flexWrap: 'nowrap' }}
+      style={{ marginLeft: '18px', overflowX: 'auto', flexWrap: 'nowrap' }}
       maxItems={maxBreadcrumbs}
       itemsBeforeCollapse={0}
       itemsAfterCollapse={2}
