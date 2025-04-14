@@ -26,6 +26,17 @@ const Toolbar = ({
 }) => {
   return (
     <IonToolbar>
+      <IonButtons slot="start">
+        {/* go to home button */}
+        <IonButton
+          disabled={folderId === FAKE_ROOT}
+          onClick={() => {
+            onClick('gointo', FAKE_ROOT);
+          }}
+        >
+          <IonIcon icon={APPICONS.outsideHome}></IonIcon>
+        </IonButton>
+      </IonButtons>
       <IonButtons slot="end">
         <IonButton
           onClick={() => {
@@ -101,6 +112,7 @@ const ChooseFolderModal = ({
             {/* TODO allow bigger title even for android*/}
             <Trans>Choose a new folder</Trans>
           </IonTitle>
+
           <IonButtons slot="end">
             <IonButton onClick={() => onClose()}>
               <IonIcon icon={APPICONS.closeAction} />
