@@ -14,6 +14,7 @@
     "lint": "eslint",
     "format": "prettier --write \"src/\"",
     "i18n": "lingui extract --clean && lingui compile --typescript",
+    "set-version": "node scripts/set-version.cjs",
     "release:docker": "node scripts/release-docker.cjs",
     "release:electron": "node --env-file=.env.local scripts/release-electron.cjs",
     "release:android": "node --env-file=.env.local scripts/release-android.cjs",
