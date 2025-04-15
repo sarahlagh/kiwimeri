@@ -1,3 +1,5 @@
+import SyncRemoteButton from '@/common/buttons/SyncRemoteButton';
+import { syncService } from '@/storage-providers/sync.service';
 import {
   InputCustomEvent,
   IonButtons,
@@ -6,7 +8,7 @@ import {
   IonTitle,
   IonToolbar
 } from '@ionic/react';
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 
 export type MainHeaderProps = {
   title: string;
@@ -20,13 +22,13 @@ const MainHeader = ({
   onEdited,
   children
 }: MainHeaderProps) => {
-  // const [isSyncing, setIsSyncing] = useState(false);
-  // const isInit = remotesService.useCurrentConnectionStatus();
-  // const hasChanges = remotesService.useCurrentHasLocalChanges();
-  // const pushEnabled = !isSyncing && isInit && hasChanges;
-  // const pullEnabled = !isSyncing && isInit;
-  // const pushColor = isSyncing ? 'warning' : !pushEnabled ? undefined : 'danger';
-  // const pullColor = isSyncing ? 'warning' : undefined;
+  const [isSyncing, setIsSyncing] = useState(false);
+  const isInit = syncService.usePrimaryConnected();
+  const hasChanges = syncService.usePrimaryHasLocalChanges();
+  const pushEnabled = !isSyncing && isInit && hasChanges;
+  const pullEnabled = !isSyncing && isInit;
+  const pushColor = isSyncing ? 'warning' : !pushEnabled ? undefined : 'danger';
+  const pullColor = isSyncing ? 'warning' : undefined;
 
   return (
     <IonToolbar>
@@ -47,27 +49,20 @@ const MainHeader = ({
       )}
 
       <IonButtons slot="end">
-        {/* <IonButton
+        <SyncRemoteButton
+          direction="push"
           disabled={!pushEnabled}
-          onClick={async () => {
-            setIsSyncing(true);
-            await storageService.push();
-            setIsSyncing(false);
-          }}
-        >
-          <IonIcon color={pushColor} icon={APPICONS.cloudUpload}></IonIcon>
-        </IonButton>
-        <IonButton
+          color={pushColor}
+          onSyncStart={() => setIsSyncing(true)}
+          onSyncEnd={() => setIsSyncing(false)}
+        />
+        <SyncRemoteButton
+          direction="pull"
           disabled={!pullEnabled}
           color={pullColor}
-          onClick={async () => {
-            setIsSyncing(true);
-            await storageService.pull();
-            setIsSyncing(false);
-          }}
-        >
-          <IonIcon icon={APPICONS.cloudDownload}></IonIcon>
-        </IonButton> */}
+          onSyncStart={() => setIsSyncing(true)}
+          onSyncEnd={() => setIsSyncing(false)}
+        />
         {children}
       </IonButtons>
     </IonToolbar>

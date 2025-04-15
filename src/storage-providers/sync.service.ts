@@ -58,17 +58,15 @@ class SyncService {
       }
     }
   }
-  // public useCurrentHasLocalChanges() {
-  //   const lastRemoteChange =
-  //     (useCell(
-  //       this.stateTable,
-  //       'default-pcloud',
-  //       'lastRemoteChange',
-  //       storageService.getStore() as unknown as Store
-  //     )?.valueOf() as number) || 0;
-  //   const lastLocalChange = storageService.useLastLocalChange();
-  //   return lastLocalChange > lastRemoteChange;
-  // }
+
+  public usePrimaryConnected() {
+    return remotesService.usePrimaryRemote().connected;
+  }
+  public usePrimaryHasLocalChanges() {
+    const lastLocalChange = storageService.useLastLocalChange();
+    const primaryRemoteState = remotesService.usePrimaryRemoteState();
+    return lastLocalChange > primaryRemoteState.lastRemoteChange;
+  }
 }
 
 export const syncService = new SyncService();

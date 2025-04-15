@@ -5,27 +5,33 @@ import { Id } from 'tinybase/with-schemas';
 import ConfirmYesNoDialog from '../modals/ConfirmYesNoDialog';
 
 type SyncRemoteButtonProps = {
-  id: Id;
   direction: SyncDirection;
+  remote?: Id;
   disabled?: boolean;
   askConfirm?: boolean;
   color?: string;
   fill?: 'clear' | 'outline' | 'solid' | 'default';
+  onSyncStart?: () => void;
+  onSyncEnd?: () => void;
 };
 
 const SyncRemoteButton = ({
-  id,
+  remote,
   direction,
   disabled = false,
   color,
   askConfirm = false,
-  fill = 'clear'
+  fill = 'clear',
+  onSyncStart,
+  onSyncEnd
 }: SyncRemoteButtonProps) => {
-  const trigger = `sync-${direction}-button-${id}`;
+  const trigger = `sync-${direction}-button-${remote}`;
   const icon =
     direction === 'pull' ? APPICONS.cloudDownload : APPICONS.cloudUpload;
   const onConfirm = async () => {
-    await syncService.sync(direction, id);
+    if (onSyncStart) onSyncStart();
+    await syncService.sync(direction, remote);
+    if (onSyncEnd) onSyncEnd();
   };
   if (!askConfirm) {
     return (

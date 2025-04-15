@@ -18,7 +18,12 @@ import {
   Value
 } from 'tinybase/store';
 import { CellSchema, createStore, Store } from 'tinybase/store/with-schemas';
-import { useCell, useResultSortedRowIds, useValue } from 'tinybase/ui-react';
+import {
+  useCell,
+  useResultSortedRowIds,
+  useRow,
+  useValue
+} from 'tinybase/ui-react';
 import { Id } from 'tinybase/with-schemas';
 import { remotesService } from './remotes.service';
 import { Remote, RemoteState, Space } from './store-types';
@@ -217,6 +222,10 @@ class StorageService {
 
   public setCell(tableId: Id, rowId: Id, cellId: Id, cell: Cell | MapCell) {
     this.getUntypedStore().setCell(tableId, rowId, cellId, cell);
+  }
+
+  public useRow<T>(tableId: Id, rowId: Id) {
+    return useRow(tableId, rowId, this.getUntypedStore()) as unknown as T;
   }
 
   public useResultSortedRowIds(

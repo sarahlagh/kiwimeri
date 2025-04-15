@@ -83,14 +83,14 @@ const RemoteGenericSettings = ({
           <>
             <SyncRemoteButton
               direction="push"
-              id={remote.id}
+              remote={remote.id}
               color="light"
               askConfirm={true}
               disabled={!remote.connected}
             />
             <SyncRemoteButton
               direction="pull"
-              id={remote.id}
+              remote={remote.id}
               color="light"
               askConfirm={true}
               disabled={!remote.connected}

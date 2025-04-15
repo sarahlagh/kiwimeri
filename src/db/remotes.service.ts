@@ -5,7 +5,7 @@ import { KMPCloudClient } from '@/storage-providers/pcloud/pcloud';
 import { StorageProvider } from '@/storage-providers/sync-core';
 import { useResultTable } from 'tinybase/ui-react';
 import storageService from './storage.service';
-import { AnyData, RemoteResult } from './store-types';
+import { AnyData, RemoteResult, RemoteState } from './store-types';
 
 class RemotesService {
   private readonly remotesTable = 'remotes';
@@ -116,6 +116,16 @@ class RemotesService {
         const row = table[rowId];
         return { ...row, id: rowId } as RemoteResult;
       });
+  }
+
+  public usePrimaryRemote() {
+    const remotes = this.useRemotes();
+    return remotes[0];
+  }
+
+  public usePrimaryRemoteState() {
+    const remote = this.usePrimaryRemote();
+    return storageService.useRow<RemoteState>(this.stateTable, remote.state);
   }
 
   public addRemote(
