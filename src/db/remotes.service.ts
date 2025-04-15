@@ -88,7 +88,7 @@ class RemotesService {
     return newConf.connected;
   }
 
-  private getRemotes(space?: string) {
+  public getRemotes(space?: string) {
     if (!space) {
       space = storageService.getSpaceId();
     }
@@ -201,6 +201,10 @@ class RemotesService {
         .getStore()
         .setCell(this.remotesTable, remotes[currentRank].id, 'rank', newRank);
     });
+  }
+
+  public getProvider(remote: string) {
+    return this.providers.get(remote);
   }
 }
 

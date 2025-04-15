@@ -1,4 +1,5 @@
 import DeleteButton from '@/common/buttons/DeleteButton';
+import SyncRemoteButton from '@/common/buttons/SyncRemoteButton';
 import platformService from '@/common/services/platform.service';
 import { APPICONS } from '@/constants';
 import { remotesService } from '@/db/remotes.service';
@@ -78,11 +79,29 @@ const RemoteGenericSettings = ({
             </IonButton>
           </>
         )}
-        <DeleteButton
-          color="dark"
-          trigger={'delete-remote-' + remote.id}
-          onConfirm={deleteRemote}
-        ></DeleteButton>
+        {!reorderEnabled && (
+          <>
+            <SyncRemoteButton
+              direction="push"
+              id={remote.id}
+              color="light"
+              askConfirm={true}
+              disabled={!remote.connected}
+            />
+            <SyncRemoteButton
+              direction="pull"
+              id={remote.id}
+              color="light"
+              askConfirm={true}
+              disabled={!remote.connected}
+            />
+            <DeleteButton
+              color="light"
+              trigger={'delete-remote-' + remote.id}
+              onConfirm={deleteRemote}
+            ></DeleteButton>
+          </>
+        )}
       </IonListHeader>
       <IonItem>
         <IonLabel slot="start" className="ion-hide-md-down">

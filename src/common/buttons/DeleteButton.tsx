@@ -7,17 +7,19 @@ type DeleteButtonProps = {
   onConfirm: () => void;
   onClose?: (role?: string) => void;
   color?: string;
+  fill?: 'clear' | 'outline' | 'solid' | 'default';
 };
 
 const DeleteButton = ({
   trigger,
   onConfirm,
   onClose,
-  color
+  color,
+  fill
 }: DeleteButtonProps) => {
   return (
     <>
-      <IonButton id={trigger} expand="block" color={color}>
+      <IonButton id={trigger} expand="block" color={color} fill={fill}>
         <IonIcon icon={APPICONS.deleteAction}></IonIcon>
       </IonButton>
       <ConfirmYesNoDialog
