@@ -180,6 +180,43 @@ class RemotesService {
       lastRemoteChange
     );
   }
+
+  public moveUpOneRank(currentRank: number) {
+    storageService.getStore().transaction(() => {
+      const remotes = this.getRemotes();
+      for (let i = 0; i < remotes.length; i++) {
+        if (i === currentRank - 1) {
+          storageService
+            .getStore()
+            .setCell(this.remotesTable, remotes[i].id, 'rank', currentRank);
+        }
+        if (i === currentRank) {
+          storageService
+            .getStore()
+            .setCell(this.remotesTable, remotes[i].id, 'rank', currentRank - 1);
+          break;
+        }
+      }
+    });
+  }
+  public moveDownOneRank(currentRank: number) {
+    storageService.getStore().transaction(() => {
+      const remotes = this.getRemotes();
+      for (let i = 0; i < remotes.length; i++) {
+        if (i === currentRank) {
+          storageService
+            .getStore()
+            .setCell(this.remotesTable, remotes[i].id, 'rank', currentRank + 1);
+        }
+        if (i === currentRank + 1) {
+          storageService
+            .getStore()
+            .setCell(this.remotesTable, remotes[i].id, 'rank', currentRank);
+          break;
+        }
+      }
+    });
+  }
 }
 
 export const remotesService = new RemotesService();

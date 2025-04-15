@@ -15,7 +15,7 @@ export interface Remote {
   state?: string;
   name: string;
   space: string;
-  rank: string;
+  rank: number;
   type: string;
   config?: string;
   formats: string;

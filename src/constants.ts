@@ -2,6 +2,8 @@ import { msg } from '@lingui/core/macro';
 import {
   add,
   albums,
+  arrowDown,
+  arrowUp,
   bugOutline,
   checkmarkOutline,
   close,
@@ -64,5 +66,7 @@ export const APPICONS = {
   cloudDownload: cloudDownloadOutline,
   ok: checkmarkOutline,
   ko: bugOutline,
-  unknown: helpOutline
+  unknown: helpOutline,
+  moveUp: arrowUp,
+  moveDown: arrowDown
 };

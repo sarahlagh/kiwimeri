@@ -4,6 +4,7 @@ import { APPICONS } from '@/constants';
 import { remotesService } from '@/db/remotes.service';
 import { RemoteResult } from '@/db/store-types';
 import {
+  IonButton,
   IonIcon,
   IonInput,
   IonItem,
@@ -15,12 +16,16 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { ReactNode } from 'react';
 
 type RemoteGenericSettingsProps = {
+  isPrimary: boolean;
+  isLast: boolean;
   title: string;
   checking: boolean;
   remote: RemoteResult;
 } & { readonly children?: ReactNode };
 
 const RemoteGenericSettings = ({
+  isPrimary,
+  isLast,
   title,
   checking,
   remote,
@@ -33,7 +38,6 @@ const RemoteGenericSettings = ({
     remotesService.setRemoteName(remote.id, value);
   };
   const deleteRemote = () => {
-    // TODO add confirmation
     remotesService.delRemote(remote.id);
   };
 
@@ -41,9 +45,28 @@ const RemoteGenericSettings = ({
 
   return (
     <IonList className="inner-list">
-      <IonListHeader>
+      <IonListHeader color={isPrimary ? 'primary' : 'medium'}>
         <IonLabel>{title}</IonLabel>
+        {(!isPrimary || !isLast) && (
+          <>
+            <IonButton
+              color="dark"
+              disabled={isPrimary}
+              onClick={() => remotesService.moveUpOneRank(remote.rank)}
+            >
+              <IonIcon icon={APPICONS.moveUp}></IonIcon>
+            </IonButton>
+            <IonButton
+              color="dark"
+              disabled={isLast}
+              onClick={() => remotesService.moveDownOneRank(remote.rank)}
+            >
+              <IonIcon icon={APPICONS.moveDown}></IonIcon>
+            </IonButton>
+          </>
+        )}
         <DeleteButton
+          color="dark"
           trigger={'delete-remote-' + remote.id}
           onConfirm={deleteRemote}
         ></DeleteButton>

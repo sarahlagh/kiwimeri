@@ -43,7 +43,11 @@ const RemotesSettings = () => {
               return (
                 <IonItem key={remote.id}>
                   {/* TODO: switch by type */}
-                  <PCloudSettings remote={remote} />
+                  <PCloudSettings
+                    remote={remote}
+                    isPrimary={remote.rank === 0}
+                    isLast={remote.rank === remotes.length - 1}
+                  />
                 </IonItem>
               );
             })}

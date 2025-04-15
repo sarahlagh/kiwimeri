@@ -17,9 +17,11 @@ import RemoteGenericSettings from './RemoteGenericSettings';
 
 type PCloudSettingsProps = {
   remote: RemoteResult;
+  isPrimary: boolean;
+  isLast: boolean;
 };
 
-const PCloudSettings = ({ remote }: PCloudSettingsProps) => {
+const PCloudSettings = ({ remote, isPrimary, isLast }: PCloudSettingsProps) => {
   const { t } = useLingui();
   const [checking, setChecking] = useState(false);
   const syncConf = JSON.parse(remote.config) as PCloudConf;
@@ -64,6 +66,8 @@ const PCloudSettings = ({ remote }: PCloudSettingsProps) => {
       title={t`PCloud Configuration`}
       remote={remote}
       checking={checking}
+      isPrimary={isPrimary}
+      isLast={isLast}
     >
       <IonItem lines="none">
         <IonLabel slot="start">
