@@ -19,13 +19,17 @@ const ImportExportCollectionSettings = () => {
       onRestoreContent={async (content: string) => {
         const json = JSON.parse(content);
         storageService.getStore().setContent(json);
-        await remotesService.initSyncConnection(storageService.getSpaceId());
+        await remotesService.initSyncConnection(
+          storageService.getSpaceId(),
+          true
+        );
       }}
       getContentToExport={() => {
         const content = storageService.getStore().getContent();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const [contentToExport, valuesToExport]: [any, any] = content;
         delete contentToExport['spaces'];
+        delete contentToExport['remoteState'];
         delete valuesToExport['currentSpace'];
         return JSON.stringify([contentToExport, valuesToExport]);
       }}

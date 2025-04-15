@@ -28,8 +28,8 @@ export type RemoteResult = Required<
 
 export interface RemoteState {
   id?: string;
-  connected: boolean;
-  lastRemoteChange: number;
+  connected?: boolean;
+  lastRemoteChange?: number;
   info?: AnyData;
 }
 

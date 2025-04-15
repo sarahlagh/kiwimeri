@@ -60,12 +60,16 @@ class SyncService {
   }
 
   public usePrimaryConnected() {
-    return remotesService.usePrimaryRemote().connected;
+    const primary = remotesService.usePrimaryRemote();
+    if (!primary) {
+      return false;
+    }
+    return primary.connected;
   }
   public usePrimaryHasLocalChanges() {
     const lastLocalChange = storageService.useLastLocalChange();
-    const primaryRemoteState = remotesService.usePrimaryRemoteState();
-    return lastLocalChange > primaryRemoteState.lastRemoteChange;
+    const lastRemoteChange = remotesService.usePrimaryLastRemoteChange();
+    return lastLocalChange > lastRemoteChange;
   }
 }
 

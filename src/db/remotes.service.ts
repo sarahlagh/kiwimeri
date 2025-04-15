@@ -5,7 +5,7 @@ import { KMPCloudClient } from '@/storage-providers/pcloud/pcloud';
 import { StorageProvider } from '@/storage-providers/sync-core';
 import { useResultTable } from 'tinybase/ui-react';
 import storageService from './storage.service';
-import { AnyData, RemoteResult, RemoteState } from './store-types';
+import { AnyData, RemoteResult } from './store-types';
 
 class RemotesService {
   private readonly remotesTable = 'remotes';
@@ -36,9 +36,11 @@ class RemotesService {
     return queryName;
   }
 
-  public async initSyncConnection(space: string) {
+  public async initSyncConnection(space: string, initAll = false) {
     const remotes = this.getRemotes();
-    const connectedRemotes = remotes.filter(remote => remote.connected);
+    const connectedRemotes = remotes.filter(
+      remote => initAll || remote.connected
+    );
 
     if (connectedRemotes.length < 1) {
       console.log('[storage] no initial sync configuration');
@@ -85,6 +87,7 @@ class RemotesService {
       this.setLastRemoteChange(remoteStateId, newConf.lastRemoteChange);
     });
 
+    this.setRemoteStateConnected(remoteStateId, newConf.connected);
     return newConf.connected;
   }
 
@@ -120,12 +123,18 @@ class RemotesService {
 
   public usePrimaryRemote() {
     const remotes = this.useRemotes();
-    return remotes[0];
+    return remotes && remotes.length > 0 ? remotes[0] : undefined;
   }
 
-  public usePrimaryRemoteState() {
+  public usePrimaryLastRemoteChange() {
     const remote = this.usePrimaryRemote();
-    return storageService.useRow<RemoteState>(this.stateTable, remote.state);
+    return (
+      storageService.useCell<number>(
+        this.stateTable,
+        remote?.state || '-1',
+        'lastRemoteChange'
+      ) || 0
+    );
   }
 
   public addRemote(
