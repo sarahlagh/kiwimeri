@@ -181,40 +181,25 @@ class RemotesService {
     );
   }
 
-  public moveUpOneRank(currentRank: number) {
+  public updateRemoteRank(currentRank: number, newRank: number) {
     storageService.getStore().transaction(() => {
       const remotes = this.getRemotes();
-      for (let i = 0; i < remotes.length; i++) {
-        if (i === currentRank - 1) {
+      if (currentRank < newRank) {
+        for (let i = currentRank + 1; i < newRank + 1; i++) {
           storageService
             .getStore()
-            .setCell(this.remotesTable, remotes[i].id, 'rank', currentRank);
+            .setCell(this.remotesTable, remotes[i].id, 'rank', i - 1);
         }
-        if (i === currentRank) {
+      } else {
+        for (let i = newRank; i < currentRank; i++) {
           storageService
             .getStore()
-            .setCell(this.remotesTable, remotes[i].id, 'rank', currentRank - 1);
-          break;
-        }
-      }
-    });
-  }
-  public moveDownOneRank(currentRank: number) {
-    storageService.getStore().transaction(() => {
-      const remotes = this.getRemotes();
-      for (let i = 0; i < remotes.length; i++) {
-        if (i === currentRank) {
-          storageService
-            .getStore()
-            .setCell(this.remotesTable, remotes[i].id, 'rank', currentRank + 1);
-        }
-        if (i === currentRank + 1) {
-          storageService
-            .getStore()
-            .setCell(this.remotesTable, remotes[i].id, 'rank', currentRank);
-          break;
+            .setCell(this.remotesTable, remotes[i].id, 'rank', i + 1);
         }
       }
+      storageService
+        .getStore()
+        .setCell(this.remotesTable, remotes[currentRank].id, 'rank', newRank);
     });
   }
 }

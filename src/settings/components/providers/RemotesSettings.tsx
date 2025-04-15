@@ -8,12 +8,18 @@ import {
   IonCardSubtitle,
   IonCardTitle,
   IonItem,
-  IonList
+  IonList,
+  IonReorder,
+  IonReorderGroup,
+  IonToggle,
+  ItemReorderEventDetail
 } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
+import { useState } from 'react';
 import PCloudSettings from './PCloudSettings';
 
 const RemotesSettings = () => {
+  const [reorderEnabled, setReorderEnabled] = useState(false);
   const remotes = remotesService.useRemotes();
 
   const addRemote = () => {
@@ -22,6 +28,11 @@ const RemotesSettings = () => {
       serverLocation: 'eu'
     } as PCloudConf);
   };
+
+  function handleReorder(event: CustomEvent<ItemReorderEventDetail>) {
+    remotesService.updateRemoteRank(event.detail.from, event.detail.to);
+    event.detail.complete();
+  }
 
   return (
     <IonCard className="primary">
@@ -39,24 +50,42 @@ const RemotesSettings = () => {
         )}
         {remotes.length > 0 && (
           <IonList>
-            {remotes.map(remote => {
-              return (
-                <IonItem key={remote.id}>
-                  {/* TODO: switch by type */}
-                  <PCloudSettings
-                    remote={remote}
-                    isPrimary={remote.rank === 0}
-                    isLast={remote.rank === remotes.length - 1}
-                  />
-                </IonItem>
-              );
-            })}
+            <IonReorderGroup
+              disabled={!reorderEnabled}
+              onIonItemReorder={handleReorder}
+            >
+              {remotes.map(remote => {
+                return (
+                  <IonReorder key={remote.id}>
+                    <IonItem>
+                      {/* TODO: switch by type */}
+                      <PCloudSettings
+                        remote={remote}
+                        isPrimary={remote.rank === 0}
+                        isLast={remote.rank === remotes.length - 1}
+                        reorderEnabled={reorderEnabled}
+                      />
+                    </IonItem>
+                  </IonReorder>
+                );
+              })}
+            </IonReorderGroup>
           </IonList>
         )}
       </IonCardContent>
       <IonButton fill="clear" onClick={addRemote}>
         <Trans>Add config</Trans>
       </IonButton>
+      {remotes.length > 1 && (
+        <IonButton
+          fill="clear"
+          onClick={() => setReorderEnabled(!reorderEnabled)}
+        >
+          <IonToggle checked={reorderEnabled}>
+            <Trans>Reorder</Trans>
+          </IonToggle>
+        </IonButton>
+      )}
     </IonCard>
   );
 };

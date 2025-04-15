@@ -1,6 +1,5 @@
 import platformService from '@/common/services/platform.service';
 import { remotesService } from '@/db/remotes.service';
-import { RemoteResult } from '@/db/store-types';
 import { PCloudConf } from '@/storage-providers/pcloud/pcloud';
 import {
   InputCustomEvent,
@@ -13,15 +12,18 @@ import {
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
-import RemoteGenericSettings from './RemoteGenericSettings';
+import RemoteGenericSettings, {
+  RemoteGenericSettingsChildProps
+} from './RemoteGenericSettings';
 
-type PCloudSettingsProps = {
-  remote: RemoteResult;
-  isPrimary: boolean;
-  isLast: boolean;
-};
+type PCloudSettingsProps = {} & RemoteGenericSettingsChildProps;
 
-const PCloudSettings = ({ remote, isPrimary, isLast }: PCloudSettingsProps) => {
+const PCloudSettings = ({
+  remote,
+  isPrimary,
+  isLast,
+  reorderEnabled
+}: PCloudSettingsProps) => {
   const { t } = useLingui();
   const [checking, setChecking] = useState(false);
   const syncConf = JSON.parse(remote.config) as PCloudConf;
@@ -68,6 +70,7 @@ const PCloudSettings = ({ remote, isPrimary, isLast }: PCloudSettingsProps) => {
       checking={checking}
       isPrimary={isPrimary}
       isLast={isLast}
+      reorderEnabled={reorderEnabled}
     >
       <IonItem lines="none">
         <IonLabel slot="start">

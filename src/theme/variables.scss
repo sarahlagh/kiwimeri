@@ -12,6 +12,10 @@ ion-list.inner-list {
 
   ion-item {
     --padding-start: 0px;
+
+    > .item-inner {
+      --inner-padding-end: 0px;
+    }
   }
 }
 

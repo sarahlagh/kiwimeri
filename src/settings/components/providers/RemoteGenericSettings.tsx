@@ -15,12 +15,20 @@ import {
 import { Trans, useLingui } from '@lingui/react/macro';
 import { ReactNode } from 'react';
 
+export type RemoteGenericSettingsChildProps = {
+  isPrimary: boolean;
+  isLast: boolean;
+  remote: RemoteResult;
+  reorderEnabled?: boolean;
+};
+
 type RemoteGenericSettingsProps = {
   isPrimary: boolean;
   isLast: boolean;
   title: string;
   checking: boolean;
   remote: RemoteResult;
+  reorderEnabled?: boolean;
 } & { readonly children?: ReactNode };
 
 const RemoteGenericSettings = ({
@@ -29,6 +37,7 @@ const RemoteGenericSettings = ({
   title,
   checking,
   remote,
+  reorderEnabled = true,
   children
 }: RemoteGenericSettingsProps) => {
   const { t } = useLingui();
@@ -47,19 +56,23 @@ const RemoteGenericSettings = ({
     <IonList className="inner-list">
       <IonListHeader color={isPrimary ? 'primary' : 'medium'}>
         <IonLabel>{title}</IonLabel>
-        {(!isPrimary || !isLast) && (
+        {reorderEnabled && (!isPrimary || !isLast) && (
           <>
             <IonButton
               color="dark"
               disabled={isPrimary}
-              onClick={() => remotesService.moveUpOneRank(remote.rank)}
+              onClick={() =>
+                remotesService.updateRemoteRank(remote.rank, remote.rank - 1)
+              }
             >
               <IonIcon icon={APPICONS.moveUp}></IonIcon>
             </IonButton>
             <IonButton
               color="dark"
               disabled={isLast}
-              onClick={() => remotesService.moveDownOneRank(remote.rank)}
+              onClick={() =>
+                remotesService.updateRemoteRank(remote.rank, remote.rank + 1)
+              }
             >
               <IonIcon icon={APPICONS.moveDown}></IonIcon>
             </IonButton>
