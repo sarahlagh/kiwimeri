@@ -38,24 +38,26 @@ const DebugPage = () => {
             <p>config: {JSON.stringify(appConfig)}</p>
           </IonCardContent>
         </IonCard>
-        <IonCard>
-          <IonCardHeader>
-            <IonCardTitle>
-              <Trans>Logs</Trans>
-            </IonCardTitle>
-          </IonCardHeader>
-          <IonCardContent>
-            {appLog.getLogs().map(log => {
-              return (
-                <p key={log.key}>
-                  {new Date(log.ts).toLocaleTimeString()} {log.level} &nbsp;
-                  {JSON.stringify(log.message)} &nbsp;
-                  {log.optionalParams && JSON.stringify(log.optionalParams)}
-                </p>
-              );
-            })}
-          </IonCardContent>
-        </IonCard>
+        {platformService.isAndroid() && (
+          <IonCard>
+            <IonCardHeader>
+              <IonCardTitle>
+                <Trans>Logs</Trans>
+              </IonCardTitle>
+            </IonCardHeader>
+            <IonCardContent>
+              {appLog.getLogs().map(log => {
+                return (
+                  <p key={log.key}>
+                    {new Date(log.ts).toLocaleTimeString()} {log.level} &nbsp;
+                    {JSON.stringify(log.message)} &nbsp;
+                    {log.optionalParams && JSON.stringify(log.optionalParams)}
+                  </p>
+                );
+              })}
+            </IonCardContent>
+          </IonCard>
+        )}
       </IonContent>
     </TemplateMainPage>
   );

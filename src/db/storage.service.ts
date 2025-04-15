@@ -81,14 +81,13 @@ class StorageService {
           lastLocalChange: { type: 'number' } as CellSchema
         },
         remotes: {
-          stateId: { type: 'string' } as CellSchema,
+          state: { type: 'string' } as CellSchema,
           name: { type: 'string' } as CellSchema,
           space: { type: 'string' } as CellSchema,
-          '#': { type: 'number' } as CellSchema,
+          rank: { type: 'number' } as CellSchema,
           type: { type: 'string' } as CellSchema,
           config: { type: 'string' } as CellSchema,
-          formats: { type: 'string', default: INTERNAL_FORMAT } as CellSchema,
-          workingSet: { type: 'string' } as CellSchema
+          formats: { type: 'string', default: INTERNAL_FORMAT } as CellSchema
         },
         remoteState: {
           connected: { type: 'boolean' } as CellSchema,
@@ -191,29 +190,6 @@ class StorageService {
 
   public getUntypedStoreQueries() {
     return this.storeQueries as unknown as UntypedQueries;
-  }
-
-  public async push() {
-    const content = this.getSpace().getJson();
-    const lastModified = await remotesService
-      .getCurrentProvider()
-      .push(content);
-
-    this.getStore().transaction(() => {
-      this.setLastLocalChange(lastModified);
-      remotesService.setCurrentLastRemoteChange(lastModified as number);
-    });
-  }
-
-  public async pull() {
-    const resp = await remotesService.getCurrentProvider().pull();
-    if (resp && resp.content) {
-      this.getSpace().setContent(resp.content);
-      this.getStore().transaction(() => {
-        this.setLastLocalChange(resp.lastRemoteChange!);
-        remotesService.setCurrentLastRemoteChange(resp.lastRemoteChange!);
-      });
-    }
   }
 
   public useValue(valueId: Id) {

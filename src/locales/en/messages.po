@@ -13,7 +13,11 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/settings/components/storage/ImportExportSettings.tsx:37
+#: src/settings/components/providers/RemotesSettings.tsx:55
+msgid "Add config"
+msgstr "Add config"
+
+#: src/settings/components/sections/ImportExportSettings.tsx:37
 msgid "An error occurred loading the file"
 msgstr "An error occurred loading the file"
 
@@ -25,11 +29,11 @@ msgstr "Are you sure?"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: src/common/modals/ChooseFolderModal.tsx:51
+#: src/common/modals/ChooseFolderModal.tsx:65
 msgid "Choose"
 msgstr "Choose"
 
-#: src/common/modals/ChooseFolderModal.tsx:102
+#: src/common/modals/ChooseFolderModal.tsx:112
 msgid "Choose a new folder"
 msgstr "Choose a new folder"
 
@@ -37,48 +41,52 @@ msgstr "Choose a new folder"
 msgid "Collection"
 msgstr "Collection"
 
+#: src/settings/components/providers/RemotesSettings.tsx:34
+msgid "Configure where to synchronize your collection"
+msgstr "Configure where to synchronize your collection"
+
 #: src/common/modals/ConfirmYesNoDialog.tsx:40
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/app/pages/DebugPage.tsx:18
+#: src/app/pages/DebugPage.tsx:22
 #: src/app/components/MainMenuList.tsx:71
 msgid "Debug"
 msgstr "Debug"
 
-#: src/settings/components/cloud/PCloudSettings.tsx:130
+#: src/settings/components/providers/PCloudSettings.tsx:149
 msgid "Enter your password"
 msgstr "Enter your password"
 
-#: src/settings/components/cloud/PCloudSettings.tsx:117
+#: src/settings/components/providers/PCloudSettings.tsx:136
 msgid "Enter your username"
 msgstr "Enter your username"
 
-#: src/settings/components/cloud/PCloudSettings.tsx:87
+#: src/settings/components/providers/PCloudSettings.tsx:106
 msgid "EU"
 msgstr "EU"
 
-#: src/settings/components/storage/ImportExportSettings.tsx:116
+#: src/settings/components/sections/ImportExportSettings.tsx:116
 msgid "Export"
 msgstr "Export"
 
-#: src/settings/components/storage/FilesystemSyncSettings.tsx:19
+#: src/settings/components/sections/FilesystemSyncSettings.tsx:19
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/constants.ts:35
+#: src/constants.ts:38
 msgid "Home"
 msgstr "Home"
 
-#: src/settings/components/storage/ImportExportStoreSettings.tsx:9
+#: src/settings/components/sections/ImportExportStoreSettings.tsx:10
 msgid "Import & export your app settings"
 msgstr "Import & export your app settings"
 
-#: src/settings/components/storage/ImportExportCollectionSettings.tsx:10
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:10
 msgid "Import & export your collection"
 msgstr "Import & export your collection"
 
-#: src/settings/components/cloud/PCloudSettings.tsx:105
+#: src/settings/components/providers/PCloudSettings.tsx:124
 msgid "Leave empty for root"
 msgstr "Leave empty for root"
 
@@ -86,23 +94,28 @@ msgstr "Leave empty for root"
 msgid "Loading..."
 msgstr "Loading..."
 
-#: src/app/pages/DebugPage.tsx:40
+#: src/app/pages/DebugPage.tsx:45
 msgid "Logs"
 msgstr "Logs"
 
-#: src/settings/components/storage/ImportExportStoreSettings.tsx:10
+#: src/settings/components/sections/ImportExportStoreSettings.tsx:11
 msgid "Manually backup or restore your app settings"
 msgstr "Manually backup or restore your app settings"
 
-#: src/settings/components/storage/ImportExportCollectionSettings.tsx:11
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:11
 msgid "Manually backup or restore your collection."
 msgstr "Manually backup or restore your collection."
 
-#: src/constants.ts:36
+#: src/settings/components/providers/PCloudSettings.tsx:84
+#: src/settings/components/providers/PCloudSettings.tsx:87
+msgid "Name"
+msgstr "Name"
+
+#: src/constants.ts:39
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:37
+#: src/constants.ts:40
 msgid "New folder"
 msgstr "New folder"
 
@@ -110,47 +123,51 @@ msgstr "New folder"
 msgid "Not Found"
 msgstr "Not Found"
 
-#: src/settings/components/storage/OperationsSettings.tsx:30
+#: src/settings/components/sections/OperationsSettings.tsx:30
 msgid "nuke space"
 msgstr "nuke space"
 
-#: src/settings/components/storage/OperationsSettings.tsx:21
+#: src/settings/components/sections/OperationsSettings.tsx:21
 msgid "nuke store"
 msgstr "nuke store"
 
-#: src/settings/components/storage/OperationsSettings.tsx:10
+#: src/settings/components/sections/OperationsSettings.tsx:10
 msgid "Operations"
 msgstr "Operations"
 
-#: src/settings/components/cloud/PCloudSettings.tsx:123
-#: src/settings/components/cloud/PCloudSettings.tsx:127
+#: src/settings/components/providers/PCloudSettings.tsx:142
+#: src/settings/components/providers/PCloudSettings.tsx:146
 msgid "Password"
 msgstr "Password"
 
-#: src/settings/components/cloud/PCloudSettings.tsx:99
-#: src/settings/components/cloud/PCloudSettings.tsx:102
+#: src/settings/components/providers/PCloudSettings.tsx:118
+#: src/settings/components/providers/PCloudSettings.tsx:121
 msgid "Path"
 msgstr "Path"
 
-#: src/settings/components/cloud/PCloudSettings.tsx:66
-msgid "PCloud"
-msgstr "PCloud"
+#: src/settings/components/providers/PCloudSettings.tsx:76
+msgid "PCloud Configuration"
+msgstr "PCloud Configuration"
 
-#: src/settings/components/storage/FilesystemSyncSettings.tsx:29
-#: src/settings/components/storage/FilesystemSyncSettings.tsx:30
-#: src/settings/components/storage/FilesystemSyncSettings.tsx:34
+#: src/settings/components/sections/FilesystemSyncSettings.tsx:29
+#: src/settings/components/sections/FilesystemSyncSettings.tsx:30
+#: src/settings/components/sections/FilesystemSyncSettings.tsx:34
 msgid "Pick a directory for your backups"
 msgstr "Pick a directory for your backups"
 
-#: src/app/pages/DebugPage.tsx:23
+#: src/app/pages/DebugPage.tsx:27
 msgid "Platform(s)"
 msgstr "Platform(s)"
 
-#: src/settings/components/storage/ImportExportSettings.tsx:119
+#: src/settings/components/providers/RemotesSettings.tsx:31
+msgid "Remote Configuration"
+msgstr "Remote Configuration"
+
+#: src/settings/components/sections/ImportExportSettings.tsx:119
 msgid "Restore"
 msgstr "Restore"
 
-#: src/settings/components/cloud/PCloudSettings.tsx:77
+#: src/settings/components/providers/PCloudSettings.tsx:95
 msgid "Server"
 msgstr "Server"
 
@@ -159,24 +176,20 @@ msgstr "Server"
 msgid "Settings"
 msgstr "Settings"
 
-#: src/settings/components/storage/ImportExportSettings.tsx:38
-#: src/settings/components/storage/ImportExportSettings.tsx:87
+#: src/settings/components/sections/ImportExportSettings.tsx:38
+#: src/settings/components/sections/ImportExportSettings.tsx:87
 msgid "Success!"
 msgstr "Success!"
 
-#: src/settings/components/storage/FilesystemSyncSettings.tsx:22
+#: src/settings/components/sections/FilesystemSyncSettings.tsx:22
 msgid "Synchronize your collection on the filesystem"
 msgstr "Synchronize your collection on the filesystem"
-
-#: src/settings/components/cloud/PCloudSettings.tsx:69
-msgid "Synchronize your collection with your PCloud account"
-msgstr "Synchronize your collection with your PCloud account"
 
 #: src/common/wysiwyg/Writer.tsx:47
 msgid "Text..."
 msgstr "Text..."
 
-#: src/settings/components/storage/ImportExportStoreSettings.tsx:11
+#: src/settings/components/sections/ImportExportStoreSettings.tsx:12
 msgid ""
 "This is different\n"
 "            than the import / export of the collection. Your collection consists\n"
@@ -190,15 +203,19 @@ msgstr ""
 "            a cloud provider. The app settings consist of anything configured in\n"
 "            this page, including the settings for your cloud provider."
 
-#: src/settings/components/cloud/PCloudSettings.tsx:92
+#: src/settings/components/providers/PCloudSettings.tsx:111
 msgid "US"
 msgstr "US"
 
-#: src/settings/components/cloud/PCloudSettings.tsx:111
-#: src/settings/components/cloud/PCloudSettings.tsx:114
+#: src/settings/components/providers/PCloudSettings.tsx:130
+#: src/settings/components/providers/PCloudSettings.tsx:133
 msgid "Username"
 msgstr "Username"
 
-#: src/settings/components/storage/ImportExportSettings.tsx:105
+#: src/settings/components/providers/RemotesSettings.tsx:39
+msgid "You have not configured any remote yet."
+msgstr "You have not configured any remote yet."
+
+#: src/settings/components/sections/ImportExportSettings.tsx:105
 msgid "Your backups will be exported to the `{androidFolder}` directory"
 msgstr "Your backups will be exported to the `{androidFolder}` directory"

@@ -1,4 +1,4 @@
-import { KMStorageProvider } from '@/storage-providers/sync-core';
+import { StorageProvider } from '@/storage-providers/sync-core';
 import {
   PCloudLinkResponse,
   PCloudListResponse,
@@ -15,7 +15,7 @@ export type PCloudConf = {
   fileid?: string;
 };
 
-class KMPCloudClient implements KMStorageProvider {
+export class KMPCloudClient implements StorageProvider {
   private proxy?: string;
   private config: PCloudConf | null = null;
   private isInit = false;
@@ -110,7 +110,7 @@ class KMPCloudClient implements KMStorageProvider {
     });
     this.isInit = ok;
     return {
-      test: ok,
+      connected: ok,
       config: this.config,
       lastRemoteChange: this.remoteLastModified
     };
@@ -200,4 +200,3 @@ class KMPCloudClient implements KMStorageProvider {
     return `${this.serverUrl}/${opName}?username=${this.config!.username}&password=${this.config!.password}`;
   }
 }
-export const pcloudClient = new KMPCloudClient();

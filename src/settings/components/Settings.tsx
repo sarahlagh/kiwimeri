@@ -1,13 +1,13 @@
-import PCloudSettings from './cloud/PCloudSettings';
-import ImportExportCollectionSettings from './storage/ImportExportCollectionSettings';
-import ImportExportStoreSettings from './storage/ImportExportStoreSettings';
-import OperationSettings from './storage/OperationsSettings';
+import RemotesSettings from './providers/RemotesSettings';
+import ImportExportCollectionSettings from './sections/ImportExportCollectionSettings';
+import ImportExportStoreSettings from './sections/ImportExportStoreSettings';
+import OperationSettings from './sections/OperationsSettings';
+
 const Settings = () => {
   return (
     <>
-      {/* <FilesystemSyncSettings></FilesystemSyncSettings> */}
       <ImportExportCollectionSettings />
-      <PCloudSettings />
+      <RemotesSettings />
       <ImportExportStoreSettings />
       <OperationSettings />
     </>

@@ -1,15 +1,17 @@
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
-import { pcloudClient, PCloudConf } from '@/storage-providers/pcloud/pcloud';
-import { KMStorageProvider } from '@/storage-providers/sync-core';
-import { Store } from 'tinybase/store';
-import { useCell } from 'tinybase/ui-react';
+import { INTERNAL_FORMAT } from '@/constants';
+import { KMPCloudClient } from '@/storage-providers/pcloud/pcloud';
+import { StorageProvider } from '@/storage-providers/sync-core';
+import { useResultTable } from 'tinybase/ui-react';
 import storageService from './storage.service';
-import { RemoteResult } from './store-types';
+import { AnyData, RemoteResult } from './store-types';
 
 class RemotesService {
   private readonly remotesTable = 'remotes';
   private readonly stateTable = 'remoteState';
+
+  private providers: Map<string, StorageProvider> = new Map();
 
   private fetchAllRemotesQuery(space: string) {
     const queries = storageService.getStoreQueries();
@@ -19,11 +21,14 @@ class RemotesService {
         queryName,
         this.remotesTable,
         ({ select, join, where }) => {
-          select('#');
+          select('rank');
+          select('name');
           select('type');
           select('config');
           select('formats');
-          join('remoteState', 'stateId');
+          select('state');
+          select(this.stateTable, 'connected');
+          join(this.stateTable, 'state');
           where('space', space);
         }
       );
@@ -33,48 +38,37 @@ class RemotesService {
 
   public async initSyncConnection(space: string) {
     const queryName = this.fetchAllRemotesQuery(space);
-    const table = storageService.getStoreQueries().getResultTable(queryName);
     const remotes = storageService
-      .getResultSortedRowIds(queryName, '#')
+      .getResultSortedRowIds(queryName, 'rank')
       .map(rowId => {
-        const row = table[rowId];
+        const row = storageService
+          .getStoreQueries()
+          .getResultRow(queryName, rowId);
         return { ...row, id: rowId } as RemoteResult;
       });
 
-    if (!remotes || remotes.length < 1) {
+    const connectedRemotes = remotes.filter(remote => remote.connected);
+
+    if (connectedRemotes.length < 1) {
       console.log('[storage] no initial sync configuration');
       return;
     }
 
-    console.debug('remotes', remotes);
-    for (const remote of remotes) {
-      if (remote.connected) {
-        console.log(
-          '[storage] found initial sync configurations',
-          space,
-          remote.name,
-          remote.type
-        );
-
-        // TODO have factory for multiple conf
-        this.configure(remote.type, pcloudClient, remote.config as PCloudConf);
-      }
+    for (const remote of connectedRemotes) {
+      console.log(
+        '[storage] found initial sync configurations',
+        space,
+        remote.name,
+        remote.type
+      );
+      this.configure(remote.id, remote.state, JSON.parse(remote.config));
     }
   }
 
-  // TODO remove, no more "current" here, that will be in new syncService
-  public getCurrentType() {
-    return 'pcloud'; // TODO
-  }
-
-  public getCurrentProvider(): KMStorageProvider {
-    return pcloudClient; // TODO factory
-  }
-
   public async configure(
-    type: string,
-    storageProvider: KMStorageProvider,
-    initConfig: PCloudConf
+    remoteId: string,
+    remoteStateId: string,
+    initConfig: AnyData
   ) {
     let proxy = undefined;
     let useHttp = false;
@@ -82,126 +76,97 @@ class RemotesService {
       proxy = appConfig.INTERNAL_HTTP_PROXY;
       useHttp = appConfig.DEV_USE_HTTP_IF_POSSIBLE;
     }
+    // TODO have factory for multiple conf
+    if (!this.providers.has(remoteId)) {
+      this.providers.set(remoteId, new KMPCloudClient());
+    }
+    const storageProvider = this.providers.get(remoteId)!;
     storageProvider.configure(initConfig, proxy, useHttp);
     const newConf = await storageProvider.init(storageService.getSpaceId());
-    this.setCurrentConfig(newConf.config, type);
-    this.setCurrentLastRemoteChange(newConf.lastRemoteChange, type);
 
-    storageService
-      .getStore()
-      .setCell(this.remotesTable, 'default-pcloud', '#', 0);
-    storageService
-      .getStore()
-      .setCell(this.remotesTable, 'default-pcloud', 'space', 'default');
-    return newConf.test;
-  }
-
-  public getCurrentConnectionStatus(type?: string) {
-    if (!type) {
-      type = this.getCurrentType();
-    }
-    return (
-      storageService.getCell<boolean>(
-        this.stateTable,
-        'default-pcloud',
-        'connected'
-      ) || false
-    );
-  }
-
-  public useCurrentConnectionStatus(type?: string) {
-    if (!type) {
-      type = this.getCurrentType();
-    }
-    return (
-      (useCell(
+    storageService.getStore().transaction(() => {
+      storageService.setCell(
         this.remotesTable,
-        'default-pcloud',
-        'connected',
-        storageService.getStore() as unknown as Store
-      )?.valueOf() as boolean) || false
-    );
-  }
-
-  public setCurrentConnectionStatus(test: boolean, type?: string) {
-    if (!type) {
-      type = this.getCurrentType();
-    }
-    storageService
-      .getStore()
-      .setCell(this.stateTable, 'default-pcloud', 'connected', test);
-  }
-
-  public getCurrentConfig(type?: string) {
-    if (!type) {
-      type = this.getCurrentType();
-    }
-    const config = storageService
-      .getStore()
-      .getCell(this.remotesTable, 'default-pcloud', 'config')
-      ?.valueOf() as string;
-    if (config) {
-      return JSON.parse(config);
-    }
-    return undefined;
-  }
-
-  public useCurrentConfig(type?: string) {
-    if (!type) {
-      type = this.getCurrentType();
-    }
-    const config = useCell(
-      this.remotesTable,
-      'default-pcloud',
-      'config',
-      storageService.getStore() as unknown as Store
-    )?.valueOf() as string;
-    if (config) {
-      return JSON.parse(config);
-    }
-    return undefined;
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public setCurrentConfig(config: any, type?: string) {
-    if (!type) {
-      type = this.getCurrentType();
-    }
-    storageService
-      .getStore()
-      .setCell(
-        this.remotesTable,
-        'default-pcloud',
+        remoteId,
         'config',
-        JSON.stringify(config)
+        JSON.stringify(newConf.config)
       );
+      this.setLastRemoteChange(remoteStateId, newConf.lastRemoteChange);
+    });
+
+    return newConf.connected;
   }
 
-  public setCurrentLastRemoteChange(lastRemoteChange: number, type?: string) {
-    if (!type) {
-      type = this.getCurrentType();
-    }
-    storageService
-      .getStore()
-      .setCell(
-        this.stateTable,
-        'default-pcloud',
-        'lastRemoteChange',
-        lastRemoteChange
-      );
+  public useRemotes() {
+    const queryName = this.fetchAllRemotesQuery(storageService.getSpaceId());
+
+    const table = useResultTable(
+      queryName,
+      storageService.getUntypedStoreQueries()
+    );
+    return storageService
+      .useResultSortedRowIds(queryName, 'rank')
+      .map(rowId => {
+        const row = table[rowId];
+        return { ...row, id: rowId } as RemoteResult;
+      });
   }
 
-  public useCurrentHasLocalChanges() {
-    const lastRemoteChange =
-      (useCell(
-        this.stateTable,
-        'default-pcloud',
-        'lastRemoteChange',
-        storageService.getStore() as unknown as Store
-      )?.valueOf() as number) || 0;
+  public addRemote(
+    name: string,
+    rank: number,
+    type: string,
+    defaultConf?: AnyData
+  ) {
+    const state = storageService.getStore().addRow(this.stateTable, {
+      connected: false,
+      lastRemoteChange: 0,
+      info: undefined
+    });
+    storageService.getStore().addRow(this.remotesTable, {
+      rank,
+      name,
+      state,
+      type,
+      space: storageService.getSpaceId(),
+      config: defaultConf ? JSON.stringify(defaultConf) : '{}',
+      formats: INTERNAL_FORMAT
+    });
+  }
 
-    const lastLocalChange = storageService.useLastLocalChange();
-    return lastLocalChange > lastRemoteChange;
+  public delRemote(remote: string) {
+    storageService.getStore().transaction(() => {
+      storageService.getStore().delRow(this.remotesTable, remote);
+      storageService.getStore().delRow(this.stateTable, remote);
+
+      // TODO update others ranks!!!!
+    });
+  }
+
+  public setRemoteName(remote: string, name: string) {
+    storageService.setCell(this.remotesTable, remote, 'name', name);
+  }
+
+  public setRemoteConfig(remote: string, config: AnyData) {
+    storageService.setCell(
+      this.remotesTable,
+      remote,
+      'config',
+      JSON.stringify(config)
+    );
+  }
+
+  public setRemoteStateConnected(remote: string, connected: boolean) {
+    storageService.setCell(this.stateTable, remote, 'connected', connected);
+  }
+
+  public setLastRemoteChange(stateId: string, lastRemoteChange: number) {
+    storageService.setCell(
+      this.stateTable,
+      stateId,
+      'lastRemoteChange',
+      lastRemoteChange
+    );
   }
 }
 

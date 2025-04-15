@@ -12,20 +12,19 @@ export interface Space {
 
 export interface Remote {
   id?: string;
-  stateId?: string;
+  state?: string;
   name: string;
   space: string;
-  '#': string;
+  rank: string;
   type: string;
-  config?: AnyData;
+  config?: string;
   formats: string;
-  workingSet?: string;
 }
 
 export type RemoteResult = Required<
-  Pick<Remote, 'id' | 'name' | '#' | 'type' | 'config' | 'formats'>
+  Pick<Remote, 'id' | 'state' | 'name' | 'rank' | 'type' | 'config' | 'formats'>
 > &
-  Required<Pick<RemoteState, 'connected' | 'lastRemoteChange'>>;
+  Required<Pick<RemoteState, 'connected'>>;
 
 export interface RemoteState {
   id?: string;

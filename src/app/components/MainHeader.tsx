@@ -1,17 +1,12 @@
-import { APPICONS } from '@/constants';
-import { remotesService } from '@/db/remotes.service';
-import storageService from '@/db/storage.service';
 import {
   InputCustomEvent,
-  IonButton,
   IonButtons,
-  IonIcon,
   IonInput,
   IonMenuButton,
   IonTitle,
   IonToolbar
 } from '@ionic/react';
-import { ReactNode, useState } from 'react';
+import { ReactNode } from 'react';
 
 export type MainHeaderProps = {
   title: string;
@@ -25,13 +20,13 @@ const MainHeader = ({
   onEdited,
   children
 }: MainHeaderProps) => {
-  const [isSyncing, setIsSyncing] = useState(false);
-  const isInit = remotesService.useCurrentConnectionStatus();
-  const hasChanges = remotesService.useCurrentHasLocalChanges();
-  const pushEnabled = !isSyncing && isInit && hasChanges;
-  const pullEnabled = !isSyncing && isInit;
-  const pushColor = isSyncing ? 'warning' : !pushEnabled ? undefined : 'danger';
-  const pullColor = isSyncing ? 'warning' : undefined;
+  // const [isSyncing, setIsSyncing] = useState(false);
+  // const isInit = remotesService.useCurrentConnectionStatus();
+  // const hasChanges = remotesService.useCurrentHasLocalChanges();
+  // const pushEnabled = !isSyncing && isInit && hasChanges;
+  // const pullEnabled = !isSyncing && isInit;
+  // const pushColor = isSyncing ? 'warning' : !pushEnabled ? undefined : 'danger';
+  // const pullColor = isSyncing ? 'warning' : undefined;
 
   return (
     <IonToolbar>
@@ -52,7 +47,7 @@ const MainHeader = ({
       )}
 
       <IonButtons slot="end">
-        <IonButton
+        {/* <IonButton
           disabled={!pushEnabled}
           onClick={async () => {
             setIsSyncing(true);
@@ -72,7 +67,7 @@ const MainHeader = ({
           }}
         >
           <IonIcon icon={APPICONS.cloudDownload}></IonIcon>
-        </IonButton>
+        </IonButton> */}
         {children}
       </IonButtons>
     </IonToolbar>
