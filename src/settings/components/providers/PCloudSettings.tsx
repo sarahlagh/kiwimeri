@@ -1,23 +1,19 @@
 import platformService from '@/common/services/platform.service';
-import { APPICONS } from '@/constants';
 import { remotesService } from '@/db/remotes.service';
 import { RemoteResult } from '@/db/store-types';
 import { PCloudConf } from '@/storage-providers/pcloud/pcloud';
 import {
   InputCustomEvent,
-  IonButton,
-  IonIcon,
   IonInput,
   IonInputPasswordToggle,
   IonItem,
   IonLabel,
-  IonList,
-  IonListHeader,
   IonSegment,
   IonSegmentButton
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
+import RemoteGenericSettings from './RemoteGenericSettings';
 
 type PCloudSettingsProps = {
   remote: RemoteResult;
@@ -27,7 +23,6 @@ const PCloudSettings = ({ remote }: PCloudSettingsProps) => {
   const { t } = useLingui();
   const [checking, setChecking] = useState(false);
   const syncConf = JSON.parse(remote.config) as PCloudConf;
-  const syncStatus = remote.connected;
 
   const onChange = async (
     key: keyof PCloudConf | 'name',
@@ -62,34 +57,14 @@ const PCloudSettings = ({ remote }: PCloudSettingsProps) => {
     }
   };
 
-  const deleteRemote = () => {
-    // TODO add confirmation
-    remotesService.delRemote(remote.id);
-  };
-
   const labelPlacement = platformService.isWideEnough() ? undefined : 'stacked';
 
   return (
-    <IonList>
-      <IonListHeader>
-        <IonLabel>
-          <Trans>PCloud Configuration</Trans>
-        </IonLabel>
-        <IonButton onClick={deleteRemote}>
-          <IonIcon icon={APPICONS.deleteAction}></IonIcon>
-        </IonButton>
-      </IonListHeader>
-      <IonItem>
-        <IonLabel slot="start" className="ion-hide-md-down">
-          <Trans>Name</Trans>
-        </IonLabel>
-        <IonInput
-          label={labelPlacement ? t`Name` : undefined}
-          labelPlacement={labelPlacement}
-          onIonChange={e => onChange('name', e)}
-          value={remote.name}
-        ></IonInput>
-      </IonItem>
+    <RemoteGenericSettings
+      title={t`PCloud Configuration`}
+      remote={remote}
+      checking={checking}
+    >
       <IonItem lines="none">
         <IonLabel slot="start">
           <Trans>Server</Trans>
@@ -152,16 +127,7 @@ const PCloudSettings = ({ remote }: PCloudSettingsProps) => {
           <IonInputPasswordToggle slot="end"></IonInputPasswordToggle>
         </IonInput>
       </IonItem>
-      <IonItem lines="none" disabled={!syncStatus || checking}>
-        {!checking && (
-          <IonIcon
-            slot="start"
-            color={syncStatus ? 'success' : 'danger'}
-            icon={syncStatus ? APPICONS.ok : APPICONS.ko}
-          ></IonIcon>
-        )}
-      </IonItem>
-    </IonList>
+    </RemoteGenericSettings>
   );
 };
 export default PCloudSettings;

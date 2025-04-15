@@ -37,16 +37,7 @@ class RemotesService {
   }
 
   public async initSyncConnection(space: string) {
-    const queryName = this.fetchAllRemotesQuery(space);
-    const remotes = storageService
-      .getResultSortedRowIds(queryName, 'rank')
-      .map(rowId => {
-        const row = storageService
-          .getStoreQueries()
-          .getResultRow(queryName, rowId);
-        return { ...row, id: rowId } as RemoteResult;
-      });
-
+    const remotes = this.getRemotes();
     const connectedRemotes = remotes.filter(remote => remote.connected);
 
     if (connectedRemotes.length < 1) {
@@ -97,6 +88,21 @@ class RemotesService {
     return newConf.connected;
   }
 
+  private getRemotes(space?: string) {
+    if (!space) {
+      space = storageService.getSpaceId();
+    }
+    const queryName = this.fetchAllRemotesQuery(space);
+    return storageService
+      .getResultSortedRowIds(queryName, 'rank')
+      .map(rowId => {
+        const row = storageService
+          .getStoreQueries()
+          .getResultRow(queryName, rowId);
+        return { ...row, id: rowId } as RemoteResult;
+      });
+  }
+
   public useRemotes() {
     const queryName = this.fetchAllRemotesQuery(storageService.getSpaceId());
 
@@ -136,10 +142,16 @@ class RemotesService {
 
   public delRemote(remote: string) {
     storageService.getStore().transaction(() => {
+      // update ranks
+      const remaining = this.getRemotes().filter(r => r.id !== remote);
+      for (let i = 0; i < remaining.length; i++) {
+        storageService
+          .getStore()
+          .setCell(this.remotesTable, remaining[i].id, 'rank', i);
+      }
+      // delete the row
       storageService.getStore().delRow(this.remotesTable, remote);
       storageService.getStore().delRow(this.stateTable, remote);
-
-      // TODO update others ranks!!!!
     });
   }
 

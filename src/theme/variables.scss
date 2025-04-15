@@ -6,6 +6,18 @@ ion-textarea.invisible {
   --highlight-color-focused: rgba(var(--highlight-color-focused), 0);
 }
 
+ion-list.inner-list {
+  width: 100%;
+  padding: 0;
+
+  ion-item {
+    --padding-start: 0px;
+  }
+  ion-list-header {
+    --ion-safe-area-left: -16px;
+  }
+}
+
 ion-header.subheader {
   /* fix breadcrumb in light mode on android */
   background: var(--ion-color-primary-contrast, #fff);

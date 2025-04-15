@@ -15,7 +15,6 @@ import PCloudSettings from './PCloudSettings';
 
 const RemotesSettings = () => {
   const remotes = remotesService.useRemotes();
-  console.debug('found remotes', remotes);
 
   const addRemote = () => {
     // TODO: later add the possibility to choose which type

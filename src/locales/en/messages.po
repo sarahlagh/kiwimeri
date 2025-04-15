@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/settings/components/providers/RemotesSettings.tsx:55
+#: src/settings/components/providers/RemotesSettings.tsx:54
 msgid "Add config"
 msgstr "Add config"
 
@@ -41,7 +41,7 @@ msgstr "Choose a new folder"
 msgid "Collection"
 msgstr "Collection"
 
-#: src/settings/components/providers/RemotesSettings.tsx:34
+#: src/settings/components/providers/RemotesSettings.tsx:33
 msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
 
@@ -54,15 +54,15 @@ msgstr "Confirm"
 msgid "Debug"
 msgstr "Debug"
 
-#: src/settings/components/providers/PCloudSettings.tsx:149
+#: src/settings/components/providers/PCloudSettings.tsx:124
 msgid "Enter your password"
 msgstr "Enter your password"
 
-#: src/settings/components/providers/PCloudSettings.tsx:136
+#: src/settings/components/providers/PCloudSettings.tsx:111
 msgid "Enter your username"
 msgstr "Enter your username"
 
-#: src/settings/components/providers/PCloudSettings.tsx:106
+#: src/settings/components/providers/PCloudSettings.tsx:81
 msgid "EU"
 msgstr "EU"
 
@@ -86,7 +86,7 @@ msgstr "Import & export your app settings"
 msgid "Import & export your collection"
 msgstr "Import & export your collection"
 
-#: src/settings/components/providers/PCloudSettings.tsx:124
+#: src/settings/components/providers/PCloudSettings.tsx:99
 msgid "Leave empty for root"
 msgstr "Leave empty for root"
 
@@ -106,8 +106,8 @@ msgstr "Manually backup or restore your app settings"
 msgid "Manually backup or restore your collection."
 msgstr "Manually backup or restore your collection."
 
-#: src/settings/components/providers/PCloudSettings.tsx:84
-#: src/settings/components/providers/PCloudSettings.tsx:87
+#: src/settings/components/providers/RemoteGenericSettings.tsx:52
+#: src/settings/components/providers/RemoteGenericSettings.tsx:55
 msgid "Name"
 msgstr "Name"
 
@@ -135,17 +135,17 @@ msgstr "nuke store"
 msgid "Operations"
 msgstr "Operations"
 
-#: src/settings/components/providers/PCloudSettings.tsx:142
-#: src/settings/components/providers/PCloudSettings.tsx:146
+#: src/settings/components/providers/PCloudSettings.tsx:117
+#: src/settings/components/providers/PCloudSettings.tsx:121
 msgid "Password"
 msgstr "Password"
 
-#: src/settings/components/providers/PCloudSettings.tsx:118
-#: src/settings/components/providers/PCloudSettings.tsx:121
+#: src/settings/components/providers/PCloudSettings.tsx:93
+#: src/settings/components/providers/PCloudSettings.tsx:96
 msgid "Path"
 msgstr "Path"
 
-#: src/settings/components/providers/PCloudSettings.tsx:76
+#: src/settings/components/providers/PCloudSettings.tsx:64
 msgid "PCloud Configuration"
 msgstr "PCloud Configuration"
 
@@ -159,7 +159,7 @@ msgstr "Pick a directory for your backups"
 msgid "Platform(s)"
 msgstr "Platform(s)"
 
-#: src/settings/components/providers/RemotesSettings.tsx:31
+#: src/settings/components/providers/RemotesSettings.tsx:30
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
@@ -167,7 +167,7 @@ msgstr "Remote Configuration"
 msgid "Restore"
 msgstr "Restore"
 
-#: src/settings/components/providers/PCloudSettings.tsx:95
+#: src/settings/components/providers/PCloudSettings.tsx:70
 msgid "Server"
 msgstr "Server"
 
@@ -203,16 +203,16 @@ msgstr ""
 "            a cloud provider. The app settings consist of anything configured in\n"
 "            this page, including the settings for your cloud provider."
 
-#: src/settings/components/providers/PCloudSettings.tsx:111
+#: src/settings/components/providers/PCloudSettings.tsx:86
 msgid "US"
 msgstr "US"
 
-#: src/settings/components/providers/PCloudSettings.tsx:130
-#: src/settings/components/providers/PCloudSettings.tsx:133
+#: src/settings/components/providers/PCloudSettings.tsx:105
+#: src/settings/components/providers/PCloudSettings.tsx:108
 msgid "Username"
 msgstr "Username"
 
-#: src/settings/components/providers/RemotesSettings.tsx:39
+#: src/settings/components/providers/RemotesSettings.tsx:38
 msgid "You have not configured any remote yet."
 msgstr "You have not configured any remote yet."
 
