@@ -1,3 +1,4 @@
+import platformService from '@/common/services/platform.service';
 import { remotesService } from '@/db/remotes.service';
 import { PCloudConf } from '@/storage-providers/pcloud/pcloud';
 import {
@@ -51,7 +52,7 @@ const RemotesSettings = () => {
         {remotes.length > 0 && (
           <IonList>
             <IonReorderGroup
-              disabled={!reorderEnabled}
+              disabled={!reorderEnabled || platformService.isAndroid()}
               onIonItemReorder={handleReorder}
             >
               {remotes.map(remote => {
