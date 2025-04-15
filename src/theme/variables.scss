@@ -6,16 +6,21 @@ ion-textarea.invisible {
   --highlight-color-focused: rgba(var(--highlight-color-focused), 0);
 }
 
+ion-list.wrapper-list {
+  ion-item {
+    --padding-start: 0px;
+    --padding-end: 0px;
+    --inner-padding-end: -16px;
+    --ion-safe-area-right: -16px;
+  }
+}
 ion-list.inner-list {
   width: 100%;
   padding: 0;
 
   ion-item {
-    --padding-start: 0px;
-
-    > .item-inner {
-      --inner-padding-end: 0px;
-    }
+    --padding-start: 4px;
+    --padding-end: 4px;
   }
 }
 

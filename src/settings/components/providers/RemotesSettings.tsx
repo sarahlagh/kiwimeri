@@ -50,7 +50,7 @@ const RemotesSettings = () => {
           <Trans>You have not configured any remote yet.</Trans>
         )}
         {remotes.length > 0 && (
-          <IonList>
+          <IonList class="wrapper-list">
             <IonReorderGroup
               disabled={!reorderEnabled || platformService.isAndroid()}
               onIonItemReorder={handleReorder}
