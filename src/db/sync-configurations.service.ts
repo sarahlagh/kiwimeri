@@ -47,9 +47,7 @@ class SyncConfigurationsService {
       useHttp = appConfig.DEV_USE_HTTP_IF_POSSIBLE;
     }
     storageProvider.configure(initConfig, proxy, useHttp);
-    const newConf = await storageProvider.init(
-      storageService.getCurrentSpace()
-    );
+    const newConf = await storageProvider.init(storageService.getSpaceId());
     this.setCurrentConfig(newConf.config, type);
     this.setCurrentLastRemoteChange(newConf.lastRemoteChange, type);
     return newConf.test;
@@ -60,10 +58,11 @@ class SyncConfigurationsService {
       type = this.getCurrentType();
     }
     return (
-      (storageService
-        .getStore()
-        .getCell(this.table, this.getRowId(this.getCurrentType()), 'test')
-        ?.valueOf() as boolean) || false
+      storageService.getCell<boolean>(
+        this.table,
+        this.getRowId(this.getCurrentType()),
+        'test'
+      ) || false
     );
   }
 
@@ -164,7 +163,7 @@ class SyncConfigurationsService {
   }
 
   private getRowId(type: string) {
-    const space = storageService.getCurrentSpace();
+    const space = storageService.getSpaceId();
     return `${space}-${type}`;
   }
 }

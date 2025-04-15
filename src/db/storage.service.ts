@@ -8,9 +8,16 @@ import {
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db/with-schemas';
 import { Persister } from 'tinybase/persisters/with-schemas';
 import { createQueries, Queries } from 'tinybase/queries/with-schemas';
-import { Store as UntypedStore } from 'tinybase/store';
+import {
+  Cell,
+  MapCell,
+  MapValue,
+  Store as UntypedStore,
+  Value
+} from 'tinybase/store';
 import { CellSchema, createStore, Store } from 'tinybase/store/with-schemas';
-import { useCell } from 'tinybase/ui-react';
+import { useCell, useValue } from 'tinybase/ui-react';
+import { Id } from 'tinybase/with-schemas';
 import { Space, SyncConfiguration } from './store-types';
 import { syncConfService } from './sync-configurations.service';
 
@@ -80,20 +87,7 @@ class StorageService {
     );
 
     // later: do that dynamically
-    this.spaces.set(
-      DEFAULT_SPACE_ID,
-      createStore().setTablesSchema({
-        collection: {
-          title: { type: 'string' } as CellSchema,
-          parent: { type: 'string' } as CellSchema,
-          type: { type: 'string' } as CellSchema,
-          content: { type: 'string' } as CellSchema,
-          created: { type: 'number' } as CellSchema,
-          updated: { type: 'number' } as CellSchema,
-          deleted: { type: 'boolean', default: false } as CellSchema
-        }
-      })
-    );
+    this.spaces.set(DEFAULT_SPACE_ID, this.createSpace());
 
     this.queries.set(
       DEFAULT_SPACE_ID,
@@ -115,15 +109,29 @@ class StorageService {
       // later: when switching space, only re init space persister
       await Promise.all([
         this.startPersister(this.storePersister),
-        this.startPersister(this.spacePersisters.get(this.getCurrentSpace())!)
+        this.startPersister(this.spacePersisters.get(this.getSpaceId())!)
       ]);
       // in a timeout, don't want to block app start for this
       setTimeout(async () => {
-        await syncConfService.initSyncConnection(this.getCurrentSpace());
+        await syncConfService.initSyncConnection(this.getSpaceId());
       });
       return true;
     }
     return false;
+  }
+
+  private createSpace() {
+    return createStore().setTablesSchema({
+      collection: {
+        title: { type: 'string' } as CellSchema,
+        parent: { type: 'string' } as CellSchema,
+        type: { type: 'string' } as CellSchema,
+        content: { type: 'string' } as CellSchema,
+        created: { type: 'number' } as CellSchema,
+        updated: { type: 'number' } as CellSchema,
+        deleted: { type: 'boolean', default: false } as CellSchema
+      }
+    });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -132,20 +140,25 @@ class StorageService {
     await storePersister.startAutoSave();
   }
 
-  public getCurrentSpace() {
+  public getSpaceId() {
+    // later: the current selected space
     return DEFAULT_SPACE_ID;
   }
 
   public getSpace(space?: string) {
-    return this.spaces.get(space ? space : this.getCurrentSpace())!;
+    return this.spaces.get(space ? space : this.getSpaceId())!;
   }
 
   public getQueries(space?: string) {
-    return this.queries.get(space ? space : storageService.getCurrentSpace())!;
+    return this.queries.get(space ? space : storageService.getSpaceId())!;
   }
 
   public getStore() {
     return this.store;
+  }
+
+  public getUntypedStore() {
+    return this.store as unknown as UntypedStore;
   }
 
   public async push() {
@@ -171,24 +184,41 @@ class StorageService {
     }
   }
 
+  public useValue(valueId: Id) {
+    return useValue(valueId, this.getUntypedStore());
+  }
+
+  public setValue(valueId: Id, value: Value | MapValue) {
+    this.getUntypedStore().setValue(valueId, value);
+  }
+
+  public useCell<T>(tableId: Id, rowId: Id, cellId: Id) {
+    return useCell(
+      tableId,
+      rowId,
+      cellId,
+      this.getUntypedStore()
+    )?.valueOf() as T;
+  }
+
+  public getCell<T>(tableId: Id, rowId: Id, cellId: Id) {
+    return this.getUntypedStore()
+      .getCell(tableId, rowId, cellId)
+      ?.valueOf() as T;
+  }
+
+  public setCell(tableId: Id, rowId: Id, cellId: Id, cell: Cell | MapCell) {
+    this.getUntypedStore().setCell(tableId, rowId, cellId, cell);
+  }
+
   public useLastLocalChange() {
     return (
-      (useCell(
-        'spaces',
-        this.getCurrentSpace(),
-        'lastLocalChange',
-        this.getStore() as unknown as UntypedStore
-      )?.valueOf() as number) || 0
+      this.useCell<number>('spaces', this.getSpaceId(), 'lastLocalChange') || 0
     );
   }
 
   public setLastLocalChange(now: number) {
-    this.getStore().setCell(
-      'spaces',
-      this.getCurrentSpace(),
-      'lastLocalChange',
-      now
-    );
+    this.setCell('spaces', this.getSpaceId(), 'lastLocalChange', now);
   }
 }
 

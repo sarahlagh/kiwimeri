@@ -19,9 +19,7 @@ const ImportExportCollectionSettings = () => {
       onRestoreContent={async (content: string) => {
         const json = JSON.parse(content);
         storageService.getStore().setContent(json);
-        await syncConfService.initSyncConnection(
-          storageService.getCurrentSpace()
-        );
+        await syncConfService.initSyncConnection(storageService.getSpaceId());
       }}
       getContentToExport={() => {
         const content = storageService.getStore().getContent();
