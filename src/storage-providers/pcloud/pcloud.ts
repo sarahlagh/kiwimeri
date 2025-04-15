@@ -1,4 +1,4 @@
-import { KMStorageProvider } from '@/cloud/sync-core';
+import { KMStorageProvider } from '@/storage-providers/sync-core';
 import {
   PCloudLinkResponse,
   PCloudListResponse,

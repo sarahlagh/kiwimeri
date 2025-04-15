@@ -1,7 +1,7 @@
-import { pcloudClient, PCloudConf } from '@/cloud/pcloud/pcloud';
 import platformService from '@/common/services/platform.service';
 import { APPICONS } from '@/constants';
 import { remotesService } from '@/db/remotes.service';
+import { pcloudClient, PCloudConf } from '@/storage-providers/pcloud/pcloud';
 import {
   InputCustomEvent,
   IonCard,
