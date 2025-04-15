@@ -1,7 +1,7 @@
 import { getSearchParams } from '@/common/getSearchParams';
 import { GET_FOLDER_ROUTE, isCollectionRoute } from '@/common/routes';
 import { ROOT_FOLDER } from '@/constants';
-import documentsService from '@/db/documents.service';
+import collectionService from '@/db/collection.service';
 import userSettingsService from '@/db/user-settings.service';
 import { ReactNode, useEffect } from 'react';
 import { Redirect, useLocation } from 'react-router';
@@ -28,13 +28,13 @@ const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
     }
     if (
       searchParams?.folder &&
-      !documentsService.documentNodeExists(searchParams.folder)
+      !collectionService.itemExists(searchParams.folder)
     ) {
       return <Redirect to={GET_FOLDER_ROUTE(ROOT_FOLDER)} />;
     }
     if (
       searchParams?.document &&
-      !documentsService.documentNodeExists(searchParams.document)
+      !collectionService.itemExists(searchParams.document)
     ) {
       return <Redirect to={GET_FOLDER_ROUTE(folder)} />;
     }

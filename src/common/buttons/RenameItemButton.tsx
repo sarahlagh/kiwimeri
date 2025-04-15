@@ -2,12 +2,12 @@ import { APPICONS } from '@/constants';
 import { IonButton, IonIcon } from '@ionic/react';
 import { Id } from 'tinybase/with-schemas';
 
-type RenameNodeButtonProps = {
+type RenameItemButtonProps = {
   id: Id;
   onClose: (role?: string, data?: unknown) => void;
 };
 
-const RenameNodeButton = ({ id, onClose }: RenameNodeButtonProps) => {
+const RenameItemButton = ({ id, onClose }: RenameItemButtonProps) => {
   return (
     <>
       <IonButton
@@ -21,4 +21,4 @@ const RenameNodeButton = ({ id, onClose }: RenameNodeButtonProps) => {
     </>
   );
 };
-export default RenameNodeButton;
+export default RenameItemButton;

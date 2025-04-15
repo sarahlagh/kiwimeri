@@ -1,9 +1,12 @@
+import {
+  CollectionItemResult,
+  CollectionItemType
+} from '@/collection/collection';
+import CollectionItemBreadcrumb from '@/collection/components/CollectionItemBreadcrumb';
+import CollectionItemList from '@/collection/components/CollectionItemList';
 import { getGlobalTrans } from '@/config';
 import { APPICONS, FAKE_ROOT, ROOT_FOLDER } from '@/constants';
-import documentsService from '@/db/documents.service';
-import DocumentNodeBreadcrumb from '@/documents/components/DocumentNodeBreadcrumb';
-import DocumentNodeList from '@/documents/components/DocumentNodeList';
-import { DocumentNodeResult, DocumentNodeType } from '@/documents/document';
+import collectionService from '@/db/collection.service';
 import {
   IonButton,
   IonButtons,
@@ -40,10 +43,10 @@ const Toolbar = ({
       <IonButtons slot="end">
         <IonButton
           onClick={() => {
-            documentsService.addFolder(folderId);
+            collectionService.addFolder(folderId);
           }}
         >
-          <IonIcon aria-hidden="true" icon={APPICONS.addNodeGeneric} />
+          <IonIcon aria-hidden="true" icon={APPICONS.addGeneric} />
         </IonButton>
         <IonButton
           disabled={selected === ROOT_FOLDER || !selected}
@@ -80,7 +83,7 @@ const ChooseFolderModal = ({
   onClose
 }: ChooseFolderModalProps) => {
   const [folder, setFolder] = useState<string>(currentParent);
-  const [selected, setSelected] = useState<DocumentNodeResult | null>(null);
+  const [selected, setSelected] = useState<CollectionItemResult | null>(null);
   const [itemRenaming, setItemRenaming] = useState<string | undefined>(
     undefined
   );
@@ -89,21 +92,21 @@ const ChooseFolderModal = ({
     id: ROOT_FOLDER,
     parent: '',
     title: getGlobalTrans().homeTitle,
-    type: DocumentNodeType.folder,
+    type: CollectionItemType.folder,
     created: 0,
     updated: 0,
     deleted: false
   };
 
   useEffect(() => {
-    documentsService.generateFetchAllDocumentNodesQuery(folder);
+    collectionService.generateFetchAllCollectionItemsQuery(folder);
   }, [folder]);
 
-  const documents: DocumentNodeResult[] = documentsService
-    .useDocumentNodes(folder)
-    .filter(node => node.type === DocumentNodeType.folder);
+  const items: CollectionItemResult[] = collectionService
+    .useCollectionItems(folder)
+    .filter(item => item.type === CollectionItemType.folder);
 
-  const nodes = folder === FAKE_ROOT ? [root] : documents;
+  const finalItems = folder === FAKE_ROOT ? [root] : items;
   return (
     <>
       <IonHeader>
@@ -120,36 +123,36 @@ const ChooseFolderModal = ({
           </IonButtons>
         </IonToolbar>
       </IonHeader>
-      <DocumentNodeList
+      <CollectionItemList
         header={
-          <DocumentNodeBreadcrumb
+          <CollectionItemBreadcrumb
             folder={folder}
-            onClick={node => {
-              setFolder(node);
+            onClick={item => {
+              setFolder(item);
               setSelected(null);
               setItemRenaming(undefined);
             }}
           />
         }
-        documents={nodes}
+        items={finalItems}
         selected={selected?.id}
-        itemProps={node =>
-          node.id === currentParent
+        itemProps={item =>
+          item.id === currentParent
             ? { style: { fontWeight: 'bold' } }
             : undefined
         }
         itemRenaming={itemRenaming}
-        itemDisabled={node =>
-          currentType === DocumentNodeType.folder ? node.id === id : false
+        itemDisabled={item =>
+          currentType === CollectionItemType.folder ? item.id === id : false
         }
-        onSelectedNode={node => {
-          if (node.id !== currentParent) {
-            setSelected(selected?.id === node.id ? null : node);
+        onSelectedItem={item => {
+          if (item.id !== currentParent) {
+            setSelected(selected?.id === item.id ? null : item);
             setItemRenaming(undefined);
           }
         }}
-        onClickActions={(e, node) => {
-          setFolder(node.id);
+        onClickActions={(e, item) => {
+          setFolder(item.id);
           setSelected(null);
           setItemRenaming(undefined);
         }}

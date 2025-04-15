@@ -1,6 +1,6 @@
 import ChooseFolderModal from '@/common/modals/ChooseFolderModal';
 import { APPICONS } from '@/constants';
-import documentsService from '@/db/documents.service';
+import collectionService from '@/db/collection.service';
 import { IonButton, IonIcon, useIonModal } from '@ionic/react';
 import { Id } from 'tinybase/with-schemas';
 
@@ -10,8 +10,8 @@ type MoveFolderButtonProps = {
 };
 
 const MoveFolderButton = ({ id, onClose }: MoveFolderButtonProps) => {
-  const currentParent = documentsService.getDocumentNodeParent(id);
-  const currentType = documentsService.getDocumentType(id);
+  const currentParent = collectionService.getItemParent(id);
+  const currentType = collectionService.getItemType(id);
 
   const [present, dismiss] = useIonModal(ChooseFolderModal, {
     id,
@@ -19,7 +19,7 @@ const MoveFolderButton = ({ id, onClose }: MoveFolderButtonProps) => {
     currentParent,
     onClose: (parentId?: string) => {
       if (parentId && parentId !== currentParent) {
-        documentsService.setDocumentNodeParent(id, parentId);
+        collectionService.setItemParent(id, parentId);
       }
       dismiss(parentId, parentId === undefined ? 'cancel' : 'choose');
       onClose(parentId !== undefined ? 'confirm' : 'cancel');

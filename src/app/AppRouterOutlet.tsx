@@ -6,15 +6,15 @@ import {
 } from '@/common/routes';
 import { IonRouterOutlet } from '@ionic/react';
 import { Redirect, Route } from 'react-router';
+import CollectionListPage from './pages/CollectionListPage';
 import DebugPage from './pages/DebugPage';
 import DocumentEditorPage from './pages/DocumentEditorPage';
-import DocumentListPage from './pages/DocumentListPage';
 import SettingsPage from './pages/SettingsPage';
 
 const AppRouterOutlet = () => (
   <IonRouterOutlet>
     <Route path={FOLDER_ROUTE}>
-      <DocumentListPage />
+      <CollectionListPage />
     </Route>
     <Route path={DOCUMENT_ROUTE}>
       <DocumentEditorPage />

@@ -1,16 +1,16 @@
+import CollectionItemBrowserList from '@/collection/components/CollectionItemBrowserList';
 import { onTitleChangeFn } from '@/common/events/events';
 import { getSearchParams } from '@/common/getSearchParams';
 import { ROOT_FOLDER } from '@/constants';
-import documentsService from '@/db/documents.service';
-import DocumentNodeBrowserList from '@/documents/components/DocumentNodeBrowserList';
+import collectionService from '@/db/collection.service';
 import { useLocation } from 'react-router';
 import TemplateMainPage from './TemplateMainPage';
 
-const DocumentListPage = () => {
+const CollectionListPage = () => {
   const location = useLocation();
   const searchParams = getSearchParams(location.search);
   const parent = searchParams?.folder || ROOT_FOLDER;
-  const folderTitle = documentsService.useDocumentNodeTitle(parent);
+  const folderTitle = collectionService.useItemTitle(parent);
   const onFolderTitleChange = onTitleChangeFn(parent);
 
   return (
@@ -19,8 +19,8 @@ const DocumentListPage = () => {
       editable={parent !== ROOT_FOLDER}
       onEdited={onFolderTitleChange}
     >
-      <DocumentNodeBrowserList parent={parent}></DocumentNodeBrowserList>
+      <CollectionItemBrowserList parent={parent}></CollectionItemBrowserList>
     </TemplateMainPage>
   );
 };
-export default DocumentListPage;
+export default CollectionListPage;

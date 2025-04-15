@@ -1,6 +1,6 @@
 import { onTitleChangeFn } from '@/common/events/events';
 import Writer from '@/common/wysiwyg/Writer';
-import documentsService from '@/db/documents.service';
+import collectionService from '@/db/collection.service';
 import {
   InputCustomEvent,
   IonContent,
@@ -17,8 +17,8 @@ interface DocumentEditorProps {
 
 const DocumentEditor = ({ id }: DocumentEditorProps) => {
   const refWriter = useRef(null);
-  const documentTitle = documentsService.getDocumentNodeTitle(id);
-  const documentContent = documentsService.useDocumentNodeContent(id);
+  const documentTitle = collectionService.getItemTitle(id);
+  const documentContent = collectionService.useItemContent(id);
   const onTitleChange = onTitleChangeFn(id);
   const onClickedAnywhere: React.MouseEventHandler<HTMLIonContentElement> = (
     event: React.MouseEvent<HTMLIonContentElement, MouseEvent>

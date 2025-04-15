@@ -8,21 +8,24 @@ import {
   useIonPopover
 } from '@ionic/react';
 
+import {
+  CollectionItemResult,
+  CollectionItemType
+} from '@/collection/collection';
 import { getSearchParams } from '@/common/getSearchParams';
-import { GET_NODE_ROUTE } from '@/common/routes';
+import { GET_ITEM_ROUTE } from '@/common/routes';
 import { APPICONS } from '@/constants';
-import documentsService from '@/db/documents.service';
-import { DocumentNodeResult, DocumentNodeType } from '@/documents/document';
+import collectionService from '@/db/collection.service';
 import { useEffect, useState } from 'react';
+import CollectionItemBreadcrumb from './CollectionItemBreadcrumb';
+import CollectionItemList from './CollectionItemList';
 import CommonActionsToolbar from './CommonActionsToolbar';
-import DocumentNodeBreadcrumb from './DocumentNodeBreadcrumb';
-import DocumentNodeList from './DocumentNodeList';
 
-interface DocumentNodeBrowserListProps {
+interface CollectionItemBrowserListProps {
   parent: string;
 }
 
-const DocumentNodeBrowserListToolbar = ({
+const CollectionItemBrowserListToolbar = ({
   folderId,
   openedDocument
 }: {
@@ -31,7 +34,7 @@ const DocumentNodeBrowserListToolbar = ({
 }) => {
   const history = useHistory();
   const openedDocumentFolder = openedDocument
-    ? documentsService.getDocumentNodeParent(openedDocument)
+    ? collectionService.getItemParent(openedDocument)
     : null;
   return (
     <IonToolbar>
@@ -41,7 +44,7 @@ const DocumentNodeBrowserListToolbar = ({
           onClick={() => {
             if (openedDocumentFolder) {
               history.push(
-                GET_NODE_ROUTE(openedDocumentFolder, openedDocument)
+                GET_ITEM_ROUTE(openedDocumentFolder, openedDocument)
               );
             }
           }}
@@ -53,14 +56,14 @@ const DocumentNodeBrowserListToolbar = ({
       <IonButtons slot="end">
         <IonButton
           onClick={() => {
-            documentsService.addFolder(folderId);
+            collectionService.addFolder(folderId);
           }}
         >
           <IonIcon aria-hidden="true" icon={APPICONS.addFolder} />
         </IonButton>
         <IonButton
           onClick={() => {
-            documentsService.addDocument(folderId);
+            collectionService.addDocument(folderId);
           }}
         >
           <IonIcon aria-hidden="true" icon={APPICONS.addDocument} />
@@ -70,61 +73,61 @@ const DocumentNodeBrowserListToolbar = ({
   );
 };
 
-export const DocumentNodeBrowserList = ({
+export const CollectionItemBrowserList = ({
   parent: folder
-}: DocumentNodeBrowserListProps) => {
+}: CollectionItemBrowserListProps) => {
   const history = useHistory();
   const location = useLocation();
   const searchParams = getSearchParams(location.search);
   const openedDocument = searchParams?.document;
-  const documents: DocumentNodeResult[] =
-    documentsService.useDocumentNodes(folder);
+  const items: CollectionItemResult[] =
+    collectionService.useCollectionItems(folder);
 
   const [itemRenaming, setItemRenaming] = useState<string | undefined>(
     undefined
   );
-  const [selectedNode, setSelectedNode] = useState<DocumentNodeResult | null>(
+  const [selectedItem, setSelectedItem] = useState<CollectionItemResult | null>(
     null
   );
 
   useEffect(() => {
-    documentsService.generateFetchAllDocumentNodesQuery(folder);
+    collectionService.generateFetchAllCollectionItemsQuery(folder);
     setItemRenaming(undefined);
   }, [folder]);
 
   const [present, dismiss] = useIonPopover(CommonActionsToolbar, {
-    id: selectedNode?.id,
+    id: selectedItem?.id,
     showRename: true,
     onClose: (role: string, data?: string) => {
       if (role === 'rename') {
         setItemRenaming(data);
       }
       dismiss();
-      setSelectedNode(null);
+      setSelectedItem(null);
     }
   });
 
   return (
-    <DocumentNodeList
+    <CollectionItemList
       header={
-        <DocumentNodeBreadcrumb
+        <CollectionItemBreadcrumb
           folder={folder}
-          onClick={node => {
-            history.push(GET_NODE_ROUTE(node, openedDocument));
+          onClick={item => {
+            history.push(GET_ITEM_ROUTE(item, openedDocument));
           }}
         />
       }
-      documents={documents}
+      items={items}
       selected={openedDocument}
-      getUrl={document =>
-        document.type === DocumentNodeType.document
-          ? GET_NODE_ROUTE(document.parent, document.id)
-          : GET_NODE_ROUTE(document.id, openedDocument)
+      getUrl={item =>
+        item.type === CollectionItemType.document
+          ? GET_ITEM_ROUTE(item.parent, item.id)
+          : GET_ITEM_ROUTE(item.id, openedDocument)
       }
-      actionsIcon={APPICONS.nodeActions}
+      actionsIcon={APPICONS.itemActions}
       itemRenaming={itemRenaming}
-      onClickActions={(event, node) => {
-        setSelectedNode(node);
+      onClickActions={(event, item) => {
+        setSelectedItem(item);
         setItemRenaming(undefined);
         present({
           event,
@@ -135,7 +138,7 @@ export const DocumentNodeBrowserList = ({
         setItemRenaming(undefined);
       }}
       footer={
-        <DocumentNodeBrowserListToolbar
+        <CollectionItemBrowserListToolbar
           folderId={folder}
           openedDocument={openedDocument}
         />
@@ -144,4 +147,4 @@ export const DocumentNodeBrowserList = ({
   );
 };
 
-export default DocumentNodeBrowserList;
+export default CollectionItemBrowserList;

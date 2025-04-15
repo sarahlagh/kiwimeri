@@ -1,5 +1,5 @@
 import { APPICONS, FAKE_ROOT, ROOT_FOLDER } from '@/constants';
-import documentsService from '@/db/documents.service';
+import collectionService from '@/db/collection.service';
 import {
   IonBreadcrumb,
   IonBreadcrumbs,
@@ -8,18 +8,18 @@ import {
 } from '@ionic/react';
 import { useState } from 'react';
 
-const DocumentNodeBreadcrumb = ({
+const CollectionItemBreadcrumb = ({
   folder,
   onClick
 }: {
   folder: string;
-  onClick?: (node: string) => void;
+  onClick?: (item: string) => void;
 }) => {
   const [maxBreadcrumbs, setMaxBreadcrumbs] = useState<number | undefined>(3);
   const [breadcrumb, setBreadcrumb] = useState<string[]>([]);
 
   if (folder !== FAKE_ROOT && !breadcrumb.find(b => b === folder)) {
-    setBreadcrumb(documentsService.getBreadcrumb(folder));
+    setBreadcrumb(collectionService.getBreadcrumb(folder));
     setMaxBreadcrumbs(3);
   }
 
@@ -38,21 +38,21 @@ const DocumentNodeBreadcrumb = ({
         setMaxBreadcrumbs(undefined);
       }}
     >
-      {breadcrumb.map(node => (
-        <IonBreadcrumb key={node}>
+      {breadcrumb.map(item => (
+        <IonBreadcrumb key={item}>
           {/* bug (?) with routerLink where onIonCollapsedClick doesn't prevent propagation to link
           so, using onClick on inner button instead
           and anyway, I don't always want links */}
           <IonButton
             fill="clear"
-            color={node === folder ? 'dark' : 'medium'}
+            color={item === folder ? 'dark' : 'medium'}
             onClick={() => {
-              if (onClick) onClick(node);
+              if (onClick) onClick(item);
             }}
           >
-            {node === ROOT_FOLDER && <IonIcon icon={APPICONS.home} />}
-            {node !== ROOT_FOLDER && (
-              <>{documentsService.getDocumentNodeTitle(node)}</>
+            {item === ROOT_FOLDER && <IonIcon icon={APPICONS.home} />}
+            {item !== ROOT_FOLDER && (
+              <>{collectionService.getItemTitle(item)}</>
             )}
           </IonButton>
         </IonBreadcrumb>
@@ -61,4 +61,4 @@ const DocumentNodeBreadcrumb = ({
   );
 };
 
-export default DocumentNodeBreadcrumb;
+export default CollectionItemBreadcrumb;

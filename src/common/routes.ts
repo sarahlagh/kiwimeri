@@ -7,7 +7,7 @@ export const GET_FOLDER_ROUTE = (parent: string) =>
   `${FOLDER_ROUTE}?folder=${parent}`;
 export const GET_DOCUMENT_ROUTE = (parent: string, id: string) =>
   `${DOCUMENT_ROUTE}?folder=${parent}&document=${id}`;
-export const GET_NODE_ROUTE = (parent: string, id?: string) =>
+export const GET_ITEM_ROUTE = (parent: string, id?: string) =>
   id ? GET_DOCUMENT_ROUTE(parent, id) : GET_FOLDER_ROUTE(parent);
 
 export const isCollectionRoute = (pathname: string) => {

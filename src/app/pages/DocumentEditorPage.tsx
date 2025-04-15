@@ -1,10 +1,10 @@
+import CollectionItemBrowserList from '@/collection/components/CollectionItemBrowserList';
+import CommonActionsToolbar from '@/collection/components/CommonActionsToolbar';
+import DocumentEditor from '@/collection/components/DocumentEditor';
 import { onTitleChangeFn } from '@/common/events/events';
 import { getSearchParams } from '@/common/getSearchParams';
 import { APPICONS, FAKE_ROOT, ROOT_FOLDER } from '@/constants';
-import documentsService from '@/db/documents.service';
-import CommonActionsToolbar from '@/documents/components/CommonActionsToolbar';
-import DocumentEditor from '@/documents/components/DocumentEditor';
-import DocumentNodeBrowserList from '@/documents/components/DocumentNodeBrowserList';
+import collectionService from '@/db/collection.service';
 import { IonButton, IonIcon } from '@ionic/react';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
@@ -18,8 +18,8 @@ const DocumentEditorPage = () => {
 
   const [hideDocumentActions, setHideDocumentActions] = useState(true);
 
-  const title = documentsService.useDocumentNodeTitle(docId);
-  const folderTitle = documentsService.useDocumentNodeTitle(parent);
+  const title = collectionService.useItemTitle(docId);
+  const folderTitle = collectionService.useItemTitle(parent);
   const onTitleChange = onTitleChangeFn(docId);
   const onFolderTitleChange = onTitleChangeFn(parent);
 
@@ -27,7 +27,7 @@ const DocumentEditorPage = () => {
     setHideDocumentActions(true);
   }, [docId]);
 
-  const DocumentNodeActionsMenu = () => {
+  const CollectionItemActionsMenu = () => {
     return (
       <>
         <IonButton
@@ -35,7 +35,7 @@ const DocumentEditorPage = () => {
             setHideDocumentActions(!hideDocumentActions);
           }}
         >
-          <IonIcon icon={APPICONS.nodeActions}></IonIcon>
+          <IonIcon icon={APPICONS.itemActions}></IonIcon>
         </IonButton>
       </>
     );
@@ -47,16 +47,18 @@ const DocumentEditorPage = () => {
         title,
         editable: true,
         onEdited: onTitleChange,
-        children: <DocumentNodeActionsMenu />
+        children: <CollectionItemActionsMenu />
       }}
       headerIfWide={{
         title: folderTitle, // to replace with breadcrumb
         editable: parent !== ROOT_FOLDER,
         onEdited: onFolderTitleChange,
         // TODO: remove that and move it to editor toolbar
-        children: <DocumentNodeActionsMenu />
+        children: <CollectionItemActionsMenu />
       }}
-      menu={<DocumentNodeBrowserList parent={parent}></DocumentNodeBrowserList>}
+      menu={
+        <CollectionItemBrowserList parent={parent}></CollectionItemBrowserList>
+      }
       contentId="documentExplorer"
     >
       {!hideDocumentActions && (

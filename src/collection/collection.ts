@@ -1,15 +1,15 @@
-export enum DocumentNodeType {
+export enum CollectionItemType {
   folder = 'f',
   document = 'd',
   page = 'p'
 }
 
-export type DocumentNodeTypeValues = 'f' | 'd' | 'p';
+export type CollectionItemTypeValues = 'f' | 'd' | 'p';
 
-export interface DocumentNode {
+export interface CollectionItem {
   id?: string;
   parent: string;
-  type: DocumentNodeTypeValues;
+  type: CollectionItemTypeValues;
   title: string;
   content: string;
   created: number;
@@ -17,9 +17,9 @@ export interface DocumentNode {
   deleted: boolean;
 }
 
-export type DocumentNodeResult = Required<
+export type CollectionItemResult = Required<
   Pick<
-    DocumentNode,
+    CollectionItem,
     'id' | 'parent' | 'title' | 'type' | 'created' | 'updated' | 'deleted'
   >
 >;

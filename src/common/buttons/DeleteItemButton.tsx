@@ -1,29 +1,29 @@
 import ConfirmYesNoDialog from '@/common/modals/ConfirmYesNoDialog';
 import { GET_FOLDER_ROUTE } from '@/common/routes';
 import { APPICONS } from '@/constants';
-import documentsService from '@/db/documents.service';
+import collectionService from '@/db/collection.service';
 import userSettingsService from '@/db/user-settings.service';
 import { IonButton, IonIcon } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { Id } from 'tinybase/with-schemas';
 
-type DeleteNodeButtonProps = {
+type DeleteItemButtonProps = {
   id: Id;
   onClose?: (role?: string) => void;
 };
 
-const DeleteNodeButton = ({ id, onClose }: DeleteNodeButtonProps) => {
+const DeleteItemButton = ({ id, onClose }: DeleteItemButtonProps) => {
   const history = useHistory();
   return (
     <>
-      <IonButton id="open-modal-delete-document-node" expand="block">
+      <IonButton id="open-modal-delete-item" expand="block">
         <IonIcon icon={APPICONS.deleteAction}></IonIcon>
       </IonButton>
       <ConfirmYesNoDialog
-        trigger="open-modal-delete-document-node"
+        trigger="open-modal-delete-item"
         onClose={confirmed => {
           if (confirmed) {
-            documentsService.deleteNodeDocument(id);
+            collectionService.deleteItem(id);
             if (history) {
               history.replace(
                 GET_FOLDER_ROUTE(userSettingsService.getCurrentFolder())
@@ -36,4 +36,4 @@ const DeleteNodeButton = ({ id, onClose }: DeleteNodeButtonProps) => {
     </>
   );
 };
-export default DeleteNodeButton;
+export default DeleteItemButton;

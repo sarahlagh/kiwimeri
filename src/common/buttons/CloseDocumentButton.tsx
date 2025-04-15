@@ -1,6 +1,6 @@
 import { GET_FOLDER_ROUTE } from '@/common/routes';
 import { APPICONS } from '@/constants';
-import documentsService from '@/db/documents.service';
+import collectionService from '@/db/collection.service';
 import { IonButton, IonIcon } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { Id } from 'tinybase/with-schemas';
@@ -12,7 +12,7 @@ type CloseDocumentButtonProps = {
 
 const CloseDocumentButton = ({ id }: CloseDocumentButtonProps) => {
   const history = useHistory();
-  const parent = documentsService.getDocumentNodeParent(id);
+  const parent = collectionService.getItemParent(id);
   return (
     <>
       <IonButton

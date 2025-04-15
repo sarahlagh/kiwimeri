@@ -1,8 +1,8 @@
-import documentsService from '@/db/documents.service';
+import collectionService from '@/db/collection.service';
 import { Id } from 'tinybase/common/with-schemas';
 
 export const onTitleChangeFn = (id: Id) => {
   return (textEdited: string) => {
-    documentsService.setDocumentNodeTitle(id, textEdited);
+    collectionService.setItemTitle(id, textEdited);
   };
 };

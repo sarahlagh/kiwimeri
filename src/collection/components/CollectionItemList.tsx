@@ -1,6 +1,9 @@
+import {
+  CollectionItemResult,
+  CollectionItemType
+} from '@/collection/collection';
 import { APPICONS } from '@/constants';
-import documentsService from '@/db/documents.service';
-import { DocumentNodeResult, DocumentNodeType } from '@/documents/document';
+import collectionService from '@/db/collection.service';
 import {
   InputCustomEvent,
   IonButton,
@@ -16,64 +19,64 @@ import {
 import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactProps';
 import { ReactNode, useEffect, useRef, useState } from 'react';
 
-type DocumentListNodeItemProps = {
-  node: DocumentNodeResult;
+type CollectionItemListSingleItemProps = {
+  item: CollectionItemResult;
   actionsIcon?: string;
   selected?: string;
   itemRenaming?: string;
-  itemProps?: (document: DocumentNodeResult) => IonicReactProps | undefined;
-  itemDisabled?: (document: DocumentNodeResult) => boolean;
-  actionDisabled?: (document: DocumentNodeResult) => boolean;
-  getUrl?: (document: DocumentNodeResult) => string;
-  onClickActions?: (e: Event, selectedNode: DocumentNodeResult) => void;
-  onSelectedNode?: (selectedNode: DocumentNodeResult) => void;
+  itemProps?: (item: CollectionItemResult) => IonicReactProps | undefined;
+  itemDisabled?: (item: CollectionItemResult) => boolean;
+  actionDisabled?: (item: CollectionItemResult) => boolean;
+  getUrl?: (item: CollectionItemResult) => string;
+  onClickActions?: (e: Event, selectedItem: CollectionItemResult) => void;
+  onSelectedItem?: (selectedItem: CollectionItemResult) => void;
   onRenamingDone?: () => void;
 };
 
-type DocumentNodeListProps = {
-  documents: DocumentNodeResult[];
+type CollectionItemListProps = {
+  items: CollectionItemResult[];
   header?: ReactNode;
   footer?: ReactNode;
-} & Omit<DocumentListNodeItemProps, 'node'>;
+} & Omit<CollectionItemListSingleItemProps, 'item'>;
 
-const DocumentNodeListItem = ({
+const CollectionItemListItem = ({
   selected,
   actionsIcon,
-  node,
+  item,
   itemProps,
   itemRenaming,
   itemDisabled,
   actionDisabled,
   getUrl,
   onClickActions,
-  onSelectedNode,
+  onSelectedItem,
   onRenamingDone
-}: DocumentListNodeItemProps) => {
+}: CollectionItemListSingleItemProps) => {
   const inputRenaming = useRef<HTMLIonInputElement>(null);
   const [renaming, setRenaming] = useState<boolean>(false);
   useEffect(() => {
-    setRenaming(itemRenaming === node.id);
+    setRenaming(itemRenaming === item.id);
   }, [itemRenaming]);
 
   if (inputRenaming.current) {
     inputRenaming.current.setFocus();
   }
 
-  const url = getUrl && !renaming ? getUrl(node) : undefined;
+  const url = getUrl && !renaming ? getUrl(item) : undefined;
   const routerDirection = getUrl && !renaming ? 'none' : undefined;
   const icon =
-    node.type === DocumentNodeType.document
+    item.type === CollectionItemType.document
       ? APPICONS.document
       : APPICONS.folder;
 
   return (
     <IonItem
-      className={itemProps ? itemProps(node)?.className : undefined}
-      style={itemProps ? itemProps(node)?.style : undefined}
-      disabled={itemDisabled ? itemDisabled(node) : false}
+      className={itemProps ? itemProps(item)?.className : undefined}
+      style={itemProps ? itemProps(item)?.style : undefined}
+      disabled={itemDisabled ? itemDisabled(item) : false}
       button={!url}
-      key={node.id}
-      color={selected === node.id ? 'primary' : ''}
+      key={item.id}
+      color={selected === item.id ? 'primary' : ''}
       routerLink={url}
       routerDirection={routerDirection}
       lines="none"
@@ -84,15 +87,15 @@ const DocumentNodeListItem = ({
           e.preventDefault();
           return;
         }
-        if (!url && onSelectedNode) {
-          onSelectedNode(node);
+        if (!url && onSelectedItem) {
+          onSelectedItem(item);
         }
       }}
     >
       <IonIcon aria-hidden="true" slot="start" icon={icon} />
       {actionsIcon && onClickActions && (
         <IonButton
-          disabled={actionDisabled ? actionDisabled(node) : false}
+          disabled={actionDisabled ? actionDisabled(item) : false}
           slot="end"
           fill="clear"
           color="medium"
@@ -103,7 +106,7 @@ const DocumentNodeListItem = ({
             if (renaming) {
               return;
             }
-            onClickActions(e.nativeEvent, node);
+            onClickActions(e.nativeEvent, item);
           }}
         >
           <IonIcon aria-hidden="true" icon={actionsIcon} />
@@ -113,61 +116,58 @@ const DocumentNodeListItem = ({
         <IonInput
           class="invisible"
           ref={inputRenaming}
-          value={node.title}
+          value={item.title}
           onIonChange={(e: InputCustomEvent) => {
             if (itemRenaming && e.detail.value) {
-              documentsService.setDocumentNodeTitle(
-                itemRenaming,
-                e.detail.value
-              );
+              collectionService.setItemTitle(itemRenaming, e.detail.value);
               setRenaming(false);
               if (onRenamingDone) onRenamingDone();
             }
           }}
         ></IonInput>
       )}
-      {!renaming && <IonLabel>{node.title}</IonLabel>}
+      {!renaming && <IonLabel>{item.title}</IonLabel>}
     </IonItem>
   );
 };
 
-const DocumentNodeList = ({
-  documents,
+const CollectionItemList = ({
+  items,
   actionsIcon,
   itemProps,
   itemRenaming,
   itemDisabled,
   actionDisabled,
   getUrl,
-  onSelectedNode,
+  onSelectedItem,
   onClickActions,
   onRenamingDone,
   selected,
   header,
   footer
-}: DocumentNodeListProps) => {
+}: CollectionItemListProps) => {
   return (
     <>
       {header && <IonHeader class="subheader">{header}</IonHeader>}
       <IonContent>
         <IonList>
-          {documents.map(node => {
+          {items.map(item => {
             return (
-              <DocumentNodeListItem
-                key={node.id}
+              <CollectionItemListItem
+                key={item.id}
                 actionsIcon={actionsIcon}
                 selected={selected}
-                node={node}
+                item={item}
                 itemProps={itemProps}
                 itemRenaming={itemRenaming}
                 itemDisabled={itemDisabled}
                 actionDisabled={actionDisabled}
                 getUrl={getUrl}
                 onRenamingDone={onRenamingDone}
-                onSelectedNode={onSelectedNode}
+                onSelectedItem={onSelectedItem}
                 onClickActions={event => {
                   if (onClickActions) {
-                    onClickActions(event, node);
+                    onClickActions(event, item);
                   }
                 }}
               />
@@ -179,4 +179,4 @@ const DocumentNodeList = ({
     </>
   );
 };
-export default DocumentNodeList;
+export default CollectionItemList;

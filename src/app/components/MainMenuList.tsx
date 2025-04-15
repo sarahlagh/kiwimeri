@@ -2,7 +2,7 @@ import { useLocation } from 'react-router-dom';
 
 import {
   DEBUG_ROUTE,
-  GET_NODE_ROUTE,
+  GET_ITEM_ROUTE,
   isCollectionRoute,
   SETTINGS_ROUTE
 } from '@/common/routes';
@@ -51,7 +51,7 @@ const MainMenuList = () => {
     {
       key: 'collection',
       title: t`Collection`,
-      url: GET_NODE_ROUTE(
+      url: GET_ITEM_ROUTE(
         `${userSettingsService.getCurrentFolder()}`,
         userSettingsService.getCurrentDocument()
       ),

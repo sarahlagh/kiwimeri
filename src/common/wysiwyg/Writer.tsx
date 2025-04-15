@@ -1,5 +1,5 @@
 import platformService from '@/common/services/platform.service';
-import documentsService from '@/db/documents.service';
+import collectionService from '@/db/collection.service';
 import { CodeNode } from '@lexical/code';
 import { LinkNode } from '@lexical/link';
 import { ListItemNode, ListNode } from '@lexical/list';
@@ -91,7 +91,7 @@ const Writer = (
           if (hasUserChanges) {
             const changes = JSON.stringify(editorState.toJSON());
             const minimized = minimizeForStorage(changes);
-            documentsService.setDocumentContent(id, minimized);
+            collectionService.setItemContent(id, minimized);
           }
           if (!hasUserChanges) {
             setHasUserChanges(true);
