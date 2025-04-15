@@ -27,6 +27,9 @@ type SpaceType = [
     collection: {
       [cellId in collectionItemKeyEnum]: CellSchema;
     };
+    content: {
+      content: CellSchema;
+    };
   },
   {} // could include overrides for theme, currentXXX on user demand
 ];
@@ -126,10 +129,12 @@ class StorageService {
         title: { type: 'string' } as CellSchema,
         parent: { type: 'string' } as CellSchema,
         type: { type: 'string' } as CellSchema,
-        content: { type: 'string' } as CellSchema,
         created: { type: 'number' } as CellSchema,
         updated: { type: 'number' } as CellSchema,
         deleted: { type: 'boolean', default: false } as CellSchema
+      },
+      content: {
+        content: { type: 'string' } as CellSchema
       }
     });
   }

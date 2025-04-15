@@ -14,7 +14,8 @@ export const initialContent = () => {
 };
 
 class CollectionService {
-  private readonly table = 'collection';
+  private readonly collectionTable = 'collection';
+  private readonly contentTable = 'content';
 
   public generateFetchAllCollectionItemsQuery(
     parent: string,
@@ -23,14 +24,18 @@ class CollectionService {
     const queries = storageService.getQueries();
     const queryName = `fetchAllCollectionItemsFor${parent}`;
     if (parent !== FAKE_ROOT) {
-      queries.setQueryDefinition(queryName, this.table, ({ select, where }) => {
-        select('title');
-        select('type');
-        select('created');
-        select('updated');
-        where('parent', parent);
-        where('deleted', deleted);
-      });
+      queries.setQueryDefinition(
+        queryName,
+        this.collectionTable,
+        ({ select, where }) => {
+          select('title');
+          select('type');
+          select('created');
+          select('updated');
+          where('parent', parent);
+          where('deleted', deleted);
+        }
+      );
     }
     return queryName;
   }
@@ -40,7 +45,7 @@ class CollectionService {
     sortBy: 'created' | 'updated' = 'created',
     descending = false
   ): CollectionItemResult[] {
-    const table = useTable(this.table);
+    const table = useTable(this.collectionTable);
     const queryName = `fetchAllCollectionItemsFor${parent}`;
     return useResultSortedRowIds(queryName, sortBy, descending).map(rowId => {
       const row = table[rowId];
@@ -50,21 +55,25 @@ class CollectionService {
 
   public addDocument(parent: string) {
     const now = Date.now();
-    storageService.getSpace().addRow(this.table, {
+    const id = storageService.getSpace().addRow(this.collectionTable, {
       title: getGlobalTrans().newDocTitle,
       parent: parent,
-      content: initialContent(),
       created: now,
       updated: now,
       type: CollectionItemType.document,
       deleted: false
     });
+    if (id) {
+      storageService.getSpace().setRow(this.contentTable, id, {
+        content: initialContent()
+      });
+    }
     this.updateParentUpdatedRecursive(parent);
   }
 
   public addFolder(parent: string) {
     const now = Date.now();
-    storageService.getSpace().addRow(this.table, {
+    storageService.getSpace().addRow(this.collectionTable, {
       title: getGlobalTrans().newFolderTitle,
       parent: parent,
       created: now,
@@ -76,27 +85,29 @@ class CollectionService {
 
   public deleteItem(rowId: Id) {
     this.updateParentUpdatedRecursive(this.getItemParent(rowId));
-    return storageService.getSpace().delRow(this.table, rowId);
+    return storageService.getSpace().delRow(this.collectionTable, rowId);
   }
 
   public itemExists(rowId: Id) {
     if (rowId === ROOT_FOLDER) {
       return true;
     }
-    return storageService.getSpace().hasRow(this.table, rowId);
+    return storageService.getSpace().hasRow(this.collectionTable, rowId);
   }
 
   public getItemParent(rowId: Id) {
     return (
       (storageService
         .getSpace()
-        .getCell(this.table, rowId, 'parent')
+        .getCell(this.collectionTable, rowId, 'parent')
         ?.valueOf() as string) || ROOT_FOLDER
     );
   }
 
   public setItemParent(rowId: Id, parentId: Id) {
-    storageService.getSpace().setCell(this.table, rowId, 'parent', parentId);
+    storageService
+      .getSpace()
+      .setCell(this.collectionTable, rowId, 'parent', parentId);
     this.updateParentUpdatedRecursive(this.getItemParent(rowId));
   }
 
@@ -104,7 +115,8 @@ class CollectionService {
     const defaultValue =
       rowId === ROOT_FOLDER ? getGlobalTrans().homeTitle : '';
     return (
-      (useCell(this.table, rowId, 'title')?.valueOf() as string) || defaultValue
+      (useCell(this.collectionTable, rowId, 'title')?.valueOf() as string) ||
+      defaultValue
     );
   }
 
@@ -114,14 +126,18 @@ class CollectionService {
     return (
       (storageService
         .getSpace()
-        .getCell(this.table, rowId, 'title')
+        .getCell(this.collectionTable, rowId, 'title')
         ?.valueOf() as string) || defaultValue
     );
   }
 
   public setItemTitle(rowId: Id, title: string) {
-    storageService.getSpace().setCell(this.table, rowId, 'title', title);
-    storageService.getSpace().setCell(this.table, rowId, 'updated', Date.now());
+    storageService
+      .getSpace()
+      .setCell(this.collectionTable, rowId, 'title', title);
+    storageService
+      .getSpace()
+      .setCell(this.collectionTable, rowId, 'updated', Date.now());
     this.updateParentUpdatedRecursive(this.getItemParent(rowId));
   }
 
@@ -129,28 +145,35 @@ class CollectionService {
     return (
       (storageService
         .getSpace()
-        .getCell(this.table, rowId, 'content')
+        .getCell(this.contentTable, rowId, 'content')
         ?.valueOf() as string) || null
     );
   }
 
   public useItemContent(rowId: Id) {
-    return (useCell(this.table, rowId, 'content')?.valueOf() as string) || null;
+    return (
+      (useCell(this.contentTable, rowId, 'content')?.valueOf() as string) ||
+      null
+    );
   }
 
   public setItemContent(rowId: Id, content: string) {
-    storageService
-      .getSpace()
-      .setCell(this.table, rowId, 'content', () => content);
-    storageService.getSpace().setCell(this.table, rowId, 'updated', Date.now());
-    this.updateParentUpdatedRecursive(this.getItemParent(rowId));
+    storageService.getSpace().transaction(() => {
+      storageService
+        .getSpace()
+        .setCell(this.contentTable, rowId, 'content', () => content);
+      storageService
+        .getSpace()
+        .setCell(this.collectionTable, rowId, 'updated', Date.now());
+      this.updateParentUpdatedRecursive(this.getItemParent(rowId));
+    });
   }
 
   public getItemType(rowId: Id) {
     return (
       (storageService
         .getSpace()
-        .getCell(this.table, rowId, 'type')
+        .getCell(this.collectionTable, rowId, 'type')
         ?.valueOf() as string) || null
     );
   }
@@ -171,7 +194,7 @@ class CollectionService {
     }
     storageService
       .getSpace()
-      .setCell(this.table, folder, 'updated', Date.now());
+      .setCell(this.collectionTable, folder, 'updated', Date.now());
     this.updateParentUpdatedRecursive(this.getItemParent(folder));
   }
 }
