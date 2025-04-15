@@ -91,7 +91,6 @@ export const CollectionItemBrowserList = ({
   );
 
   useEffect(() => {
-    collectionService.generateFetchAllCollectionItemsQuery(folder);
     setItemRenaming(undefined);
   }, [folder]);
 

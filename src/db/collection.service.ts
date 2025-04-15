@@ -17,13 +17,13 @@ class CollectionService {
   private readonly collectionTable = 'collection';
   private readonly contentTable = 'content';
 
-  public generateFetchAllCollectionItemsQuery(
+  private fetchAllCollectionItemsQuery(
     parent: string,
     deleted: boolean = false
   ) {
-    const queries = storageService.getQueries();
+    const queries = storageService.getSpaceQueries();
     const queryName = `fetchAllCollectionItemsFor${parent}`;
-    if (parent !== FAKE_ROOT) {
+    if (parent !== FAKE_ROOT && !queries.hasQuery(queryName)) {
       queries.setQueryDefinition(
         queryName,
         this.collectionTable,
@@ -46,7 +46,7 @@ class CollectionService {
     descending = false
   ): CollectionItemResult[] {
     const table = useTable(this.collectionTable);
-    const queryName = `fetchAllCollectionItemsFor${parent}`;
+    const queryName = this.fetchAllCollectionItemsQuery(parent);
     return useResultSortedRowIds(queryName, sortBy, descending).map(rowId => {
       const row = table[rowId];
       return { ...row, id: rowId } as CollectionItemResult;

@@ -3,10 +3,12 @@ import { CollectionItem } from '@/collection/collection';
 import {
   DEFAULT_NOTEBOOK_ID,
   DEFAULT_SPACE_ID,
+  INTERNAL_FORMAT,
   ROOT_FOLDER
 } from '@/constants';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db/with-schemas';
 import { Persister } from 'tinybase/persisters/with-schemas';
+import { Queries as UntypedQueries } from 'tinybase/queries';
 import { createQueries, Queries } from 'tinybase/queries/with-schemas';
 import {
   Cell,
@@ -16,10 +18,10 @@ import {
   Value
 } from 'tinybase/store';
 import { CellSchema, createStore, Store } from 'tinybase/store/with-schemas';
-import { useCell, useValue } from 'tinybase/ui-react';
+import { useCell, useResultSortedRowIds, useValue } from 'tinybase/ui-react';
 import { Id } from 'tinybase/with-schemas';
-import { Space, SyncConfiguration } from './store-types';
-import { syncConfService } from './sync-configurations.service';
+import { remotesService } from './remotes.service';
+import { Remote, RemoteState, Space } from './store-types';
 
 type collectionItemKeyEnum = keyof Required<Omit<CollectionItem, 'id'>>;
 type SpaceType = [
@@ -35,15 +37,19 @@ type SpaceType = [
 ];
 
 type spacesEnum = keyof Required<Space>;
-type syncConfigurationEnum = keyof Required<Omit<SyncConfiguration, 'id'>>;
+type remoteEnum = keyof Required<Omit<Remote, 'id'>>;
+type remoteStateEnum = keyof Required<Omit<RemoteState, 'id'>>;
 type StoreType = [
   {
     // settings per space that won't be persisted outside of the current client
     spaces: {
       [cellId in spacesEnum]: CellSchema;
     };
-    syncConfigurations: {
-      [cellId in syncConfigurationEnum]: CellSchema;
+    remotes: {
+      [cellId in remoteEnum]: CellSchema;
+    };
+    remoteState: {
+      [cellId in remoteStateEnum]: CellSchema;
     };
   },
   {
@@ -55,9 +61,10 @@ type StoreType = [
 class StorageService {
   private store!: Store<StoreType>;
   private storePersister!: Persister<StoreType>;
+  private storeQueries!: Queries<StoreType>;
 
   private spaces: Map<string, Store<SpaceType>> = new Map();
-  private queries: Map<string, Queries<SpaceType>> = new Map();
+  private spaceQueries: Map<string, Queries<SpaceType>> = new Map();
   private spacePersisters: Map<string, Persister<SpaceType>> = new Map();
   private started = false;
 
@@ -73,10 +80,20 @@ class StorageService {
           currentDocument: { type: 'string' } as CellSchema,
           lastLocalChange: { type: 'number' } as CellSchema
         },
-        syncConfigurations: {
-          test: { type: 'boolean' } as CellSchema,
+        remotes: {
+          stateId: { type: 'string' } as CellSchema,
+          name: { type: 'string' } as CellSchema,
+          space: { type: 'string' } as CellSchema,
+          '#': { type: 'number' } as CellSchema,
+          type: { type: 'string' } as CellSchema,
           config: { type: 'string' } as CellSchema,
-          lastRemoteChange: { type: 'number' } as CellSchema
+          formats: { type: 'string', default: INTERNAL_FORMAT } as CellSchema,
+          workingSet: { type: 'string' } as CellSchema
+        },
+        remoteState: {
+          connected: { type: 'boolean' } as CellSchema,
+          lastRemoteChange: { type: 'number' } as CellSchema,
+          info: { type: 'string' } as CellSchema
         }
       })
       .setValuesSchema({
@@ -89,10 +106,12 @@ class StorageService {
       'kiwimeri-store'
     );
 
+    this.storeQueries = createQueries(this.store);
+
     // later: do that dynamically
     this.spaces.set(DEFAULT_SPACE_ID, this.createSpace());
 
-    this.queries.set(
+    this.spaceQueries.set(
       DEFAULT_SPACE_ID,
       createQueries(this.getSpace(DEFAULT_SPACE_ID))
     );
@@ -116,7 +135,7 @@ class StorageService {
       ]);
       // in a timeout, don't want to block app start for this
       setTimeout(async () => {
-        await syncConfService.initSyncConnection(this.getSpaceId());
+        await remotesService.initSyncConnection(this.getSpaceId());
       });
       return true;
     }
@@ -154,8 +173,8 @@ class StorageService {
     return this.spaces.get(space ? space : this.getSpaceId())!;
   }
 
-  public getQueries(space?: string) {
-    return this.queries.get(space ? space : storageService.getSpaceId())!;
+  public getSpaceQueries(space?: string) {
+    return this.spaceQueries.get(space ? space : storageService.getSpaceId())!;
   }
 
   public getStore() {
@@ -166,25 +185,33 @@ class StorageService {
     return this.store as unknown as UntypedStore;
   }
 
+  public getStoreQueries() {
+    return this.storeQueries;
+  }
+
+  public getUntypedStoreQueries() {
+    return this.storeQueries as unknown as UntypedQueries;
+  }
+
   public async push() {
     const content = this.getSpace().getJson();
-    const lastModified = await syncConfService
+    const lastModified = await remotesService
       .getCurrentProvider()
       .push(content);
 
     this.getStore().transaction(() => {
       this.setLastLocalChange(lastModified);
-      syncConfService.setCurrentLastRemoteChange(lastModified as number);
+      remotesService.setCurrentLastRemoteChange(lastModified as number);
     });
   }
 
   public async pull() {
-    const resp = await syncConfService.getCurrentProvider().pull();
+    const resp = await remotesService.getCurrentProvider().pull();
     if (resp && resp.content) {
       this.getSpace().setContent(resp.content);
       this.getStore().transaction(() => {
         this.setLastLocalChange(resp.lastRemoteChange!);
-        syncConfService.setCurrentLastRemoteChange(resp.lastRemoteChange!);
+        remotesService.setCurrentLastRemoteChange(resp.lastRemoteChange!);
       });
     }
   }
@@ -214,6 +241,39 @@ class StorageService {
 
   public setCell(tableId: Id, rowId: Id, cellId: Id, cell: Cell | MapCell) {
     this.getUntypedStore().setCell(tableId, rowId, cellId, cell);
+  }
+
+  public useResultSortedRowIds(
+    queryId: Id,
+    cellId?: Id,
+    descending?: boolean,
+    offset?: number,
+    limit?: number
+  ) {
+    return useResultSortedRowIds(
+      queryId,
+      cellId,
+      descending,
+      offset,
+      limit,
+      this.getUntypedStoreQueries()
+    );
+  }
+
+  public getResultSortedRowIds(
+    queryId: Id,
+    cellId?: Id,
+    descending?: boolean,
+    offset?: number,
+    limit?: number
+  ) {
+    return this.getUntypedStoreQueries().getResultSortedRowIds(
+      queryId,
+      cellId,
+      descending,
+      offset,
+      limit
+    );
   }
 
   public useLastLocalChange() {

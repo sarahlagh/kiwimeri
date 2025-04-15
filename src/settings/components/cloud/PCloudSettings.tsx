@@ -1,7 +1,7 @@
 import { pcloudClient, PCloudConf } from '@/cloud/pcloud/pcloud';
 import platformService from '@/common/services/platform.service';
 import { APPICONS } from '@/constants';
-import { syncConfService } from '@/db/sync-configurations.service';
+import { remotesService } from '@/db/remotes.service';
 import {
   InputCustomEvent,
   IonCard,
@@ -25,9 +25,9 @@ const PCloudSettings = () => {
   const type = 'pcloud';
   const { t } = useLingui();
   const [checking, setChecking] = useState(false);
-  const syncStatus = syncConfService.useCurrentTestStatus(type);
+  const syncStatus = remotesService.useCurrentConnectionStatus(type);
   const syncConf: PCloudConf =
-    syncConfService.useCurrentConfig(type) ||
+    remotesService.useCurrentConfig(type) ||
     ({
       serverLocation: 'eu'
     } as PCloudConf);
@@ -38,10 +38,10 @@ const PCloudSettings = () => {
     } else {
       syncConf.serverLocation = (e.detail.value as 'eu' | 'us') || 'eu';
     }
-    syncConfService.setCurrentConfig(syncConf, type);
+    remotesService.setCurrentConfig(syncConf, type);
     if (syncConf.username && syncConf.password) {
       setChecking(true);
-      const test = await syncConfService.configure(
+      const test = await remotesService.configure(
         type,
         pcloudClient,
         // don't send full object, want to erase folderid & fileid
@@ -52,7 +52,7 @@ const PCloudSettings = () => {
           serverLocation: syncConf.serverLocation
         }
       );
-      syncConfService.setCurrentTestStatus(test, type);
+      remotesService.setCurrentConnectionStatus(test, type);
       setChecking(false);
     }
   };

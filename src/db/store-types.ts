@@ -10,9 +10,36 @@ export interface Space {
   lastLocalChange: number;
 }
 
-export interface SyncConfiguration {
+export interface Remote {
   id?: string;
-  test?: boolean;
+  stateId?: string;
+  name: string;
+  space: string;
+  '#': string;
+  type: string;
   config?: AnyData;
+  formats: string;
+  workingSet?: string;
+}
+
+export type RemoteResult = Required<
+  Pick<Remote, 'id' | 'name' | '#' | 'type' | 'config' | 'formats'>
+> &
+  Required<Pick<RemoteState, 'connected' | 'lastRemoteChange'>>;
+
+export interface RemoteState {
+  id?: string;
+  connected: boolean;
   lastRemoteChange: number;
+  info?: AnyData;
+}
+
+export interface RemoteChangelog {
+  id?: string;
+  remote: string; // id in remote table
+  item: string; // id in collection table
+  providerId: string;
+  lastRemoteChange: number;
+  bucket?: string;
+  metadata?: AnyData;
 }

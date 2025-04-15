@@ -1,6 +1,6 @@
 import { APPICONS } from '@/constants';
+import { remotesService } from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
-import { syncConfService } from '@/db/sync-configurations.service';
 import {
   InputCustomEvent,
   IonButton,
@@ -26,8 +26,8 @@ const MainHeader = ({
   children
 }: MainHeaderProps) => {
   const [isSyncing, setIsSyncing] = useState(false);
-  const isInit = syncConfService.useCurrentTestStatus();
-  const hasChanges = syncConfService.useCurrentHasLocalChanges();
+  const isInit = remotesService.useCurrentConnectionStatus();
+  const hasChanges = remotesService.useCurrentHasLocalChanges();
   const pushEnabled = !isSyncing && isInit && hasChanges;
   const pullEnabled = !isSyncing && isInit;
   const pushColor = isSyncing ? 'warning' : !pushEnabled ? undefined : 'danger';

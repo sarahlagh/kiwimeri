@@ -32,6 +32,8 @@ export const ROOT_FOLDER = 'home';
 // useful for showing home in modals and getting empty queries on load
 export const FAKE_ROOT = 'root';
 
+export const INTERNAL_FORMAT = 'raw';
+
 // messages
 export const ROOT_FOLDER_TITLE = msg`Home`;
 export const NEW_DOC_TITLE = msg`New document`;

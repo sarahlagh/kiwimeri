@@ -32,7 +32,7 @@ const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
   }, []);
 
   const store = storageService.getSpace();
-  const queries = storageService.getQueries();
+  const queries = storageService.getSpaceQueries();
 
   if (isLoading) {
     return <Loading />;

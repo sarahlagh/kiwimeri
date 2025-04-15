@@ -1,5 +1,5 @@
+import { remotesService } from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
-import { syncConfService } from '@/db/sync-configurations.service';
 import { useLingui } from '@lingui/react/macro';
 import ImportExportSettings from './ImportExportSettings';
 
@@ -19,7 +19,7 @@ const ImportExportCollectionSettings = () => {
       onRestoreContent={async (content: string) => {
         const json = JSON.parse(content);
         storageService.getStore().setContent(json);
-        await syncConfService.initSyncConnection(storageService.getSpaceId());
+        await remotesService.initSyncConnection(storageService.getSpaceId());
       }}
       getContentToExport={() => {
         const content = storageService.getStore().getContent();

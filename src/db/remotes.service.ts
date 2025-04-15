@@ -5,28 +5,64 @@ import { appConfig } from '@/config';
 import { Store } from 'tinybase/store';
 import { useCell } from 'tinybase/ui-react';
 import storageService from './storage.service';
+import { RemoteResult } from './store-types';
 
-class SyncConfigurationsService {
-  private readonly table = 'syncConfigurations';
+class RemotesService {
+  private readonly remotesTable = 'remotes';
+  private readonly stateTable = 'remoteState';
+
+  private fetchAllRemotesQuery(space: string) {
+    const queries = storageService.getStoreQueries();
+    const queryName = `fetchAllRemotesFor${space}`;
+    if (!queries.hasQuery(queryName)) {
+      queries.setQueryDefinition(
+        queryName,
+        this.remotesTable,
+        ({ select, join, where }) => {
+          select('#');
+          select('type');
+          select('config');
+          select('formats');
+          join('remoteState', 'stateId');
+          where('space', space);
+        }
+      );
+    }
+    return queryName;
+  }
 
   public async initSyncConnection(space: string) {
-    const rowIds = (
-      storageService.getStore().getRowIds(this.table) as string[]
-    ).filter(id => id.startsWith(`${space}-`));
-    if (!rowIds || rowIds.length < 1) {
+    const queryName = this.fetchAllRemotesQuery(space);
+    const table = storageService.getStoreQueries().getResultTable(queryName);
+    const remotes = storageService
+      .getResultSortedRowIds(queryName, '#')
+      .map(rowId => {
+        const row = table[rowId];
+        return { ...row, id: rowId } as RemoteResult;
+      });
+
+    if (!remotes || remotes.length < 1) {
       console.log('[storage] no initial sync configuration');
       return;
     }
-    for (const rowId of rowIds) {
-      const [space, type] = rowId.split('-');
-      if (this.getCurrentTestStatus(type)) {
-        console.log('[storage] found initial sync configurations', space, type);
+
+    console.debug('remotes', remotes);
+    for (const remote of remotes) {
+      if (remote.connected) {
+        console.log(
+          '[storage] found initial sync configurations',
+          space,
+          remote.name,
+          remote.type
+        );
+
         // TODO have factory for multiple conf
-        this.configure(type, pcloudClient, this.getCurrentConfig(type));
+        this.configure(remote.type, pcloudClient, remote.config as PCloudConf);
       }
     }
   }
 
+  // TODO remove, no more "current" here, that will be in new syncService
   public getCurrentType() {
     return 'pcloud'; // TODO
   }
@@ -50,44 +86,50 @@ class SyncConfigurationsService {
     const newConf = await storageProvider.init(storageService.getSpaceId());
     this.setCurrentConfig(newConf.config, type);
     this.setCurrentLastRemoteChange(newConf.lastRemoteChange, type);
+
+    storageService
+      .getStore()
+      .setCell(this.remotesTable, 'default-pcloud', '#', 0);
+    storageService
+      .getStore()
+      .setCell(this.remotesTable, 'default-pcloud', 'space', 'default');
     return newConf.test;
   }
 
-  public getCurrentTestStatus(type?: string) {
+  public getCurrentConnectionStatus(type?: string) {
     if (!type) {
       type = this.getCurrentType();
     }
     return (
       storageService.getCell<boolean>(
-        this.table,
-        this.getRowId(this.getCurrentType()),
-        'test'
+        this.stateTable,
+        'default-pcloud',
+        'connected'
       ) || false
     );
   }
 
-  public useCurrentTestStatus(type?: string) {
+  public useCurrentConnectionStatus(type?: string) {
     if (!type) {
       type = this.getCurrentType();
     }
     return (
       (useCell(
-        this.table,
-        this.getRowId(type),
-        'test',
+        this.remotesTable,
+        'default-pcloud',
+        'connected',
         storageService.getStore() as unknown as Store
       )?.valueOf() as boolean) || false
     );
   }
 
-  public setCurrentTestStatus(test: boolean, type?: string) {
+  public setCurrentConnectionStatus(test: boolean, type?: string) {
     if (!type) {
       type = this.getCurrentType();
     }
     storageService
-
       .getStore()
-      .setCell(this.table, this.getRowId(type), 'test', test);
+      .setCell(this.stateTable, 'default-pcloud', 'connected', test);
   }
 
   public getCurrentConfig(type?: string) {
@@ -96,7 +138,7 @@ class SyncConfigurationsService {
     }
     const config = storageService
       .getStore()
-      .getCell(this.table, this.getRowId(type), 'config')
+      .getCell(this.remotesTable, 'default-pcloud', 'config')
       ?.valueOf() as string;
     if (config) {
       return JSON.parse(config);
@@ -109,8 +151,8 @@ class SyncConfigurationsService {
       type = this.getCurrentType();
     }
     const config = useCell(
-      this.table,
-      this.getRowId(type),
+      this.remotesTable,
+      'default-pcloud',
       'config',
       storageService.getStore() as unknown as Store
     )?.valueOf() as string;
@@ -128,8 +170,8 @@ class SyncConfigurationsService {
     storageService
       .getStore()
       .setCell(
-        this.table,
-        this.getRowId(type),
+        this.remotesTable,
+        'default-pcloud',
         'config',
         JSON.stringify(config)
       );
@@ -142,8 +184,8 @@ class SyncConfigurationsService {
     storageService
       .getStore()
       .setCell(
-        this.table,
-        this.getRowId(type),
+        this.stateTable,
+        'default-pcloud',
         'lastRemoteChange',
         lastRemoteChange
       );
@@ -152,8 +194,8 @@ class SyncConfigurationsService {
   public useCurrentHasLocalChanges() {
     const lastRemoteChange =
       (useCell(
-        this.table,
-        this.getRowId(this.getCurrentType()),
+        this.stateTable,
+        'default-pcloud',
         'lastRemoteChange',
         storageService.getStore() as unknown as Store
       )?.valueOf() as number) || 0;
@@ -161,11 +203,6 @@ class SyncConfigurationsService {
     const lastLocalChange = storageService.useLastLocalChange();
     return lastLocalChange > lastRemoteChange;
   }
-
-  private getRowId(type: string) {
-    const space = storageService.getSpaceId();
-    return `${space}-${type}`;
-  }
 }
 
-export const syncConfService = new SyncConfigurationsService();
+export const remotesService = new RemotesService();

@@ -16,7 +16,7 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 const Toolbar = ({
   selected,
@@ -97,10 +97,6 @@ const ChooseFolderModal = ({
     updated: 0,
     deleted: false
   };
-
-  useEffect(() => {
-    collectionService.generateFetchAllCollectionItemsQuery(folder);
-  }, [folder]);
 
   const items: CollectionItemResult[] = collectionService
     .useCollectionItems(folder)
