@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-import { CollectionItem } from '@/collection/collection';
 import {
   DEFAULT_NOTEBOOK_ID,
   DEFAULT_SPACE_ID,
@@ -21,51 +20,16 @@ import { CellSchema, createStore, Store } from 'tinybase/store/with-schemas';
 import { useCell, useResultSortedRowIds, useValue } from 'tinybase/ui-react';
 import { Id } from 'tinybase/with-schemas';
 import { remotesService } from './remotes.service';
-import { Remote, RemoteState, Space } from './store-types';
-
-type collectionItemKeyEnum = keyof Required<Omit<CollectionItem, 'id'>>;
-type SpaceType = [
-  {
-    collection: {
-      [cellId in collectionItemKeyEnum]: CellSchema;
-    };
-    content: {
-      content: CellSchema;
-    };
-  },
-  {} // could include overrides for theme, currentXXX on user demand
-];
-
-type spacesEnum = keyof Required<Space>;
-type remoteEnum = keyof Required<Omit<Remote, 'id'>>;
-type remoteStateEnum = keyof Required<Omit<RemoteState, 'id'>>;
-type StoreType = [
-  {
-    // settings per space that won't be persisted outside of the current client
-    spaces: {
-      [cellId in spacesEnum]: CellSchema;
-    };
-    remotes: {
-      [cellId in remoteEnum]: CellSchema;
-    };
-    remoteState: {
-      [cellId in remoteStateEnum]: CellSchema;
-    };
-  },
-  {
-    theme: { type: 'string'; default: 'dark' };
-    currentSpace: { type: 'string'; default: typeof DEFAULT_SPACE_ID };
-  }
-];
+import { SpaceType, StoreType } from './types/db-types';
 
 class StorageService {
   private store!: Store<StoreType>;
-  private storePersister!: Persister<StoreType>;
+  private storeLocalPersister!: Persister<StoreType>;
   private storeQueries!: Queries<StoreType>;
 
   private spaces: Map<string, Store<SpaceType>> = new Map();
   private spaceQueries: Map<string, Queries<SpaceType>> = new Map();
-  private spacePersisters: Map<string, Persister<SpaceType>> = new Map();
+  private spaceLocalPersisters: Map<string, Persister<SpaceType>> = new Map();
   private started = false;
 
   public constructor() {
@@ -100,7 +64,7 @@ class StorageService {
         currentSpace: { type: 'string', default: DEFAULT_SPACE_ID }
       });
 
-    this.storePersister = createIndexedDbPersister(
+    this.storeLocalPersister = createIndexedDbPersister(
       this.store,
       'kiwimeri-store'
     );
@@ -114,7 +78,7 @@ class StorageService {
       DEFAULT_SPACE_ID,
       createQueries(this.getSpace(DEFAULT_SPACE_ID))
     );
-    this.spacePersisters.set(
+    this.spaceLocalPersisters.set(
       DEFAULT_SPACE_ID,
       createIndexedDbPersister(
         this.getSpace(DEFAULT_SPACE_ID),
@@ -129,8 +93,8 @@ class StorageService {
       // only start persister for the current space
       // later: when switching space, only re init space persister
       await Promise.all([
-        this.startPersister(this.storePersister),
-        this.startPersister(this.spacePersisters.get(this.getSpaceId())!)
+        this.startPersister(this.storeLocalPersister),
+        this.startPersister(this.spaceLocalPersisters.get(this.getSpaceId())!)
       ]);
       // in a timeout, don't want to block app start for this
       setTimeout(async () => {

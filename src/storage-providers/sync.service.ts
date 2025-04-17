@@ -12,50 +12,28 @@ class SyncService {
   }
 
   public async push(remoteId?: string) {
-    const content = storageService.getSpace().getJson();
     const remotes = remotesService.getRemotes();
     const pushRemotes = remotes.filter(r =>
       remoteId ? r.id === remoteId && r.connected : r.connected
     );
     console.log(`pushing to ${pushRemotes.length} active remotes`);
-
     for (const remote of pushRemotes) {
-      console.log(`pushing to remote ${remote.name} `);
-      const provider = remotesService.getProvider(remote.id)!;
-      const lastModified = await provider.push(content);
-      storageService.getStore().transaction(() => {
-        storageService.setLastLocalChange(lastModified);
-        remotesService.setLastRemoteChange(
-          remote.state,
-          lastModified as number
-        );
-      });
+      const persister = remotesService.getPersister(remote.id);
+      if (persister) {
+        await persister.save();
+      }
     }
   }
 
   // only pull from primary by default
   public async pull(remoteId?: string) {
-    let remote;
     if (!remoteId) {
-      remote = remotesService.getRemotes()[0];
-      remoteId = remote.id;
-    } else {
-      remote = remotesService.getRemotes().find(r => r.id === remoteId);
+      const remote = remotesService.getRemotes()[0];
+      remoteId = remote?.id;
     }
-    const provider = remotesService.getProvider(remoteId);
-    if (remote && provider) {
-      console.log(`pushing to remote ${remote.name}`);
-      const resp = await provider.pull();
-      if (resp && resp.content) {
-        storageService.getSpace().setContent(resp.content);
-        storageService.getStore().transaction(() => {
-          storageService.setLastLocalChange(resp.lastRemoteChange!);
-          remotesService.setLastRemoteChange(
-            remote.state,
-            resp.lastRemoteChange!
-          );
-        });
-      }
+    const persister = remotesService.getPersister(remoteId);
+    if (persister) {
+      await persister.load();
     }
   }
 

@@ -3,15 +3,19 @@ import { appConfig } from '@/config';
 import { INTERNAL_FORMAT } from '@/constants';
 import { KMPCloudClient } from '@/storage-providers/pcloud/pcloud';
 import { StorageProvider } from '@/storage-providers/sync-core';
+import { Persister } from 'tinybase/persisters/with-schemas';
 import { useResultTable } from 'tinybase/ui-react';
+import { createRemoteCloudPersister } from './persisters/remote-cloud-persister';
 import storageService from './storage.service';
-import { AnyData, RemoteResult } from './store-types';
+import { SpaceType } from './types/db-types';
+import { AnyData, RemoteResult } from './types/store-types';
 
 class RemotesService {
   private readonly remotesTable = 'remotes';
   private readonly stateTable = 'remoteState';
 
   private providers: Map<string, StorageProvider> = new Map();
+  private remotePersisters: Map<string, Persister<SpaceType>> = new Map();
 
   private fetchAllRemotesQuery(space: string) {
     const queries = storageService.getStoreQueries();
@@ -42,6 +46,9 @@ class RemotesService {
       remote => initAll || remote.connected
     );
 
+    this.remotePersisters.forEach(p => {
+      p.destroy();
+    });
     if (connectedRemotes.length < 1) {
       console.log('[storage] no initial sync configuration');
       return;
@@ -55,6 +62,16 @@ class RemotesService {
         remote.type
       );
       this.configure(remote.id, remote.state, JSON.parse(remote.config));
+
+      // TODO: factory depending on type
+      this.remotePersisters.set(
+        remote.id,
+        createRemoteCloudPersister(
+          storageService.getSpace(space),
+          remote,
+          this.providers.get(remote.id)!
+        )
+      );
     }
   }
 
@@ -222,8 +239,8 @@ class RemotesService {
     });
   }
 
-  public getProvider(remote: string) {
-    return this.providers.get(remote);
+  public getPersister(remote: string) {
+    return this.remotePersisters.get(remote);
   }
 }
 
