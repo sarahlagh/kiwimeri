@@ -11,6 +11,7 @@ export interface CollectionItem {
   parent: string;
   type: CollectionItemTypeValues;
   title: string;
+  content: string;
   created: number;
   updated: number;
   deleted: boolean;
