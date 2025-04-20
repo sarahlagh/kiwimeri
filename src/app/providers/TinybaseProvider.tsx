@@ -1,35 +1,23 @@
 import Loading from '@/app/components/Loading';
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
-import localChangesService from '@/db/localChanges.service';
 import storageService from '@/db/storage.service';
 import { ReactNode, useEffect, useState } from 'react';
 import { Queries } from 'tinybase/queries';
 import { Store } from 'tinybase/store';
 import { Provider } from 'tinybase/ui-react';
 import { Inspector } from 'tinybase/ui-react-inspector';
-import { Id } from 'tinybase/with-schemas';
 
 const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
-  let listenerId: Id;
   useEffect(() => {
     async function load() {
       const ok = await storageService.start();
       if (ok) {
         setIsLoading(false);
-        listenerId = storageService.getSpace()?.addTablesListener(() => {
-          localChangesService.setLastLocalChange(Date.now());
-        });
       }
     }
     load();
-
-    return () => {
-      if (listenerId) {
-        storageService.getSpace().delListener(listenerId);
-      }
-    };
   }, []);
 
   const store = storageService.getSpace();

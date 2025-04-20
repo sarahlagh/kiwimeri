@@ -70,6 +70,7 @@ class LocalChangesService {
         storageService
           .getStore()
           .setCell(this.table, oldestRow, 'updated', localChange.updated);
+        this.setLastLocalChange(localChange.updated);
         return;
       }
     } else if (change === LocalChangeType.delete) {
@@ -98,6 +99,7 @@ class LocalChangesService {
     }
 
     storageService.getStore().addRow(this.table, localChange);
+    this.setLastLocalChange(localChange.updated);
   }
 
   public getLocalChanges() {
