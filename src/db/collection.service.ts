@@ -6,7 +6,9 @@ import { getGlobalTrans } from '@/config';
 import { FAKE_ROOT, ROOT_FOLDER } from '@/constants';
 import { Id } from 'tinybase/common/with-schemas';
 import { useCell, useResultSortedRowIds, useTable } from 'tinybase/ui-react';
+import localChangesService from './localChanges.service';
 import storageService from './storage.service';
+import { LocalChangeType } from './types/store-types';
 
 export const initialContent = () => {
   // 'empty' editor
@@ -50,7 +52,7 @@ class CollectionService {
 
   public addDocument(parent: string) {
     const now = Date.now();
-    storageService.getSpace().addRow(this.table, {
+    const id = storageService.getSpace().addRow(this.table, {
       title: getGlobalTrans().newDocTitle,
       parent: parent,
       content: initialContent(),
@@ -60,11 +62,14 @@ class CollectionService {
       deleted: false
     });
     this.updateParentUpdatedRecursive(parent);
+    if (id) {
+      localChangesService.addLocalChange(id, LocalChangeType.add);
+    }
   }
 
   public addFolder(parent: string) {
     const now = Date.now();
-    storageService.getSpace().addRow(this.table, {
+    const id = storageService.getSpace().addRow(this.table, {
       title: getGlobalTrans().newFolderTitle,
       parent: parent,
       created: now,
@@ -72,11 +77,15 @@ class CollectionService {
       type: CollectionItemType.folder,
       deleted: false
     });
+    if (id) {
+      localChangesService.addLocalChange(id, LocalChangeType.add);
+    }
   }
 
   public deleteItem(rowId: Id) {
     this.updateParentUpdatedRecursive(this.getItemParent(rowId));
-    return storageService.getSpace().delRow(this.table, rowId);
+    storageService.getSpace().delRow(this.table, rowId);
+    localChangesService.addLocalChange(rowId, LocalChangeType.delete);
   }
 
   public itemExists(rowId: Id) {
@@ -98,6 +107,7 @@ class CollectionService {
   public setItemParent(rowId: Id, parentId: Id) {
     storageService.getSpace().setCell(this.table, rowId, 'parent', parentId);
     this.updateParentUpdatedRecursive(this.getItemParent(rowId));
+    localChangesService.addLocalChange(rowId, LocalChangeType.update, 'parent');
   }
 
   public useItemTitle(rowId: Id) {
@@ -123,6 +133,7 @@ class CollectionService {
     storageService.getSpace().setCell(this.table, rowId, 'title', title);
     storageService.getSpace().setCell(this.table, rowId, 'updated', Date.now());
     this.updateParentUpdatedRecursive(this.getItemParent(rowId));
+    localChangesService.addLocalChange(rowId, LocalChangeType.update, 'title');
   }
 
   public getItemContent(rowId: Id) {
@@ -144,6 +155,11 @@ class CollectionService {
       .setCell(this.table, rowId, 'content', () => content);
     storageService.getSpace().setCell(this.table, rowId, 'updated', Date.now());
     this.updateParentUpdatedRecursive(this.getItemParent(rowId));
+    localChangesService.addLocalChange(
+      rowId,
+      LocalChangeType.update,
+      'content'
+    );
   }
 
   public getItemType(rowId: Id) {

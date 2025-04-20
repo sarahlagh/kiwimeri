@@ -1,7 +1,13 @@
 import { CollectionItem } from '@/collection/collection';
 import { DEFAULT_SPACE_ID } from '@/constants';
 import { CellSchema } from 'tinybase/with-schemas';
-import { Remote, RemoteState, Space } from './store-types';
+import {
+  LocalChange,
+  Remote,
+  RemoteItemInfo,
+  RemoteState,
+  Space
+} from './store-types';
 
 type collectionItemKeyEnum = keyof Required<Omit<CollectionItem, 'id'>>;
 export type SpaceType = [
@@ -15,6 +21,7 @@ export type SpaceType = [
 ];
 
 type spacesEnum = keyof Required<Space>;
+type localChangeEnum = keyof Required<Omit<LocalChange, 'id'>>;
 type remoteEnum = keyof Required<Omit<Remote, 'id'>>;
 type remoteStateEnum = keyof Required<Omit<RemoteState, 'id'>>;
 export type StoreType = [
@@ -22,6 +29,9 @@ export type StoreType = [
     // settings per space that won't be persisted outside of the current client
     spaces: {
       [cellId in spacesEnum]: CellSchema;
+    };
+    localChanges: {
+      [cellId in localChangeEnum]: CellSchema;
     };
     remotes: {
       [cellId in remoteEnum]: CellSchema;

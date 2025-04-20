@@ -10,6 +10,21 @@ export interface Space {
   lastLocalChange: number;
 }
 
+export enum LocalChangeType {
+  add = 'a',
+  update = 'u',
+  delete = 'd'
+}
+
+export type LocalChangeTypeValues = 'a' | 'u' | 'd';
+export interface LocalChange {
+  id?: string;
+  item: string;
+  change: LocalChangeType;
+  field?: string;
+  updated: number;
+}
+
 export interface Remote {
   id?: string;
   state?: string;
@@ -33,12 +48,9 @@ export interface RemoteState {
   info?: AnyData;
 }
 
-export interface RemoteChangelog {
+export interface RemoteItemInfo {
   id?: string;
-  remote: string; // id in remote table
+  state: string; // id in remote state table
   item: string; // id in collection table
-  providerId: string;
-  lastRemoteChange: number;
-  bucket?: string;
-  metadata?: AnyData;
+  bucket: string; // the filename
 }

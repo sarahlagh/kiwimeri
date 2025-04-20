@@ -1,7 +1,7 @@
 import { StorageProvider } from '@/storage-providers/sync-core';
 import { createCustomPersister } from 'tinybase/persisters/with-schemas';
 import { Store } from 'tinybase/with-schemas';
-import { remotesService } from '../remotes.service';
+import remotesService from '../remotes.service';
 import storageService from '../storage.service';
 import { SpaceType } from '../types/db-types';
 import { RemoteResult } from '../types/store-types';

@@ -1,5 +1,5 @@
 import platformService from '@/common/services/platform.service';
-import { remotesService } from '@/db/remotes.service';
+import remotesService from '@/db/remotes.service';
 import { PCloudConf } from '@/storage-providers/pcloud/pcloud';
 import {
   InputCustomEvent,

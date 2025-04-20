@@ -6,8 +6,8 @@ import OperationSettings from './sections/OperationsSettings';
 const Settings = () => {
   return (
     <>
-      <ImportExportCollectionSettings />
       <RemotesSettings />
+      <ImportExportCollectionSettings />
       <ImportExportStoreSettings />
       <OperationSettings />
     </>

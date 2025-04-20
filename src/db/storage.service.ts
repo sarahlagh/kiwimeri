@@ -19,7 +19,7 @@ import {
 import { CellSchema, createStore, Store } from 'tinybase/store/with-schemas';
 import { useCell, useResultSortedRowIds, useValue } from 'tinybase/ui-react';
 import { Id } from 'tinybase/with-schemas';
-import { remotesService } from './remotes.service';
+import remotesService from './remotes.service';
 import { SpaceType, StoreType } from './types/db-types';
 
 class StorageService {
@@ -43,6 +43,12 @@ class StorageService {
           currentFolder: { type: 'string', default: ROOT_FOLDER } as CellSchema,
           currentDocument: { type: 'string' } as CellSchema,
           lastLocalChange: { type: 'number' } as CellSchema
+        },
+        localChanges: {
+          item: { type: 'string' } as CellSchema,
+          change: { type: 'string' } as CellSchema,
+          field: { type: 'string' } as CellSchema,
+          updated: { type: 'number' } as CellSchema
         },
         remotes: {
           state: { type: 'string' } as CellSchema,

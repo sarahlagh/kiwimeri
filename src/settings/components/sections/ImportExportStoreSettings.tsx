@@ -1,4 +1,4 @@
-import { remotesService } from '@/db/remotes.service';
+import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
 import { useLingui } from '@lingui/react/macro';
 import ImportExportSettings from './ImportExportSettings';
@@ -29,7 +29,9 @@ const ImportExportCollectionSettings = () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const [contentToExport, valuesToExport]: [any, any] = content;
         delete contentToExport['spaces'];
+        delete contentToExport['localChanges'];
         delete contentToExport['remoteState'];
+        delete contentToExport['remoteItems'];
         delete valuesToExport['currentSpace'];
         return JSON.stringify([contentToExport, valuesToExport]);
       }}

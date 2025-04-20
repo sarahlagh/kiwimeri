@@ -1,4 +1,4 @@
-import { remotesService } from '@/db/remotes.service';
+import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
 
 export type SyncDirection = 'push' | 'pull';

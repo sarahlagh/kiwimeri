@@ -1,3 +1,4 @@
+import localChangesService from '@/db/localChanges.service';
 import storageService from '@/db/storage.service';
 import { IonButton, IonCard, IonCardHeader, IonCardTitle } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
@@ -24,6 +25,7 @@ const OperationSettings = () => {
         fill="clear"
         onClick={() => {
           storageService.getSpace().setContent([{}, {}]);
+          localChangesService.clearTable();
         }}
         color="danger"
       >

@@ -244,4 +244,5 @@ class RemotesService {
   }
 }
 
-export const remotesService = new RemotesService();
+const remotesService = new RemotesService();
+export default remotesService;
