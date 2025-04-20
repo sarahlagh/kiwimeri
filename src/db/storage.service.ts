@@ -45,6 +45,7 @@ class StorageService {
           lastLocalChange: { type: 'number' } as CellSchema
         },
         localChanges: {
+          space: { type: 'string' } as CellSchema,
           item: { type: 'string' } as CellSchema,
           change: { type: 'string' } as CellSchema,
           field: { type: 'string' } as CellSchema,

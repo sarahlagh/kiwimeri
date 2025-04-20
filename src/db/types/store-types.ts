@@ -19,6 +19,7 @@ export enum LocalChangeType {
 export type LocalChangeTypeValues = 'a' | 'u' | 'd';
 export interface LocalChange {
   id?: string;
+  space: string;
   item: string;
   change: LocalChangeType;
   field?: string;
