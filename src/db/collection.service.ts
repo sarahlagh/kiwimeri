@@ -4,6 +4,7 @@ import {
 } from '@/collection/collection';
 import { getGlobalTrans } from '@/config';
 import { FAKE_ROOT, ROOT_FOLDER } from '@/constants';
+import { getUniqueId } from 'tinybase/common';
 import { Id } from 'tinybase/common/with-schemas';
 import { useCell, useResultSortedRowIds, useTable } from 'tinybase/ui-react';
 import localChangesService from './localChanges.service';
@@ -52,7 +53,8 @@ class CollectionService {
 
   public addDocument(parent: string) {
     const now = Date.now();
-    const id = storageService.getSpace().addRow(this.table, {
+    const id = getUniqueId();
+    storageService.getSpace().setRow(this.table, id, {
       title: getGlobalTrans().newDocTitle,
       parent: parent,
       content: initialContent(),
@@ -69,7 +71,8 @@ class CollectionService {
 
   public addFolder(parent: string) {
     const now = Date.now();
-    const id = storageService.getSpace().addRow(this.table, {
+    const id = getUniqueId();
+    storageService.getSpace().setRow(this.table, id, {
       title: getGlobalTrans().newFolderTitle,
       parent: parent,
       created: now,
