@@ -1,7 +1,7 @@
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
 import { INTERNAL_FORMAT } from '@/constants';
-import { KMPCloudClient } from '@/storage-providers/pcloud/pcloud';
+import { PCloudProvider } from '@/storage-providers/pcloud/pcloud';
 import {
   RemoteStateInfo,
   StorageProvider
@@ -97,14 +97,11 @@ class RemotesService {
     }
     // TODO have factory for multiple conf
     if (!this.providers.has(remoteId)) {
-      this.providers.set(remoteId, new KMPCloudClient());
+      this.providers.set(remoteId, new PCloudProvider());
     }
     const storageProvider = this.providers.get(remoteId)!;
     storageProvider.configure(initConfig, proxy, useHttp);
-    const newConf = await storageProvider.init(
-      storageService.getSpaceId(),
-      remoteStateId
-    );
+    const newConf = await storageProvider.init(remoteStateId);
 
     storageService.getStore().transaction(() => {
       storageService.setCell(

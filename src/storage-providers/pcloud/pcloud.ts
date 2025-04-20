@@ -1,14 +1,5 @@
-import { CollectionItem } from '@/collection/collection';
-import { SpaceType } from '@/db/types/db-types';
-import { LocalChange } from '@/db/types/store-types';
-import {
-  Bucket,
-  RemoteInfo,
-  RemoteStateInfo,
-  StorageProvider
-} from '@/storage-providers/sync-core';
-import { Table as UntypedTable } from 'tinybase';
-import { Content } from 'tinybase/with-schemas';
+import { RemoteStateInfo } from '@/storage-providers/sync-core';
+import { BucketStorageProvider } from '../bucket.provider';
 import {
   PCloudLinkResponse,
   PCloudListResponse,
@@ -24,16 +15,23 @@ export type PCloudConf = {
   folderid?: string;
 };
 
-export class KMPCloudClient implements StorageProvider {
+export class PCloudProvider extends BucketStorageProvider {
   private proxy?: string;
   private config: PCloudConf | null = null;
   private serverUrl!: string;
-  private readonly bucketMaxSize = 2000000;
 
   private api = {
     us: 'api.pcloud.com',
     eu: 'eapi.pcloud.com'
   };
+
+  public constructor() {
+    super('PCloud');
+  }
+
+  public getConfig(): PCloudConf | null {
+    return this.config;
+  }
 
   public configure(config: PCloudConf, proxy?: string, useHttp?: boolean) {
     this.config = config;
@@ -56,7 +54,7 @@ export class KMPCloudClient implements StorageProvider {
     });
   }
 
-  private async fetchRemoteStateInfo(state?: string) {
+  protected async fetchRemoteStateInfo(state?: string) {
     if (!this.config) {
       throw new Error('uninitialized pcloud config');
     }
@@ -100,299 +98,18 @@ export class KMPCloudClient implements StorageProvider {
     return { ok: true, remoteStateInfo };
   }
 
-  private parseRank(fname: string) {
-    const match = fname.match(/bucket(\d*).json/);
-    try {
-      if (match && match.length > 1) {
-        return parseInt(match[1]);
-      }
-    } catch (e) {
-      console.debug('error parsing file name', e);
-    }
-    return 0;
-  }
-
-  public async init(spaceId?: string, remoteStateId?: string) {
-    if (!this.config) {
+  protected async pushItem(filename: string, content: string) {
+    if (!this.config || !this.config.folderid) {
       throw new Error('uninitialized pcloud config');
     }
-
-    const { ok, remoteStateInfo: remoteState } =
-      await this.fetchRemoteStateInfo(remoteStateId);
-
-    console.log('[pCloud] client initialized', {
-      ...this.config,
-      password: '*******'
-    });
-    console.debug('new remoteStateInfo returned', remoteState);
-
-    return {
-      connected: ok,
-      config: this.config,
-      remoteState
-    };
-  }
-
-  public async getRemoteContent(
-    localContent: Content<SpaceType>,
-    localBuckets: Bucket[],
-    remoteInfo: RemoteInfo
-  ) {
-    if (!this.config) {
-      throw new Error('uninitialized pcloud config');
-    }
-    const newLocalBuckets = [...localBuckets];
-    const remoteContent: Content<SpaceType> = [{ collection: {} }, {}];
-    // fetch new remoteInfo from pcloud, update this.remoteInfo
-    const { remoteStateInfo: newRemoteState } = await this.fetchRemoteStateInfo(
-      remoteInfo.state
-    );
-
-    // determine which existing buckets have changed locally
-    const bucketsUpdatedRemotely: Bucket[] = [];
-    const bucketsUnchanged: Bucket[] = [];
-    for (const bucket of localBuckets) {
-      const remoteBucketObj = newRemoteState.buckets?.find(
-        b => b.providerid === bucket.providerid
-      );
-      if (remoteBucketObj) {
-        if (remoteBucketObj.lastRemoteChange > bucket.lastRemoteChange) {
-          bucketsUpdatedRemotely.push(bucket);
-        } else {
-          bucketsUnchanged.push(bucket);
-        }
-      }
-    }
-    for (const remoteBucket of newRemoteState.buckets) {
-      const localBucketObj = localBuckets.find(
-        b => b.providerid === remoteBucket.providerid
-      );
-      // if remote bucket doesn't exist yet, pull it
-      if (!localBucketObj) {
-        newLocalBuckets.push(remoteBucket);
-        bucketsUpdatedRemotely.push(remoteBucket);
-      }
-    }
-    // fetch only those buckets from provider
-    for (const bucket of bucketsUpdatedRemotely) {
-      const { content } = await this.pullItem(bucket.providerid);
-      for (const item of content as CollectionItem[]) {
-        remoteContent[0].collection![item.id!] = item;
-        const remoteItem = remoteInfo.remoteItems.find(i => i.item === item.id);
-        if (!remoteItem) {
-          remoteInfo.remoteItems.push({
-            item: item.id!,
-            bucket: bucket.rank,
-            state: remoteInfo.state!
-          });
-        }
-      }
-    }
-    // complete collection with unchanged buckets
-    for (const bucket of bucketsUnchanged) {
-      const items = remoteInfo.remoteItems.filter(
-        i => i.bucket === bucket.rank
-      );
-      for (const item of items) {
-        remoteContent[0].collection![item.id!] =
-          localContent[0].collection![item.id!];
-      }
-    }
-
-    // TODO update remoteItems
-
-    // what to do about deleted buckets remotely?
-    // how do i know if something has been deleted from remote, or if it has never been pushed?
-    console.debug('reconstitued db', remoteContent);
-    return {
-      remoteContent,
-      localBuckets: newLocalBuckets,
-      remoteInfo
-    };
-  }
-
-  public async merge(
-    localContent: Content<SpaceType>,
-    remoteContent: Content<SpaceType>,
-    remoteInfo: RemoteInfo
-  ) {
-    // how do i know they've just never been pushed? => if they've never been pushed, they don't have a bucket assigned
-    // how do i know that nodes (hard) deleted locally aren't missing from the diff with remote, that they need to stay removed?
-    // i should keep track of local changes
-    return localContent;
-  }
-
-  public async push(
-    localContent: Content<SpaceType>,
-    localChanges: LocalChange[],
-    localBuckets: Bucket[],
-    remoteInfo: RemoteInfo,
-    force = false
-  ) {
-    if (!this.config) {
-      throw new Error('uninitialized pcloud config');
-    }
-    const {
-      remoteContent,
-      localBuckets: newLocalBuckets,
-      remoteInfo: newRemoteInfo
-    } = await this.getRemoteContent(localContent, localBuckets, remoteInfo);
-    const mergedContent = await this.merge(
-      localContent,
-      remoteContent,
-      remoteInfo
-    );
-
-    console.debug('push with force', force);
-    console.debug('localContent', localContent);
-    console.debug('localChanges', localChanges);
-    console.debug('remoteContent', remoteContent);
-    console.debug('mergedContent', mergedContent);
-    console.debug('remoteMetadata from db', remoteInfo);
-    console.debug('newRemoteInfo from provider', newRemoteInfo);
-
-    // determine which buckets need to be pushed
-    const bucketsToPush = new Set<number>();
-    for (const localChange of localChanges) {
-      const item = localChange.item;
-      // does item have a bucket?
-      const remoteItem = remoteInfo.remoteItems.find(ri => ri.item === item);
-      if (remoteItem && remoteItem.bucket) {
-        bucketsToPush.add(remoteItem.bucket);
-      } else {
-        // if not, assign a bucket
-        const bucket = await this.assignBucket(remoteInfo);
-        bucketsToPush.add(bucket);
-        if (remoteItem) {
-          remoteInfo.remoteItems.find(ri => ri.item === item)!.bucket = bucket;
-        } else {
-          remoteInfo.remoteItems.push({
-            item,
-            bucket,
-            state: remoteInfo.state!
-          });
-        }
-      }
-    }
-
-    const collection = this.toMap<CollectionItem>(localContent[0].collection!);
-    console.log('buckets to push', bucketsToPush);
-    for (const bucket of bucketsToPush) {
-      const rowIds = remoteInfo.remoteItems
-        .filter(i => i.bucket === bucket)
-        .map(i => i.item);
-      console.log('pushing bucket', bucket, rowIds);
-      const bucketContent = JSON.stringify(
-        rowIds.map(id => collection.get(id))
-      );
-      await this.pushItem(
-        `bucket${bucket}.json`,
-        this.config.folderid!,
-        bucketContent
-      );
-      // TODO for newly created buckets, update remoteInfo.buckets & local buckets
-    }
-
-    // TODO update lastRemoteChange on remoteState
-    console.debug('new remoteInfo in mem', remoteInfo);
-    return {
-      localBuckets: newLocalBuckets,
-      remoteInfo
-    };
-  }
-
-  private async assignBucket(remoteState: RemoteStateInfo) {
-    let i = 1;
-    if (!remoteState.buckets) {
-      remoteState.buckets = [];
-    }
-    // for each existing bucket: is there room left?
-    for (const bucket of remoteState.buckets) {
-      i++;
-      // TODO estimate bucket size with content not uploaded yet
-      if (bucket.size < this.bucketMaxSize) {
-        return bucket.rank;
-      }
-    }
-    console.debug('need to create a new bucket', i);
-    return i;
-  }
-
-  private toMap<T>(obj: UntypedTable) {
-    const map: Map<string, T> = new Map();
-    Object.keys(obj).forEach(id => {
-      map.set(id, { ...(obj[id] as unknown as T), id });
-    });
-    return map;
-  }
-
-  public async pull(
-    localContent: Content<SpaceType>,
-    localChanges: LocalChange[],
-    localBuckets: Bucket[],
-    remoteInfo: RemoteInfo,
-    force = false
-  ) {
-    if (!this.config) {
-      throw new Error('uninitialized pcloud config');
-    }
-    console.debug('pull with force', force, remoteInfo);
-    // TODO if localChanges, do something
-
-    const {
-      remoteContent,
-      localBuckets: newLocalBuckets,
-      remoteInfo: newRemoteInfo
-    } = await this.getRemoteContent(localContent, localBuckets, remoteInfo);
-
-    console.debug('localContent', localContent);
-    console.debug('localChanges', localChanges);
-    console.debug('localBuckets', localBuckets);
-    console.debug('newLocalBuckets', newLocalBuckets);
-    console.debug('remoteContent', remoteContent);
-    console.debug('remoteMetadata from db', remoteInfo);
-    console.debug('newRemoteInfo from provider', newRemoteInfo);
-
-    return {
-      content: remoteContent,
-      localBuckets: newLocalBuckets,
-      remoteInfo
-    };
-  }
-
-  private async pushItem(filename: string, folderid: string, content: string) {
-    if (!this.config) {
-      throw new Error('uninitialized pcloud config');
-    }
-    const resp = await this.uploadFile(content, filename, folderid);
+    const resp = await this.uploadFile(content, filename, this.config.folderid);
     if (resp.result !== PCloudResult.ok || resp.metadata.length === 0) {
       console.log('[pCloud] error uploading changes');
       // TODO handle error
     }
-
-    // TODO individual last modified VS global last modified?
   }
 
-  private async updateVersion(folderid: string) {
-    const resp = await this.uploadFile(
-      new Date().toISOString(),
-      'version.txt',
-      folderid
-    );
-    const modified = new Date(resp.metadata[0].modified).getTime();
-    if (this.remoteInfo.buckets) {
-      const bucketIdx = this.remoteInfo.buckets.findIndex(
-        b => b.bucket === folderid
-      );
-      if (bucketIdx !== -1) {
-        this.remoteInfo.buckets[bucketIdx].lastRemoteChange = modified;
-      }
-    } else {
-      this.remoteInfo.lastRemoteChange = modified;
-    }
-  }
-
-  public async pullItem(providerid: string) {
+  protected async pullItem(providerid: string) {
     if (!this.config) {
       throw new Error('uninitialized pcloud config');
     }

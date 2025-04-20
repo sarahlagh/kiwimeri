@@ -32,6 +32,7 @@ export const createRemoteCloudPersister = (
 ) => {
   return createCustomPersister(
     store,
+    // pull
     async () => {
       const localContent = store.getContent();
       const localChanges = localChangesService.getLocalChanges();
@@ -60,6 +61,7 @@ export const createRemoteCloudPersister = (
       }
       return localContent;
     },
+    // push
     async getContent => {
       const localContent = getContent();
       const localChanges = localChangesService.getLocalChanges();
