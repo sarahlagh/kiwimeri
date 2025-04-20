@@ -1,6 +1,7 @@
 import Loading from '@/app/components/Loading';
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
+import localChangesService from '@/db/localChanges.service';
 import storageService from '@/db/storage.service';
 import { ReactNode, useEffect, useState } from 'react';
 import { Queries } from 'tinybase/queries';
@@ -18,7 +19,7 @@ const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
       if (ok) {
         setIsLoading(false);
         listenerId = storageService.getSpace()?.addTablesListener(() => {
-          storageService.setLastLocalChange(Date.now());
+          localChangesService.setLastLocalChange(Date.now());
         });
       }
     }

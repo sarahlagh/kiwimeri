@@ -2,17 +2,22 @@ import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
 import { INTERNAL_FORMAT } from '@/constants';
 import { KMPCloudClient } from '@/storage-providers/pcloud/pcloud';
-import { StorageProvider } from '@/storage-providers/sync-core';
+import {
+  RemoteStateInfo,
+  StorageProvider
+} from '@/storage-providers/sync-core';
 import { Persister } from 'tinybase/persisters/with-schemas';
 import { useResultTable } from 'tinybase/ui-react';
+import { Row } from 'tinybase/with-schemas';
 import { createRemoteCloudPersister } from './persisters/remote-cloud-persister';
 import storageService from './storage.service';
-import { SpaceType } from './types/db-types';
-import { AnyData, RemoteResult } from './types/store-types';
+import { SpaceType, StoreType } from './types/db-types';
+import { AnyData, RemoteItemInfo, RemoteResult } from './types/store-types';
 
 class RemotesService {
   private readonly remotesTable = 'remotes';
   private readonly stateTable = 'remoteState';
+  private readonly remoteItemsTable = 'remoteItems';
 
   private providers: Map<string, StorageProvider> = new Map();
   private remotePersisters: Map<string, Persister<SpaceType>> = new Map();
@@ -41,6 +46,10 @@ class RemotesService {
   }
 
   public async initSyncConnection(space: string, initAll = false) {
+    storageService
+      .getStoreIndexes()
+      .setIndexDefinition('byRemoteState', 'remoteItems', 'state');
+
     const remotes = this.getRemotes();
     const connectedRemotes = remotes.filter(
       remote => initAll || remote.connected
@@ -101,7 +110,7 @@ class RemotesService {
         'config',
         JSON.stringify(newConf.config)
       );
-      this.setLastRemoteChange(remoteStateId, newConf.lastRemoteChange);
+      this.updateRemoteStateInfo(remoteStateId, newConf.remoteState);
     });
 
     this.setRemoteStateConnected(remoteStateId, newConf.connected);
@@ -154,6 +163,16 @@ class RemotesService {
     );
   }
 
+  public getLastRemoteChange(state: string) {
+    return (
+      storageService.getCell<number>(
+        this.stateTable,
+        state || '-1',
+        'lastRemoteChange'
+      ) || 0
+    );
+  }
+
   public addRemote(
     name: string,
     rank: number,
@@ -163,7 +182,7 @@ class RemotesService {
     const state = storageService.getStore().addRow(this.stateTable, {
       connected: false,
       lastRemoteChange: 0,
-      info: undefined
+      buckets: undefined
     });
     storageService.getStore().addRow(this.remotesTable, {
       rank,
@@ -208,13 +227,95 @@ class RemotesService {
     storageService.setCell(this.stateTable, remote, 'connected', connected);
   }
 
-  public setLastRemoteChange(stateId: string, lastRemoteChange: number) {
-    storageService.setCell(
+  public getCachedRemoteStateInfo(stateId: string) {
+    const remoteStateInfo = {} as RemoteStateInfo;
+    remoteStateInfo.state = stateId;
+    remoteStateInfo.lastRemoteChange = this.getLastRemoteChange(stateId);
+    const buckets = storageService.getCell<string>(
       this.stateTable,
       stateId,
-      'lastRemoteChange',
-      lastRemoteChange
+      'buckets'
     );
+    if (buckets) {
+      remoteStateInfo.buckets = JSON.parse(buckets);
+    }
+    return remoteStateInfo;
+  }
+
+  public getCachedRemoteItemInfo(stateId: string) {
+    const table = storageService.getStore().getTable(this.remoteItemsTable);
+    const rowIds = storageService
+      .getStoreIndexes()
+      .getSliceRowIds('byRemoteState', stateId);
+    const remoteItems: RemoteItemInfo[] = [];
+    rowIds.forEach(rowId => {
+      remoteItems.push({
+        ...table[rowId],
+        id: rowId
+      } as RemoteItemInfo);
+    });
+    return remoteItems;
+  }
+
+  public updateRemoteStateInfo(stateId: string, remoteInfo: RemoteStateInfo) {
+    storageService.getStore().transaction(() => {
+      storageService.setCell(
+        this.stateTable,
+        stateId,
+        'lastRemoteChange',
+        remoteInfo.lastRemoteChange
+      );
+      if (remoteInfo.buckets) {
+        storageService.setCell(
+          this.stateTable,
+          stateId,
+          'buckets',
+          JSON.stringify(remoteInfo.buckets)
+        );
+      }
+    });
+  }
+
+  public updateRemoteItemInfo(stateId: string, remoteItems: RemoteItemInfo[]) {
+    const dbItems = this.getCachedRemoteItemInfo(stateId);
+    const deletedItems = dbItems.filter(
+      c => !remoteItems.find(i => i.item === c.item)
+    );
+    const updatedItems = dbItems.filter(
+      c => remoteItems.find(i => i.item === c.item) !== undefined
+    );
+    const createdItems = remoteItems.filter(
+      r => !dbItems.find(i => i.item === r.item)
+    );
+    console.debug('items to delete', deletedItems);
+    console.debug('items to update', updatedItems);
+    console.debug('items to create', createdItems);
+    // TODO paginate for transaction
+    storageService.getStore().transaction(() => {
+      // delete ones on local missing in remote
+      deletedItems.forEach(remoteItem => {
+        storageService.getStore().delRow(this.remoteItemsTable, remoteItem.id!);
+      });
+      // update the existing ones
+      updatedItems.forEach(remoteItem => {
+        storageService
+          .getStore()
+          .setRow(
+            this.remoteItemsTable,
+            remoteItem.id!,
+            remoteItem as Row<StoreType[0], 'remoteItems'>
+          );
+      });
+      // create the rest
+      createdItems.forEach(remoteItem => {
+        storageService
+          .getStore()
+          .addRow(
+            this.remoteItemsTable,
+            remoteItem as Row<StoreType[0], 'remoteItems'>
+          );
+      });
+    });
   }
 
   public updateRemoteRank(currentRank: number, newRank: number) {

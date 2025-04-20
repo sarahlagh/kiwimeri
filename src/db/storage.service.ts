@@ -18,7 +18,7 @@ import {
 } from 'tinybase/store';
 import { CellSchema, createStore, Store } from 'tinybase/store/with-schemas';
 import { useCell, useResultSortedRowIds, useValue } from 'tinybase/ui-react';
-import { Id } from 'tinybase/with-schemas';
+import { createIndexes, Id, Indexes } from 'tinybase/with-schemas';
 import remotesService from './remotes.service';
 import { SpaceType, StoreType } from './types/db-types';
 
@@ -26,6 +26,7 @@ class StorageService {
   private store!: Store<StoreType>;
   private storeLocalPersister!: Persister<StoreType>;
   private storeQueries!: Queries<StoreType>;
+  private storeIndexes!: Indexes<StoreType>;
 
   private spaces: Map<string, Store<SpaceType>> = new Map();
   private spaceQueries: Map<string, Queries<SpaceType>> = new Map();
@@ -63,7 +64,12 @@ class StorageService {
         remoteState: {
           connected: { type: 'boolean' } as CellSchema,
           lastRemoteChange: { type: 'number' } as CellSchema,
-          info: { type: 'string' } as CellSchema
+          buckets: { type: 'string' } as CellSchema
+        },
+        remoteItems: {
+          state: { type: 'string' } as CellSchema,
+          item: { type: 'string' } as CellSchema,
+          bucket: { type: 'number' } as CellSchema
         }
       })
       .setValuesSchema({
@@ -77,6 +83,7 @@ class StorageService {
     );
 
     this.storeQueries = createQueries(this.store);
+    this.storeIndexes = createIndexes(this.store);
 
     // later: do that dynamically
     this.spaces.set(DEFAULT_SPACE_ID, this.createSpace());
@@ -161,6 +168,10 @@ class StorageService {
     return this.storeQueries as unknown as UntypedQueries;
   }
 
+  public getStoreIndexes() {
+    return this.storeIndexes;
+  }
+
   public useValue(valueId: Id) {
     return useValue(valueId, this.getUntypedStore());
   }
@@ -219,16 +230,6 @@ class StorageService {
       offset,
       limit
     );
-  }
-
-  public useLastLocalChange() {
-    return (
-      this.useCell<number>('spaces', this.getSpaceId(), 'lastLocalChange') || 0
-    );
-  }
-
-  public setLastLocalChange(now: number) {
-    this.setCell('spaces', this.getSpaceId(), 'lastLocalChange', now);
   }
 }
 

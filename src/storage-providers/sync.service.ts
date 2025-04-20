@@ -1,5 +1,5 @@
+import localChangesService from '@/db/localChanges.service';
 import remotesService from '@/db/remotes.service';
-import storageService from '@/db/storage.service';
 
 export type SyncDirection = 'push' | 'pull';
 
@@ -20,6 +20,7 @@ class SyncService {
     for (const remote of pushRemotes) {
       const persister = remotesService.getPersister(remote.id);
       if (persister) {
+        // TODO only primary, then use setTimeout for the others
         await persister.save();
       }
     }
@@ -45,7 +46,7 @@ class SyncService {
     return primary.connected;
   }
   public usePrimaryHasLocalChanges() {
-    const lastLocalChange = storageService.useLastLocalChange();
+    const lastLocalChange = localChangesService.useLastLocalChange();
     const lastRemoteChange = remotesService.usePrimaryLastRemoteChange();
     return lastLocalChange > lastRemoteChange;
   }

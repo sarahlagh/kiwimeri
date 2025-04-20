@@ -24,6 +24,7 @@ type spacesEnum = keyof Required<Space>;
 type localChangeEnum = keyof Required<Omit<LocalChange, 'id'>>;
 type remoteEnum = keyof Required<Omit<Remote, 'id'>>;
 type remoteStateEnum = keyof Required<Omit<RemoteState, 'id'>>;
+type remoteItemInfoEnum = keyof Required<Omit<RemoteItemInfo, 'id'>>;
 export type StoreType = [
   {
     // settings per space that won't be persisted outside of the current client
@@ -38,6 +39,9 @@ export type StoreType = [
     };
     remoteState: {
       [cellId in remoteStateEnum]: CellSchema;
+    };
+    remoteItems: {
+      [cellId in remoteItemInfoEnum]: CellSchema;
     };
   },
   {

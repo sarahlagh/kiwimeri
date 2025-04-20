@@ -3,10 +3,10 @@ import { LocalChange, LocalChangeType } from './types/store-types';
 
 class LocalChangesService {
   private readonly table = 'localChanges';
-
+  private readonly queryPrefix = 'fetchLocalChanges';
   private fetchAllLocalChangesQuery(space: string) {
     const queries = storageService.getStoreQueries();
-    const queryName = `fetchAllLocalChangesFor${space}`;
+    const queryName = `${this.queryPrefix}For${space}`;
     if (!queries.hasQuery(queryName)) {
       queries.setQueryDefinition(queryName, this.table, ({ select, where }) => {
         select('item');
@@ -21,7 +21,7 @@ class LocalChangesService {
 
   private fetchLocalChangesForItemQuery(space: string, item: string) {
     const queries = storageService.getStoreQueries();
-    const queryName = `fetchLocalChangesForItem${item}For${space}`;
+    const queryName = `${this.queryPrefix}For${space}ForItem${item}`;
     if (!queries.hasQuery(queryName)) {
       queries.setQueryDefinition(queryName, this.table, ({ select, where }) => {
         select('change');
@@ -47,21 +47,29 @@ class LocalChangesService {
     if (change === LocalChangeType.update) {
       // if field update, merge with existing row if any
       const table = storageService.getStore().getTable(this.table);
-      const queryName = this.fetchAllLocalChangesQuery(space);
+      const queryName = this.fetchLocalChangesForItemQuery(space, item);
       const rowIds = storageService.getResultSortedRowIds(
         queryName,
         'updated',
         true
       );
 
+      // if was added, don't count update
+      let oldestRow;
       for (const rowId of rowIds) {
         const row = table[rowId];
-        if (row.item === item && row.field === field) {
-          storageService
-            .getStore()
-            .setCell(this.table, rowId, 'updated', localChange.updated);
-          return;
+        if (row.change === LocalChangeType.add) {
+          oldestRow = rowId;
+          break;
+        } else if (row.field === field) {
+          oldestRow = rowId;
         }
+      }
+      if (oldestRow !== undefined) {
+        storageService
+          .getStore()
+          .setCell(this.table, oldestRow, 'updated', localChange.updated);
+        return;
       }
     } else if (change === LocalChangeType.delete) {
       // if row deletion, but was added as part of local changes, remove any local changes associated
@@ -100,16 +108,50 @@ class LocalChangesService {
       'updated',
       true
     );
-    return rowIds.map(rowId => ({ ...table[rowId], id: rowId }));
+    return rowIds.map(rowId => ({ ...table[rowId], id: rowId }) as LocalChange);
   }
 
-  public clearTable() {
-    // TODO: handle per space
-    storageService.getStore().delTable(this.table);
-    const ids = storageService.getStoreQueries().getQueryIds();
+  public clearLocalChanges() {
+    const space = storageService.getSpaceId();
+    const queryName = this.fetchAllLocalChangesQuery(space);
+
+    // clear rows
+    storageService.getStore().transaction(() => {
+      storageService
+        .getStoreQueries()
+        .getResultRowIds(queryName)
+        .forEach(rowId => {
+          storageService.getStore().delRow(this.table, rowId);
+        });
+    });
+
+    // clear queries
+    const ids = storageService
+      .getStoreQueries()
+      .getQueryIds()
+      .filter(queryId => queryId.startsWith(`${this.queryPrefix}For${space}`));
     for (const queryId of ids) {
       storageService.getStoreQueries().delQueryDefinition(queryId);
     }
+  }
+
+  public useLastLocalChange() {
+    return (
+      storageService.useCell<number>(
+        'spaces',
+        storageService.getSpaceId(),
+        'lastLocalChange'
+      ) || 0
+    );
+  }
+
+  public setLastLocalChange(now: number) {
+    storageService.setCell(
+      'spaces',
+      storageService.getSpaceId(),
+      'lastLocalChange',
+      now
+    );
   }
 }
 

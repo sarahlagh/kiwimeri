@@ -25,11 +25,22 @@ const OperationSettings = () => {
         fill="clear"
         onClick={() => {
           storageService.getSpace().setContent([{}, {}]);
-          localChangesService.clearTable();
+          localChangesService.clearLocalChanges();
         }}
         color="danger"
       >
         <Trans>nuke space</Trans>
+      </IonButton>
+      <IonButton
+        fill="clear"
+        onClick={() => {
+          storageService.getSpace().setContent([{}, {}]);
+          localChangesService.clearLocalChanges();
+          storageService.getStore().delTable('remoteItems');
+        }}
+        color="danger"
+      >
+        <Trans>nuke space & remote</Trans>
       </IonButton>
     </IonCard>
   );

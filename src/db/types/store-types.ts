@@ -46,12 +46,12 @@ export interface RemoteState {
   id?: string;
   connected?: boolean;
   lastRemoteChange?: number;
-  info?: AnyData;
+  buckets?: AnyData;
 }
 
 export interface RemoteItemInfo {
   id?: string;
   state: string; // id in remote state table
   item: string; // id in collection table
-  bucket: string; // the filename
+  bucket: number; // the bucket number
 }
