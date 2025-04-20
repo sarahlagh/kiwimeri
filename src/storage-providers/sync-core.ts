@@ -23,6 +23,7 @@ export type RemoteInfo = {
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface StorageProvider {
   configure: (conf: any, proxy?: string, useHttp?: boolean) => void; // accept user input and save in local store
+
   init: (remoteStateId?: string) => Promise<{
     connected: boolean;
     config: any;

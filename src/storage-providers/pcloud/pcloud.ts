@@ -1,5 +1,5 @@
 import { RemoteStateInfo } from '@/storage-providers/sync-core';
-import { BucketStorageProvider } from '../bucket.provider';
+import { SimpleStorageProvider } from '../simple.provider';
 import {
   PCloudLinkResponse,
   PCloudListResponse,
@@ -15,10 +15,11 @@ export type PCloudConf = {
   folderid?: string;
 };
 
-export class PCloudProvider extends BucketStorageProvider {
+export class PCloudProvider extends SimpleStorageProvider {
   private proxy?: string;
   private config: PCloudConf | null = null;
   private serverUrl!: string;
+  private fileid!: number;
 
   private api = {
     us: 'api.pcloud.com',
@@ -54,7 +55,51 @@ export class PCloudProvider extends BucketStorageProvider {
     });
   }
 
-  protected async fetchRemoteStateInfo(state?: string) {
+  // protected async fetchRemoteStateInfo(state?: string) {
+  //   if (!this.config) {
+  //     throw new Error('uninitialized pcloud config');
+  //   }
+  //   const remoteStateInfo: RemoteStateInfo = {
+  //     lastRemoteChange: 0,
+  //     state,
+  //     buckets: []
+  //   };
+  //   let res: PCloudListResponse;
+  //   if (!this.config.folderid) {
+  //     res = await this.getFetch<PCloudListResponse>('listfolder', {
+  //       path: this.config.path
+  //     });
+  //   } else {
+  //     res = await this.getFetch<PCloudListResponse>('listfolder', {
+  //       folderid: this.config.folderid
+  //     });
+  //   }
+  //   if (res.result !== PCloudResult.ok) {
+  //     console.error('[pCloud] error:', res);
+  //     return { ok: false, remoteStateInfo };
+  //   }
+  //   this.config.folderid = `${res.metadata!.folderid!}`;
+  //   let lastRemoteChange = 0;
+  //   if (res.metadata?.contents) {
+  //     remoteStateInfo.buckets = res.metadata.contents
+  //       .filter(f => !f.isfolder && f.name.match(/bucket(\d*).json/))
+  //       .map(f => ({
+  //         rank: this.parseRank(f.name),
+  //         providerid: `${f.fileid}`,
+  //         size: f.size,
+  //         hash: f.hash,
+  //         lastRemoteChange: new Date(f.modified).getTime()
+  //       }));
+  //     lastRemoteChange = Math.max(
+  //       ...remoteStateInfo.buckets.map(b => b.lastRemoteChange)
+  //     );
+  //   }
+  //   remoteStateInfo.lastRemoteChange = lastRemoteChange;
+  //   console.log('[pCloud] connection tested OK');
+  //   return { ok: true, remoteStateInfo };
+  // }
+
+  protected async testConnection(state?: string) {
     if (!this.config) {
       throw new Error('uninitialized pcloud config');
     }
@@ -75,27 +120,18 @@ export class PCloudProvider extends BucketStorageProvider {
     }
     if (res.result !== PCloudResult.ok) {
       console.error('[pCloud] error:', res);
-      return { ok: false, remoteStateInfo };
+      return { ok: false, lastRemoteChange: 0 };
     }
     this.config.folderid = `${res.metadata!.folderid!}`;
-    let lastRemoteChange = 0;
     if (res.metadata?.contents) {
-      remoteStateInfo.buckets = res.metadata.contents
-        .filter(f => !f.isfolder && f.name.match(/bucket(\d*).json/))
-        .map(f => ({
-          rank: this.parseRank(f.name),
-          providerid: `${f.fileid}`,
-          size: f.size,
-          hash: f.hash,
-          lastRemoteChange: new Date(f.modified).getTime()
-        }));
-      lastRemoteChange = Math.max(
-        ...remoteStateInfo.buckets.map(b => b.lastRemoteChange)
-      );
+      const f = res.metadata.contents.find(f => f.name === this.filename);
+      if (f) {
+        this.fileid = f.fileid;
+        remoteStateInfo.lastRemoteChange = new Date(f.modified).getTime();
+      }
     }
-    remoteStateInfo.lastRemoteChange = lastRemoteChange;
     console.log('[pCloud] connection tested OK');
-    return { ok: true, remoteStateInfo };
+    return { ok: true, lastRemoteChange: remoteStateInfo.lastRemoteChange };
   }
 
   protected async pushItem(filename: string, content: string) {
@@ -109,11 +145,12 @@ export class PCloudProvider extends BucketStorageProvider {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected async pullItem(providerid: string) {
-    if (!this.config) {
+    if (!this.config || !this.fileid) {
       throw new Error('uninitialized pcloud config');
     }
-    const content = await this.downloadFile(providerid);
+    const content = await this.downloadFile(`${this.fileid}`);
     return { content };
   }
 
