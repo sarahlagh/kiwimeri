@@ -2,7 +2,7 @@ import { CollectionItem } from '@/collection/collection';
 import { SpaceType } from '@/db/types/db-types';
 import { LocalChange } from '@/db/types/store-types';
 import {
-  RemoteBucket,
+  Bucket,
   RemoteInfo,
   RemoteStateInfo,
   StorageProvider
@@ -80,6 +80,7 @@ export class KMPCloudClient implements StorageProvider {
       return { ok: false, remoteStateInfo };
     }
     this.config.folderid = `${res.metadata!.folderid!}`;
+    let lastRemoteChange = 0;
     if (res.metadata?.contents) {
       remoteStateInfo.buckets = res.metadata.contents
         .filter(f => !f.isfolder && f.name.match(/bucket(\d*).json/))
@@ -88,9 +89,13 @@ export class KMPCloudClient implements StorageProvider {
           providerid: `${f.fileid}`,
           size: f.size,
           hash: f.hash,
-          lastRemoteChange: 0
+          lastRemoteChange: new Date(f.modified).getTime()
         }));
+      lastRemoteChange = Math.max(
+        ...remoteStateInfo.buckets.map(b => b.lastRemoteChange)
+      );
     }
+    remoteStateInfo.lastRemoteChange = lastRemoteChange;
     console.log('[pCloud] connection tested OK');
     return { ok: true, remoteStateInfo };
   }
@@ -130,21 +135,23 @@ export class KMPCloudClient implements StorageProvider {
 
   public async getRemoteContent(
     localContent: Content<SpaceType>,
+    localBuckets: Bucket[],
     remoteInfo: RemoteInfo
   ) {
     if (!this.config) {
       throw new Error('uninitialized pcloud config');
     }
+    const newLocalBuckets = [...localBuckets];
     const remoteContent: Content<SpaceType> = [{ collection: {} }, {}];
     // fetch new remoteInfo from pcloud, update this.remoteInfo
     const { remoteStateInfo: newRemoteState } = await this.fetchRemoteStateInfo(
-      remoteInfo.remoteState.state
+      remoteInfo.state
     );
 
     // determine which existing buckets have changed locally
-    const bucketsUpdatedRemotely: RemoteBucket[] = [];
-    const bucketsUnchanged: RemoteBucket[] = [];
-    for (const bucket of remoteInfo.remoteState.buckets || []) {
+    const bucketsUpdatedRemotely: Bucket[] = [];
+    const bucketsUnchanged: Bucket[] = [];
+    for (const bucket of localBuckets) {
       const remoteBucketObj = newRemoteState.buckets?.find(
         b => b.providerid === bucket.providerid
       );
@@ -156,11 +163,29 @@ export class KMPCloudClient implements StorageProvider {
         }
       }
     }
+    for (const remoteBucket of newRemoteState.buckets) {
+      const localBucketObj = localBuckets.find(
+        b => b.providerid === remoteBucket.providerid
+      );
+      // if remote bucket doesn't exist yet, pull it
+      if (!localBucketObj) {
+        newLocalBuckets.push(remoteBucket);
+        bucketsUpdatedRemotely.push(remoteBucket);
+      }
+    }
     // fetch only those buckets from provider
     for (const bucket of bucketsUpdatedRemotely) {
       const { content } = await this.pullItem(bucket.providerid);
       for (const item of content as CollectionItem[]) {
         remoteContent[0].collection![item.id!] = item;
+        const remoteItem = remoteInfo.remoteItems.find(i => i.item === item.id);
+        if (!remoteItem) {
+          remoteInfo.remoteItems.push({
+            item: item.id!,
+            bucket: bucket.rank,
+            state: remoteInfo.state!
+          });
+        }
       }
     }
     // complete collection with unchanged buckets
@@ -174,10 +199,16 @@ export class KMPCloudClient implements StorageProvider {
       }
     }
 
+    // TODO update remoteItems
+
     // what to do about deleted buckets remotely?
     // how do i know if something has been deleted from remote, or if it has never been pushed?
     console.debug('reconstitued db', remoteContent);
-    return { remoteContent, remoteState: newRemoteState };
+    return {
+      remoteContent,
+      localBuckets: newLocalBuckets,
+      remoteInfo
+    };
   }
 
   public async merge(
@@ -194,15 +225,18 @@ export class KMPCloudClient implements StorageProvider {
   public async push(
     localContent: Content<SpaceType>,
     localChanges: LocalChange[],
+    localBuckets: Bucket[],
     remoteInfo: RemoteInfo,
     force = false
   ) {
     if (!this.config) {
       throw new Error('uninitialized pcloud config');
     }
-    const { remoteContent, remoteState: newRemoteState } =
-      await this.getRemoteContent(localContent, remoteInfo);
-    remoteInfo.remoteState = newRemoteState;
+    const {
+      remoteContent,
+      localBuckets: newLocalBuckets,
+      remoteInfo: newRemoteInfo
+    } = await this.getRemoteContent(localContent, localBuckets, remoteInfo);
     const mergedContent = await this.merge(
       localContent,
       remoteContent,
@@ -215,7 +249,7 @@ export class KMPCloudClient implements StorageProvider {
     console.debug('remoteContent', remoteContent);
     console.debug('mergedContent', mergedContent);
     console.debug('remoteMetadata from db', remoteInfo);
-    console.debug('newRemoteState from provider', newRemoteState);
+    console.debug('newRemoteInfo from provider', newRemoteInfo);
 
     // determine which buckets need to be pushed
     const bucketsToPush = new Set<number>();
@@ -227,7 +261,7 @@ export class KMPCloudClient implements StorageProvider {
         bucketsToPush.add(remoteItem.bucket);
       } else {
         // if not, assign a bucket
-        const bucket = await this.assignBucket(remoteInfo.remoteState);
+        const bucket = await this.assignBucket(remoteInfo);
         bucketsToPush.add(bucket);
         if (remoteItem) {
           remoteInfo.remoteItems.find(ri => ri.item === item)!.bucket = bucket;
@@ -235,7 +269,7 @@ export class KMPCloudClient implements StorageProvider {
           remoteInfo.remoteItems.push({
             item,
             bucket,
-            state: remoteInfo.remoteState.state!
+            state: remoteInfo.state!
           });
         }
       }
@@ -256,11 +290,15 @@ export class KMPCloudClient implements StorageProvider {
         this.config.folderid!,
         bucketContent
       );
-      // TODO for newly created buckets, update remoteInfo.remoteState.buckets
+      // TODO for newly created buckets, update remoteInfo.buckets & local buckets
     }
 
+    // TODO update lastRemoteChange on remoteState
     console.debug('new remoteInfo in mem', remoteInfo);
-    return { remoteInfo };
+    return {
+      localBuckets: newLocalBuckets,
+      remoteInfo
+    };
   }
 
   private async assignBucket(remoteState: RemoteStateInfo) {
@@ -291,30 +329,35 @@ export class KMPCloudClient implements StorageProvider {
   public async pull(
     localContent: Content<SpaceType>,
     localChanges: LocalChange[],
+    localBuckets: Bucket[],
     remoteInfo: RemoteInfo,
     force = false
   ) {
     if (!this.config) {
       throw new Error('uninitialized pcloud config');
     }
-    // on first pull, it might not exist
-    if (!this.remoteInfo.info || !this.remoteInfo.lastRemoteChange) {
-      return { content: localContent, remoteInfo };
-    }
     console.debug('pull with force', force, remoteInfo);
+    // TODO if localChanges, do something
 
-    // if (!remoteInfo.info) {
-    //   return { remoteInfo };
-    // }
-    // const content = await this.downloadFile(this.r);
-    // const content = {}; // TODO
-    // TODO update remoteLastModified too
-    // remoteInfo = {
-    //   lastRemoteChange: this.remoteLastModified,
-    //   info: this.versionInfo, // TODO
-    //   remoteItems: [] // TODO
-    // };
-    return { content: localContent, remoteInfo }; // TODO content
+    const {
+      remoteContent,
+      localBuckets: newLocalBuckets,
+      remoteInfo: newRemoteInfo
+    } = await this.getRemoteContent(localContent, localBuckets, remoteInfo);
+
+    console.debug('localContent', localContent);
+    console.debug('localChanges', localChanges);
+    console.debug('localBuckets', localBuckets);
+    console.debug('newLocalBuckets', newLocalBuckets);
+    console.debug('remoteContent', remoteContent);
+    console.debug('remoteMetadata from db', remoteInfo);
+    console.debug('newRemoteInfo from provider', newRemoteInfo);
+
+    return {
+      content: remoteContent,
+      localBuckets: newLocalBuckets,
+      remoteInfo
+    };
   }
 
   private async pushItem(filename: string, folderid: string, content: string) {

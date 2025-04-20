@@ -101,7 +101,10 @@ class RemotesService {
     }
     const storageProvider = this.providers.get(remoteId)!;
     storageProvider.configure(initConfig, proxy, useHttp);
-    const newConf = await storageProvider.init(storageService.getSpaceId());
+    const newConf = await storageProvider.init(
+      storageService.getSpaceId(),
+      remoteStateId
+    );
 
     storageService.getStore().transaction(() => {
       storageService.setCell(

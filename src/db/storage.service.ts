@@ -43,7 +43,8 @@ class StorageService {
           } as CellSchema,
           currentFolder: { type: 'string', default: ROOT_FOLDER } as CellSchema,
           currentDocument: { type: 'string' } as CellSchema,
-          lastLocalChange: { type: 'number' } as CellSchema
+          lastLocalChange: { type: 'number' } as CellSchema,
+          buckets: { type: 'string' } as CellSchema
         },
         localChanges: {
           space: { type: 'string' } as CellSchema,

@@ -1,3 +1,5 @@
+import { Bucket } from '@/storage-providers/sync-core';
+
 export interface AnyData {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [k: string]: any;
@@ -8,6 +10,7 @@ export interface Space {
   currentFolder?: string;
   currentDocument?: string;
   lastLocalChange: number;
+  buckets?: Bucket;
 }
 
 export enum LocalChangeType {
@@ -17,6 +20,7 @@ export enum LocalChangeType {
 }
 
 export type LocalChangeTypeValues = 'a' | 'u' | 'd';
+
 export interface LocalChange {
   id?: string;
   space: string;
@@ -46,7 +50,7 @@ export interface RemoteState {
   id?: string;
   connected?: boolean;
   lastRemoteChange?: number;
-  buckets?: AnyData;
+  buckets?: Bucket;
 }
 
 export interface RemoteItemInfo {

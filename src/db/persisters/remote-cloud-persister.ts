@@ -1,4 +1,8 @@
-import { RemoteInfo, StorageProvider } from '@/storage-providers/sync-core';
+import {
+  Bucket,
+  RemoteInfo,
+  StorageProvider
+} from '@/storage-providers/sync-core';
 import { createCustomPersister } from 'tinybase/persisters/with-schemas';
 import { Store } from 'tinybase/with-schemas';
 import localChangesService from '../localChanges.service';
@@ -7,13 +11,16 @@ import storageService from '../storage.service';
 import { SpaceType } from '../types/db-types';
 import { RemoteResult } from '../types/store-types';
 
-const updateRemoteInfo = (state: string, remoteInfo: RemoteInfo) => {
+const updateRemoteInfo = (
+  state: string,
+  localBuckets: Bucket[],
+  remoteInfo: RemoteInfo
+) => {
   storageService.getStore().transaction(() => {
-    localChangesService.setLastLocalChange(
-      remoteInfo.remoteState.lastRemoteChange
-    );
+    localChangesService.setLastLocalChange(remoteInfo.lastRemoteChange);
+    localChangesService.setLocalBuckets(localBuckets);
     localChangesService.clearLocalChanges();
-    remotesService.updateRemoteStateInfo(state, remoteInfo.remoteState);
+    remotesService.updateRemoteStateInfo(state, remoteInfo);
     remotesService.updateRemoteItemInfo(state, remoteInfo.remoteItems);
   });
 };
@@ -28,6 +35,7 @@ export const createRemoteCloudPersister = (
     async () => {
       const localContent = store.getContent();
       const localChanges = localChangesService.getLocalChanges();
+      const localBuckets = localChangesService.getLocalBuckets();
       if (provider) {
         console.log(`pulling from remote ${remote.name}`);
         const remoteState = remotesService.getCachedRemoteStateInfo(
@@ -36,12 +44,17 @@ export const createRemoteCloudPersister = (
         const remoteItems = remotesService.getCachedRemoteItemInfo(
           remote.state
         );
-        const resp = await provider.pull(localContent, localChanges, {
-          remoteState,
-          remoteItems
-        });
+        const resp = await provider.pull(
+          localContent,
+          localChanges,
+          localBuckets,
+          {
+            ...remoteState,
+            remoteItems
+          }
+        );
         if (resp && resp.content) {
-          updateRemoteInfo(remote.state, resp.remoteInfo);
+          updateRemoteInfo(remote.state, resp.localBuckets, resp.remoteInfo);
           return resp.content;
         }
       }
@@ -50,14 +63,20 @@ export const createRemoteCloudPersister = (
     async getContent => {
       const localContent = getContent();
       const localChanges = localChangesService.getLocalChanges();
+      const localBuckets = localChangesService.getLocalBuckets();
       const remoteState = remotesService.getCachedRemoteStateInfo(remote.state);
       const remoteItems = remotesService.getCachedRemoteItemInfo(remote.state);
       console.log(`pushing to remote ${remote.name} `);
-      const resp = await provider.push(localContent, localChanges, {
-        remoteState,
-        remoteItems
-      });
-      updateRemoteInfo(remote.state, resp.remoteInfo);
+      const resp = await provider.push(
+        localContent,
+        localChanges,
+        localBuckets,
+        {
+          ...remoteState,
+          remoteItems
+        }
+      );
+      updateRemoteInfo(remote.state, resp.localBuckets, resp.remoteInfo);
     },
     listener => setInterval(listener, 1000),
     interval => clearInterval(interval)

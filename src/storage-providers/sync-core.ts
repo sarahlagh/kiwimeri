@@ -2,7 +2,7 @@ import { SpaceType } from '@/db/types/db-types';
 import { LocalChange, RemoteItemInfo } from '@/db/types/store-types';
 import { Content } from 'tinybase/with-schemas';
 
-export type RemoteBucket = {
+export type Bucket = {
   rank: number;
   providerid: string;
   lastRemoteChange: number;
@@ -13,13 +13,12 @@ export type RemoteBucket = {
 export type RemoteStateInfo = {
   state?: string;
   lastRemoteChange: number;
-  buckets: RemoteBucket[];
+  buckets: Bucket[];
 };
 
 export type RemoteInfo = {
-  remoteState: RemoteStateInfo;
   remoteItems: RemoteItemInfo[];
-};
+} & RemoteStateInfo;
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface StorageProvider {
@@ -33,13 +32,14 @@ export interface StorageProvider {
     remoteState: RemoteStateInfo;
   }>;
 
-  // TODO: method pour reconstituer remoteContent: Content<SpaceType> from changed files and info in db
   getRemoteContent: (
     localContent: Content<SpaceType>,
+    localBuckets: Bucket[],
     remoteInfo: RemoteInfo
   ) => Promise<{
     remoteContent: Content<SpaceType>;
-    remoteState: RemoteStateInfo;
+    localBuckets: Bucket[];
+    remoteInfo: RemoteInfo;
   }>;
 
   merge: (
@@ -51,18 +51,21 @@ export interface StorageProvider {
   pull: (
     localContent: Content<SpaceType>,
     localChanges: LocalChange[],
+    localBuckets: Bucket[],
     // remoteContent: Content<SpaceType>,
     remoteInfo: RemoteInfo,
     force?: boolean
   ) => Promise<{
     content?: Content<SpaceType>;
+    localBuckets: Bucket[];
     remoteInfo: RemoteInfo;
   }>; // pull space from provider
   push: (
     localContent: Content<SpaceType>,
     localChanges: LocalChange[],
+    localBuckets: Bucket[],
     // remoteContent: Content<SpaceType>,
     remoteInfo: RemoteInfo,
     force?: boolean
-  ) => Promise<{ remoteInfo: RemoteInfo }>; // force push space to provider
+  ) => Promise<{ localBuckets: Bucket[]; remoteInfo: RemoteInfo }>; // force push space to provider
 }

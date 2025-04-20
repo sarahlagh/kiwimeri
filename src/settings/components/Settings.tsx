@@ -1,3 +1,4 @@
+import { appConfig } from '@/config';
 import RemotesSettings from './providers/RemotesSettings';
 import ImportExportCollectionSettings from './sections/ImportExportCollectionSettings';
 import ImportExportStoreSettings from './sections/ImportExportStoreSettings';
@@ -9,7 +10,7 @@ const Settings = () => {
       <RemotesSettings />
       <ImportExportCollectionSettings />
       <ImportExportStoreSettings />
-      <OperationSettings />
+      {!appConfig.IS_RELEASE && <OperationSettings />}
     </>
   );
 };
