@@ -2,7 +2,7 @@
 // allows you to do things like:
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
-import { InMemProvider } from '@/storage-providers/inmem.provider';
+import { InMemProvider } from '@/remote-storage/storage-providers/inmem.provider';
 import '@testing-library/jest-dom/extend-expect';
 import storageService from '../../db/storage.service';
 

@@ -1,4 +1,4 @@
-import { Bucket, RemoteInfo, StorageLayer } from '@/storage-providers/types';
+import { Bucket, RemoteInfo, StorageLayer } from '@/remote-storage/types';
 import { createCustomPersister } from 'tinybase/persisters/with-schemas';
 import { Store } from 'tinybase/with-schemas';
 import localChangesService from '../localChanges.service';
@@ -24,7 +24,7 @@ const updateRemoteInfo = (
 export const createRemoteCloudPersister = (
   store: Store<SpaceType>,
   remote: RemoteResult,
-  provider: StorageLayer
+  storageLayer: StorageLayer
 ) => {
   return createCustomPersister(
     store,
@@ -33,7 +33,7 @@ export const createRemoteCloudPersister = (
       const localContent = store.getContent();
       const localChanges = localChangesService.getLocalChanges();
       const localBuckets = localChangesService.getLocalBuckets();
-      if (provider) {
+      if (storageLayer) {
         console.log(`pulling from remote ${remote.name}`);
         const remoteState = remotesService.getCachedRemoteStateInfo(
           remote.state
@@ -41,7 +41,7 @@ export const createRemoteCloudPersister = (
         const remoteItems = remotesService.getCachedRemoteItemInfo(
           remote.state
         );
-        const resp = await provider.pull(
+        const resp = await storageLayer.pull(
           localContent,
           localChanges,
           localBuckets,
@@ -65,7 +65,7 @@ export const createRemoteCloudPersister = (
       const remoteState = remotesService.getCachedRemoteStateInfo(remote.state);
       const remoteItems = remotesService.getCachedRemoteItemInfo(remote.state);
       console.log(`pushing to remote ${remote.name} `);
-      const resp = await provider.push(
+      const resp = await storageLayer.push(
         localContent,
         localChanges,
         localBuckets,

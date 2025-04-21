@@ -1,4 +1,4 @@
-import { Bucket } from '@/storage-providers/types';
+import { Bucket } from '@/remote-storage/types';
 import storageService from './storage.service';
 import { LocalChange, LocalChangeType } from './types/store-types';
 

@@ -1,5 +1,5 @@
 import SyncRemoteButton from '@/common/buttons/SyncRemoteButton';
-import { syncService } from '@/storage-providers/sync.service';
+import { syncService } from '@/remote-storage/sync.service';
 import {
   InputCustomEvent,
   IonButtons,

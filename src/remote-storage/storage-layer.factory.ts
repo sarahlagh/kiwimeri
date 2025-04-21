@@ -1,7 +1,7 @@
-import { InMemProvider } from './inmem.provider';
-import { PCloudProvider } from './pcloud/pcloud';
 import { BucketStorageLayer } from './storage-layers/bucket.layer';
 import { SimpleStorageLayer } from './storage-layers/simple.layer';
+import { InMemProvider } from './storage-providers/inmem.provider';
+import { PCloudProvider } from './storage-providers/pcloud/pcloud';
 
 export type ProviderTypes = 'pcloud' | 'inmem';
 export type LayerTypes = 'simple' | 'bucket';

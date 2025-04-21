@@ -1,7 +1,4 @@
-import {
-  FileStorageProvider,
-  RemoteStateInfo
-} from '@/storage-providers/types';
+import { FileStorageProvider, RemoteStateInfo } from '@/remote-storage/types';
 import {
   PCloudLinkResponse,
   PCloudListResponse,

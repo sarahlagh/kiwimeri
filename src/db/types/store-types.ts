@@ -1,5 +1,5 @@
-import { ProviderTypes } from '@/storage-providers/storage-layer.factory';
-import { Bucket } from '@/storage-providers/types';
+import { ProviderTypes } from '@/remote-storage/storage-layer.factory';
+import { Bucket } from '@/remote-storage/types';
 
 export interface AnyData {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

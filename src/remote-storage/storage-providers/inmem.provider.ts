@@ -1,10 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { CollectionItem } from '@/collection/collection';
-import {
-  FileStorageProvider,
-  RemoteStateInfo
-} from '@/storage-providers/types';
+import { FileStorageProvider, RemoteStateInfo } from '@/remote-storage/types';
 
 // for testing
 export class InMemProvider extends FileStorageProvider {

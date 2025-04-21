@@ -4,8 +4,8 @@ import { INTERNAL_FORMAT } from '@/constants';
 import {
   LayerTypes,
   storageLayerFactory
-} from '@/storage-providers/storage-layer.factory';
-import { RemoteStateInfo, StorageLayer } from '@/storage-providers/types';
+} from '@/remote-storage/storage-layer.factory';
+import { RemoteStateInfo, StorageLayer } from '@/remote-storage/types';
 import { Persister } from 'tinybase/persisters/with-schemas';
 import { useResultTable } from 'tinybase/ui-react';
 import { Row } from 'tinybase/with-schemas';
@@ -19,7 +19,7 @@ class RemotesService {
   private readonly stateTable = 'remoteState';
   private readonly remoteItemsTable = 'remoteItems';
 
-  private layer: LayerTypes = 'bucket';
+  private layer: LayerTypes = 'simple';
   private providers: Map<string, StorageLayer> = new Map();
   private remotePersisters: Map<string, Persister<SpaceType>> = new Map();
 
