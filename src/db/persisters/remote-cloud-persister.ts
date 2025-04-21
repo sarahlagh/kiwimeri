@@ -10,12 +10,18 @@ import { RemoteResult } from '../types/store-types';
 const updateRemoteInfo = (
   state: string,
   localBuckets: Bucket[],
-  remoteInfo: RemoteInfo
+  remoteInfo: RemoteInfo,
+  updateLocalChanges: boolean,
+  clearLocalChanges: boolean
 ) => {
   storageService.getStore().transaction(() => {
-    localChangesService.setLastLocalChange(remoteInfo.lastRemoteChange);
+    if (updateLocalChanges) {
+      localChangesService.setLastLocalChange(remoteInfo.lastRemoteChange);
+    }
+    if (clearLocalChanges) {
+      localChangesService.clearLocalChanges();
+    }
     localChangesService.setLocalBuckets(localBuckets);
-    localChangesService.clearLocalChanges();
     remotesService.updateRemoteStateInfo(state, remoteInfo);
     remotesService.updateRemoteItemInfo(state, remoteInfo.remoteItems);
   });
@@ -51,7 +57,13 @@ export const createRemoteCloudPersister = (
           }
         );
         if (resp && resp.content) {
-          updateRemoteInfo(remote.state, resp.localBuckets, resp.remoteInfo);
+          updateRemoteInfo(
+            remote.state,
+            resp.localBuckets,
+            resp.remoteInfo,
+            localChanges.length === 0,
+            false
+          );
           return resp.content;
         }
       }
@@ -74,7 +86,13 @@ export const createRemoteCloudPersister = (
           remoteItems
         }
       );
-      updateRemoteInfo(remote.state, resp.localBuckets, resp.remoteInfo);
+      updateRemoteInfo(
+        remote.state,
+        resp.localBuckets,
+        resp.remoteInfo,
+        true,
+        true
+      );
     },
     listener => setInterval(listener, 1000),
     interval => clearInterval(interval)

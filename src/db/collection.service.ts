@@ -67,6 +67,7 @@ class CollectionService {
     if (id) {
       localChangesService.addLocalChange(id, LocalChangeType.add);
     }
+    return id;
   }
 
   public addFolder(parent: string) {
@@ -83,6 +84,7 @@ class CollectionService {
     if (id) {
       localChangesService.addLocalChange(id, LocalChangeType.add);
     }
+    return id;
   }
 
   public deleteItem(rowId: Id) {

@@ -19,7 +19,7 @@ class RemotesService {
   private readonly stateTable = 'remoteState';
   private readonly remoteItemsTable = 'remoteItems';
 
-  private layer: LayerTypes = 'simple';
+  private layer: LayerTypes = appConfig.DEFAULT_STORAGE_LAYER;
   private providers: Map<string, StorageLayer> = new Map();
   private remotePersisters: Map<string, Persister<SpaceType>> = new Map();
 
@@ -92,12 +92,7 @@ class RemotesService {
       proxy = appConfig.INTERNAL_HTTP_PROXY;
       useHttp = appConfig.DEV_USE_HTTP_IF_POSSIBLE;
     }
-    if (!this.providers.has(remote.id)) {
-      this.providers.set(
-        remote.id,
-        storageLayerFactory(remote.type, this.layer)
-      );
-    }
+    this.providers.set(remote.id, storageLayerFactory(remote.type, this.layer));
     const storageProvider = this.providers.get(remote.id)!;
     storageProvider.configure(config, proxy, useHttp);
     const newConf = await storageProvider.init(remote.state);
@@ -183,15 +178,19 @@ class RemotesService {
       lastRemoteChange: 0,
       buckets: undefined
     });
-    storageService.getStore().addRow(this.remotesTable, {
-      rank,
-      name,
-      state,
-      type,
-      space: storageService.getSpaceId(),
-      config: defaultConf ? JSON.stringify(defaultConf) : '{}',
-      formats: INTERNAL_FORMAT
-    });
+    storageService.getStore().addRow(
+      this.remotesTable,
+      {
+        rank,
+        name,
+        state,
+        type,
+        space: storageService.getSpaceId(),
+        config: defaultConf ? JSON.stringify(defaultConf) : '{}',
+        formats: INTERNAL_FORMAT
+      },
+      false
+    );
   }
 
   public delRemote(remote: string) {
@@ -207,6 +206,7 @@ class RemotesService {
       storageService.getStore().delRow(this.remotesTable, remote);
       storageService.getStore().delRow(this.stateTable, remote);
     });
+    this.remotePersisters.delete(remote);
   }
 
   public setRemoteName(remote: string, name: string) {

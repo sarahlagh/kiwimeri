@@ -1,0 +1,71 @@
+import { ROOT_FOLDER } from '@/constants';
+import collectionService from '@/db/collection.service';
+import localChangesService from '@/db/localChanges.service';
+
+describe('local changes service', () => {
+  it('should have no local changes by default', () => {
+    expect(localChangesService.getLocalChanges()).toHaveLength(0);
+  });
+
+  it('should create a local change for each created items', () => {
+    const createdItems: string[] = [];
+    createdItems.push(collectionService.addDocument(ROOT_FOLDER));
+    createdItems.push(collectionService.addFolder(ROOT_FOLDER));
+    createdItems.push(collectionService.addDocument(ROOT_FOLDER));
+    const localChanges = localChangesService.getLocalChanges();
+    expect(localChanges).toHaveLength(3);
+    expect(localChanges.map(l => l.item)).toEqual(createdItems.toReversed());
+  });
+
+  it('should merge local changes for each created then updated items into one change', () => {
+    const id = collectionService.addDocument(ROOT_FOLDER);
+    collectionService.setItemTitle(id, 'new title');
+    collectionService.setItemTitle(id, 'new title 2');
+    collectionService.setItemContent(id, 'new content');
+    const localChanges = localChangesService.getLocalChanges();
+    expect(localChanges).toHaveLength(1);
+    expect(localChanges[0].item).toEqual(id);
+    expect(localChanges[0].change).toEqual('a');
+    expect(localChanges[0].field).toBeUndefined();
+  });
+
+  it('should merge local changes for each updated items into one change per field', () => {
+    const id = collectionService.addDocument(ROOT_FOLDER);
+    localChangesService.clearLocalChanges();
+
+    collectionService.setItemTitle(id, 'new title');
+    collectionService.setItemTitle(id, 'new title 2');
+    collectionService.setItemTitle(id, 'new title 3');
+    collectionService.setItemContent(id, 'new content');
+    const localChanges = localChangesService.getLocalChanges();
+
+    expect(localChanges).toHaveLength(2);
+    expect(localChanges.map(l => l.item)).toEqual([id, id]);
+    expect(localChanges.map(l => l.change)).toEqual(['u', 'u']);
+    expect(localChanges.map(l => l.field)).toEqual(['content', 'title']);
+  });
+
+  it('should keep no local changes for each created then deleted items', () => {
+    const id = collectionService.addDocument(ROOT_FOLDER);
+    collectionService.setItemTitle(id, 'new title');
+    collectionService.setItemTitle(id, 'new title 2');
+    collectionService.setItemContent(id, 'new content');
+    collectionService.deleteItem(id);
+    const localChanges = localChangesService.getLocalChanges();
+    expect(localChanges).toHaveLength(0);
+  });
+
+  it('should merge local changes for each deleted items into one change', () => {
+    const id = collectionService.addDocument(ROOT_FOLDER);
+    localChangesService.clearLocalChanges();
+
+    collectionService.setItemTitle(id, 'new title');
+    collectionService.setItemTitle(id, 'new title 2');
+    collectionService.setItemContent(id, 'new content');
+    collectionService.deleteItem(id);
+
+    const localChanges = localChangesService.getLocalChanges();
+    expect(localChanges).toHaveLength(1);
+    expect(localChanges[0].change).toBe('d');
+  });
+});

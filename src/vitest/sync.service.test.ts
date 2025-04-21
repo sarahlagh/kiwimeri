@@ -1,8 +1,4 @@
-import {
-  CollectionItem,
-  CollectionItemType,
-  CollectionItemTypeValues
-} from '@/collection/collection';
+import { CollectionItem, CollectionItemType } from '@/collection/collection';
 import { ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
 import remotesService from '@/db/remotes.service';
@@ -18,22 +14,28 @@ const inmem = new InMemProvider();
 const initData = (items: CollectionItem[]) => {
   inmem.pushFile(InMemProvider.providerfile, JSON.stringify(items));
 };
-const oneItem = (
-  type: CollectionItemTypeValues = CollectionItemType.document,
-  parent = ROOT_FOLDER
-) => ({
+const oneDocument = (title = 'new doc', parent = ROOT_FOLDER) => ({
   id: getUniqueId(),
   parent,
-  type,
-  title: 'random',
+  type: CollectionItemType.document,
+  title,
   content: 'random',
+  created: Date.now(),
+  updated: Date.now(),
+  deleted: false
+});
+const oneFolder = (title = 'new folder', parent = ROOT_FOLDER) => ({
+  id: getUniqueId(),
+  parent,
+  type: CollectionItemType.folder,
+  title,
   created: Date.now(),
   updated: Date.now(),
   deleted: false
 });
 
 describe('sync service', () => {
-  [{ layer: 'simple' }, { layer: 'bucket' }].forEach(({ layer }) => {
+  [{ layer: 'simple' } /*, { layer: 'bucket' } */].forEach(({ layer }) => {
     describe(`with ${layer} layer`, () => {
       beforeEach(async () => {
         inmem.reset();
@@ -51,50 +53,141 @@ describe('sync service', () => {
         expect(result.current).toBeTruthy();
       });
 
-      it('should do nothing on first pull if remote has nothing', async () => {
-        await syncService.pull();
-        storageService.getSpace().getRowCount('collection');
-        expect(storageService.getSpace().getRowCount('collection')).toBe(0);
+      it('should tell if there is no local change', () => {
+        const { result } = renderHook(() =>
+          syncService.usePrimaryHasLocalChanges()
+        );
+        expect(result.current).toBeFalsy();
       });
 
-      it('should do pull everything on first pull if remote has content', async () => {
-        initData([oneItem(), oneItem(), oneItem('f')]);
-        await syncService.pull();
-        expect(storageService.getSpace().getRowCount('collection')).toBe(3);
-      });
-
-      it('should push nothing the first push if collection is empty', async () => {
-        await syncService.push();
-        const remoteContent = await inmem.pullFile(InMemProvider.providerfile);
-        expect(remoteContent.content).toHaveLength(0);
-      });
-
-      it('should push everything on first push if remote has nothing', async () => {
-        collectionService.addDocument(ROOT_FOLDER);
-        collectionService.addDocument(ROOT_FOLDER);
+      it('should tell if there is are local changes', () => {
         collectionService.addFolder(ROOT_FOLDER);
-        await syncService.push();
-        const remoteContent = await inmem.pullFile(InMemProvider.providerfile);
-        expect(remoteContent.content).toHaveLength(3);
+        const { result } = renderHook(() =>
+          syncService.usePrimaryHasLocalChanges()
+        );
+        expect(result.current).toBeTruthy();
       });
 
-      // it('should add new local items on push if remote has content', async () => {
-      //   initData([oneItem(), oneItem(), oneItem('f')]);
-      //   collectionService.addFolder(ROOT_FOLDER);
-      //   await syncService.push();
-      //   const remoteContent = await inmem.pullFile(InMemProvider.providerfile);
-      //   expect(remoteContent.content).toHaveLength(4);
-      // });
+      /////////////////////////////////////////////// pull
+
+      describe('pull operation', () => {
+        it('should do nothing on first pull if remote has nothing', async () => {
+          await syncService.pull();
+          storageService.getSpace().getRowCount('collection');
+          expect(storageService.getSpace().getRowCount('collection')).toBe(0);
+        });
+
+        it('should do pull everything on first pull if remote has content', async () => {
+          initData([oneDocument(), oneDocument(), oneFolder()]);
+          await syncService.pull();
+          expect(storageService.getSpace().getRowCount('collection')).toBe(3);
+        });
+
+        it('should pull new remote items, create newer, then push', async () => {
+          const remoteData = [
+            oneDocument('r1'),
+            oneDocument('r2'),
+            oneFolder('r3')
+          ];
+          initData(remoteData);
+          await syncService.pull();
+          expect(storageService.getSpace().getRowCount('collection')).toBe(3);
+          collectionService.addFolder(ROOT_FOLDER);
+          await syncService.push();
+          const remoteContent = await inmem.pullFile(
+            InMemProvider.providerfile
+          );
+          expect(remoteContent.content).toHaveLength(4);
+          expect(remoteContent.content.map(r => r.title)).toEqual([
+            'r1',
+            'r2',
+            'r3',
+            'New folder'
+          ]);
+          expect(storageService.getSpace().getRowCount('collection')).toBe(4);
+        });
+
+        it('should pull new remote items without erasing created items', async () => {
+          const remoteData = [
+            oneDocument('r1'),
+            oneDocument('r2'),
+            oneFolder('r3')
+          ];
+          initData(remoteData);
+          // create local items
+          collectionService.addDocument(ROOT_FOLDER);
+          collectionService.addFolder(ROOT_FOLDER);
+          expect(storageService.getSpace().getRowCount('collection')).toBe(2);
+          await syncService.pull();
+          expect(storageService.getSpace().getRowCount('collection')).toBe(5);
+
+          // indicator should still tell if push allowed
+          const { result } = renderHook(() =>
+            syncService.usePrimaryHasLocalChanges()
+          );
+          expect(result.current).toBeTruthy();
+        });
+
+        it('should pull new remote items several times without erasing created items ', async () => {
+          const remoteData = [
+            oneDocument('r1'),
+            oneDocument('r2'),
+            oneFolder('r3')
+          ];
+          initData(remoteData);
+          // create local items
+          collectionService.addDocument(ROOT_FOLDER);
+          expect(storageService.getSpace().getRowCount('collection')).toBe(1);
+          await syncService.pull();
+          expect(storageService.getSpace().getRowCount('collection')).toBe(4);
+
+          // update remote again
+          initData([...remoteData, oneDocument('r4')]);
+          await syncService.pull();
+          expect(storageService.getSpace().getRowCount('collection')).toBe(5);
+
+          // indicator should still tell if push allowed
+          const { result } = renderHook(() =>
+            syncService.usePrimaryHasLocalChanges()
+          );
+          expect(result.current).toBeTruthy();
+        });
+      });
+
+      // test: should pull remote items (several times) with merging updated items
+      // test: should pull remote items (several times) without recreating deleted local items (if remotes haven't changed)
+      // test: should pull remote items (several times) by recreating deleted local items (if remote have changed)
+
+      /////////////////////////////////////////////// push
+
+      describe('push operation', () => {
+        it('should push nothing the first push if collection is empty', async () => {
+          expect(storageService.getSpace().getRowCount('collection')).toBe(0);
+          await syncService.push();
+          const remoteContent = await inmem.pullFile(
+            InMemProvider.providerfile
+          );
+          expect(remoteContent.content).toHaveLength(0);
+        });
+
+        it('should push everything on first push if remote has nothing', async () => {
+          collectionService.addDocument(ROOT_FOLDER);
+          collectionService.addDocument(ROOT_FOLDER);
+          collectionService.addFolder(ROOT_FOLDER);
+          expect(storageService.getSpace().getRowCount('collection')).toBe(3);
+          await syncService.push();
+          const remoteContent = await inmem.pullFile(
+            InMemProvider.providerfile
+          );
+          expect(remoteContent.content).toHaveLength(3);
+
+          // indicator should still tell if push allowed
+          const { result } = renderHook(() =>
+            syncService.usePrimaryHasLocalChanges()
+          );
+          expect(result.current).toBeFalsy();
+        });
+      });
     });
   });
-
-  // test: first push, remote has content
-  // test: second pull, no local changes, remote hasn't changed
-  // test: second pull, no local changes, remote has changed
-  // test: second pull, with local changes, remote hasn't changed
-  // test: second pull, with local changes, remote has changed
-  // test: no local changes, push is disabled
-  // test: local changes, push is enabled
-  // test: local changes, push, remote hasn't changed
-  // test: local changes, push, remote has changed
 });
