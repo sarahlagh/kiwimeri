@@ -80,9 +80,8 @@ export class SimpleStorageLayer extends StorageLayer {
       throw new Error(`uninitialized ${this.provider.providerName} config`);
     }
     const { content } = await this.provider.pullFile(this.providerid);
-    const collection = this.toMap<CollectionItem>(localContent[0].collection!);
-    const newLocalContent = { ...localContent };
-    newLocalContent[0].collection = {};
+    const collection = this.toMap<CollectionItem>(localContent[0].collection);
+    const newLocalContent: Content<SpaceType> = [{ collection: {} }, {}];
     content.forEach(item => {
       newLocalContent[0].collection![item.id!] = item;
     });
@@ -95,16 +94,15 @@ export class SimpleStorageLayer extends StorageLayer {
             localChange.item
           )!;
         } else {
-          delete newLocalContent[0].collection[localChange.item];
+          delete newLocalContent[0].collection![localChange.item];
         }
       }
     }
-    console.debug('localChanges', localChanges);
     console.debug('newLocalContent', newLocalContent);
 
     return {
       content: newLocalContent,
-      localBuckets,
+      localBuckets: remoteInfo.buckets,
       remoteInfo
     };
   }

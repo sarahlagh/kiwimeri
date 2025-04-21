@@ -193,18 +193,20 @@ export class BucketStorageLayer extends StorageLayer {
       remoteInfo: newRemoteInfo
     } = await this.getRemoteContent(localContent, localBuckets, remoteInfo);
 
-    console.debug('localContent', localContent);
-    console.debug('localChanges', localChanges);
-    console.debug('localBuckets', localBuckets);
-    console.debug('newLocalBuckets', newLocalBuckets);
-    console.debug('remoteContent', remoteContent);
-    console.debug('remoteMetadata from db', remoteInfo);
-    console.debug('newRemoteInfo from provider', newRemoteInfo);
+    // console.debug('localContent', localContent);
+    // console.debug('localChanges', localChanges);
+    // console.debug('localBuckets', localBuckets);
+    // console.debug('newLocalBuckets', newLocalBuckets);
+    // console.debug('remoteContent', remoteContent);
+    // console.debug('remoteMetadata from db', remoteInfo);
+    // console.debug('newRemoteInfo from provider', newRemoteInfo);
+
+    console.debug('newLocalContent', remoteContent);
 
     return {
       content: remoteContent,
       localBuckets: newLocalBuckets,
-      remoteInfo
+      remoteInfo: newRemoteInfo
     };
   }
 

@@ -1,7 +1,10 @@
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
 import { INTERNAL_FORMAT } from '@/constants';
-import { storageLayerFactory } from '@/storage-providers/storage-layer.factory';
+import {
+  LayerTypes,
+  storageLayerFactory
+} from '@/storage-providers/storage-layer.factory';
 import { RemoteStateInfo, StorageLayer } from '@/storage-providers/types';
 import { Persister } from 'tinybase/persisters/with-schemas';
 import { useResultTable } from 'tinybase/ui-react';
@@ -16,6 +19,7 @@ class RemotesService {
   private readonly stateTable = 'remoteState';
   private readonly remoteItemsTable = 'remoteItems';
 
+  private layer: LayerTypes = 'bucket';
   private providers: Map<string, StorageLayer> = new Map();
   private remotePersisters: Map<string, Persister<SpaceType>> = new Map();
 
@@ -89,7 +93,10 @@ class RemotesService {
       useHttp = appConfig.DEV_USE_HTTP_IF_POSSIBLE;
     }
     if (!this.providers.has(remote.id)) {
-      this.providers.set(remote.id, storageLayerFactory(remote.type));
+      this.providers.set(
+        remote.id,
+        storageLayerFactory(remote.type, this.layer)
+      );
     }
     const storageProvider = this.providers.get(remote.id)!;
     storageProvider.configure(config, proxy, useHttp);

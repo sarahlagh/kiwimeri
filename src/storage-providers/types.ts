@@ -52,11 +52,13 @@ export abstract class StorageLayer {
     force?: boolean
   ): Promise<{ localBuckets: Bucket[]; remoteInfo: RemoteInfo }>;
 
-  protected toMap<T>(obj: UntypedTable) {
+  protected toMap<T>(obj?: UntypedTable) {
     const map: Map<string, T> = new Map();
-    Object.keys(obj).forEach(id => {
-      map.set(id, { ...(obj[id] as unknown as T), id });
-    });
+    if (obj) {
+      Object.keys(obj).forEach(id => {
+        map.set(id, { ...(obj[id] as unknown as T), id });
+      });
+    }
     return map;
   }
 }

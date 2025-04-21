@@ -23,6 +23,7 @@
       "type": "node",
       "request": "launch",
       "runtimeExecutable": "vitest",
+      "runtimeArgs": ["--ui"],
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}"
     }

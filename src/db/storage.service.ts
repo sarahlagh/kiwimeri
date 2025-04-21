@@ -102,14 +102,17 @@ class StorageService {
     );
   }
 
-  public async start() {
+  public async start(autoLoad = true) {
     if (!this.started) {
       this.started = true;
       // only start persister for the current space
       // later: when switching space, only re init space persister
       await Promise.all([
-        this.startPersister(this.storeLocalPersister),
-        this.startPersister(this.spaceLocalPersisters.get(this.getSpaceId())!)
+        this.startPersister(this.storeLocalPersister, autoLoad),
+        this.startPersister(
+          this.spaceLocalPersisters.get(this.getSpaceId())!,
+          autoLoad
+        )
       ]);
       // in a timeout, don't want to block app start for this
       setTimeout(async () => {
@@ -139,10 +142,15 @@ class StorageService {
     });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private async startPersister(storePersister: Persister<any>) {
+  private async startPersister(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    storePersister: Persister<any>,
+    autoLoad: boolean
+  ) {
     await storePersister.load();
-    await storePersister.startAutoSave();
+    if (autoLoad) {
+      await storePersister.startAutoSave();
+    }
   }
 
   public getSpaceId() {
