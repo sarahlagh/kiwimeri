@@ -92,30 +92,32 @@ describe('remotes service', () => {
     ]);
   });
 
-  [
-    { current: 0, next: 1, expected: [1, 0, 2, 3, 4] },
-    { current: 0, next: 2, expected: [1, 2, 0, 3, 4] },
-    { current: 0, next: 4, expected: [1, 2, 3, 4, 0] },
-    { current: 4, next: 3, expected: [0, 1, 2, 4, 3] },
-    { current: 4, next: 1, expected: [0, 4, 1, 2, 3] },
-    { current: 4, next: 0, expected: [4, 0, 1, 2, 3] },
-    { current: 2, next: 3, expected: [0, 1, 3, 2, 4] },
-    { current: 3, next: 1, expected: [0, 3, 1, 2, 4] }
-  ].forEach(({ current, next, expected }) => {
-    it(`should be able update rank ${current} -> ${next}`, async () => {
-      remotesService.addRemote('test3', 3, 'inmem');
-      remotesService.addRemote('test2', 2, 'inmem');
-      remotesService.addRemote('test0', 0, 'inmem');
-      remotesService.addRemote('test4', 4, 'inmem');
-      remotesService.addRemote('test1', 1, 'inmem');
+  describe('should be able update rank', () => {
+    [
+      { current: 0, next: 1, expected: [1, 0, 2, 3, 4] },
+      { current: 0, next: 2, expected: [1, 2, 0, 3, 4] },
+      { current: 0, next: 4, expected: [1, 2, 3, 4, 0] },
+      { current: 4, next: 3, expected: [0, 1, 2, 4, 3] },
+      { current: 4, next: 1, expected: [0, 4, 1, 2, 3] },
+      { current: 4, next: 0, expected: [4, 0, 1, 2, 3] },
+      { current: 2, next: 3, expected: [0, 1, 3, 2, 4] },
+      { current: 3, next: 1, expected: [0, 3, 1, 2, 4] }
+    ].forEach(({ current, next, expected }) => {
+      it(`${current} -> ${next}`, async () => {
+        remotesService.addRemote('test3', 3, 'inmem');
+        remotesService.addRemote('test2', 2, 'inmem');
+        remotesService.addRemote('test0', 0, 'inmem');
+        remotesService.addRemote('test4', 4, 'inmem');
+        remotesService.addRemote('test1', 1, 'inmem');
 
-      remotesService.updateRemoteRank(current, next);
+        remotesService.updateRemoteRank(current, next);
 
-      const { result } = renderHook(() => remotesService.useRemotes());
-      expect(result.current).toHaveLength(5);
-      expect(result.current.map(r => r.name)).toStrictEqual(
-        expected.map(r => `test${r}`)
-      );
+        const { result } = renderHook(() => remotesService.useRemotes());
+        expect(result.current).toHaveLength(5);
+        expect(result.current.map(r => r.name)).toStrictEqual(
+          expected.map(r => `test${r}`)
+        );
+      });
     });
   });
 });

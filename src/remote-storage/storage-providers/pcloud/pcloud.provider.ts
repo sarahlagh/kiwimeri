@@ -149,8 +149,7 @@ export class PCloudProvider extends FileStorageProvider {
     if (!this.config) {
       throw new Error('uninitialized pcloud config');
     }
-    const content = await this.downloadFile(providerid);
-    return { content };
+    return this.downloadFile(providerid);
   }
 
   private async downloadFile(fileid: string) {
@@ -164,7 +163,8 @@ export class PCloudProvider extends FileStorageProvider {
     // download file content
     console.log('[pCloud] downloading file');
     const data = await fetch(url);
-    return await data.json();
+    const content = await data.json();
+    return { content };
   }
 
   private async uploadFile(

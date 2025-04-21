@@ -39,8 +39,9 @@ export const createRemoteCloudPersister = (
       const localContent = store.getContent();
       const localChanges = localChangesService.getLocalChanges();
       const localBuckets = localChangesService.getLocalBuckets();
+      const force = remotesService.getForceMode();
       if (storageLayer) {
-        console.log(`pulling from remote ${remote.name}`);
+        console.log(`pulling from remote ${remote.name} with force=${force}`);
         const remoteState = remotesService.getCachedRemoteStateInfo(
           remote.state
         );
@@ -54,15 +55,16 @@ export const createRemoteCloudPersister = (
           {
             ...remoteState,
             remoteItems
-          }
+          },
+          force
         );
         if (resp && resp.content) {
           updateRemoteInfo(
             remote.state,
             resp.localBuckets,
             resp.remoteInfo,
-            localChanges.length === 0,
-            false
+            force || localChanges.length === 0,
+            force || false
           );
           return resp.content;
         }
@@ -76,7 +78,8 @@ export const createRemoteCloudPersister = (
       const localBuckets = localChangesService.getLocalBuckets();
       const remoteState = remotesService.getCachedRemoteStateInfo(remote.state);
       const remoteItems = remotesService.getCachedRemoteItemInfo(remote.state);
-      console.log(`pushing to remote ${remote.name} `);
+      const force = remotesService.getForceMode();
+      console.log(`pushing to remote ${remote.name} with force=${force}`);
       const resp = await storageLayer.push(
         localContent,
         localChanges,
@@ -84,7 +87,8 @@ export const createRemoteCloudPersister = (
         {
           ...remoteState,
           remoteItems
-        }
+        },
+        force
       );
       updateRemoteInfo(
         remote.state,

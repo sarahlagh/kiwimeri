@@ -11,6 +11,7 @@ export class InMemProvider extends FileStorageProvider {
     Map<string, Map<string, CollectionItem>>
   >();
   private name: string = 'default';
+  private static timestamps = new Map<string, Map<string, number>>();
 
   public constructor() {
     super('InMem');
@@ -22,19 +23,26 @@ export class InMemProvider extends FileStorageProvider {
 
   public configure(config: any, proxy?: string, useHttp?: boolean) {
     this.name = config?.name || 'default';
-    this.initMap();
+    this.initMap(InMemProvider.providerfile);
   }
 
   public async fetchRemoteStateInfo(state?: string) {
+    const { content } = await this.pullFile(InMemProvider.providerfile);
+    const str = JSON.stringify(content);
+    const lastRemoteChange =
+      InMemProvider.timestamps
+        .get(this.name)!
+        .get(InMemProvider.providerfile) || 0;
     const remoteStateInfo: RemoteStateInfo = {
-      lastRemoteChange: 0,
+      lastRemoteChange,
       state,
       buckets: [
         {
-          lastRemoteChange: 0,
+          lastRemoteChange,
           providerid: InMemProvider.providerfile,
           rank: 1,
-          size: 20
+          size: str.length,
+          hash: this.fastHash(str)
         }
       ]
     };
@@ -43,13 +51,14 @@ export class InMemProvider extends FileStorageProvider {
 
   public async pushFile(filename: string, content: string) {
     const items: CollectionItem[] = JSON.parse(content);
-    this.initMap(filename);
+    this.initMap(filename, true);
     items.forEach(item => {
       InMemProvider.collection
         .get(this.name)!
         .get(filename)!
         .set(item.id!, item);
     });
+    InMemProvider.timestamps.get(this.name)!.set(filename, Date.now());
     return filename;
   }
 
@@ -59,24 +68,33 @@ export class InMemProvider extends FileStorageProvider {
     InMemProvider.collection
       .get(this.name)
       ?.get(providerid)
-      ?.forEach(item => {
-        content.push(item);
+      ?.forEach((item, id) => {
+        content.push({ ...item, id });
       });
     return { content };
   }
 
-  private initMap(filename?: string) {
+  private initMap(filename: string, force = false) {
     if (!InMemProvider.collection.has(this.name)) {
       InMemProvider.collection.set(this.name, new Map());
+      InMemProvider.timestamps.set(this.name, new Map());
     }
-    if (filename) {
-      if (!InMemProvider.collection.get(this.name)!.has(filename)) {
-        InMemProvider.collection.get(this.name)!.set(filename, new Map());
-      }
+    if (force || !InMemProvider.collection.get(this.name)!.has(filename)) {
+      InMemProvider.collection.get(this.name)!.set(filename, new Map());
+      InMemProvider.timestamps.get(this.name)!.set(filename, Date.now());
     }
   }
 
   public reset() {
     InMemProvider.collection.clear();
+  }
+
+  private fastHash(input: string): number {
+    let hash = 0;
+    for (let i = 0; i < input.length; i++) {
+      hash = (hash << 5) - hash + input.charCodeAt(i); // Hashing algorithm
+      hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
   }
 }

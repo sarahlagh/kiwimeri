@@ -9,7 +9,7 @@ export type Bucket = {
   providerid: string;
   lastRemoteChange: number;
   size: number;
-  hash?: number;
+  hash: number;
 };
 
 export type RemoteStateInfo = {
@@ -35,12 +35,12 @@ export abstract class StorageLayer {
   abstract pull(
     localContent: Content<SpaceType>,
     localChanges: LocalChange[],
-    localBuckets: Bucket[],
-    remoteInfo: RemoteInfo,
+    localBuckets: Bucket[], // TODO why do i need local buckets (vs cached remote info) again?
+    cachedRemoteInfo: RemoteInfo,
     force?: boolean
   ): Promise<{
     content?: Content<SpaceType>;
-    localBuckets: Bucket[];
+    localBuckets: Bucket[]; // TODO no need to return localBuckets since they should be replaced by remoteInfo.buckets?
     remoteInfo: RemoteInfo;
   }>;
 

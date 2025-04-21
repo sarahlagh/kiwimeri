@@ -23,6 +23,8 @@ class RemotesService {
   private providers: Map<string, StorageLayer> = new Map();
   private remotePersisters: Map<string, Persister<SpaceType>> = new Map();
 
+  private force = false;
+
   private fetchAllRemotesQuery(space: string) {
     const queries = storageService.getStoreQueries();
     const queryName = `fetchAllRemotesFor${space}`;
@@ -341,6 +343,13 @@ class RemotesService {
 
   public getPersister(remote: string) {
     return this.remotePersisters.get(remote);
+  }
+
+  public setForceMode(force: boolean) {
+    this.force = force;
+  }
+  public getForceMode() {
+    return this.force;
   }
 }
 

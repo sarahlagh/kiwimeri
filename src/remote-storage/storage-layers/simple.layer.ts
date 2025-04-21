@@ -73,12 +73,14 @@ export class SimpleStorageLayer extends StorageLayer {
     localContent: Content<SpaceType>,
     localChanges: LocalChange[],
     localBuckets: Bucket[],
-    remoteInfo: RemoteInfo,
+    cachedRemoteInfo: RemoteInfo,
     force = false
   ) {
     if (!this.provider.getConfig()) {
       throw new Error(`uninitialized ${this.provider.providerName} config`);
     }
+    const { remoteStateInfo: newRemoteState } =
+      await this.provider.fetchRemoteStateInfo(cachedRemoteInfo.state);
     const { content } = await this.provider.pullFile(this.providerid);
     const collection = this.toMap<CollectionItem>(localContent[0].collection);
     const newLocalContent: Content<SpaceType> = [{ collection: {} }, {}];
@@ -86,24 +88,37 @@ export class SimpleStorageLayer extends StorageLayer {
       newLocalContent[0].collection![item.id!] = item;
     });
 
+    console.debug('newLocalContent', newLocalContent);
+    console.debug('newRemoteState', newRemoteState);
+    console.debug('cached remote buckets', cachedRemoteInfo.buckets);
+    console.debug('local buckets', localBuckets);
+
     if (!force && localChanges.length > 0) {
       // reapply localChanges
       for (const localChange of localChanges) {
-        if (localChange.change !== LocalChangeType.delete) {
-          newLocalContent[0].collection![localChange.item] = collection.get(
-            localChange.item
-          )!;
-        } else {
-          delete newLocalContent[0].collection![localChange.item];
+        const remoteUpdated =
+          (newLocalContent[0].collection![localChange.item]
+            ?.updated as number) || 0;
+
+        if (localChange.updated > remoteUpdated) {
+          if (localChange.change !== LocalChangeType.delete) {
+            newLocalContent[0].collection![localChange.item] = collection.get(
+              localChange.item
+            )!;
+          } else if (
+            localBuckets.length < 1 ||
+            localBuckets[0].hash === newRemoteState.buckets[0].hash
+          ) {
+            delete newLocalContent[0].collection![localChange.item];
+          }
         }
       }
     }
-    console.debug('newLocalContent', newLocalContent);
 
     return {
       content: newLocalContent,
-      localBuckets: remoteInfo.buckets,
-      remoteInfo
+      localBuckets: newRemoteState.buckets,
+      remoteInfo: cachedRemoteInfo
     };
   }
 }
