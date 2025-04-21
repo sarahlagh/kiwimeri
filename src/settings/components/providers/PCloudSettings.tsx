@@ -46,8 +46,7 @@ const PCloudSettings = ({
     if (syncConf.username && syncConf.password) {
       setChecking(true);
       const connected = await remotesService.configure(
-        remote.id,
-        remote.state,
+        remote,
         // don't send full object, want to erase folderid & fileid
         {
           path: syncConf.path,

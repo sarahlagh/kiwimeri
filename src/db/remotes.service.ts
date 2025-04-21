@@ -1,11 +1,8 @@
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
 import { INTERNAL_FORMAT } from '@/constants';
-import { PCloudProvider } from '@/storage-providers/pcloud/pcloud';
-import {
-  RemoteStateInfo,
-  StorageProvider
-} from '@/storage-providers/sync-core';
+import { storageLayerFactory } from '@/storage-providers/storage-layer.factory';
+import { RemoteStateInfo, StorageLayer } from '@/storage-providers/types';
 import { Persister } from 'tinybase/persisters/with-schemas';
 import { useResultTable } from 'tinybase/ui-react';
 import { Row } from 'tinybase/with-schemas';
@@ -19,7 +16,7 @@ class RemotesService {
   private readonly stateTable = 'remoteState';
   private readonly remoteItemsTable = 'remoteItems';
 
-  private providers: Map<string, StorageProvider> = new Map();
+  private providers: Map<string, StorageLayer> = new Map();
   private remotePersisters: Map<string, Persister<SpaceType>> = new Map();
 
   private fetchAllRemotesQuery(space: string) {
@@ -70,7 +67,7 @@ class RemotesService {
         remote.name,
         remote.type
       );
-      this.configure(remote.id, remote.state, JSON.parse(remote.config));
+      await this.configure(remote, JSON.parse(remote.config));
 
       // TODO: factory depending on type
       this.remotePersisters.set(
@@ -84,36 +81,31 @@ class RemotesService {
     }
   }
 
-  public async configure(
-    remoteId: string,
-    remoteStateId: string,
-    initConfig: AnyData
-  ) {
+  public async configure(remote: RemoteResult, config: AnyData) {
     let proxy = undefined;
     let useHttp = false;
     if (platformService.isWeb()) {
       proxy = appConfig.INTERNAL_HTTP_PROXY;
       useHttp = appConfig.DEV_USE_HTTP_IF_POSSIBLE;
     }
-    // TODO have factory for multiple conf
-    if (!this.providers.has(remoteId)) {
-      this.providers.set(remoteId, new PCloudProvider());
+    if (!this.providers.has(remote.id)) {
+      this.providers.set(remote.id, storageLayerFactory(remote.type));
     }
-    const storageProvider = this.providers.get(remoteId)!;
-    storageProvider.configure(initConfig, proxy, useHttp);
-    const newConf = await storageProvider.init(remoteStateId);
+    const storageProvider = this.providers.get(remote.id)!;
+    storageProvider.configure(config, proxy, useHttp);
+    const newConf = await storageProvider.init(remote.state);
 
     storageService.getStore().transaction(() => {
       storageService.setCell(
         this.remotesTable,
-        remoteId,
+        remote.id,
         'config',
         JSON.stringify(newConf.config)
       );
-      this.updateRemoteStateInfo(remoteStateId, newConf.remoteState);
+      this.updateRemoteStateInfo(remote.state, newConf.remoteState);
     });
 
-    this.setRemoteStateConnected(remoteStateId, newConf.connected);
+    this.setRemoteStateConnected(remote.state, newConf.connected);
     return newConf.connected;
   }
 

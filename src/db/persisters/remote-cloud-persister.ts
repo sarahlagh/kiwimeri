@@ -1,8 +1,4 @@
-import {
-  Bucket,
-  RemoteInfo,
-  StorageProvider
-} from '@/storage-providers/sync-core';
+import { Bucket, RemoteInfo, StorageLayer } from '@/storage-providers/types';
 import { createCustomPersister } from 'tinybase/persisters/with-schemas';
 import { Store } from 'tinybase/with-schemas';
 import localChangesService from '../localChanges.service';
@@ -28,7 +24,7 @@ const updateRemoteInfo = (
 export const createRemoteCloudPersister = (
   store: Store<SpaceType>,
   remote: RemoteResult,
-  provider: StorageProvider
+  provider: StorageLayer
 ) => {
   return createCustomPersister(
     store,

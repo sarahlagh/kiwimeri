@@ -1,57 +1,29 @@
 import { CollectionItem } from '@/collection/collection';
 import { SpaceType } from '@/db/types/db-types';
-import { AnyData, LocalChange } from '@/db/types/store-types';
+import { LocalChange } from '@/db/types/store-types';
+import { Content } from 'tinybase/with-schemas';
 import {
   Bucket,
+  FileStorageProvider,
   RemoteInfo,
   RemoteStateInfo,
-  StorageProvider
-} from '@/storage-providers/sync-core';
-import { Table as UntypedTable } from 'tinybase';
-import { Content } from 'tinybase/with-schemas';
+  StorageLayer
+} from '../types';
 
-export abstract class BucketStorageProvider implements StorageProvider {
+export class BucketStorageLayer extends StorageLayer {
   private readonly bucketMaxSize = 2000000;
-  private providerName: string;
 
-  public constructor(providerName: string) {
-    this.providerName = providerName;
+  public constructor(private provider: FileStorageProvider) {
+    super();
   }
 
-  public abstract configure(
-    config: AnyData,
-    proxy?: string,
-    useHttp?: boolean
-  ): void;
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public abstract getConfig(): any | null;
-
-  protected abstract fetchRemoteStateInfo(
-    state?: string
-  ): Promise<{ ok: boolean; remoteStateInfo: RemoteStateInfo }>;
-
-  protected abstract pushItem(filename: string, content: string): Promise<void>;
-
-  protected abstract pullItem(
-    providerid: string
-  ): Promise<{ content: CollectionItem[] }>;
+  public configure(conf: any, proxy?: string, useHttp?: boolean): void {
+    this.provider.configure(conf, proxy, useHttp);
+  }
 
   public async init(remoteStateId?: string) {
-    const { ok, remoteStateInfo: remoteState } =
-      await this.fetchRemoteStateInfo(remoteStateId);
-
-    console.log(`${this.providerName} client initialized`, {
-      ...this.getConfig(),
-      password: '*******'
-    });
-    console.debug('new remoteStateInfo returned', remoteState);
-
-    return {
-      config: this.getConfig(),
-      connected: ok,
-      remoteState
-    };
+    return this.provider.init(remoteStateId);
   }
 
   protected async getRemoteContent(
@@ -59,15 +31,14 @@ export abstract class BucketStorageProvider implements StorageProvider {
     localBuckets: Bucket[],
     remoteInfo: RemoteInfo
   ) {
-    if (!this.getConfig()) {
-      throw new Error(`uninitialized ${this.providerName} config`);
+    if (!this.provider.getConfig()) {
+      throw new Error(`uninitialized ${this.provider.providerName} config`);
     }
     const newLocalBuckets = [...localBuckets];
     const remoteContent: Content<SpaceType> = [{ collection: {} }, {}];
     // fetch new remoteInfo from pcloud, update this.remoteInfo
-    const { remoteStateInfo: newRemoteState } = await this.fetchRemoteStateInfo(
-      remoteInfo.state
-    );
+    const { remoteStateInfo: newRemoteState } =
+      await this.provider.fetchRemoteStateInfo(remoteInfo.state);
 
     // determine which existing buckets have changed locally
     const bucketsUpdatedRemotely: Bucket[] = [];
@@ -96,7 +67,7 @@ export abstract class BucketStorageProvider implements StorageProvider {
     }
     // fetch only those buckets from provider
     for (const bucket of bucketsUpdatedRemotely) {
-      const { content } = await this.pullItem(bucket.providerid);
+      const { content } = await this.provider.pullFile(bucket.providerid);
       for (const item of content as CollectionItem[]) {
         remoteContent[0].collection![item.id!] = item;
         const remoteItem = remoteInfo.remoteItems.find(i => i.item === item.id);
@@ -139,8 +110,8 @@ export abstract class BucketStorageProvider implements StorageProvider {
     remoteInfo: RemoteInfo,
     force = false
   ) {
-    if (!this.getConfig()) {
-      throw new Error(`uninitialized ${this.providerName} config`);
+    if (!this.provider.getConfig()) {
+      throw new Error(`uninitialized ${this.provider.providerName} config`);
     }
     const {
       remoteContent,
@@ -191,7 +162,7 @@ export abstract class BucketStorageProvider implements StorageProvider {
       const bucketContent = JSON.stringify(
         rowIds.map(id => collection.get(id))
       );
-      await this.pushItem(`bucket${bucket}.json`, bucketContent);
+      await this.provider.pushFile(`bucket${bucket}.json`, bucketContent);
       // TODO for newly created buckets, update remoteInfo.buckets & local buckets
     }
 
@@ -210,8 +181,8 @@ export abstract class BucketStorageProvider implements StorageProvider {
     remoteInfo: RemoteInfo,
     force = false
   ) {
-    if (!this.getConfig()) {
-      throw new Error(`uninitialized ${this.providerName} config`);
+    if (!this.provider.getConfig()) {
+      throw new Error(`uninitialized ${this.provider.providerName} config`);
     }
     console.debug('pull with force', force, remoteInfo);
     // TODO if localChanges, do something
@@ -237,18 +208,6 @@ export abstract class BucketStorageProvider implements StorageProvider {
     };
   }
 
-  protected parseRank(fname: string) {
-    const match = fname.match(/bucket(\d*).json/);
-    try {
-      if (match && match.length > 1) {
-        return parseInt(match[1]);
-      }
-    } catch (e) {
-      console.debug('error parsing file name', e);
-    }
-    return 0;
-  }
-
   protected async assignBucket(remoteState: RemoteStateInfo) {
     let i = 1;
     if (!remoteState.buckets) {
@@ -264,13 +223,5 @@ export abstract class BucketStorageProvider implements StorageProvider {
     }
     console.debug('need to create a new bucket', i);
     return i;
-  }
-
-  private toMap<T>(obj: UntypedTable) {
-    const map: Map<string, T> = new Map();
-    Object.keys(obj).forEach(id => {
-      map.set(id, { ...(obj[id] as unknown as T), id });
-    });
-    return map;
   }
 }

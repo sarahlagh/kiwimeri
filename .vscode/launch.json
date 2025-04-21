@@ -15,7 +15,15 @@
       "name": "Ionic Serve",
       "type": "node-terminal",
       "request": "launch",
-      "command": "npx ionic serve",
+      "command": "yarn dev",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Vitest",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "vitest",
+      "console": "integratedTerminal",
       "cwd": "${workspaceFolder}"
     }
   ]

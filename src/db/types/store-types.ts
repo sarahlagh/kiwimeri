@@ -1,4 +1,5 @@
-import { Bucket } from '@/storage-providers/sync-core';
+import { ProviderTypes } from '@/storage-providers/storage-layer.factory';
+import { Bucket } from '@/storage-providers/types';
 
 export interface AnyData {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -36,7 +37,7 @@ export interface Remote {
   name: string;
   space: string;
   rank: number;
-  type: string;
+  type: ProviderTypes;
   config?: string;
   formats: string;
 }

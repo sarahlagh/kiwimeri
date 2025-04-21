@@ -28,9 +28,15 @@ module.exports = {
       }
     },
     {
-      files: ['*.js', '*.cjs', './src/polyfills/*'],
+      files: ['*.js', '*.cjs', './src/vitest/**', './src/polyfills/*'],
       rules: {
         '@typescript-eslint/no-explicit-any': 'off'
+      }
+    },
+    {
+      files: ['./src/vitest/**'],
+      rules: {
+        '@typescript-eslint/no-unused-vars': 'off'
       }
     }
   ]

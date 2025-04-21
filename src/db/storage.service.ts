@@ -120,6 +120,11 @@ class StorageService {
     return false;
   }
 
+  public async stop() {
+    this.started = false;
+    this.storeLocalPersister.stopAutoLoad();
+    this.spaceLocalPersisters.get(this.getSpaceId())!.stopAutoLoad();
+  }
   private createSpace() {
     return createStore().setTablesSchema({
       collection: {

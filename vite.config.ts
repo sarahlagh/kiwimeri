@@ -1,12 +1,11 @@
-/// <reference types="vitest" />
-
 import { lingui } from '@lingui/vite-plugin';
 import legacy from '@vitejs/plugin-legacy';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import { defineConfig } from 'vite';
+import { defineConfig, mergeConfig } from 'vite';
+import { defineConfig as vitestDefineConfig } from 'vitest/config';
 // https://vitejs.dev/config/
-export default defineConfig({
+const viteConfig = defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src/')
@@ -20,10 +19,18 @@ export default defineConfig({
     }),
     lingui(),
     legacy()
-  ],
+  ]
+});
+
+const vitestConfig = vitestDefineConfig({
   test: {
+    name: '',
     globals: true,
     environment: 'jsdom',
-    setupFiles: []
+    setupFiles: ['./src/vitest/setup/setupTests.ts'],
+    globalSetup: ['./src/vitest/setup/globalSetupTests.ts'],
+    reporters: ['default'] //, 'html']
   }
 });
+
+export default mergeConfig(viteConfig, vitestConfig);
