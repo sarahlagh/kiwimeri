@@ -99,15 +99,15 @@ export class SimpleStorageLayer extends StorageLayer {
     if (!force && localChanges.length > 0) {
       // reapply localChanges
       for (const localChange of localChanges) {
-        if (localChange.field === 'parent') {
-          continue;
-        }
         const remoteUpdated =
           (newLocalContent[0].collection![localChange.item]
             ?.updated as number) || 0;
 
         if (localChange.updated > remoteUpdated) {
-          if (localChange.change !== LocalChangeType.delete) {
+          if (
+            localChange.change !== LocalChangeType.delete ||
+            localChange.field === 'parent'
+          ) {
             newLocalContent[0].collection![localChange.item] =
               localCollection.get(localChange.item)!;
           } else if (
