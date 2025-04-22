@@ -1,7 +1,7 @@
 import { CollectionItem } from '@/collection/collection';
 import { SpaceType } from '@/db/types/db-types';
 import { AnyData, LocalChange, LocalChangeType } from '@/db/types/store-types';
-import { Content } from 'tinybase/with-schemas';
+import { Content, getUniqueId } from 'tinybase/with-schemas';
 import {
   Bucket,
   FileStorageProvider,
@@ -82,34 +82,55 @@ export class SimpleStorageLayer extends StorageLayer {
     const { remoteStateInfo: newRemoteState } =
       await this.provider.fetchRemoteStateInfo(cachedRemoteInfo.state);
     const { content } = await this.provider.pullFile(this.providerid);
-    const collection = this.toMap<CollectionItem>(localContent[0].collection);
+    const localCollection = this.toMap<CollectionItem>(
+      localContent[0].collection
+    );
     const newLocalContent: Content<SpaceType> = [{ collection: {} }, {}];
     content.forEach(item => {
       newLocalContent[0].collection![item.id!] = item;
     });
 
-    console.debug('newLocalContent', newLocalContent);
+    // console.debug('newLocalContent', newLocalContent);
     console.debug('newRemoteState', newRemoteState);
-    console.debug('cached remote buckets', cachedRemoteInfo.buckets);
-    console.debug('local buckets', localBuckets);
+    console.debug('cached remote info', cachedRemoteInfo);
+    // console.debug('local buckets', localBuckets);
+    // console.debug('localChanges', localChanges);
 
     if (!force && localChanges.length > 0) {
       // reapply localChanges
       for (const localChange of localChanges) {
+        if (localChange.field === 'parent') {
+          continue;
+        }
         const remoteUpdated =
           (newLocalContent[0].collection![localChange.item]
             ?.updated as number) || 0;
 
         if (localChange.updated > remoteUpdated) {
           if (localChange.change !== LocalChangeType.delete) {
-            newLocalContent[0].collection![localChange.item] = collection.get(
-              localChange.item
-            )!;
+            newLocalContent[0].collection![localChange.item] =
+              localCollection.get(localChange.item)!;
           } else if (
             localBuckets.length < 1 ||
             localBuckets[0].hash === newRemoteState.buckets[0].hash
           ) {
             delete newLocalContent[0].collection![localChange.item];
+          }
+        } else {
+          const localItem = localCollection.get(localChange.item)!;
+          if (localItem && !localItem.conflict) {
+            console.log(
+              'conflict where server wins',
+              localChange,
+              localItem,
+              remoteUpdated
+            );
+            newLocalContent[0].collection![getUniqueId()] = {
+              ...localItem,
+              conflict: localChange.item,
+              created: Date.now(),
+              updated: Date.now()
+            };
           }
         }
       }
@@ -118,7 +139,10 @@ export class SimpleStorageLayer extends StorageLayer {
     return {
       content: newLocalContent,
       localBuckets: newRemoteState.buckets,
-      remoteInfo: cachedRemoteInfo
+      remoteInfo: {
+        ...newRemoteState,
+        remoteItems: cachedRemoteInfo.remoteItems
+      }
     };
   }
 }

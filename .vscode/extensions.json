@@ -1,6 +1,5 @@
 {
   "recommendations": [
-    "ionic.ionic",
     "esbenp.prettier-vscode",
     "dbaeumer.vscode-eslint",
     "christian-kohler.path-intellisense"

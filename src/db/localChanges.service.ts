@@ -114,6 +114,17 @@ class LocalChangesService {
     return rowIds.map(rowId => ({ ...table[rowId], id: rowId }) as LocalChange);
   }
 
+  public useHasLocalChanges() {
+    const space = storageService.getSpaceId();
+    const queryName = this.fetchAllLocalChangesQuery(space);
+    const results = storageService.useResultSortedRowIds(queryName);
+    return results.length > 0;
+  }
+
+  public delLocalChange(rowId: string) {
+    storageService.getStore().delRow(this.table, rowId);
+  }
+
   public clearLocalChanges() {
     const space = storageService.getSpaceId();
     const queryName = this.fetchAllLocalChangesQuery(space);

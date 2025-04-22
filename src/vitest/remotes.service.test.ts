@@ -92,7 +92,7 @@ describe('remotes service', () => {
     ]);
   });
 
-  describe('should be able update rank', () => {
+  describe('update rank', () => {
     [
       { current: 0, next: 1, expected: [1, 0, 2, 3, 4] },
       { current: 0, next: 2, expected: [1, 2, 0, 3, 4] },

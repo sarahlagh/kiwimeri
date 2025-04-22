@@ -1,6 +1,7 @@
 import {
   CollectionItemResult,
-  CollectionItemType
+  CollectionItemType,
+  CollectionItemUpdatableFieldEnum
 } from '@/collection/collection';
 import { getGlobalTrans } from '@/config';
 import { FAKE_ROOT, ROOT_FOLDER } from '@/constants';
@@ -110,9 +111,10 @@ class CollectionService {
   }
 
   public setItemParent(rowId: Id, parentId: Id) {
-    storageService.getSpace().setCell(this.table, rowId, 'parent', parentId);
-    this.updateParentUpdatedRecursive(this.getItemParent(rowId));
-    localChangesService.addLocalChange(rowId, LocalChangeType.update, 'parent');
+    this.setItemField(rowId, 'parent', parentId);
+    // storageService.getSpace().setCell(this.table, rowId, 'parent', parentId);
+    // this.updateParentUpdatedRecursive(this.getItemParent(rowId));
+    // localChangesService.addLocalChange(rowId, LocalChangeType.update, 'parent');
   }
 
   public useItemTitle(rowId: Id) {
@@ -135,10 +137,16 @@ class CollectionService {
   }
 
   public setItemTitle(rowId: Id, title: string) {
-    storageService.getSpace().setCell(this.table, rowId, 'title', title);
-    storageService.getSpace().setCell(this.table, rowId, 'updated', Date.now());
-    this.updateParentUpdatedRecursive(this.getItemParent(rowId));
-    localChangesService.addLocalChange(rowId, LocalChangeType.update, 'title');
+    this.setItemField(rowId, 'title', title);
+    // storageService.getSpace().setCell(this.table, rowId, 'title', title);
+    // storageService.getSpace().setCell(this.table, rowId, 'updated', Date.now());
+    // this.updateParentUpdatedRecursive(this.getItemParent(rowId));
+    // const wasConflict = this.resetItemIfConflict(rowId);
+    // localChangesService.addLocalChange(
+    //   rowId,
+    //   wasConflict ? LocalChangeType.add : LocalChangeType.update,
+    //   'title'
+    // );
   }
 
   public getItemContent(rowId: Id) {
@@ -155,16 +163,18 @@ class CollectionService {
   }
 
   public setItemContent(rowId: Id, content: string) {
-    storageService
-      .getSpace()
-      .setCell(this.table, rowId, 'content', () => content);
-    storageService.getSpace().setCell(this.table, rowId, 'updated', Date.now());
-    this.updateParentUpdatedRecursive(this.getItemParent(rowId));
-    localChangesService.addLocalChange(
-      rowId,
-      LocalChangeType.update,
-      'content'
-    );
+    this.setItemField(rowId, 'content', content);
+    // storageService
+    //   .getSpace()
+    //   .setCell(this.table, rowId, 'content', () => content);
+    // storageService.getSpace().setCell(this.table, rowId, 'updated', Date.now());
+    // this.updateParentUpdatedRecursive(this.getItemParent(rowId));
+    // const wasConflict = this.resetItemIfConflict(rowId);
+    // localChangesService.addLocalChange(
+    //   rowId,
+    //   wasConflict ? LocalChangeType.add : LocalChangeType.update,
+    //   'content'
+    // );
   }
 
   public getItemType(rowId: Id) {
@@ -174,6 +184,45 @@ class CollectionService {
         .getCell(this.table, rowId, 'type')
         ?.valueOf() as string) || null
     );
+  }
+
+  public isItemConflict(rowId: Id) {
+    return (
+      (storageService
+        .getSpace()
+        .getCell(this.table, rowId, 'conflict')
+        ?.valueOf() as string) !== undefined || false
+    );
+  }
+
+  public resetItemIfConflict(rowId: Id) {
+    const isConflict = this.isItemConflict(rowId);
+    if (isConflict) {
+      storageService.getSpace().delCell(this.table, rowId, 'conflict');
+    }
+    return isConflict;
+  }
+
+  public setItemField(
+    rowId: Id,
+    key: CollectionItemUpdatableFieldEnum,
+    value: string | boolean | number
+  ) {
+    storageService.getSpace().transaction(() => {
+      storageService.getSpace().setCell('collection', rowId, key, value);
+      if (key !== 'parent') {
+        storageService
+          .getSpace()
+          .setCell('collection', rowId, 'updated', Date.now());
+      }
+      const wasConflict = this.resetItemIfConflict(rowId);
+      localChangesService.addLocalChange(
+        rowId,
+        wasConflict ? LocalChangeType.add : LocalChangeType.update,
+        key
+      );
+    });
+    this.updateParentUpdatedRecursive(this.getItemParent(rowId));
   }
 
   public getBreadcrumb(folder: string) {

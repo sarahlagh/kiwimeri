@@ -15,12 +15,20 @@ const updateRemoteInfo = (
   clearLocalChanges: boolean
 ) => {
   storageService.getStore().transaction(() => {
+    console.log(
+      'updateLocalChanges',
+      updateLocalChanges,
+      remoteInfo.lastRemoteChange
+    );
     if (updateLocalChanges) {
       localChangesService.setLastLocalChange(remoteInfo.lastRemoteChange);
     }
+    console.log('clearLocalChanges', clearLocalChanges);
+
     if (clearLocalChanges) {
       localChangesService.clearLocalChanges();
     }
+
     localChangesService.setLocalBuckets(localBuckets);
     remotesService.updateRemoteStateInfo(state, remoteInfo);
     remotesService.updateRemoteItemInfo(state, remoteInfo.remoteItems);
@@ -40,34 +48,28 @@ export const createRemoteCloudPersister = (
       const localChanges = localChangesService.getLocalChanges();
       const localBuckets = localChangesService.getLocalBuckets();
       const force = remotesService.getForceMode();
-      if (storageLayer) {
-        console.log(`pulling from remote ${remote.name} with force=${force}`);
-        const remoteState = remotesService.getCachedRemoteStateInfo(
-          remote.state
+      console.log(`pulling from remote ${remote.name} with force=${force}`);
+      const remoteState = remotesService.getCachedRemoteStateInfo(remote.state);
+      const remoteItems = remotesService.getCachedRemoteItemInfo(remote.state);
+      const resp = await storageLayer.pull(
+        localContent,
+        localChanges,
+        localBuckets,
+        {
+          ...remoteState,
+          remoteItems
+        },
+        force
+      );
+      if (resp && resp.content) {
+        updateRemoteInfo(
+          remote.state,
+          resp.localBuckets,
+          resp.remoteInfo,
+          force || localChanges.length == 0,
+          force || false
         );
-        const remoteItems = remotesService.getCachedRemoteItemInfo(
-          remote.state
-        );
-        const resp = await storageLayer.pull(
-          localContent,
-          localChanges,
-          localBuckets,
-          {
-            ...remoteState,
-            remoteItems
-          },
-          force
-        );
-        if (resp && resp.content) {
-          updateRemoteInfo(
-            remote.state,
-            resp.localBuckets,
-            resp.remoteInfo,
-            force || localChanges.length === 0,
-            force || false
-          );
-          return resp.content;
-        }
+        return resp.content;
       }
       return localContent;
     },

@@ -137,7 +137,8 @@ class StorageService {
         content: { type: 'string' } as CellSchema,
         created: { type: 'number' } as CellSchema,
         updated: { type: 'number' } as CellSchema,
-        deleted: { type: 'boolean', default: false } as CellSchema
+        deleted: { type: 'boolean', default: false } as CellSchema,
+        conflict: { type: 'string' } as CellSchema
       }
     });
   }

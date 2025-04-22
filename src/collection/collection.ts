@@ -15,7 +15,12 @@ export interface CollectionItem {
   created: number;
   updated: number;
   deleted: boolean;
+  conflict?: string;
 }
+
+export type CollectionItemUpdatableFieldEnum = keyof Required<
+  Pick<CollectionItem, 'parent' | 'title' | 'content' | 'deleted'>
+>;
 
 export type CollectionItemResult = Required<
   Pick<

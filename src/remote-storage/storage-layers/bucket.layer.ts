@@ -99,7 +99,7 @@ export class BucketStorageLayer extends StorageLayer {
     return {
       remoteContent,
       localBuckets: newLocalBuckets,
-      remoteInfo
+      remoteInfo: { ...newRemoteState, remoteItems: remoteInfo.remoteItems }
     };
   }
 
