@@ -222,7 +222,9 @@ class CollectionService {
         key
       );
     });
-    this.updateParentUpdatedRecursive(this.getItemParent(rowId));
+    if (key !== 'parent') {
+      this.updateParentUpdatedRecursive(this.getItemParent(rowId));
+    }
   }
 
   public getBreadcrumb(folder: string) {

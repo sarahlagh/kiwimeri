@@ -38,34 +38,69 @@ export class SimpleStorageLayer extends StorageLayer {
     localContent: Content<SpaceType>,
     localChanges: LocalChange[],
     localBuckets: Bucket[],
-    remoteInfo: RemoteInfo
+    cachedRemoteInfo: RemoteInfo,
+    force = false
   ) {
     if (!this.provider.getConfig()) {
       throw new Error(`uninitialized ${this.provider.providerName} config`);
     }
 
-    // const {
-    //   content: remoteContent,
-    //   localBuckets: newLocalBuckets,
-    //   remoteInfo: newRemoteInfo
-    // } = await this.pull(localContent, localChanges, localBuckets, remoteInfo);
-
-    // for (const localChange of localChanges) {
-    // }
+    const { remoteStateInfo: newRemoteState } =
+      await this.provider.fetchRemoteStateInfo(cachedRemoteInfo.state);
 
     const collection = this.toMap<CollectionItem>(localContent[0].collection!);
-    const content = JSON.stringify(
-      collection
+    let newRemoteContent: CollectionItem[];
+    if (
+      newRemoteState.lastRemoteChange > cachedRemoteInfo.lastRemoteChange ||
+      force
+    ) {
+      const { content: remoteContent } = await this.provider.pullFile(
+        this.providerid
+      );
+      newRemoteContent = remoteContent;
+      console.debug('newRemoteContent from server', newRemoteContent);
+    } else {
+      newRemoteContent = collection
         .keys()
-        .map(id => collection.get(id))
-        .toArray()
-    );
+        .map(id => collection.get(id)!)
+        .filter(v => !v.conflict)
+        .toArray();
+
+      console.debug('newRemoteContent from local (cached)', newRemoteContent);
+    }
+
+    console.debug('localContent', localContent);
+    console.debug('localChanges', localChanges);
+    console.debug('collection', collection);
+
+    if (localChanges.length > 0) {
+      // reapply local changes
+      for (const localChange of localChanges) {
+        const itemIdx = newRemoteContent.findIndex(
+          ri => ri.id === localChange.item
+        );
+        if (itemIdx === -1 && localChange.change !== LocalChangeType.delete) {
+          // something something force mode here?
+          newRemoteContent.push(collection.get(localChange.item)!);
+          continue;
+        }
+        if (localChange.change === LocalChangeType.update) {
+          newRemoteContent[itemIdx] = collection.get(localChange.item)!;
+        } else if (localChange.change === LocalChangeType.delete) {
+          delete newRemoteContent[itemIdx];
+        }
+      }
+    }
+
+    const content = this.serialization(newRemoteContent);
     this.providerid = await this.provider.pushFile(this.filename, content);
 
-    console.debug('new remoteInfo in mem', content);
     return {
-      localBuckets,
-      remoteInfo
+      localBuckets: newRemoteState.buckets,
+      remoteInfo: {
+        ...newRemoteState,
+        remoteItems: cachedRemoteInfo.remoteItems
+      }
     };
   }
 
@@ -81,6 +116,7 @@ export class SimpleStorageLayer extends StorageLayer {
     }
     const { remoteStateInfo: newRemoteState } =
       await this.provider.fetchRemoteStateInfo(cachedRemoteInfo.state);
+    // TODO only fetch file if remoteStateInfo has diverged from cachedRemoteInfo
     const { content } = await this.provider.pullFile(this.providerid);
     const localCollection = this.toMap<CollectionItem>(
       localContent[0].collection
@@ -89,12 +125,6 @@ export class SimpleStorageLayer extends StorageLayer {
     content.forEach(item => {
       newLocalContent[0].collection![item.id!] = item;
     });
-
-    // console.debug('newLocalContent', newLocalContent);
-    console.debug('newRemoteState', newRemoteState);
-    console.debug('cached remote info', cachedRemoteInfo);
-    // console.debug('local buckets', localBuckets);
-    // console.debug('localChanges', localChanges);
 
     if (!force && localChanges.length > 0) {
       // reapply localChanges
@@ -119,12 +149,6 @@ export class SimpleStorageLayer extends StorageLayer {
         } else {
           const localItem = localCollection.get(localChange.item)!;
           if (localItem && !localItem.conflict) {
-            console.log(
-              'conflict where server wins',
-              localChange,
-              localItem,
-              remoteUpdated
-            );
             newLocalContent[0].collection![getUniqueId()] = {
               ...localItem,
               conflict: localChange.item,
@@ -144,5 +168,9 @@ export class SimpleStorageLayer extends StorageLayer {
         remoteItems: cachedRemoteInfo.remoteItems
       }
     };
+  }
+
+  private serialization(items: CollectionItem[]) {
+    return JSON.stringify(items);
   }
 }

@@ -89,6 +89,18 @@ export class InMemProvider extends FileStorageProvider {
     InMemProvider.collection.clear();
   }
 
+  // TODO method to getContent when multiple buckets
+  public getContent() {
+    const content: CollectionItem[] = [];
+    InMemProvider.collection
+      .get(this.name)
+      ?.get(InMemProvider.providerfile)
+      ?.forEach((item, id) => {
+        content.push({ ...item, id });
+      });
+    return { content };
+  }
+
   private fastHash(input: string): number {
     let hash = 0;
     for (let i = 0; i < input.length; i++) {
