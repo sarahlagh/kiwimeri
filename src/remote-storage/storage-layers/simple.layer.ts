@@ -51,8 +51,8 @@ export class SimpleStorageLayer extends StorageLayer {
     const collection = this.toMap<CollectionItem>(localContent[0].collection!);
     let newRemoteContent: CollectionItem[];
     if (
-      newRemoteState.lastRemoteChange > cachedRemoteInfo.lastRemoteChange ||
-      force
+      newRemoteState.lastRemoteChange > cachedRemoteInfo.lastRemoteChange &&
+      !force
     ) {
       const { content: remoteContent } = await this.provider.pullFile(
         this.providerid
@@ -69,9 +69,8 @@ export class SimpleStorageLayer extends StorageLayer {
       console.debug('newRemoteContent from local (cached)', newRemoteContent);
     }
 
-    console.debug('localContent', localContent);
+    // console.debug('localContent', localContent);
     console.debug('localChanges', localChanges);
-    console.debug('collection', collection);
 
     if (localChanges.length > 0) {
       // reapply local changes
@@ -84,15 +83,18 @@ export class SimpleStorageLayer extends StorageLayer {
           newRemoteContent.push(collection.get(localChange.item)!);
           continue;
         }
-        if (localChange.change === LocalChangeType.update) {
-          newRemoteContent[itemIdx] = collection.get(localChange.item)!;
-        } else if (localChange.change === LocalChangeType.delete) {
-          delete newRemoteContent[itemIdx];
+        if (itemIdx > -1) {
+          if (localChange.change === LocalChangeType.update) {
+            newRemoteContent[itemIdx] = collection.get(localChange.item)!;
+          } else if (localChange.change === LocalChangeType.delete) {
+            newRemoteContent.splice(itemIdx, 1);
+          }
         }
       }
     }
 
     const content = this.serialization(newRemoteContent);
+    console.debug('newRemoteContent after changes', newRemoteContent, content);
     this.providerid = await this.provider.pushFile(this.filename, content);
 
     return {
