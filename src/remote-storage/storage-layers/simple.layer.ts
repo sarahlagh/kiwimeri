@@ -58,19 +58,13 @@ export class SimpleStorageLayer extends StorageLayer {
         this.providerid
       );
       newRemoteContent = remoteContent;
-      console.debug('newRemoteContent from server', newRemoteContent);
     } else {
       newRemoteContent = collection
         .keys()
         .map(id => collection.get(id)!)
         .filter(v => !v.conflict)
         .toArray();
-
-      console.debug('newRemoteContent from local (cached)', newRemoteContent);
     }
-
-    // console.debug('localContent', localContent);
-    console.debug('localChanges', localChanges);
 
     if (localChanges.length > 0) {
       // reapply local changes
@@ -94,7 +88,6 @@ export class SimpleStorageLayer extends StorageLayer {
     }
 
     const content = this.serialization(newRemoteContent);
-    console.debug('newRemoteContent after changes', newRemoteContent, content);
     this.providerid = await this.provider.pushFile(this.filename, content);
 
     return {
