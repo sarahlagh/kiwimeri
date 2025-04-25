@@ -89,6 +89,10 @@ export class InMemProvider extends FileStorageProvider {
     InMemProvider.collection.clear();
   }
 
+  public setContent(items: CollectionItem[]) {
+    this.pushFile(InMemProvider.providerfile, JSON.stringify(items));
+  }
+
   // TODO method to getContent when multiple buckets
   public getContent() {
     const content: CollectionItem[] = [];

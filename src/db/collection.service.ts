@@ -1,4 +1,5 @@
 import {
+  CollectionItemFieldEnum,
   CollectionItemResult,
   CollectionItemType,
   CollectionItemUpdatableFieldEnum
@@ -138,15 +139,6 @@ class CollectionService {
 
   public setItemTitle(rowId: Id, title: string) {
     this.setItemField(rowId, 'title', title);
-    // storageService.getSpace().setCell(this.table, rowId, 'title', title);
-    // storageService.getSpace().setCell(this.table, rowId, 'updated', Date.now());
-    // this.updateParentUpdatedRecursive(this.getItemParent(rowId));
-    // const wasConflict = this.resetItemIfConflict(rowId);
-    // localChangesService.addLocalChange(
-    //   rowId,
-    //   wasConflict ? LocalChangeType.add : LocalChangeType.update,
-    //   'title'
-    // );
   }
 
   public getItemContent(rowId: Id) {
@@ -164,17 +156,6 @@ class CollectionService {
 
   public setItemContent(rowId: Id, content: string) {
     this.setItemField(rowId, 'content', content);
-    // storageService
-    //   .getSpace()
-    //   .setCell(this.table, rowId, 'content', () => content);
-    // storageService.getSpace().setCell(this.table, rowId, 'updated', Date.now());
-    // this.updateParentUpdatedRecursive(this.getItemParent(rowId));
-    // const wasConflict = this.resetItemIfConflict(rowId);
-    // localChangesService.addLocalChange(
-    //   rowId,
-    //   wasConflict ? LocalChangeType.add : LocalChangeType.update,
-    //   'content'
-    // );
   }
 
   public getItemType(rowId: Id) {
@@ -225,6 +206,10 @@ class CollectionService {
     if (key !== 'parent') {
       this.updateParentUpdatedRecursive(this.getItemParent(rowId));
     }
+  }
+
+  public getItemField(rowId: Id, key: CollectionItemFieldEnum) {
+    return storageService.getSpace().getCell('collection', rowId, key);
   }
 
   public getBreadcrumb(folder: string) {

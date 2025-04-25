@@ -1,0 +1,168 @@
+import {
+  CollectionItem,
+  CollectionItemFieldEnum,
+  CollectionItemType,
+  CollectionItemUpdatableFieldEnum
+} from '@/collection/collection';
+import { ROOT_FOLDER } from '@/constants';
+import collectionService from '@/db/collection.service';
+import storageService from '@/db/storage.service';
+import { getUniqueId } from 'tinybase/with-schemas';
+import { expect } from 'vitest';
+
+export const oneDocument = (title = 'new doc', parent = ROOT_FOLDER) =>
+  ({
+    id: getUniqueId(),
+    parent,
+    type: CollectionItemType.document,
+    title,
+    content: 'random',
+    created: Date.now(),
+    updated: Date.now(),
+    deleted: false
+  }) as CollectionItem;
+export const oneFolder = (title = 'new folder', parent = ROOT_FOLDER) =>
+  ({
+    id: getUniqueId(),
+    parent,
+    type: CollectionItemType.folder,
+    title,
+    created: Date.now(),
+    updated: Date.now(),
+    deleted: false
+  }) as CollectionItem;
+
+export const UPDATABLE_FIELDS = [
+  { field: 'title' },
+  { field: 'content' },
+  { field: 'parent' }
+];
+export const NON_PARENT_CHANGES = [
+  {
+    local: 'title',
+    remote: 'title'
+  },
+  {
+    local: 'title',
+    remote: 'content'
+  },
+  {
+    local: 'content',
+    remote: 'title'
+  },
+  {
+    local: 'content',
+    remote: 'content'
+  }
+];
+export const PARENT_CHANGES = [
+  {
+    local: 'parent',
+    remote: 'parent'
+  },
+  {
+    local: 'parent',
+    remote: 'title'
+  },
+  {
+    local: 'title',
+    remote: 'parent'
+  }
+];
+
+export const getCollectionRowCount = () => {
+  return storageService.getSpace().getRowCount('collection');
+};
+
+export const getCollectionRowIds = () => {
+  return storageService.getSpace().getRowIds('collection');
+};
+
+export const getLocalItemByTitle = (title: string) => {
+  let id;
+  storageService
+    .getSpace()
+    .getRowIds('collection')
+    .forEach(rowId => {
+      if (
+        storageService
+          .getSpace()
+          .getCell('collection', rowId, 'title')
+          ?.valueOf() === title
+      ) {
+        id = rowId;
+      }
+    });
+  expect(id).toBeDefined();
+  return id;
+};
+
+export const getFirstLocalItem = () => {
+  return storageService.getSpace().getRowIds('collection')[0];
+};
+
+export const getLocalItemField = (rowId: string, field: string) => {
+  return collectionService.getItemField(
+    rowId,
+    field as CollectionItemFieldEnum
+  );
+};
+
+export const setLocalItemField = (
+  rowId: string,
+  field: string,
+  value = 'newLocal'
+) => {
+  collectionService.setItemField(
+    rowId,
+    field as CollectionItemUpdatableFieldEnum,
+    value
+  );
+};
+
+export const updateOnRemote = (
+  remoteData: CollectionItem[],
+  id: string,
+  field: string,
+  delay = 0,
+  newValue = 'newRemote'
+) => {
+  const idx = remoteData.findIndex(r => r.id === id);
+  const remoteKey = field as CollectionItemUpdatableFieldEnum;
+  remoteData[idx][remoteKey] = newValue as never;
+  if (remoteKey !== 'parent') {
+    remoteData[idx].updated = Date.now() + delay;
+  }
+  return remoteData;
+};
+
+export const getRemoteItemField = (
+  content: CollectionItem[],
+  id: string,
+  field: string
+) => {
+  return content.find(i => i.id === id)![field as CollectionItemFieldEnum];
+};
+
+export const getLocalItemConflict = () => {
+  const rowIds = storageService.getSpace().getRowIds('collection');
+  let conflictId;
+  rowIds.forEach(id => {
+    if (collectionService.isItemConflict(id)) {
+      conflictId = id;
+    }
+  });
+  return conflictId;
+};
+
+export const expectHasLocalItemConflict = (
+  conflictId: string,
+  yesNo: boolean
+) => {
+  const rowIds = storageService.getSpace().getRowIds('collection');
+  if (yesNo) {
+    expect(rowIds).toContain(conflictId);
+  } else {
+    expect(rowIds).not.toContain(conflictId);
+  }
+};

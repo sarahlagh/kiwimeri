@@ -18,6 +18,10 @@ export interface CollectionItem {
   conflict?: string;
 }
 
+export type CollectionItemFieldEnum = keyof Required<
+  Omit<CollectionItem, 'id'>
+>;
+
 export type CollectionItemUpdatableFieldEnum = keyof Required<
   Pick<CollectionItem, 'parent' | 'title' | 'content' | 'deleted'>
 >;
