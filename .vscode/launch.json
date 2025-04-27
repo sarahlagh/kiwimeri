@@ -23,7 +23,16 @@
       "type": "node",
       "request": "launch",
       "runtimeExecutable": "vitest",
-      "runtimeArgs": ["--ui"],
+      "runtimeArgs": ["--ui", "unit"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Vitest e2e",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "vitest",
+      "runtimeArgs": ["--ui", "e2e"],
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}"
     }

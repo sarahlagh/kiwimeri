@@ -16,14 +16,14 @@ import {
 
 type SimpleStorageInfo = {
   providerid: string;
-  hash?: string; // can do with cachedRemoteInfo...
+  hash?: string;
 };
 
 export class SimpleStorageProvider extends StorageProvider {
   protected readonly id = 'S';
   protected readonly version = 1;
   protected readonly filename = 'collection.json';
-  protected localInfo!: SimpleStorageInfo;
+  protected localInfo!: SimpleStorageInfo; // update hash after push instead of keeping it here
 
   public constructor(protected driver: FileStorageDriver) {
     super(driver);
@@ -65,7 +65,8 @@ export class SimpleStorageProvider extends StorageProvider {
   private getRemoteState(filesInfo: DriverFileInfo[]) {
     const remoteState: RemoteState = {
       connected: true,
-      lastRemoteChange: Math.max(...filesInfo.map(fi => fi.updated))
+      lastRemoteChange:
+        filesInfo.length > 0 ? Math.max(...filesInfo.map(fi => fi.updated)) : 0
     };
     if (filesInfo.length > 0) {
       remoteState.info = {
@@ -129,8 +130,10 @@ export class SimpleStorageProvider extends StorageProvider {
 
     const content = this.serialization(newRemoteContent);
     const driverInfo = await this.driver.pushFile(this.filename, content);
-    this.localInfo.providerid = driverInfo.providerid;
-    this.localInfo.hash = driverInfo.hash;
+    this.localInfo = {
+      providerid: driverInfo.providerid,
+      hash: driverInfo.hash
+    };
 
     return {
       remoteInfo: {
@@ -149,6 +152,7 @@ export class SimpleStorageProvider extends StorageProvider {
     if (!this.driver.getConfig()) {
       throw new Error(`uninitialized ${this.driver.driverName} config`);
     }
+
     const { filesInfo } = await this.driver.fetchFilesInfo([this.filename]);
     const newRemoteState = this.getRemoteState(filesInfo);
     const newLocalInfo = newRemoteState.info as SimpleStorageInfo;
@@ -157,6 +161,7 @@ export class SimpleStorageProvider extends StorageProvider {
       this.localInfo.providerid,
       this.filename
     );
+
     const items = JSON.parse(content || '[]') as CollectionItem[];
     const localCollection = this.toMap<CollectionItem>(
       localContent[0].collection

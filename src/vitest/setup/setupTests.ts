@@ -4,10 +4,10 @@
 // learn more: https://github.com/testing-library/jest-dom
 import { initGlobalTrans } from '@/config';
 import remotesService from '@/db/remotes.service';
+import storageService from '@/db/storage.service';
+import { messages as enMessages } from '@/locales/en/messages';
 import { i18n } from '@lingui/core';
 import '@testing-library/jest-dom/extend-expect';
-import storageService from '../../db/storage.service';
-import { messages as enMessages } from '../../locales/en/messages';
 
 // Mock matchmedia
 window.matchMedia =

@@ -23,6 +23,10 @@ export type DriverFileInfo = {
 export abstract class StorageProvider {
   constructor(protected driver: FileStorageDriver) {}
 
+  public getName() {
+    return `[${this.getVersionFile()}][${this.driver.driverName}]`;
+  }
+
   abstract configure(conf: any, proxy?: string, useHttp?: boolean): void; // accept user input and save in local store
 
   abstract getVersionFile(): string;
@@ -96,4 +100,9 @@ export abstract class FileStorageDriver {
     providerid: string,
     filename: string
   ): Promise<{ content?: string }>;
+
+  public abstract deleteFile(
+    providerid: string,
+    filename: string
+  ): Promise<void>;
 }

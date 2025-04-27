@@ -57,6 +57,10 @@ export class InMemDriver extends FileStorageDriver {
     return { content: this.collection.get(filename) };
   }
 
+  public async deleteFile(providerid: string, filename: string) {
+    this.initMap(filename, true);
+  }
+
   private initMap(filename: string, force = false) {
     if (force || !this.collection.has(filename)) {
       this.collection.delete(filename);

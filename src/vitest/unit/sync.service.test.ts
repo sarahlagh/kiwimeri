@@ -25,12 +25,11 @@ import {
   setLocalItemField,
   UPDATABLE_FIELDS,
   updateOnRemote
-} from './setup/test.utils';
+} from '../setup/test.utils';
 
 let driver: InMemDriver;
 
 const reInitRemoteData = async (items: CollectionItem[]) => {
-  console.debug('new remote data', items);
   await driver.setContent(items);
 };
 
@@ -151,6 +150,25 @@ describe('sync service', () => {
 
           // indicator should still tell if push allowed
           testPushIndicator(true);
+        });
+
+        it('should pull new remote items without erasing existing items', async () => {
+          const remoteData = [
+            oneDocument('r1'),
+            oneDocument('r2'),
+            oneFolder('r3')
+          ];
+          await reInitRemoteData(remoteData);
+          // create local items
+          collectionService.addDocument(ROOT_FOLDER);
+          collectionService.addFolder(ROOT_FOLDER);
+          expect(getCollectionRowCount()).toBe(2);
+          localChangesService.clearLocalChanges();
+          await syncService.pull();
+          expect(getCollectionRowCount()).toBe(3);
+
+          // indicator should still tell if push allowed
+          testPushIndicator(false);
         });
 
         it('should pull new remote items several times without erasing newly created items ', async () => {

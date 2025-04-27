@@ -28,7 +28,8 @@ const vitestConfig = vitestDefineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/vitest/setup/setupTests.ts'],
-    reporters: ['default'] //, 'html']
+    dir: './src/vitest',
+    reporters: ['default'] //, 'html'],
   }
 });
 

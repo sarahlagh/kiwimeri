@@ -2,6 +2,7 @@ import { DriverFileInfo, FileStorageDriver } from '@/remote-storage/sync-types';
 import {
   PCloudLinkResponse,
   PCloudListResponse,
+  PCloudResponse,
   PCloudResult,
   PCloudUploadResponse
 } from './types';
@@ -129,7 +130,7 @@ export class PCloudDriver extends FileStorageDriver {
     console.log('[pCloud] downloading file');
     const data = await fetch(url);
     const content = await data.json();
-    return { content };
+    return { content: JSON.stringify(content) };
   }
 
   private async uploadFile(
@@ -148,6 +149,24 @@ export class PCloudDriver extends FileStorageDriver {
       }
     );
     return (await res.json()) as PCloudUploadResponse;
+  }
+
+  public async deleteFile(providerid: string, filename: string) {
+    if (filename) {
+      const res = await this.getFetch<PCloudResponse>('deletefile', {
+        path: `${this.config?.path || ''}/${filename}`
+      });
+      if (res.error) {
+        console.error('error deleting file:', filename, res.error);
+      }
+    } else if (providerid) {
+      const res = await this.getFetch<PCloudResponse>('deletefile', {
+        fileid: providerid
+      });
+      if (res.error) {
+        console.error('error deleting file:', providerid, res.error);
+      }
+    }
   }
 
   private async getFetch<T>(

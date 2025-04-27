@@ -41,23 +41,27 @@ export const createRemoteCloudPersister = (
       const force = remotesService.getForceMode();
       const remoteState = remotesService.getCachedRemoteStateInfo(remote.state);
       const remoteItems = remotesService.getCachedRemoteItemInfo(remote.state);
-      const resp = await storageProvider.pull(
-        localContent,
-        localChanges,
-        {
-          ...remoteState,
-          remoteItems
-        },
-        force
-      );
-      if (resp && resp.content) {
-        updateRemoteInfo(
-          remote.state,
-          resp.remoteInfo,
-          force || localChanges.length == 0,
-          force || false
+      try {
+        const resp = await storageProvider.pull(
+          localContent,
+          localChanges,
+          {
+            ...remoteState,
+            remoteItems
+          },
+          force
         );
-        return resp.content;
+        if (resp && resp.content) {
+          updateRemoteInfo(
+            remote.state,
+            resp.remoteInfo,
+            force || localChanges.length == 0,
+            force || false
+          );
+          return resp.content;
+        }
+      } catch (e) {
+        console.error('error pulling', storageProvider.getName(), e);
       }
       return localContent;
     },
@@ -68,16 +72,20 @@ export const createRemoteCloudPersister = (
       const remoteState = remotesService.getCachedRemoteStateInfo(remote.state);
       const remoteItems = remotesService.getCachedRemoteItemInfo(remote.state);
       const force = remotesService.getForceMode();
-      const resp = await storageProvider.push(
-        localContent,
-        localChanges,
-        {
-          ...remoteState,
-          remoteItems
-        },
-        force
-      );
-      updateRemoteInfo(remote.state, resp.remoteInfo, true, true);
+      try {
+        const resp = await storageProvider.push(
+          localContent,
+          localChanges,
+          {
+            ...remoteState,
+            remoteItems
+          },
+          force
+        );
+        updateRemoteInfo(remote.state, resp.remoteInfo, true, true);
+      } catch (e) {
+        console.error('error pulling', storageProvider.getName(), e);
+      }
     },
     listener => setInterval(listener, 1000),
     interval => clearInterval(interval)
