@@ -1,6 +1,6 @@
 import { CollectionItem } from '@/collection/collection';
 import { DEFAULT_SPACE_ID } from '@/constants';
-import { CellSchema } from 'tinybase/with-schemas';
+import { CellSchema, MapValue, Value } from 'tinybase/with-schemas';
 import {
   LocalChange,
   Remote,
@@ -49,3 +49,8 @@ export type StoreType = [
     currentSpace: { type: 'string'; default: typeof DEFAULT_SPACE_ID };
   }
 ];
+export type StoreTableId = keyof StoreType[0];
+export type StoreValueId = keyof StoreType[1];
+export type StoreValueType =
+  | Value<StoreType[1], StoreValueId>
+  | MapValue<StoreType[1], StoreValueId>;

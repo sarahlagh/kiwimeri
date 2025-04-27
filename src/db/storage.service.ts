@@ -9,18 +9,18 @@ import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-
 import { Persister } from 'tinybase/persisters/with-schemas';
 import { Queries as UntypedQueries } from 'tinybase/queries';
 import { createQueries, Queries } from 'tinybase/queries/with-schemas';
-import {
-  Cell,
-  MapCell,
-  MapValue,
-  Store as UntypedStore,
-  Value
-} from 'tinybase/store';
+import { Store as UntypedStore } from 'tinybase/store';
 import { CellSchema, createStore, Store } from 'tinybase/store/with-schemas';
 import { useCell, useResultSortedRowIds, useValue } from 'tinybase/ui-react';
 import { createIndexes, Id, Indexes } from 'tinybase/with-schemas';
 import remotesService from './remotes.service';
-import { SpaceType, StoreType } from './types/db-types';
+import {
+  SpaceType,
+  StoreTableId,
+  StoreType,
+  StoreValueId,
+  StoreValueType
+} from './types/db-types';
 
 class StorageService {
   private store!: Store<StoreType>;
@@ -190,33 +190,21 @@ class StorageService {
     return this.storeIndexes;
   }
 
-  // TODO don't use these shortcuts after all
-
-  public useValue(valueId: Id) {
+  public useValue(valueId: StoreValueId) {
     return useValue(valueId, this.getUntypedStore());
   }
 
-  public setValue(valueId: Id, value: Value | MapValue) {
-    this.getUntypedStore().setValue(valueId, value);
+  public setValue(valueId: StoreValueId, value: StoreValueType) {
+    this.getStore().setValue(valueId, value);
   }
 
-  public useCell<T>(tableId: Id, rowId: Id, cellId: Id) {
+  public useCell<T>(tableId: StoreTableId, rowId: Id, cellId: Id) {
     return useCell(
       tableId,
       rowId,
       cellId,
       this.getUntypedStore()
     )?.valueOf() as T;
-  }
-
-  public getCell<T>(tableId: Id, rowId: Id, cellId: Id) {
-    return this.getUntypedStore()
-      .getCell(tableId, rowId, cellId)
-      ?.valueOf() as T;
-  }
-
-  public setCell(tableId: Id, rowId: Id, cellId: Id, cell: Cell | MapCell) {
-    this.getUntypedStore().setCell(tableId, rowId, cellId, cell);
   }
 
   public useResultSortedRowIds(

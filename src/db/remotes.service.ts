@@ -107,12 +107,14 @@ class RemotesService {
     const newConf = await storageProvider.init(remote.state);
 
     storageService.getStore().transaction(() => {
-      storageService.setCell(
-        this.remotesTable,
-        remote.id,
-        'config',
-        JSON.stringify(newConf.config)
-      );
+      storageService
+        .getStore()
+        .setCell(
+          this.remotesTable,
+          remote.id,
+          'config',
+          JSON.stringify(newConf.config)
+        );
       this.updateRemoteStateInfo(remote.state, newConf.remoteState);
     });
 
@@ -171,11 +173,10 @@ class RemotesService {
 
   public getLastRemoteChange(state: string) {
     return (
-      storageService.getCell<number>(
-        this.stateTable,
-        state || '-1',
-        'lastRemoteChange'
-      ) || 0
+      (storageService
+        .getStore()
+        .getCell(this.stateTable, state || '-1', 'lastRemoteChange')
+        ?.valueOf() as number) || 0
     );
   }
 
@@ -221,20 +222,19 @@ class RemotesService {
   }
 
   public setRemoteName(remote: string, name: string) {
-    storageService.setCell(this.remotesTable, remote, 'name', name);
+    storageService.getStore().setCell(this.remotesTable, remote, 'name', name);
   }
 
   public setRemoteConfig(remote: string, config: AnyData) {
-    storageService.setCell(
-      this.remotesTable,
-      remote,
-      'config',
-      JSON.stringify(config)
-    );
+    storageService
+      .getStore()
+      .setCell(this.remotesTable, remote, 'config', JSON.stringify(config));
   }
 
   public setRemoteStateConnected(remote: string, connected: boolean) {
-    storageService.setCell(this.stateTable, remote, 'connected', connected);
+    storageService
+      .getStore()
+      .setCell(this.stateTable, remote, 'connected', connected);
   }
 
   public getCachedRemoteStateInfo(stateId: string) {
@@ -266,19 +266,23 @@ class RemotesService {
 
   public updateRemoteStateInfo(stateId: string, remoteInfo: RemoteState) {
     storageService.getStore().transaction(() => {
-      storageService.setCell(
-        this.stateTable,
-        stateId,
-        'lastRemoteChange',
-        remoteInfo.lastRemoteChange || 0
-      );
-      if (remoteInfo.info) {
-        storageService.setCell(
+      storageService
+        .getStore()
+        .setCell(
           this.stateTable,
           stateId,
-          'info',
-          JSON.stringify(remoteInfo.info)
+          'lastRemoteChange',
+          remoteInfo.lastRemoteChange || 0
         );
+      if (remoteInfo.info) {
+        storageService
+          .getStore()
+          .setCell(
+            this.stateTable,
+            stateId,
+            'info',
+            JSON.stringify(remoteInfo.info)
+          );
       }
     });
   }

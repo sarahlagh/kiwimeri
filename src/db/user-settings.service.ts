@@ -14,11 +14,10 @@ class UserSettingsService {
 
   public getCurrentFolder() {
     return (
-      storageService.getCell<string>(
-        this.spacesTable,
-        storageService.getSpaceId(),
-        'currentFolder'
-      ) || ROOT_FOLDER
+      (storageService
+        .getStore()
+        .getCell(this.spacesTable, storageService.getSpaceId(), 'currentFolder')
+        ?.valueOf() as string) || ROOT_FOLDER
     );
   }
 
@@ -33,32 +32,38 @@ class UserSettingsService {
   }
 
   public setCurrentFolder(folder: string) {
-    storageService.setCell(
-      this.spacesTable,
-      storageService.getSpaceId(),
-      'currentFolder',
-      folder
-    );
+    storageService
+      .getStore()
+      .setCell(
+        this.spacesTable,
+        storageService.getSpaceId(),
+        'currentFolder',
+        folder
+      );
   }
 
   public getCurrentDocument() {
     return (
-      storageService.getCell(
-        this.spacesTable,
-        storageService.getSpaceId(),
-        'currentDocument'
-      ) || undefined
+      storageService
+        .getStore()
+        .getCell(
+          this.spacesTable,
+          storageService.getSpaceId(),
+          'currentDocument'
+        ) || undefined
     );
   }
 
   public setCurrentDocument(doc?: string) {
     if (doc) {
-      storageService.setCell(
-        this.spacesTable,
-        storageService.getSpaceId(),
-        'currentDocument',
-        doc
-      );
+      storageService
+        .getStore()
+        .setCell(
+          this.spacesTable,
+          storageService.getSpaceId(),
+          'currentDocument',
+          doc
+        );
     } else {
       storageService
         .getStore()
