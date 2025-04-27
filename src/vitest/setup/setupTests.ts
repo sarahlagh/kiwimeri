@@ -4,7 +4,7 @@
 // learn more: https://github.com/testing-library/jest-dom
 import { initGlobalTrans } from '@/config';
 import remotesService from '@/db/remotes.service';
-import { InMemProvider } from '@/remote-storage/storage-providers/inmem.provider';
+import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
 import { i18n } from '@lingui/core';
 import '@testing-library/jest-dom/extend-expect';
 import storageService from '../../db/storage.service';
@@ -32,7 +32,7 @@ afterAll(async () => {
 });
 beforeEach(async () => {});
 afterEach(async () => {
-  new InMemProvider().reset();
+  new InMemDriver().reset();
   storageService.getStore().setContent([{}, {}]);
   storageService.getSpace().setContent([{}, {}]);
   expect(storageService.getStore().getRowCount('remotes')).toBe(0);

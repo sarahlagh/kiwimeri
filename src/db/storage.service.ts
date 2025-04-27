@@ -43,8 +43,7 @@ class StorageService {
           } as CellSchema,
           currentFolder: { type: 'string', default: ROOT_FOLDER } as CellSchema,
           currentDocument: { type: 'string' } as CellSchema,
-          lastLocalChange: { type: 'number' } as CellSchema,
-          buckets: { type: 'string' } as CellSchema
+          lastLocalChange: { type: 'number' } as CellSchema
         },
         localChanges: {
           space: { type: 'string' } as CellSchema,
@@ -65,12 +64,12 @@ class StorageService {
         remoteState: {
           connected: { type: 'boolean' } as CellSchema,
           lastRemoteChange: { type: 'number' } as CellSchema,
-          buckets: { type: 'string' } as CellSchema
+          info: { type: 'string' } as CellSchema
         },
         remoteItems: {
           state: { type: 'string' } as CellSchema,
           item: { type: 'string' } as CellSchema,
-          bucket: { type: 'number' } as CellSchema
+          info: { type: 'string' } as CellSchema
         }
       })
       .setValuesSchema({
@@ -186,6 +185,8 @@ class StorageService {
   public getStoreIndexes() {
     return this.storeIndexes;
   }
+
+  // TODO don't use these shortcuts after all
 
   public useValue(valueId: Id) {
     return useValue(valueId, this.getUntypedStore());

@@ -1,5 +1,4 @@
 import { ProviderTypes } from '@/remote-storage/storage-layer.factory';
-import { Bucket } from '@/remote-storage/types';
 
 export interface AnyData {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -11,7 +10,6 @@ export interface Space {
   currentFolder?: string;
   currentDocument?: string;
   lastLocalChange: number;
-  buckets?: Bucket;
 }
 
 export enum LocalChangeType {
@@ -51,12 +49,12 @@ export interface RemoteState {
   id?: string;
   connected?: boolean;
   lastRemoteChange?: number;
-  buckets?: Bucket;
+  info?: AnyData;
 }
 
 export interface RemoteItemInfo {
   id?: string;
   state: string; // id in remote state table
   item: string; // id in collection table
-  bucket: number; // the bucket number
+  info?: AnyData;
 }

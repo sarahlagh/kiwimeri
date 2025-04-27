@@ -1,6 +1,6 @@
 import platformService from '@/common/services/platform.service';
 import remotesService from '@/db/remotes.service';
-import { PCloudConf } from '@/remote-storage/storage-providers/pcloud/pcloud.provider';
+import { PCloudConf } from '@/remote-storage/storage-drivers/pcloud/pcloud.driver';
 import {
   IonButton,
   IonCard,

@@ -1,4 +1,3 @@
-import { Bucket } from '@/remote-storage/types';
 import storageService from './storage.service';
 import { LocalChange, LocalChangeType } from './types/store-types';
 
@@ -160,29 +159,9 @@ class LocalChangesService {
   }
 
   public setLastLocalChange(now: number) {
-    storageService.setCell(
-      'spaces',
-      storageService.getSpaceId(),
-      'lastLocalChange',
-      now
-    );
-  }
-
-  public setLocalBuckets(localBuckets: Bucket[]) {
-    storageService.setCell(
-      'spaces',
-      storageService.getSpaceId(),
-      'buckets',
-      JSON.stringify(localBuckets)
-    );
-  }
-
-  public getLocalBuckets() {
-    const space = storageService.getSpaceId();
-    return JSON.parse(
-      storageService.getCell<string>('spaces', space, 'buckets')?.valueOf() ||
-        '[]'
-    );
+    storageService
+      .getStore()
+      .setCell('spaces', storageService.getSpaceId(), 'lastLocalChange', now);
   }
 }
 

@@ -1,4 +1,5 @@
-import { FileStorageProvider, RemoteStateInfo } from '@/remote-storage/types';
+import { RemoteState } from '@/db/types/store-types';
+import { FileStorageDriver } from '@/remote-storage/sync-types';
 import {
   PCloudLinkResponse,
   PCloudListResponse,
@@ -14,7 +15,7 @@ export type PCloudConf = {
   folderid?: string;
 };
 
-export class PCloudProvider extends FileStorageProvider {
+export class PCloudDriver extends FileStorageDriver {
   private proxy?: string;
   private config: PCloudConf | null = null;
   private serverUrl!: string;
@@ -57,10 +58,9 @@ export class PCloudProvider extends FileStorageProvider {
     if (!this.config) {
       throw new Error('uninitialized pcloud config');
     }
-    const remoteStateInfo: RemoteStateInfo = {
+    const remoteStateInfo: RemoteState = {
       lastRemoteChange: 0,
-      state,
-      buckets: []
+      id: state
     };
     let res: PCloudListResponse;
     if (!this.config.folderid) {
@@ -77,22 +77,23 @@ export class PCloudProvider extends FileStorageProvider {
       return { ok: false, remoteStateInfo };
     }
     this.config.folderid = `${res.metadata!.folderid!}`;
-    let lastRemoteChange = 0;
-    if (res.metadata?.contents) {
-      remoteStateInfo.buckets = res.metadata.contents
-        .filter(f => !f.isfolder && f.name.match(/bucket(\d*).json/))
-        .map(f => ({
-          rank: this.parseRank(f.name),
-          providerid: `${f.fileid}`,
-          size: f.size,
-          hash: f.hash,
-          lastRemoteChange: new Date(f.modified).getTime()
-        }));
-      lastRemoteChange = Math.max(
-        ...remoteStateInfo.buckets.map(b => b.lastRemoteChange)
-      );
-    }
-    remoteStateInfo.lastRemoteChange = lastRemoteChange;
+    // TODO
+    // let lastRemoteChange = 0;
+    // if (res.metadata?.contents) {
+    //   remoteStateInfo.buckets = res.metadata.contents
+    //     .filter(f => !f.isfolder && f.name.match(/bucket(\d*).json/))
+    //     .map(f => ({
+    //       rank: this.parseRank(f.name),
+    //       providerid: `${f.fileid}`,
+    //       size: f.size,
+    //       hash: f.hash,
+    //       lastRemoteChange: new Date(f.modified).getTime()
+    //     }));
+    //   lastRemoteChange = Math.max(
+    //     ...remoteStateInfo.buckets.map(b => b.lastRemoteChange)
+    //   );
+    // }
+    // remoteStateInfo.lastRemoteChange = lastRemoteChange;
     console.log('[pCloud] connection tested OK');
     return { ok: true, remoteStateInfo };
   }
@@ -132,7 +133,7 @@ export class PCloudProvider extends FileStorageProvider {
   //   return { ok: true, lastRemoteChange: remoteStateInfo.lastRemoteChange };
   // }
 
-  public async pushFile(filename: string, content: string) {
+  public async pushFile(providerid: string, filename: string, content: string) {
     if (!this.config || !this.config.folderid) {
       throw new Error('uninitialized pcloud config');
     }
@@ -141,11 +142,14 @@ export class PCloudProvider extends FileStorageProvider {
       console.log('[pCloud] error uploading changes');
       // TODO handle error
     }
-    return `${resp.fileids[0]}`;
+    return {
+      providerid: `${resp.fileids[0]}`,
+      hash: `${resp.metadata[0].hash}`
+    };
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async pullFile(providerid: string) {
+  public async pullFile(providerid: string, filename: string) {
     if (!this.config) {
       throw new Error('uninitialized pcloud config');
     }

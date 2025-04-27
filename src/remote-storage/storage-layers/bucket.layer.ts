@@ -3,17 +3,24 @@ import { SpaceType } from '@/db/types/db-types';
 import { LocalChange } from '@/db/types/store-types';
 import { Content } from 'tinybase/with-schemas';
 import {
-  Bucket,
-  FileStorageProvider,
+  FileStorageDriver,
   RemoteInfo,
   RemoteStateInfo,
   StorageLayer
-} from '../types';
+} from '../sync-types';
+
+export type RemoteChunk = {
+  rank: number;
+  providerid: string;
+  lastRemoteChange: number;
+  size: number;
+  hash: number;
+};
 
 export class BucketStorageLayer extends StorageLayer {
   private readonly bucketMaxSize = 2000000;
 
-  public constructor(private provider: FileStorageProvider) {
+  public constructor(private provider: FileStorageDriver) {
     super();
   }
 
@@ -28,11 +35,11 @@ export class BucketStorageLayer extends StorageLayer {
 
   protected async getRemoteContent(
     localContent: Content<SpaceType>,
-    localBuckets: Bucket[],
+    localBuckets: RemoteChunk[],
     remoteInfo: RemoteInfo
   ) {
     if (!this.provider.getConfig()) {
-      throw new Error(`uninitialized ${this.provider.providerName} config`);
+      throw new Error(`uninitialized ${this.provider.driverName} config`);
     }
     const newLocalBuckets = [...localBuckets];
     const remoteContent: Content<SpaceType> = [{ collection: {} }, {}];
@@ -41,8 +48,8 @@ export class BucketStorageLayer extends StorageLayer {
       await this.provider.fetchRemoteStateInfo(remoteInfo.state);
 
     // determine which existing buckets have changed locally
-    const bucketsUpdatedRemotely: Bucket[] = [];
-    const bucketsUnchanged: Bucket[] = [];
+    const bucketsUpdatedRemotely: RemoteChunk[] = [];
+    const bucketsUnchanged: RemoteChunk[] = [];
     for (const bucket of localBuckets) {
       const remoteBucketObj = newRemoteState.buckets?.find(
         b => b.providerid === bucket.providerid
@@ -106,12 +113,12 @@ export class BucketStorageLayer extends StorageLayer {
   public async push(
     localContent: Content<SpaceType>,
     localChanges: LocalChange[],
-    localBuckets: Bucket[],
+    localBuckets: RemoteChunk[],
     remoteInfo: RemoteInfo,
     force = false
   ) {
     if (!this.provider.getConfig()) {
-      throw new Error(`uninitialized ${this.provider.providerName} config`);
+      throw new Error(`uninitialized ${this.provider.driverName} config`);
     }
     const {
       remoteContent,
@@ -177,12 +184,12 @@ export class BucketStorageLayer extends StorageLayer {
   public async pull(
     localContent: Content<SpaceType>,
     localChanges: LocalChange[],
-    localBuckets: Bucket[],
+    localBuckets: RemoteChunk[],
     remoteInfo: RemoteInfo,
     force = false
   ) {
     if (!this.provider.getConfig()) {
-      throw new Error(`uninitialized ${this.provider.providerName} config`);
+      throw new Error(`uninitialized ${this.provider.driverName} config`);
     }
     console.debug('pull with force', force, remoteInfo);
     // TODO if localChanges, do something

@@ -5,14 +5,18 @@ import {
   LayerTypes,
   storageLayerFactory
 } from '@/remote-storage/storage-layer.factory';
-import { RemoteStateInfo, StorageLayer } from '@/remote-storage/types';
+import { StorageLayer } from '@/remote-storage/sync-types';
 import { Persister } from 'tinybase/persisters/with-schemas';
 import { useResultTable } from 'tinybase/ui-react';
-import { Row } from 'tinybase/with-schemas';
 import { createRemoteCloudPersister } from './persisters/remote-cloud-persister';
 import storageService from './storage.service';
-import { SpaceType, StoreType } from './types/db-types';
-import { AnyData, RemoteItemInfo, RemoteResult } from './types/store-types';
+import { SpaceType } from './types/db-types';
+import {
+  AnyData,
+  RemoteItemInfo,
+  RemoteResult,
+  RemoteState
+} from './types/store-types';
 
 class RemotesService {
   private readonly remotesTable = 'remotes';
@@ -177,8 +181,7 @@ class RemotesService {
   ) {
     const state = storageService.getStore().addRow(this.stateTable, {
       connected: false,
-      lastRemoteChange: 0,
-      buckets: undefined
+      lastRemoteChange: 0
     });
     storageService.getStore().addRow(
       this.remotesTable,
@@ -229,18 +232,12 @@ class RemotesService {
   }
 
   public getCachedRemoteStateInfo(stateId: string) {
-    const remoteStateInfo = {} as RemoteStateInfo;
-    remoteStateInfo.state = stateId;
-    remoteStateInfo.lastRemoteChange = this.getLastRemoteChange(stateId);
-    const buckets = storageService.getCell<string>(
-      this.stateTable,
-      stateId,
-      'buckets'
-    );
-    if (buckets) {
-      remoteStateInfo.buckets = JSON.parse(buckets);
-    }
-    return remoteStateInfo;
+    const row = storageService.getStore().getRow(this.stateTable, stateId);
+    return {
+      ...row,
+      id: stateId,
+      info: row.info ? JSON.parse(row.info as string) : undefined
+    } as RemoteState;
   }
 
   public getCachedRemoteItemInfo(stateId: string) {
@@ -252,26 +249,29 @@ class RemotesService {
     rowIds.forEach(rowId => {
       remoteItems.push({
         ...table[rowId],
-        id: rowId
+        id: rowId,
+        info: table[rowId].info
+          ? JSON.parse(table[rowId].info as string)
+          : undefined
       } as RemoteItemInfo);
     });
     return remoteItems;
   }
 
-  public updateRemoteStateInfo(stateId: string, remoteInfo: RemoteStateInfo) {
+  public updateRemoteStateInfo(stateId: string, remoteInfo: RemoteState) {
     storageService.getStore().transaction(() => {
       storageService.setCell(
         this.stateTable,
         stateId,
         'lastRemoteChange',
-        remoteInfo.lastRemoteChange
+        remoteInfo.lastRemoteChange || 0
       );
-      if (remoteInfo.buckets) {
+      if (remoteInfo.info) {
         storageService.setCell(
           this.stateTable,
           stateId,
-          'buckets',
-          JSON.stringify(remoteInfo.buckets)
+          'info',
+          JSON.stringify(remoteInfo.info)
         );
       }
     });
@@ -288,35 +288,39 @@ class RemotesService {
     const createdItems = remoteItems.filter(
       r => !dbItems.find(i => i.item === r.item)
     );
-    console.debug('items to delete', deletedItems);
-    console.debug('items to update', updatedItems);
-    console.debug('items to create', createdItems);
-    // TODO paginate for transaction
-    storageService.getStore().transaction(() => {
-      // delete ones on local missing in remote
-      deletedItems.forEach(remoteItem => {
-        storageService.getStore().delRow(this.remoteItemsTable, remoteItem.id!);
+    if (
+      deletedItems.length > 0 ||
+      updatedItems.length > 0 ||
+      createdItems.length > 0
+    ) {
+      // TODO paginate for transaction
+      storageService.getStore().transaction(() => {
+        // delete ones on local missing in remote
+        deletedItems.forEach(remoteItem => {
+          storageService
+            .getStore()
+            .delRow(this.remoteItemsTable, remoteItem.id!);
+        });
+        // update the existing ones
+        updatedItems.forEach(remoteItem => {
+          storageService
+            .getStore()
+            .setRow(this.remoteItemsTable, remoteItem.id!, {
+              ...remoteItem,
+              info: remoteItem.info
+                ? JSON.stringify(remoteItem.info)
+                : undefined
+            });
+        });
+        // create the rest
+        createdItems.forEach(remoteItem => {
+          storageService.getStore().addRow(this.remoteItemsTable, {
+            ...remoteItem,
+            info: remoteItem.info ? JSON.stringify(remoteItem.info) : undefined
+          });
+        });
       });
-      // update the existing ones
-      updatedItems.forEach(remoteItem => {
-        storageService
-          .getStore()
-          .setRow(
-            this.remoteItemsTable,
-            remoteItem.id!,
-            remoteItem as Row<StoreType[0], 'remoteItems'>
-          );
-      });
-      // create the rest
-      createdItems.forEach(remoteItem => {
-        storageService
-          .getStore()
-          .addRow(
-            this.remoteItemsTable,
-            remoteItem as Row<StoreType[0], 'remoteItems'>
-          );
-      });
-    });
+    }
   }
 
   public updateRemoteRank(currentRank: number, newRank: number) {

@@ -2,31 +2,37 @@ import { CollectionItem } from '@/collection/collection';
 import { SpaceType } from '@/db/types/db-types';
 import { AnyData, LocalChange, LocalChangeType } from '@/db/types/store-types';
 import { Content, getUniqueId } from 'tinybase/with-schemas';
-import {
-  Bucket,
-  FileStorageProvider,
-  RemoteInfo,
-  StorageLayer
-} from '../types';
+import { FileStorageDriver, RemoteInfo, StorageLayer } from '../sync-types';
+
+type SimpleStorageInfo = {
+  providerid: string;
+  hash?: string; // can do with cachedRemoteInfo...
+};
 
 export class SimpleStorageLayer extends StorageLayer {
-  protected readonly filename = 'bucket1.json';
-  protected providerid!: string;
+  protected readonly id = 'S';
+  protected readonly version = 1;
+  protected readonly filename = 'collection.json';
+  protected localInfo!: SimpleStorageInfo;
 
-  public constructor(private provider: FileStorageProvider) {
+  public constructor(private driver: FileStorageDriver) {
     super();
   }
 
+  public getVersion() {
+    return `${this.id}${this.version}`;
+  }
+
   public configure(config: AnyData, proxy?: string, useHttp?: boolean) {
-    this.provider.configure(config, proxy, useHttp);
+    this.driver.configure(config, proxy, useHttp);
   }
 
   public async init(remoteStateId?: string) {
     const { config, connected, remoteState } =
-      await this.provider.init(remoteStateId);
-    if (remoteState.buckets.length > 0) {
-      this.providerid = remoteState.buckets[0].providerid;
-    }
+      await this.driver.init(remoteStateId);
+    // TODO: provider can't know how to give info
+    this.localInfo = remoteState.info as SimpleStorageInfo;
+    // TODO verify layer version?
     return {
       config,
       connected,
@@ -37,25 +43,24 @@ export class SimpleStorageLayer extends StorageLayer {
   public async push(
     localContent: Content<SpaceType>,
     localChanges: LocalChange[],
-    localBuckets: Bucket[],
     cachedRemoteInfo: RemoteInfo,
     force = false
   ) {
-    if (!this.provider.getConfig()) {
-      throw new Error(`uninitialized ${this.provider.providerName} config`);
+    if (!this.driver.getConfig()) {
+      throw new Error(`uninitialized ${this.driver.driverName} config`);
     }
 
     const { remoteStateInfo: newRemoteState } =
-      await this.provider.fetchRemoteStateInfo(cachedRemoteInfo.state);
+      await this.driver.fetchRemoteStateInfo(cachedRemoteInfo.id);
 
     const collection = this.toMap<CollectionItem>(localContent[0].collection!);
     let newRemoteContent: CollectionItem[];
-    if (
-      newRemoteState.lastRemoteChange > cachedRemoteInfo.lastRemoteChange &&
-      !force
-    ) {
-      const { content: remoteContent } = await this.provider.pullFile(
-        this.providerid
+    const newLastRemoteChange = newRemoteState.lastRemoteChange || 0;
+    const cachedLastRemoteChange = cachedRemoteInfo.lastRemoteChange || 0;
+    if (newLastRemoteChange > cachedLastRemoteChange && !force) {
+      const { content: remoteContent } = await this.driver.pullFile(
+        this.localInfo.providerid,
+        this.filename
       );
       newRemoteContent = remoteContent;
     } else {
@@ -73,7 +78,6 @@ export class SimpleStorageLayer extends StorageLayer {
           ri => ri.id === localChange.item
         );
         if (itemIdx === -1 && localChange.change !== LocalChangeType.delete) {
-          // something something force mode here?
           newRemoteContent.push(collection.get(localChange.item)!);
           continue;
         }
@@ -88,13 +92,18 @@ export class SimpleStorageLayer extends StorageLayer {
     }
 
     const content = this.serialization(newRemoteContent);
-    this.providerid = await this.provider.pushFile(this.filename, content);
+    const driverInfo = await this.driver.pushFile(
+      this.localInfo.providerid,
+      this.filename,
+      content
+    );
+    this.localInfo.providerid = driverInfo.providerid;
+    this.localInfo.hash = driverInfo.hash;
 
     return {
-      localBuckets: newRemoteState.buckets,
       remoteInfo: {
-        ...newRemoteState,
-        remoteItems: cachedRemoteInfo.remoteItems
+        ...cachedRemoteInfo,
+        ...newRemoteState
       }
     };
   }
@@ -102,17 +111,22 @@ export class SimpleStorageLayer extends StorageLayer {
   public async pull(
     localContent: Content<SpaceType>,
     localChanges: LocalChange[],
-    localBuckets: Bucket[],
     cachedRemoteInfo: RemoteInfo,
     force = false
   ) {
-    if (!this.provider.getConfig()) {
-      throw new Error(`uninitialized ${this.provider.providerName} config`);
+    if (!this.driver.getConfig()) {
+      throw new Error(`uninitialized ${this.driver.driverName} config`);
     }
     const { remoteStateInfo: newRemoteState } =
-      await this.provider.fetchRemoteStateInfo(cachedRemoteInfo.state);
-    // TODO only fetch file if remoteStateInfo has diverged from cachedRemoteInfo
-    const { content } = await this.provider.pullFile(this.providerid);
+      await this.driver.fetchRemoteStateInfo(cachedRemoteInfo.id);
+    const newLocalInfo = newRemoteState.info as SimpleStorageInfo;
+    console.debug('remoteStateInfo', newRemoteState);
+    console.debug('cachedRemoteInfo', cachedRemoteInfo);
+
+    const { content } = await this.driver.pullFile(
+      this.localInfo.providerid,
+      this.filename
+    );
     const localCollection = this.toMap<CollectionItem>(
       localContent[0].collection
     );
@@ -121,13 +135,22 @@ export class SimpleStorageLayer extends StorageLayer {
       newLocalContent[0].collection![item.id!] = item;
     });
 
+    console.debug('before newLocalContent', newLocalContent);
     if (!force && localChanges.length > 0) {
+      console.debug(
+        'local vs remote hash',
+        this.localInfo.hash,
+        (newRemoteState.info as SimpleStorageInfo).hash
+      );
+
       // reapply localChanges
       for (const localChange of localChanges) {
         const remoteUpdated =
           (newLocalContent[0].collection![localChange.item]
             ?.updated as number) || 0;
 
+        console.debug('localChange', localChange);
+        console.debug('remoteUpdated', remoteUpdated);
         if (localChange.updated > remoteUpdated) {
           if (
             localChange.change !== LocalChangeType.delete ||
@@ -135,10 +158,7 @@ export class SimpleStorageLayer extends StorageLayer {
           ) {
             newLocalContent[0].collection![localChange.item] =
               localCollection.get(localChange.item)!;
-          } else if (
-            localBuckets.length < 1 ||
-            localBuckets[0].hash === newRemoteState.buckets[0].hash
-          ) {
+          } else if (this.localInfo.hash === newLocalInfo.hash) {
             delete newLocalContent[0].collection![localChange.item];
           }
         } else {
@@ -155,12 +175,13 @@ export class SimpleStorageLayer extends StorageLayer {
       }
     }
 
+    console.debug('after newLocalContent', newLocalContent);
+    this.localInfo = newLocalInfo;
     return {
       content: newLocalContent,
-      localBuckets: newRemoteState.buckets,
       remoteInfo: {
-        ...newRemoteState,
-        remoteItems: cachedRemoteInfo.remoteItems
+        ...cachedRemoteInfo,
+        ...newRemoteState
       }
     };
   }

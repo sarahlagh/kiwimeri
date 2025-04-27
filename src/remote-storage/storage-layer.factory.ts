@@ -1,28 +1,23 @@
-import { BucketStorageLayer } from './storage-layers/bucket.layer';
+import { InMemDriver } from './storage-drivers/inmem.driver';
+import { PCloudDriver } from './storage-drivers/pcloud/pcloud.driver';
 import { SimpleStorageLayer } from './storage-layers/simple.layer';
-import { InMemProvider } from './storage-providers/inmem.provider';
-import { PCloudProvider } from './storage-providers/pcloud/pcloud.provider';
 
 export type ProviderTypes = 'pcloud' | 'inmem';
-export type LayerTypes = 'simple' | 'bucket';
+export type LayerTypes = 'simple'; // | 'chunks';
 
 export const storageLayerFactory = (
   type: ProviderTypes,
-  layerType = 'bucket'
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  layerType = 'simple'
 ) => {
   let fileProvider;
   switch (type) {
     case 'inmem':
-      fileProvider = new InMemProvider();
+      fileProvider = new InMemDriver();
       break;
     case 'pcloud':
     default:
-      fileProvider = new PCloudProvider();
+      fileProvider = new PCloudDriver();
   }
-  switch (layerType) {
-    case 'simple':
-      return new SimpleStorageLayer(fileProvider);
-    default:
-      return new BucketStorageLayer(fileProvider);
-  }
+  return new SimpleStorageLayer(fileProvider);
 };
