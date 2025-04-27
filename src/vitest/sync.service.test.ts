@@ -5,7 +5,7 @@ import localChangesService from '@/db/localChanges.service';
 import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
 import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
-import { LayerTypes } from '@/remote-storage/storage-layer.factory';
+import { LayerTypes } from '@/remote-storage/storage-provider.factory';
 import { syncService } from '@/remote-storage/sync.service';
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';

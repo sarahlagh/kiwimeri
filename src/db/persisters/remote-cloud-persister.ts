@@ -1,4 +1,4 @@
-import { RemoteInfo, StorageLayer } from '@/remote-storage/sync-types';
+import { RemoteInfo, StorageProvider } from '@/remote-storage/sync-types';
 import { createCustomPersister } from 'tinybase/persisters/with-schemas';
 import { Store } from 'tinybase/with-schemas';
 import localChangesService from '../localChanges.service';
@@ -30,7 +30,7 @@ const updateRemoteInfo = (
 export const createRemoteCloudPersister = (
   store: Store<SpaceType>,
   remote: RemoteResult,
-  storageLayer: StorageLayer
+  storageProvider: StorageProvider
 ) => {
   return createCustomPersister(
     store,
@@ -41,7 +41,7 @@ export const createRemoteCloudPersister = (
       const force = remotesService.getForceMode();
       const remoteState = remotesService.getCachedRemoteStateInfo(remote.state);
       const remoteItems = remotesService.getCachedRemoteItemInfo(remote.state);
-      const resp = await storageLayer.pull(
+      const resp = await storageProvider.pull(
         localContent,
         localChanges,
         {
@@ -68,7 +68,7 @@ export const createRemoteCloudPersister = (
       const remoteState = remotesService.getCachedRemoteStateInfo(remote.state);
       const remoteItems = remotesService.getCachedRemoteItemInfo(remote.state);
       const force = remotesService.getForceMode();
-      const resp = await storageLayer.push(
+      const resp = await storageProvider.push(
         localContent,
         localChanges,
         {

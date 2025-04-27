@@ -11,7 +11,7 @@ import {
   DriverFileInfo,
   FileStorageDriver,
   RemoteInfo,
-  StorageLayer
+  StorageProvider
 } from '../sync-types';
 
 type SimpleStorageInfo = {
@@ -19,7 +19,7 @@ type SimpleStorageInfo = {
   hash?: string; // can do with cachedRemoteInfo...
 };
 
-export class SimpleStorageLayer extends StorageLayer {
+export class SimpleStorageProvider extends StorageProvider {
   protected readonly id = 'S';
   protected readonly version = 1;
   protected readonly filename = 'collection.json';
@@ -37,11 +37,11 @@ export class SimpleStorageLayer extends StorageLayer {
     this.driver.configure(config, proxy, useHttp);
   }
 
-  public async init(remoteStateId?: string) {
+  public async init() {
     const { config, connected, filesInfo } = await this.driver.init([
       this.filename
     ]);
-    const remoteState = this.getRemoteState(filesInfo, remoteStateId);
+    const remoteState = this.getRemoteState(filesInfo);
     this.localInfo = remoteState.info as SimpleStorageInfo;
     // TODO verify layer version?
     return {
@@ -51,10 +51,8 @@ export class SimpleStorageLayer extends StorageLayer {
     };
   }
 
-  // TODO is remoteStateId even needed?
-  private getRemoteState(filesInfo: DriverFileInfo[], remoteStateId?: string) {
+  private getRemoteState(filesInfo: DriverFileInfo[]) {
     const remoteState: RemoteState = {
-      id: remoteStateId,
       connected: filesInfo.length > 0,
       lastRemoteChange: Math.max(...filesInfo.map(fi => fi.updated)),
       info: {
@@ -76,7 +74,7 @@ export class SimpleStorageLayer extends StorageLayer {
     }
 
     const { filesInfo } = await this.driver.fetchFilesInfo([this.filename]);
-    const newRemoteState = this.getRemoteState(filesInfo, cachedRemoteInfo.id);
+    const newRemoteState = this.getRemoteState(filesInfo);
 
     const collection = this.toMap<CollectionItem>(localContent[0].collection!);
     let newRemoteContent: CollectionItem[];
@@ -143,11 +141,8 @@ export class SimpleStorageLayer extends StorageLayer {
       throw new Error(`uninitialized ${this.driver.driverName} config`);
     }
     const { filesInfo } = await this.driver.fetchFilesInfo([this.filename]);
-    const newRemoteState = this.getRemoteState(filesInfo, cachedRemoteInfo.id);
-
+    const newRemoteState = this.getRemoteState(filesInfo);
     const newLocalInfo = newRemoteState.info as SimpleStorageInfo;
-    console.debug('remoteStateInfo', newRemoteState);
-    console.debug('cachedRemoteInfo', cachedRemoteInfo);
 
     const { content } = await this.driver.pullFile(
       this.localInfo.providerid,
@@ -161,22 +156,13 @@ export class SimpleStorageLayer extends StorageLayer {
       newLocalContent[0].collection![item.id!] = item;
     });
 
-    console.debug('before newLocalContent', newLocalContent);
     if (!force && localChanges.length > 0) {
-      console.debug(
-        'local vs remote hash',
-        this.localInfo.hash,
-        (newRemoteState.info as SimpleStorageInfo).hash
-      );
-
       // reapply localChanges
       for (const localChange of localChanges) {
         const remoteUpdated =
           (newLocalContent[0].collection![localChange.item]
             ?.updated as number) || 0;
 
-        console.debug('localChange', localChange);
-        console.debug('remoteUpdated', remoteUpdated);
         if (localChange.updated > remoteUpdated) {
           if (
             localChange.change !== LocalChangeType.delete ||
@@ -201,7 +187,6 @@ export class SimpleStorageLayer extends StorageLayer {
       }
     }
 
-    console.debug('after newLocalContent', newLocalContent);
     this.localInfo = newLocalInfo;
     return {
       content: newLocalContent,

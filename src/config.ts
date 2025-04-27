@@ -5,7 +5,7 @@ import {
   NEW_FOLDER_TITLE,
   ROOT_FOLDER_TITLE
 } from './constants';
-import { LayerTypes } from './remote-storage/storage-layer.factory';
+import { LayerTypes } from './remote-storage/storage-provider.factory';
 
 // hack to override VITE_ vars with docker container env
 const dynConfig = {
@@ -24,7 +24,7 @@ class AppConfig implements ImportMetaEnv {
   DEV_OVERRIDE_PLATFORM?: 'web' | 'android' | 'electron';
   DEV_ENABLE_SPACE_INSPECTOR = true;
   DEV_ENABLE_STORE_INSPECTOR = true;
-  DEFAULT_STORAGE_LAYER: LayerTypes = 'bucket';
+  DEFAULT_STORAGE_LAYER: LayerTypes = 'simple';
 
   constructor(metaEnv: ImportMetaEnv) {
     // transform VITE_ env from .env file

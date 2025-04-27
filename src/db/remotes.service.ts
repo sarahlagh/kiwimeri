@@ -3,9 +3,9 @@ import { appConfig } from '@/config';
 import { INTERNAL_FORMAT } from '@/constants';
 import {
   LayerTypes,
-  storageLayerFactory
-} from '@/remote-storage/storage-layer.factory';
-import { StorageLayer } from '@/remote-storage/sync-types';
+  storageProviderFactory
+} from '@/remote-storage/storage-provider.factory';
+import { StorageProvider } from '@/remote-storage/sync-types';
 import { Persister } from 'tinybase/persisters/with-schemas';
 import { useResultTable } from 'tinybase/ui-react';
 import { createRemoteCloudPersister } from './persisters/remote-cloud-persister';
@@ -24,7 +24,7 @@ class RemotesService {
   private readonly remoteItemsTable = 'remoteItems';
 
   private layer: LayerTypes = appConfig.DEFAULT_STORAGE_LAYER;
-  private providers: Map<string, StorageLayer> = new Map();
+  private providers: Map<string, StorageProvider> = new Map();
   private remotePersisters: Map<string, Persister<SpaceType>> = new Map();
 
   private force = false;
@@ -98,7 +98,10 @@ class RemotesService {
       proxy = appConfig.INTERNAL_HTTP_PROXY;
       useHttp = appConfig.DEV_USE_HTTP_IF_POSSIBLE;
     }
-    this.providers.set(remote.id, storageLayerFactory(remote.type, this.layer));
+    this.providers.set(
+      remote.id,
+      storageProviderFactory(remote.type, this.layer)
+    );
     const storageProvider = this.providers.get(remote.id)!;
     storageProvider.configure(config, proxy, useHttp);
     const newConf = await storageProvider.init(remote.state);

@@ -21,7 +21,7 @@ export type DriverFileInfo = {
 };
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export abstract class StorageLayer {
+export abstract class StorageProvider {
   abstract configure(conf: any, proxy?: string, useHttp?: boolean): void; // accept user input and save in local store
 
   abstract getVersion(): string;
