@@ -36,15 +36,10 @@ const OperationSettings = () => {
         onClick={() => {
           storageService.getSpace().setContent([{}, {}]);
           localChangesService.clearLocalChanges();
-          storageService
-            .getStore()
-            .setCell('remoteState', '0', 'buckets', '[]');
+          storageService.getStore().setCell('remoteState', '0', 'info', '{}');
           storageService
             .getStore()
             .setCell('spaces', 'default', 'lastLocalChange', 0);
-          storageService
-            .getStore()
-            .setCell('spaces', 'default', 'buckets', '[]');
           storageService
             .getStore()
             .setCell('remoteState', '0', 'lastRemoteChange', 0);

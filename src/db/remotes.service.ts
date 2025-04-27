@@ -116,8 +116,11 @@ class RemotesService {
       this.updateRemoteStateInfo(remote.state, newConf.remoteState);
     });
 
-    this.setRemoteStateConnected(remote.state, newConf.connected);
-    return newConf.connected;
+    this.setRemoteStateConnected(
+      remote.state,
+      newConf.remoteState.connected || false
+    );
+    return newConf.remoteState.connected;
   }
 
   public getRemotes(space?: string) {

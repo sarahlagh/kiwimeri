@@ -30,6 +30,7 @@ import {
 let driver: InMemDriver;
 
 const reInitRemoteData = async (items: CollectionItem[]) => {
+  console.debug('new remote data', items);
   await driver.setContent(items);
 };
 
@@ -96,7 +97,12 @@ describe('sync service', () => {
         expect(getCollectionRowCount()).toBe(4);
       });
 
-      it('when changing remote, should erase existing items if they have been pushed', async () => {
+      it('should create version file on first init', async () => {
+        const { content } = await driver.pullFile('', 'S1');
+        expect(content).toBe('0');
+      });
+
+      it('should erase existing items if they have been pushed, when changing remote', async () => {
         const remoteData = [
           oneDocument('r1'),
           oneDocument('r2'),

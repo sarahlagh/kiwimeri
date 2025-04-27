@@ -27,7 +27,9 @@ const SyncRemoteButton = ({
 }: SyncRemoteButtonProps) => {
   const trigger = `sync-${direction}-button-${remote}`;
   const icon =
-    direction === 'pull' ? APPICONS.cloudDownload : APPICONS.cloudUpload;
+    direction === 'pull' || direction === 'force-pull'
+      ? APPICONS.cloudDownload
+      : APPICONS.cloudUpload;
   const onConfirm = async () => {
     if (onSyncStart) onSyncStart();
     await syncService.sync(direction, remote);

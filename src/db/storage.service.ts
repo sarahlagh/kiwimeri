@@ -34,6 +34,10 @@ class StorageService {
   private started = false;
 
   public constructor() {
+    this.reInitDB();
+  }
+
+  public reInitDB() {
     this.store = createStore()
       .setTablesSchema({
         spaces: {

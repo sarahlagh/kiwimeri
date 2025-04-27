@@ -70,7 +70,7 @@ export class PCloudDriver extends FileStorageDriver {
     }
     if (res.result !== PCloudResult.ok) {
       console.error('[pCloud] error:', res);
-      return { filesInfo };
+      return { connected: false, filesInfo };
     }
     this.config.folderid = `${res.metadata!.folderid!}`;
     if (res.metadata?.contents) {
@@ -85,10 +85,10 @@ export class PCloudDriver extends FileStorageDriver {
         }));
     }
     console.log('[pCloud] connection tested OK');
-    return { filesInfo };
+    return { connected: true, filesInfo };
   }
 
-  public async pushFile(providerid: string, filename: string, content: string) {
+  public async pushFile(filename: string, content: string) {
     if (!this.config || !this.config.folderid) {
       throw new Error('uninitialized pcloud config');
     }
@@ -120,6 +120,9 @@ export class PCloudDriver extends FileStorageDriver {
       fileid: fileid,
       skipfilename: '1'
     });
+    if (res.error) {
+      return {};
+    }
     const linkUrl = `https://${res.hosts[0]}${res.path}`;
     const url = this.proxy ? `${this.proxy}/${linkUrl}` : linkUrl;
     // download file content

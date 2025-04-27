@@ -31,9 +31,9 @@ afterAll(async () => {
 });
 beforeEach(async () => {});
 afterEach(async () => {
-  storageService.getStore().setContent([{}, {}]);
-  storageService.getSpace().setContent([{}, {}]);
+  storageService.reInitDB();
   expect(storageService.getStore().getRowCount('remotes')).toBe(0);
   expect(storageService.getSpace().getRowCount('collection')).toBe(0);
   remotesService['remotePersisters'].clear();
+  remotesService['providers'].clear();
 });

@@ -6,7 +6,7 @@ import { FileStorageDriver } from '@/remote-storage/sync-types';
 // for testing
 export class InMemDriver extends FileStorageDriver {
   private names: string[] = [];
-  private collection = new Map<string, Map<string, CollectionItem>>();
+  private collection = new Map<string, string>();
   private metadata = new Map<
     string,
     { lastRemoteChange: number; hash: string }
@@ -26,12 +26,12 @@ export class InMemDriver extends FileStorageDriver {
   }
 
   public async fetchFilesInfo(names: string[]) {
-    this.names = names;
-    names.forEach(name => {
+    this.names.forEach(name => {
       this.initMap(name);
     });
     return {
-      filesInfo: names.map(filename => ({
+      connected: true,
+      filesInfo: this.names.map(filename => ({
         filename,
         providerid: filename,
         updated: this.metadata.get(filename)?.lastRemoteChange || 0,
@@ -40,14 +40,10 @@ export class InMemDriver extends FileStorageDriver {
     };
   }
 
-  public async pushFile(providerid: string, filename: string, content: string) {
-    const items: CollectionItem[] = JSON.parse(content);
+  public async pushFile(filename: string, content: string) {
     this.initMap(filename, true);
-    items.forEach(item => {
-      this.collection.get(filename)!.set(item.id!, item);
-    });
-    const str = JSON.stringify(content);
-    const hash = `${this.fastHash(str)}`;
+    this.collection.set(filename, content);
+    const hash = `${this.fastHash(content)}`;
     const updated = Date.now();
     this.metadata.set(filename, {
       lastRemoteChange: updated,
@@ -58,30 +54,26 @@ export class InMemDriver extends FileStorageDriver {
 
   public async pullFile(providerid: string, filename: string) {
     this.initMap(filename);
-    const content: CollectionItem[] = [];
-    this.collection.get(filename)?.forEach((item, id) => {
-      content.push({ ...item, id });
-    });
-    return { content };
+    return { content: this.collection.get(filename) };
   }
 
   private initMap(filename: string, force = false) {
     if (force || !this.collection.has(filename)) {
-      this.collection.set(filename, new Map());
+      this.collection.delete(filename);
       this.metadata.delete(filename);
     }
   }
 
   public setContent(items: CollectionItem[]) {
-    return this.pushFile(this.names[0], this.names[0], JSON.stringify(items));
+    return this.pushFile(this.names[0], JSON.stringify(items));
   }
 
   public getContent() {
-    const content: CollectionItem[] = [];
-    this.collection.get(this.names[0])?.forEach((item, id) => {
-      content.push({ ...item, id });
-    });
-    return { content };
+    return {
+      content: JSON.parse(
+        this.collection.get(this.names[0]) || '[]'
+      ) as CollectionItem[]
+    };
   }
 
   private fastHash(input: string): number {

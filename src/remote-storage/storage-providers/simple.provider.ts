@@ -29,7 +29,7 @@ export class SimpleStorageProvider extends StorageProvider {
     super(driver);
   }
 
-  public getVersion() {
+  public getVersionFile() {
     return `${this.id}${this.version}`;
   }
 
@@ -39,27 +39,40 @@ export class SimpleStorageProvider extends StorageProvider {
 
   public async init() {
     const { config, connected, filesInfo } = await this.driver.init([
+      this.getVersionFile(),
       this.filename
     ]);
+    if (connected) {
+      const idx = filesInfo.findIndex(
+        f => f.filename === this.getVersionFile()
+      );
+      if (idx > -1) {
+        filesInfo.splice(idx, 1);
+      } else {
+        console.warn('version file is missing, may be the first push');
+        // later: do something to warn user instead
+        await this.driver.pushFile(this.getVersionFile(), '0');
+      }
+    }
     const remoteState = this.getRemoteState(filesInfo);
     this.localInfo = remoteState.info as SimpleStorageInfo;
-    // TODO verify layer version?
     return {
       config,
-      connected,
-      remoteState
+      remoteState: { ...remoteState, connected }
     };
   }
 
   private getRemoteState(filesInfo: DriverFileInfo[]) {
     const remoteState: RemoteState = {
-      connected: filesInfo.length > 0,
-      lastRemoteChange: Math.max(...filesInfo.map(fi => fi.updated)),
-      info: {
+      connected: true,
+      lastRemoteChange: Math.max(...filesInfo.map(fi => fi.updated))
+    };
+    if (filesInfo.length > 0) {
+      remoteState.info = {
         providerid: filesInfo[0].providerid,
         hash: filesInfo[0].hash
-      } as SimpleStorageInfo
-    };
+      } as SimpleStorageInfo;
+    }
     return remoteState;
   }
 
@@ -75,17 +88,17 @@ export class SimpleStorageProvider extends StorageProvider {
 
     const { filesInfo } = await this.driver.fetchFilesInfo([this.filename]);
     const newRemoteState = this.getRemoteState(filesInfo);
-
     const collection = this.toMap<CollectionItem>(localContent[0].collection!);
     let newRemoteContent: CollectionItem[];
     const newLastRemoteChange = newRemoteState.lastRemoteChange || 0;
     const cachedLastRemoteChange = cachedRemoteInfo.lastRemoteChange || 0;
+
     if (newLastRemoteChange > cachedLastRemoteChange && !force) {
       const { content: remoteContent } = await this.driver.pullFile(
         this.localInfo.providerid,
         this.filename
       );
-      newRemoteContent = remoteContent;
+      newRemoteContent = JSON.parse(remoteContent || '[]') as CollectionItem[];
     } else {
       newRemoteContent = collection
         .keys()
@@ -115,11 +128,7 @@ export class SimpleStorageProvider extends StorageProvider {
     }
 
     const content = this.serialization(newRemoteContent);
-    const driverInfo = await this.driver.pushFile(
-      this.localInfo.providerid,
-      this.filename,
-      content
-    );
+    const driverInfo = await this.driver.pushFile(this.filename, content);
     this.localInfo.providerid = driverInfo.providerid;
     this.localInfo.hash = driverInfo.hash;
 
@@ -148,11 +157,12 @@ export class SimpleStorageProvider extends StorageProvider {
       this.localInfo.providerid,
       this.filename
     );
+    const items = JSON.parse(content || '[]') as CollectionItem[];
     const localCollection = this.toMap<CollectionItem>(
       localContent[0].collection
     );
     const newLocalContent: Content<SpaceType> = [{ collection: {} }, {}];
-    content.forEach(item => {
+    items.forEach(item => {
       newLocalContent[0].collection![item.id!] = item;
     });
 

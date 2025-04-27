@@ -1,4 +1,3 @@
-import { CollectionItem } from '@/collection/collection';
 import { SpaceType } from '@/db/types/db-types';
 import {
   LocalChange,
@@ -26,10 +25,9 @@ export abstract class StorageProvider {
 
   abstract configure(conf: any, proxy?: string, useHttp?: boolean): void; // accept user input and save in local store
 
-  abstract getVersion(): string;
+  abstract getVersionFile(): string;
 
   abstract init(remoteStateId?: string): Promise<{
-    connected: boolean;
     config: any;
     remoteState: RemoteState;
   }>;
@@ -66,7 +64,7 @@ export abstract class FileStorageDriver {
   public constructor(public driverName: string) {}
 
   public async init(names: string[]) {
-    const { filesInfo } = await this.fetchFilesInfo(names);
+    const { connected, filesInfo } = await this.fetchFilesInfo(names);
 
     console.log(`${this.driverName} client initialized`, {
       ...this.getConfig(),
@@ -75,7 +73,7 @@ export abstract class FileStorageDriver {
 
     return {
       config: this.getConfig(),
-      connected: filesInfo.length === names.length,
+      connected,
       filesInfo
     };
   }
@@ -85,11 +83,11 @@ export abstract class FileStorageDriver {
   public abstract getConfig(): any | null;
 
   public abstract fetchFilesInfo(names: string[]): Promise<{
+    connected: boolean;
     filesInfo: DriverFileInfo[];
   }>;
 
   public abstract pushFile(
-    providerid: string,
     filename: string,
     content: string
   ): Promise<DriverFileInfo>;
@@ -97,5 +95,5 @@ export abstract class FileStorageDriver {
   public abstract pullFile(
     providerid: string,
     filename: string
-  ): Promise<{ content: CollectionItem[] }>;
+  ): Promise<{ content?: string }>;
 }
