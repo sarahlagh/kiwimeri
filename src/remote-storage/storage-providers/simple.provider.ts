@@ -25,8 +25,8 @@ export class SimpleStorageProvider extends StorageProvider {
   protected readonly filename = 'collection.json';
   protected localInfo!: SimpleStorageInfo;
 
-  public constructor(private driver: FileStorageDriver) {
-    super();
+  public constructor(protected driver: FileStorageDriver) {
+    super(driver);
   }
 
   public getVersion() {

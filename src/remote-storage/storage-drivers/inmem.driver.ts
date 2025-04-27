@@ -5,103 +5,82 @@ import { FileStorageDriver } from '@/remote-storage/sync-types';
 
 // for testing
 export class InMemDriver extends FileStorageDriver {
-  public static readonly providerfile = 'collection.json';
-  private static collection = new Map<
+  private names: string[] = [];
+  private collection = new Map<string, Map<string, CollectionItem>>();
+  private metadata = new Map<
     string,
-    Map<string, Map<string, CollectionItem>>
-  >();
-  private name: string = 'default';
-  private static metadata = new Map<
-    string,
-    Map<string, { lastRemoteChange: number; hash: string }>
+    { lastRemoteChange: number; hash: string }
   >();
 
   public constructor() {
     super('inmem');
+    this.names = ['collection.json'];
   }
 
   public getConfig() {
-    return { name: this.name };
+    return {};
   }
 
   public configure(config: any, proxy?: string, useHttp?: boolean) {
-    this.name = config?.name || 'default';
-    this.initMap(InMemDriver.providerfile);
+    /* */
   }
 
   public async fetchFilesInfo(names: string[]) {
-    this.initMap(InMemDriver.providerfile);
-    const metadata = InMemDriver.metadata
-      .get(this.name)!
-      .get(InMemDriver.providerfile);
+    this.names = names;
+    names.forEach(name => {
+      this.initMap(name);
+    });
     return {
       filesInfo: names.map(filename => ({
         filename,
         providerid: filename,
-        updated: metadata?.lastRemoteChange || 0,
-        hash: metadata?.hash
+        updated: this.metadata.get(filename)?.lastRemoteChange || 0,
+        hash: this.metadata.get(filename)?.hash
       }))
     };
   }
 
   public async pushFile(providerid: string, filename: string, content: string) {
     const items: CollectionItem[] = JSON.parse(content);
-    this.initMap(providerid, true);
+    this.initMap(filename, true);
     items.forEach(item => {
-      InMemDriver.collection
-        .get(this.name)!
-        .get(providerid)!
-        .set(item.id!, item);
+      this.collection.get(filename)!.set(item.id!, item);
     });
     const str = JSON.stringify(content);
     const hash = `${this.fastHash(str)}`;
     const updated = Date.now();
-    InMemDriver.metadata.get(this.name)!.set(providerid, {
+    this.metadata.set(filename, {
       lastRemoteChange: updated,
       hash
     });
-    return { providerid, filename, hash, updated };
+    return { providerid: filename, filename, hash, updated };
   }
 
   public async pullFile(providerid: string, filename: string) {
-    this.initMap(providerid);
+    this.initMap(filename);
     const content: CollectionItem[] = [];
-    InMemDriver.collection
-      .get(this.name)
-      ?.get(providerid)
-      ?.forEach((item, id) => {
-        content.push({ ...item, id });
-      });
+    this.collection.get(filename)?.forEach((item, id) => {
+      content.push({ ...item, id });
+    });
     return { content };
   }
 
-  private initMap(providerid: string, force = false) {
-    if (!InMemDriver.collection.has(this.name)) {
-      InMemDriver.collection.set(this.name, new Map());
-      InMemDriver.metadata.set(this.name, new Map());
+  private initMap(filename: string, force = false) {
+    if (force || !this.collection.has(filename)) {
+      this.collection.set(filename, new Map());
+      this.metadata.delete(filename);
     }
-    if (force || !InMemDriver.collection.get(this.name)!.has(providerid)) {
-      InMemDriver.collection.get(this.name)!.set(providerid, new Map());
-    }
-  }
-
-  public reset() {
-    InMemDriver.collection.clear();
-    InMemDriver.metadata.clear();
   }
 
   public setContent(items: CollectionItem[]) {
-    this.pushFile(InMemDriver.providerfile, 'unused', JSON.stringify(items));
+    return this.pushFile(this.names[0], this.names[0], JSON.stringify(items));
   }
 
   public getContent() {
     const content: CollectionItem[] = [];
-    InMemDriver.collection
-      .get(this.name)
-      ?.get(InMemDriver.providerfile)
-      ?.forEach((item, id) => {
-        content.push({ ...item, id });
-      });
+    this.collection.get(this.names[0])?.forEach((item, id) => {
+      content.push({ ...item, id });
+    });
     return { content };
   }
 

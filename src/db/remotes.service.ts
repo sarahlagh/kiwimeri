@@ -352,6 +352,10 @@ class RemotesService {
     return this.remotePersisters.get(remote);
   }
 
+  public getProvider(remote: string) {
+    return this.providers.get(remote);
+  }
+
   public setForceMode(force: boolean) {
     this.force = force;
   }

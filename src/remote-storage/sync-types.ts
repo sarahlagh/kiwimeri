@@ -22,6 +22,8 @@ export type DriverFileInfo = {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export abstract class StorageProvider {
+  constructor(protected driver: FileStorageDriver) {}
+
   abstract configure(conf: any, proxy?: string, useHttp?: boolean): void; // accept user input and save in local store
 
   abstract getVersion(): string;

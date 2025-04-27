@@ -27,7 +27,8 @@ import {
   updateOnRemote
 } from './setup/test.utils';
 
-let driver = new InMemDriver();
+let driver: InMemDriver;
+
 const reInitRemoteData = async (items: CollectionItem[]) => {
   await driver.setContent(items);
 };
@@ -41,15 +42,16 @@ describe('sync service', () => {
   [{ layer: 'simple' } /*, { layer: 'bucket' } */].forEach(({ layer }) => {
     describe(`with ${layer} layer`, () => {
       beforeEach(async () => {
-        driver = new InMemDriver();
-        driver.reset();
-        driver.configure({ name: layer });
         remotesService['layer'] = layer as LayerTypes;
-        remotesService.addRemote('test', 0, 'inmem', { name: layer });
+        remotesService.addRemote('test', 0, 'inmem', {});
         await remotesService.initSyncConnection(
           storageService.getSpaceId(),
           true
         );
+        const keys = remotesService['providers'].keys();
+        driver = remotesService['providers'].get(keys.next().value!)![
+          'driver'
+        ] as InMemDriver;
       });
 
       it('should detect if primary remote is connected', () => {
@@ -326,22 +328,18 @@ describe('sync service', () => {
               oneFolder('r3')
             ];
             await reInitRemoteData(remoteData);
-            console.debug('first pull');
             await syncService.pull();
             expect(getCollectionRowCount()).toBe(3);
 
-            console.debug('remote gets updated');
             const id = getFirstLocalItem();
             // update on remote
             updateOnRemote(remoteData, id, field, -50);
             await reInitRemoteData(remoteData);
 
-            console.debug('item gets erased locally');
             // erase locally
             collectionService.deleteItem(id);
 
             // pull again
-            console.debug('second pull');
             await syncService.pull();
             expect(getCollectionRowCount()).toBe(3);
             expect(getLocalItemField(id, field)).toBe('newRemote');
