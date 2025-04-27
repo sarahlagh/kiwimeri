@@ -45,7 +45,7 @@ export class BucketStorageLayer extends StorageLayer {
     const remoteContent: Content<SpaceType> = [{ collection: {} }, {}];
     // fetch new remoteInfo from pcloud, update this.remoteInfo
     const { remoteStateInfo: newRemoteState } =
-      await this.provider.fetchRemoteStateInfo(remoteInfo.state);
+      await this.provider.fetchFilesInfo(remoteInfo.state);
 
     // determine which existing buckets have changed locally
     const bucketsUpdatedRemotely: RemoteChunk[] = [];
@@ -232,5 +232,17 @@ export class BucketStorageLayer extends StorageLayer {
     }
     console.debug('need to create a new bucket', i);
     return i;
+  }
+
+  protected parseRank(fname: string) {
+    const match = fname.match(/bucket(\d*).json/);
+    try {
+      if (match && match.length > 1) {
+        return parseInt(match[1]);
+      }
+    } catch (e) {
+      console.debug('error parsing file name', e);
+    }
+    return 0;
   }
 }

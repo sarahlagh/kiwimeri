@@ -14,7 +14,10 @@ export type RemoteInfo = {
 
 export type DriverFileInfo = {
   providerid: string;
-  hash: string;
+  filename: string;
+  updated: number;
+  hash?: string;
+  size?: number;
 };
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -60,9 +63,8 @@ export abstract class StorageLayer {
 export abstract class FileStorageDriver {
   public constructor(public driverName: string) {}
 
-  public async init(remoteStateId?: string) {
-    const { ok, remoteStateInfo: remoteState } =
-      await this.fetchRemoteStateInfo(remoteStateId);
+  public async init(names: string[]) {
+    const { filesInfo } = await this.fetchFilesInfo(names);
 
     console.log(`${this.driverName} client initialized`, {
       ...this.getConfig(),
@@ -71,8 +73,8 @@ export abstract class FileStorageDriver {
 
     return {
       config: this.getConfig(),
-      connected: ok,
-      remoteState
+      connected: filesInfo.length === names.length,
+      filesInfo
     };
   }
 
@@ -80,9 +82,9 @@ export abstract class FileStorageDriver {
 
   public abstract getConfig(): any | null;
 
-  public abstract fetchRemoteStateInfo(
-    state?: string
-  ): Promise<{ ok: boolean; remoteStateInfo: RemoteState }>;
+  public abstract fetchFilesInfo(names: string[]): Promise<{
+    filesInfo: DriverFileInfo[];
+  }>;
 
   public abstract pushFile(
     providerid: string,

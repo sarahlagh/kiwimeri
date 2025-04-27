@@ -1,4 +1,4 @@
-import { ProviderTypes } from '@/remote-storage/storage-layer.factory';
+import { DriverNames } from '@/remote-storage/storage-layer.factory';
 
 export interface AnyData {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -35,7 +35,7 @@ export interface Remote {
   name: string;
   space: string;
   rank: number;
-  type: ProviderTypes;
+  type: DriverNames;
   config?: string;
   formats: string;
 }

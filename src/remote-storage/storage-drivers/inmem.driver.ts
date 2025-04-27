@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { CollectionItem } from '@/collection/collection';
-import { RemoteState } from '@/db/types/store-types';
 import { FileStorageDriver } from '@/remote-storage/sync-types';
 
 // for testing
@@ -18,7 +17,7 @@ export class InMemDriver extends FileStorageDriver {
   >();
 
   public constructor() {
-    super('InMem');
+    super('inmem');
   }
 
   public getConfig() {
@@ -30,22 +29,19 @@ export class InMemDriver extends FileStorageDriver {
     this.initMap(InMemDriver.providerfile);
   }
 
-  public async fetchRemoteStateInfo(state?: string) {
-    const { content } = await this.pullFile(InMemDriver.providerfile, 'unused');
-    const str = JSON.stringify(content);
+  public async fetchFilesInfo(names: string[]) {
+    this.initMap(InMemDriver.providerfile);
     const metadata = InMemDriver.metadata
       .get(this.name)!
       .get(InMemDriver.providerfile);
-    const remoteStateInfo: RemoteState = {
-      connected: true,
-      lastRemoteChange: metadata?.lastRemoteChange || 0,
-      id: state,
-      info: {
-        providerid: InMemDriver.providerfile,
+    return {
+      filesInfo: names.map(filename => ({
+        filename,
+        providerid: filename,
+        updated: metadata?.lastRemoteChange || 0,
         hash: metadata?.hash
-      }
+      }))
     };
-    return { ok: true, remoteStateInfo };
   }
 
   public async pushFile(providerid: string, filename: string, content: string) {
@@ -59,11 +55,12 @@ export class InMemDriver extends FileStorageDriver {
     });
     const str = JSON.stringify(content);
     const hash = `${this.fastHash(str)}`;
+    const updated = Date.now();
     InMemDriver.metadata.get(this.name)!.set(providerid, {
-      lastRemoteChange: Date.now(),
+      lastRemoteChange: updated,
       hash
     });
-    return { providerid, hash };
+    return { providerid, filename, hash, updated };
   }
 
   public async pullFile(providerid: string, filename: string) {

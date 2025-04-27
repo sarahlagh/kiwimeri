@@ -1,8 +1,18 @@
 import { CollectionItem } from '@/collection/collection';
 import { SpaceType } from '@/db/types/db-types';
-import { AnyData, LocalChange, LocalChangeType } from '@/db/types/store-types';
+import {
+  AnyData,
+  LocalChange,
+  LocalChangeType,
+  RemoteState
+} from '@/db/types/store-types';
 import { Content, getUniqueId } from 'tinybase/with-schemas';
-import { FileStorageDriver, RemoteInfo, StorageLayer } from '../sync-types';
+import {
+  DriverFileInfo,
+  FileStorageDriver,
+  RemoteInfo,
+  StorageLayer
+} from '../sync-types';
 
 type SimpleStorageInfo = {
   providerid: string;
@@ -28,9 +38,10 @@ export class SimpleStorageLayer extends StorageLayer {
   }
 
   public async init(remoteStateId?: string) {
-    const { config, connected, remoteState } =
-      await this.driver.init(remoteStateId);
-    // TODO: provider can't know how to give info
+    const { config, connected, filesInfo } = await this.driver.init([
+      this.filename
+    ]);
+    const remoteState = this.getRemoteState(filesInfo, remoteStateId);
     this.localInfo = remoteState.info as SimpleStorageInfo;
     // TODO verify layer version?
     return {
@@ -38,6 +49,20 @@ export class SimpleStorageLayer extends StorageLayer {
       connected,
       remoteState
     };
+  }
+
+  // TODO is remoteStateId even needed?
+  private getRemoteState(filesInfo: DriverFileInfo[], remoteStateId?: string) {
+    const remoteState: RemoteState = {
+      id: remoteStateId,
+      connected: filesInfo.length > 0,
+      lastRemoteChange: Math.max(...filesInfo.map(fi => fi.updated)),
+      info: {
+        providerid: filesInfo[0].providerid,
+        hash: filesInfo[0].hash
+      } as SimpleStorageInfo
+    };
+    return remoteState;
   }
 
   public async push(
@@ -50,8 +75,8 @@ export class SimpleStorageLayer extends StorageLayer {
       throw new Error(`uninitialized ${this.driver.driverName} config`);
     }
 
-    const { remoteStateInfo: newRemoteState } =
-      await this.driver.fetchRemoteStateInfo(cachedRemoteInfo.id);
+    const { filesInfo } = await this.driver.fetchFilesInfo([this.filename]);
+    const newRemoteState = this.getRemoteState(filesInfo, cachedRemoteInfo.id);
 
     const collection = this.toMap<CollectionItem>(localContent[0].collection!);
     let newRemoteContent: CollectionItem[];
@@ -117,8 +142,9 @@ export class SimpleStorageLayer extends StorageLayer {
     if (!this.driver.getConfig()) {
       throw new Error(`uninitialized ${this.driver.driverName} config`);
     }
-    const { remoteStateInfo: newRemoteState } =
-      await this.driver.fetchRemoteStateInfo(cachedRemoteInfo.id);
+    const { filesInfo } = await this.driver.fetchFilesInfo([this.filename]);
+    const newRemoteState = this.getRemoteState(filesInfo, cachedRemoteInfo.id);
+
     const newLocalInfo = newRemoteState.info as SimpleStorageInfo;
     console.debug('remoteStateInfo', newRemoteState);
     console.debug('cachedRemoteInfo', cachedRemoteInfo);

@@ -1,5 +1,4 @@
-import { RemoteState } from '@/db/types/store-types';
-import { FileStorageDriver } from '@/remote-storage/sync-types';
+import { DriverFileInfo, FileStorageDriver } from '@/remote-storage/sync-types';
 import {
   PCloudLinkResponse,
   PCloudListResponse,
@@ -26,7 +25,7 @@ export class PCloudDriver extends FileStorageDriver {
   };
 
   public constructor() {
-    super('PCloud');
+    super('pcloud');
   }
 
   public getConfig(): PCloudConf | null {
@@ -54,14 +53,11 @@ export class PCloudDriver extends FileStorageDriver {
     });
   }
 
-  public async fetchRemoteStateInfo(state?: string) {
+  public async fetchFilesInfo(names: string[]) {
     if (!this.config) {
       throw new Error('uninitialized pcloud config');
     }
-    const remoteStateInfo: RemoteState = {
-      lastRemoteChange: 0,
-      id: state
-    };
+    let filesInfo: DriverFileInfo[] = [];
     let res: PCloudListResponse;
     if (!this.config.folderid) {
       res = await this.getFetch<PCloudListResponse>('listfolder', {
@@ -74,64 +70,23 @@ export class PCloudDriver extends FileStorageDriver {
     }
     if (res.result !== PCloudResult.ok) {
       console.error('[pCloud] error:', res);
-      return { ok: false, remoteStateInfo };
+      return { filesInfo };
     }
     this.config.folderid = `${res.metadata!.folderid!}`;
-    // TODO
-    // let lastRemoteChange = 0;
-    // if (res.metadata?.contents) {
-    //   remoteStateInfo.buckets = res.metadata.contents
-    //     .filter(f => !f.isfolder && f.name.match(/bucket(\d*).json/))
-    //     .map(f => ({
-    //       rank: this.parseRank(f.name),
-    //       providerid: `${f.fileid}`,
-    //       size: f.size,
-    //       hash: f.hash,
-    //       lastRemoteChange: new Date(f.modified).getTime()
-    //     }));
-    //   lastRemoteChange = Math.max(
-    //     ...remoteStateInfo.buckets.map(b => b.lastRemoteChange)
-    //   );
-    // }
-    // remoteStateInfo.lastRemoteChange = lastRemoteChange;
+    if (res.metadata?.contents) {
+      filesInfo = res.metadata.contents
+        .filter(f => !f.isfolder && names.find(name => f.name.match(name)))
+        .map(f => ({
+          providerid: `${f.fileid}`,
+          filename: f.name,
+          size: f.size,
+          hash: `${f.hash}`,
+          updated: new Date(f.modified).getTime()
+        }));
+    }
     console.log('[pCloud] connection tested OK');
-    return { ok: true, remoteStateInfo };
+    return { filesInfo };
   }
-
-  // protected async testConnection(state?: string) {
-  //   if (!this.config) {
-  //     throw new Error('uninitialized pcloud config');
-  //   }
-  //   const remoteStateInfo: RemoteStateInfo = {
-  //     lastRemoteChange: 0,
-  //     state,
-  //     buckets: []
-  //   };
-  //   let res: PCloudListResponse;
-  //   if (!this.config.folderid) {
-  //     res = await this.getFetch<PCloudListResponse>('listfolder', {
-  //       path: this.config.path
-  //     });
-  //   } else {
-  //     res = await this.getFetch<PCloudListResponse>('listfolder', {
-  //       folderid: this.config.folderid
-  //     });
-  //   }
-  //   if (res.result !== PCloudResult.ok) {
-  //     console.error('[pCloud] error:', res);
-  //     return { ok: false, lastRemoteChange: 0 };
-  //   }
-  //   this.config.folderid = `${res.metadata!.folderid!}`;
-  //   if (res.metadata?.contents) {
-  //     const f = res.metadata.contents.find(f => f.name === this.filename);
-  //     if (f) {
-  //       this.fileid = f.fileid;
-  //       remoteStateInfo.lastRemoteChange = new Date(f.modified).getTime();
-  //     }
-  //   }
-  //   console.log('[pCloud] connection tested OK');
-  //   return { ok: true, lastRemoteChange: remoteStateInfo.lastRemoteChange };
-  // }
 
   public async pushFile(providerid: string, filename: string, content: string) {
     if (!this.config || !this.config.folderid) {
@@ -142,9 +97,12 @@ export class PCloudDriver extends FileStorageDriver {
       console.log('[pCloud] error uploading changes');
       // TODO handle error
     }
+    const f = resp.metadata[0];
     return {
-      providerid: `${resp.fileids[0]}`,
-      hash: `${resp.metadata[0].hash}`
+      providerid: `${f.fileid}`,
+      filename: `${f.name}`,
+      hash: `${f.hash}`,
+      updated: new Date(f.modified).getTime()
     };
   }
 
@@ -214,17 +172,5 @@ export class PCloudDriver extends FileStorageDriver {
 
   private getUrl(opName: string) {
     return `${this.serverUrl}/${opName}?username=${this.config!.username}&password=${this.config!.password}`;
-  }
-
-  protected parseRank(fname: string) {
-    const match = fname.match(/bucket(\d*).json/);
-    try {
-      if (match && match.length > 1) {
-        return parseInt(match[1]);
-      }
-    } catch (e) {
-      console.debug('error parsing file name', e);
-    }
-    return 0;
   }
 }
