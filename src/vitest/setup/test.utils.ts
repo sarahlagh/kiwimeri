@@ -133,6 +133,7 @@ export const updateOnRemote = (
   if (remoteKey !== 'parent') {
     remoteData[idx].updated = Date.now() + delay;
   }
+  console.debug('after updateOnRemote', id, field, remoteData);
   return remoteData;
 };
 
@@ -153,6 +154,17 @@ export const getLocalItemConflict = () => {
     }
   });
   return conflictId;
+};
+
+export const getLocalItemConflicts = () => {
+  const rowIds = storageService.getSpace().getRowIds('collection');
+  const conflictIds: string[] = [];
+  rowIds.forEach(id => {
+    if (collectionService.isItemConflict(id)) {
+      conflictIds.push(id);
+    }
+  });
+  return conflictIds;
 };
 
 export const expectHasLocalItemConflict = (

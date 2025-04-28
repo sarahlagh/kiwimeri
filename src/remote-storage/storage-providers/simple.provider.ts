@@ -89,6 +89,7 @@ export class SimpleStorageProvider extends StorageProvider {
 
     const { filesInfo } = await this.driver.fetchFilesInfo([this.filename]);
     const newRemoteState = this.getRemoteState(filesInfo);
+    this.localInfo = newRemoteState.info as SimpleStorageInfo;
     const collection = this.toMap<CollectionItem>(localContent[0].collection!);
     let newRemoteContent: CollectionItem[];
     const newLastRemoteChange = newRemoteState.lastRemoteChange || 0;
@@ -158,7 +159,7 @@ export class SimpleStorageProvider extends StorageProvider {
     const newLocalInfo = newRemoteState.info as SimpleStorageInfo;
 
     const { content } = await this.driver.pullFile(
-      this.localInfo.providerid,
+      newLocalInfo.providerid,
       this.filename
     );
 
@@ -185,7 +186,7 @@ export class SimpleStorageProvider extends StorageProvider {
           ) {
             newLocalContent[0].collection![localChange.item] =
               localCollection.get(localChange.item)!;
-          } else if (this.localInfo.hash === newLocalInfo.hash) {
+          } else if (this.localInfo?.hash === newLocalInfo.hash) {
             delete newLocalContent[0].collection![localChange.item];
           }
         } else {

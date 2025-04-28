@@ -26,17 +26,21 @@ export class InMemDriver extends FileStorageDriver {
   }
 
   public async fetchFilesInfo(names: string[]) {
-    this.names.forEach(name => {
-      this.initMap(name);
-    });
+    names
+      .filter(name => this.metadata.has(name))
+      .forEach(name => {
+        this.initMap(name);
+      });
     return {
       connected: true,
-      filesInfo: this.names.map(filename => ({
-        filename,
-        providerid: filename,
-        updated: this.metadata.get(filename)?.lastRemoteChange || 0,
-        hash: this.metadata.get(filename)?.hash
-      }))
+      filesInfo: names
+        .filter(name => this.metadata.has(name))
+        .map(filename => ({
+          filename,
+          providerid: filename,
+          updated: this.metadata.get(filename)?.lastRemoteChange || 0,
+          hash: this.metadata.get(filename)?.hash
+        }))
     };
   }
 
@@ -73,6 +77,7 @@ export class InMemDriver extends FileStorageDriver {
   }
 
   public getContent() {
+    console.debug('[getRemoteContent]', this.collection.get(this.names[0]));
     return {
       content: JSON.parse(
         this.collection.get(this.names[0]) || '[]'

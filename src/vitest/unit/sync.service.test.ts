@@ -96,6 +96,17 @@ describe('sync service', () => {
         expect(getCollectionRowCount()).toBe(4);
       });
 
+      it('should handle missing file info if remote has been initialized elsewhere', async () => {
+        const remoteData = [
+          oneDocument('r1'),
+          oneDocument('r2'),
+          oneFolder('r3')
+        ];
+        await reInitRemoteData(remoteData);
+        await syncService.pull();
+        expect(getCollectionRowCount()).toBe(3);
+      });
+
       it('should create version file on first init', async () => {
         const { content } = await driver.pullFile('', 'S1');
         expect(content).toBe('0');
