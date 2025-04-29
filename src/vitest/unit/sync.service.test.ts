@@ -33,7 +33,7 @@ let driver: InMemDriver;
 
 const reInitRemoteData = async (items: CollectionItem[]) => {
   vi.advanceTimersByTime(fakeTimersDelay);
-  await driver.setContent(items);
+  await driver.setContent(items, 0);
   vi.advanceTimersByTime(fakeTimersDelay);
 };
 

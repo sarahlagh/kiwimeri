@@ -14,6 +14,11 @@ import {
   StorageProvider
 } from '../sync-types';
 
+type SimpleStorageFileContent = {
+  i: CollectionItem[]; // the items
+  u: number; // last content change
+};
+
 export class SimpleStorageProvider extends StorageProvider {
   protected readonly id = 'S';
   protected readonly version = 1;
@@ -92,7 +97,8 @@ export class SimpleStorageProvider extends StorageProvider {
         localInfo.providerid,
         this.filename
       );
-      newRemoteContent = this.deserialization(remoteContent);
+      const obj = this.deserialization(remoteContent);
+      newRemoteContent = obj.i;
     } else {
       newRemoteContent = collection
         .keys()
@@ -101,7 +107,9 @@ export class SimpleStorageProvider extends StorageProvider {
         .toArray();
     }
 
+    let lastLocalChange = newLastRemoteChange;
     if (localChanges.length > 0) {
+      lastLocalChange = Math.max(...localChanges.map(lc => lc.updated));
       // reapply local changes
       for (const localChange of localChanges) {
         const itemIdx = newRemoteContent.findIndex(
@@ -121,7 +129,7 @@ export class SimpleStorageProvider extends StorageProvider {
       }
     }
 
-    const content = this.serialization(newRemoteContent);
+    const content = this.serialization(newRemoteContent, lastLocalChange);
     const driverInfo = await this.driver.pushFile(this.filename, content);
     newRemoteState.info = driverInfo;
 
@@ -159,7 +167,8 @@ export class SimpleStorageProvider extends StorageProvider {
       this.filename
     );
 
-    const items = this.deserialization(content);
+    const obj = this.deserialization(content);
+    const items = obj.i;
     const localCollection = this.toMap<CollectionItem>(
       localContent[0].collection
     );
@@ -210,11 +219,15 @@ export class SimpleStorageProvider extends StorageProvider {
     };
   }
 
-  private serialization(items: CollectionItem[]) {
-    return JSON.stringify(items);
+  private serialization(items: CollectionItem[], updated: number) {
+    const obj: SimpleStorageFileContent = {
+      i: items,
+      u: updated
+    };
+    return JSON.stringify(obj);
   }
 
   private deserialization(content?: string) {
-    return JSON.parse(content || '[]') as CollectionItem[];
+    return JSON.parse(content || '{}') as SimpleStorageFileContent;
   }
 }

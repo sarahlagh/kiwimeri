@@ -24,7 +24,10 @@ let provider: SimpleStorageProvider;
 
 const reInitRemoteData = async (items: CollectionItem[]) => {
   console.debug('[reInitRemoteData]', items);
-  await driver.pushFile('collection.json', JSON.stringify(items));
+  await driver.pushFile(
+    'collection.json',
+    JSON.stringify({ i: items, u: Date.now() })
+  );
 };
 
 const getRemoteContent = async () => {
@@ -38,10 +41,9 @@ const getRemoteContent = async () => {
     .getCell('remoteState', id, 'info')
     ?.valueOf() as string;
   const info = JSON.parse(infoStr!) as { providerid: string };
-
   const { content } = await driver.pullFile(info.providerid, '');
   console.debug('[getRemoteContent]', content);
-  return content ? (JSON.parse(content) as CollectionItem[]) : undefined;
+  return content ? (JSON.parse(content).i as CollectionItem[]) : undefined;
 };
 
 describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {

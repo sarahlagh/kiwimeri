@@ -72,16 +72,22 @@ export class InMemDriver extends FileStorageDriver {
     }
   }
 
-  public setContent(items: CollectionItem[]) {
-    return this.pushFile(this.names[0], JSON.stringify(items));
+  public setContent(items: CollectionItem[], updated: number) {
+    return this.pushFile(
+      this.names[0],
+      JSON.stringify({ i: items, u: updated })
+    );
   }
 
   public getContent() {
     console.debug('[getRemoteContent]', this.collection.get(this.names[0]));
     return {
-      content: JSON.parse(
-        this.collection.get(this.names[0]) || '[]'
-      ) as CollectionItem[]
+      content: (
+        JSON.parse(this.collection.get(this.names[0]) || '{}') as {
+          i: CollectionItem[];
+          u: number;
+        }
+      ).i
     };
   }
 
