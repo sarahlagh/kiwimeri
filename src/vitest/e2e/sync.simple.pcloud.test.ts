@@ -36,7 +36,7 @@ const getRemoteContent = async () => {
   return content ? (JSON.parse(content) as CollectionItem[]) : undefined;
 };
 
-describe('SimpleStorageProvider with PCloud', () => {
+describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
   beforeEach(async () => {
     remotesService['layer'] = 'simple';
     remotesService.addRemote('test', 0, 'pcloud', {
@@ -93,144 +93,142 @@ describe('SimpleStorageProvider with PCloud', () => {
     expect(getCollectionRowCount()).toBe(3);
   });
 
-  it(
-    'should handle different conflicts between local and remote',
-    { timeout: 10000 },
-    async () => {
-      const now = Date.now();
-      vi.useFakeTimers();
-      // create data locally
-      const ids = [];
-      let lastParent = ROOT_FOLDER;
-      for (let i = 0; i < 10; i++) {
-        ids.push(
-          collectionService.addDocument(i % 3 === 0 ? ROOT_FOLDER : lastParent)
-        );
-        lastParent = collectionService.addFolder(
-          i % 3 === 0 ? ROOT_FOLDER : lastParent
-        );
-        ids.push(lastParent);
-      }
-      // push
-      await syncService.push();
-      const content = await getRemoteContent();
-      expect(content).toBeDefined();
-      expect(content).toHaveLength(20);
-
-      // // modify remote and local
-
-      // update parent locally
-      const idUpdateParentLocal = ids[0];
-      vi.setSystemTime(now + 5000);
-      setLocalItemField(idUpdateParentLocal, 'parent', lastParent);
-
-      // update content locally
-      const idUpdateContentLocal = ids[1];
-      vi.setSystemTime(now + 6000);
-      setLocalItemField(idUpdateContentLocal, 'content', 'newLocalContent');
-
-      // delete remotely
-      const idDeleteRemote = ids[2];
-      vi.setSystemTime(now + 7000);
-      const idx = content!.findIndex(c => c.id === idDeleteRemote);
-      expect(idx).not.toBe(-1);
-      content!.splice(idx, 1);
-
-      // update content remotely on same as local
-      vi.setSystemTime(now + 8000);
-      updateOnRemote(
-        content!,
-        idUpdateContentLocal,
-        'content',
-        'newRemoteContent'
+  it('should handle different conflicts between local and remote', async () => {
+    const now = Date.now();
+    vi.useFakeTimers();
+    // create data locally
+    const ids = [];
+    let lastParent = ROOT_FOLDER;
+    for (let i = 0; i < 10; i++) {
+      ids.push(
+        collectionService.addDocument(i % 3 === 0 ? ROOT_FOLDER : lastParent)
       );
-
-      // update title locally
-      const idUpdateTitleLocal = ids[3];
-      vi.setSystemTime(now + 9000);
-      setLocalItemField(idUpdateTitleLocal, 'title', 'newLocalTitle');
-
-      // update parent remotely on different id
-      const idUpdateParentRemote = ids[4];
-      vi.setSystemTime(now + 10000);
-      updateOnRemote(
-        content!,
-        idUpdateParentRemote,
-        'content',
-        'newRemoteContent'
+      lastParent = collectionService.addFolder(
+        i % 3 === 0 ? ROOT_FOLDER : lastParent
       );
-
-      // create remotely
-      vi.setSystemTime(now + 11000);
-      const newRemoteItem = oneFolder('r100');
-      content!.push(newRemoteItem);
-
-      // create locally
-      vi.setSystemTime(now + 12000);
-      const newLocalItem = collectionService.addDocument(ROOT_FOLDER);
-
-      // update title remotely on different id as local
-      const idUpdateTitleRemote = ids[5];
-      vi.setSystemTime(now + 13000);
-      updateOnRemote(content!, idUpdateTitleRemote, 'title', 'newRemoteTitle');
-
-      // update content remotely on different id as local
-      const idUpdateContentRemote = ids[6];
-      vi.setSystemTime(now + 14000);
-      updateOnRemote(
-        content!,
-        idUpdateContentRemote,
-        'content',
-        'newRemoteContent'
-      );
-
-      // update title remotely on same as local
-      vi.setSystemTime(now + 14000);
-      updateOnRemote(content!, idUpdateTitleLocal, 'title', 'newRemoteTitle');
-
-      // delete locally
-      const idDeleteLocal = ids[8];
-      vi.setSystemTime(now + 15000);
-      collectionService.deleteItem(idDeleteLocal);
-
-      // update parent remotely on same as local
-      vi.setSystemTime(now + 16000);
-      updateOnRemote(content!, idUpdateParentLocal, 'parent', newRemoteItem.id);
-
-      // update remote
-      vi.useRealTimers();
-      await reInitRemoteData(content!);
-
-      // pull
-      await syncService.pull();
-
-      // now check
-      expect(getCollectionRowCount()).toBe(22);
-
-      // check items created are still there
-      expect(collectionService.itemExists(newLocalItem));
-      expect(collectionService.itemExists(newRemoteItem.id!));
-
-      // check deleted items
-      expect(collectionService.itemExists(idDeleteLocal)).toBeFalsy(); // has not been deleted locally
-      // because file hash has changed between local & remote, can't know if conflict
-      // oh, got it - the whole hash file changed so the condition isn't met - what to do? reproduce issue with mock, first
-      // mind you, will be less of a problem once i have individual mergeable fields... excepts that hard delete leaves no trace
-      // that's a case i can't solve with the simple provider
-
-      expect(collectionService.itemExists(idDeleteRemote)).toBeFalsy(); // has been deleted from remote
-
-      // check updated items
-
-      // check conflicts
-      const conflictIds = getLocalItemConflicts();
-      expect(conflictIds).toHaveLength(2);
-      expect(getLocalItemField(conflictIds[0], 'conflict')).toBe(
-        idUpdateTitleLocal
-      );
-      expect(getLocalItemField(conflictIds[1], 'conflict')).toBe(
-        idUpdateContentLocal
-      );
+      ids.push(lastParent);
     }
-  );
+    // push
+    await syncService.push();
+    const content = await getRemoteContent();
+    expect(content).toBeDefined();
+    expect(content).toHaveLength(20);
+
+    // // modify remote and local
+
+    // update parent locally
+    const idUpdateParentLocal = ids[0];
+    vi.setSystemTime(now + 5000);
+    setLocalItemField(idUpdateParentLocal, 'parent', lastParent);
+
+    // update content locally
+    const idUpdateContentLocal = ids[1];
+    vi.setSystemTime(now + 6000);
+    setLocalItemField(idUpdateContentLocal, 'content', 'newLocalContent');
+
+    // delete remotely
+    const idDeleteRemote = ids[2];
+    vi.setSystemTime(now + 7000);
+    const idx = content!.findIndex(c => c.id === idDeleteRemote);
+    expect(idx).not.toBe(-1);
+    content!.splice(idx, 1);
+
+    // update content remotely on same as local
+    vi.setSystemTime(now + 8000);
+    updateOnRemote(
+      content!,
+      idUpdateContentLocal,
+      'content',
+      'newRemoteContent'
+    );
+
+    // update title locally
+    const idUpdateTitleLocal = ids[3];
+    vi.setSystemTime(now + 9000);
+    setLocalItemField(idUpdateTitleLocal, 'title', 'newLocalTitle');
+
+    // update parent remotely on different id
+    const idUpdateParentRemote = ids[4];
+    vi.setSystemTime(now + 10000);
+    updateOnRemote(
+      content!,
+      idUpdateParentRemote,
+      'content',
+      'newRemoteContent'
+    );
+
+    // create remotely
+    vi.setSystemTime(now + 11000);
+    const newRemoteItem = oneFolder('r100');
+    content!.push(newRemoteItem);
+
+    // create locally
+    vi.setSystemTime(now + 12000);
+    const newLocalItem = collectionService.addDocument(ROOT_FOLDER);
+
+    // update title remotely on different id as local
+    const idUpdateTitleRemote = ids[5];
+    vi.setSystemTime(now + 13000);
+    updateOnRemote(content!, idUpdateTitleRemote, 'title', 'newRemoteTitle');
+
+    // update content remotely on different id as local
+    const idUpdateContentRemote = ids[6];
+    vi.setSystemTime(now + 14000);
+    updateOnRemote(
+      content!,
+      idUpdateContentRemote,
+      'content',
+      'newRemoteContent'
+    );
+
+    // update title remotely on same as local
+    vi.setSystemTime(now + 14000);
+    updateOnRemote(content!, idUpdateTitleLocal, 'title', 'newRemoteTitle');
+
+    // delete locally
+    const idDeleteLocal = ids[8];
+    vi.setSystemTime(now + 15000);
+    collectionService.deleteItem(idDeleteLocal);
+
+    // update parent remotely on same as local
+    vi.setSystemTime(now + 16000);
+    updateOnRemote(content!, idUpdateParentLocal, 'parent', newRemoteItem.id);
+
+    // update remote
+    vi.useRealTimers();
+    await reInitRemoteData(content!);
+
+    // pull
+    await syncService.pull();
+
+    // now check
+    expect(getCollectionRowCount()).toBe(22);
+
+    // check items created are still there
+    expect(collectionService.itemExists(newLocalItem));
+    expect(collectionService.itemExists(newRemoteItem.id!));
+
+    // check deleted items
+    expect(collectionService.itemExists(idDeleteLocal)).toBeFalsy(); // has been deleted locally
+    expect(collectionService.itemExists(idDeleteRemote)).toBeFalsy(); // has been deleted from remote
+
+    // check updated items
+    expect(getLocalItemField(idUpdateTitleLocal, 'title')).not.toBe(
+      'newLocalTitle'
+    );
+    expect(getLocalItemField(idUpdateContentLocal, 'content')).toBe(
+      'newRemoteContent'
+    );
+    expect(getLocalItemField(idUpdateParentLocal, 'parent')).toBe(lastParent);
+
+    // check conflicts
+    const conflictIds = getLocalItemConflicts();
+    expect(conflictIds).toHaveLength(2);
+    expect(getLocalItemField(conflictIds[0], 'conflict')).toBe(
+      idUpdateTitleLocal
+    );
+    expect(getLocalItemField(conflictIds[1], 'conflict')).toBe(
+      idUpdateContentLocal
+    );
+  });
 });
