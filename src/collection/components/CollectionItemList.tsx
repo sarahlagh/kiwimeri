@@ -126,7 +126,12 @@ const CollectionItemListItem = ({
           }}
         ></IonInput>
       )}
-      {!renaming && <IonLabel>{item.title}</IonLabel>}
+      {!renaming && (
+        <IonLabel>
+          {item.conflict ? '[C] ' : ''}
+          {item.title}
+        </IonLabel>
+      )}
     </IonItem>
   );
 };

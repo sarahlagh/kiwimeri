@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/settings/components/providers/RemotesSettings.tsx:77
+#: src/settings/components/providers/RemotesSettings.tsx:78
 msgid "Add config"
 msgstr "Add config"
 
@@ -41,7 +41,7 @@ msgstr "Choose a new folder"
 msgid "Collection"
 msgstr "Collection"
 
-#: src/settings/components/providers/RemotesSettings.tsx:44
+#: src/settings/components/providers/RemotesSettings.tsx:45
 msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
 
@@ -54,15 +54,15 @@ msgstr "Confirm"
 msgid "Debug"
 msgstr "Debug"
 
-#: src/settings/components/providers/PCloudSettings.tsx:131
+#: src/settings/components/providers/PCloudSettings.tsx:129
 msgid "Enter your password"
 msgstr "Enter your password"
 
-#: src/settings/components/providers/PCloudSettings.tsx:118
+#: src/settings/components/providers/PCloudSettings.tsx:116
 msgid "Enter your username"
 msgstr "Enter your username"
 
-#: src/settings/components/providers/PCloudSettings.tsx:88
+#: src/settings/components/providers/PCloudSettings.tsx:86
 msgid "EU"
 msgstr "EU"
 
@@ -86,7 +86,7 @@ msgstr "Import & export your app settings"
 msgid "Import & export your collection"
 msgstr "Import & export your collection"
 
-#: src/settings/components/providers/PCloudSettings.tsx:106
+#: src/settings/components/providers/PCloudSettings.tsx:104
 msgid "Leave empty for root"
 msgstr "Leave empty for root"
 
@@ -123,29 +123,33 @@ msgstr "New folder"
 msgid "Not Found"
 msgstr "Not Found"
 
-#: src/settings/components/sections/OperationsSettings.tsx:30
+#: src/settings/components/sections/OperationsSettings.tsx:32
 msgid "nuke space"
 msgstr "nuke space"
 
-#: src/settings/components/sections/OperationsSettings.tsx:21
+#: src/settings/components/sections/OperationsSettings.tsx:50
+msgid "nuke space & remote"
+msgstr "nuke space & remote"
+
+#: src/settings/components/sections/OperationsSettings.tsx:22
 msgid "nuke store"
 msgstr "nuke store"
 
-#: src/settings/components/sections/OperationsSettings.tsx:10
+#: src/settings/components/sections/OperationsSettings.tsx:11
 msgid "Operations"
 msgstr "Operations"
 
-#: src/settings/components/providers/PCloudSettings.tsx:124
-#: src/settings/components/providers/PCloudSettings.tsx:128
+#: src/settings/components/providers/PCloudSettings.tsx:122
+#: src/settings/components/providers/PCloudSettings.tsx:126
 msgid "Password"
 msgstr "Password"
 
-#: src/settings/components/providers/PCloudSettings.tsx:100
-#: src/settings/components/providers/PCloudSettings.tsx:103
+#: src/settings/components/providers/PCloudSettings.tsx:98
+#: src/settings/components/providers/PCloudSettings.tsx:101
 msgid "Path"
 msgstr "Path"
 
-#: src/settings/components/providers/PCloudSettings.tsx:68
+#: src/settings/components/providers/PCloudSettings.tsx:66
 msgid "PCloud Configuration"
 msgstr "PCloud Configuration"
 
@@ -159,11 +163,11 @@ msgstr "Pick a directory for your backups"
 msgid "Platform(s)"
 msgstr "Platform(s)"
 
-#: src/settings/components/providers/RemotesSettings.tsx:41
+#: src/settings/components/providers/RemotesSettings.tsx:42
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
-#: src/settings/components/providers/RemotesSettings.tsx:85
+#: src/settings/components/providers/RemotesSettings.tsx:86
 msgid "Reorder"
 msgstr "Reorder"
 
@@ -171,7 +175,7 @@ msgstr "Reorder"
 msgid "Restore"
 msgstr "Restore"
 
-#: src/settings/components/providers/PCloudSettings.tsx:77
+#: src/settings/components/providers/PCloudSettings.tsx:75
 msgid "Server"
 msgstr "Server"
 
@@ -207,16 +211,16 @@ msgstr ""
 "            a cloud provider. The app settings consist of anything configured in\n"
 "            this page, including the settings for your cloud provider."
 
-#: src/settings/components/providers/PCloudSettings.tsx:93
+#: src/settings/components/providers/PCloudSettings.tsx:91
 msgid "US"
 msgstr "US"
 
-#: src/settings/components/providers/PCloudSettings.tsx:112
-#: src/settings/components/providers/PCloudSettings.tsx:115
+#: src/settings/components/providers/PCloudSettings.tsx:110
+#: src/settings/components/providers/PCloudSettings.tsx:113
 msgid "Username"
 msgstr "Username"
 
-#: src/settings/components/providers/RemotesSettings.tsx:49
+#: src/settings/components/providers/RemotesSettings.tsx:50
 msgid "You have not configured any remote yet."
 msgstr "You have not configured any remote yet."
 

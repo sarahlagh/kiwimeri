@@ -29,6 +29,13 @@ export type CollectionItemUpdatableFieldEnum = keyof Required<
 export type CollectionItemResult = Required<
   Pick<
     CollectionItem,
-    'id' | 'parent' | 'title' | 'type' | 'created' | 'updated' | 'deleted'
+    | 'id'
+    | 'parent'
+    | 'title'
+    | 'type'
+    | 'created'
+    | 'updated'
+    | 'deleted'
+    | 'conflict'
   >
 >;

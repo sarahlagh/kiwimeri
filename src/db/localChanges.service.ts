@@ -129,21 +129,19 @@ class LocalChangesService {
     const queryName = this.fetchAllLocalChangesQuery(space);
 
     // clear rows
+    const rowIds = storageService.getStoreQueries().getResultRowIds(queryName);
     storageService.getStore().transaction(() => {
-      storageService
-        .getStoreQueries()
-        .getResultRowIds(queryName)
-        .forEach(rowId => {
-          storageService.getStore().delRow(this.table, rowId);
-        });
+      rowIds.forEach(rowId => {
+        storageService.getStore().delRow(this.table, rowId);
+      });
     });
 
     // clear queries
-    const ids = storageService
+    const queryIds = storageService
       .getStoreQueries()
       .getQueryIds()
       .filter(queryId => queryId.startsWith(`${this.queryPrefix}For${space}`));
-    for (const queryId of ids) {
+    for (const queryId of queryIds) {
       storageService.getStoreQueries().delQueryDefinition(queryId);
     }
   }

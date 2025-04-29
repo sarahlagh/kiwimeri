@@ -58,11 +58,7 @@ class SyncService {
     return primary.connected;
   }
   public usePrimaryHasLocalChanges() {
-    const hasLocalChanges = localChangesService.useHasLocalChanges();
-    // const lastLocalChange = localChangesService.useLastLocalChange();
-    // const lastRemoteChange = remotesService.usePrimaryLastRemoteChange();
-    // return lastLocalChange > lastRemoteChange;
-    return hasLocalChanges;
+    return localChangesService.useHasLocalChanges();
   }
 }
 
