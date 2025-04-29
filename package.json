@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "test": "vitest unit",
     "test-dev": "vitest --ui unit",
-    "test-e2e": "vitest --ui e2e",
+    "test-e2e": "vitest e2e",
     "lint": "eslint",
     "format": "prettier --write \"src/\"",
     "i18n": "lingui extract --clean && lingui compile --typescript",

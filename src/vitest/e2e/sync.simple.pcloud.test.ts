@@ -28,10 +28,18 @@ const reInitRemoteData = async (items: CollectionItem[]) => {
 };
 
 const getRemoteContent = async () => {
-  const { content } = await driver.pullFile(
-    provider['localInfo'].providerid,
-    ''
-  );
+  expect(storageService.getStore().getRowCount('remoteState')).toBe(1);
+  const id = storageService.getStore().getRowIds('remoteState')[0];
+  expect(
+    storageService.getStore().getCell('remoteState', id, 'info')
+  ).toBeDefined();
+  const infoStr = storageService
+    .getStore()
+    .getCell('remoteState', id, 'info')
+    ?.valueOf() as string;
+  const info = JSON.parse(infoStr!) as { providerid: string };
+
+  const { content } = await driver.pullFile(info.providerid, '');
   console.debug('[getRemoteContent]', content);
   return content ? (JSON.parse(content) as CollectionItem[]) : undefined;
 };

@@ -14,16 +14,10 @@ import {
   StorageProvider
 } from '../sync-types';
 
-type SimpleStorageInfo = {
-  providerid: string;
-  hash?: string;
-};
-
 export class SimpleStorageProvider extends StorageProvider {
   protected readonly id = 'S';
   protected readonly version = 1;
   protected readonly filename = 'collection.json';
-  protected localInfo!: SimpleStorageInfo; // update hash after push instead of keeping it here
 
   public constructor(protected driver: FileStorageDriver) {
     super(driver);
@@ -55,7 +49,6 @@ export class SimpleStorageProvider extends StorageProvider {
       }
     }
     const remoteState = this.getRemoteState(filesInfo);
-    this.localInfo = remoteState.info as SimpleStorageInfo;
     return {
       config,
       remoteState: { ...remoteState, connected }
@@ -69,10 +62,7 @@ export class SimpleStorageProvider extends StorageProvider {
         filesInfo.length > 0 ? Math.max(...filesInfo.map(fi => fi.updated)) : 0
     };
     if (filesInfo.length > 0) {
-      remoteState.info = {
-        providerid: filesInfo[0].providerid,
-        hash: filesInfo[0].hash
-      } as SimpleStorageInfo;
+      remoteState.info = filesInfo[0];
     }
     return remoteState;
   }
@@ -87,20 +77,22 @@ export class SimpleStorageProvider extends StorageProvider {
       throw new Error(`uninitialized ${this.driver.driverName} config`);
     }
 
+    // TODO should check if remote still connected here
     const { filesInfo } = await this.driver.fetchFilesInfo([this.filename]);
+
     const newRemoteState = this.getRemoteState(filesInfo);
-    this.localInfo = newRemoteState.info as SimpleStorageInfo;
+    const localInfo = newRemoteState.info as DriverFileInfo;
     const collection = this.toMap<CollectionItem>(localContent[0].collection!);
     let newRemoteContent: CollectionItem[];
     const newLastRemoteChange = newRemoteState.lastRemoteChange || 0;
     const cachedLastRemoteChange = cachedRemoteInfo.lastRemoteChange || 0;
 
-    if (newLastRemoteChange > cachedLastRemoteChange && !force) {
+    if (newLastRemoteChange > cachedLastRemoteChange && localInfo && !force) {
       const { content: remoteContent } = await this.driver.pullFile(
-        this.localInfo.providerid,
+        localInfo.providerid,
         this.filename
       );
-      newRemoteContent = JSON.parse(remoteContent || '[]') as CollectionItem[];
+      newRemoteContent = this.deserialization(remoteContent);
     } else {
       newRemoteContent = collection
         .keys()
@@ -131,10 +123,7 @@ export class SimpleStorageProvider extends StorageProvider {
 
     const content = this.serialization(newRemoteContent);
     const driverInfo = await this.driver.pushFile(this.filename, content);
-    this.localInfo = {
-      providerid: driverInfo.providerid,
-      hash: driverInfo.hash
-    };
+    newRemoteState.info = driverInfo;
 
     return {
       remoteInfo: {
@@ -156,7 +145,7 @@ export class SimpleStorageProvider extends StorageProvider {
 
     const { filesInfo } = await this.driver.fetchFilesInfo([this.filename]);
     const newRemoteState = this.getRemoteState(filesInfo);
-    const newLocalInfo = newRemoteState.info as SimpleStorageInfo;
+    const newLocalInfo = newRemoteState.info as DriverFileInfo;
 
     if (!newLocalInfo) {
       return {
@@ -170,7 +159,7 @@ export class SimpleStorageProvider extends StorageProvider {
       this.filename
     );
 
-    const items = JSON.parse(content || '[]') as CollectionItem[];
+    const items = this.deserialization(content);
     const localCollection = this.toMap<CollectionItem>(
       localContent[0].collection
     );
@@ -212,7 +201,6 @@ export class SimpleStorageProvider extends StorageProvider {
       }
     }
 
-    this.localInfo = newLocalInfo;
     return {
       content: newLocalContent,
       remoteInfo: {
@@ -224,5 +212,9 @@ export class SimpleStorageProvider extends StorageProvider {
 
   private serialization(items: CollectionItem[]) {
     return JSON.stringify(items);
+  }
+
+  private deserialization(content?: string) {
+    return JSON.parse(content || '[]') as CollectionItem[];
   }
 }
