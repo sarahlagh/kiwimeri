@@ -58,7 +58,7 @@ class CollectionService {
     const id = getUniqueId();
     storageService.getSpace().setRow(this.table, id, {
       title: getGlobalTrans().newDocTitle,
-      parent: parent,
+      parent,
       content: initialContent(),
       created: now,
       updated: now,
@@ -66,9 +66,7 @@ class CollectionService {
       deleted: false
     });
     this.updateParentUpdatedRecursive(parent);
-    if (id) {
-      localChangesService.addLocalChange(id, LocalChangeType.add);
-    }
+    localChangesService.addLocalChange(id, LocalChangeType.add);
     return id;
   }
 
@@ -83,9 +81,7 @@ class CollectionService {
       type: CollectionItemType.folder,
       deleted: false
     });
-    if (id) {
-      localChangesService.addLocalChange(id, LocalChangeType.add);
-    }
+    localChangesService.addLocalChange(id, LocalChangeType.add);
     return id;
   }
 

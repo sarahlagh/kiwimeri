@@ -158,6 +158,13 @@ export class SimpleStorageProvider extends StorageProvider {
     const newRemoteState = this.getRemoteState(filesInfo);
     const newLocalInfo = newRemoteState.info as SimpleStorageInfo;
 
+    if (!newLocalInfo) {
+      return {
+        content: localContent,
+        remoteInfo: cachedRemoteInfo
+      };
+    }
+
     const { content } = await this.driver.pullFile(
       newLocalInfo.providerid,
       this.filename
@@ -177,7 +184,9 @@ export class SimpleStorageProvider extends StorageProvider {
       for (const localChange of localChanges) {
         const remoteUpdated =
           (newLocalContent[0].collection![localChange.item]
-            ?.updated as number) || 0;
+            ?.updated as number) ||
+          newRemoteState.lastRemoteChange ||
+          0;
 
         if (localChange.updated > remoteUpdated) {
           if (
@@ -186,14 +195,14 @@ export class SimpleStorageProvider extends StorageProvider {
           ) {
             newLocalContent[0].collection![localChange.item] =
               localCollection.get(localChange.item)!;
-          } else if (this.localInfo?.hash === newLocalInfo.hash) {
+          } else {
             delete newLocalContent[0].collection![localChange.item];
           }
         } else {
           const localItem = localCollection.get(localChange.item)!;
           if (localItem && !localItem.conflict) {
             newLocalContent[0].collection![getUniqueId()] = {
-              ...localItem,
+              ...{ ...localItem, id: undefined },
               conflict: localChange.item,
               created: Date.now(),
               updated: Date.now()

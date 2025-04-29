@@ -8,10 +8,13 @@ import { ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
 import storageService from '@/db/storage.service';
 import { getUniqueId } from 'tinybase/with-schemas';
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 
-export const oneDocument = (title = 'new doc', parent = ROOT_FOLDER) =>
-  ({
+export const fakeTimersDelay = 100;
+
+export const oneDocument = (title = 'new doc', parent = ROOT_FOLDER) => {
+  if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
+  return {
     id: getUniqueId(),
     parent,
     type: CollectionItemType.document,
@@ -20,9 +23,11 @@ export const oneDocument = (title = 'new doc', parent = ROOT_FOLDER) =>
     created: Date.now(),
     updated: Date.now(),
     deleted: false
-  }) as CollectionItem;
-export const oneFolder = (title = 'new folder', parent = ROOT_FOLDER) =>
-  ({
+  } as CollectionItem;
+};
+export const oneFolder = (title = 'new folder', parent = ROOT_FOLDER) => {
+  if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
+  return {
     id: getUniqueId(),
     parent,
     type: CollectionItemType.folder,
@@ -30,7 +35,8 @@ export const oneFolder = (title = 'new folder', parent = ROOT_FOLDER) =>
     created: Date.now(),
     updated: Date.now(),
     deleted: false
-  }) as CollectionItem;
+  } as CollectionItem;
+};
 
 export const UPDATABLE_FIELDS = [
   { field: 'title' },
@@ -113,26 +119,29 @@ export const setLocalItemField = (
   field: string,
   value = 'newLocal'
 ) => {
+  if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   collectionService.setItemField(
     rowId,
     field as CollectionItemUpdatableFieldEnum,
     value
   );
+  if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
 };
 
 export const updateOnRemote = (
   remoteData: CollectionItem[],
   id: string,
   field: string,
-  delay = 0,
   newValue = 'newRemote'
 ) => {
+  if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   const idx = remoteData.findIndex(r => r.id === id);
   const remoteKey = field as CollectionItemUpdatableFieldEnum;
   remoteData[idx][remoteKey] = newValue as never;
   if (remoteKey !== 'parent') {
-    remoteData[idx].updated = Date.now() + delay;
+    remoteData[idx].updated = Date.now();
   }
+  if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   console.debug('after updateOnRemote', id, field, remoteData);
   return remoteData;
 };
