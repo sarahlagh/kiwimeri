@@ -100,11 +100,9 @@ export class SimpleStorageProvider extends StorageProvider {
       const obj = this.deserialization(remoteContent);
       newRemoteContent = obj.i;
     } else {
-      newRemoteContent = collection
-        .keys()
-        .map(id => collection.get(id)!)
-        .filter(v => !v.conflict)
-        .toArray();
+      newRemoteContent = Array.from(
+        collection.values().filter(v => !v.conflict)
+      );
     }
 
     let lastLocalChange = newLastRemoteChange;
