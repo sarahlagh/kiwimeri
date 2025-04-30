@@ -62,18 +62,21 @@
     "@typescript-eslint/parser": "^8.24.1",
     "@vitejs/plugin-legacy": "^5.0.0",
     "@vitejs/plugin-react": "^4.0.1",
-    "@vitest/ui": "^3.1.1",
+    "@vitest/browser": "3.1.2",
+    "@vitest/ui": "3.1.2",
     "concurrently": "^9.1.2",
     "cors-anywhere": "^0.4.4",
     "eslint": "^8.35.0",
     "eslint-plugin-react": "^7.32.2",
     "jsdom": "^22.1.0",
+    "playwright": "^1.52.0",
     "prettier": "^3.5.2",
     "prettier-plugin-organize-imports": "^4.1.0",
     "sass": "^1.86.3",
     "terser": "^5.4.0",
     "typescript": "^5.1.6",
     "vite": "~5.2.0",
-    "vitest": "^3.1.1"
+    "vitest": "3.1.2",
+    "vitest-browser-react": "^0.1.1"
   }
 }

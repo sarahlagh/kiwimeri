@@ -29,7 +29,7 @@ const vitestConfig = vitestDefineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/vitest/setup/setupTests.ts'],
     dir: './src/vitest',
-    reporters: ['default'] //, 'html'],
+    reporters: ['default', 'html']
   }
 });
 

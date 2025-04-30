@@ -11,6 +11,7 @@ import { syncService } from '@/remote-storage/sync.service';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   getCollectionRowCount,
+  getFirstLocalItem,
   getLocalItemConflicts,
   getLocalItemField,
   oneDocument,
@@ -86,6 +87,25 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     const content = await getRemoteContent();
     expect(content).toBeDefined();
     expect(content).toHaveLength(3);
+  });
+
+  it('should pull new remote items, create newer, then push', async () => {
+    const remoteData = [oneDocument('r1'), oneDocument('r2'), oneFolder('r3')];
+    await reInitRemoteData(remoteData);
+    await syncService.pull();
+    expect(getCollectionRowCount()).toBe(3);
+    collectionService.addFolder(ROOT_FOLDER);
+    setLocalItemField(getFirstLocalItem(), 'title', 'new');
+    await syncService.push();
+    const content = await getRemoteContent();
+    expect(content).toHaveLength(4);
+    expect(content!.map(r => r.title)).toEqual([
+      'new',
+      'r2',
+      'r3',
+      'New folder'
+    ]);
+    expect(getCollectionRowCount()).toBe(4);
   });
 
   it('should erase existing items if they have been pushed, when changing remote', async () => {

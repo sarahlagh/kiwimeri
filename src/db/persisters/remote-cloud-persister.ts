@@ -84,7 +84,7 @@ export const createRemoteCloudPersister = (
         );
         updateRemoteInfo(remote.state, resp.remoteInfo, true, true);
       } catch (e) {
-        console.error('error pulling', storageProvider.getName(), e);
+        console.error('error pushing', storageProvider.getName(), e);
       }
     },
     listener => setInterval(listener, 1000),

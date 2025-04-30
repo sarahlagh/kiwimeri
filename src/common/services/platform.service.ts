@@ -8,7 +8,7 @@ class PlatformService {
   }
 
   public isWeb() {
-    return this.getPlatform() === 'web' && appConfig.MODE !== 'test';
+    return this.getPlatform() === 'web';
   }
 
   public isElectron() {
