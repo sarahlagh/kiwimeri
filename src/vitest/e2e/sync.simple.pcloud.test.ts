@@ -108,6 +108,35 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     expect(getCollectionRowCount()).toBe(4);
   });
 
+  it('should pull new remote items and keep local creates between pulls', async () => {
+    const remoteData = [oneDocument('r1'), oneDocument('r2'), oneFolder('r3')];
+    await reInitRemoteData(remoteData);
+    await syncService.pull();
+    expect(getCollectionRowCount()).toBe(3);
+
+    // local, don't push
+    collectionService.addFolder(ROOT_FOLDER);
+    collectionService.addDocument(ROOT_FOLDER);
+
+    // pull 1
+    await syncService.pull();
+    expect(getCollectionRowCount()).toBe(5);
+    expect(getLocalItemConflicts()).toHaveLength(0);
+
+    // pull 2
+    await syncService.pull();
+    expect(getCollectionRowCount()).toBe(5);
+    expect(getLocalItemConflicts()).toHaveLength(0);
+
+    // update remotely
+    await reInitRemoteData([...remoteData, oneDocument('r4')]);
+
+    // pull 3
+    await syncService.pull();
+    expect(getCollectionRowCount()).toBe(6);
+    expect(getLocalItemConflicts()).toHaveLength(0);
+  });
+
   it('should erase existing items if they have been pushed, when changing remote', async () => {
     const remoteData = [oneDocument('r1'), oneDocument('r2'), oneFolder('r3')];
     await reInitRemoteData(remoteData);

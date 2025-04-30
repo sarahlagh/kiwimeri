@@ -196,6 +196,7 @@ describe('sync service', () => {
           expect(getCollectionRowCount()).toBe(2);
           await syncService_pull();
           expect(getCollectionRowCount()).toBe(5);
+          expect(getLocalItemConflicts()).toHaveLength(0);
 
           // indicator should still tell if push allowed
           testPushIndicator(true);
@@ -232,11 +233,13 @@ describe('sync service', () => {
           expect(getCollectionRowCount()).toBe(1);
           await syncService_pull();
           expect(getCollectionRowCount()).toBe(4);
+          expect(getLocalItemConflicts()).toHaveLength(0);
 
           // update remote again
           await reInitRemoteData([...remoteData, oneDocument('r4')]);
           await syncService_pull();
           expect(getCollectionRowCount()).toBe(5);
+          expect(getLocalItemConflicts()).toHaveLength(0);
 
           // indicator should still tell if push allowed
           testPushIndicator(true);

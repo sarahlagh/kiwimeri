@@ -184,7 +184,10 @@ export class SimpleStorageProvider extends StorageProvider {
           newRemoteState.lastRemoteChange ||
           0;
 
-        if (localChange.updated > remoteUpdated) {
+        if (localChange.change === LocalChangeType.add) {
+          newLocalContent[0].collection![localChange.item] =
+            localCollection.get(localChange.item)!;
+        } else if (localChange.updated > remoteUpdated) {
           if (
             localChange.change !== LocalChangeType.delete ||
             localChange.field === 'parent'
