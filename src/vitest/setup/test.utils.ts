@@ -10,6 +10,10 @@ import storageService from '@/db/storage.service';
 import { getUniqueId } from 'tinybase/with-schemas';
 import { expect, vi } from 'vitest';
 
+export const amount = async (timeout = 500) => {
+  return new Promise(resolve => setTimeout(resolve, timeout));
+};
+
 export const fakeTimersDelay = 100;
 
 export const oneDocument = (title = 'new doc', parent = ROOT_FOLDER) => {

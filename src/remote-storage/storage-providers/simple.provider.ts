@@ -48,7 +48,7 @@ export class SimpleStorageProvider extends StorageProvider {
       if (idx > -1) {
         filesInfo.splice(idx, 1);
       } else {
-        console.warn('version file is missing, may be the first push');
+        console.warn('[init] version file is missing, may be the first push');
         // later: do something to warn user instead
         await this.driver.pushFile(this.getVersionFile(), '0');
       }
@@ -167,6 +167,7 @@ export class SimpleStorageProvider extends StorageProvider {
 
     const obj = this.deserialization(content);
     const items = obj.i;
+    const remoteContentUpdated = obj.u;
     const localCollection = this.toMap<CollectionItem>(
       localContent[0].collection
     );
@@ -181,7 +182,7 @@ export class SimpleStorageProvider extends StorageProvider {
         const remoteUpdated =
           (newLocalContent[0].collection![localChange.item]
             ?.updated as number) ||
-          newRemoteState.lastRemoteChange ||
+          remoteContentUpdated ||
           0;
 
         if (localChange.change === LocalChangeType.add) {

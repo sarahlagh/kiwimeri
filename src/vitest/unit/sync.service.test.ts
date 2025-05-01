@@ -18,6 +18,7 @@ import {
   getFirstLocalItem,
   getLocalItemByTitle,
   getLocalItemConflict,
+  getLocalItemConflicts,
   getLocalItemField,
   getRemoteItemField,
   NON_PARENT_CHANGES,
@@ -33,7 +34,8 @@ let driver: InMemDriver;
 
 const reInitRemoteData = async (items: CollectionItem[]) => {
   vi.advanceTimersByTime(fakeTimersDelay);
-  await driver.setContent(items, 0);
+  const lastLocalChange = Math.max(...items.map(i => i.updated));
+  await driver.setContent(items, lastLocalChange);
   vi.advanceTimersByTime(fakeTimersDelay);
 };
 
@@ -82,8 +84,7 @@ describe('sync service', () => {
           storageService.getSpaceId(),
           true
         );
-        const keys = remotesService['providers'].keys();
-        driver = remotesService['providers'].get(keys.next().value!)![
+        driver = remotesService['providers'].values().next().value![
           'driver'
         ] as InMemDriver;
         vi.useFakeTimers();
@@ -301,7 +302,7 @@ describe('sync service', () => {
             expect(getLocalItemField(id!, field)).toBe('newRemote');
           });
 
-          it(`should create conflict for deleted local items on pull if they have been changed with ${field} before being erased on remote`, async () => {
+          it(`should not delete local items on pull if they have been changed with ${field} after being erased on remote`, async () => {
             const remoteData = [
               oneDocument('r1'),
               oneDocument('r2'),
@@ -320,11 +321,8 @@ describe('sync service', () => {
             await syncService_pull();
             expect(getCollectionRowCount()).toBe(3);
 
-            // item has been deleted, but a conflict is created
-            const conflictId = getLocalItemConflict();
-            expect(conflictId).toBeDefined();
-            expect(collectionService.itemExists(id)).toBeFalsy();
-            expect(getLocalItemField(conflictId!, field)).toBe('newLocal');
+            // item is unchanged
+            expect(getLocalItemField(id, field)).toBe('newLocal');
             testPushIndicator(true);
           });
 

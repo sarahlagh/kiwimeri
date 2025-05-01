@@ -122,6 +122,7 @@ export class PCloudDriver extends FileStorageDriver {
       skipfilename: '1'
     });
     if (res.error) {
+      console.log('[pCloud] unable to fetch file link', res);
       return {};
     }
     const linkUrl = `https://${res.hosts[0]}${res.path}`;
