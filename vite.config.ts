@@ -29,7 +29,9 @@ const vitestConfig = vitestDefineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/vitest/setup/setupTests.ts'],
     dir: './src/vitest',
-    reporters: ['default', 'html']
+    reporters: process.env.GITHUB_ACTIONS
+      ? ['dot', 'github-actions']
+      : ['default', 'html']
   }
 });
 
