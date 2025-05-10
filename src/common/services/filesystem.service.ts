@@ -1,3 +1,4 @@
+import { ANDROID_FOLDER } from '@/constants';
 import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
 import platformService from './platform.service';
 
@@ -28,13 +29,9 @@ async function readFile(file: File): Promise<string> {
 }
 
 class AndroidFilesystemService implements FilesystemService {
-  async exportToFile(
-    fileName: string,
-    content: string,
-    folder = 'KiwimeriApp/'
-  ) {
+  async exportToFile(fileName: string, content: string) {
     await Filesystem.writeFile({
-      path: folder + fileName,
+      path: `${ANDROID_FOLDER}/${fileName}`,
       data: content,
       directory: Directory.Documents,
       encoding: Encoding.UTF8,

@@ -14,7 +14,6 @@ const ImportExportCollectionSettings = () => {
             of your files and folders, and can be configured to synchronize with
             a cloud provider. The app settings consist of anything configured in
             this page, including the settings for your cloud provider.`}
-      androidFolder="Downloads"
       exportFileSuffix="app-settings"
       onRestoreContent={async (content: string) => {
         const json = JSON.parse(content);

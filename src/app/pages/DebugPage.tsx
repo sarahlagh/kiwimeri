@@ -74,13 +74,11 @@ const DebugPage = () => {
                 const content = JSON.stringify(appLog.getLogs());
                 const fileName = `${new Date().toISOString().substring(0, 19).replaceAll(/[:T]/g, '-')}-logs.json`;
 
-                filesystemService
-                  .exportToFile(fileName, content, `Downloads/`)
-                  .then(() => {
-                    if (platformService.isAndroid()) {
-                      presentToast(t`Success!`, 'success');
-                    }
-                  });
+                filesystemService.exportToFile(fileName, content).then(() => {
+                  if (platformService.isAndroid()) {
+                    presentToast(t`Success!`, 'success');
+                  }
+                });
               }}
             >
               <Trans>Download Logs</Trans>

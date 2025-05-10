@@ -26,6 +26,7 @@ import {
   trashOutline
 } from 'ionicons/icons';
 
+export const ANDROID_FOLDER = 'KiwimeriApp';
 export const DEFAULT_SPACE_ID = 'default';
 export const DEFAULT_NOTEBOOK_ID = '0';
 

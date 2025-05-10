@@ -17,7 +17,7 @@ msgstr ""
 msgid "Add config"
 msgstr "Add config"
 
-#: src/settings/components/sections/ImportExportSettings.tsx:37
+#: src/settings/components/sections/ImportExportSettings.tsx:36
 msgid "An error occurred loading the file"
 msgstr "An error occurred loading the file"
 
@@ -54,7 +54,7 @@ msgstr "Confirm"
 msgid "Debug"
 msgstr "Debug"
 
-#: src/app/pages/DebugPage.tsx:86
+#: src/app/pages/DebugPage.tsx:84
 msgid "Download Logs"
 msgstr "Download Logs"
 
@@ -70,7 +70,7 @@ msgstr "Enter your username"
 msgid "EU"
 msgstr "EU"
 
-#: src/settings/components/sections/ImportExportSettings.tsx:116
+#: src/settings/components/sections/ImportExportSettings.tsx:113
 msgid "Export"
 msgstr "Export"
 
@@ -78,7 +78,7 @@ msgstr "Export"
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/constants.ts:40
+#: src/constants.ts:41
 msgid "Home"
 msgstr "Home"
 
@@ -115,11 +115,11 @@ msgstr "Manually backup or restore your collection."
 msgid "Name"
 msgstr "Name"
 
-#: src/constants.ts:41
+#: src/constants.ts:42
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:42
+#: src/constants.ts:43
 msgid "New folder"
 msgstr "New folder"
 
@@ -175,7 +175,7 @@ msgstr "Remote Configuration"
 msgid "Reorder"
 msgstr "Reorder"
 
-#: src/settings/components/sections/ImportExportSettings.tsx:119
+#: src/settings/components/sections/ImportExportSettings.tsx:116
 msgid "Restore"
 msgstr "Restore"
 
@@ -188,9 +188,9 @@ msgstr "Server"
 msgid "Settings"
 msgstr "Settings"
 
-#: src/settings/components/sections/ImportExportSettings.tsx:38
-#: src/settings/components/sections/ImportExportSettings.tsx:87
-#: src/app/pages/DebugPage.tsx:81
+#: src/settings/components/sections/ImportExportSettings.tsx:37
+#: src/settings/components/sections/ImportExportSettings.tsx:84
+#: src/app/pages/DebugPage.tsx:79
 msgid "Success!"
 msgstr "Success!"
 
@@ -229,6 +229,6 @@ msgstr "Username"
 msgid "You have not configured any remote yet."
 msgstr "You have not configured any remote yet."
 
-#: src/settings/components/sections/ImportExportSettings.tsx:105
-msgid "Your backups will be exported to the `{androidFolder}` directory"
-msgstr "Your backups will be exported to the `{androidFolder}` directory"
+#: src/settings/components/sections/ImportExportSettings.tsx:102
+msgid "Your backups will be exported to the `{ANDROID_FOLDER}` directory"
+msgstr "Your backups will be exported to the `{ANDROID_FOLDER}` directory"

@@ -1,5 +1,6 @@
 import filesystemService from '@/common/services/filesystem.service';
 import platformService from '@/common/services/platform.service';
+import { ANDROID_FOLDER } from '@/constants';
 import {
   IonButton,
   IonCard,
@@ -19,7 +20,6 @@ type ImportExportSettingsProps = {
   description?: string;
   onRestoreContent: (content: string) => Promise<void>;
   getContentToExport: () => string;
-  androidFolder: string;
   exportFileSuffix: string;
 };
 
@@ -29,7 +29,6 @@ const ImportExportSettings = ({
   description,
   onRestoreContent,
   getContentToExport,
-  androidFolder,
   exportFileSuffix
 }: ImportExportSettingsProps) => {
   const { t } = useLingui();
@@ -80,13 +79,11 @@ const ImportExportSettings = ({
     const content = getContentToExport();
     const fileName = `${new Date().toISOString().substring(0, 19).replaceAll(/[:T]/g, '-')}-${exportFileSuffix}.json`;
 
-    filesystemService
-      .exportToFile(fileName, content, `${androidFolder}/`)
-      .then(() => {
-        if (platformService.isAndroid()) {
-          setToast(t`Success!`, 'success');
-        }
-      });
+    filesystemService.exportToFile(fileName, content).then(() => {
+      if (platformService.isAndroid()) {
+        setToast(t`Success!`, 'success');
+      }
+    });
   };
 
   return (
@@ -103,7 +100,7 @@ const ImportExportSettings = ({
               {description && <p>&nbsp;</p>}
               <p>
                 <Trans>
-                  Your backups will be exported to the `{androidFolder}`
+                  Your backups will be exported to the `{ANDROID_FOLDER}`
                   directory
                 </Trans>
               </p>
