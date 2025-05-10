@@ -26,9 +26,7 @@ const MainHeader = ({
   const isInit = syncService.usePrimaryConnected();
   const hasChanges = syncService.usePrimaryHasLocalChanges();
   const pushEnabled = !isSyncing && isInit && hasChanges;
-  const pullEnabled = !isSyncing && isInit;
   const pushColor = isSyncing ? 'warning' : !pushEnabled ? undefined : 'danger';
-  const pullColor = isSyncing ? 'warning' : undefined;
 
   return (
     <IonToolbar>
@@ -50,16 +48,8 @@ const MainHeader = ({
 
       <IonButtons slot="end">
         <SyncRemoteButton
-          direction="push"
-          disabled={!pushEnabled}
+          direction="sync"
           color={pushColor}
-          onSyncStart={() => setIsSyncing(true)}
-          onSyncEnd={() => setIsSyncing(false)}
-        />
-        <SyncRemoteButton
-          direction="pull"
-          disabled={!pullEnabled}
-          color={pullColor}
           onSyncStart={() => setIsSyncing(true)}
           onSyncEnd={() => setIsSyncing(false)}
         />

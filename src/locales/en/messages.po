@@ -78,7 +78,7 @@ msgstr "Export"
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/constants.ts:41
+#: src/constants.ts:42
 msgid "Home"
 msgstr "Home"
 
@@ -115,11 +115,11 @@ msgstr "Manually backup or restore your collection."
 msgid "Name"
 msgstr "Name"
 
-#: src/constants.ts:42
+#: src/constants.ts:43
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:43
+#: src/constants.ts:44
 msgid "New folder"
 msgstr "New folder"
 

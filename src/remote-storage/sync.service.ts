@@ -1,11 +1,19 @@
 import localChangesService from '@/db/localChanges.service';
 import remotesService from '@/db/remotes.service';
 
-export type SyncDirection = 'push' | 'pull' | 'force-push' | 'force-pull';
+export type SyncDirection =
+  | 'sync'
+  | 'push'
+  | 'pull'
+  | 'force-push'
+  | 'force-pull';
 
 class SyncService {
   public async sync(direction: SyncDirection, remote?: string) {
     switch (direction) {
+      case 'sync':
+        await this.pull(remote);
+        return this.push(remote);
       case 'push':
         return this.push(remote);
       case 'pull':

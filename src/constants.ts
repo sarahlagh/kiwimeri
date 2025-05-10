@@ -23,6 +23,7 @@ import {
   moonSharp,
   openOutline,
   settingsSharp,
+  syncOutline,
   trashOutline
 } from 'ionicons/icons';
 
@@ -63,6 +64,7 @@ export const APPICONS = {
   addFolder: albums,
   addDocument: add,
   addGeneric: add,
+  cloudSync: syncOutline,
   cloudUpload: cloudUploadOutline,
   cloudDownload: cloudDownloadOutline,
   ok: checkmarkOutline,
