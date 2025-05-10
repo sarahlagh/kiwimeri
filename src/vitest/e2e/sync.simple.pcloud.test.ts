@@ -10,8 +10,8 @@ import { SimpleStorageProvider } from '@/remote-storage/storage-providers/simple
 import { syncService } from '@/remote-storage/sync.service';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  amount,
   getCollectionRowCount,
-  getFirstLocalItem,
   getLocalItemConflicts,
   getLocalItemField,
   oneDocument,
@@ -48,12 +48,15 @@ const getRemoteContent = async () => {
 };
 
 describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
-  beforeEach(async () => {
+  beforeEach(async browser => {
+    const browserName =
+      browser.task.file.projectName?.match(/e2e \((.*)\)/)?.[1];
+    console.debug('browser', browserName);
     remotesService['layer'] = 'simple';
     remotesService.addRemote('test', 0, 'pcloud', {
       username: appConfig.PCLOUD_E2E_USERNAME,
       password: appConfig.PCLOUD_E2E_PASSWORD,
-      path: appConfig.PCLOUD_E2E_PATH,
+      path: `${appConfig.PCLOUD_E2E_PATH}/${browserName}`,
       serverLocation: appConfig.PCLOUD_E2E_SERVER_LOC
     });
     await remotesService.initSyncConnection(storageService.getSpaceId(), true);
@@ -74,6 +77,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
   it('should pull new remote items', async () => {
     const remoteData = [oneDocument('r1'), oneDocument('r2'), oneFolder('r3')];
     await reInitRemoteData(remoteData);
+    await amount(100);
     await syncService.pull();
     expect(getCollectionRowCount()).toBe(3);
   });
@@ -84,6 +88,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     collectionService.addFolder(ROOT_FOLDER);
     expect(getCollectionRowCount()).toBe(3);
     await syncService.push();
+    await amount(100);
     const content = await getRemoteContent();
     expect(content).toBeDefined();
     expect(content).toHaveLength(3);
@@ -95,7 +100,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     await syncService.pull();
     expect(getCollectionRowCount()).toBe(3);
     collectionService.addFolder(ROOT_FOLDER);
-    setLocalItemField(getFirstLocalItem(), 'title', 'new');
+    setLocalItemField(remoteData[0].id!, 'title', 'new');
     await syncService.push();
     const content = await getRemoteContent();
     expect(content).toHaveLength(4);
