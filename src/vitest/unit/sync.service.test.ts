@@ -11,6 +11,7 @@ import { syncService } from '@/remote-storage/sync.service';
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  CONFLICT_CHANGES,
   expectHasLocalItemConflict,
   fakeTimersDelay,
   getCollectionRowCount,
@@ -21,10 +22,9 @@ import {
   getLocalItemConflicts,
   getLocalItemField,
   getRemoteItemField,
-  NON_PARENT_CHANGES,
+  NON_CONFLICT_CHANGES,
   oneDocument,
   oneFolder,
-  PARENT_CHANGES,
   setLocalItemField,
   UPDATABLE_FIELDS,
   updateOnRemote
@@ -160,6 +160,8 @@ describe('sync service', () => {
         const { content } = await driver.pullFile('', 'S1');
         expect(content).toBe('0');
       });
+
+      // TODO conflict on folder => test & disallow
 
       describe('on pull operation', () => {
         it('should do nothing on first pull if remote has nothing', async () => {
@@ -462,8 +464,8 @@ describe('sync service', () => {
         });
 
         // fields that can change: parent, title, content, deleted
-        NON_PARENT_CHANGES.forEach(({ local, remote }) => {
-          it(`should create conflict if localChange=${local} then remoteChange=${remote}`, async () => {
+        NON_CONFLICT_CHANGES.forEach(({ local, remote }) => {
+          it(`should merge changes without conflict if localChange=${local} then remoteChange=${remote}`, async () => {
             const remoteData = [oneDocument(), oneDocument(), oneFolder()];
             await reInitRemoteData(remoteData);
             await syncService_pull(); // 1
@@ -478,10 +480,56 @@ describe('sync service', () => {
 
             // pull again
             await syncService_pull(); // 2
+            // no conflict created
+            expect(getCollectionRowCount()).toBe(3);
+            expect(getLocalItemConflicts()).toHaveLength(0);
+            expect(getLocalItemField(id, remote)).toBe('newRemote');
+            expect(getLocalItemField(id, local)).toBe('newLocal');
+          });
+
+          it(`should merge changes without conflict when remoteChange=${remote} then localChange=${local}`, async () => {
+            const remoteData = [oneDocument(), oneDocument(), oneFolder()];
+            await reInitRemoteData(remoteData);
+            await syncService_pull();
+            const id = getFirstLocalItem();
+
+            // change remote
+            updateOnRemote(remoteData, id, remote);
+            await reInitRemoteData(remoteData);
+
+            // change local
+            setLocalItemField(id, local, 'newLocal');
+
+            // pull again
+            await syncService_pull();
+            expect(getCollectionRowCount()).toBe(3);
+            expect(getLocalItemField(id, remote)).toBe('newRemote');
+            expect(getLocalItemField(id, local)).toBe('newLocal');
+
+            testPushIndicator(true);
+          });
+        });
+
+        CONFLICT_CHANGES.forEach(({ field }) => {
+          it(`should create conflict if localChange=${field} then remoteChange=${field}`, async () => {
+            const remoteData = [oneDocument(), oneDocument(), oneFolder()];
+            await reInitRemoteData(remoteData);
+            await syncService_pull(); // 1
+            const id = getFirstLocalItem();
+
+            // change local
+            setLocalItemField(id, field, 'newLocal');
+
+            // change remote
+            updateOnRemote(remoteData, id, field);
+            await reInitRemoteData(remoteData);
+
+            // pull again
+            await syncService_pull(); // 2
             // a conflict file was created
             expect(getCollectionRowCount()).toBe(4);
-            expect(getLocalItemField(id, remote)).toBe('newRemote');
-            expect(getLocalItemField(id, local)).not.toBe('newLocal');
+            expect(getLocalItemField(id, field)).toBe('newRemote');
+            expect(getLocalItemField(id, field)).not.toBe('newLocal');
 
             // check that a conflict file exists
             const conflictId = getLocalItemConflict();
@@ -523,7 +571,7 @@ describe('sync service', () => {
 
             // solve the conflict at last
             expect(collectionService.itemExists(id)).toBeTruthy();
-            setLocalItemField(id, local, 'conflict updated');
+            setLocalItemField(id, field, 'conflict updated');
 
             // pull again
             await syncService_pull(); // 5
@@ -533,81 +581,25 @@ describe('sync service', () => {
             expect(collectionService.itemExists(conflictId3!)).toBeFalsy();
           });
 
-          it(`should apply local change when remoteChange=${remote} then localChange=${local} (local wins)`, async () => {
+          it(`should apply local change when remoteChange=${field} then localChange=${field} (local wins)`, async () => {
             const remoteData = [oneDocument(), oneDocument(), oneFolder()];
             await reInitRemoteData(remoteData);
             await syncService_pull();
             const id = getFirstLocalItem();
 
             // change remote
-            updateOnRemote(remoteData, id, remote);
+            updateOnRemote(remoteData, id, field);
             await reInitRemoteData(remoteData);
 
             // change local
-            setLocalItemField(id, local, 'newLocal');
+            setLocalItemField(id, field, 'newLocal');
 
             // pull again
             await syncService_pull();
             expect(getCollectionRowCount()).toBe(3);
-            expect(getLocalItemField(id, remote)).not.toBe('newRemote');
-            expect(getLocalItemField(id, local)).toBe('newLocal');
+            expect(getLocalItemField(id, field)).toBe('newLocal');
 
             testPushIndicator(true);
-          });
-        });
-
-        // parent change is a special case where the 'update' ts isn't updated
-        PARENT_CHANGES.forEach(({ local, remote }) => {
-          it(`should be undetermined when localChange=${local} then remoteChange=${remote}`, async () => {
-            const remoteData = [oneDocument(), oneDocument(), oneFolder()];
-            await reInitRemoteData(remoteData);
-            await syncService_pull();
-            const id = getFirstLocalItem();
-
-            // change local
-            setLocalItemField(id, local, 'newLocal');
-
-            // change remote
-            updateOnRemote(remoteData, id, remote);
-            await reInitRemoteData(remoteData);
-
-            // pull again
-            await syncService_pull();
-
-            // not ideal, to handle in another way with mergeable fields
-            if (local === 'parent' && remote !== 'parent') {
-              expect(getCollectionRowCount()).toBe(4); // conflict
-              expect(getLocalItemField(id, remote)).toBe('newRemote');
-              expect(getLocalItemField(id, local)).not.toBe('newLocal');
-            } else {
-              expect(getCollectionRowCount()).toBe(3); // no conflict
-              expect(getLocalItemField(id, remote)).not.toBe('newRemote');
-              expect(getLocalItemField(id, local)).toBe('newLocal');
-            }
-
-            testPushIndicator(true); // not ideal but should be better handled with mergeable fields
-          });
-
-          it(`should apply parent change when remoteChange=${remote} then localChange=${local} (parent wins)`, async () => {
-            const remoteData = [oneDocument(), oneDocument(), oneFolder()];
-            await reInitRemoteData(remoteData);
-            await syncService_pull();
-            const id = getFirstLocalItem();
-
-            // change remote
-            updateOnRemote(remoteData, id, remote);
-            await reInitRemoteData(remoteData);
-
-            // change local
-            setLocalItemField(id, local, 'newLocal');
-
-            // pull again
-            await syncService_pull();
-            expect(getCollectionRowCount()).toBe(3);
-            expect(getLocalItemField(id, remote)).not.toBe('newRemote');
-            expect(getLocalItemField(id, local)).toBe('newLocal');
-
-            testPushIndicator(true); // not ideal but should be better handled with mergeable fields
           });
         });
 
@@ -746,7 +738,7 @@ describe('sync service', () => {
           });
         });
 
-        [...NON_PARENT_CHANGES, ...PARENT_CHANGES].forEach(
+        [...CONFLICT_CHANGES, ...NON_CONFLICT_CHANGES].forEach(
           ({ local, remote }) => {
             it(`should use server version when localChange=${local} then remoteChange=${remote}`, async () => {
               const remoteData = [oneDocument(), oneDocument(), oneFolder()];
@@ -1031,7 +1023,7 @@ describe('sync service', () => {
           });
         });
 
-        NON_PARENT_CHANGES.forEach(({ local, remote }) => {
+        CONFLICT_CHANGES.forEach(({ local, remote }) => {
           it(`should not push conflicts between ${local} and ${remote}: local wins`, async () => {
             // create a conflict
             const remoteData = [oneDocument(), oneDocument(), oneFolder()];
@@ -1058,7 +1050,7 @@ describe('sync service', () => {
           });
         });
 
-        [...NON_PARENT_CHANGES, ...PARENT_CHANGES].forEach(
+        [...CONFLICT_CHANGES, ...NON_CONFLICT_CHANGES].forEach(
           ({ local, remote }) => {
             it(`should update when localChange=${local} then remoteChange=${remote}: local wins`, async () => {
               const remoteData = [oneDocument(), oneDocument(), oneFolder()];
@@ -1350,7 +1342,7 @@ describe('sync service', () => {
           });
         });
 
-        NON_PARENT_CHANGES.forEach(({ local, remote }) => {
+        CONFLICT_CHANGES.forEach(({ local, remote }) => {
           it(`should not push conflicts between ${local} and ${remote}: local wins`, async () => {
             // create a conflict
             const remoteData = [oneDocument(), oneDocument(), oneFolder()];
@@ -1377,7 +1369,7 @@ describe('sync service', () => {
           });
         });
 
-        [...NON_PARENT_CHANGES, ...PARENT_CHANGES].forEach(
+        [...CONFLICT_CHANGES, ...NON_CONFLICT_CHANGES].forEach(
           ({ local, remote }) => {
             it(`should update when localChange=${local} then remoteChange=${remote}: local wins`, async () => {
               const remoteData = [oneDocument(), oneDocument(), oneFolder()];

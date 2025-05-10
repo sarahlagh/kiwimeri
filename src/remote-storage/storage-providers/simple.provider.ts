@@ -1,4 +1,7 @@
-import { CollectionItem } from '@/collection/collection';
+import {
+  CollectionItem,
+  CollectionItemUpdatableFieldEnum
+} from '@/collection/collection';
 import { SpaceType } from '@/db/types/space-types';
 import {
   AnyData,
@@ -133,6 +136,7 @@ export class SimpleStorageProvider extends StorageProvider {
         }
         if (itemIdx > -1) {
           if (localChange.change === LocalChangeType.update) {
+            // local always wins
             newRemoteContent[itemIdx] = collection.get(localChange.item)!;
           } else if (localChange.change === LocalChangeType.delete) {
             newRemoteContent.splice(itemIdx, 1);
@@ -202,20 +206,31 @@ export class SimpleStorageProvider extends StorageProvider {
     items.forEach(item => {
       newLocalContent[0].collection![item.id!] = item;
     });
+    const newLocalCollection = this.toMap<CollectionItem>(
+      newLocalContent[0].collection
+    );
 
     if (!force && localChanges.length > 0) {
       // reapply localChanges
       for (const localChange of localChanges) {
-        const remoteUpdated =
-          (newLocalContent[0].collection![localChange.item]
-            ?.updated as number) ||
-          remoteContentUpdated ||
-          0;
+        let remoteUpdated = newLocalCollection.has(localChange.item)
+          ? newLocalCollection.get(localChange.item)!.updated
+          : remoteContentUpdated || 0;
         console.debug(
           '[pull] handling local change',
           localChange,
           remoteUpdated
         );
+        if (
+          localChange.change === LocalChangeType.update &&
+          newLocalCollection.has(localChange.item)
+        ) {
+          const meta = newLocalCollection.get(localChange.item)![
+            `${localChange.field as CollectionItemUpdatableFieldEnum}_meta`
+          ];
+          console.debug('[pull] local change meta', meta);
+          remoteUpdated = JSON.parse(meta!).updated;
+        }
 
         if (localChange.change === LocalChangeType.add) {
           newLocalContent[0].collection![localChange.item] =
@@ -225,14 +240,21 @@ export class SimpleStorageProvider extends StorageProvider {
             localChange.change !== LocalChangeType.delete ||
             localChange.field === 'parent'
           ) {
-            newLocalContent[0].collection![localChange.item] =
-              localCollection.get(localChange.item)!;
+            const field = localChange.field as CollectionItemUpdatableFieldEnum;
+            newLocalContent[0].collection![localChange.item][field] =
+              localCollection.get(localChange.item)![field];
+            newLocalContent[0].collection![localChange.item][`${field}_meta`] =
+              localCollection.get(localChange.item)![`${field}_meta`];
           } else {
             delete newLocalContent[0].collection![localChange.item];
           }
         } else {
           const localItem = localCollection.get(localChange.item)!;
-          if (localItem && !localItem.conflict) {
+          if (
+            localItem &&
+            !localItem.conflict
+            // && localItem.type === CollectionItemType.document
+          ) {
             newLocalContent[0].collection![getUniqueId()] = {
               ...{ ...localItem, id: undefined },
               conflict: localChange.item,

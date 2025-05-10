@@ -256,10 +256,11 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     );
     lastRemoteChange = Date.now();
 
-    // update title locally
+    // update title remotely on same as local
     const idUpdateTitleLocal = ids[3];
     vi.setSystemTime(now + 9000);
-    setLocalItemField(idUpdateTitleLocal, 'title', 'newLocalTitle');
+    updateOnRemote(content!, idUpdateTitleLocal, 'title', 'newRemoteTitle');
+    lastRemoteChange = Date.now();
 
     // update parent remotely on different id
     const idUpdateParentRemote = ids[4];
@@ -299,10 +300,9 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     );
     lastRemoteChange = Date.now();
 
-    // update title remotely on same as local
+    // update title locally
     vi.setSystemTime(now + 14000);
-    updateOnRemote(content!, idUpdateTitleLocal, 'title', 'newRemoteTitle');
-    lastRemoteChange = Date.now();
+    setLocalItemField(idUpdateTitleLocal, 'title', 'newLocalTitle');
 
     // delete locally
     const idDeleteLocal = ids[8];
@@ -333,22 +333,25 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     expect(collectionService.itemExists(idDeleteRemote)).toBeFalsy(); // has been deleted from remote
 
     // check updated items
-    expect(getLocalItemField(idUpdateTitleLocal, 'title')).not.toBe(
+    expect(getLocalItemField(idUpdateTitleLocal, 'title')).toBe(
       'newLocalTitle'
     );
     expect(getLocalItemField(idUpdateContentLocal, 'content')).toBe(
       'newRemoteContent'
     );
-    expect(getLocalItemField(idUpdateParentLocal, 'parent')).toBe(lastParent);
+    expect(getLocalItemField(idUpdateParentLocal, 'parent')).toBe(
+      newRemoteItem.id
+    );
+
 
     // check conflicts
     const conflictIds = getLocalItemConflicts();
     expect(conflictIds).toHaveLength(2);
     expect(getLocalItemField(conflictIds[0], 'conflict')).toBe(
-      idUpdateTitleLocal
+      idUpdateContentLocal
     );
     expect(getLocalItemField(conflictIds[1], 'conflict')).toBe(
-      idUpdateContentLocal
+      idUpdateParentLocal
     );
   });
 });

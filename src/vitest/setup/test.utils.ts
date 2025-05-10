@@ -5,6 +5,7 @@ import {
   CollectionItemTypeValues,
   CollectionItemUpdatableFieldEnum
 } from '@/collection/collection';
+import { fastHash } from '@/common/utils';
 import { ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
 import storageService from '@/db/storage.service';
@@ -17,17 +18,24 @@ export const amount = async (timeout = 500) => {
 
 export const fakeTimersDelay = 100;
 
+const setFieldMeta = (value: string, updated: number) =>
+  JSON.stringify({ hash: fastHash(value), updated });
+
 export const oneDocument = (title = 'new doc', parent = ROOT_FOLDER) => {
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   return {
     id: getUniqueId(),
-    parent,
     type: CollectionItemType.document,
+    parent,
+    parent_meta: setFieldMeta(parent, Date.now()),
     title,
+    title_meta: setFieldMeta(title, Date.now()),
     content: 'random',
+    content_meta: setFieldMeta('random', Date.now()),
     created: Date.now(),
     updated: Date.now(),
-    deleted: false
+    deleted: false,
+    deleted_meta: setFieldMeta('false', Date.now())
   } as CollectionItem;
 };
 export const oneFolder = (title = 'new folder', parent = ROOT_FOLDER) => {
@@ -35,11 +43,14 @@ export const oneFolder = (title = 'new folder', parent = ROOT_FOLDER) => {
   return {
     id: getUniqueId(),
     parent,
+    parent_meta: setFieldMeta(parent, Date.now()),
     type: CollectionItemType.folder,
     title,
+    title_meta: setFieldMeta(title, Date.now()),
     created: Date.now(),
     updated: Date.now(),
-    deleted: false
+    deleted: false,
+    deleted_meta: setFieldMeta('false', Date.now())
   } as CollectionItem;
 };
 
@@ -72,11 +83,7 @@ export const UPDATABLE_FIELDS: { field: CollectionItemUpdatableFieldEnum }[] = [
   ...NON_PARENT_UPDATABLE_FIELDS,
   { field: 'parent' }
 ];
-export const NON_PARENT_CHANGES = [
-  {
-    local: 'title',
-    remote: 'title'
-  },
+export const NON_CONFLICT_CHANGES = [
   {
     local: 'title',
     remote: 'content'
@@ -86,21 +93,28 @@ export const NON_PARENT_CHANGES = [
     remote: 'title'
   },
   {
-    local: 'content',
-    remote: 'content'
+    local: 'parent',
+    remote: 'title'
+  },
+  {
+    local: 'title',
+    remote: 'parent'
   }
 ];
-export const PARENT_CHANGES = [
+export const CONFLICT_CHANGES = [
   {
-    local: 'parent',
-    remote: 'parent'
-  },
-  {
-    local: 'parent',
+    field: 'title',
+    local: 'title',
     remote: 'title'
   },
   {
-    local: 'title',
+    field: 'content',
+    local: 'content',
+    remote: 'content'
+  },
+  {
+    field: 'parent',
+    local: 'parent',
     remote: 'parent'
   }
 ];
@@ -171,6 +185,7 @@ export const updateOnRemote = (
   const idx = remoteData.findIndex(r => r.id === id);
   const remoteKey = field as CollectionItemUpdatableFieldEnum;
   remoteData[idx][remoteKey] = newValue as never;
+  remoteData[idx][`${remoteKey}_meta`] = setFieldMeta(newValue, Date.now());
   if (remoteKey !== 'parent') {
     remoteData[idx].updated = Date.now();
   }
