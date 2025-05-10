@@ -85,6 +85,7 @@ export class SimpleStorageProvider extends StorageProvider {
     // TODO should check if remote still connected here
     const { filesInfo } = await this.driver.fetchFilesInfo([this.filename]);
 
+    console.debug('[push] filesInfo', filesInfo);
     const newRemoteState = this.getRemoteState(filesInfo);
     const localInfo = newRemoteState.info as DriverFileInfo;
     const collection = this.toMap<CollectionItem>(localContent[0].collection!);
@@ -93,6 +94,11 @@ export class SimpleStorageProvider extends StorageProvider {
     const cachedLastRemoteChange = cachedRemoteInfo.lastRemoteChange || 0;
 
     if (newLastRemoteChange > cachedLastRemoteChange && localInfo && !force) {
+      console.debug(
+        '[push] pulling new file',
+        newLastRemoteChange,
+        cachedLastRemoteChange
+      );
       const { content: remoteContent } = await this.driver.pullFile(
         localInfo.providerid,
         this.filename
@@ -100,6 +106,11 @@ export class SimpleStorageProvider extends StorageProvider {
       const obj = this.deserialization(remoteContent);
       newRemoteContent = obj.i;
     } else {
+      console.debug(
+        '[push] using local collection, not pulling',
+        newLastRemoteChange,
+        cachedLastRemoteChange
+      );
       newRemoteContent = Array.from(
         collection.values().filter(v => !v.conflict)
       );
@@ -131,6 +142,16 @@ export class SimpleStorageProvider extends StorageProvider {
     const driverInfo = await this.driver.pushFile(this.filename, content);
     newRemoteState.info = driverInfo;
 
+    console.debug('[push] localInfo', localInfo);
+    console.debug('[push] collection', collection);
+    console.debug(
+      '[push] pulled file',
+      newLastRemoteChange > cachedLastRemoteChange && !force
+    );
+    console.debug('[push] newRemoteContent', newRemoteContent);
+    console.debug('[push] localChanges', localChanges);
+    console.debug('[push] cachedRemoteInfo', cachedRemoteInfo);
+    console.debug('[push] newRemoteState', newRemoteState);
     return {
       remoteInfo: {
         ...cachedRemoteInfo,
@@ -150,10 +171,12 @@ export class SimpleStorageProvider extends StorageProvider {
     }
 
     const { filesInfo } = await this.driver.fetchFilesInfo([this.filename]);
+    console.debug('[pull] filesInfo', filesInfo);
     const newRemoteState = this.getRemoteState(filesInfo);
     const newLocalInfo = newRemoteState.info as DriverFileInfo;
 
     if (!newLocalInfo) {
+      console.debug('[pull] newLocalInfo is undefined');
       return {
         content: localContent,
         remoteInfo: cachedRemoteInfo
@@ -168,6 +191,8 @@ export class SimpleStorageProvider extends StorageProvider {
     const obj = this.deserialization(content);
     const items = obj.i;
     const remoteContentUpdated = obj.u;
+    console.debug('[pull] content from file: i', obj.i);
+    console.debug('[pull] content from file: u', obj.u);
     const localCollection = this.toMap<CollectionItem>(
       localContent[0].collection
     );
@@ -184,6 +209,11 @@ export class SimpleStorageProvider extends StorageProvider {
             ?.updated as number) ||
           remoteContentUpdated ||
           0;
+        console.debug(
+          '[pull] handling local change',
+          localChange,
+          remoteUpdated
+        );
 
         if (localChange.change === LocalChangeType.add) {
           newLocalContent[0].collection![localChange.item] =
@@ -211,6 +241,15 @@ export class SimpleStorageProvider extends StorageProvider {
         }
       }
     }
+
+    console.debug('[pull] newLocalInfo', newLocalInfo);
+    console.debug(
+      '[pull] newLocalContent',
+      newLocalContent,
+      JSON.stringify(newLocalContent)
+    );
+    console.debug('[pull] cachedRemoteInfo', cachedRemoteInfo);
+    console.debug('[pull] newRemoteState', newRemoteState);
 
     return {
       content: newLocalContent,

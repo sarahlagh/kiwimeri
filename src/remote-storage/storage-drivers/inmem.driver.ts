@@ -53,6 +53,7 @@ export class InMemDriver extends FileStorageDriver {
       lastRemoteChange: updated,
       hash
     });
+    console.debug('[inmem] pushFile', updated, hash);
     return { providerid: filename, filename, hash, updated };
   }
 

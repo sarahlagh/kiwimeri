@@ -31,24 +31,31 @@ import {
 } from '../setup/test.utils';
 
 let driver: InMemDriver;
+let iPull = 0;
+let iPush = 0;
 
 const reInitRemoteData = async (items: CollectionItem[]) => {
   vi.advanceTimersByTime(fakeTimersDelay);
   const lastLocalChange = Math.max(...items.map(i => i.updated));
+  console.debug('[reInitRemoteData]', items, lastLocalChange);
   await driver.setContent(items, lastLocalChange);
   vi.advanceTimersByTime(fakeTimersDelay);
 };
 
 const syncService_pull = async () => {
   vi.advanceTimersByTime(fakeTimersDelay);
+  console.debug('start pulling', ++iPull, Date.now());
   await syncService.pull();
   vi.advanceTimersByTime(fakeTimersDelay);
+  console.debug('done pulling', Date.now());
 };
 
 const syncService_push = async () => {
   vi.advanceTimersByTime(fakeTimersDelay);
+  console.debug('start pushing', ++iPush, Date.now());
   await syncService.push();
   vi.advanceTimersByTime(fakeTimersDelay);
+  console.debug('done pushing', Date.now());
 };
 
 const collectionService_addFolder = (parent: string) => {
@@ -90,6 +97,8 @@ describe('sync service', () => {
         vi.useFakeTimers();
       });
       afterEach(() => {
+        iPull = 0;
+        iPush = 0;
         vi.useRealTimers();
       });
 

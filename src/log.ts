@@ -7,13 +7,13 @@ class AppLog {
   private log: {
     key: number;
     ts: number;
-    level: 'trace' | 'debug' | 'log' | 'warn' | 'error';
+    level: 'trace' | 'debug' | 'info' | 'warn' | 'error';
     message?: any;
     optionalParams?: any[];
   }[] = [];
 
   public addLog(
-    level: 'trace' | 'debug' | 'log' | 'warn' | 'error',
+    level: 'trace' | 'debug' | 'info' | 'warn' | 'error',
     message?: any,
     optionalParams?: any[]
   ) {

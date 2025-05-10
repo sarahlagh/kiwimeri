@@ -95,7 +95,7 @@ export class PCloudDriver extends FileStorageDriver {
     }
     const resp = await this.uploadFile(content, filename, this.config.folderid);
     if (resp.result !== PCloudResult.ok || resp.metadata.length === 0) {
-      console.log('[pCloud] error uploading changes');
+      console.error('[pCloud] error uploading changes');
       // TODO handle error
     }
     const f = resp.metadata[0];
@@ -122,7 +122,7 @@ export class PCloudDriver extends FileStorageDriver {
       skipfilename: '1'
     });
     if (res.error) {
-      console.log('[pCloud] unable to fetch file link', res);
+      console.error('[pCloud] unable to fetch file link', res);
       return {};
     }
     const linkUrl = `https://${res.hosts[0]}${res.path}`;
