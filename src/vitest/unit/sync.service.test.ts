@@ -359,7 +359,24 @@ describe('sync service', () => {
 
             const conflictId = getLocalItemConflict()!;
             expect(getLocalItemField(conflictId, field)).toBe('newLocal');
+            testPushIndicator(true); // TODO: ideally, should be false
+
+            // push, no conflict should be pushed
+            await syncService_push();
+            let remoteContent = await driver.getContent();
+            expect(remoteContent.content).toHaveLength(2);
+            testPushIndicator(false);
+
+            // now, solve conflict
+            setLocalItemField(conflictId, 'content', 'new content');
             testPushIndicator(true);
+            expect(getLocalItemConflicts()).toHaveLength(0);
+
+            await syncService_push();
+            remoteContent = await driver.getContent();
+            expect(remoteContent.content).toHaveLength(3);
+
+            testPushIndicator(false);
           });
 
           it(`should not delete local items on pull if they have been changed with ${field} after being erased on remote`, async () => {

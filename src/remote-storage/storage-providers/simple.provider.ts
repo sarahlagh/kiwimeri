@@ -95,7 +95,7 @@ export class SimpleStorageProvider extends StorageProvider {
 
     if (newLastRemoteChange > cachedLastRemoteChange && localInfo && !force) {
       console.debug(
-        '[push] pulling new file',
+        '[push] pulling new file due to cached remote being outdated',
         newLastRemoteChange,
         cachedLastRemoteChange
       );
@@ -111,9 +111,7 @@ export class SimpleStorageProvider extends StorageProvider {
         newLastRemoteChange,
         cachedLastRemoteChange
       );
-      newRemoteContent = Array.from(
-        collection.values().filter(v => !v.conflict)
-      );
+      newRemoteContent = [...collection.values()].filter(v => !v.conflict);
     }
 
     let lastLocalChange = newLastRemoteChange;
@@ -124,7 +122,12 @@ export class SimpleStorageProvider extends StorageProvider {
         const itemIdx = newRemoteContent.findIndex(
           ri => ri.id === localChange.item
         );
-        if (itemIdx === -1 && localChange.change !== LocalChangeType.delete) {
+        console.debug('[push] handling local change', localChange, itemIdx);
+        if (
+          itemIdx === -1 &&
+          localChange.change !== LocalChangeType.delete &&
+          collection.has(localChange.item)
+        ) {
           newRemoteContent.push(collection.get(localChange.item)!);
           continue;
         }
@@ -149,7 +152,6 @@ export class SimpleStorageProvider extends StorageProvider {
       newLastRemoteChange > cachedLastRemoteChange && !force
     );
     console.debug('[push] newRemoteContent', newRemoteContent);
-    console.debug('[push] localChanges', localChanges);
     console.debug('[push] cachedRemoteInfo', cachedRemoteInfo);
     console.debug('[push] newRemoteState', newRemoteState);
     return {

@@ -185,6 +185,21 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     expect(collectionService.itemExists(id)).toBeFalsy();
     const conflictId = getLocalItemConflict()!;
     expect(getLocalItemField(conflictId, 'title')).toBe('newLocal');
+
+    // push, no conflict should be pushed
+    await amount(100);
+    await syncService.push();
+    await amount(100);
+    let content = await getRemoteContent();
+    expect(content).toHaveLength(2);
+    await amount(100);
+    // now, solve conflict
+    setLocalItemField(conflictId, 'content', 'new content');
+    expect(getLocalItemConflicts()).toHaveLength(0);
+    await syncService.push();
+    await amount(100);
+    content = await getRemoteContent();
+    expect(content).toHaveLength(3);
   });
 
   it('should handle different conflicts between local and remote', async () => {
