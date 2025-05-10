@@ -1,9 +1,24 @@
+import { useSliceRowIds } from 'tinybase/ui-react';
 import storageService from './storage.service';
 import { LocalChange, LocalChangeType } from './types/store-types';
 
 class LocalChangesService {
   private readonly table = 'localChanges';
   private readonly queryPrefix = 'fetchLocalChanges';
+
+  private reInitIndex() {
+    if (
+      !storageService
+        .getStoreIndexes()
+        .getIndexIds()
+        .find(id => id === 'localChangesBySpace')
+    ) {
+      storageService
+        .getStoreIndexes()
+        .setIndexDefinition('localChangesBySpace', 'localChanges', 'space');
+    }
+  }
+
   private fetchAllLocalChangesQuery(space: string) {
     const queries = storageService.getStoreQueries();
     const queryName = `${this.queryPrefix}For${space}`;
@@ -114,10 +129,15 @@ class LocalChangesService {
   }
 
   public useHasLocalChanges() {
+    this.reInitIndex();
     const space = storageService.getSpaceId();
-    const queryName = this.fetchAllLocalChangesQuery(space);
-    const results = storageService.useResultSortedRowIds(queryName);
-    return results.length > 0;
+    return (
+      useSliceRowIds(
+        'localChangesBySpace',
+        space,
+        storageService.getUntypedStoreIndexes()
+      ).length > 0
+    );
   }
 
   public delLocalChange(rowId: string) {

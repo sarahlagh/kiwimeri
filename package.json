@@ -5,8 +5,8 @@
   "version": "0.0.2",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"node middleware.cjs\" \"ionic serve\"",
-    "start-middleware": "node middleware.cjs",
+    "dev": "concurrently \"node scripts/middleware.cjs\" \"ionic serve\"",
+    "start-middleware": "node scripts/middleware.cjs",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest",

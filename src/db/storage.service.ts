@@ -5,6 +5,7 @@ import {
   INTERNAL_FORMAT,
   ROOT_FOLDER
 } from '@/constants';
+import { Indexes as UntypedIndexes } from 'tinybase';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db/with-schemas';
 import { Persister } from 'tinybase/persisters/with-schemas';
 import { Queries as UntypedQueries } from 'tinybase/queries';
@@ -188,6 +189,10 @@ class StorageService {
 
   public getStoreIndexes() {
     return this.storeIndexes;
+  }
+
+  public getUntypedStoreIndexes() {
+    return this.storeIndexes as unknown as UntypedIndexes;
   }
 
   public useValue(valueId: StoreValueId) {

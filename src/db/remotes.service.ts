@@ -55,7 +55,7 @@ class RemotesService {
   public async initSyncConnection(space: string, initAll = false) {
     storageService
       .getStoreIndexes()
-      .setIndexDefinition('byRemoteState', 'remoteItems', 'state');
+      .setIndexDefinition('remoteItemsByState', 'remoteItems', 'state');
 
     const remotes = this.getRemotes();
     const connectedRemotes = remotes.filter(
@@ -250,7 +250,7 @@ class RemotesService {
     const table = storageService.getStore().getTable(this.remoteItemsTable);
     const rowIds = storageService
       .getStoreIndexes()
-      .getSliceRowIds('byRemoteState', stateId);
+      .getSliceRowIds('remoteItemsByState', stateId);
     const remoteItems: RemoteItemInfo[] = [];
     rowIds.forEach(rowId => {
       remoteItems.push({
