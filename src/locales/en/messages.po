@@ -49,10 +49,14 @@ msgstr "Configure where to synchronize your collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/app/pages/DebugPage.tsx:22
+#: src/app/pages/DebugPage.tsx:34
 #: src/app/components/MainMenuList.tsx:71
 msgid "Debug"
 msgstr "Debug"
+
+#: src/app/pages/DebugPage.tsx:86
+msgid "Download Logs"
+msgstr "Download Logs"
 
 #: src/settings/components/providers/PCloudSettings.tsx:129
 msgid "Enter your password"
@@ -94,7 +98,7 @@ msgstr "Leave empty for root"
 msgid "Loading..."
 msgstr "Loading..."
 
-#: src/app/pages/DebugPage.tsx:45
+#: src/app/pages/DebugPage.tsx:57
 msgid "Logs"
 msgstr "Logs"
 
@@ -159,7 +163,7 @@ msgstr "PCloud Configuration"
 msgid "Pick a directory for your backups"
 msgstr "Pick a directory for your backups"
 
-#: src/app/pages/DebugPage.tsx:27
+#: src/app/pages/DebugPage.tsx:39
 msgid "Platform(s)"
 msgstr "Platform(s)"
 
@@ -186,6 +190,7 @@ msgstr "Settings"
 
 #: src/settings/components/sections/ImportExportSettings.tsx:38
 #: src/settings/components/sections/ImportExportSettings.tsx:87
+#: src/app/pages/DebugPage.tsx:81
 msgid "Success!"
 msgstr "Success!"
 

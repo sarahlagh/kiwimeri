@@ -1,20 +1,32 @@
 import NotFound from '@/app/components/NotFound';
+import filesystemService from '@/common/services/filesystem.service';
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
 import { appLog } from '@/log';
 import {
   getPlatforms,
+  IonButton,
   IonCard,
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
-  IonContent
+  IonContent,
+  useIonToast
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import TemplateMainPage from './TemplateMainPage';
 
 const DebugPage = () => {
   const { t } = useLingui();
+  const [present] = useIonToast();
+  const presentToast = (message: string, color: string) => {
+    present({
+      message,
+      duration: 1500,
+      color
+    });
+  };
+
   if (platformService.isRelease()) {
     return <NotFound />;
   }
@@ -56,6 +68,23 @@ const DebugPage = () => {
                 );
               })}
             </IonCardContent>
+            <IonButton
+              fill="clear"
+              onClick={() => {
+                const content = JSON.stringify(appLog.getLogs());
+                const fileName = `${new Date().toISOString().substring(0, 19).replaceAll(/[:T]/g, '-')}-logs.json`;
+
+                filesystemService
+                  .exportToFile(fileName, content, `Downloads/`)
+                  .then(() => {
+                    if (platformService.isAndroid()) {
+                      presentToast(t`Success!`, 'success');
+                    }
+                  });
+              }}
+            >
+              <Trans>Download Logs</Trans>
+            </IonButton>
           </IonCard>
         )}
       </IonContent>
