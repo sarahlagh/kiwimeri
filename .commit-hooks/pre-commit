@@ -1,4 +1,6 @@
 #!/bin/bash
 
-yarn i18n
-git add src/locales
+if [ ! -z "$(git status --porcelain | grep "src/locales")" ]; then
+    yarn i18n
+    git add src/locales
+fi
