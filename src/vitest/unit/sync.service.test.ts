@@ -380,9 +380,10 @@ describe('sync service', () => {
             setLocalItemField(id, field, 'newLocal');
 
             await syncService_pull();
-            expect(getCollectionRowCount()).toBe(3);
 
             // item is unchanged
+            expect(getCollectionRowCount()).toBe(3);
+            expect(getLocalItemConflicts()).toHaveLength(0);
             expect(getLocalItemField(id, field)).toBe('newLocal');
             testPushIndicator(true);
           });

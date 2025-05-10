@@ -82,7 +82,7 @@ export class PCloudDriver extends FileStorageDriver {
           filename: f.name,
           size: f.size,
           hash: `${f.hash}`,
-          updated: new Date(f.modified).getTime()
+          updated: this.parseDate(f.modified)
         }));
     }
     console.log('[pCloud] connection tested OK');
@@ -103,7 +103,7 @@ export class PCloudDriver extends FileStorageDriver {
       providerid: `${f.fileid}`,
       filename: `${f.name}`,
       hash: `${f.hash}`,
-      updated: new Date(f.modified).getTime()
+      updated: this.parseDate(f.modified)
     };
   }
 
@@ -195,5 +195,9 @@ export class PCloudDriver extends FileStorageDriver {
 
   private getUrl(opName: string) {
     return `${this.serverUrl}/${opName}?username=${this.config!.username}&password=${this.config!.password}`;
+  }
+
+  private parseDate(modified: string) {
+    return new Date(modified).getTime() + 1000;
   }
 }

@@ -12,6 +12,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   amount,
   getCollectionRowCount,
+  getLocalItemConflict,
   getLocalItemConflicts,
   getLocalItemField,
   oneDocument,
@@ -23,11 +24,13 @@ import {
 let driver: PCloudDriver;
 let provider: SimpleStorageProvider;
 
-const reInitRemoteData = async (items: CollectionItem[]) => {
-  console.debug('[reInitRemoteData]', items);
+const reInitRemoteData = async (items: CollectionItem[], updateTs?: number) => {
+  const lastRemoteChange =
+    updateTs !== undefined ? updateTs : Math.max(...items.map(i => i.updated));
+  console.debug('[reInitRemoteData]', items, lastRemoteChange);
   await driver.pushFile(
     'collection.json',
-    JSON.stringify({ i: items, u: Date.now() })
+    JSON.stringify({ i: items, u: lastRemoteChange })
   );
 };
 
@@ -150,16 +153,41 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     collectionService.addDocument(ROOT_FOLDER);
     collectionService.addFolder(ROOT_FOLDER);
     expect(getCollectionRowCount()).toBe(2);
-    localChangesService.clearLocalChanges(); // clear changes -> it's like they have been pushed
+    localChangesService.clearLocalChanges(); // clear changes -> it's like they have been pushed somewhere else
 
     // pull items from new remote
     await syncService.pull();
     expect(getCollectionRowCount()).toBe(3);
   });
 
+  it(`should not delete local items on pull if they have been changed locally before being erased on remote (conflict)`, async () => {
+    const remoteData = [oneDocument('r1'), oneDocument('r2'), oneFolder('r3')];
+    await reInitRemoteData(remoteData);
+
+    await amount(100);
+    await syncService.pull();
+    expect(getCollectionRowCount()).toBe(3);
+
+    // update locally
+    await amount(50);
+    const id = remoteData[0].id!;
+    setLocalItemField(id, 'title');
+    await amount(50);
+
+    // erase on remote
+    await reInitRemoteData([remoteData[1], remoteData[2]], Date.now());
+    await amount(100);
+    await syncService.pull();
+
+    // conflict has been created
+    expect(getCollectionRowCount()).toBe(3);
+    expect(getLocalItemConflicts()).toHaveLength(1);
+    expect(collectionService.itemExists(id)).toBeFalsy();
+    const conflictId = getLocalItemConflict()!;
+    expect(getLocalItemField(conflictId, 'title')).toBe('newLocal');
+  });
+
   it('should handle different conflicts between local and remote', async () => {
-    const now = Date.now();
-    vi.useFakeTimers();
     // create data locally
     const ids = [];
     let lastParent = ROOT_FOLDER;
@@ -174,9 +202,14 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     }
     // push
     await syncService.push();
+    await amount(100);
     const content = await getRemoteContent();
     expect(content).toBeDefined();
     expect(content).toHaveLength(20);
+
+    const now = Date.now();
+    vi.useFakeTimers();
+    let lastRemoteChange = now;
 
     // // modify remote and local
 
@@ -196,6 +229,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     const idx = content!.findIndex(c => c.id === idDeleteRemote);
     expect(idx).not.toBe(-1);
     content!.splice(idx, 1);
+    lastRemoteChange = Date.now();
 
     // update content remotely on same as local
     vi.setSystemTime(now + 8000);
@@ -205,6 +239,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
       'content',
       'newRemoteContent'
     );
+    lastRemoteChange = Date.now();
 
     // update title locally
     const idUpdateTitleLocal = ids[3];
@@ -220,11 +255,13 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
       'content',
       'newRemoteContent'
     );
+    lastRemoteChange = Date.now();
 
     // create remotely
     vi.setSystemTime(now + 11000);
     const newRemoteItem = oneFolder('r100');
     content!.push(newRemoteItem);
+    lastRemoteChange = Date.now();
 
     // create locally
     vi.setSystemTime(now + 12000);
@@ -234,6 +271,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     const idUpdateTitleRemote = ids[5];
     vi.setSystemTime(now + 13000);
     updateOnRemote(content!, idUpdateTitleRemote, 'title', 'newRemoteTitle');
+    lastRemoteChange = Date.now();
 
     // update content remotely on different id as local
     const idUpdateContentRemote = ids[6];
@@ -244,10 +282,12 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
       'content',
       'newRemoteContent'
     );
+    lastRemoteChange = Date.now();
 
     // update title remotely on same as local
     vi.setSystemTime(now + 14000);
     updateOnRemote(content!, idUpdateTitleLocal, 'title', 'newRemoteTitle');
+    lastRemoteChange = Date.now();
 
     // delete locally
     const idDeleteLocal = ids[8];
@@ -257,10 +297,11 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     // update parent remotely on same as local
     vi.setSystemTime(now + 16000);
     updateOnRemote(content!, idUpdateParentLocal, 'parent', newRemoteItem.id);
+    lastRemoteChange = Date.now();
 
     // update remote
     vi.useRealTimers();
-    await reInitRemoteData(content!);
+    await reInitRemoteData(content!, lastRemoteChange);
 
     // pull
     await syncService.pull();
