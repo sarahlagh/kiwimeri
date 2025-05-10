@@ -4,7 +4,7 @@ import { Store } from 'tinybase/with-schemas';
 import localChangesService from '../localChanges.service';
 import remotesService from '../remotes.service';
 import storageService from '../storage.service';
-import { SpaceType } from '../types/db-types';
+import { SpaceType } from '../types/space-types';
 import { RemoteResult } from '../types/store-types';
 
 const updateRemoteInfo = (

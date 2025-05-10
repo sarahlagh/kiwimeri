@@ -10,7 +10,7 @@ import { Persister } from 'tinybase/persisters/with-schemas';
 import { useResultTable } from 'tinybase/ui-react';
 import { createRemoteCloudPersister } from './persisters/remote-cloud-persister';
 import storageService from './storage.service';
-import { SpaceType } from './types/db-types';
+import { SpaceType } from './types/space-types';
 import {
   AnyData,
   RemoteItemInfo,

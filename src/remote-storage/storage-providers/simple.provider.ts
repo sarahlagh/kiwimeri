@@ -1,5 +1,5 @@
 import { CollectionItem } from '@/collection/collection';
-import { SpaceType } from '@/db/types/db-types';
+import { SpaceType } from '@/db/types/space-types';
 import {
   AnyData,
   LocalChange,

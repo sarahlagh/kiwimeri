@@ -21,7 +21,7 @@ import {
   StoreType,
   StoreValueId,
   StoreValueType
-} from './types/db-types';
+} from './types/space-types';
 
 class StorageService {
   private store!: Store<StoreType>;

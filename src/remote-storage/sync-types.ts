@@ -1,4 +1,4 @@
-import { SpaceType } from '@/db/types/db-types';
+import { SpaceType } from '@/db/types/space-types';
 import {
   LocalChange,
   RemoteItemInfo,
