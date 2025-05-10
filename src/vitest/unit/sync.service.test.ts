@@ -161,27 +161,6 @@ describe('sync service', () => {
         expect(content).toBe('0');
       });
 
-      it('should erase existing items if they have been pushed, when changing remote', async () => {
-        const remoteData = [
-          oneDocument('r1'),
-          oneDocument('r2'),
-          oneFolder('r3')
-        ];
-        await reInitRemoteData(remoteData);
-
-        // create local items
-        collectionService_addDocument(ROOT_FOLDER);
-        collectionService_addFolder(ROOT_FOLDER);
-        expect(getCollectionRowCount()).toBe(2);
-        localChangesService.clearLocalChanges(); // clear changes -> it's like they have been pushed
-
-        // pull items from new remote
-        await syncService_pull();
-        expect(getCollectionRowCount()).toBe(3);
-
-        testPushIndicator(false);
-      });
-
       describe('on pull operation', () => {
         it('should do nothing on first pull if remote has nothing', async () => {
           await syncService_pull();
@@ -254,6 +233,27 @@ describe('sync service', () => {
 
           // indicator should still tell if push allowed
           testPushIndicator(true);
+        });
+
+        it('should erase existing items if they have been pushed, when changing remote', async () => {
+          const remoteData = [
+            oneDocument('r1'),
+            oneDocument('r2'),
+            oneFolder('r3')
+          ];
+          await reInitRemoteData(remoteData);
+
+          // create local items
+          collectionService_addDocument(ROOT_FOLDER);
+          collectionService_addFolder(ROOT_FOLDER);
+          expect(getCollectionRowCount()).toBe(2);
+          localChangesService.clearLocalChanges(); // clear changes -> it's like they have been pushed
+
+          // pull items from new remote
+          await syncService_pull();
+          expect(getCollectionRowCount()).toBe(3);
+
+          testPushIndicator(false);
         });
 
         it('should delete local items on pull if they have not been changed and erased on remote', async () => {
@@ -613,8 +613,6 @@ describe('sync service', () => {
 
         // TODO: test several pull when merging updated items
       });
-
-      // TODO: one big test with several types of change on remote and local at once
 
       describe('on force-pull operation', () => {
         it('should pull everything on first pull if remote has content', async () => {

@@ -1,5 +1,5 @@
-import { getSearchParams } from '@/common/getSearchParams';
 import { GET_FOLDER_ROUTE, isCollectionRoute } from '@/common/routes';
+import { getSearchParams } from '@/common/utils';
 import { ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
 import userSettingsService from '@/db/user-settings.service';

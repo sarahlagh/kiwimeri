@@ -1,6 +1,8 @@
 import { ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/localChanges.service';
+import { it } from 'vitest';
+import { markAsConflict } from '../setup/test.utils';
 
 describe('local changes service', () => {
   it('should have no local changes by default', () => {
@@ -67,5 +69,18 @@ describe('local changes service', () => {
     const localChanges = localChangesService.getLocalChanges();
     expect(localChanges).toHaveLength(1);
     expect(localChanges[0].change).toBe('d');
+  });
+
+  it(`should consider previous conflicts as added`, () => {
+    const id = collectionService.addDocument(ROOT_FOLDER);
+    const id2 = collectionService.addDocument(ROOT_FOLDER);
+    markAsConflict(id, id2);
+    localChangesService.clearLocalChanges();
+
+    collectionService.setItemTitle(id, 'new title');
+
+    const localChanges = localChangesService.getLocalChanges();
+    expect(localChanges).toHaveLength(1);
+    expect(localChanges[0].change).toBe('a');
   });
 });

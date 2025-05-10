@@ -23,3 +23,12 @@ export function getSearchParams(search: string) {
   }
   return obj;
 }
+
+export function fastHash(input: string): number {
+  let hash = 0;
+  for (let i = 0; i < input.length; i++) {
+    hash = (hash << 5) - hash + input.charCodeAt(i); // hashing algorithm
+    hash |= 0; // convert to 32bit integer
+  }
+  return hash;
+}

@@ -2,7 +2,7 @@ import CollectionItemBrowserList from '@/collection/components/CollectionItemBro
 import CommonActionsToolbar from '@/collection/components/CommonActionsToolbar';
 import DocumentEditor from '@/collection/components/DocumentEditor';
 import { onTitleChangeFn } from '@/common/events/events';
-import { getSearchParams } from '@/common/getSearchParams';
+import { getSearchParams } from '@/common/utils';
 import { APPICONS, FAKE_ROOT, ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
 import { IonButton, IonIcon } from '@ionic/react';

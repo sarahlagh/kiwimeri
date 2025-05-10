@@ -12,8 +12,8 @@ import {
   CollectionItemResult,
   CollectionItemType
 } from '@/collection/collection';
-import { getSearchParams } from '@/common/getSearchParams';
 import { GET_ITEM_ROUTE } from '@/common/routes';
+import { getSearchParams } from '@/common/utils';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
 import { useEffect, useState } from 'react';

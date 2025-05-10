@@ -1,6 +1,6 @@
 import CollectionItemBrowserList from '@/collection/components/CollectionItemBrowserList';
 import { onTitleChangeFn } from '@/common/events/events';
-import { getSearchParams } from '@/common/getSearchParams';
+import { getSearchParams } from '@/common/utils';
 import { ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
 import { useLocation } from 'react-router';

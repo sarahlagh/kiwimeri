@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { CollectionItem } from '@/collection/collection';
+import { fastHash } from '@/common/utils';
 import { FileStorageDriver } from '@/remote-storage/sync-types';
 
 // for testing
@@ -47,7 +48,7 @@ export class InMemDriver extends FileStorageDriver {
   public async pushFile(filename: string, content: string) {
     this.initMap(filename, true);
     this.collection.set(filename, content);
-    const hash = `${this.fastHash(content)}`;
+    const hash = `${fastHash(content)}`;
     const updated = Date.now();
     this.metadata.set(filename, {
       lastRemoteChange: updated,
@@ -90,14 +91,5 @@ export class InMemDriver extends FileStorageDriver {
         }
       ).i
     };
-  }
-
-  private fastHash(input: string): number {
-    let hash = 0;
-    for (let i = 0; i < input.length; i++) {
-      hash = (hash << 5) - hash + input.charCodeAt(i); // Hashing algorithm
-      hash |= 0; // Convert to 32bit integer
-    }
-    return hash;
   }
 }

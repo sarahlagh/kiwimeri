@@ -9,12 +9,16 @@ export type CollectionItemTypeValues = 'f' | 'd' | 'p';
 export interface CollectionItem {
   id?: string;
   parent: string;
+  parent_meta: string;
   type: CollectionItemTypeValues;
   title: string;
+  title_meta: string;
   content?: string;
+  content_meta?: string;
   created: number;
   updated: number;
   deleted: boolean;
+  deleted_meta: string;
   conflict?: string;
 }
 

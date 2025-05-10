@@ -2,6 +2,7 @@ import {
   CollectionItem,
   CollectionItemFieldEnum,
   CollectionItemType,
+  CollectionItemTypeValues,
   CollectionItemUpdatableFieldEnum
 } from '@/collection/collection';
 import { ROOT_FOLDER } from '@/constants';
@@ -42,9 +43,33 @@ export const oneFolder = (title = 'new folder', parent = ROOT_FOLDER) => {
   } as CollectionItem;
 };
 
-export const UPDATABLE_FIELDS = [
-  { field: 'title' },
-  { field: 'content' },
+type itemTypesType = {
+  type: string;
+  typeVal: CollectionItemTypeValues;
+  addMethod: 'addDocument' | 'addFolder';
+  defaultTitle: string;
+};
+export const ITEM_TYPES: itemTypesType[] = [
+  {
+    type: 'document',
+    typeVal: 'd',
+    addMethod: 'addDocument',
+    defaultTitle: 'New document'
+  },
+  {
+    type: 'folder',
+    typeVal: 'f',
+    addMethod: 'addFolder',
+    defaultTitle: 'New folder'
+  }
+];
+
+export const NON_PARENT_UPDATABLE_FIELDS: {
+  field: CollectionItemUpdatableFieldEnum;
+}[] = [{ field: 'title' }, { field: 'content' }];
+
+export const UPDATABLE_FIELDS: { field: CollectionItemUpdatableFieldEnum }[] = [
+  ...NON_PARENT_UPDATABLE_FIELDS,
   { field: 'parent' }
 ];
 export const NON_PARENT_CHANGES = [
@@ -86,6 +111,10 @@ export const getCollectionRowCount = () => {
 
 export const getCollectionRowIds = () => {
   return storageService.getSpace().getRowIds('collection');
+};
+
+export const getCollectionItem = (id: string) => {
+  return storageService.getSpace().getRow('collection', id) as CollectionItem;
 };
 
 export const getLocalItemByTitle = (title: string) => {
@@ -178,6 +207,10 @@ export const getLocalItemConflicts = () => {
     }
   });
   return conflictIds;
+};
+
+export const markAsConflict = (rowId: string, conflict: string) => {
+  storageService.getSpace().setCell('collection', rowId, 'conflict', conflict);
 };
 
 export const expectHasLocalItemConflict = (

@@ -136,12 +136,16 @@ class StorageService {
     return createStore().setTablesSchema({
       collection: {
         title: { type: 'string' } as CellSchema,
+        title_meta: { type: 'string' } as CellSchema,
         parent: { type: 'string' } as CellSchema,
+        parent_meta: { type: 'string' } as CellSchema,
         type: { type: 'string' } as CellSchema,
         content: { type: 'string' } as CellSchema,
+        content_meta: { type: 'string' } as CellSchema,
         created: { type: 'number' } as CellSchema,
         updated: { type: 'number' } as CellSchema,
         deleted: { type: 'boolean', default: false } as CellSchema,
+        deleted_meta: { type: 'string' } as CellSchema,
         conflict: { type: 'string' } as CellSchema
       }
     });

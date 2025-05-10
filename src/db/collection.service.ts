@@ -4,6 +4,7 @@ import {
   CollectionItemType,
   CollectionItemUpdatableFieldEnum
 } from '@/collection/collection';
+import { fastHash } from '@/common/utils';
 import { getGlobalTrans } from '@/config';
 import { FAKE_ROOT, ROOT_FOLDER } from '@/constants';
 import { getUniqueId } from 'tinybase/common';
@@ -56,14 +57,19 @@ class CollectionService {
   public addDocument(parent: string) {
     const now = Date.now();
     const id = getUniqueId();
+    const content = initialContent();
     storageService.getSpace().setRow(this.table, id, {
       title: getGlobalTrans().newDocTitle,
+      title_meta: this.setFieldMeta(getGlobalTrans().newDocTitle, now),
       parent,
-      content: initialContent(),
+      parent_meta: this.setFieldMeta(parent, now),
+      content,
+      content_meta: this.setFieldMeta(content, now),
       created: now,
       updated: now,
       type: CollectionItemType.document,
-      deleted: false
+      deleted: false,
+      deleted_meta: this.setFieldMeta('false', now)
     });
     this.updateParentUpdatedRecursive(parent);
     localChangesService.addLocalChange(id, LocalChangeType.add);
@@ -75,11 +81,14 @@ class CollectionService {
     const id = getUniqueId();
     storageService.getSpace().setRow(this.table, id, {
       title: getGlobalTrans().newFolderTitle,
+      title_meta: this.setFieldMeta(getGlobalTrans().newFolderTitle, now),
       parent: parent,
+      parent_meta: this.setFieldMeta(parent, now),
       created: now,
       updated: now,
       type: CollectionItemType.folder,
-      deleted: false
+      deleted: false,
+      deleted_meta: this.setFieldMeta('false', now)
     });
     localChangesService.addLocalChange(id, LocalChangeType.add);
     return id;
@@ -109,9 +118,6 @@ class CollectionService {
 
   public setItemParent(rowId: Id, parentId: Id) {
     this.setItemField(rowId, 'parent', parentId);
-    // storageService.getSpace().setCell(this.table, rowId, 'parent', parentId);
-    // this.updateParentUpdatedRecursive(this.getItemParent(rowId));
-    // localChangesService.addLocalChange(rowId, LocalChangeType.update, 'parent');
   }
 
   public useItemTitle(rowId: Id) {
@@ -172,7 +178,7 @@ class CollectionService {
     );
   }
 
-  public resetItemIfConflict(rowId: Id) {
+  private resetItemIfConflict(rowId: Id) {
     const isConflict = this.isItemConflict(rowId);
     if (isConflict) {
       storageService.getSpace().delCell(this.table, rowId, 'conflict');
@@ -185,12 +191,21 @@ class CollectionService {
     key: CollectionItemUpdatableFieldEnum,
     value: string | boolean | number
   ) {
+    const updated = Date.now();
     storageService.getSpace().transaction(() => {
       storageService.getSpace().setCell('collection', rowId, key, value);
+      storageService
+        .getSpace()
+        .setCell(
+          'collection',
+          rowId,
+          `${key}_meta`,
+          this.setFieldMeta(`${value}`, updated)
+        );
       if (key !== 'parent') {
         storageService
           .getSpace()
-          .setCell('collection', rowId, 'updated', Date.now());
+          .setCell('collection', rowId, 'updated', updated);
       }
       const wasConflict = this.resetItemIfConflict(rowId);
       localChangesService.addLocalChange(
@@ -226,6 +241,10 @@ class CollectionService {
       .getSpace()
       .setCell(this.table, folder, 'updated', Date.now());
     this.updateParentUpdatedRecursive(this.getItemParent(folder));
+  }
+
+  private setFieldMeta(value: string, updated: number) {
+    return JSON.stringify({ hash: fastHash(value), updated });
   }
 }
 
