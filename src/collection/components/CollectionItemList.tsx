@@ -127,8 +127,8 @@ const CollectionItemListItem = ({
         ></IonInput>
       )}
       {!renaming && (
-        <IonLabel>
-          {item.conflict ? '[C] ' : ''}
+        <IonLabel color={item.conflict ? 'danger' : undefined}>
+          {item.conflict ? '[!] ' : ''}
           {item.title}
         </IonLabel>
       )}
