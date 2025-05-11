@@ -97,7 +97,7 @@ class CollectionService {
 
   public deleteItem(rowId: Id, moveItemsUp = false) {
     this.updateParentUpdatedRecursive(this.getItemParent(rowId));
-    const wasFolder = this.getItemType(rowId) === 'f';
+    const wasFolder = this.getItemType(rowId) === CollectionItemType.folder;
     const parent = this.getItemParent(rowId);
     localChangesService.addLocalChange(rowId, LocalChangeType.delete);
     if (wasFolder) {

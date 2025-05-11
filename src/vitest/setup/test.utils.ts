@@ -64,14 +64,14 @@ type itemTypesType = {
 export const ITEM_TYPES: itemTypesType[] = [
   {
     type: 'document',
-    typeVal: 'd',
+    typeVal: CollectionItemType.document,
     addMethod: 'addDocument',
     testAddFn: oneDocument,
     defaultTitle: 'New document'
   },
   {
     type: 'folder',
-    typeVal: 'f',
+    typeVal: CollectionItemType.folder,
     addMethod: 'addFolder',
     testAddFn: oneFolder,
     defaultTitle: 'New folder'

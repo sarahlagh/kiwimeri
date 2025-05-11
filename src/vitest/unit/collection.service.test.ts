@@ -1,3 +1,4 @@
+import { CollectionItemType } from '@/collection/collection';
 import { fastHash } from '@/common/utils';
 import { ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
@@ -35,13 +36,13 @@ describe('collection service', () => {
         expect(meta.updated).toBe(item.updated);
         expect(meta.hash).toBe(fastHash(item.title));
         // content
-        if (typeVal === 'd') {
+        if (typeVal === CollectionItemType.document) {
           expect(item.content).not.toHaveLength(0);
           meta = JSON.parse(item.content_meta!);
           expect(meta.updated).toBe(item.updated);
           expect(meta.hash).toBe(fastHash(item.content!));
         }
-        if (typeVal === 'f') {
+        if (typeVal === CollectionItemType.folder) {
           expect(item.content).toBeUndefined();
           expect(item.content_meta).toBeUndefined();
         }

@@ -1,6 +1,7 @@
 import { ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/localChanges.service';
+import { LocalChangeType } from '@/db/types/store-types';
 import { it } from 'vitest';
 import { markAsConflict } from '../setup/test.utils';
 
@@ -68,7 +69,7 @@ describe('local changes service', () => {
 
     const localChanges = localChangesService.getLocalChanges();
     expect(localChanges).toHaveLength(1);
-    expect(localChanges[0].change).toBe('d');
+    expect(localChanges[0].change).toBe(LocalChangeType.delete);
   });
 
   it(`should consider previous conflicts as added`, () => {
