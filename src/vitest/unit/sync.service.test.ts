@@ -16,13 +16,13 @@ import {
   fakeTimersDelay,
   getCollectionRowCount,
   getCollectionRowIds,
-  getFirstLocalItem,
-  getLocalItemByTitle,
   getLocalItemConflict,
   getLocalItemConflicts,
   getLocalItemField,
   getRemoteItemField,
+  ITEM_TYPES,
   NON_CONFLICT_CHANGES,
+  NON_PARENT_UPDATABLE_FIELDS,
   oneDocument,
   oneFolder,
   setLocalItemField,
@@ -237,7 +237,7 @@ describe('sync service', () => {
           testPushIndicator(true);
         });
 
-        it('should erase existing items if they have been pushed, when changing remote', async () => {
+        it(`should erase existing items if they have been pushed, when changing remote`, async () => {
           const remoteData = [
             oneDocument('r1'),
             oneDocument('r2'),
@@ -258,86 +258,10 @@ describe('sync service', () => {
           testPushIndicator(false);
         });
 
-        it('should delete local items on pull if they have not been changed and erased on remote', async () => {
-          const remoteData = [
-            oneDocument('r1'),
-            oneDocument('r2'),
-            oneFolder('r3')
-          ];
-          await reInitRemoteData(remoteData);
-          await syncService_pull();
-          expect(getCollectionRowCount()).toBe(3);
-
-          // erase on remote
-          await reInitRemoteData([remoteData[1], remoteData[2]]);
-          await syncService_pull();
-          expect(getCollectionRowCount()).toBe(2);
-          testPushIndicator(false);
-        });
-
-        it('should not recreate items erased locally on pull if they have not changed on remote', async () => {
-          const remoteData = [
-            oneDocument('r1'),
-            oneDocument('r2'),
-            oneFolder('r3')
-          ];
-          await reInitRemoteData(remoteData);
-          await syncService_pull();
-          expect(getCollectionRowCount()).toBe(3);
-          // erase locally
-          const id = getFirstLocalItem();
-          collectionService_deleteItem(id);
-
-          // pull again
-          await syncService_pull();
-          expect(getCollectionRowCount()).toBe(2);
-
-          testPushIndicator(true);
-        });
-
-        UPDATABLE_FIELDS.forEach(({ field }) => {
-          it(`should pull updates on second pull if remote has been updated with ${field}`, async () => {
-            const remoteData = [oneDocument('r1'), oneDocument(), oneFolder()];
-            await reInitRemoteData(remoteData);
-            await syncService_pull();
-            expect(getCollectionRowCount()).toBe(3);
-
-            const id = getLocalItemByTitle('r1')!;
-            // change remote
-            updateOnRemote(remoteData, id, field);
-            await reInitRemoteData(remoteData);
-
-            // pull again
-            await syncService_pull();
-            expect(getCollectionRowCount()).toBe(3);
-            expect(collectionService.itemExists(id!)).toBeTruthy();
-            expect(getLocalItemField(id!, field)).toBe('newRemote');
-          });
-
-          it(`should not delete local updates of field ${field} if they have not changed on remote`, async () => {
+        ITEM_TYPES.forEach(({ type, testAddFn }) => {
+          it(`should delete local ${type}s on pull if they have not been changed and erased on remote`, async () => {
             const remoteData = [
-              oneDocument('r1'),
-              oneDocument('r2'),
-              oneFolder('r3')
-            ];
-            await reInitRemoteData(remoteData);
-            await syncService_pull();
-            expect(getCollectionRowCount()).toBe(3);
-            // update locally
-            const id = getFirstLocalItem();
-            setLocalItemField(id, field, 'newLocal');
-
-            // pull again
-            await syncService_pull();
-            expect(getCollectionRowCount()).toBe(3);
-            expect(getLocalItemField(id, field)).toBe('newLocal');
-
-            testPushIndicator(true);
-          });
-
-          it(`should not delete local items on pull if they have been changed with ${field} before being erased on remote (conflict)`, async () => {
-            const remoteData = [
-              oneDocument('r1'),
+              testAddFn('r1'),
               oneDocument('r2'),
               oneFolder('r3')
             ];
@@ -345,265 +269,387 @@ describe('sync service', () => {
             await syncService_pull();
             expect(getCollectionRowCount()).toBe(3);
 
-            // update locally
+            // erase on remote
+            await reInitRemoteData([remoteData[1], remoteData[2]]);
+            await syncService_pull();
+            expect(getCollectionRowCount()).toBe(2);
+            testPushIndicator(false);
+          });
+
+          it(`should not recreate ${type}s erased locally on pull if they have not changed on remote`, async () => {
+            const remoteData = [
+              testAddFn('r1'),
+              oneDocument('r2'),
+              oneFolder('r3')
+            ];
+            await reInitRemoteData(remoteData);
+            await syncService_pull();
+            expect(getCollectionRowCount()).toBe(3);
+            // erase locally
             const id = remoteData[0].id!;
-            setLocalItemField(id, field, 'newLocal');
-            vi.advanceTimersByTime(50);
-
-            // erase on remote
-            await reInitRemoteData([remoteData[1], remoteData[2]], Date.now());
-            await syncService_pull();
-
-            // conflict has been created
-            expect(getCollectionRowCount()).toBe(3);
-            expect(getLocalItemConflicts()).toHaveLength(1);
-            expect(collectionService.itemExists(id)).toBeFalsy();
-
-            const conflictId = getLocalItemConflict()!;
-            expect(getLocalItemField(conflictId, field)).toBe('newLocal');
-            testPushIndicator(true); // TODO: ideally, should be false
-
-            // push, no conflict should be pushed
-            await syncService_push();
-            let remoteContent = await driver.getContent();
-            expect(remoteContent.content).toHaveLength(2);
-            testPushIndicator(false);
-
-            // now, solve conflict
-            setLocalItemField(conflictId, 'content', 'new content');
-            testPushIndicator(true);
-            expect(getLocalItemConflicts()).toHaveLength(0);
-
-            await syncService_push();
-            remoteContent = await driver.getContent();
-            expect(remoteContent.content).toHaveLength(3);
-
-            testPushIndicator(false);
-          });
-
-          it(`should not delete local items on pull if they have been changed with ${field} after being erased on remote`, async () => {
-            const remoteData = [
-              oneDocument('r1'),
-              oneDocument('r2'),
-              oneFolder('r3')
-            ];
-            await reInitRemoteData(remoteData);
-            await syncService_pull();
-            expect(getCollectionRowCount()).toBe(3);
-
-            // erase on remote
-            await reInitRemoteData([remoteData[1], remoteData[2]], Date.now());
-
-            // update locally
-            const id = getFirstLocalItem();
-            setLocalItemField(id, field, 'newLocal');
-
-            await syncService_pull();
-
-            // item is unchanged
-            expect(getCollectionRowCount()).toBe(3);
-            expect(getLocalItemConflicts()).toHaveLength(0);
-            expect(getLocalItemField(id, field)).toBe('newLocal');
-            testPushIndicator(true);
-          });
-
-          it(`should recreate items erased locally on pull if they have changed on remote with ${field} after delete`, async () => {
-            const remoteData = [
-              oneDocument('r1'),
-              oneDocument('r2'),
-              oneFolder('r3')
-            ];
-            await reInitRemoteData(remoteData);
-            await syncService_pull();
-            expect(getCollectionRowCount()).toBe(3);
-
-            const id = getFirstLocalItem();
-            // erase locally
-            collectionService_deleteItem(id);
-
-            // update on remote
-            updateOnRemote(remoteData, id, field);
-            await reInitRemoteData(remoteData);
-
-            // pull again
-            await syncService_pull();
-            expect(getCollectionRowCount()).toBe(field === 'parent' ? 2 : 3);
-            if (field !== 'parent') {
-              // parent is a special case since the timestamp is not updated
-              expect(getLocalItemField(id, field)).toBe('newRemote');
-            }
-
-            testPushIndicator(true);
-          });
-
-          it(`should not recreate items erased locally on pull if they have changed on remote with ${field} before delete`, async () => {
-            const remoteData = [
-              oneDocument('r1'),
-              oneDocument('r2'),
-              oneFolder('r3')
-            ];
-            await reInitRemoteData(remoteData);
-            await syncService_pull();
-            expect(getCollectionRowCount()).toBe(3);
-
-            const id = getFirstLocalItem();
-            // update on remote
-            updateOnRemote(remoteData, id, field);
-            await reInitRemoteData(remoteData);
-
-            // erase locally
             collectionService_deleteItem(id);
 
             // pull again
             await syncService_pull();
             expect(getCollectionRowCount()).toBe(2);
-            expect(collectionService.itemExists(id)).toBeFalsy();
 
             testPushIndicator(true);
+          });
+
+          UPDATABLE_FIELDS.filter(
+            f => f.field !== 'content' || type !== 'folder'
+          ).forEach(({ field }) => {
+            it(`should pull updates on second pull if remote ${type} has been updated with ${field}`, async () => {
+              const remoteData = [testAddFn('r1'), oneDocument(), oneFolder()];
+              await reInitRemoteData(remoteData);
+              await syncService_pull();
+              expect(getCollectionRowCount()).toBe(3);
+
+              const id = remoteData[0].id!;
+              // change remote
+              updateOnRemote(remoteData, id, field);
+              await reInitRemoteData(remoteData);
+
+              // pull again
+              await syncService_pull();
+              expect(getCollectionRowCount()).toBe(3);
+              expect(collectionService.itemExists(id!)).toBeTruthy();
+              expect(getLocalItemField(id!, field)).toBe('newRemote');
+            });
+
+            it(`should not delete local updates of field ${field} if they have not changed on remote ${type}`, async () => {
+              const remoteData = [
+                testAddFn('r1'),
+                oneDocument('r2'),
+                oneFolder('r3')
+              ];
+              await reInitRemoteData(remoteData);
+              await syncService_pull();
+              expect(getCollectionRowCount()).toBe(3);
+              // update locally
+              const id = remoteData[0].id!;
+              setLocalItemField(id, field, 'newLocal');
+
+              // pull again
+              await syncService_pull();
+              expect(getCollectionRowCount()).toBe(3);
+              expect(getLocalItemField(id, field)).toBe('newLocal');
+
+              testPushIndicator(true);
+            });
+
+            it(`should not delete local ${type}s on pull if they have been changed with ${field} before being erased on remote (conflict)`, async () => {
+              const remoteData = [
+                testAddFn('r1'),
+                oneDocument('r2'),
+                oneFolder('r3')
+              ];
+              await reInitRemoteData(remoteData);
+              await syncService_pull();
+              expect(getCollectionRowCount()).toBe(3);
+
+              // update locally
+              const id = remoteData[0].id!;
+              setLocalItemField(id, field, 'newLocal');
+              vi.advanceTimersByTime(50);
+
+              // erase on remote
+              await reInitRemoteData(
+                [remoteData[1], remoteData[2]],
+                Date.now()
+              );
+              await syncService_pull();
+
+              // conflict has been created
+              expect(getCollectionRowCount()).toBe(3);
+              expect(getLocalItemConflicts()).toHaveLength(1);
+              expect(collectionService.itemExists(id)).toBeFalsy();
+
+              const conflictId = getLocalItemConflict()!;
+              expect(getLocalItemField(conflictId, field)).toBe('newLocal');
+              testPushIndicator(true); // TODO: ideally, should be false
+
+              // push, no conflict should be pushed
+              await syncService_push();
+              let remoteContent = await driver.getContent();
+              expect(remoteContent.content).toHaveLength(2);
+              testPushIndicator(false);
+
+              // now, solve conflict
+              setLocalItemField(conflictId, 'content', 'new content');
+              testPushIndicator(true);
+              expect(getLocalItemConflicts()).toHaveLength(0);
+
+              await syncService_push();
+              remoteContent = await driver.getContent();
+              expect(remoteContent.content).toHaveLength(3);
+
+              testPushIndicator(false);
+            });
+
+            it(`should not delete local ${type}s on pull if they have been changed with ${field} after being erased on remote`, async () => {
+              const remoteData = [
+                testAddFn('r1'),
+                oneDocument('r2'),
+                oneFolder('r3')
+              ];
+              await reInitRemoteData(remoteData);
+              await syncService_pull();
+              expect(getCollectionRowCount()).toBe(3);
+
+              const id = remoteData[0].id!;
+
+              // erase on remote
+              await reInitRemoteData(
+                [remoteData[1], remoteData[2]],
+                Date.now()
+              );
+
+              // update locally
+              setLocalItemField(id, field, 'newLocal');
+
+              await syncService_pull();
+
+              // item is unchanged
+              expect(getCollectionRowCount()).toBe(3);
+              expect(getLocalItemConflicts()).toHaveLength(0);
+              expect(getLocalItemField(id, field)).toBe('newLocal');
+              testPushIndicator(true);
+            });
+
+            it(`should not recreate ${type}s erased locally on pull if they have changed on remote with ${field} before delete`, async () => {
+              const remoteData = [
+                testAddFn('r1'),
+                oneDocument('r2'),
+                oneFolder('r3')
+              ];
+              await reInitRemoteData(remoteData);
+              await syncService_pull();
+              expect(getCollectionRowCount()).toBe(3);
+
+              const id = remoteData[0].id!;
+              // update on remote
+              updateOnRemote(remoteData, id, field);
+              await reInitRemoteData(remoteData);
+
+              // erase locally
+              collectionService_deleteItem(id);
+
+              // pull again
+              await syncService_pull();
+              expect(getCollectionRowCount()).toBe(2);
+              expect(collectionService.itemExists(id)).toBeFalsy();
+
+              testPushIndicator(true);
+            });
+          });
+
+          NON_PARENT_UPDATABLE_FIELDS.filter(
+            f => f.field !== 'content' || type !== 'folder'
+          ).forEach(({ field }) => {
+            it(`should recreate ${type}s erased locally on pull if they have changed on remote with ${field} after delete`, async () => {
+              const remoteData = [
+                testAddFn('r1'),
+                oneDocument('r2'),
+                oneFolder('r3')
+              ];
+              await reInitRemoteData(remoteData);
+              await syncService_pull();
+              expect(getCollectionRowCount()).toBe(3);
+
+              const id = remoteData[0].id!;
+              // erase locally
+              collectionService_deleteItem(id);
+
+              // update on remote
+              updateOnRemote(remoteData, id, field);
+              await reInitRemoteData(remoteData);
+
+              // pull again
+              await syncService_pull();
+              expect(getCollectionRowCount()).toBe(3);
+              expect(getLocalItemField(id, field)).toBe('newRemote');
+
+              testPushIndicator(true);
+            });
+          });
+
+          // TODO check if normal - mergeable data should take the parent update timestamp, not the row timestamp?
+          it(`should not recreate ${type}s erased locally on pull if they have changed on remote with parent after delete`, async () => {
+            const remoteData = [
+              testAddFn('r1'),
+              oneDocument('r2'),
+              oneFolder('r3')
+            ];
+            await reInitRemoteData(remoteData);
+            await syncService_pull();
+            expect(getCollectionRowCount()).toBe(3);
+
+            const id = remoteData[0].id!;
+            // erase locally
+            collectionService_deleteItem(id);
+
+            // update on remote
+            updateOnRemote(remoteData, id, 'parent');
+            await reInitRemoteData(remoteData);
+
+            // pull again
+            await syncService_pull();
+            expect(getCollectionRowCount()).toBe(2);
+            // parent is a special case since it doesn't update the 'update' timestamp
+            expect(collectionService.itemExists(id)).toBe(false);
+
+            testPushIndicator(true);
+          });
+
+          // fields that can change: parent, title, content, deleted
+          NON_CONFLICT_CHANGES.filter(f =>
+            f.local === 'content' || f.remote === 'content'
+              ? type !== 'folder'
+              : true
+          ).forEach(({ local, remote }) => {
+            it(`should merge changes on ${type} without conflict if localChange=${local} then remoteChange=${remote}`, async () => {
+              const remoteData = [testAddFn(), oneDocument(), oneFolder()];
+              await reInitRemoteData(remoteData);
+              await syncService_pull(); // 1
+              const id = remoteData[0].id!;
+
+              // change local
+              setLocalItemField(id, local, 'newLocal');
+
+              // change remote
+              updateOnRemote(remoteData, id, remote);
+              await reInitRemoteData(remoteData);
+
+              // pull again
+              await syncService_pull(); // 2
+              // no conflict created
+              expect(getCollectionRowCount()).toBe(3);
+              expect(getLocalItemConflicts()).toHaveLength(0);
+              expect(getLocalItemField(id, remote)).toBe('newRemote');
+              expect(getLocalItemField(id, local)).toBe('newLocal');
+            });
+
+            it(`should merge changes on ${type} without conflict if remoteChange=${remote} then localChange=${local}`, async () => {
+              const remoteData = [testAddFn(), oneDocument(), oneFolder()];
+              await reInitRemoteData(remoteData);
+              await syncService_pull();
+              const id = remoteData[0].id!;
+
+              // change remote
+              updateOnRemote(remoteData, id, remote);
+              await reInitRemoteData(remoteData);
+
+              // change local
+              setLocalItemField(id, local, 'newLocal');
+
+              // pull again
+              await syncService_pull();
+              expect(getCollectionRowCount()).toBe(3);
+              expect(getLocalItemField(id, remote)).toBe('newRemote');
+              expect(getLocalItemField(id, local)).toBe('newLocal');
+
+              testPushIndicator(true);
+            });
+          });
+
+          CONFLICT_CHANGES.filter(
+            f => f.field !== 'content' || type !== 'folder'
+          ).forEach(({ field }) => {
+            it(`should create conflict on ${type} if localChange=${field} then remoteChange=${field}`, async () => {
+              const remoteData = [testAddFn(), oneDocument(), oneFolder()];
+              await reInitRemoteData(remoteData);
+              await syncService_pull(); // 1
+              const id = remoteData[0].id!;
+
+              // change local
+              setLocalItemField(id, field, 'newLocal');
+
+              // change remote
+              updateOnRemote(remoteData, id, field);
+              await reInitRemoteData(remoteData);
+
+              // pull again
+              await syncService_pull(); // 2
+              // a conflict file was created
+              expect(getCollectionRowCount()).toBe(4);
+              expect(getLocalItemField(id, field)).toBe('newRemote');
+              expect(getLocalItemField(id, field)).not.toBe('newLocal');
+
+              // check that a conflict file exists
+              const conflictId = getLocalItemConflict();
+              expect(conflictId).toBeDefined();
+              testPushIndicator(true);
+
+              // pull again
+              await syncService_pull(); // 3
+              // conflict was erased! yet a new one took its place
+              expect(getCollectionRowCount()).toBe(4);
+              expectHasLocalItemConflict(conflictId!, false);
+              const conflictId2 = getLocalItemConflict();
+              expect(conflictId2).toBeDefined();
+              expect(conflictId2).not.toBe(conflictId);
+
+              // update the conflict => will remove its 'conflict' flag
+              setLocalItemField(
+                conflictId2!,
+                'title',
+                'conflict file updated only'
+              );
+              expect(localChangesService.getLocalChanges()).toHaveLength(2);
+              const lc = localChangesService
+                .getLocalChanges()
+                .find(lc => lc.item === conflictId2);
+              expect(lc).toBeDefined();
+              expect(lc?.change).toBe(LocalChangeType.add);
+              // after update, conflict is no longer one
+              expect(collectionService.itemExists(conflictId!)).toBeFalsy();
+              expect(collectionService.itemExists(conflictId2!)).toBeTruthy();
+              expect(
+                collectionService.isItemConflict(conflictId2!)
+              ).toBeFalsy();
+
+              // pull again
+              await syncService_pull(); // 4
+              // conflict was not solved by a new timestamp, so, new conflict
+              expect(getCollectionRowCount()).toBe(5);
+              const conflictId3 = getLocalItemConflict();
+              expect(conflictId3).not.toBe(conflictId2);
+
+              // solve the conflict at last
+              expect(collectionService.itemExists(id)).toBeTruthy();
+              setLocalItemField(id, field, 'conflict updated');
+
+              // pull again
+              await syncService_pull(); // 5
+              // conflict was solved by a new timestamp, so no new conflict, old one was deleted
+              expect(getCollectionRowCount()).toBe(4);
+              expect(collectionService.itemExists(conflictId2!)).toBeTruthy();
+              expect(collectionService.itemExists(conflictId3!)).toBeFalsy();
+            });
+
+            it(`should apply local change on ${type} when remoteChange=${field} then localChange=${field} (local wins)`, async () => {
+              const remoteData = [testAddFn(), oneDocument(), oneFolder()];
+              await reInitRemoteData(remoteData);
+              await syncService_pull();
+              const id = remoteData[0].id!;
+
+              // change remote
+              updateOnRemote(remoteData, id, field);
+              await reInitRemoteData(remoteData);
+
+              // change local
+              setLocalItemField(id, field, 'newLocal');
+
+              // pull again
+              await syncService_pull();
+              expect(getCollectionRowCount()).toBe(3);
+              expect(getLocalItemField(id, field)).toBe('newLocal');
+
+              testPushIndicator(true);
+            });
           });
         });
-
-        // fields that can change: parent, title, content, deleted
-        NON_CONFLICT_CHANGES.forEach(({ local, remote }) => {
-          it(`should merge changes without conflict if localChange=${local} then remoteChange=${remote}`, async () => {
-            const remoteData = [oneDocument(), oneDocument(), oneFolder()];
-            await reInitRemoteData(remoteData);
-            await syncService_pull(); // 1
-            const id = getFirstLocalItem();
-
-            // change local
-            setLocalItemField(id, local, 'newLocal');
-
-            // change remote
-            updateOnRemote(remoteData, id, remote);
-            await reInitRemoteData(remoteData);
-
-            // pull again
-            await syncService_pull(); // 2
-            // no conflict created
-            expect(getCollectionRowCount()).toBe(3);
-            expect(getLocalItemConflicts()).toHaveLength(0);
-            expect(getLocalItemField(id, remote)).toBe('newRemote');
-            expect(getLocalItemField(id, local)).toBe('newLocal');
-          });
-
-          it(`should merge changes without conflict when remoteChange=${remote} then localChange=${local}`, async () => {
-            const remoteData = [oneDocument(), oneDocument(), oneFolder()];
-            await reInitRemoteData(remoteData);
-            await syncService_pull();
-            const id = getFirstLocalItem();
-
-            // change remote
-            updateOnRemote(remoteData, id, remote);
-            await reInitRemoteData(remoteData);
-
-            // change local
-            setLocalItemField(id, local, 'newLocal');
-
-            // pull again
-            await syncService_pull();
-            expect(getCollectionRowCount()).toBe(3);
-            expect(getLocalItemField(id, remote)).toBe('newRemote');
-            expect(getLocalItemField(id, local)).toBe('newLocal');
-
-            testPushIndicator(true);
-          });
-        });
-
-        CONFLICT_CHANGES.forEach(({ field }) => {
-          it(`should create conflict if localChange=${field} then remoteChange=${field}`, async () => {
-            const remoteData = [oneDocument(), oneDocument(), oneFolder()];
-            await reInitRemoteData(remoteData);
-            await syncService_pull(); // 1
-            const id = getFirstLocalItem();
-
-            // change local
-            setLocalItemField(id, field, 'newLocal');
-
-            // change remote
-            updateOnRemote(remoteData, id, field);
-            await reInitRemoteData(remoteData);
-
-            // pull again
-            await syncService_pull(); // 2
-            // a conflict file was created
-            expect(getCollectionRowCount()).toBe(4);
-            expect(getLocalItemField(id, field)).toBe('newRemote');
-            expect(getLocalItemField(id, field)).not.toBe('newLocal');
-
-            // check that a conflict file exists
-            const conflictId = getLocalItemConflict();
-            expect(conflictId).toBeDefined();
-            testPushIndicator(true);
-
-            // pull again
-            await syncService_pull(); // 3
-            // conflict was erased! yet a new one took its place
-            expect(getCollectionRowCount()).toBe(4);
-            expectHasLocalItemConflict(conflictId!, false);
-            const conflictId2 = getLocalItemConflict();
-            expect(conflictId2).toBeDefined();
-            expect(conflictId2).not.toBe(conflictId);
-
-            // update the conflict => will remove its 'conflict' flag
-            setLocalItemField(
-              conflictId2!,
-              'title',
-              'conflict file updated only'
-            );
-            expect(localChangesService.getLocalChanges()).toHaveLength(2);
-            const lc = localChangesService
-              .getLocalChanges()
-              .find(lc => lc.item === conflictId2);
-            expect(lc).toBeDefined();
-            expect(lc?.change).toBe(LocalChangeType.add);
-            // after update, conflict is no longer one
-            expect(collectionService.itemExists(conflictId!)).toBeFalsy();
-            expect(collectionService.itemExists(conflictId2!)).toBeTruthy();
-            expect(collectionService.isItemConflict(conflictId2!)).toBeFalsy();
-
-            // pull again
-            await syncService_pull(); // 4
-            // conflict was not solved by a new timestamp, so, new conflict
-            expect(getCollectionRowCount()).toBe(5);
-            const conflictId3 = getLocalItemConflict();
-            expect(conflictId3).not.toBe(conflictId2);
-
-            // solve the conflict at last
-            expect(collectionService.itemExists(id)).toBeTruthy();
-            setLocalItemField(id, field, 'conflict updated');
-
-            // pull again
-            await syncService_pull(); // 5
-            // conflict was solved by a new timestamp, so no new conflict, old one was deleted
-            expect(getCollectionRowCount()).toBe(4);
-            expect(collectionService.itemExists(conflictId2!)).toBeTruthy();
-            expect(collectionService.itemExists(conflictId3!)).toBeFalsy();
-          });
-
-          it(`should apply local change when remoteChange=${field} then localChange=${field} (local wins)`, async () => {
-            const remoteData = [oneDocument(), oneDocument(), oneFolder()];
-            await reInitRemoteData(remoteData);
-            await syncService_pull();
-            const id = getFirstLocalItem();
-
-            // change remote
-            updateOnRemote(remoteData, id, field);
-            await reInitRemoteData(remoteData);
-
-            // change local
-            setLocalItemField(id, field, 'newLocal');
-
-            // pull again
-            await syncService_pull();
-            expect(getCollectionRowCount()).toBe(3);
-            expect(getLocalItemField(id, field)).toBe('newLocal');
-
-            testPushIndicator(true);
-          });
-        });
-
-        // TODO: test several pull when merging updated items
       });
 
       describe('on force-pull operation', () => {
@@ -665,7 +711,7 @@ describe('sync service', () => {
           expect(getCollectionRowCount()).toBe(3);
 
           // erase locally
-          const id = getFirstLocalItem();
+          const id = remoteData[0].id!;
           collectionService_deleteItem(id);
 
           // pull again
@@ -686,7 +732,7 @@ describe('sync service', () => {
             await syncService.pull(undefined, true);
             expect(getCollectionRowCount()).toBe(3);
             // update locally
-            const id = getFirstLocalItem();
+            const id = remoteData[0].id!;
             setLocalItemField(id, field, 'newLocal');
 
             // pull again
@@ -703,7 +749,7 @@ describe('sync service', () => {
             await syncService.pull(undefined, true);
             expect(getCollectionRowCount()).toBe(3);
 
-            const id = getLocalItemByTitle('r1')!;
+            const id = remoteData[0].id!;
             // change remote
             updateOnRemote(remoteData, id, field);
             await reInitRemoteData(remoteData);
@@ -726,7 +772,7 @@ describe('sync service', () => {
             expect(getCollectionRowCount()).toBe(3);
 
             // update locally
-            const id = getFirstLocalItem();
+            const id = remoteData[0].id!;
             setLocalItemField(id, field, 'newLocal');
 
             // erase on remote
@@ -744,7 +790,7 @@ describe('sync service', () => {
               const remoteData = [oneDocument(), oneDocument(), oneFolder()];
               await reInitRemoteData(remoteData);
               await syncService_pull();
-              const id = getFirstLocalItem();
+              const id = remoteData[0].id!;
 
               // change local
               setLocalItemField(id, local, 'newLocal');
@@ -766,7 +812,7 @@ describe('sync service', () => {
               const remoteData = [oneDocument(), oneDocument(), oneFolder()];
               await reInitRemoteData(remoteData);
               await syncService_pull();
-              const id = getFirstLocalItem();
+              const id = remoteData[0].id!;
 
               // change remote
               updateOnRemote(remoteData, id, remote);
@@ -842,7 +888,7 @@ describe('sync service', () => {
           ];
           await reInitRemoteData(remoteData);
           await syncService_pull();
-          const id = getFirstLocalItem();
+          const id = remoteData[0].id!;
 
           // delete item locally then push
           collectionService_deleteItem(id);
@@ -904,7 +950,7 @@ describe('sync service', () => {
             ];
             await reInitRemoteData(remoteData);
             await syncService_pull();
-            const id = getFirstLocalItem();
+            const id = remoteData[0].id!;
 
             // update item locally then push
             setLocalItemField(id, field, 'newLocal');
@@ -927,7 +973,7 @@ describe('sync service', () => {
             ];
             await reInitRemoteData(remoteData);
             await syncService_pull();
-            const id = getFirstLocalItem();
+            const id = remoteData[0].id!;
 
             // change remote
             updateOnRemote(remoteData, id, field);
@@ -952,7 +998,7 @@ describe('sync service', () => {
             ];
             await reInitRemoteData(remoteData);
             await syncService_pull();
-            const id = getFirstLocalItem();
+            const id = remoteData[0].id!;
 
             // delete item locally
             collectionService_deleteItem(id);
@@ -977,7 +1023,7 @@ describe('sync service', () => {
             ];
             await reInitRemoteData(remoteData);
             await syncService_pull();
-            const id = getLocalItemByTitle('r1');
+            const id = remoteData[0].id!;
 
             // delete item remotely
             await reInitRemoteData([remoteData[1], remoteData[2]]);
@@ -1007,7 +1053,7 @@ describe('sync service', () => {
             await syncService_pull();
 
             // change remote
-            const id = getFirstLocalItem();
+            const id = remoteData[0].id!;
             updateOnRemote(remoteData, id, field);
             await reInitRemoteData(remoteData);
 
@@ -1029,7 +1075,7 @@ describe('sync service', () => {
             const remoteData = [oneDocument(), oneDocument(), oneFolder()];
             await reInitRemoteData(remoteData);
             await syncService_pull();
-            const id = getFirstLocalItem();
+            const id = remoteData[0].id!;
             setLocalItemField(id, local, 'newLocal');
             updateOnRemote(remoteData, id, remote);
             await reInitRemoteData(remoteData);
@@ -1056,7 +1102,7 @@ describe('sync service', () => {
               const remoteData = [oneDocument(), oneDocument(), oneFolder()];
               await reInitRemoteData(remoteData);
               await syncService_pull();
-              const id = getFirstLocalItem();
+              const id = remoteData[0].id!;
               // change local
               setLocalItemField(id, local, 'newLocal');
               // change remote
@@ -1083,7 +1129,7 @@ describe('sync service', () => {
               const remoteData = [oneDocument(), oneDocument(), oneFolder()];
               await reInitRemoteData(remoteData);
               await syncService_pull();
-              const id = getFirstLocalItem();
+              const id = remoteData[0].id!;
               // change remote
               updateOnRemote(remoteData, id, remote);
               await reInitRemoteData(remoteData);
@@ -1161,7 +1207,7 @@ describe('sync service', () => {
           ];
           await reInitRemoteData(remoteData);
           await syncService_pull();
-          const id = getFirstLocalItem();
+          const id = remoteData[0].id!;
 
           // delete item locally then push
           collectionService_deleteItem(id);
@@ -1223,7 +1269,7 @@ describe('sync service', () => {
             ];
             await reInitRemoteData(remoteData);
             await syncService_pull();
-            const id = getFirstLocalItem();
+            const id = remoteData[0].id!;
 
             // update item locally then push
             setLocalItemField(id, field, 'newLocal');
@@ -1246,7 +1292,7 @@ describe('sync service', () => {
             ];
             await reInitRemoteData(remoteData);
             await syncService_pull();
-            const id = getFirstLocalItem();
+            const id = remoteData[0].id!;
 
             // change remote
             updateOnRemote(remoteData, id, field);
@@ -1271,7 +1317,7 @@ describe('sync service', () => {
             ];
             await reInitRemoteData(remoteData);
             await syncService_pull();
-            const id = getFirstLocalItem();
+            const id = remoteData[0].id!;
 
             // delete item locally
             collectionService_deleteItem(id);
@@ -1296,7 +1342,7 @@ describe('sync service', () => {
             ];
             await reInitRemoteData(remoteData);
             await syncService_pull();
-            const id = getLocalItemByTitle('r1');
+            const id = remoteData[0].id!;
 
             // delete item remotely
             await reInitRemoteData([remoteData[1], remoteData[2]]);
@@ -1326,7 +1372,7 @@ describe('sync service', () => {
             await syncService_pull();
 
             // change remote
-            const id = getFirstLocalItem();
+            const id = remoteData[0].id!;
             updateOnRemote(remoteData, id, field);
             await reInitRemoteData(remoteData);
 
@@ -1348,7 +1394,7 @@ describe('sync service', () => {
             const remoteData = [oneDocument(), oneDocument(), oneFolder()];
             await reInitRemoteData(remoteData);
             await syncService_pull();
-            const id = getFirstLocalItem();
+            const id = remoteData[0].id!;
             setLocalItemField(id, local, 'newLocal');
             updateOnRemote(remoteData, id, remote);
             await reInitRemoteData(remoteData);
@@ -1375,7 +1421,7 @@ describe('sync service', () => {
               const remoteData = [oneDocument(), oneDocument(), oneFolder()];
               await reInitRemoteData(remoteData);
               await syncService_pull();
-              const id = getFirstLocalItem();
+              const id = remoteData[0].id!;
               // change local
               setLocalItemField(id, local, 'newLocal');
               // change remote
@@ -1402,7 +1448,7 @@ describe('sync service', () => {
               const remoteData = [oneDocument(), oneDocument(), oneFolder()];
               await reInitRemoteData(remoteData);
               await syncService_pull();
-              const id = getFirstLocalItem();
+              const id = remoteData[0].id!;
               // change remote
               updateOnRemote(remoteData, id, remote);
               await reInitRemoteData(remoteData);

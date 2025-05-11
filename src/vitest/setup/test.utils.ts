@@ -58,6 +58,7 @@ type itemTypesType = {
   type: string;
   typeVal: CollectionItemTypeValues;
   addMethod: 'addDocument' | 'addFolder';
+  testAddFn: (title?: string, parent?: string) => CollectionItem;
   defaultTitle: string;
 };
 export const ITEM_TYPES: itemTypesType[] = [
@@ -65,12 +66,14 @@ export const ITEM_TYPES: itemTypesType[] = [
     type: 'document',
     typeVal: 'd',
     addMethod: 'addDocument',
+    testAddFn: oneDocument,
     defaultTitle: 'New document'
   },
   {
     type: 'folder',
     typeVal: 'f',
     addMethod: 'addFolder',
+    testAddFn: oneFolder,
     defaultTitle: 'New folder'
   }
 ];
@@ -129,29 +132,6 @@ export const getCollectionRowIds = () => {
 
 export const getCollectionItem = (id: string) => {
   return storageService.getSpace().getRow('collection', id) as CollectionItem;
-};
-
-export const getLocalItemByTitle = (title: string) => {
-  let id;
-  storageService
-    .getSpace()
-    .getRowIds('collection')
-    .forEach(rowId => {
-      if (
-        storageService
-          .getSpace()
-          .getCell('collection', rowId, 'title')
-          ?.valueOf() === title
-      ) {
-        id = rowId;
-      }
-    });
-  expect(id).toBeDefined();
-  return id;
-};
-
-export const getFirstLocalItem = () => {
-  return storageService.getSpace().getRowIds('collection')[0];
 };
 
 export const getLocalItemField = (rowId: string, field: string) => {
