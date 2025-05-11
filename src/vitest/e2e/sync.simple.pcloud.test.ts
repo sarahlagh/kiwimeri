@@ -300,17 +300,27 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     );
     lastRemoteChange = Date.now();
 
+    // update content locally on merge id
+    const idUpdateTitleMerge = ids[8];
+    vi.setSystemTime(now + 15000);
+    setLocalItemField(idUpdateTitleMerge, 'content', 'newLocalContent');
+
+    // // update title remotely on merge id
+    vi.setSystemTime(now + 16000);
+    updateOnRemote(content!, idUpdateTitleMerge, 'title', 'newRemoteTitle');
+    lastRemoteChange = Date.now();
+
     // update title locally
-    vi.setSystemTime(now + 14000);
+    vi.setSystemTime(now + 17000);
     setLocalItemField(idUpdateTitleLocal, 'title', 'newLocalTitle');
 
     // delete locally
-    const idDeleteLocal = ids[8];
-    vi.setSystemTime(now + 15000);
+    const idDeleteLocal = ids[10];
+    vi.setSystemTime(now + 18000);
     collectionService.deleteItem(idDeleteLocal);
 
     // update parent remotely on same as local
-    vi.setSystemTime(now + 16000);
+    vi.setSystemTime(now + 19000);
     updateOnRemote(content!, idUpdateParentLocal, 'parent', newRemoteItem.id);
     lastRemoteChange = Date.now();
 
@@ -322,7 +332,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     await syncService.pull();
 
     // now check
-    expect(getCollectionRowCount()).toBe(22);
+    expect(getCollectionRowCount()).toBe(22); // 20 + 2 added -2 deleted + 2 conflicts
 
     // check items created are still there
     expect(collectionService.itemExists(newLocalItem));
@@ -343,6 +353,12 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
       newRemoteItem.id
     );
 
+    expect(getLocalItemField(idUpdateTitleMerge, 'title')).toBe(
+      'newRemoteTitle'
+    );
+    expect(getLocalItemField(idUpdateTitleMerge, 'content')).toBe(
+      'newLocalContent'
+    );
 
     // check conflicts
     const conflictIds = getLocalItemConflicts();
