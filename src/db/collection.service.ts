@@ -2,6 +2,7 @@ import {
   CollectionItemFieldEnum,
   CollectionItemResult,
   CollectionItemType,
+  CollectionItemTypeValues,
   CollectionItemUpdatableFieldEnum
 } from '@/collection/collection';
 import { fastHash } from '@/common/utils';
@@ -94,10 +95,28 @@ class CollectionService {
     return id;
   }
 
-  public deleteItem(rowId: Id) {
+  public deleteItem(rowId: Id, moveItemsUp = false) {
     this.updateParentUpdatedRecursive(this.getItemParent(rowId));
-    storageService.getSpace().delRow(this.table, rowId);
+    const wasFolder = this.getItemType(rowId) === 'f';
+    const parent = this.getItemParent(rowId);
     localChangesService.addLocalChange(rowId, LocalChangeType.delete);
+    if (wasFolder) {
+      const queryName = this.fetchAllCollectionItemsQuery(rowId);
+      const children = storageService
+        .getSpaceQueries()
+        .getResultSortedRowIds(queryName);
+      console.debug(`folder to delete had ${children.length} children`);
+      if (children.length > 0) {
+        children.forEach(id => {
+          if (!moveItemsUp) {
+            this.deleteItem(id);
+          } else {
+            this.setItemParent(id, parent);
+          }
+        });
+      }
+    }
+    storageService.getSpace().delRow(this.table, rowId);
   }
 
   public itemExists(rowId: Id) {
@@ -160,13 +179,11 @@ class CollectionService {
     this.setItemField(rowId, 'content', content);
   }
 
-  public getItemType(rowId: Id) {
-    return (
-      (storageService
-        .getSpace()
-        .getCell(this.table, rowId, 'type')
-        ?.valueOf() as string) || null
-    );
+  public getItemType(rowId: Id): CollectionItemTypeValues {
+    return storageService
+      .getSpace()
+      .getCell(this.table, rowId, 'type')
+      ?.valueOf() as CollectionItemTypeValues;
   }
 
   public isItemConflict(rowId: Id) {

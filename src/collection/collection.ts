@@ -30,16 +30,8 @@ export type CollectionItemUpdatableFieldEnum = keyof Required<
   Pick<CollectionItem, 'parent' | 'title' | 'content' | 'deleted'>
 >;
 
-export type CollectionItemResult = Required<
-  Pick<
-    CollectionItem,
-    | 'id'
-    | 'parent'
-    | 'title'
-    | 'type'
-    | 'created'
-    | 'updated'
-    | 'deleted'
-    | 'conflict'
-  >
->;
+export type CollectionItemResult = Pick<
+  CollectionItem,
+  'parent' | 'title' | 'type' | 'created' | 'updated' | 'deleted' | 'conflict'
+> &
+  Required<Pick<CollectionItem, 'id'>>;

@@ -88,7 +88,7 @@ const ChooseFolderModal = ({
     undefined
   );
 
-  const root = {
+  const root: CollectionItemResult = {
     id: ROOT_FOLDER,
     parent: '',
     title: getGlobalTrans().homeTitle,

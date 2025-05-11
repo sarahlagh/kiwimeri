@@ -211,10 +211,29 @@ describe('collection service', () => {
     });
   });
 
-  it.todo(
-    `should delete an existing folder with items in it without orphaning them`,
-    () => {
-      //
-    }
-  );
+  it(`should delete an existing folder and delete items in it without orphaning them`, () => {
+    // create a non empty folder
+    const folderId = collectionService.addFolder(ROOT_FOLDER);
+    const id = collectionService.addDocument(folderId);
+    const id2 = collectionService.addDocument(folderId);
+
+    collectionService.deleteItem(folderId);
+    expect(collectionService.itemExists(folderId)).toBe(false);
+    expect(collectionService.itemExists(id)).toBe(false);
+    expect(collectionService.itemExists(id2)).toBe(false);
+  });
+
+  it(`should delete an existing folder and move items in it to the parent folder without orphaning them`, () => {
+    // create a non empty folder
+    const folderId = collectionService.addFolder(ROOT_FOLDER);
+    const id = collectionService.addDocument(folderId);
+    const id2 = collectionService.addDocument(folderId);
+
+    collectionService.deleteItem(folderId, true);
+    expect(collectionService.itemExists(folderId)).toBe(false);
+    expect(collectionService.itemExists(id)).toBe(true);
+    expect(collectionService.getItemParent(id)).toBe(ROOT_FOLDER);
+    expect(collectionService.itemExists(id2)).toBe(true);
+    expect(collectionService.getItemParent(id2)).toBe(ROOT_FOLDER);
+  });
 });
