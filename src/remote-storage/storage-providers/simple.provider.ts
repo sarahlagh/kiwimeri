@@ -181,9 +181,14 @@ export class SimpleStorageProvider extends StorageProvider {
     console.debug('[pull] filesInfo', filesInfo);
     const newRemoteState = this.getRemoteState(filesInfo);
     const newLocalInfo = newRemoteState.info as DriverFileInfo;
+    const newLastRemoteChange = newRemoteState.lastRemoteChange || 0;
+    const cachedLastRemoteChange = cachedRemoteInfo.lastRemoteChange || 0;
 
-    if (!newLocalInfo) {
-      console.debug('[pull] newLocalInfo is undefined');
+    if (
+      !force &&
+      (!newLocalInfo || newLastRemoteChange <= cachedLastRemoteChange)
+    ) {
+      console.debug('[pull] nothing to pull', newRemoteState);
       return {
         content: localContent,
         remoteInfo: cachedRemoteInfo

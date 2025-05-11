@@ -100,11 +100,13 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
   it('should pull new remote items, create newer, then push', async () => {
     const remoteData = [oneDocument('r1'), oneDocument('r2'), oneFolder('r3')];
     await reInitRemoteData(remoteData);
+    await amount(100);
     await syncService.pull();
     expect(getCollectionRowCount()).toBe(3);
     collectionService.addFolder(ROOT_FOLDER);
     setLocalItemField(remoteData[0].id!, 'title', 'new');
     await syncService.push();
+    await amount(100);
     const content = await getRemoteContent();
     expect(content).toHaveLength(4);
     expect(content!.map(r => r.title)).toEqual([
@@ -119,6 +121,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
   it('should pull new remote items and keep local creates between pulls', async () => {
     const remoteData = [oneDocument('r1'), oneDocument('r2'), oneFolder('r3')];
     await reInitRemoteData(remoteData);
+    await amount(100);
     await syncService.pull();
     expect(getCollectionRowCount()).toBe(3);
 
@@ -127,19 +130,23 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     collectionService.addDocument(ROOT_FOLDER);
 
     // pull 1
+    await amount(100);
     await syncService.pull();
     expect(getCollectionRowCount()).toBe(5);
     expect(getLocalItemConflicts()).toHaveLength(0);
 
     // pull 2
+    await amount(100);
     await syncService.pull();
     expect(getCollectionRowCount()).toBe(5);
     expect(getLocalItemConflicts()).toHaveLength(0);
 
     // update remotely
+    await amount(100);
     await reInitRemoteData([...remoteData, oneDocument('r4')]);
 
     // pull 3
+    await amount(100);
     await syncService.pull();
     expect(getCollectionRowCount()).toBe(6);
     expect(getLocalItemConflicts()).toHaveLength(0);

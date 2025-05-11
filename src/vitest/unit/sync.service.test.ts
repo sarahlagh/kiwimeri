@@ -616,13 +616,14 @@ describe('sync service', () => {
 
         CONFLICT_CHANGES.forEach(({ field }) => {
           it(`should create conflict for documents if localChange=${field} then remoteChange=${field}`, async () => {
-            const remoteData = [oneDocument(), oneDocument(), oneFolder()];
+            const folder = oneFolder();
+            const remoteData = [oneDocument(), oneDocument(), folder];
             await reInitRemoteData(remoteData);
             await syncService_pull(); // 1
             const id = remoteData[0].id!;
 
             // change local
-            setLocalItemField(id, field, 'newLocal');
+            setLocalItemField(id, field, folder.id!); // real id to avoid problem when field=parent
 
             // change remote
             updateOnRemote(remoteData, id, field);
@@ -633,7 +634,7 @@ describe('sync service', () => {
             // a conflict file was created
             expect(getCollectionRowCount()).toBe(4);
             expect(getLocalItemField(id, field)).toBe('newRemote');
-            expect(getLocalItemField(id, field)).not.toBe('newLocal');
+            expect(getLocalItemField(id, field)).not.toBe(folder.id!);
 
             // check that a conflict file exists
             const conflictId = getLocalItemConflict();
@@ -642,36 +643,32 @@ describe('sync service', () => {
 
             // pull again
             await syncService_pull(); // 3
-            // conflict was erased! yet a new one took its place
+            // conflict was untouched
             expect(getCollectionRowCount()).toBe(4);
-            expectHasLocalItemConflict(conflictId!, false);
-            const conflictId2 = getLocalItemConflict();
-            expect(conflictId2).toBeDefined();
-            expect(conflictId2).not.toBe(conflictId);
+            expectHasLocalItemConflict(conflictId!, true);
 
             // update the conflict => will remove its 'conflict' flag
             setLocalItemField(
-              conflictId2!,
+              conflictId!,
               'title',
               'conflict file updated only'
             );
+            expect(getCollectionRowCount()).toBe(4);
             expect(localChangesService.getLocalChanges()).toHaveLength(2);
             const lc = localChangesService
               .getLocalChanges()
-              .find(lc => lc.item === conflictId2);
+              .find(lc => lc.item === conflictId);
             expect(lc).toBeDefined();
-            expect(lc?.change).toBe(LocalChangeType.add);
+            expect(lc!.change).toBe(LocalChangeType.add);
             // after update, conflict is no longer one
-            expect(collectionService.itemExists(conflictId!)).toBeFalsy();
-            expect(collectionService.itemExists(conflictId2!)).toBeTruthy();
-            expect(collectionService.isItemConflict(conflictId2!)).toBeFalsy();
+            expect(collectionService.itemExists(conflictId!)).toBeTruthy();
+            expect(collectionService.isItemConflict(conflictId!)).toBeFalsy();
 
             // pull again
             await syncService_pull(); // 4
-            // conflict was not solved by a new timestamp, so, new conflict
-            expect(getCollectionRowCount()).toBe(5);
-            const conflictId3 = getLocalItemConflict();
-            expect(conflictId3).not.toBe(conflictId2);
+            // conflict was not solved by a new timestamp, so, nothing new
+            expect(getLocalItemConflict()).toBeUndefined();
+            expect(getCollectionRowCount()).toBe(4);
 
             // solve the conflict at last
             expect(collectionService.itemExists(id)).toBeTruthy();
@@ -679,10 +676,8 @@ describe('sync service', () => {
 
             // pull again
             await syncService_pull(); // 5
-            // conflict was solved by a new timestamp, so no new conflict, old one was deleted
             expect(getCollectionRowCount()).toBe(4);
-            expect(collectionService.itemExists(conflictId2!)).toBeTruthy();
-            expect(collectionService.itemExists(conflictId3!)).toBeFalsy();
+            expect(collectionService.itemExists(conflictId!)).toBeTruthy();
           });
 
           it(`should not create conflict for folders if localChange=${field} then remoteChange=${field} (remote wins)`, async () => {
