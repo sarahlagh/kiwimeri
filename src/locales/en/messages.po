@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/settings/components/providers/RemotesSettings.tsx:78
+#: src/settings/components/providers/RemotesSettings.tsx:92
 msgid "Add config"
 msgstr "Add config"
 
@@ -41,7 +41,7 @@ msgstr "Choose a new folder"
 msgid "Collection"
 msgstr "Collection"
 
-#: src/settings/components/providers/RemotesSettings.tsx:45
+#: src/settings/components/providers/RemotesSettings.tsx:49
 msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
 
@@ -54,7 +54,7 @@ msgstr "Confirm"
 msgid "Debug"
 msgstr "Debug"
 
-#: src/app/pages/DebugPage.tsx:84
+#: src/app/pages/DebugPage.tsx:87
 msgid "Download Logs"
 msgstr "Download Logs"
 
@@ -78,7 +78,7 @@ msgstr "Export"
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/constants.ts:42
+#: src/constants.ts:43
 msgid "Home"
 msgstr "Home"
 
@@ -98,7 +98,7 @@ msgstr "Leave empty for root"
 msgid "Loading..."
 msgstr "Loading..."
 
-#: src/app/pages/DebugPage.tsx:57
+#: src/app/pages/DebugPage.tsx:60
 msgid "Logs"
 msgstr "Logs"
 
@@ -115,11 +115,11 @@ msgstr "Manually backup or restore your collection."
 msgid "Name"
 msgstr "Name"
 
-#: src/constants.ts:43
+#: src/constants.ts:44
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:44
+#: src/constants.ts:45
 msgid "New folder"
 msgstr "New folder"
 
@@ -167,11 +167,11 @@ msgstr "Pick a directory for your backups"
 msgid "Platform(s)"
 msgstr "Platform(s)"
 
-#: src/settings/components/providers/RemotesSettings.tsx:42
+#: src/settings/components/providers/RemotesSettings.tsx:46
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
-#: src/settings/components/providers/RemotesSettings.tsx:86
+#: src/settings/components/providers/RemotesSettings.tsx:100
 msgid "Reorder"
 msgstr "Reorder"
 
@@ -190,13 +190,17 @@ msgstr "Settings"
 
 #: src/settings/components/sections/ImportExportSettings.tsx:37
 #: src/settings/components/sections/ImportExportSettings.tsx:84
-#: src/app/pages/DebugPage.tsx:79
+#: src/app/pages/DebugPage.tsx:82
 msgid "Success!"
 msgstr "Success!"
 
 #: src/settings/components/sections/FilesystemSyncSettings.tsx:22
 msgid "Synchronize your collection on the filesystem"
 msgstr "Synchronize your collection on the filesystem"
+
+#: src/settings/components/providers/RemotesSettings.tsx:54
+msgid "Syncing is disabled on the web version."
+msgstr "Syncing is disabled on the web version."
 
 #: src/common/wysiwyg/Writer.tsx:47
 msgid "Text..."
@@ -225,7 +229,7 @@ msgstr "US"
 msgid "Username"
 msgstr "Username"
 
-#: src/settings/components/providers/RemotesSettings.tsx:50
+#: src/settings/components/providers/RemotesSettings.tsx:63
 msgid "You have not configured any remote yet."
 msgstr "You have not configured any remote yet."
 

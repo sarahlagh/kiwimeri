@@ -1,4 +1,5 @@
 import SyncRemoteButton from '@/common/buttons/SyncRemoteButton';
+import platformService from '@/common/services/platform.service';
 import { syncService } from '@/remote-storage/sync.service';
 import {
   InputCustomEvent,
@@ -47,12 +48,15 @@ const MainHeader = ({
       )}
 
       <IonButtons slot="end">
-        <SyncRemoteButton
-          direction="sync"
-          color={pushColor}
-          onSyncStart={() => setIsSyncing(true)}
-          onSyncEnd={() => setIsSyncing(false)}
-        />
+        {platformService.isSyncEnabled() && (
+          <SyncRemoteButton
+            disabled={!isInit}
+            direction="sync"
+            color={pushColor}
+            onSyncStart={() => setIsSyncing(true)}
+            onSyncEnd={() => setIsSyncing(false)}
+          />
+        )}
         {children}
       </IonButtons>
     </IonToolbar>

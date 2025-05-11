@@ -24,7 +24,8 @@ import {
   openOutline,
   settingsSharp,
   syncOutline,
-  trashOutline
+  trashOutline,
+  warningOutline
 } from 'ionicons/icons';
 
 export const ANDROID_FOLDER = 'KiwimeriApp';
@@ -71,5 +72,6 @@ export const APPICONS = {
   ko: bugOutline,
   unknown: helpOutline,
   moveUp: arrowUp,
-  moveDown: arrowDown
+  moveDown: arrowDown,
+  warning: warningOutline
 };

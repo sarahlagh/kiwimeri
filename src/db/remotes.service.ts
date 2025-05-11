@@ -95,7 +95,7 @@ class RemotesService {
     let proxy = undefined;
     let useHttp = false;
     if (platformService.isWeb()) {
-      proxy = appConfig.INTERNAL_HTTP_PROXY;
+      proxy = platformService.getInternalProxy();
       useHttp = appConfig.DEV_USE_HTTP_IF_POSSIBLE;
     }
     this.providers.set(

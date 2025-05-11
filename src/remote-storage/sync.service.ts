@@ -1,3 +1,4 @@
+import platformService from '@/common/services/platform.service';
 import localChangesService from '@/db/localChanges.service';
 import remotesService from '@/db/remotes.service';
 
@@ -60,7 +61,7 @@ class SyncService {
 
   public usePrimaryConnected() {
     const primary = remotesService.usePrimaryRemote();
-    if (!primary) {
+    if (!primary || !platformService.isSyncEnabled()) {
       return false;
     }
     return primary.connected;

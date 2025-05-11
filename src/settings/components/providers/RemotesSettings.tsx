@@ -1,4 +1,5 @@
 import platformService from '@/common/services/platform.service';
+import { APPICONS } from '@/constants';
 import remotesService from '@/db/remotes.service';
 import { PCloudConf } from '@/remote-storage/storage-drivers/pcloud/pcloud.driver';
 import {
@@ -8,6 +9,7 @@ import {
   IonCardHeader,
   IonCardSubtitle,
   IonCardTitle,
+  IonIcon,
   IonItem,
   IonList,
   IonReorder,
@@ -35,45 +37,57 @@ const RemotesSettings = () => {
     event.detail.complete();
   }
 
+  const syncEnabled = platformService.isSyncEnabled();
+
   return (
-    <IonCard className="primary">
+    <IonCard className="primary" disabled={!syncEnabled}>
       <IonCardHeader>
         <IonCardTitle>
           <Trans>Remote Configuration</Trans>
         </IonCardTitle>
         <IonCardSubtitle>
           <Trans>Configure where to synchronize your collection</Trans>
+          {!syncEnabled && (
+            <p>
+              <IonItem color={'warning'}>
+                <IonIcon icon={APPICONS.warning}></IonIcon>
+                <Trans>Syncing is disabled on the web version.</Trans>
+              </IonItem>
+            </p>
+          )}
         </IonCardSubtitle>
       </IonCardHeader>
-      <IonCardContent>
-        {remotes.length === 0 && (
-          <Trans>You have not configured any remote yet.</Trans>
-        )}
-        {remotes.length > 0 && (
-          <IonList class="wrapper-list">
-            <IonReorderGroup
-              disabled={!reorderEnabled || platformService.isAndroid()}
-              onIonItemReorder={handleReorder}
-            >
-              {remotes.map(remote => {
-                return (
-                  <IonReorder key={remote.id}>
-                    <IonItem>
-                      {/* TODO: switch by type */}
-                      <PCloudSettings
-                        remote={remote}
-                        isPrimary={remote.rank === 0}
-                        isLast={remote.rank === remotes.length - 1}
-                        reorderEnabled={reorderEnabled}
-                      />
-                    </IonItem>
-                  </IonReorder>
-                );
-              })}
-            </IonReorderGroup>
-          </IonList>
-        )}
-      </IonCardContent>
+      {syncEnabled && (
+        <IonCardContent>
+          {remotes.length === 0 && (
+            <Trans>You have not configured any remote yet.</Trans>
+          )}
+          {remotes.length > 0 && (
+            <IonList class="wrapper-list">
+              <IonReorderGroup
+                disabled={!reorderEnabled || platformService.isAndroid()}
+                onIonItemReorder={handleReorder}
+              >
+                {remotes.map(remote => {
+                  return (
+                    <IonReorder key={remote.id}>
+                      <IonItem>
+                        {/* TODO: switch by type */}
+                        <PCloudSettings
+                          remote={remote}
+                          isPrimary={remote.rank === 0}
+                          isLast={remote.rank === remotes.length - 1}
+                          reorderEnabled={reorderEnabled}
+                        />
+                      </IonItem>
+                    </IonReorder>
+                  );
+                })}
+              </IonReorderGroup>
+            </IonList>
+          )}
+        </IonCardContent>
+      )}
       <IonButton fill="clear" onClick={addRemote}>
         <Trans>Add config</Trans>
       </IonButton>

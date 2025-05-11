@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
+import platformService from '@/common/services/platform.service';
 import {
   DEFAULT_NOTEBOOK_ID,
   DEFAULT_SPACE_ID,
@@ -119,9 +120,11 @@ class StorageService {
         )
       ]);
       // in a timeout, don't want to block app start for this
-      setTimeout(async () => {
-        await remotesService.initSyncConnection(this.getSpaceId());
-      });
+      if (platformService.isSyncEnabled()) {
+        setTimeout(async () => {
+          await remotesService.initSyncConnection(this.getSpaceId());
+        });
+      }
       return true;
     }
     return false;

@@ -36,6 +36,14 @@ class PlatformService {
   public isWideEnough() {
     return useMediaQueryMatch('md');
   }
+
+  public getInternalProxy() {
+    return appConfig.INTERNAL_HTTP_PROXY || '';
+  }
+
+  public isSyncEnabled() {
+    return !this.isWeb() || this.getInternalProxy().length > 0;
+  }
 }
 
 const platformService = new PlatformService();

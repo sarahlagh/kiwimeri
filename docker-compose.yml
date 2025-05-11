@@ -6,6 +6,8 @@ services:
       dockerfile: docker/Dockerfile
       context: .
     environment:
-      - VITE_INTERNAL_HTTP_PROXY=http://localhost:8110/api
+      # - VITE_INTERNAL_HTTP_PROXY=http://localhost:8110/api
+      - VITE_INTERNAL_HTTP_PROXY=
+      - VITE_LOG_LEVEL=debug
     ports:
       - 8110:80
