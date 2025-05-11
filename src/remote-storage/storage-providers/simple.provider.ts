@@ -1,5 +1,6 @@
 import {
   CollectionItem,
+  CollectionItemType,
   CollectionItemUpdatableFieldEnum
 } from '@/collection/collection';
 import { SpaceType } from '@/db/types/space-types';
@@ -252,8 +253,8 @@ export class SimpleStorageProvider extends StorageProvider {
           const localItem = localCollection.get(localChange.item)!;
           if (
             localItem &&
-            !localItem.conflict
-            // && localItem.type === CollectionItemType.document
+            !localItem.conflict &&
+            localItem.type === CollectionItemType.document
           ) {
             newLocalContent[0].collection![getUniqueId()] = {
               ...{ ...localItem, id: undefined },
