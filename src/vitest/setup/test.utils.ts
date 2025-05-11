@@ -122,6 +122,24 @@ export const CONFLICT_CHANGES = [
   }
 ];
 
+export const GET_UPDATABLE_FIELDS = (type: string) =>
+  UPDATABLE_FIELDS.filter(f => f.field !== 'content' || type !== 'folder');
+
+export const GET_NON_PARENT_UPDATABLE_FIELDS = (type: string) =>
+  NON_PARENT_UPDATABLE_FIELDS.filter(
+    f => f.field !== 'content' || type !== 'folder'
+  );
+
+export const GET_NON_CONFLICT_CHANGES = (type: string) =>
+  NON_CONFLICT_CHANGES.filter(f =>
+    f.local === 'content' || f.remote === 'content' ? type !== 'folder' : true
+  );
+
+export const GET_ALL_CHANGES = (type: string) =>
+  [...CONFLICT_CHANGES, ...NON_CONFLICT_CHANGES].filter(f =>
+    f.local === 'content' || f.remote === 'content' ? type !== 'folder' : true
+  );
+
 export const getCollectionRowCount = () => {
   return storageService.getSpace().getRowCount('collection');
 };

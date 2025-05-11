@@ -3,10 +3,10 @@ import { ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
 import { it, vi } from 'vitest';
 import {
+  GET_NON_PARENT_UPDATABLE_FIELDS,
   getCollectionItem,
   ITEM_TYPES,
   markAsConflict,
-  NON_PARENT_UPDATABLE_FIELDS,
   UPDATABLE_FIELDS
 } from '../setup/test.utils';
 
@@ -69,51 +69,49 @@ describe('collection service', () => {
         expect(item.created).toBeGreaterThan(folder.created);
       });
 
-      NON_PARENT_UPDATABLE_FIELDS.forEach(({ field }) => {
-        if (field !== 'content' || type !== 'folder') {
-          it(`should update the ${field} of a ${type}`, () => {
-            const id = collectionService[addMethod](ROOT_FOLDER);
-            vi.advanceTimersByTime(100);
-            collectionService.setItemField(id, field, 'new value');
-            const item = getCollectionItem(id);
-            expect(item[field]).toBe('new value');
-            expect(item.created).toBeLessThan(item.updated);
-            const meta = JSON.parse(item[`${field}_meta`]!);
-            expect(meta.updated).toBe(item.updated);
-            expect(meta.hash).toBe(fastHash(item[field] + ''));
-          });
+      GET_NON_PARENT_UPDATABLE_FIELDS(type).forEach(({ field }) => {
+        it(`should update the ${field} of a ${type}`, () => {
+          const id = collectionService[addMethod](ROOT_FOLDER);
+          vi.advanceTimersByTime(100);
+          collectionService.setItemField(id, field, 'new value');
+          const item = getCollectionItem(id);
+          expect(item[field]).toBe('new value');
+          expect(item.created).toBeLessThan(item.updated);
+          const meta = JSON.parse(item[`${field}_meta`]!);
+          expect(meta.updated).toBe(item.updated);
+          expect(meta.hash).toBe(fastHash(item[field] + ''));
+        });
 
-          it(`should update the ${field} of a ${type} and recursively update all parents timestamp`, () => {
-            const now = Date.now();
-            const folderIdO = collectionService.addFolder(ROOT_FOLDER);
-            const folderId1 = collectionService.addFolder(ROOT_FOLDER);
-            const folderId2 = collectionService.addFolder(folderId1);
-            const folderId3 = collectionService.addFolder(folderId2);
-            const id = collectionService[addMethod](folderId3);
-            vi.advanceTimersByTime(100);
-            collectionService.setItemField(id, field, 'new value');
-            const item = getCollectionItem(id);
-            expect(item[field]).toBe('new value');
-            expect(item.created).toBeLessThan(item.updated);
-            const meta = JSON.parse(item[`${field}_meta`]!);
-            expect(meta.updated).toBe(item.updated);
-            expect(meta.hash).toBe(fastHash(item[field] + ''));
+        it(`should update the ${field} of a ${type} and recursively update all parents timestamp`, () => {
+          const now = Date.now();
+          const folderIdO = collectionService.addFolder(ROOT_FOLDER);
+          const folderId1 = collectionService.addFolder(ROOT_FOLDER);
+          const folderId2 = collectionService.addFolder(folderId1);
+          const folderId3 = collectionService.addFolder(folderId2);
+          const id = collectionService[addMethod](folderId3);
+          vi.advanceTimersByTime(100);
+          collectionService.setItemField(id, field, 'new value');
+          const item = getCollectionItem(id);
+          expect(item[field]).toBe('new value');
+          expect(item.created).toBeLessThan(item.updated);
+          const meta = JSON.parse(item[`${field}_meta`]!);
+          expect(meta.updated).toBe(item.updated);
+          expect(meta.hash).toBe(fastHash(item[field] + ''));
 
-            const folderO = getCollectionItem(folderIdO);
-            const folder1 = getCollectionItem(folderId1);
-            const folder2 = getCollectionItem(folderId2);
-            const folder3 = getCollectionItem(folderId3);
+          const folderO = getCollectionItem(folderIdO);
+          const folder1 = getCollectionItem(folderId1);
+          const folder2 = getCollectionItem(folderId2);
+          const folder3 = getCollectionItem(folderId3);
 
-            expect(folderO.updated).toBe(now); // this one is untouched
-            expect(JSON.parse(folderO.parent_meta).updated).toBe(now);
-            expect(folder1.updated).toBe(now + 100);
-            expect(JSON.parse(folder1.parent_meta).updated).toBe(now);
-            expect(folder2.updated).toBe(now + 100);
-            expect(JSON.parse(folder2.parent_meta).updated).toBe(now);
-            expect(folder3.updated).toBe(now + 100);
-            expect(JSON.parse(folder3.parent_meta).updated).toBe(now);
-          });
-        }
+          expect(folderO.updated).toBe(now); // this one is untouched
+          expect(JSON.parse(folderO.parent_meta).updated).toBe(now);
+          expect(folder1.updated).toBe(now + 100);
+          expect(JSON.parse(folder1.parent_meta).updated).toBe(now);
+          expect(folder2.updated).toBe(now + 100);
+          expect(JSON.parse(folder2.parent_meta).updated).toBe(now);
+          expect(folder3.updated).toBe(now + 100);
+          expect(JSON.parse(folder3.parent_meta).updated).toBe(now);
+        });
       });
 
       it(`should update the parent of a ${type}`, () => {
