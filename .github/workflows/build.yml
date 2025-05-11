@@ -34,4 +34,6 @@ jobs:
         run: |
           yarn install --frozen-lockfile
       - name: Unit Tests
-        run: yarn test-unit
+        run: |
+          cp .env.ci .env
+          yarn test-unit
