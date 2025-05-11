@@ -49,7 +49,7 @@ class AppConfig implements ImportMetaEnv {
 
     // hack to override VITE_ vars with docker container env
     Object.keys(dynConfig).forEach(k => {
-      if (dynConfig[k] && dynConfig[k] !== '__dyn__') {
+      if (dynConfig[k] !== undefined && dynConfig[k] !== '__dyn__') {
         const finalKey = k.replace('VITE_', '');
         if (dynConfig[k] === 'true' || dynConfig[k] === 'false') {
           dynConfig[k] = dynConfig[k] === 'true';
