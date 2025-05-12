@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 const keys = [
   ['children', 'c'],
   ['detail', 'd'],
@@ -17,6 +18,13 @@ const keys = [
   ['value', 'va'],
   ['version', 'v']
 ];
+const keysMap = new Map();
+const keysMapReverse = new Map();
+keys.forEach(([v1, v2]) => {
+  keysMap.set(v1, v2);
+  keysMapReverse.set(v2, v1);
+});
+
 const keywords = [
   ['bullet', 'b'],
   ['center', 'c'],
@@ -36,51 +44,55 @@ const keywords = [
   ['root', 'r'],
   ['text', 't']
 ];
-// try to recognize common patterns in the json and reduce them
-// this will result in an invalid json being stored
-const patterns = [
-  ['{"r":{', '@R{'],
-  ['{"c":[', '@C'],
-  [/"(.{1,2})":(\d)/g, '$1$2', /([{,])?([^{,]{1,2})(\d)([,}])/g, '$1"$2":$3$4'],
-  [/"(.{1,2})":""/g, '$1""', /([{,])?(.{1,2})""([,}])/g, '$1"$2":""$3'],
-  [':null', ':', /:([,}])/g, ':null$1'],
-  ['d0,f0', '@0'],
-  ['@C@C', '@C2'],
-  ['"m":"n",s"","t"', 'mnst', /([{,])?mnst:/g, '$1"m":"n",s"","t":'],
-  [/"ty":"(.{1,2})",v1/g, 'ty1$1', /([{,])?ty1([^,}]{1,2})/g, '$1"ty":"$2",v1'],
-  [/{@0,mnst:"(.*?)",ty1t}/g, '@¤$1¤', /@¤(.*?)¤/g, '{@0,mnst:"$1",ty1t}'],
-  [/(,)?{ty1l},/g, '$1!,', /(,)?!,/g, '$1{ty1l},']
-];
+const keywordsMap = new Map();
+const keywordsMapReverse = new Map();
+keywords.forEach(([v1, v2]) => {
+  keywordsMap.set(v1, v2);
+  keywordsMapReverse.set(v2, v1);
+});
+
+const minimizeKeys = (obj: any) => {
+  const m = {} as any;
+  if (!obj) return obj;
+  Object.keys(obj).forEach(k => {
+    const newKey = keysMap.has(k) ? keysMap.get(k) : k;
+    if (typeof obj[k] === 'string') {
+      m[newKey] = keywordsMap.has(obj[k]) ? keywordsMap.get(obj[k]) : obj[k];
+    } else if (typeof obj[k] === 'number') {
+      m[newKey] = obj[k];
+    } else if (Array.isArray(obj[k])) {
+      m[newKey] = obj[k].map(o => minimizeKeys(o));
+    } else {
+      m[newKey] = minimizeKeys(obj[k]);
+    }
+  });
+  return m;
+};
+
+const unminimizeKeys = (obj: any) => {
+  const m = {} as any;
+  if (!obj) return obj;
+  Object.keys(obj).forEach(k => {
+    const newKey = keysMapReverse.has(k) ? keysMapReverse.get(k) : k;
+    if (typeof obj[k] === 'string') {
+      m[newKey] = keywordsMapReverse.has(obj[k])
+        ? keywordsMapReverse.get(obj[k])
+        : obj[k];
+    } else if (typeof obj[k] === 'number') {
+      m[newKey] = obj[k];
+    } else if (Array.isArray(obj[k])) {
+      m[newKey] = obj[k].map(o => unminimizeKeys(o));
+    } else {
+      m[newKey] = unminimizeKeys(obj[k]);
+    }
+  });
+  return m;
+};
 
 export const minimizeForStorage = (json: string) => {
-  let newJson = json;
-  for (const pair of keys) {
-    newJson = newJson.replaceAll(`"${pair[0]}":`, `"${pair[1]}":`);
-  }
-  for (const pair of keywords) {
-    newJson = newJson.replaceAll(`:"${pair[0]}"`, `:"${pair[1]}"`);
-  }
-  for (const pair of patterns) {
-    newJson = newJson.replaceAll(pair[0], pair[1] as string);
-  }
-  return newJson;
+  return JSON.stringify(minimizeKeys(JSON.parse(json)));
 };
 
 export const unminimizeFromStorage = (json: string) => {
-  let newJson = json;
-  const patternsNeg = [...patterns].reverse();
-  for (const pair of patternsNeg) {
-    if (pair.length === 4) {
-      newJson = newJson.replaceAll(pair[2], pair[3] as string);
-    } else {
-      newJson = newJson.replaceAll(pair[1], pair[0] as string);
-    }
-  }
-  for (const pair of keywords) {
-    newJson = newJson.replaceAll(`:"${pair[1]}"`, `:"${pair[0]}"`);
-  }
-  for (const pair of keys) {
-    newJson = newJson.replaceAll(`"${pair[1]}":`, `"${pair[0]}":`);
-  }
-  return newJson;
+  return JSON.stringify(unminimizeKeys(JSON.parse(json)));
 };
