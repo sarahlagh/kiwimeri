@@ -38,7 +38,6 @@ const keywords = [
 ];
 // try to recognize common patterns in the json and reduce them
 // this will result in an invalid json being stored
-// with about 60% compression on average
 const patterns = [
   ['{"r":{', '@R{'],
   ['{"c":[', '@C'],
@@ -49,7 +48,7 @@ const patterns = [
   ['@C@C', '@C2'],
   ['"m":"n",s"","t"', 'mnst', /([{,])?mnst:/g, '$1"m":"n",s"","t":'],
   [/"ty":"(.{1,2})",v1/g, 'ty1$1', /([{,])?ty1([^,}]{1,2})/g, '$1"ty":"$2",v1'],
-  [/{@0,mnst:"(.*?)",ty1t}/g, '@{$1}', /@{(.*?)}/g, '{@0,mnst:"$1",ty1t}'],
+  [/{@0,mnst:"(.*?)",ty1t}/g, '@¤$1¤', /@¤(.*?)¤/g, '{@0,mnst:"$1",ty1t}'],
   [/(,)?{ty1l},/g, '$1!,', /(,)?!,/g, '$1{ty1l},']
 ];
 

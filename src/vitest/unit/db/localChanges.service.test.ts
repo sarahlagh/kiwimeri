@@ -3,7 +3,7 @@ import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/localChanges.service';
 import { LocalChangeType } from '@/db/types/store-types';
 import { it } from 'vitest';
-import { markAsConflict } from '../setup/test.utils';
+import { markAsConflict } from '../../setup/test.utils';
 
 describe('local changes service', () => {
   it('should have no local changes by default', () => {

@@ -9,7 +9,7 @@ import {
   ITEM_TYPES,
   markAsConflict,
   UPDATABLE_FIELDS
-} from '../setup/test.utils';
+} from '../../setup/test.utils';
 
 describe('collection service', () => {
   beforeEach(() => {

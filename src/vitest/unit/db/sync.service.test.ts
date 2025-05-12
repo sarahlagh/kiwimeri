@@ -30,7 +30,7 @@ import {
   setLocalItemField,
   UPDATABLE_FIELDS,
   updateOnRemote
-} from '../setup/test.utils';
+} from '../../setup/test.utils';
 
 let driver: InMemDriver;
 let iPull = 0;

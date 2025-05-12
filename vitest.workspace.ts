@@ -4,7 +4,7 @@ export default defineWorkspace([
   {
     extends: 'vite.config.ts',
     test: {
-      include: ['**/unit/*.{test,spec}.ts'],
+      include: ['**/unit/**/*.{test,spec}.ts'],
       name: 'unit',
       environment: 'jsdom'
     }
@@ -12,7 +12,7 @@ export default defineWorkspace([
   {
     extends: 'vite.config.ts',
     test: {
-      include: ['**/e2e/*.{test,spec}.ts'],
+      include: ['**/e2e/**/*.{test,spec}.ts'],
       name: 'e2e',
       browser: {
         enabled: true,
