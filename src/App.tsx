@@ -21,11 +21,10 @@ import { I18nProvider } from '@lingui/react';
 
 import { IonReactRouter } from '@ionic/react-router';
 import MainLayout from './app/MainLayout';
-import DebugTinybaseProvider from './app/providers/DebugTinybaseProvider';
 import InitialRoutingProvider from './app/providers/InitialRoutingProvider';
 import TinybaseProvider from './app/providers/TinybaseProvider';
 import platformService from './common/services/platform.service';
-import { appConfig, initGlobalTrans } from './config';
+import { initGlobalTrans } from './config';
 import { messages as enMessages } from './locales/en/messages';
 
 setupIonicReact();
@@ -47,10 +46,6 @@ const App = () => {
           </IonApp>
         </TinybaseProvider>
       </I18nProvider>
-
-      {platformService.isDev() && appConfig.DEV_ENABLE_STORE_INSPECTOR && (
-        <DebugTinybaseProvider></DebugTinybaseProvider>
-      )}
     </>
   );
 };

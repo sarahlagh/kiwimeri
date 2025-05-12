@@ -1,8 +1,9 @@
-import { useSliceRowIds } from 'tinybase/ui-react';
 import storageService from './storage.service';
+import { useCellWithRef, useSliceRowIdsWithRef } from './tinybase/hooks';
 import { LocalChange, LocalChangeType } from './types/store-types';
 
 class LocalChangesService {
+  private readonly storeId = 'store';
   private readonly table = 'localChanges';
   private readonly queryPrefix = 'fetchLocalChanges';
 
@@ -63,11 +64,9 @@ class LocalChangesService {
       // if field update, merge with existing row if any
       const table = storageService.getStore().getTable(this.table);
       const queryName = this.fetchLocalChangesForItemQuery(space, item);
-      const rowIds = storageService.getResultSortedRowIds(
-        queryName,
-        'updated',
-        true
-      );
+      const rowIds = storageService
+        .getStoreQueries()
+        .getResultSortedRowIds(queryName, 'updated', true, 0, undefined);
 
       // if was added, don't count update
       let oldestRow;
@@ -91,11 +90,9 @@ class LocalChangesService {
       // if row deletion, but was added as part of local changes, remove any local changes associated
       const table = storageService.getStore().getTable(this.table);
       const queryName = this.fetchLocalChangesForItemQuery(space, item);
-      const rowIds = storageService.getResultSortedRowIds(
-        queryName,
-        'updated',
-        true
-      );
+      const rowIds = storageService
+        .getStoreQueries()
+        .getResultSortedRowIds(queryName, 'updated', true);
       if (rowIds.length > 0) {
         let wasAdded = false;
         storageService.getStore().transaction(() => {
@@ -120,11 +117,9 @@ class LocalChangesService {
     const space = storageService.getSpaceId();
     const table = storageService.getStore().getTable(this.table);
     const queryName = this.fetchAllLocalChangesQuery(space);
-    const rowIds = storageService.getResultSortedRowIds(
-      queryName,
-      'updated',
-      true
-    );
+    const rowIds = storageService
+      .getStoreQueries()
+      .getResultSortedRowIds(queryName, 'updated', true);
     return rowIds.map(rowId => ({ ...table[rowId], id: rowId }) as LocalChange);
   }
 
@@ -132,11 +127,8 @@ class LocalChangesService {
     this.reInitIndex();
     const space = storageService.getSpaceId();
     return (
-      useSliceRowIds(
-        'localChangesBySpace',
-        space,
-        storageService.getUntypedStoreIndexes()
-      ).length > 0
+      useSliceRowIdsWithRef(this.storeId, 'localChangesBySpace', space).length >
+      0
     );
   }
 
@@ -168,7 +160,8 @@ class LocalChangesService {
 
   public useLastLocalChange() {
     return (
-      storageService.useCell<number>(
+      useCellWithRef<number>(
+        this.storeId,
         'spaces',
         storageService.getSpaceId(),
         'lastLocalChange'

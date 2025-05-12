@@ -10,9 +10,13 @@ import { getGlobalTrans } from '@/config';
 import { FAKE_ROOT, ROOT_FOLDER } from '@/constants';
 import { getUniqueId } from 'tinybase/common';
 import { Id } from 'tinybase/common/with-schemas';
-import { useCell, useResultSortedRowIds, useTable } from 'tinybase/ui-react';
 import localChangesService from './localChanges.service';
 import storageService from './storage.service';
+import {
+  useCellWithRef,
+  useResultSortedRowIdsWithRef,
+  useTableWithRef
+} from './tinybase/hooks';
 import { LocalChangeType } from './types/store-types';
 
 export const initialContent = () => {
@@ -21,6 +25,7 @@ export const initialContent = () => {
 };
 
 class CollectionService {
+  private readonly storeId = 'space';
   private readonly table = 'collection';
 
   private fetchAllCollectionItemsQuery(
@@ -47,9 +52,14 @@ class CollectionService {
     sortBy: 'created' | 'updated' = 'created',
     descending = false
   ): CollectionItemResult[] {
-    const table = useTable(this.table);
+    const table = useTableWithRef(this.storeId, this.table);
     const queryName = this.fetchAllCollectionItemsQuery(parent);
-    return useResultSortedRowIds(queryName, sortBy, descending).map(rowId => {
+    return useResultSortedRowIdsWithRef(
+      this.storeId,
+      queryName,
+      sortBy,
+      descending
+    ).map(rowId => {
       const row = table[rowId];
       return { ...row, id: rowId } as CollectionItemResult;
     });
@@ -143,7 +153,8 @@ class CollectionService {
     const defaultValue =
       rowId === ROOT_FOLDER ? getGlobalTrans().homeTitle : '';
     return (
-      (useCell(this.table, rowId, 'title')?.valueOf() as string) || defaultValue
+      useCellWithRef<string>(this.storeId, this.table, rowId, 'title') ||
+      defaultValue
     );
   }
 
@@ -172,7 +183,9 @@ class CollectionService {
   }
 
   public useItemContent(rowId: Id) {
-    return (useCell(this.table, rowId, 'content')?.valueOf() as string) || null;
+    return (
+      useCellWithRef<string>(this.storeId, this.table, rowId, 'content') || null
+    );
   }
 
   public setItemContent(rowId: Id, content: string) {

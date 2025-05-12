@@ -6,23 +6,15 @@ import {
   INTERNAL_FORMAT,
   ROOT_FOLDER
 } from '@/constants';
-import { Indexes as UntypedIndexes } from 'tinybase';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db/with-schemas';
 import { Persister } from 'tinybase/persisters/with-schemas';
-import { Queries as UntypedQueries } from 'tinybase/queries';
 import { createQueries, Queries } from 'tinybase/queries/with-schemas';
-import { Store as UntypedStore } from 'tinybase/store';
 import { CellSchema, createStore, Store } from 'tinybase/store/with-schemas';
-import { useCell, useResultSortedRowIds, useValue } from 'tinybase/ui-react';
-import { createIndexes, Id, Indexes } from 'tinybase/with-schemas';
+import { createIndexes, Indexes } from 'tinybase/with-schemas';
 import remotesService from './remotes.service';
-import {
-  SpaceType,
-  StoreTableId,
-  StoreType,
-  StoreValueId,
-  StoreValueType
-} from './types/space-types';
+import { SpaceType, StoreType } from './types/space-types';
+
+export type StoreId = 'store' | 'space';
 
 class StorageService {
   private store!: Store<StoreType>;
@@ -135,6 +127,7 @@ class StorageService {
     this.storeLocalPersister.stopAutoLoad();
     this.spaceLocalPersisters.get(this.getSpaceId())!.stopAutoLoad();
   }
+
   private createSpace() {
     return createStore().setTablesSchema({
       collection: {
@@ -182,74 +175,33 @@ class StorageService {
     return this.store;
   }
 
-  public getUntypedStore() {
-    return this.store as unknown as UntypedStore;
-  }
-
   public getStoreQueries() {
     return this.storeQueries;
-  }
-
-  public getUntypedStoreQueries() {
-    return this.storeQueries as unknown as UntypedQueries;
   }
 
   public getStoreIndexes() {
     return this.storeIndexes;
   }
 
-  public getUntypedStoreIndexes() {
-    return this.storeIndexes as unknown as UntypedIndexes;
+  public get(storeId: StoreId) {
+    if (storeId === 'space') {
+      return this.getSpace();
+    }
+    return this.store;
   }
 
-  public useValue(valueId: StoreValueId) {
-    return useValue(valueId, this.getUntypedStore());
+  public getQueries(storeId: StoreId) {
+    if (storeId === 'space') {
+      return this.getSpaceQueries();
+    }
+    return this.storeQueries;
   }
 
-  public setValue(valueId: StoreValueId, value: StoreValueType) {
-    this.getStore().setValue(valueId, value);
-  }
-
-  public useCell<T>(tableId: StoreTableId, rowId: Id, cellId: Id) {
-    return useCell(
-      tableId,
-      rowId,
-      cellId,
-      this.getUntypedStore()
-    )?.valueOf() as T;
-  }
-
-  public useResultSortedRowIds(
-    queryId: Id,
-    cellId?: Id,
-    descending?: boolean,
-    offset?: number,
-    limit?: number
-  ) {
-    return useResultSortedRowIds(
-      queryId,
-      cellId,
-      descending,
-      offset,
-      limit,
-      this.getUntypedStoreQueries()
-    );
-  }
-
-  public getResultSortedRowIds(
-    queryId: Id,
-    cellId?: Id,
-    descending?: boolean,
-    offset?: number,
-    limit?: number
-  ) {
-    return this.getUntypedStoreQueries().getResultSortedRowIds(
-      queryId,
-      cellId,
-      descending,
-      offset,
-      limit
-    );
+  public getIndexes(storeId: StoreId) {
+    if (storeId === 'space') {
+      throw new Error('unimplemented');
+    }
+    return this.storeIndexes;
   }
 }
 

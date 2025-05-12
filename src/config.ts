@@ -24,8 +24,7 @@ class AppConfig implements ImportMetaEnv {
   INTERNAL_HTTP_PROXY?: string;
   DEV_USE_HTTP_IF_POSSIBLE = false;
   DEV_OVERRIDE_PLATFORM?: 'web' | 'android' | 'electron';
-  DEV_ENABLE_SPACE_INSPECTOR = true;
-  DEV_ENABLE_STORE_INSPECTOR = true;
+  DEV_ENABLE_INSPECTOR = true;
   DEFAULT_STORAGE_LAYER: LayerTypes = 'simple';
 
   constructor(metaEnv: ImportMetaEnv) {

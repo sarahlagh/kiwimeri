@@ -3,6 +3,7 @@ import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
 import storageService from '@/db/storage.service';
 import { ReactNode, useEffect, useState } from 'react';
+import { Indexes } from 'tinybase/indexes';
 import { Queries } from 'tinybase/queries';
 import { Store } from 'tinybase/store';
 import { Provider } from 'tinybase/ui-react';
@@ -20,18 +21,22 @@ const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
     load();
   }, []);
 
-  const store = storageService.getSpace();
-  const queries = storageService.getSpaceQueries();
+  const space = storageService.getSpace() as unknown as Store;
+  const spaceQueries = storageService.getSpaceQueries() as unknown as Queries;
+  const store = storageService.getStore() as unknown as Store;
+  const storeQueries = storageService.getStoreQueries() as unknown as Queries;
+  const storeIndexes = storageService.getStoreIndexes() as unknown as Indexes;
 
   if (isLoading) {
     return <Loading />;
   }
   return (
     <Provider
-      store={store as unknown as Store}
-      queries={queries as unknown as Queries}
+      storesById={{ store, space }}
+      queriesById={{ store: storeQueries, space: spaceQueries }}
+      indexesById={{ store: storeIndexes }}
     >
-      {platformService.isDev() && appConfig.DEV_ENABLE_SPACE_INSPECTOR && (
+      {platformService.isDev() && appConfig.DEV_ENABLE_INSPECTOR && (
         <Inspector />
       )}
       {children}

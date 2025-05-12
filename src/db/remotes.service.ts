@@ -7,9 +7,13 @@ import {
 } from '@/remote-storage/storage-provider.factory';
 import { StorageProvider } from '@/remote-storage/sync-types';
 import { Persister } from 'tinybase/persisters/with-schemas';
-import { useResultTable } from 'tinybase/ui-react';
 import { createRemoteCloudPersister } from './persisters/remote-cloud-persister';
 import storageService from './storage.service';
+import {
+  useCellWithRef,
+  useResultSortedRowIdsWithRef,
+  useResultTableWithRef
+} from './tinybase/hooks';
 import { SpaceType } from './types/space-types';
 import {
   AnyData,
@@ -19,6 +23,7 @@ import {
 } from './types/store-types';
 
 class RemotesService {
+  private readonly storeId = 'store';
   private readonly remotesTable = 'remotes';
   private readonly stateTable = 'remoteState';
   private readonly remoteItemsTable = 'remoteItems';
@@ -131,6 +136,7 @@ class RemotesService {
     }
     const queryName = this.fetchAllRemotesQuery(space);
     return storageService
+      .getStoreQueries()
       .getResultSortedRowIds(queryName, 'rank')
       .map(rowId => {
         const row = storageService
@@ -143,16 +149,13 @@ class RemotesService {
   public useRemotes() {
     const queryName = this.fetchAllRemotesQuery(storageService.getSpaceId());
 
-    const table = useResultTable(
-      queryName,
-      storageService.getUntypedStoreQueries()
-    );
-    return storageService
-      .useResultSortedRowIds(queryName, 'rank')
-      .map(rowId => {
+    const table = useResultTableWithRef(this.storeId, queryName);
+    return useResultSortedRowIdsWithRef(this.storeId, queryName, 'rank').map(
+      rowId => {
         const row = table[rowId];
         return { ...row, id: rowId } as RemoteResult;
-      });
+      }
+    );
   }
 
   public usePrimaryRemote() {
@@ -163,7 +166,8 @@ class RemotesService {
   public usePrimaryLastRemoteChange() {
     const remote = this.usePrimaryRemote();
     return (
-      storageService.useCell<number>(
+      useCellWithRef<number>(
+        this.storeId,
         this.stateTable,
         remote?.state || '-1',
         'lastRemoteChange'

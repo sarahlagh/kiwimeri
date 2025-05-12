@@ -1,15 +1,17 @@
 import { ROOT_FOLDER } from '@/constants';
 import storageService from './storage.service';
+import { useCellWithRef, useValueWithRef } from './tinybase/hooks';
 
 class UserSettingsService {
+  private readonly storeId = 'store';
   private readonly spacesTable = 'spaces';
 
   public useTheme() {
-    return storageService.useValue('theme');
+    return useValueWithRef(this.storeId, 'theme');
   }
 
   public setTheme(theme: 'light' | 'dark') {
-    storageService.setValue('theme', theme);
+    storageService.getStore().setValue('theme', theme);
   }
 
   public getCurrentFolder() {
@@ -23,7 +25,8 @@ class UserSettingsService {
 
   public useCurrentFolder() {
     return (
-      storageService.useCell(
+      useCellWithRef<string>(
+        this.storeId,
         this.spacesTable,
         storageService.getSpaceId(),
         'currentFolder'
