@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/settings/components/providers/RemotesSettings.tsx:92
+#: src/settings/components/providers/RemotesSettings.tsx:100
 msgid "Add config"
 msgstr "Add config"
 
@@ -41,7 +41,7 @@ msgstr "Choose a new folder"
 msgid "Collection"
 msgstr "Collection"
 
-#: src/settings/components/providers/RemotesSettings.tsx:49
+#: src/settings/components/providers/RemotesSettings.tsx:56
 msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
 
@@ -58,15 +58,15 @@ msgstr "Debug"
 msgid "Download Logs"
 msgstr "Download Logs"
 
-#: src/settings/components/providers/PCloudSettings.tsx:129
+#: src/settings/components/providers/PCloudSettings.tsx:131
 msgid "Enter your password"
 msgstr "Enter your password"
 
-#: src/settings/components/providers/PCloudSettings.tsx:116
+#: src/settings/components/providers/PCloudSettings.tsx:118
 msgid "Enter your username"
 msgstr "Enter your username"
 
-#: src/settings/components/providers/PCloudSettings.tsx:86
+#: src/settings/components/providers/PCloudSettings.tsx:88
 msgid "EU"
 msgstr "EU"
 
@@ -90,7 +90,7 @@ msgstr "Import & export your app settings"
 msgid "Import & export your collection"
 msgstr "Import & export your collection"
 
-#: src/settings/components/providers/PCloudSettings.tsx:104
+#: src/settings/components/providers/PCloudSettings.tsx:106
 msgid "Leave empty for root"
 msgstr "Leave empty for root"
 
@@ -110,8 +110,8 @@ msgstr "Manually backup or restore your app settings"
 msgid "Manually backup or restore your collection."
 msgstr "Manually backup or restore your collection."
 
-#: src/settings/components/providers/RemoteGenericSettings.tsx:108
-#: src/settings/components/providers/RemoteGenericSettings.tsx:111
+#: src/settings/components/providers/RemoteGenericSettings.tsx:109
+#: src/settings/components/providers/RemoteGenericSettings.tsx:112
 msgid "Name"
 msgstr "Name"
 
@@ -143,17 +143,17 @@ msgstr "nuke store"
 msgid "Operations"
 msgstr "Operations"
 
-#: src/settings/components/providers/PCloudSettings.tsx:122
-#: src/settings/components/providers/PCloudSettings.tsx:126
+#: src/settings/components/providers/PCloudSettings.tsx:124
+#: src/settings/components/providers/PCloudSettings.tsx:128
 msgid "Password"
 msgstr "Password"
 
-#: src/settings/components/providers/PCloudSettings.tsx:98
-#: src/settings/components/providers/PCloudSettings.tsx:101
+#: src/settings/components/providers/PCloudSettings.tsx:100
+#: src/settings/components/providers/PCloudSettings.tsx:103
 msgid "Path"
 msgstr "Path"
 
-#: src/settings/components/providers/PCloudSettings.tsx:66
+#: src/settings/components/providers/PCloudSettings.tsx:68
 msgid "PCloud Configuration"
 msgstr "PCloud Configuration"
 
@@ -167,11 +167,11 @@ msgstr "Pick a directory for your backups"
 msgid "Platform(s)"
 msgstr "Platform(s)"
 
-#: src/settings/components/providers/RemotesSettings.tsx:46
+#: src/settings/components/providers/RemotesSettings.tsx:53
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
-#: src/settings/components/providers/RemotesSettings.tsx:100
+#: src/settings/components/providers/RemotesSettings.tsx:108
 msgid "Reorder"
 msgstr "Reorder"
 
@@ -179,7 +179,7 @@ msgstr "Reorder"
 msgid "Restore"
 msgstr "Restore"
 
-#: src/settings/components/providers/PCloudSettings.tsx:75
+#: src/settings/components/providers/PCloudSettings.tsx:77
 msgid "Server"
 msgstr "Server"
 
@@ -198,7 +198,7 @@ msgstr "Success!"
 msgid "Synchronize your collection on the filesystem"
 msgstr "Synchronize your collection on the filesystem"
 
-#: src/settings/components/providers/RemotesSettings.tsx:54
+#: src/settings/components/providers/RemotesSettings.tsx:61
 msgid "Syncing is disabled on the web version."
 msgstr "Syncing is disabled on the web version."
 
@@ -220,16 +220,16 @@ msgstr ""
 "            a cloud provider. The app settings consist of anything configured in\n"
 "            this page, including the settings for your cloud provider."
 
-#: src/settings/components/providers/PCloudSettings.tsx:91
+#: src/settings/components/providers/PCloudSettings.tsx:93
 msgid "US"
 msgstr "US"
 
-#: src/settings/components/providers/PCloudSettings.tsx:110
-#: src/settings/components/providers/PCloudSettings.tsx:113
+#: src/settings/components/providers/PCloudSettings.tsx:112
+#: src/settings/components/providers/PCloudSettings.tsx:115
 msgid "Username"
 msgstr "Username"
 
-#: src/settings/components/providers/RemotesSettings.tsx:63
+#: src/settings/components/providers/RemotesSettings.tsx:70
 msgid "You have not configured any remote yet."
 msgstr "You have not configured any remote yet."
 

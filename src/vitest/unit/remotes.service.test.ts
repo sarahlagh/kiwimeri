@@ -20,6 +20,7 @@ describe('remotes service', () => {
       .getRow('remoteState', state as string);
     expect(stateRow.connected).toBeFalsy();
     expect(stateRow.lastRemoteChange).toBeDefined();
+    expect(remotesService.getPersister(rowId)).toBeUndefined();
   });
 
   it('should not init sync for previously unconfigured remotes', async () => {
@@ -53,6 +54,7 @@ describe('remotes service', () => {
       {}
     );
     expect(ok).toBeTruthy();
+    expect(remotesService.getPersister(rowId)).toBeUndefined();
     await remotesService.initSyncConnection(storageService.getSpaceId());
     const stateRow = storageService
       .getStore()

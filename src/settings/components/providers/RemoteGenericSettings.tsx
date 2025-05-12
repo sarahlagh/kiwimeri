@@ -21,6 +21,7 @@ export type RemoteGenericSettingsChildProps = {
   isLast: boolean;
   remote: RemoteResult;
   reorderEnabled?: boolean;
+  onConfigured: (ok: boolean) => Promise<void>;
 };
 
 type RemoteGenericSettingsProps = {

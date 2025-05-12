@@ -22,7 +22,8 @@ const PCloudSettings = ({
   remote,
   isPrimary,
   isLast,
-  reorderEnabled
+  reorderEnabled,
+  onConfigured
 }: PCloudSettingsProps) => {
   const { t } = useLingui();
   const [checking, setChecking] = useState(false);
@@ -45,7 +46,7 @@ const PCloudSettings = ({
     remotesService.setRemoteConfig(remote.id, syncConf);
     if (syncConf.username && syncConf.password) {
       setChecking(true);
-      await remotesService.configure(
+      const ok = await remotesService.configure(
         remote,
         // don't send full object, want to erase folderid & fileid
         {
@@ -56,6 +57,7 @@ const PCloudSettings = ({
         }
       );
       setChecking(false);
+      await onConfigured(ok);
     }
   };
 

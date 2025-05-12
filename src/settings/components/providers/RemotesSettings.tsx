@@ -1,6 +1,7 @@
 import platformService from '@/common/services/platform.service';
 import { APPICONS } from '@/constants';
 import remotesService from '@/db/remotes.service';
+import storageService from '@/db/storage.service';
 import { PCloudConf } from '@/remote-storage/storage-drivers/pcloud/pcloud.driver';
 import {
   IonButton,
@@ -30,6 +31,12 @@ const RemotesSettings = () => {
     remotesService.addRemote('pcloud', remotes.length, 'pcloud', {
       serverLocation: 'eu'
     } as PCloudConf);
+  };
+
+  const onConfigured = async (ok: boolean) => {
+    if (ok) {
+      await remotesService.initSyncConnection(storageService.getSpaceId());
+    }
   };
 
   function handleReorder(event: CustomEvent<ItemReorderEventDetail>) {
@@ -78,6 +85,7 @@ const RemotesSettings = () => {
                           isPrimary={remote.rank === 0}
                           isLast={remote.rank === remotes.length - 1}
                           reorderEnabled={reorderEnabled}
+                          onConfigured={onConfigured}
                         />
                       </IonItem>
                     </IonReorder>

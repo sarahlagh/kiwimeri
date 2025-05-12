@@ -122,7 +122,7 @@ class RemotesService {
       remote.state,
       newConf.remoteState.connected || false
     );
-    return newConf.remoteState.connected;
+    return newConf.remoteState.connected || false;
   }
 
   public getRemotes(space?: string) {

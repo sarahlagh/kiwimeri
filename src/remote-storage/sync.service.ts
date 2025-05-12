@@ -31,7 +31,7 @@ class SyncService {
     const pushRemotes = remotes.filter(r =>
       remoteId ? r.id === remoteId && r.connected : r.connected
     );
-    console.log(`pushing to ${pushRemotes.length} active remotes`);
+    console.log(`pushing to ${pushRemotes.length} active remote(s)`);
     const oldForceMode = remotesService.getForceMode();
     remotesService.setForceMode(force);
     for (const remote of pushRemotes) {
@@ -39,6 +39,8 @@ class SyncService {
       if (persister) {
         // TODO only primary, then use setTimeout for the others
         await persister.save();
+      } else {
+        console.warn('no persister found for remote', remote.id);
       }
     }
     remotesService.setForceMode(oldForceMode);
