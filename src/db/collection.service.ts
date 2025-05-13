@@ -38,13 +38,31 @@ class CollectionService {
       queries.setQueryDefinition(queryName, this.table, ({ select, where }) => {
         select('title');
         select('type');
+        select('tags');
         select('created');
         select('updated');
+        select('conflict');
         where('parent', parent);
         where('deleted', deleted);
       });
     }
     return queryName;
+  }
+
+  public getCollectionItems(
+    parent: string,
+    sortBy: 'created' | 'updated' = 'created',
+    descending = false
+  ) {
+    const table = storageService.getSpace().getTable(this.table);
+    const queryName = this.fetchAllCollectionItemsQuery(parent);
+    return storageService
+      .getSpaceQueries()
+      .getResultSortedRowIds(queryName, sortBy, descending)
+      .map(rowId => {
+        const row = table[rowId];
+        return { ...row, id: rowId } as CollectionItemResult;
+      });
   }
 
   public useCollectionItems(
@@ -76,6 +94,8 @@ class CollectionService {
       parent_meta: this.setFieldMeta(parent, now),
       content,
       content_meta: this.setFieldMeta(content, now),
+      tags: '',
+      tags_meta: this.setFieldMeta('', now),
       created: now,
       updated: now,
       type: CollectionItemType.document,
@@ -95,6 +115,8 @@ class CollectionService {
       title_meta: this.setFieldMeta(getGlobalTrans().newFolderTitle, now),
       parent: parent,
       parent_meta: this.setFieldMeta(parent, now),
+      tags: '',
+      tags_meta: this.setFieldMeta('', now),
       created: now,
       updated: now,
       type: CollectionItemType.folder,
@@ -190,6 +212,38 @@ class CollectionService {
 
   public setItemContent(rowId: Id, content: string) {
     this.setItemField(rowId, 'content', content);
+  }
+
+  public getItemTags(rowId: Id) {
+    return new Set(
+      (
+        (storageService
+          .getSpace()
+          .getCell(this.table, rowId, 'tags')
+          ?.valueOf() as string) || ''
+      )
+        .split(',')
+        .filter(t => t.length > 0)
+    );
+  }
+
+  public addItemTag(rowId: Id, tag: string) {
+    const tags = this.getItemTags(rowId);
+    tags.add(tag);
+    this.setItemField(rowId, 'tags', [...tags].join(','));
+  }
+
+  public delItemTag(rowId: Id, tag: string) {
+    const tags = this.getItemTags(rowId);
+    tags.delete(tag);
+    this.setItemField(rowId, 'tags', [...tags].join(','));
+  }
+
+  public renameItemTag(rowId: Id, tag1: string, tag2: string) {
+    const tags = this.getItemTags(rowId);
+    tags.delete(tag1);
+    tags.add(tag2);
+    this.setItemField(rowId, 'tags', [...tags].join(','));
   }
 
   public getItemType(rowId: Id): CollectionItemTypeValues {

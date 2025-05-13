@@ -138,6 +138,8 @@ class StorageService {
         type: { type: 'string' } as CellSchema,
         content: { type: 'string' } as CellSchema,
         content_meta: { type: 'string' } as CellSchema,
+        tags: { type: 'string' } as CellSchema,
+        tags_meta: { type: 'string' } as CellSchema,
         created: { type: 'number' } as CellSchema,
         updated: { type: 'number' } as CellSchema,
         deleted: { type: 'boolean', default: false } as CellSchema,

@@ -76,7 +76,6 @@ describe('lexical compression algorithm', () => {
         ((content.length - minimized.length) / content.length) * 100;
       console.log('reached compression rate of', compressionRate);
       console.log('minimized json', minimized);
-      //   expect(compressionRate).toBeGreaterThan(10);
 
       const restored = unminimizeFromStorage(minimized);
       expect(restored).toBe(content);

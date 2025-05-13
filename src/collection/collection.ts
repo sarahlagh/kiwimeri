@@ -15,6 +15,8 @@ export interface CollectionItem {
   title_meta: string;
   content?: string;
   content_meta?: string;
+  tags?: string;
+  tags_meta?: string;
   created: number;
   updated: number;
   deleted: boolean;
@@ -27,11 +29,18 @@ export type CollectionItemFieldEnum = keyof Required<
 >;
 
 export type CollectionItemUpdatableFieldEnum = keyof Required<
-  Pick<CollectionItem, 'parent' | 'title' | 'content' | 'deleted'>
+  Pick<CollectionItem, 'parent' | 'title' | 'content' | 'tags' | 'deleted'>
 >;
 
 export type CollectionItemResult = Pick<
   CollectionItem,
-  'parent' | 'title' | 'type' | 'created' | 'updated' | 'deleted' | 'conflict'
+  | 'parent'
+  | 'title'
+  | 'type'
+  | 'tags'
+  | 'created'
+  | 'updated'
+  | 'deleted'
+  | 'conflict'
 > &
   Required<Pick<CollectionItem, 'id'>>;

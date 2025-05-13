@@ -32,6 +32,8 @@ export const oneDocument = (title = 'new doc', parent = ROOT_FOLDER) => {
     title_meta: setFieldMeta(title, Date.now()),
     content: 'random',
     content_meta: setFieldMeta('random', Date.now()),
+    tags: '',
+    tags_meta: setFieldMeta('', Date.now()),
     created: Date.now(),
     updated: Date.now(),
     deleted: false,
@@ -47,6 +49,8 @@ export const oneFolder = (title = 'new folder', parent = ROOT_FOLDER) => {
     type: CollectionItemType.folder,
     title,
     title_meta: setFieldMeta(title, Date.now()),
+    tags: '',
+    tags_meta: setFieldMeta('', Date.now()),
     created: Date.now(),
     updated: Date.now(),
     deleted: false,
@@ -80,7 +84,7 @@ export const ITEM_TYPES: itemTypesType[] = [
 
 export const NON_PARENT_UPDATABLE_FIELDS: {
   field: CollectionItemUpdatableFieldEnum;
-}[] = [{ field: 'title' }, { field: 'content' }];
+}[] = [{ field: 'title' }, { field: 'content' }, { field: 'tags' }];
 
 export const UPDATABLE_FIELDS: { field: CollectionItemUpdatableFieldEnum }[] = [
   ...NON_PARENT_UPDATABLE_FIELDS,
@@ -102,6 +106,38 @@ export const NON_CONFLICT_CHANGES = [
   {
     local: 'title',
     remote: 'parent'
+  },
+  {
+    local: 'parent',
+    remote: 'content'
+  },
+  {
+    local: 'content',
+    remote: 'parent'
+  },
+  {
+    local: 'title',
+    remote: 'tags'
+  },
+  {
+    local: 'tags',
+    remote: 'title'
+  },
+  {
+    local: 'content',
+    remote: 'tags'
+  },
+  {
+    local: 'tags',
+    remote: 'content'
+  },
+  {
+    local: 'parent',
+    remote: 'tags'
+  },
+  {
+    local: 'tags',
+    remote: 'parent'
   }
 ];
 export const CONFLICT_CHANGES = [
@@ -119,6 +155,11 @@ export const CONFLICT_CHANGES = [
     field: 'parent',
     local: 'parent',
     remote: 'parent'
+  },
+  {
+    field: 'tags',
+    local: 'tags',
+    remote: 'tags'
   }
 ];
 

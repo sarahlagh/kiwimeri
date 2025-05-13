@@ -195,6 +195,60 @@ describe('collection service', () => {
         expect(folder3.updated).toBe(now + 100);
         expect(JSON.parse(folder3.parent_meta).updated).toBe(now);
       });
+
+      it(`should add a single tag to a ${type} without changing the rest`, () => {
+        const id = collectionService[addMethod](ROOT_FOLDER);
+
+        expect([...collectionService.getItemTags(id)]).toStrictEqual([]);
+        collectionService.addItemTag(id, 'tag1');
+
+        expect([...collectionService.getItemTags(id)]).toStrictEqual(['tag1']);
+        collectionService.addItemTag(id, 'tag2');
+
+        expect([...collectionService.getItemTags(id)]).toStrictEqual([
+          'tag1',
+          'tag2'
+        ]);
+      });
+
+      it(`should delete a single tag from a ${type} without changing the rest`, () => {
+        const id = collectionService[addMethod](ROOT_FOLDER);
+        collectionService.addItemTag(id, 'tag1');
+        collectionService.addItemTag(id, 'tag2');
+        collectionService.addItemTag(id, 'tag3');
+
+        expect([...collectionService.getItemTags(id)]).toStrictEqual([
+          'tag1',
+          'tag2',
+          'tag3'
+        ]);
+        collectionService.delItemTag(id, 'tag2');
+
+        expect([...collectionService.getItemTags(id)]).toStrictEqual([
+          'tag1',
+          'tag3'
+        ]);
+      });
+
+      it(`should rename a single tag from a ${type} without changing the rest`, () => {
+        const id = collectionService[addMethod](ROOT_FOLDER);
+        collectionService.addItemTag(id, 'tag1');
+        collectionService.addItemTag(id, 'tag2');
+        collectionService.addItemTag(id, 'tag3');
+
+        expect([...collectionService.getItemTags(id)]).toStrictEqual([
+          'tag1',
+          'tag2',
+          'tag3'
+        ]);
+        collectionService.renameItemTag(id, 'tag2', 'tag4');
+
+        expect([...collectionService.getItemTags(id)]).toStrictEqual([
+          'tag1',
+          'tag3',
+          'tag4'
+        ]);
+      });
     });
   });
 
