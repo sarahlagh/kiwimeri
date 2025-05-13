@@ -214,6 +214,16 @@ class CollectionService {
     this.setItemField(rowId, 'content', content);
   }
 
+  public useItemTags(rowId: Id) {
+    return [
+      ...new Set(
+        (useCellWithRef<string>(this.storeId, this.table, rowId, 'tags') || '')
+          .split(',')
+          .filter(t => t.length > 0)
+      )
+    ];
+  }
+
   public getItemTags(rowId: Id) {
     return new Set(
       (
@@ -230,6 +240,18 @@ class CollectionService {
   public addItemTag(rowId: Id, tag: string) {
     const tags = this.getItemTags(rowId);
     tags.add(tag);
+    this.setItemField(rowId, 'tags', [...tags].join(','));
+  }
+
+  public addItemTags(rowId: Id, tags: string[]) {
+    const currentTags = this.getItemTags(rowId);
+    tags.forEach(tag => {
+      currentTags.add(tag);
+    });
+    this.setItemField(rowId, 'tags', [...currentTags].join(','));
+  }
+
+  public setItemTags(rowId: Id, tags: string[]) {
     this.setItemField(rowId, 'tags', [...tags].join(','));
   }
 

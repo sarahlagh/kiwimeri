@@ -50,6 +50,16 @@ class TagsService {
     this.reBuildTags(); // TODO optimize
   }
 
+  public addItemTags(rowId: Id, tags: string[]) {
+    collectionService.addItemTags(rowId, tags);
+    this.reBuildTags(); // TODO optimize
+  }
+
+  public setItemTags(rowId: Id, tags: string[]) {
+    collectionService.setItemTags(rowId, tags);
+    this.reBuildTags(); // TODO optimize
+  }
+
   public delItemTag(rowId: Id, tag: string) {
     collectionService.delItemTag(rowId, tag);
     this.reBuildTags(); // TODO optimize

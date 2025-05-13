@@ -211,6 +211,41 @@ describe('collection service', () => {
         ]);
       });
 
+      it(`should add multiple tags to a ${type} without changing the rest`, () => {
+        const id = collectionService[addMethod](ROOT_FOLDER);
+
+        expect([...collectionService.getItemTags(id)]).toStrictEqual([]);
+        collectionService.addItemTags(id, ['tag1', 'tag2']);
+        expect([...collectionService.getItemTags(id)]).toStrictEqual([
+          'tag1',
+          'tag2'
+        ]);
+        collectionService.addItemTags(id, ['tag1', 'tag3']);
+
+        expect([...collectionService.getItemTags(id)]).toStrictEqual([
+          'tag1',
+          'tag2',
+          'tag3'
+        ]);
+      });
+
+      it(`should set multiple tags to a ${type}, overwriting the rest`, () => {
+        const id = collectionService[addMethod](ROOT_FOLDER);
+
+        expect([...collectionService.getItemTags(id)]).toStrictEqual([]);
+        collectionService.setItemTags(id, ['tag1', 'tag2']);
+        expect([...collectionService.getItemTags(id)]).toStrictEqual([
+          'tag1',
+          'tag2'
+        ]);
+        collectionService.setItemTags(id, ['tag1', 'tag3']);
+
+        expect([...collectionService.getItemTags(id)]).toStrictEqual([
+          'tag1',
+          'tag3'
+        ]);
+      });
+
       it(`should delete a single tag from a ${type} without changing the rest`, () => {
         const id = collectionService[addMethod](ROOT_FOLDER);
         collectionService.addItemTag(id, 'tag1');
