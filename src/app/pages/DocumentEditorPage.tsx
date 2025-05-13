@@ -15,7 +15,7 @@ const DocumentEditorPage = () => {
   const docId = searchParams?.document || FAKE_ROOT;
   const parent = searchParams?.folder || FAKE_ROOT;
 
-  const [showDocumentActions, setShowDocumentActions] = useState(true);
+  const [showDocumentActions, setShowDocumentActions] = useState(false);
 
   const title = collectionService.useItemTitle(docId);
   const folderTitle = collectionService.useItemTitle(parent);

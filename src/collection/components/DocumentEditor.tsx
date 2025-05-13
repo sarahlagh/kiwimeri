@@ -23,12 +23,12 @@ interface DocumentEditorProps {
 
 const DocumentEditor = ({ id, showActions = false }: DocumentEditorProps) => {
   const refWriter = useRef(null);
-  const [showDocumentActions, setShowDocumentActions] = useState(showActions);
+  const [showDocumentActions, setShowDocumentActions] = useState<boolean>();
   const [showDocumentFooter, setShowDocumentFooter] = useState(false);
   useEffect(() => {
-    console.debug('in effect - showAction', showActions, showDocumentActions);
-    // setShowDocumentActions(!showDocumentActions); // can be triggered from parent
-    setShowDocumentActions(showActions);
+    setShowDocumentActions(
+      showDocumentActions !== undefined ? !showDocumentActions : false
+    ); // can be triggered from parent
   }, [showActions]);
 
   const documentTitle = collectionService.getItemTitle(id);
@@ -54,6 +54,7 @@ const DocumentEditor = ({ id, showActions = false }: DocumentEditorProps) => {
   return (
     <>
       <IonHeader>
+        {/*only visible in compact mode*/}
         <IonToolbar class="ion-hide-md-down">
           <IonTitle>
             <IonInput
