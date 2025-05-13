@@ -1,4 +1,5 @@
 import { ROOT_FOLDER } from '@/constants';
+import { Id } from 'tinybase/with-schemas';
 import collectionService from './collection.service';
 import storageService from './storage.service';
 
@@ -41,6 +42,16 @@ class TagsService {
       });
       this.reBuildTags();
     }
+  }
+
+  public addItemTag(rowId: Id, tag: string) {
+    collectionService.addItemTag(rowId, tag);
+    this.reBuildTags(); // TODO optimize
+  }
+
+  public delItemTag(rowId: Id, tag: string) {
+    collectionService.delItemTag(rowId, tag);
+    this.reBuildTags(); // TODO optimize
   }
 }
 
