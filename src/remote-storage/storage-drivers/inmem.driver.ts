@@ -85,7 +85,7 @@ export class InMemDriver extends FileStorageDriver {
     console.debug('[getRemoteContent]', this.collection.get(this.names[0]));
     return {
       content: (
-        JSON.parse(this.collection.get(this.names[0]) || '{}') as {
+        JSON.parse(this.collection.get(this.names[0]) || '{"i":[],"u":0}') as {
           i: CollectionItem[];
           u: number;
         }

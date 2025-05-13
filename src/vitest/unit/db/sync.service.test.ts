@@ -960,7 +960,7 @@ describe('sync service', () => {
           expect(remoteContent.content).toHaveLength(0);
         });
 
-        it('should push everything on first push even if there are no local changes', async () => {
+        it('should push nothing even on first push if there are no local changes', async () => {
           collectionService_addDocument(ROOT_FOLDER);
           collectionService_addDocument(ROOT_FOLDER);
           collectionService_addFolder(ROOT_FOLDER);
@@ -970,7 +970,7 @@ describe('sync service', () => {
           await syncService_pull();
           await syncService_push();
           const remoteContent = await driver.getContent();
-          expect(remoteContent.content).toHaveLength(3);
+          expect(remoteContent.content).toHaveLength(0); // use force push for that scenario
         });
 
         it('should push nothing on second push if there are no local changes', async () => {

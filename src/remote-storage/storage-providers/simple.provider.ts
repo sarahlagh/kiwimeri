@@ -146,9 +146,11 @@ export class SimpleStorageProvider extends StorageProvider {
       }
     }
 
-    const content = this.serialization(newRemoteContent, lastLocalChange);
-    const driverInfo = await this.driver.pushFile(this.filename, content);
-    newRemoteState.info = driverInfo;
+    if (localChanges.length > 0 || force) {
+      const content = this.serialization(newRemoteContent, lastLocalChange);
+      const driverInfo = await this.driver.pushFile(this.filename, content);
+      newRemoteState.info = driverInfo;
+    }
 
     console.debug('[push] localInfo', localInfo);
     console.debug('[push] collection', collection);
@@ -234,7 +236,7 @@ export class SimpleStorageProvider extends StorageProvider {
           const meta = newLocalCollection.get(localChange.item)![
             `${localChange.field as CollectionItemUpdatableFieldEnum}_meta`
           ];
-          console.debug('[pull] local change meta', meta);
+          console.debug('[pull] local change meta', localChange.field, meta);
           remoteUpdated = JSON.parse(meta!).updated;
         }
 

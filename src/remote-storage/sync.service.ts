@@ -15,7 +15,10 @@ class SyncService {
     switch (direction) {
       case 'sync':
         await this.pull(remote);
-        return this.push(remote);
+        if (localChangesService.getLocalChanges().length > 0) {
+          return this.push(remote);
+        }
+        return;
       case 'push':
         return this.push(remote);
       case 'pull':
