@@ -215,13 +215,11 @@ class CollectionService {
   }
 
   public useItemTags(rowId: Id) {
-    return [
-      ...new Set(
-        (useCellWithRef<string>(this.storeId, this.table, rowId, 'tags') || '')
-          .split(',')
-          .filter(t => t.length > 0)
-      )
-    ];
+    return new Set(
+      (useCellWithRef<string>(this.storeId, this.table, rowId, 'tags') || '')
+        .split(',')
+        .filter(t => t.length > 0)
+    );
   }
 
   public getItemTags(rowId: Id) {

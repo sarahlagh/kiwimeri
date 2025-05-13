@@ -14,6 +14,7 @@ import {
 } from '@ionic/react';
 import { useEffect, useRef, useState } from 'react';
 import CommonActionsToolbar from './CommonActionsToolbar';
+import DocumentEditorFooter from './DocumentEditorFooter';
 
 interface DocumentEditorProps {
   id: string;
@@ -23,8 +24,11 @@ interface DocumentEditorProps {
 const DocumentEditor = ({ id, showActions = false }: DocumentEditorProps) => {
   const refWriter = useRef(null);
   const [showDocumentActions, setShowDocumentActions] = useState(showActions);
+  const [showDocumentFooter, setShowDocumentFooter] = useState(false);
   useEffect(() => {
-    setShowDocumentActions(showActions); // can be triggered from parent
+    console.debug('in effect - showAction', showActions, showDocumentActions);
+    // setShowDocumentActions(!showDocumentActions); // can be triggered from parent
+    setShowDocumentActions(showActions);
   }, [showActions]);
 
   const documentTitle = collectionService.getItemTitle(id);
@@ -78,7 +82,10 @@ const DocumentEditor = ({ id, showActions = false }: DocumentEditorProps) => {
             id={id}
             showClose={true}
             showInfo={true}
-            onClose={() => {
+            onClose={role => {
+              if (role === 'info') {
+                setShowDocumentFooter(!showDocumentFooter);
+              }
               setShowDocumentActions(false);
             }}
           />
@@ -90,6 +97,7 @@ const DocumentEditor = ({ id, showActions = false }: DocumentEditorProps) => {
           <Writer ref={refWriter} id={id} content={documentContent}></Writer>
         )}
       </IonContent>
+      {showDocumentFooter && <DocumentEditorFooter id={id} />}
     </>
   );
 };

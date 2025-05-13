@@ -21,11 +21,13 @@ msgstr "Add config"
 msgid "An error occurred loading the file"
 msgstr "An error occurred loading the file"
 
-#: src/common/modals/ConfirmYesNoDialog.tsx:28
+#: src/common/modals/ConfirmYesNoDialog.tsx:24
 msgid "Are you sure?"
 msgstr "Are you sure?"
 
-#: src/common/modals/ConfirmYesNoDialog.tsx:32
+#: src/common/modals/ConfirmYesNoDialog.tsx:28
+#: src/common/modals/ChooseTagsModal.tsx:78
+#: src/common/modals/ChooseTagsDialog.tsx:29
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -37,6 +39,10 @@ msgstr "Choose"
 msgid "Choose a new folder"
 msgstr "Choose a new folder"
 
+#: src/common/modals/ChooseTagsDialog.tsx:25
+msgid "Choose tags"
+msgstr "Choose tags"
+
 #: src/app/components/MainMenuList.tsx:53
 msgid "Collection"
 msgstr "Collection"
@@ -45,7 +51,9 @@ msgstr "Collection"
 msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
 
-#: src/common/modals/ConfirmYesNoDialog.tsx:40
+#: src/common/modals/ConfirmYesNoDialog.tsx:36
+#: src/common/modals/ChooseTagsModal.tsx:85
+#: src/common/modals/ChooseTagsDialog.tsx:37
 msgid "Confirm"
 msgstr "Confirm"
 
@@ -123,6 +131,10 @@ msgstr "New document"
 msgid "New folder"
 msgstr "New folder"
 
+#: src/common/modals/ChooseTagsModal.tsx:63
+msgid "New tag"
+msgstr "New tag"
+
 #: src/app/components/NotFound.tsx:4
 msgid "Not Found"
 msgstr "Not Found"
@@ -178,6 +190,10 @@ msgstr "Reorder"
 #: src/settings/components/sections/ImportExportSettings.tsx:116
 msgid "Restore"
 msgstr "Restore"
+
+#: src/common/modals/ChooseTagsModal.tsx:37
+msgid "Select item tags"
+msgstr "Select item tags"
 
 #: src/settings/components/providers/PCloudSettings.tsx:77
 msgid "Server"

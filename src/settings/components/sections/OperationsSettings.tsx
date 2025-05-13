@@ -1,5 +1,6 @@
 import localChangesService from '@/db/localChanges.service';
 import storageService from '@/db/storage.service';
+import tagsService from '@/db/tags.service';
 import { IonButton, IonCard, IonCardHeader, IonCardTitle } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 
@@ -26,6 +27,7 @@ const OperationSettings = () => {
         onClick={() => {
           storageService.getSpace().setContent([{}, {}]);
           localChangesService.clearLocalChanges();
+          tagsService.reBuildTags();
         }}
         color="danger"
       >
@@ -44,6 +46,7 @@ const OperationSettings = () => {
             .getStore()
             .setCell('remoteState', '0', 'lastRemoteChange', 0);
           storageService.getStore().delTable('remoteItems');
+          tagsService.reBuildTags();
         }}
         color="danger"
       >

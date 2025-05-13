@@ -2,7 +2,8 @@ import CloseDocumentButton from '@/common/buttons/CloseDocumentButton';
 import DeleteItemButton from '@/common/buttons/DeleteItemButton';
 import MoveFolderButton from '@/common/buttons/MoveFolderButton';
 import RenameItemButton from '@/common/buttons/RenameItemButton';
-import { IonButtons, IonToolbar } from '@ionic/react';
+import { APPICONS } from '@/constants';
+import { IonButton, IonButtons, IonIcon, IonToolbar } from '@ionic/react';
 
 export type CommonActionsToolbarProps = {
   id: string;
@@ -29,6 +30,18 @@ const CommonActionsToolbar = ({
         {showRename && <RenameItemButton id={id} onClose={onClose} />}
         <MoveFolderButton id={id} onClose={onClose} />
         <DeleteItemButton id={id} onClose={onClose} />
+
+        {showInfo && (
+          <IonButton
+            expand="block"
+            onClick={() => {
+              onClose('info', id);
+            }}
+          >
+            <IonIcon icon={APPICONS.info}></IonIcon>
+          </IonButton>
+        )}
+
         {showClose && <CloseDocumentButton id={id} onClose={onClose} />}
       </IonButtons>
     </IonToolbar>

@@ -18,10 +18,6 @@ const ConfirmYesNoDialog = ({
   const { t } = useLingui();
   const modal = useRef<HTMLIonModalElement>(null);
 
-  function onDidDismiss() {
-    onClose(false);
-  }
-
   return (
     <IonAlert
       trigger={trigger}
@@ -45,7 +41,7 @@ const ConfirmYesNoDialog = ({
           }
         }
       ]}
-      onDidDismiss={onDidDismiss}
+      onDidDismiss={() => onClose(false)}
     ></IonAlert>
   );
 };
