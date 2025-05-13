@@ -1,25 +1,36 @@
 import { onTitleChangeFn } from '@/common/events/events';
 import Writer from '@/common/wysiwyg/Writer';
+import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
 import {
   InputCustomEvent,
+  IonButton,
   IonContent,
   IonHeader,
+  IonIcon,
   IonInput,
   IonTitle,
   IonToolbar
 } from '@ionic/react';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import CommonActionsToolbar from './CommonActionsToolbar';
 
 interface DocumentEditorProps {
   id: string;
+  showActions?: boolean;
 }
 
-const DocumentEditor = ({ id }: DocumentEditorProps) => {
+const DocumentEditor = ({ id, showActions = false }: DocumentEditorProps) => {
   const refWriter = useRef(null);
+  const [showDocumentActions, setShowDocumentActions] = useState(showActions);
+  useEffect(() => {
+    setShowDocumentActions(showActions); // can be triggered from parent
+  }, [showActions]);
+
   const documentTitle = collectionService.getItemTitle(id);
   const documentContent = collectionService.useItemContent(id);
   const onTitleChange = onTitleChangeFn(id);
+
   const onClickedAnywhere: React.MouseEventHandler<HTMLIonContentElement> = (
     event: React.MouseEvent<HTMLIonContentElement, MouseEvent>
   ) => {
@@ -35,10 +46,11 @@ const DocumentEditor = ({ id }: DocumentEditorProps) => {
       ref.focus();
     }
   };
+
   return (
     <>
-      <IonHeader class="ion-hide-md-down">
-        <IonToolbar>
+      <IonHeader>
+        <IonToolbar class="ion-hide-md-down">
           <IonTitle>
             <IonInput
               class="invisible"
@@ -50,8 +62,29 @@ const DocumentEditor = ({ id }: DocumentEditorProps) => {
               }}
             ></IonInput>
           </IonTitle>
+          <IonButton
+            slot="end"
+            fill="clear"
+            color={'dark'}
+            onClick={() => {
+              setShowDocumentActions(!showDocumentActions);
+            }}
+          >
+            <IonIcon icon={APPICONS.itemActions}></IonIcon>
+          </IonButton>
         </IonToolbar>
+        {showDocumentActions && (
+          <CommonActionsToolbar
+            id={id}
+            showClose={true}
+            showInfo={true}
+            onClose={() => {
+              setShowDocumentActions(false);
+            }}
+          />
+        )}
       </IonHeader>
+
       <IonContent onClick={onClickedAnywhere}>
         {documentContent && (
           <Writer ref={refWriter} id={id} content={documentContent}></Writer>

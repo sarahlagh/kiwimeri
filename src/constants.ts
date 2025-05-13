@@ -18,10 +18,12 @@ import {
   helpOutline,
   home,
   homeOutline,
+  informationCircleOutline,
   locateOutline,
   moonOutline,
   moonSharp,
   openOutline,
+  pricetagsOutline,
   settingsSharp,
   syncOutline,
   trashOutline,
@@ -73,5 +75,7 @@ export const APPICONS = {
   unknown: helpOutline,
   moveUp: arrowUp,
   moveDown: arrowDown,
-  warning: warningOutline
+  warning: warningOutline,
+  info: informationCircleOutline,
+  tags: pricetagsOutline
 };

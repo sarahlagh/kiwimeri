@@ -9,6 +9,7 @@ export type CommonActionsToolbarProps = {
   rows?: number;
   onClose: (role?: string, data?: unknown) => void;
   showRename?: boolean;
+  showInfo?: boolean;
   showClose?: boolean;
 } & React.HTMLAttributes<HTMLIonToolbarElement>;
 
@@ -17,6 +18,7 @@ const CommonActionsToolbar = ({
   rows = 1,
   showRename = false,
   showClose = false,
+  showInfo = false,
   onClose,
   children
 }: CommonActionsToolbarProps) => {

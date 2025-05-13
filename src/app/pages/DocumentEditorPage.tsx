@@ -1,5 +1,4 @@
 import CollectionItemBrowserList from '@/collection/components/CollectionItemBrowserList';
-import CommonActionsToolbar from '@/collection/components/CommonActionsToolbar';
 import DocumentEditor from '@/collection/components/DocumentEditor';
 import { onTitleChangeFn } from '@/common/events/events';
 import { getSearchParams } from '@/common/utils';
@@ -16,7 +15,7 @@ const DocumentEditorPage = () => {
   const docId = searchParams?.document || FAKE_ROOT;
   const parent = searchParams?.folder || FAKE_ROOT;
 
-  const [hideDocumentActions, setHideDocumentActions] = useState(true);
+  const [showDocumentActions, setShowDocumentActions] = useState(true);
 
   const title = collectionService.useItemTitle(docId);
   const folderTitle = collectionService.useItemTitle(parent);
@@ -24,7 +23,7 @@ const DocumentEditorPage = () => {
   const onFolderTitleChange = onTitleChangeFn(parent);
 
   useEffect(() => {
-    setHideDocumentActions(true);
+    setShowDocumentActions(false);
   }, [docId]);
 
   const CollectionItemActionsMenu = () => {
@@ -32,7 +31,7 @@ const DocumentEditorPage = () => {
       <>
         <IonButton
           onClick={() => {
-            setHideDocumentActions(!hideDocumentActions);
+            setShowDocumentActions(!showDocumentActions);
           }}
         >
           <IonIcon icon={APPICONS.itemActions}></IonIcon>
@@ -52,25 +51,17 @@ const DocumentEditorPage = () => {
       headerIfWide={{
         title: folderTitle, // to replace with breadcrumb
         editable: parent !== ROOT_FOLDER,
-        onEdited: onFolderTitleChange,
-        // TODO: remove that and move it to editor toolbar
-        children: <CollectionItemActionsMenu />
+        onEdited: onFolderTitleChange
       }}
       menu={
         <CollectionItemBrowserList parent={parent}></CollectionItemBrowserList>
       }
       contentId="documentExplorer"
     >
-      {!hideDocumentActions && (
-        <CommonActionsToolbar
-          id={docId}
-          showClose={true}
-          onClose={() => {
-            setHideDocumentActions(true);
-          }}
-        />
-      )}
-      <DocumentEditor id={docId}></DocumentEditor>
+      <DocumentEditor
+        id={docId}
+        showActions={showDocumentActions}
+      ></DocumentEditor>
     </TemplateCompactableSplitPage>
   );
 };
