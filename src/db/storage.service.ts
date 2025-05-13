@@ -12,6 +12,7 @@ import { createQueries, Queries } from 'tinybase/queries/with-schemas';
 import { CellSchema, createStore, Store } from 'tinybase/store/with-schemas';
 import { createIndexes, Indexes } from 'tinybase/with-schemas';
 import remotesService from './remotes.service';
+import tagsService from './tags.service';
 import { SpaceType, StoreType } from './types/space-types';
 
 export type StoreId = 'store' | 'space';
@@ -111,6 +112,7 @@ class StorageService {
           autoLoad
         )
       ]);
+      tagsService.reBuildTags();
       // in a timeout, don't want to block app start for this
       if (platformService.isSyncEnabled()) {
         setTimeout(async () => {

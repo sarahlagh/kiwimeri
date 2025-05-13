@@ -19,6 +19,7 @@ class TagsService {
           this.itemsPerTags.get(t)?.push(item.id);
         });
       });
+    console.debug('[tags] cache rebuilt', this.itemsPerTags);
   }
 
   public getTags() {

@@ -4,6 +4,7 @@ import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/localChanges.service';
 import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
+import tagsService from '@/db/tags.service';
 import { LocalChangeType } from '@/db/types/store-types';
 import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
 import { LayerTypes } from '@/remote-storage/storage-provider.factory';
@@ -756,6 +757,17 @@ describe('sync service', () => {
           expect(getLocalItemField(id, 'title')).toBe('newRemote');
           expect(getLocalItemField(id, 'parent')).toBe('newLocal');
           expect(getLocalItemField(id, 'content')).toBe('newRemote');
+        });
+
+        it('should rebuild the tags cache on pull', async () => {
+          expect(tagsService.getTags()).toHaveLength(0);
+
+          const remoteData = [oneDocument(), oneDocument(), oneFolder()];
+          updateOnRemote(remoteData, remoteData[0].id!, 'tags', 'tag1,tag2');
+          await reInitRemoteData(remoteData);
+          await syncService_pull();
+
+          expect(tagsService.getTags()).toHaveLength(2);
         });
       });
 
