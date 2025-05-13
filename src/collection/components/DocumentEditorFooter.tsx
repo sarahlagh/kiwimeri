@@ -1,4 +1,4 @@
-import AddTagButton from '@/common/buttons/AddTagButton';
+import AddTagsButton from '@/common/buttons/AddTagsButton';
 import { IonFooter } from '@ionic/react';
 
 interface DocumentEditorFooterProps {
@@ -6,18 +6,12 @@ interface DocumentEditorFooterProps {
 }
 
 const DocumentEditorFooter = ({ id }: DocumentEditorFooterProps) => {
-  // const itemTags = collectionService.useItemTags(id);
   return (
     <>
       <IonFooter
         style={{ overflowX: 'auto', flexWrap: 'nowrap', display: 'flex' }}
       >
-        {/* {itemTags.map(tag => (
-          <IonChip key={tag}>
-            <IonLabel>{tag}</IonLabel>
-          </IonChip>
-        ))} */}
-        <AddTagButton id={id} />
+        <AddTagsButton id={id} />
       </IonFooter>
     </>
   );

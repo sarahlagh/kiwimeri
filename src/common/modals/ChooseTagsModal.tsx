@@ -44,22 +44,30 @@ const ChooseTagsModal = ({ id, onClose }: ChooseTagsModalProps) => {
           </IonButtons>
         </IonToolbar>
       </IonHeader>
-      <IonList style={{ overflowY: 'auto' }}>
-        {values.map(value => (
-          <IonItem key={value.tag}>
-            <IonCheckbox
-              checked={value.checked}
-              onIonChange={e => {
-                value.checked = e.detail.checked;
-              }}
-            >
-              {value.tag}
-            </IonCheckbox>
-          </IonItem>
-        ))}
-      </IonList>
+      {allTags.length === 0 && (
+        <IonItem>
+          <Trans>No tag yet</Trans>
+        </IonItem>
+      )}
+      {allTags.length > 0 && (
+        <IonList style={{ maxHeight: '400px', overflowY: 'auto' }}>
+          {values.map(value => (
+            <IonItem key={value.tag}>
+              <IonCheckbox
+                checked={value.checked}
+                onIonChange={e => {
+                  value.checked = e.detail.checked;
+                }}
+              >
+                {value.tag}
+              </IonCheckbox>
+            </IonItem>
+          ))}
+        </IonList>
+      )}
       <IonFooter>
         <IonInput
+          style={{ marginLeft: '16px' }}
           placeholder={t`New tag`}
           slot="start"
           value={inputValue}

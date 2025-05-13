@@ -11,11 +11,11 @@ import {
 import { Id } from 'tinybase/with-schemas';
 import ChooseTagsModal from '../modals/ChooseTagsModal';
 
-type AddTagButtonProps = {
+type AddTagsButtonProps = {
   id: Id;
 };
 
-const AddTagButton = ({ id }: AddTagButtonProps) => {
+const AddTagsButton = ({ id }: AddTagsButtonProps) => {
   const itemTags = [...collectionService.useItemTags(id)];
 
   const [present, dismiss] = useIonModal(ChooseTagsModal, {
@@ -30,11 +30,13 @@ const AddTagButton = ({ id }: AddTagButtonProps) => {
 
   return (
     <>
-      <IonItem>
+      <IonItem className="inner-item">
         <IonButton
           fill="clear"
           onClick={() => {
-            present();
+            present({
+              cssClass: 'auto-height'
+            });
           }}
         >
           <IonIcon icon={APPICONS.tags}></IonIcon>
@@ -44,4 +46,4 @@ const AddTagButton = ({ id }: AddTagButtonProps) => {
     </>
   );
 };
-export default AddTagButton;
+export default AddTagsButton;

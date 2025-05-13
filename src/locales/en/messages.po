@@ -26,8 +26,7 @@ msgid "Are you sure?"
 msgstr "Are you sure?"
 
 #: src/common/modals/ConfirmYesNoDialog.tsx:28
-#: src/common/modals/ChooseTagsModal.tsx:78
-#: src/common/modals/ChooseTagsDialog.tsx:29
+#: src/common/modals/ChooseTagsModal.tsx:86
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -39,10 +38,6 @@ msgstr "Choose"
 msgid "Choose a new folder"
 msgstr "Choose a new folder"
 
-#: src/common/modals/ChooseTagsDialog.tsx:25
-msgid "Choose tags"
-msgstr "Choose tags"
-
 #: src/app/components/MainMenuList.tsx:53
 msgid "Collection"
 msgstr "Collection"
@@ -52,8 +47,7 @@ msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
 
 #: src/common/modals/ConfirmYesNoDialog.tsx:36
-#: src/common/modals/ChooseTagsModal.tsx:85
-#: src/common/modals/ChooseTagsDialog.tsx:37
+#: src/common/modals/ChooseTagsModal.tsx:93
 msgid "Confirm"
 msgstr "Confirm"
 
@@ -131,27 +125,31 @@ msgstr "New document"
 msgid "New folder"
 msgstr "New folder"
 
-#: src/common/modals/ChooseTagsModal.tsx:63
+#: src/common/modals/ChooseTagsModal.tsx:71
 msgid "New tag"
 msgstr "New tag"
+
+#: src/common/modals/ChooseTagsModal.tsx:49
+msgid "No tag yet"
+msgstr "No tag yet"
 
 #: src/app/components/NotFound.tsx:4
 msgid "Not Found"
 msgstr "Not Found"
 
-#: src/settings/components/sections/OperationsSettings.tsx:32
+#: src/settings/components/sections/OperationsSettings.tsx:34
 msgid "nuke space"
 msgstr "nuke space"
 
-#: src/settings/components/sections/OperationsSettings.tsx:50
+#: src/settings/components/sections/OperationsSettings.tsx:53
 msgid "nuke space & remote"
 msgstr "nuke space & remote"
 
-#: src/settings/components/sections/OperationsSettings.tsx:22
+#: src/settings/components/sections/OperationsSettings.tsx:23
 msgid "nuke store"
 msgstr "nuke store"
 
-#: src/settings/components/sections/OperationsSettings.tsx:11
+#: src/settings/components/sections/OperationsSettings.tsx:12
 msgid "Operations"
 msgstr "Operations"
 
