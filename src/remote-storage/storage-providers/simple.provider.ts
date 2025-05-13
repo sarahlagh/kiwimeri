@@ -247,8 +247,13 @@ export class SimpleStorageProvider extends StorageProvider {
             localChange.field === 'parent'
           ) {
             const field = localChange.field as CollectionItemUpdatableFieldEnum;
-            newLocalContent[0].collection![localChange.item][field] =
-              localCollection.get(localChange.item)![field];
+            if (!newLocalContent[0].collection![localChange.item]) {
+              newLocalContent[0].collection![localChange.item] =
+                localCollection.get(localChange.item)!;
+            } else {
+              newLocalContent[0].collection![localChange.item][field] =
+                localCollection.get(localChange.item)![field];
+            }
             newLocalContent[0].collection![localChange.item][`${field}_meta`] =
               localCollection.get(localChange.item)![`${field}_meta`];
           } else {
