@@ -26,7 +26,7 @@ msgid "Are you sure?"
 msgstr "Are you sure?"
 
 #: src/common/modals/ConfirmYesNoDialog.tsx:28
-#: src/common/modals/ChooseTagsModal.tsx:86
+#: src/common/modals/ChooseTagsModal.tsx:98
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -47,7 +47,7 @@ msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
 
 #: src/common/modals/ConfirmYesNoDialog.tsx:36
-#: src/common/modals/ChooseTagsModal.tsx:93
+#: src/common/modals/ChooseTagsModal.tsx:105
 msgid "Confirm"
 msgstr "Confirm"
 
@@ -125,7 +125,7 @@ msgstr "New document"
 msgid "New folder"
 msgstr "New folder"
 
-#: src/common/modals/ChooseTagsModal.tsx:71
+#: src/common/modals/ChooseTagsModal.tsx:83
 msgid "New tag"
 msgstr "New tag"
 

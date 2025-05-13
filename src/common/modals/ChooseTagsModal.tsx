@@ -27,8 +27,8 @@ const ChooseTagsModal = ({ id, onClose }: ChooseTagsModalProps) => {
   const itemTags = collectionService.useItemTags(id);
   const allTags = tagsService.getTags();
   let inputValue: string | undefined = undefined;
-
   const values = [...allTags].map(tag => ({ tag, checked: itemTags.has(tag) }));
+
   return (
     <>
       <IonHeader>
@@ -53,14 +53,26 @@ const ChooseTagsModal = ({ id, onClose }: ChooseTagsModalProps) => {
         <IonList style={{ maxHeight: '400px', overflowY: 'auto' }}>
           {values.map(value => (
             <IonItem key={value.tag}>
+              <IonInput
+                value={value.tag}
+                onIonChange={e => {
+                  const newValue = e.detail.value;
+                  if (
+                    newValue &&
+                    newValue.length > 0 &&
+                    !allTags.find(t => t === newValue)
+                  ) {
+                    tagsService.renameTag(value.tag, newValue);
+                  }
+                }}
+              ></IonInput>
               <IonCheckbox
+                slot="end"
                 checked={value.checked}
                 onIonChange={e => {
                   value.checked = e.detail.checked;
                 }}
-              >
-                {value.tag}
-              </IonCheckbox>
+              ></IonCheckbox>
             </IonItem>
           ))}
         </IonList>
