@@ -1,15 +1,8 @@
 import { CollectionItem } from '@/collection/collection';
-import { DEFAULT_SPACE_ID } from '@/constants';
-import { CellSchema, MapValue, Value } from 'tinybase/with-schemas';
-import {
-  LocalChange,
-  Remote,
-  RemoteItemInfo,
-  RemoteState,
-  Space
-} from './store-types';
+import { CellSchema } from 'tinybase/with-schemas';
 
 type collectionItemKeyEnum = keyof Required<Omit<CollectionItem, 'id'>>;
+
 export type SpaceType = [
   {
     collection: {
@@ -19,38 +12,3 @@ export type SpaceType = [
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   {} // could include overrides for theme, currentXXX on user demand
 ];
-
-type spacesEnum = keyof Required<Space>;
-type localChangeEnum = keyof Required<Omit<LocalChange, 'id'>>;
-type remoteEnum = keyof Required<Omit<Remote, 'id'>>;
-type remoteStateEnum = keyof Required<Omit<RemoteState, 'id'>>;
-type remoteItemInfoEnum = keyof Required<Omit<RemoteItemInfo, 'id'>>;
-export type StoreType = [
-  {
-    // settings per space that won't be persisted outside of the current client
-    spaces: {
-      [cellId in spacesEnum]: CellSchema;
-    };
-    localChanges: {
-      [cellId in localChangeEnum]: CellSchema;
-    };
-    remotes: {
-      [cellId in remoteEnum]: CellSchema;
-    };
-    remoteState: {
-      [cellId in remoteStateEnum]: CellSchema;
-    };
-    remoteItems: {
-      [cellId in remoteItemInfoEnum]: CellSchema;
-    };
-  },
-  {
-    theme: { type: 'string'; default: 'dark' };
-    currentSpace: { type: 'string'; default: typeof DEFAULT_SPACE_ID };
-  }
-];
-export type StoreTableId = keyof StoreType[0];
-export type StoreValueId = keyof StoreType[1];
-export type StoreValueType =
-  | Value<StoreType[1], StoreValueId>
-  | MapValue<StoreType[1], StoreValueId>;

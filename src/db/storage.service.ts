@@ -13,7 +13,8 @@ import { CellSchema, createStore, Store } from 'tinybase/store/with-schemas';
 import { createIndexes, Indexes } from 'tinybase/with-schemas';
 import remotesService from './remotes.service';
 import tagsService from './tags.service';
-import { SpaceType, StoreType } from './types/space-types';
+import { SpaceType } from './types/space-types';
+import { StoreType } from './types/store-types';
 
 export type StoreId = 'store' | 'space';
 

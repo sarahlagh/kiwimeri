@@ -1,4 +1,6 @@
+import { DEFAULT_SPACE_ID } from '@/constants';
 import { DriverNames } from '@/remote-storage/storage-provider.factory';
+import { CellSchema } from 'tinybase/with-schemas';
 
 export interface AnyData {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -58,3 +60,34 @@ export interface RemoteItemInfo {
   item: string; // id in collection table
   info?: AnyData;
 }
+
+type spacesEnum = keyof Required<Space>;
+type localChangeEnum = keyof Required<Omit<LocalChange, 'id'>>;
+type remoteEnum = keyof Required<Omit<Remote, 'id'>>;
+type remoteStateEnum = keyof Required<Omit<RemoteState, 'id'>>;
+type remoteItemInfoEnum = keyof Required<Omit<RemoteItemInfo, 'id'>>;
+
+export type StoreType = [
+  {
+    // settings per space that won't be persisted outside of the current client
+    spaces: {
+      [cellId in spacesEnum]: CellSchema;
+    };
+    localChanges: {
+      [cellId in localChangeEnum]: CellSchema;
+    };
+    remotes: {
+      [cellId in remoteEnum]: CellSchema;
+    };
+    remoteState: {
+      [cellId in remoteStateEnum]: CellSchema;
+    };
+    remoteItems: {
+      [cellId in remoteItemInfoEnum]: CellSchema;
+    };
+  },
+  {
+    theme: { type: 'string'; default: 'dark' };
+    currentSpace: { type: 'string'; default: typeof DEFAULT_SPACE_ID };
+  }
+];
