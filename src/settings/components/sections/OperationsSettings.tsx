@@ -1,4 +1,5 @@
 import localChangesService from '@/db/localChanges.service';
+import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
 import tagsService from '@/db/tags.service';
 import { IonButton, IonCard, IonCardHeader, IonCardTitle } from '@ionic/react';
@@ -28,6 +29,7 @@ const OperationSettings = () => {
           storageService.getSpace().setContent([{}, {}]);
           localChangesService.clearLocalChanges();
           tagsService.reBuildTags();
+          notebooksService.initNotebooks();
         }}
         color="danger"
       >
@@ -47,6 +49,7 @@ const OperationSettings = () => {
             .setCell('remoteState', '0', 'lastRemoteChange', 0);
           storageService.getStore().delTable('remoteItems');
           tagsService.reBuildTags();
+          notebooksService.initNotebooks();
         }}
         color="danger"
       >

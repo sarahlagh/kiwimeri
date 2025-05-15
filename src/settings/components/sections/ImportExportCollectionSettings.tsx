@@ -15,8 +15,7 @@ const ImportExportCollectionSettings = () => {
         storageService.getSpace().setContent(json);
       }}
       getContentToExport={() => {
-        const content = storageService.getSpace().getJson();
-        return content;
+        return storageService.getSpace().getJson();
       }}
     />
   );

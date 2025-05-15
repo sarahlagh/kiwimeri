@@ -11,6 +11,7 @@ import { Persister } from 'tinybase/persisters/with-schemas';
 import { createQueries, Queries } from 'tinybase/queries/with-schemas';
 import { CellSchema, createStore, Store } from 'tinybase/store/with-schemas';
 import { createIndexes, Indexes } from 'tinybase/with-schemas';
+import notebooksService from './notebooks.service';
 import remotesService from './remotes.service';
 import tagsService from './tags.service';
 import { SpaceType } from './types/space-types';
@@ -120,6 +121,10 @@ class StorageService {
           await remotesService.initSyncConnection(this.getSpaceId());
         });
       }
+      // init spaces
+      setTimeout(() => {
+        notebooksService.initNotebooks();
+      });
       return true;
     }
     return false;
@@ -148,6 +153,12 @@ class StorageService {
         deleted: { type: 'boolean', default: false } as CellSchema,
         deleted_meta: { type: 'string' } as CellSchema,
         conflict: { type: 'string' } as CellSchema
+      },
+      notebooks: {
+        parent: { type: 'string' } as CellSchema,
+        name: { type: 'string' } as CellSchema,
+        created: { type: 'number' } as CellSchema,
+        metadata: { type: 'string' } as CellSchema
       }
     });
   }
