@@ -23,12 +23,11 @@ interface DocumentEditorProps {
 
 const DocumentEditor = ({ id, showActions = false }: DocumentEditorProps) => {
   const refWriter = useRef(null);
-  const [showDocumentActions, setShowDocumentActions] = useState<boolean>();
-  const [showDocumentFooter, setShowDocumentFooter] = useState(false);
+  const [showDocumentActions, setShowDocumentActions] =
+    useState<boolean>(false);
+  const [showDocumentFooter, setShowDocumentFooter] = useState(showActions);
   useEffect(() => {
-    setShowDocumentActions(
-      showDocumentActions !== undefined ? !showDocumentActions : false
-    ); // can be triggered from parent
+    setShowDocumentActions(showActions);
   }, [showActions]);
 
   const documentTitle = collectionService.getItemTitle(id);

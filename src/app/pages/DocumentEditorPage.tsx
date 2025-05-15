@@ -5,7 +5,7 @@ import { getSearchParams } from '@/common/utils';
 import { APPICONS, FAKE_ROOT, ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
 import { IonButton, IonIcon } from '@ionic/react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useLocation } from 'react-router';
 import TemplateCompactableSplitPage from './TemplateCompactableSplitPage';
 
@@ -21,10 +21,6 @@ const DocumentEditorPage = () => {
   const folderTitle = collectionService.useItemTitle(parent);
   const onTitleChange = onTitleChangeFn(docId);
   const onFolderTitleChange = onTitleChangeFn(parent);
-
-  useEffect(() => {
-    setShowDocumentActions(false);
-  }, [docId]);
 
   const CollectionItemActionsMenu = () => {
     return (
