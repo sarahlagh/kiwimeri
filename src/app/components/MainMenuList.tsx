@@ -10,6 +10,7 @@ import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
 import { APPICONS } from '@/constants';
 import userSettingsService from '@/db/user-settings.service';
+import NotebookSwitcher from '@/notebooks/components/NotebookSwitcher';
 import {
   IonButton,
   IonButtons,
@@ -78,10 +79,14 @@ const MainMenuList = () => {
     <>
       <IonContent>
         <IonList id="main-menu-list">
-          {appPages.map(appPage => {
-            return (
-              <IonMenuToggle key={appPage.key} autoHide={true}>
+          <IonItem lines="none">
+            <NotebookSwitcher />
+          </IonItem>
+          <IonMenuToggle autoHide={true}>
+            {appPages.map(appPage => {
+              return (
                 <IonItem
+                  key={appPage.key}
                   color={isActive(appPage) ? 'primary' : ''}
                   routerLink={appPage.url}
                   routerDirection="none"
@@ -95,9 +100,9 @@ const MainMenuList = () => {
                   />
                   <IonLabel>{appPage.title}</IonLabel>
                 </IonItem>
-              </IonMenuToggle>
-            );
-          })}
+              );
+            })}
+          </IonMenuToggle>
         </IonList>
       </IonContent>
       <IonFooter>

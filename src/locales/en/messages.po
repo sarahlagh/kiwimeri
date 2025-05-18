@@ -38,7 +38,7 @@ msgstr "Choose"
 msgid "Choose a new folder"
 msgstr "Choose a new folder"
 
-#: src/app/components/MainMenuList.tsx:53
+#: src/app/components/MainMenuList.tsx:54
 msgid "Collection"
 msgstr "Collection"
 
@@ -46,15 +46,20 @@ msgstr "Collection"
 msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
 
+#: src/notebooks/components/ManageNotebooksModal.tsx:93
 #: src/common/modals/ConfirmYesNoDialog.tsx:36
 #: src/common/modals/ChooseTagsModal.tsx:105
 msgid "Confirm"
 msgstr "Confirm"
 
 #: src/app/pages/DebugPage.tsx:34
-#: src/app/components/MainMenuList.tsx:71
+#: src/app/components/MainMenuList.tsx:72
 msgid "Debug"
 msgstr "Debug"
+
+#: src/constants.ts:46
+msgid "Default"
+msgstr "Default"
 
 #: src/app/pages/DebugPage.tsx:87
 msgid "Download Logs"
@@ -117,11 +122,11 @@ msgstr "Manually backup or restore your collection."
 msgid "Name"
 msgstr "Name"
 
-#: src/constants.ts:46
+#: src/constants.ts:47
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:47
+#: src/constants.ts:48
 msgid "New folder"
 msgstr "New folder"
 
@@ -137,19 +142,23 @@ msgstr "No tag yet"
 msgid "Not Found"
 msgstr "Not Found"
 
-#: src/settings/components/sections/OperationsSettings.tsx:34
+#: src/notebooks/components/ManageNotebooksModal.tsx:35
+msgid "Notebook Selection"
+msgstr "Notebook Selection"
+
+#: src/settings/components/sections/OperationsSettings.tsx:36
 msgid "nuke space"
 msgstr "nuke space"
 
-#: src/settings/components/sections/OperationsSettings.tsx:53
+#: src/settings/components/sections/OperationsSettings.tsx:56
 msgid "nuke space & remote"
 msgstr "nuke space & remote"
 
-#: src/settings/components/sections/OperationsSettings.tsx:23
+#: src/settings/components/sections/OperationsSettings.tsx:24
 msgid "nuke store"
 msgstr "nuke store"
 
-#: src/settings/components/sections/OperationsSettings.tsx:12
+#: src/settings/components/sections/OperationsSettings.tsx:13
 msgid "Operations"
 msgstr "Operations"
 
@@ -198,7 +207,7 @@ msgid "Server"
 msgstr "Server"
 
 #: src/app/pages/SettingsPage.tsx:9
-#: src/app/components/MainMenuList.tsx:63
+#: src/app/components/MainMenuList.tsx:64
 msgid "Settings"
 msgstr "Settings"
 

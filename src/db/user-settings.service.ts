@@ -47,13 +47,14 @@ class UserSettingsService {
 
   public getCurrentDocument() {
     return (
-      storageService
+      (storageService
         .getStore()
         .getCell(
           this.spacesTable,
           storageService.getSpaceId(),
           'currentDocument'
-        ) || undefined
+        )
+        ?.valueOf() as string) || undefined
     );
   }
 

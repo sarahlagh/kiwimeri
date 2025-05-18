@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { i18n } from '@lingui/core';
 import {
+  DEFAULT_NOTEBOOK_NAME,
   NEW_DOC_TITLE,
   NEW_FOLDER_TITLE,
   ROOT_FOLDER_TITLE
@@ -75,11 +76,13 @@ export const appConfig = new AppConfig(metaEnv);
 // for where using lingui macros isn't possible
 const I18N = {
   homeTitle: '',
+  defaultNotebookName: '',
   newDocTitle: '',
   newFolderTitle: ''
 };
 export function initGlobalTrans() {
   I18N.homeTitle = i18n._(ROOT_FOLDER_TITLE);
+  I18N.defaultNotebookName = i18n._(DEFAULT_NOTEBOOK_NAME);
   I18N.newDocTitle = i18n._(NEW_DOC_TITLE);
   I18N.newFolderTitle = i18n._(NEW_FOLDER_TITLE);
 }

@@ -43,6 +43,7 @@ export const INTERNAL_FORMAT = 'raw';
 
 // messages
 export const ROOT_FOLDER_TITLE = msg`Home`;
+export const DEFAULT_NOTEBOOK_NAME = msg`Default`;
 export const NEW_DOC_TITLE = msg`New document`;
 export const NEW_FOLDER_TITLE = msg`New folder`;
 
