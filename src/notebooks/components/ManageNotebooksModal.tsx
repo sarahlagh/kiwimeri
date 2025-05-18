@@ -15,8 +15,9 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
-import React from 'react';
+import React, { useState } from 'react';
 import { getUniqueId } from 'tinybase/with-schemas';
+import { Notebook } from '../notebooks';
 
 type ManageNotebooksModalProps = {
   onClose: (tags?: string[]) => void;
@@ -25,7 +26,64 @@ type ManageNotebooksModalProps = {
 const ManageNotebooksModal = ({ onClose }: ManageNotebooksModalProps) => {
   const notebooks = notebooksService.useNotebooks();
   const current = notebooksService.useCurrentNotebook();
+  const [idDeleting, setIdDeleting] = useState<string>();
   console.debug('notebooks', notebooks);
+
+  const NotebookRow = ({ notebook }: { notebook: Notebook }) => {
+    return (
+      <>
+        <IonInput
+          value={notebook.name}
+          placeholder={notebook.name}
+          onIonChange={e => {
+            const newValue = e.detail.value;
+            if (
+              newValue &&
+              newValue.length > 0 &&
+              !notebooks.find(t => t.name === newValue)
+            ) {
+              notebooksService.setNotebookName(notebook.id!, newValue);
+            }
+          }}
+        ></IonInput>
+        {current !== notebook.id && (
+          <IonButton
+            color={'danger'}
+            fill="clear"
+            onClick={() => {
+              setIdDeleting(notebook.id);
+            }}
+          >
+            <IonIcon icon={APPICONS.deleteAction}></IonIcon>
+          </IonButton>
+        )}
+        <IonRadio value={notebook.id}></IonRadio>
+      </>
+    );
+  };
+
+  const AreYouSure = ({ id }: { id: string }) => {
+    return (
+      <>
+        <Trans>Are you sure?</Trans>
+        <IonButtons slot="end">
+          <IonButton
+            color="success"
+            fill="solid"
+            onClick={() => {
+              notebooksService.deleteNotebook(id);
+              setIdDeleting(undefined);
+            }}
+          >
+            <Trans>yes</Trans>
+          </IonButton>
+          <IonButton fill="solid" onClick={() => setIdDeleting(undefined)}>
+            <Trans>no</Trans>
+          </IonButton>
+        </IonButtons>
+      </>
+    );
+  };
 
   return (
     <>
@@ -46,34 +104,14 @@ const ManageNotebooksModal = ({ onClose }: ManageNotebooksModalProps) => {
       >
         <IonList style={{ maxHeight: '400px', overflowY: 'auto' }}>
           {notebooks.map(notebook => (
-            <IonItem key={notebook.id}>
-              <IonInput
-                value={notebook.name}
-                placeholder={notebook.name}
-                onIonChange={e => {
-                  const newValue = e.detail.value;
-                  if (
-                    newValue &&
-                    newValue.length > 0 &&
-                    !notebooks.find(t => t.name === newValue)
-                  ) {
-                    notebooksService.setNotebookName(notebook.id!, newValue);
-                  }
-                }}
-              ></IonInput>
-              {current !== notebook.id && (
-                <IonButton
-                  color={'danger'}
-                  fill="clear"
-                  onClick={() => {
-                    // TODO ask confirmation
-                    notebooksService.deleteNotebook(notebook.id!);
-                  }}
-                >
-                  <IonIcon icon={APPICONS.deleteAction}></IonIcon>
-                </IonButton>
+            <IonItem
+              key={notebook.id}
+              color={idDeleting === notebook.id ? 'danger' : undefined}
+            >
+              {idDeleting !== notebook.id && (
+                <NotebookRow notebook={notebook} />
               )}
-              <IonRadio value={notebook.id}></IonRadio>
+              {idDeleting === notebook.id && <AreYouSure id={notebook.id!} />}
             </IonItem>
           ))}
         </IonList>

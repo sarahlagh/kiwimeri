@@ -21,6 +21,7 @@ msgstr "Add config"
 msgid "An error occurred loading the file"
 msgstr "An error occurred loading the file"
 
+#: src/notebooks/components/ManageNotebooksModal.tsx:68
 #: src/common/modals/ConfirmYesNoDialog.tsx:24
 msgid "Are you sure?"
 msgstr "Are you sure?"
@@ -46,7 +47,7 @@ msgstr "Collection"
 msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
 
-#: src/notebooks/components/ManageNotebooksModal.tsx:93
+#: src/notebooks/components/ManageNotebooksModal.tsx:131
 #: src/common/modals/ConfirmYesNoDialog.tsx:36
 #: src/common/modals/ChooseTagsModal.tsx:105
 msgid "Confirm"
@@ -134,6 +135,10 @@ msgstr "New folder"
 msgid "New tag"
 msgstr "New tag"
 
+#: src/notebooks/components/ManageNotebooksModal.tsx:81
+msgid "no"
+msgstr "no"
+
 #: src/common/modals/ChooseTagsModal.tsx:49
 msgid "No tag yet"
 msgstr "No tag yet"
@@ -142,7 +147,7 @@ msgstr "No tag yet"
 msgid "Not Found"
 msgstr "Not Found"
 
-#: src/notebooks/components/ManageNotebooksModal.tsx:35
+#: src/notebooks/components/ManageNotebooksModal.tsx:93
 msgid "Notebook Selection"
 msgstr "Notebook Selection"
 
@@ -251,6 +256,10 @@ msgstr "US"
 #: src/settings/components/providers/PCloudSettings.tsx:115
 msgid "Username"
 msgstr "Username"
+
+#: src/notebooks/components/ManageNotebooksModal.tsx:78
+msgid "yes"
+msgstr "yes"
 
 #: src/settings/components/providers/RemotesSettings.tsx:70
 msgid "You have not configured any remote yet."
