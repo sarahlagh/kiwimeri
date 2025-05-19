@@ -25,8 +25,6 @@ const ManageNotebooksModal = ({ onClose }: ManageNotebooksModalProps) => {
   const [itemRenaming, setItemRenaming] = useState<string | undefined>(
     undefined
   );
-  console.debug('notebooks', notebooks);
-
   return (
     <>
       <IonHeader>

@@ -44,6 +44,13 @@ class CollectionService {
         select('conflict');
         where('parent', parent);
         where('deleted', deleted);
+        where(getCell => {
+          const type = getCell('type')?.valueOf();
+          return (
+            type === CollectionItemType.document ||
+            type === CollectionItemType.folder
+          );
+        });
       });
     }
     return queryName;
