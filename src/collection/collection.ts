@@ -1,10 +1,11 @@
 export enum CollectionItemType {
+  notebook = 'n',
   folder = 'f',
   document = 'd',
   page = 'p'
 }
 
-export type CollectionItemTypeValues = 'f' | 'd' | 'p';
+export type CollectionItemTypeValues = 'n' | 'f' | 'd' | 'p';
 
 export interface CollectionItem {
   id?: string;

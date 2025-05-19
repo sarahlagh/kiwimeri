@@ -153,12 +153,6 @@ class StorageService {
         deleted: { type: 'boolean', default: false } as CellSchema,
         deleted_meta: { type: 'string' } as CellSchema,
         conflict: { type: 'string' } as CellSchema
-      },
-      notebooks: {
-        parent: { type: 'string' } as CellSchema,
-        name: { type: 'string' } as CellSchema,
-        created: { type: 'number' } as CellSchema,
-        metadata: { type: 'string' } as CellSchema
       }
     });
   }

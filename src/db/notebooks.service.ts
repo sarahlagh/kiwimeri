@@ -1,13 +1,33 @@
+import { CollectionItemType } from '@/collection/collection';
 import { getGlobalTrans } from '@/config';
-import { DEFAULT_NOTEBOOK_ID } from '@/constants';
-import { Notebook } from '@/notebooks/notebooks';
+import { DEFAULT_NOTEBOOK_ID, FAKE_ROOT } from '@/constants';
+import { NotebookResult } from '@/notebooks/notebooks';
 import storageService from './storage.service';
-import { useCellWithRef, useTableWithRef } from './tinybase/hooks';
+import {
+  useCellWithRef,
+  useResultSortedRowIdsWithRef,
+  useTableWithRef
+} from './tinybase/hooks';
 
 class NotebooksService {
   private readonly storeId = 'space';
-  private readonly table = 'notebooks';
+  private readonly table = 'collection';
   private readonly spacesTable = 'spaces';
+
+  private fetchAllNotebooksQuery(parent?: string, deleted: boolean = false) {
+    const queries = storageService.getSpaceQueries();
+    const queryName = `fetchAllNotebooksFor${parent ? parent : FAKE_ROOT}`;
+    if (!queries.hasQuery(queryName)) {
+      queries.setQueryDefinition(queryName, this.table, ({ select, where }) => {
+        select('title');
+        select('created');
+        where('type', CollectionItemType.notebook);
+        where('parent', parent ? parent : FAKE_ROOT);
+        where('deleted', deleted);
+      });
+    }
+    return queryName;
+  }
 
   public initNotebooks() {
     if (!this.hasOneNotebook()) {
@@ -22,14 +42,15 @@ class NotebooksService {
   }
 
   public hasOneNotebook() {
-    return storageService.getSpace().getRowCount(this.table) > 0;
+    return this.getNotebooks().length > 0;
   }
 
-  public addNotebook(name: string, parent?: string) {
+  public addNotebook(title: string, parent?: string) {
     return storageService.getSpace().addRow(this.table, {
-      name,
-      parent,
-      created: Date.now()
+      title,
+      parent: parent ? parent : FAKE_ROOT,
+      created: Date.now(),
+      type: CollectionItemType.notebook
     });
   }
 
@@ -59,22 +80,46 @@ class NotebooksService {
     );
   }
 
-  public useNotebookName(id: string) {
-    return useCellWithRef<string>(this.storeId, this.table, id, 'name');
+  public useNotebookTitle(id: string) {
+    return useCellWithRef<string>(this.storeId, this.table, id, 'title');
   }
 
-  public setNotebookName(id: string, name: string) {
-    storageService.getSpace().setCell(this.table, id, 'name', name);
+  public setNotebookTitle(id: string, title: string) {
+    storageService.getSpace().setCell(this.table, id, 'title', title);
   }
 
-  public getNotebooks() {
+  public getNotebooks(
+    parent?: string,
+    sortBy: 'created' | 'updated' = 'created',
+    descending = false
+  ) {
     const table = storageService.getSpace().getTable(this.table);
-    return Object.keys(table).map(id => ({ ...table[id], id }) as Notebook);
+    const queryName = this.fetchAllNotebooksQuery(parent);
+    return storageService
+      .getSpaceQueries()
+      .getResultSortedRowIds(queryName, sortBy, descending)
+      .map(rowId => {
+        const row = table[rowId];
+        return { ...row, id: rowId } as NotebookResult;
+      });
   }
 
-  public useNotebooks() {
+  public useNotebooks(
+    parent?: string,
+    sortBy: 'created' | 'updated' = 'created',
+    descending = false
+  ) {
     const table = useTableWithRef(this.storeId, this.table);
-    return Object.keys(table).map(id => ({ ...table[id], id }) as Notebook);
+    const queryName = this.fetchAllNotebooksQuery(parent);
+    return useResultSortedRowIdsWithRef(
+      this.storeId,
+      queryName,
+      sortBy,
+      descending
+    ).map(rowId => {
+      const row = table[rowId];
+      return { ...row, id: rowId } as NotebookResult;
+    });
   }
 }
 
