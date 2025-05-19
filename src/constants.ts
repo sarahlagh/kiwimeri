@@ -14,6 +14,7 @@ import {
   documentTextOutline,
   ellipsisVertical,
   exitOutline,
+  fileTrayStackedOutline,
   folderSharp,
   helpOutline,
   home,
@@ -62,7 +63,7 @@ export const APPICONS = {
   outsideHome: homeOutline,
   document: documentTextOutline,
   folder: folderSharp,
-  notebook: folderSharp, // TODO
+  notebook: fileTrayStackedOutline,
   itemActions: ellipsisVertical,
   goToCurrentFolder: locateOutline,
   deleteAction: trashOutline,
