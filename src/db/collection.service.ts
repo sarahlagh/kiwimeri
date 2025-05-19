@@ -11,6 +11,7 @@ import { FAKE_ROOT, ROOT_FOLDER } from '@/constants';
 import { getUniqueId } from 'tinybase/common';
 import { Id } from 'tinybase/common/with-schemas';
 import localChangesService from './localChanges.service';
+import notebooksService from './notebooks.service';
 import storageService from './storage.service';
 import {
   useCellWithRef,
@@ -29,11 +30,12 @@ class CollectionService {
   private readonly table = 'collection';
 
   private fetchAllCollectionItemsQuery(
+    notebook: string,
     parent: string,
     deleted: boolean = false
   ) {
     const queries = storageService.getSpaceQueries();
-    const queryName = `fetchAllCollectionItemsFor${parent}`;
+    const queryName = `fetchAllCollectionItemsIn${notebook}For${parent}`;
     if (parent !== FAKE_ROOT && !queries.hasQuery(queryName)) {
       queries.setQueryDefinition(queryName, this.table, ({ select, where }) => {
         select('title');
@@ -42,6 +44,7 @@ class CollectionService {
         select('created');
         select('updated');
         select('conflict');
+        where('notebook', notebook);
         where('parent', parent);
         where('deleted', deleted);
         where(getCell => {
@@ -61,8 +64,9 @@ class CollectionService {
     sortBy: 'created' | 'updated' = 'created',
     descending = false
   ) {
+    const notebook = notebooksService.getCurrentNotebook();
     const table = storageService.getSpace().getTable(this.table);
-    const queryName = this.fetchAllCollectionItemsQuery(parent);
+    const queryName = this.fetchAllCollectionItemsQuery(notebook, parent);
     return storageService
       .getSpaceQueries()
       .getResultSortedRowIds(queryName, sortBy, descending)
@@ -77,8 +81,9 @@ class CollectionService {
     sortBy: 'created' | 'updated' = 'created',
     descending = false
   ): CollectionItemResult[] {
+    const notebook = notebooksService.useCurrentNotebook();
     const table = useTableWithRef(this.storeId, this.table);
-    const queryName = this.fetchAllCollectionItemsQuery(parent);
+    const queryName = this.fetchAllCollectionItemsQuery(notebook, parent);
     return useResultSortedRowIdsWithRef(
       this.storeId,
       queryName,
@@ -91,6 +96,7 @@ class CollectionService {
   }
 
   public addDocument(parent: string) {
+    const notebook = notebooksService.getCurrentNotebook();
     const now = Date.now();
     const id = getUniqueId();
     const content = initialContent();
@@ -99,6 +105,8 @@ class CollectionService {
       title_meta: this.setFieldMeta(getGlobalTrans().newDocTitle, now),
       parent,
       parent_meta: this.setFieldMeta(parent, now),
+      notebook,
+      notebook_meta: this.setFieldMeta(notebook, now),
       content,
       content_meta: this.setFieldMeta(content, now),
       tags: '',
@@ -115,6 +123,7 @@ class CollectionService {
   }
 
   public addFolder(parent: string) {
+    const notebook = notebooksService.getCurrentNotebook();
     const now = Date.now();
     const id = getUniqueId();
     storageService.getSpace().setRow(this.table, id, {
@@ -122,6 +131,8 @@ class CollectionService {
       title_meta: this.setFieldMeta(getGlobalTrans().newFolderTitle, now),
       parent: parent,
       parent_meta: this.setFieldMeta(parent, now),
+      notebook,
+      notebook_meta: this.setFieldMeta(notebook, now),
       tags: '',
       tags_meta: this.setFieldMeta('', now),
       created: now,
@@ -135,12 +146,13 @@ class CollectionService {
   }
 
   public deleteItem(rowId: Id, moveItemsUp = false) {
+    const notebook = notebooksService.getCurrentNotebook();
     this.updateParentUpdatedRecursive(this.getItemParent(rowId));
     const wasFolder = this.getItemType(rowId) === CollectionItemType.folder;
     const parent = this.getItemParent(rowId);
     localChangesService.addLocalChange(rowId, LocalChangeType.delete);
     if (wasFolder) {
-      const queryName = this.fetchAllCollectionItemsQuery(rowId);
+      const queryName = this.fetchAllCollectionItemsQuery(notebook, rowId);
       const children = storageService
         .getSpaceQueries()
         .getResultSortedRowIds(queryName);

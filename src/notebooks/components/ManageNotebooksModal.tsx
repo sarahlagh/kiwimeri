@@ -1,6 +1,7 @@
 import CollectionItemList from '@/collection/components/CollectionItemList';
 import { APPICONS } from '@/constants';
 import notebooksService from '@/db/notebooks.service';
+import tagsService from '@/db/tags.service';
 import {
   IonButton,
   IonButtons,
@@ -84,6 +85,7 @@ const ManageNotebooksModal = ({ onClose }: ManageNotebooksModalProps) => {
               onClick={() => {
                 if (selected !== current) {
                   notebooksService.setCurrentNotebook(selected);
+                  tagsService.reBuildTags();
                 }
                 onClose();
               }}
