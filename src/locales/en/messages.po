@@ -21,8 +21,7 @@ msgstr "Add config"
 msgid "An error occurred loading the file"
 msgstr "An error occurred loading the file"
 
-#: src/notebooks/components/ManageNotebooksModal.tsx:68
-#: src/common/modals/ConfirmYesNoDialog.tsx:24
+#: src/collection/components/CollectionItemList.tsx:52
 msgid "Are you sure?"
 msgstr "Are you sure?"
 
@@ -47,9 +46,7 @@ msgstr "Collection"
 msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
 
-#: src/notebooks/components/ManageNotebooksModal.tsx:131
-#: src/common/modals/ConfirmYesNoDialog.tsx:36
-#: src/common/modals/ChooseTagsModal.tsx:105
+#: src/notebooks/components/ManageNotebooksModal.tsx:93
 msgid "Confirm"
 msgstr "Confirm"
 
@@ -58,7 +55,7 @@ msgstr "Confirm"
 msgid "Debug"
 msgstr "Debug"
 
-#: src/constants.ts:46
+#: src/constants.ts:50
 msgid "Default"
 msgstr "Default"
 
@@ -86,7 +83,7 @@ msgstr "Export"
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/constants.ts:45
+#: src/constants.ts:49
 msgid "Home"
 msgstr "Home"
 
@@ -123,11 +120,11 @@ msgstr "Manually backup or restore your collection."
 msgid "Name"
 msgstr "Name"
 
-#: src/constants.ts:47
+#: src/constants.ts:51
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:48
+#: src/constants.ts:52
 msgid "New folder"
 msgstr "New folder"
 
@@ -135,7 +132,7 @@ msgstr "New folder"
 msgid "New tag"
 msgstr "New tag"
 
-#: src/notebooks/components/ManageNotebooksModal.tsx:81
+#: src/collection/components/CollectionItemList.tsx:63
 msgid "no"
 msgstr "no"
 
@@ -147,7 +144,7 @@ msgstr "No tag yet"
 msgid "Not Found"
 msgstr "Not Found"
 
-#: src/notebooks/components/ManageNotebooksModal.tsx:93
+#: src/notebooks/components/ManageNotebooksModal.tsx:35
 msgid "Notebook Selection"
 msgstr "Notebook Selection"
 
@@ -257,7 +254,7 @@ msgstr "US"
 msgid "Username"
 msgstr "Username"
 
-#: src/notebooks/components/ManageNotebooksModal.tsx:78
+#: src/collection/components/CollectionItemList.tsx:60
 msgid "yes"
 msgstr "yes"
 

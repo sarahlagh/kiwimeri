@@ -29,6 +29,10 @@ import {
   trashOutline,
   warningOutline
 } from 'ionicons/icons';
+import {
+  CollectionItemType,
+  CollectionItemTypeValues
+} from './collection/collection';
 
 export const ANDROID_FOLDER = 'KiwimeriApp';
 export const DEFAULT_SPACE_ID = 'default';
@@ -58,6 +62,7 @@ export const APPICONS = {
   outsideHome: homeOutline,
   document: documentTextOutline,
   folder: folderSharp,
+  notebook: folderSharp, // TODO
   itemActions: ellipsisVertical,
   goToCurrentFolder: locateOutline,
   deleteAction: trashOutline,
@@ -80,3 +85,8 @@ export const APPICONS = {
   info: informationCircleOutline,
   tags: pricetagsOutline
 };
+
+export const APPICONS_PER_TYPE = new Map<CollectionItemTypeValues, string>();
+APPICONS_PER_TYPE.set(CollectionItemType.document, APPICONS.document);
+APPICONS_PER_TYPE.set(CollectionItemType.folder, APPICONS.folder);
+APPICONS_PER_TYPE.set(CollectionItemType.notebook, APPICONS.notebook);

@@ -18,7 +18,7 @@ const NotebookSwitcher = () => {
       <IonButton
         expand="block"
         onClick={() => {
-          present({ cssClass: 'auto-height' });
+          present();
         }}
       >
         <IonIcon icon={APPICONS.moveAction}></IonIcon>

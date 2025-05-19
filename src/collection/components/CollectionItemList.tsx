@@ -1,12 +1,10 @@
-import {
-  CollectionItemResult,
-  CollectionItemType
-} from '@/collection/collection';
-import { APPICONS } from '@/constants';
+import { CollectionItemResult } from '@/collection/collection';
+import { APPICONS_PER_TYPE } from '@/constants';
 import collectionService from '@/db/collection.service';
 import {
   InputCustomEvent,
   IonButton,
+  IonButtons,
   IonContent,
   IonFooter,
   IonHeader,
@@ -17,7 +15,10 @@ import {
   IonList
 } from '@ionic/react';
 import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactProps';
+import { Trans } from '@lingui/react/macro';
 import { ReactNode, useEffect, useRef, useState } from 'react';
+
+type ConfirmCallback = (choice: boolean) => void;
 
 type CollectionItemListSingleItemProps = {
   item: CollectionItemResult;
@@ -27,17 +28,44 @@ type CollectionItemListSingleItemProps = {
   itemProps?: (item: CollectionItemResult) => IonicReactProps | undefined;
   itemDisabled?: (item: CollectionItemResult) => boolean;
   actionDisabled?: (item: CollectionItemResult) => boolean;
+  actionVisible?: (item: CollectionItemResult) => boolean;
   getUrl?: (item: CollectionItemResult) => string;
-  onClickActions?: (e: Event, selectedItem: CollectionItemResult) => void;
+  onClickActions?: (
+    e: Event,
+    selectedItem: CollectionItemResult,
+    confirm: (id: string, callback: ConfirmCallback) => void
+  ) => void;
   onSelectedItem?: (selectedItem: CollectionItemResult) => void;
   onRenamingDone?: () => void;
+  confirm: (id: string, callback: ConfirmCallback) => void;
 };
 
 type CollectionItemListProps = {
   items: CollectionItemResult[];
   header?: ReactNode;
   footer?: ReactNode;
-} & Omit<CollectionItemListSingleItemProps, 'item'>;
+} & Omit<CollectionItemListSingleItemProps, 'item' | 'confirm'>;
+
+const AreYouSure = ({ onClick }: { onClick: (ok: boolean) => void }) => {
+  return (
+    <IonItem color="danger">
+      <Trans>Are you sure?</Trans>
+      <IonButtons slot="end">
+        <IonButton
+          fill="outline"
+          onClick={() => {
+            onClick(true);
+          }}
+        >
+          <Trans>yes</Trans>
+        </IonButton>
+        <IonButton fill="solid" onClick={() => onClick(false)}>
+          <Trans>no</Trans>
+        </IonButton>
+      </IonButtons>
+    </IonItem>
+  );
+};
 
 const CollectionItemListItem = ({
   selected,
@@ -47,10 +75,12 @@ const CollectionItemListItem = ({
   itemRenaming,
   itemDisabled,
   actionDisabled,
+  actionVisible,
   getUrl,
   onClickActions,
   onSelectedItem,
-  onRenamingDone
+  onRenamingDone,
+  confirm
 }: CollectionItemListSingleItemProps) => {
   const inputRenaming = useRef<HTMLIonInputElement>(null);
   const [renaming, setRenaming] = useState<boolean>(false);
@@ -64,10 +94,7 @@ const CollectionItemListItem = ({
 
   const url = getUrl && !renaming ? getUrl(item) : undefined;
   const routerDirection = getUrl && !renaming ? 'none' : undefined;
-  const icon =
-    item.type === CollectionItemType.document
-      ? APPICONS.document
-      : APPICONS.folder;
+  const icon = APPICONS_PER_TYPE.get(item.type);
 
   return (
     <IonItem
@@ -93,25 +120,27 @@ const CollectionItemListItem = ({
       }}
     >
       <IonIcon aria-hidden="true" slot="start" icon={icon} />
-      {actionsIcon && onClickActions && (
-        <IonButton
-          disabled={actionDisabled ? actionDisabled(item) : false}
-          slot="end"
-          fill="clear"
-          color="medium"
-          id="click-trigger"
-          onClick={e => {
-            e.stopPropagation();
-            e.preventDefault();
-            if (renaming) {
-              return;
-            }
-            onClickActions(e.nativeEvent, item);
-          }}
-        >
-          <IonIcon aria-hidden="true" icon={actionsIcon} />
-        </IonButton>
-      )}
+      {(actionVisible ? actionVisible(item) : true) &&
+        actionsIcon &&
+        onClickActions && (
+          <IonButton
+            disabled={actionDisabled ? actionDisabled(item) : false}
+            slot="end"
+            fill="clear"
+            color="medium"
+            id="click-trigger"
+            onClick={e => {
+              e.stopPropagation();
+              e.preventDefault();
+              if (renaming) {
+                return;
+              }
+              onClickActions(e.nativeEvent, item, confirm);
+            }}
+          >
+            <IonIcon aria-hidden="true" icon={actionsIcon} />
+          </IonButton>
+        )}
       {renaming && (
         <IonInput
           class="invisible"
@@ -143,6 +172,7 @@ const CollectionItemList = ({
   itemRenaming,
   itemDisabled,
   actionDisabled,
+  actionVisible,
   getUrl,
   onSelectedItem,
   onClickActions,
@@ -151,6 +181,13 @@ const CollectionItemList = ({
   header,
   footer
 }: CollectionItemListProps) => {
+  const [toConfirm, setToConfirm] = useState<{
+    id: string;
+    callback: ConfirmCallback;
+  }>();
+  const confirm = (id: string, callback: ConfirmCallback) => {
+    setToConfirm({ id, callback });
+  };
   return (
     <>
       {header && <IonHeader class="subheader">{header}</IonHeader>}
@@ -158,24 +195,38 @@ const CollectionItemList = ({
         <IonList>
           {items.map(item => {
             return (
-              <CollectionItemListItem
-                key={item.id}
-                actionsIcon={actionsIcon}
-                selected={selected}
-                item={item}
-                itemProps={itemProps}
-                itemRenaming={itemRenaming}
-                itemDisabled={itemDisabled}
-                actionDisabled={actionDisabled}
-                getUrl={getUrl}
-                onRenamingDone={onRenamingDone}
-                onSelectedItem={onSelectedItem}
-                onClickActions={event => {
-                  if (onClickActions) {
-                    onClickActions(event, item);
-                  }
-                }}
-              />
+              <>
+                {toConfirm?.id !== item.id && (
+                  <CollectionItemListItem
+                    key={item.id}
+                    actionsIcon={actionsIcon}
+                    selected={selected}
+                    item={item}
+                    itemProps={itemProps}
+                    itemRenaming={itemRenaming}
+                    itemDisabled={itemDisabled}
+                    actionDisabled={actionDisabled}
+                    actionVisible={actionVisible}
+                    getUrl={getUrl}
+                    onRenamingDone={onRenamingDone}
+                    onSelectedItem={onSelectedItem}
+                    onClickActions={event => {
+                      if (onClickActions) {
+                        onClickActions(event, item, confirm);
+                      }
+                    }}
+                    confirm={confirm}
+                  />
+                )}
+                {toConfirm?.id === item.id && (
+                  <AreYouSure
+                    onClick={choice => {
+                      toConfirm.callback(choice);
+                      setToConfirm(undefined);
+                    }}
+                  />
+                )}
+              </>
             );
           })}
         </IonList>
