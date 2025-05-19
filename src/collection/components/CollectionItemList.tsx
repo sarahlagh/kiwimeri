@@ -16,7 +16,7 @@ import {
 } from '@ionic/react';
 import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactProps';
 import { Trans } from '@lingui/react/macro';
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { Fragment, ReactNode, useEffect, useRef, useState } from 'react';
 
 type ConfirmCallback = (choice: boolean) => void;
 
@@ -195,10 +195,9 @@ const CollectionItemList = ({
         <IonList>
           {items.map(item => {
             return (
-              <>
+              <Fragment key={item.id}>
                 {toConfirm?.id !== item.id && (
                   <CollectionItemListItem
-                    key={item.id}
                     actionsIcon={actionsIcon}
                     selected={selected}
                     item={item}
@@ -226,7 +225,7 @@ const CollectionItemList = ({
                     }}
                   />
                 )}
-              </>
+              </Fragment>
             );
           })}
         </IonList>
