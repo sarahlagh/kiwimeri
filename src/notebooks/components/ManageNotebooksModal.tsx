@@ -17,7 +17,7 @@ import {
 import { Trans } from '@lingui/react/macro';
 import React, { useState } from 'react';
 import { getUniqueId } from 'tinybase/with-schemas';
-import { Notebook } from '../notebooks';
+import { NotebookResult } from '../notebooks';
 
 type ManageNotebooksModalProps = {
   onClose: (tags?: string[]) => void;
@@ -29,20 +29,20 @@ const ManageNotebooksModal = ({ onClose }: ManageNotebooksModalProps) => {
   const [idDeleting, setIdDeleting] = useState<string>();
   console.debug('notebooks', notebooks);
 
-  const NotebookRow = ({ notebook }: { notebook: Notebook }) => {
+  const NotebookRow = ({ notebook }: { notebook: NotebookResult }) => {
     return (
       <>
         <IonInput
-          value={notebook.name}
-          placeholder={notebook.name}
+          value={notebook.title}
+          placeholder={notebook.title}
           onIonChange={e => {
             const newValue = e.detail.value;
             if (
               newValue &&
               newValue.length > 0 &&
-              !notebooks.find(t => t.name === newValue)
+              !notebooks.find(t => t.title === newValue)
             ) {
-              notebooksService.setNotebookName(notebook.id!, newValue);
+              notebooksService.setNotebookTitle(notebook.id!, newValue);
             }
           }}
         ></IonInput>

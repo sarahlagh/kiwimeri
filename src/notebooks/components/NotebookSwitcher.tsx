@@ -5,7 +5,7 @@ import ManageNotebooksModal from './ManageNotebooksModal';
 
 const NotebookSwitcher = () => {
   const current = notebooksService.useCurrentNotebook();
-  const name = notebooksService.useNotebookName(current);
+  const name = notebooksService.useNotebookTitle(current);
 
   const [present, dismiss] = useIonModal(ManageNotebooksModal, {
     onClose: (parentId?: string) => {
