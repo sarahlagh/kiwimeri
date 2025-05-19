@@ -69,6 +69,19 @@ class NotebooksService {
       );
   }
 
+  public getCurrentNotebook() {
+    return (
+      (storageService
+        .getStore()
+        .getCell(
+          this.spacesTable,
+          storageService.getSpaceId(),
+          'currentNotebook'
+        )
+        ?.valueOf() as string) || ''
+    );
+  }
+
   public useCurrentNotebook() {
     return (
       useCellWithRef<string>(

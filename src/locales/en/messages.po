@@ -47,9 +47,7 @@ msgstr "Collection"
 msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
 
-#: src/notebooks/components/ManageNotebooksModal.tsx:91
-#: src/common/modals/ConfirmYesNoDialog.tsx:36
-#: src/common/modals/ChooseTagsModal.tsx:105
+#: src/notebooks/components/ManageNotebooksModal.tsx:93
 msgid "Confirm"
 msgstr "Confirm"
 
@@ -147,7 +145,7 @@ msgstr "No tag yet"
 msgid "Not Found"
 msgstr "Not Found"
 
-#: src/notebooks/components/ManageNotebooksModal.tsx:33
+#: src/notebooks/components/ManageNotebooksModal.tsx:34
 msgid "Notebook Selection"
 msgstr "Notebook Selection"
 

@@ -11,6 +11,8 @@ export interface CollectionItem {
   id?: string;
   parent: string;
   parent_meta: string;
+  notebook: string;
+  notebook_meta: string;
   type: CollectionItemTypeValues;
   title: string;
   title_meta: string;
