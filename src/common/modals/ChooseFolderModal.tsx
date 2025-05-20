@@ -4,9 +4,9 @@ import {
 } from '@/collection/collection';
 import CollectionItemBreadcrumb from '@/collection/components/CollectionItemBreadcrumb';
 import CollectionItemList from '@/collection/components/CollectionItemList';
-import { getGlobalTrans } from '@/config';
 import { APPICONS, FAKE_ROOT, ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
+import notebooksService from '@/db/notebooks.service';
 import {
   IonButton,
   IonButtons,
@@ -25,7 +25,10 @@ const Toolbar = ({
 }: {
   selected?: string;
   folderId: string;
-  onClick: (role: 'gointo' | 'rename' | 'choose', newFolderId: string) => void;
+  onClick: (
+    role: 'gotonotebooks' | 'rename' | 'choose',
+    newFolderId: string
+  ) => void;
 }) => {
   return (
     <IonToolbar>
@@ -34,10 +37,10 @@ const Toolbar = ({
         <IonButton
           disabled={folderId === FAKE_ROOT}
           onClick={() => {
-            onClick('gointo', FAKE_ROOT);
+            onClick('gotonotebooks', FAKE_ROOT);
           }}
         >
-          <IonIcon icon={APPICONS.outsideHome}></IonIcon>
+          <IonIcon icon={APPICONS.library}></IonIcon>
         </IonButton>
       </IonButtons>
       <IonButtons slot="end">
@@ -73,7 +76,7 @@ type ChooseFolderModalProps = {
   id: string;
   currentParent: string;
   currentType: string;
-  onClose: (parentId?: string) => void;
+  onClose: (parentId?: string, notebookId?: string) => void;
 } & React.HTMLAttributes<HTMLIonModalElement>;
 
 const ChooseFolderModal = ({
@@ -82,27 +85,21 @@ const ChooseFolderModal = ({
   currentType,
   onClose
 }: ChooseFolderModalProps) => {
+  const currentNotebook = notebooksService.getCurrentNotebook();
   const [folder, setFolder] = useState<string>(currentParent);
+  const [notebook, setNotebook] = useState<string>(currentNotebook);
   const [selected, setSelected] = useState<CollectionItemResult | null>(null);
   const [itemRenaming, setItemRenaming] = useState<string | undefined>(
     undefined
   );
 
-  const root: CollectionItemResult = {
-    id: ROOT_FOLDER,
-    parent: '',
-    title: getGlobalTrans().homeTitle,
-    type: CollectionItemType.folder,
-    created: 0,
-    updated: 0,
-    deleted: false
-  };
+  const notebooks = notebooksService.getNotebooks();
 
   const items: CollectionItemResult[] = collectionService
-    .useCollectionItems(folder)
+    .useCollectionItems(folder, notebook)
     .filter(item => item.type === CollectionItemType.folder);
 
-  const finalItems = folder === FAKE_ROOT ? [root] : items;
+  const finalItems = folder === FAKE_ROOT ? [...notebooks] : items;
   return (
     <>
       <IonHeader>
@@ -148,7 +145,13 @@ const ChooseFolderModal = ({
           }
         }}
         onClickActions={(e, item) => {
-          setFolder(item.id);
+          // this is the 'go into' click
+          if (item.type === CollectionItemType.folder) {
+            setFolder(item.id);
+          } else if (item.type === CollectionItemType.notebook) {
+            setNotebook(item.id);
+            setFolder(ROOT_FOLDER);
+          }
           setSelected(null);
           setItemRenaming(undefined);
         }}
@@ -161,7 +164,8 @@ const ChooseFolderModal = ({
             selected={selected?.id}
             folderId={folder}
             onClick={(role, newFolderId) => {
-              if (role === 'gointo') {
+              console.debug('Toolbar onClick', role, newFolderId);
+              if (role === 'gotonotebooks') {
                 setFolder(newFolderId);
                 setSelected(null);
                 setItemRenaming(undefined);
@@ -170,7 +174,11 @@ const ChooseFolderModal = ({
                 setItemRenaming(itemRenaming ? undefined : newFolderId);
               }
               if (role === 'choose') {
-                onClose(newFolderId);
+                if (notebooks.find(n => n.id === newFolderId)) {
+                  onClose(ROOT_FOLDER, newFolderId);
+                } else {
+                  onClose(newFolderId, notebook);
+                }
               }
             }}
           ></Toolbar>
