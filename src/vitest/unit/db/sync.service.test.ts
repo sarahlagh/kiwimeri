@@ -21,6 +21,7 @@ import {
   GET_UPDATABLE_FIELDS,
   getCollectionRowCount,
   getCollectionRowIds,
+  getDocsFolders,
   getLocalItemConflict,
   getLocalItemConflicts,
   getLocalItemField,
@@ -984,7 +985,8 @@ describe('sync service', () => {
 
           await syncService_push();
           const remoteContent = await driver.getContent();
-          expect(remoteContent.content).toHaveLength(3);
+          expect(remoteContent.content).toHaveLength(4); // 3 + 1 notebook
+          expect(getDocsFolders(remoteContent.content)).toHaveLength(3);
         });
 
         it('should push everything on first push if remote has nothing', async () => {
@@ -994,7 +996,8 @@ describe('sync service', () => {
           expect(getCollectionRowCount()).toBe(3);
           await syncService_push();
           const remoteContent = driver.getContent();
-          expect(remoteContent.content).toHaveLength(3);
+          expect(remoteContent.content).toHaveLength(4); // 3 + 1 notebook
+          expect(getDocsFolders(remoteContent.content)).toHaveLength(3);
 
           testPushIndicator(false);
         });
@@ -1276,7 +1279,8 @@ describe('sync service', () => {
           expect(getCollectionRowCount()).toBe(0);
           await syncService.push(undefined, true);
           const remoteContent = await driver.getContent();
-          expect(remoteContent.content).toHaveLength(0);
+          expect(remoteContent.content).toHaveLength(1);
+          expect(getDocsFolders(remoteContent.content)).toHaveLength(0);
         });
 
         it('should push everything on first push even if there are no local changes', async () => {
@@ -1289,7 +1293,8 @@ describe('sync service', () => {
           await syncService_pull();
           await syncService.push(undefined, true);
           const remoteContent = await driver.getContent();
-          expect(remoteContent.content).toHaveLength(3);
+          expect(remoteContent.content).toHaveLength(4);
+          expect(getDocsFolders(remoteContent.content)).toHaveLength(3);
         });
 
         it('should push everything on second push even if there are no local changes', async () => {
@@ -1303,7 +1308,8 @@ describe('sync service', () => {
 
           await syncService.push(undefined, true);
           const remoteContent = await driver.getContent();
-          expect(remoteContent.content).toHaveLength(4);
+          expect(remoteContent.content).toHaveLength(5);
+          expect(getDocsFolders(remoteContent.content)).toHaveLength(4);
         });
 
         it('should push everything on first push if remote has nothing', async () => {
@@ -1313,7 +1319,8 @@ describe('sync service', () => {
           expect(getCollectionRowCount()).toBe(3);
           await syncService.push(undefined, true);
           const remoteContent = driver.getContent();
-          expect(remoteContent.content).toHaveLength(3);
+          expect(remoteContent.content).toHaveLength(4); // 3 + 1 notebook
+          expect(getDocsFolders(remoteContent.content)).toHaveLength(3);
 
           testPushIndicator(false);
         });

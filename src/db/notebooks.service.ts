@@ -1,6 +1,6 @@
 import { CollectionItemType } from '@/collection/collection';
 import { getGlobalTrans } from '@/config';
-import { DEFAULT_NOTEBOOK_ID, FAKE_ROOT } from '@/constants';
+import { DEFAULT_NOTEBOOK_ID, ROOT_NOTEBOOK } from '@/constants';
 import { NotebookResult } from '@/notebooks/notebooks';
 import storageService from './storage.service';
 import {
@@ -16,13 +16,13 @@ class NotebooksService {
 
   private fetchAllNotebooksQuery(parent?: string, deleted: boolean = false) {
     const queries = storageService.getSpaceQueries();
-    const queryName = `fetchAllNotebooksFor${parent ? parent : FAKE_ROOT}`;
+    const queryName = `fetchAllNotebooksFor${parent ? parent : ROOT_NOTEBOOK}`;
     if (!queries.hasQuery(queryName)) {
       queries.setQueryDefinition(queryName, this.table, ({ select, where }) => {
         select('title');
         select('created');
         where('type', CollectionItemType.notebook);
-        where('parent', parent ? parent : FAKE_ROOT);
+        where('parent', parent ? parent : ROOT_NOTEBOOK);
         where('deleted', deleted);
       });
     }
@@ -48,7 +48,7 @@ class NotebooksService {
   public addNotebook(title: string, parent?: string) {
     return storageService.getSpace().addRow(this.table, {
       title,
-      parent: parent ? parent : FAKE_ROOT,
+      parent: parent ? parent : ROOT_NOTEBOOK,
       created: Date.now(),
       type: CollectionItemType.notebook
     });
