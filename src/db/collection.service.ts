@@ -29,7 +29,7 @@ class CollectionService {
   private readonly storeId = 'space';
   private readonly table = 'collection';
 
-  private fetchAllCollectionItemsQuery(
+  private fetchCollectionItemsPerParentQuery(
     notebook: string,
     parent: string,
     deleted: boolean = false
@@ -59,6 +59,45 @@ class CollectionService {
     return queryName;
   }
 
+  private fetchAllCollectionItemsQuery(deleted: boolean = false) {
+    const queries = storageService.getSpaceQueries();
+    const queryName = `fetchAllCollectionItems`;
+    if (!queries.hasQuery(queryName)) {
+      queries.setQueryDefinition(queryName, this.table, ({ select, where }) => {
+        select('title');
+        select('type');
+        select('tags');
+        select('created');
+        select('updated');
+        select('conflict');
+        where('deleted', deleted);
+        where(getCell => {
+          const type = getCell('type')?.valueOf();
+          return (
+            type === CollectionItemType.document ||
+            type === CollectionItemType.folder
+          );
+        });
+      });
+    }
+    return queryName;
+  }
+
+  public getAllCollectionItems(
+    sortBy: 'created' | 'updated' = 'created',
+    descending = false
+  ) {
+    const table = storageService.getSpace().getTable(this.table);
+    const queryName = this.fetchAllCollectionItemsQuery();
+    return storageService
+      .getSpaceQueries()
+      .getResultSortedRowIds(queryName, sortBy, descending)
+      .map(rowId => {
+        const row = table[rowId];
+        return { ...row, id: rowId } as CollectionItemResult;
+      });
+  }
+
   public getCollectionItems(
     parent: string,
     sortBy: 'created' | 'updated' = 'created',
@@ -66,7 +105,7 @@ class CollectionService {
   ) {
     const notebook = notebooksService.getCurrentNotebook();
     const table = storageService.getSpace().getTable(this.table);
-    const queryName = this.fetchAllCollectionItemsQuery(notebook, parent);
+    const queryName = this.fetchCollectionItemsPerParentQuery(notebook, parent);
     return storageService
       .getSpaceQueries()
       .getResultSortedRowIds(queryName, sortBy, descending)
@@ -83,7 +122,7 @@ class CollectionService {
   ): CollectionItemResult[] {
     const notebook = notebooksService.useCurrentNotebook();
     const table = useTableWithRef(this.storeId, this.table);
-    const queryName = this.fetchAllCollectionItemsQuery(notebook, parent);
+    const queryName = this.fetchCollectionItemsPerParentQuery(notebook, parent);
     return useResultSortedRowIdsWithRef(
       this.storeId,
       queryName,
@@ -97,6 +136,7 @@ class CollectionService {
 
   public addDocument(parent: string) {
     const notebook = notebooksService.getCurrentNotebook();
+    console.debug('noteboook', notebook);
     const now = Date.now();
     const id = getUniqueId();
     const content = initialContent();
@@ -152,7 +192,10 @@ class CollectionService {
     const parent = this.getItemParent(rowId);
     localChangesService.addLocalChange(rowId, LocalChangeType.delete);
     if (wasFolder) {
-      const queryName = this.fetchAllCollectionItemsQuery(notebook, rowId);
+      const queryName = this.fetchCollectionItemsPerParentQuery(
+        notebook,
+        rowId
+      );
       const children = storageService
         .getSpaceQueries()
         .getResultSortedRowIds(queryName);

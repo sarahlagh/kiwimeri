@@ -8,6 +8,7 @@ import {
 import { fastHash } from '@/common/utils';
 import { ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
+import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
 import { getUniqueId } from 'tinybase/with-schemas';
 import { expect, vi } from 'vitest';
@@ -22,12 +23,15 @@ const setFieldMeta = (value: string, updated: number) =>
   JSON.stringify({ hash: fastHash(value), updated });
 
 export const oneDocument = (title = 'new doc', parent = ROOT_FOLDER) => {
+  const notebook = notebooksService.getCurrentNotebook();
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   return {
     id: getUniqueId(),
     type: CollectionItemType.document,
     parent,
     parent_meta: setFieldMeta(parent, Date.now()),
+    notebook,
+    notebook_meta: setFieldMeta(notebook, Date.now()),
     title,
     title_meta: setFieldMeta(title, Date.now()),
     content: 'random',
@@ -41,11 +45,14 @@ export const oneDocument = (title = 'new doc', parent = ROOT_FOLDER) => {
   } as CollectionItem;
 };
 export const oneFolder = (title = 'new folder', parent = ROOT_FOLDER) => {
+  const notebook = notebooksService.getCurrentNotebook();
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   return {
     id: getUniqueId(),
     parent,
     parent_meta: setFieldMeta(parent, Date.now()),
+    notebook,
+    notebook_meta: setFieldMeta(notebook, Date.now()),
     type: CollectionItemType.folder,
     title,
     title_meta: setFieldMeta(title, Date.now()),
@@ -182,11 +189,11 @@ export const GET_ALL_CHANGES = (type: string) =>
   );
 
 export const getCollectionRowCount = () => {
-  return storageService.getSpace().getRowCount('collection');
+  return collectionService.getAllCollectionItems().length;
 };
 
 export const getCollectionRowIds = () => {
-  return storageService.getSpace().getRowIds('collection');
+  return collectionService.getAllCollectionItems().map(i => i.id);
 };
 
 export const getCollectionItem = (id: string) => {
@@ -278,3 +285,6 @@ export const expectHasLocalItemConflict = (
     expect(rowIds).not.toContain(conflictId);
   }
 };
+
+export const getDocsFolders = (items: CollectionItem[]) =>
+  items.filter(i => i.type !== CollectionItemType.notebook);
