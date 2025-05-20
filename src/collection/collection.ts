@@ -32,7 +32,10 @@ export type CollectionItemFieldEnum = keyof Required<
 >;
 
 export type CollectionItemUpdatableFieldEnum = keyof Required<
-  Pick<CollectionItem, 'parent' | 'title' | 'content' | 'tags' | 'deleted'>
+  Pick<
+    CollectionItem,
+    'parent' | 'notebook' | 'title' | 'content' | 'tags' | 'deleted'
+  >
 >;
 
 export type CollectionItemResult = Pick<

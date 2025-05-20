@@ -117,12 +117,17 @@ class CollectionService {
 
   public useCollectionItems(
     parent: string,
+    notebook?: string,
     sortBy: 'created' | 'updated' = 'created',
     descending = false
   ): CollectionItemResult[] {
-    const notebook = notebooksService.useCurrentNotebook();
+    const currentNotebook = notebooksService.useCurrentNotebook();
+    const notebookId = notebook ? notebook : currentNotebook;
     const table = useTableWithRef(this.storeId, this.table);
-    const queryName = this.fetchCollectionItemsPerParentQuery(notebook, parent);
+    const queryName = this.fetchCollectionItemsPerParentQuery(
+      notebookId,
+      parent
+    );
     return useResultSortedRowIdsWithRef(
       this.storeId,
       queryName,
@@ -274,6 +279,10 @@ class CollectionService {
 
   public setItemContent(rowId: Id, content: string) {
     this.setItemField(rowId, 'content', content);
+  }
+
+  public setItemNotebook(rowId: Id, notebookId: Id) {
+    this.setItemField(rowId, 'notebook', notebookId);
   }
 
   public useItemTags(rowId: Id) {

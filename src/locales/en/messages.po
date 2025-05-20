@@ -31,11 +31,11 @@ msgstr "Are you sure?"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: src/common/modals/ChooseFolderModal.tsx:65
+#: src/common/modals/ChooseFolderModal.tsx:68
 msgid "Choose"
 msgstr "Choose"
 
-#: src/common/modals/ChooseFolderModal.tsx:112
+#: src/common/modals/ChooseFolderModal.tsx:109
 msgid "Choose a new folder"
 msgstr "Choose a new folder"
 
@@ -56,7 +56,7 @@ msgstr "Confirm"
 msgid "Debug"
 msgstr "Debug"
 
-#: src/constants.ts:51
+#: src/constants.ts:52
 msgid "Default"
 msgstr "Default"
 
@@ -84,7 +84,7 @@ msgstr "Export"
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/constants.ts:50
+#: src/constants.ts:51
 msgid "Home"
 msgstr "Home"
 
@@ -121,11 +121,11 @@ msgstr "Manually backup or restore your collection."
 msgid "Name"
 msgstr "Name"
 
-#: src/constants.ts:52
+#: src/constants.ts:53
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:53
+#: src/constants.ts:54
 msgid "New folder"
 msgstr "New folder"
 
