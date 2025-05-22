@@ -24,15 +24,13 @@ const DocumentEditorPage = () => {
 
   const CollectionItemActionsMenu = () => {
     return (
-      <>
-        <IonButton
-          onClick={() => {
-            setShowDocumentActions(!showDocumentActions);
-          }}
-        >
-          <IonIcon icon={APPICONS.itemActions}></IonIcon>
-        </IonButton>
-      </>
+      <IonButton
+        onClick={() => {
+          setShowDocumentActions(!showDocumentActions);
+        }}
+      >
+        <IonIcon icon={APPICONS.itemActions}></IonIcon>
+      </IonButton>
     );
   };
 
