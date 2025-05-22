@@ -18,11 +18,10 @@ const MoveFolderButton = ({ id, onClose }: MoveFolderButtonProps) => {
     currentType,
     currentParent,
     onClose: (parentId?: string, notebookId?: string) => {
-      if (parentId && parentId !== currentParent) {
+      if (notebookId && parentId) {
+        collectionService.setItemNotebookFolder(id, notebookId, parentId);
+      } else if (parentId && parentId !== currentParent) {
         collectionService.setItemParent(id, parentId);
-      }
-      if (notebookId) {
-        collectionService.setItemNotebook(id, notebookId);
       }
       dismiss(parentId, parentId === undefined ? 'cancel' : 'choose');
       onClose(parentId !== undefined ? 'confirm' : 'cancel');

@@ -89,103 +89,63 @@ export const ITEM_TYPES: itemTypesType[] = [
   }
 ];
 
-export const NON_PARENT_UPDATABLE_FIELDS: {
+export const NON_PARENT_NON_NOTEBOOK_UPDATABLE_FIELDS: {
   field: CollectionItemUpdatableFieldEnum;
 }[] = [{ field: 'title' }, { field: 'content' }, { field: 'tags' }];
+
+export const NON_PARENT_UPDATABLE_FIELDS: {
+  field: CollectionItemUpdatableFieldEnum;
+}[] = [...NON_PARENT_NON_NOTEBOOK_UPDATABLE_FIELDS, { field: 'notebook' }];
 
 export const UPDATABLE_FIELDS: { field: CollectionItemUpdatableFieldEnum }[] = [
   ...NON_PARENT_UPDATABLE_FIELDS,
   { field: 'parent' }
 ];
-export const NON_CONFLICT_CHANGES = [
-  {
-    local: 'title',
-    remote: 'content'
-  },
-  {
-    local: 'content',
-    remote: 'title'
-  },
-  {
-    local: 'parent',
-    remote: 'title'
-  },
-  {
-    local: 'title',
-    remote: 'parent'
-  },
-  {
-    local: 'parent',
-    remote: 'content'
-  },
-  {
-    local: 'content',
-    remote: 'parent'
-  },
-  {
-    local: 'title',
-    remote: 'tags'
-  },
-  {
-    local: 'tags',
-    remote: 'title'
-  },
-  {
-    local: 'content',
-    remote: 'tags'
-  },
-  {
-    local: 'tags',
-    remote: 'content'
-  },
-  {
-    local: 'parent',
-    remote: 'tags'
-  },
-  {
-    local: 'tags',
-    remote: 'parent'
-  }
-];
-export const CONFLICT_CHANGES = [
-  {
-    field: 'title',
-    local: 'title',
-    remote: 'title'
-  },
-  {
-    field: 'content',
-    local: 'content',
-    remote: 'content'
-  },
-  {
-    field: 'parent',
-    local: 'parent',
-    remote: 'parent'
-  },
-  {
-    field: 'tags',
-    local: 'tags',
-    remote: 'tags'
-  }
-];
+
+const NON_CONFLICT_CHANGES: { local: string; remote: string }[] = [];
+UPDATABLE_FIELDS.forEach(({ field: local }) => {
+  UPDATABLE_FIELDS.forEach(({ field: remote }) => {
+    if (local !== remote) {
+      NON_CONFLICT_CHANGES.push({
+        local,
+        remote
+      });
+    }
+  });
+});
+
+export const CONFLICT_CHANGES = UPDATABLE_FIELDS.map(field => ({
+  ...field,
+  local: field.field,
+  remote: field.field
+}));
+
+const filterContentWithType = (field: string, type: string) =>
+  field !== 'content' || (type !== 'folder' && type !== 'notebook');
 
 export const GET_UPDATABLE_FIELDS = (type: string) =>
-  UPDATABLE_FIELDS.filter(f => f.field !== 'content' || type !== 'folder');
+  UPDATABLE_FIELDS.filter(f => filterContentWithType(f.field, type));
+
+export const GET_NON_PARENT_NON_NOTEBOOK_UPDATABLE_FIELDS = (type: string) =>
+  NON_PARENT_NON_NOTEBOOK_UPDATABLE_FIELDS.filter(f =>
+    filterContentWithType(f.field, type)
+  );
 
 export const GET_NON_PARENT_UPDATABLE_FIELDS = (type: string) =>
-  NON_PARENT_UPDATABLE_FIELDS.filter(
-    f => f.field !== 'content' || type !== 'folder'
-  );
+  NON_PARENT_UPDATABLE_FIELDS.filter(f => filterContentWithType(f.field, type));
 
 export const GET_NON_CONFLICT_CHANGES = (type: string) =>
   NON_CONFLICT_CHANGES.filter(f =>
-    f.local === 'content' || f.remote === 'content' ? type !== 'folder' : true
+    f.local === 'content' || f.remote === 'content'
+      ? type !== 'folder' && type !== 'notebook'
+      : true
   );
 
 export const GET_ALL_CHANGES = (type: string) =>
   [...CONFLICT_CHANGES, ...NON_CONFLICT_CHANGES].filter(f =>
-    f.local === 'content' || f.remote === 'content' ? type !== 'folder' : true
+    f.local === 'content' || f.remote === 'content'
+      ? type !== 'folder' && type !== 'notebook'
+      : true
   );
 
 export const getCollectionRowCount = () => {
