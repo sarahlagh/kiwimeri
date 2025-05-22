@@ -218,9 +218,12 @@ class CollectionService {
     storageService.getSpace().delRow(this.table, rowId);
   }
 
-  public itemExists(rowId: Id) {
+  public itemExists(rowId: Id, notebook?: string) {
     if (rowId === ROOT_FOLDER) {
       return true;
+    }
+    if (notebook !== undefined) {
+      return this.getItemField(rowId, 'notebook') === notebook;
     }
     return storageService.getSpace().hasRow(this.table, rowId);
   }
