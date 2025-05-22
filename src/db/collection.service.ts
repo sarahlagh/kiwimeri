@@ -59,7 +59,10 @@ class CollectionService {
     return queryName;
   }
 
-  private fetchAllCollectionItemsQuery(deleted: boolean = false) {
+  private fetchCollectionItemsPerNotebookQuery(
+    notebook?: string,
+    deleted: boolean = false
+  ) {
     const queries = storageService.getSpaceQueries();
     const queryName = `fetchAllCollectionItems`;
     if (!queries.hasQuery(queryName)) {
@@ -71,6 +74,9 @@ class CollectionService {
         select('updated');
         select('conflict');
         where('deleted', deleted);
+        if (notebook) {
+          where('notebook', notebook);
+        }
         where(getCell => {
           const type = getCell('type')?.valueOf();
           return (
@@ -84,11 +90,12 @@ class CollectionService {
   }
 
   public getAllCollectionItems(
+    notebook?: string,
     sortBy: 'created' | 'updated' = 'created',
     descending = false
   ) {
     const table = storageService.getSpace().getTable(this.table);
-    const queryName = this.fetchAllCollectionItemsQuery();
+    const queryName = this.fetchCollectionItemsPerNotebookQuery(notebook);
     return storageService
       .getSpaceQueries()
       .getResultSortedRowIds(queryName, sortBy, descending)
@@ -421,7 +428,7 @@ class CollectionService {
     this.updateParentUpdatedRecursive(this.getItemParent(folder));
   }
 
-  private setFieldMeta(value: string, updated: number) {
+  public setFieldMeta(value: string, updated: number) {
     return JSON.stringify({ hash: fastHash(value), updated });
   }
 }

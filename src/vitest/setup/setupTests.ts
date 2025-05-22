@@ -40,6 +40,7 @@ afterEach(async () => {
   storageService.reInitDB();
   notebooksService.initNotebooks();
   expect(notebooksService.getCurrentNotebook()).not.toBe('');
+  expect(notebooksService.getNotebooks()).toHaveLength(1);
   expect(storageService.getStore().getRowCount('remotes')).toBe(0);
   expect(storageService.getSpace().getRowCount('collection')).toBe(1);
   remotesService['remotePersisters'].clear();

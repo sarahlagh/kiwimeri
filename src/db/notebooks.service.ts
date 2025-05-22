@@ -2,6 +2,7 @@ import { CollectionItemType } from '@/collection/collection';
 import { getGlobalTrans } from '@/config';
 import { DEFAULT_NOTEBOOK_ID, ROOT_NOTEBOOK } from '@/constants';
 import { NotebookResult } from '@/notebooks/notebooks';
+import collectionService from './collection.service';
 import storageService from './storage.service';
 import {
   useCellWithRef,
@@ -46,15 +47,29 @@ class NotebooksService {
   }
 
   public addNotebook(title: string, parent?: string) {
+    const now = Date.now();
     return storageService.getSpace().addRow(this.table, {
       title,
+      title_meta: collectionService.setFieldMeta(title, now),
       parent: parent ? parent : ROOT_NOTEBOOK,
+      parent_meta: collectionService.setFieldMeta(
+        parent ? parent : ROOT_NOTEBOOK,
+        now
+      ),
       created: Date.now(),
+      updated: Date.now(),
       type: CollectionItemType.notebook
     });
   }
 
   public deleteNotebook(id: string): void {
+    // if items inside, delete them
+    const items = collectionService.getAllCollectionItems(id);
+    if (items.length > 0) {
+      storageService.getSpace().transaction(() => {
+        items.forEach(i => collectionService.deleteItem(i.id));
+      });
+    }
     storageService.getSpace().delRow(this.table, id);
   }
 
@@ -98,7 +113,7 @@ class NotebooksService {
   }
 
   public setNotebookTitle(id: string, title: string) {
-    storageService.getSpace().setCell(this.table, id, 'title', title);
+    collectionService.setItemTitle(id, title);
   }
 
   public getNotebooks(
