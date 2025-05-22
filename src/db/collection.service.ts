@@ -291,8 +291,11 @@ class CollectionService {
     this.setItemField(rowId, 'content', content);
   }
 
-  public setItemNotebook(rowId: Id, notebookId: Id) {
-    this.setItemField(rowId, 'notebook', notebookId);
+  public setItemNotebookFolder(rowId: Id, notebookId: Id, parentId: string) {
+    storageService.getSpace().transaction(() => {
+      this.setItemParent(rowId, parentId);
+      this.setItemField(rowId, 'notebook', notebookId);
+    });
   }
 
   public useItemTags(rowId: Id) {
@@ -387,7 +390,7 @@ class CollectionService {
           `${key}_meta`,
           this.setFieldMeta(`${value}`, updated)
         );
-      if (key !== 'parent') {
+      if (key !== 'parent' && key !== 'notebook') {
         storageService
           .getSpace()
           .setCell('collection', rowId, 'updated', updated);
