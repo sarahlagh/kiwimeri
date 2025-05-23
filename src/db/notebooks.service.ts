@@ -1,4 +1,4 @@
-import { CollectionItemType } from '@/collection/collection';
+import { CollectionItemType, setFieldMeta } from '@/collection/collection';
 import { getGlobalTrans } from '@/config';
 import { DEFAULT_NOTEBOOK_ID, ROOT_NOTEBOOK } from '@/constants';
 import { NotebookResult } from '@/notebooks/notebooks';
@@ -52,12 +52,9 @@ class NotebooksService {
     const now = Date.now();
     const id = storageService.getSpace().addRow(this.table, {
       title,
-      title_meta: collectionService.setFieldMeta(title, now),
+      title_meta: setFieldMeta(title, now),
       parent: parent ? parent : ROOT_NOTEBOOK,
-      parent_meta: collectionService.setFieldMeta(
-        parent ? parent : ROOT_NOTEBOOK,
-        now
-      ),
+      parent_meta: setFieldMeta(parent ? parent : ROOT_NOTEBOOK, now),
       created: Date.now(),
       updated: Date.now(),
       type: CollectionItemType.notebook

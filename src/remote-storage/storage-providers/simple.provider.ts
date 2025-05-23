@@ -1,7 +1,8 @@
 import {
   CollectionItem,
   CollectionItemType,
-  CollectionItemUpdatableFieldEnum
+  CollectionItemUpdatableFieldEnum,
+  parseFieldMeta
 } from '@/collection/collection';
 import { SpaceType } from '@/db/types/space-types';
 import {
@@ -237,7 +238,7 @@ export class SimpleStorageProvider extends StorageProvider {
             `${localChange.field as CollectionItemUpdatableFieldEnum}_meta`
           ];
           console.debug('[pull] local change meta', localChange.field, meta);
-          remoteUpdated = JSON.parse(meta!).updated;
+          remoteUpdated = parseFieldMeta(meta!).u;
         }
 
         if (localChange.change === LocalChangeType.add) {

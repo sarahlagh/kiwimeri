@@ -1,3 +1,4 @@
+import { parseFieldMeta } from '@/collection/collection';
 import { getGlobalTrans } from '@/config';
 import { ROOT_FOLDER, ROOT_NOTEBOOK } from '@/constants';
 import collectionService from '@/db/collection.service';
@@ -38,9 +39,9 @@ describe('notebooks service', () => {
     expect(collectionService.getItemField(n1, 'title')).toBe(
       'non default title'
     );
-    const meta = JSON.parse(getLocalItemField(n1, 'title_meta') as string);
-    expect(meta.updated).toBe(getLocalItemField(n1, 'updated') as number);
-    expect(meta.updated).toBeGreaterThan(created);
+    const meta = parseFieldMeta(getLocalItemField(n1, 'title_meta') as string);
+    expect(meta.u).toBe(getLocalItemField(n1, 'updated') as number);
+    expect(meta.u).toBeGreaterThan(created);
     vi.useRealTimers();
   });
 

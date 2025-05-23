@@ -1,5 +1,4 @@
-import { CollectionItemType } from '@/collection/collection';
-import { fastHash } from '@/common/utils';
+import { CollectionItemType, parseFieldMeta } from '@/collection/collection';
 import { ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
@@ -33,15 +32,13 @@ describe('collection service', () => {
         expect(item.conflict).toBeUndefined();
         // title
         expect(item.title).toBe(defaultTitle);
-        let meta = JSON.parse(item.title_meta);
-        expect(meta.updated).toBe(item.updated);
-        expect(meta.hash).toBe(fastHash(item.title));
+        let meta = parseFieldMeta(item.title_meta);
+        expect(meta.u).toBe(item.updated);
         // content
         if (typeVal === CollectionItemType.document) {
           expect(item.content).not.toHaveLength(0);
-          meta = JSON.parse(item.content_meta!);
-          expect(meta.updated).toBe(item.updated);
-          expect(meta.hash).toBe(fastHash(item.content!));
+          meta = parseFieldMeta(item.content_meta!);
+          expect(meta.u).toBe(item.updated);
         }
         if (typeVal === CollectionItemType.folder) {
           expect(item.content).toBeUndefined();
@@ -49,14 +46,12 @@ describe('collection service', () => {
         }
         // parent
         expect(item.parent).toBe(ROOT_FOLDER);
-        meta = JSON.parse(item.parent_meta);
-        expect(meta.updated).toBe(item.updated);
-        expect(meta.hash).toBe(fastHash(item.parent));
+        meta = parseFieldMeta(item.parent_meta);
+        expect(meta.u).toBe(item.updated);
         // deleted
         expect(item.deleted).toBe(false);
-        meta = JSON.parse(item.deleted_meta);
-        expect(meta.updated).toBe(item.updated);
-        expect(meta.hash).toBe(fastHash(item.deleted + ''));
+        meta = parseFieldMeta(item.deleted_meta);
+        expect(meta.u).toBe(item.updated);
       });
 
       it(`should create a new ${type} inside an existing folder`, () => {
@@ -80,9 +75,8 @@ describe('collection service', () => {
             const item = getCollectionItem(id);
             expect(item[field]).toBe('new value');
             expect(item.created).toBeLessThan(item.updated);
-            const meta = JSON.parse(item[`${field}_meta`]!);
-            expect(meta.updated).toBe(item.updated);
-            expect(meta.hash).toBe(fastHash(item[field] + ''));
+            const meta = parseFieldMeta(item[`${field}_meta`]!);
+            expect(meta.u).toBe(item.updated);
           });
 
           it(`should update the ${field} of a ${type} and recursively update all parents timestamp`, () => {
@@ -97,9 +91,8 @@ describe('collection service', () => {
             const item = getCollectionItem(id);
             expect(item[field]).toBe('new value');
             expect(item.created).toBeLessThan(item.updated);
-            const meta = JSON.parse(item[`${field}_meta`]!);
-            expect(meta.updated).toBe(item.updated);
-            expect(meta.hash).toBe(fastHash(item[field] + ''));
+            const meta = parseFieldMeta(item[`${field}_meta`]!);
+            expect(meta.u).toBe(item.updated);
 
             const folderO = getCollectionItem(folderIdO);
             const folder1 = getCollectionItem(folderId1);
@@ -107,13 +100,13 @@ describe('collection service', () => {
             const folder3 = getCollectionItem(folderId3);
 
             expect(folderO.updated).toBe(now); // this one is untouched
-            expect(JSON.parse(folderO.parent_meta).updated).toBe(now);
+            expect(parseFieldMeta(folderO.parent_meta).u).toBe(now);
             expect(folder1.updated).toBe(now + 100);
-            expect(JSON.parse(folder1.parent_meta).updated).toBe(now);
+            expect(parseFieldMeta(folder1.parent_meta).u).toBe(now);
             expect(folder2.updated).toBe(now + 100);
-            expect(JSON.parse(folder2.parent_meta).updated).toBe(now);
+            expect(parseFieldMeta(folder2.parent_meta).u).toBe(now);
             expect(folder3.updated).toBe(now + 100);
-            expect(JSON.parse(folder3.parent_meta).updated).toBe(now);
+            expect(parseFieldMeta(folder3.parent_meta).u).toBe(now);
           });
         }
       );
@@ -126,9 +119,8 @@ describe('collection service', () => {
         const item = getCollectionItem(id);
         expect(item.parent).toBe(folderId);
         expect(item.created).toBe(item.updated); // parent change doesn't update ts
-        const meta = JSON.parse(item.parent_meta);
-        expect(meta.updated).toBeGreaterThan(item.updated);
-        expect(meta.hash).toBe(fastHash(item.parent));
+        const meta = parseFieldMeta(item.parent_meta);
+        expect(meta.u).toBeGreaterThan(item.updated);
       });
 
       it(`should update the parent of a ${type} and leave all parents timestamp untouched`, () => {
@@ -143,9 +135,8 @@ describe('collection service', () => {
         const item = getCollectionItem(id);
         expect(item.parent).toBe(folderId2);
         expect(item.created).toBe(item.updated);
-        const meta = JSON.parse(item.parent_meta);
-        expect(meta.updated).toBeGreaterThan(item.updated);
-        expect(meta.hash).toBe(fastHash(item.parent));
+        const meta = parseFieldMeta(item.parent_meta);
+        expect(meta.u).toBeGreaterThan(item.updated);
 
         const folderO = getCollectionItem(folderIdO);
         const folder1 = getCollectionItem(folderId1);
@@ -153,13 +144,13 @@ describe('collection service', () => {
         const folder3 = getCollectionItem(folderId3);
 
         expect(folderO.updated).toBe(now); // all are untouched
-        expect(JSON.parse(folderO.parent_meta).updated).toBe(now);
+        expect(parseFieldMeta(folderO.parent_meta).u).toBe(now);
         expect(folder1.updated).toBe(now);
-        expect(JSON.parse(folder1.parent_meta).updated).toBe(now);
+        expect(parseFieldMeta(folder1.parent_meta).u).toBe(now);
         expect(folder2.updated).toBe(now);
-        expect(JSON.parse(folder2.parent_meta).updated).toBe(now);
+        expect(parseFieldMeta(folder2.parent_meta).u).toBe(now);
         expect(folder3.updated).toBe(now);
-        expect(JSON.parse(folder3.parent_meta).updated).toBe(now);
+        expect(parseFieldMeta(folder3.parent_meta).u).toBe(now);
       });
 
       it(`should update the notebook of a ${type}`, () => {
@@ -170,9 +161,8 @@ describe('collection service', () => {
         const item = getCollectionItem(id);
         expect(item.notebook).toBe(notebookId);
         expect(item.created).toBe(item.updated); // parent change doesn't update ts
-        const meta = JSON.parse(item.notebook_meta);
-        expect(meta.updated).toBeGreaterThan(item.updated);
-        expect(meta.hash).toBe(fastHash(item.notebook));
+        const meta = parseFieldMeta(item.notebook_meta);
+        expect(meta.u).toBeGreaterThan(item.updated);
       });
 
       it(`should update the notebook of a ${type} and leave all parents timestamp untouched`, () => {
@@ -188,9 +178,8 @@ describe('collection service', () => {
         const item = getCollectionItem(id);
         expect(item.notebook).toBe(notebookId);
         expect(item.created).toBe(item.updated);
-        const meta = JSON.parse(item.notebook_meta);
-        expect(meta.updated).toBeGreaterThan(item.updated);
-        expect(meta.hash).toBe(fastHash(item.notebook));
+        const meta = parseFieldMeta(item.notebook_meta);
+        expect(meta.u).toBeGreaterThan(item.updated);
 
         const folder1 = getCollectionItem(folderId1);
         const folder2 = getCollectionItem(folderId2);
@@ -198,11 +187,11 @@ describe('collection service', () => {
 
         // all are untouched
         expect(folder1.updated).toBe(now);
-        expect(JSON.parse(folder1.notebook_meta).updated).toBe(now);
+        expect(parseFieldMeta(folder1.notebook_meta).u).toBe(now);
         expect(folder2.updated).toBe(now);
-        expect(JSON.parse(folder2.notebook_meta).updated).toBe(now);
+        expect(parseFieldMeta(folder2.notebook_meta).u).toBe(now);
         expect(folder3.updated).toBe(now);
-        expect(JSON.parse(folder3.notebook_meta).updated).toBe(now);
+        expect(parseFieldMeta(folder3.notebook_meta).u).toBe(now);
       });
 
       it(`should delete an existing ${type}`, () => {
@@ -233,13 +222,13 @@ describe('collection service', () => {
         const folder3 = getCollectionItem(folderId3);
 
         expect(folderO.updated).toBe(now); // this one is untouched
-        expect(JSON.parse(folderO.parent_meta).updated).toBe(now);
+        expect(parseFieldMeta(folderO.parent_meta).u).toBe(now);
         expect(folder1.updated).toBe(now + 100);
-        expect(JSON.parse(folder1.parent_meta).updated).toBe(now);
+        expect(parseFieldMeta(folder1.parent_meta).u).toBe(now);
         expect(folder2.updated).toBe(now + 100);
-        expect(JSON.parse(folder2.parent_meta).updated).toBe(now);
+        expect(parseFieldMeta(folder2.parent_meta).u).toBe(now);
         expect(folder3.updated).toBe(now + 100);
-        expect(JSON.parse(folder3.parent_meta).updated).toBe(now);
+        expect(parseFieldMeta(folder3.parent_meta).u).toBe(now);
       });
 
       it(`should add a single tag to a ${type} without changing the rest`, () => {
