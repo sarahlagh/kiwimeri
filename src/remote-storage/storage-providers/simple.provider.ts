@@ -4,6 +4,10 @@ import {
   CollectionItemUpdatableFieldEnum,
   parseFieldMeta
 } from '@/collection/collection';
+import {
+  minimizeItemsForStorage,
+  unminimizeItemsFromStorage
+} from '@/db/compress-storage';
 import { SpaceType } from '@/db/types/space-types';
 import {
   AnyData,
@@ -303,10 +307,14 @@ export class SimpleStorageProvider extends StorageProvider {
       i: items,
       u: updated
     };
-    return JSON.stringify(obj);
+    return JSON.stringify({ ...obj, i: minimizeItemsForStorage(items) });
   }
 
-  private deserialization(content?: string) {
-    return JSON.parse(content || '{}') as SimpleStorageFileContent;
+  private deserialization(content?: string): SimpleStorageFileContent {
+    const obj = JSON.parse(content || '{}') as AnyData;
+    return {
+      u: obj.u,
+      i: unminimizeItemsFromStorage(obj.i)
+    };
   }
 }

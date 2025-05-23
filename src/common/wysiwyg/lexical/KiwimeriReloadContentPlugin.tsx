@@ -1,4 +1,4 @@
-import { unminimizeFromStorage } from '@/common/wysiwyg/compress-storage';
+import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useEffect } from 'react';
 
@@ -13,7 +13,9 @@ export default function KiwimeriReloadContentPlugin({
 
   useEffect(() => {
     const newState = editor.parseEditorState(
-      content.startsWith('{"root":{') ? content : unminimizeFromStorage(content)
+      content.startsWith('{"root":{')
+        ? content
+        : unminimizeContentFromStorage(content)
     );
     editor.setEditorState(newState);
   }, [id]);

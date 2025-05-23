@@ -1,3 +1,5 @@
+import { AnyData } from '@/db/types/store-types';
+
 const QUERY_PARAMS = ['folder', 'document'] as const;
 
 type SearchParams = typeof QUERY_PARAMS;
@@ -32,3 +34,47 @@ export function fastHash(input: string): number {
   }
   return hash;
 }
+
+export const minimizeKeys = (
+  obj: AnyData,
+  keys: Map<string, string>,
+  keywords: Map<string, string>
+) => {
+  const m = {} as AnyData;
+  if (!obj) return obj;
+  Object.keys(obj).forEach(k => {
+    const newKey = keys.has(k) ? keys.get(k)! : k;
+    if (typeof obj[k] === 'string') {
+      m[newKey] = keywords.has(obj[k]) ? keywords.get(obj[k]) : obj[k];
+    } else if (typeof obj[k] === 'number') {
+      m[newKey] = obj[k];
+    } else if (Array.isArray(obj[k])) {
+      m[newKey] = obj[k].map(o => minimizeKeys(o, keys, keywords));
+    } else {
+      m[newKey] = minimizeKeys(obj[k], keys, keywords);
+    }
+  });
+  return m;
+};
+
+export const unminimizeKeys = (
+  obj: AnyData,
+  keys: Map<string, string>,
+  keywords: Map<string, string>
+) => {
+  const m = {} as AnyData;
+  if (!obj) return obj;
+  Object.keys(obj).forEach(k => {
+    const newKey = keys.has(k) ? keys.get(k)! : k;
+    if (typeof obj[k] === 'string') {
+      m[newKey] = keywords.has(obj[k]) ? keywords.get(obj[k]) : obj[k];
+    } else if (typeof obj[k] === 'number') {
+      m[newKey] = obj[k];
+    } else if (Array.isArray(obj[k])) {
+      m[newKey] = obj[k].map(o => unminimizeKeys(o, keys, keywords));
+    } else {
+      m[newKey] = unminimizeKeys(obj[k], keys, keywords);
+    }
+  });
+  return m;
+};

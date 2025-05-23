@@ -2,6 +2,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { CollectionItem } from '@/collection/collection';
 import { fastHash } from '@/common/utils';
+import {
+  minimizeItemsForStorage,
+  unminimizeItemsFromStorage
+} from '@/db/compress-storage';
 import { FileStorageDriver } from '@/remote-storage/sync-types';
 
 // for testing
@@ -77,19 +81,20 @@ export class InMemDriver extends FileStorageDriver {
   public setContent(items: CollectionItem[], updated: number) {
     return this.pushFile(
       this.names[0],
-      JSON.stringify({ i: items, u: updated })
+      JSON.stringify({ i: minimizeItemsForStorage(items), u: updated })
     );
   }
 
   public getContent() {
     console.debug('[getRemoteContent]', this.collection.get(this.names[0]));
+    const obj = JSON.parse(
+      this.collection.get(this.names[0]) || '{"i":[],"u":0}'
+    ) as {
+      i: CollectionItem[];
+      u: number;
+    };
     return {
-      content: (
-        JSON.parse(this.collection.get(this.names[0]) || '{"i":[],"u":0}') as {
-          i: CollectionItem[];
-          u: number;
-        }
-      ).i
+      content: { ...obj, i: unminimizeItemsFromStorage(obj.i) }.i
     };
   }
 }

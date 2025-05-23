@@ -1,11 +1,16 @@
 import {
-  minimizeForStorage,
-  unminimizeFromStorage
-} from '@/common/wysiwyg/compress-storage';
+  minimizeContentForStorage,
+  unminimizeContentFromStorage
+} from '@/common/wysiwyg/compress-file-content';
 import { initialContent } from '@/db/collection.service';
+import {
+  minimizeItemsForStorage,
+  unminimizeItemsFromStorage
+} from '@/db/compress-storage';
 import { it } from 'vitest';
+import { oneDocument, oneFolder, oneNotebook } from '../setup/test.utils';
 
-describe('lexical compression algorithm', () => {
+describe('lexical content compression', () => {
   it('avg time to minimize', () => {
     const content =
       '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est ","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}';
@@ -14,18 +19,18 @@ describe('lexical compression algorithm', () => {
     let avg = 0;
     for (let i = 0; i < N; i++) {
       const a = Date.now();
-      minimizeForStorage(content);
+      minimizeContentForStorage(content);
       const b = Date.now();
       avg += b - a;
     }
     avg = avg / N;
     console.log('avg time to minimize', avg);
 
-    const minimized = minimizeForStorage(content);
+    const minimized = minimizeContentForStorage(content);
     avg = 0;
     for (let i = 0; i < N; i++) {
       const a = Date.now();
-      unminimizeFromStorage(minimized);
+      unminimizeContentFromStorage(minimized);
       const b = Date.now();
       avg += b - a;
     }
@@ -70,15 +75,36 @@ describe('lexical compression algorithm', () => {
     }
   ].forEach(({ content, name }) => {
     it(`should minimize then restore ${name}`, () => {
-      const minimized = minimizeForStorage(content);
+      const minimized = minimizeContentForStorage(content);
       expect(minimized.length).toBeLessThanOrEqual(content.length);
       const compressionRate =
         ((content.length - minimized.length) / content.length) * 100;
       console.log('reached compression rate of', compressionRate);
       console.log('minimized json', minimized);
 
-      const restored = unminimizeFromStorage(minimized);
+      const restored = unminimizeContentFromStorage(minimized);
       expect(restored).toBe(content);
+    });
+  });
+});
+
+describe('collection item compression', () => {
+  [
+    {
+      name: 'empty array',
+      data: []
+    },
+    {
+      name: 'array of items',
+      data: [oneDocument(), oneFolder(), oneNotebook()]
+    }
+  ].forEach(({ data, name }) => {
+    it(`should minimize then restore ${name}`, () => {
+      const minimized = minimizeItemsForStorage(data);
+      console.log('minimized json', minimized);
+
+      const restored = unminimizeItemsFromStorage(minimized);
+      expect(restored).toStrictEqual(data);
     });
   });
 });

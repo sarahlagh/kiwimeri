@@ -20,7 +20,7 @@ import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import { useLingui } from '@lingui/react/macro';
 import React, { useEffect, useState } from 'react';
-import { minimizeForStorage } from './compress-storage';
+import { minimizeContentForStorage } from './compress-file-content';
 import DebugTreeViewPlugin from './lexical/DebugTreeViewPlugin';
 import KiwimeriReloadContentPlugin from './lexical/KiwimeriReloadContentPlugin';
 import KiwimeriToolbarPlugin from './lexical/KiwimeriToolbarPlugin';
@@ -90,7 +90,7 @@ const Writer = (
         onChange={editorState => {
           if (hasUserChanges) {
             const changes = JSON.stringify(editorState.toJSON());
-            const minimized = minimizeForStorage(changes);
+            const minimized = minimizeContentForStorage(changes);
             collectionService.setItemContent(id, minimized);
           }
           if (!hasUserChanges) {
