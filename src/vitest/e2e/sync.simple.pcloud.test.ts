@@ -1,8 +1,10 @@
 import { CollectionItem } from '@/collection/collection';
-import { appConfig } from '@/config';
+import { appConfig, getGlobalTrans } from '@/config';
 import { ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
+import { unminimizeItemsFromStorage } from '@/db/compress-storage';
 import localChangesService from '@/db/localChanges.service';
+import notebooksService from '@/db/notebooks.service';
 import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
 import { PCloudDriver } from '@/remote-storage/storage-drivers/pcloud/pcloud.driver';
@@ -17,6 +19,7 @@ import {
   getLocalItemField,
   oneDocument,
   oneFolder,
+  oneNotebook,
   setLocalItemField,
   updateOnRemote
 } from '../setup/test.utils';
@@ -47,7 +50,9 @@ const getRemoteContent = async () => {
   const info = JSON.parse(infoStr!) as { providerid: string };
   const { content } = await driver.pullFile(info.providerid, '');
   console.debug('[getRemoteContent]', content);
-  return content ? (JSON.parse(content).i as CollectionItem[]) : undefined;
+  return content
+    ? unminimizeItemsFromStorage(JSON.parse(content).i as CollectionItem[])
+    : undefined;
 };
 
 describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
@@ -78,7 +83,12 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
   });
 
   it('should pull new remote items', async () => {
-    const remoteData = [oneDocument('r1'), oneDocument('r2'), oneFolder('r3')];
+    const remoteData = [
+      oneDocument('r1'),
+      oneDocument('r2'),
+      oneFolder('r3'),
+      oneNotebook()
+    ];
     await reInitRemoteData(remoteData);
     await amount(100);
     await syncService.pull();
@@ -94,11 +104,16 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     await amount(100);
     const content = await getRemoteContent();
     expect(content).toBeDefined();
-    expect(content).toHaveLength(3);
+    expect(content).toHaveLength(4); // items + notebook
   });
 
   it('should pull new remote items, create newer, then push', async () => {
-    const remoteData = [oneDocument('r1'), oneDocument('r2'), oneFolder('r3')];
+    const remoteData = [
+      oneDocument('r1'),
+      oneDocument('r2'),
+      oneFolder('r3'),
+      oneNotebook()
+    ];
     await reInitRemoteData(remoteData);
     await amount(100);
     await syncService.pull();
@@ -108,8 +123,9 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     await syncService.push();
     await amount(100);
     const content = await getRemoteContent();
-    expect(content).toHaveLength(4);
+    expect(content).toHaveLength(5); // items + notebook
     expect(content!.map(r => r.title)).toEqual([
+      getGlobalTrans().defaultNotebookName,
       'new',
       'r2',
       'r3',
@@ -119,7 +135,12 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
   });
 
   it('should pull new remote items and keep local creates between pulls', async () => {
-    const remoteData = [oneDocument('r1'), oneDocument('r2'), oneFolder('r3')];
+    const remoteData = [
+      oneDocument('r1'),
+      oneDocument('r2'),
+      oneFolder('r3'),
+      oneNotebook()
+    ];
     await reInitRemoteData(remoteData);
     await amount(100);
     await syncService.pull();
@@ -153,7 +174,12 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
   });
 
   it('should erase existing items if they have been pushed, when changing remote', async () => {
-    const remoteData = [oneDocument('r1'), oneDocument('r2'), oneFolder('r3')];
+    const remoteData = [
+      oneDocument('r1'),
+      oneDocument('r2'),
+      oneFolder('r3'),
+      oneNotebook()
+    ];
     await reInitRemoteData(remoteData);
 
     // create local items
@@ -168,7 +194,12 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
   });
 
   it(`should not delete local items on pull if they have been changed locally before being erased on remote (conflict)`, async () => {
-    const remoteData = [oneDocument('r1'), oneDocument('r2'), oneFolder('r3')];
+    const remoteData = [
+      oneDocument('r1'),
+      oneDocument('r2'),
+      oneFolder('r3'),
+      oneNotebook()
+    ];
     await reInitRemoteData(remoteData);
 
     await amount(100);
@@ -182,7 +213,10 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     await amount(50);
 
     // erase on remote
-    await reInitRemoteData([remoteData[1], remoteData[2]], Date.now());
+    await reInitRemoteData(
+      [remoteData[1], remoteData[2], remoteData[3]],
+      Date.now()
+    );
     await amount(100);
     await syncService.pull();
 
@@ -198,7 +232,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     await syncService.push();
     await amount(100);
     let content = await getRemoteContent();
-    expect(content).toHaveLength(2);
+    expect(content).toHaveLength(3);
     await amount(100);
     // now, solve conflict
     setLocalItemField(conflictId, 'content', 'new content');
@@ -206,7 +240,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     await syncService.push();
     await amount(100);
     content = await getRemoteContent();
-    expect(content).toHaveLength(3);
+    expect(content).toHaveLength(4);
   });
 
   it('should handle different conflicts between local and remote', async () => {
@@ -214,6 +248,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     const idDocuments = [];
     const idFolders = [];
     let lastParent = ROOT_FOLDER;
+    notebooksService.addNotebook('n0');
     for (let i = 0; i < 10; i++) {
       idDocuments.push(
         collectionService.addDocument(i % 3 === 0 ? ROOT_FOLDER : lastParent)
@@ -228,7 +263,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     await amount(100);
     const content = await getRemoteContent();
     expect(content).toBeDefined();
-    expect(content).toHaveLength(20);
+    expect(content).toHaveLength(22); // 20 items + 2 notebooks
 
     const now = Date.now();
     vi.useFakeTimers();
@@ -341,6 +376,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
 
     // now check
     expect(getCollectionRowCount()).toBe(22); // 20 + 2 added -2 deleted + 2 conflicts
+    expect(notebooksService.getNotebooks()).toHaveLength(2);
 
     // check items created are still there
     expect(collectionService.itemExists(newLocalItem));

@@ -1,5 +1,6 @@
 import { ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
+import localChangesService from '@/db/localChanges.service';
 import tagsService from '@/db/tags.service';
 import { it } from 'vitest';
 
@@ -46,6 +47,7 @@ describe('tags service', () => {
     const id2 = collectionService.addFolder(ROOT_FOLDER);
     tagsService.addItemTag(id2, 'tag2');
     tagsService.addItemTag(id2, 'tag3');
+    localChangesService.clear();
 
     tagsService.renameTag('tag2', 'tag4');
 
@@ -62,6 +64,8 @@ describe('tags service', () => {
     expect(tagsService.getItemsPerTag('tag2')).toStrictEqual([]);
     expect(tagsService.getItemsPerTag('tag3')).toStrictEqual([id2]);
     expect(tagsService.getItemsPerTag('tag4')).toStrictEqual([id1, id2]);
+
+    expect(localChangesService.getLocalChanges()).toHaveLength(2);
   });
 
   it(`should do nothing on rename tag if tag doesn't exist`, () => {
