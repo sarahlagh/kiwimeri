@@ -136,7 +136,7 @@ class LocalChangesService {
     storageService.getStore().delRow(this.table, rowId);
   }
 
-  public clearLocalChanges() {
+  public clear() {
     const space = storageService.getSpaceId();
     const queryName = this.fetchAllLocalChangesQuery(space);
 

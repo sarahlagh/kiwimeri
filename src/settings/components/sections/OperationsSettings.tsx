@@ -27,7 +27,7 @@ const OperationSettings = () => {
         fill="clear"
         onClick={() => {
           storageService.getSpace().setContent([{}, {}]);
-          localChangesService.clearLocalChanges();
+          localChangesService.clear();
           tagsService.reBuildTags();
           notebooksService.initNotebooks();
         }}
@@ -39,7 +39,7 @@ const OperationSettings = () => {
         fill="clear"
         onClick={() => {
           storageService.getSpace().setContent([{}, {}]);
-          localChangesService.clearLocalChanges();
+          localChangesService.clear();
           storageService.getStore().setCell('remoteState', '0', 'info', '{}');
           storageService
             .getStore()

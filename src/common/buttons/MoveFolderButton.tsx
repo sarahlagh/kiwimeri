@@ -28,16 +28,14 @@ const MoveFolderButton = ({ id, onClose }: MoveFolderButtonProps) => {
     }
   });
   return (
-    <>
-      <IonButton
-        expand="block"
-        onClick={() => {
-          present();
-        }}
-      >
-        <IonIcon icon={APPICONS.moveAction}></IonIcon>
-      </IonButton>
-    </>
+    <IonButton
+      expand="block"
+      onClick={() => {
+        present();
+      }}
+    >
+      <IonIcon icon={APPICONS.moveAction}></IonIcon>
+    </IonButton>
   );
 };
 export default MoveFolderButton;

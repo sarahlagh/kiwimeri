@@ -1,13 +1,23 @@
+import { CollectionItemType } from '@/collection/collection';
 import { ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/localChanges.service';
-import { LocalChangeType } from '@/db/types/store-types';
+import notebooksService from '@/db/notebooks.service';
+import { LocalChange, LocalChangeType } from '@/db/types/store-types';
 import { it } from 'vitest';
-import { markAsConflict } from '../../setup/test.utils';
+import { getLocalItemField, markAsConflict } from '../../setup/test.utils';
+
+const getNonNotebookLocalChanges = (localChanges: LocalChange[]) =>
+  localChanges.filter(lc => lc.item !== notebooksService.getCurrentNotebook());
 
 describe('local changes service', () => {
-  it('should have no local changes by default', () => {
-    expect(localChangesService.getLocalChanges()).toHaveLength(0);
+  it('should only have notebook local changes by default', () => {
+    expect(localChangesService.getLocalChanges()).toHaveLength(1);
+    const lc = localChangesService.getLocalChanges()[0];
+    expect(lc.change).toBe(LocalChangeType.add);
+    expect(getLocalItemField(lc.item, 'type')).toBe(
+      CollectionItemType.notebook
+    );
   });
 
   it('should create a local change for each created items', () => {
@@ -16,8 +26,10 @@ describe('local changes service', () => {
     createdItems.push(collectionService.addFolder(ROOT_FOLDER));
     createdItems.push(collectionService.addDocument(ROOT_FOLDER));
     const localChanges = localChangesService.getLocalChanges();
-    expect(localChanges).toHaveLength(3);
-    expect(localChanges.map(l => l.item)).toEqual(createdItems.toReversed());
+    expect(localChanges).toHaveLength(4);
+    expect(getNonNotebookLocalChanges(localChanges).map(l => l.item)).toEqual(
+      createdItems.toReversed()
+    );
   });
 
   it('should merge local changes for each created then updated items into one change', () => {
@@ -26,15 +38,16 @@ describe('local changes service', () => {
     collectionService.setItemTitle(id, 'new title 2');
     collectionService.setItemContent(id, 'new content');
     const localChanges = localChangesService.getLocalChanges();
-    expect(localChanges).toHaveLength(1);
-    expect(localChanges[0].item).toEqual(id);
-    expect(localChanges[0].change).toEqual('a');
-    expect(localChanges[0].field).toBeUndefined();
+    expect(localChanges).toHaveLength(2);
+    const lc = getNonNotebookLocalChanges(localChanges)[0];
+    expect(lc.item).toEqual(id);
+    expect(lc.change).toEqual('a');
+    expect(lc.field).toBeUndefined();
   });
 
   it('should merge local changes for each updated items into one change per field', () => {
     const id = collectionService.addDocument(ROOT_FOLDER);
-    localChangesService.clearLocalChanges();
+    localChangesService.clear();
 
     collectionService.setItemTitle(id, 'new title');
     collectionService.setItemTitle(id, 'new title 2');
@@ -55,12 +68,15 @@ describe('local changes service', () => {
     collectionService.setItemContent(id, 'new content');
     collectionService.deleteItem(id);
     const localChanges = localChangesService.getLocalChanges();
-    expect(localChanges).toHaveLength(0);
+    expect(localChanges).toHaveLength(1);
+    expect(getLocalItemField(localChanges[0].item, 'type')).toBe(
+      CollectionItemType.notebook
+    );
   });
 
   it('should merge local changes for each deleted items into one change', () => {
     const id = collectionService.addDocument(ROOT_FOLDER);
-    localChangesService.clearLocalChanges();
+    localChangesService.clear();
 
     collectionService.setItemTitle(id, 'new title');
     collectionService.setItemTitle(id, 'new title 2');
@@ -76,7 +92,7 @@ describe('local changes service', () => {
     const id = collectionService.addDocument(ROOT_FOLDER);
     const id2 = collectionService.addDocument(ROOT_FOLDER);
     markAsConflict(id, id2);
-    localChangesService.clearLocalChanges();
+    localChangesService.clear();
 
     collectionService.setItemTitle(id, 'new title');
 
