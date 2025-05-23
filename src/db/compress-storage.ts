@@ -1,0 +1,36 @@
+import { CollectionItem } from '@/collection/collection';
+import { minimizeKeys, unminimizeKeys } from '../common/utils';
+import { AnyData } from './types/store-types';
+
+const keys = [
+  ['id', 'i'],
+  ['parent', 'p'],
+  ['parent_meta', 'pm'],
+  ['notebook', 'n'],
+  ['notebook_meta', 'nm'],
+  ['type', 'ty'],
+  ['title', 't'],
+  ['title_meta', 'tm'],
+  ['content', 'c'],
+  ['content_meta', 'cm'],
+  ['tags', 'ta'],
+  ['tags_meta', 'tam'],
+  ['created', 'cr'],
+  ['updated', 'u'],
+  ['deleted', 'd'],
+  ['deleted_meta', 'dm']
+];
+const keysMap = new Map();
+const keysMapReverse = new Map();
+keys.forEach(([v1, v2]) => {
+  keysMap.set(v1, v2);
+  keysMapReverse.set(v2, v1);
+});
+
+export const minimizeItemsForStorage = (obj: CollectionItem[]) => {
+  return obj.map(item => minimizeKeys(item, keysMap, new Map()));
+};
+
+export const unminimizeItemsFromStorage = (obj: AnyData[]): CollectionItem[] => {
+  return obj.map(o => unminimizeKeys(o, keysMapReverse, new Map()) as CollectionItem);
+};
