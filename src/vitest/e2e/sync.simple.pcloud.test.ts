@@ -160,7 +160,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     collectionService.addDocument(ROOT_FOLDER);
     collectionService.addFolder(ROOT_FOLDER);
     expect(getCollectionRowCount()).toBe(2);
-    localChangesService.clearLocalChanges(); // clear changes -> it's like they have been pushed somewhere else
+    localChangesService.clear(); // clear changes -> it's like they have been pushed somewhere else
 
     // pull items from new remote
     await syncService.pull();

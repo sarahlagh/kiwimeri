@@ -18,7 +18,7 @@ const updateRemoteInfo = (
       localChangesService.setLastLocalChange(remoteInfo.lastRemoteChange || 0);
     }
     if (clearLocalChanges) {
-      localChangesService.clearLocalChanges();
+      localChangesService.clear();
     }
     remotesService.updateRemoteStateInfo(state, remoteInfo);
     if (remoteInfo.remoteItems) {

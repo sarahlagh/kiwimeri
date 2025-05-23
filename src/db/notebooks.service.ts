@@ -3,12 +3,14 @@ import { getGlobalTrans } from '@/config';
 import { DEFAULT_NOTEBOOK_ID, ROOT_NOTEBOOK } from '@/constants';
 import { NotebookResult } from '@/notebooks/notebooks';
 import collectionService from './collection.service';
+import localChangesService from './localChanges.service';
 import storageService from './storage.service';
 import {
   useCellWithRef,
   useResultSortedRowIdsWithRef,
   useTableWithRef
 } from './tinybase/hooks';
+import { LocalChangeType } from './types/store-types';
 
 class NotebooksService {
   private readonly storeId = 'space';
@@ -48,7 +50,7 @@ class NotebooksService {
 
   public addNotebook(title: string, parent?: string) {
     const now = Date.now();
-    return storageService.getSpace().addRow(this.table, {
+    const id = storageService.getSpace().addRow(this.table, {
       title,
       title_meta: collectionService.setFieldMeta(title, now),
       parent: parent ? parent : ROOT_NOTEBOOK,
@@ -60,6 +62,10 @@ class NotebooksService {
       updated: Date.now(),
       type: CollectionItemType.notebook
     });
+    if (id) {
+      localChangesService.addLocalChange(id, LocalChangeType.add);
+    }
+    return id;
   }
 
   public deleteNotebook(id: string): void {
@@ -71,6 +77,7 @@ class NotebooksService {
       });
     }
     storageService.getSpace().delRow(this.table, id);
+    localChangesService.addLocalChange(id, LocalChangeType.delete);
   }
 
   public setCurrentNotebook(id: string) {

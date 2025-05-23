@@ -6,10 +6,11 @@ import {
   CollectionItemUpdatableFieldEnum
 } from '@/collection/collection';
 import { fastHash } from '@/common/utils';
-import { ROOT_FOLDER } from '@/constants';
+import { ROOT_FOLDER, ROOT_NOTEBOOK } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
+import { Notebook } from '@/notebooks/notebooks';
 import { getUniqueId } from 'tinybase/with-schemas';
 import { expect, vi } from 'vitest';
 
@@ -63,6 +64,23 @@ export const oneFolder = (title = 'new folder', parent = ROOT_FOLDER) => {
     deleted: false,
     deleted_meta: setFieldMeta('false', Date.now())
   } as CollectionItem;
+};
+export const oneNotebook = (title = 'new notebook', id = '0'): Notebook => {
+  if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
+  return {
+    id,
+    type: CollectionItemType.notebook,
+    parent: ROOT_NOTEBOOK,
+    parent_meta: setFieldMeta(ROOT_NOTEBOOK, Date.now()),
+    notebook: '',
+    notebook_meta: setFieldMeta('', Date.now()),
+    title,
+    title_meta: setFieldMeta(title, Date.now()),
+    created: Date.now(),
+    updated: Date.now(),
+    deleted: false,
+    deleted_meta: setFieldMeta('false', Date.now())
+  };
 };
 
 type itemTypesType = {
@@ -136,6 +154,13 @@ export const GET_NON_PARENT_UPDATABLE_FIELDS = (type: string) =>
 
 export const GET_NON_CONFLICT_CHANGES = (type: string) =>
   NON_CONFLICT_CHANGES.filter(f =>
+    f.local === 'content' || f.remote === 'content'
+      ? type !== 'folder' && type !== 'notebook'
+      : true
+  );
+
+export const GET_CONFLICT_CHANGES = (type: string) =>
+  CONFLICT_CHANGES.filter(f =>
     f.local === 'content' || f.remote === 'content'
       ? type !== 'folder' && type !== 'notebook'
       : true
