@@ -3,9 +3,9 @@ import {
   CollectionItemFieldEnum,
   CollectionItemType,
   CollectionItemTypeValues,
-  CollectionItemUpdatableFieldEnum
+  CollectionItemUpdatableFieldEnum,
+  setFieldMeta
 } from '@/collection/collection';
-import { fastHash } from '@/common/utils';
 import { ROOT_FOLDER, ROOT_NOTEBOOK } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
@@ -19,9 +19,6 @@ export const amount = async (timeout = 500) => {
 };
 
 export const fakeTimersDelay = 100;
-
-const setFieldMeta = (value: string, updated: number) =>
-  JSON.stringify({ hash: fastHash(value), updated });
 
 export const oneDocument = (title = 'new doc', parent = ROOT_FOLDER) => {
   const notebook = notebooksService.getCurrentNotebook();

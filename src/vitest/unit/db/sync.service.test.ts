@@ -1,4 +1,8 @@
-import { CollectionItem, CollectionItemType } from '@/collection/collection';
+import {
+  CollectionItem,
+  CollectionItemType,
+  parseFieldMeta
+} from '@/collection/collection';
 import { getGlobalTrans } from '@/config';
 import { ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
@@ -51,7 +55,7 @@ const reInitRemoteData = async (items: CollectionItem[], updateTs?: number) => {
       ? updateTs
       : Math.max(
           ...items.map(i =>
-            Math.max(i.updated, JSON.parse(i.parent_meta).updated)
+            Math.max(i.updated, parseFieldMeta(i.parent_meta).u)
           )
         );
   console.debug('[reInitRemoteData]', items, lastLocalChange);

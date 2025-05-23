@@ -3,9 +3,9 @@ import {
   CollectionItemResult,
   CollectionItemType,
   CollectionItemTypeValues,
-  CollectionItemUpdatableFieldEnum
+  CollectionItemUpdatableFieldEnum,
+  setFieldMeta
 } from '@/collection/collection';
-import { fastHash } from '@/common/utils';
 import { getGlobalTrans } from '@/config';
 import { FAKE_ROOT, ROOT_FOLDER } from '@/constants';
 import { getUniqueId } from 'tinybase/common';
@@ -154,20 +154,20 @@ class CollectionService {
     const content = initialContent();
     storageService.getSpace().setRow(this.table, id, {
       title: getGlobalTrans().newDocTitle,
-      title_meta: this.setFieldMeta(getGlobalTrans().newDocTitle, now),
+      title_meta: setFieldMeta(getGlobalTrans().newDocTitle, now),
       parent,
-      parent_meta: this.setFieldMeta(parent, now),
+      parent_meta: setFieldMeta(parent, now),
       notebook,
-      notebook_meta: this.setFieldMeta(notebook, now),
+      notebook_meta: setFieldMeta(notebook, now),
       content,
-      content_meta: this.setFieldMeta(content, now),
+      content_meta: setFieldMeta(content, now),
       tags: '',
-      tags_meta: this.setFieldMeta('', now),
+      tags_meta: setFieldMeta('', now),
       created: now,
       updated: now,
       type: CollectionItemType.document,
       deleted: false,
-      deleted_meta: this.setFieldMeta('false', now)
+      deleted_meta: setFieldMeta('false', now)
     });
     this.updateParentUpdatedRecursive(parent);
     localChangesService.addLocalChange(id, LocalChangeType.add);
@@ -180,18 +180,18 @@ class CollectionService {
     const id = getUniqueId();
     storageService.getSpace().setRow(this.table, id, {
       title: getGlobalTrans().newFolderTitle,
-      title_meta: this.setFieldMeta(getGlobalTrans().newFolderTitle, now),
+      title_meta: setFieldMeta(getGlobalTrans().newFolderTitle, now),
       parent: parent,
-      parent_meta: this.setFieldMeta(parent, now),
+      parent_meta: setFieldMeta(parent, now),
       notebook,
-      notebook_meta: this.setFieldMeta(notebook, now),
+      notebook_meta: setFieldMeta(notebook, now),
       tags: '',
-      tags_meta: this.setFieldMeta('', now),
+      tags_meta: setFieldMeta('', now),
       created: now,
       updated: now,
       type: CollectionItemType.folder,
       deleted: false,
-      deleted_meta: this.setFieldMeta('false', now)
+      deleted_meta: setFieldMeta('false', now)
     });
     localChangesService.addLocalChange(id, LocalChangeType.add);
     return id;
@@ -388,7 +388,7 @@ class CollectionService {
           'collection',
           rowId,
           `${key}_meta`,
-          this.setFieldMeta(`${value}`, updated)
+          setFieldMeta(`${value}`, updated)
         );
       if (key !== 'parent' && key !== 'notebook') {
         storageService
@@ -429,10 +429,6 @@ class CollectionService {
       .getSpace()
       .setCell(this.table, folder, 'updated', Date.now());
     this.updateParentUpdatedRecursive(this.getItemParent(folder));
-  }
-
-  public setFieldMeta(value: string, updated: number) {
-    return JSON.stringify({ hash: fastHash(value), updated });
   }
 }
 

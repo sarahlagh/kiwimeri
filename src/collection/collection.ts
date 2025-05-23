@@ -50,3 +50,15 @@ export type CollectionItemResult = Pick<
   | 'conflict'
 > &
   Required<Pick<CollectionItem, 'id'>>;
+
+export type CollectionItemFieldMetadata = {
+  u: number;
+};
+
+export const setFieldMeta = (value: string, updated: number) => {
+  return JSON.stringify({ u: updated });
+};
+
+export const parseFieldMeta = (value: string): CollectionItemFieldMetadata => {
+  return JSON.parse(value);
+};
