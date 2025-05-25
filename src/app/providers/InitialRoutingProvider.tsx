@@ -25,9 +25,9 @@ const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
     if (isCollectionRoute(location.pathname)) {
       userSettingsService.setCurrentFolder(folder);
       userSettingsService.setCurrentDocument(searchParams.document);
-      // TODO set current page too
+      userSettingsService.setCurrentPage(searchParams.page);
     }
-  }, [folder, searchParams.document]);
+  }, [folder, searchParams.document, searchParams.page]);
 
   if (isCollectionRoute(location.pathname)) {
     // if no folder

@@ -54,7 +54,7 @@ msgid "Confirm"
 msgstr "Confirm"
 
 #: src/app/pages/DebugPage.tsx:34
-#: src/app/components/MainMenuList.tsx:72
+#: src/app/components/MainMenuList.tsx:73
 msgid "Debug"
 msgstr "Debug"
 
@@ -216,7 +216,7 @@ msgid "Server"
 msgstr "Server"
 
 #: src/app/pages/SettingsPage.tsx:9
-#: src/app/components/MainMenuList.tsx:64
+#: src/app/components/MainMenuList.tsx:65
 msgid "Settings"
 msgstr "Settings"
 
