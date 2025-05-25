@@ -96,7 +96,7 @@ const ChooseFolderModal = ({
   const notebooks = notebooksService.getNotebooks();
 
   const items: CollectionItemResult[] = collectionService
-    .useCollectionItems(folder, notebook)
+    .useBrowsableCollectionItems(folder, notebook)
     .filter(item => item.type === CollectionItemType.folder);
 
   const finalItems = folder === FAKE_ROOT ? [...notebooks] : items;

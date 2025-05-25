@@ -87,7 +87,7 @@ type itemTypesType = {
   testAddFn: (title?: string, parent?: string) => CollectionItem;
   defaultTitle: string;
 };
-export const ITEM_TYPES: itemTypesType[] = [
+export const BROWSABLE_ITEM_TYPES: itemTypesType[] = [
   {
     type: 'document',
     typeVal: CollectionItemType.document,

@@ -8,7 +8,8 @@ class TagsService {
 
   public reBuildTags() {
     this.itemsPerTags.clear();
-    const collection = collectionService.getCollectionItems(ROOT_FOLDER);
+    const collection =
+      collectionService.getBrowsableCollectionItems(ROOT_FOLDER);
     collection
       .filter(item => item.tags !== undefined && item.tags.length > 0)
       .forEach(item => {

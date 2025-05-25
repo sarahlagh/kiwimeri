@@ -81,7 +81,7 @@ export const CollectionItemBrowserList = ({
   const searchParams = getSearchParams(location.search);
   const openedDocument = searchParams?.document;
   const items: CollectionItemResult[] =
-    collectionService.useCollectionItems(folder);
+    collectionService.useBrowsableCollectionItems(folder);
 
   const [itemRenaming, setItemRenaming] = useState<string | undefined>(
     undefined

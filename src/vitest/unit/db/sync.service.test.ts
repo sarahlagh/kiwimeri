@@ -19,6 +19,7 @@ import { renderHook } from '@testing-library/react';
 import { act } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  BROWSABLE_ITEM_TYPES,
   CONFLICT_CHANGES,
   expectHasLocalItemConflict,
   fakeTimersDelay,
@@ -33,7 +34,6 @@ import {
   getLocalItemConflicts,
   getLocalItemField,
   getRemoteItemField,
-  ITEM_TYPES,
   oneDocument,
   oneFolder,
   oneNotebook,
@@ -299,7 +299,7 @@ describe('sync service', () => {
           testPushIndicator(false);
         });
 
-        ITEM_TYPES.forEach(({ type, testAddFn }) => {
+        BROWSABLE_ITEM_TYPES.forEach(({ type, testAddFn }) => {
           it(`should delete local ${type}s on pull if they have not been changed and erased on remote`, async () => {
             localChangesService.clear();
             const remoteData = [
@@ -964,7 +964,7 @@ describe('sync service', () => {
           testPushIndicator(false);
         });
 
-        ITEM_TYPES.forEach(({ type, testAddFn }) => {
+        BROWSABLE_ITEM_TYPES.forEach(({ type, testAddFn }) => {
           GET_UPDATABLE_FIELDS(type).forEach(({ field }) => {
             it(`should erase local updates of field ${field} if they have not changed on remote ${type}`, async () => {
               const remoteData = [
@@ -1170,7 +1170,7 @@ describe('sync service', () => {
           testPushIndicator(false);
         });
 
-        ITEM_TYPES.forEach(({ type, testAddFn }) => {
+        BROWSABLE_ITEM_TYPES.forEach(({ type, testAddFn }) => {
           describe(`on a ${type}`, () => {
             it(`should delete remote ${type}s if they are erased locally and unchanged on remote`, async () => {
               const remoteData = [
@@ -1547,7 +1547,7 @@ describe('sync service', () => {
           testPushIndicator(false);
         });
 
-        ITEM_TYPES.forEach(({ type, testAddFn }) => {
+        BROWSABLE_ITEM_TYPES.forEach(({ type, testAddFn }) => {
           it(`should delete remote ${type}s if they are erased locally and unchanged on remote`, async () => {
             const remoteData = [
               testAddFn('r1'),
