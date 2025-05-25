@@ -17,11 +17,16 @@ import CommonActionsToolbar from './CommonActionsToolbar';
 import DocumentEditorFooter from './DocumentEditorFooter';
 
 interface DocumentEditorProps {
-  id: string;
+  docId: string;
+  pageId?: string;
   showActions?: boolean;
 }
 
-const DocumentEditor = ({ id, showActions = false }: DocumentEditorProps) => {
+const DocumentEditor = ({
+  docId,
+  pageId,
+  showActions = false
+}: DocumentEditorProps) => {
   const refWriter = useRef(null);
   const [showDocumentActions, setShowDocumentActions] =
     useState<boolean>(false);
@@ -30,10 +35,12 @@ const DocumentEditor = ({ id, showActions = false }: DocumentEditorProps) => {
     setShowDocumentActions(showActions);
   }, [showActions]);
 
-  const documentTitle = collectionService.getItemTitle(id);
-  const documentContent = collectionService.useItemContent(id);
-  const pages = collectionService.useDocumentPages(id);
-  const onTitleChange = onTitleChangeFn(id);
+  const itemId = pageId ? pageId : docId;
+  const content = collectionService.useItemContent(itemId);
+  const documentTitle = collectionService.getItemTitle(docId);
+  const documentPreview = collectionService.useItemPreview(docId) || '';
+  const pages = collectionService.useDocumentPages(docId);
+  const onTitleChange = onTitleChangeFn(docId);
 
   const onClickedAnywhere: React.MouseEventHandler<HTMLIonContentElement> = (
     event: React.MouseEvent<HTMLIonContentElement, MouseEvent>
@@ -80,7 +87,7 @@ const DocumentEditor = ({ id, showActions = false }: DocumentEditorProps) => {
         </IonToolbar>
         {showDocumentActions && (
           <CommonActionsToolbar
-            id={id}
+            id={docId}
             showClose={true}
             showInfo={true}
             onClose={role => {
@@ -94,16 +101,18 @@ const DocumentEditor = ({ id, showActions = false }: DocumentEditorProps) => {
       </IonHeader>
 
       <IonContent onClick={onClickedAnywhere}>
-        {documentContent && (
+        {content && (
           <Writer
             ref={refWriter}
-            id={id}
-            content={documentContent}
+            id={itemId}
+            docId={docId}
+            content={content}
+            preview={documentPreview}
             pages={pages}
           ></Writer>
         )}
       </IonContent>
-      {showDocumentFooter && <DocumentEditorFooter id={id} />}
+      {showDocumentFooter && <DocumentEditorFooter id={docId} />}
     </>
   );
 };

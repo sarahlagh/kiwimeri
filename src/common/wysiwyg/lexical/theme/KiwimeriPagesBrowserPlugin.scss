@@ -16,4 +16,17 @@
     --inner-padding-end: 10px;
     --inner-border-width: 1px;
   }
+
+  .page-item-empty {
+    --color: var(--ion-color-medium);
+  }
+
+  .page-item-doc {
+    --border-color: var(--ion-color-secondary-shade);
+    color: var(--ion-color-secondary-shade);
+  }
+
+  .page-item-selected {
+    color: var(--ion-color-primary);
+  }
 }

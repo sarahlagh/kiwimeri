@@ -12,8 +12,9 @@ import TemplateCompactableSplitPage from './TemplateCompactableSplitPage';
 const DocumentEditorPage = () => {
   const location = useLocation();
   const searchParams = getSearchParams(location.search);
-  const docId = searchParams?.document || FAKE_ROOT;
-  const parent = searchParams?.folder || FAKE_ROOT;
+  const docId = searchParams.document || FAKE_ROOT;
+  const parent = searchParams.folder || FAKE_ROOT;
+  const pageId = searchParams.page;
 
   const [showDocumentActions, setShowDocumentActions] = useState(false);
 
@@ -53,7 +54,8 @@ const DocumentEditorPage = () => {
       contentId="documentExplorer"
     >
       <DocumentEditor
-        id={docId}
+        docId={docId}
+        pageId={pageId}
         showActions={showDocumentActions}
       ></DocumentEditor>
     </TemplateCompactableSplitPage>

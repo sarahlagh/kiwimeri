@@ -30,8 +30,10 @@ import KiwimeriToolbarPlugin from './lexical/KiwimeriToolbarPlugin';
 import KiwimeriEditorTheme from './lexical/theme/KiwimeriEditorTheme';
 
 interface WriterProps {
+  docId: string;
   id: string;
   content: string;
+  preview: string;
   pages?: PagePreview[];
 }
 
@@ -44,7 +46,7 @@ function onError(error: any) {
 }
 
 const Writer = (
-  { id, content, pages }: WriterProps,
+  { docId, id, content, preview, pages }: WriterProps,
   ref: React.LegacyRef<HTMLDivElement> | undefined
 ) => {
   const { t } = useLingui();
@@ -117,7 +119,12 @@ const Writer = (
       <MarkdownShortcutPlugin />
 
       {(pages?.length || 0) > 0 && (
-        <KiwimeriPagesBrowserPlugin docId={id} pages={pages} />
+        <KiwimeriPagesBrowserPlugin
+          docId={docId}
+          docPreview={preview}
+          id={id}
+          pages={pages}
+        />
       )}
       {platformService.isDev() && <DebugTreeViewPlugin />}
     </LexicalComposer>
