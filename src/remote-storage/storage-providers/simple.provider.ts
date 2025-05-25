@@ -4,6 +4,7 @@ import {
   CollectionItemUpdatableFieldEnum,
   parseFieldMeta
 } from '@/collection/collection';
+import { KIWIMERI_MODEL_VERSION } from '@/constants';
 import {
   minimizeItemsForStorage,
   unminimizeItemsFromStorage
@@ -26,6 +27,7 @@ import {
 type SimpleStorageFileContent = {
   i: CollectionItem[]; // the items
   u: number; // last content change
+  v: number; // the model version
 };
 
 export class SimpleStorageProvider extends StorageProvider {
@@ -305,16 +307,27 @@ export class SimpleStorageProvider extends StorageProvider {
   private serialization(items: CollectionItem[], updated: number) {
     const obj: SimpleStorageFileContent = {
       i: items,
-      u: updated
+      u: updated,
+      v: KIWIMERI_MODEL_VERSION
     };
     return JSON.stringify({ ...obj, i: minimizeItemsForStorage(items) });
   }
 
   private deserialization(content?: string): SimpleStorageFileContent {
     const obj = JSON.parse(content || '{}') as AnyData;
+
+    if (obj.v !== KIWIMERI_MODEL_VERSION) {
+      console.warn(
+        '[provider] model mismatch between server and client',
+        obj.v,
+        KIWIMERI_MODEL_VERSION
+      );
+    }
+
     return {
       u: obj.u,
-      i: unminimizeItemsFromStorage(obj.i)
+      i: unminimizeItemsFromStorage(obj.i),
+      v: obj.v
     };
   }
 }
