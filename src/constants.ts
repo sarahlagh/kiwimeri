@@ -35,6 +35,8 @@ import {
   CollectionItemTypeValues
 } from './collection/collection';
 
+export const KIWIMERI_MODEL_VERSION = 0;
+
 export const ANDROID_FOLDER = 'KiwimeriApp';
 export const DEFAULT_SPACE_ID = 'default';
 export const DEFAULT_NOTEBOOK_ID = '0';
