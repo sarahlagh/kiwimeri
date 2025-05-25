@@ -61,7 +61,7 @@ const DocumentEditor = ({
   return (
     <>
       <IonHeader>
-        {/*only visible in compact mode*/}
+        {/*only visible in non compact mode*/}
         <IonToolbar class="ion-hide-md-down">
           <IonTitle>
             <IonInput

@@ -8,7 +8,7 @@ import { getSearchParams } from '@/common/utils';
 import { ROOT_FOLDER } from '@/constants';
 import { useLingui } from '@lingui/react/macro';
 import { useHistory, useLocation } from 'react-router';
-import './theme/KiwimeriPagesBrowserPlugin.scss';
+import './KiwimeriPagesBrowserPlugin.scss';
 
 interface KiwimeriPagesBrowserPluginProps {
   id: string;
@@ -62,8 +62,7 @@ export default function KiwimeriPagesBrowserPlugin({
 }: KiwimeriPagesBrowserPluginProps): JSX.Element {
   const { t } = useLingui();
   const defaultPreview = t`empty page`;
-  // const [editor] = useLexicalComposerContext();
-  // const [minimize, setMinimize] = useState(false);
+
   const history = useHistory();
   const location = useLocation();
   const folderId = getSearchParams(location.search).folder || ROOT_FOLDER;
