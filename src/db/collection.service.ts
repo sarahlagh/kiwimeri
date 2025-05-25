@@ -490,7 +490,7 @@ class CollectionService {
     return html
       .replaceAll('<br>', '\n')
       .replaceAll(/<[^>]*>/g, '')
-      .substring(0, 100);
+      .substring(0, 50);
   }
 
   public getItemField(rowId: Id, key: CollectionItemFieldEnum) {

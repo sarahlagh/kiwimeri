@@ -35,13 +35,14 @@ import {
 import { useCallback, useEffect, useRef, useState } from 'react';
 const LowPriority = 1;
 
+import collectionService from '@/db/collection.service';
 import './theme/KiwimeriToolbarPlugin.scss';
 
 function Divider() {
   return <div className="divider" />;
 }
 
-export default function ToolbarPlugin() {
+export default function ToolbarPlugin({ document }: { document: string }) {
   const [editor] = useLexicalComposerContext();
   const toolbarRef = useRef(null);
   const [isEditable, setIsEditable] = useState(true);
@@ -366,6 +367,16 @@ export default function ToolbarPlugin() {
         aria-label="Clear Format"
       >
         <IonIcon className="format" src="writer/x-square.svg"></IonIcon>
+      </button>
+      <Divider />
+      <button
+        onClick={() => {
+          collectionService.addPage(document);
+        }}
+        className="toolbar-item"
+        aria-label="Add page"
+      >
+        <IonIcon className="format" src="writer/file-earmark-ppt.svg"></IonIcon>
       </button>{' '}
     </div>
   );
