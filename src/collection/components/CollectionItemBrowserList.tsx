@@ -96,6 +96,7 @@ export const CollectionItemBrowserList = ({
 
   const [present, dismiss] = useIonPopover(CommonActionsToolbar, {
     id: selectedItem?.id,
+    docId: selectedItem?.id,
     showRename: true,
     onClose: (role: string, data?: string) => {
       if (role === 'rename') {

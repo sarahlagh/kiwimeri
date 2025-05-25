@@ -87,7 +87,8 @@ const DocumentEditor = ({
         </IonToolbar>
         {showDocumentActions && (
           <CommonActionsToolbar
-            id={docId}
+            id={itemId}
+            docId={docId}
             showClose={true}
             showInfo={true}
             onClose={role => {
