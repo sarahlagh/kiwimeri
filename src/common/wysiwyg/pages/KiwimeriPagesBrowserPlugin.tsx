@@ -65,7 +65,8 @@ export default function KiwimeriPagesBrowserPlugin({
   pages
 }: KiwimeriPagesBrowserPluginProps): JSX.Element {
   const { t } = useLingui();
-  const defaultPreview = t`empty page`;
+  const defaultDocPreview = t`empty doc`;
+  const defaultPagePreview = t`empty page`;
 
   const history = useHistory();
   const location = useLocation();
@@ -83,7 +84,7 @@ export default function KiwimeriPagesBrowserPlugin({
             onClick={() => {
               history.push(GET_DOCUMENT_ROUTE(folderId, docId));
             }}
-            defaultVal={defaultPreview}
+            defaultVal={defaultDocPreview}
           />
 
           {(pages || []).map(page => (
@@ -94,7 +95,7 @@ export default function KiwimeriPagesBrowserPlugin({
               onClick={pageId => {
                 history.push(GET_PAGE_ROUTE(folderId, docId, pageId));
               }}
-              defaultVal={defaultPreview}
+              defaultVal={defaultPagePreview}
             />
           ))}
         </IonList>

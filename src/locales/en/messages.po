@@ -67,6 +67,10 @@ msgid "Download Logs"
 msgstr "Download Logs"
 
 #: src/common/wysiwyg/pages/KiwimeriPagesBrowserPlugin.tsx:68
+msgid "empty doc"
+msgstr "empty doc"
+
+#: src/common/wysiwyg/pages/KiwimeriPagesBrowserPlugin.tsx:69
 msgid "empty page"
 msgstr "empty page"
 
