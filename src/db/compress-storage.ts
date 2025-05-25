@@ -5,20 +5,21 @@ import { AnyData } from './types/store-types';
 const keys = [
   ['id', 'i'],
   ['parent', 'p'],
-  ['parent_meta', 'pm'],
+  ['parent_meta', 'P'],
   ['notebook', 'n'],
-  ['notebook_meta', 'nm'],
+  ['notebook_meta', 'N'],
   ['type', 'ty'],
   ['title', 't'],
-  ['title_meta', 'tm'],
+  ['title_meta', 'T'],
   ['content', 'c'],
-  ['content_meta', 'cm'],
+  ['content_meta', 'C'],
+  ['preview', 'pw'],
   ['tags', 'ta'],
-  ['tags_meta', 'tam'],
+  ['tags_meta', 'TA'],
   ['created', 'cr'],
   ['updated', 'u'],
   ['deleted', 'd'],
-  ['deleted_meta', 'dm']
+  ['deleted_meta', 'D']
 ];
 const keysMap = new Map();
 const keysMapReverse = new Map();
@@ -31,6 +32,10 @@ export const minimizeItemsForStorage = (obj: CollectionItem[]) => {
   return obj.map(item => minimizeKeys(item, keysMap, new Map()));
 };
 
-export const unminimizeItemsFromStorage = (obj: AnyData[]): CollectionItem[] => {
-  return obj.map(o => unminimizeKeys(o, keysMapReverse, new Map()) as CollectionItem);
+export const unminimizeItemsFromStorage = (
+  obj: AnyData[]
+): CollectionItem[] => {
+  return obj.map(
+    o => unminimizeKeys(o, keysMapReverse, new Map()) as CollectionItem
+  );
 };

@@ -18,6 +18,7 @@ export interface CollectionItem {
   title_meta: string;
   content?: string;
   content_meta?: string;
+  preview?: string;
   tags?: string;
   tags_meta?: string;
   created: number;
@@ -48,6 +49,7 @@ export type CollectionItemResult = Pick<
   | 'updated'
   | 'deleted'
   | 'conflict'
+  | 'preview'
 > &
   Required<Pick<CollectionItem, 'id'>>;
 

@@ -1,6 +1,7 @@
 import platformService from '@/common/services/platform.service';
 import collectionService from '@/db/collection.service';
 import { CodeNode } from '@lexical/code';
+import { $generateHtmlFromNodes } from '@lexical/html';
 import { LinkNode } from '@lexical/link';
 import { ListItemNode, ListNode } from '@lexical/list';
 import { MarkNode } from '@lexical/mark';
@@ -87,11 +88,15 @@ const Writer = (
       <KiwimeriReloadContentPlugin id={id} content={content} />
       <OnChangePlugin
         ignoreSelectionChange
-        onChange={editorState => {
+        onChange={(editorState, editor) => {
           if (hasUserChanges) {
             const changes = JSON.stringify(editorState.toJSON());
             const minimized = minimizeContentForStorage(changes);
-            collectionService.setItemContent(id, minimized);
+            editorState.read(() => {
+              const html = $generateHtmlFromNodes(editor);
+              const plain = html.replaceAll(/<[^>]*>/g, '');
+              collectionService.setItemContent(id, minimized, plain);
+            });
           }
           if (!hasUserChanges) {
             setHasUserChanges(true);
