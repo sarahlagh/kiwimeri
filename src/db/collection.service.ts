@@ -364,6 +364,12 @@ class CollectionService {
     );
   }
 
+  public useItemPreview(rowId: Id) {
+    return (
+      useCellWithRef<string>(this.storeId, this.table, rowId, 'preview') || null
+    );
+  }
+
   public setItemContent(rowId: Id, content: string, html: string = '') {
     storageService.getSpace().transaction(() => {
       this.setItemField(rowId, 'content', content);
@@ -490,7 +496,7 @@ class CollectionService {
     return html
       .replaceAll('<br>', '\n')
       .replaceAll(/<[^>]*>/g, '')
-      .substring(0, 50);
+      .substring(0, 80);
   }
 
   public getItemField(rowId: Id, key: CollectionItemFieldEnum) {

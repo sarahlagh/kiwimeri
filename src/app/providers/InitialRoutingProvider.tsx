@@ -1,4 +1,8 @@
-import { GET_FOLDER_ROUTE, isCollectionRoute } from '@/common/routes';
+import {
+  GET_DOCUMENT_ROUTE,
+  GET_FOLDER_ROUTE,
+  isCollectionRoute
+} from '@/common/routes';
 import { getSearchParams } from '@/common/utils';
 import { ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
@@ -14,31 +18,49 @@ type InitialRoutingProviderProps = {
 const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
   const location = useLocation();
   const searchParams = getSearchParams(location.search);
-  const folder = searchParams?.folder ? searchParams.folder : ROOT_FOLDER;
+  const folder = searchParams.folder ? searchParams.folder : ROOT_FOLDER;
   const notebook = notebooksService.useCurrentNotebook();
 
   useEffect(() => {
     if (isCollectionRoute(location.pathname)) {
       userSettingsService.setCurrentFolder(folder);
-      userSettingsService.setCurrentDocument(searchParams?.document);
+      userSettingsService.setCurrentDocument(searchParams.document);
+      // TODO set current page too
     }
-  }, [folder, searchParams?.document]);
+  }, [folder, searchParams.document]);
 
   if (isCollectionRoute(location.pathname)) {
-    if (!searchParams?.folder) {
+    // if no folder
+    if (!searchParams.folder) {
       return <Redirect to={GET_FOLDER_ROUTE(ROOT_FOLDER)} />;
     }
+    // if folder but doesn't exist
     if (
-      searchParams?.folder &&
+      searchParams.folder &&
       !collectionService.itemExists(searchParams.folder, notebook)
     ) {
       return <Redirect to={GET_FOLDER_ROUTE(ROOT_FOLDER)} />;
     }
+    // if page but no document
+    if (!searchParams.document && searchParams.page) {
+      return <Redirect to={GET_FOLDER_ROUTE(folder)} />;
+    }
+    // if document but doesn't exist
     if (
-      searchParams?.document &&
+      searchParams.document &&
       !collectionService.itemExists(searchParams.document, notebook)
     ) {
       return <Redirect to={GET_FOLDER_ROUTE(folder)} />;
+    }
+    // if page but doesn't exist
+    if (
+      searchParams.document &&
+      searchParams.page &&
+      !collectionService.itemExists(searchParams.page, notebook)
+    ) {
+      return (
+        <Redirect to={GET_DOCUMENT_ROUTE(folder, searchParams.document)} />
+      );
     }
   }
   return <>{children}</>;
