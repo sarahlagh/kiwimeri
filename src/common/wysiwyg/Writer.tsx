@@ -79,7 +79,7 @@ const Writer = (
         ]
       }}
     >
-      <KiwimeriToolbarPlugin document={id} />
+      <KiwimeriToolbarPlugin document={docId} />
       <RichTextPlugin
         contentEditable={
           <ContentEditable
