@@ -29,6 +29,10 @@
   .page-item-selected {
     color: var(--ion-color-primary);
   }
+
+  .page-item-conflict {
+    --color: var(--ion-color-warning);
+  }
 }
 
 .toggle-pages-browser-btn {

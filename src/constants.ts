@@ -49,6 +49,8 @@ export const FAKE_ROOT = 'root';
 
 export const INTERNAL_FORMAT = 'raw';
 
+export const CONFLICT_STR = '[!] ';
+
 // messages
 export const ROOT_FOLDER_TITLE = msg`Home`;
 export const DEFAULT_NOTEBOOK_NAME = msg`Default`;
