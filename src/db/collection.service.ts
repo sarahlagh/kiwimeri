@@ -1,4 +1,5 @@
 import {
+  CollectionItem,
   CollectionItemFieldEnum,
   CollectionItemResult,
   CollectionItemType,
@@ -185,7 +186,7 @@ class CollectionService {
     const now = Date.now();
     const id = getUniqueId();
     const content = initialContent();
-    storageService.getSpace().setRow(this.table, id, {
+    const item: CollectionItem = {
       title: getGlobalTrans().newDocTitle,
       title_meta: setFieldMeta(getGlobalTrans().newDocTitle, now),
       parent,
@@ -202,7 +203,8 @@ class CollectionService {
       type: CollectionItemType.document,
       deleted: false,
       deleted_meta: setFieldMeta('false', now)
-    });
+    };
+    storageService.getSpace().setRow(this.table, id, item);
     this.updateParentUpdatedRecursive(parent);
     localChangesService.addLocalChange(id, LocalChangeType.add);
     return id;
@@ -212,7 +214,7 @@ class CollectionService {
     const notebook = notebooksService.getCurrentNotebook();
     const now = Date.now();
     const id = getUniqueId();
-    storageService.getSpace().setRow(this.table, id, {
+    const item: CollectionItem = {
       title: getGlobalTrans().newFolderTitle,
       title_meta: setFieldMeta(getGlobalTrans().newFolderTitle, now),
       parent: parent,
@@ -226,7 +228,8 @@ class CollectionService {
       type: CollectionItemType.folder,
       deleted: false,
       deleted_meta: setFieldMeta('false', now)
-    });
+    };
+    storageService.getSpace().setRow(this.table, id, item);
     localChangesService.addLocalChange(id, LocalChangeType.add);
     return id;
   }
@@ -236,7 +239,7 @@ class CollectionService {
     const now = Date.now();
     const id = getUniqueId();
     const content = initialContent();
-    storageService.getSpace().setRow(this.table, id, {
+    const item: Omit<CollectionItem, 'title' | 'title_meta'> = {
       parent: document,
       parent_meta: setFieldMeta(document, now),
       notebook,
@@ -249,7 +252,8 @@ class CollectionService {
       type: CollectionItemType.page,
       deleted: false,
       deleted_meta: setFieldMeta('false', now)
-    });
+    };
+    storageService.getSpace().setRow(this.table, id, item);
     this.updateParentUpdatedRecursive(document);
     localChangesService.addLocalChange(id, LocalChangeType.add);
     return id;

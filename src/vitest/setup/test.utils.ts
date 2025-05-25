@@ -20,7 +20,10 @@ export const amount = async (timeout = 500) => {
 
 export const fakeTimersDelay = 100;
 
-export const oneDocument = (title = 'new doc', parent = ROOT_FOLDER) => {
+export const oneDocument = (
+  title = 'new doc',
+  parent = ROOT_FOLDER
+): CollectionItem => {
   const notebook = notebooksService.getCurrentNotebook();
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   return {
@@ -40,9 +43,12 @@ export const oneDocument = (title = 'new doc', parent = ROOT_FOLDER) => {
     updated: Date.now(),
     deleted: false,
     deleted_meta: setFieldMeta('false', Date.now())
-  } as CollectionItem;
+  };
 };
-export const oneFolder = (title = 'new folder', parent = ROOT_FOLDER) => {
+export const oneFolder = (
+  title = 'new folder',
+  parent = ROOT_FOLDER
+): CollectionItem => {
   const notebook = notebooksService.getCurrentNotebook();
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   return {
@@ -60,7 +66,7 @@ export const oneFolder = (title = 'new folder', parent = ROOT_FOLDER) => {
     updated: Date.now(),
     deleted: false,
     deleted_meta: setFieldMeta('false', Date.now())
-  } as CollectionItem;
+  };
 };
 export const oneNotebook = (title = 'new notebook', id = '0'): Notebook => {
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);

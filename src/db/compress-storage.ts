@@ -19,7 +19,9 @@ const keys = [
   ['created', 'cr'],
   ['updated', 'u'],
   ['deleted', 'd'],
-  ['deleted_meta', 'D']
+  ['deleted_meta', 'D'],
+  ['display_opts', 'do'],
+  ['display_opts_meta', 'DO']
 ];
 const keysMap = new Map();
 const keysMapReverse = new Map();
