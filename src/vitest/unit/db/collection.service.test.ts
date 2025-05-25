@@ -322,6 +322,25 @@ describe('collection service', () => {
     });
   });
 
+  it(`should update the preview at the same time as content`, () => {
+    const id = collectionService.addDocument(ROOT_FOLDER);
+    expect(getCollectionItem(id).preview).toBe('');
+
+    collectionService.setItemContent(
+      id,
+      'This is a short content',
+      'This is a short content'
+    );
+    expect(getCollectionItem(id).preview).toBe('This is a short content');
+
+    const loremIpsum =
+      '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."';
+    collectionService.setItemContent(id, loremIpsum, loremIpsum);
+    expect(getCollectionItem(id).preview).toBe(
+      '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore'
+    );
+  });
+
   UPDATABLE_FIELDS.forEach(({ field }) => {
     it(`should reset conflict on a document on update of ${field}`, () => {
       const id = collectionService.addDocument(ROOT_FOLDER);

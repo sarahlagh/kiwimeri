@@ -148,7 +148,6 @@ class CollectionService {
 
   public addDocument(parent: string) {
     const notebook = notebooksService.getCurrentNotebook();
-    console.debug('noteboook', notebook);
     const now = Date.now();
     const id = getUniqueId();
     const content = initialContent();
@@ -161,6 +160,7 @@ class CollectionService {
       notebook_meta: setFieldMeta(notebook, now),
       content,
       content_meta: setFieldMeta(content, now),
+      preview: '',
       tags: '',
       tags_meta: setFieldMeta('', now),
       created: now,
@@ -193,6 +193,30 @@ class CollectionService {
       deleted: false,
       deleted_meta: setFieldMeta('false', now)
     });
+    localChangesService.addLocalChange(id, LocalChangeType.add);
+    return id;
+  }
+
+  public addPage(document: string) {
+    const notebook = notebooksService.getCurrentNotebook();
+    const now = Date.now();
+    const id = getUniqueId();
+    const content = initialContent();
+    storageService.getSpace().setRow(this.table, id, {
+      parent: document,
+      parent_meta: setFieldMeta(document, now),
+      notebook,
+      notebook_meta: setFieldMeta(notebook, now),
+      content,
+      content_meta: setFieldMeta(content, now),
+      preview: '',
+      created: now,
+      updated: now,
+      type: CollectionItemType.page,
+      deleted: false,
+      deleted_meta: setFieldMeta('false', now)
+    });
+    this.updateParentUpdatedRecursive(document);
     localChangesService.addLocalChange(id, LocalChangeType.add);
     return id;
   }
@@ -287,8 +311,13 @@ class CollectionService {
     );
   }
 
-  public setItemContent(rowId: Id, content: string) {
-    this.setItemField(rowId, 'content', content);
+  public setItemContent(rowId: Id, content: string, plain: string = '') {
+    storageService.getSpace().transaction(() => {
+      this.setItemField(rowId, 'content', content);
+      storageService
+        .getSpace()
+        .setCell('collection', rowId, 'preview', this.getPreview(plain));
+    });
   }
 
   public setItemNotebookFolder(rowId: Id, notebookId: Id, parentId: string) {
@@ -405,6 +434,10 @@ class CollectionService {
     if (key !== 'parent') {
       this.updateParentUpdatedRecursive(this.getItemParent(rowId));
     }
+  }
+
+  private getPreview(content: string) {
+    return content.substring(0, 100);
   }
 
   public getItemField(rowId: Id, key: CollectionItemFieldEnum) {

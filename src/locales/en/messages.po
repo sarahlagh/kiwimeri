@@ -48,6 +48,8 @@ msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
 
 #: src/notebooks/components/ManageNotebooksModal.tsx:93
+#: src/common/modals/ConfirmYesNoDialog.tsx:36
+#: src/common/modals/ChooseTagsModal.tsx:105
 msgid "Confirm"
 msgstr "Confirm"
 
@@ -228,7 +230,7 @@ msgstr "Synchronize your collection on the filesystem"
 msgid "Syncing is disabled on the web version."
 msgstr "Syncing is disabled on the web version."
 
-#: src/common/wysiwyg/Writer.tsx:47
+#: src/common/wysiwyg/Writer.tsx:48
 msgid "Text..."
 msgstr "Text..."
 
