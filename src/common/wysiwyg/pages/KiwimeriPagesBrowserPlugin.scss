@@ -30,3 +30,10 @@
     color: var(--ion-color-primary);
   }
 }
+
+.toggle-pages-browser-btn {
+  position: fixed;
+  z-index: 999999;
+  right: 0px;
+  top: 55px;
+}

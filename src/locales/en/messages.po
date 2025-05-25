@@ -66,7 +66,7 @@ msgstr "Default"
 msgid "Download Logs"
 msgstr "Download Logs"
 
-#: src/common/wysiwyg/lexical/KiwimeriPagesBrowserPlugin.tsx:64
+#: src/common/wysiwyg/pages/KiwimeriPagesBrowserPlugin.tsx:64
 msgid "empty page"
 msgstr "empty page"
 
@@ -234,7 +234,7 @@ msgstr "Synchronize your collection on the filesystem"
 msgid "Syncing is disabled on the web version."
 msgstr "Syncing is disabled on the web version."
 
-#: src/common/wysiwyg/Writer.tsx:53
+#: src/common/wysiwyg/Writer.tsx:54
 msgid "Text..."
 msgstr "Text..."
 

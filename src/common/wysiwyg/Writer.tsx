@@ -24,10 +24,11 @@ import { useLingui } from '@lingui/react/macro';
 import React, { useEffect, useState } from 'react';
 import { minimizeContentForStorage } from './compress-file-content';
 import DebugTreeViewPlugin from './lexical/DebugTreeViewPlugin';
-import KiwimeriPagesBrowserPlugin from './lexical/KiwimeriPagesBrowserPlugin';
 import KiwimeriReloadContentPlugin from './lexical/KiwimeriReloadContentPlugin';
 import KiwimeriToolbarPlugin from './lexical/KiwimeriToolbarPlugin';
 import KiwimeriEditorTheme from './lexical/theme/KiwimeriEditorTheme';
+import KiwimeriPagesBrowserPlugin from './pages/KiwimeriPagesBrowserPlugin';
+import TogglePagesBrowserButton from './pages/TogglePagesBrowserButton';
 
 interface WriterProps {
   docId: string;
@@ -52,6 +53,8 @@ const Writer = (
   const { t } = useLingui();
   const placeholder = t`Text...`;
   const [hasUserChanges, setHasUserChanges] = useState(false);
+  const [showPageBrowser, setShowPageBrowser] = useState(true);
+  const hasPages = pages?.length || 0 > 0;
 
   useEffect(() => {
     setHasUserChanges(false);
@@ -118,7 +121,7 @@ const Writer = (
       <SelectionAlwaysOnDisplay />
       <MarkdownShortcutPlugin />
 
-      {(pages?.length || 0) > 0 && (
+      {hasPages && showPageBrowser && (
         <KiwimeriPagesBrowserPlugin
           docId={docId}
           docPreview={preview}
@@ -126,6 +129,12 @@ const Writer = (
           pages={pages}
         />
       )}
+      {hasPages && (
+        <TogglePagesBrowserButton
+          onClick={() => setShowPageBrowser(!showPageBrowser)}
+        />
+      )}
+
       {platformService.isDev() && <DebugTreeViewPlugin />}
     </LexicalComposer>
   );

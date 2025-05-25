@@ -4,6 +4,7 @@ import DeleteItemButton from '@/common/buttons/DeleteItemButton';
 import MoveFolderButton from '@/common/buttons/MoveFolderButton';
 import RenameItemButton from '@/common/buttons/RenameItemButton';
 import { GET_DOCUMENT_ROUTE, GET_FOLDER_ROUTE } from '@/common/routes';
+import platformService from '@/common/services/platform.service';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
 import userSettingsService from '@/db/user-settings.service';
@@ -31,8 +32,11 @@ const CommonActionsToolbar = ({
 }: CommonActionsToolbarProps) => {
   const type = collectionService.getItemType(id);
   const showMoveFolder = type !== CollectionItemType.page;
+
+  const isWideEnough = platformService.isWideEnough();
   showRename = type !== CollectionItemType.page && showRename;
   showInfo = type !== CollectionItemType.page && showInfo;
+  showClose = !isWideEnough && showClose;
 
   const folder = userSettingsService.getCurrentFolder();
   const fallbackRoute =
