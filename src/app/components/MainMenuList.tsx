@@ -54,7 +54,8 @@ const MainMenuList = () => {
       title: t`Collection`,
       url: GET_ITEM_ROUTE(
         `${userSettingsService.getCurrentFolder()}`,
-        userSettingsService.getCurrentDocument()
+        userSettingsService.getCurrentDocument(),
+        userSettingsService.getCurrentPage()
       ),
       icon: APPICONS.collectionPage,
       isActive: () => isCollectionRoute(location.pathname)

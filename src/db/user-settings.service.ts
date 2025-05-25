@@ -78,6 +78,32 @@ class UserSettingsService {
         );
     }
   }
+
+  public getCurrentPage() {
+    return (
+      (storageService
+        .getStore()
+        .getCell(this.spacesTable, storageService.getSpaceId(), 'currentPage')
+        ?.valueOf() as string) || undefined
+    );
+  }
+
+  public setCurrentPage(page?: string) {
+    if (page) {
+      storageService
+        .getStore()
+        .setCell(
+          this.spacesTable,
+          storageService.getSpaceId(),
+          'currentPage',
+          page
+        );
+    } else {
+      storageService
+        .getStore()
+        .delCell(this.spacesTable, storageService.getSpaceId(), 'currentPage');
+    }
+  }
 }
 
 const userSettingsService = new UserSettingsService();
