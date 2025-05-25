@@ -32,6 +32,7 @@ const DocumentEditor = ({ id, showActions = false }: DocumentEditorProps) => {
 
   const documentTitle = collectionService.getItemTitle(id);
   const documentContent = collectionService.useItemContent(id);
+  const pages = collectionService.useDocumentPages(id);
   const onTitleChange = onTitleChangeFn(id);
 
   const onClickedAnywhere: React.MouseEventHandler<HTMLIonContentElement> = (
@@ -94,7 +95,12 @@ const DocumentEditor = ({ id, showActions = false }: DocumentEditorProps) => {
 
       <IonContent onClick={onClickedAnywhere}>
         {documentContent && (
-          <Writer ref={refWriter} id={id} content={documentContent}></Writer>
+          <Writer
+            ref={refWriter}
+            id={id}
+            content={documentContent}
+            pages={pages}
+          ></Writer>
         )}
       </IonContent>
       {showDocumentFooter && <DocumentEditorFooter id={id} />}

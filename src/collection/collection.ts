@@ -61,6 +61,12 @@ export type CollectionItemResult = Pick<
 > &
   Required<Pick<CollectionItem, 'id'>>;
 
+export type PagePreview = Pick<
+  CollectionItem,
+  'preview' | 'created' | 'updated' | 'conflict'
+> &
+  Required<Pick<CollectionItem, 'id'>>;
+
 export type CollectionItemFieldMetadata = {
   u: number;
 };

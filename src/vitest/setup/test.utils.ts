@@ -141,39 +141,59 @@ export const CONFLICT_CHANGES = UPDATABLE_FIELDS.map(field => ({
   remote: field.field
 }));
 
-const filterContentWithType = (field: string, type: string) =>
-  field !== 'content' || (type !== 'folder' && type !== 'notebook');
+const filterPerType = (field: string, type: string) => {
+  if (type === 'folder' || type === 'notebook') {
+    return field !== 'content';
+  }
+  if (type === 'page') {
+    return field !== 'title' && field !== 'tags';
+  }
+  return true;
+};
+
+const filterPerLocalRemoteAndType = (
+  local: string,
+  remote: string,
+  type: string
+) => {
+  if (type === 'folder' || type === 'notebook') {
+    return local !== 'content' && remote !== 'content';
+  }
+  if (type === 'page') {
+    return (
+      local !== 'title' &&
+      remote !== 'title' &&
+      local !== 'tags' &&
+      remote !== 'tags'
+    );
+  }
+  return true;
+};
 
 export const GET_UPDATABLE_FIELDS = (type: string) =>
-  UPDATABLE_FIELDS.filter(f => filterContentWithType(f.field, type));
+  UPDATABLE_FIELDS.filter(f => filterPerType(f.field, type));
 
 export const GET_NON_PARENT_NON_NOTEBOOK_UPDATABLE_FIELDS = (type: string) =>
   NON_PARENT_NON_NOTEBOOK_UPDATABLE_FIELDS.filter(f =>
-    filterContentWithType(f.field, type)
+    filterPerType(f.field, type)
   );
 
 export const GET_NON_PARENT_UPDATABLE_FIELDS = (type: string) =>
-  NON_PARENT_UPDATABLE_FIELDS.filter(f => filterContentWithType(f.field, type));
+  NON_PARENT_UPDATABLE_FIELDS.filter(f => filterPerType(f.field, type));
 
 export const GET_NON_CONFLICT_CHANGES = (type: string) =>
   NON_CONFLICT_CHANGES.filter(f =>
-    f.local === 'content' || f.remote === 'content'
-      ? type !== 'folder' && type !== 'notebook'
-      : true
+    filterPerLocalRemoteAndType(f.local, f.remote, type)
   );
 
 export const GET_CONFLICT_CHANGES = (type: string) =>
   CONFLICT_CHANGES.filter(f =>
-    f.local === 'content' || f.remote === 'content'
-      ? type !== 'folder' && type !== 'notebook'
-      : true
+    filterPerLocalRemoteAndType(f.local, f.remote, type)
   );
 
 export const GET_ALL_CHANGES = (type: string) =>
   [...CONFLICT_CHANGES, ...NON_CONFLICT_CHANGES].filter(f =>
-    f.local === 'content' || f.remote === 'content'
-      ? type !== 'folder' && type !== 'notebook'
-      : true
+    filterPerLocalRemoteAndType(f.local, f.remote, type)
   );
 
 export const getCollectionRowCount = () => {

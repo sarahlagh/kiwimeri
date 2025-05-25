@@ -1,3 +1,4 @@
+import { PagePreview } from '@/collection/collection';
 import platformService from '@/common/services/platform.service';
 import collectionService from '@/db/collection.service';
 import { CodeNode } from '@lexical/code';
@@ -23,6 +24,7 @@ import { useLingui } from '@lingui/react/macro';
 import React, { useEffect, useState } from 'react';
 import { minimizeContentForStorage } from './compress-file-content';
 import DebugTreeViewPlugin from './lexical/DebugTreeViewPlugin';
+import KiwimeriPagesBrowserPlugin from './lexical/KiwimeriPagesBrowserPlugin';
 import KiwimeriReloadContentPlugin from './lexical/KiwimeriReloadContentPlugin';
 import KiwimeriToolbarPlugin from './lexical/KiwimeriToolbarPlugin';
 import KiwimeriEditorTheme from './lexical/theme/KiwimeriEditorTheme';
@@ -30,6 +32,7 @@ import KiwimeriEditorTheme from './lexical/theme/KiwimeriEditorTheme';
 interface WriterProps {
   id: string;
   content: string;
+  pages?: PagePreview[];
 }
 
 // Catch any errors that occur during Lexical updates and log them
@@ -41,7 +44,7 @@ function onError(error: any) {
 }
 
 const Writer = (
-  { id, content }: WriterProps,
+  { id, content, pages }: WriterProps,
   ref: React.LegacyRef<HTMLDivElement> | undefined
 ) => {
   const { t } = useLingui();
@@ -71,7 +74,7 @@ const Writer = (
         ]
       }}
     >
-      <KiwimeriToolbarPlugin />
+      <KiwimeriToolbarPlugin document={id} />
       <RichTextPlugin
         contentEditable={
           <ContentEditable
@@ -113,6 +116,9 @@ const Writer = (
       <SelectionAlwaysOnDisplay />
       <MarkdownShortcutPlugin />
 
+      {(pages?.length || 0) > 0 && (
+        <KiwimeriPagesBrowserPlugin docId={id} pages={pages} />
+      )}
       {platformService.isDev() && <DebugTreeViewPlugin />}
     </LexicalComposer>
   );

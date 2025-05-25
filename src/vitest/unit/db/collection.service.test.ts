@@ -336,10 +336,10 @@ describe('collection service', () => {
           expect(getCollectionItem(id).preview).toBe('This is a short content');
 
           const loremIpsum =
-            '"Lorem <i>ipsum</i> dolor sit amet, <b>consectetur</b> adipiscing<br> elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."';
+            '"Lorem <i>ipsum</i> dolor<br> sit amet, <b>consectetur</b> adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."';
           collectionService.setItemContent(id, loremIpsum, loremIpsum);
           expect(getCollectionItem(id).preview).toBe(
-            '"Lorem ipsum dolor sit amet, consectetur adipiscing\n elit, sed do eiusmod tempor incididunt ut labor'
+            '"Lorem ipsum dolor\n sit amet, consectetur adipisci'
           );
         });
 
@@ -508,10 +508,10 @@ describe('collection service', () => {
       expect(getCollectionItem(id).preview).toBe('This is a short content');
 
       const loremIpsum =
-        '"Lorem <i>ipsum</i> dolor sit amet, <b>consectetur</b> adipiscing<br> elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."';
+        '"Lorem <i>ipsum</i> dolor<br> sit amet, <b>consectetur</b> adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."';
       collectionService.setItemContent(id, loremIpsum, loremIpsum);
       expect(getCollectionItem(id).preview).toBe(
-        '"Lorem ipsum dolor sit amet, consectetur adipiscing\n elit, sed do eiusmod tempor incididunt ut labor'
+        '"Lorem ipsum dolor\n sit amet, consectetur adipisci'
       );
     });
 
