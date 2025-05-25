@@ -85,11 +85,34 @@ export const oneNotebook = (title = 'new notebook', id = '0'): Notebook => {
     deleted_meta: setFieldMeta('false', Date.now())
   };
 };
+export const onePage = (
+  preview = 'new doc',
+  parent = ROOT_FOLDER
+): CollectionItem => {
+  const notebook = notebooksService.getCurrentNotebook();
+  if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
+  return {
+    id: getUniqueId(),
+    type: CollectionItemType.page,
+    parent,
+    parent_meta: setFieldMeta(parent, Date.now()),
+    notebook,
+    notebook_meta: setFieldMeta(notebook, Date.now()),
+    title: '',
+    title_meta: setFieldMeta('title', Date.now()),
+    content: 'random',
+    content_meta: setFieldMeta('random', Date.now()),
+    created: Date.now(),
+    updated: Date.now(),
+    deleted: false,
+    deleted_meta: setFieldMeta('false', Date.now())
+  };
+};
 
 type itemTypesType = {
   type: string;
   typeVal: CollectionItemTypeValues;
-  addMethod: 'addDocument' | 'addFolder';
+  addMethod: 'addDocument' | 'addFolder' | 'addPage';
   testAddFn: (title?: string, parent?: string) => CollectionItem;
   defaultTitle: string;
 };
@@ -107,6 +130,17 @@ export const BROWSABLE_ITEM_TYPES: itemTypesType[] = [
     addMethod: 'addFolder',
     testAddFn: oneFolder,
     defaultTitle: 'New folder'
+  }
+];
+
+export const ITEM_TYPES: itemTypesType[] = [
+  ...BROWSABLE_ITEM_TYPES,
+  {
+    type: 'page',
+    typeVal: CollectionItemType.page,
+    addMethod: 'addPage',
+    testAddFn: onePage,
+    defaultTitle: ''
   }
 ];
 
@@ -242,6 +276,9 @@ export const updateOnRemote = (
   remoteData[idx][`${remoteKey}_meta`] = setFieldMeta(newValue, Date.now());
   if (remoteKey !== 'parent') {
     remoteData[idx].updated = Date.now();
+  }
+  if (field === 'content') {
+    remoteData[idx].preview = newValue.substring(0, 80);
   }
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   console.debug('after updateOnRemote', id, field, remoteData);
