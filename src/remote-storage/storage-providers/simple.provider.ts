@@ -263,6 +263,10 @@ export class SimpleStorageProvider extends StorageProvider {
               newLocalContent[0].collection![localChange.item][field] =
                 localCollection.get(localChange.item)![field];
             }
+            if (field === 'content') {
+              newLocalContent[0].collection![localChange.item].preview =
+                localCollection.get(localChange.item)!.preview;
+            }
             newLocalContent[0].collection![localChange.item][`${field}_meta`] =
               localCollection.get(localChange.item)![`${field}_meta`];
           } else {
@@ -273,7 +277,7 @@ export class SimpleStorageProvider extends StorageProvider {
           if (
             localItem &&
             !localItem.conflict &&
-            localItem.type === CollectionItemType.document
+            localItem.type !== CollectionItemType.folder
           ) {
             newLocalContent[0].collection![getUniqueId()] = {
               ...{ ...localItem, id: undefined },

@@ -1,5 +1,5 @@
 import { CollectionItemResult } from '@/collection/collection';
-import { APPICONS_PER_TYPE } from '@/constants';
+import { APPICONS_PER_TYPE, CONFLICT_STR } from '@/constants';
 import collectionService from '@/db/collection.service';
 import {
   InputCustomEvent,
@@ -157,7 +157,7 @@ const CollectionItemListItem = ({
       )}
       {!renaming && (
         <IonLabel color={item.conflict ? 'danger' : undefined}>
-          {item.conflict ? '[!] ' : ''}
+          {item.conflict ? CONFLICT_STR : ''}
           {item.title}
         </IonLabel>
       )}

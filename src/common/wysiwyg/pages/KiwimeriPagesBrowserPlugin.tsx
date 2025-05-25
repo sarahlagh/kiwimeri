@@ -5,7 +5,7 @@ import { IonItem, IonList } from '@ionic/react';
 import { PagePreview } from '@/collection/collection';
 import { GET_DOCUMENT_ROUTE, GET_PAGE_ROUTE } from '@/common/routes';
 import { getSearchParams } from '@/common/utils';
-import { ROOT_FOLDER } from '@/constants';
+import { CONFLICT_STR, ROOT_FOLDER } from '@/constants';
 import { useLingui } from '@lingui/react/macro';
 import { useHistory, useLocation } from 'react-router';
 import './KiwimeriPagesBrowserPlugin.scss';
@@ -18,7 +18,7 @@ interface KiwimeriPagesBrowserPluginProps {
 }
 
 interface PagePreviewItemProps {
-  page: Pick<PagePreview, 'id' | 'preview'>;
+  page: Pick<PagePreview, 'id' | 'preview' | 'conflict'>;
   defaultVal: string;
   className?: string;
   selected: boolean;
@@ -40,6 +40,9 @@ const PagePreviewItem = ({
   if (selected) {
     classNames += ' page-item-selected';
   }
+  if (page.conflict) {
+    classNames += ' page-item-conflict';
+  }
   return (
     <IonItem
       button
@@ -49,6 +52,7 @@ const PagePreviewItem = ({
         onClick(page.id);
       }}
     >
+      {page.conflict ? CONFLICT_STR : ''}
       {!emptyPage ? page.preview : defaultVal}
     </IonItem>
   );
