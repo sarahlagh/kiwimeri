@@ -26,6 +26,8 @@ export interface CollectionItem {
   deleted: boolean;
   deleted_meta: string;
   conflict?: string;
+  display_opts?: string;
+  display_opts_meta?: string;
 }
 
 export type CollectionItemFieldEnum = keyof Required<
@@ -35,7 +37,13 @@ export type CollectionItemFieldEnum = keyof Required<
 export type CollectionItemUpdatableFieldEnum = keyof Required<
   Pick<
     CollectionItem,
-    'parent' | 'notebook' | 'title' | 'content' | 'tags' | 'deleted'
+    | 'parent'
+    | 'notebook'
+    | 'title'
+    | 'content'
+    | 'tags'
+    | 'deleted'
+    | 'display_opts'
   >
 >;
 
