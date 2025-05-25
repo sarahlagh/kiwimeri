@@ -2,11 +2,14 @@ import { CollectionItemType, parseFieldMeta } from '@/collection/collection';
 import { ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
+import { renderHook } from '@testing-library/react';
+import { act } from 'react';
 import { it, vi } from 'vitest';
 import {
+  BROWSABLE_ITEM_TYPES,
   GET_NON_PARENT_NON_NOTEBOOK_UPDATABLE_FIELDS,
   getCollectionItem,
-  ITEM_TYPES,
+  getLocalItemField,
   markAsConflict,
   UPDATABLE_FIELDS
 } from '../../setup/test.utils';
@@ -19,7 +22,7 @@ describe('collection service', () => {
     vi.useRealTimers();
   });
 
-  ITEM_TYPES.forEach(({ type, typeVal, addMethod, defaultTitle }) => {
+  BROWSABLE_ITEM_TYPES.forEach(({ type, typeVal, addMethod, defaultTitle }) => {
     describe(`operations on a ${type}`, () => {
       it(`should create a new ${type} with default fields`, () => {
         const now = Date.now();
@@ -157,7 +160,7 @@ describe('collection service', () => {
         const notebookId = notebooksService.addNotebook('non default')!;
         const id = collectionService[addMethod](ROOT_FOLDER);
         vi.advanceTimersByTime(100);
-        collectionService.setItemNotebookFolder(id, notebookId, ROOT_FOLDER);
+        collectionService.setItemParent(id, ROOT_FOLDER, notebookId);
         const item = getCollectionItem(id);
         expect(item.notebook).toBe(notebookId);
         expect(item.created).toBe(item.updated); // parent change doesn't update ts
@@ -174,7 +177,7 @@ describe('collection service', () => {
         const id = collectionService[addMethod](folderId3);
         vi.advanceTimersByTime(100);
         // can't update notebook without parent // TODO enforce at service level
-        collectionService.setItemNotebookFolder(id, notebookId, ROOT_FOLDER);
+        collectionService.setItemParent(id, ROOT_FOLDER, notebookId);
         const item = getCollectionItem(id);
         expect(item.notebook).toBe(notebookId);
         expect(item.created).toBe(item.updated);
@@ -319,63 +322,235 @@ describe('collection service', () => {
           'tag4'
         ]);
       });
+
+      if (type === 'document') {
+        it(`should update the preview of a document at the same time as its content`, () => {
+          const id = collectionService.addDocument(ROOT_FOLDER);
+          expect(getCollectionItem(id).preview).toBe('');
+
+          collectionService.setItemContent(
+            id,
+            'This is a <u>short</u> content',
+            'This is a <u>short</u> content'
+          );
+          expect(getCollectionItem(id).preview).toBe('This is a short content');
+
+          const loremIpsum =
+            '"Lorem <i>ipsum</i> dolor sit amet, <b>consectetur</b> adipiscing<br> elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."';
+          collectionService.setItemContent(id, loremIpsum, loremIpsum);
+          expect(getCollectionItem(id).preview).toBe(
+            '"Lorem ipsum dolor sit amet, consectetur adipiscing\n elit, sed do eiusmod tempor incididunt ut labor'
+          );
+        });
+
+        UPDATABLE_FIELDS.forEach(({ field }) => {
+          it(`should reset conflict on a document on update of ${field}`, () => {
+            const id = collectionService.addDocument(ROOT_FOLDER);
+            const id2 = collectionService.addDocument(ROOT_FOLDER);
+            markAsConflict(id, id2);
+            expect(getCollectionItem(id).conflict).toBeDefined();
+
+            collectionService.setItemField(id, field, 'new value');
+            expect(getCollectionItem(id).conflict).toBeUndefined();
+          });
+        });
+
+        it(`should delete all pages of a document when deleting the document`, () => {
+          const id = collectionService.addDocument(ROOT_FOLDER);
+          const pageId1 = collectionService.addPage(id);
+          const pageId2 = collectionService.addPage(id);
+          const pageId3 = collectionService.addPage(id);
+
+          collectionService.deleteItem(id);
+          expect(collectionService.itemExists(id)).toBe(false);
+          expect(collectionService.itemExists(pageId1)).toBe(false);
+          expect(collectionService.itemExists(pageId2)).toBe(false);
+          expect(collectionService.itemExists(pageId3)).toBe(false);
+        });
+      }
+
+      if (type === 'folder') {
+        it(`should delete an existing folder and delete items in it without orphaning them`, () => {
+          // create a non empty folder
+          const folderId = collectionService.addFolder(ROOT_FOLDER);
+          const id = collectionService.addDocument(folderId);
+          const id2 = collectionService.addDocument(folderId);
+
+          collectionService.deleteItem(folderId);
+          expect(collectionService.itemExists(folderId)).toBe(false);
+          expect(collectionService.itemExists(id)).toBe(false);
+          expect(collectionService.itemExists(id2)).toBe(false);
+        });
+
+        it(`should delete an existing folder and move items in it to the parent folder without orphaning them`, () => {
+          // create a non empty folder
+          const folderId = collectionService.addFolder(ROOT_FOLDER);
+          const id = collectionService.addDocument(folderId);
+          const id2 = collectionService.addDocument(folderId);
+
+          collectionService.deleteItem(folderId, true);
+          expect(collectionService.itemExists(folderId)).toBe(false);
+          expect(collectionService.itemExists(id)).toBe(true);
+          expect(collectionService.getItemParent(id)).toBe(ROOT_FOLDER);
+          expect(collectionService.itemExists(id2)).toBe(true);
+          expect(collectionService.getItemParent(id2)).toBe(ROOT_FOLDER);
+        });
+      }
     });
   });
 
-  it(`should update the preview at the same time as content`, () => {
-    const id = collectionService.addDocument(ROOT_FOLDER);
-    expect(getCollectionItem(id).preview).toBe('');
+  describe(`operations on a page`, () => {
+    it('should add a page to a document', () => {
+      const docId = collectionService.addDocument(ROOT_FOLDER);
+      act(() => {
+        const pageId = collectionService.addPage(docId);
+        expect(getLocalItemField(pageId, 'type')).toBe(CollectionItemType.page);
+      });
 
-    collectionService.setItemContent(
-      id,
-      'This is a short content',
-      'This is a short content'
-    );
-    expect(getCollectionItem(id).preview).toBe('This is a short content');
-
-    const loremIpsum =
-      '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."';
-    collectionService.setItemContent(id, loremIpsum, loremIpsum);
-    expect(getCollectionItem(id).preview).toBe(
-      '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore'
-    );
-  });
-
-  UPDATABLE_FIELDS.forEach(({ field }) => {
-    it(`should reset conflict on a document on update of ${field}`, () => {
-      const id = collectionService.addDocument(ROOT_FOLDER);
-      const id2 = collectionService.addDocument(ROOT_FOLDER);
-      markAsConflict(id, id2);
-      expect(getCollectionItem(id).conflict).toBeDefined();
-
-      collectionService.setItemField(id, field, 'new value');
-      expect(getCollectionItem(id).conflict).toBeUndefined();
+      const { result } = renderHook(() =>
+        collectionService.useDocumentPages(docId)
+      );
+      expect(result.current).toHaveLength(1);
     });
-  });
 
-  it(`should delete an existing folder and delete items in it without orphaning them`, () => {
-    // create a non empty folder
-    const folderId = collectionService.addFolder(ROOT_FOLDER);
-    const id = collectionService.addDocument(folderId);
-    const id2 = collectionService.addDocument(folderId);
+    it(`should update the parent (document) of a page`, () => {
+      const docId = collectionService.addDocument(ROOT_FOLDER);
+      const docId2 = collectionService.addDocument(ROOT_FOLDER);
+      const id = collectionService.addPage(docId);
+      vi.advanceTimersByTime(100);
+      collectionService.setItemParent(id, docId2);
+      const item = getCollectionItem(id);
+      expect(item.parent).toBe(docId2);
+      expect(item.created).toBeLessThan(item.updated); // parent change does update ts
+      const meta = parseFieldMeta(item.parent_meta);
+      expect(meta.u).toBe(item.updated);
+    });
 
-    collectionService.deleteItem(folderId);
-    expect(collectionService.itemExists(folderId)).toBe(false);
-    expect(collectionService.itemExists(id)).toBe(false);
-    expect(collectionService.itemExists(id2)).toBe(false);
-  });
+    it(`should update the parent (document) of a page and recursively update all parents timestamp`, () => {
+      const now = Date.now();
+      const folderIdO = collectionService.addFolder(ROOT_FOLDER);
+      const folderId1 = collectionService.addFolder(ROOT_FOLDER);
+      const folderId2 = collectionService.addFolder(folderId1);
+      const folderId3 = collectionService.addFolder(folderId2);
+      const docId = collectionService.addDocument(folderId3);
+      const docId2 = collectionService.addDocument(folderIdO);
+      const id = collectionService.addPage(docId);
+      vi.advanceTimersByTime(100);
+      collectionService.setItemParent(id, docId2);
+      const item = getCollectionItem(id);
+      expect(item.parent).toBe(docId2);
+      expect(item.created).toBeLessThan(item.updated);
+      const meta = parseFieldMeta(item.parent_meta);
+      expect(meta.u).toBe(item.updated);
 
-  it(`should delete an existing folder and move items in it to the parent folder without orphaning them`, () => {
-    // create a non empty folder
-    const folderId = collectionService.addFolder(ROOT_FOLDER);
-    const id = collectionService.addDocument(folderId);
-    const id2 = collectionService.addDocument(folderId);
+      const folderO = getCollectionItem(folderIdO);
+      const folder1 = getCollectionItem(folderId1);
+      const folder2 = getCollectionItem(folderId2);
+      const folder3 = getCollectionItem(folderId3);
 
-    collectionService.deleteItem(folderId, true);
-    expect(collectionService.itemExists(folderId)).toBe(false);
-    expect(collectionService.itemExists(id)).toBe(true);
-    expect(collectionService.getItemParent(id)).toBe(ROOT_FOLDER);
-    expect(collectionService.itemExists(id2)).toBe(true);
-    expect(collectionService.getItemParent(id2)).toBe(ROOT_FOLDER);
+      // TODO: could also want to update old doc parents...
+      expect(folderO.updated).toBe(now + 100);
+      expect(parseFieldMeta(folderO.parent_meta).u).toBe(now);
+      expect(folder1.updated).toBe(now);
+      expect(parseFieldMeta(folder1.parent_meta).u).toBe(now);
+      expect(folder2.updated).toBe(now);
+      expect(parseFieldMeta(folder2.parent_meta).u).toBe(now);
+      expect(folder3.updated).toBe(now);
+      expect(parseFieldMeta(folder3.parent_meta).u).toBe(now);
+    });
+
+    it(`should update the content of a page`, () => {
+      const docId = collectionService.addDocument(ROOT_FOLDER);
+      const id = collectionService.addPage(docId);
+      vi.advanceTimersByTime(100);
+      collectionService.setItemContent(id, 'test');
+      const item = getCollectionItem(id);
+      expect(item.content).toBe('test');
+      expect(item.created).toBeLessThan(item.updated);
+      const meta = parseFieldMeta(item.content_meta!);
+      expect(meta.u).toBe(item.updated);
+    });
+
+    it(`should update the content of a page and update all parents timestamp too`, () => {
+      const now = Date.now();
+      const folderId1 = collectionService.addFolder(ROOT_FOLDER);
+      const folderId2 = collectionService.addFolder(folderId1);
+      const folderId3 = collectionService.addFolder(folderId2);
+      const docId = collectionService.addDocument(folderId3);
+      const id = collectionService.addPage(docId);
+      vi.advanceTimersByTime(100);
+      collectionService.setItemContent(id, 'test');
+      const item = getCollectionItem(id);
+      expect(item.content).toBe('test');
+      expect(item.created).toBeLessThan(item.updated);
+      const meta = parseFieldMeta(item.content_meta!);
+      expect(meta.u).toBe(item.updated);
+
+      const folder1 = getCollectionItem(folderId1);
+      const folder2 = getCollectionItem(folderId2);
+      const folder3 = getCollectionItem(folderId3);
+
+      expect(folder1.updated).toBe(now + 100);
+      expect(folder2.updated).toBe(now + 100);
+      expect(folder3.updated).toBe(now + 100);
+    });
+
+    it(`should update the preview of a page at the same time as its content`, () => {
+      const docId = collectionService.addDocument(ROOT_FOLDER);
+      const id = collectionService.addPage(docId);
+      expect(getCollectionItem(id).preview).toBe('');
+
+      collectionService.setItemContent(
+        id,
+        'This is a <u>short</u> content',
+        'This is a <u>short</u> content'
+      );
+      expect(getCollectionItem(id).preview).toBe('This is a short content');
+
+      const loremIpsum =
+        '"Lorem <i>ipsum</i> dolor sit amet, <b>consectetur</b> adipiscing<br> elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."';
+      collectionService.setItemContent(id, loremIpsum, loremIpsum);
+      expect(getCollectionItem(id).preview).toBe(
+        '"Lorem ipsum dolor sit amet, consectetur adipiscing\n elit, sed do eiusmod tempor incididunt ut labor'
+      );
+    });
+
+    it(`should delete an existing page`, () => {
+      const docId = collectionService.addDocument(ROOT_FOLDER);
+      const id = collectionService.addPage(docId);
+      const id2 = collectionService.addPage(docId);
+
+      vi.advanceTimersByTime(100);
+      collectionService.deleteItem(id!);
+
+      expect(collectionService.itemExists(docId)).toBe(true);
+      expect(collectionService.itemExists(id)).toBe(false);
+
+      const { result } = renderHook(() =>
+        collectionService.useDocumentPages(docId)
+      );
+      expect(result.current).toHaveLength(1);
+      expect(result.current[0].id).toBe(id2);
+    });
+
+    it(`should delete an existing page and recursively update all parents timestamp`, () => {
+      const now = Date.now();
+      const folderId1 = collectionService.addFolder(ROOT_FOLDER);
+      const folderId2 = collectionService.addFolder(folderId1);
+      const folderId3 = collectionService.addFolder(folderId2);
+      const docId = collectionService.addDocument(folderId3);
+      const id = collectionService.addPage(docId);
+      vi.advanceTimersByTime(100);
+      collectionService.deleteItem(id);
+      expect(collectionService.itemExists(id)).toBe(false);
+
+      const folder1 = getCollectionItem(folderId1);
+      const folder2 = getCollectionItem(folderId2);
+      const folder3 = getCollectionItem(folderId3);
+
+      expect(folder1.updated).toBe(now + 100);
+      expect(folder2.updated).toBe(now + 100);
+      expect(folder3.updated).toBe(now + 100);
+    });
   });
 });

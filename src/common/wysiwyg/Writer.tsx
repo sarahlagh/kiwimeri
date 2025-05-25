@@ -93,9 +93,11 @@ const Writer = (
             const changes = JSON.stringify(editorState.toJSON());
             const minimized = minimizeContentForStorage(changes);
             editorState.read(() => {
-              const html = $generateHtmlFromNodes(editor);
-              const plain = html.replaceAll(/<[^>]*>/g, '');
-              collectionService.setItemContent(id, minimized, plain);
+              collectionService.setItemContent(
+                id,
+                minimized,
+                $generateHtmlFromNodes(editor)
+              );
             });
           }
           if (!hasUserChanges) {
