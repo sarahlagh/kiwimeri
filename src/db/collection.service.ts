@@ -494,6 +494,7 @@ class CollectionService {
 
   private getPreview(html: string) {
     return html
+      .replaceAll('</p>', '\n')
       .replaceAll('<br>', '\n')
       .replaceAll(/<[^>]*>/g, '')
       .substring(0, 80);
