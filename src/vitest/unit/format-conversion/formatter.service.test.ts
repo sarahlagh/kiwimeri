@@ -17,7 +17,8 @@ describe('format conversion service', () => {
     ).toBe('italic text\n yo\n');
   });
 
-  [
+  const exemples = [
+    { name: 'text' },
     {
       name: 'simple'
     },
@@ -37,26 +38,37 @@ describe('format conversion service', () => {
     {
       name: 'everything'
     }
-  ].forEach(({ name }) => {
-    it(`should generate plaintext from lexical (${name})`, async () => {
-      const json = await readFile(`${__dirname}/${name}/test.json`, 'utf8');
-      const expected = await readFile(`${__dirname}/${name}/test.txt`, 'utf8');
+  ];
 
-      // plain text inline, for a preview
-      expect(
-        formatterService.getPlainTextFromLexical(json, { inline: true })
-      ).toBe(expected.replaceAll(/\n+/g, ' '));
+  describe('should generate plaintext from lexical', () => {
+    exemples.forEach(({ name }) => {
+      it(`should generate plaintext from lexical (${name})`, async () => {
+        const json = await readFile(`${__dirname}/${name}/test.json`, 'utf8');
+        const expected = await readFile(
+          `${__dirname}/${name}/test.txt`,
+          'utf8'
+        );
 
-      // plain text with line breaks, for visibility
-      expect(formatterService.getPlainTextFromLexical(json)).toBe(expected);
+        // plain text inline, for a preview
+        expect(
+          formatterService.getPlainTextFromLexical(json, { inline: true })
+        ).toBe(expected.replaceAll(/\n+/g, ' '));
+
+        // plain text with line breaks, for visibility
+        expect(formatterService.getPlainTextFromLexical(json)).toBe(expected);
+      });
     });
+  });
 
-    it(`should generate markdown from lexical (${name})`, async () => {
-      const json = await readFile(`${__dirname}/${name}/test.json`, 'utf8');
-      const expected = await readFile(`${__dirname}/${name}/test.md`, 'utf8');
-      const markdown = formatterService.getMarkdownFromLexical(json);
-      expect(markdown).toBe(expected);
-      expect(markdown).toBe(JSON.stringify(JSON.parse(json)));
+  describe('should generate markdown from lexical', () => {
+    exemples.forEach(({ name }) => {
+      it(`should generate markdown from lexical (${name})`, async () => {
+        const json = await readFile(`${__dirname}/${name}/test.json`, 'utf8');
+        const expected = await readFile(`${__dirname}/${name}/test.md`, 'utf8');
+        const markdown = formatterService.getMarkdownFromLexical(json);
+        expect(markdown).toBe(expected);
+        // expect(markdown).toBe(JSON.stringify(JSON.parse(json)));
+      });
     });
   });
 });

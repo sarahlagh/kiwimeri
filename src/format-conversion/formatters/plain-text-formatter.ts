@@ -1,46 +1,79 @@
-import { SerializedElementNode, SerializedLexicalNode } from 'lexical';
-import { KiwimeriFormatter } from '../formatter';
+import { KiwimeriFormatter, KiwimeriTransformer } from '../formatter';
 
 export type PlainTextFormatterOpts = {
   inline?: boolean;
 };
 
-export class PlainTextFormatter extends KiwimeriFormatter {
-  private SIMPLE_RETURNS = ['linebreak', 'quote', 'listitem'];
-  private DOUBLE_RETURNS = ['paragraph', 'heading'];
+const getOpts = (opts?: unknown): PlainTextFormatterOpts =>
+  opts ? (opts as PlainTextFormatterOpts) : {};
 
-  public transform(
-    node: SerializedLexicalNode,
-    opts?: PlainTextFormatterOpts
+export const PLAIN_TEXT_ROOT_TRANSFORMER: KiwimeriTransformer = {
+  type: 'root',
+  postTransform: function (fullstr: string): string {
+    return fullstr.trimEnd();
+  }
+};
+
+export const PLAIN_TEXT_PARAGRAPH_TRANSFORMER: KiwimeriTransformer = {
+  type: 'paragraph',
+  postTransform: function (
+    fullstr: string,
+    hasChildren: boolean,
+    opts?: unknown
   ): string {
-    if ('text' in node && node.type === 'text') {
-      return node.text as string;
+    if (hasChildren) {
+      return fullstr + (!getOpts(opts).inline ? '\n\n' : ' ');
     }
-    if (node.type === 'paragraph') {
-      if (
-        'children' in node &&
-        (node as SerializedElementNode).children.length > 0
-      ) {
-        return !opts?.inline ? '\n\n' : ' ';
-      }
-      return !opts?.inline ? '\n' : '';
-    }
-    if (this.SIMPLE_RETURNS.find(type => type === node.type)) {
-      return !opts?.inline ? '\n' : ' ';
-    }
-    if (this.DOUBLE_RETURNS.find(type => type === node.type)) {
-      return !opts?.inline ? '\n\n' : ' ';
-    }
-    return '';
+    return fullstr + (!getOpts(opts).inline ? '\n' : '');
   }
+};
 
-  public transformStart(): string {
-    return '';
+export const PLAIN_TEXT_HEADING_TRANSFORMER: KiwimeriTransformer = {
+  type: 'heading',
+  postTransform: function (
+    fullstr: string,
+    hasChildren: boolean,
+    opts?: unknown
+  ) {
+    return fullstr + (!getOpts(opts).inline ? '\n\n' : ' ');
   }
+};
 
-  public transformEnd(text: string): string {
-    return text.trimEnd();
+export const PLAIN_TEXT_LINEBREAK_TRANSFORMER: KiwimeriTransformer = {
+  type: 'linebreak',
+  transform: function (text: string, opts): string {
+    return !getOpts(opts).inline ? '\n' : ' ';
+  }
+};
+
+export const PLAIN_TEXT_QUOTE_TRANSFORMER: KiwimeriTransformer = {
+  type: 'quote',
+  transform: function (text: string, opts): string {
+    return !getOpts(opts).inline ? '\n' : ' ';
+  }
+};
+
+export const PLAIN_TEXT_LISTITEM_TRANSFORMER: KiwimeriTransformer = {
+  type: 'listitem',
+  transform: function (text: string, opts): string {
+    return !getOpts(opts).inline ? '\n' : ' ';
+  }
+};
+
+export const PLAIN_TEXT_TRANSFORMERS: KiwimeriTransformer[] = [
+  PLAIN_TEXT_ROOT_TRANSFORMER,
+  PLAIN_TEXT_PARAGRAPH_TRANSFORMER,
+  PLAIN_TEXT_HEADING_TRANSFORMER,
+  PLAIN_TEXT_LINEBREAK_TRANSFORMER,
+  PLAIN_TEXT_QUOTE_TRANSFORMER,
+  PLAIN_TEXT_LISTITEM_TRANSFORMER
+];
+
+export class PlainTextFormatter extends KiwimeriFormatter {
+  constructor(protected transformers: KiwimeriTransformer[]) {
+    super([]);
+    this.transformers = [...PLAIN_TEXT_TRANSFORMERS, ...transformers];
   }
 }
 
-export const PLAIN_TEXT_FORMATTER = new PlainTextFormatter();
+export const PLAIN_TEXT_FORMATTER = new PlainTextFormatter([]);
