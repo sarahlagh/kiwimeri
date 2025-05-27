@@ -35,6 +35,7 @@ describe('format conversion service', () => {
       name: 'quote'
     },
     { name: 'lists' },
+    { name: 'text-align' },
     {
       name: 'everything'
     }

@@ -1,4 +1,8 @@
-import { KiwimeriFormatter, KiwimeriTransformer } from '../formatter';
+import {
+  KiwimeriFormatter,
+  KiwimeriTransformer,
+  KiwimeriTransformerCtx
+} from '../formatter';
 
 export type PlainTextFormatterOpts = {
   inline?: boolean;
@@ -18,10 +22,10 @@ export const PLAIN_TEXT_PARAGRAPH_TRANSFORMER: KiwimeriTransformer = {
   type: 'paragraph',
   postTransform: function (
     fullstr: string,
-    hasChildren: boolean,
+    ctx: KiwimeriTransformerCtx,
     opts?: unknown
   ): string {
-    if (hasChildren) {
+    if (ctx.node.children.length > 0) {
       return fullstr + (!getOpts(opts).inline ? '\n\n' : ' ');
     }
     return fullstr + (!getOpts(opts).inline ? '\n' : '');
@@ -32,7 +36,7 @@ export const PLAIN_TEXT_HEADING_TRANSFORMER: KiwimeriTransformer = {
   type: 'heading',
   postTransform: function (
     fullstr: string,
-    hasChildren: boolean,
+    ctx: KiwimeriTransformerCtx,
     opts?: unknown
   ) {
     return fullstr + (!getOpts(opts).inline ? '\n\n' : ' ');
@@ -53,7 +57,7 @@ export const PLAIN_TEXT_QUOTE_TRANSFORMER: KiwimeriTransformer = {
   }
 };
 
-export const PLAIN_TEXT_LISTITEM_TRANSFORMER: KiwimeriTransformer = {
+export const PLAIN_TEXT_LIST_TRANSFORMER: KiwimeriTransformer = {
   type: 'listitem',
   transform: function (text: string, opts): string {
     return !getOpts(opts).inline ? '\n' : ' ';
@@ -66,7 +70,7 @@ export const PLAIN_TEXT_TRANSFORMERS: KiwimeriTransformer[] = [
   PLAIN_TEXT_HEADING_TRANSFORMER,
   PLAIN_TEXT_LINEBREAK_TRANSFORMER,
   PLAIN_TEXT_QUOTE_TRANSFORMER,
-  PLAIN_TEXT_LISTITEM_TRANSFORMER
+  PLAIN_TEXT_LIST_TRANSFORMER
 ];
 
 export class PlainTextFormatter extends KiwimeriFormatter {

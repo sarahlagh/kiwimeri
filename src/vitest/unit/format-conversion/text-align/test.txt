@@ -1,0 +1,9 @@
+Text aligned by default
+
+Text in quote with alignment
+
+Text aligned center
+
+Text aligned right
+
+Text aligned justify
