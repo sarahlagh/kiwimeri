@@ -1,17 +1,22 @@
 import { SerializedElementNode, SerializedLexicalNode } from 'lexical';
 
+export type KiwimeriTransformerCtx = {
+  node: SerializedElementNode;
+  parent: SerializedLexicalNode | null;
+};
+
 export type KiwimeriTransformer = {
   type: string;
   handles?: (node: SerializedLexicalNode) => boolean;
   transform?: (text: string, opts?: unknown) => string;
   preTransform?: (
     fullstr: string,
-    hasChildren: boolean,
+    ctx: KiwimeriTransformerCtx,
     opts?: unknown
   ) => string;
   postTransform?: (
     fullstr: string,
-    hasChildren: boolean,
+    ctx: KiwimeriTransformerCtx,
     opts?: unknown
   ) => string;
 };
@@ -19,7 +24,11 @@ export type KiwimeriTransformer = {
 export abstract class KiwimeriFormatter {
   constructor(protected transformers: KiwimeriTransformer[]) {}
 
-  public stringifyLexNode(node: SerializedLexicalNode, opts?: unknown) {
+  public stringifyLexNode(
+    parent: SerializedLexicalNode | null,
+    node: SerializedLexicalNode,
+    opts?: unknown
+  ) {
     let text = '';
     const transformer = this.transformers.find(
       ({ type, handles }) =>
@@ -27,16 +36,18 @@ export abstract class KiwimeriFormatter {
     );
     if ('children' in node) {
       const elementNode = node as SerializedElementNode;
-      const hasChildren = elementNode.children.length > 0;
-
+      const ctx: KiwimeriTransformerCtx = {
+        node: elementNode,
+        parent
+      };
       if (transformer?.preTransform) {
-        text = transformer.preTransform(text, hasChildren, opts);
+        text = transformer.preTransform(text, ctx, opts);
       }
       elementNode.children.forEach(child => {
-        text += this.stringifyLexNode(child, opts);
+        text += this.stringifyLexNode(elementNode, child, opts);
       });
       if (transformer?.postTransform) {
-        text = transformer.postTransform(text, hasChildren, opts);
+        text = transformer.postTransform(text, ctx, opts);
       }
     }
     if ('text' in node) {

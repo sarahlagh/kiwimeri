@@ -13,7 +13,7 @@ class FormatterService {
     opts?: unknown
   ) {
     const obj: SerializedEditorState = JSON.parse(lex);
-    return formatter.stringifyLexNode(obj.root, opts);
+    return formatter.stringifyLexNode(null, obj.root, opts);
   }
 
   public getPlainTextFromLexical(lex: string, opts?: PlainTextFormatterOpts) {
