@@ -193,6 +193,15 @@ export const MARKDOWN_QUOTE_TRANSFORMER: KiwimeriTransformer = {
 
 export const MARKDOWN_LIST_TRANSFORMERS: KiwimeriTransformer[] = [
   {
+    type: 'linebreak',
+    handles: ({ parent }) => {
+      return parent !== null && parent.type === 'listitem';
+    },
+    transform: function (): string {
+      return '\n  ';
+    }
+  },
+  {
     type: 'listitem',
     preTransform(fullstr, ctx: KiwimeriTransformerCtx) {
       let value = 1;
@@ -226,7 +235,6 @@ export const MARKDOWN_LIST_TRANSFORMERS: KiwimeriTransformer[] = [
 
 export const MARKDOWN_TRANSFORMERS: KiwimeriTransformer[] = [
   MARKDOWN_PARAGRAPH_TRANSFORMER,
-  // MARKDOWN_TEXT_FORMAT_TRANSFORMER,
   MARKDOWN_BOLD_TRANSFORMER,
   MARKDOWN_ITALIC_TRANSFORMER,
   MARKDOWN_UNDERLINE_TRANSFORMER,
