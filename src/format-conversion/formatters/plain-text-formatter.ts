@@ -1,3 +1,4 @@
+import { SerializedElementNode } from 'lexical';
 import {
   KiwimeriFormatter,
   KiwimeriTransformer,
@@ -10,6 +11,10 @@ export type PlainTextFormatterOpts = {
 
 const getOpts = (opts?: unknown): PlainTextFormatterOpts =>
   opts ? (opts as PlainTextFormatterOpts) : {};
+
+const linebreak = (opts: unknown) => (!getOpts(opts).inline ? '\n' : ' ');
+const doubleLinebreak = (opts: unknown) =>
+  !getOpts(opts).inline ? '\n\n' : ' ';
 
 export const PLAIN_TEXT_ROOT_TRANSFORMER: KiwimeriTransformer = {
   type: 'root',
@@ -26,7 +31,7 @@ export const PLAIN_TEXT_PARAGRAPH_TRANSFORMER: KiwimeriTransformer = {
     opts?: unknown
   ): string {
     if (ctx.node.children.length > 0) {
-      return fullstr + (!getOpts(opts).inline ? '\n\n' : ' ');
+      return fullstr + doubleLinebreak(opts);
     }
     return fullstr + (!getOpts(opts).inline ? '\n' : '');
   }
@@ -39,28 +44,39 @@ export const PLAIN_TEXT_HEADING_TRANSFORMER: KiwimeriTransformer = {
     ctx: KiwimeriTransformerCtx,
     opts?: unknown
   ) {
-    return fullstr + (!getOpts(opts).inline ? '\n\n' : ' ');
+    return fullstr + doubleLinebreak(opts);
   }
 };
 
 export const PLAIN_TEXT_LINEBREAK_TRANSFORMER: KiwimeriTransformer = {
   type: 'linebreak',
   transform: function (text: string, opts): string {
-    return !getOpts(opts).inline ? '\n' : ' ';
+    return linebreak(opts);
   }
 };
 
 export const PLAIN_TEXT_QUOTE_TRANSFORMER: KiwimeriTransformer = {
   type: 'quote',
-  transform: function (text: string, opts): string {
-    return !getOpts(opts).inline ? '\n' : ' ';
+  postTransform: function (fullstr: string, ctx: KiwimeriTransformerCtx, opts) {
+    // check if it's the last children
+    if (ctx.parent && 'children' in ctx.parent) {
+      const parent = ctx.parent as SerializedElementNode;
+      const idx = parent.children.findIndex(child => child === ctx.node);
+      if (
+        idx < parent.children.length - 1 &&
+        parent.children[idx + 1].type === 'quote'
+      ) {
+        return fullstr + linebreak(opts);
+      }
+    }
+    return fullstr + doubleLinebreak(opts);
   }
 };
 
 export const PLAIN_TEXT_LIST_TRANSFORMER: KiwimeriTransformer = {
   type: 'listitem',
   transform: function (text: string, opts): string {
-    return !getOpts(opts).inline ? '\n' : ' ';
+    return linebreak(opts);
   }
 };
 
@@ -76,7 +92,7 @@ export const PLAIN_TEXT_TRANSFORMERS: KiwimeriTransformer[] = [
 export class PlainTextFormatter extends KiwimeriFormatter {
   constructor(protected transformers: KiwimeriTransformer[]) {
     super([]);
-    this.transformers = [...PLAIN_TEXT_TRANSFORMERS, ...transformers];
+    this.transformers = [...transformers, ...PLAIN_TEXT_TRANSFORMERS];
   }
 }
 
