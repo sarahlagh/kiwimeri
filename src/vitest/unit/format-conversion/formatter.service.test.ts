@@ -44,16 +44,19 @@ describe('format conversion service', () => {
   describe('should generate plaintext from lexical', () => {
     exemples.forEach(({ name }) => {
       it(`should generate plaintext from lexical (${name})`, async () => {
-        const json = await readFile(`${__dirname}/${name}/test.json`, 'utf8');
+        const json = await readFile(
+          `${__dirname}/${name}/${name}.json`,
+          'utf8'
+        );
         const expected = await readFile(
-          `${__dirname}/${name}/test.txt`,
+          `${__dirname}/${name}/${name}.txt`,
           'utf8'
         );
 
         // plain text inline, for a preview
         expect(
           formatterService.getPlainTextFromLexical(json, { inline: true })
-        ).toBe(expected.replaceAll(/\n+/g, ' '));
+        ).toBe(expected.replaceAll(/\n+/g, ' ').trimEnd());
 
         // plain text with line breaks, for visibility
         expect(formatterService.getPlainTextFromLexical(json)).toBe(expected);
@@ -64,8 +67,14 @@ describe('format conversion service', () => {
   describe('should generate markdown from lexical', () => {
     exemples.forEach(({ name }) => {
       it(`should generate markdown from lexical (${name})`, async () => {
-        const json = await readFile(`${__dirname}/${name}/test.json`, 'utf8');
-        const expected = await readFile(`${__dirname}/${name}/test.md`, 'utf8');
+        const json = await readFile(
+          `${__dirname}/${name}/${name}.json`,
+          'utf8'
+        );
+        const expected = await readFile(
+          `${__dirname}/${name}/${name}.md`,
+          'utf8'
+        );
         const markdown = formatterService.getMarkdownFromLexical(json);
         expect(markdown).toBe(expected);
         // expect(markdown).toBe(JSON.stringify(JSON.parse(json)));
