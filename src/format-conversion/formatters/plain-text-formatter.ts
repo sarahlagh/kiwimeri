@@ -30,7 +30,7 @@ export const PLAIN_TEXT_PARAGRAPH_TRANSFORMER: KiwimeriTransformer = {
     ctx: KiwimeriTransformerCtx,
     opts?: unknown
   ): string {
-    if (ctx.node.children.length > 0) {
+    if (ctx.elementNode!.children.length > 0) {
       return fullstr + doubleLinebreak(opts);
     }
     return fullstr + (!getOpts(opts).inline ? '\n' : '');
@@ -50,7 +50,7 @@ export const PLAIN_TEXT_HEADING_TRANSFORMER: KiwimeriTransformer = {
 
 export const PLAIN_TEXT_LINEBREAK_TRANSFORMER: KiwimeriTransformer = {
   type: 'linebreak',
-  transform: function (text: string, opts): string {
+  transform: function (text: string, ctx, opts): string {
     return linebreak(opts);
   }
 };
@@ -61,7 +61,7 @@ export const PLAIN_TEXT_QUOTE_TRANSFORMER: KiwimeriTransformer = {
     // check if it's the last children
     if (ctx.parent && 'children' in ctx.parent) {
       const parent = ctx.parent as SerializedElementNode;
-      const idx = parent.children.findIndex(child => child === ctx.node);
+      const idx = parent.children.findIndex(child => child === ctx.elementNode);
       if (
         idx < parent.children.length - 1 &&
         parent.children[idx + 1].type === 'quote'
@@ -75,7 +75,7 @@ export const PLAIN_TEXT_QUOTE_TRANSFORMER: KiwimeriTransformer = {
 
 export const PLAIN_TEXT_LIST_TRANSFORMER: KiwimeriTransformer = {
   type: 'listitem',
-  transform: function (text: string, opts): string {
+  transform: function (text: string, ctx, opts): string {
     return linebreak(opts);
   }
 };
