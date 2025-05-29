@@ -77,7 +77,17 @@ describe('format conversion service', () => {
         );
         const markdown = formatterService.getMarkdownFromLexical(json);
         expect(markdown).toBe(expected);
-        // expect(markdown).toBe(JSON.stringify(JSON.parse(json)));
+      });
+
+      it.todo(`should generate lexical from markdown (${name})`, async () => {
+        const json = await readFile(
+          `${__dirname}/${name}/${name}.json`,
+          'utf8'
+        );
+        const markdown = formatterService.getMarkdownFromLexical(json);
+        expect(formatterService.getLexicalFromMarkdown(markdown)).toBe(
+          JSON.stringify(JSON.parse(json))
+        );
       });
     });
   });

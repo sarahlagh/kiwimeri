@@ -120,13 +120,30 @@ export const MARKDOWN_HRULE_TRANSFORMER: KiwimeriTransformer = {
 
 export const MARKDOWN_QUOTE_TRANSFORMER: KiwimeriTransformer = {
   type: 'quote',
-  preTransform: function (fullstr: string): string {
-    return fullstr + '> ';
+  preTransform: function (
+    fullstr: string,
+    ctx: KiwimeriTransformerCtx
+  ): string {
+    const format = ctx.node.format as ElementFormatType;
+    switch (format) {
+      case '':
+        return fullstr + '> ';
+      default:
+        return fullstr + `> <p style="text-align: ${format};">`;
+    }
   },
   postTransform: function (
     fullstr: string,
     ctx: KiwimeriTransformerCtx
   ): string {
+    const format = ctx.node.format as ElementFormatType;
+    let close = '';
+    switch (format) {
+      case '':
+        break;
+      default:
+        close = '</p>';
+    }
     // check if it's the last children
     if (ctx.parent && 'children' in ctx.parent) {
       const parent = ctx.parent as SerializedElementNode;
@@ -135,10 +152,10 @@ export const MARKDOWN_QUOTE_TRANSFORMER: KiwimeriTransformer = {
         idx < parent.children.length - 1 &&
         parent.children[idx + 1].type === 'quote'
       ) {
-        return fullstr + '\n';
+        return fullstr + close + '\n';
       }
     }
-    return fullstr + '\n\n';
+    return fullstr + close + '\n\n';
   }
 };
 
@@ -191,7 +208,7 @@ export const MARKDOWN_TRANSFORMERS: KiwimeriTransformer[] = [
 export class MarkdownFormatter extends KiwimeriFormatter {
   constructor(protected transformers: KiwimeriTransformer[]) {
     super([]);
-    this.transformers = [...MARKDOWN_TRANSFORMERS, ...transformers];
+    this.transformers = [...transformers, ...MARKDOWN_TRANSFORMERS];
   }
 }
 
