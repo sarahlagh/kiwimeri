@@ -1,14 +1,19 @@
 import { SerializedElementNode, SerializedLexicalNode } from 'lexical';
 
 export type KiwimeriTransformerCtx = {
-  node: SerializedElementNode;
+  node: SerializedLexicalNode;
+  elementNode?: SerializedElementNode;
   parent: SerializedLexicalNode | null;
 };
 
 export type KiwimeriTransformer = {
   type: string;
-  handles?: (node: SerializedLexicalNode) => boolean;
-  transform?: (text: string, opts?: unknown) => string;
+  handles?: (ctx: KiwimeriTransformerCtx) => boolean;
+  transform?: (
+    text: string,
+    ctx: KiwimeriTransformerCtx,
+    opts?: unknown
+  ) => string;
   preTransform?: (
     fullstr: string,
     ctx: KiwimeriTransformerCtx,
@@ -30,35 +35,77 @@ export abstract class KiwimeriFormatter {
     opts?: unknown
   ) {
     let text = '';
-    const transformer = this.transformers.find(
+    const transformers = this.transformers.filter(
       ({ type, handles }) =>
-        type === node.type && (handles ? handles(node) : true)
+        type === node.type && (handles ? handles({ node, parent }) : true)
     );
+    const ctx: KiwimeriTransformerCtx = {
+      node,
+      parent
+    };
+
     if ('children' in node) {
       const elementNode = node as SerializedElementNode;
-      const ctx: KiwimeriTransformerCtx = {
-        node: elementNode,
-        parent
-      };
-      if (transformer?.preTransform) {
-        text = transformer.preTransform(text, ctx, opts);
-      }
+      ctx.elementNode = elementNode;
+      text = this.applyTransformersOnNode(
+        transformers,
+        'preTransform',
+        ctx,
+        text,
+        opts
+      );
       elementNode.children.forEach(child => {
         text += this.stringifyLexNode(elementNode, child, opts);
       });
-      if (transformer?.postTransform) {
-        text = transformer.postTransform(text, ctx, opts);
-      }
+      text = this.applyTransformersOnNode(
+        transformers,
+        'postTransform',
+        ctx,
+        text,
+        opts
+      );
     }
     if ('text' in node) {
-      if (transformer?.transform) {
-        text += transformer.transform(node.text as string, opts);
-      } else {
-        text += node.text;
-      }
-    } else if (transformer?.transform) {
-      text += transformer.transform('', opts);
+      text += this.applyTransformers(
+        transformers,
+        ctx,
+        node.text as string,
+        opts
+      );
+    } else {
+      text += this.applyTransformers(transformers, ctx, '', opts);
     }
     return text;
+  }
+
+  private applyTransformers(
+    transformers: KiwimeriTransformer[],
+    ctx: KiwimeriTransformerCtx,
+    text: string,
+    opts?: unknown
+  ) {
+    let newText = text;
+    transformers.forEach(transformer => {
+      if (transformer.transform) {
+        newText = transformer.transform(newText, ctx, opts);
+      }
+    });
+    return newText;
+  }
+
+  private applyTransformersOnNode(
+    transformers: KiwimeriTransformer[],
+    method: 'preTransform' | 'postTransform',
+    ctx: KiwimeriTransformerCtx,
+    text: string,
+    opts?: unknown
+  ) {
+    let newText = text;
+    transformers.forEach(transformer => {
+      if (method in transformer && transformer[method]) {
+        newText = transformer[method](newText, ctx, opts);
+      }
+    });
+    return newText;
   }
 }
