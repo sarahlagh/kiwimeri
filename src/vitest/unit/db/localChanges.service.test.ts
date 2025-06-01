@@ -36,7 +36,7 @@ describe('local changes service', () => {
     const id = collectionService.addDocument(ROOT_FOLDER);
     collectionService.setItemTitle(id, 'new title');
     collectionService.setItemTitle(id, 'new title 2');
-    collectionService.setItemContent(id, 'new content');
+    collectionService.setItemField(id, 'content', 'new content');
     const localChanges = localChangesService.getLocalChanges();
     expect(localChanges).toHaveLength(2);
     const lc = getNonNotebookLocalChanges(localChanges)[0];
@@ -52,7 +52,7 @@ describe('local changes service', () => {
     collectionService.setItemTitle(id, 'new title');
     collectionService.setItemTitle(id, 'new title 2');
     collectionService.setItemTitle(id, 'new title 3');
-    collectionService.setItemContent(id, 'new content');
+    collectionService.setItemField(id, 'content', 'new content');
     const localChanges = localChangesService.getLocalChanges();
 
     expect(localChanges).toHaveLength(2);
@@ -65,7 +65,7 @@ describe('local changes service', () => {
     const id = collectionService.addDocument(ROOT_FOLDER);
     collectionService.setItemTitle(id, 'new title');
     collectionService.setItemTitle(id, 'new title 2');
-    collectionService.setItemContent(id, 'new content');
+    collectionService.setItemField(id, 'content', 'new content');
     collectionService.deleteItem(id);
     const localChanges = localChangesService.getLocalChanges();
     expect(localChanges).toHaveLength(1);
@@ -80,7 +80,7 @@ describe('local changes service', () => {
 
     collectionService.setItemTitle(id, 'new title');
     collectionService.setItemTitle(id, 'new title 2');
-    collectionService.setItemContent(id, 'new content');
+    collectionService.setItemField(id, 'content', 'new content');
     collectionService.deleteItem(id);
 
     const localChanges = localChangesService.getLocalChanges();

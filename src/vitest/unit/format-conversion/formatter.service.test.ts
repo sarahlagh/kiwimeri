@@ -3,20 +3,6 @@ import { readFile } from 'fs/promises';
 import { describe, it } from 'vitest';
 
 describe('format conversion service', () => {
-  it('should generate plain text from html', () => {
-    expect(
-      formatterService.getPlainPreview('<html><i>italic text</i> yo</html>')
-    ).toBe('italic text yo');
-
-    expect(
-      formatterService.getPlainPreview('<html><i>italic text</i> yo<br></html>')
-    ).toBe('italic text yo\n');
-
-    expect(
-      formatterService.getPlainPreview('<html><p>italic text</p> yo<br></html>')
-    ).toBe('italic text\n yo\n');
-  });
-
   const exemples = [
     { name: 'text' },
     {

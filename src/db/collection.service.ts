@@ -7,8 +7,11 @@ import {
   CollectionItemUpdatableFieldEnum,
   setFieldMeta
 } from '@/collection/collection';
+import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
 import { getGlobalTrans } from '@/config';
 import { FAKE_ROOT, ROOT_FOLDER } from '@/constants';
+import formatterService from '@/format-conversion/formatter.service';
+import { SerializedEditorState } from 'lexical';
 import { getUniqueId } from 'tinybase/common';
 import { Id } from 'tinybase/common/with-schemas';
 import { Table } from 'tinybase/store';
@@ -370,12 +373,20 @@ class CollectionService {
     );
   }
 
-  public setItemContent(rowId: Id, content: string, html: string = '') {
+  public setItemLexicalContent(rowId: Id, content: SerializedEditorState) {
     storageService.getSpace().transaction(() => {
-      this.setItemField(rowId, 'content', content);
+      console.debug('content', JSON.stringify(content));
+      this.setItemField(rowId, 'content', minimizeContentForStorage(content));
       storageService
         .getSpace()
-        .setCell('collection', rowId, 'preview', this.getPreview(html));
+        .setCell(
+          'collection',
+          rowId,
+          'preview',
+          formatterService
+            .getPlainTextFromLexical(JSON.stringify(content))
+            .substring(0, 80)
+        );
     });
   }
 
@@ -490,14 +501,6 @@ class CollectionService {
     if (key !== 'parent' || type === CollectionItemType.page) {
       this.updateParentUpdatedRecursive(this.getItemParent(rowId));
     }
-  }
-
-  private getPreview(html: string) {
-    return html
-      .replaceAll('</p>', '\n')
-      .replaceAll('<br>', '\n')
-      .replaceAll(/<[^>]*>/g, '')
-      .substring(0, 80);
   }
 
   public getItemField(rowId: Id, key: CollectionItemFieldEnum) {
