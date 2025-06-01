@@ -19,14 +19,14 @@ describe('lexical content compression', () => {
     let avg = 0;
     for (let i = 0; i < N; i++) {
       const a = Date.now();
-      minimizeContentForStorage(content);
+      minimizeContentForStorage(JSON.parse(content));
       const b = Date.now();
       avg += b - a;
     }
     avg = avg / N;
     console.log('avg time to minimize', avg);
 
-    const minimized = minimizeContentForStorage(content);
+    const minimized = minimizeContentForStorage(JSON.parse(content));
     avg = 0;
     for (let i = 0; i < N; i++) {
       const a = Date.now();
@@ -75,7 +75,7 @@ describe('lexical content compression', () => {
     }
   ].forEach(({ content, name }) => {
     it(`should minimize then restore ${name}`, () => {
-      const minimized = minimizeContentForStorage(content);
+      const minimized = minimizeContentForStorage(JSON.parse(content));
       expect(minimized.length).toBeLessThanOrEqual(content.length);
       const compressionRate =
         ((content.length - minimized.length) / content.length) * 100;

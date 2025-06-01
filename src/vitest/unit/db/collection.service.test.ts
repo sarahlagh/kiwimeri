@@ -1,4 +1,5 @@
 import { CollectionItemType, parseFieldMeta } from '@/collection/collection';
+import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
 import { ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
@@ -13,6 +14,14 @@ import {
   markAsConflict,
   UPDATABLE_FIELDS
 } from '../../setup/test.utils';
+
+const shortContent = JSON.parse(
+  '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"This is a short content","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}'
+);
+
+const loremIpsum = JSON.parse(
+  '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"\\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum\\"","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}'
+);
 
 describe('collection service', () => {
   beforeEach(() => {
@@ -328,18 +337,12 @@ describe('collection service', () => {
           const id = collectionService.addDocument(ROOT_FOLDER);
           expect(getCollectionItem(id).preview).toBe('');
 
-          collectionService.setItemContent(
-            id,
-            'This is a <u>short</u> content',
-            'This is a <u>short</u> content'
-          );
+          collectionService.setItemLexicalContent(id, shortContent);
           expect(getCollectionItem(id).preview).toBe('This is a short content');
 
-          const loremIpsum =
-            '"<p>Lorem <i>ipsum</i> dolor<br> sit amet</p>, <b>consectetur</b> adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."';
-          collectionService.setItemContent(id, loremIpsum, loremIpsum);
+          collectionService.setItemLexicalContent(id, loremIpsum);
           expect(getCollectionItem(id).preview).toBe(
-            '"Lorem ipsum dolor\n sit amet\n, consectetur adipiscing elit, sed do eiusmod tempo'
+            '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor '
           );
         });
 
@@ -463,9 +466,9 @@ describe('collection service', () => {
       const docId = collectionService.addDocument(ROOT_FOLDER);
       const id = collectionService.addPage(docId);
       vi.advanceTimersByTime(100);
-      collectionService.setItemContent(id, 'test');
+      collectionService.setItemLexicalContent(id, shortContent);
       const item = getCollectionItem(id);
-      expect(item.content).toBe('test');
+      expect(item.content).toBe(minimizeContentForStorage(shortContent));
       expect(item.created).toBeLessThan(item.updated);
       const meta = parseFieldMeta(item.content_meta!);
       expect(meta.u).toBe(item.updated);
@@ -479,9 +482,9 @@ describe('collection service', () => {
       const docId = collectionService.addDocument(folderId3);
       const id = collectionService.addPage(docId);
       vi.advanceTimersByTime(100);
-      collectionService.setItemContent(id, 'test');
+      collectionService.setItemLexicalContent(id, shortContent);
       const item = getCollectionItem(id);
-      expect(item.content).toBe('test');
+      expect(item.content).toBe(minimizeContentForStorage(shortContent));
       expect(item.created).toBeLessThan(item.updated);
       const meta = parseFieldMeta(item.content_meta!);
       expect(meta.u).toBe(item.updated);
@@ -500,18 +503,12 @@ describe('collection service', () => {
       const id = collectionService.addPage(docId);
       expect(getCollectionItem(id).preview).toBe('');
 
-      collectionService.setItemContent(
-        id,
-        'This is a <u>short</u> content',
-        'This is a <u>short</u> content'
-      );
+      collectionService.setItemLexicalContent(id, shortContent);
       expect(getCollectionItem(id).preview).toBe('This is a short content');
 
-      const loremIpsum =
-        '"Lorem <i>ipsum</i> dolor<br> sit amet, <b>consectetur</b> adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."';
-      collectionService.setItemContent(id, loremIpsum, loremIpsum);
+      collectionService.setItemLexicalContent(id, loremIpsum);
       expect(getCollectionItem(id).preview).toBe(
-        '"Lorem ipsum dolor\n sit amet, consectetur adipiscing elit, sed do eiusmod tempor'
+        '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor '
       );
     });
 

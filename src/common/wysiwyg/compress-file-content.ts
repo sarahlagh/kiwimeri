@@ -1,3 +1,4 @@
+import { SerializedEditorState } from 'lexical';
 import { minimizeKeys, unminimizeKeys } from '../utils';
 
 const keys = [
@@ -52,8 +53,8 @@ keywords.forEach(([v1, v2]) => {
   keywordsMapReverse.set(v2, v1);
 });
 
-export const minimizeContentForStorage = (json: string) => {
-  return JSON.stringify(minimizeKeys(JSON.parse(json), keysMap, keywordsMap));
+export const minimizeContentForStorage = (obj: SerializedEditorState) => {
+  return JSON.stringify(minimizeKeys(obj, keysMap, keywordsMap));
 };
 
 export const unminimizeContentFromStorage = (json: string) => {

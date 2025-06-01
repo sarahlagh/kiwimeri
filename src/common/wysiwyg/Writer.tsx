@@ -2,10 +2,10 @@ import { PagePreview } from '@/collection/collection';
 import platformService from '@/common/services/platform.service';
 import collectionService from '@/db/collection.service';
 import { CodeNode } from '@lexical/code';
-import { $generateHtmlFromNodes } from '@lexical/html';
 import { LinkNode } from '@lexical/link';
 import { ListItemNode, ListNode } from '@lexical/list';
 import { MarkNode } from '@lexical/mark';
+import { TRANSFORMERS } from '@lexical/markdown';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
@@ -21,8 +21,7 @@ import { SelectionAlwaysOnDisplay } from '@lexical/react/LexicalSelectionAlwaysO
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import { useLingui } from '@lingui/react/macro';
-import React, { useEffect, useState } from 'react';
-import { minimizeContentForStorage } from './compress-file-content';
+import React, { useState } from 'react';
 import DebugTreeViewPlugin from './lexical/DebugTreeViewPlugin';
 import KiwimeriReloadContentPlugin from './lexical/KiwimeriReloadContentPlugin';
 import KiwimeriToolbarPlugin from './lexical/KiwimeriToolbarPlugin';
@@ -52,13 +51,8 @@ const Writer = (
 ) => {
   const { t } = useLingui();
   const placeholder = t`Text...`;
-  const [hasUserChanges, setHasUserChanges] = useState(false);
   const [showPageBrowser, setShowPageBrowser] = useState(true);
   const hasPages = pages?.length || 0 > 0;
-
-  useEffect(() => {
-    setHasUserChanges(false);
-  }, [id]);
 
   return (
     <LexicalComposer
@@ -96,21 +90,8 @@ const Writer = (
       <KiwimeriReloadContentPlugin id={id} content={content} />
       <OnChangePlugin
         ignoreSelectionChange
-        onChange={(editorState, editor) => {
-          if (hasUserChanges) {
-            const changes = JSON.stringify(editorState.toJSON());
-            const minimized = minimizeContentForStorage(changes);
-            editorState.read(() => {
-              collectionService.setItemContent(
-                id,
-                minimized,
-                $generateHtmlFromNodes(editor)
-              );
-            });
-          }
-          if (!hasUserChanges) {
-            setHasUserChanges(true);
-          }
+        onChange={editorState => {
+          collectionService.setItemLexicalContent(id, editorState.toJSON());
         }}
       />
       <HistoryPlugin />
@@ -119,7 +100,7 @@ const Writer = (
       <HorizontalRulePlugin />
       <TabIndentationPlugin />
       <SelectionAlwaysOnDisplay />
-      <MarkdownShortcutPlugin />
+      <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
 
       {hasPages && showPageBrowser && (
         <KiwimeriPagesBrowserPlugin

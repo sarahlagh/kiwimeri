@@ -238,7 +238,7 @@ msgstr "Synchronize your collection on the filesystem"
 msgid "Syncing is disabled on the web version."
 msgstr "Syncing is disabled on the web version."
 
-#: src/common/wysiwyg/Writer.tsx:54
+#: src/common/wysiwyg/Writer.tsx:53
 msgid "Text..."
 msgstr "Text..."
 
