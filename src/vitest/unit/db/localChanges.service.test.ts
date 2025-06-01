@@ -5,7 +5,11 @@ import localChangesService from '@/db/localChanges.service';
 import notebooksService from '@/db/notebooks.service';
 import { LocalChange, LocalChangeType } from '@/db/types/store-types';
 import { it } from 'vitest';
-import { getLocalItemField, markAsConflict } from '../../setup/test.utils';
+import {
+  GET_UPDATABLE_FIELDS,
+  getLocalItemField,
+  markAsConflict
+} from '../../setup/test.utils';
 
 const getNonNotebookLocalChanges = (localChanges: LocalChange[]) =>
   localChanges.filter(lc => lc.item !== notebooksService.getCurrentNotebook());
@@ -99,5 +103,18 @@ describe('local changes service', () => {
     const localChanges = localChangesService.getLocalChanges();
     expect(localChanges).toHaveLength(1);
     expect(localChanges[0].change).toBe('a');
+  });
+
+  it(`should not add local changes if the value doesn't change`, () => {
+    const id = collectionService.addDocument(ROOT_FOLDER);
+    localChangesService.clear();
+
+    GET_UPDATABLE_FIELDS('document').forEach(({ field }) => {
+      const current = collectionService.getItemField(id, field);
+      collectionService.setItemField(id, field, current!);
+    });
+
+    const localChanges = localChangesService.getLocalChanges();
+    expect(localChanges).toHaveLength(0);
   });
 });

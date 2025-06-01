@@ -375,7 +375,6 @@ class CollectionService {
 
   public setItemLexicalContent(rowId: Id, content: SerializedEditorState) {
     storageService.getSpace().transaction(() => {
-      console.debug('content', JSON.stringify(content));
       this.setItemField(rowId, 'content', minimizeContentForStorage(content));
       storageService
         .getSpace()
@@ -471,6 +470,10 @@ class CollectionService {
     key: CollectionItemUpdatableFieldEnum,
     value: string | boolean | number
   ) {
+    const current = this.getItemField(rowId, key);
+    if (current === value) {
+      return; // don't add unnecessary changes
+    }
     const updated = Date.now();
     const type = this.getItemType(rowId);
     storageService.getSpace().transaction(() => {
