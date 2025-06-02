@@ -1,32 +1,9 @@
 import formatterService from '@/format-conversion/formatter.service';
 import { readFile } from 'fs/promises';
 import { describe, it } from 'vitest';
+import { exemples } from './examples';
 
 describe('format conversion service', () => {
-  const exemples = [
-    { name: 'text' },
-    {
-      name: 'simple'
-    },
-    {
-      name: 'paragraph'
-    },
-    {
-      name: 'header'
-    },
-    {
-      name: 'hline'
-    },
-    {
-      name: 'quote'
-    },
-    { name: 'lists' },
-    { name: 'text-align' },
-    {
-      name: 'everything'
-    }
-  ];
-
   describe('should generate plaintext from lexical', () => {
     exemples.forEach(({ name }) => {
       it(`should generate plaintext from lexical (${name})`, async () => {
@@ -65,15 +42,17 @@ describe('format conversion service', () => {
         expect(markdown).toBe(expected);
       });
 
-      it.todo(`should generate lexical from markdown (${name})`, async () => {
+      it(`should generate lexical from markdown (${name})`, async () => {
         const json = await readFile(
           `${__dirname}/${name}/${name}.json`,
           'utf8'
         );
-        const markdown = formatterService.getMarkdownFromLexical(json);
-        expect(formatterService.getLexicalFromMarkdown(markdown)).toBe(
-          JSON.stringify(JSON.parse(json))
+        const markdown = await readFile(
+          `${__dirname}/${name}/${name}.md`,
+          'utf8'
         );
+        const lexical = formatterService.getLexicalFromMarkdown(markdown);
+        expect(lexical).toEqual(JSON.parse(json));
       });
     });
   });
