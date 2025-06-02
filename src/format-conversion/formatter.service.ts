@@ -5,6 +5,8 @@ import {
   PLAIN_TEXT_FORMATTER,
   PlainTextFormatterOpts
 } from './formatters/plain-text-formatter';
+import { KiwimeriParser } from './parser';
+import { MARKDOWN_PARSER } from './parsers/markdown-parser';
 
 class FormatterService {
   public getFromLexical(
@@ -14,7 +16,7 @@ class FormatterService {
   ) {
     try {
       const obj: SerializedEditorState = JSON.parse(lex);
-      return formatter.stringifyLexNode(null, obj.root, opts);
+      return formatter.parseLexNode(null, obj.root, opts);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       return lex;
@@ -29,9 +31,16 @@ class FormatterService {
     return this.getFromLexical(lex, MARKDOWN_FORMATTER);
   }
 
-  // TODO
+  public getLexicalFromOther(
+    text: string,
+    parser: KiwimeriParser,
+    opts?: unknown
+  ): SerializedEditorState {
+    return parser.parse(text, opts).obj!; // TODO handle errors
+  }
+
   public getLexicalFromMarkdown(markdown: string) {
-    return markdown;
+    return this.getLexicalFromOther(markdown, MARKDOWN_PARSER);
   }
 }
 

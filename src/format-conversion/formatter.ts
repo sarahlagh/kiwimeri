@@ -29,7 +29,7 @@ export type KiwimeriTransformer = {
 export abstract class KiwimeriFormatter {
   constructor(protected transformers: KiwimeriTransformer[]) {}
 
-  public stringifyLexNode(
+  public parseLexNode(
     parent: SerializedLexicalNode | null,
     node: SerializedLexicalNode,
     opts?: unknown
@@ -55,7 +55,7 @@ export abstract class KiwimeriFormatter {
         opts
       );
       elementNode.children.forEach(child => {
-        text += this.stringifyLexNode(elementNode, child, opts);
+        text += this.parseLexNode(elementNode, child, opts);
       });
       text = this.applyTransformersOnNode(
         transformers,
