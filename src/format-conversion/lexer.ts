@@ -1,16 +1,14 @@
-export type KiwimeriLexerBlock = {
-  token: string;
-};
+import { KiwimeriParserBlock } from './parser';
 
-export type KiwimeriLexerText = {
+export type KiwimeriLexerResponse = {
   token: string;
 };
 
 export abstract class KiwimeriLexer {
   protected blockIdx = 0;
   protected textIdx = 0;
-  protected tempBlock?: KiwimeriLexerBlock | null;
-  protected tempText?: KiwimeriLexerText | null;
+  protected tempBlock?: KiwimeriLexerResponse | null;
+  protected tempText?: KiwimeriLexerResponse | null;
 
   constructor(
     protected text: string,
@@ -18,12 +16,12 @@ export abstract class KiwimeriLexer {
   ) {}
 
   /** blocks: paragraph, quote, heading, list, horizontalrule */
-  protected abstract _nextBlock(): KiwimeriLexerBlock | null;
-  public nextBlock(): KiwimeriLexerBlock | null {
+  protected abstract _nextBlock(): KiwimeriLexerResponse | null;
+  public nextBlock(): KiwimeriLexerResponse | null {
     this.tempBlock = this._nextBlock();
     return this.tempBlock;
   }
-  public consumeBlock(): KiwimeriLexerBlock | null {
+  public consumeBlock(): KiwimeriLexerResponse | null {
     const block =
       this.tempBlock !== undefined ? this.tempBlock : this.nextBlock();
     if (block === null || block.token.length === 0) {
@@ -36,12 +34,14 @@ export abstract class KiwimeriLexer {
   }
 
   /** texts: text, linebreak, listitem */
-  protected abstract _nextText(block: string): KiwimeriLexerText | null;
-  public nextText(block: string): KiwimeriLexerText | null {
+  protected abstract _nextText(
+    block: KiwimeriParserBlock
+  ): KiwimeriLexerResponse | null;
+  public nextText(block: KiwimeriParserBlock): KiwimeriLexerResponse | null {
     this.tempText = this._nextText(block);
     return this.tempText;
   }
-  public consumeText(block: string): KiwimeriLexerText | null {
+  public consumeText(block: KiwimeriParserBlock): KiwimeriLexerResponse | null {
     const token =
       this.tempText !== undefined ? this.tempText : this.nextText(block);
     if (token === null || token.token.length === 0) {

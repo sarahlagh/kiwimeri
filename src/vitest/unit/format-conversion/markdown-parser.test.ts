@@ -44,13 +44,16 @@ describe('parser', () => {
 
           for (let j = 0; j < expectedChild.children.length; j++) {
             const subChild = (child as any).children[j];
-            const subExpectedChild = expectedChild.children[j];
-            if (subExpectedChild.text) {
-              expect((subChild as any).text).toBe(subExpectedChild.text);
+            const expectedSubChild = expectedChild.children[j];
+            if (expectedSubChild.text) {
+              expect((subChild as any).text).toBe(expectedSubChild.text);
             }
-            if (subExpectedChild.children) {
-              expect((subChild as any).children).toBe(
-                subExpectedChild.children
+            if (expectedSubChild.children) {
+              expect((subChild as any).children.length).toBe(
+                expectedSubChild.children.length
+              );
+              expect((subChild as any).children).toEqual(
+                expectedSubChild.children
               );
             }
           }
