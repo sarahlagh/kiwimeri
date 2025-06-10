@@ -33,13 +33,27 @@ describe('parser', () => {
       console.log(JSON.stringify(resp.obj));
       for (let i = 0; i < resp.obj!.root.children.length; i++) {
         const child = resp.obj!.root.children[i];
-        expect(child.type).toBe(expected.root.children[i].type);
-        if (!expected.root.children[i].children) {
+        const expectedChild = expected.root.children[i];
+        expect(child.type).toBe(expectedChild.type);
+        if (!expectedChild.children) {
           expect((child as any).children).toBeUndefined();
         } else {
           expect((child as any).children).toHaveLength(
-            expected.root.children[i].children.length
+            expectedChild.children.length
           );
+
+          for (let j = 0; j < expectedChild.children.length; j++) {
+            const subChild = (child as any).children[j];
+            const subExpectedChild = expectedChild.children[j];
+            if (subExpectedChild.text) {
+              expect((subChild as any).text).toBe(subExpectedChild.text);
+            }
+            if (subExpectedChild.children) {
+              expect((subChild as any).children).toBe(
+                subExpectedChild.children
+              );
+            }
+          }
         }
       }
       expect(resp.obj!.root.children).toHaveLength(
