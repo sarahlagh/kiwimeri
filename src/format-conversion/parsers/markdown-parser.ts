@@ -8,7 +8,7 @@ import {
 
 class MarkdownLexer extends KiwimeriLexer {
   // blocks: paragraph, quote, heading, list, horizontalrule
-  public nextBlock(): KiwimeriLexerBlock | null {
+  protected _nextBlock(): KiwimeriLexerBlock | null {
     if (this.blockIdx > this.text.length - 1) {
       return null;
     }
@@ -80,7 +80,7 @@ class MarkdownLexer extends KiwimeriLexer {
   }
 
   // texts: text, linebreak, listitem
-  public nextText(block: string): KiwimeriLexerText | null {
+  protected _nextText(block: string): KiwimeriLexerText | null {
     if (this.textIdx > block.length - 1) {
       return null;
     }
