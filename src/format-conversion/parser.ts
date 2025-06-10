@@ -6,15 +6,21 @@ import {
   SerializedRootNode,
   SerializedTextNode
 } from 'lexical';
+import { KiwimeriLexer } from './lexer';
 
-export type KiwimeriLexerBlock = {
+export type KiwimeriParserResponse = {
+  obj: SerializedEditorState | null;
+  errors?: string[];
+};
+
+export type KiwimeriParserBlock = {
   text: string;
   token: string;
   type: 'paragraph' | 'quote' | 'heading' | 'list' | 'horizontalrule';
-  format?: ElementFormatType;
+  paragraphAlign?: ElementFormatType;
 };
 
-export type KiwimeriLexerText = {
+export type KiwimeriParserText = {
   text?: string;
   token: string;
   type: 'text' | 'linebreak' | 'listitem';
@@ -22,71 +28,33 @@ export type KiwimeriLexerText = {
   paragraphFormat?: string; //'center' | 'right';
 };
 
-export abstract class KiwimeriLexer {
-  protected blockIdx = 0;
-  protected textIdx = 0;
-  protected tempBlock?: KiwimeriLexerBlock | null;
-  protected tempText?: KiwimeriLexerText | null;
-
-  constructor(
-    protected text: string,
-    protected opts?: unknown
-  ) {}
-
-  /** blocks: paragraph, quote, heading, list, horizontalrule */
-  protected abstract _nextBlock(): KiwimeriLexerBlock | null;
-  public nextBlock(): KiwimeriLexerBlock | null {
-    this.tempBlock = this._nextBlock();
-    return this.tempBlock;
-  }
-  public consumeBlock(): KiwimeriLexerBlock | null {
-    const block =
-      this.tempBlock !== undefined ? this.tempBlock : this.nextBlock();
-    if (block === null || block.token.length === 0) {
-      return null;
-    }
-    this.blockIdx += block.token.length;
-    this.textIdx = 0;
-    this.tempBlock = undefined;
-    return block;
-  }
-
-  /** texts: text, linebreak, listitem */
-  protected abstract _nextText(block: string): KiwimeriLexerText | null;
-  public nextText(block: string): KiwimeriLexerText | null {
-    this.tempText = this._nextText(block);
-    return this.tempText;
-  }
-  public consumeText(block: string): KiwimeriLexerText | null {
-    const token =
-      this.tempText !== undefined ? this.tempText : this.nextText(block);
-    if (token === null || token.token.length === 0) {
-      return null;
-    }
-    this.textIdx += token.token.length;
-    this.tempText = undefined;
-    return token;
-  }
-}
-
-export type KiwimeriParserResponse = {
-  obj: SerializedEditorState | null;
-  errors?: string[];
-};
-
 export abstract class KiwimeriParser {
   constructor() {}
 
   protected abstract getLexer(text: string, opts?: unknown): KiwimeriLexer;
 
-  public parseText(text: string, opts?: unknown): KiwimeriLexerText[] {
+  public tokenizeAndParseText(
+    text: string,
+    opts?: unknown
+  ): KiwimeriParserText[] {
     const lexer = this.getLexer(text, opts);
-    const texts: KiwimeriLexerText[] = [];
+    const texts: KiwimeriParserText[] = [];
     while (lexer.nextText(text) !== null) {
-      texts.push(lexer.consumeText(text)!);
+      const { token } = lexer.consumeText(text)!;
+      texts.push(this.parseText(token, opts));
     }
     return texts;
   }
+
+  protected abstract parseText(
+    token: string,
+    opts?: unknown
+  ): KiwimeriParserText;
+
+  protected abstract parseBlock(
+    token: string,
+    opts?: unknown
+  ): KiwimeriParserBlock;
 
   public parse(text: string, opts?: unknown): KiwimeriParserResponse {
     const root: SerializedRootNode = {
@@ -101,19 +69,21 @@ export abstract class KiwimeriParser {
     const lexer = this.getLexer(text, opts);
 
     while (lexer.nextBlock() !== null) {
-      const block = lexer.consumeBlock()!;
+      const { token } = lexer.consumeBlock()!;
+      const block = this.parseBlock(token);
       const elementNode = this.handleBlock(block);
       console.log('block', block);
       if ('children' in elementNode) {
         while (lexer.nextText(block.text) !== null) {
-          const blockText = lexer.consumeText(block.text);
+          const lexerText = lexer.consumeText(block.text);
+          const blockText = this.parseText(lexerText!.token);
           console.log('text', blockText);
           const child: SerializedLexicalNode = this.handleText(
             blockText!,
             block
           );
-          if (block.format) {
-            elementNode.format = block.format;
+          if (block.paragraphAlign) {
+            elementNode.format = block.paragraphAlign;
           }
           // special case for lists
           // if (blockText?.type === 'listitem' && blockText.text) {
@@ -138,7 +108,7 @@ export abstract class KiwimeriParser {
   }
 
   private handleBlock(
-    block: KiwimeriLexerBlock
+    block: KiwimeriParserBlock
   ): SerializedLexicalNode | SerializedElementNode {
     const node: SerializedLexicalNode = {
       type: block.type,
@@ -156,8 +126,8 @@ export abstract class KiwimeriParser {
   }
 
   private handleText(
-    lexerText: KiwimeriLexerText,
-    block?: KiwimeriLexerBlock | KiwimeriLexerText
+    lexerText: KiwimeriParserText,
+    block?: KiwimeriParserBlock | KiwimeriParserText
   ): SerializedLexicalNode {
     const node: SerializedLexicalNode = {
       type: lexerText.type,
@@ -170,7 +140,7 @@ export abstract class KiwimeriParser {
     // special case for lists
     if (node.type === 'listitem' && lexerText.text) {
       (node as SerializedElementNode).children = [];
-      const lexem = this.parseText(lexerText.text);
+      const lexem = this.tokenizeAndParseText(lexerText.text);
       lexem.forEach(lex => {
         (node as SerializedElementNode).children.push(
           this.handleText(lex, lexerText)
@@ -178,7 +148,8 @@ export abstract class KiwimeriParser {
       });
     }
     if (block && lexerText.paragraphFormat) {
-      block.format = lexerText.paragraphFormat as ElementFormatType; // TODO handle error
+      (block as KiwimeriParserBlock).paragraphAlign =
+        lexerText.paragraphFormat as ElementFormatType; // TODO handle error
     }
     return node;
   }
