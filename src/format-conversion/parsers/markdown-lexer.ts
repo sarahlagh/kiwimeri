@@ -1,8 +1,9 @@
-import { KiwimeriLexer, KiwimeriLexerBlock, KiwimeriLexerText } from '../lexer';
+import { KiwimeriLexer, KiwimeriLexerResponse } from '../lexer';
+import { KiwimeriParserBlock } from '../parser';
 
 export class MarkdownLexer extends KiwimeriLexer {
   // blocks: paragraph, quote, heading, list, horizontalrule
-  protected _nextBlock(): KiwimeriLexerBlock | null {
+  protected _nextBlock(): KiwimeriLexerResponse | null {
     if (this.blockIdx > this.text.length - 1) {
       return null;
     }
@@ -11,17 +12,15 @@ export class MarkdownLexer extends KiwimeriLexer {
     // heading
     const heading = nextBlock.match(/^(#+)/g);
     if (heading) {
-      const token = this.endOfBlock(nextBlock);
       return {
-        token
+        token: this.endOfBlock(nextBlock)
       };
     }
 
     // quote
     if (nextBlock.startsWith('>')) {
-      const token = this.endOfBlock(nextBlock);
       return {
-        token
+        token: this.endOfBlock(nextBlock)
       };
     }
 
@@ -34,9 +33,8 @@ export class MarkdownLexer extends KiwimeriLexer {
 
     // list
     if (nextBlock.startsWith('- ') || nextBlock.match(/^\d+\. /g)) {
-      const token = this.endOfBlock(nextBlock, true);
       return {
-        token
+        token: this.endOfBlock(nextBlock, true)
       };
     }
 
@@ -46,17 +44,16 @@ export class MarkdownLexer extends KiwimeriLexer {
         token: '\n'
       };
     }
+
     if (nextBlock.match(/^<p [^>]*><\/p>\n+/g)) {
-      const token = this.endOfBlock(nextBlock);
       return {
-        token
+        token: this.endOfBlock(nextBlock)
       };
     }
 
     // the default block: paragraph
-    const token = this.endOfBlock(nextBlock, true);
     return {
-      token
+      token: this.endOfBlock(nextBlock, true)
     };
   }
 
@@ -79,12 +76,29 @@ export class MarkdownLexer extends KiwimeriLexer {
     }
   }
 
+  private endOfListItem(nextBlock: string) {
+    let line = this.endOfBlock(nextBlock);
+    // does line have a line break? if yes merge as single token
+    let hasIndentNext = nextBlock
+      .substring(line.length)
+      .match(/^[ \t]+[^ \t\n]+/g);
+    while (hasIndentNext) {
+      line += this.endOfBlock(nextBlock.substring(line.length));
+      hasIndentNext = nextBlock
+        .substring(line.length)
+        .match(/^[ \t]+[^ \t\n]+/g);
+    }
+    return line;
+  }
+
   // texts: text, linebreak, listitem
-  protected _nextText(block: string): KiwimeriLexerText | null {
-    if (this.textIdx > block.length - 1) {
+  protected _nextText(
+    block: KiwimeriParserBlock
+  ): KiwimeriLexerResponse | null {
+    if (this.textIdx > block.text.length - 1) {
       return null;
     }
-    const nextText = block.substring(this.textIdx);
+    const nextText = block.text.substring(this.textIdx);
     if (nextText.trimEnd().length === 0) {
       return null;
     }
@@ -118,38 +132,28 @@ export class MarkdownLexer extends KiwimeriLexer {
       };
     }
     if (nextText.startsWith('<p')) {
-      //   const endOfOpeningTag = nextText.indexOf('>');
       const endOfText = nextText.indexOf('</p>');
       const token = nextText.substring(0, endOfText + 4);
-      //   const textAlign = /text-align: ([a-z]+);/g.exec(token);
-      //   let paragraphFormat: string | undefined = undefined;
-      //   if (textAlign && textAlign.length > 0) {
-      //     paragraphFormat = textAlign[1];
-      //   }
       return {
-        // text: token.substring(endOfOpeningTag + 1, token.length - 4),
-        // type: 'text',
-        // format: 0,
         token
-        // paragraphFormat
-      };
-    }
-    if (nextText.startsWith('\n') && !nextText.startsWith('\n\n')) {
-      return {
-        token: '\n'
       };
     }
     if (nextText.startsWith('-')) {
-      const token = this.endOfBlock(nextText);
+      const token = this.endOfListItem(nextText);
       return {
         token
       };
     }
     const numberedList = nextText.match(/^\d+\./g);
     if (numberedList) {
-      const token = this.endOfBlock(nextText);
+      const token = this.endOfListItem(nextText);
       return {
         token
+      };
+    }
+    if (nextText.startsWith('\n') && !nextText.startsWith('\n\n')) {
+      return {
+        token: '\n'
       };
     }
     // TODO what of escaped *~< ?

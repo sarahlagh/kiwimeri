@@ -74,7 +74,14 @@ export class MarkdownParser extends KiwimeriParser {
     };
   }
 
-  protected parseText(token: string): KiwimeriParserText {
+  protected parseText(
+    token: string,
+    block: KiwimeriParserBlock
+  ): KiwimeriParserText {
+    const indent = token.match(/^[ \t]+[^ \t\n]+/g);
+    if (block.type === 'list' && indent) {
+      token = token.trimStart();
+    }
     // TODO not gonna work with nested styles but anyway...
     // TODO handle alternatives (** and __)
     if (token.startsWith('**')) {
