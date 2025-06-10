@@ -1,7 +1,7 @@
 import { MarkdownParser } from '@/format-conversion/parsers/markdown-parser';
 import { readFile } from 'fs/promises';
 import { describe, it } from 'vitest';
-import { exemples } from './examples';
+import { examples } from './examples';
 
 describe('parser', () => {
   it(`should parse`, async () => {
@@ -15,7 +15,7 @@ describe('parser', () => {
     expect(resp.obj!.root.children).toHaveLength(5);
   });
 
-  exemples.forEach(({ name }) => {
+  examples.forEach(({ name }) => {
     it(`should parse ${name} example`, async () => {
       const parser = new MarkdownParser();
 

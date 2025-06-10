@@ -1,11 +1,11 @@
 import formatterService from '@/format-conversion/formatter.service';
 import { readFile } from 'fs/promises';
 import { describe, it } from 'vitest';
-import { exemples } from './examples';
+import { examples } from './examples';
 
 describe('format conversion service', () => {
   describe('should generate plaintext from lexical', () => {
-    exemples.forEach(({ name }) => {
+    examples.forEach(({ name }) => {
       it(`should generate plaintext from lexical (${name})`, async () => {
         const json = await readFile(
           `${__dirname}/${name}/${name}.json`,
@@ -28,7 +28,7 @@ describe('format conversion service', () => {
   });
 
   describe('should generate markdown from lexical', () => {
-    exemples.forEach(({ name }) => {
+    examples.forEach(({ name }) => {
       it(`should generate markdown from lexical (${name})`, async () => {
         const json = await readFile(
           `${__dirname}/${name}/${name}.json`,

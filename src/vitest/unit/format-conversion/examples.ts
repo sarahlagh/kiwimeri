@@ -1,4 +1,4 @@
-export const exemples = [
+export const examples = [
   { name: 'text' },
   {
     name: 'simple'
@@ -17,6 +17,7 @@ export const exemples = [
   },
   { name: 'lists' },
   { name: 'text-align' },
+  { name: 'nested-format' },
   {
     name: 'everything'
   }
