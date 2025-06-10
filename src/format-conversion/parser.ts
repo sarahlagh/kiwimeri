@@ -1,13 +1,25 @@
 import {
+  ElementFormatType,
   SerializedEditorState,
   SerializedElementNode,
   SerializedLexicalNode,
-  SerializedRootNode
+  SerializedRootNode,
+  SerializedTextNode
 } from 'lexical';
 
 export type KiwimeriLexerBlock = {
   text: string;
+  token: string;
   type: 'paragraph' | 'quote' | 'heading' | 'list' | 'horizontalrule';
+  format?: ElementFormatType;
+};
+
+export type KiwimeriLexerText = {
+  text?: string;
+  token: string;
+  type: 'text' | 'linebreak' | 'listitem';
+  format?: number;
+  paragraphFormat?: string; //'center' | 'right';
 };
 
 export abstract class KiwimeriLexer {
@@ -22,21 +34,22 @@ export abstract class KiwimeriLexer {
   public abstract nextBlock(): KiwimeriLexerBlock | null;
   public consumeBlock(): KiwimeriLexerBlock | null {
     const block = this.nextBlock();
-    if (block === null || block.text.length === 0) {
+    if (block === null || block.token.length === 0) {
       return null;
     }
-    this.blockIdx += block.text.length;
+    this.blockIdx += block.token.length;
     this.textIdx = 0;
     return block;
   }
 
-  public abstract nextText(block: string): string | null;
-  public consumeText(block: string): string | null {
+  /** texts: text, linebreak, listitem */
+  public abstract nextText(block: string): KiwimeriLexerText | null;
+  public consumeText(block: string): KiwimeriLexerText | null {
     const token = this.nextText(block);
-    if (token === null || token.length === 0) {
+    if (token === null || token.token.length === 0) {
       return null;
     }
-    this.textIdx += token.length;
+    this.textIdx += token.token.length;
     return token;
   }
 }
@@ -50,6 +63,15 @@ export abstract class KiwimeriParser {
   constructor() {}
 
   protected abstract getLexer(text: string, opts?: unknown): KiwimeriLexer;
+
+  public parseText(text: string, opts?: unknown): KiwimeriLexerText[] {
+    const lexer = this.getLexer(text, opts);
+    const texts: KiwimeriLexerText[] = [];
+    while (lexer.nextText(text) !== null) {
+      texts.push(lexer.consumeText(text)!);
+    }
+    return texts;
+  }
 
   public parse(text: string, opts?: unknown): KiwimeriParserResponse {
     const root: SerializedRootNode = {
@@ -69,9 +91,30 @@ export abstract class KiwimeriParser {
       console.log('block', block);
       if ('children' in elementNode) {
         while (lexer.nextText(block.text) !== null) {
-          const text = lexer.consumeText(block.text);
-          console.log('text', text);
-          elementNode.children.push(this.handleText(text!, block));
+          const blockText = lexer.consumeText(block.text);
+          console.log('text', blockText);
+          const child: SerializedLexicalNode = this.handleText(
+            blockText!,
+            block
+          );
+          if (block.format) {
+            elementNode.format = block.format;
+          }
+          // special case for lists
+          // if (blockText?.type === 'listitem' && blockText.text) {
+          //   const lexem = this.parseText(blockText.text);
+          //   console.log('lexem', lexem);
+          //   lexem.forEach(lex => {
+          //     const subChild: SerializedLexicalNode = this.handleText(
+          //       lex,
+          //       blockText
+          //     );
+
+          //   });
+          //   // while (lexer.nextText())
+          //   // const listText = lexer.consumeText(block.text);
+          // }
+          elementNode.children.push(child);
         }
       }
       root.children.push(elementNode);
@@ -98,13 +141,31 @@ export abstract class KiwimeriParser {
   }
 
   private handleText(
-    text: string,
-    block: KiwimeriLexerBlock
+    lexerText: KiwimeriLexerText,
+    block?: KiwimeriLexerBlock | KiwimeriLexerText
   ): SerializedLexicalNode {
-    return {
-      type: 'text',
+    const node: SerializedLexicalNode = {
+      type: lexerText.type,
       version: 1
     };
+    if (node.type === 'text' && lexerText.text) {
+      (node as SerializedTextNode).text = lexerText.text;
+      (node as SerializedTextNode).format = lexerText.format || 0;
+    }
+    // special case for lists
+    if (node.type === 'listitem' && lexerText.text) {
+      (node as SerializedElementNode).children = [];
+      const lexem = this.parseText(lexerText.text);
+      lexem.forEach(lex => {
+        (node as SerializedElementNode).children.push(
+          this.handleText(lex, lexerText)
+        );
+      });
+    }
+    if (block && lexerText.paragraphFormat) {
+      block.format = lexerText.paragraphFormat as ElementFormatType; // TODO handle error
+    }
+    return node;
   }
 
   private defaultElementNode(
