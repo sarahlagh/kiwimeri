@@ -19,6 +19,7 @@ type KiwimeriParserBlockType =
   | 'heading'
   | 'list'
   | 'horizontalrule';
+
 export type KiwimeriParserBlock = {
   text: string;
   token: string;
@@ -31,7 +32,15 @@ export type KiwimeriParserText = {
   token: string;
   type: 'text' | 'linebreak' | 'listitem';
   format?: number;
+  propagatesFormat?: boolean;
   paragraphFormat?: string; //'center' | 'right';
+};
+
+export type KiwimeriParserContext = {
+  blocks: KiwimeriParserBlock[];
+  lastBlock: KiwimeriParserBlock | null;
+  texts: KiwimeriParserText[];
+  lastText: KiwimeriParserText | null;
 };
 
 export abstract class KiwimeriParser {
@@ -41,12 +50,13 @@ export abstract class KiwimeriParser {
 
   protected abstract parseText(
     token: string,
-    block: KiwimeriParserBlock,
+    ctx: KiwimeriParserContext,
     opts?: unknown
   ): KiwimeriParserText;
 
   protected abstract parseBlock(
     token: string,
+    ctx: KiwimeriParserContext,
     opts?: unknown
   ): KiwimeriParserBlock;
 
@@ -59,20 +69,31 @@ export abstract class KiwimeriParser {
       indent: 0,
       children: []
     };
+    const ctx: KiwimeriParserContext = {
+      blocks: [],
+      lastBlock: null,
+      texts: [],
+      lastText: null
+    };
 
     const lexer = this.getLexer(text, opts);
 
     while (lexer.nextBlock() !== null) {
       const { token } = lexer.consumeBlock()!;
-      const block = this.parseBlock(token);
-      const elementNode = this.handleBlock(block);
+      ctx.texts = [];
+      const block = this.parseBlock(token, { ...ctx });
+      ctx.blocks.push(block);
+      ctx.lastBlock = ctx.blocks[ctx.blocks.length - 1];
+      const elementNode = this.convertBlockToLexical(block);
       console.log('block', block);
       if ('children' in elementNode) {
         while (lexer.nextText(block) !== null) {
           const lexerText = lexer.consumeText(block);
-          const blockText = this.parseText(lexerText!.token, block, opts);
+          const blockText = this.parseText(lexerText!.token, { ...ctx }, opts);
+          ctx.texts.push(blockText);
+          ctx.lastText = ctx.texts[ctx.texts.length - 1];
           console.log('text', blockText);
-          const child: SerializedLexicalNode = this.handleText(
+          const child: SerializedLexicalNode = this.convertTextToLexical(
             blockText!,
             block
           );
@@ -87,7 +108,7 @@ export abstract class KiwimeriParser {
     return { obj: { root } };
   }
 
-  private handleBlock(
+  private convertBlockToLexical(
     block: KiwimeriParserBlock
   ): SerializedLexicalNode | SerializedElementNode {
     const node: SerializedLexicalNode = {
@@ -105,7 +126,7 @@ export abstract class KiwimeriParser {
     }
   }
 
-  private handleText(
+  private convertTextToLexical(
     lexerText: KiwimeriParserText,
     blockOrText?: KiwimeriParserBlock | KiwimeriParserText,
     block?: KiwimeriParserBlock
@@ -118,7 +139,11 @@ export abstract class KiwimeriParser {
       (node as SerializedTextNode).text = lexerText.text;
       (node as SerializedTextNode).format = lexerText.format || 0;
     }
-    if (block?.type === 'list' && blockOrText?.type === 'listitem') {
+    if (
+      node.type === 'text' &&
+      block?.type === 'list' &&
+      blockOrText?.type === 'listitem'
+    ) {
       (node as SerializedTextNode).detail = 0;
       (node as SerializedTextNode).mode = 'normal';
       (node as SerializedTextNode).style = '';
@@ -130,7 +155,11 @@ export abstract class KiwimeriParser {
       lexem.forEach(lex => {
         console.log('listitem lex', lex);
         (node as SerializedElementNode).children.push(
-          this.handleText(lex, lexerText, blockOrText as KiwimeriParserBlock)
+          this.convertTextToLexical(
+            lex,
+            lexerText,
+            blockOrText as KiwimeriParserBlock
+          )
         );
       });
     }
@@ -156,9 +185,17 @@ export abstract class KiwimeriParser {
       token: parserText.token,
       type: blockType
     };
+    const ctx: KiwimeriParserContext = {
+      blocks: [block],
+      lastBlock: block,
+      texts: [],
+      lastText: null
+    };
     while (lexer.nextText(block) !== null) {
       const { token } = lexer.consumeText(block)!;
-      texts.push(this.parseText(token, block, opts));
+      texts.push(this.parseText(token, { ...ctx }, opts));
+      ctx.texts = texts;
+      ctx.lastText = texts[texts.length - 1];
     }
     return texts;
   }
