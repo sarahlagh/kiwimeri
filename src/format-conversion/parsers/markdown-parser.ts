@@ -3,6 +3,7 @@ import { KiwimeriLexer } from '../lexer';
 import {
   KiwimeriParser,
   KiwimeriParserBlock,
+  KiwimeriParserContext,
   KiwimeriParserText
 } from '../parser';
 import { MarkdownLexer } from './markdown-lexer';
@@ -76,10 +77,15 @@ export class MarkdownParser extends KiwimeriParser {
 
   protected parseText(
     token: string,
-    block: KiwimeriParserBlock
+    ctx: KiwimeriParserContext
   ): KiwimeriParserText {
+    // if previous text was linebreak in a list, remove indent
     const indent = token.match(/^[ \t]+[^ \t\n]+/g);
-    if (block.type === 'list' && indent) {
+    if (
+      ctx.lastBlock?.type === 'list' &&
+      ctx.lastText?.type === 'linebreak' &&
+      indent
+    ) {
       token = token.trimStart();
     }
     // TODO not gonna work with nested styles but anyway...
