@@ -32,8 +32,7 @@ export type KiwimeriParserText = {
   token: string;
   type: 'text' | 'linebreak' | 'listitem';
   format?: number;
-  propagatesFormat?: boolean;
-  paragraphFormat?: string; //'center' | 'right';
+  paragraphFormat?: string;
 };
 
 export class KiwimeriParserContext {
@@ -43,7 +42,7 @@ export class KiwimeriParserContext {
   lastText: KiwimeriParserText | null = null;
   keywords: KiwimeriParserText[] = [];
   lastKeyword: KiwimeriParserText | null = null;
-  activeFormat: number = 0;
+  activeFormats: Set<number> = new Set();
   nextText: KiwimeriLexerResponse | null = null;
 
   constructor(oth?: KiwimeriParserContext) {
@@ -54,7 +53,7 @@ export class KiwimeriParserContext {
       this.lastText = oth.lastText;
       this.keywords = [...oth.keywords];
       this.lastKeyword = oth.lastKeyword;
-      this.activeFormat = oth.activeFormat;
+      this.activeFormats = oth.activeFormats;
       this.nextText = oth.nextText;
     }
   }
@@ -78,11 +77,26 @@ export class KiwimeriParserContext {
     return this.keywords.find(k => k.type === type);
   }
 
+  addFormat(format: number) {
+    this.activeFormats.add(format);
+  }
+
+  removeFormat(format: number) {
+    this.activeFormats.delete(format);
+  }
+
+  getFormatUnion() {
+    let format = 0;
+    this.activeFormats.forEach(f => (format = format ^ f));
+    return format;
+  }
+
   resetTextsKeywords() {
     this.texts = [];
     this.lastText = null;
     this.keywords = [];
     this.lastKeyword = null;
+    this.activeFormats = new Set();
   }
 
   copy() {
@@ -178,6 +192,8 @@ export abstract class KiwimeriParser {
             }
           }
         }
+        (elementNode as SerializedElementNode).direction =
+          elementNode.children.length > 0 ? 'ltr' : null;
       }
       root.children.push(elementNode);
     }
@@ -214,7 +230,7 @@ export abstract class KiwimeriParser {
       (node as SerializedTextNode).text = parsedText.text;
       (node as SerializedTextNode).format = parsedText.format || 0;
     }
-    if (node.type === 'text' && block?.type === 'list') {
+    if (node.type === 'text') {
       (node as SerializedTextNode).detail = 0;
       (node as SerializedTextNode).mode = 'normal';
       (node as SerializedTextNode).style = '';
@@ -231,10 +247,12 @@ export abstract class KiwimeriParser {
   ): SerializedElementNode {
     return {
       ...node,
-      direction: null,
+      direction: 'ltr',
       format: '',
       indent: 0,
-      children: []
+      children: [],
+      textFormat: 0,
+      textStyle: ''
     };
   }
 }
