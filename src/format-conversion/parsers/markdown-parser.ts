@@ -1,3 +1,4 @@
+import { IS_BOLD, IS_ITALIC, IS_STRIKETHROUGH, IS_UNDERLINE } from 'lexical';
 import { KiwimeriLexer } from '../lexer';
 import {
   KiwimeriParser,
@@ -8,6 +9,14 @@ import {
 import { MarkdownLexer } from './markdown-lexer';
 
 export class MarkdownParser extends KiwimeriParser {
+  protected keywordMap: { [k: string]: number } = {
+    '**': IS_BOLD,
+    __: IS_BOLD,
+    '*': IS_ITALIC,
+    _: IS_ITALIC,
+    '~~': IS_STRIKETHROUGH
+  };
+
   protected getLexer(text: string, opts?: unknown): KiwimeriLexer {
     return new MarkdownLexer(text, opts);
   }
@@ -89,8 +98,8 @@ export class MarkdownParser extends KiwimeriParser {
       token = token.trimStart();
     }
 
+    // handle list items
     if (ctx.lastBlock?.type === 'list' && type === 'keyword') {
-      // TODO
       if (token.startsWith('-')) {
         return {
           token,
@@ -106,6 +115,7 @@ export class MarkdownParser extends KiwimeriParser {
       }
     }
 
+    // handle linebreaks
     if (token === '\n') {
       // if linebreak, but in a list not followed by indent, ignore token
       if (
@@ -121,110 +131,33 @@ export class MarkdownParser extends KiwimeriParser {
       };
     }
 
+    // handle format
+    if (type === 'keyword') {
+      for (const kw of Object.keys(this.keywordMap)) {
+        if (token === kw) {
+          if (ctx.keywords.filter(k => k.token === kw).length % 2) {
+            // closing, must remove format
+            ctx.removeFormat(this.keywordMap[kw]);
+          } else {
+            // adding, must add format
+            ctx.addFormat(this.keywordMap[kw]);
+          }
+        }
+      }
+      if (token === '<u>') {
+        ctx.addFormat(IS_UNDERLINE);
+      }
+      if (token === '</u>') {
+        ctx.removeFormat(IS_UNDERLINE);
+      }
+    }
+
     return {
       token,
       text: type === 'text' ? token : undefined,
-      format: 0, // TODO
+      format: ctx.getFormatUnion(),
       type: 'text'
     };
-
-    // TODO handle alternatives (** and __)
-
-    // // TODO not gonna work with nested styles but anyway...
-    // if (token.startsWith('**')) {
-    //   const previousPropagatesFormat =
-    //     ctx.texts.find(
-    //       t => t.format === IS_BOLD && t.propagatesFormat === true
-    //     ) !== undefined || false;
-    //   // problem with *** is that. i'd need an empty string with ** and inner token with *
-    //   const propagatesFormat =
-    //     !previousPropagatesFormat &&
-    //     (!token.endsWith('**') || token.length === 2);
-    //   const endOfText = propagatesFormat ? token.length + 1 : token.length - 2;
-    //   return {
-    //     text: token.substring(2, endOfText),
-    //     type: 'text',
-    //     format: IS_BOLD,
-    //     propagatesFormat,
-    //     token
-    //   };
-    // }
-    // if (token.startsWith('*')) {
-    //   return {
-    //     text: token.substring(1, token.length - 1),
-    //     type: 'text',
-    //     format: IS_ITALIC,
-    //     token
-    //   };
-    // }
-    // if (token.startsWith('~~')) {
-    //   return {
-    //     text: token.substring(2, token.length - 2),
-    //     type: 'text',
-    //     format: IS_STRIKETHROUGH,
-    //     token
-    //   };
-    // }
-    // if (token.startsWith('<u>')) {
-    //   return {
-    //     text: token.substring(3, token.length - 4),
-    //     type: 'text',
-    //     format: IS_UNDERLINE,
-    //     token
-    //   };
-    // }
-    // if (token.startsWith('<p')) {
-    //   const endOfOpeningTag = token.indexOf('>');
-    //   const textAlign = /text-align: ([a-z]+);/g.exec(token);
-    //   let paragraphFormat: string | undefined = undefined;
-    //   if (textAlign && textAlign.length > 0) {
-    //     paragraphFormat = textAlign[1];
-    //   }
-    //   return {
-    //     text: token.substring(endOfOpeningTag + 1, token.length - 4),
-    //     type: 'text',
-    //     format: 0,
-    //     token,
-    //     paragraphFormat
-    //   };
-    // }
-    // if (token.startsWith('\n') && !token.startsWith('\n\n')) {
-    //   return {
-    //     type: 'linebreak',
-    //     token: '\n'
-    //   };
-    // }
-    // if (token.startsWith('-')) {
-    //   return {
-    //     token,
-    //     text: token.replace('-', '').trimStart(),
-    //     type: 'listitem'
-    //   };
-    // }
-    // const numberedList = token.match(/^\d+\./g);
-    // if (numberedList) {
-    //   return {
-    //     token,
-    //     text: token.replace(numberedList[0], '').trimStart(),
-    //     type: 'listitem'
-    //   };
-    // }
-    // // TODO what of escaped *~< ?
-    // const endOfText = token.match(/^([^*~<\n]*)/g);
-    // if (endOfText && endOfText.length > 0) {
-    //   return {
-    //     text: endOfText[0],
-    //     type: 'text',
-    //     format: 0,
-    //     token: endOfText[0]
-    //   };
-    // }
-    // return {
-    //   text: token,
-    //   type: 'text',
-    //   format: 0,
-    //   token
-    // };
   }
 }
 

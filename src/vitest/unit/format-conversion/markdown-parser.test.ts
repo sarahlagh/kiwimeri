@@ -56,6 +56,10 @@ describe('parser', () => {
                 expectedSubChild.children
               );
             }
+            expect({ ...subChild, children: null }).toEqual({
+              ...expectedSubChild,
+              children: null
+            });
           }
         }
         expect({ ...child, children: null }).toEqual({
