@@ -18,6 +18,7 @@ msgid "Add config"
 msgstr "Add config"
 
 #: src/settings/components/sections/ImportExportSettings.tsx:36
+#: src/common/buttons/ImportFileButton.tsx:15
 msgid "An error occurred loading the file"
 msgstr "An error occurred loading the file"
 
@@ -226,7 +227,7 @@ msgstr "Settings"
 
 #: src/settings/components/sections/ImportExportSettings.tsx:37
 #: src/settings/components/sections/ImportExportSettings.tsx:84
-#: src/common/buttons/ImportFileButton.tsx:54
+#: src/common/buttons/ImportFileButton.tsx:16
 #: src/common/buttons/ExportFileButton.tsx:54
 #: src/app/pages/DebugPage.tsx:82
 msgid "Success!"

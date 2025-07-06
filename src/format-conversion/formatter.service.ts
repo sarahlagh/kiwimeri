@@ -42,6 +42,11 @@ class FormatterService {
   public getLexicalFromMarkdown(markdown: string) {
     return this.getLexicalFromOther(markdown, MARKDOWN_PARSER);
   }
+
+  public getPagesSeparator() {
+    // TODO depends on the format
+    return '\n\n========================================\n\n';
+  }
 }
 
 const formatterService = new FormatterService();

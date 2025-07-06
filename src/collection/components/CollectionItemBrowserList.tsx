@@ -12,6 +12,7 @@ import {
   CollectionItemResult,
   CollectionItemType
 } from '@/collection/collection';
+import ImportFileButton from '@/common/buttons/ImportFileButton';
 import { GET_ITEM_ROUTE } from '@/common/routes';
 import { getSearchParams } from '@/common/utils';
 import { APPICONS } from '@/constants';
@@ -54,6 +55,8 @@ const CollectionItemBrowserListToolbar = ({
       </IonButtons>
 
       <IonButtons slot="end">
+        <ImportFileButton parent={folderId} />
+
         <IonButton
           onClick={() => {
             collectionService.addFolder(folderId);
