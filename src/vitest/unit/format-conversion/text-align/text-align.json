@@ -28,24 +28,6 @@
             "format": 0,
             "mode": "normal",
             "style": "",
-            "text": "Text in quote with alignment",
-            "type": "text",
-            "version": 1
-          }
-        ],
-        "direction": "ltr",
-        "format": "center",
-        "indent": 0,
-        "type": "quote",
-        "version": 1
-      },
-      {
-        "children": [
-          {
-            "detail": 0,
-            "format": 0,
-            "mode": "normal",
-            "style": "",
             "text": "Text aligned center",
             "type": "text",
             "version": 1
@@ -98,6 +80,24 @@
         "version": 1,
         "textFormat": 0,
         "textStyle": ""
+      },
+      {
+        "children": [
+          {
+            "detail": 0,
+            "format": 0,
+            "mode": "normal",
+            "style": "",
+            "text": "Text in quote with alignment",
+            "type": "text",
+            "version": 1
+          }
+        ],
+        "direction": "ltr",
+        "format": "center",
+        "indent": 0,
+        "type": "quote",
+        "version": 1
       }
     ],
     "direction": "ltr",
