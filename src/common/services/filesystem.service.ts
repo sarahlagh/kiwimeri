@@ -7,6 +7,7 @@ interface FilesystemService {
   exportToFile(
     fileName: string,
     content: string,
+    type?: string,
     directoryPath?: string
   ): Promise<boolean>;
 
@@ -63,8 +64,12 @@ class AndroidFilesystemService implements FilesystemService {
 }
 
 class WebFilesystemService implements FilesystemService {
-  async exportToFile(fileName: string, content: string) {
-    const blob = new Blob([content], { type: 'application/json' });
+  async exportToFile(
+    fileName: string,
+    content: string,
+    type = 'application/json'
+  ) {
+    const blob = new Blob([content], { type });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     document.documentElement.appendChild(a);

@@ -1,6 +1,7 @@
 import { CollectionItemType } from '@/collection/collection';
 import CloseDocumentButton from '@/common/buttons/CloseDocumentButton';
 import DeleteItemButton from '@/common/buttons/DeleteItemButton';
+import ExportButton from '@/common/buttons/ExportButton';
 import MoveFolderButton from '@/common/buttons/MoveFolderButton';
 import RenameItemButton from '@/common/buttons/RenameItemButton';
 import { GET_DOCUMENT_ROUTE, GET_FOLDER_ROUTE } from '@/common/routes';
@@ -49,6 +50,7 @@ const CommonActionsToolbar = ({
       <IonButtons slot="end">
         {showRename && <RenameItemButton id={id} onClose={onClose} />}
         {showMoveFolder && <MoveFolderButton id={id} onClose={onClose} />}
+        <ExportButton id={id} onClose={onClose} />
         <DeleteItemButton
           id={id}
           fallbackRoute={fallbackRoute}

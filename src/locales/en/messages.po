@@ -58,7 +58,7 @@ msgstr "Confirm"
 msgid "Debug"
 msgstr "Debug"
 
-#: src/constants.ts:56
+#: src/constants.ts:58
 msgid "Default"
 msgstr "Default"
 
@@ -94,7 +94,7 @@ msgstr "Export"
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/constants.ts:55
+#: src/constants.ts:57
 msgid "Home"
 msgstr "Home"
 
@@ -131,11 +131,11 @@ msgstr "Manually backup or restore your collection."
 msgid "Name"
 msgstr "Name"
 
-#: src/constants.ts:57
+#: src/constants.ts:59
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:58
+#: src/constants.ts:60
 msgid "New folder"
 msgstr "New folder"
 
@@ -226,6 +226,7 @@ msgstr "Settings"
 
 #: src/settings/components/sections/ImportExportSettings.tsx:37
 #: src/settings/components/sections/ImportExportSettings.tsx:84
+#: src/common/buttons/ExportButton.tsx:44
 #: src/app/pages/DebugPage.tsx:82
 msgid "Success!"
 msgstr "Success!"
