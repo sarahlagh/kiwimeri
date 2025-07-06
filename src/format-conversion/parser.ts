@@ -1,108 +1,22 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  ElementFormatType,
   SerializedEditorState,
   SerializedElementNode,
   SerializedLexicalNode,
   SerializedRootNode,
   SerializedTextNode
 } from 'lexical';
-import { KiwimeriLexer, KiwimeriLexerResponse } from './lexer';
+import { KiwimeriLexer } from './lexer';
+import {
+  KiwimeriParserBlock,
+  KiwimeriParserContext,
+  KiwimeriParserText
+} from './parser-context';
 
 export type KiwimeriParserResponse = {
   obj: SerializedEditorState | null;
   errors?: string[];
 };
-
-type KiwimeriParserBlockType =
-  | 'paragraph'
-  | 'quote'
-  | 'heading'
-  | 'list'
-  | 'horizontalrule';
-
-export type KiwimeriParserBlock = {
-  text: string;
-  token: string;
-  type: KiwimeriParserBlockType;
-  paragraphAlign?: ElementFormatType;
-};
-
-export type KiwimeriParserText = {
-  text?: string;
-  token: string;
-  type: 'text' | 'linebreak' | 'listitem';
-  format?: number;
-  paragraphFormat?: string;
-};
-
-export class KiwimeriParserContext {
-  blocks: KiwimeriParserBlock[] = [];
-  lastBlock: KiwimeriParserBlock | null = null;
-  texts: KiwimeriParserText[] = [];
-  lastText: KiwimeriParserText | null = null;
-  keywords: KiwimeriParserText[] = [];
-  lastKeyword: KiwimeriParserText | null = null;
-  activeFormats: Set<number> = new Set();
-  nextText: KiwimeriLexerResponse | null = null;
-
-  constructor(oth?: KiwimeriParserContext) {
-    if (oth) {
-      this.blocks = [...oth.blocks];
-      this.lastBlock = oth.lastBlock;
-      this.texts = [...oth.texts];
-      this.lastText = oth.lastText;
-      this.keywords = [...oth.keywords];
-      this.lastKeyword = oth.lastKeyword;
-      this.activeFormats = oth.activeFormats;
-      this.nextText = oth.nextText;
-    }
-  }
-
-  addBlock(block: KiwimeriParserBlock) {
-    this.blocks.push(block);
-    this.lastBlock = this.blocks[this.blocks.length - 1];
-  }
-
-  addText(text: KiwimeriParserText) {
-    this.texts.push(text);
-    this.lastText = this.texts[this.texts.length - 1];
-  }
-
-  addKeyword(keyword: KiwimeriParserText) {
-    this.keywords.push(keyword);
-    this.lastKeyword = this.keywords[this.keywords.length - 1];
-  }
-
-  findKeywordByType(type: string) {
-    return this.keywords.find(k => k.type === type);
-  }
-
-  addFormat(format: number) {
-    this.activeFormats.add(format);
-  }
-
-  removeFormat(format: number) {
-    this.activeFormats.delete(format);
-  }
-
-  getFormatUnion() {
-    let format = 0;
-    this.activeFormats.forEach(f => (format = format ^ f));
-    return format;
-  }
-
-  resetTextsKeywords() {
-    this.texts = [];
-    this.lastText = null;
-    this.keywords = [];
-    this.lastKeyword = null;
-    this.activeFormats = new Set();
-  }
-
-  copy() {
-    return new KiwimeriParserContext(this);
-  }
-}
 
 export abstract class KiwimeriParser {
   constructor() {}
@@ -137,7 +51,7 @@ export abstract class KiwimeriParser {
 
     while (lexer.nextBlock() !== null) {
       const { token } = lexer.consumeBlock()!;
-      ctx.resetTextsKeywords();
+      ctx.resetBlock();
       const block = this.parseBlock(token, ctx.copy());
       ctx.addBlock(block);
       const elementNode = this.convertBlockToLexical(block);
@@ -157,8 +71,11 @@ export abstract class KiwimeriParser {
             continue;
           }
 
+          if (parsedText.paragraphAlign !== undefined) {
+            ctx.paragraphAlign = parsedText.paragraphAlign;
+          }
+
           if (lexerText?.type === 'keyword') {
-            // TODO if linebreak, remove all keywords?
             ctx.addKeyword(parsedText);
             console.log('keyword', parsedText);
             if (parsedText.type === 'listitem') {
@@ -175,11 +92,10 @@ export abstract class KiwimeriParser {
             ctx.addText(parsedText);
             console.log('text', parsedText);
             const child: SerializedLexicalNode = this.convertTextToLexical(
-              parsedText!,
-              block
+              parsedText!
             );
-            if (block.paragraphAlign) {
-              elementNode.format = block.paragraphAlign;
+            if (ctx.paragraphAlign) {
+              elementNode.format = ctx.paragraphAlign;
             }
 
             // if in list, should push to listitem.children, not elementNode.children
@@ -207,20 +123,28 @@ export abstract class KiwimeriParser {
       type: block.type,
       version: 1
     };
+    let elementNode = node as SerializedElementNode;
     switch (block.type) {
       case 'heading':
+        elementNode = this.defaultElementNode(node);
+        (elementNode as any).tag = block.tag;
+        return elementNode;
       case 'list':
-      case 'quote':
-      case 'paragraph':
         return this.defaultElementNode(node);
+      case 'quote':
+        return this.defaultElementNode(node);
+      case 'paragraph':
+        elementNode = this.defaultElementNode(node);
+        elementNode.textFormat = 0;
+        elementNode.textStyle = '';
+        return elementNode;
       case 'horizontalrule':
         return node;
     }
   }
 
   private convertTextToLexical(
-    parsedText: KiwimeriParserText,
-    block?: KiwimeriParserBlock
+    parsedText: KiwimeriParserText
   ): SerializedLexicalNode {
     const node: SerializedLexicalNode = {
       type: parsedText.type,
@@ -235,10 +159,6 @@ export abstract class KiwimeriParser {
       (node as SerializedTextNode).mode = 'normal';
       (node as SerializedTextNode).style = '';
     }
-    if (block && parsedText.paragraphFormat) {
-      (block as KiwimeriParserBlock).paragraphAlign =
-        parsedText.paragraphFormat as ElementFormatType; // TODO handle error
-    }
     return node;
   }
 
@@ -250,9 +170,7 @@ export abstract class KiwimeriParser {
       direction: 'ltr',
       format: '',
       indent: 0,
-      children: [],
-      textFormat: 0,
-      textStyle: ''
+      children: []
     };
   }
 }

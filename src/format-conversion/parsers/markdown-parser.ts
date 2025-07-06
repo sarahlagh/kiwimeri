@@ -1,11 +1,17 @@
-import { IS_BOLD, IS_ITALIC, IS_STRIKETHROUGH, IS_UNDERLINE } from 'lexical';
-import { KiwimeriLexer } from '../lexer';
 import {
-  KiwimeriParser,
+  ElementFormatType,
+  IS_BOLD,
+  IS_ITALIC,
+  IS_STRIKETHROUGH,
+  IS_UNDERLINE
+} from 'lexical';
+import { KiwimeriLexer } from '../lexer';
+import { KiwimeriParser } from '../parser';
+import {
   KiwimeriParserBlock,
   KiwimeriParserContext,
   KiwimeriParserText
-} from '../parser';
+} from '../parser-context';
 import { MarkdownLexer } from './markdown-lexer';
 
 export class MarkdownParser extends KiwimeriParser {
@@ -28,7 +34,8 @@ export class MarkdownParser extends KiwimeriParser {
       return {
         token,
         text: token.replace(heading[0], '').trimStart(),
-        type: 'heading'
+        type: 'heading',
+        tag: 'h' + heading[0].length
       };
     }
 
@@ -152,11 +159,24 @@ export class MarkdownParser extends KiwimeriParser {
       }
     }
 
+    // handle text align
+    let paragraphAlign: ElementFormatType | undefined = undefined;
+    if (token.startsWith('<p')) {
+      const textAlign = /text-align: ([a-z]+);/g.exec(token);
+      if (textAlign && textAlign.length > 0) {
+        paragraphAlign = textAlign[1] as ElementFormatType;
+      }
+    }
+    if (token === '</p>') {
+      paragraphAlign = '';
+    }
+
     return {
       token,
       text: type === 'text' ? token : undefined,
       format: ctx.getFormatUnion(),
-      type: 'text'
+      type: 'text',
+      paragraphAlign
     };
   }
 }

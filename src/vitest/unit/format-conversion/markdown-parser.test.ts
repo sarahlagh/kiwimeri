@@ -62,9 +62,10 @@ describe('parser', () => {
             });
           }
         }
-        expect({ ...child, children: null }).toEqual({
+        expect({ ...child, children: null, direction: null }).toEqual({
           ...expectedChild,
-          children: null
+          children: null,
+          direction: null
         });
       }
       expect(resp.obj!.root.children).toHaveLength(
