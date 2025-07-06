@@ -42,7 +42,7 @@ const ExportFileButton = ({ id, onClose }: ExportFileButtonProps) => {
     let content: string;
     content = getContentAsMd(json);
     pages.forEach(page => {
-      content += '\n\n========================================\n\n';
+      content += formatterService.getPagesSeparator();
       content += getContentAsMd(
         collectionService.getItemContent(page.id) || ''
       );
