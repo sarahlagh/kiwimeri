@@ -157,6 +157,22 @@ class CollectionService {
     return this.useResultsSorted(table, queryName, sortBy, descending);
   }
 
+  public getDocumentPages(
+    document: string,
+    sortBy: 'created' | 'updated' = 'created',
+    descending = false
+  ) {
+    const table = storageService.getSpace().getTable(this.table);
+    const queryName = this.fetchPagesForDocQuery(document);
+    return storageService
+      .getSpaceQueries()
+      .getResultSortedRowIds(queryName, sortBy, descending)
+      .map(rowId => {
+        const row = table[rowId];
+        return { ...row, id: rowId } as CollectionItemResult;
+      });
+  }
+
   public useDocumentPages(
     document: string,
     sortBy: 'created' | 'updated' = 'created',
