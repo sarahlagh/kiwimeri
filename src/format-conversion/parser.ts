@@ -79,10 +79,10 @@ export abstract class KiwimeriParser {
             ctx.addKeyword(parsedText);
             console.log('keyword', parsedText);
             if (parsedText.type === 'listitem') {
-              const child: SerializedLexicalNode = {
-                type: 'listitem',
-                version: 1
-              };
+              const child: SerializedLexicalNode = this.convertTextToLexical(
+                parsedText!,
+                ctx
+              );
               (child as SerializedElementNode).children = [];
               elementNode.children.push(child);
             }
@@ -92,9 +92,10 @@ export abstract class KiwimeriParser {
             ctx.addText(parsedText);
             console.log('text', parsedText);
             const child: SerializedLexicalNode = this.convertTextToLexical(
-              parsedText!
+              parsedText!,
+              ctx
             );
-            if (ctx.paragraphAlign) {
+            if (ctx.paragraphAlign !== null) {
               elementNode.format = ctx.paragraphAlign;
             }
 
@@ -103,6 +104,16 @@ export abstract class KiwimeriParser {
               const lastChild =
                 elementNode.children[elementNode.children.length - 1];
               (lastChild as SerializedElementNode).children.push(child);
+
+              const propagateTextFormat = (
+                (lastChild as SerializedElementNode)
+                  .children[0] as SerializedTextNode
+              ).format;
+              if (propagateTextFormat !== 0) {
+                (lastChild as SerializedElementNode).textFormat =
+                  propagateTextFormat;
+                elementNode.textFormat = propagateTextFormat;
+              }
             } else {
               elementNode.children.push(child);
             }
@@ -130,7 +141,12 @@ export abstract class KiwimeriParser {
         (elementNode as any).tag = block.tag;
         return elementNode;
       case 'list':
-        return this.defaultElementNode(node);
+        elementNode = this.defaultElementNode(node);
+        (elementNode as any).start = 1;
+        (elementNode as any).tag = block.tag;
+        (elementNode as any).listType =
+          block.tag === 'ul' ? 'bullet' : 'number';
+        return elementNode;
       case 'quote':
         return this.defaultElementNode(node);
       case 'paragraph':
@@ -144,7 +160,8 @@ export abstract class KiwimeriParser {
   }
 
   private convertTextToLexical(
-    parsedText: KiwimeriParserText
+    parsedText: KiwimeriParserText,
+    ctx: KiwimeriParserContext
   ): SerializedLexicalNode {
     const node: SerializedLexicalNode = {
       type: parsedText.type,
@@ -158,6 +175,14 @@ export abstract class KiwimeriParser {
       (node as SerializedTextNode).detail = 0;
       (node as SerializedTextNode).mode = 'normal';
       (node as SerializedTextNode).style = '';
+    }
+    if (node.type === 'listitem') {
+      (node as SerializedElementNode).direction = 'ltr';
+      (node as SerializedElementNode).format = '';
+      (node as SerializedElementNode).indent = 0;
+      (node as any).value = ctx.keywords.filter(
+        kw => kw.type === 'listitem'
+      ).length;
     }
     return node;
   }

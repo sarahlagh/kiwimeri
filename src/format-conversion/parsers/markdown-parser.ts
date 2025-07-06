@@ -62,7 +62,8 @@ export class MarkdownParser extends KiwimeriParser {
       return {
         token,
         text: token,
-        type: 'list'
+        type: 'list',
+        tag: token.startsWith('- ') ? 'ul' : 'ol'
       };
     }
 
