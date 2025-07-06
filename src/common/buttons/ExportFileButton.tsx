@@ -9,12 +9,12 @@ import filesystemService from '../services/filesystem.service';
 import platformService from '../services/platform.service';
 import { unminimizeContentFromStorage } from '../wysiwyg/compress-file-content';
 
-type ExportButtonProps = {
+type ExportFileButtonProps = {
   id: Id;
   onClose: (role?: string) => void;
 };
 
-const ExportButton = ({ id, onClose }: ExportButtonProps) => {
+const ExportFileButton = ({ id, onClose }: ExportFileButtonProps) => {
   const { t } = useLingui();
   const [isOpen, setIsOpen] = useState(false);
   const toast = React.useRef(null);
@@ -28,24 +28,36 @@ const ExportButton = ({ id, onClose }: ExportButtonProps) => {
     }
   }
 
+  function getContentAsMd(storedJson: string) {
+    const content = storedJson.startsWith('{"root":{')
+      ? storedJson
+      : unminimizeContentFromStorage(storedJson);
+    return formatterService.getMarkdownFromLexical(content);
+  }
+
   function exportFile() {
-    const json = collectionService.getItemContent(id);
-    let content;
-    if (json) {
-      content = json.startsWith('{"root":{')
-        ? json
-        : unminimizeContentFromStorage(json);
-      const fileContent = formatterService.getMarkdownFromLexical(content);
-      const fileTitle = collectionService.getItemTitle(id);
-      filesystemService
-        .exportToFile(`${fileTitle}.md`, fileContent, 'simple/text')
-        .then(() => {
-          if (platformService.isAndroid()) {
-            setToast(t`Success!`, 'success');
-          }
+    const fileTitle = collectionService.getItemTitle(id);
+    const pages = collectionService.getDocumentPages(id);
+    const json = collectionService.getItemContent(id) || '';
+    let content: string;
+    content = getContentAsMd(json);
+    pages.forEach(page => {
+      content += '\n\n========================================\n\n';
+      content += getContentAsMd(
+        collectionService.getItemContent(page.id) || ''
+      );
+    });
+    filesystemService
+      .exportToFile(`${fileTitle}.md`, content, 'simple/text')
+      .then(() => {
+        if (platformService.isAndroid()) {
+          setToast(t`Success!`, 'success');
+          // TODO handle this more gracefully
+          setTimeout(() => onClose(), 3000); // let toast enough time
+        } else {
           onClose();
-        });
-    }
+        }
+      });
   }
 
   return (
@@ -72,4 +84,4 @@ const ExportButton = ({ id, onClose }: ExportButtonProps) => {
     </IonButton>
   );
 };
-export default ExportButton;
+export default ExportFileButton;

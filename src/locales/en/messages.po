@@ -226,7 +226,8 @@ msgstr "Settings"
 
 #: src/settings/components/sections/ImportExportSettings.tsx:37
 #: src/settings/components/sections/ImportExportSettings.tsx:84
-#: src/common/buttons/ExportButton.tsx:44
+#: src/common/buttons/ImportFileButton.tsx:54
+#: src/common/buttons/ExportFileButton.tsx:54
 #: src/app/pages/DebugPage.tsx:82
 msgid "Success!"
 msgstr "Success!"
