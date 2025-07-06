@@ -2,6 +2,7 @@ import { KiwimeriParserBlock } from './parser';
 
 export type KiwimeriLexerResponse = {
   token: string;
+  type: 'text' | 'keyword';
 };
 
 export abstract class KiwimeriLexer {
@@ -42,13 +43,13 @@ export abstract class KiwimeriLexer {
     return this.tempText;
   }
   public consumeText(block: KiwimeriParserBlock): KiwimeriLexerResponse | null {
-    const token =
+    const resp =
       this.tempText !== undefined ? this.tempText : this.nextText(block);
-    if (token === null || token.token.length === 0) {
+    if (resp === null || resp.token.length === 0) {
       return null;
     }
-    this.textIdx += token.token.length;
+    this.textIdx += resp.token.length;
     this.tempText = undefined;
-    return token;
+    return resp;
   }
 }

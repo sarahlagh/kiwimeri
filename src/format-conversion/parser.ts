@@ -6,7 +6,7 @@ import {
   SerializedRootNode,
   SerializedTextNode
 } from 'lexical';
-import { KiwimeriLexer } from './lexer';
+import { KiwimeriLexer, KiwimeriLexerResponse } from './lexer';
 
 export type KiwimeriParserResponse = {
   obj: SerializedEditorState | null;
@@ -36,12 +36,59 @@ export type KiwimeriParserText = {
   paragraphFormat?: string; //'center' | 'right';
 };
 
-export type KiwimeriParserContext = {
-  blocks: KiwimeriParserBlock[];
-  lastBlock: KiwimeriParserBlock | null;
-  texts: KiwimeriParserText[];
-  lastText: KiwimeriParserText | null;
-};
+export class KiwimeriParserContext {
+  blocks: KiwimeriParserBlock[] = [];
+  lastBlock: KiwimeriParserBlock | null = null;
+  texts: KiwimeriParserText[] = [];
+  lastText: KiwimeriParserText | null = null;
+  keywords: KiwimeriParserText[] = [];
+  lastKeyword: KiwimeriParserText | null = null;
+  activeFormat: number = 0;
+  nextText: KiwimeriLexerResponse | null = null;
+
+  constructor(oth?: KiwimeriParserContext) {
+    if (oth) {
+      this.blocks = [...oth.blocks];
+      this.lastBlock = oth.lastBlock;
+      this.texts = [...oth.texts];
+      this.lastText = oth.lastText;
+      this.keywords = [...oth.keywords];
+      this.lastKeyword = oth.lastKeyword;
+      this.activeFormat = oth.activeFormat;
+      this.nextText = oth.nextText;
+    }
+  }
+
+  addBlock(block: KiwimeriParserBlock) {
+    this.blocks.push(block);
+    this.lastBlock = this.blocks[this.blocks.length - 1];
+  }
+
+  addText(text: KiwimeriParserText) {
+    this.texts.push(text);
+    this.lastText = this.texts[this.texts.length - 1];
+  }
+
+  addKeyword(keyword: KiwimeriParserText) {
+    this.keywords.push(keyword);
+    this.lastKeyword = this.keywords[this.keywords.length - 1];
+  }
+
+  findKeywordByType(type: string) {
+    return this.keywords.find(k => k.type === type);
+  }
+
+  resetTextsKeywords() {
+    this.texts = [];
+    this.lastText = null;
+    this.keywords = [];
+    this.lastKeyword = null;
+  }
+
+  copy() {
+    return new KiwimeriParserContext(this);
+  }
+}
 
 export abstract class KiwimeriParser {
   constructor() {}
@@ -50,9 +97,10 @@ export abstract class KiwimeriParser {
 
   protected abstract parseText(
     token: string,
+    type: 'text' | 'keyword',
     ctx: KiwimeriParserContext,
     opts?: unknown
-  ): KiwimeriParserText;
+  ): KiwimeriParserText | null;
 
   protected abstract parseBlock(
     token: string,
@@ -69,38 +117,66 @@ export abstract class KiwimeriParser {
       indent: 0,
       children: []
     };
-    const ctx: KiwimeriParserContext = {
-      blocks: [],
-      lastBlock: null,
-      texts: [],
-      lastText: null
-    };
+    const ctx = new KiwimeriParserContext();
 
     const lexer = this.getLexer(text, opts);
 
     while (lexer.nextBlock() !== null) {
       const { token } = lexer.consumeBlock()!;
-      ctx.texts = [];
-      const block = this.parseBlock(token, { ...ctx });
-      ctx.blocks.push(block);
-      ctx.lastBlock = ctx.blocks[ctx.blocks.length - 1];
+      ctx.resetTextsKeywords();
+      const block = this.parseBlock(token, ctx.copy());
+      ctx.addBlock(block);
       const elementNode = this.convertBlockToLexical(block);
       console.log('block', block);
       if ('children' in elementNode) {
         while (lexer.nextText(block) !== null) {
           const lexerText = lexer.consumeText(block);
-          const blockText = this.parseText(lexerText!.token, { ...ctx }, opts);
-          ctx.texts.push(blockText);
-          ctx.lastText = ctx.texts[ctx.texts.length - 1];
-          console.log('text', blockText);
-          const child: SerializedLexicalNode = this.convertTextToLexical(
-            blockText!,
-            block
+          ctx.nextText = lexer.nextText(block);
+          const parsedText = this.parseText(
+            lexerText!.token,
+            lexerText!.type,
+            ctx.copy(),
+            opts
           );
-          if (block.paragraphAlign) {
-            elementNode.format = block.paragraphAlign;
+
+          if (parsedText === null) {
+            continue;
           }
-          elementNode.children.push(child);
+
+          if (lexerText?.type === 'keyword') {
+            // TODO if linebreak, remove all keywords?
+            ctx.addKeyword(parsedText);
+            console.log('keyword', parsedText);
+            if (parsedText.type === 'listitem') {
+              const child: SerializedLexicalNode = {
+                type: 'listitem',
+                version: 1
+              };
+              (child as SerializedElementNode).children = [];
+              elementNode.children.push(child);
+            }
+          }
+
+          if (lexerText?.type === 'text') {
+            ctx.addText(parsedText);
+            console.log('text', parsedText);
+            const child: SerializedLexicalNode = this.convertTextToLexical(
+              parsedText!,
+              block
+            );
+            if (block.paragraphAlign) {
+              elementNode.format = block.paragraphAlign;
+            }
+
+            // if in list, should push to listitem.children, not elementNode.children
+            if (ctx.findKeywordByType('listitem')) {
+              const lastChild =
+                elementNode.children[elementNode.children.length - 1];
+              (lastChild as SerializedElementNode).children.push(child);
+            } else {
+              elementNode.children.push(child);
+            }
+          }
         }
       }
       root.children.push(elementNode);
@@ -127,77 +203,27 @@ export abstract class KiwimeriParser {
   }
 
   private convertTextToLexical(
-    lexerText: KiwimeriParserText,
-    blockOrText?: KiwimeriParserBlock | KiwimeriParserText,
+    parsedText: KiwimeriParserText,
     block?: KiwimeriParserBlock
   ): SerializedLexicalNode {
     const node: SerializedLexicalNode = {
-      type: lexerText.type,
+      type: parsedText.type,
       version: 1
     };
-    if (node.type === 'text' && lexerText.text) {
-      (node as SerializedTextNode).text = lexerText.text;
-      (node as SerializedTextNode).format = lexerText.format || 0;
+    if (node.type === 'text' && parsedText.text) {
+      (node as SerializedTextNode).text = parsedText.text;
+      (node as SerializedTextNode).format = parsedText.format || 0;
     }
-    if (
-      node.type === 'text' &&
-      block?.type === 'list' &&
-      blockOrText?.type === 'listitem'
-    ) {
+    if (node.type === 'text' && block?.type === 'list') {
       (node as SerializedTextNode).detail = 0;
       (node as SerializedTextNode).mode = 'normal';
       (node as SerializedTextNode).style = '';
     }
-    // special case for lists
-    if (node.type === 'listitem' && lexerText.text) {
-      (node as SerializedElementNode).children = [];
-      const lexem = this.parseRaw(lexerText, 'list');
-      lexem.forEach(lex => {
-        console.log('listitem lex', lex);
-        (node as SerializedElementNode).children.push(
-          this.convertTextToLexical(
-            lex,
-            lexerText,
-            blockOrText as KiwimeriParserBlock
-          )
-        );
-      });
-    }
-    if (blockOrText && lexerText.paragraphFormat) {
-      (blockOrText as KiwimeriParserBlock).paragraphAlign =
-        lexerText.paragraphFormat as ElementFormatType; // TODO handle error
+    if (block && parsedText.paragraphFormat) {
+      (block as KiwimeriParserBlock).paragraphAlign =
+        parsedText.paragraphFormat as ElementFormatType; // TODO handle error
     }
     return node;
-  }
-
-  private parseRaw(
-    parserText: KiwimeriParserText,
-    blockType: KiwimeriParserBlockType = 'paragraph',
-    opts?: unknown
-  ): KiwimeriParserText[] {
-    if (parserText.text?.length === 0) {
-      return [];
-    }
-    const lexer = this.getLexer(parserText.token, opts);
-    const texts: KiwimeriParserText[] = [];
-    const block: KiwimeriParserBlock = {
-      text: parserText.text!,
-      token: parserText.token,
-      type: blockType
-    };
-    const ctx: KiwimeriParserContext = {
-      blocks: [block],
-      lastBlock: block,
-      texts: [],
-      lastText: null
-    };
-    while (lexer.nextText(block) !== null) {
-      const { token } = lexer.consumeText(block)!;
-      texts.push(this.parseText(token, { ...ctx }, opts));
-      ctx.texts = texts;
-      ctx.lastText = texts[texts.length - 1];
-    }
-    return texts;
   }
 
   private defaultElementNode(

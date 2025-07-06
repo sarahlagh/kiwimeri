@@ -4,7 +4,7 @@ import { describe, it } from 'vitest';
 import { examples } from './examples';
 
 describe('parser', () => {
-  it(`should parse`, async () => {
+  it(`should parse first exemple`, async () => {
     const parser = new MarkdownParser();
     const resp = parser.parse(
       '#this is a heading test\na text\nanother\n\n---\n\n\nsometext now'
@@ -58,6 +58,10 @@ describe('parser', () => {
             }
           }
         }
+        expect({ ...child, children: null }).toEqual({
+          ...expectedChild,
+          children: null
+        });
       }
       expect(resp.obj!.root.children).toHaveLength(
         expected.root.children.length

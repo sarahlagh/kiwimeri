@@ -13,47 +13,54 @@ export class MarkdownLexer extends KiwimeriLexer {
     const heading = nextBlock.match(/^(#+)/g);
     if (heading) {
       return {
-        token: this.endOfBlock(nextBlock)
+        token: this.endOfBlock(nextBlock),
+        type: 'text'
       };
     }
 
     // quote
     if (nextBlock.startsWith('>')) {
       return {
-        token: this.endOfBlock(nextBlock)
+        token: this.endOfBlock(nextBlock),
+        type: 'text'
       };
     }
 
     // horizontalrule
     if (nextBlock.startsWith('---')) {
       return {
-        token: this.endOfBlock(nextBlock)
+        token: this.endOfBlock(nextBlock),
+        type: 'text'
       };
     }
 
     // list
     if (nextBlock.startsWith('- ') || nextBlock.match(/^\d+\. /g)) {
       return {
-        token: this.endOfBlock(nextBlock, true)
+        token: this.endOfBlock(nextBlock, true),
+        type: 'text'
       };
     }
 
     // empty paragraphs
     if (nextBlock.match(/^\n+/g)) {
       return {
-        token: '\n'
+        token: '\n',
+        type: 'text'
       };
     }
 
     if (nextBlock.match(/^<p [^>]*><\/p>\n+/g)) {
       return {
-        token: this.endOfBlock(nextBlock)
+        token: this.endOfBlock(nextBlock),
+        type: 'text'
       };
     }
 
     // the default block: paragraph
     return {
-      token: this.endOfBlock(nextBlock, true)
+      token: this.endOfBlock(nextBlock, true),
+      type: 'text'
     };
   }
 
@@ -76,21 +83,6 @@ export class MarkdownLexer extends KiwimeriLexer {
     }
   }
 
-  private endOfListItem(nextBlock: string) {
-    let line = this.endOfBlock(nextBlock);
-    // does line have a line break? if yes merge as single token
-    let hasIndentNext = nextBlock
-      .substring(line.length)
-      .match(/^[ \t]+[^ \t\n]+/g);
-    while (hasIndentNext) {
-      line += this.endOfBlock(nextBlock.substring(line.length));
-      hasIndentNext = nextBlock
-        .substring(line.length)
-        .match(/^[ \t]+[^ \t\n]+/g);
-    }
-    return line;
-  }
-
   // texts: text, linebreak, listitem
   protected _nextText(
     block: KiwimeriParserBlock
@@ -102,69 +94,55 @@ export class MarkdownLexer extends KiwimeriLexer {
     if (nextText.trimEnd().length === 0) {
       return null;
     }
-    // TODO handle alternatives (** and __)
-    if (nextText.startsWith('**')) {
-      const endOfText = nextText.substring(2).indexOf('**') + 2;
-      const token = nextText.substring(0, endOfText + 2);
+    for (const kw of ['**', '*', '__', '_', '~~', '<u>', '</u>', '</p>']) {
+      if (nextText.startsWith(kw)) {
+        return { token: kw, type: 'keyword' };
+      }
+    }
+    const pEl = nextText.match(/^<p[^>]*>/g);
+    if (pEl) {
       return {
-        token
+        token: pEl[0],
+        type: 'keyword'
       };
     }
-    if (nextText.startsWith('*')) {
-      const endOfText = nextText.substring(1).indexOf('*') + 1;
-      const token = nextText.substring(0, endOfText + 1);
+    const unorderedList = nextText.match(/^- ?/g);
+    if (unorderedList && this.isStartOfLine(block.text)) {
       return {
-        token
-      };
-    }
-    if (nextText.startsWith('~~')) {
-      const endOfText = nextText.substring(2).indexOf('~~') + 2;
-      const token = nextText.substring(0, endOfText + 2);
-      return {
-        token
-      };
-    }
-    if (nextText.startsWith('<u>')) {
-      const endOfText = nextText.indexOf('</u>');
-      const token = nextText.substring(0, endOfText + 4);
-      return {
-        token
-      };
-    }
-    if (nextText.startsWith('<p')) {
-      const endOfText = nextText.indexOf('</p>');
-      const token = nextText.substring(0, endOfText + 4);
-      return {
-        token
-      };
-    }
-    if (nextText.startsWith('-')) {
-      const token = this.endOfListItem(nextText);
-      return {
-        token
+        token: unorderedList[0],
+        type: 'keyword'
       };
     }
     const numberedList = nextText.match(/^\d+\./g);
-    if (numberedList) {
-      const token = this.endOfListItem(nextText);
+    if (numberedList && this.isStartOfLine(block.text)) {
       return {
-        token
+        token: numberedList[0],
+        type: 'keyword'
       };
     }
+
     if (nextText.startsWith('\n') && !nextText.startsWith('\n\n')) {
       return {
-        token: '\n'
+        token: '\n',
+        type: 'text'
       };
     }
+
     // TODO what of escaped *~< ?
     const endOfText = nextText.match(/^([^*~<\n]*)/g);
     if (endOfText && endOfText.length > 0) {
       return {
-        token: endOfText[0]
+        token: endOfText[0],
+        type: 'text'
       };
     }
     return {
-      token: nextText
+      token: nextText,
+      type: 'text'
     };
+  }
+
+  protected isStartOfLine(blockText: string) {
+    return this.textIdx === 0 || blockText[this.textIdx - 1] === '\n';
   }
 }
