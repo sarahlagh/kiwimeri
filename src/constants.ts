@@ -12,6 +12,7 @@ import {
   constructSharp,
   createOutline,
   documentTextOutline,
+  downloadOutline,
   ellipsisVertical,
   exitOutline,
   fileTrayStackedOutline,
@@ -25,6 +26,7 @@ import {
   moonOutline,
   moonSharp,
   pricetagsOutline,
+  sendOutline,
   settingsSharp,
   syncOutline,
   trashOutline,
@@ -89,7 +91,9 @@ export const APPICONS = {
   moveDown: arrowDown,
   warning: warningOutline,
   info: informationCircleOutline,
-  tags: pricetagsOutline
+  tags: pricetagsOutline,
+  export: sendOutline,
+  import: downloadOutline
 };
 
 export const APPICONS_PER_TYPE = new Map<CollectionItemTypeValues, string>();
