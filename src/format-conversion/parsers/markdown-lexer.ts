@@ -1,5 +1,5 @@
 import { KiwimeriLexer, KiwimeriLexerResponse } from '../lexer';
-import { KiwimeriParserBlock } from '../parser';
+import { KiwimeriParserBlock } from '../parser-context';
 
 export class MarkdownLexer extends KiwimeriLexer {
   // blocks: paragraph, quote, heading, list, horizontalrule
@@ -113,7 +113,7 @@ export class MarkdownLexer extends KiwimeriLexer {
         type: 'keyword'
       };
     }
-    const numberedList = nextText.match(/^\d+\./g);
+    const numberedList = nextText.match(/^\d+\. /g);
     if (numberedList && this.isStartOfLine(block.text)) {
       return {
         token: numberedList[0],
