@@ -91,7 +91,11 @@ export class KiwimeriParserContext {
     this.paragraphAlign = null;
   }
 
-  copy() {
-    return new KiwimeriParserContext(this);
+  copy(currentBlock?: KiwimeriParserBlock) {
+    const newCtx = new KiwimeriParserContext(this);
+    if (currentBlock) {
+      newCtx.addBlock(currentBlock);
+    }
+    return newCtx;
   }
 }

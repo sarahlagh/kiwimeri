@@ -53,9 +53,7 @@ export abstract class KiwimeriParser {
       const { token } = lexer.consumeBlock()!;
       ctx.resetBlock();
       const block = this.parseBlock(token, ctx.copy());
-      ctx.addBlock(block);
       const elementNode = this.convertBlockToLexical(block);
-      console.log('block', block);
       if ('children' in elementNode) {
         while (lexer.nextText(block) !== null) {
           const lexerText = lexer.consumeText(block);
@@ -63,7 +61,7 @@ export abstract class KiwimeriParser {
           const parsedText = this.parseText(
             lexerText!.token,
             lexerText!.type,
-            ctx.copy(),
+            ctx.copy(block),
             opts
           );
 
@@ -71,13 +69,16 @@ export abstract class KiwimeriParser {
             continue;
           }
 
+          // paragraph alignment propagation for next text
           if (parsedText.paragraphAlign !== undefined) {
             ctx.paragraphAlign = parsedText.paragraphAlign;
+            if (parsedText.paragraphAlign !== '') {
+              block.paragraphAlign = parsedText.paragraphAlign;
+            }
           }
 
           if (lexerText?.type === 'keyword') {
             ctx.addKeyword(parsedText);
-            console.log('keyword', parsedText);
             if (parsedText.type === 'listitem') {
               const child: SerializedLexicalNode = this.convertTextToLexical(
                 parsedText!,
@@ -90,7 +91,6 @@ export abstract class KiwimeriParser {
 
           if (lexerText?.type === 'text') {
             ctx.addText(parsedText);
-            console.log('text', parsedText);
             const child: SerializedLexicalNode = this.convertTextToLexical(
               parsedText!,
               ctx
@@ -119,10 +119,40 @@ export abstract class KiwimeriParser {
             }
           }
         }
+
+        // propagate last block's align if current has no text (ex: empty <p>'s)
+        if (
+          elementNode.format === '' &&
+          ctx.lastBlock?.type === 'paragraph' &&
+          ctx.lastBlock?.paragraphAlign
+        ) {
+          elementNode.format = ctx.lastBlock.paragraphAlign;
+        }
+
+        // update element node direction :[
+        // note: direction seems to be buggy on Lexical side
         (elementNode as SerializedElementNode).direction =
           elementNode.children.length > 0 ? 'ltr' : null;
+        if (
+          (elementNode.children.length === 0 &&
+            ctx.lastBlock?.type !== 'paragraph') ||
+          (ctx.lastBlock?.paragraphAlign !== undefined &&
+            ctx.lastBlock.paragraphAlign !== '')
+        ) {
+          (elementNode as SerializedElementNode).direction = 'ltr';
+        }
       }
       root.children.push(elementNode);
+      ctx.addBlock(block);
+    }
+
+    // propagate textFormat to root if first child has a non zero value
+    if (
+      root.children.length > 0 &&
+      'textFormat' in root.children[0] &&
+      root.children[0].textFormat !== 0
+    ) {
+      (root as any).textFormat = root.children[0].textFormat;
     }
     return { obj: { root } };
   }
