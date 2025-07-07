@@ -1,3 +1,4 @@
+import { useToastContext } from '@/common/context/ToastContext';
 import filesystemService from '@/common/services/filesystem.service';
 import platformService from '@/common/services/platform.service';
 import { ANDROID_FOLDER } from '@/constants';
@@ -8,11 +9,10 @@ import {
   IonCardHeader,
   IonCardSubtitle,
   IonCardTitle,
-  IonText,
-  IonToast
+  IonText
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
-import React, { useState } from 'react';
+import React from 'react';
 
 type ImportExportSettingsProps = {
   title: string;
@@ -32,21 +32,11 @@ const ImportExportSettings = ({
   exportFileSuffix
 }: ImportExportSettingsProps) => {
   const { t } = useLingui();
-  const [isOpen, setIsOpen] = useState(false);
   const errorMessage = t`An error occurred loading the file`;
   const successMessage = t`Success!`;
+  const { setToast } = useToastContext();
 
   const restoreElement = React.useRef(null);
-  const toast = React.useRef(null);
-
-  function setToast(msg: string, color: string) {
-    if (toast.current) {
-      const current = toast.current as HTMLIonToastElement;
-      current.message = msg;
-      current.color = color;
-      setIsOpen(true);
-    }
-  }
 
   // open the file picker
   const onRestore: React.MouseEventHandler<HTMLIonButtonElement> = () => {
@@ -121,19 +111,6 @@ const ImportExportSettings = ({
           className="ion-hide"
         />
       </IonButton>
-      <IonToast
-        ref={toast}
-        isOpen={isOpen}
-        onDidDismiss={() => setIsOpen(false)}
-        duration={3000}
-        swipeGesture="vertical"
-        buttons={[
-          {
-            text: 'Dismiss',
-            role: 'cancel'
-          }
-        ]}
-      ></IonToast>
     </IonCard>
   );
 };
