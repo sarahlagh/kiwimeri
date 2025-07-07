@@ -82,6 +82,13 @@ const genericTextFormatTransform = function (
   return `${prefix}${text}${suffix}`;
 };
 
+// escape markdown chars with \
+export const MARKDOWN_TEXT_TRANSFORMER: KiwimeriTransformer = {
+  type: 'text',
+  handles: () => true,
+  transform: (text: string) => text.replaceAll(/([*_~<])/g, '\\$1')
+};
+
 export const MARKDOWN_BOLD_TRANSFORMER: KiwimeriTransformer = {
   type: 'text',
   handles: ({ node }) =>
@@ -234,6 +241,7 @@ export const MARKDOWN_LIST_TRANSFORMERS: KiwimeriTransformer[] = [
 ];
 
 export const MARKDOWN_TRANSFORMERS: KiwimeriTransformer[] = [
+  MARKDOWN_TEXT_TRANSFORMER,
   MARKDOWN_PARAGRAPH_TRANSFORMER,
   MARKDOWN_BOLD_TRANSFORMER,
   MARKDOWN_ITALIC_TRANSFORMER,

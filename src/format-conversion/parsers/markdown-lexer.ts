@@ -128,11 +128,12 @@ export class MarkdownLexer extends KiwimeriLexer {
       };
     }
 
-    // TODO what of escaped *~< ?
-    const endOfText = nextText.match(/^([^*~<\n]*)/g);
+    // regex to stop token at [*_~<\n] but not escaped [*_~<\n] (* will match but \* won't)
+    const endOfText = nextText.match(/^(([\\][*_~<\n]|[^*_~<\n])*)[*_~<\n]/g);
     if (endOfText && endOfText.length > 0) {
+      const endOfToken = endOfText[0].replaceAll(/[*_~<\n]*$/g, '');
       return {
-        token: endOfText[0],
+        token: endOfToken,
         type: 'text'
       };
     }

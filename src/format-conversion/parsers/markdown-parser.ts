@@ -106,6 +106,9 @@ export class MarkdownParser extends KiwimeriParser {
       token = token.trimStart();
     }
 
+    // un-escape escaped chars (\* -> *)
+    token = token.replaceAll(/\\([*_~<])/g, '$1');
+
     // handle list items
     if (ctx.lastBlock?.type === 'list' && type === 'keyword') {
       if (token.startsWith('-')) {

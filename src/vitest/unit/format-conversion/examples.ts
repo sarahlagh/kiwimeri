@@ -18,6 +18,7 @@ export const examples = [
   { name: 'lists' },
   { name: 'text-align' },
   { name: 'nested-format' },
+  { name: 'escaped' },
   {
     name: 'everything'
   }
