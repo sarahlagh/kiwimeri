@@ -1,10 +1,8 @@
+import GenericExportFileButton from '@/common/buttons/GenericExportFileButton';
 import GenericImportFileButton from '@/common/buttons/GenericImportFileButton';
-import { useToastContext } from '@/common/context/ToastContext';
-import filesystemService from '@/common/services/filesystem.service';
 import platformService from '@/common/services/platform.service';
 import { ANDROID_FOLDER } from '@/constants';
 import {
-  IonButton,
   IonButtons,
   IonCard,
   IonCardContent,
@@ -14,7 +12,6 @@ import {
   IonText
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
-import React from 'react';
 
 type ImportExportSettingsProps = {
   title: string;
@@ -34,21 +31,11 @@ const ImportExportSettings = ({
   exportFileSuffix
 }: ImportExportSettingsProps) => {
   const { t } = useLingui();
-  const { setToast } = useToastContext();
 
-  // export
-  const onExport: React.MouseEventHandler<HTMLIonButtonElement> = () => {
-    const content = getContentToExport();
-    const fileName = `${new Date().toISOString().substring(0, 19).replaceAll(/[:T]/g, '-')}-${exportFileSuffix}.json`;
+  const getExportFileName = () =>
+    `${new Date().toISOString().substring(0, 19).replaceAll(/[:T]/g, '-')}-${exportFileSuffix}.json`;
 
-    filesystemService.exportToFile(fileName, content).then(() => {
-      if (platformService.isAndroid()) {
-        setToast(t`Success!`, 'success');
-      }
-    });
-  };
-
-  const onContentRead = async (content: string) => {
+  const onImportContentRead = async (content: string) => {
     await onRestoreContent(content);
   };
 
@@ -76,15 +63,21 @@ const ImportExportSettings = ({
       )}
 
       <IonButtons>
-        <IonButton fill="clear" color={'primary'} onClick={onExport}>
-          <Trans>Export</Trans>
-        </IonButton>
+        <GenericExportFileButton
+          fill="clear"
+          color={'primary'}
+          label={t`Export`}
+          icon={null}
+          fileMime={'application/json'}
+          getFileTitle={getExportFileName}
+          getFileContent={getContentToExport}
+        />
         <GenericImportFileButton
           fill="clear"
           color="danger"
           icon={null}
           label={t`Restore`}
-          onContentRead={onContentRead}
+          onContentRead={onImportContentRead}
         />
       </IonButtons>
     </IonCard>
