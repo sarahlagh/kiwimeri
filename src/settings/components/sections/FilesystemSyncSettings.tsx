@@ -1,6 +1,7 @@
 import platformService from '@/common/services/platform.service';
 import {
   IonButton,
+  IonButtons,
   IonCard,
   IonCardContent,
   IonCardHeader,
@@ -30,9 +31,11 @@ const FilesystemSyncSettings = () => {
           placeholder={t`Pick a directory for your backups`}
           value=""
         ></IonInput>
-        <IonButton fill="clear">
-          <Trans>Pick a directory for your backups</Trans>
-        </IonButton>
+        <IonButtons>
+          <IonButton fill="clear">
+            <Trans>Pick a directory for your backups</Trans>
+          </IonButton>
+        </IonButtons>
       </IonCardContent>
     </IonCard>
   );

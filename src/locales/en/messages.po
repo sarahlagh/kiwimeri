@@ -13,12 +13,11 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/settings/components/providers/RemotesSettings.tsx:100
+#: src/settings/components/providers/RemotesSettings.tsx:102
 msgid "Add config"
 msgstr "Add config"
 
-#: src/settings/components/sections/ImportExportSettings.tsx:35
-#: src/common/buttons/ImportFileButton.tsx:18
+#: src/settings/components/sections/ImportExportSettings.tsx:37
 msgid "An error occurred loading the file"
 msgstr "An error occurred loading the file"
 
@@ -44,7 +43,7 @@ msgstr "Choose a new folder"
 msgid "Collection"
 msgstr "Collection"
 
-#: src/settings/components/providers/RemotesSettings.tsx:56
+#: src/settings/components/providers/RemotesSettings.tsx:57
 msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
 
@@ -87,11 +86,11 @@ msgstr "Enter your username"
 msgid "EU"
 msgstr "EU"
 
-#: src/settings/components/sections/ImportExportSettings.tsx:103
+#: src/settings/components/sections/ImportExportSettings.tsx:80
 msgid "Export"
 msgstr "Export"
 
-#: src/settings/components/sections/FilesystemSyncSettings.tsx:19
+#: src/settings/components/sections/FilesystemSyncSettings.tsx:20
 msgid "Filesystem"
 msgstr "Filesystem"
 
@@ -160,19 +159,19 @@ msgstr "Not Found"
 msgid "Notebook Selection"
 msgstr "Notebook Selection"
 
-#: src/settings/components/sections/OperationsSettings.tsx:36
+#: src/settings/components/sections/OperationsSettings.tsx:43
 msgid "nuke space"
 msgstr "nuke space"
 
-#: src/settings/components/sections/OperationsSettings.tsx:56
+#: src/settings/components/sections/OperationsSettings.tsx:63
 msgid "nuke space & remote"
 msgstr "nuke space & remote"
 
-#: src/settings/components/sections/OperationsSettings.tsx:24
+#: src/settings/components/sections/OperationsSettings.tsx:31
 msgid "nuke store"
 msgstr "nuke store"
 
-#: src/settings/components/sections/OperationsSettings.tsx:13
+#: src/settings/components/sections/OperationsSettings.tsx:19
 msgid "Operations"
 msgstr "Operations"
 
@@ -190,9 +189,9 @@ msgstr "Path"
 msgid "PCloud Configuration"
 msgstr "PCloud Configuration"
 
-#: src/settings/components/sections/FilesystemSyncSettings.tsx:29
 #: src/settings/components/sections/FilesystemSyncSettings.tsx:30
-#: src/settings/components/sections/FilesystemSyncSettings.tsx:34
+#: src/settings/components/sections/FilesystemSyncSettings.tsx:31
+#: src/settings/components/sections/FilesystemSyncSettings.tsx:36
 msgid "Pick a directory for your backups"
 msgstr "Pick a directory for your backups"
 
@@ -200,15 +199,15 @@ msgstr "Pick a directory for your backups"
 msgid "Platform(s)"
 msgstr "Platform(s)"
 
-#: src/settings/components/providers/RemotesSettings.tsx:53
+#: src/settings/components/providers/RemotesSettings.tsx:54
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
-#: src/settings/components/providers/RemotesSettings.tsx:108
+#: src/settings/components/providers/RemotesSettings.tsx:110
 msgid "Reorder"
 msgstr "Reorder"
 
-#: src/settings/components/sections/ImportExportSettings.tsx:106
+#: src/settings/components/sections/ImportExportSettings.tsx:86
 msgid "Restore"
 msgstr "Restore"
 
@@ -225,19 +224,15 @@ msgstr "Server"
 msgid "Settings"
 msgstr "Settings"
 
-#: src/settings/components/sections/ImportExportSettings.tsx:36
-#: src/settings/components/sections/ImportExportSettings.tsx:74
-#: src/common/buttons/ImportFileButton.tsx:19
-#: src/common/buttons/ExportFileButton.tsx:45
-#: src/app/pages/DebugPage.tsx:75
+#: src/settings/components/sections/ImportExportSettings.tsx:46
 msgid "Success!"
 msgstr "Success!"
 
-#: src/settings/components/sections/FilesystemSyncSettings.tsx:22
+#: src/settings/components/sections/FilesystemSyncSettings.tsx:23
 msgid "Synchronize your collection on the filesystem"
 msgstr "Synchronize your collection on the filesystem"
 
-#: src/settings/components/providers/RemotesSettings.tsx:61
+#: src/settings/components/providers/RemotesSettings.tsx:62
 msgid "Syncing is disabled on the web version."
 msgstr "Syncing is disabled on the web version."
 
@@ -272,10 +267,10 @@ msgstr "Username"
 msgid "yes"
 msgstr "yes"
 
-#: src/settings/components/providers/RemotesSettings.tsx:70
+#: src/settings/components/providers/RemotesSettings.tsx:71
 msgid "You have not configured any remote yet."
 msgstr "You have not configured any remote yet."
 
-#: src/settings/components/sections/ImportExportSettings.tsx:92
+#: src/settings/components/sections/ImportExportSettings.tsx:68
 msgid "Your backups will be exported to the `{ANDROID_FOLDER}` directory"
 msgstr "Your backups will be exported to the `{ANDROID_FOLDER}` directory"

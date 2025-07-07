@@ -5,6 +5,7 @@ import storageService from '@/db/storage.service';
 import { PCloudConf } from '@/remote-storage/storage-drivers/pcloud/pcloud.driver';
 import {
   IonButton,
+  IonButtons,
   IonCard,
   IonCardContent,
   IonCardHeader,
@@ -96,19 +97,21 @@ const RemotesSettings = () => {
           )}
         </IonCardContent>
       )}
-      <IonButton fill="clear" onClick={addRemote}>
-        <Trans>Add config</Trans>
-      </IonButton>
-      {remotes.length > 1 && (
-        <IonButton
-          fill="clear"
-          onClick={() => setReorderEnabled(!reorderEnabled)}
-        >
-          <IonToggle checked={reorderEnabled}>
-            <Trans>Reorder</Trans>
-          </IonToggle>
+      <IonButtons>
+        <IonButton fill="clear" color={'primary'} onClick={addRemote}>
+          <Trans>Add config</Trans>
         </IonButton>
-      )}
+        {remotes.length > 1 && (
+          <IonButton
+            fill="clear"
+            onClick={() => setReorderEnabled(!reorderEnabled)}
+          >
+            <IonToggle checked={reorderEnabled}>
+              <Trans>Reorder</Trans>
+            </IonToggle>
+          </IonButton>
+        )}
+      </IonButtons>
     </IonCard>
   );
 };

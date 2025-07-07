@@ -1,9 +1,11 @@
+import GenericImportFileButton from '@/common/buttons/GenericImportFileButton';
 import { useToastContext } from '@/common/context/ToastContext';
 import filesystemService from '@/common/services/filesystem.service';
 import platformService from '@/common/services/platform.service';
 import { ANDROID_FOLDER } from '@/constants';
 import {
   IonButton,
+  IonButtons,
   IonCard,
   IonCardContent,
   IonCardHeader,
@@ -32,37 +34,7 @@ const ImportExportSettings = ({
   exportFileSuffix
 }: ImportExportSettingsProps) => {
   const { t } = useLingui();
-  const errorMessage = t`An error occurred loading the file`;
-  const successMessage = t`Success!`;
   const { setToast } = useToastContext();
-
-  const restoreElement = React.useRef(null);
-
-  // open the file picker
-  const onRestore: React.MouseEventHandler<HTMLIonButtonElement> = () => {
-    if (restoreElement.current) {
-      const current = restoreElement.current as HTMLInputElement;
-      current.click();
-    }
-  };
-  // read the selected file
-  const onRestoreFileChange: React.ChangeEventHandler<
-    HTMLInputElement
-  > = event => {
-    if (event.target.files && event.target.files.length > 0) {
-      const file = event.target.files[0];
-      filesystemService.readFile(file).then(async content => {
-        try {
-          await onRestoreContent(content);
-
-          setToast(successMessage, 'success');
-        } catch (e) {
-          console.error(e);
-          setToast(errorMessage, 'warning');
-        }
-      });
-    }
-  };
 
   // export
   const onExport: React.MouseEventHandler<HTMLIonButtonElement> = () => {
@@ -74,6 +46,10 @@ const ImportExportSettings = ({
         setToast(t`Success!`, 'success');
       }
     });
+  };
+
+  const onContentRead = async (content: string) => {
+    await onRestoreContent(content);
   };
 
   return (
@@ -99,18 +75,18 @@ const ImportExportSettings = ({
         </IonCardContent>
       )}
 
-      <IonButton fill="clear" onClick={onExport}>
-        <Trans>Export</Trans>
-      </IonButton>
-      <IonButton fill="clear" onClick={onRestore} color="danger">
-        <Trans>Restore</Trans>
-        <input
-          ref={restoreElement}
-          onChange={onRestoreFileChange}
-          type="file"
-          className="ion-hide"
+      <IonButtons>
+        <IonButton fill="clear" color={'primary'} onClick={onExport}>
+          <Trans>Export</Trans>
+        </IonButton>
+        <GenericImportFileButton
+          fill="clear"
+          color="danger"
+          icon={null}
+          label={t`Restore`}
+          onContentRead={onContentRead}
         />
-      </IonButton>
+      </IonButtons>
     </IonCard>
   );
 };
