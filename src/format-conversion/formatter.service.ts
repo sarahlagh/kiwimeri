@@ -45,7 +45,7 @@ class FormatterService {
 
   public getPagesSeparator() {
     // TODO depends on the format
-    return '\n\n========================================\n\n';
+    return '==============================================================\n';
   }
 }
 
