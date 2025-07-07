@@ -2,9 +2,10 @@ import { APPICONS, ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
 import storageService from '@/db/storage.service';
 import formatterService from '@/format-conversion/formatter.service';
-import { IonButton, IonIcon, IonToast } from '@ionic/react';
+import { IonButton, IonIcon } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
-import React, { useState } from 'react';
+import React from 'react';
+import { useToastContext } from '../context/ToastContext';
 import filesystemService from '../services/filesystem.service';
 
 type ImportFileButtonProps = {
@@ -13,20 +14,10 @@ type ImportFileButtonProps = {
 
 const ImportFileButton = ({ parent }: ImportFileButtonProps) => {
   const { t } = useLingui();
+  const { setToast } = useToastContext();
   const errorMessage = t`An error occurred loading the file`;
   const successMessage = t`Success!`;
-  const [isOpen, setIsOpen] = useState(false);
   const importElement = React.useRef(null);
-  const toast = React.useRef(null);
-
-  function setToast(msg: string, color: string) {
-    if (toast.current) {
-      const current = toast.current as HTMLIonToastElement;
-      current.message = msg;
-      current.color = color;
-      setIsOpen(true);
-    }
-  }
 
   function importFile() {
     if (importElement.current) {
@@ -81,6 +72,7 @@ const ImportFileButton = ({ parent }: ImportFileButtonProps) => {
               collectionService.setItemLexicalContent(pageId, lexical);
             });
           });
+
           setToast(successMessage, 'success');
           // TODO open created document
         } catch (e) {
@@ -105,19 +97,6 @@ const ImportFileButton = ({ parent }: ImportFileButtonProps) => {
         type="file"
         className="ion-hide"
       />
-      <IonToast
-        ref={toast}
-        isOpen={isOpen}
-        onDidDismiss={() => setIsOpen(false)}
-        duration={3000}
-        swipeGesture="vertical"
-        buttons={[
-          {
-            text: 'Dismiss',
-            role: 'cancel'
-          }
-        ]}
-      ></IonToast>
     </IonButton>
   );
 };

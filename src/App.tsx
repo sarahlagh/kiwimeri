@@ -23,6 +23,7 @@ import { IonReactRouter } from '@ionic/react-router';
 import MainLayout from './app/MainLayout';
 import InitialRoutingProvider from './app/providers/InitialRoutingProvider';
 import TinybaseProvider from './app/providers/TinybaseProvider';
+import { ToastProvider } from './app/providers/ToastProvider';
 import platformService from './common/services/platform.service';
 import { initGlobalTrans } from './config';
 import { messages as enMessages } from './locales/en/messages';
@@ -37,13 +38,15 @@ const App = () => {
     <>
       <I18nProvider i18n={i18n}>
         <TinybaseProvider>
-          <IonApp className={platformService.getPlatform()}>
-            <IonReactRouter>
-              <InitialRoutingProvider>
-                <MainLayout></MainLayout>
-              </InitialRoutingProvider>
-            </IonReactRouter>
-          </IonApp>
+          <ToastProvider>
+            <IonApp className={platformService.getPlatform()}>
+              <IonReactRouter>
+                <InitialRoutingProvider>
+                  <MainLayout></MainLayout>
+                </InitialRoutingProvider>
+              </IonReactRouter>
+            </IonApp>
+          </ToastProvider>
         </TinybaseProvider>
       </I18nProvider>
     </>

@@ -17,8 +17,8 @@ msgstr ""
 msgid "Add config"
 msgstr "Add config"
 
-#: src/settings/components/sections/ImportExportSettings.tsx:36
-#: src/common/buttons/ImportFileButton.tsx:15
+#: src/settings/components/sections/ImportExportSettings.tsx:35
+#: src/common/buttons/ImportFileButton.tsx:18
 msgid "An error occurred loading the file"
 msgstr "An error occurred loading the file"
 
@@ -54,7 +54,7 @@ msgstr "Configure where to synchronize your collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/app/pages/DebugPage.tsx:34
+#: src/app/pages/DebugPage.tsx:27
 #: src/app/components/MainMenuList.tsx:73
 msgid "Debug"
 msgstr "Debug"
@@ -63,7 +63,7 @@ msgstr "Debug"
 msgid "Default"
 msgstr "Default"
 
-#: src/app/pages/DebugPage.tsx:87
+#: src/app/pages/DebugPage.tsx:80
 msgid "Download Logs"
 msgstr "Download Logs"
 
@@ -87,7 +87,7 @@ msgstr "Enter your username"
 msgid "EU"
 msgstr "EU"
 
-#: src/settings/components/sections/ImportExportSettings.tsx:113
+#: src/settings/components/sections/ImportExportSettings.tsx:103
 msgid "Export"
 msgstr "Export"
 
@@ -115,7 +115,7 @@ msgstr "Leave empty for root"
 msgid "Loading..."
 msgstr "Loading..."
 
-#: src/app/pages/DebugPage.tsx:60
+#: src/app/pages/DebugPage.tsx:53
 msgid "Logs"
 msgstr "Logs"
 
@@ -196,7 +196,7 @@ msgstr "PCloud Configuration"
 msgid "Pick a directory for your backups"
 msgstr "Pick a directory for your backups"
 
-#: src/app/pages/DebugPage.tsx:39
+#: src/app/pages/DebugPage.tsx:32
 msgid "Platform(s)"
 msgstr "Platform(s)"
 
@@ -208,7 +208,7 @@ msgstr "Remote Configuration"
 msgid "Reorder"
 msgstr "Reorder"
 
-#: src/settings/components/sections/ImportExportSettings.tsx:116
+#: src/settings/components/sections/ImportExportSettings.tsx:106
 msgid "Restore"
 msgstr "Restore"
 
@@ -225,11 +225,11 @@ msgstr "Server"
 msgid "Settings"
 msgstr "Settings"
 
-#: src/settings/components/sections/ImportExportSettings.tsx:37
-#: src/settings/components/sections/ImportExportSettings.tsx:84
-#: src/common/buttons/ImportFileButton.tsx:16
-#: src/common/buttons/ExportFileButton.tsx:54
-#: src/app/pages/DebugPage.tsx:82
+#: src/settings/components/sections/ImportExportSettings.tsx:36
+#: src/settings/components/sections/ImportExportSettings.tsx:74
+#: src/common/buttons/ImportFileButton.tsx:19
+#: src/common/buttons/ExportFileButton.tsx:45
+#: src/app/pages/DebugPage.tsx:75
 msgid "Success!"
 msgstr "Success!"
 
@@ -276,6 +276,6 @@ msgstr "yes"
 msgid "You have not configured any remote yet."
 msgstr "You have not configured any remote yet."
 
-#: src/settings/components/sections/ImportExportSettings.tsx:102
+#: src/settings/components/sections/ImportExportSettings.tsx:92
 msgid "Your backups will be exported to the `{ANDROID_FOLDER}` directory"
 msgstr "Your backups will be exported to the `{ANDROID_FOLDER}` directory"

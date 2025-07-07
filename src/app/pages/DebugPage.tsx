@@ -1,4 +1,5 @@
 import NotFound from '@/app/components/NotFound';
+import { useToastContext } from '@/common/context/ToastContext';
 import filesystemService from '@/common/services/filesystem.service';
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
@@ -10,22 +11,14 @@ import {
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
-  IonContent,
-  useIonToast
+  IonContent
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import TemplateMainPage from './TemplateMainPage';
 
 const DebugPage = () => {
   const { t } = useLingui();
-  const [present] = useIonToast();
-  const presentToast = (message: string, color: string) => {
-    present({
-      message,
-      duration: 1500,
-      color
-    });
-  };
+  const { setToast } = useToastContext();
 
   if (platformService.isRelease()) {
     return <NotFound />;
@@ -79,7 +72,7 @@ const DebugPage = () => {
 
                 filesystemService.exportToFile(fileName, content).then(() => {
                   if (platformService.isAndroid()) {
-                    presentToast(t`Success!`, 'success');
+                    setToast(t`Success!`, 'success');
                   }
                 });
               }}
