@@ -17,7 +17,7 @@ msgstr ""
 msgid "Add config"
 msgstr "Add config"
 
-#: src/settings/components/sections/ImportExportSettings.tsx:37
+#: src/common/buttons/GenericImportFileButton.tsx:29
 msgid "An error occurred loading the file"
 msgstr "An error occurred loading the file"
 
@@ -86,7 +86,7 @@ msgstr "Enter your username"
 msgid "EU"
 msgstr "EU"
 
-#: src/settings/components/sections/ImportExportSettings.tsx:80
+#: src/settings/components/sections/ImportExportSettings.tsx:69
 msgid "Export"
 msgstr "Export"
 
@@ -207,7 +207,7 @@ msgstr "Remote Configuration"
 msgid "Reorder"
 msgstr "Reorder"
 
-#: src/settings/components/sections/ImportExportSettings.tsx:86
+#: src/settings/components/sections/ImportExportSettings.tsx:79
 msgid "Restore"
 msgstr "Restore"
 
@@ -224,7 +224,9 @@ msgstr "Server"
 msgid "Settings"
 msgstr "Settings"
 
-#: src/settings/components/sections/ImportExportSettings.tsx:46
+#: src/common/buttons/GenericImportFileButton.tsx:30
+#: src/common/buttons/GenericExportFileButton.tsx:41
+#: src/app/pages/DebugPage.tsx:75
 msgid "Success!"
 msgstr "Success!"
 
@@ -271,6 +273,6 @@ msgstr "yes"
 msgid "You have not configured any remote yet."
 msgstr "You have not configured any remote yet."
 
-#: src/settings/components/sections/ImportExportSettings.tsx:68
+#: src/settings/components/sections/ImportExportSettings.tsx:55
 msgid "Your backups will be exported to the `{ANDROID_FOLDER}` directory"
 msgstr "Your backups will be exported to the `{ANDROID_FOLDER}` directory"

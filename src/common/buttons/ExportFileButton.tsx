@@ -1,13 +1,8 @@
-import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
 import formatterService from '@/format-conversion/formatter.service';
-import { IonButton, IonIcon } from '@ionic/react';
-import { useLingui } from '@lingui/react/macro';
 import { Id } from 'tinybase/with-schemas';
-import { useToastContext } from '../context/ToastContext';
-import filesystemService from '../services/filesystem.service';
-import platformService from '../services/platform.service';
 import { unminimizeContentFromStorage } from '../wysiwyg/compress-file-content';
+import GenericExportFileButton from './GenericExportFileButton';
 
 type ExportFileButtonProps = {
   id: Id;
@@ -15,10 +10,6 @@ type ExportFileButtonProps = {
 };
 
 const ExportFileButton = ({ id, onClose }: ExportFileButtonProps) => {
-  const { t } = useLingui();
-
-  const { setToast } = useToastContext();
-
   function getContentAsMd(storedJson: string) {
     const content = storedJson.startsWith('{"root":{')
       ? storedJson
@@ -26,8 +17,11 @@ const ExportFileButton = ({ id, onClose }: ExportFileButtonProps) => {
     return formatterService.getMarkdownFromLexical(content);
   }
 
-  function exportFile() {
+  const getFileTitle = () => {
     const fileTitle = collectionService.getItemTitle(id);
+    return `${fileTitle}.md`;
+  };
+  const getFileContent = () => {
     const pages = collectionService.getDocumentPages(id);
     const json = collectionService.getItemContent(id) || '';
     let content: string;
@@ -38,25 +32,15 @@ const ExportFileButton = ({ id, onClose }: ExportFileButtonProps) => {
         collectionService.getItemContent(page.id) || ''
       );
     });
-    filesystemService
-      .exportToFile(`${fileTitle}.md`, content, 'text/markdown')
-      .then(() => {
-        if (platformService.isAndroid()) {
-          setToast(t`Success!`, 'success');
-        }
-        onClose();
-      });
-  }
-
+    return content;
+  };
   return (
-    <IonButton
-      expand="block"
-      onClick={() => {
-        exportFile();
-      }}
-    >
-      <IonIcon icon={APPICONS.export}></IonIcon>
-    </IonButton>
+    <GenericExportFileButton
+      getFileTitle={getFileTitle}
+      getFileContent={getFileContent}
+      fileMime={'text/markdown'}
+      onDone={onClose}
+    />
   );
 };
 export default ExportFileButton;
