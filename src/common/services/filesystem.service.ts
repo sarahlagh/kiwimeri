@@ -6,7 +6,7 @@ interface FilesystemService {
   /* export to file, returns relative directory path */
   exportToFile(
     fileName: string,
-    content: string,
+    content: string | Uint8Array<ArrayBufferLike>,
     type?: string,
     directoryPath?: string
   ): Promise<boolean>;
@@ -30,10 +30,13 @@ async function readFile(file: File): Promise<string> {
 }
 
 class AndroidFilesystemService implements FilesystemService {
-  async exportToFile(fileName: string, content: string) {
+  async exportToFile(
+    fileName: string,
+    content: string | Uint8Array<ArrayBufferLike>
+  ) {
     await Filesystem.writeFile({
       path: `${ANDROID_FOLDER}/${fileName}`,
-      data: content,
+      data: content as string, // TODO will not work with binary data from fflate
       directory: Directory.Documents,
       encoding: Encoding.UTF8,
       recursive: true
@@ -66,7 +69,7 @@ class AndroidFilesystemService implements FilesystemService {
 class WebFilesystemService implements FilesystemService {
   async exportToFile(
     fileName: string,
-    content: string,
+    content: string | Uint8Array<ArrayBufferLike>,
     type = 'application/json'
   ) {
     const blob = new Blob([content], { type });
