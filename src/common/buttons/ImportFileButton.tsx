@@ -7,7 +7,9 @@ import { OverlayEventDetail } from '@ionic/core/components';
 import { useIonModal } from '@ionic/react';
 import { SerializedEditorState, SerializedLexicalNode } from 'lexical';
 import { useState } from 'react';
+import { useHistory } from 'react-router';
 import ConfirmImportModal from '../modals/ConfirmImportModal';
+import { GET_ITEM_ROUTE } from '../routes';
 import GenericImportFileButton from './GenericImportFileButton';
 
 type ImportFileButtonProps = {
@@ -15,6 +17,7 @@ type ImportFileButtonProps = {
 };
 
 const ImportFileButton = ({ parent }: ImportFileButtonProps) => {
+  const history = useHistory();
   const [items, setItems] = useState<CollectionItemResult[]>([]);
   const [present, dismiss] = useIonModal(ConfirmImportModal, {
     folder: parent || ROOT_FOLDER,
@@ -30,33 +33,33 @@ const ImportFileButton = ({ parent }: ImportFileButtonProps) => {
     fileName: string,
     item?: CollectionItemResult
   ) => {
+    let itemId = item?.id;
     storageService.getSpace().transaction(() => {
       // is there a document with same name?
-      if (item) {
+      if (itemId) {
         console.debug(
           'overwriting document with the same file name',
           parent,
-          item.id
+          itemId
         );
         // delete exising pages
-        const pages = collectionService.getDocumentPages(item.id);
+        const pages = collectionService.getDocumentPages(itemId);
         pages.forEach(page => {
           collectionService.deleteItem(page.id);
         });
-      }
-      let itemId = item?.id;
-      if (!itemId) {
+      } else {
         itemId = collectionService.addDocument(parent || ROOT_FOLDER);
         collectionService.setItemTitle(itemId, fileName);
       }
       collectionService.setItemLexicalContent(itemId, lexical);
 
       pages.forEach(page => {
-        const pageId = collectionService.addPage(itemId);
+        const pageId = collectionService.addPage(itemId!);
         const lexical = formatterService.getLexicalFromMarkdown(page);
         collectionService.setItemLexicalContent(pageId, lexical);
       });
     });
+    history.push(GET_ITEM_ROUTE(parent || ROOT_FOLDER, itemId));
   };
 
   const onContentRead = async (content: string, file: File) => {

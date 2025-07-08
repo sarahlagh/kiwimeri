@@ -1,3 +1,4 @@
+import { CollectionItemType } from '@/collection/collection';
 import collectionService from '@/db/collection.service';
 import formatterService from '@/format-conversion/formatter.service';
 import { Id } from 'tinybase/with-schemas';
@@ -18,6 +19,10 @@ const ExportFileButton = ({ id, onClose }: ExportFileButtonProps) => {
   }
 
   const getFileTitle = () => {
+    const type = collectionService.getItemType(id);
+    if (type === CollectionItemType.page) {
+      return 'page.md';
+    }
     const fileTitle = collectionService.getItemTitle(id);
     return `${fileTitle}.md`;
   };
