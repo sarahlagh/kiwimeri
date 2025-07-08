@@ -9,7 +9,7 @@ import filesystemService from '../services/filesystem.service';
 type GenericImportFileButtonProps = {
   label?: string | null;
   icon?: string | null;
-  onContentRead: (content: string, file: File) => Promise<void>;
+  onContentRead: (content: string, file: File) => Promise<boolean>;
   onError?: (e: Error) => Promise<void>;
   fill?: 'clear' | 'outline' | 'solid' | 'default' | undefined;
 } & IonicReactProps &
@@ -46,13 +46,15 @@ const GenericImportFileButton = ({
 
       filesystemService.readFile(file).then(async content => {
         onContentRead(content, file)
-          .then(() => {
-            setToast(successMessage, 'success');
+          .then(confirm => {
+            if (confirm === true) {
+              setToast(successMessage, 'success');
+            }
           })
-          .catch(e => {
+          .catch(async e => {
             console.error(e);
             if (onError) {
-              onError(e);
+              await onError(e);
             }
             setToast(errorMessage, 'warning');
           });

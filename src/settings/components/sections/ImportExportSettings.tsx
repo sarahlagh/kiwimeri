@@ -37,6 +37,7 @@ const ImportExportSettings = ({
 
   const onImportContentRead = async (content: string) => {
     await onRestoreContent(content);
+    return true;
   };
 
   return (

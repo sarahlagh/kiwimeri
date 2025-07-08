@@ -27,6 +27,7 @@ msgid "Are you sure?"
 msgstr "Are you sure?"
 
 #: src/common/modals/ConfirmYesNoDialog.tsx:28
+#: src/common/modals/ConfirmImportModal.tsx:78
 #: src/common/modals/ChooseTagsModal.tsx:98
 msgid "Cancel"
 msgstr "Cancel"
@@ -49,6 +50,7 @@ msgstr "Configure where to synchronize your collection"
 
 #: src/notebooks/components/ManageNotebooksModal.tsx:93
 #: src/common/modals/ConfirmYesNoDialog.tsx:36
+#: src/common/modals/ConfirmImportModal.tsx:81
 #: src/common/modals/ChooseTagsModal.tsx:105
 msgid "Confirm"
 msgstr "Confirm"
@@ -86,7 +88,7 @@ msgstr "Enter your username"
 msgid "EU"
 msgstr "EU"
 
-#: src/settings/components/sections/ImportExportSettings.tsx:69
+#: src/settings/components/sections/ImportExportSettings.tsx:70
 msgid "Export"
 msgstr "Export"
 
@@ -105,6 +107,10 @@ msgstr "Import & export your app settings"
 #: src/settings/components/sections/ImportExportCollectionSettings.tsx:10
 msgid "Import & export your collection"
 msgstr "Import & export your collection"
+
+#: src/common/modals/ConfirmImportModal.tsx:43
+msgid "Import file in folder {folderName}"
+msgstr "Import file in folder {folderName}"
 
 #: src/settings/components/providers/PCloudSettings.tsx:106
 msgid "Leave empty for root"
@@ -207,7 +213,7 @@ msgstr "Remote Configuration"
 msgid "Reorder"
 msgstr "Reorder"
 
-#: src/settings/components/sections/ImportExportSettings.tsx:79
+#: src/settings/components/sections/ImportExportSettings.tsx:80
 msgid "Restore"
 msgstr "Restore"
 
@@ -242,6 +248,10 @@ msgstr "Syncing is disabled on the web version."
 msgid "Text..."
 msgstr "Text..."
 
+#: src/common/modals/ConfirmImportModal.tsx:53
+msgid "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
+msgstr "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
+
 #: src/settings/components/sections/ImportExportStoreSettings.tsx:12
 msgid ""
 "This is different\n"
@@ -273,6 +283,6 @@ msgstr "yes"
 msgid "You have not configured any remote yet."
 msgstr "You have not configured any remote yet."
 
-#: src/settings/components/sections/ImportExportSettings.tsx:55
+#: src/settings/components/sections/ImportExportSettings.tsx:56
 msgid "Your backups will be exported to the `{ANDROID_FOLDER}` directory"
 msgstr "Your backups will be exported to the `{ANDROID_FOLDER}` directory"
