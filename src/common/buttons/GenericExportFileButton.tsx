@@ -8,7 +8,7 @@ import platformService from '../services/platform.service';
 
 type GenericExportFileButtonProps = {
   getFileTitle: () => string;
-  getFileContent: () => string;
+  getFileContent: () => Promise<string | Uint8Array<ArrayBufferLike>>;
   onDone?: () => void;
   fileMime?: string;
   label?: string | null;
@@ -32,9 +32,9 @@ const GenericExportFileButton = ({
 
   const { setToast } = useToastContext();
 
-  function exportFile() {
+  const exportFile = async () => {
     const fileTitle = getFileTitle();
-    const content = getFileContent();
+    const content = await getFileContent();
     const mime = fileMime || 'text/plain';
     filesystemService.exportToFile(fileTitle, content, mime).then(() => {
       if (platformService.isAndroid()) {
@@ -44,7 +44,7 @@ const GenericExportFileButton = ({
         onDone();
       }
     });
-  }
+  };
 
   return (
     <IonButton
