@@ -9,7 +9,8 @@ import filesystemService from '../services/filesystem.service';
 type GenericImportFileButtonProps = {
   label?: string | null;
   icon?: string | null;
-  onContentRead: (content: string, file: File) => Promise<boolean>;
+  onContentRead?: (content: ArrayBuffer, file: File) => Promise<boolean>;
+  onContentReadAsString?: (content: string, file: File) => Promise<boolean>;
   onError?: (e: Error) => Promise<void>;
   fill?: 'clear' | 'outline' | 'solid' | 'default' | undefined;
 } & IonicReactProps &
@@ -22,6 +23,7 @@ const GenericImportFileButton = ({
   fill,
   color,
   onContentRead,
+  onContentReadAsString,
   onError
 }: GenericImportFileButtonProps) => {
   const { t } = useLingui();
@@ -45,19 +47,35 @@ const GenericImportFileButton = ({
       const file = event.target.files[0];
 
       filesystemService.readFile(file).then(async content => {
-        onContentRead(content, file)
-          .then(confirm => {
-            if (confirm === true) {
-              setToast(successMessage, 'success');
-            }
-          })
-          .catch(async e => {
-            console.error(e);
-            if (onError) {
-              await onError(e);
-            }
-            setToast(errorMessage, 'warning');
-          });
+        if (onContentRead) {
+          onContentRead(content, file)
+            .then(confirm => {
+              if (confirm === true) {
+                setToast(successMessage, 'success');
+              }
+            })
+            .catch(async e => {
+              console.error(e);
+              if (onError) {
+                await onError(e);
+              }
+              setToast(errorMessage, 'warning');
+            });
+        } else if (onContentReadAsString) {
+          onContentReadAsString(new TextDecoder().decode(content), file)
+            .then(confirm => {
+              if (confirm === true) {
+                setToast(successMessage, 'success');
+              }
+            })
+            .catch(async e => {
+              console.error(e);
+              if (onError) {
+                await onError(e);
+              }
+              setToast(errorMessage, 'warning');
+            });
+        }
       });
     }
   };

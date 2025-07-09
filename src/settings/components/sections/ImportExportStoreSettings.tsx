@@ -23,7 +23,7 @@ const ImportExportCollectionSettings = () => {
           true
         );
       }}
-      getContentToExport={() => {
+      getContentToExport={async () => {
         const content = storageService.getStore().getContent();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const [contentToExport, valuesToExport]: [any, any] = content;

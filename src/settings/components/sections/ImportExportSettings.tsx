@@ -18,7 +18,7 @@ type ImportExportSettingsProps = {
   subtitle: string;
   description?: string;
   onRestoreContent: (content: string) => Promise<void>;
-  getContentToExport: () => string;
+  getContentToExport: () => Promise<string | Uint8Array<ArrayBufferLike>>;
   exportFileSuffix: string;
 };
 
@@ -78,7 +78,7 @@ const ImportExportSettings = ({
           color="danger"
           icon={null}
           label={t`Restore`}
-          onContentRead={onImportContentRead}
+          onContentReadAsString={onImportContentRead}
         />
       </IonButtons>
     </IonCard>

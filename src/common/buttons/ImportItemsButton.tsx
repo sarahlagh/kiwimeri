@@ -5,6 +5,7 @@ import storageService from '@/db/storage.service';
 import formatterService from '@/format-conversion/formatter.service';
 import { OverlayEventDetail } from '@ionic/core/components';
 import { useIonModal } from '@ionic/react';
+import { unzip } from 'fflate';
 import { SerializedEditorState, SerializedLexicalNode } from 'lexical';
 import { useState } from 'react';
 import { useHistory } from 'react-router';
@@ -12,11 +13,11 @@ import ConfirmImportModal from '../modals/ConfirmImportModal';
 import { GET_ITEM_ROUTE } from '../routes';
 import GenericImportFileButton from './GenericImportFileButton';
 
-type ImportFileButtonProps = {
+type ImportItemsButtonProps = {
   parent: string | null;
 };
 
-const ImportFileButton = ({ parent }: ImportFileButtonProps) => {
+const ImportItemsButton = ({ parent }: ImportItemsButtonProps) => {
   const history = useHistory();
   const [items, setItems] = useState<CollectionItemResult[]>([]);
   const [present, dismiss] = useIonModal(ConfirmImportModal, {
@@ -62,7 +63,7 @@ const ImportFileButton = ({ parent }: ImportFileButtonProps) => {
     history.push(GET_ITEM_ROUTE(parent || ROOT_FOLDER, itemId));
   };
 
-  const onContentRead = async (content: string, file: File) => {
+  const onSingleFileRead = async (content: string, file: File) => {
     const fileName = file.name.replace(/\.(md|MD)$/, '');
     const pages = content.split(formatterService.getPagesSeparator());
     const doc = pages.shift()!;
@@ -96,10 +97,41 @@ const ImportFileButton = ({ parent }: ImportFileButtonProps) => {
     }
   };
 
+  const onZipFileRead = async (content: ArrayBuffer) => {
+    console.debug('content', content);
+    const zipData = new Uint8Array(content);
+    // TODO parse zipData to items: CollectionItemResult[]
+
+    return new Promise<boolean>((resolve, reject) => {
+      unzip(zipData, {}, (err, unzipped) => {
+        if (err) {
+          console.error('error unzipping data', err);
+          return reject(false);
+        }
+        console.debug('unzipped', unzipped);
+        return resolve(true);
+      });
+    });
+  };
+
+  const onContentRead = async (content: ArrayBuffer, file: File) => {
+    // TODO handle type and return error if not supported
+    if (
+      file.name.toLowerCase().endsWith('.md') ||
+      file.name.toLowerCase().endsWith('.txt')
+    ) {
+      return onSingleFileRead(new TextDecoder().decode(content), file);
+    }
+    if (file.name.toLowerCase().endsWith('.zip')) {
+      return onZipFileRead(content);
+    }
+    return false;
+  };
+
   return (
     <GenericImportFileButton
       onContentRead={onContentRead}
     ></GenericImportFileButton>
   );
 };
-export default ImportFileButton;
+export default ImportItemsButton;

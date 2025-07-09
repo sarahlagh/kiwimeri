@@ -11,21 +11,24 @@ interface FilesystemService {
     directoryPath?: string
   ): Promise<boolean>;
 
-  readFile(file: File): Promise<string>;
+  readFile(file: File): Promise<ArrayBuffer>;
 }
 
-async function readFile(file: File): Promise<string> {
-  return new Promise(resolve => {
+async function readFile(file: File): Promise<ArrayBuffer> {
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.addEventListener(
       'load',
       () => {
-        const content = reader.result as string;
-        resolve(content);
+        if (reader.result === null) {
+          reject();
+        } else {
+          resolve(reader.result as ArrayBuffer);
+        }
       },
       false
     );
-    reader.readAsText(file);
+    reader.readAsArrayBuffer(file);
   });
 }
 
@@ -61,7 +64,7 @@ class AndroidFilesystemService implements FilesystemService {
     // return relativePath;
   }
 
-  async readFile(file: File): Promise<string> {
+  async readFile(file: File): Promise<ArrayBuffer> {
     return readFile(file);
   }
 }
@@ -85,7 +88,7 @@ class WebFilesystemService implements FilesystemService {
     return true;
   }
 
-  async readFile(file: File): Promise<string> {
+  async readFile(file: File): Promise<ArrayBuffer> {
     return readFile(file);
   }
 }

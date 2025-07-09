@@ -17,7 +17,7 @@ msgstr ""
 msgid "Add config"
 msgstr "Add config"
 
-#: src/common/buttons/GenericImportFileButton.tsx:29
+#: src/common/buttons/GenericImportFileButton.tsx:31
 msgid "An error occurred loading the file"
 msgstr "An error occurred loading the file"
 
@@ -230,7 +230,7 @@ msgstr "Server"
 msgid "Settings"
 msgstr "Settings"
 
-#: src/common/buttons/GenericImportFileButton.tsx:30
+#: src/common/buttons/GenericImportFileButton.tsx:32
 #: src/common/buttons/GenericExportFileButton.tsx:41
 #: src/app/pages/DebugPage.tsx:75
 msgid "Success!"
