@@ -33,6 +33,7 @@ export const initialContent = () => {
 class CollectionService {
   private readonly storeId = 'space';
   private readonly table = 'collection';
+  private readonly previewSize = 80;
 
   private fetchDocsAndFoldersPerParentQuery(
     notebook: string,
@@ -203,10 +204,12 @@ class CollectionService {
     });
   }
 
-  public addDocument(parent: string) {
-    const notebook = notebooksService.getCurrentNotebook();
-    const now = Date.now();
+  public getNewDocumentObj(parent: string, notebook?: string) {
+    if (!notebook) {
+      notebook = notebooksService.getCurrentNotebook();
+    }
     const id = getUniqueId();
+    const now = Date.now();
     const content = initialContent();
     const item: CollectionItem = {
       title: getGlobalTrans().newDocTitle,
@@ -226,14 +229,19 @@ class CollectionService {
       deleted: false,
       deleted_meta: setFieldMeta('false', now)
     };
-    storageService.getSpace().setRow(this.table, id, item);
-    this.updateParentUpdatedRecursive(parent);
-    localChangesService.addLocalChange(id, LocalChangeType.add);
+    return { item, id };
+  }
+
+  public addDocument(parent: string) {
+    const { item, id } = this.getNewDocumentObj(parent);
+    this.saveItem(item, id, parent);
     return id;
   }
 
-  public addFolder(parent: string) {
-    const notebook = notebooksService.getCurrentNotebook();
+  public getNewFolderObj(parent: string, notebook?: string) {
+    if (!notebook) {
+      notebook = notebooksService.getCurrentNotebook();
+    }
     const now = Date.now();
     const id = getUniqueId();
     const item: CollectionItem = {
@@ -251,15 +259,21 @@ class CollectionService {
       deleted: false,
       deleted_meta: setFieldMeta('false', now)
     };
-    storageService.getSpace().setRow(this.table, id, item);
-    localChangesService.addLocalChange(id, LocalChangeType.add);
+    return { item, id };
+  }
+
+  public addFolder(parent: string) {
+    const { item, id } = this.getNewFolderObj(parent);
+    this.saveItem(item, id);
     return id;
   }
 
-  public addPage(document: string) {
-    const notebook = notebooksService.getCurrentNotebook();
-    const now = Date.now();
+  public getNewPageObj(document: string, notebook?: string) {
+    if (!notebook) {
+      notebook = notebooksService.getCurrentNotebook();
+    }
     const id = getUniqueId();
+    const now = Date.now();
     const content = initialContent();
     const item: Omit<CollectionItem, 'title' | 'title_meta'> = {
       parent: document,
@@ -275,8 +289,23 @@ class CollectionService {
       deleted: false,
       deleted_meta: setFieldMeta('false', now)
     };
+    return { item, id };
+  }
+
+  public addPage(document: string) {
+    const { item, id } = this.getNewPageObj(document);
+    this.saveItem(item as CollectionItem, id, document);
+    return id;
+  }
+
+  public saveItem(item: CollectionItem, id?: string, parent?: string) {
+    if (!id) {
+      id = getUniqueId();
+    }
     storageService.getSpace().setRow(this.table, id, item);
-    this.updateParentUpdatedRecursive(document);
+    if (parent) {
+      this.updateParentUpdatedRecursive(parent);
+    }
     localChangesService.addLocalChange(id, LocalChangeType.add);
     return id;
   }
@@ -403,9 +432,19 @@ class CollectionService {
           'preview',
           formatterService
             .getPlainTextFromLexical(JSON.stringify(content))
-            .substring(0, 80)
+            .substring(0, this.previewSize)
         );
     });
+  }
+
+  public setUnsavedItemLexicalContent(
+    item: Pick<CollectionItem, 'content' | 'preview'>,
+    content: SerializedEditorState
+  ) {
+    item.content = minimizeContentForStorage(content);
+    item.preview = formatterService
+      .getPlainTextFromLexical(JSON.stringify(content))
+      .substring(0, this.previewSize);
   }
 
   public useItemTags(rowId: Id) {
@@ -527,6 +566,14 @@ class CollectionService {
 
   public getItemField(rowId: Id, key: CollectionItemFieldEnum) {
     return storageService.getSpace().getCell('collection', rowId, key);
+  }
+
+  public saveItems(items: CollectionItem[], parent?: string) {
+    storageService.getSpace().transaction(() => {
+      items.forEach(item => {
+        this.saveItem(item, item.id, parent);
+      });
+    });
   }
 
   public getBreadcrumb(folder: string) {
