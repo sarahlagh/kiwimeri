@@ -27,7 +27,7 @@ msgid "Are you sure?"
 msgstr "Are you sure?"
 
 #: src/common/modals/ConfirmYesNoDialog.tsx:28
-#: src/common/modals/ConfirmImportModal.tsx:78
+#: src/common/modals/ConfirmImportModal.tsx:82
 #: src/common/modals/ChooseTagsModal.tsx:98
 msgid "Cancel"
 msgstr "Cancel"
@@ -50,7 +50,7 @@ msgstr "Configure where to synchronize your collection"
 
 #: src/notebooks/components/ManageNotebooksModal.tsx:93
 #: src/common/modals/ConfirmYesNoDialog.tsx:36
-#: src/common/modals/ConfirmImportModal.tsx:81
+#: src/common/modals/ConfirmImportModal.tsx:85
 #: src/common/modals/ChooseTagsModal.tsx:105
 msgid "Confirm"
 msgstr "Confirm"
@@ -259,7 +259,7 @@ msgstr "Syncing is disabled on the web version."
 msgid "Text..."
 msgstr "Text..."
 
-#: src/common/modals/ConfirmImportModal.tsx:53
+#: src/common/modals/ConfirmImportModal.tsx:55
 msgid "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 msgstr "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 
