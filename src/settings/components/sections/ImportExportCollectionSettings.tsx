@@ -1,3 +1,5 @@
+import { CollectionItemType } from '@/collection/collection';
+import ExportItemsButton from '@/common/buttons/ExportItemsButton';
 import GenericExportFileButton from '@/common/buttons/GenericExportFileButton';
 import GenericImportFileButton from '@/common/buttons/GenericImportFileButton';
 import platformService from '@/common/services/platform.service';
@@ -10,6 +12,8 @@ import {
   IonCardHeader,
   IonCardSubtitle,
   IonCardTitle,
+  IonItem,
+  IonList,
   IonText
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -42,12 +46,50 @@ const ImportExportCollectionSettings = () => {
           <Trans>Import & export your collection</Trans>
         </IonCardTitle>
         <IonCardSubtitle>
-          <Trans>Manually backup or restore your collection</Trans>
+          <Trans>
+            Manually backup or restore your collection in the format of your
+            choice
+          </Trans>
         </IonCardSubtitle>
       </IonCardHeader>
 
-      {platformService.isAndroid() && (
-        <IonCardContent>
+      <IonCardContent>
+        <IonList>
+          <IonItem>
+            <Trans>Kiwimeri format (single file)</Trans>
+            <IonButtons slot="end">
+              <GenericExportFileButton
+                fill="clear"
+                color={'primary'}
+                label={t`Export`}
+                icon={null}
+                fileMime={'application/json'}
+                getFileTitle={getExportFileName}
+                getFileContent={getContentToExport}
+              />
+              <GenericImportFileButton
+                fill="clear"
+                color="danger"
+                icon={null}
+                label={t`Restore`}
+                onContentReadAsString={onImportContentRead}
+              />
+            </IonButtons>
+          </IonItem>
+          <IonItem>
+            <Trans>Markdown (Kiwimeri flavor)</Trans>
+            <IonButtons slot={'end'}>
+              <ExportItemsButton
+                id={'space'}
+                type={CollectionItemType.folder}
+                label={t`Export`}
+                icon={null}
+                color={'primary'}
+              />
+            </IonButtons>
+          </IonItem>
+        </IonList>
+        {platformService.isAndroid() && (
           <IonText color={'secondary'}>
             <p>
               <Trans>
@@ -56,27 +98,8 @@ const ImportExportCollectionSettings = () => {
               </Trans>
             </p>
           </IonText>
-        </IonCardContent>
-      )}
-
-      <IonButtons>
-        <GenericExportFileButton
-          fill="clear"
-          color={'primary'}
-          label={t`Export`}
-          icon={null}
-          fileMime={'application/json'}
-          getFileTitle={getExportFileName}
-          getFileContent={getContentToExport}
-        />
-        <GenericImportFileButton
-          fill="clear"
-          color="danger"
-          icon={null}
-          label={t`Restore`}
-          onContentReadAsString={onImportContentRead}
-        />
-      </IonButtons>
+        )}
+      </IonCardContent>
     </IonCard>
   );
 };

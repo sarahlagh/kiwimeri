@@ -89,7 +89,8 @@ msgid "EU"
 msgstr "EU"
 
 #: src/settings/components/sections/ImportExportStoreSettings.tsx:82
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:66
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:64
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:85
 msgid "Export"
 msgstr "Export"
 
@@ -105,13 +106,17 @@ msgstr "Home"
 msgid "Import & export your app settings"
 msgstr "Import & export your app settings"
 
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:42
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:46
 msgid "Import & export your collection"
 msgstr "Import & export your collection"
 
 #: src/common/modals/ConfirmImportModal.tsx:43
 msgid "Import file in folder {folderName}"
 msgstr "Import file in folder {folderName}"
+
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:59
+msgid "Kiwimeri format (single file)"
+msgstr "Kiwimeri format (single file)"
 
 #: src/settings/components/providers/PCloudSettings.tsx:106
 msgid "Leave empty for root"
@@ -129,9 +134,13 @@ msgstr "Logs"
 msgid "Manually backup or restore your app settings"
 msgstr "Manually backup or restore your app settings"
 
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:45
-msgid "Manually backup or restore your collection"
-msgstr "Manually backup or restore your collection"
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:49
+msgid "Manually backup or restore your collection in the format of your choice"
+msgstr "Manually backup or restore your collection in the format of your choice"
+
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:80
+msgid "Markdown (Kiwimeri flavor)"
+msgstr "Markdown (Kiwimeri flavor)"
 
 #: src/settings/components/providers/RemoteGenericSettings.tsx:109
 #: src/settings/components/providers/RemoteGenericSettings.tsx:112
@@ -215,7 +224,7 @@ msgid "Reorder"
 msgstr "Reorder"
 
 #: src/settings/components/sections/ImportExportStoreSettings.tsx:92
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:76
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:74
 msgid "Restore"
 msgstr "Restore"
 
@@ -276,6 +285,6 @@ msgid "You have not configured any remote yet."
 msgstr "You have not configured any remote yet."
 
 #: src/settings/components/sections/ImportExportStoreSettings.tsx:69
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:53
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:95
 msgid "Your backups will be exported to the `{ANDROID_FOLDER}` directory"
 msgstr "Your backups will be exported to the `{ANDROID_FOLDER}` directory"
