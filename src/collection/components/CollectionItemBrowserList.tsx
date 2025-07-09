@@ -12,7 +12,8 @@ import {
   CollectionItemResult,
   CollectionItemType
 } from '@/collection/collection';
-import ImportFileButton from '@/common/buttons/ImportFileButton';
+import ExportItemsButton from '@/common/buttons/ExportItemsButton';
+import ImportItemsButton from '@/common/buttons/ImportItemsButton';
 import { GET_ITEM_ROUTE } from '@/common/routes';
 import { getSearchParams } from '@/common/utils';
 import { APPICONS } from '@/constants';
@@ -55,7 +56,8 @@ const CollectionItemBrowserListToolbar = ({
       </IonButtons>
 
       <IonButtons slot="end">
-        <ImportFileButton parent={folderId} />
+        <ExportItemsButton type={CollectionItemType.folder} />
+        <ImportItemsButton parent={folderId} />
 
         <IonButton
           onClick={() => {

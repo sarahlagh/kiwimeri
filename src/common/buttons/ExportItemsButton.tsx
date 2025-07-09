@@ -2,6 +2,7 @@ import {
   CollectionItemType,
   CollectionItemTypeValues
 } from '@/collection/collection';
+import { ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
 import formatterService from '@/format-conversion/formatter.service';
 import { strToU8, zip } from 'fflate';
@@ -10,9 +11,9 @@ import { unminimizeContentFromStorage } from '../wysiwyg/compress-file-content';
 import GenericExportFileButton from './GenericExportFileButton';
 
 type ExportItemsButtonProps = {
-  id: Id;
+  id?: Id;
   type: CollectionItemTypeValues;
-  onClose: (role?: string) => void;
+  onClose?: (role?: string) => void;
 };
 
 const ExportItemsButton = ({ id, type, onClose }: ExportItemsButtonProps) => {
@@ -58,7 +59,7 @@ const ExportItemsButton = ({ id, type, onClose }: ExportItemsButtonProps) => {
     if (type === CollectionItemType.page) {
       return 'page.md';
     }
-    const fileTitle = collectionService.getItemTitle(id);
+    const fileTitle = collectionService.getItemTitle(id || ROOT_FOLDER);
     if (type === CollectionItemType.folder) {
       return `${fileTitle}.zip`;
     }
@@ -81,7 +82,7 @@ const ExportItemsButton = ({ id, type, onClose }: ExportItemsButtonProps) => {
 
   const getFolderContent: (
     id: string
-  ) => Promise<Uint8Array<ArrayBufferLike>> = async () => {
+  ) => Promise<Uint8Array<ArrayBufferLike>> = async (id: string) => {
     const fileTree = fillDirectoryStructure(id, {});
     return new Promise((resolve, reject) => {
       zip(fileTree, { level: 0 }, (err, data) => {
@@ -98,6 +99,9 @@ const ExportItemsButton = ({ id, type, onClose }: ExportItemsButtonProps) => {
   const getFileContent: () => Promise<
     string | Uint8Array<ArrayBufferLike>
   > = async () => {
+    if (!id) {
+      return getFolderContent(ROOT_FOLDER);
+    }
     if (type !== CollectionItemType.folder) {
       return getSingleFileContent(id);
     }
