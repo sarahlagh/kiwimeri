@@ -88,7 +88,8 @@ msgstr "Enter your username"
 msgid "EU"
 msgstr "EU"
 
-#: src/settings/components/sections/ImportExportSettings.tsx:70
+#: src/settings/components/sections/ImportExportStoreSettings.tsx:82
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:66
 msgid "Export"
 msgstr "Export"
 
@@ -100,11 +101,11 @@ msgstr "Filesystem"
 msgid "Home"
 msgstr "Home"
 
-#: src/settings/components/sections/ImportExportStoreSettings.tsx:10
+#: src/settings/components/sections/ImportExportStoreSettings.tsx:51
 msgid "Import & export your app settings"
 msgstr "Import & export your app settings"
 
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:10
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:42
 msgid "Import & export your collection"
 msgstr "Import & export your collection"
 
@@ -124,13 +125,13 @@ msgstr "Loading..."
 msgid "Logs"
 msgstr "Logs"
 
-#: src/settings/components/sections/ImportExportStoreSettings.tsx:11
+#: src/settings/components/sections/ImportExportStoreSettings.tsx:54
 msgid "Manually backup or restore your app settings"
 msgstr "Manually backup or restore your app settings"
 
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:11
-msgid "Manually backup or restore your collection."
-msgstr "Manually backup or restore your collection."
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:45
+msgid "Manually backup or restore your collection"
+msgstr "Manually backup or restore your collection"
 
 #: src/settings/components/providers/RemoteGenericSettings.tsx:109
 #: src/settings/components/providers/RemoteGenericSettings.tsx:112
@@ -213,7 +214,8 @@ msgstr "Remote Configuration"
 msgid "Reorder"
 msgstr "Reorder"
 
-#: src/settings/components/sections/ImportExportSettings.tsx:80
+#: src/settings/components/sections/ImportExportStoreSettings.tsx:92
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:76
 msgid "Restore"
 msgstr "Restore"
 
@@ -252,19 +254,9 @@ msgstr "Text..."
 msgid "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 msgstr "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 
-#: src/settings/components/sections/ImportExportStoreSettings.tsx:12
-msgid ""
-"This is different\n"
-"            than the import / export of the collection. Your collection consists\n"
-"            of your files and folders, and can be configured to synchronize with\n"
-"            a cloud provider. The app settings consist of anything configured in\n"
-"            this page, including the settings for your cloud provider."
-msgstr ""
-"This is different\n"
-"            than the import / export of the collection. Your collection consists\n"
-"            of your files and folders, and can be configured to synchronize with\n"
-"            a cloud provider. The app settings consist of anything configured in\n"
-"            this page, including the settings for your cloud provider."
+#: src/settings/components/sections/ImportExportStoreSettings.tsx:58
+msgid "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page, including the settings for your cloud provider."
+msgstr "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page, including the settings for your cloud provider."
 
 #: src/settings/components/providers/PCloudSettings.tsx:93
 msgid "US"
@@ -283,6 +275,7 @@ msgstr "yes"
 msgid "You have not configured any remote yet."
 msgstr "You have not configured any remote yet."
 
-#: src/settings/components/sections/ImportExportSettings.tsx:56
+#: src/settings/components/sections/ImportExportStoreSettings.tsx:69
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:53
 msgid "Your backups will be exported to the `{ANDROID_FOLDER}` directory"
 msgstr "Your backups will be exported to the `{ANDROID_FOLDER}` directory"
