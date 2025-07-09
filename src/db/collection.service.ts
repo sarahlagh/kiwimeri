@@ -126,10 +126,13 @@ class CollectionService {
 
   public getBrowsableCollectionItems(
     parent: string,
+    notebook?: string,
     sortBy: 'created' | 'updated' = 'created',
     descending = false
   ) {
-    const notebook = notebooksService.getCurrentNotebook();
+    if (!notebook) {
+      notebook = notebooksService.getCurrentNotebook();
+    }
     const table = storageService.getSpace().getTable(this.table);
     const queryName = this.fetchDocsAndFoldersPerParentQuery(notebook, parent);
     return storageService
