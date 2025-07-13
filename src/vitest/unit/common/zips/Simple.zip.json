@@ -1,0 +1,525 @@
+{
+  "zipName": "Simple.zip",
+  "name": "Simple",
+  "testCases": [
+    {
+      "description": "with no init data",
+      "initData": [],
+      "scenarios": [
+        {
+          "description": "and createNewFolder=true",
+          "options": [
+            {
+              "createNewFolder": true,
+              "overwrite": false
+            },
+            {
+              "createNewFolder": true,
+              "overwrite": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#id",
+                "title": "Simple",
+                "parent": "home",
+                "type": "f"
+              },
+              {
+                "title": "Simple",
+                "parent": "#id",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple",
+                "type": "f",
+                "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and createNewFolder=true, newFolderName=NewName",
+          "options": [
+            {
+              "createNewFolder": true,
+              "newFolderName": "NewName",
+              "overwrite": false
+            },
+            {
+              "createNewFolder": true,
+              "newFolderName": "NewName",
+              "overwrite": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#id",
+                "title": "NewName",
+                "parent": "home",
+                "type": "f"
+              },
+              {
+                "title": "Simple",
+                "parent": "#id",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "NewName",
+                "status": "new",
+                "type": "f"
+              }
+            ]
+          }
+        },
+        {
+          "description": "with createNewFolder=false",
+          "options": [
+            {
+              "createNewFolder": false,
+              "overwrite": false
+            },
+            {
+              "createNewFolder": false,
+              "overwrite": true
+            },
+            {
+              "createNewFolder": false,
+              "newFolderName": "NewName",
+              "overwrite": false
+            },
+            {
+              "createNewFolder": false,
+              "newFolderName": "NewName",
+              "overwrite": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "title": "Simple",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple",
+                "status": "new",
+                "type": "d"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "description": "with no duplicates",
+      "initData": [
+        [
+          {
+            "title": "AnotherDoc",
+            "parent": "home",
+            "type": "d"
+          }
+        ],
+        [
+          {
+            "title": "AnotherFolder",
+            "parent": "home",
+            "type": "f"
+          }
+        ],
+        [
+          {
+            "id": "#fID",
+            "title": "AnotherFolder",
+            "parent": "home",
+            "type": "f"
+          },
+          {
+            "title": "Simple",
+            "parent": "#fID",
+            "type": "d"
+          }
+        ]
+      ],
+      "scenarios": [
+        {
+          "description": "and createNewFolder=true",
+          "options": [
+            {
+              "createNewFolder": true,
+              "overwrite": false
+            },
+            {
+              "createNewFolder": true,
+              "overwrite": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#id",
+                "title": "Simple",
+                "parent": "home",
+                "type": "f"
+              },
+              {
+                "title": "Simple",
+                "parent": "#id",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple",
+                "status": "new",
+                "type": "f"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and createNewFolder=true, newFolderName=NewName",
+          "options": [
+            {
+              "createNewFolder": true,
+              "newFolderName": "NewName",
+              "overwrite": false
+            },
+            {
+              "createNewFolder": true,
+              "newFolderName": "NewName",
+              "overwrite": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#id",
+                "title": "NewName",
+                "parent": "home",
+                "type": "f"
+              },
+              {
+                "title": "Simple",
+                "parent": "#id",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "NewName",
+                "status": "new",
+                "type": "f"
+              }
+            ]
+          }
+        },
+        {
+          "description": "with createNewFolder=false",
+          "options": [
+            {
+              "createNewFolder": false,
+              "overwrite": false
+            },
+            {
+              "createNewFolder": false,
+              "overwrite": true
+            },
+            {
+              "createNewFolder": false,
+              "newFolderName": "NewName",
+              "overwrite": false
+            },
+            {
+              "createNewFolder": false,
+              "newFolderName": "NewName",
+              "overwrite": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "title": "Simple",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple",
+                "status": "new",
+                "type": "d"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "description": "with duplicates",
+      "initData": [
+        [
+          {
+            "title": "AnotherDoc",
+            "parent": "home",
+            "type": "d"
+          },
+          {
+            "title": "Simple",
+            "parent": "home",
+            "type": "d"
+          },
+          {
+            "id": "#fID1",
+            "title": "Simple",
+            "parent": "home",
+            "type": "f"
+          },
+          {
+            "title": "AnotherDoc",
+            "parent": "#fID1",
+            "type": "d"
+          },
+          {
+            "id": "#dID1",
+            "title": "Simple",
+            "parent": "#fID1",
+            "type": "d"
+          },
+          {
+            "id": "#fID2",
+            "title": "AnotherFolder",
+            "parent": "home",
+            "type": "f"
+          },
+          {
+            "title": "AnotherDoc",
+            "parent": "#fID2",
+            "type": "d"
+          },
+          {
+            "title": "Simple",
+            "parent": "#fID2",
+            "type": "d"
+          },
+          {
+            "id": "#fID3",
+            "title": "AnotherFolderSimple",
+            "parent": "home",
+            "type": "f"
+          },
+          {
+            "title": "AnotherDoc",
+            "parent": "#fID3",
+            "type": "d"
+          }
+        ]
+      ],
+      "scenarios": [
+        {
+          "description": "and createNewFolder=true and overwrite=false",
+          "options": [
+            {
+              "createNewFolder": true,
+              "overwrite": false
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#id",
+                "title": "Simple",
+                "parent": "home",
+                "type": "f"
+              },
+              {
+                "title": "Simple",
+                "parent": "#id",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple",
+                "status": "new",
+                "type": "f"
+              }
+            ],
+            "duplicates": [
+              {
+                "id": "#fID1",
+                "title": "Simple",
+                "parent": "home",
+                "type": "f"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and createNewFolder=true and overwrite=true",
+          "options": [
+            {
+              "createNewFolder": true,
+              "overwrite": true
+            }
+          ],
+          "expected": {
+            "newItems": [],
+            "updatedItems": [
+              {
+                "id": "#fID1",
+                "title": "Simple",
+                "parent": "home",
+                "type": "f"
+              },
+              {
+                "id": "#dID1",
+                "title": "Simple",
+                "parent": "#fID1",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "id": "#fID1",
+                "title": "Simple",
+                "status": "merged",
+                "type": "f"
+              }
+            ],
+            "duplicates": [
+              {
+                "id": "#fID1",
+                "title": "Simple",
+                "parent": "home",
+                "type": "f"
+              }
+            ]
+          }
+        },
+        {
+          "ignore": true,
+          "description": "and createNewFolder=true and newName=NewName",
+          "options": [
+            {
+              "createNewFolder": true,
+              "newFolderName": "NewName",
+              "overwrite": true
+            },
+            {
+              "createNewFolder": true,
+              "newFolderName": "NewName",
+              "overwrite": false
+            }
+          ],
+          "expected": {}
+        },
+        {
+          "ignore": true,
+          "description": "and createNewFolder=true and overwrite=true and newName=AnotherFolderSimple"
+        },
+        {
+          "ignore": true,
+          "description": "and createNewFolder=true and overwrite=true and newName=AnotherFolder"
+        },
+        {
+          "ignore": true,
+          "description": "and createNewFolder=true, newFolderName=NewName",
+          "options": [
+            {
+              "createNewFolder": true,
+              "newFolderName": "NewName",
+              "overwrite": false
+            },
+            {
+              "createNewFolder": true,
+              "newFolderName": "NewName",
+              "overwrite": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#id",
+                "title": "NewName",
+                "parent": "home",
+                "type": "f"
+              },
+              {
+                "title": "Simple",
+                "parent": "#id",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "NewName",
+                "parent": "home",
+                "type": "f"
+              }
+            ]
+          }
+        },
+        {
+          "ignore": true,
+          "description": "with createNewFolder=false",
+          "options": [
+            {
+              "createNewFolder": false,
+              "overwrite": false
+            },
+            {
+              "createNewFolder": false,
+              "overwrite": true
+            },
+            {
+              "createNewFolder": false,
+              "newFolderName": "NewName",
+              "overwrite": false
+            },
+            {
+              "createNewFolder": false,
+              "newFolderName": "NewName",
+              "overwrite": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "title": "Simple",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple",
+                "parent": "home",
+                "type": "d"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
