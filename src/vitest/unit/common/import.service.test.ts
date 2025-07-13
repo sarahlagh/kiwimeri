@@ -15,7 +15,7 @@ type JsonTestDescriptor = {
   name: string;
   testCases: {
     description: string;
-    initData: Pick<Partial<CollectionItem>, 'title' | 'type'>[][];
+    initData: Pick<Partial<CollectionItem>, 'title' | 'type'>[];
     scenarios: {
       ignore?: boolean;
       description: string;
@@ -281,47 +281,38 @@ describe('import service', () => {
               .filter(scenario => scenario.ignore !== true)
               .forEach(scenario => {
                 describe(`${scenario.description}`, () => {
-                  if (testCase.initData.length === 0) {
-                    testCase.initData = [[]];
-                  }
-                  testCase.initData.forEach((initData, iIdx) => {
-                    describe(`with init data #${iIdx}`, () => {
-                      beforeEach(() => {
-                        vi.useFakeTimers();
-                      });
-                      afterEach(() => {
-                        vi.useRealTimers();
-                      });
-                      scenario.options.forEach((options, oIdx) => {
-                        it(`and options #${oIdx}`, async () => {
-                          console.log('options', options);
+                  beforeEach(() => {
+                    vi.useFakeTimers();
+                  });
+                  afterEach(() => {
+                    vi.useRealTimers();
+                  });
+                  scenario.options.forEach((options, oIdx) => {
+                    it(`and options #${oIdx}`, async () => {
+                      console.log('options', options);
 
-                          const creationTs = Date.now();
-                          const initDataIds = createInitData(initData);
-                          vi.advanceTimersByTime(5000);
-                          const updateTs = Date.now();
+                      const creationTs = Date.now();
+                      const initDataIds = createInitData(testCase.initData);
+                      vi.advanceTimersByTime(5000);
+                      const updateTs = Date.now();
 
-                          const zipContent = await readZip(
-                            testDescriptor.zipName
-                          );
+                      const zipContent = await readZip(testDescriptor.zipName);
 
-                          const zipMerge =
-                            importService.mergeZipItemsWithCollection(
-                              testDescriptor.name,
-                              zipContent,
-                              ROOT_FOLDER,
-                              options
-                            );
+                      const zipMerge =
+                        importService.mergeZipItemsWithCollection(
+                          testDescriptor.name,
+                          zipContent,
+                          ROOT_FOLDER,
+                          options
+                        );
 
-                          checkResults(
-                            zipMerge,
-                            scenario.expected,
-                            initDataIds,
-                            creationTs,
-                            updateTs
-                          );
-                        });
-                      });
+                      checkResults(
+                        zipMerge,
+                        scenario.expected,
+                        initDataIds,
+                        creationTs,
+                        updateTs
+                      );
                     });
                   });
                 });

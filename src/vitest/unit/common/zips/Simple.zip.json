@@ -125,33 +125,23 @@
     {
       "description": "with no duplicates",
       "initData": [
-        [
-          {
-            "title": "AnotherDoc",
-            "parent": "home",
-            "type": "d"
-          }
-        ],
-        [
-          {
-            "title": "AnotherFolder",
-            "parent": "home",
-            "type": "f"
-          }
-        ],
-        [
-          {
-            "id": "#fID",
-            "title": "AnotherFolder",
-            "parent": "home",
-            "type": "f"
-          },
-          {
-            "title": "Simple",
-            "parent": "#fID",
-            "type": "d"
-          }
-        ]
+        {
+          "title": "AnotherDoc",
+          "parent": "home",
+          "type": "d"
+        },
+        {
+          "id": "#fID",
+          "title": "AnotherFolder",
+          "parent": "home",
+          "type": "f"
+        },
+
+        {
+          "title": "AnotherDoc",
+          "parent": "#fID",
+          "type": "d"
+        }
       ],
       "scenarios": [
         {
@@ -273,62 +263,60 @@
     {
       "description": "with duplicates",
       "initData": [
-        [
-          {
-            "title": "AnotherDoc",
-            "parent": "home",
-            "type": "d"
-          },
-          {
-            "title": "Simple",
-            "parent": "home",
-            "type": "d"
-          },
-          {
-            "id": "#fID1",
-            "title": "Simple",
-            "parent": "home",
-            "type": "f"
-          },
-          {
-            "title": "AnotherDoc",
-            "parent": "#fID1",
-            "type": "d"
-          },
-          {
-            "id": "#dID1",
-            "title": "Simple",
-            "parent": "#fID1",
-            "type": "d"
-          },
-          {
-            "id": "#fID2",
-            "title": "AnotherFolder",
-            "parent": "home",
-            "type": "f"
-          },
-          {
-            "title": "AnotherDoc",
-            "parent": "#fID2",
-            "type": "d"
-          },
-          {
-            "title": "Simple",
-            "parent": "#fID2",
-            "type": "d"
-          },
-          {
-            "id": "#fID3",
-            "title": "AnotherFolderSimple",
-            "parent": "home",
-            "type": "f"
-          },
-          {
-            "title": "AnotherDoc",
-            "parent": "#fID3",
-            "type": "d"
-          }
-        ]
+        {
+          "title": "AnotherDoc",
+          "parent": "home",
+          "type": "d"
+        },
+        {
+          "title": "Simple",
+          "parent": "home",
+          "type": "d"
+        },
+        {
+          "id": "#fID1",
+          "title": "Simple",
+          "parent": "home",
+          "type": "f"
+        },
+        {
+          "title": "AnotherDoc",
+          "parent": "#fID1",
+          "type": "d"
+        },
+        {
+          "id": "#dID1",
+          "title": "Simple",
+          "parent": "#fID1",
+          "type": "d"
+        },
+        {
+          "id": "#fID2",
+          "title": "AnotherFolder",
+          "parent": "home",
+          "type": "f"
+        },
+        {
+          "title": "AnotherDoc",
+          "parent": "#fID2",
+          "type": "d"
+        },
+        {
+          "title": "Simple",
+          "parent": "#fID2",
+          "type": "d"
+        },
+        {
+          "id": "#fID3",
+          "title": "AnotherFolderSimple",
+          "parent": "home",
+          "type": "f"
+        },
+        {
+          "title": "AnotherDoc",
+          "parent": "#fID3",
+          "type": "d"
+        }
       ],
       "scenarios": [
         {
