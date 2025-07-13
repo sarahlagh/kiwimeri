@@ -128,14 +128,15 @@ class ImportService {
   ) {
     const itemsInCollection =
       collectionService.getBrowsableCollectionItems(parent);
-    let duplicates: CollectionItemResult[] = [];
+    const duplicates = new Set<CollectionItemResult>();
     firstLevel.forEach(item => {
-      const dupl = itemsInCollection.filter(
-        i => i.title === item.title && i.type === item.type
-      );
-      duplicates = [...duplicates, ...dupl];
+      itemsInCollection
+        .filter(i => i.title === item.title && i.type === item.type)
+        .forEach(dupl => {
+          duplicates.add(dupl);
+        });
     });
-    return duplicates;
+    return [...duplicates];
   }
 
   private isDuplicate(
@@ -174,6 +175,11 @@ class ImportService {
       const item = newItems[i];
       const dupl = this.isDuplicate(newDuplicates, item);
       if (dupl) {
+        // don't keep duplicate in array
+        newDuplicates.splice(
+          newDuplicates.findIndex(d => d === dupl),
+          1
+        );
         updatedItems.push(this.mergeItem(dupl, item)); // add dupl to updated items
         newItems.splice(i, 1); // remove dupl from new items
         i--;
@@ -296,11 +302,11 @@ class ImportService {
       this.overwriteDuplicates(parent, newItems, updatedItems);
 
       const firstLevel: ZipMergeFistLevel[] = [
-        ...newItems.map(
-          item => ({ ...item, status: 'new' }) as ZipMergeFistLevel
-        ),
         ...updatedItems.map(
           item => ({ ...item, status: 'merged' }) as ZipMergeFistLevel
+        ),
+        ...newItems.map(
+          item => ({ ...item, status: 'new' }) as ZipMergeFistLevel
         )
       ];
 
