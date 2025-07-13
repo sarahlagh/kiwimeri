@@ -7,6 +7,10 @@ import {
 } from '@/common/services/import.service';
 import { ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
+import localChangesService from '@/db/localChanges.service';
+import storageService from '@/db/storage.service';
+import { LocalChangeType } from '@/db/types/store-types';
+import { getCollectionRowCount } from '@/vitest/setup/test.utils';
 import { readFile } from 'fs/promises';
 import { it, vi } from 'vitest';
 
@@ -174,7 +178,7 @@ describe('import service', () => {
         }
         throw new Error('unsupported type in test');
       });
-      console.log('initial items', initialItems);
+      console.debug('initial items', initialItems);
       if (initialItems.length > 0) {
         collectionService.saveItems(initialItems, ROOT_FOLDER);
       }
@@ -238,7 +242,8 @@ describe('import service', () => {
 
       const newItemsIds = checkResultsArray(
         zipMerge.newItems,
-        expected.newItems
+        expected.newItems,
+        initDataIds
       );
       checkResultsArray(
         zipMerge.firstLevel,
@@ -293,6 +298,7 @@ describe('import service', () => {
 
                       const creationTs = Date.now();
                       const initDataIds = createInitData(testCase.initData);
+                      localChangesService.clear();
                       vi.advanceTimersByTime(5000);
                       const updateTs = Date.now();
 
@@ -313,6 +319,28 @@ describe('import service', () => {
                         creationTs,
                         updateTs
                       );
+
+                      // save results and check db
+                      collectionService.saveItems(zipMerge.newItems);
+                      collectionService.saveItems(zipMerge.updatedItems);
+                      console.debug(
+                        'db after save',
+                        storageService.getSpace().getTable('collection')
+                      );
+
+                      expect(getCollectionRowCount()).toBe(
+                        testCase.initData.length + zipMerge.newItems.length
+                      );
+                      expect(
+                        localChangesService
+                          .getLocalChanges()
+                          .filter(lc => lc.change === LocalChangeType.add)
+                      ).toHaveLength(zipMerge.newItems.length);
+                      expect(
+                        localChangesService
+                          .getLocalChanges()
+                          .filter(lc => lc.change === LocalChangeType.update)
+                      ).toHaveLength(zipMerge.updatedItems.length);
                     });
                   });
                 });

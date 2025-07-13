@@ -11,7 +11,7 @@ import { Unzipped, strFromU8, unzip } from 'fflate';
 import { SerializedEditorState, SerializedLexicalNode } from 'lexical';
 
 export type ZipMergeFistLevel = {
-  status: 'new' | 'merged' | '';
+  status: 'new' | 'merged';
 } & Pick<CollectionItem, 'id' | 'title' | 'type'>;
 
 export type ZipMergeResult = {
@@ -268,20 +268,13 @@ class ImportService {
     }
   }
 
-  // TODO
   private mergeZipItemsWithNoNewFolder(
-    zipName: string,
     items: CollectionItem[],
     parent: string,
     options: ZipMergeOptions
   ) {
-    // check duplicates
-    const duplicates = this.findDuplicates(parent, [
-      {
-        title: zipName,
-        type: CollectionItemType.folder
-      }
-    ]);
+    // check duplicates for each item
+    const duplicates = this.findDuplicates(parent, items);
 
     // if no duplicates, or option to create new without overwrite:
     if (duplicates.length === 0 || !options.overwrite) {
@@ -297,34 +290,19 @@ class ImportService {
         firstLevel
       };
     } else {
-      // TODO overwrite
       // if has duplicates and option to overwrite:
       const updatedItems: CollectionItemUpdate[] = [];
-      const newParent = duplicates[0] as CollectionItemUpdate;
+      const newItems = [...items];
+      this.overwriteDuplicates(parent, newItems, updatedItems);
 
       const firstLevel: ZipMergeFistLevel[] = [
-        ...items.map(
+        ...newItems.map(
+          item => ({ ...item, status: 'new' }) as ZipMergeFistLevel
+        ),
+        ...updatedItems.map(
           item => ({ ...item, status: 'merged' }) as ZipMergeFistLevel
         )
       ];
-      // const firstLevel: ZipMergeFistLevel[] = [
-      //   {
-      //     ...newParent,
-      //     status: 'merged'
-      //   }
-      // ];
-
-      // update parent of first level items
-      const newItems = [
-        ...items.map(item => {
-          if (item.parent === parent) {
-            item.parent = newParent.id!;
-          }
-          return item;
-        })
-      ];
-      // add duplicate to updatedItems
-      updatedItems.push(newParent);
 
       return {
         newItems,
@@ -353,7 +331,7 @@ class ImportService {
         options
       );
     }
-    return this.mergeZipItemsWithNoNewFolder(zipName, items, parent, options);
+    return this.mergeZipItemsWithNoNewFolder(items, parent, options);
   }
 }
 

@@ -5,6 +5,7 @@ import {
   CollectionItemType,
   CollectionItemTypeValues,
   CollectionItemUpdatableFieldEnum,
+  CollectionItemUpdate,
   setFieldMeta
 } from '@/collection/collection';
 import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
@@ -298,15 +299,22 @@ class CollectionService {
     return id;
   }
 
-  public saveItem(item: CollectionItem, id?: string, parent?: string) {
+  public saveItem(
+    item: CollectionItem | CollectionItemUpdate,
+    id?: string,
+    parent?: string
+  ) {
     if (!id) {
       id = getUniqueId();
     }
+    const changeType = this.itemExists(id)
+      ? LocalChangeType.update
+      : LocalChangeType.add;
     storageService.getSpace().setRow(this.table, id, item);
     if (parent) {
       this.updateParentUpdatedRecursive(parent);
     }
-    localChangesService.addLocalChange(id, LocalChangeType.add);
+    localChangesService.addLocalChange(id, changeType);
     return id;
   }
 
@@ -568,7 +576,10 @@ class CollectionService {
     return storageService.getSpace().getCell('collection', rowId, key);
   }
 
-  public saveItems(items: CollectionItem[], parent?: string) {
+  public saveItems(
+    items: (CollectionItem | CollectionItemUpdate)[],
+    parent?: string
+  ) {
     storageService.getSpace().transaction(() => {
       items.forEach(item => {
         this.saveItem(item, item.id, parent);

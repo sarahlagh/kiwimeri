@@ -269,6 +269,7 @@
           "type": "d"
         },
         {
+          "id": "#dID0",
           "title": "Simple",
           "parent": "home",
           "type": "d"
@@ -403,7 +404,6 @@
           }
         },
         {
-          "ignore": true,
           "description": "and createNewFolder=true and newName=NewName",
           "options": [
             {
@@ -415,31 +415,6 @@
               "createNewFolder": true,
               "newFolderName": "NewName",
               "overwrite": false
-            }
-          ],
-          "expected": {}
-        },
-        {
-          "ignore": true,
-          "description": "and createNewFolder=true and overwrite=true and newName=AnotherFolderSimple"
-        },
-        {
-          "ignore": true,
-          "description": "and createNewFolder=true and overwrite=true and newName=AnotherFolder"
-        },
-        {
-          "ignore": true,
-          "description": "and createNewFolder=true, newFolderName=NewName",
-          "options": [
-            {
-              "createNewFolder": true,
-              "newFolderName": "NewName",
-              "overwrite": false
-            },
-            {
-              "createNewFolder": true,
-              "newFolderName": "NewName",
-              "overwrite": true
             }
           ],
           "expected": {
@@ -460,6 +435,47 @@
             "firstLevel": [
               {
                 "title": "NewName",
+                "status": "new",
+                "type": "f"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and createNewFolder=true and overwrite=false and newName=AnotherFolder",
+          "options": [
+            {
+              "createNewFolder": true,
+              "overwrite": false,
+              "newFolderName": "AnotherFolder"
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#id",
+                "title": "AnotherFolder",
+                "parent": "home",
+                "type": "f"
+              },
+              {
+                "title": "Simple",
+                "parent": "#id",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "AnotherFolder",
+                "status": "new",
+                "type": "f"
+              }
+            ],
+            "duplicates": [
+              {
+                "id": "#fID2",
+                "title": "AnotherFolder",
                 "parent": "home",
                 "type": "f"
               }
@@ -467,8 +483,94 @@
           }
         },
         {
-          "ignore": true,
-          "description": "with createNewFolder=false",
+          "description": "and createNewFolder=true and overwrite=true and newName=AnotherFolderSimple",
+          "options": [
+            {
+              "createNewFolder": true,
+              "overwrite": true,
+              "newFolderName": "AnotherFolderSimple"
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "title": "Simple",
+                "parent": "#fID3",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "updatedItems": [
+              {
+                "id": "#fID3",
+                "title": "AnotherFolderSimple",
+                "parent": "home",
+                "type": "f"
+              }
+            ],
+            "firstLevel": [
+              {
+                "id": "#fID3",
+                "title": "AnotherFolderSimple",
+                "status": "merged",
+                "type": "f"
+              }
+            ],
+            "duplicates": [
+              {
+                "id": "#fID3",
+                "title": "AnotherFolderSimple",
+                "parent": "home",
+                "type": "f"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and createNewFolder=true and overwrite=true and newName=AnotherFolder",
+          "options": [
+            {
+              "createNewFolder": true,
+              "overwrite": true,
+              "newFolderName": "AnotherFolder"
+            }
+          ],
+          "expected": {
+            "newItems": [],
+            "updatedItems": [
+              {
+                "id": "#fID2",
+                "title": "AnotherFolder",
+                "parent": "home",
+                "type": "f"
+              },
+              {
+                "title": "Simple",
+                "parent": "#fID2",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "id": "#fID2",
+                "title": "AnotherFolder",
+                "status": "merged",
+                "type": "f"
+              }
+            ],
+            "duplicates": [
+              {
+                "id": "#fID2",
+                "title": "AnotherFolder",
+                "parent": "home",
+                "type": "f"
+              }
+            ]
+          }
+        },
+        {
+          "description": "with createNewFolder=false and overwrite=false",
           "options": [
             {
               "createNewFolder": false,
@@ -476,17 +578,8 @@
             },
             {
               "createNewFolder": false,
-              "overwrite": true
-            },
-            {
-              "createNewFolder": false,
               "newFolderName": "NewName",
               "overwrite": false
-            },
-            {
-              "createNewFolder": false,
-              "newFolderName": "NewName",
-              "overwrite": true
             }
           ],
           "expected": {
@@ -500,6 +593,54 @@
             ],
             "firstLevel": [
               {
+                "title": "Simple",
+                "status": "new",
+                "type": "d"
+              }
+            ],
+            "duplicates": [
+              {
+                "id": "#dID0",
+                "title": "Simple",
+                "parent": "home",
+                "type": "d"
+              }
+            ]
+          }
+        },
+        {
+          "description": "with createNewFolder=false and overwrite=true",
+          "options": [
+            {
+              "createNewFolder": false,
+              "overwrite": true
+            },
+            {
+              "createNewFolder": false,
+              "newFolderName": "NewName",
+              "overwrite": true
+            }
+          ],
+          "expected": {
+            "updatedItems": [
+              {
+                "id": "#dID0",
+                "title": "Simple",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple",
+                "status": "merged",
+                "type": "d"
+              }
+            ],
+            "duplicates": [
+              {
+                "id": "#dID0",
                 "title": "Simple",
                 "parent": "home",
                 "type": "d"
