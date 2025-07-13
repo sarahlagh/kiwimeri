@@ -147,7 +147,7 @@ describe('import service', () => {
   };
 
   describe('merging items', async () => {
-    const jsonTestCases = ['Simple.zip'];
+    const jsonTestCases = ['Simple.zip', 'SimpleWithDuplicates.zip'];
 
     const createInitData = (initData: Partial<CollectionItem>[]) => {
       const ids = new Map<string, string>();
@@ -342,6 +342,7 @@ describe('import service', () => {
                           .filter(lc => lc.change === LocalChangeType.update)
                       ).toHaveLength(zipMerge.updatedItems.length);
                     });
+                    // TODO more checks
                   });
                 });
               });
