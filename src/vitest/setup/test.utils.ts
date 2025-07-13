@@ -20,6 +20,7 @@ export const amount = async (timeout = 500) => {
 
 export const fakeTimersDelay = 100;
 
+// TODO use new methods from collection service
 export const oneDocument = (
   title = 'new doc',
   parent = ROOT_FOLDER

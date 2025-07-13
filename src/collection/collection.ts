@@ -61,6 +61,12 @@ export type CollectionItemResult = Pick<
 > &
   Required<Pick<CollectionItem, 'id'>>;
 
+export type CollectionItemUpdate = Pick<
+  CollectionItem,
+  'content' | 'content_meta'
+> &
+  CollectionItemResult;
+
 export type PagePreview = Pick<
   CollectionItem,
   'preview' | 'created' | 'updated' | 'conflict'
