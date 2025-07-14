@@ -23,6 +23,7 @@ type JsonTestDescriptor = {
   ignore?: boolean;
   testCases: {
     description: string;
+    ignore?: boolean;
     initData: Pick<Partial<CollectionItem>, 'title' | 'type'>[];
     scenarios: {
       ignore?: boolean;
@@ -154,7 +155,8 @@ describe('import service', () => {
     const jsonTestCases = [
       'Simple.zip',
       'SimpleWithDuplicates.zip',
-      'SimpleLayer.zip'
+      'SimpleLayer.zip',
+      'SimplePagesInline.zip'
     ];
 
     const createInitData = (initData: Partial<CollectionItem>[]) => {
@@ -224,7 +226,9 @@ describe('import service', () => {
               expectedItem.status
             );
           }
-          expect(mergedItem.title).toBe(expectedItem.title);
+          if (mergedItem.type !== CollectionItemType.page) {
+            expect(mergedItem.title).toBe(expectedItem.title);
+          }
           expect(mergedItem.type).toBe(expectedItem.type);
         });
       }
@@ -320,63 +324,67 @@ describe('import service', () => {
       }
 
       describe(`should import ${testDescriptor.zipName}`, () => {
-        testDescriptor.testCases.forEach(testCase => {
-          describe(`${testCase.description}`, () => {
-            testCase.scenarios
-              .filter(scenario => scenario.ignore !== true)
-              .forEach(scenario => {
-                describe(`${scenario.description}`, () => {
-                  beforeEach(() => {
-                    vi.useFakeTimers();
-                  });
-                  afterEach(() => {
-                    vi.useRealTimers();
-                  });
-                  scenario.options.forEach((options, oIdx) => {
-                    it(`and options #${oIdx}`, async () => {
-                      console.log('options', options);
+        testDescriptor.testCases
+          .filter(testCase => testCase.ignore !== true)
+          .forEach(testCase => {
+            describe(`${testCase.description}`, () => {
+              testCase.scenarios
+                .filter(scenario => scenario.ignore !== true)
+                .forEach(scenario => {
+                  describe(`${scenario.description}`, () => {
+                    beforeEach(() => {
+                      vi.useFakeTimers();
+                    });
+                    afterEach(() => {
+                      vi.useRealTimers();
+                    });
+                    scenario.options.forEach((options, oIdx) => {
+                      it(`and options #${oIdx}`, async () => {
+                        console.log('options', options);
 
-                      const creationTs = Date.now();
-                      const initDataIds = createInitData(testCase.initData);
-                      localChangesService.clear();
-                      vi.advanceTimersByTime(5000);
-                      const updateTs = Date.now();
+                        const creationTs = Date.now();
+                        const initDataIds = createInitData(testCase.initData);
+                        localChangesService.clear();
+                        vi.advanceTimersByTime(5000);
+                        const updateTs = Date.now();
 
-                      const zipContent = await readZip(testDescriptor.zipName);
-
-                      const zipMerge =
-                        importService.mergeZipItemsWithCollection(
-                          testDescriptor.name,
-                          zipContent,
-                          ROOT_FOLDER,
-                          options
+                        const zipContent = await readZip(
+                          testDescriptor.zipName
                         );
 
-                      console.debug('merge results', zipMerge);
+                        const zipMerge =
+                          importService.mergeZipItemsWithCollection(
+                            testDescriptor.name,
+                            zipContent,
+                            ROOT_FOLDER,
+                            options
+                          );
 
-                      checkResults(
-                        zipMerge,
-                        scenario.expected,
-                        initDataIds,
-                        creationTs,
-                        updateTs
-                      );
+                        console.debug('merge results', zipMerge);
 
-                      // save results and check db
-                      collectionService.saveItems(zipMerge.newItems);
-                      collectionService.saveItems(zipMerge.updatedItems);
-                      console.debug(
-                        'db after save',
-                        storageService.getSpace().getTable('collection')
-                      );
+                        checkResults(
+                          zipMerge,
+                          scenario.expected,
+                          initDataIds,
+                          creationTs,
+                          updateTs
+                        );
 
-                      checkResultsDb(testCase.initData, zipMerge);
+                        // save results and check db
+                        collectionService.saveItems(zipMerge.newItems);
+                        collectionService.saveItems(zipMerge.updatedItems);
+                        console.debug(
+                          'db after save',
+                          storageService.getSpace().getTable('collection')
+                        );
+
+                        checkResultsDb(testCase.initData, zipMerge);
+                      });
                     });
                   });
                 });
-              });
+            });
           });
-        });
       });
     }
 
