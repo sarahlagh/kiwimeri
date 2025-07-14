@@ -69,10 +69,18 @@ class ImportService {
           : collectionService.getNewDocumentObj(currentParent || ROOT_FOLDER);
 
         let content: string | undefined = undefined;
+
+        items[fKey] = {
+          ...item,
+          id,
+          // remove duplicate identifiers from the name
+          title: currentName.replace(/(.*?)( \(\d*\))?\.[A-z]{1,3}$/g, '$1')
+        };
+
         if (!isFolder) {
           content = strFromU8(unzipped[key]);
           const { doc, pages } = this.getLexicalFromContent(content);
-          collectionService.setUnsavedItemLexicalContent(item, doc);
+          collectionService.setUnsavedItemLexicalContent(items[fKey], doc);
           pages.forEach((page, idx) => {
             const { item: pItem, id: pId } =
               collectionService.getNewPageObj(id);
@@ -83,12 +91,6 @@ class ImportService {
             );
           });
         }
-        items[fKey] = {
-          ...item,
-          id,
-          // remove duplicate identifiers from the name
-          title: currentName.replace(/(.*?)( \(\d*\))?\.[A-z]{1,3}$/g, '$1')
-        };
       }
     });
     return { items: Object.values(items) };

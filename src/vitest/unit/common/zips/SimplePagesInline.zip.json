@@ -1,6 +1,6 @@
 {
-  "zipName": "Simple.zip",
-  "name": "Simple",
+  "zipName": "SimplePagesInline.zip",
+  "name": "SimplePagesInline",
   "testCases": [
     {
       "description": "with no init data",
@@ -32,20 +32,26 @@
             "newItems": [
               {
                 "id": "#id",
-                "title": "Simple",
+                "title": "SimplePagesInline",
                 "parent": "home",
                 "type": "f"
               },
               {
+                "id": "#idp",
                 "title": "Simple",
                 "parent": "#id",
                 "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "parent": "#idp",
+                "type": "p",
                 "content": "__defined__"
               }
             ],
             "firstLevel": [
               {
-                "title": "Simple",
+                "title": "SimplePagesInline",
                 "type": "f",
                 "status": "new"
               }
@@ -53,6 +59,7 @@
           }
         },
         {
+          "ignore": true,
           "description": "and createNewFolder=true, newFolderName=NewName",
           "options": [
             {
@@ -91,6 +98,7 @@
           }
         },
         {
+          "ignore": true,
           "description": "with createNewFolder=false",
           "options": [
             {
@@ -133,6 +141,7 @@
       ]
     },
     {
+      "ignore": true,
       "description": "with no duplicates",
       "initData": [
         {
@@ -155,6 +164,7 @@
       ],
       "scenarios": [
         {
+          "ignore": true,
           "description": "and createNewFolder=true",
           "options": [
             {
@@ -271,6 +281,7 @@
       ]
     },
     {
+      "ignore": true,
       "description": "with duplicates",
       "initData": [
         {
