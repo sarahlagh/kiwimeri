@@ -24,6 +24,7 @@ export type ZipMergeResult = {
 export type ZipMergeOptions = {
   createNewFolder: boolean;
   overwrite: boolean;
+  removeFirstFolder?: boolean;
   newFolderName?: string;
 };
 
@@ -164,15 +165,19 @@ class ImportService {
   }
 
   private overwriteDuplicates(
-    folderId: string,
     newItems: CollectionItem[],
     updatedItems: CollectionItemUpdate[]
   ) {
-    const newDuplicates = this.findDuplicates(folderId, [
-      ...newItems.filter(item => item.parent === folderId)
-    ]);
+    const duplicatesMap = new Map<string, CollectionItemResult[]>();
+
     for (let i = 0; i < newItems.length; i++) {
       const item = newItems[i];
+      if (!duplicatesMap.has(item.parent)) {
+        const duplicates = this.findDuplicates(item.parent, [item]);
+        duplicatesMap.set(item.parent, duplicates);
+      }
+      const newDuplicates = duplicatesMap.get(item.parent)!;
+
       const dupl = this.isDuplicate(newDuplicates, item);
       if (dupl) {
         // don't keep duplicate in array
@@ -183,13 +188,11 @@ class ImportService {
         updatedItems.push(this.mergeItem(dupl, item)); // add dupl to updated items
         newItems.splice(i, 1); // remove dupl from new items
         i--;
-        // TODO if folder find duplicates inside
+        // update dupl children
+        newItems
+          .filter(newItem => newItem.parent === item.id)
+          .forEach(newItem => (newItem.parent = dupl.id));
       }
-    }
-
-    const nextLevel = newItems.filter(i => i.parent !== folderId);
-    if (nextLevel.length > 0) {
-      // TODO recursive
     }
   }
 
@@ -263,7 +266,7 @@ class ImportService {
       updatedItems.push(this.mergeItem(newParent));
 
       // look for duplicates beyond first level
-      this.overwriteDuplicates(newParent.id, newItems, updatedItems);
+      this.overwriteDuplicates(newItems, updatedItems);
 
       return {
         newItems,
@@ -279,13 +282,16 @@ class ImportService {
     parent: string,
     options: ZipMergeOptions
   ) {
+    const firstLevelItems = items.filter(item => item.parent === parent);
     // check duplicates for each item
-    const duplicates = this.findDuplicates(parent, items);
+    const duplicates = this.findDuplicates(parent, firstLevelItems);
 
     // if no duplicates, or option to create new without overwrite:
     if (duplicates.length === 0 || !options.overwrite) {
       const firstLevel: ZipMergeFistLevel[] = [
-        ...items.map(item => ({ ...item, status: 'new' }) as ZipMergeFistLevel)
+        ...firstLevelItems.map(
+          item => ({ ...item, status: 'new' }) as ZipMergeFistLevel
+        )
       ];
       const newItems = [...items];
 
@@ -299,15 +305,15 @@ class ImportService {
       // if has duplicates and option to overwrite:
       const updatedItems: CollectionItemUpdate[] = [];
       const newItems = [...items];
-      this.overwriteDuplicates(parent, newItems, updatedItems);
+      this.overwriteDuplicates(newItems, updatedItems);
 
       const firstLevel: ZipMergeFistLevel[] = [
-        ...updatedItems.map(
-          item => ({ ...item, status: 'merged' }) as ZipMergeFistLevel
-        ),
-        ...newItems.map(
-          item => ({ ...item, status: 'new' }) as ZipMergeFistLevel
-        )
+        ...updatedItems
+          .filter(item => item.parent === parent)
+          .map(item => ({ ...item, status: 'merged' }) as ZipMergeFistLevel),
+        ...newItems
+          .filter(item => item.parent === parent)
+          .map(item => ({ ...item, status: 'new' }) as ZipMergeFistLevel)
       ];
 
       return {
@@ -319,6 +325,25 @@ class ImportService {
     }
   }
 
+  private removeFirstFolder(items: CollectionItem[], parent: string) {
+    const firstLayer = items.filter(item => item.parent === parent);
+    if (
+      firstLayer.length !== 1 ||
+      firstLayer[0].type !== CollectionItemType.folder
+    ) {
+      console.warn(
+        '[import] option to remove first folder requested, but zip has a non compliant structure'
+      );
+      return;
+    }
+    // remove the first layer
+    items.splice(items.indexOf(firstLayer[0]), 1);
+    // update its children
+    items
+      .filter(item => item.parent === firstLayer[0].id)
+      .forEach(item => (item.parent = parent));
+  }
+
   public mergeZipItemsWithCollection(
     zipName: string,
     importedItems: CollectionItem[],
@@ -327,9 +352,12 @@ class ImportService {
   ): ZipMergeResult {
     const items = structuredClone(importedItems);
 
-    // TODO check option to remove first folder
+    // check option to remove first folder
+    if (options.removeFirstFolder === true) {
+      this.removeFirstFolder(items, parent);
+    }
 
-    if (options.createNewFolder) {
+    if (options.createNewFolder === true) {
       return this.mergeZipItemsWithCreateNewFolder(
         zipName,
         items,
