@@ -10,13 +10,17 @@ import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/localChanges.service';
 import storageService from '@/db/storage.service';
 import { LocalChangeType } from '@/db/types/store-types';
-import { getCollectionRowCount } from '@/vitest/setup/test.utils';
+import {
+  getCollectionRowCount,
+  getLocalItemField
+} from '@/vitest/setup/test.utils';
 import { readFile } from 'fs/promises';
 import { it, vi } from 'vitest';
 
 type JsonTestDescriptor = {
   zipName: string;
   name: string;
+  ignore?: boolean;
   testCases: {
     description: string;
     initData: Pick<Partial<CollectionItem>, 'title' | 'type'>[];
@@ -139,11 +143,11 @@ describe('import service', () => {
     });
   });
 
-  const readZip = async (zipName: string) => {
+  const readZip = async (zipName: string, parent = ROOT_FOLDER) => {
     const zip = await readFile(`${__dirname}/zips/${zipName}`);
     const zipBuffer: ArrayBuffer = new Uint8Array(zip).buffer;
     const unzipped = await importService.readZip(zipBuffer);
-    return importService.parseZipData(ROOT_FOLDER, unzipped).items;
+    return importService.parseZipData(parent, unzipped).items;
   };
 
   describe('merging items', async () => {
@@ -213,6 +217,7 @@ describe('import service', () => {
           }
           if ('content' in expectedItem && expectedItem.content !== undefined) {
             expect((mergedItem as CollectionItem).content).toBeDefined();
+            expect((mergedItem as CollectionItem).preview).toBeDefined();
           }
           if ('status' in expectedItem) {
             expect((mergedItem as ZipMergeFistLevel).status).toBe(
@@ -279,9 +284,40 @@ describe('import service', () => {
       });
     };
 
+    const checkResultsDb = (
+      initData: Pick<Partial<CollectionItem>, 'title' | 'type'>[],
+      zipMerge: ZipMergeResult
+    ) => {
+      expect(getCollectionRowCount()).toBe(
+        initData.length + zipMerge.newItems.length
+      );
+      expect(
+        localChangesService
+          .getLocalChanges()
+          .filter(lc => lc.change === LocalChangeType.add)
+      ).toHaveLength(zipMerge.newItems.length);
+      expect(
+        localChangesService
+          .getLocalChanges()
+          .filter(lc => lc.change === LocalChangeType.update)
+      ).toHaveLength(zipMerge.updatedItems.length);
+
+      zipMerge.newItems.forEach(item => {
+        expect(item.id).toBeDefined();
+        expect(collectionService.itemExists(item.id!)).toBe(true);
+      });
+      zipMerge.updatedItems.forEach(item => {
+        expect(item.id).toBeDefined();
+        expect(collectionService.itemExists(item.id!)).toBe(true);
+      });
+    };
+
     for (const jsonName of jsonTestCases) {
       const json = await readFile(`${__dirname}/zips/${jsonName}.json`, 'utf8');
       const testDescriptor: JsonTestDescriptor = JSON.parse(json);
+      if (testDescriptor.ignore === true) {
+        continue;
+      }
 
       describe(`should import ${testDescriptor.zipName}`, () => {
         testDescriptor.testCases.forEach(testCase => {
@@ -316,6 +352,8 @@ describe('import service', () => {
                           options
                         );
 
+                      console.debug('merge results', zipMerge);
+
                       checkResults(
                         zipMerge,
                         scenario.expected,
@@ -332,21 +370,8 @@ describe('import service', () => {
                         storageService.getSpace().getTable('collection')
                       );
 
-                      expect(getCollectionRowCount()).toBe(
-                        testCase.initData.length + zipMerge.newItems.length
-                      );
-                      expect(
-                        localChangesService
-                          .getLocalChanges()
-                          .filter(lc => lc.change === LocalChangeType.add)
-                      ).toHaveLength(zipMerge.newItems.length);
-                      expect(
-                        localChangesService
-                          .getLocalChanges()
-                          .filter(lc => lc.change === LocalChangeType.update)
-                      ).toHaveLength(zipMerge.updatedItems.length);
+                      checkResultsDb(testCase.initData, zipMerge);
                     });
-                    // TODO more checks
                   });
                 });
               });
@@ -355,8 +380,27 @@ describe('import service', () => {
       });
     }
 
-    it.todo(`should update parent ts when importing if not home`, () => {
-      // TODO
+    it(`should update parent ts when importing if not home`, async () => {
+      vi.useFakeTimers();
+      const before = Date.now();
+      const id = collectionService.addFolder(ROOT_FOLDER);
+      vi.advanceTimersByTime(5000);
+      const zipContent = await readZip('Simple.zip', id);
+      const zipMerge = importService.mergeZipItemsWithCollection(
+        'Simple',
+        zipContent,
+        id,
+        {
+          createNewFolder: false,
+          overwrite: false
+        }
+      );
+      expect(zipMerge.newItems).toHaveLength(1);
+      expect(zipMerge.newItems[0].parent).toBe(id);
+      // save results and check db
+      collectionService.saveItems(zipMerge.newItems, id);
+      expect(getLocalItemField(id, 'updated')).toBe(before + 5000);
+      vi.useRealTimers();
     });
   });
 });
