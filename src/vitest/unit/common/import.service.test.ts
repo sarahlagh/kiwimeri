@@ -323,7 +323,8 @@ describe('import service', () => {
       'Simple.zip',
       'SimpleWithDuplicates.zip',
       'SimpleLayer.zip',
-      'SimplePagesInline.zip'
+      'SimplePagesInline.zip',
+      'Samples.zip'
     ];
 
     const readZip = async (zipName: string, parent = ROOT_FOLDER) => {
@@ -527,7 +528,7 @@ describe('import service', () => {
             testCase.commitOptions.forEach((commitOpts, idx) => {
               console.log('commitOpts', commitOpts);
 
-              describe(`${testCase.description} with commit options #${idx}`, () => {
+              describe(`${testCase.description} and commit options #${idx}`, () => {
                 testCase.scenarios
                   .filter(scenario => scenario.ignore !== true)
                   .forEach(scenario => {
