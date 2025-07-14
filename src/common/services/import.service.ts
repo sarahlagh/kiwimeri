@@ -47,7 +47,6 @@ class ImportService {
     // must warn user "if you export without metadata", you won't be able to reimport notebooks"
     const items: { [key: string]: CollectionItem } = {};
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const fileTree: any = {}; // object that represents the item in tree structure
     Object.keys(unzipped).forEach(key => {
       const isFolder = key.endsWith('/');
       const fKey = key;
@@ -57,15 +56,9 @@ class ImportService {
       let currentParent = parent;
       let parentKey = '';
       const names = key.split('/');
-      let node = fileTree;
       const currentName = names.pop()!;
       names.forEach(name => {
         parentKey += name + '/';
-        node[name] = {
-          type: CollectionItemType.folder,
-          id: items[parentKey].id
-        };
-        node = node[name];
       });
       if (parentKey.length > 0 && items[parentKey]) {
         currentParent = items[parentKey].id!;
@@ -76,12 +69,6 @@ class ImportService {
           : collectionService.getNewDocumentObj(currentParent || ROOT_FOLDER);
 
         let content: string | undefined = undefined;
-        node[currentName] = {
-          type: isFolder
-            ? CollectionItemType.folder
-            : CollectionItemType.document,
-          id
-        };
         if (!isFolder) {
           content = strFromU8(unzipped[key]);
           const { doc, pages } = this.getLexicalFromContent(content);
@@ -89,10 +76,6 @@ class ImportService {
           pages.forEach((page, idx) => {
             const { item: pItem, id: pId } =
               collectionService.getNewPageObj(id);
-            node[currentName][idx] = {
-              type: CollectionItemType.page,
-              id: pId
-            };
             items[key + idx] = { ...pItem, id: pId, title: '', title_meta: '' };
             collectionService.setUnsavedItemLexicalContent(
               items[key + idx],
@@ -108,7 +91,7 @@ class ImportService {
         };
       }
     });
-    return { items: Object.values(items), fileTree };
+    return { items: Object.values(items) };
   }
 
   public readZip(content: ArrayBuffer) {
@@ -196,88 +179,7 @@ class ImportService {
     }
   }
 
-  private mergeZipItemsWithCreateNewFolder(
-    zipName: string,
-    items: CollectionItem[],
-    parent: string,
-    options: ZipMergeOptions
-  ) {
-    // check duplicates
-    const duplicates = this.findDuplicates(parent, [
-      {
-        title: options.newFolderName || zipName,
-        type: CollectionItemType.folder
-      }
-    ]);
-
-    // if no duplicates, or option to create new without overwrite:
-    if (duplicates.length === 0 || !options.overwrite) {
-      const { item, id } = collectionService.getNewFolderObj(parent);
-      const newFolder = {
-        ...item,
-        id,
-        title: options.newFolderName || zipName
-      };
-      const firstLevel: ZipMergeFistLevel[] = [
-        {
-          ...newFolder,
-          status: 'new'
-        }
-      ];
-      const newItems = [
-        newFolder,
-        ...items.map(item => {
-          if (item.parent === parent) {
-            item.parent = newFolder.id!;
-          }
-          return item;
-        })
-      ];
-
-      return {
-        newItems,
-        updatedItems: [],
-        duplicates,
-        firstLevel
-      };
-    } else {
-      // if has duplicates and option to overwrite:
-      const updatedItems: CollectionItemUpdate[] = [];
-      const newParent = duplicates[0];
-
-      const firstLevel: ZipMergeFistLevel[] = [
-        {
-          ...newParent,
-          status: 'merged'
-        }
-      ];
-
-      // update parent of first level items
-      const newItems = [
-        ...items.map(item => {
-          if (item.parent === parent) {
-            item.parent = newParent.id!;
-          }
-          return item;
-        })
-      ];
-
-      // add duplicate to updatedItems
-      updatedItems.push(this.mergeItem(newParent));
-
-      // look for duplicates beyond first level
-      this.overwriteDuplicates(newItems, updatedItems);
-
-      return {
-        newItems,
-        updatedItems,
-        duplicates,
-        firstLevel
-      };
-    }
-  }
-
-  private mergeZipItemsWithNoNewFolder(
+  private mergeZipItems(
     items: CollectionItem[],
     parent: string,
     options: ZipMergeOptions
@@ -344,6 +246,19 @@ class ImportService {
       .forEach(item => (item.parent = parent));
   }
 
+  private createNewFolder(
+    items: CollectionItem[],
+    parent: string,
+    zipName: string,
+    options: ZipMergeOptions
+  ) {
+    const firstLayer = items.filter(item => item.parent === parent);
+    const { item, id } = collectionService.getNewFolderObj(parent);
+    item.title = options.newFolderName || zipName;
+    items.unshift({ ...item, id });
+    firstLayer.forEach(item => (item.parent = id));
+  }
+
   public mergeZipItemsWithCollection(
     zipName: string,
     importedItems: CollectionItem[],
@@ -352,20 +267,15 @@ class ImportService {
   ): ZipMergeResult {
     const items = structuredClone(importedItems);
 
-    // check option to remove first folder
     if (options.removeFirstFolder === true) {
       this.removeFirstFolder(items, parent);
     }
 
     if (options.createNewFolder === true) {
-      return this.mergeZipItemsWithCreateNewFolder(
-        zipName,
-        items,
-        parent,
-        options
-      );
+      this.createNewFolder(items, parent, zipName, options);
     }
-    return this.mergeZipItemsWithNoNewFolder(items, parent, options);
+
+    return this.mergeZipItems(items, parent, options);
   }
 }
 
