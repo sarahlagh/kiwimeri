@@ -6,6 +6,7 @@ import {
 } from '@/collection/collection';
 import { ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
+import storageService from '@/db/storage.service';
 import formatterService from '@/format-conversion/formatter.service';
 import { Unzipped, strFromU8, unzip } from 'fflate';
 import { SerializedEditorState, SerializedLexicalNode } from 'lexical';
@@ -28,7 +29,15 @@ export type ZipMergeOptions = {
   newFolderName?: string;
 };
 
+export type ZipMergeCommitOptions = {
+  deleteExistingPages: boolean;
+};
+
 class ImportService {
+  private readonly commitOpts: ZipMergeCommitOptions = {
+    deleteExistingPages: true
+  };
+
   public getLexicalFromContent(content: string) {
     const pagesFormatted = content.split(formatterService.getPagesSeparator());
     const doc = pagesFormatted.shift()!;
@@ -181,7 +190,7 @@ class ImportService {
     }
   }
 
-  private mergeZipItems(
+  private mergeZipItemsWithOptions(
     items: CollectionItem[],
     parent: string,
     options: ZipMergeOptions
@@ -261,7 +270,7 @@ class ImportService {
     firstLayer.forEach(item => (item.parent = id));
   }
 
-  public mergeZipItemsWithCollection(
+  public mergeZipItems(
     zipName: string,
     importedItems: CollectionItem[],
     parent: string,
@@ -277,7 +286,63 @@ class ImportService {
       this.createNewFolder(items, parent, zipName, options);
     }
 
-    return this.mergeZipItems(items, parent, options);
+    return this.mergeZipItemsWithOptions(items, parent, options);
+  }
+
+  public commitMergeResult(
+    zipMerge: ZipMergeResult,
+    commitOpts = this.commitOpts
+  ) {
+    storageService.getSpace().transaction(() => {
+      if (commitOpts.deleteExistingPages) {
+        zipMerge.updatedItems
+          .filter(item => item.type === CollectionItemType.document)
+          .forEach(item => {
+            const pages = collectionService.getDocumentPages(item.id);
+            pages.forEach(page => {
+              collectionService.deleteItem(page.id);
+            });
+          });
+      }
+      collectionService.saveItems(zipMerge.newItems);
+      collectionService.saveItems(zipMerge.updatedItems);
+    });
+  }
+
+  public commitDocument(
+    lexical: SerializedEditorState<SerializedLexicalNode>,
+    pages: SerializedEditorState<SerializedLexicalNode>[],
+    parent: string,
+    title: string,
+    itemId?: string,
+    commitOpts = this.commitOpts
+  ) {
+    storageService.getSpace().transaction(() => {
+      if (itemId) {
+        console.debug(
+          'overwriting document with the same file name',
+          parent,
+          itemId
+        );
+        // delete exising pages
+        if (commitOpts.deleteExistingPages) {
+          const pages = collectionService.getDocumentPages(itemId);
+          pages.forEach(page => {
+            collectionService.deleteItem(page.id);
+          });
+        }
+      } else {
+        itemId = collectionService.addDocument(parent);
+        collectionService.setItemTitle(itemId, title);
+      }
+      collectionService.setItemLexicalContent(itemId, lexical);
+
+      pages.forEach(page => {
+        const pageId = collectionService.addPage(itemId!);
+        collectionService.setItemLexicalContent(pageId, page);
+      });
+    });
+    return itemId;
   }
 }
 

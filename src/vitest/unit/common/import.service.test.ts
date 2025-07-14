@@ -1,6 +1,7 @@
 import { CollectionItem, CollectionItemType } from '@/collection/collection';
 import {
   importService,
+  ZipMergeCommitOptions,
   ZipMergeFistLevel,
   ZipMergeOptions,
   ZipMergeResult
@@ -10,6 +11,7 @@ import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/localChanges.service';
 import storageService from '@/db/storage.service';
 import { LocalChangeType } from '@/db/types/store-types';
+import formatterService from '@/format-conversion/formatter.service';
 import {
   getCollectionRowCount,
   getLocalItemField
@@ -24,7 +26,11 @@ type JsonTestDescriptor = {
   testCases: {
     description: string;
     ignore?: boolean;
-    initData: Pick<Partial<CollectionItem>, 'title' | 'type'>[];
+    initData: Pick<
+      Partial<CollectionItem>,
+      'id' | 'title' | 'type' | 'parent'
+    >[];
+    commitOptions?: ZipMergeCommitOptions[];
     scenarios: {
       ignore?: boolean;
       description: string;
@@ -35,6 +41,13 @@ type JsonTestDescriptor = {
 };
 
 describe('import service', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   describe('finding duplicates', () => {
     it(`should find no duplicates when collection empty`, () => {
       expect(importService.findDuplicates(ROOT_FOLDER, [])).toHaveLength(0);
@@ -144,20 +157,181 @@ describe('import service', () => {
     });
   });
 
-  const readZip = async (zipName: string, parent = ROOT_FOLDER) => {
-    const zip = await readFile(`${__dirname}/zips/${zipName}`);
-    const zipBuffer: ArrayBuffer = new Uint8Array(zip).buffer;
-    const unzipped = await importService.readZip(zipBuffer);
-    return importService.parseZipData(parent, unzipped).items;
-  };
+  describe('merging single documents', () => {
+    it('save single new document', () => {
+      const { doc, pages } = importService.getLexicalFromContent(
+        'This is some content'
+      );
+      expect(doc).toBeDefined();
+      expect(pages).toHaveLength(0);
+      const id = importService.commitDocument(
+        doc,
+        pages,
+        ROOT_FOLDER,
+        'New doc'
+      );
+      expect(id).toBeDefined();
+      expect(collectionService.itemExists(id!)).toBe(true);
+    });
 
-  describe('merging items', async () => {
+    it('overwrite existing document', () => {
+      const before = Date.now();
+      const id1 = collectionService.addDocument(ROOT_FOLDER);
+      collectionService.setItemTitle(id1, 'New doc');
+      vi.advanceTimersByTime(5000);
+
+      const { doc, pages } = importService.getLexicalFromContent(
+        'This is some content'
+      );
+      expect(doc).toBeDefined();
+      expect(pages).toHaveLength(0);
+      const id2 = importService.commitDocument(
+        doc,
+        pages,
+        ROOT_FOLDER,
+        'New doc',
+        id1
+      );
+      expect(id2).toBe(id1);
+      expect(collectionService.itemExists(id2!)).toBe(true);
+      expect(collectionService.getItemField(id2!, 'updated')).toBe(
+        before + 5000
+      );
+    });
+
+    it('save single new document with pages', () => {
+      const { doc, pages } = importService.getLexicalFromContent(
+        'This is some content' +
+          formatterService.getPagesSeparator() +
+          'And a page'
+      );
+      expect(doc).toBeDefined();
+      expect(pages).toHaveLength(1);
+      const id = importService.commitDocument(
+        doc,
+        pages,
+        ROOT_FOLDER,
+        'New doc'
+      );
+      expect(id).toBeDefined();
+      expect(collectionService.itemExists(id!)).toBe(true);
+      expect(collectionService.getDocumentPages(id!)).toHaveLength(1);
+    });
+
+    it('overwrite existing document with no previous pages', () => {
+      const before = Date.now();
+      const id1 = collectionService.addDocument(ROOT_FOLDER);
+      collectionService.setItemTitle(id1, 'New doc');
+      vi.advanceTimersByTime(5000);
+
+      const { doc, pages } = importService.getLexicalFromContent(
+        'This is some content' +
+          formatterService.getPagesSeparator() +
+          'And a page'
+      );
+
+      expect(doc).toBeDefined();
+      expect(pages).toHaveLength(1);
+      const id2 = importService.commitDocument(
+        doc,
+        pages,
+        ROOT_FOLDER,
+        'New doc',
+        id1
+      );
+      expect(id2).toBe(id1);
+      expect(collectionService.itemExists(id2!)).toBe(true);
+      expect(collectionService.getItemField(id2!, 'updated')).toBe(
+        before + 5000
+      );
+      expect(collectionService.getDocumentPages(id2!)).toHaveLength(1);
+    });
+
+    it('overwrite existing document with previous pages and deleteExistingPages=true', () => {
+      const before = Date.now();
+      const id1 = collectionService.addDocument(ROOT_FOLDER);
+      const idp1 = collectionService.addPage(id1);
+      const idp2 = collectionService.addPage(id1);
+      collectionService.setItemTitle(id1, 'New doc');
+      vi.advanceTimersByTime(5000);
+
+      const { doc, pages } = importService.getLexicalFromContent(
+        'This is some content' +
+          formatterService.getPagesSeparator() +
+          'And a page'
+      );
+
+      expect(doc).toBeDefined();
+      expect(pages).toHaveLength(1);
+      const id2 = importService.commitDocument(
+        doc,
+        pages,
+        ROOT_FOLDER,
+        'New doc',
+        id1,
+        { deleteExistingPages: true }
+      );
+      expect(id2).toBe(id1);
+      expect(collectionService.itemExists(id2!)).toBe(true);
+      expect(collectionService.getItemField(id2!, 'updated')).toBe(
+        before + 5000
+      );
+      const newPages = collectionService.getDocumentPages(id2!);
+      expect(newPages).toHaveLength(1);
+      expect(newPages[0]).not.toBe(idp1);
+      expect(newPages[0]).not.toBe(idp2);
+    });
+
+    it('overwrite existing document with previous pages and deleteExistingPages=false', () => {
+      const before = Date.now();
+      const id1 = collectionService.addDocument(ROOT_FOLDER);
+      const idp1 = collectionService.addPage(id1);
+      const idp2 = collectionService.addPage(id1);
+      collectionService.setItemTitle(id1, 'New doc');
+      vi.advanceTimersByTime(5000);
+
+      const { doc, pages } = importService.getLexicalFromContent(
+        'This is some content' +
+          formatterService.getPagesSeparator() +
+          'And a page'
+      );
+
+      expect(doc).toBeDefined();
+      expect(pages).toHaveLength(1);
+      const id2 = importService.commitDocument(
+        doc,
+        pages,
+        ROOT_FOLDER,
+        'New doc',
+        id1,
+        { deleteExistingPages: false }
+      );
+      expect(id2).toBe(id1);
+      expect(collectionService.itemExists(id2!)).toBe(true);
+      expect(collectionService.getItemField(id2!, 'updated')).toBe(
+        before + 5000
+      );
+      const newPages = collectionService.getDocumentPages(id2!);
+      expect(newPages).toHaveLength(3);
+      expect(newPages.find(page => page.id === idp1)).toBeDefined();
+      expect(newPages.find(page => page.id === idp2)).toBeDefined();
+    });
+  });
+
+  describe('merging zips', async () => {
     const jsonTestCases = [
       'Simple.zip',
       'SimpleWithDuplicates.zip',
       'SimpleLayer.zip',
       'SimplePagesInline.zip'
     ];
+
+    const readZip = async (zipName: string, parent = ROOT_FOLDER) => {
+      const zip = await readFile(`${__dirname}/zips/${zipName}`);
+      const zipBuffer: ArrayBuffer = new Uint8Array(zip).buffer;
+      const unzipped = await importService.readZip(zipBuffer);
+      return importService.parseZipData(parent, unzipped).items;
+    };
 
     const createInitData = (initData: Partial<CollectionItem>[]) => {
       const ids = new Map<string, string>();
@@ -182,6 +356,9 @@ describe('import service', () => {
         if (data.type === CollectionItemType.document) {
           const { item, id } = collectionService.getNewDocumentObj(ROOT_FOLDER);
           return createItem({ ...item, id }, data);
+        } else if (data.type === CollectionItemType.page) {
+          const { item, id } = collectionService.getNewPageObj(data.parent!);
+          return createItem({ ...item, id, title: '', title_meta: '' }, data);
         } else if (data.type === CollectionItemType.folder) {
           const { item, id } = collectionService.getNewFolderObj(ROOT_FOLDER);
           return createItem({ ...item, id }, data);
@@ -192,7 +369,7 @@ describe('import service', () => {
       if (initialItems.length > 0) {
         collectionService.saveItems(initialItems, ROOT_FOLDER);
       }
-      return ids;
+      return { ids, initialItems };
     };
 
     const checkResultsArray = (
@@ -289,11 +466,18 @@ describe('import service', () => {
     };
 
     const checkResultsDb = (
-      initData: Pick<Partial<CollectionItem>, 'title' | 'type'>[],
-      zipMerge: ZipMergeResult
+      initData: CollectionItem[],
+      zipMerge: ZipMergeResult,
+      commitOpts: ZipMergeCommitOptions
     ) => {
+      const initDataNotDel = initData.filter(data =>
+        commitOpts.deleteExistingPages && data.type === CollectionItemType.page
+          ? !zipMerge.updatedItems.find(i => i.id === data.parent)
+          : true
+      );
+
       expect(getCollectionRowCount()).toBe(
-        initData.length + zipMerge.newItems.length
+        initDataNotDel.length + zipMerge.newItems.length
       );
       expect(
         localChangesService
@@ -303,16 +487,26 @@ describe('import service', () => {
       expect(
         localChangesService
           .getLocalChanges()
+          .filter(lc => lc.change === LocalChangeType.delete)
+      ).toHaveLength(initData.length - initDataNotDel.length);
+      expect(
+        localChangesService
+          .getLocalChanges()
           .filter(lc => lc.change === LocalChangeType.update)
       ).toHaveLength(zipMerge.updatedItems.length);
 
-      zipMerge.newItems.forEach(item => {
+      const items = [...zipMerge.newItems, ...zipMerge.updatedItems];
+      items.forEach(item => {
         expect(item.id).toBeDefined();
         expect(collectionService.itemExists(item.id!)).toBe(true);
-      });
-      zipMerge.updatedItems.forEach(item => {
-        expect(item.id).toBeDefined();
-        expect(collectionService.itemExists(item.id!)).toBe(true);
+        if (item.type === CollectionItemType.document) {
+          const pages = collectionService.getDocumentPages(item.id!);
+
+          expect(pages).toHaveLength(
+            items.filter(p => p.parent === item.id).length +
+              initDataNotDel.filter(p => p.parent === item.id).length
+          );
+        }
       });
     };
 
@@ -327,62 +521,63 @@ describe('import service', () => {
         testDescriptor.testCases
           .filter(testCase => testCase.ignore !== true)
           .forEach(testCase => {
-            describe(`${testCase.description}`, () => {
-              testCase.scenarios
-                .filter(scenario => scenario.ignore !== true)
-                .forEach(scenario => {
-                  describe(`${scenario.description}`, () => {
-                    beforeEach(() => {
-                      vi.useFakeTimers();
-                    });
-                    afterEach(() => {
-                      vi.useRealTimers();
-                    });
-                    scenario.options.forEach((options, oIdx) => {
-                      it(`and options #${oIdx}`, async () => {
-                        console.log('options', options);
+            if (!testCase.commitOptions) {
+              testCase.commitOptions = [{ deleteExistingPages: true }];
+            }
+            testCase.commitOptions.forEach((commitOpts, idx) => {
+              console.log('commitOpts', commitOpts);
 
-                        const creationTs = Date.now();
-                        const initDataIds = createInitData(testCase.initData);
-                        localChangesService.clear();
-                        vi.advanceTimersByTime(5000);
-                        const updateTs = Date.now();
+              describe(`${testCase.description} with commit options #${idx}`, () => {
+                testCase.scenarios
+                  .filter(scenario => scenario.ignore !== true)
+                  .forEach(scenario => {
+                    describe(`${scenario.description}`, () => {
+                      scenario.options.forEach((options, oIdx) => {
+                        it(`and options #${oIdx}`, async () => {
+                          console.log('options', options);
 
-                        const zipContent = await readZip(
-                          testDescriptor.zipName
-                        );
+                          const creationTs = Date.now();
+                          const { ids: initDataIds, initialItems } =
+                            createInitData(testCase.initData);
+                          localChangesService.clear();
+                          vi.advanceTimersByTime(5000);
+                          const updateTs = Date.now();
 
-                        const zipMerge =
-                          importService.mergeZipItemsWithCollection(
+                          const zipContent = await readZip(
+                            testDescriptor.zipName
+                          );
+
+                          const zipMerge = importService.mergeZipItems(
                             testDescriptor.name,
                             zipContent,
                             ROOT_FOLDER,
                             options
                           );
 
-                        console.debug('merge results', zipMerge);
+                          console.debug('merge results', zipMerge);
 
-                        checkResults(
-                          zipMerge,
-                          scenario.expected,
-                          initDataIds,
-                          creationTs,
-                          updateTs
-                        );
+                          checkResults(
+                            zipMerge,
+                            scenario.expected,
+                            initDataIds,
+                            creationTs,
+                            updateTs
+                          );
 
-                        // save results and check db
-                        collectionService.saveItems(zipMerge.newItems);
-                        collectionService.saveItems(zipMerge.updatedItems);
-                        console.debug(
-                          'db after save',
-                          storageService.getSpace().getTable('collection')
-                        );
+                          // save results and check db
+                          importService.commitMergeResult(zipMerge, commitOpts);
 
-                        checkResultsDb(testCase.initData, zipMerge);
+                          console.debug(
+                            'db after save',
+                            storageService.getSpace().getTable('collection')
+                          );
+
+                          checkResultsDb(initialItems, zipMerge, commitOpts);
+                        });
                       });
                     });
                   });
-                });
+              });
             });
           });
       });
@@ -394,15 +589,10 @@ describe('import service', () => {
       const id = collectionService.addFolder(ROOT_FOLDER);
       vi.advanceTimersByTime(5000);
       const zipContent = await readZip('Simple.zip', id);
-      const zipMerge = importService.mergeZipItemsWithCollection(
-        'Simple',
-        zipContent,
-        id,
-        {
-          createNewFolder: false,
-          overwrite: false
-        }
-      );
+      const zipMerge = importService.mergeZipItems('Simple', zipContent, id, {
+        createNewFolder: false,
+        overwrite: false
+      });
       expect(zipMerge.newItems).toHaveLength(1);
       expect(zipMerge.newItems[0].parent).toBe(id);
       // save results and check db
