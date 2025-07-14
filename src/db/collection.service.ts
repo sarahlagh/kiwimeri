@@ -310,7 +310,7 @@ class CollectionService {
     const changeType = this.itemExists(id)
       ? LocalChangeType.update
       : LocalChangeType.add;
-    storageService.getSpace().setRow(this.table, id, item);
+    storageService.getSpace().setRow(this.table, id, { ...item });
     if (parent) {
       this.updateParentUpdatedRecursive(parent);
     }
