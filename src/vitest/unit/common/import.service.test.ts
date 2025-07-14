@@ -147,7 +147,11 @@ describe('import service', () => {
   };
 
   describe('merging items', async () => {
-    const jsonTestCases = ['Simple.zip', 'SimpleWithDuplicates.zip'];
+    const jsonTestCases = [
+      'Simple.zip',
+      'SimpleWithDuplicates.zip',
+      'SimpleLayer.zip'
+    ];
 
     const createInitData = (initData: Partial<CollectionItem>[]) => {
       const ids = new Map<string, string>();
