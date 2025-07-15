@@ -45,6 +45,18 @@
                 "content": "__defined__"
               },
               {
+                "id": "#fIDSamples1",
+                "title": "Samples",
+                "parent": "#fIDSamples",
+                "type": "f"
+              },
+              {
+                "title": "Quote",
+                "parent": "#fIDSamples1",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
                 "title": "Simple",
                 "parent": "#fIDSamples",
                 "type": "d",
@@ -168,6 +180,18 @@
                 "content": "__defined__"
               },
               {
+                "id": "#fIDSamples1",
+                "title": "Samples",
+                "parent": "home",
+                "type": "f"
+              },
+              {
+                "title": "Quote",
+                "parent": "#fIDSamples1",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
                 "title": "Simple",
                 "parent": "home",
                 "type": "d",
@@ -265,6 +289,11 @@
                 "status": "new"
               },
               {
+                "title": "Samples",
+                "type": "f",
+                "status": "new"
+              },
+              {
                 "title": "Simple",
                 "type": "d",
                 "status": "new"
@@ -293,7 +322,7 @@
           }
         },
         {
-          "description": "and expect to have double Sample folders",
+          "description": "and expect to have double Samples folders",
           "options": [
             {
               "removeFirstFolder": false,
@@ -323,6 +352,18 @@
               {
                 "title": "Quote",
                 "parent": "#fIDSamples",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "id": "#fIDSamples1",
+                "title": "Samples",
+                "parent": "#fIDSamples",
+                "type": "f"
+              },
+              {
+                "title": "Quote",
+                "parent": "#fIDSamples1",
                 "type": "d",
                 "content": "__defined__"
               },
@@ -430,113 +471,92 @@
       ]
     },
     {
-      "ignore": true,
       "description": "with duplicates",
       "initData": [
         {
-          "title": "AnotherDoc",
+          "id": "#fIDSamplesDupl",
+          "title": "Samples",
           "parent": "home",
+          "type": "f"
+        },
+        {
+          "title": "Quote",
+          "parent": "#fIDSamplesDupl",
           "type": "d"
         },
         {
-          "id": "#dID0",
           "title": "Simple",
-          "parent": "home",
+          "parent": "#fIDSamplesDupl",
           "type": "d"
         },
         {
           "id": "#fID1",
-          "title": "Simple",
-          "parent": "home",
+          "title": "folder 1",
+          "parent": "#fIDSamplesDupl",
           "type": "f"
         },
         {
-          "title": "AnotherDoc",
+          "id": "#fID1SubFolder",
+          "title": "sub folder",
           "parent": "#fID1",
+          "type": "f"
+        },
+        {
+          "id": "#dIDSimplePage1",
+          "title": "SimplePage",
+          "parent": "#fID1SubFolder",
           "type": "d"
         },
         {
-          "id": "#dID1",
-          "title": "Simple",
-          "parent": "#fID1",
-          "type": "d"
+          "parent": "#dIDSimplePage1",
+          "type": "p"
+        },
+        {
+          "parent": "#dIDSimplePage1",
+          "type": "p"
         },
         {
           "id": "#fID2",
-          "title": "AnotherFolder",
-          "parent": "home",
+          "title": "folder 2",
+          "parent": "#fIDSamplesDupl",
           "type": "f"
         },
         {
-          "title": "AnotherDoc",
-          "parent": "#fID2",
-          "type": "d"
-        },
-        {
-          "title": "Simple",
+          "title": "Quote",
           "parent": "#fID2",
           "type": "d"
         },
         {
           "id": "#fID3",
-          "title": "AnotherFolderSimple",
-          "parent": "home",
+          "title": "folder 3",
+          "parent": "#fIDSamplesDupl",
           "type": "f"
         },
         {
-          "title": "AnotherDoc",
+          "title": "Quote",
           "parent": "#fID3",
           "type": "d"
         }
       ],
+      "commitOptions": [
+        {
+          "deleteExistingPages": true
+        },
+        {
+          "deleteExistingPages": false
+        }
+      ],
       "scenarios": [
         {
-          "description": "and removeFirstFolder=true and createNewFolder=true and overwrite=false",
+          "description": "and expect to have a first folder and overwrite=false",
           "options": [
             {
               "removeFirstFolder": true,
               "createNewFolder": true,
-              "newFolderName": "Simple",
               "overwrite": false
-            }
-          ],
-          "expected": {
-            "newItems": [
-              {
-                "id": "#id",
-                "title": "Simple",
-                "parent": "home",
-                "type": "f"
-              },
-              {
-                "title": "Simple",
-                "parent": "#id",
-                "type": "d",
-                "content": "__defined__"
-              }
-            ],
-            "firstLevel": [
-              {
-                "title": "Simple",
-                "type": "f",
-                "status": "new"
-              }
-            ],
-            "duplicates": [
-              {
-                "id": "#fID1",
-                "title": "Simple",
-                "parent": "home",
-                "type": "f"
-              }
-            ]
-          }
-        },
-        {
-          "description": "and removeFirstFolder=true and createNewFolder=false and overwrite=false",
-          "options": [
+            },
             {
-              "removeFirstFolder": true,
+              "removeFirstFolder": false,
               "createNewFolder": false,
               "overwrite": false
             }
@@ -544,250 +564,145 @@
           "expected": {
             "newItems": [
               {
-                "title": "Simple",
-                "parent": "home",
-                "type": "d",
-                "content": "__defined__"
-              }
-            ],
-            "firstLevel": [
-              {
-                "title": "Simple",
-                "type": "d",
-                "status": "new"
-              }
-            ],
-            "duplicates": [
-              {
-                "id": "#dID0",
-                "title": "Simple",
-                "parent": "home",
-                "type": "d"
-              }
-            ]
-          }
-        },
-        {
-          "description": "and removeFirstFolder=true and createNewFolder=true and overwrite=true",
-          "options": [
-            {
-              "removeFirstFolder": true,
-              "createNewFolder": true,
-              "newFolderName": "Simple",
-              "overwrite": true
-            }
-          ],
-          "expected": {
-            "updatedItems": [
-              {
-                "id": "#fID1",
-                "title": "Simple",
+                "id": "#fIDSamples",
+                "title": "Samples",
                 "parent": "home",
                 "type": "f"
               },
               {
-                "id": "#dID1",
+                "title": "Quote",
+                "parent": "#fIDSamples",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "id": "#fIDSamples1",
+                "title": "Samples",
+                "parent": "#fIDSamples",
+                "type": "f"
+              },
+              {
+                "title": "Quote",
+                "parent": "#fIDSamples1",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
                 "title": "Simple",
+                "parent": "#fIDSamples",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "Simple",
+                "parent": "#fIDSamples",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "id": "#dIDSimplePage0",
+                "title": "SimplePage",
+                "parent": "#fIDSamples",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "parent": "#dIDSimplePage0",
+                "type": "p",
+                "content": "__defined__"
+              },
+              {
+                "id": "#fID1",
+                "title": "folder 1",
+                "parent": "#fIDSamples",
+                "type": "f"
+              },
+              {
+                "title": "Quote",
                 "parent": "#fID1",
                 "type": "d",
                 "content": "__defined__"
-              }
-            ],
-            "firstLevel": [
-              {
-                "title": "Simple",
-                "type": "f",
-                "status": "merged"
-              }
-            ],
-            "duplicates": [
-              {
-                "id": "#fID1",
-                "title": "Simple",
-                "parent": "home",
-                "type": "f"
-              }
-            ]
-          }
-        },
-        {
-          "description": "and removeFirstFolder=true and createNewFolder=false and overwrite=true",
-          "options": [
-            {
-              "removeFirstFolder": true,
-              "createNewFolder": false,
-              "overwrite": true
-            }
-          ],
-          "expected": {
-            "updatedItems": [
-              {
-                "id": "#dID0",
-                "title": "Simple",
-                "parent": "home",
-                "type": "d",
-                "content": "__defined__"
-              }
-            ],
-            "firstLevel": [
-              {
-                "title": "Simple",
-                "type": "d",
-                "status": "merged"
-              }
-            ],
-            "duplicates": [
-              {
-                "id": "#dID0",
-                "title": "Simple",
-                "parent": "home",
-                "type": "d"
-              }
-            ]
-          }
-        },
-        {
-          "description": "and removeFirstFolder=false and createNewFolder=true and overwrite=false",
-          "options": [
-            {
-              "removeFirstFolder": false,
-              "createNewFolder": true,
-              "newFolderName": "Simple",
-              "overwrite": false
-            }
-          ],
-          "expected": {
-            "newItems": [
-              {
-                "id": "#id1",
-                "title": "Simple",
-                "parent": "home",
-                "type": "f"
               },
               {
-                "id": "#id2",
-                "title": "Simple",
-                "parent": "#id1",
-                "type": "f"
-              },
-              {
-                "title": "Simple",
-                "parent": "#id2",
-                "type": "d",
-                "content": "__defined__"
-              }
-            ],
-            "firstLevel": [
-              {
-                "title": "Simple",
-                "type": "f",
-                "status": "new"
-              }
-            ],
-            "duplicates": [
-              {
-                "id": "#fID1",
-                "title": "Simple",
-                "parent": "home",
-                "type": "f"
-              }
-            ]
-          }
-        },
-        {
-          "description": "and removeFirstFolder=false and createNewFolder=false and overwrite=false",
-          "options": [
-            {
-              "removeFirstFolder": false,
-              "createNewFolder": false,
-              "overwrite": false
-            }
-          ],
-          "expected": {
-            "newItems": [
-              {
-                "id": "#id",
-                "title": "Simple",
-                "parent": "home",
-                "type": "f"
-              },
-              {
-                "title": "Simple",
-                "parent": "#id",
-                "type": "d",
-                "content": "__defined__"
-              }
-            ],
-            "firstLevel": [
-              {
-                "title": "Simple",
-                "type": "f",
-                "status": "new"
-              }
-            ],
-            "duplicates": [
-              {
-                "id": "#fID1",
-                "title": "Simple",
-                "parent": "home",
-                "type": "f"
-              }
-            ]
-          }
-        },
-        {
-          "description": "and removeFirstFolder=false and createNewFolder=true and overwrite=true",
-          "options": [
-            {
-              "removeFirstFolder": false,
-              "createNewFolder": true,
-              "newFolderName": "Simple",
-              "overwrite": true
-            }
-          ],
-          "expected": {
-            "updatedItems": [
-              {
-                "id": "#fID1",
-                "title": "Simple",
-                "parent": "home",
-                "type": "f"
-              }
-            ],
-            "newItems": [
-              {
-                "id": "#id",
-                "title": "Simple",
+                "id": "#fID1SubFolder",
+                "title": "sub folder",
                 "parent": "#fID1",
                 "type": "f"
               },
               {
                 "title": "Simple",
-                "parent": "#id",
+                "parent": "#fID1SubFolder",
                 "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "id": "#dIDSimplePage1",
+                "title": "SimplePage",
+                "parent": "#fID1SubFolder",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "parent": "#dIDSimplePage1",
+                "type": "p",
+                "content": "__defined__"
+              },
+              {
+                "id": "#fID2",
+                "title": "folder 2",
+                "parent": "#fIDSamples",
+                "type": "f"
+              },
+              {
+                "title": "New document",
+                "parent": "#fID2",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "New document",
+                "parent": "#fID2",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "id": "#dIDNewDoc",
+                "title": "New document",
+                "parent": "#fID2",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "parent": "#dIDNewDoc",
+                "type": "p",
                 "content": "__defined__"
               }
             ],
             "firstLevel": [
               {
-                "title": "Simple",
+                "id": "#fIDSamples",
+                "title": "Samples",
                 "type": "f",
-                "status": "merged"
+                "status": "new"
               }
             ],
             "duplicates": [
               {
-                "id": "#fID1",
-                "title": "Simple",
-                "parent": "home",
+                "id": "#fIDSamplesDupl",
+                "title": "Samples",
                 "type": "f"
               }
             ]
           }
         },
         {
-          "description": "and removeFirstFolder=false and createNewFolder=false and overwrite=true",
+          "description": "and expect to have a first folder and overwrite=true",
           "options": [
+            {
+              "removeFirstFolder": true,
+              "createNewFolder": true,
+              "overwrite": true
+            },
             {
               "removeFirstFolder": false,
               "createNewFolder": false,
@@ -797,30 +712,764 @@
           "expected": {
             "updatedItems": [
               {
-                "id": "#fID1",
-                "title": "Simple",
+                "id": "#fIDSamplesDupl",
+                "title": "Samples",
                 "parent": "home",
                 "type": "f"
               },
               {
-                "id": "#dID1",
+                "title": "Quote",
+                "parent": "#fIDSamplesDupl",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
                 "title": "Simple",
+                "parent": "#fIDSamplesDupl",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "folder 1",
+                "parent": "#fIDSamplesDupl",
+                "type": "f"
+              },
+              {
+                "title": "sub folder",
                 "parent": "#fID1",
-                "type": "d"
+                "type": "f"
+              },
+              {
+                "title": "SimplePage",
+                "parent": "#fID1SubFolder",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "folder 2",
+                "parent": "#fIDSamplesDupl",
+                "type": "f"
+              }
+            ],
+            "newItems": [
+              {
+                "id": "#fIDSamples1",
+                "title": "Samples",
+                "parent": "#fIDSamplesDupl",
+                "type": "f"
+              },
+              {
+                "title": "Quote",
+                "parent": "#fIDSamples1",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "Simple",
+                "parent": "#fIDSamplesDupl",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "id": "#dIDSimplePage0",
+                "title": "SimplePage",
+                "parent": "#fIDSamplesDupl",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "parent": "#dIDSimplePage0",
+                "type": "p",
+                "content": "__defined__"
+              },
+              {
+                "title": "Quote",
+                "parent": "#fID1",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "Simple",
+                "parent": "#fID1SubFolder",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "parent": "#dIDSimplePage1",
+                "type": "p",
+                "content": "__defined__"
+              },
+              {
+                "title": "New document",
+                "parent": "#fID2",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "New document",
+                "parent": "#fID2",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "id": "#dIDNewDoc",
+                "title": "New document",
+                "parent": "#fID2",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "parent": "#dIDNewDoc",
+                "type": "p",
+                "content": "__defined__"
               }
             ],
             "firstLevel": [
               {
-                "title": "Simple",
+                "id": "#fIDSamplesDupl",
+                "title": "Samples",
                 "type": "f",
                 "status": "merged"
               }
             ],
             "duplicates": [
               {
-                "id": "#fID1",
+                "id": "#fIDSamplesDupl",
+                "title": "Samples",
+                "type": "f"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and expect to have no first folder and overwrite=false",
+          "options": [
+            {
+              "removeFirstFolder": true,
+              "createNewFolder": false,
+              "overwrite": false
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "title": "Quote",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "id": "#fIDSamples1",
+                "title": "Samples",
+                "parent": "home",
+                "type": "f"
+              },
+              {
+                "title": "Quote",
+                "parent": "#fIDSamples1",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
                 "title": "Simple",
                 "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "Simple",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "id": "#dIDSimplePage0",
+                "title": "SimplePage",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "parent": "#dIDSimplePage0",
+                "type": "p",
+                "content": "__defined__"
+              },
+              {
+                "id": "#fID1",
+                "title": "folder 1",
+                "parent": "home",
+                "type": "f"
+              },
+              {
+                "title": "Quote",
+                "parent": "#fID1",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "id": "#fID1SubFolder",
+                "title": "sub folder",
+                "parent": "#fID1",
+                "type": "f"
+              },
+              {
+                "title": "Simple",
+                "parent": "#fID1SubFolder",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "id": "#dIDSimplePage1",
+                "title": "SimplePage",
+                "parent": "#fID1SubFolder",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "parent": "#dIDSimplePage1",
+                "type": "p",
+                "content": "__defined__"
+              },
+              {
+                "id": "#fID2",
+                "title": "folder 2",
+                "parent": "home",
+                "type": "f"
+              },
+              {
+                "title": "New document",
+                "parent": "#fID2",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "New document",
+                "parent": "#fID2",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "id": "#dIDNewDoc",
+                "title": "New document",
+                "parent": "#fID2",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "parent": "#dIDNewDoc",
+                "type": "p",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Quote",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "Samples",
+                "type": "f",
+                "status": "new"
+              },
+              {
+                "title": "Simple",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "Simple",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "SimplePage",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "folder 1",
+                "type": "f",
+                "status": "new"
+              },
+              {
+                "title": "folder 2",
+                "type": "f",
+                "status": "new"
+              }
+            ],
+            "duplicates": [
+              {
+                "id": "#fIDSamplesDupl",
+                "title": "Samples",
+                "type": "f"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and expect to have no first folder and overwrite=true",
+          "options": [
+            {
+              "removeFirstFolder": true,
+              "createNewFolder": false,
+              "overwrite": true
+            }
+          ],
+          "expected": {
+            "updatedItems": [
+              {
+                "id": "#fIDSamplesDupl",
+                "title": "Samples",
+                "parent": "home",
+                "type": "f"
+              },
+              {
+                "title": "Quote",
+                "parent": "#fIDSamplesDupl",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "newItems": [
+              {
+                "title": "Quote",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "Simple",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "Simple",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "id": "#dIDSimplePage0",
+                "title": "SimplePage",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "parent": "#dIDSimplePage0",
+                "type": "p",
+                "content": "__defined__"
+              },
+              {
+                "id": "#fID1",
+                "title": "folder 1",
+                "parent": "home",
+                "type": "f"
+              },
+              {
+                "title": "Quote",
+                "parent": "#fID1",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "id": "#fID1SubFolder",
+                "title": "sub folder",
+                "parent": "#fID1",
+                "type": "f"
+              },
+              {
+                "title": "Simple",
+                "parent": "#fID1SubFolder",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "id": "#dIDSimplePage1",
+                "title": "SimplePage",
+                "parent": "#fID1SubFolder",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "parent": "#dIDSimplePage1",
+                "type": "p",
+                "content": "__defined__"
+              },
+              {
+                "id": "#fID2",
+                "title": "folder 2",
+                "parent": "home",
+                "type": "f"
+              },
+              {
+                "title": "New document",
+                "parent": "#fID2",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "New document",
+                "parent": "#fID2",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "id": "#dIDNewDoc",
+                "title": "New document",
+                "parent": "#fID2",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "parent": "#dIDNewDoc",
+                "type": "p",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Samples",
+                "type": "f",
+                "status": "merged"
+              },
+              {
+                "title": "Quote",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "Simple",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "Simple",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "SimplePage",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "folder 1",
+                "type": "f",
+                "status": "new"
+              },
+              {
+                "title": "folder 2",
+                "type": "f",
+                "status": "new"
+              }
+            ],
+            "duplicates": [
+              {
+                "id": "#fIDSamplesDupl",
+                "title": "Samples",
+                "type": "f"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and expect to have double Samples folders and overwrite=false",
+          "options": [
+            {
+              "removeFirstFolder": false,
+              "createNewFolder": true,
+              "overwrite": false
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#fIDSamples0",
+                "title": "Samples",
+                "parent": "home",
+                "type": "f"
+              },
+              {
+                "id": "#fIDSamples",
+                "title": "Samples",
+                "parent": "#fIDSamples0",
+                "type": "f"
+              },
+              {
+                "title": "Quote",
+                "parent": "#fIDSamples",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "id": "#fIDSamples1",
+                "title": "Samples",
+                "parent": "#fIDSamples",
+                "type": "f"
+              },
+              {
+                "title": "Quote",
+                "parent": "#fIDSamples1",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "Simple",
+                "parent": "#fIDSamples",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "Simple",
+                "parent": "#fIDSamples",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "id": "#dIDSimplePage0",
+                "title": "SimplePage",
+                "parent": "#fIDSamples",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "parent": "#dIDSimplePage0",
+                "type": "p",
+                "content": "__defined__"
+              },
+              {
+                "id": "#fID1",
+                "title": "folder 1",
+                "parent": "#fIDSamples",
+                "type": "f"
+              },
+              {
+                "title": "Quote",
+                "parent": "#fID1",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "id": "#fID1SubFolder",
+                "title": "sub folder",
+                "parent": "#fID1",
+                "type": "f"
+              },
+              {
+                "title": "Simple",
+                "parent": "#fID1SubFolder",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "id": "#dIDSimplePage1",
+                "title": "SimplePage",
+                "parent": "#fID1SubFolder",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "parent": "#dIDSimplePage1",
+                "type": "p",
+                "content": "__defined__"
+              },
+              {
+                "id": "#fID2",
+                "title": "folder 2",
+                "parent": "#fIDSamples",
+                "type": "f"
+              },
+              {
+                "title": "New document",
+                "parent": "#fID2",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "New document",
+                "parent": "#fID2",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "id": "#dIDNewDoc",
+                "title": "New document",
+                "parent": "#fID2",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "parent": "#dIDNewDoc",
+                "type": "p",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "id": "#fIDSamples0",
+                "title": "Samples",
+                "type": "f",
+                "status": "new"
+              }
+            ],
+            "duplicates": [
+              {
+                "id": "#fIDSamplesDupl",
+                "title": "Samples",
+                "type": "f"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and expect to have double Samples folders and overwrite=true",
+          "options": [
+            {
+              "removeFirstFolder": false,
+              "createNewFolder": true,
+              "overwrite": true
+            }
+          ],
+          "expected": {
+            "updatedItems": [
+              {
+                "id": "#fIDSamplesDupl",
+                "title": "Samples",
+                "parent": "home",
+                "type": "f"
+              }
+            ],
+            "newItems": [
+              {
+                "id": "#fIDSamples",
+                "title": "Samples",
+                "parent": "#fIDSamplesDupl",
+                "type": "f"
+              },
+              {
+                "title": "Quote",
+                "parent": "#fIDSamples",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "id": "#fIDSamples1",
+                "title": "Samples",
+                "parent": "#fIDSamples",
+                "type": "f"
+              },
+              {
+                "title": "Quote",
+                "parent": "#fIDSamples1",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "Simple",
+                "parent": "#fIDSamples",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "Simple",
+                "parent": "#fIDSamples",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "id": "#dIDSimplePage0",
+                "title": "SimplePage",
+                "parent": "#fIDSamples",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "parent": "#dIDSimplePage0",
+                "type": "p",
+                "content": "__defined__"
+              },
+              {
+                "id": "#fID1",
+                "title": "folder 1",
+                "parent": "#fIDSamples",
+                "type": "f"
+              },
+              {
+                "title": "Quote",
+                "parent": "#fID1",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "id": "#fID1SubFolder",
+                "title": "sub folder",
+                "parent": "#fID1",
+                "type": "f"
+              },
+              {
+                "title": "Simple",
+                "parent": "#fID1SubFolder",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "id": "#dIDSimplePage1",
+                "title": "SimplePage",
+                "parent": "#fID1SubFolder",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "parent": "#dIDSimplePage1",
+                "type": "p",
+                "content": "__defined__"
+              },
+              {
+                "id": "#fID2",
+                "title": "folder 2",
+                "parent": "#fIDSamples",
+                "type": "f"
+              },
+              {
+                "title": "New document",
+                "parent": "#fID2",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "New document",
+                "parent": "#fID2",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "id": "#dIDNewDoc",
+                "title": "New document",
+                "parent": "#fID2",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "parent": "#dIDNewDoc",
+                "type": "p",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "id": "#fIDSamplesDupl",
+                "title": "Samples",
+                "type": "f",
+                "status": "merged"
+              }
+            ],
+            "duplicates": [
+              {
+                "id": "#fIDSamplesDupl",
+                "title": "Samples",
                 "type": "f"
               }
             ]
