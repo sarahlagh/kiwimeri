@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:139
+#: src/common/modals/ConfirmMultipleImportModal.tsx:140
 msgid "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 msgstr "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 
@@ -31,7 +31,7 @@ msgid "Are you sure?"
 msgstr "Are you sure?"
 
 #: src/common/modals/ConfirmYesNoDialog.tsx:28
-#: src/common/modals/ConfirmMultipleImportModal.tsx:194
+#: src/common/modals/ConfirmMultipleImportModal.tsx:206
 #: src/common/modals/ConfirmFileImportModal.tsx:78
 #: src/common/modals/ChooseTagsModal.tsx:98
 msgid "Cancel"
@@ -55,7 +55,7 @@ msgstr "Configure where to synchronize your collection"
 
 #: src/notebooks/components/ManageNotebooksModal.tsx:93
 #: src/common/modals/ConfirmYesNoDialog.tsx:36
-#: src/common/modals/ConfirmMultipleImportModal.tsx:197
+#: src/common/modals/ConfirmMultipleImportModal.tsx:209
 #: src/common/modals/ConfirmFileImportModal.tsx:81
 #: src/common/modals/ChooseTagsModal.tsx:105
 msgid "Confirm"
@@ -70,7 +70,7 @@ msgstr "Debug"
 msgid "Default"
 msgstr "Default"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:103
+#: src/common/modals/ConfirmMultipleImportModal.tsx:104
 msgid "Do you want to import your content inside a new folder?"
 msgstr "Do you want to import your content inside a new folder?"
 
@@ -124,7 +124,7 @@ msgstr "Import & export your collection"
 msgid "Import file in folder {folderName}"
 msgstr "Import file in folder {folderName}"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:89
+#: src/common/modals/ConfirmMultipleImportModal.tsx:90
 msgid "Import zip content in folder {parentName}"
 msgstr "Import zip content in folder {parentName}"
 
@@ -169,7 +169,7 @@ msgstr "New document"
 msgid "New folder"
 msgstr "New folder"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:124
+#: src/common/modals/ConfirmMultipleImportModal.tsx:125
 msgid "New folder name: "
 msgstr "New folder name: "
 
@@ -294,7 +294,7 @@ msgstr "US"
 msgid "Username"
 msgstr "Username"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:157
+#: src/common/modals/ConfirmMultipleImportModal.tsx:158
 msgid "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 msgstr "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 
