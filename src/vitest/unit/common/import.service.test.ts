@@ -382,6 +382,10 @@ describe('import service', () => {
       if (expectedArray) {
         expectedArray.forEach((expectedItem, idx) => {
           const mergedItem = zipMergeArray[idx];
+          if (mergedItem.type !== CollectionItemType.page) {
+            expect(mergedItem.title).toBe(expectedItem.title);
+          }
+          expect(mergedItem.type).toBe(expectedItem.type);
           if (expectedItem.id && writeIdsMap) {
             ids.set(expectedItem.id, mergedItem.id!);
           }
@@ -404,10 +408,6 @@ describe('import service', () => {
               expectedItem.status
             );
           }
-          if (mergedItem.type !== CollectionItemType.page) {
-            expect(mergedItem.title).toBe(expectedItem.title);
-          }
-          expect(mergedItem.type).toBe(expectedItem.type);
         });
       }
       return ids;

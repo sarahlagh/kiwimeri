@@ -167,7 +167,8 @@ class ImportService {
     for (let i = 0; i < newItems.length; i++) {
       const item = newItems[i];
       if (!duplicatesMap.has(item.parent)) {
-        const duplicates = this.findDuplicates(item.parent, [item]);
+        const siblings = newItems.filter(item => item.parent === item.parent);
+        const duplicates = this.findDuplicates(item.parent, siblings);
         duplicatesMap.set(item.parent, duplicates);
       }
       const newDuplicates = duplicatesMap.get(item.parent)!;
@@ -198,29 +199,21 @@ class ImportService {
     const firstLevelItems = items.filter(item => item.parent === parent);
     // check duplicates for each item
     const duplicates = this.findDuplicates(parent, firstLevelItems);
+    const newItems = [...items];
+    const updatedItems: CollectionItemUpdate[] = [];
+    let firstLevel: ZipMergeFistLevel[] = [];
 
     // if no duplicates, or option to create new without overwrite:
     if (duplicates.length === 0 || !options.overwrite) {
-      const firstLevel: ZipMergeFistLevel[] = [
+      firstLevel = [
         ...firstLevelItems.map(
           item => ({ ...item, status: 'new' }) as ZipMergeFistLevel
         )
       ];
-      const newItems = [...items];
-
-      return {
-        newItems,
-        updatedItems: [],
-        duplicates,
-        firstLevel
-      };
     } else {
       // if has duplicates and option to overwrite:
-      const updatedItems: CollectionItemUpdate[] = [];
-      const newItems = [...items];
       this.overwriteDuplicates(newItems, updatedItems);
-
-      const firstLevel: ZipMergeFistLevel[] = [
+      firstLevel = [
         ...updatedItems
           .filter(item => item.parent === parent)
           .map(item => ({ ...item, status: 'merged' }) as ZipMergeFistLevel),
@@ -228,14 +221,13 @@ class ImportService {
           .filter(item => item.parent === parent)
           .map(item => ({ ...item, status: 'new' }) as ZipMergeFistLevel)
       ];
-
-      return {
-        newItems,
-        updatedItems,
-        duplicates,
-        firstLevel
-      };
     }
+    return {
+      newItems,
+      updatedItems,
+      duplicates,
+      firstLevel
+    };
   }
 
   private removeFirstFolder(items: CollectionItem[], parent: string) {
