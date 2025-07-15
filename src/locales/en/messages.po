@@ -13,6 +13,10 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: src/common/modals/ConfirmMultipleImportModal.tsx:139
+msgid "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
+msgstr "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
+
 #: src/settings/components/providers/RemotesSettings.tsx:102
 msgid "Add config"
 msgstr "Add config"
@@ -27,7 +31,8 @@ msgid "Are you sure?"
 msgstr "Are you sure?"
 
 #: src/common/modals/ConfirmYesNoDialog.tsx:28
-#: src/common/modals/ConfirmImportModal.tsx:82
+#: src/common/modals/ConfirmMultipleImportModal.tsx:194
+#: src/common/modals/ConfirmFileImportModal.tsx:78
 #: src/common/modals/ChooseTagsModal.tsx:98
 msgid "Cancel"
 msgstr "Cancel"
@@ -50,7 +55,8 @@ msgstr "Configure where to synchronize your collection"
 
 #: src/notebooks/components/ManageNotebooksModal.tsx:93
 #: src/common/modals/ConfirmYesNoDialog.tsx:36
-#: src/common/modals/ConfirmImportModal.tsx:85
+#: src/common/modals/ConfirmMultipleImportModal.tsx:197
+#: src/common/modals/ConfirmFileImportModal.tsx:81
 #: src/common/modals/ChooseTagsModal.tsx:105
 msgid "Confirm"
 msgstr "Confirm"
@@ -63,6 +69,10 @@ msgstr "Debug"
 #: src/constants.ts:58
 msgid "Default"
 msgstr "Default"
+
+#: src/common/modals/ConfirmMultipleImportModal.tsx:103
+msgid "Do you want to import your content inside a new folder?"
+msgstr "Do you want to import your content inside a new folder?"
 
 #: src/app/pages/DebugPage.tsx:80
 msgid "Download Logs"
@@ -110,9 +120,13 @@ msgstr "Import & export your app settings"
 msgid "Import & export your collection"
 msgstr "Import & export your collection"
 
-#: src/common/modals/ConfirmImportModal.tsx:43
+#: src/common/modals/ConfirmFileImportModal.tsx:43
 msgid "Import file in folder {folderName}"
 msgstr "Import file in folder {folderName}"
+
+#: src/common/modals/ConfirmMultipleImportModal.tsx:89
+msgid "Import zip content in folder {parentName}"
+msgstr "Import zip content in folder {parentName}"
 
 #: src/settings/components/sections/ImportExportCollectionSettings.tsx:59
 msgid "Kiwimeri format (single file)"
@@ -154,6 +168,10 @@ msgstr "New document"
 #: src/constants.ts:60
 msgid "New folder"
 msgstr "New folder"
+
+#: src/common/modals/ConfirmMultipleImportModal.tsx:124
+msgid "New folder name: "
+msgstr "New folder name: "
 
 #: src/common/modals/ChooseTagsModal.tsx:83
 msgid "New tag"
@@ -259,7 +277,7 @@ msgstr "Syncing is disabled on the web version."
 msgid "Text..."
 msgstr "Text..."
 
-#: src/common/modals/ConfirmImportModal.tsx:55
+#: src/common/modals/ConfirmFileImportModal.tsx:53
 msgid "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 msgstr "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 
@@ -275,6 +293,10 @@ msgstr "US"
 #: src/settings/components/providers/PCloudSettings.tsx:115
 msgid "Username"
 msgstr "Username"
+
+#: src/common/modals/ConfirmMultipleImportModal.tsx:157
+msgid "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
+msgstr "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 
 #: src/collection/components/CollectionItemList.tsx:60
 msgid "yes"

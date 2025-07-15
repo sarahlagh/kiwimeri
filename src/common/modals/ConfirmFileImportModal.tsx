@@ -19,17 +19,17 @@ import {
 import { Trans } from '@lingui/react/macro';
 import React, { useState } from 'react';
 
-export type ConfirmImportModalProps = {
+export type ConfirmFileImportModalProps = {
   folder: string;
-  items: CollectionItemResult[];
+  duplicates: CollectionItemResult[];
   onClose: (confirm: boolean, item?: CollectionItemResult) => void;
 } & React.HTMLAttributes<HTMLIonModalElement>;
 
-const ConfirmImportModal = ({
+const ConfirmFileImportModal = ({
   folder,
-  items,
+  duplicates,
   onClose
-}: ConfirmImportModalProps) => {
+}: ConfirmFileImportModalProps) => {
   const [item, setItem] = useState<CollectionItemResult | undefined>(undefined);
 
   const folderName =
@@ -61,7 +61,7 @@ const ConfirmImportModal = ({
           allowEmptySelection={true}
           onIonChange={event => setItem(event.detail.value)}
         >
-          {items?.map(item => (
+          {duplicates?.map(item => (
             <IonItem key={item.id}>
               <IonRadio value={item}>
                 {item.title}
@@ -86,4 +86,4 @@ const ConfirmImportModal = ({
     </>
   );
 };
-export default ConfirmImportModal;
+export default ConfirmFileImportModal;
