@@ -13,7 +13,7 @@ import { SerializedEditorState, SerializedLexicalNode } from 'lexical';
 
 export type ZipMergeFistLevel = {
   status: 'new' | 'merged';
-} & Pick<CollectionItem, 'id' | 'title' | 'type'>;
+} & Pick<CollectionItem, 'id' | 'title' | 'type' | 'created' | 'updated'>;
 
 export type ZipMergeResult = {
   newItems: CollectionItem[];

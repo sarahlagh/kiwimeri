@@ -13,6 +13,7 @@ import {
   IonItem,
   IonLabel,
   IonList,
+  IonText,
   IonTitle,
   IonToggle,
   IonToolbar
@@ -59,7 +60,7 @@ const ConfirmMultipleImportModal = ({
       item => !zipMerge?.firstLevel.find(i => i.id === item.id)
     ),
     ...(zipMerge?.firstLevel || [])
-  ];
+  ].sort((i1, i2) => i1.created - i2.created);
 
   useEffect(() => {
     console.debug(
@@ -172,19 +173,30 @@ const ConfirmMultipleImportModal = ({
       </IonList>
 
       <IonList style={{ maxHeight: '400px', overflowY: 'auto' }}>
-        {newFirstLevel.map(item => (
-          <IonItem key={item.id}>
-            <IonIcon
-              aria-hidden="true"
-              slot="start"
-              icon={APPICONS_PER_TYPE.get(item.type)}
-            />
-            {item.title}
-            {'status' in item && (
-              <IonLabel slot="end">({item.status})</IonLabel>
-            )}
-          </IonItem>
-        ))}
+        {newFirstLevel.map(item => {
+          const color =
+            'status' in item
+              ? item.status === 'new'
+                ? 'secondary'
+                : 'warning'
+              : '';
+          return (
+            <IonItem key={item.id}>
+              <IonIcon
+                color={color}
+                aria-hidden="true"
+                slot="start"
+                icon={APPICONS_PER_TYPE.get(item.type)}
+              />
+              <IonText color={color}>{item.title}</IonText>
+              {'status' in item && (
+                <IonLabel slot="end" color={color}>
+                  ({item.status})
+                </IonLabel>
+              )}
+            </IonItem>
+          );
+        })}
       </IonList>
 
       <IonFooter>
