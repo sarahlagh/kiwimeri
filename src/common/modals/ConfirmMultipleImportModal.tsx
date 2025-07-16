@@ -23,24 +23,24 @@ import React, { useEffect, useState } from 'react';
 import { importService, ZipMergeResult } from '../services/import.service';
 
 export type ConfirmMultipleImportModalParams = {
+  folder: string;
+  notebook: string;
   items: CollectionItem[];
   zipName: string;
 };
 
 export type ConfirmMultipleImportModalProps = {
-  folder: string;
   params: ConfirmMultipleImportModalParams;
   onClose: (confirm: boolean, zipMerge?: ZipMergeResult) => void;
 } & React.HTMLAttributes<HTMLIonModalElement>;
 
 const ConfirmMultipleImportModal = ({
-  folder,
   params,
   onClose
 }: ConfirmMultipleImportModalProps) => {
   const { t } = useLingui();
   const parentName =
-    collectionService.getItemTitle(folder) || getGlobalTrans().homeTitle;
+    collectionService.getItemTitle(params.folder) || getGlobalTrans().homeTitle;
 
   const [createNewFolder, setCreateNewFolder] = useState<boolean>(false);
   const [newFolderName, setNewFolderName] = useState<string | undefined>();
@@ -48,13 +48,17 @@ const ConfirmMultipleImportModal = ({
   const [overwrite, setOverwrite] = useState<boolean>(false);
   const [zipMerge, setZipMerge] = useState<ZipMergeResult | undefined>();
 
-  const zipFirstLevel = params.items.filter(item => item.parent === folder);
+  const zipFirstLevel = params.items.filter(
+    item => item.parent === params.folder
+  );
   const hasOneFolder =
     zipFirstLevel.length === 1 &&
     zipFirstLevel[0].type === CollectionItemType.folder;
 
-  const itemsInCollection =
-    collectionService.getBrowsableCollectionItems(folder);
+  const itemsInCollection = collectionService.getBrowsableCollectionItems(
+    params.folder,
+    params.notebook
+  );
   const newFirstLevel = [
     ...itemsInCollection.filter(
       item => !zipMerge?.firstLevel.find(i => i.id === item.id)
@@ -63,32 +67,36 @@ const ConfirmMultipleImportModal = ({
   ].sort((i1, i2) => i1.created - i2.created);
 
   useEffect(() => {
-    console.debug(
-      'in hook',
-      createNewFolder,
-      newFolderName,
-      removeFirstFolder,
-      overwrite
-    );
     setZipMerge(
-      importService.mergeZipItems(params.zipName, params.items, folder, {
-        createNewFolder,
-        overwrite,
-        newFolderName,
-        removeFirstFolder
-      })
+      importService.mergeZipItems(
+        params.zipName,
+        params.items,
+        params.folder,
+        {
+          createNewFolder,
+          overwrite,
+          newFolderName,
+          removeFirstFolder
+        },
+        params.notebook
+      )
     );
   }, [createNewFolder, newFolderName, removeFirstFolder, overwrite]);
-
-  console.debug('params', params);
 
   return (
     <>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>
-            <Trans>Import zip content in folder {parentName}</Trans>
-          </IonTitle>
+          {collectionService.itemExists(params.notebook) && (
+            <IonTitle>
+              <Trans>Import zip content in folder {parentName}</Trans>
+            </IonTitle>
+          )}
+          {!collectionService.itemExists(params.notebook) && (
+            <IonTitle>
+              <Trans>Import zip content in a new Notebook</Trans>
+            </IonTitle>
+          )}
           <IonButtons slot="end">
             <IonButton onClick={() => onClose(false)}>
               <IonIcon icon={APPICONS.closeAction} />

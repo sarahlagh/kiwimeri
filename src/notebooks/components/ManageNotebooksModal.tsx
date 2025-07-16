@@ -1,5 +1,6 @@
 import CollectionItemList from '@/collection/components/CollectionItemList';
-import { APPICONS } from '@/constants';
+import ImportItemsButton from '@/common/buttons/ImportItemsButton';
+import { APPICONS, ROOT_FOLDER } from '@/constants';
 import notebooksService from '@/db/notebooks.service';
 import tagsService from '@/db/tags.service';
 import {
@@ -66,6 +67,7 @@ const ManageNotebooksModal = ({ onClose }: ManageNotebooksModalProps) => {
       <IonFooter>
         <IonToolbar>
           <IonButtons slot="end">
+            <ImportItemsButton parent={ROOT_FOLDER} createNotebook={true} />
             <IonButton
               onClick={() => {
                 const uuid = getUniqueId();
