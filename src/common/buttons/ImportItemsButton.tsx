@@ -28,6 +28,9 @@ type ImportItemsButtonProps = {
   parent: string;
 } & ZipStructureOptions;
 
+const zipTypes = ['application/zip'];
+const textTypes = ['text/plain', 'text/markdown'];
+
 const ImportItemsButton = ({
   parent,
   createNotebook = false
@@ -70,6 +73,7 @@ const ImportItemsButton = ({
   };
 
   const onSingleDocumentRead = async (content: string, file: File) => {
+    console.debug('file', file);
     const fileName = file.name.replace(/\.(md|MD)$/, '');
     const { doc, pages } = importService.getLexicalFromContent(content);
 
@@ -109,8 +113,8 @@ const ImportItemsButton = ({
   };
 
   const onZipFileRead = async (content: ArrayBuffer, file: File) => {
+    console.debug('file', file);
     const zipName = file.name.replace(/(.*)\.(zip|ZIP)$/g, '$1');
-    console.debug('content', zipName, content);
 
     return importService.readZip(content).then(unzipped => {
       const { items } = importService.parseZipData(zipName, parent, unzipped, {
@@ -118,7 +122,6 @@ const ImportItemsButton = ({
         inlinePages: true,
         removeDuplicateIdentifiers: true
       });
-      console.debug('items to import', items);
       setParams({
         folder: createNotebook ? ROOT_FOLDER : parent,
         notebook: createNotebook ? '-1' : notebooksService.getCurrentNotebook(),
@@ -130,7 +133,6 @@ const ImportItemsButton = ({
         presentMultiple({
           cssClass: 'auto-height',
           onWillDismiss: (event: CustomEvent<OverlayEventDetail>) => {
-            console.debug('modal event', event.detail);
             if (
               event.detail.data?.confirm === true &&
               event.detail.data?.zipMerge
@@ -145,15 +147,11 @@ const ImportItemsButton = ({
   };
 
   const onContentRead = async (content: ArrayBuffer, file: File) => {
-    // TODO handle type in a more graceful way
-    if (
-      file.name.toLowerCase().endsWith('.md') ||
-      file.name.toLowerCase().endsWith('.txt')
-    ) {
-      return onSingleDocumentRead(new TextDecoder().decode(content), file);
-    }
-    if (file.name.toLowerCase().endsWith('.zip')) {
+    // TODO handle more types of compression
+    if (zipTypes.find(type => file.type === type)) {
       return onZipFileRead(content, file);
+    } else if (textTypes.find(type => file.type === type)) {
+      return onSingleDocumentRead(new TextDecoder().decode(content), file);
     }
     return { confirm: false, reason: ImportFileRejectReason.NotSupported };
   };
