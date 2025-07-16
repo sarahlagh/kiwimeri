@@ -41,7 +41,7 @@ const ImportExportCollectionSettings = () => {
 
   const onImportContentRead = async (content: string) => {
     await onRestoreContent(content);
-    return true;
+    return { confirm: true };
   };
 
   return (

@@ -6,11 +6,27 @@ import React from 'react';
 import { useToastContext } from '../context/ToastContext';
 import filesystemService from '../services/filesystem.service';
 
+export enum ImportFileRejectReason {
+  NotSupported,
+  Cancelled
+}
+
+export type OnContentReadResponse = {
+  confirm: boolean;
+  reason?: ImportFileRejectReason;
+};
+
 type GenericImportFileButtonProps = {
   label?: string | null;
   icon?: string | null;
-  onContentRead?: (content: ArrayBuffer, file: File) => Promise<boolean>;
-  onContentReadAsString?: (content: string, file: File) => Promise<boolean>;
+  onContentRead?: (
+    content: ArrayBuffer,
+    file: File
+  ) => Promise<OnContentReadResponse>;
+  onContentReadAsString?: (
+    content: string,
+    file: File
+  ) => Promise<OnContentReadResponse>;
   onError?: (e: Error) => Promise<void>;
   fill?: 'clear' | 'outline' | 'solid' | 'default' | undefined;
 } & IonicReactProps &
@@ -30,6 +46,7 @@ const GenericImportFileButton = ({
   const { setToast } = useToastContext();
   const errorMessage = t`An error occurred loading the file`;
   const successMessage = t`Success!`;
+  const notSupportedMessage = t`File not supported`;
   const importElement = React.useRef(null);
 
   function importFile() {
@@ -46,35 +63,31 @@ const GenericImportFileButton = ({
     if (event.target.files && event.target.files.length > 0) {
       const file = event.target.files[0];
 
+      const readContent = (promise: Promise<OnContentReadResponse>) => {
+        return promise
+          .then(resp => {
+            if (resp.confirm === true) {
+              setToast(successMessage, 'success');
+            } else if (resp.reason === ImportFileRejectReason.NotSupported) {
+              setToast(notSupportedMessage, 'warning');
+            }
+          })
+          .catch(async e => {
+            console.error(e);
+            if (onError) {
+              await onError(e);
+            }
+            setToast(errorMessage, 'danger');
+          });
+      };
+
       filesystemService.readFile(file).then(async content => {
         if (onContentRead) {
-          onContentRead(content, file)
-            .then(confirm => {
-              if (confirm === true) {
-                setToast(successMessage, 'success');
-              }
-            })
-            .catch(async e => {
-              console.error(e);
-              if (onError) {
-                await onError(e);
-              }
-              setToast(errorMessage, 'warning');
-            });
+          await readContent(onContentRead(content, file));
         } else if (onContentReadAsString) {
-          onContentReadAsString(new TextDecoder().decode(content), file)
-            .then(confirm => {
-              if (confirm === true) {
-                setToast(successMessage, 'success');
-              }
-            })
-            .catch(async e => {
-              console.error(e);
-              if (onError) {
-                await onError(e);
-              }
-              setToast(errorMessage, 'warning');
-            });
+          await readContent(
+            onContentReadAsString(new TextDecoder().decode(content), file)
+          );
         }
       });
     }
