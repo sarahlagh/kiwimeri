@@ -19,7 +19,10 @@ import {
   ZipMergeResult,
   ZipStructureOptions
 } from '../services/import.service';
-import GenericImportFileButton from './GenericImportFileButton';
+import GenericImportFileButton, {
+  ImportFileRejectReason,
+  OnContentReadResponse
+} from './GenericImportFileButton';
 
 type ImportItemsButtonProps = {
   parent: string;
@@ -83,7 +86,7 @@ const ImportItemsButton = ({
 
     if (itemsInCollection.length > 0) {
       setSingleDuplicates(itemsInCollection);
-      return new Promise<boolean>(function (resolve) {
+      return new Promise<OnContentReadResponse>(function (resolve) {
         presentSingle({
           cssClass: 'auto-height',
           onWillDismiss: (event: CustomEvent<OverlayEventDetail>) => {
@@ -95,13 +98,13 @@ const ImportItemsButton = ({
                 event.detail.data.item
               );
             }
-            resolve(event.detail.data?.confirm === true);
+            resolve({ confirm: event.detail.data?.confirm === true });
           }
         });
       });
     } else {
       onContentReadConfirm(doc, pages, fileName);
-      return true;
+      return { confirm: true } as OnContentReadResponse;
     }
   };
 
@@ -123,7 +126,7 @@ const ImportItemsButton = ({
         zipName
       });
 
-      return new Promise<boolean>(resolve => {
+      return new Promise<OnContentReadResponse>(resolve => {
         presentMultiple({
           cssClass: 'auto-height',
           onWillDismiss: (event: CustomEvent<OverlayEventDetail>) => {
@@ -134,7 +137,7 @@ const ImportItemsButton = ({
             ) {
               importService.commitMergeResult(event.detail.data?.zipMerge);
             }
-            resolve(event.detail.data?.confirm === true);
+            resolve({ confirm: event.detail.data?.confirm === true });
           }
         });
       });
@@ -142,7 +145,7 @@ const ImportItemsButton = ({
   };
 
   const onContentRead = async (content: ArrayBuffer, file: File) => {
-    // TODO handle type and return error if not supported
+    // TODO handle type in a more graceful way
     if (
       file.name.toLowerCase().endsWith('.md') ||
       file.name.toLowerCase().endsWith('.txt')
@@ -152,7 +155,7 @@ const ImportItemsButton = ({
     if (file.name.toLowerCase().endsWith('.zip')) {
       return onZipFileRead(content, file);
     }
-    return false;
+    return { confirm: false, reason: ImportFileRejectReason.NotSupported };
   };
 
   return (

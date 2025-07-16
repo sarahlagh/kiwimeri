@@ -21,7 +21,7 @@ msgstr "A single folder has been detected inside your archive, would you like to
 msgid "Add config"
 msgstr "Add config"
 
-#: src/common/buttons/GenericImportFileButton.tsx:31
+#: src/common/buttons/GenericImportFileButton.tsx:47
 msgid "An error occurred loading the file"
 msgstr "An error occurred loading the file"
 
@@ -103,6 +103,10 @@ msgstr "EU"
 #: src/settings/components/sections/ImportExportCollectionSettings.tsx:85
 msgid "Export"
 msgstr "Export"
+
+#: src/common/buttons/GenericImportFileButton.tsx:49
+msgid "File not supported"
+msgstr "File not supported"
 
 #: src/settings/components/sections/FilesystemSyncSettings.tsx:20
 msgid "Filesystem"
@@ -263,7 +267,7 @@ msgstr "Server"
 msgid "Settings"
 msgstr "Settings"
 
-#: src/common/buttons/GenericImportFileButton.tsx:32
+#: src/common/buttons/GenericImportFileButton.tsx:48
 #: src/common/buttons/GenericExportFileButton.tsx:41
 #: src/app/pages/DebugPage.tsx:75
 msgid "Success!"
