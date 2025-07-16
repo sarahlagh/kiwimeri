@@ -6,10 +6,17 @@ import {
 } from '@/collection/collection';
 import { ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
+import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
 import formatterService from '@/format-conversion/formatter.service';
 import { Unzipped, strFromU8, unzip } from 'fflate';
 import { SerializedEditorState, SerializedLexicalNode } from 'lexical';
+
+export type ZipStructureOptions = {
+  createNotebook?: boolean;
+  inlinePages?: boolean;
+  removeDuplicateIdentifiers?: boolean;
+};
 
 export type ZipMergeFistLevel = {
   status: 'new' | 'merged';
@@ -34,6 +41,12 @@ export type ZipMergeCommitOptions = {
 };
 
 class ImportService {
+  private readonly zipStructureOpts: ZipStructureOptions = {
+    createNotebook: false,
+    inlinePages: true,
+    removeDuplicateIdentifiers: true
+  };
+
   private readonly commitOpts: ZipMergeCommitOptions = {
     deleteExistingPages: true
   };
@@ -50,11 +63,19 @@ class ImportService {
     return { doc: lexical, pages };
   }
 
-  public parseZipData(parent: string, unzipped: Unzipped) {
-    // TODO option to create notebooks, but how? right now, notebooks aren't nested, but they will be
-    // only possible with meta json files included,
-    // must warn user "if you export without metadata", you won't be able to reimport notebooks"
+  public parseZipData(
+    zipName: string,
+    parent: string,
+    unzipped: Unzipped,
+    opts: ZipStructureOptions = this.zipStructureOpts
+  ) {
     const items: { [key: string]: CollectionItem } = {};
+    let notebook = notebooksService.getCurrentNotebook();
+    if (opts.createNotebook === true) {
+      const { item, id } = notebooksService.getNewNotebookObj(zipName);
+      items['notebook'] = { ...item, id };
+      notebook = id;
+    }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     Object.keys(unzipped).forEach(key => {
       const isFolder = key.endsWith('/');
@@ -74,8 +95,14 @@ class ImportService {
       }
       if (!items[fKey]) {
         const { item, id } = isFolder
-          ? collectionService.getNewFolderObj(currentParent || ROOT_FOLDER)
-          : collectionService.getNewDocumentObj(currentParent || ROOT_FOLDER);
+          ? collectionService.getNewFolderObj(
+              currentParent || ROOT_FOLDER,
+              notebook
+            )
+          : collectionService.getNewDocumentObj(
+              currentParent || ROOT_FOLDER,
+              notebook
+            );
 
         let content: string | undefined = undefined;
 
@@ -83,7 +110,10 @@ class ImportService {
           ...item,
           id,
           // remove duplicate identifiers from the name
-          title: currentName.replace(/(.*?)( \(\d*\))?\.[A-z]{1,3}$/g, '$1')
+          title:
+            opts.removeDuplicateIdentifiers !== false
+              ? currentName.replace(/(.*?)( \(\d*\))?\.[A-z]{1,3}$/g, '$1')
+              : currentName
         };
 
         if (!isFolder) {
@@ -91,8 +121,10 @@ class ImportService {
           const { doc, pages } = this.getLexicalFromContent(content);
           collectionService.setUnsavedItemLexicalContent(items[fKey], doc);
           pages.forEach((page, idx) => {
-            const { item: pItem, id: pId } =
-              collectionService.getNewPageObj(id);
+            const { item: pItem, id: pId } = collectionService.getNewPageObj(
+              id,
+              notebook
+            );
             items[key + idx] = { ...pItem, id: pId, title: '', title_meta: '' };
             collectionService.setUnsavedItemLexicalContent(
               items[key + idx],
@@ -119,10 +151,13 @@ class ImportService {
 
   public findDuplicates(
     parent: string,
+    notebook: string,
     firstLevel: Pick<ZipMergeFistLevel, 'title' | 'type'>[]
   ) {
-    const itemsInCollection =
-      collectionService.getBrowsableCollectionItems(parent);
+    const itemsInCollection = collectionService.getBrowsableCollectionItems(
+      parent,
+      notebook
+    );
     const duplicates = new Set<CollectionItemResult>();
     firstLevel.forEach(item => {
       itemsInCollection
@@ -168,7 +203,11 @@ class ImportService {
       const item = newItems[i];
       if (!duplicatesMap.has(item.parent)) {
         const siblings = newItems.filter(item => item.parent === item.parent);
-        const duplicates = this.findDuplicates(item.parent, siblings);
+        const duplicates = this.findDuplicates(
+          item.parent,
+          item.notebook,
+          siblings
+        );
         duplicatesMap.set(item.parent, duplicates);
       }
       const newDuplicates = duplicatesMap.get(item.parent)!;
@@ -194,11 +233,12 @@ class ImportService {
   private mergeZipItemsWithOptions(
     items: CollectionItem[],
     parent: string,
+    notebook: string,
     options: ZipMergeOptions
   ) {
     const firstLevelItems = items.filter(item => item.parent === parent);
     // check duplicates for each item
-    const duplicates = this.findDuplicates(parent, firstLevelItems);
+    const duplicates = this.findDuplicates(parent, notebook, firstLevelItems);
     const newItems = [...items];
     const updatedItems: CollectionItemUpdate[] = [];
     let firstLevel: ZipMergeFistLevel[] = [];
@@ -266,7 +306,8 @@ class ImportService {
     zipName: string,
     importedItems: CollectionItem[],
     parent: string,
-    options: ZipMergeOptions
+    options: ZipMergeOptions,
+    notebook?: string
   ): ZipMergeResult {
     const items = structuredClone(importedItems);
 
@@ -278,7 +319,12 @@ class ImportService {
       this.createNewFolder(items, parent, zipName, options);
     }
 
-    return this.mergeZipItemsWithOptions(items, parent, options);
+    return this.mergeZipItemsWithOptions(
+      items,
+      parent,
+      notebook ? notebook : notebooksService.getCurrentNotebook(),
+      options
+    );
   }
 
   public commitMergeResult(

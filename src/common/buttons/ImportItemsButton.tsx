@@ -2,6 +2,8 @@ import {
   CollectionItemResult,
   CollectionItemType
 } from '@/collection/collection';
+import { ROOT_FOLDER } from '@/constants';
+import notebooksService from '@/db/notebooks.service';
 import { OverlayEventDetail } from '@ionic/core/components';
 import { useIonModal } from '@ionic/react';
 import { SerializedEditorState, SerializedLexicalNode } from 'lexical';
@@ -12,14 +14,21 @@ import ConfirmMultipleImportModal, {
   ConfirmMultipleImportModalParams
 } from '../modals/ConfirmMultipleImportModal';
 import { GET_ITEM_ROUTE } from '../routes';
-import { importService, ZipMergeResult } from '../services/import.service';
+import {
+  importService,
+  ZipMergeResult,
+  ZipStructureOptions
+} from '../services/import.service';
 import GenericImportFileButton from './GenericImportFileButton';
 
 type ImportItemsButtonProps = {
   parent: string;
-};
+} & ZipStructureOptions;
 
-const ImportItemsButton = ({ parent }: ImportItemsButtonProps) => {
+const ImportItemsButton = ({
+  parent,
+  createNotebook = false
+}: ImportItemsButtonProps) => {
   const history = useHistory();
   const [singleDuplicates, setSingleDuplicates] = useState<
     CollectionItemResult[]
@@ -39,7 +48,6 @@ const ImportItemsButton = ({ parent }: ImportItemsButtonProps) => {
   const [presentMultiple, dismissMultiple] = useIonModal(
     ConfirmMultipleImportModal,
     {
-      folder: parent,
       params,
       onClose: (confirm: boolean, zipMerge?: ZipMergeResult) => {
         dismissMultiple({ confirm, zipMerge });
@@ -62,12 +70,16 @@ const ImportItemsButton = ({ parent }: ImportItemsButtonProps) => {
     const fileName = file.name.replace(/\.(md|MD)$/, '');
     const { doc, pages } = importService.getLexicalFromContent(content);
 
-    const itemsInCollection = importService.findDuplicates(parent, [
-      {
-        title: fileName,
-        type: CollectionItemType.document
-      }
-    ]);
+    const itemsInCollection = importService.findDuplicates(
+      parent,
+      notebooksService.getCurrentNotebook(),
+      [
+        {
+          title: fileName,
+          type: CollectionItemType.document
+        }
+      ]
+    );
 
     if (itemsInCollection.length > 0) {
       setSingleDuplicates(itemsInCollection);
@@ -98,9 +110,18 @@ const ImportItemsButton = ({ parent }: ImportItemsButtonProps) => {
     console.debug('content', zipName, content);
 
     return importService.readZip(content).then(unzipped => {
-      const { items } = importService.parseZipData(parent, unzipped);
+      const { items } = importService.parseZipData(zipName, parent, unzipped, {
+        createNotebook,
+        inlinePages: true,
+        removeDuplicateIdentifiers: true
+      });
       console.debug('items to import', items);
-      setParams({ items, zipName });
+      setParams({
+        folder: createNotebook ? ROOT_FOLDER : parent,
+        notebook: createNotebook ? '-1' : notebooksService.getCurrentNotebook(),
+        items,
+        zipName
+      });
 
       return new Promise<boolean>(resolve => {
         presentMultiple({

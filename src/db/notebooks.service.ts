@@ -1,7 +1,8 @@
 import { CollectionItemType, setFieldMeta } from '@/collection/collection';
 import { getGlobalTrans } from '@/config';
 import { DEFAULT_NOTEBOOK_ID, ROOT_NOTEBOOK } from '@/constants';
-import { NotebookResult } from '@/notebooks/notebooks';
+import { Notebook, NotebookResult } from '@/notebooks/notebooks';
+import { getUniqueId } from 'tinybase/with-schemas';
 import collectionService from './collection.service';
 import localChangesService from './localChanges.service';
 import storageService from './storage.service';
@@ -63,6 +64,28 @@ class NotebooksService {
       localChangesService.addLocalChange(id, LocalChangeType.add);
     }
     return id;
+  }
+
+  public getNewNotebookObj(title: string, parent?: string) {
+    const now = Date.now();
+    const id = getUniqueId();
+    const item: Notebook = {
+      title,
+      title_meta: setFieldMeta(title, now),
+      parent: parent ? parent : ROOT_NOTEBOOK,
+      parent_meta: setFieldMeta(parent ? parent : ROOT_NOTEBOOK, now),
+      created: Date.now(),
+      updated: Date.now(),
+      type: CollectionItemType.notebook,
+      deleted: false,
+      deleted_meta: setFieldMeta('false', now),
+      notebook: '',
+      notebook_meta: ''
+    };
+    return {
+      id,
+      item
+    };
   }
 
   public deleteNotebook(id: string): void {

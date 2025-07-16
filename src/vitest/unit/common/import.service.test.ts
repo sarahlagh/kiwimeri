@@ -9,6 +9,7 @@ import {
 import { ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/localChanges.service';
+import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
 import { LocalChangeType } from '@/db/types/store-types';
 import formatterService from '@/format-conversion/formatter.service';
@@ -50,14 +51,24 @@ describe('import service', () => {
 
   describe('finding duplicates', () => {
     it(`should find no duplicates when collection empty`, () => {
-      expect(importService.findDuplicates(ROOT_FOLDER, [])).toHaveLength(0);
       expect(
-        importService.findDuplicates(ROOT_FOLDER, [
-          {
-            title: 'test',
-            type: CollectionItemType.document
-          }
-        ])
+        importService.findDuplicates(
+          ROOT_FOLDER,
+          notebooksService.getCurrentNotebook(),
+          []
+        )
+      ).toHaveLength(0);
+      expect(
+        importService.findDuplicates(
+          ROOT_FOLDER,
+          notebooksService.getCurrentNotebook(),
+          [
+            {
+              title: 'test',
+              type: CollectionItemType.document
+            }
+          ]
+        )
       ).toHaveLength(0);
     });
 
@@ -66,21 +77,29 @@ describe('import service', () => {
       collectionService.setItemTitle(docId, 'Test');
 
       expect(
-        importService.findDuplicates(ROOT_FOLDER, [
-          {
-            title: 'test',
-            type: CollectionItemType.document
-          }
-        ])
+        importService.findDuplicates(
+          ROOT_FOLDER,
+          notebooksService.getCurrentNotebook(),
+          [
+            {
+              title: 'test',
+              type: CollectionItemType.document
+            }
+          ]
+        )
       ).toHaveLength(0);
 
       expect(
-        importService.findDuplicates(ROOT_FOLDER, [
-          {
-            title: 'test',
-            type: CollectionItemType.folder
-          }
-        ])
+        importService.findDuplicates(
+          ROOT_FOLDER,
+          notebooksService.getCurrentNotebook(),
+          [
+            {
+              title: 'test',
+              type: CollectionItemType.folder
+            }
+          ]
+        )
       ).toHaveLength(0);
     });
 
@@ -89,12 +108,16 @@ describe('import service', () => {
       collectionService.setItemTitle(docId, 'Test');
 
       expect(
-        importService.findDuplicates(ROOT_FOLDER, [
-          {
-            title: 'Test',
-            type: CollectionItemType.folder
-          }
-        ])
+        importService.findDuplicates(
+          ROOT_FOLDER,
+          notebooksService.getCurrentNotebook(),
+          [
+            {
+              title: 'Test',
+              type: CollectionItemType.folder
+            }
+          ]
+        )
       ).toHaveLength(0);
     });
 
@@ -102,12 +125,16 @@ describe('import service', () => {
       const docId = collectionService.addDocument(ROOT_FOLDER);
       collectionService.setItemTitle(docId, 'Test');
 
-      const duplicates = importService.findDuplicates(ROOT_FOLDER, [
-        {
-          title: 'Test',
-          type: CollectionItemType.document
-        }
-      ]);
+      const duplicates = importService.findDuplicates(
+        ROOT_FOLDER,
+        notebooksService.getCurrentNotebook(),
+        [
+          {
+            title: 'Test',
+            type: CollectionItemType.document
+          }
+        ]
+      );
 
       expect(duplicates).toHaveLength(1);
       expect(duplicates[0].id).toBe(docId);
@@ -117,12 +144,16 @@ describe('import service', () => {
       const folId = collectionService.addFolder(ROOT_FOLDER);
       collectionService.setItemTitle(folId, 'Test');
 
-      const duplicates = importService.findDuplicates(ROOT_FOLDER, [
-        {
-          title: 'Test',
-          type: CollectionItemType.folder
-        }
-      ]);
+      const duplicates = importService.findDuplicates(
+        ROOT_FOLDER,
+        notebooksService.getCurrentNotebook(),
+        [
+          {
+            title: 'Test',
+            type: CollectionItemType.folder
+          }
+        ]
+      );
 
       expect(duplicates).toHaveLength(1);
       expect(duplicates[0].id).toBe(folId);
@@ -141,16 +172,20 @@ describe('import service', () => {
       const folId2 = collectionService.addFolder(ROOT_FOLDER);
       collectionService.setItemTitle(folId2, 'Test 2');
 
-      const duplicates = importService.findDuplicates(ROOT_FOLDER, [
-        {
-          title: 'Test',
-          type: CollectionItemType.document
-        },
-        {
-          title: 'Test',
-          type: CollectionItemType.folder
-        }
-      ]);
+      const duplicates = importService.findDuplicates(
+        ROOT_FOLDER,
+        notebooksService.getCurrentNotebook(),
+        [
+          {
+            title: 'Test',
+            type: CollectionItemType.document
+          },
+          {
+            title: 'Test',
+            type: CollectionItemType.folder
+          }
+        ]
+      );
 
       expect(duplicates).toHaveLength(3);
       expect(duplicates.map(dupl => dupl.id)).toEqual([docId1, docId2, folId1]);
@@ -331,7 +366,7 @@ describe('import service', () => {
       const zip = await readFile(`${__dirname}/zips/${zipName}`);
       const zipBuffer: ArrayBuffer = new Uint8Array(zip).buffer;
       const unzipped = await importService.readZip(zipBuffer);
-      return importService.parseZipData(parent, unzipped).items;
+      return importService.parseZipData(zipName, parent, unzipped).items;
     };
 
     const createInitData = (initData: Partial<CollectionItem>[]) => {
@@ -600,6 +635,48 @@ describe('import service', () => {
       collectionService.saveItems(zipMerge.newItems, id);
       expect(getLocalItemField(id, 'updated')).toBe(before + 5000);
       vi.useRealTimers();
+    });
+
+    it(`should import as notebook if asked`, async () => {
+      const zip = await readFile(`${__dirname}/zips/Samples.zip`);
+      const zipBuffer: ArrayBuffer = new Uint8Array(zip).buffer;
+      const unzipped = await importService.readZip(zipBuffer);
+      const zipContent = importService.parseZipData(
+        'Samples',
+        ROOT_FOLDER,
+        unzipped,
+        {
+          createNotebook: true
+        }
+      ).items;
+
+      const zipMerge = importService.mergeZipItems(
+        'Samples',
+        zipContent,
+        ROOT_FOLDER,
+        {
+          createNewFolder: false,
+          overwrite: false
+        }
+      );
+
+      expect(zipMerge.newItems).toHaveLength(20);
+      expect(zipMerge.duplicates).toHaveLength(0);
+      expect(zipMerge.updatedItems).toHaveLength(0);
+
+      // one notebook has been created
+      const notebooks = zipMerge.newItems.filter(
+        item => item.type === CollectionItemType.notebook
+      );
+      expect(notebooks).toHaveLength(1);
+      expect(notebooks[0].title).toBe('Samples');
+      const defaultNotebook = notebooksService.getCurrentNotebook();
+      zipMerge.newItems
+        .filter(item => item.type !== CollectionItemType.notebook)
+        .forEach(item => {
+          expect(item.notebook).toBe(notebooks[0].id);
+          expect(item.notebook).not.toBe(defaultNotebook);
+        });
     });
   });
 });

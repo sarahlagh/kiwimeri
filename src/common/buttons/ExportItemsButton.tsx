@@ -78,7 +78,11 @@ const ExportItemsButton = ({
     if (id === 'space') {
       return 'collection.zip';
     }
-    const fileTitle = collectionService.getItemTitle(id || ROOT_FOLDER);
+    if (!id || id === ROOT_FOLDER) {
+      const notebook = notebooksService.getCurrentNotebook();
+      return `${collectionService.getItemTitle(notebook)}.zip`;
+    }
+    const fileTitle = collectionService.getItemTitle(id);
     if (type === CollectionItemType.folder) {
       return `${fileTitle}.zip`;
     }
