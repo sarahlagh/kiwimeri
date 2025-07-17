@@ -74,7 +74,7 @@ msgstr "Default"
 msgid "Do you want to import your content inside a new folder?"
 msgstr "Do you want to import your content inside a new folder?"
 
-#: src/app/pages/DebugPage.tsx:80
+#: src/app/pages/DebugPage.tsx:86
 msgid "Download Logs"
 msgstr "Download Logs"
 
@@ -93,6 +93,11 @@ msgstr "Enter your password"
 #: src/settings/components/providers/PCloudSettings.tsx:118
 msgid "Enter your username"
 msgstr "Enter your username"
+
+#: src/common/buttons/GenericExportFileButton.tsx:48
+#: src/app/pages/DebugPage.tsx:82
+msgid "Error writing to file"
+msgstr "Error writing to file"
 
 #: src/settings/components/providers/PCloudSettings.tsx:88
 msgid "EU"
@@ -268,8 +273,8 @@ msgid "Settings"
 msgstr "Settings"
 
 #: src/common/buttons/GenericImportFileButton.tsx:48
-#: src/common/buttons/GenericExportFileButton.tsx:41
-#: src/app/pages/DebugPage.tsx:75
+#: src/common/buttons/GenericExportFileButton.tsx:43
+#: src/app/pages/DebugPage.tsx:77
 msgid "Success!"
 msgstr "Success!"
 

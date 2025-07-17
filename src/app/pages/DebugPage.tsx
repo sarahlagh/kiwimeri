@@ -70,11 +70,17 @@ const DebugPage = () => {
                 const content = JSON.stringify(appLog.getLogs());
                 const fileName = `${new Date().toISOString().substring(0, 19).replaceAll(/[:T]/g, '-')}-logs.json`;
 
-                filesystemService.exportToFile(fileName, content).then(() => {
-                  if (platformService.isAndroid()) {
-                    setToast(t`Success!`, 'success');
-                  }
-                });
+                filesystemService
+                  .exportToFile(fileName, content)
+                  .then(() => {
+                    if (platformService.isAndroid()) {
+                      setToast(t`Success!`, 'success');
+                    }
+                  })
+                  .catch((e: Error) => {
+                    console.error(`Error writing to file`, e.message);
+                    setToast(t`Error writing to file`, 'danger');
+                  });
               }}
             >
               <Trans>Download Logs</Trans>

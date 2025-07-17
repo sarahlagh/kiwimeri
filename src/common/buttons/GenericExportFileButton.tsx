@@ -36,14 +36,22 @@ const GenericExportFileButton = ({
     const fileTitle = getFileTitle();
     const content = await getFileContent();
     const mime = fileMime || 'text/plain';
-    filesystemService.exportToFile(fileTitle, content, mime).then(() => {
-      if (platformService.isAndroid()) {
-        setToast(t`Success!`, 'success');
-      }
-      if (onDone) {
-        onDone();
-      }
-    });
+    filesystemService
+      .exportToFile(fileTitle, content, mime)
+      .then(() => {
+        if (platformService.isAndroid()) {
+          setToast(t`Success!`, 'success');
+        }
+      })
+      .catch((e: Error) => {
+        console.error(`Error writing to file`, e.message);
+        setToast(t`Error writing to file`, 'danger');
+      })
+      .finally(() => {
+        if (onDone) {
+          onDone();
+        }
+      });
   };
 
   return (
