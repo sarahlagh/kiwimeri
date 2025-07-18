@@ -6,21 +6,15 @@ export interface BetterFilesystemPlugin {
     mimeType: string;
     content: string | Uint8Array<ArrayBufferLike>;
     appDir?: string;
-    contentLength?: number;
-    uuid?: string;
     isBase64?: boolean;
-  }): Promise<{ success: boolean; chunksWritten?: number; complete?: boolean }>;
+    overwrite?: boolean;
+  }): Promise<{ success: boolean }>;
 }
 
 export class WebBetterFilesystem
   extends WebPlugin
   implements BetterFilesystemPlugin
 {
-  async helloWorld(opts: { test: string }) {
-    console.log('hello world!', opts);
-    return { success: true };
-  }
-
   async exportToFile(data: {
     fileName: string;
     mimeType: string;

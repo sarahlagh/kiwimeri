@@ -5,6 +5,8 @@ import android.os.Build;
 import android.os.Environment;
 import android.util.Base64;
 
+import androidx.annotation.NonNull;
+
 import com.getcapacitor.JSObject;
 import com.getcapacitor.PermissionState;
 import com.getcapacitor.Plugin;
@@ -51,22 +53,45 @@ public class BetterFilesystemPlugin extends Plugin {
         String fileName = call.getString("fileName");
         String content = call.getString("content");
         String appDir = call.getString("appDir", "KiwimeriApp");
+        boolean overwrite = Boolean.TRUE.equals(call.getBoolean("overwrite", false));
         try {
             File androidDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
-            if (androidDir.exists() || androidDir.mkdirs()) {
-                File parent = new File(androidDir, appDir);
-                File file = new File(parent, fileName);
-                if (file.getParentFile().exists() || (file.getParentFile().mkdirs())) {
-                    writeToFile(call, file, content);
-                } else {
-                    call.reject("Parent folder doesn't exist");
-                }
-            } else {
+            if (!androidDir.exists() && !androidDir.mkdirs()) {
                 call.reject("Invalid directory");
+                return;
+            }
+            File parent = new File(androidDir, appDir);
+            File file = new File(parent, fileName);
+            if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
+                call.reject("Parent folder doesn't exist");
+                return;
+            }
+            if (file.exists() && !overwrite) { // if file with same name exist, try to create a copy
+                File copy = getCopy(fileName, parent);
+                writeToFile(call, copy, content);
+            } else {
+                writeToFile(call, file, content);
             }
         } catch (Exception e) {
             call.reject(e.getMessage());
         }
+    }
+
+    @NonNull
+    private File getCopy(String fileName, File parent) {
+        String[] parts = fileName.split("\\.", 2);
+        int i = 1;
+        File copy;
+        do {
+            StringBuilder sb = new StringBuilder(fileName.length() + 3);
+            sb.append(parts[0]);
+            sb.append(" (").append(i++).append(")");
+            if (parts.length > 1) {
+                sb.append(".").append(parts[1]);
+            }
+            copy = new File(parent, sb.toString());
+        } while (copy.exists());
+        return copy;
     }
 
     private void writeToFile(PluginCall call, File file, String data) throws IOException {
