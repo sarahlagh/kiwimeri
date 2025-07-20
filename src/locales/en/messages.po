@@ -61,12 +61,12 @@ msgstr "Configure where to synchronize your collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/app/pages/DebugPage.tsx:27
+#: src/app/pages/DebugPage.tsx:24
 #: src/app/components/MainMenuList.tsx:73
 msgid "Debug"
 msgstr "Debug"
 
-#: src/constants.ts:58
+#: src/constants.ts:57
 msgid "Default"
 msgstr "Default"
 
@@ -74,7 +74,7 @@ msgstr "Default"
 msgid "Do you want to import your content inside a new folder?"
 msgstr "Do you want to import your content inside a new folder?"
 
-#: src/app/pages/DebugPage.tsx:86
+#: src/app/pages/DebugPage.tsx:69
 msgid "Download Logs"
 msgstr "Download Logs"
 
@@ -95,7 +95,6 @@ msgid "Enter your username"
 msgstr "Enter your username"
 
 #: src/common/buttons/GenericExportFileButton.tsx:48
-#: src/app/pages/DebugPage.tsx:82
 msgid "Error writing to file"
 msgstr "Error writing to file"
 
@@ -103,9 +102,9 @@ msgstr "Error writing to file"
 msgid "EU"
 msgstr "EU"
 
-#: src/settings/components/sections/ImportExportStoreSettings.tsx:82
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:64
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:85
+#: src/settings/components/sections/ImportExportStoreSettings.tsx:68
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:62
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:83
 msgid "Export"
 msgstr "Export"
 
@@ -117,15 +116,15 @@ msgstr "File not supported"
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/constants.ts:57
+#: src/constants.ts:56
 msgid "Home"
 msgstr "Home"
 
-#: src/settings/components/sections/ImportExportStoreSettings.tsx:51
+#: src/settings/components/sections/ImportExportStoreSettings.tsx:48
 msgid "Import & export your app settings"
 msgstr "Import & export your app settings"
 
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:46
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:44
 msgid "Import & export your collection"
 msgstr "Import & export your collection"
 
@@ -141,7 +140,7 @@ msgstr "Import zip content in a new Notebook"
 msgid "Import zip content in folder {parentName}"
 msgstr "Import zip content in folder {parentName}"
 
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:59
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:57
 msgid "Kiwimeri format (single file)"
 msgstr "Kiwimeri format (single file)"
 
@@ -153,19 +152,19 @@ msgstr "Leave empty for root"
 msgid "Loading..."
 msgstr "Loading..."
 
-#: src/app/pages/DebugPage.tsx:53
+#: src/app/pages/DebugPage.tsx:50
 msgid "Logs"
 msgstr "Logs"
 
-#: src/settings/components/sections/ImportExportStoreSettings.tsx:54
+#: src/settings/components/sections/ImportExportStoreSettings.tsx:51
 msgid "Manually backup or restore your app settings"
 msgstr "Manually backup or restore your app settings"
 
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:49
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:47
 msgid "Manually backup or restore your collection in the format of your choice"
 msgstr "Manually backup or restore your collection in the format of your choice"
 
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:80
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:78
 msgid "Markdown (Kiwimeri flavor)"
 msgstr "Markdown (Kiwimeri flavor)"
 
@@ -174,11 +173,11 @@ msgstr "Markdown (Kiwimeri flavor)"
 msgid "Name"
 msgstr "Name"
 
-#: src/constants.ts:59
+#: src/constants.ts:58
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:60
+#: src/constants.ts:59
 msgid "New folder"
 msgstr "New folder"
 
@@ -242,7 +241,7 @@ msgstr "PCloud Configuration"
 msgid "Pick a directory for your backups"
 msgstr "Pick a directory for your backups"
 
-#: src/app/pages/DebugPage.tsx:32
+#: src/app/pages/DebugPage.tsx:29
 msgid "Platform(s)"
 msgstr "Platform(s)"
 
@@ -254,8 +253,8 @@ msgstr "Remote Configuration"
 msgid "Reorder"
 msgstr "Reorder"
 
-#: src/settings/components/sections/ImportExportStoreSettings.tsx:92
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:74
+#: src/settings/components/sections/ImportExportStoreSettings.tsx:78
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:72
 msgid "Restore"
 msgstr "Restore"
 
@@ -274,7 +273,6 @@ msgstr "Settings"
 
 #: src/common/buttons/GenericImportFileButton.tsx:48
 #: src/common/buttons/GenericExportFileButton.tsx:43
-#: src/app/pages/DebugPage.tsx:77
 msgid "Success!"
 msgstr "Success!"
 
@@ -294,7 +292,7 @@ msgstr "Text..."
 msgid "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 msgstr "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 
-#: src/settings/components/sections/ImportExportStoreSettings.tsx:58
+#: src/settings/components/sections/ImportExportStoreSettings.tsx:55
 msgid "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page, including the settings for your cloud provider."
 msgstr "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page, including the settings for your cloud provider."
 
@@ -318,8 +316,3 @@ msgstr "yes"
 #: src/settings/components/providers/RemotesSettings.tsx:71
 msgid "You have not configured any remote yet."
 msgstr "You have not configured any remote yet."
-
-#: src/settings/components/sections/ImportExportStoreSettings.tsx:69
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:95
-msgid "Your backups will be exported to the `{ANDROID_FOLDER}` directory"
-msgstr "Your backups will be exported to the `{ANDROID_FOLDER}` directory"

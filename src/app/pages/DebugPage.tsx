@@ -1,12 +1,10 @@
 import NotFound from '@/app/components/NotFound';
-import { useToastContext } from '@/common/context/ToastContext';
-import filesystemService from '@/common/services/filesystem.service';
+import GenericExportFileButton from '@/common/buttons/GenericExportFileButton';
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
 import { appLog } from '@/log';
 import {
   getPlatforms,
-  IonButton,
   IonCard,
   IonCardContent,
   IonCardHeader,
@@ -18,7 +16,6 @@ import TemplateMainPage from './TemplateMainPage';
 
 const DebugPage = () => {
   const { t } = useLingui();
-  const { setToast } = useToastContext();
 
   if (platformService.isRelease()) {
     return <NotFound />;
@@ -64,27 +61,15 @@ const DebugPage = () => {
                 );
               })}
             </IonCardContent>
-            <IonButton
+            <GenericExportFileButton
+              getFileContent={async () => JSON.stringify(appLog.getLogs())}
+              getFileTitle={() =>
+                `${new Date().toISOString().substring(0, 19).replaceAll(/[:T]/g, '-')}-logs.json`
+              }
+              label={t`Download Logs`}
+              icon={null}
               fill="clear"
-              onClick={() => {
-                const content = JSON.stringify(appLog.getLogs());
-                const fileName = `${new Date().toISOString().substring(0, 19).replaceAll(/[:T]/g, '-')}-logs.json`;
-
-                filesystemService
-                  .exportToFile(fileName, content)
-                  .then(() => {
-                    if (platformService.isAndroid()) {
-                      setToast(t`Success!`, 'success');
-                    }
-                  })
-                  .catch((e: Error) => {
-                    console.error(`Error writing to file`, e.message);
-                    setToast(t`Error writing to file`, 'danger');
-                  });
-              }}
-            >
-              <Trans>Download Logs</Trans>
-            </IonButton>
+            />
           </IonCard>
         )}
       </IonContent>

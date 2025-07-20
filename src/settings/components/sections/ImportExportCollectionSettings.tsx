@@ -3,7 +3,6 @@ import ExportItemsButton from '@/common/buttons/ExportItemsButton';
 import GenericExportFileButton from '@/common/buttons/GenericExportFileButton';
 import GenericImportFileButton from '@/common/buttons/GenericImportFileButton';
 import platformService from '@/common/services/platform.service';
-import { ANDROID_FOLDER } from '@/constants';
 import storageService from '@/db/storage.service';
 import {
   IonButtons,
@@ -13,8 +12,7 @@ import {
   IonCardSubtitle,
   IonCardTitle,
   IonItem,
-  IonList,
-  IonText
+  IonList
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 
@@ -89,16 +87,6 @@ const ImportExportCollectionSettings = () => {
             </IonButtons>
           </IonItem>
         </IonList>
-        {platformService.isAndroid() && (
-          <IonText color={'secondary'}>
-            <p>
-              <Trans>
-                Your backups will be exported to the `{ANDROID_FOLDER}`
-                directory
-              </Trans>
-            </p>
-          </IonText>
-        )}
       </IonCardContent>
     </IonCard>
   );

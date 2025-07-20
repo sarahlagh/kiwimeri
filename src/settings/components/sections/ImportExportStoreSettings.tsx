@@ -1,7 +1,5 @@
 import GenericExportFileButton from '@/common/buttons/GenericExportFileButton';
 import GenericImportFileButton from '@/common/buttons/GenericImportFileButton';
-import platformService from '@/common/services/platform.service';
-import { ANDROID_FOLDER } from '@/constants';
 import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
 import {
@@ -10,8 +8,7 @@ import {
   IonCardContent,
   IonCardHeader,
   IonCardSubtitle,
-  IonCardTitle,
-  IonText
+  IonCardTitle
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 
@@ -62,17 +59,6 @@ const ImportExportCollectionSettings = () => {
           anything configured in this page, including the settings for your
           cloud provider.
         </Trans>
-        {platformService.isAndroid() && (
-          <IonText color={'secondary'}>
-            <p>&nbsp;</p>
-            <p>
-              <Trans>
-                Your backups will be exported to the `{ANDROID_FOLDER}`
-                directory
-              </Trans>
-            </p>
-          </IonText>
-        )}
       </IonCardContent>
 
       <IonButtons>
