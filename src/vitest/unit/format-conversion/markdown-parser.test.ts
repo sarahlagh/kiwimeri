@@ -1,5 +1,6 @@
 import { MarkdownParser } from '@/format-conversion/parsers/markdown-parser';
 import { readFile } from 'fs/promises';
+import { SerializedElementNode, SerializedTextNode } from 'lexical';
 import { describe, it } from 'vitest';
 import { examples } from './examples';
 
@@ -13,6 +14,27 @@ describe('parser', () => {
     expect(resp.obj).toBeDefined();
     expect(resp.obj!.root).toBeDefined();
     expect(resp.obj!.root.children).toHaveLength(5);
+  });
+
+  it(`should parse variations`, async () => {
+    const parser = new MarkdownParser();
+    [
+      'this is a _test_ with __variations__',
+      'this is a *test* with **variations**'
+    ].forEach(str => {
+      const resp = parser.parse(str);
+      expect(resp.errors).toBeUndefined();
+      expect(resp.obj).toBeDefined();
+      expect(resp.obj!.root).toBeDefined();
+      expect(resp.obj!.root.children).toHaveLength(1);
+      expect(resp.obj!.root.children[0].type).toBe('paragraph');
+      expect('children' in resp.obj!.root.children[0]).toBe(true);
+      const node = resp.obj!.root.children[0] as SerializedElementNode;
+      expect(node.children).toHaveLength(4);
+      expect(node.children.map(c => (c as SerializedTextNode).format)).toEqual([
+        0, 2, 0, 1
+      ]);
+    });
   });
 
   examples.forEach(({ name }) => {

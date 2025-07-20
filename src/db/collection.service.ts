@@ -572,8 +572,8 @@ class CollectionService {
     }
   }
 
-  public getItemField(rowId: Id, key: CollectionItemFieldEnum) {
-    return storageService.getSpace().getCell('collection', rowId, key);
+  public getItemField<T>(rowId: Id, key: CollectionItemFieldEnum) {
+    return storageService.getSpace().getCell('collection', rowId, key) as T;
   }
 
   public saveItems(

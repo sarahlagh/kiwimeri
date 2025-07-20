@@ -110,7 +110,10 @@ describe('local changes service', () => {
     localChangesService.clear();
 
     GET_UPDATABLE_FIELDS('document').forEach(({ field }) => {
-      const current = collectionService.getItemField(id, field);
+      const current = collectionService.getItemField<string | number | boolean>(
+        id,
+        field
+      );
       collectionService.setItemField(id, field, current!);
     });
 
