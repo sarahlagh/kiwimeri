@@ -233,8 +233,8 @@ class CollectionService {
     return { item, id };
   }
 
-  public addDocument(parent: string) {
-    const { item, id } = this.getNewDocumentObj(parent);
+  public addDocument(parent: string, notebook?: string) {
+    const { item, id } = this.getNewDocumentObj(parent, notebook);
     this.saveItem(item, id, parent);
     return id;
   }
@@ -263,8 +263,8 @@ class CollectionService {
     return { item, id };
   }
 
-  public addFolder(parent: string) {
-    const { item, id } = this.getNewFolderObj(parent);
+  public addFolder(parent: string, notebook?: string) {
+    const { item, id } = this.getNewFolderObj(parent, notebook);
     this.saveItem(item, id);
     return id;
   }
@@ -293,8 +293,8 @@ class CollectionService {
     return { item, id };
   }
 
-  public addPage(document: string) {
-    const { item, id } = this.getNewPageObj(document);
+  public addPage(document: string, notebook?: string) {
+    const { item, id } = this.getNewPageObj(document, notebook);
     this.saveItem(item as CollectionItem, id, document);
     return id;
   }

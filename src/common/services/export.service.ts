@@ -47,6 +47,7 @@ class ExportService {
     id: string,
     fileTree: ZipFileTree,
     notebook: string,
+    folderType: CollectionItemType.folder | CollectionItemType.notebook,
     opts = this.opts
   ) {
     const meta = new Map<string, ZipMetadata>();
@@ -66,7 +67,7 @@ class ExportService {
           if (!meta.has(metaId)) {
             meta.set(metaId, {
               format: 'markdown',
-              type: CollectionItemType.folder, // TODO handle notebook
+              type: folderType,
               files: {}
             });
           }
@@ -93,13 +94,27 @@ class ExportService {
           itemKey = `${item.title} (${idx})`;
         }
         fileTree[itemKey] = {};
-        this.fillDirectoryStructure(item.id, fileTree[itemKey], notebook);
+        this.fillDirectoryStructure(
+          item.id,
+          fileTree[itemKey],
+          notebook,
+          CollectionItemType.folder,
+          opts
+        );
       });
 
     const metaId = `${notebook}-${id}`;
+    if (folderType === CollectionItemType.notebook && !meta.has(metaId)) {
+      meta.set(metaId, {
+        type: CollectionItemType.notebook,
+        format: 'markdown'
+      });
+    }
+
     if (opts.includeMetadata && meta.has(metaId)) {
       fileTree['meta.json'] = [strToU8(JSON.stringify(meta.get(metaId)))];
     }
+
     return fileTree;
   }
 
@@ -138,7 +153,15 @@ class ExportService {
 
   public getFolderContent(id: string, opts = this.opts) {
     const notebook = collectionService.getItemField<string>(id, 'notebook')!;
-    return this.fillDirectoryStructure(id, {}, notebook, opts);
+    return this.fillDirectoryStructure(
+      id,
+      {},
+      notebook,
+      id === ROOT_FOLDER
+        ? CollectionItemType.notebook
+        : CollectionItemType.folder,
+      opts
+    );
   }
 
   public getSpaceContent(opts = this.opts) {
@@ -153,6 +176,7 @@ class ExportService {
         ROOT_FOLDER,
         {},
         notebook.id,
+        CollectionItemType.notebook,
         opts
       );
     });
