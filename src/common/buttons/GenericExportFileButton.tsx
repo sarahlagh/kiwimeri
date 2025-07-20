@@ -38,8 +38,8 @@ const GenericExportFileButton = ({
     const mime = fileMime || 'text/plain';
     filesystemService
       .exportToFile(fileTitle, content, mime)
-      .then(() => {
-        if (platformService.isAndroid()) {
+      .then(res => {
+        if (res.success && platformService.isAndroid()) {
           setToast(t`Success!`, 'success');
         }
       })

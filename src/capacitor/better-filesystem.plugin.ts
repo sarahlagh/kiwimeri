@@ -5,9 +5,14 @@ export interface BetterFilesystemPlugin {
     fileName: string;
     mimeType: string;
     content: string | Uint8Array<ArrayBufferLike>;
-    appDir?: string;
+    /** only applicable on android: if content should be decoded as base64 - false by default */
     isBase64?: boolean;
-    overwrite?: boolean;
+    /** only applicable on android: if the app should open a file picker - true by default */
+    requestFilePicker?: boolean;
+    /** only applicable on android if requestFilePicker == false: an optional parent directory under Documents where to write the file */
+    appDir?: string;
+    /** only applicable on android if requestFilePicker == false: whether existing files should be overwritten - false by default */
+    overwrite?: boolean; //
   }): Promise<{ success: boolean }>;
 }
 

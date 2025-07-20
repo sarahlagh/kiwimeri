@@ -1,5 +1,4 @@
 import BetterFilesystem from '@/capacitor/better-filesystem.plugin';
-import { ANDROID_FOLDER } from '@/constants';
 import { strFromU8 } from 'fflate';
 import platformService from './platform.service';
 
@@ -9,12 +8,9 @@ class FilesystemService {
     content: string | Uint8Array<ArrayBufferLike>,
     mimeType = 'application/json'
   ) {
-    const appDir = ANDROID_FOLDER;
-
     if (typeof content === 'string' || !platformService.isAndroid()) {
       return BetterFilesystem.exportToFile({
         fileName,
-        appDir,
         mimeType,
         content
       });
@@ -27,11 +23,10 @@ class FilesystemService {
     const b64encoded = btoa(strFromU8(content, true));
     console.debug('fileName', fileName);
     console.debug('mimeType', mimeType);
-    console.debug('b64encoded: ', b64encoded);
+    console.debug('b64encoded: ', b64encoded.substring(0, 15) + '...');
     return BetterFilesystem.exportToFile({
       fileName,
       mimeType,
-      appDir,
       content: b64encoded,
       isBase64: true
     });
