@@ -1,4 +1,8 @@
-import { CollectionItem, CollectionItemType } from '@/collection/collection';
+import {
+  CollectionItem,
+  CollectionItemType,
+  CollectionItemTypeValues
+} from '@/collection/collection';
 import { ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
@@ -18,6 +22,7 @@ export type ZipExportOptions = {
 
 export type ZipMetadata = {
   format?: 'markdown';
+  type?: CollectionItemTypeValues;
   files?: {
     [key: string]: Partial<
       Pick<CollectionItem, 'type' | 'title' | 'created' | 'updated' | 'tags'>
@@ -59,7 +64,11 @@ class ExportService {
         if (opts.includeMetadata) {
           const metaId = `${notebook}-${item.parent}`;
           if (!meta.has(metaId)) {
-            meta.set(metaId, { format: 'markdown', files: {} });
+            meta.set(metaId, {
+              format: 'markdown',
+              type: CollectionItemType.folder, // TODO handle notebook
+              files: {}
+            });
           }
           meta.get(metaId)!.files![itemKey] = {
             type: item.type,
@@ -86,6 +95,11 @@ class ExportService {
         fileTree[itemKey] = {};
         this.fillDirectoryStructure(item.id, fileTree[itemKey], notebook);
       });
+
+    const metaId = `${notebook}-${id}`;
+    if (opts.includeMetadata && meta.has(metaId)) {
+      fileTree['meta.json'] = [strToU8(JSON.stringify(meta.get(metaId)))];
+    }
     return fileTree;
   }
 
