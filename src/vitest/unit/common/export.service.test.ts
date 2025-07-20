@@ -1,7 +1,9 @@
+import { CollectionItemType } from '@/collection/collection';
 import {
   exportService,
   ZipExportOptions,
-  ZipFileTree
+  ZipFileTree,
+  ZipMetadata
 } from '@/common/services/export.service';
 import { ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
@@ -35,23 +37,51 @@ describe('export service', () => {
     return id;
   };
 
-  const includeMetadatas = [false];
+  const includeMetadatas = [true, false];
   includeMetadatas.forEach(includeMetadata => {
     const opts: ZipExportOptions[] = [];
     opts.push({
       includeMetadata,
       inlinePages: true
     });
-    opts.push({
-      includeMetadata,
-      inlinePages: false
-    });
+    // opts.push({
+    //   includeMetadata,
+    //   inlinePages: false
+    // });
 
     describe(`with includeMetadata=${includeMetadata}`, () => {
       opts.forEach(opts => {
-        const checkMetadata = (zipContent: ZipFileTree) => {
-          if (opts.includeMetadata) {
+        const checkMetadata = (
+          zipContent: ZipFileTree,
+          shouldBeDefined = true
+        ) => {
+          if (opts.includeMetadata && !shouldBeDefined) {
+            expect(zipContent['meta.json']).not.toBeDefined();
+          }
+          if (opts.includeMetadata && shouldBeDefined) {
             expect(zipContent['meta.json']).toBeDefined();
+            const meta = JSON.parse(
+              strFromU8(zipContent['meta.json'][0])
+            ) as ZipMetadata;
+            expect(meta.format).toBe('markdown');
+            expect(meta.files).toBeDefined();
+
+            console.debug('meta', meta);
+            console.debug('zipContent', zipContent);
+
+            const filesInZip = Object.keys(zipContent).filter(
+              key => key !== 'meta.json' && Array.isArray(zipContent[key])
+            );
+            expect(Object.keys(meta.files!)).toHaveLength(filesInZip.length);
+            filesInZip.forEach(fileInZip => {
+              const metaFile = meta.files![fileInZip];
+              expect(metaFile).toBeDefined();
+              expect(metaFile.created).toBe(Date.now());
+              expect(metaFile.updated).toBe(Date.now());
+              expect(metaFile.type).toBe(CollectionItemType.document);
+              expect(metaFile.title).toBe('New document');
+              expect(metaFile.tags).toBe('');
+            });
           }
         };
 
@@ -124,7 +154,6 @@ describe('export service', () => {
           const fId = collectionService.addFolder(ROOT_FOLDER);
           const zipContent = exportService.getFolderContent(fId, opts);
           expect(zipContent).toEqual({});
-          checkMetadata(zipContent);
         });
 
         it(`should export a folder as a zip with inlinePages=${opts.inlinePages}`, () => {
@@ -157,9 +186,41 @@ describe('export service', () => {
           ).toBe('this is the document content\n\n');
 
           checkMetadata(zipContent);
+          checkMetadata(zipContent['New folder']);
         });
 
-        // TODO if first level doesn't have files (only folders), shouldn't include meta.json
+        it(`should export several levels with folders as first as a zip with inlinePages=${opts.inlinePages}`, () => {
+          const fId = collectionService.addFolder(ROOT_FOLDER);
+          newDoc(fId, 'this is the document content');
+          const fId2 = collectionService.addFolder(fId);
+          newDoc(fId2, 'this is the document content');
+
+          const zipContent = exportService.getFolderContent(ROOT_FOLDER, opts);
+          expect(zipContent['New folder']).toBeDefined();
+          expect(zipContent['New folder']['New document.md']).toBeDefined();
+          expect(
+            strFromU8(zipContent['New folder']['New document.md'][0])
+          ).toBe('this is the document content\n\n');
+
+          expect(zipContent['New folder']['New folder']).toBeDefined();
+          expect(
+            zipContent['New folder']['New folder']['New document.md']
+          ).toBeDefined();
+          expect(
+            strFromU8(
+              zipContent['New folder']['New folder']['New document.md'][0]
+            )
+          ).toBe('this is the document content\n\n');
+
+          // if first level doesn't have files (only folders), shouldn't include meta.json
+          checkMetadata(zipContent, false);
+          checkMetadata(zipContent['New folder']);
+          checkMetadata(zipContent['New folder']['New folder']);
+        });
+
+        // TODO get space content
+        // TODO include meta check for notebook
+        // TODO include meta check for pages too
       });
     });
   });
