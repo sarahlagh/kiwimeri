@@ -1,5 +1,6 @@
 import SyncRemoteButton from '@/common/buttons/SyncRemoteButton';
 import platformService from '@/common/services/platform.service';
+import notebooksService from '@/db/notebooks.service';
 import { syncService } from '@/remote-storage/sync.service';
 import {
   InputCustomEvent,
@@ -29,12 +30,19 @@ const MainHeader = ({
   const pushEnabled = !isSyncing && isInit && hasChanges;
   const pushColor = isSyncing ? 'warning' : !pushEnabled ? undefined : 'danger';
 
+  const notebook = notebooksService.useCurrentNotebook();
+  const notebookTitle = notebooksService.useNotebookTitle(notebook);
+
   return (
     <IonToolbar>
       <IonButtons slot="start">
         <IonMenuButton></IonMenuButton>
       </IonButtons>
-      {!editable && <IonTitle>{title}</IonTitle>}
+      {!editable && (
+        <IonTitle>
+          ({notebookTitle}) {title}
+        </IonTitle>
+      )}
       {editable && (
         <IonInput
           class="invisible"
