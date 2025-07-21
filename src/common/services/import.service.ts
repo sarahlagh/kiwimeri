@@ -33,7 +33,8 @@ export type ZipImportOptions = {
   ignoreMetadata?: boolean;
   detectInlinedPages?: boolean;
   createNotebook?: boolean;
-  removeDuplicateIdentifiers?: boolean;
+  titleRemoveDuplicateIdentifiers?: boolean;
+  titleRemoveExtension?: boolean;
 };
 
 export type ZipMergeOptions = {
@@ -52,7 +53,8 @@ class ImportService {
     ignoreMetadata: false,
     createNotebook: false,
     detectInlinedPages: true,
-    removeDuplicateIdentifiers: true
+    titleRemoveDuplicateIdentifiers: true,
+    titleRemoveExtension: true
   };
 
   private readonly commitOpts: ZipMergeCommitOptions = {
@@ -107,6 +109,8 @@ class ImportService {
     unzipped: Unzipped,
     opts: ZipImportOptions = this.zipImportOpts
   ): ZipParsedData {
+    // TODO merge opts with default values
+
     const metaMap = new Map<string, ZipMetadata>();
     const items: { [key: string]: CollectionItem } = {};
     let notebook = notebooksService.getCurrentNotebook();
@@ -150,14 +154,17 @@ class ImportService {
 
         let content: string | undefined = undefined;
 
+        let title = currentName;
+        if (opts.titleRemoveExtension) {
+          title = title.replace(/(.*?)\.[A-z]{1,3}$/g, '$1');
+        }
+        if (opts.titleRemoveDuplicateIdentifiers) {
+          title = title.replace(/(.*?)(?: \(\d*\))?(\.[A-z]{1,3})?$/g, '$1$2');
+        }
         items[fKey] = {
           ...item,
           id,
-          // remove duplicate identifiers from the name
-          title:
-            opts.removeDuplicateIdentifiers !== false
-              ? currentName.replace(/(.*?)( \(\d*\))?\.[A-z]{1,3}$/g, '$1')
-              : currentName
+          title
         };
 
         if (!isFolder) {
@@ -370,6 +377,7 @@ class ImportService {
     options: ZipMergeOptions,
     notebook?: string
   ): ZipMergeResult {
+    // TODO merge opts with default values
     const items = structuredClone(zipData.items);
 
     if (options.removeFirstFolder === true) {

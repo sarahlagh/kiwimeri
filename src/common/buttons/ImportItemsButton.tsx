@@ -120,7 +120,7 @@ const ImportItemsButton = ({
       const zipData = importService.parseZipData(zipName, parent, unzipped, {
         createNotebook,
         detectInlinedPages: true,
-        removeDuplicateIdentifiers: true
+        titleRemoveDuplicateIdentifiers: true
       });
       setParams({
         folder: createNotebook ? ROOT_FOLDER : parent,
