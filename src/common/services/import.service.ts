@@ -29,7 +29,7 @@ export type ZipMergeResult = {
   firstLevel: ZipMergeFistLevel[];
 };
 
-export type ZipImportOptions = {
+export type ZipParseOptions = {
   ignoreMetadata?: boolean;
   detectInlinedPages?: boolean;
   createNotebook?: boolean;
@@ -44,12 +44,20 @@ export type ZipMergeOptions = {
   newFolderName?: string;
 };
 
+export type ZipImportOptions = ZipParseOptions & ZipMergeOptions;
+
 export type ZipMergeCommitOptions = {
-  deleteExistingPages: boolean;
+  deleteExistingPages?: boolean;
 };
 
 class ImportService {
-  private readonly zipImportOpts: ZipImportOptions = {
+  private readonly zipDefaultMergeOpts: ZipMergeOptions = {
+    overwrite: false,
+    createNewFolder: false,
+    removeFirstFolder: false
+  };
+
+  private readonly zipDefaultImportOpts: ZipParseOptions = {
     ignoreMetadata: false,
     createNotebook: false,
     detectInlinedPages: true,
@@ -57,7 +65,7 @@ class ImportService {
     titleRemoveExtension: true
   };
 
-  private readonly commitOpts: ZipMergeCommitOptions = {
+  private readonly zipDefaultCommitOpts: ZipMergeCommitOptions = {
     deleteExistingPages: true
   };
 
@@ -107,9 +115,13 @@ class ImportService {
     zipName: string,
     parent: string,
     unzipped: Unzipped,
-    opts: ZipImportOptions = this.zipImportOpts
+    opts?: ZipParseOptions
   ): ZipParsedData {
-    // TODO merge opts with default values
+    if (!opts) {
+      opts = this.zipDefaultImportOpts;
+    } else {
+      opts = { ...this.zipDefaultImportOpts, ...opts };
+    }
 
     const metaMap = new Map<string, ZipMetadata>();
     const items: { [key: string]: CollectionItem } = {};
@@ -374,32 +386,39 @@ class ImportService {
     zipName: string,
     zipData: ZipParsedData,
     parent: string,
-    options: ZipMergeOptions,
+    opts: ZipMergeOptions,
     notebook?: string
   ): ZipMergeResult {
-    // TODO merge opts with default values
+    opts = { ...this.zipDefaultMergeOpts, ...opts };
+
     const items = structuredClone(zipData.items);
 
-    if (options.removeFirstFolder === true) {
+    if (opts.removeFirstFolder === true) {
       this.removeFirstFolder(items, parent);
     }
 
-    if (options.createNewFolder === true) {
-      this.createNewFolder(items, parent, zipName, options, zipData.folderMeta);
+    if (opts.createNewFolder === true) {
+      this.createNewFolder(items, parent, zipName, opts, zipData.folderMeta);
     }
 
     return this.mergeZipItemsWithOptions(
       items,
       parent,
       notebook ? notebook : notebooksService.getCurrentNotebook(),
-      options
+      opts
     );
   }
 
   public commitMergeResult(
     zipMerge: ZipMergeResult,
-    commitOpts = this.commitOpts
+    commitOpts?: ZipMergeCommitOptions
   ) {
+    if (!commitOpts) {
+      commitOpts = this.zipDefaultCommitOpts;
+    } else {
+      commitOpts = { ...this.zipDefaultCommitOpts, ...commitOpts };
+    }
+
     storageService.getSpace().transaction(() => {
       if (commitOpts.deleteExistingPages) {
         zipMerge.updatedItems
@@ -422,7 +441,7 @@ class ImportService {
     parent: string,
     title: string,
     itemId?: string,
-    commitOpts = this.commitOpts
+    commitOpts = this.zipDefaultCommitOpts
   ) {
     storageService.getSpace().transaction(() => {
       if (itemId) {

@@ -110,12 +110,6 @@
           "description": "and titleRemoveDuplicateIdentifiers=false and titleRemoveExtension=true",
           "options": [
             {
-              "createNewFolder": false,
-              "overwrite": false
-            }
-          ],
-          "importOptions": [
-            {
               "titleRemoveDuplicateIdentifiers": false,
               "titleRemoveExtension": true
             }
@@ -163,12 +157,6 @@
         {
           "description": "and titleRemoveDuplicateIdentifiers=false and titleRemoveExtension=false",
           "options": [
-            {
-              "createNewFolder": false,
-              "overwrite": false
-            }
-          ],
-          "importOptions": [
             {
               "titleRemoveDuplicateIdentifiers": false,
               "titleRemoveExtension": false
@@ -218,12 +206,6 @@
           "description": "and titleRemoveDuplicateIdentifiers=true and titleRemoveExtension=false",
           "options": [
             {
-              "createNewFolder": false,
-              "overwrite": false
-            }
-          ],
-          "importOptions": [
-            {
               "titleRemoveDuplicateIdentifiers": true,
               "titleRemoveExtension": false
             }
@@ -271,12 +253,6 @@
         {
           "description": "and titleRemoveDuplicateIdentifiers=true and titleRemoveExtension=true",
           "options": [
-            {
-              "createNewFolder": false,
-              "overwrite": false
-            }
-          ],
-          "importOptions": [
             {
               "titleRemoveDuplicateIdentifiers": true,
               "titleRemoveExtension": true
