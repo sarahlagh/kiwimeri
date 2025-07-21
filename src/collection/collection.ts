@@ -63,7 +63,7 @@ export type CollectionItemResult = Pick<
 
 export type CollectionItemUpdate = Pick<
   CollectionItem,
-  'content' | 'content_meta'
+  'content' | 'content_meta' | 'tags_meta'
 > &
   CollectionItemResult;
 

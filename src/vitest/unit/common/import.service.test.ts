@@ -6,7 +6,7 @@ import {
   ZipMergeFistLevel,
   ZipMergeResult
 } from '@/common/services/import.service';
-import { ROOT_FOLDER } from '@/constants';
+import { META_JSON, ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/localChanges.service';
 import notebooksService from '@/db/notebooks.service';
@@ -42,11 +42,12 @@ type JsonTestDescriptor = {
 };
 
 const readZip = async (
+  parentDir: string,
   zipName: string,
   opts?: ZipImportOptions,
   parent = ROOT_FOLDER
 ) => {
-  const zip = await readFile(`${__dirname}/zips/${zipName}`);
+  const zip = await readFile(`${__dirname}/${parentDir}/${zipName}`);
   const zipBuffer: ArrayBuffer = new Uint8Array(zip).buffer;
   const unzipped = await importService.readZip(zipBuffer);
   return importService.parseZipData(zipName, parent, unzipped, opts);
@@ -87,14 +88,6 @@ const createInitData = (initData: Partial<CollectionItem>[]) => {
   }
   return { ids, initialItems };
 };
-
-const jsonTestCases = [
-  'Simple.zip',
-  'SimpleWithDuplicates.zip',
-  'SimpleLayer.zip',
-  'SimplePagesInline.zip',
-  'Samples.zip'
-];
 
 describe('import service', () => {
   beforeEach(() => {
@@ -408,147 +401,171 @@ describe('import service', () => {
     });
   });
 
-  describe('merging zips without metadata', async () => {
-    const checkResultsArray = (
-      zipMergeArray: (Partial<CollectionItem> | ZipMergeFistLevel)[],
-      expectedArray?: (Partial<CollectionItem> | ZipMergeFistLevel)[],
-      ids = new Map<string, string>(),
-      writeIdsMap = true
-    ) => {
-      if (expectedArray) {
-        expectedArray.forEach((expectedItem, idx) => {
-          const mergedItem = zipMergeArray[idx];
-          if (mergedItem.type !== CollectionItemType.page) {
-            expect(mergedItem.title).toBe(expectedItem.title);
-          }
-          expect(mergedItem.type).toBe(expectedItem.type);
-          if (expectedItem.id && writeIdsMap) {
-            ids.set(expectedItem.id, mergedItem.id!);
-          }
-          if (expectedItem.id && !writeIdsMap) {
-            expect(mergedItem.id).toBe(ids.get(expectedItem.id));
-          }
-          if ('parent' in expectedItem && expectedItem.parent) {
-            expect((mergedItem as CollectionItem).parent).toBe(
-              expectedItem.parent.startsWith('#')
-                ? ids.get(expectedItem.parent)
-                : expectedItem.parent
-            );
-          }
-          if ('content' in expectedItem && expectedItem.content !== undefined) {
-            expect((mergedItem as CollectionItem).content).toBeDefined();
-            expect((mergedItem as CollectionItem).preview).toBeDefined();
-          }
-          if ('status' in expectedItem) {
-            expect((mergedItem as ZipMergeFistLevel).status).toBe(
-              expectedItem.status
-            );
-          }
-        });
-      }
-      return ids;
-    };
-
-    const checkResults = (
-      zipMerge: ZipMergeResult,
-      expected: Partial<ZipMergeResult>,
-      initDataIds: Map<string, string>,
-      creationTs: number,
-      updateTs: number
-    ) => {
-      expect(zipMerge.updatedItems).toHaveLength(
-        expected.updatedItems?.length || 0
-      );
-      expect(zipMerge.duplicates).toHaveLength(
-        expected.duplicates?.length || 0
-      );
-      expect(zipMerge.newItems).toHaveLength(expected.newItems?.length || 0);
-      expect(zipMerge.firstLevel).toHaveLength(
-        expected.firstLevel?.length || 0
-      );
-
-      const newItemsIds = checkResultsArray(
-        zipMerge.newItems,
-        expected.newItems,
-        initDataIds
-      );
-      checkResultsArray(
-        zipMerge.firstLevel,
-        expected.firstLevel,
-        new Map([...initDataIds, ...newItemsIds]),
-        false
-      );
-      checkResultsArray(
-        zipMerge.updatedItems,
-        expected.updatedItems,
-        initDataIds,
-        false
-      );
-      checkResultsArray(
-        zipMerge.duplicates,
-        expected.duplicates,
-        initDataIds,
-        false
-      );
-
-      // check updated, created of newItems & updatedItems
-      zipMerge.newItems.forEach(item => {
-        expect(item.created).toBe(updateTs);
-        expect(item.updated).toBe(updateTs);
-      });
-      zipMerge.updatedItems.forEach(item => {
-        expect(item.created).toBe(creationTs);
-        expect(item.updated).toBe(updateTs);
-      });
-    };
-
-    const checkResultsDb = (
-      initData: CollectionItem[],
-      zipMerge: ZipMergeResult,
-      commitOpts: ZipMergeCommitOptions
-    ) => {
-      const initDataNotDel = initData.filter(data =>
-        commitOpts.deleteExistingPages && data.type === CollectionItemType.page
-          ? !zipMerge.updatedItems.find(i => i.id === data.parent)
-          : true
-      );
-
-      expect(getCollectionRowCount()).toBe(
-        initDataNotDel.length + zipMerge.newItems.length
-      );
-      expect(
-        localChangesService
-          .getLocalChanges()
-          .filter(lc => lc.change === LocalChangeType.add)
-      ).toHaveLength(zipMerge.newItems.length);
-      expect(
-        localChangesService
-          .getLocalChanges()
-          .filter(lc => lc.change === LocalChangeType.delete)
-      ).toHaveLength(initData.length - initDataNotDel.length);
-      expect(
-        localChangesService
-          .getLocalChanges()
-          .filter(lc => lc.change === LocalChangeType.update)
-      ).toHaveLength(zipMerge.updatedItems.length);
-
-      const items = [...zipMerge.newItems, ...zipMerge.updatedItems];
-      items.forEach(item => {
-        expect(item.id).toBeDefined();
-        expect(collectionService.itemExists(item.id!)).toBe(true);
-        if (item.type === CollectionItemType.document) {
-          const pages = collectionService.getDocumentPages(item.id!);
-
-          expect(pages).toHaveLength(
-            items.filter(p => p.parent === item.id).length +
-              initDataNotDel.filter(p => p.parent === item.id).length
+  const checkResultsArray = (
+    zipMergeArray: (Partial<CollectionItem> | ZipMergeFistLevel)[],
+    expectedArray?: (Partial<CollectionItem> | ZipMergeFistLevel)[],
+    ids = new Map<string, string>(),
+    writeIdsMap = true
+  ) => {
+    if (expectedArray) {
+      expectedArray.forEach((expectedItem, idx) => {
+        const mergedItem = zipMergeArray[idx];
+        if (mergedItem.type !== CollectionItemType.page) {
+          expect(mergedItem.title).toBe(expectedItem.title);
+        }
+        expect(mergedItem.type).toBe(expectedItem.type);
+        if (expectedItem.id && writeIdsMap) {
+          ids.set(expectedItem.id, mergedItem.id!);
+        }
+        if (expectedItem.id && !writeIdsMap) {
+          expect(mergedItem.id).toBe(ids.get(expectedItem.id));
+        }
+        if ('parent' in expectedItem && expectedItem.parent) {
+          expect((mergedItem as CollectionItem).parent).toBe(
+            expectedItem.parent.startsWith('#')
+              ? ids.get(expectedItem.parent)
+              : expectedItem.parent
           );
         }
+        if ('content' in expectedItem && expectedItem.content !== undefined) {
+          expect((mergedItem as CollectionItem).content).toBeDefined();
+          expect((mergedItem as CollectionItem).preview).toBeDefined();
+        }
+        if ('updated' in expectedItem) {
+          expect((mergedItem as CollectionItem).updated).toBe(
+            expectedItem.updated
+          );
+        }
+        if ('tags' in expectedItem) {
+          expect((mergedItem as CollectionItem).tags).toBe(expectedItem.tags);
+        }
       });
-    };
+    }
+    return ids;
+  };
 
+  const checkResults = (
+    zipMerge: ZipMergeResult,
+    expected: Partial<ZipMergeResult>,
+    initDataIds: Map<string, string>,
+    creationTs: number,
+    updateTs: number
+  ) => {
+    expect(zipMerge.updatedItems).toHaveLength(
+      expected.updatedItems?.length || 0
+    );
+    expect(zipMerge.duplicates).toHaveLength(expected.duplicates?.length || 0);
+    expect(zipMerge.newItems).toHaveLength(expected.newItems?.length || 0);
+    expect(zipMerge.firstLevel).toHaveLength(expected.firstLevel?.length || 0);
+
+    const newItemsIds = checkResultsArray(
+      zipMerge.newItems,
+      expected.newItems,
+      initDataIds
+    );
+    checkResultsArray(
+      zipMerge.firstLevel,
+      expected.firstLevel,
+      new Map([...initDataIds, ...newItemsIds]),
+      false
+    );
+    checkResultsArray(
+      zipMerge.updatedItems,
+      expected.updatedItems,
+      initDataIds,
+      false
+    );
+    checkResultsArray(
+      zipMerge.duplicates,
+      expected.duplicates,
+      initDataIds,
+      false
+    );
+
+    // check updated, created of newItems & updatedItems
+    zipMerge.newItems.forEach((item, idx) => {
+      const expectedItem = expected.newItems
+        ? expected.newItems[idx]
+        : undefined;
+      expect(item.created).toBe(
+        expectedItem?.created !== undefined ? expectedItem.created : updateTs
+      );
+      expect(item.updated).toBe(
+        expectedItem?.updated !== undefined ? expectedItem.updated : updateTs
+      );
+    });
+    zipMerge.updatedItems.forEach((item, idx) => {
+      const expectedItem = expected.newItems
+        ? expected.newItems[idx]
+        : undefined;
+      expect(item.created).toBe(
+        expectedItem?.created !== undefined ? expectedItem.created : creationTs
+      );
+      expect(item.updated).toBe(
+        expectedItem?.updated !== undefined ? expectedItem.updated : updateTs
+      );
+    });
+  };
+
+  const checkResultsDb = (
+    initData: CollectionItem[],
+    zipMerge: ZipMergeResult,
+    commitOpts: ZipMergeCommitOptions
+  ) => {
+    const initDataNotDel = initData.filter(data =>
+      commitOpts.deleteExistingPages && data.type === CollectionItemType.page
+        ? !zipMerge.updatedItems.find(i => i.id === data.parent)
+        : true
+    );
+
+    expect(getCollectionRowCount()).toBe(
+      initDataNotDel.length + zipMerge.newItems.length
+    );
+    expect(
+      localChangesService
+        .getLocalChanges()
+        .filter(lc => lc.change === LocalChangeType.add)
+    ).toHaveLength(zipMerge.newItems.length);
+    expect(
+      localChangesService
+        .getLocalChanges()
+        .filter(lc => lc.change === LocalChangeType.delete)
+    ).toHaveLength(initData.length - initDataNotDel.length);
+    expect(
+      localChangesService
+        .getLocalChanges()
+        .filter(lc => lc.change === LocalChangeType.update)
+    ).toHaveLength(zipMerge.updatedItems.length);
+
+    const items = [...zipMerge.newItems, ...zipMerge.updatedItems];
+    items.forEach(item => {
+      expect(item.id).toBeDefined();
+      expect(collectionService.itemExists(item.id!)).toBe(true);
+      if (item.type === CollectionItemType.document) {
+        const pages = collectionService.getDocumentPages(item.id!);
+
+        expect(pages).toHaveLength(
+          items.filter(p => p.parent === item.id).length +
+            initDataNotDel.filter(p => p.parent === item.id).length
+        );
+      }
+    });
+  };
+
+  const generateTestsCases = async (
+    parentDir: string,
+    jsonTestCases: string[]
+  ) => {
     for (const jsonName of jsonTestCases) {
-      const json = await readFile(`${__dirname}/zips/${jsonName}.json`, 'utf8');
+      let json = '';
+      try {
+        json = await readFile(
+          `${__dirname}/${parentDir}/test_descriptors/${jsonName}.json`,
+          'utf8'
+        );
+      } catch (e) {
+        continue;
+      }
       const testDescriptor: JsonTestDescriptor = JSON.parse(json);
       if (testDescriptor.ignore === true) {
         continue;
@@ -581,6 +598,7 @@ describe('import service', () => {
                           const updateTs = Date.now();
 
                           const zipContent = await readZip(
+                            parentDir,
                             testDescriptor.zipName,
                             options
                           );
@@ -620,12 +638,27 @@ describe('import service', () => {
           });
       });
     }
+  };
+
+  describe('merging zips without metadata', async () => {
+    await generateTestsCases('zips_without_meta', [
+      'Simple.zip',
+      'SimpleWithDuplicates.zip',
+      'SimpleLayer.zip',
+      'SimplePagesInline.zip',
+      'Samples.zip'
+    ]);
 
     it(`should update parent ts when importing if not home`, async () => {
       const before = Date.now();
       const id = collectionService.addFolder(ROOT_FOLDER);
       vi.advanceTimersByTime(5000);
-      const zipContent = await readZip('Simple.zip', undefined, id);
+      const zipContent = await readZip(
+        'zips_without_meta',
+        'Simple.zip',
+        undefined,
+        id
+      );
       const zipMerge = importService.mergeZipItems('Simple', zipContent, id, {
         createNewFolder: false,
         overwrite: false
@@ -638,7 +671,7 @@ describe('import service', () => {
     });
 
     it(`should import as notebook if asked`, async () => {
-      const zip = await readFile(`${__dirname}/zips/Samples.zip`);
+      const zip = await readFile(`${__dirname}/zips_without_meta/Samples.zip`);
       const zipBuffer: ArrayBuffer = new Uint8Array(zip).buffer;
       const unzipped = await importService.readZip(zipBuffer);
       const zipContent = importService.parseZipData(
@@ -680,99 +713,127 @@ describe('import service', () => {
     });
   });
 
-  describe('merging zips with metadata', () => {
-    it('should import Empty.zip and createNewFolder=false', async () => {
-      const zipContent = await readZip(
-        '../zips_meta/Empty.zip',
-        undefined,
-        ROOT_FOLDER
-      );
-      const zipMerge = importService.mergeZipItems(
-        'Empty',
-        zipContent,
-        ROOT_FOLDER,
-        {
-          createNewFolder: false,
-          overwrite: false
-        }
-      );
-      console.debug('zipMerge', zipMerge);
-      expect(zipMerge.newItems).toHaveLength(0);
-      expect(zipMerge.updatedItems).toHaveLength(0);
-      expect(zipMerge.firstLevel).toHaveLength(0);
-      expect(zipMerge.duplicates).toHaveLength(0);
+  describe('merging zips with metadata', async () => {
+    await generateTestsCases('zips_with_meta', ['Simple.zip']);
+
+    describe('should import Empty.zip', () => {
+      it('with createNewFolder=false', async () => {
+        const zipContent = await readZip(
+          'zips_with_meta',
+          'Empty.zip',
+          undefined,
+          ROOT_FOLDER
+        );
+        const zipMerge = importService.mergeZipItems(
+          'Empty',
+          zipContent,
+          ROOT_FOLDER,
+          {
+            createNewFolder: false,
+            overwrite: false
+          }
+        );
+        console.debug('zipMerge', zipMerge);
+        expect(zipMerge.newItems).toHaveLength(0);
+        expect(zipMerge.updatedItems).toHaveLength(0);
+        expect(zipMerge.firstLevel).toHaveLength(0);
+        expect(zipMerge.duplicates).toHaveLength(0);
+      });
+
+      it('with ignoreMetadata=true', async () => {
+        const zipContent = await readZip(
+          'zips_with_meta',
+          'Empty.zip',
+          { ignoreMetadata: true, createNewFolder: false, overwrite: false },
+          ROOT_FOLDER
+        );
+        const zipMerge = importService.mergeZipItems(
+          'Empty',
+          zipContent,
+          ROOT_FOLDER,
+          {
+            createNewFolder: false,
+            overwrite: false
+          }
+        );
+        console.debug('zipMerge', zipMerge);
+        expect(zipMerge.newItems).toHaveLength(1);
+        expect(zipMerge.updatedItems).toHaveLength(0);
+        expect(zipMerge.firstLevel).toHaveLength(1);
+        expect(zipMerge.duplicates).toHaveLength(0);
+        expect(zipMerge.newItems[0].title).toBe(META_JSON);
+      });
+
+      it('with createNewFolder=true', async () => {
+        const zipData = await readZip(
+          'zips_with_meta',
+          'Empty.zip',
+          undefined,
+          ROOT_FOLDER
+        );
+        expect(zipData.items).toHaveLength(0);
+        expect(zipData.folderMeta).toBeDefined();
+        expect(zipData.folderMeta!.title).toBe('empty');
+        expect(zipData.folderMeta!.created).toBe(1752772097139);
+        expect(zipData.folderMeta!.updated).toBe(1752772101238);
+
+        const zipMerge = importService.mergeZipItems(
+          'Empty',
+          zipData,
+          ROOT_FOLDER,
+          {
+            createNewFolder: true,
+            overwrite: false
+          }
+        );
+        console.log('zipMerge', zipMerge);
+        expect(zipMerge.newItems).toHaveLength(1);
+        expect(zipMerge.updatedItems).toHaveLength(0);
+        expect(zipMerge.firstLevel).toHaveLength(1);
+        expect(zipMerge.duplicates).toHaveLength(0);
+
+        // check newItem has info from meta.json
+        const newItem = zipMerge.newItems[0];
+        expect(newItem.title).toBe('empty');
+        expect(newItem.created).toBe(1752772097139);
+        expect(newItem.updated).toBe(1752772101238);
+      });
+
+      it('with createNewFolder=true and newFolderName=NewName', async () => {
+        const zipData = await readZip(
+          'zips_with_meta',
+          'Empty.zip',
+          undefined,
+          ROOT_FOLDER
+        );
+        expect(zipData.items).toHaveLength(0);
+        expect(zipData.folderMeta).toBeDefined();
+        expect(zipData.folderMeta!.title).toBe('empty');
+        expect(zipData.folderMeta!.created).toBe(1752772097139);
+        expect(zipData.folderMeta!.updated).toBe(1752772101238);
+
+        const zipMerge = importService.mergeZipItems(
+          'Empty',
+          zipData,
+          ROOT_FOLDER,
+          {
+            createNewFolder: true,
+            newFolderName: 'NewName',
+            overwrite: false
+          }
+        );
+        console.log('zipMerge', zipMerge);
+        expect(zipMerge.newItems).toHaveLength(1);
+        expect(zipMerge.updatedItems).toHaveLength(0);
+        expect(zipMerge.firstLevel).toHaveLength(1);
+        expect(zipMerge.duplicates).toHaveLength(0);
+
+        // check newItem has info from meta.json
+        const newItem = zipMerge.newItems[0];
+        expect(newItem.title).toBe('NewName'); // newFolderName has precedence over meta.json
+        expect(newItem.created).toBe(1752772097139);
+        expect(newItem.updated).toBe(1752772101238);
+      });
     });
-
-    it('should import Empty.zip and createNewFolder=true', async () => {
-      const zipData = await readZip(
-        '../zips_meta/Empty.zip',
-        undefined,
-        ROOT_FOLDER
-      );
-      expect(zipData.items).toHaveLength(0);
-      expect(zipData.folderMeta).toBeDefined();
-      expect(zipData.folderMeta!.title).toBe('empty');
-      expect(zipData.folderMeta!.created).toBe(1752772097139);
-      expect(zipData.folderMeta!.updated).toBe(1752772101238);
-
-      const zipMerge = importService.mergeZipItems(
-        'Empty',
-        zipData,
-        ROOT_FOLDER,
-        {
-          createNewFolder: true,
-          overwrite: false
-        }
-      );
-      console.log('zipMerge', zipMerge);
-      expect(zipMerge.newItems).toHaveLength(1);
-      expect(zipMerge.updatedItems).toHaveLength(0);
-      expect(zipMerge.firstLevel).toHaveLength(1);
-      expect(zipMerge.duplicates).toHaveLength(0);
-
-      // check newItem has info from meta.json
-      const newItem = zipMerge.newItems[0];
-      expect(newItem.title).toBe('empty');
-      expect(newItem.created).toBe(1752772097139);
-      expect(newItem.updated).toBe(1752772101238);
-    });
-
-    it('should import Empty.zip and createNewFolder=true and newFolderName=NewName', async () => {
-      const zipData = await readZip(
-        '../zips_meta/Empty.zip',
-        undefined,
-        ROOT_FOLDER
-      );
-      expect(zipData.items).toHaveLength(0);
-      expect(zipData.folderMeta).toBeDefined();
-      expect(zipData.folderMeta!.title).toBe('empty');
-      expect(zipData.folderMeta!.created).toBe(1752772097139);
-      expect(zipData.folderMeta!.updated).toBe(1752772101238);
-
-      const zipMerge = importService.mergeZipItems(
-        'Empty',
-        zipData,
-        ROOT_FOLDER,
-        {
-          createNewFolder: true,
-          newFolderName: 'NewName',
-          overwrite: false
-        }
-      );
-      console.log('zipMerge', zipMerge);
-      expect(zipMerge.newItems).toHaveLength(1);
-      expect(zipMerge.updatedItems).toHaveLength(0);
-      expect(zipMerge.firstLevel).toHaveLength(1);
-      expect(zipMerge.duplicates).toHaveLength(0);
-
-      // check newItem has info from meta.json
-      const newItem = zipMerge.newItems[0];
-      expect(newItem.title).toBe('NewName'); // newFolderName has precedence over meta.json
-      expect(newItem.created).toBe(1752772097139);
-      expect(newItem.updated).toBe(1752772101238);
-    });
-
-    // TODO test SimpleWithDuplicates.zip with removeDuplicateIdentifiers=false
-    // TODO test SimpleWithDuplicates.zip with removeDuplicateIdentifiers=true
   });
 });

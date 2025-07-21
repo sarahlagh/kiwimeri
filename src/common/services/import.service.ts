@@ -258,6 +258,10 @@ class ImportService {
     const update = dupl as CollectionItemUpdate;
     update.updated = Date.now();
     if (newItem) {
+      if (newItem.tags) {
+        update.tags = newItem.tags;
+        update.tags_meta = newItem.tags_meta;
+      }
       if (newItem.content) {
         update.content = newItem.content;
         update.content_meta = newItem.content_meta;
