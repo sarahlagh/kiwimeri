@@ -16,8 +16,8 @@ import ConfirmMultipleImportModal, {
 import { GET_ITEM_ROUTE } from '../routes';
 import {
   importService,
-  ZipMergeResult,
-  ZipStructureOptions
+  ZipImportOptions,
+  ZipMergeResult
 } from '../services/import.service';
 import GenericImportFileButton, {
   ImportFileRejectReason,
@@ -26,7 +26,7 @@ import GenericImportFileButton, {
 
 type ImportItemsButtonProps = {
   parent: string;
-} & ZipStructureOptions;
+} & ZipImportOptions;
 
 const zipTypes = ['application/zip'];
 const textTypes = ['text/plain', 'text/markdown'];
@@ -117,15 +117,15 @@ const ImportItemsButton = ({
     const zipName = file.name.replace(/(.*)\.(zip|ZIP)$/g, '$1');
 
     return importService.readZip(content).then(unzipped => {
-      const { items } = importService.parseZipData(zipName, parent, unzipped, {
+      const zipData = importService.parseZipData(zipName, parent, unzipped, {
         createNotebook,
-        inlinePages: true,
+        detectInlinedPages: true,
         removeDuplicateIdentifiers: true
       });
       setParams({
         folder: createNotebook ? ROOT_FOLDER : parent,
         notebook: createNotebook ? '-1' : notebooksService.getCurrentNotebook(),
-        items,
+        zipData,
         zipName
       });
 

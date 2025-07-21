@@ -41,6 +41,57 @@ type JsonTestDescriptor = {
   }[];
 };
 
+const readZip = async (zipName: string, parent = ROOT_FOLDER) => {
+  const zip = await readFile(`${__dirname}/zips/${zipName}`);
+  const zipBuffer: ArrayBuffer = new Uint8Array(zip).buffer;
+  const unzipped = await importService.readZip(zipBuffer);
+  return importService.parseZipData(zipName, parent, unzipped);
+};
+
+const createInitData = (initData: Partial<CollectionItem>[]) => {
+  const ids = new Map<string, string>();
+
+  const createItem = (item: CollectionItem, data: Partial<CollectionItem>) => {
+    item.title = data.title!;
+    if (data.id) {
+      ids.set(data.id, item.id!);
+    }
+    if (data.parent) {
+      item.parent = data.parent.startsWith('#')
+        ? ids.get(data.parent)!
+        : data.parent;
+    }
+    return item;
+  };
+
+  const initialItems: CollectionItem[] = initData.map(data => {
+    if (data.type === CollectionItemType.document) {
+      const { item, id } = collectionService.getNewDocumentObj(ROOT_FOLDER);
+      return createItem({ ...item, id }, data);
+    } else if (data.type === CollectionItemType.page) {
+      const { item, id } = collectionService.getNewPageObj(data.parent!);
+      return createItem({ ...item, id, title: '', title_meta: '' }, data);
+    } else if (data.type === CollectionItemType.folder) {
+      const { item, id } = collectionService.getNewFolderObj(ROOT_FOLDER);
+      return createItem({ ...item, id }, data);
+    }
+    throw new Error('unsupported type in test');
+  });
+  console.debug('initial items', initialItems);
+  if (initialItems.length > 0) {
+    collectionService.saveItems(initialItems, ROOT_FOLDER);
+  }
+  return { ids, initialItems };
+};
+
+const jsonTestCases = [
+  'Simple.zip',
+  'SimpleWithDuplicates.zip',
+  'SimpleLayer.zip',
+  'SimplePagesInline.zip',
+  'Samples.zip'
+];
+
 describe('import service', () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -353,61 +404,7 @@ describe('import service', () => {
     });
   });
 
-  describe('merging zips', async () => {
-    const jsonTestCases = [
-      'Simple.zip',
-      'SimpleWithDuplicates.zip',
-      'SimpleLayer.zip',
-      'SimplePagesInline.zip',
-      'Samples.zip'
-    ];
-
-    const readZip = async (zipName: string, parent = ROOT_FOLDER) => {
-      const zip = await readFile(`${__dirname}/zips/${zipName}`);
-      const zipBuffer: ArrayBuffer = new Uint8Array(zip).buffer;
-      const unzipped = await importService.readZip(zipBuffer);
-      return importService.parseZipData(zipName, parent, unzipped).items;
-    };
-
-    const createInitData = (initData: Partial<CollectionItem>[]) => {
-      const ids = new Map<string, string>();
-
-      const createItem = (
-        item: CollectionItem,
-        data: Partial<CollectionItem>
-      ) => {
-        item.title = data.title!;
-        if (data.id) {
-          ids.set(data.id, item.id!);
-        }
-        if (data.parent) {
-          item.parent = data.parent.startsWith('#')
-            ? ids.get(data.parent)!
-            : data.parent;
-        }
-        return item;
-      };
-
-      const initialItems: CollectionItem[] = initData.map(data => {
-        if (data.type === CollectionItemType.document) {
-          const { item, id } = collectionService.getNewDocumentObj(ROOT_FOLDER);
-          return createItem({ ...item, id }, data);
-        } else if (data.type === CollectionItemType.page) {
-          const { item, id } = collectionService.getNewPageObj(data.parent!);
-          return createItem({ ...item, id, title: '', title_meta: '' }, data);
-        } else if (data.type === CollectionItemType.folder) {
-          const { item, id } = collectionService.getNewFolderObj(ROOT_FOLDER);
-          return createItem({ ...item, id }, data);
-        }
-        throw new Error('unsupported type in test');
-      });
-      console.debug('initial items', initialItems);
-      if (initialItems.length > 0) {
-        collectionService.saveItems(initialItems, ROOT_FOLDER);
-      }
-      return { ids, initialItems };
-    };
-
+  describe('merging zips without metadata', async () => {
     const checkResultsArray = (
       zipMergeArray: (Partial<CollectionItem> | ZipMergeFistLevel)[],
       expectedArray?: (Partial<CollectionItem> | ZipMergeFistLevel)[],
@@ -620,7 +617,6 @@ describe('import service', () => {
     }
 
     it(`should update parent ts when importing if not home`, async () => {
-      vi.useFakeTimers();
       const before = Date.now();
       const id = collectionService.addFolder(ROOT_FOLDER);
       vi.advanceTimersByTime(5000);
@@ -634,7 +630,6 @@ describe('import service', () => {
       // save results and check db
       collectionService.saveItems(zipMerge.newItems, id);
       expect(getLocalItemField(id, 'updated')).toBe(before + 5000);
-      vi.useRealTimers();
     });
 
     it(`should import as notebook if asked`, async () => {
@@ -648,7 +643,7 @@ describe('import service', () => {
         {
           createNotebook: true
         }
-      ).items;
+      );
 
       const zipMerge = importService.mergeZipItems(
         'Samples',
@@ -678,5 +673,89 @@ describe('import service', () => {
           expect(item.notebook).not.toBe(defaultNotebook);
         });
     });
+  });
+
+  describe('merging zips with metadata', () => {
+    it('test with Empty zip and createNewFolder=false', async () => {
+      const zipContent = await readZip('../zips_meta/Empty.zip', ROOT_FOLDER);
+      const zipMerge = importService.mergeZipItems(
+        'Empty',
+        zipContent,
+        ROOT_FOLDER,
+        {
+          createNewFolder: false,
+          overwrite: false
+        }
+      );
+      console.debug('zipMerge', zipMerge);
+      expect(zipMerge.newItems).toHaveLength(0);
+      expect(zipMerge.updatedItems).toHaveLength(0);
+      expect(zipMerge.firstLevel).toHaveLength(0);
+      expect(zipMerge.duplicates).toHaveLength(0);
+    });
+
+    it('test with Empty zip and createNewFolder=true', async () => {
+      const zipData = await readZip('../zips_meta/Empty.zip', ROOT_FOLDER);
+      expect(zipData.items).toHaveLength(0);
+      expect(zipData.folderMeta).toBeDefined();
+      expect(zipData.folderMeta!.title).toBe('empty');
+      expect(zipData.folderMeta!.created).toBe(1752772097139);
+      expect(zipData.folderMeta!.updated).toBe(1752772101238);
+
+      const zipMerge = importService.mergeZipItems(
+        'Empty',
+        zipData,
+        ROOT_FOLDER,
+        {
+          createNewFolder: true,
+          overwrite: false
+        }
+      );
+      console.log('zipMerge', zipMerge);
+      expect(zipMerge.newItems).toHaveLength(1);
+      expect(zipMerge.updatedItems).toHaveLength(0);
+      expect(zipMerge.firstLevel).toHaveLength(1);
+      expect(zipMerge.duplicates).toHaveLength(0);
+
+      // check newItem has info from meta.json
+      const newItem = zipMerge.newItems[0];
+      expect(newItem.title).toBe('empty');
+      expect(newItem.created).toBe(1752772097139);
+      expect(newItem.updated).toBe(1752772101238);
+    });
+
+    it('test with Empty zip and createNewFolder=true and newFolderName=NewName', async () => {
+      const zipData = await readZip('../zips_meta/Empty.zip', ROOT_FOLDER);
+      expect(zipData.items).toHaveLength(0);
+      expect(zipData.folderMeta).toBeDefined();
+      expect(zipData.folderMeta!.title).toBe('empty');
+      expect(zipData.folderMeta!.created).toBe(1752772097139);
+      expect(zipData.folderMeta!.updated).toBe(1752772101238);
+
+      const zipMerge = importService.mergeZipItems(
+        'Empty',
+        zipData,
+        ROOT_FOLDER,
+        {
+          createNewFolder: true,
+          newFolderName: 'NewName',
+          overwrite: false
+        }
+      );
+      console.log('zipMerge', zipMerge);
+      expect(zipMerge.newItems).toHaveLength(1);
+      expect(zipMerge.updatedItems).toHaveLength(0);
+      expect(zipMerge.firstLevel).toHaveLength(1);
+      expect(zipMerge.duplicates).toHaveLength(0);
+
+      // check newItem has info from meta.json
+      const newItem = zipMerge.newItems[0];
+      expect(newItem.title).toBe('NewName'); // newFolderName has precedence over meta.json
+      expect(newItem.created).toBe(1752772097139);
+      expect(newItem.updated).toBe(1752772101238);
+    });
+
+    // TODO test SimpleWithDuplicates.zip with removeDuplicateIdentifiers=false
+    // TODO test SimpleWithDuplicates.zip with removeDuplicateIdentifiers=true
   });
 });

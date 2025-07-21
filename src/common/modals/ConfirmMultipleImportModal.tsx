@@ -1,4 +1,4 @@
-import { CollectionItem, CollectionItemType } from '@/collection/collection';
+import { CollectionItemType } from '@/collection/collection';
 import { getGlobalTrans } from '@/config';
 import { APPICONS, APPICONS_PER_TYPE } from '@/constants';
 import collectionService from '@/db/collection.service';
@@ -20,12 +20,16 @@ import {
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import React, { useEffect, useState } from 'react';
-import { importService, ZipMergeResult } from '../services/import.service';
+import {
+  importService,
+  ZipMergeResult,
+  ZipParsedData
+} from '../services/import.service';
 
 export type ConfirmMultipleImportModalParams = {
   folder: string;
   notebook: string;
-  items: CollectionItem[];
+  zipData: ZipParsedData;
   zipName: string;
 };
 
@@ -48,7 +52,7 @@ const ConfirmMultipleImportModal = ({
   const [overwrite, setOverwrite] = useState<boolean>(false);
   const [zipMerge, setZipMerge] = useState<ZipMergeResult | undefined>();
 
-  const zipFirstLevel = params.items.filter(
+  const zipFirstLevel = params.zipData.items.filter(
     item => item.parent === params.folder
   );
   const hasOneFolder =
@@ -70,7 +74,7 @@ const ConfirmMultipleImportModal = ({
     setZipMerge(
       importService.mergeZipItems(
         params.zipName,
-        params.items,
+        params.zipData,
         params.folder,
         {
           createNewFolder,
