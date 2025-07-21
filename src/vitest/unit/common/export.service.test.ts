@@ -5,6 +5,7 @@ import {
   ZipFileTree,
   ZipMetadata
 } from '@/common/services/export.service';
+import { getGlobalTrans } from '@/config';
 import { META_JSON, ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
@@ -76,6 +77,10 @@ describe('export service', () => {
             expect(meta.type).toBe(metaType);
             expect(meta.format).toBe('markdown');
             expect(meta.title).toBeDefined();
+            if (metaType === CollectionItemType.notebook) {
+              expect(meta.title).not.toBe(getGlobalTrans().homeTitle);
+              expect(meta.title).not.toBe('');
+            }
             if (metaType === CollectionItemType.folder) {
               expect(meta.updated).toBe(Date.now());
               expect(meta.created).toBe(Date.now());

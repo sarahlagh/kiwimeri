@@ -46,12 +46,13 @@ class ExportService {
   private getMetaObj(
     id: string,
     folderType: CollectionItemTypeValues,
+    notebook: string,
     withFiles = false
   ): ZipMetadata {
     return {
       type: folderType,
       format: 'markdown',
-      title: collectionService.getItemTitle(id),
+      title: collectionService.getItemTitle(id === ROOT_FOLDER ? notebook : id),
       tags: collectionService.getItemField(id, 'tags'),
       created: collectionService.getItemField(id, 'created'),
       updated: collectionService.getItemField(id, 'updated'),
@@ -83,7 +84,7 @@ class ExportService {
         if (opts.includeMetadata) {
           const metaId = `${notebook}-${item.parent}`;
           if (!meta.has(metaId)) {
-            meta.set(metaId, this.getMetaObj(id, folderType, true));
+            meta.set(metaId, this.getMetaObj(id, folderType, notebook, true));
           }
           meta.get(metaId)!.files![itemKey] = {
             type: item.type,
@@ -115,7 +116,7 @@ class ExportService {
 
     const metaId = `${notebook}-${id}`;
     if (!meta.has(metaId)) {
-      meta.set(metaId, this.getMetaObj(id, folderType));
+      meta.set(metaId, this.getMetaObj(id, folderType, notebook));
     }
 
     if (opts.includeMetadata && meta.has(metaId)) {
@@ -158,8 +159,13 @@ class ExportService {
     return content;
   }
 
-  public getFolderContent(id: string, opts = this.opts) {
-    const notebook = collectionService.getItemField<string>(id, 'notebook')!;
+  public getFolderContent(id: string, opts = this.opts, notebook?: string) {
+    if (!notebook) {
+      notebook =
+        id !== ROOT_FOLDER
+          ? collectionService.getItemField<string>(id, 'notebook')!
+          : notebooksService.getCurrentNotebook();
+    }
     return this.fillDirectoryStructure(
       id,
       {},
