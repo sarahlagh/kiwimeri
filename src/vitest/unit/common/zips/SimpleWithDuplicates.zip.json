@@ -105,6 +105,222 @@
               }
             ]
           }
+        },
+        {
+          "description": "and titleRemoveDuplicateIdentifiers=false and titleRemoveExtension=true",
+          "options": [
+            {
+              "createNewFolder": false,
+              "overwrite": false
+            }
+          ],
+          "importOptions": [
+            {
+              "titleRemoveDuplicateIdentifiers": false,
+              "titleRemoveExtension": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "title": "Simple (1)",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "Simple (2)",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "Simple",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple (1)",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "Simple (2)",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "Simple",
+                "type": "d",
+                "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and titleRemoveDuplicateIdentifiers=false and titleRemoveExtension=false",
+          "options": [
+            {
+              "createNewFolder": false,
+              "overwrite": false
+            }
+          ],
+          "importOptions": [
+            {
+              "titleRemoveDuplicateIdentifiers": false,
+              "titleRemoveExtension": false
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "title": "Simple (1).md",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "Simple (2).md",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "Simple.md",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple (1).md",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "Simple (2).md",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "Simple.md",
+                "type": "d",
+                "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and titleRemoveDuplicateIdentifiers=true and titleRemoveExtension=false",
+          "options": [
+            {
+              "createNewFolder": false,
+              "overwrite": false
+            }
+          ],
+          "importOptions": [
+            {
+              "titleRemoveDuplicateIdentifiers": true,
+              "titleRemoveExtension": false
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "title": "Simple.md",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "Simple.md",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "Simple.md",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple.md",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "Simple.md",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "Simple.md",
+                "type": "d",
+                "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and titleRemoveDuplicateIdentifiers=true and titleRemoveExtension=true",
+          "options": [
+            {
+              "createNewFolder": false,
+              "overwrite": false
+            }
+          ],
+          "importOptions": [
+            {
+              "titleRemoveDuplicateIdentifiers": true,
+              "titleRemoveExtension": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "title": "Simple",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "Simple",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "Simple",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "Simple",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "Simple",
+                "type": "d",
+                "status": "new"
+              }
+            ]
+          }
         }
       ]
     },
