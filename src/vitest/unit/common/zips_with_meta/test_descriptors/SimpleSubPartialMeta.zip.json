@@ -1,0 +1,161 @@
+{
+  "zipName": "SimpleSubPartialMeta.zip",
+  "name": "SimpleSubPartialMeta",
+  "testCases": [
+    {
+      "description": "with no init data",
+      "initData": [],
+      "scenarios": [
+        {
+          "description": "and expect to have a first folder",
+          "options": [
+            {
+              "removeFirstFolder": true,
+              "createNewFolder": true,
+              "overwrite": false
+            },
+            {
+              "removeFirstFolder": true,
+              "createNewFolder": true,
+              "overwrite": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#id",
+                "title": "New folder",
+                "parent": "home",
+                "type": "f",
+                "created": 1753088317511,
+                "updated": 1753088317511
+              },
+              {
+                "title": "Simple Original",
+                "parent": "#id",
+                "type": "d",
+                "content": "__defined__",
+                "created": 1753088323853,
+                "updated": 1753088323853,
+                "tags": "tag1,tag2"
+              },
+              {
+                "id": "#idSimpleSub",
+                "title": "SimpleSub",
+                "parent": "#id",
+                "type": "f"
+              },
+              {
+                "title": "Quote",
+                "parent": "#idSimpleSub",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "id": "#idSub",
+                "title": "Sub",
+                "parent": "#idSimpleSub",
+                "type": "f",
+                "tags": "sub",
+                "created": 1753088317446
+              },
+              {
+                "title": "Test",
+                "parent": "#idSub",
+                "type": "d",
+                "content": "__defined__",
+                "updated": 1753089323853,
+                "tags": "tag1,tag2"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "New folder",
+                "type": "f",
+                "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and expect to have no first folder",
+          "options": [
+            {
+              "removeFirstFolder": true,
+              "createNewFolder": false,
+              "overwrite": false
+            },
+            {
+              "removeFirstFolder": true,
+              "createNewFolder": false,
+              "overwrite": true
+            },
+            {
+              "removeFirstFolder": false,
+              "createNewFolder": false,
+              "overwrite": false
+            },
+            {
+              "removeFirstFolder": false,
+              "createNewFolder": false,
+              "overwrite": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "title": "Simple Original",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__",
+                "created": 1753088323853,
+                "updated": 1753088323853,
+                "tags": "tag1,tag2"
+              },
+              {
+                "id": "#idSimpleSub",
+                "title": "SimpleSub",
+                "parent": "home",
+                "type": "f"
+              },
+              {
+                "title": "Quote",
+                "parent": "#idSimpleSub",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "id": "#idSub",
+                "title": "Sub",
+                "parent": "#idSimpleSub",
+                "type": "f",
+                "tags": "sub",
+                "created": 1753088317446
+              },
+              {
+                "title": "Test",
+                "parent": "#idSub",
+                "type": "d",
+                "content": "__defined__",
+                "updated": 1753089323853,
+                "tags": "tag1,tag2"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple Original",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "SimpleSub",
+                "type": "f",
+                "status": "new"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

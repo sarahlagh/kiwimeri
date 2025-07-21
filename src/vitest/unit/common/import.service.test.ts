@@ -6,7 +6,7 @@ import {
   ZipMergeFistLevel,
   ZipMergeResult
 } from '@/common/services/import.service';
-import { META_JSON, ROOT_FOLDER } from '@/constants';
+import { ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/localChanges.service';
 import notebooksService from '@/db/notebooks.service';
@@ -714,126 +714,18 @@ describe('import service', () => {
   });
 
   describe('merging zips with metadata', async () => {
-    await generateTestsCases('zips_with_meta', ['Simple.zip']);
+    await generateTestsCases('zips_with_meta', [
+      'Empty.zip',
+      'Simple.zip',
+      'SimpleLayer.zip',
+      'SimplePagesInline.zip',
+      'SimpleWithDuplicates.zip',
+      'SimpleSub.zip',
+      'SimpleSubPartialMeta.zip',
+      'SimpleSubPartialFiles.zip'
+    ]);
 
-    describe('should import Empty.zip', () => {
-      it('with createNewFolder=false', async () => {
-        const zipContent = await readZip(
-          'zips_with_meta',
-          'Empty.zip',
-          undefined,
-          ROOT_FOLDER
-        );
-        const zipMerge = importService.mergeZipItems(
-          'Empty',
-          zipContent,
-          ROOT_FOLDER,
-          {
-            createNewFolder: false,
-            overwrite: false
-          }
-        );
-        console.debug('zipMerge', zipMerge);
-        expect(zipMerge.newItems).toHaveLength(0);
-        expect(zipMerge.updatedItems).toHaveLength(0);
-        expect(zipMerge.firstLevel).toHaveLength(0);
-        expect(zipMerge.duplicates).toHaveLength(0);
-      });
-
-      it('with ignoreMetadata=true', async () => {
-        const zipContent = await readZip(
-          'zips_with_meta',
-          'Empty.zip',
-          { ignoreMetadata: true, createNewFolder: false, overwrite: false },
-          ROOT_FOLDER
-        );
-        const zipMerge = importService.mergeZipItems(
-          'Empty',
-          zipContent,
-          ROOT_FOLDER,
-          {
-            createNewFolder: false,
-            overwrite: false
-          }
-        );
-        console.debug('zipMerge', zipMerge);
-        expect(zipMerge.newItems).toHaveLength(1);
-        expect(zipMerge.updatedItems).toHaveLength(0);
-        expect(zipMerge.firstLevel).toHaveLength(1);
-        expect(zipMerge.duplicates).toHaveLength(0);
-        expect(zipMerge.newItems[0].title).toBe(META_JSON);
-      });
-
-      it('with createNewFolder=true', async () => {
-        const zipData = await readZip(
-          'zips_with_meta',
-          'Empty.zip',
-          undefined,
-          ROOT_FOLDER
-        );
-        expect(zipData.items).toHaveLength(0);
-        expect(zipData.folderMeta).toBeDefined();
-        expect(zipData.folderMeta!.title).toBe('empty');
-        expect(zipData.folderMeta!.created).toBe(1752772097139);
-        expect(zipData.folderMeta!.updated).toBe(1752772101238);
-
-        const zipMerge = importService.mergeZipItems(
-          'Empty',
-          zipData,
-          ROOT_FOLDER,
-          {
-            createNewFolder: true,
-            overwrite: false
-          }
-        );
-        console.log('zipMerge', zipMerge);
-        expect(zipMerge.newItems).toHaveLength(1);
-        expect(zipMerge.updatedItems).toHaveLength(0);
-        expect(zipMerge.firstLevel).toHaveLength(1);
-        expect(zipMerge.duplicates).toHaveLength(0);
-
-        // check newItem has info from meta.json
-        const newItem = zipMerge.newItems[0];
-        expect(newItem.title).toBe('empty');
-        expect(newItem.created).toBe(1752772097139);
-        expect(newItem.updated).toBe(1752772101238);
-      });
-
-      it('with createNewFolder=true and newFolderName=NewName', async () => {
-        const zipData = await readZip(
-          'zips_with_meta',
-          'Empty.zip',
-          undefined,
-          ROOT_FOLDER
-        );
-        expect(zipData.items).toHaveLength(0);
-        expect(zipData.folderMeta).toBeDefined();
-        expect(zipData.folderMeta!.title).toBe('empty');
-        expect(zipData.folderMeta!.created).toBe(1752772097139);
-        expect(zipData.folderMeta!.updated).toBe(1752772101238);
-
-        const zipMerge = importService.mergeZipItems(
-          'Empty',
-          zipData,
-          ROOT_FOLDER,
-          {
-            createNewFolder: true,
-            newFolderName: 'NewName',
-            overwrite: false
-          }
-        );
-        console.log('zipMerge', zipMerge);
-        expect(zipMerge.newItems).toHaveLength(1);
-        expect(zipMerge.updatedItems).toHaveLength(0);
-        expect(zipMerge.firstLevel).toHaveLength(1);
-        expect(zipMerge.duplicates).toHaveLength(0);
-
-        // check newItem has info from meta.json
-        const newItem = zipMerge.newItems[0];
-        expect(newItem.title).toBe('NewName'); // newFolderName has precedence over meta.json
-        expect(newItem.created).toBe(1752772097139);
-        expect(newItem.updated).toBe(1752772101238);
-      });
-    });
+    // TODO test with notebooks
+    // TODO test with space
   });
 });

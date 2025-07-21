@@ -120,7 +120,10 @@ class ExportService {
     }
 
     if (opts.includeMetadata && meta.has(metaId)) {
-      fileTree[META_JSON] = [strToU8(JSON.stringify(meta.get(metaId)))];
+      fileTree[META_JSON] = [
+        // pretty print meta json
+        strToU8(JSON.stringify(meta.get(metaId), null, 2))
+      ];
     }
 
     return fileTree;

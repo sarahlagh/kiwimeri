@@ -1,0 +1,180 @@
+{
+  "zipName": "SimpleLayer.zip",
+  "name": "SimpleLayer",
+  "testCases": [
+    {
+      "description": "with no init data",
+      "initData": [],
+      "scenarios": [
+        {
+          "description": "and removeFirstFolder=true and createNewFolder=true",
+          "options": [
+            {
+              "removeFirstFolder": true,
+              "createNewFolder": true,
+              "overwrite": false
+            },
+            {
+              "removeFirstFolder": true,
+              "createNewFolder": true,
+              "overwrite": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#id",
+                "title": "New folder",
+                "parent": "home",
+                "type": "f",
+                "created": 1753088490685,
+                "updated": 1753088490685
+              },
+              {
+                "title": "Simple",
+                "parent": "#id",
+                "type": "d",
+                "content": "__defined__",
+                "created": 1753088495423,
+                "updated": 1753088495423
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "New folder",
+                "type": "f",
+                "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and removeFirstFolder=true and createNewFolder=false",
+          "options": [
+            {
+              "removeFirstFolder": true,
+              "createNewFolder": false,
+              "overwrite": false
+            },
+            {
+              "removeFirstFolder": true,
+              "createNewFolder": false,
+              "overwrite": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "title": "Simple",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__",
+                "created": 1753088495423,
+                "updated": 1753088495423
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple",
+                "type": "d",
+                "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and removeFirstFolder=false and createNewFolder=true",
+          "options": [
+            {
+              "removeFirstFolder": false,
+              "createNewFolder": true,
+              "overwrite": false
+            },
+            {
+              "removeFirstFolder": false,
+              "createNewFolder": true,
+              "overwrite": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#id1",
+                "title": "New folder",
+                "parent": "home",
+                "type": "f",
+                "created": 1753088490685,
+                "updated": 1753088490685
+              },
+              {
+                "id": "#id2",
+                "title": "Simple Original",
+                "parent": "#id1",
+                "type": "f",
+                "created": 1753088495423,
+                "updated": 1753088495423
+              },
+              {
+                "title": "Simple",
+                "parent": "#id2",
+                "type": "d",
+                "content": "__defined__",
+                "created": 1753088495423,
+                "updated": 1753088495423
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "New folder",
+                "type": "f",
+                "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and removeFirstFolder=false and createNewFolder=false",
+          "options": [
+            {
+              "removeFirstFolder": false,
+              "createNewFolder": false,
+              "overwrite": false
+            },
+            {
+              "removeFirstFolder": false,
+              "createNewFolder": false,
+              "overwrite": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#id",
+                "title": "Simple Original",
+                "parent": "home",
+                "type": "f",
+                "created": 1753088495423,
+                "updated": 1753088495423
+              },
+              {
+                "title": "Simple",
+                "parent": "#id",
+                "type": "d",
+                "content": "__defined__",
+                "created": 1753088495423,
+                "updated": 1753088495423
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple Original",
+                "type": "f",
+                "status": "new"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

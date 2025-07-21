@@ -1,0 +1,410 @@
+{
+  "zipName": "SimpleWithDuplicates.zip",
+  "name": "SimpleWithDuplicates",
+  "testCases": [
+    {
+      "description": "with no init data",
+      "initData": [],
+      "scenarios": [
+        {
+          "description": "and createNewFolder=true",
+          "options": [
+            {
+              "createNewFolder": true,
+              "overwrite": false
+            },
+            {
+              "createNewFolder": true,
+              "overwrite": true
+            },
+            {
+              "createNewFolder": true,
+              "titleRemoveDuplicateIdentifiers": false,
+              "titleRemoveExtension": false
+            },
+            {
+              "createNewFolder": true,
+              "titleRemoveDuplicateIdentifiers": false,
+              "titleRemoveExtension": true
+            },
+            {
+              "createNewFolder": true,
+              "titleRemoveDuplicateIdentifiers": true,
+              "titleRemoveExtension": false
+            },
+            {
+              "createNewFolder": true,
+              "titleRemoveDuplicateIdentifiers": true,
+              "titleRemoveExtension": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#id",
+                "title": "New folder",
+                "parent": "home",
+                "type": "f",
+                "created": 1753088317511,
+                "updated": 1753088448208
+              },
+              {
+                "title": "DSimple",
+                "parent": "#id",
+                "type": "d",
+                "content": "__defined__",
+                "created": 1753088451756,
+                "updated": 1753088451756
+              },
+              {
+                "title": "DSimple",
+                "parent": "#id",
+                "type": "d",
+                "content": "__defined__",
+                "created": 1753088451757,
+                "updated": 1753088451757
+              },
+              {
+                "title": "DSimple",
+                "parent": "#id",
+                "type": "d",
+                "content": "__defined__",
+                "created": 1753088451754,
+                "updated": 1753088451754
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "New folder",
+                "type": "f",
+                "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and createNewFolder=false",
+          "options": [
+            {
+              "createNewFolder": false,
+              "overwrite": false
+            },
+            {
+              "createNewFolder": false,
+              "overwrite": true
+            },
+            {
+              "createNewFolder": false,
+              "titleRemoveDuplicateIdentifiers": false,
+              "titleRemoveExtension": false
+            },
+            {
+              "createNewFolder": false,
+              "titleRemoveDuplicateIdentifiers": false,
+              "titleRemoveExtension": true
+            },
+            {
+              "createNewFolder": false,
+              "titleRemoveDuplicateIdentifiers": true,
+              "titleRemoveExtension": false
+            },
+            {
+              "createNewFolder": false,
+              "titleRemoveDuplicateIdentifiers": true,
+              "titleRemoveExtension": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "title": "DSimple",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__",
+                "created": 1753088451756,
+                "updated": 1753088451756
+              },
+              {
+                "title": "DSimple",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__",
+                "created": 1753088451757,
+                "updated": 1753088451757
+              },
+              {
+                "title": "DSimple",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__",
+                "created": 1753088451754,
+                "updated": 1753088451754
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "DSimple",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "DSimple",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "DSimple",
+                "type": "d",
+                "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and titleRemoveDuplicateIdentifiers=false and titleRemoveExtension=true",
+          "options": [
+            {
+              "ignoreMetadata": true,
+              "createNewFolder": false,
+              "titleRemoveDuplicateIdentifiers": false,
+              "titleRemoveExtension": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "title": "Simple (1)",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "Simple (2)",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "Simple",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "meta.json",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple (1)",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "Simple (2)",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "Simple",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "meta.json",
+                "type": "d",
+                "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and titleRemoveDuplicateIdentifiers=false and titleRemoveExtension=false",
+          "options": [
+            {
+              "ignoreMetadata": true,
+              "createNewFolder": false,
+              "titleRemoveDuplicateIdentifiers": false,
+              "titleRemoveExtension": false
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "title": "Simple (1).md",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "Simple (2).md",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "Simple.md",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "meta.json",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple (1).md",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "Simple (2).md",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "Simple.md",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "meta.json",
+                "type": "d",
+                "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and titleRemoveDuplicateIdentifiers=true and titleRemoveExtension=false",
+          "options": [
+            {
+              "ignoreMetadata": true,
+              "createNewFolder": false,
+              "titleRemoveDuplicateIdentifiers": true,
+              "titleRemoveExtension": false
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "title": "Simple.md",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "Simple.md",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "Simple.md",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "meta.json",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple.md",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "Simple.md",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "Simple.md",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "meta.json",
+                "type": "d",
+                "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and titleRemoveDuplicateIdentifiers=true and titleRemoveExtension=true",
+          "options": [
+            {
+              "ignoreMetadata": true,
+              "createNewFolder": false,
+              "titleRemoveDuplicateIdentifiers": true,
+              "titleRemoveExtension": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "title": "Simple",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "Simple",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "Simple",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              },
+              {
+                "title": "meta.json",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "Simple",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "Simple",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "meta.json",
+                "type": "d",
+                "status": "new"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
