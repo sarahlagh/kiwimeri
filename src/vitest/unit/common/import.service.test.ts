@@ -4,7 +4,6 @@ import {
   ZipImportOptions,
   ZipMergeCommitOptions,
   ZipMergeFistLevel,
-  ZipMergeOptions,
   ZipMergeResult
 } from '@/common/services/import.service';
 import { ROOT_FOLDER } from '@/constants';
@@ -36,8 +35,7 @@ type JsonTestDescriptor = {
     scenarios: {
       ignore?: boolean;
       description: string;
-      options: ZipMergeOptions[];
-      importOptions?: ZipImportOptions[];
+      options: ZipImportOptions[];
       expected: Partial<ZipMergeResult>;
     }[];
   }[];
@@ -561,7 +559,7 @@ describe('import service', () => {
           .filter(testCase => testCase.ignore !== true)
           .forEach(testCase => {
             if (!testCase.commitOptions) {
-              testCase.commitOptions = [{ deleteExistingPages: true }];
+              testCase.commitOptions = [{}];
             }
             testCase.commitOptions.forEach((commitOpts, idx) => {
               console.log('commitOpts', commitOpts);
@@ -570,63 +568,49 @@ describe('import service', () => {
                 testCase.scenarios
                   .filter(scenario => scenario.ignore !== true)
                   .forEach(scenario => {
-                    if (!scenario.importOptions) {
-                      scenario.importOptions = [
-                        {
-                          titleRemoveExtension: true,
-                          titleRemoveDuplicateIdentifiers: true
-                        }
-                      ];
-                    }
-                    scenario.importOptions.forEach((importOpts, iIdx) => {
-                      describe(`${scenario.description} with import opts #${iIdx}`, () => {
-                        scenario.options.forEach((options, oIdx) => {
-                          it(`and merge options #${oIdx}`, async () => {
-                            console.log('import options', importOpts);
-                            console.log('merge options', options);
+                    describe(`${scenario.description}`, () => {
+                      scenario.options.forEach((options, oIdx) => {
+                        it(`and options #${oIdx}`, async () => {
+                          console.log('options', options);
 
-                            const creationTs = Date.now();
-                            const { ids: initDataIds, initialItems } =
-                              createInitData(testCase.initData);
-                            localChangesService.clear();
-                            vi.advanceTimersByTime(5000);
-                            const updateTs = Date.now();
+                          const creationTs = Date.now();
+                          const { ids: initDataIds, initialItems } =
+                            createInitData(testCase.initData);
+                          localChangesService.clear();
+                          vi.advanceTimersByTime(5000);
+                          const updateTs = Date.now();
 
-                            const zipContent = await readZip(
-                              testDescriptor.zipName,
-                              importOpts
-                            );
+                          const zipContent = await readZip(
+                            testDescriptor.zipName,
+                            options
+                          );
 
-                            const zipMerge = importService.mergeZipItems(
-                              testDescriptor.name,
-                              zipContent,
-                              ROOT_FOLDER,
-                              options
-                            );
+                          const zipMerge = importService.mergeZipItems(
+                            testDescriptor.name,
+                            zipContent,
+                            ROOT_FOLDER,
+                            options
+                          );
 
-                            console.debug('merge results', zipMerge);
+                          console.debug('merge results', zipMerge);
 
-                            checkResults(
-                              zipMerge,
-                              scenario.expected,
-                              initDataIds,
-                              creationTs,
-                              updateTs
-                            );
+                          checkResults(
+                            zipMerge,
+                            scenario.expected,
+                            initDataIds,
+                            creationTs,
+                            updateTs
+                          );
 
-                            // save results and check db
-                            importService.commitMergeResult(
-                              zipMerge,
-                              commitOpts
-                            );
+                          // save results and check db
+                          importService.commitMergeResult(zipMerge, commitOpts);
 
-                            console.debug(
-                              'db after save',
-                              storageService.getSpace().getTable('collection')
-                            );
+                          console.debug(
+                            'db after save',
+                            storageService.getSpace().getTable('collection')
+                          );
 
-                            checkResultsDb(initialItems, zipMerge, commitOpts);
-                          });
+                          checkResultsDb(initialItems, zipMerge, commitOpts);
                         });
                       });
                     });
@@ -641,7 +625,7 @@ describe('import service', () => {
       const before = Date.now();
       const id = collectionService.addFolder(ROOT_FOLDER);
       vi.advanceTimersByTime(5000);
-      const zipContent = await readZip('Simple.zip', {}, id);
+      const zipContent = await readZip('Simple.zip', undefined, id);
       const zipMerge = importService.mergeZipItems('Simple', zipContent, id, {
         createNewFolder: false,
         overwrite: false
