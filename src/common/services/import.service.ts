@@ -57,7 +57,7 @@ class ImportService {
     removeFirstFolder: false
   };
 
-  private readonly zipDefaultImportOpts: ZipParseOptions = {
+  private readonly zipDefaultParseOpts: ZipParseOptions = {
     ignoreMetadata: false,
     createNotebook: false,
     detectInlinedPages: true,
@@ -69,16 +69,26 @@ class ImportService {
     deleteExistingPages: true
   };
 
-  public getLexicalFromContent(content: string) {
-    const pagesFormatted = content.split(formatterService.getPagesSeparator());
-    const doc = pagesFormatted.shift()!;
+  public getLexicalFromContent(content: string, opts?: ZipParseOptions) {
     // TODO get format as input
-    const lexical = formatterService.getLexicalFromMarkdown(doc);
-    const pages: SerializedEditorState<SerializedLexicalNode>[] = [];
-    pagesFormatted.forEach(page => {
-      pages.push(formatterService.getLexicalFromMarkdown(page));
-    });
-    return { doc: lexical, pages };
+    if (!opts) {
+      opts = this.zipDefaultParseOpts;
+    } else {
+      opts = { ...this.zipDefaultParseOpts, ...opts };
+    }
+    if (opts.detectInlinedPages) {
+      const pagesFormatted = content.split(
+        formatterService.getPagesSeparator()
+      );
+      const doc = pagesFormatted.shift()!;
+      const lexical = formatterService.getLexicalFromMarkdown(doc);
+      const pages: SerializedEditorState<SerializedLexicalNode>[] = [];
+      pagesFormatted.forEach(page => {
+        pages.push(formatterService.getLexicalFromMarkdown(page));
+      });
+      return { doc: lexical, pages };
+    }
+    return { doc: formatterService.getLexicalFromMarkdown(content), pages: [] };
   }
 
   private fillInMeta(item: CollectionItem, meta: ZipMetadata) {
@@ -118,9 +128,9 @@ class ImportService {
     opts?: ZipParseOptions
   ): ZipParsedData {
     if (!opts) {
-      opts = this.zipDefaultImportOpts;
+      opts = this.zipDefaultParseOpts;
     } else {
-      opts = { ...this.zipDefaultImportOpts, ...opts };
+      opts = { ...this.zipDefaultParseOpts, ...opts };
     }
 
     const metaMap = new Map<string, ZipMetadata>();
@@ -181,7 +191,7 @@ class ImportService {
 
         if (!isFolder) {
           content = strFromU8(unzipped[key]);
-          const { doc, pages } = this.getLexicalFromContent(content);
+          const { doc, pages } = this.getLexicalFromContent(content, opts);
           collectionService.setUnsavedItemLexicalContent(items[fKey], doc);
           pages.forEach((page, idx) => {
             const { item: pItem, id: pId } = collectionService.getNewPageObj(
@@ -204,7 +214,17 @@ class ImportService {
     });
 
     Object.keys(items).forEach(key => {
-      this.fillInFilesMeta(items[key], key, metaMap);
+      const keys = key.split('/');
+      if (keys[keys.length - 1] !== '') {
+        // is item
+        this.fillInFilesMeta(items[key], keys[keys.length - 1], metaMap);
+      } else {
+        // is folder
+        if (metaMap.has(items[key].id!)) {
+          const meta = metaMap.get(items[key].id!)!;
+          this.fillInMeta(items[key], meta);
+        }
+      }
     });
 
     return { items: Object.values(items), folderMeta: metaMap.get(parent) };

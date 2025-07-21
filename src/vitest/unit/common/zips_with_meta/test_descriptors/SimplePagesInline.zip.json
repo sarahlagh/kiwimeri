@@ -1,0 +1,72 @@
+{
+  "zipName": "SimplePagesInline.zip",
+  "name": "SimplePagesInline",
+  "testCases": [
+    {
+      "description": "with no init data",
+      "initData": [],
+      "scenarios": [
+        {
+          "description": "with detectInlinedPages=true",
+          "options": [
+            {
+              "detectInlinedPages": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#id",
+                "title": "Simple",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__",
+                "created": 1753088406644,
+                "updated": 1753088406644
+              },
+              {
+                "parent": "#id",
+                "type": "p",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple",
+                "status": "new",
+                "type": "d"
+              }
+            ]
+          }
+        },
+        {
+          "description": "with detectInlinedPages=false",
+          "options": [
+            {
+              "detectInlinedPages": false
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "title": "Simple",
+                "parent": "home",
+                "type": "d",
+                "content": "__defined__",
+                "created": 1753088406644,
+                "updated": 1753088406644
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple",
+                "status": "new",
+                "type": "d"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

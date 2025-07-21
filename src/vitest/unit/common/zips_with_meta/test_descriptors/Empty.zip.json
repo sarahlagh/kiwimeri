@@ -1,0 +1,139 @@
+{
+  "zipName": "Empty.zip",
+  "name": "Empty",
+  "testCases": [
+    {
+      "description": "with no init data",
+      "initData": [],
+      "scenarios": [
+        {
+          "description": "and createNewFolder=true",
+          "options": [
+            {
+              "createNewFolder": true,
+              "overwrite": false
+            },
+            {
+              "createNewFolder": true,
+              "overwrite": true
+            },
+            {
+              "createNewFolder": true,
+              "overwrite": false,
+              "removeFirstLayer": true
+            },
+            {
+              "createNewFolder": true,
+              "overwrite": true,
+              "removeFirstLayer": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "title": "empty",
+                "parent": "home",
+                "type": "f",
+                "created": 1752772097139,
+                "updated": 1752772101238
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "empty",
+                "type": "f",
+                "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and createNewFolder=true, newFolderName=NewName",
+          "options": [
+            {
+              "createNewFolder": true,
+              "newFolderName": "NewName",
+              "overwrite": false
+            },
+            {
+              "createNewFolder": true,
+              "newFolderName": "NewName",
+              "overwrite": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "title": "NewName",
+                "parent": "home",
+                "type": "f",
+                "created": 1752772097139,
+                "updated": 1752772101238
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "NewName",
+                "status": "new",
+                "type": "f"
+              }
+            ]
+          }
+        },
+        {
+          "description": "with createNewFolder=false",
+          "options": [
+            {
+              "createNewFolder": false,
+              "overwrite": false
+            },
+            {
+              "createNewFolder": false,
+              "overwrite": true
+            },
+            {
+              "createNewFolder": false,
+              "newFolderName": "NewName",
+              "overwrite": false
+            },
+            {
+              "createNewFolder": false,
+              "newFolderName": "NewName",
+              "overwrite": true
+            }
+          ],
+          "expected": {
+            "newItems": [],
+            "firstLevel": []
+          }
+        },
+        {
+          "description": "with ignoreMetadata=true",
+          "options": [
+            {
+              "ignoreMetadata": true,
+              "createNewFolder": false,
+              "overwrite": false
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "title": "meta.json",
+                "parent": "home",
+                "type": "d"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "meta.json",
+                "type": "d",
+                "status": "new"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
