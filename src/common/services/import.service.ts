@@ -4,29 +4,36 @@ import {
   CollectionItemType,
   CollectionItemUpdate
 } from '@/collection/collection';
-import { ROOT_FOLDER } from '@/constants';
+import { META_JSON, ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
 import formatterService from '@/format-conversion/formatter.service';
 import { Unzipped, strFromU8, unzip } from 'fflate';
 import { SerializedEditorState, SerializedLexicalNode } from 'lexical';
-
-export type ZipStructureOptions = {
-  createNotebook?: boolean;
-  inlinePages?: boolean;
-  removeDuplicateIdentifiers?: boolean;
-};
+import { ZipMetadata } from './export.service';
 
 export type ZipMergeFistLevel = {
   status: 'new' | 'merged';
 } & Pick<CollectionItem, 'id' | 'title' | 'type' | 'created' | 'updated'>;
+
+export type ZipParsedData = {
+  items: CollectionItem[];
+  folderMeta?: ZipMetadata;
+};
 
 export type ZipMergeResult = {
   newItems: CollectionItem[];
   updatedItems: CollectionItemUpdate[];
   duplicates: CollectionItemResult[]; // first level duplicates only
   firstLevel: ZipMergeFistLevel[];
+};
+
+export type ZipImportOptions = {
+  ignoreMetadata?: boolean;
+  detectInlinedPages?: boolean;
+  createNotebook?: boolean;
+  removeDuplicateIdentifiers?: boolean;
 };
 
 export type ZipMergeOptions = {
@@ -41,9 +48,10 @@ export type ZipMergeCommitOptions = {
 };
 
 class ImportService {
-  private readonly zipStructureOpts: ZipStructureOptions = {
+  private readonly zipImportOpts: ZipImportOptions = {
+    ignoreMetadata: false,
     createNotebook: false,
-    inlinePages: true,
+    detectInlinedPages: true,
     removeDuplicateIdentifiers: true
   };
 
@@ -63,12 +71,43 @@ class ImportService {
     return { doc: lexical, pages };
   }
 
+  private fillInMeta(item: CollectionItem, meta: ZipMetadata) {
+    if (meta.title) {
+      item.title = meta.title;
+    }
+    if (meta.created) {
+      item.created = meta.created;
+    }
+    if (meta.updated) {
+      item.updated = meta.updated;
+    }
+    if (meta.tags) {
+      item.tags = meta.tags;
+    }
+  }
+
+  private fillInFilesMeta(
+    item: CollectionItem,
+    key: string,
+    metaMap: Map<string, ZipMetadata>
+  ) {
+    // TODO notebook
+    if (
+      metaMap.get(item.parent)?.files &&
+      metaMap.get(item.parent)!.files![key] !== undefined
+    ) {
+      const meta = metaMap.get(item.parent)!.files![key]!;
+      this.fillInMeta(item, meta);
+    }
+  }
+
   public parseZipData(
     zipName: string,
     parent: string,
     unzipped: Unzipped,
-    opts: ZipStructureOptions = this.zipStructureOpts
-  ) {
+    opts: ZipImportOptions = this.zipImportOpts
+  ): ZipParsedData {
+    const metaMap = new Map<string, ZipMetadata>();
     const items: { [key: string]: CollectionItem } = {};
     let notebook = notebooksService.getCurrentNotebook();
     if (opts.createNotebook === true) {
@@ -76,7 +115,7 @@ class ImportService {
       items['notebook'] = { ...item, id };
       notebook = id;
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     Object.keys(unzipped).forEach(key => {
       const isFolder = key.endsWith('/');
       const fKey = key;
@@ -92,6 +131,11 @@ class ImportService {
       });
       if (parentKey.length > 0 && items[parentKey]) {
         currentParent = items[parentKey].id!;
+      }
+      if (opts.ignoreMetadata === false && currentName === META_JSON) {
+        const meta: ZipMetadata = JSON.parse(strFromU8(unzipped[fKey]));
+        metaMap.set(currentParent, meta);
+        return;
       }
       if (!items[fKey]) {
         const { item, id } = isFolder
@@ -125,7 +169,12 @@ class ImportService {
               id,
               notebook
             );
-            items[key + idx] = { ...pItem, id: pId, title: '', title_meta: '' };
+            items[key + idx] = {
+              ...pItem,
+              id: pId,
+              title: '',
+              title_meta: ''
+            };
             collectionService.setUnsavedItemLexicalContent(
               items[key + idx],
               page
@@ -134,7 +183,12 @@ class ImportService {
         }
       }
     });
-    return { items: Object.values(items) };
+
+    Object.keys(items).forEach(key => {
+      this.fillInFilesMeta(items[key], key, metaMap);
+    });
+
+    return { items: Object.values(items), folderMeta: metaMap.get(parent) };
   }
 
   public readZip(content: ArrayBuffer) {
@@ -293,30 +347,37 @@ class ImportService {
     items: CollectionItem[],
     parent: string,
     zipName: string,
-    options: ZipMergeOptions
+    options: ZipMergeOptions,
+    folderMeta?: ZipMetadata
   ) {
     const firstLayer = items.filter(item => item.parent === parent);
     const { item, id } = collectionService.getNewFolderObj(parent);
-    item.title = options.newFolderName || zipName;
+    item.title = '';
+    if (folderMeta) {
+      this.fillInMeta(item, folderMeta);
+    }
+    if (options.newFolderName || item.title === '') {
+      item.title = options.newFolderName || zipName;
+    }
     items.unshift({ ...item, id });
     firstLayer.forEach(item => (item.parent = id));
   }
 
   public mergeZipItems(
     zipName: string,
-    importedItems: CollectionItem[],
+    zipData: ZipParsedData,
     parent: string,
     options: ZipMergeOptions,
     notebook?: string
   ): ZipMergeResult {
-    const items = structuredClone(importedItems);
+    const items = structuredClone(zipData.items);
 
     if (options.removeFirstFolder === true) {
       this.removeFirstFolder(items, parent);
     }
 
     if (options.createNewFolder === true) {
-      this.createNewFolder(items, parent, zipName, options);
+      this.createNewFolder(items, parent, zipName, options, zipData.folderMeta);
     }
 
     return this.mergeZipItemsWithOptions(
