@@ -5,7 +5,7 @@ import {
   ZipFileTree,
   ZipMetadata
 } from '@/common/services/export.service';
-import { ROOT_FOLDER } from '@/constants';
+import { META_JSON, ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import formatterService from '@/format-conversion/formatter.service';
@@ -66,21 +66,27 @@ describe('export service', () => {
           tags = ''
         ) => {
           if (opts.includeMetadata && !shouldBeDefined) {
-            expect(zipContent['meta.json']).not.toBeDefined();
+            expect(zipContent[META_JSON]).not.toBeDefined();
           }
           if (opts.includeMetadata && shouldBeDefined) {
-            expect(zipContent['meta.json']).toBeDefined();
+            expect(zipContent[META_JSON]).toBeDefined();
             const meta = JSON.parse(
-              strFromU8(zipContent['meta.json'][0])
+              strFromU8(zipContent[META_JSON][0])
             ) as ZipMetadata;
             expect(meta.type).toBe(metaType);
             expect(meta.format).toBe('markdown');
+            expect(meta.title).toBeDefined();
+            if (metaType === CollectionItemType.folder) {
+              expect(meta.updated).toBe(Date.now());
+              expect(meta.created).toBe(Date.now());
+              expect(meta.tags).toBeDefined();
+            }
 
             console.debug('meta', meta);
             console.debug('zipContent', zipContent);
 
             const filesInZip = Object.keys(zipContent).filter(
-              key => key !== 'meta.json' && Array.isArray(zipContent[key])
+              key => key !== META_JSON && Array.isArray(zipContent[key])
             );
             if (filesInZip.length > 0) {
               expect(meta.files).toBeDefined();
@@ -168,7 +174,10 @@ describe('export service', () => {
         it(`should export an empty folder as a zip with inlinePages=${opts.inlinePages}`, () => {
           const fId = collectionService.addFolder(ROOT_FOLDER);
           const zipContent = exportService.getFolderContent(fId, opts);
-          expect(zipContent).toEqual({});
+          expect(
+            Object.keys(zipContent).filter(k => k !== META_JSON)
+          ).toHaveLength(0);
+          checkMetadata(zipContent);
         });
 
         it(`should export a folder with tags as a zip with inlinePages=${opts.inlinePages}`, () => {
@@ -235,11 +244,7 @@ describe('export service', () => {
           ).toBe('this is the document content\n\n');
 
           checkMetadata(zipContent);
-          checkMetadata(
-            zipContent['New folder'],
-            CollectionItemType.folder,
-            false // folder with only folders inside won't have a meta.json
-          );
+          checkMetadata(zipContent['New folder'], CollectionItemType.folder);
           checkMetadata(zipContent['New folder']['New folder']);
         });
 
@@ -261,12 +266,8 @@ describe('export service', () => {
             )
           ).toBe('this is the document content\n\n');
 
-          checkMetadata(zipContent, CollectionItemType.folder, false);
-          checkMetadata(
-            zipContent['New folder'],
-            CollectionItemType.folder,
-            false // folder with only folders inside won't have a meta.json
-          );
+          checkMetadata(zipContent, CollectionItemType.folder);
+          checkMetadata(zipContent['New folder'], CollectionItemType.folder);
           checkMetadata(zipContent['New folder']['New folder']);
         });
 
@@ -329,11 +330,7 @@ describe('export service', () => {
 
           // if first level doesn't have files (only folders), shouldn't include meta.json unless it's a notebook
           checkMetadata(zipContent, CollectionItemType.notebook);
-          checkMetadata(
-            zipContent['New folder'],
-            CollectionItemType.folder,
-            false
-          );
+          checkMetadata(zipContent['New folder'], CollectionItemType.folder);
           checkMetadata(zipContent['New folder']['New folder']);
         });
 

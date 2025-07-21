@@ -3,7 +3,7 @@ import {
   CollectionItemType,
   CollectionItemTypeValues
 } from '@/collection/collection';
-import { ROOT_FOLDER } from '@/constants';
+import { META_JSON, ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import formatterService from '@/format-conversion/formatter.service';
@@ -20,13 +20,12 @@ export type ZipExportOptions = {
   inlinePages?: boolean;
 };
 
-export type ZipMetadata = {
+export type ZipMetadata = Partial<
+  Pick<CollectionItem, 'type' | 'title' | 'created' | 'updated' | 'tags'>
+> & {
   format?: 'markdown';
-  type?: CollectionItemTypeValues;
   files?: {
-    [key: string]: Partial<
-      Pick<CollectionItem, 'type' | 'title' | 'created' | 'updated' | 'tags'>
-    >;
+    [key: string]: ZipMetadata;
   };
 };
 
@@ -35,12 +34,29 @@ class ExportService {
     includeMetadata: true,
     inlinePages: true
   };
+  private readonly maxLength = 50;
 
   private getDocumentContentFormatted(storedJson: string) {
     const content = storedJson.startsWith('{"root":{')
       ? storedJson
       : unminimizeContentFromStorage(storedJson);
     return formatterService.getMarkdownFromLexical(content);
+  }
+
+  private getMetaObj(
+    id: string,
+    folderType: CollectionItemTypeValues,
+    withFiles = false
+  ): ZipMetadata {
+    return {
+      type: folderType,
+      format: 'markdown',
+      title: collectionService.getItemTitle(id),
+      tags: collectionService.getItemField(id, 'tags'),
+      created: collectionService.getItemField(id, 'created'),
+      updated: collectionService.getItemField(id, 'updated'),
+      files: withFiles ? {} : undefined
+    };
   }
 
   private fillDirectoryStructure(
@@ -52,24 +68,22 @@ class ExportService {
   ) {
     const meta = new Map<string, ZipMetadata>();
     const items = collectionService.getBrowsableCollectionItems(id, notebook);
+
     // create text files
     items
       .filter(item => item.type !== CollectionItemType.folder)
       .forEach((item, idx) => {
-        let itemKey = `${item.title}.md`;
+        const title = item.title.substring(0, this.maxLength);
+        let itemKey = `${title}.md`;
         if (fileTree[itemKey]) {
-          itemKey = `${item.title} (${idx}).md`;
+          itemKey = `${title} (${idx}).md`;
         }
         fileTree[itemKey] = [strToU8(this.getSingleDocumentContent(item.id))];
 
         if (opts.includeMetadata) {
           const metaId = `${notebook}-${item.parent}`;
           if (!meta.has(metaId)) {
-            meta.set(metaId, {
-              format: 'markdown',
-              type: folderType,
-              files: {}
-            });
+            meta.set(metaId, this.getMetaObj(id, folderType, true));
           }
           meta.get(metaId)!.files![itemKey] = {
             type: item.type,
@@ -85,11 +99,7 @@ class ExportService {
     items
       .filter(item => item.type === CollectionItemType.folder)
       .forEach((item, idx) => {
-        const metaId = `${notebook}-${item.id}`;
-        if (opts.includeMetadata && meta.has(metaId)) {
-          fileTree['meta.json'] = [strToU8(JSON.stringify(meta.get(metaId)))];
-        }
-        let itemKey = item.title;
+        let itemKey = item.title.substring(0, this.maxLength);
         if (fileTree[itemKey]) {
           itemKey = `${item.title} (${idx})`;
         }
@@ -104,15 +114,12 @@ class ExportService {
       });
 
     const metaId = `${notebook}-${id}`;
-    if (folderType === CollectionItemType.notebook && !meta.has(metaId)) {
-      meta.set(metaId, {
-        type: CollectionItemType.notebook,
-        format: 'markdown'
-      });
+    if (!meta.has(metaId)) {
+      meta.set(metaId, this.getMetaObj(id, folderType));
     }
 
     if (opts.includeMetadata && meta.has(metaId)) {
-      fileTree['meta.json'] = [strToU8(JSON.stringify(meta.get(metaId)))];
+      fileTree[META_JSON] = [strToU8(JSON.stringify(meta.get(metaId)))];
     }
 
     return fileTree;
