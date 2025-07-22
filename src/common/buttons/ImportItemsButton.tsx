@@ -74,6 +74,7 @@ const ImportItemsButton = ({
 
   const onSingleDocumentRead = async (content: string, file: File) => {
     console.debug('file', file);
+    // TODO don't hardcode the regex here
     const fileName = file.name.replace(/\.(md|MD)$/, '');
     const { doc, pages } = importService.getLexicalFromContent(content);
 

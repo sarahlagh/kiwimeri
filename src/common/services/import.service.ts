@@ -19,6 +19,7 @@ export type ZipMergeFistLevel = {
 
 export type ZipParsedData = {
   items: CollectionItem[];
+  notebook: string;
   folderMeta?: ZipMetadata;
 };
 
@@ -51,30 +52,27 @@ export type ZipMergeCommitOptions = {
 };
 
 class ImportService {
-  private readonly zipDefaultMergeOpts: ZipMergeOptions = {
-    overwrite: false,
-    createNewFolder: false,
-    removeFirstFolder: false
-  };
-
-  private readonly zipDefaultParseOpts: ZipParseOptions = {
+  private readonly defaultOpts: ZipImportOptions & ZipMergeCommitOptions = {
+    // parse opts
     ignoreMetadata: false,
     createNotebook: false,
     detectInlinedPages: true,
     titleRemoveDuplicateIdentifiers: true,
-    titleRemoveExtension: true
-  };
-
-  private readonly zipDefaultCommitOpts: ZipMergeCommitOptions = {
+    titleRemoveExtension: true,
+    // merge opts
+    overwrite: false,
+    createNewFolder: false,
+    removeFirstFolder: false,
+    // commit opts
     deleteExistingPages: true
   };
 
   public getLexicalFromContent(content: string, opts?: ZipParseOptions) {
     // TODO get format as input
     if (!opts) {
-      opts = this.zipDefaultParseOpts;
+      opts = this.defaultOpts;
     } else {
-      opts = { ...this.zipDefaultParseOpts, ...opts };
+      opts = { ...this.defaultOpts, ...opts };
     }
     if (opts.detectInlinedPages) {
       const pagesFormatted = content.split(
@@ -128,9 +126,9 @@ class ImportService {
     opts?: ZipParseOptions
   ): ZipParsedData {
     if (!opts) {
-      opts = this.zipDefaultParseOpts;
+      opts = this.defaultOpts;
     } else {
-      opts = { ...this.zipDefaultParseOpts, ...opts };
+      opts = { ...this.defaultOpts, ...opts };
     }
 
     const metaMap = new Map<string, ZipMetadata>();
@@ -227,7 +225,11 @@ class ImportService {
       }
     });
 
-    return { items: Object.values(items), folderMeta: metaMap.get(parent) };
+    return {
+      items: Object.values(items),
+      folderMeta: metaMap.get(parent),
+      notebook
+    };
   }
 
   public readZip(content: ArrayBuffer) {
@@ -389,12 +391,13 @@ class ImportService {
   private createNewFolder(
     items: CollectionItem[],
     parent: string,
+    notebook: string,
     zipName: string,
     options: ZipMergeOptions,
     folderMeta?: ZipMetadata
   ) {
     const firstLayer = items.filter(item => item.parent === parent);
-    const { item, id } = collectionService.getNewFolderObj(parent);
+    const { item, id } = collectionService.getNewFolderObj(parent, notebook);
     item.title = '';
     if (folderMeta) {
       this.fillInMeta(item, folderMeta);
@@ -410,10 +413,9 @@ class ImportService {
     zipName: string,
     zipData: ZipParsedData,
     parent: string,
-    opts: ZipMergeOptions,
-    notebook?: string
+    opts: ZipMergeOptions
   ): ZipMergeResult {
-    opts = { ...this.zipDefaultMergeOpts, ...opts };
+    opts = { ...this.defaultOpts, ...opts };
 
     const items = structuredClone(zipData.items);
 
@@ -422,15 +424,17 @@ class ImportService {
     }
 
     if (opts.createNewFolder === true) {
-      this.createNewFolder(items, parent, zipName, opts, zipData.folderMeta);
+      this.createNewFolder(
+        items,
+        parent,
+        zipData.notebook,
+        zipName,
+        opts,
+        zipData.folderMeta
+      );
     }
 
-    return this.mergeZipItemsWithOptions(
-      items,
-      parent,
-      notebook ? notebook : notebooksService.getCurrentNotebook(),
-      opts
-    );
+    return this.mergeZipItemsWithOptions(items, parent, zipData.notebook, opts);
   }
 
   public commitMergeResult(
@@ -438,9 +442,9 @@ class ImportService {
     commitOpts?: ZipMergeCommitOptions
   ) {
     if (!commitOpts) {
-      commitOpts = this.zipDefaultCommitOpts;
+      commitOpts = this.defaultOpts;
     } else {
-      commitOpts = { ...this.zipDefaultCommitOpts, ...commitOpts };
+      commitOpts = { ...this.defaultOpts, ...commitOpts };
     }
 
     storageService.getSpace().transaction(() => {
@@ -465,7 +469,7 @@ class ImportService {
     parent: string,
     title: string,
     itemId?: string,
-    commitOpts = this.zipDefaultCommitOpts
+    commitOpts: ZipMergeCommitOptions = this.defaultOpts
   ) {
     storageService.getSpace().transaction(() => {
       if (itemId) {

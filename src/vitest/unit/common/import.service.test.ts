@@ -670,7 +670,7 @@ describe('import service', () => {
       expect(getLocalItemField(id, 'updated')).toBe(before + 5000);
     });
 
-    it(`should import as notebook if asked`, async () => {
+    it(`should import as notebook if asked and createNewFolder=false`, async () => {
       const zip = await readFile(`${__dirname}/zips_without_meta/Samples.zip`);
       const zipBuffer: ArrayBuffer = new Uint8Array(zip).buffer;
       const unzipped = await importService.readZip(zipBuffer);
@@ -711,6 +711,48 @@ describe('import service', () => {
           expect(item.notebook).not.toBe(defaultNotebook);
         });
     });
+
+    it(`should import as notebook if asked and createNewFolder=true`, async () => {
+      const zip = await readFile(`${__dirname}/zips_without_meta/Samples.zip`);
+      const zipBuffer: ArrayBuffer = new Uint8Array(zip).buffer;
+      const unzipped = await importService.readZip(zipBuffer);
+      const zipContent = importService.parseZipData(
+        'Samples',
+        ROOT_FOLDER,
+        unzipped,
+        {
+          createNotebook: true
+        }
+      );
+
+      const zipMerge = importService.mergeZipItems(
+        'Samples',
+        zipContent,
+        ROOT_FOLDER,
+        {
+          createNewFolder: true,
+          overwrite: false
+        }
+      );
+
+      expect(zipMerge.newItems).toHaveLength(21);
+      expect(zipMerge.duplicates).toHaveLength(0);
+      expect(zipMerge.updatedItems).toHaveLength(0);
+
+      // one notebook has been created
+      const notebooks = zipMerge.newItems.filter(
+        item => item.type === CollectionItemType.notebook
+      );
+      expect(notebooks).toHaveLength(1);
+      expect(notebooks[0].title).toBe('Samples');
+      const defaultNotebook = notebooksService.getCurrentNotebook();
+      zipMerge.newItems
+        .filter(item => item.type !== CollectionItemType.notebook)
+        .forEach(item => {
+          expect(item.notebook).toBe(notebooks[0].id);
+          expect(item.notebook).not.toBe(defaultNotebook);
+        });
+    });
   });
 
   describe('merging zips with metadata', async () => {
@@ -725,7 +767,93 @@ describe('import service', () => {
       'SimpleSubPartialFiles.zip'
     ]);
 
-    // TODO test with notebooks
+    it(`should import as notebook if asked and zip doesn't contain one and createNewFolder=false`, async () => {
+      const zip = await readFile(`${__dirname}/zips_with_meta/Simple.zip`);
+      const zipBuffer: ArrayBuffer = new Uint8Array(zip).buffer;
+      const unzipped = await importService.readZip(zipBuffer);
+      const zipContent = importService.parseZipData(
+        'Simple',
+        ROOT_FOLDER,
+        unzipped,
+        {
+          createNotebook: true
+        }
+      );
+
+      const zipMerge = importService.mergeZipItems(
+        'Simple',
+        zipContent,
+        ROOT_FOLDER,
+        {
+          createNewFolder: false,
+          overwrite: false
+        }
+      );
+
+      expect(zipMerge.newItems).toHaveLength(2);
+      expect(zipMerge.duplicates).toHaveLength(0);
+      expect(zipMerge.updatedItems).toHaveLength(0);
+
+      // one notebook has been created
+      const notebooks = zipMerge.newItems.filter(
+        item => item.type === CollectionItemType.notebook
+      );
+      expect(notebooks).toHaveLength(1);
+      expect(notebooks[0].title).toBe('Simple');
+      const defaultNotebook = notebooksService.getCurrentNotebook();
+      zipMerge.newItems
+        .filter(item => item.type !== CollectionItemType.notebook)
+        .forEach(item => {
+          expect(item.notebook).toBe(notebooks[0].id);
+          expect(item.notebook).not.toBe(defaultNotebook);
+        });
+    });
+
+    it(`should import as notebook if asked and zip doesn't contain one and createNewFolder=true`, async () => {
+      const zip = await readFile(`${__dirname}/zips_with_meta/Simple.zip`);
+      const zipBuffer: ArrayBuffer = new Uint8Array(zip).buffer;
+      const unzipped = await importService.readZip(zipBuffer);
+      const zipContent = importService.parseZipData(
+        'Simple',
+        ROOT_FOLDER,
+        unzipped,
+        {
+          createNotebook: true
+        }
+      );
+
+      const zipMerge = importService.mergeZipItems(
+        'Simple',
+        zipContent,
+        ROOT_FOLDER,
+        {
+          createNewFolder: true,
+          overwrite: false
+        }
+      );
+
+      expect(zipMerge.newItems).toHaveLength(3);
+      expect(zipMerge.duplicates).toHaveLength(0);
+      expect(zipMerge.updatedItems).toHaveLength(0);
+
+      // one notebook has been created
+      const notebooks = zipMerge.newItems.filter(
+        item => item.type === CollectionItemType.notebook
+      );
+      expect(notebooks).toHaveLength(1);
+      expect(notebooks[0].title).toBe('Simple');
+      const defaultNotebook = notebooksService.getCurrentNotebook();
+      zipMerge.newItems
+        .filter(item => item.type !== CollectionItemType.notebook)
+        .forEach(item => {
+          expect(item.notebook).toBe(notebooks[0].id);
+          expect(item.notebook).not.toBe(defaultNotebook);
+        });
+    });
+
+    // TODO 'createNotebook' should be ignored if zip contains notebooks in its metadata
+    // TODO if zip meta contains notebooks nested inside folders, what then?
+
     // TODO test with space
   });
 });
