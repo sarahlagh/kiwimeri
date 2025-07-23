@@ -42,7 +42,7 @@ export const KIWIMERI_MODEL_VERSION = 0;
 export const DEFAULT_SPACE_ID = 'default';
 export const DEFAULT_NOTEBOOK_ID = '0';
 
-export const ROOT_NOTEBOOK = 'root';
+export const ROOT_COLLECTION = 'root';
 
 export const META_JSON = 'meta.json';
 

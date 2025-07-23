@@ -6,7 +6,7 @@ import {
   CollectionItemUpdatableFieldEnum,
   setFieldMeta
 } from '@/collection/collection';
-import { DEFAULT_NOTEBOOK_ID, ROOT_NOTEBOOK } from '@/constants';
+import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
@@ -73,8 +73,8 @@ export const oneNotebook = (
   return {
     id,
     type: CollectionItemType.notebook,
-    parent: ROOT_NOTEBOOK,
-    parent_meta: setFieldMeta(ROOT_NOTEBOOK, Date.now()),
+    parent: ROOT_COLLECTION,
+    parent_meta: setFieldMeta(ROOT_COLLECTION, Date.now()),
     title,
     title_meta: setFieldMeta(title, Date.now()),
     created: Date.now(),

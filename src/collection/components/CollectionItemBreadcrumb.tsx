@@ -1,6 +1,5 @@
-import { APPICONS } from '@/constants';
+import { APPICONS, ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/db/collection.service';
-import notebooksService from '@/db/notebooks.service';
 import {
   IonBreadcrumb,
   IonBreadcrumbs,
@@ -18,9 +17,8 @@ const CollectionItemBreadcrumb = ({
 }) => {
   const [maxBreadcrumbs, setMaxBreadcrumbs] = useState<number | undefined>(3);
   const [breadcrumb, setBreadcrumb] = useState<string[]>([]);
-  const notebook = notebooksService.useCurrentNotebook();
 
-  if (folder !== notebook && !breadcrumb.find(b => b === folder)) {
+  if (folder !== ROOT_COLLECTION && !breadcrumb.find(b => b === folder)) {
     setBreadcrumb(collectionService.getBreadcrumb(folder));
     setMaxBreadcrumbs(3);
   }
@@ -40,7 +38,7 @@ const CollectionItemBreadcrumb = ({
         setMaxBreadcrumbs(undefined);
       }}
     >
-      {breadcrumb.map(item => (
+      {breadcrumb.map((item, idx) => (
         <IonBreadcrumb key={item}>
           {/* bug (?) with routerLink where onIonCollapsedClick doesn't prevent propagation to link
           so, using onClick on inner button instead
@@ -52,8 +50,8 @@ const CollectionItemBreadcrumb = ({
               if (onClick) onClick(item);
             }}
           >
-            {item === notebook && <IonIcon icon={APPICONS.home} />}
-            {item !== notebook && <>{collectionService.getItemTitle(item)}</>}
+            {idx === 0 && <IonIcon icon={APPICONS.home} />}
+            {idx > 0 && <>{collectionService.getItemTitle(item)}</>}
           </IonButton>
         </IonBreadcrumb>
       ))}

@@ -1,6 +1,6 @@
 import { CollectionItemType, setFieldMeta } from '@/collection/collection';
 import { getGlobalTrans } from '@/config';
-import { ROOT_NOTEBOOK } from '@/constants';
+import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { Notebook, NotebookResult } from '@/notebooks/notebooks';
 import { getUniqueId } from 'tinybase/with-schemas';
 import collectionService from './collection.service';
@@ -21,13 +21,13 @@ class NotebooksService {
 
   private fetchAllNotebooksQuery(parent?: string, deleted: boolean = false) {
     const queries = storageService.getSpaceQueries();
-    const queryName = `fetchAllNotebooksFor${parent ? parent : ROOT_NOTEBOOK}`;
+    const queryName = `fetchAllNotebooksFor${parent ? parent : ROOT_COLLECTION}`;
     if (!queries.hasQuery(queryName)) {
       queries.setQueryDefinition(queryName, this.table, ({ select, where }) => {
         select('title');
         select('created');
         where('type', CollectionItemType.notebook);
-        where('parent', parent ? parent : ROOT_NOTEBOOK);
+        where('parent', parent ? parent : ROOT_COLLECTION);
         where('deleted', deleted);
       });
     }
@@ -40,9 +40,7 @@ class NotebooksService {
       const id = notebooksService.addNotebook(
         getGlobalTrans().defaultNotebookName
       );
-      if (id) {
-        notebooksService.setCurrentNotebook(id);
-      }
+      userSettingsService.setCurrentFolder(id);
     }
   }
 
@@ -55,8 +53,8 @@ class NotebooksService {
     const id = storageService.getSpace().addRow(this.table, {
       title,
       title_meta: setFieldMeta(title, now),
-      parent: parent ? parent : ROOT_NOTEBOOK,
-      parent_meta: setFieldMeta(parent ? parent : ROOT_NOTEBOOK, now),
+      parent: parent ? parent : ROOT_COLLECTION,
+      parent_meta: setFieldMeta(parent ? parent : ROOT_COLLECTION, now),
       created: Date.now(),
       updated: Date.now(),
       type: CollectionItemType.notebook
@@ -64,7 +62,7 @@ class NotebooksService {
     if (id) {
       localChangesService.addLocalChange(id, LocalChangeType.add);
     }
-    return id;
+    return id!;
   }
 
   public getNewNotebookObj(title: string, parent?: string) {
@@ -73,8 +71,8 @@ class NotebooksService {
     const item: Notebook = {
       title,
       title_meta: setFieldMeta(title, now),
-      parent: parent ? parent : ROOT_NOTEBOOK,
-      parent_meta: setFieldMeta(parent ? parent : ROOT_NOTEBOOK, now),
+      parent: parent ? parent : ROOT_COLLECTION,
+      parent_meta: setFieldMeta(parent ? parent : ROOT_COLLECTION, now),
       created: Date.now(),
       updated: Date.now(),
       type: CollectionItemType.notebook,
@@ -100,47 +98,28 @@ class NotebooksService {
     localChangesService.addLocalChange(id, LocalChangeType.delete);
   }
 
-  // TODO used only for tests, to remove
-  public setCurrentNotebook(id: string) {
-    storageService
-      .getStore()
-      .setCell(
-        this.spacesTable,
-        storageService.getSpaceId(),
-        'currentFolder',
-        id
-      );
-
-    // storageService.getStore().transaction(() => {
-    //   storageService
-    //     .getStore()
-    //     .setCell(
-    //       this.spacesTable,
-    //       storageService.getSpaceId(),
-    //       'currentNotebook',
-    //       id
-    //     );
-    //   storageService
-    //     .getStore()
-    //     .setCell(
-    //       this.spacesTable,
-    //       storageService.getSpaceId(),
-    //       'currentFolder',
-    //       id
-    //     );
-    // });
-  }
-
   public getCurrentNotebook() {
-    const currentFolder = userSettingsService.getCurrentFolder();
-    const breadcrumb = collectionService.getBreadcrumb(currentFolder, true);
-    return breadcrumb[0];
+    return (
+      (storageService
+        .getStore()
+        .getCell(
+          this.spacesTable,
+          storageService.getSpaceId(),
+          'currentNotebook'
+        )
+        ?.valueOf() as string) || DEFAULT_NOTEBOOK_ID
+    );
   }
 
   public useCurrentNotebook() {
-    const currentFolder = userSettingsService.useCurrentFolder();
-    const breadcrumb = collectionService.getBreadcrumb(currentFolder, true);
-    return breadcrumb[0];
+    return (
+      useCellWithRef<string>(
+        'store',
+        this.spacesTable,
+        storageService.getSpaceId(),
+        'currentNotebook'
+      ) || DEFAULT_NOTEBOOK_ID
+    );
   }
 
   public useNotebookTitle(id: string) {

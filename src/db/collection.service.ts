@@ -10,7 +10,7 @@ import {
 } from '@/collection/collection';
 import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
 import { getGlobalTrans } from '@/config';
-import { ROOT_NOTEBOOK as ROOT_COLLECTION } from '@/constants';
+import { ROOT_COLLECTION } from '@/constants';
 import formatterService from '@/format-conversion/formatter.service';
 import { SerializedEditorState } from 'lexical';
 import { getUniqueId } from 'tinybase/common';
@@ -54,13 +54,13 @@ class CollectionService {
     return queryName;
   }
 
-  private fetchDocsAndFoldersPerParentQuery(
+  private fetchDocsFoldersNotebooksPerParentQuery(
     parent: string,
     deleted: boolean = false
   ) {
     const queries = storageService.getSpaceQueries();
     const queryName = `fetchAllCollectionItemsFor${parent}`;
-    if (parent !== ROOT_COLLECTION && !queries.hasQuery(queryName)) {
+    if (!queries.hasQuery(queryName)) {
       queries.setQueryDefinition(queryName, this.table, ({ select, where }) => {
         select('title');
         select('type');
@@ -73,10 +73,7 @@ class CollectionService {
         where('deleted', deleted);
         where(getCell => {
           const type = getCell('type')?.valueOf();
-          return (
-            type === CollectionItemType.document ||
-            type === CollectionItemType.folder
-          );
+          return type !== CollectionItemType.page;
         });
       });
     }
@@ -130,7 +127,7 @@ class CollectionService {
     descending = false
   ) {
     const table = storageService.getSpace().getTable(this.table);
-    const queryName = this.fetchDocsAndFoldersPerParentQuery(parent);
+    const queryName = this.fetchDocsFoldersNotebooksPerParentQuery(parent);
     return this.getResultsSorted(table, queryName, sortBy, descending);
   }
 
@@ -156,7 +153,7 @@ class CollectionService {
     descending = false
   ): CollectionItemResult[] {
     const table = useTableWithRef(this.storeId, this.table);
-    const queryName = this.fetchDocsAndFoldersPerParentQuery(parent);
+    const queryName = this.fetchDocsFoldersNotebooksPerParentQuery(parent);
     return this.useResultsSorted(table, queryName, sortBy, descending);
   }
 
@@ -308,7 +305,7 @@ class CollectionService {
     const parent = this.getItemParent(rowId);
     localChangesService.addLocalChange(rowId, LocalChangeType.delete);
     if (wasFolder) {
-      const queryName = this.fetchDocsAndFoldersPerParentQuery(rowId);
+      const queryName = this.fetchDocsFoldersNotebooksPerParentQuery(rowId);
       const children = storageService
         .getSpaceQueries()
         .getResultSortedRowIds(queryName);
@@ -582,22 +579,20 @@ class CollectionService {
     });
   }
 
-  public getBreadcrumb(folder: string, includeNotebooks = false) {
+  public getBreadcrumb(folder: string, includeAllNotebooks = false) {
     let parent = folder;
     let breadcrumb: string[] = [];
-    if (!includeNotebooks) {
-      breadcrumb = [folder];
-      let parentType = collectionService.getItemType(parent);
-      while (parentType !== CollectionItemType.notebook) {
-        parent = this.getItemParent(parent);
-        parentType = collectionService.getItemType(parent);
-        breadcrumb = [parent, ...breadcrumb];
+    let nbNotebooks = 0;
+    while (parent !== ROOT_COLLECTION && nbNotebooks < 2) {
+      breadcrumb = [parent, ...breadcrumb];
+      if (
+        !includeAllNotebooks &&
+        collectionService.getItemType(parent) === CollectionItemType.notebook
+      ) {
+        nbNotebooks++;
+        break;
       }
-    } else {
-      while (parent !== ROOT_COLLECTION) {
-        breadcrumb = [parent, ...breadcrumb];
-        parent = this.getItemParent(parent);
-      }
+      parent = this.getItemParent(parent);
     }
     return breadcrumb;
   }

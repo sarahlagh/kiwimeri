@@ -1,6 +1,6 @@
 import { CollectionItemType, parseFieldMeta } from '@/collection/collection';
 import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
-import { DEFAULT_NOTEBOOK_ID } from '@/constants';
+import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import { renderHook } from '@testing-library/react';
@@ -550,6 +550,78 @@ describe('collection service', () => {
       expect(folder1.updated).toBe(now + 100);
       expect(folder2.updated).toBe(now + 100);
       expect(folder3.updated).toBe(now + 100);
+    });
+  });
+
+  describe(`breadcrumb`, () => {
+    it(`should return a breadcrumb with only one parent notebook`, () => {
+      const idn1 = notebooksService.addNotebook('test');
+      const idn2 = notebooksService.addNotebook('nested', idn1);
+      const idd1 = collectionService.addDocument(idn2);
+      const idp1 = collectionService.addPage(idd1);
+      const idf1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+      const idd2 = collectionService.addDocument(idf1);
+
+      expect(collectionService.getBreadcrumb(ROOT_COLLECTION)).toStrictEqual(
+        []
+      );
+      expect(
+        collectionService.getBreadcrumb(DEFAULT_NOTEBOOK_ID)
+      ).toStrictEqual([DEFAULT_NOTEBOOK_ID]);
+      expect(collectionService.getBreadcrumb(idn1)).toStrictEqual([idn1]);
+      expect(collectionService.getBreadcrumb(idn2)).toStrictEqual([idn2]);
+      expect(collectionService.getBreadcrumb(idd1)).toStrictEqual([idn2, idd1]);
+      expect(collectionService.getBreadcrumb(idp1)).toStrictEqual([
+        idn2,
+        idd1,
+        idp1
+      ]);
+      expect(collectionService.getBreadcrumb(idf1)).toStrictEqual([
+        DEFAULT_NOTEBOOK_ID,
+        idf1
+      ]);
+      expect(collectionService.getBreadcrumb(idd2)).toStrictEqual([
+        DEFAULT_NOTEBOOK_ID,
+        idf1,
+        idd2
+      ]);
+    });
+
+    it(`should return a breadcrumb with all notebooks`, () => {
+      const idn1 = notebooksService.addNotebook('test');
+      const idn2 = notebooksService.addNotebook('nested', idn1);
+      const idd1 = collectionService.addDocument(idn2);
+      const idp1 = collectionService.addPage(idd1);
+      const idf1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+      const idd2 = collectionService.addDocument(idf1);
+
+      expect(
+        collectionService.getBreadcrumb(ROOT_COLLECTION, true)
+      ).toStrictEqual([]);
+      expect(
+        collectionService.getBreadcrumb(DEFAULT_NOTEBOOK_ID, true)
+      ).toStrictEqual([DEFAULT_NOTEBOOK_ID]);
+      expect(collectionService.getBreadcrumb(idn1, true)).toStrictEqual([idn1]);
+      expect(collectionService.getBreadcrumb(idd1, true)).toStrictEqual([
+        idn1,
+        idn2,
+        idd1
+      ]);
+      expect(collectionService.getBreadcrumb(idp1, true)).toStrictEqual([
+        idn1,
+        idn2,
+        idd1,
+        idp1
+      ]);
+      expect(collectionService.getBreadcrumb(idf1, true)).toStrictEqual([
+        DEFAULT_NOTEBOOK_ID,
+        idf1
+      ]);
+      expect(collectionService.getBreadcrumb(idd2, true)).toStrictEqual([
+        DEFAULT_NOTEBOOK_ID,
+        idf1,
+        idd2
+      ]);
     });
   });
 });
