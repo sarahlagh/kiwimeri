@@ -4,7 +4,7 @@ import {
 } from '@/collection/collection';
 import CollectionItemBreadcrumb from '@/collection/components/CollectionItemBreadcrumb';
 import CollectionItemList from '@/collection/components/CollectionItemList';
-import { APPICONS, ROOT_NOTEBOOK } from '@/constants';
+import { APPICONS, ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import {
@@ -36,9 +36,9 @@ const Toolbar = ({
       <IonButtons slot="start">
         {/* go to home button */}
         <IonButton
-          disabled={folderId === ROOT_NOTEBOOK}
+          disabled={folderId === ROOT_COLLECTION}
           onClick={() => {
-            onClick('gotonotebooks', ROOT_NOTEBOOK);
+            onClick('gotonotebooks', ROOT_COLLECTION);
           }}
         >
           <IonIcon icon={APPICONS.library}></IonIcon>
@@ -86,21 +86,21 @@ const ChooseFolderModal = ({
   currentType,
   onClose
 }: ChooseFolderModalProps) => {
-  const currentNotebook = notebooksService.getCurrentNotebook();
   const [folder, setFolder] = useState<string>(currentParent);
-  const [notebook, setNotebook] = useState<string>(currentNotebook);
   const [selected, setSelected] = useState<CollectionItemResult | null>(null);
   const [itemRenaming, setItemRenaming] = useState<string | undefined>(
     undefined
   );
 
-  const notebooks = notebooksService.getNotebooks();
-
   const items: CollectionItemResult[] = collectionService
     .useBrowsableCollectionItems(folder)
-    .filter(item => item.type === CollectionItemType.folder);
+    .filter(
+      item =>
+        item.type === CollectionItemType.folder ||
+        item.type === CollectionItemType.notebook
+    );
 
-  const finalItems = folder === ROOT_NOTEBOOK ? [...notebooks] : items;
+  const finalItems = items;
   return (
     <>
       <IonHeader>
@@ -147,12 +147,7 @@ const ChooseFolderModal = ({
         }}
         onClickActions={(e, item) => {
           // this is the 'go into' click
-          if (item.type === CollectionItemType.folder) {
-            setFolder(item.id);
-          } else if (item.type === CollectionItemType.notebook) {
-            setNotebook(item.id);
-            setFolder(ROOT_NOTEBOOK);
-          }
+          setFolder(item.id);
           setSelected(null);
           setItemRenaming(undefined);
         }}
@@ -165,7 +160,6 @@ const ChooseFolderModal = ({
             selected={selected?.id}
             folderId={folder}
             onClick={(role, newFolderId) => {
-              console.debug('Toolbar onClick', role, newFolderId);
               if (role === 'gotonotebooks') {
                 setFolder(newFolderId);
                 setSelected(null);
@@ -175,7 +169,7 @@ const ChooseFolderModal = ({
                 setItemRenaming(itemRenaming ? undefined : newFolderId);
               }
               if (role === 'choose') {
-                onClose(newFolderId, notebook);
+                onClose(newFolderId, newFolderId);
               }
             }}
           ></Toolbar>

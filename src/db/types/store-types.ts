@@ -8,6 +8,7 @@ export interface AnyData {
 }
 
 export interface Space {
+  currentNotebook?: string;
   currentFolder?: string;
   currentDocument?: string;
   currentPage?: string;

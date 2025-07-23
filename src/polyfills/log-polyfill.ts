@@ -33,8 +33,10 @@ const fnFactory =
     }
   };
 
-console.trace = fnFactory(originalConsole.trace, 'trace');
-console.debug = fnFactory(originalConsole.debug, 'debug');
-console.log = fnFactory(originalConsole.log, 'info');
-console.warn = fnFactory(originalConsole.warn, 'warn');
-console.error = fnFactory(originalConsole.error, 'error');
+if (!platformService.isDev()) {
+  console.trace = fnFactory(originalConsole.trace, 'trace');
+  console.debug = fnFactory(originalConsole.debug, 'debug');
+  console.log = fnFactory(originalConsole.log, 'info');
+  console.warn = fnFactory(originalConsole.warn, 'warn');
+  console.error = fnFactory(originalConsole.error, 'error');
+}

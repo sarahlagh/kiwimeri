@@ -1,6 +1,6 @@
 import { parseFieldMeta } from '@/collection/collection';
 import { getGlobalTrans } from '@/config';
-import { DEFAULT_NOTEBOOK_ID, ROOT_NOTEBOOK } from '@/constants';
+import { ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import {
@@ -15,7 +15,7 @@ describe('notebooks service', () => {
     expect(notebooksService.getCurrentNotebook()).toBeDefined();
     const notebooks = notebooksService.getNotebooks();
     expect(notebooks).toHaveLength(1);
-    expect(notebooks[0].parent).toBe(ROOT_NOTEBOOK);
+    expect(notebooks[0].parent).toBe(ROOT_COLLECTION);
     expect(notebooks[0].title).toBe(getGlobalTrans().defaultNotebookName);
   });
 
@@ -50,11 +50,10 @@ describe('notebooks service', () => {
       vi.useFakeTimers();
       const created = Date.now();
       const n1 = notebooksService.addNotebook('non default notebook 1')!;
-      notebooksService.setCurrentNotebook(n1);
       vi.advanceTimersByTime(100);
 
-      const id1 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-      const id2 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+      const id1 = collectionService.addDocument(n1);
+      const id2 = collectionService.addFolder(n1);
       collectionService.setItemField(id1, field, 'newValue');
       collectionService.setItemField(id2, field, 'newValue');
 
@@ -74,7 +73,6 @@ describe('notebooks service', () => {
   it(`should delete non-empty notebooks`, () => {
     const n1 = notebooksService.addNotebook('non default notebook 1')!;
     expect(collectionService.itemExists(n1)).toBe(true);
-    notebooksService.setCurrentNotebook(n1);
 
     const id1 = collectionService.addDocument(n1);
     const id2 = collectionService.addFolder(n1);

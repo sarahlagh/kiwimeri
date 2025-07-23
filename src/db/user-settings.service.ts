@@ -1,4 +1,5 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
+import collectionService from './collection.service';
 import storageService from './storage.service';
 import { useCellWithRef, useValueWithRef } from './tinybase/hooks';
 
@@ -37,14 +38,25 @@ class UserSettingsService {
   }
 
   public setCurrentFolder(folder: string) {
-    storageService
-      .getStore()
-      .setCell(
-        this.spacesTable,
-        storageService.getSpaceId(),
-        'currentFolder',
-        folder
-      );
+    storageService.getStore().transaction(() => {
+      storageService
+        .getStore()
+        .setCell(
+          this.spacesTable,
+          storageService.getSpaceId(),
+          'currentFolder',
+          folder
+        );
+      const breadcrumb = collectionService.getBreadcrumb(folder);
+      storageService
+        .getStore()
+        .setCell(
+          this.spacesTable,
+          storageService.getSpaceId(),
+          'currentNotebook',
+          breadcrumb[0]
+        );
+    });
   }
 
   public getCurrentDocument() {

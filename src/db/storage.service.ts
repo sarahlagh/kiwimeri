@@ -37,6 +37,10 @@ class StorageService {
     this.store = createStore()
       .setTablesSchema({
         spaces: {
+          currentNotebook: {
+            type: 'string',
+            default: DEFAULT_NOTEBOOK_ID
+          } as CellSchema,
           currentFolder: {
             type: 'string',
             default: DEFAULT_NOTEBOOK_ID
