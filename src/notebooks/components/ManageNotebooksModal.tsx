@@ -2,7 +2,6 @@ import CollectionItemList from '@/collection/components/CollectionItemList';
 import ImportItemsButton from '@/common/buttons/ImportItemsButton';
 import { APPICONS } from '@/constants';
 import notebooksService from '@/db/notebooks.service';
-import tagsService from '@/db/tags.service';
 import {
   IonButton,
   IonButtons,
@@ -17,7 +16,7 @@ import React, { useState } from 'react';
 import { getUniqueId } from 'tinybase/with-schemas';
 
 type ManageNotebooksModalProps = {
-  onClose: (tags?: string[]) => void;
+  onClose: (selected?: string) => void;
 } & React.HTMLAttributes<HTMLIonModalElement>;
 
 const ManageNotebooksModal = ({ onClose }: ManageNotebooksModalProps) => {
@@ -86,13 +85,10 @@ const ManageNotebooksModal = ({ onClose }: ManageNotebooksModalProps) => {
             <IonButton
               onClick={() => {
                 if (selected !== current) {
-                  console.debug('setting current notebook');
-                  notebooksService.setCurrentNotebook(selected);
-                  console.debug('rebuild tags');
-                  tagsService.reBuildTags();
-                  console.debug('done');
+                  onClose(selected);
+                } else {
+                  onClose();
                 }
-                onClose();
               }}
             >
               <Trans>Confirm</Trans>

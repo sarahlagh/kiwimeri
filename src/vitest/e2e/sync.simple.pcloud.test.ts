@@ -13,10 +13,10 @@ import { syncService } from '@/remote-storage/sync.service';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   amount,
-  getCollectionRowCount,
   getLocalItemConflict,
   getLocalItemConflicts,
   getLocalItemField,
+  getRowCountInsideNotebook,
   oneDocument,
   oneFolder,
   oneNotebook,
@@ -95,14 +95,14 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     await reInitRemoteData(remoteData);
     await amount(100);
     await syncService.pull();
-    expect(getCollectionRowCount()).toBe(3);
+    expect(getRowCountInsideNotebook()).toBe(3);
   });
 
   it('should push new local items', async () => {
     collectionService.addDocument(notebook);
     collectionService.addDocument(notebook);
     collectionService.addFolder(notebook);
-    expect(getCollectionRowCount()).toBe(3);
+    expect(getRowCountInsideNotebook()).toBe(3);
     await syncService.push();
     await amount(100);
     const content = await getRemoteContent();
@@ -120,7 +120,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     await reInitRemoteData(remoteData);
     await amount(100);
     await syncService.pull();
-    expect(getCollectionRowCount()).toBe(3);
+    expect(getRowCountInsideNotebook()).toBe(3);
     collectionService.addFolder(notebook);
     setLocalItemField(remoteData[0].id!, 'title', 'new');
     await syncService.push();
@@ -134,7 +134,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
       'r3',
       'New folder'
     ]);
-    expect(getCollectionRowCount()).toBe(4);
+    expect(getRowCountInsideNotebook()).toBe(4);
   });
 
   it('should pull new remote items and keep local creates between pulls', async () => {
@@ -147,7 +147,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     await reInitRemoteData(remoteData);
     await amount(100);
     await syncService.pull();
-    expect(getCollectionRowCount()).toBe(3);
+    expect(getRowCountInsideNotebook()).toBe(3);
 
     // local, don't push
     collectionService.addFolder(notebook);
@@ -156,13 +156,13 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     // pull 1
     await amount(100);
     await syncService.pull();
-    expect(getCollectionRowCount()).toBe(5);
+    expect(getRowCountInsideNotebook()).toBe(5);
     expect(getLocalItemConflicts()).toHaveLength(0);
 
     // pull 2
     await amount(100);
     await syncService.pull();
-    expect(getCollectionRowCount()).toBe(5);
+    expect(getRowCountInsideNotebook()).toBe(5);
     expect(getLocalItemConflicts()).toHaveLength(0);
 
     // update remotely
@@ -172,7 +172,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     // pull 3
     await amount(100);
     await syncService.pull();
-    expect(getCollectionRowCount()).toBe(6);
+    expect(getRowCountInsideNotebook()).toBe(6);
     expect(getLocalItemConflicts()).toHaveLength(0);
   });
 
@@ -188,12 +188,12 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     // create local items
     collectionService.addDocument(notebook);
     collectionService.addFolder(notebook);
-    expect(getCollectionRowCount()).toBe(2);
+    expect(getRowCountInsideNotebook()).toBe(2);
     localChangesService.clear(); // clear changes -> it's like they have been pushed somewhere else
 
     // pull items from new remote
     await syncService.pull();
-    expect(getCollectionRowCount()).toBe(3);
+    expect(getRowCountInsideNotebook()).toBe(3);
   });
 
   it(`should not delete local items on pull if they have been changed locally before being erased on remote (conflict)`, async () => {
@@ -207,7 +207,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
 
     await amount(100);
     await syncService.pull();
-    expect(getCollectionRowCount()).toBe(3);
+    expect(getRowCountInsideNotebook()).toBe(3);
 
     // update locally
     await amount(50);
@@ -224,7 +224,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     await syncService.pull();
 
     // conflict has been created
-    expect(getCollectionRowCount()).toBe(3);
+    expect(getRowCountInsideNotebook()).toBe(3);
     expect(getLocalItemConflicts()).toHaveLength(1);
     expect(collectionService.itemExists(id)).toBeFalsy();
     const conflictId = getLocalItemConflict()!;
@@ -378,7 +378,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     await syncService.pull();
 
     // now check
-    expect(getCollectionRowCount()).toBe(22); // 20 + 2 added -2 deleted + 2 conflicts
+    expect(getRowCountInsideNotebook()).toBe(22); // 20 + 2 added -2 deleted + 2 conflicts
     expect(notebooksService.getNotebooks()).toHaveLength(2);
 
     // check items created are still there

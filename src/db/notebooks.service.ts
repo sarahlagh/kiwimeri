@@ -1,6 +1,6 @@
 import { CollectionItemType, setFieldMeta } from '@/collection/collection';
 import { getGlobalTrans } from '@/config';
-import { DEFAULT_NOTEBOOK_ID, ROOT_NOTEBOOK } from '@/constants';
+import { ROOT_NOTEBOOK } from '@/constants';
 import { Notebook, NotebookResult } from '@/notebooks/notebooks';
 import { getUniqueId } from 'tinybase/with-schemas';
 import collectionService from './collection.service';
@@ -12,6 +12,7 @@ import {
   useTableWithRef
 } from './tinybase/hooks';
 import { LocalChangeType } from './types/store-types';
+import userSettingsService from './user-settings.service';
 
 class NotebooksService {
   private readonly storeId = 'space';
@@ -87,8 +88,9 @@ class NotebooksService {
   }
 
   public deleteNotebook(id: string): void {
+    // TODO handle nested notebooks
     // if items inside, delete them
-    const items = collectionService.getAllCollectionItems(id);
+    const items = collectionService.getCollectionItems(id);
     if (items.length > 0) {
       storageService.getSpace().transaction(() => {
         items.forEach(i => collectionService.deleteItem(i.id));
@@ -98,13 +100,14 @@ class NotebooksService {
     localChangesService.addLocalChange(id, LocalChangeType.delete);
   }
 
+  // TODO used only for tests, to remove
   public setCurrentNotebook(id: string) {
     storageService
       .getStore()
       .setCell(
         this.spacesTable,
         storageService.getSpaceId(),
-        'currentNotebook',
+        'currentFolder',
         id
       );
 
@@ -129,27 +132,15 @@ class NotebooksService {
   }
 
   public getCurrentNotebook() {
-    return (
-      (storageService
-        .getStore()
-        .getCell(
-          this.spacesTable,
-          storageService.getSpaceId(),
-          'currentNotebook'
-        )
-        ?.valueOf() as string) || ''
-    );
+    const currentFolder = userSettingsService.getCurrentFolder();
+    const breadcrumb = collectionService.getBreadcrumb(currentFolder, true);
+    return breadcrumb[0];
   }
 
   public useCurrentNotebook() {
-    return (
-      useCellWithRef<string>(
-        'store',
-        this.spacesTable,
-        storageService.getSpaceId(),
-        'currentNotebook'
-      ) || DEFAULT_NOTEBOOK_ID
-    );
+    const currentFolder = userSettingsService.useCurrentFolder();
+    const breadcrumb = collectionService.getBreadcrumb(currentFolder, true);
+    return breadcrumb[0];
   }
 
   public useNotebookTitle(id: string) {

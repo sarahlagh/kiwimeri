@@ -19,7 +19,6 @@ const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
   const searchParams = getSearchParams(location.search);
   const notebook = notebooksService.useCurrentNotebook();
   const folder = searchParams.folder ? searchParams.folder : notebook;
-  console.debug(searchParams, notebook, folder);
 
   useEffect(() => {
     if (isCollectionRoute(location.pathname)) {

@@ -28,13 +28,13 @@ import {
   GET_NON_CONFLICT_CHANGES,
   GET_NON_PARENT_UPDATABLE_FIELDS,
   GET_UPDATABLE_FIELDS,
-  getCollectionRowCount,
-  getCollectionRowIds,
   getDocsFolders,
   getLocalItemConflict,
   getLocalItemConflicts,
   getLocalItemField,
   getRemoteItemField,
+  getRowCountInsideNotebook,
+  getRowIdsInsideNotebook,
   ITEM_TYPES,
   oneDocument,
   oneFolder,
@@ -171,7 +171,7 @@ describe('sync service', () => {
         ];
         await reInitRemoteData(remoteData);
         await syncService_pull();
-        expect(getCollectionRowCount()).toBe(3);
+        expect(getRowCountInsideNotebook()).toBe(3);
         collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
         await syncService_push();
         const remoteContent = await driver.getContent();
@@ -190,7 +190,7 @@ describe('sync service', () => {
           'r3',
           'New folder'
         ]);
-        expect(getCollectionRowCount()).toBe(4);
+        expect(getRowCountInsideNotebook()).toBe(4);
       });
 
       it('should handle missing file info if remote has been initialized elsewhere', async () => {
@@ -202,7 +202,7 @@ describe('sync service', () => {
         ];
         await reInitRemoteData(remoteData);
         await syncService_pull();
-        expect(getCollectionRowCount()).toBe(3);
+        expect(getRowCountInsideNotebook()).toBe(3);
       });
 
       it('should create version file on first init', async () => {
@@ -213,7 +213,7 @@ describe('sync service', () => {
       describe('on pull operation', () => {
         it('should do nothing on first pull if remote has nothing', async () => {
           await syncService_pull();
-          expect(getCollectionRowCount()).toBe(0);
+          expect(getRowCountInsideNotebook()).toBe(0);
         });
 
         it('should pull everything on first pull if remote has content', async () => {
@@ -224,7 +224,7 @@ describe('sync service', () => {
             oneNotebook()
           ]);
           await syncService_pull();
-          expect(getCollectionRowCount()).toBe(3);
+          expect(getRowCountInsideNotebook()).toBe(3);
         });
 
         it('should pull new remote items without erasing newly created items', async () => {
@@ -238,9 +238,9 @@ describe('sync service', () => {
           // create local items
           collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
           collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
-          expect(getCollectionRowCount()).toBe(2);
+          expect(getRowCountInsideNotebook()).toBe(2);
           await syncService_pull();
-          expect(getCollectionRowCount()).toBe(5);
+          expect(getRowCountInsideNotebook()).toBe(5);
           expect(getLocalItemConflicts()).toHaveLength(0);
 
           // indicator should still tell if push allowed
@@ -258,10 +258,10 @@ describe('sync service', () => {
           // create local items
           collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
           collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
-          expect(getCollectionRowCount()).toBe(2);
+          expect(getRowCountInsideNotebook()).toBe(2);
           localChangesService.clear();
           await syncService_pull();
-          expect(getCollectionRowCount()).toBe(3);
+          expect(getRowCountInsideNotebook()).toBe(3);
 
           // indicator should still tell if push allowed
           testPushIndicator(false);
@@ -277,15 +277,15 @@ describe('sync service', () => {
           await reInitRemoteData(remoteData);
           // create local items
           collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
-          expect(getCollectionRowCount()).toBe(1);
+          expect(getRowCountInsideNotebook()).toBe(1);
           await syncService_pull();
-          expect(getCollectionRowCount()).toBe(4);
+          expect(getRowCountInsideNotebook()).toBe(4);
           expect(getLocalItemConflicts()).toHaveLength(0);
 
           // update remote again
           await reInitRemoteData([...remoteData, oneDocument('r4')]);
           await syncService_pull();
-          expect(getCollectionRowCount()).toBe(5);
+          expect(getRowCountInsideNotebook()).toBe(5);
           expect(getLocalItemConflicts()).toHaveLength(0);
 
           // indicator should still tell if push allowed
@@ -304,12 +304,12 @@ describe('sync service', () => {
           // create local items
           collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
           collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
-          expect(getCollectionRowCount()).toBe(2);
+          expect(getRowCountInsideNotebook()).toBe(2);
           localChangesService.clear(); // clear changes -> it's like they have been pushed
 
           // pull items from new remote
           await syncService_pull();
-          expect(getCollectionRowCount()).toBe(3);
+          expect(getRowCountInsideNotebook()).toBe(3);
 
           testPushIndicator(false);
         });
@@ -321,13 +321,13 @@ describe('sync service', () => {
               const remoteData = getSomeRemoteData(type, testAddFn);
               await reInitRemoteData(remoteData);
               await syncService_pull();
-              expect(getCollectionRowCount()).toBe(remoteData.length - 1);
+              expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
 
               // erase on remote
 
               await reInitRemoteData(remoteData.slice(1));
               await syncService_pull();
-              expect(getCollectionRowCount()).toBe(remoteData.length - 2);
+              expect(getRowCountInsideNotebook()).toBe(remoteData.length - 2);
               testPushIndicator(false);
             });
 
@@ -335,14 +335,14 @@ describe('sync service', () => {
               const remoteData = getSomeRemoteData(type, testAddFn);
               await reInitRemoteData(remoteData);
               await syncService_pull();
-              expect(getCollectionRowCount()).toBe(remoteData.length - 1);
+              expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
               // erase locally
               const id = remoteData[0].id!;
               collectionService_deleteItem(id);
 
               // pull again
               await syncService_pull();
-              expect(getCollectionRowCount()).toBe(remoteData.length - 2);
+              expect(getRowCountInsideNotebook()).toBe(remoteData.length - 2);
 
               testPushIndicator(true);
             });
@@ -352,7 +352,7 @@ describe('sync service', () => {
                 const remoteData = getSomeRemoteData(type, testAddFn);
                 await reInitRemoteData(remoteData);
                 await syncService_pull();
-                expect(getCollectionRowCount()).toBe(remoteData.length - 1);
+                expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
 
                 const id = remoteData[0].id!;
                 // change remote
@@ -361,7 +361,7 @@ describe('sync service', () => {
 
                 // pull again
                 await syncService_pull();
-                expect(getCollectionRowCount()).toBe(remoteData.length - 1);
+                expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
                 expect(collectionService.itemExists(id!)).toBeTruthy();
                 expect(getLocalItemField(id!, field)).toBe('newRemote');
               });
@@ -370,7 +370,7 @@ describe('sync service', () => {
                 const remoteData = getSomeRemoteData(type, testAddFn);
                 await reInitRemoteData(remoteData);
                 await syncService_pull();
-                expect(getCollectionRowCount()).toBe(remoteData.length - 1);
+                expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
                 // update locally
                 const id = remoteData[0].id!;
                 setLocalItemField(id, field, remoteData[2].id!);
@@ -378,7 +378,7 @@ describe('sync service', () => {
                 // pull again
                 await syncService_pull();
                 expect(getLocalItemField(id, field)).toBe(remoteData[2].id!);
-                expect(getCollectionRowCount()).toBe(remoteData.length - 1);
+                expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
 
                 testPushIndicator(true);
               });
@@ -387,7 +387,7 @@ describe('sync service', () => {
                 const remoteData = getSomeRemoteData(type, testAddFn);
                 await reInitRemoteData(remoteData);
                 await syncService_pull();
-                expect(getCollectionRowCount()).toBe(remoteData.length - 1);
+                expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
 
                 const id = remoteData[0].id!;
 
@@ -400,7 +400,7 @@ describe('sync service', () => {
                 await syncService_pull();
 
                 // item is unchanged
-                expect(getCollectionRowCount()).toBe(remoteData.length - 1);
+                expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
                 expect(getLocalItemConflicts()).toHaveLength(0);
                 expect(getLocalItemField(id, field)).toBe('newLocal');
                 testPushIndicator(true);
@@ -410,7 +410,7 @@ describe('sync service', () => {
                 const remoteData = getSomeRemoteData(type, testAddFn);
                 await reInitRemoteData(remoteData);
                 await syncService_pull();
-                expect(getCollectionRowCount()).toBe(remoteData.length - 1);
+                expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
 
                 const id = remoteData[0].id!;
                 // update on remote
@@ -422,7 +422,7 @@ describe('sync service', () => {
 
                 // pull again
                 await syncService_pull();
-                expect(getCollectionRowCount()).toBe(remoteData.length - 2);
+                expect(getRowCountInsideNotebook()).toBe(remoteData.length - 2);
                 expect(collectionService.itemExists(id)).toBeFalsy();
 
                 testPushIndicator(true);
@@ -434,7 +434,7 @@ describe('sync service', () => {
                 const remoteData = getSomeRemoteData(type, testAddFn);
                 await reInitRemoteData(remoteData);
                 await syncService_pull();
-                expect(getCollectionRowCount()).toBe(remoteData.length - 1);
+                expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
 
                 const id = remoteData[0].id!;
                 // erase locally
@@ -446,7 +446,7 @@ describe('sync service', () => {
 
                 // pull again
                 await syncService_pull();
-                expect(getCollectionRowCount()).toBe(remoteData.length - 1);
+                expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
                 expect(getLocalItemConflicts()).toHaveLength(0);
                 expect(getLocalItemField(id, field)).toBe('newRemote');
 
@@ -459,7 +459,7 @@ describe('sync service', () => {
               const remoteData = getSomeRemoteData(type, testAddFn);
               await reInitRemoteData(remoteData);
               await syncService_pull();
-              expect(getCollectionRowCount()).toBe(remoteData.length - 1);
+              expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
 
               const id = remoteData[0].id!;
               // erase locally
@@ -471,7 +471,7 @@ describe('sync service', () => {
 
               // pull again
               await syncService_pull();
-              expect(getCollectionRowCount()).toBe(remoteData.length - 2);
+              expect(getRowCountInsideNotebook()).toBe(remoteData.length - 2);
               expect(collectionService.itemExists(id)).toBe(false);
 
               testPushIndicator(true);
@@ -495,7 +495,7 @@ describe('sync service', () => {
                 // pull again
                 await syncService_pull(); // 2
                 // no conflict created
-                expect(getCollectionRowCount()).toBe(remoteData.length - 1);
+                expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
                 expect(getLocalItemConflicts()).toHaveLength(0);
                 expect(getLocalItemField(id, remote)).toBe('newRemote');
                 expect(getLocalItemField(id, local)).toBe('newLocal');
@@ -516,7 +516,7 @@ describe('sync service', () => {
 
                 // pull again
                 await syncService_pull();
-                expect(getCollectionRowCount()).toBe(remoteData.length - 1);
+                expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
                 expect(getLocalItemField(id, remote)).toBe('newRemote');
                 expect(getLocalItemField(id, local)).toBe(remoteData[2].id!);
 
@@ -540,7 +540,7 @@ describe('sync service', () => {
 
                 // pull again
                 await syncService_pull();
-                expect(getCollectionRowCount()).toBe(remoteData.length - 1);
+                expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
                 expect(getLocalItemField(id, field)).toBe(remoteData[2].id!);
 
                 testPushIndicator(true);
@@ -552,7 +552,7 @@ describe('sync service', () => {
                 const remoteData = getSomeRemoteData(type, testAddFn);
                 await reInitRemoteData(remoteData);
                 await syncService_pull(); // 1
-                expect(getCollectionRowCount()).toBe(remoteData.length - 1);
+                expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
                 const id = remoteData[0].id!;
                 expect(getLocalItemField(id, 'preview')).toBeUndefined();
 
@@ -577,7 +577,7 @@ describe('sync service', () => {
                   ];
                   await reInitRemoteData(remoteData);
                   await syncService_pull();
-                  expect(getCollectionRowCount()).toBe(3);
+                  expect(getRowCountInsideNotebook()).toBe(3);
 
                   // update locally
                   const id = remoteData[0].id!;
@@ -592,7 +592,7 @@ describe('sync service', () => {
                   await syncService_pull();
 
                   // conflict has been created
-                  expect(getCollectionRowCount()).toBe(3);
+                  expect(getRowCountInsideNotebook()).toBe(3);
                   expect(getLocalItemConflicts()).toHaveLength(1);
                   expect(collectionService.itemExists(id)).toBeFalsy();
 
@@ -642,7 +642,7 @@ describe('sync service', () => {
                   // pull again
                   await syncService_pull(); // 2
                   // a conflict file was created
-                  expect(getCollectionRowCount()).toBe(4);
+                  expect(getRowCountInsideNotebook()).toBe(4);
                   expect(getLocalItemField(id, field)).toBe('newRemote');
                   expect(getLocalItemField(id, field)).not.toBe(folder.id!);
 
@@ -654,7 +654,7 @@ describe('sync service', () => {
                   // pull again
                   await syncService_pull(); // 3
                   // conflict was untouched
-                  expect(getCollectionRowCount()).toBe(4);
+                  expect(getRowCountInsideNotebook()).toBe(4);
                   expectHasLocalItemConflict(conflictId!, true);
 
                   // update the conflict => will remove its 'conflict' flag
@@ -663,7 +663,7 @@ describe('sync service', () => {
                     'title',
                     'conflict file updated only'
                   );
-                  expect(getCollectionRowCount()).toBe(4);
+                  expect(getRowCountInsideNotebook()).toBe(4);
                   expect(localChangesService.getLocalChanges()).toHaveLength(3);
                   const lc = localChangesService
                     .getLocalChanges()
@@ -682,7 +682,7 @@ describe('sync service', () => {
                   await syncService_pull(); // 4
                   // conflict was not solved by a new timestamp, so, nothing new
                   expect(getLocalItemConflict()).toBeUndefined();
-                  expect(getCollectionRowCount()).toBe(4);
+                  expect(getRowCountInsideNotebook()).toBe(4);
 
                   // solve the conflict at last
                   expect(collectionService.itemExists(id)).toBeTruthy();
@@ -690,7 +690,7 @@ describe('sync service', () => {
 
                   // pull again
                   await syncService_pull(); // 5
-                  expect(getCollectionRowCount()).toBe(4);
+                  expect(getRowCountInsideNotebook()).toBe(4);
                   expect(
                     collectionService.itemExists(conflictId!)
                   ).toBeTruthy();
@@ -721,7 +721,7 @@ describe('sync service', () => {
                 // pull again
                 await syncService_pull(); // 2
                 // no conflict created
-                expect(getCollectionRowCount()).toBe(3);
+                expect(getRowCountInsideNotebook()).toBe(3);
                 expect(getLocalItemConflicts()).toHaveLength(0);
                 expect(getLocalItemField(id, 'title')).toBe('newLocal');
                 expect(getLocalItemField(id, 'parent')).toBe('newLocal');
@@ -752,7 +752,7 @@ describe('sync service', () => {
                 // pull again
                 await syncService_pull(); // 2
                 // a conflict is created due to title field
-                expect(getCollectionRowCount()).toBe(4);
+                expect(getRowCountInsideNotebook()).toBe(4);
                 expect(getLocalItemConflicts()).toHaveLength(1);
                 expect(getLocalItemField(id, 'title')).toBe('newRemote');
                 expect(getLocalItemField(id, 'parent')).toBe('newLocal');
@@ -772,7 +772,7 @@ describe('sync service', () => {
                   ];
                   await reInitRemoteData(remoteData);
                   await syncService_pull();
-                  expect(getCollectionRowCount()).toBe(3);
+                  expect(getRowCountInsideNotebook()).toBe(3);
 
                   // update locally
                   const id = remoteData[0].id!;
@@ -787,7 +787,7 @@ describe('sync service', () => {
                   await syncService_pull();
 
                   // no conflict has been created
-                  expect(getCollectionRowCount()).toBe(1);
+                  expect(getRowCountInsideNotebook()).toBe(1);
                   expect(getLocalItemConflicts()).toHaveLength(0);
                   expect(
                     collectionService.itemExists(remoteData[0].id!)
@@ -832,7 +832,7 @@ describe('sync service', () => {
                     // pull again
                     await syncService_pull(); // 2
                     // no conflict file was created
-                    expect(getCollectionRowCount()).toBe(3);
+                    expect(getRowCountInsideNotebook()).toBe(3);
                     expect(getLocalItemField(id, field)).toBe('newRemote');
                     expect(getLocalItemField(id, field)).not.toBe('newLocal');
 
@@ -850,7 +850,7 @@ describe('sync service', () => {
                   const remoteData = getSomeRemoteData(type, testAddFn);
                   await reInitRemoteData(remoteData);
                   await syncService_pull();
-                  expect(getCollectionRowCount()).toBe(remoteData.length - 1);
+                  expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
 
                   // update locally
                   const id = remoteData[0].id!;
@@ -863,7 +863,7 @@ describe('sync service', () => {
                   await syncService_pull();
 
                   // conflict has been created
-                  expect(getCollectionRowCount()).toBe(newRemoteData.length);
+                  expect(getRowCountInsideNotebook()).toBe(newRemoteData.length);
                   expect(getLocalItemConflicts()).toHaveLength(1);
                   expect(collectionService.itemExists(id)).toBeFalsy();
 
@@ -928,7 +928,7 @@ describe('sync service', () => {
             updateOnRemote(remoteData, remoteData[1].id!, 'notebook', n2.id!);
             await reInitRemoteData(remoteData);
             await syncService_pull();
-            expect(getCollectionRowCount()).toBe(3);
+            expect(getRowCountInsideNotebook()).toBe(3);
             expect(notebooksService.getNotebooks()).toHaveLength(2);
           });
         });
@@ -943,7 +943,7 @@ describe('sync service', () => {
             oneNotebook()
           ]);
           await syncService.pull(undefined, true);
-          expect(getCollectionRowCount()).toBe(3);
+          expect(getRowCountInsideNotebook()).toBe(3);
         });
 
         it('should erase all created local items on force pull', async () => {
@@ -957,10 +957,10 @@ describe('sync service', () => {
           // create local items
           collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
           collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
-          expect(getCollectionRowCount()).toBe(2);
+          expect(getRowCountInsideNotebook()).toBe(2);
           await syncService.pull(undefined, true);
-          expect(getCollectionRowCount()).toBe(3);
-          expect(getCollectionRowIds()).toStrictEqual(
+          expect(getRowCountInsideNotebook()).toBe(3);
+          expect(getRowIdsInsideNotebook()).toStrictEqual(
             remoteData
               .filter(r => r.type !== CollectionItemType.notebook)
               .map(r => r.id)
@@ -980,11 +980,11 @@ describe('sync service', () => {
           // create local items
           collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
           collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
-          expect(getCollectionRowCount()).toBe(2);
+          expect(getRowCountInsideNotebook()).toBe(2);
           localChangesService.clear();
           await syncService.pull(undefined, true);
-          expect(getCollectionRowCount()).toBe(3);
-          expect(getCollectionRowIds()).toStrictEqual(
+          expect(getRowCountInsideNotebook()).toBe(3);
+          expect(getRowIdsInsideNotebook()).toStrictEqual(
             remoteData
               .filter(r => r.type !== CollectionItemType.notebook)
               .map(r => r.id)
@@ -1002,7 +1002,7 @@ describe('sync service', () => {
           ];
           await reInitRemoteData(remoteData);
           await syncService_pull();
-          expect(getCollectionRowCount()).toBe(3);
+          expect(getRowCountInsideNotebook()).toBe(3);
 
           // erase locally
           const id = remoteData[0].id!;
@@ -1010,7 +1010,7 @@ describe('sync service', () => {
 
           // pull again
           await syncService.pull(undefined, true);
-          expect(getCollectionRowCount()).toBe(3);
+          expect(getRowCountInsideNotebook()).toBe(3);
 
           testPushIndicator(false);
         });
@@ -1026,14 +1026,14 @@ describe('sync service', () => {
               ];
               await reInitRemoteData(remoteData);
               await syncService.pull(undefined, true);
-              expect(getCollectionRowCount()).toBe(3);
+              expect(getRowCountInsideNotebook()).toBe(3);
               // update locally
               const id = remoteData[0].id!;
               setLocalItemField(id, field, 'newLocal');
 
               // pull again
               await syncService.pull(undefined, true);
-              expect(getCollectionRowCount()).toBe(3);
+              expect(getRowCountInsideNotebook()).toBe(3);
               expect(getLocalItemField(id, field)).not.toBe('newLocal');
 
               testPushIndicator(false);
@@ -1048,7 +1048,7 @@ describe('sync service', () => {
               ];
               await reInitRemoteData(remoteData);
               await syncService.pull(undefined, true);
-              expect(getCollectionRowCount()).toBe(3);
+              expect(getRowCountInsideNotebook()).toBe(3);
 
               const id = remoteData[0].id!;
               // change remote
@@ -1057,7 +1057,7 @@ describe('sync service', () => {
 
               // pull again
               await syncService.pull(undefined, true);
-              expect(getCollectionRowCount()).toBe(3);
+              expect(getRowCountInsideNotebook()).toBe(3);
               expect(collectionService.itemExists(id));
               expect(getLocalItemField(id, field)).toBe('newRemote');
             });
@@ -1071,7 +1071,7 @@ describe('sync service', () => {
               ];
               await reInitRemoteData(remoteData);
               await syncService_pull();
-              expect(getCollectionRowCount()).toBe(3);
+              expect(getRowCountInsideNotebook()).toBe(3);
 
               // update locally
               const id = remoteData[0].id!;
@@ -1084,7 +1084,7 @@ describe('sync service', () => {
                 remoteData[3]
               ]);
               await syncService.pull(undefined, true);
-              expect(getCollectionRowCount()).toBe(2);
+              expect(getRowCountInsideNotebook()).toBe(2);
               expect(collectionService.itemExists(id)).toBeFalsy();
               testPushIndicator(false);
             });
@@ -1111,7 +1111,7 @@ describe('sync service', () => {
 
               // pull again
               await syncService.pull(undefined, true);
-              expect(getCollectionRowCount()).toBe(3); // no conflict file was created
+              expect(getRowCountInsideNotebook()).toBe(3); // no conflict file was created
               expect(getLocalItemField(id, remote)).toBe('newRemote');
               expect(getLocalItemField(id, local)).not.toBe('newLocal');
 
@@ -1138,7 +1138,7 @@ describe('sync service', () => {
 
               // pull again
               await syncService.pull(undefined, true);
-              expect(getCollectionRowCount()).toBe(3);
+              expect(getRowCountInsideNotebook()).toBe(3);
               expect(getLocalItemField(id, remote)).toBe('newRemote');
               expect(getLocalItemField(id, local)).not.toBe('newLocal');
 
@@ -1150,7 +1150,7 @@ describe('sync service', () => {
 
       describe('on push operation', () => {
         it('should only push notebook on first push if collection is empty', async () => {
-          expect(getCollectionRowCount()).toBe(0);
+          expect(getRowCountInsideNotebook()).toBe(0);
           await syncService_push();
           const remoteContent = await driver.getContent();
           expect(remoteContent.content).toHaveLength(1);
@@ -1163,7 +1163,7 @@ describe('sync service', () => {
           collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
           collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
           collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
-          expect(getCollectionRowCount()).toBe(3);
+          expect(getRowCountInsideNotebook()).toBe(3);
           localChangesService.clear();
 
           await syncService_pull();
@@ -1191,7 +1191,7 @@ describe('sync service', () => {
           collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
           collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
           collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
-          expect(getCollectionRowCount()).toBe(3);
+          expect(getRowCountInsideNotebook()).toBe(3);
           await syncService_push();
           const remoteContent = driver.getContent();
           expect(remoteContent.content).toHaveLength(4); // 3 + 1 notebook
@@ -1440,7 +1440,7 @@ describe('sync service', () => {
                   await syncService_pull();
 
                   expect(getLocalItemConflicts()).toHaveLength(1);
-                  expect(getCollectionRowCount()).toBe(4); // a conflict file was created
+                  expect(getRowCountInsideNotebook()).toBe(4); // a conflict file was created
 
                   // conflict should not be pushed, remote value is kept
                   await syncService_push();
@@ -1465,7 +1465,7 @@ describe('sync service', () => {
           notebooksService.setCurrentNotebook(notebookId);
           collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
           collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
-          expect(getCollectionRowCount()).toBe(3);
+          expect(getRowCountInsideNotebook()).toBe(3);
 
           await syncService_push();
           const remoteContent = await driver.getContent();
@@ -1475,7 +1475,7 @@ describe('sync service', () => {
 
       describe('on force-push operation', () => {
         it('should push nothing the first push if collection is empty', async () => {
-          expect(getCollectionRowCount()).toBe(0);
+          expect(getRowCountInsideNotebook()).toBe(0);
           await syncService.push(undefined, true);
           const remoteContent = await driver.getContent();
           expect(remoteContent.content).toHaveLength(1);
@@ -1486,7 +1486,7 @@ describe('sync service', () => {
           collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
           collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
           collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
-          expect(getCollectionRowCount()).toBe(3);
+          expect(getRowCountInsideNotebook()).toBe(3);
           localChangesService.clear();
 
           await syncService_pull();
@@ -1515,7 +1515,7 @@ describe('sync service', () => {
           collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
           collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
           collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
-          expect(getCollectionRowCount()).toBe(3);
+          expect(getRowCountInsideNotebook()).toBe(3);
           await syncService.push(undefined, true);
           const remoteContent = driver.getContent();
           expect(remoteContent.content).toHaveLength(4); // 3 + 1 notebook
@@ -1816,7 +1816,7 @@ describe('sync service', () => {
             updateOnRemote(remoteData, id, remote);
             await reInitRemoteData(remoteData);
             await syncService_pull();
-            expect(getCollectionRowCount()).toBe(4); // a conflict file was created
+            expect(getRowCountInsideNotebook()).toBe(4); // a conflict file was created
 
             // conflict should not be pushed, remote value is kept
             await syncService.push(undefined, true);
