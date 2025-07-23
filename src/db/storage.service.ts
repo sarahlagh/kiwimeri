@@ -37,11 +37,10 @@ class StorageService {
     this.store = createStore()
       .setTablesSchema({
         spaces: {
-          currentNotebook: {
+          currentFolder: {
             type: 'string',
             default: DEFAULT_NOTEBOOK_ID
           } as CellSchema,
-          currentFolder: { type: 'string' } as CellSchema,
           currentDocument: { type: 'string' } as CellSchema,
           currentPage: { type: 'string' } as CellSchema,
           lastLocalChange: { type: 'number' } as CellSchema

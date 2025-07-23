@@ -226,12 +226,20 @@ export const GET_ALL_CHANGES = (type: string) =>
     filterPerLocalRemoteAndType(f.local, f.remote, type)
   );
 
-export const getCollectionRowCount = () => {
-  return collectionService.getAllCollectionItems().length;
+export const getRowCountInsideNotebook = (notebook?: string) => {
+  if (!notebook) {
+    notebook = DEFAULT_NOTEBOOK_ID;
+  }
+  return collectionService.getAllCollectionItemsInParent(notebook).length;
 };
 
-export const getCollectionRowIds = () => {
-  return collectionService.getAllCollectionItems().map(i => i.id);
+export const getRowIdsInsideNotebook = (notebook?: string) => {
+  if (!notebook) {
+    notebook = DEFAULT_NOTEBOOK_ID;
+  }
+  return collectionService
+    .getAllCollectionItemsInParent(notebook)
+    .map(i => i.id);
 };
 
 export const getCollectionItem = (id: string) => {
