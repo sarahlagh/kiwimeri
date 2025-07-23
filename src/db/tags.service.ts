@@ -9,7 +9,8 @@ class TagsService {
   public reBuildTags() {
     this.itemsPerTags.clear();
     const notebook = notebooksService.getCurrentNotebook();
-    const collection = collectionService.getBrowsableCollectionItems(notebook);
+    const collection =
+      collectionService.getAllCollectionItemsInParent(notebook);
     collection
       .filter(item => item.tags !== undefined && item.tags.length > 0)
       .forEach(item => {
