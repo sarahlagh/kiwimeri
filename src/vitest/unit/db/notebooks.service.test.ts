@@ -1,6 +1,6 @@
 import { parseFieldMeta } from '@/collection/collection';
 import { getGlobalTrans } from '@/config';
-import { ROOT_FOLDER, ROOT_NOTEBOOK } from '@/constants';
+import { DEFAULT_NOTEBOOK_ID, ROOT_NOTEBOOK } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import {
@@ -45,26 +45,6 @@ describe('notebooks service', () => {
     vi.useRealTimers();
   });
 
-  it(`should create items inside current notebook`, () => {
-    const id0 = collectionService.addDocument(ROOT_FOLDER);
-    expect(collectionService.getItemField(id0, 'notebook')).not.toBe(
-      ROOT_NOTEBOOK
-    );
-    expect(collectionService.getItemField(id0, 'notebook')).toBe(
-      notebooksService.getCurrentNotebook()
-    );
-
-    const n1 = notebooksService.addNotebook('non default notebook 1');
-    notebooksService.setCurrentNotebook(n1!);
-
-    const id1 = collectionService.addDocument(ROOT_FOLDER);
-    const id2 = collectionService.addFolder(ROOT_FOLDER);
-    const id3 = collectionService.addDocument(id2);
-    expect(collectionService.getItemField(id1, 'notebook')).toBe(n1);
-    expect(collectionService.getItemField(id2, 'notebook')).toBe(n1);
-    expect(collectionService.getItemField(id3, 'notebook')).toBe(n1);
-  });
-
   NON_PARENT_NON_NOTEBOOK_UPDATABLE_FIELDS.forEach(({ field }) => {
     it(`should not update notebook modified timestamp on items update with ${field}`, () => {
       vi.useFakeTimers();
@@ -73,8 +53,8 @@ describe('notebooks service', () => {
       notebooksService.setCurrentNotebook(n1);
       vi.advanceTimersByTime(100);
 
-      const id1 = collectionService.addDocument(ROOT_FOLDER);
-      const id2 = collectionService.addFolder(ROOT_FOLDER);
+      const id1 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const id2 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
       collectionService.setItemField(id1, field, 'newValue');
       collectionService.setItemField(id2, field, 'newValue');
 
@@ -96,11 +76,9 @@ describe('notebooks service', () => {
     expect(collectionService.itemExists(n1)).toBe(true);
     notebooksService.setCurrentNotebook(n1);
 
-    const id1 = collectionService.addDocument(ROOT_FOLDER);
-    const id2 = collectionService.addFolder(ROOT_FOLDER);
+    const id1 = collectionService.addDocument(n1);
+    const id2 = collectionService.addFolder(n1);
     const id3 = collectionService.addDocument(id2);
-
-    expect(collectionService.getItemField(id1, 'notebook')).toBe(n1);
 
     notebooksService.deleteNotebook(n1);
     expect(collectionService.itemExists(n1)).toBe(false);

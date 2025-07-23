@@ -10,14 +10,13 @@ import {
 } from '@/collection/collection';
 import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
 import { getGlobalTrans } from '@/config';
-import { FAKE_ROOT, ROOT_FOLDER } from '@/constants';
+import { ROOT_NOTEBOOK } from '@/constants';
 import formatterService from '@/format-conversion/formatter.service';
 import { SerializedEditorState } from 'lexical';
 import { getUniqueId } from 'tinybase/common';
 import { Id } from 'tinybase/common/with-schemas';
 import { Table } from 'tinybase/store';
 import localChangesService from './localChanges.service';
-import notebooksService from './notebooks.service';
 import storageService from './storage.service';
 import {
   useCellWithRef,
@@ -36,14 +35,13 @@ class CollectionService {
   private readonly table = 'collection';
   private readonly previewSize = 80;
 
-  private fetchDocsAndFoldersPerParentQuery(
-    notebook: string,
-    parent: string,
-    deleted: boolean = false
-  ) {
+  private fetchAllPerParentQuery(parent?: string, deleted: boolean = false) {
     const queries = storageService.getSpaceQueries();
-    const queryName = `fetchAllCollectionItemsIn${notebook}For${parent}`;
-    if (parent !== FAKE_ROOT && !queries.hasQuery(queryName)) {
+    if (!parent) {
+      parent = ROOT_NOTEBOOK;
+    }
+    const queryName = `fetchAllForParent${parent}`;
+    if (parent !== ROOT_NOTEBOOK && !queries.hasQuery(queryName)) {
       queries.setQueryDefinition(queryName, this.table, ({ select, where }) => {
         select('title');
         select('type');
@@ -52,7 +50,28 @@ class CollectionService {
         select('updated');
         select('conflict');
         select('preview');
-        where('notebook', notebook);
+        where('parent', parent);
+        where('deleted', deleted);
+      });
+    }
+    return queryName;
+  }
+
+  private fetchDocsAndFoldersPerParentQuery(
+    parent: string,
+    deleted: boolean = false
+  ) {
+    const queries = storageService.getSpaceQueries();
+    const queryName = `fetchAllCollectionItemsFor${parent}`;
+    if (parent !== ROOT_NOTEBOOK && !queries.hasQuery(queryName)) {
+      queries.setQueryDefinition(queryName, this.table, ({ select, where }) => {
+        select('title');
+        select('type');
+        select('tags');
+        select('created');
+        select('updated');
+        select('conflict');
+        select('preview');
         where('parent', parent);
         where('deleted', deleted);
         where(getCell => {
@@ -61,33 +80,6 @@ class CollectionService {
             type === CollectionItemType.document ||
             type === CollectionItemType.folder
           );
-        });
-      });
-    }
-    return queryName;
-  }
-
-  private fetchCollectionItemsPerNotebookQuery(
-    notebook?: string,
-    deleted: boolean = false
-  ) {
-    const queries = storageService.getSpaceQueries();
-    const queryName = `fetchAllCollectionItems`;
-    if (!queries.hasQuery(queryName)) {
-      queries.setQueryDefinition(queryName, this.table, ({ select, where }) => {
-        select('title');
-        select('type');
-        select('tags');
-        select('created');
-        select('updated');
-        select('conflict');
-        where('deleted', deleted);
-        if (notebook) {
-          where('notebook', notebook);
-        }
-        where(getCell => {
-          const type = getCell('type')?.valueOf();
-          return type !== CollectionItemType.notebook;
         });
       });
     }
@@ -111,32 +103,30 @@ class CollectionService {
   }
 
   public getAllCollectionItems(
-    notebook?: string,
+    parent?: string,
     sortBy: 'created' | 'updated' = 'created',
     descending = false
   ) {
     const table = storageService.getSpace().getTable(this.table);
-    const queryName = this.fetchCollectionItemsPerNotebookQuery(notebook);
-    return storageService
+    const queryName = this.fetchAllPerParentQuery(parent);
+    const results: CollectionItemResult[] = storageService
       .getSpaceQueries()
       .getResultSortedRowIds(queryName, sortBy, descending)
       .map(rowId => {
         const row = table[rowId];
         return { ...row, id: rowId } as CollectionItemResult;
       });
+    // TODO recursivity
+    return results;
   }
 
   public getBrowsableCollectionItems(
     parent: string,
-    notebook?: string,
     sortBy: 'created' | 'updated' = 'created',
     descending = false
   ) {
-    if (!notebook) {
-      notebook = notebooksService.getCurrentNotebook();
-    }
     const table = storageService.getSpace().getTable(this.table);
-    const queryName = this.fetchDocsAndFoldersPerParentQuery(notebook, parent);
+    const queryName = this.fetchDocsAndFoldersPerParentQuery(parent);
     return storageService
       .getSpaceQueries()
       .getResultSortedRowIds(queryName, sortBy, descending)
@@ -148,17 +138,11 @@ class CollectionService {
 
   public useBrowsableCollectionItems(
     parent: string,
-    notebook?: string,
     sortBy: 'created' | 'updated' = 'created',
     descending = false
   ): CollectionItemResult[] {
-    const currentNotebook = notebooksService.useCurrentNotebook();
-    const notebookId = notebook ? notebook : currentNotebook;
     const table = useTableWithRef(this.storeId, this.table);
-    const queryName = this.fetchDocsAndFoldersPerParentQuery(
-      notebookId,
-      parent
-    );
+    const queryName = this.fetchDocsAndFoldersPerParentQuery(parent);
     return this.useResultsSorted(table, queryName, sortBy, descending);
   }
 
@@ -205,10 +189,7 @@ class CollectionService {
     });
   }
 
-  public getNewDocumentObj(parent: string, notebook?: string) {
-    if (!notebook) {
-      notebook = notebooksService.getCurrentNotebook();
-    }
+  public getNewDocumentObj(parent: string) {
     const id = getUniqueId();
     const now = Date.now();
     const content = initialContent();
@@ -217,8 +198,6 @@ class CollectionService {
       title_meta: setFieldMeta(getGlobalTrans().newDocTitle, now),
       parent,
       parent_meta: setFieldMeta(parent, now),
-      notebook,
-      notebook_meta: setFieldMeta(notebook, now),
       content,
       content_meta: setFieldMeta(content, now),
       preview: '',
@@ -233,16 +212,13 @@ class CollectionService {
     return { item, id };
   }
 
-  public addDocument(parent: string, notebook?: string) {
-    const { item, id } = this.getNewDocumentObj(parent, notebook);
+  public addDocument(parent: string) {
+    const { item, id } = this.getNewDocumentObj(parent);
     this.saveItem(item, id, parent);
     return id;
   }
 
-  public getNewFolderObj(parent: string, notebook?: string) {
-    if (!notebook) {
-      notebook = notebooksService.getCurrentNotebook();
-    }
+  public getNewFolderObj(parent: string) {
     const now = Date.now();
     const id = getUniqueId();
     const item: CollectionItem = {
@@ -250,8 +226,6 @@ class CollectionService {
       title_meta: setFieldMeta(getGlobalTrans().newFolderTitle, now),
       parent: parent,
       parent_meta: setFieldMeta(parent, now),
-      notebook,
-      notebook_meta: setFieldMeta(notebook, now),
       tags: '',
       tags_meta: setFieldMeta('', now),
       created: now,
@@ -263,24 +237,19 @@ class CollectionService {
     return { item, id };
   }
 
-  public addFolder(parent: string, notebook?: string) {
-    const { item, id } = this.getNewFolderObj(parent, notebook);
+  public addFolder(parent: string) {
+    const { item, id } = this.getNewFolderObj(parent);
     this.saveItem(item, id);
     return id;
   }
 
-  public getNewPageObj(document: string, notebook?: string) {
-    if (!notebook) {
-      notebook = notebooksService.getCurrentNotebook();
-    }
+  public getNewPageObj(document: string) {
     const id = getUniqueId();
     const now = Date.now();
     const content = initialContent();
     const item: Omit<CollectionItem, 'title' | 'title_meta'> = {
       parent: document,
       parent_meta: setFieldMeta(document, now),
-      notebook,
-      notebook_meta: setFieldMeta(notebook, now),
       content,
       content_meta: setFieldMeta(content, now),
       preview: '',
@@ -293,8 +262,8 @@ class CollectionService {
     return { item, id };
   }
 
-  public addPage(document: string, notebook?: string) {
-    const { item, id } = this.getNewPageObj(document, notebook);
+  public addPage(document: string) {
+    const { item, id } = this.getNewPageObj(document);
     this.saveItem(item as CollectionItem, id, document);
     return id;
   }
@@ -319,14 +288,13 @@ class CollectionService {
   }
 
   public deleteItem(rowId: Id, moveItemsUp = false) {
-    const notebook = notebooksService.getCurrentNotebook();
     this.updateParentUpdatedRecursive(this.getItemParent(rowId));
     const wasFolder = this.getItemType(rowId) === CollectionItemType.folder;
     const wasDocument = this.getItemType(rowId) === CollectionItemType.document;
     const parent = this.getItemParent(rowId);
     localChangesService.addLocalChange(rowId, LocalChangeType.delete);
     if (wasFolder) {
-      const queryName = this.fetchDocsAndFoldersPerParentQuery(notebook, rowId);
+      const queryName = this.fetchDocsAndFoldersPerParentQuery(rowId);
       const children = storageService
         .getSpaceQueries()
         .getResultSortedRowIds(queryName);
@@ -356,12 +324,9 @@ class CollectionService {
     storageService.getSpace().delRow(this.table, rowId);
   }
 
-  public itemExists(rowId: Id, notebook?: string) {
-    if (rowId === ROOT_FOLDER) {
+  public itemExists(rowId: Id) {
+    if (rowId === ROOT_NOTEBOOK) {
       return true;
-    }
-    if (notebook !== undefined) {
-      return this.getItemField(rowId, 'notebook') === notebook;
     }
     return storageService.getSpace().hasRow(this.table, rowId);
   }
@@ -371,22 +336,34 @@ class CollectionService {
       (storageService
         .getSpace()
         .getCell(this.table, rowId, 'parent')
-        ?.valueOf() as string) || ROOT_FOLDER
+        ?.valueOf() as string) || ROOT_NOTEBOOK
     );
   }
 
-  public setItemParent(rowId: Id, parentId: Id, notebookId?: Id) {
-    storageService.getSpace().transaction(() => {
-      this.setItemField(rowId, 'parent', parentId);
-      if (notebookId) {
-        this.setItemField(rowId, 'notebook', notebookId);
-      }
-    });
+  public setItemParent(rowId: Id, parentId: Id) {
+    this.setItemField(rowId, 'parent', parentId);
+  }
+
+  public getIsItemHomeFolder(rowId: Id) {
+    const parent = this.getItemParent(rowId);
+    const parentType = this.getItemType(parent);
+    return parentType === CollectionItemType.notebook;
+  }
+
+  public useIsItemHomeFolder(rowId: Id) {
+    const parent = this.useItemParent(rowId);
+    const parentType = useCellWithRef<string>(
+      this.storeId,
+      this.table,
+      parent,
+      'type'
+    ) as CollectionItemTypeValues;
+    return parentType === CollectionItemType.notebook;
   }
 
   public useItemTitle(rowId: Id) {
-    const defaultValue =
-      rowId === ROOT_FOLDER ? getGlobalTrans().homeTitle : '';
+    const isItemHomeFolder = this.useIsItemHomeFolder(rowId);
+    const defaultValue = isItemHomeFolder ? getGlobalTrans().homeTitle : '';
     return (
       useCellWithRef<string>(this.storeId, this.table, rowId, 'title') ||
       defaultValue
@@ -394,8 +371,8 @@ class CollectionService {
   }
 
   public getItemTitle(rowId: Id) {
-    const defaultValue =
-      rowId === ROOT_FOLDER ? getGlobalTrans().homeTitle : '';
+    const isItemHomeFolder = this.getIsItemHomeFolder(rowId);
+    const defaultValue = isItemHomeFolder ? getGlobalTrans().homeTitle : '';
     return (
       (storageService
         .getSpace()
@@ -420,6 +397,13 @@ class CollectionService {
   public useItemContent(rowId: Id) {
     return (
       useCellWithRef<string>(this.storeId, this.table, rowId, 'content') || null
+    );
+  }
+
+  public useItemParent(rowId: Id) {
+    return (
+      useCellWithRef<string>(this.storeId, this.table, rowId, 'parent') ||
+      ROOT_NOTEBOOK
     );
   }
 
@@ -552,10 +536,7 @@ class CollectionService {
           `${key}_meta`,
           setFieldMeta(`${value}`, updated)
         );
-      if (
-        (key !== 'parent' && key !== 'notebook') ||
-        type === CollectionItemType.page
-      ) {
+      if (key !== 'parent' || type === CollectionItemType.page) {
         storageService
           .getSpace()
           .setCell('collection', rowId, 'updated', updated);
@@ -587,18 +568,27 @@ class CollectionService {
     });
   }
 
-  public getBreadcrumb(folder: string) {
+  public getBreadcrumb(folder: string, includeNotebooks = false) {
     let parent = folder;
     let breadcrumb: string[] = [folder];
-    while (parent !== ROOT_FOLDER) {
-      parent = this.getItemParent(parent);
-      breadcrumb = [parent, ...breadcrumb];
+    if (!includeNotebooks) {
+      let parentType = collectionService.getItemType(parent);
+      while (parentType !== CollectionItemType.notebook) {
+        parent = this.getItemParent(parent);
+        parentType = collectionService.getItemType(parent);
+        breadcrumb = [parent, ...breadcrumb];
+      }
+    } else {
+      while (parent !== ROOT_NOTEBOOK) {
+        parent = this.getItemParent(parent);
+        breadcrumb = [parent, ...breadcrumb];
+      }
     }
     return breadcrumb;
   }
 
   private updateParentUpdatedRecursive(folder: string) {
-    if (folder === ROOT_FOLDER) {
+    if (folder === ROOT_NOTEBOOK) {
       return;
     }
     storageService

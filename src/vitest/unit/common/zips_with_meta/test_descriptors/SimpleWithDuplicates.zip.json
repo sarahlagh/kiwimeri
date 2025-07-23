@@ -43,7 +43,7 @@
               {
                 "id": "#id",
                 "title": "New folder",
-                "parent": "home",
+                "parent": "0",
                 "type": "f",
                 "created": 1753088317511,
                 "updated": 1753088448208
@@ -118,7 +118,7 @@
             "newItems": [
               {
                 "title": "DSimple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__",
                 "created": 1753088451756,
@@ -126,7 +126,7 @@
               },
               {
                 "title": "DSimple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__",
                 "created": 1753088451757,
@@ -134,7 +134,7 @@
               },
               {
                 "title": "DSimple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__",
                 "created": 1753088451754,
@@ -174,25 +174,25 @@
             "newItems": [
               {
                 "title": "Simple (1)",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               },
               {
                 "title": "Simple (2)",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               },
               {
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               },
               {
                 "title": "meta.json",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               }
@@ -235,25 +235,25 @@
             "newItems": [
               {
                 "title": "Simple (1).md",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               },
               {
                 "title": "Simple (2).md",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               },
               {
                 "title": "Simple.md",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               },
               {
                 "title": "meta.json",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               }
@@ -296,25 +296,25 @@
             "newItems": [
               {
                 "title": "Simple.md",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               },
               {
                 "title": "Simple.md",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               },
               {
                 "title": "Simple.md",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               },
               {
                 "title": "meta.json",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               }
@@ -357,25 +357,25 @@
             "newItems": [
               {
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               },
               {
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               },
               {
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               },
               {
                 "title": "meta.json",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               }

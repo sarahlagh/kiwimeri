@@ -78,9 +78,7 @@ class NotebooksService {
       updated: Date.now(),
       type: CollectionItemType.notebook,
       deleted: false,
-      deleted_meta: setFieldMeta('false', now),
-      notebook: '',
-      notebook_meta: ''
+      deleted_meta: setFieldMeta('false', now)
     };
     return {
       id,
@@ -109,6 +107,25 @@ class NotebooksService {
         'currentNotebook',
         id
       );
+
+    // storageService.getStore().transaction(() => {
+    //   storageService
+    //     .getStore()
+    //     .setCell(
+    //       this.spacesTable,
+    //       storageService.getSpaceId(),
+    //       'currentNotebook',
+    //       id
+    //     );
+    //   storageService
+    //     .getStore()
+    //     .setCell(
+    //       this.spacesTable,
+    //       storageService.getSpaceId(),
+    //       'currentFolder',
+    //       id
+    //     );
+    // });
   }
 
   public getCurrentNotebook() {

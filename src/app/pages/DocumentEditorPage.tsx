@@ -2,8 +2,9 @@ import CollectionItemBrowserList from '@/collection/components/CollectionItemBro
 import DocumentEditor from '@/collection/components/DocumentEditor';
 import { onTitleChangeFn } from '@/common/events/events';
 import { getSearchParams } from '@/common/utils';
-import { APPICONS, FAKE_ROOT, ROOT_FOLDER } from '@/constants';
+import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
+import notebooksService from '@/db/notebooks.service';
 import { IonButton, IonIcon } from '@ionic/react';
 import { useState } from 'react';
 import { useLocation } from 'react-router';
@@ -12,8 +13,9 @@ import TemplateCompactableSplitPage from './TemplateCompactableSplitPage';
 const DocumentEditorPage = () => {
   const location = useLocation();
   const searchParams = getSearchParams(location.search);
-  const docId = searchParams.document || FAKE_ROOT;
-  const parent = searchParams.folder || FAKE_ROOT;
+  const notebook = notebooksService.useCurrentNotebook();
+  const docId = searchParams.document || notebook;
+  const parent = searchParams.folder || notebook;
   const pageId = searchParams.page;
 
   const [showDocumentActions, setShowDocumentActions] = useState(false);
@@ -45,7 +47,7 @@ const DocumentEditorPage = () => {
       }}
       headerIfWide={{
         title: folderTitle, // to replace with breadcrumb
-        editable: parent !== ROOT_FOLDER,
+        editable: parent !== notebook,
         onEdited: onFolderTitleChange
       }}
       menu={

@@ -11,8 +11,6 @@ export interface CollectionItem {
   id?: string;
   parent: string;
   parent_meta: string;
-  notebook: string;
-  notebook_meta: string;
   type: CollectionItemTypeValues;
   title: string;
   title_meta: string;
@@ -37,13 +35,7 @@ export type CollectionItemFieldEnum = keyof Required<
 export type CollectionItemUpdatableFieldEnum = keyof Required<
   Pick<
     CollectionItem,
-    | 'parent'
-    | 'notebook'
-    | 'title'
-    | 'content'
-    | 'tags'
-    | 'deleted'
-    | 'display_opts'
+    'parent' | 'title' | 'content' | 'tags' | 'deleted' | 'display_opts'
   >
 >;
 

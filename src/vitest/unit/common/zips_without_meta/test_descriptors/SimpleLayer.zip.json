@@ -27,7 +27,7 @@
               {
                 "id": "#id",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "f"
               },
               {
@@ -64,7 +64,7 @@
             "newItems": [
               {
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               }
@@ -97,7 +97,7 @@
               {
                 "id": "#id1",
                 "title": "SimpleLayer",
-                "parent": "home",
+                "parent": "0",
                 "type": "f"
               },
               {
@@ -141,7 +141,7 @@
               {
                 "id": "#id",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "f"
               },
               {
@@ -167,19 +167,19 @@
       "initData": [
         {
           "title": "AnotherDoc",
-          "parent": "home",
+          "parent": "0",
           "type": "d"
         },
         {
           "id": "#dID0",
           "title": "Simple",
-          "parent": "home",
+          "parent": "0",
           "type": "d"
         },
         {
           "id": "#fID1",
           "title": "Simple",
-          "parent": "home",
+          "parent": "0",
           "type": "f"
         },
         {
@@ -196,7 +196,7 @@
         {
           "id": "#fID2",
           "title": "AnotherFolder",
-          "parent": "home",
+          "parent": "0",
           "type": "f"
         },
         {
@@ -212,7 +212,7 @@
         {
           "id": "#fID3",
           "title": "AnotherFolderSimple",
-          "parent": "home",
+          "parent": "0",
           "type": "f"
         },
         {
@@ -237,7 +237,7 @@
               {
                 "id": "#id",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "f"
               },
               {
@@ -258,7 +258,7 @@
               {
                 "id": "#fID1",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "f"
               }
             ]
@@ -277,7 +277,7 @@
             "newItems": [
               {
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               }
@@ -293,7 +293,7 @@
               {
                 "id": "#dID0",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d"
               }
             ]
@@ -314,7 +314,7 @@
               {
                 "id": "#fID1",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "f"
               },
               {
@@ -336,7 +336,7 @@
               {
                 "id": "#fID1",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "f"
               }
             ]
@@ -356,7 +356,7 @@
               {
                 "id": "#dID0",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               }
@@ -372,7 +372,7 @@
               {
                 "id": "#dID0",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d"
               }
             ]
@@ -393,7 +393,7 @@
               {
                 "id": "#id1",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "f"
               },
               {
@@ -420,7 +420,7 @@
               {
                 "id": "#fID1",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "f"
               }
             ]
@@ -440,7 +440,7 @@
               {
                 "id": "#id",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "f"
               },
               {
@@ -461,7 +461,7 @@
               {
                 "id": "#fID1",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "f"
               }
             ]
@@ -482,7 +482,7 @@
               {
                 "id": "#fID1",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "f"
               }
             ],
@@ -511,7 +511,7 @@
               {
                 "id": "#fID1",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "f"
               }
             ]
@@ -531,7 +531,7 @@
               {
                 "id": "#fID1",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "f"
               },
               {
@@ -552,7 +552,7 @@
               {
                 "id": "#fID1",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "f"
               }
             ]

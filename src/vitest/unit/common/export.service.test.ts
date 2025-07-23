@@ -6,7 +6,7 @@ import {
   ZipMetadata
 } from '@/common/services/export.service';
 import { getGlobalTrans } from '@/config';
-import { META_JSON, ROOT_FOLDER } from '@/constants';
+import { DEFAULT_NOTEBOOK_ID, META_JSON } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import formatterService from '@/format-conversion/formatter.service';
@@ -21,20 +21,15 @@ describe('export service', () => {
     vi.useRealTimers();
   });
 
-  const newDoc = (
-    parent: string,
-    content: string,
-    pages?: string[],
-    notebook?: string
-  ) => {
-    const id = collectionService.addDocument(parent, notebook);
+  const newDoc = (parent: string, content: string, pages?: string[]) => {
+    const id = collectionService.addDocument(parent);
     collectionService.setItemLexicalContent(
       id,
       formatterService.getLexicalFromMarkdown(content)
     );
     if (pages) {
       pages.forEach(page => {
-        const pId = collectionService.addPage(id, notebook);
+        const pId = collectionService.addPage(id);
         collectionService.setItemLexicalContent(
           pId,
           formatterService.getLexicalFromMarkdown(page)
@@ -113,16 +108,21 @@ describe('export service', () => {
 
         if (opts.inlinePages) {
           it('should export a single document with no pages as a single file if inlinePages=true', () => {
-            const id = newDoc(ROOT_FOLDER, 'this is the document content');
+            const id = newDoc(
+              DEFAULT_NOTEBOOK_ID,
+              'this is the document content'
+            );
 
             const content = exportService.getSingleDocumentContent(id, opts);
             expect(content).toBe('this is the document content\n\n');
           });
 
           it('should export a single document with pages as a single file if inlinePages=true', () => {
-            const id = newDoc(ROOT_FOLDER, 'this is the document content', [
-              'this is the page content'
-            ]);
+            const id = newDoc(
+              DEFAULT_NOTEBOOK_ID,
+              'this is the document content',
+              ['this is the page content']
+            );
 
             const content = exportService.getSingleDocumentContent(id, opts);
             expect(content).toBe(
@@ -133,7 +133,7 @@ describe('export service', () => {
           });
 
           it('should export a folder with pages as a zip if inlinePages=true', () => {
-            const fId = collectionService.addFolder(ROOT_FOLDER);
+            const fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
             newDoc(fId, 'this is the document content', [
               'this is the page content'
             ]);
@@ -166,7 +166,7 @@ describe('export service', () => {
           it.todo(
             'should export a folder with pages as a zip if inlinePages=false',
             () => {
-              const fId = collectionService.addFolder(ROOT_FOLDER);
+              const fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
               newDoc(fId, 'this is the document content', [
                 'this is the page content'
               ]);
@@ -177,7 +177,7 @@ describe('export service', () => {
         }
 
         it(`should export an empty folder as a zip with inlinePages=${opts.inlinePages}`, () => {
-          const fId = collectionService.addFolder(ROOT_FOLDER);
+          const fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
           const zipContent = exportService.getFolderContent(fId, opts);
           expect(
             Object.keys(zipContent).filter(k => k !== META_JSON)
@@ -186,7 +186,7 @@ describe('export service', () => {
         });
 
         it(`should export a folder with tags as a zip with inlinePages=${opts.inlinePages}`, () => {
-          const fId = collectionService.addFolder(ROOT_FOLDER);
+          const fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
           const dId = newDoc(fId, 'this is the document content');
           collectionService.addItemTag(dId, 'tag1');
           collectionService.addItemTag(dId, 'tag2');
@@ -205,7 +205,7 @@ describe('export service', () => {
         });
 
         it(`should export a folder with several levels as a zip with inlinePages=${opts.inlinePages}`, () => {
-          const fId = collectionService.addFolder(ROOT_FOLDER);
+          const fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
           newDoc(fId, 'this is the document content');
           const fId2 = collectionService.addFolder(fId);
           newDoc(fId2, 'this is the document content');
@@ -226,7 +226,7 @@ describe('export service', () => {
         });
 
         it(`should export a folder with several levels with folders and docs as first level as a zip with inlinePages=${opts.inlinePages}`, () => {
-          const fId = collectionService.addFolder(ROOT_FOLDER);
+          const fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
           newDoc(fId, 'this is the document content');
           const fId2 = collectionService.addFolder(fId);
           const fId3 = collectionService.addFolder(fId2);
@@ -254,7 +254,7 @@ describe('export service', () => {
         });
 
         it(`should export a folder with several levels with folders as first level as a zip with inlinePages=${opts.inlinePages}`, () => {
-          const fId = collectionService.addFolder(ROOT_FOLDER);
+          const fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
           const fId2 = collectionService.addFolder(fId);
           const fId3 = collectionService.addFolder(fId2);
           newDoc(fId3, 'this is the document content');
@@ -277,7 +277,7 @@ describe('export service', () => {
         });
 
         it(`should export a folder as a zip with duplicates inside with inlinePages=${opts.inlinePages}`, () => {
-          const fId = collectionService.addFolder(ROOT_FOLDER);
+          const fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
           newDoc(fId, 'this is the document content');
           newDoc(fId, 'this is the document content');
           newDoc(fId, 'this is the document content');
@@ -302,10 +302,13 @@ describe('export service', () => {
         });
 
         it(`should export a notebook as a zip with inlinePages=${opts.inlinePages}`, () => {
-          const fId = collectionService.addFolder(ROOT_FOLDER);
+          const fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
           newDoc(fId, 'this is the document content');
 
-          const zipContent = exportService.getFolderContent(ROOT_FOLDER, opts);
+          const zipContent = exportService.getFolderContent(
+            DEFAULT_NOTEBOOK_ID,
+            opts
+          );
           expect(zipContent['New folder']).toBeDefined();
           expect(zipContent['New folder']['New document.md']).toBeDefined();
           expect(
@@ -317,11 +320,14 @@ describe('export service', () => {
         });
 
         it(`should export a notebook with folders as first level as a zip with inlinePages=${opts.inlinePages}`, () => {
-          const fId = collectionService.addFolder(ROOT_FOLDER);
+          const fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
           const fId2 = collectionService.addFolder(fId);
           newDoc(fId2, 'this is the document content');
 
-          const zipContent = exportService.getFolderContent(ROOT_FOLDER, opts);
+          const zipContent = exportService.getFolderContent(
+            DEFAULT_NOTEBOOK_ID,
+            opts
+          );
           expect(zipContent['New folder']).toBeDefined();
           expect(zipContent['New folder']['New folder']).toBeDefined();
           expect(
@@ -340,12 +346,15 @@ describe('export service', () => {
         });
 
         it(`should export a notebook with folders and docs as first level as a zip with inlinePages=${opts.inlinePages}`, () => {
-          const fId = collectionService.addFolder(ROOT_FOLDER);
+          const fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
           newDoc(fId, 'this is the document content');
           const fId2 = collectionService.addFolder(fId);
           newDoc(fId2, 'this is the document content');
 
-          const zipContent = exportService.getFolderContent(ROOT_FOLDER, opts);
+          const zipContent = exportService.getFolderContent(
+            DEFAULT_NOTEBOOK_ID,
+            opts
+          );
           expect(zipContent['New folder']).toBeDefined();
           expect(zipContent['New folder']['New document.md']).toBeDefined();
           expect(
@@ -371,10 +380,10 @@ describe('export service', () => {
         });
 
         it(`should export the space as a zip with inlinePages=${opts.inlinePages}`, () => {
-          const fId0 = collectionService.addFolder(ROOT_FOLDER);
+          const fId0 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
           newDoc(fId0, 'this is the document content');
           const nId1 = notebooksService.addNotebook('New notebook');
-          newDoc(ROOT_FOLDER, 'this is the document content', [], nId1);
+          newDoc(nId1!, 'this is the document content', []);
 
           const zipContent = exportService.getSpaceContent(opts);
 

@@ -33,7 +33,7 @@
               {
                 "id": "#id",
                 "title": "SimplePagesInline",
-                "parent": "home",
+                "parent": "0",
                 "type": "f"
               },
               {
@@ -95,7 +95,7 @@
               {
                 "id": "#id",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               },
@@ -122,13 +122,13 @@
         {
           "id": "#dID0",
           "title": "Simple",
-          "parent": "home",
+          "parent": "0",
           "type": "d"
         },
         {
           "id": "#fID1",
           "title": "Simple",
-          "parent": "home",
+          "parent": "0",
           "type": "f"
         },
         {
@@ -171,7 +171,7 @@
               {
                 "id": "#id",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "f"
               },
               {
@@ -198,7 +198,7 @@
               {
                 "id": "#fID1",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "f"
               }
             ]
@@ -225,7 +225,7 @@
               {
                 "id": "#fID1",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "f"
               },
               {
@@ -248,7 +248,7 @@
               {
                 "id": "#fID1",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "f"
               }
             ]
@@ -273,7 +273,7 @@
               {
                 "id": "#id",
                 "title": "NewName",
-                "parent": "home",
+                "parent": "0",
                 "type": "f"
               },
               {
@@ -316,7 +316,7 @@
               {
                 "id": "#idd",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               },
@@ -337,7 +337,7 @@
               {
                 "id": "#dID0",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d"
               }
             ]
@@ -368,7 +368,7 @@
               {
                 "id": "#dID0",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               }
@@ -384,7 +384,7 @@
               {
                 "id": "#dID0",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d"
               }
             ]

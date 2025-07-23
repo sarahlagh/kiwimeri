@@ -23,7 +23,7 @@
               {
                 "id": "#id",
                 "title": "SimpleWithDuplicates",
-                "parent": "home",
+                "parent": "0",
                 "type": "f"
               },
               {
@@ -70,19 +70,19 @@
             "newItems": [
               {
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               },
               {
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               },
               {
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               }
@@ -118,19 +118,19 @@
             "newItems": [
               {
                 "title": "Simple (1)",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               },
               {
                 "title": "Simple (2)",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               },
               {
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               }
@@ -166,19 +166,19 @@
             "newItems": [
               {
                 "title": "Simple (1).md",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               },
               {
                 "title": "Simple (2).md",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               },
               {
                 "title": "Simple.md",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               }
@@ -214,19 +214,19 @@
             "newItems": [
               {
                 "title": "Simple.md",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               },
               {
                 "title": "Simple.md",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               },
               {
                 "title": "Simple.md",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               }
@@ -262,19 +262,19 @@
             "newItems": [
               {
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               },
               {
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               },
               {
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               }
@@ -305,13 +305,13 @@
       "initData": [
         {
           "title": "AnotherDoc",
-          "parent": "home",
+          "parent": "0",
           "type": "d"
         },
         {
           "id": "#fID",
           "title": "AnotherFolder",
-          "parent": "home",
+          "parent": "0",
           "type": "f"
         },
 
@@ -339,7 +339,7 @@
               {
                 "id": "#id",
                 "title": "SimpleWithDuplicates",
-                "parent": "home",
+                "parent": "0",
                 "type": "f"
               },
               {
@@ -386,19 +386,19 @@
             "newItems": [
               {
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               },
               {
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               },
               {
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               }
@@ -429,19 +429,19 @@
       "initData": [
         {
           "title": "AnotherDoc",
-          "parent": "home",
+          "parent": "0",
           "type": "d"
         },
         {
           "id": "#dID0",
           "title": "Simple",
-          "parent": "home",
+          "parent": "0",
           "type": "d"
         },
         {
           "id": "#fID1",
           "title": "Simple",
-          "parent": "home",
+          "parent": "0",
           "type": "f"
         },
         {
@@ -458,7 +458,7 @@
         {
           "id": "#fID2",
           "title": "AnotherFolder",
-          "parent": "home",
+          "parent": "0",
           "type": "f"
         },
         {
@@ -474,7 +474,7 @@
         {
           "id": "#fID3",
           "title": "AnotherFolderSimple",
-          "parent": "home",
+          "parent": "0",
           "type": "f"
         },
         {
@@ -498,7 +498,7 @@
               {
                 "id": "#id",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "f"
               },
               {
@@ -531,7 +531,7 @@
               {
                 "id": "#fID1",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "f"
               }
             ]
@@ -565,7 +565,7 @@
               {
                 "id": "#fID1",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "f"
               },
               {
@@ -588,7 +588,7 @@
               {
                 "id": "#fID1",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "f"
               }
             ]
@@ -628,7 +628,7 @@
               {
                 "id": "#fID3",
                 "title": "AnotherFolderSimple",
-                "parent": "home",
+                "parent": "0",
                 "type": "f"
               }
             ],
@@ -644,7 +644,7 @@
               {
                 "id": "#fID3",
                 "title": "AnotherFolderSimple",
-                "parent": "home",
+                "parent": "0",
                 "type": "f"
               }
             ]
@@ -667,19 +667,19 @@
             "newItems": [
               {
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               },
               {
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               },
               {
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               }
@@ -705,7 +705,7 @@
               {
                 "id": "#dID0",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d"
               }
             ]
@@ -728,13 +728,13 @@
             "newItems": [
               {
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               },
               {
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               }
@@ -743,7 +743,7 @@
               {
                 "id": "#dID0",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__"
               }
@@ -770,7 +770,7 @@
               {
                 "id": "#dID0",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d"
               }
             ]

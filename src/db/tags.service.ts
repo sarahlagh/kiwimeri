@@ -1,6 +1,6 @@
-import { ROOT_FOLDER } from '@/constants';
 import { Id } from 'tinybase/with-schemas';
 import collectionService from './collection.service';
+import notebooksService from './notebooks.service';
 import storageService from './storage.service';
 
 class TagsService {
@@ -8,8 +8,8 @@ class TagsService {
 
   public reBuildTags() {
     this.itemsPerTags.clear();
-    const collection =
-      collectionService.getBrowsableCollectionItems(ROOT_FOLDER);
+    const notebook = notebooksService.getCurrentNotebook();
+    const collection = collectionService.getBrowsableCollectionItems(notebook);
     collection
       .filter(item => item.tags !== undefined && item.tags.length > 0)
       .forEach(item => {

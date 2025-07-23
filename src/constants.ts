@@ -42,13 +42,9 @@ export const KIWIMERI_MODEL_VERSION = 0;
 export const DEFAULT_SPACE_ID = 'default';
 export const DEFAULT_NOTEBOOK_ID = '0';
 
-export const ROOT_FOLDER = 'home';
 export const ROOT_NOTEBOOK = 'root';
 
 export const META_JSON = 'meta.json';
-
-// useful for showing home in modals and getting empty queries on load
-export const FAKE_ROOT = 'root';
 
 export const INTERNAL_FORMAT = 'raw';
 

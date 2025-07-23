@@ -1,5 +1,6 @@
-import { APPICONS, FAKE_ROOT, ROOT_FOLDER } from '@/constants';
+import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
+import notebooksService from '@/db/notebooks.service';
 import {
   IonBreadcrumb,
   IonBreadcrumbs,
@@ -17,8 +18,9 @@ const CollectionItemBreadcrumb = ({
 }) => {
   const [maxBreadcrumbs, setMaxBreadcrumbs] = useState<number | undefined>(3);
   const [breadcrumb, setBreadcrumb] = useState<string[]>([]);
+  const notebook = notebooksService.useCurrentNotebook();
 
-  if (folder !== FAKE_ROOT && !breadcrumb.find(b => b === folder)) {
+  if (folder !== notebook && !breadcrumb.find(b => b === folder)) {
     setBreadcrumb(collectionService.getBreadcrumb(folder));
     setMaxBreadcrumbs(3);
   }
@@ -50,10 +52,8 @@ const CollectionItemBreadcrumb = ({
               if (onClick) onClick(item);
             }}
           >
-            {item === ROOT_FOLDER && <IonIcon icon={APPICONS.home} />}
-            {item !== ROOT_FOLDER && (
-              <>{collectionService.getItemTitle(item)}</>
-            )}
+            {item === notebook && <IonIcon icon={APPICONS.home} />}
+            {item !== notebook && <>{collectionService.getItemTitle(item)}</>}
           </IonButton>
         </IonBreadcrumb>
       ))}

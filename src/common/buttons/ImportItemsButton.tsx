@@ -2,7 +2,6 @@ import {
   CollectionItemResult,
   CollectionItemType
 } from '@/collection/collection';
-import { ROOT_FOLDER } from '@/constants';
 import notebooksService from '@/db/notebooks.service';
 import { OverlayEventDetail } from '@ionic/core/components';
 import { useIonModal } from '@ionic/react';
@@ -26,7 +25,7 @@ import GenericImportFileButton, {
 
 type ImportItemsButtonProps = {
   parent: string;
-} & ZipImportOptions;
+} & Partial<ZipImportOptions>;
 
 const zipTypes = ['application/zip'];
 const textTypes = ['text/plain', 'text/markdown'];
@@ -78,16 +77,12 @@ const ImportItemsButton = ({
     const fileName = file.name.replace(/\.(md|MD)$/, '');
     const { doc, pages } = importService.getLexicalFromContent(content);
 
-    const itemsInCollection = importService.findDuplicates(
-      parent,
-      notebooksService.getCurrentNotebook(),
-      [
-        {
-          title: fileName,
-          type: CollectionItemType.document
-        }
-      ]
-    );
+    const itemsInCollection = importService.findDuplicates(parent, [
+      {
+        title: fileName,
+        type: CollectionItemType.document
+      }
+    ]);
 
     if (itemsInCollection.length > 0) {
       setSingleDuplicates(itemsInCollection);
@@ -116,14 +111,14 @@ const ImportItemsButton = ({
   const onZipFileRead = async (content: ArrayBuffer, file: File) => {
     console.debug('file', file);
     const zipName = file.name.replace(/(.*)\.(zip|ZIP)$/g, '$1');
+    const notebook = notebooksService.getCurrentNotebook();
 
     return importService.readZip(content).then(unzipped => {
       const zipData = importService.parseZipData(zipName, parent, unzipped, {
         createNotebook
       });
       setParams({
-        folder: createNotebook ? ROOT_FOLDER : parent,
-        notebook: createNotebook ? '-1' : notebooksService.getCurrentNotebook(),
+        folder: createNotebook ? notebook : parent,
         zipData,
         zipName
       });

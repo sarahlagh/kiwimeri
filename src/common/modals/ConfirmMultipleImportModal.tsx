@@ -28,7 +28,6 @@ import {
 
 export type ConfirmMultipleImportModalParams = {
   folder: string;
-  notebook: string;
   zipData: ZipParsedData;
   zipName: string;
 };
@@ -60,8 +59,7 @@ const ConfirmMultipleImportModal = ({
     zipFirstLevel[0].type === CollectionItemType.folder;
 
   const itemsInCollection = collectionService.getBrowsableCollectionItems(
-    params.folder,
-    params.notebook
+    params.folder
   );
   const newFirstLevel = [
     ...itemsInCollection.filter(
@@ -81,8 +79,7 @@ const ConfirmMultipleImportModal = ({
           overwrite,
           newFolderName,
           removeFirstFolder
-        },
-        params.notebook
+        }
       )
     );
   }, [createNewFolder, newFolderName, removeFirstFolder, overwrite]);
@@ -91,16 +88,9 @@ const ConfirmMultipleImportModal = ({
     <>
       <IonHeader>
         <IonToolbar>
-          {collectionService.itemExists(params.notebook) && (
-            <IonTitle>
-              <Trans>Import zip content in folder {parentName}</Trans>
-            </IonTitle>
-          )}
-          {!collectionService.itemExists(params.notebook) && (
-            <IonTitle>
-              <Trans>Import zip content in a new Notebook</Trans>
-            </IonTitle>
-          )}
+          <IonTitle>
+            <Trans>Import zip content in folder {parentName}</Trans>
+          </IonTitle>
           <IonButtons slot="end">
             <IonButton onClick={() => onClose(false)}>
               <IonIcon icon={APPICONS.closeAction} />

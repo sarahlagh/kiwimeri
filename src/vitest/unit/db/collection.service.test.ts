@@ -1,6 +1,6 @@
 import { CollectionItemType, parseFieldMeta } from '@/collection/collection';
 import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
-import { ROOT_FOLDER } from '@/constants';
+import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import { renderHook } from '@testing-library/react';
@@ -35,7 +35,7 @@ describe('collection service', () => {
     describe(`operations on a ${type}`, () => {
       it(`should create a new ${type} with default fields`, () => {
         const now = Date.now();
-        const id = collectionService[addMethod](ROOT_FOLDER);
+        const id = collectionService[addMethod](DEFAULT_NOTEBOOK_ID);
         expect(collectionService.itemExists(id)).toBeTruthy();
         const item = getCollectionItem(id);
         expect(item.type).toBe(typeVal);
@@ -57,7 +57,7 @@ describe('collection service', () => {
           expect(item.content_meta).toBeUndefined();
         }
         // parent
-        expect(item.parent).toBe(ROOT_FOLDER);
+        expect(item.parent).toBe(DEFAULT_NOTEBOOK_ID);
         meta = parseFieldMeta(item.parent_meta);
         expect(meta.u).toBe(item.updated);
         // deleted
@@ -67,7 +67,7 @@ describe('collection service', () => {
       });
 
       it(`should create a new ${type} inside an existing folder`, () => {
-        const folderId = collectionService.addFolder(ROOT_FOLDER);
+        const folderId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
         vi.advanceTimersByTime(100);
 
         const id = collectionService[addMethod](folderId);
@@ -81,7 +81,7 @@ describe('collection service', () => {
       GET_NON_PARENT_NON_NOTEBOOK_UPDATABLE_FIELDS(type).forEach(
         ({ field }) => {
           it(`should update the ${field} of a ${type}`, () => {
-            const id = collectionService[addMethod](ROOT_FOLDER);
+            const id = collectionService[addMethod](DEFAULT_NOTEBOOK_ID);
             vi.advanceTimersByTime(100);
             collectionService.setItemField(id, field, 'new value');
             const item = getCollectionItem(id);
@@ -93,8 +93,8 @@ describe('collection service', () => {
 
           it(`should update the ${field} of a ${type} and recursively update all parents timestamp`, () => {
             const now = Date.now();
-            const folderIdO = collectionService.addFolder(ROOT_FOLDER);
-            const folderId1 = collectionService.addFolder(ROOT_FOLDER);
+            const folderIdO = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+            const folderId1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
             const folderId2 = collectionService.addFolder(folderId1);
             const folderId3 = collectionService.addFolder(folderId2);
             const id = collectionService[addMethod](folderId3);
@@ -124,8 +124,8 @@ describe('collection service', () => {
       );
 
       it(`should update the parent of a ${type}`, () => {
-        const folderId = collectionService.addFolder(ROOT_FOLDER);
-        const id = collectionService[addMethod](ROOT_FOLDER);
+        const folderId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+        const id = collectionService[addMethod](DEFAULT_NOTEBOOK_ID);
         vi.advanceTimersByTime(100);
         collectionService.setItemParent(id, folderId);
         const item = getCollectionItem(id);
@@ -137,8 +137,8 @@ describe('collection service', () => {
 
       it(`should update the parent of a ${type} and leave all parents timestamp untouched`, () => {
         const now = Date.now();
-        const folderIdO = collectionService.addFolder(ROOT_FOLDER);
-        const folderId1 = collectionService.addFolder(ROOT_FOLDER);
+        const folderIdO = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+        const folderId1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
         const folderId2 = collectionService.addFolder(folderId1);
         const folderId3 = collectionService.addFolder(folderId2);
         const id = collectionService[addMethod](folderId3);
@@ -167,30 +167,30 @@ describe('collection service', () => {
 
       it(`should update the notebook of a ${type}`, () => {
         const notebookId = notebooksService.addNotebook('non default')!;
-        const id = collectionService[addMethod](ROOT_FOLDER);
+        const id = collectionService[addMethod](DEFAULT_NOTEBOOK_ID);
         vi.advanceTimersByTime(100);
-        collectionService.setItemParent(id, ROOT_FOLDER, notebookId);
+        collectionService.setItemParent(id, notebookId);
         const item = getCollectionItem(id);
-        expect(item.notebook).toBe(notebookId);
+        expect(item.parent).toBe(notebookId);
         expect(item.created).toBe(item.updated); // parent change doesn't update ts
-        const meta = parseFieldMeta(item.notebook_meta);
+        const meta = parseFieldMeta(item.parent_meta);
         expect(meta.u).toBeGreaterThan(item.updated);
       });
 
       it(`should update the notebook of a ${type} and leave all parents timestamp untouched`, () => {
         const now = Date.now();
         const notebookId = notebooksService.addNotebook('non default')!;
-        const folderId1 = collectionService.addFolder(ROOT_FOLDER);
+        const folderId1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
         const folderId2 = collectionService.addFolder(folderId1);
         const folderId3 = collectionService.addFolder(folderId2);
         const id = collectionService[addMethod](folderId3);
         vi.advanceTimersByTime(100);
         // can't update notebook without parent // TODO enforce at service level
-        collectionService.setItemParent(id, ROOT_FOLDER, notebookId);
+        collectionService.setItemParent(id, notebookId);
         const item = getCollectionItem(id);
-        expect(item.notebook).toBe(notebookId);
+        expect(item.parent).toBe(notebookId);
         expect(item.created).toBe(item.updated);
-        const meta = parseFieldMeta(item.notebook_meta);
+        const meta = parseFieldMeta(item.parent_meta);
         expect(meta.u).toBeGreaterThan(item.updated);
 
         const folder1 = getCollectionItem(folderId1);
@@ -199,15 +199,15 @@ describe('collection service', () => {
 
         // all are untouched
         expect(folder1.updated).toBe(now);
-        expect(parseFieldMeta(folder1.notebook_meta).u).toBe(now);
+        expect(parseFieldMeta(folder1.parent_meta).u).toBe(now);
         expect(folder2.updated).toBe(now);
-        expect(parseFieldMeta(folder2.notebook_meta).u).toBe(now);
+        expect(parseFieldMeta(folder2.parent_meta).u).toBe(now);
         expect(folder3.updated).toBe(now);
-        expect(parseFieldMeta(folder3.notebook_meta).u).toBe(now);
+        expect(parseFieldMeta(folder3.parent_meta).u).toBe(now);
       });
 
       it(`should delete an existing ${type}`, () => {
-        const id = collectionService[addMethod](ROOT_FOLDER);
+        const id = collectionService[addMethod](DEFAULT_NOTEBOOK_ID);
         vi.advanceTimersByTime(100);
         collectionService.deleteItem(id);
         const item = getCollectionItem(id);
@@ -217,8 +217,8 @@ describe('collection service', () => {
 
       it(`should delete an existing ${type} and recursively update all parents timestamp`, () => {
         const now = Date.now();
-        const folderIdO = collectionService.addFolder(ROOT_FOLDER);
-        const folderId1 = collectionService.addFolder(ROOT_FOLDER);
+        const folderIdO = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+        const folderId1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
         const folderId2 = collectionService.addFolder(folderId1);
         const folderId3 = collectionService.addFolder(folderId2);
         const id = collectionService[addMethod](folderId3);
@@ -244,7 +244,7 @@ describe('collection service', () => {
       });
 
       it(`should add a single tag to a ${type} without changing the rest`, () => {
-        const id = collectionService[addMethod](ROOT_FOLDER);
+        const id = collectionService[addMethod](DEFAULT_NOTEBOOK_ID);
 
         expect([...collectionService.getItemTags(id)]).toStrictEqual([]);
         collectionService.addItemTag(id, 'tag1');
@@ -259,7 +259,7 @@ describe('collection service', () => {
       });
 
       it(`should add multiple tags to a ${type} without changing the rest`, () => {
-        const id = collectionService[addMethod](ROOT_FOLDER);
+        const id = collectionService[addMethod](DEFAULT_NOTEBOOK_ID);
 
         expect([...collectionService.getItemTags(id)]).toStrictEqual([]);
         collectionService.addItemTags(id, ['tag1', 'tag2']);
@@ -277,7 +277,7 @@ describe('collection service', () => {
       });
 
       it(`should set multiple tags to a ${type}, overwriting the rest`, () => {
-        const id = collectionService[addMethod](ROOT_FOLDER);
+        const id = collectionService[addMethod](DEFAULT_NOTEBOOK_ID);
 
         expect([...collectionService.getItemTags(id)]).toStrictEqual([]);
         collectionService.setItemTags(id, ['tag1', 'tag2']);
@@ -294,7 +294,7 @@ describe('collection service', () => {
       });
 
       it(`should delete a single tag from a ${type} without changing the rest`, () => {
-        const id = collectionService[addMethod](ROOT_FOLDER);
+        const id = collectionService[addMethod](DEFAULT_NOTEBOOK_ID);
         collectionService.addItemTag(id, 'tag1');
         collectionService.addItemTag(id, 'tag2');
         collectionService.addItemTag(id, 'tag3');
@@ -313,7 +313,7 @@ describe('collection service', () => {
       });
 
       it(`should rename a single tag from a ${type} without changing the rest`, () => {
-        const id = collectionService[addMethod](ROOT_FOLDER);
+        const id = collectionService[addMethod](DEFAULT_NOTEBOOK_ID);
         collectionService.addItemTag(id, 'tag1');
         collectionService.addItemTag(id, 'tag2');
         collectionService.addItemTag(id, 'tag3');
@@ -334,7 +334,7 @@ describe('collection service', () => {
 
       if (type === 'document') {
         it(`should update the preview of a document at the same time as its content`, () => {
-          const id = collectionService.addDocument(ROOT_FOLDER);
+          const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
           expect(getCollectionItem(id).preview).toBe('');
 
           collectionService.setItemLexicalContent(id, shortContent);
@@ -348,8 +348,8 @@ describe('collection service', () => {
 
         UPDATABLE_FIELDS.forEach(({ field }) => {
           it(`should reset conflict on a document on update of ${field}`, () => {
-            const id = collectionService.addDocument(ROOT_FOLDER);
-            const id2 = collectionService.addDocument(ROOT_FOLDER);
+            const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+            const id2 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
             markAsConflict(id, id2);
             expect(getCollectionItem(id).conflict).toBeDefined();
 
@@ -359,7 +359,7 @@ describe('collection service', () => {
         });
 
         it(`should delete all pages of a document when deleting the document`, () => {
-          const id = collectionService.addDocument(ROOT_FOLDER);
+          const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
           const pageId1 = collectionService.addPage(id);
           const pageId2 = collectionService.addPage(id);
           const pageId3 = collectionService.addPage(id);
@@ -375,7 +375,7 @@ describe('collection service', () => {
       if (type === 'folder') {
         it(`should delete an existing folder and delete items in it without orphaning them`, () => {
           // create a non empty folder
-          const folderId = collectionService.addFolder(ROOT_FOLDER);
+          const folderId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
           const id = collectionService.addDocument(folderId);
           const id2 = collectionService.addDocument(folderId);
 
@@ -387,16 +387,18 @@ describe('collection service', () => {
 
         it(`should delete an existing folder and move items in it to the parent folder without orphaning them`, () => {
           // create a non empty folder
-          const folderId = collectionService.addFolder(ROOT_FOLDER);
+          const folderId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
           const id = collectionService.addDocument(folderId);
           const id2 = collectionService.addDocument(folderId);
 
           collectionService.deleteItem(folderId, true);
           expect(collectionService.itemExists(folderId)).toBe(false);
           expect(collectionService.itemExists(id)).toBe(true);
-          expect(collectionService.getItemParent(id)).toBe(ROOT_FOLDER);
+          expect(collectionService.getItemParent(id)).toBe(DEFAULT_NOTEBOOK_ID);
           expect(collectionService.itemExists(id2)).toBe(true);
-          expect(collectionService.getItemParent(id2)).toBe(ROOT_FOLDER);
+          expect(collectionService.getItemParent(id2)).toBe(
+            DEFAULT_NOTEBOOK_ID
+          );
         });
       }
     });
@@ -404,7 +406,7 @@ describe('collection service', () => {
 
   describe(`operations on a page`, () => {
     it('should add a page to a document', () => {
-      const docId = collectionService.addDocument(ROOT_FOLDER);
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       act(() => {
         const pageId = collectionService.addPage(docId);
         expect(getLocalItemField(pageId, 'type')).toBe(CollectionItemType.page);
@@ -417,8 +419,8 @@ describe('collection service', () => {
     });
 
     it(`should update the parent (document) of a page`, () => {
-      const docId = collectionService.addDocument(ROOT_FOLDER);
-      const docId2 = collectionService.addDocument(ROOT_FOLDER);
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const docId2 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       const id = collectionService.addPage(docId);
       vi.advanceTimersByTime(100);
       collectionService.setItemParent(id, docId2);
@@ -431,8 +433,8 @@ describe('collection service', () => {
 
     it(`should update the parent (document) of a page and recursively update all parents timestamp`, () => {
       const now = Date.now();
-      const folderIdO = collectionService.addFolder(ROOT_FOLDER);
-      const folderId1 = collectionService.addFolder(ROOT_FOLDER);
+      const folderIdO = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+      const folderId1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
       const folderId2 = collectionService.addFolder(folderId1);
       const folderId3 = collectionService.addFolder(folderId2);
       const docId = collectionService.addDocument(folderId3);
@@ -463,7 +465,7 @@ describe('collection service', () => {
     });
 
     it(`should update the content of a page`, () => {
-      const docId = collectionService.addDocument(ROOT_FOLDER);
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       const id = collectionService.addPage(docId);
       vi.advanceTimersByTime(100);
       collectionService.setItemLexicalContent(id, shortContent);
@@ -476,7 +478,7 @@ describe('collection service', () => {
 
     it(`should update the content of a page and update all parents timestamp too`, () => {
       const now = Date.now();
-      const folderId1 = collectionService.addFolder(ROOT_FOLDER);
+      const folderId1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
       const folderId2 = collectionService.addFolder(folderId1);
       const folderId3 = collectionService.addFolder(folderId2);
       const docId = collectionService.addDocument(folderId3);
@@ -499,7 +501,7 @@ describe('collection service', () => {
     });
 
     it(`should update the preview of a page at the same time as its content`, () => {
-      const docId = collectionService.addDocument(ROOT_FOLDER);
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       const id = collectionService.addPage(docId);
       expect(getCollectionItem(id).preview).toBe('');
 
@@ -513,7 +515,7 @@ describe('collection service', () => {
     });
 
     it(`should delete an existing page`, () => {
-      const docId = collectionService.addDocument(ROOT_FOLDER);
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       const id = collectionService.addPage(docId);
       const id2 = collectionService.addPage(docId);
 
@@ -532,7 +534,7 @@ describe('collection service', () => {
 
     it(`should delete an existing page and recursively update all parents timestamp`, () => {
       const now = Date.now();
-      const folderId1 = collectionService.addFolder(ROOT_FOLDER);
+      const folderId1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
       const folderId2 = collectionService.addFolder(folderId1);
       const folderId3 = collectionService.addFolder(folderId2);
       const docId = collectionService.addDocument(folderId3);

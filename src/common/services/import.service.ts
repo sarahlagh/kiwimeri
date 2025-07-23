@@ -4,7 +4,7 @@ import {
   CollectionItemType,
   CollectionItemUpdate
 } from '@/collection/collection';
-import { META_JSON, ROOT_FOLDER } from '@/constants';
+import { META_JSON } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
@@ -19,7 +19,6 @@ export type ZipMergeFistLevel = {
 
 export type ZipParsedData = {
   items: CollectionItem[];
-  notebook: string;
   folderMeta?: ZipMetadata;
 };
 
@@ -163,14 +162,8 @@ class ImportService {
       }
       if (!items[fKey]) {
         const { item, id } = isFolder
-          ? collectionService.getNewFolderObj(
-              currentParent || ROOT_FOLDER,
-              notebook
-            )
-          : collectionService.getNewDocumentObj(
-              currentParent || ROOT_FOLDER,
-              notebook
-            );
+          ? collectionService.getNewFolderObj(currentParent || notebook)
+          : collectionService.getNewDocumentObj(currentParent || notebook);
 
         let content: string | undefined = undefined;
 
@@ -192,10 +185,8 @@ class ImportService {
           const { doc, pages } = this.getLexicalFromContent(content, opts);
           collectionService.setUnsavedItemLexicalContent(items[fKey], doc);
           pages.forEach((page, idx) => {
-            const { item: pItem, id: pId } = collectionService.getNewPageObj(
-              id,
-              notebook
-            );
+            const { item: pItem, id: pId } =
+              collectionService.getNewPageObj(id);
             items[key + idx] = {
               ...pItem,
               id: pId,
@@ -227,8 +218,7 @@ class ImportService {
 
     return {
       items: Object.values(items),
-      folderMeta: metaMap.get(parent),
-      notebook
+      folderMeta: metaMap.get(parent)
     };
   }
 
@@ -246,13 +236,10 @@ class ImportService {
 
   public findDuplicates(
     parent: string,
-    notebook: string,
     firstLevel: Pick<ZipMergeFistLevel, 'title' | 'type'>[]
   ) {
-    const itemsInCollection = collectionService.getBrowsableCollectionItems(
-      parent,
-      notebook
-    );
+    const itemsInCollection =
+      collectionService.getBrowsableCollectionItems(parent);
     const duplicates = new Set<CollectionItemResult>();
     firstLevel.forEach(item => {
       itemsInCollection
@@ -302,11 +289,7 @@ class ImportService {
       const item = newItems[i];
       if (!duplicatesMap.has(item.parent)) {
         const siblings = newItems.filter(item => item.parent === item.parent);
-        const duplicates = this.findDuplicates(
-          item.parent,
-          item.notebook,
-          siblings
-        );
+        const duplicates = this.findDuplicates(item.parent, siblings);
         duplicatesMap.set(item.parent, duplicates);
       }
       const newDuplicates = duplicatesMap.get(item.parent)!;
@@ -332,12 +315,11 @@ class ImportService {
   private mergeZipItemsWithOptions(
     items: CollectionItem[],
     parent: string,
-    notebook: string,
     options: ZipMergeOptions
   ) {
     const firstLevelItems = items.filter(item => item.parent === parent);
     // check duplicates for each item
-    const duplicates = this.findDuplicates(parent, notebook, firstLevelItems);
+    const duplicates = this.findDuplicates(parent, firstLevelItems);
     const newItems = [...items];
     const updatedItems: CollectionItemUpdate[] = [];
     let firstLevel: ZipMergeFistLevel[] = [];
@@ -391,13 +373,12 @@ class ImportService {
   private createNewFolder(
     items: CollectionItem[],
     parent: string,
-    notebook: string,
     zipName: string,
     options: ZipMergeOptions,
     folderMeta?: ZipMetadata
   ) {
     const firstLayer = items.filter(item => item.parent === parent);
-    const { item, id } = collectionService.getNewFolderObj(parent, notebook);
+    const { item, id } = collectionService.getNewFolderObj(parent);
     item.title = '';
     if (folderMeta) {
       this.fillInMeta(item, folderMeta);
@@ -424,17 +405,10 @@ class ImportService {
     }
 
     if (opts.createNewFolder === true) {
-      this.createNewFolder(
-        items,
-        parent,
-        zipData.notebook,
-        zipName,
-        opts,
-        zipData.folderMeta
-      );
+      this.createNewFolder(items, parent, zipName, opts, zipData.folderMeta);
     }
 
-    return this.mergeZipItemsWithOptions(items, parent, zipData.notebook, opts);
+    return this.mergeZipItemsWithOptions(items, parent, opts);
   }
 
   public commitMergeResult(

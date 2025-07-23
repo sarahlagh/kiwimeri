@@ -4,7 +4,7 @@ import {
   parseFieldMeta
 } from '@/collection/collection';
 import { getGlobalTrans } from '@/config';
-import { ROOT_FOLDER } from '@/constants';
+import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/localChanges.service';
 import notebooksService from '@/db/notebooks.service';
@@ -109,7 +109,7 @@ const getSomeRemoteData = (
 ) => {
   const aDoc = oneDocument('r2');
   return [
-    testAddFn('r1', type === 'page' ? aDoc.id! : ROOT_FOLDER),
+    testAddFn('r1', type === 'page' ? aDoc.id! : DEFAULT_NOTEBOOK_ID),
     aDoc,
     oneDocument('r3'),
     oneFolder('r4'),
@@ -172,7 +172,7 @@ describe('sync service', () => {
         await reInitRemoteData(remoteData);
         await syncService_pull();
         expect(getCollectionRowCount()).toBe(3);
-        collectionService_addFolder(ROOT_FOLDER);
+        collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
         await syncService_push();
         const remoteContent = await driver.getContent();
         expect(remoteContent.content).toHaveLength(5);
@@ -236,8 +236,8 @@ describe('sync service', () => {
           ];
           await reInitRemoteData(remoteData);
           // create local items
-          collectionService_addDocument(ROOT_FOLDER);
-          collectionService_addFolder(ROOT_FOLDER);
+          collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
+          collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
           expect(getCollectionRowCount()).toBe(2);
           await syncService_pull();
           expect(getCollectionRowCount()).toBe(5);
@@ -256,8 +256,8 @@ describe('sync service', () => {
           ];
           await reInitRemoteData(remoteData);
           // create local items
-          collectionService_addDocument(ROOT_FOLDER);
-          collectionService_addFolder(ROOT_FOLDER);
+          collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
+          collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
           expect(getCollectionRowCount()).toBe(2);
           localChangesService.clear();
           await syncService_pull();
@@ -276,7 +276,7 @@ describe('sync service', () => {
           ];
           await reInitRemoteData(remoteData);
           // create local items
-          collectionService_addDocument(ROOT_FOLDER);
+          collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
           expect(getCollectionRowCount()).toBe(1);
           await syncService_pull();
           expect(getCollectionRowCount()).toBe(4);
@@ -302,8 +302,8 @@ describe('sync service', () => {
           await reInitRemoteData(remoteData);
 
           // create local items
-          collectionService_addDocument(ROOT_FOLDER);
-          collectionService_addFolder(ROOT_FOLDER);
+          collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
+          collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
           expect(getCollectionRowCount()).toBe(2);
           localChangesService.clear(); // clear changes -> it's like they have been pushed
 
@@ -955,8 +955,8 @@ describe('sync service', () => {
           ];
           await reInitRemoteData(remoteData);
           // create local items
-          collectionService_addDocument(ROOT_FOLDER);
-          collectionService_addFolder(ROOT_FOLDER);
+          collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
+          collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
           expect(getCollectionRowCount()).toBe(2);
           await syncService.pull(undefined, true);
           expect(getCollectionRowCount()).toBe(3);
@@ -978,8 +978,8 @@ describe('sync service', () => {
           ];
           await reInitRemoteData(remoteData);
           // create local items
-          collectionService_addDocument(ROOT_FOLDER);
-          collectionService_addFolder(ROOT_FOLDER);
+          collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
+          collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
           expect(getCollectionRowCount()).toBe(2);
           localChangesService.clear();
           await syncService.pull(undefined, true);
@@ -1160,9 +1160,9 @@ describe('sync service', () => {
         });
 
         it('should push nothing even on first push if there are no local changes', async () => {
-          collectionService_addDocument(ROOT_FOLDER);
-          collectionService_addDocument(ROOT_FOLDER);
-          collectionService_addFolder(ROOT_FOLDER);
+          collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
+          collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
+          collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
           expect(getCollectionRowCount()).toBe(3);
           localChangesService.clear();
 
@@ -1173,12 +1173,12 @@ describe('sync service', () => {
         });
 
         it('should push nothing on second push if there are no local changes', async () => {
-          collectionService_addDocument(ROOT_FOLDER);
-          collectionService_addDocument(ROOT_FOLDER);
-          collectionService_addFolder(ROOT_FOLDER);
+          collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
+          collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
+          collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
           await syncService_push();
 
-          collectionService_addDocument(ROOT_FOLDER);
+          collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
           localChangesService.clear();
 
           await syncService_push();
@@ -1188,9 +1188,9 @@ describe('sync service', () => {
         });
 
         it('should push everything on first push if remote has nothing', async () => {
-          collectionService_addDocument(ROOT_FOLDER);
-          collectionService_addDocument(ROOT_FOLDER);
-          collectionService_addFolder(ROOT_FOLDER);
+          collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
+          collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
+          collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
           expect(getCollectionRowCount()).toBe(3);
           await syncService_push();
           const remoteContent = driver.getContent();
@@ -1460,11 +1460,11 @@ describe('sync service', () => {
         });
 
         it('should push items from multiple notebooks', async () => {
-          collectionService_addDocument(ROOT_FOLDER);
+          collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
           const notebookId = notebooksService.addNotebook('n0')!;
           notebooksService.setCurrentNotebook(notebookId);
-          collectionService_addDocument(ROOT_FOLDER);
-          collectionService_addFolder(ROOT_FOLDER);
+          collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
+          collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
           expect(getCollectionRowCount()).toBe(3);
 
           await syncService_push();
@@ -1483,9 +1483,9 @@ describe('sync service', () => {
         });
 
         it('should push everything on first push even if there are no local changes', async () => {
-          collectionService_addDocument(ROOT_FOLDER);
-          collectionService_addDocument(ROOT_FOLDER);
-          collectionService_addFolder(ROOT_FOLDER);
+          collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
+          collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
+          collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
           expect(getCollectionRowCount()).toBe(3);
           localChangesService.clear();
 
@@ -1497,12 +1497,12 @@ describe('sync service', () => {
         });
 
         it('should push everything on second push even if there are no local changes', async () => {
-          collectionService_addDocument(ROOT_FOLDER);
-          collectionService_addDocument(ROOT_FOLDER);
-          collectionService_addFolder(ROOT_FOLDER);
+          collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
+          collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
+          collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
           await syncService_push();
 
-          collectionService_addDocument(ROOT_FOLDER);
+          collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
           localChangesService.clear();
 
           await syncService.push(undefined, true);
@@ -1512,9 +1512,9 @@ describe('sync service', () => {
         });
 
         it('should push everything on first push if remote has nothing', async () => {
-          collectionService_addDocument(ROOT_FOLDER);
-          collectionService_addDocument(ROOT_FOLDER);
-          collectionService_addFolder(ROOT_FOLDER);
+          collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
+          collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
+          collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
           expect(getCollectionRowCount()).toBe(3);
           await syncService.push(undefined, true);
           const remoteContent = driver.getContent();

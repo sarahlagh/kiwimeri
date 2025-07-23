@@ -1,5 +1,5 @@
 import { CollectionItemType } from '@/collection/collection';
-import { ROOT_FOLDER } from '@/constants';
+import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/localChanges.service';
 import notebooksService from '@/db/notebooks.service';
@@ -26,9 +26,9 @@ describe('local changes service', () => {
 
   it('should create a local change for each created items', () => {
     const createdItems: string[] = [];
-    createdItems.push(collectionService.addDocument(ROOT_FOLDER));
-    createdItems.push(collectionService.addFolder(ROOT_FOLDER));
-    createdItems.push(collectionService.addDocument(ROOT_FOLDER));
+    createdItems.push(collectionService.addDocument(DEFAULT_NOTEBOOK_ID));
+    createdItems.push(collectionService.addFolder(DEFAULT_NOTEBOOK_ID));
+    createdItems.push(collectionService.addDocument(DEFAULT_NOTEBOOK_ID));
     const localChanges = localChangesService.getLocalChanges();
     expect(localChanges).toHaveLength(4);
     expect(getNonNotebookLocalChanges(localChanges).map(l => l.item)).toEqual(
@@ -37,7 +37,7 @@ describe('local changes service', () => {
   });
 
   it('should merge local changes for each created then updated items into one change', () => {
-    const id = collectionService.addDocument(ROOT_FOLDER);
+    const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     collectionService.setItemTitle(id, 'new title');
     collectionService.setItemTitle(id, 'new title 2');
     collectionService.setItemField(id, 'content', 'new content');
@@ -50,7 +50,7 @@ describe('local changes service', () => {
   });
 
   it('should merge local changes for each updated items into one change per field', () => {
-    const id = collectionService.addDocument(ROOT_FOLDER);
+    const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     localChangesService.clear();
 
     collectionService.setItemTitle(id, 'new title');
@@ -66,7 +66,7 @@ describe('local changes service', () => {
   });
 
   it('should keep no local changes for each created then deleted items', () => {
-    const id = collectionService.addDocument(ROOT_FOLDER);
+    const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     collectionService.setItemTitle(id, 'new title');
     collectionService.setItemTitle(id, 'new title 2');
     collectionService.setItemField(id, 'content', 'new content');
@@ -79,7 +79,7 @@ describe('local changes service', () => {
   });
 
   it('should merge local changes for each deleted items into one change', () => {
-    const id = collectionService.addDocument(ROOT_FOLDER);
+    const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     localChangesService.clear();
 
     collectionService.setItemTitle(id, 'new title');
@@ -93,8 +93,8 @@ describe('local changes service', () => {
   });
 
   it(`should consider previous conflicts as added`, () => {
-    const id = collectionService.addDocument(ROOT_FOLDER);
-    const id2 = collectionService.addDocument(ROOT_FOLDER);
+    const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+    const id2 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     markAsConflict(id, id2);
     localChangesService.clear();
 
@@ -106,7 +106,7 @@ describe('local changes service', () => {
   });
 
   it(`should not add local changes if the value doesn't change`, () => {
-    const id = collectionService.addDocument(ROOT_FOLDER);
+    const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     localChangesService.clear();
 
     GET_UPDATABLE_FIELDS('document').forEach(({ field }) => {
