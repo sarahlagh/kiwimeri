@@ -11,17 +11,17 @@ describe('tags service', () => {
   });
 
   it('should create an internal map of tags', () => {
-    const id1 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    tagsService.addItemTag(id1, 'tag11');
-    tagsService.addItemTag(id1, 'tag12');
-    tagsService.addItemTag(id1, 'tag13');
+    const idd1 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+    tagsService.addItemTag(idd1, 'tag11');
+    tagsService.addItemTag(idd1, 'tag12');
+    tagsService.addItemTag(idd1, 'tag13');
 
-    const id2 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    tagsService.addItemTag(id2, 'tag21');
-    tagsService.addItemTag(id2, 'tag12');
+    const idf1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+    tagsService.addItemTag(idf1, 'tag31');
 
-    const id3 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
-    tagsService.addItemTag(id3, 'tag31');
+    const idd2 = collectionService.addDocument(idf1);
+    tagsService.addItemTag(idd2, 'tag21');
+    tagsService.addItemTag(idd2, 'tag12');
 
     collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
 
@@ -29,15 +29,15 @@ describe('tags service', () => {
       'tag11',
       'tag12',
       'tag13',
-      'tag21',
-      'tag31'
+      'tag31',
+      'tag21'
     ]);
 
-    expect(tagsService.getItemsPerTag('tag11')).toStrictEqual([id1]);
-    expect(tagsService.getItemsPerTag('tag12')).toStrictEqual([id1, id2]);
-    expect(tagsService.getItemsPerTag('tag13')).toStrictEqual([id1]);
-    expect(tagsService.getItemsPerTag('tag21')).toStrictEqual([id2]);
-    expect(tagsService.getItemsPerTag('tag31')).toStrictEqual([id3]);
+    expect(tagsService.getItemsPerTag('tag11')).toStrictEqual([idd1]);
+    expect(tagsService.getItemsPerTag('tag12')).toStrictEqual([idd1, idd2]);
+    expect(tagsService.getItemsPerTag('tag13')).toStrictEqual([idd1]);
+    expect(tagsService.getItemsPerTag('tag21')).toStrictEqual([idd2]);
+    expect(tagsService.getItemsPerTag('tag31')).toStrictEqual([idf1]);
   });
 
   it('should rename a tag globally', () => {
