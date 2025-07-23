@@ -1,6 +1,7 @@
 import CollectionItemBrowserList from '@/collection/components/CollectionItemBrowserList';
 import { onTitleChangeFn } from '@/common/events/events';
 import { getSearchParams } from '@/common/utils';
+import { getGlobalTrans } from '@/config';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import { useLocation } from 'react-router';
@@ -12,11 +13,13 @@ const CollectionListPage = () => {
   const notebook = notebooksService.useCurrentNotebook();
   const parent = searchParams?.folder || notebook;
   const folderTitle = collectionService.useItemTitle(parent);
+
+  const title = notebook !== parent ? folderTitle : getGlobalTrans().homeTitle;
   const onFolderTitleChange = onTitleChangeFn(parent);
 
   return (
     <TemplateMainPage
-      title={folderTitle}
+      title={title}
       editable={parent !== notebook}
       onEdited={onFolderTitleChange}
     >

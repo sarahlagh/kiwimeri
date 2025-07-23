@@ -10,7 +10,7 @@ class TagsService {
     this.itemsPerTags.clear();
     const notebook = notebooksService.getCurrentNotebook();
     const collection =
-      collectionService.getAllCollectionItemsInParent(notebook);
+      collectionService.getAllCollectionItemsRecursive(notebook);
     collection
       .filter(item => item.tags !== undefined && item.tags.length > 0)
       .forEach(item => {
