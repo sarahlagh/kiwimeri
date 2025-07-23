@@ -553,7 +553,7 @@ describe('collection service', () => {
     });
   });
 
-  describe(`breadcrumb`, () => {
+  describe(`iterating through the collection`, () => {
     it(`should return a breadcrumb with only one parent notebook`, () => {
       const idn1 = notebooksService.addNotebook('test');
       const idn2 = notebooksService.addNotebook('nested', idn1);
@@ -622,6 +622,47 @@ describe('collection service', () => {
         idf1,
         idd2
       ]);
+    });
+
+    it(`should return recursively all items in a parent`, () => {
+      const idn1 = notebooksService.addNotebook('test');
+      const idn2 = notebooksService.addNotebook('nested', idn1);
+      const idd1 = collectionService.addDocument(idn2);
+      const idp1 = collectionService.addPage(idd1);
+      const idf1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+      const idd2 = collectionService.addDocument(idf1);
+
+      expect(
+        collectionService.getAllCollectionItemsRecursive(ROOT_COLLECTION)
+      ).toHaveLength(7); // +1 for default notebook
+
+      expect(
+        collectionService.getAllCollectionItemsRecursive(DEFAULT_NOTEBOOK_ID)
+      ).toHaveLength(2);
+
+      expect(
+        collectionService.getAllCollectionItemsRecursive(idn1)
+      ).toHaveLength(3);
+
+      expect(
+        collectionService.getAllCollectionItemsRecursive(idn2)
+      ).toHaveLength(2);
+
+      expect(
+        collectionService.getAllCollectionItemsRecursive(idd1)
+      ).toHaveLength(1);
+
+      expect(
+        collectionService.getAllCollectionItemsRecursive(idp1)
+      ).toHaveLength(0);
+
+      expect(
+        collectionService.getAllCollectionItemsRecursive(idf1)
+      ).toHaveLength(1);
+
+      expect(
+        collectionService.getAllCollectionItemsRecursive(idd2)
+      ).toHaveLength(0);
     });
   });
 });

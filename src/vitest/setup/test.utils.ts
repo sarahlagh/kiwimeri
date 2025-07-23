@@ -230,7 +230,7 @@ export const getRowCountInsideNotebook = (notebook?: string) => {
   if (!notebook) {
     notebook = DEFAULT_NOTEBOOK_ID;
   }
-  return collectionService.getAllCollectionItemsInParent(notebook).length;
+  return collectionService.getAllCollectionItemsRecursive(notebook).length;
 };
 
 export const getRowIdsInsideNotebook = (notebook?: string) => {
@@ -238,7 +238,7 @@ export const getRowIdsInsideNotebook = (notebook?: string) => {
     notebook = DEFAULT_NOTEBOOK_ID;
   }
   return collectionService
-    .getAllCollectionItemsInParent(notebook)
+    .getAllCollectionItemsRecursive(notebook)
     .map(i => i.id);
 };
 

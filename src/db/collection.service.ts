@@ -131,17 +131,13 @@ class CollectionService {
     return this.getResultsSorted(table, queryName, sortBy, descending);
   }
 
-  public getAllCollectionItemsInParent(parent: string) {
+  public getAllCollectionItemsRecursive(parent: string) {
     let results: CollectionItemResult[] = [];
     const level = collectionService.getCollectionItems(parent);
     results = [...level];
-    const folders = level.filter(
-      item =>
-        item.type === CollectionItemType.folder ||
-        item.type === CollectionItemType.notebook
-    );
+    const folders = level.filter(item => item.type !== CollectionItemType.page);
     folders.forEach(folder => {
-      const subLevel = this.getAllCollectionItemsInParent(folder.id);
+      const subLevel = this.getAllCollectionItemsRecursive(folder.id);
       results = [...results, ...subLevel];
     });
     return results;
@@ -292,14 +288,14 @@ class CollectionService {
       : LocalChangeType.add;
     storageService.getSpace().setRow(this.table, id, { ...item });
     if (parent) {
-      this.updateParentUpdatedRecursive(parent);
+      this.updateAllParentsInBreadcrumb(parent);
     }
     localChangesService.addLocalChange(id, changeType);
     return id;
   }
 
   public deleteItem(rowId: Id, moveItemsUp = false) {
-    this.updateParentUpdatedRecursive(this.getItemParent(rowId));
+    this.updateAllParentsInBreadcrumb(this.getItemParent(rowId));
     const wasFolder = this.getItemType(rowId) === CollectionItemType.folder;
     const wasDocument = this.getItemType(rowId) === CollectionItemType.document;
     const parent = this.getItemParent(rowId);
@@ -560,7 +556,7 @@ class CollectionService {
       );
     });
     if (key !== 'parent' || type === CollectionItemType.page) {
-      this.updateParentUpdatedRecursive(this.getItemParent(rowId));
+      this.updateAllParentsInBreadcrumb(this.getItemParent(rowId));
     }
   }
 
@@ -597,14 +593,18 @@ class CollectionService {
     return breadcrumb;
   }
 
-  private updateParentUpdatedRecursive(folder: string) {
+  private updateAllParentsInBreadcrumb(folder: string) {
     if (folder === ROOT_COLLECTION) {
       return;
     }
-    storageService
-      .getSpace()
-      .setCell(this.table, folder, 'updated', Date.now());
-    this.updateParentUpdatedRecursive(this.getItemParent(folder));
+    const breadcrumb = this.getBreadcrumb(folder);
+    storageService.getSpace().transaction(() => {
+      for (let i = 1; i < breadcrumb.length; i++) {
+        storageService
+          .getSpace()
+          .setCell(this.table, breadcrumb[i], 'updated', Date.now());
+      }
+    });
   }
 }
 
