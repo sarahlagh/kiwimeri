@@ -1,4 +1,4 @@
-import { ROOT_FOLDER } from '@/constants';
+import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/localChanges.service';
 import tagsService from '@/db/tags.service';
@@ -11,19 +11,19 @@ describe('tags service', () => {
   });
 
   it('should create an internal map of tags', () => {
-    const id1 = collectionService.addDocument(ROOT_FOLDER);
+    const id1 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     tagsService.addItemTag(id1, 'tag11');
     tagsService.addItemTag(id1, 'tag12');
     tagsService.addItemTag(id1, 'tag13');
 
-    const id2 = collectionService.addDocument(ROOT_FOLDER);
+    const id2 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     tagsService.addItemTag(id2, 'tag21');
     tagsService.addItemTag(id2, 'tag12');
 
-    const id3 = collectionService.addFolder(ROOT_FOLDER);
+    const id3 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
     tagsService.addItemTag(id3, 'tag31');
 
-    collectionService.addFolder(ROOT_FOLDER);
+    collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
 
     expect(tagsService.getTags()).toStrictEqual([
       'tag11',
@@ -41,10 +41,10 @@ describe('tags service', () => {
   });
 
   it('should rename a tag globally', () => {
-    const id1 = collectionService.addDocument(ROOT_FOLDER);
+    const id1 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     tagsService.addItemTag(id1, 'tag1');
     tagsService.addItemTag(id1, 'tag2');
-    const id2 = collectionService.addFolder(ROOT_FOLDER);
+    const id2 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
     tagsService.addItemTag(id2, 'tag2');
     tagsService.addItemTag(id2, 'tag3');
     localChangesService.clear();
@@ -69,10 +69,10 @@ describe('tags service', () => {
   });
 
   it(`should do nothing on rename tag if tag doesn't exist`, () => {
-    const id1 = collectionService.addDocument(ROOT_FOLDER);
+    const id1 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     tagsService.addItemTag(id1, 'tag1');
     tagsService.addItemTag(id1, 'tag2');
-    const id2 = collectionService.addFolder(ROOT_FOLDER);
+    const id2 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
     tagsService.addItemTag(id2, 'tag2');
     tagsService.addItemTag(id2, 'tag3');
 

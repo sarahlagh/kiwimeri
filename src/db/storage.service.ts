@@ -3,8 +3,7 @@ import platformService from '@/common/services/platform.service';
 import {
   DEFAULT_NOTEBOOK_ID,
   DEFAULT_SPACE_ID,
-  INTERNAL_FORMAT,
-  ROOT_FOLDER
+  INTERNAL_FORMAT
 } from '@/constants';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db/with-schemas';
 import { Persister } from 'tinybase/persisters/with-schemas';
@@ -42,7 +41,7 @@ class StorageService {
             type: 'string',
             default: DEFAULT_NOTEBOOK_ID
           } as CellSchema,
-          currentFolder: { type: 'string', default: ROOT_FOLDER } as CellSchema,
+          currentFolder: { type: 'string' } as CellSchema,
           currentDocument: { type: 'string' } as CellSchema,
           currentPage: { type: 'string' } as CellSchema,
           lastLocalChange: { type: 'number' } as CellSchema
@@ -144,8 +143,6 @@ class StorageService {
         title_meta: { type: 'string' } as CellSchema,
         parent: { type: 'string' } as CellSchema,
         parent_meta: { type: 'string' } as CellSchema,
-        notebook: { type: 'string' } as CellSchema,
-        notebook_meta: { type: 'string' } as CellSchema,
         type: { type: 'string' } as CellSchema,
         content: { type: 'string' } as CellSchema,
         content_meta: { type: 'string' } as CellSchema,

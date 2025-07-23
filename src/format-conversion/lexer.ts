@@ -1,4 +1,4 @@
-import { KiwimeriParserBlock } from './parser';
+import { KiwimeriParserBlock } from './parser-context';
 
 export type KiwimeriLexerResponse = {
   token: string;

@@ -5,7 +5,8 @@ import { IonItem, IonList } from '@ionic/react';
 import { PagePreview } from '@/collection/collection';
 import { GET_DOCUMENT_ROUTE, GET_PAGE_ROUTE } from '@/common/routes';
 import { getSearchParams } from '@/common/utils';
-import { CONFLICT_STR, ROOT_FOLDER } from '@/constants';
+import { CONFLICT_STR } from '@/constants';
+import notebooksService from '@/db/notebooks.service';
 import { useLingui } from '@lingui/react/macro';
 import { useHistory, useLocation } from 'react-router';
 import './KiwimeriPagesBrowserPlugin.scss';
@@ -70,7 +71,8 @@ export default function KiwimeriPagesBrowserPlugin({
 
   const history = useHistory();
   const location = useLocation();
-  const folderId = getSearchParams(location.search).folder || ROOT_FOLDER;
+  const notebook = notebooksService.useCurrentNotebook();
+  const folderId = getSearchParams(location.search).folder || notebook;
 
   return (
     <>

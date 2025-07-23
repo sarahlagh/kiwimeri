@@ -1,6 +1,6 @@
 import CollectionItemList from '@/collection/components/CollectionItemList';
 import ImportItemsButton from '@/common/buttons/ImportItemsButton';
-import { APPICONS, ROOT_FOLDER } from '@/constants';
+import { APPICONS } from '@/constants';
 import notebooksService from '@/db/notebooks.service';
 import tagsService from '@/db/tags.service';
 import {
@@ -67,7 +67,7 @@ const ManageNotebooksModal = ({ onClose }: ManageNotebooksModalProps) => {
       <IonFooter>
         <IonToolbar>
           <IonButtons slot="end">
-            <ImportItemsButton parent={ROOT_FOLDER} createNotebook={true} />
+            <ImportItemsButton parent={current} createNotebook={true} />
             <IonButton
               onClick={() => {
                 const uuid = getUniqueId();
@@ -86,8 +86,11 @@ const ManageNotebooksModal = ({ onClose }: ManageNotebooksModalProps) => {
             <IonButton
               onClick={() => {
                 if (selected !== current) {
+                  console.debug('setting current notebook');
                   notebooksService.setCurrentNotebook(selected);
+                  console.debug('rebuild tags');
                   tagsService.reBuildTags();
+                  console.debug('done');
                 }
                 onClose();
               }}

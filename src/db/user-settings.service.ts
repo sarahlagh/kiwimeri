@@ -1,4 +1,4 @@
-import { ROOT_FOLDER } from '@/constants';
+import notebooksService from './notebooks.service';
 import storageService from './storage.service';
 import { useCellWithRef, useValueWithRef } from './tinybase/hooks';
 
@@ -14,23 +14,27 @@ class UserSettingsService {
     storageService.getStore().setValue('theme', theme);
   }
 
+  // those should be in user-navigation.service.ts or something about temp state
+
   public getCurrentFolder() {
+    const notebook = notebooksService.getCurrentNotebook();
     return (
       (storageService
         .getStore()
         .getCell(this.spacesTable, storageService.getSpaceId(), 'currentFolder')
-        ?.valueOf() as string) || ROOT_FOLDER
+        ?.valueOf() as string) || notebook
     );
   }
 
   public useCurrentFolder() {
+    const notebook = notebooksService.useCurrentNotebook();
     return (
       useCellWithRef<string>(
         this.storeId,
         this.spacesTable,
         storageService.getSpaceId(),
         'currentFolder'
-      ) || ROOT_FOLDER
+      ) || notebook
     );
   }
 

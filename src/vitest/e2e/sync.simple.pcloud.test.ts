@@ -1,6 +1,6 @@
 import { CollectionItem } from '@/collection/collection';
 import { appConfig, getGlobalTrans } from '@/config';
-import { ROOT_FOLDER } from '@/constants';
+import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import collectionService from '@/db/collection.service';
 import { unminimizeItemsFromStorage } from '@/db/compress-storage';
 import localChangesService from '@/db/localChanges.service';
@@ -24,6 +24,7 @@ import {
   updateOnRemote
 } from '../setup/test.utils';
 
+let notebook: string = DEFAULT_NOTEBOOK_ID;
 let driver: PCloudDriver;
 let provider: SimpleStorageProvider;
 
@@ -75,6 +76,8 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
       keys.next().value!
     )! as SimpleStorageProvider;
     driver = provider!['driver'] as PCloudDriver;
+
+    notebook = notebooksService.getNotebooks()[0].id;
   });
   afterEach(async () => {
     console.debug('clearing files');
@@ -96,9 +99,9 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
   });
 
   it('should push new local items', async () => {
-    collectionService.addDocument(ROOT_FOLDER);
-    collectionService.addDocument(ROOT_FOLDER);
-    collectionService.addFolder(ROOT_FOLDER);
+    collectionService.addDocument(notebook);
+    collectionService.addDocument(notebook);
+    collectionService.addFolder(notebook);
     expect(getCollectionRowCount()).toBe(3);
     await syncService.push();
     await amount(100);
@@ -118,7 +121,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     await amount(100);
     await syncService.pull();
     expect(getCollectionRowCount()).toBe(3);
-    collectionService.addFolder(ROOT_FOLDER);
+    collectionService.addFolder(notebook);
     setLocalItemField(remoteData[0].id!, 'title', 'new');
     await syncService.push();
     await amount(100);
@@ -147,8 +150,8 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     expect(getCollectionRowCount()).toBe(3);
 
     // local, don't push
-    collectionService.addFolder(ROOT_FOLDER);
-    collectionService.addDocument(ROOT_FOLDER);
+    collectionService.addFolder(notebook);
+    collectionService.addDocument(notebook);
 
     // pull 1
     await amount(100);
@@ -183,8 +186,8 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     await reInitRemoteData(remoteData);
 
     // create local items
-    collectionService.addDocument(ROOT_FOLDER);
-    collectionService.addFolder(ROOT_FOLDER);
+    collectionService.addDocument(notebook);
+    collectionService.addFolder(notebook);
     expect(getCollectionRowCount()).toBe(2);
     localChangesService.clear(); // clear changes -> it's like they have been pushed somewhere else
 
@@ -247,14 +250,14 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     // create data locally
     const idDocuments = [];
     const idFolders = [];
-    let lastParent = ROOT_FOLDER;
+    let lastParent = notebook;
     notebooksService.addNotebook('n0');
     for (let i = 0; i < 10; i++) {
       idDocuments.push(
-        collectionService.addDocument(i % 3 === 0 ? ROOT_FOLDER : lastParent)
+        collectionService.addDocument(i % 3 === 0 ? notebook : lastParent)
       );
       lastParent = collectionService.addFolder(
-        i % 3 === 0 ? ROOT_FOLDER : lastParent
+        i % 3 === 0 ? notebook : lastParent
       );
       idFolders.push(lastParent);
     }
@@ -324,7 +327,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
 
     // create locally
     vi.setSystemTime(now + 12000);
-    const newLocalItem = collectionService.addDocument(ROOT_FOLDER);
+    const newLocalItem = collectionService.addDocument(notebook);
 
     // update title remotely on different id as local
     const idUpdateTitleRemote = idFolders[2];

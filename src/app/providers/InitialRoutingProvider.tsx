@@ -4,7 +4,6 @@ import {
   isCollectionRoute
 } from '@/common/routes';
 import { getSearchParams } from '@/common/utils';
-import { ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import userSettingsService from '@/db/user-settings.service';
@@ -18,8 +17,9 @@ type InitialRoutingProviderProps = {
 const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
   const location = useLocation();
   const searchParams = getSearchParams(location.search);
-  const folder = searchParams.folder ? searchParams.folder : ROOT_FOLDER;
   const notebook = notebooksService.useCurrentNotebook();
+  const folder = searchParams.folder ? searchParams.folder : notebook;
+  console.debug(searchParams, notebook, folder);
 
   useEffect(() => {
     if (isCollectionRoute(location.pathname)) {
@@ -32,14 +32,14 @@ const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
   if (isCollectionRoute(location.pathname)) {
     // if no folder
     if (!searchParams.folder) {
-      return <Redirect to={GET_FOLDER_ROUTE(ROOT_FOLDER)} />;
+      return <Redirect to={GET_FOLDER_ROUTE(notebook)} />;
     }
     // if folder but doesn't exist
     if (
       searchParams.folder &&
-      !collectionService.itemExists(searchParams.folder, notebook)
+      !collectionService.itemExists(searchParams.folder)
     ) {
-      return <Redirect to={GET_FOLDER_ROUTE(ROOT_FOLDER)} />;
+      return <Redirect to={GET_FOLDER_ROUTE(notebook)} />;
     }
     // if page but no document
     if (!searchParams.document && searchParams.page) {
@@ -48,7 +48,7 @@ const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
     // if document but doesn't exist
     if (
       searchParams.document &&
-      !collectionService.itemExists(searchParams.document, notebook)
+      !collectionService.itemExists(searchParams.document)
     ) {
       return <Redirect to={GET_FOLDER_ROUTE(folder)} />;
     }
@@ -56,7 +56,7 @@ const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
     if (
       searchParams.document &&
       searchParams.page &&
-      !collectionService.itemExists(searchParams.page, notebook)
+      !collectionService.itemExists(searchParams.page)
     ) {
       return (
         <Redirect to={GET_DOCUMENT_ROUTE(folder, searchParams.document)} />

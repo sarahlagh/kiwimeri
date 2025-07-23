@@ -3,7 +3,6 @@ import {
   CollectionItemType,
   CollectionItemTypeValues
 } from '@/collection/collection';
-import { ROOT_FOLDER } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactProps';
@@ -28,6 +27,7 @@ const ExportItemsButton = ({
   color,
   onClose
 }: ExportItemsButtonProps) => {
+  const notebook = notebooksService.getCurrentNotebook();
   const fileMime =
     type !== CollectionItemType.folder ? 'text/markdown' : 'application/zip';
 
@@ -38,8 +38,7 @@ const ExportItemsButton = ({
     if (id === 'space') {
       return 'collection.zip';
     }
-    if (!id || id === ROOT_FOLDER) {
-      const notebook = notebooksService.getCurrentNotebook();
+    if (!id || id === notebook) {
       return `${collectionService.getItemTitle(notebook)}.zip`;
     }
     const fileTitle = collectionService.getItemTitle(id);
@@ -57,7 +56,7 @@ const ExportItemsButton = ({
       return exportService.toZip(exportService.getSpaceContent());
     }
     if (!id) {
-      return exportService.toZip(exportService.getFolderContent(ROOT_FOLDER));
+      return exportService.toZip(exportService.getFolderContent(notebook));
     }
     if (type !== CollectionItemType.folder) {
       return exportService.getSingleDocumentContent(id);

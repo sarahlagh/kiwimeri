@@ -25,7 +25,7 @@
               {
                 "id": "#id",
                 "title": "New folder",
-                "parent": "home",
+                "parent": "0",
                 "type": "f",
                 "created": 1753088317511,
                 "updated": 1753088317511
@@ -102,7 +102,7 @@
             "newItems": [
               {
                 "title": "Simple Original",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__",
                 "created": 1753088323853,
@@ -112,7 +112,7 @@
               {
                 "id": "#idSimpleSub",
                 "title": "SimpleSub",
-                "parent": "home",
+                "parent": "0",
                 "type": "f",
                 "created": 1753088317511,
                 "updated": 1753088317511

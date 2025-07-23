@@ -32,7 +32,7 @@
             "newItems": [
               {
                 "title": "empty",
-                "parent": "home",
+                "parent": "0",
                 "type": "f",
                 "created": 1752772097139,
                 "updated": 1752772101238
@@ -65,7 +65,7 @@
             "newItems": [
               {
                 "title": "NewName",
-                "parent": "home",
+                "parent": "0",
                 "type": "f",
                 "created": 1752772097139,
                 "updated": 1752772101238
@@ -120,7 +120,7 @@
             "newItems": [
               {
                 "title": "meta.json",
-                "parent": "home",
+                "parent": "0",
                 "type": "d"
               }
             ],

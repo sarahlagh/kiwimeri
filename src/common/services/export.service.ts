@@ -3,7 +3,7 @@ import {
   CollectionItemType,
   CollectionItemTypeValues
 } from '@/collection/collection';
-import { META_JSON, ROOT_FOLDER } from '@/constants';
+import { META_JSON } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import formatterService from '@/format-conversion/formatter.service';
@@ -46,13 +46,12 @@ class ExportService {
   private getMetaObj(
     id: string,
     folderType: CollectionItemTypeValues,
-    notebook: string,
     withFiles = false
   ): ZipMetadata {
     return {
       type: folderType,
       format: 'markdown',
-      title: collectionService.getItemTitle(id === ROOT_FOLDER ? notebook : id),
+      title: collectionService.getItemTitle(id),
       tags: collectionService.getItemField(id, 'tags'),
       created: collectionService.getItemField(id, 'created'),
       updated: collectionService.getItemField(id, 'updated'),
@@ -63,12 +62,11 @@ class ExportService {
   private fillDirectoryStructure(
     id: string,
     fileTree: ZipFileTree,
-    notebook: string,
     folderType: CollectionItemType.folder | CollectionItemType.notebook,
     opts = this.opts
   ) {
     const meta = new Map<string, ZipMetadata>();
-    const items = collectionService.getBrowsableCollectionItems(id, notebook);
+    const items = collectionService.getBrowsableCollectionItems(id);
 
     // create text files
     items
@@ -82,9 +80,9 @@ class ExportService {
         fileTree[itemKey] = [strToU8(this.getSingleDocumentContent(item.id))];
 
         if (opts.includeMetadata) {
-          const metaId = `${notebook}-${item.parent}`;
+          const metaId = item.parent;
           if (!meta.has(metaId)) {
-            meta.set(metaId, this.getMetaObj(id, folderType, notebook, true));
+            meta.set(metaId, this.getMetaObj(id, folderType, true));
           }
           meta.get(metaId)!.files![itemKey] = {
             type: item.type,
@@ -108,15 +106,14 @@ class ExportService {
         this.fillDirectoryStructure(
           item.id,
           fileTree[itemKey],
-          notebook,
           CollectionItemType.folder,
           opts
         );
       });
 
-    const metaId = `${notebook}-${id}`;
+    const metaId = id;
     if (!meta.has(metaId)) {
-      meta.set(metaId, this.getMetaObj(id, folderType, notebook));
+      meta.set(metaId, this.getMetaObj(id, folderType));
     }
 
     if (opts.includeMetadata && meta.has(metaId)) {
@@ -162,22 +159,8 @@ class ExportService {
     return content;
   }
 
-  public getFolderContent(id: string, opts = this.opts, notebook?: string) {
-    if (!notebook) {
-      notebook =
-        id !== ROOT_FOLDER
-          ? collectionService.getItemField<string>(id, 'notebook')!
-          : notebooksService.getCurrentNotebook();
-    }
-    return this.fillDirectoryStructure(
-      id,
-      {},
-      notebook,
-      id === ROOT_FOLDER
-        ? CollectionItemType.notebook
-        : CollectionItemType.folder,
-      opts
-    );
+  public getFolderContent(id: string, opts = this.opts) {
+    return this.fillDirectoryStructure(id, {}, CollectionItemType.folder, opts);
   }
 
   public getSpaceContent(opts = this.opts) {
@@ -189,9 +172,8 @@ class ExportService {
         key = `${notebook.title} (${idx})`;
       }
       fileTree[key] = this.fillDirectoryStructure(
-        ROOT_FOLDER,
-        {},
         notebook.id,
+        {},
         CollectionItemType.notebook,
         opts
       );

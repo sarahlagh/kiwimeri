@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:148
+#: src/common/modals/ConfirmMultipleImportModal.tsx:142
 msgid "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 msgstr "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 
@@ -31,17 +31,17 @@ msgid "Are you sure?"
 msgstr "Are you sure?"
 
 #: src/common/modals/ConfirmYesNoDialog.tsx:28
-#: src/common/modals/ConfirmMultipleImportModal.tsx:214
+#: src/common/modals/ConfirmMultipleImportModal.tsx:208
 #: src/common/modals/ConfirmFileImportModal.tsx:78
 #: src/common/modals/ChooseTagsModal.tsx:98
 msgid "Cancel"
 msgstr "Cancel"
 
-#: src/common/modals/ChooseFolderModal.tsx:68
+#: src/common/modals/ChooseFolderModal.tsx:69
 msgid "Choose"
 msgstr "Choose"
 
-#: src/common/modals/ChooseFolderModal.tsx:109
+#: src/common/modals/ChooseFolderModal.tsx:110
 msgid "Choose a new folder"
 msgstr "Choose a new folder"
 
@@ -53,9 +53,9 @@ msgstr "Collection"
 msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
 
-#: src/notebooks/components/ManageNotebooksModal.tsx:95
+#: src/notebooks/components/ManageNotebooksModal.tsx:98
 #: src/common/modals/ConfirmYesNoDialog.tsx:36
-#: src/common/modals/ConfirmMultipleImportModal.tsx:217
+#: src/common/modals/ConfirmMultipleImportModal.tsx:211
 #: src/common/modals/ConfirmFileImportModal.tsx:81
 #: src/common/modals/ChooseTagsModal.tsx:105
 msgid "Confirm"
@@ -66,11 +66,11 @@ msgstr "Confirm"
 msgid "Debug"
 msgstr "Debug"
 
-#: src/constants.ts:57
+#: src/constants.ts:55
 msgid "Default"
 msgstr "Default"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:112
+#: src/common/modals/ConfirmMultipleImportModal.tsx:106
 msgid "Do you want to import your content inside a new folder?"
 msgstr "Do you want to import your content inside a new folder?"
 
@@ -78,11 +78,11 @@ msgstr "Do you want to import your content inside a new folder?"
 msgid "Download Logs"
 msgstr "Download Logs"
 
-#: src/common/wysiwyg/pages/KiwimeriPagesBrowserPlugin.tsx:68
+#: src/common/wysiwyg/pages/KiwimeriPagesBrowserPlugin.tsx:69
 msgid "empty doc"
 msgstr "empty doc"
 
-#: src/common/wysiwyg/pages/KiwimeriPagesBrowserPlugin.tsx:69
+#: src/common/wysiwyg/pages/KiwimeriPagesBrowserPlugin.tsx:70
 msgid "empty page"
 msgstr "empty page"
 
@@ -116,7 +116,7 @@ msgstr "File not supported"
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/constants.ts:56
+#: src/constants.ts:54
 msgid "Home"
 msgstr "Home"
 
@@ -131,10 +131,6 @@ msgstr "Import & export your collection"
 #: src/common/modals/ConfirmFileImportModal.tsx:43
 msgid "Import file in folder {folderName}"
 msgstr "Import file in folder {folderName}"
-
-#: src/common/modals/ConfirmMultipleImportModal.tsx:97
-msgid "Import zip content in a new Notebook"
-msgstr "Import zip content in a new Notebook"
 
 #: src/common/modals/ConfirmMultipleImportModal.tsx:92
 msgid "Import zip content in folder {parentName}"
@@ -173,15 +169,15 @@ msgstr "Markdown (Kiwimeri flavor)"
 msgid "Name"
 msgstr "Name"
 
-#: src/constants.ts:58
+#: src/constants.ts:56
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:59
+#: src/constants.ts:57
 msgid "New folder"
 msgstr "New folder"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:133
+#: src/common/modals/ConfirmMultipleImportModal.tsx:127
 msgid "New folder name: "
 msgstr "New folder name: "
 
@@ -305,7 +301,7 @@ msgstr "US"
 msgid "Username"
 msgstr "Username"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:166
+#: src/common/modals/ConfirmMultipleImportModal.tsx:160
 msgid "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 msgstr "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 

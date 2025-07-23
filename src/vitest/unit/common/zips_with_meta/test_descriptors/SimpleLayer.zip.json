@@ -25,7 +25,7 @@
               {
                 "id": "#id",
                 "title": "New folder",
-                "parent": "home",
+                "parent": "0",
                 "type": "f",
                 "created": 1753088490685,
                 "updated": 1753088490685
@@ -66,7 +66,7 @@
             "newItems": [
               {
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__",
                 "created": 1753088495423,
@@ -101,7 +101,7 @@
               {
                 "id": "#id1",
                 "title": "New folder",
-                "parent": "home",
+                "parent": "0",
                 "type": "f",
                 "created": 1753088490685,
                 "updated": 1753088490685
@@ -151,7 +151,7 @@
               {
                 "id": "#id",
                 "title": "Simple Original",
-                "parent": "home",
+                "parent": "0",
                 "type": "f",
                 "created": 1753088495423,
                 "updated": 1753088495423

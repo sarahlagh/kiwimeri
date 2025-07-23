@@ -6,7 +6,7 @@ import {
   CollectionItemUpdatableFieldEnum,
   setFieldMeta
 } from '@/collection/collection';
-import { ROOT_FOLDER, ROOT_NOTEBOOK } from '@/constants';
+import { DEFAULT_NOTEBOOK_ID, ROOT_NOTEBOOK } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
@@ -23,7 +23,7 @@ export const fakeTimersDelay = 100;
 // TODO use new methods from collection service
 export const oneDocument = (
   title = 'new doc',
-  parent = ROOT_FOLDER
+  parent = DEFAULT_NOTEBOOK_ID
 ): CollectionItem => {
   const notebook = notebooksService.getCurrentNotebook();
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
@@ -32,8 +32,6 @@ export const oneDocument = (
     type: CollectionItemType.document,
     parent,
     parent_meta: setFieldMeta(parent, Date.now()),
-    notebook,
-    notebook_meta: setFieldMeta(notebook, Date.now()),
     title,
     title_meta: setFieldMeta(title, Date.now()),
     content: 'random',
@@ -48,7 +46,7 @@ export const oneDocument = (
 };
 export const oneFolder = (
   title = 'new folder',
-  parent = ROOT_FOLDER
+  parent = DEFAULT_NOTEBOOK_ID
 ): CollectionItem => {
   const notebook = notebooksService.getCurrentNotebook();
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
@@ -56,8 +54,6 @@ export const oneFolder = (
     id: getUniqueId(),
     parent,
     parent_meta: setFieldMeta(parent, Date.now()),
-    notebook,
-    notebook_meta: setFieldMeta(notebook, Date.now()),
     type: CollectionItemType.folder,
     title,
     title_meta: setFieldMeta(title, Date.now()),
@@ -69,15 +65,16 @@ export const oneFolder = (
     deleted_meta: setFieldMeta('false', Date.now())
   };
 };
-export const oneNotebook = (title = 'new notebook', id = '0'): Notebook => {
+export const oneNotebook = (
+  title = 'new notebook',
+  id = DEFAULT_NOTEBOOK_ID
+): Notebook => {
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   return {
     id,
     type: CollectionItemType.notebook,
     parent: ROOT_NOTEBOOK,
     parent_meta: setFieldMeta(ROOT_NOTEBOOK, Date.now()),
-    notebook: '',
-    notebook_meta: setFieldMeta('', Date.now()),
     title,
     title_meta: setFieldMeta(title, Date.now()),
     created: Date.now(),
@@ -88,21 +85,19 @@ export const oneNotebook = (title = 'new notebook', id = '0'): Notebook => {
 };
 export const onePage = (
   preview = 'new doc',
-  parent = ROOT_FOLDER
+  parent = DEFAULT_NOTEBOOK_ID
 ): CollectionItem => {
-  const notebook = notebooksService.getCurrentNotebook();
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   return {
     id: getUniqueId(),
     type: CollectionItemType.page,
     parent,
     parent_meta: setFieldMeta(parent, Date.now()),
-    notebook,
-    notebook_meta: setFieldMeta(notebook, Date.now()),
     title: '',
     title_meta: setFieldMeta('title', Date.now()),
     content: 'random',
     content_meta: setFieldMeta('random', Date.now()),
+    preview,
     created: Date.now(),
     updated: Date.now(),
     deleted: false,
@@ -151,7 +146,7 @@ export const NON_PARENT_NON_NOTEBOOK_UPDATABLE_FIELDS: {
 
 export const NON_PARENT_UPDATABLE_FIELDS: {
   field: CollectionItemUpdatableFieldEnum;
-}[] = [...NON_PARENT_NON_NOTEBOOK_UPDATABLE_FIELDS, { field: 'notebook' }];
+}[] = [...NON_PARENT_NON_NOTEBOOK_UPDATABLE_FIELDS];
 
 export const UPDATABLE_FIELDS: { field: CollectionItemUpdatableFieldEnum }[] = [
   ...NON_PARENT_UPDATABLE_FIELDS,

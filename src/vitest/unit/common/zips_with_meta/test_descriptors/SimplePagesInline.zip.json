@@ -18,7 +18,7 @@
               {
                 "id": "#id",
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__",
                 "created": 1753088406644,
@@ -50,7 +50,7 @@
             "newItems": [
               {
                 "title": "Simple",
-                "parent": "home",
+                "parent": "0",
                 "type": "d",
                 "content": "__defined__",
                 "created": 1753088406644,
