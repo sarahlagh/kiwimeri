@@ -62,7 +62,7 @@ class ExportService {
   private fillDirectoryStructure(
     id: string,
     fileTree: ZipFileTree,
-    folderType: CollectionItemType.folder | CollectionItemType.notebook,
+    folderType: CollectionItemTypeValues,
     opts = this.opts
   ) {
     const meta = new Map<string, ZipMetadata>();
@@ -160,7 +160,8 @@ class ExportService {
   }
 
   public getFolderContent(id: string, opts = this.opts) {
-    return this.fillDirectoryStructure(id, {}, CollectionItemType.folder, opts);
+    const type = collectionService.getItemType(id);
+    return this.fillDirectoryStructure(id, {}, type, opts);
   }
 
   public getSpaceContent(opts = this.opts) {

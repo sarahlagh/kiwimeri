@@ -22,16 +22,14 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import React, { useEffect, useState } from 'react';
 import {
   importService,
+  ZipMergeOptions,
   ZipMergeResult,
   ZipParsedData
 } from '../services/import.service';
 
 export type ConfirmMultipleImportModalParams = {
-  createNotebook: boolean;
-  folder: string;
   zipData: ZipParsedData;
-  zipName: string;
-};
+} & ZipMergeOptions;
 
 export type ConfirmMultipleImportModalProps = {
   params: ConfirmMultipleImportModalParams;
@@ -44,7 +42,8 @@ const ConfirmMultipleImportModal = ({
 }: ConfirmMultipleImportModalProps) => {
   const { t } = useLingui();
   const parentName =
-    collectionService.getItemTitle(params.folder) || getGlobalTrans().homeTitle;
+    collectionService.getItemTitle(params.zipData.parent) ||
+    getGlobalTrans().homeTitle;
 
   const [createNewFolder, setCreateNewFolder] = useState<boolean>(false);
   const [newFolderName, setNewFolderName] = useState<string | undefined>();
@@ -53,14 +52,14 @@ const ConfirmMultipleImportModal = ({
   const [zipMerge, setZipMerge] = useState<ZipMergeResult | undefined>();
 
   const zipFirstLevel = params.zipData.items.filter(
-    item => item.parent === params.folder
+    item => item.parent === params.zipData.parent
   );
   const hasOneFolder =
     zipFirstLevel.length === 1 &&
     zipFirstLevel[0].type === CollectionItemType.folder;
 
   const itemsInCollection = collectionService.getBrowsableCollectionItems(
-    params.folder
+    params.zipData.parent
   );
   const newFirstLevel = [
     ...itemsInCollection.filter(
@@ -71,17 +70,13 @@ const ConfirmMultipleImportModal = ({
 
   useEffect(() => {
     setZipMerge(
-      importService.mergeZipItems(
-        params.zipName,
-        params.zipData,
-        params.folder,
-        {
-          createNewFolder,
-          overwrite,
-          newFolderName,
-          removeFirstFolder
-        }
-      )
+      importService.mergeZipItems(params.zipData, {
+        createNotebook: params.createNotebook,
+        createNewFolder,
+        overwrite,
+        newFolderName,
+        removeFirstFolder
+      })
     );
   }, [createNewFolder, newFolderName, removeFirstFolder, overwrite]);
 

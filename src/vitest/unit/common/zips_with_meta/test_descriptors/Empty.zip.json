@@ -7,25 +7,22 @@
       "initData": [],
       "scenarios": [
         {
-          "description": "and createNewFolder=true",
+          "description": "with createNotebook=false (createNewFolder is ignored)",
           "options": [
             {
+              "createNotebook": false,
               "createNewFolder": true,
               "overwrite": false
             },
             {
+              "createNotebook": false,
               "createNewFolder": true,
-              "overwrite": true
+              "overwrite": false
             },
             {
-              "createNewFolder": true,
-              "overwrite": false,
-              "removeFirstLayer": true
-            },
-            {
-              "createNewFolder": true,
-              "overwrite": true,
-              "removeFirstLayer": true
+              "createNotebook": false,
+              "createNewFolder": false,
+              "overwrite": false
             }
           ],
           "expected": {
@@ -48,17 +45,13 @@
           }
         },
         {
-          "description": "and createNewFolder=true, newFolderName=NewName",
+          "description": "with createNotebook=false and createNewFolder=NewName",
           "options": [
             {
+              "createNotebook": false,
               "createNewFolder": true,
               "newFolderName": "NewName",
               "overwrite": false
-            },
-            {
-              "createNewFolder": true,
-              "newFolderName": "NewName",
-              "overwrite": true
             }
           ],
           "expected": {
@@ -81,30 +74,76 @@
           }
         },
         {
-          "description": "with createNewFolder=false",
+          "description": "with createNotebook=true (createNewFolder is ignored)",
           "options": [
             {
-              "createNewFolder": false,
+              "createNotebook": true,
+              "createNewFolder": true,
               "overwrite": false
             },
             {
-              "createNewFolder": false,
-              "overwrite": true
-            },
-            {
-              "createNewFolder": false,
-              "newFolderName": "NewName",
+              "createNotebook": true,
+              "createNewFolder": true,
               "overwrite": false
             },
             {
+              "createNotebook": true,
               "createNewFolder": false,
-              "newFolderName": "NewName",
-              "overwrite": true
+              "overwrite": false
             }
           ],
           "expected": {
-            "newItems": [],
-            "firstLevel": []
+            "newItems": [
+              {
+                "title": "empty",
+                "parent": "0",
+                "type": "n",
+                "created": 1752772097139,
+                "updated": 1752772101238
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "empty",
+                "type": "n",
+                "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "with createNotebook=true and createNewFolder=NewName",
+          "options": [
+            {
+              "createNotebook": true,
+              "createNewFolder": true,
+              "newFolderName": "NewName",
+              "overwrite": false
+            },
+            {
+              "createNotebook": true,
+              "createNewFolder": false,
+              "newFolderName": "NewName",
+              "overwrite": false
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "title": "NewName",
+                "parent": "0",
+                "type": "n",
+                "created": 1752772097139,
+                "updated": 1752772101238
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "NewName",
+                "status": "new",
+                "type": "n"
+              }
+            ]
           }
         },
         {

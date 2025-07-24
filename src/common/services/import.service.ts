@@ -2,6 +2,7 @@ import {
   CollectionItem,
   CollectionItemResult,
   CollectionItemType,
+  CollectionItemTypeValues,
   CollectionItemUpdate
 } from '@/collection/collection';
 import { META_JSON } from '@/constants';
@@ -18,8 +19,10 @@ export type ZipMergeFistLevel = {
 } & Pick<CollectionItem, 'id' | 'title' | 'type' | 'created' | 'updated'>;
 
 export type ZipParsedData = {
+  zipName: string;
   items: CollectionItem[];
-  folderMeta?: ZipMetadata;
+  parent: string;
+  rootMeta?: ZipMetadata;
 };
 
 export type ZipMergeResult = {
@@ -32,14 +35,14 @@ export type ZipMergeResult = {
 export type ZipParseOptions = {
   ignoreMetadata?: boolean;
   detectInlinedPages?: boolean;
-  createNotebook?: boolean;
   titleRemoveDuplicateIdentifiers?: boolean;
   titleRemoveExtension?: boolean;
 };
 
 export type ZipMergeOptions = {
-  createNewFolder: boolean;
-  overwrite: boolean;
+  createNotebook?: boolean;
+  createNewFolder?: boolean;
+  overwrite?: boolean;
   removeFirstFolder?: boolean;
   newFolderName?: string;
 };
@@ -101,6 +104,9 @@ class ImportService {
     if (meta.tags) {
       item.tags = meta.tags;
     }
+    if (meta.type) {
+      item.type = meta.type;
+    }
   }
 
   private fillInFilesMeta(
@@ -108,7 +114,6 @@ class ImportService {
     key: string,
     metaMap: Map<string, ZipMetadata>
   ) {
-    // TODO notebook
     if (
       metaMap.get(item.parent)?.files &&
       metaMap.get(item.parent)!.files![key] !== undefined
@@ -130,14 +135,9 @@ class ImportService {
       opts = { ...this.defaultOpts, ...opts };
     }
 
+    const zipNameFinal = zipName.replace(/(.*)\.(zip|ZIP)$/g, '$1');
     const metaMap = new Map<string, ZipMetadata>();
     const items: { [key: string]: CollectionItem } = {};
-    let notebook = notebooksService.getCurrentNotebook();
-    if (opts.createNotebook === true) {
-      const { item, id } = notebooksService.getNewNotebookObj(zipName);
-      items['notebook'] = { ...item, id };
-      notebook = id;
-    }
 
     Object.keys(unzipped).forEach(key => {
       const isFolder = key.endsWith('/');
@@ -162,8 +162,8 @@ class ImportService {
       }
       if (!items[fKey]) {
         const { item, id } = isFolder
-          ? collectionService.getNewFolderObj(currentParent || notebook)
-          : collectionService.getNewDocumentObj(currentParent || notebook);
+          ? collectionService.getNewFolderObj(currentParent)
+          : collectionService.getNewDocumentObj(currentParent);
 
         let content: string | undefined = undefined;
 
@@ -202,13 +202,14 @@ class ImportService {
       }
     });
 
+    // use meta.json files to update some metadatas
     Object.keys(items).forEach(key => {
       const keys = key.split('/');
       if (keys[keys.length - 1] !== '') {
         // is item
         this.fillInFilesMeta(items[key], keys[keys.length - 1], metaMap);
       } else {
-        // is folder
+        // is folder or notebook
         if (metaMap.has(items[key].id!)) {
           const meta = metaMap.get(items[key].id!)!;
           this.fillInMeta(items[key], meta);
@@ -217,8 +218,10 @@ class ImportService {
     });
 
     return {
+      zipName: zipNameFinal,
       items: Object.values(items),
-      folderMeta: metaMap.get(parent)
+      parent,
+      rootMeta: metaMap.get(parent)
     };
   }
 
@@ -370,42 +373,80 @@ class ImportService {
       .forEach(item => (item.parent = parent));
   }
 
-  private createNewFolder(
+  private createNewParent(
+    type: CollectionItemTypeValues,
     items: CollectionItem[],
     parent: string,
     zipName: string,
     options: ZipMergeOptions,
-    folderMeta?: ZipMetadata
+    rootMeta?: ZipMetadata
   ) {
     const firstLayer = items.filter(item => item.parent === parent);
-    const { item, id } = collectionService.getNewFolderObj(parent);
+    const { item, id } =
+      type === CollectionItemType.folder
+        ? collectionService.getNewFolderObj(parent)
+        : notebooksService.getNewNotebookObj(parent);
     item.title = '';
-    if (folderMeta) {
-      this.fillInMeta(item, folderMeta);
+    if (rootMeta) {
+      this.fillInMeta(item, rootMeta);
     }
     if (options.newFolderName || item.title === '') {
       item.title = options.newFolderName || zipName;
     }
     items.unshift({ ...item, id });
     firstLayer.forEach(item => (item.parent = id));
+    return id;
   }
 
   public mergeZipItems(
-    zipName: string,
     zipData: ZipParsedData,
-    parent: string,
     opts: ZipMergeOptions
   ): ZipMergeResult {
     opts = { ...this.defaultOpts, ...opts };
 
     const items = structuredClone(zipData.items);
+    let parent = zipData.parent;
 
     if (opts.removeFirstFolder === true) {
       this.removeFirstFolder(items, parent);
     }
 
-    if (opts.createNewFolder === true) {
-      this.createNewFolder(items, parent, zipName, opts, zipData.folderMeta);
+    if (zipData.rootMeta) {
+      this.createNewParent(
+        zipData.rootMeta.type || CollectionItemType.folder,
+        items,
+        parent,
+        zipData.zipName,
+        opts,
+        zipData.rootMeta
+      );
+      if (opts.createNotebook) {
+        // force notebook type if zipData.rootMeta.type was folder
+        items[0].type = CollectionItemType.notebook;
+        // items[0].parent = ROOT_COLLECTION;
+        // parent = id;
+      }
+    } else {
+      if (opts.createNotebook === true) {
+        const id = this.createNewParent(
+          CollectionItemType.notebook,
+          items,
+          parent,
+          zipData.zipName,
+          opts
+        );
+        parent = id;
+      }
+
+      if (opts.createNewFolder === true) {
+        this.createNewParent(
+          CollectionItemType.folder,
+          items,
+          parent,
+          zipData.zipName,
+          opts
+        );
+      }
     }
 
     return this.mergeZipItemsWithOptions(items, parent, opts);
