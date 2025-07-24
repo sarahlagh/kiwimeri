@@ -1,4 +1,4 @@
-import localChangesService from '@/db/localChanges.service';
+import localChangesService from '@/db/local-changes.service';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
 import tagsService from '@/db/tags.service';

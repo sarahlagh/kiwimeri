@@ -5,7 +5,7 @@ import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import {
   getLocalItemField,
-  NON_PARENT_NON_NOTEBOOK_UPDATABLE_FIELDS
+  NON_PARENT_UPDATABLE_FIELDS
 } from '@/vitest/setup/test.utils';
 import { it, vi } from 'vitest';
 
@@ -45,7 +45,7 @@ describe('notebooks service', () => {
     vi.useRealTimers();
   });
 
-  NON_PARENT_NON_NOTEBOOK_UPDATABLE_FIELDS.forEach(({ field }) => {
+  NON_PARENT_UPDATABLE_FIELDS.forEach(({ field }) => {
     it(`should not update notebook modified timestamp on items update with ${field}`, () => {
       vi.useFakeTimers();
       const created = Date.now();

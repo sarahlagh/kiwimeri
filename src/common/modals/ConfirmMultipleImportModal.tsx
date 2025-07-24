@@ -27,6 +27,7 @@ import {
 } from '../services/import.service';
 
 export type ConfirmMultipleImportModalParams = {
+  createNotebook: boolean;
   folder: string;
   zipData: ZipParsedData;
   zipName: string;
@@ -88,9 +89,16 @@ const ConfirmMultipleImportModal = ({
     <>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>
-            <Trans>Import zip content in folder {parentName}</Trans>
-          </IonTitle>
+          {!params.createNotebook && (
+            <IonTitle>
+              <Trans>Import zip content in folder {parentName}</Trans>
+            </IonTitle>
+          )}
+          {params.createNotebook && (
+            <IonTitle>
+              <Trans>Import zip content in a new Notebook</Trans>
+            </IonTitle>
+          )}
           <IonButtons slot="end">
             <IonButton onClick={() => onClose(false)}>
               <IonIcon icon={APPICONS.closeAction} />

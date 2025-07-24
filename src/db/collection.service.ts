@@ -16,7 +16,8 @@ import { SerializedEditorState } from 'lexical';
 import { getUniqueId } from 'tinybase/common';
 import { Id } from 'tinybase/common/with-schemas';
 import { Table } from 'tinybase/store';
-import localChangesService from './localChanges.service';
+import localChangesService from './local-changes.service';
+import notebooksService from './notebooks.service';
 import storageService from './storage.service';
 import {
   useCellWithRef,
@@ -131,13 +132,18 @@ class CollectionService {
     return this.getResultsSorted(table, queryName, sortBy, descending);
   }
 
-  public getAllCollectionItemsRecursive(parent: string) {
+  public getAllCollectionItemsRecursive(
+    parent: string,
+    cb?: (level: CollectionItemResult[]) => void
+  ) {
     let results: CollectionItemResult[] = [];
     const level = collectionService.getCollectionItems(parent);
+    if (cb) cb(level);
     results = [...level];
     const folders = level.filter(item => item.type !== CollectionItemType.page);
     folders.forEach(folder => {
       const subLevel = this.getAllCollectionItemsRecursive(folder.id);
+      if (cb) cb(subLevel);
       results = [...results, ...subLevel];
     });
     return results;
@@ -273,6 +279,11 @@ class CollectionService {
     const { item, id } = this.getNewPageObj(document);
     this.saveItem(item as CollectionItem, id, document);
     return id;
+  }
+
+  // for tests
+  public addNotebook(parent: string, title = '') {
+    return notebooksService.addNotebook(title, parent);
   }
 
   public saveItem(

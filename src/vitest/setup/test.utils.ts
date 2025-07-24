@@ -8,7 +8,6 @@ import {
 } from '@/collection/collection';
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/db/collection.service';
-import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
 import { Notebook } from '@/notebooks/notebooks';
 import { getUniqueId } from 'tinybase/with-schemas';
@@ -25,7 +24,6 @@ export const oneDocument = (
   title = 'new doc',
   parent = DEFAULT_NOTEBOOK_ID
 ): CollectionItem => {
-  const notebook = notebooksService.getCurrentNotebook();
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   return {
     id: getUniqueId(),
@@ -48,7 +46,6 @@ export const oneFolder = (
   title = 'new folder',
   parent = DEFAULT_NOTEBOOK_ID
 ): CollectionItem => {
-  const notebook = notebooksService.getCurrentNotebook();
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   return {
     id: getUniqueId(),
@@ -84,9 +81,10 @@ export const oneNotebook = (
   };
 };
 export const onePage = (
-  preview = 'new doc',
+  title = 'new doc',
   parent = DEFAULT_NOTEBOOK_ID
 ): CollectionItem => {
+  // note: title param is just there so the method has the same signature as the others
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   return {
     id: getUniqueId(),
@@ -97,7 +95,6 @@ export const onePage = (
     title_meta: setFieldMeta('title', Date.now()),
     content: 'random',
     content_meta: setFieldMeta('random', Date.now()),
-    preview,
     created: Date.now(),
     updated: Date.now(),
     deleted: false,
@@ -105,14 +102,15 @@ export const onePage = (
   };
 };
 
-type itemTypesType = {
+type ItemTypesType = {
   type: string;
   typeVal: CollectionItemTypeValues;
-  addMethod: 'addDocument' | 'addFolder' | 'addPage';
+  addMethod: 'addDocument' | 'addFolder' | 'addPage' | 'addNotebook';
   testAddFn: (title?: string, parent?: string) => CollectionItem;
   defaultTitle: string;
 };
-export const BROWSABLE_ITEM_TYPES: itemTypesType[] = [
+
+export const NON_NOTEBOOK_BROWSABLE_ITEM_TYPES: ItemTypesType[] = [
   {
     type: 'document',
     typeVal: CollectionItemType.document,
@@ -129,7 +127,18 @@ export const BROWSABLE_ITEM_TYPES: itemTypesType[] = [
   }
 ];
 
-export const ITEM_TYPES: itemTypesType[] = [
+export const BROWSABLE_ITEM_TYPES: ItemTypesType[] = [
+  ...NON_NOTEBOOK_BROWSABLE_ITEM_TYPES,
+  {
+    type: 'notebook',
+    typeVal: CollectionItemType.notebook,
+    addMethod: 'addNotebook',
+    testAddFn: oneNotebook,
+    defaultTitle: ''
+  }
+];
+
+export const ITEM_TYPES: ItemTypesType[] = [
   ...BROWSABLE_ITEM_TYPES,
   {
     type: 'page',
@@ -140,13 +149,13 @@ export const ITEM_TYPES: itemTypesType[] = [
   }
 ];
 
-export const NON_PARENT_NON_NOTEBOOK_UPDATABLE_FIELDS: {
-  field: CollectionItemUpdatableFieldEnum;
-}[] = [{ field: 'title' }, { field: 'content' }, { field: 'tags' }];
+export const NON_NOTEBOOK_ITEM_TYPES: ItemTypesType[] = ITEM_TYPES.filter(
+  i => i.type !== 'notebook'
+);
 
 export const NON_PARENT_UPDATABLE_FIELDS: {
   field: CollectionItemUpdatableFieldEnum;
-}[] = [...NON_PARENT_NON_NOTEBOOK_UPDATABLE_FIELDS];
+}[] = [{ field: 'title' }, { field: 'content' }, { field: 'tags' }];
 
 export const UPDATABLE_FIELDS: { field: CollectionItemUpdatableFieldEnum }[] = [
   ...NON_PARENT_UPDATABLE_FIELDS,
@@ -202,11 +211,6 @@ const filterPerLocalRemoteAndType = (
 
 export const GET_UPDATABLE_FIELDS = (type: string) =>
   UPDATABLE_FIELDS.filter(f => filterPerType(f.field, type));
-
-export const GET_NON_PARENT_NON_NOTEBOOK_UPDATABLE_FIELDS = (type: string) =>
-  NON_PARENT_NON_NOTEBOOK_UPDATABLE_FIELDS.filter(f =>
-    filterPerType(f.field, type)
-  );
 
 export const GET_NON_PARENT_UPDATABLE_FIELDS = (type: string) =>
   NON_PARENT_UPDATABLE_FIELDS.filter(f => filterPerType(f.field, type));

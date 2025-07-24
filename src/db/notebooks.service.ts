@@ -4,7 +4,7 @@ import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { Notebook, NotebookResult } from '@/notebooks/notebooks';
 import { getUniqueId } from 'tinybase/with-schemas';
 import collectionService from './collection.service';
-import localChangesService from './localChanges.service';
+import localChangesService from './local-changes.service';
 import storageService from './storage.service';
 import {
   useCellWithRef,
@@ -48,16 +48,18 @@ class NotebooksService {
     return this.getNotebooks().length > 0;
   }
 
-  public addNotebook(title: string, parent?: string) {
+  public addNotebook(title: string, parent: string = ROOT_COLLECTION) {
     const now = Date.now();
     const id = storageService.getSpace().addRow(this.table, {
       title,
       title_meta: setFieldMeta(title, now),
-      parent: parent ? parent : ROOT_COLLECTION,
-      parent_meta: setFieldMeta(parent ? parent : ROOT_COLLECTION, now),
+      parent,
+      parent_meta: setFieldMeta(parent, now),
       created: Date.now(),
       updated: Date.now(),
-      type: CollectionItemType.notebook
+      type: CollectionItemType.notebook,
+      deleted: false,
+      deleted_meta: setFieldMeta('false', now)
     });
     if (id) {
       localChangesService.addLocalChange(id, LocalChangeType.add);

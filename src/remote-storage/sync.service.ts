@@ -1,5 +1,5 @@
 import platformService from '@/common/services/platform.service';
-import localChangesService from '@/db/localChanges.service';
+import localChangesService from '@/db/local-changes.service';
 import remotesService from '@/db/remotes.service';
 import tagsService from '@/db/tags.service';
 

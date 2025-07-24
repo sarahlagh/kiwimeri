@@ -8,7 +8,7 @@ import {
 } from '@/common/services/import.service';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import collectionService from '@/db/collection.service';
-import localChangesService from '@/db/localChanges.service';
+import localChangesService from '@/db/local-changes.service';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
 import { LocalChangeType } from '@/db/types/store-types';
