@@ -1,7 +1,7 @@
 import { CollectionItemType } from '@/collection/collection';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import collectionService from '@/db/collection.service';
-import localChangesService from '@/db/localChanges.service';
+import localChangesService from '@/db/local-changes.service';
 import notebooksService from '@/db/notebooks.service';
 import { LocalChange, LocalChangeType } from '@/db/types/store-types';
 import { it } from 'vitest';

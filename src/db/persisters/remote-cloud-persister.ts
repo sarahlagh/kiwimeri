@@ -1,7 +1,7 @@
 import { RemoteInfo, StorageProvider } from '@/remote-storage/sync-types';
 import { createCustomPersister } from 'tinybase/persisters/with-schemas';
 import { Store } from 'tinybase/with-schemas';
-import localChangesService from '../localChanges.service';
+import localChangesService from '../local-changes.service';
 import remotesService from '../remotes.service';
 import storageService from '../storage.service';
 import { SpaceType } from '../types/space-types';

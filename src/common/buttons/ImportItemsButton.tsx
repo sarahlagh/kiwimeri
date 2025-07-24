@@ -118,6 +118,7 @@ const ImportItemsButton = ({
         createNotebook
       });
       setParams({
+        createNotebook,
         folder: createNotebook ? notebook : parent,
         zipData,
         zipName

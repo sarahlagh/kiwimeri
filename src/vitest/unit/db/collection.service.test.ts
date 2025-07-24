@@ -8,7 +8,7 @@ import { act } from 'react';
 import { it, vi } from 'vitest';
 import {
   BROWSABLE_ITEM_TYPES,
-  GET_NON_PARENT_NON_NOTEBOOK_UPDATABLE_FIELDS,
+  GET_NON_PARENT_UPDATABLE_FIELDS,
   getCollectionItem,
   getLocalItemField,
   markAsConflict,
@@ -78,50 +78,48 @@ describe('collection service', () => {
         expect(item.created).toBeGreaterThan(folder.created);
       });
 
-      GET_NON_PARENT_NON_NOTEBOOK_UPDATABLE_FIELDS(type).forEach(
-        ({ field }) => {
-          it(`should update the ${field} of a ${type}`, () => {
-            const id = collectionService[addMethod](DEFAULT_NOTEBOOK_ID);
-            vi.advanceTimersByTime(100);
-            collectionService.setItemField(id, field, 'new value');
-            const item = getCollectionItem(id);
-            expect(item[field]).toBe('new value');
-            expect(item.created).toBeLessThan(item.updated);
-            const meta = parseFieldMeta(item[`${field}_meta`]!);
-            expect(meta.u).toBe(item.updated);
-          });
+      GET_NON_PARENT_UPDATABLE_FIELDS(type).forEach(({ field }) => {
+        it(`should update the ${field} of a ${type}`, () => {
+          const id = collectionService[addMethod](DEFAULT_NOTEBOOK_ID);
+          vi.advanceTimersByTime(100);
+          collectionService.setItemField(id, field, 'new value');
+          const item = getCollectionItem(id);
+          expect(item[field]).toBe('new value');
+          expect(item.created).toBeLessThan(item.updated);
+          const meta = parseFieldMeta(item[`${field}_meta`]!);
+          expect(meta.u).toBe(item.updated);
+        });
 
-          it(`should update the ${field} of a ${type} and recursively update all parents timestamp`, () => {
-            const now = Date.now();
-            const folderIdO = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
-            const folderId1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
-            const folderId2 = collectionService.addFolder(folderId1);
-            const folderId3 = collectionService.addFolder(folderId2);
-            const id = collectionService[addMethod](folderId3);
-            vi.advanceTimersByTime(100);
-            collectionService.setItemField(id, field, 'new value');
-            const item = getCollectionItem(id);
-            expect(item[field]).toBe('new value');
-            expect(item.created).toBeLessThan(item.updated);
-            const meta = parseFieldMeta(item[`${field}_meta`]!);
-            expect(meta.u).toBe(item.updated);
+        it(`should update the ${field} of a ${type} and recursively update all parents timestamp`, () => {
+          const now = Date.now();
+          const folderIdO = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+          const folderId1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+          const folderId2 = collectionService.addFolder(folderId1);
+          const folderId3 = collectionService.addFolder(folderId2);
+          const id = collectionService[addMethod](folderId3);
+          vi.advanceTimersByTime(100);
+          collectionService.setItemField(id, field, 'new value');
+          const item = getCollectionItem(id);
+          expect(item[field]).toBe('new value');
+          expect(item.created).toBeLessThan(item.updated);
+          const meta = parseFieldMeta(item[`${field}_meta`]!);
+          expect(meta.u).toBe(item.updated);
 
-            const folderO = getCollectionItem(folderIdO);
-            const folder1 = getCollectionItem(folderId1);
-            const folder2 = getCollectionItem(folderId2);
-            const folder3 = getCollectionItem(folderId3);
+          const folderO = getCollectionItem(folderIdO);
+          const folder1 = getCollectionItem(folderId1);
+          const folder2 = getCollectionItem(folderId2);
+          const folder3 = getCollectionItem(folderId3);
 
-            expect(folderO.updated).toBe(now); // this one is untouched
-            expect(parseFieldMeta(folderO.parent_meta).u).toBe(now);
-            expect(folder1.updated).toBe(now + 100);
-            expect(parseFieldMeta(folder1.parent_meta).u).toBe(now);
-            expect(folder2.updated).toBe(now + 100);
-            expect(parseFieldMeta(folder2.parent_meta).u).toBe(now);
-            expect(folder3.updated).toBe(now + 100);
-            expect(parseFieldMeta(folder3.parent_meta).u).toBe(now);
-          });
-        }
-      );
+          expect(folderO.updated).toBe(now); // this one is untouched
+          expect(parseFieldMeta(folderO.parent_meta).u).toBe(now);
+          expect(folder1.updated).toBe(now + 100);
+          expect(parseFieldMeta(folder1.parent_meta).u).toBe(now);
+          expect(folder2.updated).toBe(now + 100);
+          expect(parseFieldMeta(folder2.parent_meta).u).toBe(now);
+          expect(folder3.updated).toBe(now + 100);
+          expect(parseFieldMeta(folder3.parent_meta).u).toBe(now);
+        });
+      });
 
       it(`should update the parent of a ${type}`, () => {
         const folderId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
