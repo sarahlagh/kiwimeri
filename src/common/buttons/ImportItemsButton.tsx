@@ -2,7 +2,6 @@ import {
   CollectionItemResult,
   CollectionItemType
 } from '@/collection/collection';
-import notebooksService from '@/db/notebooks.service';
 import { OverlayEventDetail } from '@ionic/core/components';
 import { useIonModal } from '@ionic/react';
 import { SerializedEditorState, SerializedLexicalNode } from 'lexical';
@@ -110,18 +109,12 @@ const ImportItemsButton = ({
 
   const onZipFileRead = async (content: ArrayBuffer, file: File) => {
     console.debug('file', file);
-    const zipName = file.name.replace(/(.*)\.(zip|ZIP)$/g, '$1');
-    const notebook = notebooksService.getCurrentNotebook();
 
     return importService.readZip(content).then(unzipped => {
-      const zipData = importService.parseZipData(zipName, parent, unzipped, {
-        createNotebook
-      });
+      const zipData = importService.parseZipData(file.name, parent, unzipped);
       setParams({
         createNotebook,
-        folder: createNotebook ? notebook : parent,
-        zipData,
-        zipName
+        zipData
       });
 
       return new Promise<OnContentReadResponse>(resolve => {

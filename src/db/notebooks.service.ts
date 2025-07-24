@@ -49,30 +49,20 @@ class NotebooksService {
   }
 
   public addNotebook(title: string, parent: string = ROOT_COLLECTION) {
-    const now = Date.now();
-    const id = storageService.getSpace().addRow(this.table, {
-      title,
-      title_meta: setFieldMeta(title, now),
-      parent,
-      parent_meta: setFieldMeta(parent, now),
-      created: Date.now(),
-      updated: Date.now(),
-      type: CollectionItemType.notebook,
-      deleted: false,
-      deleted_meta: setFieldMeta('false', now)
-    });
+    const { item } = this.getNewNotebookObj(parent, title);
+    const id = storageService.getSpace().addRow(this.table, item);
     if (id) {
       localChangesService.addLocalChange(id, LocalChangeType.add);
     }
     return id!;
   }
 
-  public getNewNotebookObj(title: string, parent?: string) {
+  public getNewNotebookObj(parent: string, title?: string) {
     const now = Date.now();
     const id = getUniqueId();
     const item: Notebook = {
-      title,
-      title_meta: setFieldMeta(title, now),
+      title: title || '',
+      title_meta: setFieldMeta(title || '', now),
       parent: parent ? parent : ROOT_COLLECTION,
       parent_meta: setFieldMeta(parent ? parent : ROOT_COLLECTION, now),
       created: Date.now(),
@@ -82,8 +72,8 @@ class NotebooksService {
       deleted_meta: setFieldMeta('false', now)
     };
     return {
-      id,
-      item
+      item,
+      id
     };
   }
 

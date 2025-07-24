@@ -7,25 +7,15 @@
       "initData": [],
       "scenarios": [
         {
-          "description": "and createNewFolder=true",
+          "description": "with createNotebook=false (createNewFolder is ignored)",
           "options": [
             {
-              "createNewFolder": true,
-              "overwrite": false
+              "createNotebook": false,
+              "createNewFolder": true
             },
             {
-              "createNewFolder": true,
-              "overwrite": true
-            },
-            {
-              "createNewFolder": true,
-              "overwrite": false,
-              "removeFirstLayer": true
-            },
-            {
-              "createNewFolder": true,
-              "overwrite": true,
-              "removeFirstLayer": true
+              "createNotebook": false,
+              "createNewFolder": false
             }
           ],
           "expected": {
@@ -58,17 +48,17 @@
           }
         },
         {
-          "description": "and createNewFolder=true, newFolderName=NewName",
+          "description": "with createNotebook=false and createNewFolder=NewName",
           "options": [
             {
+              "createNotebook": false,
               "createNewFolder": true,
-              "newFolderName": "NewName",
-              "overwrite": false
+              "newFolderName": "NewName"
             },
             {
-              "createNewFolder": true,
-              "newFolderName": "NewName",
-              "overwrite": true
+              "createNotebook": false,
+              "createNewFolder": false,
+              "newFolderName": "NewName"
             }
           ],
           "expected": {
@@ -101,82 +91,15 @@
           }
         },
         {
-          "description": "with createNewFolder=false",
+          "description": "with createNotebook=true (createNewFolder is ignored)",
           "options": [
             {
-              "createNewFolder": false,
-              "overwrite": false
+              "createNotebook": true,
+              "createNewFolder": true
             },
             {
-              "createNewFolder": false,
-              "overwrite": true
-            },
-            {
-              "createNewFolder": false,
-              "newFolderName": "NewName",
-              "overwrite": false
-            },
-            {
-              "createNewFolder": false,
-              "newFolderName": "NewName",
-              "overwrite": true
-            }
-          ],
-          "expected": {
-            "newItems": [
-              {
-                "title": "Simple Original",
-                "parent": "0",
-                "type": "d",
-                "content": "__defined__",
-                "created": 1753088323853,
-                "updated": 1753088323853,
-                "tags": "tag1,tag2"
-              }
-            ],
-            "firstLevel": [
-              {
-                "title": "Simple Original",
-                "status": "new",
-                "type": "d"
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "description": "with no duplicates",
-      "initData": [
-        {
-          "title": "AnotherDoc",
-          "parent": "0",
-          "type": "d"
-        },
-        {
-          "id": "#fID",
-          "title": "AnotherFolder",
-          "parent": "0",
-          "type": "f"
-        },
-
-        {
-          "title": "AnotherDoc",
-          "parent": "#fID",
-          "type": "d"
-        }
-      ],
-      "scenarios": [
-        {
-          "description": "and createNewFolder=true",
-          "options": [
-            {
-              "createNewFolder": true,
-              "overwrite": false
-            },
-            {
-              "createNewFolder": true,
-              "overwrite": true
+              "createNotebook": true,
+              "createNewFolder": false
             }
           ],
           "expected": {
@@ -185,7 +108,7 @@
                 "id": "#id",
                 "title": "New folder",
                 "parent": "0",
-                "type": "f",
+                "type": "n",
                 "created": 1753088317511,
                 "updated": 1753088317511
               },
@@ -202,24 +125,24 @@
             "firstLevel": [
               {
                 "title": "New folder",
-                "status": "new",
-                "type": "f"
+                "type": "n",
+                "status": "new"
               }
             ]
           }
         },
         {
-          "description": "and createNewFolder=true, newFolderName=NewName",
+          "description": "with createNotebook=true and createNewFolder=NewName",
           "options": [
             {
+              "createNotebook": true,
               "createNewFolder": true,
-              "newFolderName": "NewName",
-              "overwrite": false
+              "newFolderName": "NewName"
             },
             {
-              "createNewFolder": true,
-              "newFolderName": "NewName",
-              "overwrite": true
+              "createNotebook": true,
+              "createNewFolder": false,
+              "newFolderName": "NewName"
             }
           ],
           "expected": {
@@ -228,7 +151,7 @@
                 "id": "#id",
                 "title": "NewName",
                 "parent": "0",
-                "type": "f",
+                "type": "n",
                 "created": 1753088317511,
                 "updated": 1753088317511
               },
@@ -246,50 +169,7 @@
               {
                 "title": "NewName",
                 "status": "new",
-                "type": "f"
-              }
-            ]
-          }
-        },
-        {
-          "description": "with createNewFolder=false",
-          "options": [
-            {
-              "createNewFolder": false,
-              "overwrite": false
-            },
-            {
-              "createNewFolder": false,
-              "overwrite": true
-            },
-            {
-              "createNewFolder": false,
-              "newFolderName": "NewName",
-              "overwrite": false
-            },
-            {
-              "createNewFolder": false,
-              "newFolderName": "NewName",
-              "overwrite": true
-            }
-          ],
-          "expected": {
-            "newItems": [
-              {
-                "title": "Simple Original",
-                "parent": "0",
-                "type": "d",
-                "content": "__defined__",
-                "created": 1753088323853,
-                "updated": 1753088323853,
-                "tags": "tag1,tag2"
-              }
-            ],
-            "firstLevel": [
-              {
-                "title": "Simple Original",
-                "status": "new",
-                "type": "d"
+                "type": "n"
               }
             ]
           }
@@ -357,11 +237,15 @@
       ],
       "scenarios": [
         {
-          "description": "and createNewFolder=true and overwrite=false",
+          "description": "with createNotebook=false (createNewFolder is ignored)",
           "options": [
             {
-              "createNewFolder": true,
-              "overwrite": false
+              "createNotebook": false,
+              "createNewFolder": true
+            },
+            {
+              "createNotebook": false,
+              "createNewFolder": false
             }
           ],
           "expected": {
@@ -387,8 +271,8 @@
             "firstLevel": [
               {
                 "title": "New folder",
-                "status": "new",
-                "type": "f"
+                "type": "f",
+                "status": "new"
               }
             ],
             "duplicates": [
@@ -402,15 +286,20 @@
           }
         },
         {
-          "description": "and createNewFolder=true and overwrite=true",
+          "description": "with createNotebook=false (createNewFolder is ignored) and overwrite=true",
           "options": [
             {
+              "createNotebook": false,
               "createNewFolder": true,
+              "overwrite": true
+            },
+            {
+              "createNotebook": false,
+              "createNewFolder": false,
               "overwrite": true
             }
           ],
           "expected": {
-            "newItems": [],
             "updatedItems": [
               {
                 "id": "#fID1",
@@ -419,7 +308,6 @@
                 "type": "f"
               },
               {
-                "id": "#dID1",
                 "title": "Simple Original",
                 "parent": "#fID1",
                 "type": "d",
@@ -429,10 +317,9 @@
             ],
             "firstLevel": [
               {
-                "id": "#fID1",
                 "title": "New folder",
-                "status": "merged",
-                "type": "f"
+                "type": "f",
+                "status": "new"
               }
             ],
             "duplicates": [
@@ -446,23 +333,32 @@
           }
         },
         {
-          "description": "with createNewFolder=false and overwrite=false",
+          "description": "with createNotebook=false and createNewFolder=NewName",
           "options": [
             {
-              "createNewFolder": false,
-              "overwrite": false
+              "createNotebook": false,
+              "createNewFolder": true,
+              "newFolderName": "NewName"
             },
             {
+              "createNotebook": false,
               "createNewFolder": false,
-              "newFolderName": "AnotherFolder",
-              "overwrite": false
+              "newFolderName": "NewName"
             }
           ],
           "expected": {
             "newItems": [
               {
-                "title": "Simple Original",
+                "id": "#id",
+                "title": "NewName",
                 "parent": "0",
+                "type": "f",
+                "created": 1753088317511,
+                "updated": 1753088317511
+              },
+              {
+                "title": "Simple Original",
+                "parent": "#id",
                 "type": "d",
                 "content": "__defined__",
                 "created": 1753088323853,
@@ -472,40 +368,323 @@
             ],
             "firstLevel": [
               {
-                "title": "Simple Original",
+                "title": "NewName",
                 "status": "new",
-                "type": "d"
-              }
-            ],
-            "duplicates": [
-              {
-                "id": "#dID0",
-                "title": "Simple Original",
-                "parent": "0",
-                "type": "d"
+                "type": "f"
               }
             ]
           }
         },
         {
-          "description": "with createNewFolder=false and overwrite=true",
+          "description": "with createNotebook=true (createNewFolder is ignored)",
           "options": [
             {
+              "createNotebook": true,
+              "createNewFolder": true
+            },
+            {
+              "createNotebook": true,
+              "createNewFolder": false
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#id",
+                "title": "New folder",
+                "parent": "0",
+                "type": "n",
+                "created": 1753088317511,
+                "updated": 1753088317511
+              },
+              {
+                "title": "Simple Original",
+                "parent": "#id",
+                "type": "d",
+                "content": "__defined__",
+                "created": 1753088323853,
+                "updated": 1753088323853,
+                "tags": "tag1,tag2"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "New folder",
+                "type": "n",
+                "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "with createNotebook=true and createNewFolder=NewName",
+          "options": [
+            {
+              "createNotebook": true,
+              "createNewFolder": true,
+              "newFolderName": "NewName"
+            },
+            {
+              "createNotebook": true,
               "createNewFolder": false,
+              "newFolderName": "NewName"
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#id",
+                "title": "NewName",
+                "parent": "0",
+                "type": "n",
+                "created": 1753088317511,
+                "updated": 1753088317511
+              },
+              {
+                "title": "Simple Original",
+                "parent": "#id",
+                "type": "d",
+                "content": "__defined__",
+                "created": 1753088323853,
+                "updated": 1753088323853,
+                "tags": "tag1,tag2"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "NewName",
+                "status": "new",
+                "type": "n"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "description": "with a notebook duplicate",
+      "initData": [
+        {
+          "id": "#notebook",
+          "title": "New folder",
+          "parent": "0",
+          "type": "n"
+        },
+        {
+          "title": "AnotherDoc",
+          "parent": "#notebook",
+          "type": "d"
+        },
+        {
+          "id": "#dID0",
+          "title": "Simple Original",
+          "parent": "#notebook",
+          "type": "d"
+        },
+        {
+          "id": "#fID1",
+          "title": "New folder",
+          "parent": "#notebook",
+          "type": "f"
+        },
+        {
+          "title": "AnotherDoc",
+          "parent": "#fID1",
+          "type": "d"
+        },
+        {
+          "id": "#dID1",
+          "title": "Simple Original",
+          "parent": "#fID1",
+          "type": "d"
+        },
+        {
+          "id": "#fID2",
+          "title": "AnotherFolder",
+          "parent": "#notebook",
+          "type": "f"
+        },
+        {
+          "title": "AnotherDoc",
+          "parent": "#fID2",
+          "type": "d"
+        },
+        {
+          "title": "Simple",
+          "parent": "#fID2",
+          "type": "d"
+        },
+        {
+          "id": "#fID3",
+          "title": "AnotherFolderSimple",
+          "parent": "#notebook",
+          "type": "f"
+        },
+        {
+          "title": "AnotherDoc",
+          "parent": "#fID3",
+          "type": "d"
+        }
+      ],
+      "scenarios": [
+        {
+          "description": "with createNotebook=false (createNewFolder is ignored)",
+          "options": [
+            {
+              "createNotebook": false,
+              "createNewFolder": true
+            },
+            {
+              "createNotebook": false,
+              "createNewFolder": false
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#id",
+                "title": "New folder",
+                "parent": "0",
+                "type": "f",
+                "created": 1753088317511,
+                "updated": 1753088317511
+              },
+              {
+                "title": "Simple Original",
+                "parent": "#id",
+                "type": "d",
+                "content": "__defined__",
+                "created": 1753088323853,
+                "updated": 1753088323853,
+                "tags": "tag1,tag2"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "New folder",
+                "type": "f",
+                "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "with createNotebook=false and createNewFolder=NewName",
+          "options": [
+            {
+              "createNotebook": false,
+              "createNewFolder": true,
+              "newFolderName": "NewName"
+            },
+            {
+              "createNotebook": false,
+              "createNewFolder": false,
+              "newFolderName": "NewName"
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#id",
+                "title": "NewName",
+                "parent": "0",
+                "type": "f",
+                "created": 1753088317511,
+                "updated": 1753088317511
+              },
+              {
+                "title": "Simple Original",
+                "parent": "#id",
+                "type": "d",
+                "content": "__defined__",
+                "created": 1753088323853,
+                "updated": 1753088323853,
+                "tags": "tag1,tag2"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "NewName",
+                "status": "new",
+                "type": "f"
+              }
+            ]
+          }
+        },
+        {
+          "description": "with createNotebook=true (createNewFolder is ignored)",
+          "options": [
+            {
+              "createNotebook": true,
+              "createNewFolder": true
+            },
+            {
+              "createNotebook": true,
+              "createNewFolder": false
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#id",
+                "title": "New folder",
+                "parent": "0",
+                "type": "n",
+                "created": 1753088317511,
+                "updated": 1753088317511
+              },
+              {
+                "title": "Simple Original",
+                "parent": "#id",
+                "type": "d",
+                "content": "__defined__",
+                "created": 1753088323853,
+                "updated": 1753088323853,
+                "tags": "tag1,tag2"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "New folder",
+                "type": "n",
+                "status": "new"
+              }
+            ],
+            "duplicates": [
+              {
+                "id": "#notebook",
+                "title": "New folder",
+                "parent": "0",
+                "type": "n"
+              }
+            ]
+          }
+        },
+        {
+          "description": "with createNotebook=true (createNewFolder is ignored) and overwrite=true",
+          "options": [
+            {
+              "createNotebook": true,
+              "createNewFolder": true,
               "overwrite": true
             },
             {
+              "createNotebook": true,
               "createNewFolder": false,
-              "newFolderName": "AnotherFolder",
               "overwrite": true
             }
           ],
           "expected": {
             "updatedItems": [
               {
-                "id": "#dID0",
-                "title": "Simple Original",
+                "id": "#notebook",
+                "title": "New folder",
                 "parent": "0",
+                "type": "n"
+              },
+              {
+                "title": "Simple Original",
+                "parent": "#notebook",
                 "type": "d",
                 "content": "__defined__",
                 "tags": "tag1,tag2"
@@ -513,17 +692,60 @@
             ],
             "firstLevel": [
               {
-                "title": "Simple Original",
-                "status": "merged",
-                "type": "d"
+                "title": "New folder",
+                "type": "n",
+                "status": "new"
               }
             ],
             "duplicates": [
               {
-                "id": "#dID0",
-                "title": "Simple Original",
+                "id": "#notebook",
+                "title": "New folder",
                 "parent": "0",
-                "type": "d"
+                "type": "n"
+              }
+            ]
+          }
+        },
+        {
+          "description": "with createNotebook=true and createNewFolder=NewName",
+          "options": [
+            {
+              "createNotebook": true,
+              "createNewFolder": true,
+              "newFolderName": "NewName"
+            },
+            {
+              "createNotebook": true,
+              "createNewFolder": false,
+              "newFolderName": "NewName"
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#id",
+                "title": "NewName",
+                "parent": "0",
+                "type": "n",
+                "created": 1753088317511,
+                "updated": 1753088317511
+              },
+              {
+                "title": "Simple Original",
+                "parent": "#id",
+                "type": "d",
+                "content": "__defined__",
+                "created": 1753088323853,
+                "updated": 1753088323853,
+                "tags": "tag1,tag2"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "NewName",
+                "status": "new",
+                "type": "n"
               }
             ]
           }
