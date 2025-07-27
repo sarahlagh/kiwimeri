@@ -4,7 +4,7 @@ export default defineWorkspace([
   {
     extends: 'vite.config.ts',
     test: {
-      include: ['**/unit/**/*.{test,spec}.ts'],
+      include: ['**/unit/**/*.{test,spec}.ts', '**/unit/**/*.{test,spec}.tsx'],
       name: 'unit',
       environment: 'jsdom'
     }

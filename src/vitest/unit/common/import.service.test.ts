@@ -41,13 +41,12 @@ type JsonTestDescriptor = {
 const readZip = async (
   parentDir: string,
   zipName: string,
-  opts?: ZipImportOptions,
-  parent = DEFAULT_NOTEBOOK_ID
+  opts?: ZipImportOptions
 ) => {
   const zip = await readFile(`${__dirname}/${parentDir}/${zipName}`);
   const zipBuffer: ArrayBuffer = new Uint8Array(zip).buffer;
   const unzipped = await importService.readZip(zipBuffer);
-  return importService.parseZipData(zipName, parent, unzipped, opts);
+  return importService.parseZipData(zipName, unzipped, opts);
 };
 
 const createInitData = (initData: Partial<CollectionItem>[]) => {
@@ -571,6 +570,7 @@ describe('import service', () => {
                           );
 
                           const zipMerge = importService.mergeZipItems(
+                            DEFAULT_NOTEBOOK_ID,
                             zipParsedData,
                             options
                           );
@@ -618,13 +618,8 @@ describe('import service', () => {
       const before = Date.now();
       const id = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
       vi.advanceTimersByTime(5000);
-      const zipParsedData = await readZip(
-        'zips_without_meta',
-        'Simple.zip',
-        undefined,
-        id
-      );
-      const zipMerge = importService.mergeZipItems(zipParsedData, {
+      const zipParsedData = await readZip('zips_without_meta', 'Simple.zip');
+      const zipMerge = importService.mergeZipItems(id, zipParsedData, {
         createNewFolder: false,
         overwrite: false
       });
@@ -639,17 +634,17 @@ describe('import service', () => {
       const zip = await readFile(`${__dirname}/zips_without_meta/Samples.zip`);
       const zipBuffer: ArrayBuffer = new Uint8Array(zip).buffer;
       const unzipped = await importService.readZip(zipBuffer);
-      const zipParsedData = importService.parseZipData(
-        'Samples',
-        DEFAULT_NOTEBOOK_ID,
-        unzipped
-      );
+      const zipParsedData = importService.parseZipData('Samples', unzipped);
 
-      const zipMerge = importService.mergeZipItems(zipParsedData, {
-        createNotebook: true,
-        createNewFolder: false,
-        overwrite: false
-      });
+      const zipMerge = importService.mergeZipItems(
+        DEFAULT_NOTEBOOK_ID,
+        zipParsedData,
+        {
+          createNotebook: true,
+          createNewFolder: false,
+          overwrite: false
+        }
+      );
 
       expect(zipMerge.newItems).toHaveLength(20);
       expect(zipMerge.duplicates).toHaveLength(0);
@@ -678,17 +673,17 @@ describe('import service', () => {
       const zip = await readFile(`${__dirname}/zips_without_meta/Samples.zip`);
       const zipBuffer: ArrayBuffer = new Uint8Array(zip).buffer;
       const unzipped = await importService.readZip(zipBuffer);
-      const zipParsedData = importService.parseZipData(
-        'Samples',
-        DEFAULT_NOTEBOOK_ID,
-        unzipped
-      );
+      const zipParsedData = importService.parseZipData('Samples', unzipped);
 
-      const zipMerge = importService.mergeZipItems(zipParsedData, {
-        createNotebook: true,
-        createNewFolder: true,
-        overwrite: false
-      });
+      const zipMerge = importService.mergeZipItems(
+        DEFAULT_NOTEBOOK_ID,
+        zipParsedData,
+        {
+          createNotebook: true,
+          createNewFolder: true,
+          overwrite: false
+        }
+      );
 
       expect(zipMerge.newItems).toHaveLength(21);
       expect(zipMerge.duplicates).toHaveLength(0);

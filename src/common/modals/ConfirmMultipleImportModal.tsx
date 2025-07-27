@@ -1,6 +1,6 @@
 import { CollectionItemType } from '@/collection/collection';
 import { getGlobalTrans } from '@/config';
-import { APPICONS, APPICONS_PER_TYPE } from '@/constants';
+import { APPICONS, APPICONS_PER_TYPE, ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/db/collection.service';
 import {
   InputCustomEvent,
@@ -33,17 +33,18 @@ export type ConfirmMultipleImportModalParams = {
 
 export type ConfirmMultipleImportModalProps = {
   params: ConfirmMultipleImportModalParams;
+  parent: string;
   onClose: (confirm: boolean, zipMerge?: ZipMergeResult) => void;
 } & React.HTMLAttributes<HTMLIonModalElement>;
 
 const ConfirmMultipleImportModal = ({
   params,
+  parent,
   onClose
 }: ConfirmMultipleImportModalProps) => {
   const { t } = useLingui();
   const parentName =
-    collectionService.getItemTitle(params.zipData.parent) ||
-    getGlobalTrans().homeTitle;
+    collectionService.getItemTitle(parent) || getGlobalTrans().homeTitle;
 
   const [createNewFolder, setCreateNewFolder] = useState<boolean>(false);
   const [newFolderName, setNewFolderName] = useState<string | undefined>();
@@ -52,15 +53,15 @@ const ConfirmMultipleImportModal = ({
   const [zipMerge, setZipMerge] = useState<ZipMergeResult | undefined>();
 
   const zipFirstLevel = params.zipData.items.filter(
-    item => item.parent === params.zipData.parent
+    item => item.parent === parent
   );
   const hasOneFolder =
     zipFirstLevel.length === 1 &&
     zipFirstLevel[0].type === CollectionItemType.folder;
 
-  const itemsInCollection = collectionService.getBrowsableCollectionItems(
-    params.zipData.parent
-  );
+  const effectiveParent = params.createNotebook ? ROOT_COLLECTION : parent;
+  const itemsInCollection =
+    collectionService.getBrowsableCollectionItems(effectiveParent);
   const newFirstLevel = [
     ...itemsInCollection.filter(
       item => !zipMerge?.firstLevel.find(i => i.id === item.id)
@@ -70,7 +71,7 @@ const ConfirmMultipleImportModal = ({
 
   useEffect(() => {
     setZipMerge(
-      importService.mergeZipItems(params.zipData, {
+      importService.mergeZipItems(effectiveParent, params.zipData, {
         createNotebook: params.createNotebook,
         createNewFolder,
         overwrite,
@@ -85,12 +86,12 @@ const ConfirmMultipleImportModal = ({
       <IonHeader>
         <IonToolbar>
           {!params.createNotebook && (
-            <IonTitle>
+            <IonTitle data-testid="modal-title">
               <Trans>Import zip content in folder {parentName}</Trans>
             </IonTitle>
           )}
           {params.createNotebook && (
-            <IonTitle>
+            <IonTitle data-testid="modal-title">
               <Trans>Import zip content in a new Notebook</Trans>
             </IonTitle>
           )}
@@ -103,8 +104,26 @@ const ConfirmMultipleImportModal = ({
       </IonHeader>
 
       <IonList lines="none">
-        {!hasOneFolder && (
-          <IonItem>
+        {params.zipData.rootMeta && (
+          <IonItem data-testid="item-metadata-info">
+            <IonIcon icon={APPICONS.info}></IonIcon>
+            <Trans>Metadata found at the root of the archive</Trans>
+          </IonItem>
+        )}
+
+        {params.createNotebook &&
+          params.zipData.rootMeta?.type === CollectionItemType.notebook && (
+            <IonItem data-testid="item-metadata-warning-folder-at-root">
+              <IonIcon icon={APPICONS.warning}></IonIcon>
+              <Trans>
+                Folder detected at the root of the archive, will be transformed
+                into a Notebook
+              </Trans>
+            </IonItem>
+          )}
+
+        {!hasOneFolder && !params.zipData.rootMeta && (
+          <IonItem data-testid="item-question-create-new-folder">
             <IonLabel color={'secondary'}>
               <Trans>
                 Do you want to import your content inside a new folder?
@@ -140,7 +159,7 @@ const ConfirmMultipleImportModal = ({
         )}
 
         {hasOneFolder && !createNewFolder && (
-          <IonItem>
+          <IonItem data-testid="item-question-single-folder-detected">
             <IonLabel color={'secondary'}>
               <Trans>
                 A single folder has been detected inside your archive, would you
@@ -158,7 +177,7 @@ const ConfirmMultipleImportModal = ({
         )}
 
         {(zipMerge?.duplicates.length || 0) > 0 && (
-          <IonItem>
+          <IonItem data-testid="item-question-merge-duplicates">
             <IonLabel color={'secondary'}>
               <Trans>
                 Would you like to merge the content of your archive with your
