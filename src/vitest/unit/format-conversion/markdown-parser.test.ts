@@ -2,7 +2,7 @@ import { MarkdownParser } from '@/format-conversion/parsers/markdown-parser';
 import { readFile } from 'fs/promises';
 import { SerializedElementNode, SerializedTextNode } from 'lexical';
 import { describe, it } from 'vitest';
-import { examples } from './examples';
+import { examples } from './_data/examples';
 
 describe('parser', () => {
   it(`should parse first exemple`, async () => {
@@ -41,11 +41,14 @@ describe('parser', () => {
     it(`should parse ${name} example`, async () => {
       const parser = new MarkdownParser();
 
-      const json = await readFile(`${__dirname}/${name}/${name}.json`, 'utf8');
+      const json = await readFile(
+        `${__dirname}/_data/${name}/${name}.json`,
+        'utf8'
+      );
       const expected = JSON.parse(json) as any;
 
       const markdown = await readFile(
-        `${__dirname}/${name}/${name}.md`,
+        `${__dirname}/_data/${name}/${name}.md`,
         'utf8'
       );
       const resp = parser.parse(markdown);

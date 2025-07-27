@@ -1,18 +1,18 @@
 import formatterService from '@/format-conversion/formatter.service';
 import { readFile } from 'fs/promises';
 import { describe, it } from 'vitest';
-import { examples } from './examples';
+import { examples } from './_data/examples';
 
 describe('format conversion service', () => {
   describe('should generate plaintext from lexical', () => {
     examples.forEach(({ name }) => {
       it(`should generate plaintext from lexical (${name})`, async () => {
         const json = await readFile(
-          `${__dirname}/${name}/${name}.json`,
+          `${__dirname}/_data/${name}/${name}.json`,
           'utf8'
         );
         const expected = await readFile(
-          `${__dirname}/${name}/${name}.txt`,
+          `${__dirname}/_data/${name}/${name}.txt`,
           'utf8'
         );
 
@@ -31,11 +31,11 @@ describe('format conversion service', () => {
     examples.forEach(({ name }) => {
       it(`should generate markdown from lexical (${name})`, async () => {
         const json = await readFile(
-          `${__dirname}/${name}/${name}.json`,
+          `${__dirname}/_data/${name}/${name}.json`,
           'utf8'
         );
         const expected = await readFile(
-          `${__dirname}/${name}/${name}.md`,
+          `${__dirname}/_data/${name}/${name}.md`,
           'utf8'
         );
         const markdown = formatterService.getMarkdownFromLexical(json);
@@ -45,11 +45,11 @@ describe('format conversion service', () => {
       // skip because of inconsistent generation of direction: ltr or null on Lexical side...
       it.skip(`should generate lexical from markdown (${name})`, async () => {
         const json = await readFile(
-          `${__dirname}/${name}/${name}.json`,
+          `${__dirname}/_data/${name}/${name}.json`,
           'utf8'
         );
         const markdown = await readFile(
-          `${__dirname}/${name}/${name}.md`,
+          `${__dirname}/_data/${name}/${name}.md`,
           'utf8'
         );
         const lexical = formatterService.getLexicalFromMarkdown(markdown);

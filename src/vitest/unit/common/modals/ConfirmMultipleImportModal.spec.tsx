@@ -26,7 +26,11 @@ const readZip = async (
 
 describe('ConfirmMultipleImportModal', () => {
   it('should render the modal with createNotebook=false', async () => {
-    const zipData = await readZip('../zips_without_meta', 'Simple.zip', {});
+    const zipData = await readZip(
+      '../_data/zips_without_meta',
+      'Simple.zip',
+      {}
+    );
 
     const params: ConfirmMultipleImportModalParams = { zipData };
     const onClose = (confirm: boolean, zipMerge?: ZipMergeResult) => {
