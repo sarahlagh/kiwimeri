@@ -53,6 +53,7 @@ const ImportItemsButton = ({
     ConfirmMultipleImportModal,
     {
       params,
+      parent,
       onClose: (confirm: boolean, zipMerge?: ZipMergeResult) => {
         dismissMultiple({ confirm, zipMerge });
       }
@@ -111,7 +112,7 @@ const ImportItemsButton = ({
     console.debug('file', file);
 
     return importService.readZip(content).then(unzipped => {
-      const zipData = importService.parseZipData(file.name, parent, unzipped);
+      const zipData = importService.parseZipData(file.name, unzipped);
       setParams({
         createNotebook,
         zipData

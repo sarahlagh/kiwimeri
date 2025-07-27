@@ -21,7 +21,6 @@ export type ZipMergeFistLevel = {
 export type ZipParsedData = {
   zipName: string;
   items: CollectionItem[];
-  parent: string;
   rootMeta?: ZipMetadata;
 };
 
@@ -54,6 +53,7 @@ export type ZipMergeCommitOptions = {
 };
 
 class ImportService {
+  private readonly zipRoot = 'zip-root';
   private readonly defaultOpts: ZipImportOptions & ZipMergeCommitOptions = {
     // parse opts
     ignoreMetadata: false,
@@ -125,7 +125,6 @@ class ImportService {
 
   public parseZipData(
     zipName: string,
-    parent: string,
     unzipped: Unzipped,
     opts?: ZipParseOptions
   ): ZipParsedData {
@@ -134,6 +133,8 @@ class ImportService {
     } else {
       opts = { ...this.defaultOpts, ...opts };
     }
+
+    const parent = this.zipRoot;
 
     const zipNameFinal = zipName.replace(/(.*)\.(zip|ZIP)$/g, '$1');
     const metaMap = new Map<string, ZipMetadata>();
@@ -220,7 +221,6 @@ class ImportService {
     return {
       zipName: zipNameFinal,
       items: Object.values(items),
-      parent,
       rootMeta: metaMap.get(parent)
     };
   }
@@ -399,13 +399,19 @@ class ImportService {
   }
 
   public mergeZipItems(
+    mergeIntoParent: string,
     zipData: ZipParsedData,
     opts: ZipMergeOptions
   ): ZipMergeResult {
     opts = { ...this.defaultOpts, ...opts };
 
     const items = structuredClone(zipData.items);
-    let parent = zipData.parent;
+    let parent = mergeIntoParent;
+
+    // zipRoot is a fake temporary parent, replace
+    items
+      .filter(i => i.parent === this.zipRoot)
+      .forEach(i => (i.parent = parent));
 
     if (opts.removeFirstFolder === true) {
       this.removeFirstFolder(items, parent);

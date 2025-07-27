@@ -8,7 +8,7 @@ import {
   unminimizeItemsFromStorage
 } from '@/db/compress-storage';
 import { it } from 'vitest';
-import { oneDocument, oneFolder, oneNotebook } from '../setup/test.utils';
+import { oneDocument, oneFolder, oneNotebook } from '../../setup/test.utils';
 
 describe('lexical content compression', () => {
   it('avg time to minimize', () => {

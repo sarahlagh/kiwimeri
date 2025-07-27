@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:145
+#: src/common/modals/ConfirmMultipleImportModal.tsx:164
 msgid "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 msgstr "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 
@@ -31,7 +31,7 @@ msgid "Are you sure?"
 msgstr "Are you sure?"
 
 #: src/common/modals/ConfirmYesNoDialog.tsx:28
-#: src/common/modals/ConfirmMultipleImportModal.tsx:211
+#: src/common/modals/ConfirmMultipleImportModal.tsx:230
 #: src/common/modals/ConfirmFileImportModal.tsx:78
 #: src/common/modals/ChooseTagsModal.tsx:98
 msgid "Cancel"
@@ -55,7 +55,7 @@ msgstr "Configure where to synchronize your collection"
 
 #: src/notebooks/components/ManageNotebooksModal.tsx:94
 #: src/common/modals/ConfirmYesNoDialog.tsx:36
-#: src/common/modals/ConfirmMultipleImportModal.tsx:214
+#: src/common/modals/ConfirmMultipleImportModal.tsx:233
 #: src/common/modals/ConfirmFileImportModal.tsx:81
 #: src/common/modals/ChooseTagsModal.tsx:105
 msgid "Confirm"
@@ -70,7 +70,7 @@ msgstr "Debug"
 msgid "Default"
 msgstr "Default"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:109
+#: src/common/modals/ConfirmMultipleImportModal.tsx:128
 msgid "Do you want to import your content inside a new folder?"
 msgstr "Do you want to import your content inside a new folder?"
 
@@ -116,6 +116,10 @@ msgstr "File not supported"
 msgid "Filesystem"
 msgstr "Filesystem"
 
+#: src/common/modals/ConfirmMultipleImportModal.tsx:118
+msgid "Folder detected at the root of the archive, will be transformed into a Notebook"
+msgstr "Folder detected at the root of the archive, will be transformed into a Notebook"
+
 #: src/constants.ts:54
 msgid "Home"
 msgstr "Home"
@@ -132,11 +136,11 @@ msgstr "Import & export your collection"
 msgid "Import file in folder {folderName}"
 msgstr "Import file in folder {folderName}"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:94
+#: src/common/modals/ConfirmMultipleImportModal.tsx:95
 msgid "Import zip content in a new Notebook"
 msgstr "Import zip content in a new Notebook"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:89
+#: src/common/modals/ConfirmMultipleImportModal.tsx:90
 msgid "Import zip content in folder {parentName}"
 msgstr "Import zip content in folder {parentName}"
 
@@ -168,6 +172,10 @@ msgstr "Manually backup or restore your collection in the format of your choice"
 msgid "Markdown (Kiwimeri flavor)"
 msgstr "Markdown (Kiwimeri flavor)"
 
+#: src/common/modals/ConfirmMultipleImportModal.tsx:110
+msgid "Metadata found at the root of the archive"
+msgstr "Metadata found at the root of the archive"
+
 #: src/settings/components/providers/RemoteGenericSettings.tsx:109
 #: src/settings/components/providers/RemoteGenericSettings.tsx:112
 msgid "Name"
@@ -181,7 +189,7 @@ msgstr "New document"
 msgid "New folder"
 msgstr "New folder"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:130
+#: src/common/modals/ConfirmMultipleImportModal.tsx:149
 msgid "New folder name: "
 msgstr "New folder name: "
 
@@ -305,7 +313,7 @@ msgstr "US"
 msgid "Username"
 msgstr "Username"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:163
+#: src/common/modals/ConfirmMultipleImportModal.tsx:182
 msgid "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 msgstr "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 
