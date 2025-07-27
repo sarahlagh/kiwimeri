@@ -43,7 +43,7 @@ const readZip = async (
   zipName: string,
   opts?: ZipImportOptions
 ) => {
-  const zip = await readFile(`${__dirname}/${parentDir}/${zipName}`);
+  const zip = await readFile(`${__dirname}/../_data/${parentDir}/${zipName}`);
   const zipBuffer: ArrayBuffer = new Uint8Array(zip).buffer;
   const unzipped = await importService.readZip(zipBuffer);
   return importService.parseZipData(zipName, unzipped, opts);
@@ -526,7 +526,7 @@ describe('import service', () => {
       let json = '';
       try {
         json = await readFile(
-          `${__dirname}/${parentDir}/test_descriptors/${jsonName}.json`,
+          `${__dirname}/../_data/${parentDir}/test_descriptors/${jsonName}.json`,
           'utf8'
         );
       } catch (e) {
@@ -631,7 +631,9 @@ describe('import service', () => {
     });
 
     it(`should import as notebook if asked and createNewFolder=false`, async () => {
-      const zip = await readFile(`${__dirname}/zips_without_meta/Samples.zip`);
+      const zip = await readFile(
+        `${__dirname}/../_data/zips_without_meta/Samples.zip`
+      );
       const zipBuffer: ArrayBuffer = new Uint8Array(zip).buffer;
       const unzipped = await importService.readZip(zipBuffer);
       const zipParsedData = importService.parseZipData('Samples', unzipped);
@@ -670,7 +672,9 @@ describe('import service', () => {
     });
 
     it(`should import as notebook if asked and createNewFolder=true`, async () => {
-      const zip = await readFile(`${__dirname}/zips_without_meta/Samples.zip`);
+      const zip = await readFile(
+        `${__dirname}/../_data/zips_without_meta/Samples.zip`
+      );
       const zipBuffer: ArrayBuffer = new Uint8Array(zip).buffer;
       const unzipped = await importService.readZip(zipBuffer);
       const zipParsedData = importService.parseZipData('Samples', unzipped);
