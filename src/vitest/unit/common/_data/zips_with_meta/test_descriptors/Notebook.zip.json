@@ -1,32 +1,31 @@
 {
   "zipName": "Notebook.zip",
-  "name": "Notebook",
   "testCases": [
     {
       "description": "with no init data",
       "initData": [],
       "scenarios": [
         {
-          "description": "and createNotebook=true and createNewFolder=false",
+          "description": "and createNotebook=false and createNewFolder=true",
           "options": [
             {
-              "createNotebook": true,
-              "createNewFolder": false
+              "createNotebook": false,
+              "createNewFolder": true
             }
           ],
           "expected": {
             "newItems": [
               {
-                "id": "#notebook",
+                "id": "#fId",
                 "title": "Notebook",
-                "parent": "root",
-                "type": "n",
+                "parent": "0",
+                "type": "f",
                 "created": 1753088317511,
                 "updated": 1753088317511
               },
               {
                 "title": "Quote",
-                "parent": "#notebook",
+                "parent": "#fId",
                 "type": "d",
                 "content": "__defined",
                 "created": 1753088323853,
@@ -36,7 +35,54 @@
               {
                 "id": "#fIdSub",
                 "title": "Sub",
-                "parent": "#notebook",
+                "parent": "#fId",
+                "type": "f",
+                "created": 1753088317446,
+                "updated": 1753088377511,
+                "tags": "sub"
+              },
+              {
+                "title": "Test",
+                "parent": "#fIdSub",
+                "type": "d",
+                "content": "__defined",
+                "created": 1753089323853,
+                "updated": 1753089323853,
+                "tags": "tag1,tag2"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Notebook",
+                "type": "f",
+                "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and createNotebook=false and createNewFolder=false",
+          "options": [
+            {
+              "createNotebook": false,
+              "createNewFolder": false
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "title": "Quote",
+                "parent": "0",
+                "type": "d",
+                "content": "__defined",
+                "created": 1753088323853,
+                "updated": 1753088323853,
+                "tags": "tag1,tag2"
+              },
+              {
+                "id": "#fIdSub",
+                "title": "Sub",
+                "parent": "0",
                 "type": "f",
                 "created": 1753088317446,
                 "updated": 1753088377511,
@@ -67,8 +113,13 @@
           }
         },
         {
-          "description": "and createNotebook=true and createNewFolder=true",
+          "description": "and createNotebook=true (createNewFolder is ignored)",
+          "mergeInto": "root",
           "options": [
+            {
+              "createNotebook": true,
+              "createNewFolder": false
+            },
             {
               "createNotebook": true,
               "createNewFolder": true
@@ -85,14 +136,8 @@
                 "updated": 1753088317511
               },
               {
-                "id": "#fId",
-                "title": "Notebook",
-                "parent": "#notebook",
-                "type": "f"
-              },
-              {
                 "title": "Quote",
-                "parent": "#fId",
+                "parent": "#notebook",
                 "type": "d",
                 "content": "__defined",
                 "created": 1753088323853,
@@ -102,7 +147,7 @@
               {
                 "id": "#fIdSub",
                 "title": "Sub",
-                "parent": "#fId",
+                "parent": "#notebook",
                 "type": "f",
                 "created": 1753088317446,
                 "updated": 1753088377511,
@@ -120,10 +165,152 @@
             ],
             "firstLevel": [
               {
-                "id": "#fId",
                 "title": "Notebook",
-                "type": "f",
+                "type": "n",
                 "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and createNotebook=true and newFolderName=Default and overwrite=false",
+          "mergeInto": "root",
+          "options": [
+            {
+              "createNotebook": true,
+              "createNewFolder": false,
+              "newFolderName": "Default"
+            },
+            {
+              "createNotebook": true,
+              "createNewFolder": true,
+              "newFolderName": "Default"
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#notebook",
+                "title": "Default",
+                "parent": "root",
+                "type": "n",
+                "created": 1753088317511,
+                "updated": 1753088317511
+              },
+              {
+                "title": "Quote",
+                "parent": "#notebook",
+                "type": "d",
+                "content": "__defined",
+                "created": 1753088323853,
+                "updated": 1753088323853,
+                "tags": "tag1,tag2"
+              },
+              {
+                "id": "#fIdSub",
+                "title": "Sub",
+                "parent": "#notebook",
+                "type": "f",
+                "created": 1753088317446,
+                "updated": 1753088377511,
+                "tags": "sub"
+              },
+              {
+                "title": "Test",
+                "parent": "#fIdSub",
+                "type": "d",
+                "content": "__defined",
+                "created": 1753089323853,
+                "updated": 1753089323853,
+                "tags": "tag1,tag2"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Default",
+                "type": "n",
+                "status": "new"
+              }
+            ],
+            "duplicates": [
+              {
+                "id": "0",
+                "title": "Default",
+                "parent": "root",
+                "type": "n"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and createNotebook=true and newFolderName=Default and overwrite=true",
+          "mergeInto": "root",
+          "options": [
+            {
+              "createNotebook": true,
+              "createNewFolder": false,
+              "newFolderName": "Default",
+              "overwrite": true
+            },
+            {
+              "createNotebook": true,
+              "createNewFolder": true,
+              "newFolderName": "Default",
+              "overwrite": true
+            }
+          ],
+          "expected": {
+            "updatedItems": [
+              {
+                "id": "0",
+                "title": "Default",
+                "parent": "root",
+                "type": "n",
+                "created": -1
+              }
+            ],
+            "newItems": [
+              {
+                "title": "Quote",
+                "parent": "0",
+                "type": "d",
+                "content": "__defined",
+                "created": 1753088323853,
+                "updated": 1753088323853,
+                "tags": "tag1,tag2"
+              },
+              {
+                "id": "#fIdSub",
+                "title": "Sub",
+                "parent": "0",
+                "type": "f",
+                "created": 1753088317446,
+                "updated": 1753088377511,
+                "tags": "sub"
+              },
+              {
+                "title": "Test",
+                "parent": "#fIdSub",
+                "type": "d",
+                "content": "__defined",
+                "created": 1753089323853,
+                "updated": 1753089323853,
+                "tags": "tag1,tag2"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Default",
+                "type": "n",
+                "status": "merged"
+              }
+            ],
+            "duplicates": [
+              {
+                "id": "0",
+                "title": "Default",
+                "parent": "root",
+                "type": "n"
               }
             ]
           }

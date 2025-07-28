@@ -97,3 +97,11 @@ export const APPICONS_PER_TYPE = new Map<CollectionItemTypeValues, string>();
 APPICONS_PER_TYPE.set(CollectionItemType.document, APPICONS.document);
 APPICONS_PER_TYPE.set(CollectionItemType.folder, APPICONS.folder);
 APPICONS_PER_TYPE.set(CollectionItemType.notebook, APPICONS.notebook);
+
+export const ARIA_DESCRIPTIONS_PER_TYPE = new Map<
+  CollectionItemTypeValues,
+  string
+>();
+ARIA_DESCRIPTIONS_PER_TYPE.set(CollectionItemType.document, 'a document');
+ARIA_DESCRIPTIONS_PER_TYPE.set(CollectionItemType.folder, 'a folder');
+ARIA_DESCRIPTIONS_PER_TYPE.set(CollectionItemType.notebook, 'a notebook');

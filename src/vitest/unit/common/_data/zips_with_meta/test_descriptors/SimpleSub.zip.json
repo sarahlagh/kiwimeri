@@ -1,6 +1,5 @@
 {
   "zipName": "SimpleSub.zip",
-  "name": "SimpleSub",
   "testCases": [
     {
       "description": "with no init data",
@@ -162,6 +161,519 @@
               {
                 "title": "SimpleSub",
                 "type": "f",
+                "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and expect to have a notebook",
+          "mergeInto": "root",
+          "options": [
+            {
+              "createNotebook": true,
+              "removeFirstFolder": true,
+              "createNewFolder": true
+            },
+            {
+              "createNotebook": true,
+              "removeFirstFolder": false,
+              "createNewFolder": false
+            },
+            {
+              "createNotebook": true,
+              "removeFirstFolder": false,
+              "createNewFolder": true
+            },
+            {
+              "createNotebook": true,
+              "removeFirstFolder": true,
+              "createNewFolder": false
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#id",
+                "title": "New folder",
+                "parent": "root",
+                "type": "n",
+                "created": 1753088317511,
+                "updated": 1753088317511
+              },
+              {
+                "title": "Simple Original",
+                "parent": "#id",
+                "type": "d",
+                "content": "__defined__",
+                "created": 1753088323853,
+                "updated": 1753088323853,
+                "tags": "tag1,tag2"
+              },
+              {
+                "id": "#idSimpleSub",
+                "title": "SimpleSub",
+                "parent": "#id",
+                "type": "f",
+                "created": 1753088317511,
+                "updated": 1753088317511
+              },
+              {
+                "title": "Quote",
+                "parent": "#idSimpleSub",
+                "type": "d",
+                "content": "__defined__",
+                "created": 1753088323853,
+                "updated": 1753088323853,
+                "tags": "tag1,tag2"
+              },
+              {
+                "id": "#idSub",
+                "title": "Sub",
+                "parent": "#idSimpleSub",
+                "type": "f",
+                "created": 1753088317446,
+                "updated": 1753088377511
+              },
+              {
+                "title": "Test",
+                "parent": "#idSub",
+                "type": "d",
+                "content": "__defined__",
+                "created": 1753089323853,
+                "updated": 1753089323853,
+                "tags": "tag1,tag2"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "New folder",
+                "type": "n",
+                "status": "new"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "description": "with duplicates",
+      "initData": [
+        {
+          "id": "#id",
+          "title": "New folder",
+          "parent": "0",
+          "type": "f"
+        },
+        {
+          "title": "Simple Original",
+          "parent": "#id",
+          "type": "d",
+          "tags": "tag1,tag2,tag3"
+        },
+        {
+          "id": "#idSimpleSub",
+          "title": "SimpleSub",
+          "parent": "#id",
+          "type": "f"
+        },
+        {
+          "title": "Quote",
+          "parent": "#idSimpleSub",
+          "type": "d",
+          "tags": "tag1,tag2,tag3"
+        },
+        {
+          "id": "#idSub",
+          "title": "Sub",
+          "parent": "#idSimpleSub",
+          "type": "f"
+        },
+        {
+          "title": "Test",
+          "parent": "#idSub",
+          "type": "d",
+          "tags": "tag1"
+        }
+      ],
+      "scenarios": [
+        {
+          "description": "and expect to have duplicates on first folder and overwrite=false",
+          "options": [
+            {
+              "removeFirstFolder": true,
+              "createNewFolder": true,
+              "overwrite": false
+            },
+            {
+              "removeFirstFolder": false,
+              "createNewFolder": true,
+              "overwrite": false
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#nid",
+                "title": "New folder",
+                "parent": "0",
+                "created": 1753088317511,
+                "updated": 1753088317511,
+                "type": "f"
+              },
+              {
+                "title": "Simple Original",
+                "parent": "#nid",
+                "type": "d",
+                "tags": "tag1,tag2",
+                "created": 1753088323853,
+                "updated": 1753088323853
+              },
+              {
+                "id": "#nidSimpleSub",
+                "title": "SimpleSub",
+                "parent": "#nid",
+                "type": "f",
+                "created": 1753088317511,
+                "updated": 1753088317511
+              },
+              {
+                "title": "Quote",
+                "parent": "#nidSimpleSub",
+                "type": "d",
+                "tags": "tag1,tag2",
+                "created": 1753088323853,
+                "updated": 1753088323853
+              },
+              {
+                "id": "#nidSub",
+                "title": "Sub",
+                "parent": "#nidSimpleSub",
+                "type": "f",
+                "created": 1753088317446,
+                "updated": 1753088377511
+              },
+              {
+                "title": "Test",
+                "parent": "#nidSub",
+                "type": "d",
+                "tags": "tag1,tag2",
+                "created": 1753089323853,
+                "updated": 1753089323853
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "New folder",
+                "type": "f",
+                "status": "new"
+              }
+            ],
+            "duplicates": [
+              {
+                "id": "#id",
+                "title": "New folder",
+                "parent": "0",
+                "type": "f"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and expect to have duplicates on first folder and overwrite=true",
+          "options": [
+            {
+              "removeFirstFolder": true,
+              "createNewFolder": true,
+              "overwrite": true
+            },
+            {
+              "removeFirstFolder": false,
+              "createNewFolder": true,
+              "overwrite": true
+            }
+          ],
+          "expected": {
+            "updatedItems": [
+              {
+                "id": "#id",
+                "title": "New folder",
+                "parent": "0",
+                "type": "f"
+              },
+              {
+                "title": "Simple Original",
+                "parent": "#id",
+                "type": "d",
+                "tags": "tag1,tag2"
+              },
+              {
+                "id": "#idSimpleSub",
+                "title": "SimpleSub",
+                "parent": "#id",
+                "type": "f"
+              },
+              {
+                "title": "Quote",
+                "parent": "#idSimpleSub",
+                "type": "d",
+                "tags": "tag1,tag2"
+              },
+              {
+                "id": "#idSub",
+                "title": "Sub",
+                "parent": "#idSimpleSub",
+                "type": "f"
+              },
+              {
+                "title": "Test",
+                "parent": "#idSub",
+                "type": "d",
+                "tags": "tag1,tag2"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "New folder",
+                "type": "f",
+                "status": "merged"
+              }
+            ],
+            "duplicates": [
+              {
+                "id": "#id",
+                "title": "New folder",
+                "parent": "0",
+                "type": "f"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and expect to have no duplicates on first folder (newFolderName=NewName)",
+          "options": [
+            {
+              "removeFirstFolder": true,
+              "createNewFolder": true,
+              "newFolderName": "NewName",
+              "overwrite": false
+            },
+            {
+              "removeFirstFolder": true,
+              "createNewFolder": true,
+              "newFolderName": "NewName",
+              "overwrite": false
+            },
+            {
+              "removeFirstFolder": true,
+              "createNewFolder": true,
+              "newFolderName": "NewName",
+              "overwrite": true
+            },
+            {
+              "removeFirstFolder": true,
+              "createNewFolder": true,
+              "newFolderName": "NewName",
+              "overwrite": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#nid",
+                "title": "NewName",
+                "parent": "0",
+                "created": 1753088317511,
+                "updated": 1753088317511,
+                "type": "f"
+              },
+              {
+                "title": "Simple Original",
+                "parent": "#nid",
+                "type": "d",
+                "tags": "tag1,tag2",
+                "created": 1753088323853,
+                "updated": 1753088323853
+              },
+              {
+                "id": "#nidSimpleSub",
+                "title": "SimpleSub",
+                "parent": "#nid",
+                "type": "f",
+                "created": 1753088317511,
+                "updated": 1753088317511
+              },
+              {
+                "title": "Quote",
+                "parent": "#nidSimpleSub",
+                "type": "d",
+                "tags": "tag1,tag2",
+                "created": 1753088323853,
+                "updated": 1753088323853
+              },
+              {
+                "id": "#nidSub",
+                "title": "Sub",
+                "parent": "#nidSimpleSub",
+                "type": "f",
+                "created": 1753088317446,
+                "updated": 1753088377511
+              },
+              {
+                "title": "Test",
+                "parent": "#nidSub",
+                "type": "d",
+                "tags": "tag1,tag2",
+                "created": 1753089323853,
+                "updated": 1753089323853
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "NewName",
+                "type": "f",
+                "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and expect to have no duplicates on first folder (createNewFolder=false)",
+          "options": [
+            {
+              "createNewFolder": false,
+              "overwrite": false
+            },
+            {
+              "createNewFolder": false,
+              "overwrite": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "title": "Simple Original",
+                "parent": "0",
+                "type": "d",
+                "tags": "tag1,tag2",
+                "created": 1753088323853,
+                "updated": 1753088323853
+              },
+              {
+                "id": "#nidSimpleSub",
+                "title": "SimpleSub",
+                "parent": "0",
+                "type": "f",
+                "created": 1753088317511,
+                "updated": 1753088317511
+              },
+              {
+                "title": "Quote",
+                "parent": "#nidSimpleSub",
+                "type": "d",
+                "tags": "tag1,tag2",
+                "created": 1753088323853,
+                "updated": 1753088323853
+              },
+              {
+                "id": "#nidSub",
+                "title": "Sub",
+                "parent": "#nidSimpleSub",
+                "type": "f",
+                "created": 1753088317446,
+                "updated": 1753088377511
+              },
+              {
+                "title": "Test",
+                "parent": "#nidSub",
+                "type": "d",
+                "tags": "tag1,tag2",
+                "created": 1753089323853,
+                "updated": 1753089323853
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple Original",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "SimpleSub",
+                "type": "f",
+                "status": "ne"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and expect to have no duplicates on first folder (createNotebook=true)",
+          "mergeInto": "root",
+          "options": [
+            {
+              "createNotebook": true,
+              "overwrite": false
+            },
+            {
+              "createNotebook": true,
+              "overwrite": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#nid",
+                "title": "New folder",
+                "parent": "root",
+                "created": 1753088317511,
+                "updated": 1753088317511,
+                "type": "n"
+              },
+              {
+                "title": "Simple Original",
+                "parent": "#nid",
+                "type": "d",
+                "tags": "tag1,tag2",
+                "created": 1753088323853,
+                "updated": 1753088323853
+              },
+              {
+                "id": "#nidSimpleSub",
+                "title": "SimpleSub",
+                "parent": "#nid",
+                "type": "f",
+                "created": 1753088317511,
+                "updated": 1753088317511
+              },
+              {
+                "title": "Quote",
+                "parent": "#nidSimpleSub",
+                "type": "d",
+                "tags": "tag1,tag2",
+                "created": 1753088323853,
+                "updated": 1753088323853
+              },
+              {
+                "id": "#nidSub",
+                "title": "Sub",
+                "parent": "#nidSimpleSub",
+                "type": "f",
+                "created": 1753088317446,
+                "updated": 1753088377511
+              },
+              {
+                "title": "Test",
+                "parent": "#nidSub",
+                "type": "d",
+                "tags": "tag1,tag2",
+                "created": 1753089323853,
+                "updated": 1753089323853
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "New folder",
+                "type": "n",
                 "status": "new"
               }
             ]

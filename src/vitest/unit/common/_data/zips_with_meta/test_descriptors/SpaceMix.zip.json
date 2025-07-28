@@ -1,0 +1,189 @@
+{
+  "zipName": "SpaceMix.zip",
+  "testCases": [
+    {
+      "description": "with no init data",
+      "initData": [],
+      "scenarios": [
+        {
+          "description": "and createNotebook=false and default options",
+          "options": [
+            {
+              "createNotebook": false
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "title": "Simple Original",
+                "parent": "0",
+                "type": "d",
+                "content": "__defined",
+                "created": 1753088323853,
+                "updated": 1753088323853,
+                "tags": "tag1,tag2"
+              },
+              {
+                "id": "#fId1",
+                "title": "SimpleNotebook1",
+                "parent": "0",
+                "type": "n",
+                "created": 1753088317511,
+                "updated": 1753088317511
+              },
+              {
+                "title": "Quote",
+                "parent": "#fId1",
+                "type": "d",
+                "content": "__defined",
+                "created": 1753088323853,
+                "updated": 1753088323853,
+                "tags": "tag1,tag2"
+              },
+              {
+                "id": "#fIdSub",
+                "title": "Sub",
+                "parent": "#fId1",
+                "type": "f",
+                "created": 1753088317446,
+                "updated": 1753088377511,
+                "tags": "sub"
+              },
+              {
+                "title": "Test",
+                "parent": "#fIdSub",
+                "type": "d",
+                "content": "__defined",
+                "created": 1753089323853,
+                "updated": 1753089323853,
+                "tags": "tag1,tag2"
+              },
+              {
+                "id": "#fId2",
+                "title": "SimpleNotebook2",
+                "parent": "0",
+                "type": "n",
+                "created": 1753088317511,
+                "updated": 1753088317511
+              },
+              {
+                "title": "Quote",
+                "parent": "#fId2",
+                "type": "d",
+                "content": "__defined",
+                "created": 1753088323853,
+                "updated": 1753088323853,
+                "tags": "tag1,tag2"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple Original",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "SimpleNotebook1",
+                "type": "n",
+                "status": "new"
+              },
+              {
+                "title": "SimpleNotebook2",
+                "type": "n",
+                "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and createNotebook=true and default options",
+          "options": [
+            {
+              "createNotebook": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#notebook",
+                "title": "New folder",
+                "parent": "0",
+                "type": "n",
+                "created": 1753088317511,
+                "updated": 1753088317511
+              },
+              {
+                "title": "Simple Original",
+                "parent": "#notebook",
+                "type": "d",
+                "content": "__defined",
+                "created": 1753088323853,
+                "updated": 1753088323853,
+                "tags": "tag1,tag2"
+              },
+              {
+                "id": "#fId1",
+                "title": "SimpleNotebook1",
+                "parent": "#notebook",
+                "type": "n",
+                "created": 1753088317511,
+                "updated": 1753088317511
+              },
+              {
+                "title": "Quote",
+                "parent": "#fId1",
+                "type": "d",
+                "content": "__defined",
+                "created": 1753088323853,
+                "updated": 1753088323853,
+                "tags": "tag1,tag2"
+              },
+              {
+                "id": "#fIdSub",
+                "title": "Sub",
+                "parent": "#fId1",
+                "type": "f",
+                "created": 1753088317446,
+                "updated": 1753088377511,
+                "tags": "sub"
+              },
+              {
+                "title": "Test",
+                "parent": "#fIdSub",
+                "type": "d",
+                "content": "__defined",
+                "created": 1753089323853,
+                "updated": 1753089323853,
+                "tags": "tag1,tag2"
+              },
+              {
+                "id": "#fId2",
+                "title": "SimpleNotebook2",
+                "parent": "#notebook",
+                "type": "n",
+                "created": 1753088317511,
+                "updated": 1753088317511
+              },
+              {
+                "title": "Quote",
+                "parent": "#fId2",
+                "type": "d",
+                "content": "__defined",
+                "created": 1753088323853,
+                "updated": 1753088323853,
+                "tags": "tag1,tag2"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "New folder",
+                "type": "n",
+                "status": "new"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

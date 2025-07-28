@@ -21,6 +21,8 @@ export type ZipMergeFistLevel = {
 export type ZipParsedData = {
   zipName: string;
   items: CollectionItem[];
+  hasOneFolder: boolean;
+  hasMetadata: boolean;
   rootMeta?: ZipMetadata;
 };
 
@@ -57,11 +59,11 @@ class ImportService {
   private readonly defaultOpts: ZipImportOptions & ZipMergeCommitOptions = {
     // parse opts
     ignoreMetadata: false,
-    createNotebook: false,
     detectInlinedPages: true,
     titleRemoveDuplicateIdentifiers: true,
     titleRemoveExtension: true,
     // merge opts
+    createNotebook: false,
     overwrite: false,
     createNewFolder: false,
     removeFirstFolder: false,
@@ -91,7 +93,11 @@ class ImportService {
     return { doc: formatterService.getLexicalFromMarkdown(content), pages: [] };
   }
 
-  private fillInMeta(item: CollectionItem, meta: ZipMetadata) {
+  private fillInMeta(
+    item: CollectionItem,
+    meta: ZipMetadata,
+    ignoreType = false
+  ) {
     if (meta.title) {
       item.title = meta.title;
     }
@@ -104,7 +110,7 @@ class ImportService {
     if (meta.tags) {
       item.tags = meta.tags;
     }
-    if (meta.type) {
+    if (meta.type && !ignoreType) {
       item.type = meta.type;
     }
   }
@@ -136,7 +142,7 @@ class ImportService {
 
     const parent = this.zipRoot;
 
-    const zipNameFinal = zipName.replace(/(.*)\.(zip|ZIP)$/g, '$1');
+    const finalZipName = zipName.replace(/(.*)\.(zip|ZIP)$/g, '$1');
     const metaMap = new Map<string, ZipMetadata>();
     const items: { [key: string]: CollectionItem } = {};
 
@@ -218,9 +224,18 @@ class ImportService {
       }
     });
 
+    const finalItems = Object.values(items);
+    const firstLevel = finalItems.filter(i => i.parent === this.zipRoot);
+
+    const hasOneFolder =
+      firstLevel.length === 1 &&
+      firstLevel[0].type === CollectionItemType.folder;
+
     return {
-      zipName: zipNameFinal,
-      items: Object.values(items),
+      zipName: finalZipName,
+      items: finalItems,
+      hasOneFolder,
+      hasMetadata: metaMap.size > 0,
       rootMeta: metaMap.get(parent)
     };
   }
@@ -388,7 +403,7 @@ class ImportService {
         : notebooksService.getNewNotebookObj(parent);
     item.title = '';
     if (rootMeta) {
-      this.fillInMeta(item, rootMeta);
+      this.fillInMeta(item, rootMeta, true);
     }
     if (options.newFolderName || item.title === '') {
       item.title = options.newFolderName || zipName;
@@ -399,60 +414,43 @@ class ImportService {
   }
 
   public mergeZipItems(
-    mergeIntoParent: string,
+    parent: string,
     zipData: ZipParsedData,
     opts: ZipMergeOptions
   ): ZipMergeResult {
     opts = { ...this.defaultOpts, ...opts };
 
     const items = structuredClone(zipData.items);
-    let parent = mergeIntoParent;
 
     // zipRoot is a fake temporary parent, replace
     items
       .filter(i => i.parent === this.zipRoot)
       .forEach(i => (i.parent = parent));
 
-    if (opts.removeFirstFolder === true) {
+    if (opts.removeFirstFolder === true && !opts.createNotebook) {
       this.removeFirstFolder(items, parent);
     }
 
-    if (zipData.rootMeta) {
+    if (opts.createNewFolder === true && !opts.createNotebook) {
       this.createNewParent(
-        zipData.rootMeta.type || CollectionItemType.folder,
+        CollectionItemType.folder,
         items,
         parent,
         zipData.zipName,
         opts,
         zipData.rootMeta
       );
-      if (opts.createNotebook) {
-        // force notebook type if zipData.rootMeta.type was folder
-        items[0].type = CollectionItemType.notebook;
-        // items[0].parent = ROOT_COLLECTION;
-        // parent = id;
-      }
-    } else {
-      if (opts.createNotebook === true) {
-        const id = this.createNewParent(
-          CollectionItemType.notebook,
-          items,
-          parent,
-          zipData.zipName,
-          opts
-        );
-        parent = id;
-      }
+    }
 
-      if (opts.createNewFolder === true) {
-        this.createNewParent(
-          CollectionItemType.folder,
-          items,
-          parent,
-          zipData.zipName,
-          opts
-        );
-      }
+    if (opts.createNotebook === true) {
+      this.createNewParent(
+        CollectionItemType.notebook,
+        items,
+        parent,
+        zipData.zipName,
+        opts,
+        zipData.rootMeta
+      );
     }
 
     return this.mergeZipItemsWithOptions(items, parent, opts);

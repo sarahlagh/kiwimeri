@@ -1,6 +1,5 @@
 {
   "zipName": "SimpleLayer.zip",
-  "name": "SimpleLayer",
   "testCases": [
     {
       "description": "with no init data",
@@ -13,11 +12,6 @@
               "removeFirstFolder": true,
               "createNotebook": false,
               "createNewFolder": true
-            },
-            {
-              "removeFirstFolder": true,
-              "createNotebook": false,
-              "createNewFolder": false
             }
           ],
           "expected": {
@@ -49,17 +43,11 @@
           }
         },
         {
-          "description": "and removeFirstFolder=true and createNotebook=true",
+          "description": "and removeFirstFolder=true and createNewFolder=true",
           "options": [
             {
               "removeFirstFolder": true,
-              "createNotebook": true,
               "createNewFolder": true
-            },
-            {
-              "removeFirstFolder": true,
-              "createNotebook": true,
-              "createNewFolder": false
             }
           ],
           "expected": {
@@ -70,7 +58,7 @@
                 "parent": "0",
                 "created": 1753088490685,
                 "updated": 1753088490685,
-                "type": "n"
+                "type": "f"
               },
               {
                 "title": "Simple",
@@ -84,23 +72,33 @@
             "firstLevel": [
               {
                 "title": "New folder",
-                "type": "n",
+                "type": "f",
                 "status": "new"
               }
             ]
           }
         },
         {
-          "description": "and removeFirstFolder=false and createNotebook=true",
+          "description": "and createNotebook=true",
           "options": [
             {
-              "removeFirstFolder": false,
               "createNotebook": true,
+              "removeFirstFolder": false,
               "createNewFolder": true
             },
             {
-              "removeFirstFolder": false,
               "createNotebook": true,
+              "removeFirstFolder": false,
+              "createNewFolder": false
+            },
+            {
+              "createNotebook": true,
+              "removeFirstFolder": true,
+              "createNewFolder": true
+            },
+            {
+              "createNotebook": true,
+              "removeFirstFolder": true,
               "createNewFolder": false
             }
           ],
@@ -134,55 +132,6 @@
               {
                 "title": "New folder",
                 "type": "n",
-                "status": "new"
-              }
-            ]
-          }
-        },
-        {
-          "description": "and removeFirstFolder=false and createNotebook=false",
-          "options": [
-            {
-              "removeFirstFolder": false,
-              "createNotebook": false,
-              "createNewFolder": true
-            },
-            {
-              "removeFirstFolder": false,
-              "createNotebook": false,
-              "createNewFolder": false
-            }
-          ],
-          "expected": {
-            "newItems": [
-              {
-                "id": "#notebook",
-                "title": "New folder",
-                "type": "f",
-                "created": 1753088490685,
-                "updated": 1753088490685
-              },
-              {
-                "id": "#id2",
-                "title": "Simple Original",
-                "parent": "#notebook",
-                "type": "f",
-                "created": 1753088495423,
-                "updated": 1753088495423
-              },
-              {
-                "title": "Simple",
-                "parent": "#id2",
-                "type": "d",
-                "content": "__defined__",
-                "created": 1753088495423,
-                "updated": 1753088495423
-              }
-            ],
-            "firstLevel": [
-              {
-                "title": "New folder",
-                "type": "f",
                 "status": "new"
               }
             ]

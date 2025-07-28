@@ -1,6 +1,5 @@
 {
   "zipName": "Samples.zip",
-  "name": "Samples",
   "testCases": [
     {
       "description": "with no init data",

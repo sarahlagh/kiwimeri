@@ -45,7 +45,7 @@ class ExportService {
 
   private getMetaObj(
     id: string,
-    folderType: CollectionItemTypeValues,
+    folderType?: CollectionItemTypeValues,
     withFiles = false
   ): ZipMetadata {
     return {
@@ -62,8 +62,8 @@ class ExportService {
   private fillDirectoryStructure(
     id: string,
     fileTree: ZipFileTree,
-    folderType: CollectionItemTypeValues,
-    opts = this.opts
+    opts: ZipExportOptions,
+    folderType?: CollectionItemTypeValues
   ) {
     const meta = new Map<string, ZipMetadata>();
     const items = collectionService.getBrowsableCollectionItems(id);
@@ -106,8 +106,8 @@ class ExportService {
         this.fillDirectoryStructure(
           item.id,
           fileTree[itemKey],
-          CollectionItemType.folder,
-          opts
+          opts,
+          CollectionItemType.folder
         );
       });
 
@@ -142,8 +142,13 @@ class ExportService {
 
   public getSingleDocumentContent(
     id: string,
-    opts: Pick<ZipExportOptions, 'inlinePages'> = this.opts
+    opts?: Pick<ZipExportOptions, 'inlinePages'>
   ) {
+    if (!opts) {
+      opts = this.opts;
+    } else {
+      opts = { ...this.opts, ...opts };
+    }
     const json = collectionService.getItemContent(id) || '';
     let content: string;
     content = this.getDocumentContentFormatted(json);
@@ -159,12 +164,21 @@ class ExportService {
     return content;
   }
 
-  public getFolderContent(id: string, opts = this.opts) {
-    const type = collectionService.getItemType(id);
-    return this.fillDirectoryStructure(id, {}, type, opts);
+  public getFolderContent(id: string, opts?: ZipExportOptions) {
+    if (!opts) {
+      opts = this.opts;
+    } else {
+      opts = { ...this.opts, ...opts };
+    }
+    return this.fillDirectoryStructure(id, {}, opts);
   }
 
-  public getSpaceContent(opts = this.opts) {
+  public getSpaceContent(opts?: ZipExportOptions) {
+    if (!opts) {
+      opts = this.opts;
+    } else {
+      opts = { ...this.opts, ...opts };
+    }
     const fileTree: ZipFileTree = {};
     const notebooks = notebooksService.getNotebooks();
     notebooks.forEach((notebook, idx) => {
@@ -172,12 +186,7 @@ class ExportService {
       if (fileTree[key]) {
         key = `${notebook.title} (${idx})`;
       }
-      fileTree[key] = this.fillDirectoryStructure(
-        notebook.id,
-        {},
-        CollectionItemType.notebook,
-        opts
-      );
+      fileTree[key] = this.fillDirectoryStructure(notebook.id, {}, opts);
     });
     return fileTree;
   }

@@ -1,6 +1,10 @@
-import { CollectionItemType } from '@/collection/collection';
 import { getGlobalTrans } from '@/config';
-import { APPICONS, APPICONS_PER_TYPE, ROOT_COLLECTION } from '@/constants';
+import {
+  APPICONS,
+  APPICONS_PER_TYPE,
+  ARIA_DESCRIPTIONS_PER_TYPE,
+  ROOT_COLLECTION
+} from '@/constants';
 import collectionService from '@/db/collection.service';
 import {
   InputCustomEvent,
@@ -52,13 +56,8 @@ const ConfirmMultipleImportModal = ({
   const [overwrite, setOverwrite] = useState<boolean>(false);
   const [zipMerge, setZipMerge] = useState<ZipMergeResult | undefined>();
 
-  const zipFirstLevel = params.zipData.items.filter(
-    item => item.parent === parent
-  );
-  const hasOneFolder =
-    zipFirstLevel.length === 1 &&
-    zipFirstLevel[0].type === CollectionItemType.folder;
-
+  const isEmpty = params.zipData.items.length === 0;
+  const hasOneFolder = params.zipData.hasOneFolder;
   const effectiveParent = params.createNotebook ? ROOT_COLLECTION : parent;
   const itemsInCollection =
     collectionService.getBrowsableCollectionItems(effectiveParent);
@@ -104,99 +103,122 @@ const ConfirmMultipleImportModal = ({
       </IonHeader>
 
       <IonList lines="none">
-        {params.zipData.rootMeta && (
-          <IonItem data-testid="item-metadata-info">
-            <IonIcon icon={APPICONS.info}></IonIcon>
-            <Trans>Metadata found at the root of the archive</Trans>
+        {params.zipData.hasMetadata && (
+          <IonItem data-testid="item-metadata-info" color="primary">
+            <IonIcon icon={APPICONS.info} slot="start"></IonIcon>
+            <Trans>Metadata found in the archive</Trans>
           </IonItem>
         )}
-
-        {params.createNotebook &&
-          params.zipData.rootMeta?.type === CollectionItemType.notebook && (
-            <IonItem data-testid="item-metadata-warning-folder-at-root">
-              <IonIcon icon={APPICONS.warning}></IonIcon>
-              <Trans>
-                Folder detected at the root of the archive, will be transformed
-                into a Notebook
-              </Trans>
-            </IonItem>
-          )}
-
-        {!hasOneFolder && !params.zipData.rootMeta && (
-          <IonItem data-testid="item-question-create-new-folder">
-            <IonLabel color={'secondary'}>
-              <Trans>
-                Do you want to import your content inside a new folder?
-              </Trans>
-            </IonLabel>
-            <IonToggle
-              slot="end"
-              checked={createNewFolder}
-              onIonChange={e => {
-                setCreateNewFolder(e.detail.checked);
-                if (!e.detail.checked) {
-                  setOverwrite(false);
-                } else {
-                  setRemoveFirstFolder(false);
-                }
-              }}
-            ></IonToggle>
+        {isEmpty && (
+          <IonItem data-testid="item-archive-empty-warning" color="warning">
+            <IonIcon icon={APPICONS.warning} slot="start"></IonIcon>
+            <Trans>Archive is empty</Trans>
           </IonItem>
         )}
-        {createNewFolder && (
-          <IonItem style={{ padding: 10 }}>
-            <IonInput
-              label={t`New folder name: `}
-              class="invisible"
-              value={newFolderName}
-              onIonChange={(e: InputCustomEvent) => {
-                if (e.detail.value) {
-                  setNewFolderName(e.detail.value);
-                }
-              }}
-            ></IonInput>
-          </IonItem>
-        )}
-
-        {hasOneFolder && !createNewFolder && (
-          <IonItem data-testid="item-question-single-folder-detected">
-            <IonLabel color={'secondary'}>
-              <Trans>
-                A single folder has been detected inside your archive, would you
-                like to remove it and only import its content?
-              </Trans>
-            </IonLabel>
-            <IonToggle
-              slot="end"
-              checked={removeFirstFolder}
-              onIonChange={e => {
-                setRemoveFirstFolder(e.detail.checked);
-              }}
-            ></IonToggle>
-          </IonItem>
-        )}
-
-        {(zipMerge?.duplicates.length || 0) > 0 && (
-          <IonItem data-testid="item-question-merge-duplicates">
-            <IonLabel color={'secondary'}>
-              <Trans>
-                Would you like to merge the content of your archive with your
-                existing collection? If yes, folders will be merged, and
-                documents will be overwritten. If no, new items will be created.
-              </Trans>
-            </IonLabel>
-            <IonToggle
-              slot="end"
-              checked={overwrite}
-              onIonChange={e => {
-                setOverwrite(e.detail.checked);
-              }}
-            ></IonToggle>
-          </IonItem>
+        {!isEmpty && (
+          <>
+            {!hasOneFolder && !params.createNotebook && (
+              <IonItem data-testid="item-question-create-new-folder">
+                <IonLabel color={'secondary'}>
+                  <Trans>
+                    Do you want to import your content inside a new folder?
+                  </Trans>
+                </IonLabel>
+                <IonToggle
+                  slot="end"
+                  checked={createNewFolder}
+                  onIonChange={e => {
+                    setCreateNewFolder(e.detail.checked);
+                    if (!e.detail.checked) {
+                      setOverwrite(false);
+                    } else {
+                      setRemoveFirstFolder(false);
+                    }
+                  }}
+                ></IonToggle>
+              </IonItem>
+            )}
+            {createNewFolder && !params.createNotebook && (
+              <IonItem
+                style={{ padding: 10 }}
+                data-testid="item-new-folder-name-input"
+              >
+                <IonInput
+                  id="new-folder-name"
+                  label={t`New folder name: `}
+                  class="invisible"
+                  value={newFolderName}
+                  onIonChange={(e: InputCustomEvent) => {
+                    if (e.detail.value) {
+                      setNewFolderName(e.detail.value);
+                    }
+                  }}
+                ></IonInput>
+              </IonItem>
+            )}
+            {params.createNotebook && (
+              <IonItem
+                style={{ padding: 10 }}
+                data-testid="item-new-notebook-name-input"
+              >
+                <IonInput
+                  id="new-notebook-name"
+                  label={t`New notebook name: `}
+                  class="invisible"
+                  value={newFolderName}
+                  onIonChange={(e: InputCustomEvent) => {
+                    if (e.detail.value) {
+                      setNewFolderName(e.detail.value);
+                    }
+                  }}
+                ></IonInput>
+              </IonItem>
+            )}
+            {hasOneFolder && !params.createNotebook && !createNewFolder && (
+              <IonItem data-testid="item-question-single-folder-detected">
+                <IonLabel color={'secondary'}>
+                  <Trans>
+                    A single folder has been detected inside your archive, would
+                    you like to remove it and only import its content?
+                  </Trans>
+                </IonLabel>
+                <IonToggle
+                  slot="end"
+                  checked={removeFirstFolder}
+                  onIonChange={e => {
+                    setRemoveFirstFolder(e.detail.checked);
+                  }}
+                ></IonToggle>
+              </IonItem>
+            )}
+            {(zipMerge?.duplicates.length || 0) > 0 && (
+              <IonItem data-testid="item-question-merge-duplicates">
+                <IonLabel color={'secondary'}>
+                  <Trans>
+                    Would you like to merge the content of your archive with
+                    your existing collection? If yes, folders will be merged,
+                    and documents will be overwritten. If no, new items will be
+                    created.
+                  </Trans>
+                </IonLabel>
+                <IonToggle
+                  slot="end"
+                  checked={overwrite}
+                  onIonChange={e => {
+                    setOverwrite(e.detail.checked);
+                  }}
+                ></IonToggle>
+              </IonItem>
+            )}
+          </>
         )}
       </IonList>
 
-      <IonList style={{ maxHeight: '400px', overflowY: 'auto' }}>
+      <IonList
+        style={{ maxHeight: '400px', overflowY: 'auto' }}
+        id="preview-list"
+        className={isEmpty ? 'ion-hide' : ''}
+      >
         {newFirstLevel.map(item => {
           const color =
             'status' in item
@@ -208,8 +230,8 @@ const ConfirmMultipleImportModal = ({
             <IonItem key={item.id}>
               <IonIcon
                 color={color}
-                aria-hidden="true"
                 slot="start"
+                aria-description={ARIA_DESCRIPTIONS_PER_TYPE.get(item.type)}
                 icon={APPICONS_PER_TYPE.get(item.type)}
               />
               <IonText color={color}>{item.title}</IonText>
@@ -229,7 +251,10 @@ const ConfirmMultipleImportModal = ({
             <IonButton onClick={() => onClose(false)}>
               <Trans>Cancel</Trans>
             </IonButton>
-            <IonButton onClick={() => onClose(true, zipMerge)}>
+            <IonButton
+              onClick={() => onClose(true, zipMerge)}
+              disabled={isEmpty}
+            >
               <Trans>Confirm</Trans>
             </IonButton>
           </IonButtons>

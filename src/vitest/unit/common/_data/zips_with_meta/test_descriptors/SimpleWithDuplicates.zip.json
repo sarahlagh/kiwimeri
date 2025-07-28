@@ -1,6 +1,5 @@
 {
   "zipName": "SimpleWithDuplicates.zip",
-  "name": "SimpleWithDuplicates",
   "testCases": [
     {
       "description": "with no init data",
