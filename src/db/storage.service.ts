@@ -10,6 +10,7 @@ import { Persister } from 'tinybase/persisters/with-schemas';
 import { createQueries, Queries } from 'tinybase/queries/with-schemas';
 import { CellSchema, createStore, Store } from 'tinybase/store/with-schemas';
 import { createIndexes, Indexes } from 'tinybase/with-schemas';
+import localChangesService from './local-changes.service';
 import notebooksService from './notebooks.service';
 import remotesService from './remotes.service';
 import tagsService from './tags.service';
@@ -218,6 +219,13 @@ class StorageService {
       throw new Error('unimplemented');
     }
     return this.storeIndexes;
+  }
+
+  public nukeSpace() {
+    this.getSpace().setContent([{}, {}]);
+    notebooksService.initNotebooks();
+    localChangesService.clear();
+    tagsService.reBuildTags();
   }
 }
 

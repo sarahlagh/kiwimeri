@@ -5,7 +5,7 @@ import {
   CollectionItemTypeValues,
   CollectionItemUpdate
 } from '@/collection/collection';
-import { META_JSON } from '@/constants';
+import { META_JSON, ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
@@ -516,6 +516,52 @@ class ImportService {
       });
     });
     return itemId;
+  }
+
+  public canRestoreSpace(zipData: ZipParsedData): boolean {
+    const firstLevel = zipData.items.filter(i => i.parent === this.zipRoot);
+    return !firstLevel.find(
+      i =>
+        i.type !== CollectionItemType.folder &&
+        i.type !== CollectionItemType.notebook
+    );
+  }
+
+  public restoreSpace(zipData: ZipParsedData): boolean {
+    const firstLevel = zipData.items.filter(i => i.parent === this.zipRoot);
+    // if docs at root, stop / error
+    const canRestoreSpace = !firstLevel.find(
+      i =>
+        i.type !== CollectionItemType.folder &&
+        i.type !== CollectionItemType.notebook
+    );
+    if (!canRestoreSpace) {
+      return false;
+    }
+    // force type notebook in first level folders
+    firstLevel.forEach(i => (i.type = CollectionItemType.notebook));
+
+    // save first notebook title to force merge with default notebook
+    const firstNotebookTitle = firstLevel[0].title;
+
+    storageService.nukeSpace();
+    const notebook = notebooksService.getCurrentNotebook();
+    firstLevel[0].title = collectionService.getItemTitle(notebook);
+
+    const zipMerge = this.mergeZipItems(ROOT_COLLECTION, zipData, {
+      overwrite: true
+    });
+    if (
+      zipMerge.updatedItems.length < 1 &&
+      zipMerge.updatedItems[0].type !== CollectionItemType.notebook
+    ) {
+      throw Error('something went wrong');
+    }
+    // restore first notebook title
+    zipMerge.updatedItems[0].title = firstNotebookTitle;
+
+    this.commitMergeResult(zipMerge, { deleteExistingPages: false });
+    return true;
   }
 }
 
