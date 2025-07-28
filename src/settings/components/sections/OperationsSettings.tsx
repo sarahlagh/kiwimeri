@@ -1,7 +1,4 @@
-import localChangesService from '@/db/local-changes.service';
-import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
-import tagsService from '@/db/tags.service';
 import {
   IonButton,
   IonButtons,
@@ -33,10 +30,7 @@ const OperationSettings = () => {
         <IonButton
           fill="clear"
           onClick={() => {
-            storageService.getSpace().setContent([{}, {}]);
-            localChangesService.clear();
-            tagsService.reBuildTags();
-            notebooksService.initNotebooks();
+            storageService.nukeSpace();
           }}
           color="danger"
         >
@@ -45,8 +39,7 @@ const OperationSettings = () => {
         <IonButton
           fill="clear"
           onClick={() => {
-            storageService.getSpace().setContent([{}, {}]);
-            localChangesService.clear();
+            storageService.nukeSpace();
             storageService.getStore().setCell('remoteState', '0', 'info', '{}');
             storageService
               .getStore()
@@ -55,8 +48,6 @@ const OperationSettings = () => {
               .getStore()
               .setCell('remoteState', '0', 'lastRemoteChange', 0);
             storageService.getStore().delTable('remoteItems');
-            tagsService.reBuildTags();
-            notebooksService.initNotebooks();
           }}
           color="danger"
         >

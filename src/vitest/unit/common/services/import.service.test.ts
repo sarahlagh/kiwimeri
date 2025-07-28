@@ -6,12 +6,13 @@ import {
   ZipMergeFistLevel,
   ZipMergeResult
 } from '@/common/services/import.service';
-import { DEFAULT_NOTEBOOK_ID } from '@/constants';
+import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/local-changes.service';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
 import { LocalChangeType } from '@/db/types/store-types';
+import userSettingsService from '@/db/user-settings.service';
 import formatterService from '@/format-conversion/formatter.service';
 import { getLocalItemField } from '@/vitest/setup/test.utils';
 import { readFile } from 'fs/promises';
@@ -665,7 +666,116 @@ describe('import service', () => {
       'Space.zip',
       'SpaceMix.zip'
     ]);
+  });
 
-    // TODO test import as space
+  describe('import zip as space', () => {
+    let dId: string;
+    let fId: string;
+    let nId: string;
+    beforeEach(() => {
+      storageService.getSpace().transaction(() => {
+        dId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+        fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+        nId = notebooksService.addNotebook('Simple');
+      });
+    });
+
+    it('should not restore zip with docs at root', async () => {
+      const zipData = await readZip('zips_with_meta', 'SpaceMix.zip', {});
+      expect(importService.canRestoreSpace(zipData)).toBe(false);
+      expect(importService.restoreSpace(zipData)).toBe(false);
+      expect(collectionService.itemExists(dId)).toBe(true);
+      expect(collectionService.itemExists(fId)).toBe(true);
+      expect(collectionService.itemExists(nId)).toBe(true);
+    });
+
+    it('should restore zip without meta', async () => {
+      const zipData = await readZip('zips_without_meta', 'Samples.zip', {});
+      expect(importService.canRestoreSpace(zipData)).toBe(true);
+      expect(importService.restoreSpace(zipData)).toBe(true);
+      expect(collectionService.itemExists(dId)).toBe(false);
+      expect(collectionService.itemExists(fId)).toBe(false);
+      expect(collectionService.itemExists(nId)).toBe(false);
+      // expect first folder to be notebook
+      expect(notebooksService.getNotebooks()).toHaveLength(1);
+      const createdNotebook = notebooksService.getNotebooks()[0];
+      expect(createdNotebook.id).toBe(DEFAULT_NOTEBOOK_ID);
+      expect(createdNotebook.title).toBe('Samples');
+      expect(
+        collectionService.getAllCollectionItemsRecursive(createdNotebook!.id)
+      ).toHaveLength(18);
+    });
+
+    it('should restore zip with no notebook meta for first level folders and ignore root meta', async () => {
+      const zipData = await readZip('zips_with_meta', 'SimpleLayer.zip', {});
+      expect(importService.canRestoreSpace(zipData)).toBe(true);
+      expect(importService.restoreSpace(zipData)).toBe(true);
+      expect(collectionService.itemExists(dId)).toBe(false);
+      expect(collectionService.itemExists(fId)).toBe(false);
+      expect(collectionService.itemExists(nId)).toBe(false);
+      // expect first folder to be notebook
+      expect(notebooksService.getNotebooks()).toHaveLength(1);
+      const createdNotebook = notebooksService.getNotebooks()[0];
+      expect(createdNotebook.id).toBe(DEFAULT_NOTEBOOK_ID);
+      expect(createdNotebook.title).toBe('Simple Original');
+      expect(
+        collectionService.getAllCollectionItemsRecursive(createdNotebook!.id)
+      ).toHaveLength(1);
+    });
+
+    it('should restore properly exported zip', async () => {
+      const zipData = await readZip('zips_with_meta', 'Space.zip', {});
+      expect(importService.canRestoreSpace(zipData)).toBe(true);
+      expect(importService.restoreSpace(zipData)).toBe(true);
+      expect(collectionService.itemExists(dId)).toBe(false);
+      expect(collectionService.itemExists(fId)).toBe(false);
+      expect(collectionService.itemExists(nId)).toBe(false);
+      // expect first folders to be notebook
+      expect(notebooksService.getNotebooks()).toHaveLength(2);
+      const createdNotebooks = notebooksService.getNotebooks(
+        ROOT_COLLECTION,
+        'created',
+        true
+      );
+      expect(createdNotebooks[0].title).toBe('SimpleNotebook1');
+      expect(createdNotebooks[0].id).toBe(DEFAULT_NOTEBOOK_ID);
+      expect(createdNotebooks[1].title).toBe('SimpleNotebook2');
+      expect(createdNotebooks[1].id).not.toBe(DEFAULT_NOTEBOOK_ID);
+      expect(
+        collectionService.getAllCollectionItemsRecursive(createdNotebooks[0].id)
+      ).toHaveLength(3);
+      expect(
+        collectionService.getAllCollectionItemsRecursive(createdNotebooks[1].id)
+      ).toHaveLength(1);
+    });
+
+    it('should handle case where default notebook has been changed', async () => {
+      userSettingsService.setCurrentFolder(nId);
+      notebooksService.deleteNotebook(DEFAULT_NOTEBOOK_ID);
+
+      const zipData = await readZip('zips_with_meta', 'Space.zip', {});
+      expect(importService.canRestoreSpace(zipData)).toBe(true);
+      expect(importService.restoreSpace(zipData)).toBe(true);
+      expect(collectionService.itemExists(dId)).toBe(false);
+      expect(collectionService.itemExists(fId)).toBe(false);
+      expect(collectionService.itemExists(nId)).toBe(false);
+      // expect first folders to be notebook
+      expect(notebooksService.getNotebooks()).toHaveLength(2);
+      const createdNotebooks = notebooksService.getNotebooks(
+        ROOT_COLLECTION,
+        'created',
+        true
+      );
+      expect(createdNotebooks[0].title).toBe('SimpleNotebook1');
+      expect(createdNotebooks[0].id).toBe(DEFAULT_NOTEBOOK_ID);
+      expect(createdNotebooks[1].title).toBe('SimpleNotebook2');
+      expect(createdNotebooks[1].id).not.toBe(DEFAULT_NOTEBOOK_ID);
+      expect(
+        collectionService.getAllCollectionItemsRecursive(createdNotebooks[0].id)
+      ).toHaveLength(3);
+      expect(
+        collectionService.getAllCollectionItemsRecursive(createdNotebooks[1].id)
+      ).toHaveLength(1);
+    });
   });
 });
