@@ -1,48 +1,20 @@
 {
   "zipName": "Empty.zip",
-  "name": "Empty",
   "testCases": [
     {
       "description": "with no init data",
       "initData": [],
       "scenarios": [
         {
-          "description": "with createNotebook=false (createNewFolder is ignored)",
+          "description": "with createNotebook=false and createNewFolder=false",
           "options": [
-            {
-              "createNotebook": false,
-              "createNewFolder": true,
-              "overwrite": false
-            },
-            {
-              "createNotebook": false,
-              "createNewFolder": true,
-              "overwrite": false
-            },
             {
               "createNotebook": false,
               "createNewFolder": false,
               "overwrite": false
             }
           ],
-          "expected": {
-            "newItems": [
-              {
-                "title": "empty",
-                "parent": "0",
-                "type": "f",
-                "created": 1752772097139,
-                "updated": 1752772101238
-              }
-            ],
-            "firstLevel": [
-              {
-                "title": "empty",
-                "type": "f",
-                "status": "new"
-              }
-            ]
-          }
+          "expected": {}
         },
         {
           "description": "with createNotebook=false and createNewFolder=NewName",

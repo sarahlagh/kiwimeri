@@ -55,6 +55,7 @@ describe('export service', () => {
       optsArr.forEach(opts => {
         const checkMetadata = (
           zipContent: ZipFileTree,
+          isRoot: boolean,
           metaType:
             | CollectionItemType.folder
             | CollectionItemType.notebook = CollectionItemType.folder,
@@ -69,7 +70,11 @@ describe('export service', () => {
             const meta = JSON.parse(
               strFromU8(zipContent[META_JSON][0])
             ) as ZipMetadata;
-            expect(meta.type).toBe(metaType);
+            if (!isRoot) {
+              expect(meta.type).toBe(metaType);
+            } else {
+              expect(meta.type).toBeUndefined();
+            }
             expect(meta.format).toBe('markdown');
             expect(meta.title).toBeDefined();
             if (metaType === CollectionItemType.notebook) {
@@ -146,7 +151,7 @@ describe('export service', () => {
                 'this is the page content\n\n'
             );
 
-            checkMetadata(zipContent);
+            checkMetadata(zipContent, true);
           });
         } else {
           it.todo(
@@ -182,7 +187,7 @@ describe('export service', () => {
           expect(
             Object.keys(zipContent).filter(k => k !== META_JSON)
           ).toHaveLength(0);
-          checkMetadata(zipContent);
+          checkMetadata(zipContent, true);
         });
 
         it(`should export a folder with tags as a zip with inlinePages=${opts.inlinePages}`, () => {
@@ -198,6 +203,7 @@ describe('export service', () => {
           );
           checkMetadata(
             zipContent,
+            true,
             CollectionItemType.folder,
             true,
             'tag1,tag2'
@@ -221,8 +227,8 @@ describe('export service', () => {
             strFromU8(zipContent['New folder']['New document.md'][0])
           ).toBe('this is the document content\n\n');
 
-          checkMetadata(zipContent);
-          checkMetadata(zipContent['New folder']);
+          checkMetadata(zipContent, true);
+          checkMetadata(zipContent['New folder'], false);
         });
 
         it(`should export a folder with several levels with folders and docs as first level as a zip with inlinePages=${opts.inlinePages}`, () => {
@@ -248,9 +254,13 @@ describe('export service', () => {
             )
           ).toBe('this is the document content\n\n');
 
-          checkMetadata(zipContent);
-          checkMetadata(zipContent['New folder'], CollectionItemType.folder);
-          checkMetadata(zipContent['New folder']['New folder']);
+          checkMetadata(zipContent, true);
+          checkMetadata(
+            zipContent['New folder'],
+            false,
+            CollectionItemType.folder
+          );
+          checkMetadata(zipContent['New folder']['New folder'], false);
         });
 
         it(`should export a folder with several levels with folders as first level as a zip with inlinePages=${opts.inlinePages}`, () => {
@@ -271,9 +281,13 @@ describe('export service', () => {
             )
           ).toBe('this is the document content\n\n');
 
-          checkMetadata(zipContent, CollectionItemType.folder);
-          checkMetadata(zipContent['New folder'], CollectionItemType.folder);
-          checkMetadata(zipContent['New folder']['New folder']);
+          checkMetadata(zipContent, true, CollectionItemType.folder);
+          checkMetadata(
+            zipContent['New folder'],
+            false,
+            CollectionItemType.folder
+          );
+          checkMetadata(zipContent['New folder']['New folder'], false);
         });
 
         it(`should export a folder as a zip with duplicates inside with inlinePages=${opts.inlinePages}`, () => {
@@ -298,7 +312,7 @@ describe('export service', () => {
             'this is the document content\n\n'
           );
 
-          checkMetadata(zipContent);
+          checkMetadata(zipContent, true);
         });
 
         it(`should export a notebook as a zip with inlinePages=${opts.inlinePages}`, () => {
@@ -315,8 +329,8 @@ describe('export service', () => {
             strFromU8(zipContent['New folder']['New document.md'][0])
           ).toBe('this is the document content\n\n');
 
-          checkMetadata(zipContent, CollectionItemType.notebook);
-          checkMetadata(zipContent['New folder']);
+          checkMetadata(zipContent, true, CollectionItemType.notebook);
+          checkMetadata(zipContent['New folder'], false);
         });
 
         it(`should export a notebook with folders as first level as a zip with inlinePages=${opts.inlinePages}`, () => {
@@ -340,9 +354,13 @@ describe('export service', () => {
           ).toBe('this is the document content\n\n');
 
           // if first level doesn't have files (only folders), shouldn't include meta.json unless it's a notebook
-          checkMetadata(zipContent, CollectionItemType.notebook);
-          checkMetadata(zipContent['New folder'], CollectionItemType.folder);
-          checkMetadata(zipContent['New folder']['New folder']);
+          checkMetadata(zipContent, true, CollectionItemType.notebook);
+          checkMetadata(
+            zipContent['New folder'],
+            false,
+            CollectionItemType.folder
+          );
+          checkMetadata(zipContent['New folder']['New folder'], false);
         });
 
         it(`should export a notebook with folders and docs as first level as a zip with inlinePages=${opts.inlinePages}`, () => {
@@ -371,10 +389,15 @@ describe('export service', () => {
             )
           ).toBe('this is the document content\n\n');
 
-          checkMetadata(zipContent, CollectionItemType.notebook);
-          checkMetadata(zipContent['New folder'], CollectionItemType.folder);
+          checkMetadata(zipContent, true, CollectionItemType.notebook);
+          checkMetadata(
+            zipContent['New folder'],
+            false,
+            CollectionItemType.folder
+          );
           checkMetadata(
             zipContent['New folder']['New folder'],
+            false,
             CollectionItemType.folder
           );
         });
@@ -399,13 +422,18 @@ describe('export service', () => {
             strFromU8(zipContent['New notebook']['New document.md'][0])
           ).toBe('this is the document content\n\n');
 
-          checkMetadata(zipContent, CollectionItemType.notebook, false);
-          checkMetadata(zipContent['Default'], CollectionItemType.notebook);
+          checkMetadata(zipContent, true, CollectionItemType.notebook, false);
           checkMetadata(
-            zipContent['New notebook'],
+            zipContent['Default'],
+            true,
             CollectionItemType.notebook
           );
-          checkMetadata(zipContent['Default']['New folder']);
+          checkMetadata(
+            zipContent['New notebook'],
+            true,
+            CollectionItemType.notebook
+          );
+          checkMetadata(zipContent['Default']['New folder'], false);
         });
       });
     });

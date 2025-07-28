@@ -56,7 +56,7 @@ const CollectionItemBrowserListToolbar = ({
       </IonButtons>
 
       <IonButtons slot="end">
-        <ExportItemsButton type={CollectionItemType.folder} />
+        <ExportItemsButton type={CollectionItemType.folder} id={folderId} />
         <ImportItemsButton parent={folderId} />
 
         <IonButton

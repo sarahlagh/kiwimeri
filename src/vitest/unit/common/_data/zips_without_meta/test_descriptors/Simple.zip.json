@@ -1,6 +1,5 @@
 {
   "zipName": "Simple.zip",
-  "name": "Simple",
   "testCases": [
     {
       "description": "with no init data",
@@ -126,6 +125,82 @@
                 "title": "Simple",
                 "status": "new",
                 "type": "d"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and createNotebook=true",
+          "mergeInto": "root",
+          "options": [
+            {
+              "createNotebook": true,
+              "createNewFolder": false
+            },
+            {
+              "createNotebook": true,
+              "createNewFolder": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#notebook",
+                "title": "Simple",
+                "parent": "root",
+                "type": "n"
+              },
+              {
+                "title": "Simple",
+                "parent": "#notebook",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple",
+                "type": "n",
+                "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and createNotebook=true and newFolderName=NewName",
+          "mergeInto": "root",
+          "options": [
+            {
+              "createNotebook": true,
+              "createNewFolder": false,
+              "newFolderName": "NewName"
+            },
+            {
+              "createNotebook": true,
+              "createNewFolder": true,
+              "newFolderName": "NewName"
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#notebook",
+                "title": "NewName",
+                "parent": "root",
+                "type": "n"
+              },
+              {
+                "title": "Simple",
+                "parent": "#notebook",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "NewName",
+                "type": "n",
+                "status": "new"
               }
             ]
           }
@@ -654,6 +729,144 @@
                 "title": "Simple",
                 "parent": "0",
                 "type": "d"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and createNotebook=true",
+          "mergeInto": "root",
+          "options": [
+            {
+              "createNotebook": true,
+              "createNewFolder": false
+            },
+            {
+              "createNotebook": true,
+              "createNewFolder": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#notebook",
+                "title": "Simple",
+                "parent": "root",
+                "type": "n"
+              },
+              {
+                "title": "Simple",
+                "parent": "#notebook",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple",
+                "type": "n",
+                "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and createNotebook=true and newFolderName=Default and overwrite=false",
+          "mergeInto": "root",
+          "options": [
+            {
+              "createNotebook": true,
+              "createNewFolder": false,
+              "newFolderName": "Default",
+              "overwrite": false
+            },
+            {
+              "createNotebook": true,
+              "createNewFolder": true,
+              "newFolderName": "Default",
+              "overwrite": false
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#notebook",
+                "title": "Default",
+                "parent": "root",
+                "type": "n"
+              },
+              {
+                "id": "#dID0",
+                "title": "Simple",
+                "parent": "#notebook",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Default",
+                "type": "n",
+                "status": "new"
+              }
+            ],
+            "duplicates": [
+              {
+                "id": "0",
+                "title": "Default",
+                "parent": "root",
+                "type": "n"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and createNotebook=true and newFolderName=Default and overwrite=true",
+          "mergeInto": "root",
+          "options": [
+            {
+              "createNotebook": true,
+              "createNewFolder": false,
+              "newFolderName": "Default",
+              "overwrite": true
+            },
+            {
+              "createNotebook": true,
+              "createNewFolder": true,
+              "newFolderName": "Default",
+              "overwrite": true
+            }
+          ],
+          "expected": {
+            "updatedItems": [
+              {
+                "id": "0",
+                "title": "Default",
+                "parent": "root",
+                "type": "n",
+                "created": -1
+              },
+              {
+                "id": "#dID0",
+                "title": "Simple",
+                "parent": "0",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Default",
+                "type": "n",
+                "status": "merged"
+              }
+            ],
+            "duplicates": [
+              {
+                "id": "0",
+                "title": "Default",
+                "parent": "root",
+                "type": "n"
               }
             ]
           }

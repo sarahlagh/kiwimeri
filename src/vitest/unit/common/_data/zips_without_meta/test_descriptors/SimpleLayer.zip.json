@@ -1,6 +1,5 @@
 {
   "zipName": "SimpleLayer.zip",
-  "name": "SimpleLayer",
   "testCases": [
     {
       "description": "with no init data",
@@ -156,6 +155,121 @@
                 "title": "Simple",
                 "type": "f",
                 "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and createNotebook=true and overwrite=false",
+          "mergeInto": "root",
+          "options": [
+            {
+              "createNotebook": true,
+              "removeFirstFolder": true,
+              "createNewFolder": true,
+              "newFolderName": "Default",
+              "overwrite": false
+            },
+            {
+              "createNotebook": true,
+              "removeFirstFolder": false,
+              "createNewFolder": false,
+              "newFolderName": "Default",
+              "overwrite": false
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#notebook",
+                "title": "Default",
+                "parent": "root",
+                "type": "n"
+              },
+              {
+                "id": "#id2",
+                "title": "Simple",
+                "parent": "#notebook",
+                "type": "f"
+              },
+              {
+                "title": "Simple",
+                "parent": "#id2",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Default",
+                "type": "n",
+                "status": "new"
+              }
+            ],
+            "duplicates": [
+              {
+                "id": "0",
+                "title": "Default",
+                "type": "n"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and createNotebook=true and overwrite=true",
+          "mergeInto": "root",
+          "options": [
+            {
+              "createNotebook": true,
+              "removeFirstFolder": true,
+              "createNewFolder": true,
+              "newFolderName": "Default",
+              "overwrite": true
+            },
+            {
+              "createNotebook": true,
+              "removeFirstFolder": false,
+              "createNewFolder": false,
+              "newFolderName": "Default",
+              "overwrite": true
+            }
+          ],
+          "expected": {
+            "updatedItems": [
+              {
+                "id": "0",
+                "title": "Default",
+                "parent": "root",
+                "type": "n",
+                "created": -1
+              }
+            ],
+            "newItems": [
+              {
+                "id": "#id2",
+                "title": "Simple",
+                "parent": "0",
+                "type": "f"
+              },
+              {
+                "title": "Simple",
+                "parent": "#id2",
+                "type": "d",
+                "content": "__defined__"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Default",
+                "type": "n",
+                "status": "merged"
+              }
+            ],
+            "duplicates": [
+              {
+                "id": "0",
+                "title": "Default",
+                "type": "n"
               }
             ]
           }

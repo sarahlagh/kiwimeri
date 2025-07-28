@@ -1,6 +1,5 @@
 {
   "zipName": "SimplePagesInline.zip",
-  "name": "SimplePagesInline",
   "testCases": [
     {
       "description": "with no init data",

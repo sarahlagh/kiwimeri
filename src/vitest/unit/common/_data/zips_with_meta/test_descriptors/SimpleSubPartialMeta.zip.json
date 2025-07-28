@@ -1,6 +1,5 @@
 {
   "zipName": "SimpleSubPartialMeta.zip",
-  "name": "SimpleSubPartialMeta",
   "testCases": [
     {
       "description": "with no init data",
