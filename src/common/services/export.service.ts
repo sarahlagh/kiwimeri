@@ -3,6 +3,7 @@ import {
   CollectionItemType,
   CollectionItemTypeValues
 } from '@/collection/collection';
+import { getGlobalTrans } from '@/config';
 import { META_JSON } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
@@ -45,13 +46,16 @@ class ExportService {
 
   private getMetaObj(
     id: string,
-    folderType?: CollectionItemTypeValues,
+    type?: CollectionItemTypeValues,
     withFiles = false
   ): ZipMetadata {
     return {
-      type: folderType,
+      type,
       format: 'markdown',
-      title: collectionService.getItemTitle(id),
+      title:
+        type !== CollectionItemType.page
+          ? collectionService.getItemTitle(id)
+          : undefined,
       tags: collectionService.getItemField(id, 'tags'),
       created: collectionService.getItemField(id, 'created'),
       updated: collectionService.getItemField(id, 'updated'),
@@ -70,33 +74,42 @@ class ExportService {
 
     // create text files
     items
-      .filter(item => item.type !== CollectionItemType.folder)
+      .filter(item => item.type === CollectionItemType.document)
       .forEach((item, idx) => {
         const title = item.title.substring(0, this.maxLength);
         let itemKey = `${title}.md`;
         if (fileTree[itemKey]) {
           itemKey = `${title} (${idx}).md`;
         }
-        fileTree[itemKey] = [strToU8(this.getSingleDocumentContent(item.id))];
-
-        if (opts.includeMetadata) {
-          const metaId = item.parent;
-          if (!meta.has(metaId)) {
-            meta.set(metaId, this.getMetaObj(id, folderType, true));
+        const docResp = this.getSingleDocumentContent(item.id, opts);
+        if (typeof docResp === 'string') {
+          fileTree[itemKey] = [strToU8(docResp)];
+          if (opts.includeMetadata) {
+            const metaId = item.parent;
+            if (!meta.has(metaId)) {
+              meta.set(metaId, this.getMetaObj(id, folderType, true));
+            }
+            meta.get(metaId)!.files![itemKey] = {
+              type: item.type,
+              created: item.created,
+              updated: item.updated,
+              tags: item.tags,
+              title: item.title
+            };
           }
-          meta.get(metaId)!.files![itemKey] = {
-            type: item.type,
-            created: item.created,
-            updated: item.updated,
-            tags: item.tags,
-            title: item.title
-          };
+        } else {
+          fileTree[`${itemKey}`] = docResp;
+          itemKey = `${itemKey}/`;
         }
       });
 
     // create dirs
     items
-      .filter(item => item.type === CollectionItemType.folder)
+      .filter(
+        item =>
+          item.type === CollectionItemType.folder ||
+          item.type === CollectionItemType.notebook
+      )
       .forEach((item, idx) => {
         let itemKey = item.title.substring(0, this.maxLength);
         if (fileTree[itemKey]) {
@@ -142,8 +155,8 @@ class ExportService {
 
   public getSingleDocumentContent(
     id: string,
-    opts?: Pick<ZipExportOptions, 'inlinePages'>
-  ) {
+    opts?: ZipExportOptions
+  ): string | ZipFileTree {
     if (!opts) {
       opts = this.opts;
     } else {
@@ -152,14 +165,51 @@ class ExportService {
     const json = collectionService.getItemContent(id) || '';
     let content: string;
     content = this.getDocumentContentFormatted(json);
-    if (opts.inlinePages !== false) {
-      const pages = collectionService.getDocumentPages(id);
+    const pages = collectionService.getDocumentPages(id);
+
+    // if inline pages, add content as string
+    if (opts.inlinePages) {
       pages.forEach(page => {
         content += formatterService.getPagesSeparator();
         content += this.getDocumentContentFormatted(
           collectionService.getItemContent(page.id) || ''
         );
       });
+    } else if (pages.length > 0) {
+      // if not inline pages and has pages, create dir structure
+      const docTitle =
+        collectionService.getItemTitle(id) || getGlobalTrans().newDocTitle;
+      const itemKey = `${docTitle} 0.md`;
+      const fileTree: ZipFileTree = {};
+      fileTree[itemKey] = [strToU8(content)];
+      const meta: ZipMetadata = {
+        type: CollectionItemType.document,
+        files: {}
+      };
+      meta.files![itemKey] = this.getMetaObj(
+        id,
+        CollectionItemType.document,
+        false
+      );
+      pages.forEach((page, idx) => {
+        const pageContent = this.getDocumentContentFormatted(
+          collectionService.getItemContent(page.id) || ''
+        );
+        const pageKey = `${docTitle} ${idx + 1}.md`;
+        fileTree[pageKey] = [strToU8(pageContent)];
+        meta.files![pageKey] = this.getMetaObj(
+          page.id,
+          CollectionItemType.page,
+          false
+        );
+      });
+      if (opts.includeMetadata) {
+        fileTree[META_JSON] = [
+          // pretty print meta json
+          strToU8(JSON.stringify(meta, null, 2))
+        ];
+      }
+      return fileTree;
     }
     return content;
   }
