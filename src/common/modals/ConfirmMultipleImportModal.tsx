@@ -66,7 +66,7 @@ const ConfirmMultipleImportModal = ({
       item => !zipMerge?.firstLevel.find(i => i.id === item.id)
     ),
     ...(zipMerge?.firstLevel || [])
-  ].sort((i1, i2) => i1.created - i2.created);
+  ].sort((i1, i2) => i1.created - i2.created); // TODO adjust according to setting
 
   useEffect(() => {
     setZipMerge(

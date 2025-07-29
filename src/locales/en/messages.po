@@ -38,6 +38,7 @@ msgstr "Are you sure?"
 #: src/common/modals/ConfirmMultipleImportModal.tsx:252
 #: src/common/modals/ConfirmFileImportModal.tsx:78
 #: src/common/modals/ChooseTagsModal.tsx:98
+#: src/common/buttons/RestoreCollectionButton.tsx:67
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -62,6 +63,7 @@ msgstr "Configure where to synchronize your collection"
 #: src/common/modals/ConfirmMultipleImportModal.tsx:258
 #: src/common/modals/ConfirmFileImportModal.tsx:81
 #: src/common/modals/ChooseTagsModal.tsx:105
+#: src/common/buttons/RestoreCollectionButton.tsx:74
 msgid "Confirm"
 msgstr "Confirm"
 
@@ -107,8 +109,8 @@ msgid "EU"
 msgstr "EU"
 
 #: src/settings/components/sections/ImportExportStoreSettings.tsx:68
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:62
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:83
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:52
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:66
 msgid "Export"
 msgstr "Export"
 
@@ -128,7 +130,7 @@ msgstr "Home"
 msgid "Import & export your app settings"
 msgstr "Import & export your app settings"
 
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:44
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:34
 msgid "Import & export your collection"
 msgstr "Import & export your collection"
 
@@ -144,7 +146,7 @@ msgstr "Import zip content in a new Notebook"
 msgid "Import zip content in folder {parentName}"
 msgstr "Import zip content in folder {parentName}"
 
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:57
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:47
 msgid "Kiwimeri format (single file)"
 msgstr "Kiwimeri format (single file)"
 
@@ -164,11 +166,11 @@ msgstr "Logs"
 msgid "Manually backup or restore your app settings"
 msgstr "Manually backup or restore your app settings"
 
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:47
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:37
 msgid "Manually backup or restore your collection in the format of your choice"
 msgstr "Manually backup or restore your collection in the format of your choice"
 
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:78
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:61
 msgid "Markdown (Kiwimeri flavor)"
 msgstr "Markdown (Kiwimeri flavor)"
 
@@ -217,19 +219,19 @@ msgstr "Not Found"
 msgid "Notebook Selection"
 msgstr "Notebook Selection"
 
-#: src/settings/components/sections/OperationsSettings.tsx:43
+#: src/settings/components/sections/OperationsSettings.tsx:37
 msgid "nuke space"
 msgstr "nuke space"
 
-#: src/settings/components/sections/OperationsSettings.tsx:63
+#: src/settings/components/sections/OperationsSettings.tsx:54
 msgid "nuke space & remote"
 msgstr "nuke space & remote"
 
-#: src/settings/components/sections/OperationsSettings.tsx:31
+#: src/settings/components/sections/OperationsSettings.tsx:28
 msgid "nuke store"
 msgstr "nuke store"
 
-#: src/settings/components/sections/OperationsSettings.tsx:19
+#: src/settings/components/sections/OperationsSettings.tsx:16
 msgid "Operations"
 msgstr "Operations"
 
@@ -266,9 +268,13 @@ msgid "Reorder"
 msgstr "Reorder"
 
 #: src/settings/components/sections/ImportExportStoreSettings.tsx:78
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:72
+#: src/common/buttons/RestoreCollectionButton.tsx:94
 msgid "Restore"
 msgstr "Restore"
+
+#: src/common/buttons/RestoreCollectionButton.tsx:63
+msgid "Restore Collection"
+msgstr "Restore Collection"
 
 #: src/common/modals/ChooseTagsModal.tsx:37
 msgid "Select item tags"
@@ -307,6 +313,10 @@ msgstr "The following file(s) with matching title(s) have been detected inside t
 #: src/settings/components/sections/ImportExportStoreSettings.tsx:55
 msgid "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page, including the settings for your cloud provider."
 msgstr "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page, including the settings for your cloud provider."
+
+#: src/common/buttons/RestoreCollectionButton.tsx:64
+msgid "This will delete your existing data. Are you sure?"
+msgstr "This will delete your existing data. Are you sure?"
 
 #: src/settings/components/providers/PCloudSettings.tsx:93
 msgid "US"

@@ -7,7 +7,7 @@ class TagsService {
   private itemsPerTags = new Map<string, string[]>();
 
   public reBuildTags() {
-    this.itemsPerTags.clear();
+    this.clear();
     const notebook = notebooksService.getCurrentNotebook();
     collectionService.getAllCollectionItemsRecursive(notebook, level => {
       level
@@ -22,6 +22,10 @@ class TagsService {
         });
     });
     console.debug('[tags] cache rebuilt', this.itemsPerTags);
+  }
+
+  public clear() {
+    this.itemsPerTags.clear();
   }
 
   public getTags() {

@@ -1,7 +1,7 @@
 import { CollectionItemType } from '@/collection/collection';
 import ExportItemsButton from '@/common/buttons/ExportItemsButton';
 import GenericExportFileButton from '@/common/buttons/GenericExportFileButton';
-import GenericImportFileButton from '@/common/buttons/GenericImportFileButton';
+import RestoreCollectionButton from '@/common/buttons/RestoreCollectionButton';
 import platformService from '@/common/services/platform.service';
 import storageService from '@/db/storage.service';
 import {
@@ -23,18 +23,8 @@ const ImportExportCollectionSettings = () => {
   const getExportFileName = () =>
     `${new Date().toISOString().substring(0, 19).replaceAll(/[:T]/g, '-')}-${exportFileSuffix}.json`;
 
-  const onRestoreContent = async (content: string) => {
-    const json = JSON.parse(content);
-    storageService.getSpace().setContent(json);
-  };
-
   const getContentToExport = async () => {
     return storageService.getSpace().getJson();
-  };
-
-  const onImportContentRead = async (content: string) => {
-    await onRestoreContent(content);
-    return { confirm: true };
   };
 
   return (
@@ -65,13 +55,6 @@ const ImportExportCollectionSettings = () => {
                 getFileTitle={getExportFileName}
                 getFileContent={getContentToExport}
               />
-              <GenericImportFileButton
-                fill="clear"
-                color="danger"
-                icon={null}
-                label={t`Restore`}
-                onContentReadAsString={onImportContentRead}
-              />
             </IonButtons>
           </IonItem>
           <IonItem>
@@ -88,6 +71,9 @@ const ImportExportCollectionSettings = () => {
           </IonItem>
         </IonList>
       </IonCardContent>
+      <IonButtons>
+        <RestoreCollectionButton />
+      </IonButtons>
     </IonCard>
   );
 };

@@ -9,6 +9,7 @@ import { META_JSON, ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
+import tagsService from '@/db/tags.service';
 import formatterService from '@/format-conversion/formatter.service';
 import { Unzipped, strFromU8, unzip } from 'fflate';
 import { SerializedEditorState, SerializedLexicalNode } from 'lexical';
@@ -479,6 +480,7 @@ class ImportService {
       }
       collectionService.saveItems(zipMerge.newItems);
       collectionService.saveItems(zipMerge.updatedItems);
+      tagsService.reBuildTags();
     });
   }
 
@@ -541,8 +543,12 @@ class ImportService {
     // force type notebook in first level folders
     firstLevel.forEach(i => (i.type = CollectionItemType.notebook));
 
+    // sort by created date if metadata present
+    firstLevel.sort((i1, i2) => i1.created - i2.created); // TODO adjust according to setting
+
     // save first notebook title to force merge with default notebook
     const firstNotebookTitle = firstLevel[0].title;
+    const firstNotebookCreated = firstLevel[0].created;
 
     storageService.nukeSpace();
     const notebook = notebooksService.getCurrentNotebook();
@@ -557,8 +563,9 @@ class ImportService {
     ) {
       throw Error('something went wrong');
     }
-    // restore first notebook title
+    // restore first notebook title & creation date
     zipMerge.updatedItems[0].title = firstNotebookTitle;
+    zipMerge.updatedItems[0].created = firstNotebookCreated;
 
     this.commitMergeResult(zipMerge, { deleteExistingPages: false });
     return true;
