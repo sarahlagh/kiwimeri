@@ -56,9 +56,7 @@ describe('export service', () => {
         const checkMetadata = (
           zipContent: ZipFileTree,
           isRoot: boolean,
-          metaType:
-            | CollectionItemType.folder
-            | CollectionItemType.notebook = CollectionItemType.folder,
+          metaType: CollectionItemType = CollectionItemType.folder,
           shouldBeDefined = true,
           tags = ''
         ) => {
@@ -75,8 +73,10 @@ describe('export service', () => {
             } else {
               expect(meta.type).toBeUndefined();
             }
-            expect(meta.format).toBe('markdown');
-            expect(meta.title).toBeDefined();
+            if (metaType !== CollectionItemType.document) {
+              expect(meta.format).toBe('markdown');
+              expect(meta.title).toBeDefined();
+            }
             if (metaType === CollectionItemType.notebook) {
               expect(meta.title).not.toBe(getGlobalTrans().homeTitle);
               expect(meta.title).not.toBe('');
@@ -99,15 +99,46 @@ describe('export service', () => {
             expect(Object.keys(meta.files || [])).toHaveLength(
               filesInZip.length
             );
-            filesInZip.forEach(fileInZip => {
-              const metaFile = meta.files![fileInZip];
-              expect(metaFile).toBeDefined();
-              expect(metaFile.created).toBe(Date.now());
-              expect(metaFile.updated).toBe(Date.now());
-              expect(metaFile.type).toBe(CollectionItemType.document);
-              expect(metaFile.title).toBe('New document');
-              expect(metaFile.tags).toBe(tags);
-            });
+            if (metaType !== CollectionItemType.document) {
+              filesInZip.forEach(fileInZip => {
+                const metaFile = meta.files![fileInZip];
+                expect(metaFile).toBeDefined();
+                expect(metaFile.created).toBe(Date.now());
+                expect(metaFile.updated).toBe(Date.now());
+                expect(metaFile.type).toBe(CollectionItemType.document);
+                expect(metaFile.title).toBe('New document');
+                expect(metaFile.tags).toBe(tags);
+              });
+            } else {
+              const docs = filesInZip.filter(
+                f => meta.files![f].type === CollectionItemType.document
+              );
+              const pages = filesInZip.filter(
+                f => meta.files![f].type === CollectionItemType.page
+              );
+              expect(docs.length + pages.length).toBe(filesInZip.length);
+              expect(docs.length).toBe(1);
+
+              const docMeta = meta.files![docs[0]];
+              expect(docMeta);
+              expect(docMeta).toBeDefined();
+              expect(docMeta.created).toBe(Date.now());
+              expect(docMeta.updated).toBe(Date.now());
+              expect(docMeta.type).toBe(CollectionItemType.document);
+              expect(docMeta.title).toBe('New document');
+              expect(docMeta.tags).toBe(tags);
+
+              pages.forEach(page => {
+                const pageMeta = meta.files![page];
+                expect(pageMeta);
+                expect(pageMeta).toBeDefined();
+                expect(pageMeta.created).toBe(Date.now());
+                expect(pageMeta.updated).toBe(Date.now());
+                expect(pageMeta.type).toBe(CollectionItemType.page);
+                expect(pageMeta.title).toBeUndefined();
+                expect(pageMeta.tags).toBeUndefined();
+              });
+            }
           }
         };
 
@@ -154,31 +185,68 @@ describe('export service', () => {
             checkMetadata(zipContent, true);
           });
         } else {
-          it.todo(
-            'should export a single document with no pages as a single file if inlinePages=false',
-            () => {
-              //
-            }
-          );
+          it('should export a single document with no pages as a single file if inlinePages=false', () => {
+            const id = newDoc(
+              DEFAULT_NOTEBOOK_ID,
+              'this is the document content'
+            );
 
-          it.todo(
-            'should export a single document with pages as a zip if inlinePages=false',
-            () => {
-              //
-            }
-          );
+            const content = exportService.getSingleDocumentContent(id, opts);
+            expect(content).toBe('this is the document content\n\n');
+          });
 
-          it.todo(
-            'should export a folder with pages as a zip if inlinePages=false',
-            () => {
-              const fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
-              newDoc(fId, 'this is the document content', [
-                'this is the page content'
-              ]);
+          it('should export a single document with pages as a zip if inlinePages=false', () => {
+            const id = newDoc(
+              DEFAULT_NOTEBOOK_ID,
+              'this is the document content',
+              ['this is the page content']
+            );
 
-              // TODO
-            }
-          );
+            const content = exportService.getSingleDocumentContent(id, opts);
+            expect(typeof content).not.toBe('string');
+            const zipContent = content as ZipFileTree;
+
+            expect(zipContent['New document 0.md']).toBeDefined();
+            expect(zipContent['New document 1.md']).toBeDefined();
+            expect(strFromU8(zipContent['New document 0.md'][0])).toBe(
+              'this is the document content\n\n'
+            );
+            expect(strFromU8(zipContent['New document 1.md'][0])).toBe(
+              'this is the page content\n\n'
+            );
+
+            checkMetadata(zipContent, false, CollectionItemType.document);
+          });
+
+          it('should export a folder and a document with pages as a zip if inlinePages=false', () => {
+            const fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+            newDoc(fId, 'this is the document content', [
+              'this is the page content'
+            ]);
+
+            const zipContent = exportService.getFolderContent(fId, opts);
+
+            expect(zipContent['New document.md']).toBeDefined();
+            expect(
+              zipContent['New document.md']['New document 0.md']
+            ).toBeDefined();
+            expect(
+              zipContent['New document.md']['New document 1.md']
+            ).toBeDefined();
+            expect(
+              strFromU8(zipContent['New document.md']['New document 0.md'][0])
+            ).toBe('this is the document content\n\n');
+            expect(
+              strFromU8(zipContent['New document.md']['New document 1.md'][0])
+            ).toBe('this is the page content\n\n');
+
+            checkMetadata(zipContent, true, CollectionItemType.folder);
+            checkMetadata(
+              zipContent['New document.md'],
+              false,
+              CollectionItemType.document
+            );
+          });
         }
 
         it(`should export an empty folder as a zip with inlinePages=${opts.inlinePages}`, () => {

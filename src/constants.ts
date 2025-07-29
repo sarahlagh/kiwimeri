@@ -56,6 +56,9 @@ export const DEFAULT_NOTEBOOK_NAME = msg`Default`;
 export const NEW_DOC_TITLE = msg`New document`;
 export const NEW_FOLDER_TITLE = msg`New folder`;
 
+export const DEFAULT_EXPORT_PAGE_FILENAME = msg`page`;
+export const DEFAULT_EXPORT_SPACE_FILENAME = msg`collection`;
+
 // icons
 export const APPICONS = {
   collectionPage: folderSharp,

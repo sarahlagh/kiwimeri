@@ -50,6 +50,10 @@ msgstr "Choose"
 msgid "Choose a new folder"
 msgstr "Choose a new folder"
 
+#: src/constants.ts:60
+msgid "collection"
+msgstr "collection"
+
 #: src/app/components/MainMenuList.tsx:54
 msgid "Collection"
 msgstr "Collection"
@@ -234,6 +238,10 @@ msgstr "nuke store"
 #: src/settings/components/sections/OperationsSettings.tsx:16
 msgid "Operations"
 msgstr "Operations"
+
+#: src/constants.ts:59
+msgid "page"
+msgstr "page"
 
 #: src/settings/components/providers/PCloudSettings.tsx:124
 #: src/settings/components/providers/PCloudSettings.tsx:128

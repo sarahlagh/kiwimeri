@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { i18n } from '@lingui/core';
 import {
+  DEFAULT_EXPORT_PAGE_FILENAME,
+  DEFAULT_EXPORT_SPACE_FILENAME,
   DEFAULT_NOTEBOOK_NAME,
   NEW_DOC_TITLE,
   NEW_FOLDER_TITLE,
@@ -78,12 +80,16 @@ const I18N = {
   homeTitle: '',
   defaultNotebookName: '',
   newDocTitle: '',
-  newFolderTitle: ''
+  newFolderTitle: '',
+  defaultExportPageFilename: '',
+  defaultExportSpaceFilename: ''
 };
 export function initGlobalTrans() {
   I18N.homeTitle = i18n._(ROOT_FOLDER_TITLE);
   I18N.defaultNotebookName = i18n._(DEFAULT_NOTEBOOK_NAME);
   I18N.newDocTitle = i18n._(NEW_DOC_TITLE);
   I18N.newFolderTitle = i18n._(NEW_FOLDER_TITLE);
+  I18N.defaultExportPageFilename = i18n._(DEFAULT_EXPORT_PAGE_FILENAME);
+  I18N.defaultExportSpaceFilename = i18n._(DEFAULT_EXPORT_SPACE_FILENAME);
 }
 export const getGlobalTrans = () => ({ ...I18N });
