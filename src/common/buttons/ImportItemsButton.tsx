@@ -31,7 +31,6 @@ const textTypes = ['text/plain', 'text/markdown'];
 
 const ImportItemsButton = ({
   parent,
-  restoreSpace = false,
   createNotebook = false
 }: ImportItemsButtonProps) => {
   const history = useHistory();
@@ -118,8 +117,6 @@ const ImportItemsButton = ({
         createNotebook,
         zipData
       });
-
-      // TODO if restoreSpace === true then are you sure?
 
       return new Promise<OnContentReadResponse>(resolve => {
         presentMultiple({

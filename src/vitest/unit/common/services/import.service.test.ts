@@ -732,11 +732,7 @@ describe('import service', () => {
       expect(collectionService.itemExists(nId)).toBe(false);
       // expect first folders to be notebook
       expect(notebooksService.getNotebooks()).toHaveLength(2);
-      const createdNotebooks = notebooksService.getNotebooks(
-        ROOT_COLLECTION,
-        'created',
-        true
-      );
+      const createdNotebooks = notebooksService.getNotebooks(ROOT_COLLECTION);
       expect(createdNotebooks[0].title).toBe('SimpleNotebook1');
       expect(createdNotebooks[0].id).toBe(DEFAULT_NOTEBOOK_ID);
       expect(createdNotebooks[1].title).toBe('SimpleNotebook2');
@@ -761,11 +757,7 @@ describe('import service', () => {
       expect(collectionService.itemExists(nId)).toBe(false);
       // expect first folders to be notebook
       expect(notebooksService.getNotebooks()).toHaveLength(2);
-      const createdNotebooks = notebooksService.getNotebooks(
-        ROOT_COLLECTION,
-        'created',
-        true
-      );
+      const createdNotebooks = notebooksService.getNotebooks(ROOT_COLLECTION);
       expect(createdNotebooks[0].title).toBe('SimpleNotebook1');
       expect(createdNotebooks[0].id).toBe(DEFAULT_NOTEBOOK_ID);
       expect(createdNotebooks[1].title).toBe('SimpleNotebook2');

@@ -225,7 +225,7 @@ class StorageService {
     this.getSpace().setContent([{}, {}]);
     notebooksService.initNotebooks();
     localChangesService.clear();
-    tagsService.reBuildTags();
+    tagsService.clear();
   }
 }
 

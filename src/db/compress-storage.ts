@@ -6,8 +6,6 @@ const keys = [
   ['id', 'i'],
   ['parent', 'p'],
   ['parent_meta', 'P'],
-  ['notebook', 'n'],
-  ['notebook_meta', 'N'],
   ['type', 'ty'],
   ['title', 't'],
   ['title_meta', 'T'],
