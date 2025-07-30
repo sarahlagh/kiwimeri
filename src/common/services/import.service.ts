@@ -19,12 +19,15 @@ export type ZipMergeFistLevel = {
   status: 'new' | 'merged';
 } & Pick<CollectionItem, 'id' | 'title' | 'type' | 'created' | 'updated'>;
 
+export type ZipParseError = 'has_orphans' | 'incorrect_structure';
+
 export type ZipParsedData = {
   zipName: string;
   items: CollectionItem[];
   hasOneFolder: boolean;
   hasMetadata: boolean;
-  rootMeta?: ZipMetadata;
+  rootMeta?: ZipParsedMetadata;
+  error?: ZipParseError;
 };
 
 export type ZipMergeResult = {
@@ -54,6 +57,10 @@ export type ZipImportOptions = ZipParseOptions & ZipMergeOptions;
 export type ZipMergeCommitOptions = {
   deleteExistingPages?: boolean;
 };
+
+type ZipParsedMetadata = {
+  key?: string;
+} & ZipMetadata;
 
 class ImportService {
   private readonly zipRoot = 'zip-root';
@@ -96,7 +103,7 @@ class ImportService {
 
   private fillInMeta(
     item: CollectionItem,
-    meta: ZipMetadata,
+    meta: ZipParsedMetadata,
     ignoreType = false
   ) {
     if (meta.title) {
@@ -118,15 +125,41 @@ class ImportService {
 
   private fillInFilesMeta(
     item: CollectionItem,
-    key: string,
-    metaMap: Map<string, ZipMetadata>
+    metaKey: string,
+    metaMap: Map<string, ZipParsedMetadata>,
+    items: {
+      [key: string]: CollectionItem;
+    }
   ) {
+    const typeBefore = item.type;
     if (
       metaMap.get(item.parent)?.files &&
-      metaMap.get(item.parent)!.files![key] !== undefined
+      metaMap.get(item.parent)!.files![metaKey] !== undefined
     ) {
-      const meta = metaMap.get(item.parent)!.files![key]!;
+      const meta = metaMap.get(item.parent)!.files![metaKey]!;
       this.fillInMeta(item, meta);
+    }
+    if (item.type === CollectionItemType.page && typeBefore !== item.type) {
+      // is a page, remove unwanted fields + update parent
+      item.title = '';
+      item.tags = '';
+      const parentMeta = metaMap.get(item.parent);
+      if (
+        parentMeta &&
+        parentMeta.type === CollectionItemType.document &&
+        parentMeta.files
+      ) {
+        const entry = Object.entries(parentMeta.files).find(
+          e => e[1].type === CollectionItemType.document
+        );
+        let docKey = entry ? entry[0] : undefined;
+        if (docKey && (parentMeta.key?.length || 0) > 0) {
+          docKey = `${parentMeta.key}${docKey}`;
+        }
+        if (docKey) {
+          item.parent = items[docKey].id!;
+        }
+      }
     }
   }
 
@@ -144,8 +177,9 @@ class ImportService {
     const parent = this.zipRoot;
 
     const finalZipName = zipName.replace(/(.*)\.(zip|ZIP)$/g, '$1');
-    const metaMap = new Map<string, ZipMetadata>();
+    const metaMap = new Map<string, ZipParsedMetadata>();
     const items: { [key: string]: CollectionItem } = {};
+    let error: ZipParseError | undefined = undefined;
 
     Object.keys(unzipped).forEach(key => {
       const isFolder = key.endsWith('/');
@@ -165,7 +199,10 @@ class ImportService {
       }
       if (opts.ignoreMetadata === false && currentName === META_JSON) {
         const meta: ZipMetadata = JSON.parse(strFromU8(unzipped[fKey]));
-        metaMap.set(currentParent, meta);
+        metaMap.set(currentParent, {
+          ...meta,
+          key: fKey.replace(META_JSON, '')
+        });
         return;
       }
       if (!items[fKey]) {
@@ -210,21 +247,74 @@ class ImportService {
       }
     });
 
-    // use meta.json files to update some metadatas
+    // TODO optimize
+    // use meta.json files to update metadatas
+    const itemsToDel: { keyToDel: string; docKeys: string[] }[] = [];
     Object.keys(items).forEach(key => {
       const keys = key.split('/');
       if (keys[keys.length - 1] !== '') {
         // is item
-        this.fillInFilesMeta(items[key], keys[keys.length - 1], metaMap);
+        this.fillInFilesMeta(items[key], keys[keys.length - 1], metaMap, items);
       } else {
         // is folder or notebook
         if (metaMap.has(items[key].id!)) {
           const meta = metaMap.get(items[key].id!)!;
           this.fillInMeta(items[key], meta);
+          // if document, mark to delete after
+          if (items[key].type === CollectionItemType.document) {
+            const docKeys: string[] = [];
+            if (meta.files) {
+              Object.keys(meta.files).forEach(childKey => {
+                if (
+                  meta.files![childKey].type === CollectionItemType.document
+                ) {
+                  const fKey = meta.key + childKey;
+                  docKeys.push(fKey);
+                }
+              });
+            }
+            itemsToDel.push({ keyToDel: key, docKeys });
+          }
         }
       }
     });
 
+    itemsToDel.forEach(keys => {
+      // and update children parent
+      keys.docKeys.forEach(fKey => {
+        items[fKey].parent = items[keys.keyToDel].parent;
+      });
+      // then delete item
+      delete items[keys.keyToDel];
+    });
+
+    // TODO optimize
+    // check for errors
+    Object.keys(items).forEach(key => {
+      if (items[key].parent !== this.zipRoot) {
+        const parent = Object.values(items).find(
+          i => items[key].parent === i.id
+        );
+        if (!parent) {
+          error = 'has_orphans';
+        }
+        if (
+          items[key].type !== CollectionItemType.page &&
+          parent?.type !== CollectionItemType.folder &&
+          parent?.type !== CollectionItemType.notebook
+        ) {
+          error = 'incorrect_structure';
+        }
+        if (
+          items[key].type === CollectionItemType.page &&
+          parent?.type !== CollectionItemType.document
+        ) {
+          error = 'incorrect_structure';
+        }
+      }
+    });
+    // TODO use error
+    // TODO test error
     const finalItems = Object.values(items);
     const firstLevel = finalItems.filter(i => i.parent === this.zipRoot);
 
@@ -237,7 +327,8 @@ class ImportService {
       items: finalItems,
       hasOneFolder,
       hasMetadata: metaMap.size > 0,
-      rootMeta: metaMap.get(parent)
+      rootMeta: metaMap.get(parent),
+      error
     };
   }
 
@@ -395,7 +486,7 @@ class ImportService {
     parent: string,
     zipName: string,
     options: ZipMergeOptions,
-    rootMeta?: ZipMetadata
+    rootMeta?: ZipParsedMetadata
   ) {
     const firstLayer = items.filter(item => item.parent === parent);
     const { item, id } =
