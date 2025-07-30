@@ -1,0 +1,38 @@
+{
+  "testCases": [
+    {
+      "zipName": "DocWithPagesMalformed.zip",
+      "description": "DocWithPagesMalformed.zip",
+      "initData": [],
+      "scenarios": [
+        {
+          "description": "and detectInlinedPages=true",
+          "options": [
+            {
+              "detectInlinedPages": true
+            }
+          ],
+          "error": "incorrect_structure",
+          "expected": {}
+        }
+      ]
+    },
+    {
+      "zipName": "FolderWithPagesMalformed.zip",
+      "description": "FolderWithPagesMalformed.zip",
+      "initData": [],
+      "scenarios": [
+        {
+          "description": "and detectInlinedPages=true",
+          "options": [
+            {
+              "detectInlinedPages": true
+            }
+          ],
+          "error": "incorrect_structure",
+          "expected": {}
+        }
+      ]
+    }
+  ]
+}

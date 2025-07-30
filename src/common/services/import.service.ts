@@ -509,8 +509,11 @@ class ImportService {
     parent: string,
     zipData: ZipParsedData,
     opts: ZipMergeOptions
-  ): ZipMergeResult {
+  ): ZipMergeResult | null {
     opts = { ...this.defaultOpts, ...opts };
+    if (zipData.error !== undefined) {
+      return null;
+    }
 
     const items = structuredClone(zipData.items);
 
@@ -612,6 +615,9 @@ class ImportService {
   }
 
   public canRestoreSpace(zipData: ZipParsedData): boolean {
+    if (zipData.error !== undefined) {
+      return false;
+    }
     const firstLevel = zipData.items.filter(i => i.parent === this.zipRoot);
     return !firstLevel.find(
       i =>
@@ -621,6 +627,9 @@ class ImportService {
   }
 
   public restoreSpace(zipData: ZipParsedData): boolean {
+    if (zipData.error !== undefined) {
+      return false;
+    }
     const firstLevel = zipData.items.filter(i => i.parent === this.zipRoot);
     // if docs at root, stop / error
     const canRestoreSpace = !firstLevel.find(
@@ -647,7 +656,7 @@ class ImportService {
 
     const zipMerge = this.mergeZipItems(ROOT_COLLECTION, zipData, {
       overwrite: true
-    });
+    })!;
     if (
       zipMerge.updatedItems.length < 1 &&
       zipMerge.updatedItems[0].type !== CollectionItemType.notebook

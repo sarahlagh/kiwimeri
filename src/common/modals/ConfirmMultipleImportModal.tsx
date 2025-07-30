@@ -54,9 +54,10 @@ const ConfirmMultipleImportModal = ({
   const [newFolderName, setNewFolderName] = useState<string | undefined>();
   const [removeFirstFolder, setRemoveFirstFolder] = useState<boolean>(false);
   const [overwrite, setOverwrite] = useState<boolean>(false);
-  const [zipMerge, setZipMerge] = useState<ZipMergeResult | undefined>();
+  const [zipMerge, setZipMerge] = useState<ZipMergeResult | null | undefined>();
 
   const isEmpty = params.zipData.items.length === 0;
+  const disableConfirm = params.zipData.error !== undefined || isEmpty;
   const hasOneFolder = params.zipData.hasOneFolder;
   const effectiveParent = params.createNotebook ? ROOT_COLLECTION : parent;
   const itemsInCollection =
@@ -115,7 +116,13 @@ const ConfirmMultipleImportModal = ({
             <Trans>Archive is empty</Trans>
           </IonItem>
         )}
-        {!isEmpty && (
+        {params.zipData.error && (
+          <IonItem data-testid="item-archive-malformed-warning" color="danger">
+            <IonIcon icon={APPICONS.warning} slot="start"></IonIcon>
+            <Trans>Unable to parse zip</Trans>
+          </IonItem>
+        )}
+        {!disableConfirm && (
           <>
             {!hasOneFolder && !params.createNotebook && (
               <IonItem data-testid="item-question-create-new-folder">
@@ -217,7 +224,7 @@ const ConfirmMultipleImportModal = ({
       <IonList
         style={{ maxHeight: '400px', overflowY: 'auto' }}
         id="preview-list"
-        className={isEmpty ? 'ion-hide' : ''}
+        className={disableConfirm ? 'ion-hide' : ''}
       >
         {newFirstLevel.map(item => {
           const color =
@@ -252,8 +259,8 @@ const ConfirmMultipleImportModal = ({
               <Trans>Cancel</Trans>
             </IonButton>
             <IonButton
-              onClick={() => onClose(true, zipMerge)}
-              disabled={isEmpty}
+              onClick={() => onClose(true, zipMerge || undefined)}
+              disabled={disableConfirm}
             >
               <Trans>Confirm</Trans>
             </IonButton>

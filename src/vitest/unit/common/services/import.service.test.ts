@@ -22,7 +22,6 @@ import { it, vi } from 'vitest';
 type JsonTestDescriptor = {
   zipName?: string;
   ignore?: boolean;
-  error?: ZipParseError;
   testCases: {
     zipName?: string;
     description: string;
@@ -37,6 +36,7 @@ type JsonTestDescriptor = {
       description: string;
       options: ZipImportOptions[];
       mergeInto?: string;
+      error?: ZipParseError;
       expected: Partial<ZipMergeResult>;
     }[];
   }[];
@@ -555,7 +555,8 @@ describe('import service', () => {
         continue;
       }
 
-      describe(`should import ${testDescriptor.zipName}`, () => {
+      const testName = testDescriptor.zipName ? testDescriptor.zipName : '';
+      describe(`should import ${testName}`, () => {
         testDescriptor.testCases
           .filter(testCase => testCase.ignore !== true)
           .filter(testCase => testDescriptor.zipName || testCase.zipName)
@@ -591,9 +592,7 @@ describe('import service', () => {
                             options
                           );
 
-                          expect(zipParsedData.error).toBe(
-                            testDescriptor.error
-                          );
+                          expect(zipParsedData.error).toBe(scenario.error);
 
                           if (options.ignoreMetadata === true) {
                             expect(zipParsedData.hasMetadata).toBe(false);
@@ -607,10 +606,15 @@ describe('import service', () => {
                             options
                           );
 
+                          if (scenario.error) {
+                            expect(zipMerge).toBeNull();
+                            return;
+                          }
+
                           console.debug('merge results', zipMerge);
 
                           checkResults(
-                            zipMerge,
+                            zipMerge!,
                             scenario.expected,
                             initDataIds,
                             creationTs,
@@ -618,14 +622,17 @@ describe('import service', () => {
                           );
 
                           // save results and check db
-                          importService.commitMergeResult(zipMerge, commitOpts);
+                          importService.commitMergeResult(
+                            zipMerge!,
+                            commitOpts
+                          );
 
                           console.debug(
                             'db after save',
                             storageService.getSpace().getTable('collection')
                           );
 
-                          checkResultsDb(initialItems, zipMerge, commitOpts);
+                          checkResultsDb(initialItems, zipMerge!, commitOpts);
                         });
                       });
                     });
@@ -655,10 +662,11 @@ describe('import service', () => {
         createNewFolder: false,
         overwrite: false
       });
-      expect(zipMerge.newItems).toHaveLength(1);
-      expect(zipMerge.newItems[0].parent).toBe(id);
+      expect(zipMerge).not.toBeNull();
+      expect(zipMerge!.newItems).toHaveLength(1);
+      expect(zipMerge!.newItems[0].parent).toBe(id);
       // save results and check db
-      collectionService.saveItems(zipMerge.newItems, id);
+      collectionService.saveItems(zipMerge!.newItems, id);
       expect(getLocalItemField(id, 'updated')).toBe(before + 5000);
     });
   });
@@ -677,9 +685,9 @@ describe('import service', () => {
       'Space.zip',
       'SpaceMix.zip',
       'DocWithPages.zip',
+      'DocWithoutPages.zip',
       'FolderWithPages.zip'
     ]);
-    // TODO test malformed zips
   });
 
   describe('import zip as space', () => {
@@ -782,6 +790,16 @@ describe('import service', () => {
       expect(
         collectionService.getAllCollectionItemsRecursive(createdNotebooks[1].id)
       ).toHaveLength(1);
+    });
+  });
+
+  describe('import malformed zips', async () => {
+    await generateTestsCases('malformed', true, ['Malformed']);
+
+    it('should not restore malformed zip as space', async () => {
+      const zipData = await readZip('malformed', 'SpaceMalformed.zip', {});
+      expect(importService.canRestoreSpace(zipData)).toBe(false);
+      expect(importService.restoreSpace(zipData)).toBe(false);
     });
   });
 });
