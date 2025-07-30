@@ -21,7 +21,6 @@ const RestoreCollectionButton = ({
   askConfirm = true
 }: RestoreCollectionButtonProps) => {
   const { t } = useLingui();
-
   const [alert] = useIonAlert();
 
   const onSingleJsonRead = async (content: string, file: File) => {

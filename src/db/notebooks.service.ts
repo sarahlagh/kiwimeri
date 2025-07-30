@@ -5,6 +5,7 @@ import { Notebook, NotebookResult } from '@/notebooks/notebooks';
 import { getUniqueId } from 'tinybase/with-schemas';
 import collectionService from './collection.service';
 import localChangesService from './local-changes.service';
+import navService from './nav.service';
 import storageService from './storage.service';
 import {
   useCellWithRef,
@@ -12,7 +13,6 @@ import {
   useTableWithRef
 } from './tinybase/hooks';
 import { LocalChangeType } from './types/store-types';
-import userSettingsService from './user-settings.service';
 
 class NotebooksService {
   private readonly storeId = 'space';
@@ -40,7 +40,7 @@ class NotebooksService {
       const id = notebooksService.addNotebook(
         getGlobalTrans().defaultNotebookName
       );
-      userSettingsService.setCurrentFolder(id);
+      navService.setCurrentFolder(id);
     }
   }
 

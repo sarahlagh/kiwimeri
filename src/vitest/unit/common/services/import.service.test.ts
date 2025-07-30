@@ -9,10 +9,10 @@ import {
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/local-changes.service';
+import navService from '@/db/nav.service';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
 import { LocalChangeType } from '@/db/types/store-types';
-import userSettingsService from '@/db/user-settings.service';
 import formatterService from '@/format-conversion/formatter.service';
 import { getLocalItemField } from '@/vitest/setup/test.utils';
 import { readFile } from 'fs/promises';
@@ -746,7 +746,7 @@ describe('import service', () => {
     });
 
     it('should handle case where default notebook has been changed', async () => {
-      userSettingsService.setCurrentFolder(nId);
+      navService.setCurrentFolder(nId);
       notebooksService.deleteNotebook(DEFAULT_NOTEBOOK_ID);
 
       const zipData = await readZip('zips_with_meta', 'Space.zip', {});

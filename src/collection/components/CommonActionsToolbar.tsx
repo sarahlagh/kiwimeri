@@ -8,7 +8,7 @@ import { GET_DOCUMENT_ROUTE, GET_FOLDER_ROUTE } from '@/common/routes';
 import platformService from '@/common/services/platform.service';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
-import userSettingsService from '@/db/user-settings.service';
+import navService from '@/db/nav.service';
 import { IonButton, IonButtons, IonIcon, IonToolbar } from '@ionic/react';
 
 export type CommonActionsToolbarProps = {
@@ -39,7 +39,7 @@ const CommonActionsToolbar = ({
   showInfo = type !== CollectionItemType.page && showInfo;
   showClose = !isWideEnough && showClose;
 
-  const folder = userSettingsService.getCurrentFolder();
+  const folder = navService.getCurrentFolder();
   const fallbackRoute =
     type !== CollectionItemType.page
       ? GET_FOLDER_ROUTE(folder)

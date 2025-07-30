@@ -38,7 +38,8 @@ msgstr "Are you sure?"
 #: src/common/modals/ConfirmMultipleImportModal.tsx:252
 #: src/common/modals/ConfirmFileImportModal.tsx:78
 #: src/common/modals/ChooseTagsModal.tsx:98
-#: src/common/buttons/RestoreCollectionButton.tsx:67
+#: src/common/buttons/RestoreCollectionButton.tsx:66
+#: src/common/buttons/ExportItemsButton.tsx:134
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -54,7 +55,7 @@ msgstr "Choose a new folder"
 msgid "collection"
 msgstr "collection"
 
-#: src/app/components/MainMenuList.tsx:54
+#: src/app/components/MainMenuList.tsx:55
 msgid "Collection"
 msgstr "Collection"
 
@@ -67,12 +68,13 @@ msgstr "Configure where to synchronize your collection"
 #: src/common/modals/ConfirmMultipleImportModal.tsx:258
 #: src/common/modals/ConfirmFileImportModal.tsx:81
 #: src/common/modals/ChooseTagsModal.tsx:105
-#: src/common/buttons/RestoreCollectionButton.tsx:74
+#: src/common/buttons/RestoreCollectionButton.tsx:73
+#: src/common/buttons/ExportItemsButton.tsx:141
 msgid "Confirm"
 msgstr "Confirm"
 
 #: src/app/pages/DebugPage.tsx:24
-#: src/app/components/MainMenuList.tsx:73
+#: src/app/components/MainMenuList.tsx:74
 msgid "Debug"
 msgstr "Debug"
 
@@ -104,7 +106,7 @@ msgstr "Enter your password"
 msgid "Enter your username"
 msgstr "Enter your username"
 
-#: src/common/buttons/GenericExportFileButton.tsx:48
+#: src/common/buttons/GenericExportFileButton.tsx:59
 msgid "Error writing to file"
 msgstr "Error writing to file"
 
@@ -117,6 +119,10 @@ msgstr "EU"
 #: src/settings/components/sections/ImportExportCollectionSettings.tsx:66
 msgid "Export"
 msgstr "Export"
+
+#: src/common/buttons/ExportItemsButton.tsx:110
+msgid "Export Options"
+msgstr "Export Options"
 
 #: src/common/buttons/GenericImportFileButton.tsx:49
 msgid "File not supported"
@@ -149,6 +155,10 @@ msgstr "Import zip content in a new Notebook"
 #: src/common/modals/ConfirmMultipleImportModal.tsx:89
 msgid "Import zip content in folder {parentName}"
 msgstr "Import zip content in folder {parentName}"
+
+#: src/common/buttons/ExportItemsButton.tsx:122
+msgid "Include metadata in zip"
+msgstr "Include metadata in zip"
 
 #: src/settings/components/sections/ImportExportCollectionSettings.tsx:47
 msgid "Kiwimeri format (single file)"
@@ -243,6 +253,10 @@ msgstr "Operations"
 msgid "page"
 msgstr "page"
 
+#: src/common/buttons/ExportItemsButton.tsx:113
+msgid "Pages should be in the same file as the document"
+msgstr "Pages should be in the same file as the document"
+
 #: src/settings/components/providers/PCloudSettings.tsx:124
 #: src/settings/components/providers/PCloudSettings.tsx:128
 msgid "Password"
@@ -276,11 +290,11 @@ msgid "Reorder"
 msgstr "Reorder"
 
 #: src/settings/components/sections/ImportExportStoreSettings.tsx:78
-#: src/common/buttons/RestoreCollectionButton.tsx:94
+#: src/common/buttons/RestoreCollectionButton.tsx:93
 msgid "Restore"
 msgstr "Restore"
 
-#: src/common/buttons/RestoreCollectionButton.tsx:63
+#: src/common/buttons/RestoreCollectionButton.tsx:62
 msgid "Restore Collection"
 msgstr "Restore Collection"
 
@@ -293,12 +307,12 @@ msgid "Server"
 msgstr "Server"
 
 #: src/app/pages/SettingsPage.tsx:9
-#: src/app/components/MainMenuList.tsx:65
+#: src/app/components/MainMenuList.tsx:66
 msgid "Settings"
 msgstr "Settings"
 
 #: src/common/buttons/GenericImportFileButton.tsx:48
-#: src/common/buttons/GenericExportFileButton.tsx:43
+#: src/common/buttons/GenericExportFileButton.tsx:54
 msgid "Success!"
 msgstr "Success!"
 
@@ -322,7 +336,7 @@ msgstr "The following file(s) with matching title(s) have been detected inside t
 msgid "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page, including the settings for your cloud provider."
 msgstr "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page, including the settings for your cloud provider."
 
-#: src/common/buttons/RestoreCollectionButton.tsx:64
+#: src/common/buttons/RestoreCollectionButton.tsx:63
 msgid "This will delete your existing data. Are you sure?"
 msgstr "This will delete your existing data. Are you sure?"
 

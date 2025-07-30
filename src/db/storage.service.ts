@@ -79,7 +79,9 @@ class StorageService {
       })
       .setValuesSchema({
         theme: { type: 'string', default: 'dark' },
-        currentSpace: { type: 'string', default: DEFAULT_SPACE_ID }
+        currentSpace: { type: 'string', default: DEFAULT_SPACE_ID },
+        exportIncludeMetadata: { type: 'boolean', default: true },
+        exportInlinePages: { type: 'boolean', default: true }
       });
 
     this.storeLocalPersister = createIndexedDbPersister(

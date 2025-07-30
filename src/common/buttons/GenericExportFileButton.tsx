@@ -10,6 +10,7 @@ type GenericExportFileButtonProps = {
   getFileTitle: () => string;
   getFileContent: () => Promise<string | Uint8Array<ArrayBufferLike>>;
   onDone?: () => void;
+  confirm?: () => Promise<boolean>;
   fileMime?: string;
   label?: string | null;
   icon?: string | null;
@@ -22,6 +23,7 @@ const GenericExportFileButton = ({
   getFileTitle,
   getFileContent,
   onDone,
+  confirm,
   fileMime,
   label,
   icon,
@@ -33,6 +35,15 @@ const GenericExportFileButton = ({
   const { setToast } = useToastContext();
 
   const exportFile = async () => {
+    if (confirm) {
+      const userConfirmed = await confirm();
+      if (!userConfirmed) {
+        if (onDone) {
+          onDone();
+        }
+        return;
+      }
+    }
     const fileTitle = getFileTitle();
     const content = await getFileContent();
     const mime = fileMime || 'text/plain';
