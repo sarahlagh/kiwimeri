@@ -2,7 +2,7 @@
   "name": "kiwimeri-app",
   "description": "A Pleasant Writing App",
   "private": true,
-  "version": "0.1.5",
+  "version": "0.1.6",
   "type": "module",
   "scripts": {
     "dev": "concurrently \"node scripts/middleware.cjs\" \"lingui extract --watch\" \"ionic serve\"",
