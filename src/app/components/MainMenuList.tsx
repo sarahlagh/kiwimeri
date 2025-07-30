@@ -9,6 +9,7 @@ import {
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
 import { APPICONS } from '@/constants';
+import navService from '@/db/nav.service';
 import userSettingsService from '@/db/user-settings.service';
 import NotebookSwitcher from '@/notebooks/components/NotebookSwitcher';
 import {
@@ -53,9 +54,9 @@ const MainMenuList = () => {
       key: 'collection',
       title: t`Collection`,
       url: GET_ITEM_ROUTE(
-        `${userSettingsService.getCurrentFolder()}`,
-        userSettingsService.getCurrentDocument(),
-        userSettingsService.getCurrentPage()
+        `${navService.getCurrentFolder()}`,
+        navService.getCurrentDocument(),
+        navService.getCurrentPage()
       ),
       icon: APPICONS.collectionPage,
       isActive: () => isCollectionRoute(location.pathname)

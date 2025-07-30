@@ -5,8 +5,8 @@ import {
 } from '@/common/routes';
 import { getSearchParams } from '@/common/utils';
 import collectionService from '@/db/collection.service';
+import navService from '@/db/nav.service';
 import notebooksService from '@/db/notebooks.service';
-import userSettingsService from '@/db/user-settings.service';
 import { ReactNode, useEffect } from 'react';
 import { Redirect, useLocation } from 'react-router';
 
@@ -22,9 +22,9 @@ const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
 
   useEffect(() => {
     if (isCollectionRoute(location.pathname)) {
-      userSettingsService.setCurrentFolder(folder);
-      userSettingsService.setCurrentDocument(searchParams.document);
-      userSettingsService.setCurrentPage(searchParams.page);
+      navService.setCurrentFolder(folder);
+      navService.setCurrentDocument(searchParams.document);
+      navService.setCurrentPage(searchParams.page);
     }
   }, [folder, searchParams.document, searchParams.page]);
 

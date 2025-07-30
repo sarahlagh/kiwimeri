@@ -6,7 +6,10 @@ import {
 import { getGlobalTrans } from '@/config';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
+import userSettingsService from '@/db/user-settings.service';
+import { useIonAlert } from '@ionic/react';
 import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactProps';
+import { useLingui } from '@lingui/react/macro';
 import { exportService, ZipExportOptions } from '../services/export.service';
 import GenericExportFileButton from './GenericExportFileButton';
 
@@ -28,19 +31,19 @@ const ExportItemsButton = ({
   color,
   onClose
 }: ExportItemsButtonProps) => {
+  const { t } = useLingui();
+  const [alert] = useIonAlert();
+
+  const inlinePages = userSettingsService.getExportInlinePages();
+
   const notebook = notebooksService.getCurrentNotebook();
   const hasPages =
-    id &&
+    id !== undefined &&
     type === CollectionItemType.document &&
     collectionService.getDocumentPages(id).length > 0;
 
-  const opts: ZipExportOptions = {
-    includeMetadata: true,
-    inlinePages: false
-  };
-
   const getFileMime = () => {
-    if (hasPages && !opts.inlinePages) {
+    if (hasPages && !inlinePages) {
       return 'application/zip';
     }
     return type !== CollectionItemType.folder
@@ -49,6 +52,7 @@ const ExportItemsButton = ({
   };
 
   const getFileTitle = () => {
+    const inlinePages = userSettingsService.getExportInlinePages();
     if (type === CollectionItemType.page) {
       return `${getGlobalTrans().defaultExportPageFilename}.md`;
     }
@@ -63,7 +67,7 @@ const ExportItemsButton = ({
       return `${fileTitle}.zip`;
     }
     // if not inline pages and doc has page, is a zip
-    if (hasPages && !opts.inlinePages) {
+    if (hasPages && !inlinePages) {
       return `${fileTitle}.zip`;
     }
     return `${fileTitle}.md`;
@@ -72,6 +76,11 @@ const ExportItemsButton = ({
   const getFileContent: () => Promise<
     string | Uint8Array<ArrayBufferLike>
   > = async () => {
+    const opts: ZipExportOptions = {
+      includeMetadata: userSettingsService.getExportIncludeMetadata(),
+      inlinePages: userSettingsService.getExportInlinePages()
+    };
+
     if (id === 'space') {
       return exportService.toZip(exportService.getSpaceContent(opts));
     }
@@ -90,11 +99,65 @@ const ExportItemsButton = ({
     return exportService.toZip(exportService.getFolderContent(id, opts));
   };
 
+  const confirm: () => Promise<boolean> = () => {
+    const opts: ZipExportOptions = {
+      includeMetadata: userSettingsService.getExportIncludeMetadata(),
+      inlinePages: userSettingsService.getExportInlinePages()
+    };
+    return new Promise<boolean>(resolve => {
+      if (type !== CollectionItemType.document || hasPages) {
+        alert({
+          header: t`Export Options`,
+          inputs: [
+            {
+              label: t`Pages should be in the same file as the document`,
+              type: 'checkbox',
+              checked: opts.inlinePages,
+              handler: opt => {
+                if (opt.checked !== undefined)
+                  userSettingsService.setExportInlinePages(opt.checked);
+              }
+            },
+            {
+              label: t`Include metadata in zip`,
+              type: 'checkbox',
+              checked: opts.includeMetadata,
+              handler: opt => {
+                if (opt.checked !== undefined) {
+                  userSettingsService.setExportIncludeMetadata(opt.checked);
+                }
+              }
+            }
+          ],
+          buttons: [
+            {
+              text: t`Cancel`,
+              role: 'cancel',
+              handler: () => {
+                resolve(false);
+              }
+            },
+            {
+              text: t`Confirm`,
+              role: 'destructive',
+              handler: async () => {
+                resolve(true);
+              }
+            }
+          ]
+        });
+      } else {
+        resolve(true);
+      }
+    });
+  };
+
   return (
     <GenericExportFileButton
       label={label}
       icon={icon}
       color={color}
+      confirm={confirm}
       getFileTitle={getFileTitle}
       getFileContent={getFileContent}
       fileMime={getFileMime()}

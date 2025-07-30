@@ -1,4 +1,3 @@
-import { DEFAULT_SPACE_ID } from '@/constants';
 import { DriverNames } from '@/remote-storage/storage-provider.factory';
 import { CellSchema } from 'tinybase/with-schemas';
 
@@ -88,7 +87,9 @@ export type StoreType = [
     };
   },
   {
-    theme: { type: 'string'; default: 'dark' };
-    currentSpace: { type: 'string'; default: typeof DEFAULT_SPACE_ID };
+    theme: { type: 'string'; default: string };
+    currentSpace: { type: 'string'; default: string };
+    exportIncludeMetadata: { type: 'boolean'; default: true };
+    exportInlinePages: { type: 'boolean'; default: true };
   }
 ];
