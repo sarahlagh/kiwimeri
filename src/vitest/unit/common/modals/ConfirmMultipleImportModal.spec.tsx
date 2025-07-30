@@ -91,6 +91,9 @@ describe('ConfirmMultipleImportModal', () => {
   const expectShowEmptyZipWarning = (yes: boolean, queryByTestId: any) => {
     expectTestId('item-archive-empty-warning', yes, queryByTestId);
   };
+  const expectShowMalformedZipWarning = (yes: boolean, queryByTestId: any) => {
+    expectTestId('item-archive-malformed-warning', yes, queryByTestId);
+  };
   const expectShowCreateNewFolderQuestion = (
     yes: boolean,
     queryByTestId: any
@@ -454,6 +457,7 @@ describe('ConfirmMultipleImportModal', () => {
 
       expectShowMetadataInfo(true, queryByTestId);
       expectShowEmptyZipWarning(true, queryByTestId);
+      expectShowMalformedZipWarning(false, queryByTestId);
       expectShowCreateNewFolderQuestion(false, queryByTestId);
       expectShowSingleFolderDetectedQuestion(false, queryByTestId);
       expectShowNewFolderNameInput(false, queryByTestId);
@@ -482,6 +486,70 @@ describe('ConfirmMultipleImportModal', () => {
 
       expectShowMetadataInfo(true, queryByTestId);
       expectShowEmptyZipWarning(true, queryByTestId);
+      expectShowMalformedZipWarning(false, queryByTestId);
+      expectShowCreateNewFolderQuestion(false, queryByTestId);
+      expectShowSingleFolderDetectedQuestion(false, queryByTestId);
+      expectShowNewFolderNameInput(false, queryByTestId);
+      expectShowNewNotebookNameInput(false, queryByTestId);
+      expectShowMergeDuplicatesQuestion(false, queryByTestId);
+
+      // check that Simple and (new) must be in the same row
+      const rows = container.querySelector('#preview-list.ion-hide');
+      expect(rows?.hasChildNodes()).toBe(true);
+    });
+
+    it('should render the modal for a malformed zip, with createNotebook=false', async () => {
+      const zipData = await readZip(
+        '../_data/malformed',
+        'SpaceMalformed.zip',
+        {}
+      );
+
+      const params: ConfirmMultipleImportModalParams = { zipData };
+      const { container, queryByTestId } = renderModal(params);
+
+      // check questions
+      expect(queryByTestId('modal-title')).toBeInTheDocument();
+      expect(queryByTestId('modal-title')).toHaveTextContent(
+        'Import zip content in folder'
+      );
+
+      expectShowMetadataInfo(true, queryByTestId);
+      expectShowEmptyZipWarning(false, queryByTestId);
+      expectShowMalformedZipWarning(true, queryByTestId);
+      expectShowCreateNewFolderQuestion(false, queryByTestId);
+      expectShowSingleFolderDetectedQuestion(false, queryByTestId);
+      expectShowNewFolderNameInput(false, queryByTestId);
+      expectShowNewNotebookNameInput(false, queryByTestId);
+      expectShowMergeDuplicatesQuestion(false, queryByTestId);
+
+      // check that Simple and (new) must be in the same row
+      const rows = container.querySelector('#preview-list');
+      expect(rows?.hasChildNodes()).toBe(false);
+    });
+
+    it('should render the modal for a malformed zip, with createNotebook=true', async () => {
+      const zipData = await readZip(
+        '../_data/malformed',
+        'SpaceMalformed.zip',
+        {}
+      );
+
+      const params: ConfirmMultipleImportModalParams = {
+        zipData,
+        createNotebook: true
+      };
+      const { container, queryByTestId } = renderModal(params);
+
+      // check questions
+      expect(queryByTestId('modal-title')).toBeInTheDocument();
+      expect(queryByTestId('modal-title')).toHaveTextContent(
+        'Import zip content in a new Notebook'
+      );
+
+      expectShowMetadataInfo(true, queryByTestId);
+      expectShowEmptyZipWarning(false, queryByTestId);
+      expectShowMalformedZipWarning(true, queryByTestId);
       expectShowCreateNewFolderQuestion(false, queryByTestId);
       expectShowSingleFolderDetectedQuestion(false, queryByTestId);
       expectShowNewFolderNameInput(false, queryByTestId);

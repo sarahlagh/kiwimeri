@@ -1,0 +1,142 @@
+{
+  "zipName": "DocWithoutPages.zip",
+  "testCases": [
+    {
+      "description": "with no init data",
+      "initData": [],
+      "scenarios": [
+        {
+          "description": "and detectInlinedPages=false",
+          "options": [
+            {
+              "detectInlinedPages": false
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#dId",
+                "type": "d",
+                "title": "Simple with pages",
+                "created": 1753706502516,
+                "updated": 1753855131704
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple with pages",
+                "type": "d",
+                "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and detectInlinedPages=true",
+          "options": [
+            {
+              "detectInlinedPages": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#dId",
+                "type": "d",
+                "title": "Simple with pages",
+                "created": 1753706502516,
+                "updated": 1753855131704
+              },
+              {
+                "type": "p",
+                "parent": "#dId"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple with pages",
+                "type": "d",
+                "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and ignoreMetadata=true and detectInlinedPages=false",
+          "options": [
+            {
+              "ignoreMetadata": true,
+              "detectInlinedPages": false
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "title": "Simple with pages 0",
+                "type": "d",
+                "parent": "0"
+              },
+              {
+                "title": "meta.json",
+                "type": "d",
+                "parent": "0"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple with pages 0",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "meta.json",
+                "type": "d",
+                "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and ignoreMetadata=true and detectInlinedPages=true",
+          "options": [
+            {
+              "ignoreMetadata": true,
+              "detectInlinedPages": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#dId",
+                "title": "Simple with pages 0",
+                "type": "d",
+                "parent": "0"
+              },
+              {
+                "type": "p",
+                "parent": "#dId"
+              },
+              {
+                "title": "meta.json",
+                "type": "d",
+                "parent": "0"
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple with pages 0",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "meta.json",
+                "type": "d",
+                "status": "new"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
