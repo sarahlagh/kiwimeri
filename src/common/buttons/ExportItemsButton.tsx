@@ -34,8 +34,6 @@ const ExportItemsButton = ({
   const { t } = useLingui();
   const [alert] = useIonAlert();
 
-  const inlinePages = userSettingsService.getExportInlinePages();
-
   const notebook = notebooksService.getCurrentNotebook();
   const hasPages =
     id !== undefined &&
@@ -43,6 +41,7 @@ const ExportItemsButton = ({
     collectionService.getDocumentPages(id).length > 0;
 
   const getFileMime = () => {
+    const inlinePages = userSettingsService.getExportInlinePages();
     if (hasPages && !inlinePages) {
       return 'application/zip';
     }

@@ -4,7 +4,8 @@ import {
   ZipImportOptions,
   ZipMergeCommitOptions,
   ZipMergeFistLevel,
-  ZipMergeResult
+  ZipMergeResult,
+  ZipParseError
 } from '@/common/services/import.service';
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/db/collection.service';
@@ -19,9 +20,11 @@ import { readFile } from 'fs/promises';
 import { it, vi } from 'vitest';
 
 type JsonTestDescriptor = {
-  zipName: string;
+  zipName?: string;
   ignore?: boolean;
+  error?: ZipParseError;
   testCases: {
+    zipName?: string;
     description: string;
     ignore?: boolean;
     initData: Pick<
@@ -555,6 +558,7 @@ describe('import service', () => {
       describe(`should import ${testDescriptor.zipName}`, () => {
         testDescriptor.testCases
           .filter(testCase => testCase.ignore !== true)
+          .filter(testCase => testDescriptor.zipName || testCase.zipName)
           .forEach(testCase => {
             if (!testCase.commitOptions) {
               testCase.commitOptions = [{}];
@@ -578,10 +582,17 @@ describe('import service', () => {
                           vi.advanceTimersByTime(5000);
                           const updateTs = Date.now();
 
+                          const zipName = testDescriptor.zipName
+                            ? testDescriptor.zipName
+                            : testCase.zipName;
                           const zipParsedData = await readZip(
                             parentDir,
-                            testDescriptor.zipName,
+                            zipName!,
                             options
+                          );
+
+                          expect(zipParsedData.error).toBe(
+                            testDescriptor.error
                           );
 
                           if (options.ignoreMetadata === true) {
@@ -664,8 +675,11 @@ describe('import service', () => {
       'SimpleSubPartialFiles.zip',
       'Notebook.zip',
       'Space.zip',
-      'SpaceMix.zip'
+      'SpaceMix.zip',
+      'DocWithPages.zip',
+      'FolderWithPages.zip'
     ]);
+    // TODO test malformed zips
   });
 
   describe('import zip as space', () => {

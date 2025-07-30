@@ -1,0 +1,121 @@
+{
+  "zipName": "FolderWithPages.zip",
+  "testCases": [
+    {
+      "description": "with no init data",
+      "initData": [],
+      "scenarios": [
+        {
+          "description": "and detectInlinedPages=false",
+          "options": [
+            {
+              "detectInlinedPages": false
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "type": "d",
+                "title": "Simple",
+                "parent": "0",
+                "created": 1753859199097,
+                "updated": 1753859208946
+              },
+              {
+                "id": "#fId",
+                "type": "f",
+                "title": "Sub",
+                "parent": "0",
+                "created": 1753859194646,
+                "updated": 1753859216190
+              },
+              {
+                "id": "#dId",
+                "parent": "#fId",
+                "type": "d",
+                "title": "Simple with pages",
+                "created": 1753706502516,
+                "updated": 1753855131704
+              },
+              {
+                "type": "p",
+                "parent": "#dId",
+                "created": 1753855128994,
+                "updated": 1753855131704
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "Sub",
+                "type": "f",
+                "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and detectInlinedPages=true",
+          "options": [
+            {
+              "detectInlinedPages": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "type": "d",
+                "title": "Simple",
+                "parent": "0",
+                "created": 1753859199097,
+                "updated": 1753859208946
+              },
+              {
+                "id": "#fId",
+                "type": "f",
+                "title": "Sub",
+                "parent": "0",
+                "created": 1753859194646,
+                "updated": 1753859216190
+              },
+              {
+                "id": "#dId",
+                "parent": "#fId",
+                "type": "d",
+                "title": "Simple with pages",
+                "created": 1753706502516,
+                "updated": 1753855131704
+              },
+              {
+                "type": "p",
+                "parent": "#dId"
+              },
+              {
+                "type": "p",
+                "parent": "#dId",
+                "created": 1753855128994,
+                "updated": 1753855131704
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "Simple",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "Sub",
+                "type": "f",
+                "status": "new"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
