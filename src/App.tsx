@@ -20,6 +20,7 @@ import { i18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/react';
 
 import { IonReactRouter } from '@ionic/react-router';
+import { useEffect } from 'react';
 import MainLayout from './app/MainLayout';
 import InitialRoutingProvider from './app/providers/InitialRoutingProvider';
 import TinybaseProvider from './app/providers/TinybaseProvider';
@@ -34,6 +35,16 @@ i18n.activate('en');
 initGlobalTrans();
 
 const App = () => {
+  useEffect(() => {
+    const persistStorage = async () => {
+      // Check if site's storage has been marked as persistent
+      if (navigator.storage && navigator.storage.persist) {
+        const isPersisted = await navigator.storage.persist();
+        console.debug(`persisted storage granted: ${isPersisted}`);
+      }
+    };
+    persistStorage();
+  });
   return (
     <>
       <I18nProvider i18n={i18n}>

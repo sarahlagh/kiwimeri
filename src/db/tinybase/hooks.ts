@@ -26,8 +26,12 @@ const indexes = (storeId: StoreId) => {
 
 // override common hooks
 
-export const useValueWithRef = (storeId: StoreId, valueId: Id) => {
-  return useValue(valueId, store(storeId));
+export const useValueWithRef = <T>(storeId: StoreId, valueId: Id) => {
+  const val = useValue(valueId, store(storeId))?.valueOf();
+  if (val) {
+    return val as T;
+  }
+  return undefined;
 };
 
 export const useCellWithRef = <T>(

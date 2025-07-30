@@ -7,11 +7,13 @@ import filesystemService from '../services/filesystem.service';
 import platformService from '../services/platform.service';
 
 type GenericExportFileButtonProps = {
-  getFileTitle: () => string;
-  getFileContent: () => Promise<string | Uint8Array<ArrayBufferLike>>;
+  getFileTitle: string | (() => string);
+  getFileContent:
+    | string
+    | (() => Promise<string | Uint8Array<ArrayBufferLike>>);
   onDone?: () => void;
   confirm?: () => Promise<boolean>;
-  fileMime?: string;
+  getFileMime?: string | (() => string);
   label?: string | null;
   icon?: string | null;
   fill?: 'clear' | 'outline' | 'solid' | 'default' | undefined;
@@ -24,7 +26,7 @@ const GenericExportFileButton = ({
   getFileContent,
   onDone,
   confirm,
-  fileMime,
+  getFileMime,
   label,
   icon,
   color,
@@ -34,19 +36,11 @@ const GenericExportFileButton = ({
 
   const { setToast } = useToastContext();
 
-  const exportFile = async () => {
-    if (confirm) {
-      const userConfirmed = await confirm();
-      if (!userConfirmed) {
-        if (onDone) {
-          onDone();
-        }
-        return;
-      }
-    }
-    const fileTitle = getFileTitle();
-    const content = await getFileContent();
-    const mime = fileMime || 'text/plain';
+  const exportContent = (
+    fileTitle: string,
+    mime: string,
+    content: string | Uint8Array<ArrayBufferLike>
+  ) => {
     filesystemService
       .exportToFile(fileTitle, content, mime)
       .then(res => {
@@ -63,6 +57,33 @@ const GenericExportFileButton = ({
           onDone();
         }
       });
+  };
+
+  const exportFile = async () => {
+    if (confirm) {
+      const userConfirmed = await confirm();
+      if (!userConfirmed) {
+        if (onDone) {
+          onDone();
+        }
+        return;
+      }
+    }
+    const fileTitle =
+      typeof getFileTitle === 'string' ? getFileTitle : getFileTitle();
+
+    let mime = 'text/plain';
+    if (getFileMime) {
+      mime = typeof getFileMime === 'string' ? getFileMime : getFileMime();
+    }
+
+    if (typeof getFileContent === 'string') {
+      exportContent(fileTitle, mime, getFileContent);
+    } else {
+      getFileContent().then(content => {
+        exportContent(fileTitle, mime, content);
+      });
+    }
   };
 
   return (

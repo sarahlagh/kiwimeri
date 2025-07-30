@@ -67,7 +67,7 @@ const ImportExportCollectionSettings = () => {
           color={'primary'}
           label={t`Export`}
           icon={null}
-          fileMime={'application/json'}
+          getFileMime={'application/json'}
           getFileTitle={getExportFileName}
           getFileContent={getContentToExport}
         />
