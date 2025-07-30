@@ -14,10 +14,16 @@ class UserSettingsService {
   }
 
   public getExportIncludeMetadata() {
-    return (
-      storageService.getStore().getValue('exportIncludeMetadata')?.valueOf() ||
-      true
-    );
+    const val = storageService
+      .getStore()
+      .getValue('exportIncludeMetadata')
+      ?.valueOf();
+    if (val === undefined) return true;
+    return val;
+  }
+
+  public useExportIncludeMetadata(): boolean {
+    return useValueWithRef(this.storeId, 'exportIncludeMetadata') || true;
   }
 
   public setExportIncludeMetadata(value: boolean) {
@@ -25,10 +31,16 @@ class UserSettingsService {
   }
 
   public getExportInlinePages() {
-    return (
-      storageService.getStore().getValue('exportInlinePages')?.valueOf() ||
-      false
-    );
+    const val = storageService
+      .getStore()
+      .getValue('exportInlinePages')
+      ?.valueOf();
+    if (val === undefined) return false;
+    return val;
+  }
+
+  public useExportInlinePages(): boolean {
+    return useValueWithRef(this.storeId, 'exportInlinePages') || false;
   }
 
   public setExportInlinePages(value: boolean) {

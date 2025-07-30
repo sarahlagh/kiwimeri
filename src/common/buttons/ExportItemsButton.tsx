@@ -56,7 +56,7 @@ const ExportItemsButton = ({
       return `${getGlobalTrans().defaultExportPageFilename}.md`;
     }
     if (id === 'space') {
-      return `${getGlobalTrans().defaultExportSpaceFilename}.md`;
+      return `${getGlobalTrans().defaultExportSpaceFilename}.zip`;
     }
     if (!id || id === notebook) {
       return `${collectionService.getItemTitle(notebook)}.zip`;
@@ -79,7 +79,6 @@ const ExportItemsButton = ({
       includeMetadata: userSettingsService.getExportIncludeMetadata(),
       inlinePages: userSettingsService.getExportInlinePages()
     };
-
     if (id === 'space') {
       return exportService.toZip(exportService.getSpaceContent(opts));
     }
@@ -159,7 +158,7 @@ const ExportItemsButton = ({
       confirm={confirm}
       getFileTitle={getFileTitle}
       getFileContent={getFileContent}
-      fileMime={getFileMime()}
+      getFileMime={getFileMime}
       onDone={onClose}
     />
   );

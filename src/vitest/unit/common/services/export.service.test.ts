@@ -60,7 +60,7 @@ describe('export service', () => {
           shouldBeDefined = true,
           tags = ''
         ) => {
-          if (opts.includeMetadata && !shouldBeDefined) {
+          if (!opts.includeMetadata || !shouldBeDefined) {
             expect(zipContent[META_JSON]).not.toBeDefined();
           }
           if (opts.includeMetadata && shouldBeDefined) {

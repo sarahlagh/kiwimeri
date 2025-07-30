@@ -62,7 +62,7 @@ const DebugPage = () => {
               })}
             </IonCardContent>
             <GenericExportFileButton
-              getFileContent={async () => JSON.stringify(appLog.getLogs())}
+              getFileContent={JSON.stringify(appLog.getLogs())}
               getFileTitle={() =>
                 `${new Date().toISOString().substring(0, 19).replaceAll(/[:T]/g, '-')}-logs.json`
               }

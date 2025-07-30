@@ -39,7 +39,7 @@ msgstr "Are you sure?"
 #: src/common/modals/ConfirmFileImportModal.tsx:78
 #: src/common/modals/ChooseTagsModal.tsx:98
 #: src/common/buttons/RestoreCollectionButton.tsx:66
-#: src/common/buttons/ExportItemsButton.tsx:133
+#: src/common/buttons/ExportItemsButton.tsx:132
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -69,7 +69,7 @@ msgstr "Configure where to synchronize your collection"
 #: src/common/modals/ConfirmFileImportModal.tsx:81
 #: src/common/modals/ChooseTagsModal.tsx:105
 #: src/common/buttons/RestoreCollectionButton.tsx:73
-#: src/common/buttons/ExportItemsButton.tsx:140
+#: src/common/buttons/ExportItemsButton.tsx:139
 msgid "Confirm"
 msgstr "Confirm"
 
@@ -106,7 +106,7 @@ msgstr "Enter your password"
 msgid "Enter your username"
 msgstr "Enter your username"
 
-#: src/common/buttons/GenericExportFileButton.tsx:59
+#: src/common/buttons/GenericExportFileButton.tsx:54
 msgid "Error writing to file"
 msgstr "Error writing to file"
 
@@ -120,7 +120,7 @@ msgstr "EU"
 msgid "Export"
 msgstr "Export"
 
-#: src/common/buttons/ExportItemsButton.tsx:109
+#: src/common/buttons/ExportItemsButton.tsx:108
 msgid "Export Options"
 msgstr "Export Options"
 
@@ -156,7 +156,7 @@ msgstr "Import zip content in a new Notebook"
 msgid "Import zip content in folder {parentName}"
 msgstr "Import zip content in folder {parentName}"
 
-#: src/common/buttons/ExportItemsButton.tsx:121
+#: src/common/buttons/ExportItemsButton.tsx:120
 msgid "Include metadata in zip"
 msgstr "Include metadata in zip"
 
@@ -253,7 +253,7 @@ msgstr "Operations"
 msgid "page"
 msgstr "page"
 
-#: src/common/buttons/ExportItemsButton.tsx:112
+#: src/common/buttons/ExportItemsButton.tsx:111
 msgid "Pages should be in the same file as the document"
 msgstr "Pages should be in the same file as the document"
 
@@ -312,7 +312,7 @@ msgid "Settings"
 msgstr "Settings"
 
 #: src/common/buttons/GenericImportFileButton.tsx:48
-#: src/common/buttons/GenericExportFileButton.tsx:54
+#: src/common/buttons/GenericExportFileButton.tsx:49
 msgid "Success!"
 msgstr "Success!"
 
