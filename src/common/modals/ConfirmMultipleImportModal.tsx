@@ -17,7 +17,6 @@ import {
   IonItem,
   IonLabel,
   IonList,
-  IonText,
   IonTitle,
   IonToggle,
   IonToolbar
@@ -28,7 +27,8 @@ import {
   importService,
   ZipMergeOptions,
   ZipMergeResult,
-  ZipParsedData
+  ZipParsedData,
+  ZipParseError
 } from '../services/import.service';
 
 export type ConfirmMultipleImportModalParams = {
@@ -57,7 +57,7 @@ const ConfirmMultipleImportModal = ({
   const [zipMerge, setZipMerge] = useState<ZipMergeResult | null | undefined>();
 
   const isEmpty = params.zipData.items.length === 0;
-  const disableConfirm = params.zipData.error !== undefined || isEmpty;
+  const disableConfirm = params.zipData.errors.length > 0 || isEmpty;
   const hasOneFolder = params.zipData.hasOneFolder;
   const effectiveParent = params.createNotebook ? ROOT_COLLECTION : parent;
   const itemsInCollection =
@@ -80,6 +80,22 @@ const ConfirmMultipleImportModal = ({
       })
     );
   }, [createNewFolder, newFolderName, removeFirstFolder, overwrite]);
+
+  const getErrorLabel = (e: ZipParseError) => {
+    switch (e.type) {
+      case 'has_orphans':
+        return t`Orphaned Items`;
+      case 'incorrect_structure':
+        return t`Incorrect Metadata`;
+      case 'parse_error':
+      default:
+        return t`Parsing Error`;
+    }
+  };
+
+  const getStatusLabel = (status: 'new' | 'merged') => {
+    return status === 'new' ? t`new` : t`merged`;
+  };
 
   return (
     <>
@@ -106,20 +122,32 @@ const ConfirmMultipleImportModal = ({
       <IonList lines="none">
         {params.zipData.hasMetadata && (
           <IonItem data-testid="item-metadata-info" color="primary">
-            <IonIcon icon={APPICONS.info} slot="start"></IonIcon>
+            <IonIcon
+              className="slim"
+              icon={APPICONS.info}
+              slot="start"
+            ></IonIcon>
             <Trans>Metadata found in the archive</Trans>
           </IonItem>
         )}
         {isEmpty && (
           <IonItem data-testid="item-archive-empty-warning" color="warning">
-            <IonIcon icon={APPICONS.warning} slot="start"></IonIcon>
+            <IonIcon
+              icon={APPICONS.warning}
+              className="slim"
+              slot="start"
+            ></IonIcon>
             <Trans>Archive is empty</Trans>
           </IonItem>
         )}
-        {params.zipData.error && (
+        {params.zipData.errors.length > 0 && (
           <IonItem data-testid="item-archive-malformed-warning" color="danger">
-            <IonIcon icon={APPICONS.warning} slot="start"></IonIcon>
-            <Trans>Unable to parse zip</Trans>
+            <IonIcon
+              icon={APPICONS.warning}
+              className="slim"
+              slot="start"
+            ></IonIcon>
+            <Trans>Errors have been detected on the following files:</Trans>
           </IonItem>
         )}
         {!disableConfirm && (
@@ -224,32 +252,60 @@ const ConfirmMultipleImportModal = ({
       <IonList
         style={{ maxHeight: '400px', overflowY: 'auto' }}
         id="preview-list"
-        className={disableConfirm ? 'ion-hide' : ''}
       >
-        {newFirstLevel.map(item => {
-          const color =
-            'status' in item
-              ? item.status === 'new'
-                ? 'secondary'
-                : 'warning'
-              : '';
-          return (
-            <IonItem key={item.id}>
-              <IonIcon
-                color={color}
+        {!disableConfirm &&
+          newFirstLevel.map(item => {
+            const color =
+              'status' in item
+                ? item.status === 'new'
+                  ? 'secondary'
+                  : 'warning'
+                : '';
+            return (
+              <IonItem key={item.id}>
+                <IonIcon
+                  slot="start"
+                  className="slim"
+                  color={color}
+                  aria-description={ARIA_DESCRIPTIONS_PER_TYPE.get(item.type)}
+                  icon={APPICONS_PER_TYPE.get(item.type)}
+                />
+                <IonLabel color={color}>{item.title}</IonLabel>
+                {'status' in item && (
+                  <IonLabel slot="end" color={color}>
+                    ({getStatusLabel(item.status)})
+                  </IonLabel>
+                )}
+              </IonItem>
+            );
+          })}
+
+        {disableConfirm &&
+          params.zipData.errors.map(e => (
+            <IonItem key={`${e.type}${e.path}`} lines={'none'}>
+              <IonItem
+                className="inner-item-slim"
+                style={{ minWidth: 120 }}
                 slot="start"
-                aria-description={ARIA_DESCRIPTIONS_PER_TYPE.get(item.type)}
-                icon={APPICONS_PER_TYPE.get(item.type)}
-              />
-              <IonText color={color}>{item.title}</IonText>
-              {'status' in item && (
-                <IonLabel slot="end" color={color}>
-                  ({item.status})
-                </IonLabel>
-              )}
+                lines={'none'}
+              >
+                <IonIcon
+                  className="slim"
+                  icon={APPICONS.info}
+                  color="warning"
+                  slot="start"
+                ></IonIcon>
+                <IonLabel color="warning">{getErrorLabel(e)}</IonLabel>
+              </IonItem>
+              {/* <IonIcon
+                icon={APPICONS.info}
+                color="warning"
+                slot="start"
+              ></IonIcon>
+              <IonLabel color="warning">{getErrorLabel(e)}</IonLabel> */}
+              <IonLabel>{e.path}</IonLabel>
             </IonItem>
-          );
-        })}
+          ))}
       </IonList>
 
       <IonFooter>

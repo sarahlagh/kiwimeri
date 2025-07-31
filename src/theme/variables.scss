@@ -29,6 +29,15 @@ ion-item.inner-item {
   --padding-end: 4px;
 }
 
+ion-item.inner-item-slim {
+  --padding-start: 0px;
+  --padding-end: 0px;
+  --inner-padding-end: 0px;
+}
+ion-icon.slim[slot='start'] {
+  margin-inline-end: 18px;
+}
+
 ion-header.subheader {
   /* fix breadcrumb in light mode on android */
   background: var(--ion-color-primary-contrast, #fff);

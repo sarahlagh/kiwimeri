@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:187
+#: src/common/modals/ConfirmMultipleImportModal.tsx:215
 msgid "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 msgstr "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 
@@ -25,7 +25,7 @@ msgstr "Add config"
 msgid "An error occurred loading the file"
 msgstr "An error occurred loading the file"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:116
+#: src/common/modals/ConfirmMultipleImportModal.tsx:140
 msgid "Archive is empty"
 msgstr "Archive is empty"
 
@@ -35,7 +35,7 @@ msgid "Are you sure?"
 msgstr "Are you sure?"
 
 #: src/common/modals/ConfirmYesNoDialog.tsx:28
-#: src/common/modals/ConfirmMultipleImportModal.tsx:259
+#: src/common/modals/ConfirmMultipleImportModal.tsx:315
 #: src/common/modals/ConfirmFileImportModal.tsx:78
 #: src/common/modals/ChooseTagsModal.tsx:98
 #: src/common/buttons/RestoreCollectionButton.tsx:66
@@ -65,7 +65,7 @@ msgstr "Configure where to synchronize your collection"
 
 #: src/notebooks/components/ManageNotebooksModal.tsx:94
 #: src/common/modals/ConfirmYesNoDialog.tsx:36
-#: src/common/modals/ConfirmMultipleImportModal.tsx:265
+#: src/common/modals/ConfirmMultipleImportModal.tsx:321
 #: src/common/modals/ConfirmFileImportModal.tsx:81
 #: src/common/modals/ChooseTagsModal.tsx:105
 #: src/common/buttons/RestoreCollectionButton.tsx:73
@@ -82,7 +82,7 @@ msgstr "Debug"
 msgid "Default"
 msgstr "Default"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:130
+#: src/common/modals/ConfirmMultipleImportModal.tsx:158
 msgid "Do you want to import your content inside a new folder?"
 msgstr "Do you want to import your content inside a new folder?"
 
@@ -106,9 +106,13 @@ msgstr "Enter your password"
 msgid "Enter your username"
 msgstr "Enter your username"
 
-#: src/common/buttons/GenericExportFileButton.tsx:54
+#: src/common/buttons/GenericExportFileButton.tsx:53
 msgid "Error writing to file"
 msgstr "Error writing to file"
+
+#: src/common/modals/ConfirmMultipleImportModal.tsx:150
+msgid "Errors have been detected on the following files:"
+msgstr "Errors have been detected on the following files:"
 
 #: src/settings/components/providers/PCloudSettings.tsx:88
 msgid "EU"
@@ -148,17 +152,21 @@ msgstr "Import & export your collection"
 msgid "Import file in folder {folderName}"
 msgstr "Import file in folder {folderName}"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:95
+#: src/common/modals/ConfirmMultipleImportModal.tsx:111
 msgid "Import zip content in a new Notebook"
 msgstr "Import zip content in a new Notebook"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:90
+#: src/common/modals/ConfirmMultipleImportModal.tsx:106
 msgid "Import zip content in folder {parentName}"
 msgstr "Import zip content in folder {parentName}"
 
 #: src/common/buttons/ExportItemsButton.tsx:120
 msgid "Include metadata in zip"
 msgstr "Include metadata in zip"
+
+#: src/common/modals/ConfirmMultipleImportModal.tsx:89
+msgid "Incorrect Metadata"
+msgstr "Incorrect Metadata"
 
 #: src/settings/components/sections/ImportExportCollectionSettings.tsx:47
 msgid "Kiwimeri format (single file)"
@@ -188,7 +196,11 @@ msgstr "Manually backup or restore your collection in the format of your choice"
 msgid "Markdown (Kiwimeri flavor)"
 msgstr "Markdown (Kiwimeri flavor)"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:110
+#: src/common/modals/ConfirmMultipleImportModal.tsx:97
+msgid "merged"
+msgstr "merged"
+
+#: src/common/modals/ConfirmMultipleImportModal.tsx:130
 msgid "Metadata found in the archive"
 msgstr "Metadata found in the archive"
 
@@ -196,6 +208,10 @@ msgstr "Metadata found in the archive"
 #: src/settings/components/providers/RemoteGenericSettings.tsx:112
 msgid "Name"
 msgstr "Name"
+
+#: src/common/modals/ConfirmMultipleImportModal.tsx:97
+msgid "new"
+msgstr "new"
 
 #: src/constants.ts:56
 msgid "New document"
@@ -205,11 +221,11 @@ msgstr "New document"
 msgid "New folder"
 msgstr "New folder"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:155
+#: src/common/modals/ConfirmMultipleImportModal.tsx:183
 msgid "New folder name: "
 msgstr "New folder name: "
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:173
+#: src/common/modals/ConfirmMultipleImportModal.tsx:201
 msgid "New notebook name: "
 msgstr "New notebook name: "
 
@@ -249,6 +265,10 @@ msgstr "nuke store"
 msgid "Operations"
 msgstr "Operations"
 
+#: src/common/modals/ConfirmMultipleImportModal.tsx:87
+msgid "Orphaned Items"
+msgstr "Orphaned Items"
+
 #: src/constants.ts:59
 msgid "page"
 msgstr "page"
@@ -256,6 +276,10 @@ msgstr "page"
 #: src/common/buttons/ExportItemsButton.tsx:111
 msgid "Pages should be in the same file as the document"
 msgstr "Pages should be in the same file as the document"
+
+#: src/common/modals/ConfirmMultipleImportModal.tsx:92
+msgid "Parsing Error"
+msgstr "Parsing Error"
 
 #: src/settings/components/providers/PCloudSettings.tsx:124
 #: src/settings/components/providers/PCloudSettings.tsx:128
@@ -312,7 +336,7 @@ msgid "Settings"
 msgstr "Settings"
 
 #: src/common/buttons/GenericImportFileButton.tsx:48
-#: src/common/buttons/GenericExportFileButton.tsx:49
+#: src/common/buttons/GenericExportFileButton.tsx:48
 msgid "Success!"
 msgstr "Success!"
 
@@ -340,10 +364,6 @@ msgstr "This is different than the import / export of the collection. Your colle
 msgid "This will delete your existing data. Are you sure?"
 msgstr "This will delete your existing data. Are you sure?"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:122
-msgid "Unable to parse zip"
-msgstr "Unable to parse zip"
-
 #: src/settings/components/providers/PCloudSettings.tsx:93
 msgid "US"
 msgstr "US"
@@ -353,7 +373,7 @@ msgstr "US"
 msgid "Username"
 msgstr "Username"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:204
+#: src/common/modals/ConfirmMultipleImportModal.tsx:232
 msgid "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 msgstr "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 
