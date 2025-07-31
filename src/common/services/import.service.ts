@@ -19,7 +19,10 @@ export type ZipMergeFistLevel = {
   status: 'new' | 'merged';
 } & Pick<CollectionItem, 'id' | 'title' | 'type' | 'created' | 'updated'>;
 
-export type ZipParseError = 'has_orphans' | 'incorrect_structure';
+export type ZipParseError = {
+  type: 'has_orphans' | 'incorrect_structure' | 'parse_error';
+  path: string;
+};
 
 export type ZipParsedData = {
   zipName: string;
@@ -27,7 +30,7 @@ export type ZipParsedData = {
   hasOneFolder: boolean;
   hasMetadata: boolean;
   rootMeta?: ZipParsedMetadata;
-  error?: ZipParseError;
+  errors: ZipParseError[];
 };
 
 export type ZipMergeResult = {
@@ -179,7 +182,7 @@ class ImportService {
     const finalZipName = zipName.replace(/(.*)\.(zip|ZIP)$/g, '$1');
     const metaMap = new Map<string, ZipParsedMetadata>();
     const items: { [key: string]: CollectionItem } = {};
-    let error: ZipParseError | undefined = undefined;
+    const errors: ZipParseError[] = [];
 
     Object.keys(unzipped).forEach(key => {
       const isFolder = key.endsWith('/');
@@ -226,23 +229,28 @@ class ImportService {
         };
 
         if (!isFolder) {
-          content = strFromU8(unzipped[key]);
-          const { doc, pages } = this.getLexicalFromContent(content, opts);
-          collectionService.setUnsavedItemLexicalContent(items[fKey], doc);
-          pages.forEach((page, idx) => {
-            const { item: pItem, id: pId } =
-              collectionService.getNewPageObj(id);
-            items[key + idx] = {
-              ...pItem,
-              id: pId,
-              title: '',
-              title_meta: ''
-            };
-            collectionService.setUnsavedItemLexicalContent(
-              items[key + idx],
-              page
-            );
-          });
+          try {
+            content = strFromU8(unzipped[key]);
+            const { doc, pages } = this.getLexicalFromContent(content, opts);
+            collectionService.setUnsavedItemLexicalContent(items[fKey], doc);
+            pages.forEach((page, idx) => {
+              const { item: pItem, id: pId } =
+                collectionService.getNewPageObj(id);
+              items[key + idx] = {
+                ...pItem,
+                id: pId,
+                title: '',
+                title_meta: ''
+              };
+              collectionService.setUnsavedItemLexicalContent(
+                items[key + idx],
+                page
+              );
+            });
+          } catch (e) {
+            console.error(e);
+            errors.push({ type: 'parse_error', path: fKey });
+          }
         }
       }
     });
@@ -296,25 +304,23 @@ class ImportService {
           i => items[key].parent === i.id
         );
         if (!parent) {
-          error = 'has_orphans';
+          errors.push({ type: 'has_orphans', path: key });
         }
         if (
           items[key].type !== CollectionItemType.page &&
           parent?.type !== CollectionItemType.folder &&
           parent?.type !== CollectionItemType.notebook
         ) {
-          error = 'incorrect_structure';
+          errors.push({ type: 'incorrect_structure', path: key });
         }
         if (
           items[key].type === CollectionItemType.page &&
           parent?.type !== CollectionItemType.document
         ) {
-          error = 'incorrect_structure';
+          errors.push({ type: 'incorrect_structure', path: key });
         }
       }
     });
-    // TODO use error
-    // TODO test error
     const finalItems = Object.values(items);
     const firstLevel = finalItems.filter(i => i.parent === this.zipRoot);
 
@@ -322,13 +328,14 @@ class ImportService {
       firstLevel.length === 1 &&
       firstLevel[0].type === CollectionItemType.folder;
 
+    console.debug('zip parse errors', errors);
     return {
       zipName: finalZipName,
       items: finalItems,
       hasOneFolder,
       hasMetadata: metaMap.size > 0,
       rootMeta: metaMap.get(parent),
-      error
+      errors
     };
   }
 
@@ -511,7 +518,7 @@ class ImportService {
     opts: ZipMergeOptions
   ): ZipMergeResult | null {
     opts = { ...this.defaultOpts, ...opts };
-    if (zipData.error !== undefined) {
+    if (zipData.errors.length > 0) {
       return null;
     }
 
@@ -615,7 +622,7 @@ class ImportService {
   }
 
   public canRestoreSpace(zipData: ZipParsedData): boolean {
-    if (zipData.error !== undefined) {
+    if (zipData.errors.length > 0) {
       return false;
     }
     const firstLevel = zipData.items.filter(i => i.parent === this.zipRoot);
@@ -627,7 +634,7 @@ class ImportService {
   }
 
   public restoreSpace(zipData: ZipParsedData): boolean {
-    if (zipData.error !== undefined) {
+    if (zipData.errors.length > 0) {
       return false;
     }
     const firstLevel = zipData.items.filter(i => i.parent === this.zipRoot);

@@ -12,7 +12,12 @@
               "detectInlinedPages": true
             }
           ],
-          "error": "incorrect_structure",
+          "errors": [
+            {
+              "path": "Simple with pages 1.md0",
+              "type": "incorrect_structure"
+            }
+          ],
           "expected": {}
         }
       ]
@@ -29,7 +34,42 @@
               "detectInlinedPages": true
             }
           ],
-          "error": "incorrect_structure",
+          "errors": [
+            {
+              "path": "Sub/Simple with pages.md/Simple with pages 1.md0",
+              "type": "incorrect_structure"
+            }
+          ],
+          "expected": {}
+        }
+      ]
+    },
+    {
+      "zipName": "SpaceMalformed.zip",
+      "description": "SpaceMalformed.zip",
+      "initData": [],
+      "scenarios": [
+        {
+          "description": "and detectInlinedPages=true",
+          "options": [
+            {
+              "detectInlinedPages": true
+            }
+          ],
+          "errors": [
+            {
+              "path": "SimpleNotebook1/Quote.md",
+              "type": "incorrect_structure"
+            },
+            {
+              "path": "SimpleNotebook1/Sub/Test.md",
+              "type": "has_orphans"
+            },
+            {
+              "path": "SimpleNotebook1/Sub/Test.md",
+              "type": "incorrect_structure"
+            }
+          ],
           "expected": {}
         }
       ]

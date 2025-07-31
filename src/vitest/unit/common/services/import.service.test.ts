@@ -36,7 +36,7 @@ type JsonTestDescriptor = {
       description: string;
       options: ZipImportOptions[];
       mergeInto?: string;
-      error?: ZipParseError;
+      errors?: ZipParseError[];
       expected: Partial<ZipMergeResult>;
     }[];
   }[];
@@ -592,7 +592,12 @@ describe('import service', () => {
                             options
                           );
 
-                          expect(zipParsedData.error).toBe(scenario.error);
+                          if (!scenario.errors) {
+                            scenario.errors = [];
+                          }
+                          expect(zipParsedData.errors).toStrictEqual(
+                            scenario.errors
+                          );
 
                           if (options.ignoreMetadata === true) {
                             expect(zipParsedData.hasMetadata).toBe(false);
@@ -606,7 +611,7 @@ describe('import service', () => {
                             options
                           );
 
-                          if (scenario.error) {
+                          if (scenario.errors.length > 0) {
                             expect(zipMerge).toBeNull();
                             return;
                           }
