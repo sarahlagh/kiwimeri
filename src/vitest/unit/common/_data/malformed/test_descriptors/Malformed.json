@@ -14,8 +14,9 @@
           ],
           "errors": [
             {
-              "path": "Simple with pages 1.md0",
-              "type": "incorrect_structure"
+              "path": "Simple with pages 1.md",
+              "family": "incorrect_meta",
+              "code": "page_has_inline_items"
             }
           ],
           "expected": {}
@@ -36,8 +37,9 @@
           ],
           "errors": [
             {
-              "path": "Sub/Simple with pages.md/Simple with pages 1.md0",
-              "type": "incorrect_structure"
+              "path": "Sub/Simple with pages.md/Simple with pages 1.md",
+              "family": "incorrect_meta",
+              "code": "page_has_inline_items"
             }
           ],
           "expected": {}
@@ -50,24 +52,43 @@
       "initData": [],
       "scenarios": [
         {
-          "description": "and detectInlinedPages=true",
-          "options": [
-            {
-              "detectInlinedPages": true
-            }
-          ],
+          "description": "and default options",
+          "options": [{}],
           "errors": [
             {
-              "path": "SimpleNotebook1/Quote.md",
-              "type": "incorrect_structure"
+              "path": "SimpleNotebook1/Sub/meta.json",
+              "family": "incorrect_meta",
+              "code": "orphaned_notebook"
             },
             {
-              "path": "SimpleNotebook1/Sub/Test.md",
-              "type": "has_orphans"
+              "path": "SimpleNotebook2/DandMissingType/meta.json",
+              "family": "incorrect_meta",
+              "code": "orphaned_document"
             },
             {
-              "path": "SimpleNotebook1/Sub/Test.md",
-              "type": "incorrect_structure"
+              "path": "SimpleNotebook2/DandNested/meta.json",
+              "family": "incorrect_meta",
+              "code": "orphaned_document"
+            },
+            {
+              "path": "SimpleNotebook2/DandSub/meta.json",
+              "family": "incorrect_meta",
+              "code": "orphaned_document"
+            },
+            {
+              "path": "SimpleNotebook2/IncorrectInFiles/meta.json",
+              "family": "incorrect_meta",
+              "code": "orphaned_notebook"
+            },
+            {
+              "path": "SimpleNotebook2/OnlyPsInFiles/meta.json",
+              "family": "incorrect_meta",
+              "code": "orphaned_document"
+            },
+            {
+              "path": "SimpleNotebook2/PinMeta/meta.json",
+              "family": "incorrect_meta",
+              "code": "orphaned_page"
             }
           ],
           "expected": {}

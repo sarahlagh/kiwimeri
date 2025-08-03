@@ -75,7 +75,7 @@ const ImportItemsButton = ({
     console.debug('file', file);
     // TODO don't hardcode the regex here
     const fileName = file.name.replace(/\.(md|MD)$/, '');
-    const { doc, pages } = importService.getLexicalFromContent(content);
+    const { doc, pages } = importService.parseNonLexicalContent(content);
 
     const itemsInCollection = importService.findDuplicates(parent, [
       {

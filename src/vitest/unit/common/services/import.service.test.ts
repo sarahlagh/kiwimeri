@@ -217,7 +217,7 @@ describe('import service', () => {
 
   describe('merging single documents', () => {
     it('save single new document', () => {
-      const { doc, pages } = importService.getLexicalFromContent(
+      const { doc, pages } = importService.parseNonLexicalContent(
         'This is some content'
       );
       expect(doc).toBeDefined();
@@ -238,7 +238,7 @@ describe('import service', () => {
       collectionService.setItemTitle(id1, 'New doc');
       vi.advanceTimersByTime(5000);
 
-      const { doc, pages } = importService.getLexicalFromContent(
+      const { doc, pages } = importService.parseNonLexicalContent(
         'This is some content'
       );
       expect(doc).toBeDefined();
@@ -258,7 +258,7 @@ describe('import service', () => {
     });
 
     it('save single new document with pages', () => {
-      const { doc, pages } = importService.getLexicalFromContent(
+      const { doc, pages } = importService.parseNonLexicalContent(
         'This is some content' +
           formatterService.getPagesSeparator() +
           'And a page'
@@ -282,7 +282,7 @@ describe('import service', () => {
       collectionService.setItemTitle(id1, 'New doc');
       vi.advanceTimersByTime(5000);
 
-      const { doc, pages } = importService.getLexicalFromContent(
+      const { doc, pages } = importService.parseNonLexicalContent(
         'This is some content' +
           formatterService.getPagesSeparator() +
           'And a page'
@@ -313,7 +313,7 @@ describe('import service', () => {
       collectionService.setItemTitle(id1, 'New doc');
       vi.advanceTimersByTime(5000);
 
-      const { doc, pages } = importService.getLexicalFromContent(
+      const { doc, pages } = importService.parseNonLexicalContent(
         'This is some content' +
           formatterService.getPagesSeparator() +
           'And a page'
@@ -348,7 +348,7 @@ describe('import service', () => {
       collectionService.setItemTitle(id1, 'New doc');
       vi.advanceTimersByTime(5000);
 
-      const { doc, pages } = importService.getLexicalFromContent(
+      const { doc, pages } = importService.parseNonLexicalContent(
         'This is some content' +
           formatterService.getPagesSeparator() +
           'And a page'
@@ -383,15 +383,19 @@ describe('import service', () => {
     writeIdsMap = true
   ) => {
     if (expectedArray) {
+      if (writeIdsMap) {
+        expectedArray.forEach((expectedItem, idx) => {
+          if (expectedItem.id) {
+            ids.set(expectedItem.id, zipMergeArray[idx].id!);
+          }
+        });
+      }
       expectedArray.forEach((expectedItem, idx) => {
         const mergedItem = zipMergeArray[idx];
         if (mergedItem.type !== CollectionItemType.page) {
           expect(mergedItem.title).toBe(expectedItem.title);
         }
         expect(mergedItem.type).toBe(expectedItem.type);
-        if (expectedItem.id && writeIdsMap) {
-          ids.set(expectedItem.id, mergedItem.id!);
-        }
         if (expectedItem.id && !writeIdsMap) {
           expect(mergedItem.id).toBe(
             expectedItem.id.startsWith('#')
@@ -806,5 +810,8 @@ describe('import service', () => {
       expect(importService.canRestoreSpace(zipData)).toBe(false);
       expect(importService.restoreSpace(zipData)).toBe(false);
     });
+
+    // TODO test with malformed meta
+    // TODO test with more errors at root
   });
 });
