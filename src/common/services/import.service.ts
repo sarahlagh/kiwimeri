@@ -1,9 +1,12 @@
 import {
   CollectionItem,
+  CollectionItemFieldEnum,
   CollectionItemResult,
   CollectionItemType,
   CollectionItemTypeValues,
-  CollectionItemUpdate
+  CollectionItemUpdatableFields,
+  CollectionItemUpdate,
+  setFieldMeta
 } from '@/collection/collection';
 import { META_JSON, ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/db/collection.service';
@@ -20,7 +23,14 @@ export type ZipMergeFistLevel = {
 } & Pick<CollectionItem, 'id' | 'title' | 'type' | 'created' | 'updated'>;
 
 export type ZipParseError = {
-  type: 'has_orphans' | 'incorrect_structure' | 'parse_error';
+  family: 'incorrect_meta' | 'parse_error';
+  code?:
+    | 'non_document_deleted'
+    | 'page_has_inline_items'
+    | 'orphaned_page'
+    | 'orphaned_document'
+    | 'orphaned_folder'
+    | 'orphaned_notebook';
   path: string;
 };
 
@@ -62,7 +72,12 @@ export type ZipMergeCommitOptions = {
 };
 
 type ZipParsedMetadata = {
-  key?: string;
+  parentKey?: string;
+  orphans?: string[];
+  hasInlinePages?: boolean;
+  files?: {
+    [key: string]: ZipParsedMetadata;
+  };
 } & ZipMetadata;
 
 class ImportService {
@@ -82,7 +97,7 @@ class ImportService {
     deleteExistingPages: true
   };
 
-  public getLexicalFromContent(content: string, opts?: ZipParseOptions) {
+  public parseNonLexicalContent(content: string, opts?: ZipParseOptions) {
     // TODO get format as input
     if (!opts) {
       opts = this.defaultOpts;
@@ -107,6 +122,7 @@ class ImportService {
   private fillInMeta(
     item: CollectionItem,
     meta: ZipParsedMetadata,
+    parentItem?: CollectionItem,
     ignoreType = false
   ) {
     if (meta.title) {
@@ -117,6 +133,16 @@ class ImportService {
     }
     if (meta.updated) {
       item.updated = meta.updated;
+      // all the _meta too,
+      CollectionItemUpdatableFields.forEach(field => {
+        const metaField = `${field}_meta` as CollectionItemFieldEnum;
+        if (item[field]) {
+          item[metaField] = setFieldMeta(
+            `${item[field]}`,
+            item.updated
+          ) as never;
+        }
+      });
     }
     if (meta.tags) {
       item.tags = meta.tags;
@@ -124,45 +150,269 @@ class ImportService {
     if (meta.type && !ignoreType) {
       item.type = meta.type;
     }
+    if (parentItem) {
+      item.parent = parentItem.id!;
+    }
   }
 
-  private fillInFilesMeta(
-    item: CollectionItem,
-    metaKey: string,
-    metaMap: Map<string, ZipParsedMetadata>,
-    items: {
-      [key: string]: CollectionItem;
+  private getItemTitle(currentName: string, opts: ZipParseOptions) {
+    let title = currentName;
+    if (opts.titleRemoveExtension) {
+      title = title.replace(/(.*?)\.[A-z]{1,3}$/g, '$1');
     }
+    if (opts.titleRemoveDuplicateIdentifiers) {
+      title = title.replace(/(.*?)(?: \(\d*\))?(\.[A-z]{1,3})?$/g, '$1$2');
+    }
+    return title;
+  }
+
+  private createObj(
+    isFolder: boolean,
+    currentName: string,
+    closestParent: string,
+    opts: ZipParseOptions
+  ): CollectionItem {
+    const { item, id } = isFolder
+      ? collectionService.getNewFolderObj(closestParent)
+      : collectionService.getNewDocumentObj(closestParent);
+
+    const title = this.getItemTitle(currentName, opts);
+    return {
+      ...item,
+      id,
+      title
+    };
+  }
+
+  private parseItemContent(
+    unzipped: Unzipped,
+    itemKey: string,
+    items: Map<string, CollectionItem>,
+    errors: ZipParseError[],
+    opts: ZipParseOptions
   ) {
-    const typeBefore = item.type;
-    if (
-      metaMap.get(item.parent)?.files &&
-      metaMap.get(item.parent)!.files![metaKey] !== undefined
-    ) {
-      const meta = metaMap.get(item.parent)!.files![metaKey]!;
-      this.fillInMeta(item, meta);
-    }
-    if (item.type === CollectionItemType.page && typeBefore !== item.type) {
-      // is a page, remove unwanted fields + update parent
-      item.title = '';
-      item.tags = '';
-      const parentMeta = metaMap.get(item.parent);
-      if (
-        parentMeta &&
-        parentMeta.type === CollectionItemType.document &&
-        parentMeta.files
-      ) {
-        const entry = Object.entries(parentMeta.files).find(
-          e => e[1].type === CollectionItemType.document
+    let fKey = itemKey;
+    const item = items.get(itemKey)!;
+    try {
+      const content = strFromU8(unzipped[itemKey]);
+      const { doc, pages } = this.parseNonLexicalContent(content, opts);
+      collectionService.setUnsavedItemLexicalContent(item, doc);
+      pages.forEach((page, idx) => {
+        const { item: pItem, id: pId } = collectionService.getNewPageObj(
+          item.id!
         );
-        let docKey = entry ? entry[0] : undefined;
-        if (docKey && (parentMeta.key?.length || 0) > 0) {
-          docKey = `${parentMeta.key}${docKey}`;
-        }
-        if (docKey) {
-          item.parent = items[docKey].id!;
-        }
+        fKey = `${itemKey}/${idx + 1}`;
+        const pageItem = {
+          ...pItem,
+          id: pId,
+          title: '',
+          title_meta: ''
+        };
+        items.set(fKey, pageItem);
+        collectionService.setUnsavedItemLexicalContent(pageItem, page);
+      });
+      return pages.length > 0;
+    } catch (e) {
+      console.error(e);
+      errors.push({
+        family: 'parse_error',
+        path: fKey
+      });
+    }
+    return false;
+  }
+
+  private goUpOneFolder(path: string) {
+    const tempNames = path.replace(/\/$/, '').split('/');
+    tempNames.pop();
+    return tempNames.join('/') + '/';
+  }
+
+  private parseMetadataFile(
+    unzipped: Unzipped,
+    itemKey: string,
+    parentPath: string,
+    items: Map<string, CollectionItem>,
+    metaMap: Map<string, ZipParsedMetadata>
+  ) {
+    // handle meta.json
+    const origMeta: ZipMetadata = JSON.parse(strFromU8(unzipped[itemKey]));
+    const meta: ZipParsedMetadata = {
+      parentKey: parentPath,
+      ...origMeta
+    };
+    metaMap.set(parentPath, meta);
+    // should always get the parent item before its meta unless its root
+    let finalParentPath = parentPath;
+    // fill in meta for closestParent
+    if (items.has(parentPath)) {
+      const typeBefore = items.get(parentPath)!.type;
+      this.fillInMeta(items.get(parentPath)!, meta);
+      // if document with non inline pages detected...
+      if (
+        typeBefore === CollectionItemType.folder &&
+        items.get(parentPath)!.type === CollectionItemType.document
+      ) {
+        // update the children parent - go up one folder
+        finalParentPath = this.goUpOneFolder(finalParentPath);
+        // delete the item created for the directory
+        items.delete(parentPath);
       }
+    }
+    // fill in meta for siblings
+    if (meta.files) {
+      let docPath: string | undefined;
+      const orphanPages: string[] = [];
+      Object.keys(meta.files).forEach(filename => {
+        let parentKey: string | undefined = undefined;
+        let metaFile = meta.files![filename];
+        const metaFilePath = `${parentPath}${filename}`;
+        const oldMeta = metaMap.get(metaFilePath); // can happen with docs with inlined pages
+        metaFile = { ...oldMeta, ...metaFile };
+        if (items.has(metaFilePath)) {
+          const item = items.get(metaFilePath)!;
+          this.fillInMeta(item, metaFile);
+        }
+        // if document update its parent
+        if (metaFile.type === CollectionItemType.document) {
+          parentKey = finalParentPath;
+          docPath = metaFilePath;
+          if (items.has(metaFilePath) && items.get(parentKey)?.id) {
+            items.get(metaFilePath)!.parent = items.get(parentKey)!.id!;
+          }
+          metaFile.orphans = [...orphanPages];
+          orphanPages.forEach(pageKey => {
+            metaMap.get(pageKey)!.parentKey = docPath;
+          });
+        } else if (metaFile.type === CollectionItemType.page) {
+          // if page update its parent to document
+          if (docPath) {
+            parentKey = docPath;
+            if (items.has(metaFilePath) && items.get(parentKey)?.id) {
+              items.get(metaFilePath)!.parent = items.get(parentKey)!.id!;
+            }
+          } else {
+            // is a page, but document is still unknown
+            orphanPages!.push(metaFilePath);
+          }
+        }
+        metaMap.set(metaFilePath, { parentKey, ...metaFile });
+      });
+    }
+  }
+
+  private checkErrors(
+    errors: ZipParseError[],
+    lastDirKey: string,
+    items: Map<string, CollectionItem>,
+    levelMap: Map<string, string[]>,
+    metaMap: Map<string, ZipParsedMetadata>
+  ) {
+    const item = items.get(lastDirKey);
+    const meta = metaMap.get(lastDirKey);
+    const level = levelMap.get(lastDirKey)!;
+
+    if (!meta) {
+      return;
+    }
+
+    const type: CollectionItemTypeValues =
+      item?.type || meta.type || CollectionItemType.folder;
+
+    const metaFilePath = metaMap.has(lastDirKey)
+      ? `${lastDirKey}${META_JSON}`
+      : lastDirKey;
+
+    if (type === CollectionItemType.page) {
+      errors.push({
+        path: metaFilePath,
+        family: 'incorrect_meta',
+        code: 'orphaned_page'
+      });
+      return;
+    }
+
+    let nbDocs = 0;
+    for (const child of level) {
+      if (child === META_JSON || child.endsWith(`/${META_JSON}`)) {
+        continue;
+      }
+      const childType =
+        items.get(child)?.type ||
+        metaMap.get(child)?.type ||
+        (child.endsWith('/')
+          ? CollectionItemType.folder
+          : CollectionItemType.document);
+      const hasInlinePages = metaMap.get(child)?.hasInlinePages;
+
+      if (type === CollectionItemType.document) {
+        if (childType === CollectionItemType.document || !metaMap.has(child)) {
+          nbDocs++;
+        } else if (childType === CollectionItemType.page) {
+          if (hasInlinePages === true) {
+            errors.push({
+              path: child,
+              family: 'incorrect_meta',
+              code: 'page_has_inline_items'
+            });
+            return;
+          }
+        } else if (childType === CollectionItemType.folder) {
+          errors.push({
+            path: metaFilePath,
+            family: 'incorrect_meta',
+            code: 'orphaned_folder'
+          });
+          return;
+        } else if (childType === CollectionItemType.notebook) {
+          errors.push({
+            path: metaFilePath,
+            family: 'incorrect_meta',
+            code: 'orphaned_notebook'
+          });
+          return;
+        }
+        continue;
+      } else if (type === CollectionItemType.folder) {
+        if (childType === CollectionItemType.page) {
+          errors.push({
+            path: metaFilePath,
+            family: 'incorrect_meta',
+            code: 'orphaned_page'
+          });
+          break;
+        }
+        if (
+          lastDirKey.length > 0 &&
+          childType === CollectionItemType.notebook
+        ) {
+          errors.push({
+            path: metaFilePath,
+            family: 'incorrect_meta',
+            code: 'orphaned_notebook'
+          });
+          break;
+        }
+        continue;
+      } else if (type === CollectionItemType.notebook) {
+        if (childType === CollectionItemType.page) {
+          errors.push({
+            path: metaFilePath,
+            family: 'incorrect_meta',
+            code: 'orphaned_page'
+          });
+          break;
+        }
+        continue;
+      }
+    }
+
+    if (type === CollectionItemType.document && nbDocs !== 1) {
+      errors.push({
+        path: metaFilePath,
+        family: 'incorrect_meta',
+        code: 'orphaned_document'
+      });
     }
   }
 
@@ -177,164 +427,118 @@ class ImportService {
       opts = { ...this.defaultOpts, ...opts };
     }
 
-    const parent = this.zipRoot;
-
     const finalZipName = zipName.replace(/(.*)\.(zip|ZIP)$/g, '$1');
     const metaMap = new Map<string, ZipParsedMetadata>();
-    const items: { [key: string]: CollectionItem } = {};
+    const levelMap = new Map<string, string[]>();
+    const items = new Map<string, CollectionItem>();
     const errors: ZipParseError[] = [];
 
-    Object.keys(unzipped).forEach(key => {
-      const isFolder = key.endsWith('/');
-      const fKey = key;
-      if (isFolder) {
-        key = key.substring(0, key.length - 1);
+    const firstLevel: CollectionItem[] = [];
+
+    let lastLevel = -1;
+    let lastDirectory = '';
+    let hasMetadata = false;
+    levelMap.set('', []);
+
+    Object.keys(unzipped).forEach(itemKey => {
+      const isDirectoryInZip = itemKey.endsWith('/');
+      let path = itemKey;
+      if (isDirectoryInZip) {
+        path = path.substring(0, itemKey.length - 1);
       }
-      let currentParent = parent;
-      let parentKey = '';
-      const names = key.split('/');
+      const names = path.split('/');
+      const level = names.length;
       const currentName = names.pop()!;
-      names.forEach(name => {
-        parentKey += name + '/';
-      });
-      if (parentKey.length > 0 && items[parentKey]) {
-        currentParent = items[parentKey].id!;
+      const parentPath = names.join('/') + (names.length > 0 ? '/' : '');
+      const closestParent = items.get(parentPath)?.id || this.zipRoot;
+
+      console.debug(itemKey);
+
+      const item = this.createObj(
+        isDirectoryInZip,
+        currentName,
+        closestParent,
+        opts
+      );
+      if (isDirectoryInZip && !levelMap.has(itemKey)) {
+        levelMap.set(itemKey, []);
       }
-      if (opts.ignoreMetadata === false && currentName === META_JSON) {
-        const meta: ZipMetadata = JSON.parse(strFromU8(unzipped[fKey]));
-        metaMap.set(currentParent, {
-          ...meta,
-          key: fKey.replace(META_JSON, '')
-        });
-        return;
-      }
-      if (!items[fKey]) {
-        const { item, id } = isFolder
-          ? collectionService.getNewFolderObj(currentParent)
-          : collectionService.getNewDocumentObj(currentParent);
+      levelMap.get(parentPath)!.push(itemKey);
 
-        let content: string | undefined = undefined;
-
-        let title = currentName;
-        if (opts.titleRemoveExtension) {
-          title = title.replace(/(.*?)\.[A-z]{1,3}$/g, '$1');
+      if (isDirectoryInZip) {
+        items.set(itemKey, item);
+        if (!opts.ignoreMetadata && metaMap.has(itemKey)) {
+          const meta = metaMap.get(itemKey)!;
+          this.fillInMeta(
+            item,
+            meta!,
+            meta.parentKey ? items.get(meta.parentKey!) : undefined
+          );
         }
-        if (opts.titleRemoveDuplicateIdentifiers) {
-          title = title.replace(/(.*?)(?: \(\d*\))?(\.[A-z]{1,3})?$/g, '$1$2');
-        }
-        items[fKey] = {
-          ...item,
-          id,
-          title
-        };
-
-        if (!isFolder) {
-          try {
-            content = strFromU8(unzipped[key]);
-            const { doc, pages } = this.getLexicalFromContent(content, opts);
-            collectionService.setUnsavedItemLexicalContent(items[fKey], doc);
-            pages.forEach((page, idx) => {
-              const { item: pItem, id: pId } =
-                collectionService.getNewPageObj(id);
-              items[key + idx] = {
-                ...pItem,
-                id: pId,
-                title: '',
-                title_meta: ''
-              };
-              collectionService.setUnsavedItemLexicalContent(
-                items[key + idx],
-                page
-              );
-            });
-          } catch (e) {
-            console.error(e);
-            errors.push({ type: 'parse_error', path: fKey });
-          }
-        }
-      }
-    });
-
-    // TODO optimize
-    // use meta.json files to update metadatas
-    const itemsToDel: { keyToDel: string; docKeys: string[] }[] = [];
-    Object.keys(items).forEach(key => {
-      const keys = key.split('/');
-      if (keys[keys.length - 1] !== '') {
-        // is item
-        this.fillInFilesMeta(items[key], keys[keys.length - 1], metaMap, items);
-      } else {
-        // is folder or notebook
-        if (metaMap.has(items[key].id!)) {
-          const meta = metaMap.get(items[key].id!)!;
-          this.fillInMeta(items[key], meta);
-          // if document, mark to delete after
-          if (items[key].type === CollectionItemType.document) {
-            const docKeys: string[] = [];
-            if (meta.files) {
-              Object.keys(meta.files).forEach(childKey => {
-                if (
-                  meta.files![childKey].type === CollectionItemType.document
-                ) {
-                  const fKey = meta.key + childKey;
-                  docKeys.push(fKey);
-                }
-              });
-            }
-            itemsToDel.push({ keyToDel: key, docKeys });
-          }
-        }
-      }
-    });
-
-    itemsToDel.forEach(keys => {
-      // and update children parent
-      keys.docKeys.forEach(fKey => {
-        items[fKey].parent = items[keys.keyToDel].parent;
-      });
-      // then delete item
-      delete items[keys.keyToDel];
-    });
-
-    // TODO optimize
-    // check for errors
-    Object.keys(items).forEach(key => {
-      if (items[key].parent !== this.zipRoot) {
-        const parent = Object.values(items).find(
-          i => items[key].parent === i.id
+      } else if (currentName !== META_JSON || opts.ignoreMetadata) {
+        // is document & not meta.json
+        items.set(itemKey, item);
+        const hasInlinePages = this.parseItemContent(
+          unzipped,
+          itemKey,
+          items,
+          errors,
+          opts
         );
-        if (!parent) {
-          errors.push({ type: 'has_orphans', path: key });
+
+        if (hasInlinePages && !opts.ignoreMetadata && !metaMap.has(itemKey)) {
+          metaMap.set(itemKey, { hasInlinePages });
         }
-        if (
-          items[key].type !== CollectionItemType.page &&
-          parent?.type !== CollectionItemType.folder &&
-          parent?.type !== CollectionItemType.notebook
-        ) {
-          errors.push({ type: 'incorrect_structure', path: key });
+
+        if (!opts.ignoreMetadata && metaMap.has(itemKey)) {
+          const meta = metaMap.get(itemKey)!;
+          meta.hasInlinePages = hasInlinePages;
+          this.fillInMeta(
+            item,
+            meta,
+            meta.parentKey ? items.get(meta.parentKey!) : undefined
+          );
+          if (meta.orphans && meta.orphans.length > 0) {
+            meta.orphans.forEach(orphan => {
+              items.get(orphan)!.parent = item.id!;
+            });
+          }
         }
-        if (
-          items[key].type === CollectionItemType.page &&
-          parent?.type !== CollectionItemType.document
-        ) {
-          errors.push({ type: 'incorrect_structure', path: key });
-        }
+      } else {
+        // is meta.json
+        hasMetadata = true;
+        this.parseMetadataFile(unzipped, itemKey, parentPath, items, metaMap);
       }
+
+      if (closestParent === this.zipRoot && items.has(itemKey)) {
+        firstLevel.push(items.get(itemKey)!);
+      }
+
+      if (!opts.ignoreMetadata && level < lastLevel) {
+        this.checkErrors(errors, lastDirectory, items, levelMap, metaMap);
+      }
+
+      lastDirectory = parentPath;
+      lastLevel = level;
     });
-    const finalItems = Object.values(items);
-    const firstLevel = finalItems.filter(i => i.parent === this.zipRoot);
+
+    if (!opts.ignoreMetadata) {
+      this.checkErrors(errors, '', items, levelMap, metaMap);
+    }
+
+    const finalItems = [...items.values()];
 
     const hasOneFolder =
       firstLevel.length === 1 &&
       firstLevel[0].type === CollectionItemType.folder;
 
-    console.debug('zip parse errors', errors);
+    console.debug('errors', errors);
     return {
       zipName: finalZipName,
       items: finalItems,
       hasOneFolder,
-      hasMetadata: metaMap.size > 0,
-      rootMeta: metaMap.get(parent),
+      hasMetadata,
+      rootMeta: metaMap.get(''),
       errors
     };
   }
@@ -502,7 +706,7 @@ class ImportService {
         : notebooksService.getNewNotebookObj(parent);
     item.title = '';
     if (rootMeta) {
-      this.fillInMeta(item, rootMeta, true);
+      this.fillInMeta(item, rootMeta, undefined, true);
     }
     if (options.newFolderName || item.title === '') {
       item.title = options.newFolderName || zipName;
@@ -529,7 +733,11 @@ class ImportService {
       .filter(i => i.parent === this.zipRoot)
       .forEach(i => (i.parent = parent));
 
-    if (opts.removeFirstFolder === true && !opts.createNotebook) {
+    if (
+      opts.removeFirstFolder === true &&
+      !opts.createNotebook &&
+      zipData.hasOneFolder
+    ) {
       this.removeFirstFolder(items, parent);
     }
 

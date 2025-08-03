@@ -84,34 +84,34 @@
           "expected": {
             "newItems": [
               {
-                "title": "Simple with pages 0",
-                "type": "d",
-                "parent": "0"
-              },
-              {
-                "title": "Simple with pages 1",
+                "title": "A Simple with pages 0",
                 "type": "d",
                 "parent": "0"
               },
               {
                 "title": "meta.json",
+                "type": "d",
+                "parent": "0"
+              },
+              {
+                "title": "page",
                 "type": "d",
                 "parent": "0"
               }
             ],
             "firstLevel": [
               {
-                "title": "Simple with pages 0",
-                "type": "d",
-                "status": "new"
-              },
-              {
-                "title": "Simple with pages 1",
+                "title": "A Simple with pages 0",
                 "type": "d",
                 "status": "new"
               },
               {
                 "title": "meta.json",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "page",
                 "type": "d",
                 "status": "new"
               }
@@ -130,7 +130,7 @@
             "newItems": [
               {
                 "id": "#dId",
-                "title": "Simple with pages 0",
+                "title": "A Simple with pages 0",
                 "type": "d",
                 "parent": "0"
               },
@@ -139,29 +139,29 @@
                 "parent": "#dId"
               },
               {
-                "title": "Simple with pages 1",
+                "title": "meta.json",
                 "type": "d",
                 "parent": "0"
               },
               {
-                "title": "meta.json",
+                "title": "page",
                 "type": "d",
                 "parent": "0"
               }
             ],
             "firstLevel": [
               {
-                "title": "Simple with pages 0",
-                "type": "d",
-                "status": "new"
-              },
-              {
-                "title": "Simple with pages 1",
+                "title": "A Simple with pages 0",
                 "type": "d",
                 "status": "new"
               },
               {
                 "title": "meta.json",
+                "type": "d",
+                "status": "new"
+              },
+              {
+                "title": "page",
                 "type": "d",
                 "status": "new"
               }

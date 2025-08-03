@@ -82,10 +82,8 @@ const ConfirmMultipleImportModal = ({
   }, [createNewFolder, newFolderName, removeFirstFolder, overwrite]);
 
   const getErrorLabel = (e: ZipParseError) => {
-    switch (e.type) {
-      case 'has_orphans':
-        return t`Orphaned Items`;
-      case 'incorrect_structure':
+    switch (e.family) {
+      case 'incorrect_meta':
         return t`Incorrect Metadata`;
       case 'parse_error':
       default:
@@ -282,7 +280,7 @@ const ConfirmMultipleImportModal = ({
 
         {disableConfirm &&
           params.zipData.errors.map(e => (
-            <IonItem key={`${e.type}${e.path}`} lines={'none'}>
+            <IonItem key={`${e.family}${e.path}`} lines={'none'}>
               <IonItem
                 className="inner-item-slim"
                 style={{ minWidth: 120 }}

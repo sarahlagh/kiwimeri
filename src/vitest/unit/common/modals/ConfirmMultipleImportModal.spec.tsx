@@ -527,25 +527,39 @@ describe('ConfirmMultipleImportModal', () => {
       const rows = container.querySelector('#preview-list');
       expect(rows?.hasChildNodes()).toBe(true);
 
-      expect(rows?.childNodes).toHaveLength(3);
-      rows?.childNodes.forEach((node, idx) => {
-        if (idx === 0) {
-          expect(node.hasChildNodes()).toBe(true);
-          expect(node.firstChild).toHaveTextContent(`Incorrect Metadata`);
-          expect(node.lastChild).toHaveTextContent(`SimpleNotebook1/Quote.md`);
-        } else if (idx === 1) {
-          expect(node.hasChildNodes()).toBe(true);
-          expect(node.firstChild).toHaveTextContent(`Orphaned Items`);
-          expect(node.lastChild).toHaveTextContent(
-            `SimpleNotebook1/Sub/Test.md`
-          );
-        } else if (idx === 2) {
-          expect(node.hasChildNodes()).toBe(true);
-          expect(node.firstChild).toHaveTextContent(`Incorrect Metadata`);
-          expect(node.lastChild).toHaveTextContent(
-            `SimpleNotebook1/Sub/Test.md`
-          );
+      expect(rows?.childNodes).toHaveLength(7);
+      const expectedRows = [
+        { first: 'Incorrect Metadata', last: 'SimpleNotebook1/Sub/meta.json' },
+        {
+          first: 'Incorrect Metadata',
+          last: 'SimpleNotebook2/DandMissingType/meta.json'
+        },
+        {
+          first: 'Incorrect Metadata',
+          last: 'SimpleNotebook2/DandNested/meta.json'
+        },
+        {
+          first: 'Incorrect Metadata',
+          last: 'SimpleNotebook2/DandSub/meta.json'
+        },
+        {
+          first: 'Incorrect Metadata',
+          last: 'SimpleNotebook2/IncorrectInFiles/meta.json'
+        },
+        {
+          first: 'Incorrect Metadata',
+          last: 'SimpleNotebook2/OnlyPsInFiles/meta.json'
+        },
+        {
+          first: 'Incorrect Metadata',
+          last: 'SimpleNotebook2/PinMeta/meta.json'
         }
+      ];
+      rows?.childNodes.forEach((node, idx) => {
+        const row = expectedRows[idx];
+        expect(node.hasChildNodes()).toBe(true);
+        expect(node.firstChild).toHaveTextContent(row.first);
+        expect(node.lastChild).toHaveTextContent(row.last);
       });
     });
 
@@ -581,25 +595,39 @@ describe('ConfirmMultipleImportModal', () => {
       const rows = container.querySelector('#preview-list');
       expect(rows?.hasChildNodes()).toBe(true);
 
-      expect(rows?.childNodes).toHaveLength(3);
-      rows?.childNodes.forEach((node, idx) => {
-        if (idx === 0) {
-          expect(node.hasChildNodes()).toBe(true);
-          expect(node.firstChild).toHaveTextContent(`Incorrect Metadata`);
-          expect(node.lastChild).toHaveTextContent(`SimpleNotebook1/Quote.md`);
-        } else if (idx === 1) {
-          expect(node.hasChildNodes()).toBe(true);
-          expect(node.firstChild).toHaveTextContent(`Orphaned Items`);
-          expect(node.lastChild).toHaveTextContent(
-            `SimpleNotebook1/Sub/Test.md`
-          );
-        } else if (idx === 2) {
-          expect(node.hasChildNodes()).toBe(true);
-          expect(node.firstChild).toHaveTextContent(`Incorrect Metadata`);
-          expect(node.lastChild).toHaveTextContent(
-            `SimpleNotebook1/Sub/Test.md`
-          );
+      expect(rows?.childNodes).toHaveLength(7);
+      const expectedRows = [
+        { first: 'Incorrect Metadata', last: 'SimpleNotebook1/Sub/meta.json' },
+        {
+          first: 'Incorrect Metadata',
+          last: 'SimpleNotebook2/DandMissingType/meta.json'
+        },
+        {
+          first: 'Incorrect Metadata',
+          last: 'SimpleNotebook2/DandNested/meta.json'
+        },
+        {
+          first: 'Incorrect Metadata',
+          last: 'SimpleNotebook2/DandSub/meta.json'
+        },
+        {
+          first: 'Incorrect Metadata',
+          last: 'SimpleNotebook2/IncorrectInFiles/meta.json'
+        },
+        {
+          first: 'Incorrect Metadata',
+          last: 'SimpleNotebook2/OnlyPsInFiles/meta.json'
+        },
+        {
+          first: 'Incorrect Metadata',
+          last: 'SimpleNotebook2/PinMeta/meta.json'
         }
+      ];
+      rows?.childNodes.forEach((node, idx) => {
+        const row = expectedRows[idx];
+        expect(node.hasChildNodes()).toBe(true);
+        expect(node.firstChild).toHaveTextContent(row.first);
+        expect(node.lastChild).toHaveTextContent(row.last);
       });
     });
   });
