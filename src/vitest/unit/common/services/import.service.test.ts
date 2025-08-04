@@ -810,8 +810,5 @@ describe('import service', () => {
       expect(importService.canRestoreSpace(zipData)).toBe(false);
       expect(importService.restoreSpace(zipData)).toBe(false);
     });
-
-    // TODO test with malformed meta
-    // TODO test with more errors at root
   });
 });

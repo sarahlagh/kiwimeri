@@ -101,12 +101,16 @@ const ConfirmMultipleImportModal = ({
         <IonToolbar>
           {!params.createNotebook && (
             <IonTitle data-testid="modal-title">
-              <Trans>Import zip content in folder {parentName}</Trans>
+              <Trans>
+                Import {params.zipData.zipName}.zip in folder {parentName}
+              </Trans>
             </IonTitle>
           )}
           {params.createNotebook && (
             <IonTitle data-testid="modal-title">
-              <Trans>Import zip content in a new Notebook</Trans>
+              <Trans>
+                Import {params.zipData.zipName}.zip in a new Notebook
+              </Trans>
             </IonTitle>
           )}
           <IonButtons slot="end">

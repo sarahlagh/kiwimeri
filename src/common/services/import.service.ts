@@ -16,6 +16,7 @@ import tagsService from '@/db/tags.service';
 import formatterService from '@/format-conversion/formatter.service';
 import { Unzipped, strFromU8, unzip } from 'fflate';
 import { SerializedEditorState, SerializedLexicalNode } from 'lexical';
+import * as z from 'zod';
 import { ZipMetadata } from './export.service';
 
 export type ZipMergeFistLevel = {
@@ -79,6 +80,16 @@ type ZipParsedMetadata = {
     [key: string]: ZipParsedMetadata;
   };
 } & ZipMetadata;
+
+const ZipMetadataSchema = z.object({
+  format: z.enum(['markdown']).optional(),
+  type: z.enum(CollectionItemType).optional(),
+  title: z.string().optional(),
+  created: z.number().optional(),
+  updated: z.number().optional(),
+  tags: z.string().optional(),
+  files: z.object().optional()
+});
 
 class ImportService {
   private readonly zipRoot = 'zip-root';
@@ -233,70 +244,81 @@ class ImportService {
     itemKey: string,
     parentPath: string,
     items: Map<string, CollectionItem>,
-    metaMap: Map<string, ZipParsedMetadata>
+    metaMap: Map<string, ZipParsedMetadata>,
+    errors: ZipParseError[]
   ) {
-    // handle meta.json
-    const origMeta: ZipMetadata = JSON.parse(strFromU8(unzipped[itemKey]));
-    const meta: ZipParsedMetadata = {
-      parentKey: parentPath,
-      ...origMeta
-    };
-    metaMap.set(parentPath, meta);
-    // should always get the parent item before its meta unless its root
-    let finalParentPath = parentPath;
-    // fill in meta for closestParent
-    if (items.has(parentPath)) {
-      const typeBefore = items.get(parentPath)!.type;
-      this.fillInMeta(items.get(parentPath)!, meta);
-      // if document with non inline pages detected...
-      if (
-        typeBefore === CollectionItemType.folder &&
-        items.get(parentPath)!.type === CollectionItemType.document
-      ) {
-        // update the children parent - go up one folder
-        finalParentPath = this.goUpOneFolder(finalParentPath);
-        // delete the item created for the directory
-        items.delete(parentPath);
-      }
-    }
-    // fill in meta for siblings
-    if (meta.files) {
-      let docPath: string | undefined;
-      const orphanPages: string[] = [];
-      Object.keys(meta.files).forEach(filename => {
-        let parentKey: string | undefined = undefined;
-        let metaFile = meta.files![filename];
-        const metaFilePath = `${parentPath}${filename}`;
-        const oldMeta = metaMap.get(metaFilePath); // can happen with docs with inlined pages
-        metaFile = { ...oldMeta, ...metaFile };
-        if (items.has(metaFilePath)) {
-          const item = items.get(metaFilePath)!;
-          this.fillInMeta(item, metaFile);
+    try {
+      // handle meta.json
+      const origMeta: ZipMetadata = JSON.parse(strFromU8(unzipped[itemKey]));
+      // use zod to validate schema
+      ZipMetadataSchema.parse(origMeta);
+      const meta: ZipParsedMetadata = {
+        parentKey: parentPath,
+        ...origMeta
+      };
+      metaMap.set(parentPath, meta);
+      // should always get the parent item before its meta unless its root
+      let finalParentPath = parentPath;
+      // fill in meta for closestParent
+      if (items.has(parentPath)) {
+        const typeBefore = items.get(parentPath)!.type;
+        this.fillInMeta(items.get(parentPath)!, meta);
+        // if document with non inline pages detected...
+        if (
+          typeBefore === CollectionItemType.folder &&
+          items.get(parentPath)!.type === CollectionItemType.document
+        ) {
+          // update the children parent - go up one folder
+          finalParentPath = this.goUpOneFolder(finalParentPath);
+          // delete the item created for the directory
+          items.delete(parentPath);
         }
-        // if document update its parent
-        if (metaFile.type === CollectionItemType.document) {
-          parentKey = finalParentPath;
-          docPath = metaFilePath;
-          if (items.has(metaFilePath) && items.get(parentKey)?.id) {
-            items.get(metaFilePath)!.parent = items.get(parentKey)!.id!;
+      }
+      // fill in meta for siblings
+      if (meta.files) {
+        let docPath: string | undefined;
+        const orphanPages: string[] = [];
+        Object.keys(meta.files).forEach(filename => {
+          let parentKey: string | undefined = undefined;
+          let metaFile = meta.files![filename];
+          const metaFilePath = `${parentPath}${filename}`;
+          const oldMeta = metaMap.get(metaFilePath); // can happen with docs with inlined pages
+          metaFile = { ...oldMeta, ...metaFile };
+          if (items.has(metaFilePath)) {
+            const item = items.get(metaFilePath)!;
+            this.fillInMeta(item, metaFile);
           }
-          metaFile.orphans = [...orphanPages];
-          orphanPages.forEach(pageKey => {
-            metaMap.get(pageKey)!.parentKey = docPath;
-          });
-        } else if (metaFile.type === CollectionItemType.page) {
-          // if page update its parent to document
-          if (docPath) {
-            parentKey = docPath;
+          // if document update its parent
+          if (metaFile.type === CollectionItemType.document) {
+            parentKey = finalParentPath;
+            docPath = metaFilePath;
             if (items.has(metaFilePath) && items.get(parentKey)?.id) {
               items.get(metaFilePath)!.parent = items.get(parentKey)!.id!;
             }
-          } else {
-            // is a page, but document is still unknown
-            orphanPages!.push(metaFilePath);
+            metaFile.orphans = [...orphanPages];
+            orphanPages.forEach(pageKey => {
+              metaMap.get(pageKey)!.parentKey = docPath;
+            });
+          } else if (metaFile.type === CollectionItemType.page) {
+            // if page update its parent to document
+            if (docPath) {
+              parentKey = docPath;
+              if (items.has(metaFilePath) && items.get(parentKey)?.id) {
+                items.get(metaFilePath)!.parent = items.get(parentKey)!.id!;
+              }
+            } else {
+              // is a page, but document is still unknown
+              orphanPages!.push(metaFilePath);
+            }
           }
-        }
-        metaMap.set(metaFilePath, { parentKey, ...metaFile });
+          metaMap.set(metaFilePath, { parentKey, ...metaFile });
+        });
+      }
+    } catch (e) {
+      console.error(e);
+      errors.push({
+        family: 'parse_error',
+        path: itemKey
       });
     }
   }
@@ -308,6 +330,7 @@ class ImportService {
     levelMap: Map<string, string[]>,
     metaMap: Map<string, ZipParsedMetadata>
   ) {
+    console.debug('checking errors level', lastDirKey);
     const item = items.get(lastDirKey);
     const meta = metaMap.get(lastDirKey);
     const level = levelMap.get(lastDirKey)!;
@@ -343,6 +366,28 @@ class ImportService {
         (child.endsWith('/')
           ? CollectionItemType.folder
           : CollectionItemType.document);
+
+      if (!child.endsWith('/') && childType === CollectionItemType.folder) {
+        errors.push({
+          path: metaFilePath,
+          family: 'incorrect_meta',
+          code: 'orphaned_folder'
+        });
+        return;
+      }
+      if (!child.endsWith('/') && childType === CollectionItemType.notebook) {
+        errors.push({
+          path: metaFilePath,
+          family: 'incorrect_meta',
+          code: 'orphaned_notebook'
+        });
+        return;
+      }
+      if (child.endsWith('/') && childType === CollectionItemType.page) {
+        // already handled above with (type === CollectionItemType.page)
+        continue;
+      }
+
       const hasInlinePages = metaMap.get(child)?.hasInlinePages;
 
       if (type === CollectionItemType.document) {
@@ -507,7 +552,14 @@ class ImportService {
       } else {
         // is meta.json
         hasMetadata = true;
-        this.parseMetadataFile(unzipped, itemKey, parentPath, items, metaMap);
+        this.parseMetadataFile(
+          unzipped,
+          itemKey,
+          parentPath,
+          items,
+          metaMap,
+          errors
+        );
       }
 
       if (closestParent === this.zipRoot && items.has(itemKey)) {
@@ -516,6 +568,7 @@ class ImportService {
 
       if (!opts.ignoreMetadata && level < lastLevel) {
         this.checkErrors(errors, lastDirectory, items, levelMap, metaMap);
+        levelMap.delete(lastDirectory);
       }
 
       lastDirectory = parentPath;
@@ -523,7 +576,9 @@ class ImportService {
     });
 
     if (!opts.ignoreMetadata) {
-      this.checkErrors(errors, '', items, levelMap, metaMap);
+      [...levelMap.keys()].reverse().forEach(level => {
+        this.checkErrors(errors, level, items, levelMap, metaMap);
+      });
     }
 
     const finalItems = [...items.values()];
