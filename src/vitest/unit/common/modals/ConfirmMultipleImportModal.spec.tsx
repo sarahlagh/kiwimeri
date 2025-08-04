@@ -133,7 +133,7 @@ describe('ConfirmMultipleImportModal', () => {
       // check questions
       expect(queryByTestId('modal-title')).toBeInTheDocument();
       expect(queryByTestId('modal-title')).toHaveTextContent(
-        'Import zip content in folder'
+        'Import Simple.zip in folder'
       );
 
       expectShowMetadataInfo(false, queryByTestId);
@@ -173,7 +173,7 @@ describe('ConfirmMultipleImportModal', () => {
       // check questions
       expect(queryByTestId('modal-title')).toBeInTheDocument();
       expect(queryByTestId('modal-title')).toHaveTextContent(
-        'Import zip content in a new Notebook'
+        'Import Simple.zip in a new Notebook'
       );
 
       expectShowMetadataInfo(false, queryByTestId);
@@ -213,7 +213,7 @@ describe('ConfirmMultipleImportModal', () => {
       // check questions
       expect(queryByTestId('modal-title')).toBeInTheDocument();
       expect(queryByTestId('modal-title')).toHaveTextContent(
-        'Import zip content in folder'
+        'Import Simple.zip in folder'
       );
 
       expectShowMetadataInfo(true, queryByTestId);
@@ -253,7 +253,7 @@ describe('ConfirmMultipleImportModal', () => {
       // check questions
       expect(queryByTestId('modal-title')).toBeInTheDocument();
       expect(queryByTestId('modal-title')).toHaveTextContent(
-        'Import zip content in a new Notebook'
+        'Import Simple.zip in a new Notebook'
       );
 
       expectShowMetadataInfo(true, queryByTestId);
@@ -295,7 +295,7 @@ describe('ConfirmMultipleImportModal', () => {
       // check questions
       expect(queryByTestId('modal-title')).toBeInTheDocument();
       expect(queryByTestId('modal-title')).toHaveTextContent(
-        'Import zip content in folder'
+        'Import SimpleLayer.zip in folder'
       );
 
       expectShowMetadataInfo(false, queryByTestId);
@@ -335,7 +335,7 @@ describe('ConfirmMultipleImportModal', () => {
       // check questions
       expect(queryByTestId('modal-title')).toBeInTheDocument();
       expect(queryByTestId('modal-title')).toHaveTextContent(
-        'Import zip content in a new Notebook'
+        'Import SimpleLayer.zip in a new Notebook'
       );
 
       expectShowMetadataInfo(false, queryByTestId);
@@ -375,7 +375,7 @@ describe('ConfirmMultipleImportModal', () => {
       // check questions
       expect(queryByTestId('modal-title')).toBeInTheDocument();
       expect(queryByTestId('modal-title')).toHaveTextContent(
-        'Import zip content in folder'
+        'Import SimpleLayer.zip in folder'
       );
 
       expectShowMetadataInfo(true, queryByTestId);
@@ -414,7 +414,7 @@ describe('ConfirmMultipleImportModal', () => {
       // check questions
       expect(queryByTestId('modal-title')).toBeInTheDocument();
       expect(queryByTestId('modal-title')).toHaveTextContent(
-        'Import zip content in a new Notebook'
+        'Import SimpleLayer.zip in a new Notebook'
       );
 
       expectShowMetadataInfo(true, queryByTestId);
@@ -452,7 +452,7 @@ describe('ConfirmMultipleImportModal', () => {
       // check questions
       expect(queryByTestId('modal-title')).toBeInTheDocument();
       expect(queryByTestId('modal-title')).toHaveTextContent(
-        'Import zip content in folder'
+        'Import Empty.zip in folder'
       );
 
       expectShowMetadataInfo(true, queryByTestId);
@@ -481,7 +481,7 @@ describe('ConfirmMultipleImportModal', () => {
       // check questions
       expect(queryByTestId('modal-title')).toBeInTheDocument();
       expect(queryByTestId('modal-title')).toHaveTextContent(
-        'Import zip content in a new Notebook'
+        'Import Empty.zip in a new Notebook'
       );
 
       expectShowMetadataInfo(true, queryByTestId);
@@ -511,7 +511,7 @@ describe('ConfirmMultipleImportModal', () => {
       // check questions
       expect(queryByTestId('modal-title')).toBeInTheDocument();
       expect(queryByTestId('modal-title')).toHaveTextContent(
-        'Import zip content in folder'
+        'Import SpaceMalformed.zip in folder'
       );
 
       expectShowMetadataInfo(true, queryByTestId);
@@ -579,7 +579,7 @@ describe('ConfirmMultipleImportModal', () => {
       // check questions
       expect(queryByTestId('modal-title')).toBeInTheDocument();
       expect(queryByTestId('modal-title')).toHaveTextContent(
-        'Import zip content in a new Notebook'
+        'Import SpaceMalformed.zip in a new Notebook'
       );
 
       expectShowMetadataInfo(true, queryByTestId);
@@ -659,7 +659,7 @@ describe('ConfirmMultipleImportModal', () => {
       // check questions
       expect(queryByTestId('modal-title')).toBeInTheDocument();
       expect(queryByTestId('modal-title')).toHaveTextContent(
-        'Import zip content in folder'
+        'Import Simple.zip in folder'
       );
 
       expectShowMetadataInfo(false, queryByTestId);
@@ -707,7 +707,7 @@ describe('ConfirmMultipleImportModal', () => {
       // check questions
       expect(queryByTestId('modal-title')).toBeInTheDocument();
       expect(queryByTestId('modal-title')).toHaveTextContent(
-        'Import zip content in a new Notebook'
+        'Import Simple.zip in a new Notebook'
       );
 
       expectShowMetadataInfo(false, queryByTestId);
@@ -754,7 +754,7 @@ describe('ConfirmMultipleImportModal', () => {
       // check questions
       expect(queryByTestId('modal-title')).toBeInTheDocument();
       expect(queryByTestId('modal-title')).toHaveTextContent(
-        'Import zip content in folder'
+        'Import Simple.zip in folder'
       );
 
       expectShowMetadataInfo(true, queryByTestId);
@@ -802,7 +802,7 @@ describe('ConfirmMultipleImportModal', () => {
       // check questions
       expect(queryByTestId('modal-title')).toBeInTheDocument();
       expect(queryByTestId('modal-title')).toHaveTextContent(
-        'Import zip content in a new Notebook'
+        'Import Simple.zip in a new Notebook'
       );
 
       expectShowMetadataInfo(true, queryByTestId);
@@ -847,7 +847,7 @@ describe('ConfirmMultipleImportModal', () => {
       // check questions
       expect(queryByTestId('modal-title')).toBeInTheDocument();
       expect(queryByTestId('modal-title')).toHaveTextContent(
-        'Import zip content in folder'
+        'Import SimpleLayer.zip in folder'
       );
 
       expectShowMetadataInfo(false, queryByTestId);
@@ -895,7 +895,7 @@ describe('ConfirmMultipleImportModal', () => {
       // check questions
       expect(queryByTestId('modal-title')).toBeInTheDocument();
       expect(queryByTestId('modal-title')).toHaveTextContent(
-        'Import zip content in a new Notebook'
+        'Import SimpleLayer.zip in a new Notebook'
       );
 
       expectShowMetadataInfo(false, queryByTestId);
@@ -940,7 +940,7 @@ describe('ConfirmMultipleImportModal', () => {
       // check questions
       expect(queryByTestId('modal-title')).toBeInTheDocument();
       expect(queryByTestId('modal-title')).toHaveTextContent(
-        'Import zip content in folder'
+        'Import SimpleLayer.zip in folder'
       );
 
       expectShowMetadataInfo(true, queryByTestId);
@@ -988,7 +988,7 @@ describe('ConfirmMultipleImportModal', () => {
       // check questions
       expect(queryByTestId('modal-title')).toBeInTheDocument();
       expect(queryByTestId('modal-title')).toHaveTextContent(
-        'Import zip content in a new Notebook'
+        'Import SimpleLayer.zip in a new Notebook'
       );
 
       expectShowMetadataInfo(true, queryByTestId);

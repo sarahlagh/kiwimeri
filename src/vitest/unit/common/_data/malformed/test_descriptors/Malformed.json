@@ -94,6 +94,127 @@
           "expected": {}
         }
       ]
+    },
+    {
+      "zipName": "FoldersAndDocsMalformed1.zip",
+      "description": "FoldersAndDocsMalformed1.zip",
+      "initData": [],
+      "scenarios": [
+        {
+          "description": "and default options",
+          "options": [{}],
+          "errors": [
+            {
+              "path": "meta.json",
+              "family": "incorrect_meta",
+              "code": "orphaned_folder"
+            }
+          ],
+          "expected": {}
+        }
+      ]
+    },
+    {
+      "zipName": "FoldersAndDocsMalformed2.zip",
+      "description": "FoldersAndDocsMalformed2.zip",
+      "initData": [],
+      "scenarios": [
+        {
+          "description": "and default options",
+          "options": [{}],
+          "errors": [
+            {
+              "path": "test/meta.json",
+              "family": "incorrect_meta",
+              "code": "orphaned_page"
+            },
+            {
+              "path": "meta.json",
+              "family": "incorrect_meta",
+              "code": "orphaned_folder"
+            }
+          ],
+          "expected": {}
+        }
+      ]
+    },
+    {
+      "zipName": "FoldersAndDocsMalformed3.zip",
+      "description": "FoldersAndDocsMalformed3.zip",
+      "initData": [],
+      "scenarios": [
+        {
+          "description": "and default options",
+          "options": [{}],
+          "errors": [
+            {
+              "path": "test/meta.json",
+              "family": "incorrect_meta",
+              "code": "orphaned_page"
+            },
+            {
+              "path": "meta.json",
+              "family": "incorrect_meta",
+              "code": "orphaned_notebook"
+            }
+          ],
+          "expected": {}
+        }
+      ]
+    },
+    {
+      "zipName": "MetaMalformed1.zip",
+      "description": "MetaMalformed1.zip",
+      "initData": [],
+      "scenarios": [
+        {
+          "description": "and default options",
+          "options": [{}],
+          "errors": [
+            {
+              "family": "parse_error",
+              "path": "meta.json"
+            }
+          ],
+          "expected": {}
+        }
+      ]
+    },
+    {
+      "zipName": "MetaMalformed2.zip",
+      "description": "MetaMalformed2.zip",
+      "initData": [],
+      "scenarios": [
+        {
+          "description": "and default options",
+          "options": [{}],
+          "errors": [
+            {
+              "family": "parse_error",
+              "path": "meta.json"
+            }
+          ],
+          "expected": {}
+        }
+      ]
+    },
+    {
+      "zipName": "MetaNotAJson.zip",
+      "description": "MetaNotAJson.zip",
+      "initData": [],
+      "scenarios": [
+        {
+          "description": "and default options",
+          "options": [{}],
+          "errors": [
+            {
+              "family": "parse_error",
+              "path": "meta.json"
+            }
+          ],
+          "expected": {}
+        }
+      ]
     }
   ]
 }
