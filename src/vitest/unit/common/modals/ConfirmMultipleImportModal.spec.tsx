@@ -540,7 +540,7 @@ describe('ConfirmMultipleImportModal', () => {
         },
         {
           first: 'Incorrect Metadata',
-          last: 'SimpleNotebook2/DandSub/meta.json'
+          last: 'SimpleNotebook2/DandSub/Other/'
         },
         {
           first: 'Incorrect Metadata',
@@ -608,7 +608,7 @@ describe('ConfirmMultipleImportModal', () => {
         },
         {
           first: 'Incorrect Metadata',
-          last: 'SimpleNotebook2/DandSub/meta.json'
+          last: 'SimpleNotebook2/DandSub/Other/'
         },
         {
           first: 'Incorrect Metadata',
