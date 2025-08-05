@@ -26,10 +26,11 @@ export type ZipMergeFistLevel = {
 export type ZipParseError = {
   family: 'incorrect_meta' | 'parse_error';
   code?:
-    | 'non_document_deleted'
+    | 'incorrect_child_type'
+    | 'incorrect_parent_type'
+    | 'malformed_document'
     | 'page_has_inline_items'
     | 'orphaned_page'
-    | 'orphaned_document'
     | 'orphaned_folder'
     | 'orphaned_notebook';
   path: string;
@@ -330,7 +331,6 @@ class ImportService {
     levelMap: Map<string, string[]>,
     metaMap: Map<string, ZipParsedMetadata>
   ) {
-    console.debug('checking errors level', lastDirKey);
     const item = items.get(lastDirKey);
     const meta = metaMap.get(lastDirKey);
     const level = levelMap.get(lastDirKey)!;
@@ -339,126 +339,109 @@ class ImportService {
       return;
     }
 
-    const type: CollectionItemTypeValues =
+    const parentType: CollectionItemTypeValues =
       item?.type || meta.type || CollectionItemType.folder;
 
     const metaFilePath = metaMap.has(lastDirKey)
       ? `${lastDirKey}${META_JSON}`
       : lastDirKey;
 
-    if (type === CollectionItemType.page) {
-      errors.push({
-        path: metaFilePath,
-        family: 'incorrect_meta',
-        code: 'orphaned_page'
-      });
-      return;
-    }
-
     let nbDocs = 0;
+    let nbPages = 0;
     for (const child of level) {
       if (child === META_JSON || child.endsWith(`/${META_JSON}`)) {
         continue;
       }
+      const isFileInZip = !child.endsWith('/');
+
       const childType =
         items.get(child)?.type ||
         metaMap.get(child)?.type ||
-        (child.endsWith('/')
-          ? CollectionItemType.folder
-          : CollectionItemType.document);
+        (isFileInZip ? CollectionItemType.document : CollectionItemType.folder);
 
-      if (!child.endsWith('/') && childType === CollectionItemType.folder) {
-        errors.push({
-          path: metaFilePath,
-          family: 'incorrect_meta',
-          code: 'orphaned_folder'
-        });
-        return;
-      }
-      if (!child.endsWith('/') && childType === CollectionItemType.notebook) {
-        errors.push({
-          path: metaFilePath,
-          family: 'incorrect_meta',
-          code: 'orphaned_notebook'
-        });
-        return;
-      }
-      if (child.endsWith('/') && childType === CollectionItemType.page) {
-        // already handled above with (type === CollectionItemType.page)
-        continue;
-      }
-
-      const hasInlinePages = metaMap.get(child)?.hasInlinePages;
-
-      if (type === CollectionItemType.document) {
-        if (childType === CollectionItemType.document || !metaMap.has(child)) {
+      if (isFileInZip) {
+        if (childType === CollectionItemType.document) {
           nbDocs++;
         } else if (childType === CollectionItemType.page) {
-          if (hasInlinePages === true) {
-            errors.push({
-              path: child,
-              family: 'incorrect_meta',
-              code: 'page_has_inline_items'
-            });
-            return;
-          }
-        } else if (childType === CollectionItemType.folder) {
-          errors.push({
-            path: metaFilePath,
-            family: 'incorrect_meta',
-            code: 'orphaned_folder'
-          });
-          return;
-        } else if (childType === CollectionItemType.notebook) {
-          errors.push({
-            path: metaFilePath,
-            family: 'incorrect_meta',
-            code: 'orphaned_notebook'
-          });
-          return;
-        }
-        continue;
-      } else if (type === CollectionItemType.folder) {
-        if (childType === CollectionItemType.page) {
-          errors.push({
-            path: metaFilePath,
-            family: 'incorrect_meta',
-            code: 'orphaned_page'
-          });
-          break;
+          nbPages++;
         }
         if (
-          lastDirKey.length > 0 &&
+          childType === CollectionItemType.folder ||
           childType === CollectionItemType.notebook
         ) {
-          errors.push({
-            path: metaFilePath,
+          return errors.push({
             family: 'incorrect_meta',
-            code: 'orphaned_notebook'
+            code: 'incorrect_child_type',
+            path: metaFilePath
           });
-          break;
         }
-        continue;
-      } else if (type === CollectionItemType.notebook) {
+        if (
+          childType === CollectionItemType.page &&
+          parentType !== CollectionItemType.document
+        ) {
+          return errors.push({
+            family: 'incorrect_meta',
+            code: 'orphaned_page',
+            path: metaFilePath
+          });
+        }
+        const hasInlinePages = metaMap.get(child)?.hasInlinePages;
+        if (hasInlinePages && childType !== CollectionItemType.document) {
+          return errors.push({
+            path: child,
+            family: 'incorrect_meta',
+            code: 'page_has_inline_items'
+          });
+        }
+      } else {
+        // if is directory in zip
+        const childMetaFilePath = metaMap.has(child)
+          ? `${child}${META_JSON}`
+          : child;
+
         if (childType === CollectionItemType.page) {
-          errors.push({
-            path: metaFilePath,
+          return errors.push({
             family: 'incorrect_meta',
-            code: 'orphaned_page'
+            code: 'incorrect_parent_type',
+            path: childMetaFilePath
           });
-          break;
         }
-        continue;
+        if (
+          childType === CollectionItemType.folder &&
+          parentType !== CollectionItemType.folder &&
+          parentType !== CollectionItemType.notebook
+        ) {
+          return errors.push({
+            family: 'incorrect_meta',
+            code: 'orphaned_folder',
+            path: childMetaFilePath
+          });
+        }
+        if (
+          childType === CollectionItemType.notebook &&
+          parentType !== CollectionItemType.notebook &&
+          lastDirKey.length > 0
+        ) {
+          return errors.push({
+            family: 'incorrect_meta',
+            code: 'orphaned_notebook',
+            path: childMetaFilePath
+          });
+        }
       }
     }
 
-    if (type === CollectionItemType.document && nbDocs !== 1) {
-      errors.push({
-        path: metaFilePath,
+    if (
+      parentType === CollectionItemType.document &&
+      (nbDocs !== 1 || nbDocs + nbPages !== level.length - 1) // -1 for the meta.json
+    ) {
+      return errors.push({
         family: 'incorrect_meta',
-        code: 'orphaned_document'
+        code: 'malformed_document',
+        path: metaFilePath
       });
     }
+    return errors.length;
   }
 
   public parseZipData(

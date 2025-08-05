@@ -24,6 +24,52 @@
       ]
     },
     {
+      "zipName": "DocWithPagesMalformed2.zip",
+      "description": "DocWithPagesMalformed2.zip",
+      "initData": [],
+      "scenarios": [
+        {
+          "description": "and default options",
+          "options": [
+            {
+              "detectInlinedPages": true
+            }
+          ],
+          "errors": [
+            {
+              "path": "meta.json",
+              "family": "incorrect_meta",
+              "code": "malformed_document"
+            }
+          ],
+          "expected": {}
+        }
+      ]
+    },
+    {
+      "zipName": "DocWithPagesMalformed3.zip",
+      "description": "DocWithPagesMalformed3.zip",
+      "initData": [],
+      "scenarios": [
+        {
+          "description": "and default options",
+          "options": [
+            {
+              "detectInlinedPages": true
+            }
+          ],
+          "errors": [
+            {
+              "path": "meta.json",
+              "family": "incorrect_meta",
+              "code": "malformed_document"
+            }
+          ],
+          "expected": {}
+        }
+      ]
+    },
+    {
       "zipName": "FolderWithPagesMalformed.zip",
       "description": "FolderWithPagesMalformed.zip",
       "initData": [],
@@ -58,37 +104,37 @@
             {
               "path": "SimpleNotebook1/Sub/meta.json",
               "family": "incorrect_meta",
-              "code": "orphaned_notebook"
+              "code": "incorrect_child_type"
             },
             {
               "path": "SimpleNotebook2/DandMissingType/meta.json",
               "family": "incorrect_meta",
-              "code": "orphaned_document"
+              "code": "malformed_document"
             },
             {
               "path": "SimpleNotebook2/DandNested/meta.json",
               "family": "incorrect_meta",
-              "code": "orphaned_document"
+              "code": "malformed_document"
             },
             {
-              "path": "SimpleNotebook2/DandSub/meta.json",
+              "path": "SimpleNotebook2/DandSub/Other/",
               "family": "incorrect_meta",
-              "code": "orphaned_document"
+              "code": "orphaned_folder"
             },
             {
               "path": "SimpleNotebook2/IncorrectInFiles/meta.json",
               "family": "incorrect_meta",
-              "code": "orphaned_notebook"
+              "code": "incorrect_child_type"
             },
             {
               "path": "SimpleNotebook2/OnlyPsInFiles/meta.json",
               "family": "incorrect_meta",
-              "code": "orphaned_document"
+              "code": "malformed_document"
             },
             {
               "path": "SimpleNotebook2/PinMeta/meta.json",
               "family": "incorrect_meta",
-              "code": "orphaned_page"
+              "code": "incorrect_parent_type"
             }
           ],
           "expected": {}
@@ -107,7 +153,7 @@
             {
               "path": "meta.json",
               "family": "incorrect_meta",
-              "code": "orphaned_folder"
+              "code": "incorrect_child_type"
             }
           ],
           "expected": {}
@@ -131,7 +177,7 @@
             {
               "path": "meta.json",
               "family": "incorrect_meta",
-              "code": "orphaned_folder"
+              "code": "incorrect_child_type"
             }
           ],
           "expected": {}
@@ -155,7 +201,7 @@
             {
               "path": "meta.json",
               "family": "incorrect_meta",
-              "code": "orphaned_notebook"
+              "code": "malformed_document"
             }
           ],
           "expected": {}
