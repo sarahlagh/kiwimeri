@@ -25,14 +25,14 @@ describe('export service', () => {
     const id = collectionService.addDocument(parent);
     collectionService.setItemLexicalContent(
       id,
-      formatterService.getLexicalFromMarkdown(content)
+      formatterService.getLexicalFromMarkdown(content).obj!
     );
     if (pages) {
       pages.forEach(page => {
         const pId = collectionService.addPage(id);
         collectionService.setItemLexicalContent(
           pId,
-          formatterService.getLexicalFromMarkdown(page)
+          formatterService.getLexicalFromMarkdown(page).obj!
         );
       });
     }

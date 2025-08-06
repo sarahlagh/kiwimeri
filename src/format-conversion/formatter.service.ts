@@ -35,8 +35,8 @@ class FormatterService {
     text: string,
     parser: KiwimeriParser,
     opts?: unknown
-  ): SerializedEditorState {
-    return parser.parse(text, opts).obj!; // TODO handle errors
+  ) {
+    return parser.parse(text, opts);
   }
 
   public getLexicalFromMarkdown(markdown: string) {

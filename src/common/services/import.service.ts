@@ -121,14 +121,27 @@ class ImportService {
         formatterService.getPagesSeparator()
       );
       const doc = pagesFormatted.shift()!;
-      const lexical = formatterService.getLexicalFromMarkdown(doc);
+      const { obj: lexical, errors } =
+        formatterService.getLexicalFromMarkdown(doc);
+      if (errors?.length || 0 > 0) {
+        return { errors };
+      }
       const pages: SerializedEditorState<SerializedLexicalNode>[] = [];
       pagesFormatted.forEach(page => {
-        pages.push(formatterService.getLexicalFromMarkdown(page));
+        const { obj: pageLexical, errors } =
+          formatterService.getLexicalFromMarkdown(page);
+        if (errors?.length || 0 > 0) {
+          return { errors };
+        }
+        pages.push(pageLexical!);
       });
       return { doc: lexical, pages };
     }
-    return { doc: formatterService.getLexicalFromMarkdown(content), pages: [] };
+    const { obj, errors } = formatterService.getLexicalFromMarkdown(content);
+    if (errors?.length || 0 > 0) {
+      return { errors };
+    }
+    return { doc: obj, pages: [] };
   }
 
   private fillInMeta(
@@ -207,9 +220,21 @@ class ImportService {
     const item = items.get(itemKey)!;
     try {
       const content = strFromU8(unzipped[itemKey]);
-      const { doc, pages } = this.parseNonLexicalContent(content, opts);
-      collectionService.setUnsavedItemLexicalContent(item, doc);
-      pages.forEach((page, idx) => {
+      const {
+        doc,
+        pages,
+        errors: parseErrors
+      } = this.parseNonLexicalContent(content, opts);
+      if (parseErrors?.length || 0 > 0) {
+        console.error(parseErrors);
+        errors.push({
+          family: 'parse_error',
+          path: fKey
+        });
+        return false;
+      }
+      collectionService.setUnsavedItemLexicalContent(item, doc!);
+      pages!.forEach((page, idx) => {
         const { item: pItem, id: pId } = collectionService.getNewPageObj(
           item.id!
         );
@@ -223,7 +248,7 @@ class ImportService {
         items.set(fKey, pageItem);
         collectionService.setUnsavedItemLexicalContent(pageItem, page);
       });
-      return pages.length > 0;
+      return pages!.length > 0;
     } catch (e) {
       console.error(e);
       errors.push({

@@ -98,4 +98,18 @@ describe('parser', () => {
       );
     });
   });
+
+  it('should not parse example', async () => {
+    const parser = new MarkdownParser();
+    const markdown = await readFile(`${__dirname}/_data/errors.md`, 'utf8');
+    const resp = parser.parse(markdown);
+    expect(resp).toBeDefined();
+    expect(resp.obj).toBeNull();
+    expect(resp.errors).toBeDefined();
+    expect(resp.errors).toHaveLength(1);
+    expect(resp.errors![0].line).toBe(3);
+    expect(resp.errors![0].blockPreview).toBe('With non escaped ~~~ chars.\n');
+    expect(resp.errors![0].lastKeyword).toBe('~~');
+    expect(resp.errors![0].lastText).toBe('With non escaped ');
+  });
 });
