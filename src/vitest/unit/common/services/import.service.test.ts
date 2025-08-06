@@ -223,8 +223,8 @@ describe('import service', () => {
       expect(doc).toBeDefined();
       expect(pages).toHaveLength(0);
       const id = importService.commitDocument(
-        doc,
-        pages,
+        doc!,
+        pages!,
         DEFAULT_NOTEBOOK_ID,
         'New doc'
       );
@@ -244,8 +244,8 @@ describe('import service', () => {
       expect(doc).toBeDefined();
       expect(pages).toHaveLength(0);
       const id2 = importService.commitDocument(
-        doc,
-        pages,
+        doc!,
+        pages!,
         DEFAULT_NOTEBOOK_ID,
         'New doc',
         id1
@@ -266,8 +266,8 @@ describe('import service', () => {
       expect(doc).toBeDefined();
       expect(pages).toHaveLength(1);
       const id = importService.commitDocument(
-        doc,
-        pages,
+        doc!,
+        pages!,
         DEFAULT_NOTEBOOK_ID,
         'New doc'
       );
@@ -291,8 +291,8 @@ describe('import service', () => {
       expect(doc).toBeDefined();
       expect(pages).toHaveLength(1);
       const id2 = importService.commitDocument(
-        doc,
-        pages,
+        doc!,
+        pages!,
         DEFAULT_NOTEBOOK_ID,
         'New doc',
         id1
@@ -322,8 +322,8 @@ describe('import service', () => {
       expect(doc).toBeDefined();
       expect(pages).toHaveLength(1);
       const id2 = importService.commitDocument(
-        doc,
-        pages,
+        doc!,
+        pages!,
         DEFAULT_NOTEBOOK_ID,
         'New doc',
         id1,
@@ -357,8 +357,8 @@ describe('import service', () => {
       expect(doc).toBeDefined();
       expect(pages).toHaveLength(1);
       const id2 = importService.commitDocument(
-        doc,
-        pages,
+        doc!,
+        pages!,
         DEFAULT_NOTEBOOK_ID,
         'New doc',
         id1,

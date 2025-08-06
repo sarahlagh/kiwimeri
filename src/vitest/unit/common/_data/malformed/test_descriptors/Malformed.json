@@ -132,6 +132,10 @@
               "code": "malformed_document"
             },
             {
+              "path": "SimpleNotebook2/Quote.md",
+              "family": "parse_error"
+            },
+            {
               "path": "SimpleNotebook2/PinMeta/meta.json",
               "family": "incorrect_meta",
               "code": "incorrect_parent_type"

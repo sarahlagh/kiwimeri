@@ -527,7 +527,7 @@ describe('ConfirmMultipleImportModal', () => {
       const rows = container.querySelector('#preview-list');
       expect(rows?.hasChildNodes()).toBe(true);
 
-      expect(rows?.childNodes).toHaveLength(7);
+      expect(rows?.childNodes).toHaveLength(8);
       const expectedRows = [
         { first: 'Incorrect Metadata', last: 'SimpleNotebook1/Sub/meta.json' },
         {
@@ -549,6 +549,10 @@ describe('ConfirmMultipleImportModal', () => {
         {
           first: 'Incorrect Metadata',
           last: 'SimpleNotebook2/OnlyPsInFiles/meta.json'
+        },
+        {
+          first: 'Parsing Error',
+          last: 'SimpleNotebook2/Quote.md'
         },
         {
           first: 'Incorrect Metadata',
@@ -595,7 +599,7 @@ describe('ConfirmMultipleImportModal', () => {
       const rows = container.querySelector('#preview-list');
       expect(rows?.hasChildNodes()).toBe(true);
 
-      expect(rows?.childNodes).toHaveLength(7);
+      expect(rows?.childNodes).toHaveLength(8);
       const expectedRows = [
         { first: 'Incorrect Metadata', last: 'SimpleNotebook1/Sub/meta.json' },
         {
@@ -617,6 +621,10 @@ describe('ConfirmMultipleImportModal', () => {
         {
           first: 'Incorrect Metadata',
           last: 'SimpleNotebook2/OnlyPsInFiles/meta.json'
+        },
+        {
+          first: 'Parsing Error',
+          last: 'SimpleNotebook2/Quote.md'
         },
         {
           first: 'Incorrect Metadata',

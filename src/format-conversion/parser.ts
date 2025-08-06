@@ -13,9 +13,16 @@ import {
   KiwimeriParserText
 } from './parser-context';
 
+export type KiwimeriParserError = {
+  line: number;
+  blockPreview: string;
+  lastKeyword: string | null;
+  lastText: string | null;
+};
+
 export type KiwimeriParserResponse = {
   obj: SerializedEditorState | null;
-  errors?: string[];
+  errors?: KiwimeriParserError[];
 };
 
 export abstract class KiwimeriParser {
@@ -46,7 +53,6 @@ export abstract class KiwimeriParser {
       children: []
     };
     const ctx = new KiwimeriParserContext();
-
     const lexer = this.getLexer(text, opts);
 
     while (lexer.nextBlock() !== null) {
@@ -57,6 +63,20 @@ export abstract class KiwimeriParser {
       if ('children' in elementNode) {
         while (lexer.nextText(block) !== null) {
           const lexerText = lexer.consumeText(block);
+          if (lexerText === null) {
+            const lines = ctx.blocks
+              .map(block => block.text.replace(/[^\n]/g, '').length)
+              .reduce((a, c) => a + c, 0);
+            const errors: KiwimeriParserError[] = [
+              {
+                line: lines + 1,
+                blockPreview: block.text,
+                lastKeyword: ctx.lastKeyword?.token || null,
+                lastText: ctx.lastText?.text || null
+              }
+            ];
+            return { obj: null, errors };
+          }
           ctx.nextText = lexer.nextText(block);
           const parsedText = this.parseText(
             lexerText!.token,
