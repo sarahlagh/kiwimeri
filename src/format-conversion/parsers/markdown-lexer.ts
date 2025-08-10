@@ -131,7 +131,8 @@ export class MarkdownLexer extends KiwimeriLexer {
     // regex to stop token at [*_~<\n] but not escaped [*_~<\n] (* will match but \* won't)
     const endOfText = nextText.match(/^(([\\][*_~<\n]|[^*_~<\n])*)[*_~<\n]/g);
     if (endOfText && endOfText.length > 0) {
-      const endOfToken = endOfText[0].replaceAll(/[*_~<\n]*$/g, '');
+      // remove trailing special chars BUT avoid escaped ones dammit
+      const endOfToken = endOfText[0].replaceAll(/(\**|_*|~*|<*|\n*)$/g, '');
       return {
         token: endOfToken,
         type: 'text'
