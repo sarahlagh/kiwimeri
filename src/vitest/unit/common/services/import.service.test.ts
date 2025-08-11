@@ -695,7 +695,8 @@ describe('import service', () => {
       'SpaceMix.zip',
       'DocWithPages.zip',
       'DocWithoutPages.zip',
-      'FolderWithPages.zip'
+      'FolderWithPages.zip',
+      'TrickyDocsWithPages.zip'
     ]);
   });
 
