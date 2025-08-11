@@ -67,15 +67,17 @@ export abstract class KiwimeriParser {
             const lines = ctx.blocks
               .map(block => block.text.replace(/[^\n]/g, '').length)
               .reduce((a, c) => a + c, 0);
-            const errors: KiwimeriParserError[] = [
-              {
-                line: lines + 1,
-                blockPreview: block.text,
-                lastKeyword: ctx.lastKeyword?.token || null,
-                lastText: ctx.lastText?.text || null
-              }
-            ];
-            return { obj: null, errors };
+            return {
+              obj: null,
+              errors: [
+                {
+                  line: lines + 1,
+                  blockPreview: block.text,
+                  lastKeyword: ctx.lastKeyword?.token || null,
+                  lastText: ctx.lastText?.text || null
+                }
+              ]
+            };
           }
           ctx.nextText = lexer.nextText(block);
           const parsedText = this.parseText(
@@ -140,9 +142,27 @@ export abstract class KiwimeriParser {
           }
         }
 
-        // propagate last block's align if current has no text (ex: empty <p>'s)
+        // propagate last block's align if last block had no text (ex: empty <p>'s)
+        let hadEmptyChildrenBefore = false;
+        if (
+          root.children.length > 0 &&
+          'children' in root.children[root.children.length - 1]
+        ) {
+          hadEmptyChildrenBefore =
+            (
+              root.children[root.children.length - 1] as SerializedElementNode
+            ).children
+              .map(c => (c as any).text?.trim() || '')
+              .filter(t => t.length > 0).length === 0;
+        }
+
+        const hasEmptyChildren =
+          elementNode.children
+            .map(c => (c as any).text?.trim() || '')
+            .filter(t => t.length > 0).length === 0;
         if (
           elementNode.format === '' &&
+          (hasEmptyChildren || hadEmptyChildrenBefore) &&
           ctx.lastBlock?.type === 'paragraph' &&
           ctx.lastBlock?.paragraphAlign
         ) {

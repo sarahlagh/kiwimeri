@@ -68,6 +68,26 @@
             "format": 0,
             "mode": "normal",
             "style": "",
+            "text": "~~~",
+            "type": "text",
+            "version": 1
+          }
+        ],
+        "direction": null,
+        "format": "center",
+        "indent": 0,
+        "type": "paragraph",
+        "version": 1,
+        "textFormat": 0,
+        "textStyle": ""
+      },
+      {
+        "children": [
+          {
+            "detail": 0,
+            "format": 0,
+            "mode": "normal",
+            "style": "",
             "text": "And a <p> html tag like this </del>",
             "type": "text",
             "version": 1

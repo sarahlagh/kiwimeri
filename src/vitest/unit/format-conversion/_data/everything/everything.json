@@ -700,7 +700,7 @@
       },
       {
         "children": [],
-        "direction": null,
+        "direction": "ltr",
         "format": "right",
         "indent": 0,
         "type": "paragraph",
