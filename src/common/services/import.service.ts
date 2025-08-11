@@ -895,8 +895,8 @@ class ImportService {
       }
       collectionService.saveItems(zipMerge.newItems);
       collectionService.saveItems(zipMerge.updatedItems);
-      tagsService.reBuildTags();
     });
+    tagsService.reBuildTags();
   }
 
   public commitDocument(

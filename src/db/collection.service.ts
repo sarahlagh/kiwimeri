@@ -19,6 +19,7 @@ import { Table } from 'tinybase/store';
 import localChangesService from './local-changes.service';
 import notebooksService from './notebooks.service';
 import storageService from './storage.service';
+import tagsService from './tags.service';
 import {
   useCellWithRef,
   useResultSortedRowIdsWithRef,
@@ -307,6 +308,7 @@ class CollectionService {
 
   public deleteItem(rowId: Id, moveItemsUp = false) {
     this.updateAllParentsInBreadcrumb(this.getItemParent(rowId));
+    const tags = this.getItemTags(rowId);
     const wasFolder = this.getItemType(rowId) === CollectionItemType.folder;
     const wasDocument = this.getItemType(rowId) === CollectionItemType.document;
     const parent = this.getItemParent(rowId);
@@ -339,6 +341,9 @@ class CollectionService {
         });
       }
     }
+    tags.forEach(tag => {
+      tagsService.delItemTag(rowId, tag);
+    });
     storageService.getSpace().delRow(this.table, rowId);
   }
 

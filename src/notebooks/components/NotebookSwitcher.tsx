@@ -15,7 +15,7 @@ const NotebookSwitcher = () => {
     onClose: (parentId?: string) => {
       if (parentId) {
         history.push(GET_FOLDER_ROUTE(parentId));
-        tagsService.reBuildTags();
+        tagsService.reBuildTags(parentId);
       }
       dismiss();
     }
