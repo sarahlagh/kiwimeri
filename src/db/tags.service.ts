@@ -6,9 +6,11 @@ import storageService from './storage.service';
 class TagsService {
   private itemsPerTags = new Map<string, string[]>();
 
-  public reBuildTags() {
+  public reBuildTags(notebook?: string) {
     this.clear();
-    const notebook = notebooksService.getCurrentNotebook();
+    if (!notebook) {
+      notebook = notebooksService.getCurrentNotebook();
+    }
     collectionService.getAllCollectionItemsRecursive(notebook, level => {
       level
         .filter(item => item.tags !== undefined && item.tags.length > 0)
@@ -21,7 +23,7 @@ class TagsService {
           });
         });
     });
-    console.debug('[tags] cache rebuilt', this.itemsPerTags);
+    console.debug('[tags] cache rebuilt', notebook, this.itemsPerTags);
   }
 
   public clear() {
