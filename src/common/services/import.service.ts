@@ -176,7 +176,7 @@ class ImportService {
       });
     }
     if (meta.tags) {
-      item.tags = meta.tags;
+      item.tags = item.type === CollectionItemType.page ? '' : meta.tags;
     }
   }
 
@@ -285,6 +285,7 @@ class ImportService {
       metaMap.set(parentPath, meta);
       // should always get the parent item before its meta unless its root
       let finalParentPath = parentPath;
+      let parentIsDocument = false;
       // fill in meta for closestParent
       if (items.has(parentPath)) {
         const typeBefore = items.get(parentPath)!.type;
@@ -294,6 +295,7 @@ class ImportService {
           typeBefore === CollectionItemType.folder &&
           items.get(parentPath)!.type === CollectionItemType.document
         ) {
+          parentIsDocument = true;
           // update the children parent - go up one folder
           finalParentPath = this.goUpOneFolder(finalParentPath);
           // delete the item created for the directory
@@ -303,6 +305,7 @@ class ImportService {
       // fill in meta for siblings
       if (meta.files) {
         let docPath: string | undefined;
+        const docTags = new Set<string>();
         const orphanPages: string[] = [];
         Object.keys(meta.files).forEach(filename => {
           let parentKey: string | undefined = undefined;
@@ -321,12 +324,23 @@ class ImportService {
             if (items.has(metaFilePath) && items.get(parentKey)?.id) {
               items.get(metaFilePath)!.parent = items.get(parentKey)!.id!;
             }
+            if (metaFile.tags) {
+              metaFile.tags.split(',').forEach(tag => {
+                docTags.add(tag);
+              });
+            }
           } else if (metaFile.type === CollectionItemType.page) {
             // if page update its parent to document
             if (docPath) {
               parentKey = docPath;
               if (items.has(metaFilePath) && items.get(parentKey)?.id) {
                 items.get(metaFilePath)!.parent = items.get(parentKey)!.id!;
+                // update doc tags
+                if (metaFile.tags) {
+                  metaFile.tags.split(',').forEach(tag => {
+                    docTags.add(tag);
+                  });
+                }
               } else {
                 // is a page, but document is still unknown
                 orphanPages.push(metaFilePath);
@@ -342,7 +356,22 @@ class ImportService {
           metaMap.get(docPath)!.orphans = [...orphanPages];
           orphanPages.forEach(pageKey => {
             metaMap.get(pageKey)!.parentKey = docPath;
+            // update parent tags
+            if (metaMap.get(pageKey)?.tags) {
+              metaMap
+                .get(pageKey)!
+                .tags!.split(',')
+                .forEach(tag => {
+                  docTags.add(tag);
+                });
+            }
           });
+          if (parentIsDocument) {
+            metaMap.get(docPath)!.tags = [...docTags].join(',');
+            if (items.get(docPath)) {
+              items.get(docPath)!.tags = metaMap.get(docPath)!.tags;
+            }
+          }
         }
       }
     } catch (e) {
