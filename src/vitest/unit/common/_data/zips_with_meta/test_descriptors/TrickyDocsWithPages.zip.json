@@ -1,0 +1,76 @@
+{
+  "zipName": "TrickyDocsWithPages.zip",
+  "testCases": [
+    {
+      "description": "with no init data",
+      "initData": [],
+      "scenarios": [
+        {
+          "description": "and default options",
+          "options": [{}],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#fId",
+                "type": "f",
+                "title": "folder",
+                "created": 1754582951524,
+                "updated": 1754582951524
+              },
+              {
+                "type": "p",
+                "parent": "#dId",
+                "title": "",
+                "created": 1739115309723,
+                "updated": 1749760932542
+              },
+              {
+                "type": "p",
+                "parent": "#dId",
+                "title": "",
+                "created": 1739115309723,
+                "updated": 1749759210597
+              },
+              {
+                "type": "p",
+                "parent": "#dId",
+                "title": "",
+                "created": 1739115309723,
+                "updated": 1749764409209
+              },
+              {
+                "type": "p",
+                "parent": "#dId",
+                "title": "",
+                "created": 1739115309723,
+                "updated": 1749814061651
+              },
+              {
+                "id": "#dId",
+                "type": "d",
+                "parent": "#fId",
+                "title": "the tricky doc",
+                "created": 1742558319541,
+                "updated": 1749764143422
+              },
+              {
+                "type": "p",
+                "parent": "#dId",
+                "title": "",
+                "created": 1739115309723,
+                "updated": 1742558452612
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "folder",
+                "type": "f",
+                "status": "new"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

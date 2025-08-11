@@ -150,8 +150,14 @@ class ImportService {
     parentItem?: CollectionItem,
     ignoreType = false
   ) {
+    if (meta.type && !ignoreType) {
+      item.type = meta.type;
+    }
+    if (parentItem) {
+      item.parent = parentItem.id!;
+    }
     if (meta.title) {
-      item.title = meta.title;
+      item.title = item.type === CollectionItemType.page ? '' : meta.title;
     }
     if (meta.created) {
       item.created = meta.created;
@@ -171,12 +177,6 @@ class ImportService {
     }
     if (meta.tags) {
       item.tags = meta.tags;
-    }
-    if (meta.type && !ignoreType) {
-      item.type = meta.type;
-    }
-    if (parentItem) {
-      item.parent = parentItem.id!;
     }
   }
 
@@ -321,24 +321,29 @@ class ImportService {
             if (items.has(metaFilePath) && items.get(parentKey)?.id) {
               items.get(metaFilePath)!.parent = items.get(parentKey)!.id!;
             }
-            metaFile.orphans = [...orphanPages];
-            orphanPages.forEach(pageKey => {
-              metaMap.get(pageKey)!.parentKey = docPath;
-            });
           } else if (metaFile.type === CollectionItemType.page) {
             // if page update its parent to document
             if (docPath) {
               parentKey = docPath;
               if (items.has(metaFilePath) && items.get(parentKey)?.id) {
                 items.get(metaFilePath)!.parent = items.get(parentKey)!.id!;
+              } else {
+                // is a page, but document is still unknown
+                orphanPages.push(metaFilePath);
               }
             } else {
               // is a page, but document is still unknown
-              orphanPages!.push(metaFilePath);
+              orphanPages.push(metaFilePath);
             }
           }
           metaMap.set(metaFilePath, { parentKey, ...metaFile });
         });
+        if (docPath && metaMap.has(docPath)) {
+          metaMap.get(docPath)!.orphans = [...orphanPages];
+          orphanPages.forEach(pageKey => {
+            metaMap.get(pageKey)!.parentKey = docPath;
+          });
+        }
       }
     } catch (e) {
       console.error(e);
@@ -378,10 +383,12 @@ class ImportService {
         continue;
       }
       const isFileInZip = !child.endsWith('/');
+      const childItem = items.get(child);
+      const childMeta = metaMap.get(child);
 
       const childType =
-        items.get(child)?.type ||
-        metaMap.get(child)?.type ||
+        childItem?.type ||
+        childMeta?.type ||
         (isFileInZip ? CollectionItemType.document : CollectionItemType.folder);
 
       if (isFileInZip) {
@@ -389,6 +396,13 @@ class ImportService {
           nbDocs++;
         } else if (childType === CollectionItemType.page) {
           nbPages++;
+          if (childItem?.parent === this.zipRoot) {
+            return errors.push({
+              family: 'incorrect_meta',
+              code: 'malformed_document',
+              path: metaFilePath
+            });
+          }
         }
         if (
           childType === CollectionItemType.folder ||
@@ -410,7 +424,7 @@ class ImportService {
             path: metaFilePath
           });
         }
-        const hasInlinePages = metaMap.get(child)?.hasInlinePages;
+        const hasInlinePages = childMeta?.hasInlinePages;
         if (hasInlinePages && childType !== CollectionItemType.document) {
           return errors.push({
             path: child,
@@ -420,9 +434,7 @@ class ImportService {
         }
       } else {
         // if is directory in zip
-        const childMetaFilePath = metaMap.has(child)
-          ? `${child}${META_JSON}`
-          : child;
+        const childMetaFilePath = childMeta ? `${child}${META_JSON}` : child;
 
         if (childType === CollectionItemType.page) {
           return errors.push({
@@ -503,8 +515,8 @@ class ImportService {
       const level = names.length;
       const currentName = names.pop()!;
       const parentPath = names.join('/') + (names.length > 0 ? '/' : '');
-      const closestParent = items.get(parentPath)?.id || this.zipRoot;
 
+      const closestParent = items.get(parentPath)?.id || this.zipRoot;
       console.debug(itemKey);
 
       const item = this.createObj(
@@ -553,7 +565,9 @@ class ImportService {
           );
           if (meta.orphans && meta.orphans.length > 0) {
             meta.orphans.forEach(orphan => {
-              items.get(orphan)!.parent = item.id!;
+              if (items.has(orphan)) {
+                items.get(orphan)!.parent = item.id!;
+              }
             });
           }
         }
