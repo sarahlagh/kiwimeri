@@ -1,8 +1,11 @@
 Text aligned by default
 
 Text aligned center
+on multiline
+
 
 Text aligned right
+
 
 Text aligned justify
 

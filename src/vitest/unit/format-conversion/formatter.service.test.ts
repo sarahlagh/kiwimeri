@@ -15,14 +15,23 @@ describe('format conversion service', () => {
           `${__dirname}/_data/${name}/${name}.txt`,
           'utf8'
         );
-
-        // plain text inline, for a preview
-        expect(
-          formatterService.getPlainTextFromLexical(json, { inline: true })
-        ).toBe(expected.replaceAll(/\n+/g, ' ').trimEnd());
+        const expectedInline = await readFile(
+          `${__dirname}/_data/${name}/${name}.inline.txt`,
+          'utf8'
+        ).catch(e => {});
 
         // plain text with line breaks, for visibility
         expect(formatterService.getPlainTextFromLexical(json)).toBe(expected);
+
+        // plain text inline, for a preview
+        const inlined = formatterService.getPlainTextFromLexical(json, {
+          inline: true
+        });
+        if (!expectedInline) {
+          expect(inlined).toBe(expected.replaceAll(/\n+/g, ' ').trimEnd());
+        } else {
+          expect(inlined).toBe(expectedInline);
+        }
       });
     });
   });
