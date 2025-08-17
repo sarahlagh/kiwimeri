@@ -86,7 +86,8 @@ const genericTextFormatTransform = function (
 export const MARKDOWN_TEXT_TRANSFORMER: KiwimeriTransformer = {
   type: 'text',
   handles: () => true,
-  transform: (text: string) => text.replaceAll(/([*_~<])/g, '\\$1')
+  transform: (text: string) =>
+    text.replaceAll(/([*_~<])/g, '\\$1').replaceAll(/^#/gm, '\\#')
 };
 
 export const MARKDOWN_BOLD_TRANSFORMER: KiwimeriTransformer = {

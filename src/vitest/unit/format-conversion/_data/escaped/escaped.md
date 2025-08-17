@@ -4,8 +4,13 @@ Test with single \* in the middle of the text\
 
 Test with \_\_ too
 
-<p style="text-align: center;">\~\~\~</p>
+a #hashtag
+
+\#and another #hashtag
 
 And a \<p> html tag like this \</del>
 
+<p style="text-align: center;">\~\~\~</p>
+
+^\_ now something with center >
 

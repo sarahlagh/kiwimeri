@@ -107,7 +107,7 @@ export class MarkdownParser extends KiwimeriParser {
     }
 
     // un-escape escaped chars (\* -> *)
-    token = token.replaceAll(/\\([*_~<])/g, '$1');
+    token = token.replaceAll(/\\([*_~<#])/g, '$1');
 
     // handle list items
     if (ctx.lastBlock?.type === 'list' && type === 'keyword') {
