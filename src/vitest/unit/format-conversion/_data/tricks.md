@@ -9,3 +9,8 @@ now this is a block
 </p>
 and the closing line
 
+a block with a list
+- item 1
+- item 2
+- item 3
+and the closing line... it's tricky

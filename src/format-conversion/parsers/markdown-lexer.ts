@@ -116,14 +116,22 @@ export class MarkdownLexer extends KiwimeriLexer {
       };
     }
     const unorderedList = nextText.match(/^- ?/g);
-    if (unorderedList && this.isStartOfLine(block.text)) {
+    if (
+      unorderedList &&
+      this.isStartOfLine(block.text) &&
+      block.text.startsWith('- ')
+    ) {
       return {
         token: unorderedList[0],
         type: 'keyword'
       };
     }
     const numberedList = nextText.match(/^\d+\. /g);
-    if (numberedList && this.isStartOfLine(block.text)) {
+    if (
+      numberedList &&
+      this.isStartOfLine(block.text) &&
+      block.text.match(/^\d+\. /g)
+    ) {
       return {
         token: numberedList[0],
         type: 'keyword'
