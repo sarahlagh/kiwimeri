@@ -112,4 +112,47 @@ describe('parser', () => {
     expect(resp.errors![0].lastKeyword).toBe('~~');
     expect(resp.errors![0].lastText).toBe('With non escaped ');
   });
+
+  it('should parse tricky scenarios', async () => {
+    const parser = new MarkdownParser();
+    const markdown = await readFile(`${__dirname}/_data/tricks.md`, 'utf8');
+    const resp = parser.parse(markdown);
+    expect(resp).toBeDefined();
+    expect(resp.errors).toBeUndefined();
+    expect(resp.obj).not.toBeNull();
+
+    console.debug(JSON.stringify(resp));
+    expect(resp.obj!.root.children).toHaveLength(4);
+
+    let child: any = resp.obj!.root.children[0];
+    expect(child.type).toBe('paragraph');
+    expect(child.children).toHaveLength(1);
+    expect(child.children[0].text).toBe('this is a paragraph');
+
+    child = resp.obj!.root.children[1];
+    expect(child.type).toBe('paragraph');
+    expect(child.format).toBe('center');
+    expect(child.children).toHaveLength(2);
+    expect(child.children[0].text).toBe('~~~');
+    expect(child.children[1].type).toBe('linebreak');
+
+    child = resp.obj!.root.children[2];
+    expect(child.type).toBe('paragraph');
+    expect(child.children).toHaveLength(1);
+    expect(child.children[0].type).toBe('text');
+    expect(child.children[0].text).toBe('this is another paragraph');
+
+    child = resp.obj!.root.children[3];
+    expect(child.type).toBe('paragraph');
+    expect(child.children).toHaveLength(6);
+    expect(child.children[0].type).toBe('text');
+    expect(child.children[0].text).toBe('now this is a block');
+    expect(child.children[1].type).toBe('linebreak');
+    expect(child.children[2].type).toBe('text');
+    expect(child.children[2].text).toBe('with text align in the middle');
+    expect(child.children[3].type).toBe('linebreak');
+    expect(child.children[4].type).toBe('linebreak');
+    expect(child.children[5].type).toBe('text');
+    expect(child.children[5].text).toBe('and the closing line');
+  });
 });

@@ -10,8 +10,7 @@ export class MarkdownLexer extends KiwimeriLexer {
     const nextBlock = this.text.substring(this.blockIdx);
 
     // heading
-    const heading = nextBlock.match(/^(#+)/g);
-    if (heading) {
+    if (nextBlock.match(/^(#+)/g)) {
       return {
         token: this.endOfBlock(nextBlock),
         type: 'text'
@@ -50,9 +49,19 @@ export class MarkdownLexer extends KiwimeriLexer {
       };
     }
 
+    // empty paragraphs with text-align
     if (nextBlock.match(/^<p [^>]*><\/p>\n+/g)) {
       return {
         token: this.endOfBlock(nextBlock),
+        type: 'text'
+      };
+    }
+
+    // try catching <p ...>\n</p>\n
+    const pEl = nextBlock.match(/^<p [^>]*>(.*)\n+<\/p>\n+/g);
+    if (pEl) {
+      return {
+        token: pEl[0],
         type: 'text'
       };
     }
