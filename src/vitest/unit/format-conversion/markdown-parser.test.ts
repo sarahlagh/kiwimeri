@@ -122,7 +122,7 @@ describe('parser', () => {
     expect(resp.obj).not.toBeNull();
 
     console.debug(JSON.stringify(resp));
-    expect(resp.obj!.root.children).toHaveLength(4);
+    expect(resp.obj!.root.children).toHaveLength(5);
 
     let child: any = resp.obj!.root.children[0];
     expect(child.type).toBe('paragraph');
@@ -145,14 +145,24 @@ describe('parser', () => {
     child = resp.obj!.root.children[3];
     expect(child.type).toBe('paragraph');
     expect(child.children).toHaveLength(6);
-    expect(child.children[0].type).toBe('text');
     expect(child.children[0].text).toBe('now this is a block');
     expect(child.children[1].type).toBe('linebreak');
-    expect(child.children[2].type).toBe('text');
     expect(child.children[2].text).toBe('with text align in the middle');
     expect(child.children[3].type).toBe('linebreak');
     expect(child.children[4].type).toBe('linebreak');
-    expect(child.children[5].type).toBe('text');
     expect(child.children[5].text).toBe('and the closing line');
+
+    child = resp.obj!.root.children[4];
+    expect(child.type).toBe('paragraph');
+    expect(child.children).toHaveLength(9);
+    expect(child.children[0].text).toBe('a block with a list');
+    expect(child.children[1].type).toBe('linebreak');
+    expect(child.children[2].text).toBe('- item 1');
+    expect(child.children[3].type).toBe('linebreak');
+    expect(child.children[4].text).toBe('- item 2');
+    expect(child.children[5].type).toBe('linebreak');
+    expect(child.children[6].text).toBe('- item 3');
+    expect(child.children[7].type).toBe('linebreak');
+    expect(child.children[8].text).toBe("and the closing line... it's tricky");
   });
 });
