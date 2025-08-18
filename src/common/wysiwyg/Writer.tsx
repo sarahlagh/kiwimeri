@@ -90,8 +90,12 @@ const Writer = (
       <KiwimeriReloadContentPlugin id={id} content={content} />
       <OnChangePlugin
         ignoreSelectionChange
-        onChange={editorState => {
-          collectionService.setItemLexicalContent(id, editorState.toJSON());
+        onChange={(editorState, editor, tags) => {
+          if (tags.has('focus') || tags.has('reload')) {
+            console.debug('skipping editor change', tags);
+          } else {
+            collectionService.setItemLexicalContent(id, editorState.toJSON());
+          }
         }}
       />
       <HistoryPlugin />

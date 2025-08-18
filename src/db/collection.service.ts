@@ -438,17 +438,23 @@ class CollectionService {
 
   public setItemLexicalContent(rowId: Id, content: SerializedEditorState) {
     storageService.getSpace().transaction(() => {
-      this.setItemField(rowId, 'content', minimizeContentForStorage(content));
-      storageService
-        .getSpace()
-        .setCell(
-          'collection',
-          rowId,
-          'preview',
-          formatterService
-            .getPlainTextFromLexical(JSON.stringify(content))
-            .substring(0, this.previewSize)
-        );
+      const change = this.setItemField(
+        rowId,
+        'content',
+        minimizeContentForStorage(content)
+      );
+      if (change) {
+        storageService
+          .getSpace()
+          .setCell(
+            'collection',
+            rowId,
+            'preview',
+            formatterService
+              .getPlainTextFromLexical(JSON.stringify(content))
+              .substring(0, this.previewSize)
+          );
+      }
     });
   }
 
@@ -545,7 +551,8 @@ class CollectionService {
   ) {
     const current = this.getItemField(rowId, key);
     if (current === value) {
-      return; // don't add unnecessary changes
+      console.debug('no change, skipping', rowId, key);
+      return false; // don't add unnecessary changes
     }
     const updated = Date.now();
     const type = this.getItemType(rowId);
@@ -574,6 +581,7 @@ class CollectionService {
     if (key !== 'parent' || type === CollectionItemType.page) {
       this.updateAllParentsInBreadcrumb(this.getItemParent(rowId));
     }
+    return true;
   }
 
   public getItemField<T>(rowId: Id, key: CollectionItemFieldEnum) {
