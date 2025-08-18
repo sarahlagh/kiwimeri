@@ -25,6 +25,7 @@ type ChooseTagsModalProps = {
 const ChooseTagsModal = ({ id, onClose }: ChooseTagsModalProps) => {
   const { t } = useLingui();
   const itemTags = collectionService.useItemTags(id);
+  tagsService.reBuildTags();
   const allTags = tagsService.getTags();
   let inputValue: string | undefined = undefined;
   const values = [...allTags].map(tag => ({ tag, checked: itemTags.has(tag) }));

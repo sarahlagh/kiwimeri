@@ -120,7 +120,6 @@ class StorageService {
           autoLoad
         )
       ]);
-      tagsService.reBuildTags();
       // in a timeout, don't want to block app start for this
       if (platformService.isSyncEnabled()) {
         setTimeout(async () => {
