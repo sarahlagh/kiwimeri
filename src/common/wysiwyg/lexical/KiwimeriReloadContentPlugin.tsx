@@ -17,7 +17,9 @@ export default function KiwimeriReloadContentPlugin({
         ? content
         : unminimizeContentFromStorage(content)
     );
-    editor.setEditorState(newState);
+    editor.setEditorState(newState, {
+      tag: 'reload'
+    });
   }, [id]);
 
   return null;
