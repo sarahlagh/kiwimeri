@@ -5,7 +5,6 @@ import ExportItemsButton from '@/common/buttons/ExportItemsButton';
 import MoveFolderButton from '@/common/buttons/MoveFolderButton';
 import RenameItemButton from '@/common/buttons/RenameItemButton';
 import { GET_DOCUMENT_ROUTE, GET_FOLDER_ROUTE } from '@/common/routes';
-import platformService from '@/common/services/platform.service';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
 import navService from '@/db/nav.service';
@@ -34,10 +33,8 @@ const CommonActionsToolbar = ({
   const type = collectionService.getItemType(id);
   const showMoveFolder = type !== CollectionItemType.page;
 
-  const isWideEnough = platformService.isWideEnough();
   showRename = type !== CollectionItemType.page && showRename;
   showInfo = type !== CollectionItemType.page && showInfo;
-  showClose = !isWideEnough && showClose;
 
   const folder = navService.getCurrentFolder();
   const fallbackRoute =
