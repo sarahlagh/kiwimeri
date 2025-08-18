@@ -107,6 +107,9 @@ export const CollectionItemBrowserList = ({
       if (role === 'rename') {
         setItemRenaming(data);
       }
+      if (role === 'delete') {
+        history.replace(data!);
+      }
       dismiss();
       setSelectedItem(null);
     }
