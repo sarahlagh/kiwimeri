@@ -2,7 +2,6 @@ import CollectionItemBrowserList from '@/collection/components/CollectionItemBro
 import DocumentEditor from '@/collection/components/DocumentEditor';
 import { onTitleChangeFn } from '@/common/events/events';
 import { getSearchParams } from '@/common/utils';
-import { getGlobalTrans } from '@/config';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
@@ -21,8 +20,7 @@ const DocumentEditorPage = () => {
 
   const [showDocumentActions, setShowDocumentActions] = useState(false);
 
-  const docTitle = collectionService.useItemTitle(docId);
-  const title = notebook !== parent ? docTitle : getGlobalTrans().homeTitle;
+  const title = collectionService.useItemTitle(docId);
   const folderTitle = collectionService.useItemTitle(parent);
   const onTitleChange = onTitleChangeFn(docId);
   const onFolderTitleChange = onTitleChangeFn(parent);
