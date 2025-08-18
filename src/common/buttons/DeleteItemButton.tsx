@@ -6,7 +6,7 @@ import DeleteButton from './DeleteButton';
 type DeleteItemButtonProps = {
   id: Id;
   fallbackRoute: Id;
-  onClose?: (role?: string) => void;
+  onClose?: (role?: string, data?: unknown) => void;
 };
 
 const DeleteItemButton = ({
@@ -22,7 +22,10 @@ const DeleteItemButton = ({
       onConfirm={() => {
         collectionService.deleteItem(id);
         if (history) {
+          // history not available in modals and popovers
           history.replace(fallbackRoute);
+        } else if (onClose) {
+          onClose('delete', fallbackRoute);
         }
       }}
     ></DeleteButton>

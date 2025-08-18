@@ -23,7 +23,11 @@ const CollectionItemBreadcrumb = ({
     setMaxBreadcrumbs(3);
   }
 
-  if (breadcrumb.length < 2) {
+  const checkedBreadcrumb = breadcrumb.filter(id =>
+    collectionService.itemExists(id)
+  );
+
+  if (checkedBreadcrumb.length < 2) {
     return <></>;
   }
 
@@ -38,7 +42,7 @@ const CollectionItemBreadcrumb = ({
         setMaxBreadcrumbs(undefined);
       }}
     >
-      {breadcrumb.map((item, idx) => (
+      {checkedBreadcrumb.map((item, idx) => (
         <IonBreadcrumb key={item}>
           {/* bug (?) with routerLink where onIonCollapsedClick doesn't prevent propagation to link
           so, using onClick on inner button instead
