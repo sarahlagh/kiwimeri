@@ -10,7 +10,7 @@ type CloseDocumentButtonProps = {
   onClose?: (role?: string) => void;
 };
 
-const CloseDocumentButton = ({ id }: CloseDocumentButtonProps) => {
+const CloseDocumentButton = ({ id, onClose }: CloseDocumentButtonProps) => {
   const history = useHistory();
   const parent = collectionService.getItemParent(id);
   return (
@@ -18,6 +18,9 @@ const CloseDocumentButton = ({ id }: CloseDocumentButtonProps) => {
       <IonButton
         onClick={() => {
           history.push(GET_FOLDER_ROUTE(parent));
+          if (onClose) {
+            onClose('close');
+          }
         }}
       >
         <IonIcon icon={APPICONS.closeAction}></IonIcon>
