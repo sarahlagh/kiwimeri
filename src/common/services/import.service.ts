@@ -12,7 +12,6 @@ import { META_JSON, ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
-import tagsService from '@/db/tags.service';
 import formatterService from '@/format-conversion/formatter.service';
 import { Unzipped, strFromU8, unzip } from 'fflate';
 import { SerializedEditorState, SerializedLexicalNode } from 'lexical';
@@ -896,7 +895,6 @@ class ImportService {
       collectionService.saveItems(zipMerge.newItems);
       collectionService.saveItems(zipMerge.updatedItems);
     });
-    tagsService.reBuildTags();
   }
 
   public commitDocument(

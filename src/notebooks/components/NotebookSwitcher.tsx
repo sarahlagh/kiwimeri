@@ -1,7 +1,6 @@
 import { GET_FOLDER_ROUTE } from '@/common/routes';
 import { APPICONS } from '@/constants';
 import notebooksService from '@/db/notebooks.service';
-import tagsService from '@/db/tags.service';
 import { IonButton, IonIcon, useIonModal } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import ManageNotebooksModal from './ManageNotebooksModal';
@@ -15,7 +14,6 @@ const NotebookSwitcher = () => {
     onClose: (parentId?: string) => {
       if (parentId) {
         history.push(GET_FOLDER_ROUTE(parentId));
-        tagsService.reBuildTags(parentId);
       }
       dismiss();
     }

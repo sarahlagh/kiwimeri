@@ -1,7 +1,6 @@
 import platformService from '@/common/services/platform.service';
 import localChangesService from '@/db/local-changes.service';
 import remotesService from '@/db/remotes.service';
-import tagsService from '@/db/tags.service';
 
 export type SyncDirection =
   | 'sync'
@@ -63,7 +62,6 @@ class SyncService {
       await persister.load();
     }
     remotesService.setForceMode(oldForceMode);
-    tagsService.reBuildTags();
   }
 
   public usePrimaryConnected() {

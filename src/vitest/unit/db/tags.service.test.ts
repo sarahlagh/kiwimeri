@@ -25,6 +25,7 @@ describe('tags service', () => {
 
     collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
 
+    tagsService.reBuildTags();
     expect(tagsService.getTags()).toStrictEqual([
       'tag11',
       'tag12',
@@ -49,7 +50,9 @@ describe('tags service', () => {
     tagsService.addItemTag(id2, 'tag3');
     localChangesService.clear();
 
+    tagsService.reBuildTags();
     tagsService.renameTag('tag2', 'tag4');
+    tagsService.reBuildTags();
 
     expect([...collectionService.getItemTags(id1)]).toStrictEqual([
       'tag1',
@@ -76,7 +79,9 @@ describe('tags service', () => {
     tagsService.addItemTag(id2, 'tag2');
     tagsService.addItemTag(id2, 'tag3');
 
+    tagsService.reBuildTags();
     tagsService.renameTag('tag60', 'tag40');
+    tagsService.reBuildTags();
 
     expect([...collectionService.getItemTags(id1)]).toStrictEqual([
       'tag1',
