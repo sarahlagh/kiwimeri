@@ -113,13 +113,16 @@ class LocalChangesService {
     this.setLastLocalChange(localChange.updated);
   }
 
-  public getLocalChanges() {
+  public getLocalChanges(
+    offset?: number | undefined,
+    limit?: number | undefined
+  ) {
     const space = storageService.getSpaceId();
     const table = storageService.getStore().getTable(this.table);
     const queryName = this.fetchAllLocalChangesQuery(space);
     const rowIds = storageService
       .getStoreQueries()
-      .getResultSortedRowIds(queryName, 'updated', true);
+      .getResultSortedRowIds(queryName, 'updated', true, offset, limit);
     return rowIds.map(rowId => ({ ...table[rowId], id: rowId }) as LocalChange);
   }
 
