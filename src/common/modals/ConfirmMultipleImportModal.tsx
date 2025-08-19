@@ -73,6 +73,7 @@ const ConfirmMultipleImportModal = ({
     setZipMerge(
       importService.mergeZipItems(effectiveParent, params.zipData, {
         createNotebook: params.createNotebook,
+        removeNotebooks: true,
         createNewFolder,
         overwrite,
         newFolderName,
@@ -130,6 +131,18 @@ const ConfirmMultipleImportModal = ({
               slot="start"
             ></IonIcon>
             <Trans>Metadata found in the archive</Trans>
+          </IonItem>
+        )}
+        {params.zipData.hasNotebooks && (
+          <IonItem data-testid="item-notebooks-warning" color="warning">
+            <IonIcon
+              className="slim"
+              icon={APPICONS.warning}
+              slot="start"
+            ></IonIcon>
+            <Trans>
+              Notebooks found in the archive, they will be converted to folders
+            </Trans>
           </IonItem>
         )}
         {isEmpty && (

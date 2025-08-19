@@ -39,6 +39,7 @@ export type ZipParsedData = {
   zipName: string;
   items: CollectionItem[];
   hasOneFolder: boolean;
+  hasNotebooks: boolean;
   hasMetadata: boolean;
   rootMeta?: ZipParsedMetadata;
   errors: ZipParseError[];
@@ -61,6 +62,7 @@ export type ZipParseOptions = {
 export type ZipMergeOptions = {
   createNotebook?: boolean;
   createNewFolder?: boolean;
+  removeNotebooks?: boolean;
   overwrite?: boolean;
   removeFirstFolder?: boolean;
   newFolderName?: string;
@@ -101,6 +103,7 @@ class ImportService {
     titleRemoveExtension: true,
     // merge opts
     createNotebook: false,
+    removeNotebooks: false,
     overwrite: false,
     createNewFolder: false,
     removeFirstFolder: false,
@@ -637,11 +640,16 @@ class ImportService {
       firstLevel.length === 1 &&
       firstLevel[0].type === CollectionItemType.folder;
 
+    const hasNotebooks =
+      finalItems.find(i => i.type === CollectionItemType.notebook) !==
+      undefined;
+
     console.debug('errors', errors);
     return {
       zipName: finalZipName,
       items: finalItems,
       hasOneFolder,
+      hasNotebooks,
       hasMetadata,
       rootMeta: metaMap.get(''),
       errors
@@ -837,6 +845,12 @@ class ImportService {
     items
       .filter(i => i.parent === this.zipRoot)
       .forEach(i => (i.parent = parent));
+
+    if (opts.removeNotebooks) {
+      items
+        .filter(i => i.type === CollectionItemType.notebook)
+        .forEach(i => (i.type = CollectionItemType.folder));
+    }
 
     if (
       opts.removeFirstFolder === true &&
