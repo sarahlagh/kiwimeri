@@ -25,25 +25,20 @@ import {
   IonList,
   IonText
 } from '@ionic/react';
-import { Trans, useLingui } from '@lingui/react/macro';
 import TemplateMainPage from './TemplateMainPage';
 
-// TODO: no need for translations in this page
+// don't use translations for debug page
 const DebugPage = () => {
-  const { t } = useLingui();
-
   if (platformService.isRelease()) {
     return <NotFound />;
   }
 
   return (
-    <TemplateMainPage title={t`Debug`}>
+    <TemplateMainPage title={'Debug'}>
       <IonContent>
         <IonCard>
           <IonCardHeader>
-            <IonCardTitle>
-              <Trans>Platform(s)</Trans>
-            </IonCardTitle>
+            <IonCardTitle>Platform(s)</IonCardTitle>
           </IonCardHeader>
           <IonCardContent>
             <p>(capacitor) platform: {platformService.getPlatform()}</p>
@@ -61,25 +56,25 @@ const DebugPage = () => {
         </IonCard>
         <IonCard>
           <IonCardHeader>
-            <IonCardTitle>
-              <Trans>Local Changes</Trans>
-            </IonCardTitle>
+            <IonCardTitle>Local Changes</IonCardTitle>
           </IonCardHeader>
           <IonCardContent>
             <div>
-              <Trans>Number of changes: </Trans>
+              Number of changes:
               {localChangesService.getLocalChanges().length}
             </div>
             {localChangesService.getLocalChanges().length > 0 && (
               <>
+                {/* TODO use this button to actually reset changes when feature is done */}
                 <DeleteButton
                   color="danger"
                   trigger={`del-clear`}
+                  message={`This might create syncing problems`}
                   onConfirm={() => {
                     localChangesService.clear();
                   }}
                 >
-                  <Trans>Clear All</Trans>
+                  Clear All
                 </DeleteButton>
                 {/* TODO add pagination */}
                 <IonList style={{ maxHeight: '400px', overflowY: 'auto' }}>
@@ -139,9 +134,7 @@ const DebugPage = () => {
         {platformService.isAndroid() && (
           <IonCard>
             <IonCardHeader>
-              <IonCardTitle>
-                <Trans>Logs</Trans>
-              </IonCardTitle>
+              <IonCardTitle>Logs</IonCardTitle>
             </IonCardHeader>
             <IonCardContent>
               {appLog.getLogs().map(log => {
@@ -159,7 +152,7 @@ const DebugPage = () => {
               getFileTitle={() =>
                 `${new Date().toISOString().substring(0, 19).replaceAll(/[:T]/g, '-')}-logs.json`
               }
-              label={t`Download Logs`}
+              label={`Download Logs`}
               icon={null}
               fill="clear"
             />

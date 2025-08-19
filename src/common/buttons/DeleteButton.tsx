@@ -7,6 +7,7 @@ type DeleteButtonProps = {
   trigger: string;
   onConfirm: () => void;
   onClose?: (role?: string) => void;
+  message?: string;
   color?: string;
   fill?: 'clear' | 'outline' | 'solid' | 'default';
 } & { readonly children?: ReactNode };
@@ -17,6 +18,7 @@ const DeleteButton = ({
   onClose,
   color,
   fill,
+  message,
   children
 }: DeleteButtonProps) => {
   return (
@@ -27,6 +29,7 @@ const DeleteButton = ({
       </IonButton>
       <ConfirmYesNoDialog
         trigger={trigger}
+        message={message}
         onClose={confirmed => {
           if (confirmed) {
             onConfirm();
