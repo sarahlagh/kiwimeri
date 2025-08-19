@@ -51,6 +51,10 @@ msgstr "Choose"
 msgid "Choose a new folder"
 msgstr "Choose a new folder"
 
+#: src/app/pages/DebugPage.tsx:82
+msgid "Clear All"
+msgstr "Clear All"
+
 #: src/constants.ts:60
 msgid "collection"
 msgstr "collection"
@@ -73,7 +77,7 @@ msgstr "Configure where to synchronize your collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/app/pages/DebugPage.tsx:24
+#: src/app/pages/DebugPage.tsx:40
 #: src/app/components/MainMenuList.tsx:74
 msgid "Debug"
 msgstr "Debug"
@@ -86,7 +90,7 @@ msgstr "Default"
 msgid "Do you want to import your content inside a new folder?"
 msgstr "Do you want to import your content inside a new folder?"
 
-#: src/app/pages/DebugPage.tsx:69
+#: src/app/pages/DebugPage.tsx:162
 msgid "Download Logs"
 msgstr "Download Logs"
 
@@ -180,7 +184,11 @@ msgstr "Leave empty for root"
 msgid "Loading..."
 msgstr "Loading..."
 
-#: src/app/pages/DebugPage.tsx:50
+#: src/app/pages/DebugPage.tsx:65
+msgid "Local Changes"
+msgstr "Local Changes"
+
+#: src/app/pages/DebugPage.tsx:143
 msgid "Logs"
 msgstr "Logs"
 
@@ -265,6 +273,10 @@ msgstr "nuke space & remote"
 msgid "nuke store"
 msgstr "nuke store"
 
+#: src/app/pages/DebugPage.tsx:70
+msgid "Number of changes: "
+msgstr "Number of changes: "
+
 #: src/settings/components/sections/OperationsSettings.tsx:16
 msgid "Operations"
 msgstr "Operations"
@@ -301,7 +313,7 @@ msgstr "PCloud Configuration"
 msgid "Pick a directory for your backups"
 msgstr "Pick a directory for your backups"
 
-#: src/app/pages/DebugPage.tsx:29
+#: src/app/pages/DebugPage.tsx:45
 msgid "Platform(s)"
 msgstr "Platform(s)"
 

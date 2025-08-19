@@ -1,7 +1,17 @@
 import NotFound from '@/app/components/NotFound';
+import { CollectionItemType } from '@/collection/collection';
+import DeleteButton from '@/common/buttons/DeleteButton';
 import GenericExportFileButton from '@/common/buttons/GenericExportFileButton';
+import {
+  GET_DOCUMENT_ROUTE,
+  GET_FOLDER_ROUTE,
+  GET_PAGE_ROUTE
+} from '@/common/routes';
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
+import { APPICONS, APPICONS_PER_TYPE } from '@/constants';
+import collectionService from '@/db/collection.service';
+import localChangesService from '@/db/local-changes.service';
 import { appLog } from '@/log';
 import {
   getPlatforms,
@@ -9,17 +19,23 @@ import {
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
-  IonContent
+  IonContent,
+  IonIcon,
+  IonItem,
+  IonList,
+  IonText
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import TemplateMainPage from './TemplateMainPage';
 
+// TODO: no need for translations in this page
 const DebugPage = () => {
   const { t } = useLingui();
 
   if (platformService.isRelease()) {
     return <NotFound />;
   }
+
   return (
     <TemplateMainPage title={t`Debug`}>
       <IonContent>
@@ -43,6 +59,83 @@ const DebugPage = () => {
             <p>config: {JSON.stringify(appConfig)}</p>
           </IonCardContent>
         </IonCard>
+        <IonCard>
+          <IonCardHeader>
+            <IonCardTitle>
+              <Trans>Local Changes</Trans>
+            </IonCardTitle>
+          </IonCardHeader>
+          <IonCardContent>
+            <div>
+              <Trans>Number of changes: </Trans>
+              {localChangesService.getLocalChanges().length}
+            </div>
+            {localChangesService.getLocalChanges().length > 0 && (
+              <>
+                <DeleteButton
+                  color="danger"
+                  trigger={`del-clear`}
+                  onConfirm={() => {
+                    localChangesService.clear();
+                  }}
+                >
+                  <Trans>Clear All</Trans>
+                </DeleteButton>
+                {/* TODO add pagination */}
+                <IonList style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                  {localChangesService.getLocalChanges(0, 20).map(lc => {
+                    const type = collectionService.getItemType(lc.item);
+                    let route, parent, doc;
+                    switch (type) {
+                      case CollectionItemType.folder:
+                      case CollectionItemType.notebook:
+                        route = GET_FOLDER_ROUTE(lc.item);
+                        break;
+                      case CollectionItemType.page:
+                        doc = collectionService.getItemParent(lc.item);
+                        parent = collectionService.getItemParent(doc);
+                        route = GET_PAGE_ROUTE(parent, doc, lc.item);
+                        break;
+                      case CollectionItemType.document:
+                        // eslint-disable-next-line no-case-declarations
+                        parent = collectionService.getItemParent(lc.item);
+                        route = GET_DOCUMENT_ROUTE(parent, lc.item);
+                        break;
+                    }
+
+                    return (
+                      <IonItem key={lc.id} routerLink={route}>
+                        {!collectionService.itemExists(lc.item) && (
+                          <IonIcon
+                            slot="start"
+                            icon={APPICONS.warning}
+                          ></IonIcon>
+                        )}
+                        <IonIcon icon={APPICONS_PER_TYPE.get(type)}></IonIcon>
+                        <IonText>
+                          {collectionService
+                            .getItemTitle(lc.item)
+                            .substring(0, 15)}{' '}
+                          <br />
+                          {lc.item.substring(0, 6)}
+                        </IonText>
+                        <IonText slot="end">{lc.field || ''}</IonText>
+                        <IonText slot="end">{lc.change}</IonText>
+                        <IonText slot="end">
+                          {new Date(lc.updated)
+                            .toISOString()
+                            .substring(0, 19)
+                            .replace('T', ' ')}
+                        </IonText>
+                      </IonItem>
+                    );
+                  })}
+                </IonList>
+              </>
+            )}
+          </IonCardContent>
+        </IonCard>
+
         {platformService.isAndroid() && (
           <IonCard>
             <IonCardHeader>
