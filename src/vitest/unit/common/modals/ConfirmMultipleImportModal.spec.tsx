@@ -88,6 +88,9 @@ describe('ConfirmMultipleImportModal', () => {
   const expectShowMetadataInfo = (yes: boolean, queryByTestId: any) => {
     expectTestId('item-metadata-info', yes, queryByTestId);
   };
+  const expectShowNotebooksWarning = (yes: boolean, queryByTestId: any) => {
+    expectTestId('item-notebooks-warning', yes, queryByTestId);
+  };
   const expectShowEmptyZipWarning = (yes: boolean, queryByTestId: any) => {
     expectTestId('item-archive-empty-warning', yes, queryByTestId);
   };
@@ -137,6 +140,7 @@ describe('ConfirmMultipleImportModal', () => {
       );
 
       expectShowMetadataInfo(false, queryByTestId);
+      expectShowNotebooksWarning(false, queryByTestId);
       expectShowCreateNewFolderQuestion(true, queryByTestId);
       expectShowSingleFolderDetectedQuestion(false, queryByTestId);
       expectShowNewFolderNameInput(false, queryByTestId);
@@ -177,6 +181,7 @@ describe('ConfirmMultipleImportModal', () => {
       );
 
       expectShowMetadataInfo(false, queryByTestId);
+      expectShowNotebooksWarning(false, queryByTestId);
       expectShowCreateNewFolderQuestion(false, queryByTestId);
       expectShowSingleFolderDetectedQuestion(false, queryByTestId);
       expectShowNewFolderNameInput(false, queryByTestId);
@@ -217,6 +222,7 @@ describe('ConfirmMultipleImportModal', () => {
       );
 
       expectShowMetadataInfo(true, queryByTestId);
+      expectShowNotebooksWarning(false, queryByTestId);
       expectShowCreateNewFolderQuestion(true, queryByTestId);
       expectShowSingleFolderDetectedQuestion(false, queryByTestId);
       expectShowNewFolderNameInput(false, queryByTestId);
@@ -257,6 +263,7 @@ describe('ConfirmMultipleImportModal', () => {
       );
 
       expectShowMetadataInfo(true, queryByTestId);
+      expectShowNotebooksWarning(false, queryByTestId);
       expectShowCreateNewFolderQuestion(false, queryByTestId);
       expectShowSingleFolderDetectedQuestion(false, queryByTestId);
       expectShowNewFolderNameInput(false, queryByTestId);
@@ -299,6 +306,7 @@ describe('ConfirmMultipleImportModal', () => {
       );
 
       expectShowMetadataInfo(false, queryByTestId);
+      expectShowNotebooksWarning(false, queryByTestId);
       expectShowCreateNewFolderQuestion(false, queryByTestId);
       expectShowSingleFolderDetectedQuestion(true, queryByTestId);
       expectShowNewFolderNameInput(false, queryByTestId);
@@ -339,6 +347,7 @@ describe('ConfirmMultipleImportModal', () => {
       );
 
       expectShowMetadataInfo(false, queryByTestId);
+      expectShowNotebooksWarning(false, queryByTestId);
       expectShowCreateNewFolderQuestion(false, queryByTestId);
       expectShowSingleFolderDetectedQuestion(false, queryByTestId);
       expectShowNewFolderNameInput(false, queryByTestId);
@@ -379,6 +388,7 @@ describe('ConfirmMultipleImportModal', () => {
       );
 
       expectShowMetadataInfo(true, queryByTestId);
+      expectShowNotebooksWarning(false, queryByTestId);
       expectShowCreateNewFolderQuestion(false, queryByTestId);
       expectShowSingleFolderDetectedQuestion(true, queryByTestId);
       expectShowNewFolderNameInput(false, queryByTestId);
@@ -418,6 +428,7 @@ describe('ConfirmMultipleImportModal', () => {
       );
 
       expectShowMetadataInfo(true, queryByTestId);
+      expectShowNotebooksWarning(false, queryByTestId);
       expectShowCreateNewFolderQuestion(false, queryByTestId);
       expectShowSingleFolderDetectedQuestion(false, queryByTestId);
       expectShowNewFolderNameInput(false, queryByTestId);
@@ -456,6 +467,7 @@ describe('ConfirmMultipleImportModal', () => {
       );
 
       expectShowMetadataInfo(true, queryByTestId);
+      expectShowNotebooksWarning(false, queryByTestId);
       expectShowEmptyZipWarning(true, queryByTestId);
       expectShowMalformedZipWarning(false, queryByTestId);
       expectShowCreateNewFolderQuestion(false, queryByTestId);
@@ -485,6 +497,7 @@ describe('ConfirmMultipleImportModal', () => {
       );
 
       expectShowMetadataInfo(true, queryByTestId);
+      expectShowNotebooksWarning(false, queryByTestId);
       expectShowEmptyZipWarning(true, queryByTestId);
       expectShowMalformedZipWarning(false, queryByTestId);
       expectShowCreateNewFolderQuestion(false, queryByTestId);
@@ -515,6 +528,7 @@ describe('ConfirmMultipleImportModal', () => {
       );
 
       expectShowMetadataInfo(true, queryByTestId);
+      expectShowNotebooksWarning(true, queryByTestId);
       expectShowEmptyZipWarning(false, queryByTestId);
       expectShowMalformedZipWarning(true, queryByTestId);
       expectShowCreateNewFolderQuestion(false, queryByTestId);
@@ -587,6 +601,7 @@ describe('ConfirmMultipleImportModal', () => {
       );
 
       expectShowMetadataInfo(true, queryByTestId);
+      expectShowNotebooksWarning(true, queryByTestId);
       expectShowEmptyZipWarning(false, queryByTestId);
       expectShowMalformedZipWarning(true, queryByTestId);
       expectShowCreateNewFolderQuestion(false, queryByTestId);
@@ -671,6 +686,7 @@ describe('ConfirmMultipleImportModal', () => {
       );
 
       expectShowMetadataInfo(false, queryByTestId);
+      expectShowNotebooksWarning(false, queryByTestId);
       expectShowCreateNewFolderQuestion(true, queryByTestId);
       expectShowSingleFolderDetectedQuestion(false, queryByTestId);
       expectShowNewFolderNameInput(false, queryByTestId);
@@ -719,6 +735,7 @@ describe('ConfirmMultipleImportModal', () => {
       );
 
       expectShowMetadataInfo(false, queryByTestId);
+      expectShowNotebooksWarning(false, queryByTestId);
       expectShowCreateNewFolderQuestion(false, queryByTestId);
       expectShowSingleFolderDetectedQuestion(false, queryByTestId);
       expectShowNewFolderNameInput(false, queryByTestId);
@@ -766,6 +783,7 @@ describe('ConfirmMultipleImportModal', () => {
       );
 
       expectShowMetadataInfo(true, queryByTestId);
+      expectShowNotebooksWarning(false, queryByTestId);
       expectShowCreateNewFolderQuestion(true, queryByTestId);
       expectShowSingleFolderDetectedQuestion(false, queryByTestId);
       expectShowNewFolderNameInput(false, queryByTestId);
@@ -814,6 +832,7 @@ describe('ConfirmMultipleImportModal', () => {
       );
 
       expectShowMetadataInfo(true, queryByTestId);
+      expectShowNotebooksWarning(false, queryByTestId);
       expectShowCreateNewFolderQuestion(false, queryByTestId);
       expectShowSingleFolderDetectedQuestion(false, queryByTestId);
       expectShowNewFolderNameInput(false, queryByTestId);
@@ -859,6 +878,7 @@ describe('ConfirmMultipleImportModal', () => {
       );
 
       expectShowMetadataInfo(false, queryByTestId);
+      expectShowNotebooksWarning(false, queryByTestId);
       expectShowCreateNewFolderQuestion(false, queryByTestId);
       expectShowSingleFolderDetectedQuestion(true, queryByTestId);
       expectShowNewFolderNameInput(false, queryByTestId);
@@ -907,6 +927,7 @@ describe('ConfirmMultipleImportModal', () => {
       );
 
       expectShowMetadataInfo(false, queryByTestId);
+      expectShowNotebooksWarning(false, queryByTestId);
       expectShowCreateNewFolderQuestion(false, queryByTestId);
       expectShowSingleFolderDetectedQuestion(false, queryByTestId);
       expectShowNewFolderNameInput(false, queryByTestId);
@@ -952,6 +973,7 @@ describe('ConfirmMultipleImportModal', () => {
       );
 
       expectShowMetadataInfo(true, queryByTestId);
+      expectShowNotebooksWarning(false, queryByTestId);
       expectShowCreateNewFolderQuestion(false, queryByTestId);
       expectShowSingleFolderDetectedQuestion(true, queryByTestId);
       expectShowNewFolderNameInput(false, queryByTestId);
@@ -1000,6 +1022,7 @@ describe('ConfirmMultipleImportModal', () => {
       );
 
       expectShowMetadataInfo(true, queryByTestId);
+      expectShowNotebooksWarning(false, queryByTestId);
       expectShowCreateNewFolderQuestion(false, queryByTestId);
       expectShowSingleFolderDetectedQuestion(false, queryByTestId);
       expectShowNewFolderNameInput(false, queryByTestId);

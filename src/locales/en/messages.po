@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:217
+#: src/common/modals/ConfirmMultipleImportModal.tsx:230
 msgid "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 msgstr "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 
@@ -25,7 +25,7 @@ msgstr "Add config"
 msgid "An error occurred loading the file"
 msgstr "An error occurred loading the file"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:142
+#: src/common/modals/ConfirmMultipleImportModal.tsx:155
 msgid "Archive is empty"
 msgstr "Archive is empty"
 
@@ -35,9 +35,9 @@ msgid "Are you sure?"
 msgstr "Are you sure?"
 
 #: src/common/modals/ConfirmYesNoDialog.tsx:28
-#: src/common/modals/ConfirmMultipleImportModal.tsx:317
+#: src/common/modals/ConfirmMultipleImportModal.tsx:330
 #: src/common/modals/ConfirmFileImportModal.tsx:78
-#: src/common/modals/ChooseTagsModal.tsx:98
+#: src/common/modals/ChooseTagsModal.tsx:99
 #: src/common/buttons/RestoreCollectionButton.tsx:66
 #: src/common/buttons/ExportItemsButton.tsx:132
 msgid "Cancel"
@@ -65,9 +65,9 @@ msgstr "Configure where to synchronize your collection"
 
 #: src/notebooks/components/ManageNotebooksModal.tsx:94
 #: src/common/modals/ConfirmYesNoDialog.tsx:36
-#: src/common/modals/ConfirmMultipleImportModal.tsx:323
+#: src/common/modals/ConfirmMultipleImportModal.tsx:336
 #: src/common/modals/ConfirmFileImportModal.tsx:81
-#: src/common/modals/ChooseTagsModal.tsx:105
+#: src/common/modals/ChooseTagsModal.tsx:106
 #: src/common/buttons/RestoreCollectionButton.tsx:73
 #: src/common/buttons/ExportItemsButton.tsx:139
 msgid "Confirm"
@@ -82,7 +82,7 @@ msgstr "Debug"
 msgid "Default"
 msgstr "Default"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:160
+#: src/common/modals/ConfirmMultipleImportModal.tsx:173
 msgid "Do you want to import your content inside a new folder?"
 msgstr "Do you want to import your content inside a new folder?"
 
@@ -110,7 +110,7 @@ msgstr "Enter your username"
 msgid "Error writing to file"
 msgstr "Error writing to file"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:152
+#: src/common/modals/ConfirmMultipleImportModal.tsx:165
 msgid "Errors have been detected on the following files:"
 msgstr "Errors have been detected on the following files:"
 
@@ -140,11 +140,11 @@ msgstr "Filesystem"
 msgid "Home"
 msgstr "Home"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:111
+#: src/common/modals/ConfirmMultipleImportModal.tsx:112
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:104
+#: src/common/modals/ConfirmMultipleImportModal.tsx:105
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
 
@@ -164,7 +164,7 @@ msgstr "Import file in folder {folderName}"
 msgid "Include metadata in zip"
 msgstr "Include metadata in zip"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:87
+#: src/common/modals/ConfirmMultipleImportModal.tsx:88
 msgid "Incorrect Metadata"
 msgstr "Incorrect Metadata"
 
@@ -196,11 +196,11 @@ msgstr "Manually backup or restore your collection in the format of your choice"
 msgid "Markdown (Kiwimeri flavor)"
 msgstr "Markdown (Kiwimeri flavor)"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:95
+#: src/common/modals/ConfirmMultipleImportModal.tsx:96
 msgid "merged"
 msgstr "merged"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:132
+#: src/common/modals/ConfirmMultipleImportModal.tsx:133
 msgid "Metadata found in the archive"
 msgstr "Metadata found in the archive"
 
@@ -209,7 +209,7 @@ msgstr "Metadata found in the archive"
 msgid "Name"
 msgstr "Name"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:95
+#: src/common/modals/ConfirmMultipleImportModal.tsx:96
 msgid "new"
 msgstr "new"
 
@@ -221,15 +221,15 @@ msgstr "New document"
 msgid "New folder"
 msgstr "New folder"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:185
+#: src/common/modals/ConfirmMultipleImportModal.tsx:198
 msgid "New folder name: "
 msgstr "New folder name: "
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:203
+#: src/common/modals/ConfirmMultipleImportModal.tsx:216
 msgid "New notebook name: "
 msgstr "New notebook name: "
 
-#: src/common/modals/ChooseTagsModal.tsx:83
+#: src/common/modals/ChooseTagsModal.tsx:84
 msgid "New tag"
 msgstr "New tag"
 
@@ -237,7 +237,7 @@ msgstr "New tag"
 msgid "no"
 msgstr "no"
 
-#: src/common/modals/ChooseTagsModal.tsx:49
+#: src/common/modals/ChooseTagsModal.tsx:50
 msgid "No tag yet"
 msgstr "No tag yet"
 
@@ -248,6 +248,10 @@ msgstr "Not Found"
 #: src/notebooks/components/ManageNotebooksModal.tsx:34
 msgid "Notebook Selection"
 msgstr "Notebook Selection"
+
+#: src/common/modals/ConfirmMultipleImportModal.tsx:143
+msgid "Notebooks found in the archive, they will be converted to folders"
+msgstr "Notebooks found in the archive, they will be converted to folders"
 
 #: src/settings/components/sections/OperationsSettings.tsx:37
 msgid "nuke space"
@@ -273,7 +277,7 @@ msgstr "page"
 msgid "Pages should be in the same file as the document"
 msgstr "Pages should be in the same file as the document"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:90
+#: src/common/modals/ConfirmMultipleImportModal.tsx:91
 msgid "Parsing Error"
 msgstr "Parsing Error"
 
@@ -318,7 +322,7 @@ msgstr "Restore"
 msgid "Restore Collection"
 msgstr "Restore Collection"
 
-#: src/common/modals/ChooseTagsModal.tsx:37
+#: src/common/modals/ChooseTagsModal.tsx:38
 msgid "Select item tags"
 msgstr "Select item tags"
 
@@ -369,7 +373,7 @@ msgstr "US"
 msgid "Username"
 msgstr "Username"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:234
+#: src/common/modals/ConfirmMultipleImportModal.tsx:247
 msgid "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 msgstr "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 
