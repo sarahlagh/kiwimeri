@@ -1,0 +1,143 @@
+name: Build Release
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        type: string
+        description: the release tag
+        required: true
+  push:
+    tags:
+      - '*'
+
+jobs:
+  release-draft:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+        if: github.event_name != 'push'
+      - name: Set tag name
+        id: tag
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            tag="${{ github.event.inputs.tag }}"
+          else
+            tag=$(basename "${{ github.ref }}")
+          fi
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+      - name: Create Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          tag="${{ steps.tag.outputs.tag }}"
+          gh release create --draft "$tag" --title "Release $tag" --notes ""
+
+  build-linux:
+    name: Build - AppImage Linux
+    needs: [release-draft]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'yarn'
+          cache-dependency-path: '**/yarn.lock'
+      - name: Build Release Executable
+        run: |
+          yarn install --frozen-lockfile
+          yarn --cwd=electron install --frozen-lockfile
+          touch .env.local
+          yarn release:electron
+      - name: Find the executable path
+        id: set-exec-path
+        run: |
+          executable=$(find ./electron/dist -name "*.AppImage" -print -quit)
+          echo "executable=$executable" >> $GITHUB_OUTPUT
+      - name: Upload Release Executable
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          executable="${{ steps.set-exec-path.outputs.executable }}"
+          gh release upload "${{ needs.release-draft.outputs.tag }}" "$executable"
+
+  build-android:
+    name: Build - APK Android
+    needs: [release-draft]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'yarn'
+          cache-dependency-path: '**/yarn.lock'
+      - name: Setup the trust store
+        uses: Acohen-work/secret-to-file-action@v1
+        with:
+          filename: 'keystore.jks'
+          working-directory: './android/.keystore'
+          base64-encoded-secret: ${{ secrets.KEYSTORE_JKS_BASE64 }}
+      - name: Setup the secrets.gradle file
+        uses: Acohen-work/secret-to-file-action@v1
+        with:
+          filename: 'secrets.gradle'
+          working-directory: './android'
+          base64-encoded-secret: ${{ secrets.SECRETS_GRADLE_BASE64 }}
+      - name: Build Release Executable
+        run: |
+          yarn install --frozen-lockfile
+          touch .env.local
+          yarn release:android
+
+      - name: Upload Release Executable
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          tag="${{ needs.release-draft.outputs.tag }}"
+          executable="kiwimeri-app-${tag/v/}.apk"
+          mv "android/app/build/outputs/apk/release/app-release.apk" "$executable"
+          gh release upload "${{ needs.release-draft.outputs.tag }}" "$executable"
+
+  publish:
+    name: Publish Release
+    needs: [release-draft, build-linux, build-android]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Publish Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release edit "${{ needs.release-draft.outputs.tag }}" --draft=false
+      - uses: eregon/keep-last-n-releases@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          n: 10
+          remove_tags_without_release: false
