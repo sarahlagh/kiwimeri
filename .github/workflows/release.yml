@@ -1,11 +1,14 @@
 name: Build Release
 on:
   workflow_dispatch:
+    inputs:
+      tag:
+        type: string
+        description: the release tag
+        required: true
   push:
     tags:
       - '*'
-    branches:
-      - release # temp for testing
 
 jobs:
   release-draft:
@@ -23,12 +26,11 @@ jobs:
       - name: Set tag name
         id: tag
         run: |
-          if [[ "${{ github.event_name }}" != "push" ]]; then
-            tag=v$(date +%Y%m%d.%H%M%S)
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            tag="${{ github.event.inputs.tag }}"
           else
             tag=$(basename "${{ github.ref }}")
           fi
-          tag="test-release"
           echo "tag=$tag" >> $GITHUB_OUTPUT
       - name: Create Release
         env:
@@ -72,9 +74,58 @@ jobs:
           executable="${{ steps.set-exec-path.outputs.executable }}"
           gh release upload "${{ needs.release-draft.outputs.tag }}" "$executable"
 
+  build-android:
+    name: Build - APK Android
+    needs: [release-draft]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'yarn'
+          cache-dependency-path: '**/yarn.lock'
+      - name: Setup the trust store
+        uses: Acohen-work/secret-to-file-action@v1
+        with:
+          filename: 'keystore.jks'
+          working-directory: './android/.keystore'
+          base64-encoded-secret: ${{ secrets.KEYSTORE_JKS_BASE64 }}
+      - name: Setup the secrets.gradle file
+        uses: Acohen-work/secret-to-file-action@v1
+        with:
+          filename: 'secrets.gradle'
+          working-directory: './android'
+          base64-encoded-secret: ${{ secrets.SECRETS_GRADLE_BASE64 }}
+      - name: Build Release Executable
+        run: |
+          yarn install --frozen-lockfile
+          touch .env.local
+          yarn release:android
+
+      - name: Upload Release Executable
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          tag="${{ needs.release-draft.outputs.tag }}"
+          executable="kiwimeri-app-${tag/v/}.apk"
+          mv "android/app/build/outputs/apk/release/app-release.apk" "$executable"
+          gh release upload "${{ needs.release-draft.outputs.tag }}" "$executable"
+
   publish:
     name: Publish Release
-    needs: [release-draft, build-linux]
+    needs: [release-draft, build-linux, build-android]
     runs-on: ubuntu-latest
     permissions:
       contents: write
