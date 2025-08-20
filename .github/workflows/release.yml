@@ -8,9 +8,42 @@ on:
       - release # temp for testing
 
 jobs:
+  release-draft:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+        if: github.event_name != 'push'
+      - name: Set tag name
+        id: tag
+        run: |
+          if [[ "${{ github.event_name }}" != "push" ]]; then
+            tag=v$(date +%Y%m%d.%H%M%S)
+          else
+            tag=$(basename "${{ github.ref }}")
+          fi
+          tag="test-release"
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+      - name: Create Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          tag="${{ steps.tag.outputs.tag }}"
+          gh release create --draft "$tag" --title "Release $tag" --notes ""
+
   build-linux:
     name: Build - AppImage Linux
+    needs: [release-draft]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,7 +59,34 @@ jobs:
           yarn --cwd=electron install --frozen-lockfile
           touch .env.local
           yarn release:electron
-      - uses: actions/upload-artifact@v4
+      - name: Find the executable path
+        id: set-exec-path
+        run: |
+          executable=$(find ./electron/dist -name "*.AppImage" -print -quit)
+          echo "executable=$executable" >> $GITHUB_OUTPUT
+      - name: Upload Release Executable
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          executable="${{ steps.set-exec-path.outputs.executable }}"
+          gh release upload "${{ needs.release-draft.outputs.tag }}" "$executable"
+
+  publish:
+    name: Publish Release
+    needs: [release-draft, build-linux]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Publish Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release edit "${{ needs.release-draft.outputs.tag }}" --draft=false
+      - uses: eregon/keep-last-n-releases@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: executable-linux
-          path: electron/dist/*.AppImage
+          n: 10
+          remove_tags_without_release: false
