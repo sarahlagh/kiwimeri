@@ -58,14 +58,13 @@ jobs:
       - name: Build Release Executable
         run: |
           yarn install --frozen-lockfile
-          yarn --cwd=electron install --frozen-lockfile
-          touch .env.local
           yarn release:electron
       - name: Find the executable path
         id: set-exec-path
         run: |
           executable=$(find ./electron/dist -name "*.AppImage" -print -quit)
-          echo "executable=$executable" >> $GITHUB_OUTPUT
+          mv $executable ${executable/kiwimeri-app/kiwimeri-linux}
+          echo "executable=${executable/kiwimeri-app/kiwimeri-linux}" >> $GITHUB_OUTPUT
       - name: Upload Release Executable
         env:
           GH_TOKEN: ${{ github.token }}
@@ -110,7 +109,6 @@ jobs:
       - name: Build Release Executable
         run: |
           yarn install --frozen-lockfile
-          touch .env.local
           yarn release:android
 
       - name: Upload Release Executable
@@ -119,7 +117,7 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           tag="${{ needs.release-draft.outputs.tag }}"
-          executable="kiwimeri-app-${tag/v/}.apk"
+          executable="kiwimeri-android-${tag/v/}.apk"
           mv "android/app/build/outputs/apk/release/app-release.apk" "$executable"
           gh release upload "${{ needs.release-draft.outputs.tag }}" "$executable"
 
