@@ -163,12 +163,10 @@ export class SimpleStorageProvider extends StorageProvider {
     }
 
     console.debug('[push] localInfo', localInfo);
-    console.debug('[push] collection', collection);
     console.debug(
       '[push] pulled file',
       newLastRemoteChange > cachedLastRemoteChange && !force
     );
-    console.debug('[push] newRemoteContent', newRemoteContent);
     console.debug('[push] cachedRemoteInfo', cachedRemoteInfo);
     console.debug('[push] newRemoteState', newRemoteState);
     return {
@@ -215,7 +213,6 @@ export class SimpleStorageProvider extends StorageProvider {
     const obj = this.deserialization(content);
     const items = obj.i;
     const remoteContentUpdated = obj.u;
-    console.debug('[pull] content from file: i', obj.i);
     console.debug('[pull] content from file: u', obj.u);
     const localCollection = this.toMap<CollectionItem>(
       localContent[0].collection
@@ -294,11 +291,6 @@ export class SimpleStorageProvider extends StorageProvider {
     }
 
     console.debug('[pull] newLocalInfo', newLocalInfo);
-    console.debug(
-      '[pull] newLocalContent',
-      newLocalContent,
-      JSON.stringify(newLocalContent)
-    );
     console.debug('[pull] cachedRemoteInfo', cachedRemoteInfo);
     console.debug('[pull] newRemoteState', newRemoteState);
 

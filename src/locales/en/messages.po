@@ -51,7 +51,7 @@ msgstr "Choose"
 msgid "Choose a new folder"
 msgstr "Choose a new folder"
 
-#: src/constants.ts:60
+#: src/constants.ts:61
 msgid "collection"
 msgstr "collection"
 
@@ -77,7 +77,7 @@ msgstr "Confirm"
 msgid "Debug"
 msgstr "Debug"
 
-#: src/constants.ts:55
+#: src/constants.ts:56
 msgid "Default"
 msgstr "Default"
 
@@ -131,7 +131,7 @@ msgstr "File not supported"
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/constants.ts:54
+#: src/constants.ts:55
 msgid "Home"
 msgstr "Home"
 
@@ -204,11 +204,11 @@ msgstr "Name"
 msgid "new"
 msgstr "new"
 
-#: src/constants.ts:56
+#: src/constants.ts:57
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:57
+#: src/constants.ts:58
 msgid "New folder"
 msgstr "New folder"
 
@@ -260,7 +260,7 @@ msgstr "nuke store"
 msgid "Operations"
 msgstr "Operations"
 
-#: src/constants.ts:59
+#: src/constants.ts:60
 msgid "page"
 msgstr "page"
 

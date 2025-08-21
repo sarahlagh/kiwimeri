@@ -39,37 +39,45 @@ const SyncRemoteButton = ({
     await syncService.sync(direction, remote);
     if (onSyncEnd) onSyncEnd();
   };
-  if (!askConfirm) {
+  if (!networkStatus.connected) {
     return (
-      <IonButton
-        disabled={disabled || !networkStatus.connected}
-        color={color}
-        fill={fill}
-        onClick={onConfirm}
-      >
-        <IonIcon icon={icon}></IonIcon>
+      <IonButton disabled={true}>
+        <IonIcon icon={APPICONS.cloudOffline}></IonIcon>
       </IonButton>
     );
   }
   return (
     <>
-      <IonButton
-        id={trigger}
-        disabled={disabled}
-        expand="block"
-        color={color}
-        fill={fill}
-      >
-        <IonIcon icon={icon}></IonIcon>
-      </IonButton>
-      <ConfirmYesNoDialog
-        trigger={trigger}
-        onClose={confirmed => {
-          if (confirmed) {
-            onConfirm();
-          }
-        }}
-      />
+      {askConfirm ? (
+        <>
+          <IonButton
+            id={trigger}
+            disabled={disabled}
+            expand="block"
+            color={color}
+            fill={fill}
+          >
+            <IonIcon icon={icon}></IonIcon>
+          </IonButton>
+          <ConfirmYesNoDialog
+            trigger={trigger}
+            onClose={confirmed => {
+              if (confirmed) {
+                onConfirm();
+              }
+            }}
+          />
+        </>
+      ) : (
+        <IonButton
+          disabled={disabled}
+          color={color}
+          fill={fill}
+          onClick={onConfirm}
+        >
+          <IonIcon icon={icon}></IonIcon>
+        </IonButton>
+      )}
     </>
   );
 };
