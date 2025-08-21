@@ -5,6 +5,7 @@ import {
   DEFAULT_SPACE_ID,
   INTERNAL_FORMAT
 } from '@/constants';
+import { Network } from '@capacitor/network';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db/with-schemas';
 import { Persister } from 'tinybase/persisters/with-schemas';
 import { createQueries, Queries } from 'tinybase/queries/with-schemas';
@@ -121,9 +122,20 @@ class StorageService {
         )
       ]);
       // in a timeout, don't want to block app start for this
+      // TODO should be somewhere else?
       if (platformService.isSyncEnabled()) {
         setTimeout(async () => {
           await remotesService.initSyncConnection(this.getSpaceId());
+        });
+        Network.addListener('networkStatusChange', status => {
+          if (status.connected) {
+            console.log(
+              'network connected - will attempt to re init providers'
+            );
+            setTimeout(async () => {
+              await remotesService.initSyncConnection(this.getSpaceId());
+            });
+          }
         });
       }
       // init spaces

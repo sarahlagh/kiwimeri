@@ -2,6 +2,7 @@ import { APPICONS } from '@/constants';
 import { SyncDirection, syncService } from '@/remote-storage/sync.service';
 import { IonButton, IonIcon } from '@ionic/react';
 import { Id } from 'tinybase/with-schemas';
+import useNetworkStatus from '../hooks/useNetworkStatus';
 import ConfirmYesNoDialog from '../modals/ConfirmYesNoDialog';
 
 type SyncRemoteButtonProps = {
@@ -25,6 +26,7 @@ const SyncRemoteButton = ({
   onSyncStart,
   onSyncEnd
 }: SyncRemoteButtonProps) => {
+  const networkStatus = useNetworkStatus();
   const trigger = `sync-${direction}-button-${remote}`;
   const icon =
     direction === 'sync'
@@ -40,7 +42,7 @@ const SyncRemoteButton = ({
   if (!askConfirm) {
     return (
       <IonButton
-        disabled={disabled}
+        disabled={disabled || !networkStatus.connected}
         color={color}
         fill={fill}
         onClick={onConfirm}

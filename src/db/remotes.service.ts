@@ -6,6 +6,7 @@ import {
   storageProviderFactory
 } from '@/remote-storage/storage-provider.factory';
 import { StorageProvider } from '@/remote-storage/sync-types';
+import { Network } from '@capacitor/network';
 import { Persister } from 'tinybase/persisters/with-schemas';
 import { createRemoteCloudPersister } from './persisters/remote-cloud-persister';
 import storageService from './storage.service';
@@ -82,7 +83,8 @@ class RemotesService {
         remote.name,
         remote.type
       );
-      await this.configure(remote, JSON.parse(remote.config));
+      const connected = await this.configure(remote, JSON.parse(remote.config));
+      console.debug(`remote ${remote.name} configured: ${connected}`);
 
       // TODO: factory depending on type
       this.remotePersisters.set(
@@ -109,25 +111,34 @@ class RemotesService {
     );
     const storageProvider = this.providers.get(remote.id)!;
     storageProvider.configure(config, proxy, useHttp);
-    const newConf = await storageProvider.init(remote.state);
 
-    storageService.getStore().transaction(() => {
-      storageService
-        .getStore()
-        .setCell(
-          this.remotesTable,
-          remote.id,
-          'config',
-          JSON.stringify(newConf.config)
-        );
-      this.updateRemoteStateInfo(remote.state, newConf.remoteState);
-    });
+    const networkStatus = await Network.getStatus();
+    if (!networkStatus.connected) {
+      // if no network, don't bother
+      return false;
+    }
+
+    const newConf = await storageProvider.init(remote.state); // here
+
+    if (newConf.config !== null) {
+      storageService.getStore().transaction(() => {
+        storageService
+          .getStore()
+          .setCell(
+            this.remotesTable,
+            remote.id,
+            'config',
+            JSON.stringify(newConf.config)
+          );
+        this.updateRemoteStateInfo(remote.state, newConf.remoteState);
+      });
+    }
 
     this.setRemoteStateConnected(
       remote.state,
       newConf.remoteState.connected || false
     );
-    return newConf.remoteState.connected || false;
+    return true;
   }
 
   public getRemotes(space?: string) {

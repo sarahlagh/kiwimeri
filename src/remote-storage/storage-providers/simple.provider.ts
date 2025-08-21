@@ -48,11 +48,11 @@ export class SimpleStorageProvider extends StorageProvider {
   }
 
   public async init() {
-    const { config, connected, filesInfo } = await this.driver.init([
-      this.getVersionFile(),
-      this.filename
-    ]);
-    if (connected) {
+    const { config, connected, filesInfo } = await this.driver
+      .init([this.getVersionFile(), this.filename])
+      .catch(() => ({ connected: false, config: null, filesInfo: null }));
+
+    if (connected && filesInfo) {
       const idx = filesInfo.findIndex(
         f => f.filename === this.getVersionFile()
       );
@@ -64,11 +64,14 @@ export class SimpleStorageProvider extends StorageProvider {
         await this.driver.pushFile(this.getVersionFile(), '0');
       }
     }
-    const remoteState = this.getRemoteState(filesInfo);
-    return {
-      config,
-      remoteState: { ...remoteState, connected }
-    };
+    if (config && filesInfo) {
+      const remoteState = this.getRemoteState(filesInfo);
+      return {
+        config,
+        remoteState: { ...remoteState, connected }
+      };
+    }
+    return { config, remoteState: { connected } };
   }
 
   private getRemoteState(filesInfo: DriverFileInfo[]) {
