@@ -58,19 +58,27 @@ class RemotesService {
     return queryName;
   }
 
-  public async initSyncConnection(space: string, initAll = false) {
-    storageService
-      .getStoreIndexes()
-      .setIndexDefinition('remoteItemsByState', 'remoteItems', 'state');
+  public async initSyncConnection(
+    space: string,
+    recreate = true,
+    initAll = false
+  ) {
+    if (recreate) {
+      storageService
+        .getStoreIndexes()
+        .setIndexDefinition('remoteItemsByState', 'remoteItems', 'state');
+    }
 
     const remotes = this.getRemotes();
     const connectedRemotes = remotes.filter(
       remote => initAll || remote.connected
     );
 
-    this.remotePersisters.forEach(p => {
-      p.destroy();
-    });
+    if (recreate) {
+      this.remotePersisters.forEach(p => {
+        p.destroy();
+      });
+    }
     if (connectedRemotes.length < 1) {
       console.log('[storage] no initial sync configuration');
       return;
@@ -87,14 +95,16 @@ class RemotesService {
       console.debug(`remote ${remote.name} configured: ${connected}`);
 
       // TODO: factory depending on type
-      this.remotePersisters.set(
-        remote.id,
-        createRemoteCloudPersister(
-          storageService.getSpace(space),
-          remote,
-          this.providers.get(remote.id)!
-        )
-      );
+      if (recreate) {
+        this.remotePersisters.set(
+          remote.id,
+          createRemoteCloudPersister(
+            storageService.getSpace(space),
+            remote,
+            this.providers.get(remote.id)!
+          )
+        );
+      }
     }
   }
 
@@ -118,7 +128,7 @@ class RemotesService {
       return false;
     }
 
-    const newConf = await storageProvider.init(remote.state); // here
+    const newConf = await storageProvider.init(remote.state);
 
     if (newConf.config !== null) {
       storageService.getStore().transaction(() => {

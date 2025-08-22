@@ -22,7 +22,11 @@ const ImportExportCollectionSettings = () => {
   const onRestoreContent = async (content: string) => {
     const json = JSON.parse(content);
     storageService.getStore().setContent(json);
-    await remotesService.initSyncConnection(storageService.getSpaceId(), true);
+    await remotesService.initSyncConnection(
+      storageService.getSpaceId(),
+      true,
+      true
+    );
   };
   const getContentToExport = async () => {
     const content = storageService.getStore().getContent();

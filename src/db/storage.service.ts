@@ -133,7 +133,7 @@ class StorageService {
               'network connected - will attempt to re init providers'
             );
             setTimeout(async () => {
-              await remotesService.initSyncConnection(this.getSpaceId());
+              await remotesService.initSyncConnection(this.getSpaceId(), false);
             });
           }
         });

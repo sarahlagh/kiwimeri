@@ -126,6 +126,7 @@ describe('sync service', () => {
       remotesService.addRemote('test', 0, 'inmem', {});
       await remotesService.initSyncConnection(
         storageService.getSpaceId(),
+        true,
         true
       );
       driver = remotesService['providers'].values().next().value![
@@ -209,6 +210,22 @@ describe('sync service', () => {
     it('should create version file on first init', async () => {
       const { content } = await driver.pullFile('', 'S1');
       expect(content).toBe('0');
+    });
+
+    it('should handle reinit on network down', async () => {
+      // create local item, don't sync
+      collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
+      // create item on remote, sync
+      await reInitRemoteData([oneDocument('remote')]);
+      // reinit sync after network down
+      await remotesService.initSyncConnection(
+        storageService.getSpaceId(),
+        false
+      );
+      // now pull
+      await syncService_pull();
+      // both items are kept
+      expect(getRowCountInsideNotebook()).toBe(2);
     });
 
     describe('on pull operation', () => {
