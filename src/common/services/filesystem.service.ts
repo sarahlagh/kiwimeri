@@ -17,36 +17,34 @@ class FilesystemService {
     }
 
     if (typeof content === 'string') {
-      return this.sendStringInChunk(fileName, content, mimeType);
+      return this.sendDataInChunk(
+        fileName,
+        content,
+        mimeType,
+        false,
+        chunk => chunk as string
+      );
     }
 
     // TODO empty zips are read as invalid?
-    console.debug('send data as base64');
-
-    // TODO chunk binary, then b64encode
-    const b64encoded = btoa(strFromU8(content, true));
-    console.debug('fileName', fileName);
-    console.debug('mimeType', mimeType);
-    console.debug('b64encoded: ', b64encoded.substring(0, 15) + '...');
-    return BetterFilesystem.exportToFile({
-      fileName,
-      mimeType,
-      content: b64encoded,
-      isBase64: true
-    });
+    return this.sendDataInChunk(fileName, content, mimeType, true, chunk =>
+      btoa(strFromU8(chunk as Uint8Array<ArrayBufferLike>, true))
+    );
   }
 
-  private async sendStringInChunk(
+  private async sendDataInChunk(
     fileName: string,
-    content: string,
-    mimeType = 'application/json'
+    content: string | Uint8Array<ArrayBufferLike>,
+    mimeType: string,
+    isBase64: boolean,
+    getChunkAsString: (chunk: string | Uint8Array<ArrayBuffer>) => string
   ) {
-    console.debug('send data as string', content.length);
+    console.debug('send binary data as base64', content.length);
     let pos = 0;
     let streamId: number | undefined = undefined;
     do {
       const end = pos + Math.min(150000, content.length);
-      const chunk = content.slice(pos, end);
+      const chunk = getChunkAsString(content.slice(pos, end));
       const eof = end >= content.length;
       console.debug('send chunk', pos, end, eof, streamId);
 
@@ -54,6 +52,7 @@ class FilesystemService {
         fileName,
         mimeType,
         content: chunk,
+        isBase64,
         streamId,
         eof
       });

@@ -60,7 +60,6 @@ public class BetterFilesystemPlugin extends Plugin {
         // if already streaming
         if (streamId != null) {
             Logger.debug("existing streamId = " + streamId);
-            Logger.debug(content.substring(content.length() >= 6 ? content.length() - 6 : 0));
             if (!streamedFiles.containsKey(streamId)) {
                 call.reject("invalid streamId");
                 return;
@@ -97,8 +96,6 @@ public class BetterFilesystemPlugin extends Plugin {
                 OutputStream out = this.getContext().getContentResolver().openOutputStream(result.getData().getData());
                 int streamId = openStream(out);
                 Logger.debug("init streamId = " + streamId);
-                Logger.debug(content.substring(content.length() >= 6 ? content.length() - 6 : 0));
-
                 writeToFile(call, streamId, streamedFiles.get(streamId), content);
                 call.resolve(new JSObject().put("success", true).put("streamId", streamId));
 
@@ -147,7 +144,6 @@ public class BetterFilesystemPlugin extends Plugin {
             }
             int streamId = openStream(out);
             Logger.debug("init streamId = " + streamId);
-            Logger.debug(content.substring(content.length() >= 6 ? content.length() - 6 : 0));
             writeToFile(call, streamId, streamedFiles.get(streamId), content);
             call.resolve(new JSObject().put("success", true).put("streamId", streamId));
         } catch (Exception e) {
@@ -189,6 +185,7 @@ public class BetterFilesystemPlugin extends Plugin {
             if (eof) {
                 streamedFile.out.close();
                 streamedFiles.remove(streamId);
+                Logger.debug("successfully removed streamId = " + streamId);
             }
 
         } catch (IOException e) {
