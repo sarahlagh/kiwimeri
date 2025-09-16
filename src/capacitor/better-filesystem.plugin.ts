@@ -5,6 +5,10 @@ export interface BetterFilesystemPlugin {
     fileName: string;
     mimeType: string;
     content: string | Uint8Array<ArrayBufferLike>;
+    /** only applicable on android: the identifier for streaming */
+    streamId?: number;
+    /** only applicable on android: if streaming, must be true if for the last chunk */
+    eof?: boolean;
     /** only applicable on android: if content should be decoded as base64 - false by default */
     isBase64?: boolean;
     /** only applicable on android: if the app should open a file picker - true by default */
@@ -12,8 +16,8 @@ export interface BetterFilesystemPlugin {
     /** only applicable on android if requestFilePicker == false: an optional parent directory under Documents where to write the file */
     appDir?: string;
     /** only applicable on android if requestFilePicker == false: whether existing files should be overwritten - false by default */
-    overwrite?: boolean; //
-  }): Promise<{ success: boolean }>;
+    overwrite?: boolean;
+  }): Promise<{ success: boolean; streamId?: number }>;
 }
 
 export class WebBetterFilesystem
@@ -25,7 +29,7 @@ export class WebBetterFilesystem
     mimeType: string;
     content: string | Uint8Array<ArrayBufferLike>;
   }) {
-    const blob = new Blob([data.content], { type: data.mimeType });
+    const blob = new Blob([data.content as BlobPart], { type: data.mimeType });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     document.documentElement.appendChild(a);

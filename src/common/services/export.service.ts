@@ -139,6 +139,7 @@ class ExportService {
     return fileTree;
   }
 
+  // TODO use fflate to stream zip
   public async toZip(
     fileTree: ZipFileTree
   ): Promise<Uint8Array<ArrayBufferLike>> {

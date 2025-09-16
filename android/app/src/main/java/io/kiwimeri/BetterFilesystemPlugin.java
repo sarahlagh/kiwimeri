@@ -26,6 +26,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 @CapacitorPlugin(name = "BetterFilesystem", permissions = {
         @Permission(
@@ -35,19 +37,40 @@ import java.nio.charset.StandardCharsets;
 })
 public class BetterFilesystemPlugin extends Plugin {
 
+    private static class StreamedFile {
+        OutputStream out;
+    }
+    private int idCount = 1;
+    private static final Map<Integer, StreamedFile> streamedFiles = new HashMap<>();
+
+
     @PluginMethod()
     public void exportToFile(PluginCall call) {
         String fileName = call.getString("fileName");
         String content = call.getString("content");
         String mimeType = call.getString("mimeType");
+        Integer streamId = call.getInt("streamId");
         boolean requestFilePicker = Boolean.TRUE.equals(call.getBoolean("requestFilePicker", true));
 
-        // TODO handle streaming
         if (fileName == null || content == null || mimeType == null) {
             call.reject("parameters fileName, content or mimeType are mandatory");
             return;
         }
 
+        // if already streaming
+        if (streamId != null) {
+            Logger.debug("existing streamId = " + streamId);
+            Logger.debug(content.substring(content.length() >= 6 ? content.length() - 6 : 0));
+            if (!streamedFiles.containsKey(streamId)) {
+                call.reject("invalid streamId");
+                return;
+            }
+            writeToFile(call, streamId, streamedFiles.get(streamId), content);
+            call.resolve(new JSObject().put("success", true).put("streamId", streamId));
+            return;
+        }
+
+        // else, start streaming
         if (requestFilePicker) {
             Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -68,10 +91,17 @@ public class BetterFilesystemPlugin extends Plugin {
         if (call == null) {
             return;
         }
+        String content = call.getString("content");
         if (result.getResultCode() == Activity.RESULT_OK) {
-            try (OutputStream out = this.getContext().getContentResolver().openOutputStream(result.getData().getData());) {
-                writeToFile(call, out, call.getString("content"));
-                call.resolve(new JSObject().put("success", true));
+            try {
+                OutputStream out = this.getContext().getContentResolver().openOutputStream(result.getData().getData());
+                int streamId = openStream(out);
+                Logger.debug("init streamId = " + streamId);
+                Logger.debug(content.substring(content.length() >= 6 ? content.length() - 6 : 0));
+
+                writeToFile(call, streamId, streamedFiles.get(streamId), content);
+                call.resolve(new JSObject().put("success", true).put("streamId", streamId));
+
             } catch (Exception e) {
                 Logger.error("Error writing to file", e);
                 call.reject(e.getMessage());
@@ -79,6 +109,7 @@ public class BetterFilesystemPlugin extends Plugin {
         } else {
             call.resolve(new JSObject().put("success", false));
         }
+
     }
 
     @PermissionCallback
@@ -107,13 +138,18 @@ public class BetterFilesystemPlugin extends Plugin {
                 call.reject("Parent folder doesn't exist");
                 return;
             }
+            OutputStream out;
             if (file.exists() && !overwrite) { // if file with same name exist, try to create a copy
                 File copy = getCopy(fileName, parent);
-                writeToFile(call, copy, content);
+                out = new FileOutputStream(copy, true);
             } else {
-                writeToFile(call, file, content);
+                out = new FileOutputStream(file, true);
             }
-            call.resolve(new JSObject().put("success", true));
+            int streamId = openStream(out);
+            Logger.debug("init streamId = " + streamId);
+            Logger.debug(content.substring(content.length() >= 6 ? content.length() - 6 : 0));
+            writeToFile(call, streamId, streamedFiles.get(streamId), content);
+            call.resolve(new JSObject().put("success", true).put("streamId", streamId));
         } catch (Exception e) {
             call.reject(e.getMessage());
         }
@@ -136,13 +172,7 @@ public class BetterFilesystemPlugin extends Plugin {
         return copy;
     }
 
-    private void writeToFile(PluginCall call, File file, String data) throws IOException {
-        try (FileOutputStream fos = new FileOutputStream(file, true)) {
-            writeToFile(call, fos, data);
-        }
-    }
-
-    private void writeToFile(PluginCall call, OutputStream out, String data) throws IOException {
+    private void writeOut(PluginCall call, OutputStream out, String data) throws IOException {
         boolean isBase64 = Boolean.TRUE.equals(call.getBoolean("isBase64", false));
         if (!isBase64) {
             out.write(data.getBytes(StandardCharsets.UTF_8));
@@ -150,6 +180,31 @@ public class BetterFilesystemPlugin extends Plugin {
             byte[] bytes = Base64.decode(data, Base64.NO_WRAP);
             out.write(bytes);
         }
+    }
+
+    private void writeToFile(PluginCall call, int streamId, StreamedFile streamedFile, String data) {
+        boolean eof = Boolean.TRUE.equals(call.getBoolean("eof", true));
+        try {
+            writeOut(call, streamedFile.out, data);
+            if (eof) {
+                streamedFile.out.close();
+                streamedFiles.remove(streamId);
+            }
+
+        } catch (IOException e) {
+            Logger.error("Error writing to file", e);
+            try { streamedFile.out.close(); } catch (Exception e2) { /* ignore */ }
+            streamedFiles.remove(streamId);
+            call.reject(e.getMessage());
+        }
+    }
+
+    private int openStream(OutputStream out) {
+        int streamId = idCount++;
+        StreamedFile streamedFile = new StreamedFile();
+        streamedFile.out = out;
+        streamedFiles.put(streamId, streamedFile);
+        return streamId;
     }
 
     private boolean isStoragePermissionGranted() {
