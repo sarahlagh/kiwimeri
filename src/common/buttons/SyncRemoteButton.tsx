@@ -2,7 +2,7 @@ import { APPICONS } from '@/constants';
 import { SyncDirection, syncService } from '@/remote-storage/sync.service';
 import { IonButton, IonIcon } from '@ionic/react';
 import { Id } from 'tinybase/with-schemas';
-import useNetworkStatus from '../hooks/useNetworkStatus';
+import { useNetworkStatus } from '../context/NetworkStatusContext';
 import ConfirmYesNoDialog from '../modals/ConfirmYesNoDialog';
 
 type SyncRemoteButtonProps = {
@@ -39,7 +39,7 @@ const SyncRemoteButton = ({
     await syncService.sync(direction, remote);
     if (onSyncEnd) onSyncEnd();
   };
-  if (!networkStatus.connected) {
+  if (!networkStatus?.connected) {
     return (
       <IonButton disabled={true}>
         <IonIcon icon={APPICONS.cloudOffline}></IonIcon>

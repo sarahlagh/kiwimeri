@@ -23,6 +23,7 @@ import { IonReactRouter } from '@ionic/react-router';
 import { useEffect } from 'react';
 import MainLayout from './app/MainLayout';
 import InitialRoutingProvider from './app/providers/InitialRoutingProvider';
+import { NetworkStatusProvider } from './app/providers/NetworkStatusProvider';
 import TinybaseProvider from './app/providers/TinybaseProvider';
 import { ToastProvider } from './app/providers/ToastProvider';
 import platformService from './common/services/platform.service';
@@ -36,29 +37,31 @@ initGlobalTrans();
 
 const App = () => {
   useEffect(() => {
-    const persistStorage = async () => {
+    const appInit = async () => {
       // Check if site's storage has been marked as persistent
       if (navigator.storage && navigator.storage.persist) {
         const isPersisted = await navigator.storage.persist();
         console.debug(`persisted storage granted: ${isPersisted}`);
       }
     };
-    persistStorage();
+    appInit();
   });
   return (
     <>
       <I18nProvider i18n={i18n}>
-        <TinybaseProvider>
-          <ToastProvider>
-            <IonApp className={platformService.getPlatform()}>
-              <IonReactRouter>
-                <InitialRoutingProvider>
-                  <MainLayout></MainLayout>
-                </InitialRoutingProvider>
-              </IonReactRouter>
-            </IonApp>
-          </ToastProvider>
-        </TinybaseProvider>
+        <NetworkStatusProvider>
+          <TinybaseProvider>
+            <ToastProvider>
+              <IonApp className={platformService.getPlatform()}>
+                <IonReactRouter>
+                  <InitialRoutingProvider>
+                    <MainLayout></MainLayout>
+                  </InitialRoutingProvider>
+                </IonReactRouter>
+              </IonApp>
+            </ToastProvider>
+          </TinybaseProvider>
+        </NetworkStatusProvider>
       </I18nProvider>
     </>
   );

@@ -1,3 +1,4 @@
+import { networkService } from '@/common/services/network.service';
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
 import { INTERNAL_FORMAT } from '@/constants';
@@ -6,7 +7,6 @@ import {
   storageProviderFactory
 } from '@/remote-storage/storage-provider.factory';
 import { StorageProvider } from '@/remote-storage/sync-types';
-import { Network } from '@capacitor/network';
 import { Persister } from 'tinybase/persisters/with-schemas';
 import { createRemoteCloudPersister } from './persisters/remote-cloud-persister';
 import storageService from './storage.service';
@@ -58,27 +58,21 @@ class RemotesService {
     return queryName;
   }
 
-  public async initSyncConnection(
-    space: string,
-    recreate = true,
-    initAll = false
-  ) {
-    if (recreate) {
-      storageService
-        .getStoreIndexes()
-        .setIndexDefinition('remoteItemsByState', 'remoteItems', 'state');
-    }
+  public async initSyncConnection(space: string, initAll = false) {
+    storageService
+      .getStoreIndexes()
+      .setIndexDefinition('remoteItemsByState', 'remoteItems', 'state');
 
     const remotes = this.getRemotes();
     const connectedRemotes = remotes.filter(
       remote => initAll || remote.connected
     );
 
-    if (recreate) {
-      this.remotePersisters.forEach(p => {
-        p.destroy();
-      });
-    }
+    this.remotePersisters.forEach(p => {
+      p.destroy();
+    });
+    this.remotePersisters.clear();
+
     if (connectedRemotes.length < 1) {
       console.log('[storage] no initial sync configuration');
       return;
@@ -95,16 +89,14 @@ class RemotesService {
       console.debug(`remote ${remote.name} configured: ${connected}`);
 
       // TODO: factory depending on type
-      if (recreate) {
-        this.remotePersisters.set(
-          remote.id,
-          createRemoteCloudPersister(
-            storageService.getSpace(space),
-            remote,
-            this.providers.get(remote.id)!
-          )
-        );
-      }
+      this.remotePersisters.set(
+        remote.id,
+        createRemoteCloudPersister(
+          storageService.getSpace(space),
+          remote,
+          this.providers.get(remote.id)!
+        )
+      );
     }
   }
 
@@ -122,8 +114,9 @@ class RemotesService {
     const storageProvider = this.providers.get(remote.id)!;
     storageProvider.configure(config, proxy, useHttp);
 
-    const networkStatus = await Network.getStatus();
-    if (!networkStatus.connected) {
+    const networkStatus = networkService.getStatus();
+    console.debug('trying to configure remotes and network is', networkStatus);
+    if (networkStatus && !networkStatus.connected) {
       // if no network, don't bother
       return false;
     }

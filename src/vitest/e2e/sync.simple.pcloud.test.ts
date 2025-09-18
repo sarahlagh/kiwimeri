@@ -68,11 +68,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
       path: `${appConfig.PCLOUD_E2E_PATH}/${browserName}`,
       serverLocation: appConfig.PCLOUD_E2E_SERVER_LOC
     });
-    await remotesService.initSyncConnection(
-      storageService.getSpaceId(),
-      true,
-      true
-    );
+    await remotesService.initSyncConnection(storageService.getSpaceId(), true);
     expect(remotesService.getRemotes()).toHaveLength(1);
     expect(remotesService.getRemotes()[0].connected).toBeTruthy();
     const keys = remotesService['providers'].keys();

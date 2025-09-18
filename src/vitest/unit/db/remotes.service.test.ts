@@ -65,11 +65,7 @@ describe('remotes service', () => {
 
   it('should only init sync for all remotes on demand', async () => {
     remotesService.addRemote('test', 0, 'inmem');
-    await remotesService.initSyncConnection(
-      storageService.getSpaceId(),
-      true,
-      true
-    );
+    await remotesService.initSyncConnection(storageService.getSpaceId(), true);
     const rowId = storageService.getStore().getRowIds('remotes')[0];
     const state = storageService.getStore().getRow('remotes', rowId).state;
     const stateRow = storageService

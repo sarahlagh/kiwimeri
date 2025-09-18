@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
+import { networkService } from '@/common/services/network.service';
 import platformService from '@/common/services/platform.service';
 import {
   DEFAULT_NOTEBOOK_ID,
   DEFAULT_SPACE_ID,
   INTERNAL_FORMAT
 } from '@/constants';
-import { Network } from '@capacitor/network';
+import { ConnectionStatusChangeListener } from '@capacitor/network';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db/with-schemas';
 import { Persister } from 'tinybase/persisters/with-schemas';
 import { createQueries, Queries } from 'tinybase/queries/with-schemas';
@@ -29,7 +30,8 @@ class StorageService {
   private spaces: Map<string, Store<SpaceType>> = new Map();
   private spaceQueries: Map<string, Queries<SpaceType>> = new Map();
   private spaceLocalPersisters: Map<string, Persister<SpaceType>> = new Map();
-  private started = false;
+
+  private networkListener: ConnectionStatusChangeListener | null = null;
 
   public constructor() {
     this.reInitDB();
@@ -110,47 +112,47 @@ class StorageService {
   }
 
   public async start(autoLoad = true) {
-    if (!this.started) {
-      this.started = true;
-      // only start persister for the current space
-      // later: when switching space, only re init space persister
-      await Promise.all([
-        this.startPersister(this.storeLocalPersister, autoLoad),
-        this.startPersister(
-          this.spaceLocalPersisters.get(this.getSpaceId())!,
-          autoLoad
-        )
-      ]);
-      // in a timeout, don't want to block app start for this
-      // TODO should be somewhere else?
-      if (platformService.isSyncEnabled()) {
-        setTimeout(async () => {
-          await remotesService.initSyncConnection(this.getSpaceId());
-        });
-        Network.addListener('networkStatusChange', status => {
-          if (status.connected) {
+    // only start persister for the current space
+    // later: when switching space, only re init space persister
+    await Promise.all([
+      this.startPersister(this.storeLocalPersister, autoLoad),
+      this.startPersister(
+        this.spaceLocalPersisters.get(this.getSpaceId())!,
+        autoLoad
+      )
+    ]);
+    // in a timeout, don't want to block app start for this
+    // TODO should be somewhere else?
+    if (platformService.isSyncEnabled() && !this.networkListener) {
+      console.debug('[storage] adding networkService.onStatusUp listener');
+      this.networkListener = networkService.onStatusUp(
+        () => {
+          setTimeout(async () => {
             console.log(
-              'network connected - will attempt to re init providers'
+              '[storage] network connected - will attempt to re init providers'
             );
-            setTimeout(async () => {
-              await remotesService.initSyncConnection(this.getSpaceId(), false);
-            });
-          }
-        });
-      }
-      // init spaces
-      setTimeout(() => {
-        notebooksService.initNotebooks();
-      });
-      return true;
+            await remotesService.initSyncConnection(this.getSpaceId());
+          });
+        },
+        true,
+        '[storage reinit]'
+      );
     }
-    return false;
+    // init spaces
+    setTimeout(() => {
+      notebooksService.initNotebooks();
+    });
   }
 
   public async stop() {
-    this.started = false;
+    console.debug('[storage] stop', this.networkListener);
     this.storeLocalPersister.stopAutoLoad();
     this.spaceLocalPersisters.get(this.getSpaceId())!.stopAutoLoad();
+    if (this.networkListener) {
+      console.debug('[storage] removing networkService.onStatusUp listener');
+      networkService.removeListener(this.networkListener);
+      this.networkListener = null;
+    }
   }
 
   private createSpace() {

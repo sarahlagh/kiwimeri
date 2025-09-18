@@ -13,12 +13,16 @@ const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     async function load() {
-      const ok = await storageService.start();
-      if (ok) {
-        setIsLoading(false);
-      }
+      console.debug('[storage] starting');
+      await storageService.start();
+      setIsLoading(false);
     }
     load();
+
+    return () => {
+      console.debug('[storage] stopping');
+      storageService.stop();
+    };
   }, []);
 
   const space = storageService.getSpace() as unknown as Store;
