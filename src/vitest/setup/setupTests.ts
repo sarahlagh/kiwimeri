@@ -26,6 +26,7 @@ window.matchMedia =
 
 beforeAll(async () => {
   await storageService.start(false);
+  await remotesService.initSync();
   i18n.load('en', enMessages);
   i18n.activate('en');
   initGlobalTrans();
@@ -33,6 +34,7 @@ beforeAll(async () => {
   expect(notebooksService.getCurrentNotebook()).toBe('0');
 });
 afterAll(async () => {
+  remotesService.stopSync();
   storageService.stop();
 });
 beforeEach(async () => {});
@@ -43,6 +45,5 @@ afterEach(async () => {
   expect(notebooksService.getNotebooks()).toHaveLength(1);
   expect(storageService.getStore().getRowCount('remotes')).toBe(0);
   expect(storageService.getSpace().getRowCount('collection')).toBe(1);
-  remotesService['remotePersisters'].clear();
-  remotesService['providers'].clear();
+  remotesService.stopSync();
 });

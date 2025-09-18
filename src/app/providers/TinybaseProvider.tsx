@@ -1,6 +1,7 @@
 import Loading from '@/app/components/Loading';
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
+import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
 import { ReactNode, useEffect, useState } from 'react';
 import { Indexes } from 'tinybase/indexes';
@@ -16,11 +17,13 @@ const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
       console.debug('[storage] starting');
       await storageService.start();
       setIsLoading(false);
+      await remotesService.initSync();
     }
     load();
 
     return () => {
       console.debug('[storage] stopping');
+      remotesService.stopSync();
       storageService.stop();
     };
   }, []);

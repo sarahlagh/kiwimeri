@@ -25,7 +25,7 @@ describe('remotes service', () => {
 
   it('should not init sync for previously unconfigured remotes', async () => {
     remotesService.addRemote('test', 0, 'inmem');
-    await remotesService.initSyncConnection(storageService.getSpaceId());
+    await remotesService.configureRemotes(storageService.getSpaceId());
     const rowId = storageService.getStore().getRowIds('remotes')[0];
     const state = storageService.getStore().getRow('remotes', rowId).state;
     const stateRow = storageService
@@ -55,7 +55,7 @@ describe('remotes service', () => {
     );
     expect(ok).toBeTruthy();
     expect(remotesService.getPersister(rowId)).toBeUndefined();
-    await remotesService.initSyncConnection(storageService.getSpaceId());
+    await remotesService.configureRemotes(storageService.getSpaceId());
     const stateRow = storageService
       .getStore()
       .getRow('remoteState', state as string);
@@ -65,7 +65,7 @@ describe('remotes service', () => {
 
   it('should only init sync for all remotes on demand', async () => {
     remotesService.addRemote('test', 0, 'inmem');
-    await remotesService.initSyncConnection(storageService.getSpaceId(), true);
+    await remotesService.configureRemotes(storageService.getSpaceId(), true);
     const rowId = storageService.getStore().getRowIds('remotes')[0];
     const state = storageService.getStore().getRow('remotes', rowId).state;
     const stateRow = storageService

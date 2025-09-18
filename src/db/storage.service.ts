@@ -1,12 +1,9 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-import { networkService } from '@/common/services/network.service';
-import platformService from '@/common/services/platform.service';
 import {
   DEFAULT_NOTEBOOK_ID,
   DEFAULT_SPACE_ID,
   INTERNAL_FORMAT
 } from '@/constants';
-import { ConnectionStatusChangeListener } from '@capacitor/network';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db/with-schemas';
 import { Persister } from 'tinybase/persisters/with-schemas';
 import { createQueries, Queries } from 'tinybase/queries/with-schemas';
@@ -14,7 +11,6 @@ import { CellSchema, createStore, Store } from 'tinybase/store/with-schemas';
 import { createIndexes, Indexes } from 'tinybase/with-schemas';
 import localChangesService from './local-changes.service';
 import notebooksService from './notebooks.service';
-import remotesService from './remotes.service';
 import tagsService from './tags.service';
 import { SpaceType } from './types/space-types';
 import { StoreType } from './types/store-types';
@@ -30,8 +26,6 @@ class StorageService {
   private spaces: Map<string, Store<SpaceType>> = new Map();
   private spaceQueries: Map<string, Queries<SpaceType>> = new Map();
   private spaceLocalPersisters: Map<string, Persister<SpaceType>> = new Map();
-
-  private networkListener: ConnectionStatusChangeListener | null = null;
 
   public constructor() {
     this.reInitDB();
@@ -121,23 +115,6 @@ class StorageService {
         autoLoad
       )
     ]);
-    // in a timeout, don't want to block app start for this
-    // TODO should be somewhere else?
-    if (platformService.isSyncEnabled() && !this.networkListener) {
-      console.debug('[storage] adding networkService.onStatusUp listener');
-      this.networkListener = networkService.onStatusUp(
-        () => {
-          setTimeout(async () => {
-            console.log(
-              '[storage] network connected - will attempt to re init providers'
-            );
-            await remotesService.initSyncConnection(this.getSpaceId());
-          });
-        },
-        true,
-        '[storage reinit]'
-      );
-    }
     // init spaces
     setTimeout(() => {
       notebooksService.initNotebooks();
@@ -145,14 +122,8 @@ class StorageService {
   }
 
   public async stop() {
-    console.debug('[storage] stop', this.networkListener);
     this.storeLocalPersister.stopAutoLoad();
     this.spaceLocalPersisters.get(this.getSpaceId())!.stopAutoLoad();
-    if (this.networkListener) {
-      console.debug('[storage] removing networkService.onStatusUp listener');
-      networkService.removeListener(this.networkListener);
-      this.networkListener = null;
-    }
   }
 
   private createSpace() {

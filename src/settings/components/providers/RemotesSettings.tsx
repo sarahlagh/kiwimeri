@@ -36,7 +36,7 @@ const RemotesSettings = () => {
 
   const onConfigured = async (ok: boolean) => {
     if (ok) {
-      await remotesService.initSyncConnection(storageService.getSpaceId());
+      await remotesService.configureRemotes(storageService.getSpaceId());
     }
   };
 

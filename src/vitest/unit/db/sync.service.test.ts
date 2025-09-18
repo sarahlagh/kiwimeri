@@ -124,7 +124,7 @@ describe('sync service', () => {
     beforeEach(async () => {
       remotesService['layer'] = layer as LayerTypes;
       remotesService.addRemote('test', 0, 'inmem', {});
-      await remotesService.initSyncConnection(storageService.getSpaceId(), true);
+      await remotesService.configureRemotes(storageService.getSpaceId(), true);
       driver = remotesService['providers'].values().next().value![
         'driver'
       ] as InMemDriver;
@@ -214,7 +214,7 @@ describe('sync service', () => {
       // create item on remote, sync
       await reInitRemoteData([oneDocument('remote')]);
       // reinit sync after network down
-      await remotesService.initSyncConnection(storageService.getSpaceId());
+      await remotesService.configureRemotes(storageService.getSpaceId());
       // now pull
       await syncService_pull();
       // both items are kept

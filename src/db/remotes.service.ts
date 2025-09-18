@@ -7,6 +7,7 @@ import {
   storageProviderFactory
 } from '@/remote-storage/storage-provider.factory';
 import { StorageProvider } from '@/remote-storage/sync-types';
+import { ConnectionStatusChangeListener } from '@capacitor/network';
 import { Persister } from 'tinybase/persisters/with-schemas';
 import { createRemoteCloudPersister } from './persisters/remote-cloud-persister';
 import storageService from './storage.service';
@@ -34,6 +35,7 @@ class RemotesService {
   private remotePersisters: Map<string, Persister<SpaceType>> = new Map();
 
   private force = false;
+  private networkListener: ConnectionStatusChangeListener | null = null;
 
   private fetchAllRemotesQuery(space: string) {
     const queries = storageService.getStoreQueries();
@@ -58,20 +60,51 @@ class RemotesService {
     return queryName;
   }
 
-  public async initSyncConnection(space: string, initAll = false) {
+  public async initSync() {
+    if (platformService.isSyncEnabled()) {
+      this.initOnce();
+      if (!this.networkListener) {
+        this.networkListener = networkService.onStatusUp(
+          () => {
+            setTimeout(async () => {
+              console.log(
+                '[storage] network connected - will attempt to re init providers'
+              );
+              await remotesService.configureRemotes(
+                storageService.getSpaceId()
+              );
+            });
+          },
+          true,
+          '[storage reinit]'
+        );
+      }
+    }
+  }
+
+  private initOnce() {
     storageService
       .getStoreIndexes()
       .setIndexDefinition('remoteItemsByState', 'remoteItems', 'state');
+  }
 
-    const remotes = this.getRemotes();
-    const connectedRemotes = remotes.filter(
-      remote => initAll || remote.connected
-    );
-
+  public stopSync() {
     this.remotePersisters.forEach(p => {
       p.destroy();
     });
     this.remotePersisters.clear();
+    this.providers.clear();
+    if (this.networkListener) {
+      networkService.removeListener(this.networkListener);
+      this.networkListener = null;
+    }
+  }
+
+  public async configureRemotes(space: string, initAll = false) {
+    const remotes = this.getRemotes();
+    const connectedRemotes = remotes.filter(
+      remote => initAll || remote.connected
+    );
 
     if (connectedRemotes.length < 1) {
       console.log('[storage] no initial sync configuration');
@@ -87,8 +120,18 @@ class RemotesService {
       );
       const connected = await this.configure(remote, JSON.parse(remote.config));
       console.debug(`remote ${remote.name} configured: ${connected}`);
+      if (connected) {
+        this.addPersisterIfMissing(remote, space);
+      }
+    }
+  }
 
-      // TODO: factory depending on type
+  // TODO: factory depending on type
+  private addPersisterIfMissing(remote: RemoteResult, space: string) {
+    if (
+      !this.remotePersisters.has(remote.id) &&
+      this.providers.has(remote.id)
+    ) {
       this.remotePersisters.set(
         remote.id,
         createRemoteCloudPersister(
@@ -115,7 +158,6 @@ class RemotesService {
     storageProvider.configure(config, proxy, useHttp);
 
     const networkStatus = networkService.getStatus();
-    console.debug('trying to configure remotes and network is', networkStatus);
     if (networkStatus && !networkStatus.connected) {
       // if no network, don't bother
       return false;
@@ -236,7 +278,10 @@ class RemotesService {
       storageService.getStore().delRow(this.remotesTable, remote);
       storageService.getStore().delRow(this.stateTable, remote);
     });
+
+    this.remotePersisters.get(remote)?.destroy();
     this.remotePersisters.delete(remote);
+    this.providers.delete(remote);
   }
 
   public setRemoteName(remote: string, name: string) {

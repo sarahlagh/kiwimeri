@@ -61,7 +61,7 @@ export const createRemoteCloudPersister = (
           return resp.content;
         }
       } catch (e) {
-        console.error('error pulling', storageProvider.getName(), e);
+        console.error('error pulling', storageProvider?.getName(), e);
       }
       return localContent;
     },
