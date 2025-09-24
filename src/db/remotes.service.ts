@@ -150,10 +150,11 @@ class RemotesService {
       proxy = platformService.getInternalProxy();
       useHttp = appConfig.DEV_USE_HTTP_IF_POSSIBLE;
     }
-    this.providers.set(
-      remote.id,
-      storageProviderFactory(remote.type, this.layer)
-    );
+    if (!this.providers.has(remote.id))
+      this.providers.set(
+        remote.id,
+        storageProviderFactory(remote.type, this.layer)
+      );
     const storageProvider = this.providers.get(remote.id)!;
     storageProvider.configure(config, proxy, useHttp);
 

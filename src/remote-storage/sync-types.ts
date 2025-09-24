@@ -9,6 +9,7 @@ import { Content } from 'tinybase/with-schemas';
 
 export type RemoteInfo = {
   remoteItems?: RemoteItemInfo[];
+  lastPulled: number;
 } & RemoteState;
 
 export type DriverFileInfo = {

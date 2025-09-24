@@ -12,6 +12,7 @@ export interface Space {
   currentDocument?: string;
   currentPage?: string;
   lastLocalChange: number;
+  lastPulled: number;
 }
 
 export enum LocalChangeType {

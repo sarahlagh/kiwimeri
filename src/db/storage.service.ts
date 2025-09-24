@@ -45,7 +45,8 @@ class StorageService {
           } as CellSchema,
           currentDocument: { type: 'string' } as CellSchema,
           currentPage: { type: 'string' } as CellSchema,
-          lastLocalChange: { type: 'number' } as CellSchema
+          lastLocalChange: { type: 'number' } as CellSchema,
+          lastPulled: { type: 'number' } as CellSchema
         },
         localChanges: {
           space: { type: 'string' } as CellSchema,

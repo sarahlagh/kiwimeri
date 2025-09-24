@@ -38,6 +38,7 @@ export const createRemoteCloudPersister = (
     async () => {
       const localContent = store.getContent();
       const localChanges = localChangesService.getLocalChanges();
+      const lastPulled = localChangesService.getLastPulled();
       const force = remotesService.getForceMode();
       const remoteState = remotesService.getCachedRemoteStateInfo(remote.state);
       const remoteItems = remotesService.getCachedRemoteItemInfo(remote.state);
@@ -47,7 +48,8 @@ export const createRemoteCloudPersister = (
           localChanges,
           {
             ...remoteState,
-            remoteItems
+            remoteItems,
+            lastPulled
           },
           force
         );
@@ -58,6 +60,7 @@ export const createRemoteCloudPersister = (
             force || localChanges.length == 0,
             force || false
           );
+          localChangesService.setLastPulled(Date.now());
           return resp.content;
         }
       } catch (e) {
@@ -69,6 +72,7 @@ export const createRemoteCloudPersister = (
     async getContent => {
       const localContent = getContent();
       const localChanges = localChangesService.getLocalChanges();
+      const lastPulled = localChangesService.getLastPulled();
       const remoteState = remotesService.getCachedRemoteStateInfo(remote.state);
       const remoteItems = remotesService.getCachedRemoteItemInfo(remote.state);
       const force = remotesService.getForceMode();
@@ -78,7 +82,8 @@ export const createRemoteCloudPersister = (
           localChanges,
           {
             ...remoteState,
-            remoteItems
+            remoteItems,
+            lastPulled
           },
           force
         );

@@ -417,4 +417,17 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
       idUpdateParentLocal
     );
   });
+
+  it('should handle reinit on network down', async () => {
+    // create local item, don't sync
+    collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+    // create item on remote, sync
+    await reInitRemoteData([oneDocument('remote')]);
+    // reinit sync after network down
+    await remotesService.configureRemotes(storageService.getSpaceId());
+    // now pull
+    await syncService.pull();
+    // both items are kept
+    expect(getRowCountInsideNotebook()).toBe(2);
+  });
 });

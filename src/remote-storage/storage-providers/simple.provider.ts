@@ -97,6 +97,7 @@ export class SimpleStorageProvider extends StorageProvider {
     }
 
     // TODO should check if remote still connected here
+    // TODO in case of pull-then-push don't fetchFilesInfo twice, but only once we have locking
     const { filesInfo } = await this.driver.fetchFilesInfo([this.filename]);
 
     console.debug('[push] filesInfo', filesInfo);
@@ -106,8 +107,16 @@ export class SimpleStorageProvider extends StorageProvider {
     let newRemoteContent: CollectionItem[];
     const newLastRemoteChange = newRemoteState.lastRemoteChange || 0;
     const cachedLastRemoteChange = cachedRemoteInfo.lastRemoteChange || 0;
+    const lastPulled = cachedRemoteInfo.lastPulled;
 
-    if (newLastRemoteChange > cachedLastRemoteChange && localInfo && !force) {
+    if (!localInfo || lastPulled >= newLastRemoteChange || force) {
+      console.debug(
+        '[push] using local collection, not pulling',
+        newLastRemoteChange,
+        cachedLastRemoteChange
+      );
+      newRemoteContent = [...collection.values()].filter(v => !v.conflict);
+    } else {
       console.debug(
         '[push] pulling new file due to cached remote being outdated',
         newLastRemoteChange,
@@ -119,13 +128,6 @@ export class SimpleStorageProvider extends StorageProvider {
       );
       const obj = this.deserialization(remoteContent);
       newRemoteContent = obj.i;
-    } else {
-      console.debug(
-        '[push] using local collection, not pulling',
-        newLastRemoteChange,
-        cachedLastRemoteChange
-      );
-      newRemoteContent = [...collection.values()].filter(v => !v.conflict);
     }
 
     let lastLocalChange = newLastRemoteChange;
@@ -192,12 +194,9 @@ export class SimpleStorageProvider extends StorageProvider {
     const newRemoteState = this.getRemoteState(filesInfo);
     const newLocalInfo = newRemoteState.info as DriverFileInfo;
     const newLastRemoteChange = newRemoteState.lastRemoteChange || 0;
-    const cachedLastRemoteChange = cachedRemoteInfo.lastRemoteChange || 0;
+    const lastPulled = cachedRemoteInfo.lastPulled;
 
-    if (
-      !force &&
-      (!newLocalInfo || newLastRemoteChange <= cachedLastRemoteChange)
-    ) {
+    if (!force && (!newLocalInfo || lastPulled >= newLastRemoteChange)) {
       console.debug('[pull] nothing to pull', newRemoteState);
       return {
         content: localContent,
