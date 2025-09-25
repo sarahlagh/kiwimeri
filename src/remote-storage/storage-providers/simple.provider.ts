@@ -235,6 +235,8 @@ export class SimpleStorageProvider extends StorageProvider {
           localChange,
           remoteUpdated
         );
+
+        // if updated locally and still exists on remote, get remoteUpdated value
         if (
           localChange.change === LocalChangeType.update &&
           newLocalCollection.has(localChange.item)
@@ -246,37 +248,46 @@ export class SimpleStorageProvider extends StorageProvider {
           remoteUpdated = parseFieldMeta(meta!).u;
         }
 
+        // if added locally, add to newLocalContent
         if (localChange.change === LocalChangeType.add) {
           newLocalContent[0].collection![localChange.item] =
             localCollection.get(localChange.item)!;
+
+          // if local change on item is more recent than remote
         } else if (localChange.updated > remoteUpdated) {
-          if (
-            localChange.change !== LocalChangeType.delete ||
-            localChange.field === 'parent'
-          ) {
+          // if is update
+          if (localChange.change === LocalChangeType.update) {
             const field = localChange.field as CollectionItemUpdatableFieldEnum;
+            // if doesn't exist on remote (has been deleted?) recreate it
             if (!newLocalContent[0].collection![localChange.item]) {
               newLocalContent[0].collection![localChange.item] =
                 localCollection.get(localChange.item)!;
             } else {
+              // if exists on remote, update the field, its meta, and preview if field was content
               newLocalContent[0].collection![localChange.item][field] =
                 localCollection.get(localChange.item)![field];
+              newLocalContent[0].collection![localChange.item][
+                `${field}_meta`
+              ] = localCollection.get(localChange.item)![`${field}_meta`];
+              if (field === 'content') {
+                newLocalContent[0].collection![localChange.item].preview =
+                  localCollection.get(localChange.item)!.preview;
+              }
             }
-            if (field === 'content') {
-              newLocalContent[0].collection![localChange.item].preview =
-                localCollection.get(localChange.item)!.preview;
-            }
-            newLocalContent[0].collection![localChange.item][`${field}_meta`] =
-              localCollection.get(localChange.item)![`${field}_meta`];
           } else {
+            // is delete
             delete newLocalContent[0].collection![localChange.item];
           }
         } else {
+          // if remote change on item is more recent than local
           const localItem = localCollection.get(localChange.item)!;
+          // create conflict, only if item is not already a conflict and is a document or page
+          // do not create conflict for folders and notebooks
           if (
             localItem &&
             !localItem.conflict &&
-            localItem.type !== CollectionItemType.folder
+            localItem.type !== CollectionItemType.folder &&
+            localItem.type !== CollectionItemType.notebook
           ) {
             newLocalContent[0].collection![getUniqueId()] = {
               ...{ ...localItem, id: undefined },
