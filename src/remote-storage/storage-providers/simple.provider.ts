@@ -4,7 +4,7 @@ import {
   CollectionItemUpdatableFieldEnum,
   parseFieldMeta
 } from '@/collection/collection';
-import { KIWIMERI_MODEL_VERSION } from '@/constants';
+import { KIWIMERI_MODEL_VERSION, ROOT_COLLECTION } from '@/constants';
 import {
   minimizeItemsForStorage,
   unminimizeItemsFromStorage
@@ -236,7 +236,7 @@ export class SimpleStorageProvider extends StorageProvider {
           remoteUpdated
         );
 
-        // if updated locally and still exists on remote, get remoteUpdated value
+        // before reapply: if updated locally and still exists on remote, get remoteUpdated value
         if (
           localChange.change === LocalChangeType.update &&
           newLocalCollection.has(localChange.item)
@@ -282,7 +282,7 @@ export class SimpleStorageProvider extends StorageProvider {
           // if remote change on item is more recent than local
           const localItem = localCollection.get(localChange.item)!;
           // create conflict, only if item is not already a conflict and is a document or page
-          // do not create conflict for folders and notebooks
+          // do not create conflict for folders and notebooks here
           if (
             localItem &&
             !localItem.conflict &&
@@ -296,6 +296,32 @@ export class SimpleStorageProvider extends StorageProvider {
               updated: Date.now()
             };
           }
+        }
+      }
+
+      // check for orphans
+      // not sure I can do this in one loop here
+      // here all the timestamps have already been checked, so any orphan here should be recreated safely
+      for (const localChange of localChanges) {
+        if (localChange.change === LocalChangeType.delete) {
+          continue;
+        }
+        const item = newLocalContent[0].collection![
+          localChange.item
+        ] as CollectionItem;
+        if (
+          item &&
+          item.parent !== ROOT_COLLECTION &&
+          !newLocalContent[0].collection![item.parent]
+        ) {
+          // if parent doesn't exist, create conflict
+          const localItem = localCollection.get(item.parent)!;
+          newLocalContent[0].collection![item.parent] = {
+            ...localItem,
+            conflict: localChange.item,
+            created: Date.now(),
+            updated: Date.now()
+          };
         }
       }
     }

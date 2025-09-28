@@ -237,6 +237,21 @@ export const getRowCountInsideNotebook = (notebook?: string) => {
   return collectionService.getAllCollectionItemsRecursive(notebook).length;
 };
 
+export const countOrphans = () => {
+  let orphans = 0;
+  storageService
+    .getSpace()
+    .getRowIds('collection')
+    .forEach(rowId => {
+      const parent = collectionService.getItemParent(rowId);
+      const parentExists = collectionService.itemExists(parent);
+      if (!parentExists) {
+        orphans++;
+      }
+    });
+  return orphans;
+};
+
 export const getRowIdsInsideNotebook = (notebook?: string) => {
   if (!notebook) {
     notebook = DEFAULT_NOTEBOOK_ID;
