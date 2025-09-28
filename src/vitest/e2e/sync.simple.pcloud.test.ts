@@ -13,6 +13,7 @@ import { syncService } from '@/remote-storage/sync.service';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   amount,
+  countOrphans,
   getLocalItemConflict,
   getLocalItemConflicts,
   getLocalItemField,
@@ -83,6 +84,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     console.debug('clearing files');
     await driver.deleteFile('', 'collection.json');
     await driver.deleteFile('', 'S1');
+    expect(countOrphans()).toBe(0);
   });
 
   it('should pull new remote items', async () => {

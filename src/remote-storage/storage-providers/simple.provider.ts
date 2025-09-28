@@ -314,14 +314,14 @@ export class SimpleStorageProvider extends StorageProvider {
           item.parent !== ROOT_COLLECTION &&
           !newLocalContent[0].collection![item.parent]
         ) {
-          // if parent doesn't exist, create conflict
+          // if parent doesn't exist, create recreate it
           const localItem = localCollection.get(item.parent)!;
           newLocalContent[0].collection![item.parent] = {
-            ...localItem,
-            conflict: localChange.item,
+            ...{ ...localItem, id: undefined },
             created: Date.now(),
             updated: Date.now()
           };
+          // then parent updated ts might not be up-to-date
         }
       }
     }

@@ -133,7 +133,7 @@ describe('sync service', () => {
       vi.useFakeTimers();
     });
     afterEach(() => {
-      // expect(countOrphans()).toBe(0);
+      expect(countOrphans()).toBe(0);
       iPull = 0;
       iPush = 0;
       vi.useRealTimers();
@@ -345,12 +345,10 @@ describe('sync service', () => {
         // pull
         await syncService_pull();
 
-        expect(countOrphans()).toBe(0);
-        expect(getLocalItemConflicts()).toHaveLength(1);
+        expect(getLocalItemConflicts()).toHaveLength(0);
         expect(collectionService.itemExists(newDocId)).toBe(true);
         expect(collectionService.getItemParent(newDocId)).toBe(folder.id);
         expect(collectionService.itemExists(folder.id!)).toBe(true);
-        expect(collectionService.isItemConflict(folder.id!)).toBe(true);
         expect(collectionService.itemExists(docInside.id!)).toBe(false);
         expect(getRowCountInsideNotebook()).toBe(2);
       });
@@ -367,15 +365,13 @@ describe('sync service', () => {
         await reInitRemoteData([remoteData[2]]);
 
         // update doc on local
-        setLocalItemField(docInside.id!, 'title', 'newLocal');
+        setLocalItemField(docInside.id!, 'title', ROOT_COLLECTION);
 
         // pull
         await syncService_pull();
 
-        expect(countOrphans()).toBe(0);
-        expect(getLocalItemConflicts()).toHaveLength(1);
+        expect(getLocalItemConflicts()).toHaveLength(0);
         expect(collectionService.itemExists(folder.id!)).toBe(true);
-        expect(collectionService.isItemConflict(folder.id!)).toBe(true);
         expect(collectionService.itemExists(docInside.id!)).toBe(true);
         expect(getRowCountInsideNotebook()).toBe(2);
       });
@@ -783,8 +779,8 @@ describe('sync service', () => {
               updateOnRemote(remoteData, id, 'title');
 
               // change local
-              setLocalItemField(id, 'title', 'newLocal');
-              setLocalItemField(id, 'tags', 'newLocal');
+              setLocalItemField(id, 'title', ROOT_COLLECTION);
+              setLocalItemField(id, 'tags', ROOT_COLLECTION);
 
               await reInitRemoteData(remoteData);
 
@@ -793,8 +789,8 @@ describe('sync service', () => {
               // no conflict created
               expect(getRowCountInsideNotebook()).toBe(3);
               expect(getLocalItemConflicts()).toHaveLength(0);
-              expect(getLocalItemField(id, 'title')).toBe('newLocal');
-              expect(getLocalItemField(id, 'tags')).toBe('newLocal');
+              expect(getLocalItemField(id, 'title')).toBe(ROOT_COLLECTION);
+              expect(getLocalItemField(id, 'tags')).toBe(ROOT_COLLECTION);
               expect(getLocalItemField(id, 'content')).toBe('newRemote');
             });
 
@@ -810,8 +806,8 @@ describe('sync service', () => {
               const id = remoteData[0].id!;
 
               // change local
-              setLocalItemField(id, 'title', 'newLocal');
-              setLocalItemField(id, 'tags', 'newLocal');
+              setLocalItemField(id, 'title', ROOT_COLLECTION);
+              setLocalItemField(id, 'tags', ROOT_COLLECTION);
 
               // change remote
               updateOnRemote(remoteData, id, 'content');
@@ -825,7 +821,7 @@ describe('sync service', () => {
               expect(getRowCountInsideNotebook()).toBe(4);
               expect(getLocalItemConflicts()).toHaveLength(1);
               expect(getLocalItemField(id, 'title')).toBe('newRemote');
-              expect(getLocalItemField(id, 'tags')).toBe('newLocal');
+              expect(getLocalItemField(id, 'tags')).toBe(ROOT_COLLECTION);
               expect(getLocalItemField(id, 'content')).toBe('newRemote');
             });
           }
@@ -846,7 +842,7 @@ describe('sync service', () => {
 
                 // update locally
                 const id = remoteData[0].id!;
-                setLocalItemField(id, field, 'newLocal');
+                setLocalItemField(id, field, ROOT_COLLECTION);
                 vi.advanceTimersByTime(50);
 
                 // erase on remote
@@ -1102,12 +1098,12 @@ describe('sync service', () => {
             expect(getRowCountInsideNotebook()).toBe(3);
             // update locally
             const id = remoteData[0].id!;
-            setLocalItemField(id, field, 'newLocal');
+            setLocalItemField(id, field, ROOT_COLLECTION);
 
             // pull again
             await syncService.pull(undefined, true);
             expect(getRowCountInsideNotebook()).toBe(3);
-            expect(getLocalItemField(id, field)).not.toBe('newLocal');
+            expect(getLocalItemField(id, field)).not.toBe(ROOT_COLLECTION);
 
             testPushIndicator(false);
           });
@@ -1148,7 +1144,7 @@ describe('sync service', () => {
 
             // update locally
             const id = remoteData[0].id!;
-            setLocalItemField(id, field, 'newLocal');
+            setLocalItemField(id, field, ROOT_COLLECTION);
 
             // erase on remote
             await reInitRemoteData([
@@ -1674,14 +1670,14 @@ describe('sync service', () => {
             const id = remoteData[0].id!;
 
             // update item locally then push
-            setLocalItemField(id, field, 'newLocal');
+            setLocalItemField(id, field, ROOT_COLLECTION);
             await syncService.push(undefined, true);
 
             // item has been updated
             const remoteContent = await driver.getContent();
             expect(remoteContent.content).toHaveLength(4);
             expect(getRemoteItemField(remoteContent.content, id, field)).toBe(
-              'newLocal'
+              ROOT_COLLECTION
             );
             testPushIndicator(false);
           });
@@ -1757,7 +1753,7 @@ describe('sync service', () => {
             ]);
             // update locally
             expect(id).toBeDefined();
-            setLocalItemField(id!, field, 'newLocal');
+            setLocalItemField(id!, field, ROOT_COLLECTION);
             // push
             await syncService.push(undefined, true);
 
@@ -1765,7 +1761,7 @@ describe('sync service', () => {
             const remoteContent = await driver.getContent();
             expect(remoteContent.content).toHaveLength(4);
             expect(getRemoteItemField(remoteContent.content, id!, field)).toBe(
-              'newLocal'
+              ROOT_COLLECTION
             );
 
             testPushIndicator(false);
@@ -1810,7 +1806,7 @@ describe('sync service', () => {
             await syncService_pull();
             const id = remoteData[0].id!;
             // change local
-            setLocalItemField(id, local, 'newLocal');
+            setLocalItemField(id, local, ROOT_COLLECTION);
             // change remote
             updateOnRemote(remoteData, id, remote);
             await reInitRemoteData(remoteData);
@@ -1822,10 +1818,10 @@ describe('sync service', () => {
             if (remote !== local) {
               expect(
                 getRemoteItemField(remoteContent.content, id, remote)
-              ).not.toBe('newLocal');
+              ).not.toBe(ROOT_COLLECTION);
             }
             expect(getRemoteItemField(remoteContent.content, id, local)).toBe(
-              'newLocal'
+              ROOT_COLLECTION
             );
 
             testPushIndicator(false);
@@ -1845,7 +1841,7 @@ describe('sync service', () => {
             updateOnRemote(remoteData, id, remote);
             await reInitRemoteData(remoteData);
             // change local
-            setLocalItemField(id, local, 'newLocal');
+            setLocalItemField(id, local, ROOT_COLLECTION);
 
             // push
             await syncService.push(undefined, true);
@@ -1855,7 +1851,7 @@ describe('sync service', () => {
               getRemoteItemField(remoteContent.content, id, remote)
             ).not.toBe('newRemote');
             expect(getRemoteItemField(remoteContent.content, id, local)).toBe(
-              'newLocal'
+              ROOT_COLLECTION
             );
             testPushIndicator(false);
           });
