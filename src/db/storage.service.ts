@@ -82,11 +82,6 @@ class StorageService {
         exportInlinePages: { type: 'boolean', default: true }
       });
 
-    this.storeLocalPersister = createIndexedDbPersister(
-      this.store,
-      'kiwimeri-store'
-    );
-
     this.storeQueries = createQueries(this.store);
     this.storeIndexes = createIndexes(this.store);
 
@@ -97,6 +92,15 @@ class StorageService {
       DEFAULT_SPACE_ID,
       createQueries(this.getSpace(DEFAULT_SPACE_ID))
     );
+  }
+
+  public async start(autoSave = true) {
+    // only start persister for the current space
+    // later: when switching space, only re init space persister
+    this.storeLocalPersister = createIndexedDbPersister(
+      this.store,
+      'kiwimeri-store'
+    );
     this.spaceLocalPersisters.set(
       DEFAULT_SPACE_ID,
       createIndexedDbPersister(
@@ -104,16 +108,12 @@ class StorageService {
         `kiwimeri-space-${DEFAULT_SPACE_ID}`
       )
     );
-  }
 
-  public async start(autoLoad = true) {
-    // only start persister for the current space
-    // later: when switching space, only re init space persister
     await Promise.all([
-      this.startPersister(this.storeLocalPersister, autoLoad),
+      this.startPersister(this.storeLocalPersister, autoSave),
       this.startPersister(
         this.spaceLocalPersisters.get(this.getSpaceId())!,
-        autoLoad
+        autoSave
       )
     ]);
     // init spaces
@@ -123,8 +123,8 @@ class StorageService {
   }
 
   public async stop() {
-    this.storeLocalPersister.stopAutoLoad();
-    this.spaceLocalPersisters.get(this.getSpaceId())!.stopAutoLoad();
+    this.storeLocalPersister.destroy();
+    this.spaceLocalPersisters.get(this.getSpaceId())!.destroy();
   }
 
   private createSpace() {
@@ -154,10 +154,10 @@ class StorageService {
   private async startPersister(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     storePersister: Persister<any>,
-    autoLoad: boolean
+    autoSave: boolean
   ) {
     await storePersister.load();
-    if (autoLoad) {
+    if (autoSave) {
       await storePersister.startAutoSave();
     }
   }
