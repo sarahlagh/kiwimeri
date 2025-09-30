@@ -4,6 +4,7 @@ import {
   isCollectionRoute
 } from '@/common/routes';
 import { getSearchParams } from '@/common/utils';
+import { ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/db/collection.service';
 import navService from '@/db/nav.service';
 import notebooksService from '@/db/notebooks.service';
@@ -29,16 +30,18 @@ const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
   }, [folder, searchParams.document, searchParams.page]);
 
   if (isCollectionRoute(location.pathname)) {
-    // if no folder
-    if (!searchParams.folder) {
-      return <Redirect to={GET_FOLDER_ROUTE(notebook)} />;
-    }
-    // if folder but doesn't exist
+    // if no folder, or if folder but doesn't exist
     if (
-      searchParams.folder &&
+      !searchParams.folder ||
       !collectionService.itemExists(searchParams.folder)
     ) {
-      return <Redirect to={GET_FOLDER_ROUTE(notebook)} />;
+      if (collectionService.itemExists(notebook)) {
+        return <Redirect to={GET_FOLDER_ROUTE(notebook)} />;
+      }
+      // current notebook doesn't exist, fallback to first
+      const notebookId =
+        notebooksService.getNotebooks()[0]?.id || ROOT_COLLECTION;
+      return <Redirect to={GET_FOLDER_ROUTE(notebookId)} />;
     }
     // if page but no document
     if (!searchParams.document && searchParams.page) {

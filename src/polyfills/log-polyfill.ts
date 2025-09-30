@@ -20,15 +20,13 @@ const fnFactory =
       if (optionalParams) {
         if (platformService.isAndroid()) {
           appLog.addLog(level, message, optionalParams);
-        } else {
-          origMethod(message, ...optionalParams);
         }
+        origMethod(message, ...optionalParams);
       } else {
         if (platformService.isAndroid()) {
           appLog.addLog(level, message);
-        } else {
-          origMethod(message);
         }
+        origMethod(message);
       }
     }
   };

@@ -1,5 +1,7 @@
 import SyncRemoteButton from '@/common/buttons/SyncRemoteButton';
 import platformService from '@/common/services/platform.service';
+import collectionService from '@/db/collection.service';
+import navService from '@/db/nav.service';
 import { syncService } from '@/remote-storage/sync.service';
 import {
   InputCustomEvent,
@@ -10,6 +12,7 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { ReactNode, useState } from 'react';
+import { useHistory, useLocation } from 'react-router';
 
 export type MainHeaderProps = {
   title: string;
@@ -23,6 +26,8 @@ const MainHeader = ({
   onEdited,
   children
 }: MainHeaderProps) => {
+  const history = useHistory();
+  const location = useLocation();
   const [isSyncing, setIsSyncing] = useState(false);
   const isInit = syncService.usePrimaryConnected();
   const hasChanges = syncService.usePrimaryHasLocalChanges();
@@ -35,6 +40,16 @@ const MainHeader = ({
     if (pushEnabled) return 'danger';
     if (hasRemoteChanges) return 'tertiary';
     return undefined;
+  }
+
+  function onSyncEnd() {
+    setIsSyncing(false);
+    const currentFolder = navService.getCurrentFolder();
+    if (!collectionService.itemExists(currentFolder)) {
+      console.debug('current folder deleted', currentFolder);
+      // soft refresh, InitialRoutingProvider will do the rest
+      history.replace(location);
+    }
   }
 
   return (
@@ -64,7 +79,7 @@ const MainHeader = ({
             showConflictsWarning={hasConflicts}
             showRemoteChangesWarning={hasRemoteChanges}
             onSyncStart={() => setIsSyncing(true)}
-            onSyncEnd={() => setIsSyncing(false)}
+            onSyncEnd={onSyncEnd}
           />
         )}
         {children}
