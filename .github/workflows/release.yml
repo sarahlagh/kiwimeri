@@ -57,8 +57,9 @@ jobs:
           cache-dependency-path: '**/yarn.lock'
       - name: Build Release Executable
         run: |
+          tag="${{ needs.release-draft.outputs.tag }}"
           yarn install --frozen-lockfile
-          yarn release:electron
+          yarn release:electron "${tag/v/}"
       - name: Find the executable path
         id: set-exec-path
         run: |
