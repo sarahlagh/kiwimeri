@@ -1,4 +1,5 @@
 import platformService from '@/common/services/platform.service';
+import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/local-changes.service';
 import remotesService from '@/db/remotes.service';
 
@@ -14,7 +15,10 @@ class SyncService {
     switch (direction) {
       case 'sync':
         await this.pull(remote);
-        if (localChangesService.getLocalChanges().length > 0) {
+        if (
+          localChangesService.getLocalChanges().length > 0 &&
+          collectionService.getConflicts().length === 0
+        ) {
           return this.push(remote);
         }
         return;
@@ -73,6 +77,10 @@ class SyncService {
   }
   public usePrimaryHasLocalChanges() {
     return localChangesService.useHasLocalChanges();
+  }
+
+  public useHasLocalConflicts() {
+    return collectionService.useConflicts().length > 0;
   }
 }
 

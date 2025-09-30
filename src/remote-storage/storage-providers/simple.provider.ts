@@ -4,11 +4,18 @@ import {
   CollectionItemUpdatableFieldEnum,
   parseFieldMeta
 } from '@/collection/collection';
-import { KIWIMERI_MODEL_VERSION, ROOT_COLLECTION } from '@/constants';
+import { getGlobalTrans } from '@/config';
+import {
+  CONFLICTS_NOTEBOOK_ID,
+  KIWIMERI_MODEL_VERSION,
+  ROOT_COLLECTION
+} from '@/constants';
 import {
   minimizeItemsForStorage,
   unminimizeItemsFromStorage
 } from '@/db/compress-storage';
+import localChangesService from '@/db/local-changes.service';
+import notebooksService from '@/db/notebooks.service';
 import { SpaceType } from '@/db/types/space-types';
 import {
   AnyData,
@@ -16,6 +23,7 @@ import {
   LocalChangeType,
   RemoteState
 } from '@/db/types/store-types';
+import { Row, Table } from 'tinybase/store';
 import { Content, getUniqueId } from 'tinybase/with-schemas';
 import {
   DriverFileInfo,
@@ -282,7 +290,7 @@ export class SimpleStorageProvider extends StorageProvider {
           // if remote change on item is more recent than local
           const localItem = localCollection.get(localChange.item)!;
           // create conflict, only if item is not already a conflict and is a document or page
-          // do not create conflict for folders and notebooks here
+          // do not create conflict for folders and notebooks
           if (
             localItem &&
             !localItem.conflict &&
@@ -299,31 +307,7 @@ export class SimpleStorageProvider extends StorageProvider {
         }
       }
 
-      // check for orphans
-      // not sure I can do this in one loop here
-      // here all the timestamps have already been checked, so any orphan here should be recreated safely
-      for (const localChange of localChanges) {
-        if (localChange.change === LocalChangeType.delete) {
-          continue;
-        }
-        const item = newLocalContent[0].collection![
-          localChange.item
-        ] as CollectionItem;
-        if (
-          item &&
-          item.parent !== ROOT_COLLECTION &&
-          !newLocalContent[0].collection![item.parent]
-        ) {
-          // if parent doesn't exist, create recreate it
-          const localItem = localCollection.get(item.parent)!;
-          newLocalContent[0].collection![item.parent] = {
-            ...{ ...localItem, id: undefined },
-            created: Date.now(),
-            updated: Date.now()
-          };
-          // then parent updated ts might not be up-to-date
-        }
-      }
+      this.checkOrphans(newLocalContent[0].collection!);
     }
 
     console.debug('[pull] newLocalInfo', newLocalInfo);
@@ -337,6 +321,42 @@ export class SimpleStorageProvider extends StorageProvider {
         ...newRemoteState
       }
     };
+  }
+
+  private checkOrphans(newCollectionAfterPull: Table) {
+    // check for orphans
+    // not sure I can do this in one loop here - still, optimize?
+    // here all the timestamps have already been checked, so any orphan here should be recreated safely
+    for (const id of Object.keys(newCollectionAfterPull)) {
+      const item = newCollectionAfterPull[id] as unknown as CollectionItem;
+      if (
+        item.parent === ROOT_COLLECTION ||
+        newCollectionAfterPull[item.parent]
+      ) {
+        continue;
+      }
+
+      // if parent doesn't exist, put the item in conflicts notebook
+      console.debug('orphan detected', id, item.title);
+      this.createConflictsNotebookIfNeeded(newCollectionAfterPull);
+      newCollectionAfterPull[id].parent = CONFLICTS_NOTEBOOK_ID;
+      newCollectionAfterPull[id].conflict = id;
+    }
+  }
+
+  private createConflictsNotebookIfNeeded(newCollectionAfterPull: Table) {
+    if (!newCollectionAfterPull[CONFLICTS_NOTEBOOK_ID]) {
+      const { item: conflictsNotebook } = notebooksService.getNewNotebookObj(
+        ROOT_COLLECTION,
+        getGlobalTrans().conflictsNotebookName
+      );
+      localChangesService.addLocalChange(
+        CONFLICTS_NOTEBOOK_ID,
+        LocalChangeType.add
+      );
+      newCollectionAfterPull[CONFLICTS_NOTEBOOK_ID] =
+        conflictsNotebook as unknown as Row;
+    }
   }
 
   private serialization(items: CollectionItem[], updated: number) {

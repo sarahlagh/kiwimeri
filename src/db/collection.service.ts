@@ -97,6 +97,27 @@ class CollectionService {
     return queryName;
   }
 
+  private fetchConflictsQuery() {
+    const queries = storageService.getSpaceQueries();
+    const queryName = `fetchConflicts`;
+    if (!queries.hasQuery(queryName)) {
+      queries.setQueryDefinition(queryName, this.table, ({ select, where }) => {
+        select('title');
+        select('type');
+        select('tags');
+        select('created');
+        select('updated');
+        select('conflict');
+        select('preview');
+        where(getCell => {
+          const conflict = getCell('conflict')?.valueOf();
+          return !!conflict;
+        });
+      });
+    }
+    return queryName;
+  }
+
   private getResultsSorted(
     table: Table,
     queryName: string,
@@ -183,6 +204,24 @@ class CollectionService {
     const table = useTableWithRef(this.storeId, this.table);
     const queryName = this.fetchPagesForDocQuery(document);
     return this.useResultsSorted(table, queryName, sortBy, descending);
+  }
+
+  public useConflicts(
+    sortBy: 'created' | 'updated' = 'created',
+    descending = false
+  ): CollectionItemResult[] {
+    const table = useTableWithRef(this.storeId, this.table);
+    const queryName = this.fetchConflictsQuery();
+    return this.useResultsSorted(table, queryName, sortBy, descending);
+  }
+
+  public getConflicts(
+    sortBy: 'created' | 'updated' = 'created',
+    descending = false
+  ) {
+    const table = storageService.getSpace().getTable(this.table);
+    const queryName = this.fetchConflictsQuery();
+    return this.getResultsSorted(table, queryName, sortBy, descending);
   }
 
   private useResultsSorted(

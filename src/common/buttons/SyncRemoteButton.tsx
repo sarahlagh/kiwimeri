@@ -27,6 +27,7 @@ const SyncRemoteButton = ({
   onSyncEnd
 }: SyncRemoteButtonProps) => {
   const networkStatus = useNetworkStatus();
+  const hasConflicts = syncService.useHasLocalConflicts();
   const trigger = `sync-${direction}-button-${remote}`;
   const icon =
     direction === 'sync'
@@ -52,13 +53,16 @@ const SyncRemoteButton = ({
         <>
           <IonButton
             id={trigger}
-            disabled={disabled}
+            disabled={disabled || hasConflicts}
             expand="block"
             color={color}
             fill={fill}
           >
             <IonIcon icon={icon}></IonIcon>
           </IonButton>
+          {hasConflicts && (
+            <IonIcon color={'warning'} icon={APPICONS.warning}></IonIcon>
+          )}
           <ConfirmYesNoDialog
             trigger={trigger}
             onClose={confirmed => {
@@ -69,14 +73,19 @@ const SyncRemoteButton = ({
           />
         </>
       ) : (
-        <IonButton
-          disabled={disabled}
-          color={color}
-          fill={fill}
-          onClick={onConfirm}
-        >
-          <IonIcon icon={icon}></IonIcon>
-        </IonButton>
+        <>
+          <IonButton
+            disabled={disabled || hasConflicts}
+            color={color}
+            fill={fill}
+            onClick={onConfirm}
+          >
+            <IonIcon icon={icon}></IonIcon>
+          </IonButton>
+          {hasConflicts && (
+            <IonIcon color={'warning'} icon={APPICONS.warning}></IonIcon>
+          )}
+        </>
       )}
     </>
   );

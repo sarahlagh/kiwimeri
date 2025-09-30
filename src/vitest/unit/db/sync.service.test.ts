@@ -4,7 +4,11 @@ import {
   parseFieldMeta
 } from '@/collection/collection';
 import { getGlobalTrans } from '@/config';
-import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
+import {
+  CONFLICTS_NOTEBOOK_ID,
+  DEFAULT_NOTEBOOK_ID,
+  ROOT_COLLECTION
+} from '@/constants';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/local-changes.service';
 import notebooksService from '@/db/notebooks.service';
@@ -345,12 +349,16 @@ describe('sync service', () => {
         // pull
         await syncService_pull();
 
-        expect(getLocalItemConflicts()).toHaveLength(0);
+        expect(getLocalItemConflicts()).toHaveLength(1);
         expect(collectionService.itemExists(newDocId)).toBe(true);
-        expect(collectionService.getItemParent(newDocId)).toBe(folder.id);
-        expect(collectionService.itemExists(folder.id!)).toBe(true);
+        expect(collectionService.getItemParent(newDocId)).toBe(
+          CONFLICTS_NOTEBOOK_ID
+        );
+        expect(collectionService.isItemConflict(newDocId)).toBe(true);
+        expect(collectionService.itemExists(folder.id!)).toBe(false);
         expect(collectionService.itemExists(docInside.id!)).toBe(false);
-        expect(getRowCountInsideNotebook()).toBe(2);
+        expect(getRowCountInsideNotebook()).toBe(0);
+        expect(getRowCountInsideNotebook(CONFLICTS_NOTEBOOK_ID)).toBe(1);
       });
 
       it(`should not leave orphans if delete folder on remote but update document inside on local`, async () => {
@@ -370,13 +378,45 @@ describe('sync service', () => {
         // pull
         await syncService_pull();
 
-        expect(getLocalItemConflicts()).toHaveLength(0);
-        expect(collectionService.itemExists(folder.id!)).toBe(true);
+        expect(getLocalItemConflicts()).toHaveLength(1);
+        expect(collectionService.itemExists(folder.id!)).toBe(false);
         expect(collectionService.itemExists(docInside.id!)).toBe(true);
-        expect(getRowCountInsideNotebook()).toBe(2);
+        expect(collectionService.isItemConflict(docInside.id!)).toBe(true);
+        expect(collectionService.getItemParent(docInside.id!)).toBe(
+          CONFLICTS_NOTEBOOK_ID
+        );
+        expect(getRowCountInsideNotebook()).toBe(0);
+        expect(getRowCountInsideNotebook(CONFLICTS_NOTEBOOK_ID)).toBe(1);
       });
 
       // TODO same tests in inverse order (add doc local first, then delete folder)
+
+      it(`should not leave orphans if delete folder on local but add document on remote`, async () => {
+        // init data
+        const folder = oneFolder('r1');
+        const docInside = oneDocument('r2', folder.id);
+        const remoteData = [folder, docInside, oneNotebook()];
+        await reInitRemoteData(remoteData);
+        await syncService_pull();
+
+        // delete folder on local
+        collectionService_deleteItem(folder.id!);
+
+        // add doc on remote
+        const newDocOnRemote = oneDocument('r3', folder.id);
+        await reInitRemoteData([newDocOnRemote, ...remoteData]);
+
+        // pull
+        await syncService_pull();
+
+        expect(collectionService.itemExists(newDocOnRemote.id!)).toBe(true);
+        expect(collectionService.isItemConflict(newDocOnRemote.id!)).toBe(true);
+        expect(collectionService.getItemParent(newDocOnRemote.id!)).toBe(
+          CONFLICTS_NOTEBOOK_ID
+        );
+        expect(collectionService.itemExists(folder.id!)).toBe(false);
+        expect(collectionService.itemExists(docInside.id!)).toBe(false);
+      });
 
       NON_NOTEBOOK_ITEM_TYPES.forEach(({ type, testAddFn }) => {
         describe(`tests on a ${type}`, () => {

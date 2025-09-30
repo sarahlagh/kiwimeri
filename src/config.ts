@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { i18n } from '@lingui/core';
 import {
+  CONFLICTS_NOTEBOOK_NAME,
   DEFAULT_EXPORT_PAGE_FILENAME,
   DEFAULT_EXPORT_SPACE_FILENAME,
   DEFAULT_NOTEBOOK_NAME,
@@ -79,6 +80,7 @@ export const appConfig = new AppConfig(metaEnv);
 const I18N = {
   homeTitle: '',
   defaultNotebookName: '',
+  conflictsNotebookName: '',
   newDocTitle: '',
   newFolderTitle: '',
   defaultExportPageFilename: '',
@@ -87,6 +89,7 @@ const I18N = {
 export function initGlobalTrans() {
   I18N.homeTitle = i18n._(ROOT_FOLDER_TITLE);
   I18N.defaultNotebookName = i18n._(DEFAULT_NOTEBOOK_NAME);
+  I18N.conflictsNotebookName = i18n._(CONFLICTS_NOTEBOOK_NAME);
   I18N.newDocTitle = i18n._(NEW_DOC_TITLE);
   I18N.newFolderTitle = i18n._(NEW_FOLDER_TITLE);
   I18N.defaultExportPageFilename = i18n._(DEFAULT_EXPORT_PAGE_FILENAME);

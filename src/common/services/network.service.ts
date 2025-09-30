@@ -23,6 +23,8 @@ class NetworkService {
 
   async init() {
     const status = await Network.getStatus();
+    // web version of Network.getStatus relies on window.navigator.onLine
+    // TODO better implementation
     console.debug('[network] got init status', status);
     if (!this.networkStatus) {
       this.networkStatus = status;

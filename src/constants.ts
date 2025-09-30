@@ -42,6 +42,7 @@ export const KIWIMERI_MODEL_VERSION = 0;
 
 export const DEFAULT_SPACE_ID = 'default';
 export const DEFAULT_NOTEBOOK_ID = '0';
+export const CONFLICTS_NOTEBOOK_ID = 'conflicts';
 
 export const ROOT_COLLECTION = 'root';
 
@@ -54,6 +55,7 @@ export const CONFLICT_STR = '[!] ';
 // messages
 export const ROOT_FOLDER_TITLE = msg`Home`;
 export const DEFAULT_NOTEBOOK_NAME = msg`Default`;
+export const CONFLICTS_NOTEBOOK_NAME = msg`Conflicts`;
 export const NEW_DOC_TITLE = msg`New document`;
 export const NEW_FOLDER_TITLE = msg`New folder`;
 
