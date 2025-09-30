@@ -2,6 +2,7 @@ import { msg } from '@lingui/core/macro';
 import {
   add,
   albums,
+  alertOutline,
   arrowDown,
   arrowUp,
   bugOutline,
@@ -29,6 +30,7 @@ import {
   pricetagsOutline,
   sendOutline,
   settingsSharp,
+  syncCircleOutline,
   syncOutline,
   trashOutline,
   warningOutline
@@ -85,6 +87,7 @@ export const APPICONS = {
   addDocument: add,
   addGeneric: add,
   cloudSync: syncOutline,
+  cloudSyncRemote: syncCircleOutline,
   cloudUpload: cloudUploadOutline,
   cloudDownload: cloudDownloadOutline,
   cloudOffline: cloudOfflineOutline,
@@ -94,6 +97,8 @@ export const APPICONS = {
   moveUp: arrowUp,
   moveDown: arrowDown,
   warning: warningOutline,
+  alert: alertOutline,
+  conflictsAlert: alertOutline,
   info: informationCircleOutline,
   tags: pricetagsOutline,
   export: sendOutline,

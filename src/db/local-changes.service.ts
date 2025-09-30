@@ -187,6 +187,17 @@ class LocalChangesService {
     );
   }
 
+  public useLastPulled() {
+    return (
+      useCellWithRef<number>(
+        this.storeId,
+        'spaces',
+        storageService.getSpaceId(),
+        'lastPulled'
+      ) || 0
+    );
+  }
+
   public setLastPulled(now: number) {
     storageService
       .getStore()

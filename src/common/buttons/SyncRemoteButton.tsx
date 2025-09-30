@@ -14,6 +14,8 @@ type SyncRemoteButtonProps = {
   fill?: 'clear' | 'outline' | 'solid' | 'default';
   onSyncStart?: () => void;
   onSyncEnd?: () => void;
+  showConflictsWarning?: boolean;
+  showRemoteChangesWarning?: boolean;
 };
 
 const SyncRemoteButton = ({
@@ -23,18 +25,13 @@ const SyncRemoteButton = ({
   color,
   askConfirm = false,
   fill = 'clear',
+  showConflictsWarning = false,
+  showRemoteChangesWarning = false,
   onSyncStart,
   onSyncEnd
 }: SyncRemoteButtonProps) => {
   const networkStatus = useNetworkStatus();
-  const hasConflicts = syncService.useHasLocalConflicts();
   const trigger = `sync-${direction}-button-${remote}`;
-  const icon =
-    direction === 'sync'
-      ? APPICONS.cloudSync
-      : direction === 'pull' || direction === 'force-pull'
-        ? APPICONS.cloudDownload
-        : APPICONS.cloudUpload;
   const onConfirm = async () => {
     if (onSyncStart) onSyncStart();
     await syncService.sync(direction, remote);
@@ -47,45 +44,41 @@ const SyncRemoteButton = ({
       </IonButton>
     );
   }
+
+  const getIcon = () => {
+    if (direction === 'sync') {
+      if (showRemoteChangesWarning) return APPICONS.cloudSyncRemote;
+      return APPICONS.cloudSync;
+    }
+    if (direction === 'pull' || direction === 'force-pull')
+      return APPICONS.cloudDownload;
+    return APPICONS.cloudUpload;
+  };
+
   return (
     <>
-      {askConfirm ? (
-        <>
-          <IonButton
-            id={trigger}
-            disabled={disabled || hasConflicts}
-            expand="block"
-            color={color}
-            fill={fill}
-          >
-            <IonIcon icon={icon}></IonIcon>
-          </IonButton>
-          {hasConflicts && (
-            <IonIcon color={'warning'} icon={APPICONS.warning}></IonIcon>
-          )}
-          <ConfirmYesNoDialog
-            trigger={trigger}
-            onClose={confirmed => {
-              if (confirmed) {
-                onConfirm();
-              }
-            }}
-          />
-        </>
-      ) : (
-        <>
-          <IonButton
-            disabled={disabled || hasConflicts}
-            color={color}
-            fill={fill}
-            onClick={onConfirm}
-          >
-            <IonIcon icon={icon}></IonIcon>
-          </IonButton>
-          {hasConflicts && (
-            <IonIcon color={'warning'} icon={APPICONS.warning}></IonIcon>
-          )}
-        </>
+      <IonButton
+        id={trigger}
+        disabled={disabled || showConflictsWarning}
+        color={color}
+        fill={fill}
+        onClick={askConfirm ? undefined : onConfirm}
+      >
+        <IonIcon icon={getIcon()}></IonIcon>
+        {showConflictsWarning && (
+          <IonIcon color={'warning'} icon={APPICONS.conflictsAlert}></IonIcon>
+        )}
+      </IonButton>
+
+      {askConfirm && (
+        <ConfirmYesNoDialog
+          trigger={trigger}
+          onClose={confirmed => {
+            if (confirmed) {
+              onConfirm();
+            }
+          }}
+        />
       )}
     </>
   );

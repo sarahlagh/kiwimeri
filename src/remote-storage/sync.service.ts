@@ -79,6 +79,12 @@ class SyncService {
     return localChangesService.useHasLocalChanges();
   }
 
+  public usePrimaryHasRemoteChanges() {
+    const lastPulled = localChangesService.useLastPulled();
+    const lastRemoteChange = remotesService.usePrimaryLastRemoteChange();
+    return lastPulled < lastRemoteChange;
+  }
+
   public useHasLocalConflicts() {
     return collectionService.useConflicts().length > 0;
   }

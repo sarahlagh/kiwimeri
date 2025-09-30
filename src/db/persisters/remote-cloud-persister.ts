@@ -88,6 +88,7 @@ export const createRemoteCloudPersister = (
           force
         );
         updateRemoteInfo(remote.state, resp.remoteInfo, true, true);
+        if (force) localChangesService.setLastPulled(Date.now());
       } catch (e) {
         console.error('error pushing', storageProvider.getName(), e);
       }
