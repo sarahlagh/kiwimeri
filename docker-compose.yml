@@ -1,4 +1,4 @@
-name: kiwimeri
+name: kiwimeri-dev
 services:
   kiwimeri:
     container_name: kiwimeri
@@ -6,7 +6,16 @@ services:
       dockerfile: docker/Dockerfile
       context: .
     environment:
-      - VITE_INTERNAL_HTTP_PROXY=http://localhost:8110/api
+      - VITE_IS_RELEASE=false
+      - VITE_INTERNAL_HTTP_PROXY=http://localhost:8888
       - VITE_LOG_LEVEL=debug
     ports:
       - 8110:80
+
+  nginx:
+    container_name: proxy
+    image: nginx:stable-alpine3.21
+    ports:
+      - 8888:80
+    volumes:
+      - ./nginx.dev.proxy.conf:/etc/nginx/conf.d/default.conf

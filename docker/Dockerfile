@@ -1,9 +1,10 @@
-FROM node:22-alpine as build
+FROM node:22-alpine AS build
 WORKDIR /app
 COPY package.json /app/
 COPY yarn.lock /app/
-RUN yarn global add @ionic/cli@^7.2.0
-RUN yarn install
+RUN --mount=type=cache,target=/root/.yarn YARN_CACHE_FOLDER=/root/.yarn \
+    yarn global add @ionic/cli@^7.2.0 \
+    && yarn install --frozen-lockfile
 
 COPY src/ /app/src
 COPY public/ /app/public
@@ -15,7 +16,7 @@ COPY .env.production /app/.env
 
 RUN ionic build --prod
 
-FROM nginx:stable-alpine3.20-perl
+FROM nginx:stable-alpine3.21
 COPY ./docker/env.sh /docker-entrypoint.d/env.sh
 COPY ./docker/nginx.conf /etc/nginx/templates/default.conf.template
 RUN rm -rf /usr/share/nginx/html/*

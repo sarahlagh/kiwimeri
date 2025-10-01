@@ -5,8 +5,8 @@
   "version": "0.2.2",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"node scripts/middleware.cjs\" \"lingui extract --watch\" \"ionic serve\"",
-    "start-middleware": "node scripts/middleware.cjs",
+    "dev": "concurrently \"docker-compose up nginx -d\" \"lingui extract --watch\" \"ionic serve\"",
+    "start-dev-proxy": "docker-compose up nginx -d",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest",
@@ -69,7 +69,6 @@
     "@vitest/browser": "3.1.2",
     "@vitest/ui": "3.1.2",
     "concurrently": "^9.1.2",
-    "cors-anywhere": "^0.4.4",
     "eslint": "^8.35.0",
     "eslint-plugin-react": "^7.32.2",
     "jsdom": "^22.1.0",
