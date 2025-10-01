@@ -1,0 +1,19 @@
+name: kiwimeri
+services: # sample compose file for running kiwimeri locally
+  kiwimeri:
+    container_name: kiwimeri
+    image: sarahlagh/kiwimeri:latest
+    environment:
+      - VITE_INTERNAL_HTTP_PROXY=http://localhost:8888 # enables synchronization
+    ports:
+      - 8110:80
+
+  # note: nginx here acts as a proxy, allowing the webapp to do cross-domain requests
+  # the webapp will work without it, but synchronization will be disabled
+  nginx:
+    container_name: proxy
+    image: nginx:stable-alpine3.21
+    ports:
+      - 8888:80
+    volumes:
+      - ./nginx.proxy.conf:/etc/nginx/conf.d/default.conf

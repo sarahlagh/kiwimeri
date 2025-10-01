@@ -2,6 +2,7 @@ name: kiwimeri-dev
 services:
   kiwimeri:
     container_name: kiwimeri
+    image: sarahlagh/kiwimeri:latest-snapshot
     build:
       dockerfile: docker/Dockerfile
       context: .
