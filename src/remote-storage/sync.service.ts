@@ -82,6 +82,14 @@ class SyncService {
   public usePrimaryHasRemoteChanges() {
     const lastPulled = localChangesService.useLastPulled();
     const lastRemoteChange = remotesService.usePrimaryLastRemoteChange();
+    console.debug(
+      'lastPulled',
+      lastPulled,
+      'lastRemoteChange',
+      lastRemoteChange,
+      lastPulled <= lastRemoteChange,
+      lastRemoteChange - lastPulled
+    );
     return lastPulled < lastRemoteChange;
   }
 

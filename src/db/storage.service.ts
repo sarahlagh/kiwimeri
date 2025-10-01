@@ -123,8 +123,8 @@ class StorageService {
   }
 
   public async stop() {
-    this.storeLocalPersister.destroy();
-    this.spaceLocalPersisters.get(this.getSpaceId())!.destroy();
+    await this.storeLocalPersister.destroy();
+    await this.spaceLocalPersisters.get(this.getSpaceId())!.destroy();
   }
 
   private createSpace() {

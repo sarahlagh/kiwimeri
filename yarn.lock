@@ -6518,10 +6518,10 @@ tiny-warning@^1.0.0:
   resolved "https://registry.npmjs.org/tiny-warning/-/tiny-warning-1.0.3.tgz"
   integrity sha512-lBN9zLN/oAf68o3zNXYrdCt1kP8WsiGW8Oo2ka41b2IM5JL/S1CTyX1rW0mb/zSuJun0ZUrDxx4sqvYS2FWzPA==
 
-tinybase@^5.3.0:
-  version "5.4.8"
-  resolved "https://registry.yarnpkg.com/tinybase/-/tinybase-5.4.8.tgz#f319c63f7d59ebba567d84b2747a21a315be7f14"
-  integrity sha512-ahqJETFE2A5R0JnfWRQJj5YEfpCou9Lh5O5bnNhcxKocAI7sAt9bLLOoKz1hyk0Sb4X6rwTPZxJdQz9hyq6fnw==
+tinybase@^6.6.0:
+  version "6.6.1"
+  resolved "https://registry.yarnpkg.com/tinybase/-/tinybase-6.6.1.tgz#cd6d6abd589ff56a96868b8ed76ac1a2206cfba0"
+  integrity sha512-QVadsZpJIg5/NS7Ugfu+M5jghFVG/O91YW/bl5poNnGLRGqU6cbHySv9OL8C8qcsC83f5ad3pZJoB9cW4p7p1Q==
 
 tinybench@^2.9.0:
   version "2.9.0"
