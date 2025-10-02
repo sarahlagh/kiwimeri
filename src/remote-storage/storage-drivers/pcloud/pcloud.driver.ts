@@ -115,6 +115,10 @@ export class PCloudDriver extends FileStorageDriver {
     return this.downloadFile(providerid);
   }
 
+  public async close() {
+    // no impl
+  }
+
   private async downloadFile(fileid: string) {
     console.log('[pCloud] fetching file link');
     const res = await this.getFetch<PCloudLinkResponse>('getfilelink', {

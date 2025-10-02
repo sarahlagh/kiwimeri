@@ -27,7 +27,7 @@ import {
 
 let notebook: string = DEFAULT_NOTEBOOK_ID;
 let driver: PCloudDriver;
-let provider: SingleFileStorage;
+let filesystem: SingleFileStorage;
 
 const reInitRemoteData = async (items: CollectionItem[], updateTs?: number) => {
   const lastRemoteChange =
@@ -72,11 +72,11 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     await remotesService.configureRemotes(storageService.getSpaceId(), true);
     expect(remotesService.getRemotes()).toHaveLength(1);
     expect(remotesService.getRemotes()[0].connected).toBeTruthy();
-    const keys = remotesService['providers'].keys();
-    provider = remotesService['providers'].get(
+    const keys = remotesService['filesystems'].keys();
+    filesystem = remotesService['filesystems'].get(
       keys.next().value!
     )! as SingleFileStorage;
-    driver = provider!['driver'] as PCloudDriver;
+    driver = filesystem!['driver'] as PCloudDriver;
 
     notebook = notebooksService.getNotebooks()[0].id;
   });

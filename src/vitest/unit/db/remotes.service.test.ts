@@ -20,7 +20,7 @@ describe('remotes service', () => {
       .getRow('remoteState', state as string);
     expect(stateRow.connected).toBeFalsy();
     expect(stateRow.lastRemoteChange).toBeDefined();
-    expect(remotesService.getPersister(rowId)).toBeUndefined();
+    expect(remotesService['filesystems'].get(rowId)).toBeUndefined();
   });
 
   it('should not init sync for previously unconfigured remotes', async () => {
@@ -32,7 +32,7 @@ describe('remotes service', () => {
       .getStore()
       .getRow('remoteState', state as string);
     expect(stateRow.connected).toBeFalsy();
-    expect(remotesService.getPersister(rowId)).toBeUndefined();
+    expect(remotesService['filesystems'].get(rowId)).toBeUndefined();
   });
 
   it('should only init sync for previously configured remotes', async () => {
@@ -43,6 +43,7 @@ describe('remotes service', () => {
     const ok = await remotesService.configure(
       {
         id: rowId,
+        space: storageService.getSpaceId(),
         state,
         type: 'inmem',
         config: '{}',
@@ -54,13 +55,13 @@ describe('remotes service', () => {
       {}
     );
     expect(ok).toBeTruthy();
-    expect(remotesService.getPersister(rowId)).toBeUndefined();
+    expect(remotesService['filesystems'].get(rowId)).toBeDefined();
     await remotesService.configureRemotes(storageService.getSpaceId());
     const stateRow = storageService
       .getStore()
       .getRow('remoteState', state as string);
     expect(stateRow.connected).toBeTruthy();
-    expect(remotesService.getPersister(rowId)).toBeDefined();
+    expect(remotesService['filesystems'].get(rowId)).toBeDefined();
   });
 
   it('should only init sync for all remotes on demand', async () => {
@@ -72,7 +73,7 @@ describe('remotes service', () => {
       .getStore()
       .getRow('remoteState', state as string);
     expect(stateRow.connected).toBeTruthy();
-    expect(remotesService.getPersister(rowId)).toBeDefined();
+    expect(remotesService['filesystems'].get(rowId)).toBeDefined();
   });
 
   it('should sort remotes by rank', async () => {

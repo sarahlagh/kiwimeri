@@ -26,10 +26,10 @@ import {
 import { Row, Table } from 'tinybase/store';
 import { Content, getUniqueId } from 'tinybase/with-schemas';
 import {
+  CloudStorage,
   DriverFileInfo,
   FileStorageDriver,
-  RemoteInfo,
-  StorageFS
+  RemoteInfo
 } from '../sync-types';
 
 type SingleFileStorageFileContent = {
@@ -38,7 +38,7 @@ type SingleFileStorageFileContent = {
   v: number; // the model version
 };
 
-export class SingleFileStorage extends StorageFS {
+export class SingleFileStorage extends CloudStorage {
   protected readonly id = 'S';
   protected readonly version = 1;
   protected readonly filename = 'collection.json';
@@ -55,9 +55,9 @@ export class SingleFileStorage extends StorageFS {
     this.driver.configure(config, proxy, useHttp);
   }
 
-  public async init() {
+  public async connect() {
     const { config, connected, filesInfo } = await this.driver
-      .init([this.getVersionFile(), this.filename])
+      .connect([this.getVersionFile(), this.filename])
       .catch(() => ({ connected: false, config: null, filesInfo: null }));
 
     if (connected && filesInfo) {
@@ -94,7 +94,7 @@ export class SingleFileStorage extends StorageFS {
     return remoteState;
   }
 
-  public async write(
+  public async push(
     localContent: Content<SpaceType>,
     localChanges: LocalChange[],
     cachedRemoteInfo: RemoteInfo,
@@ -188,7 +188,7 @@ export class SingleFileStorage extends StorageFS {
     };
   }
 
-  public async read(
+  public async pull(
     localContent: Content<SpaceType>,
     localChanges: LocalChange[],
     cachedRemoteInfo: RemoteInfo,
@@ -322,6 +322,10 @@ export class SingleFileStorage extends StorageFS {
         ...newRemoteState
       }
     };
+  }
+
+  public async destroy() {
+    this.driver.close();
   }
 
   private checkOrphans(newCollectionAfterPull: Table) {

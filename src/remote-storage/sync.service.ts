@@ -35,37 +35,26 @@ class SyncService {
 
   public async push(remoteId?: string, force = false) {
     const remotes = remotesService.getRemotes();
-    const pushRemotes = remotes.filter(r =>
+    const activeRemotes = remotes.filter(r =>
       remoteId ? r.id === remoteId && r.connected : r.connected
     );
-    console.log(`pushing to ${pushRemotes.length} active remote(s)`);
-    const oldForceMode = remotesService.getForceMode();
-    remotesService.setForceMode(force);
-    for (const remote of pushRemotes) {
-      const persister = remotesService.getPersister(remote.id);
-      if (persister) {
-        // TODO only primary, then use setTimeout for the others
-        await persister.save();
-      } else {
-        console.warn('no persister found for remote', remote.id);
-      }
+    console.log(`pushing to ${activeRemotes.length} active remote(s)`);
+    // TODO only primary, then use setTimeout for the others
+    for (const remote of activeRemotes) {
+      await remotesService.push(remote, force);
     }
-    remotesService.setForceMode(oldForceMode);
   }
 
   // only pull from primary by default
   public async pull(remoteId?: string, force = false) {
-    if (!remoteId) {
-      const remote = remotesService.getRemotes()[0];
-      remoteId = remote?.id;
+    const remotes = remotesService.getRemotes();
+    const activeRemotes = remotes.filter(r =>
+      remoteId ? r.id === remoteId && r.connected : r.connected
+    );
+    if (activeRemotes.length > 0) {
+      const remote = activeRemotes[0];
+      await remotesService.pull(remote, force);
     }
-    const oldForceMode = remotesService.getForceMode();
-    remotesService.setForceMode(force);
-    const persister = remotesService.getPersister(remoteId);
-    if (persister) {
-      await persister.load();
-    }
-    remotesService.setForceMode(oldForceMode);
   }
 
   public usePrimaryConnected() {

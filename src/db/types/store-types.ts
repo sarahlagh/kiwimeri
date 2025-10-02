@@ -43,9 +43,7 @@ export interface Remote {
   formats: string;
 }
 
-export type RemoteResult = Required<
-  Pick<Remote, 'id' | 'state' | 'name' | 'rank' | 'type' | 'config' | 'formats'>
-> &
+export type RemoteResult = Required<Remote> &
   Required<Pick<RemoteState, 'connected'>>;
 
 export interface RemoteState {

@@ -6,17 +6,15 @@ import {
   LayerTypes,
   storageFilesystemFactory
 } from '@/remote-storage/storage-filesystem.factory';
-import { StorageFS } from '@/remote-storage/sync-types';
+import { CloudStorage, RemoteInfo } from '@/remote-storage/sync-types';
 import { ConnectionStatusChangeListener } from '@capacitor/network';
-import { Persister } from 'tinybase/persisters/with-schemas';
-import { createRemoteCloudPersister } from './persisters/remote-cloud-persister';
+import localChangesService from './local-changes.service';
 import storageService from './storage.service';
 import {
   useCellWithRef,
   useResultSortedRowIdsWithRef,
   useResultTableWithRef
 } from './tinybase/hooks';
-import { SpaceType } from './types/space-types';
 import {
   AnyData,
   RemoteItemInfo,
@@ -31,10 +29,8 @@ class RemotesService {
   private readonly remoteItemsTable = 'remoteItems';
 
   private layer: LayerTypes = appConfig.DEFAULT_STORAGE_LAYER;
-  private providers: Map<string, StorageFS> = new Map();
-  private remotePersisters: Map<string, Persister<SpaceType>> = new Map();
+  private filesystems: Map<string, CloudStorage> = new Map();
 
-  private force = false;
   private networkListener: ConnectionStatusChangeListener | null = null;
 
   private fetchAllRemotesQuery(space: string) {
@@ -70,9 +66,7 @@ class RemotesService {
               console.log(
                 '[storage] network connected - will attempt to re init providers'
               );
-              await remotesService.configureRemotes(
-                storageService.getSpaceId()
-              );
+              await this.configureRemotes(storageService.getSpaceId());
             });
           },
           true,
@@ -89,11 +83,10 @@ class RemotesService {
   }
 
   public stopSync() {
-    this.remotePersisters.forEach(p => {
-      p.destroy();
+    this.filesystems.forEach(fs => {
+      fs.destroy();
     });
-    this.remotePersisters.clear();
-    this.providers.clear();
+    this.filesystems.clear();
     if (this.networkListener) {
       networkService.removeListener(this.networkListener);
       this.networkListener = null;
@@ -120,26 +113,6 @@ class RemotesService {
       );
       const connected = await this.configure(remote, JSON.parse(remote.config));
       console.debug(`remote ${remote.name} configured: ${connected}`);
-      if (connected) {
-        this.addPersisterIfMissing(remote, space);
-      }
-    }
-  }
-
-  // TODO: factory depending on type
-  private addPersisterIfMissing(remote: RemoteResult, space: string) {
-    if (
-      !this.remotePersisters.has(remote.id) &&
-      this.providers.has(remote.id)
-    ) {
-      this.remotePersisters.set(
-        remote.id,
-        createRemoteCloudPersister(
-          storageService.getSpace(space),
-          remote,
-          this.providers.get(remote.id)!
-        )
-      );
     }
   }
 
@@ -150,13 +123,13 @@ class RemotesService {
       proxy = platformService.getInternalProxy();
       useHttp = appConfig.DEV_USE_HTTP_IF_POSSIBLE;
     }
-    if (!this.providers.has(remote.id))
-      this.providers.set(
+    if (!this.filesystems.has(remote.id))
+      this.filesystems.set(
         remote.id,
         storageFilesystemFactory(remote.type, this.layer)
       );
-    const storageProvider = this.providers.get(remote.id)!;
-    storageProvider.configure(config, proxy, useHttp);
+    const filesystem = this.filesystems.get(remote.id)!;
+    filesystem.configure(config, proxy, useHttp);
 
     const networkStatus = networkService.getStatus();
     if (networkStatus && !networkStatus.connected) {
@@ -164,7 +137,7 @@ class RemotesService {
       return false;
     }
 
-    const newConf = await storageProvider.init(remote.state);
+    const newConf = await filesystem.connect(remote.state);
 
     if (newConf.config !== null) {
       storageService.getStore().transaction(() => {
@@ -280,9 +253,7 @@ class RemotesService {
       storageService.getStore().delRow(this.stateTable, remote);
     });
 
-    this.remotePersisters.get(remote)?.destroy();
-    this.remotePersisters.delete(remote);
-    this.providers.delete(remote);
+    this.filesystems.delete(remote);
   }
 
   public setRemoteName(remote: string, name: string) {
@@ -419,15 +390,98 @@ class RemotesService {
     });
   }
 
-  public getPersister(remote: string) {
-    return this.remotePersisters.get(remote);
+  private updateRemoteInfo(
+    state: string,
+    remoteInfo: RemoteInfo,
+    updateLocalChanges: boolean,
+    clearLocalChanges: boolean
+  ) {
+    storageService.getStore().transaction(() => {
+      if (updateLocalChanges) {
+        localChangesService.setLastLocalChange(
+          remoteInfo.lastRemoteChange || 0
+        );
+      }
+      if (clearLocalChanges) {
+        localChangesService.clear();
+      }
+      this.updateRemoteStateInfo(state, remoteInfo);
+      if (remoteInfo.remoteItems) {
+        this.updateRemoteItemInfo(state, remoteInfo.remoteItems);
+      }
+    });
   }
 
-  public setForceMode(force: boolean) {
-    this.force = force;
+  public async pull(remote: RemoteResult, force = false) {
+    const store = storageService.getSpace(remote.space);
+    const localContent = store.getContent();
+    const localChanges = localChangesService.getLocalChanges();
+    const lastPulled = localChangesService.getLastPulled();
+    const remoteState = this.getCachedRemoteStateInfo(remote.state);
+    const remoteItems = this.getCachedRemoteItemInfo(remote.state);
+    try {
+      const filesystem = this.filesystems.get(remote.id)!;
+      const resp = await filesystem.pull(
+        localContent,
+        localChanges,
+        {
+          ...remoteState,
+          remoteItems,
+          lastPulled
+        },
+        force
+      );
+      if (resp && resp.content) {
+        this.updateRemoteInfo(
+          remote.state,
+          resp.remoteInfo,
+          force || localChanges.length == 0,
+          force || false
+        );
+        if (resp.remoteInfo.lastRemoteChange)
+          localChangesService.setLastPulled(resp.remoteInfo.lastRemoteChange);
+        storageService.getSpace().setContent(resp.content);
+      }
+    } catch (e) {
+      console.error(
+        'error pulling',
+        remote.name,
+        this.filesystems.get(remote.id)?.getName(),
+        e
+      );
+    }
   }
-  public getForceMode() {
-    return this.force;
+
+  public async push(remote: RemoteResult, force = false) {
+    const store = storageService.getSpace(remote.space);
+    const localContent = store.getContent();
+    const localChanges = localChangesService.getLocalChanges();
+    const lastPulled = localChangesService.getLastPulled();
+    const remoteState = this.getCachedRemoteStateInfo(remote.state);
+    const remoteItems = this.getCachedRemoteItemInfo(remote.state);
+    try {
+      const filesystem = this.filesystems.get(remote.id)!;
+      const resp = await filesystem.push(
+        localContent,
+        localChanges,
+        {
+          ...remoteState,
+          remoteItems,
+          lastPulled
+        },
+        force
+      );
+      this.updateRemoteInfo(remote.state, resp.remoteInfo, true, true);
+      if (resp.remoteInfo.lastRemoteChange)
+        localChangesService.setLastPulled(resp.remoteInfo.lastRemoteChange);
+    } catch (e) {
+      console.error(
+        'error pushing',
+        remote.name,
+        this.filesystems.get(remote.id)?.getName(),
+        e
+      );
+    }
   }
 }
 

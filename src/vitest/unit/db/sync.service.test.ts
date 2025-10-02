@@ -131,7 +131,7 @@ describe('sync service', () => {
       remotesService['layer'] = layer as LayerTypes;
       remotesService.addRemote('test', 0, 'inmem', {});
       await remotesService.configureRemotes(storageService.getSpaceId(), true);
-      driver = remotesService['providers'].values().next().value![
+      driver = remotesService['filesystems'].values().next().value![
         'driver'
       ] as InMemDriver;
       vi.useFakeTimers();

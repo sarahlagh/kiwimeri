@@ -21,7 +21,7 @@ export type DriverFileInfo = {
 };
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export abstract class StorageFS {
+export abstract class CloudStorage {
   constructor(protected driver: FileStorageDriver) {}
 
   public getName() {
@@ -32,12 +32,12 @@ export abstract class StorageFS {
 
   abstract getVersionFile(): string;
 
-  abstract init(remoteStateId?: string): Promise<{
+  abstract connect(remoteStateId?: string): Promise<{
     config: any;
     remoteState: RemoteState;
   }>;
 
-  abstract read(
+  abstract pull(
     localContent: Content<SpaceType>,
     localChanges: LocalChange[],
     cachedRemoteInfo: RemoteInfo,
@@ -47,12 +47,14 @@ export abstract class StorageFS {
     remoteInfo: RemoteInfo;
   }>;
 
-  abstract write(
+  abstract push(
     localContent: Content<SpaceType>,
     localChanges: LocalChange[],
     cachedRemoteInfo: RemoteInfo,
     force?: boolean
   ): Promise<{ remoteInfo: RemoteInfo }>;
+
+  abstract destroy(): Promise<void>;
 
   protected toMap<T>(obj?: UntypedTable) {
     const map: Map<string, T> = new Map();
@@ -68,7 +70,7 @@ export abstract class StorageFS {
 export abstract class FileStorageDriver {
   public constructor(public driverName: string) {}
 
-  public async init(names: string[]) {
+  public async connect(names: string[]) {
     const { connected, filesInfo } = await this.fetchFilesInfo(names);
 
     console.log(`${this.driverName} client initialized`, {
@@ -106,4 +108,6 @@ export abstract class FileStorageDriver {
     providerid: string,
     filename: string
   ): Promise<void>;
+
+  public abstract close(): Promise<void>;
 }
