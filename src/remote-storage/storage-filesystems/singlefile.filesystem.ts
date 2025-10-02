@@ -26,9 +26,9 @@ import {
 import { Row, Table } from 'tinybase/store';
 import { Content, getUniqueId } from 'tinybase/with-schemas';
 import {
-  CloudStorage,
+  CloudStorageDriver,
+  CloudStorageFilesystem,
   DriverFileInfo,
-  FileStorageDriver,
   RemoteInfo
 } from '../sync-types';
 
@@ -38,12 +38,12 @@ type SingleFileStorageFileContent = {
   v: number; // the model version
 };
 
-export class SingleFileStorage extends CloudStorage {
+export class SingleFileStorage extends CloudStorageFilesystem {
   protected readonly id = 'S';
   protected readonly version = 1;
   protected readonly filename = 'collection.json';
 
-  public constructor(protected driver: FileStorageDriver) {
+  public constructor(protected driver: CloudStorageDriver) {
     super(driver);
   }
 
@@ -378,7 +378,7 @@ export class SingleFileStorage extends CloudStorage {
 
     if (obj.v !== KIWIMERI_MODEL_VERSION) {
       console.warn(
-        '[provider] model mismatch between server and client',
+        '[filesystem] model mismatch between server and client',
         obj.v,
         KIWIMERI_MODEL_VERSION
       );

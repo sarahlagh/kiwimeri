@@ -1,4 +1,7 @@
-import { DriverFileInfo, FileStorageDriver } from '@/remote-storage/sync-types';
+import {
+  CloudStorageDriver,
+  DriverFileInfo
+} from '@/remote-storage/sync-types';
 import {
   PCloudLinkResponse,
   PCloudListResponse,
@@ -15,7 +18,7 @@ export type PCloudConf = {
   folderid?: string;
 };
 
-export class PCloudDriver extends FileStorageDriver {
+export class PCloudDriver extends CloudStorageDriver {
   private proxy?: string;
   private config: PCloudConf | null = null;
   private serverUrl!: string;

@@ -21,8 +21,8 @@ export type DriverFileInfo = {
 };
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export abstract class CloudStorage {
-  constructor(protected driver: FileStorageDriver) {}
+export abstract class CloudStorageFilesystem {
+  constructor(protected driver: CloudStorageDriver) {}
 
   public getName() {
     return `[${this.getVersionFile()}][${this.driver.driverName}]`;
@@ -67,7 +67,7 @@ export abstract class CloudStorage {
   }
 }
 
-export abstract class FileStorageDriver {
+export abstract class CloudStorageDriver {
   public constructor(public driverName: string) {}
 
   public async connect(names: string[]) {

@@ -18,7 +18,7 @@ const dynConfig = {
   VITE_INTERNAL_HTTP_PROXY: '__dyn__',
   VITE_DEV_USE_HTTP_IF_POSSIBLE: '__dyn__',
   VITE_DEV_OVERRIDE_PLATFORM: '__dyn__',
-  VITE_DEFAULT_STORAGE_LAYER: '__dyn__'
+  VITE_DEFAULT_STORAGE_FS: '__dyn__'
 } as any;
 
 class AppConfig implements ImportMetaEnv {
@@ -29,7 +29,7 @@ class AppConfig implements ImportMetaEnv {
   DEV_USE_HTTP_IF_POSSIBLE = false;
   DEV_OVERRIDE_PLATFORM?: 'web' | 'android' | 'electron';
   DEV_ENABLE_INSPECTOR = true;
-  DEFAULT_STORAGE_LAYER: LayerTypes = 'singlefile';
+  DEFAULT_STORAGE_FS: LayerTypes = 'singlefile';
 
   constructor(metaEnv: ImportMetaEnv) {
     // transform VITE_ env from .env file

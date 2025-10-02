@@ -8,7 +8,7 @@ import notebooksService from '@/db/notebooks.service';
 import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
 import { PCloudDriver } from '@/remote-storage/storage-drivers/pcloud/pcloud.driver';
-import { SingleFileStorage } from '@/remote-storage/storage-filesystem/singlefile.provider';
+import { SingleFileStorage } from '@/remote-storage/storage-filesystems/singlefile.filesystem';
 import { syncService } from '@/remote-storage/sync.service';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {

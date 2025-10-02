@@ -6,7 +6,10 @@ import {
   LayerTypes,
   storageFilesystemFactory
 } from '@/remote-storage/storage-filesystem.factory';
-import { CloudStorage, RemoteInfo } from '@/remote-storage/sync-types';
+import {
+  CloudStorageFilesystem,
+  RemoteInfo
+} from '@/remote-storage/sync-types';
 import { ConnectionStatusChangeListener } from '@capacitor/network';
 import localChangesService from './local-changes.service';
 import storageService from './storage.service';
@@ -28,8 +31,8 @@ class RemotesService {
   private readonly stateTable = 'remoteState';
   private readonly remoteItemsTable = 'remoteItems';
 
-  private layer: LayerTypes = appConfig.DEFAULT_STORAGE_LAYER;
-  private filesystems: Map<string, CloudStorage> = new Map();
+  private layer: LayerTypes = appConfig.DEFAULT_STORAGE_FS;
+  private filesystems: Map<string, CloudStorageFilesystem> = new Map();
 
   private networkListener: ConnectionStatusChangeListener | null = null;
 
@@ -64,7 +67,7 @@ class RemotesService {
           () => {
             setTimeout(async () => {
               console.log(
-                '[storage] network connected - will attempt to re init providers'
+                '[storage] network connected - will attempt to re init remotes'
               );
               await this.configureRemotes(storageService.getSpaceId());
             });

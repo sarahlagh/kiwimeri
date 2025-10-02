@@ -6,10 +6,10 @@ import {
   minimizeItemsForStorage,
   unminimizeItemsFromStorage
 } from '@/db/compress-storage';
-import { FileStorageDriver } from '@/remote-storage/sync-types';
+import { CloudStorageDriver } from '@/remote-storage/sync-types';
 
 // for testing
-export class InMemDriver extends FileStorageDriver {
+export class InMemDriver extends CloudStorageDriver {
   private names: string[] = [];
   private collection = new Map<string, string>();
   private metadata = new Map<
