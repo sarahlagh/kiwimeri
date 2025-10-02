@@ -9,7 +9,7 @@ import {
   NEW_FOLDER_TITLE,
   ROOT_FOLDER_TITLE
 } from './constants';
-import { LayerTypes } from './remote-storage/storage-provider.factory';
+import { LayerTypes } from './remote-storage/storage-filesystem.factory';
 
 // hack to override VITE_ vars with docker container env
 const dynConfig = {
@@ -29,7 +29,7 @@ class AppConfig implements ImportMetaEnv {
   DEV_USE_HTTP_IF_POSSIBLE = false;
   DEV_OVERRIDE_PLATFORM?: 'web' | 'android' | 'electron';
   DEV_ENABLE_INSPECTOR = true;
-  DEFAULT_STORAGE_LAYER: LayerTypes = 'simple';
+  DEFAULT_STORAGE_LAYER: LayerTypes = 'singlefile';
 
   constructor(metaEnv: ImportMetaEnv) {
     // transform VITE_ env from .env file

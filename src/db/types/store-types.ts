@@ -1,4 +1,4 @@
-import { DriverNames } from '@/remote-storage/storage-provider.factory';
+import { DriverNames } from '@/remote-storage/storage-filesystem.factory';
 import { CellSchema } from 'tinybase/with-schemas';
 
 export interface AnyData {

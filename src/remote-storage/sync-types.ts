@@ -21,7 +21,7 @@ export type DriverFileInfo = {
 };
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export abstract class StorageProvider {
+export abstract class StorageFS {
   constructor(protected driver: FileStorageDriver) {}
 
   public getName() {
@@ -37,7 +37,7 @@ export abstract class StorageProvider {
     remoteState: RemoteState;
   }>;
 
-  abstract pull(
+  abstract read(
     localContent: Content<SpaceType>,
     localChanges: LocalChange[],
     cachedRemoteInfo: RemoteInfo,
@@ -47,7 +47,7 @@ export abstract class StorageProvider {
     remoteInfo: RemoteInfo;
   }>;
 
-  abstract push(
+  abstract write(
     localContent: Content<SpaceType>,
     localChanges: LocalChange[],
     cachedRemoteInfo: RemoteInfo,

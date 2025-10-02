@@ -17,7 +17,7 @@ import storageService from '@/db/storage.service';
 import tagsService from '@/db/tags.service';
 import { LocalChangeType } from '@/db/types/store-types';
 import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
-import { LayerTypes } from '@/remote-storage/storage-provider.factory';
+import { LayerTypes } from '@/remote-storage/storage-filesystem.factory';
 import { syncService } from '@/remote-storage/sync.service';
 import { renderHook } from '@testing-library/react';
 import { act } from 'react';
@@ -124,8 +124,8 @@ const getSomeRemoteData = (
 };
 
 describe('sync service', () => {
-  // [{ layer: 'simple' } /*, { layer: 'bucket' } */].forEach(({ layer }) => {
-  const layer = 'simple';
+  // [{ layer: 'singlefile' } /*, { layer: 'bucket' } */].forEach(({ layer }) => {
+  const layer = 'singlefile';
   describe(`with ${layer} layer`, () => {
     beforeEach(async () => {
       remotesService['layer'] = layer as LayerTypes;

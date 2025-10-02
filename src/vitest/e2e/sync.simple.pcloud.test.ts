@@ -8,7 +8,7 @@ import notebooksService from '@/db/notebooks.service';
 import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
 import { PCloudDriver } from '@/remote-storage/storage-drivers/pcloud/pcloud.driver';
-import { SimpleStorageProvider } from '@/remote-storage/storage-providers/simple.provider';
+import { SingleFileStorage } from '@/remote-storage/storage-filesystem/singlefile.provider';
 import { syncService } from '@/remote-storage/sync.service';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
@@ -27,7 +27,7 @@ import {
 
 let notebook: string = DEFAULT_NOTEBOOK_ID;
 let driver: PCloudDriver;
-let provider: SimpleStorageProvider;
+let provider: SingleFileStorage;
 
 const reInitRemoteData = async (items: CollectionItem[], updateTs?: number) => {
   const lastRemoteChange =
@@ -62,7 +62,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     const browserName =
       browser.task.file.projectName?.match(/e2e \((.*)\)/)?.[1];
     console.debug('browser', browserName);
-    remotesService['layer'] = 'simple';
+    remotesService['layer'] = 'singlefile';
     remotesService.addRemote('test', 0, 'pcloud', {
       username: appConfig.PCLOUD_E2E_USERNAME,
       password: appConfig.PCLOUD_E2E_PASSWORD,
@@ -75,7 +75,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     const keys = remotesService['providers'].keys();
     provider = remotesService['providers'].get(
       keys.next().value!
-    )! as SimpleStorageProvider;
+    )! as SingleFileStorage;
     driver = provider!['driver'] as PCloudDriver;
 
     notebook = notebooksService.getNotebooks()[0].id;

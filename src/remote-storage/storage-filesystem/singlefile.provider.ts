@@ -29,16 +29,16 @@ import {
   DriverFileInfo,
   FileStorageDriver,
   RemoteInfo,
-  StorageProvider
+  StorageFS
 } from '../sync-types';
 
-type SimpleStorageFileContent = {
+type SingleFileStorageFileContent = {
   i: CollectionItem[]; // the items
   u: number; // last content change
   v: number; // the model version
 };
 
-export class SimpleStorageProvider extends StorageProvider {
+export class SingleFileStorage extends StorageFS {
   protected readonly id = 'S';
   protected readonly version = 1;
   protected readonly filename = 'collection.json';
@@ -94,7 +94,7 @@ export class SimpleStorageProvider extends StorageProvider {
     return remoteState;
   }
 
-  public async push(
+  public async write(
     localContent: Content<SpaceType>,
     localChanges: LocalChange[],
     cachedRemoteInfo: RemoteInfo,
@@ -188,7 +188,7 @@ export class SimpleStorageProvider extends StorageProvider {
     };
   }
 
-  public async pull(
+  public async read(
     localContent: Content<SpaceType>,
     localChanges: LocalChange[],
     cachedRemoteInfo: RemoteInfo,
@@ -361,7 +361,7 @@ export class SimpleStorageProvider extends StorageProvider {
   }
 
   private serialization(items: CollectionItem[], updated: number) {
-    const obj: SimpleStorageFileContent = {
+    const obj: SingleFileStorageFileContent = {
       i: items,
       u: updated,
       v: KIWIMERI_MODEL_VERSION
@@ -369,7 +369,7 @@ export class SimpleStorageProvider extends StorageProvider {
     return JSON.stringify({ ...obj, i: minimizeItemsForStorage(items) });
   }
 
-  private deserialization(content?: string): SimpleStorageFileContent {
+  private deserialization(content?: string): SingleFileStorageFileContent {
     const obj = JSON.parse(content || '{}') as AnyData;
 
     if (obj.v !== KIWIMERI_MODEL_VERSION) {

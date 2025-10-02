@@ -4,9 +4,9 @@ import { appConfig } from '@/config';
 import { INTERNAL_FORMAT } from '@/constants';
 import {
   LayerTypes,
-  storageProviderFactory
-} from '@/remote-storage/storage-provider.factory';
-import { StorageProvider } from '@/remote-storage/sync-types';
+  storageFilesystemFactory
+} from '@/remote-storage/storage-filesystem.factory';
+import { StorageFS } from '@/remote-storage/sync-types';
 import { ConnectionStatusChangeListener } from '@capacitor/network';
 import { Persister } from 'tinybase/persisters/with-schemas';
 import { createRemoteCloudPersister } from './persisters/remote-cloud-persister';
@@ -31,7 +31,7 @@ class RemotesService {
   private readonly remoteItemsTable = 'remoteItems';
 
   private layer: LayerTypes = appConfig.DEFAULT_STORAGE_LAYER;
-  private providers: Map<string, StorageProvider> = new Map();
+  private providers: Map<string, StorageFS> = new Map();
   private remotePersisters: Map<string, Persister<SpaceType>> = new Map();
 
   private force = false;
@@ -153,7 +153,7 @@ class RemotesService {
     if (!this.providers.has(remote.id))
       this.providers.set(
         remote.id,
-        storageProviderFactory(remote.type, this.layer)
+        storageFilesystemFactory(remote.type, this.layer)
       );
     const storageProvider = this.providers.get(remote.id)!;
     storageProvider.configure(config, proxy, useHttp);
@@ -421,10 +421,6 @@ class RemotesService {
 
   public getPersister(remote: string) {
     return this.remotePersisters.get(remote);
-  }
-
-  public getProvider(remote: string) {
-    return this.providers.get(remote);
   }
 
   public setForceMode(force: boolean) {

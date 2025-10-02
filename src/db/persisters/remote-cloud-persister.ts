@@ -1,4 +1,4 @@
-import { RemoteInfo, StorageProvider } from '@/remote-storage/sync-types';
+import { RemoteInfo, StorageFS } from '@/remote-storage/sync-types';
 import { createCustomPersister } from 'tinybase/persisters/with-schemas';
 import { Store } from 'tinybase/with-schemas';
 import localChangesService from '../local-changes.service';
@@ -30,7 +30,7 @@ const updateRemoteInfo = (
 export const createRemoteCloudPersister = (
   store: Store<SpaceType>,
   remote: RemoteResult,
-  storageProvider: StorageProvider
+  filesystem: StorageFS
 ) => {
   return createCustomPersister(
     store,
@@ -43,7 +43,7 @@ export const createRemoteCloudPersister = (
       const remoteState = remotesService.getCachedRemoteStateInfo(remote.state);
       const remoteItems = remotesService.getCachedRemoteItemInfo(remote.state);
       try {
-        const resp = await storageProvider.pull(
+        const resp = await filesystem.read(
           localContent,
           localChanges,
           {
@@ -65,7 +65,7 @@ export const createRemoteCloudPersister = (
           return resp.content;
         }
       } catch (e) {
-        console.error('error pulling', storageProvider?.getName(), e);
+        console.error('error pulling', filesystem?.getName(), e);
       }
       return localContent;
     },
@@ -78,7 +78,7 @@ export const createRemoteCloudPersister = (
       const remoteItems = remotesService.getCachedRemoteItemInfo(remote.state);
       const force = remotesService.getForceMode();
       try {
-        const resp = await storageProvider.push(
+        const resp = await filesystem.write(
           localContent,
           localChanges,
           {
@@ -92,7 +92,7 @@ export const createRemoteCloudPersister = (
         if (resp.remoteInfo.lastRemoteChange)
           localChangesService.setLastPulled(resp.remoteInfo.lastRemoteChange);
       } catch (e) {
-        console.error('error pushing', storageProvider.getName(), e);
+        console.error('error pushing', filesystem.getName(), e);
       }
     },
     listener => setInterval(listener, 1000),
