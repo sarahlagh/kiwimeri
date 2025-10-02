@@ -170,6 +170,7 @@ export class SimpleStorageProvider extends StorageProvider {
       const content = this.serialization(newRemoteContent, lastLocalChange);
       const driverInfo = await this.driver.pushFile(this.filename, content);
       newRemoteState.info = driverInfo;
+      newRemoteState.lastRemoteChange = driverInfo.updated;
     }
 
     console.debug('[push] localInfo', localInfo);

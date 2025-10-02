@@ -60,7 +60,8 @@ export const createRemoteCloudPersister = (
             force || localChanges.length == 0,
             force || false
           );
-          localChangesService.setLastPulled(Date.now());
+          if (resp.remoteInfo.lastRemoteChange)
+            localChangesService.setLastPulled(resp.remoteInfo.lastRemoteChange);
           return resp.content;
         }
       } catch (e) {
@@ -88,7 +89,8 @@ export const createRemoteCloudPersister = (
           force
         );
         updateRemoteInfo(remote.state, resp.remoteInfo, true, true);
-        if (force) localChangesService.setLastPulled(Date.now());
+        if (resp.remoteInfo.lastRemoteChange)
+          localChangesService.setLastPulled(resp.remoteInfo.lastRemoteChange);
       } catch (e) {
         console.error('error pushing', storageProvider.getName(), e);
       }
