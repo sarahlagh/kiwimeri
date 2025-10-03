@@ -1,5 +1,6 @@
 export const SETTINGS_ROUTE = '/settings';
 export const DEBUG_ROUTE = '/debug';
+export const DEV_TOOLS_ROUTE = '/devtools';
 
 export const FOLDER_ROUTE = '/collection';
 export const DOCUMENT_ROUTE = '/document';

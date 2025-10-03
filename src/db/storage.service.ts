@@ -77,6 +77,7 @@ class StorageService {
       })
       .setValuesSchema({
         theme: { type: 'string', default: 'dark' },
+        showDevTools: { type: 'boolean', default: false },
         currentSpace: { type: 'string', default: DEFAULT_SPACE_ID },
         exportIncludeMetadata: { type: 'boolean', default: true },
         exportInlinePages: { type: 'boolean', default: true }

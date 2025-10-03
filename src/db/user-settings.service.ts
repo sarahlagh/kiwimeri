@@ -1,3 +1,4 @@
+import platformService from '@/common/services/platform.service';
 import storageService from './storage.service';
 import { useValueWithRef } from './tinybase/hooks';
 
@@ -45,6 +46,17 @@ class UserSettingsService {
 
   public setExportInlinePages(value: boolean) {
     storageService.getStore().setValue('exportInlinePages', value);
+  }
+
+  public useShowDevTools(): boolean {
+    return (
+      useValueWithRef(this.storeId, 'showDevTools') ||
+      !platformService.isRelease()
+    );
+  }
+
+  public setShowDevTools(value: boolean) {
+    storageService.getStore().setValue('showDevTools', value);
   }
 }
 

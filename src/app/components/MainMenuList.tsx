@@ -2,11 +2,13 @@ import { useLocation } from 'react-router-dom';
 
 import {
   DEBUG_ROUTE,
+  DEV_TOOLS_ROUTE,
   GET_ITEM_ROUTE,
   isCollectionRoute,
   SETTINGS_ROUTE
 } from '@/common/routes';
 import platformService from '@/common/services/platform.service';
+import CatchClickLabel from '@/common/utils/CatchClickLabel';
 import { appConfig } from '@/config';
 import { APPICONS } from '@/constants';
 import navService from '@/db/nav.service';
@@ -38,6 +40,7 @@ const MainMenuList = () => {
   const { t } = useLingui();
   const location = useLocation();
   const theme = userSettingsService.useTheme();
+  const showDevTools = userSettingsService.useShowDevTools();
 
   function isActive(appPage: AppPage) {
     if (appPage.isActive) {
@@ -73,7 +76,15 @@ const MainMenuList = () => {
       key: 'debug',
       title: t`Debug`,
       url: DEBUG_ROUTE,
-      icon: APPICONS.debugPage
+      icon: APPICONS.devToolsPage
+    });
+  }
+  if (showDevTools) {
+    appPages.push({
+      key: 'devtools',
+      title: t`Dev Tools`,
+      url: DEV_TOOLS_ROUTE,
+      icon: APPICONS.devToolsPage
     });
   }
 
@@ -110,7 +121,14 @@ const MainMenuList = () => {
       <IonFooter>
         <IonToolbar>
           <IonItem slot="start" lines="none">
-            <IonLabel>{appConfig.KIWIMERI_VERSION}</IonLabel>
+            <CatchClickLabel
+              goalClicks={7}
+              onFinalClick={() => {
+                userSettingsService.setShowDevTools(true);
+              }}
+            >
+              {appConfig.KIWIMERI_VERSION}
+            </CatchClickLabel>
           </IonItem>
           <IonButtons slot="end">
             <IonButton

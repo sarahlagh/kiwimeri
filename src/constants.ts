@@ -68,7 +68,7 @@ export const DEFAULT_EXPORT_SPACE_FILENAME = msg`collection`;
 export const APPICONS = {
   collectionPage: folderSharp,
   settingsPage: settingsSharp,
-  debugPage: constructSharp,
+  devToolsPage: constructSharp,
   themeLight: moonOutline,
   themeDark: moonSharp,
   home: home,
