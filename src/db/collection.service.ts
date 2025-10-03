@@ -470,6 +470,15 @@ class CollectionService {
     );
   }
 
+  public getItemPreview(rowId: Id) {
+    return (
+      (storageService
+        .getSpace()
+        .getCell(this.table, rowId, 'preview')
+        ?.valueOf() as string) || ''
+    );
+  }
+
   public setItemLexicalContent(rowId: Id, content: SerializedEditorState) {
     storageService.getSpace().transaction(() => {
       const change = this.setItemField(

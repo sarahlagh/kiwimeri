@@ -51,7 +51,11 @@ msgstr "Choose"
 msgid "Choose a new folder"
 msgstr "Choose a new folder"
 
-#: src/constants.ts:65
+#: src/dev-tools/components/LocalChangesCard.tsx:51
+msgid "Clear All"
+msgstr "Clear All"
+
+#: src/constants.ts:66
 msgid "collection"
 msgstr "collection"
 
@@ -73,7 +77,7 @@ msgstr "Configure where to synchronize your collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/constants.ts:60
+#: src/constants.ts:61
 msgid "Conflicts"
 msgstr "Conflicts"
 
@@ -81,21 +85,26 @@ msgstr "Conflicts"
 msgid "Debug"
 msgstr "Debug"
 
-#: src/constants.ts:59
+#: src/constants.ts:60
 msgid "Default"
 msgstr "Default"
 
+#: src/app/pages/DevToolsPage.tsx:15
 #: src/app/components/MainMenuList.tsx:85
 msgid "Dev Tools"
 msgstr "Dev Tools"
 
-#: src/dev-tools/components/DevTools.tsx:24
+#: src/dev-tools/components/DevTools.tsx:28
 msgid "Dev Tools Enabled"
 msgstr "Dev Tools Enabled"
 
 #: src/common/modals/ConfirmMultipleImportModal.tsx:173
 msgid "Do you want to import your content inside a new folder?"
 msgstr "Do you want to import your content inside a new folder?"
+
+#: src/dev-tools/components/LogsCard.tsx:92
+msgid "Download Logs"
+msgstr "Download Logs"
 
 #: src/common/wysiwyg/pages/KiwimeriPagesBrowserPlugin.tsx:69
 msgid "empty doc"
@@ -143,7 +152,7 @@ msgstr "File not supported"
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/constants.ts:58
+#: src/constants.ts:59
 msgid "Home"
 msgstr "Home"
 
@@ -175,6 +184,10 @@ msgstr "Include metadata in zip"
 msgid "Incorrect Metadata"
 msgstr "Incorrect Metadata"
 
+#: src/dev-tools/components/LocalChangesCard.tsx:85
+msgid "item doesn't exist"
+msgstr "item doesn't exist"
+
 #: src/settings/components/sections/ImportExportCollectionSettings.tsx:47
 msgid "Kiwimeri format (single file)"
 msgstr "Kiwimeri format (single file)"
@@ -186,6 +199,14 @@ msgstr "Leave empty for root"
 #: src/app/components/Loading.tsx:4
 msgid "Loading..."
 msgstr "Loading..."
+
+#: src/dev-tools/components/LocalChangesCard.tsx:31
+msgid "Local Changes"
+msgstr "Local Changes"
+
+#: src/dev-tools/components/LogsCard.tsx:52
+msgid "Logs"
+msgstr "Logs"
 
 #: src/settings/components/sections/ImportExportStoreSettings.tsx:51
 msgid "Manually backup or restore your app settings"
@@ -216,11 +237,11 @@ msgstr "Name"
 msgid "new"
 msgstr "new"
 
-#: src/constants.ts:61
+#: src/constants.ts:62
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:62
+#: src/constants.ts:63
 msgid "New folder"
 msgstr "New folder"
 
@@ -268,11 +289,15 @@ msgstr "nuke space & remote"
 msgid "nuke store"
 msgstr "nuke store"
 
+#: src/dev-tools/components/LocalChangesCard.tsx:36
+msgid "Number of changes:"
+msgstr "Number of changes:"
+
 #: src/settings/components/sections/OperationsSettings.tsx:16
 msgid "Operations"
 msgstr "Operations"
 
-#: src/constants.ts:64
+#: src/constants.ts:65
 msgid "page"
 msgstr "page"
 
@@ -329,6 +354,7 @@ msgstr "Select item tags"
 msgid "Server"
 msgstr "Server"
 
+#: src/app/pages/SettingsPage.tsx:9
 #: src/app/components/MainMenuList.tsx:69
 msgid "Settings"
 msgstr "Settings"

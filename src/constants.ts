@@ -28,6 +28,7 @@ import {
   moonOutline,
   moonSharp,
   pricetagsOutline,
+  receiptOutline,
   sendOutline,
   settingsSharp,
   syncCircleOutline,
@@ -76,6 +77,7 @@ export const APPICONS = {
   document: documentTextOutline,
   folder: folderSharp,
   notebook: fileTrayStackedOutline,
+  page: receiptOutline,
   itemActions: ellipsisVertical,
   goToCurrentFolder: locateOutline,
   deleteAction: trashOutline,
@@ -109,6 +111,7 @@ export const APPICONS_PER_TYPE = new Map<CollectionItemTypeValues, string>();
 APPICONS_PER_TYPE.set(CollectionItemType.document, APPICONS.document);
 APPICONS_PER_TYPE.set(CollectionItemType.folder, APPICONS.folder);
 APPICONS_PER_TYPE.set(CollectionItemType.notebook, APPICONS.notebook);
+APPICONS_PER_TYPE.set(CollectionItemType.page, APPICONS.page);
 
 export const ARIA_DESCRIPTIONS_PER_TYPE = new Map<
   CollectionItemTypeValues,

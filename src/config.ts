@@ -9,6 +9,7 @@ import {
   NEW_FOLDER_TITLE,
   ROOT_FOLDER_TITLE
 } from './constants';
+import { AppLogLevel } from './log';
 import { LayerTypes } from './remote-storage/storage-filesystem.factory';
 
 // hack to override VITE_ vars with docker container env
@@ -23,7 +24,7 @@ const dynConfig = {
 
 class AppConfig implements ImportMetaEnv {
   KIWIMERI_VERSION = '0.0.0';
-  LOG_LEVEL: 'trace' | 'debug' | 'info' | 'warn' | 'error' = 'info';
+  LOG_LEVEL: AppLogLevel = 'info';
   IS_RELEASE = false;
   INTERNAL_HTTP_PROXY?: string;
   DEV_USE_HTTP_IF_POSSIBLE = false;

@@ -1,6 +1,6 @@
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
-import { appLog } from '@/log';
+import { appLog, AppLogLevel } from '@/log';
 
 const logLevels = {
   trace: 1000,
@@ -14,18 +14,14 @@ type Method = (message?: any, ...optionalParams: any[]) => void;
 const originalConsole = { ...console };
 
 const fnFactory =
-  (origMethod: Method, level: 'trace' | 'debug' | 'info' | 'warn' | 'error') =>
+  (origMethod: Method, level: AppLogLevel) =>
   (message?: any, ...optionalParams: any[]) => {
     if (logLevels[appConfig.LOG_LEVEL] >= logLevels[level]) {
       if (optionalParams) {
-        if (platformService.isAndroid()) {
-          appLog.addLog(level, message, optionalParams);
-        }
+        appLog.addLog(level, message, optionalParams);
         origMethod(message, ...optionalParams);
       } else {
-        if (platformService.isAndroid()) {
-          appLog.addLog(level, message);
-        }
+        appLog.addLog(level, message);
         origMethod(message);
       }
     }
