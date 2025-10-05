@@ -65,7 +65,6 @@ class RemotesService {
       if (!this.networkListener) {
         this.networkListener = networkService.onStatusUp(
           () => {
-            // do i still need the setTimeout here?
             setTimeout(async () => {
               console.log(
                 '[storage] network connected - will attempt to re init remotes'

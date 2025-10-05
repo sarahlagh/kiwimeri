@@ -60,10 +60,8 @@ class UserSettingsService {
   }
 
   public getInternalProxy() {
-    return (
-      storageService.getStore().getValue('internalProxy')?.valueOf() ||
-      appConfig.INTERNAL_HTTP_PROXY
-    );
+    const val = storageService.getStore().getValue('internalProxy')?.valueOf();
+    return val !== undefined ? val : appConfig.INTERNAL_HTTP_PROXY;
   }
 }
 

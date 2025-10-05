@@ -1,3 +1,4 @@
+import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
 import { APPICONS } from '@/constants';
 import remotesService from '@/db/remotes.service';
@@ -25,25 +26,20 @@ const valueConfigMap: { [key in StoreValue]?: string } = {
 
 const getValue = (v: ValueIdFromSchema<StoreType[1]>) => {
   if (valueConfigMap[v]) {
-    return (
-      storageService.getStore().getValue(v) || appConfig[valueConfigMap[v]]
-    );
+    const val = storageService.getStore().getValue(v);
+    return val !== undefined ? val : appConfig[valueConfigMap[v]];
   }
   return storageService.getStore().getValue(v);
 };
 
 const getNewValueOrDefault = (
   v: ValueIdFromSchema<StoreType[1]>,
-  type: 'string' | 'boolean' | 'number',
   newValue?: string | boolean | number
 ) => {
-  if (!valueConfigMap[v]) {
+  if (valueConfigMap[v] === undefined) {
     return newValue;
   }
-  if (type === 'string' && (!newValue || (newValue as string).length === 0)) {
-    return appConfig[valueConfigMap[v]!];
-  }
-  if (type === 'number' || (type === 'boolean' && newValue === undefined)) {
+  if (newValue === undefined) {
     return appConfig[valueConfigMap[v]!];
   }
   return newValue;
@@ -106,17 +102,24 @@ const ConfigValue = ({
 
 const ConfigCard = () => {
   const { t } = useLingui();
-  const rows: ConfigRowType[] = [
-    {
+  const rows: ConfigRowType[] = [];
+  if (platformService.isWeb()) {
+    rows.push({
       key: 'internalProxy',
       type: 'string',
       label: t`Internal proxy`,
       onChange: async () => {
         await remotesService.onReinit();
       }
-    },
-    { key: 'maxLogHistory', type: 'number', label: t`Max log history`, min: 0 }
-  ];
+    });
+  } else {
+    rows.push({
+      key: 'maxLogHistory',
+      type: 'number',
+      label: t`Max log history`,
+      min: 0
+    });
+  }
 
   const [state, setState] = useState<{
     [key in StoreValue]?: string | number | boolean;
@@ -138,11 +141,8 @@ const ConfigCard = () => {
           rows.forEach(row => {
             const [changed, , newValue] = getValueChange(row.key);
             if (changed) {
-              state[row.key] = getNewValueOrDefault(
-                row.key,
-                row.type,
-                newValue
-              );
+              state[row.key] = getNewValueOrDefault(row.key, newValue);
+              console.debug('value changed', row.key, state[row.key]);
               setState({ ...state });
               if (row.onChange) {
                 setTimeout(row.onChange);
