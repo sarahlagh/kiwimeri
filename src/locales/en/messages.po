@@ -59,7 +59,7 @@ msgstr "Clear All"
 msgid "collection"
 msgstr "collection"
 
-#: src/app/components/MainMenuList.tsx:58
+#: src/app/components/MainMenuList.tsx:56
 msgid "Collection"
 msgstr "Collection"
 
@@ -81,16 +81,12 @@ msgstr "Confirm"
 msgid "Conflicts"
 msgstr "Conflicts"
 
-#: src/app/components/MainMenuList.tsx:77
-msgid "Debug"
-msgstr "Debug"
-
 #: src/constants.ts:60
 msgid "Default"
 msgstr "Default"
 
 #: src/app/pages/DevToolsPage.tsx:15
-#: src/app/components/MainMenuList.tsx:85
+#: src/app/components/MainMenuList.tsx:75
 msgid "Dev Tools"
 msgstr "Dev Tools"
 
@@ -355,7 +351,7 @@ msgid "Server"
 msgstr "Server"
 
 #: src/app/pages/SettingsPage.tsx:9
-#: src/app/components/MainMenuList.tsx:69
+#: src/app/components/MainMenuList.tsx:67
 msgid "Settings"
 msgstr "Settings"
 

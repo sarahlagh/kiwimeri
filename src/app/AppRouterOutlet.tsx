@@ -1,5 +1,4 @@
 import {
-  DEBUG_ROUTE,
   DEV_TOOLS_ROUTE,
   DOCUMENT_ROUTE,
   FOLDER_ROUTE,
@@ -8,7 +7,6 @@ import {
 import { IonRouterOutlet } from '@ionic/react';
 import { Redirect, Route } from 'react-router';
 import CollectionListPage from './pages/CollectionListPage';
-import DebugPage from './pages/DebugPage';
 import DevToolsPage from './pages/DevToolsPage';
 import DocumentEditorPage from './pages/DocumentEditorPage';
 import SettingsPage from './pages/SettingsPage';
@@ -22,7 +20,6 @@ const AppRouterOutlet = () => (
       <DocumentEditorPage />
     </Route>
     <Route path={SETTINGS_ROUTE} component={SettingsPage} />
-    <Route path={DEBUG_ROUTE} component={DebugPage} />
     <Route path={DEV_TOOLS_ROUTE} component={DevToolsPage} />
     <Redirect exact from="/" to={FOLDER_ROUTE} />
   </IonRouterOutlet>

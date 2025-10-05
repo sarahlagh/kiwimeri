@@ -83,7 +83,7 @@ class StorageService {
       .setValuesSchema({
         theme: { type: 'string', default: 'dark' },
         showDevTools: { type: 'boolean', default: false },
-        maxLogHistory: { type: 'number', default: 1000 },
+        maxLogHistory: { type: 'number', default: 500 },
         currentSpace: { type: 'string', default: DEFAULT_SPACE_ID },
         exportIncludeMetadata: { type: 'boolean', default: true },
         exportInlinePages: { type: 'boolean', default: true }

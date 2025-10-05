@@ -1,13 +1,11 @@
 import { useLocation } from 'react-router-dom';
 
 import {
-  DEBUG_ROUTE,
   DEV_TOOLS_ROUTE,
   GET_ITEM_ROUTE,
   isCollectionRoute,
   SETTINGS_ROUTE
 } from '@/common/routes';
-import platformService from '@/common/services/platform.service';
 import CatchClickLabel from '@/common/utils/CatchClickLabel';
 import { appConfig } from '@/config';
 import { APPICONS } from '@/constants';
@@ -71,14 +69,6 @@ const MainMenuList = () => {
       icon: APPICONS.settingsPage
     }
   ];
-  if (!platformService.isRelease()) {
-    appPages.push({
-      key: 'debug',
-      title: t`Debug`,
-      url: DEBUG_ROUTE,
-      icon: APPICONS.devToolsPage
-    });
-  }
   if (showDevTools) {
     appPages.push({
       key: 'devtools',
