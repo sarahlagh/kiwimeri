@@ -1,5 +1,9 @@
 import storageService from './storage.service';
-import { useCellWithRef, useSliceRowIdsWithRef } from './tinybase/hooks';
+import {
+  useCellWithRef,
+  useResultSortedRowIdsWithRef,
+  useSliceRowIdsWithRef
+} from './tinybase/hooks';
 import { LocalChange, LocalChangeType } from './types/store-types';
 
 class LocalChangesService {
@@ -126,6 +130,24 @@ class LocalChangesService {
     return rowIds.map(rowId => ({ ...table[rowId], id: rowId }) as LocalChange);
   }
 
+  public useLocalChanges(
+    offset?: number | undefined,
+    limit?: number | undefined
+  ) {
+    const space = storageService.getSpaceId();
+    const table = storageService.getStore().getTable(this.table);
+    const queryName = this.fetchAllLocalChangesQuery(space);
+
+    return useResultSortedRowIdsWithRef(
+      this.storeId,
+      queryName,
+      'updated',
+      true,
+      offset,
+      limit
+    ).map(rowId => ({ ...table[rowId], id: rowId }) as LocalChange);
+  }
+
   public useHasLocalChanges() {
     this.reInitIndex();
     const space = storageService.getSpaceId();
@@ -150,15 +172,6 @@ class LocalChangesService {
         storageService.getStore().delRow(this.table, rowId);
       });
     });
-
-    // clear queries
-    const queryIds = storageService
-      .getStoreQueries()
-      .getQueryIds()
-      .filter(queryId => queryId.startsWith(`${this.queryPrefix}For${space}`));
-    for (const queryId of queryIds) {
-      storageService.getStoreQueries().delQueryDefinition(queryId);
-    }
   }
 
   public useLastLocalChange() {

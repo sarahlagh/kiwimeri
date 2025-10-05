@@ -13,8 +13,8 @@ import {
 } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 import { useHistory } from 'react-router';
-import LocalChangesCard from './LocalChangesCard';
 import LogsCard from './LogsCard';
+import OperationCard from './OperationsCard';
 
 const DevTools = () => {
   const history = useHistory();
@@ -38,28 +38,31 @@ const DevTools = () => {
         </IonCardContent>
       </IonCard>
 
-      <LocalChangesCard />
       {!platformService.isDev() && <LogsCard />}
 
       {!platformService.isRelease() && (
-        <IonCard>
-          <IonCardHeader>
-            <IonCardTitle>Debug</IonCardTitle>
-          </IonCardHeader>
-          <IonCardContent>
-            <p>(capacitor) platform: {platformService.getPlatform()}</p>
-            <p>(ionic) platforms: {JSON.stringify(getPlatforms())}</p>
-            <p>is dev: {platformService.isDev() ? 'yes' : 'no'}</p>
-            <p>is android: {platformService.isAndroid() ? 'yes' : 'no'}</p>
-            <p>is web: {platformService.isWeb() ? 'yes' : 'no'}</p>
-            <p>is electron: {platformService.isElectron() ? 'yes' : 'no'}</p>
-            <p>is wide: {platformService.isWideEnough() ? 'yes' : 'no'}</p>
-            <p>
-              sync enabled: {platformService.isSyncEnabled() ? 'yes' : 'no'}
-            </p>
-            <p>config: {JSON.stringify(appConfig)}</p>
-          </IonCardContent>
-        </IonCard>
+        <>
+          <IonCard>
+            <IonCardHeader>
+              <IonCardTitle>Debug</IonCardTitle>
+            </IonCardHeader>
+            <IonCardContent>
+              <p>(capacitor) platform: {platformService.getPlatform()}</p>
+              <p>(ionic) platforms: {JSON.stringify(getPlatforms())}</p>
+              <p>is dev: {platformService.isDev() ? 'yes' : 'no'}</p>
+              <p>is android: {platformService.isAndroid() ? 'yes' : 'no'}</p>
+              <p>is web: {platformService.isWeb() ? 'yes' : 'no'}</p>
+              <p>is electron: {platformService.isElectron() ? 'yes' : 'no'}</p>
+              <p>is wide: {platformService.isWideEnough() ? 'yes' : 'no'}</p>
+              <p>
+                sync enabled: {platformService.isSyncEnabled() ? 'yes' : 'no'}
+              </p>
+              <p>config: {JSON.stringify(appConfig)}</p>
+            </IonCardContent>
+          </IonCard>
+
+          <OperationCard />
+        </>
       )}
     </>
   );

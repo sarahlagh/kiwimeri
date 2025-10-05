@@ -17,7 +17,7 @@ msgstr ""
 msgid "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 msgstr "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 
-#: src/settings/components/providers/RemotesSettings.tsx:102
+#: src/synchronization/components/providers/RemotesSettings.tsx:102
 msgid "Add config"
 msgstr "Add config"
 
@@ -51,19 +51,19 @@ msgstr "Choose"
 msgid "Choose a new folder"
 msgstr "Choose a new folder"
 
-#: src/dev-tools/components/LocalChangesCard.tsx:52
+#: src/synchronization/components/LocalChangesCard.tsx:56
 msgid "Clear All"
 msgstr "Clear All"
 
-#: src/constants.ts:66
+#: src/constants.ts:67
 msgid "collection"
 msgstr "collection"
 
-#: src/app/components/MainMenuList.tsx:56
+#: src/app/components/MainMenuList.tsx:57
 msgid "Collection"
 msgstr "Collection"
 
-#: src/settings/components/providers/RemotesSettings.tsx:57
+#: src/synchronization/components/providers/RemotesSettings.tsx:57
 msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
 
@@ -77,16 +77,20 @@ msgstr "Configure where to synchronize your collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/constants.ts:61
+#: src/constants.ts:62
 msgid "Conflicts"
 msgstr "Conflicts"
 
-#: src/constants.ts:60
+#: src/constants.ts:61
 msgid "Default"
 msgstr "Default"
 
+#: src/synchronization/components/LocalChangesCard.tsx:89
+msgid "deleted item"
+msgstr "deleted item"
+
 #: src/app/pages/DevToolsPage.tsx:15
-#: src/app/components/MainMenuList.tsx:75
+#: src/app/components/MainMenuList.tsx:82
 msgid "Dev Tools"
 msgstr "Dev Tools"
 
@@ -110,11 +114,11 @@ msgstr "empty doc"
 msgid "empty page"
 msgstr "empty page"
 
-#: src/settings/components/providers/PCloudSettings.tsx:131
+#: src/synchronization/components/providers/PCloudSettings.tsx:131
 msgid "Enter your password"
 msgstr "Enter your password"
 
-#: src/settings/components/providers/PCloudSettings.tsx:118
+#: src/synchronization/components/providers/PCloudSettings.tsx:118
 msgid "Enter your username"
 msgstr "Enter your username"
 
@@ -126,7 +130,7 @@ msgstr "Error writing to file"
 msgid "Errors have been detected on the following files:"
 msgstr "Errors have been detected on the following files:"
 
-#: src/settings/components/providers/PCloudSettings.tsx:88
+#: src/synchronization/components/providers/PCloudSettings.tsx:88
 msgid "EU"
 msgstr "EU"
 
@@ -148,7 +152,7 @@ msgstr "File not supported"
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/constants.ts:59
+#: src/constants.ts:60
 msgid "Home"
 msgstr "Home"
 
@@ -180,15 +184,11 @@ msgstr "Include metadata in zip"
 msgid "Incorrect Metadata"
 msgstr "Incorrect Metadata"
 
-#: src/dev-tools/components/LocalChangesCard.tsx:86
-msgid "item doesn't exist"
-msgstr "item doesn't exist"
-
 #: src/settings/components/sections/ImportExportCollectionSettings.tsx:47
 msgid "Kiwimeri format (single file)"
 msgstr "Kiwimeri format (single file)"
 
-#: src/settings/components/providers/PCloudSettings.tsx:106
+#: src/synchronization/components/providers/PCloudSettings.tsx:106
 msgid "Leave empty for root"
 msgstr "Leave empty for root"
 
@@ -196,7 +196,7 @@ msgstr "Leave empty for root"
 msgid "Loading..."
 msgstr "Loading..."
 
-#: src/dev-tools/components/LocalChangesCard.tsx:32
+#: src/synchronization/components/LocalChangesCard.tsx:36
 msgid "Local Changes"
 msgstr "Local Changes"
 
@@ -224,8 +224,8 @@ msgstr "merged"
 msgid "Metadata found in the archive"
 msgstr "Metadata found in the archive"
 
-#: src/settings/components/providers/RemoteGenericSettings.tsx:109
-#: src/settings/components/providers/RemoteGenericSettings.tsx:112
+#: src/synchronization/components/providers/RemoteGenericSettings.tsx:109
+#: src/synchronization/components/providers/RemoteGenericSettings.tsx:112
 msgid "Name"
 msgstr "Name"
 
@@ -233,11 +233,11 @@ msgstr "Name"
 msgid "new"
 msgstr "new"
 
-#: src/constants.ts:62
+#: src/constants.ts:63
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:63
+#: src/constants.ts:64
 msgid "New folder"
 msgstr "New folder"
 
@@ -273,27 +273,27 @@ msgstr "Notebook Selection"
 msgid "Notebooks found in the archive, they will be converted to folders"
 msgstr "Notebooks found in the archive, they will be converted to folders"
 
-#: src/settings/components/sections/OperationsSettings.tsx:37
+#: src/dev-tools/components/OperationsCard.tsx:37
 msgid "nuke space"
 msgstr "nuke space"
 
-#: src/settings/components/sections/OperationsSettings.tsx:54
+#: src/dev-tools/components/OperationsCard.tsx:54
 msgid "nuke space & remote"
 msgstr "nuke space & remote"
 
-#: src/settings/components/sections/OperationsSettings.tsx:28
+#: src/dev-tools/components/OperationsCard.tsx:28
 msgid "nuke store"
 msgstr "nuke store"
 
-#: src/dev-tools/components/LocalChangesCard.tsx:37
+#: src/synchronization/components/LocalChangesCard.tsx:41
 msgid "Number of changes:"
 msgstr "Number of changes:"
 
-#: src/settings/components/sections/OperationsSettings.tsx:16
+#: src/dev-tools/components/OperationsCard.tsx:16
 msgid "Operations"
 msgstr "Operations"
 
-#: src/constants.ts:65
+#: src/constants.ts:66
 msgid "page"
 msgstr "page"
 
@@ -305,17 +305,17 @@ msgstr "Pages should be in the same file as the document"
 msgid "Parsing Error"
 msgstr "Parsing Error"
 
-#: src/settings/components/providers/PCloudSettings.tsx:124
-#: src/settings/components/providers/PCloudSettings.tsx:128
+#: src/synchronization/components/providers/PCloudSettings.tsx:124
+#: src/synchronization/components/providers/PCloudSettings.tsx:128
 msgid "Password"
 msgstr "Password"
 
-#: src/settings/components/providers/PCloudSettings.tsx:100
-#: src/settings/components/providers/PCloudSettings.tsx:103
+#: src/synchronization/components/providers/PCloudSettings.tsx:100
+#: src/synchronization/components/providers/PCloudSettings.tsx:103
 msgid "Path"
 msgstr "Path"
 
-#: src/settings/components/providers/PCloudSettings.tsx:68
+#: src/synchronization/components/providers/PCloudSettings.tsx:68
 msgid "PCloud Configuration"
 msgstr "PCloud Configuration"
 
@@ -325,11 +325,11 @@ msgstr "PCloud Configuration"
 msgid "Pick a directory for your backups"
 msgstr "Pick a directory for your backups"
 
-#: src/settings/components/providers/RemotesSettings.tsx:54
+#: src/synchronization/components/providers/RemotesSettings.tsx:54
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
-#: src/settings/components/providers/RemotesSettings.tsx:110
+#: src/synchronization/components/providers/RemotesSettings.tsx:110
 msgid "Reorder"
 msgstr "Reorder"
 
@@ -346,12 +346,12 @@ msgstr "Restore Collection"
 msgid "Select item tags"
 msgstr "Select item tags"
 
-#: src/settings/components/providers/PCloudSettings.tsx:77
+#: src/synchronization/components/providers/PCloudSettings.tsx:77
 msgid "Server"
 msgstr "Server"
 
 #: src/app/pages/SettingsPage.tsx:9
-#: src/app/components/MainMenuList.tsx:67
+#: src/app/components/MainMenuList.tsx:74
 msgid "Settings"
 msgstr "Settings"
 
@@ -360,11 +360,16 @@ msgstr "Settings"
 msgid "Success!"
 msgstr "Success!"
 
+#: src/app/pages/SynchronizationPage.tsx:9
+#: src/app/components/MainMenuList.tsx:68
+msgid "Synchronization"
+msgstr "Synchronization"
+
 #: src/settings/components/sections/FilesystemSyncSettings.tsx:23
 msgid "Synchronize your collection on the filesystem"
 msgstr "Synchronize your collection on the filesystem"
 
-#: src/settings/components/providers/RemotesSettings.tsx:62
+#: src/synchronization/components/providers/RemotesSettings.tsx:62
 msgid "Syncing is disabled on the web version."
 msgstr "Syncing is disabled on the web version."
 
@@ -384,12 +389,12 @@ msgstr "This is different than the import / export of the collection. Your colle
 msgid "This will delete your existing data. Are you sure?"
 msgstr "This will delete your existing data. Are you sure?"
 
-#: src/settings/components/providers/PCloudSettings.tsx:93
+#: src/synchronization/components/providers/PCloudSettings.tsx:93
 msgid "US"
 msgstr "US"
 
-#: src/settings/components/providers/PCloudSettings.tsx:112
-#: src/settings/components/providers/PCloudSettings.tsx:115
+#: src/synchronization/components/providers/PCloudSettings.tsx:112
+#: src/synchronization/components/providers/PCloudSettings.tsx:115
 msgid "Username"
 msgstr "Username"
 
@@ -401,6 +406,6 @@ msgstr "Would you like to merge the content of your archive with your existing c
 msgid "yes"
 msgstr "yes"
 
-#: src/settings/components/providers/RemotesSettings.tsx:71
+#: src/synchronization/components/providers/RemotesSettings.tsx:71
 msgid "You have not configured any remote yet."
 msgstr "You have not configured any remote yet."

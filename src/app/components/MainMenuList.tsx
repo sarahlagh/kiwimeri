@@ -4,7 +4,8 @@ import {
   DEV_TOOLS_ROUTE,
   GET_ITEM_ROUTE,
   isCollectionRoute,
-  SETTINGS_ROUTE
+  SETTINGS_ROUTE,
+  SYNCHRONIZATION_ROUTE
 } from '@/common/routes';
 import CatchClickLabel from '@/common/utils/CatchClickLabel';
 import { appConfig } from '@/config';
@@ -61,6 +62,12 @@ const MainMenuList = () => {
       ),
       icon: APPICONS.collectionPage,
       isActive: () => isCollectionRoute(location.pathname)
+    },
+    {
+      key: 'sync',
+      title: t`Synchronization`,
+      url: SYNCHRONIZATION_ROUTE,
+      icon: APPICONS.synchronizationPage
     },
     {
       key: 'settings',

@@ -8,7 +8,7 @@ import {
 } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 
-const OperationSettings = () => {
+const OperationCard = () => {
   return (
     <IonCard>
       <IonCardHeader>
@@ -57,4 +57,4 @@ const OperationSettings = () => {
     </IonCard>
   );
 };
-export default OperationSettings;
+export default OperationCard;

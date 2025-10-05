@@ -16,6 +16,7 @@ import {
   IonCardTitle,
   IonIcon,
   IonItem,
+  IonLabel,
   IonList,
   IonText
 } from '@ionic/react';
@@ -24,6 +25,9 @@ import { Trans, useLingui } from '@lingui/react/macro';
 const LocalChangesCard = () => {
   const { t } = useLingui();
   const isRelease = platformService.isRelease();
+  const isWideEnough = platformService.isWideEnough();
+  const localChanges = localChangesService.useLocalChanges();
+  console.debug('local changes', localChanges);
   // use hook for local changes
   return (
     <IonCard>
@@ -33,11 +37,11 @@ const LocalChangesCard = () => {
         </IonCardTitle>
       </IonCardHeader>
       <IonCardContent>
-        <div>
+        <IonLabel>
           <Trans>Number of changes:</Trans>
-          {' ' + localChangesService.getLocalChanges().length}
-        </div>
-        {localChangesService.getLocalChanges().length > 0 && (
+          {' ' + localChanges.length}
+        </IonLabel>
+        {localChanges.length > 0 && (
           <>
             {/* TODO use this button to actually reset changes when feature is done */}
             {!isRelease && (
@@ -52,9 +56,8 @@ const LocalChangesCard = () => {
                 <Trans>Clear All</Trans>
               </DeleteButton>
             )}
-            {/* TODO add pagination */}
             <IonList style={{ maxHeight: '400px', overflowY: 'auto' }}>
-              {localChangesService.getLocalChanges(0, 20).map(lc => {
+              {localChanges.map(lc => {
                 const type = collectionService.getItemType(lc.item);
                 let route, parent, doc;
                 switch (type) {
@@ -83,7 +86,7 @@ const LocalChangesCard = () => {
                           color="warning"
                           icon={APPICONS.warning}
                         ></IonIcon>
-                        <IonText>{t`item doesn't exist`}</IonText>
+                        <IonText>{t`deleted item`}</IonText>
                       </>
                     ) : (
                       <>
@@ -97,7 +100,7 @@ const LocalChangesCard = () => {
                               .getItemTitle(lc.item)
                               .substring(0, 15)}
                           </b>
-                          {platformService.isWideEnough() ? (
+                          {isWideEnough ? (
                             <>
                               {type !== CollectionItemType.page && <br />}
                               <i>
@@ -122,8 +125,13 @@ const LocalChangesCard = () => {
                         </IonText>
                       </>
                     )}
-                    <IonText slot="end">{lc.field || ''}</IonText>
-                    <IonText slot="end">{lc.change}</IonText>
+
+                    {isWideEnough && (
+                      <>
+                        <IonText slot="end">{lc.field || ''}</IonText>
+                        <IonText slot="end">{lc.change}</IonText>
+                      </>
+                    )}
                     <IonText slot="end">
                       {new Date(lc.updated)
                         .toISOString()

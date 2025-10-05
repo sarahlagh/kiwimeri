@@ -20,6 +20,7 @@ import {
   fileTrayStackedOutline,
   folderOpenOutline,
   folderSharp,
+  gitNetworkSharp,
   helpOutline,
   home,
   informationCircleOutline,
@@ -69,6 +70,7 @@ export const DEFAULT_EXPORT_SPACE_FILENAME = msg`collection`;
 export const APPICONS = {
   collectionPage: folderSharp,
   settingsPage: settingsSharp,
+  synchronizationPage: gitNetworkSharp,
   devToolsPage: constructSharp,
   themeLight: moonOutline,
   themeDark: moonSharp,
