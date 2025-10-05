@@ -3,6 +3,7 @@ import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
 import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
+import { appLog } from '@/log';
 import { ReactNode, useEffect, useState } from 'react';
 import { Indexes } from 'tinybase/indexes';
 import { Queries } from 'tinybase/queries';
@@ -18,6 +19,7 @@ const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
       await storageService.start();
       setIsLoading(false);
       await remotesService.initSync();
+      appLog.gc(); // TODO run at interval
     }
     load();
 

@@ -24,6 +24,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 const LocalChangesCard = () => {
   const { t } = useLingui();
   const isRelease = platformService.isRelease();
+  // use hook for local changes
   return (
     <IonCard>
       <IonCardHeader>

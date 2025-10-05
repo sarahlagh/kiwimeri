@@ -51,7 +51,7 @@ msgstr "Choose"
 msgid "Choose a new folder"
 msgstr "Choose a new folder"
 
-#: src/dev-tools/components/LocalChangesCard.tsx:51
+#: src/dev-tools/components/LocalChangesCard.tsx:52
 msgid "Clear All"
 msgstr "Clear All"
 
@@ -102,7 +102,7 @@ msgstr "Dev Tools Enabled"
 msgid "Do you want to import your content inside a new folder?"
 msgstr "Do you want to import your content inside a new folder?"
 
-#: src/dev-tools/components/LogsCard.tsx:92
+#: src/dev-tools/components/LogsCard.tsx:95
 msgid "Download Logs"
 msgstr "Download Logs"
 
@@ -184,7 +184,7 @@ msgstr "Include metadata in zip"
 msgid "Incorrect Metadata"
 msgstr "Incorrect Metadata"
 
-#: src/dev-tools/components/LocalChangesCard.tsx:85
+#: src/dev-tools/components/LocalChangesCard.tsx:86
 msgid "item doesn't exist"
 msgstr "item doesn't exist"
 
@@ -200,11 +200,11 @@ msgstr "Leave empty for root"
 msgid "Loading..."
 msgstr "Loading..."
 
-#: src/dev-tools/components/LocalChangesCard.tsx:31
+#: src/dev-tools/components/LocalChangesCard.tsx:32
 msgid "Local Changes"
 msgstr "Local Changes"
 
-#: src/dev-tools/components/LogsCard.tsx:52
+#: src/dev-tools/components/LogsCard.tsx:55
 msgid "Logs"
 msgstr "Logs"
 
@@ -289,7 +289,7 @@ msgstr "nuke space & remote"
 msgid "nuke store"
 msgstr "nuke store"
 
-#: src/dev-tools/components/LocalChangesCard.tsx:36
+#: src/dev-tools/components/LocalChangesCard.tsx:37
 msgid "Number of changes:"
 msgstr "Number of changes:"
 

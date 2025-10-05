@@ -101,6 +101,7 @@ export type StoreType = [
     theme: { type: 'string'; default: string };
     currentSpace: { type: 'string'; default: string };
     showDevTools: { type: 'boolean'; default: false };
+    maxLogHistory: { type: 'number'; default: 1000 };
     exportIncludeMetadata: { type: 'boolean'; default: true };
     exportInlinePages: { type: 'boolean'; default: true };
   }

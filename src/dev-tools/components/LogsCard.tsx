@@ -1,4 +1,6 @@
 import GenericExportFileButton from '@/common/buttons/GenericExportFileButton';
+import platformService from '@/common/services/platform.service';
+import { APPICONS } from '@/constants';
 import { appLog, AppLogLevel } from '@/log';
 import {
   IonButtons,
@@ -27,6 +29,7 @@ const LogsCard = () => {
     k => stateMap[k as AppLogLevel]
   ) as AppLogLevel[];
   const levels: AppLogLevel[] = ['trace', 'debug', 'info', 'warn', 'error'];
+  const isWideEnough = platformService.isWideEnough();
   const logs = appLog.useLogs(filters);
 
   function getColor(
@@ -89,8 +92,8 @@ const LogsCard = () => {
           getFileTitle={() =>
             `${new Date().toISOString().substring(0, 19).replaceAll(/[:T]/g, '-')}-logs.txt`
           }
-          label={t`Download Logs`}
-          icon={null}
+          label={isWideEnough ? t`Download Logs` : undefined}
+          icon={isWideEnough ? null : APPICONS.export}
           color="primary"
           fill="clear"
         />

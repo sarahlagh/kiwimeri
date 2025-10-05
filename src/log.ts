@@ -43,9 +43,16 @@ class AppLogService {
     return queryName;
   }
 
-  public addLog(level: AppLogLevel, message?: any, optionalParams?: any[]) {
-    // TODO set max number of rows
+  public gc() {
+    const maxLogHistory = storageService.getStore().getValue('maxLogHistory');
+    const rowCount = storageService.getStore().getRowCount(this.table);
+    if (rowCount > maxLogHistory) {
+      console.debug('running log gc', rowCount - maxLogHistory);
+      this.delLogs(rowCount - maxLogHistory);
+    }
+  }
 
+  public addLog(level: AppLogLevel, message?: any, optionalParams?: any[]) {
     storageService.getStore().addRow(this.table, {
       level: this.levelMap[level],
       message: this.format(message, optionalParams),
@@ -80,6 +87,18 @@ class AppLogService {
         return this.asLogResult(rowId, row);
       })
       .filter(l => (filters ? filters.includes(l.longLevelName) : true));
+  }
+
+  private delLogs(limit: number) {
+    const queryName = this.fetchAllLogsQuery();
+    storageService.getStore().transaction(() => {
+      storageService
+        .getStoreQueries()
+        .getResultSortedRowIds(queryName, 'ts', false, 0, limit)
+        .forEach(rowId => {
+          storageService.getStore().delRow(this.table, rowId);
+        });
+    });
   }
 
   private asLogResult(rowId: string, row: Row) {
