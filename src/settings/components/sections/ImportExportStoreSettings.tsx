@@ -1,5 +1,6 @@
 import GenericExportFileButton from '@/common/buttons/GenericExportFileButton';
 import GenericImportFileButton from '@/common/buttons/GenericImportFileButton';
+import { dateToStr } from '@/common/utils';
 import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
 import {
@@ -16,7 +17,7 @@ const ImportExportCollectionSettings = () => {
   const { t } = useLingui();
 
   const getExportFileName = () =>
-    `${new Date().toISOString().substring(0, 19).replaceAll(/[:T]/g, '-')}-${exportFileSuffix}.json`;
+    `${dateToStr('iso')}-${exportFileSuffix}.json`;
 
   const exportFileSuffix = 'app-settings';
   const onRestoreContent = async (content: string) => {

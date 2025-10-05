@@ -78,3 +78,21 @@ export const unminimizeKeys = (
   });
   return m;
 };
+
+export const dateLocale = 'fr-FR'; // TODO config
+export const dateToStr = (
+  format: 'time' | 'date' | 'datetime' | 'iso',
+  ts?: number
+) => {
+  const date = ts ? new Date(ts) : new Date();
+  switch (format) {
+    case 'date':
+      return date.toLocaleDateString(dateLocale);
+    case 'time':
+      return date.toLocaleTimeString(dateLocale);
+    case 'datetime':
+      return date.toLocaleString(dateLocale);
+    case 'iso':
+      return date.toISOString().substring(0, 19).replaceAll(/[:T]/g, '-');
+  }
+};

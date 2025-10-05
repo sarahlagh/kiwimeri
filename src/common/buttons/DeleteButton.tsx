@@ -10,7 +10,10 @@ type DeleteButtonProps = {
   message?: string;
   color?: string;
   fill?: 'clear' | 'outline' | 'solid' | 'default';
-} & { readonly children?: ReactNode };
+  disabled?: boolean;
+} & React.HTMLAttributes<HTMLIonButtonElement> & {
+    readonly children?: ReactNode;
+  };
 
 const DeleteButton = ({
   trigger,
@@ -18,12 +21,19 @@ const DeleteButton = ({
   onClose,
   color,
   fill,
+  disabled = false,
   message,
   children
 }: DeleteButtonProps) => {
   return (
     <>
-      <IonButton id={trigger} expand="block" color={color} fill={fill}>
+      <IonButton
+        id={trigger}
+        expand="block"
+        disabled={disabled}
+        color={color}
+        fill={fill}
+      >
         {children}
         <IonIcon icon={APPICONS.deleteAction}></IonIcon>
       </IonButton>

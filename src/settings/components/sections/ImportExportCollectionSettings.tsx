@@ -3,6 +3,7 @@ import ExportItemsButton from '@/common/buttons/ExportItemsButton';
 import GenericExportFileButton from '@/common/buttons/GenericExportFileButton';
 import RestoreCollectionButton from '@/common/buttons/RestoreCollectionButton';
 import platformService from '@/common/services/platform.service';
+import { dateToStr } from '@/common/utils';
 import storageService from '@/db/storage.service';
 import {
   IonButtons,
@@ -21,7 +22,7 @@ const ImportExportCollectionSettings = () => {
 
   const exportFileSuffix = `${platformService.getPlatform()}-backup`;
   const getExportFileName = () =>
-    `${new Date().toISOString().substring(0, 19).replaceAll(/[:T]/g, '-')}-${exportFileSuffix}.json`;
+    `${dateToStr('iso')}-${exportFileSuffix}.json`;
 
   const getContentToExport = async () => {
     return storageService.getSpace().getJson();

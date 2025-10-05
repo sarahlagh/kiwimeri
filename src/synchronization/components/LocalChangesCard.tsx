@@ -6,9 +6,11 @@ import {
   GET_PAGE_ROUTE
 } from '@/common/routes';
 import platformService from '@/common/services/platform.service';
+import { dateToStr } from '@/common/utils';
 import { APPICONS, APPICONS_PER_TYPE } from '@/constants';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/local-changes.service';
+import remotesService from '@/db/remotes.service';
 import {
   IonCard,
   IonCardContent,
@@ -27,35 +29,37 @@ const LocalChangesCard = () => {
   const isRelease = platformService.isRelease();
   const isWideEnough = platformService.isWideEnough();
   const localChanges = localChangesService.useLocalChanges();
-  console.debug('local changes', localChanges);
-  // use hook for local changes
+  const lastLocalChange = localChangesService.useLastLocalChange();
+  const lastRemoteChange = remotesService.usePrimaryLastRemoteChange();
+  const weightLocal = lastRemoteChange >= lastLocalChange ? 'normal' : 'bold';
+  const weightRemote = lastRemoteChange < lastLocalChange ? 'normal' : 'bold';
   return (
     <IonCard>
       <IonCardHeader>
         <IonCardTitle>
-          <Trans>Local Changes</Trans>
+          <Trans>Local Changes ({localChanges.length})</Trans>
         </IonCardTitle>
       </IonCardHeader>
       <IonCardContent>
-        <IonLabel>
-          <Trans>Number of changes:</Trans>
-          {' ' + localChanges.length}
-        </IonLabel>
+        <IonItem lines="none">
+          <IonLabel slot="start" style={{ fontWeight: weightLocal }}>
+            <Trans>
+              Local:&nbsp;
+              {dateToStr('datetime', lastLocalChange)}
+            </Trans>
+          </IonLabel>
+
+          <IonLabel slot="end" style={{ fontWeight: weightRemote }}>
+            <Trans>
+              Remote:&nbsp;
+              {dateToStr('datetime', lastRemoteChange)}
+            </Trans>
+          </IonLabel>
+        </IonItem>
+        {/* TODO use this button to actually reset changes when feature is done */}
+
         {localChanges.length > 0 && (
           <>
-            {/* TODO use this button to actually reset changes when feature is done */}
-            {!isRelease && (
-              <DeleteButton
-                color="danger"
-                trigger={`del-clear`}
-                message={`This might create syncing problems`}
-                onConfirm={() => {
-                  localChangesService.clear();
-                }}
-              >
-                <Trans>Clear All</Trans>
-              </DeleteButton>
-            )}
             <IonList style={{ maxHeight: '400px', overflowY: 'auto' }}>
               {localChanges.map(lc => {
                 const type = collectionService.getItemType(lc.item);
@@ -133,15 +137,26 @@ const LocalChangesCard = () => {
                       </>
                     )}
                     <IonText slot="end">
-                      {new Date(lc.updated)
-                        .toISOString()
-                        .substring(0, 19)
-                        .replace('T', ' ')}
+                      {dateToStr('datetime', lc.updated)}
                     </IonText>
                   </IonItem>
                 );
               })}
             </IonList>
+            {!isRelease && (
+              <IonItem lines="none">
+                <DeleteButton
+                  color="danger"
+                  trigger={`del-clear`}
+                  message={`This might create syncing problems`}
+                  onConfirm={() => {
+                    localChangesService.clear();
+                  }}
+                >
+                  <Trans>Clear All</Trans>
+                </DeleteButton>
+              </IonItem>
+            )}
           </>
         )}
       </IonCardContent>

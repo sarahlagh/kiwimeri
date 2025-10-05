@@ -51,7 +51,7 @@ msgstr "Choose"
 msgid "Choose a new folder"
 msgstr "Choose a new folder"
 
-#: src/synchronization/components/LocalChangesCard.tsx:56
+#: src/synchronization/components/LocalChangesCard.tsx:156
 msgid "Clear All"
 msgstr "Clear All"
 
@@ -85,7 +85,7 @@ msgstr "Conflicts"
 msgid "Default"
 msgstr "Default"
 
-#: src/synchronization/components/LocalChangesCard.tsx:89
+#: src/synchronization/components/LocalChangesCard.tsx:93
 msgid "deleted item"
 msgstr "deleted item"
 
@@ -102,7 +102,7 @@ msgstr "Dev Tools Enabled"
 msgid "Do you want to import your content inside a new folder?"
 msgstr "Do you want to import your content inside a new folder?"
 
-#: src/dev-tools/components/LogsCard.tsx:95
+#: src/dev-tools/components/LogsCard.tsx:94
 msgid "Download Logs"
 msgstr "Download Logs"
 
@@ -134,9 +134,9 @@ msgstr "Errors have been detected on the following files:"
 msgid "EU"
 msgstr "EU"
 
-#: src/settings/components/sections/ImportExportStoreSettings.tsx:68
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:52
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:66
+#: src/settings/components/sections/ImportExportStoreSettings.tsx:69
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:53
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:67
 msgid "Export"
 msgstr "Export"
 
@@ -164,11 +164,11 @@ msgstr "Import {0}.zip in a new Notebook"
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
 
-#: src/settings/components/sections/ImportExportStoreSettings.tsx:48
+#: src/settings/components/sections/ImportExportStoreSettings.tsx:49
 msgid "Import & export your app settings"
 msgstr "Import & export your app settings"
 
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:34
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:35
 msgid "Import & export your collection"
 msgstr "Import & export your collection"
 
@@ -184,7 +184,7 @@ msgstr "Include metadata in zip"
 msgid "Incorrect Metadata"
 msgstr "Incorrect Metadata"
 
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:47
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:48
 msgid "Kiwimeri format (single file)"
 msgstr "Kiwimeri format (single file)"
 
@@ -196,23 +196,27 @@ msgstr "Leave empty for root"
 msgid "Loading..."
 msgstr "Loading..."
 
-#: src/synchronization/components/LocalChangesCard.tsx:36
-msgid "Local Changes"
-msgstr "Local Changes"
+#: src/synchronization/components/LocalChangesCard.tsx:40
+msgid "Local Changes ({0})"
+msgstr "Local Changes ({0})"
 
-#: src/dev-tools/components/LogsCard.tsx:55
+#: src/synchronization/components/LocalChangesCard.tsx:46
+msgid "Local: {0}"
+msgstr "Local: {0}"
+
+#: src/dev-tools/components/LogsCard.tsx:56
 msgid "Logs"
 msgstr "Logs"
 
-#: src/settings/components/sections/ImportExportStoreSettings.tsx:51
+#: src/settings/components/sections/ImportExportStoreSettings.tsx:52
 msgid "Manually backup or restore your app settings"
 msgstr "Manually backup or restore your app settings"
 
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:37
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:38
 msgid "Manually backup or restore your collection in the format of your choice"
 msgstr "Manually backup or restore your collection in the format of your choice"
 
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:61
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:62
 msgid "Markdown (Kiwimeri flavor)"
 msgstr "Markdown (Kiwimeri flavor)"
 
@@ -285,10 +289,6 @@ msgstr "nuke space & remote"
 msgid "nuke store"
 msgstr "nuke store"
 
-#: src/synchronization/components/LocalChangesCard.tsx:41
-msgid "Number of changes:"
-msgstr "Number of changes:"
-
 #: src/dev-tools/components/OperationsCard.tsx:16
 msgid "Operations"
 msgstr "Operations"
@@ -329,11 +329,15 @@ msgstr "Pick a directory for your backups"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
+#: src/synchronization/components/LocalChangesCard.tsx:53
+msgid "Remote: {0}"
+msgstr "Remote: {0}"
+
 #: src/synchronization/components/providers/RemotesSettings.tsx:110
 msgid "Reorder"
 msgstr "Reorder"
 
-#: src/settings/components/sections/ImportExportStoreSettings.tsx:78
+#: src/settings/components/sections/ImportExportStoreSettings.tsx:79
 #: src/common/buttons/RestoreCollectionButton.tsx:93
 msgid "Restore"
 msgstr "Restore"
@@ -381,7 +385,7 @@ msgstr "Text..."
 msgid "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 msgstr "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 
-#: src/settings/components/sections/ImportExportStoreSettings.tsx:55
+#: src/settings/components/sections/ImportExportStoreSettings.tsx:56
 msgid "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page, including the settings for your cloud provider."
 msgstr "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page, including the settings for your cloud provider."
 

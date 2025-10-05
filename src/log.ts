@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { Row } from 'tinybase/store';
+import { dateToStr } from './common/utils';
 import storageService from './db/storage.service';
 import {
   useResultSortedRowIdsWithRef,
@@ -135,7 +136,7 @@ class AppLogService {
 
   public printLogs(filters?: AppLogLevel[]) {
     return this.getLogs(filters)
-      .map(l => `${l.level} ${new Date(l.ts).toLocaleString()} ${l.message}`)
+      .map(l => `${l.level} ${dateToStr('datetime', l.ts)} ${l.message}`)
       .join('\n');
   }
 }

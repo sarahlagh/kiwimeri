@@ -1,5 +1,6 @@
 import GenericExportFileButton from '@/common/buttons/GenericExportFileButton';
 import platformService from '@/common/services/platform.service';
+import { dateToStr } from '@/common/utils';
 import { APPICONS } from '@/constants';
 import { appLog, AppLogLevel } from '@/log';
 import {
@@ -62,7 +63,7 @@ const LogsCard = () => {
             return (
               <IonText color={color} key={log.id}>
                 <p>
-                  {new Date(log.ts).toLocaleTimeString()} &nbsp;
+                  {dateToStr('time', log.ts)} &nbsp;
                   {log.message}
                 </p>
               </IonText>
@@ -89,9 +90,7 @@ const LogsCard = () => {
         </IonButtons>
         <GenericExportFileButton
           getFileContent={appLog.printLogs(filters)}
-          getFileTitle={() =>
-            `${new Date().toISOString().substring(0, 19).replaceAll(/[:T]/g, '-')}-logs.txt`
-          }
+          getFileTitle={() => `${dateToStr('iso')}-logs.txt`}
           label={isWideEnough ? t`Download Logs` : undefined}
           icon={isWideEnough ? null : APPICONS.export}
           color="primary"
