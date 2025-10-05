@@ -1,5 +1,6 @@
 import { useMediaQueryMatch } from '@/common/hooks/useMediaQueryMatch';
 import { appConfig } from '@/config';
+import userSettingsService from '@/db/user-settings.service';
 import { Capacitor } from '@capacitor/core';
 
 class PlatformService {
@@ -38,7 +39,7 @@ class PlatformService {
   }
 
   public getInternalProxy() {
-    return appConfig.INTERNAL_HTTP_PROXY || '';
+    return userSettingsService.getInternalProxy() || '';
   }
 
   public isSyncEnabled() {

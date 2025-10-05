@@ -63,6 +63,10 @@ msgstr "collection"
 msgid "Collection"
 msgstr "Collection"
 
+#: src/dev-tools/components/ConfigCard.tsx:163
+msgid "Config"
+msgstr "Config"
+
 #: src/synchronization/components/providers/RemotesSettings.tsx:57
 msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
@@ -94,7 +98,7 @@ msgstr "deleted item"
 msgid "Dev Tools"
 msgstr "Dev Tools"
 
-#: src/dev-tools/components/DevTools.tsx:36
+#: src/dev-tools/components/DevTools.tsx:37
 msgid "Dev Tools Enabled"
 msgstr "Dev Tools Enabled"
 
@@ -102,7 +106,7 @@ msgstr "Dev Tools Enabled"
 msgid "Do you want to import your content inside a new folder?"
 msgstr "Do you want to import your content inside a new folder?"
 
-#: src/dev-tools/components/LogsCard.tsx:94
+#: src/dev-tools/components/LogsCard.tsx:93
 msgid "Download Logs"
 msgstr "Download Logs"
 
@@ -184,6 +188,10 @@ msgstr "Include metadata in zip"
 msgid "Incorrect Metadata"
 msgstr "Incorrect Metadata"
 
+#: src/dev-tools/components/ConfigCard.tsx:113
+msgid "Internal proxy"
+msgstr "Internal proxy"
+
 #: src/settings/components/sections/ImportExportCollectionSettings.tsx:48
 msgid "Kiwimeri format (single file)"
 msgstr "Kiwimeri format (single file)"
@@ -204,7 +212,7 @@ msgstr "Local Changes ({0})"
 msgid "Local: {0}"
 msgstr "Local: {0}"
 
-#: src/dev-tools/components/LogsCard.tsx:56
+#: src/dev-tools/components/LogsCard.tsx:55
 msgid "Logs"
 msgstr "Logs"
 
@@ -219,6 +227,10 @@ msgstr "Manually backup or restore your collection in the format of your choice"
 #: src/settings/components/sections/ImportExportCollectionSettings.tsx:62
 msgid "Markdown (Kiwimeri flavor)"
 msgstr "Markdown (Kiwimeri flavor)"
+
+#: src/dev-tools/components/ConfigCard.tsx:118
+msgid "Max log history"
+msgstr "Max log history"
 
 #: src/common/modals/ConfirmMultipleImportModal.tsx:96
 msgid "merged"
@@ -276,22 +288,6 @@ msgstr "Notebook Selection"
 #: src/common/modals/ConfirmMultipleImportModal.tsx:143
 msgid "Notebooks found in the archive, they will be converted to folders"
 msgstr "Notebooks found in the archive, they will be converted to folders"
-
-#: src/dev-tools/components/OperationsCard.tsx:37
-msgid "nuke space"
-msgstr "nuke space"
-
-#: src/dev-tools/components/OperationsCard.tsx:54
-msgid "nuke space & remote"
-msgstr "nuke space & remote"
-
-#: src/dev-tools/components/OperationsCard.tsx:28
-msgid "nuke store"
-msgstr "nuke store"
-
-#: src/dev-tools/components/OperationsCard.tsx:16
-msgid "Operations"
-msgstr "Operations"
 
 #: src/constants.ts:66
 msgid "page"

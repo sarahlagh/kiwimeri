@@ -16,6 +16,7 @@ const originalConsole = { ...console };
 const fnFactory =
   (origMethod: Method, level: AppLogLevel) =>
   (message?: any, ...optionalParams: any[]) => {
+    // TODO override log level with user debugLog
     if (logLevels[appConfig.LOG_LEVEL] >= logLevels[level]) {
       if (optionalParams) {
         appLog.addLog(level, message, optionalParams);
@@ -27,7 +28,7 @@ const fnFactory =
     }
   };
 
-if (!platformService.isDev()) {
+if (!platformService.isWeb()) {
   console.trace = fnFactory(originalConsole.trace, 'trace');
   console.debug = fnFactory(originalConsole.debug, 'debug');
   console.log = fnFactory(originalConsole.log, 'info');

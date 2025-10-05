@@ -6,15 +6,12 @@ import {
   IonCardHeader,
   IonCardTitle
 } from '@ionic/react';
-import { Trans } from '@lingui/react/macro';
 
 const OperationCard = () => {
   return (
     <IonCard>
       <IonCardHeader>
-        <IonCardTitle>
-          <Trans>Operations</Trans>
-        </IonCardTitle>
+        <IonCardTitle>Operations</IonCardTitle>
       </IonCardHeader>
 
       <IonButtons>
@@ -25,7 +22,7 @@ const OperationCard = () => {
           }}
           color="danger"
         >
-          <Trans>nuke store</Trans>
+          nuke store
         </IonButton>
         <IonButton
           fill="clear"
@@ -34,7 +31,7 @@ const OperationCard = () => {
           }}
           color="danger"
         >
-          <Trans>nuke space</Trans>
+          nuke space
         </IonButton>
         <IonButton
           fill="clear"
@@ -51,7 +48,7 @@ const OperationCard = () => {
           }}
           color="danger"
         >
-          <Trans>nuke space & remote</Trans>
+          nuke space & remote
         </IonButton>
       </IonButtons>
     </IonCard>

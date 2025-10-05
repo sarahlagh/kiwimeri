@@ -1,10 +1,10 @@
 import platformService from '@/common/services/platform.service';
+import { appConfig } from '@/config';
 import storageService from './storage.service';
 import { useValueWithRef } from './tinybase/hooks';
 
 class UserSettingsService {
   private readonly storeId = 'store';
-  private readonly spacesTable = 'spaces';
 
   public useTheme() {
     return useValueWithRef(this.storeId, 'theme');
@@ -57,6 +57,13 @@ class UserSettingsService {
 
   public setShowDevTools(value: boolean) {
     storageService.getStore().setValue('showDevTools', value);
+  }
+
+  public getInternalProxy() {
+    return (
+      storageService.getStore().getValue('internalProxy')?.valueOf() ||
+      appConfig.INTERNAL_HTTP_PROXY
+    );
   }
 }
 

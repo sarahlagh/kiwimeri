@@ -2,7 +2,7 @@ import GenericExportFileButton from '@/common/buttons/GenericExportFileButton';
 import platformService from '@/common/services/platform.service';
 import { dateToStr } from '@/common/utils';
 import { APPICONS } from '@/constants';
-import { appLog, AppLogLevel } from '@/log';
+import { appLevels, appLog, AppLogLevel } from '@/log';
 import {
   IonButtons,
   IonCard,
@@ -29,7 +29,6 @@ const LogsCard = () => {
   const filters = Object.keys(stateMap).filter(
     k => stateMap[k as AppLogLevel]
   ) as AppLogLevel[];
-  const levels: AppLogLevel[] = ['trace', 'debug', 'info', 'warn', 'error'];
   const isWideEnough = platformService.isWideEnough();
   const logs = appLog.useLogs(filters);
 
@@ -73,7 +72,7 @@ const LogsCard = () => {
       </IonCardContent>
       <IonItem>
         <IonButtons slot="end">
-          {levels.map(level => (
+          {appLevels.map(level => (
             <IonChip
               key={level}
               color={getColor(level)}

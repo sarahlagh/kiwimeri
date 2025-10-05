@@ -13,6 +13,7 @@ import {
 } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 import { useHistory } from 'react-router';
+import ConfigCard from './ConfigCard';
 import LogsCard from './LogsCard';
 import OperationCard from './OperationsCard';
 
@@ -38,7 +39,9 @@ const DevTools = () => {
         </IonCardContent>
       </IonCard>
 
-      {!platformService.isDev() && <LogsCard />}
+      <ConfigCard />
+
+      {!platformService.isWeb() && <LogsCard />}
 
       {!platformService.isRelease() && (
         <>

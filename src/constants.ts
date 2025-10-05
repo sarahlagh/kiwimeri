@@ -87,6 +87,7 @@ export const APPICONS = {
   renameAction: createOutline,
   closeAction: close,
   goIntoAction: folderOpenOutline,
+  resetAction: trashOutline,
   addFolder: albums,
   addDocument: add,
   addGeneric: add,

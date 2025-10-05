@@ -1,4 +1,5 @@
 import { DriverNames } from '@/remote-storage/storage-filesystem.factory';
+import { ValueIdFromSchema } from 'tinybase/@types/_internal/store/with-schemas';
 import { CellSchema } from 'tinybase/with-schemas';
 
 export interface AnyData {
@@ -102,7 +103,10 @@ export type StoreType = [
     currentSpace: { type: 'string'; default: string };
     showDevTools: { type: 'boolean'; default: false };
     maxLogHistory: { type: 'number'; default: 500 };
+    internalProxy: { type: 'string' };
     exportIncludeMetadata: { type: 'boolean'; default: true };
     exportInlinePages: { type: 'boolean'; default: true };
   }
 ];
+
+export type StoreValue = ValueIdFromSchema<StoreType[1]>;
