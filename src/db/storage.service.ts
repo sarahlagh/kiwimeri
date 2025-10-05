@@ -73,6 +73,11 @@ class StorageService {
           state: { type: 'string' } as CellSchema,
           item: { type: 'string' } as CellSchema,
           info: { type: 'string' } as CellSchema
+        },
+        logs: {
+          ts: { type: 'number' } as CellSchema,
+          level: { type: 'string' } as CellSchema,
+          message: { type: 'string' } as CellSchema
         }
       })
       .setValuesSchema({

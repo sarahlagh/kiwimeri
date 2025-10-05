@@ -27,6 +27,7 @@ const LogsCard = () => {
     k => stateMap[k as AppLogLevel]
   ) as AppLogLevel[];
   const levels: AppLogLevel[] = ['trace', 'debug', 'info', 'warn', 'error'];
+  const logs = appLog.useLogs(filters);
 
   function getColor(
     level: AppLogLevel
@@ -44,7 +45,6 @@ const LogsCard = () => {
     return undefined;
   }
 
-  // TODO select log levels
   return (
     <IonCard>
       <IonCardHeader>
@@ -54,10 +54,10 @@ const LogsCard = () => {
       </IonCardHeader>
       <IonCardContent>
         <IonList style={{ maxHeight: '400px', overflowY: 'auto' }}>
-          {appLog.getLogs(filters).map(log => {
-            const color = getColor(log.level);
+          {logs.map(log => {
+            const color = getColor(log.longLevelName);
             return (
-              <IonText color={color} key={log.key}>
+              <IonText color={color} key={log.id}>
                 <p>
                   {new Date(log.ts).toLocaleTimeString()} &nbsp;
                   {log.message}
