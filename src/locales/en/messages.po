@@ -94,7 +94,7 @@ msgstr "Default"
 msgid "Dev Tools"
 msgstr "Dev Tools"
 
-#: src/dev-tools/components/DevTools.tsx:28
+#: src/dev-tools/components/DevTools.tsx:27
 msgid "Dev Tools Enabled"
 msgstr "Dev Tools Enabled"
 

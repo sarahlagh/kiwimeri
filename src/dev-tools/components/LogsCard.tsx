@@ -1,6 +1,7 @@
 import GenericExportFileButton from '@/common/buttons/GenericExportFileButton';
 import { appLog, AppLogLevel } from '@/log';
 import {
+  IonButtons,
   IonCard,
   IonCardContent,
   IonCardHeader,
@@ -48,25 +49,7 @@ const LogsCard = () => {
     <IonCard>
       <IonCardHeader>
         <IonCardTitle>
-          <IonItem lines="none">
-            <Trans>Logs</Trans>
-            <IonText slot="end">
-              {levels.map(level => (
-                <IonChip
-                  key={level}
-                  color={getColor(level)}
-                  outline={stateMap[level]}
-                  onClick={() => {
-                    const newState = { ...stateMap };
-                    newState[level] = !newState[level];
-                    setStateMap(newState);
-                  }}
-                >
-                  {level}
-                </IonChip>
-              ))}
-            </IonText>
-          </IonItem>
+          <Trans>Logs</Trans>
         </IonCardTitle>
       </IonCardHeader>
       <IonCardContent>
@@ -84,15 +67,34 @@ const LogsCard = () => {
           })}
         </IonList>
       </IonCardContent>
-      <GenericExportFileButton
-        getFileContent={appLog.printLogs(filters)}
-        getFileTitle={() =>
-          `${new Date().toISOString().substring(0, 19).replaceAll(/[:T]/g, '-')}-logs.txt`
-        }
-        label={t`Download Logs`}
-        icon={null}
-        fill="clear"
-      />
+      <IonItem>
+        <IonButtons slot="end">
+          {levels.map(level => (
+            <IonChip
+              key={level}
+              color={getColor(level)}
+              outline={stateMap[level]}
+              onClick={() => {
+                const newState = { ...stateMap };
+                newState[level] = !newState[level];
+                setStateMap(newState);
+              }}
+            >
+              {level}
+            </IonChip>
+          ))}
+        </IonButtons>
+        <GenericExportFileButton
+          getFileContent={appLog.printLogs(filters)}
+          getFileTitle={() =>
+            `${new Date().toISOString().substring(0, 19).replaceAll(/[:T]/g, '-')}-logs.txt`
+          }
+          label={t`Download Logs`}
+          icon={null}
+          color="primary"
+          fill="clear"
+        />
+      </IonItem>
     </IonCard>
   );
 };
