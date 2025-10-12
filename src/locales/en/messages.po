@@ -55,7 +55,7 @@ msgstr "Choose a new folder"
 msgid "Clear All"
 msgstr "Clear All"
 
-#: src/constants.ts:67
+#: src/constants.ts:68
 msgid "collection"
 msgstr "collection"
 
@@ -81,11 +81,11 @@ msgstr "Configure where to synchronize your collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/constants.ts:62
+#: src/constants.ts:63
 msgid "Conflicts"
 msgstr "Conflicts"
 
-#: src/constants.ts:61
+#: src/constants.ts:62
 msgid "Default"
 msgstr "Default"
 
@@ -156,7 +156,7 @@ msgstr "File not supported"
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/constants.ts:60
+#: src/constants.ts:61
 msgid "Home"
 msgstr "Home"
 
@@ -249,11 +249,11 @@ msgstr "Name"
 msgid "new"
 msgstr "new"
 
-#: src/constants.ts:63
+#: src/constants.ts:64
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:64
+#: src/constants.ts:65
 msgid "New folder"
 msgstr "New folder"
 
@@ -289,7 +289,7 @@ msgstr "Notebook Selection"
 msgid "Notebooks found in the archive, they will be converted to folders"
 msgstr "Notebooks found in the archive, they will be converted to folders"
 
-#: src/constants.ts:66
+#: src/constants.ts:67
 msgid "page"
 msgstr "page"
 

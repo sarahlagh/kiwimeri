@@ -20,6 +20,7 @@ import {
   fileTrayStackedOutline,
   folderOpenOutline,
   folderSharp,
+  funnelOutline,
   gitNetworkSharp,
   helpOutline,
   home,
@@ -107,7 +108,8 @@ export const APPICONS = {
   info: informationCircleOutline,
   tags: pricetagsOutline,
   export: sendOutline,
-  import: downloadOutline
+  import: downloadOutline,
+  sortFilter: funnelOutline
 };
 
 export const APPICONS_PER_TYPE = new Map<CollectionItemTypeValues, string>();

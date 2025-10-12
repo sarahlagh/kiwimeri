@@ -30,6 +30,18 @@ export interface CollectionItem {
   display_opts_meta?: string;
 }
 
+export type CollectionItemSort =
+  | 'created'
+  | 'updated'
+  | 'title'
+  | 'preview'
+  | 'manual';
+
+export interface CollectionItemDisplayOpts {
+  sortBy: CollectionItemSort;
+  sortAsc: boolean;
+}
+
 export type CollectionItemFieldEnum = keyof Required<
   Omit<CollectionItem, 'id'>
 >;

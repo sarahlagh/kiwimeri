@@ -118,12 +118,18 @@ export const CollectionItemBrowserList = ({
   return (
     <CollectionItemList
       header={
-        <CollectionItemBreadcrumb
-          folder={folder}
-          onClick={item => {
-            history.push(GET_ITEM_ROUTE(item, openedDocument));
-          }}
-        />
+        <IonToolbar className="slim">
+          <CollectionItemBreadcrumb
+            folder={folder}
+            onClick={item => {
+              history.push(GET_ITEM_ROUTE(item, openedDocument));
+            }}
+          />
+
+          <IonButton fill="clear" slot="end" style={{ margin: '0' }}>
+            <IonIcon icon={APPICONS.sortFilter}></IonIcon>
+          </IonButton>
+        </IonToolbar>
       }
       items={items}
       selected={openedDocument}

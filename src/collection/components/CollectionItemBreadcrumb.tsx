@@ -33,7 +33,12 @@ const CollectionItemBreadcrumb = ({
 
   return (
     <IonBreadcrumbs
-      style={{ marginLeft: '18px', overflowX: 'auto', flexWrap: 'nowrap' }}
+      style={{
+        marginLeft: '18px',
+        overflowX: 'auto',
+        flexWrap: 'nowrap',
+        padding: '0'
+      }}
       maxItems={maxBreadcrumbs}
       itemsBeforeCollapse={0}
       itemsAfterCollapse={2}
