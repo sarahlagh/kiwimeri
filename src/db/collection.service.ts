@@ -1,5 +1,6 @@
 import {
   CollectionItem,
+  CollectionItemDisplayOpts,
   CollectionItemFieldEnum,
   CollectionItemResult,
   CollectionItemSort,
@@ -510,6 +511,20 @@ class CollectionService {
     item.preview = formatterService
       .getPlainTextFromLexical(JSON.stringify(content))
       .substring(0, this.previewSize);
+  }
+
+  public useItemDisplayOpts(rowId: Id): CollectionItemDisplayOpts {
+    const str =
+      useCellWithRef<string>(this.storeId, this.table, rowId, 'display_opts') ||
+      null;
+    return str ? JSON.parse(str) : {};
+  }
+
+  public setItemDisplayOpts(
+    rowId: Id,
+    display_opts: CollectionItemDisplayOpts
+  ) {
+    this.setItemField(rowId, 'display_opts', JSON.stringify(display_opts));
   }
 
   public useItemTags(rowId: Id) {

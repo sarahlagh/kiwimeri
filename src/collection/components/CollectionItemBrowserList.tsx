@@ -88,10 +88,11 @@ export const CollectionItemBrowserList = ({
   const searchParams = getSearchParams(location.search);
   const openedDocument = searchParams?.document;
 
-  const [sort, setSort] = useState<CollectionItemSort>({
+  const displayOpts = collectionService.useItemDisplayOpts(folder);
+  const sort: CollectionItemSort = displayOpts.sort || {
     by: 'created',
     descending: false
-  });
+  };
 
   const items: CollectionItemResult[] =
     collectionService.useBrowsableCollectionItems(folder, sort);
@@ -127,7 +128,7 @@ export const CollectionItemBrowserList = ({
     currentSort: sort,
     onChange: (sort?: CollectionItemSort) => {
       if (sort) {
-        setSort(sort);
+        collectionService.setItemDisplayOpts(folder, { ...displayOpts, sort });
       }
     }
   });
