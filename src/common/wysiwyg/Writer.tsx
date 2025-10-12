@@ -27,7 +27,6 @@ import KiwimeriReloadContentPlugin from './lexical/KiwimeriReloadContentPlugin';
 import KiwimeriToolbarPlugin from './lexical/KiwimeriToolbarPlugin';
 import KiwimeriEditorTheme from './lexical/theme/KiwimeriEditorTheme';
 import KiwimeriPagesBrowserPlugin from './pages/KiwimeriPagesBrowserPlugin';
-import TogglePagesBrowserButton from './pages/TogglePagesBrowserButton';
 
 interface WriterProps {
   docId: string;
@@ -50,9 +49,9 @@ const Writer = (
   ref: React.LegacyRef<HTMLDivElement> | undefined
 ) => {
   const { t } = useLingui();
-  const placeholder = t`Text...`;
   const [showPageBrowser, setShowPageBrowser] = useState(true);
-  const hasPages = pages?.length || 0 > 0;
+
+  const placeholder = t`Text...`;
 
   return (
     <LexicalComposer
@@ -73,7 +72,12 @@ const Writer = (
         ]
       }}
     >
-      <KiwimeriToolbarPlugin document={docId} />
+      <KiwimeriToolbarPlugin
+        pageBrowserOn={showPageBrowser}
+        onTogglePageBrowser={onOff => {
+          setShowPageBrowser(onOff);
+        }}
+      />
       <RichTextPlugin
         contentEditable={
           <ContentEditable
@@ -106,17 +110,12 @@ const Writer = (
       <SelectionAlwaysOnDisplay />
       <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
 
-      {hasPages && showPageBrowser && (
+      {showPageBrowser && (
         <KiwimeriPagesBrowserPlugin
           docId={docId}
           docPreview={preview}
           id={id}
           pages={pages}
-        />
-      )}
-      {hasPages && (
-        <TogglePagesBrowserButton
-          onClick={() => setShowPageBrowser(!showPageBrowser)}
         />
       )}
 

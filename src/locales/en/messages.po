@@ -110,11 +110,11 @@ msgstr "Do you want to import your content inside a new folder?"
 msgid "Download Logs"
 msgstr "Download Logs"
 
-#: src/common/wysiwyg/pages/KiwimeriPagesBrowserPlugin.tsx:69
+#: src/common/wysiwyg/pages/KiwimeriPagesBrowserPlugin.tsx:70
 msgid "empty doc"
 msgstr "empty doc"
 
-#: src/common/wysiwyg/pages/KiwimeriPagesBrowserPlugin.tsx:70
+#: src/common/wysiwyg/pages/KiwimeriPagesBrowserPlugin.tsx:71
 msgid "empty page"
 msgstr "empty page"
 
@@ -377,7 +377,7 @@ msgstr "Synchronize your collection on the filesystem"
 msgid "Syncing is disabled on the web version."
 msgstr "Syncing is disabled on the web version."
 
-#: src/common/wysiwyg/Writer.tsx:53
+#: src/common/wysiwyg/Writer.tsx:54
 msgid "Text..."
 msgstr "Text..."
 

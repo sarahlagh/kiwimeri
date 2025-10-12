@@ -35,14 +35,22 @@ import {
 import { useCallback, useEffect, useRef, useState } from 'react';
 const LowPriority = 1;
 
-import collectionService from '@/db/collection.service';
+import { APPICONS } from '@/constants';
 import './theme/KiwimeriToolbarPlugin.scss';
 
 function Divider() {
   return <div className="divider" />;
 }
 
-export default function ToolbarPlugin({ document }: { document: string }) {
+type ToolbarPluginProps = {
+  pageBrowserOn: boolean;
+  onTogglePageBrowser: (onOff: boolean) => void;
+};
+
+export default function ToolbarPlugin({
+  pageBrowserOn,
+  onTogglePageBrowser
+}: ToolbarPluginProps) {
   const [editor] = useLexicalComposerContext();
   const toolbarRef = useRef(null);
   const [isEditable, setIsEditable] = useState(true);
@@ -371,12 +379,13 @@ export default function ToolbarPlugin({ document }: { document: string }) {
       <Divider />
       <button
         onClick={() => {
-          collectionService.addPage(document);
+          pageBrowserOn = !pageBrowserOn;
+          onTogglePageBrowser(pageBrowserOn);
         }}
         className="toolbar-item"
-        aria-label="Add page"
+        aria-label="Show page browser"
       >
-        <IonIcon className="format" src="writer/file-earmark-ppt.svg"></IonIcon>
+        <IonIcon icon={APPICONS.page}></IonIcon>
       </button>{' '}
     </div>
   );
