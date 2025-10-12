@@ -1,6 +1,6 @@
 import {
   CollectionItemDisplayOpts,
-  CollectionItemSort
+  CollectionItemSortType
 } from '@/collection/collection';
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
@@ -9,13 +9,9 @@ import notebooksService from './notebooks.service';
 import storageService from './storage.service';
 import { useValueWithRef } from './tinybase/hooks';
 
-export const defaultSort: CollectionItemSort = {
-  by: 'created',
-  descending: false
-} as const;
-
 class UserSettingsService {
   private readonly storeId = 'store';
+  private readonly spaceId = 'space';
 
   public useTheme() {
     return useValueWithRef(this.storeId, 'theme');
@@ -79,7 +75,61 @@ class UserSettingsService {
 
   // here, options that are synchronized with collection
 
-  public useDefaultDisplayOpts(notebook?: string): CollectionItemDisplayOpts {
+  public getSpaceDefaultDisplayOpts(space?: string): CollectionItemDisplayOpts {
+    if (!space) {
+      space = storageService.getSpaceId();
+    }
+    console.debug('using space default sort', space);
+    const by = storageService
+      .getSpace()
+      .getValue('defaultSortBy') as CollectionItemSortType;
+    const descending = storageService
+      .getSpace()
+      .getValue('defaultSortDesc')
+      .valueOf();
+    return {
+      sort: {
+        by,
+        descending
+      }
+    };
+  }
+
+  public useSpaceDefaultDisplayOpts(space?: string): CollectionItemDisplayOpts {
+    if (!space) {
+      space = storageService.getSpaceId();
+    }
+    const by = useValueWithRef(
+      this.spaceId,
+      'defaultSortBy'
+    ) as CollectionItemSortType;
+    const descending = useValueWithRef(
+      this.spaceId,
+      'defaultSortDesc'
+    ) as boolean;
+    return {
+      sort: {
+        by,
+        descending
+      }
+    };
+  }
+
+  public setSpaceDefaultDisplayOpts(newDisplayOpts: CollectionItemDisplayOpts) {
+    storageService.getSpace().transaction(() => {
+      storageService
+        .getSpace()
+        .setValue('defaultSortBy', newDisplayOpts.sort.by);
+      storageService
+        .getSpace()
+        .setValue('defaultSortDesc', newDisplayOpts.sort.descending);
+    });
+  }
+
+  public useDefaultDisplayOpts(
+    notebook?: string,
+    space?: string
+  ): CollectionItemDisplayOpts {
     const currentNotebook = notebooksService.useCurrentNotebook();
     if (!notebook) {
       notebook = currentNotebook;
@@ -88,7 +138,21 @@ class UserSettingsService {
     if (notebookDisplayOpts) {
       return notebookDisplayOpts!;
     }
-    return { sort: defaultSort };
+    return this.getSpaceDefaultDisplayOpts(space);
+  }
+
+  public getDefaultDisplayOpts(
+    notebook?: string,
+    space?: string
+  ): CollectionItemDisplayOpts {
+    if (!notebook) {
+      notebook = notebooksService.useCurrentNotebook();
+    }
+    const notebookDisplayOpts = collectionService.useItemDisplayOpts(notebook);
+    if (notebookDisplayOpts) {
+      return notebookDisplayOpts!;
+    }
+    return this.getSpaceDefaultDisplayOpts(space);
   }
 }
 

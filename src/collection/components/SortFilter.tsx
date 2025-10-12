@@ -30,7 +30,7 @@ const SortFilter = ({
 
   const valuesTransMap = new Map<CollectionItemSortType, string>();
   valuesTransMap.set('created', 'Creation Date');
-  valuesTransMap.set('updated', 'Last Update');
+  valuesTransMap.set('updated', 'Last Updated');
   valuesTransMap.set('title', 'Title');
   valuesTransMap.set('preview', 'Content');
   valuesTransMap.set('order', 'Manual');
@@ -40,6 +40,7 @@ const SortFilter = ({
       <IonItem>
         <IonSelect
           label={t`Sort`}
+          value={currentSort.by}
           placeholder={valuesTransMap.get(currentSort.by)}
           onIonChange={e => {
             sort.by = e.detail.value;

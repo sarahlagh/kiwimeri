@@ -27,7 +27,7 @@ import {
   useTableWithRef
 } from './tinybase/hooks';
 import { LocalChangeType } from './types/store-types';
-import { defaultSort } from './user-settings.service';
+import userSettingsService from './user-settings.service';
 
 export const initialContent = () => {
   // 'empty' editor
@@ -135,10 +135,10 @@ class CollectionService {
       });
   }
 
-  public getCollectionItems(
-    parent: string,
-    sort: CollectionItemSort = defaultSort
-  ) {
+  public getCollectionItems(parent: string, sort?: CollectionItemSort) {
+    if (!sort) {
+      sort = userSettingsService.getDefaultDisplayOpts().sort;
+    }
     const table = storageService.getSpace().getTable(this.table);
     const queryName = this.fetchAllPerParentQuery(parent);
     return this.getResultsSorted(table, queryName, sort);
@@ -146,8 +146,11 @@ class CollectionService {
 
   public getBrowsableCollectionItems(
     parent: string,
-    sort: CollectionItemSort = defaultSort
+    sort?: CollectionItemSort
   ) {
+    if (!sort) {
+      sort = userSettingsService.getDefaultDisplayOpts().sort;
+    }
     const table = storageService.getSpace().getTable(this.table);
     const queryName = this.fetchDocsFoldersNotebooksPerParentQuery(parent);
     return this.getResultsSorted(table, queryName, sort);
@@ -172,17 +175,20 @@ class CollectionService {
 
   public useBrowsableCollectionItems(
     parent: string,
-    sort: CollectionItemSort = defaultSort
+    sort?: CollectionItemSort
   ): CollectionItemResult[] {
+    if (!sort) {
+      sort = userSettingsService.getDefaultDisplayOpts().sort;
+    }
     const table = useTableWithRef(this.storeId, this.table);
     const queryName = this.fetchDocsFoldersNotebooksPerParentQuery(parent);
     return this.useResultsSorted(table, queryName, sort);
   }
 
-  public getDocumentPages(
-    document: string,
-    sort: CollectionItemSort = defaultSort
-  ) {
+  public getDocumentPages(document: string, sort?: CollectionItemSort) {
+    if (!sort) {
+      sort = userSettingsService.getDefaultDisplayOpts().sort;
+    }
     const table = storageService.getSpace().getTable(this.table);
     const queryName = this.fetchPagesForDocQuery(document);
     return storageService
@@ -196,22 +202,29 @@ class CollectionService {
 
   public useDocumentPages(
     document: string,
-    sort: CollectionItemSort = defaultSort
+    sort?: CollectionItemSort
   ): CollectionItemResult[] {
+    if (!sort) {
+      sort = userSettingsService.getDefaultDisplayOpts().sort;
+    }
     const table = useTableWithRef(this.storeId, this.table);
     const queryName = this.fetchPagesForDocQuery(document);
     return this.useResultsSorted(table, queryName, sort);
   }
 
-  public useConflicts(
-    sort: CollectionItemSort = defaultSort
-  ): CollectionItemResult[] {
+  public useConflicts(sort?: CollectionItemSort): CollectionItemResult[] {
+    if (!sort) {
+      sort = userSettingsService.getDefaultDisplayOpts().sort;
+    }
     const table = useTableWithRef(this.storeId, this.table);
     const queryName = this.fetchConflictsQuery();
     return this.useResultsSorted(table, queryName, sort);
   }
 
-  public getConflicts(sort: CollectionItemSort = defaultSort) {
+  public getConflicts(sort?: CollectionItemSort) {
+    if (!sort) {
+      sort = userSettingsService.getDefaultDisplayOpts().sort;
+    }
     const table = storageService.getSpace().getTable(this.table);
     const queryName = this.fetchConflictsQuery();
     return this.getResultsSorted(table, queryName, sort);

@@ -85,11 +85,11 @@ msgstr "Confirm"
 msgid "Conflicts"
 msgstr "Conflicts"
 
-#: src/settings/components/sections/CurrentNotebookSettings.tsx:45
+#: src/settings/components/sections/GenericCollectionSettings.tsx:28
 msgid "Creation Date"
 msgstr "Creation Date"
 
-#: src/settings/components/sections/CurrentNotebookSettings.tsx:27
+#: src/settings/components/sections/CurrentNotebookSettings.tsx:24
 msgid "Current Notebook Settings ({notebookTitle})"
 msgstr "Current Notebook Settings ({notebookTitle})"
 
@@ -110,9 +110,13 @@ msgstr "Dev Tools"
 msgid "Dev Tools Enabled"
 msgstr "Dev Tools Enabled"
 
-#: src/settings/components/sections/CurrentNotebookSettings.tsx:30
-msgid "Display options for the currently selected notebook. They can still be overriden by folder."
-msgstr "Display options for the currently selected notebook. They can still be overriden by folder."
+#: src/settings/components/sections/CurrentNotebookSettings.tsx:27
+msgid "Display options for the currently selected notebook. They can still be overriden per folder."
+msgstr "Display options for the currently selected notebook. They can still be overriden per folder."
+
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:22
+msgid "Display options for the currently selected space. They can still be overriden per notebook and per folder."
+msgstr "Display options for the currently selected space. They can still be overriden per notebook and per folder."
 
 #: src/common/modals/ConfirmMultipleImportModal.tsx:173
 msgid "Do you want to import your content inside a new folder?"
@@ -192,7 +196,7 @@ msgstr "Import & export your collection"
 msgid "Import file in folder {folderName}"
 msgstr "Import file in folder {folderName}"
 
-#: src/settings/components/sections/CurrentNotebookSettings.tsx:52
+#: src/settings/components/sections/GenericCollectionSettings.tsx:35
 msgid "In descending order"
 msgstr "In descending order"
 
@@ -232,7 +236,7 @@ msgstr "Local: {0}"
 msgid "Logs"
 msgstr "Logs"
 
-#: src/settings/components/sections/CurrentNotebookSettings.tsx:47
+#: src/settings/components/sections/GenericCollectionSettings.tsx:30
 msgid "Manual Order"
 msgstr "Manual Order"
 
@@ -260,7 +264,7 @@ msgstr "merged"
 msgid "Metadata found in the archive"
 msgstr "Metadata found in the archive"
 
-#: src/settings/components/sections/CurrentNotebookSettings.tsx:46
+#: src/settings/components/sections/GenericCollectionSettings.tsx:29
 msgid "Modified Date"
 msgstr "Modified Date"
 
@@ -383,9 +387,13 @@ msgstr "Settings"
 msgid "Sort"
 msgstr "Sort"
 
-#: src/settings/components/sections/CurrentNotebookSettings.tsx:42
+#: src/settings/components/sections/GenericCollectionSettings.tsx:25
 msgid "Sort items by..."
 msgstr "Sort items by..."
+
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:19
+msgid "Space Settings"
+msgstr "Space Settings"
 
 #: src/common/buttons/GenericImportFileButton.tsx:48
 #: src/common/buttons/GenericExportFileButton.tsx:48

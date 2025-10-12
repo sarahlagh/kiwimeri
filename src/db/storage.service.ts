@@ -136,29 +136,34 @@ class StorageService {
   }
 
   private createSpace() {
-    return createStore().setTablesSchema({
-      collection: {
-        title: { type: 'string' } as CellSchema,
-        title_meta: { type: 'string' } as CellSchema,
-        parent: { type: 'string' } as CellSchema,
-        parent_meta: { type: 'string' } as CellSchema,
-        type: { type: 'string' } as CellSchema,
-        content: { type: 'string' } as CellSchema,
-        content_meta: { type: 'string' } as CellSchema,
-        preview: { type: 'string' } as CellSchema,
-        tags: { type: 'string' } as CellSchema,
-        tags_meta: { type: 'string' } as CellSchema,
-        created: { type: 'number' } as CellSchema,
-        updated: { type: 'number' } as CellSchema,
-        deleted: { type: 'boolean', default: false } as CellSchema,
-        deleted_meta: { type: 'string' } as CellSchema,
-        conflict: { type: 'string' } as CellSchema,
-        order: { type: 'number' } as CellSchema,
-        order_meta: { type: 'string' } as CellSchema,
-        display_opts: { type: 'string' } as CellSchema,
-        display_opts_meta: { type: 'string' } as CellSchema
-      }
-    });
+    return createStore()
+      .setTablesSchema({
+        collection: {
+          title: { type: 'string' } as CellSchema,
+          title_meta: { type: 'string' } as CellSchema,
+          parent: { type: 'string' } as CellSchema,
+          parent_meta: { type: 'string' } as CellSchema,
+          type: { type: 'string' } as CellSchema,
+          content: { type: 'string' } as CellSchema,
+          content_meta: { type: 'string' } as CellSchema,
+          preview: { type: 'string' } as CellSchema,
+          tags: { type: 'string' } as CellSchema,
+          tags_meta: { type: 'string' } as CellSchema,
+          created: { type: 'number' } as CellSchema,
+          updated: { type: 'number' } as CellSchema,
+          deleted: { type: 'boolean', default: false } as CellSchema,
+          deleted_meta: { type: 'string' } as CellSchema,
+          conflict: { type: 'string' } as CellSchema,
+          order: { type: 'number' } as CellSchema,
+          order_meta: { type: 'string' } as CellSchema,
+          display_opts: { type: 'string' } as CellSchema,
+          display_opts_meta: { type: 'string' } as CellSchema
+        }
+      })
+      .setValuesSchema({
+        defaultSortBy: { type: 'string', default: 'created' },
+        defaultSortDesc: { type: 'boolean', default: false }
+      });
   }
 
   private async startPersister(
