@@ -43,11 +43,13 @@ function Divider() {
 }
 
 type ToolbarPluginProps = {
+  pageBrowserHighlighted: boolean;
   pageBrowserOn: boolean;
   onTogglePageBrowser: (onOff: boolean) => void;
 };
 
 export default function ToolbarPlugin({
+  pageBrowserHighlighted,
   pageBrowserOn,
   onTogglePageBrowser
 }: ToolbarPluginProps) {
@@ -382,7 +384,7 @@ export default function ToolbarPlugin({
           pageBrowserOn = !pageBrowserOn;
           onTogglePageBrowser(pageBrowserOn);
         }}
-        className="toolbar-item"
+        className={'toolbar-item ' + (pageBrowserHighlighted ? 'active' : '')}
         aria-label="Show page browser"
       >
         <IonIcon icon={APPICONS.page}></IonIcon>

@@ -49,7 +49,7 @@ const Writer = (
   ref: React.LegacyRef<HTMLDivElement> | undefined
 ) => {
   const { t } = useLingui();
-  const [showPageBrowser, setShowPageBrowser] = useState(true);
+  const [showPageBrowser, setShowPageBrowser] = useState(false);
 
   const placeholder = t`Text...`;
 
@@ -73,6 +73,7 @@ const Writer = (
       }}
     >
       <KiwimeriToolbarPlugin
+        pageBrowserHighlighted={(pages?.length || 0) > 0}
         pageBrowserOn={showPageBrowser}
         onTogglePageBrowser={onOff => {
           setShowPageBrowser(onOff);
