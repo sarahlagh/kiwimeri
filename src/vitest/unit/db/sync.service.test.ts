@@ -662,7 +662,7 @@ describe('sync service', () => {
               await syncService_pull(); // 1
               expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
               const id = remoteData[0].id!;
-              expect(getLocalItemField(id, 'preview')).toBeUndefined();
+              expect(getLocalItemField(id, 'preview')).toHaveLength(0);
 
               // change remote
               updateOnRemote(remoteData, id, 'content');

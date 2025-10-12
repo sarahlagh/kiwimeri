@@ -1,6 +1,6 @@
 import { CollectionItem } from '@/collection/collection';
 import { minimizeKeys, unminimizeKeys } from '../common/utils';
-import { AnyData } from './types/store-types';
+import { AnyData } from '../db/types/store-types';
 
 const keys = [
   ['id', 'i'],
@@ -18,6 +18,8 @@ const keys = [
   ['updated', 'u'],
   ['deleted', 'd'],
   ['deleted_meta', 'D'],
+  ['order', 'o'],
+  ['order_meta', 'O'],
   ['display_opts', 'do'],
   ['display_opts_meta', 'DO']
 ];

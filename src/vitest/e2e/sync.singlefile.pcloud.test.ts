@@ -1,8 +1,8 @@
 import { CollectionItem } from '@/collection/collection';
+import { unminimizeItemsFromStorage } from '@/collection/compress-collection';
 import { appConfig, getGlobalTrans } from '@/config';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import collectionService from '@/db/collection.service';
-import { unminimizeItemsFromStorage } from '@/db/compress-storage';
 import localChangesService from '@/db/local-changes.service';
 import notebooksService from '@/db/notebooks.service';
 import remotesService from '@/db/remotes.service';

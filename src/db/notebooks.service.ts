@@ -69,7 +69,9 @@ class NotebooksService {
       updated: Date.now(),
       type: CollectionItemType.notebook,
       deleted: false,
-      deleted_meta: setFieldMeta('false', now)
+      deleted_meta: setFieldMeta('false', now),
+      order: 0, // TODO dynamic order
+      order_meta: setFieldMeta('0', now)
     };
     return {
       item,

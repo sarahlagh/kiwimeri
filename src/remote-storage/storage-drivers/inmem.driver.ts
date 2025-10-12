@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { CollectionItem } from '@/collection/collection';
-import { fastHash } from '@/common/utils';
 import {
   minimizeItemsForStorage,
   unminimizeItemsFromStorage
-} from '@/db/compress-storage';
+} from '@/collection/compress-collection';
+import { fastHash } from '@/common/utils';
 import { CloudStorageDriver } from '@/remote-storage/sync-types';
 
 // for testing

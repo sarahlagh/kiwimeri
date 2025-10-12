@@ -259,7 +259,9 @@ class CollectionService {
       updated: now,
       type: CollectionItemType.document,
       deleted: false,
-      deleted_meta: setFieldMeta('false', now)
+      deleted_meta: setFieldMeta('false', now),
+      order: 0, // TODO dynamic order
+      order_meta: setFieldMeta('0', now)
     };
     return { item, id };
   }
@@ -284,7 +286,9 @@ class CollectionService {
       updated: now,
       type: CollectionItemType.folder,
       deleted: false,
-      deleted_meta: setFieldMeta('false', now)
+      deleted_meta: setFieldMeta('false', now),
+      order: 0, // TODO dynamic order
+      order_meta: setFieldMeta('0', now)
     };
     return { item, id };
   }
@@ -309,7 +313,9 @@ class CollectionService {
       updated: now,
       type: CollectionItemType.page,
       deleted: false,
-      deleted_meta: setFieldMeta('false', now)
+      deleted_meta: setFieldMeta('false', now),
+      order: 0, // TODO dynamic order
+      order_meta: setFieldMeta('0', now)
     };
     return { item, id };
   }

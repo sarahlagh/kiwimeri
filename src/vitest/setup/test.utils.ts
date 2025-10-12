@@ -8,6 +8,7 @@ import {
 } from '@/collection/collection';
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/db/collection.service';
+import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
 import { Notebook } from '@/notebooks/notebooks';
 import { getUniqueId } from 'tinybase/with-schemas';
@@ -19,27 +20,16 @@ export const amount = async (timeout = 500) => {
 
 export const fakeTimersDelay = 100;
 
-// TODO use new methods from collection service
 export const oneDocument = (
   title = 'new doc',
   parent = DEFAULT_NOTEBOOK_ID
 ): CollectionItem => {
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   return {
+    ...collectionService.getNewDocumentObj(parent).item,
     id: getUniqueId(),
-    type: CollectionItemType.document,
-    parent,
-    parent_meta: setFieldMeta(parent, Date.now()),
     title,
-    title_meta: setFieldMeta(title, Date.now()),
-    content: 'random',
-    content_meta: setFieldMeta('random', Date.now()),
-    tags: '',
-    tags_meta: setFieldMeta('', Date.now()),
-    created: Date.now(),
-    updated: Date.now(),
-    deleted: false,
-    deleted_meta: setFieldMeta('false', Date.now())
+    title_meta: setFieldMeta(title, Date.now())
   };
 };
 export const oneFolder = (
@@ -48,18 +38,10 @@ export const oneFolder = (
 ): CollectionItem => {
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   return {
+    ...collectionService.getNewFolderObj(parent).item,
     id: getUniqueId(),
-    parent,
-    parent_meta: setFieldMeta(parent, Date.now()),
-    type: CollectionItemType.folder,
     title,
-    title_meta: setFieldMeta(title, Date.now()),
-    tags: '',
-    tags_meta: setFieldMeta('', Date.now()),
-    created: Date.now(),
-    updated: Date.now(),
-    deleted: false,
-    deleted_meta: setFieldMeta('false', Date.now())
+    title_meta: setFieldMeta(title, Date.now())
   };
 };
 export const oneNotebook = (
@@ -68,37 +50,21 @@ export const oneNotebook = (
 ): Notebook => {
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   return {
-    id,
-    type: CollectionItemType.notebook,
-    parent: ROOT_COLLECTION,
-    parent_meta: setFieldMeta(ROOT_COLLECTION, Date.now()),
-    title,
-    title_meta: setFieldMeta(title, Date.now()),
-    created: Date.now(),
-    updated: Date.now(),
-    deleted: false,
-    deleted_meta: setFieldMeta('false', Date.now())
+    ...notebooksService.getNewNotebookObj(ROOT_COLLECTION, title).item,
+    id
   };
 };
 export const onePage = (
-  title = 'new doc',
+  title = '',
   parent = DEFAULT_NOTEBOOK_ID
 ): CollectionItem => {
   // note: title param is just there so the method has the same signature as the others
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   return {
+    ...collectionService.getNewPageObj(parent).item,
     id: getUniqueId(),
-    type: CollectionItemType.page,
-    parent,
-    parent_meta: setFieldMeta(parent, Date.now()),
     title: '',
-    title_meta: setFieldMeta('title', Date.now()),
-    content: 'random',
-    content_meta: setFieldMeta('random', Date.now()),
-    created: Date.now(),
-    updated: Date.now(),
-    deleted: false,
-    deleted_meta: setFieldMeta('false', Date.now())
+    title_meta: setFieldMeta('', Date.now())
   };
 };
 

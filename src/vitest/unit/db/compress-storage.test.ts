@@ -1,12 +1,12 @@
 import {
+  minimizeItemsForStorage,
+  unminimizeItemsFromStorage
+} from '@/collection/compress-collection';
+import {
   minimizeContentForStorage,
   unminimizeContentFromStorage
 } from '@/common/wysiwyg/compress-file-content';
 import { initialContent } from '@/db/collection.service';
-import {
-  minimizeItemsForStorage,
-  unminimizeItemsFromStorage
-} from '@/db/compress-storage';
 import { it } from 'vitest';
 import { oneDocument, oneFolder, oneNotebook } from '../../setup/test.utils';
 

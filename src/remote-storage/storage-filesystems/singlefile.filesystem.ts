@@ -4,16 +4,16 @@ import {
   CollectionItemUpdatableFieldEnum,
   parseFieldMeta
 } from '@/collection/collection';
+import {
+  minimizeItemsForStorage,
+  unminimizeItemsFromStorage
+} from '@/collection/compress-collection';
 import { getGlobalTrans } from '@/config';
 import {
   CONFLICTS_NOTEBOOK_ID,
   KIWIMERI_MODEL_VERSION,
   ROOT_COLLECTION
 } from '@/constants';
-import {
-  minimizeItemsForStorage,
-  unminimizeItemsFromStorage
-} from '@/db/compress-storage';
 import localChangesService from '@/db/local-changes.service';
 import notebooksService from '@/db/notebooks.service';
 import { SpaceType } from '@/db/types/space-types';
