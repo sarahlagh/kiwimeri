@@ -2,6 +2,7 @@ import {
   CollectionItem,
   CollectionItemFieldEnum,
   CollectionItemResult,
+  CollectionItemSort,
   CollectionItemType,
   CollectionItemTypeValues,
   CollectionItemUpdatableFieldEnum,
@@ -35,6 +36,11 @@ class CollectionService {
   private readonly storeId = 'space';
   private readonly table = 'collection';
   private readonly previewSize = 80;
+
+  private readonly defaultSort: CollectionItemSort = {
+    by: 'created',
+    descending: false
+  };
 
   private fetchAllPerParentQuery(parent: string, deleted: boolean = false) {
     const queries = storageService.getSpaceQueries();
@@ -121,12 +127,11 @@ class CollectionService {
   private getResultsSorted(
     table: Table,
     queryName: string,
-    sortBy: 'created' | 'updated',
-    descending: boolean
+    sort: CollectionItemSort
   ) {
     return storageService
       .getSpaceQueries()
-      .getResultSortedRowIds(queryName, sortBy, descending)
+      .getResultSortedRowIds(queryName, sort.by, sort.descending)
       .map(rowId => {
         const row = table[rowId];
         return { ...row, id: rowId } as CollectionItemResult;
@@ -135,22 +140,20 @@ class CollectionService {
 
   public getCollectionItems(
     parent: string,
-    sortBy: 'created' | 'updated' = 'created',
-    descending = false
+    sort: CollectionItemSort = this.defaultSort
   ) {
     const table = storageService.getSpace().getTable(this.table);
     const queryName = this.fetchAllPerParentQuery(parent);
-    return this.getResultsSorted(table, queryName, sortBy, descending);
+    return this.getResultsSorted(table, queryName, sort);
   }
 
   public getBrowsableCollectionItems(
     parent: string,
-    sortBy: 'created' | 'updated' = 'created',
-    descending = false
+    sort: CollectionItemSort = this.defaultSort
   ) {
     const table = storageService.getSpace().getTable(this.table);
     const queryName = this.fetchDocsFoldersNotebooksPerParentQuery(parent);
-    return this.getResultsSorted(table, queryName, sortBy, descending);
+    return this.getResultsSorted(table, queryName, sort);
   }
 
   public getAllCollectionItemsRecursive(
@@ -172,24 +175,22 @@ class CollectionService {
 
   public useBrowsableCollectionItems(
     parent: string,
-    sortBy: 'created' | 'updated' = 'created',
-    descending = false
+    sort: CollectionItemSort = this.defaultSort
   ): CollectionItemResult[] {
     const table = useTableWithRef(this.storeId, this.table);
     const queryName = this.fetchDocsFoldersNotebooksPerParentQuery(parent);
-    return this.useResultsSorted(table, queryName, sortBy, descending);
+    return this.useResultsSorted(table, queryName, sort);
   }
 
   public getDocumentPages(
     document: string,
-    sortBy: 'created' | 'updated' = 'created',
-    descending = false
+    sort: CollectionItemSort = this.defaultSort
   ) {
     const table = storageService.getSpace().getTable(this.table);
     const queryName = this.fetchPagesForDocQuery(document);
     return storageService
       .getSpaceQueries()
-      .getResultSortedRowIds(queryName, sortBy, descending)
+      .getResultSortedRowIds(queryName, sort.by, sort.descending)
       .map(rowId => {
         const row = table[rowId];
         return { ...row, id: rowId } as CollectionItemResult;
@@ -198,43 +199,37 @@ class CollectionService {
 
   public useDocumentPages(
     document: string,
-    sortBy: 'created' | 'updated' = 'created',
-    descending = false
+    sort: CollectionItemSort = this.defaultSort
   ): CollectionItemResult[] {
     const table = useTableWithRef(this.storeId, this.table);
     const queryName = this.fetchPagesForDocQuery(document);
-    return this.useResultsSorted(table, queryName, sortBy, descending);
+    return this.useResultsSorted(table, queryName, sort);
   }
 
   public useConflicts(
-    sortBy: 'created' | 'updated' = 'created',
-    descending = false
+    sort: CollectionItemSort = this.defaultSort
   ): CollectionItemResult[] {
     const table = useTableWithRef(this.storeId, this.table);
     const queryName = this.fetchConflictsQuery();
-    return this.useResultsSorted(table, queryName, sortBy, descending);
+    return this.useResultsSorted(table, queryName, sort);
   }
 
-  public getConflicts(
-    sortBy: 'created' | 'updated' = 'created',
-    descending = false
-  ) {
+  public getConflicts(sort: CollectionItemSort = this.defaultSort) {
     const table = storageService.getSpace().getTable(this.table);
     const queryName = this.fetchConflictsQuery();
-    return this.getResultsSorted(table, queryName, sortBy, descending);
+    return this.getResultsSorted(table, queryName, sort);
   }
 
   private useResultsSorted(
     table: Table,
     queryName: string,
-    sortBy: 'created' | 'updated',
-    descending: boolean
+    sort: CollectionItemSort
   ) {
     return useResultSortedRowIdsWithRef(
       this.storeId,
       queryName,
-      sortBy,
-      descending
+      sort.by,
+      sort.descending
     ).map(rowId => {
       const row = table[rowId];
       return { ...row, id: rowId } as CollectionItemResult;

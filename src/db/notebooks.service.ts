@@ -1,4 +1,8 @@
-import { CollectionItemType, setFieldMeta } from '@/collection/collection';
+import {
+  CollectionItemSort,
+  CollectionItemType,
+  setFieldMeta
+} from '@/collection/collection';
 import { getGlobalTrans } from '@/config';
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { Notebook, NotebookResult } from '@/notebooks/notebooks';
@@ -18,6 +22,11 @@ class NotebooksService {
   private readonly storeId = 'space';
   private readonly table = 'collection';
   private readonly spacesTable = 'spaces';
+
+  private readonly defaultSort: CollectionItemSort = {
+    by: 'created',
+    descending: false
+  };
 
   private fetchAllNotebooksQuery(parent?: string, deleted: boolean = false) {
     const queries = storageService.getSpaceQueries();
@@ -126,14 +135,13 @@ class NotebooksService {
 
   public getNotebooks(
     parent?: string,
-    sortBy: 'created' | 'updated' = 'created',
-    descending = false
+    sort: CollectionItemSort = this.defaultSort
   ) {
     const table = storageService.getSpace().getTable(this.table);
     const queryName = this.fetchAllNotebooksQuery(parent);
     return storageService
       .getSpaceQueries()
-      .getResultSortedRowIds(queryName, sortBy, descending)
+      .getResultSortedRowIds(queryName, sort.by, sort.descending)
       .map(rowId => {
         const row = table[rowId];
         return { ...row, id: rowId } as NotebookResult;
@@ -142,16 +150,15 @@ class NotebooksService {
 
   public useNotebooks(
     parent?: string,
-    sortBy: 'created' | 'updated' = 'created',
-    descending = false
+    sort: CollectionItemSort = this.defaultSort
   ) {
     const table = useTableWithRef(this.storeId, this.table);
     const queryName = this.fetchAllNotebooksQuery(parent);
     return useResultSortedRowIdsWithRef(
       this.storeId,
       queryName,
-      sortBy,
-      descending
+      sort.by,
+      sort.descending
     ).map(rowId => {
       const row = table[rowId];
       return { ...row, id: rowId } as NotebookResult;

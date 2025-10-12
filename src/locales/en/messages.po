@@ -355,6 +355,10 @@ msgstr "Server"
 msgid "Settings"
 msgstr "Settings"
 
+#: src/collection/components/SortFilter.tsx:37
+msgid "Sort"
+msgstr "Sort"
+
 #: src/common/buttons/GenericImportFileButton.tsx:48
 #: src/common/buttons/GenericExportFileButton.tsx:48
 msgid "Success!"

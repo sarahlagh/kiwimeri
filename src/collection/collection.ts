@@ -30,16 +30,22 @@ export interface CollectionItem {
   display_opts_meta?: string;
 }
 
-export type CollectionItemSort =
-  | 'created'
-  | 'updated'
-  | 'title'
-  | 'preview'
-  | 'manual';
+export const sortBy = [
+  'created',
+  'updated',
+  'title',
+  'preview',
+  'order'
+] as const;
+export type CollectionItemSortType = (typeof sortBy)[number];
+
+export type CollectionItemSort = {
+  by: CollectionItemSortType;
+  descending: boolean;
+};
 
 export interface CollectionItemDisplayOpts {
-  sortBy: CollectionItemSort;
-  sortAsc: boolean;
+  sort: CollectionItemSort;
 }
 
 export type CollectionItemFieldEnum = keyof Required<

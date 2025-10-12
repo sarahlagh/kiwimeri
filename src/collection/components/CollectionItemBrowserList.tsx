@@ -10,6 +10,7 @@ import {
 
 import {
   CollectionItemResult,
+  CollectionItemSort,
   CollectionItemType
 } from '@/collection/collection';
 import ExportItemsButton from '@/common/buttons/ExportItemsButton';
@@ -22,6 +23,7 @@ import { useEffect, useState } from 'react';
 import CollectionItemBreadcrumb from './CollectionItemBreadcrumb';
 import CollectionItemList from './CollectionItemList';
 import CommonActionsToolbar from './CommonActionsToolbar';
+import SortFilter from './SortFilter';
 
 interface CollectionItemBrowserListProps {
   parent: string;
@@ -85,8 +87,14 @@ export const CollectionItemBrowserList = ({
   const location = useLocation();
   const searchParams = getSearchParams(location.search);
   const openedDocument = searchParams?.document;
+
+  const [sort, setSort] = useState<CollectionItemSort>({
+    by: 'created',
+    descending: false
+  });
+
   const items: CollectionItemResult[] =
-    collectionService.useBrowsableCollectionItems(folder);
+    collectionService.useBrowsableCollectionItems(folder, sort);
 
   const [itemRenaming, setItemRenaming] = useState<string | undefined>(
     undefined
@@ -99,7 +107,7 @@ export const CollectionItemBrowserList = ({
     setItemRenaming(undefined);
   }, [folder]);
 
-  const [present, dismiss] = useIonPopover(CommonActionsToolbar, {
+  const [presentActions, dismissActions] = useIonPopover(CommonActionsToolbar, {
     id: selectedItem?.id,
     docId: selectedItem?.id,
     showRename: true,
@@ -110,8 +118,17 @@ export const CollectionItemBrowserList = ({
       if (role === 'delete') {
         history.replace(data!);
       }
-      dismiss();
+      dismissActions();
       setSelectedItem(null);
+    }
+  });
+
+  const [presentSortFilter] = useIonPopover(SortFilter, {
+    currentSort: sort,
+    onChange: (sort?: CollectionItemSort) => {
+      if (sort) {
+        setSort(sort);
+      }
     }
   });
 
@@ -126,7 +143,16 @@ export const CollectionItemBrowserList = ({
             }}
           />
 
-          <IonButton fill="clear" slot="end" style={{ margin: '0' }}>
+          <IonButton
+            fill="clear"
+            slot="end"
+            style={{ margin: '0' }}
+            onClick={e => {
+              e.stopPropagation();
+              e.preventDefault();
+              presentSortFilter({ event: e.nativeEvent, alignment: 'end' });
+            }}
+          >
             <IonIcon icon={APPICONS.sortFilter}></IonIcon>
           </IonButton>
         </IonToolbar>
@@ -143,7 +169,7 @@ export const CollectionItemBrowserList = ({
       onClickActions={(event, item) => {
         setSelectedItem(item);
         setItemRenaming(undefined);
-        present({
+        presentActions({
           event,
           alignment: 'end'
         });
