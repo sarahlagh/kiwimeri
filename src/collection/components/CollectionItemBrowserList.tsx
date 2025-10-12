@@ -15,6 +15,7 @@ import {
 } from '@/collection/collection';
 import ExportItemsButton from '@/common/buttons/ExportItemsButton';
 import ImportItemsButton from '@/common/buttons/ImportItemsButton';
+import OpenSortFilterButton from '@/common/buttons/OpenSortFilterButton';
 import { GET_ITEM_ROUTE } from '@/common/routes';
 import { getSearchParams } from '@/common/utils';
 import { APPICONS } from '@/constants';
@@ -23,7 +24,6 @@ import { useEffect, useState } from 'react';
 import CollectionItemBreadcrumb from './CollectionItemBreadcrumb';
 import CollectionItemList from './CollectionItemList';
 import CommonActionsToolbar from './CommonActionsToolbar';
-import SortFilter from './SortFilter';
 
 interface CollectionItemBrowserListProps {
   parent: string;
@@ -124,15 +124,6 @@ export const CollectionItemBrowserList = ({
     }
   });
 
-  const [presentSortFilter] = useIonPopover(SortFilter, {
-    currentSort: sort,
-    onChange: (sort?: CollectionItemSort) => {
-      if (sort) {
-        collectionService.setItemDisplayOpts(folder, { ...displayOpts, sort });
-      }
-    }
-  });
-
   return (
     <CollectionItemList
       header={
@@ -143,19 +134,7 @@ export const CollectionItemBrowserList = ({
               history.push(GET_ITEM_ROUTE(item, openedDocument));
             }}
           />
-
-          <IonButton
-            fill="clear"
-            slot="end"
-            style={{ margin: '0' }}
-            onClick={e => {
-              e.stopPropagation();
-              e.preventDefault();
-              presentSortFilter({ event: e.nativeEvent, alignment: 'end' });
-            }}
-          >
-            <IonIcon icon={APPICONS.sortFilter}></IonIcon>
-          </IonButton>
+          <OpenSortFilterButton id={folder} />
         </IonToolbar>
       }
       items={items}

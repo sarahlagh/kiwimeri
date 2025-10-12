@@ -3,6 +3,7 @@ import { type JSX } from 'react';
 import { IonButton, IonIcon, IonItem, IonList } from '@ionic/react';
 
 import { PagePreview } from '@/collection/collection';
+import OpenSortFilterButton from '@/common/buttons/OpenSortFilterButton';
 import { GET_DOCUMENT_ROUTE, GET_PAGE_ROUTE } from '@/common/routes';
 import { getSearchParams } from '@/common/utils';
 import { APPICONS, CONFLICT_STR } from '@/constants';
@@ -75,20 +76,21 @@ export default function KiwimeriPagesBrowserPlugin({
   const notebook = notebooksService.useCurrentNotebook();
   const folderId = getSearchParams(location.search).folder || notebook;
 
-  // TODO here goes the sort filter button
   return (
     <>
       <div className="page-browser">
         <IonItem lines="none">
           <IonButton
             fill="clear"
-            slot="end"
+            slot="start"
             onClick={() => {
               collectionService.addPage(docId);
             }}
           >
             <IonIcon icon={APPICONS.addGeneric}></IonIcon>
           </IonButton>
+
+          {(pages?.length || 0) > 0 && <OpenSortFilterButton id={docId} />}
         </IonItem>
         <IonList
           style={{ maxHeight: '400px', overflowY: 'auto' }}

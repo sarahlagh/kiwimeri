@@ -13,6 +13,7 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { useEffect, useRef, useState } from 'react';
+import { CollectionItemSort } from '../collection';
 import CommonActionsToolbar from './CommonActionsToolbar';
 import DocumentEditorFooter from './DocumentEditorFooter';
 
@@ -39,7 +40,13 @@ const DocumentEditor = ({
   const content = collectionService.useItemContent(itemId);
   const documentTitle = collectionService.getItemTitle(docId);
   const documentPreview = collectionService.useItemPreview(docId) || '';
-  const pages = collectionService.useDocumentPages(docId);
+
+  const displayOpts = collectionService.useItemDisplayOpts(docId);
+  const sort: CollectionItemSort = displayOpts.sort || {
+    by: 'created',
+    descending: false
+  };
+  const pages = collectionService.useDocumentPages(docId, sort);
   const onTitleChange = onTitleChangeFn(docId);
 
   const onClickedAnywhere: React.MouseEventHandler<HTMLIonContentElement> = (
