@@ -17,9 +17,14 @@ import {
 export type SortFilterProps = {
   currentSort: CollectionItemSort;
   onChange: (sort?: CollectionItemSort) => void;
+  choices?: readonly CollectionItemSortType[];
 } & React.HTMLAttributes<HTMLIonToolbarElement>;
 
-const SortFilter = ({ currentSort, onChange }: SortFilterProps) => {
+const SortFilter = ({
+  currentSort,
+  onChange,
+  choices = sortBy
+}: SortFilterProps) => {
   const { t } = useLingui();
   const sort = { ...currentSort };
 
@@ -41,7 +46,7 @@ const SortFilter = ({ currentSort, onChange }: SortFilterProps) => {
             onChange(sort);
           }}
         >
-          {sortBy.map(sort => (
+          {choices.map(sort => (
             <IonSelectOption key={sort} value={sort}>
               {valuesTransMap.get(sort)}
             </IonSelectOption>

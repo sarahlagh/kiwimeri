@@ -355,7 +355,7 @@ msgstr "Server"
 msgid "Settings"
 msgstr "Settings"
 
-#: src/collection/components/SortFilter.tsx:37
+#: src/collection/components/SortFilter.tsx:42
 msgid "Sort"
 msgstr "Sort"
 
