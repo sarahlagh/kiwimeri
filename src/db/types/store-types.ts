@@ -7,6 +7,10 @@ export interface AnyData {
   [k: string]: any;
 }
 
+export interface AnySerializableData {
+  [k: string]: string | number | boolean;
+}
+
 export interface Space {
   currentNotebook?: string;
   currentFolder?: string;

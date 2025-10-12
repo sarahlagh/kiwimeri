@@ -2,6 +2,7 @@ import { onTitleChangeFn } from '@/common/events/events';
 import Writer from '@/common/wysiwyg/Writer';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
+import userSettingsService from '@/db/user-settings.service';
 import {
   InputCustomEvent,
   IonButton,
@@ -42,10 +43,8 @@ const DocumentEditor = ({
   const documentPreview = collectionService.useItemPreview(docId) || '';
 
   const displayOpts = collectionService.useItemDisplayOpts(docId);
-  const sort: CollectionItemSort = displayOpts.sort || {
-    by: 'created',
-    descending: false
-  };
+  const defaultDisplayOpts = userSettingsService.useDefaultDisplayOpts();
+  const sort: CollectionItemSort = displayOpts?.sort || defaultDisplayOpts.sort;
   const pages = collectionService.useDocumentPages(docId, sort);
   const onTitleChange = onTitleChangeFn(docId);
 

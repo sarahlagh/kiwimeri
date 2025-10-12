@@ -20,6 +20,7 @@ import { GET_ITEM_ROUTE } from '@/common/routes';
 import { getSearchParams } from '@/common/utils';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
+import userSettingsService from '@/db/user-settings.service';
 import { useEffect, useState } from 'react';
 import CollectionItemBreadcrumb from './CollectionItemBreadcrumb';
 import CollectionItemList from './CollectionItemList';
@@ -89,10 +90,8 @@ export const CollectionItemBrowserList = ({
   const openedDocument = searchParams?.document;
 
   const displayOpts = collectionService.useItemDisplayOpts(folder);
-  const sort: CollectionItemSort = displayOpts.sort || {
-    by: 'created',
-    descending: false
-  };
+  const defaultDisplayOpts = userSettingsService.useDefaultDisplayOpts();
+  const sort: CollectionItemSort = displayOpts?.sort || defaultDisplayOpts.sort;
 
   const items: CollectionItemResult[] =
     collectionService.useBrowsableCollectionItems(folder, sort);

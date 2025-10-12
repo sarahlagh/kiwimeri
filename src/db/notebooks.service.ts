@@ -17,16 +17,12 @@ import {
   useTableWithRef
 } from './tinybase/hooks';
 import { LocalChangeType } from './types/store-types';
+import { defaultSort } from './user-settings.service';
 
 class NotebooksService {
   private readonly storeId = 'space';
   private readonly table = 'collection';
   private readonly spacesTable = 'spaces';
-
-  private readonly defaultSort: CollectionItemSort = {
-    by: 'created',
-    descending: false
-  };
 
   private fetchAllNotebooksQuery(parent?: string, deleted: boolean = false) {
     const queries = storageService.getSpaceQueries();
@@ -133,10 +129,7 @@ class NotebooksService {
     collectionService.setItemTitle(id, title);
   }
 
-  public getNotebooks(
-    parent?: string,
-    sort: CollectionItemSort = this.defaultSort
-  ) {
+  public getNotebooks(parent?: string, sort: CollectionItemSort = defaultSort) {
     const table = storageService.getSpace().getTable(this.table);
     const queryName = this.fetchAllNotebooksQuery(parent);
     return storageService
@@ -148,10 +141,7 @@ class NotebooksService {
       });
   }
 
-  public useNotebooks(
-    parent?: string,
-    sort: CollectionItemSort = this.defaultSort
-  ) {
+  public useNotebooks(parent?: string, sort: CollectionItemSort = defaultSort) {
     const table = useTableWithRef(this.storeId, this.table);
     const queryName = this.fetchAllNotebooksQuery(parent);
     return useResultSortedRowIdsWithRef(

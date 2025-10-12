@@ -1,7 +1,18 @@
+import {
+  CollectionItemDisplayOpts,
+  CollectionItemSort
+} from '@/collection/collection';
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
+import collectionService from './collection.service';
+import notebooksService from './notebooks.service';
 import storageService from './storage.service';
 import { useValueWithRef } from './tinybase/hooks';
+
+export const defaultSort: CollectionItemSort = {
+  by: 'created',
+  descending: false
+} as const;
 
 class UserSettingsService {
   private readonly storeId = 'store';
@@ -62,6 +73,22 @@ class UserSettingsService {
   public getInternalProxy() {
     const val = storageService.getStore().getValue('internalProxy')?.valueOf();
     return val !== undefined ? val : appConfig.INTERNAL_HTTP_PROXY;
+  }
+
+  /////////////////////////
+
+  // here, options that are synchronized with collection
+
+  public useDefaultDisplayOpts(notebook?: string): CollectionItemDisplayOpts {
+    const currentNotebook = notebooksService.useCurrentNotebook();
+    if (!notebook) {
+      notebook = currentNotebook;
+    }
+    const notebookDisplayOpts = collectionService.useItemDisplayOpts(notebook);
+    if (notebookDisplayOpts) {
+      return notebookDisplayOpts!;
+    }
+    return { sort: defaultSort };
   }
 }
 

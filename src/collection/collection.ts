@@ -45,7 +45,7 @@ export type CollectionItemSort = {
 };
 
 export interface CollectionItemDisplayOpts {
-  sort?: CollectionItemSort;
+  sort: CollectionItemSort;
 }
 
 export type CollectionItemFieldEnum = keyof Required<

@@ -85,6 +85,14 @@ msgstr "Confirm"
 msgid "Conflicts"
 msgstr "Conflicts"
 
+#: src/settings/components/sections/CurrentNotebookSettings.tsx:45
+msgid "Creation Date"
+msgstr "Creation Date"
+
+#: src/settings/components/sections/CurrentNotebookSettings.tsx:27
+msgid "Current Notebook Settings ({notebookTitle})"
+msgstr "Current Notebook Settings ({notebookTitle})"
+
 #: src/constants.ts:62
 msgid "Default"
 msgstr "Default"
@@ -101,6 +109,10 @@ msgstr "Dev Tools"
 #: src/dev-tools/components/DevTools.tsx:37
 msgid "Dev Tools Enabled"
 msgstr "Dev Tools Enabled"
+
+#: src/settings/components/sections/CurrentNotebookSettings.tsx:30
+msgid "Display options for the currently selected notebook. They can still be overriden by folder."
+msgstr "Display options for the currently selected notebook. They can still be overriden by folder."
 
 #: src/common/modals/ConfirmMultipleImportModal.tsx:173
 msgid "Do you want to import your content inside a new folder?"
@@ -180,6 +192,10 @@ msgstr "Import & export your collection"
 msgid "Import file in folder {folderName}"
 msgstr "Import file in folder {folderName}"
 
+#: src/settings/components/sections/CurrentNotebookSettings.tsx:52
+msgid "In descending order"
+msgstr "In descending order"
+
 #: src/common/buttons/ExportItemsButton.tsx:120
 msgid "Include metadata in zip"
 msgstr "Include metadata in zip"
@@ -216,6 +232,10 @@ msgstr "Local: {0}"
 msgid "Logs"
 msgstr "Logs"
 
+#: src/settings/components/sections/CurrentNotebookSettings.tsx:47
+msgid "Manual Order"
+msgstr "Manual Order"
+
 #: src/settings/components/sections/ImportExportStoreSettings.tsx:52
 msgid "Manually backup or restore your app settings"
 msgstr "Manually backup or restore your app settings"
@@ -239,6 +259,10 @@ msgstr "merged"
 #: src/common/modals/ConfirmMultipleImportModal.tsx:133
 msgid "Metadata found in the archive"
 msgstr "Metadata found in the archive"
+
+#: src/settings/components/sections/CurrentNotebookSettings.tsx:46
+msgid "Modified Date"
+msgstr "Modified Date"
 
 #: src/synchronization/components/providers/RemoteGenericSettings.tsx:109
 #: src/synchronization/components/providers/RemoteGenericSettings.tsx:112
@@ -358,6 +382,10 @@ msgstr "Settings"
 #: src/collection/components/SortFilter.tsx:42
 msgid "Sort"
 msgstr "Sort"
+
+#: src/settings/components/sections/CurrentNotebookSettings.tsx:42
+msgid "Sort items by..."
+msgstr "Sort items by..."
 
 #: src/common/buttons/GenericImportFileButton.tsx:48
 #: src/common/buttons/GenericExportFileButton.tsx:48
