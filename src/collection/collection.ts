@@ -64,15 +64,9 @@ export type CollectionItemUpdatableFieldEnum = keyof Required<
     | 'display_opts'
   >
 >;
-export const CollectionItemUpdatableFields: CollectionItemFieldEnum[] = [
-  'parent',
-  'title',
-  'content',
-  'tags',
-  'deleted',
-  'order',
-  'display_opts'
-];
+
+export const CollectionItemUpdatableFields: CollectionItemUpdatableFieldEnum[] =
+  ['parent', 'title', 'content', 'tags', 'deleted', 'order', 'display_opts'];
 
 export type CollectionItemResult = Pick<
   CollectionItem,

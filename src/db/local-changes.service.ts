@@ -6,6 +6,7 @@ import {
 } from './tinybase/hooks';
 import { LocalChange, LocalChangeType } from './types/store-types';
 
+// TODO if reset update back to default / last value, should reset local change too
 class LocalChangesService {
   private readonly storeId = 'store';
   private readonly table = 'localChanges';

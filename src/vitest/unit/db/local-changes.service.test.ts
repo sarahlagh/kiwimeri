@@ -4,6 +4,7 @@ import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/local-changes.service';
 import notebooksService from '@/db/notebooks.service';
 import { LocalChange, LocalChangeType } from '@/db/types/store-types';
+import userSettingsService from '@/db/user-settings.service';
 import { it } from 'vitest';
 import {
   GET_UPDATABLE_FIELDS,
@@ -119,5 +120,37 @@ describe('local changes service', () => {
 
     const localChanges = localChangesService.getLocalChanges();
     expect(localChanges).toHaveLength(0);
+  });
+
+  it(`should create a local change for a value then merge for other values`, () => {
+    userSettingsService.setSpaceDefaultDisplayOpts({
+      sort: {
+        by: 'order',
+        descending: false
+      }
+    });
+
+    let localChanges = localChangesService.getLocalChanges();
+    expect(localChanges).toHaveLength(2);
+    let lc = getNonNotebookLocalChanges(localChanges)[0];
+    expect(lc.item).toEqual('');
+    expect(lc.change).toEqual('v');
+    expect(lc.field).toBeUndefined();
+
+    // merge others
+
+    userSettingsService.setSpaceDefaultDisplayOpts({
+      sort: {
+        by: 'updated',
+        descending: true
+      }
+    });
+
+    localChanges = localChangesService.getLocalChanges();
+    expect(localChanges).toHaveLength(2);
+    lc = getNonNotebookLocalChanges(localChanges)[0];
+    expect(lc.item).toEqual('');
+    expect(lc.change).toEqual('v');
+    expect(lc.field).toBeUndefined();
   });
 });

@@ -281,30 +281,31 @@ export class SingleFileStorage extends CloudStorageFilesystem {
           remoteUpdated = parseFieldMeta(meta!).u;
         }
 
+        const localItem = localCollection.get(localChange.item);
+
         // if added locally, add to newLocalContent
         if (localChange.change === LocalChangeType.add) {
-          newLocalContent[0].collection![localChange.item] =
-            localCollection.get(localChange.item)!;
+          newLocalContent[0].collection![localChange.item] = localItem!;
 
           // if local change on item is more recent than remote
         } else if (localChange.updated > remoteUpdated) {
           // if is update
           if (localChange.change === LocalChangeType.update) {
-            const field = localChange.field as CollectionItemUpdatableFieldEnum;
+            const field = localChange.field!;
+
             // if doesn't exist on remote (has been deleted?) recreate it
             if (!newLocalContent[0].collection![localChange.item]) {
-              newLocalContent[0].collection![localChange.item] =
-                localCollection.get(localChange.item)!;
+              newLocalContent[0].collection![localChange.item] = localItem!;
             } else {
               // if exists on remote, update the field, its meta, and preview if field was content
               newLocalContent[0].collection![localChange.item][field] =
-                localCollection.get(localChange.item)![field];
+                localItem![field];
               newLocalContent[0].collection![localChange.item][
                 `${field}_meta`
-              ] = localCollection.get(localChange.item)![`${field}_meta`];
+              ] = localItem![`${field}_meta`];
               if (field === 'content') {
                 newLocalContent[0].collection![localChange.item].preview =
-                  localCollection.get(localChange.item)!.preview;
+                  localItem!.preview;
               }
             }
           } else {
@@ -313,7 +314,6 @@ export class SingleFileStorage extends CloudStorageFilesystem {
           }
         } else {
           // if remote change on item is more recent than local
-          const localItem = localCollection.get(localChange.item)!;
           // create conflict, only if item is not already a conflict and is a document or page
           // do not create conflict for folders and notebooks
           if (

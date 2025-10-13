@@ -1,3 +1,4 @@
+import { CollectionItemUpdatableFieldEnum } from '@/collection/collection';
 import { DriverNames } from '@/remote-storage/storage-filesystem.factory';
 import { ValueIdFromSchema } from 'tinybase/@types/_internal/store/with-schemas';
 import { CellSchema } from 'tinybase/with-schemas';
@@ -34,7 +35,7 @@ export interface LocalChange {
   space: string;
   item: string;
   change: LocalChangeType;
-  field?: string;
+  field?: CollectionItemUpdatableFieldEnum;
   updated: number;
 }
 
