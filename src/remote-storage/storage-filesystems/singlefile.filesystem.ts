@@ -8,6 +8,7 @@ import {
   minimizeItemsForStorage,
   unminimizeItemsFromStorage
 } from '@/collection/compress-collection';
+import { nOr0 } from '@/common/utils';
 import { getGlobalTrans } from '@/config';
 import {
   CONFLICTS_NOTEBOOK_ID,
@@ -16,7 +17,7 @@ import {
 } from '@/constants';
 import localChangesService from '@/db/local-changes.service';
 import notebooksService from '@/db/notebooks.service';
-import { SpaceType } from '@/db/types/space-types';
+import { SpaceType, SpaceValues } from '@/db/types/space-types';
 import {
   AnyData,
   LocalChange,
@@ -34,6 +35,7 @@ import {
 
 type SingleFileStorageFileContent = {
   i: CollectionItem[]; // the items
+  o: SpaceValues; // the space options
   u: number; // last content change
   v: number; // the model version
 };
@@ -113,6 +115,7 @@ export class SingleFileStorage extends CloudStorageFilesystem {
     const localInfo = newRemoteState.info as DriverFileInfo;
     const collection = this.toMap<CollectionItem>(localContent[0].collection!);
     let newRemoteContent: CollectionItem[];
+    let newRemoteValues: SpaceValues;
     const newLastRemoteChange = newRemoteState.lastRemoteChange || 0;
     const cachedLastRemoteChange = cachedRemoteInfo.lastRemoteChange || 0;
     const lastPulled = cachedRemoteInfo.lastPulled;
@@ -124,6 +127,7 @@ export class SingleFileStorage extends CloudStorageFilesystem {
         cachedLastRemoteChange
       );
       newRemoteContent = [...collection.values()].filter(v => !v.conflict);
+      newRemoteValues = localContent[1];
     } else {
       console.debug(
         '[push] pulling new file due to cached remote being outdated',
@@ -136,6 +140,10 @@ export class SingleFileStorage extends CloudStorageFilesystem {
       );
       const obj = this.deserialization(remoteContent);
       newRemoteContent = obj.i;
+      newRemoteValues =
+        nOr0('lastUpdated', obj.o) > nOr0('lastUpdated', localContent[1])
+          ? obj.o
+          : localContent[1];
     }
 
     let lastLocalChange = newLastRemoteChange;
@@ -167,7 +175,11 @@ export class SingleFileStorage extends CloudStorageFilesystem {
     }
 
     if (localChanges.length > 0 || force) {
-      const content = this.serialization(newRemoteContent, lastLocalChange);
+      const content = this.serialization(
+        newRemoteContent,
+        newRemoteValues,
+        lastLocalChange
+      );
       const driverInfo = await this.driver.pushFile(this.filename, content);
       newRemoteState.info = driverInfo;
       newRemoteState.lastRemoteChange = driverInfo.updated;
@@ -225,7 +237,11 @@ export class SingleFileStorage extends CloudStorageFilesystem {
     const localCollection = this.toMap<CollectionItem>(
       localContent[0].collection
     );
-    const newLocalContent: Content<SpaceType> = [{ collection: {} }, {}];
+    const newValues =
+      nOr0('lastUpdated', obj.o) > nOr0('lastUpdated', localContent[1])
+        ? obj.o
+        : localContent[1];
+    const newLocalContent: Content<SpaceType> = [{ collection: {} }, newValues];
     items.forEach(item => {
       newLocalContent[0].collection![item.id!] = item;
     });
@@ -364,9 +380,14 @@ export class SingleFileStorage extends CloudStorageFilesystem {
     }
   }
 
-  private serialization(items: CollectionItem[], updated: number) {
+  private serialization(
+    items: CollectionItem[],
+    values: SpaceValues,
+    updated: number
+  ) {
     const obj: SingleFileStorageFileContent = {
       i: items,
+      o: values,
       u: updated,
       v: KIWIMERI_MODEL_VERSION
     };
@@ -387,6 +408,7 @@ export class SingleFileStorage extends CloudStorageFilesystem {
     return {
       u: obj.u,
       i: unminimizeItemsFromStorage(obj.i),
+      o: obj.o ? JSON.parse(obj.o) : {},
       v: obj.v
     };
   }

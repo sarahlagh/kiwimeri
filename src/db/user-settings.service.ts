@@ -117,6 +117,7 @@ class UserSettingsService {
 
   public setSpaceDefaultDisplayOpts(newDisplayOpts: CollectionItemDisplayOpts) {
     storageService.getSpace().transaction(() => {
+      storageService.getSpace().setValue('lastUpdated', Date.now());
       storageService
         .getSpace()
         .setValue('defaultSortBy', newDisplayOpts.sort.by);
@@ -146,9 +147,9 @@ class UserSettingsService {
     space?: string
   ): CollectionItemDisplayOpts {
     if (!notebook) {
-      notebook = notebooksService.useCurrentNotebook();
+      notebook = notebooksService.getCurrentNotebook();
     }
-    const notebookDisplayOpts = collectionService.useItemDisplayOpts(notebook);
+    const notebookDisplayOpts = collectionService.getItemDisplayOpts(notebook);
     if (notebookDisplayOpts) {
       return notebookDisplayOpts!;
     }

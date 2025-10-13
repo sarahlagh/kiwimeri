@@ -96,3 +96,8 @@ export const dateToStr = (
       return date.toISOString().substring(0, 19).replaceAll(/[:T]/g, '-');
   }
 };
+
+export const nOr0 = (key: string, obj?: AnyData, defaultValue = 0) => {
+  if (!obj || !obj[key]) return defaultValue;
+  return obj[key];
+};
