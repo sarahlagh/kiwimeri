@@ -97,7 +97,7 @@ export const dateToStr = (
   }
 };
 
-export const nOr0 = (key: string, obj?: AnyData, defaultValue = 0) => {
+export const nOr0 = (key: string, obj?: AnyData, defaultValue: unknown = 0) => {
   if (!obj || !obj[key]) return defaultValue;
   return obj[key];
 };

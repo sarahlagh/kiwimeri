@@ -6,6 +6,8 @@ import {
   unminimizeItemsFromStorage
 } from '@/collection/compress-collection';
 import { fastHash } from '@/common/utils';
+import { KIWIMERI_MODEL_VERSION } from '@/constants';
+import { SpaceValues } from '@/db/types/space-types';
 import { CloudStorageDriver } from '@/remote-storage/sync-types';
 
 // for testing
@@ -83,23 +85,34 @@ export class InMemDriver extends CloudStorageDriver {
     }
   }
 
-  public setContent(items: CollectionItem[], updated: number) {
+  public setContent(
+    items: CollectionItem[],
+    values: SpaceValues,
+    updated: number
+  ) {
     return this.pushFile(
       this.names[0],
-      JSON.stringify({ i: minimizeItemsForStorage(items), u: updated })
+      JSON.stringify({
+        i: minimizeItemsForStorage(items),
+        o: values,
+        u: updated,
+        v: KIWIMERI_MODEL_VERSION
+      })
     );
   }
 
-  public getContent() {
+  public getParsedContent() {
     console.debug('[getRemoteContent]', this.collection.get(this.names[0]));
     const obj = JSON.parse(
       this.collection.get(this.names[0]) || '{"i":[],"u":0}'
     ) as {
       i: CollectionItem[];
-      u: number;
+      o: SpaceValues;
     };
+    const unminimizedObj = { ...obj, i: unminimizeItemsFromStorage(obj.i) };
     return {
-      content: { ...obj, i: unminimizeItemsFromStorage(obj.i) }.i
+      content: unminimizedObj.i,
+      values: unminimizedObj.o
     };
   }
 }

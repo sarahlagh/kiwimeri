@@ -24,6 +24,7 @@ import {
   LocalChangeType,
   RemoteState
 } from '@/db/types/store-types';
+import userSettingsService from '@/db/user-settings.service';
 import { Row, Table } from 'tinybase/store';
 import { Content, getUniqueId } from 'tinybase/with-schemas';
 import {
@@ -141,7 +142,7 @@ export class SingleFileStorage extends CloudStorageFilesystem {
       const obj = this.deserialization(remoteContent);
       newRemoteContent = obj.i;
       newRemoteValues =
-        nOr0('lastUpdated', obj.o) > nOr0('lastUpdated', localContent[1])
+        obj.o.lastUpdated > nOr0('lastUpdated', localContent[1])
           ? obj.o
           : localContent[1];
     }
@@ -242,7 +243,7 @@ export class SingleFileStorage extends CloudStorageFilesystem {
       localContent[0].collection
     );
     const newValues =
-      force || nOr0('lastUpdated', obj.o) > nOr0('lastUpdated', localContent[1])
+      force || obj.o.lastUpdated > nOr0('lastUpdated', localContent[1])
         ? obj.o
         : localContent[1];
     const newLocalContent: Content<SpaceType> = [{ collection: {} }, newValues];
@@ -411,6 +412,16 @@ export class SingleFileStorage extends CloudStorageFilesystem {
         obj.v,
         KIWIMERI_MODEL_VERSION
       );
+    }
+
+    if (!obj.o) {
+      // shouldn't happen except in dev - TODO better version detection before pulling
+      const spaceDefaults = userSettingsService.getSpaceDefaultDisplayOpts();
+      obj.o = {
+        defaultSortBy: spaceDefaults.sort.by,
+        defaultSortDesc: spaceDefaults.sort.descending,
+        lastUpdated: 0
+      };
     }
 
     return {
