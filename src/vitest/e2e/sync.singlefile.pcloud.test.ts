@@ -7,6 +7,8 @@ import localChangesService from '@/db/local-changes.service';
 import notebooksService from '@/db/notebooks.service';
 import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
+import { SpaceValues } from '@/db/types/space-types';
+import userSettingsService from '@/db/user-settings.service';
 import { PCloudDriver } from '@/remote-storage/storage-drivers/pcloud/pcloud.driver';
 import { SingleFileStorage } from '@/remote-storage/storage-filesystems/singlefile.filesystem';
 import { syncService } from '@/remote-storage/sync.service';
@@ -29,13 +31,24 @@ let notebook: string = DEFAULT_NOTEBOOK_ID;
 let driver: PCloudDriver;
 let filesystem: SingleFileStorage;
 
-const reInitRemoteData = async (items: CollectionItem[], updateTs?: number) => {
+const reInitRemoteData = async (
+  items: CollectionItem[],
+  updateTs?: number,
+  values?: SpaceValues
+) => {
   const lastRemoteChange =
     updateTs !== undefined ? updateTs : Math.max(...items.map(i => i.updated));
-  console.debug('[reInitRemoteData]', items, lastRemoteChange);
+  if (!values) {
+    values = {
+      defaultSortBy: 'created',
+      defaultSortDesc: false,
+      lastUpdated: 0
+    };
+  }
+  console.debug('[reInitRemoteData]', items, values, lastRemoteChange);
   await driver.pushFile(
     'collection.json',
-    JSON.stringify({ i: items, u: lastRemoteChange })
+    JSON.stringify({ i: items, u: lastRemoteChange, o: values })
   );
 };
 
@@ -52,9 +65,14 @@ const getRemoteContent = async () => {
   const info = JSON.parse(infoStr!) as { providerid: string };
   const { content } = await driver.pullFile(info.providerid, '');
   console.debug('[getRemoteContent]', content);
-  return content
-    ? unminimizeItemsFromStorage(JSON.parse(content).i as CollectionItem[])
-    : undefined;
+  if (!content) {
+    return undefined;
+  }
+  const parsed = JSON.parse(content);
+  return {
+    items: unminimizeItemsFromStorage(parsed.i as CollectionItem[]),
+    values: parsed.o as SpaceValues
+  };
 };
 
 describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
@@ -108,8 +126,8 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     await syncService.push();
     await amount(100);
     const content = await getRemoteContent();
-    expect(content).toBeDefined();
-    expect(content).toHaveLength(4); // items + notebook
+    expect(content?.items).toBeDefined();
+    expect(content?.items).toHaveLength(4); // items + notebook
   });
 
   it('should pull new remote items, create newer, then push', async () => {
@@ -127,7 +145,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     setLocalItemField(remoteData[0].id!, 'title', 'new');
     await syncService.push();
     await amount(100);
-    const content = await getRemoteContent();
+    const content = (await getRemoteContent())?.items;
     expect(content).toHaveLength(5); // items + notebook
     expect(content!.map(r => r.title)).toEqual([
       getGlobalTrans().defaultNotebookName,
@@ -236,7 +254,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     await amount(100);
     await syncService.push();
     await amount(100);
-    let content = await getRemoteContent();
+    let content = (await getRemoteContent())?.items;
     expect(content).toHaveLength(3);
     await amount(100);
     // now, solve conflict
@@ -244,7 +262,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     expect(getLocalItemConflicts()).toHaveLength(0);
     await syncService.push();
     await amount(100);
-    content = await getRemoteContent();
+    content = (await getRemoteContent())?.items;
     expect(content).toHaveLength(4);
   });
 
@@ -266,7 +284,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     // push
     await syncService.push();
     await amount(100);
-    const content = await getRemoteContent();
+    const content = (await getRemoteContent())?.items;
     expect(content).toBeDefined();
     expect(content).toHaveLength(22); // 20 items + 2 notebooks
 
@@ -431,5 +449,154 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     await syncService.pull();
     // both items are kept
     expect(getRowCountInsideNotebook()).toBe(2);
+  });
+
+  describe(`tests with values`, () => {
+    it(`should pull updated values`, async () => {
+      await reInitRemoteData([oneNotebook()], Date.now(), {
+        defaultSortBy: 'order',
+        defaultSortDesc: true,
+        lastUpdated: Date.now()
+      });
+
+      expect(userSettingsService.getSpaceDefaultDisplayOpts()).toEqual({
+        sort: {
+          by: 'created',
+          descending: false
+        }
+      });
+
+      await syncService.pull();
+
+      expect(userSettingsService.getSpaceDefaultDisplayOpts()).toEqual({
+        sort: {
+          by: 'order',
+          descending: true
+        }
+      });
+    });
+
+    it(`should not pull remote values if local changed`, async () => {
+      const remoteTs = Date.now() - 500;
+      await reInitRemoteData([oneNotebook()], remoteTs, {
+        defaultSortBy: 'order',
+        defaultSortDesc: true,
+        lastUpdated: remoteTs
+      });
+
+      userSettingsService.setSpaceDefaultDisplayOpts({
+        sort: {
+          by: 'updated',
+          descending: false
+        }
+      });
+
+      await syncService.pull();
+
+      expect(userSettingsService.getSpaceDefaultDisplayOpts()).toEqual({
+        sort: {
+          by: 'updated',
+          descending: false
+        }
+      });
+    });
+
+    it(`should force pull remote values even if local changed`, async () => {
+      const remoteTs = Date.now() - 500;
+      await reInitRemoteData([oneNotebook()], remoteTs, {
+        defaultSortBy: 'order',
+        defaultSortDesc: true,
+        lastUpdated: remoteTs
+      });
+
+      userSettingsService.setSpaceDefaultDisplayOpts({
+        sort: {
+          by: 'updated',
+          descending: false
+        }
+      });
+
+      await syncService.pull(undefined, true);
+
+      expect(userSettingsService.getSpaceDefaultDisplayOpts()).toEqual({
+        sort: {
+          by: 'order',
+          descending: true
+        }
+      });
+    });
+
+    it(`should push updated values`, async () => {
+      const remoteTs = Date.now() - 500;
+      await reInitRemoteData([oneNotebook()], remoteTs, {
+        defaultSortBy: 'order',
+        defaultSortDesc: true,
+        lastUpdated: remoteTs
+      });
+
+      userSettingsService.setSpaceDefaultDisplayOpts({
+        sort: {
+          by: 'updated',
+          descending: false
+        }
+      });
+      await syncService.push();
+
+      const remoteContent = await getRemoteContent();
+      expect(remoteContent?.values).toEqual({
+        defaultSortBy: 'updated',
+        defaultSortDesc: false,
+        lastUpdated: storageService.getSpace().getValue('lastUpdated')
+      });
+    });
+
+    it(`should not push remote values if remote changed`, async () => {
+      userSettingsService.setSpaceDefaultDisplayOpts({
+        sort: {
+          by: 'updated',
+          descending: false
+        }
+      });
+
+      const pushTime = Date.now() + 500;
+      await reInitRemoteData([oneNotebook()], pushTime, {
+        defaultSortBy: 'order',
+        defaultSortDesc: true,
+        lastUpdated: pushTime
+      });
+
+      await syncService.push();
+
+      const remoteContent = await getRemoteContent();
+      expect(remoteContent?.values).toEqual({
+        defaultSortBy: 'order',
+        defaultSortDesc: true,
+        lastUpdated: pushTime
+      });
+    });
+
+    it(`should force push remote values even if remote changed`, async () => {
+      userSettingsService.setSpaceDefaultDisplayOpts({
+        sort: {
+          by: 'updated',
+          descending: false
+        }
+      });
+
+      await reInitRemoteData([oneNotebook()], Date.now() + 500, {
+        defaultSortBy: 'order',
+        defaultSortDesc: true,
+        lastUpdated: Date.now() + 500
+      });
+
+      await syncService.push(undefined, true);
+
+      const remoteContent = await getRemoteContent();
+      expect(remoteContent?.values).toEqual({
+        defaultSortBy: 'updated',
+        defaultSortDesc: false,
+        lastUpdated: storageService.getSpace().getValue('lastUpdated')
+      });
+    });
   });
 });
