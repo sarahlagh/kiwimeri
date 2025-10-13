@@ -23,10 +23,11 @@ export interface Space {
 export enum LocalChangeType {
   add = 'a',
   update = 'u',
-  delete = 'd'
+  delete = 'd',
+  value = 'v'
 }
 
-export type LocalChangeTypeValues = 'a' | 'u' | 'd';
+export type LocalChangeTypeValues = 'a' | 'u' | 'd' | 'v';
 
 export interface LocalChange {
   id?: string;

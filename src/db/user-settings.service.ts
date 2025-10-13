@@ -5,9 +5,11 @@ import {
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
 import collectionService from './collection.service';
+import localChangesService from './local-changes.service';
 import notebooksService from './notebooks.service';
 import storageService from './storage.service';
 import { useValueWithRef } from './tinybase/hooks';
+import { LocalChangeType } from './types/store-types';
 
 class UserSettingsService {
   private readonly storeId = 'store';
@@ -79,7 +81,6 @@ class UserSettingsService {
     if (!space) {
       space = storageService.getSpaceId();
     }
-    console.debug('using space default sort', space);
     const by = storageService
       .getSpace()
       .getValue('defaultSortBy') as CollectionItemSortType;
@@ -117,6 +118,7 @@ class UserSettingsService {
 
   public setSpaceDefaultDisplayOpts(newDisplayOpts: CollectionItemDisplayOpts) {
     storageService.getSpace().transaction(() => {
+      localChangesService.addLocalChange('', LocalChangeType.value);
       storageService.getSpace().setValue('lastUpdated', Date.now());
       storageService
         .getSpace()

@@ -3,7 +3,8 @@ import DeleteButton from '@/common/buttons/DeleteButton';
 import {
   GET_DOCUMENT_ROUTE,
   GET_FOLDER_ROUTE,
-  GET_PAGE_ROUTE
+  GET_PAGE_ROUTE,
+  SETTINGS_ROUTE
 } from '@/common/routes';
 import platformService from '@/common/services/platform.service';
 import { dateToStr } from '@/common/utils';
@@ -11,6 +12,7 @@ import { APPICONS, APPICONS_PER_TYPE } from '@/constants';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/local-changes.service';
 import remotesService from '@/db/remotes.service';
+import { LocalChangeType } from '@/db/types/store-types';
 import {
   IonCard,
   IonCardContent,
@@ -62,6 +64,20 @@ const LocalChangesCard = () => {
           <>
             <IonList style={{ maxHeight: '400px', overflowY: 'auto' }}>
               {localChanges.map(lc => {
+                if (lc.change === LocalChangeType.value) {
+                  return (
+                    <IonItem key={lc.id} routerLink={SETTINGS_ROUTE}>
+                      <IonIcon
+                        slot="start"
+                        icon={APPICONS.settingsPage}
+                      ></IonIcon>
+                      <IonText>{t`space option modified`}</IonText>
+                      <IonText slot="end">
+                        {dateToStr('datetime', lc.updated)}
+                      </IonText>
+                    </IonItem>
+                  );
+                }
                 const type = collectionService.getItemType(lc.item);
                 let route, parent, doc;
                 switch (type) {
@@ -132,6 +148,7 @@ const LocalChangesCard = () => {
 
                     {isWideEnough && (
                       <>
+                        {/* TODO translate field & change */}
                         <IonText slot="end">{lc.field || ''}</IonText>
                         <IonText slot="end">{lc.change}</IonText>
                       </>

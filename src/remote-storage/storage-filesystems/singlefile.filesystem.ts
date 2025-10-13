@@ -151,6 +151,9 @@ export class SingleFileStorage extends CloudStorageFilesystem {
       lastLocalChange = Math.max(...localChanges.map(lc => lc.updated));
       // reapply local changes
       for (const localChange of localChanges) {
+        if (localChange.change === LocalChangeType.value) {
+          continue;
+        }
         const itemIdx = newRemoteContent.findIndex(
           ri => ri.id === localChange.item
         );
@@ -192,6 +195,7 @@ export class SingleFileStorage extends CloudStorageFilesystem {
     );
     console.debug('[push] cachedRemoteInfo', cachedRemoteInfo);
     console.debug('[push] newRemoteState', newRemoteState);
+    console.debug('[push] newRemoteValues', newRemoteValues);
     return {
       remoteInfo: {
         ...cachedRemoteInfo,
@@ -238,7 +242,7 @@ export class SingleFileStorage extends CloudStorageFilesystem {
       localContent[0].collection
     );
     const newValues =
-      nOr0('lastUpdated', obj.o) > nOr0('lastUpdated', localContent[1])
+      force || nOr0('lastUpdated', obj.o) > nOr0('lastUpdated', localContent[1])
         ? obj.o
         : localContent[1];
     const newLocalContent: Content<SpaceType> = [{ collection: {} }, newValues];
@@ -252,6 +256,9 @@ export class SingleFileStorage extends CloudStorageFilesystem {
     if (!force && localChanges.length > 0) {
       // reapply localChanges
       for (const localChange of localChanges) {
+        if (localChange.change === LocalChangeType.value) {
+          continue;
+        }
         let remoteUpdated = newLocalCollection.has(localChange.item)
           ? newLocalCollection.get(localChange.item)!.updated
           : remoteContentUpdated || 0;
@@ -330,6 +337,7 @@ export class SingleFileStorage extends CloudStorageFilesystem {
     console.debug('[pull] newLocalInfo', newLocalInfo);
     console.debug('[pull] cachedRemoteInfo', cachedRemoteInfo);
     console.debug('[pull] newRemoteState', newRemoteState);
+    console.debug('[pull] newLocalValues', newValues);
 
     return {
       content: newLocalContent,
@@ -408,7 +416,7 @@ export class SingleFileStorage extends CloudStorageFilesystem {
     return {
       u: obj.u,
       i: unminimizeItemsFromStorage(obj.i),
-      o: obj.o ? JSON.parse(obj.o) : {},
+      o: obj.o,
       v: obj.v
     };
   }

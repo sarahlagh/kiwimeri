@@ -15,7 +15,6 @@ const CurrentNotebookSettings = () => {
   const defaultDisplayOpts = userSettingsService.useDefaultDisplayOpts();
   const currentNotebook = notebooksService.useCurrentNotebook();
   const notebookTitle = notebooksService.useNotebookTitle(currentNotebook);
-  console.debug('default display opts', currentNotebook, defaultDisplayOpts);
 
   return (
     <IonCard className="primary">

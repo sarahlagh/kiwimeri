@@ -64,7 +64,7 @@ class LocalChangesService {
       updated: Date.now()
     };
 
-    if (change === LocalChangeType.update) {
+    if (change === LocalChangeType.update || change === LocalChangeType.value) {
       // if field update, merge with existing row if any
       const table = storageService.getStore().getTable(this.table);
       const queryName = this.fetchLocalChangesForItemQuery(space, item);

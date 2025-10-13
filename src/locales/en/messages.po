@@ -51,7 +51,7 @@ msgstr "Choose"
 msgid "Choose a new folder"
 msgstr "Choose a new folder"
 
-#: src/synchronization/components/LocalChangesCard.tsx:156
+#: src/synchronization/components/LocalChangesCard.tsx:173
 msgid "Clear All"
 msgstr "Clear All"
 
@@ -89,7 +89,7 @@ msgstr "Conflicts"
 msgid "Creation Date"
 msgstr "Creation Date"
 
-#: src/settings/components/sections/CurrentNotebookSettings.tsx:24
+#: src/settings/components/sections/CurrentNotebookSettings.tsx:23
 msgid "Current Notebook Settings ({notebookTitle})"
 msgstr "Current Notebook Settings ({notebookTitle})"
 
@@ -97,7 +97,7 @@ msgstr "Current Notebook Settings ({notebookTitle})"
 msgid "Default"
 msgstr "Default"
 
-#: src/synchronization/components/LocalChangesCard.tsx:93
+#: src/synchronization/components/LocalChangesCard.tsx:109
 msgid "deleted item"
 msgstr "deleted item"
 
@@ -110,7 +110,7 @@ msgstr "Dev Tools"
 msgid "Dev Tools Enabled"
 msgstr "Dev Tools Enabled"
 
-#: src/settings/components/sections/CurrentNotebookSettings.tsx:27
+#: src/settings/components/sections/CurrentNotebookSettings.tsx:26
 msgid "Display options for the currently selected notebook. They can still be overriden per folder."
 msgstr "Display options for the currently selected notebook. They can still be overriden per folder."
 
@@ -224,11 +224,11 @@ msgstr "Leave empty for root"
 msgid "Loading..."
 msgstr "Loading..."
 
-#: src/synchronization/components/LocalChangesCard.tsx:40
+#: src/synchronization/components/LocalChangesCard.tsx:42
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
-#: src/synchronization/components/LocalChangesCard.tsx:46
+#: src/synchronization/components/LocalChangesCard.tsx:48
 msgid "Local: {0}"
 msgstr "Local: {0}"
 
@@ -353,7 +353,7 @@ msgstr "Pick a directory for your backups"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
-#: src/synchronization/components/LocalChangesCard.tsx:53
+#: src/synchronization/components/LocalChangesCard.tsx:55
 msgid "Remote: {0}"
 msgstr "Remote: {0}"
 
@@ -390,6 +390,10 @@ msgstr "Sort"
 #: src/settings/components/sections/GenericCollectionSettings.tsx:25
 msgid "Sort items by..."
 msgstr "Sort items by..."
+
+#: src/synchronization/components/LocalChangesCard.tsx:74
+msgid "space option modified"
+msgstr "space option modified"
 
 #: src/settings/components/sections/CurrentSpaceSettings.tsx:19
 msgid "Space Settings"
