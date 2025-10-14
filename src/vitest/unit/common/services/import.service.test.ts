@@ -422,6 +422,14 @@ describe('import service', () => {
         if ('tags' in expectedItem) {
           expect((mergedItem as CollectionItem).tags).toBe(expectedItem.tags);
         }
+        if ('order' in expectedItem) {
+          expect((mergedItem as CollectionItem).order).toBe(expectedItem.order);
+        }
+        if ('display_opts' in expectedItem) {
+          expect((mergedItem as CollectionItem).display_opts).toBe(
+            expectedItem.display_opts
+          );
+        }
       });
     }
     return ids;

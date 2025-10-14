@@ -6,7 +6,8 @@ import {
   CollectionItemTypeValues,
   CollectionItemUpdatableFields,
   CollectionItemUpdate,
-  setFieldMeta
+  setFieldMeta,
+  sortBy
 } from '@/collection/collection';
 import { META_JSON, ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/db/collection.service';
@@ -83,6 +84,7 @@ type ZipParsedMetadata = {
   };
 } & ZipMetadata;
 
+// TODO auto convert from ts type to z schema
 const ZipMetadataSchema = z.object({
   format: z.enum(['markdown']).optional(),
   type: z.enum(CollectionItemType).optional(),
@@ -90,6 +92,15 @@ const ZipMetadataSchema = z.object({
   created: z.number().optional(),
   updated: z.number().optional(),
   tags: z.string().optional(),
+  order: z.number().optional(),
+  display_opts: z
+    .object({
+      sort: z.object({
+        by: z.enum(sortBy),
+        descending: z.boolean()
+      })
+    })
+    .optional(),
   files: z.object().optional()
 });
 
@@ -146,6 +157,7 @@ class ImportService {
     return { doc: obj, pages: [] };
   }
 
+  // TODO less manual
   private fillInMeta(
     item: CollectionItem,
     meta: ZipParsedMetadata,
@@ -179,6 +191,12 @@ class ImportService {
     }
     if (meta.tags) {
       item.tags = item.type === CollectionItemType.page ? '' : meta.tags;
+    }
+    if (meta.order) {
+      item.order = meta.order;
+    }
+    if (meta.display_opts) {
+      item.display_opts = JSON.stringify(meta.display_opts);
     }
   }
 
@@ -708,6 +726,14 @@ class ImportService {
       if (newItem.content) {
         update.content = newItem.content;
         update.content_meta = newItem.content_meta;
+      }
+      if (newItem.order) {
+        update.order = newItem.order;
+        update.order_meta = newItem.order_meta;
+      }
+      if (newItem.display_opts) {
+        update.display_opts = newItem.display_opts;
+        update.display_opts_meta = newItem.display_opts_meta;
       }
     }
     return update;
