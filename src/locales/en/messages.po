@@ -38,7 +38,7 @@ msgstr "Are you sure?"
 #: src/common/modals/ConfirmMultipleImportModal.tsx:330
 #: src/common/modals/ConfirmFileImportModal.tsx:78
 #: src/common/modals/ChooseTagsModal.tsx:99
-#: src/common/buttons/RestoreCollectionButton.tsx:66
+#: src/common/buttons/RestoreCollectionButton.tsx:63
 #: src/common/buttons/ExportItemsButton.tsx:132
 msgid "Cancel"
 msgstr "Cancel"
@@ -76,7 +76,7 @@ msgstr "Configure where to synchronize your collection"
 #: src/common/modals/ConfirmMultipleImportModal.tsx:336
 #: src/common/modals/ConfirmFileImportModal.tsx:81
 #: src/common/modals/ChooseTagsModal.tsx:106
-#: src/common/buttons/RestoreCollectionButton.tsx:73
+#: src/common/buttons/RestoreCollectionButton.tsx:70
 #: src/common/buttons/ExportItemsButton.tsx:139
 msgid "Confirm"
 msgstr "Confirm"
@@ -362,11 +362,11 @@ msgid "Reorder"
 msgstr "Reorder"
 
 #: src/settings/components/sections/ImportExportStoreSettings.tsx:79
-#: src/common/buttons/RestoreCollectionButton.tsx:93
+#: src/common/buttons/RestoreCollectionButton.tsx:90
 msgid "Restore"
 msgstr "Restore"
 
-#: src/common/buttons/RestoreCollectionButton.tsx:62
+#: src/common/buttons/RestoreCollectionButton.tsx:59
 msgid "Restore Collection"
 msgstr "Restore Collection"
 
@@ -429,7 +429,7 @@ msgstr "The following file(s) with matching title(s) have been detected inside t
 msgid "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page, including the settings for your cloud provider."
 msgstr "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page, including the settings for your cloud provider."
 
-#: src/common/buttons/RestoreCollectionButton.tsx:63
+#: src/common/buttons/RestoreCollectionButton.tsx:60
 msgid "This will delete your existing data. Are you sure?"
 msgstr "This will delete your existing data. Are you sure?"
 

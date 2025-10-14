@@ -56,6 +56,7 @@ const CollectionItemBrowserListToolbar = ({
         >
           <IonIcon icon={APPICONS.goToCurrentFolder}></IonIcon>
         </IonButton>
+        <OpenSortFilterButton id={folderId} />
       </IonButtons>
 
       <IonButtons slot="end">
@@ -126,15 +127,21 @@ export const CollectionItemBrowserList = ({
   return (
     <CollectionItemList
       header={
-        <IonToolbar className="slim">
-          <CollectionItemBreadcrumb
-            folder={folder}
-            onClick={item => {
-              history.push(GET_ITEM_ROUTE(item, openedDocument));
-            }}
-          />
-          <OpenSortFilterButton id={folder} />
-        </IonToolbar>
+        // <IonToolbar className="slim">
+        //   <CollectionItemBreadcrumb
+        //     folder={folder}
+        //     onClick={item => {
+        //       history.push(GET_ITEM_ROUTE(item, openedDocument));
+        //     }}
+        //   />
+        //   <OpenSortFilterButton id={folder} />
+        // </IonToolbar>
+        <CollectionItemBreadcrumb
+          folder={folder}
+          onClick={item => {
+            history.push(GET_ITEM_ROUTE(item, openedDocument));
+          }}
+        />
       }
       items={items}
       selected={openedDocument}

@@ -82,7 +82,6 @@ export default function KiwimeriPagesBrowserPlugin({
         <IonItem lines="none">
           <IonButton
             fill="clear"
-            slot="start"
             onClick={() => {
               collectionService.addPage(docId);
             }}
