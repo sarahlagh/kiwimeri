@@ -237,7 +237,6 @@ export class SingleFileStorage extends CloudStorageFilesystem {
 
     const obj = this.deserialization(content);
     const items = obj.i;
-    const remoteContentUpdated = obj.u;
     console.debug('[pull] content from file: u', obj.u);
     const localCollection = this.toMap<CollectionItem>(
       localContent[0].collection
@@ -250,9 +249,6 @@ export class SingleFileStorage extends CloudStorageFilesystem {
     items.forEach(item => {
       newLocalContent[0].collection![item.id!] = item;
     });
-    const newLocalCollection = this.toMap<CollectionItem>(
-      newLocalContent[0].collection
-    );
 
     if (!force && localChanges.length > 0) {
       // reapply localChanges
@@ -260,31 +256,12 @@ export class SingleFileStorage extends CloudStorageFilesystem {
         if (localChange.change === LocalChangeType.value) {
           continue;
         }
-        let remoteUpdated = newLocalCollection.has(localChange.item)
-          ? newLocalCollection.get(localChange.item)!.updated
-          : remoteContentUpdated || 0;
-        console.debug(
-          '[pull] handling local change',
+
+        const remoteUpdated = this.getRemoteUpdatedTS(
           localChange,
-          remoteUpdated
+          newLocalContent[0].collection!,
+          obj.u
         );
-
-        // before reapply: if updated locally and still exists on remote, get remoteUpdated value
-        if (
-          localChange.change === LocalChangeType.update &&
-          newLocalCollection.has(localChange.item)
-        ) {
-          const meta = newLocalCollection.get(localChange.item)![
-            `${localChange.field as CollectionItemUpdatableFieldEnum}_meta`
-          ];
-          if (meta) {
-            console.debug('[pull] local change meta', localChange.field, meta);
-            remoteUpdated = parseFieldMeta(meta!).u;
-          } else {
-            remoteUpdated = 0; // TODO... but only if different fields?
-          }
-        }
-
         const localItem = localCollection.get(localChange.item);
 
         // if added locally, add to newLocalContent
@@ -355,6 +332,36 @@ export class SingleFileStorage extends CloudStorageFilesystem {
 
   public async destroy() {
     this.driver.close();
+  }
+
+  private getRemoteUpdatedTS(
+    localChange: LocalChange,
+    collection: Table,
+    remoteContentUpdated?: number
+  ) {
+    // remoteUpdated is the 'updated' ts on the remote item, OR the collection updated ts if the item is deleted
+    let remoteUpdated = collection[localChange.item]
+      ? (collection[localChange.item].updated as number)
+      : remoteContentUpdated || 0;
+    console.debug('[pull] handling local change', localChange, remoteUpdated);
+
+    // but if item still exists on remote, and but its field doesn't, and it's an update, only take the meta ts
+    if (
+      localChange.change === LocalChangeType.update &&
+      collection[localChange.item]
+    ) {
+      const meta = collection[localChange.item][
+        `${localChange.field as CollectionItemUpdatableFieldEnum}_meta`
+      ] as string;
+      if (meta) {
+        console.debug('[pull] local change meta', localChange.field, meta);
+        remoteUpdated = parseFieldMeta(meta).u;
+      } else {
+        remoteUpdated = 0;
+      }
+    }
+
+    return remoteUpdated;
   }
 
   private checkOrphans(newCollectionAfterPull: Table) {
