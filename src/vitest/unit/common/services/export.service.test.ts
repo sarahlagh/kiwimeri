@@ -139,6 +139,7 @@ describe('export service', () => {
                 expect(pageMeta.tags).toBeUndefined();
               });
             }
+            return meta;
           }
         };
 
@@ -280,6 +281,9 @@ describe('export service', () => {
 
         it(`should export a folder with several levels as a zip with inlinePages=${opts.inlinePages}`, () => {
           const fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+          collectionService.setItemDisplayOpts(fId, {
+            sort: { by: 'updated', descending: true }
+          });
           newDoc(fId, 'this is the document content');
           const fId2 = collectionService.addFolder(fId);
           newDoc(fId2, 'this is the document content');
@@ -295,8 +299,17 @@ describe('export service', () => {
             strFromU8(zipContent['New folder']['New document.md'][0])
           ).toBe('this is the document content\n\n');
 
-          checkMetadata(zipContent, true);
+          const meta = checkMetadata(zipContent, true);
           checkMetadata(zipContent['New folder'], false);
+
+          // check for display opts
+          if (includeMetadata) {
+            expect(meta).toBeDefined();
+            expect(meta!.display_opts).toBeDefined();
+            expect(meta!.display_opts!.sort).toBeDefined();
+            expect(meta!.display_opts!.sort.by).toBe('updated');
+            expect(meta!.display_opts!.sort.descending).toBe(true);
+          }
         });
 
         it(`should export a folder with several levels with folders and docs as first level as a zip with inlinePages=${opts.inlinePages}`, () => {

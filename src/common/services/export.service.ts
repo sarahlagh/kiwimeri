@@ -1,11 +1,15 @@
 import {
   CollectionItem,
+  CollectionItemDisplayOpts,
+  CollectionItemResult,
   CollectionItemType,
   CollectionItemTypeValues
 } from '@/collection/collection';
 import { getGlobalTrans } from '@/config';
 import { META_JSON } from '@/constants';
-import collectionService from '@/db/collection.service';
+import collectionService, {
+  INITIAL_CONTENT_START
+} from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import formatterService from '@/format-conversion/formatter.service';
 import { strToU8, zip } from 'fflate';
@@ -22,8 +26,12 @@ export type ZipExportOptions = {
 };
 
 export type ZipMetadata = Partial<
-  Pick<CollectionItem, 'type' | 'title' | 'created' | 'updated' | 'tags'>
+  Pick<
+    CollectionItem,
+    'type' | 'title' | 'created' | 'updated' | 'tags' | 'order'
+  >
 > & {
+  display_opts?: CollectionItemDisplayOpts;
   format?: 'markdown';
   files?: {
     [key: string]: ZipMetadata;
@@ -38,13 +46,13 @@ class ExportService {
   private readonly maxLength = 50;
 
   private getDocumentContentFormatted(storedJson: string) {
-    const content = storedJson.startsWith('{"root":{')
+    const content = storedJson.startsWith(INITIAL_CONTENT_START)
       ? storedJson
       : unminimizeContentFromStorage(storedJson);
     return formatterService.getMarkdownFromLexical(content);
   }
 
-  private getMetaObj(
+  private getParentMeta(
     id: string,
     type?: CollectionItemTypeValues,
     withFiles = false
@@ -57,9 +65,25 @@ class ExportService {
           ? collectionService.getItemTitle(id)
           : undefined,
       tags: collectionService.getItemField(id, 'tags'),
+      order: collectionService.getItemField(id, 'order'),
+      display_opts: collectionService.getItemDisplayOpts(id),
       created: collectionService.getItemField(id, 'created'),
       updated: collectionService.getItemField(id, 'updated'),
       files: withFiles ? {} : undefined
+    };
+  }
+
+  private getFileMeta(item: CollectionItemResult): ZipMetadata {
+    return {
+      type: item.type,
+      created: item.created,
+      updated: item.updated,
+      tags: item.tags,
+      title: item.title,
+      order: item.order,
+      display_opts: item.display_opts
+        ? JSON.parse(item.display_opts)
+        : undefined
     };
   }
 
@@ -87,15 +111,9 @@ class ExportService {
           if (opts.includeMetadata) {
             const metaId = item.parent;
             if (!meta.has(metaId)) {
-              meta.set(metaId, this.getMetaObj(id, folderType, true));
+              meta.set(metaId, this.getParentMeta(id, folderType, true));
             }
-            meta.get(metaId)!.files![itemKey] = {
-              type: item.type,
-              created: item.created,
-              updated: item.updated,
-              tags: item.tags,
-              title: item.title
-            };
+            meta.get(metaId)!.files![itemKey] = this.getFileMeta(item);
           }
         } else {
           fileTree[`${itemKey}`] = docResp;
@@ -126,7 +144,7 @@ class ExportService {
 
     const metaId = id;
     if (!meta.has(metaId)) {
-      meta.set(metaId, this.getMetaObj(id, folderType));
+      meta.set(metaId, this.getParentMeta(id, folderType));
     }
 
     if (opts.includeMetadata && meta.has(metaId)) {
@@ -187,7 +205,7 @@ class ExportService {
         type: CollectionItemType.document,
         files: {}
       };
-      meta.files![itemKey] = this.getMetaObj(
+      meta.files![itemKey] = this.getParentMeta(
         id,
         CollectionItemType.document,
         false
@@ -198,7 +216,7 @@ class ExportService {
         );
         const pageKey = `${docTitle} ${idx + 1}.md`;
         fileTree[pageKey] = [strToU8(pageContent)];
-        meta.files![pageKey] = this.getMetaObj(
+        meta.files![pageKey] = this.getParentMeta(
           page.id,
           CollectionItemType.page,
           false

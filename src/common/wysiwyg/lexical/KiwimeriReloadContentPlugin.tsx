@@ -1,4 +1,5 @@
 import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
+import { INITIAL_CONTENT_START } from '@/db/collection.service';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useEffect } from 'react';
 
@@ -13,7 +14,7 @@ export default function KiwimeriReloadContentPlugin({
 
   useEffect(() => {
     const newState = editor.parseEditorState(
-      content.startsWith('{"root":{')
+      content.startsWith(INITIAL_CONTENT_START)
         ? content
         : unminimizeContentFromStorage(content)
     );

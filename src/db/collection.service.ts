@@ -34,6 +34,8 @@ export const initialContent = () => {
   return '{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1}],"direction":null,"format":"","indent":0,"type":"root","version":1}}';
 };
 
+export const INITIAL_CONTENT_START = '{"root":{';
+
 class CollectionService {
   private readonly storeId = 'space';
   private readonly table = 'collection';
