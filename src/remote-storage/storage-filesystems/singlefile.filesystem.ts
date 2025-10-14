@@ -1,6 +1,7 @@
 import {
   CollectionItem,
   CollectionItemType,
+  CollectionItemUpdatableConflictFields,
   CollectionItemUpdatableFieldEnum,
   parseFieldMeta
 } from '@/collection/collection';
@@ -297,19 +298,16 @@ export class SingleFileStorage extends CloudStorageFilesystem {
           // if remote change on item is more recent than local
           // create conflict, only if item is not already a conflict and is a document or page
           // do not create conflict for folders and notebooks
-          if (
-            localItem &&
-            !localItem.conflict &&
-            localItem.type !== CollectionItemType.folder &&
-            localItem.type !== CollectionItemType.notebook
-          ) {
+          if (this.createConflict(localChange, localItem)) {
+            const ts = Date.now();
             newLocalContent[0].collection![getUniqueId()] = {
               ...{ ...localItem, id: undefined },
               conflict: localChange.item,
-              created: Date.now(),
-              updated: Date.now()
+              created: ts,
+              updated: ts
             };
           }
+          // if no conflict, remote (last write) wins
         }
       }
 
@@ -332,6 +330,20 @@ export class SingleFileStorage extends CloudStorageFilesystem {
 
   public async destroy() {
     this.driver.close();
+  }
+
+  private createConflict(
+    localChange: LocalChange,
+    localItem: CollectionItem | undefined
+  ) {
+    return (
+      localItem &&
+      !localItem.conflict &&
+      localItem.type !== CollectionItemType.folder &&
+      localItem.type !== CollectionItemType.notebook &&
+      (!localChange.field ||
+        CollectionItemUpdatableConflictFields.includes(localChange.field))
+    );
   }
 
   private getRemoteUpdatedTS(

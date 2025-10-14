@@ -3,7 +3,9 @@ import {
   CollectionItemFieldEnum,
   CollectionItemType,
   CollectionItemTypeValues,
+  CollectionItemUpdatableConflictFields,
   CollectionItemUpdatableFieldEnum,
+  CollectionItemUpdatableNonConflictFields,
   setFieldMeta
 } from '@/collection/collection';
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
@@ -159,7 +161,10 @@ const NON_CONFLICT_CHANGES: {
 }[] = [];
 UPDATABLE_FIELDS.forEach(({ field: local, valueType: localValueType }) => {
   UPDATABLE_FIELDS.forEach(({ field: remote, valueType: remoteValueType }) => {
-    if (local !== remote) {
+    if (
+      local !== remote ||
+      CollectionItemUpdatableNonConflictFields.includes(local)
+    ) {
       NON_CONFLICT_CHANGES.push({
         local,
         localValueType,
@@ -170,7 +175,9 @@ UPDATABLE_FIELDS.forEach(({ field: local, valueType: localValueType }) => {
   });
 });
 
-export const CONFLICT_CHANGES = UPDATABLE_FIELDS.map(f => ({
+export const CONFLICT_CHANGES = UPDATABLE_FIELDS.filter(f =>
+  CollectionItemUpdatableConflictFields.includes(f.field)
+).map(f => ({
   field: f.field,
   valueType: f.valueType,
   local: f.field,

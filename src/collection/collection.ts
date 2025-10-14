@@ -84,6 +84,14 @@ export type CollectionItemResult = Pick<
 > &
   Required<Pick<CollectionItem, 'id'>>;
 
+export const CollectionItemUpdatableConflictFields: CollectionItemUpdatableFieldEnum[] =
+  ['parent', 'title', 'content', 'deleted'] as const;
+
+export const CollectionItemUpdatableNonConflictFields: CollectionItemUpdatableFieldEnum[] =
+  CollectionItemUpdatableFields.filter(
+    f => !CollectionItemUpdatableConflictFields.includes(f)
+  );
+
 export type CollectionItemUpdate = Pick<
   CollectionItem,
   'content' | 'content_meta' | 'tags_meta'
@@ -92,7 +100,7 @@ export type CollectionItemUpdate = Pick<
 
 export type PagePreview = Pick<
   CollectionItem,
-  'preview' | 'created' | 'updated' | 'conflict'
+  'preview' | 'created' | 'updated' | 'conflict' | 'order'
 > &
   Required<Pick<CollectionItem, 'id'>>;
 
