@@ -1,8 +1,6 @@
 import storageService from '@/db/storage.service';
-import { SpaceType } from '@/db/types/space-types';
 import { useIonAlert } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
-import { Content } from 'tinybase/with-schemas';
 import { importService } from '../services/import.service';
 import GenericImportFileButton, {
   ImportFileRejectReason,
@@ -26,9 +24,8 @@ const RestoreCollectionButton = ({
   const onSingleJsonRead = async (content: string, file: File) => {
     console.debug('file', file);
 
-    const json: Content<SpaceType, true> = JSON.parse(content);
     // TODO validate schema
-    storageService.getSpace().setContent(json);
+    storageService.getSpace().setJson(content);
 
     return { confirm: true } as OnContentReadResponse;
   };
