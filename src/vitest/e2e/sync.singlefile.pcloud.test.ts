@@ -19,6 +19,7 @@ import {
   getLocalItemConflict,
   getLocalItemConflicts,
   getLocalItemField,
+  getNewValue,
   getRowCountInsideNotebook,
   oneDocument,
   oneFolder,
@@ -232,7 +233,8 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     // update locally
     await amount(50);
     const id = remoteData[0].id!;
-    setLocalItemField(id, 'title');
+    const newLocalTitle = getNewValue('string');
+    setLocalItemField(id, 'title', newLocalTitle);
     await amount(50);
 
     // erase on remote
@@ -248,7 +250,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     expect(getLocalItemConflicts()).toHaveLength(1);
     expect(collectionService.itemExists(id)).toBeFalsy();
     const conflictId = getLocalItemConflict()!;
-    expect(getLocalItemField(conflictId, 'title')).toBe('newLocal');
+    expect(getLocalItemField(conflictId, 'title')).toBe(newLocalTitle);
 
     // push, no conflict should be pushed
     await amount(100);
@@ -387,7 +389,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
 
     // update parent remotely on same as local
     vi.setSystemTime(now + 19000);
-    updateOnRemote(content!, idUpdateParentLocal, 'parent', newRemoteItem.id);
+    updateOnRemote(content!, idUpdateParentLocal, 'parent', newRemoteItem.id!);
     lastRemoteChange = Date.now();
 
     // update remote

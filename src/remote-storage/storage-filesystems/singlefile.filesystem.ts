@@ -277,8 +277,12 @@ export class SingleFileStorage extends CloudStorageFilesystem {
           const meta = newLocalCollection.get(localChange.item)![
             `${localChange.field as CollectionItemUpdatableFieldEnum}_meta`
           ];
-          console.debug('[pull] local change meta', localChange.field, meta);
-          remoteUpdated = parseFieldMeta(meta!).u;
+          if (meta) {
+            console.debug('[pull] local change meta', localChange.field, meta);
+            remoteUpdated = parseFieldMeta(meta!).u;
+          } else {
+            remoteUpdated = 0; // TODO... but only if different fields?
+          }
         }
 
         const localItem = localCollection.get(localChange.item);

@@ -119,31 +119,64 @@ export const NON_NOTEBOOK_ITEM_TYPES: ItemTypesType[] = ITEM_TYPES.filter(
   i => i.type !== 'notebook'
 );
 
+export type ValueType = 'id' | 'string' | 'json' | 'number' | 'boolean';
 export const NON_PARENT_UPDATABLE_FIELDS: {
   field: CollectionItemUpdatableFieldEnum;
-}[] = [{ field: 'title' }, { field: 'content' }, { field: 'tags' }];
-
-export const UPDATABLE_FIELDS: { field: CollectionItemUpdatableFieldEnum }[] = [
-  ...NON_PARENT_UPDATABLE_FIELDS,
-  { field: 'parent' }
+  valueType: ValueType;
+}[] = [
+  { field: 'title', valueType: 'string' },
+  { field: 'content', valueType: 'string' },
+  { field: 'tags', valueType: 'string' },
+  // { field: 'deleted', valueType: 'boolean' }, // TODO
+  { field: 'order', valueType: 'number' },
+  { field: 'display_opts', valueType: 'json' }
 ];
 
-const NON_CONFLICT_CHANGES: { local: string; remote: string }[] = [];
-UPDATABLE_FIELDS.forEach(({ field: local }) => {
-  UPDATABLE_FIELDS.forEach(({ field: remote }) => {
+export const getNewValue = (
+  valueType: ValueType,
+  potentialId?: string
+): string | number | boolean => {
+  if (valueType === 'string') return `new string value ${getUniqueId()}`;
+  if (valueType === 'id') return potentialId ? potentialId : ROOT_COLLECTION;
+  if (valueType === 'json')
+    return JSON.stringify({
+      rand: Math.floor(Math.random() * 10001)
+    });
+  if (valueType === 'number') return Math.floor(Math.random() * 10001);
+  return true;
+};
+
+export const UPDATABLE_FIELDS: {
+  field: CollectionItemUpdatableFieldEnum;
+  valueType: ValueType;
+}[] = [...NON_PARENT_UPDATABLE_FIELDS, { field: 'parent', valueType: 'id' }];
+
+const NON_CONFLICT_CHANGES: {
+  local: CollectionItemUpdatableFieldEnum;
+  localValueType: ValueType;
+  remote: CollectionItemUpdatableFieldEnum;
+  remoteValueType: ValueType;
+}[] = [];
+UPDATABLE_FIELDS.forEach(({ field: local, valueType: localValueType }) => {
+  UPDATABLE_FIELDS.forEach(({ field: remote, valueType: remoteValueType }) => {
     if (local !== remote) {
       NON_CONFLICT_CHANGES.push({
         local,
-        remote
+        localValueType,
+        remote,
+        remoteValueType
       });
     }
   });
 });
 
-export const CONFLICT_CHANGES = UPDATABLE_FIELDS.map(field => ({
-  ...field,
-  local: field.field,
-  remote: field.field
+export const CONFLICT_CHANGES = UPDATABLE_FIELDS.map(f => ({
+  field: f.field,
+  valueType: f.valueType,
+  local: f.field,
+  localValueType: f.valueType,
+  remote: f.field,
+  remoteValueType: f.valueType
 }));
 
 const filterPerType = (field: string, type: string) => {
@@ -151,7 +184,7 @@ const filterPerType = (field: string, type: string) => {
     return field !== 'content';
   }
   if (type === 'page') {
-    return field !== 'title' && field !== 'tags';
+    return field !== 'title' && field !== 'tags' && field !== 'display_opts';
   }
   return true;
 };
@@ -161,18 +194,7 @@ const filterPerLocalRemoteAndType = (
   remote: string,
   type: string
 ) => {
-  if (type === 'folder' || type === 'notebook') {
-    return local !== 'content' && remote !== 'content';
-  }
-  if (type === 'page') {
-    return (
-      local !== 'title' &&
-      remote !== 'title' &&
-      local !== 'tags' &&
-      remote !== 'tags'
-    );
-  }
-  return true;
+  return filterPerType(local, type) && filterPerType(remote, type);
 };
 
 export const GET_UPDATABLE_FIELDS = (type: string) =>
@@ -241,13 +263,13 @@ export const getLocalItemField = (rowId: string, field: string) => {
 export const setLocalItemField = (
   rowId: string,
   field: string,
-  value = 'newLocal'
+  newValue: string | number | boolean
 ) => {
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   collectionService.setItemField(
     rowId,
     field as CollectionItemUpdatableFieldEnum,
-    value
+    newValue
   );
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
 };
@@ -256,18 +278,21 @@ export const updateOnRemote = (
   remoteData: CollectionItem[],
   id: string,
   field: string,
-  newValue = 'newRemote'
+  newValue: string | number | boolean
 ) => {
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   const idx = remoteData.findIndex(r => r.id === id);
   const remoteKey = field as CollectionItemUpdatableFieldEnum;
   remoteData[idx][remoteKey] = newValue as never;
-  remoteData[idx][`${remoteKey}_meta`] = setFieldMeta(newValue, Date.now());
+  remoteData[idx][`${remoteKey}_meta`] = setFieldMeta(
+    `${newValue}`,
+    Date.now()
+  );
   if (remoteKey !== 'parent') {
     remoteData[idx].updated = Date.now();
   }
   if (field === 'content') {
-    remoteData[idx].preview = newValue.substring(0, 80);
+    remoteData[idx].preview = `${newValue}`.substring(0, 80);
   }
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   console.debug('after updateOnRemote', id, field, remoteData);

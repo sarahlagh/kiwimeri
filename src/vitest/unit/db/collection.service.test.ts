@@ -11,6 +11,7 @@ import {
   GET_NON_PARENT_UPDATABLE_FIELDS,
   getCollectionItem,
   getLocalItemField,
+  getNewValue,
   markAsConflict,
   UPDATABLE_FIELDS
 } from '../../setup/test.utils';
@@ -78,13 +79,14 @@ describe('collection service', () => {
         expect(item.created).toBeGreaterThan(folder.created);
       });
 
-      GET_NON_PARENT_UPDATABLE_FIELDS(type).forEach(({ field }) => {
+      GET_NON_PARENT_UPDATABLE_FIELDS(type).forEach(({ field, valueType }) => {
         it(`should update the ${field} of a ${type}`, () => {
           const id = collectionService[addMethod](DEFAULT_NOTEBOOK_ID);
           vi.advanceTimersByTime(100);
-          collectionService.setItemField(id, field, 'new value');
+          const newVal = getNewValue(valueType);
+          collectionService.setItemField(id, field, newVal);
           const item = getCollectionItem(id);
-          expect(item[field]).toBe('new value');
+          expect(item[field]).toBe(newVal);
           expect(item.created).toBeLessThan(item.updated);
           const meta = parseFieldMeta(item[`${field}_meta`]!);
           expect(meta.u).toBe(item.updated);
@@ -98,9 +100,10 @@ describe('collection service', () => {
           const folderId3 = collectionService.addFolder(folderId2);
           const id = collectionService[addMethod](folderId3);
           vi.advanceTimersByTime(100);
-          collectionService.setItemField(id, field, 'new value');
+          const newVal = getNewValue(valueType);
+          collectionService.setItemField(id, field, newVal);
           const item = getCollectionItem(id);
-          expect(item[field]).toBe('new value');
+          expect(item[field]).toBe(newVal);
           expect(item.created).toBeLessThan(item.updated);
           const meta = parseFieldMeta(item[`${field}_meta`]!);
           expect(meta.u).toBe(item.updated);
@@ -344,14 +347,14 @@ describe('collection service', () => {
           );
         });
 
-        UPDATABLE_FIELDS.forEach(({ field }) => {
+        UPDATABLE_FIELDS.forEach(({ field, valueType }) => {
           it(`should reset conflict on a document on update of ${field}`, () => {
             const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
             const id2 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
             markAsConflict(id, id2);
             expect(getCollectionItem(id).conflict).toBeDefined();
 
-            collectionService.setItemField(id, field, 'new value');
+            collectionService.setItemField(id, field, getNewValue(valueType));
             expect(getCollectionItem(id).conflict).toBeUndefined();
           });
         });

@@ -38,6 +38,7 @@ import {
   getLocalItemConflict,
   getLocalItemConflicts,
   getLocalItemField,
+  getNewValue,
   getRemoteItemField,
   getRowCountInsideNotebook,
   getRowIdsInsideNotebook,
@@ -438,10 +439,6 @@ describe('sync service', () => {
             const remoteData = getSomeRemoteData(type, testAddFn);
             await reInitRemoteData(remoteData);
             await syncService_pull();
-            console.log(
-              'table',
-              storageService.getSpace().getTable('collection')
-            );
             expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
 
             // erase on remote
@@ -468,7 +465,7 @@ describe('sync service', () => {
             testPushIndicator(true);
           });
 
-          GET_UPDATABLE_FIELDS(type).forEach(({ field }) => {
+          GET_UPDATABLE_FIELDS(type).forEach(({ field, valueType }) => {
             it(`should pull updates on second pull if remote ${type} has been updated with ${field}`, async () => {
               const remoteData = getSomeRemoteData(type, testAddFn);
               await reInitRemoteData(remoteData);
@@ -476,15 +473,16 @@ describe('sync service', () => {
               expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
 
               const id = remoteData[0].id!;
+              const newValue = getNewValue(valueType, remoteData[3].id);
               // change remote
-              updateOnRemote(remoteData, id, field, remoteData[3].id!);
+              updateOnRemote(remoteData, id, field, newValue);
               await reInitRemoteData(remoteData);
 
               // pull again
               await syncService_pull();
               expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
               expect(collectionService.itemExists(id!)).toBeTruthy();
-              expect(getLocalItemField(id!, field)).toBe(remoteData[3].id!);
+              expect(getLocalItemField(id!, field)).toBe(newValue);
             });
 
             it(`should not delete local updates of field ${field} if they have not changed on remote ${type}`, async () => {
@@ -494,11 +492,12 @@ describe('sync service', () => {
               expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
               // update locally
               const id = remoteData[0].id!;
-              setLocalItemField(id, field, remoteData[2].id!);
+              const newValue = getNewValue(valueType, remoteData[2].id);
+              setLocalItemField(id, field, newValue);
 
               // pull again
               await syncService_pull();
-              expect(getLocalItemField(id, field)).toBe(remoteData[2].id!);
+              expect(getLocalItemField(id, field)).toBe(newValue);
               expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
 
               testPushIndicator(true);
@@ -516,14 +515,15 @@ describe('sync service', () => {
               await reInitRemoteData(remoteData.slice(1), Date.now());
 
               // update locally
-              setLocalItemField(id, field, remoteData[3].id!);
+              const newValue = getNewValue(valueType, remoteData[3].id);
+              setLocalItemField(id, field, newValue);
 
               await syncService_pull();
 
               // item is unchanged
               expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
               expect(getLocalItemConflicts()).toHaveLength(0);
-              expect(getLocalItemField(id, field)).toBe(remoteData[3].id!);
+              expect(getLocalItemField(id, field)).toBe(newValue);
               testPushIndicator(true);
             });
 
@@ -535,7 +535,8 @@ describe('sync service', () => {
 
               const id = remoteData[0].id!;
               // update on remote
-              updateOnRemote(remoteData, id, field);
+              const newValue = getNewValue(valueType);
+              updateOnRemote(remoteData, id, field, newValue);
               await reInitRemoteData(remoteData);
 
               // erase locally
@@ -550,30 +551,33 @@ describe('sync service', () => {
             });
           });
 
-          GET_NON_PARENT_UPDATABLE_FIELDS(type).forEach(({ field }) => {
-            it(`should recreate ${type}s erased locally on pull if they have changed on remote with ${field} after delete`, async () => {
-              const remoteData = getSomeRemoteData(type, testAddFn);
-              await reInitRemoteData(remoteData);
-              await syncService_pull();
-              expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
+          GET_NON_PARENT_UPDATABLE_FIELDS(type).forEach(
+            ({ field, valueType }) => {
+              it(`should recreate ${type}s erased locally on pull if they have changed on remote with ${field} after delete`, async () => {
+                const remoteData = getSomeRemoteData(type, testAddFn);
+                await reInitRemoteData(remoteData);
+                await syncService_pull();
+                expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
 
-              const id = remoteData[0].id!;
-              // erase locally
-              collectionService_deleteItem(id);
+                const id = remoteData[0].id!;
+                // erase locally
+                collectionService_deleteItem(id);
 
-              // update on remote
-              updateOnRemote(remoteData, id, field);
-              await reInitRemoteData(remoteData);
+                // update on remote
+                const newValue = getNewValue(valueType);
+                updateOnRemote(remoteData, id, field, newValue);
+                await reInitRemoteData(remoteData);
 
-              // pull again
-              await syncService_pull();
-              expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
-              expect(getLocalItemConflicts()).toHaveLength(0);
-              expect(getLocalItemField(id, field)).toBe('newRemote');
+                // pull again
+                await syncService_pull();
+                expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
+                expect(getLocalItemConflicts()).toHaveLength(0);
+                expect(getLocalItemField(id, field)).toBe(newValue);
 
-              testPushIndicator(true);
-            });
-          });
+                testPushIndicator(true);
+              });
+            }
+          );
 
           // for folders, delete action takes precedence over the timestamp
           it(`should not recreate ${type}s erased locally on pull if they have changed on remote with parent after delete`, async () => {
@@ -587,7 +591,7 @@ describe('sync service', () => {
             collectionService_deleteItem(id);
 
             // update on remote
-            updateOnRemote(remoteData, id, 'parent');
+            updateOnRemote(remoteData, id, 'parent', remoteData[3].id!);
             await reInitRemoteData(remoteData);
 
             // pull again
@@ -599,53 +603,72 @@ describe('sync service', () => {
           });
 
           // fields that can change: parent, title, content, deleted
-          GET_NON_CONFLICT_CHANGES(type).forEach(({ local, remote }) => {
-            it(`should merge changes on ${type} without conflict if localChange=${local} then remoteChange=${remote}`, async () => {
-              const remoteData = getSomeRemoteData(type, testAddFn);
-              await reInitRemoteData(remoteData);
-              await syncService_pull(); // 1
-              const id = remoteData[0].id!;
+          GET_NON_CONFLICT_CHANGES(type).forEach(
+            ({ local, localValueType, remote, remoteValueType }) => {
+              it(`should merge changes on ${type} without conflict if localChange=${local} then remoteChange=${remote}`, async () => {
+                const remoteData = getSomeRemoteData(type, testAddFn);
+                await reInitRemoteData(remoteData);
+                await syncService_pull(); // 1
+                const id = remoteData[0].id!;
 
-              // change local
-              setLocalItemField(id, local, remoteData[3].id!);
+                // change local
+                const newLocalValue = getNewValue(
+                  localValueType,
+                  remoteData[3].id
+                );
+                setLocalItemField(id, local, newLocalValue);
 
-              // change remote
-              updateOnRemote(remoteData, id, remote, remoteData[2].id!);
-              await reInitRemoteData(remoteData);
+                // change remote
+                const newRemoteValue = getNewValue(
+                  remoteValueType,
+                  remoteData[2].id
+                );
+                updateOnRemote(remoteData, id, remote, newRemoteValue);
+                await reInitRemoteData(remoteData);
 
-              // pull again
-              await syncService_pull(); // 2
-              // no conflict created
-              expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
-              expect(getLocalItemConflicts()).toHaveLength(0);
-              expect(getLocalItemField(id, remote)).toBe(remoteData[2].id!);
-              expect(getLocalItemField(id, local)).toBe(remoteData[3].id!);
-            });
+                // pull again
+                await syncService_pull(); // 2
 
-            it(`should merge changes on ${type} without conflict if remoteChange=${remote} then localChange=${local}`, async () => {
-              const remoteData = getSomeRemoteData(type, testAddFn);
-              await reInitRemoteData(remoteData);
-              await syncService_pull();
-              const id = remoteData[0].id!;
+                // no conflict created
+                expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
+                expect(getLocalItemConflicts()).toHaveLength(0);
+                expect(getLocalItemField(id, remote)).toBe(newRemoteValue);
+                expect(getLocalItemField(id, local)).toBe(newLocalValue);
+              });
 
-              // change remote
-              updateOnRemote(remoteData, id, remote, remoteData[3].id!);
-              await reInitRemoteData(remoteData);
+              it(`should merge changes on ${type} without conflict if remoteChange=${remote} then localChange=${local}`, async () => {
+                const remoteData = getSomeRemoteData(type, testAddFn);
+                await reInitRemoteData(remoteData);
+                await syncService_pull();
+                const id = remoteData[0].id!;
 
-              // change local
-              setLocalItemField(id, local, remoteData[2].id!);
+                // change remote
+                const newRemoteValue = getNewValue(
+                  remoteValueType,
+                  remoteData[3].id
+                );
+                updateOnRemote(remoteData, id, remote, newRemoteValue);
+                await reInitRemoteData(remoteData);
 
-              // pull again
-              await syncService_pull();
-              expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
-              expect(getLocalItemField(id, remote)).toBe(remoteData[3].id!);
-              expect(getLocalItemField(id, local)).toBe(remoteData[2].id!);
+                // change local
+                const newLocalValue = getNewValue(
+                  localValueType,
+                  remoteData[2].id
+                );
+                setLocalItemField(id, local, newLocalValue);
 
-              testPushIndicator(true);
-            });
-          });
+                // pull again
+                await syncService_pull();
+                expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
+                expect(getLocalItemField(id, remote)).toBe(newRemoteValue);
+                expect(getLocalItemField(id, local)).toBe(newLocalValue);
 
-          GET_CONFLICT_CHANGES(type).forEach(({ field }) => {
+                testPushIndicator(true);
+              });
+            }
+          );
+
+          GET_CONFLICT_CHANGES(type).forEach(({ field, valueType }) => {
             it(`should apply local change on ${type} when remoteChange=${field} then localChange=${field} (local wins)`, async () => {
               const remoteData = getSomeRemoteData(type, testAddFn);
               await reInitRemoteData(remoteData);
@@ -653,16 +676,18 @@ describe('sync service', () => {
               const id = remoteData[0].id!;
 
               // change remote
-              updateOnRemote(remoteData, id, field);
+              const newRemoteValue = getNewValue(valueType, remoteData[3].id);
+              updateOnRemote(remoteData, id, field, newRemoteValue);
               await reInitRemoteData(remoteData);
 
               // change local
-              setLocalItemField(id, field, remoteData[2].id!);
+              const newLocalValue = getNewValue(valueType, remoteData[2].id);
+              setLocalItemField(id, field, newLocalValue);
 
               // pull again
               await syncService_pull();
               expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
-              expect(getLocalItemField(id, field)).toBe(remoteData[2].id!);
+              expect(getLocalItemField(id, field)).toBe(newLocalValue);
 
               testPushIndicator(true);
             });
@@ -678,7 +703,7 @@ describe('sync service', () => {
               expect(getLocalItemField(id, 'preview')).toHaveLength(0);
 
               // change remote
-              updateOnRemote(remoteData, id, 'content');
+              updateOnRemote(remoteData, id, 'content', 'newRemote');
               await reInitRemoteData(remoteData);
 
               await syncService_pull(); // 2
@@ -688,7 +713,7 @@ describe('sync service', () => {
           }
 
           if (type === 'document') {
-            GET_UPDATABLE_FIELDS(type).forEach(({ field }) => {
+            GET_UPDATABLE_FIELDS(type).forEach(({ field, valueType }) => {
               it(`should create conflict for documents on pull if they have been changed with ${field} before being erased on remote`, async () => {
                 const remoteData = [
                   oneDocument('r1'),
@@ -702,7 +727,8 @@ describe('sync service', () => {
 
                 // update locally
                 const id = remoteData[0].id!;
-                setLocalItemField(id, field, remoteData[2].id!);
+                const newValue = getNewValue(valueType, remoteData[2].id);
+                setLocalItemField(id, field, newValue);
                 vi.advanceTimersByTime(50);
 
                 // erase on remote
@@ -718,9 +744,7 @@ describe('sync service', () => {
                 expect(collectionService.itemExists(id)).toBeFalsy();
 
                 const conflictId = getLocalItemConflict()!;
-                expect(getLocalItemField(conflictId, field)).toBe(
-                  remoteData[2].id!
-                );
+                expect(getLocalItemField(conflictId, field)).toBe(newValue);
                 testPushIndicator(true); // TODO: ideally, should be false
 
                 // push, no conflict should be pushed
@@ -742,7 +766,7 @@ describe('sync service', () => {
               });
             });
 
-            GET_CONFLICT_CHANGES(type).forEach(({ field }) => {
+            GET_CONFLICT_CHANGES(type).forEach(({ field, valueType }) => {
               it(`should create conflict for documents if localChange=${field} then remoteChange=${field}`, async () => {
                 const folder = oneFolder();
                 const remoteData = [
@@ -756,18 +780,20 @@ describe('sync service', () => {
                 const id = remoteData[0].id!;
 
                 // change local
-                setLocalItemField(id, field, folder.id!); // real id to avoid problem when field=parent
+                const newLocalValue = getNewValue(valueType, folder.id);
+                setLocalItemField(id, field, newLocalValue); // real id to avoid problem when field=parent
 
                 // change remote
-                updateOnRemote(remoteData, id, field, remoteData[1].id!);
+                const newRemoteValue = getNewValue(valueType, remoteData[1].id);
+                updateOnRemote(remoteData, id, field, newRemoteValue);
                 await reInitRemoteData(remoteData);
 
                 // pull again
                 await syncService_pull(); // 2
                 // a conflict file was created
                 expect(getRowCountInsideNotebook()).toBe(4);
-                expect(getLocalItemField(id, field)).toBe(remoteData[1].id!);
-                expect(getLocalItemField(id, field)).not.toBe(folder.id!);
+                expect(getLocalItemField(id, field)).toBe(newRemoteValue);
+                expect(getLocalItemField(id, field)).not.toBe(newLocalValue);
 
                 // check that a conflict file exists
                 const conflictId = getLocalItemConflict();
@@ -828,12 +854,16 @@ describe('sync service', () => {
               const id = remoteData[0].id!;
 
               // change remote
-              updateOnRemote(remoteData, id, 'content');
-              updateOnRemote(remoteData, id, 'title');
+              const newRemoteTitle = getNewValue('string');
+              const newRemoteContent = getNewValue('string');
+              updateOnRemote(remoteData, id, 'content', newRemoteContent);
+              updateOnRemote(remoteData, id, 'title', newRemoteTitle);
 
               // change local
-              setLocalItemField(id, 'title', ROOT_COLLECTION);
-              setLocalItemField(id, 'tags', ROOT_COLLECTION);
+              const newLocalTitle = getNewValue('string');
+              const newLocalTags = getNewValue('string');
+              setLocalItemField(id, 'title', newLocalTitle);
+              setLocalItemField(id, 'tags', newLocalTags);
 
               await reInitRemoteData(remoteData);
 
@@ -842,9 +872,9 @@ describe('sync service', () => {
               // no conflict created
               expect(getRowCountInsideNotebook()).toBe(3);
               expect(getLocalItemConflicts()).toHaveLength(0);
-              expect(getLocalItemField(id, 'title')).toBe(ROOT_COLLECTION);
-              expect(getLocalItemField(id, 'tags')).toBe(ROOT_COLLECTION);
-              expect(getLocalItemField(id, 'content')).toBe('newRemote');
+              expect(getLocalItemField(id, 'title')).toBe(newLocalTitle);
+              expect(getLocalItemField(id, 'tags')).toBe(newLocalTags);
+              expect(getLocalItemField(id, 'content')).toBe(newRemoteContent);
             });
 
             it('should handle multiple merge on one document with conflict', async () => {
@@ -863,8 +893,10 @@ describe('sync service', () => {
               setLocalItemField(id, 'tags', ROOT_COLLECTION);
 
               // change remote
-              updateOnRemote(remoteData, id, 'content');
-              updateOnRemote(remoteData, id, 'title');
+              const newRemoteTitle = getNewValue('string');
+              const newRemoteContent = getNewValue('string');
+              updateOnRemote(remoteData, id, 'content', newRemoteContent);
+              updateOnRemote(remoteData, id, 'title', newRemoteTitle);
 
               await reInitRemoteData(remoteData);
 
@@ -873,9 +905,9 @@ describe('sync service', () => {
               // a conflict is created due to title field
               expect(getRowCountInsideNotebook()).toBe(4);
               expect(getLocalItemConflicts()).toHaveLength(1);
-              expect(getLocalItemField(id, 'title')).toBe('newRemote');
+              expect(getLocalItemField(id, 'title')).toBe(newRemoteTitle);
               expect(getLocalItemField(id, 'tags')).toBe(ROOT_COLLECTION);
-              expect(getLocalItemField(id, 'content')).toBe('newRemote');
+              expect(getLocalItemField(id, 'content')).toBe(newRemoteContent);
             });
           }
 
@@ -928,7 +960,7 @@ describe('sync service', () => {
               });
             });
 
-            GET_CONFLICT_CHANGES(type).forEach(({ field }) => {
+            GET_CONFLICT_CHANGES(type).forEach(({ field, valueType }) => {
               if (type === 'folder') {
                 it(`should not create conflict for folders if localChange=${field} then remoteChange=${field} (remote wins)`, async () => {
                   const remoteData = [
@@ -942,20 +974,26 @@ describe('sync service', () => {
                   const id = remoteData[0].id!;
 
                   // change local
-                  setLocalItemField(id, field, remoteData[2].id!);
+                  const newLocalValue = getNewValue(
+                    valueType,
+                    remoteData[2].id
+                  );
+                  setLocalItemField(id, field, newLocalValue);
 
                   // change remote
-                  updateOnRemote(remoteData, id, field, remoteData[1].id!);
+                  const newRemoteValue = getNewValue(
+                    valueType,
+                    remoteData[1].id
+                  );
+                  updateOnRemote(remoteData, id, field, newRemoteValue);
                   await reInitRemoteData(remoteData);
 
                   // pull again
                   await syncService_pull(); // 2
                   // no conflict file was created
                   expect(getRowCountInsideNotebook()).toBe(3);
-                  expect(getLocalItemField(id, field)).toBe(remoteData[1].id!);
-                  expect(getLocalItemField(id, field)).not.toBe(
-                    remoteData[2].id!
-                  );
+                  expect(getLocalItemField(id, field)).toBe(newRemoteValue);
+                  expect(getLocalItemField(id, field)).not.toBe(newLocalValue);
 
                   // check that a conflict file exists
                   expect(getLocalItemConflict()).toBeUndefined();
@@ -966,7 +1004,7 @@ describe('sync service', () => {
           }
 
           if (type === 'page') {
-            GET_UPDATABLE_FIELDS(type).forEach(({ field }) => {
+            GET_UPDATABLE_FIELDS(type).forEach(({ field, valueType }) => {
               it(`should create conflict for pages on pull if they have been changed with ${field} before being erased on remote`, async () => {
                 const remoteData = getSomeRemoteData(type, testAddFn);
                 await reInitRemoteData(remoteData);
@@ -975,7 +1013,8 @@ describe('sync service', () => {
 
                 // update locally
                 const id = remoteData[0].id!;
-                setLocalItemField(id, field, remoteData[2].id!);
+                const newValue = getNewValue(valueType, remoteData[2].id);
+                setLocalItemField(id, field, newValue);
                 vi.advanceTimersByTime(50);
 
                 // erase on remote
@@ -989,9 +1028,7 @@ describe('sync service', () => {
                 expect(collectionService.itemExists(id)).toBeFalsy();
 
                 const conflictId = getLocalItemConflict()!;
-                expect(getLocalItemField(conflictId, field)).toBe(
-                  remoteData[2].id!
-                );
+                expect(getLocalItemField(conflictId, field)).toBe(newValue);
                 testPushIndicator(true); // TODO: ideally, should be false
 
                 // push, no conflict should be pushed
@@ -1138,7 +1175,7 @@ describe('sync service', () => {
       });
 
       NON_NOTEBOOK_BROWSABLE_ITEM_TYPES.forEach(({ type, testAddFn }) => {
-        GET_UPDATABLE_FIELDS(type).forEach(({ field }) => {
+        GET_UPDATABLE_FIELDS(type).forEach(({ field, valueType }) => {
           it(`should erase local updates of field ${field} if they have not changed on remote ${type}`, async () => {
             const remoteData = [
               testAddFn('r1'),
@@ -1151,12 +1188,13 @@ describe('sync service', () => {
             expect(getRowCountInsideNotebook()).toBe(3);
             // update locally
             const id = remoteData[0].id!;
-            setLocalItemField(id, field, ROOT_COLLECTION);
+            const newValues = getNewValue(valueType);
+            setLocalItemField(id, field, newValues);
 
             // pull again
             await syncService.pull(undefined, true);
             expect(getRowCountInsideNotebook()).toBe(3);
-            expect(getLocalItemField(id, field)).not.toBe(ROOT_COLLECTION);
+            expect(getLocalItemField(id, field)).not.toBe(newValues);
 
             testPushIndicator(false);
           });
@@ -1174,14 +1212,15 @@ describe('sync service', () => {
 
             const id = remoteData[0].id!;
             // change remote
-            updateOnRemote(remoteData, id, field, remoteData[2].id!);
+            const newValue = getNewValue(valueType, remoteData[2].id);
+            updateOnRemote(remoteData, id, field, newValue);
             await reInitRemoteData(remoteData);
 
             // pull again
             await syncService.pull(undefined, true);
             expect(getRowCountInsideNotebook()).toBe(3);
             expect(collectionService.itemExists(id));
-            expect(getLocalItemField(id, field)).toBe(remoteData[2].id!);
+            expect(getLocalItemField(id, field)).toBe(newValue);
           });
 
           it(`should delete local ${type}s on pull even if they have been changed with ${field} after being erased on remote`, async () => {
@@ -1197,7 +1236,8 @@ describe('sync service', () => {
 
             // update locally
             const id = remoteData[0].id!;
-            setLocalItemField(id, field, ROOT_COLLECTION);
+            const newValue = getNewValue(valueType);
+            setLocalItemField(id, field, newValue);
 
             // erase on remote
             await reInitRemoteData([
@@ -1212,61 +1252,79 @@ describe('sync service', () => {
           });
         });
 
-        GET_ALL_CHANGES(type).forEach(({ local, remote }) => {
-          it(`should use server ${type} version when localChange=${local} then remoteChange=${remote}`, async () => {
-            const remoteData = [
-              testAddFn(),
-              oneDocument(),
-              oneFolder(),
-              oneNotebook()
-            ];
-            await reInitRemoteData(remoteData);
-            await syncService_pull();
-            const id = remoteData[0].id!;
+        GET_ALL_CHANGES(type).forEach(
+          ({ local, localValueType, remote, remoteValueType }) => {
+            it(`should use server ${type} version when localChange=${local} then remoteChange=${remote}`, async () => {
+              const remoteData = [
+                testAddFn(),
+                oneDocument(),
+                oneFolder(),
+                oneNotebook()
+              ];
+              await reInitRemoteData(remoteData);
+              await syncService_pull();
+              const id = remoteData[0].id!;
 
-            // change local
-            setLocalItemField(id, local, remoteData[1].id!);
+              // change local
+              const newLocalValue = getNewValue(
+                localValueType,
+                remoteData[1].id
+              );
+              setLocalItemField(id, local, newLocalValue);
 
-            // change remote
-            updateOnRemote(remoteData, id, remote, remoteData[2].id!);
-            await reInitRemoteData(remoteData);
+              // change remote
+              const newRemoteValue = getNewValue(
+                remoteValueType,
+                remoteData[2].id
+              );
+              updateOnRemote(remoteData, id, remote, newRemoteValue);
+              await reInitRemoteData(remoteData);
 
-            // pull again
-            await syncService.pull(undefined, true);
-            expect(getRowCountInsideNotebook()).toBe(3); // no conflict file was created
-            expect(getLocalItemField(id, remote)).toBe(remoteData[2].id!);
-            expect(getLocalItemField(id, local)).not.toBe(remoteData[1].id!);
+              // pull again
+              await syncService.pull(undefined, true);
+              expect(getRowCountInsideNotebook()).toBe(3); // no conflict file was created
+              expect(getLocalItemField(id, remote)).toBe(newRemoteValue);
+              expect(getLocalItemField(id, local)).not.toBe(newLocalValue);
 
-            testPushIndicator(false);
-          });
+              testPushIndicator(false);
+            });
 
-          it(`should use server ${type} version when remoteChange=${remote} then localChange=${local}`, async () => {
-            const remoteData = [
-              testAddFn(),
-              oneDocument(),
-              oneFolder(),
-              oneNotebook()
-            ];
-            await reInitRemoteData(remoteData);
-            await syncService_pull();
-            const id = remoteData[0].id!;
+            it(`should use server ${type} version when remoteChange=${remote} then localChange=${local}`, async () => {
+              const remoteData = [
+                testAddFn(),
+                oneDocument(),
+                oneFolder(),
+                oneNotebook()
+              ];
+              await reInitRemoteData(remoteData);
+              await syncService_pull();
+              const id = remoteData[0].id!;
 
-            // change remote
-            updateOnRemote(remoteData, id, remote, remoteData[2].id!);
-            await reInitRemoteData(remoteData);
+              // change remote
+              const newRemoteValue = getNewValue(
+                remoteValueType,
+                remoteData[2].id
+              );
+              updateOnRemote(remoteData, id, remote, newRemoteValue);
+              await reInitRemoteData(remoteData);
 
-            // change local
-            setLocalItemField(id, local, remoteData[1].id!);
+              // change local
+              const newLocalValue = getNewValue(
+                localValueType,
+                remoteData[1].id
+              );
+              setLocalItemField(id, local, remoteData[1].id!);
 
-            // pull again
-            await syncService.pull(undefined, true);
-            expect(getRowCountInsideNotebook()).toBe(3);
-            expect(getLocalItemField(id, remote)).toBe(remoteData[2].id!);
-            expect(getLocalItemField(id, local)).not.toBe(remoteData[1].id!);
+              // pull again
+              await syncService.pull(undefined, true);
+              expect(getRowCountInsideNotebook()).toBe(3);
+              expect(getLocalItemField(id, remote)).toBe(newRemoteValue);
+              expect(getLocalItemField(id, local)).not.toBe(newLocalValue);
 
-            testPushIndicator(false);
-          });
-        });
+              testPushIndicator(false);
+            });
+          }
+        );
       });
     });
 
@@ -1376,7 +1434,7 @@ describe('sync service', () => {
             testPushIndicator(false);
           });
 
-          GET_UPDATABLE_FIELDS(type).forEach(({ field }) => {
+          GET_UPDATABLE_FIELDS(type).forEach(({ field, valueType }) => {
             it(`should update remote ${type}s if they are updated locally with ${field} and unchanged on remote`, async () => {
               const remoteData = getSomeRemoteData(type, testAddFn);
               await reInitRemoteData(remoteData);
@@ -1384,14 +1442,15 @@ describe('sync service', () => {
               const id = remoteData[0].id!;
 
               // update item locally then push
-              setLocalItemField(id, field, remoteData[2].id!);
+              const newValue = getNewValue(valueType, remoteData[2].id);
+              setLocalItemField(id, field, newValue);
               await syncService_push();
 
               // item has been updated
               const remoteContent = await driver.getParsedContent();
               expect(remoteContent.content).toHaveLength(remoteData.length);
               expect(getRemoteItemField(remoteContent.content, id, field)).toBe(
-                remoteData[2].id!
+                newValue
               );
               testPushIndicator(false);
             });
@@ -1403,7 +1462,8 @@ describe('sync service', () => {
               const id = remoteData[0].id!;
 
               // change remote
-              updateOnRemote(remoteData, id, field);
+              const newValue = getNewValue(valueType, remoteData[3].id);
+              updateOnRemote(remoteData, id, field, newValue);
               await reInitRemoteData(remoteData);
 
               // delete item locally then push
@@ -1426,7 +1486,8 @@ describe('sync service', () => {
               // delete item locally
               collectionService_deleteItem(id);
               // change remote
-              updateOnRemote(remoteData, id, field);
+              const newValue = getNewValue(valueType, remoteData[3].id);
+              updateOnRemote(remoteData, id, field, newValue);
               await reInitRemoteData(remoteData);
 
               await syncService_push();
@@ -1448,7 +1509,8 @@ describe('sync service', () => {
               await reInitRemoteData(remoteData.slice(1));
               // update locally
               expect(id).toBeDefined();
-              setLocalItemField(id!, field, remoteData[2].id!);
+              const newValue = getNewValue(valueType, remoteData[2].id);
+              setLocalItemField(id!, field, newValue);
               // push
               await syncService_push();
 
@@ -1457,7 +1519,7 @@ describe('sync service', () => {
               expect(remoteContent.content).toHaveLength(remoteData.length);
               expect(
                 getRemoteItemField(remoteContent.content, id!, field)
-              ).toBe(remoteData[2].id!);
+              ).toBe(newValue);
 
               testPushIndicator(false);
             });
@@ -1469,7 +1531,8 @@ describe('sync service', () => {
 
               // change remote
               const id = remoteData[0].id!;
-              updateOnRemote(remoteData, id, field);
+              const newValue = getNewValue(valueType, remoteData[3].id);
+              updateOnRemote(remoteData, id, field, newValue);
               await reInitRemoteData(remoteData);
 
               // push
@@ -1478,99 +1541,127 @@ describe('sync service', () => {
               // item has not been changed on remote
               const remoteContent = await driver.getParsedContent();
               expect(getRemoteItemField(remoteContent.content, id, field)).toBe(
-                'newRemote'
+                newValue
               );
               testPushIndicator(false);
             });
           });
 
-          GET_ALL_CHANGES(type).forEach(({ local, remote }) => {
-            it(`should update ${type} when localChange=${local} then remoteChange=${remote}: local wins`, async () => {
-              const remoteData = getSomeRemoteData(type, testAddFn);
-              await reInitRemoteData(remoteData);
-              await syncService_pull();
-              const id = remoteData[0].id!;
-              // change local
-              setLocalItemField(id, local, remoteData[2].id!);
-              // change remote
-              updateOnRemote(remoteData, id, remote);
-              await reInitRemoteData(remoteData);
-              // push
-              await syncService_push();
-
-              const remoteContent = await driver.getParsedContent();
-              expect(remoteContent.content).toHaveLength(remoteData.length);
-              if (remote !== local) {
-                expect(
-                  getRemoteItemField(remoteContent.content, id, remote)
-                ).not.toBe(remoteData[2].id!);
-              }
-              expect(getRemoteItemField(remoteContent.content, id, local)).toBe(
-                remoteData[2].id!
-              );
-
-              testPushIndicator(false);
-            });
-
-            it(`should update ${type} when remoteChange=${remote} then localChange=${local}: local wins`, async () => {
-              const remoteData = getSomeRemoteData(type, testAddFn);
-              await reInitRemoteData(remoteData);
-              await syncService_pull();
-              const id = remoteData[0].id!;
-              // change remote
-              updateOnRemote(remoteData, id, remote);
-              await reInitRemoteData(remoteData);
-              // change local
-              setLocalItemField(id, local, remoteData[2].id!);
-
-              // push
-              await syncService_push();
-              const remoteContent = await driver.getParsedContent();
-              expect(remoteContent.content).toHaveLength(remoteData.length);
-              expect(
-                getRemoteItemField(remoteContent.content, id, remote)
-              ).not.toBe('newRemote');
-              expect(getRemoteItemField(remoteContent.content, id, local)).toBe(
-                remoteData[2].id!
-              );
-              testPushIndicator(false);
-            });
-          });
-
-          if (type === 'document') {
-            CONFLICT_CHANGES.forEach(({ local, remote }) => {
-              it(`should not push conflicts on a document between ${local} and ${remote}: local wins`, async () => {
-                // create a conflict
-                const remoteData = [
-                  oneDocument(),
-                  oneDocument(),
-                  oneFolder(),
-                  oneNotebook()
-                ];
+          GET_ALL_CHANGES(type).forEach(
+            ({ local, localValueType, remote, remoteValueType }) => {
+              it(`should update ${type} when localChange=${local} then remoteChange=${remote}: local wins`, async () => {
+                const remoteData = getSomeRemoteData(type, testAddFn);
                 await reInitRemoteData(remoteData);
                 await syncService_pull();
                 const id = remoteData[0].id!;
-                setLocalItemField(id, local, remoteData[1].id!);
-                updateOnRemote(remoteData, id, remote, remoteData[2].id!);
+                // change local
+                const newLocalValue = getNewValue(
+                  localValueType,
+                  remoteData[2].id
+                );
+                setLocalItemField(id, local, newLocalValue);
+                // change remote
+                const newRemoteValue = getNewValue(
+                  remoteValueType,
+                  remoteData[3].id
+                );
+                updateOnRemote(remoteData, id, remote, newRemoteValue);
                 await reInitRemoteData(remoteData);
-                await syncService_pull();
-
-                expect(getLocalItemConflicts()).toHaveLength(1);
-                expect(getRowCountInsideNotebook()).toBe(4); // a conflict file was created
-
-                // conflict should not be pushed, remote value is kept
+                // push
                 await syncService_push();
+
                 const remoteContent = await driver.getParsedContent();
-                expect(remoteContent.content).toHaveLength(4);
-                expect(
-                  getRemoteItemField(remoteContent.content, id, remote)
-                ).toBe(remoteData[2].id!);
+                expect(remoteContent.content).toHaveLength(remoteData.length);
+                if (remote !== local) {
+                  expect(
+                    getRemoteItemField(remoteContent.content, id, remote)
+                  ).not.toBe(newLocalValue);
+                }
                 expect(
                   getRemoteItemField(remoteContent.content, id, local)
-                ).not.toBe(remoteData[1].id!);
+                ).toBe(newLocalValue);
+
                 testPushIndicator(false);
               });
-            });
+
+              it(`should update ${type} when remoteChange=${remote} then localChange=${local}: local wins`, async () => {
+                const remoteData = getSomeRemoteData(type, testAddFn);
+                await reInitRemoteData(remoteData);
+                await syncService_pull();
+                const id = remoteData[0].id!;
+                // change remote
+                const newRemoteValue = getNewValue(
+                  remoteValueType,
+                  remoteData[3].id
+                );
+                updateOnRemote(remoteData, id, remote, newRemoteValue);
+                await reInitRemoteData(remoteData);
+                // change local
+                const newLocalValue = getNewValue(
+                  localValueType,
+                  remoteData[2].id
+                );
+                setLocalItemField(id, local, newLocalValue);
+
+                // push
+                await syncService_push();
+                const remoteContent = await driver.getParsedContent();
+                expect(remoteContent.content).toHaveLength(remoteData.length);
+                expect(
+                  getRemoteItemField(remoteContent.content, id, remote)
+                ).not.toBe(newRemoteValue);
+                expect(
+                  getRemoteItemField(remoteContent.content, id, local)
+                ).toBe(newLocalValue);
+                testPushIndicator(false);
+              });
+            }
+          );
+
+          if (type === 'document') {
+            CONFLICT_CHANGES.forEach(
+              ({ local, localValueType, remote, remoteValueType }) => {
+                it(`should not push conflicts on a document between ${local} and ${remote}: local wins`, async () => {
+                  // create a conflict
+                  const remoteData = [
+                    oneDocument(),
+                    oneDocument(),
+                    oneFolder(),
+                    oneNotebook()
+                  ];
+                  await reInitRemoteData(remoteData);
+                  await syncService_pull();
+                  const id = remoteData[0].id!;
+                  const newLocalValue = getNewValue(
+                    localValueType,
+                    remoteData[1].id
+                  );
+                  setLocalItemField(id, local, newLocalValue);
+                  const newRemoteValue = getNewValue(
+                    remoteValueType,
+                    remoteData[2].id
+                  );
+                  updateOnRemote(remoteData, id, remote, newRemoteValue);
+                  await reInitRemoteData(remoteData);
+                  await syncService_pull();
+
+                  expect(getLocalItemConflicts()).toHaveLength(1);
+                  expect(getRowCountInsideNotebook()).toBe(4); // a conflict file was created
+
+                  // conflict should not be pushed, remote value is kept
+                  await syncService_push();
+                  const remoteContent = await driver.getParsedContent();
+                  expect(remoteContent.content).toHaveLength(4);
+                  expect(
+                    getRemoteItemField(remoteContent.content, id, remote)
+                  ).toBe(newRemoteValue);
+                  expect(
+                    getRemoteItemField(remoteContent.content, id, local)
+                  ).not.toBe(newLocalValue);
+                  testPushIndicator(false);
+                });
+              }
+            );
           }
         });
       });
@@ -1710,7 +1801,7 @@ describe('sync service', () => {
           testPushIndicator(false);
         });
 
-        GET_UPDATABLE_FIELDS(type).forEach(({ field }) => {
+        GET_UPDATABLE_FIELDS(type).forEach(({ field, valueType }) => {
           it(`should update remote ${type}s if they are updated locally with ${field} and unchanged on remote`, async () => {
             const remoteData = [
               testAddFn('r1'),
@@ -1723,14 +1814,15 @@ describe('sync service', () => {
             const id = remoteData[0].id!;
 
             // update item locally then push
-            setLocalItemField(id, field, ROOT_COLLECTION);
+            const newValue = getNewValue(valueType);
+            setLocalItemField(id, field, newValue);
             await syncService.push(undefined, true);
 
             // item has been updated
             const remoteContent = await driver.getParsedContent();
             expect(remoteContent.content).toHaveLength(4);
             expect(getRemoteItemField(remoteContent.content, id, field)).toBe(
-              ROOT_COLLECTION
+              newValue
             );
             testPushIndicator(false);
           });
@@ -1747,7 +1839,8 @@ describe('sync service', () => {
             const id = remoteData[0].id!;
 
             // change remote
-            updateOnRemote(remoteData, id, field);
+            const newValue = getNewValue(valueType);
+            updateOnRemote(remoteData, id, field, newValue);
             await reInitRemoteData(remoteData);
 
             // delete item locally then push
@@ -1775,7 +1868,8 @@ describe('sync service', () => {
             // delete item locally
             collectionService_deleteItem(id);
             // change remote
-            updateOnRemote(remoteData, id, field);
+            const newValue = getNewValue(valueType);
+            updateOnRemote(remoteData, id, field, newValue);
             await reInitRemoteData(remoteData);
 
             await syncService.push(undefined, true);
@@ -1806,7 +1900,8 @@ describe('sync service', () => {
             ]);
             // update locally
             expect(id).toBeDefined();
-            setLocalItemField(id!, field, ROOT_COLLECTION);
+            const newValue = getNewValue(valueType);
+            setLocalItemField(id!, field, newValue);
             // push
             await syncService.push(undefined, true);
 
@@ -1814,7 +1909,7 @@ describe('sync service', () => {
             const remoteContent = await driver.getParsedContent();
             expect(remoteContent.content).toHaveLength(4);
             expect(getRemoteItemField(remoteContent.content, id!, field)).toBe(
-              ROOT_COLLECTION
+              newValue
             );
 
             testPushIndicator(false);
@@ -1832,7 +1927,8 @@ describe('sync service', () => {
 
             // change remote
             const id = remoteData[0].id!;
-            updateOnRemote(remoteData, id, field);
+            const newValue = getNewValue(valueType);
+            updateOnRemote(remoteData, id, field, newValue);
             await reInitRemoteData(remoteData);
 
             // push
@@ -1842,47 +1938,93 @@ describe('sync service', () => {
             const remoteContent = await driver.getParsedContent();
             expect(
               getRemoteItemField(remoteContent.content, id, field)
-            ).not.toBe('newRemote');
+            ).not.toBe(newValue);
             testPushIndicator(false);
           });
         });
 
-        GET_ALL_CHANGES(type).forEach(({ local, remote }) => {
-          it(`should update ${type} when localChange=${local} then remoteChange=${remote}: local wins`, async () => {
-            const remoteData = [
-              testAddFn(),
-              oneDocument(),
-              oneFolder(),
-              oneNotebook()
-            ];
-            await reInitRemoteData(remoteData);
-            await syncService_pull();
-            const id = remoteData[0].id!;
-            // change local
-            setLocalItemField(id, local, ROOT_COLLECTION);
-            // change remote
-            updateOnRemote(remoteData, id, remote);
-            await reInitRemoteData(remoteData);
-            // push
-            await syncService.push(undefined, true);
+        GET_ALL_CHANGES(type).forEach(
+          ({ local, localValueType, remote, remoteValueType }) => {
+            it(`should update ${type} when localChange=${local} then remoteChange=${remote}: local wins`, async () => {
+              const remoteData = [
+                testAddFn(),
+                oneDocument(),
+                oneFolder(),
+                oneNotebook()
+              ];
+              await reInitRemoteData(remoteData);
+              await syncService_pull();
+              const id = remoteData[0].id!;
+              // change local
+              const newLocalValue = getNewValue(localValueType);
+              setLocalItemField(id, local, newLocalValue);
+              // change remote
+              const newRemoteValue = getNewValue(remoteValueType);
+              updateOnRemote(remoteData, id, remote, newRemoteValue);
+              await reInitRemoteData(remoteData);
+              // push
+              await syncService.push(undefined, true);
 
-            const remoteContent = await driver.getParsedContent();
-            expect(remoteContent.content).toHaveLength(4);
-            if (remote !== local) {
+              const remoteContent = await driver.getParsedContent();
+              expect(remoteContent.content).toHaveLength(4);
+              if (remote !== local) {
+                expect(
+                  getRemoteItemField(remoteContent.content, id, remote)
+                ).not.toBe(newLocalValue);
+              }
+              expect(getRemoteItemField(remoteContent.content, id, local)).toBe(
+                newLocalValue
+              );
+
+              testPushIndicator(false);
+            });
+
+            it(`should update ${type} when remoteChange=${remote} then localChange=${local}: local wins`, async () => {
+              const remoteData = [
+                testAddFn(),
+                oneDocument(),
+                oneFolder(),
+                oneNotebook()
+              ];
+              await reInitRemoteData(remoteData);
+              await syncService_pull();
+              const id = remoteData[0].id!;
+              // change remote
+              const newRemoteValue = getNewValue(
+                remoteValueType,
+                remoteData[2].id!
+              );
+              updateOnRemote(remoteData, id, remote, newRemoteValue);
+              await reInitRemoteData(remoteData);
+              // change local
+              const newLocalValue = getNewValue(
+                localValueType,
+                remoteData[3].id!
+              );
+              setLocalItemField(id, local, newLocalValue);
+
+              // push
+              await syncService.push(undefined, true);
+              const remoteContent = await driver.getParsedContent();
+              expect(remoteContent.content).toHaveLength(4);
               expect(
                 getRemoteItemField(remoteContent.content, id, remote)
-              ).not.toBe(ROOT_COLLECTION);
-            }
-            expect(getRemoteItemField(remoteContent.content, id, local)).toBe(
-              ROOT_COLLECTION
-            );
+              ).not.toBe(newRemoteValue);
+              expect(getRemoteItemField(remoteContent.content, id, local)).toBe(
+                newLocalValue
+              );
+              testPushIndicator(false);
+            });
+          }
+        );
+      });
 
-            testPushIndicator(false);
-          });
-
-          it(`should update ${type} when remoteChange=${remote} then localChange=${local}: local wins`, async () => {
+      CONFLICT_CHANGES.forEach(
+        ({ local, localValueType, remote, remoteValueType }) => {
+          it(`should not push conflicts between ${local} and ${remote}: local wins`, async () => {
+            // create a conflict
             const remoteData = [
-              testAddFn(),
+              oneDocument(),
               oneDocument(),
               oneFolder(),
               oneNotebook()
@@ -1890,58 +2032,32 @@ describe('sync service', () => {
             await reInitRemoteData(remoteData);
             await syncService_pull();
             const id = remoteData[0].id!;
-            // change remote
-            updateOnRemote(remoteData, id, remote);
+            const newLocalValue = getNewValue(localValueType, remoteData[1].id);
+            setLocalItemField(id, local, newLocalValue);
+            const newRemoteValue = getNewValue(
+              remoteValueType,
+              remoteData[2].id
+            );
+            setLocalItemField(id, local, newLocalValue);
+            updateOnRemote(remoteData, id, remote, newRemoteValue);
             await reInitRemoteData(remoteData);
-            // change local
-            setLocalItemField(id, local, ROOT_COLLECTION);
+            await syncService_pull();
+            expect(getRowCountInsideNotebook()).toBe(4); // a conflict file was created
 
-            // push
+            // conflict should not be pushed, remote value is kept
             await syncService.push(undefined, true);
             const remoteContent = await driver.getParsedContent();
             expect(remoteContent.content).toHaveLength(4);
-            expect(
-              getRemoteItemField(remoteContent.content, id, remote)
-            ).not.toBe('newRemote');
-            expect(getRemoteItemField(remoteContent.content, id, local)).toBe(
-              ROOT_COLLECTION
+            expect(getRemoteItemField(remoteContent.content, id, remote)).toBe(
+              newRemoteValue
             );
+            expect(
+              getRemoteItemField(remoteContent.content, id, local)
+            ).not.toBe(newLocalValue);
             testPushIndicator(false);
           });
-        });
-      });
-
-      CONFLICT_CHANGES.forEach(({ local, remote }) => {
-        it(`should not push conflicts between ${local} and ${remote}: local wins`, async () => {
-          // create a conflict
-          const remoteData = [
-            oneDocument(),
-            oneDocument(),
-            oneFolder(),
-            oneNotebook()
-          ];
-          await reInitRemoteData(remoteData);
-          await syncService_pull();
-          const id = remoteData[0].id!;
-          setLocalItemField(id, local, remoteData[1].id!);
-          updateOnRemote(remoteData, id, remote, remoteData[2].id!);
-          await reInitRemoteData(remoteData);
-          await syncService_pull();
-          expect(getRowCountInsideNotebook()).toBe(4); // a conflict file was created
-
-          // conflict should not be pushed, remote value is kept
-          await syncService.push(undefined, true);
-          const remoteContent = await driver.getParsedContent();
-          expect(remoteContent.content).toHaveLength(4);
-          expect(getRemoteItemField(remoteContent.content, id, remote)).toBe(
-            remoteData[2].id!
-          );
-          expect(getRemoteItemField(remoteContent.content, id, local)).not.toBe(
-            remoteData[1].id!
-          );
-          testPushIndicator(false);
-        });
-      });
+        }
+      );
     });
 
     describe(`tests with values`, () => {
