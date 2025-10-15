@@ -90,6 +90,7 @@ export const CollectionItemBrowserList = ({
   const searchParams = getSearchParams(location.search);
   const openedDocument = searchParams?.document;
 
+  // TODO merge into one method
   const displayOpts = collectionService.useItemDisplayOpts(folder);
   const defaultDisplayOpts = userSettingsService.useDefaultDisplayOpts();
   const sort: CollectionItemSort = displayOpts?.sort || defaultDisplayOpts.sort;
@@ -143,6 +144,7 @@ export const CollectionItemBrowserList = ({
           }}
         />
       }
+      reorderEnabled={sort.by === 'order'}
       items={items}
       selected={openedDocument}
       getUrl={item =>

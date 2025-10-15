@@ -1,5 +1,5 @@
 import { CollectionItemResult } from '@/collection/collection';
-import { APPICONS_PER_TYPE, CONFLICT_STR } from '@/constants';
+import { APPICONS, APPICONS_PER_TYPE, CONFLICT_STR } from '@/constants';
 import collectionService from '@/db/collection.service';
 import {
   InputCustomEvent,
@@ -12,7 +12,10 @@ import {
   IonInput,
   IonItem,
   IonLabel,
-  IonList
+  IonList,
+  IonReorder,
+  IonReorderGroup,
+  ItemReorderEventDetail
 } from '@ionic/react';
 import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactProps';
 import { Trans } from '@lingui/react/macro';
@@ -42,6 +45,7 @@ type CollectionItemListSingleItemProps = {
 
 type CollectionItemListProps = {
   items: CollectionItemResult[];
+  reorderEnabled?: boolean;
   header?: ReactNode;
   footer?: ReactNode;
 } & Omit<CollectionItemListSingleItemProps, 'item' | 'confirm'>;
@@ -161,6 +165,9 @@ const CollectionItemListItem = ({
           {item.title}
         </IonLabel>
       )}
+      <IonReorder slot="end">
+        <IonIcon icon={APPICONS.dragBar} size="small" color="medium"></IonIcon>
+      </IonReorder>
     </IonItem>
   );
 };
@@ -178,6 +185,7 @@ const CollectionItemList = ({
   onClickActions,
   onRenamingDone,
   selected,
+  reorderEnabled = false,
   header,
   footer
 }: CollectionItemListProps) => {
@@ -188,46 +196,55 @@ const CollectionItemList = ({
   const confirm = (id: string, callback: ConfirmCallback) => {
     setToConfirm({ id, callback });
   };
+  function handleReorder(event: CustomEvent<ItemReorderEventDetail>) {
+    collectionService.reorderItems(items, event.detail.from, event.detail.to);
+    event.detail.complete(items);
+  }
   return (
     <>
       {header && <IonHeader class="subheader">{header}</IonHeader>}
       <IonContent>
         <IonList>
-          {items.map(item => {
-            return (
-              <Fragment key={item.id}>
-                {toConfirm?.id !== item.id && (
-                  <CollectionItemListItem
-                    actionsIcon={actionsIcon}
-                    selected={selected}
-                    item={item}
-                    itemProps={itemProps}
-                    itemRenaming={itemRenaming}
-                    itemDisabled={itemDisabled}
-                    actionDisabled={actionDisabled}
-                    actionVisible={actionVisible}
-                    getUrl={getUrl}
-                    onRenamingDone={onRenamingDone}
-                    onSelectedItem={onSelectedItem}
-                    onClickActions={event => {
-                      if (onClickActions) {
-                        onClickActions(event, item, confirm);
-                      }
-                    }}
-                    confirm={confirm}
-                  />
-                )}
-                {toConfirm?.id === item.id && (
-                  <AreYouSure
-                    onClick={choice => {
-                      toConfirm.callback(choice);
-                      setToConfirm(undefined);
-                    }}
-                  />
-                )}
-              </Fragment>
-            );
-          })}
+          <IonReorderGroup
+            disabled={!reorderEnabled}
+            onIonItemReorder={handleReorder}
+          >
+            {items.map(item => {
+              return (
+                <Fragment key={item.id}>
+                  {toConfirm?.id !== item.id && (
+                    <CollectionItemListItem
+                      actionsIcon={actionsIcon}
+                      selected={selected}
+                      item={item}
+                      itemProps={itemProps}
+                      itemRenaming={itemRenaming}
+                      itemDisabled={itemDisabled}
+                      actionDisabled={actionDisabled}
+                      actionVisible={actionVisible}
+                      getUrl={getUrl}
+                      onRenamingDone={onRenamingDone}
+                      onSelectedItem={onSelectedItem}
+                      onClickActions={event => {
+                        if (onClickActions) {
+                          onClickActions(event, item, confirm);
+                        }
+                      }}
+                      confirm={confirm}
+                    />
+                  )}
+                  {toConfirm?.id === item.id && (
+                    <AreYouSure
+                      onClick={choice => {
+                        toConfirm.callback(choice);
+                        setToConfirm(undefined);
+                      }}
+                    />
+                  )}
+                </Fragment>
+              );
+            })}
+          </IonReorderGroup>
         </IonList>
       </IonContent>
       {footer && <IonFooter>{footer}</IonFooter>}

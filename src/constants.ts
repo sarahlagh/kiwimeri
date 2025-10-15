@@ -31,6 +31,7 @@ import {
   moonSharp,
   pricetagsOutline,
   receiptOutline,
+  reorderTwoOutline,
   sendOutline,
   settingsSharp,
   syncCircleOutline,
@@ -109,7 +110,8 @@ export const APPICONS = {
   tags: pricetagsOutline,
   export: sendOutline,
   import: downloadOutline,
-  sortFilter: funnelOutline
+  sortFilter: funnelOutline,
+  dragBar: reorderTwoOutline
 };
 
 export const APPICONS_PER_TYPE = new Map<CollectionItemTypeValues, string>();

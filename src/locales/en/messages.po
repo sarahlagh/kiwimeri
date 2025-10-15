@@ -30,7 +30,7 @@ msgid "Archive is empty"
 msgstr "Archive is empty"
 
 #: src/common/modals/ConfirmYesNoDialog.tsx:24
-#: src/collection/components/CollectionItemList.tsx:52
+#: src/collection/components/CollectionItemList.tsx:56
 msgid "Are you sure?"
 msgstr "Are you sure?"
 
@@ -55,7 +55,7 @@ msgstr "Choose a new folder"
 msgid "Clear All"
 msgstr "Clear All"
 
-#: src/constants.ts:68
+#: src/constants.ts:69
 msgid "collection"
 msgstr "collection"
 
@@ -81,7 +81,7 @@ msgstr "Configure where to synchronize your collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/constants.ts:63
+#: src/constants.ts:64
 msgid "Conflicts"
 msgstr "Conflicts"
 
@@ -93,7 +93,7 @@ msgstr "Creation Date"
 msgid "Current Notebook Settings ({notebookTitle})"
 msgstr "Current Notebook Settings ({notebookTitle})"
 
-#: src/constants.ts:62
+#: src/constants.ts:63
 msgid "Default"
 msgstr "Default"
 
@@ -172,7 +172,7 @@ msgstr "File not supported"
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/constants.ts:61
+#: src/constants.ts:62
 msgid "Home"
 msgstr "Home"
 
@@ -277,11 +277,11 @@ msgstr "Name"
 msgid "new"
 msgstr "new"
 
-#: src/constants.ts:64
+#: src/constants.ts:65
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:65
+#: src/constants.ts:66
 msgid "New folder"
 msgstr "New folder"
 
@@ -297,7 +297,7 @@ msgstr "New notebook name: "
 msgid "New tag"
 msgstr "New tag"
 
-#: src/collection/components/CollectionItemList.tsx:63
+#: src/collection/components/CollectionItemList.tsx:67
 msgid "no"
 msgstr "no"
 
@@ -317,7 +317,7 @@ msgstr "Notebook Selection"
 msgid "Notebooks found in the archive, they will be converted to folders"
 msgstr "Notebooks found in the archive, they will be converted to folders"
 
-#: src/constants.ts:67
+#: src/constants.ts:68
 msgid "page"
 msgstr "page"
 
@@ -446,7 +446,7 @@ msgstr "Username"
 msgid "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 msgstr "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 
-#: src/collection/components/CollectionItemList.tsx:60
+#: src/collection/components/CollectionItemList.tsx:64
 msgid "yes"
 msgstr "yes"
 
