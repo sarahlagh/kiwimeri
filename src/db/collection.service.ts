@@ -26,6 +26,7 @@ import {
   useResultSortedRowIdsWithRef,
   useTableWithRef
 } from './tinybase/hooks';
+import { defaultOrder } from './types/space-types';
 import { LocalChangeType } from './types/store-types';
 import userSettingsService from './user-settings.service';
 
@@ -41,6 +42,7 @@ class CollectionService {
   private readonly table = 'collection';
   private readonly previewSize = 80;
 
+  // TODO review what i actually need to select in queries - fields for sorting, what else?
   private fetchAllPerParentQuery(parent: string, deleted: boolean = false) {
     const queries = storageService.getSpaceQueries();
     const queryName = `fetchAllForParent${parent}`;
@@ -75,6 +77,7 @@ class CollectionService {
         select('updated');
         select('conflict');
         select('preview');
+        select('order');
         where('parent', parent);
         where('deleted', deleted);
         where(getCell => {
@@ -267,7 +270,7 @@ class CollectionService {
       type: CollectionItemType.document,
       deleted: false,
       deleted_meta: setFieldMeta('false', now),
-      order: 0, // TODO dynamic order
+      order: defaultOrder, // TODO dynamic order
       order_meta: setFieldMeta('0', now)
     };
     return { item, id };
@@ -294,7 +297,7 @@ class CollectionService {
       type: CollectionItemType.folder,
       deleted: false,
       deleted_meta: setFieldMeta('false', now),
-      order: 0, // TODO dynamic order
+      order: defaultOrder, // TODO dynamic order
       order_meta: setFieldMeta('0', now)
     };
     return { item, id };
@@ -321,7 +324,7 @@ class CollectionService {
       type: CollectionItemType.page,
       deleted: false,
       deleted_meta: setFieldMeta('false', now),
-      order: 0, // TODO dynamic order
+      order: defaultOrder, // TODO dynamic order
       order_meta: setFieldMeta('0', now)
     };
     return { item, id };
@@ -547,6 +550,28 @@ class CollectionService {
     this.setItemField(rowId, 'display_opts', JSON.stringify(display_opts));
   }
 
+  public reorderItems(
+    items: CollectionItemResult[],
+    currentOrder: number,
+    newOrder: number
+  ) {
+    storageService.getStore().transaction(() => {
+      if (currentOrder < newOrder) {
+        for (let i = currentOrder + 1; i < newOrder + 1; i++) {
+          this.setItemField(items[i].id, 'order', i - 1, false);
+        }
+      } else {
+        for (let i = newOrder; i < currentOrder; i++) {
+          this.setItemField(items[i].id, 'order', i + 1, false);
+        }
+      }
+      this.setItemField(items[currentOrder].id, 'order', newOrder, false);
+      this.updateAllParentsInBreadcrumb(
+        this.getItemParent(items[currentOrder].id)
+      );
+    });
+  }
+
   public useItemTags(rowId: Id) {
     return new Set(
       (useCellWithRef<string>(this.storeId, this.table, rowId, 'tags') || '')
@@ -626,7 +651,8 @@ class CollectionService {
   public setItemField(
     rowId: Id,
     key: CollectionItemUpdatableFieldEnum,
-    value: string | boolean | number
+    value: string | boolean | number,
+    updateParent = true
   ) {
     const current = this.getItemField(rowId, key);
     if (current === value) {
@@ -645,11 +671,15 @@ class CollectionService {
           `${key}_meta`,
           setFieldMeta(`${value}`, updated)
         );
+
+      // TODO don't update ts on a reorder
       if (key !== 'parent' || type === CollectionItemType.page) {
         storageService
           .getSpace()
           .setCell('collection', rowId, 'updated', updated);
       }
+
+      // TODO don't reset conflict on a reorder
       const wasConflict = this.resetItemIfConflict(rowId);
       localChangesService.addLocalChange(
         rowId,
@@ -657,7 +687,11 @@ class CollectionService {
         key
       );
     });
-    if (key !== 'parent' || type === CollectionItemType.page) {
+    // TODO actually don't update parent on a reorder so remove updateParent?
+    if (
+      (updateParent && key !== 'parent') ||
+      type === CollectionItemType.page
+    ) {
       this.updateAllParentsInBreadcrumb(this.getItemParent(rowId));
     }
     return true;

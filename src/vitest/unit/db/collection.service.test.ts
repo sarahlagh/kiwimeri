@@ -1,13 +1,20 @@
-import { CollectionItemType, parseFieldMeta } from '@/collection/collection';
+import {
+  CollectionItemResult,
+  CollectionItemSort,
+  CollectionItemType,
+  parseFieldMeta
+} from '@/collection/collection';
 import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
+import { defaultOrder } from '@/db/types/space-types';
 import { renderHook } from '@testing-library/react';
 import { act } from 'react';
 import { it, vi } from 'vitest';
 import {
   BROWSABLE_ITEM_TYPES,
+  fakeTimersDelay,
   GET_NON_PARENT_UPDATABLE_FIELDS,
   getCollectionItem,
   getLocalItemField,
@@ -664,6 +671,155 @@ describe('collection service', () => {
       expect(
         collectionService.getAllCollectionItemsRecursive(idd2)
       ).toHaveLength(0);
+    });
+  });
+
+  describe(`item sorting`, () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+    it(`should sort according to the correct field`, () => {
+      const { id: i1, item: item1 } =
+        collectionService.getNewFolderObj(DEFAULT_NOTEBOOK_ID);
+      item1.id = i1;
+      item1.title = 'r1';
+      item1.order = 2;
+      vi.advanceTimersByTime(fakeTimersDelay);
+      collectionService.saveItem(item1, i1);
+      const { id: i2, item: item2 } =
+        collectionService.getNewDocumentObj(DEFAULT_NOTEBOOK_ID);
+      item2.id = i2;
+      item2.title = 'r2';
+      item2.order = 3;
+      vi.advanceTimersByTime(fakeTimersDelay);
+      collectionService.saveItem(item2, i2);
+      const { id: i3, item: item3 } =
+        collectionService.getNewDocumentObj(DEFAULT_NOTEBOOK_ID);
+      item3.id = i3;
+      item3.title = 'r3';
+      item3.order = 1;
+      vi.advanceTimersByTime(fakeTimersDelay);
+      collectionService.saveItem(item3, i3);
+
+      collectionService.setItemField(i2, 'tags', 'test'); // update
+
+      expect(
+        collectionService
+          .getBrowsableCollectionItems(DEFAULT_NOTEBOOK_ID, {
+            by: 'created',
+            descending: false
+          })
+          .map(i => `${i.title}`)
+      ).toEqual(['r1', 'r2', 'r3']);
+
+      expect(
+        collectionService
+          .getBrowsableCollectionItems(DEFAULT_NOTEBOOK_ID, {
+            by: 'created',
+            descending: true
+          })
+          .map(i => `${i.title}`)
+      ).toEqual(['r3', 'r2', 'r1']);
+
+      expect(
+        collectionService
+          .getBrowsableCollectionItems(DEFAULT_NOTEBOOK_ID, {
+            by: 'updated',
+            descending: false
+          })
+          .map(i => `${i.title}`)
+      ).toEqual(['r1', 'r3', 'r2']);
+
+      expect(
+        collectionService
+          .getBrowsableCollectionItems(DEFAULT_NOTEBOOK_ID, {
+            by: 'updated',
+            descending: true
+          })
+          .map(i => `${i.title}`)
+      ).toEqual(['r2', 'r3', 'r1']);
+
+      expect(
+        collectionService
+          .getBrowsableCollectionItems(DEFAULT_NOTEBOOK_ID, {
+            by: 'order',
+            descending: false
+          })
+          .map(i => `${i.title}`)
+      ).toEqual(['r3', 'r1', 'r2']);
+
+      expect(
+        collectionService
+          .getBrowsableCollectionItems(DEFAULT_NOTEBOOK_ID, {
+            by: 'order',
+            descending: true
+          })
+          .map(i => `${i.title}`)
+      ).toEqual(['r2', 'r1', 'r3']);
+    });
+
+    it(`should order items within a folder or notebook`, () => {
+      const { id: i1, item: item1 } =
+        collectionService.getNewFolderObj(DEFAULT_NOTEBOOK_ID);
+      item1.id = i1;
+      item1.title = 'r1';
+      const { id: i2, item: item2 } =
+        collectionService.getNewDocumentObj(DEFAULT_NOTEBOOK_ID);
+      item2.id = i2;
+      item2.title = 'r2';
+      const { id: i3, item: item3 } =
+        collectionService.getNewDocumentObj(DEFAULT_NOTEBOOK_ID);
+      item3.id = i3;
+      item3.title = 'r3';
+      const { id: i4, item: item4 } =
+        collectionService.getNewFolderObj(DEFAULT_NOTEBOOK_ID);
+      item4.id = i4;
+      item4.title = 'r4';
+      const { id: i5, item: item5 } =
+        collectionService.getNewDocumentObj(DEFAULT_NOTEBOOK_ID);
+      item5.id = i5;
+      item5.title = 'r5';
+      collectionService.saveItems([item1, item2, item3, item4, item5]);
+
+      let items = [item1, item2, item3, item4, item5] as CollectionItemResult[];
+
+      const sort: CollectionItemSort = {
+        by: 'order',
+        descending: false
+      };
+      [
+        {
+          from: 0,
+          to: 1,
+          expected: [
+            `#0 r2`,
+            `#1 r1`,
+            `#${defaultOrder} r3`,
+            `#${defaultOrder} r4`,
+            `#${defaultOrder} r5`
+          ]
+        },
+        {
+          from: 4,
+          to: 1,
+          expected: [`#0 r2`, `#1 r5`, `#2 r1`, `#3 r3`, `#4 r4`]
+        },
+        {
+          from: 2,
+          to: 4,
+          expected: [`#0 r2`, `#1 r5`, `#2 r3`, `#3 r4`, `#4 r1`]
+        }
+      ].forEach(({ from, to, expected }) => {
+        collectionService.reorderItems(items, from, to);
+        items = collectionService.getBrowsableCollectionItems(
+          DEFAULT_NOTEBOOK_ID,
+          sort
+        );
+        expect(items.map(i => `#${i.order} ${i.title}`)).toEqual(expected);
+      });
     });
   });
 });

@@ -16,6 +16,7 @@ import {
   useResultSortedRowIdsWithRef,
   useTableWithRef
 } from './tinybase/hooks';
+import { defaultOrder } from './types/space-types';
 import { LocalChangeType } from './types/store-types';
 import userSettingsService from './user-settings.service';
 
@@ -75,7 +76,7 @@ class NotebooksService {
       type: CollectionItemType.notebook,
       deleted: false,
       deleted_meta: setFieldMeta('false', now),
-      order: 0, // TODO dynamic order
+      order: defaultOrder, // TODO dynamic order
       order_meta: setFieldMeta('0', now)
     };
     return {

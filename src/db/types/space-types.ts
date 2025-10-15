@@ -20,3 +20,5 @@ export type SpaceType = [
 export type SpaceValue = ValueIdFromSchema<SpaceType[1]>;
 
 export type SpaceValues = { [key in SpaceValue]: Value<SpaceType[1], key> };
+
+export const defaultOrder = 9999;
