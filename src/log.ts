@@ -22,6 +22,24 @@ export type AppLogResult = Required<AppLog> & {
   longLevelName: AppLogLevel;
 };
 
+const safeStringify = function (v: any) {
+  const cache = new Set();
+  try {
+    return JSON.stringify(v, function (key, value) {
+      if (typeof value === 'object' && value !== null) {
+        if (cache.has(value)) {
+          return '[Circular]';
+        }
+        cache.add(value);
+      }
+      return value;
+    });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (e) {
+    return '[unable to stringify argument]';
+  }
+};
+
 class AppLogService {
   private readonly storeId = 'store';
   private readonly table = 'logs';
@@ -137,7 +155,7 @@ class AppLogService {
     } else if (typeof message === 'string') {
       final = message;
     } else {
-      final = JSON.stringify(message);
+      final = safeStringify(message);
     }
     return final;
   }

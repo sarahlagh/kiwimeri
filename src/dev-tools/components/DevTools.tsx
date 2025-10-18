@@ -41,7 +41,7 @@ const DevTools = () => {
 
       <ConfigCard />
 
-      {!platformService.isWeb() && <LogsCard />}
+      {!platformService.isDev() && <LogsCard />}
 
       {!platformService.isRelease() && (
         <>
