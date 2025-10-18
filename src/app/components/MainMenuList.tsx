@@ -84,6 +84,12 @@ const MainMenuList = () => {
       icon: APPICONS.devToolsPage
     });
   }
+  appPages.push({
+    key: 'test',
+    title: 'DND Test',
+    url: '/test',
+    icon: APPICONS.devToolsPage
+  });
 
   return (
     <>

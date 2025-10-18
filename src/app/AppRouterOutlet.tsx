@@ -12,6 +12,7 @@ import DevToolsPage from './pages/DevToolsPage';
 import DocumentEditorPage from './pages/DocumentEditorPage';
 import SettingsPage from './pages/SettingsPage';
 import SynchronizationPage from './pages/SynchronizationPage';
+import TestPage from './pages/TestPage';
 
 const AppRouterOutlet = () => (
   <IonRouterOutlet>
@@ -24,6 +25,7 @@ const AppRouterOutlet = () => (
     <Route path={SYNCHRONIZATION_ROUTE} component={SynchronizationPage} />
     <Route path={SETTINGS_ROUTE} component={SettingsPage} />
     <Route path={DEV_TOOLS_ROUTE} component={DevToolsPage} />
+    <Route path={'/test'} component={TestPage} />
     <Redirect exact from="/" to={FOLDER_ROUTE} />
   </IonRouterOutlet>
 );
