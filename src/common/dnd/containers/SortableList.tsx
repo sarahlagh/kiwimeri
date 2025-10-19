@@ -44,7 +44,7 @@ type SortableIonListProps = JSX.IonList &
     readonly children?: ReactNode;
   } & DndContextProps & {
     items: SortableItem[];
-    disabled?: boolean;
+    sortDisabled?: boolean;
     isContainer?: (item: SortableItem) => boolean;
     onContainerDrop?: (item: SortableItem) => Promise<void> | void;
     onItemMove?: (
@@ -83,7 +83,7 @@ const SortableList = (props: SortableIonListProps) => {
   const [overId, setOverId] = useState<UniqueIdentifier | null>(null);
   const [active, setActive] = useState<IdIdx | null>(null);
 
-  const disabled = props.disabled;
+  const disabled = props.sortDisabled;
   const items = props.items;
   const iterables = getIterableNodes(props.children);
   if (iterables.length !== props.items.length) {

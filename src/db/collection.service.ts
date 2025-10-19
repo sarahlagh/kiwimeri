@@ -550,7 +550,7 @@ class CollectionService {
     this.setItemField(rowId, 'display_opts', JSON.stringify(display_opts));
   }
 
-  public reorderItems(
+  public reorderItemsOld(
     items: CollectionItemResult[],
     currentOrder: number,
     newOrder: number
@@ -568,6 +568,19 @@ class CollectionService {
       this.setItemField(items[currentOrder].id, 'order', newOrder, false);
       this.updateAllParentsInBreadcrumb(
         this.getItemParent(items[currentOrder].id)
+      );
+    });
+  }
+
+  public reorderItems(items: CollectionItemResult[]) {
+    storageService.getSpace().transaction(() => {
+      items.forEach((item, idx) =>
+        this.setItemField(
+          (item as CollectionItemResult).id,
+          'order',
+          idx,
+          false
+        )
       );
     });
   }
