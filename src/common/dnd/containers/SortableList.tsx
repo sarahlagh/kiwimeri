@@ -8,7 +8,6 @@ import {
   DragStartEvent,
   UniqueIdentifier
 } from '@dnd-kit/core';
-import { arrayMove } from '@dnd-kit/sortable';
 import type { JSX } from '@ionic/core/components';
 import { IonItem, IonList } from '@ionic/react';
 import { StyleReactProps } from '@ionic/react/dist/types/components/react-component-lib/interfaces';
@@ -52,10 +51,7 @@ type SortableIonListProps = JSX.IonList &
     sortDisabled?: boolean;
     isContainer?: (item: SortableItem) => boolean;
     onContainerDrop?: (item: SortableItem) => Promise<void> | void;
-    onItemMove?: (
-      event: DragEndEvent,
-      items: SortableItem[]
-    ) => Promise<void> | void;
+    onItemMove?: (from: number, to: number) => Promise<void> | void;
     overlay?: (item: SortableItem) => ReactNode;
     disableOverlay?: boolean;
     applyStyle?: (isOver: boolean, isActive: boolean) => AnyData;
@@ -134,7 +130,6 @@ const SortableList = (props: SortableIonListProps) => {
 
   async function handleDragEnd(event: DragEndEvent) {
     const { over } = event;
-    let newItems = [...items];
     if (active && over && active.id !== over.id) {
       // dragged
       const isLandingZone = over.id.toString().startsWith(landingPrefix);
@@ -157,10 +152,8 @@ const SortableList = (props: SortableIonListProps) => {
         }
         if (from !== to) {
           console.debug('move to landing zone', from, to);
-          // TODO use method genericReorder with call back to avoid double loop with order
-          newItems = arrayMove(items, from, to);
           if (props.onItemMove) {
-            await props.onItemMove(event, newItems);
+            await props.onItemMove(from, to);
           }
         }
       }

@@ -10,6 +10,7 @@ import {
   CollectionItemUpdate,
   setFieldMeta
 } from '@/collection/collection';
+import { genericReorder } from '@/common/dnd/utils';
 import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
 import { getGlobalTrans } from '@/config';
 import { ROOT_COLLECTION } from '@/constants';
@@ -550,38 +551,12 @@ class CollectionService {
     this.setItemField(rowId, 'display_opts', JSON.stringify(display_opts));
   }
 
-  public reorderItemsOld(
-    items: CollectionItemResult[],
-    currentOrder: number,
-    newOrder: number
-  ) {
+  public reorderItems(items: CollectionItemResult[], from: number, to: number) {
     storageService.getStore().transaction(() => {
-      if (currentOrder < newOrder) {
-        for (let i = currentOrder + 1; i < newOrder + 1; i++) {
-          this.setItemField(items[i].id, 'order', i - 1, false);
-        }
-      } else {
-        for (let i = newOrder; i < currentOrder; i++) {
-          this.setItemField(items[i].id, 'order', i + 1, false);
-        }
-      }
-      this.setItemField(items[currentOrder].id, 'order', newOrder, false);
-      this.updateAllParentsInBreadcrumb(
-        this.getItemParent(items[currentOrder].id)
-      );
-    });
-  }
-
-  public reorderItems(items: CollectionItemResult[]) {
-    storageService.getSpace().transaction(() => {
-      items.forEach((item, idx) =>
-        this.setItemField(
-          (item as CollectionItemResult).id,
-          'order',
-          idx,
-          false
-        )
-      );
+      genericReorder(items, from, to, (idx, order) => {
+        this.setItemField(items[idx].id, 'order', order, false);
+      });
+      this.updateAllParentsInBreadcrumb(this.getItemParent(items[from].id));
     });
   }
 

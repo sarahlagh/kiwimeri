@@ -213,9 +213,8 @@ const CollectionItemList = ({
           handleDragEnd={() => {
             setIsDragging(false);
           }}
-          onItemMove={(event, items) => {
-            // TODO only change order if necessary
-            collectionService.reorderItems(items as CollectionItemResult[]);
+          onItemMove={(from, to) => {
+            collectionService.reorderItems(items, from, to);
           }}
         >
           {items.map(item => {
