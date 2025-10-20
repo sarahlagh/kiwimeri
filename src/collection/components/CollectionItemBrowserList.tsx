@@ -90,7 +90,7 @@ export const CollectionItemBrowserList = ({
   const searchParams = getSearchParams(location.search);
   const openedDocument = searchParams?.document;
 
-  // TODO merge into one method
+  // TODO merge into one method getDisplayOpts for one item
   const displayOpts = collectionService.useItemDisplayOpts(folder);
   const defaultDisplayOpts = userSettingsService.useDefaultDisplayOpts();
   const sort: CollectionItemSort = displayOpts?.sort || defaultDisplayOpts.sort;

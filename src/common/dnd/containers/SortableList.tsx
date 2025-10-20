@@ -36,6 +36,11 @@ type DndContextProps = {
     activeId: UniqueIdentifier,
     overId?: UniqueIdentifier
   ) => void;
+  handleDragEnd?: (
+    event: DragEndEvent,
+    activeId: UniqueIdentifier,
+    overId?: UniqueIdentifier
+  ) => void;
 };
 
 type SortableIonListProps = JSX.IonList &
@@ -52,6 +57,7 @@ type SortableIonListProps = JSX.IonList &
       items: SortableItem[]
     ) => Promise<void> | void;
     overlay?: (item: SortableItem) => ReactNode;
+    disableOverlay?: boolean;
     applyStyle?: (isOver: boolean, isActive: boolean) => AnyData;
   };
 
@@ -83,10 +89,10 @@ const SortableList = (props: SortableIonListProps) => {
   const [overId, setOverId] = useState<UniqueIdentifier | null>(null);
   const [active, setActive] = useState<IdIdx | null>(null);
 
-  const disabled = props.sortDisabled;
-  const items = props.items;
-  const iterables = getIterableNodes(props.children);
-  if (iterables.length !== props.items.length) {
+  const { sortDisabled, items, children, disableOverlay, applyStyle } = props;
+
+  const iterables = getIterableNodes(children);
+  if (iterables.length !== items.length) {
     throw new Error('incoherent state between react children and items');
   }
 
@@ -97,7 +103,7 @@ const SortableList = (props: SortableIonListProps) => {
       ) : (
         <IonItem>{active?.id}</IonItem>
       ),
-    [active]
+    [props.overlay, active]
   );
 
   function getId(idx: number) {
@@ -149,13 +155,18 @@ const SortableList = (props: SortableIonListProps) => {
         if (to > from) {
           to--;
         }
-        console.debug('move to landing zone', from, to);
-        // TODO use method genericReorder with call back to avoid double loop with order
-        newItems = arrayMove(items, from, to);
-        if (props.onItemMove) {
-          await props.onItemMove(event, newItems);
+        if (from !== to) {
+          console.debug('move to landing zone', from, to);
+          // TODO use method genericReorder with call back to avoid double loop with order
+          newItems = arrayMove(items, from, to);
+          if (props.onItemMove) {
+            await props.onItemMove(event, newItems);
+          }
         }
       }
+    }
+    if (props.handleDragEnd) {
+      await props.handleDragEnd(event, active!.id, over?.id);
     }
     setActive(null);
     setOverId(null);
@@ -176,8 +187,8 @@ const SortableList = (props: SortableIonListProps) => {
           const dividerId = `${landingPrefix}${idx}`;
           const isOverLandingZone = dividerId === overId;
 
-          const additionalStyle = props.applyStyle
-            ? props.applyStyle(id === overId, id === active?.id)
+          const additionalStyle = applyStyle
+            ? applyStyle(id === overId, id === active?.id)
             : {};
           const el = child as ReactElement;
           const itemNode = {
@@ -190,7 +201,7 @@ const SortableList = (props: SortableIonListProps) => {
               <Sortable
                 id={id}
                 disabled={{
-                  draggable: disabled,
+                  draggable: sortDisabled,
                   droppable: !isContainer(item, props) || id === active?.id
                 }}
               >
@@ -204,9 +215,11 @@ const SortableList = (props: SortableIonListProps) => {
           isOver={`${landingPrefix}${items.length}` === overId}
         />
       </IonList>
-      <DragOverlay style={{ opacity: 0.7 }}>
-        {active ? overlay : null}
-      </DragOverlay>
+      {!disableOverlay && (
+        <DragOverlay style={{ opacity: 0.7 }}>
+          {active ? overlay : null}
+        </DragOverlay>
+      )}
     </DndContext>
   );
 };

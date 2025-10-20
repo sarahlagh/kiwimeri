@@ -189,6 +189,7 @@ const CollectionItemList = ({
   header,
   footer
 }: CollectionItemListProps) => {
+  const [isDragging, setIsDragging] = useState(false);
   const [toConfirm, setToConfirm] = useState<{
     id: string;
     callback: ConfirmCallback;
@@ -196,6 +197,8 @@ const CollectionItemList = ({
   const confirm = (id: string, callback: ConfirmCallback) => {
     setToConfirm({ id, callback });
   };
+  // TODO when document opened - overlay is lower than it should be
+  // disabling the overlay fixes it, but why
   return (
     <>
       {header && <IonHeader class="subheader">{header}</IonHeader>}
@@ -203,12 +206,13 @@ const CollectionItemList = ({
         <SortableList
           items={items}
           sortDisabled={!reorderEnabled}
-          overlay={item => (
-            <CollectionItemListItem
-              item={item as CollectionItemResult}
-              confirm={confirm}
-            />
-          )}
+          disableOverlay={true}
+          handleDragStart={() => {
+            setIsDragging(true);
+          }}
+          handleDragEnd={() => {
+            setIsDragging(false);
+          }}
           onItemMove={(event, items) => {
             // TODO only change order if necessary
             collectionService.reorderItems(items as CollectionItemResult[]);
@@ -227,7 +231,7 @@ const CollectionItemList = ({
                     itemDisabled={itemDisabled}
                     actionDisabled={actionDisabled}
                     actionVisible={actionVisible}
-                    getUrl={getUrl}
+                    getUrl={isDragging ? undefined : getUrl}
                     onRenamingDone={onRenamingDone}
                     onSelectedItem={onSelectedItem}
                     onClickActions={event => {
