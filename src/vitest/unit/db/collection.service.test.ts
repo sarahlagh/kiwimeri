@@ -1,4 +1,5 @@
 import {
+  CollectionItemResetConflictFields,
   CollectionItemResult,
   CollectionItemSort,
   CollectionItemType,
@@ -94,9 +95,14 @@ describe('collection service', () => {
           collectionService.setItemField(id, field, newVal);
           const item = getCollectionItem(id);
           expect(item[field]).toBe(newVal);
-          expect(item.created).toBeLessThan(item.updated);
           const meta = parseFieldMeta(item[`${field}_meta`]!);
-          expect(meta.u).toBe(item.updated);
+          if (collectionService.isContentChange(typeVal, field)) {
+            expect(item.created).toBeLessThan(item.updated);
+            expect(meta.u).toBe(item.updated);
+          } else {
+            expect(item.created).toBe(item.updated);
+            expect(meta.u).toBeGreaterThan(item.updated);
+          }
         });
 
         it(`should update the ${field} of a ${type} and recursively update all parents timestamp`, () => {
@@ -111,23 +117,29 @@ describe('collection service', () => {
           collectionService.setItemField(id, field, newVal);
           const item = getCollectionItem(id);
           expect(item[field]).toBe(newVal);
-          expect(item.created).toBeLessThan(item.updated);
+
           const meta = parseFieldMeta(item[`${field}_meta`]!);
-          expect(meta.u).toBe(item.updated);
+          if (collectionService.isContentChange(typeVal, field)) {
+            expect(item.created).toBeLessThan(item.updated);
+            expect(meta.u).toBe(item.updated);
 
-          const folderO = getCollectionItem(folderIdO);
-          const folder1 = getCollectionItem(folderId1);
-          const folder2 = getCollectionItem(folderId2);
-          const folder3 = getCollectionItem(folderId3);
+            const folderO = getCollectionItem(folderIdO);
+            const folder1 = getCollectionItem(folderId1);
+            const folder2 = getCollectionItem(folderId2);
+            const folder3 = getCollectionItem(folderId3);
 
-          expect(folderO.updated).toBe(now); // this one is untouched
-          expect(parseFieldMeta(folderO.parent_meta).u).toBe(now);
-          expect(folder1.updated).toBe(now + 100);
-          expect(parseFieldMeta(folder1.parent_meta).u).toBe(now);
-          expect(folder2.updated).toBe(now + 100);
-          expect(parseFieldMeta(folder2.parent_meta).u).toBe(now);
-          expect(folder3.updated).toBe(now + 100);
-          expect(parseFieldMeta(folder3.parent_meta).u).toBe(now);
+            expect(folderO.updated).toBe(now); // this one is untouched
+            expect(parseFieldMeta(folderO.parent_meta).u).toBe(now);
+            expect(folder1.updated).toBe(now + 100);
+            expect(parseFieldMeta(folder1.parent_meta).u).toBe(now);
+            expect(folder2.updated).toBe(now + 100);
+            expect(parseFieldMeta(folder2.parent_meta).u).toBe(now);
+            expect(folder3.updated).toBe(now + 100);
+            expect(parseFieldMeta(folder3.parent_meta).u).toBe(now);
+          } else {
+            expect(item.created).toBe(item.updated);
+            expect(meta.u).toBeGreaterThan(item.updated);
+          }
         });
       });
 
@@ -355,14 +367,18 @@ describe('collection service', () => {
         });
 
         UPDATABLE_FIELDS.forEach(({ field, valueType }) => {
-          it(`should reset conflict on a document on update of ${field}`, () => {
+          it(`should reset conflict (or not) on a document on update of ${field}`, () => {
             const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
             const id2 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
             markAsConflict(id, id2);
             expect(getCollectionItem(id).conflict).toBeDefined();
 
             collectionService.setItemField(id, field, getNewValue(valueType));
-            expect(getCollectionItem(id).conflict).toBeUndefined();
+            if (CollectionItemResetConflictFields.includes(field)) {
+              expect(getCollectionItem(id).conflict).toBeUndefined();
+            } else {
+              expect(getCollectionItem(id).conflict).toBeDefined();
+            }
           });
         });
 

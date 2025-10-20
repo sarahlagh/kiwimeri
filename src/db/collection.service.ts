@@ -2,12 +2,14 @@ import {
   CollectionItem,
   CollectionItemDisplayOpts,
   CollectionItemFieldEnum,
+  CollectionItemResetConflictFields,
   CollectionItemResult,
   CollectionItemSort,
   CollectionItemType,
   CollectionItemTypeValues,
   CollectionItemUpdatableFieldEnum,
   CollectionItemUpdate,
+  CollectionItemUpdateChangeFields,
   setFieldMeta
 } from '@/collection/collection';
 import { genericReorder } from '@/common/dnd/utils';
@@ -554,9 +556,8 @@ class CollectionService {
   public reorderItems(items: CollectionItemResult[], from: number, to: number) {
     storageService.getStore().transaction(() => {
       genericReorder(items, from, to, (idx, order) => {
-        this.setItemField(items[idx].id, 'order', order, false);
+        this.setItemField(items[idx].id, 'order', order);
       });
-      this.updateAllParentsInBreadcrumb(this.getItemParent(items[from].id));
     });
   }
 
@@ -636,19 +637,30 @@ class CollectionService {
     return isConflict;
   }
 
+  public isContentChange(
+    type: CollectionItemTypeValues,
+    key: CollectionItemUpdatableFieldEnum
+  ) {
+    return (
+      CollectionItemUpdateChangeFields.includes(key) ||
+      type === CollectionItemType.page
+    );
+  }
+
   public setItemField(
     rowId: Id,
     key: CollectionItemUpdatableFieldEnum,
-    value: string | boolean | number,
-    updateParent = true
+    value: string | boolean | number
   ) {
     const current = this.getItemField(rowId, key);
+    const type = this.getItemType(rowId);
     if (current === value) {
       console.debug('no change, skipping', rowId, key);
       return false; // don't add unnecessary changes
     }
     const updated = Date.now();
-    const type = this.getItemType(rowId);
+    // title and content are real changes, order and display_opts are not (won't trigger an update ts)
+    const isContentChange = this.isContentChange(type, key);
     storageService.getSpace().transaction(() => {
       storageService.getSpace().setCell('collection', rowId, key, value);
       storageService
@@ -660,26 +672,22 @@ class CollectionService {
           setFieldMeta(`${value}`, updated)
         );
 
-      // TODO don't update ts on a reorder
-      if (key !== 'parent' || type === CollectionItemType.page) {
+      if (isContentChange) {
         storageService
           .getSpace()
           .setCell('collection', rowId, 'updated', updated);
       }
 
-      // TODO don't reset conflict on a reorder
-      const wasConflict = this.resetItemIfConflict(rowId);
+      const wasConflict =
+        CollectionItemResetConflictFields.includes(key) &&
+        this.resetItemIfConflict(rowId);
       localChangesService.addLocalChange(
         rowId,
         wasConflict ? LocalChangeType.add : LocalChangeType.update,
         key
       );
     });
-    // TODO actually don't update parent on a reorder so remove updateParent?
-    if (
-      (updateParent && key !== 'parent') ||
-      type === CollectionItemType.page
-    ) {
+    if (isContentChange) {
       this.updateAllParentsInBreadcrumb(this.getItemParent(rowId));
     }
     return true;
