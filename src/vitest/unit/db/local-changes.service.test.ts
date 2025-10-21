@@ -3,7 +3,11 @@ import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/local-changes.service';
 import notebooksService from '@/db/notebooks.service';
-import { LocalChange, LocalChangeType } from '@/db/types/store-types';
+import {
+  LocalChange,
+  LocalChangeType,
+  SerializableData
+} from '@/db/types/store-types';
 import userSettingsService from '@/db/user-settings.service';
 import { it } from 'vitest';
 import {
@@ -111,7 +115,7 @@ describe('local changes service', () => {
     localChangesService.clear();
 
     GET_UPDATABLE_FIELDS('document').forEach(({ field }) => {
-      const current = collectionService.getItemField<string | number | boolean>(
+      const current = collectionService.getItemField<SerializableData>(
         id,
         field
       );

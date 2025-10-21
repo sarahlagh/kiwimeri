@@ -8,8 +8,10 @@ export interface AnyData {
   [k: string]: any;
 }
 
+export type SerializableData = string | number | boolean;
+
 export interface AnySerializableData {
-  [k: string]: string | number | boolean;
+  [k: string]: SerializableData;
 }
 
 export interface Space {

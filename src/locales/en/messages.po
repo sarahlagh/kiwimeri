@@ -63,7 +63,7 @@ msgstr "collection"
 msgid "Collection"
 msgstr "Collection"
 
-#: src/dev-tools/components/ConfigCard.tsx:163
+#: src/dev-tools/components/ConfigCard.tsx:167
 msgid "Config"
 msgstr "Config"
 
@@ -208,7 +208,7 @@ msgstr "Include metadata in zip"
 msgid "Incorrect Metadata"
 msgstr "Incorrect Metadata"
 
-#: src/dev-tools/components/ConfigCard.tsx:110
+#: src/dev-tools/components/ConfigCard.tsx:114
 msgid "Internal proxy"
 msgstr "Internal proxy"
 
@@ -252,7 +252,7 @@ msgstr "Manually backup or restore your collection in the format of your choice"
 msgid "Markdown (Kiwimeri flavor)"
 msgstr "Markdown (Kiwimeri flavor)"
 
-#: src/dev-tools/components/ConfigCard.tsx:119
+#: src/dev-tools/components/ConfigCard.tsx:123
 msgid "Max log history"
 msgstr "Max log history"
 

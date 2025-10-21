@@ -3,7 +3,11 @@ import { appConfig } from '@/config';
 import { APPICONS } from '@/constants';
 import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
-import { StoreType, StoreValue } from '@/db/types/store-types';
+import {
+  SerializableData,
+  StoreType,
+  StoreValue
+} from '@/db/types/store-types';
 import {
   IonButton,
   IonCard,
@@ -34,7 +38,7 @@ const getValue = (v: ValueIdFromSchema<StoreType[1]>) => {
 
 const getNewValueOrDefault = (
   v: ValueIdFromSchema<StoreType[1]>,
-  newValue?: string | boolean | number
+  newValue?: SerializableData
 ) => {
   if (valueConfigMap[v] === undefined) {
     return newValue;
@@ -59,7 +63,7 @@ const ConfigValue = ({
   val
 }: {
   row: ConfigRowType;
-  val: string | number | boolean;
+  val: SerializableData;
 }) => {
   if (row.type === 'number') {
     return (
@@ -122,10 +126,10 @@ const ConfigCard = () => {
   }
 
   const [state, setState] = useState<{
-    [key in StoreValue]?: string | number | boolean;
+    [key in StoreValue]?: SerializableData;
   }>(() => {
     const initialState: {
-      [key in StoreValue]?: string | number | boolean;
+      [key in StoreValue]?: SerializableData;
     } = {};
     rows.forEach(row => {
       initialState[row.key] = getValue(row.key);

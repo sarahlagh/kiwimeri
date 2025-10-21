@@ -2,7 +2,6 @@ import { onTitleChangeFn } from '@/common/events/events';
 import Writer from '@/common/wysiwyg/Writer';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
-import userSettingsService from '@/db/user-settings.service';
 import {
   InputCustomEvent,
   IonButton,
@@ -14,7 +13,6 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { useEffect, useRef, useState } from 'react';
-import { CollectionItemSort } from '../collection';
 import CommonActionsToolbar from './CommonActionsToolbar';
 import DocumentEditorFooter from './DocumentEditorFooter';
 
@@ -42,9 +40,9 @@ const DocumentEditor = ({
   const documentTitle = collectionService.getItemTitle(docId);
   const documentPreview = collectionService.useItemPreview(docId) || '';
 
-  const displayOpts = collectionService.useItemDisplayOpts(docId);
-  const defaultDisplayOpts = userSettingsService.useDefaultDisplayOpts();
-  const sort: CollectionItemSort = displayOpts?.sort || defaultDisplayOpts.sort;
+  const displayOpts = collectionService.useItemEffectiveDisplayOpts(docId);
+  const sort = displayOpts.sort;
+
   const pages = collectionService.useDocumentPages(docId, sort);
   const onTitleChange = onTitleChangeFn(docId);
 

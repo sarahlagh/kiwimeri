@@ -117,6 +117,8 @@ class UserSettingsService {
   }
 
   public setSpaceDefaultDisplayOpts(newDisplayOpts: CollectionItemDisplayOpts) {
+    if (newDisplayOpts.sort.by === 'order')
+      newDisplayOpts.sort.descending = false;
     storageService.getSpace().transaction(() => {
       localChangesService.addLocalChange('', LocalChangeType.value);
       storageService.getSpace().setValue('lastUpdated', Date.now());

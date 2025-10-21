@@ -5,6 +5,7 @@ import {
   ZipMergeCommitOptions,
   ZipMergeFistLevel,
   ZipMergeResult,
+  ZipMetadataSchema,
   ZipParseError
 } from '@/common/services/import.service';
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
@@ -818,6 +819,32 @@ describe('import service', () => {
       const zipData = await readZip('malformed', 'SpaceMalformed.zip', {});
       expect(importService.canRestoreSpace(zipData)).toBe(false);
       expect(importService.restoreSpace(zipData)).toBe(false);
+    });
+  });
+
+  describe('parse schema', () => {
+    it('should parse display opts and throw errors', () => {
+      expect(() =>
+        ZipMetadataSchema.parse({
+          display_opts: {
+            sort: {
+              by: 'preview',
+              descending: true
+            }
+          }
+        })
+      ).not.toThrow();
+
+      expect(() =>
+        ZipMetadataSchema.parse({
+          display_opts: {
+            sort: {
+              by: 'order',
+              descending: true
+            }
+          }
+        })
+      ).toThrow();
     });
   });
 });

@@ -12,6 +12,7 @@ import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
+import { SerializableData } from '@/db/types/store-types';
 import { Notebook } from '@/notebooks/notebooks';
 import { getUniqueId } from 'tinybase/with-schemas';
 import { expect, vi } from 'vitest';
@@ -137,7 +138,7 @@ export const NON_PARENT_UPDATABLE_FIELDS: {
 export const getNewValue = (
   valueType: ValueType,
   potentialId?: string
-): string | number | boolean => {
+): SerializableData => {
   if (valueType === 'string') return `new string value ${getUniqueId()}`;
   if (valueType === 'id') return potentialId ? potentialId : ROOT_COLLECTION;
   if (valueType === 'json')
@@ -270,7 +271,7 @@ export const getLocalItemField = (rowId: string, field: string) => {
 export const setLocalItemField = (
   rowId: string,
   field: string,
-  newValue: string | number | boolean
+  newValue: SerializableData
 ) => {
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   collectionService.setItemField(
@@ -285,7 +286,7 @@ export const updateOnRemote = (
   remoteData: CollectionItem[],
   id: string,
   field: string,
-  newValue: string | number | boolean
+  newValue: SerializableData
 ) => {
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   const idx = remoteData.findIndex(r => r.id === id);

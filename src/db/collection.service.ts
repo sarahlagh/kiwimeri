@@ -30,7 +30,7 @@ import {
   useTableWithRef
 } from './tinybase/hooks';
 import { defaultOrder } from './types/space-types';
-import { LocalChangeType } from './types/store-types';
+import { LocalChangeType, SerializableData } from './types/store-types';
 import userSettingsService from './user-settings.service';
 
 export const initialContent = () => {
@@ -530,6 +530,8 @@ class CollectionService {
       .substring(0, this.previewSize);
   }
 
+  // get display opts => raw data from db
+
   public useItemDisplayOpts(rowId: Id): CollectionItemDisplayOpts | undefined {
     const str =
       useCellWithRef<string>(this.storeId, this.table, rowId, 'display_opts') ||
@@ -543,13 +545,35 @@ class CollectionService {
         .getSpace()
         .getCell(this.table, rowId, 'display_opts')
         ?.valueOf() as string) || '';
+
     return str ? JSON.parse(str) : undefined;
+  }
+
+  // get effective display opts => data merged with defaults if needed
+
+  public useItemEffectiveDisplayOpts(rowId: Id): CollectionItemDisplayOpts {
+    const defaultDisplayOpts = userSettingsService.useDefaultDisplayOpts();
+    const str =
+      useCellWithRef<string>(this.storeId, this.table, rowId, 'display_opts') ||
+      null;
+    return str ? JSON.parse(str) : defaultDisplayOpts;
+  }
+
+  public getItemEffectiveDisplayOpts(rowId: Id): CollectionItemDisplayOpts {
+    const str =
+      (storageService
+        .getSpace()
+        .getCell(this.table, rowId, 'display_opts')
+        ?.valueOf() as string) || '';
+
+    return str ? JSON.parse(str) : userSettingsService.getDefaultDisplayOpts();
   }
 
   public setItemDisplayOpts(
     rowId: Id,
     display_opts: CollectionItemDisplayOpts
   ) {
+    if (display_opts.sort.by === 'order') display_opts.sort.descending = false;
     this.setItemField(rowId, 'display_opts', JSON.stringify(display_opts));
   }
 
@@ -650,7 +674,7 @@ class CollectionService {
   public setItemField(
     rowId: Id,
     key: CollectionItemUpdatableFieldEnum,
-    value: string | boolean | number
+    value: SerializableData
   ) {
     const current = this.getItemField(rowId, key);
     const type = this.getItemType(rowId);

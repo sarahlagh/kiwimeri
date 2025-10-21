@@ -33,7 +33,8 @@ const GenericCollectionSettings = ({
         {
           key: 'sort_descending',
           label: t`In descending order`,
-          type: 'boolean'
+          type: 'boolean',
+          if: state => state.sort_by === 'order'
         }
       ]}
       initialState={{

@@ -6,7 +6,6 @@ import {
 import SortFilter from '@/collection/components/SortFilter';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
-import userSettingsService from '@/db/user-settings.service';
 import { IonButton, IonIcon, useIonPopover } from '@ionic/react';
 import { Id } from 'tinybase/with-schemas';
 
@@ -28,10 +27,9 @@ const buildChoices = (type: CollectionItemTypeValues) => {
 const OpenSortFilterButton = ({ id }: OpenSortFilterButtonProps) => {
   const type = collectionService.getItemType(id);
   const choices = buildChoices(type);
+  const displayOpts = collectionService.useItemEffectiveDisplayOpts(id);
+  const sort = displayOpts.sort;
 
-  const displayOpts = collectionService.useItemDisplayOpts(id);
-  const defaultDisplayOpts = userSettingsService.useDefaultDisplayOpts();
-  const sort: CollectionItemSort = displayOpts?.sort || defaultDisplayOpts.sort;
   const [present] = useIonPopover(SortFilter, {
     currentSort: sort,
     choices,

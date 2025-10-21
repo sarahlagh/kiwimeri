@@ -85,7 +85,8 @@ type ZipParsedMetadata = {
 } & ZipMetadata;
 
 // TODO auto convert from ts type to z schema
-const ZipMetadataSchema = z.object({
+// TODO include more checks /refine in the zod schema directly
+export const ZipMetadataSchema = z.object({
   format: z.enum(['markdown']).optional(),
   type: z.enum(CollectionItemType).optional(),
   title: z.string().optional(),
@@ -95,10 +96,12 @@ const ZipMetadataSchema = z.object({
   order: z.number().optional(),
   display_opts: z
     .object({
-      sort: z.object({
-        by: z.enum(sortBy),
-        descending: z.boolean()
-      })
+      sort: z
+        .object({
+          by: z.enum(sortBy),
+          descending: z.boolean()
+        })
+        .refine(val => val.by !== 'order' || val.descending === false)
     })
     .optional(),
   files: z.object().optional()

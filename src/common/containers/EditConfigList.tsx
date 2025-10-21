@@ -1,5 +1,5 @@
 import { APPICONS } from '@/constants';
-import { AnySerializableData } from '@/db/types/store-types';
+import { AnySerializableData, SerializableData } from '@/db/types/store-types';
 import {
   IonButton,
   IonCheckbox,
@@ -19,16 +19,19 @@ export type ConfigRowType = {
   min?: number;
   max?: number;
   values?: { val: string; label: string }[];
+  if?: (state: AnySerializableData) => boolean;
 };
 
 const ConfigValue = ({
   row,
   val,
+  disabled,
   onChange
 }: {
   row: ConfigRowType;
-  val: string | number | boolean;
-  onChange: (key: string, val: string | number | boolean) => void;
+  val: SerializableData;
+  disabled: boolean;
+  onChange: (key: string, val: SerializableData) => void;
 }) => {
   if (row.type === 'number') {
     return (
@@ -37,6 +40,7 @@ const ConfigValue = ({
         value={val as number}
         min={row.min}
         max={row.max}
+        disabled={disabled}
         onIonChange={e => {
           if (e.detail.value) {
             const newValue = parseInt(e.detail.value);
@@ -50,6 +54,7 @@ const ConfigValue = ({
     return (
       <IonCheckbox
         checked={val as boolean}
+        disabled={disabled}
         onIonChange={e => {
           const newValue = e.detail.checked;
           onChange(row.key, newValue);
@@ -62,6 +67,7 @@ const ConfigValue = ({
     return (
       <IonSelect
         placeholder={label}
+        disabled={disabled}
         value={val}
         onIonChange={e => {
           const newValue = e.detail.value as string;
@@ -80,6 +86,7 @@ const ConfigValue = ({
   return (
     <IonInput
       value={val as string}
+      disabled={disabled}
       onIonChange={e => {
         const newValue = e.detail.value as string;
         onChange(row.key, newValue);
@@ -91,7 +98,7 @@ const ConfigValue = ({
 type EditConfigListProps = {
   rows: ConfigRowType[];
   initialState: AnySerializableData;
-  onChange: (key: string, val: string | number | boolean) => void;
+  onChange: (key: string, val: SerializableData) => void;
   onClear?: (key: string) => void;
 };
 const EditConfigList = ({
@@ -102,28 +109,35 @@ const EditConfigList = ({
 }: EditConfigListProps) => {
   return (
     <IonList>
-      {rows.map(v => (
-        <IonItem key={v.key}>
-          <IonLabel slot="start">{v.label}</IonLabel>
-          <ConfigValue
+      {rows.map(v => {
+        const disabled = v.if ? v.if(initialState) : false;
+        return (
+          <IonItem
             key={v.key}
-            row={v}
-            val={initialState[v.key]!}
-            onChange={onChange}
-          ></ConfigValue>
-          {onClear && (
-            <IonButton
-              slot="end"
-              fill="clear"
-              onClick={() => {
-                onClear(v.key);
-              }}
-            >
-              <IonIcon icon={APPICONS.resetAction}></IonIcon>
-            </IonButton>
-          )}
-        </IonItem>
-      ))}
+            className={disabled ? 'item-interactive-disabled' : undefined}
+          >
+            <IonLabel slot="start">{v.label}</IonLabel>
+            <ConfigValue
+              key={v.key}
+              row={v}
+              val={initialState[v.key]!}
+              onChange={onChange}
+              disabled={disabled}
+            ></ConfigValue>
+            {onClear && (
+              <IonButton
+                slot="end"
+                fill="clear"
+                onClick={() => {
+                  onClear(v.key);
+                }}
+              >
+                <IonIcon icon={APPICONS.resetAction}></IonIcon>
+              </IonButton>
+            )}
+          </IonItem>
+        );
+      })}
     </IonList>
   );
 };
