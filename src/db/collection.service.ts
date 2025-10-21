@@ -555,7 +555,7 @@ class CollectionService {
 
   public reorderItems(items: CollectionItemResult[], from: number, to: number) {
     storageService.getStore().transaction(() => {
-      genericReorder(items, from, to, (idx, order) => {
+      genericReorder(from, to, (idx, order) => {
         this.setItemField(items[idx].id, 'order', order);
       });
     });
