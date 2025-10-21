@@ -43,6 +43,7 @@ const ManageNotebooksModal = ({ onClose }: ManageNotebooksModalProps) => {
 
       <CollectionItemList
         items={notebooks}
+        reorderEnabled={true}
         selected={selected}
         onSelectedItem={item => {
           setSelected(item.id);

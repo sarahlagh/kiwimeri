@@ -32,6 +32,7 @@ class NotebooksService {
       queries.setQueryDefinition(queryName, this.table, ({ select, where }) => {
         select('title');
         select('created');
+        select('order');
         where('type', CollectionItemType.notebook);
         where('parent', parent ? parent : ROOT_COLLECTION);
         where('deleted', deleted);
@@ -147,7 +148,7 @@ class NotebooksService {
 
   public useNotebooks(parent?: string, sort?: CollectionItemSort) {
     if (!sort) {
-      sort = userSettingsService.getSpaceDefaultDisplayOpts().sort;
+      sort = { by: 'order', descending: false };
     }
     const table = useTableWithRef(this.storeId, this.table);
     const queryName = this.fetchAllNotebooksQuery(parent);
