@@ -1,4 +1,7 @@
-import { CollectionItemResult } from '@/collection/collection';
+import {
+  CollectionItemResult,
+  CollectionItemType
+} from '@/collection/collection';
 import SortableList from '@/common/dnd/containers/SortableList';
 import { APPICONS, APPICONS_PER_TYPE, CONFLICT_STR } from '@/constants';
 import collectionService from '@/db/collection.service';
@@ -19,7 +22,7 @@ import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactPr
 import { Trans } from '@lingui/react/macro';
 import { Fragment, ReactNode, useEffect, useRef, useState } from 'react';
 
-// TODO: tech debt - rewrite props
+// TODO: tech debt - rewrite props, confirm code
 
 type ConfirmCallback = (choice: boolean) => void;
 
@@ -190,6 +193,8 @@ const CollectionItemList = ({
   footer
 }: CollectionItemListProps) => {
   const [isDragging, setIsDragging] = useState(false);
+  const [overId, setOverId] = useState<string | null>(null);
+
   const [toConfirm, setToConfirm] = useState<{
     id: string;
     callback: ConfirmCallback;
@@ -197,8 +202,6 @@ const CollectionItemList = ({
   const confirm = (id: string, callback: ConfirmCallback) => {
     setToConfirm({ id, callback });
   };
-  // TODO when document opened - overlay is lower than it should be
-  // disabling the overlay fixes it, but why
   return (
     <>
       {header && <IonHeader class="subheader">{header}</IonHeader>}
@@ -211,9 +214,28 @@ const CollectionItemList = ({
           }}
           handleDragEnd={() => {
             setIsDragging(false);
+            setOverId(null);
           }}
           onItemMove={(from, to) => {
             collectionService.reorderItems(items, from, to);
+          }}
+          isContainer={item =>
+            (item as CollectionItemResult).type === CollectionItemType.folder ||
+            (item as CollectionItemResult).type === CollectionItemType.notebook
+          }
+          onContainerOver={id => {
+            setOverId(id as string);
+          }}
+          onContainerDrop={(rowId, parentId) => {
+            const callback: ConfirmCallback = ok => {
+              if (ok) {
+                collectionService.setItemParent(
+                  rowId as string,
+                  parentId as string
+                );
+              }
+            };
+            setToConfirm({ id: parentId as string, callback });
           }}
         >
           {items.map(item => {
@@ -221,7 +243,9 @@ const CollectionItemList = ({
               <Fragment key={item.id}>
                 {toConfirm?.id !== item.id && (
                   <CollectionItemListItem
-                    actionsIcon={actionsIcon}
+                    actionsIcon={
+                      overId === item.id ? APPICONS.moveAction : actionsIcon
+                    }
                     selected={selected}
                     item={item}
                     itemProps={itemProps}

@@ -30,7 +30,7 @@ msgid "Archive is empty"
 msgstr "Archive is empty"
 
 #: src/common/modals/ConfirmYesNoDialog.tsx:24
-#: src/collection/components/CollectionItemList.tsx:56
+#: src/collection/components/CollectionItemList.tsx:59
 msgid "Are you sure?"
 msgstr "Are you sure?"
 
@@ -297,7 +297,7 @@ msgstr "New notebook name: "
 msgid "New tag"
 msgstr "New tag"
 
-#: src/collection/components/CollectionItemList.tsx:67
+#: src/collection/components/CollectionItemList.tsx:70
 msgid "no"
 msgstr "no"
 
@@ -446,7 +446,7 @@ msgstr "Username"
 msgid "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 msgstr "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 
-#: src/collection/components/CollectionItemList.tsx:64
+#: src/collection/components/CollectionItemList.tsx:67
 msgid "yes"
 msgstr "yes"
 

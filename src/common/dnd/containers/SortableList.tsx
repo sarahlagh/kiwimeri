@@ -43,7 +43,11 @@ type SortableIonListProps = JSX.IonList &
     items: SortableItem[];
     sortDisabled?: boolean;
     isContainer?: (item: SortableItem) => boolean;
-    onContainerDrop?: (item: SortableItem) => Promise<void> | void;
+    onContainerOver?: (id: UniqueIdentifier | null) => void;
+    onContainerDrop?: (
+      fromId: UniqueIdentifier,
+      toId: UniqueIdentifier
+    ) => Promise<void> | void;
     onItemMove?: (from: number, to: number) => Promise<void> | void;
     applyStyle?: (isOver: boolean, isActive: boolean) => AnyData;
   };
@@ -104,6 +108,13 @@ const SortableList = (props: SortableIonListProps) => {
   function handleDragOver(event: DragOverEvent) {
     const { over } = event;
     setOverId(over ? over.id : null);
+    if (props.onContainerOver) {
+      if (over && !over.id.toString().startsWith(landingPrefix)) {
+        props.onContainerOver(over.id);
+      } else {
+        props.onContainerOver(null);
+      }
+    }
     if (props.handleDragOver) {
       props.handleDragOver(event, active!.id, over?.id);
     }
@@ -121,8 +132,8 @@ const SortableList = (props: SortableIonListProps) => {
       if (!isLandingZone) {
         // drop into container
         if (props.onContainerDrop) {
-          console.debug('dropping into container', active.idx);
-          await props.onContainerDrop(items[active.idx]);
+          console.debug('dropping into container', active.id, over.id);
+          await props.onContainerDrop(active.id, over.id);
         }
       } else {
         // if on landing id, must move the item, not drop into it
