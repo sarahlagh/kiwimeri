@@ -110,6 +110,9 @@ export type PagePreview = Pick<
 > &
   Required<Pick<CollectionItem, 'id'>>;
 
+export type SortableCollectionItem = Pick<CollectionItem, 'order'> &
+  Required<Pick<CollectionItem, 'id'>>;
+
 export type CollectionItemFieldMetadata = {
   u: number;
 };

@@ -126,11 +126,11 @@ msgstr "Do you want to import your content inside a new folder?"
 msgid "Download Logs"
 msgstr "Download Logs"
 
-#: src/common/wysiwyg/pages/KiwimeriPagesBrowserPlugin.tsx:71
+#: src/common/wysiwyg/pages/KiwimeriPagesBrowserPlugin.tsx:72
 msgid "empty doc"
 msgstr "empty doc"
 
-#: src/common/wysiwyg/pages/KiwimeriPagesBrowserPlugin.tsx:72
+#: src/common/wysiwyg/pages/KiwimeriPagesBrowserPlugin.tsx:73
 msgid "empty page"
 msgstr "empty page"
 

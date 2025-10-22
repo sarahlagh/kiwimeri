@@ -10,7 +10,8 @@ import {
   CollectionItemUpdatableFieldEnum,
   CollectionItemUpdate,
   CollectionItemUpdateChangeFields,
-  setFieldMeta
+  setFieldMeta,
+  SortableCollectionItem
 } from '@/collection/collection';
 import { genericReorder } from '@/common/dnd/utils';
 import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
@@ -58,6 +59,7 @@ class CollectionService {
         select('updated');
         select('conflict');
         select('preview');
+        select('order');
         where('parent', parent);
         where('deleted', deleted);
       });
@@ -101,6 +103,7 @@ class CollectionService {
         select('updated');
         select('preview');
         select('conflict');
+        select('order');
         where('parent', document);
         where('type', CollectionItemType.page);
       });
@@ -577,7 +580,11 @@ class CollectionService {
     this.setItemField(rowId, 'display_opts', JSON.stringify(display_opts));
   }
 
-  public reorderItems(items: CollectionItemResult[], from: number, to: number) {
+  public reorderItems(
+    items: SortableCollectionItem[],
+    from: number,
+    to: number
+  ) {
     storageService.getStore().transaction(() => {
       genericReorder(from, to, (idx, order) => {
         this.setItemField(items[idx].id, 'order', order);

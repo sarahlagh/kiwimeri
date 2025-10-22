@@ -151,6 +151,17 @@ export default function ToolbarPlugin({
     <div className="toolbar" ref={toolbarRef}>
       <button
         onClick={() => {
+          pageBrowserOn = !pageBrowserOn;
+          onTogglePageBrowser(pageBrowserOn);
+        }}
+        className={'toolbar-item ' + (pageBrowserHighlighted ? 'active' : '')}
+        aria-label="Show page browser"
+      >
+        <IonIcon icon={APPICONS.page}></IonIcon>
+      </button>{' '}
+      <Divider />
+      <button
+        onClick={() => {
           editor.setEditable(!editor.isEditable());
           setIsEditable(editor.isEditable());
         }}
@@ -378,17 +389,6 @@ export default function ToolbarPlugin({
       >
         <IonIcon className="format" src="writer/x-square.svg"></IonIcon>
       </button>
-      <Divider />
-      <button
-        onClick={() => {
-          pageBrowserOn = !pageBrowserOn;
-          onTogglePageBrowser(pageBrowserOn);
-        }}
-        className={'toolbar-item ' + (pageBrowserHighlighted ? 'active' : '')}
-        aria-label="Show page browser"
-      >
-        <IonIcon icon={APPICONS.page}></IonIcon>
-      </button>{' '}
     </div>
   );
 }

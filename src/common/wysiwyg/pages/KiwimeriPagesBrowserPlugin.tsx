@@ -4,6 +4,7 @@ import { IonButton, IonIcon, IonItem, IonList } from '@ionic/react';
 
 import { PagePreview } from '@/collection/collection';
 import OpenSortFilterButton from '@/common/buttons/OpenSortFilterButton';
+import SortableList from '@/common/dnd/containers/SortableList';
 import { GET_DOCUMENT_ROUTE, GET_PAGE_ROUTE } from '@/common/routes';
 import { getSearchParams } from '@/common/utils';
 import { APPICONS, CONFLICT_STR } from '@/constants';
@@ -21,7 +22,7 @@ interface KiwimeriPagesBrowserPluginProps {
 }
 
 interface PagePreviewItemProps {
-  page: Pick<PagePreview, 'id' | 'preview' | 'conflict'>;
+  page: Pick<PagePreview, 'id' | 'preview' | 'conflict' | 'order'>;
   defaultVal: string;
   className?: string;
   selected: boolean;
@@ -75,7 +76,9 @@ export default function KiwimeriPagesBrowserPlugin({
   const location = useLocation();
   const notebook = notebooksService.useCurrentNotebook();
   const folderId = getSearchParams(location.search).folder || notebook;
-
+  const sort = collectionService.useItemEffectiveDisplayOpts(docId).sort;
+  console.debug('sort by', sort.by);
+  // TODO turn doc to page and vice-versa via drag & drop
   return (
     <>
       <div className="page-browser">
@@ -91,21 +94,28 @@ export default function KiwimeriPagesBrowserPlugin({
 
           {(pages?.length || 0) > 0 && <OpenSortFilterButton id={docId} />}
         </IonItem>
-        <IonList
-          style={{ maxHeight: '400px', overflowY: 'auto' }}
-          className="inner-list"
-        >
+        <IonList className="inner-list">
           <PagePreviewItem
             className="page-item-doc"
             key={docId}
-            page={{ id: docId, preview: docPreview }}
+            page={{ id: docId, preview: docPreview, order: 0 }}
             selected={id === docId}
             onClick={() => {
               history.push(GET_DOCUMENT_ROUTE(folderId, docId));
             }}
             defaultVal={defaultDocPreview}
           />
-
+        </IonList>
+        <SortableList
+          style={{ maxHeight: '400px', overflowY: 'auto' }}
+          className="inner-list"
+          items={pages || []}
+          disableOverlay={true}
+          sortDisabled={sort.by !== 'order'}
+          onItemMove={(from, to) => {
+            collectionService.reorderItems(pages!, from, to);
+          }}
+        >
           {(pages || []).map(page => (
             <PagePreviewItem
               key={page.id}
@@ -117,7 +127,7 @@ export default function KiwimeriPagesBrowserPlugin({
               defaultVal={defaultPagePreview}
             />
           ))}
-        </IonList>
+        </SortableList>
       </div>
     </>
   );

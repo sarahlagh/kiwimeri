@@ -61,7 +61,7 @@ const getIterableNodes = (children?: ReactNode) => {
   if (!children) return [];
   const obj = children as unknown as object;
   if (Symbol.iterator in obj) {
-    return children as ReactNode[];
+    return (children as ReactNode[]).flat(2);
   }
   return [children];
 };
