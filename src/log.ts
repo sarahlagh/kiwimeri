@@ -22,24 +22,6 @@ export type AppLogResult = Required<AppLog> & {
   longLevelName: AppLogLevel;
 };
 
-const safeStringify = function (v: any) {
-  const cache = new Set();
-  try {
-    return JSON.stringify(v, function (key, value) {
-      if (typeof value === 'object' && value !== null) {
-        if (cache.has(value)) {
-          return '[Circular]';
-        }
-        cache.add(value);
-      }
-      return value;
-    });
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (e) {
-    return '[unable to stringify argument]';
-  }
-};
-
 class AppLogService {
   private readonly storeId = 'store';
   private readonly table = 'logs';
@@ -79,10 +61,10 @@ class AppLogService {
     }
   }
 
-  public addLog(level: AppLogLevel, message?: any, optionalParams?: any[]) {
+  public addLog(level: AppLogLevel, args: any[]) {
     storageService.getStore().addRow(this.table, {
       level: this.levelMap[level],
-      message: this.format(message, optionalParams),
+      message: this.format(args),
       ts: Date.now()
     });
   }
@@ -136,28 +118,70 @@ class AppLogService {
     } as AppLogResult;
   }
 
-  private format(message?: any, optionalParams?: any[]) {
-    let final = this.formatOne(message);
-    if (optionalParams) {
-      optionalParams.forEach(p => {
-        final = `${final}, ${this.formatOne(p)}`;
-      });
-    }
-    return final;
+  private format(args: any[]) {
+    return args.map(param => this.stringify(param)).join(', ');
   }
 
-  private formatOne(message?: any) {
-    let final = '';
-    if (message === null) {
-      final = 'null';
-    } else if (message === undefined) {
-      final = 'undefined';
-    } else if (typeof message === 'string') {
-      final = message;
-    } else {
-      final = safeStringify(message);
+  private jsonStringify(value: unknown) {
+    const seen = new WeakSet<object>();
+
+    const replacer = (_key: string, val: any) => {
+      // primitives
+      const t = typeof val;
+      if (t === 'bigint') return `BigInt(${val.toString()})`;
+      if (t === 'symbol') return val.toString();
+      if (t === 'function') return `[Function ${val.name || 'anonymous'}]`;
+
+      if (val instanceof Error) {
+        const base: Record<string, any> = {
+          name: val.name,
+          message: val.message,
+          stack: val.stack
+        };
+        // include cause if present
+        if ('cause' in val) base.cause = (val as any).cause;
+        // include other own (possibly non-enumerable) props
+        for (const k of Object.getOwnPropertyNames(val)) {
+          if (!(k in base)) base[k] = (val as any)[k];
+        }
+        return base;
+      }
+
+      if (val instanceof Map) {
+        return { __type: 'Map', entries: Array.from(val.entries()) };
+      }
+      if (val instanceof Set) {
+        return { __type: 'Set', values: Array.from(val.values()) };
+      }
+
+      // circulars
+      if (val && typeof val === 'object') {
+        if (seen.has(val)) return '[Circular]';
+        seen.add(val);
+      }
+
+      return val;
+    };
+
+    try {
+      return JSON.stringify(value, replacer);
+    } catch {
+      return '[unable to stringify argument]';
     }
-    return final;
+  }
+
+  private stringify(message?: any): string {
+    const t = typeof message;
+    if (message === null) {
+      return 'null';
+    }
+    if (message === undefined) {
+      return 'undefined';
+    }
+    if (t === 'string' || t === 'number' || t === 'boolean') {
+      return message;
+    }
+    return this.jsonStringify(message);
   }
 
   public printLogs(filters?: AppLogLevel[]) {

@@ -17,16 +17,9 @@ const fnFactory =
   (origMethod: Method, level: AppLogLevel) =>
   (message?: any, ...optionalParams: any[]) => {
     // TODO override log level with user debugLog
-    if (optionalParams) {
-      appLog.addLog(level, message, optionalParams);
-      if (logLevels[appConfig.LOG_LEVEL] >= logLevels[level]) {
-        origMethod(message, ...optionalParams);
-      }
-    } else {
-      appLog.addLog(level, message);
-      if (logLevels[appConfig.LOG_LEVEL] >= logLevels[level]) {
-        origMethod(message);
-      }
+    appLog.addLog(level, [message, ...optionalParams]);
+    if (logLevels[appConfig.LOG_LEVEL] >= logLevels[level]) {
+      origMethod(message, ...optionalParams);
     }
   };
 
