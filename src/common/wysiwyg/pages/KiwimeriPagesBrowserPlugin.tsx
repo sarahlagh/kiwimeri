@@ -110,7 +110,6 @@ export default function KiwimeriPagesBrowserPlugin({
           style={{ maxHeight: '400px', overflowY: 'auto' }}
           className="inner-list"
           items={pages || []}
-          disableOverlay={true}
           sortDisabled={sort.by !== 'order'}
           onItemMove={(from, to) => {
             collectionService.reorderItems(pages!, from, to);

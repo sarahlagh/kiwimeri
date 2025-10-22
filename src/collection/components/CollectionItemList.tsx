@@ -206,7 +206,6 @@ const CollectionItemList = ({
         <SortableList
           items={items}
           sortDisabled={!reorderEnabled}
-          disableOverlay={true}
           handleDragStart={() => {
             setIsDragging(true);
           }}

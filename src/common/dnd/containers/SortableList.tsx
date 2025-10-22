@@ -4,20 +4,13 @@ import {
   DndContext,
   DragEndEvent,
   DragOverEvent,
-  DragOverlay,
   DragStartEvent,
   UniqueIdentifier
 } from '@dnd-kit/core';
 import type { JSX } from '@ionic/core/components';
-import { IonItem, IonList } from '@ionic/react';
+import { IonList } from '@ionic/react';
 import { StyleReactProps } from '@ionic/react/dist/types/components/react-component-lib/interfaces';
-import React, {
-  Fragment,
-  ReactElement,
-  ReactNode,
-  useMemo,
-  useState
-} from 'react';
+import React, { Fragment, ReactElement, ReactNode, useState } from 'react';
 import LandingZone from '../components/LandingZone';
 import Sortable from '../components/Sortable';
 import useSensorsGlobal from '../hooks/useSensorsGlobal';
@@ -52,8 +45,6 @@ type SortableIonListProps = JSX.IonList &
     isContainer?: (item: SortableItem) => boolean;
     onContainerDrop?: (item: SortableItem) => Promise<void> | void;
     onItemMove?: (from: number, to: number) => Promise<void> | void;
-    overlay?: (item: SortableItem) => ReactNode;
-    disableOverlay?: boolean;
     applyStyle?: (isOver: boolean, isActive: boolean) => AnyData;
   };
 
@@ -85,22 +76,12 @@ const SortableList = (props: SortableIonListProps) => {
   const [overId, setOverId] = useState<UniqueIdentifier | null>(null);
   const [active, setActive] = useState<IdIdx | null>(null);
 
-  const { sortDisabled, items, children, disableOverlay, applyStyle } = props;
+  const { sortDisabled, items, children, applyStyle } = props;
 
   const iterables = getIterableNodes(children);
   if (iterables.length !== items.length) {
     throw new Error('incoherent state between react children and items');
   }
-
-  const overlay = useMemo(
-    () =>
-      props.overlay && active ? (
-        props.overlay(items[active.idx])
-      ) : (
-        <IonItem>{active?.id}</IonItem>
-      ),
-    [props.overlay, active]
-  );
 
   function getId(idx: number) {
     const item = items[idx];
@@ -208,11 +189,6 @@ const SortableList = (props: SortableIonListProps) => {
           isOver={`${landingPrefix}${items.length}` === overId}
         />
       </IonList>
-      {!disableOverlay && (
-        <DragOverlay style={{ opacity: 0.7 }}>
-          {active ? overlay : null}
-        </DragOverlay>
-      )}
     </DndContext>
   );
 };

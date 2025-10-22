@@ -1,24 +1,16 @@
-import { useSortable } from '@dnd-kit/sortable';
-import { Arguments } from '@dnd-kit/sortable/dist/hooks/useSortable';
-import { CSS } from '@dnd-kit/utilities';
 import { ReactNode } from 'react';
+import { Arguments, useSortable } from '../hooks/useSortable';
 
 type SortableProps = { readonly children?: ReactNode } & Arguments;
 
 const Sortable = (props: SortableProps) => {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({
-      id: props.id,
-      disabled: props.disabled
-    });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition
-  };
+  const { attributes, listeners, setNodeRef } = useSortable({
+    id: props.id,
+    disabled: props.disabled
+  });
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div ref={setNodeRef} {...attributes} {...listeners}>
       {props.children}
     </div>
   );
