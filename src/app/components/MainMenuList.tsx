@@ -64,16 +64,16 @@ const MainMenuList = () => {
       isActive: () => isCollectionRoute(location.pathname)
     },
     {
-      key: 'sync',
-      title: t`Synchronization`,
-      url: SYNCHRONIZATION_ROUTE,
-      icon: APPICONS.synchronizationPage
-    },
-    {
       key: 'settings',
       title: t`Settings`,
       url: SETTINGS_ROUTE,
       icon: APPICONS.settingsPage
+    },
+    {
+      key: 'sync',
+      title: t`Synchronization`,
+      url: SYNCHRONIZATION_ROUTE,
+      icon: APPICONS.synchronizationPage
     }
   ];
   if (showDevTools) {

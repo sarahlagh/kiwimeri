@@ -15,7 +15,7 @@ import {
   IonText
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useState } from 'react';
+import { createRef, RefObject, useState } from 'react';
 
 const LogsCard = () => {
   const { t } = useLingui();
@@ -48,6 +48,27 @@ const LogsCard = () => {
     return undefined;
   }
 
+  const refs = logs.reduce(
+    (acc, log) => {
+      acc[log.id] = createRef();
+      return acc;
+    },
+    {} as {
+      [key: string]: RefObject<HTMLIonTextElement>;
+    }
+  );
+
+  // scroll to last
+  setTimeout(() => {
+    const last = logs[logs.length - 1];
+    if (last && refs[last.id] && refs[last.id].current) {
+      refs[last.id].current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  }, 50);
+
   return (
     <IonCard>
       <IonCardHeader>
@@ -60,7 +81,7 @@ const LogsCard = () => {
           {logs.map(log => {
             const color = getColor(log.longLevelName);
             return (
-              <IonText color={color} key={log.id}>
+              <IonText color={color} key={log.id} ref={refs[log.id]}>
                 <p>
                   {dateToStr('time', log.ts)} &nbsp;
                   {log.message}

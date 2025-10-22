@@ -57,8 +57,7 @@ const ImportExportCollectionSettings = () => {
           This is different than the import / export of the collection. Your
           collection consists of your files and folders, and can be configured
           to synchronize with a cloud provider. The app settings consist of
-          anything configured in this page, including the settings for your
-          cloud provider.
+          anything configured in this page.
         </Trans>
       </IonCardContent>
 

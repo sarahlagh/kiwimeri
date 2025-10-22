@@ -106,7 +106,7 @@ msgstr "deleted item"
 msgid "Dev Tools"
 msgstr "Dev Tools"
 
-#: src/dev-tools/components/DevTools.tsx:37
+#: src/dev-tools/components/DevTools.tsx:36
 msgid "Dev Tools Enabled"
 msgstr "Dev Tools Enabled"
 
@@ -122,7 +122,7 @@ msgstr "Display options for the currently selected space. They can still be over
 msgid "Do you want to import your content inside a new folder?"
 msgstr "Do you want to import your content inside a new folder?"
 
-#: src/dev-tools/components/LogsCard.tsx:93
+#: src/dev-tools/components/LogsCard.tsx:114
 msgid "Download Logs"
 msgstr "Download Logs"
 
@@ -154,7 +154,7 @@ msgstr "Errors have been detected on the following files:"
 msgid "EU"
 msgstr "EU"
 
-#: src/settings/components/sections/ImportExportStoreSettings.tsx:69
+#: src/settings/components/sections/ImportExportStoreSettings.tsx:68
 #: src/settings/components/sections/ImportExportCollectionSettings.tsx:53
 #: src/settings/components/sections/ImportExportCollectionSettings.tsx:67
 msgid "Export"
@@ -176,10 +176,12 @@ msgstr "Filesystem"
 msgid "Home"
 msgstr "Home"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:112
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:105
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
@@ -224,15 +226,17 @@ msgstr "Leave empty for root"
 msgid "Loading..."
 msgstr "Loading..."
 
+#. placeholder {0}: localChanges.length
 #: src/synchronization/components/LocalChangesCard.tsx:42
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
+#. placeholder {0}: dateToStr('datetime', lastLocalChange)
 #: src/synchronization/components/LocalChangesCard.tsx:48
 msgid "Local: {0}"
 msgstr "Local: {0}"
 
-#: src/dev-tools/components/LogsCard.tsx:55
+#: src/dev-tools/components/LogsCard.tsx:76
 msgid "Logs"
 msgstr "Logs"
 
@@ -353,6 +357,7 @@ msgstr "Pick a directory for your backups"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
+#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
 #: src/synchronization/components/LocalChangesCard.tsx:55
 msgid "Remote: {0}"
 msgstr "Remote: {0}"
@@ -361,7 +366,7 @@ msgstr "Remote: {0}"
 msgid "Reorder"
 msgstr "Reorder"
 
-#: src/settings/components/sections/ImportExportStoreSettings.tsx:79
+#: src/settings/components/sections/ImportExportStoreSettings.tsx:78
 #: src/common/buttons/RestoreCollectionButton.tsx:90
 msgid "Restore"
 msgstr "Restore"
@@ -379,7 +384,7 @@ msgid "Server"
 msgstr "Server"
 
 #: src/app/pages/SettingsPage.tsx:9
-#: src/app/components/MainMenuList.tsx:74
+#: src/app/components/MainMenuList.tsx:68
 msgid "Settings"
 msgstr "Settings"
 
@@ -405,7 +410,7 @@ msgid "Success!"
 msgstr "Success!"
 
 #: src/app/pages/SynchronizationPage.tsx:9
-#: src/app/components/MainMenuList.tsx:68
+#: src/app/components/MainMenuList.tsx:74
 msgid "Synchronization"
 msgstr "Synchronization"
 
@@ -426,8 +431,8 @@ msgid "The following file(s) with matching title(s) have been detected inside th
 msgstr "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 
 #: src/settings/components/sections/ImportExportStoreSettings.tsx:56
-msgid "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page, including the settings for your cloud provider."
-msgstr "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page, including the settings for your cloud provider."
+msgid "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page."
+msgstr "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page."
 
 #: src/common/buttons/RestoreCollectionButton.tsx:60
 msgid "This will delete your existing data. Are you sure?"

@@ -15,7 +15,6 @@ import { Trans } from '@lingui/react/macro';
 import { useHistory } from 'react-router';
 import ConfigCard from './ConfigCard';
 import LogsCard from './LogsCard';
-import OperationCard from './OperationsCard';
 
 const DevTools = () => {
   const history = useHistory();
@@ -39,10 +38,6 @@ const DevTools = () => {
         </IonCardContent>
       </IonCard>
 
-      <ConfigCard />
-
-      {!platformService.isDev() && <LogsCard />}
-
       {!platformService.isRelease() && (
         <>
           <IonCard>
@@ -63,10 +58,12 @@ const DevTools = () => {
               <p>config: {JSON.stringify(appConfig)}</p>
             </IonCardContent>
           </IonCard>
-
-          <OperationCard />
         </>
       )}
+
+      <ConfigCard />
+
+      {!platformService.isDev() && <LogsCard />}
     </>
   );
 };
