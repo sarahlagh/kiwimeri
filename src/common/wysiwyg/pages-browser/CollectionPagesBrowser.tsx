@@ -12,9 +12,9 @@ import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import { useLingui } from '@lingui/react/macro';
 import { useHistory, useLocation } from 'react-router';
-import './KiwimeriPagesBrowserPlugin.scss';
+import './CollectionPagesBrowser.scss';
 
-interface KiwimeriPagesBrowserPluginProps {
+interface CollectionPagesBrowserProps {
   id: string;
   docId: string;
   docPreview: string;
@@ -62,12 +62,12 @@ const PagePreviewItem = ({
   );
 };
 
-export default function KiwimeriPagesBrowserPlugin({
+export default function CollectionPagesBrowser({
   id,
   docId,
   docPreview,
   pages
-}: KiwimeriPagesBrowserPluginProps): JSX.Element {
+}: CollectionPagesBrowserProps): JSX.Element {
   const { t } = useLingui();
   const defaultDocPreview = t`empty doc`;
   const defaultPagePreview = t`empty page`;

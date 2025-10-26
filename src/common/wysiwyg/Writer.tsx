@@ -2,7 +2,7 @@ import { PagePreview } from '@/collection/collection';
 import platformService from '@/common/services/platform.service';
 import collectionService from '@/db/collection.service';
 import { CodeNode } from '@lexical/code';
-import { LinkNode } from '@lexical/link';
+import { AutoLinkNode, LinkNode } from '@lexical/link';
 import { ListItemNode, ListNode } from '@lexical/list';
 import { MarkNode } from '@lexical/mark';
 import { TRANSFORMERS } from '@lexical/markdown';
@@ -22,11 +22,12 @@ import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import { useLingui } from '@lingui/react/macro';
 import React, { useState } from 'react';
-import DebugTreeViewPlugin from './lexical/DebugTreeViewPlugin';
 import KiwimeriReloadContentPlugin from './lexical/KiwimeriReloadContentPlugin';
 import KiwimeriToolbarPlugin from './lexical/KiwimeriToolbarPlugin';
+import AutoLinkPlugin from './lexical/playground/plugins/AutoLinkPlugin';
+import DebugTreeViewPlugin from './lexical/playground/plugins/DebugTreeViewPlugin';
 import KiwimeriEditorTheme from './lexical/theme/KiwimeriEditorTheme';
-import KiwimeriPagesBrowserPlugin from './pages/KiwimeriPagesBrowserPlugin';
+import CollectionPagesBrowser from './pages-browser/CollectionPagesBrowser';
 
 interface WriterProps {
   docId: string;
@@ -66,6 +67,7 @@ const Writer = (
           CodeNode,
           QuoteNode,
           LinkNode,
+          AutoLinkNode,
           ListNode,
           ListItemNode,
           HorizontalRuleNode
@@ -106,13 +108,14 @@ const Writer = (
       <HistoryPlugin />
       <AutoFocusPlugin />
       <ListPlugin />
+      <AutoLinkPlugin />
       <HorizontalRulePlugin />
       <TabIndentationPlugin />
       <SelectionAlwaysOnDisplay />
       <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
 
       {showPageBrowser && (
-        <KiwimeriPagesBrowserPlugin
+        <CollectionPagesBrowser
           docId={docId}
           docPreview={preview}
           id={id}
