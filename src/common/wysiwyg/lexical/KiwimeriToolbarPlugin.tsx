@@ -1,5 +1,5 @@
 import { IonIcon } from '@ionic/react';
-import { $isAutoLinkNode, $isLinkNode } from '@lexical/link';
+import { $isLinkNode } from '@lexical/link';
 import {
   $isListNode,
   INSERT_ORDERED_LIST_COMMAND,
@@ -73,7 +73,6 @@ export default function ToolbarPlugin({
   const [isUnorderedList, setIsUnorderedList] = useState(false);
   const [isOrderedList, setIsOrderedList] = useState(false);
   const [isLink, setIsLink] = useState(false);
-  const [isAutoLink, setIsAutoLink] = useState(false);
 
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -111,9 +110,7 @@ export default function ToolbarPlugin({
       const node = getSelectedNode(selection);
       const parent = node.getParent();
       const isLink = $isLinkNode(parent) || $isLinkNode(anchorNode);
-      const isAutoLink = $isAutoLinkNode(parent) || $isAutoLinkNode(anchorNode);
       setIsLink(isLink);
-      setIsAutoLink(isAutoLink);
 
       setIsH1(type === 'h1');
       setIsH2(type === 'h2');
@@ -383,7 +380,7 @@ export default function ToolbarPlugin({
         <IonIcon className="format" src="writer/hr.svg"></IonIcon>
       </button>
       <button
-        disabled={!isEditable || isAutoLink}
+        disabled={!isEditable}
         onClick={() => {
           setIsLinkEditMode(true);
         }}

@@ -220,7 +220,7 @@ msgstr "Kiwimeri format (single file)"
 msgid "Leave empty for root"
 msgstr "Leave empty for root"
 
-#: src/common/wysiwyg/lexical/EditLinkPlugin.tsx:39
+#: src/common/wysiwyg/lexical/EditLinkPlugin.tsx:52
 msgid "Link"
 msgstr "Link"
 
@@ -420,6 +420,10 @@ msgstr "Synchronize your collection on the filesystem"
 #: src/synchronization/components/providers/RemotesSettings.tsx:62
 msgid "Syncing is disabled on the web version."
 msgstr "Syncing is disabled on the web version."
+
+#: src/common/wysiwyg/lexical/EditLinkPlugin.tsx:41
+msgid "Text"
+msgstr "Text"
 
 #: src/common/wysiwyg/Writer.tsx:59
 msgid "Text..."
