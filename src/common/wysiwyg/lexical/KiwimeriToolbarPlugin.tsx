@@ -1,4 +1,5 @@
 import { IonIcon } from '@ionic/react';
+import { $isAutoLinkNode, $isLinkNode } from '@lexical/link';
 import {
   $isListNode,
   INSERT_ORDERED_LIST_COMMAND,
@@ -32,10 +33,11 @@ import {
   SELECTION_CHANGE_COMMAND,
   UNDO_COMMAND
 } from 'lexical';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Dispatch, useCallback, useEffect, useRef, useState } from 'react';
 const LowPriority = 1;
 
 import { APPICONS } from '@/constants';
+import { getSelectedNode } from './playground/utils/getSelectedNode';
 import './theme/KiwimeriToolbarPlugin.scss';
 
 function Divider() {
@@ -45,13 +47,15 @@ function Divider() {
 type ToolbarPluginProps = {
   pageBrowserHighlighted: boolean;
   pageBrowserOn: boolean;
-  onTogglePageBrowser: (onOff: boolean) => void;
+  setShowPageBrowser: Dispatch<boolean>;
+  setIsLinkEditMode: Dispatch<boolean>;
 };
 
 export default function ToolbarPlugin({
   pageBrowserHighlighted,
   pageBrowserOn,
-  onTogglePageBrowser
+  setShowPageBrowser,
+  setIsLinkEditMode
 }: ToolbarPluginProps) {
   const [editor] = useLexicalComposerContext();
   const toolbarRef = useRef(null);
@@ -68,6 +72,8 @@ export default function ToolbarPlugin({
   const [isBlockQuote, setIsBlockQuote] = useState(false);
   const [isUnorderedList, setIsUnorderedList] = useState(false);
   const [isOrderedList, setIsOrderedList] = useState(false);
+  const [isLink, setIsLink] = useState(false);
+  const [isAutoLink, setIsAutoLink] = useState(false);
 
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -78,7 +84,6 @@ export default function ToolbarPlugin({
       setIsUnderline(selection.hasFormat('underline'));
       setIsStrikethrough(selection.hasFormat('strikethrough'));
 
-      // const node = getSelectedNode(selection);
       const anchorNode = selection.anchor.getNode();
       let element =
         anchorNode.getKey() === 'root'
@@ -102,6 +107,13 @@ export default function ToolbarPlugin({
       } else {
         type = $isHeadingNode(element) ? element.getTag() : element.getType();
       }
+
+      const node = getSelectedNode(selection);
+      const parent = node.getParent();
+      const isLink = $isLinkNode(parent) || $isLinkNode(anchorNode);
+      const isAutoLink = $isAutoLinkNode(parent) || $isAutoLinkNode(anchorNode);
+      setIsLink(isLink);
+      setIsAutoLink(isAutoLink);
 
       setIsH1(type === 'h1');
       setIsH2(type === 'h2');
@@ -152,7 +164,7 @@ export default function ToolbarPlugin({
       <button
         onClick={() => {
           pageBrowserOn = !pageBrowserOn;
-          onTogglePageBrowser(pageBrowserOn);
+          setShowPageBrowser(pageBrowserOn);
         }}
         className={'toolbar-item ' + (pageBrowserHighlighted ? 'active' : '')}
         aria-label="Show page browser"
@@ -370,6 +382,18 @@ export default function ToolbarPlugin({
       >
         <IonIcon className="format" src="writer/hr.svg"></IonIcon>
       </button>
+      <button
+        disabled={!isEditable || isAutoLink}
+        onClick={() => {
+          setIsLinkEditMode(true);
+        }}
+        className={'toolbar-item spaced ' + (isLink ? 'active' : '')}
+        aria-label="Insert link"
+        type="button"
+      >
+        <IonIcon className="format" src="writer/link-45deg.svg"></IonIcon>
+      </button>
+      <Divider />
       <button
         onClick={() => {
           editor.update(() => {

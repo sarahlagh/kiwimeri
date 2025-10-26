@@ -31,6 +31,7 @@ ion-list.inner-list {
 ion-item.inner-item {
   --padding-start: 4px;
   --padding-end: 4px;
+  --inner-padding-end: 0px;
 }
 
 ion-item.inner-item-slim {
@@ -76,4 +77,8 @@ ion-breadcrumb {
 
 ion-modal.auto-height {
   --height: auto;
+}
+
+ion-popover.larger-width {
+  --width: 70%;
 }

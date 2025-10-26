@@ -13,6 +13,7 @@ import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { HorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode';
 import { HorizontalRulePlugin } from '@lexical/react/LexicalHorizontalRulePlugin';
+import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
@@ -22,10 +23,12 @@ import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import { useLingui } from '@lingui/react/macro';
 import React, { useState } from 'react';
+import EditLinkPlugin from './lexical/EditLinkPlugin';
 import KiwimeriReloadContentPlugin from './lexical/KiwimeriReloadContentPlugin';
 import KiwimeriToolbarPlugin from './lexical/KiwimeriToolbarPlugin';
 import AutoLinkPlugin from './lexical/playground/plugins/AutoLinkPlugin';
 import DebugTreeViewPlugin from './lexical/playground/plugins/DebugTreeViewPlugin';
+import { validateUrl } from './lexical/playground/utils/url';
 import KiwimeriEditorTheme from './lexical/theme/KiwimeriEditorTheme';
 import CollectionPagesBrowser from './pages-browser/CollectionPagesBrowser';
 
@@ -51,6 +54,7 @@ const Writer = (
 ) => {
   const { t } = useLingui();
   const [showPageBrowser, setShowPageBrowser] = useState(false);
+  const [isLinkEditMode, setIsLinkEditMode] = useState(false);
 
   const placeholder = t`Text...`;
 
@@ -77,9 +81,8 @@ const Writer = (
       <KiwimeriToolbarPlugin
         pageBrowserHighlighted={(pages?.length || 0) > 0}
         pageBrowserOn={showPageBrowser}
-        onTogglePageBrowser={onOff => {
-          setShowPageBrowser(onOff);
-        }}
+        setShowPageBrowser={setShowPageBrowser}
+        setIsLinkEditMode={setIsLinkEditMode}
       />
       <RichTextPlugin
         contentEditable={
@@ -108,11 +111,17 @@ const Writer = (
       <HistoryPlugin />
       <AutoFocusPlugin />
       <ListPlugin />
+      <LinkPlugin validateUrl={validateUrl} />
       <AutoLinkPlugin />
       <HorizontalRulePlugin />
       <TabIndentationPlugin />
       <SelectionAlwaysOnDisplay />
       <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
+
+      <EditLinkPlugin
+        isLinkEditMode={isLinkEditMode}
+        setIsLinkEditMode={setIsLinkEditMode}
+      />
 
       {showPageBrowser && (
         <CollectionPagesBrowser
