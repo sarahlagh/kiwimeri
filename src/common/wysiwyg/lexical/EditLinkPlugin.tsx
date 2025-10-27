@@ -33,6 +33,7 @@ export default function EditLinkPlugin({
   const [linkText, setLinkText] = useState<string>('');
   const [linkUrl, setLinkUrl] = useState<string>('');
   const [isAutoLink, setIsAutoLink] = useState(false);
+  const [isAutoLinkUnlinked, setIsAutoLinkUnlinked] = useState(false);
 
   const [present, dismiss] = useIonPopover(
     <IonList lines="none" className="inner-list">
@@ -64,11 +65,13 @@ export default function EditLinkPlugin({
             dismiss({ linkUrl: '', linkText: '' }, 'input');
           }}
         >
-          <IonIcon icon={APPICONS.deleteAction}></IonIcon>
+          <IonIcon
+            icon={!isAutoLinkUnlinked ? APPICONS.deleteAction : APPICONS.ok}
+          ></IonIcon>
         </IonButton>
       </IonItem>
     </IonList>,
-    { linkUrl, linkText }
+    { linkUrl, linkText, isAutoLinkUnlinked }
   );
 
   useEffect(() => {
@@ -84,7 +87,11 @@ export default function EditLinkPlugin({
               linkUrl: string;
               linkText: string;
             };
-            handleLinkSubmission(linkUrl, linkText);
+            if (isAutoLink) {
+              handleAutoLinkSubmission(linkUrl, linkText);
+            } else {
+              handleLinkSubmission(linkUrl, linkText);
+            }
           }
         },
         cssClass: 'larger-width'
@@ -101,6 +108,9 @@ export default function EditLinkPlugin({
         if ($isLinkNode(parent)) {
           setLinkUrl(parent.getURL());
           setIsAutoLink($isAutoLinkNode(parent));
+          if ($isAutoLinkNode(parent)) {
+            setIsAutoLinkUnlinked(parent.getIsUnlinked());
+          }
         }
         setLinkText(selection.getTextContent() || node.getTextContent());
       }
@@ -109,17 +119,19 @@ export default function EditLinkPlugin({
 
   const handleLinkSubmission = (newLinkUrl: string, newLinkText: string) => {
     const undoLink = newLinkUrl === '';
+    const url = sanitizeUrl(newLinkUrl);
     editor.update(() => {
       editor.dispatchCommand(
         TOGGLE_LINK_COMMAND,
         undoLink
           ? null
           : {
-              url: sanitizeUrl(newLinkUrl),
+              url,
               title: newLinkText
             }
       );
-      if (!isAutoLink && newLinkUrl !== '' && newLinkText !== '') {
+      // if link not deleted and text changed, update text
+      if (newLinkUrl !== '' && newLinkText !== '') {
         const textNode = $createTextNode(newLinkText);
         const selection = $getSelection();
         if ($isRangeSelection(selection)) {
@@ -127,8 +139,32 @@ export default function EditLinkPlugin({
           node.replace(textNode);
         }
       }
-      // TODO if isAutoLink and request delete, setIsUnlinked - why doesn't TOGGLE_LINK_COMMAND work anymore?
-      // TODO if isAutoLink, replace the node by a link with text
+    });
+  };
+
+  const handleAutoLinkSubmission = (
+    newLinkUrl: string,
+    newLinkText: string
+  ) => {
+    const toggleLink = newLinkUrl === '';
+    const url = sanitizeUrl(newLinkUrl);
+    editor.update(() => {
+      if (toggleLink) {
+        // why doesn't TOGGLE_LINK_COMMAND work?
+        const selection = $getSelection();
+        if ($isRangeSelection(selection)) {
+          const nodes = selection.extract();
+          nodes.forEach(node => {
+            const parent = node.getParent();
+            if ($isAutoLinkNode(parent)) {
+              // invert the value
+              parent.setIsUnlinked(!parent.getIsUnlinked());
+              parent.markDirty();
+            }
+          });
+        }
+      }
+      // TODO if , replace the node by a link with text
     });
   };
 
