@@ -13,6 +13,7 @@ import { Dispatch, useEffect, useState } from 'react';
 
 import { APPICONS } from '@/constants';
 import {
+  $createLinkNode,
   $isAutoLinkNode,
   $isLinkNode,
   TOGGLE_LINK_COMMAND
@@ -164,7 +165,20 @@ export default function EditLinkPlugin({
           });
         }
       }
-      // TODO if , replace the node by a link with text
+      if (newLinkText !== '') {
+        const selection = $getSelection();
+        if (!$isRangeSelection(selection)) return;
+        const node = getSelectedNode(selection);
+        const parent = node.getParent();
+        if ($isAutoLinkNode(parent)) {
+          const linkNode = $createLinkNode(url);
+          parent.replace(linkNode);
+          linkNode.clear();
+          const textNode = $createTextNode(newLinkText);
+          linkNode.append(textNode);
+          textNode.selectEnd();
+        }
+      }
     });
   };
 
