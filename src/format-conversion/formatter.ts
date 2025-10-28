@@ -7,7 +7,7 @@ export type KiwimeriTransformerCtx = {
 };
 
 export type KiwimeriTransformer = {
-  type: string;
+  type: string; // node type
   handles?: (ctx: KiwimeriTransformerCtx) => boolean;
   transform?: (
     text: string,

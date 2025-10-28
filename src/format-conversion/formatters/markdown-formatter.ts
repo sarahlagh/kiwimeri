@@ -241,6 +241,29 @@ export const MARKDOWN_LIST_TRANSFORMERS: KiwimeriTransformer[] = [
   }
 ];
 
+export const MARKDOWN_LINKS_TRANSFORMER: KiwimeriTransformer = {
+  type: 'link',
+  postTransform: function (
+    fullstr: string,
+    ctx: KiwimeriTransformerCtx
+  ): string {
+    const { title, url } = ctx.node as unknown as {
+      title?: string | null;
+      url: string;
+    };
+    if (title) return `[${fullstr}](${url} "${title}")`;
+    return `[${fullstr}](${url})`;
+  }
+};
+
+export const MARKDOWN_AUTOLINKS_TRANSFORMER: KiwimeriTransformer = {
+  type: 'autolink',
+  handles: ctx => 'isUnlinked' in ctx.node && ctx.node.isUnlinked === false,
+  postTransform: function (fullstr: string): string {
+    return `<${fullstr}>`;
+  }
+};
+
 export const MARKDOWN_TRANSFORMERS: KiwimeriTransformer[] = [
   MARKDOWN_TEXT_TRANSFORMER,
   MARKDOWN_PARAGRAPH_TRANSFORMER,
@@ -252,7 +275,9 @@ export const MARKDOWN_TRANSFORMERS: KiwimeriTransformer[] = [
   MARKDOWN_LINEBREAK_TRANSFORMER,
   MARKDOWN_HRULE_TRANSFORMER,
   MARKDOWN_QUOTE_TRANSFORMER,
-  ...MARKDOWN_LIST_TRANSFORMERS
+  ...MARKDOWN_LIST_TRANSFORMERS,
+  MARKDOWN_LINKS_TRANSFORMER,
+  MARKDOWN_AUTOLINKS_TRANSFORMER
 ];
 
 export class MarkdownFormatter extends KiwimeriFormatter {
