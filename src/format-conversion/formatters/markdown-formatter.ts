@@ -126,16 +126,10 @@ export const MARKDOWN_STRIKETHROUGH_TRANSFORMER: KiwimeriTransformer = {
 export const MARKDOWN_HEADING_TRANSFORMER: KiwimeriTransformer = {
   type: 'heading',
   preTransform: function (fullstr: string, ctx: KiwimeriTransformerCtx) {
+    // if ($isHeadingNode(ctx.node))
     if ('tag' in ctx.elementNode!) {
-      switch (ctx.elementNode.tag) {
-        case 'h1':
-        default:
-          return fullstr + '# ';
-        case 'h2':
-          return fullstr + '## ';
-        case 'h3':
-          return fullstr + '### ';
-      }
+      const lvl = Number((ctx.elementNode.tag as string).slice(1));
+      return '#'.repeat(lvl) + ' ';
     }
     return fullstr + '# ';
   },

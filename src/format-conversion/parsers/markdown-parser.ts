@@ -2,8 +2,7 @@ import {
   ElementFormatType,
   IS_BOLD,
   IS_ITALIC,
-  IS_STRIKETHROUGH,
-  IS_UNDERLINE
+  IS_STRIKETHROUGH
 } from 'lexical';
 import { KiwimeriLexer, KiwimeriLexerResponseType } from '../lexer';
 import { KiwimeriParser } from '../parser';
@@ -107,7 +106,7 @@ export class MarkdownParser extends KiwimeriParser {
     }
 
     // un-escape escaped chars (\* -> *)
-    token = token.replaceAll(/\\([*_~<#])/g, '$1');
+    // token = token.replaceAll(/\\([*_~<#])/g, '$1');
 
     // handle list items
     if (ctx.lastBlock?.type === 'list' && type === 'keyword') {
@@ -143,25 +142,25 @@ export class MarkdownParser extends KiwimeriParser {
     }
 
     // handle format
-    if (type === 'keyword') {
-      for (const kw of Object.keys(this.keywordMap)) {
-        if (token === kw) {
-          if (ctx.keywords.filter(k => k.token === kw).length % 2) {
-            // closing, must remove format
-            ctx.removeFormat(this.keywordMap[kw]);
-          } else {
-            // adding, must add format
-            ctx.addFormat(this.keywordMap[kw]);
-          }
-        }
-      }
-      if (token === '<u>') {
-        ctx.addFormat(IS_UNDERLINE);
-      }
-      if (token === '</u>') {
-        ctx.removeFormat(IS_UNDERLINE);
-      }
-    }
+    // if (type === 'keyword') {
+    //   for (const kw of Object.keys(this.keywordMap)) {
+    //     if (token === kw) {
+    //       if (ctx.keywords.filter(k => k.token === kw).length % 2) {
+    //         // closing, must remove format
+    //         ctx.removeFormat(this.keywordMap[kw]);
+    //       } else {
+    //         // adding, must add format
+    //         ctx.addFormat(this.keywordMap[kw]);
+    //       }
+    //     }
+    //   }
+    //   if (token === '<u>') {
+    //     ctx.addFormat(IS_UNDERLINE);
+    //   }
+    //   if (token === '</u>') {
+    //     ctx.removeFormat(IS_UNDERLINE);
+    //   }
+    // }
 
     // handle text align
     let paragraphAlign: ElementFormatType | undefined = undefined;

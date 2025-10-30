@@ -6,12 +6,19 @@ import {
   SerializedRootNode,
   SerializedTextNode
 } from 'lexical';
-import { KiwimeriLexer, KiwimeriLexerResponseType } from './lexer';
+import {
+  KiwimeriLexer,
+  KiwimeriLexerResponse,
+  KiwimeriLexerResponseType,
+  KiwimeriLexicalElementParser
+} from './lexer';
 import {
   KiwimeriParserBlock,
+  KiwimeriParserBlock2,
   KiwimeriParserContext,
   KiwimeriParserText
 } from './parser-context';
+import { ALL_ELEMENTS } from './parsers/markdown-elements';
 
 export type KiwimeriParserError = {
   line: number;
@@ -43,7 +50,108 @@ export abstract class KiwimeriParser {
     opts?: unknown
   ): KiwimeriParserBlock;
 
+  private error(block: KiwimeriParserBlock2, ctx: KiwimeriParserContext) {
+    const lines = ctx.blocks
+      .map(block => block.text.replace(/[^\n]/g, '').length)
+      .reduce((a, c) => a + c, 0);
+    return {
+      obj: null,
+      errors: [
+        {
+          line: lines + 1,
+          blockPreview: block.text,
+          lastKeyword: ctx.lastKeyword?.token || null,
+          lastText: ctx.lastText?.text || null
+        }
+      ]
+    };
+  }
+
+  private parseElem(
+    elemParser: KiwimeriLexicalElementParser | null,
+    lexResponse: KiwimeriLexerResponse,
+    currentBlock: KiwimeriParserBlock2,
+    lexer: KiwimeriLexer,
+    ctx: KiwimeriParserContext
+  ) {
+    if (elemParser?.textFormat) {
+      if (ctx.activeFormats.has(elemParser.textFormat)) {
+        ctx.removeFormat(elemParser.textFormat);
+      } else {
+        ctx.addFormat(elemParser.textFormat);
+      }
+    }
+    let newElem: SerializedLexicalNode | null = null;
+    if (elemParser?.parse) {
+      newElem = elemParser?.parse(lexResponse, ctx, lexer);
+      if (!newElem) return;
+      // assuming here, parse elem returns a child ready to be pushed to the block.node
+      // any recursion is handled within the elemParser
+      (currentBlock.node as SerializedElementNode).children.push(newElem);
+      return;
+    }
+  }
+
   public parse(text: string, opts?: unknown): KiwimeriParserResponse {
+    const root: SerializedRootNode = {
+      type: 'root',
+      version: 1,
+      direction: 'ltr',
+      format: '',
+      indent: 0,
+      children: []
+    };
+    const ctx = new KiwimeriParserContext();
+    const lexer = this.getLexer(text, opts);
+
+    while (lexer.nextBlock() !== null) {
+      const { token, blockParser } = lexer.consumeBlock()!;
+      ctx.resetBlock();
+
+      if (blockParser) {
+        const block = blockParser.parse(token);
+        if (!block) continue;
+        if (this.isBlockElementNode(block.node)) {
+          while (lexer.nextText(block) !== null) {
+            const lexResponse = lexer.consumeText(block);
+            if (lexResponse === null) {
+              return this.error(block, ctx);
+            }
+            if (lexResponse.elemParser) {
+              this.parseElem(
+                lexResponse.elemParser,
+                lexResponse,
+                block,
+                lexer,
+                ctx
+              );
+            } else {
+              // shouldn't happen? fallback is PLAIN_TEXT
+              const elementParsers = ALL_ELEMENTS.toSorted(
+                (a, b) => (b.parserPriority || 0) - (a.parserPriority || 0)
+              );
+              for (const elemParser of elementParsers) {
+                if (elemParser.type !== lexResponse.type) continue;
+                if (
+                  elemParser.matches &&
+                  !elemParser.matches(lexResponse.token)
+                )
+                  continue;
+                this.parseElem(elemParser, lexResponse, block, lexer, ctx);
+                continue;
+              }
+              this.parseElem(null, lexResponse, block, lexer, ctx);
+            }
+          }
+        }
+        root.children.push(block.node);
+        ctx.addBlock(block);
+      }
+    }
+    return { obj: { root } };
+  }
+
+  public parseOld(text: string, opts?: unknown): KiwimeriParserResponse {
     const root: SerializedRootNode = {
       type: 'root',
       version: 1,
@@ -267,5 +375,11 @@ export abstract class KiwimeriParser {
       indent: 0,
       children: []
     };
+  }
+
+  private isBlockElementNode(
+    node?: SerializedLexicalNode | null
+  ): node is SerializedElementNode {
+    return (node && 'children' in node) || false;
   }
 }

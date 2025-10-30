@@ -19,6 +19,7 @@ class FormatterService {
       return formatter.parseLexNode(null, obj.root, opts);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
+      // TODO handle error actually
       return lex;
     }
   }

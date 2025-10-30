@@ -51,8 +51,7 @@ describe('format conversion service', () => {
         expect(markdown).toBe(expected);
       });
 
-      // skip because of inconsistent generation of direction: ltr or null on Lexical side...
-      it.skip(`should generate lexical from markdown (${name})`, async () => {
+      it(`should generate lexical from markdown (${name})`, async () => {
         const json = await readFile(
           `${__dirname}/_data/${name}/${name}.json`,
           'utf8'
@@ -62,7 +61,13 @@ describe('format conversion service', () => {
           'utf8'
         );
         const lexical = formatterService.getLexicalFromMarkdown(markdown);
-        expect(lexical).toEqual(JSON.parse(json));
+        const markdownAgain = formatterService.getMarkdownFromLexical(
+          JSON.stringify(lexical.obj)
+        );
+        expect(markdownAgain).toBe(markdown);
+
+        // TODO replace with html, we don't care about getting the exact lexical back
+        expect(lexical.obj).toEqual(JSON.parse(json));
       });
     });
   });

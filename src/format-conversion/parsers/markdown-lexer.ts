@@ -1,6 +1,6 @@
 import { KiwimeriLexer, KiwimeriLexerResponse } from '../lexer';
-import { KiwimeriParserBlock } from '../parser-context';
-import { ALL_BLOCKS } from './markdown-blocks';
+import { KiwimeriParserBlock2 } from '../parser-context';
+import { ALL_BLOCKS, PARAGRAPH } from './markdown-blocks';
 import { ALL_ELEMENTS } from './markdown-elements';
 
 export class MarkdownLexer extends KiwimeriLexer {
@@ -11,12 +11,13 @@ export class MarkdownLexer extends KiwimeriLexer {
     }
     const nextBlock = this.text.substring(this.blockIdx);
 
-    for (const mdBlock of ALL_BLOCKS) {
-      const token = mdBlock.tokenize(nextBlock);
+    for (const blockParser of ALL_BLOCKS) {
+      const token = blockParser.tokenize(nextBlock);
       if (token) {
         return {
           token,
-          type: 'text'
+          type: 'text',
+          blockParser
         };
       }
     }
@@ -24,7 +25,8 @@ export class MarkdownLexer extends KiwimeriLexer {
     // the default block: paragraph
     return {
       token: this.endOfBlock(nextBlock, true),
-      type: 'text'
+      type: 'text',
+      blockParser: PARAGRAPH
     };
   }
 
@@ -49,7 +51,7 @@ export class MarkdownLexer extends KiwimeriLexer {
 
   // texts: text, linebreak, listitem
   protected _nextText(
-    block: KiwimeriParserBlock
+    block: KiwimeriParserBlock2
   ): KiwimeriLexerResponse | null {
     if (this.textIdx > block.text.length - 1) {
       return null;
@@ -58,8 +60,9 @@ export class MarkdownLexer extends KiwimeriLexer {
     if (nextText.trimEnd().length === 0) {
       return null;
     }
-    for (const mdElem of ALL_ELEMENTS) {
-      const token = mdElem.matches(
+    for (const elemParser of ALL_ELEMENTS) {
+      if (!elemParser.tokenize) continue;
+      const token = elemParser.tokenize(
         nextText,
         block,
         this.isStartOfLine(block.text)
@@ -67,21 +70,13 @@ export class MarkdownLexer extends KiwimeriLexer {
       if (token) {
         return {
           token,
-          type: mdElem.type
+          type: elemParser.type,
+          elemParser
         };
       }
     }
 
-    // regex to stop token at [*_~<\n] but not escaped [*_~<\n] (* will match but \* won't)
-    const endOfText = nextText.match(/^(([\\][*_~<\n]|[^*_~<\n])*)[*_~<\n]/g);
-    if (endOfText && endOfText.length > 0) {
-      // remove trailing special chars BUT avoid escaped ones dammit
-      const endOfToken = endOfText[0].replaceAll(/(\**|_*|~*|<*|\n*)$/g, '');
-      return {
-        token: endOfToken,
-        type: 'text'
-      };
-    }
+    // shouldn't happen?
     return {
       token: nextText,
       type: 'text'

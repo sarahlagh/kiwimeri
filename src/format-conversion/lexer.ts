@@ -1,9 +1,34 @@
-import { KiwimeriParserBlock } from './parser-context';
+import { SerializedLexicalNode } from 'lexical';
+import { KiwimeriParserBlock2, KiwimeriParserContext } from './parser-context';
+
+export type KiwimeriLexicalBlockParser = {
+  tokenize: (nextBlock: string) => string | null;
+  parse: (token: string) => KiwimeriParserBlock2 | null;
+};
+
+export type KiwimeriLexicalElementParser = {
+  parserPriority?: number;
+  type: KiwimeriLexerResponseType;
+  tokenize: (
+    nextText: string,
+    block: KiwimeriParserBlock2,
+    isStartOfLine: boolean
+  ) => string | null;
+  matches?: (nextText: string) => boolean;
+  textFormat?: number;
+  parse?: (
+    lexResponse: KiwimeriLexerResponse,
+    ctx: KiwimeriParserContext,
+    lexer: KiwimeriLexer
+  ) => SerializedLexicalNode | null;
+};
 
 export type KiwimeriLexerResponseType = 'text' | 'keyword';
 export type KiwimeriLexerResponse = {
   token: string;
   type: KiwimeriLexerResponseType;
+  blockParser?: KiwimeriLexicalBlockParser;
+  elemParser?: KiwimeriLexicalElementParser;
 };
 
 export abstract class KiwimeriLexer {
@@ -37,15 +62,17 @@ export abstract class KiwimeriLexer {
 
   /** texts: text, linebreak, listitem */
   protected abstract _nextText(
-    block: KiwimeriParserBlock
+    block: KiwimeriParserBlock2
   ): KiwimeriLexerResponse | null;
-  public nextText(block: KiwimeriParserBlock): KiwimeriLexerResponse | null {
+  public nextText(block: KiwimeriParserBlock2): KiwimeriLexerResponse | null {
     this.tempText = this._nextText(block);
     return this.tempText;
   }
-  public consumeText(block: KiwimeriParserBlock): KiwimeriLexerResponse | null {
+  public consumeText(
+    parentNode: KiwimeriParserBlock2
+  ): KiwimeriLexerResponse | null {
     const resp =
-      this.tempText !== undefined ? this.tempText : this.nextText(block);
+      this.tempText !== undefined ? this.tempText : this.nextText(parentNode);
     if (resp === null || resp.token.length === 0) {
       return null;
     }

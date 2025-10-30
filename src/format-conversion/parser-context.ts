@@ -1,4 +1,4 @@
-import { ElementFormatType } from 'lexical';
+import { ElementFormatType, SerializedLexicalNode } from 'lexical';
 import { KiwimeriLexerResponse } from './lexer';
 
 type KiwimeriParserBlockType =
@@ -7,6 +7,11 @@ type KiwimeriParserBlockType =
   | 'heading'
   | 'list'
   | 'horizontalrule';
+
+export type KiwimeriParserBlock2 = {
+  node: SerializedLexicalNode;
+  text: string;
+};
 
 export type KiwimeriParserBlock = {
   text: string;
@@ -25,8 +30,8 @@ export type KiwimeriParserText = {
 };
 
 export class KiwimeriParserContext {
-  blocks: KiwimeriParserBlock[] = [];
-  lastBlock: KiwimeriParserBlock | null = null;
+  blocks: KiwimeriParserBlock2[] = [];
+  lastBlock: KiwimeriParserBlock2 | null = null;
   texts: KiwimeriParserText[] = [];
   lastText: KiwimeriParserText | null = null;
   keywords: KiwimeriParserText[] = [];
@@ -49,7 +54,7 @@ export class KiwimeriParserContext {
     }
   }
 
-  addBlock(block: KiwimeriParserBlock) {
+  addBlock(block: KiwimeriParserBlock2) {
     this.blocks.push(block);
     this.lastBlock = this.blocks[this.blocks.length - 1];
   }
@@ -91,7 +96,7 @@ export class KiwimeriParserContext {
     this.paragraphAlign = null;
   }
 
-  copy(currentBlock?: KiwimeriParserBlock) {
+  copy(currentBlock?: KiwimeriParserBlock2) {
     const newCtx = new KiwimeriParserContext(this);
     if (currentBlock) {
       newCtx.addBlock(currentBlock);
