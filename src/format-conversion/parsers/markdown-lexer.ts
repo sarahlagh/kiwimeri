@@ -1,5 +1,7 @@
 import { KiwimeriLexer, KiwimeriLexerResponse } from '../lexer';
 import { KiwimeriParserBlock } from '../parser-context';
+import { ALL_BLOCKS } from './markdown-blocks';
+import { ALL_ELEMENTS } from './markdown-elements';
 
 export class MarkdownLexer extends KiwimeriLexer {
   // blocks: paragraph, quote, heading, list, horizontalrule
@@ -9,61 +11,14 @@ export class MarkdownLexer extends KiwimeriLexer {
     }
     const nextBlock = this.text.substring(this.blockIdx);
 
-    // heading
-    if (nextBlock.match(/^(#+)/g)) {
-      return {
-        token: this.endOfBlock(nextBlock),
-        type: 'text'
-      };
-    }
-
-    // quote
-    if (nextBlock.startsWith('>')) {
-      return {
-        token: this.endOfBlock(nextBlock),
-        type: 'text'
-      };
-    }
-
-    // horizontalrule
-    if (nextBlock.startsWith('---')) {
-      return {
-        token: this.endOfBlock(nextBlock),
-        type: 'text'
-      };
-    }
-
-    // list
-    if (nextBlock.startsWith('- ') || nextBlock.match(/^\d+\. /g)) {
-      return {
-        token: this.endOfBlock(nextBlock, true),
-        type: 'text'
-      };
-    }
-
-    // empty paragraphs
-    if (nextBlock.match(/^\n+/g)) {
-      return {
-        token: '\n',
-        type: 'text'
-      };
-    }
-
-    // empty paragraphs with text-align
-    if (nextBlock.match(/^<p [^>]*><\/p>\n+/g)) {
-      return {
-        token: this.endOfBlock(nextBlock),
-        type: 'text'
-      };
-    }
-
-    // try catching <p ...>\n</p>\n
-    const pEl = nextBlock.match(/^<p [^>]*>(.*)\n+<\/p>\n+/g);
-    if (pEl) {
-      return {
-        token: pEl[0],
-        type: 'text'
-      };
+    for (const mdBlock of ALL_BLOCKS) {
+      const token = mdBlock.tokenize(nextBlock);
+      if (token) {
+        return {
+          token,
+          type: 'text'
+        };
+      }
     }
 
     // the default block: paragraph
@@ -103,46 +58,18 @@ export class MarkdownLexer extends KiwimeriLexer {
     if (nextText.trimEnd().length === 0) {
       return null;
     }
-    for (const kw of ['**', '*', '__', '_', '~~', '<u>', '</u>', '</p>']) {
-      if (nextText.startsWith(kw)) {
-        return { token: kw, type: 'keyword' };
+    for (const mdElem of ALL_ELEMENTS) {
+      const token = mdElem.matches(
+        nextText,
+        block,
+        this.isStartOfLine(block.text)
+      );
+      if (token) {
+        return {
+          token,
+          type: mdElem.type
+        };
       }
-    }
-    const pEl = nextText.match(/^<p[^>]*>/g);
-    if (pEl) {
-      return {
-        token: pEl[0],
-        type: 'keyword'
-      };
-    }
-    const unorderedList = nextText.match(/^- ?/g);
-    if (
-      unorderedList &&
-      this.isStartOfLine(block.text) &&
-      block.text.startsWith('- ')
-    ) {
-      return {
-        token: unorderedList[0],
-        type: 'keyword'
-      };
-    }
-    const numberedList = nextText.match(/^\d+\. /g);
-    if (
-      numberedList &&
-      this.isStartOfLine(block.text) &&
-      block.text.match(/^\d+\. /g)
-    ) {
-      return {
-        token: numberedList[0],
-        type: 'keyword'
-      };
-    }
-
-    if (nextText.startsWith('\n') && !nextText.startsWith('\n\n')) {
-      return {
-        token: '\n',
-        type: 'text'
-      };
     }
 
     // regex to stop token at [*_~<\n] but not escaped [*_~<\n] (* will match but \* won't)

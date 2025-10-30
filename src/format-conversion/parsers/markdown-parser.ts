@@ -5,7 +5,7 @@ import {
   IS_STRIKETHROUGH,
   IS_UNDERLINE
 } from 'lexical';
-import { KiwimeriLexer } from '../lexer';
+import { KiwimeriLexer, KiwimeriLexerResponseType } from '../lexer';
 import { KiwimeriParser } from '../parser';
 import {
   KiwimeriParserBlock,
@@ -93,7 +93,7 @@ export class MarkdownParser extends KiwimeriParser {
 
   protected parseText(
     token: string,
-    type: 'text' | 'keyword',
+    type: KiwimeriLexerResponseType,
     ctx: KiwimeriParserContext
   ): KiwimeriParserText | null {
     // if previous text was linebreak in a list, remove indent

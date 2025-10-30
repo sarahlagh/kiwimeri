@@ -6,7 +6,7 @@ import {
   SerializedRootNode,
   SerializedTextNode
 } from 'lexical';
-import { KiwimeriLexer } from './lexer';
+import { KiwimeriLexer, KiwimeriLexerResponseType } from './lexer';
 import {
   KiwimeriParserBlock,
   KiwimeriParserContext,
@@ -32,7 +32,7 @@ export abstract class KiwimeriParser {
 
   protected abstract parseText(
     token: string,
-    type: 'text' | 'keyword',
+    type: KiwimeriLexerResponseType,
     ctx: KiwimeriParserContext,
     opts?: unknown
   ): KiwimeriParserText | null;

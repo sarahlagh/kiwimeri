@@ -1,8 +1,9 @@
 import { KiwimeriParserBlock } from './parser-context';
 
+export type KiwimeriLexerResponseType = 'text' | 'keyword';
 export type KiwimeriLexerResponse = {
   token: string;
-  type: 'text' | 'keyword';
+  type: KiwimeriLexerResponseType;
 };
 
 export abstract class KiwimeriLexer {
