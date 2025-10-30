@@ -9,13 +9,13 @@ import { HorizontalRulePlugin } from '@lexical/react/LexicalHorizontalRulePlugin
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
-import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { SelectionAlwaysOnDisplay } from '@lexical/react/LexicalSelectionAlwaysOnDisplay';
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
 import { useLingui } from '@lingui/react/macro';
 import { EditorState } from 'lexical';
 import React, { ReactNode, useState } from 'react';
+import { DebounceOnChangePlugin } from './DebounceOnChangePlugin';
 import EditLinkPlugin from './EditLinkPlugin';
 import KiwimeriToolbarPlugin, {
   ToolbarPluginProps
@@ -26,34 +26,22 @@ import DebugTreeViewPlugin from './playground/plugins/DebugTreeViewPlugin';
 import { validateUrl } from './playground/utils/url';
 import ReloadContentPlugin from './ReloadContentPlugin';
 
-// TODO refactor dependence on page browser props
-
 type KiwimeriEditorProps = {
   content: string;
   onChange: (editorState: EditorState) => void;
-} & Pick<
-  ToolbarPluginProps,
-  | 'enablePageBrowser'
-  | 'pageBrowserButtonHighlighted'
-  | 'openPageBrowser'
-  | 'setOpenPageBrowser'
-> & { readonly children?: ReactNode };
+  debounce?: number;
+} & Omit<ToolbarPluginProps, 'setIsLinkEditMode'> & {
+    readonly children?: ReactNode;
+  };
 
 const KiwimeriEditor = (
-  {
-    children,
-    content,
-    onChange,
-    enablePageBrowser,
-    pageBrowserButtonHighlighted,
-    openPageBrowser,
-    setOpenPageBrowser
-  }: KiwimeriEditorProps,
+  props: KiwimeriEditorProps,
   ref: React.LegacyRef<HTMLDivElement> | undefined
 ) => {
   const { t } = useLingui();
   const [isLinkEditMode, setIsLinkEditMode] = useState(false);
 
+  const { children, content, onChange, debounce = 0 } = props;
   const placeholder = t`Text...`;
 
   return (
@@ -62,13 +50,7 @@ const KiwimeriEditor = (
         ...lexicalConfig
       }}
     >
-      <KiwimeriToolbarPlugin
-        enablePageBrowser={enablePageBrowser}
-        pageBrowserButtonHighlighted={pageBrowserButtonHighlighted}
-        openPageBrowser={openPageBrowser}
-        setOpenPageBrowser={setOpenPageBrowser}
-        setIsLinkEditMode={setIsLinkEditMode}
-      />
+      <KiwimeriToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} {...props} />
       <RichTextPlugin
         contentEditable={
           <ContentEditable
@@ -83,8 +65,9 @@ const KiwimeriEditor = (
         ErrorBoundary={LexicalErrorBoundary}
       />
       <ReloadContentPlugin content={content} />
-      <OnChangePlugin
+      <DebounceOnChangePlugin
         ignoreSelectionChange
+        waitFor={debounce}
         onChange={(editorState, editor, tags) => {
           if (tags.has('focus') || tags.has('reload')) {
             console.debug('skipping editor change', tags);
