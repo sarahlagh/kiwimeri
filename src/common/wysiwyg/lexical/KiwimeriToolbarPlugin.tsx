@@ -44,17 +44,19 @@ function Divider() {
   return <div className="divider" />;
 }
 
-type ToolbarPluginProps = {
-  pageBrowserHighlighted: boolean;
-  pageBrowserOn: boolean;
-  setShowPageBrowser: Dispatch<boolean>;
+export type ToolbarPluginProps = {
+  enablePageBrowser?: boolean;
+  pageBrowserButtonHighlighted?: boolean;
+  openPageBrowser?: boolean;
+  setOpenPageBrowser?: Dispatch<boolean>;
   setIsLinkEditMode: Dispatch<boolean>;
 };
 
 export default function ToolbarPlugin({
-  pageBrowserHighlighted,
-  pageBrowserOn,
-  setShowPageBrowser,
+  enablePageBrowser = false,
+  pageBrowserButtonHighlighted = false,
+  openPageBrowser = false,
+  setOpenPageBrowser,
   setIsLinkEditMode
 }: ToolbarPluginProps) {
   const [editor] = useLexicalComposerContext();
@@ -158,17 +160,23 @@ export default function ToolbarPlugin({
 
   return (
     <div className="toolbar" ref={toolbarRef}>
-      <button
-        onClick={() => {
-          pageBrowserOn = !pageBrowserOn;
-          setShowPageBrowser(pageBrowserOn);
-        }}
-        className={'toolbar-item ' + (pageBrowserHighlighted ? 'active' : '')}
-        aria-label="Show page browser"
-      >
-        <IonIcon icon={APPICONS.page}></IonIcon>
-      </button>{' '}
-      <Divider />
+      {enablePageBrowser && setOpenPageBrowser && (
+        <>
+          <button
+            onClick={() => {
+              openPageBrowser = !openPageBrowser;
+              setOpenPageBrowser(openPageBrowser);
+            }}
+            className={
+              'toolbar-item ' + (pageBrowserButtonHighlighted ? 'active' : '')
+            }
+            aria-label="Show page browser"
+          >
+            <IonIcon icon={APPICONS.page}></IonIcon>
+          </button>{' '}
+          <Divider />
+        </>
+      )}
       <button
         onClick={() => {
           editor.setEditable(!editor.isEditable());

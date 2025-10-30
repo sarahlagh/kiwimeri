@@ -112,7 +112,7 @@ const DocumentEditor = ({
             id={itemId}
             docId={docId}
             content={content}
-            preview={documentPreview}
+            docPreview={documentPreview}
             pages={pages}
           ></Writer>
         )}

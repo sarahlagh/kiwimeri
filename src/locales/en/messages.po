@@ -106,7 +106,7 @@ msgstr "deleted item"
 msgid "Dev Tools"
 msgstr "Dev Tools"
 
-#: src/dev-tools/components/DevTools.tsx:36
+#: src/dev-tools/components/DevTools.tsx:37
 msgid "Dev Tools Enabled"
 msgstr "Dev Tools Enabled"
 
@@ -176,12 +176,10 @@ msgstr "Filesystem"
 msgid "Home"
 msgstr "Home"
 
-#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:112
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
-#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:105
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
@@ -230,12 +228,10 @@ msgstr "Link"
 msgid "Loading..."
 msgstr "Loading..."
 
-#. placeholder {0}: localChanges.length
 #: src/synchronization/components/LocalChangesCard.tsx:42
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
-#. placeholder {0}: dateToStr('datetime', lastLocalChange)
 #: src/synchronization/components/LocalChangesCard.tsx:48
 msgid "Local: {0}"
 msgstr "Local: {0}"
@@ -361,7 +357,6 @@ msgstr "Pick a directory for your backups"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
-#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
 #: src/synchronization/components/LocalChangesCard.tsx:55
 msgid "Remote: {0}"
 msgstr "Remote: {0}"
@@ -430,7 +425,7 @@ msgstr "Syncing is disabled on the web version."
 msgid "Text"
 msgstr "Text"
 
-#: src/common/wysiwyg/Writer.tsx:59
+#: src/common/wysiwyg/lexical/KiwimeriEditor.tsx:58
 msgid "Text..."
 msgstr "Text..."
 

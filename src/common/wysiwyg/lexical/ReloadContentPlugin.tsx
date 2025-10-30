@@ -3,13 +3,7 @@ import { INITIAL_CONTENT_START } from '@/db/collection.service';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useEffect } from 'react';
 
-export default function KiwimeriReloadContentPlugin({
-  id,
-  content
-}: {
-  id: string;
-  content: string;
-}) {
+export default function ReloadContentPlugin({ content }: { content: string }) {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
@@ -23,7 +17,7 @@ export default function KiwimeriReloadContentPlugin({
         tag: 'reload'
       });
     });
-  }, [id]);
+  }, [content]);
 
   return null;
 }

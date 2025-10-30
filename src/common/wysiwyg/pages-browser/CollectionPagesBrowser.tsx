@@ -14,12 +14,12 @@ import { useLingui } from '@lingui/react/macro';
 import { useHistory, useLocation } from 'react-router';
 import './CollectionPagesBrowser.scss';
 
-interface CollectionPagesBrowserProps {
+export type CollectionPagesBrowserProps = {
   id: string;
   docId: string;
   docPreview: string;
   pages?: PagePreview[];
-}
+};
 
 interface PagePreviewItemProps {
   page: Pick<PagePreview, 'id' | 'preview' | 'conflict' | 'order'>;
