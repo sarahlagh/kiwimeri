@@ -1,5 +1,6 @@
 import { onTitleChangeFn } from '@/common/events/events';
-import Writer from '@/common/wysiwyg/Writer';
+import KiwimeriEditor from '@/common/wysiwyg/lexical/KiwimeriEditor';
+import CollectionPagesBrowser from '@/common/wysiwyg/pages-browser/CollectionPagesBrowser';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
 import {
@@ -31,6 +32,8 @@ const DocumentEditor = ({
   const [showDocumentActions, setShowDocumentActions] =
     useState<boolean>(false);
   const [showDocumentFooter, setShowDocumentFooter] = useState(showActions);
+  const [openPageBrowser, setOpenPageBrowser] = useState(false);
+
   useEffect(() => {
     setShowDocumentActions(showActions);
   }, [showActions]);
@@ -107,14 +110,30 @@ const DocumentEditor = ({
 
       <IonContent onClick={onClickedAnywhere}>
         {content && (
-          <Writer
+          <KiwimeriEditor
             ref={refWriter}
-            id={itemId}
-            docId={docId}
+            initId={docId}
             content={content}
-            docPreview={documentPreview}
-            pages={pages}
-          ></Writer>
+            onChange={editorState => {
+              collectionService.setItemLexicalContent(
+                itemId,
+                editorState.toJSON()
+              );
+            }}
+            enablePageBrowser={true}
+            pageBrowserButtonHighlighted={(pages?.length || 0) > 0}
+            openPageBrowser={openPageBrowser}
+            setOpenPageBrowser={setOpenPageBrowser}
+          >
+            {openPageBrowser && (
+              <CollectionPagesBrowser
+                id={itemId}
+                docId={docId}
+                docPreview={documentPreview}
+                pages={pages}
+              />
+            )}
+          </KiwimeriEditor>
         )}
       </IonContent>
       {showDocumentFooter && <DocumentEditorFooter id={docId} />}

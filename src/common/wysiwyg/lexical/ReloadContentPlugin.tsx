@@ -3,7 +3,13 @@ import { INITIAL_CONTENT_START, initialContent } from '@/db/collection.service';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useEffect } from 'react';
 
-export default function ReloadContentPlugin({ content }: { content: string }) {
+export default function ReloadContentPlugin({
+  id,
+  content
+}: {
+  id: string;
+  content: string;
+}) {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
@@ -18,7 +24,7 @@ export default function ReloadContentPlugin({ content }: { content: string }) {
         tag: 'reload'
       });
     });
-  }, [content]);
+  }, [id]);
 
   return null;
 }

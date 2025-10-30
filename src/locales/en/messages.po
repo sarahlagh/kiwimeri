@@ -425,7 +425,7 @@ msgstr "Syncing is disabled on the web version."
 msgid "Text"
 msgstr "Text"
 
-#: src/common/wysiwyg/lexical/KiwimeriEditor.tsx:45
+#: src/common/wysiwyg/lexical/KiwimeriEditor.tsx:46
 msgid "Text..."
 msgstr "Text..."
 
