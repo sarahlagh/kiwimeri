@@ -14,7 +14,7 @@ import {
 } from './lexer';
 import {
   KiwimeriParserBlock,
-  KiwimeriParserBlock2,
+  KiwimeriParserBlockOld,
   KiwimeriParserContext,
   KiwimeriParserText
 } from './parser-context';
@@ -48,9 +48,9 @@ export abstract class KiwimeriParser {
     token: string,
     ctx: KiwimeriParserContext,
     opts?: unknown
-  ): KiwimeriParserBlock;
+  ): KiwimeriParserBlockOld;
 
-  private error(block: KiwimeriParserBlock2, ctx: KiwimeriParserContext) {
+  private error(ctx: KiwimeriParserContext) {
     const lines = ctx.blocks
       .map(block => block.text.replace(/[^\n]/g, '').length)
       .reduce((a, c) => a + c, 0);
@@ -58,10 +58,10 @@ export abstract class KiwimeriParser {
       obj: null,
       errors: [
         {
-          line: lines + 1,
-          blockPreview: block.text,
+          line: lines + 1, // TODO check
+          blockPreview: ctx.lastBlock!.text,
           lastKeyword: ctx.lastKeyword?.token || null,
-          lastText: ctx.lastText?.text || null
+          lastText: ctx.lastText?.lex.token || null
         }
       ]
     };
@@ -70,10 +70,10 @@ export abstract class KiwimeriParser {
   private parseElem(
     elemParser: KiwimeriLexicalElementParser | null,
     lexResponse: KiwimeriLexerResponse,
-    currentBlock: KiwimeriParserBlock2,
     lexer: KiwimeriLexer,
     ctx: KiwimeriParserContext
   ) {
+    const currentBlock = ctx.lastBlock!;
     if (elemParser?.textFormat) {
       if (ctx.activeFormats.has(elemParser.textFormat)) {
         ctx.removeFormat(elemParser.textFormat);
@@ -83,12 +83,50 @@ export abstract class KiwimeriParser {
     }
     let newElem: SerializedLexicalNode | null = null;
     if (elemParser?.parse) {
-      newElem = elemParser?.parse(lexResponse, ctx, lexer);
+      newElem = elemParser?.parse(lexResponse.token, ctx, lexer);
       if (!newElem) return;
-      // assuming here, parse elem returns a child ready to be pushed to the block.node
-      // any recursion is handled within the elemParser
-      (currentBlock.node as SerializedElementNode).children.push(newElem);
-      return;
+
+      // context 'captures' allows sub nodes to get the next tokens instead of the block node
+      if (ctx.captureEnds(lexResponse)) {
+        ctx.removeCapture();
+      }
+      const parent = ctx.getParentNode(currentBlock);
+      parent.children.push(newElem);
+      if (elemParser?.captures && elemParser!.captures(lexResponse)) {
+        ctx.addCapture({
+          node: newElem as SerializedElementNode,
+          parser: elemParser
+        });
+      }
+    }
+    ctx.addElement(lexResponse, newElem);
+  }
+
+  private handleBlock(
+    lexer: KiwimeriLexer,
+    block: KiwimeriParserBlock,
+    ctx: KiwimeriParserContext
+  ) {
+    ctx = ctx.copy(block);
+    while (lexer.nextText(block) !== null) {
+      const lexResponse = lexer.consumeText(block);
+      if (lexResponse === null) {
+        return this.error(ctx);
+      }
+      ctx.nextText = lexer.nextText(block);
+      if (lexResponse.elemParser) {
+        this.parseElem(lexResponse.elemParser, lexResponse, lexer, ctx);
+      } else {
+        // shouldn't happen? fallback is PLAIN_TEXT
+        for (const elemParser of ALL_ELEMENTS) {
+          if (elemParser.type !== lexResponse.type) continue;
+          if (elemParser.matches && !elemParser.matches(lexResponse.token))
+            continue;
+          this.parseElem(elemParser, lexResponse, lexer, ctx);
+          continue;
+        }
+        // this.parseElem(null, lexResponse, lexer, ctx.copy(block));
+      }
     }
   }
 
@@ -112,37 +150,7 @@ export abstract class KiwimeriParser {
         const block = blockParser.parse(token);
         if (!block) continue;
         if (this.isBlockElementNode(block.node)) {
-          while (lexer.nextText(block) !== null) {
-            const lexResponse = lexer.consumeText(block);
-            if (lexResponse === null) {
-              return this.error(block, ctx);
-            }
-            if (lexResponse.elemParser) {
-              this.parseElem(
-                lexResponse.elemParser,
-                lexResponse,
-                block,
-                lexer,
-                ctx
-              );
-            } else {
-              // shouldn't happen? fallback is PLAIN_TEXT
-              const elementParsers = ALL_ELEMENTS.toSorted(
-                (a, b) => (b.parserPriority || 0) - (a.parserPriority || 0)
-              );
-              for (const elemParser of elementParsers) {
-                if (elemParser.type !== lexResponse.type) continue;
-                if (
-                  elemParser.matches &&
-                  !elemParser.matches(lexResponse.token)
-                )
-                  continue;
-                this.parseElem(elemParser, lexResponse, block, lexer, ctx);
-                continue;
-              }
-              this.parseElem(null, lexResponse, block, lexer, ctx);
-            }
-          }
+          this.handleBlock(lexer, block, ctx);
         }
         root.children.push(block.node);
         ctx.addBlock(block);
@@ -306,7 +314,7 @@ export abstract class KiwimeriParser {
   }
 
   private convertBlockToLexical(
-    block: KiwimeriParserBlock
+    block: KiwimeriParserBlockOld
   ): SerializedLexicalNode | SerializedElementNode {
     const node: SerializedLexicalNode = {
       type: block.type,

@@ -95,15 +95,14 @@ const LIST: KiwimeriLexicalBlockParser = {
   tokenize: nextBlock =>
     LIST_PREDICATE(nextBlock) ? endOfBlock(nextBlock, true) : null,
   parse: token => {
-    if (LIST_PREDICATE(token)) {
-      const node = baseElementNode('list') as SerializedListNode;
-      node.tag = token.startsWith('- ') ? 'ul' : 'ol';
-      return {
-        node,
-        text: token
-      };
-    }
-    return null;
+    const node = baseElementNode('list') as SerializedListNode;
+    node.tag = token.startsWith('- ') ? 'ul' : 'ol';
+    node.listType = token.startsWith('- ') ? 'bullet' : 'number';
+    node.start = 1;
+    return {
+      node,
+      text: token
+    };
   }
 };
 

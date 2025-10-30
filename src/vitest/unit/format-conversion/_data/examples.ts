@@ -3,20 +3,20 @@ export const examples = [
   {
     name: 'simple'
   },
-  { name: 'nested-format' }
-  // {
-  //   name: 'paragraph'
-  // }
-  // {
-  //   name: 'header'
-  // },
-  // {
-  //   name: 'hline'
-  // },
-  // {
-  //   name: 'quote'
-  // },
-  // { name: 'lists' },
+  { name: 'nested-format' },
+  {
+    name: 'paragraph'
+  },
+  {
+    name: 'hline'
+  },
+  {
+    name: 'header'
+  },
+  {
+    name: 'quote'
+  },
+  { name: 'lists' }
   // { name: 'text-align' },
   // { name: 'escaped' },
   // // { name: 'links' },

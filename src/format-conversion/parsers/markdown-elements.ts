@@ -1,11 +1,19 @@
+import { SerializedListItemNode } from '@lexical/list';
 import {
   IS_BOLD,
   IS_ITALIC,
   IS_STRIKETHROUGH,
   IS_UNDERLINE,
+  SerializedLineBreakNode,
   SerializedTextNode
 } from 'lexical';
-import { KiwimeriLexicalElementParser } from '../lexer';
+import { KiwimeriLexerResponse, KiwimeriLexicalElementParser } from '../lexer';
+
+// const INDENTED_TEXT: KiwimeriLexicalElementParser = {
+//   type: 'text',
+//   tokenize: nextText =>
+//     nextText.match(/^[ \t]+[^ \t\n]+/g) ? nextText.trimStart() : null
+// };
 
 const PLAIN_TEXT: KiwimeriLexicalElementParser = {
   type: 'text',
@@ -18,12 +26,21 @@ const PLAIN_TEXT: KiwimeriLexicalElementParser = {
     }
     return null;
   },
-  parse: (lexResponse, ctx) => {
+  parse: (token, ctx) => {
+    // // if previous text was linebreak in a list, remove indent
+    const indent = token.match(/^[ \t]+[^ \t\n]+/g);
+    if (
+      ctx.lastBlock?.node.type === 'list' &&
+      ctx.lastText?.node?.type === 'linebreak' &&
+      indent
+    ) {
+      token = token.trimStart();
+    }
     // unescape
-    lexResponse.token = lexResponse.token.replaceAll(/\\([*_~<#])/g, '$1');
+    token = token.replaceAll(/\\([*_~<#])/g, '$1');
     const textNode: SerializedTextNode = {
       type: 'text',
-      text: lexResponse.token,
+      text: token,
       version: 1,
       format: ctx.getFormatUnion(),
       mode: 'normal',
@@ -85,7 +102,7 @@ const TEXT_ALIGN: KiwimeriLexicalElementParser = {
   }
 };
 
-const UNORDERED_LIST: KiwimeriLexicalElementParser = {
+const UNORDERED_LIST_ITEM: KiwimeriLexicalElementParser = {
   type: 'keyword',
   tokenize: (nextText, block, isStartOfLine) => {
     const unorderedList = nextText.match(/^- ?/g);
@@ -93,11 +110,28 @@ const UNORDERED_LIST: KiwimeriLexicalElementParser = {
       return unorderedList[0];
     }
     return null;
+  },
+  captures: (resp: KiwimeriLexerResponse) =>
+    (resp.elemParser && BREAK_LIST_ITEMS_ELEMENTS.includes(resp.elemParser)) ||
+    false,
+  parse: (token, ctx) => {
+    const listitem: SerializedListItemNode = {
+      type: 'listitem',
+      version: 1,
+      direction: 'ltr',
+      format: '',
+      indent: 0, // TODO deal with indent
+      value: ctx.elements.filter(el => el.node?.type === 'listitem').length + 1,
+      children: [],
+      checked: undefined
+    };
+    delete listitem.checked;
+    return listitem;
   }
 };
 
-const NUMBERED_LIST: KiwimeriLexicalElementParser = {
-  type: 'keyword',
+const NUMBERED_LIST_ITEM: KiwimeriLexicalElementParser = {
+  ...UNORDERED_LIST_ITEM,
   tokenize: (nextText, block, isStartOfLine) => {
     const numberedList = nextText.match(/^\d+\. /g);
     if (numberedList && isStartOfLine && block.text.match(/^\d+\. /g)) {
@@ -110,18 +144,40 @@ const NUMBERED_LIST: KiwimeriLexicalElementParser = {
 const SIMPLE_LINEBREAK: KiwimeriLexicalElementParser = {
   type: 'text',
   tokenize: nextText =>
-    nextText.startsWith('\n') && !nextText.startsWith('\n\n') ? '\n' : null
+    nextText.startsWith('\n') && !nextText.startsWith('\n\n') ? '\n' : null,
+  parse: (token, ctx) => {
+    // if linebreak, but in a list not followed by indent, ignore token
+    if (
+      ctx.lastBlock?.node.type === 'list' &&
+      (ctx.nextText?.token.startsWith('-') ||
+        ctx.nextText?.token.match(/^\d+\./g))
+    ) {
+      return null;
+    }
+    const node: SerializedLineBreakNode = {
+      type: 'linebreak',
+      version: 1
+    };
+    return node;
+  }
 };
 
-// lexer order, parser can be reprioritized
+const BREAK_LIST_ITEMS_ELEMENTS = [
+  UNORDERED_LIST_ITEM,
+  NUMBERED_LIST_ITEM
+  // SIMPLE_LINEBREAK
+];
+
+// lexer order
 export const ALL_ELEMENTS: KiwimeriLexicalElementParser[] = [
   BOLD,
   ITALIC,
   STRIKETHROUGH,
   UNDERLINE,
   TEXT_ALIGN,
-  UNORDERED_LIST,
-  NUMBERED_LIST,
+  UNORDERED_LIST_ITEM,
+  NUMBERED_LIST_ITEM,
   SIMPLE_LINEBREAK,
+  // INDENTED_TEXT,
   PLAIN_TEXT
 ];

@@ -7,7 +7,7 @@ import {
 import { KiwimeriLexer, KiwimeriLexerResponseType } from '../lexer';
 import { KiwimeriParser } from '../parser';
 import {
-  KiwimeriParserBlock,
+  KiwimeriParserBlockOld,
   KiwimeriParserContext,
   KiwimeriParserText
 } from '../parser-context';
@@ -26,7 +26,7 @@ export class MarkdownParser extends KiwimeriParser {
     return new MarkdownLexer(text, opts);
   }
 
-  protected parseBlock(token: string): KiwimeriParserBlock {
+  protected parseBlock(token: string): KiwimeriParserBlockOld {
     // heading
     const heading = token.match(/^(#+)/g);
     if (heading) {
@@ -109,37 +109,37 @@ export class MarkdownParser extends KiwimeriParser {
     // token = token.replaceAll(/\\([*_~<#])/g, '$1');
 
     // handle list items
-    if (ctx.lastBlock?.type === 'list' && type === 'keyword') {
-      if (token.startsWith('-')) {
-        return {
-          token,
-          type: 'listitem'
-        };
-      }
-      const numberedList = token.match(/^\d+\./g);
-      if (numberedList) {
-        return {
-          token,
-          type: 'listitem'
-        };
-      }
-    }
+    // if (ctx.lastBlock?.type === 'list' && type === 'keyword') {
+    //   if (token.startsWith('-')) {
+    //     return {
+    //       token,
+    //       type: 'listitem'
+    //     };
+    //   }
+    //   const numberedList = token.match(/^\d+\./g);
+    //   if (numberedList) {
+    //     return {
+    //       token,
+    //       type: 'listitem'
+    //     };
+    //   }
+    // }
 
     // handle linebreaks
-    if (token === '\n') {
-      // if linebreak, but in a list not followed by indent, ignore token
-      if (
-        ctx.lastBlock?.type === 'list' &&
-        (ctx.nextText?.token.startsWith('-') ||
-          ctx.nextText?.token.match(/^\d+\./g))
-      ) {
-        return null;
-      }
-      return {
-        type: 'linebreak',
-        token: '\n'
-      };
-    }
+    // if (token === '\n') {
+    //   // if linebreak, but in a list not followed by indent, ignore token
+    //   if (
+    //     ctx.lastBlock?.type === 'list' &&
+    //     (ctx.nextText?.token.startsWith('-') ||
+    //       ctx.nextText?.token.match(/^\d+\./g))
+    //   ) {
+    //     return null;
+    //   }
+    //   return {
+    //     type: 'linebreak',
+    //     token: '\n'
+    //   };
+    // }
 
     // handle format
     // if (type === 'keyword') {

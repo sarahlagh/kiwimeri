@@ -1,5 +1,9 @@
-import { ElementFormatType, SerializedLexicalNode } from 'lexical';
-import { KiwimeriLexerResponse } from './lexer';
+import {
+  ElementFormatType,
+  SerializedElementNode,
+  SerializedLexicalNode
+} from 'lexical';
+import { KiwimeriLexerResponse, KiwimeriLexicalElementParser } from './lexer';
 
 type KiwimeriParserBlockType =
   | 'paragraph'
@@ -8,12 +12,12 @@ type KiwimeriParserBlockType =
   | 'list'
   | 'horizontalrule';
 
-export type KiwimeriParserBlock2 = {
+export type KiwimeriParserBlock = {
   node: SerializedLexicalNode;
   text: string;
 };
 
-export type KiwimeriParserBlock = {
+export type KiwimeriParserBlockOld = {
   text: string;
   token: string;
   type: KiwimeriParserBlockType;
@@ -30,20 +34,32 @@ export type KiwimeriParserText = {
 };
 
 export class KiwimeriParserContext {
-  blocks: KiwimeriParserBlock2[] = [];
-  lastBlock: KiwimeriParserBlock2 | null = null;
+  blocks: KiwimeriParserBlock[] = [];
+  elements: {
+    lex: KiwimeriLexerResponse;
+    node: SerializedLexicalNode | null;
+  }[] = [];
+  lastBlock: KiwimeriParserBlock | null = null;
+  lastText: {
+    lex: KiwimeriLexerResponse;
+    node: SerializedLexicalNode | null;
+  } | null = null;
   texts: KiwimeriParserText[] = [];
-  lastText: KiwimeriParserText | null = null;
   keywords: KiwimeriParserText[] = [];
   lastKeyword: KiwimeriParserText | null = null;
   activeFormats: Set<number> = new Set();
   nextText: KiwimeriLexerResponse | null = null;
   paragraphAlign: ElementFormatType | null = null;
+  capture: {
+    node: SerializedElementNode;
+    parser: KiwimeriLexicalElementParser;
+  }[] = [];
 
   constructor(oth?: KiwimeriParserContext) {
     if (oth) {
       this.blocks = [...oth.blocks];
       this.lastBlock = oth.lastBlock;
+      this.elements = [...oth.elements];
       this.texts = [...oth.texts];
       this.lastText = oth.lastText;
       this.keywords = [...oth.keywords];
@@ -51,18 +67,26 @@ export class KiwimeriParserContext {
       this.activeFormats = oth.activeFormats;
       this.nextText = oth.nextText;
       this.paragraphAlign = oth.paragraphAlign;
+      this.capture = [...oth.capture];
     }
   }
 
-  addBlock(block: KiwimeriParserBlock2) {
+  addBlock(block: KiwimeriParserBlock) {
     this.blocks.push(block);
     this.lastBlock = this.blocks[this.blocks.length - 1];
   }
 
-  addText(text: KiwimeriParserText) {
-    this.texts.push(text);
-    this.lastText = this.texts[this.texts.length - 1];
+  addElement(lex: KiwimeriLexerResponse, node: SerializedLexicalNode | null) {
+    this.elements.push({ lex, node });
+    const nonKeywords = this.elements.filter(el => el.lex.type !== 'keyword');
+    this.lastText =
+      nonKeywords.length > 0 ? nonKeywords[nonKeywords.length - 1] : null;
   }
+
+  // addText(text: KiwimeriParserText) {
+  //   this.texts.push(text);
+  //   this.lastText = this.texts[this.texts.length - 1];
+  // }
 
   addKeyword(keyword: KiwimeriParserText) {
     this.keywords.push(keyword);
@@ -87,16 +111,47 @@ export class KiwimeriParserContext {
     return format;
   }
 
+  getCapture() {
+    return this.capture.length > 0
+      ? this.capture[this.capture.length - 1]
+      : undefined;
+  }
+
+  getParentNode(currentBlock: KiwimeriParserBlock) {
+    return (
+      this.getCapture()?.node || (currentBlock.node as SerializedElementNode)
+    );
+  }
+
+  captureEnds(lexResponse: KiwimeriLexerResponse) {
+    return (
+      this.getCapture() && this.getCapture()!.parser.captures!(lexResponse)
+    );
+  }
+
+  addCapture(capture: {
+    node: SerializedElementNode;
+    parser: KiwimeriLexicalElementParser;
+  }) {
+    this.capture.push(capture);
+  }
+
+  removeCapture() {
+    this.capture.pop();
+  }
+
   resetBlock() {
+    this.elements = [];
     this.texts = [];
     this.lastText = null;
     this.keywords = [];
     this.lastKeyword = null;
     this.activeFormats = new Set();
     this.paragraphAlign = null;
+    this.capture = [];
   }
 
-  copy(currentBlock?: KiwimeriParserBlock2) {
+  copy(currentBlock?: KiwimeriParserBlock) {
     const newCtx = new KiwimeriParserContext(this);
     if (currentBlock) {
       newCtx.addBlock(currentBlock);

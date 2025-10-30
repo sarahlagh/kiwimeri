@@ -50,12 +50,12 @@ describe('format conversion service', () => {
         const markdown = formatterService.getMarkdownFromLexical(json);
         expect(markdown).toBe(expected);
       });
+    });
+  });
 
-      it(`should generate lexical from markdown (${name})`, async () => {
-        const json = await readFile(
-          `${__dirname}/_data/${name}/${name}.json`,
-          'utf8'
-        );
+  describe('should generate lexical from markdown', () => {
+    examples.forEach(({ name }) => {
+      it(`should generate lexical from markdown to markdown again (${name})`, async () => {
         const markdown = await readFile(
           `${__dirname}/_data/${name}/${name}.md`,
           'utf8'
@@ -65,9 +65,25 @@ describe('format conversion service', () => {
           JSON.stringify(lexical.obj)
         );
         expect(markdownAgain).toBe(markdown);
+      });
 
-        // TODO replace with html, we don't care about getting the exact lexical back
-        expect(lexical.obj).toEqual(JSON.parse(json));
+      it(`should generate correct lexical from markdown (${name})`, async () => {
+        const json = await readFile(
+          `${__dirname}/_data/${name}/${name}.json`,
+          'utf8'
+        );
+        const markdown = await readFile(
+          `${__dirname}/_data/${name}/${name}.md`,
+          'utf8'
+        );
+        const lexical = formatterService.getLexicalFromMarkdown(markdown);
+
+        // TODO we don't care about getting the exact lexical back
+        const newObj = JSON.parse(json, (key, val) => {
+          if (key === 'direction') return 'ltr';
+          return val;
+        });
+        expect(lexical.obj).toEqual(newObj);
       });
     });
   });

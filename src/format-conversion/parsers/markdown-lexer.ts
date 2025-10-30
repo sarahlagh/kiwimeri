@@ -1,5 +1,5 @@
 import { KiwimeriLexer, KiwimeriLexerResponse } from '../lexer';
-import { KiwimeriParserBlock2 } from '../parser-context';
+import { KiwimeriParserBlock } from '../parser-context';
 import { ALL_BLOCKS, PARAGRAPH } from './markdown-blocks';
 import { ALL_ELEMENTS } from './markdown-elements';
 
@@ -51,7 +51,7 @@ export class MarkdownLexer extends KiwimeriLexer {
 
   // texts: text, linebreak, listitem
   protected _nextText(
-    block: KiwimeriParserBlock2
+    block: KiwimeriParserBlock
   ): KiwimeriLexerResponse | null {
     if (this.textIdx > block.text.length - 1) {
       return null;
