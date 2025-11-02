@@ -96,14 +96,14 @@ export class MarkdownParser extends KiwimeriParser {
     ctx: KiwimeriParserContext
   ): KiwimeriParserText | null {
     // if previous text was linebreak in a list, remove indent
-    const indent = token.match(/^[ \t]+[^ \t\n]+/g);
-    if (
-      ctx.lastBlock?.type === 'list' &&
-      ctx.lastText?.type === 'linebreak' &&
-      indent
-    ) {
-      token = token.trimStart();
-    }
+    // const indent = token.match(/^[ \t]+[^ \t\n]+/g);
+    // if (
+    //   ctx.lastBlock?.type === 'list' &&
+    //   ctx.lastText?.type === 'linebreak' &&
+    //   indent
+    // ) {
+    //   token = token.trimStart();
+    // }
 
     // un-escape escaped chars (\* -> *)
     // token = token.replaceAll(/\\([*_~<#])/g, '$1');

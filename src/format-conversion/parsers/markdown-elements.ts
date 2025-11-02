@@ -1,5 +1,6 @@
 import { SerializedListItemNode } from '@lexical/list';
 import {
+  ElementFormatType,
   IS_BOLD,
   IS_ITALIC,
   IS_STRIKETHROUGH,
@@ -16,6 +17,7 @@ import { KiwimeriLexerResponse, KiwimeriLexicalElementParser } from '../lexer';
 // };
 
 const PLAIN_TEXT: KiwimeriLexicalElementParser = {
+  name: 'plain_text',
   type: 'text',
   tokenize: nextText => {
     // regex to stop token at [*_~<\n] but not escaped [*_~<\n] (* will match but \* won't)
@@ -54,6 +56,7 @@ const PLAIN_TEXT: KiwimeriLexicalElementParser = {
 const BOLD_PREDICATE = (nextText: string) =>
   nextText.startsWith('**') || nextText.startsWith('__');
 const BOLD: KiwimeriLexicalElementParser = {
+  name: 'bold',
   type: 'keyword',
   tokenize: nextText =>
     BOLD_PREDICATE(nextText) ? nextText.substring(0, 2) : null,
@@ -64,6 +67,7 @@ const BOLD: KiwimeriLexicalElementParser = {
 const ITALIC_PREDICATE = (nextText: string) =>
   nextText.startsWith('*') || nextText.startsWith('_');
 const ITALIC: KiwimeriLexicalElementParser = {
+  name: 'italic',
   type: 'keyword',
   tokenize: nextText => (ITALIC_PREDICATE(nextText) ? nextText[0] : null),
   matches: ITALIC_PREDICATE,
@@ -73,6 +77,7 @@ const ITALIC: KiwimeriLexicalElementParser = {
 const STRIKETHROUGH_PREDICTATE = (nextText: string) =>
   nextText.startsWith('~~');
 const STRIKETHROUGH: KiwimeriLexicalElementParser = {
+  name: 'strikethrough',
   type: 'keyword',
   tokenize: nextText => (STRIKETHROUGH_PREDICTATE(nextText) ? '~~' : null),
   matches: STRIKETHROUGH_PREDICTATE,
@@ -82,6 +87,7 @@ const STRIKETHROUGH: KiwimeriLexicalElementParser = {
 const UNDERLINE_PREDICTATE = (nextText: string) =>
   nextText.startsWith('<u>') || nextText.startsWith('</u>');
 const UNDERLINE: KiwimeriLexicalElementParser = {
+  name: 'underline',
   type: 'keyword',
   tokenize: nextText => {
     if (nextText.startsWith('<u>')) return '<u>';
@@ -93,16 +99,30 @@ const UNDERLINE: KiwimeriLexicalElementParser = {
 };
 
 const TEXT_ALIGN: KiwimeriLexicalElementParser = {
+  name: 'text_align',
   type: 'keyword',
   tokenize: nextText => {
     if (nextText.startsWith('</p>')) return '</p>';
     const pEl = nextText.match(/^<p[^>]*>/g);
     if (pEl) return pEl[0];
     return null;
+  },
+  parse: (token, ctx) => {
+    if (token.startsWith('<p')) {
+      const textAlign = /text-align: ([a-z]+);/g.exec(token);
+      if (textAlign && textAlign.length > 0) {
+        ctx.paragraphAlign = textAlign[1] as ElementFormatType;
+      }
+    }
+    if (token === '</p>') {
+      ctx.paragraphAlign = '';
+    }
+    return null;
   }
 };
 
 const UNORDERED_LIST_ITEM: KiwimeriLexicalElementParser = {
+  name: 'unordered_list_item',
   type: 'keyword',
   tokenize: (nextText, block, isStartOfLine) => {
     const unorderedList = nextText.match(/^- ?/g);
@@ -111,6 +131,7 @@ const UNORDERED_LIST_ITEM: KiwimeriLexicalElementParser = {
     }
     return null;
   },
+  propagateTextFormat: true,
   captures: (resp: KiwimeriLexerResponse) =>
     (resp.elemParser && BREAK_LIST_ITEMS_ELEMENTS.includes(resp.elemParser)) ||
     false,
@@ -132,6 +153,7 @@ const UNORDERED_LIST_ITEM: KiwimeriLexicalElementParser = {
 
 const NUMBERED_LIST_ITEM: KiwimeriLexicalElementParser = {
   ...UNORDERED_LIST_ITEM,
+  name: 'ordered_list_item',
   tokenize: (nextText, block, isStartOfLine) => {
     const numberedList = nextText.match(/^\d+\. /g);
     if (numberedList && isStartOfLine && block.text.match(/^\d+\. /g)) {
@@ -142,6 +164,7 @@ const NUMBERED_LIST_ITEM: KiwimeriLexicalElementParser = {
 };
 
 const SIMPLE_LINEBREAK: KiwimeriLexicalElementParser = {
+  name: 'linebreak',
   type: 'text',
   tokenize: nextText =>
     nextText.startsWith('\n') && !nextText.startsWith('\n\n') ? '\n' : null,
@@ -162,11 +185,7 @@ const SIMPLE_LINEBREAK: KiwimeriLexicalElementParser = {
   }
 };
 
-const BREAK_LIST_ITEMS_ELEMENTS = [
-  UNORDERED_LIST_ITEM,
-  NUMBERED_LIST_ITEM
-  // SIMPLE_LINEBREAK
-];
+const BREAK_LIST_ITEMS_ELEMENTS = [UNORDERED_LIST_ITEM, NUMBERED_LIST_ITEM];
 
 // lexer order
 export const ALL_ELEMENTS: KiwimeriLexicalElementParser[] = [

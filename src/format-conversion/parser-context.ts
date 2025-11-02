@@ -105,6 +105,16 @@ export class KiwimeriParserContext {
     this.activeFormats.delete(format);
   }
 
+  mergeFormat(textFormat?: number) {
+    if (textFormat) {
+      if (this.activeFormats.has(textFormat)) {
+        this.removeFormat(textFormat);
+      } else {
+        this.addFormat(textFormat);
+      }
+    }
+  }
+
   getFormatUnion() {
     let format = 0;
     this.activeFormats.forEach(f => (format = format ^ f));
@@ -117,9 +127,12 @@ export class KiwimeriParserContext {
       : undefined;
   }
 
-  getParentNode(currentBlock: KiwimeriParserBlock) {
+  getParentCapture(currentBlock: KiwimeriParserBlock) {
     return (
-      this.getCapture()?.node || (currentBlock.node as SerializedElementNode)
+      this.getCapture() || {
+        node: currentBlock.node as SerializedElementNode,
+        parser: null
+      }
     );
   }
 

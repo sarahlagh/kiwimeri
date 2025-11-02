@@ -32,6 +32,10 @@ export type KiwimeriParserResponse = {
   errors?: KiwimeriParserError[];
 };
 
+// TODO add option to stick to classic markdown (no text align, <u>...)
+// TODO add option about line endings
+// TODO add option to care about textFormat propagation...
+
 export abstract class KiwimeriParser {
   constructor() {}
 
@@ -74,13 +78,8 @@ export abstract class KiwimeriParser {
     ctx: KiwimeriParserContext
   ) {
     const currentBlock = ctx.lastBlock!;
-    if (elemParser?.textFormat) {
-      if (ctx.activeFormats.has(elemParser.textFormat)) {
-        ctx.removeFormat(elemParser.textFormat);
-      } else {
-        ctx.addFormat(elemParser.textFormat);
-      }
-    }
+    ctx.mergeFormat(elemParser?.textFormat);
+
     let newElem: SerializedLexicalNode | null = null;
     if (elemParser?.parse) {
       newElem = elemParser?.parse(lexResponse.token, ctx, lexer);
@@ -90,7 +89,30 @@ export abstract class KiwimeriParser {
       if (ctx.captureEnds(lexResponse)) {
         ctx.removeCapture();
       }
-      const parent = ctx.getParentNode(currentBlock);
+      const { node: parent, parser: parentParser } =
+        ctx.getParentCapture(currentBlock);
+
+      // propagate text format to parent
+      if (parentParser?.propagateTextFormat) {
+        const propagateTextFormat = (parent.children[0] as SerializedTextNode)
+          ?.format;
+        if (propagateTextFormat !== undefined && propagateTextFormat !== 0) {
+          parent.textFormat = propagateTextFormat;
+          (currentBlock.node as SerializedElementNode).textFormat =
+            propagateTextFormat;
+        }
+      }
+      // set text-align
+      //  // paragraph alignment propagation for next text
+      //     if (parsedText.paragraphAlign !== undefined) {
+      //       ctx.paragraphAlign = parsedText.paragraphAlign;
+      //       if (parsedText.paragraphAlign !== '') {
+      //         block.paragraphAlign = parsedText.paragraphAlign;
+      //       }
+      //     }
+      if (ctx.paragraphAlign !== null) {
+        parent.format = ctx.paragraphAlign;
+      }
       parent.children.push(newElem);
       if (elemParser?.captures && elemParser!.captures(lexResponse)) {
         ctx.addCapture({
@@ -156,7 +178,19 @@ export abstract class KiwimeriParser {
         ctx.addBlock(block);
       }
     }
+    this.propagateTextFormat(root);
     return { obj: { root } };
+  }
+
+  private propagateTextFormat(root: SerializedRootNode) {
+    // propagate textFormat to root if first child has a non zero value
+    if (
+      root.children.length > 0 &&
+      'textFormat' in root.children[0] &&
+      root.children[0].textFormat !== 0
+    ) {
+      (root as any).textFormat = root.children[0].textFormat;
+    }
   }
 
   public parseOld(text: string, opts?: unknown): KiwimeriParserResponse {
@@ -215,17 +249,17 @@ export abstract class KiwimeriParser {
             }
           }
 
-          if (lexerText?.type === 'keyword') {
-            ctx.addKeyword(parsedText);
-            if (parsedText.type === 'listitem') {
-              const child: SerializedLexicalNode = this.convertTextToLexical(
-                parsedText!,
-                ctx
-              );
-              (child as SerializedElementNode).children = [];
-              elementNode.children.push(child);
-            }
-          }
+          // if (lexerText?.type === 'keyword') {
+          //   ctx.addKeyword(parsedText);
+          //   if (parsedText.type === 'listitem') {
+          //     const child: SerializedLexicalNode = this.convertTextToLexical(
+          //       parsedText!,
+          //       ctx
+          //     );
+          //     (child as SerializedElementNode).children = [];
+          //     elementNode.children.push(child);
+          //   }
+          // }
 
           if (lexerText?.type === 'text') {
             ctx.addText(parsedText);

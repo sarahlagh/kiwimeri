@@ -42,6 +42,7 @@ const endOfBlock = (nextBlock: string, strictParagraph = false) => {
 
 const HEADING_REGEX = /^(#{1,6})/g;
 const HEADING: KiwimeriLexicalBlockParser = {
+  name: 'heading',
   tokenize: nextBlock =>
     nextBlock.match(HEADING_REGEX) ? endOfBlock(nextBlock) : null,
   parse: token => {
@@ -57,6 +58,7 @@ const HEADING: KiwimeriLexicalBlockParser = {
 
 const QUOTE_PREFIX = '>';
 const QUOTE: KiwimeriLexicalBlockParser = {
+  name: 'quote',
   tokenize: nextBlock =>
     nextBlock.startsWith(QUOTE_PREFIX) ? endOfBlock(nextBlock) : null,
   parse: token => {
@@ -73,6 +75,7 @@ const QUOTE: KiwimeriLexicalBlockParser = {
 
 const HRULE_PREFIX = '---';
 const HRULE: KiwimeriLexicalBlockParser = {
+  name: 'hrule',
   tokenize: nextBlock =>
     nextBlock.startsWith(HRULE_PREFIX) ? endOfBlock(nextBlock) : null,
   parse: token => {
@@ -92,6 +95,7 @@ const HRULE: KiwimeriLexicalBlockParser = {
 const LIST_PREDICATE = (token: string) =>
   token.startsWith('- ') || token.match(/^\d+\. /g);
 const LIST: KiwimeriLexicalBlockParser = {
+  name: 'list',
   tokenize: nextBlock =>
     LIST_PREDICATE(nextBlock) ? endOfBlock(nextBlock, true) : null,
   parse: token => {
@@ -107,11 +111,13 @@ const LIST: KiwimeriLexicalBlockParser = {
 };
 
 const EMPTY_PARAGRAPH: KiwimeriLexicalBlockParser = {
+  name: 'empty_paragraph',
   tokenize: nextBlock => {
     if (nextBlock.match(/^\n+/g)) return '\n';
     if (nextBlock.match(/^<p [^>]*><\/p>\n+/g)) return endOfBlock(nextBlock);
     // try catching <p ...>\n</p>\n
-    const pEl = nextBlock.match(/^<p [^>]*>(.*)\n+<\/p>\n+/g);
+    // const pEl = nextBlock.match(/^<p [^>]*>(.*)\n+<\/p>\n+/g);
+    const pEl = nextBlock.match(/^<p [^>]*>\n+<\/p>\n+/g);
     if (pEl) {
       return pEl[0];
     }
@@ -132,6 +138,7 @@ const EMPTY_PARAGRAPH: KiwimeriLexicalBlockParser = {
 };
 
 export const PARAGRAPH: KiwimeriLexicalBlockParser = {
+  name: 'paragraph',
   tokenize: () => {
     return null;
   },

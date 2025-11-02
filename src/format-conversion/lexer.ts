@@ -2,11 +2,13 @@ import { SerializedLexicalNode } from 'lexical';
 import { KiwimeriParserBlock, KiwimeriParserContext } from './parser-context';
 
 export type KiwimeriLexicalBlockParser = {
+  name?: string;
   tokenize: (nextBlock: string) => string | null;
   parse: (token: string) => KiwimeriParserBlock | null;
 };
 
 export type KiwimeriLexicalElementParser = {
+  name?: string;
   type: KiwimeriLexerResponseType;
   tokenize: (
     nextText: string,
@@ -20,6 +22,7 @@ export type KiwimeriLexicalElementParser = {
     ctx: KiwimeriParserContext,
     lexer: KiwimeriLexer
   ) => SerializedLexicalNode | null;
+  propagateTextFormat?: boolean;
   captures?: (resp: KiwimeriLexerResponse) => boolean;
 };
 
