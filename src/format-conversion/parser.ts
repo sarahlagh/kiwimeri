@@ -83,7 +83,6 @@ export abstract class KiwimeriParser {
     let newElem: SerializedLexicalNode | null = null;
     if (elemParser?.parse) {
       newElem = elemParser?.parse(lexResponse.token, ctx, lexer);
-      if (!newElem) return;
 
       // context 'captures' allows sub nodes to get the next tokens instead of the block node
       if (ctx.captureEnds(lexResponse)) {
@@ -93,14 +92,19 @@ export abstract class KiwimeriParser {
         ctx.getParentCapture(currentBlock);
 
       // propagate text format to parent
+      // TODO weird, shouldn't be here
       if (parentParser?.propagateTextFormat) {
         const propagateTextFormat = (parent.children[0] as SerializedTextNode)
           ?.format;
-        if (propagateTextFormat !== undefined && propagateTextFormat !== 0) {
+        if (propagateTextFormat && propagateTextFormat !== 0) {
           parent.textFormat = propagateTextFormat;
+          // prop
           (currentBlock.node as SerializedElementNode).textFormat =
             propagateTextFormat;
         }
+        // ctx.propagate(parent => {
+        //   parent.textFormat = propagateTextFormat;
+        // });
       }
       // set text-align
       //  // paragraph alignment propagation for next text
@@ -110,15 +114,18 @@ export abstract class KiwimeriParser {
       //         block.paragraphAlign = parsedText.paragraphAlign;
       //       }
       //     }
-      if (ctx.paragraphAlign !== null) {
+      if (ctx.paragraphAlign !== null && ctx.paragraphAlign !== '') {
         parent.format = ctx.paragraphAlign;
       }
-      parent.children.push(newElem);
-      if (elemParser?.captures && elemParser!.captures(lexResponse)) {
-        ctx.addCapture({
-          node: newElem as SerializedElementNode,
-          parser: elemParser
-        });
+
+      if (newElem) {
+        parent.children.push(newElem);
+        if (elemParser?.captures && elemParser!.captures(lexResponse)) {
+          ctx.addCapture({
+            node: newElem as SerializedElementNode,
+            parser: elemParser
+          });
+        }
       }
     }
     ctx.addElement(lexResponse, newElem);

@@ -19,6 +19,7 @@ const baseElementNode = (type: string): SerializedElementNode => {
   };
 };
 
+/** strictParagraph: if true a paragraph ends with double \n */
 const endOfBlock = (nextBlock: string, strictParagraph = false) => {
   if (strictParagraph) {
     const endOfBlock = nextBlock.indexOf('\n\n');
@@ -62,14 +63,11 @@ const QUOTE: KiwimeriLexicalBlockParser = {
   tokenize: nextBlock =>
     nextBlock.startsWith(QUOTE_PREFIX) ? endOfBlock(nextBlock) : null,
   parse: token => {
-    if (token.startsWith(QUOTE_PREFIX)) {
-      const node = baseElementNode('quote') as SerializedQuoteNode;
-      return {
-        node,
-        text: token.replace(QUOTE_PREFIX, '').trimStart()
-      };
-    }
-    return null;
+    const node = baseElementNode('quote') as SerializedQuoteNode;
+    return {
+      node,
+      text: token.replace(QUOTE_PREFIX, '').trimStart()
+    };
   }
 };
 
@@ -78,17 +76,14 @@ const HRULE: KiwimeriLexicalBlockParser = {
   name: 'hrule',
   tokenize: nextBlock =>
     nextBlock.startsWith(HRULE_PREFIX) ? endOfBlock(nextBlock) : null,
-  parse: token => {
-    if (token.startsWith(HRULE_PREFIX)) {
-      return {
-        node: {
-          type: 'horizontalrule',
-          version: 1
-        } as SerializedHorizontalRuleNode,
-        text: ''
-      };
-    }
-    return null;
+  parse: () => {
+    return {
+      node: {
+        type: 'horizontalrule',
+        version: 1
+      } as SerializedHorizontalRuleNode,
+      text: ''
+    };
   }
 };
 
@@ -110,16 +105,14 @@ const LIST: KiwimeriLexicalBlockParser = {
   }
 };
 
+/* note: unable to make the difference between a shift-enter (produces linebreak) and enter (produces paragraph) */
 const EMPTY_PARAGRAPH: KiwimeriLexicalBlockParser = {
   name: 'empty_paragraph',
   tokenize: nextBlock => {
     if (nextBlock.match(/^\n+/g)) return '\n';
-    if (nextBlock.match(/^<p [^>]*><\/p>\n+/g)) return endOfBlock(nextBlock);
-    // try catching <p ...>\n</p>\n
-    // const pEl = nextBlock.match(/^<p [^>]*>(.*)\n+<\/p>\n+/g);
-    const pEl = nextBlock.match(/^<p [^>]*>\n+<\/p>\n+/g);
-    if (pEl) {
-      return pEl[0];
+    const emptyP = nextBlock.match(/^<p [^>]*>(\n)*<\/p>\n/g);
+    if (emptyP) {
+      return emptyP[0];
     }
     return null;
   },
@@ -127,21 +120,22 @@ const EMPTY_PARAGRAPH: KiwimeriLexicalBlockParser = {
     const node = baseElementNode('paragraph') as SerializedParagraphNode;
     node.textFormat = 0;
     node.textStyle = '';
-    if (token.match(/^\n+/g) || token.match(/^<p [^>]*><\/p>\n+/g)) {
+    if (token.match(/^<p [^>]*>(\n)*<\/p>\n+/g)) {
       return {
         node,
-        text: ''
+        text: token
       };
     }
-    return null;
+    return {
+      node,
+      text: ''
+    };
   }
 };
 
 export const PARAGRAPH: KiwimeriLexicalBlockParser = {
   name: 'paragraph',
-  tokenize: () => {
-    return null;
-  },
+  tokenize: nextBlock => endOfBlock(nextBlock, true),
   parse: token => {
     const node = baseElementNode('paragraph') as SerializedParagraphNode;
     node.textFormat = 0;
@@ -158,5 +152,6 @@ export const ALL_BLOCKS: KiwimeriLexicalBlockParser[] = [
   QUOTE,
   HRULE,
   LIST,
-  EMPTY_PARAGRAPH
+  EMPTY_PARAGRAPH,
+  PARAGRAPH
 ];

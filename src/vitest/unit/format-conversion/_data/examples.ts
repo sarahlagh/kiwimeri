@@ -10,8 +10,7 @@ export const examples = [
   // { name: 'nested-lists' }
   { name: 'text-align' },
   { name: 'escaped' },
+  { name: 'empty-blocks' },
   // // { name: 'links' },
-  {
-    name: 'everything'
-  }
+  { name: 'everything' }
 ];

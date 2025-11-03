@@ -66,7 +66,7 @@ describe('format conversion service', () => {
         );
         const lexical = formatterService.getLexicalFromMarkdown(markdown);
 
-        // TODO we don't care about getting the exact lexical back
+        // direction is a mess to predict, exclude from comparison
         const expectedObj = JSON.parse(json, (key, val) => {
           if (key === 'direction') return 'ltr';
           return val;

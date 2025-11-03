@@ -22,7 +22,7 @@ export class MarkdownLexer extends KiwimeriLexer {
       }
     }
 
-    // the default block: paragraph
+    // shouldn't happen
     return {
       token: this.endOfBlock(nextBlock, true),
       type: 'text',
@@ -76,7 +76,7 @@ export class MarkdownLexer extends KiwimeriLexer {
       }
     }
 
-    // shouldn't happen?
+    // shouldn't happen
     return {
       token: nextText,
       type: 'text'
