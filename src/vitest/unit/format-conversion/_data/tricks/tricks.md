@@ -9,6 +9,8 @@ now this is a block
 </p>
 and the closing line
 
+<p style="text-align: center;"># false heading</p>
+
 a block with a list
 - item 1
 - item 2
