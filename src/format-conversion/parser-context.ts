@@ -44,9 +44,12 @@ export class KiwimeriParserContext {
     lex: KiwimeriLexerResponse;
     node: SerializedLexicalNode | null;
   } | null = null;
-  texts: KiwimeriParserText[] = [];
-  keywords: KiwimeriParserText[] = [];
-  lastKeyword: KiwimeriParserText | null = null;
+  // texts: KiwimeriParserText[] = [];
+  // keywords: KiwimeriParserText[] = [];
+  lastKeyword: {
+    lex: KiwimeriLexerResponse;
+    node: SerializedLexicalNode | null;
+  } | null = null;
   activeFormats: Set<number> = new Set();
   nextText: KiwimeriLexerResponse | null = null;
   paragraphAlign: ElementFormatType | null = null;
@@ -60,9 +63,9 @@ export class KiwimeriParserContext {
       this.blocks = [...oth.blocks];
       this.lastBlock = oth.lastBlock;
       this.elements = [...oth.elements];
-      this.texts = [...oth.texts];
+      // this.texts = [...oth.texts];
       this.lastText = oth.lastText;
-      this.keywords = [...oth.keywords];
+      // this.keywords = [...oth.keywords];
       this.lastKeyword = oth.lastKeyword;
       this.activeFormats = oth.activeFormats;
       this.nextText = oth.nextText;
@@ -78,6 +81,9 @@ export class KiwimeriParserContext {
 
   addElement(lex: KiwimeriLexerResponse, node: SerializedLexicalNode | null) {
     this.elements.push({ lex, node });
+    const keywords = this.elements.filter(el => el.lex.type === 'keyword');
+    this.lastKeyword =
+      keywords.length > 0 ? keywords[keywords.length - 1] : null;
     const nonKeywords = this.elements.filter(el => el.lex.type !== 'keyword');
     this.lastText =
       nonKeywords.length > 0 ? nonKeywords[nonKeywords.length - 1] : null;
@@ -89,12 +95,13 @@ export class KiwimeriParserContext {
   // }
 
   addKeyword(keyword: KiwimeriParserText) {
-    this.keywords.push(keyword);
-    this.lastKeyword = this.keywords[this.keywords.length - 1];
+    // this.keywords.push(keyword);
+    // this.lastKeyword = this.keywords[this.keywords.length - 1];
   }
 
   findKeywordByType(type: string) {
-    return this.keywords.find(k => k.type === type);
+    // return this.keywords.find(k => k.type === type);
+    return '';
   }
 
   addFormat(format: number) {
@@ -136,6 +143,12 @@ export class KiwimeriParserContext {
     );
   }
 
+  propagateToParents(cb: (parentNode: SerializedElementNode) => void) {
+    this.capture.forEach(parent => {
+      cb(parent.node);
+    });
+  }
+
   captureEnds(lexResponse: KiwimeriLexerResponse) {
     return (
       this.getCapture() && this.getCapture()!.parser.captures!(lexResponse)
@@ -155,9 +168,9 @@ export class KiwimeriParserContext {
 
   resetBlock() {
     this.elements = [];
-    this.texts = [];
+    // this.texts = [];
     this.lastText = null;
-    this.keywords = [];
+    // this.keywords = [];
     this.lastKeyword = null;
     this.activeFormats = new Set();
     this.paragraphAlign = null;

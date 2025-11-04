@@ -18,7 +18,6 @@ import {
   KiwimeriParserContext,
   KiwimeriParserText
 } from './parser-context';
-import { ALL_ELEMENTS } from './parsers/markdown-elements';
 
 export type KiwimeriParserError = {
   line: number;
@@ -54,21 +53,18 @@ export abstract class KiwimeriParser {
     opts?: unknown
   ): KiwimeriParserBlockOld;
 
-  private error(ctx: KiwimeriParserContext) {
+  private error(ctx: KiwimeriParserContext): KiwimeriParserError[] {
     const lines = ctx.blocks
       .map(block => block.text.replace(/[^\n]/g, '').length)
       .reduce((a, c) => a + c, 0);
-    return {
-      obj: null,
-      errors: [
-        {
-          line: lines + 1, // TODO check
-          blockPreview: ctx.lastBlock!.text,
-          lastKeyword: ctx.lastKeyword?.token || null,
-          lastText: ctx.lastText?.lex.token || null
-        }
-      ]
-    };
+    return [
+      {
+        line: lines,
+        blockPreview: ctx.lastBlock!.text,
+        lastKeyword: ctx.lastKeyword?.lex.token || null,
+        lastText: ctx.lastText?.lex.token || null
+      }
+    ];
   }
 
   private parseElem(
@@ -135,28 +131,20 @@ export abstract class KiwimeriParser {
     lexer: KiwimeriLexer,
     block: KiwimeriParserBlock,
     ctx: KiwimeriParserContext
-  ) {
+  ): { errors?: KiwimeriParserError[] } {
     ctx = ctx.copy(block);
     while (lexer.nextText(block) !== null) {
       const lexResponse = lexer.consumeText(block);
       if (lexResponse === null) {
-        return this.error(ctx);
+        return { errors: this.error(ctx) };
       }
       ctx.nextText = lexer.nextText(block);
-      if (lexResponse.elemParser) {
-        this.parseElem(lexResponse.elemParser, lexResponse, lexer, ctx);
-      } else {
-        // shouldn't happen? fallback is PLAIN_TEXT
-        for (const elemParser of ALL_ELEMENTS) {
-          if (elemParser.type !== lexResponse.type) continue;
-          if (elemParser.matches && !elemParser.matches(lexResponse.token))
-            continue;
-          this.parseElem(elemParser, lexResponse, lexer, ctx);
-          continue;
-        }
-        // this.parseElem(null, lexResponse, lexer, ctx.copy(block));
+      if (!lexResponse.elemParser) {
+        return { errors: this.error(ctx) };
       }
+      this.parseElem(lexResponse.elemParser, lexResponse, lexer, ctx);
     }
+    return {};
   }
 
   public parse(text: string, opts?: unknown): KiwimeriParserResponse {
@@ -179,7 +167,10 @@ export abstract class KiwimeriParser {
         const block = blockParser.parse(token);
         if (!block) continue;
         if (this.isBlockElementNode(block.node)) {
-          this.handleBlock(lexer, block, ctx);
+          const { errors } = this.handleBlock(lexer, block, ctx);
+          if (errors && errors.length > 0) {
+            return { obj: null, errors };
+          }
         }
         root.children.push(block.node);
         ctx.addBlock(block);
