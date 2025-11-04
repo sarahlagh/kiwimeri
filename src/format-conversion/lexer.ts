@@ -1,10 +1,16 @@
-import { SerializedLexicalNode } from 'lexical';
+import { ElementFormatType, SerializedLexicalNode } from 'lexical';
 import { KiwimeriParserBlock, KiwimeriParserContext } from './parser-context';
 
+type KiwimeriLexicalBlockParserCtx = {
+  paragraphAlign: ElementFormatType;
+};
 export type KiwimeriLexicalBlockParser = {
   name?: string;
   tokenize: (nextBlock: string) => string | null;
-  parse: (token: string) => KiwimeriParserBlock | null;
+  parse: (
+    token: string,
+    ctx?: KiwimeriLexicalBlockParserCtx
+  ) => KiwimeriParserBlock | null;
 };
 
 export type KiwimeriLexicalElementParser = {

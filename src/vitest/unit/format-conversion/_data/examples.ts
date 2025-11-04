@@ -9,6 +9,7 @@ export const examples = [
   { name: 'lists' },
   // { name: 'nested-lists' }
   { name: 'text-align' },
+  { name: 'text-align-propagation' },
   { name: 'escaped' },
   { name: 'empty-blocks' },
   // // { name: 'links' },

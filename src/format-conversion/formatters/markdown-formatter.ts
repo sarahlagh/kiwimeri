@@ -14,37 +14,39 @@ import {
   KiwimeriTransformerCtx
 } from '../formatter';
 
+const paragraphAlignOpeningTag = (ctx: KiwimeriTransformerCtx) => {
+  const format = ctx.elementNode!.format as ElementFormatType;
+  if (format !== '') {
+    return `<p style="text-align: ${format};">`;
+  }
+  return '';
+};
+
+const paragraphAlignClosingTag = (ctx: KiwimeriTransformerCtx) => {
+  const format = ctx.elementNode!.format as ElementFormatType;
+  if (format !== '') {
+    return `</p>`;
+  }
+  return '';
+};
+
 export const MARKDOWN_PARAGRAPH_TRANSFORMER: KiwimeriTransformer = {
   type: 'paragraph',
   preTransform: function (
     fullstr: string,
     ctx: KiwimeriTransformerCtx
   ): string {
-    const format = ctx.elementNode!.format as ElementFormatType;
-    switch (format) {
-      case '':
-        return fullstr;
-      default:
-        return fullstr + `<p style="text-align: ${format};">`;
-    }
+    return fullstr + paragraphAlignOpeningTag(ctx);
   },
   postTransform: function (
     fullstr: string,
     ctx: KiwimeriTransformerCtx
   ): string {
-    const format = ctx.elementNode!.format as ElementFormatType;
-    switch (format) {
-      case '':
-        return (
-          fullstr + `${ctx.elementNode!.children.length > 0 ? '\n\n' : '\n'}`
-        );
-      default:
-        return (
-          fullstr +
-          '</p>' +
-          `${ctx.elementNode!.children.length > 0 ? '\n\n' : '\n'}`
-        );
-    }
+    return (
+      fullstr +
+      paragraphAlignClosingTag(ctx) +
+      `${ctx.elementNode!.children.length > 0 ? '\n\n' : '\n'}`
+    );
   }
 };
 
@@ -126,15 +128,18 @@ export const MARKDOWN_STRIKETHROUGH_TRANSFORMER: KiwimeriTransformer = {
 export const MARKDOWN_HEADING_TRANSFORMER: KiwimeriTransformer = {
   type: 'heading',
   preTransform: function (fullstr: string, ctx: KiwimeriTransformerCtx) {
-    // if ($isHeadingNode(ctx.node))
+    let lvl = 1;
     if ('tag' in ctx.elementNode!) {
-      const lvl = Number((ctx.elementNode.tag as string).slice(1));
-      return '#'.repeat(lvl) + ' ';
+      lvl = Number((ctx.elementNode.tag as string).slice(1));
     }
-    return fullstr + '# ';
+    let paragraphAlign = paragraphAlignOpeningTag(ctx);
+    if (paragraphAlign !== '') {
+      paragraphAlign = `${paragraphAlign}\n`;
+    }
+    return fullstr + paragraphAlign + '#'.repeat(lvl) + ' ';
   },
-  postTransform: function (fullstr: string) {
-    return fullstr + '\n\n';
+  postTransform: function (fullstr: string, ctx: KiwimeriTransformerCtx) {
+    return fullstr + `\n${paragraphAlignClosingTag(ctx)}\n`;
   }
 };
 
@@ -158,26 +163,13 @@ export const MARKDOWN_QUOTE_TRANSFORMER: KiwimeriTransformer = {
     fullstr: string,
     ctx: KiwimeriTransformerCtx
   ): string {
-    const format = ctx.elementNode!.format as ElementFormatType;
-    switch (format) {
-      case '':
-        return fullstr + '> ';
-      default:
-        return fullstr + `> <p style="text-align: ${format};">`;
-    }
+    return fullstr + '> ' + paragraphAlignOpeningTag(ctx);
   },
   postTransform: function (
     fullstr: string,
     ctx: KiwimeriTransformerCtx
   ): string {
-    const format = ctx.elementNode!.format as ElementFormatType;
-    let close = '';
-    switch (format) {
-      case '':
-        break;
-      default:
-        close = '</p>';
-    }
+    const close = paragraphAlignClosingTag(ctx);
     // check if it's the last children
     if (ctx.parent && 'children' in ctx.parent) {
       const parent = ctx.parent as SerializedElementNode;

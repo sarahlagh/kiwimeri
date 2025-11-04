@@ -5,7 +5,11 @@ import {
   SerializedHeadingNode,
   SerializedQuoteNode
 } from '@lexical/rich-text';
-import { SerializedElementNode, SerializedParagraphNode } from 'lexical';
+import {
+  ElementFormatType,
+  SerializedElementNode,
+  SerializedParagraphNode
+} from 'lexical';
 import { KiwimeriLexicalBlockParser } from '../lexer';
 
 const baseElementNode = (type: string): SerializedElementNode => {
@@ -39,18 +43,17 @@ const endOfBlock = (nextBlock: string, strictParagraph = false) => {
   }
 };
 
-// TODO no need for predicates in parse anymore
-
 const HEADING_REGEX = /^(#{1,6})/g;
 const HEADING: KiwimeriLexicalBlockParser = {
   name: 'heading',
   tokenize: nextBlock =>
     nextBlock.match(HEADING_REGEX) ? endOfBlock(nextBlock) : null,
-  parse: token => {
+  parse: (token, ctx) => {
     const heading = token.match(HEADING_REGEX);
     if (heading) {
       const node = baseElementNode('heading') as SerializedHeadingNode;
       node.tag = ('h' + heading[0].length) as HeadingTagType;
+      node.format = ctx?.paragraphAlign || '';
       return { node, text: token.replace(heading[0], '').trimStart() };
     }
     return null;
@@ -133,10 +136,31 @@ const EMPTY_PARAGRAPH: KiwimeriLexicalBlockParser = {
   }
 };
 
+export const getTextAlign = (token: string) => {
+  const textAlign = /text-align: ([a-z]+);/g.exec(token);
+  if (textAlign && textAlign.length > 0) {
+    return textAlign[1] as ElementFormatType;
+  }
+  return '';
+};
+
+const IS_HEADING = /^<p[^>]*>\n(#{1,6} .*\n)<\/p>\n/g;
 export const PARAGRAPH: KiwimeriLexicalBlockParser = {
   name: 'paragraph',
-  tokenize: nextBlock => endOfBlock(nextBlock, true),
+  tokenize: nextBlock => {
+    const isHeading = new RegExp(IS_HEADING).exec(nextBlock);
+    if (isHeading && isHeading.length > 0) {
+      return isHeading[0];
+    }
+    return endOfBlock(nextBlock, true);
+  },
   parse: token => {
+    const isHeading = new RegExp(IS_HEADING).exec(token);
+    if (isHeading && isHeading.length > 0) {
+      return HEADING.parse(isHeading[1], {
+        paragraphAlign: getTextAlign(token)
+      });
+    }
     const node = baseElementNode('paragraph') as SerializedParagraphNode;
     node.textFormat = 0;
     node.textStyle = '';

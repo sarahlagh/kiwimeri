@@ -1,6 +1,5 @@
 import { SerializedListItemNode } from '@lexical/list';
 import {
-  ElementFormatType,
   IS_BOLD,
   IS_ITALIC,
   IS_STRIKETHROUGH,
@@ -9,6 +8,7 @@ import {
   SerializedTextNode
 } from 'lexical';
 import { KiwimeriLexerResponse, KiwimeriLexicalElementParser } from '../lexer';
+import { getTextAlign } from './markdown-blocks';
 
 // const INDENTED_TEXT: KiwimeriLexicalElementParser = {
 //   type: 'text',
@@ -26,7 +26,7 @@ const PLAIN_TEXT: KiwimeriLexicalElementParser = {
       // remove trailing special chars BUT avoid escaped ones dammit
       return endOfText[0].replaceAll(/(\**|_*|~*|<*|\n*)$/g, '');
     }
-    return null;
+    return nextText;
   },
   parse: (token, ctx) => {
     // // if previous text was linebreak in a list, remove indent
@@ -109,9 +109,9 @@ const TEXT_ALIGN: KiwimeriLexicalElementParser = {
   },
   parse: (token, ctx) => {
     if (token.startsWith('<p')) {
-      const textAlign = /text-align: ([a-z]+);/g.exec(token);
-      if (textAlign && textAlign.length > 0) {
-        ctx.paragraphAlign = textAlign[1] as ElementFormatType;
+      const paragraphAlign = getTextAlign(token);
+      if (paragraphAlign !== '') {
+        ctx.paragraphAlign = paragraphAlign;
       }
     }
     if (token === '</p>') {
