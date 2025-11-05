@@ -144,24 +144,41 @@ export const getTextAlign = (token: string) => {
   return '';
 };
 
+// TODO
+const IS_TEXT_ALIGN = /^<p[^>]*>((?:.|\n)*?)<\/p>\n/g;
 const IS_HEADING = /^<p[^>]*>\n(#{1,6} .*\n)<\/p>\n/g;
+const TEXT_ALIGN_BLOCK: KiwimeriLexicalBlockParser = {
+  name: 'text_align_block',
+  tokenize: nextBlock => {
+    const isTextAlign = new RegExp(IS_TEXT_ALIGN).exec(nextBlock);
+    if (isTextAlign && isTextAlign.length > 0) {
+      const isHeading = new RegExp(IS_HEADING).exec(nextBlock);
+      if (isHeading && isHeading.length > 0) {
+        return isHeading[0];
+      }
+    }
+    return null;
+  },
+  parse: token => {
+    const ctx = {
+      paragraphAlign: getTextAlign(token)
+    };
+    const isHeading = new RegExp(IS_HEADING).exec(token);
+    if (isHeading && isHeading.length > 0) {
+      return HEADING.parse(isHeading[1], ctx);
+    }
+    return PARAGRAPH.parse(token, ctx);
+  }
+};
+
 export const PARAGRAPH: KiwimeriLexicalBlockParser = {
   name: 'paragraph',
   tokenize: nextBlock => {
-    const isHeading = new RegExp(IS_HEADING).exec(nextBlock);
-    if (isHeading && isHeading.length > 0) {
-      return isHeading[0];
-    }
     return endOfBlock(nextBlock, true);
   },
-  parse: token => {
-    const isHeading = new RegExp(IS_HEADING).exec(token);
-    if (isHeading && isHeading.length > 0) {
-      return HEADING.parse(isHeading[1], {
-        paragraphAlign: getTextAlign(token)
-      });
-    }
+  parse: (token, ctx) => {
     const node = baseElementNode('paragraph') as SerializedParagraphNode;
+    node.format = ctx?.paragraphAlign || '';
     node.textFormat = 0;
     node.textStyle = '';
     return {
@@ -176,6 +193,7 @@ export const ALL_BLOCKS: KiwimeriLexicalBlockParser[] = [
   QUOTE,
   HRULE,
   LIST,
+  TEXT_ALIGN_BLOCK,
   EMPTY_PARAGRAPH,
   PARAGRAPH
 ];
