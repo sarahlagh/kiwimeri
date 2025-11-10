@@ -16,7 +16,15 @@ const examples = [
   { name: 'quotes-paragraph-break' },
   { name: 'horizontal-rule', alt: true },
   { name: 'horizontal-rule-paragraph-break' },
-  { name: 'lists-unordered' }
+  { name: 'lists-unordered', alt: true },
+  { name: 'lists-unordered-linebreaks', alt: true },
+  { name: 'lists-ordered', alt: true },
+  { name: 'lists-ordered-linebreaks', alt: true },
+  { name: 'lists-paragraph-break' }
+  // { name: 'links-manual-with-title' },
+  // { name: 'links-manual-without-title' },
+  // { name: 'links-autolink' },
+  // { name: 'links-autolink-disabled' }
 ];
 
 describe('format conversion service', () => {

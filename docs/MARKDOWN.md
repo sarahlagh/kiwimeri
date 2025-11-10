@@ -363,7 +363,12 @@ item 2
 
 ```
 
-The `-` **must** be followed by a space. A single `-` will not result in a `listitem` block.
+The `-` may be followed by a space. A single `-` will still result in a `listitem` block:
+
+```
+-item 1
+-item 2
+```
 
 ## Ordered Lists
 
@@ -392,6 +397,26 @@ The order is calculated when parsing from Markdown to Lexical, which means incor
 ```
 
 The `1.` **must** be followed by a space. A single `1.` will not result in a `listitem` block.
+
+## Unordered and Ordered Lists Mix
+
+Mixing both is not allowed without a `\n\n` block separation.
+
+```
+- this
+1. will result in a malformed list
+```
+
+```
+1. this
+- will result in a malformed list
+```
+
+```
+- this is ok
+
+1. this is ok
+```
 
 ## Text-Align
 

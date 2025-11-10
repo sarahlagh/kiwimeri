@@ -39,7 +39,7 @@ const PLAIN_TEXT: KiwimeriLexicalElementParser = {
       token = token.trimStart();
     }
     // unescape
-    token = token.replaceAll(/\\([*_~<#>])/g, '$1');
+    token = token.replaceAll(/\\([*_~<#>-])/g, '$1');
     const textNode: SerializedTextNode = {
       type: 'text',
       text: token,
@@ -126,7 +126,7 @@ const UNORDERED_LIST_ITEM: KiwimeriLexicalElementParser = {
   type: 'keyword',
   tokenize: (nextText, block, isStartOfLine) => {
     const unorderedList = nextText.match(/^- ?/g);
-    if (unorderedList && isStartOfLine && block.text.startsWith('- ')) {
+    if (unorderedList && isStartOfLine && block.text.startsWith('-')) {
       return unorderedList[0];
     }
     return null;

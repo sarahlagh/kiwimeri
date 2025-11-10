@@ -96,7 +96,7 @@ export abstract class KiwimeriParser {
         ctx.getParentCapture(currentBlock);
 
       // propagate text format to parent
-      // TODO weird, shouldn't be here
+      // TODO weird, shouldn't be here?
       if (parentParser?.propagateTextFormat) {
         const propagateTextFormat = (parent.children[0] as SerializedTextNode)
           ?.format;
@@ -106,9 +106,6 @@ export abstract class KiwimeriParser {
           (currentBlock.node as SerializedElementNode).textFormat =
             propagateTextFormat;
         }
-        // ctx.propagate(parent => {
-        //   parent.textFormat = propagateTextFormat;
-        // });
       }
       // set text-align
       //  // paragraph alignment propagation for next text

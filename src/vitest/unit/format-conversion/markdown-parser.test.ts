@@ -1,5 +1,6 @@
 import formatterService from '@/format-conversion/formatter.service';
 import { MarkdownParser } from '@/format-conversion/parsers/markdown-parser';
+import { SerializedListNode } from '@lexical/list';
 import { readFile } from 'fs/promises';
 import { SerializedElementNode, SerializedTextNode } from 'lexical';
 import { describe, it } from 'vitest';
@@ -175,6 +176,9 @@ describe('parser', () => {
       expect((paragraph.children[0] as SerializedTextNode).text).toBe(
         '# this is not a heading'
       );
+      expect(
+        formatterService.getMarkdownFromLexical(JSON.stringify(resp.obj))
+      ).toBe('\\# this is not a heading\n\n');
     });
 
     it(`should handle text formatting`, () => {
@@ -243,6 +247,9 @@ describe('parser', () => {
       expect((paragraph.children[0] as SerializedTextNode).text).toBe(
         '> this is not a quote'
       );
+      expect(
+        formatterService.getMarkdownFromLexical(JSON.stringify(resp.obj))
+      ).toBe('\\> this is not a quote\n\n');
     });
 
     it(`should handle text formatting`, () => {
@@ -339,4 +346,104 @@ describe('parser', () => {
       expect(resp.obj!.root.children[1].type).toBe('horizontalrule');
     });
   });
+
+  describe(`should parse list blocks`, () => {
+    it(`an escaped - will not result in a listitem`, () => {
+      const parser = new MarkdownParser();
+      const resp = parser.parse('\\- this is not a list');
+      expect(resp.errors).toBeUndefined();
+      expect(resp.obj).toBeDefined();
+      expect(resp.obj!.root).toBeDefined();
+      expect(resp.obj!.root.children).toHaveLength(1);
+      expect(resp.obj!.root.children[0].type).toBe('paragraph');
+      const paragraph = resp.obj!.root.children[0] as SerializedElementNode;
+      expect(paragraph.children).toHaveLength(1);
+      expect((paragraph.children[0] as SerializedTextNode).text).toBe(
+        '- this is not a list'
+      );
+      expect(
+        formatterService.getMarkdownFromLexical(JSON.stringify(resp.obj))
+      ).toBe('\\- this is not a list\n\n');
+    });
+
+    it(`a number dot not followed by space will not result in a listitem`, () => {
+      const parser = new MarkdownParser();
+      const resp = parser.parse('1.this is not a list');
+      expect(resp.errors).toBeUndefined();
+      expect(resp.obj).toBeDefined();
+      expect(resp.obj!.root).toBeDefined();
+      expect(resp.obj!.root.children).toHaveLength(1);
+      expect(resp.obj!.root.children[0].type).toBe('paragraph');
+      const paragraph = resp.obj!.root.children[0] as SerializedElementNode;
+      expect(paragraph.children).toHaveLength(1);
+      expect((paragraph.children[0] as SerializedTextNode).text).toBe(
+        '1.this is not a list'
+      );
+    });
+
+    it(`a - 1. mix will result in a malformed list`, () => {
+      const parser = new MarkdownParser();
+      const resp = parser.parse('- this is\n1. a malformed list');
+      expect(resp.errors).toBeUndefined();
+      expect(resp.obj).toBeDefined();
+      expect(resp.obj!.root).toBeDefined();
+      expect(resp.obj!.root.children).toHaveLength(1);
+      expect(resp.obj!.root.children[0].type).toBe('list');
+      const list = resp.obj!.root.children[0] as SerializedListNode;
+      expect(list.listType).toBe('bullet');
+      expect(list.children).toHaveLength(1);
+      const listitem1 = list.children[0] as SerializedElementNode;
+      expect((listitem1.children[0] as SerializedTextNode).text).toBe(
+        'this is'
+      );
+      expect((listitem1.children[1] as SerializedTextNode).text).toBe(
+        '1. a malformed list'
+      );
+    });
+
+    it(`a 1. - mix will result in a malformed list`, () => {
+      const parser = new MarkdownParser();
+      const resp = parser.parse('1. this is\n- a malformed list');
+      expect(resp.errors).toBeUndefined();
+      expect(resp.obj).toBeDefined();
+      expect(resp.obj!.root).toBeDefined();
+      expect(resp.obj!.root.children).toHaveLength(1);
+      expect(resp.obj!.root.children[0].type).toBe('list');
+      const list = resp.obj!.root.children[0] as SerializedListNode;
+      expect(list.listType).toBe('number');
+      expect(list.children).toHaveLength(1);
+      const listitem1 = list.children[0] as SerializedElementNode;
+      expect((listitem1.children[0] as SerializedTextNode).text).toBe(
+        'this is'
+      );
+      expect((listitem1.children[1] as SerializedTextNode).text).toBe(
+        '- a malformed list'
+      );
+    });
+
+    it(`should handle text formatting`, () => {
+      const parser = new MarkdownParser();
+      const resp = parser.parse(
+        '- first line with **bold** text\n  multiline with *italic* text\n- second ~~line~~'
+      );
+      expect(resp.errors).toBeUndefined();
+      expect(resp.obj).toBeDefined();
+      expect(resp.obj!.root).toBeDefined();
+      expect(resp.obj!.root.children).toHaveLength(1);
+      expect(resp.obj!.root.children[0].type).toBe('list');
+      const list = resp.obj!.root.children[0] as SerializedElementNode;
+      expect(list.children).toHaveLength(2);
+      const listitem1 = list.children[0] as SerializedElementNode;
+      const listitem2 = list.children[1] as SerializedElementNode;
+      expect(listitem1.children).toHaveLength(7);
+      expect(listitem2.children).toHaveLength(2);
+      expect(
+        formatterService.getMarkdownFromLexical(JSON.stringify(resp.obj))
+      ).toBe(
+        '- first line with **bold** text\n  multiline with *italic* text\n- second ~~line~~\n\n'
+      );
+    });
+  });
+
+  // TODO links with text format
 });

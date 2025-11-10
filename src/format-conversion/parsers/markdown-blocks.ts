@@ -116,15 +116,15 @@ const HRULE: KiwimeriLexicalBlockParser = {
 };
 
 const LIST_PREDICATE = (token: string) =>
-  token.startsWith('- ') || token.match(/^\d+\. /g);
+  token.match(/^-{1}/g) || token.match(/^\d+\. /g);
 const LIST: KiwimeriLexicalBlockParser = {
   name: 'list',
   tokenize: nextBlock =>
     LIST_PREDICATE(nextBlock) ? endOfBlock(nextBlock, true) : null,
   parse: text => {
     const node = baseElementNode('list') as SerializedListNode;
-    node.tag = text.startsWith('- ') ? 'ul' : 'ol';
-    node.listType = text.startsWith('- ') ? 'bullet' : 'number';
+    node.tag = text.startsWith('-') ? 'ul' : 'ol';
+    node.listType = text.startsWith('-') ? 'bullet' : 'number';
     node.start = 1;
     return {
       node,
