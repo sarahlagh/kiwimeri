@@ -3,7 +3,7 @@ import { SerializedElementNode, SerializedLexicalNode } from 'lexical';
 export type KiwimeriTransformerCtx = {
   node: SerializedLexicalNode;
   elementNode?: SerializedElementNode;
-  parent: SerializedLexicalNode | null;
+  parent: SerializedElementNode | null;
   indexInParent: number;
   indexInLine: number;
 };
@@ -32,7 +32,7 @@ export abstract class KiwimeriFormatter {
   constructor(protected transformers: KiwimeriTransformer[]) {}
 
   public parseLexNode(
-    parent: SerializedLexicalNode | null,
+    parent: SerializedElementNode | null,
     indexInParent: number,
     indexInLine: number,
     node: SerializedLexicalNode,

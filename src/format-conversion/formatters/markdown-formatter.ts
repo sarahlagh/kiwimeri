@@ -15,17 +15,23 @@ import {
 } from '../formatter';
 
 const paragraphAlignOpeningTag = (ctx: KiwimeriTransformerCtx) => {
-  const format = ctx.elementNode!.format as ElementFormatType;
-  if (format !== '') {
-    return `<p style="text-align: ${format};">`;
+  const blockNode = ctx.elementNode ? ctx.elementNode : ctx.parent;
+  if (blockNode) {
+    const format = blockNode.format as ElementFormatType;
+    if (format !== '') {
+      return `<p style="text-align: ${format};">`;
+    }
   }
   return '';
 };
 
 const paragraphAlignClosingTag = (ctx: KiwimeriTransformerCtx) => {
-  const format = ctx.elementNode!.format as ElementFormatType;
-  if (format !== '') {
-    return `</p>`;
+  const blockNode = ctx.elementNode ? ctx.elementNode : ctx.parent;
+  if (blockNode) {
+    const format = blockNode.format as ElementFormatType;
+    if (format !== '') {
+      return `</p>`;
+    }
   }
   return '';
 };
@@ -136,7 +142,10 @@ export const MARKDOWN_HEADING_TEXT_TRANSFORMER: KiwimeriTransformer = {
     if ('tag' in ctx.parent!) {
       lvl = Number((ctx.parent.tag as string).slice(1));
     }
-    return '#'.repeat(lvl) + ' ' + text;
+    return (
+      '#'.repeat(lvl) +
+      ` ${paragraphAlignOpeningTag(ctx)}${text}${paragraphAlignClosingTag(ctx)}`
+    );
   }
 };
 
@@ -145,9 +154,6 @@ export const MARKDOWN_HEADING_TRANSFORMER: KiwimeriTransformer = {
   postTransform: function (fullstr: string) {
     return fullstr + '\n\n';
   }
-  // postTransform: function (fullstr: string, ctx: KiwimeriTransformerCtx) {
-  //   return fullstr + `\n${paragraphAlignClosingTag(ctx)}\n`;
-  // }
 };
 
 export const MARKDOWN_LINEBREAK_TRANSFORMER: KiwimeriTransformer = {
@@ -225,16 +231,17 @@ export const MARKDOWN_LIST_TRANSFORMERS: KiwimeriTransformer[] = [
         const listType = parent.listType as ListType;
         switch (listType) {
           case 'bullet':
-          default:
-            return fullstr + '- ';
+            return fullstr + '- ' + paragraphAlignOpeningTag(ctx);
           case 'number':
-            return fullstr + `${value}. `;
+            return fullstr + `${value}. ` + paragraphAlignOpeningTag(ctx);
+          case 'check':
+            return fullstr + '- [ ]' + paragraphAlignOpeningTag(ctx); // TODO
         }
       }
       return fullstr + '- ';
     },
-    postTransform(fullstr) {
-      return fullstr + '\n';
+    postTransform(fullstr, ctx) {
+      return fullstr + paragraphAlignClosingTag(ctx) + '\n';
     }
   },
   {

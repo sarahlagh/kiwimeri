@@ -9,23 +9,33 @@ const examples = [
   { name: 'paragraph' },
   { name: 'paragraph-linebreaks' },
   { name: 'paragraph-empty' },
+  { name: 'paragraph-text-align' },
+  { name: 'paragraph-text-align-linebreaks' },
   { name: 'headings' },
   { name: 'headings-linebreaks' },
+  { name: 'headings-text-align' },
+  { name: 'headings-text-align-linebreaks', alt: true },
   { name: 'quotes', alt: true },
   { name: 'quotes-linebreaks', alt: true },
   { name: 'quotes-paragraph-break' },
+  { name: 'quotes-text-align' },
   { name: 'horizontal-rule', alt: true },
   { name: 'horizontal-rule-paragraph-break' },
   { name: 'lists-unordered', alt: true },
   { name: 'lists-unordered-linebreaks', alt: true },
   { name: 'lists-ordered', alt: true },
   { name: 'lists-ordered-linebreaks', alt: true },
-  { name: 'lists-paragraph-break' }
+  { name: 'lists-paragraph-break' },
+  { name: 'lists-text-align' }
   // { name: 'links-manual-with-title' },
   // { name: 'links-manual-without-title' },
   // { name: 'links-autolink' },
   // { name: 'links-autolink-disabled' }
 ];
+
+// TODO test text-align empty paragraphs
+// TODO test escaped chars
+// TODO test error non-escaped chars
 
 describe('format conversion service', () => {
   describe('should generate plaintext from lexical', () => {

@@ -470,6 +470,22 @@ root
 test
 ```
 
+The sequence `<p ...></p>` may be anywhere within a block. These will all result with the same center-aligned paragraph:
+
+```
+<p style="text-align: center;">centered</p> and other text
+```
+
+```
+<p style="text-align: center;">centered</p>
+and other text
+```
+
+```
+centered
+<p style="text-align: center;">and other text</p>
+```
+
 ### In headings, quotes and lists
 
 The markings of `heading`, `quote` and `list` take precedence:
@@ -490,6 +506,29 @@ root
 ```
 # <p style="text-align: center;">some header</p>
 # <p style="text-align: center;">second line</p>
+```
+
+On parsing a multiline header, in case of conflicting properties on each line, **the last is taken into account**.
+
+This will result in a right-aligned header:
+
+```
+# <p style="text-align: center;">some header</p>
+# <p style="text-align: right;">second line</p>
+```
+
+This will result in a center-aligned header:
+
+```
+# some header
+# <p style="text-align: center;">second line</p>
+```
+
+This will result in a center-aligned header:
+
+```
+# <p style="text-align: center;">some header</p>
+# second line
 ```
 
 #### Quote
@@ -568,31 +607,9 @@ root
 
 ```
 - <p style="text-align: center;">item 1
-multi line</p>
+  multi line</p>
 - item 2
 
-```
-
-There is no special double space in this case.
-
-### Parsing errors
-
-The sequence `</p>` must be followed by two `\n\n`. This is not allowed:
-
-```
-<p style="text-align: center;">centered</p> and other text
-```
-
-```
-<p style="text-align: center;">centered</p>
-and other text
-```
-
-On multi-line `heading`, the same text-align property must be applied. This is not allowed:
-
-```
-# <p style="text-align: center;">some header</p>
-# <p style="text-align: righ;">second line</p>
 ```
 
 ## TODO Not yet supported

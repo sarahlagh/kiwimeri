@@ -15,7 +15,7 @@ export type KiwimeriLexicalBlockParser = {
     text: string,
     ctx: KiwimeriParserContext,
     blockData: unknown
-  ) => string;
+  ) => string | null;
 };
 
 export type KiwimeriLexicalElementParser = {

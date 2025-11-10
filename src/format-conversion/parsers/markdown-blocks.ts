@@ -43,10 +43,10 @@ const endOfBlock = (nextBlock: string, strictParagraph = false) => {
   }
 };
 
-const matches = (text: string, regex: RegExp) => {
+const matches = (text: string, regex: RegExp, group = 0) => {
   const result = [...text.matchAll(regex)];
-  if (result.length > 0) {
-    return result[0][0];
+  if (result.length > 0 && result[0].length > group) {
+    return result[0][group];
   }
   return null;
 };
@@ -69,7 +69,8 @@ const HEADING: KiwimeriLexicalBlockParser = {
   },
   transformChild: (text, ctx, blockData) => {
     const lvl = (blockData as { lvl: number }).lvl;
-    return text.replace('#'.repeat(lvl) + ' ', '');
+    const transformed = text.replace('#'.repeat(lvl) + ' ', '');
+    return transformed.length > 0 ? transformed : null;
   }
 };
 
@@ -180,6 +181,8 @@ export const getTextAlign = (token: string) => {
 // so remove the <p></p> at block level => no element for text align
 // or remove the block, only keep element for text-align -> what i was doing before
 
+// TODO remove KiwimeriLexicalBlockParserCtx 's paragraphAlign?
+
 const IS_TEXT_ALIGN = /^<p[^>]*>((?:.|\n)*?)<\/p>\n\n/g;
 // const IS_TEXT_ALIGN = /^<p[^>]*>((?:.|\n)*?)\n<\/p>\n/g;
 const IS_FALSE_TEXT_ALIGN = /^<p[^>]*>((?:.|\n)*?)<\/p>[^\n]/g;
@@ -188,13 +191,13 @@ const IS_HEADING_TEXT_ALIGN = /^<p[^>]*>\n(#{1,6} .*\n)<\/p>\n/g;
 const TEXT_ALIGN_BLOCK: KiwimeriLexicalBlockParser = {
   name: 'text_align_block',
   tokenize: nextBlock => {
-    const isTextAlign = IS_TEXT_ALIGN.exec(nextBlock);
-    if (isTextAlign && isTextAlign.length > 0) {
-      const isHeading = IS_HEADING_TEXT_ALIGN.exec(nextBlock);
-      if (isHeading && isHeading.length > 0) {
-        return isHeading[0];
+    const isTextAlign = matches(nextBlock, IS_TEXT_ALIGN);
+    if (isTextAlign) {
+      const isHeading = matches(nextBlock, IS_HEADING_TEXT_ALIGN);
+      if (isHeading) {
+        return isHeading;
       }
-      return isTextAlign[0];
+      return isTextAlign;
     }
     return null;
   },
@@ -202,13 +205,13 @@ const TEXT_ALIGN_BLOCK: KiwimeriLexicalBlockParser = {
     const ctx = {
       paragraphAlign: getTextAlign(token)
     };
-    const isHeading = IS_HEADING_TEXT_ALIGN.exec(token);
-    if (isHeading && isHeading.length > 0) {
-      return HEADING.parse(isHeading[1], ctx);
+    const isHeading = matches(token, IS_HEADING_TEXT_ALIGN);
+    if (isHeading) {
+      return HEADING.parse(isHeading, ctx);
     }
-    const isTextAlign = IS_TEXT_ALIGN.exec(token);
-    if (isTextAlign && isTextAlign.length > 0) {
-      return PARAGRAPH.parse(isTextAlign[1], ctx);
+    const isTextAlign = matches(token, IS_TEXT_ALIGN, 1);
+    if (isTextAlign) {
+      return PARAGRAPH.parse(isTextAlign, ctx);
     }
     return PARAGRAPH.parse(token, ctx);
   }
@@ -236,7 +239,7 @@ export const ALL_BLOCKS: KiwimeriLexicalBlockParser[] = [
   QUOTE,
   HRULE,
   LIST,
-  TEXT_ALIGN_BLOCK,
+  // TEXT_ALIGN_BLOCK,
   EMPTY_PARAGRAPH,
   PARAGRAPH
 ];

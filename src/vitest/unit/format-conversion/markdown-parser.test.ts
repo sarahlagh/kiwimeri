@@ -445,5 +445,116 @@ describe('parser', () => {
     });
   });
 
+  describe(`should parse text-align property`, () => {
+    it(`text-align is always on a block and not text`, () => {
+      const parser = new MarkdownParser();
+      const resp = parser.parse(
+        '<p style="text-align: center;">text</p> and text'
+      );
+      expect(resp.errors).toBeUndefined();
+      expect(resp.obj).toBeDefined();
+      expect(resp.obj!.root).toBeDefined();
+      expect(resp.obj!.root.children).toHaveLength(1);
+      expect(resp.obj!.root.children[0].type).toBe('paragraph');
+      const paragraph = resp.obj!.root.children[0] as SerializedElementNode;
+      expect(paragraph.format === 'center');
+      expect((paragraph.children[0] as SerializedTextNode).text).toBe('text');
+      expect((paragraph.children[1] as SerializedTextNode).text).toBe(
+        ' and text'
+      );
+    });
+
+    it(`text-align can be anywhere in a block`, () => {
+      const parser = new MarkdownParser();
+      const resp = parser.parse(
+        'a paragraph\n<p style="text-align: center;">multiline</p>'
+      );
+      expect(resp.errors).toBeUndefined();
+      expect(resp.obj).toBeDefined();
+      expect(resp.obj!.root).toBeDefined();
+      expect(resp.obj!.root.children).toHaveLength(1);
+      expect(resp.obj!.root.children[0].type).toBe('paragraph');
+      const paragraph = resp.obj!.root.children[0] as SerializedElementNode;
+      expect(paragraph.format === 'center');
+      expect((paragraph.children[0] as SerializedTextNode).text).toBe(
+        'a paragraph'
+      );
+      expect(paragraph.children[1].type).toBe('linebreak');
+      expect((paragraph.children[2] as SerializedTextNode).text).toBe(
+        'multiline'
+      );
+    });
+
+    it(`should take the last text-align in a block`, () => {
+      const parser = new MarkdownParser();
+      const resp = parser.parse(
+        'a paragraph\n<p style="text-align: center;">multiline</p>\n<p style="text-align: right;">conflict</p>'
+      );
+      expect(resp.errors).toBeUndefined();
+      expect(resp.obj).toBeDefined();
+      expect(resp.obj!.root).toBeDefined();
+      expect(resp.obj!.root.children).toHaveLength(1);
+      expect(resp.obj!.root.children[0].type).toBe('paragraph');
+      const paragraph = resp.obj!.root.children[0] as SerializedElementNode;
+      expect(paragraph.format === 'right');
+      expect((paragraph.children[0] as SerializedTextNode).text).toBe(
+        'a paragraph'
+      );
+      expect(paragraph.children[1].type).toBe('linebreak');
+      expect((paragraph.children[2] as SerializedTextNode).text).toBe(
+        'multiline'
+      );
+      expect(paragraph.children[3].type).toBe('linebreak');
+      expect((paragraph.children[4] as SerializedTextNode).text).toBe(
+        'conflict'
+      );
+    });
+
+    it(`should take the last text-align in a multiline header`, () => {
+      const parser = new MarkdownParser();
+      const resp = parser.parse(
+        '# <p style="text-align: center;">some header</p>\n# <p style="text-align: right;">second line</p>'
+      );
+      expect(resp.errors).toBeUndefined();
+      expect(resp.obj).toBeDefined();
+      expect(resp.obj!.root).toBeDefined();
+      expect(resp.obj!.root.children).toHaveLength(1);
+      expect(resp.obj!.root.children[0].type).toBe('heading');
+      const heading = resp.obj!.root.children[0] as SerializedElementNode;
+      expect(heading.format === 'right');
+    });
+
+    it(`should take the last text-align in a multiline header even if nothing on the first`, () => {
+      const parser = new MarkdownParser();
+      const resp = parser.parse(
+        '# some header\n# <p style="text-align: right;">second line</p>'
+      );
+      expect(resp.errors).toBeUndefined();
+      expect(resp.obj).toBeDefined();
+      expect(resp.obj!.root).toBeDefined();
+      expect(resp.obj!.root.children).toHaveLength(1);
+      expect(resp.obj!.root.children[0].type).toBe('heading');
+      const heading = resp.obj!.root.children[0] as SerializedElementNode;
+      expect(heading.format === 'right');
+    });
+
+    it(`should parse malformed headers as paragraph`, () => {
+      const parser = new MarkdownParser();
+      const resp = parser.parse(
+        '<p style="text-align: right;"># malformed header</p>'
+      );
+      expect(resp.errors).toBeUndefined();
+      expect(resp.obj).toBeDefined();
+      expect(resp.obj!.root).toBeDefined();
+      expect(resp.obj!.root.children).toHaveLength(1);
+      expect(resp.obj!.root.children[0].type).toBe('paragraph');
+      const heading = resp.obj!.root.children[0] as SerializedElementNode;
+      expect(heading.format === 'right');
+      expect((heading.children[0] as SerializedTextNode).text).toBe(
+        '# malformed header'
+      );
+    });
+  });
+
   // TODO links with text format
 });

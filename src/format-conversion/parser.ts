@@ -75,7 +75,7 @@ export abstract class KiwimeriParser {
     const currentBlock = ctx.lastBlock!;
     ctx.mergeFormat(elemParser?.textFormat);
 
-    let elemToken = lexResponse.token;
+    let elemToken: string | null = lexResponse.token;
     if (ctx.blockParser?.transformChild) {
       elemToken = ctx.blockParser!.transformChild(
         lexResponse.token,
@@ -85,7 +85,7 @@ export abstract class KiwimeriParser {
     }
 
     let newElem: SerializedLexicalNode | null = null;
-    if (elemParser?.parse) {
+    if (elemToken && elemParser?.parse) {
       newElem = elemParser?.parse(elemToken, ctx, lexer);
 
       // context 'captures' allows sub nodes to get the next tokens instead of the block node
