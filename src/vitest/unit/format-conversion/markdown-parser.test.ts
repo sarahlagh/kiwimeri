@@ -1,3 +1,4 @@
+import formatterService from '@/format-conversion/formatter.service';
 import { MarkdownParser } from '@/format-conversion/parsers/markdown-parser';
 import { readFile } from 'fs/promises';
 import { SerializedElementNode, SerializedTextNode } from 'lexical';
@@ -111,7 +112,7 @@ describe('parser', () => {
   });
 
   describe(`should parse heading blocks`, () => {
-    it(`should match the end of content`, async () => {
+    it(`should match the end of content`, () => {
       const parser = new MarkdownParser();
       const resp = parser.parse('# first line');
       expect(resp.errors).toBeUndefined();
@@ -121,7 +122,7 @@ describe('parser', () => {
       expect(resp.obj!.root.children[0].type).toBe('heading');
     });
 
-    it(`a header should start by #'s and a space`, async () => {
+    it(`a header should start by #'s and a space`, () => {
       const parser = new MarkdownParser();
       const resp = parser.parse('#H1 this is not a header but a paragraph\n\n');
       expect(resp.errors).toBeUndefined();
@@ -131,7 +132,7 @@ describe('parser', () => {
       expect(resp.obj!.root.children[0].type).toBe('paragraph');
     });
 
-    it(`a header should be preceded by \\n\\n`, async () => {
+    it(`a header should be preceded by \\n\\n`, () => {
       const parser = new MarkdownParser();
       const resp = parser.parse(
         'this will produce a single paragraph with # left in text\n# H1'
@@ -146,7 +147,7 @@ describe('parser', () => {
       expect((paragraph.children[2] as SerializedTextNode).text).toBe('# H1');
     });
 
-    it(`a header should end with \\n\\n`, async () => {
+    it(`a header should end with \\n\\n`, () => {
       const parser = new MarkdownParser();
       const resp = parser.parse('# H1\nthis will be part of the heading too');
       expect(resp.errors).toBeUndefined();
@@ -161,7 +162,7 @@ describe('parser', () => {
       );
     });
 
-    it(`an escaped # will not result in a heading`, async () => {
+    it(`an escaped # will not result in a heading`, () => {
       const parser = new MarkdownParser();
       const resp = parser.parse('\\# this is not a heading');
       expect(resp.errors).toBeUndefined();
@@ -175,10 +176,38 @@ describe('parser', () => {
         '# this is not a heading'
       );
     });
+
+    it(`should handle text formatting`, () => {
+      const parser = new MarkdownParser();
+      const resp = parser.parse(
+        '# first line with **bold** text\n# multiline with *italic* text'
+      );
+      expect(resp.errors).toBeUndefined();
+      expect(resp.obj).toBeDefined();
+      expect(resp.obj!.root).toBeDefined();
+      expect(resp.obj!.root.children).toHaveLength(1);
+      expect(resp.obj!.root.children[0].type).toBe('heading');
+      const heading = resp.obj!.root.children[0] as SerializedElementNode;
+      expect(heading.children).toHaveLength(7);
+      expect(heading.children.map(c => c.type)).toEqual([
+        'text',
+        'text',
+        'text',
+        'linebreak',
+        'text',
+        'text',
+        'text'
+      ]);
+      expect(
+        formatterService.getMarkdownFromLexical(JSON.stringify(resp.obj))
+      ).toBe(
+        '# first line with **bold** text\n# multiline with *italic* text\n\n'
+      );
+    });
   });
 
   describe(`should parse quote blocks`, () => {
-    it(`should match the end of content`, async () => {
+    it(`should match the end of content`, () => {
       const parser = new MarkdownParser();
       const resp = parser.parse('> first line\n');
       expect(resp.errors).toBeUndefined();
@@ -191,7 +220,7 @@ describe('parser', () => {
       expect((quote.children[0] as SerializedTextNode).text).toBe('first line');
     });
 
-    it(`a quote should start by > and a space`, async () => {
+    it(`a quote should start by > and a space`, () => {
       const parser = new MarkdownParser();
       const resp = parser.parse('>this is not a quote but a paragraph\n\n');
       expect(resp.errors).toBeUndefined();
@@ -201,7 +230,7 @@ describe('parser', () => {
       expect(resp.obj!.root.children[0].type).toBe('paragraph');
     });
 
-    it(`an escaped > will not result in a quote`, async () => {
+    it(`an escaped > will not result in a quote`, () => {
       const parser = new MarkdownParser();
       const resp = parser.parse('\\> this is not a quote');
       expect(resp.errors).toBeUndefined();
@@ -215,10 +244,40 @@ describe('parser', () => {
         '> this is not a quote'
       );
     });
+
+    it(`should handle text formatting`, () => {
+      const parser = new MarkdownParser();
+      const resp = parser.parse(
+        '> first line with **bold** text\n  multiline with *italic* text'
+      );
+      expect(resp.errors).toBeUndefined();
+      expect(resp.obj).toBeDefined();
+      expect(resp.obj!.root).toBeDefined();
+      expect(resp.obj!.root.children).toHaveLength(1);
+      expect(resp.obj!.root.children[0].type).toBe('quote');
+      const heading = resp.obj!.root.children[0] as SerializedElementNode;
+      expect(heading.children).toHaveLength(7);
+      expect(heading.children.map(c => c.type)).toEqual([
+        'text',
+        'text',
+        'text',
+        'linebreak',
+        'text',
+        'text',
+        'text'
+      ]);
+      expect((heading.children[2] as SerializedTextNode).text).toBe(' text');
+      expect((heading.children[6] as SerializedTextNode).text).toBe(' text');
+      expect(
+        formatterService.getMarkdownFromLexical(JSON.stringify(resp.obj))
+      ).toBe(
+        '> first line with **bold** text\n  multiline with *italic* text\n\n'
+      );
+    });
   });
 
   describe(`should parse horizontal rules`, () => {
-    it(`should match the end of content`, async () => {
+    it(`should match the end of content`, () => {
       const parser = new MarkdownParser();
       const resp = parser.parse('---');
       expect(resp.errors).toBeUndefined();
@@ -228,7 +287,7 @@ describe('parser', () => {
       expect(resp.obj!.root.children[0].type).toBe('horizontalrule');
     });
 
-    it(`a hrule should be preceded by \\n\\n`, async () => {
+    it(`a hrule should be preceded by \\n\\n`, () => {
       const parser = new MarkdownParser();
       const resp = parser.parse(
         'this will produce a single paragraph with --- left in text\n---'
@@ -243,7 +302,7 @@ describe('parser', () => {
       expect((paragraph.children[2] as SerializedTextNode).text).toBe('---');
     });
 
-    it(`a hrule should end with \\n or \\n\\n`, async () => {
+    it(`a hrule should end with \\n or \\n\\n`, () => {
       const parser = new MarkdownParser();
       const resp = parser.parse('---\nthis will be a paragraph');
       expect(resp.errors).toBeUndefined();
@@ -258,7 +317,7 @@ describe('parser', () => {
       );
     });
 
-    it(`two adjacent hrules may be separated by \\n\\n`, async () => {
+    it(`two adjacent hrules may be separated by \\n\\n`, () => {
       const parser = new MarkdownParser();
       const resp = parser.parse('---\n\n---');
       expect(resp.errors).toBeUndefined();
@@ -269,7 +328,7 @@ describe('parser', () => {
       expect(resp.obj!.root.children[1].type).toBe('horizontalrule');
     });
 
-    it(`two adjacent hrules may be separated by \\n`, async () => {
+    it(`two adjacent hrules may be separated by \\n`, () => {
       const parser = new MarkdownParser();
       const resp = parser.parse('---\n---');
       expect(resp.errors).toBeUndefined();

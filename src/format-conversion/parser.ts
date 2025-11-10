@@ -79,6 +79,7 @@ export abstract class KiwimeriParser {
     if (ctx.blockParser?.transformChild) {
       elemToken = ctx.blockParser!.transformChild(
         lexResponse.token,
+        ctx,
         currentBlock.blockData
       );
     }
@@ -140,6 +141,8 @@ export abstract class KiwimeriParser {
     ctx: KiwimeriParserContext
   ): { errors?: KiwimeriParserError[] } {
     ctx = ctx.copy(block);
+    ctx.indexInBlock = 0;
+    ctx.indexInLine = 0;
     while (lexer.nextText(block) !== null) {
       const lexResponse = lexer.consumeText(block);
       if (lexResponse === null) {
@@ -148,6 +151,11 @@ export abstract class KiwimeriParser {
       ctx.nextText = lexer.nextText(block);
       if (!lexResponse.elemParser) {
         return { errors: this.error(ctx) };
+      }
+      ctx.indexInBlock++;
+      ctx.indexInLine++;
+      if (lexResponse.token === '\n') {
+        ctx.indexInLine = -1;
       }
       this.parseElem(lexResponse.elemParser, lexResponse, lexer, ctx);
     }

@@ -11,7 +11,11 @@ export type KiwimeriLexicalBlockParser = {
     token: string,
     ctx?: KiwimeriLexicalBlockParserCtx
   ) => KiwimeriParserBlock | null;
-  transformChild?: (text: string, blockData: unknown) => string;
+  transformChild?: (
+    text: string,
+    ctx: KiwimeriParserContext,
+    blockData: unknown
+  ) => string;
 };
 
 export type KiwimeriLexicalElementParser = {

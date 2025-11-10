@@ -4,6 +4,8 @@ export type KiwimeriTransformerCtx = {
   node: SerializedLexicalNode;
   elementNode?: SerializedElementNode;
   parent: SerializedLexicalNode | null;
+  indexInParent: number;
+  indexInLine: number;
 };
 
 export type KiwimeriTransformer = {
@@ -31,18 +33,22 @@ export abstract class KiwimeriFormatter {
 
   public parseLexNode(
     parent: SerializedLexicalNode | null,
+    indexInParent: number,
+    indexInLine: number,
     node: SerializedLexicalNode,
     opts?: unknown
   ) {
+    const ctx: KiwimeriTransformerCtx = {
+      node,
+      parent,
+      indexInParent,
+      indexInLine
+    };
     let text = '';
     const transformers = this.transformers.filter(
       ({ type, handles }) =>
-        type === node.type && (handles ? handles({ node, parent }) : true)
+        type === node.type && (handles ? handles(ctx) : true)
     );
-    const ctx: KiwimeriTransformerCtx = {
-      node,
-      parent
-    };
 
     if ('children' in node) {
       const elementNode = node as SerializedElementNode;
@@ -54,8 +60,12 @@ export abstract class KiwimeriFormatter {
         text,
         opts
       );
-      elementNode.children.forEach(child => {
-        text += this.parseLexNode(elementNode, child, opts);
+      let indexInLine = 0;
+      elementNode.children.forEach((child, idx) => {
+        if (child.type === 'linebreak') {
+          indexInLine = -1;
+        }
+        text += this.parseLexNode(elementNode, idx, indexInLine++, child, opts);
       });
       text = this.applyTransformersOnNode(
         transformers,

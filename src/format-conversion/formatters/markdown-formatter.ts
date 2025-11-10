@@ -129,6 +129,9 @@ export const MARKDOWN_HEADING_TEXT_TRANSFORMER: KiwimeriTransformer = {
   type: 'text',
   handles: (ctx: KiwimeriTransformerCtx) => ctx.parent?.type === 'heading',
   transform: (text: string, ctx: KiwimeriTransformerCtx) => {
+    if (ctx.indexInLine > 0) {
+      return text;
+    }
     let lvl = 1;
     if ('tag' in ctx.parent!) {
       lvl = Number((ctx.parent.tag as string).slice(1));
@@ -165,8 +168,7 @@ export const MARKDOWN_QUOTE_TEXT_TRANSFORMER: KiwimeriTransformer = {
   type: 'text',
   handles: (ctx: KiwimeriTransformerCtx) => ctx.parent?.type === 'quote',
   transform: (text: string, ctx: KiwimeriTransformerCtx) => {
-    const quote = ctx.parent as SerializedElementNode;
-    if (quote.children.length > 1 && quote.children[0] !== ctx.node) {
+    if (ctx.indexInParent > 0 && ctx.indexInLine == 0) {
       return '  ' + text;
     }
     return text;

@@ -64,6 +64,9 @@ export class KiwimeriParserContext {
     parser: KiwimeriLexicalElementParser;
   }[] = [];
 
+  indexInBlock: number = 0;
+  indexInLine: number = 0;
+
   constructor(oth?: KiwimeriParserContext) {
     if (oth) {
       this.blockParser = oth.blockParser;
@@ -78,6 +81,8 @@ export class KiwimeriParserContext {
       this.nextText = oth.nextText;
       this.paragraphAlign = oth.paragraphAlign;
       this.capture = [...oth.capture];
+      this.indexInBlock = oth.indexInBlock;
+      this.indexInLine = oth.indexInLine;
     }
   }
 
@@ -183,6 +188,8 @@ export class KiwimeriParserContext {
     this.activeFormats = new Set();
     this.paragraphAlign = null;
     this.capture = [];
+    this.indexInBlock = 0;
+    this.indexInLine = 0;
   }
 
   copy(currentBlock?: KiwimeriParserBlock) {

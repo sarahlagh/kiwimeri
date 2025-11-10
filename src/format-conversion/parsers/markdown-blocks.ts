@@ -67,7 +67,7 @@ const HEADING: KiwimeriLexicalBlockParser = {
     }
     return null;
   },
-  transformChild: (text, blockData) => {
+  transformChild: (text, ctx, blockData) => {
     const lvl = (blockData as { lvl: number }).lvl;
     return text.replace('#'.repeat(lvl) + ' ', '');
   }
@@ -87,8 +87,11 @@ const QUOTE: KiwimeriLexicalBlockParser = {
       text
     };
   },
-  transformChild: text => {
+  transformChild: (text, ctx) => {
     if (text === '\n') return text;
+    if (ctx.indexInLine > 0) {
+      return text.replace(QUOTE_PREFIX, '');
+    }
     return text.replace(QUOTE_PREFIX, '').trimStart();
   }
 };
