@@ -8,7 +8,7 @@
             "format": 0,
             "mode": "normal",
             "style": "",
-            "text": "This is a paragraph.",
+            "text": "a paragraph above",
             "type": "text",
             "version": 1
           }
@@ -21,6 +21,7 @@
         "textFormat": 0,
         "textStyle": ""
       },
+      { "type": "horizontalrule", "version": 1 },
       {
         "children": [
           {
@@ -28,7 +29,7 @@
             "format": 0,
             "mode": "normal",
             "style": "",
-            "text": "This is another paragraph.",
+            "text": "a paragraph below",
             "type": "text",
             "version": 1
           }

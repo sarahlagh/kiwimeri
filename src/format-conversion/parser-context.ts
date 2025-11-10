@@ -3,7 +3,11 @@ import {
   SerializedElementNode,
   SerializedLexicalNode
 } from 'lexical';
-import { KiwimeriLexerResponse, KiwimeriLexicalElementParser } from './lexer';
+import {
+  KiwimeriLexerResponse,
+  KiwimeriLexicalBlockParser,
+  KiwimeriLexicalElementParser
+} from './lexer';
 
 type KiwimeriParserBlockType =
   | 'paragraph'
@@ -15,6 +19,7 @@ type KiwimeriParserBlockType =
 export type KiwimeriParserBlock = {
   node: SerializedLexicalNode;
   text: string;
+  blockData?: unknown;
 };
 
 export type KiwimeriParserBlockOld = {
@@ -34,6 +39,7 @@ export type KiwimeriParserText = {
 };
 
 export class KiwimeriParserContext {
+  blockParser: KiwimeriLexicalBlockParser | null = null;
   blocks: KiwimeriParserBlock[] = [];
   elements: {
     lex: KiwimeriLexerResponse;
@@ -60,6 +66,7 @@ export class KiwimeriParserContext {
 
   constructor(oth?: KiwimeriParserContext) {
     if (oth) {
+      this.blockParser = oth.blockParser;
       this.blocks = [...oth.blocks];
       this.lastBlock = oth.lastBlock;
       this.elements = [...oth.elements];
@@ -167,6 +174,7 @@ export class KiwimeriParserContext {
   }
 
   resetBlock() {
+    this.blockParser = null;
     this.elements = [];
     // this.texts = [];
     this.lastText = null;

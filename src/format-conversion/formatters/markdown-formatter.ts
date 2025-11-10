@@ -125,22 +125,26 @@ export const MARKDOWN_STRIKETHROUGH_TRANSFORMER: KiwimeriTransformer = {
     genericTextFormatTransform(text, ctx, IS_STRIKETHROUGH, '~~', '~~')
 };
 
+export const MARKDOWN_HEADING_TEXT_TRANSFORMER: KiwimeriTransformer = {
+  type: 'text',
+  handles: (ctx: KiwimeriTransformerCtx) => ctx.parent?.type === 'heading',
+  transform: (text: string, ctx: KiwimeriTransformerCtx) => {
+    let lvl = 1;
+    if ('tag' in ctx.parent!) {
+      lvl = Number((ctx.parent.tag as string).slice(1));
+    }
+    return '#'.repeat(lvl) + ' ' + text;
+  }
+};
+
 export const MARKDOWN_HEADING_TRANSFORMER: KiwimeriTransformer = {
   type: 'heading',
-  preTransform: function (fullstr: string, ctx: KiwimeriTransformerCtx) {
-    let lvl = 1;
-    if ('tag' in ctx.elementNode!) {
-      lvl = Number((ctx.elementNode.tag as string).slice(1));
-    }
-    let paragraphAlign = paragraphAlignOpeningTag(ctx);
-    if (paragraphAlign !== '') {
-      paragraphAlign = `${paragraphAlign}\n`;
-    }
-    return fullstr + paragraphAlign + '#'.repeat(lvl) + ' ';
-  },
-  postTransform: function (fullstr: string, ctx: KiwimeriTransformerCtx) {
-    return fullstr + `\n${paragraphAlignClosingTag(ctx)}\n`;
+  postTransform: function (fullstr: string) {
+    return fullstr + '\n\n';
   }
+  // postTransform: function (fullstr: string, ctx: KiwimeriTransformerCtx) {
+  //   return fullstr + `\n${paragraphAlignClosingTag(ctx)}\n`;
+  // }
 };
 
 export const MARKDOWN_LINEBREAK_TRANSFORMER: KiwimeriTransformer = {
@@ -154,6 +158,18 @@ export const MARKDOWN_HRULE_TRANSFORMER: KiwimeriTransformer = {
   type: 'horizontalrule',
   transform: function (): string {
     return '---\n\n';
+  }
+};
+
+export const MARKDOWN_QUOTE_TEXT_TRANSFORMER: KiwimeriTransformer = {
+  type: 'text',
+  handles: (ctx: KiwimeriTransformerCtx) => ctx.parent?.type === 'quote',
+  transform: (text: string, ctx: KiwimeriTransformerCtx) => {
+    const quote = ctx.parent as SerializedElementNode;
+    if (quote.children.length > 1 && quote.children[0] !== ctx.node) {
+      return '  ' + text;
+    }
+    return text;
   }
 };
 
@@ -252,6 +268,8 @@ export const MARKDOWN_AUTOLINKS_TRANSFORMER: KiwimeriTransformer = {
 
 export const MARKDOWN_TRANSFORMERS: KiwimeriTransformer[] = [
   MARKDOWN_TEXT_TRANSFORMER,
+  MARKDOWN_HEADING_TEXT_TRANSFORMER,
+  MARKDOWN_QUOTE_TEXT_TRANSFORMER,
   MARKDOWN_PARAGRAPH_TRANSFORMER,
   MARKDOWN_BOLD_TRANSFORMER,
   MARKDOWN_ITALIC_TRANSFORMER,

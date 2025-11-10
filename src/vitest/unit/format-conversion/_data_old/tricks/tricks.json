@@ -1,0 +1,163 @@
+{
+  "root": {
+    "type": "root",
+    "version": 1,
+    "direction": "ltr",
+    "format": "",
+    "indent": 0,
+    "children": [
+      {
+        "type": "paragraph",
+        "version": 1,
+        "direction": "ltr",
+        "format": "",
+        "indent": 0,
+        "children": [
+          {
+            "type": "text",
+            "text": "this is a paragraph",
+            "version": 1,
+            "format": 0,
+            "mode": "normal",
+            "style": "",
+            "detail": 0
+          }
+        ],
+        "textFormat": 0,
+        "textStyle": ""
+      },
+      {
+        "type": "paragraph",
+        "version": 1,
+        "direction": "ltr",
+        "format": "center",
+        "indent": 0,
+        "children": [
+          {
+            "type": "text",
+            "text": "~~~",
+            "version": 1,
+            "format": 0,
+            "mode": "normal",
+            "style": "",
+            "detail": 0
+          },
+          { "type": "linebreak", "version": 1 },
+          { "type": "linebreak", "version": 1 },
+          {
+            "type": "text",
+            "text": "this is another paragraph",
+            "version": 1,
+            "format": 0,
+            "mode": "normal",
+            "style": "",
+            "detail": 0
+          }
+        ],
+        "textFormat": 0,
+        "textStyle": ""
+      },
+      {
+        "type": "paragraph",
+        "version": 1,
+        "direction": "ltr",
+        "format": "center",
+        "indent": 0,
+        "children": [
+          {
+            "type": "text",
+            "text": "now this is a block",
+            "version": 1,
+            "format": 0,
+            "mode": "normal",
+            "style": "",
+            "detail": 0
+          },
+          { "type": "linebreak", "version": 1 },
+          {
+            "type": "text",
+            "text": "with text align in the middle",
+            "version": 1,
+            "format": 0,
+            "mode": "normal",
+            "style": "",
+            "detail": 0
+          },
+          { "type": "linebreak", "version": 1 },
+          { "type": "linebreak", "version": 1 },
+          {
+            "type": "text",
+            "text": "and the closing line",
+            "version": 1,
+            "format": 0,
+            "mode": "normal",
+            "style": "",
+            "detail": 0
+          }
+        ],
+        "textFormat": 0,
+        "textStyle": ""
+      },
+      {
+        "type": "paragraph",
+        "version": 1,
+        "direction": "ltr",
+        "format": "",
+        "indent": 0,
+        "children": [
+          {
+            "type": "text",
+            "text": "a block with a list",
+            "version": 1,
+            "format": 0,
+            "mode": "normal",
+            "style": "",
+            "detail": 0
+          },
+          { "type": "linebreak", "version": 1 },
+          {
+            "type": "text",
+            "text": "- item 1",
+            "version": 1,
+            "format": 0,
+            "mode": "normal",
+            "style": "",
+            "detail": 0
+          },
+          { "type": "linebreak", "version": 1 },
+          {
+            "type": "text",
+            "text": "- item 2",
+            "version": 1,
+            "format": 0,
+            "mode": "normal",
+            "style": "",
+            "detail": 0
+          },
+          { "type": "linebreak", "version": 1 },
+          {
+            "type": "text",
+            "text": "- item 3",
+            "version": 1,
+            "format": 0,
+            "mode": "normal",
+            "style": "",
+            "detail": 0
+          },
+          { "type": "linebreak", "version": 1 },
+          {
+            "type": "text",
+            "text": "and the closing line... it's tricky",
+            "version": 1,
+            "format": 0,
+            "mode": "normal",
+            "style": "",
+            "detail": 0
+          }
+        ],
+        "textFormat": 0,
+        "textStyle": ""
+      }
+    ]
+  }
+}

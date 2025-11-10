@@ -43,42 +43,64 @@ const endOfBlock = (nextBlock: string, strictParagraph = false) => {
   }
 };
 
-const HEADING_REGEX = /^(#{1,6})/g;
+const matches = (text: string, regex: RegExp) => {
+  const result = [...text.matchAll(regex)];
+  if (result.length > 0) {
+    return result[0][0];
+  }
+  return null;
+};
+
+const HEADING_REGEX = /^(#{1,6}) /g;
 const HEADING: KiwimeriLexicalBlockParser = {
   name: 'heading',
   tokenize: nextBlock =>
-    nextBlock.match(HEADING_REGEX) ? endOfBlock(nextBlock) : null,
-  parse: (token, ctx) => {
-    const heading = token.match(HEADING_REGEX);
+    nextBlock.match(HEADING_REGEX) ? endOfBlock(nextBlock, true) : null,
+  parse: (text, ctx) => {
+    const heading = matches(text, /^(#{1,6}) /gm);
     if (heading) {
       const node = baseElementNode('heading') as SerializedHeadingNode;
-      node.tag = ('h' + heading[0].length) as HeadingTagType;
+      node.tag = ('h' + (heading.length - 1)) as HeadingTagType;
       node.format = ctx?.paragraphAlign || '';
-      return { node, text: token.replace(heading[0], '').trimStart() };
+      const blockData = { lvl: heading.length - 1 };
+      return { node, text, blockData };
     }
     return null;
+  },
+  transformChild: (text, blockData) => {
+    const lvl = (blockData as { lvl: number }).lvl;
+    return text.replace('#'.repeat(lvl) + ' ', '');
   }
 };
 
-const QUOTE_PREFIX = '>';
+const QUOTE_REGEX = /^> (?:(?:.|\n)*?\n)(?:(?=>)|\n)/g;
+const QUOTE_PREFIX = '> ';
 const QUOTE: KiwimeriLexicalBlockParser = {
   name: 'quote',
   tokenize: nextBlock =>
-    nextBlock.startsWith(QUOTE_PREFIX) ? endOfBlock(nextBlock) : null,
-  parse: token => {
+    matches(nextBlock, QUOTE_REGEX) ||
+    (nextBlock.startsWith(QUOTE_PREFIX) ? nextBlock : null), // catches end of text
+  parse: text => {
     const node = baseElementNode('quote') as SerializedQuoteNode;
     return {
       node,
-      text: token.replace(QUOTE_PREFIX, '').trimStart()
+      text
     };
+  },
+  transformChild: text => {
+    if (text === '\n') return text;
+    return text.replace(QUOTE_PREFIX, '').trimStart();
   }
 };
 
 const HRULE_PREFIX = '---';
+const HRULE_PREFIX_ALT = '***';
 const HRULE: KiwimeriLexicalBlockParser = {
   name: 'hrule',
   tokenize: nextBlock =>
-    nextBlock.startsWith(HRULE_PREFIX) ? endOfBlock(nextBlock) : null,
+    nextBlock.startsWith(HRULE_PREFIX) || nextBlock.startsWith(HRULE_PREFIX_ALT)
+      ? endOfBlock(nextBlock)
+      : null,
   parse: () => {
     return {
       node: {
@@ -96,14 +118,14 @@ const LIST: KiwimeriLexicalBlockParser = {
   name: 'list',
   tokenize: nextBlock =>
     LIST_PREDICATE(nextBlock) ? endOfBlock(nextBlock, true) : null,
-  parse: token => {
+  parse: text => {
     const node = baseElementNode('list') as SerializedListNode;
-    node.tag = token.startsWith('- ') ? 'ul' : 'ol';
-    node.listType = token.startsWith('- ') ? 'bullet' : 'number';
+    node.tag = text.startsWith('- ') ? 'ul' : 'ol';
+    node.listType = text.startsWith('- ') ? 'bullet' : 'number';
     node.start = 1;
     return {
       node,
-      text: token
+      text
     };
   }
 };
@@ -119,14 +141,14 @@ const EMPTY_PARAGRAPH: KiwimeriLexicalBlockParser = {
     }
     return null;
   },
-  parse: token => {
+  parse: text => {
     const node = baseElementNode('paragraph') as SerializedParagraphNode;
     node.textFormat = 0;
     node.textStyle = '';
-    if (token.match(/^<p [^>]*>(\n)*<\/p>\n+/g)) {
+    if (text.match(/^<p [^>]*>(\n)*<\/p>\n+/g)) {
       return {
         node,
-        text: token
+        text
       };
     }
     return {
@@ -145,17 +167,31 @@ export const getTextAlign = (token: string) => {
 };
 
 // TODO
-const IS_TEXT_ALIGN = /^<p[^>]*>((?:.|\n)*?)<\/p>\n/g;
-const IS_HEADING = /^<p[^>]*>\n(#{1,6} .*\n)<\/p>\n/g;
+// so if \n</p> -> \n and </p> counts as </p>
+// if not (inline </p>) -> \n\n
+// and then there's quotes => > <p ...></p>
+// and lists!!! not handling listitems currently
+// better to handle it all in one place
+// wouldn't it be easier to do ## <p>....</p> for heading...
+
+// so remove the <p></p> at block level => no element for text align
+// or remove the block, only keep element for text-align -> what i was doing before
+
+const IS_TEXT_ALIGN = /^<p[^>]*>((?:.|\n)*?)<\/p>\n\n/g;
+// const IS_TEXT_ALIGN = /^<p[^>]*>((?:.|\n)*?)\n<\/p>\n/g;
+const IS_FALSE_TEXT_ALIGN = /^<p[^>]*>((?:.|\n)*?)<\/p>[^\n]/g;
+const IS_HEADING_TEXT_ALIGN = /^<p[^>]*>\n(#{1,6} .*\n)<\/p>\n/g;
+// const IS_QUOTE_TEXT_ALIGN = /^<p[^>]*>\n(#{1,6} .*\n)<\/p>\n/g;
 const TEXT_ALIGN_BLOCK: KiwimeriLexicalBlockParser = {
   name: 'text_align_block',
   tokenize: nextBlock => {
-    const isTextAlign = new RegExp(IS_TEXT_ALIGN).exec(nextBlock);
+    const isTextAlign = IS_TEXT_ALIGN.exec(nextBlock);
     if (isTextAlign && isTextAlign.length > 0) {
-      const isHeading = new RegExp(IS_HEADING).exec(nextBlock);
+      const isHeading = IS_HEADING_TEXT_ALIGN.exec(nextBlock);
       if (isHeading && isHeading.length > 0) {
         return isHeading[0];
       }
+      return isTextAlign[0];
     }
     return null;
   },
@@ -163,9 +199,13 @@ const TEXT_ALIGN_BLOCK: KiwimeriLexicalBlockParser = {
     const ctx = {
       paragraphAlign: getTextAlign(token)
     };
-    const isHeading = new RegExp(IS_HEADING).exec(token);
+    const isHeading = IS_HEADING_TEXT_ALIGN.exec(token);
     if (isHeading && isHeading.length > 0) {
       return HEADING.parse(isHeading[1], ctx);
+    }
+    const isTextAlign = IS_TEXT_ALIGN.exec(token);
+    if (isTextAlign && isTextAlign.length > 0) {
+      return PARAGRAPH.parse(isTextAlign[1], ctx);
     }
     return PARAGRAPH.parse(token, ctx);
   }
@@ -176,14 +216,14 @@ export const PARAGRAPH: KiwimeriLexicalBlockParser = {
   tokenize: nextBlock => {
     return endOfBlock(nextBlock, true);
   },
-  parse: (token, ctx) => {
+  parse: (text, ctx) => {
     const node = baseElementNode('paragraph') as SerializedParagraphNode;
     node.format = ctx?.paragraphAlign || '';
     node.textFormat = 0;
     node.textStyle = '';
     return {
       node,
-      text: token
+      text
     };
   }
 };

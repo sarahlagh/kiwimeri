@@ -1,0 +1,47 @@
+{
+  "root": {
+    "type": "root",
+    "version": 1,
+    "direction": "ltr",
+    "format": "",
+    "indent": 0,
+    "children": [
+      {
+        "type": "quote",
+        "version": 1,
+        "direction": "ltr",
+        "format": "",
+        "indent": 0,
+        "children": [
+          {
+            "type": "text",
+            "text": "first line",
+            "version": 1,
+            "format": 0,
+            "mode": "normal",
+            "style": "",
+            "detail": 0
+          }
+        ]
+      },
+      {
+        "type": "quote",
+        "version": 1,
+        "direction": "ltr",
+        "format": "",
+        "indent": 0,
+        "children": [
+          {
+            "type": "text",
+            "text": "second line",
+            "version": 1,
+            "format": 0,
+            "mode": "normal",
+            "style": "",
+            "detail": 0
+          }
+        ]
+      }
+    ]
+  }
+}

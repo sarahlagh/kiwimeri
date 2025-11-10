@@ -8,27 +8,7 @@
             "format": 0,
             "mode": "normal",
             "style": "",
-            "text": "This is a paragraph.",
-            "type": "text",
-            "version": 1
-          }
-        ],
-        "direction": "ltr",
-        "format": "",
-        "indent": 0,
-        "type": "paragraph",
-        "version": 1,
-        "textFormat": 0,
-        "textStyle": ""
-      },
-      {
-        "children": [
-          {
-            "detail": 0,
-            "format": 0,
-            "mode": "normal",
-            "style": "",
-            "text": "This is another paragraph.",
+            "text": "This is a text with no style",
             "type": "text",
             "version": 1
           }

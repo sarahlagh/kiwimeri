@@ -17,10 +17,10 @@ class FormatterService {
     try {
       const obj: SerializedEditorState = JSON.parse(lex);
       return formatter.parseLexNode(null, obj.root, opts);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (e) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (e: any) {
       // TODO handle error actually
-      return lex;
+      return e.message;
     }
   }
 

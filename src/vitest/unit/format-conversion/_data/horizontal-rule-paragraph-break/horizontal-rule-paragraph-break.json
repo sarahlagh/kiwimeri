@@ -8,12 +8,33 @@
             "format": 0,
             "mode": "normal",
             "style": "",
-            "text": "This is a paragraph.",
+            "text": "a paragraph above",
             "type": "text",
             "version": 1
           }
         ],
         "direction": "ltr",
+        "format": "",
+        "indent": 0,
+        "type": "paragraph",
+        "version": 1,
+        "textFormat": 0,
+        "textStyle": ""
+      },
+      {
+        "children": [],
+        "direction": "ltr",
+        "format": "",
+        "indent": 0,
+        "type": "paragraph",
+        "version": 1,
+        "textFormat": 0,
+        "textStyle": ""
+      },
+      { "type": "horizontalrule", "version": 1 },
+      {
+        "children": [],
+        "direction": null,
         "format": "",
         "indent": 0,
         "type": "paragraph",
@@ -28,7 +49,7 @@
             "format": 0,
             "mode": "normal",
             "style": "",
-            "text": "This is another paragraph.",
+            "text": "a paragraph below",
             "type": "text",
             "version": 1
           }

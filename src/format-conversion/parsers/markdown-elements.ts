@@ -39,7 +39,7 @@ const PLAIN_TEXT: KiwimeriLexicalElementParser = {
       token = token.trimStart();
     }
     // unescape
-    token = token.replaceAll(/\\([*_~<#])/g, '$1');
+    token = token.replaceAll(/\\([*_~<#>])/g, '$1');
     const textNode: SerializedTextNode = {
       type: 'text',
       text: token,
@@ -193,7 +193,7 @@ export const ALL_ELEMENTS: KiwimeriLexicalElementParser[] = [
   ITALIC,
   STRIKETHROUGH,
   UNDERLINE,
-  TEXT_ALIGN,
+  // TEXT_ALIGN,
   UNORDERED_LIST_ITEM,
   NUMBERED_LIST_ITEM,
   SIMPLE_LINEBREAK,

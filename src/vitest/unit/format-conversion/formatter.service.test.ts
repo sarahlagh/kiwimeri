@@ -1,7 +1,23 @@
 import formatterService from '@/format-conversion/formatter.service';
 import { readFile } from 'fs/promises';
 import { describe, it } from 'vitest';
-import { examples } from './_data/examples';
+
+const examples = [
+  { name: 'text' },
+  { name: 'text-format', alt: true },
+  { name: 'text-format-nested', alt: true },
+  { name: 'paragraph' },
+  { name: 'paragraph-linebreaks' },
+  { name: 'paragraph-empty' },
+  { name: 'headings' },
+  { name: 'headings-linebreaks' },
+  { name: 'quotes', alt: true },
+  { name: 'quotes-linebreaks', alt: true },
+  { name: 'quotes-paragraph-break' },
+  { name: 'horizontal-rule', alt: true },
+  { name: 'horizontal-rule-paragraph-break' },
+  { name: 'lists-unordered' }
+];
 
 describe('format conversion service', () => {
   describe('should generate plaintext from lexical', () => {
@@ -54,7 +70,7 @@ describe('format conversion service', () => {
   });
 
   describe('should generate lexical from markdown', () => {
-    examples.forEach(({ name }) => {
+    examples.forEach(({ name, alt }) => {
       it(`should generate correct lexical from markdown (${name})`, async () => {
         const json = await readFile(
           `${__dirname}/_data/${name}/${name}.json`,
@@ -85,6 +101,25 @@ describe('format conversion service', () => {
         );
         expect(markdownAgain).toBe(markdown);
       });
+
+      if (alt === true) {
+        it(`should generate lexical from markdown (${name}, alt)`, async () => {
+          const json = await readFile(
+            `${__dirname}/_data/${name}/${name}.json`,
+            'utf8'
+          );
+          const markdown = await readFile(
+            `${__dirname}/_data/${name}/${name}.alt.md`,
+            'utf8'
+          );
+          const lexical = formatterService.getLexicalFromMarkdown(markdown);
+          const expectedObj = JSON.parse(json, (key, val) => {
+            if (key === 'direction') return 'ltr';
+            return val;
+          });
+          expect(lexical.obj).toEqual(expectedObj);
+        });
+      }
     });
   });
 });

@@ -2,7 +2,7 @@ import { ElementFormatType, SerializedLexicalNode } from 'lexical';
 import { KiwimeriParserBlock, KiwimeriParserContext } from './parser-context';
 
 type KiwimeriLexicalBlockParserCtx = {
-  paragraphAlign: ElementFormatType;
+  paragraphAlign?: ElementFormatType;
 };
 export type KiwimeriLexicalBlockParser = {
   name?: string;
@@ -11,6 +11,7 @@ export type KiwimeriLexicalBlockParser = {
     token: string,
     ctx?: KiwimeriLexicalBlockParserCtx
   ) => KiwimeriParserBlock | null;
+  transformChild?: (text: string, blockData: unknown) => string;
 };
 
 export type KiwimeriLexicalElementParser = {

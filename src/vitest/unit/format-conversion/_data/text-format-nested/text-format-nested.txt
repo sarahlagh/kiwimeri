@@ -1,0 +1,1 @@
+This is bold and italic. This is a long bold sentence with some other formats in it. Any combination is possible.
