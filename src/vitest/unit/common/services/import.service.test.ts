@@ -15,7 +15,7 @@ import navService from '@/db/nav.service';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
 import { LocalChangeType } from '@/db/types/store-types';
-import formatterService from '@/format-conversion/formatter.service';
+import formatConverter from '@/format-conversion/format-converter.service';
 import { getLocalItemField } from '@/vitest/setup/test.utils';
 import { readFile } from 'fs/promises';
 import { it, vi } from 'vitest';
@@ -261,7 +261,7 @@ describe('import service', () => {
     it('save single new document with pages', () => {
       const { doc, pages } = importService.parseNonLexicalContent(
         'This is some content' +
-          formatterService.getPagesSeparator() +
+          formatConverter.getPagesSeparator() +
           'And a page'
       );
       expect(doc).toBeDefined();
@@ -285,7 +285,7 @@ describe('import service', () => {
 
       const { doc, pages } = importService.parseNonLexicalContent(
         'This is some content' +
-          formatterService.getPagesSeparator() +
+          formatConverter.getPagesSeparator() +
           'And a page'
       );
 
@@ -316,7 +316,7 @@ describe('import service', () => {
 
       const { doc, pages } = importService.parseNonLexicalContent(
         'This is some content' +
-          formatterService.getPagesSeparator() +
+          formatConverter.getPagesSeparator() +
           'And a page'
       );
 
@@ -351,7 +351,7 @@ describe('import service', () => {
 
       const { doc, pages } = importService.parseNonLexicalContent(
         'This is some content' +
-          formatterService.getPagesSeparator() +
+          formatConverter.getPagesSeparator() +
           'And a page'
       );
 

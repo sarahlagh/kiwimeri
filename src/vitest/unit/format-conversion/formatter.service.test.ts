@@ -1,4 +1,4 @@
-import formatterService from '@/format-conversion/formatter.service';
+import formatConverter from '@/format-conversion/format-converter.service';
 import { readFile } from 'fs/promises';
 import { describe, it } from 'vitest';
 
@@ -54,10 +54,10 @@ describe('format conversion service', () => {
         ).catch(e => {});
 
         // plain text with line breaks, for visibility
-        expect(formatterService.getPlainTextFromLexical(json)).toBe(expected);
+        expect(formatConverter.toPlainText(json)).toBe(expected);
 
         // plain text inline, for a preview
-        const inlined = formatterService.getPlainTextFromLexical(json, {
+        const inlined = formatConverter.toPlainText(json, {
           inline: true
         });
         if (!expectedInline) {
@@ -80,7 +80,7 @@ describe('format conversion service', () => {
           `${__dirname}/_data/${name}/${name}.md`,
           'utf8'
         );
-        const markdown = formatterService.getMarkdownFromLexical(json);
+        const markdown = formatConverter.toMarkdown(json);
         expect(markdown).toBe(expected);
       });
     });
@@ -97,7 +97,7 @@ describe('format conversion service', () => {
           `${__dirname}/_data/${name}/${name}.md`,
           'utf8'
         );
-        const lexical = formatterService.getLexicalFromMarkdown(markdown);
+        const lexical = formatConverter.fromMarkdown(markdown);
 
         // direction is a mess to predict, exclude from comparison
         const expectedObj = JSON.parse(json, (key, val) => {
@@ -112,8 +112,8 @@ describe('format conversion service', () => {
           `${__dirname}/_data/${name}/${name}.md`,
           'utf8'
         );
-        const lexical = formatterService.getLexicalFromMarkdown(markdown);
-        const markdownAgain = formatterService.getMarkdownFromLexical(
+        const lexical = formatConverter.fromMarkdown(markdown);
+        const markdownAgain = formatConverter.toMarkdown(
           JSON.stringify(lexical.obj)
         );
         expect(markdownAgain).toBe(markdown);
@@ -129,7 +129,7 @@ describe('format conversion service', () => {
             `${__dirname}/_data/${name}/${name}.alt.md`,
             'utf8'
           );
-          const lexical = formatterService.getLexicalFromMarkdown(markdown);
+          const lexical = formatConverter.fromMarkdown(markdown);
           const expectedObj = JSON.parse(json, (key, val) => {
             if (key === 'direction') return 'ltr';
             return val;

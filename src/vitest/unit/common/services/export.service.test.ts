@@ -9,7 +9,7 @@ import { getGlobalTrans } from '@/config';
 import { DEFAULT_NOTEBOOK_ID, META_JSON } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
-import formatterService from '@/format-conversion/formatter.service';
+import formatConverter from '@/format-conversion/format-converter.service';
 import { strFromU8 } from 'fflate';
 import { describe, it, vi } from 'vitest';
 
@@ -25,14 +25,14 @@ describe('export service', () => {
     const id = collectionService.addDocument(parent);
     collectionService.setItemLexicalContent(
       id,
-      formatterService.getLexicalFromMarkdown(content).obj!
+      formatConverter.fromMarkdown(content).obj!
     );
     if (pages) {
       pages.forEach(page => {
         const pId = collectionService.addPage(id);
         collectionService.setItemLexicalContent(
           pId,
-          formatterService.getLexicalFromMarkdown(page).obj!
+          formatConverter.fromMarkdown(page).obj!
         );
       });
     }
@@ -164,7 +164,7 @@ describe('export service', () => {
             const content = exportService.getSingleDocumentContent(id, opts);
             expect(content).toBe(
               'this is the document content\n\n' +
-                formatterService.getPagesSeparator() +
+                formatConverter.getPagesSeparator() +
                 'this is the page content\n\n'
             );
           });
@@ -179,7 +179,7 @@ describe('export service', () => {
             expect(zipContent['New document.md']).toBeDefined();
             expect(strFromU8(zipContent['New document.md'][0])).toBe(
               'this is the document content\n\n' +
-                formatterService.getPagesSeparator() +
+                formatConverter.getPagesSeparator() +
                 'this is the page content\n\n'
             );
 

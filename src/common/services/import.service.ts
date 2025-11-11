@@ -13,7 +13,7 @@ import { META_JSON, ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
-import formatterService from '@/format-conversion/formatter.service';
+import formatConverter from '@/format-conversion/format-converter.service';
 import { Unzipped, strFromU8, unzip } from 'fflate';
 import { SerializedEditorState, SerializedLexicalNode } from 'lexical';
 import * as z from 'zod';
@@ -133,19 +133,15 @@ class ImportService {
       opts = { ...this.defaultOpts, ...opts };
     }
     if (opts.detectInlinedPages) {
-      const pagesFormatted = content.split(
-        formatterService.getPagesSeparator()
-      );
+      const pagesFormatted = content.split(formatConverter.getPagesSeparator());
       const doc = pagesFormatted.shift()!;
-      const { obj: lexical, errors } =
-        formatterService.getLexicalFromMarkdown(doc);
+      const { obj: lexical, errors } = formatConverter.fromMarkdown(doc);
       if (errors?.length || 0 > 0) {
         return { errors };
       }
       const pages: SerializedEditorState<SerializedLexicalNode>[] = [];
       pagesFormatted.forEach(page => {
-        const { obj: pageLexical, errors } =
-          formatterService.getLexicalFromMarkdown(page);
+        const { obj: pageLexical, errors } = formatConverter.fromMarkdown(page);
         if (errors?.length || 0 > 0) {
           return { errors };
         }
@@ -153,7 +149,7 @@ class ImportService {
       });
       return { doc: lexical, pages };
     }
-    const { obj, errors } = formatterService.getLexicalFromMarkdown(content);
+    const { obj, errors } = formatConverter.fromMarkdown(content);
     if (errors?.length || 0 > 0) {
       return { errors };
     }

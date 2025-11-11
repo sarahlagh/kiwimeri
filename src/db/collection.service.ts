@@ -17,7 +17,7 @@ import { genericReorder } from '@/common/dnd/utils';
 import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
 import { getGlobalTrans } from '@/config';
 import { ROOT_COLLECTION } from '@/constants';
-import formatterService from '@/format-conversion/formatter.service';
+import formatConverter from '@/format-conversion/format-converter.service';
 import { SerializedEditorState } from 'lexical';
 import { getUniqueId } from 'tinybase/common';
 import { Id } from 'tinybase/common/with-schemas';
@@ -515,8 +515,8 @@ class CollectionService {
             'collection',
             rowId,
             'preview',
-            formatterService
-              .getPlainTextFromLexical(JSON.stringify(content))
+            formatConverter
+              .toPlainText(JSON.stringify(content))
               .substring(0, this.previewSize)
           );
       }
@@ -528,8 +528,8 @@ class CollectionService {
     content: SerializedEditorState
   ) {
     item.content = minimizeContentForStorage(content);
-    item.preview = formatterService
-      .getPlainTextFromLexical(JSON.stringify(content))
+    item.preview = formatConverter
+      .toPlainText(JSON.stringify(content))
       .substring(0, this.previewSize);
   }
 

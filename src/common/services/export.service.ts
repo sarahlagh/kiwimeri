@@ -11,7 +11,7 @@ import collectionService, {
   INITIAL_CONTENT_START
 } from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
-import formatterService from '@/format-conversion/formatter.service';
+import formatConverter from '@/format-conversion/format-converter.service';
 import { strToU8, zip } from 'fflate';
 import { unminimizeContentFromStorage } from '../wysiwyg/compress-file-content';
 
@@ -49,7 +49,7 @@ class ExportService {
     const content = storedJson.startsWith(INITIAL_CONTENT_START)
       ? storedJson
       : unminimizeContentFromStorage(storedJson);
-    return formatterService.getMarkdownFromLexical(content);
+    return formatConverter.toMarkdown(content);
   }
 
   private getParentMeta(
@@ -189,7 +189,7 @@ class ExportService {
     // if inline pages, add content as string
     if (opts.inlinePages) {
       pages.forEach(page => {
-        content += formatterService.getPagesSeparator();
+        content += formatConverter.getPagesSeparator();
         content += this.getDocumentContentFormatted(
           collectionService.getItemContent(page.id) || ''
         );

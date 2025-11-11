@@ -1,1 +1,0 @@
-Text aligned by default Text aligned center on multiline  Text aligned right  Text aligned justify Text in quote with alignment

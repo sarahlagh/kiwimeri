@@ -1,5 +1,5 @@
-import formatterService from '@/format-conversion/formatter.service';
-import { MarkdownParser } from '@/format-conversion/parsers/markdown-parser';
+import formatConverter from '@/format-conversion/format-converter.service';
+import { MarkdownParser } from '@/format-conversion/text-parsing/parsers/markdown-parser';
 import { SerializedListNode } from '@lexical/list';
 import { SerializedElementNode, SerializedTextNode } from 'lexical';
 import { describe, it } from 'vitest';
@@ -106,9 +106,9 @@ describe('parser', () => {
       expect((paragraph.children[0] as SerializedTextNode).text).toBe(
         '# this is not a heading'
       );
-      expect(
-        formatterService.getMarkdownFromLexical(JSON.stringify(resp.obj))
-      ).toBe('\\# this is not a heading\n\n');
+      expect(formatConverter.toMarkdown(JSON.stringify(resp.obj))).toBe(
+        '\\# this is not a heading\n\n'
+      );
     });
 
     it(`should handle text formatting`, () => {
@@ -132,9 +132,7 @@ describe('parser', () => {
         'text',
         'text'
       ]);
-      expect(
-        formatterService.getMarkdownFromLexical(JSON.stringify(resp.obj))
-      ).toBe(
+      expect(formatConverter.toMarkdown(JSON.stringify(resp.obj))).toBe(
         '# first line with **bold** text\n# multiline with *italic* text\n\n'
       );
     });
@@ -177,9 +175,9 @@ describe('parser', () => {
       expect((paragraph.children[0] as SerializedTextNode).text).toBe(
         '> this is not a quote'
       );
-      expect(
-        formatterService.getMarkdownFromLexical(JSON.stringify(resp.obj))
-      ).toBe('\\> this is not a quote\n\n');
+      expect(formatConverter.toMarkdown(JSON.stringify(resp.obj))).toBe(
+        '\\> this is not a quote\n\n'
+      );
     });
 
     it(`should handle text formatting`, () => {
@@ -205,9 +203,7 @@ describe('parser', () => {
       ]);
       expect((heading.children[2] as SerializedTextNode).text).toBe(' text');
       expect((heading.children[6] as SerializedTextNode).text).toBe(' text');
-      expect(
-        formatterService.getMarkdownFromLexical(JSON.stringify(resp.obj))
-      ).toBe(
+      expect(formatConverter.toMarkdown(JSON.stringify(resp.obj))).toBe(
         '> first line with **bold** text\n  multiline with *italic* text\n\n'
       );
     });
@@ -291,9 +287,9 @@ describe('parser', () => {
       expect((paragraph.children[0] as SerializedTextNode).text).toBe(
         '- this is not a list'
       );
-      expect(
-        formatterService.getMarkdownFromLexical(JSON.stringify(resp.obj))
-      ).toBe('\\- this is not a list\n\n');
+      expect(formatConverter.toMarkdown(JSON.stringify(resp.obj))).toBe(
+        '\\- this is not a list\n\n'
+      );
     });
 
     it(`a number dot not followed by space will not result in a listitem`, () => {
@@ -367,9 +363,7 @@ describe('parser', () => {
       const listitem2 = list.children[1] as SerializedElementNode;
       expect(listitem1.children).toHaveLength(7);
       expect(listitem2.children).toHaveLength(2);
-      expect(
-        formatterService.getMarkdownFromLexical(JSON.stringify(resp.obj))
-      ).toBe(
+      expect(formatConverter.toMarkdown(JSON.stringify(resp.obj))).toBe(
         '- first line with **bold** text\n  multiline with *italic* text\n- second ~~line~~\n\n'
       );
     });
