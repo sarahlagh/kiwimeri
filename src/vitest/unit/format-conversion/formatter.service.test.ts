@@ -4,6 +4,7 @@ import { describe, it } from 'vitest';
 
 const examples = [
   { name: 'text' },
+  { name: 'text-escaped' },
   { name: 'text-format', alt: true },
   { name: 'text-format-nested', alt: true },
   { name: 'paragraph' },
@@ -34,7 +35,6 @@ const examples = [
 ];
 
 // TODO test text-align empty paragraphs
-// TODO test escaped chars
 // TODO test error non-escaped chars
 
 describe('format conversion service', () => {
