@@ -9,9 +9,11 @@ const examples = [
   { name: 'text-format-nested', alt: true },
   { name: 'paragraph' },
   { name: 'paragraph-linebreaks' },
-  { name: 'paragraph-empty' },
   { name: 'paragraph-text-align' },
   { name: 'paragraph-text-align-linebreaks' },
+  { name: 'paragraph-empty' },
+  { name: 'paragraph-empty-text-align' },
+  { name: 'paragraph-empty-text-align-linebreaks' },
   { name: 'headings' },
   { name: 'headings-linebreaks' },
   { name: 'headings-text-align' },
@@ -34,7 +36,6 @@ const examples = [
   // { name: 'links-autolink-disabled' }
 ];
 
-// TODO test text-align empty paragraphs
 // TODO test error non-escaped chars
 
 describe('format conversion service', () => {

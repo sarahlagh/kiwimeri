@@ -48,11 +48,10 @@ export const MARKDOWN_PARAGRAPH_TRANSFORMER: KiwimeriTransformer = {
     fullstr: string,
     ctx: KiwimeriTransformerCtx
   ): string {
-    return (
-      fullstr +
-      paragraphAlignClosingTag(ctx) +
-      `${ctx.elementNode!.children.length > 0 ? '\n\n' : '\n'}`
-    );
+    const tag = paragraphAlignClosingTag(ctx);
+    const close =
+      ctx.elementNode!.children.length > 0 || tag !== '' ? '\n\n' : '\n';
+    return fullstr + tag + close;
   }
 };
 

@@ -139,22 +139,12 @@ const EMPTY_PARAGRAPH: KiwimeriLexicalBlockParser = {
   name: 'empty_paragraph',
   tokenize: nextBlock => {
     if (nextBlock.match(/^\n+/g)) return '\n';
-    const emptyP = nextBlock.match(/^<p [^>]*>(\n)*<\/p>\n/g);
-    if (emptyP) {
-      return emptyP[0];
-    }
     return null;
   },
-  parse: text => {
+  parse: () => {
     const node = baseElementNode('paragraph') as SerializedParagraphNode;
     node.textFormat = 0;
     node.textStyle = '';
-    if (text.match(/^<p [^>]*>(\n)*<\/p>\n+/g)) {
-      return {
-        node,
-        text
-      };
-    }
     return {
       node,
       text: ''
@@ -168,53 +158,6 @@ export const getTextAlign = (token: string) => {
     return textAlign[1] as ElementFormatType;
   }
   return '';
-};
-
-// TODO
-// so if \n</p> -> \n and </p> counts as </p>
-// if not (inline </p>) -> \n\n
-// and then there's quotes => > <p ...></p>
-// and lists!!! not handling listitems currently
-// better to handle it all in one place
-// wouldn't it be easier to do ## <p>....</p> for heading...
-
-// so remove the <p></p> at block level => no element for text align
-// or remove the block, only keep element for text-align -> what i was doing before
-
-// TODO remove KiwimeriLexicalBlockParserCtx 's paragraphAlign?
-
-const IS_TEXT_ALIGN = /^<p[^>]*>((?:.|\n)*?)<\/p>\n\n/g;
-// const IS_TEXT_ALIGN = /^<p[^>]*>((?:.|\n)*?)\n<\/p>\n/g;
-const IS_FALSE_TEXT_ALIGN = /^<p[^>]*>((?:.|\n)*?)<\/p>[^\n]/g;
-const IS_HEADING_TEXT_ALIGN = /^<p[^>]*>\n(#{1,6} .*\n)<\/p>\n/g;
-// const IS_QUOTE_TEXT_ALIGN = /^<p[^>]*>\n(#{1,6} .*\n)<\/p>\n/g;
-const TEXT_ALIGN_BLOCK: KiwimeriLexicalBlockParser = {
-  name: 'text_align_block',
-  tokenize: nextBlock => {
-    const isTextAlign = matches(nextBlock, IS_TEXT_ALIGN);
-    if (isTextAlign) {
-      const isHeading = matches(nextBlock, IS_HEADING_TEXT_ALIGN);
-      if (isHeading) {
-        return isHeading;
-      }
-      return isTextAlign;
-    }
-    return null;
-  },
-  parse: token => {
-    const ctx = {
-      paragraphAlign: getTextAlign(token)
-    };
-    const isHeading = matches(token, IS_HEADING_TEXT_ALIGN);
-    if (isHeading) {
-      return HEADING.parse(isHeading, ctx);
-    }
-    const isTextAlign = matches(token, IS_TEXT_ALIGN, 1);
-    if (isTextAlign) {
-      return PARAGRAPH.parse(isTextAlign, ctx);
-    }
-    return PARAGRAPH.parse(token, ctx);
-  }
 };
 
 export const PARAGRAPH: KiwimeriLexicalBlockParser = {
@@ -239,7 +182,6 @@ export const ALL_BLOCKS: KiwimeriLexicalBlockParser[] = [
   QUOTE,
   HRULE,
   LIST,
-  // TEXT_ALIGN_BLOCK,
   EMPTY_PARAGRAPH,
   PARAGRAPH
 ];

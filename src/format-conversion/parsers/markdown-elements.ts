@@ -103,7 +103,7 @@ const TEXT_ALIGN: KiwimeriLexicalElementParser = {
   type: 'keyword',
   tokenize: nextText => {
     if (nextText.startsWith('</p>')) return '</p>';
-    const pEl = nextText.match(/^<p[^>]*>/g);
+    const pEl = nextText.match(/^<p [^>]*>/g);
     if (pEl) return pEl[0];
     return null;
   },
@@ -170,6 +170,7 @@ const SIMPLE_LINEBREAK: KiwimeriLexicalElementParser = {
     nextText.startsWith('\n') && !nextText.startsWith('\n\n') ? '\n' : null,
   parse: (token, ctx) => {
     // if linebreak, but in a list not followed by indent, ignore token
+    // TODO why for list but not quote?
     if (
       ctx.lastBlock?.node.type === 'list' &&
       (ctx.nextText?.token.startsWith('-') ||

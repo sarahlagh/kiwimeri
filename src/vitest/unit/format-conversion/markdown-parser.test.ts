@@ -554,6 +554,89 @@ describe('parser', () => {
         '# malformed header'
       );
     });
+
+    it(`an empty paragraph with text-align is still an empty paragraph`, () => {
+      const parser = new MarkdownParser();
+      const resp = parser.parse('<p style="text-align: center;"></p>');
+      expect(resp.errors).toBeUndefined();
+      expect(resp.obj).toBeDefined();
+      expect(resp.obj!.root).toBeDefined();
+      expect(resp.obj!.root.children).toHaveLength(1);
+      expect(resp.obj!.root.children[0].type).toBe('paragraph');
+      const paragraph = resp.obj!.root.children[0] as SerializedElementNode;
+      expect(paragraph.format === 'center');
+      expect(paragraph.children).toHaveLength(0);
+    });
+
+    it(`a multiline empty paragraph with text-align is still a paragraph`, () => {
+      const parser = new MarkdownParser();
+      const resp = parser.parse('<p style="text-align: center;">\n</p>');
+      expect(resp.errors).toBeUndefined();
+      expect(resp.obj).toBeDefined();
+      expect(resp.obj!.root).toBeDefined();
+      expect(resp.obj!.root.children).toHaveLength(1);
+      expect(resp.obj!.root.children[0].type).toBe('paragraph');
+      const paragraph = resp.obj!.root.children[0] as SerializedElementNode;
+      expect(paragraph.format === 'center');
+      expect(paragraph.children).toHaveLength(1);
+      expect(paragraph.children[0].type).toBe('linebreak');
+    });
+
+    it(`a multiline empty paragraph with doubles with text-align is not one paragraph`, () => {
+      const parser = new MarkdownParser();
+      const resp = parser.parse('<p style="text-align: center;">\n\n</p>');
+      expect(resp.errors).toBeUndefined();
+      expect(resp.obj).toBeDefined();
+      expect(resp.obj!.root).toBeDefined();
+      expect(resp.obj!.root.children).toHaveLength(2);
+      expect(resp.obj!.root.children[0].type).toBe('paragraph');
+      const paragraph1 = resp.obj!.root.children[0] as SerializedElementNode;
+      expect(paragraph1.format === 'center');
+      expect(paragraph1.children).toHaveLength(0);
+      expect(resp.obj!.root.children[1].type).toBe('paragraph');
+      const paragraph2 = resp.obj!.root.children[1] as SerializedElementNode;
+      expect(paragraph2.children).toHaveLength(0);
+    });
+
+    it(`text-align can be anywhere in a block even if empty`, () => {
+      const parser = new MarkdownParser();
+      const resp = parser.parse(
+        '<p style="text-align: center;">\n</p> now what?'
+      );
+      expect(resp.errors).toBeUndefined();
+      expect(resp.obj).toBeDefined();
+      expect(resp.obj!.root).toBeDefined();
+      expect(resp.obj!.root.children).toHaveLength(1);
+      expect(resp.obj!.root.children[0].type).toBe('paragraph');
+      const paragraph = resp.obj!.root.children[0] as SerializedElementNode;
+      expect(paragraph.format === 'center');
+      expect(paragraph.children).toHaveLength(2);
+      expect(paragraph.children[0].type).toBe('linebreak');
+      expect(paragraph.children[1].type).toBe('text');
+    });
+
+    it(`text-align can be anywhere in a block but can break into multiple paragraphs`, () => {
+      const parser = new MarkdownParser();
+      const resp = parser.parse(
+        '<p style="text-align: center;">\n\n\n</p> now what?'
+      );
+      expect(resp.errors).toBeUndefined();
+      expect(resp.obj).toBeDefined();
+      expect(resp.obj!.root).toBeDefined();
+      expect(resp.obj!.root.children).toHaveLength(3);
+      expect(resp.obj!.root.children[0].type).toBe('paragraph');
+      const paragraph1 = resp.obj!.root.children[0] as SerializedElementNode;
+      expect(paragraph1.format === 'center');
+      expect(paragraph1.children).toHaveLength(0);
+
+      const paragraph2 = resp.obj!.root.children[1] as SerializedElementNode;
+      expect(paragraph2.format === 'center');
+      expect(paragraph2.children).toHaveLength(0);
+
+      const paragraph3 = resp.obj!.root.children[2] as SerializedElementNode;
+      expect(paragraph3.format === '');
+      expect(paragraph3.children[0].type).toBe('text');
+    });
   });
 
   // TODO links with text format
