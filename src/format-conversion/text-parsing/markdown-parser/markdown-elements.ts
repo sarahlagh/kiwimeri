@@ -1,3 +1,4 @@
+import { SerializedLinkNode } from '@lexical/link';
 import { SerializedListItemNode } from '@lexical/list';
 import {
   IS_BOLD,
@@ -181,6 +182,42 @@ const SIMPLE_LINEBREAK: KiwimeriTextElementParser = {
 
 const BREAK_LIST_ITEMS_ELEMENTS = [UNORDERED_LIST_ITEM, NUMBERED_LIST_ITEM];
 
+const LINK_REGEX = /\[(.*)\]\((.*?)(?: "(.*)")?\)/g;
+const LINK: KiwimeriTextElementParser = {
+  name: 'link',
+  type: 'text',
+  tokenize: nextText => {
+    const link = nextText.match(LINK_REGEX);
+    if (link) {
+      return link[0]; // actually only return the ']'
+    }
+    // TODO if ] return the ]
+    // then return the following ()
+    return null;
+  },
+  // captures: () => true,
+  parse: (token, ctx, lexer) => {
+    const [, text, url, title] = [...token.matchAll(LINK_REGEX)][0];
+    const node: SerializedLinkNode = {
+      type: 'link',
+      version: 1,
+      format: '',
+      direction: 'ltr',
+      indent: 0,
+      url,
+      title: title ? title : null,
+      rel: 'noreferrer',
+      target: null,
+      children: []
+    };
+    // TODO actually if text has format may be multiple nodes -> must tokenize them...
+    // create link & open capture?
+    const textNode = PLAIN_TEXT.parse!(text, ctx, lexer)!;
+    node.children.push(textNode);
+    return node;
+  }
+};
+
 // lexer order
 export const MARKDOWN_ELEMENTS: KiwimeriTextElementParser[] = [
   BOLD,
@@ -191,5 +228,6 @@ export const MARKDOWN_ELEMENTS: KiwimeriTextElementParser[] = [
   UNORDERED_LIST_ITEM,
   NUMBERED_LIST_ITEM,
   SIMPLE_LINEBREAK,
+  LINK,
   PLAIN_TEXT
 ];

@@ -29,9 +29,9 @@ const examples = [
   { name: 'lists-ordered', alt: true },
   { name: 'lists-ordered-linebreaks', alt: true },
   { name: 'lists-paragraph-break' },
-  { name: 'lists-text-align' }
-  // { name: 'links-manual-with-title' },
-  // { name: 'links-manual-without-title' },
+  { name: 'lists-text-align' },
+  { name: 'links-manual-with-title' },
+  { name: 'links-manual-without-title' }
   // { name: 'links-autolink' },
   // { name: 'links-autolink-disabled' }
 ];
