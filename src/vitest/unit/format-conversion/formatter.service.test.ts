@@ -36,8 +36,6 @@ const examples = [
   // { name: 'links-autolink-disabled' }
 ];
 
-// TODO test error non-escaped chars
-
 describe('format conversion service', () => {
   describe('should generate plaintext from lexical', () => {
     examples.forEach(({ name }) => {
