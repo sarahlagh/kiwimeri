@@ -182,7 +182,7 @@ const SIMPLE_LINEBREAK: KiwimeriTextElementParser = {
 const BREAK_LIST_ITEMS_ELEMENTS = [UNORDERED_LIST_ITEM, NUMBERED_LIST_ITEM];
 
 // lexer order
-export const ALL_ELEMENTS: KiwimeriTextElementParser[] = [
+export const MARKDOWN_ELEMENTS: KiwimeriTextElementParser[] = [
   BOLD,
   ITALIC,
   STRIKETHROUGH,

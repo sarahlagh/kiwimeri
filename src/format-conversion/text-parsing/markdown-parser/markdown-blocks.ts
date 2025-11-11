@@ -177,7 +177,7 @@ export const PARAGRAPH: KiwimeriTextBlockParser = {
   }
 };
 
-export const ALL_BLOCKS: KiwimeriTextBlockParser[] = [
+export const MARKDOWN_BLOCKS: KiwimeriTextBlockParser[] = [
   HEADING,
   QUOTE,
   HRULE,

@@ -1,7 +1,7 @@
 import { KiwimeriTextLexer } from '../text-lexer';
 import { KiwimeriLexerResponse, KiwimeriParserTextBlock } from '../types';
-import { ALL_BLOCKS, PARAGRAPH } from './markdown-blocks';
-import { ALL_ELEMENTS } from './markdown-elements';
+import { MARKDOWN_BLOCKS, PARAGRAPH } from './markdown-blocks';
+import { MARKDOWN_ELEMENTS } from './markdown-elements';
 
 export class MarkdownLexer extends KiwimeriTextLexer {
   // blocks: paragraph, quote, heading, list, horizontalrule
@@ -11,7 +11,7 @@ export class MarkdownLexer extends KiwimeriTextLexer {
     }
     const nextBlock = this.text.substring(this.blockIdx);
 
-    for (const blockParser of ALL_BLOCKS) {
+    for (const blockParser of MARKDOWN_BLOCKS) {
       const token = blockParser.tokenize(nextBlock);
       if (token) {
         return {
@@ -60,7 +60,7 @@ export class MarkdownLexer extends KiwimeriTextLexer {
     if (nextText.trimEnd().length === 0) {
       return null;
     }
-    for (const elemParser of ALL_ELEMENTS) {
+    for (const elemParser of MARKDOWN_ELEMENTS) {
       if (!elemParser.tokenize) continue;
       const token = elemParser.tokenize(
         nextText,

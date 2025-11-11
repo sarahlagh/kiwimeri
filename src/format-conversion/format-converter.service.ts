@@ -5,7 +5,7 @@ import {
   PlainTextFormatterOpts
 } from './lex-conversion/formatters/plain-text-formatter';
 import { KiwimeriLexConverter } from './lex-conversion/lex-converter';
-import { MARKDOWN_PARSER } from './text-parsing/parsers/markdown-parser';
+import { MARKDOWN_PARSER } from './text-parsing/markdown-parser/markdown-parser';
 import { KiwimeriTextParser } from './text-parsing/text-parser';
 
 class FormatConversionService {
