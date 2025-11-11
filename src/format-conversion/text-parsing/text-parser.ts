@@ -1,8 +1,7 @@
 import {
   SerializedElementNode,
   SerializedLexicalNode,
-  SerializedRootNode,
-  SerializedTextNode
+  SerializedRootNode
 } from 'lexical';
 import { KiwimeriParserContext } from './parser-context';
 import { KiwimeriTextLexer } from './text-lexer';
@@ -63,21 +62,7 @@ export abstract class KiwimeriTextParser {
       if (ctx.captureEnds(lexResponse)) {
         ctx.removeCapture();
       }
-      const { node: parent, parser: parentParser } =
-        ctx.getParentCapture(currentBlock);
-
-      // propagate text format to parent
-      // TODO weird, shouldn't be here?
-      if (parentParser?.propagateTextFormat) {
-        const propagateTextFormat = (parent.children[0] as SerializedTextNode)
-          ?.format;
-        if (propagateTextFormat && propagateTextFormat !== 0) {
-          parent.textFormat = propagateTextFormat;
-          // prop
-          (currentBlock.node as SerializedElementNode).textFormat =
-            propagateTextFormat;
-        }
-      }
+      const { node: parent } = ctx.getParentCapture(currentBlock);
 
       if (ctx.paragraphAlign !== null && ctx.paragraphAlign !== '') {
         parent.format = ctx.paragraphAlign;

@@ -34,7 +34,6 @@ export type KiwimeriTextElementParser = {
     ctx: KiwimeriParserContext,
     lexer: KiwimeriTextLexer
   ) => SerializedLexicalNode | null;
-  propagateTextFormat?: boolean;
   captures?: (resp: KiwimeriLexerResponse) => boolean;
 };
 

@@ -125,7 +125,6 @@ const UNORDERED_LIST_ITEM: KiwimeriTextElementParser = {
     }
     return null;
   },
-  propagateTextFormat: true,
   captures: (resp: KiwimeriLexerResponse) =>
     (resp.elemParser && BREAK_LIST_ITEMS_ELEMENTS.includes(resp.elemParser)) ||
     false,
