@@ -146,6 +146,27 @@ const UNORDERED_LIST_ITEM: KiwimeriTextElementParser = {
   }
 };
 
+export const CHECKED_LIST_ITEM_REGEX = /^- \[([xX ]?)\] /g;
+const CHECKED_LIST_ITEM: KiwimeriTextElementParser = {
+  ...UNORDERED_LIST_ITEM,
+  name: 'checked_list_item',
+  tokenize: (nextText, block, isStartOfLine) => {
+    const checkedList = nextText.match(CHECKED_LIST_ITEM_REGEX);
+    if (checkedList && isStartOfLine && block.text.startsWith('-')) {
+      return checkedList[0];
+    }
+    return null;
+  },
+  parse: (token, ctx, lexer) => {
+    const res = UNORDERED_LIST_ITEM.parse!(token, ctx, lexer);
+    if (!res) return null;
+    const listitem = res as SerializedListItemNode;
+    const [, checked] = [...token.matchAll(CHECKED_LIST_ITEM_REGEX)][0];
+    listitem.checked = checked.trim() !== '';
+    return listitem;
+  }
+};
+
 const NUMBERED_LIST_ITEM: KiwimeriTextElementParser = {
   ...UNORDERED_LIST_ITEM,
   name: 'ordered_list_item',
@@ -181,7 +202,11 @@ const SIMPLE_LINEBREAK: KiwimeriTextElementParser = {
   }
 };
 
-const BREAK_LIST_ITEMS_ELEMENTS = [UNORDERED_LIST_ITEM, NUMBERED_LIST_ITEM];
+const BREAK_LIST_ITEMS_ELEMENTS = [
+  CHECKED_LIST_ITEM,
+  UNORDERED_LIST_ITEM,
+  NUMBERED_LIST_ITEM
+];
 
 const LINK_REGEX = /\[(.*)\]\((.*?)(?: ["'](.*)["'])?\)/g;
 const LINK: KiwimeriTextElementParser = {
@@ -275,6 +300,7 @@ export const MARKDOWN_ELEMENTS: KiwimeriTextElementParser[] = [
   STRIKETHROUGH,
   UNDERLINE,
   TEXT_ALIGN,
+  CHECKED_LIST_ITEM,
   UNORDERED_LIST_ITEM,
   NUMBERED_LIST_ITEM,
   SIMPLE_LINEBREAK,

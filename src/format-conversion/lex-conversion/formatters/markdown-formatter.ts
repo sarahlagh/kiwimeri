@@ -233,13 +233,17 @@ export const MARKDOWN_LIST_TRANSFORMERS: KiwimeriLexTransformer[] = [
       const parent = ctx.parent;
       if (parent && parent.type === 'list' && 'listType' in parent) {
         const listType = parent.listType as ListType;
+        let check = '';
+        if (ctx.elementNode && 'checked' in ctx.elementNode) {
+          check = ctx.elementNode.checked === true ? 'x' : ' ';
+        }
         switch (listType) {
           case 'bullet':
             return fullstr + '- ' + paragraphAlignOpeningTag(ctx);
           case 'number':
-            return fullstr + `${value}. ` + paragraphAlignOpeningTag(ctx);
+            return `${fullstr}${value}. ${paragraphAlignOpeningTag(ctx)}`;
           case 'check':
-            return fullstr + '- [ ]' + paragraphAlignOpeningTag(ctx); // TODO
+            return `${fullstr}- [${check}] ${paragraphAlignOpeningTag(ctx)}`;
         }
       }
       return fullstr + '- ';

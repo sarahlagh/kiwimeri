@@ -28,6 +28,8 @@ const examples = [
   { name: 'lists-unordered-linebreaks', alt: true },
   { name: 'lists-ordered', alt: true },
   { name: 'lists-ordered-linebreaks', alt: true },
+  { name: 'lists-check', alt: true },
+  { name: 'lists-check-linebreaks' },
   { name: 'lists-paragraph-break' },
   { name: 'lists-text-align' },
   { name: 'links-manual', alt: true },

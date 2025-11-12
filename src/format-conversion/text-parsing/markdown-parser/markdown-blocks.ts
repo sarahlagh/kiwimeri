@@ -11,6 +11,7 @@ import {
   SerializedParagraphNode
 } from 'lexical';
 import { KiwimeriTextBlockParser } from '../types';
+import { CHECKED_LIST_ITEM_REGEX } from './markdown-elements';
 
 const baseElementNode = (type: string): SerializedElementNode => {
   return {
@@ -126,6 +127,9 @@ const LIST: KiwimeriTextBlockParser = {
     const node = baseElementNode('list') as SerializedListNode;
     node.tag = text.startsWith('-') ? 'ul' : 'ol';
     node.listType = text.startsWith('-') ? 'bullet' : 'number';
+    if (text.match(CHECKED_LIST_ITEM_REGEX)) {
+      node.listType = 'check';
+    }
     node.start = 1;
     return {
       node,
