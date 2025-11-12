@@ -12,7 +12,8 @@ import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/react/LexicalHorizontal
 import {
   $createHeadingNode,
   $createQuoteNode,
-  $isHeadingNode
+  $isHeadingNode,
+  HeadingTagType
 } from '@lexical/rich-text';
 import { $setBlocksType } from '@lexical/selection';
 import {
@@ -28,10 +29,12 @@ import {
   $isTextNode,
   CAN_REDO_COMMAND,
   CAN_UNDO_COMMAND,
+  ElementNode,
   FORMAT_ELEMENT_COMMAND,
   FORMAT_TEXT_COMMAND,
   REDO_COMMAND,
   SELECTION_CHANGE_COMMAND,
+  TextFormatType,
   UNDO_COMMAND
 } from 'lexical';
 import { Dispatch, useCallback, useEffect, useRef, useState } from 'react';
@@ -43,6 +46,100 @@ import './theme/KiwimeriToolbarPlugin.scss';
 
 function Divider() {
   return <div className="divider" />;
+}
+
+type ToolbarButtonProps = {
+  ariaLabel: string;
+  icon: string;
+  disabled?: boolean;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  isActive?: boolean;
+};
+
+function ToolbarButton({
+  ariaLabel,
+  icon,
+  disabled = false,
+  isActive = false,
+  onClick
+}: ToolbarButtonProps) {
+  return (
+    <button
+      disabled={disabled}
+      onClick={onClick}
+      className={'toolbar-item ' + (isActive ? 'active' : '')}
+      aria-label={ariaLabel}
+    >
+      <IonIcon className="format" src={icon}></IonIcon>
+    </button>
+  );
+}
+
+function SetBlockTypeToolbarButton({
+  createBlock,
+  isActive,
+  icon,
+  ariaLabel
+}: {
+  createBlock: () => ElementNode;
+  isActive: boolean;
+  icon: string;
+  ariaLabel: string;
+}) {
+  const [editor] = useLexicalComposerContext();
+  return (
+    <ToolbarButton
+      ariaLabel={ariaLabel}
+      icon={icon}
+      isActive={isActive}
+      onClick={() => {
+        editor.update(() => {
+          const selection = $getSelection();
+          $setBlocksType(selection, () =>
+            !isActive ? createBlock() : $createParagraphNode()
+          );
+        });
+      }}
+    />
+  );
+}
+
+function HeadingToolbarButton({
+  level,
+  isActive
+}: {
+  level: number;
+  isActive: boolean;
+}) {
+  const tag = `h${level}` as HeadingTagType;
+  return (
+    <SetBlockTypeToolbarButton
+      ariaLabel={`Header ${level}`}
+      icon={`writer/type-${tag}.svg`}
+      isActive={isActive}
+      createBlock={() => $createHeadingNode(tag)}
+    />
+  );
+}
+
+function TextFormatToolbarButton({
+  formatType,
+  isActive
+}: {
+  formatType: TextFormatType;
+  isActive: boolean;
+}) {
+  const [editor] = useLexicalComposerContext();
+  return (
+    <ToolbarButton
+      ariaLabel={`Format ${formatType}`}
+      icon={`writer/type-${formatType}.svg`}
+      isActive={isActive}
+      onClick={() => {
+        editor.dispatchCommand(FORMAT_TEXT_COMMAND, formatType);
+      }}
+    />
+  );
 }
 
 export type ToolbarPluginProps = {
@@ -72,6 +169,7 @@ export default function ToolbarPlugin({
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
   const [isStrikethrough, setIsStrikethrough] = useState(false);
+  const [isHighlight, setIsHighlight] = useState(false);
   const [isBlockQuote, setIsBlockQuote] = useState(false);
   const [isUnorderedList, setIsUnorderedList] = useState(false);
   const [isOrderedList, setIsOrderedList] = useState(false);
@@ -86,6 +184,7 @@ export default function ToolbarPlugin({
       setIsItalic(selection.hasFormat('italic'));
       setIsUnderline(selection.hasFormat('underline'));
       setIsStrikethrough(selection.hasFormat('strikethrough'));
+      setIsHighlight(selection.hasFormat('highlight'));
 
       const anchorNode = selection.anchor.getNode();
       let element =
@@ -180,138 +279,58 @@ export default function ToolbarPlugin({
           <Divider />
         </>
       )}
-      <button
+      <ToolbarButton
+        ariaLabel="Read Mode"
+        icon="writer/book.svg"
+        isActive={!isEditable}
         onClick={() => {
           editor.setEditable(!editor.isEditable());
           setIsEditable(editor.isEditable());
         }}
-        className={'toolbar-item ' + (!isEditable ? 'active' : '')}
-        aria-label="Read Mode"
-      >
-        <IonIcon className="format" src="writer/book.svg"></IonIcon>
-      </button>
-      <button
+      />
+      <ToolbarButton
+        ariaLabel="Undo"
+        icon="writer/arrow-counterclockwise.svg"
         disabled={!canUndo}
         onClick={() => {
           editor.dispatchCommand(UNDO_COMMAND, undefined);
         }}
-        className="toolbar-item"
-        aria-label="Undo"
-      >
-        <IonIcon
-          className="format"
-          src="writer/arrow-counterclockwise.svg"
-        ></IonIcon>
-      </button>
-      <button
+      />
+      <ToolbarButton
+        ariaLabel="Redo"
+        icon="writer/arrow-clockwise.svg"
         disabled={!canRedo}
         onClick={() => {
           editor.dispatchCommand(REDO_COMMAND, undefined);
         }}
-        className="toolbar-item"
-        aria-label="Redo"
-      >
-        <IonIcon className="format" src="writer/arrow-clockwise.svg"></IonIcon>
-      </button>
+      />
       <Divider />
-      <button
-        onClick={() => {
-          editor.update(() => {
-            const selection = $getSelection();
-            $setBlocksType(selection, () =>
-              !isH1 ? $createHeadingNode('h1') : $createParagraphNode()
-            );
-          });
-        }}
-        className={'toolbar-item ' + (isH1 ? 'active' : '')}
-        aria-label="Header 1"
-      >
-        <IonIcon className="format" src="writer/type-h1.svg"></IonIcon>
-      </button>
-      <button
-        onClick={() => {
-          editor.update(() => {
-            const selection = $getSelection();
-            $setBlocksType(selection, () =>
-              !isH2 ? $createHeadingNode('h2') : $createParagraphNode()
-            );
-          });
-        }}
-        className={'toolbar-item ' + (isH2 ? 'active' : '')}
-        aria-label="Header 1"
-      >
-        <IonIcon className="format" src="writer/type-h2.svg"></IonIcon>
-      </button>
-      <button
-        onClick={() => {
-          editor.update(() => {
-            const selection = $getSelection();
-            $setBlocksType(selection, () =>
-              !isH3 ? $createHeadingNode('h3') : $createParagraphNode()
-            );
-          });
-        }}
-        className={'toolbar-item ' + (isH3 ? 'active' : '')}
-        aria-label="Header 3"
-      >
-        <IonIcon className="format" src="writer/type-h3.svg"></IonIcon>
-      </button>
+
+      <HeadingToolbarButton level={1} isActive={isH1} />
+      <HeadingToolbarButton level={2} isActive={isH2} />
+      <HeadingToolbarButton level={3} isActive={isH3} />
+
       <Divider />
-      <button
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
-        }}
-        className={'toolbar-item ' + (isBold ? 'active' : '')}
-        aria-label="Format Bold"
-      >
-        <IonIcon className="format" src="writer/type-bold.svg"></IonIcon>
-      </button>
-      <button
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
-        }}
-        className={'toolbar-item ' + (isItalic ? 'active' : '')}
-        aria-label="Format Italics"
-      >
-        <IonIcon className="format" src="writer/type-italic.svg"></IonIcon>
-      </button>
-      <button
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
-        }}
-        className={'toolbar-item ' + (isUnderline ? 'active' : '')}
-        aria-label="Format Underline"
-      >
-        <IonIcon className="format" src="writer/type-underline.svg"></IonIcon>
-      </button>
-      <button
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough');
-        }}
-        className={'toolbar-item ' + (isStrikethrough ? 'active' : '')}
-        aria-label="Format Strikethrough"
-      >
-        <IonIcon
-          className="format"
-          src="writer/type-strikethrough.svg"
-        ></IonIcon>
-      </button>
-      <button
-        onClick={() => {
-          editor.update(() => {
-            const selection = $getSelection();
-            $setBlocksType(selection, () =>
-              !isBlockQuote ? $createQuoteNode() : $createParagraphNode()
-            );
-          });
-        }}
-        className={'toolbar-item ' + (isBlockQuote ? 'active' : '')}
-        aria-label="Block Quote"
-      >
-        <IonIcon className="format" src="writer/quote.svg"></IonIcon>
-      </button>
+
+      <TextFormatToolbarButton formatType="bold" isActive={isBold} />
+      <TextFormatToolbarButton formatType="italic" isActive={isItalic} />
+      <TextFormatToolbarButton
+        formatType="strikethrough"
+        isActive={isStrikethrough}
+      />
+      <TextFormatToolbarButton formatType="underline" isActive={isUnderline} />
+      <TextFormatToolbarButton formatType="highlight" isActive={isHighlight} />
+      <SetBlockTypeToolbarButton
+        ariaLabel="Block Quote"
+        icon="writer/quote.svg"
+        isActive={isBlockQuote}
+        createBlock={() => $createQuoteNode()}
+      />
       <Divider />
-      <button
+      <ToolbarButton
+        ariaLabel="Insert Unordered List"
+        icon="writer/list-ul.svg"
+        isActive={isUnorderedList}
         onClick={() => {
           if (!isUnorderedList) {
             editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
@@ -322,12 +341,11 @@ export default function ToolbarPlugin({
             });
           }
         }}
-        className={'toolbar-item ' + (isUnorderedList ? 'active' : '')}
-        aria-label="Insert Unordered List"
-      >
-        <IonIcon className="format" src="writer/list-ul.svg"></IonIcon>
-      </button>
-      <button
+      />
+      <ToolbarButton
+        ariaLabel="Insert Ordered List"
+        icon="writer/list-ol.svg"
+        isActive={isOrderedList}
         onClick={() => {
           if (!isOrderedList) {
             editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
@@ -338,12 +356,11 @@ export default function ToolbarPlugin({
             });
           }
         }}
-        className={'toolbar-item ' + (isOrderedList ? 'active' : '')}
-        aria-label="Insert Ordered List"
-      >
-        <IonIcon className="format" src="writer/list-ol.svg"></IonIcon>
-      </button>
-      <button
+      />
+      <ToolbarButton
+        ariaLabel="Insert Checked List"
+        icon="writer/list-check.svg"
+        isActive={isCheckedList}
         onClick={() => {
           if (!isCheckedList) {
             editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined);
@@ -354,71 +371,59 @@ export default function ToolbarPlugin({
             });
           }
         }}
-        className={'toolbar-item ' + (isCheckedList ? 'active' : '')}
-        aria-label="Insert Checked List"
-      >
-        <IonIcon className="format" src="writer/list-check.svg"></IonIcon>
-      </button>
+      />
       <Divider />
-      <button
+      <ToolbarButton
+        ariaLabel="Left Align"
+        icon="writer/text-left.svg"
         onClick={() => {
           editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'left');
         }}
-        className="toolbar-item"
-        aria-label="Left Align"
-      >
-        <IonIcon className="format" src="writer/text-left.svg"></IonIcon>
-      </button>
-      <button
+      />
+      <ToolbarButton
+        ariaLabel="Center Align"
+        icon="writer/text-center.svg"
         onClick={() => {
           editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'center');
         }}
-        className="toolbar-item"
-        aria-label="Center Align"
-      >
-        <IonIcon className="format" src="writer/text-center.svg"></IonIcon>
-      </button>
-      <button
+      />
+      <ToolbarButton
+        ariaLabel="Right Align"
+        icon="writer/text-right.svg"
         onClick={() => {
           editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'right');
         }}
-        className="toolbar-item"
-        aria-label="Right Align"
-      >
-        <IonIcon className="format" src="writer/text-right.svg"></IonIcon>
-      </button>
-      <button
+      />
+      <ToolbarButton
+        ariaLabel="Justify Align"
+        icon="writer/text-justify.svg"
         onClick={() => {
           editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'justify');
         }}
-        className="toolbar-item"
-        aria-label="Justify Align"
-      >
-        <IonIcon className="format" src="writer/justify.svg"></IonIcon>
-      </button>
+      />
       <Divider />
-      <button
+      <ToolbarButton
+        ariaLabel="Insert Horizontal Bar"
+        icon="writer/hr.svg"
         onClick={() => {
           editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined);
         }}
-        className="toolbar-item"
-        aria-label="Insert Horizontal Bar"
-      >
-        <IonIcon className="format" src="writer/hr.svg"></IonIcon>
-      </button>
-      <button
+      />
+
+      <ToolbarButton
         disabled={!isEditable}
+        isActive={isLink}
+        ariaLabel="Insert link"
+        icon="writer/link-45deg.svg"
         onClick={() => {
           setIsLinkEditMode(true);
         }}
-        className={'toolbar-item spaced ' + (isLink ? 'active' : '')}
-        aria-label="Insert link"
-        type="button"
-      >
-        <IonIcon className="format" src="writer/link-45deg.svg"></IonIcon>
-      </button>
+      />
       <Divider />
-      <button
+
+      <ToolbarButton
+        ariaLabel="writer/x-square.svg"
+        icon="writer/x-square.svg"
         onClick={() => {
           editor.update(() => {
             const selection = $getSelection();
@@ -432,11 +437,7 @@ export default function ToolbarPlugin({
             $setBlocksType(selection, () => $createParagraphNode());
           });
         }}
-        className="toolbar-item"
-        aria-label="Clear Format"
-      >
-        <IonIcon className="format" src="writer/x-square.svg"></IonIcon>
-      </button>
+      />
     </div>
   );
 }
