@@ -1,1 +1,1 @@
-This is bold, this is italic, this is underline, this is strikethrough.
+This is bold, this is italic, this is underline, this is strikethrough. This is highlighted.

@@ -2,6 +2,7 @@ import { ListType } from '@lexical/list';
 import {
   ElementFormatType,
   IS_BOLD,
+  IS_HIGHLIGHT,
   IS_ITALIC,
   IS_STRIKETHROUGH,
   IS_UNDERLINE,
@@ -94,7 +95,7 @@ export const MARKDOWN_TEXT_TRANSFORMER: KiwimeriLexTransformer = {
   type: 'text',
   handles: () => true,
   transform: (text: string, ctx) => {
-    text = text.replaceAll(/([*_~<])/g, '\\$1');
+    text = text.replaceAll(/([*_~<=])/g, '\\$1');
     if (ctx.indexInLine === 0) {
       return text.replaceAll(/^([#>-])/gm, '\\$1');
     }
@@ -133,6 +134,14 @@ export const MARKDOWN_STRIKETHROUGH_TRANSFORMER: KiwimeriLexTransformer = {
     IS_STRIKETHROUGH,
   transform: (text: string, ctx: KiwimeriLexTransformerCtx) =>
     genericTextFormatTransform(text, ctx, IS_STRIKETHROUGH, '~~', '~~')
+};
+
+export const MARKDOWN_HIGHLIGHT_TRANSFORMER: KiwimeriLexTransformer = {
+  type: 'text',
+  handles: ({ node }) =>
+    ((node as SerializedTextNode).format & IS_HIGHLIGHT) === IS_HIGHLIGHT,
+  transform: (text: string, ctx: KiwimeriLexTransformerCtx) =>
+    genericTextFormatTransform(text, ctx, IS_HIGHLIGHT, '==', '==')
 };
 
 export const MARKDOWN_HEADING_TEXT_TRANSFORMER: KiwimeriLexTransformer = {
@@ -292,6 +301,7 @@ export const MARKDOWN_TRANSFORMERS: KiwimeriLexTransformer[] = [
   MARKDOWN_ITALIC_TRANSFORMER,
   MARKDOWN_UNDERLINE_TRANSFORMER,
   MARKDOWN_STRIKETHROUGH_TRANSFORMER,
+  MARKDOWN_HIGHLIGHT_TRANSFORMER,
   MARKDOWN_HEADING_TRANSFORMER,
   MARKDOWN_LINEBREAK_TRANSFORMER,
   MARKDOWN_HRULE_TRANSFORMER,

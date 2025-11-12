@@ -2,6 +2,7 @@ import { SerializedAutoLinkNode, SerializedLinkNode } from '@lexical/link';
 import { SerializedListItemNode } from '@lexical/list';
 import {
   IS_BOLD,
+  IS_HIGHLIGHT,
   IS_ITALIC,
   IS_STRIKETHROUGH,
   IS_UNDERLINE,
@@ -17,15 +18,18 @@ const PLAIN_TEXT: KiwimeriTextElementParser = {
   type: 'text',
   tokenize: nextText => {
     // regex to stop token at [*_~<\n] but not escaped [*_~<\n] (* will match but \* won't)
-    const endOfText = nextText.match(/^(([\\][*_~<\n]|[^*_~<\n])*)[*_~<\n]/g);
+    const endOfText = nextText.match(
+      /^(([\\][*_~<=\n]|[^*_~<=\n])*)[*_~<=\n]/g
+    );
     if (endOfText && endOfText.length > 0) {
       // remove trailing special chars BUT avoid escaped ones dammit
-      return endOfText[0].replaceAll(/(\**|_*|~*|<*|\n*)$/g, '');
+      return endOfText[0].replaceAll(/(\**|_*|~*|<*|=*|\n*)$/g, '');
     }
     return nextText;
   },
   parse: (token, ctx) => {
-    // // if previous text was linebreak in a list, remove indent
+    // if previous text was linebreak in a list, remove indent
+    // TODO remove this if from PLAIN_TEXT
     const indent = token.match(/^[ \t]+[^ \t\n]+/g);
     if (
       ctx.lastBlock?.node.type === 'list' &&
@@ -35,7 +39,7 @@ const PLAIN_TEXT: KiwimeriTextElementParser = {
       token = token.trimStart();
     }
     // unescape
-    token = token.replaceAll(/\\([*_~<#>-])/g, '$1');
+    token = token.replaceAll(/\\([*_~<#>=-])/g, '$1');
     const textNode: SerializedTextNode = {
       type: 'text',
       text: token,
@@ -92,6 +96,16 @@ const UNDERLINE: KiwimeriTextElementParser = {
   },
   matches: UNDERLINE_PREDICTATE,
   textFormat: IS_UNDERLINE
+};
+
+const HIGHLIGHT_PREDICTATE = (nextText: string) =>
+  nextText.startsWith('==') && !nextText.startsWith('===');
+const HIGHLIGHT: KiwimeriTextElementParser = {
+  name: 'highlight',
+  type: 'keyword',
+  tokenize: nextText => (HIGHLIGHT_PREDICTATE(nextText) ? '==' : null),
+  matches: HIGHLIGHT_PREDICTATE,
+  textFormat: IS_HIGHLIGHT
 };
 
 const TEXT_ALIGN: KiwimeriTextElementParser = {
@@ -299,6 +313,7 @@ export const MARKDOWN_ELEMENTS: KiwimeriTextElementParser[] = [
   ITALIC,
   STRIKETHROUGH,
   UNDERLINE,
+  HIGHLIGHT,
   TEXT_ALIGN,
   CHECKED_LIST_ITEM,
   UNORDERED_LIST_ITEM,
