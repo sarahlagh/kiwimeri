@@ -146,7 +146,7 @@ const UNORDERED_LIST_ITEM: KiwimeriTextElementParser = {
   }
 };
 
-export const CHECKED_LIST_ITEM_REGEX = /^- \[([xX ]?)\] /g;
+export const CHECKED_LIST_ITEM_REGEX = /^-\s?\[([x\s]?)\]\s/gi;
 const CHECKED_LIST_ITEM: KiwimeriTextElementParser = {
   ...UNORDERED_LIST_ITEM,
   name: 'checked_list_item',

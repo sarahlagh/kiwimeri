@@ -1,5 +1,4 @@
 import platformService from '@/common/services/platform.service';
-import { TRANSFORMERS } from '@lexical/markdown';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
@@ -22,6 +21,7 @@ import KiwimeriToolbarPlugin, {
   ToolbarPluginProps
 } from './KiwimeriToolbarPlugin';
 import { lexicalConfig } from './lexical-config';
+import { MARKDOWN_SHORTCUTS_TRANSFORMERS } from './playground/markdown-transformers';
 import AutoLinkPlugin from './playground/plugins/AutoLinkPlugin';
 import DebugTreeViewPlugin from './playground/plugins/DebugTreeViewPlugin';
 import { validateUrl } from './playground/utils/url';
@@ -87,7 +87,7 @@ const KiwimeriEditor = (
       <HorizontalRulePlugin />
       <TabIndentationPlugin />
       <SelectionAlwaysOnDisplay />
-      <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
+      <MarkdownShortcutPlugin transformers={MARKDOWN_SHORTCUTS_TRANSFORMERS} />
 
       <EditLinkPlugin
         isLinkEditMode={isLinkEditMode}
