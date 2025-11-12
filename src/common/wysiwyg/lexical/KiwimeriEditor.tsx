@@ -4,7 +4,10 @@ import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
-import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
+import {
+  createEmptyHistoryState,
+  HistoryPlugin
+} from '@lexical/react/LexicalHistoryPlugin';
 import { HorizontalRulePlugin } from '@lexical/react/LexicalHorizontalRulePlugin';
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
@@ -42,6 +45,7 @@ const KiwimeriEditor = (
 ) => {
   const { t } = useLingui();
   const [isLinkEditMode, setIsLinkEditMode] = useState(false);
+  const [history, setHistory] = useState(createEmptyHistoryState());
 
   const { children, initId, content, onChange, debounce = 0 } = props;
   const placeholder = t`Text...`;
@@ -66,7 +70,11 @@ const KiwimeriEditor = (
         }
         ErrorBoundary={LexicalErrorBoundary}
       />
-      <ReloadContentPlugin id={initId || 'id'} content={content} />
+      <ReloadContentPlugin
+        id={initId || 'id'}
+        content={content}
+        setHistory={setHistory}
+      />
       <DebounceOnChangePlugin
         ignoreSelectionChange
         waitFor={debounce}
@@ -78,7 +86,7 @@ const KiwimeriEditor = (
           }
         }}
       />
-      <HistoryPlugin />
+      <HistoryPlugin externalHistoryState={history} />
       <AutoFocusPlugin />
       <ListPlugin />
       <CheckListPlugin />
