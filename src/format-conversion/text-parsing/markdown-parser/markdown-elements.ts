@@ -13,17 +13,34 @@ import { KiwimeriLexerResponse, KiwimeriTextElementParser } from '../types';
 import { getTextAlign } from './markdown-blocks';
 import { MarkdownParser } from './markdown-parser';
 
+export const ESCAPE_CHARS = '*_~<=';
+export const EXTENDED_ESCAPE_CHARS = '#>-'; // only necessary at the start of a line
+
+const STOP_TOKEN_REGEX = new RegExp(
+  `^(([\\\\][${ESCAPE_CHARS}\n]|[^${ESCAPE_CHARS}\n])*)[${ESCAPE_CHARS}\n]`,
+  'g'
+);
+
+// same as old /(\**|_*|~*|<*|=*|\n*)$/g
+const AVOID_ESCAPED_CHARS_REGEX = new RegExp(
+  `(\\${ESCAPE_CHARS.split('').join('*|')}|\n*)$`,
+  'g'
+);
+
+const UNESCAPE_REGEX = new RegExp(
+  `\\\\([${ESCAPE_CHARS}${EXTENDED_ESCAPE_CHARS}])`,
+  'g'
+);
+
 const PLAIN_TEXT: KiwimeriTextElementParser = {
   name: 'plain_text',
   type: 'text',
   tokenize: nextText => {
     // regex to stop token at [*_~<\n] but not escaped [*_~<\n] (* will match but \* won't)
-    const endOfText = nextText.match(
-      /^(([\\][*_~<=\n]|[^*_~<=\n])*)[*_~<=\n]/g
-    );
+    const endOfText = nextText.match(STOP_TOKEN_REGEX);
     if (endOfText && endOfText.length > 0) {
       // remove trailing special chars BUT avoid escaped ones dammit
-      return endOfText[0].replaceAll(/(\**|_*|~*|<*|=*|\n*)$/g, '');
+      return endOfText[0].replaceAll(AVOID_ESCAPED_CHARS_REGEX, '');
     }
     return nextText;
   },
@@ -39,7 +56,7 @@ const PLAIN_TEXT: KiwimeriTextElementParser = {
       token = token.trimStart();
     }
     // unescape
-    token = token.replaceAll(/\\([*_~<#>=-])/g, '$1');
+    token = token.replaceAll(UNESCAPE_REGEX, '$1');
     const textNode: SerializedTextNode = {
       type: 'text',
       text: token,

@@ -1,3 +1,7 @@
+import {
+  ESCAPE_CHARS,
+  EXTENDED_ESCAPE_CHARS
+} from '@/format-conversion/text-parsing/markdown-parser/markdown-elements';
 import { ListType } from '@lexical/list';
 import {
   ElementFormatType,
@@ -90,14 +94,20 @@ const genericTextFormatTransform = function (
   return `${prefix}${text}${suffix}`;
 };
 
+const ESCAPE_CHARS_REGEX = new RegExp(`([${ESCAPE_CHARS}])`, 'g');
+const EXTENDED_ESCAPE_CHARS_REGEX = new RegExp(
+  `^([${EXTENDED_ESCAPE_CHARS}])`,
+  'gm'
+);
+
 // escape markdown chars with \
 export const MARKDOWN_TEXT_TRANSFORMER: KiwimeriLexTransformer = {
   type: 'text',
   handles: () => true,
   transform: (text: string, ctx) => {
-    text = text.replaceAll(/([*_~<=])/g, '\\$1');
+    text = text.replaceAll(ESCAPE_CHARS_REGEX, '\\$1');
     if (ctx.indexInLine === 0) {
-      return text.replaceAll(/^([#>-])/gm, '\\$1');
+      return text.replaceAll(EXTENDED_ESCAPE_CHARS_REGEX, '\\$1');
     }
     return text;
   }
