@@ -9,12 +9,15 @@ const theme: EditorThemeClasses = {
     h2: 'editor-heading-h2',
     h3: 'editor-heading-h3',
     h4: 'editor-heading-h4',
-    h5: 'editor-heading-h5'
+    h5: 'editor-heading-h5',
+    h6: 'editor-heading-h6'
   },
   image: 'editor-image',
   link: 'editor-link',
   list: {
     listitem: 'editor-listitem',
+    listitemChecked: 'editor-listitem-checked',
+    listitemUnchecked: 'editor-listitem-unchecked',
     nested: {
       listitem: 'editor-nested-listitem'
     },

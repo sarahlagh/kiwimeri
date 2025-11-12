@@ -2,6 +2,7 @@ import { IonIcon } from '@ionic/react';
 import { $isLinkNode } from '@lexical/link';
 import {
   $isListNode,
+  INSERT_CHECK_LIST_COMMAND,
   INSERT_ORDERED_LIST_COMMAND,
   INSERT_UNORDERED_LIST_COMMAND,
   ListNode
@@ -74,6 +75,7 @@ export default function ToolbarPlugin({
   const [isBlockQuote, setIsBlockQuote] = useState(false);
   const [isUnorderedList, setIsUnorderedList] = useState(false);
   const [isOrderedList, setIsOrderedList] = useState(false);
+  const [isCheckedList, setIsCheckedList] = useState(false);
   const [isLink, setIsLink] = useState(false);
 
   const $updateToolbar = useCallback(() => {
@@ -118,6 +120,7 @@ export default function ToolbarPlugin({
       setIsH2(type === 'h2');
       setIsH3(type === 'h3');
       setIsBlockQuote(type === 'quote');
+      setIsCheckedList(type === 'check');
       setIsUnorderedList(type === 'bullet');
       setIsOrderedList(type === 'number');
     }
@@ -339,6 +342,22 @@ export default function ToolbarPlugin({
         aria-label="Insert Ordered List"
       >
         <IonIcon className="format" src="writer/list-ol.svg"></IonIcon>
+      </button>
+      <button
+        onClick={() => {
+          if (!isCheckedList) {
+            editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined);
+          } else {
+            editor.update(() => {
+              const selection = $getSelection();
+              $setBlocksType(selection, () => $createParagraphNode());
+            });
+          }
+        }}
+        className={'toolbar-item ' + (isCheckedList ? 'active' : '')}
+        aria-label="Insert Checked List"
+      >
+        <IonIcon className="format" src="writer/list-check.svg"></IonIcon>
       </button>
       <Divider />
       <button
