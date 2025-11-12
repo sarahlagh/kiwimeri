@@ -1,4 +1,4 @@
-import { SerializedLinkNode } from '@lexical/link';
+import { SerializedAutoLinkNode, SerializedLinkNode } from '@lexical/link';
 import { SerializedListItemNode } from '@lexical/list';
 import {
   IS_BOLD,
@@ -10,6 +10,7 @@ import {
 } from 'lexical';
 import { KiwimeriLexerResponse, KiwimeriTextElementParser } from '../types';
 import { getTextAlign } from './markdown-blocks';
+import { MarkdownParser } from './markdown-parser';
 
 const PLAIN_TEXT: KiwimeriTextElementParser = {
   name: 'plain_text',
@@ -182,21 +183,18 @@ const SIMPLE_LINEBREAK: KiwimeriTextElementParser = {
 
 const BREAK_LIST_ITEMS_ELEMENTS = [UNORDERED_LIST_ITEM, NUMBERED_LIST_ITEM];
 
-const LINK_REGEX = /\[(.*)\]\((.*?)(?: "(.*)")?\)/g;
+const LINK_REGEX = /\[(.*)\]\((.*?)(?: ["'](.*)["'])?\)/g;
 const LINK: KiwimeriTextElementParser = {
   name: 'link',
   type: 'text',
   tokenize: nextText => {
     const link = nextText.match(LINK_REGEX);
     if (link) {
-      return link[0]; // actually only return the ']'
+      return link[0];
     }
-    // TODO if ] return the ]
-    // then return the following ()
     return null;
   },
-  // captures: () => true,
-  parse: (token, ctx, lexer) => {
+  parse: token => {
     const [, text, url, title] = [...token.matchAll(LINK_REGEX)][0];
     const node: SerializedLinkNode = {
       type: 'link',
@@ -210,9 +208,61 @@ const LINK: KiwimeriTextElementParser = {
       target: null,
       children: []
     };
-    // TODO actually if text has format may be multiple nodes -> must tokenize them...
-    // create link & open capture?
-    const textNode = PLAIN_TEXT.parse!(text, ctx, lexer)!;
+    const textNodes = new MarkdownParser().parseText(text);
+    if (textNodes) {
+      node.children = textNodes;
+      return node;
+    }
+    return null;
+  }
+};
+
+export const URL_REGEX =
+  /((https?:\/\/(www\.)?)|(www\.))[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)(?<![-.+():%])/;
+
+export const EMAIL_REGEX =
+  /(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/;
+
+const AUTOLINK_REGEX = new RegExp(
+  `<?((?:${URL_REGEX.source})|(?:${EMAIL_REGEX.source}))>?`,
+  'g'
+);
+
+const AUTOLINK: KiwimeriTextElementParser = {
+  name: 'autolink',
+  type: 'text',
+  tokenize: nextText => {
+    const autolink = nextText.match(AUTOLINK_REGEX);
+    if (autolink) {
+      return autolink[0];
+    }
+    return null;
+  },
+  parse: token => {
+    const [, url] = [...token.matchAll(AUTOLINK_REGEX)][0];
+    const isMail = token.match(EMAIL_REGEX);
+    const node: SerializedAutoLinkNode = {
+      type: 'autolink',
+      version: 1,
+      format: '',
+      direction: 'ltr',
+      indent: 0,
+      url: !isMail ? url : `mailto:${url}`,
+      rel: null,
+      target: null,
+      title: null,
+      isUnlinked: !token.startsWith('<'),
+      children: []
+    };
+    const textNode: SerializedTextNode = {
+      type: 'text',
+      version: 1,
+      format: 0,
+      text: url,
+      detail: 0,
+      mode: 'normal',
+      style: ''
+    };
     node.children.push(textNode);
     return node;
   }
@@ -229,5 +279,6 @@ export const MARKDOWN_ELEMENTS: KiwimeriTextElementParser[] = [
   NUMBERED_LIST_ITEM,
   SIMPLE_LINEBREAK,
   LINK,
+  AUTOLINK,
   PLAIN_TEXT
 ];

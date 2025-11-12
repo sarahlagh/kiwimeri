@@ -22,7 +22,7 @@ export abstract class KiwimeriTextParser {
 
   protected abstract getLexer(text: string, opts?: unknown): KiwimeriTextLexer;
 
-  private error(ctx: KiwimeriParserContext): KiwimeriParserError[] {
+  protected error(ctx: KiwimeriParserContext): KiwimeriParserError[] {
     const lines = ctx.blocks
       .map(block => block.text.replace(/[^\n]/g, '').length)
       .reduce((a, c) => a + c, 0);
@@ -36,7 +36,7 @@ export abstract class KiwimeriTextParser {
     ];
   }
 
-  private parseElem(
+  protected parseElem(
     elemParser: KiwimeriTextElementParser | null,
     lexResponse: KiwimeriLexerResponse,
     lexer: KiwimeriTextLexer,
@@ -81,7 +81,7 @@ export abstract class KiwimeriTextParser {
     ctx.addElement(lexResponse, newElem);
   }
 
-  private handleBlock(
+  protected handleBlock(
     lexer: KiwimeriTextLexer,
     block: KiwimeriParserTextBlock,
     ctx: KiwimeriParserContext
@@ -154,7 +154,7 @@ export abstract class KiwimeriTextParser {
     }
   }
 
-  private isBlockElementNode(
+  protected isBlockElementNode(
     node?: SerializedLexicalNode | null
   ): node is SerializedElementNode {
     return (node && 'children' in node) || false;
