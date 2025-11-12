@@ -220,7 +220,7 @@ msgstr "Kiwimeri format (single file)"
 msgid "Leave empty for root"
 msgstr "Leave empty for root"
 
-#: src/common/wysiwyg/lexical/EditLinkPlugin.tsx:54
+#: src/common/wysiwyg/lexical/EditLinkPlugin.tsx:57
 msgid "Link"
 msgstr "Link"
 

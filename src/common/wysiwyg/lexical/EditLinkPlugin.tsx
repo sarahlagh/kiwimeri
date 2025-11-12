@@ -44,7 +44,10 @@ export default function EditLinkPlugin({
           value={linkText}
           onIonChange={(e: InputCustomEvent) => {
             if (typeof e.detail.value === 'string') {
-              dismiss({ linkUrl, linkText: e.detail.value || '' }, 'input');
+              dismiss(
+                { linkUrl, linkText: e.detail.value || '', isAutoLink },
+                'input'
+              );
             }
           }}
         ></IonInput>
@@ -56,14 +59,17 @@ export default function EditLinkPlugin({
           value={linkUrl}
           onIonChange={(e: InputCustomEvent) => {
             if (typeof e.detail.value === 'string') {
-              dismiss({ linkUrl: e.detail.value || '', linkText }, 'input');
+              dismiss(
+                { linkUrl: e.detail.value || '', linkText, isAutoLink },
+                'input'
+              );
             }
           }}
         ></IonInput>
         <IonButton
           fill="clear"
           onClick={() => {
-            dismiss({ linkUrl: '', linkText: '' }, 'input');
+            dismiss({ linkUrl: '', linkText: '', isAutoLink }, 'input');
           }}
         >
           <IonIcon
@@ -72,7 +78,7 @@ export default function EditLinkPlugin({
         </IonButton>
       </IonItem>
     </IonList>,
-    { linkUrl, linkText, isAutoLinkUnlinked }
+    { linkUrl, linkText, isAutoLinkUnlinked, isAutoLink }
   );
 
   useEffect(() => {
@@ -84,9 +90,10 @@ export default function EditLinkPlugin({
           setLinkText('');
           setIsLinkEditMode(false);
           if (e.detail.role === 'input') {
-            const { linkUrl, linkText } = e.detail.data as {
+            const { linkUrl, linkText, isAutoLink } = e.detail.data as {
               linkUrl: string;
               linkText: string;
+              isAutoLink: boolean;
             };
             if (isAutoLink) {
               handleAutoLinkSubmission(linkUrl, linkText);
