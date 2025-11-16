@@ -26,6 +26,29 @@ describe('parser', () => {
     });
   });
 
+  describe(`should parse horizontal rules`, () => {
+    it(`should parse hr even if text after`, () => {
+      const parser = new MarkdownParser();
+      const resp = parser.parse('----------hey');
+      expect(resp.errors).toBeUndefined();
+      expect(resp.obj).toBeDefined();
+      expect(resp.obj!.root).toBeDefined();
+      expect(resp.obj!.root.children).toHaveLength(1);
+      expect(resp.obj!.root.children[0].type).toBe('horizontalrule');
+    });
+
+    it(`should parse double hr`, () => {
+      const parser = new MarkdownParser();
+      const resp = parser.parse('----------\n----------\n');
+      expect(resp.errors).toBeUndefined();
+      expect(resp.obj).toBeDefined();
+      expect(resp.obj!.root).toBeDefined();
+      expect(resp.obj!.root.children).toHaveLength(2);
+      expect(resp.obj!.root.children[0].type).toBe('horizontalrule');
+      expect(resp.obj!.root.children[1].type).toBe('horizontalrule');
+    });
+  });
+
   describe(`should return parsing errors`, () => {
     it(`should return error for non escaped chars`, () => {
       const parser = new MarkdownParser();

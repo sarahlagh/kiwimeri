@@ -37,8 +37,8 @@ class FormatConversionService {
   }
 
   public getPagesSeparator() {
-    // TODO depends on the format
-    return '==============================================================\n';
+    // TODO should depend on the format
+    return '--------------------------------------------------------------\n--------------------------------------------------------------\n';
   }
 }
 
