@@ -38,6 +38,7 @@ export default function EditLinkPlugin({
 
   const [present, dismiss] = useIonPopover(
     <IonList lines="none" className="inner-list">
+      <IonItem>{isAutoLink ? 'autolink' : 'manual link'}</IonItem>
       <IonItem className="inner-item">
         <IonInput
           label={t`Text`}
@@ -66,24 +67,48 @@ export default function EditLinkPlugin({
             }
           }}
         ></IonInput>
-        <IonButton
-          fill="clear"
-          onClick={() => {
-            dismiss({ linkUrl: '', linkText: '', isAutoLink }, 'input');
-          }}
-        >
-          <IonIcon
-            icon={!isAutoLinkUnlinked ? APPICONS.deleteAction : APPICONS.ok}
-          ></IonIcon>
-        </IonButton>
+        {(isAutoLink || linkUrl !== '') && (
+          <IonButton
+            fill="clear"
+            onClick={() => {
+              dismiss({ linkUrl: '', linkText: '', isAutoLink }, 'input');
+            }}
+          >
+            <IonIcon
+              icon={!isAutoLinkUnlinked ? APPICONS.deleteAction : APPICONS.ok}
+            ></IonIcon>
+          </IonButton>
+        )}
       </IonItem>
     </IonList>,
     { linkUrl, linkText, isAutoLinkUnlinked, isAutoLink }
   );
 
+  const readExistingLink = () => {
+    editor.read(() => {
+      const selection = $getSelection();
+      if ($isRangeSelection(selection)) {
+        const node = getSelectedNode(selection);
+        const parent = node.getParent();
+        if ($isLinkNode(parent)) {
+          setLinkUrl(parent.getURL());
+          setIsAutoLink($isAutoLinkNode(parent));
+          if ($isAutoLinkNode(parent)) {
+            setIsAutoLinkUnlinked(parent.getIsUnlinked());
+          }
+        } else {
+          setLinkUrl('');
+          setIsAutoLink(false);
+          setIsAutoLinkUnlinked(false);
+        }
+        setLinkText(selection.getTextContent() || node.getTextContent());
+      }
+    });
+  };
+
   useEffect(() => {
+    readExistingLink();
     if (isLinkEditMode) {
-      readExistingLink();
       present({
         onDidDismiss: (e: CustomEvent) => {
           setLinkUrl('');
@@ -106,24 +131,6 @@ export default function EditLinkPlugin({
       });
     }
   }, [isLinkEditMode]);
-
-  const readExistingLink = () => {
-    editor.read(() => {
-      const selection = $getSelection();
-      if ($isRangeSelection(selection)) {
-        const node = getSelectedNode(selection);
-        const parent = node.getParent();
-        if ($isLinkNode(parent)) {
-          setLinkUrl(parent.getURL());
-          setIsAutoLink($isAutoLinkNode(parent));
-          if ($isAutoLinkNode(parent)) {
-            setIsAutoLinkUnlinked(parent.getIsUnlinked());
-          }
-        }
-        setLinkText(selection.getTextContent() || node.getTextContent());
-      }
-    });
-  };
 
   const handleLinkSubmission = (newLinkUrl: string, newLinkText: string) => {
     const undoLink = newLinkUrl === '';

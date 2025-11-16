@@ -106,7 +106,7 @@ msgstr "deleted item"
 msgid "Dev Tools"
 msgstr "Dev Tools"
 
-#: src/dev-tools/components/DevTools.tsx:37
+#: src/dev-tools/components/DevTools.tsx:36
 msgid "Dev Tools Enabled"
 msgstr "Dev Tools Enabled"
 
@@ -220,7 +220,7 @@ msgstr "Kiwimeri format (single file)"
 msgid "Leave empty for root"
 msgstr "Leave empty for root"
 
-#: src/common/wysiwyg/lexical/EditLinkPlugin.tsx:57
+#: src/common/wysiwyg/lexical/EditLinkPlugin.tsx:58
 msgid "Link"
 msgstr "Link"
 
@@ -421,11 +421,11 @@ msgstr "Synchronize your collection on the filesystem"
 msgid "Syncing is disabled on the web version."
 msgstr "Syncing is disabled on the web version."
 
-#: src/common/wysiwyg/lexical/EditLinkPlugin.tsx:43
+#: src/common/wysiwyg/lexical/EditLinkPlugin.tsx:44
 msgid "Text"
 msgstr "Text"
 
-#: src/common/wysiwyg/lexical/KiwimeriEditor.tsx:47
+#: src/common/wysiwyg/lexical/KiwimeriEditor.tsx:51
 msgid "Text..."
 msgstr "Text..."
 
