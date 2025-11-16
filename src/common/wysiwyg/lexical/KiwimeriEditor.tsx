@@ -78,12 +78,8 @@ const KiwimeriEditor = (
       <DebounceOnChangePlugin
         ignoreSelectionChange
         waitFor={debounce}
-        onChange={(editorState, editor, tags) => {
-          if (tags.has('focus') || tags.has('reload')) {
-            console.debug('skipping editor change', tags);
-          } else {
-            onChange(editorState);
-          }
+        onChange={editorState => {
+          onChange(editorState);
         }}
       />
       <HistoryPlugin externalHistoryState={history} />
@@ -104,7 +100,7 @@ const KiwimeriEditor = (
 
       {children}
 
-      {platformService.isDev() && <DebugTreeViewPlugin />}
+      {!platformService.isRelease() && <DebugTreeViewPlugin />}
     </LexicalComposer>
   );
 };
