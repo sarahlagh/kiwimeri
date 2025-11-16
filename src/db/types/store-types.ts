@@ -77,12 +77,27 @@ export interface AppLog {
   message: string;
 }
 
+export interface LocalCollectionSearchIndex {
+  id?: string;
+  path: string;
+  contentPreview?: string;
+}
+
+export interface LocalCollectionAncestor {
+  id?: string;
+  parentId: string;
+  childId: string;
+  depth: number;
+}
+
 type spacesEnum = keyof Required<Space>;
 type localChangeEnum = keyof Required<Omit<LocalChange, 'id'>>;
 type remoteEnum = keyof Required<Omit<Remote, 'id'>>;
 type remoteStateEnum = keyof Required<Omit<RemoteState, 'id'>>;
 type remoteItemInfoEnum = keyof Required<Omit<RemoteItemInfo, 'id'>>;
 type appLogEnum = keyof Required<Omit<AppLog, 'id'>>;
+type localSearchIndex = keyof Required<Omit<LocalCollectionSearchIndex, 'id'>>;
+type localAncestorsEnum = keyof Required<Omit<LocalCollectionAncestor, 'id'>>;
 
 export type StoreType = [
   {
@@ -104,6 +119,12 @@ export type StoreType = [
     };
     logs: {
       [cellId in appLogEnum]: CellSchema;
+    };
+    search: {
+      [cellId in localSearchIndex]: CellSchema;
+    };
+    ancestors: {
+      [cellId in localAncestorsEnum]: CellSchema;
     };
   },
   {

@@ -43,7 +43,7 @@ export const INITIAL_CONTENT_START = '{"root":{';
 
 class CollectionService {
   private readonly storeId = 'space';
-  private readonly table = 'collection';
+  private readonly tableId = 'collection';
   private readonly previewSize = 80;
 
   // TODO review what i actually need to select in queries - fields for sorting, what else?
@@ -51,18 +51,22 @@ class CollectionService {
     const queries = storageService.getSpaceQueries();
     const queryName = `fetchAllForParent${parent}`;
     if (!queries.hasQuery(queryName)) {
-      queries.setQueryDefinition(queryName, this.table, ({ select, where }) => {
-        select('title');
-        select('type');
-        select('tags');
-        select('created');
-        select('updated');
-        select('conflict');
-        select('preview');
-        select('order');
-        where('parent', parent);
-        where('deleted', deleted);
-      });
+      queries.setQueryDefinition(
+        queryName,
+        this.tableId,
+        ({ select, where }) => {
+          select('title');
+          select('type');
+          select('tags');
+          select('created');
+          select('updated');
+          select('conflict');
+          select('preview');
+          select('order');
+          where('parent', parent);
+          where('deleted', deleted);
+        }
+      );
     }
     return queryName;
   }
@@ -74,22 +78,26 @@ class CollectionService {
     const queries = storageService.getSpaceQueries();
     const queryName = `fetchAllCollectionItemsFor${parent}`;
     if (!queries.hasQuery(queryName)) {
-      queries.setQueryDefinition(queryName, this.table, ({ select, where }) => {
-        select('title');
-        select('type');
-        select('tags');
-        select('created');
-        select('updated');
-        select('conflict');
-        select('preview');
-        select('order');
-        where('parent', parent);
-        where('deleted', deleted);
-        where(getCell => {
-          const type = getCell('type')?.valueOf();
-          return type !== CollectionItemType.page;
-        });
-      });
+      queries.setQueryDefinition(
+        queryName,
+        this.tableId,
+        ({ select, where }) => {
+          select('title');
+          select('type');
+          select('tags');
+          select('created');
+          select('updated');
+          select('conflict');
+          select('preview');
+          select('order');
+          where('parent', parent);
+          where('deleted', deleted);
+          where(getCell => {
+            const type = getCell('type')?.valueOf();
+            return type !== CollectionItemType.page;
+          });
+        }
+      );
     }
     return queryName;
   }
@@ -98,15 +106,19 @@ class CollectionService {
     const queries = storageService.getSpaceQueries();
     const queryName = `fetchPagesForDoc${document}`;
     if (!queries.hasQuery(queryName)) {
-      queries.setQueryDefinition(queryName, this.table, ({ select, where }) => {
-        select('created');
-        select('updated');
-        select('preview');
-        select('conflict');
-        select('order');
-        where('parent', document);
-        where('type', CollectionItemType.page);
-      });
+      queries.setQueryDefinition(
+        queryName,
+        this.tableId,
+        ({ select, where }) => {
+          select('created');
+          select('updated');
+          select('preview');
+          select('conflict');
+          select('order');
+          where('parent', document);
+          where('type', CollectionItemType.page);
+        }
+      );
     }
     return queryName;
   }
@@ -115,19 +127,23 @@ class CollectionService {
     const queries = storageService.getSpaceQueries();
     const queryName = `fetchConflicts`;
     if (!queries.hasQuery(queryName)) {
-      queries.setQueryDefinition(queryName, this.table, ({ select, where }) => {
-        select('title');
-        select('type');
-        select('tags');
-        select('created');
-        select('updated');
-        select('conflict');
-        select('preview');
-        where(getCell => {
-          const conflict = getCell('conflict')?.valueOf();
-          return !!conflict;
-        });
-      });
+      queries.setQueryDefinition(
+        queryName,
+        this.tableId,
+        ({ select, where }) => {
+          select('title');
+          select('type');
+          select('tags');
+          select('created');
+          select('updated');
+          select('conflict');
+          select('preview');
+          where(getCell => {
+            const conflict = getCell('conflict')?.valueOf();
+            return !!conflict;
+          });
+        }
+      );
     }
     return queryName;
   }
@@ -150,7 +166,7 @@ class CollectionService {
     if (!sort) {
       sort = userSettingsService.getDefaultDisplayOpts().sort;
     }
-    const table = storageService.getSpace().getTable(this.table);
+    const table = storageService.getSpace().getTable(this.tableId);
     const queryName = this.fetchAllPerParentQuery(parent);
     return this.getResultsSorted(table, queryName, sort);
   }
@@ -162,7 +178,7 @@ class CollectionService {
     if (!sort) {
       sort = userSettingsService.getDefaultDisplayOpts().sort;
     }
-    const table = storageService.getSpace().getTable(this.table);
+    const table = storageService.getSpace().getTable(this.tableId);
     const queryName = this.fetchDocsFoldersNotebooksPerParentQuery(parent);
     return this.getResultsSorted(table, queryName, sort);
   }
@@ -191,7 +207,7 @@ class CollectionService {
     if (!sort) {
       sort = userSettingsService.getDefaultDisplayOpts().sort;
     }
-    const table = useTableWithRef(this.storeId, this.table);
+    const table = useTableWithRef(this.storeId, this.tableId);
     const queryName = this.fetchDocsFoldersNotebooksPerParentQuery(parent);
     return this.useResultsSorted(table, queryName, sort);
   }
@@ -200,7 +216,7 @@ class CollectionService {
     if (!sort) {
       sort = userSettingsService.getDefaultDisplayOpts().sort;
     }
-    const table = storageService.getSpace().getTable(this.table);
+    const table = storageService.getSpace().getTable(this.tableId);
     const queryName = this.fetchPagesForDocQuery(document);
     return storageService
       .getSpaceQueries()
@@ -218,7 +234,7 @@ class CollectionService {
     if (!sort) {
       sort = userSettingsService.getDefaultDisplayOpts().sort;
     }
-    const table = useTableWithRef(this.storeId, this.table);
+    const table = useTableWithRef(this.storeId, this.tableId);
     const queryName = this.fetchPagesForDocQuery(document);
     return this.useResultsSorted(table, queryName, sort);
   }
@@ -227,7 +243,7 @@ class CollectionService {
     if (!sort) {
       sort = userSettingsService.getDefaultDisplayOpts().sort;
     }
-    const table = useTableWithRef(this.storeId, this.table);
+    const table = useTableWithRef(this.storeId, this.tableId);
     const queryName = this.fetchConflictsQuery();
     return this.useResultsSorted(table, queryName, sort);
   }
@@ -236,7 +252,7 @@ class CollectionService {
     if (!sort) {
       sort = userSettingsService.getDefaultDisplayOpts().sort;
     }
-    const table = storageService.getSpace().getTable(this.table);
+    const table = storageService.getSpace().getTable(this.tableId);
     const queryName = this.fetchConflictsQuery();
     return this.getResultsSorted(table, queryName, sort);
   }
@@ -358,7 +374,7 @@ class CollectionService {
     const changeType = this.itemExists(id)
       ? LocalChangeType.update
       : LocalChangeType.add;
-    storageService.getSpace().setRow(this.table, id, { ...item });
+    storageService.getSpace().setRow(this.tableId, id, { ...item });
     if (parent) {
       this.updateAllParentsInBreadcrumb(parent);
     }
@@ -400,21 +416,21 @@ class CollectionService {
         });
       }
     }
-    storageService.getSpace().delRow(this.table, rowId);
+    storageService.getSpace().delRow(this.tableId, rowId);
   }
 
   public itemExists(rowId: Id) {
     if (rowId === ROOT_COLLECTION) {
       return true;
     }
-    return storageService.getSpace().hasRow(this.table, rowId);
+    return storageService.getSpace().hasRow(this.tableId, rowId);
   }
 
   public getItemParent(rowId: Id) {
     return (
       (storageService
         .getSpace()
-        .getCell(this.table, rowId, 'parent')
+        .getCell(this.tableId, rowId, 'parent')
         ?.valueOf() as string) || ROOT_COLLECTION
     );
   }
@@ -433,7 +449,7 @@ class CollectionService {
     const parent = this.useItemParent(rowId);
     const parentType = useCellWithRef<string>(
       this.storeId,
-      this.table,
+      this.tableId,
       parent,
       'type'
     ) as CollectionItemTypeValues;
@@ -444,7 +460,7 @@ class CollectionService {
     const isItemHomeFolder = this.useIsItemHomeFolder(rowId);
     const defaultValue = isItemHomeFolder ? getGlobalTrans().homeTitle : '';
     return (
-      useCellWithRef<string>(this.storeId, this.table, rowId, 'title') ||
+      useCellWithRef<string>(this.storeId, this.tableId, rowId, 'title') ||
       defaultValue
     );
   }
@@ -455,7 +471,7 @@ class CollectionService {
     return (
       (storageService
         .getSpace()
-        .getCell(this.table, rowId, 'title')
+        .getCell(this.tableId, rowId, 'title')
         ?.valueOf() as string) || defaultValue
     );
   }
@@ -468,27 +484,29 @@ class CollectionService {
     return (
       (storageService
         .getSpace()
-        .getCell(this.table, rowId, 'content')
+        .getCell(this.tableId, rowId, 'content')
         ?.valueOf() as string) || null
     );
   }
 
   public useItemContent(rowId: Id) {
     return (
-      useCellWithRef<string>(this.storeId, this.table, rowId, 'content') || null
+      useCellWithRef<string>(this.storeId, this.tableId, rowId, 'content') ||
+      null
     );
   }
 
   public useItemParent(rowId: Id) {
     return (
-      useCellWithRef<string>(this.storeId, this.table, rowId, 'parent') ||
+      useCellWithRef<string>(this.storeId, this.tableId, rowId, 'parent') ||
       ROOT_COLLECTION
     );
   }
 
   public useItemPreview(rowId: Id) {
     return (
-      useCellWithRef<string>(this.storeId, this.table, rowId, 'preview') || null
+      useCellWithRef<string>(this.storeId, this.tableId, rowId, 'preview') ||
+      null
     );
   }
 
@@ -496,7 +514,7 @@ class CollectionService {
     return (
       (storageService
         .getSpace()
-        .getCell(this.table, rowId, 'preview')
+        .getCell(this.tableId, rowId, 'preview')
         ?.valueOf() as string) || ''
     );
   }
@@ -537,8 +555,12 @@ class CollectionService {
 
   public useItemDisplayOpts(rowId: Id): CollectionItemDisplayOpts | undefined {
     const str =
-      useCellWithRef<string>(this.storeId, this.table, rowId, 'display_opts') ||
-      null;
+      useCellWithRef<string>(
+        this.storeId,
+        this.tableId,
+        rowId,
+        'display_opts'
+      ) || null;
     return str ? JSON.parse(str) : undefined;
   }
 
@@ -546,7 +568,7 @@ class CollectionService {
     const str =
       (storageService
         .getSpace()
-        .getCell(this.table, rowId, 'display_opts')
+        .getCell(this.tableId, rowId, 'display_opts')
         ?.valueOf() as string) || '';
 
     return str ? JSON.parse(str) : undefined;
@@ -557,8 +579,12 @@ class CollectionService {
   public useItemEffectiveDisplayOpts(rowId: Id): CollectionItemDisplayOpts {
     const defaultDisplayOpts = userSettingsService.useDefaultDisplayOpts();
     const str =
-      useCellWithRef<string>(this.storeId, this.table, rowId, 'display_opts') ||
-      null;
+      useCellWithRef<string>(
+        this.storeId,
+        this.tableId,
+        rowId,
+        'display_opts'
+      ) || null;
     return str ? JSON.parse(str) : defaultDisplayOpts;
   }
 
@@ -566,7 +592,7 @@ class CollectionService {
     const str =
       (storageService
         .getSpace()
-        .getCell(this.table, rowId, 'display_opts')
+        .getCell(this.tableId, rowId, 'display_opts')
         ?.valueOf() as string) || '';
 
     return str ? JSON.parse(str) : userSettingsService.getDefaultDisplayOpts();
@@ -594,7 +620,7 @@ class CollectionService {
 
   public useItemTags(rowId: Id) {
     return new Set(
-      (useCellWithRef<string>(this.storeId, this.table, rowId, 'tags') || '')
+      (useCellWithRef<string>(this.storeId, this.tableId, rowId, 'tags') || '')
         .split(',')
         .filter(t => t.length > 0)
     );
@@ -605,7 +631,7 @@ class CollectionService {
       (
         (storageService
           .getSpace()
-          .getCell(this.table, rowId, 'tags')
+          .getCell(this.tableId, rowId, 'tags')
           ?.valueOf() as string) || ''
       )
         .split(',')
@@ -647,7 +673,7 @@ class CollectionService {
   public getItemType(rowId: Id): CollectionItemTypeValues {
     return storageService
       .getSpace()
-      .getCell(this.table, rowId, 'type')
+      .getCell(this.tableId, rowId, 'type')
       ?.valueOf() as CollectionItemTypeValues;
   }
 
@@ -655,7 +681,7 @@ class CollectionService {
     return (
       (storageService
         .getSpace()
-        .getCell(this.table, rowId, 'conflict')
+        .getCell(this.tableId, rowId, 'conflict')
         ?.valueOf() as string) !== undefined || false
     );
   }
@@ -663,7 +689,7 @@ class CollectionService {
   private resetItemIfConflict(rowId: Id) {
     const isConflict = this.isItemConflict(rowId);
     if (isConflict) {
-      storageService.getSpace().delCell(this.table, rowId, 'conflict');
+      storageService.getSpace().delCell(this.tableId, rowId, 'conflict');
     }
     return isConflict;
   }
@@ -766,7 +792,7 @@ class CollectionService {
       for (let i = 1; i < breadcrumb.length; i++) {
         storageService
           .getSpace()
-          .setCell(this.table, breadcrumb[i], 'updated', Date.now());
+          .setCell(this.tableId, breadcrumb[i], 'updated', Date.now());
       }
     });
   }

@@ -9,6 +9,7 @@ import { Persister } from 'tinybase/persisters/with-schemas';
 import { createQueries, Queries } from 'tinybase/queries/with-schemas';
 import { CellSchema, createStore, Store } from 'tinybase/store/with-schemas';
 import { createIndexes, Indexes } from 'tinybase/with-schemas';
+import { searchService } from './collection-search.service';
 import localChangesService from './local-changes.service';
 import notebooksService from './notebooks.service';
 import tagsService from './tags.service';
@@ -78,6 +79,15 @@ class StorageService {
           ts: { type: 'number' } as CellSchema,
           level: { type: 'string' } as CellSchema,
           message: { type: 'string' } as CellSchema
+        },
+        search: {
+          path: { type: 'string' } as CellSchema,
+          contentPreview: { type: 'string' } as CellSchema
+        },
+        ancestors: {
+          parentId: { type: 'string' } as CellSchema,
+          childId: { type: 'string' } as CellSchema,
+          depth: { type: 'number', default: 0 } as CellSchema
         }
       })
       .setValuesSchema({
@@ -127,10 +137,12 @@ class StorageService {
     // init spaces
     setTimeout(() => {
       notebooksService.initNotebooks();
+      searchService.initSearchIndices(DEFAULT_SPACE_ID);
     });
   }
 
   public async stop() {
+    searchService.stop();
     await this.storeLocalPersister.destroy();
     await this.spaceLocalPersisters.get(this.getSpaceId())!.destroy();
   }
