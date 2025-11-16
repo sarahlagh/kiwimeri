@@ -34,7 +34,7 @@ const shortContent = JSON.parse(
 );
 
 const loremIpsum = JSON.parse(
-  '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"\\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum\\"","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}'
+  '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum\\"","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}'
 );
 
 describe('collection service', () => {
@@ -712,6 +712,7 @@ describe('collection service', () => {
       item1.id = i1;
       item1.title = 'r1';
       item1.order = 2;
+      collectionService.setUnsavedItemLexicalContent(item1, shortContent);
       vi.advanceTimersByTime(fakeTimersDelay);
       collectionService.saveItem(item1, i1);
       const { id: i2, item: item2 } =
@@ -719,6 +720,7 @@ describe('collection service', () => {
       item2.id = i2;
       item2.title = 'r2';
       item2.order = 3;
+      collectionService.setUnsavedItemLexicalContent(item2, loremIpsum);
       vi.advanceTimersByTime(fakeTimersDelay);
       collectionService.saveItem(item2, i2);
       const { id: i3, item: item3 } =
@@ -726,6 +728,8 @@ describe('collection service', () => {
       item3.id = i3;
       item3.title = 'r3';
       item3.order = 1;
+      item3.content = minimizeContentForStorage(shortContent);
+      collectionService.setUnsavedItemLexicalContent(item3, shortContent);
       vi.advanceTimersByTime(fakeTimersDelay);
       collectionService.saveItem(item3, i3);
 
@@ -784,6 +788,24 @@ describe('collection service', () => {
           })
           .map(i => `${i.title}`)
       ).toEqual(['r2', 'r1', 'r3']);
+
+      expect(
+        collectionService
+          .getBrowsableCollectionItems(DEFAULT_NOTEBOOK_ID, {
+            by: 'preview',
+            descending: false
+          })
+          .map(i => `${i.title}`)
+      ).toEqual(['r2', 'r1', 'r3']);
+
+      expect(
+        collectionService
+          .getBrowsableCollectionItems(DEFAULT_NOTEBOOK_ID, {
+            by: 'preview',
+            descending: true
+          })
+          .map(i => `${i.title}`)
+      ).toEqual(['r3', 'r1', 'r2']);
     });
 
     it(`should order items within a folder or notebook`, () => {
