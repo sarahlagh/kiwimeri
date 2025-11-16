@@ -22,6 +22,7 @@ import { SerializedEditorState } from 'lexical';
 import { getUniqueId } from 'tinybase/common';
 import { Id } from 'tinybase/common/with-schemas';
 import { Table } from 'tinybase/store';
+import { searchService } from './collection-search.service';
 import localChangesService from './local-changes.service';
 import notebooksService from './notebooks.service';
 import storageService from './storage.service';
@@ -765,22 +766,17 @@ class CollectionService {
     });
   }
 
-  public getBreadcrumb(folder: string, includeAllNotebooks = false) {
-    let parent = folder;
-    let breadcrumb: string[] = [];
-    let nbNotebooks = 0;
-    while (parent !== ROOT_COLLECTION && nbNotebooks < 2) {
-      breadcrumb = [parent, ...breadcrumb];
-      if (
-        !includeAllNotebooks &&
-        collectionService.getItemType(parent) === CollectionItemType.notebook
-      ) {
-        nbNotebooks++;
-        break;
-      }
-      parent = this.getItemParent(parent);
+  public getBreadcrumb(rowId: string, includeAllNotebooks = false) {
+    if (!includeAllNotebooks) {
+      const breadcrumb = searchService.getBreadcrumb(rowId);
+      return breadcrumb.length > 0 ? breadcrumb.split(',') : [];
     }
-    return breadcrumb;
+    return searchService.getPath(
+      rowId,
+      storageService.getSpace().getTable('collection'),
+      includeAllNotebooks,
+      true
+    );
   }
 
   private updateAllParentsInBreadcrumb(folder: string) {

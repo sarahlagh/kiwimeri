@@ -81,7 +81,7 @@ class StorageService {
           message: { type: 'string' } as CellSchema
         },
         search: {
-          path: { type: 'string' } as CellSchema,
+          breadcrumb: { type: 'string' } as CellSchema,
           contentPreview: { type: 'string' } as CellSchema
         },
         ancestors: {

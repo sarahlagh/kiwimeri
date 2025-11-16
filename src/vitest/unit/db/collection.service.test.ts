@@ -6,7 +6,12 @@ import {
   parseFieldMeta
 } from '@/collection/collection';
 import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
-import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
+import {
+  DEFAULT_NOTEBOOK_ID,
+  DEFAULT_SPACE_ID,
+  ROOT_COLLECTION
+} from '@/constants';
+import { searchService } from '@/db/collection-search.service';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import { defaultOrder } from '@/db/types/space-types';
@@ -35,9 +40,11 @@ const loremIpsum = JSON.parse(
 describe('collection service', () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    searchService.initSearchIndices(DEFAULT_SPACE_ID);
   });
   afterEach(() => {
     vi.useRealTimers();
+    searchService.stop();
   });
 
   BROWSABLE_ITEM_TYPES.forEach(({ type, typeVal, addMethod, defaultTitle }) => {
@@ -577,7 +584,7 @@ describe('collection service', () => {
     });
   });
 
-  describe(`iterating through the collection`, () => {
+  describe(`getting the breadcrumb`, () => {
     it(`should return a breadcrumb with only one parent notebook`, () => {
       const idn1 = notebooksService.addNotebook('test');
       const idn2 = notebooksService.addNotebook('nested', idn1);
@@ -647,7 +654,9 @@ describe('collection service', () => {
         idd2
       ]);
     });
+  });
 
+  describe(`iterating through the collection`, () => {
     it(`should return recursively all items in a parent`, () => {
       const idn1 = notebooksService.addNotebook('test');
       const idn2 = notebooksService.addNotebook('nested', idn1);

@@ -1,6 +1,11 @@
-import { DEFAULT_NOTEBOOK_ID, DEFAULT_SPACE_ID } from '@/constants';
+import {
+  DEFAULT_NOTEBOOK_ID,
+  DEFAULT_SPACE_ID,
+  ROOT_COLLECTION
+} from '@/constants';
 import { searchService } from '@/db/collection-search.service';
 import collectionService from '@/db/collection.service';
+import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
 import { oneDocument, oneFolder, onePage } from '@/vitest/setup/test.utils';
 import { describe, it } from 'vitest';
@@ -131,9 +136,9 @@ const testExpectedPaths = (paths: string[][]) => {
   paths.forEach(path => {
     let breadcrumb = '';
     for (let i = 0; i < path.length; i++) {
-      expect(searchService.getBreadcrumb(path[i])).toBe(breadcrumb);
       if (breadcrumb.length > 0) breadcrumb += ',';
       breadcrumb += path[i];
+      expect(searchService.getBreadcrumb(path[i])).toBe(breadcrumb);
     }
   });
 };
@@ -166,8 +171,10 @@ describe('collection search service', () => {
       DEFAULT_NOTEBOOK_ID
     );
     expect(
-      storageService.getStore().getCell('search', DEFAULT_NOTEBOOK_ID, 'path')
-    ).toBe('');
+      storageService
+        .getStore()
+        .getCell('search', DEFAULT_NOTEBOOK_ID, 'breadcrumb')
+    ).toBe(DEFAULT_NOTEBOOK_ID);
   });
 
   it(`should create correct ancestry on start`, () => {
@@ -223,5 +230,32 @@ describe('collection search service', () => {
       ['0', 'F1', 'FF1'],
       ['0', 'F2', 'FF2', 'FFF1', 'D1', 'P1']
     ]);
+  });
+
+  it(`should cache and a breadcrumb with only one parent notebook`, () => {
+    searchService.initSearchIndices(DEFAULT_SPACE_ID);
+    const idn1 = notebooksService.addNotebook('test');
+    const idn2 = notebooksService.addNotebook('nested', idn1);
+    const idd1 = collectionService.addDocument(idn2);
+    const idp1 = collectionService.addPage(idd1);
+    const idf1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+    const idd2 = collectionService.addDocument(idf1);
+
+    expect(searchService.getBreadcrumb(ROOT_COLLECTION)).toBe('');
+    expect(searchService.getBreadcrumb(DEFAULT_NOTEBOOK_ID)).toBe(
+      DEFAULT_NOTEBOOK_ID
+    );
+    expect(searchService.getBreadcrumb(idn1)).toBe(idn1);
+    expect(searchService.getBreadcrumb(idn2)).toBe(idn2);
+    expect(searchService.getBreadcrumb(idd1)).toBe([idn2, idd1].join(','));
+    expect(searchService.getBreadcrumb(idp1)).toBe(
+      [idn2, idd1, idp1].join(',')
+    );
+    expect(searchService.getBreadcrumb(idf1)).toBe(
+      [DEFAULT_NOTEBOOK_ID, idf1].join(',')
+    );
+    expect(searchService.getBreadcrumb(idd2)).toBe(
+      [DEFAULT_NOTEBOOK_ID, idf1, idd2].join(',')
+    );
   });
 });

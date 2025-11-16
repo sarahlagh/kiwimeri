@@ -1,7 +1,11 @@
+import {
+  CollectionItemType,
+  CollectionItemTypeValues
+} from '@/collection/collection';
 import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
 import { ROOT_COLLECTION } from '@/constants';
 import formatConverter from '@/format-conversion/format-converter.service';
-import { Id, Store, Table } from 'tinybase/with-schemas';
+import { Id, Ids, Store, Table } from 'tinybase/with-schemas';
 import storageService from './storage.service';
 import { SpaceType } from './types/space-types';
 import { StoreType } from './types/store-types';
@@ -10,7 +14,7 @@ class CollectionSearchService {
   private readonly ancestorsTableId = 'ancestors';
   private readonly collectionTableId = 'collection';
 
-  private ancestryUpdateListeners: Map<Id, Id> = new Map();
+  private updateListeners: Map<Id, Ids> = new Map();
 
   public initSearchIndices(spaceId: string) {
     const store = storageService.getStore();
@@ -29,7 +33,7 @@ class CollectionSearchService {
     });
 
     // update data as user changes stuff
-    const listenerId = space.addCellListener(
+    const onParentChangeListener = space.addCellListener(
       this.collectionTableId,
       null,
       'parent',
@@ -37,9 +41,7 @@ class CollectionSearchService {
         storageService.getStore().transaction(() => {
           const oldParent = oldCell as string;
 
-          const rowChildren = indexes
-            .getSliceRowIds('byParent', rowId)
-            .map(id => id.split(',')[0]);
+          const rowChildren = this.getChildren(rowId);
           const updatedItems = [rowId, ...rowChildren];
 
           // delete all from old path
@@ -53,18 +55,42 @@ class CollectionSearchService {
         });
       }
     );
-    this.ancestryUpdateListeners.set(spaceId, listenerId);
+
+    // TODO update preview on content change
+
+    this.updateListeners.set(spaceId, [onParentChangeListener]);
   }
 
   public stop() {
-    this.ancestryUpdateListeners.forEach((listenerId, spaceId) => {
+    this.updateListeners.forEach((listenerIds, spaceId) => {
       const space = storageService.getSpace(spaceId);
-      space.delListener(listenerId);
+      listenerIds.forEach(listenerId => {
+        space.delListener(listenerId);
+      });
     });
   }
 
   public getBreadcrumb(rowId: string) {
-    return storageService.getStore().getCell('search', rowId, 'path');
+    return (
+      storageService
+        .getStore()
+        .getCell('search', rowId, 'breadcrumb')
+        ?.toString() || ''
+    );
+  }
+
+  private getChildren(rowId: string) {
+    return storageService
+      .getStoreIndexes()
+      .getSliceRowIds('byParent', rowId)
+      .map(id => id.split(',')[0]);
+  }
+
+  private getParents(rowId: string) {
+    return storageService
+      .getStoreIndexes()
+      .getSliceRowIds('byChild', rowId)
+      .map(id => id.split(',')[1]);
   }
 
   private deleteAncestry(
@@ -77,13 +103,13 @@ class CollectionSearchService {
     const collectionTable = storageService
       .getSpace(spaceId)
       .getTable(this.collectionTableId);
-    const indexes = storageService.getStoreIndexes();
-    const rowParents = indexes
-      .getSliceRowIds('byChild', oldParent)
-      .map(id => id.split(',')[1]);
+    const rowParents = this.getParents(oldParent);
 
     updatedItems.forEach(updatedItem => {
-      store.delRow(this.ancestorsTableId, this.getId(updatedItem, oldParent));
+      store.delRow(
+        this.ancestorsTableId,
+        this.getAncestorId(updatedItem, oldParent)
+      );
 
       // if old parent had other parents in breadcrumb, must delete ancestry too
       for (const oldParentOfParent of rowParents) {
@@ -93,7 +119,7 @@ class CollectionSearchService {
         }
         store.delRow(
           this.ancestorsTableId,
-          this.getId(updatedItem, oldParentOfParent)
+          this.getAncestorId(updatedItem, oldParentOfParent)
         );
       }
     });
@@ -106,14 +132,18 @@ class CollectionSearchService {
     const store = storageService.getStore();
 
     rowIds.forEach(rowId => {
-      const path = this.getPath(rowId, table);
-
-      // update 'search' info - path and content preview
-      store.setCell('search', rowId, 'path', path.join(','));
+      // update 'search' info - partial path
+      store.setCell(
+        'search',
+        rowId,
+        'breadcrumb',
+        this.getPath(rowId, table, false, true).join(',')
+      );
 
       // update ancestors
-      path.toReversed().forEach((parentId, idx) => {
-        const ancestorId = this.getId(rowId, parentId);
+      const fullPath = this.getPath(rowId, table); // TODO don't call getPath twice
+      fullPath.toReversed().forEach((parentId, idx) => {
+        const ancestorId = this.getAncestorId(rowId, parentId);
         store.setRow(this.ancestorsTableId, ancestorId, {
           childId: rowId,
           parentId,
@@ -140,18 +170,35 @@ class CollectionSearchService {
     }
   }
 
-  private getPath(
+  // store path with includeAllNotebooks = false
+  // but use path with includeAllNotebooks = true when testing ancestry
+  public getPath(
     rowId: string,
-    table: Table<SpaceType[0], 'collection'>
-  ): string[] {
-    const parent = table[rowId].parent as string;
-    if (parent === ROOT_COLLECTION) {
-      return [];
+    table: Table<SpaceType[0], 'collection'>,
+    includeAllNotebooks = true,
+    includeSelf = false
+  ) {
+    let parent = rowId;
+    let breadcrumb: string[] = [];
+    let nbNotebooks = 0;
+    while (parent !== ROOT_COLLECTION && nbNotebooks < 2) {
+      if (!table[parent]) {
+        break;
+      }
+      if (parent !== rowId || includeSelf) {
+        breadcrumb = [parent, ...breadcrumb];
+      }
+      const parentType = table[parent].type as CollectionItemTypeValues;
+      if (!includeAllNotebooks && parentType === CollectionItemType.notebook) {
+        nbNotebooks++;
+        break;
+      }
+      parent = (table[parent].parent as string) || ROOT_COLLECTION;
     }
-    return [...this.getPath(parent, table), parent];
+    return breadcrumb;
   }
 
-  private getId(childId: string, parentId: string) {
+  private getAncestorId(childId: string, parentId: string) {
     return `${childId},${parentId}`;
   }
 }

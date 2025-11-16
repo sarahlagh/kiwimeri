@@ -79,7 +79,7 @@ export interface AppLog {
 
 export interface LocalCollectionSearchIndex {
   id?: string;
-  path: string;
+  breadcrumb: string;
   contentPreview?: string;
 }
 
