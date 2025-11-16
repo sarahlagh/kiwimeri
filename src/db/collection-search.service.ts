@@ -49,16 +49,31 @@ class CollectionSearchService {
 
           // add new paths
           if (newCell) {
-            const collectionTable = space.getTable(this.collectionTableId);
+            const collectionTable = space.getTable(tableId);
             this.updateAncestry(updatedItems, collectionTable);
           }
         });
       }
     );
 
-    // TODO update preview on content change
+    const onContentChangeListener = space.addCellListener(
+      this.collectionTableId,
+      null,
+      'content',
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      (space, tableId, rowId, cellId, newCell) => {
+        this.updateContentPreview(
+          rowId,
+          space.getTable(tableId),
+          storageService.getStore()
+        );
+      }
+    );
 
-    this.updateListeners.set(spaceId, [onParentChangeListener]);
+    this.updateListeners.set(spaceId, [
+      onParentChangeListener,
+      onContentChangeListener
+    ]);
   }
 
   public stop() {
@@ -164,7 +179,8 @@ class CollectionSearchService {
         rowId,
         'contentPreview',
         formatConverter.toPlainText(
-          unminimizeContentFromStorage(table[rowId].content as string)
+          unminimizeContentFromStorage(table[rowId].content as string),
+          { inline: true }
         )
       );
     }

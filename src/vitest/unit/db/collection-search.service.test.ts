@@ -1,3 +1,4 @@
+import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
 import {
   DEFAULT_NOTEBOOK_ID,
   DEFAULT_SPACE_ID,
@@ -10,6 +11,16 @@ import storageService from '@/db/storage.service';
 import { oneDocument, oneFolder, onePage } from '@/vitest/setup/test.utils';
 import { describe, it } from 'vitest';
 
+const contentPreview = 'This is a short content';
+const shortContent = JSON.parse(
+  `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"${contentPreview}","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`
+);
+
+const contentPreviewUpdated = 'Updated content';
+const shortContentUpdated = JSON.parse(
+  `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"${contentPreviewUpdated}","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`
+);
+
 const createTestData = () => {
   // F1 > FF1 > FFF1 > D1 > P1
   // F2 > FF2
@@ -21,8 +32,10 @@ const createTestData = () => {
   FFF1.id = 'FFF1';
   const D1 = oneDocument('D1', FFF1.id);
   D1.id = 'D1';
+  D1.content = minimizeContentForStorage(shortContent);
   const P1 = onePage('P1', D1.id);
   P1.id = 'P1';
+  P1.content = minimizeContentForStorage(shortContent);
   const F2 = oneFolder('F2');
   F2.id = 'F2';
   const FF2 = oneFolder('FF2', F2.id);
@@ -148,114 +161,148 @@ describe('collection search service', () => {
     searchService.stop();
   });
 
-  it(`should get correct expected ancestry (test)`, () => {
-    createTestData();
-    expect(getHardcodedExpectedAncestry()).toEqual(
-      getExpectedAncestry([
+  describe(`ancestry & breadcrumb`, () => {
+    it(`should get correct expected ancestry (test)`, () => {
+      createTestData();
+      expect(getHardcodedExpectedAncestry()).toEqual(
+        getExpectedAncestry([
+          ['0', 'F1', 'FF1', 'FFF1', 'D1', 'P1'],
+          ['0', 'F2', 'FF2']
+        ])
+      );
+    });
+
+    it(`should handle notebook on start if collection is empty`, () => {
+      // has at least one notebook
+      searchService.initSearchIndices(DEFAULT_SPACE_ID);
+
+      // test ancestors
+      expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(0); // no ancestry if parent is root
+
+      // test path
+      expect(storageService.getStore().getRowIds('search')).toHaveLength(1);
+      expect(storageService.getStore().getRowIds('search')[0]).toBe(
+        DEFAULT_NOTEBOOK_ID
+      );
+      expect(
+        storageService
+          .getStore()
+          .getCell('search', DEFAULT_NOTEBOOK_ID, 'breadcrumb')
+      ).toBe(DEFAULT_NOTEBOOK_ID);
+    });
+
+    it(`should create correct ancestry on start`, () => {
+      createTestData();
+      searchService.initSearchIndices(DEFAULT_SPACE_ID);
+
+      expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(18);
+      const ancestors = storageService.getStore().getTable('ancestors');
+      expect(ancestors).toEqual(getHardcodedExpectedAncestry());
+
+      testExpectedPaths([
         ['0', 'F1', 'FF1', 'FFF1', 'D1', 'P1'],
         ['0', 'F2', 'FF2']
-      ])
-    );
-  });
+      ]);
+    });
 
-  it(`should handle notebook on start if collection is empty`, () => {
-    // has at least one notebook
-    searchService.initSearchIndices(DEFAULT_SPACE_ID);
+    it(`should update ancestry on saveItems (import)`, () => {
+      searchService.initSearchIndices(DEFAULT_SPACE_ID);
+      expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(0);
 
-    // test ancestors
-    expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(0); // no ancestry if parent is root
+      createTestData();
+      expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(18);
+      const ancestors = storageService.getStore().getTable('ancestors');
+      expect(ancestors).toEqual(getHardcodedExpectedAncestry());
 
-    // test path
-    expect(storageService.getStore().getRowIds('search')).toHaveLength(1);
-    expect(storageService.getStore().getRowIds('search')[0]).toBe(
-      DEFAULT_NOTEBOOK_ID
-    );
-    expect(
-      storageService
-        .getStore()
-        .getCell('search', DEFAULT_NOTEBOOK_ID, 'breadcrumb')
-    ).toBe(DEFAULT_NOTEBOOK_ID);
-  });
+      testExpectedPaths([
+        ['0', 'F1', 'FF1', 'FFF1', 'D1', 'P1'],
+        ['0', 'F2', 'FF2']
+      ]);
+    });
 
-  it(`should create correct ancestry on start`, () => {
-    createTestData();
-    searchService.initSearchIndices(DEFAULT_SPACE_ID);
+    it(`should update ancestry on individual parent change`, () => {
+      // F1 > FF1 > FFF1 > D1 > P1
+      // F2 > FF2
+      createTestData();
+      searchService.initSearchIndices(DEFAULT_SPACE_ID);
+      expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(18);
 
-    expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(18);
-    const ancestors = storageService.getStore().getTable('ancestors');
-    expect(ancestors).toEqual(getHardcodedExpectedAncestry());
+      collectionService.setItemParent('FFF1', 'FF2');
+      // F1 > FF1
+      // F2 > FF2 > FFF1 > D1 > P1
 
-    testExpectedPaths([
-      ['0', 'F1', 'FF1', 'FFF1', 'D1', 'P1'],
-      ['0', 'F2', 'FF2']
-    ]);
-  });
+      const ancestors = storageService.getStore().getTable('ancestors');
+      expect(ancestors).toEqual(
+        getExpectedAncestry([
+          ['0', 'F1', 'FF1'],
+          ['0', 'F2', 'FF2', 'FFF1', 'D1', 'P1']
+        ])
+      );
+      expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(18);
 
-  it(`should update ancestry on saveItems (import)`, () => {
-    searchService.initSearchIndices(DEFAULT_SPACE_ID);
-    expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(0);
-
-    createTestData();
-    expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(18);
-    const ancestors = storageService.getStore().getTable('ancestors');
-    expect(ancestors).toEqual(getHardcodedExpectedAncestry());
-
-    testExpectedPaths([
-      ['0', 'F1', 'FF1', 'FFF1', 'D1', 'P1'],
-      ['0', 'F2', 'FF2']
-    ]);
-  });
-
-  it(`should update ancestry on individual parent change`, () => {
-    // F1 > FF1 > FFF1 > D1 > P1
-    // F2 > FF2
-    createTestData();
-    searchService.initSearchIndices(DEFAULT_SPACE_ID);
-    expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(18);
-
-    collectionService.setItemParent('FFF1', 'FF2');
-    // F1 > FF1
-    // F2 > FF2 > FFF1 > D1 > P1
-
-    const ancestors = storageService.getStore().getTable('ancestors');
-    expect(ancestors).toEqual(
-      getExpectedAncestry([
+      testExpectedPaths([
         ['0', 'F1', 'FF1'],
         ['0', 'F2', 'FF2', 'FFF1', 'D1', 'P1']
-      ])
-    );
-    expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(18);
+      ]);
+    });
 
-    testExpectedPaths([
-      ['0', 'F1', 'FF1'],
-      ['0', 'F2', 'FF2', 'FFF1', 'D1', 'P1']
-    ]);
+    it(`should cache and a breadcrumb with only one parent notebook`, () => {
+      searchService.initSearchIndices(DEFAULT_SPACE_ID);
+      const idn1 = notebooksService.addNotebook('test');
+      const idn2 = notebooksService.addNotebook('nested', idn1);
+      const idd1 = collectionService.addDocument(idn2);
+      const idp1 = collectionService.addPage(idd1);
+      const idf1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+      const idd2 = collectionService.addDocument(idf1);
+
+      expect(searchService.getBreadcrumb(ROOT_COLLECTION)).toBe('');
+      expect(searchService.getBreadcrumb(DEFAULT_NOTEBOOK_ID)).toBe(
+        DEFAULT_NOTEBOOK_ID
+      );
+      expect(searchService.getBreadcrumb(idn1)).toBe(idn1);
+      expect(searchService.getBreadcrumb(idn2)).toBe(idn2);
+      expect(searchService.getBreadcrumb(idd1)).toBe([idn2, idd1].join(','));
+      expect(searchService.getBreadcrumb(idp1)).toBe(
+        [idn2, idd1, idp1].join(',')
+      );
+      expect(searchService.getBreadcrumb(idf1)).toBe(
+        [DEFAULT_NOTEBOOK_ID, idf1].join(',')
+      );
+      expect(searchService.getBreadcrumb(idd2)).toBe(
+        [DEFAULT_NOTEBOOK_ID, idf1, idd2].join(',')
+      );
+    });
   });
 
-  it(`should cache and a breadcrumb with only one parent notebook`, () => {
-    searchService.initSearchIndices(DEFAULT_SPACE_ID);
-    const idn1 = notebooksService.addNotebook('test');
-    const idn2 = notebooksService.addNotebook('nested', idn1);
-    const idd1 = collectionService.addDocument(idn2);
-    const idp1 = collectionService.addPage(idd1);
-    const idf1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
-    const idd2 = collectionService.addDocument(idf1);
+  describe(`content preview`, () => {
+    it(`should update preview on saveItems (import)`, () => {
+      searchService.initSearchIndices(DEFAULT_SPACE_ID);
+      expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(0);
 
-    expect(searchService.getBreadcrumb(ROOT_COLLECTION)).toBe('');
-    expect(searchService.getBreadcrumb(DEFAULT_NOTEBOOK_ID)).toBe(
-      DEFAULT_NOTEBOOK_ID
-    );
-    expect(searchService.getBreadcrumb(idn1)).toBe(idn1);
-    expect(searchService.getBreadcrumb(idn2)).toBe(idn2);
-    expect(searchService.getBreadcrumb(idd1)).toBe([idn2, idd1].join(','));
-    expect(searchService.getBreadcrumb(idp1)).toBe(
-      [idn2, idd1, idp1].join(',')
-    );
-    expect(searchService.getBreadcrumb(idf1)).toBe(
-      [DEFAULT_NOTEBOOK_ID, idf1].join(',')
-    );
-    expect(searchService.getBreadcrumb(idd2)).toBe(
-      [DEFAULT_NOTEBOOK_ID, idf1, idd2].join(',')
-    );
+      createTestData();
+
+      expect(
+        storageService.getStore().getCell('search', 'D1', 'contentPreview')
+      ).toBe(contentPreview);
+
+      expect(
+        storageService.getStore().getCell('search', 'P1', 'contentPreview')
+      ).toBe(contentPreview);
+    });
+
+    it(`should update preview on individual content change`, () => {
+      createTestData();
+      searchService.initSearchIndices(DEFAULT_SPACE_ID);
+
+      collectionService.setItemLexicalContent('D1', shortContentUpdated);
+
+      expect(
+        storageService.getStore().getCell('search', 'D1', 'contentPreview')
+      ).toBe(contentPreviewUpdated);
+
+      expect(
+        storageService.getStore().getCell('search', 'P1', 'contentPreview')
+      ).toBe(contentPreview);
+    });
   });
 });
