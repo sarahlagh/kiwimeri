@@ -112,7 +112,7 @@ const DocumentEditor = ({
         {content && (
           <KiwimeriEditor
             ref={refWriter}
-            initId={docId}
+            id={itemId}
             content={content}
             onChange={editorState => {
               collectionService.setItemLexicalContent(

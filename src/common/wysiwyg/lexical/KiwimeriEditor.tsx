@@ -31,7 +31,7 @@ import { validateUrl } from './playground/utils/url';
 import ReloadContentPlugin from './ReloadContentPlugin';
 
 type KiwimeriEditorProps = {
-  initId?: string;
+  id?: string;
   content: string;
   onChange: (editorState: EditorState) => void;
   debounce?: number;
@@ -47,7 +47,7 @@ const KiwimeriEditor = (
   const [isLinkEditMode, setIsLinkEditMode] = useState(false);
   const [history, setHistory] = useState(createEmptyHistoryState());
 
-  const { children, initId, content, onChange, debounce = 0 } = props;
+  const { children, id, content, onChange, debounce = 0 } = props;
   const placeholder = t`Text...`;
 
   return (
@@ -71,7 +71,7 @@ const KiwimeriEditor = (
         ErrorBoundary={LexicalErrorBoundary}
       />
       <ReloadContentPlugin
-        id={initId || 'id'}
+        id={id || 'id'}
         content={content}
         setHistory={setHistory}
       />
