@@ -33,6 +33,7 @@ const createTestData = () => {
   const D1 = oneDocument('D1', FFF1.id);
   D1.id = 'D1';
   D1.content = minimizeContentForStorage(shortContent);
+  D1.tags = 'tag1';
   const P1 = onePage('P1', D1.id);
   P1.id = 'P1';
   P1.content = minimizeContentForStorage(shortContent);
@@ -187,6 +188,11 @@ describe('collection search service', () => {
       expect(
         storageService
           .getStore()
+          .getCell('search', DEFAULT_NOTEBOOK_ID, 'parent')
+      ).toBeUndefined();
+      expect(
+        storageService
+          .getStore()
           .getCell('search', DEFAULT_NOTEBOOK_ID, 'breadcrumb')
       ).toBe(DEFAULT_NOTEBOOK_ID);
     });
@@ -246,6 +252,10 @@ describe('collection search service', () => {
       ]);
     });
 
+    it.todo(`should update ancestry on pull`, () => {
+      // TODO
+    });
+
     it(`should cache and a breadcrumb with only one parent notebook`, () => {
       searchService.initSearchIndices(DEFAULT_SPACE_ID);
       const idn1 = notebooksService.addNotebook('test');
@@ -274,8 +284,8 @@ describe('collection search service', () => {
     });
   });
 
-  describe(`content preview`, () => {
-    it(`should update preview on saveItems (import)`, () => {
+  describe(`search table update`, () => {
+    it(`should update preview, title & tags on saveItems (import)`, () => {
       searchService.initSearchIndices(DEFAULT_SPACE_ID);
       expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(0);
 
@@ -288,6 +298,13 @@ describe('collection search service', () => {
       expect(
         storageService.getStore().getCell('search', 'P1', 'contentPreview')
       ).toBe(contentPreview);
+
+      expect(storageService.getStore().getCell('search', 'D1', 'title')).toBe(
+        'D1'
+      );
+      expect(storageService.getStore().getCell('search', 'D1', 'tags')).toBe(
+        'tag1'
+      );
     });
 
     it(`should update preview on individual content change`, () => {
@@ -303,6 +320,32 @@ describe('collection search service', () => {
       expect(
         storageService.getStore().getCell('search', 'P1', 'contentPreview')
       ).toBe(contentPreview);
+    });
+
+    it(`should update title on individual title change`, () => {
+      createTestData();
+      searchService.initSearchIndices(DEFAULT_SPACE_ID);
+
+      collectionService.setItemTitle('D1', 'D1updated');
+
+      expect(storageService.getStore().getCell('search', 'D1', 'title')).toBe(
+        'D1updated'
+      );
+    });
+
+    it(`should update tags on individual tag change`, () => {
+      createTestData();
+      searchService.initSearchIndices(DEFAULT_SPACE_ID);
+
+      collectionService.addItemTag('D1', 'tag2');
+
+      expect(storageService.getStore().getCell('search', 'D1', 'tags')).toBe(
+        'tag1,tag2'
+      );
+    });
+
+    it.todo(`should update preview, title & tags on pull`, () => {
+      // TODO
     });
   });
 });

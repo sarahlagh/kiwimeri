@@ -413,7 +413,6 @@ describe('import service', () => {
         }
         if ('content' in expectedItem && expectedItem.content !== undefined) {
           expect((mergedItem as CollectionItem).content).toBeDefined();
-          expect((mergedItem as CollectionItem).preview).toBeDefined();
         }
         if ('updated' in expectedItem) {
           expect((mergedItem as CollectionItem).updated).toBe(

@@ -122,13 +122,13 @@ export const NON_NOTEBOOK_ITEM_TYPES: ItemTypesType[] = ITEM_TYPES.filter(
   i => i.type !== 'notebook'
 );
 
-export type ValueType = 'id' | 'string' | 'json' | 'number' | 'boolean';
+export type ValueType = 'id' | 'string' | 'lex' | 'json' | 'number' | 'boolean';
 export const NON_PARENT_UPDATABLE_FIELDS: {
   field: CollectionItemUpdatableFieldEnum;
   valueType: ValueType;
 }[] = [
   { field: 'title', valueType: 'string' },
-  { field: 'content', valueType: 'string' },
+  { field: 'content', valueType: 'lex' },
   { field: 'tags', valueType: 'string' },
   // { field: 'deleted', valueType: 'boolean' }, // TODO
   { field: 'order', valueType: 'number' },
@@ -140,6 +140,8 @@ export const getNewValue = (
   potentialId?: string
 ): SerializableData => {
   if (valueType === 'string') return `new string value ${getUniqueId()}`;
+  if (valueType === 'lex')
+    return `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Sample text ${getUniqueId()}","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`;
   if (valueType === 'id') return potentialId ? potentialId : ROOT_COLLECTION;
   if (valueType === 'json')
     return JSON.stringify({
@@ -298,9 +300,6 @@ export const updateOnRemote = (
   );
   if (remoteKey !== 'parent') {
     remoteData[idx].updated = Date.now();
-  }
-  if (field === 'content') {
-    remoteData[idx].preview = `${newValue}`.substring(0, 80);
   }
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   console.debug('after updateOnRemote', id, field, remoteData);

@@ -7,8 +7,10 @@ import { getGlobalTrans } from '@/config';
 import {
   CONFLICTS_NOTEBOOK_ID,
   DEFAULT_NOTEBOOK_ID,
+  DEFAULT_SPACE_ID,
   ROOT_COLLECTION
 } from '@/constants';
+import { searchService } from '@/db/collection-search.service';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/local-changes.service';
 import notebooksService from '@/db/notebooks.service';
@@ -149,12 +151,14 @@ describe('sync service', () => {
         'driver'
       ] as InMemDriver;
       vi.useFakeTimers();
+      searchService.initSearchIndices(DEFAULT_SPACE_ID);
     });
     afterEach(() => {
       expect(countOrphans()).toBe(0);
       iPull = 0;
       iPush = 0;
       vi.useRealTimers();
+      searchService.stop();
     });
 
     it('should detect if primary remote is connected', () => {
@@ -704,15 +708,17 @@ describe('sync service', () => {
               await syncService_pull(); // 1
               expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
               const id = remoteData[0].id!;
-              expect(getLocalItemField(id, 'preview')).toHaveLength(0);
+              expect(searchService.getItemPreview(id)).toHaveLength(0);
 
               // change remote
-              updateOnRemote(remoteData, id, 'content', 'newRemote');
+              const newContent = getNewValue('lex') as string;
+              updateOnRemote(remoteData, id, 'content', newContent);
               await reInitRemoteData(remoteData);
 
               await syncService_pull(); // 2
-              expect(getLocalItemField(id, 'content')).toBe('newRemote');
-              expect(getLocalItemField(id, 'preview')).toBe('newRemote');
+
+              expect(getLocalItemField(id, 'content')).toBe(newContent);
+              expect(searchService.getItemPreview(id)).toMatch(/^Sample text/g);
             });
           }
 
@@ -758,7 +764,7 @@ describe('sync service', () => {
                 testPushIndicator(false);
 
                 // now, solve conflict
-                setLocalItemField(conflictId, 'content', 'new content');
+                setLocalItemField(conflictId, 'content', getNewValue('lex'));
                 testPushIndicator(true);
                 expect(getLocalItemConflicts()).toHaveLength(0);
 
@@ -1034,7 +1040,7 @@ describe('sync service', () => {
                 testPushIndicator(false);
 
                 // now, solve conflict
-                setLocalItemField(conflictId, 'content', 'new content');
+                setLocalItemField(conflictId, 'tags', 'test');
                 testPushIndicator(true);
                 expect(getLocalItemConflicts()).toHaveLength(0);
 
@@ -1307,7 +1313,7 @@ describe('sync service', () => {
                 localValueType,
                 remoteData[1].id
               );
-              setLocalItemField(id, local, remoteData[1].id!);
+              setLocalItemField(id, local, newLocalValue);
 
               // pull again
               await syncService.pull(undefined, true);

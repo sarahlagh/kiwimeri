@@ -2,7 +2,7 @@ import { type JSX } from 'react';
 
 import { IonButton, IonIcon, IonItem, IonList } from '@ionic/react';
 
-import { PagePreview } from '@/collection/collection';
+import { PageResult } from '@/collection/collection';
 import OpenSortFilterButton from '@/common/buttons/OpenSortFilterButton';
 import SortableList from '@/common/dnd/containers/SortableList';
 import { GET_DOCUMENT_ROUTE, GET_PAGE_ROUTE } from '@/common/routes';
@@ -14,15 +14,17 @@ import { useLingui } from '@lingui/react/macro';
 import { useHistory, useLocation } from 'react-router';
 import './CollectionPagesBrowser.scss';
 
+const PREVIEW_SIZE = 80;
+
 export type CollectionPagesBrowserProps = {
   id: string;
   docId: string;
   docPreview: string;
-  pages?: PagePreview[];
+  pages?: PageResult[];
 };
 
 interface PagePreviewItemProps {
-  page: Pick<PagePreview, 'id' | 'preview' | 'conflict' | 'order'>;
+  page: Pick<PageResult, 'id' | 'preview' | 'conflict' | 'order'>;
   defaultVal: string;
   className?: string;
   selected: boolean;
@@ -57,7 +59,7 @@ const PagePreviewItem = ({
       }}
     >
       {page.conflict ? CONFLICT_STR : ''}
-      {!emptyPage ? page.preview : defaultVal}
+      {!emptyPage ? page.preview.substring(0, PREVIEW_SIZE) : defaultVal}
     </IonItem>
   );
 };
@@ -77,7 +79,6 @@ export default function CollectionPagesBrowser({
   const notebook = notebooksService.useCurrentNotebook();
   const folderId = getSearchParams(location.search).folder || notebook;
   const sort = collectionService.useItemEffectiveDisplayOpts(docId).sort;
-  console.debug('sort by', sort.by);
   // TODO turn doc to page and vice-versa via drag & drop
   return (
     <>

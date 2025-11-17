@@ -1,4 +1,7 @@
-import { CollectionItemUpdatableFieldEnum } from '@/collection/collection';
+import {
+  CollectionItem,
+  CollectionItemUpdatableFieldEnum
+} from '@/collection/collection';
 import { DriverNames } from '@/remote-storage/storage-filesystem.factory';
 import { ValueIdFromSchema } from 'tinybase/@types/_internal/store/with-schemas';
 import { CellSchema } from 'tinybase/with-schemas';
@@ -77,11 +80,11 @@ export interface AppLog {
   message: string;
 }
 
-export interface LocalCollectionSearchIndex {
+export type LocalCollectionSearchIndex = {
   id?: string;
   breadcrumb: string;
   contentPreview?: string;
-}
+} & Pick<CollectionItem, 'title' | 'tags'>;
 
 export interface LocalCollectionAncestor {
   id?: string;

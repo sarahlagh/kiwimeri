@@ -1,6 +1,8 @@
 import {
+  CollectionItemResult,
   CollectionItemType,
-  CollectionItemTypeValues
+  CollectionItemTypeValues,
+  PageResult
 } from '@/collection/collection';
 import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
 import { ROOT_COLLECTION } from '@/constants';
@@ -29,11 +31,27 @@ class CollectionSearchService {
       space.getRowIds(this.collectionTableId).forEach(rowId => {
         this.updateAncestry([rowId], collectionTable);
         this.updateContentPreview(rowId, collectionTable, store);
+        this.updateTitle(rowId, collectionTable, store);
+        this.updateTags(rowId, collectionTable, store);
       });
     });
 
     // update data as user changes stuff
-    const onParentChangeListener = space.addCellListener(
+    const onParentChangeListener = this.addParentChangeListener(spaceId, space);
+    const onContentChangeListener = this.addContentChangeListener(space);
+    const onTitleChangeListener = this.addTitleChangeListener(space);
+    const onTagsChangeListener = this.addTagsChangeListener(space);
+
+    this.updateListeners.set(spaceId, [
+      onParentChangeListener,
+      onContentChangeListener,
+      onTitleChangeListener,
+      onTagsChangeListener
+    ]);
+  }
+
+  private addParentChangeListener(spaceId: string, space: Store<SpaceType>) {
+    return space.addCellListener(
       this.collectionTableId,
       null,
       'parent',
@@ -55,8 +73,10 @@ class CollectionSearchService {
         });
       }
     );
+  }
 
-    const onContentChangeListener = space.addCellListener(
+  private addContentChangeListener(space: Store<SpaceType>) {
+    return space.addCellListener(
       this.collectionTableId,
       null,
       'content',
@@ -69,11 +89,38 @@ class CollectionSearchService {
         );
       }
     );
+  }
 
-    this.updateListeners.set(spaceId, [
-      onParentChangeListener,
-      onContentChangeListener
-    ]);
+  private addTitleChangeListener(space: Store<SpaceType>) {
+    return space.addCellListener(
+      this.collectionTableId,
+      null,
+      'title',
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      (space, tableId, rowId, cellId, newCell) => {
+        this.updateTitle(
+          rowId,
+          space.getTable('collection'),
+          storageService.getStore()
+        );
+      }
+    );
+  }
+
+  private addTagsChangeListener(space: Store<SpaceType>) {
+    return space.addCellListener(
+      this.collectionTableId,
+      null,
+      'tags',
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      (space, tableId, rowId, cellId, newCell) => {
+        this.updateTags(
+          rowId,
+          space.getTable('collection'),
+          storageService.getStore()
+        );
+      }
+    );
   }
 
   public stop() {
@@ -92,6 +139,36 @@ class CollectionSearchService {
         .getCell('search', rowId, 'breadcrumb')
         ?.toString() || ''
     );
+  }
+
+  public getItemPreview(rowId: string) {
+    return (
+      storageService
+        .getStore()
+        .getCell('search', rowId, 'contentPreview')
+        ?.toString() || ''
+    );
+  }
+
+  public sortPerContentPreview(
+    results: CollectionItemResult[],
+    descending: boolean
+  ): PageResult[] {
+    const withPreviews = this.enrichWithPreview(results);
+    if (!descending) {
+      return withPreviews.sort((i1, i2) =>
+        i1.preview.localeCompare(i2.preview)
+      );
+    }
+    return withPreviews.sort((i1, i2) => i2.preview.localeCompare(i1.preview));
+  }
+
+  public enrichWithPreview(results: CollectionItemResult[]): PageResult[] {
+    const table = storageService.getStore().getTable('search');
+    return results.map(row => ({
+      ...row,
+      preview: table[row.id]?.contentPreview?.toString() || ''
+    }));
   }
 
   private getChildren(rowId: string) {
@@ -173,7 +250,7 @@ class CollectionSearchService {
     table: Table<SpaceType[0], 'collection'>,
     store: Store<StoreType>
   ) {
-    if (table[rowId].content) {
+    if (table[rowId]?.content) {
       store.setCell(
         'search',
         rowId,
@@ -183,6 +260,26 @@ class CollectionSearchService {
           { inline: true }
         )
       );
+    }
+  }
+
+  private updateTitle(
+    rowId: string,
+    table: Table<SpaceType[0], 'collection'>,
+    store: Store<StoreType>
+  ) {
+    if (table[rowId]?.title) {
+      store.setCell('search', rowId, 'title', table[rowId].title);
+    }
+  }
+
+  private updateTags(
+    rowId: string,
+    table: Table<SpaceType[0], 'collection'>,
+    store: Store<StoreType>
+  ) {
+    if (table[rowId]?.tags) {
+      store.setCell('search', rowId, 'tags', table[rowId].tags);
     }
   }
 

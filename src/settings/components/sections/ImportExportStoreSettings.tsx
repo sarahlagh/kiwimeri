@@ -26,6 +26,7 @@ const ImportExportCollectionSettings = () => {
     await remotesService.configureRemotes(storageService.getSpaceId(), true);
   };
   const getContentToExport = async () => {
+    // export remotes and values
     const content = storageService.getStore().getContent();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [contentToExport, valuesToExport]: [any, any] = content;
@@ -33,7 +34,11 @@ const ImportExportCollectionSettings = () => {
     delete contentToExport['localChanges'];
     delete contentToExport['remoteState'];
     delete contentToExport['remoteItems'];
+    delete contentToExport['ancestors'];
+    delete contentToExport['search'];
+    delete contentToExport['logs'];
     delete valuesToExport['currentSpace'];
+    delete valuesToExport['showDevTools'];
     return JSON.stringify([contentToExport, valuesToExport]);
   };
 

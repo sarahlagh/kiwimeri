@@ -81,6 +81,8 @@ class StorageService {
           message: { type: 'string' } as CellSchema
         },
         search: {
+          title: { type: 'string' } as CellSchema,
+          tags: { type: 'string' } as CellSchema,
           breadcrumb: { type: 'string' } as CellSchema,
           contentPreview: { type: 'string' } as CellSchema
         },
@@ -158,7 +160,6 @@ class StorageService {
           type: { type: 'string' } as CellSchema,
           content: { type: 'string' } as CellSchema,
           content_meta: { type: 'string' } as CellSchema,
-          preview: { type: 'string' } as CellSchema,
           tags: { type: 'string' } as CellSchema,
           tags_meta: { type: 'string' } as CellSchema,
           created: { type: 'number' } as CellSchema,

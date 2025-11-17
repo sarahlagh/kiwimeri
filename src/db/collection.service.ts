@@ -10,6 +10,7 @@ import {
   CollectionItemUpdatableFieldEnum,
   CollectionItemUpdate,
   CollectionItemUpdateChangeFields,
+  PageResult,
   setFieldMeta,
   SortableCollectionItem
 } from '@/collection/collection';
@@ -17,7 +18,6 @@ import { genericReorder } from '@/common/dnd/utils';
 import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
 import { getGlobalTrans } from '@/config';
 import { ROOT_COLLECTION } from '@/constants';
-import formatConverter from '@/format-conversion/format-converter.service';
 import { SerializedEditorState } from 'lexical';
 import { getUniqueId } from 'tinybase/common';
 import { Id } from 'tinybase/common/with-schemas';
@@ -62,7 +62,6 @@ class CollectionService {
           select('created');
           select('updated');
           select('conflict');
-          select('preview');
           select('order');
           where('parent', parent);
           where('deleted', deleted);
@@ -89,7 +88,6 @@ class CollectionService {
           select('created');
           select('updated');
           select('conflict');
-          select('preview');
           select('order');
           where('parent', parent);
           where('deleted', deleted);
@@ -113,7 +111,6 @@ class CollectionService {
         ({ select, where }) => {
           select('created');
           select('updated');
-          select('preview');
           select('conflict');
           select('order');
           where('parent', document);
@@ -138,7 +135,6 @@ class CollectionService {
           select('created');
           select('updated');
           select('conflict');
-          select('preview');
           where(getCell => {
             const conflict = getCell('conflict')?.valueOf();
             return !!conflict;
@@ -149,18 +145,42 @@ class CollectionService {
     return queryName;
   }
 
+  private useResultsSorted(
+    table: Table,
+    queryName: string,
+    sort: CollectionItemSort
+  ) {
+    const results = useResultSortedRowIdsWithRef(
+      this.storeId,
+      queryName,
+      sort.by,
+      sort.descending
+    ).map(rowId => {
+      const row = table[rowId];
+      return { ...row, id: rowId } as CollectionItemResult;
+    });
+    if (sort.by === 'preview') {
+      return searchService.sortPerContentPreview(results, sort.descending);
+    }
+    return results;
+  }
+
   private getResultsSorted(
     table: Table,
     queryName: string,
     sort: CollectionItemSort
   ) {
-    return storageService
+    const results = storageService
       .getSpaceQueries()
       .getResultSortedRowIds(queryName, sort.by, sort.descending)
       .map(rowId => {
         const row = table[rowId];
         return { ...row, id: rowId } as CollectionItemResult;
       });
+    if (sort.by === 'preview') {
+      return searchService.sortPerContentPreview(results, sort.descending);
+    }
+    return results;
   }
 
   public getCollectionItems(parent: string, sort?: CollectionItemSort) {
@@ -213,31 +233,38 @@ class CollectionService {
     return this.useResultsSorted(table, queryName, sort);
   }
 
-  public getDocumentPages(document: string, sort?: CollectionItemSort) {
+  public getDocumentPages(
+    document: string,
+    sort?: CollectionItemSort
+  ): PageResult[] {
     if (!sort) {
       sort = userSettingsService.getDefaultDisplayOpts().sort;
     }
     const table = storageService.getSpace().getTable(this.tableId);
     const queryName = this.fetchPagesForDocQuery(document);
-    return storageService
-      .getSpaceQueries()
-      .getResultSortedRowIds(queryName, sort.by, sort.descending)
-      .map(rowId => {
-        const row = table[rowId];
-        return { ...row, id: rowId } as CollectionItemResult;
-      });
+    const results = this.getResultsSorted(table, queryName, sort);
+    if (sort.by !== 'preview') {
+      // if sort by preview, results have already been enriched
+      return searchService.enrichWithPreview(results);
+    }
+    return results as PageResult[];
   }
 
   public useDocumentPages(
     document: string,
     sort?: CollectionItemSort
-  ): CollectionItemResult[] {
+  ): PageResult[] {
     if (!sort) {
       sort = userSettingsService.getDefaultDisplayOpts().sort;
     }
     const table = useTableWithRef(this.storeId, this.tableId);
     const queryName = this.fetchPagesForDocQuery(document);
-    return this.useResultsSorted(table, queryName, sort);
+    const results = this.useResultsSorted(table, queryName, sort);
+    if (sort.by !== 'preview') {
+      // if sort by preview, results have already been enriched
+      return searchService.enrichWithPreview(results);
+    }
+    return results as PageResult[];
   }
 
   public useConflicts(sort?: CollectionItemSort): CollectionItemResult[] {
@@ -258,22 +285,6 @@ class CollectionService {
     return this.getResultsSorted(table, queryName, sort);
   }
 
-  private useResultsSorted(
-    table: Table,
-    queryName: string,
-    sort: CollectionItemSort
-  ) {
-    return useResultSortedRowIdsWithRef(
-      this.storeId,
-      queryName,
-      sort.by,
-      sort.descending
-    ).map(rowId => {
-      const row = table[rowId];
-      return { ...row, id: rowId } as CollectionItemResult;
-    });
-  }
-
   public getNewDocumentObj(parent: string) {
     const id = getUniqueId();
     const now = Date.now();
@@ -285,7 +296,6 @@ class CollectionService {
       parent_meta: setFieldMeta(parent, now),
       content,
       content_meta: setFieldMeta(content, now),
-      preview: '',
       tags: '',
       tags_meta: setFieldMeta('', now),
       created: now,
@@ -341,7 +351,6 @@ class CollectionService {
       parent_meta: setFieldMeta(document, now),
       content,
       content_meta: setFieldMeta(content, now),
-      preview: '',
       created: now,
       updated: now,
       type: CollectionItemType.page,
@@ -505,51 +514,53 @@ class CollectionService {
   }
 
   public useItemPreview(rowId: Id) {
+    // TODO move to search service
     return (
-      useCellWithRef<string>(this.storeId, this.tableId, rowId, 'preview') ||
-      null
+      useCellWithRef<string>('store', 'search', rowId, 'contentPreview') || null
     );
   }
 
   public getItemPreview(rowId: Id) {
-    return (
-      (storageService
-        .getSpace()
-        .getCell(this.tableId, rowId, 'preview')
-        ?.valueOf() as string) || ''
-    );
+    // return (
+    //   (storageService
+    //     .getSpace()
+    //     .getCell(this.tableId, rowId, 'preview')
+    //     ?.valueOf() as string) || ''
+    // );
+    return searchService.getItemPreview(rowId);
   }
 
   public setItemLexicalContent(rowId: Id, content: SerializedEditorState) {
-    storageService.getSpace().transaction(() => {
-      const change = this.setItemField(
-        rowId,
-        'content',
-        minimizeContentForStorage(content)
-      );
-      if (change) {
-        storageService
-          .getSpace()
-          .setCell(
-            'collection',
-            rowId,
-            'preview',
-            formatConverter
-              .toPlainText(JSON.stringify(content))
-              .substring(0, this.previewSize)
-          );
-      }
-    });
+    this.setItemField(rowId, 'content', minimizeContentForStorage(content));
+    // storageService.getSpace().transaction(() => {
+    //   const change = this.setItemField(
+    //     rowId,
+    //     'content',
+    //     minimizeContentForStorage(content)
+    //   );
+    // if (change) {
+    //   storageService
+    //     .getSpace()
+    //     .setCell(
+    //       'collection',
+    //       rowId,
+    //       'preview',
+    //       formatConverter
+    //         .toPlainText(JSON.stringify(content))
+    //         .substring(0, this.previewSize)
+    //     );
+    // }
+    // });
   }
 
   public setUnsavedItemLexicalContent(
-    item: Pick<CollectionItem, 'content' | 'preview'>,
+    item: Pick<CollectionItem, 'content'>,
     content: SerializedEditorState
   ) {
     item.content = minimizeContentForStorage(content);
-    item.preview = formatConverter
-      .toPlainText(JSON.stringify(content))
-      .substring(0, this.previewSize);
+    // item.preview = formatConverter
+    //   .toPlainText(JSON.stringify(content))
+    //   .substring(0, this.previewSize);
   }
 
   // get display opts => raw data from db
@@ -783,7 +794,7 @@ class CollectionService {
     if (folder === ROOT_COLLECTION) {
       return;
     }
-    const breadcrumb = this.getBreadcrumb(folder);
+    const breadcrumb = this.getBreadcrumb(folder, true);
     storageService.getSpace().transaction(() => {
       for (let i = 1; i < breadcrumb.length; i++) {
         storageService

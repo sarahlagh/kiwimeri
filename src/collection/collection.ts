@@ -16,7 +16,6 @@ export interface CollectionItem {
   title_meta: string;
   content?: string;
   content_meta?: string;
-  preview?: string;
   tags?: string;
   tags_meta?: string;
   created: number;
@@ -86,7 +85,6 @@ export type CollectionItemResult = Pick<
   | 'order'
   | 'display_opts'
   | 'conflict'
-  | 'preview'
 > &
   Required<Pick<CollectionItem, 'id'>>;
 
@@ -104,11 +102,9 @@ export type CollectionItemUpdate = Pick<
 > &
   CollectionItemResult;
 
-export type PagePreview = Pick<
-  CollectionItem,
-  'preview' | 'created' | 'updated' | 'conflict' | 'order'
-> &
-  Required<Pick<CollectionItem, 'id'>>;
+export type PageResult = CollectionItemResult & {
+  preview: string;
+};
 
 export type SortableCollectionItem = Pick<CollectionItem, 'order'> &
   Required<Pick<CollectionItem, 'id'>>;
