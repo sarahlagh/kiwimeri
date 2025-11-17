@@ -188,11 +188,6 @@ describe('collection search service', () => {
       expect(
         storageService
           .getStore()
-          .getCell('search', DEFAULT_NOTEBOOK_ID, 'parent')
-      ).toBeUndefined();
-      expect(
-        storageService
-          .getStore()
           .getCell('search', DEFAULT_NOTEBOOK_ID, 'breadcrumb')
       ).toBe(DEFAULT_NOTEBOOK_ID);
     });

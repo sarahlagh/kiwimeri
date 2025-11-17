@@ -5,7 +5,7 @@ import {
   PageResult
 } from '@/collection/collection';
 import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
-import { ROOT_COLLECTION } from '@/constants';
+import { DEFAULT_SPACE_ID, ROOT_COLLECTION } from '@/constants';
 import formatConverter from '@/format-conversion/format-converter.service';
 import { Id, Ids, Store, Table } from 'tinybase/with-schemas';
 import storageService from './storage.service';
@@ -18,7 +18,7 @@ class CollectionSearchService {
 
   private updateListeners: Map<Id, Ids> = new Map();
 
-  public initSearchIndices(spaceId: string) {
+  public initSearchIndices(spaceId = DEFAULT_SPACE_ID) {
     const store = storageService.getStore();
     const space = storageService.getSpace(spaceId);
     const indexes = storageService.getStoreIndexes();
@@ -26,15 +26,21 @@ class CollectionSearchService {
     indexes.setIndexDefinition('byChild', 'ancestors', 'childId', 'depth');
 
     // on app start backfill tables
-    store.transaction(() => {
-      const collectionTable = space.getTable(this.collectionTableId);
-      space.getRowIds(this.collectionTableId).forEach(rowId => {
-        this.updateAncestry([rowId], collectionTable);
-        this.updateContentPreview(rowId, collectionTable, store);
-        this.updateTitle(rowId, collectionTable, store);
-        this.updateTags(rowId, collectionTable, store);
+    if (
+      store.getRowCount('ancestors') === 0 ||
+      store.getRowCount('search') === 0
+    ) {
+      console.log('backfilling ancestry and search tables');
+      store.transaction(() => {
+        const collectionTable = space.getTable(this.collectionTableId);
+        space.getRowIds(this.collectionTableId).forEach(rowId => {
+          this.updateAncestry([rowId], collectionTable);
+          this.updateContentPreview(rowId, collectionTable, store);
+          this.updateTitle(rowId, collectionTable, store);
+          this.updateTags(rowId, collectionTable, store);
+        });
       });
-    });
+    }
 
     // update data as user changes stuff
     const onParentChangeListener = this.addParentChangeListener(spaceId, space);
