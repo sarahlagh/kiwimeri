@@ -1,13 +1,22 @@
 .toolbar {
   display: flex;
-  margin-bottom: 1px;
-  background: var(--ion-background-color, #fff);
-  padding: 4px;
-  vertical-align: middle;
-  overflow-x: auto;
-  position: sticky;
-  top: 0;
-  z-index: 2;
+  margin-bottom: 0px;
+  padding: 0px;
+  .floating,
+  .fixed {
+    display: flex;
+    margin-bottom: 1px;
+    background: var(--ion-background-color, #fff);
+    padding: 4px;
+    vertical-align: middle;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+  .floating {
+    overflow-x: auto;
+    flex-grow: 10;
+  }
 
   button.toolbar-item {
     border: 0;
