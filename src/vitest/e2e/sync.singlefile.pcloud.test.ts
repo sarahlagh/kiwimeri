@@ -2,6 +2,7 @@ import { CollectionItem } from '@/collection/collection';
 import { unminimizeItemsFromStorage } from '@/collection/compress-collection';
 import { appConfig, getGlobalTrans } from '@/config';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
+import { searchService } from '@/db/collection-search.service';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/local-changes.service';
 import notebooksService from '@/db/notebooks.service';
@@ -19,6 +20,7 @@ import {
   getLocalItemConflict,
   getLocalItemConflicts,
   getLocalItemField,
+  getNewContent,
   getNewValue,
   getRowCountInsideNotebook,
   oneDocument,
@@ -98,11 +100,13 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     driver = filesystem!['driver'] as PCloudDriver;
 
     notebook = notebooksService.getNotebooks()[0].id;
+    searchService.initSearchIndices();
   });
   afterEach(async () => {
     console.debug('clearing files');
     await driver.deleteFile('', 'collection.json');
     await driver.deleteFile('', 'S1');
+    searchService.stop();
     expect(countOrphans()).toBe(0);
   });
 
@@ -117,6 +121,10 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     await amount(100);
     await syncService.pull();
     expect(getRowCountInsideNotebook()).toBe(3);
+
+    expect(storageService.getStore().getRowCount('ancestors')).toBeGreaterThan(
+      0
+    );
   });
 
   it('should push new local items', async () => {
@@ -304,7 +312,11 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     // update content locally
     const idUpdateContentLocal = idDocuments[1];
     vi.setSystemTime(now + 6000);
-    setLocalItemField(idUpdateContentLocal, 'content', 'newLocalContent');
+    setLocalItemField(
+      idUpdateContentLocal,
+      'content',
+      getNewContent('newLocalContent')
+    );
 
     // delete remotely
     const idDeleteRemote = idDocuments[2];
@@ -320,7 +332,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
       content!,
       idUpdateContentLocal,
       'content',
-      'newRemoteContent'
+      getNewContent('newRemoteContent')
     );
     lastRemoteChange = Date.now();
 
@@ -337,7 +349,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
       content!,
       idUpdateParentRemote,
       'content',
-      'newRemoteContent'
+      getNewContent('newRemoteContent')
     );
     lastRemoteChange = Date.now();
 
@@ -364,14 +376,18 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
       content!,
       idUpdateContentRemote,
       'content',
-      'newRemoteContent'
+      getNewContent('newRemoteContent')
     );
     lastRemoteChange = Date.now();
 
     // update content locally on merge id
     const idUpdateTitleMerge = idDocuments[4];
     vi.setSystemTime(now + 15000);
-    setLocalItemField(idUpdateTitleMerge, 'content', 'newLocalContent');
+    setLocalItemField(
+      idUpdateTitleMerge,
+      'content',
+      getNewContent('newLocalContent')
+    );
 
     // // update title remotely on merge id
     vi.setSystemTime(now + 16000);
@@ -416,7 +432,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
       'newLocalTitle'
     );
     expect(getLocalItemField(idUpdateContentLocal, 'content')).toBe(
-      'newRemoteContent'
+      getNewContent('newRemoteContent')
     );
     expect(getLocalItemField(idUpdateParentLocal, 'parent')).toBe(
       newRemoteItem.id
@@ -426,7 +442,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
       'newRemoteTitle'
     );
     expect(getLocalItemField(idUpdateTitleMerge, 'content')).toBe(
-      'newLocalContent'
+      getNewContent('newLocalContent')
     );
 
     // check conflicts

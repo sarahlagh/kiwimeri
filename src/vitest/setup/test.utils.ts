@@ -135,13 +135,16 @@ export const NON_PARENT_UPDATABLE_FIELDS: {
   { field: 'display_opts', valueType: 'json' }
 ];
 
+export const getNewContent = (text: string) => {
+  return `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"${text}","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`;
+};
+
 export const getNewValue = (
   valueType: ValueType,
   potentialId?: string
 ): SerializableData => {
   if (valueType === 'string') return `new string value ${getUniqueId()}`;
-  if (valueType === 'lex')
-    return `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Sample text ${getUniqueId()}","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`;
+  if (valueType === 'lex') return getNewContent(`Sample text ${getUniqueId()}`);
   if (valueType === 'id') return potentialId ? potentialId : ROOT_COLLECTION;
   if (valueType === 'json')
     return JSON.stringify({

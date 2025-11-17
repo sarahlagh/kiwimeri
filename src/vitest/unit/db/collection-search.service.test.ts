@@ -11,14 +11,14 @@ import storageService from '@/db/storage.service';
 import { oneDocument, oneFolder, onePage } from '@/vitest/setup/test.utils';
 import { describe, it } from 'vitest';
 
-const contentPreview = 'This is a short content';
+const shortContentPreview = 'This is a short content';
 const shortContent = JSON.parse(
-  `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"${contentPreview}","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`
+  `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"${shortContentPreview}","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`
 );
 
-const contentPreviewUpdated = 'Updated content';
+const shortContentPreviewUpdated = 'Updated content';
 const shortContentUpdated = JSON.parse(
-  `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"${contentPreviewUpdated}","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`
+  `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"${shortContentPreviewUpdated}","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`
 );
 
 const createTestData = () => {
@@ -252,8 +252,31 @@ describe('collection search service', () => {
       ]);
     });
 
-    it.todo(`should update ancestry on pull`, () => {
-      // TODO
+    it(`should update ancestry on setContent (pull)`, () => {
+      createTestData();
+      const spaceContent = storageService.getSpace().getContent();
+      // add items locally
+      collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+      notebooksService.addNotebook('N1');
+
+      searchService.initSearchIndices();
+      // pull - newest items are removed
+      storageService.getSpace().setContent(spaceContent);
+
+      const ancestors = storageService.getStore().getTable('ancestors');
+      expect(ancestors).toEqual(
+        getExpectedAncestry([
+          ['0', 'F1', 'FF1', 'FFF1', 'D1', 'P1'],
+          ['0', 'F2', 'FF2']
+        ])
+      );
+      expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(18);
+
+      testExpectedPaths([
+        ['0', 'F1', 'FF1', 'FFF1', 'D1', 'P1'],
+        ['0', 'F2', 'FF2']
+      ]);
     });
 
     it(`should cache and a breadcrumb with only one parent notebook`, () => {
@@ -293,11 +316,11 @@ describe('collection search service', () => {
 
       expect(
         storageService.getStore().getCell('search', 'D1', 'contentPreview')
-      ).toBe(contentPreview);
+      ).toBe(shortContentPreview);
 
       expect(
         storageService.getStore().getCell('search', 'P1', 'contentPreview')
-      ).toBe(contentPreview);
+      ).toBe(shortContentPreview);
 
       expect(storageService.getStore().getCell('search', 'D1', 'title')).toBe(
         'D1'
@@ -315,11 +338,11 @@ describe('collection search service', () => {
 
       expect(
         storageService.getStore().getCell('search', 'D1', 'contentPreview')
-      ).toBe(contentPreviewUpdated);
+      ).toBe(shortContentPreviewUpdated);
 
       expect(
         storageService.getStore().getCell('search', 'P1', 'contentPreview')
-      ).toBe(contentPreview);
+      ).toBe(shortContentPreview);
     });
 
     it(`should update title on individual title change`, () => {
@@ -344,8 +367,31 @@ describe('collection search service', () => {
       );
     });
 
-    it.todo(`should update preview, title & tags on pull`, () => {
-      // TODO
+    it(`should update preview, title & tags on pull`, () => {
+      createTestData();
+      // update items locally
+      collectionService.setItemTitle('D1', 'D1 updated');
+      collectionService.addItemTag('D1', 'tag1');
+      collectionService.setItemLexicalContent('P1', shortContent);
+
+      // reset
+      const spaceContent = storageService.getSpace().getContent();
+      storageService.nukeSpace();
+      searchService.initSearchIndices();
+
+      // pull
+      storageService.getSpace().setContent(spaceContent);
+
+      expect(
+        storageService.getStore().getCell('search', 'P1', 'contentPreview')
+      ).toBe(shortContentPreview);
+
+      expect(storageService.getStore().getCell('search', 'D1', 'title')).toBe(
+        'D1 updated'
+      );
+      expect(storageService.getStore().getCell('search', 'D1', 'tags')).toBe(
+        'tag1'
+      );
     });
   });
 });
