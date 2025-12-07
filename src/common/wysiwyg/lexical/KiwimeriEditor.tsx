@@ -36,8 +36,10 @@ type KiwimeriEditorProps = {
   searchText?: string | null;
   // searchOpts?: any; // TODO match case, match whole words, regex, search in pages too
   enableToolbar: boolean;
+  enableDebugTreeView?: boolean;
   content: string;
-  onChange: (editorState: EditorState) => void;
+  editable?: boolean;
+  onChange?: (editorState: EditorState) => void;
   debounce?: number;
 } & Omit<ToolbarPluginProps, 'setIsLinkEditMode'> & {
     readonly children?: ReactNode;
@@ -58,6 +60,8 @@ const KiwimeriEditor = (
     content,
     onChange,
     debounce = 0,
+    enableDebugTreeView = true,
+    editable,
     searchText
   } = props;
   const placeholder = t`Text...`;
@@ -65,7 +69,8 @@ const KiwimeriEditor = (
   return (
     <LexicalComposer
       initialConfig={{
-        ...lexicalConfig
+        ...lexicalConfig,
+        editable
       }}
     >
       {enableToolbar && (
@@ -92,13 +97,15 @@ const KiwimeriEditor = (
         content={content}
         setHistory={setHistory}
       />
-      <DebounceOnChangePlugin
-        ignoreSelectionChange
-        waitFor={debounce}
-        onChange={editorState => {
-          onChange(editorState);
-        }}
-      />
+      {onChange && (
+        <DebounceOnChangePlugin
+          ignoreSelectionChange
+          waitFor={debounce}
+          onChange={editorState => {
+            onChange(editorState);
+          }}
+        />
+      )}
       <HistoryPlugin externalHistoryState={history} />
       <AutoFocusPlugin />
       <ListPlugin />
@@ -119,7 +126,9 @@ const KiwimeriEditor = (
 
       {children}
 
-      {!platformService.isRelease() && <DebugTreeViewPlugin />}
+      {!platformService.isRelease() && enableDebugTreeView && (
+        <DebugTreeViewPlugin />
+      )}
     </LexicalComposer>
   );
 };
