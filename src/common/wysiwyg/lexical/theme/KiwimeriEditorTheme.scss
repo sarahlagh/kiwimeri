@@ -206,3 +206,7 @@ pre::-webkit-scrollbar-thumb {
 .rtl {
   text-align: right;
 }
+
+::highlight(kiwimeri-search-results) {
+  background-color: #22f3bc;
+}

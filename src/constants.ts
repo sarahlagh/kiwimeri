@@ -32,6 +32,7 @@ import {
   pricetagsOutline,
   receiptOutline,
   reorderTwoOutline,
+  searchOutline,
   sendOutline,
   settingsSharp,
   syncCircleOutline,
@@ -111,7 +112,8 @@ export const APPICONS = {
   export: sendOutline,
   import: downloadOutline,
   sortFilter: funnelOutline,
-  dragBar: reorderTwoOutline
+  dragBar: reorderTwoOutline,
+  search: searchOutline
 };
 
 export const APPICONS_PER_TYPE = new Map<CollectionItemTypeValues, string>();

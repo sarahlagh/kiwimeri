@@ -1,4 +1,5 @@
 import { onTitleChangeFn } from '@/common/events/events';
+import platformService from '@/common/services/platform.service';
 import KiwimeriEditor from '@/common/wysiwyg/lexical/KiwimeriEditor';
 import CollectionPagesBrowser from '@/common/wysiwyg/pages-browser/CollectionPagesBrowser';
 import { APPICONS } from '@/constants';
@@ -16,6 +17,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import CommonActionsToolbar from './CommonActionsToolbar';
 import DocumentEditorFooter from './DocumentEditorFooter';
+import SearchActionsToolbar from './SearchActionsToolbar';
 
 interface DocumentEditorProps {
   docId: string;
@@ -33,7 +35,10 @@ const DocumentEditor = ({
     useState<boolean>(false);
   const [showDocumentFooter, setShowDocumentFooter] = useState(showActions);
   const [openPageBrowser, setOpenPageBrowser] = useState(false);
+  const [toggleSearch, setToggleSearch] = useState(false);
+  const [searchText, setSearchText] = useState('');
 
+  // TODO refactor
   useEffect(() => {
     setShowDocumentActions(showActions);
   }, [showActions]);
@@ -87,6 +92,7 @@ const DocumentEditor = ({
             color={'dark'}
             onClick={() => {
               setShowDocumentActions(!showDocumentActions);
+              setToggleSearch(false);
             }}
           >
             <IonIcon icon={APPICONS.itemActions}></IonIcon>
@@ -104,6 +110,24 @@ const DocumentEditor = ({
               }
               setShowDocumentActions(false);
             }}
+          >
+            {platformService.hasHighlightSupport() && (
+              <IonButton
+                onClick={() => {
+                  setToggleSearch(true);
+                  setShowDocumentActions(false);
+                }}
+              >
+                <IonIcon icon={APPICONS.search}></IonIcon>
+              </IonButton>
+            )}
+          </CommonActionsToolbar>
+        )}
+        {toggleSearch && (
+          <SearchActionsToolbar
+            searchText={searchText}
+            setSearchText={setSearchText}
+            setToggleSearch={setToggleSearch}
           />
         )}
       </IonHeader>
@@ -114,6 +138,8 @@ const DocumentEditor = ({
             ref={refWriter}
             id={itemId}
             content={content}
+            enableToolbar={!showDocumentActions && !toggleSearch}
+            searchText={toggleSearch ? searchText : null}
             onChange={editorState => {
               collectionService.setItemLexicalContent(
                 itemId,

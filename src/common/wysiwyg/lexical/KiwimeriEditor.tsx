@@ -29,9 +29,13 @@ import AutoLinkPlugin from './playground/plugins/AutoLinkPlugin';
 import DebugTreeViewPlugin from './playground/plugins/DebugTreeViewPlugin';
 import { validateUrl } from './playground/utils/url';
 import ReloadContentPlugin from './ReloadContentPlugin';
+import { SearchHighlightPlugin } from './SearchHighlightPlugin';
 
 type KiwimeriEditorProps = {
   id?: string;
+  searchText?: string | null;
+  // searchOpts?: any; // TODO match case, match whole words, regex, search in pages too
+  enableToolbar: boolean;
   content: string;
   onChange: (editorState: EditorState) => void;
   debounce?: number;
@@ -47,7 +51,15 @@ const KiwimeriEditor = (
   const [isLinkEditMode, setIsLinkEditMode] = useState(false);
   const [history, setHistory] = useState(createEmptyHistoryState());
 
-  const { children, id, content, onChange, debounce = 0 } = props;
+  const {
+    enableToolbar,
+    children,
+    id,
+    content,
+    onChange,
+    debounce = 0,
+    searchText
+  } = props;
   const placeholder = t`Text...`;
 
   return (
@@ -56,7 +68,12 @@ const KiwimeriEditor = (
         ...lexicalConfig
       }}
     >
-      <KiwimeriToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} {...props} />
+      {enableToolbar && (
+        <KiwimeriToolbarPlugin
+          setIsLinkEditMode={setIsLinkEditMode}
+          {...props}
+        />
+      )}
       <RichTextPlugin
         contentEditable={
           <ContentEditable
@@ -92,6 +109,8 @@ const KiwimeriEditor = (
       <TabIndentationPlugin />
       <SelectionAlwaysOnDisplay />
       <MarkdownShortcutPlugin transformers={MARKDOWN_SHORTCUTS_TRANSFORMERS} />
+
+      <SearchHighlightPlugin searchText={searchText} />
 
       <EditLinkPlugin
         isLinkEditMode={isLinkEditMode}

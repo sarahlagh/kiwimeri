@@ -66,8 +66,8 @@
     "@typescript-eslint/parser": "^8.24.1",
     "@vitejs/plugin-legacy": "^5.0.0",
     "@vitejs/plugin-react": "^4.0.1",
-    "@vitest/browser": "3.1.2",
-    "@vitest/ui": "3.1.2",
+    "@vitest/browser": "^4.0.10",
+    "@vitest/ui": "^4.0.10",
     "concurrently": "^9.1.2",
     "eslint": "^8.35.0",
     "eslint-plugin-react": "^7.32.2",
@@ -79,7 +79,7 @@
     "terser": "^5.4.0",
     "typescript": "^5.1.6",
     "vite": "~6.4.1",
-    "vitest": "3.1.2",
+    "vitest": "^4.0.10",
     "vitest-browser-react": "^0.1.1"
   },
   "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610"

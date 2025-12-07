@@ -30,7 +30,9 @@ import platformService from './common/services/platform.service';
 import { initGlobalTrans } from './config';
 import { messages as enMessages } from './locales/en/messages';
 
-setupIonicReact();
+setupIonicReact({
+  sanitizerEnabled: true
+});
 i18n.load('en', enMessages);
 i18n.activate('en');
 initGlobalTrans();

@@ -45,6 +45,10 @@ class PlatformService {
   public isSyncEnabled() {
     return !this.isWeb() || this.getInternalProxy().length > 0;
   }
+
+  public hasHighlightSupport() {
+    return CSS.highlights !== undefined;
+  }
 }
 
 const platformService = new PlatformService();

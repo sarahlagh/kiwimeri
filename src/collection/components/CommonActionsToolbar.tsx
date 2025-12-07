@@ -9,17 +9,19 @@ import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
 import navService from '@/db/nav.service';
 import { IonButton, IonButtons, IonIcon, IonToolbar } from '@ionic/react';
+import { ReactNode } from 'react';
 
 export type CommonActionsToolbarProps = {
   id: string;
   docId: string;
-  // pageId?: string;
   rows?: number;
   onClose: (role?: string, data?: unknown) => void;
   showRename?: boolean;
   showInfo?: boolean;
   showClose?: boolean;
-} & React.HTMLAttributes<HTMLIonToolbarElement>;
+} & React.HTMLAttributes<HTMLIonToolbarElement> & {
+    readonly children?: ReactNode;
+  };
 
 const CommonActionsToolbar = ({
   id,
@@ -28,6 +30,7 @@ const CommonActionsToolbar = ({
   showRename = false,
   showClose = false,
   showInfo = false,
+  children,
   onClose
 }: CommonActionsToolbarProps) => {
   const type = collectionService.getItemType(id);
@@ -64,6 +67,8 @@ const CommonActionsToolbar = ({
             <IonIcon icon={APPICONS.info}></IonIcon>
           </IonButton>
         )}
+
+        {children}
 
         {showClose && <CloseDocumentButton id={docId} onClose={onClose} />}
       </IonButtons>
