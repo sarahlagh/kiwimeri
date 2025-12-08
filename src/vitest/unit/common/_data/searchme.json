@@ -1,0 +1,236 @@
+{
+  "root": {
+    "type": "root",
+    "version": 1,
+    "direction": "ltr",
+    "format": "",
+    "indent": 0,
+    "children": [
+      {
+        "type": "heading",
+        "version": 1,
+        "direction": "ltr",
+        "format": "",
+        "indent": 0,
+        "children": [
+          {
+            "type": "text",
+            "text": "hea",
+            "version": 1,
+            "format": 0,
+            "mode": "normal",
+            "style": "",
+            "detail": 0
+          },
+          {
+            "type": "text",
+            "text": "din",
+            "version": 1,
+            "format": 2,
+            "mode": "normal",
+            "style": "",
+            "detail": 0
+          },
+          {
+            "type": "text",
+            "text": "g 1",
+            "version": 1,
+            "format": 0,
+            "mode": "normal",
+            "style": "",
+            "detail": 0
+          }
+        ],
+        "tag": "h1"
+      },
+      {
+        "type": "paragraph",
+        "version": 1,
+        "direction": "ltr",
+        "format": "",
+        "indent": 0,
+        "children": [
+          {
+            "type": "text",
+            "text": "Lorem ipsum ",
+            "version": 1,
+            "format": 0,
+            "mode": "normal",
+            "style": "",
+            "detail": 0
+          },
+          {
+            "type": "text",
+            "text": "dolor",
+            "version": 1,
+            "format": 2,
+            "mode": "normal",
+            "style": "",
+            "detail": 0
+          },
+          {
+            "type": "text",
+            "text": " sit amet, consectetur adipiscing elit, sed do eiusmod tem",
+            "version": 1,
+            "format": 0,
+            "mode": "normal",
+            "style": "",
+            "detail": 0
+          },
+          {
+            "type": "text",
+            "text": "p",
+            "version": 1,
+            "format": 2,
+            "mode": "normal",
+            "style": "",
+            "detail": 0
+          },
+          {
+            "type": "text",
+            "text": "or incididunt ut labore et dolore magna aliqua.",
+            "version": 1,
+            "format": 0,
+            "mode": "normal",
+            "style": "",
+            "detail": 0
+          }
+        ],
+        "textFormat": 0,
+        "textStyle": ""
+      },
+      {
+        "type": "list",
+        "version": 1,
+        "direction": "ltr",
+        "format": "",
+        "indent": 0,
+        "children": [
+          {
+            "type": "listitem",
+            "version": 1,
+            "direction": "ltr",
+            "format": "",
+            "indent": 0,
+            "value": 1,
+            "children": [
+              {
+                "type": "text",
+                "text": "list",
+                "version": 1,
+                "format": 0,
+                "mode": "normal",
+                "style": "",
+                "detail": 0
+              }
+            ]
+          },
+          {
+            "type": "listitem",
+            "version": 1,
+            "direction": "ltr",
+            "format": "",
+            "indent": 0,
+            "value": 2,
+            "children": [
+              {
+                "type": "text",
+                "text": "o",
+                "version": 1,
+                "format": 2,
+                "mode": "normal",
+                "style": "",
+                "detail": 0
+              },
+              {
+                "type": "text",
+                "text": "f",
+                "version": 1,
+                "format": 0,
+                "mode": "normal",
+                "style": "",
+                "detail": 0
+              }
+            ]
+          },
+          {
+            "type": "listitem",
+            "version": 1,
+            "direction": "ltr",
+            "format": "",
+            "indent": 0,
+            "value": 3,
+            "children": [
+              {
+                "type": "text",
+                "text": "items",
+                "version": 1,
+                "format": 0,
+                "mode": "normal",
+                "style": "",
+                "detail": 0
+              }
+            ]
+          }
+        ],
+        "tag": "ul",
+        "listType": "bullet",
+        "start": 1
+      },
+      {
+        "type": "quote",
+        "version": 1,
+        "direction": "ltr",
+        "format": "",
+        "indent": 0,
+        "children": [
+          {
+            "type": "text",
+            "text": "Lorem ipsum ",
+            "version": 1,
+            "format": 0,
+            "mode": "normal",
+            "style": "",
+            "detail": 0
+          },
+          {
+            "type": "text",
+            "text": "dolor",
+            "version": 1,
+            "format": 2,
+            "mode": "normal",
+            "style": "",
+            "detail": 0
+          },
+          {
+            "type": "text",
+            "text": " sit amet, consectetur adipiscing elit, ",
+            "version": 1,
+            "format": 0,
+            "mode": "normal",
+            "style": "",
+            "detail": 0
+          }
+        ]
+      },
+      {
+        "type": "quote",
+        "version": 1,
+        "direction": "ltr",
+        "format": "",
+        "indent": 0,
+        "children": [
+          {
+            "type": "text",
+            "text": "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            "version": 1,
+            "format": 0,
+            "mode": "normal",
+            "style": "",
+            "detail": 0
+          }
+        ]
+      }
+    ]
+  }
+}

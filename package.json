@@ -52,6 +52,7 @@
   "devDependencies": {
     "@capacitor/cli": "7.0.1",
     "@ionic/cli": "^7.2.0",
+    "@lexical/headless": "^0.38.2",
     "@lingui/babel-plugin-lingui-macro": "^5.2.0",
     "@lingui/cli": "^5.2.0",
     "@lingui/vite-plugin": "^5.2.0",
