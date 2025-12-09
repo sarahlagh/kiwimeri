@@ -8,7 +8,7 @@ const defaultOptions: SearchLexicalStateOptions = {
   caseInsensitive: false
 };
 
-const lb = ' '; // replace line breaks for searching
+const lb = ' '; // replace line breaks by space for searching
 
 export const searchLexicalState = (
   editor: LexicalEditor,
@@ -33,12 +33,12 @@ export const searchLexicalState = (
     const fullTextMask = fullText.replaceAll(/\n+/g, '\n');
     const fullTextSearch = fullTextMask.replaceAll(/\n/g, lb);
     try {
-      let result;
-      while ((result = regex.exec(fullTextSearch))) {
-        let currentOffset = 0; // TODO optimize
-        const startOffset = result.index;
-        const endOffset = startOffset + searchText.length;
-        for (const child of children) {
+      let currentOffset = 0;
+      let result = regex.exec(fullTextSearch);
+      if (result) {
+        let startOffset = result.index;
+        let endOffset = startOffset + searchText.length;
+        root: for (const child of children) {
           if (!(child instanceof ElementNode)) {
             continue;
           }
@@ -49,12 +49,22 @@ export const searchLexicalState = (
               currentOffset < endOffset &&
               currentOffset + nodeText.length > startOffset
             ) {
+              // if is in range, call createResult
               const nodeStartOffset = Math.max(0, startOffset - currentOffset);
               const nodeEndOffset = Math.min(
                 nodeText.length,
                 endOffset - currentOffset
               );
               createResult(textNode, nodeStartOffset, nodeEndOffset);
+              // if end of range, continue searching the rest of the text
+              if (nodeEndOffset >= endOffset - currentOffset) {
+                result = regex.exec(fullTextSearch);
+                if (!result) {
+                  break root;
+                }
+                startOffset = result.index;
+                endOffset = startOffset + searchText.length;
+              }
             }
             currentOffset += nodeText.length;
             // account for linebreaks between different parents
