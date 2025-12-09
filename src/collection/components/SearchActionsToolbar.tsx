@@ -8,7 +8,7 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { StyleReactProps } from '@ionic/react/dist/types/components/react-component-lib/interfaces';
-import { Dispatch } from 'react';
+import { Dispatch, useEffect, useRef } from 'react';
 
 export type SearchActionsToolbarProps = {
   searchText: string;
@@ -25,10 +25,16 @@ const SearchActionsToolbar = ({
   searchText,
   rows = 1
 }: SearchActionsToolbarProps) => {
+  const refInput = useRef<HTMLIonInputElement>(null);
+  useEffect(() => {
+    if (refInput.current) {
+      setTimeout(() => refInput.current!.setFocus());
+    }
+  }, [refInput]);
   return (
     <IonToolbar color="medium" style={{ height: rows * 56 + 'px' }}>
-      {/** TODO autofocus input */}
       <IonInput
+        ref={refInput}
         style={{ marginLeft: 8 }}
         class="invisible"
         value={searchText}
