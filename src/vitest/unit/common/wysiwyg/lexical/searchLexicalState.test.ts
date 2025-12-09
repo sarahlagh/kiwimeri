@@ -62,7 +62,7 @@ describe('searchLexicalState', () => {
   });
 
   it('should work for text spanning multiple nodes', () => {
-    const results = search('heading');
+    let results = search('heading');
     expect(results.length).toBe(3);
     expect(results[0].node.__text).toBe('hea');
     expect(results[0].startOffset).toBe(0);
@@ -73,6 +73,30 @@ describe('searchLexicalState', () => {
     expect(results[2].node.__text).toBe('g 1');
     expect(results[2].startOffset).toBe(0);
     expect(results[2].endOffset).toBe(1);
+
+    results = search('hea');
+    expect(results.length).toBe(1);
+    expect(results[0].node.__text).toBe('hea');
+    expect(results[0].startOffset).toBe(0);
+    expect(results[0].endOffset).toBe(3);
+
+    results = search('head');
+    expect(results.length).toBe(2);
+    expect(results[0].node.__text).toBe('hea');
+    expect(results[0].startOffset).toBe(0);
+    expect(results[0].endOffset).toBe(3);
+    expect(results[1].node.__text).toBe('din');
+    expect(results[1].startOffset).toBe(0);
+    expect(results[1].endOffset).toBe(1);
+
+    results = search('ding');
+    expect(results.length).toBe(2);
+    expect(results[0].node.__text).toBe('din');
+    expect(results[0].startOffset).toBe(0);
+    expect(results[0].endOffset).toBe(3);
+    expect(results[1].node.__text).toBe('g 1');
+    expect(results[1].startOffset).toBe(0);
+    expect(results[1].endOffset).toBe(1);
   });
 
   it('should be case sensitive by default', () => {
@@ -83,8 +107,44 @@ describe('searchLexicalState', () => {
     expect(results.length).toBe(3);
   });
 
+  it('should search inside simple text', () => {
+    const results = search('consectetur');
+    expect(results.length).toBe(2);
+    for (const result of results) {
+      expect(result.node.__text).toBe(
+        ' sit amet, consectetur adipiscing elit,'
+      );
+      expect(result.startOffset).toBe(11);
+      expect(result.endOffset).toBe(22);
+    }
+  });
+
+  it('should replace linebreaks by space when searching', () => {
+    for (const results of [
+      search('elit, sed'),
+      search('elit,sed', { lineBreakReplacement: '' })
+    ]) {
+      const results = search('elit, sed');
+      expect(results.length).toBe(2);
+      expect(results[0].node.__text).toBe(
+        ' sit amet, consectetur adipiscing elit,'
+      );
+      expect(results[0].startOffset).toBe(34);
+      expect(results[0].endOffset).toBe(39);
+      expect(results[1].node.__text).toBe('sed do eiusmod tem');
+      expect(results[1].startOffset).toBe(0);
+      expect(results[1].endOffset).toBe(3);
+    }
+  });
+
   it('should search in list items', () => {
-    let results = search('of');
+    let results = search('list');
+    expect(results.length).toBe(1);
+    expect(results[0].node.__text).toBe('list');
+    expect(results[0].startOffset).toBe(0);
+    expect(results[0].endOffset).toBe(4);
+
+    results = search('of');
     expect(results.length).toBe(2);
     expect(results[0].node.__text).toBe('o');
     expect(results[0].startOffset).toBe(0);
@@ -98,7 +158,70 @@ describe('searchLexicalState', () => {
     expect(results[0].node.__text).toBe('items');
     expect(results[0].startOffset).toBe(0);
     expect(results[0].endOffset).toBe(5);
+
+    results = search('item');
+    expect(results.length).toBe(1);
+    expect(results[0].node.__text).toBe('items');
+    expect(results[0].startOffset).toBe(0);
+    expect(results[0].endOffset).toBe(4);
   });
 
-  // TODO test for joinSingleLines option
+  it('should search in list items and replace linebreaks by space', () => {
+    let results = search('list of items');
+    expect(results.length).toBe(4);
+    expect(results[0].node.__text).toBe('list');
+    expect(results[0].startOffset).toBe(0);
+    expect(results[0].endOffset).toBe(4);
+    expect(results[1].node.__text).toBe('o');
+    expect(results[1].startOffset).toBe(0);
+    expect(results[1].endOffset).toBe(1);
+    expect(results[2].node.__text).toBe('f');
+    expect(results[2].startOffset).toBe(0);
+    expect(results[2].endOffset).toBe(1);
+    expect(results[3].node.__text).toBe('items');
+    expect(results[3].startOffset).toBe(0);
+    expect(results[3].endOffset).toBe(5);
+
+    results = search('list of');
+    expect(results.length).toBe(3);
+    expect(results[0].node.__text).toBe('list');
+    expect(results[0].startOffset).toBe(0);
+    expect(results[0].endOffset).toBe(4);
+    expect(results[1].node.__text).toBe('o');
+    expect(results[1].startOffset).toBe(0);
+    expect(results[1].endOffset).toBe(1);
+    expect(results[2].node.__text).toBe('f');
+    expect(results[2].startOffset).toBe(0);
+    expect(results[2].endOffset).toBe(1);
+
+    results = search('of items');
+    expect(results.length).toBe(3);
+    expect(results[0].node.__text).toBe('o');
+    expect(results[0].startOffset).toBe(0);
+    expect(results[0].endOffset).toBe(1);
+    expect(results[1].node.__text).toBe('f');
+    expect(results[1].startOffset).toBe(0);
+    expect(results[1].endOffset).toBe(1);
+    expect(results[2].node.__text).toBe('items');
+    expect(results[2].startOffset).toBe(0);
+    expect(results[2].endOffset).toBe(5);
+
+    results = search('list o');
+    expect(results.length).toBe(2);
+    expect(results[0].node.__text).toBe('list');
+    expect(results[0].startOffset).toBe(0);
+    expect(results[0].endOffset).toBe(4);
+    expect(results[1].node.__text).toBe('o');
+    expect(results[1].startOffset).toBe(0);
+    expect(results[1].endOffset).toBe(1);
+
+    results = search('f items');
+    expect(results.length).toBe(2);
+    expect(results[0].node.__text).toBe('f');
+    expect(results[0].startOffset).toBe(0);
+    expect(results[0].endOffset).toBe(1);
+    expect(results[1].node.__text).toBe('items');
+    expect(results[1].startOffset).toBe(0);
+    expect(results[1].endOffset).toBe(5);
+  });
 });

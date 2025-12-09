@@ -2,12 +2,12 @@ import { $getRoot, ElementNode, LexicalEditor, TextNode } from 'lexical';
 
 export type SearchLexicalStateOptions = {
   caseInsensitive?: boolean;
-  joinSingleLines?: boolean; // TODO
+  lineBreakReplacement?: string;
 };
 
 const defaultOptions: SearchLexicalStateOptions = {
   caseInsensitive: false,
-  joinSingleLines: false
+  lineBreakReplacement: ' '
 };
 
 export const searchLexicalState = (
@@ -25,27 +25,33 @@ export const searchLexicalState = (
   }
   searchOptions = { ...defaultOptions, ...searchOptions };
   const regexFlags = searchOptions.caseInsensitive === true ? 'gi' : 'g';
-  editor.read(() => {
-    const strLength = searchText.length;
-    const regex = new RegExp(searchText, regexFlags);
-    const children = $getRoot().getChildren();
+  const regex = new RegExp(searchText, regexFlags);
+  const lb = searchOptions.lineBreakReplacement || ' '; // replace line breaks for searching
 
+  editor.read(() => {
+    const children = $getRoot().getChildren();
     try {
       for (const child of children) {
         if (child instanceof ElementNode) {
           let result;
-          const fullText = child.getTextContent().replaceAll('\n', '');
+
+          const fullText = child.getTextContent().replaceAll(/\n{1,2}/g, lb);
+          const fullTextMask = child.getTextContent().replaceAll(/\n\n/g, '\n');
           const allTextNodes = child.getAllTextNodes();
           while ((result = regex.exec(fullText))) {
             const startOffset = result.index;
-            const endOffset = startOffset + strLength;
+            const endOffset = startOffset + searchText.length;
             let currentOffset = 0;
             for (const textNode of allTextNodes) {
               const nodeText = textNode.getTextContent();
-              if (currentOffset > endOffset) {
+              if (fullTextMask[currentOffset] === '\n') {
+                // account for linebreaks between different parents
+                currentOffset += lb.length;
+              }
+              if (currentOffset >= endOffset) {
                 break;
               }
-              if (currentOffset >= startOffset) {
+              if (currentOffset + nodeText.length > startOffset) {
                 const nodeStartOffset = Math.max(
                   0,
                   startOffset - currentOffset
@@ -62,7 +68,7 @@ export const searchLexicalState = (
         }
       }
     } catch (e) {
-      console.error('Error during search highlight', e);
+      console.error('error during lexical search', e);
     }
   });
 };
