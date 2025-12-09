@@ -59,6 +59,8 @@ export const minimizeContentForStorage = (obj: SerializedEditorState) => {
 
 export const unminimizeContentFromStorage = (json: string) => {
   return JSON.stringify(
-    unminimizeKeys(JSON.parse(json), keysMapReverse, keywordsMapReverse)
+    unminimizeKeys(JSON.parse(json), keysMapReverse, keywordsMapReverse, [
+      'text'
+    ])
   );
 };

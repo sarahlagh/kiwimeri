@@ -60,20 +60,27 @@ export const minimizeKeys = (
 export const unminimizeKeys = (
   obj: AnyData,
   keys: Map<string, string>,
-  keywords: Map<string, string>
+  keywords: Map<string, string>,
+  excludeKeys: string[] = []
 ) => {
   const m = {} as AnyData;
   if (!obj) return obj;
   Object.keys(obj).forEach(k => {
     const newKey = keys.has(k) ? keys.get(k)! : k;
     if (typeof obj[k] === 'string') {
-      m[newKey] = keywords.has(obj[k]) ? keywords.get(obj[k]) : obj[k];
+      if (!excludeKeys.some(ek => ek === newKey)) {
+        m[newKey] = keywords.has(obj[k]) ? keywords.get(obj[k]) : obj[k];
+      } else {
+        m[newKey] = obj[k];
+      }
     } else if (typeof obj[k] === 'number') {
       m[newKey] = obj[k];
     } else if (Array.isArray(obj[k])) {
-      m[newKey] = obj[k].map(o => unminimizeKeys(o, keys, keywords));
+      m[newKey] = obj[k].map(o =>
+        unminimizeKeys(o, keys, keywords, excludeKeys)
+      );
     } else {
-      m[newKey] = unminimizeKeys(obj[k], keys, keywords);
+      m[newKey] = unminimizeKeys(obj[k], keys, keywords, excludeKeys);
     }
   });
   return m;

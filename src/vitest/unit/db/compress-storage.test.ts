@@ -72,6 +72,11 @@ describe('lexical content compression', () => {
       name: 'special patterns',
       content:
         '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"r@R@C2@¤Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est ¤],\\"di\\":\\"lt\\",f\\"\\",i0,ty1p,tf0,ts\\"\\"}],\\"di\\":\\"lt\\",f\\"\\",i0,ty1r}}","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}'
+    },
+    {
+      name: 'keywords in content',
+      content:
+        '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Lorem i","type":"text","version":1},{"detail":0,"format":2,"mode":"normal","style":"","text":"p","type":"text","version":1},{"detail":0,"format":0,"mode":"normal","style":"","text":"sum","type":"text","version":1}],"direction":null,"format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}'
     }
   ].forEach(({ content, name }) => {
     it(`should minimize then restore ${name}`, () => {

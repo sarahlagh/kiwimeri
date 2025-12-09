@@ -24,8 +24,6 @@ export function SearchHighlightPlugin({
     return null;
   }
 
-  console.log('search for', searchText);
-
   const ranges: Range[] = [];
   searchLexicalState(editor, searchText, (textNode, startOffset, endOffset) => {
     editor.getElementByKey(textNode.getKey());
