@@ -2,13 +2,13 @@ import { $getRoot, ElementNode, LexicalEditor, TextNode } from 'lexical';
 
 export type SearchLexicalStateOptions = {
   caseInsensitive?: boolean;
-  lineBreakReplacement?: string;
 };
 
 const defaultOptions: SearchLexicalStateOptions = {
-  caseInsensitive: false,
-  lineBreakReplacement: ' '
+  caseInsensitive: false
 };
+
+const lb = ' '; // replace line breaks for searching
 
 export const searchLexicalState = (
   editor: LexicalEditor,
@@ -26,43 +26,40 @@ export const searchLexicalState = (
   searchOptions = { ...defaultOptions, ...searchOptions };
   const regexFlags = searchOptions.caseInsensitive === true ? 'gi' : 'g';
   const regex = new RegExp(searchText, regexFlags);
-  const lb = searchOptions.lineBreakReplacement || ' '; // replace line breaks for searching
 
   editor.read(() => {
     const children = $getRoot().getChildren();
+    const fullText = $getRoot().getTextContent();
+    const fullTextMask = fullText.replaceAll(/\n+/g, '\n');
+    const fullTextSearch = fullTextMask.replaceAll(/\n/g, lb);
     try {
-      for (const child of children) {
-        if (child instanceof ElementNode) {
-          let result;
-
-          const fullText = child.getTextContent().replaceAll(/\n{1,2}/g, lb);
-          const fullTextMask = child.getTextContent().replaceAll(/\n\n/g, '\n');
+      let result;
+      while ((result = regex.exec(fullTextSearch))) {
+        let currentOffset = 0; // TODO optimize
+        const startOffset = result.index;
+        const endOffset = startOffset + searchText.length;
+        for (const child of children) {
+          if (!(child instanceof ElementNode)) {
+            continue;
+          }
           const allTextNodes = child.getAllTextNodes();
-          while ((result = regex.exec(fullText))) {
-            const startOffset = result.index;
-            const endOffset = startOffset + searchText.length;
-            let currentOffset = 0;
-            for (const textNode of allTextNodes) {
-              const nodeText = textNode.getTextContent();
-              if (fullTextMask[currentOffset] === '\n') {
-                // account for linebreaks between different parents
-                currentOffset += lb.length;
-              }
-              if (currentOffset >= endOffset) {
-                break;
-              }
-              if (currentOffset + nodeText.length > startOffset) {
-                const nodeStartOffset = Math.max(
-                  0,
-                  startOffset - currentOffset
-                );
-                const nodeEndOffset = Math.min(
-                  nodeText.length,
-                  endOffset - currentOffset
-                );
-                createResult(textNode, nodeStartOffset, nodeEndOffset);
-              }
-              currentOffset += nodeText.length;
+          for (const textNode of allTextNodes) {
+            const nodeText = textNode.getTextContent();
+            if (
+              currentOffset < endOffset &&
+              currentOffset + nodeText.length > startOffset
+            ) {
+              const nodeStartOffset = Math.max(0, startOffset - currentOffset);
+              const nodeEndOffset = Math.min(
+                nodeText.length,
+                endOffset - currentOffset
+              );
+              createResult(textNode, nodeStartOffset, nodeEndOffset);
+            }
+            currentOffset += nodeText.length;
+            // account for linebreaks between different parents
+            if (fullTextMask[currentOffset] === '\n') {
+              currentOffset += lb.length;
             }
           }
         }
