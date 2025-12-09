@@ -54,7 +54,7 @@ keywords.forEach(([v1, v2]) => {
 });
 
 export const minimizeContentForStorage = (obj: SerializedEditorState) => {
-  return JSON.stringify(minimizeKeys(obj, keysMap, keywordsMap));
+  return JSON.stringify(minimizeKeys(obj, keysMap, keywordsMap, ['text']));
 };
 
 export const unminimizeContentFromStorage = (json: string) => {

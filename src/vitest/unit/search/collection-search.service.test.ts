@@ -4,10 +4,10 @@ import {
   DEFAULT_SPACE_ID,
   ROOT_COLLECTION
 } from '@/constants';
-import { searchService } from '@/db/collection-search.service';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
+import { searchService } from '@/search/collection-search.service';
 import { oneDocument, oneFolder, onePage } from '@/vitest/setup/test.utils';
 import { describe, it } from 'vitest';
 

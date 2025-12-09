@@ -4,6 +4,7 @@ import KiwimeriEditor from '@/common/wysiwyg/lexical/KiwimeriEditor';
 import CollectionPagesBrowser from '@/common/wysiwyg/pages-browser/CollectionPagesBrowser';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
+import { searchService } from '@/search/collection-search.service';
 import {
   InputCustomEvent,
   IonButton,
@@ -46,7 +47,7 @@ const DocumentEditor = ({
   const itemId = pageId ? pageId : docId;
   const content = collectionService.useItemContent(itemId);
   const documentTitle = collectionService.getItemTitle(docId);
-  const documentPreview = collectionService.useItemPreview(docId) || '';
+  const documentPreview = searchService.useItemPreview(docId) || '';
 
   const displayOpts = collectionService.useItemEffectiveDisplayOpts(docId);
   const sort = displayOpts.sort;
@@ -116,6 +117,7 @@ const DocumentEditor = ({
                 onClick={() => {
                   setToggleSearch(true);
                   setShowDocumentActions(false);
+                  if (pages.length > 0) setOpenPageBrowser(true);
                 }}
               >
                 <IonIcon icon={APPICONS.search}></IonIcon>
@@ -157,6 +159,7 @@ const DocumentEditor = ({
                 docId={docId}
                 docPreview={documentPreview}
                 pages={pages}
+                searchText={toggleSearch ? searchText : null}
               />
             )}
           </KiwimeriEditor>

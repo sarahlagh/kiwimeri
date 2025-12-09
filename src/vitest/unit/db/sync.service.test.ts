@@ -10,7 +10,6 @@ import {
   DEFAULT_SPACE_ID,
   ROOT_COLLECTION
 } from '@/constants';
-import { searchService } from '@/db/collection-search.service';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/local-changes.service';
 import notebooksService from '@/db/notebooks.service';
@@ -23,6 +22,7 @@ import userSettingsService from '@/db/user-settings.service';
 import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
 import { LayerTypes } from '@/remote-storage/storage-filesystem.factory';
 import { syncService } from '@/remote-storage/sync.service';
+import { searchService } from '@/search/collection-search.service';
 import { renderHook } from '@testing-library/react';
 import { act } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

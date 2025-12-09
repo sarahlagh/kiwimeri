@@ -6,11 +6,12 @@ import {
 } from '@/collection/collection';
 import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
 import { DEFAULT_SPACE_ID, ROOT_COLLECTION } from '@/constants';
+import { useCellWithRef } from '@/db/tinybase/hooks';
 import formatConverter from '@/format-conversion/format-converter.service';
 import { Id, Ids, Store, Table } from 'tinybase/with-schemas';
-import storageService from './storage.service';
-import { SpaceType } from './types/space-types';
-import { StoreType } from './types/store-types';
+import storageService from '../db/storage.service';
+import { SpaceType } from '../db/types/space-types';
+import { StoreType } from '../db/types/store-types';
 
 class CollectionSearchService {
   private readonly ancestorsTableId = 'ancestors';
@@ -153,6 +154,12 @@ class CollectionSearchService {
         .getStore()
         .getCell('search', rowId, 'contentPreview')
         ?.toString() || ''
+    );
+  }
+
+  public useItemPreview(rowId: Id) {
+    return (
+      useCellWithRef<string>('store', 'search', rowId, 'contentPreview') || null
     );
   }
 

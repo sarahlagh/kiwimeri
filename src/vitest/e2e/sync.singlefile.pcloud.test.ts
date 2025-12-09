@@ -2,7 +2,6 @@ import { CollectionItem } from '@/collection/collection';
 import { unminimizeItemsFromStorage } from '@/collection/compress-collection';
 import { appConfig, getGlobalTrans } from '@/config';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
-import { searchService } from '@/db/collection-search.service';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/local-changes.service';
 import notebooksService from '@/db/notebooks.service';
@@ -13,6 +12,7 @@ import userSettingsService from '@/db/user-settings.service';
 import { PCloudDriver } from '@/remote-storage/storage-drivers/pcloud/pcloud.driver';
 import { SingleFileStorage } from '@/remote-storage/storage-filesystems/singlefile.filesystem';
 import { syncService } from '@/remote-storage/sync.service';
+import { searchService } from '@/search/collection-search.service';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   amount,

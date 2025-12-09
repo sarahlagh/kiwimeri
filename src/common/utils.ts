@@ -38,20 +38,25 @@ export function fastHash(input: string): number {
 export const minimizeKeys = (
   obj: AnyData,
   keys: Map<string, string>,
-  keywords: Map<string, string>
+  keywords: Map<string, string>,
+  excludeKeys: string[] = []
 ) => {
   const m = {} as AnyData;
   if (!obj) return obj;
   Object.keys(obj).forEach(k => {
     const newKey = keys.has(k) ? keys.get(k)! : k;
     if (typeof obj[k] === 'string') {
-      m[newKey] = keywords.has(obj[k]) ? keywords.get(obj[k]) : obj[k];
+      if (!excludeKeys.some(ek => ek === k)) {
+        m[newKey] = keywords.has(obj[k]) ? keywords.get(obj[k]) : obj[k];
+      } else {
+        m[newKey] = obj[k];
+      }
     } else if (typeof obj[k] === 'number') {
       m[newKey] = obj[k];
     } else if (Array.isArray(obj[k])) {
-      m[newKey] = obj[k].map(o => minimizeKeys(o, keys, keywords));
+      m[newKey] = obj[k].map(o => minimizeKeys(o, keys, keywords, excludeKeys));
     } else {
-      m[newKey] = minimizeKeys(obj[k], keys, keywords);
+      m[newKey] = minimizeKeys(obj[k], keys, keywords, excludeKeys);
     }
   });
   return m;

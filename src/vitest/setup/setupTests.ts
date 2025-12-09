@@ -3,6 +3,7 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 import { initGlobalTrans } from '@/config';
+import notebooksService from '@/db/notebooks.service';
 import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
 import { messages as enMessages } from '@/locales/en/messages';
@@ -10,7 +11,6 @@ import { i18n } from '@lingui/core';
 import '@testing-library/jest-dom/extend-expect';
 
 // allow the log level to be applied to tests
-import notebooksService from '@/db/notebooks.service';
 import '@/polyfills/log-polyfill';
 
 // Mock matchmedia
@@ -33,12 +33,12 @@ beforeAll(async () => {
   notebooksService.initNotebooks();
   expect(notebooksService.getCurrentNotebook()).toBe('0');
 });
-afterAll(async () => {
+afterAll(() => {
   remotesService.stopSync();
   storageService.stop();
 });
-beforeEach(async () => {});
-afterEach(async () => {
+beforeEach(() => {});
+afterEach(() => {
   storageService.reInitDB();
   notebooksService.initNotebooks();
   expect(notebooksService.getCurrentNotebook()).not.toBe('');

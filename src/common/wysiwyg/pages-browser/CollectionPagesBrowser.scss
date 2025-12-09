@@ -25,6 +25,10 @@
     color: var(--ion-color-secondary-shade);
   }
 
+  .page-item-doc.highlighted {
+    --border-color: var(--search-color);
+  }
+
   .page-item-selected {
     color: var(--ion-color-primary);
   }

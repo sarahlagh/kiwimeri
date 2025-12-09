@@ -1,6 +1,6 @@
 import platformService from '@/common/services/platform.service';
+import { contentSearchService } from '@/search/collection-content-search.service';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { searchLexicalState } from './searchLexicalState';
 
 type SearchHighlightPluginProps = {
   searchText?: string | null;
@@ -25,15 +25,19 @@ export function SearchHighlightPlugin({
   }
 
   const ranges: Range[] = [];
-  searchLexicalState(editor, searchText, (textNode, startOffset, endOffset) => {
-    editor.getElementByKey(textNode.getKey());
-    const el = editor.getElementByKey(textNode.getKey());
-    if (!el) return;
-    const range = new Range();
-    range.setStart(el.firstChild!, startOffset);
-    range.setEnd(el.firstChild!, endOffset);
-    ranges.push(range);
-  });
+  contentSearchService.searchLexicalState(
+    editor,
+    searchText,
+    (textNode, startOffset, endOffset) => {
+      editor.getElementByKey(textNode.getKey());
+      const el = editor.getElementByKey(textNode.getKey());
+      if (!el) return;
+      const range = new Range();
+      range.setStart(el.firstChild!, startOffset);
+      range.setEnd(el.firstChild!, endOffset);
+      ranges.push(range);
+    }
+  );
   const highlight = new Highlight(...ranges);
   CSS.highlights.set(SEARCH_RESULTS, highlight);
 

@@ -9,7 +9,11 @@ import { MARKDOWN_PARSER } from './text-parsing/markdown-parser/markdown-parser'
 import { KiwimeriTextParser } from './text-parsing/text-parser';
 
 class FormatConversionService {
-  public to(lex: string, formatter: KiwimeriLexConverter, opts?: unknown) {
+  public to(
+    lex: string,
+    formatter: KiwimeriLexConverter,
+    opts?: unknown
+  ): string {
     try {
       const obj: SerializedEditorState = JSON.parse(lex);
       return formatter.parseLexNode(null, 0, 0, obj.root, opts);

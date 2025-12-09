@@ -51,7 +51,7 @@ msgstr "Choose"
 msgid "Choose a new folder"
 msgstr "Choose a new folder"
 
-#: src/synchronization/components/LocalChangesCard.tsx:173
+#: src/synchronization/components/LocalChangesCard.tsx:176
 msgid "Clear All"
 msgstr "Clear All"
 
@@ -97,7 +97,7 @@ msgstr "Current Notebook Settings ({notebookTitle})"
 msgid "Default"
 msgstr "Default"
 
-#: src/synchronization/components/LocalChangesCard.tsx:109
+#: src/synchronization/components/LocalChangesCard.tsx:110
 msgid "deleted item"
 msgstr "deleted item"
 
@@ -106,7 +106,7 @@ msgstr "deleted item"
 msgid "Dev Tools"
 msgstr "Dev Tools"
 
-#: src/dev-tools/components/DevTools.tsx:36
+#: src/dev-tools/components/DevTools.tsx:37
 msgid "Dev Tools Enabled"
 msgstr "Dev Tools Enabled"
 
@@ -126,11 +126,11 @@ msgstr "Do you want to import your content inside a new folder?"
 msgid "Download Logs"
 msgstr "Download Logs"
 
-#: src/common/wysiwyg/pages-browser/CollectionPagesBrowser.tsx:74
+#: src/common/wysiwyg/pages-browser/CollectionPagesBrowser.tsx:77
 msgid "empty doc"
 msgstr "empty doc"
 
-#: src/common/wysiwyg/pages-browser/CollectionPagesBrowser.tsx:75
+#: src/common/wysiwyg/pages-browser/CollectionPagesBrowser.tsx:78
 msgid "empty page"
 msgstr "empty page"
 
@@ -176,10 +176,12 @@ msgstr "Filesystem"
 msgid "Home"
 msgstr "Home"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:112
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:105
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
@@ -228,11 +230,13 @@ msgstr "Link"
 msgid "Loading..."
 msgstr "Loading..."
 
-#: src/synchronization/components/LocalChangesCard.tsx:42
+#. placeholder {0}: localChanges.length
+#: src/synchronization/components/LocalChangesCard.tsx:43
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
-#: src/synchronization/components/LocalChangesCard.tsx:48
+#. placeholder {0}: dateToStr('datetime', lastLocalChange)
+#: src/synchronization/components/LocalChangesCard.tsx:49
 msgid "Local: {0}"
 msgstr "Local: {0}"
 
@@ -357,7 +361,8 @@ msgstr "Pick a directory for your backups"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
-#: src/synchronization/components/LocalChangesCard.tsx:55
+#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
+#: src/synchronization/components/LocalChangesCard.tsx:56
 msgid "Remote: {0}"
 msgstr "Remote: {0}"
 
@@ -395,7 +400,7 @@ msgstr "Sort"
 msgid "Sort items by..."
 msgstr "Sort items by..."
 
-#: src/synchronization/components/LocalChangesCard.tsx:74
+#: src/synchronization/components/LocalChangesCard.tsx:75
 msgid "space option modified"
 msgstr "space option modified"
 

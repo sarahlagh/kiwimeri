@@ -208,5 +208,5 @@ pre::-webkit-scrollbar-thumb {
 }
 
 ::highlight(kiwimeri-search-results) {
-  background-color: #22f3bc;
+  background-color: var(--search-color);
 }

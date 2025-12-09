@@ -10,6 +10,7 @@ import { getSearchParams } from '@/common/utils';
 import { APPICONS, CONFLICT_STR } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
+import { contentSearchService } from '@/search/collection-content-search.service';
 import { useLingui } from '@lingui/react/macro';
 import { useHistory, useLocation } from 'react-router';
 import './CollectionPagesBrowser.scss';
@@ -21,6 +22,7 @@ export type CollectionPagesBrowserProps = {
   docId: string;
   docPreview: string;
   pages?: PageResult[];
+  searchText: string | null;
 };
 
 interface PagePreviewItemProps {
@@ -68,7 +70,8 @@ export default function CollectionPagesBrowser({
   id,
   docId,
   docPreview,
-  pages
+  pages,
+  searchText
 }: CollectionPagesBrowserProps): JSX.Element {
   const { t } = useLingui();
   const defaultDocPreview = t`empty doc`;
@@ -80,6 +83,20 @@ export default function CollectionPagesBrowser({
   const folderId = getSearchParams(location.search).folder || notebook;
   const sort = collectionService.useItemEffectiveDisplayOpts(docId).sort;
   // TODO turn doc to page and vice-versa via drag & drop
+
+  const searchResults: string[] = [];
+  // TODO refacto
+  if (searchText !== null) {
+    if (contentSearchService.searchPlainTextContent(docId, searchText)) {
+      searchResults.push(docId);
+    }
+    pages?.forEach(page => {
+      if (contentSearchService.searchPlainTextContent(page.id, searchText)) {
+        searchResults.push(page.id);
+      }
+    });
+  }
+
   return (
     <>
       <div className="page-browser">
@@ -97,7 +114,10 @@ export default function CollectionPagesBrowser({
         </IonItem>
         <IonList className="inner-list">
           <PagePreviewItem
-            className="page-item-doc"
+            className={
+              'page-item-doc' +
+              (searchResults.find(sr => sr === docId) ? ' highlighted' : '')
+            }
             key={docId}
             page={{ id: docId, preview: docPreview, order: 0 }}
             selected={id === docId}
@@ -121,6 +141,10 @@ export default function CollectionPagesBrowser({
               key={page.id}
               page={page}
               selected={id === page.id}
+              className={
+                'page-item-doc' +
+                (searchResults.find(sr => sr === page.id) ? ' highlighted' : '')
+              }
               onClick={pageId => {
                 history.push(GET_PAGE_ROUTE(folderId, docId, pageId));
               }}

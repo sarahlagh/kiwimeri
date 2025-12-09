@@ -11,10 +11,10 @@ import {
   DEFAULT_SPACE_ID,
   ROOT_COLLECTION
 } from '@/constants';
-import { searchService } from '@/db/collection-search.service';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import { defaultOrder } from '@/db/types/space-types';
+import { searchService } from '@/search/collection-search.service';
 import { renderHook } from '@testing-library/react';
 import { act } from 'react';
 import { it, vi } from 'vitest';

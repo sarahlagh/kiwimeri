@@ -9,7 +9,7 @@ import { Persister } from 'tinybase/persisters/with-schemas';
 import { createQueries, Queries } from 'tinybase/queries/with-schemas';
 import { CellSchema, createStore, Store } from 'tinybase/store/with-schemas';
 import { createIndexes, Indexes } from 'tinybase/with-schemas';
-import { searchService } from './collection-search.service';
+import { searchService } from '../search/collection-search.service';
 import localChangesService from './local-changes.service';
 import notebooksService from './notebooks.service';
 import tagsService from './tags.service';

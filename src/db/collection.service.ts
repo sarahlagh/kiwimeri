@@ -22,7 +22,7 @@ import { SerializedEditorState } from 'lexical';
 import { getUniqueId } from 'tinybase/common';
 import { Id } from 'tinybase/common/with-schemas';
 import { Table } from 'tinybase/store';
-import { searchService } from './collection-search.service';
+import { searchService } from '../search/collection-search.service';
 import localChangesService from './local-changes.service';
 import notebooksService from './notebooks.service';
 import storageService from './storage.service';
@@ -513,44 +513,8 @@ class CollectionService {
     );
   }
 
-  public useItemPreview(rowId: Id) {
-    // TODO move to search service
-    return (
-      useCellWithRef<string>('store', 'search', rowId, 'contentPreview') || null
-    );
-  }
-
-  public getItemPreview(rowId: Id) {
-    // return (
-    //   (storageService
-    //     .getSpace()
-    //     .getCell(this.tableId, rowId, 'preview')
-    //     ?.valueOf() as string) || ''
-    // );
-    return searchService.getItemPreview(rowId);
-  }
-
   public setItemLexicalContent(rowId: Id, content: SerializedEditorState) {
     this.setItemField(rowId, 'content', minimizeContentForStorage(content));
-    // storageService.getSpace().transaction(() => {
-    //   const change = this.setItemField(
-    //     rowId,
-    //     'content',
-    //     minimizeContentForStorage(content)
-    //   );
-    // if (change) {
-    //   storageService
-    //     .getSpace()
-    //     .setCell(
-    //       'collection',
-    //       rowId,
-    //       'preview',
-    //       formatConverter
-    //         .toPlainText(JSON.stringify(content))
-    //         .substring(0, this.previewSize)
-    //     );
-    // }
-    // });
   }
 
   public setUnsavedItemLexicalContent(
@@ -558,9 +522,6 @@ class CollectionService {
     content: SerializedEditorState
   ) {
     item.content = minimizeContentForStorage(content);
-    // item.preview = formatConverter
-    //   .toPlainText(JSON.stringify(content))
-    //   .substring(0, this.previewSize);
   }
 
   // get display opts => raw data from db
