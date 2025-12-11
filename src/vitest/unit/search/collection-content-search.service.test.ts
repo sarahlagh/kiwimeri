@@ -74,7 +74,7 @@ describe('CollectionContentSearchService', () => {
       expect(results[1].node.__text).toBe('din');
       expect(results[1].startOffset).toBe(0);
       expect(results[1].endOffset).toBe(3);
-      expect(results[2].node.__text).toBe('g 1');
+      expect(results[2].node.__text).toBe('g 1');
       expect(results[2].startOffset).toBe(0);
       expect(results[2].endOffset).toBe(1);
 
@@ -98,7 +98,7 @@ describe('CollectionContentSearchService', () => {
       expect(results[0].node.__text).toBe('din');
       expect(results[0].startOffset).toBe(0);
       expect(results[0].endOffset).toBe(3);
-      expect(results[1].node.__text).toBe('g 1');
+      expect(results[1].node.__text).toBe('g 1');
       expect(results[1].startOffset).toBe(0);
       expect(results[1].endOffset).toBe(1);
     });
@@ -143,7 +143,7 @@ describe('CollectionContentSearchService', () => {
       expect(results[1].node.__text).toBe('din');
       expect(results[1].startOffset).toBe(0);
       expect(results[1].endOffset).toBe(3);
-      expect(results[2].node.__text).toBe('g 1');
+      expect(results[2].node.__text).toBe('g 1');
       expect(results[2].startOffset).toBe(0);
       expect(results[2].endOffset).toBe(3);
       expect(results[3].node.__text).toBe('Lorem ipsum ');
@@ -261,6 +261,14 @@ describe('CollectionContentSearchService', () => {
       expect(results[1].startOffset).toBe(0);
       expect(results[1].endOffset).toBe(5);
     });
+
+    it('should replace non-breaking spaces by normal space', () => {
+      const results = search('g 1');
+      expect(results.length).toBe(1);
+      expect(results[0].node.__text).toBe('g 1');
+      expect(results[0].startOffset).toBe(0);
+      expect(results[0].endOffset).toBe(3);
+    });
   });
 
   describe('Search Plain Text Content', () => {
@@ -338,6 +346,10 @@ describe('CollectionContentSearchService', () => {
       expect(search('of items')).toBe(true);
       expect(search('list o')).toBe(true);
       expect(search('f items')).toBe(true);
+    });
+
+    it('should replace non-breaking spaces by normal space', () => {
+      expect(search('g 1')).toBe(true);
     });
   });
 });

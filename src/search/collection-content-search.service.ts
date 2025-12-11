@@ -10,6 +10,7 @@ const defaultOptions: SearchOptions = {
 };
 
 const MIN_INPUT_LENGTH = 2;
+const REPLACED_CHARS = /[\n\u00a0]/g;
 const LB = ' '; // replace line breaks by space for searching
 
 class CollectionContentSearchService {
@@ -32,7 +33,7 @@ class CollectionContentSearchService {
         .getStore()
         .getCell('search', rowId, 'contentPreview')
         ?.toString() || '';
-    return regex.exec(plainText) !== null;
+    return regex.exec(plainText.replaceAll(REPLACED_CHARS, ' ')) !== null;
   }
 
   public searchLexicalState(
@@ -55,7 +56,7 @@ class CollectionContentSearchService {
       const children = $getRoot().getChildren();
       const fullText = $getRoot().getTextContent();
       const fullTextMask = fullText.replaceAll(/\n+/g, '\n');
-      const fullTextSearch = fullTextMask.replaceAll(/\n/g, LB);
+      const fullTextSearch = fullTextMask.replaceAll(REPLACED_CHARS, LB);
       try {
         let currentOffset = 0;
         let result = regex.exec(fullTextSearch);
