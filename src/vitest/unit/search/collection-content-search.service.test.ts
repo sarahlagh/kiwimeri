@@ -1,6 +1,6 @@
 import { lexicalConfig } from '@/common/wysiwyg/lexical/lexical-config';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
-import collectionService from '@/db/collection.service';
+import collectionService, { initialContent } from '@/db/collection.service';
 import storageService from '@/db/storage.service';
 import {
   contentSearchService,
@@ -350,6 +350,27 @@ describe('CollectionContentSearchService', () => {
 
     it('should replace non-breaking spaces by normal space', () => {
       expect(search('g 1')).toBe(true);
+    });
+
+    it('should search within pages too', () => {
+      const pageId = collectionService.addPage(docId);
+      const state = editor.parseEditorState(json!);
+      collectionService.setItemLexicalContent(pageId, state.toJSON());
+      searchService['updateContentPreview'](
+        pageId,
+        storageService.getSpace().getTable('collection'),
+        storageService.getStore()
+      );
+      // empty the doc
+      const emptyState = editor.parseEditorState(initialContent());
+      collectionService.setItemLexicalContent(docId, emptyState.toJSON());
+      searchService['updateContentPreview'](
+        docId,
+        storageService.getSpace().getTable('collection'),
+        storageService.getStore()
+      );
+
+      expect(search('Lorem ipsum')).toBe(true);
     });
   });
 

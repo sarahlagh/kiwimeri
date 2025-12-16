@@ -1,3 +1,4 @@
+import collectionService from '@/db/collection.service';
 import { $getRoot, ElementNode, LexicalEditor, TextNode } from 'lexical';
 import storageService from '../db/storage.service';
 
@@ -37,7 +38,19 @@ class CollectionContentSearchService {
         .getStore()
         .getCell('search', rowId, 'contentPreview')
         ?.toString() || '';
-    return regex.exec(plainText.replaceAll(REPLACED_CHARS, ' ')) !== null;
+    if (regex.exec(plainText.replaceAll(REPLACED_CHARS, ' ')) !== null)
+      return true;
+    const pages = collectionService.getDocumentPages(rowId);
+    for (const page of pages) {
+      const pageText =
+        storageService
+          .getStore()
+          .getCell('search', page.id, 'contentPreview')
+          ?.toString() || '';
+      if (regex.exec(pageText.replaceAll(REPLACED_CHARS, ' ')) !== null)
+        return true;
+    }
+    return false;
   }
 
   public *searchArbitraryText(
