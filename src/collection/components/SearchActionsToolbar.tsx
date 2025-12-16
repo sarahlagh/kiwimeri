@@ -14,7 +14,9 @@ export type SearchActionsToolbarProps = {
   searchText: string;
   setSearchText: Dispatch<string>;
   setToggleSearch: Dispatch<boolean>;
+  toggleSearchAutoFocus?: boolean;
   rows?: number;
+  onInput?: (text: string) => void;
   onClose?: () => void;
 } & JSX.IonToolbar &
   StyleReactProps &
@@ -24,15 +26,17 @@ const SearchActionsToolbar = ({
   setSearchText,
   setToggleSearch,
   searchText,
+  toggleSearchAutoFocus = true,
   rows = 1,
+  onInput,
   onClose
 }: SearchActionsToolbarProps) => {
   const refInput = useRef<HTMLIonInputElement>(null);
   useEffect(() => {
-    if (refInput.current) {
+    if (toggleSearchAutoFocus && refInput.current) {
       setTimeout(() => refInput.current!.setFocus());
     }
-  }, [refInput]);
+  }, [refInput, toggleSearchAutoFocus]);
   return (
     <IonToolbar color="medium" style={{ height: rows * 56 + 'px' }}>
       <IonInput
@@ -42,6 +46,7 @@ const SearchActionsToolbar = ({
         value={searchText}
         onIonInput={(e: InputCustomEvent) => {
           setSearchText(e.detail.value || '');
+          if (onInput) onInput(e.detail.value || '');
         }}
       ></IonInput>
       <IonButtons slot="end">

@@ -72,7 +72,6 @@ class CollectionContentSearchService {
     return null;
   }
 
-  // TODO turn to generator
   public searchLexicalState(
     editor: LexicalEditor,
     searchText: string | null,

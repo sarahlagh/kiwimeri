@@ -1,5 +1,5 @@
 import platformService from '@/common/services/platform.service';
-import { SEARCH_RESULTS_HIGHLIGHT_KEY } from '@/constants';
+import { CONTENT_SEARCH_RESULTS_HIGHLIGHT_KEY } from '@/constants';
 import { contentSearchService } from '@/search/collection-content-search.service';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 
@@ -18,7 +18,7 @@ export function SearchHighlightPlugin({
   }
   if (!searchText || searchText.length < 2) {
     // not searching, return
-    CSS.highlights.delete(SEARCH_RESULTS_HIGHLIGHT_KEY);
+    CSS.highlights.delete(CONTENT_SEARCH_RESULTS_HIGHLIGHT_KEY);
     return null;
   }
 
@@ -37,7 +37,7 @@ export function SearchHighlightPlugin({
     }
   );
   const highlight = new Highlight(...ranges);
-  CSS.highlights.set(SEARCH_RESULTS_HIGHLIGHT_KEY, highlight);
+  CSS.highlights.set(CONTENT_SEARCH_RESULTS_HIGHLIGHT_KEY, highlight);
 
   return null;
 }

@@ -60,6 +60,8 @@ export const INTERNAL_FORMAT = 'raw';
 export const CONFLICT_STR = '[!] ';
 
 export const SEARCH_RESULTS_HIGHLIGHT_KEY = 'kiwimeri-search-results';
+export const CONTENT_SEARCH_RESULTS_HIGHLIGHT_KEY =
+  'kiwimeri-content-search-results';
 
 // messages
 export const ROOT_FOLDER_TITLE = msg`Home`;

@@ -15,6 +15,7 @@ import {
 import ExportItemsButton from '@/common/buttons/ExportItemsButton';
 import ImportItemsButton from '@/common/buttons/ImportItemsButton';
 import OpenSortFilterButton from '@/common/buttons/OpenSortFilterButton';
+import { useSearchContext } from '@/common/context/SearchContext';
 import { GET_ITEM_ROUTE } from '@/common/routes';
 import platformService from '@/common/services/platform.service';
 import { getSearchParams } from '@/common/utils';
@@ -38,8 +39,8 @@ const CollectionItemBrowserListToolbar = ({
 }: {
   folderId: string;
   openedDocument: string | undefined;
-  searchText: string;
-  setSearchText: Dispatch<SetStateAction<string>>;
+  searchText?: string | null;
+  setSearchText: Dispatch<SetStateAction<string | undefined | null>>;
 }) => {
   const [toggleSearch, setToggleSearch] = useState(false);
 
@@ -50,10 +51,10 @@ const CollectionItemBrowserListToolbar = ({
   if (toggleSearch) {
     return (
       <SearchActionsToolbar
-        searchText={searchText}
+        searchText={searchText || ''}
         setSearchText={setSearchText}
         setToggleSearch={setToggleSearch}
-        onClose={() => setSearchText('')}
+        onClose={() => setSearchText(null)}
       />
     );
   }
@@ -114,7 +115,6 @@ export const CollectionItemBrowserList = ({
   const location = useLocation();
   const searchParams = getSearchParams(location.search);
   const openedDocument = searchParams?.document;
-  const [searchText, setSearchText] = useState('');
 
   const displayOpts = collectionService.useItemEffectiveDisplayOpts(folder);
   const sort = displayOpts.sort;
@@ -148,6 +148,8 @@ export const CollectionItemBrowserList = ({
       setSelectedItem(null);
     }
   });
+
+  const { searchText, setSearchText } = useSearchContext();
 
   return (
     <CollectionItemList

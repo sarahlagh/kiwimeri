@@ -56,7 +56,7 @@ type CollectionItemListSingleItemProps = {
 
 type CollectionItemListProps = {
   items: CollectionItemResult[];
-  searchText?: string;
+  searchText?: string | null;
   reorderEnabled?: boolean;
   header?: ReactNode;
   footer?: ReactNode;
@@ -228,7 +228,6 @@ const CollectionItemList = ({
   let finalItems = items;
   const itemsMixIn: Map<string, CollectionItemMixIn> = new Map();
 
-  // TODO when opening doc, must open search result
   if (platformService.hasHighlightSupport()) {
     const ranges: Range[] = [];
     if (contentSearchService.acceptsSearchText(searchText)) {

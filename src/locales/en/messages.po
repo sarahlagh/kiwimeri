@@ -29,7 +29,8 @@ msgstr "An error occurred loading the file"
 msgid "Archive is empty"
 msgstr "Archive is empty"
 
-#: src/collection/components/CollectionItemList.tsx:67
+#: src/common/modals/ConfirmYesNoDialog.tsx:24
+#: src/collection/components/CollectionItemList.tsx:68
 msgid "Are you sure?"
 msgstr "Are you sure?"
 
@@ -54,7 +55,7 @@ msgstr "Choose a new folder"
 msgid "Clear All"
 msgstr "Clear All"
 
-#: src/constants.ts:70
+#: src/constants.ts:74
 msgid "collection"
 msgstr "collection"
 
@@ -80,7 +81,7 @@ msgstr "Configure where to synchronize your collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/constants.ts:65
+#: src/constants.ts:69
 msgid "Conflicts"
 msgstr "Conflicts"
 
@@ -92,7 +93,7 @@ msgstr "Creation Date"
 msgid "Current Notebook Settings ({notebookTitle})"
 msgstr "Current Notebook Settings ({notebookTitle})"
 
-#: src/constants.ts:64
+#: src/constants.ts:68
 msgid "Default"
 msgstr "Default"
 
@@ -171,7 +172,7 @@ msgstr "File not supported"
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/constants.ts:63
+#: src/constants.ts:67
 msgid "Home"
 msgstr "Home"
 
@@ -280,11 +281,11 @@ msgstr "Name"
 msgid "new"
 msgstr "new"
 
-#: src/constants.ts:66
+#: src/constants.ts:70
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:67
+#: src/constants.ts:71
 msgid "New folder"
 msgstr "New folder"
 
@@ -300,7 +301,7 @@ msgstr "New notebook name: "
 msgid "New tag"
 msgstr "New tag"
 
-#: src/collection/components/CollectionItemList.tsx:78
+#: src/collection/components/CollectionItemList.tsx:79
 msgid "no"
 msgstr "no"
 
@@ -320,7 +321,7 @@ msgstr "Notebook Selection"
 msgid "Notebooks found in the archive, they will be converted to folders"
 msgstr "Notebooks found in the archive, they will be converted to folders"
 
-#: src/constants.ts:69
+#: src/constants.ts:73
 msgid "page"
 msgstr "page"
 
@@ -424,7 +425,7 @@ msgstr "Syncing is disabled on the web version."
 msgid "Text"
 msgstr "Text"
 
-#: src/common/wysiwyg/lexical/KiwimeriEditor.tsx:68
+#: src/common/wysiwyg/lexical/KiwimeriEditor.tsx:67
 msgid "Text..."
 msgstr "Text..."
 
@@ -453,7 +454,7 @@ msgstr "Username"
 msgid "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 msgstr "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 
-#: src/collection/components/CollectionItemList.tsx:75
+#: src/collection/components/CollectionItemList.tsx:76
 msgid "yes"
 msgstr "yes"
 

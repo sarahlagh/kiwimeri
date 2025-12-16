@@ -1,3 +1,4 @@
+import { useSearchContext } from '@/common/context/SearchContext';
 import { onTitleChangeFn } from '@/common/events/events';
 import platformService from '@/common/services/platform.service';
 import KiwimeriEditor from '@/common/wysiwyg/lexical/KiwimeriEditor';
@@ -26,6 +27,8 @@ interface DocumentEditorProps {
   showActions?: boolean;
 }
 
+const MAX_WEIGHT = 10;
+
 const DocumentEditor = ({
   docId,
   pageId,
@@ -37,7 +40,10 @@ const DocumentEditor = ({
   const [showDocumentFooter, setShowDocumentFooter] = useState(showActions);
   const [openPageBrowser, setOpenPageBrowser] = useState(false);
   const [toggleSearch, setToggleSearch] = useState(false);
+  const [toggleSearchAutoFocus, setToggleSearchAutoFocus] = useState(true);
   const [searchText, setSearchText] = useState('');
+  const [localSearchTextWeight, setLocalSearchTextWeight] = useState(0);
+  const { searchText: globalSearchText } = useSearchContext();
 
   // TODO refactor
   useEffect(() => {
@@ -71,6 +77,17 @@ const DocumentEditor = ({
     }
   };
 
+  useEffect(() => {
+    if (localSearchTextWeight < MAX_WEIGHT) {
+      const searchTextOverride = globalSearchText || '';
+      setSearchText(searchTextOverride);
+      setToggleSearch(searchTextOverride.length > 0);
+      setToggleSearchAutoFocus(false);
+      if (pages.length > 0 && searchTextOverride.length > 0)
+        setOpenPageBrowser(true);
+    }
+  }, [globalSearchText, docId]);
+
   return (
     <>
       <IonHeader>
@@ -94,6 +111,7 @@ const DocumentEditor = ({
             onClick={() => {
               setShowDocumentActions(!showDocumentActions);
               setToggleSearch(false);
+              setLocalSearchTextWeight(0);
             }}
           >
             <IonIcon icon={APPICONS.itemActions}></IonIcon>
@@ -115,8 +133,10 @@ const DocumentEditor = ({
             {platformService.hasHighlightSupport() && (
               <IonButton
                 onClick={() => {
-                  setToggleSearch(true);
+                  setLocalSearchTextWeight(MAX_WEIGHT);
                   setShowDocumentActions(false);
+                  setToggleSearch(true);
+                  setToggleSearchAutoFocus(true);
                   if (pages.length > 0) setOpenPageBrowser(true);
                 }}
               >
@@ -130,6 +150,13 @@ const DocumentEditor = ({
             searchText={searchText}
             setSearchText={setSearchText}
             setToggleSearch={setToggleSearch}
+            toggleSearchAutoFocus={toggleSearchAutoFocus}
+            onInput={() => {
+              setLocalSearchTextWeight(MAX_WEIGHT);
+            }}
+            onClose={() => {
+              setLocalSearchTextWeight(0);
+            }}
           />
         )}
       </IonHeader>

@@ -86,3 +86,10 @@ ion-popover.larger-width {
 :root {
   --search-color: #22f3bc;
 }
+
+::highlight(kiwimeri-content-search-results) {
+  background-color: var(--search-color);
+}
+::highlight(kiwimeri-search-results) {
+  background-color: var(--search-color);
+}
