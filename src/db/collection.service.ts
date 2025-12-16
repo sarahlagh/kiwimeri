@@ -740,7 +740,7 @@ class CollectionService {
 
   public getBreadcrumb(rowId: string, includeAllNotebooks = false) {
     if (!includeAllNotebooks) {
-      const breadcrumb = searchService.getBreadcrumb(rowId);
+      const breadcrumb = searchService.getShortBreadcrumb(rowId);
       return breadcrumb.length > 0 ? breadcrumb.split(',') : [];
     }
     return searchService.getPath(

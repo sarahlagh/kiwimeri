@@ -152,7 +152,7 @@ const testExpectedPaths = (paths: string[][]) => {
     for (let i = 0; i < path.length; i++) {
       if (breadcrumb.length > 0) breadcrumb += ',';
       breadcrumb += path[i];
-      expect(searchService.getBreadcrumb(path[i])).toBe(breadcrumb);
+      expect(searchService.getShortBreadcrumb(path[i])).toBe(breadcrumb);
     }
   });
 };
@@ -283,27 +283,29 @@ describe('collection search service', () => {
       const idf1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
       const idd2 = collectionService.addDocument(idf1);
 
-      expect(searchService.getBreadcrumb(ROOT_COLLECTION)).toBe('');
-      expect(searchService.getBreadcrumb(DEFAULT_NOTEBOOK_ID)).toBe(
+      expect(searchService.getShortBreadcrumb(ROOT_COLLECTION)).toBe('');
+      expect(searchService.getShortBreadcrumb(DEFAULT_NOTEBOOK_ID)).toBe(
         DEFAULT_NOTEBOOK_ID
       );
-      expect(searchService.getBreadcrumb(idn1)).toBe(idn1);
-      expect(searchService.getBreadcrumb(idn2)).toBe(idn2);
-      expect(searchService.getBreadcrumb(idd1)).toBe([idn2, idd1].join(','));
-      expect(searchService.getBreadcrumb(idp1)).toBe(
+      expect(searchService.getShortBreadcrumb(idn1)).toBe(idn1);
+      expect(searchService.getShortBreadcrumb(idn2)).toBe(idn2);
+      expect(searchService.getShortBreadcrumb(idd1)).toBe(
+        [idn2, idd1].join(',')
+      );
+      expect(searchService.getShortBreadcrumb(idp1)).toBe(
         [idn2, idd1, idp1].join(',')
       );
-      expect(searchService.getBreadcrumb(idf1)).toBe(
+      expect(searchService.getShortBreadcrumb(idf1)).toBe(
         [DEFAULT_NOTEBOOK_ID, idf1].join(',')
       );
-      expect(searchService.getBreadcrumb(idd2)).toBe(
+      expect(searchService.getShortBreadcrumb(idd2)).toBe(
         [DEFAULT_NOTEBOOK_ID, idf1, idd2].join(',')
       );
     });
   });
 
   describe(`search table update`, () => {
-    it(`should update preview, title & tags on saveItems (import)`, () => {
+    it(`should update preview on saveItems (import)`, () => {
       searchService.initSearchIndices(DEFAULT_SPACE_ID);
       expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(0);
 
@@ -316,13 +318,6 @@ describe('collection search service', () => {
       expect(
         storageService.getStore().getCell('search', 'P1', 'contentPreview')
       ).toBe(shortContentPreview);
-
-      expect(storageService.getStore().getCell('search', 'D1', 'title')).toBe(
-        'D1'
-      );
-      expect(storageService.getStore().getCell('search', 'D1', 'tags')).toBe(
-        'tag1'
-      );
     });
 
     it(`should update preview on individual content change`, () => {
@@ -340,29 +335,7 @@ describe('collection search service', () => {
       ).toBe(shortContentPreview);
     });
 
-    it(`should update title on individual title change`, () => {
-      createTestData();
-      searchService.initSearchIndices(DEFAULT_SPACE_ID);
-
-      collectionService.setItemTitle('D1', 'D1updated');
-
-      expect(storageService.getStore().getCell('search', 'D1', 'title')).toBe(
-        'D1updated'
-      );
-    });
-
-    it(`should update tags on individual tag change`, () => {
-      createTestData();
-      searchService.initSearchIndices(DEFAULT_SPACE_ID);
-
-      collectionService.addItemTag('D1', 'tag2');
-
-      expect(storageService.getStore().getCell('search', 'D1', 'tags')).toBe(
-        'tag1,tag2'
-      );
-    });
-
-    it(`should update preview, title & tags on pull`, () => {
+    it(`should update preview on pull`, () => {
       createTestData();
       // update items locally
       collectionService.setItemTitle('D1', 'D1 updated');
@@ -380,13 +353,6 @@ describe('collection search service', () => {
       expect(
         storageService.getStore().getCell('search', 'P1', 'contentPreview')
       ).toBe(shortContentPreview);
-
-      expect(storageService.getStore().getCell('search', 'D1', 'title')).toBe(
-        'D1 updated'
-      );
-      expect(storageService.getStore().getCell('search', 'D1', 'tags')).toBe(
-        'tag1'
-      );
     });
   });
 });

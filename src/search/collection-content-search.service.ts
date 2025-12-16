@@ -1,12 +1,43 @@
+import { CollectionItemTypeValues } from '@/collection/collection';
 import collectionService from '@/db/collection.service';
+import notebooksService from '@/db/notebooks.service';
 import { $getRoot, ElementNode, LexicalEditor, TextNode } from 'lexical';
 import storageService from '../db/storage.service';
+import { searchService } from './collection-search.service';
+
+export type DeepSearchResult = {
+  id: string;
+  type: CollectionItemTypeValues;
+  shortBreadcrumb: string;
+  title?: string;
+  preview: string;
+  firstMatch: {
+    startOffset: number;
+    endOffset: number;
+  };
+  nbMatches: number;
+};
+
+export type DeepSearchOptions = {
+  scope?: string; // notebook or folder id
+  searchInTitle?: boolean;
+  previewLength?: number;
+  previewTextBefore?: number;
+  previewTextAfter?: number;
+};
 
 export type SearchOptions = {
   caseSensitive?: boolean;
 };
 
-const defaultOptions: SearchOptions = {
+const defaultDeepSearchOptions: Required<Omit<DeepSearchOptions, 'scope'>> = {
+  searchInTitle: true,
+  previewLength: 80,
+  previewTextBefore: 10,
+  previewTextAfter: 10
+};
+
+const defaultOptions: Required<SearchOptions> = {
   caseSensitive: false
 };
 
@@ -140,6 +171,76 @@ class CollectionContentSearchService {
         console.error('error during lexical search', e);
       }
     });
+  }
+
+  public deepSearch(
+    searchText: string | null | undefined,
+    searchOptions?: DeepSearchOptions & SearchOptions
+  ): DeepSearchResult[] {
+    if (!this.acceptsSearchText(searchText)) return [];
+    searchOptions = {
+      ...defaultOptions,
+      ...defaultDeepSearchOptions,
+      ...searchOptions
+    };
+    if (!searchOptions.scope) {
+      searchOptions.scope = notebooksService.getCurrentNotebook();
+    }
+    console.debug('search options', searchOptions);
+    const results: DeepSearchResult[] = [];
+    // return item title, type, full plainText content preview, & first match (startOffset, endOffset)
+    // if option to include title on, title in text content to search
+    const searchTable = storageService.getStore().getTable('search');
+    const collectionTable = storageService.getSpace().getTable('collection');
+    searchService.getChildren(searchOptions.scope).forEach(rowId => {
+      const row = searchTable[rowId];
+      const item = collectionTable[rowId];
+      if (!row || !item) return;
+      if (!searchOptions.searchInTitle && !row.contentPreview) return;
+      const title = item.title?.toString();
+      const content =
+        (searchOptions.searchInTitle ? title + ' ' : '') +
+        row.contentPreview?.toString();
+
+      // TODO separate title from content
+      // nbMatches should be for content
+
+      const searchGen = this.searchArbitraryText(
+        content,
+        searchText!,
+        searchOptions
+      );
+      const firstMatch = searchGen.next();
+      let nbMatches = 1;
+      if (firstMatch.value !== null) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        for (const nextMatch of searchGen) {
+          nbMatches++;
+        }
+        const result: DeepSearchResult = {
+          id: rowId,
+          type: item.type as CollectionItemTypeValues,
+          title,
+          shortBreadcrumb: row.breadcrumb as string,
+          preview: content.substring(
+            Math.max(
+              0,
+              firstMatch.value.startOffset - searchOptions.previewTextBefore!
+            ),
+            Math.min(
+              firstMatch.value.startOffset +
+                firstMatch.value.endOffset +
+                searchOptions.previewTextAfter!,
+              firstMatch.value.startOffset + searchOptions.previewLength!
+            )
+          ),
+          firstMatch: firstMatch.value,
+          nbMatches
+        };
+        results.push(result);
+      }
+    });
+    return results;
   }
 }
 

@@ -1,3 +1,4 @@
+import DeepSearchButton from '@/common/buttons/DeepSearchButton';
 import SyncRemoteButton from '@/common/buttons/SyncRemoteButton';
 import platformService from '@/common/services/platform.service';
 import collectionService from '@/db/collection.service';
@@ -71,6 +72,7 @@ const MainHeader = ({
       )}
 
       <IonButtons slot="end">
+        <DeepSearchButton />
         {platformService.isSyncEnabled() && (
           <SyncRemoteButton
             disabled={!isInit}

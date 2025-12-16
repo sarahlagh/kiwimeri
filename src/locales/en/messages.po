@@ -106,7 +106,7 @@ msgstr "deleted item"
 msgid "Dev Tools"
 msgstr "Dev Tools"
 
-#: src/dev-tools/components/DevTools.tsx:37
+#: src/dev-tools/components/DevTools.tsx:36
 msgid "Dev Tools Enabled"
 msgstr "Dev Tools Enabled"
 
@@ -137,6 +137,10 @@ msgstr "empty page"
 #: src/synchronization/components/providers/PCloudSettings.tsx:131
 msgid "Enter your password"
 msgstr "Enter your password"
+
+#: src/common/buttons/DeepSearchButton.tsx:95
+msgid "Enter your search"
+msgstr "Enter your search"
 
 #: src/synchronization/components/providers/PCloudSettings.tsx:118
 msgid "Enter your username"
@@ -373,6 +377,14 @@ msgstr "Restore"
 #: src/common/buttons/RestoreCollectionButton.tsx:59
 msgid "Restore Collection"
 msgstr "Restore Collection"
+
+#: src/common/buttons/DeepSearchButton.tsx:79
+msgid "Search Content"
+msgstr "Search Content"
+
+#: src/common/buttons/DeepSearchButton.tsx:94
+msgid "Search input"
+msgstr "Search input"
 
 #: src/common/modals/ChooseTagsModal.tsx:38
 msgid "Select item tags"

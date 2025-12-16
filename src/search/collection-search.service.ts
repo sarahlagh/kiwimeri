@@ -13,6 +13,7 @@ import storageService from '../db/storage.service';
 import { SpaceType } from '../db/types/space-types';
 import { StoreType } from '../db/types/store-types';
 
+// TODO rename: not "search service", preview + ancestry => collection indexing service?
 class CollectionSearchService {
   private readonly ancestorsTableId = 'ancestors';
   private readonly collectionTableId = 'collection';
@@ -37,8 +38,6 @@ class CollectionSearchService {
         space.getRowIds(this.collectionTableId).forEach(rowId => {
           this.updateAncestry([rowId], collectionTable);
           this.updateContentPreview(rowId, collectionTable, store);
-          this.updateTitle(rowId, collectionTable, store);
-          this.updateTags(rowId, collectionTable, store);
         });
       });
     }
@@ -46,14 +45,10 @@ class CollectionSearchService {
     // update data as user changes stuff
     const onParentChangeListener = this.addParentChangeListener(spaceId, space);
     const onContentChangeListener = this.addContentChangeListener(space);
-    const onTitleChangeListener = this.addTitleChangeListener(space);
-    const onTagsChangeListener = this.addTagsChangeListener(space);
 
     this.updateListeners.set(spaceId, [
       onParentChangeListener,
-      onContentChangeListener,
-      onTitleChangeListener,
-      onTagsChangeListener
+      onContentChangeListener
     ]);
   }
 
@@ -98,38 +93,6 @@ class CollectionSearchService {
     );
   }
 
-  private addTitleChangeListener(space: Store<SpaceType>) {
-    return space.addCellListener(
-      this.collectionTableId,
-      null,
-      'title',
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      (space, tableId, rowId, cellId, newCell) => {
-        this.updateTitle(
-          rowId,
-          space.getTable('collection'),
-          storageService.getStore()
-        );
-      }
-    );
-  }
-
-  private addTagsChangeListener(space: Store<SpaceType>) {
-    return space.addCellListener(
-      this.collectionTableId,
-      null,
-      'tags',
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      (space, tableId, rowId, cellId, newCell) => {
-        this.updateTags(
-          rowId,
-          space.getTable('collection'),
-          storageService.getStore()
-        );
-      }
-    );
-  }
-
   public stop() {
     this.updateListeners.forEach((listenerIds, spaceId) => {
       const space = storageService.getSpace(spaceId);
@@ -139,7 +102,7 @@ class CollectionSearchService {
     });
   }
 
-  public getBreadcrumb(rowId: string) {
+  public getShortBreadcrumb(rowId: string) {
     return (
       storageService
         .getStore()
@@ -184,7 +147,7 @@ class CollectionSearchService {
     }));
   }
 
-  private getChildren(rowId: string) {
+  public getChildren(rowId: string) {
     return storageService
       .getStoreIndexes()
       .getSliceRowIds('byParent', rowId)
@@ -273,26 +236,6 @@ class CollectionSearchService {
           { inline: true }
         )
       );
-    }
-  }
-
-  private updateTitle(
-    rowId: string,
-    table: Table<SpaceType[0], 'collection'>,
-    store: Store<StoreType>
-  ) {
-    if (table[rowId]?.title) {
-      store.setCell('search', rowId, 'title', table[rowId].title);
-    }
-  }
-
-  private updateTags(
-    rowId: string,
-    table: Table<SpaceType[0], 'collection'>,
-    store: Store<StoreType>
-  ) {
-    if (table[rowId]?.tags) {
-      store.setCell('search', rowId, 'tags', table[rowId].tags);
     }
   }
 
