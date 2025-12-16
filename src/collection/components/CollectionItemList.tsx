@@ -3,8 +3,15 @@ import {
   CollectionItemType
 } from '@/collection/collection';
 import SortableList from '@/common/dnd/containers/SortableList';
-import { APPICONS, APPICONS_PER_TYPE, CONFLICT_STR } from '@/constants';
+import platformService from '@/common/services/platform.service';
+import {
+  APPICONS,
+  APPICONS_PER_TYPE,
+  CONFLICT_STR,
+  SEARCH_RESULTS_HIGHLIGHT_KEY
+} from '@/constants';
 import collectionService from '@/db/collection.service';
+import { contentSearchService } from '@/search/collection-content-search.service';
 import {
   InputCustomEvent,
   IonButton,
@@ -15,12 +22,12 @@ import {
   IonIcon,
   IonInput,
   IonItem,
-  IonLabel,
-  IonReorder
+  IonLabel
 } from '@ionic/react';
 import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactProps';
 import { Trans } from '@lingui/react/macro';
 import { Fragment, ReactNode, useEffect, useRef, useState } from 'react';
+import './CollectionItemList.css';
 
 // TODO: tech debt - rewrite props, confirm code
 
@@ -30,6 +37,7 @@ type CollectionItemListSingleItemProps = {
   item: CollectionItemResult;
   actionsIcon?: string;
   selected?: string;
+  highlighted?: boolean;
   itemRenaming?: string;
   itemProps?: (item: CollectionItemResult) => IonicReactProps | undefined;
   itemDisabled?: (item: CollectionItemResult) => boolean;
@@ -48,6 +56,7 @@ type CollectionItemListSingleItemProps = {
 
 type CollectionItemListProps = {
   items: CollectionItemResult[];
+  searchText?: string;
   reorderEnabled?: boolean;
   header?: ReactNode;
   footer?: ReactNode;
@@ -76,6 +85,7 @@ const AreYouSure = ({ onClick }: { onClick: (ok: boolean) => void }) => {
 
 const CollectionItemListItem = ({
   selected,
+  highlighted,
   actionsIcon,
   item,
   itemProps,
@@ -89,6 +99,7 @@ const CollectionItemListItem = ({
   onRenamingDone,
   confirm
 }: CollectionItemListSingleItemProps) => {
+  const labelRef = useRef<HTMLIonLabelElement>(null);
   const inputRenaming = useRef<HTMLIonInputElement>(null);
   const [renaming, setRenaming] = useState<boolean>(false);
   useEffect(() => {
@@ -102,10 +113,14 @@ const CollectionItemListItem = ({
   const url = getUrl && !renaming ? getUrl(item) : undefined;
   const routerDirection = getUrl && !renaming ? 'none' : undefined;
   const icon = APPICONS_PER_TYPE.get(item.type);
+  const className =
+    (itemProps ? itemProps(item)?.className : '') +
+    (highlighted ? ' collection-item-highlighted' : '');
 
   return (
     <IonItem
-      className={itemProps ? itemProps(item)?.className : undefined}
+      id={'collection-item-' + item.id}
+      className={className}
       style={itemProps ? itemProps(item)?.style : undefined}
       disabled={itemDisabled ? itemDisabled(item) : false}
       button={!url}
@@ -163,16 +178,22 @@ const CollectionItemListItem = ({
         ></IonInput>
       )}
       {!renaming && (
-        <IonLabel color={item.conflict ? 'danger' : undefined}>
+        <IonLabel
+          id={'collection-item-label-' + item.id}
+          ref={labelRef}
+          color={item.conflict ? 'danger' : undefined}
+        >
           {item.conflict ? CONFLICT_STR : ''}
           {item.title}
         </IonLabel>
       )}
-      <IonReorder slot="end">
-        <IonIcon icon={APPICONS.dragBar} size="small" color="medium"></IonIcon>
-      </IonReorder>
     </IonItem>
   );
+};
+
+type CollectionItemMixIn = {
+  highlighted?: boolean;
+  isSearchResult?: boolean;
 };
 
 const CollectionItemList = ({
@@ -190,7 +211,8 @@ const CollectionItemList = ({
   selected,
   reorderEnabled = false,
   header,
-  footer
+  footer,
+  searchText
 }: CollectionItemListProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [overId, setOverId] = useState<string | null>(null);
@@ -202,13 +224,52 @@ const CollectionItemList = ({
   const confirm = (id: string, callback: ConfirmCallback) => {
     setToConfirm({ id, callback });
   };
+
+  let finalItems = items;
+  const itemsMixIn: Map<string, CollectionItemMixIn> = new Map();
+
+  // TODO when opening doc, must open search result
+  if (platformService.hasHighlightSupport()) {
+    const ranges: Range[] = [];
+    if (contentSearchService.acceptsSearchText(searchText)) {
+      items.forEach(i => {
+        const nextResult = contentSearchService.searchArbitraryText(
+          i.title,
+          searchText!
+        );
+        for (const result of nextResult) {
+          if (!itemsMixIn.has(i.id)) {
+            itemsMixIn.set(i.id, { isSearchResult: true });
+          }
+          const el = document.getElementById('collection-item-label-' + i.id);
+          if (el) {
+            const range = new Range();
+            range.setStart(el.lastChild!, result.startOffset);
+            range.setEnd(el.lastChild!, result.endOffset);
+            ranges.push(range);
+            ranges.push(range);
+          }
+        }
+        if (contentSearchService.searchDocumentContent(i.id, searchText!)) {
+          itemsMixIn.set(i.id, { isSearchResult: true, highlighted: true });
+        }
+      });
+      finalItems = items.filter(
+        i =>
+          itemsMixIn.has(i.id) && itemsMixIn.get(i.id)?.isSearchResult === true
+      );
+    }
+    const highlight = new Highlight(...ranges);
+    CSS.highlights.set(SEARCH_RESULTS_HIGHLIGHT_KEY, highlight);
+  }
+
   return (
     <>
       {header && <IonHeader class="subheader">{header}</IonHeader>}
       <IonContent>
         <SortableList
-          items={items}
-          sortDisabled={!reorderEnabled}
+          items={finalItems}
+          sortDisabled={!reorderEnabled || finalItems.length !== items.length}
           handleDragStart={() => {
             setIsDragging(true);
           }}
@@ -238,7 +299,7 @@ const CollectionItemList = ({
             setToConfirm({ id: parentId as string, callback });
           }}
         >
-          {items.map(item => {
+          {finalItems.map(item => {
             return (
               <Fragment key={item.id}>
                 {toConfirm?.id !== item.id && (
@@ -247,6 +308,7 @@ const CollectionItemList = ({
                       overId === item.id ? APPICONS.moveAction : actionsIcon
                     }
                     selected={selected}
+                    highlighted={itemsMixIn.get(item.id)?.highlighted}
                     item={item}
                     itemProps={itemProps}
                     itemRenaming={itemRenaming}

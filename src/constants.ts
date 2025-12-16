@@ -59,6 +59,8 @@ export const INTERNAL_FORMAT = 'raw';
 
 export const CONFLICT_STR = '[!] ';
 
+export const SEARCH_RESULTS_HIGHLIGHT_KEY = 'kiwimeri-search-results';
+
 // messages
 export const ROOT_FOLDER_TITLE = msg`Home`;
 export const DEFAULT_NOTEBOOK_NAME = msg`Default`;

@@ -15,6 +15,7 @@ export type SearchActionsToolbarProps = {
   setSearchText: Dispatch<string>;
   setToggleSearch: Dispatch<boolean>;
   rows?: number;
+  onClose?: () => void;
 } & JSX.IonToolbar &
   StyleReactProps &
   React.HTMLAttributes<HTMLIonToolbarElement>;
@@ -23,7 +24,8 @@ const SearchActionsToolbar = ({
   setSearchText,
   setToggleSearch,
   searchText,
-  rows = 1
+  rows = 1,
+  onClose
 }: SearchActionsToolbarProps) => {
   const refInput = useRef<HTMLIonInputElement>(null);
   useEffect(() => {
@@ -46,6 +48,7 @@ const SearchActionsToolbar = ({
         <IonButton
           onClick={() => {
             setToggleSearch(false);
+            if (onClose) onClose();
           }}
         >
           <IonIcon icon={APPICONS.closeAction}></IonIcon>

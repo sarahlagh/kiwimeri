@@ -16,13 +16,15 @@ import ExportItemsButton from '@/common/buttons/ExportItemsButton';
 import ImportItemsButton from '@/common/buttons/ImportItemsButton';
 import OpenSortFilterButton from '@/common/buttons/OpenSortFilterButton';
 import { GET_ITEM_ROUTE } from '@/common/routes';
+import platformService from '@/common/services/platform.service';
 import { getSearchParams } from '@/common/utils';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import CollectionItemBreadcrumb from './CollectionItemBreadcrumb';
 import CollectionItemList from './CollectionItemList';
 import CommonActionsToolbar from './CommonActionsToolbar';
+import SearchActionsToolbar from './SearchActionsToolbar';
 
 interface CollectionItemBrowserListProps {
   parent: string;
@@ -30,15 +32,31 @@ interface CollectionItemBrowserListProps {
 
 const CollectionItemBrowserListToolbar = ({
   folderId,
-  openedDocument
+  openedDocument,
+  searchText,
+  setSearchText
 }: {
   folderId: string;
   openedDocument: string | undefined;
+  searchText: string;
+  setSearchText: Dispatch<SetStateAction<string>>;
 }) => {
+  const [toggleSearch, setToggleSearch] = useState(false);
+
   const history = useHistory();
   const openedDocumentFolder = openedDocument
     ? collectionService.getItemParent(openedDocument)
     : null;
+  if (toggleSearch) {
+    return (
+      <SearchActionsToolbar
+        searchText={searchText}
+        setSearchText={setSearchText}
+        setToggleSearch={setToggleSearch}
+        onClose={() => setSearchText('')}
+      />
+    );
+  }
   return (
     <IonToolbar>
       <IonButtons slot="start">
@@ -55,6 +73,15 @@ const CollectionItemBrowserListToolbar = ({
           <IonIcon icon={APPICONS.goToCurrentFolder}></IonIcon>
         </IonButton>
         <OpenSortFilterButton id={folderId} />
+        {platformService.hasHighlightSupport() && (
+          <IonButton
+            onClick={() => {
+              setToggleSearch(true);
+            }}
+          >
+            <IonIcon icon={APPICONS.search}></IonIcon>
+          </IonButton>
+        )}
       </IonButtons>
 
       <IonButtons slot="end">
@@ -87,6 +114,7 @@ export const CollectionItemBrowserList = ({
   const location = useLocation();
   const searchParams = getSearchParams(location.search);
   const openedDocument = searchParams?.document;
+  const [searchText, setSearchText] = useState('');
 
   const displayOpts = collectionService.useItemEffectiveDisplayOpts(folder);
   const sort = displayOpts.sort;
@@ -140,6 +168,7 @@ export const CollectionItemBrowserList = ({
           }}
         />
       }
+      searchText={searchText}
       reorderEnabled={sort.by === 'order'}
       items={items}
       selected={openedDocument}
@@ -165,6 +194,8 @@ export const CollectionItemBrowserList = ({
         <CollectionItemBrowserListToolbar
           folderId={folder}
           openedDocument={openedDocument}
+          searchText={searchText}
+          setSearchText={setSearchText}
         />
       }
     />

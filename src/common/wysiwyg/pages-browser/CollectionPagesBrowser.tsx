@@ -87,11 +87,11 @@ export default function CollectionPagesBrowser({
   const searchResults: string[] = [];
   // TODO refacto
   if (searchText !== null) {
-    if (contentSearchService.searchPlainTextContent(docId, searchText)) {
+    if (contentSearchService.searchDocumentContent(docId, searchText)) {
       searchResults.push(docId);
     }
     pages?.forEach(page => {
-      if (contentSearchService.searchPlainTextContent(page.id, searchText)) {
+      if (contentSearchService.searchDocumentContent(page.id, searchText)) {
         searchResults.push(page.id);
       }
     });

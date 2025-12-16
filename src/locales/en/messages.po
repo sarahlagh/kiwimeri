@@ -29,8 +29,7 @@ msgstr "An error occurred loading the file"
 msgid "Archive is empty"
 msgstr "Archive is empty"
 
-#: src/common/modals/ConfirmYesNoDialog.tsx:24
-#: src/collection/components/CollectionItemList.tsx:59
+#: src/collection/components/CollectionItemList.tsx:67
 msgid "Are you sure?"
 msgstr "Are you sure?"
 
@@ -176,12 +175,10 @@ msgstr "Filesystem"
 msgid "Home"
 msgstr "Home"
 
-#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:112
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
-#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:105
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
@@ -230,12 +227,10 @@ msgstr "Link"
 msgid "Loading..."
 msgstr "Loading..."
 
-#. placeholder {0}: localChanges.length
 #: src/synchronization/components/LocalChangesCard.tsx:43
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
-#. placeholder {0}: dateToStr('datetime', lastLocalChange)
 #: src/synchronization/components/LocalChangesCard.tsx:49
 msgid "Local: {0}"
 msgstr "Local: {0}"
@@ -305,7 +300,7 @@ msgstr "New notebook name: "
 msgid "New tag"
 msgstr "New tag"
 
-#: src/collection/components/CollectionItemList.tsx:70
+#: src/collection/components/CollectionItemList.tsx:78
 msgid "no"
 msgstr "no"
 
@@ -361,7 +356,6 @@ msgstr "Pick a directory for your backups"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
-#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
 #: src/synchronization/components/LocalChangesCard.tsx:56
 msgid "Remote: {0}"
 msgstr "Remote: {0}"
@@ -430,7 +424,7 @@ msgstr "Syncing is disabled on the web version."
 msgid "Text"
 msgstr "Text"
 
-#: src/common/wysiwyg/lexical/KiwimeriEditor.tsx:67
+#: src/common/wysiwyg/lexical/KiwimeriEditor.tsx:68
 msgid "Text..."
 msgstr "Text..."
 
@@ -459,7 +453,7 @@ msgstr "Username"
 msgid "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 msgstr "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 
-#: src/collection/components/CollectionItemList.tsx:67
+#: src/collection/components/CollectionItemList.tsx:75
 msgid "yes"
 msgstr "yes"
 

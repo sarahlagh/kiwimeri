@@ -43,7 +43,6 @@ const OpenSortFilterButton = ({ id }: OpenSortFilterButtonProps) => {
   return (
     <IonButton
       fill="clear"
-      slot="end"
       style={{ margin: '0' }}
       onClick={e => {
         e.stopPropagation();

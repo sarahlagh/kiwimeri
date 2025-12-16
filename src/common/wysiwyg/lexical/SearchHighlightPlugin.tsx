@@ -1,4 +1,5 @@
 import platformService from '@/common/services/platform.service';
+import { SEARCH_RESULTS_HIGHLIGHT_KEY } from '@/constants';
 import { contentSearchService } from '@/search/collection-content-search.service';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 
@@ -7,8 +8,6 @@ type SearchHighlightPluginProps = {
 };
 
 // note: only enabled if CSS.highlights is supported
-
-const SEARCH_RESULTS = 'kiwimeri-search-results';
 
 export function SearchHighlightPlugin({
   searchText
@@ -19,8 +18,7 @@ export function SearchHighlightPlugin({
   }
   if (!searchText || searchText.length < 2) {
     // not searching, return
-    console.debug('clear highlights');
-    CSS.highlights.delete(SEARCH_RESULTS);
+    CSS.highlights.delete(SEARCH_RESULTS_HIGHLIGHT_KEY);
     return null;
   }
 
@@ -39,7 +37,7 @@ export function SearchHighlightPlugin({
     }
   );
   const highlight = new Highlight(...ranges);
-  CSS.highlights.set(SEARCH_RESULTS, highlight);
+  CSS.highlights.set(SEARCH_RESULTS_HIGHLIGHT_KEY, highlight);
 
   return null;
 }

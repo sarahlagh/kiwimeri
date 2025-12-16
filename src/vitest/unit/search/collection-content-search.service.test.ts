@@ -103,12 +103,12 @@ describe('CollectionContentSearchService', () => {
       expect(results[1].endOffset).toBe(1);
     });
 
-    it('should be case sensitive by default', () => {
+    it('should be case insensitive by default', () => {
       let results = search('Heading');
-      expect(results.length).toBe(0);
-
-      results = search('Heading', { caseInsensitive: true });
       expect(results.length).toBe(3);
+
+      results = search('Heading', { caseSensitive: true });
+      expect(results.length).toBe(0);
     });
 
     it('should search inside simple text', () => {
@@ -271,7 +271,7 @@ describe('CollectionContentSearchService', () => {
     });
   });
 
-  describe('Search Plain Text Content', () => {
+  describe('Search Document Content', () => {
     beforeEach(async () => {
       docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       const state = editor.parseEditorState(json!);
@@ -289,7 +289,7 @@ describe('CollectionContentSearchService', () => {
     });
 
     function search(searchText: string, searchOptions?: SearchOptions) {
-      return contentSearchService.searchPlainTextContent(
+      return contentSearchService.searchDocumentContent(
         docId,
         searchText,
         searchOptions
@@ -312,9 +312,9 @@ describe('CollectionContentSearchService', () => {
       expect(search('ding')).toBe(true);
     });
 
-    it('should be case sensitive by default', () => {
-      expect(search('Heading')).toBe(false);
-      expect(search('Heading', { caseInsensitive: true })).toBe(true);
+    it('should be case insensitive by default', () => {
+      expect(search('Heading')).toBe(true);
+      expect(search('Heading', { caseSensitive: true })).toBe(false);
     });
 
     it('should search inside simple text', () => {
@@ -350,6 +350,77 @@ describe('CollectionContentSearchService', () => {
 
     it('should replace non-breaking spaces by normal space', () => {
       expect(search('g 1')).toBe(true);
+    });
+  });
+
+  describe('Search Arbitrary Text', () => {
+    const textToSearch =
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum';
+
+    function search(searchText: string, searchOptions?: SearchOptions) {
+      return contentSearchService
+        .searchArbitraryText(textToSearch, searchText, searchOptions)
+        .next();
+    }
+
+    it('should not work for input too small', () => {
+      expect(search('').value).toBe(null);
+      expect(search('t').value).toBe(null);
+    });
+
+    it('should work for simple text', () => {
+      expect(search('Lorem ipsum').value).toEqual({
+        startOffset: 0,
+        endOffset: 11
+      });
+    });
+
+    it('should be case insensitive by default', () => {
+      expect(search('Dolor').value).toEqual({
+        startOffset: 12,
+        endOffset: 17
+      });
+      expect(search('Dolor', { caseSensitive: true }).value).toBe(null);
+    });
+
+    it('should iterate on all results within string', () => {
+      const nextResult = contentSearchService.searchArbitraryText(
+        textToSearch,
+        'dolor'
+      );
+
+      for (const { startOffset, endOffset } of [
+        {
+          startOffset: 12,
+          endOffset: 17
+        },
+        {
+          startOffset: 103,
+          endOffset: 108
+        },
+        {
+          startOffset: 248,
+          endOffset: 253
+        },
+        {
+          startOffset: 302,
+          endOffset: 307
+        }
+      ]) {
+        const next = nextResult.next();
+        expect(next.value).toEqual({
+          startOffset,
+          endOffset
+        });
+        expect(next.done).toBeFalsy();
+        expect(
+          textToSearch.substring(next.value!.startOffset, next.value!.endOffset)
+        ).toBe('dolor');
+      }
+
+      const next = nextResult.next();
+      expect(next.value).toEqual(null);
+      expect(next.done).toBeTruthy();
     });
   });
 });

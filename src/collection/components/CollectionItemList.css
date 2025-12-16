@@ -1,0 +1,4 @@
+.in-list.collection-item-highlighted {
+  border: 1px solid var(--search-color);
+  margin-right: 1px;
+}

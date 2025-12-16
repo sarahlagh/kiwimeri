@@ -2,11 +2,11 @@ import { $getRoot, ElementNode, LexicalEditor, TextNode } from 'lexical';
 import storageService from '../db/storage.service';
 
 export type SearchOptions = {
-  caseInsensitive?: boolean;
+  caseSensitive?: boolean;
 };
 
 const defaultOptions: SearchOptions = {
-  caseInsensitive: false
+  caseSensitive: false
 };
 
 const MIN_INPUT_LENGTH = 2;
@@ -15,16 +15,20 @@ const LB = ' '; // replace line breaks by space for searching
 
 class CollectionContentSearchService {
   private buildRegex(searchText: string, searchOptions: SearchOptions) {
-    const regexFlags = searchOptions.caseInsensitive === true ? 'gi' : 'g';
+    const regexFlags = searchOptions.caseSensitive === true ? 'g' : 'gi';
     return new RegExp(searchText, regexFlags);
   }
 
-  public searchPlainTextContent(
+  public acceptsSearchText(searchText?: string | null) {
+    return searchText && searchText.length >= MIN_INPUT_LENGTH;
+  }
+
+  public searchDocumentContent(
     rowId: string,
     searchText: string,
     searchOptions?: SearchOptions
   ) {
-    if (searchText.length < MIN_INPUT_LENGTH) return false;
+    if (!this.acceptsSearchText(searchText)) return false;
     searchOptions = { ...defaultOptions, ...searchOptions };
     const regex = this.buildRegex(searchText, searchOptions);
 
@@ -36,6 +40,26 @@ class CollectionContentSearchService {
     return regex.exec(plainText.replaceAll(REPLACED_CHARS, ' ')) !== null;
   }
 
+  public *searchArbitraryText(
+    text: string,
+    searchText: string,
+    searchOptions?: SearchOptions
+  ) {
+    if (!this.acceptsSearchText(searchText)) return null;
+    searchOptions = { ...defaultOptions, ...searchOptions };
+    const regex = this.buildRegex(searchText, searchOptions);
+    let result = regex.exec(text.replaceAll(REPLACED_CHARS, ' '));
+    while (result) {
+      yield {
+        startOffset: result.index,
+        endOffset: searchText.length + result.index
+      };
+      result = regex.exec(text.replaceAll(REPLACED_CHARS, ' '));
+    }
+    return null;
+  }
+
+  // TODO turn to generator
   public searchLexicalState(
     editor: LexicalEditor,
     searchText: string | null,
@@ -46,11 +70,9 @@ class CollectionContentSearchService {
     ) => void,
     searchOptions?: SearchOptions
   ) {
-    if (!searchText || searchText.length < MIN_INPUT_LENGTH) {
-      return;
-    }
+    if (!this.acceptsSearchText(searchText)) return;
     searchOptions = { ...defaultOptions, ...searchOptions };
-    const regex = this.buildRegex(searchText, searchOptions);
+    const regex = this.buildRegex(searchText!, searchOptions);
 
     editor.read(() => {
       const children = $getRoot().getChildren();
@@ -62,7 +84,7 @@ class CollectionContentSearchService {
         let result = regex.exec(fullTextSearch);
         if (result) {
           let startOffset = result.index;
-          let endOffset = startOffset + searchText.length;
+          let endOffset = startOffset + searchText!.length;
           root: for (const child of children) {
             if (!(child instanceof ElementNode)) {
               continue;
@@ -91,7 +113,7 @@ class CollectionContentSearchService {
                     break root;
                   }
                   startOffset = result.index;
-                  endOffset = startOffset + searchText.length;
+                  endOffset = startOffset + searchText!.length;
                 }
               }
               currentOffset += nodeText.length;
