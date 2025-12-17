@@ -1,11 +1,6 @@
 import { CollectionItemType } from '@/collection/collection';
 import DeleteButton from '@/common/buttons/DeleteButton';
-import {
-  GET_DOCUMENT_ROUTE,
-  GET_FOLDER_ROUTE,
-  GET_PAGE_ROUTE,
-  SETTINGS_ROUTE
-} from '@/common/routes';
+import { GET_UNKNOWN_ITEM_ROUTE, SETTINGS_ROUTE } from '@/common/routes';
 import platformService from '@/common/services/platform.service';
 import { dateToStr } from '@/common/utils';
 import { APPICONS, APPICONS_PER_TYPE } from '@/constants';
@@ -80,24 +75,7 @@ const LocalChangesCard = () => {
                   );
                 }
                 const type = collectionService.getItemType(lc.item);
-                let route, parent, doc;
-                switch (type) {
-                  case CollectionItemType.folder:
-                  case CollectionItemType.notebook:
-                    route = GET_FOLDER_ROUTE(lc.item);
-                    break;
-                  case CollectionItemType.page:
-                    doc = collectionService.getItemParent(lc.item);
-                    parent = collectionService.getItemParent(doc);
-                    route = GET_PAGE_ROUTE(parent, doc, lc.item);
-                    break;
-                  case CollectionItemType.document:
-                    // eslint-disable-next-line no-case-declarations
-                    parent = collectionService.getItemParent(lc.item);
-                    route = GET_DOCUMENT_ROUTE(parent, lc.item);
-                    break;
-                }
-
+                const route = GET_UNKNOWN_ITEM_ROUTE(lc.item, type);
                 return (
                   <IonItem key={lc.id} routerLink={route}>
                     {!collectionService.itemExists(lc.item) ? (

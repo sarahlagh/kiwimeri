@@ -4,12 +4,7 @@ import {
 } from '@/collection/collection';
 import SortableList from '@/common/dnd/containers/SortableList';
 import platformService from '@/common/services/platform.service';
-import {
-  APPICONS,
-  APPICONS_PER_TYPE,
-  CONFLICT_STR,
-  SEARCH_RESULTS_HIGHLIGHT_KEY
-} from '@/constants';
+import { APPICONS, APPICONS_PER_TYPE, CONFLICT_STR } from '@/constants';
 import collectionService from '@/db/collection.service';
 import { contentSearchService } from '@/search/collection-content-search.service';
 import {
@@ -30,6 +25,9 @@ import { Fragment, ReactNode, useEffect, useRef, useState } from 'react';
 import './CollectionItemList.css';
 
 // TODO: tech debt - rewrite props, confirm code
+
+const SEARCH_RESULTS_HIGHLIGHT_KEY = 'kiwimeri-search-results';
+const ROW_LABEL_PREFIX = 'collection-item-label-';
 
 type ConfirmCallback = (choice: boolean) => void;
 
@@ -179,7 +177,7 @@ const CollectionItemListItem = ({
       )}
       {!renaming && (
         <IonLabel
-          id={'collection-item-label-' + item.id}
+          id={ROW_LABEL_PREFIX + item.id}
           ref={labelRef}
           color={item.conflict ? 'danger' : undefined}
         >
@@ -240,7 +238,7 @@ const CollectionItemList = ({
           if (!itemsMixIn.has(i.id)) {
             itemsMixIn.set(i.id, { isSearchResult: true });
           }
-          const el = document.getElementById('collection-item-label-' + i.id);
+          const el = document.getElementById(ROW_LABEL_PREFIX + i.id);
           if (el) {
             const range = new Range();
             range.setStart(el.lastChild!, result.startOffset);

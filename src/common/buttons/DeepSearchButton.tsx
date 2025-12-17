@@ -1,5 +1,5 @@
 import { CollectionItemType } from '@/collection/collection';
-import { APPICONS } from '@/constants';
+import { APPICONS, APPICONS_PER_TYPE } from '@/constants';
 import collectionService from '@/db/collection.service';
 import {
   contentSearchService,
@@ -10,6 +10,8 @@ import {
 import {
   InputCustomEvent,
   IonBadge,
+  IonBreadcrumb,
+  IonBreadcrumbs,
   IonButton,
   IonButtons,
   IonContent,
@@ -17,18 +19,20 @@ import {
   IonIcon,
   IonInput,
   IonItem,
+  IonLabel,
   IonList,
   IonModal,
   IonTitle,
   IonToolbar
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useRef, useState } from 'react';
-import {
-  GET_DOCUMENT_ROUTE,
-  GET_FOLDER_ROUTE,
-  GET_PAGE_ROUTE
-} from '../routes';
+import { useEffect, useRef, useState } from 'react';
+import { GET_UNKNOWN_ITEM_ROUTE } from '../routes';
+import platformService from '../services/platform.service';
+
+const DEEP_SEARCH_RESULTS_HIGHLIGHT_KEY = 'kiwimeri-deep-search-results';
+const CONTENT_LABEL_ID_PREFIX = 'global-search-result-content-';
+const TITLE_LABEL_ID_PREFIX = 'global-search-result-title-';
 
 type DeepSearchButtonProps = {
   id?: string;
@@ -39,19 +43,86 @@ type SearchResultProps = {
   searchOptions: DeepSearchOptions & SearchOptions;
 };
 
-// TODO icon for type
-// TODO refacto to reuse route code between here and LocalChangesCard
-// TODO breadcrumb
-// TODO CSS.highlight in preview
-// TODO text color, handle title
+function highlightResults(searchResults: DeepSearchResult[]) {
+  if (platformService.hasHighlightSupport()) {
+    const createRange = (
+      node: ChildNode,
+      firstMatch: {
+        startOffset: number;
+        endOffset: number;
+      }
+    ) => {
+      const range = new Range();
+      range.setStart(node, firstMatch.startOffset);
+      range.setEnd(node, firstMatch.endOffset);
+      ranges.push(range);
+    };
+    const ranges: Range[] = [];
+    for (const searchResult of searchResults) {
+      if (searchResult.firstTitleMatch) {
+        const el = document.getElementById(
+          TITLE_LABEL_ID_PREFIX + searchResult.id
+        );
+        if (el && el.lastChild) {
+          createRange(el.lastChild, searchResult.firstTitleMatch);
+        }
+      }
+      if (searchResult.firstContentMatch) {
+        const el = document.getElementById(
+          CONTENT_LABEL_ID_PREFIX + searchResult.id
+        );
+        if (el && el.lastChild?.firstChild) {
+          createRange(el.lastChild.firstChild, searchResult.firstContentMatch);
+        }
+      }
+    }
+    const highlight = new Highlight(...ranges);
+    CSS.highlights.set(DEEP_SEARCH_RESULTS_HIGHLIGHT_KEY, highlight);
+  }
+}
+
+// TODO text color, prettify
 const SearchResult = ({ searchResult }: SearchResultProps) => {
-  console.debug(searchResult);
-  // maybe i should store the text breadcrumb
+  const textBreadcrumb = searchResult.shortBreadcrumb.split(',').map(id => ({
+    title: collectionService.getItemTitle(id)
+  }));
+  textBreadcrumb.shift(); // remove the notebook
+  if (searchResult.type === CollectionItemType.page) {
+    textBreadcrumb.pop(); // remove self-entry from breadcrumb
+  }
   return (
     <>
-      {/* <CollectionItemBreadcrumb folder={searchResult.id} /> */}
-      {searchResult.preview}
-      <IonBadge slot="end">+{searchResult.nbMatches}</IonBadge>
+      <IonIcon
+        slot="start"
+        icon={APPICONS_PER_TYPE.get(searchResult.type)}
+      ></IonIcon>
+      <IonLabel id={CONTENT_LABEL_ID_PREFIX + searchResult.id}>
+        <h3>
+          <IonBreadcrumbs maxItems={3}>
+            <IonBreadcrumb>
+              {/* <IonIcon
+                icon={APPICONS_PER_TYPE.get(CollectionItemType.notebook)}
+              ></IonIcon> */}
+            </IonBreadcrumb>
+            {textBreadcrumb.map((bd, idx) => {
+              // middle
+              if (idx < textBreadcrumb.length - 1) {
+                return <IonBreadcrumb key={bd.title}>{bd.title}</IonBreadcrumb>;
+              }
+              // end
+              return (
+                <IonBreadcrumb key={bd.title}>
+                  <IonLabel id={TITLE_LABEL_ID_PREFIX + searchResult.id}>
+                    {bd.title}
+                  </IonLabel>
+                </IonBreadcrumb>
+              );
+            })}
+          </IonBreadcrumbs>
+        </h3>
+        <p>{searchResult.preview}</p>
+      </IonLabel>
+      <IonBadge slot="end">{searchResult.nbContentMatches}</IonBadge>
     </>
   );
 };
@@ -67,12 +138,24 @@ const DeepSearchButton = ({
   const searchOptions = {
     searchInTitle: true
   };
+
+  // TODO keep input fixed, only overflow list
+  // TODO when doc title but page match - title not highlighted? ("quotes" search)
+
+  useEffect(() => {
+    highlightResults(searchResults);
+  }, [searchResults]);
+
   return (
     <>
       <IonButton id={id} expand="block">
         <IonIcon icon={APPICONS.search}></IonIcon>
       </IonButton>
-      <IonModal ref={modal} trigger={id}>
+      <IonModal
+        ref={modal}
+        trigger={id}
+        onIonModalDidPresent={() => highlightResults(searchResults)}
+      >
         <IonHeader>
           <IonToolbar>
             <IonTitle>
@@ -132,39 +215,24 @@ const DeepSearchButton = ({
 
           {/* result panel */}
           <IonList>
-            {searchResults.map(searchResult => {
-              let route, parent, doc;
-              switch (searchResult.type) {
-                case CollectionItemType.folder:
-                case CollectionItemType.notebook:
-                  route = GET_FOLDER_ROUTE(searchResult.id);
-                  break;
-                case CollectionItemType.page:
-                  doc = collectionService.getItemParent(searchResult.id);
-                  parent = collectionService.getItemParent(doc);
-                  route = GET_PAGE_ROUTE(parent, doc, searchResult.id);
-                  break;
-                case CollectionItemType.document:
-                  // eslint-disable-next-line no-case-declarations
-                  parent = collectionService.getItemParent(searchResult.id);
-                  route = GET_DOCUMENT_ROUTE(parent, searchResult.id);
-                  break;
-              }
-              return (
-                <IonItem
-                  key={searchResult.id}
-                  routerLink={route}
-                  onClick={() => {
-                    modal.current?.dismiss();
-                  }}
-                >
-                  <SearchResult
-                    searchResult={searchResult}
-                    searchOptions={searchOptions}
-                  />
-                </IonItem>
-              );
-            })}
+            {searchResults.map(searchResult => (
+              <IonItem
+                lines="none"
+                key={searchResult.id}
+                routerLink={GET_UNKNOWN_ITEM_ROUTE(
+                  searchResult.id,
+                  searchResult.type
+                )}
+                onClick={() => {
+                  modal.current?.dismiss();
+                }}
+              >
+                <SearchResult
+                  searchResult={searchResult}
+                  searchOptions={searchOptions}
+                />
+              </IonItem>
+            ))}
           </IonList>
         </IonContent>
       </IonModal>

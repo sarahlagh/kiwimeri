@@ -1,11 +1,12 @@
 import platformService from '@/common/services/platform.service';
-import { CONTENT_SEARCH_RESULTS_HIGHLIGHT_KEY } from '@/constants';
 import { contentSearchService } from '@/search/collection-content-search.service';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 
 type SearchHighlightPluginProps = {
   searchText?: string | null;
 };
+
+const CONTENT_SEARCH_RESULTS_HIGHLIGHT_KEY = 'kiwimeri-content-search-results';
 
 // note: only enabled if CSS.highlights is supported
 

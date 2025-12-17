@@ -10,20 +10,24 @@ export type DeepSearchResult = {
   type: CollectionItemTypeValues;
   shortBreadcrumb: string;
   title?: string;
-  preview: string;
-  firstMatch: {
+  preview?: string;
+  firstContentMatch?: {
+    startOffset: number;
+    endOffset: number;
+    realStartOffset: number;
+    realEndOffset: number;
+  };
+  firstTitleMatch?: {
     startOffset: number;
     endOffset: number;
   };
-  nbMatches: number;
+  nbContentMatches?: number;
 };
 
 export type DeepSearchOptions = {
   scope?: string; // notebook or folder id
   searchInTitle?: boolean;
-  previewLength?: number;
-  previewTextBefore?: number;
-  previewTextAfter?: number;
+  searchInContent?: boolean;
 };
 
 export type SearchOptions = {
@@ -32,9 +36,7 @@ export type SearchOptions = {
 
 const defaultDeepSearchOptions: Required<Omit<DeepSearchOptions, 'scope'>> = {
   searchInTitle: true,
-  previewLength: 80,
-  previewTextBefore: 10,
-  previewTextAfter: 10
+  searchInContent: true
 };
 
 const defaultOptions: Required<SearchOptions> = {
@@ -44,6 +46,9 @@ const defaultOptions: Required<SearchOptions> = {
 const MIN_INPUT_LENGTH = 2;
 const REPLACED_CHARS = /[\n\u00a0]/g;
 const LB = ' '; // replace line breaks by space for searching
+const PREVIEW_LENGTH = 80;
+const PREVIEW_BEFORE = 10;
+const PREVIEW_AFTER = 50;
 
 class CollectionContentSearchService {
   private buildRegex(searchText: string, searchOptions: SearchOptions) {
@@ -188,8 +193,6 @@ class CollectionContentSearchService {
     }
     console.debug('search options', searchOptions);
     const results: DeepSearchResult[] = [];
-    // return item title, type, full plainText content preview, & first match (startOffset, endOffset)
-    // if option to include title on, title in text content to search
     const searchTable = storageService.getStore().getTable('search');
     const collectionTable = storageService.getSpace().getTable('collection');
     searchService.getChildren(searchOptions.scope).forEach(rowId => {
@@ -197,46 +200,73 @@ class CollectionContentSearchService {
       const item = collectionTable[rowId];
       if (!row || !item) return;
       if (!searchOptions.searchInTitle && !row.contentPreview) return;
-      const title = item.title?.toString();
-      const content =
-        (searchOptions.searchInTitle ? title + ' ' : '') +
-        row.contentPreview?.toString();
+      const title = item.title?.toString() || '';
 
-      // TODO separate title from content
-      // nbMatches should be for content
+      const result: DeepSearchResult = {
+        id: rowId,
+        type: item.type as CollectionItemTypeValues,
+        title,
+        shortBreadcrumb: row.breadcrumb as string // TODO resolve to titles
+      };
 
-      const searchGen = this.searchArbitraryText(
-        content,
-        searchText!,
-        searchOptions
-      );
-      const firstMatch = searchGen.next();
-      let nbMatches = 1;
-      if (firstMatch.value !== null) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        for (const nextMatch of searchGen) {
-          nbMatches++;
-        }
-        const result: DeepSearchResult = {
-          id: rowId,
-          type: item.type as CollectionItemTypeValues,
+      // optionally search in title
+      if (searchOptions.searchInTitle) {
+        const search = this.searchArbitraryText(
           title,
-          shortBreadcrumb: row.breadcrumb as string,
-          preview: content.substring(
-            Math.max(
-              0,
-              firstMatch.value.startOffset - searchOptions.previewTextBefore!
-            ),
+          searchText!,
+          searchOptions
+        );
+        const firstMatch = search.next();
+        if (firstMatch.value !== null) {
+          result.firstTitleMatch = firstMatch.value;
+        }
+      }
+
+      // optionally search in content
+      if (searchOptions.searchInContent) {
+        const content = row.contentPreview?.toString() || '';
+        const search = this.searchArbitraryText(
+          content,
+          searchText!,
+          searchOptions
+        );
+        const firstMatch = search.next();
+        let nbMatches = 0;
+        if (firstMatch.value !== null) {
+          const startPreview = Math.max(
+            0,
+            firstMatch.value.startOffset - PREVIEW_BEFORE
+          );
+          result.preview = content.substring(
+            startPreview,
             Math.min(
               firstMatch.value.startOffset +
                 firstMatch.value.endOffset +
-                searchOptions.previewTextAfter!,
-              firstMatch.value.startOffset + searchOptions.previewLength!
+                PREVIEW_AFTER,
+              firstMatch.value.startOffset + PREVIEW_LENGTH
             )
-          ),
-          firstMatch: firstMatch.value,
-          nbMatches
-        };
+          );
+          result.firstContentMatch = {
+            startOffset: firstMatch.value.startOffset - startPreview,
+            endOffset: Math.min(
+              firstMatch.value.endOffset - startPreview,
+              result.preview.length
+            ),
+            realStartOffset: firstMatch.value.startOffset,
+            realEndOffset: firstMatch.value.endOffset
+          };
+
+          nbMatches++;
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          for (const nextMatch of search) {
+            nbMatches++;
+            if (nbMatches > 50) break; // no need to display more
+          }
+        }
+        result.nbContentMatches = nbMatches;
+      }
+
+      if (result.firstContentMatch || result.firstTitleMatch) {
         results.push(result);
       }
     });

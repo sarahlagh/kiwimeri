@@ -30,7 +30,7 @@ msgid "Archive is empty"
 msgstr "Archive is empty"
 
 #: src/common/modals/ConfirmYesNoDialog.tsx:24
-#: src/collection/components/CollectionItemList.tsx:68
+#: src/collection/components/CollectionItemList.tsx:66
 msgid "Are you sure?"
 msgstr "Are you sure?"
 
@@ -51,11 +51,11 @@ msgstr "Choose"
 msgid "Choose a new folder"
 msgstr "Choose a new folder"
 
-#: src/synchronization/components/LocalChangesCard.tsx:176
+#: src/synchronization/components/LocalChangesCard.tsx:154
 msgid "Clear All"
 msgstr "Clear All"
 
-#: src/constants.ts:74
+#: src/constants.ts:70
 msgid "collection"
 msgstr "collection"
 
@@ -81,7 +81,7 @@ msgstr "Configure where to synchronize your collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/constants.ts:69
+#: src/constants.ts:65
 msgid "Conflicts"
 msgstr "Conflicts"
 
@@ -93,11 +93,11 @@ msgstr "Creation Date"
 msgid "Current Notebook Settings ({notebookTitle})"
 msgstr "Current Notebook Settings ({notebookTitle})"
 
-#: src/constants.ts:68
+#: src/constants.ts:64
 msgid "Default"
 msgstr "Default"
 
-#: src/synchronization/components/LocalChangesCard.tsx:110
+#: src/synchronization/components/LocalChangesCard.tsx:88
 msgid "deleted item"
 msgstr "deleted item"
 
@@ -138,7 +138,7 @@ msgstr "empty page"
 msgid "Enter your password"
 msgstr "Enter your password"
 
-#: src/common/buttons/DeepSearchButton.tsx:95
+#: src/common/buttons/DeepSearchButton.tsx:178
 msgid "Enter your search"
 msgstr "Enter your search"
 
@@ -176,7 +176,7 @@ msgstr "File not supported"
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/constants.ts:67
+#: src/constants.ts:63
 msgid "Home"
 msgstr "Home"
 
@@ -232,11 +232,11 @@ msgstr "Link"
 msgid "Loading..."
 msgstr "Loading..."
 
-#: src/synchronization/components/LocalChangesCard.tsx:43
+#: src/synchronization/components/LocalChangesCard.tsx:38
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
-#: src/synchronization/components/LocalChangesCard.tsx:49
+#: src/synchronization/components/LocalChangesCard.tsx:44
 msgid "Local: {0}"
 msgstr "Local: {0}"
 
@@ -285,11 +285,11 @@ msgstr "Name"
 msgid "new"
 msgstr "new"
 
-#: src/constants.ts:70
+#: src/constants.ts:66
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:71
+#: src/constants.ts:67
 msgid "New folder"
 msgstr "New folder"
 
@@ -305,7 +305,7 @@ msgstr "New notebook name: "
 msgid "New tag"
 msgstr "New tag"
 
-#: src/collection/components/CollectionItemList.tsx:79
+#: src/collection/components/CollectionItemList.tsx:77
 msgid "no"
 msgstr "no"
 
@@ -325,7 +325,7 @@ msgstr "Notebook Selection"
 msgid "Notebooks found in the archive, they will be converted to folders"
 msgstr "Notebooks found in the archive, they will be converted to folders"
 
-#: src/constants.ts:73
+#: src/constants.ts:69
 msgid "page"
 msgstr "page"
 
@@ -361,7 +361,7 @@ msgstr "Pick a directory for your backups"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
-#: src/synchronization/components/LocalChangesCard.tsx:56
+#: src/synchronization/components/LocalChangesCard.tsx:51
 msgid "Remote: {0}"
 msgstr "Remote: {0}"
 
@@ -378,11 +378,11 @@ msgstr "Restore"
 msgid "Restore Collection"
 msgstr "Restore Collection"
 
-#: src/common/buttons/DeepSearchButton.tsx:79
+#: src/common/buttons/DeepSearchButton.tsx:162
 msgid "Search Content"
 msgstr "Search Content"
 
-#: src/common/buttons/DeepSearchButton.tsx:94
+#: src/common/buttons/DeepSearchButton.tsx:177
 msgid "Search input"
 msgstr "Search input"
 
@@ -407,7 +407,7 @@ msgstr "Sort"
 msgid "Sort items by..."
 msgstr "Sort items by..."
 
-#: src/synchronization/components/LocalChangesCard.tsx:75
+#: src/synchronization/components/LocalChangesCard.tsx:70
 msgid "space option modified"
 msgstr "space option modified"
 
@@ -466,7 +466,7 @@ msgstr "Username"
 msgid "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 msgstr "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 
-#: src/collection/components/CollectionItemList.tsx:76
+#: src/collection/components/CollectionItemList.tsx:74
 msgid "yes"
 msgstr "yes"
 
