@@ -81,7 +81,6 @@ function highlightResults(searchResults: DeepSearchResult[]) {
   }
 }
 
-// TODO text color, prettify
 const SearchResult = ({ searchResult }: SearchResultProps) => {
   const textBreadcrumb = searchResult.shortBreadcrumb.split(',').map(id => ({
     title: collectionService.getItemTitle(id)
@@ -99,11 +98,7 @@ const SearchResult = ({ searchResult }: SearchResultProps) => {
       <IonLabel id={CONTENT_LABEL_ID_PREFIX + searchResult.id}>
         <h3>
           <IonBreadcrumbs maxItems={3}>
-            <IonBreadcrumb>
-              {/* <IonIcon
-                icon={APPICONS_PER_TYPE.get(CollectionItemType.notebook)}
-              ></IonIcon> */}
-            </IonBreadcrumb>
+            <IonBreadcrumb></IonBreadcrumb>
             {textBreadcrumb.map((bd, idx) => {
               // middle
               if (idx < textBreadcrumb.length - 1) {
@@ -138,9 +133,6 @@ const DeepSearchButton = ({
   const searchOptions = {
     searchInTitle: true
   };
-
-  // TODO keep input fixed, only overflow list
-  // TODO when doc title but page match - title not highlighted? ("quotes" search)
 
   useEffect(() => {
     highlightResults(searchResults);
@@ -214,7 +206,13 @@ const DeepSearchButton = ({
           </IonList>
 
           {/* result panel */}
-          <IonList>
+          <IonList
+            style={{
+              maxHeight: 'calc(100% - 64px)',
+              overflowY: 'auto',
+              padding: '0 8px'
+            }}
+          >
             {searchResults.map(searchResult => (
               <IonItem
                 lines="none"
