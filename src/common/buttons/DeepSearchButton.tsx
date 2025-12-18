@@ -21,13 +21,13 @@ import {
   IonItem,
   IonLabel,
   IonList,
-  IonModal,
   IonTitle,
-  IonToolbar
+  IonToolbar,
+  useIonModal
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useEffect, useRef, useState } from 'react';
-import { useLocation } from 'react-router';
+import { useEffect, useState } from 'react';
+import { useHistory, useLocation } from 'react-router';
 import { GET_UNKNOWN_ITEM_ROUTE } from '../routes';
 import platformService from '../services/platform.service';
 import { getSearchParams } from '../utils';
@@ -43,6 +43,20 @@ type DeepSearchButtonProps = {
 type SearchResultProps = {
   searchResult: DeepSearchResult;
   searchOptions: DeepSearchOptions & SearchOptions;
+};
+
+type DismissData = {
+  searchResult: DeepSearchResult;
+  searchText: string;
+};
+
+type DeepSearchModalProps = {
+  query?: string | null;
+  dismiss: (data?: DismissData) => void;
+};
+
+const searchOptions = {
+  searchInTitle: true
 };
 
 function highlightResults(searchResults: DeepSearchResult[]) {
@@ -124,23 +138,11 @@ const SearchResult = ({ searchResult }: SearchResultProps) => {
   );
 };
 
-const DeepSearchButton = ({
-  id = 'global-search-btn'
-}: DeepSearchButtonProps) => {
+const DeepSearchModal = ({ query, dismiss }: DeepSearchModalProps) => {
   const { t } = useLingui();
-  const location = useLocation();
-  const searchParams = getSearchParams(location.search);
-  const modal = useRef<HTMLIonModalElement>(null);
-
-  const searchOptions = {
-    searchInTitle: true
-  };
-
-  const [searchText, setSearchText] = useState<string>(
-    searchParams.query || ''
-  );
+  const [searchText, setSearchText] = useState<string>(query || '');
   const [searchResults, setSearchResults] = useState<DeepSearchResult[]>(
-    contentSearchService.deepSearch(searchParams.query || '', searchOptions)
+    contentSearchService.deepSearch(query || '', searchOptions)
   );
 
   useEffect(() => {
@@ -149,102 +151,132 @@ const DeepSearchButton = ({
 
   return (
     <>
-      <IonButton id={id}>
-        <IonIcon icon={APPICONS.search}></IonIcon>
-      </IonButton>
-      <IonModal
-        ref={modal}
-        trigger={id}
-        onIonModalDidPresent={() => highlightResults(searchResults)}
-      >
-        <IonHeader>
-          <IonToolbar>
-            <IonTitle>
-              <Trans>Search Content</Trans>
-            </IonTitle>
+      <IonHeader>
+        <IonToolbar>
+          <IonTitle>
+            <Trans>Search Content</Trans>
+          </IonTitle>
 
-            <IonButtons slot="end">
-              <IonButton onClick={() => modal.current?.dismiss()}>
-                <IonIcon icon={APPICONS.closeAction} />
-              </IonButton>
-            </IonButtons>
-          </IonToolbar>
-        </IonHeader>
-        <IonContent>
-          {/* input panel */}
-          <IonList>
-            <IonItem lines="none">
-              <IonInput
-                aria-label={t`Search input`}
-                placeholder={t`Enter your search`}
-                value={searchText}
-                onIonChange={(e: InputCustomEvent) => {
-                  if (typeof e.detail.value === 'string') {
-                    setSearchText(e.detail.value || '');
-                    setSearchResults(
-                      contentSearchService.deepSearch(
-                        e.detail.value || '',
-                        searchOptions
-                      )
-                    );
-                  }
+          <IonButtons slot="end">
+            <IonButton onClick={() => dismiss()}>
+              <IonIcon icon={APPICONS.closeAction} />
+            </IonButton>
+          </IonButtons>
+        </IonToolbar>
+      </IonHeader>
+      <IonContent>
+        {/* input panel */}
+        <IonList>
+          <IonItem lines="none">
+            <IonInput
+              aria-label={t`Search input`}
+              placeholder={t`Enter your search`}
+              value={searchText}
+              onIonChange={(e: InputCustomEvent) => {
+                if (typeof e.detail.value === 'string') {
+                  setSearchText(e.detail.value || '');
+                  setSearchResults(
+                    contentSearchService.deepSearch(
+                      e.detail.value || '',
+                      searchOptions
+                    )
+                  );
+                }
+              }}
+            >
+              <IonIcon
+                slot="start"
+                icon={APPICONS.search}
+                aria-hidden="true"
+              ></IonIcon>
+              <IonButton
+                fill="clear"
+                slot="end"
+                aria-label="Show/hide"
+                onClick={() => {
+                  setSearchText('');
+                  setSearchResults([]);
                 }}
               >
                 <IonIcon
-                  slot="start"
-                  icon={APPICONS.search}
+                  slot="icon-only"
+                  icon={APPICONS.resetAction}
                   aria-hidden="true"
                 ></IonIcon>
-                <IonButton
-                  fill="clear"
-                  slot="end"
-                  aria-label="Show/hide"
-                  onClick={() => {
-                    setSearchText('');
-                    setSearchResults([]);
-                  }}
-                >
-                  <IonIcon
-                    slot="icon-only"
-                    icon={APPICONS.resetAction}
-                    aria-hidden="true"
-                  ></IonIcon>
-                </IonButton>
-              </IonInput>
-            </IonItem>
-          </IonList>
+              </IonButton>
+            </IonInput>
+          </IonItem>
+        </IonList>
 
-          {/* result panel */}
-          <IonList
-            style={{
-              maxHeight: 'calc(100% - 64px)',
-              overflowY: 'auto',
-              padding: '0 8px'
-            }}
-          >
-            {searchResults.map(searchResult => (
-              <IonItem
-                lines="none"
-                key={searchResult.id}
-                routerLink={GET_UNKNOWN_ITEM_ROUTE(
+        {/* result panel */}
+        <IonList
+          style={{
+            maxHeight: 'calc(100% - 64px)',
+            overflowY: 'auto',
+            padding: '0 8px'
+          }}
+        >
+          {searchResults.map(searchResult => (
+            <IonItem
+              lines="none"
+              key={searchResult.id}
+              button
+              onClick={() => {
+                dismiss({
+                  searchResult,
+                  searchText
+                });
+              }}
+            >
+              <SearchResult
+                searchResult={searchResult}
+                searchOptions={searchOptions}
+              />
+            </IonItem>
+          ))}
+        </IonList>
+      </IonContent>
+    </>
+  );
+};
+
+const DeepSearchButton = ({
+  id = 'global-search-btn'
+}: DeepSearchButtonProps) => {
+  const history = useHistory();
+  const location = useLocation();
+  const searchParams = getSearchParams(location.search);
+  const [present, dismiss] = useIonModal(DeepSearchModal, {
+    query: searchParams.query,
+    dismiss: (data: DismissData) => dismiss(data)
+  });
+
+  return (
+    <IonButton
+      id={id}
+      onClick={() => {
+        present({
+          onDidPresent: () => {
+            console.debug('on did present');
+          },
+          onDidDismiss: event => {
+            if (event.detail.data) {
+              const { searchResult, searchText } = event.detail
+                .data as DismissData;
+              history.push(
+                GET_UNKNOWN_ITEM_ROUTE(
                   searchResult.id,
                   searchResult.type,
                   searchText
-                )}
-                onClick={() => {
-                  modal.current?.dismiss();
-                }}
-              >
-                <SearchResult
-                  searchResult={searchResult}
-                  searchOptions={searchOptions}
-                />
-              </IonItem>
-            ))}
-          </IonList>
-        </IonContent>
-      </IonModal>
-    </>
+                )
+              );
+            }
+          }
+        });
+      }}
+    >
+      <IonIcon icon={APPICONS.search}></IonIcon>
+    </IonButton>
   );
 };
 

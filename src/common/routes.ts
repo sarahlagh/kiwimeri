@@ -52,6 +52,7 @@ export const GET_UNKNOWN_ITEM_ROUTE = (
   switch (type) {
     case CollectionItemType.folder:
     case CollectionItemType.notebook:
+    default:
       route = GET_FOLDER_ROUTE(itemId, query);
       break;
     case CollectionItemType.page:

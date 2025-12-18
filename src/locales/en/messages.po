@@ -138,7 +138,7 @@ msgstr "empty page"
 msgid "Enter your password"
 msgstr "Enter your password"
 
-#: src/common/buttons/DeepSearchButton.tsx:179
+#: src/common/buttons/DeepSearchButton.tsx:173
 msgid "Enter your search"
 msgstr "Enter your search"
 
@@ -180,10 +180,12 @@ msgstr "Filesystem"
 msgid "Home"
 msgstr "Home"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:112
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:105
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
@@ -232,10 +234,12 @@ msgstr "Link"
 msgid "Loading..."
 msgstr "Loading..."
 
+#. placeholder {0}: localChanges.length
 #: src/synchronization/components/LocalChangesCard.tsx:38
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
+#. placeholder {0}: dateToStr('datetime', lastLocalChange)
 #: src/synchronization/components/LocalChangesCard.tsx:44
 msgid "Local: {0}"
 msgstr "Local: {0}"
@@ -361,6 +365,7 @@ msgstr "Pick a directory for your backups"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
+#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
 #: src/synchronization/components/LocalChangesCard.tsx:51
 msgid "Remote: {0}"
 msgstr "Remote: {0}"
@@ -378,11 +383,11 @@ msgstr "Restore"
 msgid "Restore Collection"
 msgstr "Restore Collection"
 
-#: src/common/buttons/DeepSearchButton.tsx:163
+#: src/common/buttons/DeepSearchButton.tsx:157
 msgid "Search Content"
 msgstr "Search Content"
 
-#: src/common/buttons/DeepSearchButton.tsx:178
+#: src/common/buttons/DeepSearchButton.tsx:172
 msgid "Search input"
 msgstr "Search input"
 
