@@ -138,7 +138,7 @@ msgstr "empty page"
 msgid "Enter your password"
 msgstr "Enter your password"
 
-#: src/common/buttons/DeepSearchButton.tsx:170
+#: src/common/buttons/DeepSearchButton.tsx:179
 msgid "Enter your search"
 msgstr "Enter your search"
 
@@ -378,11 +378,11 @@ msgstr "Restore"
 msgid "Restore Collection"
 msgstr "Restore Collection"
 
-#: src/common/buttons/DeepSearchButton.tsx:154
+#: src/common/buttons/DeepSearchButton.tsx:163
 msgid "Search Content"
 msgstr "Search Content"
 
-#: src/common/buttons/DeepSearchButton.tsx:169
+#: src/common/buttons/DeepSearchButton.tsx:178
 msgid "Search input"
 msgstr "Search input"
 

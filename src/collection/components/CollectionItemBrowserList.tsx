@@ -15,7 +15,6 @@ import {
 import ExportItemsButton from '@/common/buttons/ExportItemsButton';
 import ImportItemsButton from '@/common/buttons/ImportItemsButton';
 import OpenSortFilterButton from '@/common/buttons/OpenSortFilterButton';
-import { useSearchContext } from '@/common/context/SearchContext';
 import { GET_ITEM_ROUTE } from '@/common/routes';
 import platformService from '@/common/services/platform.service';
 import { getSearchParams } from '@/common/utils';
@@ -149,7 +148,9 @@ export const CollectionItemBrowserList = ({
     }
   });
 
-  const { searchText, setSearchText } = useSearchContext();
+  // const { searchText, setSearchText } = useSearchContext();
+  const [searchText, setSearchText] = useState<string | null>();
+  // TODO ^ could also use a url param like 'filter'? or reuse 'query'?
 
   return (
     <CollectionItemList
@@ -176,8 +177,8 @@ export const CollectionItemBrowserList = ({
       selected={openedDocument}
       getUrl={item =>
         item.type === CollectionItemType.document
-          ? GET_ITEM_ROUTE(item.parent, item.id)
-          : GET_ITEM_ROUTE(item.id, openedDocument)
+          ? GET_ITEM_ROUTE(item.parent, item.id, undefined, searchText)
+          : GET_ITEM_ROUTE(item.id, openedDocument, undefined, searchText)
       }
       actionsIcon={APPICONS.itemActions}
       itemRenaming={itemRenaming}

@@ -1,6 +1,6 @@
 import { AnyData } from '@/db/types/store-types';
 
-const QUERY_PARAMS = ['folder', 'document', 'page'] as const;
+const QUERY_PARAMS = ['folder', 'document', 'page', 'query'] as const;
 
 type SearchParams = typeof QUERY_PARAMS;
 type SearchParamsType = {
@@ -18,6 +18,7 @@ const handleParam = (search: string, paramName: string) => {
 
 // using react router 5 so, no useSearchParams
 // not creating a hook for this as this is slower than actually calling useLocation
+// TODO use new URLSearchParams(location.search)
 export function getSearchParams(search: string) {
   const obj = {} as SearchParamsType;
   for (const param of QUERY_PARAMS) {

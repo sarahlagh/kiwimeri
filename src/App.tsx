@@ -24,7 +24,6 @@ import { useEffect } from 'react';
 import MainLayout from './app/MainLayout';
 import InitialRoutingProvider from './app/providers/InitialRoutingProvider';
 import { NetworkStatusProvider } from './app/providers/NetworkStatusProvider';
-import { SearchProvider } from './app/providers/SearchProvider';
 import TinybaseProvider from './app/providers/TinybaseProvider';
 import { ToastProvider } from './app/providers/ToastProvider';
 import platformService from './common/services/platform.service';
@@ -55,15 +54,13 @@ const App = () => {
         <NetworkStatusProvider>
           <TinybaseProvider>
             <ToastProvider>
-              <SearchProvider>
-                <IonApp className={platformService.getPlatform()}>
-                  <IonReactRouter>
-                    <InitialRoutingProvider>
-                      <MainLayout></MainLayout>
-                    </InitialRoutingProvider>
-                  </IonReactRouter>
-                </IonApp>
-              </SearchProvider>
+              <IonApp className={platformService.getPlatform()}>
+                <IonReactRouter>
+                  <InitialRoutingProvider>
+                    <MainLayout></MainLayout>
+                  </InitialRoutingProvider>
+                </IonReactRouter>
+              </IonApp>
             </ToastProvider>
           </TinybaseProvider>
         </NetworkStatusProvider>

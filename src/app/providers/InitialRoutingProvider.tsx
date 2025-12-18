@@ -61,7 +61,13 @@ const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
       !collectionService.itemExists(searchParams.page)
     ) {
       return (
-        <Redirect to={GET_DOCUMENT_ROUTE(folder, searchParams.document)} />
+        <Redirect
+          to={GET_DOCUMENT_ROUTE(
+            folder,
+            searchParams.document,
+            searchParams.query
+          )}
+        />
       );
     }
   }

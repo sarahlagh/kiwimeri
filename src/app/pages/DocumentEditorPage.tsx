@@ -59,6 +59,7 @@ const DocumentEditorPage = () => {
         docId={docId}
         pageId={pageId}
         showActions={showDocumentActions}
+        query={searchParams.query}
       ></DocumentEditor>
     </TemplateCompactableSplitPage>
   );

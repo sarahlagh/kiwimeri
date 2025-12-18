@@ -27,8 +27,10 @@ import {
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router';
 import { GET_UNKNOWN_ITEM_ROUTE } from '../routes';
 import platformService from '../services/platform.service';
+import { getSearchParams } from '../utils';
 
 const DEEP_SEARCH_RESULTS_HIGHLIGHT_KEY = 'kiwimeri-deep-search-results';
 const CONTENT_LABEL_ID_PREFIX = 'global-search-result-content-';
@@ -126,13 +128,20 @@ const DeepSearchButton = ({
   id = 'global-search-btn'
 }: DeepSearchButtonProps) => {
   const { t } = useLingui();
+  const location = useLocation();
+  const searchParams = getSearchParams(location.search);
   const modal = useRef<HTMLIonModalElement>(null);
-  const [searchResults, setSearchResults] = useState<DeepSearchResult[]>([]);
-  const [searchText, setSearchText] = useState<string>('');
 
   const searchOptions = {
     searchInTitle: true
   };
+
+  const [searchText, setSearchText] = useState<string>(
+    searchParams.query || ''
+  );
+  const [searchResults, setSearchResults] = useState<DeepSearchResult[]>(
+    contentSearchService.deepSearch(searchParams.query || '', searchOptions)
+  );
 
   useEffect(() => {
     highlightResults(searchResults);
@@ -140,7 +149,7 @@ const DeepSearchButton = ({
 
   return (
     <>
-      <IonButton id={id} expand="block">
+      <IonButton id={id}>
         <IonIcon icon={APPICONS.search}></IonIcon>
       </IonButton>
       <IonModal
@@ -219,7 +228,8 @@ const DeepSearchButton = ({
                 key={searchResult.id}
                 routerLink={GET_UNKNOWN_ITEM_ROUTE(
                   searchResult.id,
-                  searchResult.type
+                  searchResult.type,
+                  searchText
                 )}
                 onClick={() => {
                   modal.current?.dismiss();

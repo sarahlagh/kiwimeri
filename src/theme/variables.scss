@@ -87,6 +87,10 @@ ion-popover.larger-width {
   --search-color: #22f3bc;
 }
 
+.ion-palette-dark {
+  --search-color: #004634;
+}
+
 ::highlight(kiwimeri-search-results),
 ::highlight(kiwimeri-content-search-results),
 ::highlight(kiwimeri-deep-search-results) {

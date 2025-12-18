@@ -10,24 +10,34 @@ export const DEV_TOOLS_ROUTE = '/devtools';
 
 export const FOLDER_ROUTE = '/collection';
 export const DOCUMENT_ROUTE = '/document';
-export const GET_FOLDER_ROUTE = (parent: string) =>
-  `${FOLDER_ROUTE}?folder=${parent}`;
-export const GET_DOCUMENT_ROUTE = (parent: string, id: string) =>
-  `${DOCUMENT_ROUTE}?folder=${parent}&document=${id}`;
+export const GET_FOLDER_ROUTE = (parent: string, query?: string | null) =>
+  `${FOLDER_ROUTE}?folder=${parent}${query ? '&query=' + query : ''}`;
+export const GET_DOCUMENT_ROUTE = (
+  parent: string,
+  id: string,
+  query?: string | null
+) =>
+  `${DOCUMENT_ROUTE}?folder=${parent}&document=${id}${query ? '&query=' + query : ''}`;
 
 export const GET_ITEM_ROUTE = (
   parent: string,
   docId?: string,
-  pageId?: string
+  pageId?: string,
+  query?: string | null
 ) =>
   pageId && docId
-    ? GET_PAGE_ROUTE(parent, docId, pageId)
+    ? GET_PAGE_ROUTE(parent, docId, pageId, query)
     : docId
-      ? GET_DOCUMENT_ROUTE(parent, docId)
-      : GET_FOLDER_ROUTE(parent);
+      ? GET_DOCUMENT_ROUTE(parent, docId, query)
+      : GET_FOLDER_ROUTE(parent, query);
 
-export const GET_PAGE_ROUTE = (parent: string, docId: string, pageId: string) =>
-  `${DOCUMENT_ROUTE}?folder=${parent}&document=${docId}&page=${pageId}`;
+export const GET_PAGE_ROUTE = (
+  parent: string,
+  docId: string,
+  pageId: string,
+  query?: string | null
+) =>
+  `${DOCUMENT_ROUTE}?folder=${parent}&document=${docId}&page=${pageId}${query ? '&query=' + query : ''}`;
 
 export const isCollectionRoute = (pathname: string) => {
   return pathname === FOLDER_ROUTE || pathname === DOCUMENT_ROUTE;
@@ -35,24 +45,24 @@ export const isCollectionRoute = (pathname: string) => {
 
 export const GET_UNKNOWN_ITEM_ROUTE = (
   itemId: string,
-  type?: CollectionItemTypeValues
+  type: CollectionItemTypeValues,
+  query?: string | null
 ) => {
   let route, parent, doc;
-  if (!type) type = collectionService.getItemType(itemId);
   switch (type) {
     case CollectionItemType.folder:
     case CollectionItemType.notebook:
-      route = GET_FOLDER_ROUTE(itemId);
+      route = GET_FOLDER_ROUTE(itemId, query);
       break;
     case CollectionItemType.page:
       doc = collectionService.getItemParent(itemId);
       parent = collectionService.getItemParent(doc);
-      route = GET_PAGE_ROUTE(parent, doc, itemId);
+      route = GET_PAGE_ROUTE(parent, doc, itemId, query);
       break;
     case CollectionItemType.document:
       // eslint-disable-next-line no-case-declarations
       parent = collectionService.getItemParent(itemId);
-      route = GET_DOCUMENT_ROUTE(parent, itemId);
+      route = GET_DOCUMENT_ROUTE(parent, itemId, query);
       break;
   }
   return route;

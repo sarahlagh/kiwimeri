@@ -1,4 +1,3 @@
-import { useSearchContext } from '@/common/context/SearchContext';
 import { onTitleChangeFn } from '@/common/events/events';
 import platformService from '@/common/services/platform.service';
 import KiwimeriEditor from '@/common/wysiwyg/lexical/KiwimeriEditor';
@@ -25,6 +24,7 @@ interface DocumentEditorProps {
   docId: string;
   pageId?: string;
   showActions?: boolean;
+  query?: string;
 }
 
 const MAX_WEIGHT = 10;
@@ -32,7 +32,8 @@ const MAX_WEIGHT = 10;
 const DocumentEditor = ({
   docId,
   pageId,
-  showActions = false
+  showActions = false,
+  query
 }: DocumentEditorProps) => {
   const refWriter = useRef(null);
   const [showDocumentActions, setShowDocumentActions] =
@@ -43,7 +44,6 @@ const DocumentEditor = ({
   const [toggleSearchAutoFocus, setToggleSearchAutoFocus] = useState(true);
   const [searchText, setSearchText] = useState('');
   const [localSearchTextWeight, setLocalSearchTextWeight] = useState(0);
-  const { searchText: globalSearchText } = useSearchContext();
 
   // TODO refactor
   useEffect(() => {
@@ -79,14 +79,14 @@ const DocumentEditor = ({
 
   useEffect(() => {
     if (localSearchTextWeight < MAX_WEIGHT) {
-      const searchTextOverride = globalSearchText || '';
+      const searchTextOverride = query || '';
       setSearchText(searchTextOverride);
       setToggleSearch(searchTextOverride.length > 0);
       setToggleSearchAutoFocus(false);
       if (pages.length > 0 && searchTextOverride.length > 0)
         setOpenPageBrowser(true);
     }
-  }, [globalSearchText, docId]);
+  }, [query, docId]);
 
   return (
     <>

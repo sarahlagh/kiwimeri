@@ -122,7 +122,7 @@ export default function CollectionPagesBrowser({
             page={{ id: docId, preview: docPreview, order: 0 }}
             selected={id === docId}
             onClick={() => {
-              history.push(GET_DOCUMENT_ROUTE(folderId, docId));
+              history.push(GET_DOCUMENT_ROUTE(folderId, docId, searchText));
             }}
             defaultVal={defaultDocPreview}
           />
@@ -146,7 +146,9 @@ export default function CollectionPagesBrowser({
                 (searchResults.find(sr => sr === page.id) ? ' highlighted' : '')
               }
               onClick={pageId => {
-                history.push(GET_PAGE_ROUTE(folderId, docId, pageId));
+                history.push(
+                  GET_PAGE_ROUTE(folderId, docId, pageId, searchText)
+                );
               }}
               defaultVal={defaultPagePreview}
             />
