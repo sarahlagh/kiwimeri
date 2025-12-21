@@ -28,6 +28,7 @@ import TinybaseProvider from './app/providers/TinybaseProvider';
 import { ToastProvider } from './app/providers/ToastProvider';
 import platformService from './common/services/platform.service';
 import { initGlobalTrans } from './config';
+import { historyService } from './db/collection-history.service';
 import { messages as enMessages } from './locales/en/messages';
 
 setupIonicReact({
@@ -48,6 +49,15 @@ const App = () => {
     };
     appInit();
   });
+
+  useEffect(() => {
+    window.onbeforeunload = savePending;
+    function savePending() {
+      historyService.saveNow();
+      return undefined;
+    }
+  }, []);
+
   return (
     <>
       <I18nProvider i18n={i18n}>

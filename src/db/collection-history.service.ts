@@ -5,14 +5,16 @@ import storageService from './storage.service';
 
 type HistoryCache = {
   ts: number;
+  created: number;
   versionData: string;
   versionPreview: string;
 };
 
 class CollectionHistoryService {
   private readonly tableId = 'history';
-  private debounce = 5000; // TODO configurable
+  private debounce = 60000; // TODO configurable
   private cache = new Map<string, HistoryCache>();
+  private timeouts = new Map<string, number>();
 
   private fetchHistoryPerDocQuery(docId: string) {
     const queries = storageService.getSpaceQueries();
@@ -61,36 +63,56 @@ class CollectionHistoryService {
     });
     const versionPreview = searchAncestryService.getItemPreview(id);
     if (!this.cache.has(id))
-      this.cache.set(id, { ts: 0, versionData, versionPreview });
+      this.cache.set(id, { ts: 0, created, versionData, versionPreview });
     if (Date.now() - this.cache.get(id)!.ts >= this.debounce) {
-      this.cache.set(id, { ts: Date.now(), versionData, versionPreview });
-      setTimeout(() => {
-        console.debug('saving new version for doc', id);
-        storageService.getSpace().transaction(() => {
-          // increment existing versions
-          const existingVersions = this.getVersions(id);
-          for (const version of existingVersions) {
-            storageService
-              .getSpace()
-              .setCell(
-                this.tableId,
-                version.id!,
-                'version',
-                version.version + 1
-              );
-          }
-          // TODO handle pages
-          // const docId = type === CollectionItemType.document ? id : item.parent;
-          storageService.getSpace().addRow(this.tableId, {
-            docId: id,
-            created,
-            version: 0,
-            versionData: this.cache.get(id)!.versionData,
-            versionPreview: this.cache.get(id)!.versionPreview
-          });
-        });
-      }, this.debounce);
+      this.cache.set(id, {
+        ts: Date.now(),
+        created,
+        versionData,
+        versionPreview
+      });
+      this.timeouts.set(
+        id,
+        setTimeout(
+          () => {
+            this.saveVersion(id);
+            this.timeouts.delete(id);
+          },
+          this.debounce,
+          []
+        )
+      );
     }
+  }
+
+  private saveVersion(id: string) {
+    console.debug('saving new version for doc', id);
+    storageService.getSpace().transaction(() => {
+      // increment existing versions
+      const existingVersions = this.getVersions(id);
+      for (const version of existingVersions) {
+        storageService
+          .getSpace()
+          .setCell(this.tableId, version.id!, 'version', version.version + 1);
+      }
+      // TODO handle pages
+      // const docId = type === CollectionItemType.document ? id : item.parent;
+      storageService.getSpace().addRow(this.tableId, {
+        docId: id,
+        version: 0,
+        created: this.cache.get(id)!.created,
+        versionData: this.cache.get(id)!.versionData,
+        versionPreview: this.cache.get(id)!.versionPreview
+      });
+    });
+  }
+
+  // when leaving app, must save pending timeouts
+  public saveNow() {
+    this.timeouts.forEach((t, id) => {
+      clearTimeout(t);
+      this.saveVersion(id);
+    });
   }
 }
 
