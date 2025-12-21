@@ -6,6 +6,7 @@ import {
   CollectionItemUpdatableConflictFields,
   CollectionItemUpdatableFieldEnum,
   CollectionItemUpdatableNonConflictFields,
+  CollectionItemUpdateChangeFields,
   setFieldMeta
 } from '@/collection/collection';
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
@@ -229,6 +230,11 @@ export const GET_CONFLICT_CHANGES = (type: string) =>
 export const GET_ALL_CHANGES = (type: string) =>
   [...CONFLICT_CHANGES, ...NON_CONFLICT_CHANGES].filter(f =>
     filterPerLocalRemoteAndType(f.local, f.remote, type)
+  );
+
+export const GET_CONTENT_UPDATE_FIELDS = (type: string) =>
+  UPDATABLE_FIELDS.filter(f => filterPerType(f.field, type)).filter(f =>
+    CollectionItemUpdateChangeFields.includes(f.field)
   );
 
 export const getRowCountInsideNotebook = (notebook?: string) => {

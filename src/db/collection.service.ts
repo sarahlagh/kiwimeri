@@ -23,6 +23,7 @@ import { getUniqueId } from 'tinybase/common';
 import { Id } from 'tinybase/common/with-schemas';
 import { Table } from 'tinybase/store';
 import { searchAncestryService } from '../search/search-ancestry.service';
+import { historyService } from './collection-history.service';
 import localChangesService from './local-changes.service';
 import notebooksService from './notebooks.service';
 import storageService from './storage.service';
@@ -45,7 +46,6 @@ export const INITIAL_CONTENT_START = '{"root":{';
 class CollectionService {
   private readonly storeId = 'space';
   private readonly tableId = 'collection';
-  private readonly previewSize = 80;
 
   // TODO review what i actually need to select in queries - fields for sorting, what else?
   private fetchAllPerParentQuery(parent: string, deleted: boolean = false) {
@@ -683,6 +683,17 @@ class CollectionService {
     );
   }
 
+  public isHistorizableContentChange(
+    type: CollectionItemTypeValues,
+    key: CollectionItemUpdatableFieldEnum
+  ) {
+    return (
+      (type === CollectionItemType.page ||
+        type === CollectionItemType.document) &&
+      CollectionItemUpdateChangeFields.includes(key)
+    );
+  }
+
   public setItemField(
     rowId: Id,
     key: CollectionItemUpdatableFieldEnum,
@@ -698,6 +709,10 @@ class CollectionService {
     // title and content are real changes, order and display_opts are not (won't trigger an update ts)
     const isContentChange = this.isContentChange(type, key);
     storageService.getSpace().transaction(() => {
+      if (this.isHistorizableContentChange(type, key)) {
+        historyService.addVersion(rowId, updated);
+      }
+
       storageService.getSpace().setCell('collection', rowId, key, value);
       storageService
         .getSpace()

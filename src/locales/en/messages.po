@@ -55,7 +55,7 @@ msgstr "Choose a new folder"
 msgid "Clear All"
 msgstr "Clear All"
 
-#: src/constants.ts:70
+#: src/constants.ts:71
 msgid "collection"
 msgstr "collection"
 
@@ -81,7 +81,7 @@ msgstr "Configure where to synchronize your collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/constants.ts:65
+#: src/constants.ts:66
 msgid "Conflicts"
 msgstr "Conflicts"
 
@@ -93,7 +93,7 @@ msgstr "Creation Date"
 msgid "Current Notebook Settings ({notebookTitle})"
 msgstr "Current Notebook Settings ({notebookTitle})"
 
-#: src/constants.ts:64
+#: src/constants.ts:65
 msgid "Default"
 msgstr "Default"
 
@@ -121,6 +121,10 @@ msgstr "Display options for the currently selected space. They can still be over
 #: src/common/modals/ConfirmMultipleImportModal.tsx:173
 msgid "Do you want to import your content inside a new folder?"
 msgstr "Do you want to import your content inside a new folder?"
+
+#: src/common/buttons/ManageHistoryButton.tsx:49
+msgid "Document History"
+msgstr "Document History"
 
 #: src/dev-tools/components/LogsCard.tsx:114
 msgid "Download Logs"
@@ -176,7 +180,7 @@ msgstr "File not supported"
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/constants.ts:63
+#: src/constants.ts:64
 msgid "Home"
 msgstr "Home"
 
@@ -289,11 +293,11 @@ msgstr "Name"
 msgid "new"
 msgstr "new"
 
-#: src/constants.ts:66
+#: src/constants.ts:67
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:67
+#: src/constants.ts:68
 msgid "New folder"
 msgstr "New folder"
 
@@ -329,7 +333,7 @@ msgstr "Notebook Selection"
 msgid "Notebooks found in the archive, they will be converted to folders"
 msgstr "Notebooks found in the archive, they will be converted to folders"
 
-#: src/constants.ts:69
+#: src/constants.ts:70
 msgid "page"
 msgstr "page"
 

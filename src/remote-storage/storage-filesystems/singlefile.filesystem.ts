@@ -285,10 +285,6 @@ export class SingleFileStorage extends CloudStorageFilesystem {
               newLocalContent[0].collection![localChange.item][
                 `${field}_meta`
               ] = localItem![`${field}_meta`];
-              if (field === 'content') {
-                newLocalContent[0].collection![localChange.item].preview =
-                  localItem!.preview;
-              }
             }
           } else {
             // is delete

@@ -6,6 +6,7 @@ import {
   arrowDown,
   arrowUp,
   bugOutline,
+  caretBackCircleOutline,
   checkmarkOutline,
   close,
   cloudDownloadOutline,
@@ -113,7 +114,8 @@ export const APPICONS = {
   import: downloadOutline,
   sortFilter: funnelOutline,
   dragBar: reorderTwoOutline,
-  search: searchOutline
+  search: searchOutline,
+  history: caretBackCircleOutline
 };
 
 export const APPICONS_PER_TYPE = new Map<CollectionItemTypeValues, string>();

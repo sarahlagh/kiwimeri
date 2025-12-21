@@ -2,6 +2,7 @@ import { CollectionItemType } from '@/collection/collection';
 import CloseDocumentButton from '@/common/buttons/CloseDocumentButton';
 import DeleteItemButton from '@/common/buttons/DeleteItemButton';
 import ExportItemsButton from '@/common/buttons/ExportItemsButton';
+import ManageHistoryButton from '@/common/buttons/ManageHistoryButton';
 import MoveFolderButton from '@/common/buttons/MoveFolderButton';
 import RenameItemButton from '@/common/buttons/RenameItemButton';
 import { GET_DOCUMENT_ROUTE, GET_FOLDER_ROUTE } from '@/common/routes';
@@ -66,6 +67,10 @@ const CommonActionsToolbar = ({
           >
             <IonIcon icon={APPICONS.info}></IonIcon>
           </IonButton>
+        )}
+
+        {type === CollectionItemType.document && (
+          <ManageHistoryButton id={docId} />
         )}
 
         {children}

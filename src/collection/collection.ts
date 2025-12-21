@@ -68,7 +68,7 @@ export const CollectionItemUpdatableFields: CollectionItemUpdatableFieldEnum[] =
   ['parent', 'title', 'content', 'tags', 'deleted', 'order', 'display_opts'];
 
 export const CollectionItemUpdateChangeFields: CollectionItemUpdatableFieldEnum[] =
-  ['title', 'content', 'tags', 'deleted'];
+  ['title', 'content', 'tags', 'deleted', 'display_opts'];
 
 export const CollectionItemResetConflictFields: CollectionItemUpdatableFieldEnum[] =
   ['parent', 'title', 'content', 'tags', 'deleted'];
@@ -119,4 +119,13 @@ export const setFieldMeta = (value: string, updated: number) => {
 
 export const parseFieldMeta = (value: string): CollectionItemFieldMetadata => {
   return JSON.parse(value);
+};
+
+export type HistorizedCollectionItem = {
+  id?: string;
+  docId: string;
+  created: number;
+  version: number;
+  versionData: string;
+  versionPreview: string;
 };
