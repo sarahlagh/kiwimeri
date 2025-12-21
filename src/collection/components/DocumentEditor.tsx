@@ -178,6 +178,7 @@ const DocumentEditor = ({
                 docPreview={documentPreview}
                 pages={pages}
                 searchText={toggleSearch ? query || '' : null}
+                showHideSelf={toggleSearch}
               />
             )}
           </KiwimeriEditor>

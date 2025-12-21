@@ -126,11 +126,11 @@ msgstr "Do you want to import your content inside a new folder?"
 msgid "Download Logs"
 msgstr "Download Logs"
 
-#: src/common/wysiwyg/pages-browser/CollectionPagesBrowser.tsx:77
+#: src/common/wysiwyg/pages-browser/CollectionPagesBrowser.tsx:79
 msgid "empty doc"
 msgstr "empty doc"
 
-#: src/common/wysiwyg/pages-browser/CollectionPagesBrowser.tsx:78
+#: src/common/wysiwyg/pages-browser/CollectionPagesBrowser.tsx:80
 msgid "empty page"
 msgstr "empty page"
 

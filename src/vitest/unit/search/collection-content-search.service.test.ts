@@ -296,9 +296,9 @@ describe('CollectionContentSearchService', () => {
     });
   });
 
-  describe('Search Document Content', () => {
+  describe('Search In Pages', () => {
     function search(searchText: string, searchOptions?: SearchOptions) {
-      return contentSearchService.searchDocumentContent(
+      return contentSearchService.searchInPages(
         docId,
         searchText,
         searchOptions
@@ -306,59 +306,59 @@ describe('CollectionContentSearchService', () => {
     }
 
     it('should not work for input too small', () => {
-      expect(search('')).toBe(false);
-      expect(search('t')).toBe(false);
+      expect(search('')).toEqual([]);
+      expect(search('t')).toEqual([]);
     });
 
     it('should work for simple text', () => {
-      expect(search('Lorem ipsum')).toBe(true);
+      expect(search('Lorem ipsum')).toEqual([docId]);
     });
 
     it('should work for text spanning multiple nodes', () => {
-      expect(search('heading')).toBe(true);
-      expect(search('hea')).toBe(true);
-      expect(search('head')).toBe(true);
-      expect(search('ding')).toBe(true);
+      expect(search('heading')).toEqual([docId]);
+      expect(search('hea')).toEqual([docId]);
+      expect(search('head')).toEqual([docId]);
+      expect(search('ding')).toEqual([docId]);
     });
 
     it('should be case insensitive by default', () => {
-      expect(search('Heading')).toBe(true);
-      expect(search('Heading', { caseSensitive: true })).toBe(false);
+      expect(search('Heading')).toEqual([docId]);
+      expect(search('Heading', { caseSensitive: true })).toEqual([]);
     });
 
     it('should search inside simple text', () => {
-      expect(search('consectetur')).toBe(true);
+      expect(search('consectetur')).toEqual([docId]);
     });
 
     it('should replace paragraph breaks breaks by space when searching', () => {
       // paragraph break
-      expect(search('et  dolore')).toBe(true);
+      expect(search('et  dolore')).toEqual([docId]);
 
       // heading break
-      expect(search('heading 1 Lorem')).toBe(true);
+      expect(search('heading 1 Lorem')).toEqual([docId]);
     });
 
     it('should replace linebreaks & block breaks by space when searching', () => {
-      expect(search('elit, sed')).toBe(true);
+      expect(search('elit, sed')).toEqual([docId]);
     });
 
     it('should search in list items', () => {
-      expect(search('list')).toBe(true);
-      expect(search('of')).toBe(true);
-      expect(search('items')).toBe(true);
-      expect(search('item')).toBe(true);
+      expect(search('list')).toEqual([docId]);
+      expect(search('of')).toEqual([docId]);
+      expect(search('items')).toEqual([docId]);
+      expect(search('item')).toEqual([docId]);
     });
 
     it('should search in list items and replace linebreaks by space', () => {
-      expect(search('list of items')).toBe(true);
-      expect(search('list of')).toBe(true);
-      expect(search('of items')).toBe(true);
-      expect(search('list o')).toBe(true);
-      expect(search('f items')).toBe(true);
+      expect(search('list of items')).toEqual([docId]);
+      expect(search('list of')).toEqual([docId]);
+      expect(search('of items')).toEqual([docId]);
+      expect(search('list o')).toEqual([docId]);
+      expect(search('f items')).toEqual([docId]);
     });
 
     it('should replace non-breaking spaces by normal space', () => {
-      expect(search('g 1')).toBe(true);
+      expect(search('g 1')).toEqual([docId]);
     });
 
     it('should search within pages too', () => {
@@ -368,9 +368,9 @@ describe('CollectionContentSearchService', () => {
           .getStore()
           .getCell('search', 'page.id', 'contentPreview')
           ?.toString() || '';
-      expect(
-        contentSearchService.searchDocumentContent(docId2, 'Lorem ipsum')
-      ).toBe(true);
+      expect(contentSearchService.searchInPages(docId2, 'Lorem ipsum')).toEqual(
+        ['XNa1J-NR7RXnf6Qb']
+      );
     });
   });
 

@@ -247,7 +247,7 @@ const CollectionItemList = ({
             ranges.push(range);
           }
         }
-        if (contentSearchService.searchDocumentContent(i.id, searchText!)) {
+        if (contentSearchService.searchInPages(i.id, searchText!).length > 0) {
           itemsMixIn.set(i.id, { isSearchResult: true, highlighted: true });
         }
       });

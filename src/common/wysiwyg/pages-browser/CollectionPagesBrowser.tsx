@@ -1,4 +1,4 @@
-import { type JSX } from 'react';
+import { useEffect, useState, type JSX } from 'react';
 
 import { IonButton, IonIcon, IonItem, IonList } from '@ionic/react';
 
@@ -23,6 +23,7 @@ export type CollectionPagesBrowserProps = {
   docPreview: string;
   pages?: PageResult[];
   searchText: string | null;
+  showHideSelf?: boolean;
 };
 
 interface PagePreviewItemProps {
@@ -71,12 +72,14 @@ export default function CollectionPagesBrowser({
   docId,
   docPreview,
   pages,
-  searchText
+  searchText,
+  showHideSelf
 }: CollectionPagesBrowserProps): JSX.Element {
   const { t } = useLingui();
   const defaultDocPreview = t`empty doc`;
   const defaultPagePreview = t`empty page`;
 
+  const [hideSelf, setHideSelf] = useState(false);
   const history = useHistory();
   const location = useLocation();
   const notebook = notebooksService.useCurrentNotebook();
@@ -84,77 +87,93 @@ export default function CollectionPagesBrowser({
   const sort = collectionService.useItemEffectiveDisplayOpts(docId).sort;
   // TODO turn doc to page and vice-versa via drag & drop
 
-  const searchResults: string[] = [];
-  // TODO refacto
-  if (searchText !== null) {
-    if (contentSearchService.searchDocumentContent(docId, searchText)) {
-      searchResults.push(docId);
-    }
-    pages?.forEach(page => {
-      if (contentSearchService.searchDocumentContent(page.id, searchText)) {
-        searchResults.push(page.id);
-      }
-    });
-  }
+  const searchResults = contentSearchService.searchInPages(
+    docId,
+    searchText || ''
+  );
+
+  useEffect(() => {
+    if (!showHideSelf) setHideSelf(false);
+  }, [showHideSelf]);
 
   return (
-    <>
-      <div className="page-browser">
-        <IonItem lines="none">
+    <div className="page-browser">
+      <IonItem lines="none">
+        {!showHideSelf && (
+          <>
+            <IonButton
+              fill="clear"
+              onClick={() => {
+                collectionService.addPage(docId);
+              }}
+            >
+              <IonIcon icon={APPICONS.addGeneric}></IonIcon>
+            </IonButton>
+
+            {(pages?.length || 0) > 0 && <OpenSortFilterButton id={docId} />}
+          </>
+        )}
+
+        {showHideSelf && (
           <IonButton
             fill="clear"
+            slot="end"
             onClick={() => {
-              collectionService.addPage(docId);
+              setHideSelf(!hideSelf);
             }}
           >
-            <IonIcon icon={APPICONS.addGeneric}></IonIcon>
+            <IonIcon icon={APPICONS.page}></IonIcon>
           </IonButton>
-
-          {(pages?.length || 0) > 0 && <OpenSortFilterButton id={docId} />}
-        </IonItem>
-        <IonList className="inner-list">
-          <PagePreviewItem
-            className={
-              'page-item-doc' +
-              (searchResults.find(sr => sr === docId) ? ' highlighted' : '')
-            }
-            key={docId}
-            page={{ id: docId, preview: docPreview, order: 0 }}
-            selected={id === docId}
-            onClick={() => {
-              history.push(GET_DOCUMENT_ROUTE(folderId, docId, searchText));
-            }}
-            defaultVal={defaultDocPreview}
-          />
-        </IonList>
-        <SortableList
-          style={{ maxHeight: '400px', overflowY: 'auto' }}
-          className="inner-list"
-          items={pages || []}
-          sortDisabled={sort.by !== 'order'}
-          onItemMove={(from, to) => {
-            collectionService.reorderItems(pages!, from, to);
-          }}
-        >
-          {(pages || []).map(page => (
+        )}
+      </IonItem>
+      {!hideSelf && (
+        <>
+          <IonList className="inner-list">
             <PagePreviewItem
-              key={page.id}
-              page={page}
-              selected={id === page.id}
               className={
                 'page-item-doc' +
-                (searchResults.find(sr => sr === page.id) ? ' highlighted' : '')
+                (searchResults.find(sr => sr === docId) ? ' highlighted' : '')
               }
-              onClick={pageId => {
-                history.push(
-                  GET_PAGE_ROUTE(folderId, docId, pageId, searchText)
-                );
+              key={docId}
+              page={{ id: docId, preview: docPreview, order: 0 }}
+              selected={id === docId}
+              onClick={() => {
+                history.push(GET_DOCUMENT_ROUTE(folderId, docId, searchText));
               }}
-              defaultVal={defaultPagePreview}
+              defaultVal={defaultDocPreview}
             />
-          ))}
-        </SortableList>
-      </div>
-    </>
+          </IonList>
+          <SortableList
+            style={{ maxHeight: '400px', overflowY: 'auto' }}
+            className="inner-list"
+            items={pages || []}
+            sortDisabled={sort.by !== 'order'}
+            onItemMove={(from, to) => {
+              collectionService.reorderItems(pages!, from, to);
+            }}
+          >
+            {(pages || []).map(page => (
+              <PagePreviewItem
+                key={page.id}
+                page={page}
+                selected={id === page.id}
+                className={
+                  'page-item-doc' +
+                  (searchResults.find(sr => sr === page.id)
+                    ? ' highlighted'
+                    : '')
+                }
+                onClick={pageId => {
+                  history.push(
+                    GET_PAGE_ROUTE(folderId, docId, pageId, searchText)
+                  );
+                }}
+                defaultVal={defaultPagePreview}
+              />
+            ))}
+          </SortableList>
+        </>
+      )}
+    </div>
   );
 }

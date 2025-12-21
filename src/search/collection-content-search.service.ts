@@ -60,14 +60,15 @@ class CollectionContentSearchService {
     return searchText && searchText.length >= MIN_INPUT_LENGTH;
   }
 
-  public searchDocumentContent(
+  public searchInPages(
     rowId: string,
     searchText: string,
     searchOptions?: SearchOptions
   ) {
-    if (!this.acceptsSearchText(searchText)) return false;
+    if (!this.acceptsSearchText(searchText)) return [];
     searchOptions = { ...defaultOptions, ...searchOptions };
     const regex = this.buildRegex(searchText, searchOptions);
+    const ids: string[] = [];
 
     const plainText =
       storageService
@@ -75,7 +76,7 @@ class CollectionContentSearchService {
         .getCell('search', rowId, 'contentPreview')
         ?.toString() || '';
     if (regex.exec(plainText.replaceAll(REPLACED_CHARS, ' ')) !== null)
-      return true;
+      ids.push(rowId);
     const pages = collectionService.getDocumentPages(rowId);
     for (const page of pages) {
       const pageText =
@@ -84,9 +85,9 @@ class CollectionContentSearchService {
           .getCell('search', page.id, 'contentPreview')
           ?.toString() || '';
       if (regex.exec(pageText.replaceAll(REPLACED_CHARS, ' ')) !== null)
-        return true;
+        ids.push(page.id);
     }
-    return false;
+    return ids;
   }
 
   public *searchArbitraryText(
