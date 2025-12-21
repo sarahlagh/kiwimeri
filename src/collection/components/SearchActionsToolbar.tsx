@@ -12,23 +12,21 @@ import { Dispatch, useEffect, useRef } from 'react';
 
 export type SearchActionsToolbarProps = {
   searchText: string;
-  setSearchText: Dispatch<string>;
   setToggleSearch: Dispatch<boolean>;
   toggleSearchAutoFocus?: boolean;
   rows?: number;
-  onInput?: (text: string) => void;
+  onValue?: (text: string) => void;
   onClose?: () => void;
 } & JSX.IonToolbar &
   StyleReactProps &
   React.HTMLAttributes<HTMLIonToolbarElement>;
 
 const SearchActionsToolbar = ({
-  setSearchText,
   setToggleSearch,
   searchText,
   toggleSearchAutoFocus = true,
   rows = 1,
-  onInput,
+  onValue,
   onClose
 }: SearchActionsToolbarProps) => {
   const refInput = useRef<HTMLIonInputElement>(null);
@@ -45,14 +43,14 @@ const SearchActionsToolbar = ({
         class="invisible"
         value={searchText}
         onIonInput={(e: InputCustomEvent) => {
-          setSearchText(e.detail.value || '');
-          if (onInput) onInput(e.detail.value || '');
+          if (onValue) onValue(e.detail.value || '');
         }}
       ></IonInput>
       <IonButtons slot="end">
         <IonButton
           onClick={() => {
             setToggleSearch(false);
+            if (onValue) onValue('');
             if (onClose) onClose();
           }}
         >

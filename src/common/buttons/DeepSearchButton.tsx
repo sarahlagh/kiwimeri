@@ -256,9 +256,6 @@ const DeepSearchButton = ({
       id={id}
       onClick={() => {
         present({
-          onDidPresent: () => {
-            console.debug('on did present');
-          },
           onDidDismiss: event => {
             if (event.detail.data) {
               const { searchResult, searchText } = event.detail

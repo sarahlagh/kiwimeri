@@ -1,4 +1,5 @@
 import { onTitleChangeFn } from '@/common/events/events';
+import { GET_UNKNOWN_ITEM_ROUTE } from '@/common/routes';
 import platformService from '@/common/services/platform.service';
 import KiwimeriEditor from '@/common/wysiwyg/lexical/KiwimeriEditor';
 import CollectionPagesBrowser from '@/common/wysiwyg/pages-browser/CollectionPagesBrowser';
@@ -16,6 +17,7 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { useEffect, useRef, useState } from 'react';
+import { useHistory } from 'react-router';
 import CommonActionsToolbar from './CommonActionsToolbar';
 import DocumentEditorFooter from './DocumentEditorFooter';
 import SearchActionsToolbar from './SearchActionsToolbar';
@@ -27,14 +29,13 @@ interface DocumentEditorProps {
   query?: string;
 }
 
-const MAX_WEIGHT = 10;
-
 const DocumentEditor = ({
   docId,
   pageId,
   showActions = false,
   query
 }: DocumentEditorProps) => {
+  const history = useHistory();
   const refWriter = useRef(null);
   const [showDocumentActions, setShowDocumentActions] =
     useState<boolean>(false);
@@ -42,8 +43,6 @@ const DocumentEditor = ({
   const [openPageBrowser, setOpenPageBrowser] = useState(false);
   const [toggleSearch, setToggleSearch] = useState(false);
   const [toggleSearchAutoFocus, setToggleSearchAutoFocus] = useState(true);
-  const [searchText, setSearchText] = useState('');
-  const [localSearchTextWeight, setLocalSearchTextWeight] = useState(0);
 
   // TODO refactor
   useEffect(() => {
@@ -54,6 +53,7 @@ const DocumentEditor = ({
   const content = collectionService.useItemContent(itemId);
   const documentTitle = collectionService.getItemTitle(docId);
   const documentPreview = searchService.useItemPreview(docId) || '';
+  const itemType = collectionService.getItemType(itemId);
 
   const displayOpts = collectionService.useItemEffectiveDisplayOpts(docId);
   const sort = displayOpts.sort;
@@ -78,13 +78,10 @@ const DocumentEditor = ({
   };
 
   useEffect(() => {
-    if (localSearchTextWeight < MAX_WEIGHT) {
-      const searchTextOverride = query || '';
-      setSearchText(searchTextOverride);
-      setToggleSearch(searchTextOverride.length > 0);
+    if (query) {
+      setToggleSearch(query.length > 0);
       setToggleSearchAutoFocus(false);
-      if (pages.length > 0 && searchTextOverride.length > 0)
-        setOpenPageBrowser(true);
+      if (pages.length > 0 && query.length > 0) setOpenPageBrowser(true);
     }
   }, [query, docId]);
 
@@ -111,7 +108,6 @@ const DocumentEditor = ({
             onClick={() => {
               setShowDocumentActions(!showDocumentActions);
               setToggleSearch(false);
-              setLocalSearchTextWeight(0);
             }}
           >
             <IonIcon icon={APPICONS.itemActions}></IonIcon>
@@ -133,7 +129,6 @@ const DocumentEditor = ({
             {platformService.hasHighlightSupport() && (
               <IonButton
                 onClick={() => {
-                  setLocalSearchTextWeight(MAX_WEIGHT);
                   setShowDocumentActions(false);
                   setToggleSearch(true);
                   setToggleSearchAutoFocus(true);
@@ -147,15 +142,11 @@ const DocumentEditor = ({
         )}
         {toggleSearch && (
           <SearchActionsToolbar
-            searchText={searchText}
-            setSearchText={setSearchText}
+            searchText={query || ''}
             setToggleSearch={setToggleSearch}
             toggleSearchAutoFocus={toggleSearchAutoFocus}
-            onInput={() => {
-              setLocalSearchTextWeight(MAX_WEIGHT);
-            }}
-            onClose={() => {
-              setLocalSearchTextWeight(0);
+            onValue={val => {
+              history.push(GET_UNKNOWN_ITEM_ROUTE(itemId, itemType, val));
             }}
           />
         )}
@@ -168,7 +159,7 @@ const DocumentEditor = ({
             id={itemId}
             content={content}
             enableToolbar={!showDocumentActions && !toggleSearch}
-            searchText={toggleSearch ? searchText : null}
+            searchText={toggleSearch ? query : null}
             onChange={editorState => {
               collectionService.setItemLexicalContent(
                 itemId,
@@ -186,7 +177,7 @@ const DocumentEditor = ({
                 docId={docId}
                 docPreview={documentPreview}
                 pages={pages}
-                searchText={toggleSearch ? searchText : null}
+                searchText={toggleSearch ? query || '' : null}
               />
             )}
           </KiwimeriEditor>

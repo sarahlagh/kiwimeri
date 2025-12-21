@@ -51,7 +51,7 @@ const CollectionItemBrowserListToolbar = ({
     return (
       <SearchActionsToolbar
         searchText={searchText || ''}
-        setSearchText={setSearchText}
+        onValue={val => setSearchText(val)}
         setToggleSearch={setToggleSearch}
         onClose={() => setSearchText(null)}
       />
@@ -148,9 +148,9 @@ export const CollectionItemBrowserList = ({
     }
   });
 
-  // const { searchText, setSearchText } = useSearchContext();
   const [searchText, setSearchText] = useState<string | null>();
-  // TODO ^ could also use a url param like 'filter'? or reuse 'query'?
+  const query =
+    searchText && searchText.length > 0 ? searchText : searchParams.query;
 
   return (
     <CollectionItemList
@@ -167,7 +167,9 @@ export const CollectionItemBrowserList = ({
         <CollectionItemBreadcrumb
           folder={folder}
           onClick={item => {
-            history.push(GET_ITEM_ROUTE(item, openedDocument));
+            history.push(
+              GET_ITEM_ROUTE(item, openedDocument, undefined, query)
+            );
           }}
         />
       }
@@ -177,8 +179,8 @@ export const CollectionItemBrowserList = ({
       selected={openedDocument}
       getUrl={item =>
         item.type === CollectionItemType.document
-          ? GET_ITEM_ROUTE(item.parent, item.id, undefined, searchText)
-          : GET_ITEM_ROUTE(item.id, openedDocument, undefined, searchText)
+          ? GET_ITEM_ROUTE(item.parent, item.id, undefined, query)
+          : GET_ITEM_ROUTE(item.id, openedDocument, undefined, query)
       }
       actionsIcon={APPICONS.itemActions}
       itemRenaming={itemRenaming}

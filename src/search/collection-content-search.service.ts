@@ -125,8 +125,10 @@ class CollectionContentSearchService {
     editor.read(() => {
       const children = $getRoot().getChildren();
       const fullText = $getRoot().getTextContent();
-      const fullTextMask = fullText.replaceAll(/\n+/g, '\n');
-      const fullTextSearch = fullTextMask.replaceAll(REPLACED_CHARS, LB);
+      const fullTextMask = fullText.replaceAll(/\n+/g, '\n').trimStart();
+      const fullTextSearch = fullTextMask
+        .replaceAll(REPLACED_CHARS, LB)
+        .trimStart();
       try {
         let currentOffset = 0;
         let result = regex.exec(fullTextSearch);
@@ -140,7 +142,7 @@ class CollectionContentSearchService {
             const allTextNodes = child.getAllTextNodes();
             for (const textNode of allTextNodes) {
               const nodeText = textNode.getTextContent();
-              if (
+              while (
                 currentOffset < endOffset &&
                 currentOffset + nodeText.length > startOffset
               ) {
@@ -155,18 +157,19 @@ class CollectionContentSearchService {
                 );
                 createResult(textNode, nodeStartOffset, nodeEndOffset);
                 // if end of range, continue searching the rest of the text
-                if (nodeEndOffset >= endOffset - currentOffset) {
-                  result = regex.exec(fullTextSearch);
-                  if (!result) {
-                    break root;
-                  }
-                  startOffset = result.index;
-                  endOffset = startOffset + searchText!.length;
+                if (nodeEndOffset < endOffset - currentOffset) {
+                  break;
                 }
+                result = regex.exec(fullTextSearch);
+                if (!result) {
+                  break root;
+                }
+                startOffset = result.index;
+                endOffset = startOffset + searchText!.length;
               }
               currentOffset += nodeText.length;
               // account for linebreaks between different parents
-              if (fullTextMask[currentOffset] === '\n') {
+              while (fullTextMask[currentOffset] === '\n') {
                 currentOffset += LB.length;
               }
             }
