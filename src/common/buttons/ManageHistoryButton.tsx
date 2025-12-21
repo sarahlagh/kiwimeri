@@ -1,6 +1,7 @@
 import { HistorizedCollectionItem } from '@/collection/collection';
 import { APPICONS } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
+import { searchAncestryService } from '@/search/search-ancestry.service';
 import {
   IonButton,
   IonButtons,
@@ -15,6 +16,7 @@ import {
   useIonModal
 } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
+import { diffChars } from 'diff';
 import { dateToStr } from '../utils';
 
 type ManageHistoryButtonProps = {
@@ -26,13 +28,41 @@ type ManageHistoryModalProps = {
   dismiss: () => void;
 };
 
-const VersionPreview = ({ version }: { version: HistorizedCollectionItem }) => {
-  // TODO display diff with next version only?
+// TODO diff can't show style differences
+const VersionPreview = ({
+  version,
+  nextPreview
+}: {
+  version: HistorizedCollectionItem;
+  nextPreview: string;
+}) => {
+  const versionData = JSON.parse(version.versionData);
+  const diff = diffChars(version.versionPreview, nextPreview);
+  const spans: { key: number; val: string; color?: string }[] = [];
+  diff.forEach((part, idx) => {
+    const color = part.added
+      ? 'var(--diff-added-color)'
+      : part.removed
+        ? 'var(--diff-removed-color)'
+        : undefined;
+    let val = part.value;
+    if (val.length > 45) {
+      val = val.substring(0, 20) + '(...)' + val.substring(val.length - 20);
+    }
+    spans.push({ key: idx, val, color });
+  });
   return (
     <>
       <IonLabel>
-        {dateToStr('relative', version.created)}
-        <p>{version.versionPreview}</p>
+        {dateToStr('relative', versionData.updated)}
+
+        <p>
+          {spans.map(span => (
+            <span key={span.key} style={{ color: span.color }}>
+              {span.val}
+            </span>
+          ))}
+        </p>
       </IonLabel>
     </>
   );
@@ -40,6 +70,7 @@ const VersionPreview = ({ version }: { version: HistorizedCollectionItem }) => {
 
 const ManageHistoryModal = ({ id, dismiss }: ManageHistoryModalProps) => {
   const docHistory = historyService.getVersions(id);
+  const docPreview = searchAncestryService.getItemPreview(id);
 
   return (
     <>
@@ -63,9 +94,14 @@ const ManageHistoryModal = ({ id, dismiss }: ManageHistoryModalProps) => {
             padding: '0 8px'
           }}
         >
-          {docHistory.map(version => (
+          {docHistory.map((version, idx) => (
             <IonItem key={version.id}>
-              <VersionPreview version={version} />
+              <VersionPreview
+                version={version}
+                nextPreview={
+                  idx === 0 ? docPreview : docHistory[idx - 1].versionPreview
+                }
+              />
             </IonItem>
           ))}
         </IonList>

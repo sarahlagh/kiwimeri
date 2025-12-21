@@ -39,6 +39,7 @@
     "@types/node": "^22.13.9",
     "@types/react-router": "^5.1.20",
     "@types/react-router-dom": "^5.3.3",
+    "diff": "^8.0.2",
     "fflate": "^0.8.2",
     "ionicons": "^7.0.0",
     "lexical": "^0.38.2",
