@@ -1,6 +1,5 @@
+import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
 import { lexicalConfig } from '@/common/wysiwyg/lexical/lexical-config';
-import { DEFAULT_NOTEBOOK_ID } from '@/constants';
-import collectionService, { initialContent } from '@/db/collection.service';
 import storageService from '@/db/storage.service';
 import {
   contentSearchService,
@@ -12,27 +11,48 @@ import { readFile } from 'fs/promises';
 import { LexicalEditor, TextNode } from 'lexical';
 import { assert, describe } from 'vitest';
 
-let docId = '';
-let json = '';
+const docId = 'iFOR0KVPomZFm4bf';
+const docId2 = 'o3LTPA6vAffIZctP';
+
+let jsonCollection = '';
 let editor: LexicalEditor;
 describe('CollectionContentSearchService', () => {
   beforeAll(async () => {
     try {
-      json = await readFile(`${__dirname}/_data/searchme.json`, 'utf8');
+      jsonCollection = await readFile(
+        `${__dirname}/_data/searchme-collection.json`,
+        'utf8'
+      );
     } catch (e: any) {
       assert.fail('failed to read test data:' + e.message);
     }
-    editor = createHeadlessEditor({
-      nodes: lexicalConfig.nodes,
-      onError: () => {}
-    });
-    const state = editor.parseEditorState(json!);
-    editor.update(() => {
-      editor.setEditorState(state);
-    });
+  });
+  beforeEach(() => {
+    storageService.getSpace().setJson(jsonCollection);
+    searchService.initSearchIndices();
   });
 
   describe('Search Lexical State', () => {
+    beforeEach(() => {
+      const minimized = storageService
+        .getSpace()
+        .getCell('collection', docId, 'content')
+        ?.toString();
+      expect(minimized).toBeDefined();
+      expect(
+        storageService.getStore().getCell('search', docId, 'contentPreview')
+      ).toBeDefined();
+      const content = unminimizeContentFromStorage(minimized!);
+      editor = createHeadlessEditor({
+        nodes: lexicalConfig.nodes,
+        onError: () => {}
+      });
+      const state = editor.parseEditorState(content);
+      editor.update(() => {
+        editor.setEditorState(state);
+      });
+    });
+
     function search(searchText: string, searchOptions?: SearchOptions) {
       const results: {
         node: TextNode;
@@ -269,25 +289,14 @@ describe('CollectionContentSearchService', () => {
       expect(results[0].startOffset).toBe(0);
       expect(results[0].endOffset).toBe(3);
     });
+
+    it('should match all occurences within same node', () => {
+      const results = search('et');
+      expect(results.length).toBe(6);
+    });
   });
 
   describe('Search Document Content', () => {
-    beforeEach(async () => {
-      docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-      const state = editor.parseEditorState(json!);
-      collectionService.setItemLexicalContent(docId, state.toJSON());
-      // force update to avoid race conditions
-      searchService['updateContentPreview'](
-        docId,
-        storageService.getSpace().getTable('collection'),
-        storageService.getStore()
-      );
-      console.log(
-        'contentPreview',
-        storageService.getStore().getCell('search', docId, 'contentPreview')
-      );
-    });
-
     function search(searchText: string, searchOptions?: SearchOptions) {
       return contentSearchService.searchDocumentContent(
         docId,
@@ -353,24 +362,15 @@ describe('CollectionContentSearchService', () => {
     });
 
     it('should search within pages too', () => {
-      const pageId = collectionService.addPage(docId);
-      const state = editor.parseEditorState(json!);
-      collectionService.setItemLexicalContent(pageId, state.toJSON());
-      searchService['updateContentPreview'](
-        pageId,
-        storageService.getSpace().getTable('collection'),
-        storageService.getStore()
-      );
-      // empty the doc
-      const emptyState = editor.parseEditorState(initialContent());
-      collectionService.setItemLexicalContent(docId, emptyState.toJSON());
-      searchService['updateContentPreview'](
-        docId,
-        storageService.getSpace().getTable('collection'),
-        storageService.getStore()
-      );
-
-      expect(search('Lorem ipsum')).toBe(true);
+      // doc with content in its page, not its main body
+      const pageText =
+        storageService
+          .getStore()
+          .getCell('search', 'page.id', 'contentPreview')
+          ?.toString() || '';
+      expect(
+        contentSearchService.searchDocumentContent(docId2, 'Lorem ipsum')
+      ).toBe(true);
     });
   });
 
@@ -442,6 +442,44 @@ describe('CollectionContentSearchService', () => {
       const next = nextResult.next();
       expect(next.value).toEqual(null);
       expect(next.done).toBeTruthy();
+    });
+  });
+
+  describe('Deep Search', () => {
+    it('should not work for input too small', () => {
+      expect(contentSearchService.deepSearch('')).toHaveLength(0);
+      expect(contentSearchService.deepSearch('t')).toHaveLength(0);
+    });
+
+    it('should match all in content', () => {
+      let results = contentSearchService.deepSearch('dolor', {
+        searchInContent: true,
+        searchInTitle: false
+      });
+      expect(results).toHaveLength(6);
+
+      results = contentSearchService.deepSearch('dolor sit amet', {
+        searchInContent: true,
+        searchInTitle: false
+      });
+      expect(results).toHaveLength(5);
+
+      results = contentSearchService.deepSearch('heading 1', {
+        searchInContent: true,
+        searchInTitle: false
+      });
+      expect(results).toHaveLength(2);
+    });
+
+    it('should match all in title', () => {
+      const results = contentSearchService.deepSearch('mple', {
+        searchInContent: false,
+        searchInTitle: true
+      });
+      expect(results).toHaveLength(1);
+      expect(results[0].id).toBe('-jo5EJjirKTdTisN');
+      expect(results[0].firstTitleMatch?.startOffset).toBe(2);
+      expect(results[0].firstTitleMatch?.endOffset).toBe(6);
     });
   });
 });
