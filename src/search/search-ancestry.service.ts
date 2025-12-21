@@ -13,7 +13,6 @@ import storageService from '../db/storage.service';
 import { SpaceType } from '../db/types/space-types';
 import { StoreType } from '../db/types/store-types';
 
-// TODO rename: not "search service", preview + ancestry => collection indexing service?
 class CollectionSearchService {
   private readonly ancestorsTableId = 'ancestors';
   private readonly collectionTableId = 'collection';
@@ -272,4 +271,4 @@ class CollectionSearchService {
   }
 }
 
-export const searchService = new CollectionSearchService();
+export const searchAncestryService = new CollectionSearchService();

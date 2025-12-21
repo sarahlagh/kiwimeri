@@ -8,7 +8,7 @@ import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/local-changes.service';
 import remotesService from '@/db/remotes.service';
 import { LocalChangeType } from '@/db/types/store-types';
-import { searchService } from '@/search/collection-search.service';
+import { searchAncestryService } from '@/search/search-ancestry.service';
 import {
   IonCard,
   IonCardContent,
@@ -104,7 +104,7 @@ const LocalChangesCard = () => {
                               {type !== CollectionItemType.page && <br />}
                               <i>
                                 <sub>
-                                  {searchService
+                                  {searchAncestryService
                                     .getItemPreview(lc.item)
                                     .substring(0, 200)}
                                 </sub>
@@ -115,7 +115,7 @@ const LocalChangesCard = () => {
                               <>
                                 <i>
                                   <sub>
-                                    {searchService
+                                    {searchAncestryService
                                       .getItemPreview(lc.item)
                                       .substring(0, 15)}
                                   </sub>

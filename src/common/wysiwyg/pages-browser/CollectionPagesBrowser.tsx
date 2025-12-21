@@ -10,7 +10,7 @@ import { getSearchParams } from '@/common/utils';
 import { APPICONS, CONFLICT_STR } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
-import { contentSearchService } from '@/search/collection-content-search.service';
+import { searchService } from '@/search/search.service';
 import { useLingui } from '@lingui/react/macro';
 import { useHistory, useLocation } from 'react-router';
 import './CollectionPagesBrowser.scss';
@@ -87,10 +87,7 @@ export default function CollectionPagesBrowser({
   const sort = collectionService.useItemEffectiveDisplayOpts(docId).sort;
   // TODO turn doc to page and vice-versa via drag & drop
 
-  const searchResults = contentSearchService.searchInPages(
-    docId,
-    searchText || ''
-  );
+  const searchResults = searchService.searchInPages(docId, searchText || '');
 
   useEffect(() => {
     if (!showHideSelf) setHideSelf(false);

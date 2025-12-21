@@ -7,7 +7,7 @@ import {
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
-import { searchService } from '@/search/collection-search.service';
+import { searchAncestryService } from '@/search/search-ancestry.service';
 import { oneDocument, oneFolder, onePage } from '@/vitest/setup/test.utils';
 import { describe, it } from 'vitest';
 
@@ -152,14 +152,16 @@ const testExpectedPaths = (paths: string[][]) => {
     for (let i = 0; i < path.length; i++) {
       if (breadcrumb.length > 0) breadcrumb += ',';
       breadcrumb += path[i];
-      expect(searchService.getShortBreadcrumb(path[i])).toBe(breadcrumb);
+      expect(searchAncestryService.getShortBreadcrumb(path[i])).toBe(
+        breadcrumb
+      );
     }
   });
 };
 
-describe('collection search service', () => {
+describe('search ancestry service', () => {
   afterEach(() => {
-    searchService.stop();
+    searchAncestryService.stop();
   });
 
   describe(`ancestry & breadcrumb`, () => {
@@ -175,7 +177,7 @@ describe('collection search service', () => {
 
     it(`should handle notebook on start if collection is empty`, () => {
       // has at least one notebook
-      searchService.initSearchIndices(DEFAULT_SPACE_ID);
+      searchAncestryService.initSearchIndices(DEFAULT_SPACE_ID);
 
       // test ancestors
       expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(0); // no ancestry if parent is root
@@ -194,7 +196,7 @@ describe('collection search service', () => {
 
     it(`should create correct ancestry on start`, () => {
       createTestData();
-      searchService.initSearchIndices(DEFAULT_SPACE_ID);
+      searchAncestryService.initSearchIndices(DEFAULT_SPACE_ID);
 
       expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(18);
       const ancestors = storageService.getStore().getTable('ancestors');
@@ -207,7 +209,7 @@ describe('collection search service', () => {
     });
 
     it(`should update ancestry on saveItems (import)`, () => {
-      searchService.initSearchIndices(DEFAULT_SPACE_ID);
+      searchAncestryService.initSearchIndices(DEFAULT_SPACE_ID);
       expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(0);
 
       createTestData();
@@ -225,7 +227,7 @@ describe('collection search service', () => {
       // F1 > FF1 > FFF1 > D1 > P1
       // F2 > FF2
       createTestData();
-      searchService.initSearchIndices(DEFAULT_SPACE_ID);
+      searchAncestryService.initSearchIndices(DEFAULT_SPACE_ID);
       expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(18);
 
       collectionService.setItemParent('FFF1', 'FF2');
@@ -255,7 +257,7 @@ describe('collection search service', () => {
       collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
       notebooksService.addNotebook('N1');
 
-      searchService.initSearchIndices();
+      searchAncestryService.initSearchIndices();
       // pull - newest items are removed
       storageService.getSpace().setContent(spaceContent);
 
@@ -275,7 +277,7 @@ describe('collection search service', () => {
     });
 
     it(`should cache and a breadcrumb with only one parent notebook`, () => {
-      searchService.initSearchIndices(DEFAULT_SPACE_ID);
+      searchAncestryService.initSearchIndices(DEFAULT_SPACE_ID);
       const idn1 = notebooksService.addNotebook('test');
       const idn2 = notebooksService.addNotebook('nested', idn1);
       const idd1 = collectionService.addDocument(idn2);
@@ -283,22 +285,24 @@ describe('collection search service', () => {
       const idf1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
       const idd2 = collectionService.addDocument(idf1);
 
-      expect(searchService.getShortBreadcrumb(ROOT_COLLECTION)).toBe('');
-      expect(searchService.getShortBreadcrumb(DEFAULT_NOTEBOOK_ID)).toBe(
-        DEFAULT_NOTEBOOK_ID
+      expect(searchAncestryService.getShortBreadcrumb(ROOT_COLLECTION)).toBe(
+        ''
       );
-      expect(searchService.getShortBreadcrumb(idn1)).toBe(idn1);
-      expect(searchService.getShortBreadcrumb(idn2)).toBe(idn2);
-      expect(searchService.getShortBreadcrumb(idd1)).toBe(
+      expect(
+        searchAncestryService.getShortBreadcrumb(DEFAULT_NOTEBOOK_ID)
+      ).toBe(DEFAULT_NOTEBOOK_ID);
+      expect(searchAncestryService.getShortBreadcrumb(idn1)).toBe(idn1);
+      expect(searchAncestryService.getShortBreadcrumb(idn2)).toBe(idn2);
+      expect(searchAncestryService.getShortBreadcrumb(idd1)).toBe(
         [idn2, idd1].join(',')
       );
-      expect(searchService.getShortBreadcrumb(idp1)).toBe(
+      expect(searchAncestryService.getShortBreadcrumb(idp1)).toBe(
         [idn2, idd1, idp1].join(',')
       );
-      expect(searchService.getShortBreadcrumb(idf1)).toBe(
+      expect(searchAncestryService.getShortBreadcrumb(idf1)).toBe(
         [DEFAULT_NOTEBOOK_ID, idf1].join(',')
       );
-      expect(searchService.getShortBreadcrumb(idd2)).toBe(
+      expect(searchAncestryService.getShortBreadcrumb(idd2)).toBe(
         [DEFAULT_NOTEBOOK_ID, idf1, idd2].join(',')
       );
     });
@@ -306,7 +310,7 @@ describe('collection search service', () => {
 
   describe(`search table update`, () => {
     it(`should update preview on saveItems (import)`, () => {
-      searchService.initSearchIndices(DEFAULT_SPACE_ID);
+      searchAncestryService.initSearchIndices(DEFAULT_SPACE_ID);
       expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(0);
 
       createTestData();
@@ -322,7 +326,7 @@ describe('collection search service', () => {
 
     it(`should update preview on individual content change`, () => {
       createTestData();
-      searchService.initSearchIndices(DEFAULT_SPACE_ID);
+      searchAncestryService.initSearchIndices(DEFAULT_SPACE_ID);
 
       collectionService.setItemLexicalContent('D1', shortContentUpdated);
 
@@ -345,7 +349,7 @@ describe('collection search service', () => {
       // reset
       const spaceContent = storageService.getSpace().getContent();
       storageService.nukeSpace();
-      searchService.initSearchIndices();
+      searchAncestryService.initSearchIndices();
 
       // pull
       storageService.getSpace().setContent(spaceContent);

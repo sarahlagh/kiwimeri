@@ -2,11 +2,11 @@ import { CollectionItemType } from '@/collection/collection';
 import { APPICONS, APPICONS_PER_TYPE } from '@/constants';
 import collectionService from '@/db/collection.service';
 import {
-  contentSearchService,
   DeepSearchOptions,
   DeepSearchResult,
-  SearchOptions
-} from '@/search/collection-content-search.service';
+  SearchOptions,
+  searchService
+} from '@/search/search.service';
 import {
   InputCustomEvent,
   IonBadge,
@@ -142,7 +142,7 @@ const DeepSearchModal = ({ query, dismiss }: DeepSearchModalProps) => {
   const { t } = useLingui();
   const [searchText, setSearchText] = useState<string>(query || '');
   const [searchResults, setSearchResults] = useState<DeepSearchResult[]>(
-    contentSearchService.deepSearch(query || '', searchOptions)
+    searchService.deepSearch(query || '', searchOptions)
   );
 
   useEffect(() => {
@@ -176,7 +176,7 @@ const DeepSearchModal = ({ query, dismiss }: DeepSearchModalProps) => {
                 if (typeof e.detail.value === 'string') {
                   setSearchText(e.detail.value || '');
                   setSearchResults(
-                    contentSearchService.deepSearch(
+                    searchService.deepSearch(
                       e.detail.value || '',
                       searchOptions
                     )

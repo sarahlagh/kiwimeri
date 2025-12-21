@@ -3,7 +3,7 @@ import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import { $getRoot, ElementNode, LexicalEditor, TextNode } from 'lexical';
 import storageService from '../db/storage.service';
-import { searchService } from './collection-search.service';
+import { searchAncestryService } from './search-ancestry.service';
 
 export type DeepSearchResult = {
   id: string;
@@ -195,11 +195,10 @@ class CollectionContentSearchService {
     if (!searchOptions.scope) {
       searchOptions.scope = notebooksService.getCurrentNotebook();
     }
-    console.debug('search options', searchOptions);
     const results: DeepSearchResult[] = [];
     const searchTable = storageService.getStore().getTable('search');
     const collectionTable = storageService.getSpace().getTable('collection');
-    searchService.getChildren(searchOptions.scope).forEach(rowId => {
+    searchAncestryService.getChildren(searchOptions.scope).forEach(rowId => {
       const row = searchTable[rowId];
       const item = collectionTable[rowId];
       if (!row || !item) return;
@@ -278,4 +277,4 @@ class CollectionContentSearchService {
   }
 }
 
-export const contentSearchService = new CollectionContentSearchService();
+export const searchService = new CollectionContentSearchService();

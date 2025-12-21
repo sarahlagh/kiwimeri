@@ -12,7 +12,7 @@ import userSettingsService from '@/db/user-settings.service';
 import { PCloudDriver } from '@/remote-storage/storage-drivers/pcloud/pcloud.driver';
 import { SingleFileStorage } from '@/remote-storage/storage-filesystems/singlefile.filesystem';
 import { syncService } from '@/remote-storage/sync.service';
-import { searchService } from '@/search/collection-search.service';
+import { searchAncestryService } from '@/search/search-ancestry.service';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   amount,
@@ -100,13 +100,13 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     driver = filesystem!['driver'] as PCloudDriver;
 
     notebook = notebooksService.getNotebooks()[0].id;
-    searchService.initSearchIndices();
+    searchAncestryService.initSearchIndices();
   });
   afterEach(async () => {
     console.debug('clearing files');
     await driver.deleteFile('', 'collection.json');
     await driver.deleteFile('', 'S1');
-    searchService.stop();
+    searchAncestryService.stop();
     expect(countOrphans()).toBe(0);
   });
 

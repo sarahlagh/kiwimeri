@@ -6,7 +6,7 @@ import SortableList from '@/common/dnd/containers/SortableList';
 import platformService from '@/common/services/platform.service';
 import { APPICONS, APPICONS_PER_TYPE, CONFLICT_STR } from '@/constants';
 import collectionService from '@/db/collection.service';
-import { contentSearchService } from '@/search/collection-content-search.service';
+import { searchService } from '@/search/search.service';
 import {
   InputCustomEvent,
   IonButton,
@@ -228,9 +228,9 @@ const CollectionItemList = ({
 
   if (platformService.hasHighlightSupport()) {
     const ranges: Range[] = [];
-    if (contentSearchService.acceptsSearchText(searchText)) {
+    if (searchService.acceptsSearchText(searchText)) {
       items.forEach(i => {
-        const nextResult = contentSearchService.searchArbitraryText(
+        const nextResult = searchService.searchArbitraryText(
           i.title,
           searchText!
         );
@@ -247,7 +247,7 @@ const CollectionItemList = ({
             ranges.push(range);
           }
         }
-        if (contentSearchService.searchInPages(i.id, searchText!).length > 0) {
+        if (searchService.searchInPages(i.id, searchText!).length > 0) {
           itemsMixIn.set(i.id, { isSearchResult: true, highlighted: true });
         }
       });

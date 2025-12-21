@@ -22,7 +22,7 @@ import userSettingsService from '@/db/user-settings.service';
 import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
 import { LayerTypes } from '@/remote-storage/storage-filesystem.factory';
 import { syncService } from '@/remote-storage/sync.service';
-import { searchService } from '@/search/collection-search.service';
+import { searchAncestryService } from '@/search/search-ancestry.service';
 import { renderHook } from '@testing-library/react';
 import { act } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -151,14 +151,14 @@ describe('sync service', () => {
         'driver'
       ] as InMemDriver;
       vi.useFakeTimers();
-      searchService.initSearchIndices(DEFAULT_SPACE_ID);
+      searchAncestryService.initSearchIndices(DEFAULT_SPACE_ID);
     });
     afterEach(() => {
       expect(countOrphans()).toBe(0);
       iPull = 0;
       iPush = 0;
       vi.useRealTimers();
-      searchService.stop();
+      searchAncestryService.stop();
     });
 
     it('should detect if primary remote is connected', () => {
@@ -708,7 +708,7 @@ describe('sync service', () => {
               await syncService_pull(); // 1
               expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
               const id = remoteData[0].id!;
-              expect(searchService.getItemPreview(id)).toHaveLength(0);
+              expect(searchAncestryService.getItemPreview(id)).toHaveLength(0);
 
               // change remote
               const newContent = getNewValue('lex') as string;
@@ -718,7 +718,9 @@ describe('sync service', () => {
               await syncService_pull(); // 2
 
               expect(getLocalItemField(id, 'content')).toBe(newContent);
-              expect(searchService.getItemPreview(id)).toMatch(/^Sample text/g);
+              expect(searchAncestryService.getItemPreview(id)).toMatch(
+                /^Sample text/g
+              );
             });
           }
 

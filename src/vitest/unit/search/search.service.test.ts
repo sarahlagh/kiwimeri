@@ -1,11 +1,8 @@
 import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
 import { lexicalConfig } from '@/common/wysiwyg/lexical/lexical-config';
 import storageService from '@/db/storage.service';
-import {
-  contentSearchService,
-  SearchOptions
-} from '@/search/collection-content-search.service';
-import { searchService } from '@/search/collection-search.service';
+import { searchAncestryService } from '@/search/search-ancestry.service';
+import { SearchOptions, searchService } from '@/search/search.service';
 import { createHeadlessEditor } from '@lexical/headless';
 import { readFile } from 'fs/promises';
 import { LexicalEditor, TextNode } from 'lexical';
@@ -16,7 +13,7 @@ const docId2 = 'o3LTPA6vAffIZctP';
 
 let jsonCollection = '';
 let editor: LexicalEditor;
-describe('CollectionContentSearchService', () => {
+describe('search service', () => {
   beforeAll(async () => {
     try {
       jsonCollection = await readFile(
@@ -29,7 +26,7 @@ describe('CollectionContentSearchService', () => {
   });
   beforeEach(() => {
     storageService.getSpace().setJson(jsonCollection);
-    searchService.initSearchIndices();
+    searchAncestryService.initSearchIndices();
   });
 
   describe('Search Lexical State', () => {
@@ -59,7 +56,7 @@ describe('CollectionContentSearchService', () => {
         startOffset: number;
         endOffset: number;
       }[] = [];
-      contentSearchService.searchLexicalState(
+      searchService.searchLexicalState(
         editor,
         searchText,
         (node, startOffset, endOffset) => {
@@ -298,11 +295,7 @@ describe('CollectionContentSearchService', () => {
 
   describe('Search In Pages', () => {
     function search(searchText: string, searchOptions?: SearchOptions) {
-      return contentSearchService.searchInPages(
-        docId,
-        searchText,
-        searchOptions
-      );
+      return searchService.searchInPages(docId, searchText, searchOptions);
     }
 
     it('should not work for input too small', () => {
@@ -368,9 +361,9 @@ describe('CollectionContentSearchService', () => {
           .getStore()
           .getCell('search', 'page.id', 'contentPreview')
           ?.toString() || '';
-      expect(contentSearchService.searchInPages(docId2, 'Lorem ipsum')).toEqual(
-        ['XNa1J-NR7RXnf6Qb']
-      );
+      expect(searchService.searchInPages(docId2, 'Lorem ipsum')).toEqual([
+        'XNa1J-NR7RXnf6Qb'
+      ]);
     });
   });
 
@@ -379,7 +372,7 @@ describe('CollectionContentSearchService', () => {
       'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum';
 
     function search(searchText: string, searchOptions?: SearchOptions) {
-      return contentSearchService
+      return searchService
         .searchArbitraryText(textToSearch, searchText, searchOptions)
         .next();
     }
@@ -405,7 +398,7 @@ describe('CollectionContentSearchService', () => {
     });
 
     it('should iterate on all results within string', () => {
-      const nextResult = contentSearchService.searchArbitraryText(
+      const nextResult = searchService.searchArbitraryText(
         textToSearch,
         'dolor'
       );
@@ -447,24 +440,24 @@ describe('CollectionContentSearchService', () => {
 
   describe('Deep Search', () => {
     it('should not work for input too small', () => {
-      expect(contentSearchService.deepSearch('')).toHaveLength(0);
-      expect(contentSearchService.deepSearch('t')).toHaveLength(0);
+      expect(searchService.deepSearch('')).toHaveLength(0);
+      expect(searchService.deepSearch('t')).toHaveLength(0);
     });
 
     it('should match all in content', () => {
-      let results = contentSearchService.deepSearch('dolor', {
+      let results = searchService.deepSearch('dolor', {
         searchInContent: true,
         searchInTitle: false
       });
       expect(results).toHaveLength(6);
 
-      results = contentSearchService.deepSearch('dolor sit amet', {
+      results = searchService.deepSearch('dolor sit amet', {
         searchInContent: true,
         searchInTitle: false
       });
       expect(results).toHaveLength(5);
 
-      results = contentSearchService.deepSearch('heading 1', {
+      results = searchService.deepSearch('heading 1', {
         searchInContent: true,
         searchInTitle: false
       });
@@ -472,7 +465,7 @@ describe('CollectionContentSearchService', () => {
     });
 
     it('should match all in title', () => {
-      const results = contentSearchService.deepSearch('mple', {
+      const results = searchService.deepSearch('mple', {
         searchInContent: false,
         searchInTitle: true
       });

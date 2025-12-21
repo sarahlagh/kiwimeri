@@ -1,5 +1,5 @@
 import platformService from '@/common/services/platform.service';
-import { contentSearchService } from '@/search/collection-content-search.service';
+import { searchService } from '@/search/search.service';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 
 type SearchHighlightPluginProps = {
@@ -24,7 +24,7 @@ export function SearchHighlightPlugin({
   }
 
   const ranges: Range[] = [];
-  contentSearchService.searchLexicalState(
+  searchService.searchLexicalState(
     editor,
     searchText,
     (textNode, startOffset, endOffset) => {

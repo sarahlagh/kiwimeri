@@ -5,7 +5,7 @@ import KiwimeriEditor from '@/common/wysiwyg/lexical/KiwimeriEditor';
 import CollectionPagesBrowser from '@/common/wysiwyg/pages-browser/CollectionPagesBrowser';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
-import { searchService } from '@/search/collection-search.service';
+import { searchAncestryService } from '@/search/search-ancestry.service';
 import {
   InputCustomEvent,
   IonButton,
@@ -52,7 +52,7 @@ const DocumentEditor = ({
   const itemId = pageId ? pageId : docId;
   const content = collectionService.useItemContent(itemId);
   const documentTitle = collectionService.getItemTitle(docId);
-  const documentPreview = searchService.useItemPreview(docId) || '';
+  const documentPreview = searchAncestryService.useItemPreview(docId) || '';
   const itemType = collectionService.getItemType(itemId);
 
   const displayOpts = collectionService.useItemEffectiveDisplayOpts(docId);

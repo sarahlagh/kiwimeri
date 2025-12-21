@@ -22,7 +22,7 @@ import { SerializedEditorState } from 'lexical';
 import { getUniqueId } from 'tinybase/common';
 import { Id } from 'tinybase/common/with-schemas';
 import { Table } from 'tinybase/store';
-import { searchService } from '../search/collection-search.service';
+import { searchAncestryService } from '../search/search-ancestry.service';
 import localChangesService from './local-changes.service';
 import notebooksService from './notebooks.service';
 import storageService from './storage.service';
@@ -160,7 +160,10 @@ class CollectionService {
       return { ...row, id: rowId } as CollectionItemResult;
     });
     if (sort.by === 'preview') {
-      return searchService.sortPerContentPreview(results, sort.descending);
+      return searchAncestryService.sortPerContentPreview(
+        results,
+        sort.descending
+      );
     }
     return results;
   }
@@ -178,7 +181,10 @@ class CollectionService {
         return { ...row, id: rowId } as CollectionItemResult;
       });
     if (sort.by === 'preview') {
-      return searchService.sortPerContentPreview(results, sort.descending);
+      return searchAncestryService.sortPerContentPreview(
+        results,
+        sort.descending
+      );
     }
     return results;
   }
@@ -245,7 +251,7 @@ class CollectionService {
     const results = this.getResultsSorted(table, queryName, sort);
     if (sort.by !== 'preview') {
       // if sort by preview, results have already been enriched
-      return searchService.enrichWithPreview(results);
+      return searchAncestryService.enrichWithPreview(results);
     }
     return results as PageResult[];
   }
@@ -262,7 +268,7 @@ class CollectionService {
     const results = this.useResultsSorted(table, queryName, sort);
     if (sort.by !== 'preview') {
       // if sort by preview, results have already been enriched
-      return searchService.enrichWithPreview(results);
+      return searchAncestryService.enrichWithPreview(results);
     }
     return results as PageResult[];
   }
@@ -740,10 +746,10 @@ class CollectionService {
 
   public getBreadcrumb(rowId: string, includeAllNotebooks = false) {
     if (!includeAllNotebooks) {
-      const breadcrumb = searchService.getShortBreadcrumb(rowId);
+      const breadcrumb = searchAncestryService.getShortBreadcrumb(rowId);
       return breadcrumb.length > 0 ? breadcrumb.split(',') : [];
     }
-    return searchService.getPath(
+    return searchAncestryService.getPath(
       rowId,
       storageService.getSpace().getTable('collection'),
       includeAllNotebooks,

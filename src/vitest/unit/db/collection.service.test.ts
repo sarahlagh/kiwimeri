@@ -14,7 +14,7 @@ import {
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import { defaultOrder } from '@/db/types/space-types';
-import { searchService } from '@/search/collection-search.service';
+import { searchAncestryService } from '@/search/search-ancestry.service';
 import { renderHook } from '@testing-library/react';
 import { act } from 'react';
 import { it, vi } from 'vitest';
@@ -40,11 +40,11 @@ const loremIpsum = JSON.parse(
 describe('collection service', () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    searchService.initSearchIndices(DEFAULT_SPACE_ID);
+    searchAncestryService.initSearchIndices(DEFAULT_SPACE_ID);
   });
   afterEach(() => {
     vi.useRealTimers();
-    searchService.stop();
+    searchAncestryService.stop();
   });
 
   BROWSABLE_ITEM_TYPES.forEach(({ type, typeVal, addMethod, defaultTitle }) => {
