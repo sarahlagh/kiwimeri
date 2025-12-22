@@ -16,9 +16,10 @@ import {
   IonList,
   IonTitle,
   IonToolbar,
+  useIonAlert,
   useIonModal
 } from '@ionic/react';
-import { Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { ChangeObject, diffChars } from 'diff';
 import { useHistory, useLocation } from 'react-router';
 import { GET_VERSIONED_ROUTE } from '../routes';
@@ -81,6 +82,8 @@ const VersionPreview = ({
 };
 
 const ManageHistoryModal = ({ id, dismiss }: ManageHistoryModalProps) => {
+  const { t } = useLingui();
+  const [alert] = useIonAlert();
   const docHistory = historyService.getVersions(id);
   return (
     <>
@@ -122,12 +125,26 @@ const ManageHistoryModal = ({ id, dismiss }: ManageHistoryModalProps) => {
               <IonButton
                 slot="end"
                 fill="clear"
-                onClick={e => {
+                onClick={async e => {
                   e.preventDefault();
                   e.stopPropagation();
-                  console.debug('restore', version.id);
-                  // TODO ask user confirmation
-                  historyService.restoreVersion(id, version.id!);
+                  alert({
+                    header: t`Restore Version`,
+                    message: t`Are you sure?`,
+                    buttons: [
+                      {
+                        text: t`Cancel`,
+                        role: 'cancel'
+                      },
+                      {
+                        text: t`Confirm`,
+                        role: 'destructive',
+                        handler: () => {
+                          historyService.restoreVersion(id, version.id!);
+                        }
+                      }
+                    ]
+                  });
                 }}
               >
                 <IonIcon icon={APPICONS.restore}></IonIcon>
