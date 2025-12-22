@@ -19,6 +19,7 @@ import { IonApp, setupIonicReact } from '@ionic/react';
 import { i18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/react';
 
+import { App as CapacitorApp } from '@capacitor/app';
 import { IonReactRouter } from '@ionic/react-router';
 import { useEffect } from 'react';
 import MainLayout from './app/MainLayout';
@@ -51,11 +52,19 @@ const App = () => {
   });
 
   useEffect(() => {
+    // catch close tab on web
     window.onbeforeunload = savePending;
     function savePending() {
       historyService.saveNow();
       return undefined;
     }
+    // otherwise catch app paused on android and other
+    CapacitorApp.addListener('pause', () => {
+      historyService.saveNow();
+    });
+    return () => {
+      CapacitorApp.removeAllListeners();
+    };
   }, []);
 
   return (
