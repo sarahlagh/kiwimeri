@@ -1,4 +1,4 @@
-import { GET_UNKNOWN_ITEM_ROUTE } from '@/common/routes';
+import { GET_UNKNOWN_ITEM_ROUTE, GET_VERSIONED_ROUTE } from '@/common/routes';
 import platformService from '@/common/services/platform.service';
 import KiwimeriEditor from '@/common/wysiwyg/lexical/KiwimeriEditor';
 import CollectionPagesBrowser from '@/common/wysiwyg/pages-browser/CollectionPagesBrowser';
@@ -8,9 +8,12 @@ import collectionService from '@/db/collection.service';
 import {
   IonButton,
   IonContent,
+  IonFooter,
   IonHeader,
   IonIcon,
+  IonItem,
   IonLabel,
+  IonText,
   IonTitle,
   IonToolbar
 } from '@ionic/react';
@@ -18,7 +21,6 @@ import { useEffect, useRef, useState } from 'react';
 import { useHistory } from 'react-router';
 import { HistorizedCollectionItemData } from '../collection';
 import CommonActionsToolbar from './CommonActionsToolbar';
-import DocumentEditorFooter from './DocumentEditorFooter';
 import SearchActionsToolbar from './SearchActionsToolbar';
 
 interface DocumentEditorProps {
@@ -29,11 +31,26 @@ interface DocumentEditorProps {
   query?: string;
 }
 
-// TODO lexical toolbar -> only keep button to show page browser?
-// TODO show tags but keep read only
-// TODO document actions only keep read only actions like export, show info, search
-// TODO css to show that we are on history
+// TODO check update tags creates a version
 // TODO show latest (non-versioned) change at top of list too
+// TODO test search on pages
+
+const DocumentVersionFooter = ({
+  versionData
+}: {
+  versionData: HistorizedCollectionItemData;
+}) => {
+  const itemTags: string[] = versionData.tags?.split(',') || [];
+  return (
+    <IonFooter
+      style={{ overflowX: 'auto', flexWrap: 'nowrap', display: 'flex' }}
+    >
+      <IonItem className="inner-item">
+        <IonText>{itemTags.join(', ')}</IonText>
+      </IonItem>
+    </IonFooter>
+  );
+};
 
 const DocumentVersionViewer = ({
   docId,
@@ -46,7 +63,6 @@ const DocumentVersionViewer = ({
   const refWriter = useRef(null);
   const [showDocumentActions, setShowDocumentActions] =
     useState<boolean>(false);
-  const [showDocumentFooter, setShowDocumentFooter] = useState(showActions);
   const [openPageBrowser, setOpenPageBrowser] = useState(false);
   const [toggleSearch, setToggleSearch] = useState(false);
   const [toggleSearchAutoFocus, setToggleSearchAutoFocus] = useState(true);
@@ -77,7 +93,6 @@ const DocumentVersionViewer = ({
     if (query) {
       setToggleSearch(query.length > 0);
       setToggleSearchAutoFocus(false);
-      if (pages.length > 0 && query.length > 0) setOpenPageBrowser(true);
     }
   }, [query, docId]);
 
@@ -85,7 +100,7 @@ const DocumentVersionViewer = ({
     <>
       <IonHeader>
         {/*only visible in non compact mode*/}
-        <IonToolbar class="ion-hide-md-down">
+        <IonToolbar class="ion-hide-md-down" color="tertiary">
           <IonTitle>
             <IonLabel>{documentTitle}</IonLabel>
           </IonTitle>
@@ -108,12 +123,10 @@ const DocumentVersionViewer = ({
             showMoveFolder={false}
             showRename={false}
             showClose={true}
-            showInfo={true}
+            showInfo={false}
             showDelete={false}
-            onClose={role => {
-              if (role === 'info') {
-                setShowDocumentFooter(!showDocumentFooter);
-              }
+            getBackRoute={() => GET_UNKNOWN_ITEM_ROUTE(itemId, itemType, query)}
+            onClose={() => {
               setShowDocumentActions(false);
             }}
           >
@@ -129,6 +142,13 @@ const DocumentVersionViewer = ({
                 <IonIcon icon={APPICONS.search}></IonIcon>
               </IonButton>
             )}
+            <IonButton
+              slot="end"
+              fill="clear"
+              onClick={() => setOpenPageBrowser(!openPageBrowser)}
+            >
+              <IonIcon icon={APPICONS.page}></IonIcon>
+            </IonButton>
           </CommonActionsToolbar>
         )}
         {toggleSearch && (
@@ -137,7 +157,7 @@ const DocumentVersionViewer = ({
             setToggleSearch={setToggleSearch}
             toggleSearchAutoFocus={toggleSearchAutoFocus}
             onValue={val => {
-              history.push(GET_UNKNOWN_ITEM_ROUTE(itemId, itemType, val));
+              history.push(GET_VERSIONED_ROUTE(itemId, itemType, version, val));
             }}
           />
         )}
@@ -155,7 +175,6 @@ const DocumentVersionViewer = ({
             enablePageBrowser={true}
             pageBrowserButtonHighlighted={(pages?.length || 0) > 0}
             openPageBrowser={openPageBrowser}
-            setOpenPageBrowser={setOpenPageBrowser}
           >
             {openPageBrowser && (
               <CollectionPagesBrowser
@@ -164,13 +183,14 @@ const DocumentVersionViewer = ({
                 docPreview={documentPreview || ''}
                 pages={pages}
                 searchText={toggleSearch ? query || '' : null}
-                showHideSelf={toggleSearch}
+                showHideSelf={false}
+                editable={false}
               />
             )}
           </KiwimeriEditor>
         )}
       </IonContent>
-      {showDocumentFooter && <DocumentEditorFooter id={docId} />}
+      {versionData && <DocumentVersionFooter versionData={versionData} />}
     </>
   );
 };

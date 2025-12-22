@@ -12,6 +12,7 @@ import {
   IonTitle,
   IonToolbar
 } from '@ionic/react';
+import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactProps';
 import { ReactNode, useState } from 'react';
 import { useHistory, useLocation } from 'react-router';
 
@@ -19,13 +20,17 @@ export type MainHeaderProps = {
   title: string;
   editable?: boolean;
   onEdited?: (textEdited: string) => void;
-} & { readonly children?: ReactNode };
+} & IonicReactProps &
+  React.HTMLAttributes<HTMLIonHeaderElement> & {
+    readonly children?: ReactNode;
+  };
 
 const MainHeader = ({
   title,
   editable = false,
   onEdited,
-  children
+  children,
+  color
 }: MainHeaderProps) => {
   const history = useHistory();
   const location = useLocation();
@@ -54,7 +59,7 @@ const MainHeader = ({
   }
 
   return (
-    <IonToolbar>
+    <IonToolbar color={color}>
       <IonButtons slot="start">
         <IonMenuButton></IonMenuButton>
       </IonButtons>

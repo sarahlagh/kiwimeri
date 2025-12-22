@@ -41,7 +41,8 @@ const VersionedItemPage = () => {
       headerIfCompact={{
         title,
         editable: false,
-        children: <CollectionItemActionsMenu />
+        children: <CollectionItemActionsMenu />,
+        color: 'tertiary'
       }}
       headerIfWide={{
         title: folderTitle, // to replace with breadcrumb

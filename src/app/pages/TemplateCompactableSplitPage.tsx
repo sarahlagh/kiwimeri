@@ -32,24 +32,14 @@ const TemplateCompactableSplitPage = ({
     <IonPage>
       {!isWideEnough && (
         <IonHeader>
-          <MainHeader
-            title={headerIfCompact.title}
-            editable={headerIfCompact.editable}
-            onEdited={headerIfCompact.onEdited}
-          >
+          <MainHeader {...headerIfCompact}>
             {headerIfCompact.children}
           </MainHeader>
         </IonHeader>
       )}
       {isWideEnough && (
         <IonHeader>
-          <MainHeader
-            title={headerIfWide.title}
-            editable={headerIfWide.editable}
-            onEdited={headerIfWide.onEdited}
-          >
-            {headerIfWide.children}
-          </MainHeader>
+          <MainHeader {...headerIfWide}>{headerIfWide.children}</MainHeader>
         </IonHeader>
       )}
 

@@ -24,6 +24,7 @@ export type CollectionPagesBrowserProps = {
   pages?: PageResult[];
   searchText: string | null;
   showHideSelf?: boolean;
+  editable?: boolean;
 };
 
 interface PagePreviewItemProps {
@@ -73,7 +74,8 @@ export default function CollectionPagesBrowser({
   docPreview,
   pages,
   searchText,
-  showHideSelf
+  showHideSelf,
+  editable = true
 }: CollectionPagesBrowserProps): JSX.Element {
   const { t } = useLingui();
   const defaultDocPreview = t`empty doc`;
@@ -96,7 +98,7 @@ export default function CollectionPagesBrowser({
   return (
     <div className="page-browser">
       <IonItem lines="none">
-        {!showHideSelf && (
+        {!showHideSelf && editable && (
           <>
             <IonButton
               fill="clear"

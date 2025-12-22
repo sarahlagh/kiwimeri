@@ -29,21 +29,19 @@ const AddTagsButton = ({ id }: AddTagsButtonProps) => {
   });
 
   return (
-    <>
-      <IonItem className="inner-item">
-        <IonButton
-          fill="clear"
-          onClick={() => {
-            present({
-              cssClass: 'auto-height'
-            });
-          }}
-        >
-          <IonIcon icon={APPICONS.tags}></IonIcon>
-        </IonButton>
-        <IonText>{itemTags.join(', ')}</IonText>
-      </IonItem>
-    </>
+    <IonItem className="inner-item">
+      <IonButton
+        fill="clear"
+        onClick={() => {
+          present({
+            cssClass: 'auto-height'
+          });
+        }}
+      >
+        <IonIcon icon={APPICONS.tags}></IonIcon>
+      </IonButton>
+      <IonText>{itemTags.join(', ')}</IonText>
+    </IonItem>
   );
 };
 export default AddTagsButton;

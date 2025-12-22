@@ -16,6 +16,7 @@ export type CommonActionsToolbarProps = {
   id: string;
   docId: string;
   rows?: number;
+  getBackRoute?: () => string;
   onClose: (role?: string, data?: unknown) => void;
   showMoveFolder?: boolean;
   showRename?: boolean;
@@ -36,6 +37,7 @@ const CommonActionsToolbar = ({
   showInfo = false,
   showDelete = true,
   children,
+  getBackRoute,
   onClose
 }: CommonActionsToolbarProps) => {
   const type = collectionService.getItemType(id);
@@ -82,7 +84,13 @@ const CommonActionsToolbar = ({
 
         {children}
 
-        {showClose && <CloseDocumentButton id={docId} onClose={onClose} />}
+        {showClose && (
+          <CloseDocumentButton
+            id={docId}
+            getRoute={getBackRoute}
+            onClose={onClose}
+          />
+        )}
       </IonButtons>
     </IonToolbar>
   );

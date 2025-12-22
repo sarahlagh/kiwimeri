@@ -7,17 +7,23 @@ import { Id } from 'tinybase/with-schemas';
 
 type CloseDocumentButtonProps = {
   id: Id;
+  getRoute?: () => string;
   onClose?: (role?: string) => void;
 };
 
-const CloseDocumentButton = ({ id, onClose }: CloseDocumentButtonProps) => {
+const CloseDocumentButton = ({
+  id,
+  getRoute,
+  onClose
+}: CloseDocumentButtonProps) => {
   const history = useHistory();
   const parent = collectionService.getItemParent(id);
+  const backRoute = getRoute ? getRoute() : GET_FOLDER_ROUTE(parent);
   return (
     <>
       <IonButton
         onClick={() => {
-          history.push(GET_FOLDER_ROUTE(parent));
+          history.push(backRoute);
           if (onClose) {
             onClose('close');
           }
