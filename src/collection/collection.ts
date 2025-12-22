@@ -129,3 +129,8 @@ export type HistorizedCollectionItem = {
   versionData: string;
   versionPreview: string;
 };
+
+export type HistorizedCollectionItemData = Pick<
+  CollectionItem,
+  'title' | 'content' | 'tags' | 'deleted' | 'updated'
+>;

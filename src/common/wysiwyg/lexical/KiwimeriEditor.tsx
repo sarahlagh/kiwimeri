@@ -83,6 +83,7 @@ const KiwimeriEditor = (
         contentEditable={
           <ContentEditable
             ref={ref}
+            contentEditable={editable}
             className="editor-input"
             aria-placeholder={placeholder}
             placeholder={

@@ -10,6 +10,8 @@ export const DEV_TOOLS_ROUTE = '/devtools';
 
 export const FOLDER_ROUTE = '/collection';
 export const DOCUMENT_ROUTE = '/document';
+export const VERSION_ROUTE = '/version';
+
 export const GET_FOLDER_ROUTE = (parent: string, query?: string | null) =>
   `${FOLDER_ROUTE}?folder=${parent}${query ? '&query=' + query : ''}`;
 export const GET_DOCUMENT_ROUTE = (
@@ -64,6 +66,29 @@ export const GET_UNKNOWN_ITEM_ROUTE = (
       // eslint-disable-next-line no-case-declarations
       parent = collectionService.getItemParent(itemId);
       route = GET_DOCUMENT_ROUTE(parent, itemId, query);
+      break;
+  }
+  return route;
+};
+
+export const GET_VERSIONED_ROUTE = (
+  itemId: string,
+  type: CollectionItemTypeValues,
+  version: number,
+  query?: string | null
+) => {
+  let route, parent, doc;
+  switch (type) {
+    case CollectionItemType.page:
+      doc = collectionService.getItemParent(itemId);
+      parent = collectionService.getItemParent(doc);
+      route = GET_PAGE_ROUTE(parent, doc, itemId, query);
+      route = `${VERSION_ROUTE}?version=${version}&folder=${parent}&document=${doc}&page=${itemId}${query ? '&query=' + query : ''}`;
+      break;
+    case CollectionItemType.document:
+    default:
+      parent = collectionService.getItemParent(itemId);
+      route = `${VERSION_ROUTE}?version=${version}&folder=${parent}&document=${itemId}${query ? '&query=' + query : ''}`;
       break;
   }
   return route;

@@ -1,7 +1,15 @@
-import { HistorizedCollectionItem } from '@/collection/collection';
+import {
+  CollectionItem,
+  HistorizedCollectionItem,
+  HistorizedCollectionItemData
+} from '@/collection/collection';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { Table } from 'tinybase/store';
 import storageService from './storage.service';
+import {
+  useResultSortedRowIdsWithRef,
+  useTableWithRef
+} from './tinybase/hooks';
 
 type HistoryCache = {
   ts: number;
@@ -11,6 +19,7 @@ type HistoryCache = {
 };
 
 class CollectionHistoryService {
+  private readonly storeId = 'space';
   private readonly tableId = 'history';
   private debounce = 60000; // TODO configurable
   private cache = new Map<string, HistoryCache>();
@@ -46,21 +55,38 @@ class CollectionHistoryService {
     return results;
   }
 
+  private useResults(table: Table, queryName: string) {
+    const results = useResultSortedRowIdsWithRef(
+      this.storeId,
+      queryName,
+      'version',
+      false
+    ).map(rowId => {
+      const row = table[rowId];
+      return { ...row, id: rowId } as HistorizedCollectionItem;
+    });
+    return results;
+  }
+
   public getVersions(docId: string) {
     const table = storageService.getSpace().getTable(this.tableId);
     const queryName = this.fetchHistoryPerDocQuery(docId);
     return this.getResults(table, queryName);
   }
 
+  public useVersions(docId: string) {
+    const table = useTableWithRef(this.storeId, this.tableId);
+    const queryName = this.fetchHistoryPerDocQuery(docId);
+    return this.useResults(table, queryName);
+  }
+
+  public useVersion(docId: string, version: number) {
+    return this.useVersions(docId).find(v => v.version === version);
+  }
+
   public addVersion(id: string, created: number) {
     const item = storageService.getSpace().getRow('collection', id);
-    const versionData = JSON.stringify({
-      title: item.title,
-      content: item.content,
-      tags: item.tags,
-      deleted: item.deleted,
-      updated: item.updated
-    });
+    const versionData = this.saveVersionData(item as CollectionItem);
     const versionPreview = searchAncestryService.getItemPreview(id);
     if (!this.cache.has(id))
       this.cache.set(id, { ts: 0, created, versionData, versionPreview });
@@ -83,6 +109,17 @@ class CollectionHistoryService {
         )
       );
     }
+  }
+
+  private saveVersionData(item: CollectionItem) {
+    const data: HistorizedCollectionItemData = {
+      title: item.title,
+      content: item.content,
+      tags: item.tags,
+      deleted: item.deleted,
+      updated: item.updated
+    };
+    return JSON.stringify(data);
   }
 
   private saveVersion(id: string) {

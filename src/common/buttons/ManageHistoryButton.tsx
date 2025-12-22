@@ -1,7 +1,10 @@
-import { HistorizedCollectionItem } from '@/collection/collection';
+import {
+  HistorizedCollectionItem,
+  HistorizedCollectionItemData
+} from '@/collection/collection';
 import { APPICONS } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
-import { searchAncestryService } from '@/search/search-ancestry.service';
+import collectionService from '@/db/collection.service';
 import {
   IonButton,
   IonButtons,
@@ -16,8 +19,10 @@ import {
   useIonModal
 } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
-import { diffChars } from 'diff';
-import { dateToStr } from '../utils';
+import { ChangeObject, diffChars } from 'diff';
+import { useHistory, useLocation } from 'react-router';
+import { GET_VERSIONED_ROUTE } from '../routes';
+import { dateToStr, getSearchParams } from '../utils';
 
 type ManageHistoryButtonProps = {
   id: string;
@@ -25,53 +30,58 @@ type ManageHistoryButtonProps = {
 
 type ManageHistoryModalProps = {
   id: string;
-  dismiss: () => void;
+  dismiss: (version?: number) => void;
 };
 
 // TODO diff can't show style differences
+
+const DiffFragment = ({ part }: { part: ChangeObject<string> }) => {
+  const color = part.added
+    ? 'var(--diff-added-color)'
+    : part.removed
+      ? 'var(--diff-removed-color)'
+      : undefined;
+  let val = part.value;
+  if (val.length > 45) {
+    val = val.substring(0, 20) + '(...)' + val.substring(val.length - 20);
+  }
+  return <span style={{ color }}>{val}</span>;
+};
+
 const VersionPreview = ({
   version,
-  nextPreview
+  lastPreview
 }: {
   version: HistorizedCollectionItem;
-  nextPreview: string;
+  lastPreview?: string;
 }) => {
-  const versionData = JSON.parse(version.versionData);
-  const diff = diffChars(version.versionPreview, nextPreview);
-  const spans: { key: number; val: string; color?: string }[] = [];
-  diff.forEach((part, idx) => {
-    const color = part.added
-      ? 'var(--diff-added-color)'
-      : part.removed
-        ? 'var(--diff-removed-color)'
-        : undefined;
-    let val = part.value;
-    if (val.length > 45) {
-      val = val.substring(0, 20) + '(...)' + val.substring(val.length - 20);
-    }
-    spans.push({ key: idx, val, color });
-  });
-  return (
-    <>
+  const versionData = JSON.parse(
+    version.versionData
+  ) as HistorizedCollectionItemData;
+
+  if (lastPreview) {
+    const diff = diffChars(lastPreview, version.versionPreview);
+    return (
       <IonLabel>
         {dateToStr('relative', versionData.updated)}
-
         <p>
-          {spans.map(span => (
-            <span key={span.key} style={{ color: span.color }}>
-              {span.val}
-            </span>
+          {diff.map((part, idx) => (
+            <DiffFragment part={part} key={idx} />
           ))}
         </p>
       </IonLabel>
-    </>
+    );
+  }
+  return (
+    <IonLabel>
+      {dateToStr('relative', versionData.updated)}
+      <p>{version.versionPreview.substring(0, 200)}</p>
+    </IonLabel>
   );
 };
 
 const ManageHistoryModal = ({ id, dismiss }: ManageHistoryModalProps) => {
   const docHistory = historyService.getVersions(id);
-  const docPreview = searchAncestryService.getItemPreview(id);
-
   return (
     <>
       <IonHeader>
@@ -95,11 +105,17 @@ const ManageHistoryModal = ({ id, dismiss }: ManageHistoryModalProps) => {
           }}
         >
           {docHistory.map((version, idx) => (
-            <IonItem key={version.id}>
+            <IonItem
+              key={version.id}
+              button
+              onClick={() => dismiss(version.version)}
+            >
               <VersionPreview
                 version={version}
-                nextPreview={
-                  idx === 0 ? docPreview : docHistory[idx - 1].versionPreview
+                lastPreview={
+                  idx < docHistory.length - 1
+                    ? docHistory[idx + 1].versionPreview
+                    : undefined
                 }
               />
             </IonItem>
@@ -111,15 +127,27 @@ const ManageHistoryModal = ({ id, dismiss }: ManageHistoryModalProps) => {
 };
 
 const ManageHistoryButton = ({ id }: ManageHistoryButtonProps) => {
+  const history = useHistory();
+  const location = useLocation();
+  const searchParams = getSearchParams(location.search);
   const [present, dismiss] = useIonModal(ManageHistoryModal, {
     id,
-    dismiss: () => dismiss()
+    dismiss: (version?: number) => dismiss(version)
   });
+  const type = collectionService.getItemType(id);
+  const query = searchParams.query;
 
   return (
     <IonButton
       onClick={() => {
-        present();
+        present({
+          onDidDismiss: event => {
+            if (event.detail.data !== undefined) {
+              const version = event.detail.data as number;
+              history.push(GET_VERSIONED_ROUTE(id, type, version, query));
+            }
+          }
+        });
       }}
     >
       <IonIcon icon={APPICONS.history}></IonIcon>

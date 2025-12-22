@@ -17,9 +17,11 @@ export type CommonActionsToolbarProps = {
   docId: string;
   rows?: number;
   onClose: (role?: string, data?: unknown) => void;
+  showMoveFolder?: boolean;
   showRename?: boolean;
   showInfo?: boolean;
   showClose?: boolean;
+  showDelete?: boolean;
 } & React.HTMLAttributes<HTMLIonToolbarElement> & {
     readonly children?: ReactNode;
   };
@@ -28,14 +30,16 @@ const CommonActionsToolbar = ({
   id,
   docId,
   rows = 1,
+  showMoveFolder = true,
   showRename = false,
   showClose = false,
   showInfo = false,
+  showDelete = true,
   children,
   onClose
 }: CommonActionsToolbarProps) => {
   const type = collectionService.getItemType(id);
-  const showMoveFolder = type !== CollectionItemType.page;
+  showMoveFolder = showMoveFolder && type !== CollectionItemType.page;
 
   showRename = type !== CollectionItemType.page && showRename;
   showInfo = type !== CollectionItemType.page && showInfo;
@@ -52,11 +56,14 @@ const CommonActionsToolbar = ({
         {showRename && <RenameItemButton id={id} onClose={onClose} />}
         {showMoveFolder && <MoveFolderButton id={id} onClose={onClose} />}
         <ExportItemsButton id={id} type={type} onClose={onClose} />
-        <DeleteItemButton
-          id={id}
-          fallbackRoute={fallbackRoute}
-          onClose={onClose}
-        />
+
+        {showDelete && (
+          <DeleteItemButton
+            id={id}
+            fallbackRoute={fallbackRoute}
+            onClose={onClose}
+          />
+        )}
 
         {showInfo && (
           <IonButton

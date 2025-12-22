@@ -1,6 +1,12 @@
 import { AnyData } from '@/db/types/store-types';
 
-const QUERY_PARAMS = ['folder', 'document', 'page', 'query'] as const;
+const QUERY_PARAMS = [
+  'folder',
+  'document',
+  'page',
+  'query',
+  'version'
+] as const;
 
 type SearchParams = typeof QUERY_PARAMS;
 type SearchParamsType = {
