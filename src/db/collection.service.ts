@@ -382,8 +382,7 @@ class CollectionService {
   public saveItem(
     item: CollectionItem | CollectionItemUpdate,
     id?: string,
-    parent?: string,
-    version = false
+    parent?: string
   ) {
     if (!id) {
       id = getUniqueId();
@@ -392,8 +391,11 @@ class CollectionService {
       ? LocalChangeType.update
       : LocalChangeType.add;
     // TODO should probably check if a relevant field has been updated here
-    if (version) {
-      historyService.addVersion(id, item.updated, true);
+    if (
+      item.type === CollectionItemType.page ||
+      item.type === CollectionItemType.document
+    ) {
+      historyService.addVersionFromItem({ ...item, id } as CollectionItem);
     }
     storageService.getSpace().setRow(this.tableId, id, { ...item });
     if (parent) {
@@ -715,7 +717,7 @@ class CollectionService {
     const isContentChange = this.isContentChange(type, key);
     storageService.getSpace().transaction(() => {
       if (this.isHistorizableContentChange(type, key)) {
-        historyService.addVersion(rowId, updated);
+        historyService.addVersion(rowId);
       }
 
       storageService.getSpace().setCell('collection', rowId, key, value);

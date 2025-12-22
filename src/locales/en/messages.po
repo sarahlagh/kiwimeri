@@ -30,6 +30,7 @@ msgid "Archive is empty"
 msgstr "Archive is empty"
 
 #: src/common/modals/ConfirmYesNoDialog.tsx:24
+#: src/common/buttons/ManageHistoryButton.tsx:135
 #: src/collection/components/CollectionItemList.tsx:66
 msgid "Are you sure?"
 msgstr "Are you sure?"
@@ -39,6 +40,7 @@ msgstr "Are you sure?"
 #: src/common/modals/ConfirmFileImportModal.tsx:78
 #: src/common/modals/ChooseTagsModal.tsx:99
 #: src/common/buttons/RestoreCollectionButton.tsx:63
+#: src/common/buttons/ManageHistoryButton.tsx:138
 #: src/common/buttons/ExportItemsButton.tsx:132
 msgid "Cancel"
 msgstr "Cancel"
@@ -77,6 +79,7 @@ msgstr "Configure where to synchronize your collection"
 #: src/common/modals/ConfirmFileImportModal.tsx:81
 #: src/common/modals/ChooseTagsModal.tsx:106
 #: src/common/buttons/RestoreCollectionButton.tsx:70
+#: src/common/buttons/ManageHistoryButton.tsx:142
 #: src/common/buttons/ExportItemsButton.tsx:139
 msgid "Confirm"
 msgstr "Confirm"
@@ -122,7 +125,7 @@ msgstr "Display options for the currently selected space. They can still be over
 msgid "Do you want to import your content inside a new folder?"
 msgstr "Do you want to import your content inside a new folder?"
 
-#: src/common/buttons/ManageHistoryButton.tsx:90
+#: src/common/buttons/ManageHistoryButton.tsx:94
 msgid "Document History"
 msgstr "Document History"
 
@@ -386,6 +389,10 @@ msgstr "Restore"
 #: src/common/buttons/RestoreCollectionButton.tsx:59
 msgid "Restore Collection"
 msgstr "Restore Collection"
+
+#: src/common/buttons/ManageHistoryButton.tsx:134
+msgid "Restore Version"
+msgstr "Restore Version"
 
 #: src/common/buttons/DeepSearchButton.tsx:157
 msgid "Search Content"

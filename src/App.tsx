@@ -55,13 +55,18 @@ const App = () => {
     // catch close tab on web
     window.onbeforeunload = savePending;
     function savePending() {
+      console.debug('onbeforeunload');
       historyService.saveNow();
       return undefined;
     }
     // otherwise catch app paused on android and other
-    CapacitorApp.addListener('pause', () => {
-      historyService.saveNow();
-    });
+    if (!platformService.isWeb()) {
+      CapacitorApp.addListener('pause', () => {
+        console.debug('capacitor pause');
+        historyService.saveNow();
+      });
+    }
+    console.debug('remaining timeouts', historyService['timeouts'].size);
     return () => {
       CapacitorApp.removeAllListeners();
     };

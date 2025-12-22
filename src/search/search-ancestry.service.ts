@@ -1,7 +1,9 @@
 import {
+  CollectionItem,
   CollectionItemResult,
   CollectionItemType,
   CollectionItemTypeValues,
+  CollectionItemUpdate,
   PageResult
 } from '@/collection/collection';
 import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
@@ -125,6 +127,13 @@ class CollectionSearchService {
     );
   }
 
+  public getUnsavedItemPreview(item: CollectionItem | CollectionItemUpdate) {
+    return formatConverter.toPlainText(
+      unminimizeContentFromStorage(item.content as string),
+      { inline: true }
+    );
+  }
+
   public sortPerContentPreview(
     results: CollectionItemResult[],
     descending: boolean
@@ -230,10 +239,7 @@ class CollectionSearchService {
         'search',
         rowId,
         'contentPreview',
-        formatConverter.toPlainText(
-          unminimizeContentFromStorage(table[rowId].content as string),
-          { inline: true }
-        )
+        this.getUnsavedItemPreview(table[rowId] as CollectionItem)
       );
     }
   }

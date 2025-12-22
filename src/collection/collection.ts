@@ -125,7 +125,7 @@ export type HistorizedCollectionItem = {
   id?: string;
   docId: string;
   created: number;
-  version: number;
+  version: number; // TODO is version number necessary?
   versionData: string;
   versionPreview: string;
 };
@@ -140,5 +140,7 @@ export type HistorizedCollectionItemData = Pick<
   | 'tags_meta'
   | 'deleted'
   | 'deleted_meta'
+  | 'display_opts'
+  | 'display_opts_meta'
   | 'updated'
 >;
