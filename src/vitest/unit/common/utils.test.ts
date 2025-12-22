@@ -7,8 +7,8 @@ describe('utils test', () => {
     const date = new Date(1766347671704);
     expect(dateToStr('iso', date.getTime())).toBe('2025-12-21-20-07-51');
     expect(dateToStr('date', date.getTime())).toBe('21/12/2025');
-    expect(dateToStr('time', date.getTime())).toBe('21:07:51');
-    expect(dateToStr('datetime', date.getTime())).toBe('21/12/2025 21:07:51');
+    expect(dateToStr('time', date.getTime())).toBe('20:07:51');
+    expect(dateToStr('datetime', date.getTime())).toBe('21/12/2025 20:07:51');
     vi.useRealTimers();
   });
 

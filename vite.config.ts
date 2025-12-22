@@ -27,6 +27,7 @@ const vitestConfig = vitestDefineConfig({
     name: '',
     globals: true,
     environment: 'jsdom',
+    globalSetup: ['./src/vitest/setup/globalSetup.ts'],
     setupFiles: ['./src/vitest/setup/setupTests.ts'],
     dir: './src/vitest',
     reporters: process.env.GITHUB_ACTIONS
