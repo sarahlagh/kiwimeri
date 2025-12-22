@@ -1,3 +1,4 @@
+import { CollectionItem } from '@/collection/collection';
 import { DEFAULT_NOTEBOOK_ID, DEFAULT_SPACE_ID } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
@@ -41,9 +42,13 @@ describe('collection history service', () => {
         const versionData = JSON.parse(versions[0].versionData);
         expect(versionData).toEqual({
           title: rowBefore.title,
+          title_meta: rowBefore.title_meta,
           content: rowBefore.content,
+          content_meta: rowBefore.content_meta,
           tags: rowBefore.tags,
+          tags_meta: rowBefore.tags_meta,
           deleted: rowBefore.deleted,
+          deleted_meta: rowBefore.deleted_meta,
           updated: rowBefore.updated
         });
         expect(versionData[field]).not.toBe(newValue);
@@ -84,6 +89,68 @@ describe('collection history service', () => {
       vi.advanceTimersByTime(100);
       const versions = historyService.getVersions(docId);
       expect(versions).toHaveLength(1);
+    });
+
+    it(`should restore to a previous version`, () => {
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      expect(historyService.getVersions(docId)).toHaveLength(0);
+      vi.advanceTimersByTime(100);
+      const itemBefore = storageService
+        .getSpace()
+        .getRow('collection', docId) as CollectionItem;
+
+      const newValue = getNewValue('string') as string;
+      collectionService.setItemTitle(docId, newValue);
+      vi.advanceTimersByTime(100);
+      let versions = historyService.getVersions(docId);
+      expect(versions).toHaveLength(1);
+      expect(JSON.parse(versions[0].versionData).title).toBe(itemBefore.title);
+
+      historyService.restoreVersion(docId, versions[0].id!);
+      const restoredItem = storageService
+        .getSpace()
+        .getRow('collection', docId) as CollectionItem;
+      expect(restoredItem).toEqual(itemBefore);
+
+      versions = historyService.getVersions(docId);
+      expect(versions).toHaveLength(2);
+      expect(JSON.parse(versions[0].versionData).title).toBe(newValue);
+      expect(JSON.parse(versions[1].versionData).title).toBe(itemBefore.title);
+    });
+
+    it(`should version unsaved changes when restoring to a previous version`, () => {
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      expect(historyService.getVersions(docId)).toHaveLength(0);
+      vi.advanceTimersByTime(100);
+      const itemBefore = storageService
+        .getSpace()
+        .getRow('collection', docId) as CollectionItem;
+
+      // new change, creates version 0
+      const newValue1 = getNewValue('string') as string;
+      collectionService.setItemTitle(docId, newValue1);
+      vi.advanceTimersByTime(100);
+      let versions = historyService.getVersions(docId);
+      expect(versions).toHaveLength(1);
+      expect(JSON.parse(versions[0].versionData).title).toBe(itemBefore.title);
+
+      // new change, not yet in version
+      const newValue2 = getNewValue('string') as string;
+      collectionService.setItemTitle(docId, newValue2);
+      versions = historyService.getVersions(docId);
+      expect(versions).toHaveLength(1);
+
+      historyService.restoreVersion(docId, versions[0].id!);
+      const restoredItem = storageService
+        .getSpace()
+        .getRow('collection', docId) as CollectionItem;
+      expect(restoredItem.title).toEqual(itemBefore.title);
+
+      versions = historyService.getVersions(docId);
+      expect(versions).toHaveLength(3);
+      expect(JSON.parse(versions[0].versionData).title).toBe(newValue2);
+      expect(JSON.parse(versions[1].versionData).title).toBe(newValue1);
+      expect(JSON.parse(versions[2].versionData).title).toBe(itemBefore.title);
     });
   });
 });

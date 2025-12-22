@@ -26,13 +26,11 @@ import SearchActionsToolbar from './SearchActionsToolbar';
 interface DocumentEditorProps {
   docId: string;
   pageId?: string;
-  version: number;
+  version: string;
   showActions?: boolean;
   query?: string;
 }
 
-// TODO check update tags creates a version
-// TODO show latest (non-versioned) change at top of list too
 // TODO test search on pages
 
 const DocumentVersionFooter = ({
@@ -78,7 +76,7 @@ const DocumentVersionViewer = ({
     : undefined;
 
   const itemId = pageId ? pageId : docId;
-  const reloadId = `${itemId}/${version}`;
+  const reloadId = version;
   const content = versionData?.content;
   const documentTitle = versionData?.title;
   const documentPreview = versionedItem?.versionPreview;
@@ -173,7 +171,6 @@ const DocumentVersionViewer = ({
             content={content}
             searchText={toggleSearch ? query : null}
             enablePageBrowser={true}
-            pageBrowserButtonHighlighted={(pages?.length || 0) > 0}
             openPageBrowser={openPageBrowser}
           >
             {openPageBrowser && (

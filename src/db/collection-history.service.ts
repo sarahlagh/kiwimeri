@@ -5,6 +5,7 @@ import {
 } from '@/collection/collection';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { Table } from 'tinybase/store';
+import collectionService from './collection.service';
 import storageService from './storage.service';
 import {
   useResultSortedRowIdsWithRef,
@@ -80,14 +81,24 @@ class CollectionHistoryService {
     return this.useResults(table, queryName);
   }
 
-  public useVersion(docId: string, version: number) {
-    return this.useVersions(docId).find(v => v.version === version);
+  public useVersion(docId: string, versionId: string) {
+    return this.useVersions(docId).find(v => v.id === versionId);
   }
 
-  public addVersion(id: string, created: number) {
+  public addVersion(id: string, created: number, sync = false) {
     const item = storageService.getSpace().getRow('collection', id);
     const versionData = this.saveVersionData(item as CollectionItem);
     const versionPreview = searchAncestryService.getItemPreview(id);
+    if (sync) {
+      this.cache.set(id, {
+        ts: Date.now(),
+        created,
+        versionData,
+        versionPreview
+      });
+      this.saveVersion(id);
+      return;
+    }
     if (!this.cache.has(id))
       this.cache.set(id, { ts: 0, created, versionData, versionPreview });
     if (Date.now() - this.cache.get(id)!.ts >= this.debounce) {
@@ -111,12 +122,40 @@ class CollectionHistoryService {
     }
   }
 
+  public versionExists(id: string) {
+    return storageService.getSpace().hasRow(this.tableId, id);
+  }
+
+  // TODO if version not pushed (how do i know?), reset local changes
+  public restoreVersion(id: string, versionId: string) {
+    this.saveNow();
+    const version = this.getVersions(id).find(v => v.id === versionId);
+    if (!version) return;
+    // copy version data to current collection item
+    const versionData = JSON.parse(
+      version.versionData
+    ) as HistorizedCollectionItemData;
+    const current = storageService
+      .getSpace()
+      .getRow('collection', id) as CollectionItem;
+    collectionService.saveItem(
+      { ...current, ...versionData },
+      id,
+      undefined,
+      true
+    );
+  }
+
   private saveVersionData(item: CollectionItem) {
     const data: HistorizedCollectionItemData = {
       title: item.title,
+      title_meta: item.title_meta,
       content: item.content,
+      content_meta: item.content_meta,
       tags: item.tags,
+      tags_meta: item.tags_meta,
       deleted: item.deleted,
+      deleted_meta: item.deleted_meta,
       updated: item.updated
     };
     return JSON.stringify(data);

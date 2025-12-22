@@ -132,5 +132,13 @@ export type HistorizedCollectionItem = {
 
 export type HistorizedCollectionItemData = Pick<
   CollectionItem,
-  'title' | 'content' | 'tags' | 'deleted' | 'updated'
+  | 'title'
+  | 'title_meta'
+  | 'content'
+  | 'content_meta'
+  | 'tags'
+  | 'tags_meta'
+  | 'deleted'
+  | 'deleted_meta'
+  | 'updated'
 >;

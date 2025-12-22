@@ -74,7 +74,7 @@ export const GET_UNKNOWN_ITEM_ROUTE = (
 export const GET_VERSIONED_ROUTE = (
   itemId: string,
   type: CollectionItemTypeValues,
-  version: number,
+  version: string,
   query?: string | null
 ) => {
   let route, parent, doc;

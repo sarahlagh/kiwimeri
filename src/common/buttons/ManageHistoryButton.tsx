@@ -30,7 +30,7 @@ type ManageHistoryButtonProps = {
 
 type ManageHistoryModalProps = {
   id: string;
-  dismiss: (version?: number) => void;
+  dismiss: (version?: string) => void;
 };
 
 // TODO diff can't show style differences
@@ -108,7 +108,7 @@ const ManageHistoryModal = ({ id, dismiss }: ManageHistoryModalProps) => {
             <IonItem
               key={version.id}
               button
-              onClick={() => dismiss(version.version)}
+              onClick={() => dismiss(version.id)}
             >
               <VersionPreview
                 version={version}
@@ -118,6 +118,20 @@ const ManageHistoryModal = ({ id, dismiss }: ManageHistoryModalProps) => {
                     : undefined
                 }
               />
+
+              <IonButton
+                slot="end"
+                fill="clear"
+                onClick={e => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.debug('restore', version.id);
+                  // TODO ask user confirmation
+                  historyService.restoreVersion(id, version.id!);
+                }}
+              >
+                <IonIcon icon={APPICONS.restore}></IonIcon>
+              </IonButton>
             </IonItem>
           ))}
         </IonList>
@@ -132,7 +146,7 @@ const ManageHistoryButton = ({ id }: ManageHistoryButtonProps) => {
   const searchParams = getSearchParams(location.search);
   const [present, dismiss] = useIonModal(ManageHistoryModal, {
     id,
-    dismiss: (version?: number) => dismiss(version)
+    dismiss: (version?: string) => dismiss(version)
   });
   const type = collectionService.getItemType(id);
   const query = searchParams.query;
@@ -143,7 +157,7 @@ const ManageHistoryButton = ({ id }: ManageHistoryButtonProps) => {
         present({
           onDidDismiss: event => {
             if (event.detail.data !== undefined) {
-              const version = event.detail.data as number;
+              const version = event.detail.data as string;
               history.push(GET_VERSIONED_ROUTE(id, type, version, query));
             }
           }

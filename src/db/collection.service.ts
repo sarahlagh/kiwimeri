@@ -382,7 +382,8 @@ class CollectionService {
   public saveItem(
     item: CollectionItem | CollectionItemUpdate,
     id?: string,
-    parent?: string
+    parent?: string,
+    version = false
   ) {
     if (!id) {
       id = getUniqueId();
@@ -390,6 +391,10 @@ class CollectionService {
     const changeType = this.itemExists(id)
       ? LocalChangeType.update
       : LocalChangeType.add;
+    // TODO should probably check if a relevant field has been updated here
+    if (version) {
+      historyService.addVersion(id, item.updated, true);
+    }
     storageService.getSpace().setRow(this.tableId, id, { ...item });
     if (parent) {
       this.updateAllParentsInBreadcrumb(parent);

@@ -61,7 +61,7 @@ const KiwimeriEditor = (
     onChange,
     debounce = 0,
     enableDebugTreeView = true,
-    editable,
+    editable = true,
     searchText
   } = props;
   const placeholder = t`Text...`;
@@ -127,7 +127,7 @@ const KiwimeriEditor = (
 
       {children}
 
-      {!platformService.isRelease() && enableDebugTreeView && (
+      {!platformService.isRelease() && enableDebugTreeView && editable && (
         <DebugTreeViewPlugin />
       )}
     </LexicalComposer>
