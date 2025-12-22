@@ -125,7 +125,6 @@ export type HistorizedCollectionItem = {
   id?: string;
   docId: string;
   created: number;
-  version: number; // TODO is version number necessary?
   versionData: string;
   versionPreview: string;
 };

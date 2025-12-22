@@ -30,7 +30,7 @@ class CollectionHistoryService {
         this.tableId,
         ({ select, where }) => {
           select('docId');
-          select('version');
+          select('created');
           where('docId', docId);
         }
       );
@@ -41,7 +41,7 @@ class CollectionHistoryService {
   private getResults(table: Table, queryName: string) {
     const results = storageService
       .getSpaceQueries()
-      .getResultSortedRowIds(queryName, 'version', false)
+      .getResultSortedRowIds(queryName, 'created', true)
       .map(rowId => {
         const row = table[rowId];
         return { ...row, id: rowId } as HistorizedCollectionItem;
@@ -53,8 +53,8 @@ class CollectionHistoryService {
     const results = useResultSortedRowIdsWithRef(
       this.storeId,
       queryName,
-      'version',
-      false
+      'created',
+      true
     ).map(rowId => {
       const row = table[rowId];
       return { ...row, id: rowId } as HistorizedCollectionItem;
@@ -80,21 +80,11 @@ class CollectionHistoryService {
 
   public addVersionFromItem(item: CollectionItem) {
     console.debug('[history] saving new version for doc', item.id);
-    storageService.getSpace().transaction(() => {
-      // increment existing versions
-      const existingVersions = this.getVersions(item.id!);
-      for (const version of existingVersions) {
-        storageService
-          .getSpace()
-          .setCell(this.tableId, version.id!, 'version', version.version + 1);
-      }
-      storageService.getSpace().addRow(this.tableId, {
-        docId: item.id,
-        version: 0,
-        created: item.updated,
-        versionData: this.getVersionData(item),
-        versionPreview: searchAncestryService.getUnsavedItemPreview(item)
-      });
+    storageService.getSpace().addRow(this.tableId, {
+      docId: item.id,
+      created: item.updated,
+      versionData: this.getVersionData(item),
+      versionPreview: searchAncestryService.getUnsavedItemPreview(item)
     });
   }
 
@@ -171,26 +161,16 @@ class CollectionHistoryService {
 
   private saveVersion(id: string) {
     console.debug('[history] saving new version for doc', id);
-    storageService.getSpace().transaction(() => {
-      // increment existing versions
-      const existingVersions = this.getVersions(id);
-      for (const version of existingVersions) {
-        storageService
-          .getSpace()
-          .setCell(this.tableId, version.id!, 'version', version.version + 1);
-      }
-      // TODO handle pages
-      // const docId = type === CollectionItemType.document ? id : item.parent;
-      const current = storageService.getSpace().getRow('collection', id);
-      const versionData = this.getVersionData(current as CollectionItem);
-      const versionPreview = searchAncestryService.getItemPreview(id);
-      storageService.getSpace().addRow(this.tableId, {
-        docId: id,
-        version: 0,
-        created: current.updated,
-        versionData,
-        versionPreview
-      });
+    // TODO handle pages
+    // const docId = type === CollectionItemType.document ? id : item.parent;
+    const current = storageService.getSpace().getRow('collection', id);
+    const versionData = this.getVersionData(current as CollectionItem);
+    const versionPreview = searchAncestryService.getItemPreview(id);
+    storageService.getSpace().addRow(this.tableId, {
+      docId: id,
+      created: current.updated,
+      versionData,
+      versionPreview
     });
   }
 

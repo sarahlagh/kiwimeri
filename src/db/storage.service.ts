@@ -173,7 +173,6 @@ class StorageService {
         history: {
           docId: { type: 'string' } as CellSchema,
           created: { type: 'number' } as CellSchema,
-          version: { type: 'number' } as CellSchema,
           versionData: { type: 'string' } as CellSchema,
           versionPreview: { type: 'string' } as CellSchema
         }

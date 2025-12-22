@@ -38,7 +38,6 @@ describe('collection history service', () => {
         expect(versions).toHaveLength(2);
         expect(versions[0].created).toBe(versionCreatedTime);
         expect(versions[0].docId).toBe(docId);
-        expect(versions[0].version).toBe(0);
         const versionData = JSON.parse(versions[0].versionData);
         expect(versionData).toEqual({
           title: rowBefore.title,
@@ -55,32 +54,6 @@ describe('collection history service', () => {
         });
         expect(versionData[field]).toBe(newValue);
       });
-    });
-
-    it(`should increment old versions`, () => {
-      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-      let versions = historyService.getVersions(docId);
-      expect(versions).toHaveLength(1);
-      expect(versions[0].version).toBe(0);
-      const firstVersion = versions[0].id;
-      vi.advanceTimersByTime(100);
-
-      collectionService.setItemLexicalContent(docId, shortContent);
-      vi.advanceTimersByTime(100);
-      versions = historyService.getVersions(docId);
-      expect(versions).toHaveLength(2);
-      expect(versions[0].version).toBe(0);
-      expect(versions[0].id).not.toBe(firstVersion);
-      vi.advanceTimersByTime(100);
-
-      collectionService.setItemTitle(docId, 'new title');
-      vi.advanceTimersByTime(100);
-      versions = historyService.getVersions(docId);
-      expect(versions).toHaveLength(3);
-      expect(versions[0].version).toBe(0);
-      expect(versions[1].version).toBe(1);
-      expect(versions[2].version).toBe(2);
-      expect(versions[2].id).toBe(firstVersion);
     });
 
     it(`should debounce changes`, () => {
