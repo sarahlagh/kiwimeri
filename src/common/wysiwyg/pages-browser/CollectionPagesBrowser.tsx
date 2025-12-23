@@ -148,7 +148,7 @@ export default function CollectionPagesBrowser({
             items={pages || []}
             sortDisabled={sort.by !== 'order'}
             onItemMove={(from, to) => {
-              collectionService.reorderItems(pages!, from, to);
+              collectionService.reorderItems(pages!, from, to, docId);
             }}
           >
             {(pages || []).map(page => (

@@ -1,15 +1,21 @@
-import { CollectionItem } from '@/collection/collection';
+import {
+  CollectionItem,
+  CollectionItemSortType,
+  CollectionItemUpdatableFieldEnum,
+  SortableCollectionItem
+} from '@/collection/collection';
 import { DEFAULT_NOTEBOOK_ID, DEFAULT_SPACE_ID } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
 import collectionService, { initialContent } from '@/db/collection.service';
 import storageService from '@/db/storage.service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { it, vi } from 'vitest';
-import { GET_CONTENT_UPDATE_FIELDS, getNewValue } from '../../setup/test.utils';
-
-const shortContent = JSON.parse(
-  '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"This is a short content","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}'
-);
+import {
+  GET_CONTENT_UPDATE_FIELDS,
+  getNewContent,
+  getNewValue,
+  ValueType
+} from '../../setup/test.utils';
 
 describe('collection history service', () => {
   beforeEach(() => {
@@ -141,10 +147,29 @@ describe('collection history service', () => {
       expect(JSON.parse(versions[3].versionData).title).toBe(itemBefore.title);
       expect(versions[3].created).toBe(itemBefore.updated);
     });
+
+    it(`should do nothing for a document order change`, () => {
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      expect(historyService.getVersions(docId)).toHaveLength(1);
+      vi.advanceTimersByTime(100);
+
+      collectionService.setItemField(docId, 'order', 7);
+      vi.advanceTimersByTime(100);
+      const versions = historyService.getVersions(docId);
+      expect(versions).toHaveLength(1);
+    });
+
+    it.todo(`should erase all versions on a hard delete`);
   });
 
   describe(`operations on a page`, () => {
-    GET_CONTENT_UPDATE_FIELDS('page').forEach(({ field, valueType }) => {
+    [
+      ...GET_CONTENT_UPDATE_FIELDS('page'),
+      {
+        field: 'order' as CollectionItemUpdatableFieldEnum,
+        valueType: 'number' as ValueType
+      }
+    ].forEach(({ field, valueType }) => {
       it(`should add a page version on ${field} change`, () => {
         const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
         const pageId = collectionService.addPage(docId);
@@ -174,6 +199,8 @@ describe('collection history service', () => {
           deleted_meta: rowBefore.deleted_meta,
           display_opts: rowBefore.display_opts,
           display_opts_meta: rowBefore.display_opts_meta,
+          order: rowBefore.order,
+          order_meta: rowBefore.order_meta,
           updated: rowBefore.updated
         });
         expect(versionData[field]).toBe(newValue);
@@ -186,7 +213,7 @@ describe('collection history service', () => {
       const pageId2 = collectionService.addPage(docId);
       collectionService.setItemTitle(docId, 'new title');
       vi.advanceTimersByTime(100);
-      collectionService.setItemLexicalContent(pageId1, shortContent);
+      collectionService.setItemField(pageId1, 'content', getNewValue('lex'));
       vi.advanceTimersByTime(100);
 
       const space = storageService.getSpace();
@@ -309,8 +336,132 @@ describe('collection history service', () => {
       expect(restoredItem).toEqual({ ...itemBefore, updated: Date.now() });
     });
 
-    it.todo(`should respect pages sort order`, () => {
-      //
+    it(`should add a single document version for a page reorder`, () => {
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const pageId1 = collectionService.addPage(docId);
+      const pageId2 = collectionService.addPage(docId);
+      expect(historyService.getVersions(docId)).toHaveLength(3);
+      expect(historyService.getVersions(pageId1)).toHaveLength(1);
+      expect(historyService.getVersions(pageId2)).toHaveLength(1);
+
+      vi.advanceTimersByTime(100);
+      const page1 = collectionService.getItem(
+        pageId1
+      ) as SortableCollectionItem;
+      const page2 = collectionService.getItem(
+        pageId2
+      ) as SortableCollectionItem;
+      collectionService.reorderItems([page1, page2], 0, 1, docId);
+      vi.advanceTimersByTime(100);
+
+      const docVersions = historyService.getVersions(docId);
+      expect(docVersions).toHaveLength(4);
+      const page1Versions = historyService.getVersions(pageId1);
+      expect(page1Versions).toHaveLength(2);
+      const page2Versions = historyService.getVersions(pageId2);
+      expect(page2Versions).toHaveLength(2);
+
+      const versionedPages = historyService.getPagesForVersion(
+        docVersions[0].id!
+      );
+      expect(versionedPages).toHaveLength(2);
+      expect(versionedPages[0].itemId).toBe(pageId1);
+      expect(JSON.parse(versionedPages[0].versionData).order).toBe(1);
+      expect(versionedPages[1].itemId).toBe(pageId2);
+      expect(JSON.parse(versionedPages[1].versionData).order).toBe(0);
     });
+
+    describe('fetch pages sort order', () => {
+      it(`should respect manual pages sort order for a document version`, () => {
+        const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+        const pageId1 = collectionService.addPage(docId);
+        const pageId2 = collectionService.addPage(docId);
+
+        // set manual order
+        collectionService.setItemDisplayOpts(docId, {
+          sort: { by: 'order', descending: false }
+        });
+        vi.advanceTimersByTime(100);
+        expect(historyService.getVersions(docId)).toHaveLength(4);
+
+        const page1 = collectionService.getItem(
+          pageId1
+        ) as SortableCollectionItem;
+        const page2 = collectionService.getItem(
+          pageId2
+        ) as SortableCollectionItem;
+        collectionService.reorderItems([page1, page2], 0, 1, docId);
+        vi.advanceTimersByTime(100);
+
+        const docVersions = historyService.getVersions(docId);
+        expect(docVersions).toHaveLength(5);
+
+        const versionedPages = historyService.getPagesForVersion(
+          docVersions[0].id!
+        );
+        expect(versionedPages).toHaveLength(2);
+        expect(versionedPages[0].itemId).toBe(pageId2);
+        expect(JSON.parse(versionedPages[0].versionData).order).toBe(0);
+        expect(versionedPages[1].itemId).toBe(pageId1);
+        expect(JSON.parse(versionedPages[1].versionData).order).toBe(1);
+      });
+
+      const sortBy: {
+        by: CollectionItemSortType;
+        descending: boolean;
+        expected: string[];
+      }[] = [
+        { by: 'preview', descending: true, expected: ['C', 'B', 'A'] },
+        { by: 'preview', descending: false, expected: ['A', 'B', 'C'] },
+        { by: 'updated', descending: true, expected: ['B', 'A', 'C'] },
+        { by: 'updated', descending: false, expected: ['C', 'A', 'B'] },
+        { by: 'created', descending: true, expected: ['C', 'A', 'B'] },
+        { by: 'created', descending: false, expected: ['B', 'A', 'C'] }
+      ];
+      sortBy.forEach(({ by, descending, expected }) => {
+        it(`should respect (${by}, ${descending}) pages sort order for a document version`, () => {
+          const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+          vi.advanceTimersByTime(100);
+          const pageId1 = collectionService.addPage(docId); // B
+          vi.advanceTimersByTime(100);
+          const pageId2 = collectionService.addPage(docId); // A
+          vi.advanceTimersByTime(100);
+          const pageId3 = collectionService.addPage(docId); // C
+          vi.advanceTimersByTime(100);
+          collectionService.setItemField(
+            pageId3,
+            'content',
+            getNewContent('C')
+          );
+          vi.advanceTimersByTime(100);
+          collectionService.setItemField(
+            pageId2,
+            'content',
+            getNewContent('A')
+          );
+          vi.advanceTimersByTime(100);
+          collectionService.setItemField(
+            pageId1,
+            'content',
+            getNewContent('B')
+          );
+          vi.advanceTimersByTime(100);
+
+          // set order
+          collectionService.setItemDisplayOpts(docId, {
+            sort: { by, descending }
+          });
+          vi.advanceTimersByTime(100);
+
+          const docVersions = historyService.getVersions(docId);
+          const versionedPages = historyService.getPagesForVersion(
+            docVersions[0].id!
+          );
+          expect(versionedPages.map(p => p.versionPreview)).toEqual(expected);
+        });
+      });
+    });
+
+    it.todo(`should erase all versions on a hard delete`);
   });
 });

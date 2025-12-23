@@ -379,6 +379,13 @@ class CollectionService {
     return notebooksService.addNotebook(title, parent);
   }
 
+  public getItem(id: string) {
+    return {
+      ...storageService.getSpace().getRow(this.tableId, id),
+      id
+    } as CollectionItem;
+  }
+
   public saveItem(
     item: CollectionItem | CollectionItemUpdate,
     id?: string,
@@ -595,12 +602,16 @@ class CollectionService {
   public reorderItems(
     items: SortableCollectionItem[],
     from: number,
-    to: number
+    to: number,
+    parent?: string
   ) {
-    storageService.getStore().transaction(() => {
+    storageService.getSpace().transaction(() => {
       genericReorder(from, to, (idx, order) => {
-        this.setItemField(items[idx].id, 'order', order);
+        this.setItemField(items[idx].id, 'order', order, parent !== undefined);
       });
+      if (parent && items.length > 0) {
+        historyService.addWholeDocumentVersion(parent);
+      }
     });
   }
 
@@ -694,6 +705,7 @@ class CollectionService {
     type: CollectionItemTypeValues,
     key: CollectionItemUpdatableFieldEnum
   ) {
+    if (key === 'order' && type === CollectionItemType.page) return true;
     return (
       (type === CollectionItemType.page ||
         type === CollectionItemType.document) &&
@@ -704,7 +716,8 @@ class CollectionService {
   public setItemField(
     rowId: Id,
     key: CollectionItemUpdatableFieldEnum,
-    value: SerializableData
+    value: SerializableData,
+    skipVersion = false
   ) {
     const current = this.getItemField(rowId, key);
     const type = this.getItemType(rowId);
@@ -716,10 +729,9 @@ class CollectionService {
     // title and content are real changes, order and display_opts are not (won't trigger an update ts)
     const isContentChange = this.isContentChange(type, key);
     storageService.getSpace().transaction(() => {
-      if (this.isHistorizableContentChange(type, key)) {
+      if (!skipVersion && this.isHistorizableContentChange(type, key)) {
         historyService.addVersion(rowId);
       }
-
       storageService.getSpace().setCell('collection', rowId, key, value);
       storageService
         .getSpace()

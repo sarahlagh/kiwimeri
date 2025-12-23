@@ -142,7 +142,8 @@ export type HistorizedCollectionItemData = Pick<
   | 'display_opts'
   | 'display_opts_meta'
   | 'updated'
->;
+> &
+  Partial<Pick<CollectionItem, 'order' | 'order_meta'>>;
 
 export type HistorizedDocumentPagesRelation = {
   id?: string;

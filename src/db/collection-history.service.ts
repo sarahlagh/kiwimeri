@@ -1,5 +1,6 @@
 import {
   CollectionItem,
+  CollectionItemDisplayOpts,
   CollectionItemType,
   HistorizedCollectionItem,
   HistorizedCollectionItemData
@@ -14,6 +15,7 @@ import {
   useTableWithRef
 } from './tinybase/hooks';
 import { SpaceType } from './types/space-types';
+import userSettingsService from './user-settings.service';
 
 class CollectionHistoryService {
   private readonly storeId = 'space';
@@ -93,11 +95,13 @@ class CollectionHistoryService {
   }
 
   public getPagesForVersion(docVersionId: string) {
+    const collectionTable = storageService.getSpace().getTable('collection');
     const table = storageService.getSpace().getTable(this.tableId);
     const joinTable = storageService.getSpace().getTable(this.joinTableId);
-    // TODO need to respect sort
-    return storageService
-      .getSpaceIndexes()
+
+    // get pages
+    const indexes = storageService.getSpaceIndexes();
+    const pages = indexes
       .getSliceRowIds(this.docVersionIndex, docVersionId)
       .map(
         rel =>
@@ -105,6 +109,47 @@ class CollectionHistoryService {
             joinTable[rel].pageVersionId as string
           ] as HistorizedCollectionItem
       );
+
+    // get historized pages sort order
+    const docVersion = table[docVersionId] as HistorizedCollectionItem;
+    const docVersionDisplayOpts = (
+      JSON.parse(docVersion.versionData) as HistorizedCollectionItemData
+    ).display_opts;
+    let sort = userSettingsService.getDefaultDisplayOpts().sort;
+    if (docVersionDisplayOpts) {
+      sort = (JSON.parse(docVersionDisplayOpts) as CollectionItemDisplayOpts)
+        .sort;
+    }
+
+    // apply sort to results
+    // TODO: this is terrible. let tinybase do it - use query?
+    return pages.sort((p1, p2) => {
+      const page1 = (
+        sort.descending
+          ? collectionTable[p2.itemId]
+          : collectionTable[p1.itemId]
+      ) as CollectionItem;
+      const page2 = (
+        sort.descending
+          ? collectionTable[p1.itemId]
+          : collectionTable[p2.itemId]
+      ) as CollectionItem;
+      const field1 = (page1 as never)[sort.by];
+      const field2 = (page2 as never)[sort.by];
+
+      switch (sort.by) {
+        case 'preview':
+          return searchAncestryService
+            .getUnsavedItemPreview(page1)
+            .localeCompare(searchAncestryService.getUnsavedItemPreview(page2));
+        case 'title':
+          return ((field1 || '') as string).localeCompare(
+            (field2 || '') as string
+          );
+        default: // all other sort fields are numeric
+          return (field1 || 0) < (field2 || 0) ? -1 : 1;
+      }
+    });
   }
 
   public addVersion(id: string, sync = false) {
@@ -175,6 +220,10 @@ class CollectionHistoryService {
       display_opts_meta: item.display_opts_meta,
       updated: item.updated
     };
+    if (item.type === CollectionItemType.page) {
+      data.order = item.order;
+      data.order_meta = item.order_meta;
+    }
     return JSON.stringify(data);
   }
 
@@ -216,6 +265,25 @@ class CollectionHistoryService {
       }
     });
     return versionId;
+  }
+
+  // increment doc and its pages
+  public addWholeDocumentVersion(docId: string) {
+    console.debug('[history] saving new full version for doc', docId);
+    const space = storageService.getSpace();
+    space.transaction(() => {
+      const pages = collectionService.getDocumentPages(docId);
+      pages.forEach(p => {
+        const page = collectionService.getItem(p.id);
+        space.addRow(this.tableId, {
+          itemId: page.id,
+          created: page.updated,
+          versionData: this.getVersionData(page),
+          versionPreview: searchAncestryService.getUnsavedItemPreview(page)
+        });
+      });
+      this.addVersion(docId);
+    });
   }
 
   private addRelation(
