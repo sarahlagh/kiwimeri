@@ -151,7 +151,7 @@ describe('sync service', () => {
         'driver'
       ] as InMemDriver;
       vi.useFakeTimers();
-      searchAncestryService.initSearchIndices(DEFAULT_SPACE_ID);
+      searchAncestryService.start(DEFAULT_SPACE_ID);
     });
     afterEach(() => {
       expect(countOrphans()).toBe(0);

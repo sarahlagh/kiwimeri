@@ -10,6 +10,7 @@ import { createQueries, Queries } from 'tinybase/queries/with-schemas';
 import { CellSchema, createStore, Store } from 'tinybase/store/with-schemas';
 import { createIndexes, Indexes } from 'tinybase/with-schemas';
 import { searchAncestryService } from '../search/search-ancestry.service';
+import { historyService } from './collection-history.service';
 import localChangesService from './local-changes.service';
 import notebooksService from './notebooks.service';
 import tagsService from './tags.service';
@@ -26,6 +27,7 @@ class StorageService {
 
   private spaces: Map<string, Store<SpaceType>> = new Map();
   private spaceQueries: Map<string, Queries<SpaceType>> = new Map();
+  private spaceIndexes: Map<string, Indexes<SpaceType>> = new Map();
   private spaceLocalPersisters: Map<string, Persister<SpaceType>> = new Map();
 
   public constructor() {
@@ -110,6 +112,11 @@ class StorageService {
       DEFAULT_SPACE_ID,
       createQueries(this.getSpace(DEFAULT_SPACE_ID))
     );
+
+    this.spaceIndexes.set(
+      DEFAULT_SPACE_ID,
+      createIndexes(this.getSpace(DEFAULT_SPACE_ID))
+    );
   }
 
   public async start(autoSave = true) {
@@ -137,7 +144,8 @@ class StorageService {
     // init spaces
     setTimeout(() => {
       notebooksService.initNotebooks();
-      searchAncestryService.initSearchIndices(DEFAULT_SPACE_ID);
+      searchAncestryService.start(DEFAULT_SPACE_ID);
+      historyService.start(DEFAULT_SPACE_ID);
     });
   }
 
@@ -171,10 +179,14 @@ class StorageService {
           display_opts_meta: { type: 'string' } as CellSchema
         },
         history: {
-          docId: { type: 'string' } as CellSchema,
+          itemId: { type: 'string' } as CellSchema,
           created: { type: 'number' } as CellSchema,
           versionData: { type: 'string' } as CellSchema,
           versionPreview: { type: 'string' } as CellSchema
+        },
+        history_doc_pages: {
+          docVersionId: { type: 'string' } as CellSchema,
+          pageVersionId: { type: 'string' } as CellSchema
         }
       })
       .setValuesSchema({
@@ -208,6 +220,10 @@ class StorageService {
     return this.spaceQueries.get(space ? space : storageService.getSpaceId())!;
   }
 
+  public getSpaceIndexes(space?: string) {
+    return this.spaceIndexes.get(space ? space : storageService.getSpaceId())!;
+  }
+
   public getStore() {
     return this.store;
   }
@@ -236,7 +252,7 @@ class StorageService {
 
   public getIndexes(storeId: StoreId) {
     if (storeId === 'space') {
-      throw new Error('unimplemented');
+      return this.getSpaceIndexes();
     }
     return this.storeIndexes;
   }

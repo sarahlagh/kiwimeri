@@ -21,7 +21,7 @@ class CollectionSearchService {
 
   private updateListeners: Map<Id, Ids> = new Map();
 
-  public initSearchIndices(spaceId = DEFAULT_SPACE_ID) {
+  public start(spaceId = DEFAULT_SPACE_ID) {
     const store = storageService.getStore();
     const space = storageService.getSpace(spaceId);
     const indexes = storageService.getStoreIndexes();

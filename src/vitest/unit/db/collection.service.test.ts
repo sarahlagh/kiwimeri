@@ -40,7 +40,7 @@ const loremIpsum = JSON.parse(
 describe('collection service', () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    searchAncestryService.initSearchIndices(DEFAULT_SPACE_ID);
+    searchAncestryService.start(DEFAULT_SPACE_ID);
   });
   afterEach(() => {
     vi.useRealTimers();

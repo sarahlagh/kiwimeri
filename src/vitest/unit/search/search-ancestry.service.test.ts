@@ -177,7 +177,7 @@ describe('search ancestry service', () => {
 
     it(`should handle notebook on start if collection is empty`, () => {
       // has at least one notebook
-      searchAncestryService.initSearchIndices(DEFAULT_SPACE_ID);
+      searchAncestryService.start(DEFAULT_SPACE_ID);
 
       // test ancestors
       expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(0); // no ancestry if parent is root
@@ -196,7 +196,7 @@ describe('search ancestry service', () => {
 
     it(`should create correct ancestry on start`, () => {
       createTestData();
-      searchAncestryService.initSearchIndices(DEFAULT_SPACE_ID);
+      searchAncestryService.start(DEFAULT_SPACE_ID);
 
       expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(18);
       const ancestors = storageService.getStore().getTable('ancestors');
@@ -209,7 +209,7 @@ describe('search ancestry service', () => {
     });
 
     it(`should update ancestry on saveItems (import)`, () => {
-      searchAncestryService.initSearchIndices(DEFAULT_SPACE_ID);
+      searchAncestryService.start(DEFAULT_SPACE_ID);
       expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(0);
 
       createTestData();
@@ -227,7 +227,7 @@ describe('search ancestry service', () => {
       // F1 > FF1 > FFF1 > D1 > P1
       // F2 > FF2
       createTestData();
-      searchAncestryService.initSearchIndices(DEFAULT_SPACE_ID);
+      searchAncestryService.start(DEFAULT_SPACE_ID);
       expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(18);
 
       collectionService.setItemParent('FFF1', 'FF2');
@@ -257,7 +257,7 @@ describe('search ancestry service', () => {
       collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
       notebooksService.addNotebook('N1');
 
-      searchAncestryService.initSearchIndices();
+      searchAncestryService.start();
       // pull - newest items are removed
       storageService.getSpace().setContent(spaceContent);
 
@@ -277,7 +277,7 @@ describe('search ancestry service', () => {
     });
 
     it(`should cache and a breadcrumb with only one parent notebook`, () => {
-      searchAncestryService.initSearchIndices(DEFAULT_SPACE_ID);
+      searchAncestryService.start(DEFAULT_SPACE_ID);
       const idn1 = notebooksService.addNotebook('test');
       const idn2 = notebooksService.addNotebook('nested', idn1);
       const idd1 = collectionService.addDocument(idn2);
@@ -310,7 +310,7 @@ describe('search ancestry service', () => {
 
   describe(`search table update`, () => {
     it(`should update preview on saveItems (import)`, () => {
-      searchAncestryService.initSearchIndices(DEFAULT_SPACE_ID);
+      searchAncestryService.start(DEFAULT_SPACE_ID);
       expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(0);
 
       createTestData();
@@ -326,7 +326,7 @@ describe('search ancestry service', () => {
 
     it(`should update preview on individual content change`, () => {
       createTestData();
-      searchAncestryService.initSearchIndices(DEFAULT_SPACE_ID);
+      searchAncestryService.start(DEFAULT_SPACE_ID);
 
       collectionService.setItemLexicalContent('D1', shortContentUpdated);
 
@@ -349,7 +349,7 @@ describe('search ancestry service', () => {
       // reset
       const spaceContent = storageService.getSpace().getContent();
       storageService.nukeSpace();
-      searchAncestryService.initSearchIndices();
+      searchAncestryService.start();
 
       // pull
       storageService.getSpace().setContent(spaceContent);

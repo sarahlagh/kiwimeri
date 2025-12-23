@@ -123,7 +123,10 @@ const ManageHistoryModal = ({ id, dismiss }: ManageHistoryModalProps) => {
                 }
               />
 
-              {!historyService.isCurrentVersion(version.docId, version.id!) && (
+              {!historyService.isCurrentVersion(
+                version.itemId,
+                version.id!
+              ) && (
                 <IonButton
                   slot="end"
                   fill="clear"

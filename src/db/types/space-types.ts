@@ -1,12 +1,16 @@
 import {
   CollectionItem,
-  HistorizedCollectionItem
+  HistorizedCollectionItem,
+  HistorizedDocumentPagesRelation
 } from '@/collection/collection';
 import { ValueIdFromSchema } from 'tinybase/@types/_internal/store/with-schemas';
 import { CellSchema, Value } from 'tinybase/with-schemas';
 
 type collectionItemKeyEnum = keyof Required<Omit<CollectionItem, 'id'>>;
 type historyKeyEnum = keyof Required<Omit<HistorizedCollectionItem, 'id'>>;
+type historyDocPagesKeyEnum = keyof Required<
+  Omit<HistorizedDocumentPagesRelation, 'id'>
+>;
 
 export type SpaceType = [
   {
@@ -15,6 +19,9 @@ export type SpaceType = [
     };
     history: {
       [cellId in historyKeyEnum]: CellSchema;
+    };
+    history_doc_pages: {
+      [cellId in historyDocPagesKeyEnum]: CellSchema;
     };
   },
   {

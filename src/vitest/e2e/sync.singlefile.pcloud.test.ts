@@ -100,7 +100,7 @@ describe('SimpleStorageProvider with PCloud', { timeout: 10000 }, () => {
     driver = filesystem!['driver'] as PCloudDriver;
 
     notebook = notebooksService.getNotebooks()[0].id;
-    searchAncestryService.initSearchIndices();
+    searchAncestryService.start();
   });
   afterEach(async () => {
     console.debug('clearing files');

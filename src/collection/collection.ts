@@ -123,7 +123,7 @@ export const parseFieldMeta = (value: string): CollectionItemFieldMetadata => {
 
 export type HistorizedCollectionItem = {
   id?: string;
-  docId: string;
+  itemId: string;
   created: number;
   versionData: string;
   versionPreview: string;
@@ -143,3 +143,9 @@ export type HistorizedCollectionItemData = Pick<
   | 'display_opts_meta'
   | 'updated'
 >;
+
+export type HistorizedDocumentPagesRelation = {
+  id?: string;
+  docVersionId: string;
+  pageVersionId: string;
+};

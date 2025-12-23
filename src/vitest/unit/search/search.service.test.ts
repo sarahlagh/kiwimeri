@@ -26,7 +26,7 @@ describe('search service', () => {
   });
   beforeEach(() => {
     storageService.getSpace().setJson(jsonCollection);
-    searchAncestryService.initSearchIndices();
+    searchAncestryService.start();
   });
 
   describe('Search Lexical State', () => {

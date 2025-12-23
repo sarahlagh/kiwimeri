@@ -47,7 +47,7 @@
     "react-dom": "^18.3.0",
     "react-router": "^5.3.4",
     "react-router-dom": "^5.3.4",
-    "tinybase": "^6.6.0",
+    "tinybase": "^7.3.0",
     "zod": "^4.0.14"
   },
   "devDependencies": {
