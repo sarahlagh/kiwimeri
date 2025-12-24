@@ -244,7 +244,9 @@ class CollectionService {
     sort?: CollectionItemSort
   ): PageResult[] {
     if (!sort) {
-      sort = userSettingsService.getDefaultDisplayOpts().sort;
+      const displayOpts =
+        collectionService.getItemEffectiveDisplayOpts(document);
+      sort = displayOpts.sort;
     }
     const table = storageService.getSpace().getTable(this.tableId);
     const queryName = this.fetchPagesForDocQuery(document);
@@ -261,7 +263,9 @@ class CollectionService {
     sort?: CollectionItemSort
   ): PageResult[] {
     if (!sort) {
-      sort = userSettingsService.getDefaultDisplayOpts().sort;
+      const displayOpts =
+        collectionService.useItemEffectiveDisplayOpts(document);
+      sort = displayOpts.sort;
     }
     const table = useTableWithRef(this.storeId, this.tableId);
     const queryName = this.fetchPagesForDocQuery(document);
@@ -397,6 +401,8 @@ class CollectionService {
     const changeType = this.itemExists(id)
       ? LocalChangeType.update
       : LocalChangeType.add;
+    historyService.saveNow();
+    storageService.getSpace().setRow(this.tableId, id, { ...item });
     // TODO should probably check if a relevant field has been updated here
     if (
       item.type === CollectionItemType.page ||
@@ -404,7 +410,6 @@ class CollectionService {
     ) {
       historyService.addVersionFromItem({ ...item, id } as CollectionItem);
     }
-    storageService.getSpace().setRow(this.tableId, id, { ...item });
     if (parent) {
       this.updateAllParentsInBreadcrumb(parent);
     }
@@ -578,7 +583,8 @@ class CollectionService {
         rowId,
         'display_opts'
       ) || null;
-    return str ? JSON.parse(str) : defaultDisplayOpts;
+    const obj = this.parseDisplayOpts(str);
+    return obj ? obj : defaultDisplayOpts;
   }
 
   public getItemEffectiveDisplayOpts(rowId: Id): CollectionItemDisplayOpts {
@@ -586,9 +592,17 @@ class CollectionService {
       (storageService
         .getSpace()
         .getCell(this.tableId, rowId, 'display_opts')
-        ?.valueOf() as string) || '';
+        ?.valueOf() as string) || null;
+    const obj = this.parseDisplayOpts(str);
+    return obj ? obj : userSettingsService.getDefaultDisplayOpts();
+  }
 
-    return str ? JSON.parse(str) : userSettingsService.getDefaultDisplayOpts();
+  private parseDisplayOpts(str: string | null) {
+    const obj = str ? JSON.parse(str) : null;
+    if (obj && 'sort' in obj) {
+      return obj as CollectionItemDisplayOpts;
+    }
+    return null;
   }
 
   public setItemDisplayOpts(

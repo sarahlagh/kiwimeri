@@ -121,13 +121,28 @@ export const parseFieldMeta = (value: string): CollectionItemFieldMetadata => {
   return JSON.parse(value);
 };
 
-export type HistorizedCollectionItem = {
+export type HistorizedCollectionItemRow = {
   id?: string;
   itemId: string;
   created: number;
+  versionDataId: string;
+  pageVersions?: string; // array of ids
+};
+
+export type HistorizedVersionDataRow = {
+  id?: string;
   versionData: string;
   versionPreview: string;
 };
+
+export type CollectionItemVersion = Omit<
+  HistorizedCollectionItemRow,
+  'versionDataId'
+> &
+  Omit<HistorizedVersionDataRow, 'versionData'> & {
+    id: string;
+    versionData: HistorizedCollectionItemData;
+  };
 
 export type HistorizedCollectionItemData = Pick<
   CollectionItem,
@@ -144,9 +159,3 @@ export type HistorizedCollectionItemData = Pick<
   | 'updated'
 > &
   Partial<Pick<CollectionItem, 'order' | 'order_meta'>>;
-
-export type HistorizedDocumentPagesRelation = {
-  id?: string;
-  docVersionId: string;
-  pageVersionId: string;
-};

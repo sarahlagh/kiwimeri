@@ -1,6 +1,6 @@
 import {
-  HistorizedCollectionItem,
-  HistorizedCollectionItemData
+  HistorizedCollectionItemData,
+  HistorizedCollectionItemRow
 } from '@/collection/collection';
 import { APPICONS } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
@@ -53,7 +53,7 @@ const VersionPreview = ({
   version,
   lastPreview
 }: {
-  version: HistorizedCollectionItem;
+  version: HistorizedCollectionItemRow;
   lastPreview?: string;
 }) => {
   const versionData = JSON.parse(

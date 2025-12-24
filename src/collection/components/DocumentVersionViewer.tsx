@@ -71,9 +71,7 @@ const DocumentVersionViewer = ({
   }, [showActions]);
 
   const versionedItem = historyService.useVersion(docId, version);
-  const versionData = versionedItem
-    ? (JSON.parse(versionedItem.versionData) as HistorizedCollectionItemData)
-    : undefined;
+  const versionData = versionedItem?.versionData;
 
   const itemId = pageId ? pageId : docId;
   const reloadId = version;
@@ -82,10 +80,7 @@ const DocumentVersionViewer = ({
   const documentPreview = versionedItem?.versionPreview;
   const itemType = collectionService.getItemType(itemId);
 
-  const displayOpts = collectionService.useItemEffectiveDisplayOpts(docId);
-  const sort = displayOpts.sort;
-
-  const pages = collectionService.useDocumentPages(docId, sort);
+  const pages = collectionService.useDocumentPages(docId);
 
   useEffect(() => {
     if (query) {

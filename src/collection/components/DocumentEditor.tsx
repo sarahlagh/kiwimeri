@@ -55,10 +55,7 @@ const DocumentEditor = ({
   const documentPreview = searchAncestryService.useItemPreview(docId) || '';
   const itemType = collectionService.getItemType(itemId);
 
-  const displayOpts = collectionService.useItemEffectiveDisplayOpts(docId);
-  const sort = displayOpts.sort;
-
-  const pages = collectionService.useDocumentPages(docId, sort);
+  const pages = collectionService.useDocumentPages(docId);
   const onTitleChange = onTitleChangeFn(docId);
 
   const onClickedAnywhere: React.MouseEventHandler<HTMLIonContentElement> = (
