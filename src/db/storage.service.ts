@@ -181,12 +181,13 @@ class StorageService {
         history: {
           itemId: { type: 'string' } as CellSchema,
           created: { type: 'number' } as CellSchema,
-          versionDataId: { type: 'string' } as CellSchema,
+          versionData: { type: 'string' } as CellSchema,
+          contentId: { type: 'string' } as CellSchema,
           pageVersions: { type: 'string' } as CellSchema
         },
-        history_data: {
-          versionData: { type: 'string' } as CellSchema,
-          versionPreview: { type: 'string' } as CellSchema
+        history_content: {
+          content: { type: 'string' } as CellSchema,
+          preview: { type: 'string' } as CellSchema
         }
       })
       .setValuesSchema({

@@ -398,11 +398,12 @@ class CollectionService {
     if (!id) {
       id = getUniqueId();
     }
+    const space = storageService.getSpace();
     const changeType = this.itemExists(id)
       ? LocalChangeType.update
       : LocalChangeType.add;
-    historyService.saveNow();
-    storageService.getSpace().setRow(this.tableId, id, { ...item });
+    // space.transaction(() => {
+    space.setRow(this.tableId, id, { ...item });
     // TODO should probably check if a relevant field has been updated here
     if (
       item.type === CollectionItemType.page ||
@@ -414,6 +415,7 @@ class CollectionService {
       this.updateAllParentsInBreadcrumb(parent);
     }
     localChangesService.addLocalChange(id, changeType);
+    // });
     return id;
   }
 

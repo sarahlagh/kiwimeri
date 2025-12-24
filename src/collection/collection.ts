@@ -125,21 +125,22 @@ export type HistorizedCollectionItemRow = {
   id?: string;
   itemId: string;
   created: number;
-  versionDataId: string;
+  contentId: string;
+  versionData: string;
   pageVersions?: string; // array of ids
 };
 
-export type HistorizedVersionDataRow = {
+export type HistorizedVersionContentRow = {
   id?: string;
-  versionData: string;
-  versionPreview: string;
+  content: string;
+  preview: string;
 };
 
 export type CollectionItemVersion = Omit<
   HistorizedCollectionItemRow,
-  'versionDataId'
+  'contentId' | 'versionData'
 > &
-  Omit<HistorizedVersionDataRow, 'versionData'> & {
+  HistorizedVersionContentRow & {
     id: string;
     versionData: HistorizedCollectionItemData;
   };
@@ -148,7 +149,6 @@ export type HistorizedCollectionItemData = Pick<
   CollectionItem,
   | 'title'
   | 'title_meta'
-  | 'content'
   | 'content_meta'
   | 'tags'
   | 'tags_meta'

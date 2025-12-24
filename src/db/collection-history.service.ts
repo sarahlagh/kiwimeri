@@ -4,7 +4,7 @@ import {
   CollectionItemVersion,
   HistorizedCollectionItemData,
   HistorizedCollectionItemRow,
-  HistorizedVersionDataRow
+  HistorizedVersionContentRow
 } from '@/collection/collection';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { ResultRow } from 'tinybase/with-schemas';
@@ -15,7 +15,7 @@ import { useResultSortedRowIdsWithRef } from './tinybase/hooks';
 class CollectionHistoryService {
   private readonly storeId = 'space';
   private readonly tableId = 'history';
-  private readonly dataTableId = 'history_data';
+  private readonly contentTableId = 'history_content';
   private debounce = 60000; // TODO configurable
   private cache = new Map<string, number>();
   private timeouts = new Map<string, number>();
@@ -32,9 +32,10 @@ class CollectionHistoryService {
         select('itemId');
         select('created');
         select('pageVersions');
-        select('data', 'versionData');
-        select('data', 'versionPreview');
-        join('history_data', 'versionDataId').as('data');
+        select('versionData');
+        select('data', 'content');
+        select('data', 'preview');
+        join(this.contentTableId, 'contentId').as('data');
         where('itemId', param('itemId') as string);
       }
     );
@@ -55,7 +56,8 @@ class CollectionHistoryService {
       created: resultRow.created.valueOf() as number,
       itemId: resultRow.itemId.valueOf() as string,
       versionData: JSON.parse(resultRow.versionData.valueOf() as string),
-      versionPreview: resultRow.versionPreview.valueOf() as string
+      content: resultRow.content.valueOf() as string,
+      preview: resultRow.preview.valueOf() as string
     };
     if (resultRow.pageVersions) {
       version.pageVersions = resultRow.pageVersions.valueOf() as string;
@@ -108,21 +110,22 @@ class CollectionHistoryService {
 
   public getPagesForVersion(docVersionId: string): CollectionItemVersion[] {
     const table = storageService.getSpace().getTable(this.tableId);
-    const dataTable = storageService.getSpace().getTable(this.dataTableId);
+    const dataTable = storageService.getSpace().getTable(this.contentTableId);
     const row = storageService.getSpace().getRow(this.tableId, docVersionId);
     if (!row.pageVersions) return [];
     const pageVersions: string[] = JSON.parse(row.pageVersions.toString());
     return pageVersions.map(rowId => {
       const pageRow = table[rowId] as HistorizedCollectionItemRow;
-      const dataRow = dataTable[
-        pageRow.versionDataId
-      ] as HistorizedVersionDataRow;
+      const contentRow = dataTable[
+        pageRow.contentId
+      ] as HistorizedVersionContentRow;
       const version: CollectionItemVersion = {
         id: rowId,
         created: pageRow.created,
         itemId: pageRow.itemId,
-        versionData: JSON.parse(dataRow.versionData),
-        versionPreview: dataRow.versionPreview
+        versionData: JSON.parse(pageRow.versionData),
+        content: contentRow.content,
+        preview: contentRow.preview
       };
       return version;
     });
@@ -170,12 +173,16 @@ class CollectionHistoryService {
     const version = this.getVersions(id).find(v => v.id === versionId);
     if (!version) return;
     // copy version data to current collection item
-    const versionData = version.versionData;
     const current = storageService
       .getSpace()
       .getRow('collection', id) as CollectionItem;
     collectionService.saveItem(
-      { ...current, ...versionData, updated: Date.now() },
+      {
+        ...current,
+        ...version.versionData,
+        content: version.content,
+        updated: Date.now()
+      },
       id
     );
   }
@@ -184,7 +191,6 @@ class CollectionHistoryService {
     const data: HistorizedCollectionItemData = {
       title: item.title,
       title_meta: item.title_meta,
-      content: item.content,
       content_meta: item.content_meta,
       tags: item.tags,
       tags_meta: item.tags_meta,
@@ -207,14 +213,15 @@ class CollectionHistoryService {
     let versionId: string | undefined;
     space.transaction(() => {
       // TODO must check if changes? so i don't add an unnecessary versionData, i can just link the previous
-      const versionDataId = space.addRow(this.dataTableId, {
-        versionData: this.buildVersionData(item),
-        versionPreview: searchAncestryService.getUnsavedItemPreview(item)
+      const contentId = space.addRow(this.contentTableId, {
+        content: item.content || '',
+        preview: searchAncestryService.getUnsavedItemPreview(item)
       });
       versionId = space.addRow(this.tableId, {
         itemId: item.id,
         created: item.updated,
-        versionDataId
+        versionData: this.buildVersionData(item),
+        contentId
       });
       if (item.type === CollectionItemType.page) {
         // if page, add document version too, and relation to document
@@ -259,14 +266,15 @@ class CollectionHistoryService {
       const pages = collectionService.getDocumentPages(docId);
       pages.forEach(p => {
         const page = collectionService.getItem(p.id);
-        const versionDataId = space.addRow(this.dataTableId, {
-          versionData: this.buildVersionData(page),
-          versionPreview: searchAncestryService.getUnsavedItemPreview(page)
+        const contentId = space.addRow(this.contentTableId, {
+          content: page.content || '',
+          preview: searchAncestryService.getUnsavedItemPreview(page)
         });
         space.addRow(this.tableId, {
           itemId: page.id,
           created: page.updated,
-          versionDataId
+          versionData: this.buildVersionData(page),
+          contentId
         });
       });
       this.addVersion(docId);

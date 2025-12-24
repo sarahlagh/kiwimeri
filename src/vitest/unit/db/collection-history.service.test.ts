@@ -49,7 +49,6 @@ describe('collection history service', () => {
         expect(versionData).toEqual({
           title: rowBefore.title,
           title_meta: rowBefore.title_meta,
-          content: rowBefore.content,
           content_meta: rowBefore.content_meta,
           tags: rowBefore.tags,
           tags_meta: rowBefore.tags_meta,
@@ -59,7 +58,11 @@ describe('collection history service', () => {
           display_opts_meta: rowBefore.display_opts_meta,
           updated: rowBefore.updated
         });
-        expect(versionData[field]).toBe(newValue);
+        if (field !== 'content') {
+          expect(versionData[field]).toBe(newValue);
+        } else {
+          expect(versions[0].content).toBe(newValue);
+        }
       });
     });
 
@@ -191,7 +194,6 @@ describe('collection history service', () => {
         expect(versionData).toEqual({
           title: rowBefore.title,
           title_meta: rowBefore.title_meta,
-          content: rowBefore.content,
           content_meta: rowBefore.content_meta,
           tags: rowBefore.tags,
           tags_meta: rowBefore.tags_meta,
@@ -203,7 +205,11 @@ describe('collection history service', () => {
           order_meta: rowBefore.order_meta,
           updated: rowBefore.updated
         });
-        expect(versionData[field]).toBe(newValue);
+        if (field !== 'content') {
+          expect(versionData[field]).toBe(newValue);
+        } else {
+          expect(versions[0].content).toBe(newValue);
+        }
       });
     });
 
@@ -274,8 +280,8 @@ describe('collection history service', () => {
       expect(pageVersions).toHaveLength(1);
       const pageVersion = pageVersions[0];
       expect(pageVersion.itemId).toBe(pageId);
-      expect(pageVersion.versionData.content).toBe(initialContent());
-      expect(pageVersion.versionPreview).toBe('');
+      expect(pageVersion.content).toBe(initialContent());
+      expect(pageVersion.preview).toBe('');
 
       const restoredItem = storageService
         .getSpace()
@@ -316,14 +322,14 @@ describe('collection history service', () => {
       expect(pageVersions).toHaveLength(1);
       let pageVersion = pageVersions[0];
       expect(pageVersion.itemId).toBe(pageId);
-      expect(pageVersion.versionData.content).toBe(initialContent());
-      expect(pageVersion.versionPreview).toBe('');
+      expect(pageVersion.content).toBe(initialContent());
+      expect(pageVersion.preview).toBe('');
 
       pageVersions = historyService.getPagesForVersion(docVersions[1].id!);
       expect(pageVersions).toHaveLength(1);
       pageVersion = pageVersions[0];
       expect(pageVersion.itemId).toBe(pageId);
-      expect(pageVersion.versionData.content).toBe(newValue2);
+      expect(pageVersion.content).toBe(newValue2);
 
       const restoredItem = storageService
         .getSpace()
@@ -452,7 +458,7 @@ describe('collection history service', () => {
           const versionedPages = historyService.getPagesForVersion(
             docVersions[0].id!
           );
-          expect(versionedPages.map(p => p.versionPreview)).toEqual(expected);
+          expect(versionedPages.map(p => p.preview)).toEqual(expected);
         });
       });
     });
