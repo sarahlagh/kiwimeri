@@ -168,9 +168,36 @@ describe('collection history service', () => {
       expect(versions).toHaveLength(1);
     });
 
-    it.todo(`should also restore all pages when restoring a document`);
+    it(`should also restore all pages when restoring a document`, () => {
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const page1 = collectionService.addPage(docId);
+      collectionService.addPage(docId);
+      vi.advanceTimersByTime(100);
 
-    it.todo(`should erase all versions on a hard delete`);
+      let versions = historyService.getVersions(docId);
+      expect(versions).toHaveLength(3);
+
+      historyService.restoreVersion(docId, versions[1].id);
+      vi.advanceTimersByTime(100);
+
+      versions = historyService.getVersions(docId);
+      expect(versions).toHaveLength(4);
+      expect(versions[0].pageVersions).toBe(
+        JSON.stringify([historyService.getLatestVersion(page1).id])
+      );
+    });
+
+    it(`should erase all versions on a hard delete`, () => {
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      expect(historyService.getVersions(docId)).toHaveLength(1);
+      vi.advanceTimersByTime(100);
+      collectionService.setItemTitle(docId, 'new title');
+      vi.advanceTimersByTime(100);
+
+      collectionService.deleteItem(docId);
+      expect(historyService.getVersions(docId)).toHaveLength(0);
+      expect(storageService.getSpace().getRowCount('history_content')).toBe(0);
+    });
   });
 
   describe(`operations on a page`, () => {
@@ -508,6 +535,37 @@ describe('collection history service', () => {
       });
     });
 
-    it.todo(`should erase all versions on a hard delete`);
+    it(`should not erase all page versions on a hard delete if document still exists`, () => {
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const pageId1 = collectionService.addPage(docId);
+      expect(historyService.getVersions(pageId1)).toHaveLength(1);
+      vi.advanceTimersByTime(100);
+
+      collectionService.deleteItem(pageId1);
+      const docVersions = historyService.getVersions(docId);
+      expect(docVersions).toHaveLength(3);
+      expect(historyService.getVersions(pageId1)).toHaveLength(1);
+      expect(historyService.getPagesForVersion(docVersions[0].id)).toHaveLength(
+        0
+      );
+      expect(storageService.getSpace().getRowCount('history_content')).toBe(2);
+    });
+
+    it(`should erase all pages and document versions on a document hard delete`, () => {
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const pageId1 = collectionService.addPage(docId);
+      const pageId2 = collectionService.addPage(docId);
+      expect(historyService.getVersions(docId)).toHaveLength(3);
+      vi.advanceTimersByTime(100);
+
+      collectionService.deleteItem(docId);
+      expect(historyService.getVersions(docId)).toHaveLength(0);
+      expect(historyService.getVersions(pageId1)).toHaveLength(0);
+      expect(historyService.getVersions(pageId2)).toHaveLength(0);
+      expect(storageService.getSpace().getRowCount('history_content')).toBe(0);
+    });
+
+    // TODO when debouncing both document change and page change, or two different page changes on same doc,
+    // should only create one document version at the end
   });
 });

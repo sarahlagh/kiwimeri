@@ -416,16 +416,18 @@ class CollectionService {
       item.type === CollectionItemType.page ||
       item.type === CollectionItemType.document
     ) {
-      historyService.addVersionFromItem({ ...item, id } as CollectionItem);
+      historyService.saveVersionFromItem({ ...item, id } as CollectionItem);
     }
 
     return id;
   }
 
-  public deleteItem(rowId: Id, moveItemsUp = false) {
+  public deleteItem(rowId: Id, moveItemsUp = false, isRootDeletion = true) {
     this.updateAllParentsInBreadcrumb(this.getItemParent(rowId));
-    const wasFolder = this.getItemType(rowId) === CollectionItemType.folder;
-    const wasDocument = this.getItemType(rowId) === CollectionItemType.document;
+    const itemType = this.getItemType(rowId);
+    const wasFolder = itemType === CollectionItemType.folder;
+    const wasDocument = itemType === CollectionItemType.document;
+    const wasPage = itemType === CollectionItemType.page;
     const parent = this.getItemParent(rowId);
     localChangesService.addLocalChange(rowId, LocalChangeType.delete);
     if (wasFolder) {
@@ -437,7 +439,7 @@ class CollectionService {
       if (children.length > 0) {
         children.forEach(id => {
           if (!moveItemsUp) {
-            this.deleteItem(id);
+            this.deleteItem(id, undefined, false);
           } else {
             this.setItemParent(id, parent);
           }
@@ -452,9 +454,12 @@ class CollectionService {
       console.debug(`document to delete had ${children.length} pages`);
       if (children.length > 0) {
         children.forEach(id => {
-          this.deleteItem(id);
+          this.deleteItem(id, undefined, false);
         });
       }
+    }
+    if (wasDocument || wasPage) {
+      historyService.deleteVersions(rowId, itemType, isRootDeletion);
     }
     storageService.getSpace().delRow(this.tableId, rowId);
   }
@@ -629,7 +634,7 @@ class CollectionService {
         this.setItemField(items[idx].id, 'order', order, parent !== undefined);
       });
       if (parent && items.length > 0) {
-        historyService.addWholeDocumentVersion(parent);
+        historyService.saveWholeDocumentVersion(parent);
       }
     });
   }

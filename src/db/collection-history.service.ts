@@ -1,6 +1,7 @@
 import {
   CollectionItem,
   CollectionItemType,
+  CollectionItemTypeValues,
   CollectionItemVersion,
   HistorizedCollectionItemData,
   HistorizedCollectionItemRow,
@@ -147,7 +148,7 @@ class CollectionHistoryService {
 
   public addVersion(id: string, sync = false) {
     if (sync) {
-      this.saveVersion(id);
+      this.saveVersionSync(id);
       return;
     }
     if (!this.cache.has(id)) this.cache.set(id, 0);
@@ -157,7 +158,7 @@ class CollectionHistoryService {
         id,
         setTimeout(
           () => {
-            this.saveVersion(id);
+            this.saveVersionSync(id);
             this.timeouts.delete(id);
           },
           this.debounce,
@@ -181,7 +182,6 @@ class CollectionHistoryService {
     return itemLastUpdated === versionCreated;
   }
 
-  // TODO if version not pushed, reset local changes
   public restoreVersion(id: string, versionId: string) {
     this.saveNow();
     const version = this.getVersions(id).find(v => v.id === versionId);
@@ -199,6 +199,10 @@ class CollectionHistoryService {
       },
       id
     );
+    // TODO if document and has pages... ouch
+    // must delete non-existant pages in old version
+    // must recreate deleted pages after old version
+    // must update the others
   }
 
   private buildVersionData(item: CollectionItem) {
@@ -221,7 +225,7 @@ class CollectionHistoryService {
     return JSON.stringify(data);
   }
 
-  public addVersionFromItem(item: CollectionItem) {
+  public saveVersionFromItem(item: CollectionItem, skipPages: string[] = []) {
     console.debug('[history] saving new version for item', item.id);
     const space = storageService.getSpace();
     let versionId: string | undefined;
@@ -240,13 +244,16 @@ class CollectionHistoryService {
         'collection',
         item.parent
       ) as CollectionItem;
-      this.addVersionFromItem({
-        ...parentDoc,
-        id: item.parent,
-        updated: item.updated
-      });
+      this.saveVersionFromItem(
+        {
+          ...parentDoc,
+          id: item.parent,
+          updated: item.updated
+        },
+        skipPages
+      );
     } else if (item.type === CollectionItemType.document) {
-      this.setPageVersions(item.id!, versionId!);
+      this.setPageVersions(item.id!, versionId!, skipPages);
     }
     return versionId;
   }
@@ -265,9 +272,16 @@ class CollectionHistoryService {
     });
   }
 
-  private setPageVersions(docId: string, docVersionId: string) {
-    const pages = collectionService.getDocumentPages(docId); // will only catch previously existing pages
-    const pageVersions = pages.map(page => this.getLatestVersion(page.id)?.id);
+  private setPageVersions(
+    docId: string,
+    docVersionId: string,
+    skipPages: string[] = []
+  ) {
+    const pageIds = collectionService
+      .getDocumentPages(docId)
+      .map(p => p.id)
+      .filter(id => !skipPages.includes(id));
+    const pageVersions = pageIds.map(id => this.getLatestVersion(id)?.id);
     storageService
       .getSpace()
       .setCell(
@@ -279,7 +293,7 @@ class CollectionHistoryService {
   }
 
   // increment doc and its pages in one go
-  public addWholeDocumentVersion(docId: string) {
+  public saveWholeDocumentVersion(docId: string) {
     console.debug('[history] saving new full version for doc', docId);
     const space = storageService.getSpace();
     space.transaction(() => {
@@ -298,17 +312,43 @@ class CollectionHistoryService {
     });
   }
 
-  private saveVersion(id: string) {
+  public deleteVersions(
+    itemId: string,
+    type: CollectionItemTypeValues,
+    isRootDeletion = false
+  ) {
+    if (type === CollectionItemType.page && isRootDeletion) {
+      // if individual page deletion, don't delete if document still exists, but,
+      // must create a new document version
+      // !! without the page about to be deleted...
+      this.saveVersionSync(collectionService.getItemParent(itemId), [itemId]);
+      return;
+    }
+    this.getVersions(itemId).forEach(v => this.deleteVersion(v.id!));
+  }
+
+  private deleteVersion(versionId: string) {
+    const space = storageService.getSpace();
+    const contentId = space
+      .getCell(this.tableId, versionId, 'contentId')
+      ?.toString();
+    space.transaction(() => {
+      space.delRow(this.tableId, versionId);
+      if (contentId) space.delRow(this.contentTableId, contentId);
+    });
+  }
+
+  private saveVersionSync(id: string, skipPages: string[] = []) {
     const space = storageService.getSpace();
     const current = space.getRow('collection', id);
-    this.addVersionFromItem({ ...current, id } as CollectionItem);
+    this.saveVersionFromItem({ ...current, id } as CollectionItem, skipPages);
   }
 
   // when leaving app, must save pending timeouts
   public saveNow() {
     this.timeouts.forEach((t, id) => {
       clearTimeout(t);
-      this.saveVersion(id);
+      this.saveVersionSync(id);
     });
     this.timeouts.clear();
   }
