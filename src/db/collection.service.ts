@@ -402,8 +402,15 @@ class CollectionService {
     const changeType = this.itemExists(id)
       ? LocalChangeType.update
       : LocalChangeType.add;
-    // space.transaction(() => {
-    space.setRow(this.tableId, id, { ...item });
+    space.transaction(() => {
+      space.setRow(this.tableId, id, { ...item });
+      if (parent) {
+        this.updateAllParentsInBreadcrumb(parent);
+      }
+      localChangesService.addLocalChange(id, changeType);
+    });
+
+    // TODO not sure why transaction breaks addVersionFromItem here
     // TODO should probably check if a relevant field has been updated here
     if (
       item.type === CollectionItemType.page ||
@@ -411,11 +418,7 @@ class CollectionService {
     ) {
       historyService.addVersionFromItem({ ...item, id } as CollectionItem);
     }
-    if (parent) {
-      this.updateAllParentsInBreadcrumb(parent);
-    }
-    localChangesService.addLocalChange(id, changeType);
-    // });
+
     return id;
   }
 

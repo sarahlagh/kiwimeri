@@ -162,6 +162,8 @@ describe('collection history service', () => {
       expect(versions).toHaveLength(1);
     });
 
+    it.todo(`should also restore all pages when restoring a document`);
+
     it.todo(`should erase all versions on a hard delete`);
   });
 
@@ -210,6 +212,11 @@ describe('collection history service', () => {
         } else {
           expect(versions[0].content).toBe(newValue);
         }
+        const docVersions = historyService.getVersions(docId);
+        expect(docVersions).toHaveLength(3);
+        expect(docVersions[0].pageVersions).toBe(
+          JSON.stringify([versions[0].id])
+        );
       });
     });
 
@@ -226,31 +233,57 @@ describe('collection history service', () => {
       expect(space.getRowCount('history')).toBe(8);
       const docVersions = historyService.getVersions(docId);
       expect(docVersions).toHaveLength(5);
-      expect(historyService.getVersions(pageId1)).toHaveLength(2);
-      expect(historyService.getVersions(pageId2)).toHaveLength(1);
 
+      const page1Versions = historyService.getVersions(pageId1);
+      const page2Versions = historyService.getVersions(pageId2);
+
+      expect(docVersions[0].pageVersions).toBe(
+        JSON.stringify([page1Versions[0].id, page2Versions[0].id])
+      );
+
+      expect(page1Versions).toHaveLength(2);
+      expect(page2Versions).toHaveLength(1);
+
+      // change page1 content
       let pages = historyService.getPagesForVersion(docVersions[0].id!);
       expect(pages).toHaveLength(2);
       expect(pages.map(p => p.itemId)).toEqual([pageId1, pageId2]);
+      expect(pages.map(p => p.id)).toEqual([
+        page1Versions[0].id,
+        page2Versions[0].id
+      ]);
 
+      // change doc title
       pages = historyService.getPagesForVersion(docVersions[1].id!);
       expect(pages).toHaveLength(2);
       expect(pages.map(p => p.itemId)).toEqual([pageId1, pageId2]);
+      expect(pages.map(p => p.id)).toEqual([
+        page1Versions[1].id,
+        page2Versions[0].id
+      ]);
 
+      // add page2
       pages = historyService.getPagesForVersion(docVersions[2].id!);
       expect(pages).toHaveLength(2);
       expect(pages.map(p => p.itemId)).toEqual([pageId1, pageId2]);
+      expect(pages.map(p => p.id)).toEqual([
+        page1Versions[1].id,
+        page2Versions[0].id
+      ]);
 
+      // add page1
       pages = historyService.getPagesForVersion(docVersions[3].id!);
       expect(pages).toHaveLength(1);
       expect(pages.map(p => p.itemId)).toEqual([pageId1]);
+      expect(pages.map(p => p.id)).toEqual([page1Versions[1].id]);
 
+      // initial doc creation
       expect(
         historyService.getPagesForVersion(docVersions[4].id!)
       ).toHaveLength(0);
     });
 
-    it(`should restore a page and create new document version`, () => {
+    it(`should restore a single page and create new document version`, () => {
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       const pageId = collectionService.addPage(docId);
       const itemBefore = storageService
@@ -267,6 +300,11 @@ describe('collection history service', () => {
       expect(versions).toHaveLength(2);
 
       vi.advanceTimersByTime(100);
+      const table = storageService.getSpace().getTable('history');
+      const tableData = storageService.getSpace().getTable('history_content');
+      console.log(table);
+      console.log(tableData);
+
       historyService.restoreVersion(pageId, versions[1].id!);
 
       docVersions = historyService.getVersions(docId);

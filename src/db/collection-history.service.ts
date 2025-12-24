@@ -21,7 +21,6 @@ class CollectionHistoryService {
   private timeouts = new Map<string, number>();
 
   private readonly versionsQuery = 'versions';
-  private readonly docVersionIndex = 'byDocVersionId';
 
   public start(space?: string) {
     const queries = storageService.getSpaceQueries(space);
@@ -33,9 +32,9 @@ class CollectionHistoryService {
         select('created');
         select('pageVersions');
         select('versionData');
-        select('data', 'content');
-        select('data', 'preview');
-        join(this.contentTableId, 'contentId').as('data');
+        select('contentData', 'content');
+        select('contentData', 'preview');
+        join(this.contentTableId, 'contentId').as('contentData');
         where('itemId', param('itemId') as string);
       }
     );
@@ -111,15 +110,17 @@ class CollectionHistoryService {
   public getPagesForVersion(docVersionId: string): CollectionItemVersion[] {
     const table = storageService.getSpace().getTable(this.tableId);
     const dataTable = storageService.getSpace().getTable(this.contentTableId);
-    const row = storageService.getSpace().getRow(this.tableId, docVersionId);
-    if (!row.pageVersions) return [];
-    const pageVersions: string[] = JSON.parse(row.pageVersions.toString());
+    const rawPageVersions = storageService
+      .getSpace()
+      .getCell(this.tableId, docVersionId, 'pageVersions');
+    if (!rawPageVersions) return [];
+    const pageVersions: string[] = JSON.parse(rawPageVersions.toString());
     return pageVersions.map(rowId => {
       const pageRow = table[rowId] as HistorizedCollectionItemRow;
       const contentRow = dataTable[
         pageRow.contentId
       ] as HistorizedVersionContentRow;
-      const version: CollectionItemVersion = {
+      return {
         id: rowId,
         created: pageRow.created,
         itemId: pageRow.itemId,
@@ -127,7 +128,6 @@ class CollectionHistoryService {
         content: contentRow.content,
         preview: contentRow.preview
       };
-      return version;
     });
   }
 
@@ -207,12 +207,12 @@ class CollectionHistoryService {
     return JSON.stringify(data);
   }
 
-  public addVersionFromItem(item: CollectionItem, skipPage = false) {
-    console.debug('[history] saving new version for doc', item.id);
+  public addVersionFromItem(item: CollectionItem) {
+    console.debug('[history] saving new version for item', item.id);
     const space = storageService.getSpace();
     let versionId: string | undefined;
+    // TODO must check if changes? so i don't add an unnecessary versionData, i can just link the previous
     space.transaction(() => {
-      // TODO must check if changes? so i don't add an unnecessary versionData, i can just link the previous
       const contentId = space.addRow(this.contentTableId, {
         content: item.content || '',
         preview: searchAncestryService.getUnsavedItemPreview(item)
@@ -223,30 +223,33 @@ class CollectionHistoryService {
         versionData: this.buildVersionData(item),
         contentId
       });
-      if (item.type === CollectionItemType.page) {
-        // if page, add document version too, and relation to document
-        const parentDoc = space.getRow(
-          'collection',
-          item.parent
-        ) as CollectionItem;
-        const docVersionId = this.addVersionFromItem(
-          {
-            ...parentDoc,
-            id: item.parent,
-            updated: item.updated
-          },
-          true
-        );
-        this.setPageVersions(item.parent, docVersionId!);
-      } else if (item.type === CollectionItemType.document && !skipPage) {
-        this.setPageVersions(item.id!, versionId!);
-      }
     });
+    if (item.type === CollectionItemType.page) {
+      // if page, add document version too, and relation to document
+      const parentDoc = space.getRow(
+        'collection',
+        item.parent
+      ) as CollectionItem;
+      this.addVersionFromItem({
+        ...parentDoc,
+        id: item.parent,
+        updated: item.updated
+      });
+      // this.setPageVersions(item.parent, docVersionId!);
+    } else if (item.type === CollectionItemType.document) {
+      // && !skipPage) {
+      this.setPageVersions(item.id!, versionId!);
+    }
+    // });
     return versionId;
   }
 
   private setPageVersions(docId: string, docVersionId: string) {
     const pages = collectionService.getDocumentPages(docId); // will only catch previously existing pages
+    if (pages.length > 0) {
+      const versions = this.getVersions(pages[0].id);
+      console.log('page versions', versions);
+    }
     const pageVersions = pages.map(page => this.getLatestVersion(page.id)?.id);
     storageService
       .getSpace()
@@ -282,7 +285,8 @@ class CollectionHistoryService {
   }
 
   private saveVersion(id: string) {
-    const current = storageService.getSpace().getRow('collection', id);
+    const space = storageService.getSpace();
+    const current = space.getRow('collection', id);
     this.addVersionFromItem({ ...current, id } as CollectionItem);
   }
 
