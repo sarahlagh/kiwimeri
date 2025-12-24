@@ -134,13 +134,14 @@ export type HistorizedVersionContentRow = {
   id?: string;
   content: string;
   preview: string;
+  hash: number;
 };
 
 export type CollectionItemVersion = Omit<
   HistorizedCollectionItemRow,
   'contentId' | 'versionData'
 > &
-  HistorizedVersionContentRow & {
+  Omit<HistorizedVersionContentRow, 'hash'> & {
     id: string;
     versionData: HistorizedCollectionItemData;
   };

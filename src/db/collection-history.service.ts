@@ -7,10 +7,11 @@ import {
   HistorizedVersionContentRow
 } from '@/collection/collection';
 import { searchAncestryService } from '@/search/search-ancestry.service';
-import { ResultRow } from 'tinybase/with-schemas';
+import { getHash, ResultRow, Store } from 'tinybase/with-schemas';
 import collectionService from './collection.service';
 import storageService from './storage.service';
 import { useResultSortedRowIdsWithRef } from './tinybase/hooks';
+import { SpaceType } from './types/space-types';
 
 class CollectionHistoryService {
   private readonly storeId = 'space';
@@ -20,7 +21,8 @@ class CollectionHistoryService {
   private cache = new Map<string, number>();
   private timeouts = new Map<string, number>();
 
-  private readonly versionsQuery = 'versions';
+  private readonly versionsQuery = 'VersionsByItemId';
+  private readonly hashQuery = 'ContentByHash';
 
   public start(space?: string) {
     const queries = storageService.getSpaceQueries(space);
@@ -38,12 +40,26 @@ class CollectionHistoryService {
         where('itemId', param('itemId') as string);
       }
     );
+    queries.setQueryDefinition(
+      this.hashQuery,
+      this.contentTableId,
+      ({ select, where, param }) => {
+        select('hash');
+        where('hash', param('hash') as string);
+      }
+    );
   }
 
   private setVersionsQueryParam(itemId: string) {
     storageService
       .getSpaceQueries()
       .setParamValue(this.versionsQuery, 'itemId', itemId);
+  }
+
+  private setHashQueryParam(hash: number) {
+    storageService
+      .getSpaceQueries()
+      .setParamValue(this.hashQuery, 'hash', hash);
   }
 
   private mapToCollectionItemVersion = (
@@ -65,38 +81,36 @@ class CollectionHistoryService {
   };
 
   private getResults(queryName: string) {
-    const queries = storageService.getSpaceQueries();
-    const results = queries
-      .getResultSortedRowIds(queryName, 'created', true)
-      .map(rowId => {
-        const resultRow = queries.getResultRow(queryName, rowId);
-        return this.mapToCollectionItemVersion(rowId, resultRow);
-      });
-    return results;
+    return storageService
+      .getSpaceQueries()
+      .getResultSortedRowIds(queryName, 'created', true);
   }
 
   private useResults(queryName: string) {
-    const queries = storageService.getSpaceQueries();
-    const results = useResultSortedRowIdsWithRef(
+    return useResultSortedRowIdsWithRef(
       this.storeId,
       queryName,
       'created',
       true
-    ).map(rowId => {
-      const resultRow = queries.getResultRow(queryName, rowId);
-      return this.mapToCollectionItemVersion(rowId, resultRow);
-    });
-    return results;
+    );
   }
 
   public getVersions(itemId: string): CollectionItemVersion[] {
+    const queries = storageService.getSpaceQueries();
     this.setVersionsQueryParam(itemId);
-    return this.getResults(this.versionsQuery);
+    return this.getResults(this.versionsQuery).map(rowId => {
+      const resultRow = queries.getResultRow(this.versionsQuery, rowId);
+      return this.mapToCollectionItemVersion(rowId, resultRow);
+    });
   }
 
   public useVersions(itemId: string): CollectionItemVersion[] {
+    const queries = storageService.getSpaceQueries();
     this.setVersionsQueryParam(itemId);
-    return this.useResults(this.versionsQuery);
+    return this.useResults(this.versionsQuery).map(rowId => {
+      const resultRow = queries.getResultRow(this.versionsQuery, rowId);
+      return this.mapToCollectionItemVersion(rowId, resultRow);
+    });
   }
 
   public getLatestVersion(itemId: string) {
@@ -211,12 +225,8 @@ class CollectionHistoryService {
     console.debug('[history] saving new version for item', item.id);
     const space = storageService.getSpace();
     let versionId: string | undefined;
-    // TODO must check if changes? so i don't add an unnecessary versionData, i can just link the previous
     space.transaction(() => {
-      const contentId = space.addRow(this.contentTableId, {
-        content: item.content || '',
-        preview: searchAncestryService.getUnsavedItemPreview(item)
-      });
+      const contentId = this.getOrCreatedContentId(space, item);
       versionId = space.addRow(this.tableId, {
         itemId: item.id,
         created: item.updated,
@@ -235,21 +245,28 @@ class CollectionHistoryService {
         id: item.parent,
         updated: item.updated
       });
-      // this.setPageVersions(item.parent, docVersionId!);
     } else if (item.type === CollectionItemType.document) {
-      // && !skipPage) {
       this.setPageVersions(item.id!, versionId!);
     }
-    // });
     return versionId;
+  }
+
+  private getOrCreatedContentId(space: Store<SpaceType>, item: CollectionItem) {
+    const hash = getHash(item.id! + item.content || '');
+    this.setHashQueryParam(hash);
+    const results = this.getResults(this.hashQuery);
+    if (results.length > 0) {
+      return results[0];
+    }
+    return space.addRow(this.contentTableId, {
+      content: item.content || '',
+      preview: searchAncestryService.getUnsavedItemPreview(item),
+      hash
+    });
   }
 
   private setPageVersions(docId: string, docVersionId: string) {
     const pages = collectionService.getDocumentPages(docId); // will only catch previously existing pages
-    if (pages.length > 0) {
-      const versions = this.getVersions(pages[0].id);
-      console.log('page versions', versions);
-    }
     const pageVersions = pages.map(page => this.getLatestVersion(page.id)?.id);
     storageService
       .getSpace()
@@ -269,10 +286,7 @@ class CollectionHistoryService {
       const pages = collectionService.getDocumentPages(docId);
       pages.forEach(p => {
         const page = collectionService.getItem(p.id);
-        const contentId = space.addRow(this.contentTableId, {
-          content: page.content || '',
-          preview: searchAncestryService.getUnsavedItemPreview(page)
-        });
+        const contentId = this.getOrCreatedContentId(space, page);
         space.addRow(this.tableId, {
           itemId: page.id,
           created: page.updated,

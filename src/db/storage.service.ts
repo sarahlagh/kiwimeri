@@ -187,7 +187,8 @@ class StorageService {
         },
         history_content: {
           content: { type: 'string' } as CellSchema,
-          preview: { type: 'string' } as CellSchema
+          preview: { type: 'string' } as CellSchema,
+          hash: { type: 'number' } as CellSchema
         }
       })
       .setValuesSchema({

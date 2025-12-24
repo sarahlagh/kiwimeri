@@ -60,8 +60,14 @@ describe('collection history service', () => {
         });
         if (field !== 'content') {
           expect(versionData[field]).toBe(newValue);
+          expect(storageService.getSpace().getRowCount('history_content')).toBe(
+            1
+          );
         } else {
           expect(versions[0].content).toBe(newValue);
+          expect(storageService.getSpace().getRowCount('history_content')).toBe(
+            2
+          );
         }
       });
     });
@@ -209,8 +215,14 @@ describe('collection history service', () => {
         });
         if (field !== 'content') {
           expect(versionData[field]).toBe(newValue);
+          expect(storageService.getSpace().getRowCount('history_content')).toBe(
+            2
+          );
         } else {
           expect(versions[0].content).toBe(newValue);
+          expect(storageService.getSpace().getRowCount('history_content')).toBe(
+            3
+          );
         }
         const docVersions = historyService.getVersions(docId);
         expect(docVersions).toHaveLength(3);
@@ -300,11 +312,6 @@ describe('collection history service', () => {
       expect(versions).toHaveLength(2);
 
       vi.advanceTimersByTime(100);
-      const table = storageService.getSpace().getTable('history');
-      const tableData = storageService.getSpace().getTable('history_content');
-      console.log(table);
-      console.log(tableData);
-
       historyService.restoreVersion(pageId, versions[1].id!);
 
       docVersions = historyService.getVersions(docId);
