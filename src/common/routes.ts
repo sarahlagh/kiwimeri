@@ -12,6 +12,8 @@ export const FOLDER_ROUTE = '/collection';
 export const DOCUMENT_ROUTE = '/document';
 export const VERSION_ROUTE = '/version';
 
+// TODO use URLSearchParams
+
 export const GET_FOLDER_ROUTE = (parent: string, query?: string | null) =>
   `${FOLDER_ROUTE}?folder=${parent}${query ? '&query=' + query : ''}`;
 export const GET_DOCUMENT_ROUTE = (
@@ -72,23 +74,22 @@ export const GET_UNKNOWN_ITEM_ROUTE = (
 };
 
 export const GET_VERSIONED_ROUTE = (
-  itemId: string,
-  type: CollectionItemTypeValues,
-  version: string,
+  itemType: CollectionItemTypeValues,
+  docVersion: string,
+  docId: string,
+  folder: string,
+  pageId?: string,
+  pageVersion?: string,
   query?: string | null
 ) => {
-  let route, parent, doc;
-  switch (type) {
+  let route;
+  switch (itemType) {
     case CollectionItemType.page:
-      doc = collectionService.getItemParent(itemId);
-      parent = collectionService.getItemParent(doc);
-      route = GET_PAGE_ROUTE(parent, doc, itemId, query);
-      route = `${VERSION_ROUTE}?version=${version}&folder=${parent}&document=${doc}&page=${itemId}${query ? '&query=' + query : ''}`;
+      route = `${VERSION_ROUTE}?docVersion=${docVersion}&pageVersion=${pageVersion}&folder=${folder}&document=${docId}&page=${pageId}${query ? '&query=' + query : ''}`;
       break;
     case CollectionItemType.document:
     default:
-      parent = collectionService.getItemParent(itemId);
-      route = `${VERSION_ROUTE}?version=${version}&folder=${parent}&document=${itemId}${query ? '&query=' + query : ''}`;
+      route = `${VERSION_ROUTE}?docVersion=${docVersion}&folder=${folder}&document=${docId}${query ? '&query=' + query : ''}`;
       break;
   }
   return route;

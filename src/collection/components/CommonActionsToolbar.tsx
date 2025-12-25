@@ -23,6 +23,7 @@ export type CommonActionsToolbarProps = {
   showInfo?: boolean;
   showClose?: boolean;
   showDelete?: boolean;
+  showHistory?: boolean;
 } & React.HTMLAttributes<HTMLIonToolbarElement> & {
     readonly children?: ReactNode;
   };
@@ -36,6 +37,7 @@ const CommonActionsToolbar = ({
   showClose = false,
   showInfo = false,
   showDelete = true,
+  showHistory = false,
   children,
   getBackRoute,
   onClose
@@ -78,9 +80,7 @@ const CommonActionsToolbar = ({
           </IonButton>
         )}
 
-        {type === CollectionItemType.document && (
-          <ManageHistoryButton id={docId} />
-        )}
+        {showHistory && <ManageHistoryButton id={docId} />}
 
         {children}
 

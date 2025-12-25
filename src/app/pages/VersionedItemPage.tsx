@@ -13,17 +13,18 @@ import TemplateCompactableSplitPage from './TemplateCompactableSplitPage';
 
 const VersionedItemPage = () => {
   const location = useLocation();
-  const searchParams = getSearchParams(location.search);
   const notebook = notebooksService.useCurrentNotebook();
-  const docId = searchParams.document || notebook;
-  const parent = searchParams.folder || notebook;
+  const searchParams = getSearchParams(location.search);
+  const docId = searchParams.document;
+  const parentFolder = searchParams.folder || notebook;
   const pageId = searchParams.page;
-  const version = searchParams.version;
+  const docVersion = searchParams.docVersion;
+  const pageVersion = searchParams.pageVersion;
 
   const [showDocumentActions, setShowDocumentActions] = useState(false);
 
-  const title = collectionService.useItemTitle(docId);
-  const folderTitle = collectionService.useItemTitle(parent);
+  const title = collectionService.useItemTitle(docId || '');
+  const folderTitle = collectionService.useItemTitle(parentFolder || '');
 
   const CollectionItemActionsMenu = () => {
     return (
@@ -37,7 +38,11 @@ const VersionedItemPage = () => {
     );
   };
 
-  if (!version || !historyService.versionExists(version)) {
+  if (!docId || !docVersion || !historyService.versionExists(docVersion)) {
+    return <NotFound />;
+  }
+
+  if (pageVersion && !historyService.versionExists(pageVersion)) {
     return <NotFound />;
   }
 
@@ -54,15 +59,19 @@ const VersionedItemPage = () => {
         editable: false
       }}
       menu={
-        <CollectionItemBrowserList parent={parent}></CollectionItemBrowserList>
+        <CollectionItemBrowserList
+          parent={parentFolder}
+        ></CollectionItemBrowserList>
       }
       contentId="documentExplorer"
     >
       <DocumentVersionViewer
         docId={docId}
         pageId={pageId}
-        version={version}
+        docVersion={docVersion}
+        pageVersion={pageVersion}
         showActions={showDocumentActions}
+        folder={parentFolder}
         query={searchParams.query}
       ></DocumentVersionViewer>
     </TemplateCompactableSplitPage>

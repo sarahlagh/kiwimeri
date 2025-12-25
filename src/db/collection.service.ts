@@ -549,6 +549,10 @@ class CollectionService {
     );
   }
 
+  public useItemType(rowId: Id) {
+    return useCellWithRef<string>(this.storeId, this.tableId, rowId, 'type');
+  }
+
   public setItemLexicalContent(rowId: Id, content: SerializedEditorState) {
     this.setItemField(rowId, 'content', minimizeContentForStorage(content));
   }

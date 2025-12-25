@@ -161,3 +161,12 @@ export type HistorizedCollectionItemData = Pick<
   | 'updated'
 > &
   Partial<Pick<CollectionItem, 'order' | 'order_meta'>>;
+
+export const isPageOrDocument = (
+  item?:
+    | Pick<CollectionItem, 'type'>
+    | Pick<CollectionItemResult, 'type'>
+    | null
+) =>
+  item?.type === CollectionItemType.document ||
+  item?.type === CollectionItemType.page;

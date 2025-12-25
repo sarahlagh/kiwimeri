@@ -5,6 +5,7 @@ import {
   useCell,
   useResultSortedRowIds,
   useResultTable,
+  useRow,
   useSliceRowIds,
   useTable,
   useValue
@@ -41,6 +42,14 @@ export const useCellWithRef = <T>(
   cellId: Id
 ) => {
   const prim = useCell(tableId, rowId, cellId, store(storeId))?.valueOf();
+  if (prim) {
+    return prim as T;
+  }
+  return undefined;
+};
+
+export const useRowWithRef = <T>(storeId: StoreId, tableId: Id, rowId: Id) => {
+  const prim = useRow(tableId, rowId, store(storeId))?.valueOf();
   if (prim) {
     return prim as T;
   }

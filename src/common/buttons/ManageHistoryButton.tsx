@@ -1,10 +1,8 @@
-import {
-  HistorizedCollectionItemData,
-  HistorizedCollectionItemRow
-} from '@/collection/collection';
+import { CollectionItemVersion } from '@/collection/collection';
 import { APPICONS } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
+import notebooksService from '@/db/notebooks.service';
 import {
   IonButton,
   IonButtons,
@@ -53,18 +51,14 @@ const VersionPreview = ({
   version,
   lastPreview
 }: {
-  version: HistorizedCollectionItemRow;
+  version: CollectionItemVersion;
   lastPreview?: string;
 }) => {
-  const versionData = JSON.parse(
-    version.versionData
-  ) as HistorizedCollectionItemData;
-
   if (lastPreview) {
-    const diff = diffChars(lastPreview, version.versionPreview);
+    const diff = diffChars(lastPreview, version.preview);
     return (
       <IonLabel>
-        {dateToStr('relative', versionData.updated)}
+        {dateToStr('relative', version.versionData.updated)}
         <p>
           {diff.map((part, idx) => (
             <DiffFragment part={part} key={idx} />
@@ -75,8 +69,8 @@ const VersionPreview = ({
   }
   return (
     <IonLabel>
-      {dateToStr('relative', versionData.updated)}
-      <p>{version.versionPreview.substring(0, 200)}</p>
+      {dateToStr('relative', version.versionData.updated)}
+      <p>{version.preview.substring(0, 200)}</p>
     </IonLabel>
   );
 };
@@ -84,8 +78,8 @@ const VersionPreview = ({
 const ManageHistoryModal = ({ id, dismiss }: ManageHistoryModalProps) => {
   const { t } = useLingui();
   const [alert] = useIonAlert();
-  // const current =
   const docHistory = historyService.getVersions(id);
+  console.debug('id', id, docHistory);
   return (
     <>
       <IonHeader>
@@ -118,7 +112,7 @@ const ManageHistoryModal = ({ id, dismiss }: ManageHistoryModalProps) => {
                 version={version}
                 lastPreview={
                   idx < docHistory.length - 1
-                    ? docHistory[idx + 1].versionPreview
+                    ? docHistory[idx + 1].preview
                     : undefined
                 }
               />
@@ -145,7 +139,10 @@ const ManageHistoryModal = ({ id, dismiss }: ManageHistoryModalProps) => {
                           text: t`Confirm`,
                           role: 'destructive',
                           handler: () => {
-                            historyService.restoreVersion(id, version.id!);
+                            historyService.restoreDocumentVersion(
+                              id,
+                              version.id!
+                            );
                           }
                         }
                       ]
@@ -166,6 +163,7 @@ const ManageHistoryModal = ({ id, dismiss }: ManageHistoryModalProps) => {
 const ManageHistoryButton = ({ id }: ManageHistoryButtonProps) => {
   const history = useHistory();
   const location = useLocation();
+  const notebook = notebooksService.useCurrentNotebook();
   const searchParams = getSearchParams(location.search);
   const [present, dismiss] = useIonModal(ManageHistoryModal, {
     id,
@@ -181,7 +179,17 @@ const ManageHistoryButton = ({ id }: ManageHistoryButtonProps) => {
           onDidDismiss: event => {
             if (event.detail.data !== undefined) {
               const version = event.detail.data as string;
-              history.push(GET_VERSIONED_ROUTE(id, type, version, query));
+              history.push(
+                GET_VERSIONED_ROUTE(
+                  type,
+                  version,
+                  id,
+                  searchParams.folder || notebook,
+                  undefined,
+                  undefined,
+                  query
+                )
+              );
             }
           }
         });

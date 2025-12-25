@@ -6,13 +6,19 @@ import {
   HistorizedCollectionItemData,
   HistorizedCollectionItemRow,
   HistorizedVersionContentRow,
+  PageResult,
   setFieldMeta
 } from '@/collection/collection';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { getHash, ResultRow, Store } from 'tinybase/with-schemas';
 import collectionService from './collection.service';
 import storageService from './storage.service';
-import { useResultSortedRowIdsWithRef } from './tinybase/hooks';
+import {
+  useCellWithRef,
+  useResultSortedRowIdsWithRef,
+  useRowWithRef,
+  useTableWithRef
+} from './tinybase/hooks';
 import { SpaceType } from './types/space-types';
 
 class CollectionHistoryService {
@@ -24,6 +30,7 @@ class CollectionHistoryService {
   private timeouts = new Map<string, number>();
 
   private readonly versionsQuery = 'VersionsByItemId';
+  private readonly versionsByIdQuery = 'VersionsByVersionId';
   private readonly hashQuery = 'ContentByHash';
 
   public start(space?: string) {
@@ -119,8 +126,56 @@ class CollectionHistoryService {
     return this.getVersions(itemId)[0];
   }
 
-  public useVersion(docId: string, versionId: string) {
-    return this.useVersions(docId).find(v => v.id === versionId);
+  public useVersion(versionId: string) {
+    const pageRow = useRowWithRef<HistorizedCollectionItemRow>(
+      this.storeId,
+      this.tableId,
+      versionId
+    );
+    const contentRow = useRowWithRef<HistorizedVersionContentRow>(
+      this.storeId,
+      this.contentTableId,
+      pageRow?.contentId || ''
+    );
+    if (!pageRow || !contentRow) return undefined;
+    return this.mapToVersion(versionId, pageRow, contentRow);
+  }
+
+  public useDocumentVersionedPages(docVersionId?: string): PageResult[] {
+    const table = useTableWithRef(this.storeId, this.tableId);
+    const dataTable = useTableWithRef(this.storeId, this.contentTableId);
+    const docId = useCellWithRef(
+      this.storeId,
+      this.tableId,
+      docVersionId || 'null',
+      'itemId'
+    ) as string;
+    const rawPageVersions = useCellWithRef(
+      this.storeId,
+      this.tableId,
+      docVersionId || 'null',
+      'pageVersions'
+    );
+    if (!docId || !rawPageVersions) return [];
+    const pageVersions: string[] = JSON.parse(rawPageVersions.toString());
+    return pageVersions.map(rowId => {
+      const pageRow = table[rowId] as HistorizedCollectionItemRow;
+      const versionData = JSON.parse(
+        pageRow.versionData
+      ) as HistorizedCollectionItemData;
+      const contentRow = dataTable[
+        pageRow.contentId
+      ] as HistorizedVersionContentRow;
+      const pageResult: PageResult = {
+        id: pageRow.itemId,
+        type: CollectionItemType.page,
+        parent: docId,
+        ...versionData,
+        order: versionData.order!,
+        preview: contentRow.preview
+      };
+      return pageResult;
+    });
   }
 
   public getPagesForVersion(docVersionId: string): CollectionItemVersion[] {
@@ -136,15 +191,23 @@ class CollectionHistoryService {
       const contentRow = dataTable[
         pageRow.contentId
       ] as HistorizedVersionContentRow;
-      return {
-        id: rowId,
-        created: pageRow.created,
-        itemId: pageRow.itemId,
-        versionData: JSON.parse(pageRow.versionData),
-        content: contentRow.content,
-        preview: contentRow.preview
-      };
+      return this.mapToVersion(rowId, pageRow, contentRow);
     });
+  }
+
+  private mapToVersion(
+    rowId: string,
+    pageRow: HistorizedCollectionItemRow,
+    contentRow: HistorizedVersionContentRow
+  ) {
+    return {
+      id: rowId,
+      created: pageRow.created,
+      itemId: pageRow.itemId,
+      versionData: JSON.parse(pageRow.versionData),
+      content: contentRow.content,
+      preview: contentRow.preview
+    };
   }
 
   public addVersion(id: string, sync = false) {

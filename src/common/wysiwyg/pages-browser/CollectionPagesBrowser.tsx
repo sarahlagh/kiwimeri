@@ -25,6 +25,12 @@ export type CollectionPagesBrowserProps = {
   searchText: string | null;
   showHideSelf?: boolean;
   editable?: boolean;
+  getUrl?: (
+    folderId: string,
+    docId: string,
+    pageId?: string,
+    searchText?: string | null
+  ) => string;
 };
 
 interface PagePreviewItemProps {
@@ -75,7 +81,8 @@ export default function CollectionPagesBrowser({
   pages,
   searchText,
   showHideSelf,
-  editable = true
+  editable = true,
+  getUrl
 }: CollectionPagesBrowserProps): JSX.Element {
   const { t } = useLingui();
   const defaultDocPreview = t`empty doc`;
@@ -90,6 +97,13 @@ export default function CollectionPagesBrowser({
   // TODO turn doc to page and vice-versa via drag & drop
 
   const searchResults = searchService.searchInPages(docId, searchText || '');
+
+  if (!getUrl) {
+    getUrl = (folderId, docId, pageId, searchText) => {
+      if (!pageId) return GET_DOCUMENT_ROUTE(folderId, docId, searchText);
+      return GET_PAGE_ROUTE(folderId, docId, pageId, searchText);
+    };
+  }
 
   useEffect(() => {
     if (!showHideSelf) setHideSelf(false);
@@ -137,7 +151,7 @@ export default function CollectionPagesBrowser({
               page={{ id: docId, preview: docPreview, order: 0 }}
               selected={id === docId}
               onClick={() => {
-                history.push(GET_DOCUMENT_ROUTE(folderId, docId, searchText));
+                history.push(getUrl(folderId, docId, undefined, searchText));
               }}
               defaultVal={defaultDocPreview}
             />
@@ -163,9 +177,7 @@ export default function CollectionPagesBrowser({
                     : '')
                 }
                 onClick={pageId => {
-                  history.push(
-                    GET_PAGE_ROUTE(folderId, docId, pageId, searchText)
-                  );
+                  history.push(getUrl(folderId, docId, pageId, searchText));
                 }}
                 defaultVal={defaultPagePreview}
               />

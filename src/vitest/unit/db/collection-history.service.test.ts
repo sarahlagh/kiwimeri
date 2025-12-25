@@ -2,6 +2,7 @@ import {
   CollectionItem,
   CollectionItemSortType,
   CollectionItemUpdatableFieldEnum,
+  CollectionItemVersion,
   SortableCollectionItem
 } from '@/collection/collection';
 import { DEFAULT_NOTEBOOK_ID, DEFAULT_SPACE_ID } from '@/constants';
@@ -10,6 +11,7 @@ import collectionService, { initialContent } from '@/db/collection.service';
 import storageService from '@/db/storage.service';
 import { defaultOrder } from '@/db/types/space-types';
 import { searchAncestryService } from '@/search/search-ancestry.service';
+import { renderHook } from '@testing-library/react';
 import { it, vi } from 'vitest';
 import {
   GET_CONTENT_UPDATE_FIELDS,
@@ -607,5 +609,33 @@ describe('collection history service', () => {
 
     // TODO when debouncing both document change and page change, or two different page changes on same doc,
     // should only create one document version at the end
+  });
+
+  it(`useDocumentVersionedPages hook`, () => {
+    let docVersions: CollectionItemVersion[];
+    const { result: result1 } = renderHook(() => {
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      collectionService.addPage(docId);
+      collectionService.addPage(docId);
+      collectionService.addPage(docId);
+      docVersions = historyService.getVersions(docId);
+      return historyService.useDocumentVersionedPages(docVersions[0].id);
+    });
+    expect(result1.current).toHaveLength(3);
+
+    const { result: result2 } = renderHook(() =>
+      historyService.useDocumentVersionedPages(docVersions[1].id)
+    );
+    expect(result2.current).toHaveLength(2);
+
+    const { result: result3 } = renderHook(() =>
+      historyService.useDocumentVersionedPages(docVersions[2].id)
+    );
+    expect(result3.current).toHaveLength(1);
+
+    const { result: result4 } = renderHook(() =>
+      historyService.useDocumentVersionedPages(docVersions[3].id)
+    );
+    expect(result4.current).toHaveLength(0);
   });
 });

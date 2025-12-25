@@ -18,6 +18,7 @@ import {
 } from '@ionic/react';
 import { useEffect, useRef, useState } from 'react';
 import { useHistory } from 'react-router';
+import { isPageOrDocument } from '../collection';
 import CommonActionsToolbar from './CommonActionsToolbar';
 import DocumentEditorFooter from './DocumentEditorFooter';
 import SearchActionsToolbar from './SearchActionsToolbar';
@@ -116,6 +117,7 @@ const DocumentEditor = ({
             docId={docId}
             showClose={true}
             showInfo={true}
+            showHistory={isPageOrDocument({ type: itemType })}
             onClose={role => {
               if (role === 'info') {
                 setShowDocumentFooter(!showDocumentFooter);

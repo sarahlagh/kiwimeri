@@ -5,7 +5,8 @@ const QUERY_PARAMS = [
   'document',
   'page',
   'query',
-  'version'
+  'docVersion',
+  'pageVersion'
 ] as const;
 
 type SearchParams = typeof QUERY_PARAMS;

@@ -4,7 +4,6 @@ import KiwimeriEditor from '@/common/wysiwyg/lexical/KiwimeriEditor';
 import CollectionPagesBrowser from '@/common/wysiwyg/pages-browser/CollectionPagesBrowser';
 import { APPICONS } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
-import collectionService from '@/db/collection.service';
 import {
   IonButton,
   IonContent,
@@ -19,15 +18,20 @@ import {
 } from '@ionic/react';
 import { useEffect, useRef, useState } from 'react';
 import { useHistory } from 'react-router';
-import { HistorizedCollectionItemData } from '../collection';
+import {
+  CollectionItemType,
+  HistorizedCollectionItemData
+} from '../collection';
 import CommonActionsToolbar from './CommonActionsToolbar';
 import SearchActionsToolbar from './SearchActionsToolbar';
 
-interface DocumentEditorProps {
+interface DocumentVersionViewerProps {
   docId: string;
   pageId?: string;
-  version: string;
+  docVersion: string;
+  pageVersion?: string;
   showActions?: boolean;
+  folder: string;
   query?: string;
 }
 
@@ -53,10 +57,12 @@ const DocumentVersionFooter = ({
 const DocumentVersionViewer = ({
   docId,
   pageId,
-  version,
+  docVersion,
+  pageVersion,
   showActions = false,
+  folder,
   query
-}: DocumentEditorProps) => {
+}: DocumentVersionViewerProps) => {
   const history = useHistory();
   const refWriter = useRef(null);
   const [showDocumentActions, setShowDocumentActions] =
@@ -64,23 +70,28 @@ const DocumentVersionViewer = ({
   const [openPageBrowser, setOpenPageBrowser] = useState(false);
   const [toggleSearch, setToggleSearch] = useState(false);
   const [toggleSearchAutoFocus, setToggleSearchAutoFocus] = useState(true);
-
   // TODO refactor
   useEffect(() => {
     setShowDocumentActions(showActions);
   }, [showActions]);
 
-  const versionedItem = historyService.useVersion(docId, version);
+  const itemId = pageId ? pageId : docId;
+  const versionId = pageVersion ? pageVersion : docVersion;
+
+  const versionedItem = historyService.useVersion(versionId);
+  const content = versionedItem?.content;
   const versionData = versionedItem?.versionData;
 
-  const itemId = pageId ? pageId : docId;
-  const reloadId = version;
-  const content = versionData?.content;
-  const documentTitle = versionData?.title;
-  const documentPreview = versionedItem?.versionPreview;
-  const itemType = collectionService.getItemType(itemId);
+  const versionedDoc = historyService.useVersion(docVersion);
+  const docVersionData = versionedDoc?.versionData;
+  const documentTitle = docVersionData?.title;
+  const documentPreview = versionedDoc?.preview;
 
-  const pages = collectionService.useDocumentPages(docId);
+  const itemType = pageId
+    ? CollectionItemType.page
+    : CollectionItemType.document;
+
+  const pages = historyService.useDocumentVersionedPages(docVersion);
 
   useEffect(() => {
     if (query) {
@@ -118,6 +129,7 @@ const DocumentVersionViewer = ({
             showClose={true}
             showInfo={false}
             showDelete={false}
+            showHistory={true}
             getBackRoute={() => GET_UNKNOWN_ITEM_ROUTE(itemId, itemType, query)}
             onClose={() => {
               setShowDocumentActions(false);
@@ -150,7 +162,17 @@ const DocumentVersionViewer = ({
             setToggleSearch={setToggleSearch}
             toggleSearchAutoFocus={toggleSearchAutoFocus}
             onValue={val => {
-              history.push(GET_VERSIONED_ROUTE(itemId, itemType, version, val));
+              history.push(
+                GET_VERSIONED_ROUTE(
+                  itemType,
+                  docVersion,
+                  docId,
+                  folder,
+                  pageId,
+                  pageVersion,
+                  val
+                )
+              );
             }}
           />
         )}
@@ -160,7 +182,7 @@ const DocumentVersionViewer = ({
         {content && (
           <KiwimeriEditor
             ref={refWriter}
-            id={reloadId}
+            id={versionId}
             editable={false}
             enableToolbar={false}
             content={content}
@@ -177,6 +199,34 @@ const DocumentVersionViewer = ({
                 searchText={toggleSearch ? query || '' : null}
                 showHideSelf={false}
                 editable={false}
+                getUrl={(folderId, docId, pageId, searchText) => {
+                  if (!pageId) {
+                    return GET_VERSIONED_ROUTE(
+                      CollectionItemType.document,
+                      docVersion,
+                      docId,
+                      folderId,
+                      undefined,
+                      undefined,
+                      searchText
+                    );
+                  }
+                  // !! must find the pageVersion for the pageId
+                  const pageVersions =
+                    historyService.getPagesForVersion(docVersion);
+                  const pageVersion = pageVersions.find(
+                    v => v.itemId === pageId
+                  )?.id;
+                  return GET_VERSIONED_ROUTE(
+                    CollectionItemType.page,
+                    docVersion,
+                    docId,
+                    folderId,
+                    pageId,
+                    pageVersion,
+                    searchText
+                  );
+                }}
               />
             )}
           </KiwimeriEditor>
