@@ -157,6 +157,7 @@ export type HistorizedCollectionItemData = Pick<
   | 'deleted_meta'
   | 'display_opts'
   | 'display_opts_meta'
+  | 'created'
   | 'updated'
 > &
   Partial<Pick<CollectionItem, 'order' | 'order_meta'>>;

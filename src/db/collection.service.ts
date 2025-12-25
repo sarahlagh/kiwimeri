@@ -393,7 +393,8 @@ class CollectionService {
   public saveItem(
     item: CollectionItem | CollectionItemUpdate,
     id?: string,
-    parent?: string
+    parent?: string,
+    bulk = false
   ) {
     if (!id) {
       id = getUniqueId();
@@ -413,12 +414,12 @@ class CollectionService {
     // TODO not sure why transaction breaks addVersionFromItem here
     // TODO should probably check if a relevant field has been updated here
     if (
-      item.type === CollectionItemType.page ||
-      item.type === CollectionItemType.document
+      !bulk &&
+      (item.type === CollectionItemType.page ||
+        item.type === CollectionItemType.document)
     ) {
       historyService.saveVersionFromItem({ ...item, id } as CollectionItem);
     }
-
     return id;
   }
 
@@ -797,8 +798,9 @@ class CollectionService {
   ) {
     storageService.getSpace().transaction(() => {
       items.forEach(item => {
-        this.saveItem(item, item.id, parent);
+        this.saveItem(item, item.id, parent, true);
       });
+      // TODO handle history
     });
   }
 

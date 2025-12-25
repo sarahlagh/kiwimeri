@@ -5,7 +5,8 @@ import {
   CollectionItemVersion,
   HistorizedCollectionItemData,
   HistorizedCollectionItemRow,
-  HistorizedVersionContentRow
+  HistorizedVersionContentRow,
+  setFieldMeta
 } from '@/collection/collection';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { getHash, ResultRow, Store } from 'tinybase/with-schemas';
@@ -182,14 +183,51 @@ class CollectionHistoryService {
     return itemLastUpdated === versionCreated;
   }
 
-  public restoreVersion(id: string, versionId: string) {
+  public restoreDocumentVersion(docId: string, versionId: string) {
     this.saveNow();
-    const version = this.getVersions(id).find(v => v.id === versionId);
+    const version = this.getVersions(docId).find(v => v.id === versionId);
     if (!version) return;
+
+    // handle pages first
+    const pagesCurrent = collectionService.getDocumentPages(docId);
+    const pagesAtVersion = this.getPagesForVersion(versionId);
+    const pageIdsCurrent = pagesCurrent.map(p => p.id);
+    const pageIdsAtVersion = pagesAtVersion.map(p => p.itemId);
+    const uniqueIds = [...new Set([...pageIdsCurrent, ...pageIdsAtVersion])];
+    // must delete non-existant pages in old version
+    const pagesToDelete = uniqueIds.filter(
+      id => !pageIdsAtVersion.includes(id) && pageIdsCurrent.includes(id)
+    );
+    // must recreate or update the others
+    const pagesToUpdate = uniqueIds.filter(id => pageIdsAtVersion.includes(id));
+    const space = storageService.getSpace();
+    pagesToDelete.forEach(pId => {
+      // bypass collectionService - don't want to delete versions
+      // TODO how about local changes / sync
+      space.delRow('collection', pId);
+    });
+
+    const now = Date.now();
+    pagesToUpdate.forEach(pId => {
+      const pageVersion = pagesAtVersion.find(p => p.itemId === pId)!;
+      const recreatedPage: CollectionItem = {
+        ...pageVersion.versionData,
+        type: CollectionItemType.page,
+        parent: docId,
+        parent_meta: setFieldMeta(docId, pageVersion.versionData.created),
+        content: pageVersion.content,
+        updated: now,
+        order: pageVersion.versionData.order!,
+        order_meta: pageVersion.versionData.order_meta!
+      };
+      // bypass collection service to save a single page version
+      space.setRow('collection', pId, recreatedPage);
+      this.saveSingleContentVersion(recreatedPage);
+      // TODO how about local changes / sync
+    });
+
     // copy version data to current collection item
-    const current = storageService
-      .getSpace()
-      .getRow('collection', id) as CollectionItem;
+    const current = space.getRow('collection', docId) as CollectionItem;
     collectionService.saveItem(
       {
         ...current,
@@ -197,12 +235,27 @@ class CollectionHistoryService {
         content: version.content,
         updated: Date.now()
       },
-      id
+      docId
     );
-    // TODO if document and has pages... ouch
-    // must delete non-existant pages in old version
-    // must recreate deleted pages after old version
-    // must update the others
+  }
+
+  public restorePageVersion(pageId: string, versionId: string) {
+    this.saveNow();
+    const version = this.getVersions(pageId).find(v => v.id === versionId);
+    if (!version) return;
+    // copy version data to current collection item
+    const current = storageService
+      .getSpace()
+      .getRow('collection', pageId) as CollectionItem;
+    collectionService.saveItem(
+      {
+        ...current,
+        ...version.versionData,
+        content: version.content,
+        updated: Date.now()
+      },
+      pageId
+    );
   }
 
   private buildVersionData(item: CollectionItem) {
@@ -216,6 +269,7 @@ class CollectionHistoryService {
       deleted_meta: item.deleted_meta,
       display_opts: item.display_opts,
       display_opts_meta: item.display_opts_meta,
+      created: item.created,
       updated: item.updated
     };
     if (item.type === CollectionItemType.page) {
@@ -225,8 +279,7 @@ class CollectionHistoryService {
     return JSON.stringify(data);
   }
 
-  public saveVersionFromItem(item: CollectionItem, skipPages: string[] = []) {
-    console.debug('[history] saving new version for item', item.id);
+  public saveSingleContentVersion(item: CollectionItem) {
     const space = storageService.getSpace();
     let versionId: string | undefined;
     space.transaction(() => {
@@ -238,6 +291,13 @@ class CollectionHistoryService {
         contentId
       });
     });
+    return versionId;
+  }
+
+  public saveVersionFromItem(item: CollectionItem, skipPages: string[] = []) {
+    console.debug('[history] saving new version for item', item.id);
+    const space = storageService.getSpace();
+    const versionId = this.saveSingleContentVersion(item);
     if (item.type === CollectionItemType.page) {
       // if page, add document version too, and relation to document
       const parentDoc = space.getRow(

@@ -8,6 +8,7 @@ import { DEFAULT_NOTEBOOK_ID, DEFAULT_SPACE_ID } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
 import collectionService, { initialContent } from '@/db/collection.service';
 import storageService from '@/db/storage.service';
+import { defaultOrder } from '@/db/types/space-types';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { it, vi } from 'vitest';
 import {
@@ -56,6 +57,7 @@ describe('collection history service', () => {
           deleted_meta: rowBefore.deleted_meta,
           display_opts: rowBefore.display_opts,
           display_opts_meta: rowBefore.display_opts_meta,
+          created: rowBefore.created,
           updated: rowBefore.updated
         });
         if (field !== 'content') {
@@ -102,7 +104,7 @@ describe('collection history service', () => {
       expect(versions[0].versionData.title).toBe(newValue);
       expect(versions[1].versionData.title).toBe(itemBefore.title);
 
-      historyService.restoreVersion(docId, versions[1].id!);
+      historyService.restoreDocumentVersion(docId, versions[1].id!);
       const restoredItem = storageService
         .getSpace()
         .getRow('collection', docId) as CollectionItem;
@@ -139,7 +141,7 @@ describe('collection history service', () => {
       expect(versions).toHaveLength(2);
       vi.advanceTimersByTime(10);
 
-      historyService.restoreVersion(docId, versions[1].id!);
+      historyService.restoreDocumentVersion(docId, versions[1].id!);
       const restoredItem = storageService
         .getSpace()
         .getRow('collection', docId) as CollectionItem;
@@ -171,20 +173,57 @@ describe('collection history service', () => {
     it(`should also restore all pages when restoring a document`, () => {
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       const page1 = collectionService.addPage(docId);
-      collectionService.addPage(docId);
+      const page2 = collectionService.addPage(docId);
+      collectionService.deleteItem(page2);
+      const page3 = collectionService.addPage(docId);
+      const newOrder = defaultOrder - 100;
+      collectionService.setItemField(page1, 'order', newOrder);
       vi.advanceTimersByTime(100);
 
       let versions = historyService.getVersions(docId);
-      expect(versions).toHaveLength(3);
+      expect(versions).toHaveLength(6);
 
-      historyService.restoreVersion(docId, versions[1].id);
+      historyService.restoreDocumentVersion(docId, versions[3].id);
       vi.advanceTimersByTime(100);
 
       versions = historyService.getVersions(docId);
-      expect(versions).toHaveLength(4);
+      expect(versions).toHaveLength(7);
+
+      // should have updated page1
+      const restoredPage1 = collectionService.getItem(page1);
+      expect(restoredPage1.order).toBe(defaultOrder);
+
+      // should have recreated page2
+      const restoredPage2 = collectionService.getItem(page2);
+      expect(restoredPage2).toBeDefined();
+
+      // should have deleted page3
+      expect(collectionService.itemExists(page3)).toBe(false);
+
+      // should have created new versions for the pages
       expect(versions[0].pageVersions).toBe(
-        JSON.stringify([historyService.getLatestVersion(page1).id])
+        JSON.stringify([
+          historyService.getLatestVersion(page1).id,
+          historyService.getLatestVersion(page2).id
+        ])
       );
+
+      // assert that latest version is correct
+      const page1VersionData = storageService
+        .getSpace()
+        .getCell(
+          'history',
+          historyService.getLatestVersion(page1).id,
+          'versionData'
+        );
+      expect(JSON.parse(page1VersionData as string).order).toBe(newOrder);
+
+      // restore to a version where page3 re-exists
+      historyService.restoreDocumentVersion(docId, versions[1].id);
+      versions = historyService.getVersions(docId);
+      expect(versions).toHaveLength(8);
+      expect(collectionService.itemExists(page3)).toBe(true);
+      expect(collectionService.getItem(page1).order).toBe(newOrder);
     });
 
     it(`should erase all versions on a hard delete`, () => {
@@ -238,6 +277,7 @@ describe('collection history service', () => {
           display_opts_meta: rowBefore.display_opts_meta,
           order: rowBefore.order,
           order_meta: rowBefore.order_meta,
+          created: rowBefore.created,
           updated: rowBefore.updated
         });
         if (field !== 'content') {
@@ -339,7 +379,7 @@ describe('collection history service', () => {
       expect(versions).toHaveLength(2);
 
       vi.advanceTimersByTime(100);
-      historyService.restoreVersion(pageId, versions[1].id!);
+      historyService.restorePageVersion(pageId, versions[1].id!);
 
       docVersions = historyService.getVersions(docId);
       expect(docVersions).toHaveLength(4);
@@ -383,7 +423,7 @@ describe('collection history service', () => {
       collectionService.setItemField(pageId, 'content', newValue2);
 
       // restore
-      historyService.restoreVersion(pageId, versions[1].id!);
+      historyService.restorePageVersion(pageId, versions[1].id!);
 
       docVersions = historyService.getVersions(docId);
       expect(docVersions).toHaveLength(5);
