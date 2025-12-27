@@ -1,3 +1,4 @@
+import ManageHistoryButton from '@/common/buttons/ManageHistoryButton';
 import { GET_UNKNOWN_ITEM_ROUTE, GET_VERSIONED_ROUTE } from '@/common/routes';
 import platformService from '@/common/services/platform.service';
 import KiwimeriEditor from '@/common/wysiwyg/lexical/KiwimeriEditor';
@@ -91,7 +92,8 @@ const DocumentVersionViewer = ({
     ? CollectionItemType.page
     : CollectionItemType.document;
 
-  const pages = historyService.useDocumentVersionedPages(docVersion);
+  const pages = historyService.useDocumentVersionedPages(docId, docVersion);
+  console.debug('pages for version', docVersion, pages);
 
   useEffect(() => {
     if (query) {
@@ -129,12 +131,12 @@ const DocumentVersionViewer = ({
             showClose={true}
             showInfo={false}
             showDelete={false}
-            showHistory={true}
             getBackRoute={() => GET_UNKNOWN_ITEM_ROUTE(itemId, itemType, query)}
             onClose={() => {
               setShowDocumentActions(false);
             }}
           >
+            <ManageHistoryButton id={docId} />
             {platformService.hasHighlightSupport() && (
               <IonButton
                 onClick={() => {

@@ -1,3 +1,4 @@
+import ManageHistoryButton from '@/common/buttons/ManageHistoryButton';
 import { onTitleChangeFn } from '@/common/events/events';
 import { GET_UNKNOWN_ITEM_ROUTE } from '@/common/routes';
 import platformService from '@/common/services/platform.service';
@@ -117,7 +118,6 @@ const DocumentEditor = ({
             docId={docId}
             showClose={true}
             showInfo={true}
-            showHistory={isPageOrDocument({ type: itemType })}
             onClose={role => {
               if (role === 'info') {
                 setShowDocumentFooter(!showDocumentFooter);
@@ -125,6 +125,9 @@ const DocumentEditor = ({
               setShowDocumentActions(false);
             }}
           >
+            {isPageOrDocument({ type: itemType }) && (
+              <ManageHistoryButton id={docId} />
+            )}
             {platformService.hasHighlightSupport() && (
               <IonButton
                 onClick={() => {

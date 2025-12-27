@@ -19,9 +19,9 @@ import {
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { ChangeObject, diffChars } from 'diff';
-import { useHistory } from 'react-router';
+import { useHistory, useLocation } from 'react-router';
 import { GET_VERSIONED_ROUTE } from '../routes';
-import { dateToStr } from '../utils';
+import { dateToStr, getSearchParams } from '../utils';
 
 type ManageHistoryButtonProps = {
   id: string;
@@ -163,14 +163,14 @@ const ManageHistoryModal = ({ id, dismiss }: ManageHistoryModalProps) => {
 const ManageHistoryButton = ({ id }: ManageHistoryButtonProps) => {
   const history = useHistory();
   const notebook = notebooksService.useCurrentNotebook();
-  // const location = useLocation(); // TODO location throws error if button in popover
-  // const searchParams = getSearchParams(location.search);
+  const location = useLocation(); // warning: location throws error if button in popover
+  const searchParams = getSearchParams(location.search);
   const [present, dismiss] = useIonModal(ManageHistoryModal, {
     id,
     dismiss: (version?: string) => dismiss(version)
   });
   const type = collectionService.getItemType(id);
-  const query = ''; //searchParams.query;
+  const query = searchParams.query;
 
   return (
     <IonButton
@@ -184,7 +184,7 @@ const ManageHistoryButton = ({ id }: ManageHistoryButtonProps) => {
                   type,
                   version,
                   id,
-                  notebook, // searchParams.folder || notebook,
+                  searchParams.folder || notebook,
                   undefined,
                   undefined,
                   query

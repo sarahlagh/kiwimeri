@@ -2,7 +2,6 @@ import { CollectionItemType } from '@/collection/collection';
 import CloseDocumentButton from '@/common/buttons/CloseDocumentButton';
 import DeleteItemButton from '@/common/buttons/DeleteItemButton';
 import ExportItemsButton from '@/common/buttons/ExportItemsButton';
-import ManageHistoryButton from '@/common/buttons/ManageHistoryButton';
 import MoveFolderButton from '@/common/buttons/MoveFolderButton';
 import RenameItemButton from '@/common/buttons/RenameItemButton';
 import { GET_DOCUMENT_ROUTE, GET_FOLDER_ROUTE } from '@/common/routes';
@@ -23,7 +22,6 @@ export type CommonActionsToolbarProps = {
   showInfo?: boolean;
   showClose?: boolean;
   showDelete?: boolean;
-  showHistory?: boolean;
 } & React.HTMLAttributes<HTMLIonToolbarElement> & {
     readonly children?: ReactNode;
   };
@@ -37,7 +35,6 @@ const CommonActionsToolbar = ({
   showClose = false,
   showInfo = false,
   showDelete = true,
-  showHistory = false,
   children,
   getBackRoute,
   onClose
@@ -79,8 +76,6 @@ const CommonActionsToolbar = ({
             <IonIcon icon={APPICONS.info}></IonIcon>
           </IonButton>
         )}
-
-        {showHistory && <ManageHistoryButton id={docId} />}
 
         {children}
 

@@ -10,8 +10,7 @@ import {
 
 import {
   CollectionItemResult,
-  CollectionItemType,
-  isPageOrDocument
+  CollectionItemType
 } from '@/collection/collection';
 import ExportItemsButton from '@/common/buttons/ExportItemsButton';
 import ImportItemsButton from '@/common/buttons/ImportItemsButton';
@@ -137,7 +136,6 @@ export const CollectionItemBrowserList = ({
     id: selectedItem?.id,
     docId: selectedItem?.id,
     showRename: true,
-    showHistory: isPageOrDocument(selectedItem),
     onClose: (role: string, data?: string) => {
       if (role === 'rename') {
         setItemRenaming(data);
