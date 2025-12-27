@@ -125,9 +125,12 @@ export type HistorizedCollectionItemRow = {
   id?: string;
   itemId: string;
   created: number;
+  rank: number; // not ideal when created informs the order, but needed for the get latest pages query
   contentId: string;
-  versionData: string;
-  pageVersions?: string; // array of ids
+  /** HistorizedCollectionItemData */
+  itemDataJson: string;
+  /** array of HistorizedCollectionPageVersion */
+  pageVersionsArrayJson?: string;
 };
 
 export type HistorizedVersionContentRow = {
@@ -139,11 +142,12 @@ export type HistorizedVersionContentRow = {
 
 export type CollectionItemVersion = Omit<
   HistorizedCollectionItemRow,
-  'contentId' | 'versionData'
+  'contentId' | 'itemDataJson' | 'pageVersionsArrayJson'
 > &
-  Omit<HistorizedVersionContentRow, 'hash'> & {
+  HistorizedVersionContentRow & {
     id: string;
-    versionData: HistorizedCollectionItemData;
+    itemDataJson: HistorizedCollectionItemData;
+    pageVersionsArrayJson?: HistorizedCollectionPageVersion[];
   };
 
 export type HistorizedCollectionItemData = Pick<
@@ -161,6 +165,12 @@ export type HistorizedCollectionItemData = Pick<
   | 'updated'
 > &
   Partial<Pick<CollectionItem, 'order' | 'order_meta'>>;
+
+export type HistorizedCollectionPageVersion = {
+  id: string;
+  itemId: string;
+  created: number;
+};
 
 export const isPageOrDocument = (
   item?:

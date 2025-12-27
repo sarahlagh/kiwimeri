@@ -19,9 +19,9 @@ import {
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { ChangeObject, diffChars } from 'diff';
-import { useHistory, useLocation } from 'react-router';
+import { useHistory } from 'react-router';
 import { GET_VERSIONED_ROUTE } from '../routes';
-import { dateToStr, getSearchParams } from '../utils';
+import { dateToStr } from '../utils';
 
 type ManageHistoryButtonProps = {
   id: string;
@@ -58,7 +58,7 @@ const VersionPreview = ({
     const diff = diffChars(lastPreview, version.preview);
     return (
       <IonLabel>
-        {dateToStr('relative', version.versionData.updated)}
+        {dateToStr('relative', version.itemDataJson.updated)}
         <p>
           {diff.map((part, idx) => (
             <DiffFragment part={part} key={idx} />
@@ -69,7 +69,7 @@ const VersionPreview = ({
   }
   return (
     <IonLabel>
-      {dateToStr('relative', version.versionData.updated)}
+      {dateToStr('relative', version.itemDataJson.updated)}
       <p>{version.preview.substring(0, 200)}</p>
     </IonLabel>
   );
@@ -162,15 +162,15 @@ const ManageHistoryModal = ({ id, dismiss }: ManageHistoryModalProps) => {
 
 const ManageHistoryButton = ({ id }: ManageHistoryButtonProps) => {
   const history = useHistory();
-  const location = useLocation();
   const notebook = notebooksService.useCurrentNotebook();
-  const searchParams = getSearchParams(location.search);
+  // const location = useLocation(); // TODO location throws error if button in popover
+  // const searchParams = getSearchParams(location.search);
   const [present, dismiss] = useIonModal(ManageHistoryModal, {
     id,
     dismiss: (version?: string) => dismiss(version)
   });
   const type = collectionService.getItemType(id);
-  const query = searchParams.query;
+  const query = ''; //searchParams.query;
 
   return (
     <IonButton
@@ -184,7 +184,7 @@ const ManageHistoryButton = ({ id }: ManageHistoryButtonProps) => {
                   type,
                   version,
                   id,
-                  searchParams.folder || notebook,
+                  notebook, // searchParams.folder || notebook,
                   undefined,
                   undefined,
                   query

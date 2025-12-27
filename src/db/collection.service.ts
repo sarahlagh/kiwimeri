@@ -10,6 +10,7 @@ import {
   CollectionItemUpdatableFieldEnum,
   CollectionItemUpdate,
   CollectionItemUpdateChangeFields,
+  isPageOrDocument,
   PageResult,
   setFieldMeta,
   SortableCollectionItem
@@ -411,13 +412,9 @@ class CollectionService {
       localChangesService.addLocalChange(id, changeType);
     });
 
-    // TODO not sure why transaction breaks addVersionFromItem here
+    // TODO not sure why transaction breaks addVersionFromItem here - try startTransaction / endTransaction instead?
     // TODO should probably check if a relevant field has been updated here
-    if (
-      !bulk &&
-      (item.type === CollectionItemType.page ||
-        item.type === CollectionItemType.document)
-    ) {
+    if (!bulk && isPageOrDocument(item)) {
       historyService.saveVersionFromItem({ ...item, id } as CollectionItem);
     }
     return id;

@@ -3,7 +3,6 @@ import {
   CollectionItemResult,
   CollectionItemType,
   CollectionItemTypeValues,
-  CollectionItemUpdate,
   PageResult
 } from '@/collection/collection';
 import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
@@ -127,7 +126,7 @@ class CollectionSearchService {
     );
   }
 
-  public getUnsavedItemPreview(item: CollectionItem | CollectionItemUpdate) {
+  public getUnsavedItemPreview(item: Pick<CollectionItem, 'content'>) {
     return formatConverter.toPlainText(
       unminimizeContentFromStorage(item.content as string),
       { inline: true }

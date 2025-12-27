@@ -80,10 +80,10 @@ const DocumentVersionViewer = ({
 
   const versionedItem = historyService.useVersion(versionId);
   const content = versionedItem?.content;
-  const versionData = versionedItem?.versionData;
+  const versionData = versionedItem?.itemDataJson;
 
   const versionedDoc = historyService.useVersion(docVersion);
-  const docVersionData = versionedDoc?.versionData;
+  const docVersionData = versionedDoc?.itemDataJson;
   const documentTitle = docVersionData?.title;
   const documentPreview = versionedDoc?.preview;
 

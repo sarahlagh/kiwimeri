@@ -56,6 +56,7 @@ export const useRowWithRef = <T>(storeId: StoreId, tableId: Id, rowId: Id) => {
   return undefined;
 };
 
+/** @deprecated let's avoid this at all cost */
 export const useTableWithRef = (storeId: StoreId, tableId: Id) => {
   return useTable(tableId, store(storeId));
 };
