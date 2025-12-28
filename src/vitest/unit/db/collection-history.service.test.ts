@@ -5,6 +5,7 @@ import {
   CollectionItemVersion,
   SortableCollectionItem
 } from '@/collection/collection';
+import { getGlobalTrans } from '@/config';
 import { DEFAULT_NOTEBOOK_ID, DEFAULT_SPACE_ID } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
 import collectionService, { initialContent } from '@/db/collection.service';
@@ -22,6 +23,7 @@ import {
 
 describe('collection history service', () => {
   beforeEach(() => {
+    historyService['enabled'] = true;
     vi.useFakeTimers();
     searchAncestryService.start(DEFAULT_SPACE_ID);
     historyService.start(DEFAULT_SPACE_ID);
@@ -307,6 +309,59 @@ describe('collection history service', () => {
           { id: versions[0].id, created: versions[0].created, itemId: pageId }
         ]);
       });
+    });
+
+    it(`should debounce changes`, () => {
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID); // 4
+      const page1 = collectionService.addPage(docId); // 3
+      vi.advanceTimersByTime(10);
+
+      collectionService.setItemField(docId, 'title', 'title1'); // 2
+      collectionService.setItemField(docId, 'title', 'title2'); // 2
+      collectionService.setItemField(docId, 'title', 'title3'); // 2
+      vi.advanceTimersByTime(10);
+
+      // 1
+      collectionService.setItemField(
+        page1,
+        'content',
+        getNewContent('content1')
+      );
+      // 1
+      collectionService.setItemField(
+        page1,
+        'content',
+        getNewContent('content2')
+      );
+      vi.advanceTimersByTime(10);
+
+      collectionService.addPage(docId); // 0 - addPage triggers a saveNow()
+
+      const versions = historyService.getVersions(docId);
+      expect(versions).toHaveLength(5);
+      expect(versions[0].itemDataJson.title).toBe('title3');
+      expect(versions[0].pageVersionsArrayJson).toHaveLength(2);
+      expect(historyService.getPagesForVersion(versions[0].id)[0].preview).toBe(
+        'content2'
+      );
+
+      expect(versions[1].itemDataJson.title).toBe('title3');
+      expect(versions[1].pageVersionsArrayJson).toHaveLength(1);
+      expect(historyService.getPagesForVersion(versions[1].id)[0].preview).toBe(
+        'content2'
+      );
+
+      expect(versions[2].itemDataJson.title).toBe('title3');
+      expect(versions[2].pageVersionsArrayJson).toHaveLength(1);
+      expect(historyService.getPagesForVersion(versions[2].id)[0].preview).toBe(
+        ''
+      );
+
+      expect(versions[3].itemDataJson.title).toBe(getGlobalTrans().newDocTitle);
+      expect(versions[3].pageVersionsArrayJson).toHaveLength(1);
+
+      expect(versions[4].itemDataJson.title).toBe(getGlobalTrans().newDocTitle);
+      expect(versions[4].pageVersionsArrayJson).not.toBeDefined();
     });
 
     it(`should version a page and its document lite`, () => {

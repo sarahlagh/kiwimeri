@@ -11,6 +11,7 @@ import { i18n } from '@lingui/core';
 import '@testing-library/jest-dom/extend-expect';
 
 // allow the log level to be applied to tests
+import { historyService } from '@/db/collection-history.service';
 import '@/polyfills/log-polyfill';
 
 // Mock matchmedia
@@ -25,6 +26,7 @@ window.matchMedia =
   };
 
 beforeAll(async () => {
+  historyService['enabled'] = false;
   await storageService.start(false);
   await remotesService.initSync();
   i18n.load('en', enMessages);

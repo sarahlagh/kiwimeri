@@ -41,6 +41,7 @@ const defaultSort = { by: 'created', descending: true };
 const pagesSort = { by: 'virtualOrder', descending: false };
 
 class CollectionHistoryService {
+  private enabled = true;
   private readonly storeId = 'space';
   private readonly tableId = 'history';
   private readonly contentTableId = 'history_content';
@@ -344,6 +345,7 @@ class CollectionHistoryService {
   }
 
   public addVersion(id: string) {
+    if (!this.enabled) return;
     if (!this.cache.has(id)) this.cache.set(id, 0);
     if (Date.now() - this.cache.get(id)! >= this.debounce) {
       this.cache.set(id, Date.now());
@@ -469,6 +471,7 @@ class CollectionHistoryService {
   }
 
   public saveVersionFromItem(item: CollectionItem, skipPages: string[] = []) {
+    if (!this.enabled) return;
     console.debug('[history] saving new version for item', item.id);
     const space = storageService.getSpace();
     const versionId = this.saveSingleVersion(item);
@@ -563,6 +566,7 @@ class CollectionHistoryService {
 
   // increment doc and its pages in one go
   public saveWholeDocumentVersion(docId: string) {
+    if (!this.enabled) return;
     console.debug('[history] saving new full version for doc', docId);
     const space = storageService.getSpace();
     space.transaction(() => {
@@ -612,6 +616,7 @@ class CollectionHistoryService {
 
   // when leaving app, must save pending timeouts
   public saveNow() {
+    if (!this.enabled) return;
     console.log('force saving timeouts', this.timeouts.size);
     this.timeouts.forEach((t, id) => {
       clearTimeout(t);

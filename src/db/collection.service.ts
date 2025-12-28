@@ -375,6 +375,7 @@ class CollectionService {
 
   public addPage(document: string) {
     const { item, id } = this.getNewPageObj(document);
+    historyService.saveNow();
     this.saveItem(item as CollectionItem, id, document);
     return id;
   }

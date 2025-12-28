@@ -360,19 +360,6 @@ describe('collection service', () => {
       });
 
       if (type === 'document') {
-        // it(`should update the preview of a document at the same time as its content`, () => {
-        //   const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-        //   expect(getCollectionItem(id).preview).toBe('');
-
-        //   collectionService.setItemLexicalContent(id, shortContent);
-        //   expect(getCollectionItem(id).preview).toBe('This is a short content');
-
-        //   collectionService.setItemLexicalContent(id, loremIpsum);
-        //   expect(getCollectionItem(id).preview).toBe(
-        //     '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor '
-        //   );
-        // });
-
         UPDATABLE_FIELDS.forEach(({ field, valueType }) => {
           it(`should reset conflict (or not) on a document on update of ${field}`, () => {
             const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
@@ -530,20 +517,6 @@ describe('collection service', () => {
       expect(folder2.updated).toBe(now + 100);
       expect(folder3.updated).toBe(now + 100);
     });
-
-    // it(`should update the preview of a page at the same time as its content`, () => {
-    //   const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    //   const id = collectionService.addPage(docId);
-    //   expect(getCollectionItem(id).preview).toBe('');
-
-    //   collectionService.setItemLexicalContent(id, shortContent);
-    //   expect(getCollectionItem(id).preview).toBe('This is a short content');
-
-    //   collectionService.setItemLexicalContent(id, loremIpsum);
-    //   expect(getCollectionItem(id).preview).toBe(
-    //     '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor '
-    //   );
-    // });
 
     it(`should delete an existing page`, () => {
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
