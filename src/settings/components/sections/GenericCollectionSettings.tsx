@@ -2,7 +2,10 @@ import {
   CollectionItemDisplayOpts,
   CollectionItemSortType
 } from '@/collection/collection';
-import EditConfigList from '@/common/containers/EditConfigList';
+import EditConfigList, {
+  ConfigRowType
+} from '@/common/containers/EditConfigList';
+import { AnySerializableData, SerializableData } from '@/db/types/store-types';
 import { useLingui } from '@lingui/react/macro';
 
 type GenericCollectionSettingsProps = {
@@ -10,11 +13,17 @@ type GenericCollectionSettingsProps = {
   onDefaultDisplayOptsChange: (
     newDfaultDisplayOpts: CollectionItemDisplayOpts
   ) => void;
+  withRows?: ConfigRowType[];
+  withInitialState?: AnySerializableData;
+  withOnChange?: (key: string, val: SerializableData) => void;
 };
 
 const GenericCollectionSettings = ({
   defaultDisplayOpts,
-  onDefaultDisplayOptsChange
+  onDefaultDisplayOptsChange,
+  withRows = [],
+  withInitialState = {},
+  withOnChange
 }: GenericCollectionSettingsProps) => {
   const { t } = useLingui();
   return (
@@ -35,11 +44,13 @@ const GenericCollectionSettings = ({
           label: t`In descending order`,
           type: 'boolean',
           if: state => state.sort_by === 'order'
-        }
+        },
+        ...withRows
       ]}
       initialState={{
         sort_by: defaultDisplayOpts.sort.by,
-        sort_descending: defaultDisplayOpts.sort.descending
+        sort_descending: defaultDisplayOpts.sort.descending,
+        ...withInitialState
       }}
       onChange={(key, val) => {
         const newDisplayOpts = { ...defaultDisplayOpts };
@@ -53,6 +64,7 @@ const GenericCollectionSettings = ({
             onDefaultDisplayOptsChange(newDisplayOpts);
             break;
         }
+        if (withOnChange) withOnChange(key, val);
       }}
     />
   );

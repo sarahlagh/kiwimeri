@@ -19,6 +19,7 @@ import {
   useResultSortedRowIdsWithRef,
   useRowWithRef
 } from './tinybase/hooks';
+import userSettingsService from './user-settings.service';
 
 type VersionsWithContentResult = ResultRow & {
   itemId: string;
@@ -45,7 +46,6 @@ class CollectionHistoryService {
   private readonly storeId = 'space';
   private readonly tableId = 'history';
   private readonly contentTableId = 'history_content';
-  private debounce = 60000; // TODO configurable
   private cache = new Map<string, number>();
   private timeouts = new Map<string, number>();
 
@@ -347,7 +347,8 @@ class CollectionHistoryService {
   public addVersion(id: string) {
     if (!this.enabled) return;
     if (!this.cache.has(id)) this.cache.set(id, 0);
-    if (Date.now() - this.cache.get(id)! >= this.debounce) {
+    const debounce = userSettingsService.getHistoryDebounceTime();
+    if (Date.now() - this.cache.get(id)! >= debounce) {
       this.cache.set(id, Date.now());
       this.timeouts.set(
         id,
@@ -356,7 +357,7 @@ class CollectionHistoryService {
             this.saveVersionSync(id);
             this.timeouts.delete(id);
           },
-          this.debounce,
+          debounce,
           []
         )
       );

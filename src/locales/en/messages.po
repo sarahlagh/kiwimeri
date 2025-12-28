@@ -88,7 +88,7 @@ msgstr "Confirm"
 msgid "Conflicts"
 msgstr "Conflicts"
 
-#: src/settings/components/sections/GenericCollectionSettings.tsx:28
+#: src/settings/components/sections/GenericCollectionSettings.tsx:37
 msgid "Creation Date"
 msgstr "Creation Date"
 
@@ -117,7 +117,7 @@ msgstr "Dev Tools Enabled"
 msgid "Display options for the currently selected notebook. They can still be overriden per folder."
 msgstr "Display options for the currently selected notebook. They can still be overriden per folder."
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:22
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:25
 msgid "Display options for the currently selected space. They can still be overriden per notebook and per folder."
 msgstr "Display options for the currently selected space. They can still be overriden per notebook and per folder."
 
@@ -183,14 +183,20 @@ msgstr "File not supported"
 msgid "Filesystem"
 msgstr "Filesystem"
 
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:41
+msgid "History save time (minutes)"
+msgstr "History save time (minutes)"
+
 #: src/constants.ts:65
 msgid "Home"
 msgstr "Home"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:112
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:105
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
@@ -207,7 +213,7 @@ msgstr "Import & export your collection"
 msgid "Import file in folder {folderName}"
 msgstr "Import file in folder {folderName}"
 
-#: src/settings/components/sections/GenericCollectionSettings.tsx:35
+#: src/settings/components/sections/GenericCollectionSettings.tsx:44
 msgid "In descending order"
 msgstr "In descending order"
 
@@ -239,10 +245,12 @@ msgstr "Link"
 msgid "Loading..."
 msgstr "Loading..."
 
+#. placeholder {0}: localChanges.length
 #: src/synchronization/components/LocalChangesCard.tsx:38
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
+#. placeholder {0}: dateToStr('datetime', lastLocalChange)
 #: src/synchronization/components/LocalChangesCard.tsx:44
 msgid "Local: {0}"
 msgstr "Local: {0}"
@@ -251,7 +259,7 @@ msgstr "Local: {0}"
 msgid "Logs"
 msgstr "Logs"
 
-#: src/settings/components/sections/GenericCollectionSettings.tsx:30
+#: src/settings/components/sections/GenericCollectionSettings.tsx:39
 msgid "Manual Order"
 msgstr "Manual Order"
 
@@ -279,7 +287,7 @@ msgstr "merged"
 msgid "Metadata found in the archive"
 msgstr "Metadata found in the archive"
 
-#: src/settings/components/sections/GenericCollectionSettings.tsx:29
+#: src/settings/components/sections/GenericCollectionSettings.tsx:38
 msgid "Modified Date"
 msgstr "Modified Date"
 
@@ -368,6 +376,7 @@ msgstr "Pick a directory for your backups"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
+#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
 #: src/synchronization/components/LocalChangesCard.tsx:51
 msgid "Remote: {0}"
 msgstr "Remote: {0}"
@@ -414,7 +423,7 @@ msgstr "Settings"
 msgid "Sort"
 msgstr "Sort"
 
-#: src/settings/components/sections/GenericCollectionSettings.tsx:25
+#: src/settings/components/sections/GenericCollectionSettings.tsx:34
 msgid "Sort items by..."
 msgstr "Sort items by..."
 
@@ -422,7 +431,7 @@ msgstr "Sort items by..."
 msgid "space option modified"
 msgstr "space option modified"
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:19
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:22
 msgid "Space Settings"
 msgstr "Space Settings"
 
@@ -471,11 +480,15 @@ msgstr "US"
 #: src/synchronization/components/providers/PCloudSettings.tsx:112
 #: src/synchronization/components/providers/PCloudSettings.tsx:115
 msgid "Username"
-msgstr "Username"
+msgstr "Username<<<<<<< HEAD"
+
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:42
+msgid "When working on a document, a new version will be automatically saved every XX minutes"
+msgstr "When working on a document, a new version will be automatically saved every XX minutes>>>>>>> 2f659df (make debounce time configurable)"
 
 #: src/collection/components/WordCount.tsx:21
 msgid "words"
-msgstr "words"
+msgstr "words======="
 
 #: src/common/modals/ConfirmMultipleImportModal.tsx:247
 msgid "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."

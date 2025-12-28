@@ -11,6 +11,7 @@ import { historyService } from '@/db/collection-history.service';
 import collectionService, { initialContent } from '@/db/collection.service';
 import storageService from '@/db/storage.service';
 import { defaultOrder } from '@/db/types/space-types';
+import userSettingsService from '@/db/user-settings.service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { renderHook } from '@testing-library/react';
 import { it, vi } from 'vitest';
@@ -27,7 +28,7 @@ describe('collection history service', () => {
     vi.useFakeTimers();
     searchAncestryService.start(DEFAULT_SPACE_ID);
     historyService.start(DEFAULT_SPACE_ID);
-    historyService['debounce'] = 50;
+    userSettingsService.setHistoryDebounceTime(50);
   });
   afterEach(() => {
     vi.useRealTimers();

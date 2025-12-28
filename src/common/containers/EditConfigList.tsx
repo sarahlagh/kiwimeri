@@ -3,11 +3,13 @@ import { AnySerializableData, SerializableData } from '@/db/types/store-types';
 import {
   IonButton,
   IonCheckbox,
+  IonContent,
   IonIcon,
   IonInput,
   IonItem,
   IonLabel,
   IonList,
+  IonPopover,
   IonSelect,
   IonSelectOption
 } from '@ionic/react';
@@ -16,6 +18,7 @@ export type ConfigRowType = {
   key: string;
   type: 'string' | 'enum' | 'number' | 'boolean';
   label: string;
+  description?: string;
   min?: number;
   max?: number;
   values?: { val: string; label: string }[];
@@ -116,7 +119,25 @@ const EditConfigList = ({
             key={v.key}
             className={disabled ? 'item-interactive-disabled' : undefined}
           >
-            <IonLabel slot="start">{v.label}</IonLabel>
+            <IonLabel
+              slot="start"
+              style={{ lineHeight: '30px', maxHeight: '30px' }}
+            >
+              {v.label}
+              {v.description && (
+                <>
+                  <IonButton id={`trigger-${v.key}`} fill="clear">
+                    <IonIcon icon={APPICONS.info}></IonIcon>
+                  </IonButton>
+                  <IonPopover
+                    trigger={`trigger-${v.key}`}
+                    triggerAction="click"
+                  >
+                    <IonContent class="ion-padding">{v.description}</IonContent>
+                  </IonPopover>
+                </>
+              )}
+            </IonLabel>
             <ConfigValue
               key={v.key}
               row={v}

@@ -195,7 +195,8 @@ class StorageService {
       .setValuesSchema({
         lastUpdated: { type: 'number', default: 0 },
         defaultSortBy: { type: 'string', default: 'created' },
-        defaultSortDesc: { type: 'boolean', default: false }
+        defaultSortDesc: { type: 'boolean', default: false },
+        historyDebounceTime: { type: 'number', default: 60000 }
       });
   }
 

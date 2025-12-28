@@ -159,6 +159,21 @@ class UserSettingsService {
     }
     return this.getSpaceDefaultDisplayOpts(space);
   }
+
+  public getHistoryDebounceTime(space?: string): number {
+    return storageService
+      .getSpace(space)
+      .getValue('historyDebounceTime')
+      .valueOf();
+  }
+
+  public useHistoryDebounceTime(): number {
+    return useValueWithRef(this.spaceId, 'historyDebounceTime') as number;
+  }
+
+  public setHistoryDebounceTime(value: number, space?: string) {
+    storageService.getSpace(space).setValue('historyDebounceTime', value);
+  }
 }
 
 const userSettingsService = new UserSettingsService();

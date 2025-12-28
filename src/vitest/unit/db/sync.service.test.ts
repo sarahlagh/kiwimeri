@@ -57,6 +57,13 @@ let driver: InMemDriver;
 let iPull = 0;
 let iPush = 0;
 
+const defaultValues: SpaceValues = {
+  defaultSortBy: 'order',
+  defaultSortDesc: true,
+  historyDebounceTime: 60000,
+  lastUpdated: Date.now()
+};
+
 const reInitRemoteData = async (
   items: CollectionItem[],
   updateTs?: number,
@@ -75,6 +82,7 @@ const reInitRemoteData = async (
         );
   if (!values) {
     values = {
+      ...defaultValues,
       defaultSortBy: 'created',
       defaultSortDesc: false,
       lastUpdated: 0
@@ -2065,6 +2073,7 @@ describe('sync service', () => {
     describe(`tests with values`, () => {
       it(`should pull updated values`, async () => {
         await reInitRemoteData([oneNotebook()], Date.now(), {
+          ...defaultValues,
           defaultSortBy: 'order',
           defaultSortDesc: true,
           lastUpdated: Date.now()
@@ -2089,6 +2098,7 @@ describe('sync service', () => {
 
       it(`should not pull remote values if local changed`, async () => {
         await reInitRemoteData([oneNotebook()], Date.now(), {
+          ...defaultValues,
           defaultSortBy: 'order',
           defaultSortDesc: true,
           lastUpdated: Date.now()
@@ -2114,6 +2124,7 @@ describe('sync service', () => {
 
       it(`should force pull remote values even if local changed`, async () => {
         await reInitRemoteData([oneNotebook()], Date.now(), {
+          ...defaultValues,
           defaultSortBy: 'order',
           defaultSortDesc: true,
           lastUpdated: Date.now()
@@ -2139,6 +2150,7 @@ describe('sync service', () => {
 
       it(`should push updated values`, async () => {
         await reInitRemoteData([oneNotebook()], Date.now(), {
+          ...defaultValues,
           defaultSortBy: 'order',
           defaultSortDesc: true,
           lastUpdated: Date.now()
@@ -2155,6 +2167,7 @@ describe('sync service', () => {
 
         const remoteContent = await driver.getParsedContent();
         expect(remoteContent.values).toEqual({
+          ...defaultValues,
           defaultSortBy: 'updated',
           defaultSortDesc: false,
           lastUpdated: storageService.getSpace().getValue('lastUpdated')
@@ -2172,6 +2185,7 @@ describe('sync service', () => {
 
         const pushTime = Date.now();
         await reInitRemoteData([oneNotebook()], pushTime, {
+          ...defaultValues,
           defaultSortBy: 'order',
           defaultSortDesc: true,
           lastUpdated: pushTime
@@ -2181,6 +2195,7 @@ describe('sync service', () => {
 
         const remoteContent = await driver.getParsedContent();
         expect(remoteContent.values).toEqual({
+          ...defaultValues,
           defaultSortBy: 'order',
           defaultSortDesc: true,
           lastUpdated: pushTime
@@ -2198,6 +2213,7 @@ describe('sync service', () => {
         vi.advanceTimersByTime(fakeTimersDelay);
 
         await reInitRemoteData([oneNotebook()], Date.now(), {
+          ...defaultValues,
           defaultSortBy: 'order',
           defaultSortDesc: true,
           lastUpdated: Date.now()
@@ -2207,6 +2223,7 @@ describe('sync service', () => {
 
         const remoteContent = await driver.getParsedContent();
         expect(remoteContent.values).toEqual({
+          ...defaultValues,
           defaultSortBy: 'updated',
           defaultSortDesc: false,
           lastUpdated: localTime
