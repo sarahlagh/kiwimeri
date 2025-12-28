@@ -343,11 +343,7 @@ class CollectionHistoryService {
     return this.searchVersions(pageVersions);
   }
 
-  public addVersion(id: string, sync = false) {
-    if (sync) {
-      this.saveVersionSync(id);
-      return;
-    }
+  public addVersion(id: string) {
     if (!this.cache.has(id)) this.cache.set(id, 0);
     if (Date.now() - this.cache.get(id)! >= this.debounce) {
       this.cache.set(id, Date.now());
@@ -616,6 +612,7 @@ class CollectionHistoryService {
 
   // when leaving app, must save pending timeouts
   public saveNow() {
+    console.log('force saving timeouts', this.timeouts.size);
     this.timeouts.forEach((t, id) => {
       clearTimeout(t);
       this.saveVersionSync(id);

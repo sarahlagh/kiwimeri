@@ -30,6 +30,7 @@ type ManageHistoryButtonProps = {
 type ManageHistoryModalProps = {
   id: string;
   dismiss: (version?: string) => void;
+  docVersion?: string;
 };
 
 // TODO diff can't show style differences
@@ -49,15 +50,18 @@ const DiffFragment = ({ part }: { part: ChangeObject<string> }) => {
 
 const VersionPreview = ({
   version,
-  lastPreview
+  lastPreview,
+  isActive
 }: {
   version: CollectionItemVersion;
+  isActive: boolean;
   lastPreview?: string;
 }) => {
+  const style = isActive ? { fontWeight: 'bold' } : {};
   if (lastPreview) {
     const diff = diffChars(lastPreview, version.preview);
     return (
-      <IonLabel>
+      <IonLabel style={style}>
         {dateToStr('relative', version.itemDataJson.updated)}
         <p>
           {diff.map((part, idx) => (
@@ -68,18 +72,23 @@ const VersionPreview = ({
     );
   }
   return (
-    <IonLabel>
+    <IonLabel style={style}>
       {dateToStr('relative', version.itemDataJson.updated)}
       <p>{version.preview.substring(0, 200)}</p>
     </IonLabel>
   );
 };
 
-const ManageHistoryModal = ({ id, dismiss }: ManageHistoryModalProps) => {
+const ManageHistoryModal = ({
+  id,
+  dismiss,
+  docVersion
+}: ManageHistoryModalProps) => {
   const { t } = useLingui();
   const [alert] = useIonAlert();
   const docHistory = historyService.getVersions(id);
   console.debug('id', id, docHistory);
+  console.debug('viewing', docVersion);
   return (
     <>
       <IonHeader>
@@ -110,6 +119,7 @@ const ManageHistoryModal = ({ id, dismiss }: ManageHistoryModalProps) => {
             >
               <VersionPreview
                 version={version}
+                isActive={version.id === docVersion}
                 lastPreview={
                   idx < docHistory.length - 1
                     ? docHistory[idx + 1].preview
@@ -165,12 +175,14 @@ const ManageHistoryButton = ({ id }: ManageHistoryButtonProps) => {
   const notebook = notebooksService.useCurrentNotebook();
   const location = useLocation(); // warning: location throws error if button in popover
   const searchParams = getSearchParams(location.search);
+  const query = searchParams.query;
+  const docVersion = searchParams.docVersion;
   const [present, dismiss] = useIonModal(ManageHistoryModal, {
     id,
-    dismiss: (version?: string) => dismiss(version)
+    dismiss: (version?: string) => dismiss(version),
+    docVersion
   });
   const type = collectionService.getItemType(id);
-  const query = searchParams.query;
 
   return (
     <IonButton
