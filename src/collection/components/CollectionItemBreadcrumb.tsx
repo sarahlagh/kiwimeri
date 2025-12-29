@@ -6,7 +6,7 @@ import {
   IonButton,
   IonIcon
 } from '@ionic/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const CollectionItemBreadcrumb = ({
   folder,
@@ -18,10 +18,12 @@ const CollectionItemBreadcrumb = ({
   const [maxBreadcrumbs, setMaxBreadcrumbs] = useState<number | undefined>(3);
   const [breadcrumb, setBreadcrumb] = useState<string[]>([]);
 
-  if (folder !== ROOT_COLLECTION && !breadcrumb.find(b => b === folder)) {
-    setBreadcrumb(collectionService.getBreadcrumb(folder));
-    setMaxBreadcrumbs(3);
-  }
+  useEffect(() => {
+    if (folder !== ROOT_COLLECTION && !breadcrumb.find(b => b === folder)) {
+      setBreadcrumb(collectionService.getBreadcrumb(folder));
+      setMaxBreadcrumbs(3);
+    }
+  }, [folder]);
 
   const checkedBreadcrumb = breadcrumb.filter(id =>
     collectionService.itemExists(id)

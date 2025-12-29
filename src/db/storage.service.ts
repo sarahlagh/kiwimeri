@@ -200,7 +200,7 @@ class StorageService {
         defaultSortBy: { type: 'string', default: 'created' },
         defaultSortDesc: { type: 'boolean', default: false },
         historyDebounceTime: { type: 'number', default: 60000 },
-        schemaVersion: { type: 'string' }
+        schemaVersion: { type: 'string', default: '' }
       });
   }
 

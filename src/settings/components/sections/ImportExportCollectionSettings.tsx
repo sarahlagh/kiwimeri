@@ -25,7 +25,8 @@ const ImportExportCollectionSettings = () => {
     `${dateToStr('iso')}-${exportFileSuffix}.json`;
 
   const getContentToExport = async () => {
-    return storageService.getSpace().getJson();
+    const content = storageService.getSpace().getContent();
+    return JSON.stringify([content[0].collection, content[1]]);
   };
 
   return (

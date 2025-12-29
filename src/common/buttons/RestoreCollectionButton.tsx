@@ -23,10 +23,11 @@ const RestoreCollectionButton = ({
 
   const onSingleJsonRead = async (content: string, file: File) => {
     console.debug('file', file);
-
     // TODO validate schema
-    storageService.getSpace().setJson(content);
-
+    const [collection, values] = JSON.parse(content);
+    const space = storageService.getSpace();
+    space.setTable('collection', collection); // TODO handle history
+    space.setValues(values);
     return { confirm: true } as OnContentReadResponse;
   };
 

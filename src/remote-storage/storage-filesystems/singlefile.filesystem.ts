@@ -246,7 +246,11 @@ export class SingleFileStorage extends CloudStorageFilesystem {
       force || obj.o.lastUpdated > nOr0('lastUpdated', localContent[1])
         ? obj.o
         : localContent[1];
-    const newLocalContent: Content<SpaceType> = [{ collection: {} }, newValues];
+
+    const newLocalContent: Content<SpaceType> = [
+      { ...localContent[0], collection: {} }, // don't override history & history_content
+      newValues
+    ];
     items.forEach(item => {
       newLocalContent[0].collection![item.id!] = item;
     });
