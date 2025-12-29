@@ -12,6 +12,7 @@ import { createIndexes, Indexes } from 'tinybase/with-schemas';
 import { searchAncestryService } from '../search/search-ancestry.service';
 import { historyService } from './collection-history.service';
 import localChangesService from './local-changes.service';
+import { migrationService } from './migrations/migration.service';
 import notebooksService from './notebooks.service';
 import tagsService from './tags.service';
 import { SpaceType } from './types/space-types';
@@ -99,7 +100,8 @@ class StorageService {
         internalProxy: { type: 'string' },
         currentSpace: { type: 'string', default: DEFAULT_SPACE_ID },
         exportIncludeMetadata: { type: 'boolean', default: true },
-        exportInlinePages: { type: 'boolean', default: true }
+        exportInlinePages: { type: 'boolean', default: true },
+        appVersion: { type: 'string' }
       });
 
     this.storeQueries = createQueries(this.store);
@@ -143,6 +145,7 @@ class StorageService {
     ]);
     // init spaces
     setTimeout(() => {
+      migrationService.start(this.store, this.getSpace(DEFAULT_SPACE_ID));
       notebooksService.initNotebooks();
       searchAncestryService.start(DEFAULT_SPACE_ID);
       historyService.start(DEFAULT_SPACE_ID);
@@ -196,7 +199,8 @@ class StorageService {
         lastUpdated: { type: 'number', default: 0 },
         defaultSortBy: { type: 'string', default: 'created' },
         defaultSortDesc: { type: 'boolean', default: false },
-        historyDebounceTime: { type: 'number', default: 60000 }
+        historyDebounceTime: { type: 'number', default: 60000 },
+        schemaVersion: { type: 'string' }
       });
   }
 

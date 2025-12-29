@@ -135,6 +135,7 @@ export type StoreType = [
     internalProxy: { type: 'string' };
     exportIncludeMetadata: { type: 'boolean'; default: true };
     exportInlinePages: { type: 'boolean'; default: true };
+    appVersion: { type: 'string' };
   }
 ];
 

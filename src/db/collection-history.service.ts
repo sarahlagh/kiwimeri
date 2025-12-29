@@ -344,8 +344,12 @@ class CollectionHistoryService {
     return this.searchVersions(pageVersions);
   }
 
-  public addVersion(id: string) {
+  public addVersion(id: string, sync = false) {
     if (!this.enabled) return;
+    if (sync) {
+      this.saveVersionSync(id);
+      return;
+    }
     if (!this.cache.has(id)) this.cache.set(id, 0);
     const debounce = userSettingsService.getHistoryDebounceTime();
     if (Date.now() - this.cache.get(id)! >= debounce) {
@@ -566,7 +570,7 @@ class CollectionHistoryService {
   }
 
   // increment doc and its pages in one go
-  public saveWholeDocumentVersion(docId: string) {
+  public saveWholeDocumentVersion(docId: string, sync = false) {
     if (!this.enabled) return;
     console.debug('[history] saving new full version for doc', docId);
     const space = storageService.getSpace();
@@ -576,7 +580,7 @@ class CollectionHistoryService {
         const page = collectionService.getItem(p.id);
         this.saveSingleVersion(page);
       });
-      this.addVersion(docId);
+      this.addVersion(docId, sync);
     });
   }
 
