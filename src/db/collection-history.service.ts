@@ -615,6 +615,7 @@ class CollectionHistoryService {
 
   private saveVersionSync(id: string, skipPages: string[] = []) {
     const space = storageService.getSpace();
+    if (!space.hasRow('collection', id)) return;
     const current = space.getRow('collection', id);
     this.saveVersionFromItem({ ...current, id } as CollectionItem, skipPages);
   }

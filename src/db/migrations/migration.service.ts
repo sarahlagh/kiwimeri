@@ -6,7 +6,10 @@ import { StoreType } from '../types/store-types';
 const versionRegexp = /^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/;
 
 class MigrationService {
+  private enabled = true;
+
   public async start(store: Store<StoreType>, space: Store<SpaceType>) {
+    if (!this.enabled) return;
     const runtimeVersion = appConfig.KIWIMERI_VERSION;
     const baseRuntimeVersion = runtimeVersion.split('~')[0];
     const storeVersion = store.getValue('appVersion')?.valueOf() || '0.2.6';

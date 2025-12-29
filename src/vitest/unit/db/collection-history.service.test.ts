@@ -249,6 +249,18 @@ describe('collection history service', () => {
       expect(historyService.getVersions(docId)).toHaveLength(0);
       expect(storageService.getSpace().getRowCount('history_content')).toBe(0);
     });
+
+    it(`should not create new version if change debounced but hard delete in between`, () => {
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      vi.advanceTimersByTime(100);
+      collectionService.setItemTitle(docId, 'new title');
+      vi.advanceTimersByTime(10);
+
+      collectionService.deleteItem(docId);
+      vi.advanceTimersByTime(100);
+      expect(historyService.getVersions(docId)).toHaveLength(0);
+      expect(storageService.getSpace().getRowCount('history_content')).toBe(0);
+    });
   });
 
   describe(`operations on a page`, () => {

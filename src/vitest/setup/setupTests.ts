@@ -12,6 +12,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 // allow the log level to be applied to tests
 import { historyService } from '@/db/collection-history.service';
+import { migrationService } from '@/db/migrations/migration.service';
 import '@/polyfills/log-polyfill';
 
 // Mock matchmedia
@@ -26,6 +27,7 @@ window.matchMedia =
   };
 
 beforeAll(async () => {
+  migrationService['enabled'] = false;
   historyService['enabled'] = false;
   await storageService.start(false);
   await remotesService.initSync();
