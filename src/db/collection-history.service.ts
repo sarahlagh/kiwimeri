@@ -573,15 +573,14 @@ class CollectionHistoryService {
   public saveWholeDocumentVersion(docId: string, sync = false) {
     if (!this.enabled) return;
     console.debug('[history] saving new full version for doc', docId);
-    const space = storageService.getSpace();
-    space.transaction(() => {
-      const pages = collectionService.getDocumentPages(docId);
-      pages.forEach(p => {
-        const page = collectionService.getItem(p.id);
-        this.saveSingleVersion(page);
-      });
-      this.addVersion(docId, sync);
+    // space.transaction(() => {
+    const pages = collectionService.getDocumentPages(docId);
+    pages.forEach(p => {
+      const page = collectionService.getItem(p.id);
+      this.saveSingleVersion(page);
     });
+    this.addVersion(docId, sync);
+    // });
   }
 
   public deleteVersions(
@@ -623,12 +622,20 @@ class CollectionHistoryService {
   // when leaving app, must save pending timeouts
   public saveNow() {
     if (!this.enabled) return;
-    console.log('force saving timeouts', this.timeouts.size);
+    console.log('force saving current tasks', this.timeouts.size);
     this.timeouts.forEach((t, id) => {
       clearTimeout(t);
       this.saveVersionSync(id);
     });
     this.timeouts.clear();
+  }
+
+  public disableForBulk<T>(callback: () => T) {
+    this.saveNow();
+    this.enabled = false;
+    const result = callback();
+    this.enabled = true;
+    return result;
   }
 }
 

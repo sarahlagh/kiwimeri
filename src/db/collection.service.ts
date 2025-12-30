@@ -174,8 +174,8 @@ class CollectionService {
     queryName: string,
     sort: CollectionItemSort
   ) {
-    const results = storageService
-      .getSpaceQueries()
+    const queries = storageService.getSpaceQueries();
+    const results = queries
       .getResultSortedRowIds(queryName, sort.by, sort.descending)
       .map(rowId => {
         const row = table[rowId];
@@ -249,6 +249,7 @@ class CollectionService {
         collectionService.getItemEffectiveDisplayOpts(document);
       sort = displayOpts.sort;
     }
+    if (!this.itemExists(document)) return [];
     const table = storageService.getSpace().getTable(this.tableId);
     const queryName = this.fetchPagesForDocQuery(document);
     const results = this.getResultsSorted(table, queryName, sort);
@@ -395,8 +396,7 @@ class CollectionService {
   public saveItem(
     item: CollectionItem | CollectionItemUpdate,
     id?: string,
-    parent?: string,
-    bulk = false
+    parent?: string
   ) {
     if (!id) {
       id = getUniqueId();
@@ -415,7 +415,7 @@ class CollectionService {
 
     // TODO not sure why transaction breaks addVersionFromItem here - try startTransaction / endTransaction instead?
     // TODO should probably check if a relevant field has been updated here
-    if (!bulk && isPageOrDocument(item)) {
+    if (isPageOrDocument(item)) {
       historyService.saveVersionFromItem({ ...item, id } as CollectionItem);
     }
     return id;
@@ -796,14 +796,26 @@ class CollectionService {
 
   public saveItems(
     items: (CollectionItem | CollectionItemUpdate)[],
-    parent?: string
+    parent?: string,
+    bulk = false
   ) {
-    storageService.getSpace().transaction(() => {
+    const allDocIds: string[] = [];
+    // storageService.getSpace().transaction(() => {
+    historyService.disableForBulk(() => {
       items.forEach(item => {
-        this.saveItem(item, item.id, parent, true);
+        const id = this.saveItem(item, item.id, parent);
+        if (item.type === CollectionItemType.document) {
+          allDocIds.push(id);
+        }
       });
-      // TODO handle history
     });
+    if (!bulk) {
+      allDocIds.forEach(docId =>
+        historyService.saveWholeDocumentVersion(docId, true)
+      );
+    }
+    return allDocIds;
+    // });
   }
 
   public getBreadcrumb(rowId: string, includeAllNotebooks = false) {

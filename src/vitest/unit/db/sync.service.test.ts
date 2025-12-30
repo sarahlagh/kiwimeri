@@ -61,7 +61,8 @@ const defaultValues: SpaceValues = {
   defaultSortBy: 'order',
   defaultSortDesc: true,
   historyDebounceTime: 60000,
-  lastUpdated: Date.now()
+  lastUpdated: Date.now(),
+  schemaVersion: ''
 };
 
 const reInitRemoteData = async (

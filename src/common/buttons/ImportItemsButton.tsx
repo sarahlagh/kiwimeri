@@ -84,6 +84,9 @@ const ImportItemsButton = ({
       }
     ]);
 
+    if (!doc) {
+      return { confirm: false } as OnContentReadResponse;
+    }
     if (itemsInCollection.length > 0) {
       setSingleDuplicates(itemsInCollection);
       return new Promise<OnContentReadResponse>(function (resolve) {

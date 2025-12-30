@@ -9,12 +9,14 @@ import {
   ZipParseError
 } from '@/common/services/import.service';
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
+import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/local-changes.service';
 import navService from '@/db/nav.service';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
 import { LocalChangeType } from '@/db/types/store-types';
+import userSettingsService from '@/db/user-settings.service';
 import formatConverter from '@/format-conversion/format-converter.service';
 import { getLocalItemField } from '@/vitest/setup/test.utils';
 import { readFile } from 'fs/promises';
@@ -100,6 +102,8 @@ describe('import service', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.advanceTimersByTime(2000);
+    userSettingsService.setHistoryDebounceTime(50);
+    historyService['enabled'] = true;
   });
   afterEach(() => {
     vi.useRealTimers();
@@ -231,6 +235,7 @@ describe('import service', () => {
       );
       expect(id).toBeDefined();
       expect(collectionService.itemExists(id!)).toBe(true);
+      expect(historyService.getVersions(id!)).toHaveLength(1);
     });
 
     it('overwrite existing document', () => {
@@ -238,6 +243,7 @@ describe('import service', () => {
       const id1 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       collectionService.setItemTitle(id1, 'New doc');
       vi.advanceTimersByTime(5000);
+      expect(historyService.getVersions(id1!)).toHaveLength(2);
 
       const { doc, pages } = importService.parseNonLexicalContent(
         'This is some content'
@@ -256,6 +262,7 @@ describe('import service', () => {
       expect(collectionService.getItemField(id2!, 'updated')).toBe(
         before + 5000
       );
+      expect(historyService.getVersions(id2!)).toHaveLength(3);
     });
 
     it('save single new document with pages', () => {
@@ -275,6 +282,7 @@ describe('import service', () => {
       expect(id).toBeDefined();
       expect(collectionService.itemExists(id!)).toBe(true);
       expect(collectionService.getDocumentPages(id!)).toHaveLength(1);
+      expect(historyService.getVersions(id!)).toHaveLength(1);
     });
 
     it('overwrite existing document with no previous pages', () => {
@@ -282,6 +290,7 @@ describe('import service', () => {
       const id1 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       collectionService.setItemTitle(id1, 'New doc');
       vi.advanceTimersByTime(5000);
+      expect(historyService.getVersions(id1!)).toHaveLength(2);
 
       const { doc, pages } = importService.parseNonLexicalContent(
         'This is some content' +
@@ -304,6 +313,7 @@ describe('import service', () => {
         before + 5000
       );
       expect(collectionService.getDocumentPages(id2!)).toHaveLength(1);
+      expect(historyService.getVersions(id2!)).toHaveLength(3);
     });
 
     it('overwrite existing document with previous pages and deleteExistingPages=true', () => {
@@ -313,6 +323,7 @@ describe('import service', () => {
       const idp2 = collectionService.addPage(id1);
       collectionService.setItemTitle(id1, 'New doc');
       vi.advanceTimersByTime(5000);
+      expect(historyService.getVersions(id1!)).toHaveLength(4);
 
       const { doc, pages } = importService.parseNonLexicalContent(
         'This is some content' +
@@ -339,6 +350,7 @@ describe('import service', () => {
       expect(newPages).toHaveLength(1);
       expect(newPages[0]).not.toBe(idp1);
       expect(newPages[0]).not.toBe(idp2);
+      expect(historyService.getVersions(id2!)).toHaveLength(5);
     });
 
     it('overwrite existing document with previous pages and deleteExistingPages=false', () => {
@@ -348,6 +360,7 @@ describe('import service', () => {
       const idp2 = collectionService.addPage(id1);
       collectionService.setItemTitle(id1, 'New doc');
       vi.advanceTimersByTime(5000);
+      expect(historyService.getVersions(id1!)).toHaveLength(4);
 
       const { doc, pages } = importService.parseNonLexicalContent(
         'This is some content' +
@@ -374,6 +387,7 @@ describe('import service', () => {
       expect(newPages).toHaveLength(3);
       expect(newPages.find(page => page.id === idp1)).toBeDefined();
       expect(newPages.find(page => page.id === idp2)).toBeDefined();
+      expect(historyService.getVersions(id1!)).toHaveLength(5);
     });
   });
 
@@ -538,13 +552,22 @@ describe('import service', () => {
       expect(collectionService.itemExists(item.id!)).toBe(true);
       if (item.type === CollectionItemType.document) {
         const pages = collectionService.getDocumentPages(item.id!);
-
         expect(pages).toHaveLength(
           items.filter(p => p.parent === item.id).length +
             initDataNotDel.filter(p => p.parent === item.id).length
         );
       }
     });
+    zipMerge.newItems
+      .filter(item => item.type === CollectionItemType.document)
+      .forEach(newDoc => {
+        expect(historyService.getVersions(newDoc.id!)).toHaveLength(1);
+      });
+    zipMerge.updatedItems
+      .filter(item => item.type === CollectionItemType.document)
+      .forEach(updatedDoc => {
+        expect(historyService.getVersions(updatedDoc.id!)).toHaveLength(2);
+      });
   };
 
   const generateTestsCases = async (
@@ -591,6 +614,7 @@ describe('import service', () => {
                           const creationTs = Date.now();
                           const { ids: initDataIds, initialItems } =
                             createInitData(testCase.initData);
+
                           localChangesService.clear();
                           vi.advanceTimersByTime(5000);
                           const updateTs = Date.now();
@@ -720,6 +744,17 @@ describe('import service', () => {
       });
     });
 
+    function checkCollectionAndHistory(parent: string, expectedLength: number) {
+      const allItems = collectionService.getAllCollectionItemsRecursive(parent);
+      expect(allItems).toHaveLength(expectedLength);
+      const allDocIds = allItems
+        .filter(item => item.type === CollectionItemType.document)
+        .map(item => item.id);
+      allDocIds.forEach(id => {
+        expect(historyService.getVersions(id)).toHaveLength(1);
+      });
+    }
+
     it('should not restore zip with docs at root', async () => {
       const zipData = await readZip('zips_with_meta', 'SpaceMix.zip', {});
       expect(importService.canRestoreSpace(zipData)).toBe(false);
@@ -736,14 +771,13 @@ describe('import service', () => {
       expect(collectionService.itemExists(dId)).toBe(false);
       expect(collectionService.itemExists(fId)).toBe(false);
       expect(collectionService.itemExists(nId)).toBe(false);
+      expect(historyService.getVersions(dId)).toHaveLength(0);
       // expect first folder to be notebook
       expect(notebooksService.getNotebooks()).toHaveLength(1);
       const createdNotebook = notebooksService.getNotebooks()[0];
       expect(createdNotebook.id).toBe(DEFAULT_NOTEBOOK_ID);
       expect(createdNotebook.title).toBe('Samples');
-      expect(
-        collectionService.getAllCollectionItemsRecursive(createdNotebook!.id)
-      ).toHaveLength(18);
+      checkCollectionAndHistory(createdNotebook.id!, 18);
     });
 
     it('should restore zip with no notebook meta for first level folders and ignore root meta', async () => {
@@ -753,14 +787,13 @@ describe('import service', () => {
       expect(collectionService.itemExists(dId)).toBe(false);
       expect(collectionService.itemExists(fId)).toBe(false);
       expect(collectionService.itemExists(nId)).toBe(false);
+      expect(historyService.getVersions(dId)).toHaveLength(0);
       // expect first folder to be notebook
       expect(notebooksService.getNotebooks()).toHaveLength(1);
       const createdNotebook = notebooksService.getNotebooks()[0];
       expect(createdNotebook.id).toBe(DEFAULT_NOTEBOOK_ID);
       expect(createdNotebook.title).toBe('Simple Original');
-      expect(
-        collectionService.getAllCollectionItemsRecursive(createdNotebook!.id)
-      ).toHaveLength(1);
+      checkCollectionAndHistory(createdNotebook.id!, 1);
     });
 
     it('should restore properly exported zip', async () => {
@@ -770,6 +803,7 @@ describe('import service', () => {
       expect(collectionService.itemExists(dId)).toBe(false);
       expect(collectionService.itemExists(fId)).toBe(false);
       expect(collectionService.itemExists(nId)).toBe(false);
+      expect(historyService.getVersions(dId)).toHaveLength(0);
       // expect first folders to be notebook
       expect(notebooksService.getNotebooks()).toHaveLength(2);
       const createdNotebooks = notebooksService.getNotebooks(ROOT_COLLECTION);
@@ -777,12 +811,8 @@ describe('import service', () => {
       expect(createdNotebooks[0].id).toBe(DEFAULT_NOTEBOOK_ID);
       expect(createdNotebooks[1].title).toBe('SimpleNotebook2');
       expect(createdNotebooks[1].id).not.toBe(DEFAULT_NOTEBOOK_ID);
-      expect(
-        collectionService.getAllCollectionItemsRecursive(createdNotebooks[0].id)
-      ).toHaveLength(3);
-      expect(
-        collectionService.getAllCollectionItemsRecursive(createdNotebooks[1].id)
-      ).toHaveLength(1);
+      checkCollectionAndHistory(createdNotebooks[0].id!, 3);
+      checkCollectionAndHistory(createdNotebooks[1].id!, 1);
     });
 
     it('should handle case where default notebook has been changed', async () => {
@@ -795,6 +825,7 @@ describe('import service', () => {
       expect(collectionService.itemExists(dId)).toBe(false);
       expect(collectionService.itemExists(fId)).toBe(false);
       expect(collectionService.itemExists(nId)).toBe(false);
+      expect(historyService.getVersions(dId)).toHaveLength(0);
       // expect first folders to be notebook
       expect(notebooksService.getNotebooks()).toHaveLength(2);
       const createdNotebooks = notebooksService.getNotebooks(ROOT_COLLECTION);
@@ -802,12 +833,8 @@ describe('import service', () => {
       expect(createdNotebooks[0].id).toBe(DEFAULT_NOTEBOOK_ID);
       expect(createdNotebooks[1].title).toBe('SimpleNotebook2');
       expect(createdNotebooks[1].id).not.toBe(DEFAULT_NOTEBOOK_ID);
-      expect(
-        collectionService.getAllCollectionItemsRecursive(createdNotebooks[0].id)
-      ).toHaveLength(3);
-      expect(
-        collectionService.getAllCollectionItemsRecursive(createdNotebooks[1].id)
-      ).toHaveLength(1);
+      checkCollectionAndHistory(createdNotebooks[0].id!, 3);
+      checkCollectionAndHistory(createdNotebooks[1].id!, 1);
     });
   });
 

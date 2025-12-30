@@ -10,6 +10,7 @@ import {
   sortBy
 } from '@/collection/collection';
 import { META_JSON, ROOT_COLLECTION } from '@/constants';
+import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
@@ -920,8 +921,11 @@ class ImportService {
       commitOpts = { ...this.defaultOpts, ...commitOpts };
     }
 
-    storageService.getSpace().transaction(() => {
-      if (commitOpts.deleteExistingPages) {
+    // TODO re-enable transactions
+    // remove the table from all queries as a start
+    // storageService.getSpace().transaction(() => {
+    if (commitOpts.deleteExistingPages) {
+      historyService.disableForBulk(() => {
         zipMerge.updatedItems
           .filter(item => item.type === CollectionItemType.document)
           .forEach(item => {
@@ -930,10 +934,16 @@ class ImportService {
               collectionService.deleteItem(page.id);
             });
           });
-      }
-      collectionService.saveItems(zipMerge.newItems);
-      collectionService.saveItems(zipMerge.updatedItems);
-    });
+      });
+    }
+    const allDocIds = [
+      ...collectionService.saveItems(zipMerge.newItems, undefined, true),
+      ...collectionService.saveItems(zipMerge.updatedItems, undefined, true)
+    ];
+    allDocIds.forEach(docId =>
+      historyService.saveWholeDocumentVersion(docId, true)
+    );
+    // });
   }
 
   public commitDocument(
@@ -941,35 +951,41 @@ class ImportService {
     pages: SerializedEditorState<SerializedLexicalNode>[],
     parent: string,
     title: string,
-    itemId?: string,
+    docId?: string,
     commitOpts: ZipMergeCommitOptions = this.defaultOpts
   ) {
     storageService.getSpace().transaction(() => {
-      if (itemId) {
-        console.debug(
-          'overwriting document with the same file name',
-          parent,
-          itemId
-        );
-        // delete exising pages
-        if (commitOpts.deleteExistingPages) {
-          const pages = collectionService.getDocumentPages(itemId);
-          pages.forEach(page => {
-            collectionService.deleteItem(page.id);
-          });
+      // handle history as one bulk change here
+      historyService.disableForBulk(() => {
+        if (docId) {
+          console.debug(
+            'overwriting document with the same file name',
+            parent,
+            docId
+          );
+          // delete exising pages
+          if (commitOpts.deleteExistingPages) {
+            const pages = collectionService.getDocumentPages(docId);
+            pages.forEach(page => {
+              collectionService.deleteItem(page.id);
+            });
+          }
+        } else {
+          docId = collectionService.addDocument(parent);
+          collectionService.setItemTitle(docId, title);
         }
-      } else {
-        itemId = collectionService.addDocument(parent);
-        collectionService.setItemTitle(itemId, title);
-      }
-      collectionService.setItemLexicalContent(itemId, lexical);
+        collectionService.setItemLexicalContent(docId, lexical);
 
-      pages.forEach(page => {
-        const pageId = collectionService.addPage(itemId!);
-        collectionService.setItemLexicalContent(pageId, page);
+        pages.forEach(page => {
+          const pageId = collectionService.addPage(docId!);
+          collectionService.setItemLexicalContent(pageId, page);
+        });
       });
     });
-    return itemId;
+    if (docId) {
+      historyService.saveWholeDocumentVersion(docId, true);
+    }
+    return docId;
   }
 
   public canRestoreSpace(zipData: ZipParsedData): boolean {
