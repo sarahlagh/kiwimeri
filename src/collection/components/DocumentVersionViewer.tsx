@@ -19,10 +19,7 @@ import {
 } from '@ionic/react';
 import { useEffect, useRef, useState } from 'react';
 import { useHistory } from 'react-router';
-import {
-  CollectionItemType,
-  HistorizedCollectionItemData
-} from '../collection';
+import { CollectionItemSnapshotData, CollectionItemType } from '../collection';
 import CommonActionsToolbar from './CommonActionsToolbar';
 import SearchActionsToolbar from './SearchActionsToolbar';
 
@@ -41,7 +38,7 @@ interface DocumentVersionViewerProps {
 const DocumentVersionFooter = ({
   versionData
 }: {
-  versionData: HistorizedCollectionItemData;
+  versionData: CollectionItemSnapshotData;
 }) => {
   const itemTags: string[] = versionData.tags?.split(',') || [];
   return (
@@ -81,10 +78,10 @@ const DocumentVersionViewer = ({
 
   const versionedItem = historyService.useVersion(versionId);
   const content = versionedItem?.content;
-  const versionData = versionedItem?.itemDataJson;
+  const versionData = versionedItem?.snapshotJson;
 
   const versionedDoc = historyService.useVersion(docVersion);
-  const docVersionData = versionedDoc?.itemDataJson;
+  const docVersionData = versionedDoc?.snapshotJson;
   const documentTitle = docVersionData?.title;
   const documentPreview = versionedDoc?.preview;
 

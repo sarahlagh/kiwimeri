@@ -445,6 +445,9 @@ class CollectionService {
         });
       }
     }
+    if (wasDocument || (wasPage && isRootDeletion)) {
+      historyService.saveDeleteVersion(rowId, itemType);
+    }
     if (wasDocument) {
       const queryName = this.fetchPagesForDocQuery(rowId);
       const children = storageService
@@ -456,9 +459,6 @@ class CollectionService {
           this.deleteItem(id, undefined, false);
         });
       }
-    }
-    if (wasDocument || wasPage) {
-      historyService.deleteVersions(rowId, itemType, isRootDeletion);
     }
     storageService.getSpace().delRow(this.tableId, rowId);
   }

@@ -121,19 +121,23 @@ export const parseFieldMeta = (value: string): CollectionItemFieldMetadata => {
   return JSON.parse(value);
 };
 
-export type HistorizedCollectionItemRow = {
+export type CollectionItemVersionOp = 'snapshot' | 'deleted';
+
+export type CollectionItemVersionRow = {
   id?: string;
   itemId: string;
-  created: number;
+  op: CollectionItemVersionOp;
+  createdAt: number;
+  deletedAt: number;
   rank: number; // not ideal when created informs the order, but needed for the get latest pages query
   contentId: string;
-  /** HistorizedCollectionItemData */
-  itemDataJson: string;
+  /** CollectionItemSnapshotData */
+  snapshotJson: string;
   /** array of HistorizedCollectionPageVersion */
   pageVersionsArrayJson?: string;
 };
 
-export type HistorizedVersionContentRow = {
+export type CollectionItemVersionContentRow = {
   id?: string;
   content: string;
   preview: string;
@@ -141,16 +145,16 @@ export type HistorizedVersionContentRow = {
 };
 
 export type CollectionItemVersion = Omit<
-  HistorizedCollectionItemRow,
-  'contentId' | 'itemDataJson' | 'pageVersionsArrayJson'
+  CollectionItemVersionRow,
+  'contentId' | 'snapshotJson' | 'pageVersionsArrayJson'
 > &
-  HistorizedVersionContentRow & {
+  CollectionItemVersionContentRow & {
     id: string;
-    itemDataJson: HistorizedCollectionItemData;
-    pageVersionsArrayJson?: HistorizedCollectionPageVersion[];
+    snapshotJson: CollectionItemSnapshotData;
+    pageVersionsArrayJson?: CollectionPageVersionData[];
   };
 
-export type HistorizedCollectionItemData = Pick<
+export type CollectionItemSnapshotData = Pick<
   CollectionItem,
   | 'title'
   | 'title_meta'
@@ -166,10 +170,10 @@ export type HistorizedCollectionItemData = Pick<
 > &
   Partial<Pick<CollectionItem, 'order' | 'order_meta'>>;
 
-export type HistorizedCollectionPageVersion = {
+export type CollectionPageVersionData = {
   id: string;
   itemId: string;
-  created: number;
+  createdAt: number;
 };
 
 export const isPageOrDocument = (

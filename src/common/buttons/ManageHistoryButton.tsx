@@ -62,7 +62,7 @@ const VersionPreview = ({
     const diff = diffChars(lastPreview, version.preview);
     return (
       <IonLabel style={style}>
-        {dateToStr('relative', version.itemDataJson.updated)}
+        {dateToStr('relative', version.snapshotJson.updated)}
         <p>
           {diff.map((part, idx) => (
             <DiffFragment part={part} key={idx} />
@@ -73,7 +73,7 @@ const VersionPreview = ({
   }
   return (
     <IonLabel style={style}>
-      {dateToStr('relative', version.itemDataJson.updated)}
+      {dateToStr('relative', version.snapshotJson.updated)}
       <p>{version.preview.substring(0, 200)}</p>
     </IonLabel>
   );

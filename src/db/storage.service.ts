@@ -183,9 +183,11 @@ class StorageService {
         },
         history: {
           itemId: { type: 'string' } as CellSchema,
-          created: { type: 'number' } as CellSchema,
+          op: { type: 'string' } as CellSchema,
+          createdAt: { type: 'number' } as CellSchema,
+          deletedAt: { type: 'number' } as CellSchema,
           rank: { type: 'number' } as CellSchema,
-          itemDataJson: { type: 'string' } as CellSchema,
+          snapshotJson: { type: 'string' } as CellSchema,
           contentId: { type: 'string' } as CellSchema,
           pageVersionsArrayJson: { type: 'string' } as CellSchema
         },

@@ -1,12 +1,13 @@
 import {
   CollectionItem,
+  CollectionItemSnapshotData,
   CollectionItemType,
   CollectionItemTypeValues,
   CollectionItemVersion,
-  HistorizedCollectionItemData,
-  HistorizedCollectionItemRow,
-  HistorizedCollectionPageVersion,
-  HistorizedVersionContentRow,
+  CollectionItemVersionContentRow,
+  CollectionItemVersionOp,
+  CollectionItemVersionRow,
+  CollectionPageVersionData,
   PageResult,
   setFieldMeta
 } from '@/collection/collection';
@@ -22,9 +23,11 @@ import {
 import userSettingsService from './user-settings.service';
 
 type VersionsWithContentResult = ResultRow & {
+  op: CollectionItemVersionOp;
   itemId: string;
-  created: number;
-  itemDataJson: string;
+  createdAt: number;
+  deletedAt: number;
+  snapshotJson: string;
   pageVersionsArrayJson?: string;
   content: string;
   preview: string;
@@ -35,10 +38,10 @@ type VersionsWithContentResult = ResultRow & {
 
 type VersionsWithContentParam = {
   itemId: Id;
-  created?: number;
+  createdAt?: number;
 };
 
-const defaultSort = { by: 'created', descending: true };
+const defaultSort = { by: 'createdAt', descending: true };
 const pagesSort = { by: 'virtualOrder', descending: false };
 
 class CollectionHistoryService {
@@ -62,16 +65,18 @@ class CollectionHistoryService {
     while (queries.hasQuery(`${mainQueryName}${i}`)) i++;
     const queryName = `${mainQueryName}${i}`;
     const itemId = Array.isArray(params) ? '' : params.itemId;
-    const created = Array.isArray(params) ? 0 : params.created || 0;
+    const createdAt = Array.isArray(params) ? 0 : params.createdAt || 0;
     const paramArray = Array.isArray(params) ? JSON.stringify(params) : '';
     queries.setQueryDefinition(
       queryName,
       'history',
       ({ select, where, param, join }) => {
+        select('op');
         select('itemId');
-        select('created');
+        select('createdAt');
+        select('deletedAt');
         select('rank');
-        select('itemDataJson');
+        select('snapshotJson');
         select('pageVersionsArrayJson');
         select('contentData', 'content');
         select('contentData', 'preview');
@@ -96,10 +101,10 @@ class CollectionHistoryService {
               param('paramArray')!.toString()
             ) as VersionsWithContentParam[];
             const itemId = getCell('itemId') as string;
-            const created = getCell('created') as number;
+            const createdAt = getCell('createdAt') as number;
             const paramByItemId = params.find(p => p.itemId === itemId);
-            if (paramByItemId?.created && paramByItemId.created !== 0) {
-              return paramByItemId.created === created;
+            if (paramByItemId?.createdAt && paramByItemId.createdAt !== 0) {
+              return paramByItemId.createdAt === createdAt;
             }
             return paramByItemId !== undefined;
           });
@@ -107,14 +112,14 @@ class CollectionHistoryService {
 
         if (param('itemId') && param('itemId')!.toString().length > 0) {
           where('itemId', param('itemId') as string);
-          if (param('created') && param('created') !== 0) {
-            where('created', param('created') as string);
+          if (param('createdAt') && param('createdAt') !== 0) {
+            where('createdAt', param('createdAt') as string);
           }
         }
       },
       {
         itemId,
-        created,
+        createdAt,
         paramArray,
         latest
       }
@@ -155,12 +160,12 @@ class CollectionHistoryService {
     params: VersionsWithContentParam | VersionsWithContentParam[]
   ) {
     const itemId = Array.isArray(params) ? '' : params.itemId;
-    const created = Array.isArray(params) ? 0 : params.created || 0;
+    const createdAt = Array.isArray(params) ? 0 : params.createdAt || 0;
     const paramArray = Array.isArray(params) ? JSON.stringify(params) : '';
     storageService
       .getSpaceQueries()
       .setParamValue(queryName, 'itemId', itemId)
-      .setParamValue(queryName, 'created', created)
+      .setParamValue(queryName, 'createdAt', createdAt)
       .setParamValue(queryName, 'paramArray', paramArray);
   }
 
@@ -170,9 +175,11 @@ class CollectionHistoryService {
   ) {
     const version: CollectionItemVersion = {
       id: rowId,
-      created: resultRow.created,
+      op: resultRow.op,
+      createdAt: resultRow.createdAt,
+      deletedAt: resultRow.deletedAt,
       itemId: resultRow.itemId,
-      itemDataJson: JSON.parse(resultRow.itemDataJson),
+      snapshotJson: JSON.parse(resultRow.snapshotJson),
       content: resultRow.content,
       preview: resultRow.preview,
       hash: resultRow.hash,
@@ -251,22 +258,22 @@ class CollectionHistoryService {
     const pageRow = space.getRow(
       this.tableId,
       versionId
-    ) as HistorizedCollectionItemRow;
+    ) as CollectionItemVersionRow;
     const contentRow = space.getRow(
       this.contentTableId,
       pageRow?.contentId || ''
-    ) as HistorizedVersionContentRow;
+    ) as CollectionItemVersionContentRow;
     if (!pageRow || !contentRow) return undefined;
     return this.mapToVersion(versionId, pageRow, contentRow);
   }
 
   public useVersion(versionId: string) {
-    const pageRow = useRowWithRef<HistorizedCollectionItemRow>(
+    const pageRow = useRowWithRef<CollectionItemVersionRow>(
       this.storeId,
       this.tableId,
       versionId
     );
-    const contentRow = useRowWithRef<HistorizedVersionContentRow>(
+    const contentRow = useRowWithRef<CollectionItemVersionContentRow>(
       this.storeId,
       this.contentTableId,
       pageRow?.contentId || ''
@@ -277,14 +284,16 @@ class CollectionHistoryService {
 
   private mapToVersion(
     rowId: string,
-    versionRow: HistorizedCollectionItemRow,
-    contentRow?: HistorizedVersionContentRow
+    versionRow: CollectionItemVersionRow,
+    contentRow?: CollectionItemVersionContentRow
   ): CollectionItemVersion {
     return {
       id: rowId,
-      created: versionRow.created,
+      op: versionRow.op,
+      createdAt: versionRow.createdAt,
+      deletedAt: versionRow.deletedAt,
       itemId: versionRow.itemId,
-      itemDataJson: JSON.parse(versionRow.itemDataJson),
+      snapshotJson: JSON.parse(versionRow.snapshotJson),
       pageVersionsArrayJson: versionRow.pageVersionsArrayJson
         ? JSON.parse(versionRow.pageVersionsArrayJson)
         : undefined,
@@ -306,7 +315,7 @@ class CollectionHistoryService {
       docVersionId || 'null',
       'pageVersionsArrayJson'
     );
-    let pageVersions: HistorizedCollectionPageVersion[] = [];
+    let pageVersions: CollectionPageVersionData[] = [];
     if (rawPageVersions) {
       pageVersions = JSON.parse(rawPageVersions);
     }
@@ -324,8 +333,8 @@ class CollectionHistoryService {
         id: pageVersion.itemId,
         type: CollectionItemType.page,
         parent: docId,
-        ...pageVersion.itemDataJson,
-        order: pageVersion.itemDataJson.order!,
+        ...pageVersion.snapshotJson,
+        order: pageVersion.snapshotJson.order!,
         preview: pageVersion.preview || ''
       };
       return pageResult;
@@ -337,7 +346,7 @@ class CollectionHistoryService {
       .getSpace()
       .getCell(this.tableId, docVersionId, 'pageVersionsArrayJson');
     if (!rawPageVersions) return [];
-    let pageVersions: HistorizedCollectionPageVersion[] = [];
+    let pageVersions: CollectionPageVersionData[] = [];
     if (rawPageVersions) {
       pageVersions = JSON.parse(rawPageVersions.toString());
     }
@@ -375,7 +384,7 @@ class CollectionHistoryService {
   public isCurrentVersion(docId: string, versionId: string) {
     const space = storageService.getSpace();
     const itemLastUpdated = space.getCell('collection', docId, 'updated');
-    const versionCreated = space.getCell(this.tableId, versionId, 'created');
+    const versionCreated = space.getCell(this.tableId, versionId, 'createdAt');
     return itemLastUpdated === versionCreated;
   }
 
@@ -407,18 +416,18 @@ class CollectionHistoryService {
     pagesToUpdate.forEach(pId => {
       const pageVersion = pagesAtVersion.find(p => p.itemId === pId)!;
       const recreatedPage: CollectionItem = {
-        ...pageVersion.itemDataJson,
+        ...pageVersion.snapshotJson,
         type: CollectionItemType.page,
         parent: docId,
-        parent_meta: setFieldMeta(docId, pageVersion.itemDataJson.created),
+        parent_meta: setFieldMeta(docId, pageVersion.snapshotJson.created),
         content: pageVersion.content,
         updated: now,
-        order: pageVersion.itemDataJson.order!,
-        order_meta: pageVersion.itemDataJson.order_meta!
+        order: pageVersion.snapshotJson.order!,
+        order_meta: pageVersion.snapshotJson.order_meta!
       };
       // bypass collection service to save a single page version
       space.setRow('collection', pId, recreatedPage);
-      this.saveSingleVersion({ ...recreatedPage, id: pId });
+      this.saveSingleVersion({ ...recreatedPage, id: pId }, 'snapshot'); // add type 'restored'?
       // TODO how about local changes / sync
     });
 
@@ -427,7 +436,7 @@ class CollectionHistoryService {
     collectionService.saveItem(
       {
         ...current,
-        ...version.itemDataJson,
+        ...version.snapshotJson,
         content: version.content,
         updated: Date.now()
       },
@@ -446,7 +455,7 @@ class CollectionHistoryService {
     collectionService.saveItem(
       {
         ...current,
-        ...version.itemDataJson,
+        ...version.snapshotJson,
         content: version.content,
         updated: Date.now()
       },
@@ -455,7 +464,7 @@ class CollectionHistoryService {
   }
 
   private buildVersionData(item: CollectionItem) {
-    const data: HistorizedCollectionItemData = {
+    const data: CollectionItemSnapshotData = {
       title: item.title,
       title_meta: item.title_meta,
       content_meta: item.content_meta,
@@ -479,7 +488,7 @@ class CollectionHistoryService {
     if (!this.enabled) return;
     console.debug('[history] saving new version for item', item.id);
     const space = storageService.getSpace();
-    const versionId = this.saveSingleVersion(item);
+    const versionId = this.saveSingleVersion(item, 'snapshot');
     if (item.type === CollectionItemType.page) {
       // if page, add document version too, and relation to document
       const parentDoc = space.getRow(
@@ -500,20 +509,22 @@ class CollectionHistoryService {
     return versionId;
   }
 
-  private saveSingleVersion(item: CollectionItem) {
+  private saveSingleVersion(item: CollectionItem, op: CollectionItemVersionOp) {
     const space = storageService.getSpace();
     let versionId: string | undefined;
     space.transaction(() => {
       // must update previous ranks - not ideal, but needed for the get latest pages query
-      this.getVersions(item.id!).forEach(v => {
+      const versions = this.getVersions(item.id!);
+      versions.forEach(v => {
         const previousRank = space.getCell('history', v.id, 'rank') as number;
         space.setCell('history', v.id, 'rank', previousRank + 1);
       });
       const { contentId } = this.getOrCreatedContentId(item);
       versionId = space.addRow(this.tableId, {
+        op,
         itemId: item.id,
-        created: item.updated,
-        itemDataJson: this.buildVersionData(item),
+        createdAt: item.updated,
+        snapshotJson: this.buildVersionData(item),
         contentId,
         rank: 0
       });
@@ -562,8 +573,8 @@ class CollectionHistoryService {
             ({
               id: pr.id,
               itemId: pr.itemId,
-              created: pr.created
-            }) as HistorizedCollectionPageVersion
+              createdAt: pr.createdAt
+            }) as CollectionPageVersionData
         )
       )
     );
@@ -577,34 +588,41 @@ class CollectionHistoryService {
     const pages = collectionService.getDocumentPages(docId);
     pages.forEach(p => {
       const page = collectionService.getItem(p.id);
-      this.saveSingleVersion(page);
+      this.saveSingleVersion(page, 'snapshot');
     });
     this.addVersion(docId, sync);
     // });
   }
 
-  public deleteVersions(
-    itemId: string,
-    type: CollectionItemTypeValues,
-    isRootDeletion = false
-  ) {
-    if (type === CollectionItemType.page && isRootDeletion) {
+  public saveDeleteVersion(itemId: string, type: CollectionItemTypeValues) {
+    if (!this.enabled) return;
+    if (type === CollectionItemType.document) {
+      const pages = collectionService.getDocumentPages(itemId);
+      pages.forEach(p => {
+        this.saveSingleVersion(collectionService.getItem(p.id), 'deleted');
+      });
+      this.saveSingleVersion(collectionService.getItem(itemId), 'deleted');
+    }
+    if (type === CollectionItemType.page) {
       // if individual page deletion, don't delete if document still exists, but,
       // must create a new document version
       // !! without the page about to be deleted...
       this.saveVersionSync(collectionService.getItemParent(itemId), [itemId]);
-      return;
+      this.saveSingleVersion(collectionService.getItem(itemId), 'deleted');
     }
-    this.getVersions(itemId).forEach(v => this.deleteVersion(v.id!));
   }
 
-  private deleteVersion(versionId: string) {
+  public hardDeleteVersions(itemId: string) {
+    this.getVersions(itemId).forEach(v => this.hardDeleteVersion(v.id!));
+  }
+
+  private hardDeleteVersion(versionId: string) {
     const space = storageService.getSpace();
     const contentId = space
       .getCell(this.tableId, versionId, 'contentId')
       ?.toString();
 
-    // assuming there is no individual version delete
+    // assuming there is no individual version delete for a doc
     // because otherwise should check if contentId is not used elsewhere
     space.transaction(() => {
       space.delRow(this.tableId, versionId);

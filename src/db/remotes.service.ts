@@ -468,8 +468,7 @@ class RemotesService {
             ) {
               historyService.saveWholeDocumentVersion(ch.id, true);
             } else if (ch.change === LocalChangeType.delete) {
-              // hard delete versions but... could leave them to GC?
-              // historyService.deleteVersions(ch.id, ch.type);
+              historyService.saveDeleteVersion(ch.id, ch.type);
             }
           });
       }

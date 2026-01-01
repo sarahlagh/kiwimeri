@@ -49,9 +49,9 @@ describe('collection history service', () => {
         vi.advanceTimersByTime(100);
         const versions = historyService.getVersions(docId);
         expect(versions).toHaveLength(2);
-        expect(versions[0].created).toBe(versionCreatedTime);
+        expect(versions[0].createdAt).toBe(versionCreatedTime);
         expect(versions[0].itemId).toBe(docId);
-        const versionData = versions[0].itemDataJson as any;
+        const versionData = versions[0].snapshotJson as any;
         expect(versionData).toEqual({
           title: rowBefore.title,
           title_meta: rowBefore.title_meta,
@@ -106,8 +106,8 @@ describe('collection history service', () => {
       vi.advanceTimersByTime(100);
       let versions = historyService.getVersions(docId);
       expect(versions).toHaveLength(2);
-      expect(versions[0].itemDataJson.title).toBe(newValue);
-      expect(versions[1].itemDataJson.title).toBe(itemBefore.title);
+      expect(versions[0].snapshotJson.title).toBe(newValue);
+      expect(versions[1].snapshotJson.title).toBe(itemBefore.title);
 
       historyService.restoreDocumentVersion(docId, versions[1].id!);
       const restoredItem = storageService
@@ -117,9 +117,9 @@ describe('collection history service', () => {
 
       versions = historyService.getVersions(docId);
       expect(versions).toHaveLength(3);
-      expect(versions[0].itemDataJson.title).toBe(itemBefore.title);
-      expect(versions[1].itemDataJson.title).toBe(newValue);
-      expect(versions[2].itemDataJson.title).toBe(itemBefore.title);
+      expect(versions[0].snapshotJson.title).toBe(itemBefore.title);
+      expect(versions[1].snapshotJson.title).toBe(newValue);
+      expect(versions[2].snapshotJson.title).toBe(itemBefore.title);
     });
 
     it(`should version unsaved changes when restoring to a previous version`, () => {
@@ -136,8 +136,8 @@ describe('collection history service', () => {
       vi.advanceTimersByTime(100);
       let versions = historyService.getVersions(docId);
       expect(versions).toHaveLength(2);
-      expect(versions[0].itemDataJson.title).toBe(newValue1);
-      expect(versions[1].itemDataJson.title).toBe(itemBefore.title);
+      expect(versions[0].snapshotJson.title).toBe(newValue1);
+      expect(versions[1].snapshotJson.title).toBe(itemBefore.title);
 
       // new change, not yet in version
       const newValue2 = getNewValue('string') as string;
@@ -154,14 +154,14 @@ describe('collection history service', () => {
 
       versions = historyService.getVersions(docId);
       expect(versions).toHaveLength(4);
-      expect(versions[0].itemDataJson.title).toBe(itemBefore.title);
-      expect(versions[0].created).toBe(itemBefore.updated + 210);
-      expect(versions[1].itemDataJson.title).toBe(newValue2);
-      expect(versions[1].created).toBe(itemBefore.updated + 200);
-      expect(versions[2].itemDataJson.title).toBe(newValue1);
-      expect(versions[2].created).toBe(itemBefore.updated + 100);
-      expect(versions[3].itemDataJson.title).toBe(itemBefore.title);
-      expect(versions[3].created).toBe(itemBefore.updated);
+      expect(versions[0].snapshotJson.title).toBe(itemBefore.title);
+      expect(versions[0].createdAt).toBe(itemBefore.updated + 210);
+      expect(versions[1].snapshotJson.title).toBe(newValue2);
+      expect(versions[1].createdAt).toBe(itemBefore.updated + 200);
+      expect(versions[2].snapshotJson.title).toBe(newValue1);
+      expect(versions[2].createdAt).toBe(itemBefore.updated + 100);
+      expect(versions[3].snapshotJson.title).toBe(itemBefore.title);
+      expect(versions[3].createdAt).toBe(itemBefore.updated);
     });
 
     it(`should do nothing for a document order change`, () => {
@@ -214,12 +214,12 @@ describe('collection history service', () => {
       expect(versions[0].pageVersionsArrayJson).toEqual([
         {
           id: latestVersion1.id,
-          created: latestVersion1.created,
+          createdAt: latestVersion1.createdAt,
           itemId: latestVersion1.itemId
         },
         {
           id: latestVersion2.id,
-          created: latestVersion2.created,
+          createdAt: latestVersion2.createdAt,
           itemId: latestVersion2.itemId
         }
       ]);
@@ -227,7 +227,7 @@ describe('collection history service', () => {
       // assert that latest version is correct
       const page1VersionData = storageService
         .getSpace()
-        .getCell('history', latestVersion1.id, 'itemDataJson');
+        .getCell('history', latestVersion1.id, 'snapshotJson');
       expect(JSON.parse(page1VersionData as string).order).toBe(restoredOrder);
 
       // restore to a version where page3 re-exists (undo)
@@ -238,7 +238,7 @@ describe('collection history service', () => {
       expect(collectionService.getItem(page1).order).toBe(newOrder);
     });
 
-    it(`should erase all versions on a hard delete`, () => {
+    it(`should create a delete version on a hard delete`, () => {
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       expect(historyService.getVersions(docId)).toHaveLength(1);
       vi.advanceTimersByTime(100);
@@ -246,8 +246,9 @@ describe('collection history service', () => {
       vi.advanceTimersByTime(100);
 
       collectionService.deleteItem(docId);
-      expect(historyService.getVersions(docId)).toHaveLength(0);
-      expect(storageService.getSpace().getRowCount('history_content')).toBe(0);
+      const versions = historyService.getVersions(docId);
+      expect(versions).toHaveLength(3);
+      expect(versions[0].op).toBe('deleted');
     });
 
     it(`should not create new version if change debounced but hard delete in between`, () => {
@@ -258,8 +259,10 @@ describe('collection history service', () => {
 
       collectionService.deleteItem(docId);
       vi.advanceTimersByTime(100);
-      expect(historyService.getVersions(docId)).toHaveLength(0);
-      expect(storageService.getSpace().getRowCount('history_content')).toBe(0);
+      const versions = historyService.getVersions(docId);
+      expect(versions).toHaveLength(2);
+      expect(versions[0].op).toBe('deleted');
+      expect(versions[0].snapshotJson.title).toBe('new title');
     });
   });
 
@@ -286,9 +289,9 @@ describe('collection history service', () => {
         vi.advanceTimersByTime(100);
         const versions = historyService.getVersions(pageId);
         expect(versions).toHaveLength(2);
-        expect(versions[0].created).toBe(versionCreatedTime);
+        expect(versions[0].createdAt).toBe(versionCreatedTime);
         expect(versions[0].itemId).toBe(pageId);
-        const versionData = versions[0].itemDataJson as any;
+        const versionData = versions[0].snapshotJson as any;
         expect(versionData).toEqual({
           title: rowBefore.title,
           title_meta: rowBefore.title_meta,
@@ -319,7 +322,11 @@ describe('collection history service', () => {
         expect(docVersions).toHaveLength(3);
         expect(docVersions[0].pageVersionsArrayJson).toHaveLength(1);
         expect(docVersions[0].pageVersionsArrayJson).toEqual([
-          { id: versions[0].id, created: versions[0].created, itemId: pageId }
+          {
+            id: versions[0].id,
+            createdAt: versions[0].createdAt,
+            itemId: pageId
+          }
         ]);
       });
     });
@@ -352,28 +359,28 @@ describe('collection history service', () => {
 
       const versions = historyService.getVersions(docId);
       expect(versions).toHaveLength(5);
-      expect(versions[0].itemDataJson.title).toBe('title3');
+      expect(versions[0].snapshotJson.title).toBe('title3');
       expect(versions[0].pageVersionsArrayJson).toHaveLength(2);
       expect(historyService.getPagesForVersion(versions[0].id)[0].preview).toBe(
         'content2'
       );
 
-      expect(versions[1].itemDataJson.title).toBe('title3');
+      expect(versions[1].snapshotJson.title).toBe('title3');
       expect(versions[1].pageVersionsArrayJson).toHaveLength(1);
       expect(historyService.getPagesForVersion(versions[1].id)[0].preview).toBe(
         'content2'
       );
 
-      expect(versions[2].itemDataJson.title).toBe('title3');
+      expect(versions[2].snapshotJson.title).toBe('title3');
       expect(versions[2].pageVersionsArrayJson).toHaveLength(1);
       expect(historyService.getPagesForVersion(versions[2].id)[0].preview).toBe(
         ''
       );
 
-      expect(versions[3].itemDataJson.title).toBe(getGlobalTrans().newDocTitle);
+      expect(versions[3].snapshotJson.title).toBe(getGlobalTrans().newDocTitle);
       expect(versions[3].pageVersionsArrayJson).toHaveLength(1);
 
-      expect(versions[4].itemDataJson.title).toBe(getGlobalTrans().newDocTitle);
+      expect(versions[4].snapshotJson.title).toBe(getGlobalTrans().newDocTitle);
       expect(versions[4].pageVersionsArrayJson).not.toBeDefined();
     });
 
@@ -396,7 +403,7 @@ describe('collection history service', () => {
       expect(docVersions[0].pageVersionsArrayJson).toEqual([
         {
           id: page1Versions[0].id,
-          created: page1Versions[0].created,
+          createdAt: page1Versions[0].createdAt,
           itemId: page1Versions[0].itemId
         }
       ]);
@@ -460,12 +467,12 @@ describe('collection history service', () => {
       expect(docVersions[0].pageVersionsArrayJson).toEqual([
         {
           id: page1Versions[0].id,
-          created: page1Versions[0].created,
+          createdAt: page1Versions[0].createdAt,
           itemId: page1Versions[0].itemId
         },
         {
           id: page2Versions[0].id,
-          created: page2Versions[0].created,
+          createdAt: page2Versions[0].createdAt,
           itemId: page2Versions[0].itemId
         }
       ]);
@@ -635,9 +642,9 @@ describe('collection history service', () => {
       );
       expect(versionedPages).toHaveLength(2);
       expect(versionedPages[0].itemId).toBe(pageId1);
-      expect(versionedPages[0].itemDataJson.order).toBe(1);
+      expect(versionedPages[0].snapshotJson.order).toBe(1);
       expect(versionedPages[1].itemId).toBe(pageId2);
-      expect(versionedPages[1].itemDataJson.order).toBe(0);
+      expect(versionedPages[1].snapshotJson.order).toBe(0);
     });
 
     describe('fetch pages sort order', () => {
@@ -670,9 +677,9 @@ describe('collection history service', () => {
         );
         expect(versionedPages).toHaveLength(2);
         expect(versionedPages[0].itemId).toBe(pageId2);
-        expect(versionedPages[0].itemDataJson.order).toBe(0);
+        expect(versionedPages[0].snapshotJson.order).toBe(0);
         expect(versionedPages[1].itemId).toBe(pageId1);
-        expect(versionedPages[1].itemDataJson.order).toBe(1);
+        expect(versionedPages[1].snapshotJson.order).toBe(1);
       });
 
       const sortBy: {
@@ -739,15 +746,16 @@ describe('collection history service', () => {
 
       collectionService.deleteItem(pageId1);
       const docVersions = historyService.getVersions(docId);
+      const pageVersions = historyService.getVersions(pageId1);
       expect(docVersions).toHaveLength(3);
-      expect(historyService.getVersions(pageId1)).toHaveLength(1);
+      expect(pageVersions).toHaveLength(2);
+      expect(pageVersions[0].op).toBe('deleted');
       expect(historyService.getPagesForVersion(docVersions[0].id)).toHaveLength(
         0
       );
-      expect(storageService.getSpace().getRowCount('history_content')).toBe(2);
     });
 
-    it(`should erase all pages and document versions on a document hard delete`, () => {
+    it(`should create deleted versions for all pages and document versions on a document hard delete`, () => {
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       const pageId1 = collectionService.addPage(docId);
       const pageId2 = collectionService.addPage(docId);
@@ -755,10 +763,15 @@ describe('collection history service', () => {
       vi.advanceTimersByTime(100);
 
       collectionService.deleteItem(docId);
-      expect(historyService.getVersions(docId)).toHaveLength(0);
-      expect(historyService.getVersions(pageId1)).toHaveLength(0);
-      expect(historyService.getVersions(pageId2)).toHaveLength(0);
-      expect(storageService.getSpace().getRowCount('history_content')).toBe(0);
+      let versions = historyService.getVersions(docId);
+      expect(versions).toHaveLength(4);
+      expect(versions[0].op).toBe('deleted');
+      versions = historyService.getVersions(pageId1);
+      expect(versions).toHaveLength(2);
+      expect(versions[0].op).toBe('deleted');
+      versions = historyService.getVersions(pageId2);
+      expect(versions).toHaveLength(2);
+      expect(versions[0].op).toBe('deleted');
     });
 
     // TODO when debouncing both document change and page change, or two different page changes on same doc,
