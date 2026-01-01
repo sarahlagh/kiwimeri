@@ -1,6 +1,7 @@
 import {
   CollectionItem,
   CollectionItemType,
+  isPageOrDocument,
   parseFieldMeta
 } from '@/collection/collection';
 import { getGlobalTrans } from '@/config';
@@ -10,6 +11,7 @@ import {
   DEFAULT_SPACE_ID,
   ROOT_COLLECTION
 } from '@/constants';
+import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/local-changes.service';
 import notebooksService from '@/db/notebooks.service';
@@ -148,6 +150,25 @@ const getSomeRemoteData = (
   ];
 };
 
+const checkHistory = (
+  nbOfDocuments: number,
+  expectedVersions: number | number[] = 1,
+  notebook = DEFAULT_NOTEBOOK_ID
+) => {
+  const items = collectionService.getAllCollectionItemsRecursive(notebook);
+  let count = 0;
+  const nb = Array.isArray(expectedVersions) ? expectedVersions : [];
+  items
+    .filter(r => r.type === CollectionItemType.document)
+    .forEach(doc => {
+      expect(historyService.getVersions(doc.id!)).toHaveLength(
+        nb[count] || (expectedVersions as number)
+      );
+      count++;
+    });
+  expect(count).toBe(nbOfDocuments);
+};
+
 describe('sync service', () => {
   // [{ layer: 'singlefile' } /*, { layer: 'bucket' } */].forEach(({ layer }) => {
   const layer = 'singlefile';
@@ -161,6 +182,7 @@ describe('sync service', () => {
       ] as InMemDriver;
       vi.useFakeTimers();
       searchAncestryService.start(DEFAULT_SPACE_ID);
+      historyService['enabled'] = true;
     });
     afterEach(() => {
       expect(countOrphans()).toBe(0);
@@ -223,6 +245,7 @@ describe('sync service', () => {
         'New folder'
       ]);
       expect(getRowCountInsideNotebook()).toBe(4);
+      checkHistory(2);
     });
 
     it('should handle missing file info if remote has been initialized elsewhere', async () => {
@@ -259,6 +282,7 @@ describe('sync service', () => {
       it('should do nothing on first pull if remote has nothing', async () => {
         await syncService_pull();
         expect(getRowCountInsideNotebook()).toBe(0);
+        expect(storageService.getSpace().getRowCount('history')).toBe(0);
       });
 
       it('should pull everything on first pull if remote has content', async () => {
@@ -270,6 +294,7 @@ describe('sync service', () => {
         ]);
         await syncService_pull();
         expect(getRowCountInsideNotebook()).toBe(3);
+        checkHistory(2);
       });
 
       it('should pull new remote items without erasing newly created items', async () => {
@@ -287,12 +312,13 @@ describe('sync service', () => {
         await syncService_pull();
         expect(getRowCountInsideNotebook()).toBe(5);
         expect(getLocalItemConflicts()).toHaveLength(0);
+        checkHistory(3);
 
         // indicator should still tell if push allowed
         testPushIndicator(true);
       });
 
-      it('should pull new remote items without erasing existing items', async () => {
+      it('should pull new remote items without erasing existing items, unless local changes cleared', async () => {
         const remoteData = [
           oneDocument('r1'),
           oneDocument('r2'),
@@ -304,9 +330,12 @@ describe('sync service', () => {
         collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
         collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
         expect(getRowCountInsideNotebook()).toBe(2);
+        checkHistory(1);
+
         localChangesService.clear();
         await syncService_pull();
         expect(getRowCountInsideNotebook()).toBe(3);
+        checkHistory(2);
 
         // indicator should still tell if push allowed
         testPushIndicator(false);
@@ -326,12 +355,14 @@ describe('sync service', () => {
         await syncService_pull();
         expect(getRowCountInsideNotebook()).toBe(4);
         expect(getLocalItemConflicts()).toHaveLength(0);
+        checkHistory(3);
 
         // update remote again
         await reInitRemoteData([...remoteData, oneDocument('r4')]);
         await syncService_pull();
         expect(getRowCountInsideNotebook()).toBe(5);
         expect(getLocalItemConflicts()).toHaveLength(0);
+        checkHistory(4);
 
         // indicator should still tell if push allowed
         testPushIndicator(true);
@@ -355,6 +386,7 @@ describe('sync service', () => {
         // pull items from new remote
         await syncService_pull();
         expect(getRowCountInsideNotebook()).toBe(3);
+        checkHistory(2);
 
         testPushIndicator(false);
       });
@@ -386,6 +418,7 @@ describe('sync service', () => {
         expect(collectionService.itemExists(docInside.id!)).toBe(false);
         expect(getRowCountInsideNotebook()).toBe(0);
         expect(getRowCountInsideNotebook(CONFLICTS_NOTEBOOK_ID)).toBe(1);
+        checkHistory(0); // no version for conflicts
       });
 
       it(`should not leave orphans if delete folder on remote but update document inside on local`, async () => {
@@ -414,6 +447,7 @@ describe('sync service', () => {
         );
         expect(getRowCountInsideNotebook()).toBe(0);
         expect(getRowCountInsideNotebook(CONFLICTS_NOTEBOOK_ID)).toBe(1);
+        checkHistory(0);
       });
 
       // TODO same tests in inverse order (add doc local first, then delete folder)
@@ -443,9 +477,11 @@ describe('sync service', () => {
         );
         expect(collectionService.itemExists(folder.id!)).toBe(false);
         expect(collectionService.itemExists(docInside.id!)).toBe(false);
+
+        checkHistory(0); // no version for conflict
       });
 
-      NON_NOTEBOOK_ITEM_TYPES.forEach(({ type, testAddFn }) => {
+      NON_NOTEBOOK_ITEM_TYPES.forEach(({ type, typeVal, testAddFn }) => {
         describe(`tests on a ${type}`, () => {
           it(`should delete local ${type}s on pull if they have not been changed and erased on remote`, async () => {
             localChangesService.clear();
@@ -460,6 +496,13 @@ describe('sync service', () => {
             await syncService_pull();
             expect(getRowCountInsideNotebook()).toBe(remoteData.length - 2);
             testPushIndicator(false);
+
+            checkHistory(2); // getSomeRemoteData creates 3 docs (minus the first deleted) or 2
+            if (isPageOrDocument({ type: typeVal })) {
+              expect(
+                historyService.getVersions(remoteData[0].id!)
+              ).toHaveLength(1); // versions are not deleted, but left to gc (gives a chance to restore it)
+            }
           });
 
           it(`should not recreate ${type}s erased locally on pull if they have not changed on remote`, async () => {
@@ -467,6 +510,8 @@ describe('sync service', () => {
             await reInitRemoteData(remoteData);
             await syncService_pull();
             expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
+            checkHistory(type === 'document' ? 3 : 2);
+
             // erase locally
             const id = remoteData[0].id!;
             collectionService_deleteItem(id);
@@ -476,6 +521,7 @@ describe('sync service', () => {
             expect(getRowCountInsideNotebook()).toBe(remoteData.length - 2);
 
             testPushIndicator(true);
+            checkHistory(2, type === 'page' ? [2, 1] : 1);
           });
 
           GET_UPDATABLE_FIELDS(type).forEach(({ field, valueType }) => {
@@ -496,6 +542,7 @@ describe('sync service', () => {
               expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
               expect(collectionService.itemExists(id!)).toBeTruthy();
               expect(getLocalItemField(id!, field)).toBe(newValue);
+              checkHistory(type === 'document' ? 3 : 2);
             });
 
             it(`should not delete local updates of field ${field} if they have not changed on remote ${type}`, async () => {
@@ -514,12 +561,14 @@ describe('sync service', () => {
               expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
 
               testPushIndicator(true);
+              checkHistory(type === 'document' ? 3 : 2);
             });
 
             it(`should not delete local ${type}s on pull if they have been changed with ${field} after being erased on remote`, async () => {
               const remoteData = getSomeRemoteData(type, testAddFn);
               await reInitRemoteData(remoteData);
               await syncService_pull();
+              checkHistory(type === 'document' ? 3 : 2, 1);
               expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
 
               const id = remoteData[0].id!;
@@ -538,6 +587,13 @@ describe('sync service', () => {
               expect(getLocalItemConflicts()).toHaveLength(0);
               expect(getLocalItemField(id, field)).toBe(newValue);
               testPushIndicator(true);
+              checkHistory(
+                type === 'document' ? 3 : 2,
+                type === 'document' &&
+                  collectionService.isHistorizableContentChange(typeVal, field)
+                  ? [1, 2, 1]
+                  : 1
+              );
             });
 
             it(`should not recreate ${type}s erased locally on pull if they have changed on remote with ${field} before delete`, async () => {
@@ -561,6 +617,7 @@ describe('sync service', () => {
               expect(collectionService.itemExists(id)).toBeFalsy();
 
               testPushIndicator(true);
+              checkHistory(2, type === 'page' ? [2, 1] : 1);
             });
           });
 
@@ -588,6 +645,10 @@ describe('sync service', () => {
                 expect(getLocalItemField(id, field)).toBe(newValue);
 
                 testPushIndicator(true);
+                checkHistory(
+                  type === 'document' ? 3 : 2,
+                  type === 'page' ? [2, 1] : 1
+                );
               });
             }
           );
@@ -613,6 +674,7 @@ describe('sync service', () => {
             expect(collectionService.itemExists(id)).toBe(false);
 
             testPushIndicator(true);
+            checkHistory(2, type === 'page' ? [2, 1] : 1);
           });
 
           // fields that can change: parent, title, content, deleted

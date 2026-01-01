@@ -1,3 +1,4 @@
+import { CollectionItemType } from '@/collection/collection';
 import { networkService } from '@/common/services/network.service';
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
@@ -11,6 +12,8 @@ import {
   RemoteInfo
 } from '@/remote-storage/sync-types';
 import { ConnectionStatusChangeListener } from '@capacitor/network';
+import { historyService } from './collection-history.service';
+import collectionService from './collection.service';
 import localChangesService from './local-changes.service';
 import storageService from './storage.service';
 import {
@@ -20,6 +23,7 @@ import {
 } from './tinybase/hooks';
 import {
   AnyData,
+  LocalChangeType,
   RemoteItemInfo,
   RemoteResult,
   RemoteState
@@ -439,6 +443,7 @@ class RemotesService {
         force
       );
       if (resp && resp.content) {
+        historyService.saveNow();
         this.updateRemoteInfo(
           remote.state,
           resp.remoteInfo,
@@ -447,7 +452,26 @@ class RemotesService {
         );
         if (resp.remoteInfo.lastRemoteChange)
           localChangesService.setLastPulled(resp.remoteInfo.lastRemoteChange);
+
         storageService.getSpace().setContent(resp.content);
+        // history must be updated
+        resp.changes
+          .filter(ch => ch.type === CollectionItemType.document)
+          .forEach(ch => {
+            if (
+              ch.change === LocalChangeType.add ||
+              (ch.field &&
+                collectionService.isHistorizableContentChange(
+                  ch.type,
+                  ch.field
+                ))
+            ) {
+              historyService.saveWholeDocumentVersion(ch.id, true);
+            } else if (ch.change === LocalChangeType.delete) {
+              // hard delete versions but... could leave them to GC?
+              // historyService.deleteVersions(ch.id, ch.type);
+            }
+          });
       }
     } catch (e) {
       console.error(

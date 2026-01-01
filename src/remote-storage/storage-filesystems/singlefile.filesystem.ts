@@ -29,6 +29,7 @@ import userSettingsService from '@/db/user-settings.service';
 import { Row, Table } from 'tinybase/store';
 import { Content, getUniqueId } from 'tinybase/with-schemas';
 import {
+  AfterSyncChange,
   CloudStorageDriver,
   CloudStorageFilesystem,
   DriverFileInfo,
@@ -222,12 +223,14 @@ export class SingleFileStorage extends CloudStorageFilesystem {
     const newLocalInfo = newRemoteState.info as DriverFileInfo;
     const newLastRemoteChange = newRemoteState.lastRemoteChange || 0;
     const lastPulled = cachedRemoteInfo.lastPulled;
+    const changes: AfterSyncChange[] = [];
 
     if (!force && (!newLocalInfo || lastPulled >= newLastRemoteChange)) {
       console.debug('[pull] nothing to pull', newRemoteState);
       return {
         content: localContent,
-        remoteInfo: cachedRemoteInfo
+        remoteInfo: cachedRemoteInfo,
+        changes
       };
     }
 
@@ -253,6 +256,15 @@ export class SingleFileStorage extends CloudStorageFilesystem {
     ];
     items.forEach(item => {
       newLocalContent[0].collection![item.id!] = item;
+
+      // if new, add to changes
+      if (!localContent[0].collection![item.id!]) {
+        changes.push({
+          id: item.id!,
+          type: item.type,
+          change: LocalChangeType.add
+        });
+      }
     });
 
     if (!force && localChanges.length > 0) {
@@ -290,8 +302,20 @@ export class SingleFileStorage extends CloudStorageFilesystem {
                 `${field}_meta`
               ] = localItem![`${field}_meta`];
             }
+            changes.push({
+              id: localItem!.id!,
+              type: localItem!.type,
+              change: LocalChangeType.update,
+              field: localChange.field
+            });
           } else {
             // is delete
+            changes.push({
+              id: localChange.item,
+              type: newLocalContent[0].collection![localChange.item]
+                .type as CollectionItemType,
+              change: LocalChangeType.delete
+            });
             delete newLocalContent[0].collection![localChange.item];
           }
         } else {
@@ -324,7 +348,8 @@ export class SingleFileStorage extends CloudStorageFilesystem {
       remoteInfo: {
         ...cachedRemoteInfo,
         ...newRemoteState
-      }
+      },
+      changes
     };
   }
 

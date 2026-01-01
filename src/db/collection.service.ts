@@ -732,12 +732,14 @@ class CollectionService {
     type: CollectionItemTypeValues,
     key: CollectionItemUpdatableFieldEnum
   ) {
+    if (
+      type !== CollectionItemType.page &&
+      type !== CollectionItemType.document
+    )
+      return false;
     if (key === 'order' && type === CollectionItemType.page) return true;
-    return (
-      (type === CollectionItemType.page ||
-        type === CollectionItemType.document) &&
-      CollectionItemUpdateChangeFields.includes(key)
-    );
+    if (key === 'order' && type === CollectionItemType.document) return false;
+    return CollectionItemUpdateChangeFields.includes(key);
   }
 
   public setItemField(
