@@ -841,5 +841,83 @@ describe('collection service', () => {
         expect(items.map(i => `#${i.order} ${i.title}`)).toEqual(expected);
       });
     });
+
+    it(`getAllCollectionItemsRecursive should also sort`, () => {
+      const doc1 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      collectionService.setItemTitle(doc1, 'r1');
+      vi.advanceTimersByTime(100);
+      const fol = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+      collectionService.setItemTitle(fol, 'f1');
+      vi.advanceTimersByTime(100);
+      const doc2 = collectionService.addDocument(fol);
+      collectionService.setItemTitle(doc2, 'new value qwfg');
+      vi.advanceTimersByTime(100);
+      const doc3 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      collectionService.setItemTitle(doc3, 'abc');
+
+      const byCreatedAsc = collectionService.getAllCollectionItemsRecursive(
+        DEFAULT_NOTEBOOK_ID,
+        {
+          by: 'created',
+          descending: false
+        }
+      );
+      console.log(
+        'created asc',
+        byCreatedAsc.map(i => i.title)
+      );
+      expect(byCreatedAsc[0].title).toBe('r1');
+      expect(byCreatedAsc[1].title).toBe('f1');
+      expect(byCreatedAsc[2].title).toBe('new value qwfg');
+      expect(byCreatedAsc[3].title).toBe('abc');
+
+      const byCreatedDesc = collectionService.getAllCollectionItemsRecursive(
+        DEFAULT_NOTEBOOK_ID,
+        {
+          by: 'created',
+          descending: true
+        }
+      );
+      console.log(
+        'created desc',
+        byCreatedDesc.map(i => i.title)
+      );
+      expect(byCreatedDesc[0].title).toBe('abc');
+      expect(byCreatedDesc[1].title).toBe('new value qwfg');
+      expect(byCreatedDesc[2].title).toBe('f1');
+      expect(byCreatedDesc[3].title).toBe('r1');
+
+      const byTitleAsc = collectionService.getAllCollectionItemsRecursive(
+        DEFAULT_NOTEBOOK_ID,
+        {
+          by: 'title',
+          descending: false
+        }
+      );
+      console.log(
+        'title asc',
+        byTitleAsc.map(i => i.title)
+      );
+      expect(byTitleAsc[0].title).toBe('abc');
+      expect(byTitleAsc[1].title).toBe('f1');
+      expect(byTitleAsc[2].title).toBe('new value qwfg');
+      expect(byTitleAsc[3].title).toBe('r1');
+
+      const byTitleDesc = collectionService.getAllCollectionItemsRecursive(
+        DEFAULT_NOTEBOOK_ID,
+        {
+          by: 'title',
+          descending: true
+        }
+      );
+      console.log(
+        'title desc',
+        byTitleDesc.map(i => i.title)
+      );
+      expect(byTitleDesc[0].title).toBe('r1');
+      expect(byTitleDesc[1].title).toBe('new value qwfg');
+      expect(byTitleDesc[2].title).toBe('f1');
+      expect(byTitleDesc[3].title).toBe('abc');
+    });
   });
 });

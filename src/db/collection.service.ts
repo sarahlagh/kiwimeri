@@ -211,21 +211,56 @@ class CollectionService {
     return this.getResultsSorted(table, queryName, sort);
   }
 
+  // can't i use ancestry instead???
+  // oh right, slice row ids can't be sorted because ancestry table doesn't have enough info
+  // TODO need to rethink the model here
   public getAllCollectionItemsRecursive(
     parent: string,
+    sort?: CollectionItemSort,
     cb?: (level: CollectionItemResult[]) => void
   ) {
+    if (!sort) {
+      sort = userSettingsService.getDefaultDisplayOpts().sort;
+    }
     let results: CollectionItemResult[] = [];
-    const level = collectionService.getCollectionItems(parent);
+    const level = collectionService.getCollectionItems(parent, sort);
     if (cb) cb(level);
     results = [...level];
     const folders = level.filter(item => item.type !== CollectionItemType.page);
     folders.forEach(folder => {
-      const subLevel = this.getAllCollectionItemsRecursive(folder.id);
+      const subLevel = this.getAllCollectionItemsRecursive(folder.id, sort);
       if (cb) cb(subLevel);
       results = [...results, ...subLevel];
+      // sort again (tch..) TODO should rethink ancestry so i can do sorting from there
+      this.sortResults(results, sort);
     });
     return results;
+  }
+
+  private sortResults(
+    results: CollectionItemResult[],
+    sort: CollectionItemSort
+  ) {
+    if (sort.by === 'preview') {
+      return searchAncestryService.sortPerContentPreview(
+        results,
+        sort.descending
+      );
+    }
+    results.sort((r1, r2) => {
+      const a = sort.descending ? r2 : r1;
+      const b = sort.descending ? r1 : r2;
+      switch (sort.by) {
+        case 'created':
+        case 'updated':
+        case 'order':
+          return a[sort.by] - b[sort.by];
+        case 'title':
+          return a.title.localeCompare(b.title);
+        case 'preview':
+          return 0; // already covered above
+      }
+    });
   }
 
   public useBrowsableCollectionItems(
