@@ -131,7 +131,6 @@ export const NON_PARENT_UPDATABLE_FIELDS: {
   { field: 'title', valueType: 'string' },
   { field: 'content', valueType: 'lex' },
   { field: 'tags', valueType: 'string' },
-  // { field: 'deleted', valueType: 'boolean' }, // TODO
   { field: 'order', valueType: 'number' },
   { field: 'display_opts', valueType: 'json' }
 ];
@@ -311,7 +310,7 @@ export const updateOnRemote = (
     remoteData[idx].updated = Date.now();
   }
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
-  console.debug('after updateOnRemote', id, field, remoteData);
+  console.debug('after updateOnRemote', idx, id, field, remoteData);
   return remoteData;
 };
 

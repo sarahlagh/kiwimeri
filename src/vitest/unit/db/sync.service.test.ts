@@ -99,7 +99,8 @@ const reInitRemoteData = async (
 const syncService_pull = async (force = false) => {
   vi.advanceTimersByTime(fakeTimersDelay);
   console.debug('start pulling', ++iPull, Date.now());
-  await syncService.pull(undefined, force);
+  const ok = await syncService.pull(undefined, force);
+  expect(ok).toBe(true);
   vi.advanceTimersByTime(fakeTimersDelay);
   console.debug('done pulling', Date.now());
 };
@@ -155,17 +156,25 @@ const checkHistory = (
   expectedVersions: number | number[] = 1,
   notebook = DEFAULT_NOTEBOOK_ID
 ) => {
-  const items = collectionService.getAllCollectionItemsRecursive(notebook);
+  const items = collectionService.getAllCollectionItemsRecursive(notebook, {
+    by: 'title',
+    descending: false
+  });
   let count = 0;
   const nb = Array.isArray(expectedVersions) ? expectedVersions : [];
-  items
-    .filter(r => r.type === CollectionItemType.document)
-    .forEach(doc => {
-      expect(historyService.getVersions(doc.id!)).toHaveLength(
-        nb[count] || (expectedVersions as number)
-      );
-      count++;
-    });
+  const docs = items.filter(r => r.type === CollectionItemType.document);
+  console.log(
+    '[checkHistory] expected',
+    nb,
+    'got',
+    docs.map(d => `{${d.title}, ${historyService.getVersions(d.id!).length}}`)
+  );
+  docs.forEach(doc => {
+    expect(historyService.getVersions(doc.id!)).toHaveLength(
+      nb.length > 0 ? nb[count] : (expectedVersions as number)
+    );
+    count++;
+  });
   expect(count).toBe(nbOfDocuments);
 };
 
@@ -491,18 +500,25 @@ describe('sync service', () => {
             expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
 
             // erase on remote
-
             await reInitRemoteData(remoteData.slice(1));
             await syncService_pull();
             expect(getRowCountInsideNotebook()).toBe(remoteData.length - 2);
             testPushIndicator(false);
 
-            checkHistory(2); // getSomeRemoteData creates 3 docs (minus the first deleted) or 2
             if (isPageOrDocument({ type: typeVal })) {
-              expect(
-                historyService.getVersions(remoteData[0].id!)
-              ).toHaveLength(1); // versions are not deleted, but left to gc (gives a chance to restore it)
+              const versions = historyService.getVersions(remoteData[0].id!);
+              expect(versions).toHaveLength(2); // versions are not deleted, but left to gc (gives a chance to restore it)
+              expect(versions[0].op).toBe('deleted');
+
+              if (type === 'page') {
+                const versions = historyService.getVersions(
+                  remoteData[0].parent!
+                );
+                expect(versions).toHaveLength(2); // versions are not deleted, but left to gc (gives a chance to restore it)
+                expect(versions[0].op).toBe('snapshot');
+              }
             }
+            checkHistory(2, type === 'page' ? [2, 1] : 1); // getSomeRemoteData creates 3 docs (minus the first deleted) or 2
           });
 
           it(`should not recreate ${type}s erased locally on pull if they have not changed on remote`, async () => {
@@ -542,7 +558,11 @@ describe('sync service', () => {
               expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
               expect(collectionService.itemExists(id!)).toBeTruthy();
               expect(getLocalItemField(id!, field)).toBe(newValue);
-              checkHistory(type === 'document' ? 3 : 2);
+
+              let nbVersions = 1;
+              if (collectionService.isHistorizableContentChange(typeVal, field))
+                nbVersions++;
+              checkHistory(type === 'document' ? 3 : 2, [nbVersions, 1, 1]);
             });
 
             it(`should not delete local updates of field ${field} if they have not changed on remote ${type}`, async () => {
@@ -579,6 +599,14 @@ describe('sync service', () => {
               // update locally
               const newValue = getNewValue(valueType, remoteData[3].id);
               setLocalItemField(id, field, newValue);
+              historyService.saveNow();
+              const nbVersions = collectionService.isHistorizableContentChange(
+                typeVal,
+                field
+              )
+                ? 2
+                : 1;
+              checkHistory(type === 'document' ? 3 : 2, [nbVersions, 1, 1]);
 
               await syncService_pull();
 
@@ -587,13 +615,7 @@ describe('sync service', () => {
               expect(getLocalItemConflicts()).toHaveLength(0);
               expect(getLocalItemField(id, field)).toBe(newValue);
               testPushIndicator(true);
-              checkHistory(
-                type === 'document' ? 3 : 2,
-                type === 'document' &&
-                  collectionService.isHistorizableContentChange(typeVal, field)
-                  ? [1, 2, 1]
-                  : 1
-              );
+              checkHistory(type === 'document' ? 3 : 2, [nbVersions, 1, 1]);
             });
 
             it(`should not recreate ${type}s erased locally on pull if they have changed on remote with ${field} before delete`, async () => {
@@ -645,10 +667,34 @@ describe('sync service', () => {
                 expect(getLocalItemField(id, field)).toBe(newValue);
 
                 testPushIndicator(true);
-                checkHistory(
-                  type === 'document' ? 3 : 2,
-                  type === 'page' ? [2, 1] : 1
-                );
+                if (type === 'document') {
+                  checkHistory(3, [3, 1, 1]);
+                  const versions = historyService.getVersions(id);
+                  expect(versions[0].op).toBe('snapshot');
+                  expect(versions[1].op).toBe('deleted');
+                } else if (type === 'page') {
+                  checkHistory(2, [3, 1]);
+                  const docId = remoteData[0].parent;
+                  // page has been recreated and is visible on the document
+                  expect(
+                    collectionService
+                      .getDocumentPages(docId)
+                      .find(p => p.id === id)
+                  ).toBeDefined();
+                  // a new version of the document has been created to reflect that
+                  const docVersions = historyService.getVersions(docId);
+                  expect(
+                    docVersions[0].pageVersionsArrayJson?.find(
+                      pv => pv.itemId === id
+                    )
+                  ).toBeDefined();
+                  const versions = historyService.getVersions(id);
+                  expect(versions[0].op).toBe('snapshot');
+                  expect(versions[1].op).toBe('deleted');
+                } else {
+                  // folder
+                  checkHistory(2, 1);
+                }
               });
             }
           );
@@ -681,17 +727,33 @@ describe('sync service', () => {
           GET_NON_CONFLICT_CHANGES(type).forEach(
             ({ local, localValueType, remote, remoteValueType }) => {
               it(`should merge changes on ${type} without conflict if localChange=${local} then remoteChange=${remote}`, async () => {
-                const remoteData = getSomeRemoteData(type, testAddFn);
+                const remoteData = [
+                  ...getSomeRemoteData(type, testAddFn),
+                  oneDocument('r9') // idx 5
+                ];
                 await reInitRemoteData(remoteData);
                 await syncService_pull(); // 1
                 const id = remoteData[0].id!;
+                checkHistory(type === 'document' ? 4 : 3, 1);
+                let nbVersions = 1;
+                if (
+                  collectionService.isHistorizableContentChange(typeVal, local)
+                )
+                  nbVersions++;
 
                 // change local
                 const newLocalValue = getNewValue(
                   localValueType,
-                  remoteData[3].id
+                  type === 'document' ? remoteData[3].id : remoteData[5].id
                 );
                 setLocalItemField(id, local, newLocalValue);
+                historyService.saveNow();
+                checkHistory(type === 'document' ? 4 : 3, [
+                  nbVersions,
+                  1,
+                  1,
+                  1
+                ]);
 
                 // change remote
                 const newRemoteValue = getNewValue(
@@ -711,10 +773,29 @@ describe('sync service', () => {
                 if (remote !== local) {
                   expect(getLocalItemField(id, local)).toBe(newLocalValue);
                 }
+                const r9WasUpdatedToo = type === 'page' && local === 'parent';
+                if (
+                  collectionService.isHistorizableContentChange(
+                    typeVal,
+                    remote
+                  ) &&
+                  remote !== local &&
+                  !r9WasUpdatedToo
+                )
+                  nbVersions++;
+                checkHistory(type === 'document' ? 4 : 3, [
+                  nbVersions,
+                  1,
+                  r9WasUpdatedToo ? 2 : 1, // if page, parent[5](r9) was updated too
+                  1
+                ]);
               });
 
               it(`should merge changes on ${type} without conflict if remoteChange=${remote} then localChange=${local}`, async () => {
-                const remoteData = getSomeRemoteData(type, testAddFn);
+                const remoteData = [
+                  ...getSomeRemoteData(type, testAddFn),
+                  oneDocument('r9') // idx 5
+                ];
                 await reInitRemoteData(remoteData);
                 await syncService_pull();
                 const id = remoteData[0].id!;
@@ -727,12 +808,20 @@ describe('sync service', () => {
                 updateOnRemote(remoteData, id, remote, newRemoteValue);
                 await reInitRemoteData(remoteData);
 
+                let nbVersions = 1;
+                if (
+                  collectionService.isHistorizableContentChange(typeVal, local)
+                )
+                  nbVersions++;
+
                 // change local
                 const newLocalValue = getNewValue(
                   localValueType,
-                  remoteData[2].id
-                );
+                  type === 'document' ? remoteData[2].id : remoteData[5].id
+                  // remoteData[2].id
+                ); // note: can create a document with document as parent - messes up the history!!
                 setLocalItemField(id, local, newLocalValue);
+                historyService.saveNow();
 
                 // pull again
                 await syncService_pull();
@@ -743,6 +832,25 @@ describe('sync service', () => {
                 }
 
                 testPushIndicator(true);
+
+                const r9WasUpdatedToo = type === 'page' && local === 'parent';
+                if (
+                  remote !== local &&
+                  collectionService.isHistorizableContentChange(
+                    typeVal,
+                    remote
+                  ) &&
+                  !r9WasUpdatedToo
+                )
+                  nbVersions++;
+
+                checkHistory(type === 'document' ? 4 : 3, [
+                  nbVersions,
+                  1,
+                  r9WasUpdatedToo ? 2 : 1, // if page, parent[5](r9) was updated too
+                  1
+                ]);
+                // checkHistory(type === 'document' ? 4 : 3, [nbVersions, 1, 1]);
               });
             }
           );
@@ -762,6 +870,14 @@ describe('sync service', () => {
               // change local
               const newLocalValue = getNewValue(valueType, remoteData[2].id);
               setLocalItemField(id, field, newLocalValue);
+              historyService.saveNow();
+              const nbVersions = collectionService.isHistorizableContentChange(
+                typeVal,
+                field
+              )
+                ? 2
+                : 1;
+              checkHistory(type === 'document' ? 3 : 2, [nbVersions, 1, 1]);
 
               // pull again
               await syncService_pull();
@@ -769,6 +885,7 @@ describe('sync service', () => {
               expect(getLocalItemField(id, field)).toBe(newLocalValue);
 
               testPushIndicator(true);
+              checkHistory(type === 'document' ? 3 : 2, [nbVersions, 1, 1]);
             });
           });
 
@@ -792,6 +909,7 @@ describe('sync service', () => {
               expect(searchAncestryService.getItemPreview(id)).toMatch(
                 /^Sample text/g
               );
+              checkHistory(type === 'document' ? 3 : 2, [2, 1, 1]);
             });
           }
 
@@ -813,6 +931,7 @@ describe('sync service', () => {
                 const newValue = getNewValue(valueType, remoteData[2].id);
                 setLocalItemField(id, field, newValue);
                 vi.advanceTimersByTime(50);
+                historyService.saveNow();
 
                 // erase on remote
                 await reInitRemoteData(
@@ -830,6 +949,13 @@ describe('sync service', () => {
                 expect(getLocalItemField(conflictId, field)).toBe(newValue);
                 testPushIndicator(true); // TODO: ideally, should be false
 
+                // no version for the conflict
+                expect(collectionService.itemExists(id)).toBeFalsy();
+                let oldDocVersions = historyService.getVersions(id);
+                expect(oldDocVersions[0].op).toBe('deleted');
+                let conflictVersions = historyService.getVersions(conflictId);
+                expect(conflictVersions).toHaveLength(0);
+
                 // push, no conflict should be pushed
                 await syncService_push();
                 let remoteContent = await driver.getParsedContent();
@@ -838,22 +964,36 @@ describe('sync service', () => {
 
                 // now, solve conflict
                 setLocalItemField(conflictId, 'content', getNewValue('lex'));
+                historyService.saveNow();
                 testPushIndicator(true);
                 expect(getLocalItemConflicts()).toHaveLength(0);
+                // !! once conflict solved, should have one version
 
                 await syncService_push();
                 remoteContent = await driver.getParsedContent();
                 expect(remoteContent.content).toHaveLength(4);
 
                 testPushIndicator(false);
+
+                // old doc erased should have still versions
+                expect(collectionService.itemExists(id)).toBeFalsy();
+                oldDocVersions = historyService.getVersions(id);
+                expect(oldDocVersions[0].op).toBe('deleted');
+
+                // new conflict should exist with a new version
+                conflictVersions = historyService.getVersions(conflictId);
+                expect(conflictVersions).toHaveLength(1);
+                expect(conflictVersions[0].op).toBe('snapshot');
               });
 
               it(`should create conflict for documents if localChange=${field} then remoteChange=${field}`, async () => {
-                const folder = oneFolder();
+                const folder1 = oneFolder('r3');
+                const folder2 = oneFolder('r4');
                 const remoteData = [
-                  oneDocument(),
-                  oneDocument(),
-                  folder,
+                  oneDocument('r1'),
+                  oneDocument('r2'),
+                  folder1,
+                  folder2,
                   oneNotebook()
                 ];
                 await reInitRemoteData(remoteData);
@@ -861,30 +1001,40 @@ describe('sync service', () => {
                 const id = remoteData[0].id!;
 
                 // change local
-                const newLocalValue = getNewValue(valueType, folder.id);
+                const newLocalValue = getNewValue(valueType, folder1.id);
                 setLocalItemField(id, field, newLocalValue); // real id to avoid problem when field=parent
+                historyService.saveNow();
 
                 // change remote
-                const newRemoteValue = getNewValue(valueType, remoteData[1].id);
+                const newRemoteValue = getNewValue(valueType, folder2.id);
                 updateOnRemote(remoteData, id, field, newRemoteValue);
                 await reInitRemoteData(remoteData);
 
                 // pull again
                 await syncService_pull(); // 2
                 // a conflict file was created
-                expect(getRowCountInsideNotebook()).toBe(4);
+                expect(getRowCountInsideNotebook()).toBe(5);
                 expect(getLocalItemField(id, field)).toBe(newRemoteValue);
                 expect(getLocalItemField(id, field)).not.toBe(newLocalValue);
+                const docVersions = historyService.getVersions(id);
+                const nbVersions =
+                  collectionService.isHistorizableContentChange('d', field)
+                    ? 2
+                    : 1;
+                expect(docVersions).toHaveLength(nbVersions);
+                expect(docVersions[0].op).toBe('snapshot');
 
                 // check that a conflict file exists
                 const conflictId = getLocalItemConflict();
                 expect(conflictId).toBeDefined();
+                let conflictVersions = historyService.getVersions(conflictId!);
+                expect(conflictVersions).toHaveLength(0);
                 testPushIndicator(true);
 
                 // pull again
                 await syncService_pull(); // 3
                 // conflict was untouched
-                expect(getRowCountInsideNotebook()).toBe(4);
+                expect(getRowCountInsideNotebook()).toBe(5);
                 expectHasLocalItemConflict(conflictId!, true);
 
                 // update the conflict => will remove its 'conflict' flag
@@ -893,7 +1043,8 @@ describe('sync service', () => {
                   'title',
                   'conflict file updated only'
                 );
-                expect(getRowCountInsideNotebook()).toBe(4);
+                historyService.saveNow();
+                expect(getRowCountInsideNotebook()).toBe(5);
                 expect(localChangesService.getLocalChanges()).toHaveLength(3);
                 const lc = localChangesService
                   .getLocalChanges()
@@ -905,29 +1056,43 @@ describe('sync service', () => {
                 expect(
                   collectionService.isItemConflict(conflictId!)
                 ).toBeFalsy();
+                conflictVersions = historyService.getVersions(conflictId!);
+                expect(conflictVersions).toHaveLength(1);
+                expect(conflictVersions[0].op).toBe('snapshot');
 
                 // pull again
                 await syncService_pull(); // 4
-                // conflict was not solved by a new timestamp, so, nothing new
+                // nothing new
                 expect(getLocalItemConflict()).toBeUndefined();
-                expect(getRowCountInsideNotebook()).toBe(4);
+                expect(getRowCountInsideNotebook()).toBe(5);
+                expect(getLocalItemField(id, field)).toBe(newRemoteValue);
+                expect(getLocalItemField(id, field)).not.toBe(newLocalValue);
+                expect(historyService.getVersions(id)).toHaveLength(nbVersions);
 
-                // solve the conflict at last
+                // solve the conflict at last... wdym, past-self?
                 expect(collectionService.itemExists(id)).toBeTruthy();
-                setLocalItemField(id, 'tags', 'conflict updated');
+                setLocalItemField(id, 'tags', 'conflict updated'); // cache
+                historyService.saveNow(); // tags is a historizable change
+                expect(historyService.getVersions(id)).toHaveLength(
+                  nbVersions + 1
+                );
 
                 // pull again
                 await syncService_pull(); // 5
-                expect(getRowCountInsideNotebook()).toBe(4);
+                expect(getRowCountInsideNotebook()).toBe(5);
                 expect(collectionService.itemExists(conflictId!)).toBeTruthy();
+
+                expect(historyService.getVersions(id)).toHaveLength(
+                  nbVersions + 1
+                );
               });
             });
 
             it('should handle multiple merge on one document without conflict', async () => {
               const remoteData = [
-                oneDocument(),
-                oneDocument(),
-                oneFolder(),
+                oneDocument('r1'),
+                oneDocument('r2'),
+                oneFolder('3'),
                 oneNotebook()
               ];
               await reInitRemoteData(remoteData);
@@ -936,7 +1101,7 @@ describe('sync service', () => {
 
               // change remote
               const newRemoteTitle = getNewValue('string');
-              const newRemoteContent = getNewValue('string');
+              const newRemoteContent = getNewValue('lex');
               updateOnRemote(remoteData, id, 'content', newRemoteContent);
               updateOnRemote(remoteData, id, 'title', newRemoteTitle);
 
@@ -945,6 +1110,8 @@ describe('sync service', () => {
               const newLocalTags = getNewValue('string');
               setLocalItemField(id, 'title', newLocalTitle);
               setLocalItemField(id, 'tags', newLocalTags);
+              historyService.saveNow();
+              expect(historyService.getVersions(id)).toHaveLength(2);
 
               await reInitRemoteData(remoteData);
 
@@ -956,13 +1123,14 @@ describe('sync service', () => {
               expect(getLocalItemField(id, 'title')).toBe(newLocalTitle);
               expect(getLocalItemField(id, 'tags')).toBe(newLocalTags);
               expect(getLocalItemField(id, 'content')).toBe(newRemoteContent);
+              checkHistory(2, [3, 1]);
             });
 
             it('should handle multiple merge on one document with conflict', async () => {
               const remoteData = [
-                oneDocument(),
-                oneDocument(),
-                oneFolder(),
+                oneDocument('r1'),
+                oneDocument('r2'),
+                oneFolder('r3'),
                 oneNotebook()
               ];
               await reInitRemoteData(remoteData);
@@ -970,12 +1138,13 @@ describe('sync service', () => {
               const id = remoteData[0].id!;
 
               // change local
-              setLocalItemField(id, 'title', ROOT_COLLECTION);
+              setLocalItemField(id, 'title', 'r9');
               setLocalItemField(id, 'tags', ROOT_COLLECTION);
+              historyService.saveNow();
 
               // change remote
-              const newRemoteTitle = getNewValue('string');
-              const newRemoteContent = getNewValue('string');
+              const newRemoteTitle = 'r0';
+              const newRemoteContent = getNewValue('lex');
               updateOnRemote(remoteData, id, 'content', newRemoteContent);
               updateOnRemote(remoteData, id, 'title', newRemoteTitle);
 
@@ -983,12 +1152,15 @@ describe('sync service', () => {
 
               // pull again
               await syncService_pull(); // 2
+
+              expect(historyService.getVersions(id)).toHaveLength(3);
               // a conflict is created due to title field
               expect(getRowCountInsideNotebook()).toBe(4);
               expect(getLocalItemConflicts()).toHaveLength(1);
               expect(getLocalItemField(id, 'title')).toBe(newRemoteTitle);
               expect(getLocalItemField(id, 'tags')).toBe(ROOT_COLLECTION);
               expect(getLocalItemField(id, 'content')).toBe(newRemoteContent);
+              checkHistory(3, [3, 1, 0]); // r0, r2, r9 (conflict)
             });
           }
 
@@ -1083,12 +1255,30 @@ describe('sync service', () => {
                 await reInitRemoteData(remoteData);
                 await syncService_pull();
                 expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
+                checkHistory(2, 1);
 
                 // update locally
                 const id = remoteData[0].id!;
+                const oldParent = collectionService.getItemParent(id);
                 const newValue = getNewValue(valueType, remoteData[2].id);
                 setLocalItemField(id, field, newValue);
+                historyService.saveNow();
                 vi.advanceTimersByTime(50);
+                const newParent = collectionService.getItemParent(id);
+                let nbVersions = 1;
+
+                if (collectionService.isHistorizableContentChange('p', field)) {
+                  nbVersions++;
+                }
+                expect(historyService.getVersions(id)).toHaveLength(nbVersions);
+                expect(historyService.getVersions(newParent)).toHaveLength(
+                  nbVersions
+                );
+                if (newParent !== oldParent) {
+                  expect(historyService.getVersions(oldParent)).toHaveLength(
+                    nbVersions
+                  );
+                }
 
                 // erase on remote
                 const newRemoteData = remoteData.slice(1);
@@ -1104,6 +1294,18 @@ describe('sync service', () => {
                 expect(getLocalItemField(conflictId, field)).toBe(newValue);
                 testPushIndicator(true); // TODO: ideally, should be false
 
+                nbVersions++;
+                expect(historyService.getVersions(conflictId)).toHaveLength(0);
+                expect(historyService.getVersions(id)).toHaveLength(nbVersions);
+                if (newParent !== oldParent) {
+                  expect(historyService.getVersions(oldParent)).toHaveLength(
+                    nbVersions - 1
+                  );
+                }
+                expect(historyService.getVersions(newParent)).toHaveLength(
+                  nbVersions
+                );
+
                 // push, no conflict should be pushed
                 await syncService_push();
                 let remoteContent = await driver.getParsedContent();
@@ -1114,6 +1316,9 @@ describe('sync service', () => {
 
                 // now, solve conflict
                 setLocalItemField(conflictId, 'tags', 'test');
+                historyService.saveNow();
+                console.debug(historyService.getVersions(conflictId));
+                expect(historyService.getVersions(conflictId)).toHaveLength(1);
                 testPushIndicator(true);
                 expect(getLocalItemConflicts()).toHaveLength(0);
 
@@ -1122,6 +1327,15 @@ describe('sync service', () => {
                 expect(remoteContent.content).toHaveLength(remoteData.length);
 
                 testPushIndicator(false);
+                expect(historyService.getVersions(id)).toHaveLength(nbVersions);
+                if (newParent !== oldParent) {
+                  expect(historyService.getVersions(oldParent)).toHaveLength(
+                    nbVersions - 1
+                  );
+                }
+                expect(historyService.getVersions(newParent)).toHaveLength(
+                  nbVersions + 1 // the conflict triggered a parent update
+                );
               });
             });
           }

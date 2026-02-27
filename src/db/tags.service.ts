@@ -11,18 +11,22 @@ class TagsService {
     if (!notebook) {
       notebook = notebooksService.getCurrentNotebook();
     }
-    collectionService.getAllCollectionItemsRecursive(notebook, level => {
-      level
-        .filter(item => item.tags !== undefined && item.tags.length > 0)
-        .forEach(item => {
-          item.tags!.split(',').forEach(t => {
-            if (!this.itemsPerTags.has(t)) {
-              this.itemsPerTags.set(t, []);
-            }
-            this.itemsPerTags.get(t)?.push(item.id);
+    collectionService.getAllCollectionItemsRecursive(
+      notebook,
+      undefined,
+      level => {
+        level
+          .filter(item => item.tags !== undefined && item.tags.length > 0)
+          .forEach(item => {
+            item.tags!.split(',').forEach(t => {
+              if (!this.itemsPerTags.has(t)) {
+                this.itemsPerTags.set(t, []);
+              }
+              this.itemsPerTags.get(t)?.push(item.id);
+            });
           });
-        });
-    });
+      }
+    );
     console.debug('[tags] cache rebuilt', notebook, this.itemsPerTags);
   }
 

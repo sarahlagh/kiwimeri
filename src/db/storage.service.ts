@@ -185,7 +185,6 @@ class StorageService {
           itemId: { type: 'string' } as CellSchema,
           op: { type: 'string' } as CellSchema,
           createdAt: { type: 'number' } as CellSchema,
-          deletedAt: { type: 'number' } as CellSchema,
           rank: { type: 'number' } as CellSchema,
           snapshotJson: { type: 'string' } as CellSchema,
           contentId: { type: 'string' } as CellSchema,

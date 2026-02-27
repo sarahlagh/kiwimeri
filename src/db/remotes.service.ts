@@ -1,4 +1,4 @@
-import { CollectionItemType } from '@/collection/collection';
+import { isDocument, isPage } from '@/collection/collection';
 import { networkService } from '@/common/services/network.service';
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
@@ -13,7 +13,6 @@ import {
 } from '@/remote-storage/sync-types';
 import { ConnectionStatusChangeListener } from '@capacitor/network';
 import { historyService } from './collection-history.service';
-import collectionService from './collection.service';
 import localChangesService from './local-changes.service';
 import storageService from './storage.service';
 import {
@@ -23,7 +22,6 @@ import {
 } from './tinybase/hooks';
 import {
   AnyData,
-  LocalChangeType,
   RemoteItemInfo,
   RemoteResult,
   RemoteState
@@ -433,7 +431,7 @@ class RemotesService {
     try {
       const filesystem = this.filesystems.get(remote.id)!;
       const resp = await filesystem.pull(
-        localContent,
+        structuredClone(localContent),
         localChanges,
         {
           ...remoteState,
@@ -455,22 +453,14 @@ class RemotesService {
 
         storageService.getSpace().setContent(resp.content);
         // history must be updated
-        resp.changes
-          .filter(ch => ch.type === CollectionItemType.document)
-          .forEach(ch => {
-            if (
-              ch.change === LocalChangeType.add ||
-              (ch.field &&
-                collectionService.isHistorizableContentChange(
-                  ch.type,
-                  ch.field
-                ))
-            ) {
-              historyService.saveWholeDocumentVersion(ch.id, true);
-            } else if (ch.change === LocalChangeType.delete) {
-              historyService.saveDeleteVersion(ch.id, ch.type);
-            }
-          });
+        // only take single pages changes if a parent document change isn't present
+        const docs = resp.changes.filter(ch => isDocument({ type: ch.type }));
+        const pages = resp.changes.filter(
+          ch => isPage({ type: ch.type }) && !docs.find(d => d.id === ch.parent)
+        );
+        [...docs, ...pages].forEach(ch => {
+          historyService.updateAfterSync(ch);
+        });
       }
     } catch (e) {
       console.error(
@@ -479,7 +469,11 @@ class RemotesService {
         this.filesystems.get(remote.id)?.getName(),
         e
       );
+      // restore
+      storageService.getSpace().setContent(localContent);
+      return false;
     }
+    return true;
   }
 
   public async push(remote: RemoteResult, force = false) {

@@ -11,6 +11,7 @@ import {
   PageResult,
   setFieldMeta
 } from '@/collection/collection';
+import { AfterSyncHistChange } from '@/remote-storage/sync-types';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { getHash, Id, ResultRow } from 'tinybase/with-schemas';
 import collectionService from './collection.service';
@@ -20,13 +21,13 @@ import {
   useResultSortedRowIdsWithRef,
   useRowWithRef
 } from './tinybase/hooks';
+import { LocalChangeType } from './types/store-types';
 import userSettingsService from './user-settings.service';
 
 type VersionsWithContentResult = ResultRow & {
   op: CollectionItemVersionOp;
   itemId: string;
   createdAt: number;
-  deletedAt: number;
   snapshotJson: string;
   pageVersionsArrayJson?: string;
   content: string;
@@ -74,7 +75,6 @@ class CollectionHistoryService {
         select('op');
         select('itemId');
         select('createdAt');
-        select('deletedAt');
         select('rank');
         select('snapshotJson');
         select('pageVersionsArrayJson');
@@ -177,7 +177,6 @@ class CollectionHistoryService {
       id: rowId,
       op: resultRow.op,
       createdAt: resultRow.createdAt,
-      deletedAt: resultRow.deletedAt,
       itemId: resultRow.itemId,
       snapshotJson: JSON.parse(resultRow.snapshotJson),
       content: resultRow.content,
@@ -291,7 +290,6 @@ class CollectionHistoryService {
       id: rowId,
       op: versionRow.op,
       createdAt: versionRow.createdAt,
-      deletedAt: versionRow.deletedAt,
       itemId: versionRow.itemId,
       snapshotJson: JSON.parse(versionRow.snapshotJson),
       pageVersionsArrayJson: versionRow.pageVersionsArrayJson
@@ -486,7 +484,12 @@ class CollectionHistoryService {
 
   public saveVersionFromItem(item: CollectionItem, skipPages: string[] = []) {
     if (!this.enabled) return;
-    console.debug('[history] saving new version for item', item.id);
+    console.debug(
+      '[history] saving new version for item',
+      item.id,
+      item.type,
+      skipPages
+    );
     const space = storageService.getSpace();
     const versionId = this.saveSingleVersion(item, 'snapshot');
     if (item.type === CollectionItemType.page) {
@@ -596,6 +599,8 @@ class CollectionHistoryService {
 
   public saveDeleteVersion(itemId: string, type: CollectionItemTypeValues) {
     if (!this.enabled) return;
+    const latest = this.getLatestVersion(itemId);
+    if (latest.op === 'deleted') return; // no-op
     if (type === CollectionItemType.document) {
       const pages = collectionService.getDocumentPages(itemId);
       pages.forEach(p => {
@@ -609,6 +614,70 @@ class CollectionHistoryService {
       // !! without the page about to be deleted...
       this.saveVersionSync(collectionService.getItemParent(itemId), [itemId]);
       this.saveSingleVersion(collectionService.getItem(itemId), 'deleted');
+    }
+  }
+
+  private duplicateSingleVersion(
+    newVersion: CollectionItemVersion,
+    op: CollectionItemVersionOp
+  ) {
+    const space = storageService.getSpace();
+    let versionId: string | undefined;
+    space.transaction(() => {
+      // must update previous ranks - not ideal, but needed for the get latest pages query
+      const versions = this.getVersions(newVersion.itemId);
+      versions.forEach(v => {
+        const previousRank = space.getCell('history', v.id, 'rank') as number;
+        space.setCell('history', v.id, 'rank', previousRank + 1);
+      });
+      const contentId = space.getCell('history', newVersion.id, 'contentId');
+      versionId = space.addRow(this.tableId, {
+        op,
+        itemId: newVersion.itemId,
+        createdAt: Date.now(),
+        snapshotJson: newVersion.snapshotJson
+          ? JSON.stringify(newVersion.snapshotJson)
+          : undefined,
+        pageVersionsArrayJson: newVersion.pageVersionsArrayJson
+          ? JSON.stringify(newVersion.pageVersionsArrayJson)
+          : undefined,
+        contentId,
+        rank: 0
+      });
+    });
+    return versionId;
+  }
+
+  public markLatestVersionDeleted(
+    type: CollectionItemTypeValues,
+    itemId: string,
+    parentId: string
+  ) {
+    if (!this.enabled) return;
+    const latest = this.getLatestVersion(itemId);
+    if (latest.op === 'deleted') return; // no-op
+
+    if (type === CollectionItemType.document) {
+      // if has pages, mark them as deleted too
+      if (latest.pageVersionsArrayJson?.length || 0 > 0) {
+        latest.pageVersionsArrayJson?.forEach(pv => {
+          const latestPageVersion = this.getLatestVersion(pv.itemId);
+          if (latestPageVersion.op !== 'deleted') {
+            this.duplicateSingleVersion(latestPageVersion, 'deleted');
+          }
+        });
+        latest.pageVersionsArrayJson = [];
+      }
+      this.duplicateSingleVersion(latest, 'deleted');
+    }
+    if (type === CollectionItemType.page) {
+      const latestDoc = this.getLatestVersion(parentId);
+      if (latestDoc.op === 'deleted') return; // no-op
+      // if doc still exists, create new version
+      if (collectionService.itemExists(parentId)) {
+        this.saveVersionSync(parentId, [itemId]);
+      }
+      this.duplicateSingleVersion(latest, 'deleted');
     }
   }
 
@@ -645,6 +714,7 @@ class CollectionHistoryService {
       clearTimeout(t);
       this.saveVersionSync(id);
     });
+    this.cache.clear();
     this.timeouts.clear();
   }
 
@@ -654,6 +724,20 @@ class CollectionHistoryService {
     const result = callback();
     this.enabled = true;
     return result;
+  }
+
+  public updateAfterSync(ch: AfterSyncHistChange) {
+    if (ch.change !== LocalChangeType.delete) {
+      if (ch.type === CollectionItemType.document) {
+        historyService.saveWholeDocumentVersion(ch.id, true);
+      } else {
+        // is single page
+        // TODO and... mustn't be already updated by parent document?
+        historyService.addVersion(ch.id, true);
+      }
+    } else {
+      historyService.markLatestVersionDeleted(ch.type, ch.id, ch.parent);
+    }
   }
 }
 

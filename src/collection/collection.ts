@@ -128,7 +128,6 @@ export type CollectionItemVersionRow = {
   itemId: string;
   op: CollectionItemVersionOp;
   createdAt: number;
-  deletedAt: number;
   rank: number; // not ideal when created informs the order, but needed for the get latest pages query
   contentId: string;
   /** CollectionItemSnapshotData */
@@ -176,11 +175,23 @@ export type CollectionPageVersionData = {
   createdAt: number;
 };
 
+export const isDocument = (
+  item?:
+    | Pick<CollectionItem, 'type'>
+    | Pick<CollectionItemResult, 'type'>
+    | null
+) => item?.type === CollectionItemType.document;
+
+export const isPage = (
+  item?:
+    | Pick<CollectionItem, 'type'>
+    | Pick<CollectionItemResult, 'type'>
+    | null
+) => item?.type === CollectionItemType.page;
+
 export const isPageOrDocument = (
   item?:
     | Pick<CollectionItem, 'type'>
     | Pick<CollectionItemResult, 'type'>
     | null
-) =>
-  item?.type === CollectionItemType.document ||
-  item?.type === CollectionItemType.page;
+) => isDocument(item) || isPage(item);

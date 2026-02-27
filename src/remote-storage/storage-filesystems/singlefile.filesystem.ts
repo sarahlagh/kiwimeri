@@ -3,6 +3,7 @@ import {
   CollectionItemType,
   CollectionItemUpdatableConflictFields,
   CollectionItemUpdatableFieldEnum,
+  CollectionItemUpdateChangeFields,
   parseFieldMeta
 } from '@/collection/collection';
 import {
@@ -16,6 +17,7 @@ import {
   KIWIMERI_MODEL_VERSION,
   ROOT_COLLECTION
 } from '@/constants';
+import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/local-changes.service';
 import notebooksService from '@/db/notebooks.service';
 import { SpaceType, SpaceValues } from '@/db/types/space-types';
@@ -29,7 +31,7 @@ import userSettingsService from '@/db/user-settings.service';
 import { Row, Table } from 'tinybase/store';
 import { Content, getUniqueId } from 'tinybase/with-schemas';
 import {
-  AfterSyncChange,
+  AfterSyncHistChange,
   CloudStorageDriver,
   CloudStorageFilesystem,
   DriverFileInfo,
@@ -223,14 +225,14 @@ export class SingleFileStorage extends CloudStorageFilesystem {
     const newLocalInfo = newRemoteState.info as DriverFileInfo;
     const newLastRemoteChange = newRemoteState.lastRemoteChange || 0;
     const lastPulled = cachedRemoteInfo.lastPulled;
-    const changes: AfterSyncChange[] = [];
+    const changes: Map<string, AfterSyncHistChange> = new Map();
 
     if (!force && (!newLocalInfo || lastPulled >= newLastRemoteChange)) {
       console.debug('[pull] nothing to pull', newRemoteState);
       return {
         content: localContent,
         remoteInfo: cachedRemoteInfo,
-        changes
+        changes: [...changes.values()]
       };
     }
 
@@ -240,7 +242,7 @@ export class SingleFileStorage extends CloudStorageFilesystem {
     );
 
     const obj = this.deserialization(content);
-    const items = obj.i;
+    const remoteItems = obj.i;
     console.debug('[pull] content from file: u', obj.u);
     const localCollection = this.toMap<CollectionItem>(
       localContent[0].collection
@@ -254,17 +256,9 @@ export class SingleFileStorage extends CloudStorageFilesystem {
       { ...localContent[0], collection: {} }, // don't override history & history_content
       newValues
     ];
-    items.forEach(item => {
+    // fill-in new collection with remote content
+    remoteItems.forEach(item => {
       newLocalContent[0].collection![item.id!] = item;
-
-      // if new, add to changes
-      if (!localContent[0].collection![item.id!]) {
-        changes.push({
-          id: item.id!,
-          type: item.type,
-          change: LocalChangeType.add
-        });
-      }
     });
 
     if (!force && localChanges.length > 0) {
@@ -273,7 +267,6 @@ export class SingleFileStorage extends CloudStorageFilesystem {
         if (localChange.change === LocalChangeType.value) {
           continue;
         }
-
         const remoteUpdated = this.getRemoteUpdatedTS(
           localChange,
           newLocalContent[0].collection!,
@@ -285,7 +278,7 @@ export class SingleFileStorage extends CloudStorageFilesystem {
         if (localChange.change === LocalChangeType.add) {
           newLocalContent[0].collection![localChange.item] = localItem!;
 
-          // if local change on item is more recent than remote
+          // if local change on item is more recent than remote, local wins
         } else if (localChange.updated > remoteUpdated) {
           // if is update
           if (localChange.change === LocalChangeType.update) {
@@ -302,27 +295,15 @@ export class SingleFileStorage extends CloudStorageFilesystem {
                 `${field}_meta`
               ] = localItem![`${field}_meta`];
             }
-            changes.push({
-              id: localItem!.id!,
-              type: localItem!.type,
-              change: LocalChangeType.update,
-              field: localChange.field
-            });
           } else {
             // is delete
-            changes.push({
-              id: localChange.item,
-              type: newLocalContent[0].collection![localChange.item]
-                .type as CollectionItemType,
-              change: LocalChangeType.delete
-            });
             delete newLocalContent[0].collection![localChange.item];
           }
         } else {
           // if remote change on item is more recent than local
           // create conflict, only if item is not already a conflict and is a document or page
           // do not create conflict for folders and notebooks
-          if (this.createConflict(localChange, localItem)) {
+          if (this.shouldCreateConflict(localChange, localItem)) {
             const ts = Date.now();
             newLocalContent[0].collection![getUniqueId()] = {
               ...{ ...localItem, id: undefined },
@@ -331,12 +312,75 @@ export class SingleFileStorage extends CloudStorageFilesystem {
               updated: ts
             };
           }
-          // if no conflict, remote (last write) wins
         }
       }
 
       this.checkOrphans(newLocalContent[0].collection!);
     }
+
+    // detect historizable remote changes
+    const ids = new Set<string>([
+      ...Object.keys(newLocalContent[0].collection!),
+      ...Object.keys(localContent[0].collection!)
+    ]);
+    ids.forEach(id => {
+      const localChange = localChanges.find(lc => lc.item === id);
+      const newItem = newLocalContent[0].collection![id];
+      const oldItem = localCollection.get(id);
+      if (newItem && !newItem.conflict && !oldItem) {
+        const type = newItem.type as CollectionItemType;
+        // added by remote
+        changes.set(id, {
+          id,
+          type,
+          parent: newItem.parent as string,
+          change: LocalChangeType.add
+        });
+      } else if (
+        !newItem &&
+        oldItem &&
+        localChange?.change !== LocalChangeType.add
+      ) {
+        // deleted by remote
+        changes.set(id, {
+          id,
+          type: oldItem.type as CollectionItemType,
+          parent: oldItem.parent as string,
+          change: LocalChangeType.delete
+        });
+      } else if (newItem && oldItem) {
+        const type = newItem.type as CollectionItemType;
+        const historizableFields = [
+          ...CollectionItemUpdateChangeFields,
+          'order' as CollectionItemUpdatableFieldEnum
+        ]
+          .filter(field =>
+            collectionService.isHistorizableContentChange(type, field)
+          )
+          .filter(field => localChange?.field !== field);
+
+        // no local change, remote change on hist field                 => new version
+        // no local change, remote change on non hist field             => no new version
+        // local change, no remote change                               => no new version
+        // local change, remote change on hist field, local wins        => no new version
+        // local change, remote change on hist field, remote wins       => new version
+        // local change, remote change on non hist field, local wins    => no new version
+        // local change, remote change on non hist field, remote wins   => no new version
+        for (const field of historizableFields) {
+          // only create change for the first field
+          // if local wins, mustn't have new version - won't happen if no local change
+          if (oldItem[field] !== newItem[field]) {
+            changes.set(id, {
+              id,
+              type,
+              parent: newItem.parent as string,
+              change: LocalChangeType.update
+            });
+            break;
+          }
+        }
+      }
+    });
 
     console.debug('[pull] newLocalInfo', newLocalInfo);
     console.debug('[pull] cachedRemoteInfo', cachedRemoteInfo);
@@ -349,7 +393,7 @@ export class SingleFileStorage extends CloudStorageFilesystem {
         ...cachedRemoteInfo,
         ...newRemoteState
       },
-      changes
+      changes: [...changes.values()]
     };
   }
 
@@ -357,7 +401,7 @@ export class SingleFileStorage extends CloudStorageFilesystem {
     this.driver.close();
   }
 
-  private createConflict(
+  private shouldCreateConflict(
     localChange: LocalChange,
     localItem: CollectionItem | undefined
   ) {
@@ -373,21 +417,21 @@ export class SingleFileStorage extends CloudStorageFilesystem {
 
   private getRemoteUpdatedTS(
     localChange: LocalChange,
-    collection: Table,
+    remoteCollection: Table,
     remoteContentUpdated?: number
   ) {
     // remoteUpdated is the 'updated' ts on the remote item, OR the collection updated ts if the item is deleted
-    let remoteUpdated = collection[localChange.item]
-      ? (collection[localChange.item].updated as number)
+    let remoteUpdated = remoteCollection[localChange.item]
+      ? (remoteCollection[localChange.item].updated as number)
       : remoteContentUpdated || 0;
     console.debug('[pull] handling local change', localChange, remoteUpdated);
 
-    // but if item still exists on remote, and but its field doesn't, and it's an update, only take the meta ts
+    // but if item exists on remote, and it's an update, only take the meta ts
     if (
       localChange.change === LocalChangeType.update &&
-      collection[localChange.item]
+      remoteCollection[localChange.item]
     ) {
-      const meta = collection[localChange.item][
+      const meta = remoteCollection[localChange.item][
         `${localChange.field as CollectionItemUpdatableFieldEnum}_meta`
       ] as string;
       if (meta) {
@@ -415,6 +459,7 @@ export class SingleFileStorage extends CloudStorageFilesystem {
       }
 
       // if parent doesn't exist, put the item in conflicts notebook
+      // TODO check if parent is allowed too (page under doc, etc.)
       console.debug('orphan detected', id, item.title);
       this.createConflictsNotebookIfNeeded(newCollectionAfterPull);
       newCollectionAfterPull[id].parent = CONFLICTS_NOTEBOOK_ID;

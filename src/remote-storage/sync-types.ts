@@ -1,7 +1,4 @@
-import {
-  CollectionItem,
-  CollectionItemUpdatableFieldEnum
-} from '@/collection/collection';
+import { CollectionItem } from '@/collection/collection';
 import { SpaceType } from '@/db/types/space-types';
 import {
   LocalChange,
@@ -25,9 +22,11 @@ export type DriverFileInfo = {
   size?: number;
 };
 
-export type AfterSyncChange = Pick<Required<CollectionItem>, 'id' | 'type'> & {
+export type AfterSyncHistChange = Pick<
+  Required<CollectionItem>,
+  'id' | 'type' | 'parent'
+> & {
   change: LocalChangeType;
-  field?: CollectionItemUpdatableFieldEnum;
 };
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -54,7 +53,7 @@ export abstract class CloudStorageFilesystem {
     force?: boolean
   ): Promise<{
     content?: Content<SpaceType>;
-    changes: AfterSyncChange[];
+    changes: AfterSyncHistChange[];
     remoteInfo: RemoteInfo;
   }>;
 
