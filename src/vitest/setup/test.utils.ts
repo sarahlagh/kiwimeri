@@ -120,7 +120,8 @@ export const ITEM_TYPES: ItemTypesType[] = [
 ];
 
 export const NON_NOTEBOOK_ITEM_TYPES: ItemTypesType[] = ITEM_TYPES.filter(
-  i => i.type !== 'notebook'
+  // i => i.type === 'page'
+  i => i.type !== 'notebook' // TODO revert
 );
 
 export type ValueType = 'id' | 'string' | 'lex' | 'json' | 'number' | 'boolean';
@@ -283,13 +284,19 @@ export const setLocalItemField = (
   field: string,
   newValue: SerializableData
 ) => {
-  if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
-  collectionService.setItemField(
-    rowId,
-    field as CollectionItemUpdatableFieldEnum,
-    newValue
-  );
-  if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
+  adv(() => {
+    collectionService.setItemField(
+      rowId,
+      field as CollectionItemUpdatableFieldEnum,
+      newValue
+    );
+  });
+};
+
+export const adv = (cb: () => void, delay = fakeTimersDelay) => {
+  if (vi.isFakeTimers()) vi.advanceTimersByTime(delay);
+  cb();
+  if (vi.isFakeTimers()) vi.advanceTimersByTime(delay);
 };
 
 export const updateOnRemote = (
@@ -362,3 +369,51 @@ export const expectHasLocalItemConflict = (
 
 export const getDocsFolders = (items: CollectionItem[]) =>
   items.filter(i => i.type !== CollectionItemType.notebook);
+
+export const createLocalItem = (
+  data: Partial<CollectionItem>,
+  ids = new Map<string, string>()
+) => {
+  const createItem = (item: CollectionItem, data: Partial<CollectionItem>) => {
+    item.title = data.title!;
+    if (data.id) {
+      ids.set(data.id, item.id!);
+    }
+    if (data.parent) {
+      item.parent = data.parent.startsWith('#')
+        ? ids.get(data.parent)!
+        : data.parent;
+    }
+    return item;
+  };
+  if (data.type === CollectionItemType.document) {
+    const { item, id } = collectionService.getNewDocumentObj(data.parent!);
+    return createItem({ ...item, id }, data);
+  } else if (data.type === CollectionItemType.page) {
+    const { item, id } = collectionService.getNewPageObj(data.parent!);
+    return createItem({ ...item, id, title: '', title_meta: '' }, data);
+  } else if (data.type === CollectionItemType.folder) {
+    const { item, id } = collectionService.getNewFolderObj(data.parent!);
+    return createItem({ ...item, id }, data);
+  } else if (data.type === CollectionItemType.notebook) {
+    const { item, id } = notebooksService.getNewNotebookObj(
+      data.parent!,
+      data.title
+    );
+    return createItem({ ...item, id }, data);
+  }
+  throw new Error('unsupported type in test: ' + data.type);
+};
+
+export const createInitLocalData = (initData: Partial<CollectionItem>[]) => {
+  const ids = new Map<string, string>();
+
+  const initialItems: CollectionItem[] = initData.map(data =>
+    createLocalItem(data, ids)
+  );
+  console.debug('initial items', initialItems);
+  if (initialItems.length > 0) {
+    collectionService.saveItems(initialItems, DEFAULT_NOTEBOOK_ID);
+  }
+  return { ids, initialItems };
+};

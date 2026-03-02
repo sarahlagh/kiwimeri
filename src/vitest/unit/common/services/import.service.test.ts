@@ -18,7 +18,10 @@ import storageService from '@/db/storage.service';
 import { LocalChangeType } from '@/db/types/store-types';
 import userSettingsService from '@/db/user-settings.service';
 import formatConverter from '@/format-conversion/format-converter.service';
-import { getLocalItemField } from '@/vitest/setup/test.utils';
+import {
+  createInitLocalData,
+  getLocalItemField
+} from '@/vitest/setup/test.utils';
 import { readFile } from 'fs/promises';
 import { it, vi } from 'vitest';
 
@@ -54,48 +57,6 @@ const readZip = async (
   const zipBuffer: ArrayBuffer = new Uint8Array(zip).buffer;
   const unzipped = await importService.readZip(zipBuffer);
   return importService.parseZipData(zipName, unzipped, opts);
-};
-
-const createInitData = (initData: Partial<CollectionItem>[]) => {
-  const ids = new Map<string, string>();
-
-  const createItem = (item: CollectionItem, data: Partial<CollectionItem>) => {
-    item.title = data.title!;
-    if (data.id) {
-      ids.set(data.id, item.id!);
-    }
-    if (data.parent) {
-      item.parent = data.parent.startsWith('#')
-        ? ids.get(data.parent)!
-        : data.parent;
-    }
-    return item;
-  };
-
-  const initialItems: CollectionItem[] = initData.map(data => {
-    if (data.type === CollectionItemType.document) {
-      const { item, id } = collectionService.getNewDocumentObj(data.parent!);
-      return createItem({ ...item, id }, data);
-    } else if (data.type === CollectionItemType.page) {
-      const { item, id } = collectionService.getNewPageObj(data.parent!);
-      return createItem({ ...item, id, title: '', title_meta: '' }, data);
-    } else if (data.type === CollectionItemType.folder) {
-      const { item, id } = collectionService.getNewFolderObj(data.parent!);
-      return createItem({ ...item, id }, data);
-    } else if (data.type === CollectionItemType.notebook) {
-      const { item, id } = notebooksService.getNewNotebookObj(
-        data.parent!,
-        data.title
-      );
-      return createItem({ ...item, id }, data);
-    }
-    throw new Error('unsupported type in test: ' + data.type);
-  });
-  console.debug('initial items', initialItems);
-  if (initialItems.length > 0) {
-    collectionService.saveItems(initialItems, DEFAULT_NOTEBOOK_ID);
-  }
-  return { ids, initialItems };
 };
 
 describe('import service', () => {
@@ -613,7 +574,7 @@ describe('import service', () => {
 
                           const creationTs = Date.now();
                           const { ids: initDataIds, initialItems } =
-                            createInitData(testCase.initData);
+                            createInitLocalData(testCase.initData);
 
                           localChangesService.clear();
                           vi.advanceTimersByTime(5000);
