@@ -2,9 +2,11 @@
 
 import { CollectionItemType } from '@/collection/collection';
 import { LocalChangeType } from '@/db/types/store-types';
+import { oneNotebook } from '@/vitest/setup/test.utils';
 import { it } from 'vitest';
 import { PullTestScenario, PullTestScenarioRunner } from './scenario-runner';
 import {
+  reInitRemoteData,
   syncService_pull,
   testSyncAfterEach,
   testSyncBeforeEach
@@ -17,7 +19,7 @@ const scenarioMatrix: {
   };
 } = {
   // should cover single pull only
-  // TODO: also, force pull
+  // also, force pull
   itemAdded: {
     label: '[item-added]',
     scenarios: [
@@ -30,11 +32,15 @@ const scenarioMatrix: {
             where: 'local'
           }
         ],
+        testForcePull: true,
         endStats: b =>
           b
             .theItem({ exists: true, hasConflict: false })
             .ifPage()
             .itsParent({ hasVersions: 2 })
+            .ifForce()
+            .theItem({ exists: false })
+            .itsParent({ exists: false })
       },
       {
         description:
@@ -45,27 +51,24 @@ const scenarioMatrix: {
             where: 'remote'
           }
         ],
+        testForcePull: true,
         endStats: b => b.theItem({ exists: true, hasConflict: false }) // even if page, parent doc has 1 version
-
-        // TODO do we need to write the number of versions for each scenario though? could have default values
       }
       // ...generateForFields...
     ]
   }
 };
 
+const allTypes = [
+  { type: CollectionItemType.document, typeName: 'document' },
+  { type: CollectionItemType.page, typeName: 'page' },
+  { type: CollectionItemType.folder, typeName: 'folder' },
+  { type: CollectionItemType.notebook, typeName: 'notebook' }
+];
+
 describe('on pull operation tests', () => {
   beforeEach(testSyncBeforeEach);
   afterEach(testSyncAfterEach);
-
-  const allTypes = [
-    { type: CollectionItemType.folder, typeName: 'folder' },
-    { type: CollectionItemType.document, typeName: 'document' },
-    { type: CollectionItemType.page, typeName: 'page' },
-    { type: CollectionItemType.notebook, typeName: 'notebook' }
-  ];
-
-  // TODO create test builder object which keeps map of created objects, builds real items to send to createInitLocalData & reInitRemoteData, etc.
 
   Object.keys(scenarioMatrix).forEach(key => {
     const category = scenarioMatrix[key];
@@ -100,5 +103,52 @@ describe('on pull operation tests', () => {
     });
   });
 
-  // TODO 'with children' tests after
+  // 'with children' tests after
+});
+
+describe('on force pull operation tests', () => {
+  beforeEach(testSyncBeforeEach);
+  beforeEach(() => {
+    reInitRemoteData([oneNotebook()]);
+  });
+  afterEach(testSyncAfterEach);
+
+  Object.keys(scenarioMatrix).forEach(key => {
+    const category = scenarioMatrix[key];
+    describe(`${category.label}`, () => {
+      allTypes.forEach(({ type, typeName }) => {
+        describe(`changes on a single ${typeName}`, () => {
+          category.scenarios
+            .filter(s => s.testForcePull)
+            .forEach(scenario => {
+              const desc = scenario.description.replaceAll('item', typeName);
+              const skip =
+                scenario.skip !== undefined ? scenario.skip(type) : false;
+
+              if (
+                !scenario.types ||
+                scenario.types.find(t => t === type) ||
+                skip
+              ) {
+                it(`Force Pull: ${desc}`, async () => {
+                  const runner = new PullTestScenarioRunner(
+                    scenario,
+                    type,
+                    true
+                  )
+                    .withLocalData()
+                    .withRemoteData()
+                    .applyTestChangesInOrder();
+                  // pull
+                  await syncService_pull(true);
+                  // assert stats
+                  runner.assertStats();
+                  runner.assertHistoryStats();
+                });
+              }
+            });
+        });
+      });
+    });
+  });
 });

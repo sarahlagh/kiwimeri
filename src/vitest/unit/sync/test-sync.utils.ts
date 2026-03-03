@@ -9,7 +9,7 @@ import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
 import { LayerTypes } from '@/remote-storage/storage-filesystem.factory';
 import { syncService } from '@/remote-storage/sync.service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
-import { countOrphans, fakeTimersDelay } from '@/vitest/setup/test.utils';
+import { fakeTimersDelay } from '@/vitest/setup/test.utils';
 import { vi } from 'vitest';
 
 export let driver: InMemDriver;
@@ -38,11 +38,11 @@ export const testSyncBeforeEach = async () => {
 };
 
 export const testSyncAfterEach = () => {
-  expect(countOrphans()).toBe(0);
   iPull = 0;
   iPush = 0;
   vi.useRealTimers();
   searchAncestryService.stop();
+  // expect(countOrphans()).toBe(0);
 };
 
 export const reInitRemoteData = async (

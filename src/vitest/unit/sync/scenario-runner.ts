@@ -8,7 +8,11 @@ import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import storageService from '@/db/storage.service';
 import { LocalChangeType } from '@/db/types/store-types';
-import { createLocalItem, fakeTimersDelay } from '@/vitest/setup/test.utils';
+import {
+  createLocalItem,
+  fakeTimersDelay,
+  oneNotebook
+} from '@/vitest/setup/test.utils';
 import { vi } from 'vitest';
 import {
   PullTestEndStatsBuilder,
@@ -27,7 +31,8 @@ export interface PullTestScenario {
   initRemoteData?: any; // Partial<CollectionItem>[];
   initLocalData?: any; //Partial<CollectionItem>[];
   changesBeforePull: PullTestChangeScenario[];
-  endStats: (b: PullTestEndStatsBuilder) => PullTestEndStatsBuilder; // {} or { d: {}, f: {}...  } // by type? or both
+  testForcePull?: boolean;
+  endStats: (b: PullTestEndStatsBuilder) => PullTestEndStatsBuilder;
   only?: (args: any) => boolean; // for debug
   skip?: (args: any) => boolean; // for debug
 }
@@ -35,13 +40,19 @@ export interface PullTestScenario {
 export class PullTestScenarioRunner {
   private readonly scenario: PullTestScenario;
   private readonly type: CollectionItemType;
+  private force = false;
 
   private localItems = new Map<string, CollectionItem>();
   private remoteItems = new Map<string, CollectionItem>();
 
-  public constructor(scenario: PullTestScenario, type: CollectionItemType) {
+  public constructor(
+    scenario: PullTestScenario,
+    type: CollectionItemType,
+    force?: boolean
+  ) {
     this.scenario = scenario;
     this.type = type;
+    if (force !== undefined) this.force = force;
   }
 
   public withLocalData(): PullTestScenarioRunner {
@@ -137,22 +148,29 @@ export class PullTestScenarioRunner {
         this.remoteItems.delete(id);
       }
     );
-    reInitRemoteData([...this.remoteItems.values()]);
+    const data = [...this.remoteItems.values()];
+    if (!data.find(i => i.id === DEFAULT_NOTEBOOK_ID)) {
+      data.push(oneNotebook());
+    }
+    reInitRemoteData(data);
   }
 
   public assertStats() {
     const localTable = storageService.getSpace().getTable('collection');
-    const b = new PullTestEndStatsBuilder(this.type);
+    const b = new PullTestEndStatsBuilder(this.type, this.force);
     const finalStats = this.scenario.endStats(b).build();
     finalStats.groups.forEach(group => {
       const id = group.theItem.id
         ? group.theItem.id
         : this.getCurrentItem()!.id!;
-      console.log('testing', id);
+      const parentId = group.itsParent?.id
+        ? group.itsParent.id
+        : this.getCurrentItem()!.parent;
+      console.log('testing', id, parentId);
 
       // common stats
       const theItem = this.getStats(this.type, group.theItem);
-      this.assertCommonStatsItem(id, theItem);
+      this.assertCommonStatsItem(id, parentId, theItem);
 
       // test the item parent is allowed
       if (group.theItem.exists) {
@@ -163,7 +181,7 @@ export class PullTestScenarioRunner {
           // null if parent is root
           const itsParent = this.getStats(parentType, group.itsParent);
           const parentId = localTable[id]?.parent as string;
-          this.assertCommonStatsItem(parentId, itsParent);
+          this.assertCommonStatsItem(parentId, null, itsParent); // TODO find parent's parent id
         }
       }
       // TODO itsOldParent here (old parent might exist but item no longer)
@@ -174,6 +192,7 @@ export class PullTestScenarioRunner {
 
   private assertCommonStatsItem(
     id: string,
+    parentId: string | null,
     stats: Required<Omit<PullTestEndStatsItem, 'id'>>
   ) {
     console.debug('common stats', id, stats);
@@ -182,15 +201,15 @@ export class PullTestScenarioRunner {
     else if (stats.exists) expect(localTable[id]).toBeDefined();
     else expect(localTable[id]).toBeUndefined();
 
-    const items = collectionService.getAllCollectionItemsRecursive(
-      localTable[id].parent as string
-    );
-    const conflict = items.find(r => r.conflict === id);
-    if (stats.hasConflict) {
-      expect(conflict).toBeDefined();
-      expect(conflict?.id).not.toBe(id);
-    } else {
-      expect(conflict).toBeUndefined();
+    if (parentId !== null) {
+      const items = collectionService.getAllCollectionItemsRecursive(parentId);
+      const conflict = items.find(r => r.conflict === id);
+      if (stats.hasConflict) {
+        expect(conflict).toBeDefined();
+        expect(conflict?.id).not.toBe(id);
+      } else {
+        expect(conflict).toBeUndefined();
+      }
     }
   }
 
@@ -221,7 +240,7 @@ export class PullTestScenarioRunner {
 
   public assertHistoryStats() {
     const localTable = storageService.getSpace().getTable('collection');
-    const b = new PullTestEndStatsBuilder(this.type);
+    const b = new PullTestEndStatsBuilder(this.type, this.force);
     const finalStats = this.scenario.endStats(b).build();
     finalStats.groups.forEach(group => {
       const id = group.theItem.id

@@ -25,13 +25,15 @@ export interface PullTestEndStats {
 }
 
 export class PullTestEndStatsBuilder {
+  private force = false;
   private type: CollectionItemType;
   private items: PullTestEndStatsItemGroup[] = [];
   private idx = -1;
   private skip = false;
 
-  public constructor(type: CollectionItemType) {
+  public constructor(type: CollectionItemType, force?: boolean) {
     this.type = type;
+    if (force !== undefined) this.force = force;
   }
   public theItem(item: PullTestEndStatsItem) {
     if (this.skip) return this;
@@ -39,7 +41,8 @@ export class PullTestEndStatsBuilder {
     if (this.items.length <= this.idx) {
       this.items.push({ theItem: {} });
     }
-    this.items[this.idx].theItem = { ...item };
+    const currentItem = this.items[this.idx].theItem || {};
+    this.items[this.idx].theItem = { ...currentItem, ...item };
     return this;
   }
   public itsParent(item: Partial<PullTestEndStatsItem>) {
@@ -48,7 +51,17 @@ export class PullTestEndStatsBuilder {
     if (this.items.length <= this.idx) {
       throw new Error('error in stats builder: must select an active item');
     } else {
-      this.items[this.idx].itsParent = { ...item };
+      const currentItem = this.items[this.idx].itsParent || {};
+      this.items[this.idx].itsParent = { ...currentItem, ...item };
+    }
+    return this;
+  }
+  public ifForce() {
+    if (this.force === true) {
+      this.idx = -1;
+      this.skip = false;
+    } else {
+      this.skip = true;
     }
     return this;
   }
@@ -61,6 +74,7 @@ export class PullTestEndStatsBuilder {
   private ifType(type: CollectionItemType) {
     if (this.type === type) {
       this.idx = -1;
+      this.skip = false;
     } else {
       this.skip = true;
     }
@@ -141,5 +155,29 @@ describe(`test stats builder`, () => {
     expect(example.groups[0].itsParent?.hasVersions).toBe(2);
     expect(example.groups[1].theItem).toBeDefined();
     expect(example.groups[1].itsParent).toBeDefined();
+  });
+
+  it(`should build stats with force override`, () => {
+    const statsBuilder = new PullTestEndStatsBuilder(
+      CollectionItemType.document,
+      true
+    );
+    const example = statsBuilder
+      .theItem({ exists: true, hasConflict: false })
+      .itsParent({ hasVersions: 1 })
+      .ifPage()
+      .itsParent({ hasVersions: 2 })
+      .ifForce()
+      .theItem({ exists: false })
+      .itsParent({ exists: false })
+      .build();
+
+    console.debug(example);
+    expect(example.groups).toHaveLength(1);
+    expect(example.groups[0].theItem).toBeDefined();
+    expect(example.groups[0].theItem.exists).toBe(false);
+    expect(example.groups[0].itsParent).toBeDefined();
+    expect(example.groups[0].itsParent?.exists).toBe(false);
+    expect(example.groups[0].itsParent?.hasVersions).toBe(1);
   });
 });

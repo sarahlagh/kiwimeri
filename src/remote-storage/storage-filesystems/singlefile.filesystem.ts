@@ -324,6 +324,7 @@ export class SingleFileStorage extends CloudStorageFilesystem {
       ...Object.keys(localContent[0].collection!)
     ]);
     ids.forEach(id => {
+      // TODO how do we handle local changes when force full?
       const localChange = localChanges.find(lc => lc.item === id);
       const newItem = newLocalContent[0].collection![id];
       const oldItem = localCollection.get(id);
