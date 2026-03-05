@@ -340,7 +340,7 @@ export class SingleFileStorage extends CloudStorageFilesystem {
       } else if (
         !newItem &&
         oldItem &&
-        localChange?.change !== LocalChangeType.add
+        (force || localChange?.change !== LocalChangeType.add)
       ) {
         // deleted by remote
         changes.set(id, {

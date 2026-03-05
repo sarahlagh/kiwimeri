@@ -16,11 +16,14 @@ import {
 import { vi } from 'vitest';
 import {
   PullTestEndStatsBuilder,
-  PullTestEndStatsItem
+  PullTestEndStatsItem,
+  RelevantItem
 } from './scenario-stats-builder.test';
 import { reInitRemoteData } from './test-sync.utils';
 
 interface PullTestChangeScenario {
+  id?: string;
+  // parentId?: string; // TODO
   change: LocalChangeType;
   where: 'local' | 'remote';
 }
@@ -37,13 +40,17 @@ export interface PullTestScenario {
   skip?: (args: any) => boolean; // for debug
 }
 
+type MinStatItem = Required<
+  Omit<PullTestEndStatsItem, 'id' | 'parent' | 'type'>
+>;
+
 export class PullTestScenarioRunner {
   private readonly scenario: PullTestScenario;
   private readonly type: CollectionItemType;
   private force = false;
 
-  private localItems = new Map<string, CollectionItem>();
   private remoteItems = new Map<string, CollectionItem>();
+  private relevantItems: RelevantItem[] = [];
 
   public constructor(
     scenario: PullTestScenario,
@@ -78,7 +85,7 @@ export class PullTestScenarioRunner {
 
   private applyTestChange(
     ch: PullTestChangeScenario,
-    saveFunc: (item: CollectionItem) => string,
+    saveFunc: (item: CollectionItem & { id: string }) => void,
     deleteFunc: (id: string) => void
   ) {
     const type = this.type;
@@ -86,6 +93,8 @@ export class PullTestScenarioRunner {
       case LocalChangeType.add:
         {
           let parent = DEFAULT_NOTEBOOK_ID;
+          let parentType = CollectionItemType.notebook;
+          const parentParent = ROOT_COLLECTION;
           if (type === CollectionItemType.notebook) {
             parent = ROOT_COLLECTION;
           } else if (type === CollectionItemType.page) {
@@ -94,19 +103,32 @@ export class PullTestScenarioRunner {
               type: CollectionItemType.document,
               parent
             });
-            parent = saveFunc(parentDoc);
+            parent = parentDoc.id!;
+            parentType = CollectionItemType.document;
+            saveFunc({ ...parentDoc, id: parent });
           }
           const item = createLocalItem({ type, parent });
-          saveFunc(item);
+          saveFunc({ ...item, id: ch.id || item.id! });
+          this.relevantItems.push({
+            id: ch.id || item.id!,
+            type: item.type as CollectionItemType,
+            parentId: parent,
+            parentType,
+            parentParentId: parentParent,
+            where: ch.where
+          });
         }
         break;
       case LocalChangeType.update:
         break;
       case LocalChangeType.delete:
         {
-          const item = this.getCurrentItem();
-          if (!item) throw new Error('unable to find current item');
-          deleteFunc(item.id!);
+          if (!ch.id && this.relevantItems.length !== 1) {
+            throw new Error(
+              'on delete change id is mandatory if 0 or >1 relevant items '
+            );
+          }
+          deleteFunc(ch.id || this.relevantItems[0].id);
         }
         break;
       // TODO values
@@ -118,18 +140,12 @@ export class PullTestScenarioRunner {
       ch,
       // save func
       item => {
-        const id = collectionService.saveItem(
-          item,
-          item.id,
-          DEFAULT_NOTEBOOK_ID
-        );
-        this.localItems.set(id, item);
-        return id;
+        collectionService.saveItem(item, item.id, DEFAULT_NOTEBOOK_ID);
+        return item.id;
       },
       // delete func
       id => {
         collectionService.deleteItem(id);
-        this.localItems.delete(id);
       }
     );
     // TODO check versionning is done
@@ -148,6 +164,7 @@ export class PullTestScenarioRunner {
         this.remoteItems.delete(id);
       }
     );
+    // const data
     const data = [...this.remoteItems.values()];
     if (!data.find(i => i.id === DEFAULT_NOTEBOOK_ID)) {
       data.push(oneNotebook());
@@ -156,33 +173,31 @@ export class PullTestScenarioRunner {
   }
 
   public assertStats() {
-    const localTable = storageService.getSpace().getTable('collection');
     const b = new PullTestEndStatsBuilder(this.type, this.force);
-    const finalStats = this.scenario.endStats(b).build();
+    const finalStats = this.scenario.endStats(b).build(this.relevantItems);
     finalStats.groups.forEach(group => {
-      const id = group.theItem.id
-        ? group.theItem.id
-        : this.getCurrentItem()!.id!;
-      const parentId = group.itsParent?.id
-        ? group.itsParent.id
-        : this.getCurrentItem()!.parent;
-      console.log('testing', id, parentId);
+      const id = group.theItem.id!;
+      const itemType = group.theItem.type!;
+      const parentId = group.itsParent!.id!;
+      const parentType = group.itsParent!.type!;
 
       // common stats
       const theItem = this.getStats(this.type, group.theItem);
-      this.assertCommonStatsItem(id, parentId, theItem);
+      this.assertCommonStatsItem(id, parentId, itemType, theItem);
 
       // test the item parent is allowed
       if (group.theItem.exists) {
-        const parentType = this.assertParentIsAllowed(
-          localTable[id] as CollectionItem
+        this.assertParentIsAllowed(parentId, itemType, parentType);
+      }
+
+      if (parentId !== ROOT_COLLECTION) {
+        const itsParent = this.getStats(parentType, group.itsParent);
+        this.assertCommonStatsItem(
+          parentId,
+          group.itsParent.parent!,
+          parentType,
+          itsParent
         );
-        if (parentType !== null) {
-          // null if parent is root
-          const itsParent = this.getStats(parentType, group.itsParent);
-          const parentId = localTable[id]?.parent as string;
-          this.assertCommonStatsItem(parentId, null, itsParent); // TODO find parent's parent id
-        }
       }
       // TODO itsOldParent here (old parent might exist but item no longer)
     });
@@ -192,99 +207,91 @@ export class PullTestScenarioRunner {
 
   private assertCommonStatsItem(
     id: string,
-    parentId: string | null,
-    stats: Required<Omit<PullTestEndStatsItem, 'id'>>
+    parentId: string,
+    type: CollectionItemType,
+    stats: MinStatItem
   ) {
     console.debug('common stats', id, stats);
     const localTable = storageService.getSpace().getTable('collection');
-    if (id === ROOT_COLLECTION) expect(localTable[id]).toBeUndefined();
-    else if (stats.exists) expect(localTable[id]).toBeDefined();
-    else expect(localTable[id]).toBeUndefined();
 
-    if (parentId !== null) {
-      const items = collectionService.getAllCollectionItemsRecursive(parentId);
-      const conflict = items.find(r => r.conflict === id);
-      if (stats.hasConflict) {
-        expect(conflict).toBeDefined();
-        expect(conflict?.id).not.toBe(id);
-      } else {
-        expect(conflict).toBeUndefined();
-      }
+    if (stats.exists) {
+      expect(localTable[id]).toBeDefined();
+      const itemType = localTable[id]?.type?.toString();
+      expect(itemType).toBe(type);
+    } else {
+      expect(localTable[id]).toBeUndefined();
+    }
+
+    const items = collectionService.getAllCollectionItemsRecursive(parentId);
+    const conflict = items.find(r => r.conflict === id);
+    if (stats.hasConflict) {
+      expect(conflict).toBeDefined();
+      expect(conflict?.id).not.toBe(id);
+    } else {
+      expect(conflict).toBeUndefined();
     }
   }
 
   private assertParentIsAllowed(
-    item: CollectionItem
-  ): CollectionItemType | null {
-    const localTable = storageService.getSpace().getTable('collection');
-    if (item.type !== CollectionItemType.notebook) {
-      expect(item.parent).not.toBe(ROOT_COLLECTION);
-      switch (item.type) {
-        case CollectionItemType.document:
-        case CollectionItemType.folder:
-          expect(item.parent).toBe(DEFAULT_NOTEBOOK_ID); // TODO can change across tests
-          return CollectionItemType.notebook;
-        case CollectionItemType.page:
-          expect(item.parent).not.toBe(DEFAULT_NOTEBOOK_ID);
-          expect(localTable[item.parent]).toBeDefined();
-          expect(localTable[item.parent].type).toBe(
-            CollectionItemType.document
-          );
-          return CollectionItemType.document;
-      }
-    } else {
-      expect(item.parent).toBe(ROOT_COLLECTION);
+    parentId: string,
+    itemTypeAsString?: string,
+    parentTypeAsString?: string
+  ) {
+    const itemType = itemTypeAsString as CollectionItemType;
+    const parentType = parentTypeAsString as CollectionItemType;
+    switch (itemType) {
+      case CollectionItemType.document:
+        expect(parentId).toBe(DEFAULT_NOTEBOOK_ID); // TODO can change across tests
+        expect(parentType).toBe(CollectionItemType.notebook);
+        break;
+      case CollectionItemType.folder:
+        expect(parentId).toBe(DEFAULT_NOTEBOOK_ID); // TODO can change across tests
+        expect(parentType).toBe(CollectionItemType.notebook);
+        break;
+      case CollectionItemType.page:
+        expect(parentId).not.toBe(DEFAULT_NOTEBOOK_ID);
+        expect(parentType).toBe(CollectionItemType.document);
+        break;
+      case CollectionItemType.notebook:
+        expect(parentId).toBe(ROOT_COLLECTION);
+        expect(parentType).toBe(CollectionItemType.notebook);
+        break;
     }
-    return null;
   }
 
   public assertHistoryStats() {
-    const localTable = storageService.getSpace().getTable('collection');
     const b = new PullTestEndStatsBuilder(this.type, this.force);
-    const finalStats = this.scenario.endStats(b).build();
+    const finalStats = this.scenario.endStats(b).build(this.relevantItems);
     finalStats.groups.forEach(group => {
-      const id = group.theItem.id
-        ? group.theItem.id
-        : this.getCurrentItem()!.id!;
-      const parentId = group.itsParent?.id
-        ? group.itsParent.id
-        : this.getCurrentItem()!.parent;
+      const id = group.theItem.id!;
+      const parentId = group.itsParent.id!;
 
       const theItem = this.getStats(this.type, group.theItem);
       this.assertCommonHistoryStatsItem(id, theItem);
 
-      if (theItem.exists && parentId !== ROOT_COLLECTION) {
-        const parentType = localTable[parentId!].type as CollectionItemType;
+      if (parentId !== ROOT_COLLECTION) {
+        const parentType = group.itsParent.type as CollectionItemType;
         const itsParent = this.getStats(parentType, group.itsParent);
         this.assertCommonHistoryStatsItem(parentId!, itsParent);
       }
-      // TODO how do I find the parent if not exists?
     });
   }
 
-  private assertCommonHistoryStatsItem(
-    id: string,
-    stats: Required<Omit<PullTestEndStatsItem, 'id'>>
-  ) {
+  private assertCommonHistoryStatsItem(id: string, stats: MinStatItem) {
     const versions = historyService.getVersions(id);
+    for (let i = 0; i < stats.latestVersionsOp.length; i++) {
+      expect(versions[i].op).toBe(stats.latestVersionsOp[i]);
+    }
     expect(versions).toHaveLength(stats.hasVersions);
   }
 
-  private getCurrentItem() {
-    if (this.localItems.size > 0)
-      return [...this.localItems.values()].filter(i => i.type === this.type)[0]; // TODO
-    if (this.remoteItems.size > 0)
-      return [...this.remoteItems.values()].filter(
-        i => i.type === this.type
-      )[0]; // TODO
-    return null;
-  }
-
-  private getStats(type: CollectionItemType, values?: PullTestEndStatsItem) {
-    const defaultValues: Required<Omit<PullTestEndStatsItem, 'id'>> = {
+  private getStats(type: CollectionItemType, values: PullTestEndStatsItem) {
+    const hasContent = isPageOrDocument({ type });
+    const defaultValues: MinStatItem = {
       exists: true,
       hasConflict: false,
-      hasVersions: isPageOrDocument({ type }) ? 1 : 0
+      hasVersions: hasContent ? 1 : 0,
+      latestVersionsOp: hasContent ? ['snapshot'] : []
     };
     return { ...defaultValues, ...values };
   }

@@ -38,9 +38,27 @@ const scenarioMatrix: {
             .theItem({ exists: true, hasConflict: false })
             .ifPage()
             .itsParent({ hasVersions: 2 })
+            // force pull: item is deleted
             .ifForce()
             .theItem({ exists: false })
             .itsParent({ exists: false })
+            .ifForce('p')
+            .theItem({
+              hasVersions: 2,
+              latestVersionsOp: ['deleted', 'snapshot']
+            })
+            .itsParent({
+              hasVersions: 3,
+              latestVersionsOp: ['deleted', 'snapshot']
+            })
+            .ifForce('d')
+            .theItem({
+              hasVersions: 2,
+              latestVersionsOp: ['deleted', 'snapshot']
+            })
+            .itsParent({ exists: true }) // still exists because is default notebook!
+            .ifForce('f')
+            .itsParent({ exists: true })
       },
       {
         description:
@@ -70,57 +88,13 @@ describe('on pull operation tests', () => {
   beforeEach(testSyncBeforeEach);
   afterEach(testSyncAfterEach);
 
-  Object.keys(scenarioMatrix).forEach(key => {
-    const category = scenarioMatrix[key];
-    describe(`${category.label}`, () => {
-      allTypes.forEach(({ type, typeName }) => {
-        describe(`changes on a single ${typeName}`, () => {
-          category.scenarios.forEach(scenario => {
-            const desc = scenario.description.replaceAll('item', typeName);
-            const skip =
-              scenario.skip !== undefined ? scenario.skip(type) : false;
-
-            if (
-              !scenario.types ||
-              scenario.types.find(t => t === type) ||
-              skip
-            ) {
-              it(`Pull: ${desc}`, async () => {
-                const runner = new PullTestScenarioRunner(scenario, type)
-                  .withLocalData()
-                  .withRemoteData()
-                  .applyTestChangesInOrder();
-                // pull
-                await syncService_pull();
-                // assert stats
-                runner.assertStats();
-                runner.assertHistoryStats();
-              });
-            }
-          });
-        });
-      });
-    });
-  });
-
-  // 'with children' tests after
-});
-
-describe('on force pull operation tests', () => {
-  beforeEach(testSyncBeforeEach);
-  beforeEach(() => {
-    reInitRemoteData([oneNotebook()]);
-  });
-  afterEach(testSyncAfterEach);
-
-  Object.keys(scenarioMatrix).forEach(key => {
-    const category = scenarioMatrix[key];
-    describe(`${category.label}`, () => {
-      allTypes.forEach(({ type, typeName }) => {
-        describe(`changes on a single ${typeName}`, () => {
-          category.scenarios
-            .filter(s => s.testForcePull)
-            .forEach(scenario => {
+  describe(`simple/merge pull`, () => {
+    Object.keys(scenarioMatrix).forEach(key => {
+      const category = scenarioMatrix[key];
+      describe(`${category.label}`, () => {
+        allTypes.forEach(({ type, typeName }) => {
+          describe(`changes on a single ${typeName}`, () => {
+            category.scenarios.forEach(scenario => {
               const desc = scenario.description.replaceAll('item', typeName);
               const skip =
                 scenario.skip !== undefined ? scenario.skip(type) : false;
@@ -130,23 +104,66 @@ describe('on force pull operation tests', () => {
                 scenario.types.find(t => t === type) ||
                 skip
               ) {
-                it(`Force Pull: ${desc}`, async () => {
-                  const runner = new PullTestScenarioRunner(
-                    scenario,
-                    type,
-                    true
-                  )
+                it(`Pull: ${desc}`, async () => {
+                  const runner = new PullTestScenarioRunner(scenario, type)
                     .withLocalData()
                     .withRemoteData()
                     .applyTestChangesInOrder();
                   // pull
-                  await syncService_pull(true);
+                  await syncService_pull();
                   // assert stats
                   runner.assertStats();
                   runner.assertHistoryStats();
                 });
               }
             });
+          });
+        });
+      });
+    });
+    // 'with children' tests after
+  });
+
+  describe('force pull', () => {
+    beforeEach(() => {
+      reInitRemoteData([oneNotebook()]);
+    });
+
+    Object.keys(scenarioMatrix).forEach(key => {
+      const category = scenarioMatrix[key];
+      describe(`${category.label}`, () => {
+        allTypes.forEach(({ type, typeName }) => {
+          describe(`changes on a single ${typeName}`, () => {
+            category.scenarios
+              .filter(s => s.testForcePull)
+              .forEach(scenario => {
+                const desc = scenario.description.replaceAll('item', typeName);
+                const skip =
+                  scenario.skip !== undefined ? scenario.skip(type) : false;
+
+                if (
+                  !scenario.types ||
+                  scenario.types.find(t => t === type) ||
+                  skip
+                ) {
+                  it(`Force Pull: ${desc}`, async () => {
+                    const runner = new PullTestScenarioRunner(
+                      scenario,
+                      type,
+                      true
+                    )
+                      .withLocalData()
+                      .withRemoteData()
+                      .applyTestChangesInOrder();
+                    // pull
+                    await syncService_pull(true);
+                    // assert stats
+                    runner.assertStats();
+                    runner.assertHistoryStats();
+                  });
+                }
+              });
+          });
         });
       });
     });
