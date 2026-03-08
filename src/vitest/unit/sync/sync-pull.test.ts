@@ -1,6 +1,9 @@
 // out of scope: "what happens after conflict" or longer push pull sequences -> to other files
 
-import { CollectionItemType } from '@/collection/collection';
+import {
+  CollectionItemType,
+  CollectionItemTypeValues
+} from '@/collection/collection';
 import { LocalChangeType } from '@/db/types/store-types';
 import { oneNotebook } from '@/vitest/setup/test.utils';
 import { it } from 'vitest';
@@ -15,6 +18,8 @@ import {
 const scenarioMatrix: {
   [key: string]: {
     label: string;
+    types?: CollectionItemTypeValues[];
+    skip?: boolean;
     scenarios: PullTestScenario[];
   };
 } = {
@@ -32,7 +37,6 @@ const scenarioMatrix: {
             where: 'local'
           }
         ],
-        testForcePull: true,
         endStats: b =>
           b
             .theItem({ exists: true, hasConflict: false })
@@ -42,7 +46,7 @@ const scenarioMatrix: {
             .ifForce()
             .theItem({ exists: false })
             .itsParent({ exists: false })
-            .ifForce('p')
+            .ifPage()
             .theItem({
               hasVersions: 2,
               latestVersionsOp: ['deleted', 'snapshot']
@@ -51,13 +55,13 @@ const scenarioMatrix: {
               hasVersions: 3,
               latestVersionsOp: ['deleted', 'snapshot']
             })
-            .ifForce('d')
+            .ifDocument()
             .theItem({
               hasVersions: 2,
               latestVersionsOp: ['deleted', 'snapshot']
             })
             .itsParent({ exists: true }) // still exists because is default notebook!
-            .ifForce('f')
+            .ifFolder()
             .itsParent({ exists: true })
       },
       {
@@ -69,10 +73,93 @@ const scenarioMatrix: {
             where: 'remote'
           }
         ],
-        testForcePull: true,
         endStats: b => b.theItem({ exists: true, hasConflict: false }) // even if page, parent doc has 1 version
       }
       // ...generateForFields...
+    ]
+  },
+  itemDeletedLocally: {
+    label: '[item deleted locally]',
+    scenarios: [
+      {
+        description:
+          'item deleted locally, unchanged on remote → item stays deleted (local wins)',
+        initLocalData: [{ id: '#id' }],
+        initRemoteData: [{ id: '#id' }],
+        changesBeforePull: [
+          { id: '#id', change: LocalChangeType.delete, where: 'local' }
+        ],
+        endStats: b =>
+          b
+            .theItem({ exists: false })
+            .itsParent({ exists: true })
+            .ifDocument()
+            .theItem({
+              hasVersions: 2,
+              latestVersionsOp: ['deleted', 'snapshot']
+            })
+            .ifPage()
+            .theItem({
+              hasVersions: 2,
+              latestVersionsOp: ['deleted', 'snapshot']
+            })
+            .itsParent({
+              exists: true,
+              hasVersions: 3,
+              otherHistoryAssert: versions => {
+                expect(versions[0].pageVersionsArrayJson).toBeUndefined();
+                expect(versions[1].pageVersionsArrayJson).toHaveLength(1);
+              }
+            })
+            // if force pull, item pulled
+            .ifForce()
+            .theItem({ exists: true })
+            .ifDocument()
+            .theItem({
+              hasVersions: 3,
+              latestVersionsOp: ['snapshot', 'deleted', 'snapshot']
+            })
+            .ifPage()
+            .theItem({
+              hasVersions: 3,
+              latestVersionsOp: ['snapshot', 'deleted', 'snapshot']
+            })
+            .itsParent({
+              hasVersions: 4
+            })
+      },
+      {
+        description:
+          'item deleted locally, then deleted on remote → both win, item gone',
+        initLocalData: [{ id: '#id' }],
+        initRemoteData: [{ id: '#id' }],
+        changesBeforePull: [
+          { id: '#id', change: LocalChangeType.delete, where: 'local' },
+          { id: '#id', change: LocalChangeType.delete, where: 'remote' }
+        ],
+        endStats: b =>
+          b
+            .theItem({ exists: false })
+            .itsParent({ exists: true })
+            .ifDocument()
+            .theItem({
+              hasVersions: 2,
+              latestVersionsOp: ['deleted', 'snapshot']
+            })
+            .ifPage()
+            .theItem({
+              hasVersions: 2,
+              latestVersionsOp: ['deleted', 'snapshot']
+            })
+            .itsParent({
+              exists: true,
+              hasVersions: 3,
+              otherHistoryAssert: versions => {
+                expect(versions[0].pageVersionsArrayJson).toBeUndefined();
+                expect(versions[1].pageVersionsArrayJson).toHaveLength(1);
+              }
+            })
+      }
     ]
   }
 };
@@ -91,19 +178,19 @@ describe('on pull operation tests', () => {
   describe(`simple/merge pull`, () => {
     Object.keys(scenarioMatrix).forEach(key => {
       const category = scenarioMatrix[key];
+      if (category.skip === true) return;
       describe(`${category.label}`, () => {
         allTypes.forEach(({ type, typeName }) => {
+          if (category.types && !category.types.find(t => t === type)) {
+            return;
+          }
           describe(`changes on a single ${typeName}`, () => {
             category.scenarios.forEach(scenario => {
               const desc = scenario.description.replaceAll('item', typeName);
               const skip =
                 scenario.skip !== undefined ? scenario.skip(type) : false;
-
-              if (
-                !scenario.types ||
-                scenario.types.find(t => t === type) ||
-                skip
-              ) {
+              if (skip) return;
+              if (!scenario.types || scenario.types.find(t => t === type)) {
                 it(`Pull: ${desc}`, async () => {
                   const runner = new PullTestScenarioRunner(scenario, type)
                     .withLocalData()
@@ -131,21 +218,21 @@ describe('on pull operation tests', () => {
 
     Object.keys(scenarioMatrix).forEach(key => {
       const category = scenarioMatrix[key];
+      if (category.skip === true) return;
       describe(`${category.label}`, () => {
         allTypes.forEach(({ type, typeName }) => {
+          if (category.types?.find(t => t === type)) {
+            return;
+          }
           describe(`changes on a single ${typeName}`, () => {
             category.scenarios
-              .filter(s => s.testForcePull)
+              .filter(s => s.skipForcePull !== true)
               .forEach(scenario => {
                 const desc = scenario.description.replaceAll('item', typeName);
                 const skip =
                   scenario.skip !== undefined ? scenario.skip(type) : false;
-
-                if (
-                  !scenario.types ||
-                  scenario.types.find(t => t === type) ||
-                  skip
-                ) {
+                if (skip) return;
+                if (!scenario.types || scenario.types.find(t => t === type)) {
                   it(`Force Pull: ${desc}`, async () => {
                     const runner = new PullTestScenarioRunner(
                       scenario,

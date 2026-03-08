@@ -1,11 +1,13 @@
 import {
   CollectionItem,
   CollectionItemType,
+  CollectionItemTypeValues,
   isPageOrDocument
 } from '@/collection/collection';
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
+import localChangesService from '@/db/local-changes.service';
 import storageService from '@/db/storage.service';
 import { LocalChangeType } from '@/db/types/store-types';
 import {
@@ -28,13 +30,19 @@ interface PullTestChangeScenario {
   where: 'local' | 'remote';
 }
 
+type ItemData = {
+  id?: string;
+  // parent?: string;
+  // type?: CollectionItemTypeValues;
+};
+
 export interface PullTestScenario {
   description: string;
-  types?: CollectionItemType[];
-  initRemoteData?: any; // Partial<CollectionItem>[];
-  initLocalData?: any; //Partial<CollectionItem>[];
+  types?: CollectionItemTypeValues[];
+  initRemoteData?: ItemData[];
+  initLocalData?: ItemData[];
   changesBeforePull: PullTestChangeScenario[];
-  testForcePull?: boolean;
+  skipForcePull?: boolean;
   endStats: (b: PullTestEndStatsBuilder) => PullTestEndStatsBuilder;
   only?: (args: any) => boolean; // for debug
   skip?: (args: any) => boolean; // for debug
@@ -50,7 +58,7 @@ export class PullTestScenarioRunner {
   private force = false;
 
   private remoteItems = new Map<string, CollectionItem>();
-  private relevantItems: RelevantItem[] = [];
+  private relevantItems: RelevantItem[] = []; // = new Map<string, RelevantItem>();
 
   public constructor(
     scenario: PullTestScenario,
@@ -62,11 +70,30 @@ export class PullTestScenarioRunner {
     if (force !== undefined) this.force = force;
   }
 
+  // TODO if page, i create a parent, but the generated id won't be the same local and remote
+
   public withLocalData(): PullTestScenarioRunner {
+    if (!this.scenario.initLocalData) return this;
+    for (const data of this.scenario.initLocalData) {
+      this.applyTestChangeOnLocal({
+        change: LocalChangeType.add,
+        where: 'local',
+        id: data.id
+      });
+    }
+    localChangesService.clear();
     return this;
   }
 
   public withRemoteData(): PullTestScenarioRunner {
+    if (!this.scenario.initRemoteData) return this;
+    for (const data of this.scenario.initRemoteData) {
+      this.applyTestChangeOnRemote({
+        change: LocalChangeType.add,
+        where: 'remote',
+        id: data.id
+      });
+    }
     return this;
   }
 
@@ -89,34 +116,56 @@ export class PullTestScenarioRunner {
     deleteFunc: (id: string) => void
   ) {
     const type = this.type;
+
+    // TODO merge relevantItems on id, reuse parent?
+
     switch (ch.change) {
       case LocalChangeType.add:
         {
           let parent = DEFAULT_NOTEBOOK_ID;
           let parentType = CollectionItemType.notebook;
-          const parentParent = ROOT_COLLECTION;
-          if (type === CollectionItemType.notebook) {
+          let parentParent = ROOT_COLLECTION;
+
+          // if existing in local / remote data, merge ids
+          const relevantItem = this.relevantItems.find(i => i.id === ch.id);
+          if (relevantItem) {
+            parent = relevantItem.parentId;
+            parentType = relevantItem.parentType;
+            parentParent = relevantItem.parentParentId;
+          }
+          // if page and must create its doc on remote, the doc must have the same id as local...
+
+          if (type === CollectionItemType.notebook && !relevantItem) {
             parent = ROOT_COLLECTION;
           } else if (type === CollectionItemType.page) {
             // must create parent doc for page // TODO only if no doc in local data?
             const parentDoc = createLocalItem({
               type: CollectionItemType.document,
-              parent
+              parent:
+                parentParent !== ROOT_COLLECTION
+                  ? parentParent
+                  : DEFAULT_NOTEBOOK_ID
             });
-            parent = parentDoc.id!;
-            parentType = CollectionItemType.document;
+            if (!relevantItem) {
+              parent = parentDoc.id!;
+              parentType = CollectionItemType.document;
+              parentParent = parentDoc.parent;
+            }
             saveFunc({ ...parentDoc, id: parent });
           }
-          const item = createLocalItem({ type, parent });
-          saveFunc({ ...item, id: ch.id || item.id! });
-          this.relevantItems.push({
-            id: ch.id || item.id!,
-            type: item.type as CollectionItemType,
-            parentId: parent,
-            parentType,
-            parentParentId: parentParent,
-            where: ch.where
-          });
+          const item = createLocalItem({ id: ch.id, type, parent });
+          const id = ch.id || item.id!;
+          saveFunc({ ...item, id });
+          if (!relevantItem) {
+            this.relevantItems.push({
+              id,
+              type: item.type as CollectionItemType,
+              parentId: parent,
+              parentType,
+              parentParentId: parentParent,
+              from: ch.where
+            });
+          }
         }
         break;
       case LocalChangeType.update:
@@ -230,6 +279,8 @@ export class PullTestScenarioRunner {
     } else {
       expect(conflict).toBeUndefined();
     }
+
+    stats.otherAssert(localTable[id] as CollectionItem);
   }
 
   private assertParentIsAllowed(
@@ -283,6 +334,8 @@ export class PullTestScenarioRunner {
       expect(versions[i].op).toBe(stats.latestVersionsOp[i]);
     }
     expect(versions).toHaveLength(stats.hasVersions);
+
+    stats.otherHistoryAssert(versions);
   }
 
   private getStats(type: CollectionItemType, values: PullTestEndStatsItem) {
@@ -291,7 +344,9 @@ export class PullTestScenarioRunner {
       exists: true,
       hasConflict: false,
       hasVersions: hasContent ? 1 : 0,
-      latestVersionsOp: hasContent ? ['snapshot'] : []
+      latestVersionsOp: hasContent ? ['snapshot'] : [],
+      otherAssert: () => {},
+      otherHistoryAssert: () => {}
     };
     return { ...defaultValues, ...values };
   }

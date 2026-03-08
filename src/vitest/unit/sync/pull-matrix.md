@@ -4,8 +4,8 @@
 - [ ] Pull: item added locally, added on remote with different content → ? (need to define: local add state or remote wins? Or conflict?)
 
 - [ ] [item deleted locally first]
-- [ ] Pull: item deleted locally, unchanged on remote → remote item re-pulled (remote wins)
-- [ ] Pull: item deleted locally, then deleted on remote → both win, item gone
+- [x] Pull: item deleted locally, unchanged on remote → item stays deleted (local wins)
+- [x] Pull: item deleted locally, then deleted on remote → both win, item gone
 - [ ] Pull: item deleted locally, then updated on remote (any field) → remote wins, item exists with remote state
 
 - [ ] [item deleted locally second]

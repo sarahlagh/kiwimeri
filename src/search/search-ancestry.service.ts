@@ -266,7 +266,11 @@ class CollectionSearchService {
         nbNotebooks++;
         break;
       }
-      parent = (table[parent].parent as string) || ROOT_COLLECTION;
+      const parentParent = (table[parent].parent as string) || ROOT_COLLECTION;
+      if (parentParent === parent && parent !== ROOT_COLLECTION) {
+        throw new Error('circular parent reference');
+      }
+      parent = parentParent;
     }
     return breadcrumb;
   }

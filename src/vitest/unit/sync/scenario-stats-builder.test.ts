@@ -1,6 +1,7 @@
 import {
+  CollectionItem,
   CollectionItemType,
-  CollectionItemTypeValues,
+  CollectionItemVersion,
   CollectionItemVersionOp
 } from '@/collection/collection';
 
@@ -13,6 +14,8 @@ export type PullTestEndStatsItem = {
   hasVersions?: number;
   // updateTs?: number;
   latestVersionsOp?: CollectionItemVersionOp[];
+  otherAssert?: (item?: CollectionItem) => void;
+  otherHistoryAssert?: (versions: CollectionItemVersion[]) => void;
 };
 
 type PullTestEndStatsItemGroup = {
@@ -36,7 +39,7 @@ export type RelevantItem = {
   parentId: string;
   parentType: CollectionItemType;
   parentParentId: string;
-  where: 'local' | 'remote';
+  from: 'local' | 'remote';
 };
 
 export class PullTestEndStatsBuilder {
@@ -45,6 +48,7 @@ export class PullTestEndStatsBuilder {
   private items: PullTestEndStatsItemGroup[] = [];
   private idx = -1;
   private skip = false;
+  private forceOverrideOn = false;
 
   public constructor(type: CollectionItemType, force?: boolean) {
     this.type = type;
@@ -71,8 +75,9 @@ export class PullTestEndStatsBuilder {
     }
     return this;
   }
-  public ifForce(type?: CollectionItemTypeValues) {
-    if (this.force === true && (type === undefined || type === this.type)) {
+  public ifForce() {
+    this.forceOverrideOn = true;
+    if (this.force === true) {
       this.idx = -1;
       this.skip = false;
     } else {
@@ -93,7 +98,7 @@ export class PullTestEndStatsBuilder {
     return this.ifType(CollectionItemType.notebook);
   }
   private ifType(type: CollectionItemType) {
-    if (this.type === type) {
+    if (this.type === type && (!this.forceOverrideOn || this.force === true)) {
       this.idx = -1;
       this.skip = false;
     } else {
@@ -162,6 +167,24 @@ describe(`test stats builder`, () => {
     expect(example.groups[1].theItem).toBeDefined();
     expect(example.groups[1].theItem.id).toBe('r2');
     expect(example.groups[1].itsParent).toBeDefined();
+  });
+
+  it(`should build stats with latestVersionsOp`, () => {
+    const statsBuilder = new PullTestEndStatsBuilder(
+      CollectionItemType.document
+    );
+    const example = statsBuilder
+      .theItem({ exists: false })
+      .ifDocument()
+      .theItem({ latestVersionsOp: ['deleted'] })
+      .ifPage()
+      .theItem({ latestVersionsOp: ['deleted'] })
+      .itsParent({ exists: false, latestVersionsOp: ['deleted'] })
+      .build([], false);
+    console.debug(example);
+    expect(example.groups).toHaveLength(1);
+    expect(example.groups[0].theItem).toBeDefined();
+    expect(example.groups[0].theItem.latestVersionsOp).toEqual(['deleted']);
   });
 
   it(`should build stats with type override ignored`, () => {
@@ -236,7 +259,7 @@ describe(`test stats builder`, () => {
     expect(example.groups[0].itsParent?.hasVersions).toBe(1);
   });
 
-  it(`should build stats with force override and type override`, () => {
+  it(`should build stats with force override and type override d`, () => {
     const statsBuilder = new PullTestEndStatsBuilder(
       CollectionItemType.document,
       true
@@ -249,7 +272,7 @@ describe(`test stats builder`, () => {
       .ifForce()
       .theItem({ exists: false })
       .itsParent({ exists: true })
-      .ifForce('p')
+      .ifPage()
       .itsParent({ exists: false })
       .build([], false);
 
@@ -260,6 +283,32 @@ describe(`test stats builder`, () => {
     expect(example.groups[0].itsParent).toBeDefined();
     expect(example.groups[0].itsParent?.exists).toBe(true);
     expect(example.groups[0].itsParent?.hasVersions).toBe(1);
+  });
+
+  it(`should build stats with force override and type override p`, () => {
+    const statsBuilder = new PullTestEndStatsBuilder(
+      CollectionItemType.page,
+      true
+    );
+    const example = statsBuilder
+      .theItem({ exists: true, hasConflict: false })
+      .itsParent({ hasVersions: 1 })
+      .ifPage()
+      .itsParent({ hasVersions: 2 })
+      .ifForce()
+      .theItem({ exists: false })
+      .itsParent({ exists: true })
+      .ifPage()
+      .itsParent({ exists: false })
+      .build([], false);
+
+    console.debug(example);
+    expect(example.groups).toHaveLength(1);
+    expect(example.groups[0].theItem).toBeDefined();
+    expect(example.groups[0].theItem.exists).toBe(false);
+    expect(example.groups[0].itsParent).toBeDefined();
+    expect(example.groups[0].itsParent?.exists).toBe(false);
+    expect(example.groups[0].itsParent?.hasVersions).toBe(2);
   });
 
   it(`should resolve ids`, () => {
