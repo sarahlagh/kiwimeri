@@ -2,18 +2,27 @@ import {
   CollectionItem,
   CollectionItemType,
   CollectionItemTypeValues,
-  isPageOrDocument
+  CollectionItemUpdatableFieldEnum,
+  isPageOrDocument,
+  parseFieldMeta,
+  setFieldMeta
 } from '@/collection/collection';
-import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
+import {
+  CONFLICTS_NOTEBOOK_ID,
+  DEFAULT_NOTEBOOK_ID,
+  ROOT_COLLECTION
+} from '@/constants';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/local-changes.service';
 import storageService from '@/db/storage.service';
-import { LocalChangeType } from '@/db/types/store-types';
+import { LocalChangeType, SerializableData } from '@/db/types/store-types';
 import {
   createLocalItem,
   fakeTimersDelay,
-  oneNotebook
+  getNewValue,
+  oneNotebook,
+  TestField
 } from '@/vitest/setup/test.utils';
 import { vi } from 'vitest';
 import {
@@ -27,11 +36,13 @@ interface PullTestChangeScenario {
   id?: string;
   // parentId?: string; // TODO
   change: LocalChangeType;
+  applyInitValue?: boolean; // only used for ADD change
   where: 'local' | 'remote';
 }
 
 type ItemData = {
   id?: string;
+  applyInitValue?: boolean;
   // parent?: string;
   // type?: CollectionItemTypeValues;
 };
@@ -41,11 +52,14 @@ export interface PullTestScenario {
   types?: CollectionItemTypeValues[];
   initRemoteData?: ItemData[];
   initLocalData?: ItemData[];
+  fields?: TestField[];
   changesBeforePull: PullTestChangeScenario[];
   skipForcePull?: boolean;
-  endStats: (b: PullTestEndStatsBuilder) => PullTestEndStatsBuilder;
-  only?: (args: any) => boolean; // for debug
-  skip?: (args: any) => boolean; // for debug
+  endStats: (
+    b: PullTestEndStatsBuilder,
+    field?: TestField
+  ) => PullTestEndStatsBuilder;
+  skip?: boolean; // for debug
 }
 
 type MinStatItem = Required<
@@ -56,6 +70,7 @@ export class PullTestScenarioRunner {
   private readonly scenario: PullTestScenario;
   private readonly type: CollectionItemType;
   private force = false;
+  private testField?: TestField;
 
   private remoteItems = new Map<string, CollectionItem>();
   private relevantItems: RelevantItem[] = []; // = new Map<string, RelevantItem>();
@@ -70,7 +85,10 @@ export class PullTestScenarioRunner {
     if (force !== undefined) this.force = force;
   }
 
-  // TODO if page, i create a parent, but the generated id won't be the same local and remote
+  public withTestField(field: TestField) {
+    this.testField = field;
+    return this;
+  }
 
   public withLocalData(): PullTestScenarioRunner {
     if (!this.scenario.initLocalData) return this;
@@ -78,6 +96,7 @@ export class PullTestScenarioRunner {
       this.applyTestChangeOnLocal({
         change: LocalChangeType.add,
         where: 'local',
+        applyInitValue: data.applyInitValue,
         id: data.id
       });
     }
@@ -91,6 +110,7 @@ export class PullTestScenarioRunner {
       this.applyTestChangeOnRemote({
         change: LocalChangeType.add,
         where: 'remote',
+        applyInitValue: data.applyInitValue,
         id: data.id
       });
     }
@@ -113,11 +133,14 @@ export class PullTestScenarioRunner {
   private applyTestChange(
     ch: PullTestChangeScenario,
     saveFunc: (item: CollectionItem & { id: string }) => void,
+    updateFunc: (
+      id: string,
+      field: CollectionItemUpdatableFieldEnum,
+      data: SerializableData
+    ) => void,
     deleteFunc: (id: string) => void
   ) {
     const type = this.type;
-
-    // TODO merge relevantItems on id, reuse parent?
 
     switch (ch.change) {
       case LocalChangeType.add:
@@ -138,7 +161,7 @@ export class PullTestScenarioRunner {
           if (type === CollectionItemType.notebook && !relevantItem) {
             parent = ROOT_COLLECTION;
           } else if (type === CollectionItemType.page) {
-            // must create parent doc for page // TODO only if no doc in local data?
+            // must create parent doc for page
             const parentDoc = createLocalItem({
               type: CollectionItemType.document,
               parent:
@@ -154,6 +177,31 @@ export class PullTestScenarioRunner {
             saveFunc({ ...parentDoc, id: parent });
           }
           const item = createLocalItem({ id: ch.id, type, parent });
+          let initValue = relevantItem?.initValue;
+          if (ch.applyInitValue) {
+            if (!this.testField) {
+              throw new Error('need a TestField to apply field value');
+            }
+            if (this.testField.field === 'parent') {
+              initValue = {
+                value: item.parent,
+                at: item.created
+              };
+            } else {
+              if (!initValue) {
+                initValue = {
+                  value: getNewValue(this.testField.valueType),
+                  at: item.created
+                };
+              }
+              (item as any)[this.testField.field] = initValue.value;
+              (item as any)[`${this.testField.field}_meta`] = setFieldMeta(
+                `${initValue.value}`,
+                item.created
+              );
+            }
+          }
+
           const id = ch.id || item.id!;
           saveFunc({ ...item, id });
           if (!relevantItem) {
@@ -163,12 +211,44 @@ export class PullTestScenarioRunner {
               parentId: parent,
               parentType,
               parentParentId: parentParent,
+              initValue,
               from: ch.where
             });
           }
         }
         break;
       case LocalChangeType.update:
+        {
+          if (!this.testField) {
+            throw new Error('need a TestField to applyfield value');
+          }
+          if (!ch.id && this.relevantItems.length !== 1) {
+            throw new Error(
+              'on update change id is mandatory if 0 or >1 relevant items '
+            );
+          }
+          const id = ch.id || this.relevantItems[0].id;
+          const relevantItem = this.relevantItems.find(i => i.id === id)!;
+
+          let newValue;
+          if (this.testField.field === 'parent') {
+            // create new valid parent, but TODO: might wanna test both new parent and existing parent
+            // TODO cross-notebook test too
+            const newParent = createLocalItem({
+              type: relevantItem.parentType,
+              parent: relevantItem.parentParentId
+            });
+            saveFunc({ ...newParent, id: newParent.id! });
+            newValue = newParent.id!;
+          } else {
+            newValue = getNewValue(this.testField.valueType);
+          }
+          relevantItem[`${ch.where}Value`] = {
+            value: newValue,
+            at: Date.now()
+          };
+          updateFunc(id, this.testField.field, newValue);
+        }
         break;
       case LocalChangeType.delete:
         {
@@ -192,12 +272,15 @@ export class PullTestScenarioRunner {
         collectionService.saveItem(item, item.id, DEFAULT_NOTEBOOK_ID);
         return item.id;
       },
+      // update func
+      (id, field, data) => {
+        collectionService.setItemField(id, field, data);
+      },
       // delete func
       id => {
         collectionService.deleteItem(id);
       }
     );
-    // TODO check versionning is done
   }
 
   private applyTestChangeOnRemote(ch: PullTestChangeScenario) {
@@ -207,6 +290,13 @@ export class PullTestScenarioRunner {
       item => {
         this.remoteItems.set(item.id!, item);
         return item.id!;
+      },
+      // update func
+      (id, field, data) => {
+        const item = this.remoteItems.get(id) as any;
+        item.updated = Date.now();
+        item[field] = data;
+        item[`${field}_meta`] = setFieldMeta(`${data}`, Date.now());
       },
       // delete func
       id => {
@@ -222,8 +312,16 @@ export class PullTestScenarioRunner {
   }
 
   public assertStats() {
-    const b = new PullTestEndStatsBuilder(this.type, this.force);
-    const finalStats = this.scenario.endStats(b).build(this.relevantItems);
+    const b = new PullTestEndStatsBuilder(
+      this.type,
+      this.testField,
+      this.force
+    );
+    const finalStats = this.scenario
+      .endStats(b, this.testField)
+      .build(this.relevantItems);
+    expect(finalStats.groups).toHaveLength(this.relevantItems.length);
+
     finalStats.groups.forEach(group => {
       const id = group.theItem.id!;
       const itemType = group.theItem.type!;
@@ -248,7 +346,15 @@ export class PullTestScenarioRunner {
           itsParent
         );
       }
-      // TODO itsOldParent here (old parent might exist but item no longer)
+      // itsOldParent here (old parent might exist but item no longer)
+      if (group.itsOldParent && group.itsOldParent.id !== ROOT_COLLECTION) {
+        this.assertCommonStatsItem(
+          group.itsOldParent.id!,
+          group.itsOldParent.parent!,
+          parentType,
+          this.getStats(parentType, group.itsOldParent)
+        );
+      }
     });
 
     // test local changes are not erased
@@ -262,6 +368,7 @@ export class PullTestScenarioRunner {
   ) {
     console.debug('common stats', id, stats);
     const localTable = storageService.getSpace().getTable('collection');
+    const relevantItem = this.relevantItems.find(i => i.id === id);
 
     if (stats.exists) {
       expect(localTable[id]).toBeDefined();
@@ -276,11 +383,42 @@ export class PullTestScenarioRunner {
     if (stats.hasConflict) {
       expect(conflict).toBeDefined();
       expect(conflict?.id).not.toBe(id);
+      expect(conflict?.parent).toBe(
+        stats.isConflictOrphaned ? CONFLICTS_NOTEBOOK_ID : parentId
+      );
+      if (stats.isConflictOrphaned) {
+        expect(localTable[CONFLICTS_NOTEBOOK_ID]).toBeDefined();
+      }
+      if (stats.conflictHasValue) {
+        if (!this.testField) {
+          throw new Error('need a TestField to check conflict field value');
+        }
+        const expectedValue = relevantItem
+          ? relevantItem[`${stats.conflictHasValue}Value`]
+          : null;
+        expect(localTable[conflict!.id][this.testField.field]).toBe(
+          expectedValue?.value
+        );
+      }
     } else {
       expect(conflict).toBeUndefined();
     }
 
-    stats.otherAssert(localTable[id] as CollectionItem);
+    if (stats.hasValue) {
+      if (!this.testField) {
+        throw new Error('need a TestField to check field value');
+      }
+      const expectedValue = relevantItem
+        ? relevantItem[`${stats.hasValue}Value`]
+        : null;
+      expect(localTable[id][this.testField.field]).toBe(expectedValue?.value);
+      const json = localTable[id][`${this.testField.field}_meta`];
+      expect(json).toBeDefined();
+      const metaField = parseFieldMeta(json as string);
+      expect(metaField.u).toBe(expectedValue?.at);
+    }
+
+    stats.otherAssert(localTable[id] as CollectionItem, relevantItem);
   }
 
   private assertParentIsAllowed(
@@ -292,11 +430,13 @@ export class PullTestScenarioRunner {
     const parentType = parentTypeAsString as CollectionItemType;
     switch (itemType) {
       case CollectionItemType.document:
-        expect(parentId).toBe(DEFAULT_NOTEBOOK_ID); // TODO can change across tests
+        if (this.testField?.field !== 'parent')
+          expect(parentId).toBe(DEFAULT_NOTEBOOK_ID); // TODO can change across tests
         expect(parentType).toBe(CollectionItemType.notebook);
         break;
       case CollectionItemType.folder:
-        expect(parentId).toBe(DEFAULT_NOTEBOOK_ID); // TODO can change across tests
+        if (this.testField?.field !== 'parent')
+          expect(parentId).toBe(DEFAULT_NOTEBOOK_ID); // TODO can change across tests
         expect(parentType).toBe(CollectionItemType.notebook);
         break;
       case CollectionItemType.page:
@@ -304,15 +444,22 @@ export class PullTestScenarioRunner {
         expect(parentType).toBe(CollectionItemType.document);
         break;
       case CollectionItemType.notebook:
-        expect(parentId).toBe(ROOT_COLLECTION);
+        if (this.testField?.field !== 'parent')
+          expect(parentId).toBe(ROOT_COLLECTION);
         expect(parentType).toBe(CollectionItemType.notebook);
         break;
     }
   }
 
   public assertHistoryStats() {
-    const b = new PullTestEndStatsBuilder(this.type, this.force);
-    const finalStats = this.scenario.endStats(b).build(this.relevantItems);
+    const b = new PullTestEndStatsBuilder(
+      this.type,
+      this.testField,
+      this.force
+    );
+    const finalStats = this.scenario
+      .endStats(b, this.testField)
+      .build(this.relevantItems);
     finalStats.groups.forEach(group => {
       const id = group.theItem.id!;
       const parentId = group.itsParent.id!;
@@ -324,6 +471,13 @@ export class PullTestScenarioRunner {
         const parentType = group.itsParent.type as CollectionItemType;
         const itsParent = this.getStats(parentType, group.itsParent);
         this.assertCommonHistoryStatsItem(parentId!, itsParent);
+      }
+
+      if (group.itsOldParent && group.itsOldParent.id !== ROOT_COLLECTION) {
+        const oldParentId = group.itsOldParent.id!;
+        const parentType = group.itsOldParent.type as CollectionItemType;
+        const itsOldParent = this.getStats(parentType, group.itsOldParent);
+        this.assertCommonHistoryStatsItem(oldParentId!, itsOldParent);
       }
     });
   }
@@ -343,6 +497,9 @@ export class PullTestScenarioRunner {
     const defaultValues: MinStatItem = {
       exists: true,
       hasConflict: false,
+      isConflictOrphaned: false,
+      conflictHasValue: null,
+      hasValue: null,
       hasVersions: hasContent ? 1 : 0,
       latestVersionsOp: hasContent ? ['snapshot'] : [],
       otherAssert: () => {},

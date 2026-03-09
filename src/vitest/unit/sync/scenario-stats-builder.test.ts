@@ -4,32 +4,32 @@ import {
   CollectionItemVersion,
   CollectionItemVersionOp
 } from '@/collection/collection';
+import { SerializableData } from '@/db/types/store-types';
+import { parentField, TestField } from '@/vitest/setup/test.utils';
 
 export type PullTestEndStatsItem = {
   id?: string;
   type?: CollectionItemType;
   parent?: string;
   exists?: boolean;
+  hasValue?: 'init' | 'local' | 'remote' | null;
   hasConflict?: boolean;
+  conflictHasValue?: 'init' | 'local' | 'remote' | null;
+  isConflictOrphaned?: boolean;
   hasVersions?: number;
-  // updateTs?: number;
   latestVersionsOp?: CollectionItemVersionOp[];
-  otherAssert?: (item?: CollectionItem) => void;
+  otherAssert?: (item?: CollectionItem, relevantItem?: RelevantItem) => void;
   otherHistoryAssert?: (versions: CollectionItemVersion[]) => void;
 };
 
 type PullTestEndStatsItemGroup = {
   theItem: PullTestEndStatsItem;
   itsParent?: PullTestEndStatsItem;
-  // itsOldParent?: Omit<PullTestEndStatsItem, 'id'>;
-  // itsConflict?: Omit<PullTestEndStatsItem, 'id'>;
-  // itsChildren?: Omit<PullTestEndStatsItem, 'id'>[];
+  itsOldParent?: PullTestEndStatsItem;
 };
 
 // TODO handle default values
 export interface PullTestEndStats {
-  // localWins?: boolean;
-  // remoteWins?: boolean;
   groups: Required<PullTestEndStatsItemGroup>[];
 }
 
@@ -39,6 +39,18 @@ export type RelevantItem = {
   parentId: string;
   parentType: CollectionItemType;
   parentParentId: string;
+  initValue?: {
+    value: SerializableData;
+    at: number;
+  };
+  localValue?: {
+    value: SerializableData;
+    at: number;
+  };
+  remoteValue?: {
+    value: SerializableData;
+    at: number;
+  };
   from: 'local' | 'remote';
 };
 
@@ -46,12 +58,18 @@ export class PullTestEndStatsBuilder {
   private force = false;
   private type: CollectionItemType;
   private items: PullTestEndStatsItemGroup[] = [];
+  private testField?: TestField;
   private idx = -1;
   private skip = false;
   private forceOverrideOn = false;
 
-  public constructor(type: CollectionItemType, force?: boolean) {
+  public constructor(
+    type: CollectionItemType,
+    testField?: TestField,
+    force?: boolean
+  ) {
     this.type = type;
+    this.testField = testField;
     if (force !== undefined) this.force = force;
   }
   public theItem(item: PullTestEndStatsItem) {
@@ -72,6 +90,17 @@ export class PullTestEndStatsBuilder {
     } else {
       const currentItem = this.items[this.idx].itsParent || {};
       this.items[this.idx].itsParent = { ...currentItem, ...item };
+    }
+    return this;
+  }
+  public itsOldParent(item: Partial<PullTestEndStatsItem>) {
+    if (this.skip) return this;
+    if (this.idx === -1) this.idx++;
+    if (this.items.length <= this.idx) {
+      throw new Error('error in stats builder: must select an active item');
+    } else {
+      const currentItem = this.items[this.idx].itsOldParent || {};
+      this.items[this.idx].itsOldParent = { ...currentItem, ...item };
     }
     return this;
   }
@@ -126,20 +155,54 @@ export class PullTestEndStatsBuilder {
       if (!group.theItem.id) {
         group.theItem.id = item.id;
       }
+
+      let itemParent = item.parentId;
+      if (this.testField && this.testField.field === 'parent') {
+        // item was moved
+        if (!item.localValue && !item.remoteValue) {
+          throw new Error('error: unable to resolve new parent');
+        }
+        let value;
+        if (item.localValue && item.remoteValue) {
+          value =
+            item.localValue.at > item.remoteValue.at
+              ? item.localValue
+              : item.remoteValue;
+        } else if (item.localValue) {
+          value = item.localValue;
+        } else {
+          value = item.remoteValue!;
+        }
+        const oldParent = item.parentId;
+        if (!group.itsOldParent) {
+          group.itsOldParent = {
+            id: oldParent,
+            parent: item.parentParentId // assumes new parent is always under the same parent
+          };
+        }
+        if (!group.itsOldParent.id) {
+          group.itsOldParent.id = oldParent;
+        }
+        if (!group.itsOldParent.parent) {
+          group.itsOldParent.parent = item.parentParentId;
+        }
+        itemParent = value.value as string;
+      }
+
       if (!group.theItem.parent) {
-        group.theItem.parent = item.parentId;
+        group.theItem.parent = itemParent;
       }
       if (!group.theItem.type) {
         group.theItem.type = item.type;
       }
       if (!group.itsParent) {
         group.itsParent = {
-          id: item.parentId,
+          id: itemParent,
           parent: item.parentParentId,
           type: item.parentType
         };
       } else if (!group.itsParent!.id) {
-        group.itsParent!.id = item.parentId;
+        group.itsParent!.id = itemParent;
         group.itsParent!.parent = item.parentParentId;
         group.itsParent!.type = item.parentType;
       }
@@ -238,6 +301,7 @@ describe(`test stats builder`, () => {
   it(`should build stats with force override`, () => {
     const statsBuilder = new PullTestEndStatsBuilder(
       CollectionItemType.document,
+      undefined,
       true
     );
     const example = statsBuilder
@@ -262,6 +326,7 @@ describe(`test stats builder`, () => {
   it(`should build stats with force override and type override d`, () => {
     const statsBuilder = new PullTestEndStatsBuilder(
       CollectionItemType.document,
+      undefined,
       true
     );
     const example = statsBuilder
@@ -288,6 +353,7 @@ describe(`test stats builder`, () => {
   it(`should build stats with force override and type override p`, () => {
     const statsBuilder = new PullTestEndStatsBuilder(
       CollectionItemType.page,
+      undefined,
       true
     );
     const example = statsBuilder
@@ -327,7 +393,7 @@ describe(`test stats builder`, () => {
           parentId: 'p1',
           parentType: CollectionItemType.folder,
           parentParentId: 'root',
-          where: 'local'
+          from: 'local'
         },
         {
           id: '2',
@@ -335,7 +401,7 @@ describe(`test stats builder`, () => {
           parentId: 'p2',
           parentType: CollectionItemType.document,
           parentParentId: 'root',
-          where: 'local'
+          from: 'local'
         }
       ]);
 
@@ -356,5 +422,42 @@ describe(`test stats builder`, () => {
     expect(example.groups[1].itsParent).toBeDefined();
     expect(example.groups[1].itsParent?.id).toBe('p2');
     expect(example.groups[1].itsParent.type).toBe(CollectionItemType.document);
+  });
+
+  it(`should resolve ids with test field = parent`, () => {
+    const statsBuilder = new PullTestEndStatsBuilder(
+      CollectionItemType.document,
+      parentField
+    );
+    const example = statsBuilder
+      .theItem({ hasVersions: 100 })
+      .itsParent({ hasVersions: 1000 })
+      .itsOldParent({ hasVersions: 10000 })
+      .build([
+        {
+          id: '1',
+          type: CollectionItemType.document,
+          parentId: 'p1',
+          parentType: CollectionItemType.folder,
+          parentParentId: 'root',
+          from: 'local',
+          remoteValue: {
+            at: Date.now() + 99999,
+            value: 'new parent'
+          }
+        }
+      ]);
+
+    console.debug(example);
+    expect(example.groups).toHaveLength(1);
+    expect(example.groups[0].theItem).toBeDefined();
+    expect(example.groups[0].theItem.id).toBe('1');
+    expect(example.groups[0].theItem.hasVersions).toBe(100);
+    expect(example.groups[0].itsParent).toBeDefined();
+    expect(example.groups[0].itsParent?.id).toBe('new parent');
+    expect(example.groups[0].itsParent.hasVersions).toBe(1000);
+    expect(example.groups[0].itsOldParent).toBeDefined();
+    expect(example.groups[0].itsOldParent?.id).toBe('p1');
+    expect(example.groups[0].itsOldParent.hasVersions).toBe(10000);
   });
 });

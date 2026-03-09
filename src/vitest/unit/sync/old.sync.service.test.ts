@@ -177,7 +177,7 @@ const checkHistory = (
   expect(count).toBe(nbOfDocuments);
 };
 
-describe.skip('sync service', () => {
+describe('sync service', () => {
   // [{ layer: 'singlefile' } /*, { layer: 'bucket' } */].forEach(({ layer }) => {
   const layer = 'singlefile';
   describe(`with ${layer} layer`, () => {

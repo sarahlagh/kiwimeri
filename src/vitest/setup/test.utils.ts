@@ -140,6 +140,44 @@ export const getNewContent = (text: string) => {
   return `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"${text}","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`;
 };
 
+export type TestField = {
+  field: CollectionItemUpdatableFieldEnum;
+  valueType: ValueType;
+};
+
+export const parentField: TestField = { field: 'parent', valueType: 'id' };
+export const titleField: TestField = { field: 'title', valueType: 'string' };
+export const contentField: TestField = { field: 'content', valueType: 'lex' };
+export const tagsField: TestField = { field: 'tags', valueType: 'string' };
+export const orderField: TestField = { field: 'order', valueType: 'number' };
+export const displayOptsField: TestField = {
+  field: 'display_opts',
+  valueType: 'json'
+};
+
+export const allFields: TestField[] = [
+  titleField,
+  contentField,
+  tagsField,
+  orderField,
+  displayOptsField
+];
+
+export const conflictFields: TestField[] = [titleField, contentField];
+
+export const nonConflictFields: TestField[] = [
+  tagsField,
+  // orderField, // order complicates tests because it's a historizable field for page but not for doc
+  displayOptsField
+];
+
+export const allHistorizableFields: TestField[] = [
+  titleField,
+  contentField,
+  tagsField,
+  displayOptsField
+];
+
 export const getNewValue = (
   valueType: ValueType,
   potentialId?: string
