@@ -20,6 +20,7 @@
 - [x] Pull: item deleted on remote, then moved locally → local wins, item stays
       ! found bug on this one, for page scenario, force pull
       moving on since this is a very unlikely scenario, but must be solved later when we enable move on page
+      or, just forbid move on page (only allow copy)
       also add scenario when parent is not deleted
 - [x] Pull: item unchanged locally, deleted on remote → item deleted (remote wins)
 
@@ -41,7 +42,7 @@
 - [x] Pull: same field (CONFLICTING) on item updated remotely, then locally with different values → local change persists
 
 - [ ] [item without children moved - parent field - locally first]
-- [ ] Pull: item moved locally, unchanged on remote → local move persists
+- [x] Pull: item moved locally, unchanged on remote → local move persists
 - [ ] Pull: item moved locally, then moved to same parent on remote
 - [ ] Pull: item moved locally to A, then moved remotely to B → conflict
 - [ ] Pull: item moved locally to A, then A deleted remotely → item follows parent deletion (moved to notebook or deleted)

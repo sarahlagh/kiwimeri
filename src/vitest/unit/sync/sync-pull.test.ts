@@ -435,6 +435,7 @@ const scenarioMatrix: {
             .itsParent({ hasVersions: 4 })
       },
       {
+        types: ['d', 'f', 'n'], // pages cannot be moved
         description:
           'item deleted on remote, then moved locally → local wins, item stays',
         initLocalData: [{ id: '#id', applyInitValue: true }],
@@ -451,31 +452,12 @@ const scenarioMatrix: {
             })
             .ifDocument()
             .theItem({ hasVersions: 1 })
-            .ifPage()
-            .theItem({ hasVersions: 1 })
-            .itsParent({ hasVersions: 1 })
-            .itsOldParent({ hasVersions: 2 })
             .ifForce()
             .theItem({ hasValue: null, exists: false })
-            .itsParent({ exists: false }) // for page & doc, new parent only existed locally without push
+            .itsParent({ exists: false }) // for doc, new parent only existed locally without push
             .itsOldParent({ exists: true })
             .ifDocument()
             .theItem({ hasVersions: 2, latestVersionsOp: ['deleted'] })
-            .ifPage()
-            // new doc only existed locally, so the document is deleted,
-            // but since its latest didn't have the page (moved locally), no new version for that page
-            // however, that page has also been deleted, so an orphan version remains
-            // how to solve this?
-            // normally the page deleted should be caught and trigger a new version on document, but here the doc is deleted
-            .theItem({
-              hasVersions: 1, // TODO want 2, [deleted, snapshot]
-              latestVersionsOp: ['snapshot']
-            })
-            .itsParent({
-              exists: false,
-              hasVersions: 2,
-              latestVersionsOp: ['deleted']
-            })
       },
       {
         description:
@@ -615,7 +597,7 @@ const scenarioMatrix: {
             })
       },
       {
-        types: ['d', 'p'],
+        types: ['d'], // pages cannot be moved
         description:
           'item moved locally, then deleted on remote → conflict created',
         initLocalData: [{ id: '#id', applyInitValue: true }],
@@ -634,35 +616,12 @@ const scenarioMatrix: {
               hasVersions: 2,
               latestVersionsOp: ['deleted', 'snapshot']
             })
-            .ifPage()
-            .itsParent({
-              hasVersions: 2,
-              otherHistoryAssert: versions => {
-                expect(versions[0].pageVersionsArrayJson).toHaveLength(0);
-              }
-            })
-            .itsOldParent({ hasVersions: 2 })
             .ifForce()
             .theItem({
               hasConflict: false
             })
             .itsParent({
               exists: false
-            })
-            .ifPage()
-            // new doc only existed locally, so the document is deleted,
-            // but since its latest didn't have the page (moved locally), no new version for that page
-            // however, that page has also been deleted, so an orphan version remains
-            // how to solve this?
-            // normally the page deleted should be caught and trigger a new version on document, but here the doc is deleted
-            .theItem({
-              hasVersions: 1, // TODO want 2, [deleted, snapshot]
-              latestVersionsOp: ['snapshot']
-            })
-            .itsParent({
-              exists: false,
-              latestVersionsOp: ['deleted'],
-              otherHistoryAssert: () => {}
             })
       }
     ]
@@ -892,14 +851,15 @@ const scenarioMatrix: {
     ]
   },
   itemMovedLocallyFirst: {
+    types: ['d', 'f', 'n'], // pages cannot be moved
     label: '[item moved locally first]',
     scenarios: [
       {
         description:
-          'field moved locally on any field, unchanged on remote → local change persists',
+          'item moved locally, unchanged on remote → local move persists',
         fields: [parentField],
-        initLocalData: [{ id: '#id' }],
-        initRemoteData: [{ id: '#id' }],
+        initLocalData: [{ id: '#id', applyInitValue: true }],
+        initRemoteData: [{ id: '#id', applyInitValue: true }],
         changesBeforePull: [
           {
             id: '#id',
@@ -907,12 +867,37 @@ const scenarioMatrix: {
             where: 'local'
           }
         ],
-        endStats: (b, f) =>
+        endStats: b =>
           b
             .theItem({ exists: true, hasValue: 'local' })
             .ifForce()
             .theItem({ hasValue: 'init' })
+            .itsParent({ exists: false })
       }
+      // {
+      //   description: 'item moved locally, then moved to same parent on remote',
+      //   fields: [parentField],
+      //   initLocalData: [{ id: '#id', applyInitValue: true }],
+      //   initRemoteData: [{ id: '#id', applyInitValue: true }],
+      //   changesBeforePull: [
+      //     {
+      //       id: '#id',
+      //       change: LocalChangeType.update,
+      //       where: 'local'
+      //     },
+      //     {
+      //       id: '#id',
+      //       change: LocalChangeType.update,
+      //       where: 'local'
+      //     }
+      //   ],
+      //   endStats: b =>
+      //     b
+      //       .theItem({ exists: true, hasValue: 'local' })
+      //       .ifForce()
+      //       .theItem({ hasValue: 'init' })
+      //       .itsParent({ exists: false })
+      // }
     ]
   }
 };
@@ -928,7 +913,7 @@ function generateTestSuite(force: boolean) {
   Object.keys(scenarioMatrix).forEach(key => {
     const category = scenarioMatrix[key];
 
-    if (key !== 'itemMovedLocallyFirst') return; // DEBUG
+    // if (key !== 'itemMovedLocallyFirst') return; // DEBUG
     // category.scenarios.splice(0, category.scenarios.length - 1); // only run last test
 
     if (category.skip === true) return;
