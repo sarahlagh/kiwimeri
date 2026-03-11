@@ -303,7 +303,13 @@ export class SingleFileStorage extends CloudStorageFilesystem {
           // if remote change on item is more recent than local
           // create conflict, only if item is not already a conflict and is a document or page
           // do not create conflict for folders and notebooks
-          if (this.shouldCreateConflict(localChange, localItem)) {
+          if (
+            this.shouldCreateConflict(
+              localChange,
+              localItem,
+              newLocalContent[0].collection![localChange.item] as CollectionItem
+            )
+          ) {
             const ts = Date.now();
             newLocalContent[0].collection![getUniqueId()] = {
               ...{ ...localItem, id: undefined },
@@ -404,7 +410,8 @@ export class SingleFileStorage extends CloudStorageFilesystem {
 
   private shouldCreateConflict(
     localChange: LocalChange,
-    localItem: CollectionItem | undefined
+    localItem: CollectionItem | undefined,
+    remoteItem: CollectionItem
   ) {
     return (
       localItem &&
@@ -412,7 +419,9 @@ export class SingleFileStorage extends CloudStorageFilesystem {
       localItem.type !== CollectionItemType.folder &&
       localItem.type !== CollectionItemType.notebook &&
       (!localChange.field ||
-        CollectionItemUpdatableConflictFields.includes(localChange.field))
+        (CollectionItemUpdatableConflictFields.includes(localChange.field) &&
+          (!remoteItem ||
+            localItem[localChange.field] !== remoteItem[localChange.field])))
     );
   }
 

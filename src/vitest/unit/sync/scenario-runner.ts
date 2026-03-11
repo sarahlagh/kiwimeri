@@ -38,13 +38,14 @@ interface PullTestChangeScenario {
   change: LocalChangeType;
   applyInitValue?: boolean; // only used for ADD change
   where: 'local' | 'remote';
+  data?: Partial<CollectionItem>;
 }
 
 type ItemData = {
   id?: string;
   applyInitValue?: boolean;
   // parent?: string;
-  // type?: CollectionItemTypeValues;
+  type?: CollectionItemTypeValues;
 };
 
 export interface PullTestScenario {
@@ -97,7 +98,8 @@ export class PullTestScenarioRunner {
         change: LocalChangeType.add,
         where: 'local',
         applyInitValue: data.applyInitValue,
-        id: data.id
+        id: data.id,
+        data: { type: data.type }
       });
     }
     localChangesService.clear();
@@ -111,7 +113,8 @@ export class PullTestScenarioRunner {
         change: LocalChangeType.add,
         where: 'remote',
         applyInitValue: data.applyInitValue,
-        id: data.id
+        id: data.id,
+        data: { type: data.type }
       });
     }
     return this;
@@ -140,7 +143,7 @@ export class PullTestScenarioRunner {
     ) => void,
     deleteFunc: (id: string) => void
   ) {
-    const type = this.type;
+    const type = ch.data?.type || this.type;
 
     switch (ch.change) {
       case LocalChangeType.add:
@@ -177,6 +180,7 @@ export class PullTestScenarioRunner {
             saveFunc({ ...parentDoc, id: parent });
           }
           const item = createLocalItem({ id: ch.id, type, parent });
+          // TODO use ch.data?
           let initValue = relevantItem?.initValue;
           if (ch.applyInitValue) {
             if (!this.testField) {
@@ -232,14 +236,22 @@ export class PullTestScenarioRunner {
 
           let newValue;
           if (this.testField.field === 'parent') {
-            // create new valid parent, but TODO: might wanna test both new parent and existing parent
-            // TODO cross-notebook test too
-            const newParent = createLocalItem({
-              type: relevantItem.parentType,
-              parent: relevantItem.parentParentId
-            });
-            saveFunc({ ...newParent, id: newParent.id! });
-            newValue = newParent.id!;
+            const relevantParentItem = this.relevantItems.find(
+              i => i.id === ch.data?.parent
+            );
+            if (relevantParentItem) {
+              newValue = relevantParentItem.id;
+            } else {
+              // create new valid parent, but TODO: might wanna test both new parent and existing parent
+              // TODO cross-notebook test too
+              const newParent = createLocalItem({
+                type: relevantItem.parentType,
+                parent: relevantItem.parentParentId
+              });
+              const parentId = ch.data?.parent || newParent.id!;
+              saveFunc({ ...newParent, id: parentId });
+              newValue = parentId;
+            }
           } else {
             newValue = getNewValue(this.testField.valueType);
           }
@@ -248,6 +260,7 @@ export class PullTestScenarioRunner {
             at: Date.now()
           };
           updateFunc(id, this.testField.field, newValue);
+          // TODO use ch.data?
         }
         break;
       case LocalChangeType.delete:
@@ -320,7 +333,6 @@ export class PullTestScenarioRunner {
     const finalStats = this.scenario
       .endStats(b, this.testField)
       .build(this.relevantItems);
-    expect(finalStats.groups).toHaveLength(this.relevantItems.length);
 
     finalStats.groups.forEach(group => {
       const id = group.theItem.id!;

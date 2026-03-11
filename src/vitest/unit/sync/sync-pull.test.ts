@@ -873,31 +873,40 @@ const scenarioMatrix: {
             .ifForce()
             .theItem({ hasValue: 'init' })
             .itsParent({ exists: false })
+      },
+      {
+        description:
+          'item moved locally, then moved to same parent on remote → remote wins',
+        fields: [parentField],
+        initLocalData: [
+          { id: '#id', applyInitValue: true },
+          { id: '#parentId', type: 'n' }
+        ],
+        initRemoteData: [
+          { id: '#id', applyInitValue: true },
+          { id: '#parentId', type: 'n' }
+        ],
+        changesBeforePull: [
+          {
+            id: '#id',
+            change: LocalChangeType.update,
+            where: 'local',
+            data: {
+              parent: '#parentId'
+            }
+          },
+          {
+            id: '#id',
+            change: LocalChangeType.update,
+            where: 'remote',
+            data: {
+              parent: '#parentId'
+            }
+          }
+        ],
+        endStats: b =>
+          b.theItem({ id: '#id', exists: true, hasValue: 'remote' })
       }
-      // {
-      //   description: 'item moved locally, then moved to same parent on remote',
-      //   fields: [parentField],
-      //   initLocalData: [{ id: '#id', applyInitValue: true }],
-      //   initRemoteData: [{ id: '#id', applyInitValue: true }],
-      //   changesBeforePull: [
-      //     {
-      //       id: '#id',
-      //       change: LocalChangeType.update,
-      //       where: 'local'
-      //     },
-      //     {
-      //       id: '#id',
-      //       change: LocalChangeType.update,
-      //       where: 'local'
-      //     }
-      //   ],
-      //   endStats: b =>
-      //     b
-      //       .theItem({ exists: true, hasValue: 'local' })
-      //       .ifForce()
-      //       .theItem({ hasValue: 'init' })
-      //       .itsParent({ exists: false })
-      // }
     ]
   }
 };

@@ -43,7 +43,7 @@
 
 - [ ] [item without children moved - parent field - locally first]
 - [x] Pull: item moved locally, unchanged on remote → local move persists
-- [ ] Pull: item moved locally, then moved to same parent on remote
+- [x] Pull: item moved locally, then moved to same parent on remote → remote wins
 - [ ] Pull: item moved locally to A, then moved remotely to B → conflict
 - [ ] Pull: item moved locally to A, then A deleted remotely → item follows parent deletion (moved to notebook or deleted)
 - [ ] Pull: item moved locally to A, B deleted locally, then item moved remotely to B → conflict
