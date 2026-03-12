@@ -15,7 +15,7 @@ export type PullTestEndStatsItem = {
   hasValue?: 'init' | 'local' | 'remote' | null;
   hasConflict?: boolean;
   conflictHasValue?: 'init' | 'local' | 'remote' | null;
-  isConflictOrphaned?: boolean;
+  conflictHasParent?: string | null;
   hasVersions?: number;
   latestVersionsOp?: CollectionItemVersionOp[];
   otherAssert?: (item?: CollectionItem, relevantItem?: RelevantItem) => void;

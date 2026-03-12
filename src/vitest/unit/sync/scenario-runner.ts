@@ -38,7 +38,8 @@ interface PullTestChangeScenario {
   change: LocalChangeType;
   applyInitValue?: boolean; // only used for ADD change
   where: 'local' | 'remote';
-  data?: Partial<CollectionItem>;
+  newValue?: string;
+  data?: Partial<Pick<CollectionItem, 'type'>>;
 }
 
 type ItemData = {
@@ -75,6 +76,7 @@ export class PullTestScenarioRunner {
 
   private remoteItems = new Map<string, CollectionItem>();
   private relevantItems: RelevantItem[] = []; // = new Map<string, RelevantItem>();
+  private newValuesMap = new Map<string, SerializableData>();
 
   public constructor(
     scenario: PullTestScenario,
@@ -237,7 +239,7 @@ export class PullTestScenarioRunner {
           let newValue;
           if (this.testField.field === 'parent') {
             const relevantParentItem = this.relevantItems.find(
-              i => i.id === ch.data?.parent
+              i => i.id === ch.newValue
             );
             if (relevantParentItem) {
               newValue = relevantParentItem.id;
@@ -248,12 +250,21 @@ export class PullTestScenarioRunner {
                 type: relevantItem.parentType,
                 parent: relevantItem.parentParentId
               });
-              const parentId = ch.data?.parent || newParent.id!;
+              const parentId = ch.newValue || newParent.id!;
               saveFunc({ ...newParent, id: parentId });
               newValue = parentId;
             }
           } else {
-            newValue = getNewValue(this.testField.valueType);
+            if (ch.newValue) {
+              if (this.newValuesMap.has(ch.newValue)) {
+                newValue = this.newValuesMap.get(ch.newValue)!;
+              } else {
+                newValue = getNewValue(this.testField.valueType);
+                this.newValuesMap.set(ch.newValue, newValue);
+              }
+            } else {
+              newValue = getNewValue(this.testField.valueType);
+            }
           }
           relevantItem[`${ch.where}Value`] = {
             value: newValue,
@@ -390,16 +401,22 @@ export class PullTestScenarioRunner {
       expect(localTable[id]).toBeUndefined();
     }
 
-    const items = collectionService.getAllCollectionItemsRecursive(parentId);
+    const items =
+      collectionService.getAllCollectionItemsRecursive(ROOT_COLLECTION);
     const conflict = items.find(r => r.conflict === id);
     if (stats.hasConflict) {
       expect(conflict).toBeDefined();
-      expect(conflict?.id).not.toBe(id);
-      expect(conflict?.parent).toBe(
-        stats.isConflictOrphaned ? CONFLICTS_NOTEBOOK_ID : parentId
-      );
-      if (stats.isConflictOrphaned) {
-        expect(localTable[CONFLICTS_NOTEBOOK_ID]).toBeDefined();
+      if (stats.conflictHasParent === CONFLICTS_NOTEBOOK_ID) {
+        expect(conflict?.id).toBe(id);
+        expect(conflict?.parent).toBe(CONFLICTS_NOTEBOOK_ID);
+      } else {
+        expect(conflict?.id).not.toBe(id);
+        expect(conflict?.parent).toBe(
+          stats.conflictHasParent ? stats.conflictHasParent : parentId
+        );
+      }
+      if (stats.conflictHasParent) {
+        expect(localTable[stats.conflictHasParent]).toBeDefined();
       }
       if (stats.conflictHasValue) {
         if (!this.testField) {
@@ -509,7 +526,7 @@ export class PullTestScenarioRunner {
     const defaultValues: MinStatItem = {
       exists: true,
       hasConflict: false,
-      isConflictOrphaned: false,
+      conflictHasParent: null,
       conflictHasValue: null,
       hasValue: null,
       hasVersions: hasContent ? 1 : 0,

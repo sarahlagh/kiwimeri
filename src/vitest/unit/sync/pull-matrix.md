@@ -1,7 +1,7 @@
 - [x] [item added]
 - [x] Pull: item added locally, unchanged on remote → local add persists
 - [x] Pull: item inexistent locally, added on remote → remote item pulled
-- [x] Pull: item added locally, added on remote with different content → ? (need to define: local add state or remote wins? Or conflict? or whatever)
+- [x] Pull: item added locally, added on remote with different content → ? local values win but meta fields don't ?
 
 - [x] [item deleted locally first]
 - [x] Pull: item deleted locally, unchanged on remote → item stays deleted (local wins)
@@ -33,37 +33,41 @@
 
 - [x] [item updated - non parent field - locally first]
 - [x] Pull: field updated locally on any field, unchanged on remote → local change persists
-- [x] Pull: same field (NON-CONFLICTING) on item updated locally, then remotely with different values → remote change persists
-- [x] Pull: same field (CONFLICTING) on item updated locally, then remotely with different values → conflict created
+- [x] Pull: same field on item updated locally, then remotely with same value → remote change persists
+- [x] Pull: same field (NON-CONFLICTING) on item updated locally, then remotely with different value → remote change persists
+- [x] Pull: same field (CONFLICTING) on item updated locally, then remotely with different value → conflict created
 
 - [x] [item updated - non parent field - remotely first]
 - [x] Pull: field unchanged locally, updated on remote on any field → remote value applied
-- [x] Pull: same field (NON-CONFLICTING) on item updated remotely, then locally with different values → local change persists
-- [x] Pull: same field (CONFLICTING) on item updated remotely, then locally with different values → local change persists
+- [x] Pull: same field on item updated remotely, then locally with same value → local change persists
+- [x] Pull: same field (NON-CONFLICTING) on item updated remotely, then locally with different value → local change persists
+- [x] Pull: same field (CONFLICTING) on item updated remotely, then locally with different value → local change persists
 
-- [ ] [item without children moved - parent field - locally first]
+- [x] [item without children moved - parent field - locally first]
 - [x] Pull: item moved locally, unchanged on remote → local move persists
 - [x] Pull: item moved locally, then moved to same parent on remote → remote wins
-- [ ] Pull: item moved locally to A, then moved remotely to B → conflict
-- [ ] Pull: item moved locally to A, then A deleted remotely → item follows parent deletion (moved to notebook or deleted)
-- [ ] Pull: item moved locally to A, B deleted locally, then item moved remotely to B → conflict
-- [ ] Pull: item moved locally to A, then item moved remotely to B, then B deleted locally
+- [x] Pull: item moved locally to A, then moved remotely to B → conflict
+- [x] Pull: item moved locally to A, then A deleted remotely → orphaned conflict
+- [x] Pull: item moved locally to A, B deleted locally, then item moved remotely to B → orphaned conflict
+- [x] Pull: item moved locally to A, then item moved remotely to B, then B deleted locally → orphaned conflict
 
-- [ ] [item without children moved - parent field - locally second]
-- [ ] Pull: A deleted remotely, then item moved locally to A
-- [ ] Pull: A deleted remotely, then item moved remotely to B, then item moved locally to A
+- [x] [item without children moved - parent field - remotely first]
+- [x] Pull: item unchanged locally, moved on remote → remote move applied
+- [x] Pull: item moved remotely, then moved to same parent locally → local wins
+- [x] Pull: item moved remotely to A, then moved locally to B → local wins
+- [x] Pull: item moved remotely to A, then A deleted locally → orphaned conflict
+- [x] Pull: item moved remotely to A, B deleted remotely, then item moved locally to B → orphaned conflict
+- [x] Pull: item moved remotely to A, then item moved locally to B, then B deleted remotely → orphaned conflict
 
-- [ ] [item without children moved - parent field - remotely first]
-- [ ] Pull: item unchanged locally, moved on remote → remote move applied
-- [ ] Pull: item moved remotely, then moved to same parent locally
-- [ ] Pull: item moved remotely to A, then moved locally to B
-- [ ] Pull: item moved remotely to A, then A deleted locally
-- [ ] Pull: item moved remotely to A, B deleted remotely, then item moved locally to B
-- [ ] Pull: item moved remotely to A, then item moved locally to B, then B deleted remotely
+- [x] [item without children moved - parent field - parent deleted remotely first]
+- [x] Pull: A deleted remotely, then item moved locally to A → orphaned conflict
+- [x] Pull: A deleted remotely, then item moved locally to A, then item moved remotely to B → remote wins
+- [x] Pull: A deleted remotely, then item moved remotely to B, then item moved locally to A → orphaned conflict
 
-- [ ] [item without children moved - parent field - remotely second]
-- [ ] Pull: A deleted locally, then item moved remotely to A
-- [ ] Pull: A deleted locally, then item moved locally to B, then item moved remotely to A
+- [x] [item without children moved - parent field - parent deleted locally first]
+- [x] Pull: A deleted locally, then item moved remotely to A → orphaned conflict
+- [x] Pull: A deleted locally, then item moved remotely to A, then item moved locally to B → local wins
+- [x] Pull: A deleted locally, then item moved locally to B, then item moved remotely to A
 
 - [ ] [folder/notebook with children moved]
 - [ ] Pull: node moved locally, node+children unchanged on remote → local move persists, children stay with node
