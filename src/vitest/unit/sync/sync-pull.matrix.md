@@ -69,19 +69,32 @@
 - [x] Pull: A deleted locally, then item moved remotely to A, then item moved locally to B → local wins
 - [x] Pull: A deleted locally, then item moved locally to B, then item moved remotely to A
 
-- [ ] [folder/notebook with children moved]
+<!-- - [ ] [folder/notebook with children moved]
 - [ ] Pull: node moved locally, node+children unchanged on remote → local move persists, children stay with node
 - [ ] Pull: node+children unchanged locally, node moved on remote → remote move applied, children follow
 - [ ] Pull: node moved locally to A, child also updated on remote (different field) → node in local parent, child has remote update
 - [ ] Pull: node moved remotely to A, child updated locally (different field) → node in remote parent, child has local update
-- [ ] Pull: node moved locally to A, then parent A deleted remotely → node+children follows A to notebook/deletion
+- [ ] Pull: node moved locally to A, then parent A deleted remotely → node+children follows A to notebook/deletion -->
+
+- [ ] [document with pages updated]
+      what it means for versionning:
+      j'ai le cas "page was updated", mais pas "page + doc" en même temps
+      Pull: a doc was updated locally, its page was updated remotely
+      Pull: a doc was updated remotely, its page page was updated locally
+      Pull: a doc & its page were updated remotely, the page locally
+      Pull: a doc & its page were updated remotely, the doc locally
+      Pull: a doc & its page were updated remotely, and both locally on CONFLICTING fields
+      Pull: a doc & its page were updated remotely, and both locally on NON-CONFLICTING fields
+      ...(same field, different fields, page added or removed...)
+      ...more than 1 page changed remotely or locally
 
 - [ ] [document with pages moved]
-- [ ] Pull: node moved locally, node+children unchanged on remote → local move persists, children stay with node
-- [ ] Pull: node+children unchanged locally, node moved on remote → remote move applied, children follow
-- [ ] Pull: node moved locally to A, child also updated on remote (different field) → node in local parent, child has remote update
-- [ ] Pull: node moved remotely to A, child updated locally (different field) → node in remote parent, child has local update
-- [ ] Pull: node moved locally to A, then parent A deleted remotely → node+children follows A to notebook/deletion
+- [x] Pull: document moved locally, document + pages unchanged on remote → local move persists, pages stay with document
+- [x] Pull: document with pages unchanged locally, document moved on remote → remote move applied, pages follow
+- [x] Pull: document moved locally, its page also updated on remote (different field) → doc in local parent, page has remote update
+- [ ] Pull: document moved remotely, page updated locally (different field) → doc in remote parent, page has local update
+- [ ] Pull: document moved remotely, page updated remotely (different field) → doc in remote parent, page has remote update
+- [ ] Pull: node moved locally to A, then parent A deleted remotely → doc and pages follow A to notebook/deletion
 
 - [ ] [item updated / moved - multiple]
 - [ ] Pull: different fields updated locally and remotely → both changes persisted

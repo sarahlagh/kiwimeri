@@ -1,6 +1,7 @@
 import {
   CollectionItem,
   CollectionItemType,
+  CollectionItemTypeValues,
   CollectionItemVersion,
   CollectionItemVersionOp
 } from '@/collection/collection';
@@ -9,7 +10,7 @@ import { parentField, TestField } from '@/vitest/setup/test.utils';
 
 export type PullTestEndStatsItem = {
   id?: string;
-  type?: CollectionItemType;
+  type?: CollectionItemTypeValues;
   parent?: string;
   exists?: boolean;
   hasValue?: 'init' | 'local' | 'remote' | null;
@@ -40,14 +41,17 @@ export type RelevantItem = {
   parentType: CollectionItemType;
   parentParentId: string;
   initValue?: {
+    field: TestField;
     value: SerializableData;
     at: number;
   };
   localValue?: {
+    field: TestField;
     value: SerializableData;
     at: number;
   };
   remoteValue?: {
+    field: TestField;
     value: SerializableData;
     at: number;
   };
@@ -151,28 +155,33 @@ export class PullTestEndStatsBuilder {
         }
       }
       const group = finalStats.groups[i];
-      const item = relevantItems[i];
+      const item = group.theItem.id
+        ? relevantItems.find(ri => ri.id === group.theItem.id)
+        : relevantItems[i];
+      if (!item) throw new Error('error: unable to resolve id');
       if (!group.theItem.id) {
         group.theItem.id = item.id;
       }
 
       let itemParent = item.parentId;
-      if (this.testField && this.testField.field === 'parent') {
+
+      let value;
+      if (item.localValue && item.remoteValue) {
+        value =
+          item.localValue.at > item.remoteValue.at
+            ? item.localValue
+            : item.remoteValue;
+      } else if (item.localValue) {
+        value = item.localValue;
+      } else if (item.remoteValue) {
+        value = item.remoteValue!;
+      } else if (item.initValue) {
+        value = item.initValue;
+      }
+      const testField = value?.field || this.testField;
+
+      if (testField && testField.field === 'parent' && value) {
         // item was moved
-        if (!item.localValue && !item.remoteValue) {
-          throw new Error('error: unable to resolve new parent');
-        }
-        let value;
-        if (item.localValue && item.remoteValue) {
-          value =
-            item.localValue.at > item.remoteValue.at
-              ? item.localValue
-              : item.remoteValue;
-        } else if (item.localValue) {
-          value = item.localValue;
-        } else {
-          value = item.remoteValue!;
-        }
         const oldParent = item.parentId;
         if (!group.itsOldParent) {
           group.itsOldParent = {
@@ -442,6 +451,7 @@ describe(`test stats builder`, () => {
           parentParentId: 'root',
           from: 'local',
           remoteValue: {
+            field: parentField,
             at: Date.now() + 99999,
             value: 'new parent'
           }
