@@ -174,6 +174,14 @@ class UserSettingsService {
   public setHistoryDebounceTime(value: number, space?: string) {
     storageService.getSpace(space).setValue('historyDebounceTime', value);
   }
+
+  public useHistoryMaxVersions(): number {
+    return useValueWithRef(this.storeId, 'maxHistoryPerDoc') as number;
+  }
+
+  public setHistoryMaxVersions(value: number) {
+    storageService.getStore().setValue('maxHistoryPerDoc', value);
+  }
 }
 
 const userSettingsService = new UserSettingsService();
