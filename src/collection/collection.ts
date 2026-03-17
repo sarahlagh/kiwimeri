@@ -20,7 +20,7 @@ export interface CollectionItem {
   tags_meta?: string;
   created: number;
   updated: number;
-  deleted: boolean;
+  deleted: boolean; // TODO remove
   deleted_meta: string;
   conflict?: string;
   order: number;
@@ -58,7 +58,7 @@ export type CollectionItemUpdatableFieldEnum = keyof Required<
     | 'title'
     | 'content'
     | 'tags'
-    | 'deleted'
+    | 'deleted' // TODO remove
     | 'order'
     | 'display_opts'
   >

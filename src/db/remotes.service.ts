@@ -1,4 +1,8 @@
-import { isDocument, isPage } from '@/collection/collection';
+import {
+  CollectionItemType,
+  isDocument,
+  isPage
+} from '@/collection/collection';
 import { networkService } from '@/common/services/network.service';
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
@@ -8,6 +12,7 @@ import {
   storageFilesystemFactory
 } from '@/remote-storage/storage-filesystem.factory';
 import {
+  AfterSyncHistChange,
   CloudStorageFilesystem,
   RemoteInfo
 } from '@/remote-storage/sync-types';
@@ -22,6 +27,7 @@ import {
 } from './tinybase/hooks';
 import {
   AnyData,
+  LocalChangeType,
   RemoteItemInfo,
   RemoteResult,
   RemoteState
@@ -452,15 +458,7 @@ class RemotesService {
           localChangesService.setLastPulled(resp.remoteInfo.lastRemoteChange);
 
         storageService.getSpace().setContent(resp.content);
-        // history must be updated
-        // only take single pages changes if a parent document change isn't present
-        const docs = resp.changes.filter(ch => isDocument({ type: ch.type }));
-        const pages = resp.changes.filter(
-          ch => isPage({ type: ch.type }) && !docs.find(d => d.id === ch.parent)
-        );
-        [...docs, ...pages].forEach(ch => {
-          historyService.updateAfterSync(ch);
-        });
+        this.handleHistory(resp.changes);
       }
     } catch (e) {
       console.error(
@@ -474,6 +472,55 @@ class RemotesService {
       return false;
     }
     return true;
+  }
+
+  private handleHistory(changes: AfterSyncHistChange[]) {
+    // history must be updated
+    // only take single pages changes if a parent document change isn't present
+    const docsMap = new Map<string, AfterSyncHistChange>();
+    changes
+      .filter(ch => isDocument({ type: ch.type }))
+      .forEach(ch => docsMap.set(ch.id, ch));
+    changes
+      .filter(
+        ch =>
+          isPage({ type: ch.type }) &&
+          !docsMap.has(ch.parent) &&
+          ch.change !== LocalChangeType.delete
+      )
+      .forEach(ch => {
+        docsMap.set(ch.parent, {
+          id: ch.parent,
+          type: CollectionItemType.document,
+          change: ch.change,
+          parent: '' // on doc, parent not used
+        });
+      });
+
+    // special case for pages deleted
+    changes
+      .filter(
+        ch => isPage({ type: ch.type }) && ch.change === LocalChangeType.delete
+      )
+      .forEach(ch => {
+        historyService.markLatestVersionDeleted(
+          ch.type,
+          ch.id,
+          ch.parent,
+          true
+        );
+        if (!docsMap.has(ch.parent)) {
+          docsMap.set(ch.parent, {
+            id: ch.parent,
+            type: CollectionItemType.document,
+            change: LocalChangeType.update,
+            parent: '' // on doc, parent not used
+          });
+        }
+      });
+    [...docsMap.values()].forEach(ch => {
+      historyService.updateAfterSync(ch);
+    });
   }
 
   public async push(remote: RemoteResult, force = false) {
