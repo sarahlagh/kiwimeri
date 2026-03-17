@@ -13,6 +13,7 @@ import {
   IonSelect,
   IonSelectOption
 } from '@ionic/react';
+import { useMediaQueryMatch } from '../hooks/useMediaQueryMatch';
 
 export type ConfigRowType = {
   key: string;
@@ -29,11 +30,13 @@ const ConfigValue = ({
   row,
   val,
   disabled,
+  small,
   onChange
 }: {
   row: ConfigRowType;
   val: SerializableData;
   disabled: boolean;
+  small: boolean;
   onChange: (key: string, val: SerializableData) => void;
 }) => {
   if (row.type === 'number') {
@@ -44,6 +47,8 @@ const ConfigValue = ({
         min={row.min}
         max={row.max}
         disabled={disabled}
+        label={small ? row.label : undefined}
+        labelPlacement={small ? 'stacked' : undefined}
         onIonChange={e => {
           if (e.detail.value) {
             const newValue = parseInt(e.detail.value);
@@ -58,11 +63,14 @@ const ConfigValue = ({
       <IonCheckbox
         checked={val as boolean}
         disabled={disabled}
+        labelPlacement={small ? 'start' : undefined}
         onIonChange={e => {
           const newValue = e.detail.checked;
           onChange(row.key, newValue);
         }}
-      ></IonCheckbox>
+      >
+        {small ? row.label : ''}
+      </IonCheckbox>
     );
   }
   if (row.type === 'enum' && row.values) {
@@ -71,6 +79,8 @@ const ConfigValue = ({
       <IonSelect
         placeholder={label}
         disabled={disabled}
+        label={small ? row.label : undefined}
+        labelPlacement={small ? 'stacked' : undefined}
         value={val}
         onIonChange={e => {
           const newValue = e.detail.value as string;
@@ -98,6 +108,23 @@ const ConfigValue = ({
   );
 };
 
+const InfoBtn = ({ v }: { v: ConfigRowType }) => {
+  return (
+    <>
+      {v.description && (
+        <>
+          <IonButton id={`trigger-${v.key}`} fill="clear">
+            <IonIcon icon={APPICONS.info}></IonIcon>
+          </IonButton>
+          <IonPopover trigger={`trigger-${v.key}`} triggerAction="click">
+            <IonContent class="ion-padding">{v.description}</IonContent>
+          </IonPopover>
+        </>
+      )}{' '}
+    </>
+  );
+};
+
 type EditConfigListProps = {
   rows: ConfigRowType[];
   initialState: AnySerializableData;
@@ -110,6 +137,7 @@ const EditConfigList = ({
   onChange,
   onClear
 }: EditConfigListProps) => {
+  const mqm = useMediaQueryMatch('sm');
   return (
     <IonList>
       {rows.map(v => {
@@ -120,28 +148,18 @@ const EditConfigList = ({
             className={disabled ? 'item-interactive-disabled' : undefined}
           >
             <IonLabel
+              class="ion-hide-sm-down"
               slot="start"
-              style={{ lineHeight: '30px', maxHeight: '30px' }}
+              style={{ lineHeight: '30px', maxHeight: '30px', display: 'flex' }}
             >
               {v.label}
-              {v.description && (
-                <>
-                  <IonButton id={`trigger-${v.key}`} fill="clear">
-                    <IonIcon icon={APPICONS.info}></IonIcon>
-                  </IonButton>
-                  <IonPopover
-                    trigger={`trigger-${v.key}`}
-                    triggerAction="click"
-                  >
-                    <IonContent class="ion-padding">{v.description}</IonContent>
-                  </IonPopover>
-                </>
-              )}
+              <InfoBtn v={v} />
             </IonLabel>
             <ConfigValue
               key={v.key}
               row={v}
               val={initialState[v.key]!}
+              small={!mqm}
               onChange={onChange}
               disabled={disabled}
             ></ConfigValue>

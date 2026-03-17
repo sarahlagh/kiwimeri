@@ -39,13 +39,13 @@ const CurrentSpaceSettings = () => {
           withRows={[
             {
               key: 'history_debounce_time',
-              label: t`History save time (minutes)`,
+              label: t`History save time`,
               description: t`When working on a document, a new version will be automatically saved every XX minutes`,
               type: 'number'
             },
             {
               key: 'max_history_per_doc',
-              label: t`Max number of versions kept per document`,
+              label: t`Number of versions`,
               description: t`The number of versions to keep per document. Set 0 for unlimited.`,
               type: 'number'
             }

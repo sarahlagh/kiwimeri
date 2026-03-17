@@ -184,8 +184,8 @@ msgid "Filesystem"
 msgstr "Filesystem"
 
 #: src/settings/components/sections/CurrentSpaceSettings.tsx:42
-msgid "History save time (minutes)"
-msgstr "History save time (minutes)"
+msgid "History save time"
+msgstr "History save time"
 
 #: src/constants.ts:65
 msgid "Home"
@@ -279,10 +279,6 @@ msgstr "Markdown (Kiwimeri flavor)"
 msgid "Max log history"
 msgstr "Max log history"
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:48
-msgid "Max number of versions kept per document"
-msgstr "Max number of versions kept per document"
-
 #: src/common/modals/ConfirmMultipleImportModal.tsx:96
 msgid "merged"
 msgstr "merged"
@@ -343,6 +339,10 @@ msgstr "Notebook Selection"
 #: src/common/modals/ConfirmMultipleImportModal.tsx:143
 msgid "Notebooks found in the archive, they will be converted to folders"
 msgstr "Notebooks found in the archive, they will be converted to folders"
+
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:48
+msgid "Number of versions"
+msgstr "Number of versions"
 
 #: src/constants.ts:71
 msgid "page"
