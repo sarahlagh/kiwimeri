@@ -76,27 +76,53 @@
 - [ ] Pull: node moved remotely to A, child updated locally (different field) → node in remote parent, child has local update
 - [ ] Pull: node moved locally to A, then parent A deleted remotely → node+children follows A to notebook/deletion -->
 
-- [ ] [document with pages updated]
-      what it means for versionning:
-      j'ai le cas "page was updated", mais pas "page + doc" en même temps
-      Pull: a doc was updated locally, its page was updated remotely
-      Pull: a doc was updated remotely, its page page was updated locally
-      Pull: a doc & its page were updated remotely, the page locally
-      Pull: a doc & its page were updated remotely, the doc locally
-      Pull: a doc & its page were updated remotely, and both locally on CONFLICTING fields
-      Pull: a doc & its page were updated remotely, and both locally on NON-CONFLICTING fields
-      ...(same field, different fields, page added or removed...)
-      ...more than 1 page changed remotely or locally
+- [x] [document with pages updated remotely]
+- [x] Pull: a doc & its page unchanged locally, were both updated remotely on content, order
+- [x] Pull: a doc & its page unchanged locally, were both updated remotely on different fields (any field for doc, content for page)
+<!-- - [ ] Pull: a doc unchanged locally, a new page was added to it remotely
+- [ ] Pull: a doc was updated locally, a new page was added to it remotely -->
+- [x] Pull: a doc was updated remotely, a new page was added to it remotely
+<!-- - [ ] Pull: an existing page of a doc was updated locally, a new page was added to it remotely -->
+- [x] Pull: an existing page of a doc was updated remotely, a new page was added to it remotely
+- [x] Pull: unchanged locally, 2 pages of a doc were added remotely
+- [x] Pull: unchanged locally, 2 pages of a doc were updated remotely
+- [x] Pull: unchanged locally, 1 page of a doc was added remotely and 1 page was deleted remotely
+- [x] Pull: unchanged locally, 1 page of a doc was updated remotely and 1 page was deleted remotely
 
-- [ ] [document with pages moved]
+<!-- - [ ] Pull: a doc & its page were updated remotely, the page locally on same CONFLICTING field
+- [ ] Pull: a doc & its page were updated remotely, the page locally on same NON-CONFLICTING field
+- [ ] Pull: a doc & its page were updated remotely, the page locally on different field
+- [ ] Pull: a doc & its page were updated remotely, the doc locally on same CONFLICTING field
+- [ ] Pull: a doc & its page were updated remotely, the doc locally on same NON-CONFLICTING field
+- [ ] Pull: a doc & its page were updated remotely, the doc locally on different field
+- [ ] Pull: a doc & its page were updated remotely, and both locally on CONFLICTING fields
+- [ ] Pull: a doc & its page were updated remotely, and both locally on NON-CONFLICTING fields
+- [ ] Pull: a doc & its page were updated remotely, and both locally on different fields -->
+<!-- ... and reverse order, remotely second? -->
+
+<!-- - [ ] Pull: a doc & its page were updated locally, the page remotely on same CONFLICTING field
+- [ ] Pull: a doc & its page were updated locally, the page remotely on same NON-CONFLICTING field
+- [ ] Pull: a doc & its page were updated locally, the page remotely on different field
+- [ ] Pull: a doc & its page were updated locally, the doc remotely on same CONFLICTING field
+- [ ] Pull: a doc & its page were updated locally, the doc remotely on same NON-CONFLICTING field
+- [ ] Pull: a doc & its page were updated locally, the doc remotely on different field -->
+
+- [x] [document with pages moved]
 - [x] Pull: document moved locally, document + pages unchanged on remote → local move persists, pages stay with document
 - [x] Pull: document with pages unchanged locally, document moved on remote → remote move applied, pages follow
 - [x] Pull: document moved locally, its page also updated on remote (different field) → doc in local parent, page has remote update
-- [ ] Pull: document moved remotely, page updated locally (different field) → doc in remote parent, page has local update
-- [ ] Pull: document moved remotely, page updated remotely (different field) → doc in remote parent, page has remote update
-- [ ] Pull: node moved locally to A, then parent A deleted remotely → doc and pages follow A to notebook/deletion
+- [x] Pull: document moved remotely, page updated locally (different field) → doc in remote parent, page has local update
+- [x] Pull: document moved remotely, page updated remotely (different field) → doc in remote parent, page has remote update
+<!-- - [ ] Pull: document moved locally to A, then parent A deleted remotely → doc and pages follow A to notebook/deletion -->
 
-- [ ] [item updated / moved - multiple]
-- [ ] Pull: different fields updated locally and remotely → both changes persisted
-- [ ] Pull: different fields updated remotely and locally → both changes persisted
-- [ ] Pull: multiple fields updated locally (one conflicting, one non-conflicting), same fields updated remotely → ?
+<!-- - [ ] [document with pages - has deleted page]
+- [ ] Pull: a doc & its page were updated remotely, the page deleted locally
+- [ ] Pull: a doc & its page were updated remotely, the doc & page deleted locally
+- [ ] Pull: a doc & its page were updated locally, the page deleted remotely
+- [ ] Pull: a doc & its page were updated locally, the doc & page deleted remotely -->
+
+<!-- that can be outside of matrix: -->
+
+- [x] [item updated / moved - multiple]
+- [x] Pull: different fields on item updated locally and remotely → both changes persisted
+- [x] Pull: multiple fields on item updated locally (one conflicting, one non-conflicting), same fields updated remotely → ?

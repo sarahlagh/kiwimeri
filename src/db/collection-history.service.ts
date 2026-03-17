@@ -651,7 +651,8 @@ class CollectionHistoryService {
   public markLatestVersionDeleted(
     type: CollectionItemTypeValues,
     itemId: string,
-    parentId: string
+    parentId: string,
+    skipDocUpdate = false
   ) {
     if (!this.enabled) return;
     const latest = this.getLatestVersion(itemId);
@@ -674,7 +675,7 @@ class CollectionHistoryService {
       const latestDoc = this.getLatestVersion(parentId);
       if (latestDoc.op === 'deleted') return; // no-op
       // if doc still exists, create new version
-      if (collectionService.itemExists(parentId)) {
+      if (collectionService.itemExists(parentId) && !skipDocUpdate) {
         this.saveVersionSync(parentId, [itemId]);
       }
       this.duplicateSingleVersion(latest, 'deleted');

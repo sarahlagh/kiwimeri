@@ -23,10 +23,8 @@ function generateTestSuite(force: boolean) {
   Object.keys(scenarioMatrix).forEach(key => {
     const category = scenarioMatrix[key];
 
-    if (key !== 'documentWithPagesMoved') return; // DEBUG
-    category.scenarios.splice(0, category.scenarios.length - 1); // only run last test
-
     if (category.skip === true) return;
+    if (force && category.skipForcePull === true) return;
     describe(`${category.label}`, () => {
       allTypes.forEach(({ type, typeName }) => {
         if (category.types && !category.types.find(t => t === type)) {

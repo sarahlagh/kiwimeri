@@ -51,6 +51,7 @@ type ItemData = {
 };
 
 export interface PullTestScenario {
+  id?: string;
   description: string;
   types?: CollectionItemTypeValues[];
   initRemoteData?: ItemData[];

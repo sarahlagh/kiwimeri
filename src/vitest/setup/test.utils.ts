@@ -178,6 +178,11 @@ export const allHistorizableFields: TestField[] = [
   displayOptsField
 ];
 
+export const allPageHistorizableFields: TestField[] = [
+  contentField,
+  orderField
+];
+
 export const getNewValue = (
   valueType: ValueType,
   potentialId?: string
