@@ -521,6 +521,7 @@ class RemotesService {
     [...docsMap.values()].forEach(ch => {
       historyService.updateAfterSync(ch);
     });
+    historyService.gc();
   }
 
   public async push(remote: RemoteResult, force = false) {

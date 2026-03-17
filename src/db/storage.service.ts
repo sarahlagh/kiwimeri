@@ -97,6 +97,7 @@ class StorageService {
         theme: { type: 'string', default: 'dark' },
         showDevTools: { type: 'boolean', default: false },
         maxLogHistory: { type: 'number', default: 500 },
+        maxHistoryPerDoc: { type: 'number', default: 30 },
         internalProxy: { type: 'string' },
         currentSpace: { type: 'string', default: DEFAULT_SPACE_ID },
         exportIncludeMetadata: { type: 'boolean', default: true },

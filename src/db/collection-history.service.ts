@@ -147,6 +147,43 @@ class CollectionHistoryService {
     return queryName;
   }
 
+  private buildVersionsGCQuery(maxPerDoc: number, space?: string) {
+    const queries = storageService.getSpaceQueries(space);
+    const queryName = 'GetVersionsForGC';
+    queries.setQueryDefinition(
+      queryName,
+      'history',
+      ({ select, where, param }) => {
+        select('rank');
+        select('contentId');
+        where(getCell => {
+          const maxPerDocParam = param('maxPerDoc')?.valueOf() as number;
+          return (getCell('rank')?.valueOf() as number) >= maxPerDocParam;
+        });
+      },
+      { maxPerDoc }
+    );
+    return queryName;
+  }
+
+  private buildContentGCQuery(contentId: string, space?: string) {
+    const mainQueryName = 'ContentById';
+    const queries = storageService.getSpaceQueries(space);
+    let i = 0;
+    while (queries.hasQuery(`${mainQueryName}${i}`)) i++;
+    const queryName = `${mainQueryName}${i}`;
+    queries.setQueryDefinition(
+      queryName,
+      'history',
+      ({ select, where, param }) => {
+        select('contentId');
+        where('contentId', param('contentId') as string);
+      },
+      { contentId }
+    );
+    return queryName;
+  }
+
   public start(space?: string) {
     this.useVersionedPagesQuery = this.buildVersionsWithContentQuery(
       [],
@@ -739,6 +776,34 @@ class CollectionHistoryService {
     } else {
       historyService.markLatestVersionDeleted(ch.type, ch.id, ch.parent);
     }
+  }
+
+  public gc() {
+    const maxHistoryPerDoc = storageService
+      .getStore()
+      .getValue('maxHistoryPerDoc');
+    if (maxHistoryPerDoc <= 0) return;
+    const space = storageService.getSpace();
+    const queries = storageService.getSpaceQueries();
+    const queryName = this.buildVersionsGCQuery(maxHistoryPerDoc);
+    // delete history entries with rank > maxHistoryPerDoc
+    const resultRows = queries.getResultRowIds(queryName).map(rowId => ({
+      ...(queries.getResultRow(queryName, rowId) as { contentId: string }),
+      versionId: rowId
+    }));
+    console.log(resultRows.length, 'versions to delete');
+    const contentQuery = this.buildContentGCQuery('');
+    resultRows.forEach(row => {
+      space.delRow('history', row.versionId);
+      // query by contentId here
+      queries.setParamValue(contentQuery, 'contentId', row.contentId);
+      if (queries.getResultRowIds(contentQuery).length === 0) {
+        // content is now unused
+        space.delRow('history_content', row.contentId);
+      }
+    });
+    queries.delQueryDefinition(contentQuery);
+    queries.delQueryDefinition(queryName);
   }
 }
 

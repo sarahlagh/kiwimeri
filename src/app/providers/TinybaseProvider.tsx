@@ -1,6 +1,7 @@
 import Loading from '@/app/components/Loading';
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
+import { historyService } from '@/db/collection-history.service';
 import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
 import { appLog } from '@/log';
@@ -20,6 +21,7 @@ const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
       setIsLoading(false);
       await remotesService.initSync();
       appLog.gc(); // TODO run at interval
+      historyService.gc();
     }
     load();
 

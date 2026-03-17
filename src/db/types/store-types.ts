@@ -132,6 +132,7 @@ export type StoreType = [
     currentSpace: { type: 'string'; default: string };
     showDevTools: { type: 'boolean'; default: false };
     maxLogHistory: { type: 'number'; default: 500 };
+    maxHistoryPerDoc: { type: 'number'; default: 30 };
     internalProxy: { type: 'string' };
     exportIncludeMetadata: { type: 'boolean'; default: true };
     exportInlinePages: { type: 'boolean'; default: true };

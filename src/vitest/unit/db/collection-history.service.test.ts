@@ -18,6 +18,7 @@ import { searchAncestryService } from '@/search/search-ancestry.service';
 import { renderHook } from '@testing-library/react';
 import { it, vi } from 'vitest';
 import {
+  fakeTimersDelay,
   GET_CONTENT_UPDATE_FIELDS,
   getNewContent,
   getNewValue,
@@ -34,6 +35,7 @@ describe('collection history service', () => {
   });
   afterEach(() => {
     vi.useRealTimers();
+    storageService.getStore().delValue('maxHistoryPerDoc');
     searchAncestryService.stop();
   });
 
@@ -909,5 +911,34 @@ describe('collection history service', () => {
       expect(result.current).toHaveLength(0);
       unmount();
     }
+  });
+
+  it(`should gc versions and content`, () => {
+    storageService.getStore().setValue('maxHistoryPerDoc', 3);
+    const doc1 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+    vi.advanceTimersByTime(fakeTimersDelay);
+    collectionService.setItemField(doc1, 'content', getNewValue('lex'));
+    vi.advanceTimersByTime(fakeTimersDelay);
+    collectionService.setItemField(doc1, 'title', getNewValue('string'));
+    vi.advanceTimersByTime(fakeTimersDelay);
+    collectionService.setItemField(doc1, 'content', getNewValue('lex'));
+    vi.advanceTimersByTime(fakeTimersDelay);
+    collectionService.setItemField(doc1, 'title', getNewValue('string'));
+    vi.advanceTimersByTime(fakeTimersDelay);
+    expect(historyService.getVersions(doc1)).toHaveLength(5);
+    expect(storageService.getSpace().getRowCount('history_content')).toBe(3);
+
+    historyService.gc();
+    expect(historyService.getVersions(doc1)).toHaveLength(3);
+    expect(storageService.getSpace().getRowCount('history_content')).toBe(2);
+
+    // one more title version - one content is removed
+    vi.advanceTimersByTime(fakeTimersDelay);
+    collectionService.setItemField(doc1, 'title', getNewValue('string'));
+    vi.advanceTimersByTime(fakeTimersDelay);
+
+    historyService.gc();
+    expect(historyService.getVersions(doc1)).toHaveLength(3);
+    expect(storageService.getSpace().getRowCount('history_content')).toBe(1);
   });
 });
