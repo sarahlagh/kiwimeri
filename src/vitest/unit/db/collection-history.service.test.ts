@@ -9,8 +9,10 @@ import { getGlobalTrans } from '@/config';
 import { DEFAULT_NOTEBOOK_ID, DEFAULT_SPACE_ID } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
 import collectionService, { initialContent } from '@/db/collection.service';
+import localChangesService from '@/db/local-changes.service';
 import storageService from '@/db/storage.service';
 import { defaultOrder } from '@/db/types/space-types';
+import { LocalChangeType } from '@/db/types/store-types';
 import userSettingsService from '@/db/user-settings.service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { renderHook } from '@testing-library/react';
@@ -108,6 +110,7 @@ describe('collection history service', () => {
       expect(versions).toHaveLength(2);
       expect(versions[0].snapshotJson.title).toBe(newValue);
       expect(versions[1].snapshotJson.title).toBe(itemBefore.title);
+      localChangesService.clear();
 
       historyService.restoreDocumentVersion(docId, versions[1].id!);
       const restoredItem = storageService
@@ -120,6 +123,12 @@ describe('collection history service', () => {
       expect(versions[0].snapshotJson.title).toBe(itemBefore.title);
       expect(versions[1].snapshotJson.title).toBe(newValue);
       expect(versions[2].snapshotJson.title).toBe(itemBefore.title);
+
+      const lc = localChangesService.getLocalChanges();
+      expect(lc).toHaveLength(1);
+      expect(lc[0].change).toBe(LocalChangeType.update);
+      expect(lc[0].item).toBe(docId);
+      expect(lc[0].field).toBeUndefined();
     });
 
     it(`should version unsaved changes when restoring to a previous version`, () => {
@@ -263,6 +272,66 @@ describe('collection history service', () => {
       expect(versions).toHaveLength(2);
       expect(versions[0].op).toBe('deleted');
       expect(versions[0].snapshotJson.title).toBe('new title');
+    });
+
+    it(`should create a new version after a conflict resolution by update`, () => {
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      expect(historyService.getVersions(docId)).toHaveLength(1);
+      vi.advanceTimersByTime(100);
+
+      const space = storageService.getSpace();
+      const item = space.getRow('collection', docId);
+      // create conflict
+      const ts = Date.now();
+      const conflictId = space.addRow('collection', {
+        ...{ ...item, id: undefined },
+        conflict: docId,
+        created: ts,
+        updated: ts
+      })!;
+      expect(collectionService.isItemConflict(conflictId)).toBe(true);
+      expect(historyService.getVersions(conflictId)).toHaveLength(0);
+      vi.advanceTimersByTime(100);
+
+      collectionService.setItemTitle(conflictId, 'conflict resolution'); // resolve conflict
+      vi.advanceTimersByTime(100);
+
+      expect(collectionService.isItemConflict(conflictId)).toBe(false);
+
+      expect(historyService.getVersions(docId)).toHaveLength(1);
+      expect(historyService.getVersions(conflictId)).toHaveLength(1);
+      expect(historyService.getLatestVersion(conflictId).op).toBe('snapshot');
+      expect(
+        historyService.getLatestVersion(conflictId).snapshotJson.title
+      ).toBe('conflict resolution');
+    });
+
+    it(`should create a new version after a conflict resolution by delete`, () => {
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      expect(historyService.getVersions(docId)).toHaveLength(1);
+      vi.advanceTimersByTime(100);
+
+      const space = storageService.getSpace();
+      const item = space.getRow('collection', docId);
+      // create conflict
+      const ts = Date.now();
+      const conflictId = space.addRow('collection', {
+        ...{ ...item, id: undefined },
+        conflict: docId,
+        created: ts,
+        updated: ts
+      })!;
+      expect(collectionService.isItemConflict(conflictId)).toBe(true);
+      expect(historyService.getVersions(conflictId)).toHaveLength(0);
+      vi.advanceTimersByTime(100);
+
+      collectionService.deleteItem(conflictId); // resolve conflict
+      vi.advanceTimersByTime(100);
+
+      expect(collectionService.isItemConflict(conflictId)).toBe(false);
+
+      expect(historyService.getVersions(docId)).toHaveLength(1);
+      expect(historyService.getVersions(conflictId)).toHaveLength(0);
     });
   });
 
@@ -539,6 +608,7 @@ describe('collection history service', () => {
       let versions = historyService.getVersions(pageId);
       expect(versions).toHaveLength(2);
 
+      localChangesService.clear();
       vi.advanceTimersByTime(100);
       historyService.restorePageVersion(pageId, versions[1].id!);
 
@@ -560,6 +630,12 @@ describe('collection history service', () => {
         .getSpace()
         .getRow('collection', pageId) as CollectionItem;
       expect(restoredItem).toEqual({ ...itemBefore, updated: Date.now() });
+
+      const lc = localChangesService.getLocalChanges();
+      expect(lc).toHaveLength(1);
+      expect(lc[0].change).toBe(LocalChangeType.update);
+      expect(lc[0].item).toBe(pageId);
+      expect(lc[0].field).toBeUndefined();
     });
 
     it(`should version unsaved changes when restoring to a previous version`, () => {

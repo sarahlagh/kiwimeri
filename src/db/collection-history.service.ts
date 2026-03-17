@@ -600,7 +600,7 @@ class CollectionHistoryService {
   public saveDeleteVersion(itemId: string, type: CollectionItemTypeValues) {
     if (!this.enabled) return;
     const latest = this.getLatestVersion(itemId);
-    if (latest.op === 'deleted') return; // no-op
+    if (!latest || latest.op === 'deleted') return; // no-op
     if (type === CollectionItemType.document) {
       const pages = collectionService.getDocumentPages(itemId);
       pages.forEach(p => {
