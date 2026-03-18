@@ -1,5 +1,5 @@
 import { APPICONS } from '@/constants';
-import collectionService from '@/db/collection.service';
+import { searchAncestryService } from '@/search/search-ancestry.service';
 import { IonIcon, IonItem, IonLabel, IonText } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 
@@ -9,8 +9,13 @@ type WordCountProps = {
 
 const WordCount = ({ id }: WordCountProps) => {
   // temp until we store it in model
-  const content = collectionService.useItemContent(id);
-  const wordCount = content ? content.split(/\s+/).length : 0;
+  const content = searchAncestryService.useItemPreview(id);
+  const segmenter = new Intl.Segmenter(undefined, { granularity: 'word' });
+  const wordCount = content
+    ? Array.from(segmenter.segment(content)).filter(seg => seg.isWordLike)
+        .length
+    : 0;
+
   return (
     <>
       <IonItem className="inner-item">

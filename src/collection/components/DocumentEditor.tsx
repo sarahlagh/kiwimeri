@@ -186,7 +186,9 @@ const DocumentEditor = ({
           </KiwimeriEditor>
         )}
       </IonContent>
-      {showDocumentFooter && <DocumentEditorFooter id={docId} />}
+      {showDocumentFooter && (
+        <DocumentEditorFooter docId={docId} pageId={pageId} />
+      )}
     </>
   );
 };
