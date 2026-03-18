@@ -4,6 +4,9 @@ const config: CapacitorConfig = {
   appId: 'io.kiwimeri',
   appName: 'Kiwimeri',
   webDir: 'dist',
+  android: {
+    adjustMarginsForEdgeToEdge: 'auto'
+  },
   plugins: {
     StatusBar: {
       overlaysWebView: false

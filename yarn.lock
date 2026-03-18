@@ -818,17 +818,40 @@
     mime-types "~2.1.35"
     ora "^5.4.1"
 
-"@capacitor/android@7.0.1":
-  version "7.0.1"
-  resolved "https://registry.yarnpkg.com/@capacitor/android/-/android-7.0.1.tgz#16c45a305edeb8bcf0b083ea52abcc62ca4e5e70"
-  integrity sha512-jukJJHfkcyEBOkFBJRD3EwXMIIQo7lSv0ExPWgsIliPdGXLAj6ElvK2JaYEzec3vKyLc4RTNFVv0PMEU0vnImg==
+"@capacitor/android@^7.4.4":
+  version "7.6.0"
+  resolved "https://registry.yarnpkg.com/@capacitor/android/-/android-7.6.0.tgz#f6e34c4dc13c9cf0128055c9df470ca336dfe9ab"
+  integrity sha512-xpfAOGcgeQnTw8C0E9nLjW15lQ6TL2ccieZks93hNiQYknnQT8FQaH2paMYkLYrQ0JfRImdBXbQ1u6sZ4kVa3w==
 
-"@capacitor/app@7.0.0":
-  version "7.0.0"
-  resolved "https://registry.npmjs.org/@capacitor/app/-/app-7.0.0.tgz"
-  integrity sha512-/UFwfPFsw/Jen6vjrV0lfTBOQWSaDDdmrYXKpYg4Xn8hwj0xrrRPXxC43j7VmPoj9AFMVPA+hx94ygqjChPASQ==
+"@capacitor/app@7.1.0":
+  version "7.1.0"
+  resolved "https://registry.yarnpkg.com/@capacitor/app/-/app-7.1.0.tgz#d275eebbb0fec6104b3f9c41f09f7598d7808b47"
+  integrity sha512-W7m09IWrUjZbo7AKeq+rc/KyucxrJekTBg0l4QCm/yDtCejE3hebxp/W2esU26KKCzMc7H3ClkUw32E9lZkwRA==
 
-"@capacitor/cli@7.0.1", "@capacitor/cli@>=5.4.0":
+"@capacitor/cli@7.4.4":
+  version "7.4.4"
+  resolved "https://registry.yarnpkg.com/@capacitor/cli/-/cli-7.4.4.tgz#bfce7db8b15d6f44c9d58dc338a5e3d662fecfbb"
+  integrity sha512-J7ciBE7GlJ70sr2s8oz1+H4ZdNk4MGG41fsakUlDHWva5UWgFIZYMiEdDvGbYazAYTaxN3lVZpH9zil9FfZj+Q==
+  dependencies:
+    "@ionic/cli-framework-output" "^2.2.8"
+    "@ionic/utils-subprocess" "^3.0.1"
+    "@ionic/utils-terminal" "^2.3.5"
+    commander "^12.1.0"
+    debug "^4.4.0"
+    env-paths "^2.2.0"
+    fs-extra "^11.2.0"
+    kleur "^4.1.5"
+    native-run "^2.0.1"
+    open "^8.4.0"
+    plist "^3.1.0"
+    prompts "^2.4.2"
+    rimraf "^6.0.1"
+    semver "^7.6.3"
+    tar "^6.1.11"
+    tslib "^2.8.1"
+    xml2js "^0.6.2"
+
+"@capacitor/cli@>=5.4.0":
   version "7.0.1"
   resolved "https://registry.npmjs.org/@capacitor/cli/-/cli-7.0.1.tgz"
   integrity sha512-KNKT25ZvNL8Gm+zxSxCq8n9FQYUBsZcAGs5lisQKHnDRz7tkTMmMNok+TlNlLn6to78J1k+OtBgpmfbFerpOng==
@@ -851,37 +874,51 @@
     tslib "^2.8.1"
     xml2js "^0.6.2"
 
-"@capacitor/core@7.0.1", "@capacitor/core@>=5.4.0":
+"@capacitor/core@7.4.4":
+  version "7.4.4"
+  resolved "https://registry.yarnpkg.com/@capacitor/core/-/core-7.4.4.tgz#b752dd7a12141e40d1c8ce2e37a79571d9f83518"
+  integrity sha512-xzjxpr+d2zwTpCaN0k+C6wKSZzWFAb9OVEUtmO72ihjr/NEDoLvsGl4WLfjWPcCO2zOy0b2X52tfRWjECFUjtw==
+  dependencies:
+    tslib "^2.1.0"
+
+"@capacitor/core@>=5.4.0":
   version "7.0.1"
   resolved "https://registry.npmjs.org/@capacitor/core/-/core-7.0.1.tgz"
   integrity sha512-1Ob9bvA/p8g8aNwK6VesxEekGXowLVf6APjkW4LRnr05H+7z/bke+Q5pn9zqh/GgTbIxAQ/rwZrAZvvxkdm1UA==
   dependencies:
     tslib "^2.1.0"
 
-"@capacitor/filesystem@^7.0.0":
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/@capacitor/filesystem/-/filesystem-7.0.0.tgz#3823c5a63dfa2992db401832db1dbe6063f1b1a7"
-  integrity sha512-xMzLq+ZaqYBAincYOKF1eNy/3UWwx1XM6TuvWBTVQTHeRsURzqwwbqBKtfkhbRzk5wnXEprWZz5k5iFo2s2BXw==
+"@capacitor/filesystem@^7.0.3":
+  version "7.1.8"
+  resolved "https://registry.yarnpkg.com/@capacitor/filesystem/-/filesystem-7.1.8.tgz#82ace28c836959cbc60d93b1083a7ea4585ca9e6"
+  integrity sha512-Qpw/2SE4/CzqAUvGgSM9hw/uXQ5qoOaF4wxbToXwpAaKPS+tzletS1h5ti3jjLmGcqizTs2sEXMtcsARW/Ceew==
+  dependencies:
+    "@capacitor/synapse" "^1.0.3"
 
-"@capacitor/haptics@7.0.0":
-  version "7.0.0"
-  resolved "https://registry.npmjs.org/@capacitor/haptics/-/haptics-7.0.0.tgz"
-  integrity sha512-8uI8rWyAbq8EzkjS+sHZSncyzujHzVbuLKgj8J5H0yUL6+r26F16gVA2iuQuIBvzbSMy7Y0/pUuWlwZr/H8AKg==
-
-"@capacitor/keyboard@7.0.0":
-  version "7.0.0"
-  resolved "https://registry.npmjs.org/@capacitor/keyboard/-/keyboard-7.0.0.tgz"
-  integrity sha512-Tqwy8wG+sx4UqiFCX4Q+bFw6uKgG7BiHKAPpeefoIgoEB8H8Jf3xZNZoVPnJIMuPsCdSvuyHXZbJXH9IEEirGA==
-
-"@capacitor/network@^7.0.2":
+"@capacitor/haptics@7.0.2":
   version "7.0.2"
-  resolved "https://registry.yarnpkg.com/@capacitor/network/-/network-7.0.2.tgz#8dd91aba31ab3243052d8f18fb68227f5c82ff11"
-  integrity sha512-KKkiUvGfMVKIcYaG+KlGAxrQtoRnwJtT+9yhTkCFzZWeYrY91sBZKOVOfnNHO8RiOxqbKn5VSUlyFLQQiyyfyg==
+  resolved "https://registry.yarnpkg.com/@capacitor/haptics/-/haptics-7.0.2.tgz#cc253a75646f2d0647029f2cfd59b2b143843e75"
+  integrity sha512-vqfeEM6s2zMgLjpITCTUIy7P/hadq/Gr5E/RClFgMJPB41Y5FsqOKD+j85/uwh8N2cf/aWaPeXUmjnTzJbEB2g==
 
-"@capacitor/status-bar@7.0.0":
-  version "7.0.0"
-  resolved "https://registry.npmjs.org/@capacitor/status-bar/-/status-bar-7.0.0.tgz"
-  integrity sha512-wsvPkWkoSOXMIgVHu4c6P1sOuDSZ1ClUo5OpLRwj7u8DYzlV4jlmNzztQn2Lvsiqx1z4kfukSaqe40k1Lo4c9g==
+"@capacitor/keyboard@7.0.3":
+  version "7.0.3"
+  resolved "https://registry.yarnpkg.com/@capacitor/keyboard/-/keyboard-7.0.3.tgz#8e05a70a386479f0cd2778fbec1adda5f6e18cee"
+  integrity sha512-BIBKjmky5rOYNhvYhNeDi0MMvjwYZ6YF9JoCYcGKvKY+XLJKtezsEL78XfOlgWZBkbfR8uq3tzktY6PqgoYLKA==
+
+"@capacitor/network@^7.0.3":
+  version "7.0.4"
+  resolved "https://registry.yarnpkg.com/@capacitor/network/-/network-7.0.4.tgz#5b2b51fad872b4b45546e24b0606441b58d01551"
+  integrity sha512-fNhN3968AQWMnzasPJ0B8e+nyk7+R6V9PWIBQWSQRHrKndDgWRHpxkjEzJPgnJr3EjnKLjbwO+UYy+EwBlGs3A==
+
+"@capacitor/status-bar@7.0.3":
+  version "7.0.3"
+  resolved "https://registry.yarnpkg.com/@capacitor/status-bar/-/status-bar-7.0.3.tgz#4e8c1ac49cf928576cfac1c78cc3f9886088ebfe"
+  integrity sha512-JyRpVnKwHij9hgPWolF6PK+HT3e2HSPjN11/h2OmKxq8GAdPGARFLv+97eZl0pvuvm0Kka/LpiLb5whXISBg7Q==
+
+"@capacitor/synapse@^1.0.3":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@capacitor/synapse/-/synapse-1.0.4.tgz#c6beb33119d9656b1f04cb7783989fb78933ef6d"
+  integrity sha512-/C1FUo8/OkKuAT4nCIu/34ny9siNHr9qtFezu4kxm6GY1wNFxrCFWjfYx5C1tUhVGz3fxBABegupkpjXvjCHrw==
 
 "@dnd-kit/accessibility@^3.1.1":
   version "3.1.1"
