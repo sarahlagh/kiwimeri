@@ -28,7 +28,9 @@ export type SpaceType = [
     lastUpdated: { type: 'number'; default: number };
     defaultSortBy: { type: 'string'; default: string };
     defaultSortDesc: { type: 'boolean'; default: false };
-    historyDebounceTime: { type: 'number'; default: number };
+    historyIdleTime: { type: 'number'; default: number };
+    historyMaxInterval: { type: 'number'; default: number };
+    maxHistoryPerDoc: { type: 'number'; default: number };
     schemaVersion: { type: 'string'; default: string };
   }
 ];

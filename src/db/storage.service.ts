@@ -97,7 +97,6 @@ class StorageService {
         theme: { type: 'string', default: 'dark' },
         showDevTools: { type: 'boolean', default: false },
         maxLogHistory: { type: 'number', default: 500 },
-        maxHistoryPerDoc: { type: 'number', default: 30 },
         internalProxy: { type: 'string' },
         currentSpace: { type: 'string', default: DEFAULT_SPACE_ID },
         exportIncludeMetadata: { type: 'boolean', default: true },
@@ -201,7 +200,9 @@ class StorageService {
         lastUpdated: { type: 'number', default: 0 },
         defaultSortBy: { type: 'string', default: 'created' },
         defaultSortDesc: { type: 'boolean', default: false },
-        historyDebounceTime: { type: 'number', default: 60000 },
+        historyIdleTime: { type: 'number', default: 15000 },
+        historyMaxInterval: { type: 'number', default: 300000 },
+        maxHistoryPerDoc: { type: 'number', default: 50 },
         schemaVersion: { type: 'string', default: '' }
       });
   }

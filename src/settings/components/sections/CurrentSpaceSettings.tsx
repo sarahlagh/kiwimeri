@@ -11,8 +11,8 @@ import GenericCollectionSettings from './GenericCollectionSettings';
 
 const CurrentSpaceSettings = () => {
   const defaultDisplayOpts = userSettingsService.useSpaceDefaultDisplayOpts();
-  const defaultHistoryDebounceTime =
-    userSettingsService.useHistoryDebounceTime();
+  const defaultHistoryIdleTime = userSettingsService.useHistoryIdleTime();
+  const defaultHistoryMaxInterval = userSettingsService.useHistoryMaxInterval();
   const defaultMaxVersionsPerDoc = userSettingsService.useHistoryMaxVersions();
   const { t } = useLingui();
 
@@ -38,9 +38,15 @@ const CurrentSpaceSettings = () => {
           }}
           withRows={[
             {
-              key: 'history_debounce_time',
-              label: t`History save time`,
-              description: t`When working on a document, a new version will be automatically saved every XX minutes`,
+              key: 'history_idle_time',
+              label: t`History idle time (s)`,
+              description: t`When working on a document, a new version will be automatically if idle after XX seconds`,
+              type: 'number'
+            },
+            {
+              key: 'history_max_interval',
+              label: t`History save time (min)`,
+              description: t`When working on a document, a new version will be automatically at least every XX minutes`,
               type: 'number'
             },
             {
@@ -51,12 +57,15 @@ const CurrentSpaceSettings = () => {
             }
           ]}
           withInitialState={{
-            history_debounce_time: defaultHistoryDebounceTime / 60000,
+            history_idle_time: defaultHistoryIdleTime / 1000,
+            history_max_interval: defaultHistoryMaxInterval / 60000,
             max_history_per_doc: defaultMaxVersionsPerDoc
           }}
           withOnChange={(key, val) => {
-            if (key === 'history_debounce_time') {
-              userSettingsService.setHistoryDebounceTime(
+            if (key === 'history_idle_time') {
+              userSettingsService.setHistoryIdleTime((val as number) * 1000);
+            } else if (key === 'history_max_interval') {
+              userSettingsService.setHistoryMaxInterval(
                 (val as number) * 60000
               );
             } else if (key === 'max_history_per_doc') {

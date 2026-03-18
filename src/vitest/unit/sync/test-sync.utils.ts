@@ -19,7 +19,9 @@ let iPush = 0;
 const defaultValues: SpaceValues = {
   defaultSortBy: 'order',
   defaultSortDesc: true,
-  historyDebounceTime: 60000,
+  historyIdleTime: 15000,
+  historyMaxInterval: 300000,
+  maxHistoryPerDoc: 50,
   lastUpdated: Date.now(),
   schemaVersion: ''
 };
@@ -34,7 +36,7 @@ export const testSyncBeforeEach = async () => {
   vi.useFakeTimers();
   searchAncestryService.start(DEFAULT_SPACE_ID);
   historyService['enabled'] = true;
-  userSettingsService.setHistoryDebounceTime(0);
+  userSettingsService.setHistoryIdleTime(0);
 };
 
 export const testSyncAfterEach = () => {

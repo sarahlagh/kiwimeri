@@ -61,7 +61,9 @@ let iPush = 0;
 const defaultValues: SpaceValues = {
   defaultSortBy: 'order',
   defaultSortDesc: true,
-  historyDebounceTime: 60000,
+  historyIdleTime: 15000,
+  historyMaxInterval: 300000,
+  maxHistoryPerDoc: 50,
   lastUpdated: Date.now(),
   schemaVersion: ''
 };

@@ -31,11 +31,11 @@ describe('collection history service', () => {
     vi.useFakeTimers();
     searchAncestryService.start(DEFAULT_SPACE_ID);
     historyService.start(DEFAULT_SPACE_ID);
-    userSettingsService.setHistoryDebounceTime(50);
+    userSettingsService.setHistoryIdleTime(50);
   });
   afterEach(() => {
     vi.useRealTimers();
-    storageService.getStore().delValue('maxHistoryPerDoc');
+    storageService.getSpace().delValue('maxHistoryPerDoc');
     searchAncestryService.stop();
   });
 
@@ -95,6 +95,30 @@ describe('collection history service', () => {
       vi.advanceTimersByTime(100);
       const versions = historyService.getVersions(docId);
       expect(versions).toHaveLength(2);
+    });
+
+    it(`should debounce changes 2`, () => {
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      expect(historyService.getVersions(docId)).toHaveLength(1);
+      vi.advanceTimersByTime(100);
+
+      userSettingsService.setHistoryIdleTime(30);
+
+      collectionService.setItemTitle(docId, 'new title 1');
+      vi.advanceTimersByTime(10);
+
+      collectionService.setItemTitle(docId, 'new title 2');
+      vi.advanceTimersByTime(10);
+
+      collectionService.setItemTitle(docId, 'new title 3');
+      vi.advanceTimersByTime(10);
+      // no new version triggered yet
+      expect(historyService.getVersions(docId)).toHaveLength(1);
+
+      vi.advanceTimersByTime(10);
+      expect(historyService.getVersions(docId)).toHaveLength(1);
+      vi.advanceTimersByTime(20);
+      expect(historyService.getVersions(docId)).toHaveLength(2);
     });
 
     it(`should restore to a previous version`, () => {
@@ -914,7 +938,7 @@ describe('collection history service', () => {
   });
 
   it(`should gc versions and content`, () => {
-    storageService.getStore().setValue('maxHistoryPerDoc', 3);
+    storageService.getSpace().setValue('maxHistoryPerDoc', 3);
     const doc1 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     vi.advanceTimersByTime(fakeTimersDelay);
     collectionService.setItemField(doc1, 'content', getNewValue('lex'));

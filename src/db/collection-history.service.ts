@@ -50,8 +50,7 @@ class CollectionHistoryService {
   private readonly storeId = 'space';
   private readonly tableId = 'history';
   private readonly contentTableId = 'history_content';
-  private cache = new Map<string, number>();
-  private timeouts = new Map<string, number>();
+  private timeouts = new Map<string, NodeJS.Timeout>();
 
   private useVersionedPagesQuery = 'PageVersionsWithContent';
 
@@ -388,28 +387,56 @@ class CollectionHistoryService {
     return this.searchVersions(pageVersions);
   }
 
+  // TODO later: check version snapshot (don't create duplicates)
   public addVersion(id: string, sync = false) {
     if (!this.enabled) return;
     if (sync) {
-      this.saveVersionSync(id);
+      this.flushVersion(id);
       return;
     }
-    if (!this.cache.has(id)) this.cache.set(id, 0);
-    const debounce = userSettingsService.getHistoryDebounceTime();
-    if (Date.now() - this.cache.get(id)! >= debounce) {
-      this.cache.set(id, Date.now());
-      this.timeouts.set(
-        id,
-        setTimeout(
-          () => {
-            this.saveVersionSync(id);
-            this.timeouts.delete(id);
-          },
-          debounce,
-          []
-        )
-      );
+
+    const now = Date.now();
+    const idleDelay = userSettingsService.getHistoryIdleTime();
+    const maxInterval = userSettingsService.getHistoryMaxInterval();
+
+    const existingTimeout = this.timeouts.get(id);
+    if (existingTimeout) {
+      clearTimeout(existingTimeout);
     }
+
+    const lastVersion = this.getLatestVersion(id)?.createdAt || null;
+
+    // force periodic checkpoint during long continuous writing
+    if (lastVersion != null && now - lastVersion >= maxInterval) {
+      this.flushVersion(id);
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      const lastChange = collectionService.getItem(id)?.updated || 0;
+      if (lastChange == null) {
+        this.timeouts.delete(id);
+        return;
+      }
+
+      const idleFor = Date.now() - lastChange;
+      if (idleFor >= idleDelay) {
+        this.flushVersion(id);
+      } else {
+        this.addVersion(id); // reschedule
+      }
+    }, idleDelay);
+
+    this.timeouts.set(id, timeout);
+  }
+
+  public flushVersion(id: string) {
+    const existingTimeout = this.timeouts.get(id);
+    if (existingTimeout) {
+      clearTimeout(existingTimeout);
+      this.timeouts.delete(id);
+    }
+    this.saveVersionSync(id);
   }
 
   public versionExists(id: string) {
@@ -752,7 +779,6 @@ class CollectionHistoryService {
       clearTimeout(t);
       this.saveVersionSync(id);
     });
-    this.cache.clear();
     this.timeouts.clear();
   }
 
@@ -780,7 +806,7 @@ class CollectionHistoryService {
 
   public gc() {
     const maxHistoryPerDoc = storageService
-      .getStore()
+      .getSpace()
       .getValue('maxHistoryPerDoc');
     if (maxHistoryPerDoc <= 0) return;
     const space = storageService.getSpace();

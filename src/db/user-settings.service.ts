@@ -160,27 +160,39 @@ class UserSettingsService {
     return this.getSpaceDefaultDisplayOpts(space);
   }
 
-  public getHistoryDebounceTime(space?: string): number {
+  public getHistoryIdleTime(space?: string): number {
+    return storageService.getSpace(space).getValue('historyIdleTime').valueOf();
+  }
+
+  public useHistoryIdleTime(): number {
+    return useValueWithRef(this.spaceId, 'historyIdleTime') as number;
+  }
+
+  public setHistoryIdleTime(value: number, space?: string) {
+    storageService.getSpace(space).setValue('historyIdleTime', value);
+  }
+
+  public getHistoryMaxInterval(space?: string): number {
     return storageService
       .getSpace(space)
-      .getValue('historyDebounceTime')
+      .getValue('historyMaxInterval')
       .valueOf();
   }
 
-  public useHistoryDebounceTime(): number {
-    return useValueWithRef(this.spaceId, 'historyDebounceTime') as number;
+  public useHistoryMaxInterval(): number {
+    return useValueWithRef(this.spaceId, 'historyMaxInterval') as number;
   }
 
-  public setHistoryDebounceTime(value: number, space?: string) {
-    storageService.getSpace(space).setValue('historyDebounceTime', value);
+  public setHistoryMaxInterval(value: number, space?: string) {
+    storageService.getSpace(space).setValue('historyMaxInterval', value);
   }
 
   public useHistoryMaxVersions(): number {
-    return useValueWithRef(this.storeId, 'maxHistoryPerDoc') as number;
+    return useValueWithRef(this.spaceId, 'maxHistoryPerDoc') as number;
   }
 
-  public setHistoryMaxVersions(value: number) {
-    storageService.getStore().setValue('maxHistoryPerDoc', value);
+  public setHistoryMaxVersions(value: number, space?: string) {
+    storageService.getSpace(space).setValue('maxHistoryPerDoc', value);
   }
 }
 

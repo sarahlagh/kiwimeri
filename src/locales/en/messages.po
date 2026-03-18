@@ -184,8 +184,12 @@ msgid "Filesystem"
 msgstr "Filesystem"
 
 #: src/settings/components/sections/CurrentSpaceSettings.tsx:42
-msgid "History save time"
-msgstr "History save time"
+msgid "History idle time (s)"
+msgstr "History idle time (s)"
+
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:48
+msgid "History save time (min)"
+msgstr "History save time (min)"
 
 #: src/constants.ts:65
 msgid "Home"
@@ -340,7 +344,7 @@ msgstr "Notebook Selection"
 msgid "Notebooks found in the archive, they will be converted to folders"
 msgstr "Notebooks found in the archive, they will be converted to folders"
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:48
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:54
 msgid "Number of versions"
 msgstr "Number of versions"
 
@@ -469,7 +473,7 @@ msgstr "Text..."
 msgid "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 msgstr "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:49
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:55
 msgid "The number of versions to keep per document. Set 0 for unlimited."
 msgstr "The number of versions to keep per document. Set 0 for unlimited."
 
@@ -490,9 +494,13 @@ msgstr "US"
 msgid "Username"
 msgstr "Username<<<<<<< HEAD"
 
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:49
+msgid "When working on a document, a new version will be automatically at least every XX minutes"
+msgstr "When working on a document, a new version will be automatically at least every XX minutes"
+
 #: src/settings/components/sections/CurrentSpaceSettings.tsx:43
-msgid "When working on a document, a new version will be automatically saved every XX minutes"
-msgstr "When working on a document, a new version will be automatically saved every XX minutes"
+msgid "When working on a document, a new version will be automatically if idle after XX seconds"
+msgstr "When working on a document, a new version will be automatically if idle after XX seconds"
 
 #: src/collection/components/WordCount.tsx:21
 msgid "words"

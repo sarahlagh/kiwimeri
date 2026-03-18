@@ -63,7 +63,7 @@ describe('import service', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.advanceTimersByTime(2000);
-    userSettingsService.setHistoryDebounceTime(50);
+    userSettingsService.setHistoryIdleTime(50);
     historyService['enabled'] = true;
   });
   afterEach(() => {
