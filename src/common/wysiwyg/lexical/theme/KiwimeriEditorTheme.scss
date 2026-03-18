@@ -2,12 +2,15 @@
   min-height: 150px;
   resize: none;
   font-size: 15px;
-  caret-color: rgb(5, 5, 5);
   position: relative;
   tab-size: 1;
   outline: 0;
   padding: 0px 10px;
-  caret-color: #444;
+  caret-color: var(--ion-color-dark);
+}
+
+.ion-palette-dark .editor-input {
+  caret-color: #00e5ff;
 }
 
 .editor-paragraph {
