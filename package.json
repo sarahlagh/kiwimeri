@@ -2,7 +2,7 @@
   "name": "kiwimeri-app",
   "description": "A Pleasant Writing App",
   "private": true,
-  "version": "0.2.8",
+  "version": "0.2.9",
   "type": "module",
   "scripts": {
     "dev": "concurrently \"docker compose up nginx -d\" \"lingui extract --watch\" \"ionic serve\"",
@@ -24,9 +24,9 @@
   "dependencies": {
     "@capacitor-community/electron": "^5.0.1",
     "@capacitor/android": "^7.4.4",
-    "@capacitor/filesystem": "^7.0.3",
     "@capacitor/app": "7.1.0",
     "@capacitor/core": "7.4.4",
+    "@capacitor/filesystem": "^7.0.3",
     "@capacitor/haptics": "7.0.2",
     "@capacitor/keyboard": "7.0.3",
     "@capacitor/network": "^7.0.3",
