@@ -492,7 +492,7 @@ msgstr "US"
 #: src/synchronization/components/providers/PCloudSettings.tsx:112
 #: src/synchronization/components/providers/PCloudSettings.tsx:115
 msgid "Username"
-msgstr "Username<<<<<<< HEAD"
+msgstr "Username"
 
 #: src/settings/components/sections/CurrentSpaceSettings.tsx:49
 msgid "When working on a document, a new version will be automatically at least every XX minutes"
