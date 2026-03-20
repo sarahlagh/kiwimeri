@@ -180,7 +180,8 @@ const DocumentEditor = ({
                 docPreview={documentPreview}
                 pages={pages}
                 searchText={toggleSearch ? query || '' : null}
-                showHideSelf={toggleSearch}
+                showActions={!toggleSearch}
+                setOpenPageBrowser={setOpenPageBrowser}
               />
             )}
           </KiwimeriEditor>

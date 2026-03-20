@@ -133,11 +133,11 @@ msgstr "Document History"
 msgid "Download Logs"
 msgstr "Download Logs"
 
-#: src/common/wysiwyg/pages-browser/CollectionPagesBrowser.tsx:88
+#: src/common/wysiwyg/pages-browser/CollectionPagesBrowser.tsx:90
 msgid "empty doc"
 msgstr "empty doc"
 
-#: src/common/wysiwyg/pages-browser/CollectionPagesBrowser.tsx:89
+#: src/common/wysiwyg/pages-browser/CollectionPagesBrowser.tsx:91
 msgid "empty page"
 msgstr "empty page"
 

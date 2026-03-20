@@ -187,16 +187,15 @@ const DocumentVersionViewer = ({
             content={content}
             searchText={toggleSearch ? query : null}
             enablePageBrowser={true}
-            openPageBrowser={openPageBrowser}
           >
-            {openPageBrowser && (
+            {pages.length > 0 && (
               <CollectionPagesBrowser
                 id={itemId}
                 docId={docId}
                 docPreview={documentPreview || ''}
                 pages={pages}
                 searchText={toggleSearch ? query || '' : null}
-                showHideSelf={false}
+                showActions={false}
                 editable={false}
                 getUrl={(folderId, docId, pageId, searchText) => {
                   if (!pageId) {
