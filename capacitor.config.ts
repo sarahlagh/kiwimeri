@@ -4,16 +4,26 @@ const config: CapacitorConfig = {
   appId: 'io.kiwimeri',
   appName: 'Kiwimeri',
   webDir: 'dist',
-  android: {
-    adjustMarginsForEdgeToEdge: 'auto'
-  },
   plugins: {
     StatusBar: {
       overlaysWebView: false
     },
     CapacitorHttp: {
       enabled: true
+    },
+    Keyboard: {
+      resizeOnFullScreen: false
     }
+  },
+  android: {
+    includePlugins: [
+      '@capacitor/app',
+      '@capacitor/filesystem',
+      '@capacitor/haptics',
+      '@capacitor/keyboard',
+      '@capacitor/network',
+      '@capacitor/status-bar'
+    ]
   }
 };
 
