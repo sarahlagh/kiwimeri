@@ -127,7 +127,7 @@ const KiwimeriEditor = (
 
       {children}
 
-      {!platformService.isRelease() && enableDebugTreeView && editable && (
+      {platformService.isWeb() && enableDebugTreeView && editable && (
         <DebugTreeViewPlugin />
       )}
     </LexicalComposer>

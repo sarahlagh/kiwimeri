@@ -32,6 +32,12 @@ import { initGlobalTrans } from './config';
 import { historyService } from './db/collection-history.service';
 import { messages as enMessages } from './locales/en/messages';
 
+if (platformService.isAndroid()) {
+  import('./theme/android-edge-to-edge.scss').then(() => {
+    console.debug('loaded stylesheet for android');
+  });
+}
+
 setupIonicReact({
   sanitizerEnabled: true
 });
