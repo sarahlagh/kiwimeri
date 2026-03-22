@@ -12,8 +12,8 @@ import '@ionic/react/css/text-alignment.css';
 import '@ionic/react/css/text-transformation.css';
 /* Dark Theme */
 import '@ionic/react/css/palettes/dark.class.css';
-/* Theme variables */
-import './theme/variables.scss';
+/* global */
+import './theme/global.scss';
 
 import { IonApp, setupIonicReact } from '@ionic/react';
 import { i18n } from '@lingui/core';
