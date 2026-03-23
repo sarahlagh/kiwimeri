@@ -19,7 +19,6 @@ import { IonApp, setupIonicReact } from '@ionic/react';
 import { i18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/react';
 
-import { App as CapacitorApp } from '@capacitor/app';
 import { IonReactRouter } from '@ionic/react-router';
 import { useEffect } from 'react';
 import MainLayout from './app/MainLayout';
@@ -27,6 +26,10 @@ import InitialRoutingProvider from './app/providers/InitialRoutingProvider';
 import { NetworkStatusProvider } from './app/providers/NetworkStatusProvider';
 import TinybaseProvider from './app/providers/TinybaseProvider';
 import { ToastProvider } from './app/providers/ToastProvider';
+import {
+  addAndroidListeners,
+  removeAndroidListeners
+} from './capacitor/handle-core-plugins';
 import platformService from './common/services/platform.service';
 import { initGlobalTrans } from './config';
 import { historyService } from './db/collection-history.service';
@@ -65,16 +68,12 @@ const App = () => {
       historyService.saveNow();
       return undefined;
     }
-    // otherwise catch app paused on android and other
-    if (!platformService.isWeb()) {
-      CapacitorApp.addListener('pause', () => {
-        console.debug('capacitor pause');
-        historyService.saveNow();
-      });
-    }
     console.debug('remaining timeouts', historyService['timeouts'].size);
+    if (!platformService.isWeb()) {
+      addAndroidListeners();
+    }
     return () => {
-      CapacitorApp.removeAllListeners();
+      removeAndroidListeners();
     };
   }, []);
 

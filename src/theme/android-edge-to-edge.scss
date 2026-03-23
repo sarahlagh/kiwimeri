@@ -6,26 +6,19 @@
   margin-right: var(--safe-area-inset-right, 0px);
 }
 
-// top
 // cancel global style with .ion-page to make it more specific
 .ion-page ion-toolbar:first-of-type {
   padding-top: 0;
 }
-// reapply margin only on first top toolbar
-ion-router-outlet > .ion-page > ion-header ion-toolbar:first-of-type {
-  margin-top: var(--ion-safe-area-top, 0);
-  padding-top: 0;
-}
-
-// bottom
-// cancel global style with .ion-page to make it more specific
 .ion-page ion-footer.footer-toolbar-padding ion-toolbar:last-of-type {
   padding-bottom: 0;
 }
 
-// reapply margin only on first level page
-ion-router-outlet > .ion-page {
-  margin-bottom: var(--ion-safe-area-bottom, 0);
+// reapply style only for main content
+#main-content {
+  margin-top: var(--safe-area-inset-top, 0);
+  margin-bottom: var(
+    --keyboard-bottom-offset,
+    var(--safe-area-inset-bottom, 0px)
+  );
 }
-
-// and the left-side menu of the split pane
