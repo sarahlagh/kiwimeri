@@ -11,6 +11,10 @@ const updateKeyboardOffsetFromViewport = () => {
     '--keyboard-bottom-offset',
     offset > 0 ? `${offset}px` : ''
   );
+  document.documentElement.style.setProperty(
+    '--viewport-height',
+    `${vv.height}px`
+  );
 };
 
 export const addAndroidListeners = () => {

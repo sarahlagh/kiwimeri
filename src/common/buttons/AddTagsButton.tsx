@@ -34,7 +34,7 @@ const AddTagsButton = ({ id }: AddTagsButtonProps) => {
         fill="clear"
         onClick={() => {
           present({
-            cssClass: 'auto-height'
+            cssClass: 'keyboard-aware-modal'
           });
         }}
       >

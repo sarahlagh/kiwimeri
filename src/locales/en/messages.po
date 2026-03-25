@@ -29,19 +29,19 @@ msgstr "An error occurred loading the file"
 msgid "Archive is empty"
 msgstr "Archive is empty"
 
-#: src/common/modals/ConfirmYesNoDialog.tsx:24
-#: src/common/buttons/ManageHistoryButton.tsx:142
 #: src/collection/components/CollectionItemList.tsx:66
+#: src/common/buttons/ManageHistoryButton.tsx:142
+#: src/common/modals/ConfirmYesNoDialog.tsx:24
 msgid "Are you sure?"
 msgstr "Are you sure?"
 
-#: src/common/modals/ConfirmYesNoDialog.tsx:28
-#: src/common/modals/ConfirmMultipleImportModal.tsx:330
-#: src/common/modals/ConfirmFileImportModal.tsx:78
-#: src/common/modals/ChooseTagsModal.tsx:99
-#: src/common/buttons/RestoreCollectionButton.tsx:64
-#: src/common/buttons/ManageHistoryButton.tsx:145
 #: src/common/buttons/ExportItemsButton.tsx:132
+#: src/common/buttons/ManageHistoryButton.tsx:145
+#: src/common/buttons/RestoreCollectionButton.tsx:64
+#: src/common/modals/ChooseTagsModal.tsx:100
+#: src/common/modals/ConfirmFileImportModal.tsx:81
+#: src/common/modals/ConfirmMultipleImportModal.tsx:330
+#: src/common/modals/ConfirmYesNoDialog.tsx:28
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -73,14 +73,14 @@ msgstr "Config"
 msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
 
-#: src/notebooks/components/ManageNotebooksModal.tsx:95
-#: src/common/modals/ConfirmYesNoDialog.tsx:36
-#: src/common/modals/ConfirmMultipleImportModal.tsx:336
-#: src/common/modals/ConfirmFileImportModal.tsx:81
-#: src/common/modals/ChooseTagsModal.tsx:106
-#: src/common/buttons/RestoreCollectionButton.tsx:71
-#: src/common/buttons/ManageHistoryButton.tsx:149
 #: src/common/buttons/ExportItemsButton.tsx:139
+#: src/common/buttons/ManageHistoryButton.tsx:149
+#: src/common/buttons/RestoreCollectionButton.tsx:71
+#: src/common/modals/ChooseTagsModal.tsx:107
+#: src/common/modals/ConfirmFileImportModal.tsx:84
+#: src/common/modals/ConfirmMultipleImportModal.tsx:336
+#: src/common/modals/ConfirmYesNoDialog.tsx:36
+#: src/notebooks/components/ManageNotebooksModal.tsx:95
 msgid "Confirm"
 msgstr "Confirm"
 
@@ -104,8 +104,8 @@ msgstr "Default"
 msgid "deleted item"
 msgstr "deleted item"
 
-#: src/app/pages/DevToolsPage.tsx:15
 #: src/app/components/MainMenuList.tsx:82
+#: src/app/pages/DevToolsPage.tsx:15
 msgid "Dev Tools"
 msgstr "Dev Tools"
 
@@ -165,9 +165,9 @@ msgstr "Errors have been detected on the following files:"
 msgid "EU"
 msgstr "EU"
 
-#: src/settings/components/sections/ImportExportStoreSettings.tsx:73
 #: src/settings/components/sections/ImportExportCollectionSettings.tsx:54
 #: src/settings/components/sections/ImportExportCollectionSettings.tsx:68
+#: src/settings/components/sections/ImportExportStoreSettings.tsx:73
 msgid "Export"
 msgstr "Export"
 
@@ -195,10 +195,12 @@ msgstr "History save time (min)"
 msgid "Home"
 msgstr "Home"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:112
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:105
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
@@ -211,7 +213,7 @@ msgstr "Import & export your app settings"
 msgid "Import & export your collection"
 msgstr "Import & export your collection"
 
-#: src/common/modals/ConfirmFileImportModal.tsx:43
+#: src/common/modals/ConfirmFileImportModal.tsx:44
 msgid "Import file in folder {folderName}"
 msgstr "Import file in folder {folderName}"
 
@@ -247,10 +249,12 @@ msgstr "Link"
 msgid "Loading..."
 msgstr "Loading..."
 
+#. placeholder {0}: localChanges.length
 #: src/synchronization/components/LocalChangesCard.tsx:38
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
+#. placeholder {0}: dateToStr('datetime', lastLocalChange)
 #: src/synchronization/components/LocalChangesCard.tsx:44
 msgid "Local: {0}"
 msgstr "Local: {0}"
@@ -316,7 +320,7 @@ msgstr "New folder name: "
 msgid "New notebook name: "
 msgstr "New notebook name: "
 
-#: src/common/modals/ChooseTagsModal.tsx:84
+#: src/common/modals/ChooseTagsModal.tsx:85
 msgid "New tag"
 msgstr "New tag"
 
@@ -324,7 +328,7 @@ msgstr "New tag"
 msgid "no"
 msgstr "no"
 
-#: src/common/modals/ChooseTagsModal.tsx:50
+#: src/common/modals/ChooseTagsModal.tsx:53
 msgid "No tag yet"
 msgstr "No tag yet"
 
@@ -380,6 +384,7 @@ msgstr "Pick a directory for your backups"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
+#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
 #: src/synchronization/components/LocalChangesCard.tsx:51
 msgid "Remote: {0}"
 msgstr "Remote: {0}"
@@ -388,8 +393,8 @@ msgstr "Remote: {0}"
 msgid "Reorder"
 msgstr "Reorder"
 
-#: src/settings/components/sections/ImportExportStoreSettings.tsx:83
 #: src/common/buttons/RestoreCollectionButton.tsx:91
+#: src/settings/components/sections/ImportExportStoreSettings.tsx:83
 msgid "Restore"
 msgstr "Restore"
 
@@ -409,7 +414,7 @@ msgstr "Search Content"
 msgid "Search input"
 msgstr "Search input"
 
-#: src/common/modals/ChooseTagsModal.tsx:38
+#: src/common/modals/ChooseTagsModal.tsx:39
 msgid "Select item tags"
 msgstr "Select item tags"
 
@@ -417,8 +422,8 @@ msgstr "Select item tags"
 msgid "Server"
 msgstr "Server"
 
-#: src/app/pages/SettingsPage.tsx:9
 #: src/app/components/MainMenuList.tsx:68
+#: src/app/pages/SettingsPage.tsx:9
 msgid "Settings"
 msgstr "Settings"
 
@@ -438,13 +443,13 @@ msgstr "space option modified"
 msgid "Space Settings"
 msgstr "Space Settings"
 
-#: src/common/buttons/GenericImportFileButton.tsx:48
 #: src/common/buttons/GenericExportFileButton.tsx:48
+#: src/common/buttons/GenericImportFileButton.tsx:48
 msgid "Success!"
 msgstr "Success!"
 
-#: src/app/pages/SynchronizationPage.tsx:9
 #: src/app/components/MainMenuList.tsx:74
+#: src/app/pages/SynchronizationPage.tsx:9
 msgid "Synchronization"
 msgstr "Synchronization"
 
@@ -464,7 +469,7 @@ msgstr "Text"
 msgid "Text..."
 msgstr "Text..."
 
-#: src/common/modals/ConfirmFileImportModal.tsx:53
+#: src/common/modals/ConfirmFileImportModal.tsx:54
 msgid "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 msgstr "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 

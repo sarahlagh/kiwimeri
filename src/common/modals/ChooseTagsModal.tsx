@@ -5,6 +5,7 @@ import {
   IonButton,
   IonButtons,
   IonCheckbox,
+  IonContent,
   IonFooter,
   IonHeader,
   IonIcon,
@@ -45,13 +46,13 @@ const ChooseTagsModal = ({ id, onClose }: ChooseTagsModalProps) => {
           </IonButtons>
         </IonToolbar>
       </IonHeader>
-      {allTags.length === 0 && (
-        <IonItem>
-          <Trans>No tag yet</Trans>
-        </IonItem>
-      )}
-      {allTags.length > 0 && (
-        <IonList style={{ maxHeight: '400px', overflowY: 'auto' }}>
+      <IonContent>
+        <IonList>
+          {allTags.length === 0 && (
+            <IonItem>
+              <Trans>No tag yet</Trans>
+            </IonItem>
+          )}
           {values.map(value => (
             <IonItem key={value.tag}>
               <IonInput
@@ -77,7 +78,7 @@ const ChooseTagsModal = ({ id, onClose }: ChooseTagsModalProps) => {
             </IonItem>
           ))}
         </IonList>
-      )}
+      </IonContent>
       <IonFooter>
         <IonInput
           style={{ marginLeft: '16px' }}

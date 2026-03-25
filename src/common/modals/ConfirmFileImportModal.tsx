@@ -2,6 +2,7 @@ import { CollectionItemResult } from '@/collection/collection';
 import { getGlobalTrans } from '@/config';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
+import { searchAncestryService } from '@/search/search-ancestry.service';
 import {
   IonButton,
   IonButtons,
@@ -65,7 +66,9 @@ const ConfirmFileImportModal = ({
             <IonItem key={item.id}>
               <IonRadio value={item}>
                 {item.title}
-                <IonLabel color={'medium'}>{item.preview}</IonLabel>
+                <IonLabel color={'medium'}>
+                  {searchAncestryService.getItemPreview(item.id)}
+                </IonLabel>
               </IonRadio>
             </IonItem>
           ))}

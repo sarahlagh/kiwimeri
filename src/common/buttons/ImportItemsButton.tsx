@@ -123,7 +123,7 @@ const ImportItemsButton = ({
 
       return new Promise<OnContentReadResponse>(resolve => {
         presentMultiple({
-          cssClass: 'auto-height',
+          cssClass: 'keyboard-aware-modal',
           onWillDismiss: (event: CustomEvent<OverlayEventDetail>) => {
             if (
               event.detail.data?.confirm === true &&
