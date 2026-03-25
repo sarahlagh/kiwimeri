@@ -56,7 +56,7 @@ class AppLogService {
     const maxLogHistory = storageService.getStore().getValue('maxLogHistory');
     const rowCount = storageService.getStore().getRowCount(this.table);
     if (rowCount > maxLogHistory) {
-      console.debug('running log gc', rowCount - maxLogHistory);
+      console.log('running log gc', rowCount - maxLogHistory);
       this.delLogs(rowCount - maxLogHistory);
     }
   }

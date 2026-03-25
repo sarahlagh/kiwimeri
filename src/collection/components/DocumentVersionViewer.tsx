@@ -90,7 +90,6 @@ const DocumentVersionViewer = ({
     : CollectionItemType.document;
 
   const pages = historyService.useDocumentVersionedPages(docId, docVersion);
-  console.debug('pages for version', docVersion, pages);
 
   useEffect(() => {
     if (query) {

@@ -87,8 +87,6 @@ const ManageHistoryModal = ({
   const { t } = useLingui();
   const [alert] = useIonAlert();
   const docHistory = historyService.getVersions(id);
-  console.debug('id', id, docHistory);
-  console.debug('viewing', docVersion);
   return (
     <>
       <IonHeader>

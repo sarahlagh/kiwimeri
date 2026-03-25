@@ -72,7 +72,6 @@ const ImportItemsButton = ({
   };
 
   const onSingleDocumentRead = async (content: string, file: File) => {
-    console.debug('file', file);
     // TODO don't hardcode the regex here
     const fileName = file.name.replace(/\.(md|MD)$/, '');
     const { doc, pages } = importService.parseNonLexicalContent(content);
@@ -112,8 +111,6 @@ const ImportItemsButton = ({
   };
 
   const onZipFileRead = async (content: ArrayBuffer, file: File) => {
-    console.debug('file', file);
-
     return importService.readZip(content).then(unzipped => {
       const zipData = importService.parseZipData(file.name, unzipped);
       setParams({

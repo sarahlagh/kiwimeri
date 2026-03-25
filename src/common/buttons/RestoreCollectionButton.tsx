@@ -21,8 +21,7 @@ const RestoreCollectionButton = ({
   const { t } = useLingui();
   const [alert] = useIonAlert();
 
-  const onSingleJsonRead = async (content: string, file: File) => {
-    console.debug('file', file);
+  const onSingleJsonRead = async (content: string) => {
     // TODO validate schema
     const [collection, values] = JSON.parse(content);
     const space = storageService.getSpace();
@@ -32,8 +31,6 @@ const RestoreCollectionButton = ({
   };
 
   const onZipFileRead = async (content: ArrayBuffer, file: File) => {
-    console.debug('file', file);
-
     return importService.readZip(content).then(unzipped => {
       const zipData = importService.parseZipData(file.name, unzipped);
       if (!importService.canRestoreSpace(zipData)) {
@@ -48,7 +45,7 @@ const RestoreCollectionButton = ({
     if (zipTypes.find(type => file.type === type)) {
       return onZipFileRead(content, file);
     } else if (textTypes.find(type => file.type === type)) {
-      return onSingleJsonRead(new TextDecoder().decode(content), file);
+      return onSingleJsonRead(new TextDecoder().decode(content));
     }
     return { confirm: false, reason: ImportFileRejectReason.NotSupported };
   };

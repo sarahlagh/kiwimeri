@@ -16,7 +16,7 @@ const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     async function load() {
-      console.debug('[storage] starting');
+      console.log('[storage] starting');
       await storageService.start();
       setIsLoading(false);
       await remotesService.initSync();
@@ -26,7 +26,7 @@ const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
     load();
 
     return () => {
-      console.debug('[storage] stopping');
+      console.log('[storage] stopping');
       remotesService.stopSync();
       storageService.stop();
     };

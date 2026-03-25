@@ -43,7 +43,7 @@ class NotebooksService {
 
   public initNotebooks() {
     if (!this.hasOneNotebook()) {
-      console.debug('[storage] no local notebooks detected, creating default');
+      console.log('[storage] no local notebooks detected, creating default');
       const id = notebooksService.addNotebook(
         getGlobalTrans().defaultNotebookName
       );

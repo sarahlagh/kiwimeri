@@ -774,7 +774,7 @@ class CollectionHistoryService {
   // when leaving app, must save pending timeouts
   public saveNow() {
     if (!this.enabled) return;
-    console.log('force saving current tasks', this.timeouts.size);
+    console.debug('force saving current tasks', this.timeouts.size);
     this.timeouts.forEach((t, id) => {
       clearTimeout(t);
       this.saveVersionSync(id);
@@ -817,7 +817,7 @@ class CollectionHistoryService {
       ...(queries.getResultRow(queryName, rowId) as { contentId: string }),
       versionId: rowId
     }));
-    console.log(resultRows.length, 'versions to delete');
+    console.log('running versions gc', resultRows.length);
     const contentQuery = this.buildContentGCQuery('');
     resultRows.forEach(row => {
       space.delRow('history', row.versionId);

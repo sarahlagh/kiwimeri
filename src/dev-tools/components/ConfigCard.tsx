@@ -146,7 +146,6 @@ const ConfigCard = () => {
             const [changed, , newValue] = getValueChange(row.key);
             if (changed) {
               state[row.key] = getNewValueOrDefault(row.key, newValue);
-              console.debug('value changed', row.key, state[row.key]);
               setState({ ...state });
               if (row.onChange) {
                 setTimeout(row.onChange);

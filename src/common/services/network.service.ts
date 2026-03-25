@@ -14,7 +14,7 @@ class NetworkService {
         !this.networkStatus ||
         this.networkStatus.connected !== status.connected
       ) {
-        console.debug('[network] network status changed', status);
+        console.log('[network] network status changed', status);
         this.networkStatus = status;
         this.fireInternalListeners(status);
       }
@@ -25,7 +25,7 @@ class NetworkService {
     const status = await Network.getStatus();
     // web version of Network.getStatus relies on window.navigator.onLine
     // TODO better implementation
-    console.debug('[network] got init status', status);
+    console.log('[network] got init status', status);
     if (!this.networkStatus) {
       this.networkStatus = status;
       this.fireInternalListeners(status);

@@ -193,14 +193,10 @@ export class SingleFileStorage extends CloudStorageFilesystem {
       newRemoteState.lastRemoteChange = driverInfo.updated;
     }
 
-    console.debug('[push] localInfo', localInfo);
-    console.debug(
-      '[push] pulled file',
-      newLastRemoteChange > cachedLastRemoteChange && !force
-    );
-    console.debug('[push] cachedRemoteInfo', cachedRemoteInfo);
-    console.debug('[push] newRemoteState', newRemoteState);
-    console.debug('[push] newRemoteValues', newRemoteValues);
+    console.debug('[push] new remoteInfo', {
+      ...cachedRemoteInfo,
+      ...newRemoteState
+    });
     return {
       remoteInfo: {
         ...cachedRemoteInfo,
@@ -389,10 +385,11 @@ export class SingleFileStorage extends CloudStorageFilesystem {
       }
     });
 
-    console.debug('[pull] newLocalInfo', newLocalInfo);
-    console.debug('[pull] cachedRemoteInfo', cachedRemoteInfo);
-    console.debug('[pull] newRemoteState', newRemoteState);
-    console.debug('[pull] newLocalValues', newValues);
+    console.debug('[pull] new remoteInfo', {
+      ...cachedRemoteInfo,
+      ...newRemoteState
+    });
+    console.debug('[pull] changes after sync', changes);
 
     return {
       content: newLocalContent,
