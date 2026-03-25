@@ -15,6 +15,7 @@ import { Trans } from '@lingui/react/macro';
 import { useHistory } from 'react-router';
 import ConfigCard from './ConfigCard';
 import LogsCard from './LogsCard';
+import QuickRestore from './QuickRestore';
 
 const DevTools = () => {
   const history = useHistory();
@@ -63,6 +64,7 @@ const DevTools = () => {
 
       <ConfigCard />
 
+      <QuickRestore />
       {!platformService.isDev() && <LogsCard />}
     </>
   );

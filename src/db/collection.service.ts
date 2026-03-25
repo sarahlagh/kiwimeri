@@ -10,6 +10,7 @@ import {
   CollectionItemUpdatableFieldEnum,
   CollectionItemUpdate,
   CollectionItemUpdateChangeFields,
+  isDocument,
   isPageOrDocument,
   PageResult,
   setFieldMeta,
@@ -459,6 +460,9 @@ class CollectionService {
   public deleteItem(rowId: Id, moveItemsUp = false, isRootDeletion = true) {
     this.updateAllParentsInBreadcrumb(this.getItemParent(rowId));
     const itemType = this.getItemType(rowId);
+    if (isDocument({ type: itemType })) {
+      console.log('deleting document', rowId);
+    }
     const wasFolder = itemType === CollectionItemType.folder;
     const wasDocument = itemType === CollectionItemType.document;
     const wasPage = itemType === CollectionItemType.page;

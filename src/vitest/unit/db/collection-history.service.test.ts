@@ -57,6 +57,8 @@ describe('collection history service', () => {
         expect(versions[0].itemId).toBe(docId);
         const versionData = versions[0].snapshotJson as any;
         expect(versionData).toEqual({
+          parent: rowBefore.parent,
+          parent_meta: rowBefore.parent_meta,
           title: rowBefore.title,
           title_meta: rowBefore.title_meta,
           content_meta: rowBefore.content_meta,
@@ -66,6 +68,8 @@ describe('collection history service', () => {
           deleted_meta: rowBefore.deleted_meta,
           display_opts: rowBefore.display_opts,
           display_opts_meta: rowBefore.display_opts_meta,
+          order: rowBefore.order,
+          order_meta: rowBefore.order_meta,
           created: rowBefore.created,
           updated: rowBefore.updated
         });
@@ -388,6 +392,8 @@ describe('collection history service', () => {
         expect(versions[0].itemId).toBe(pageId);
         const versionData = versions[0].snapshotJson as any;
         expect(versionData).toEqual({
+          parent: rowBefore.parent,
+          parent_meta: rowBefore.parent_meta,
           title: rowBefore.title,
           title_meta: rowBefore.title_meta,
           content_meta: rowBefore.content_meta,

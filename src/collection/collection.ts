@@ -155,6 +155,8 @@ export type CollectionItemVersion = Omit<
 
 export type CollectionItemSnapshotData = Pick<
   CollectionItem,
+  | 'parent'
+  | 'parent_meta'
   | 'title'
   | 'title_meta'
   | 'content_meta'
@@ -162,6 +164,8 @@ export type CollectionItemSnapshotData = Pick<
   | 'tags_meta'
   | 'deleted'
   | 'deleted_meta'
+  | 'order'
+  | 'order_meta'
   | 'display_opts'
   | 'display_opts_meta'
   | 'created'

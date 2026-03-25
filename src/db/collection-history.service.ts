@@ -366,7 +366,6 @@ class CollectionHistoryService {
       const pageResult: PageResult = {
         id: pageVersion.itemId,
         type: CollectionItemType.page,
-        parent: docId,
         ...pageVersion.snapshotJson,
         order: pageVersion.snapshotJson.order!,
         preview: pageVersion.preview || ''
@@ -498,6 +497,7 @@ class CollectionHistoryService {
     collectionService.saveItem(
       {
         ...current,
+        type: CollectionItemType.document,
         ...version.snapshotJson,
         content: version.content,
         updated: Date.now()
@@ -527,6 +527,8 @@ class CollectionHistoryService {
 
   private buildVersionData(item: CollectionItem) {
     const data: CollectionItemSnapshotData = {
+      parent: item.parent,
+      parent_meta: item.parent_meta,
       title: item.title,
       title_meta: item.title_meta,
       content_meta: item.content_meta,
@@ -536,6 +538,8 @@ class CollectionHistoryService {
       deleted_meta: item.deleted_meta,
       display_opts: item.display_opts,
       display_opts_meta: item.display_opts_meta,
+      order: item.order,
+      order_meta: item.order_meta,
       created: item.created,
       updated: item.updated
     };
