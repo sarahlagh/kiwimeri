@@ -57,9 +57,9 @@
     "@lingui/babel-plugin-lingui-macro": "^5.2.0",
     "@lingui/cli": "^5.2.0",
     "@lingui/vite-plugin": "^5.2.0",
-    "@testing-library/dom": ">=7.21.4",
+    "@testing-library/dom": ">=10.4.0",
     "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/react": "^14.0.0",
+    "@testing-library/react": "^16.3.0",
     "@testing-library/react-hooks": "^8.0.1",
     "@testing-library/user-event": "^14.4.3",
     "@types/react": "^18.0.27",
@@ -68,8 +68,8 @@
     "@typescript-eslint/parser": "^8.24.1",
     "@vitejs/plugin-legacy": "^5.0.0",
     "@vitejs/plugin-react": "^4.0.1",
-    "@vitest/browser": "^4.0.10",
-    "@vitest/ui": "^4.0.10",
+    "@vitest/browser": "^4.1.0",
+    "@vitest/ui": "^4.1.0",
     "concurrently": "^9.1.2",
     "eslint": "^8.35.0",
     "eslint-plugin-react": "^7.32.2",
@@ -81,8 +81,7 @@
     "terser": "^5.4.0",
     "typescript": "^5.1.6",
     "vite": "~6.4.1",
-    "vitest": "^4.0.10",
-    "vitest-browser-react": "^0.1.1"
+    "vitest": "^4.1.0"
   },
   "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610"
 }

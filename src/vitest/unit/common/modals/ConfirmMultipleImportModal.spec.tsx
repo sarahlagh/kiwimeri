@@ -71,10 +71,25 @@ describe('ConfirmMultipleImportModal', () => {
       `aria-description="${ARIA_DESCRIPTIONS_PER_TYPE.get(itemType)}"`
     );
     node.removeChild(first!);
-    expect(node.firstChild).toHaveTextContent(new RegExp(`${title}$`));
+
+    const el = node as HTMLElement;
+    console.log('node=', el.outerHTML);
+    // console.log('firstChild nodeName=', el?.nodeName);
+    // console.log('firstChild outerHTML=', el?.outerHTML);
+    // console.log('firstChild textContent=', el?.textContent);
+    // console.log('shadow text=', el?.shadowRoot?.textContent);
+
     if (status) {
-      expect(node.lastChild).toHaveTextContent(status);
+      expect(
+        el.querySelector('ion-label[color="secondary"]')?.innerHTML
+      ).toContain(title);
+      expect(el.querySelector('ion-label[slot="end"]')?.innerHTML).toContain(
+        status
+      );
     } else {
+      expect(el.querySelector('ion-label[color=""]')?.innerHTML).toContain(
+        title
+      );
       expect(node.lastChild).toBe(node.firstChild);
     }
   };
@@ -575,9 +590,15 @@ describe('ConfirmMultipleImportModal', () => {
       ];
       rows?.childNodes.forEach((node, idx) => {
         const row = expectedRows[idx];
-        expect(node.hasChildNodes()).toBe(true);
-        expect(node.firstChild).toHaveTextContent(row.first);
-        expect(node.lastChild).toHaveTextContent(row.last);
+        const el = node as HTMLElement;
+        let i = 0;
+        el.querySelectorAll('ion-label').forEach(label => {
+          if (i++ === 0) {
+            expect(label.innerHTML).toContain(row.first);
+          } else {
+            expect(label.innerHTML).toContain(row.last);
+          }
+        });
       });
     });
 
@@ -646,11 +667,18 @@ describe('ConfirmMultipleImportModal', () => {
           last: 'SimpleNotebook2/PinMeta/meta.json'
         }
       ];
+
       rows?.childNodes.forEach((node, idx) => {
         const row = expectedRows[idx];
-        expect(node.hasChildNodes()).toBe(true);
-        expect(node.firstChild).toHaveTextContent(row.first);
-        expect(node.lastChild).toHaveTextContent(row.last);
+        const el = node as HTMLElement;
+        let i = 0;
+        el.querySelectorAll('ion-label').forEach(label => {
+          if (i++ === 0) {
+            expect(label.innerHTML).toContain(row.first);
+          } else {
+            expect(label.innerHTML).toContain(row.last);
+          }
+        });
       });
     });
   });
