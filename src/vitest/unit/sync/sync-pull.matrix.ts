@@ -119,6 +119,7 @@ const scenarioMatrix: {
     label: '[item deleted locally first]',
     scenarios: [
       {
+        id: 'debug',
         description:
           'item deleted locally, unchanged on remote → item stays deleted (local wins)',
         initLocalData: [{ id: '#id' }],
@@ -144,7 +145,9 @@ const scenarioMatrix: {
               exists: true,
               hasVersions: 3,
               otherHistoryAssert: versions => {
+                expect(versions[0].rank).toBe(0);
                 expect(versions[0].pageVersionsArrayJson).toBeUndefined();
+                expect(versions[1].rank).toBe(1);
                 expect(versions[1].pageVersionsArrayJson).toHaveLength(1);
               }
             })
@@ -162,7 +165,13 @@ const scenarioMatrix: {
               latestVersionsOp: ['snapshot', 'deleted', 'snapshot']
             })
             .itsParent({
-              hasVersions: 4
+              hasVersions: 4,
+              otherHistoryAssert: versions => {
+                expect(versions[0].rank).toBe(0);
+                expect(versions[0].pageVersionsArrayJson).toHaveLength(1);
+                expect(versions[1].rank).toBe(1);
+                expect(versions[1].pageVersionsArrayJson).toBeUndefined();
+              }
             })
       },
       {

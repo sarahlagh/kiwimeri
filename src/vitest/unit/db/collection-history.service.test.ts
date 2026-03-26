@@ -8,7 +8,7 @@ import {
 import { getGlobalTrans } from '@/config';
 import { DEFAULT_NOTEBOOK_ID, DEFAULT_SPACE_ID } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
-import collectionService, { initialContent } from '@/db/collection.service';
+import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/local-changes.service';
 import storageService from '@/db/storage.service';
 import { defaultOrder } from '@/db/types/space-types';
@@ -25,13 +25,15 @@ import {
   ValueType
 } from '../../setup/test.utils';
 
+const idleTime = 50;
+
 describe('collection history service', () => {
   beforeEach(() => {
     historyService['enabled'] = true;
     vi.useFakeTimers();
     searchAncestryService.start(DEFAULT_SPACE_ID);
     historyService.start(DEFAULT_SPACE_ID);
-    userSettingsService.setHistoryIdleTime(50);
+    userSettingsService.setHistoryIdleTime(idleTime);
   });
   afterEach(() => {
     vi.useRealTimers();
@@ -46,16 +48,18 @@ describe('collection history service', () => {
         expect(historyService.getVersions(docId)).toHaveLength(1);
         vi.advanceTimersByTime(100);
 
-        const versionCreatedTime = Date.now();
+        const docUpdatedTime = Date.now();
         const newValue = getNewValue(valueType);
         collectionService.setItemField(docId, field, newValue);
         const rowBefore = storageService.getSpace().getRow('collection', docId);
         vi.advanceTimersByTime(100);
         const versions = historyService.getVersions(docId);
         expect(versions).toHaveLength(2);
-        expect(versions[0].createdAt).toBe(versionCreatedTime);
+
+        expect(versions[0].createdAt).toBe(docUpdatedTime + idleTime);
+        expect(versions[0].snapshotJson.updated).toBe(docUpdatedTime);
         expect(versions[0].itemId).toBe(docId);
-        const versionData = versions[0].snapshotJson as any;
+        const versionData = versions[0].snapshotJson;
         expect(versionData).toEqual({
           parent: rowBefore.parent,
           parent_meta: rowBefore.parent_meta,
@@ -194,13 +198,13 @@ describe('collection history service', () => {
       versions = historyService.getVersions(docId);
       expect(versions).toHaveLength(4);
       expect(versions[0].snapshotJson.title).toBe(itemBefore.title);
-      expect(versions[0].createdAt).toBe(itemBefore.updated + 210);
+      expect(versions[0].snapshotJson.updated).toBe(itemBefore.updated + 210);
       expect(versions[1].snapshotJson.title).toBe(newValue2);
-      expect(versions[1].createdAt).toBe(itemBefore.updated + 200);
+      expect(versions[1].snapshotJson.updated).toBe(itemBefore.updated + 200);
       expect(versions[2].snapshotJson.title).toBe(newValue1);
-      expect(versions[2].createdAt).toBe(itemBefore.updated + 100);
+      expect(versions[2].snapshotJson.updated).toBe(itemBefore.updated + 100);
       expect(versions[3].snapshotJson.title).toBe(itemBefore.title);
-      expect(versions[3].createdAt).toBe(itemBefore.updated);
+      expect(versions[3].snapshotJson.updated).toBe(itemBefore.updated);
     });
 
     it(`should do nothing for a document order change`, () => {
@@ -379,7 +383,7 @@ describe('collection history service', () => {
         expect(historyService.getVersions(pageId)).toHaveLength(1);
         vi.advanceTimersByTime(100);
 
-        const versionCreatedTime = Date.now();
+        const docUpdatedTime = Date.now();
         const newValue = getNewValue(valueType);
         collectionService.setItemField(pageId, field, newValue);
         const rowBefore = storageService
@@ -388,9 +392,10 @@ describe('collection history service', () => {
         vi.advanceTimersByTime(100);
         const versions = historyService.getVersions(pageId);
         expect(versions).toHaveLength(2);
-        expect(versions[0].createdAt).toBe(versionCreatedTime);
+        expect(versions[0].snapshotJson.updated).toBe(docUpdatedTime);
+        expect(versions[0].createdAt).toBe(docUpdatedTime + idleTime);
         expect(versions[0].itemId).toBe(pageId);
-        const versionData = versions[0].snapshotJson as any;
+        const versionData = versions[0].snapshotJson;
         expect(versionData).toEqual({
           parent: rowBefore.parent,
           parent_meta: rowBefore.parent_meta,
@@ -622,102 +627,6 @@ describe('collection history service', () => {
       expect(
         historyService.getPagesForVersion(docVersions[4].id!)
       ).toHaveLength(0);
-    });
-
-    it(`should restore a single page and create new document version`, () => {
-      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-      const pageId = collectionService.addPage(docId);
-      const itemBefore = storageService
-        .getSpace()
-        .getRow('collection', pageId) as CollectionItem;
-      vi.advanceTimersByTime(100);
-
-      const newValue = getNewValue('lex') as string;
-      collectionService.setItemField(pageId, 'content', newValue);
-      vi.advanceTimersByTime(100);
-      let docVersions = historyService.getVersions(docId);
-      expect(docVersions).toHaveLength(3);
-      let versions = historyService.getVersions(pageId);
-      expect(versions).toHaveLength(2);
-
-      localChangesService.clear();
-      vi.advanceTimersByTime(100);
-      historyService.restorePageVersion(pageId, versions[1].id!);
-
-      docVersions = historyService.getVersions(docId);
-      expect(docVersions).toHaveLength(4);
-      versions = historyService.getVersions(pageId);
-      expect(versions).toHaveLength(3);
-
-      const pageVersions = historyService.getPagesForVersion(
-        docVersions[0].id!
-      );
-      expect(pageVersions).toHaveLength(1);
-      const pageVersion = pageVersions[0];
-      expect(pageVersion.itemId).toBe(pageId);
-      expect(pageVersion.content).toBe(initialContent());
-      expect(pageVersion.preview).toBe('');
-
-      const restoredItem = storageService
-        .getSpace()
-        .getRow('collection', pageId) as CollectionItem;
-      expect(restoredItem).toEqual({ ...itemBefore, updated: Date.now() });
-
-      const lc = localChangesService.getLocalChanges();
-      expect(lc).toHaveLength(1);
-      expect(lc[0].change).toBe(LocalChangeType.update);
-      expect(lc[0].item).toBe(pageId);
-      expect(lc[0].field).toBeUndefined();
-    });
-
-    it(`should version unsaved changes when restoring to a previous version`, () => {
-      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-      vi.advanceTimersByTime(100);
-      const pageId = collectionService.addPage(docId);
-      const itemBefore = storageService
-        .getSpace()
-        .getRow('collection', pageId) as CollectionItem;
-      vi.advanceTimersByTime(100);
-
-      // new change, creates version 1
-      const newValue1 = getNewValue('lex') as string;
-      collectionService.setItemField(pageId, 'content', newValue1);
-      vi.advanceTimersByTime(100);
-      let docVersions = historyService.getVersions(docId);
-      expect(docVersions).toHaveLength(3);
-      let versions = historyService.getVersions(pageId);
-      expect(versions).toHaveLength(2);
-
-      // new change, not yet in version
-      const newValue2 = getNewValue('lex') as string;
-      collectionService.setItemField(pageId, 'content', newValue2);
-      vi.advanceTimersByTime(10);
-
-      // restore
-      historyService.restorePageVersion(pageId, versions[1].id!);
-
-      docVersions = historyService.getVersions(docId);
-      expect(docVersions).toHaveLength(5);
-      versions = historyService.getVersions(pageId);
-      expect(versions).toHaveLength(4);
-
-      let pageVersions = historyService.getPagesForVersion(docVersions[0].id!);
-      expect(pageVersions).toHaveLength(1);
-      let pageVersion = pageVersions[0];
-      expect(pageVersion.itemId).toBe(pageId);
-      expect(pageVersion.content).toBe(initialContent());
-      expect(pageVersion.preview).toBe('');
-
-      pageVersions = historyService.getPagesForVersion(docVersions[1].id!);
-      expect(pageVersions).toHaveLength(1);
-      pageVersion = pageVersions[0];
-      expect(pageVersion.itemId).toBe(pageId);
-      expect(pageVersion.content).toBe(newValue2);
-
-      const restoredItem = storageService
-        .getSpace()
-        .getRow('collection', pageId) as CollectionItem;
-      expect(restoredItem).toEqual({ ...itemBefore, updated: Date.now() });
     });
 
     it(`should add a single document version for a page reorder`, () => {

@@ -27,7 +27,7 @@ const QuickRestore = () => {
         <IonList style={{ maxHeight: '400px', overflowY: 'auto' }}>
           {potentialLogs.map(log => (
             <IonItem key={log.id}>
-              {dateToStr('time', log.ts)} &nbsp;
+              {dateToStr('relative', log.ts)} &nbsp;
               {log.message}
               <IonButton
                 slot="end"

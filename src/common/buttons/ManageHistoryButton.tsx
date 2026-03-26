@@ -128,10 +128,7 @@ const ManageHistoryModal = ({
                 }
               />
 
-              {!historyService.isCurrentVersion(
-                version.itemId,
-                version.id!
-              ) && (
+              {version.rank !== 0 && (
                 <IonButton
                   slot="end"
                   fill="clear"

@@ -42,7 +42,7 @@ type VersionsWithContentParam = {
   createdAt?: number;
 };
 
-const defaultSort = { by: 'createdAt', descending: true };
+const defaultSort = { by: 'rank', descending: false };
 const pagesSort = { by: 'virtualOrder', descending: false };
 
 class CollectionHistoryService {
@@ -102,6 +102,7 @@ class CollectionHistoryService {
             const itemId = getCell('itemId') as string;
             const createdAt = getCell('createdAt') as number;
             const paramByItemId = params.find(p => p.itemId === itemId);
+            // TODO probably not needed anymore, since createdAt is the same as parent now
             if (paramByItemId?.createdAt && paramByItemId.createdAt !== 0) {
               return paramByItemId.createdAt === createdAt;
             }
@@ -442,13 +443,6 @@ class CollectionHistoryService {
     return storageService.getSpace().hasRow(this.tableId, id);
   }
 
-  public isCurrentVersion(docId: string, versionId: string) {
-    const space = storageService.getSpace();
-    const itemLastUpdated = space.getCell('collection', docId, 'updated');
-    const versionCreated = space.getCell(this.tableId, versionId, 'createdAt');
-    return itemLastUpdated === versionCreated;
-  }
-
   public restoreDocumentVersion(docId: string, versionId: string) {
     this.saveNow();
     const version = this.getVersion(versionId);
@@ -503,25 +497,6 @@ class CollectionHistoryService {
         updated: Date.now()
       },
       docId
-    );
-  }
-
-  public restorePageVersion(pageId: string, versionId: string) {
-    this.saveNow();
-    const version = this.getVersions(pageId).find(v => v.id === versionId);
-    if (!version) return;
-    // copy version data to current collection item
-    const current = storageService
-      .getSpace()
-      .getRow('collection', pageId) as CollectionItem;
-    collectionService.saveItem(
-      {
-        ...current,
-        ...version.snapshotJson,
-        content: version.content,
-        updated: Date.now()
-      },
-      pageId
     );
   }
 
@@ -594,7 +569,7 @@ class CollectionHistoryService {
       versionId = space.addRow(this.tableId, {
         op,
         itemId: item.id,
-        createdAt: item.updated,
+        createdAt: Date.now(),
         snapshotJson: this.buildVersionData(item),
         contentId,
         rank: 0
