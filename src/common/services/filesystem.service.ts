@@ -43,7 +43,7 @@ class FilesystemService {
     let pos = 0;
     let streamId: number | undefined = undefined;
     do {
-      const end = pos + Math.min(150000, content.length);
+      const end = pos + Math.min(75000, content.length);
       const chunk = getChunkAsString(content.slice(pos, end));
       const eof = end >= content.length;
       console.debug('send chunk', pos, end, eof, streamId);
