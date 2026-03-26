@@ -20,16 +20,18 @@ import {
 import { Trans, useLingui } from '@lingui/react/macro';
 import { ChangeObject, diffChars } from 'diff';
 import { useHistory, useLocation } from 'react-router';
+import { useToastContext } from '../context/ToastContext';
 import { GET_VERSIONED_ROUTE } from '../routes';
 import { dateToStr, getSearchParams } from '../utils';
 
 type ManageHistoryButtonProps = {
   id: string;
+  onRestore: (id: string) => void;
 };
 
 type ManageHistoryModalProps = {
   id: string;
-  dismiss: (version?: string) => void;
+  dismiss: (version?: string, role?: 'goToVersion' | 'restore') => void;
   docVersion?: string;
 };
 
@@ -86,6 +88,7 @@ const ManageHistoryModal = ({
 }: ManageHistoryModalProps) => {
   const { t } = useLingui();
   const [alert] = useIonAlert();
+  const { setToast } = useToastContext();
   const docHistory = historyService.getVersions(id);
   return (
     <>
@@ -113,7 +116,7 @@ const ManageHistoryModal = ({
             <IonItem
               key={version.id}
               button
-              onClick={() => dismiss(version.id)}
+              onClick={() => dismiss(version.id, 'goToVersion')}
             >
               <VersionPreview
                 version={version}
@@ -151,6 +154,8 @@ const ManageHistoryModal = ({
                               id,
                               version.id!
                             );
+                            setToast(t`Success!`, 'success');
+                            dismiss(version.id, 'restore');
                           }
                         }
                       ]
@@ -168,7 +173,7 @@ const ManageHistoryModal = ({
   );
 };
 
-const ManageHistoryButton = ({ id }: ManageHistoryButtonProps) => {
+const ManageHistoryButton = ({ id, onRestore }: ManageHistoryButtonProps) => {
   const history = useHistory();
   const notebook = notebooksService.useCurrentNotebook();
   const location = useLocation(); // warning: location throws error if button in popover
@@ -177,7 +182,7 @@ const ManageHistoryButton = ({ id }: ManageHistoryButtonProps) => {
   const docVersion = searchParams.docVersion;
   const [present, dismiss] = useIonModal(ManageHistoryModal, {
     id,
-    dismiss: (version?: string) => dismiss(version),
+    dismiss: (data?: string, role?: string) => dismiss(data, role),
     docVersion
   });
   const type = collectionService.getItemType(id);
@@ -187,7 +192,7 @@ const ManageHistoryButton = ({ id }: ManageHistoryButtonProps) => {
       onClick={() => {
         present({
           onDidDismiss: event => {
-            if (event.detail.data !== undefined) {
+            if (event.detail.role === 'goToVersion' && event.detail.data) {
               const version = event.detail.data as string;
               history.push(
                 GET_VERSIONED_ROUTE(
@@ -200,6 +205,8 @@ const ManageHistoryButton = ({ id }: ManageHistoryButtonProps) => {
                   query
                 )
               );
+            } else if (event.detail.role === 'restore') {
+              onRestore(id);
             }
           }
         });

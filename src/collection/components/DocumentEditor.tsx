@@ -45,6 +45,7 @@ const DocumentEditor = ({
   const [openPageBrowser, setOpenPageBrowser] = useState(false);
   const [toggleSearch, setToggleSearch] = useState(false);
   const [toggleSearchAutoFocus, setToggleSearchAutoFocus] = useState(true);
+  const [uniqId, setUniqId] = useState(0);
 
   // TODO refactor
   useEffect(() => {
@@ -126,7 +127,12 @@ const DocumentEditor = ({
             }}
           >
             {isPageOrDocument({ type: itemType }) && (
-              <ManageHistoryButton id={docId} />
+              <ManageHistoryButton
+                id={docId}
+                onRestore={() => {
+                  setUniqId(uniqId + 1); // force editor to reload content
+                }}
+              />
             )}
             {platformService.hasHighlightSupport() && (
               <IonButton
@@ -158,7 +164,7 @@ const DocumentEditor = ({
         {content && (
           <KiwimeriEditor
             ref={refWriter}
-            id={itemId}
+            id={`${itemId}-${uniqId}`}
             content={content}
             enableToolbar={!showDocumentActions && !toggleSearch}
             searchText={toggleSearch ? query : null}
