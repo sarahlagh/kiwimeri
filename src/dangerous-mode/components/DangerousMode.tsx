@@ -1,6 +1,8 @@
 import { dateToStr } from '@/common/utils';
 import KiwimeriEditor from '@/common/wysiwyg/lexical/KiwimeriEditor';
-import { initialContent } from '@/db/collection.service';
+import collectionService, { initialContent } from '@/db/collection.service';
+import notebooksService from '@/db/notebooks.service';
+import storageService from '@/db/storage.service';
 import {
   IonButton,
   IonCard,
@@ -11,9 +13,10 @@ import {
   IonRadio,
   IonRadioGroup
 } from '@ionic/react';
-import { Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { EditorState } from 'lexical';
 import { useEffect, useState } from 'react';
+import { useValue } from 'tinybase/ui-react';
 
 const StartPanel = ({ onStart }: { onStart: (duration: number) => void }) => {
   const [duration, setDuration] = useState<number>(10);
@@ -70,16 +73,20 @@ const MAX_IDLE = WARN_TIME + 3000;
 
 const OngoingWritePanel = ({
   duration,
+  initValue,
   onEnd
 }: {
   duration: number;
-  onEnd: (end: number, content?: string) => void;
+  initValue: string;
+  onEnd: (content?: string) => void;
 }) => {
   const maxDuration = 15000; // duration * 60000; // in minutes
+  const { t } = useLingui();
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [updatedAt, setUpdatedAt] = useState<number | null>(null);
   const [endedAt, setEndedAt] = useState<number | null>(null);
   const [editorState, setEditorState] = useState<EditorState | null>(null);
+  console.debug('endedAt', endedAt, 'startedAt', startedAt);
 
   const onNextTick = () => {
     if (startedAt === null || updatedAt === null) return;
@@ -108,9 +115,9 @@ const OngoingWritePanel = ({
         const now = Date.now();
         setEndedAt(now);
         if (status === 'success' && editorState) {
-          onEnd(now, JSON.stringify(editorState.toJSON()));
+          onEnd(JSON.stringify(editorState.toJSON()));
         } else {
-          onEnd(now);
+          onEnd();
         }
       }
     };
@@ -128,28 +135,39 @@ const OngoingWritePanel = ({
       {startedAt && !endedAt && <ClockTicking startedAt={startedAt} />}
       for
       {duration} minutes
-      <IonButton onClick={() => onEnd(Date.now())}>reset</IonButton>
+      <IonButton onClick={() => onEnd()}>reset</IonButton>
       {endedAt && (
         <IonButton
           onClick={() => {
-            // TODO here transform content into real document
-            // and delete temp doc
-            console.debug('save', editorState?.toJSON());
+            // here transform content into real document
+            const content = editorState?.toJSON();
+            if (content) {
+              const notebook = notebooksService.getCurrentNotebook();
+              const { item } = collectionService.getNewDocumentObj(notebook);
+              item.title = t`temp session ` + dateToStr('iso');
+              collectionService.setUnsavedItemLexicalContent(item, content);
+              collectionService.saveItem(item);
+              // TODO redirect to document
+            }
+            onEnd(); // delete temp doc
           }}
         >
           save
         </IonButton>
       )}
       <KiwimeriEditor
-        content={initialContent()}
+        content={initValue}
         enableToolbar={false}
         onChange={editorState => {
+          // TODO don't count backspace
           setEditorState(editorState);
           if (!endedAt) {
             setUpdatedAt(Date.now());
             if (!startedAt) {
               setStartedAt(Date.now());
             }
+          } else {
+            onEnd(JSON.stringify(editorState.toJSON()));
           }
         }}
       />
@@ -161,7 +179,12 @@ const DangerousMode = () => {
   const [ongoing, setOngoing] = useState<boolean>(false);
   const [duration, setDuration] = useState<number>(10); // in minutes
 
-  // TODO check temp value if previous session had unsaved work
+  const tempDoc = useValue('tempDoc', 'store');
+  useEffect(() => {
+    if (tempDoc) {
+      setOngoing(true);
+    }
+  }, [tempDoc]);
 
   if (!ongoing) {
     return (
@@ -177,11 +200,15 @@ const DangerousMode = () => {
   return (
     <OngoingWritePanel
       duration={duration}
-      onEnd={(endTs, content) => {
-        console.log('finished', endTs, content);
-        // TODO redirect to last opened doc, save
-        if (!content) setOngoing(false);
-        // TODO immediately save to temp value in tinybase, then on user choice, properly create doc
+      initValue={tempDoc?.toString() || initialContent()}
+      onEnd={content => {
+        if (content) {
+          // immediately save to temp value in tinybase, then on user choice, properly create doc
+          storageService.getStore().setValue('tempDoc', content);
+        } else {
+          storageService.getStore().delValue('tempDoc');
+          setOngoing(false);
+        }
         // TODO select old duration too
       }}
     />

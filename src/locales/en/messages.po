@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/dangerous-mode/components/DangerousMode.tsx:40
+#: src/dangerous-mode/components/DangerousMode.tsx:43
 msgid "{v} minutes"
 msgstr "{v} minutes"
 
@@ -175,7 +175,7 @@ msgstr "EU"
 
 #: src/settings/components/sections/ImportExportCollectionSettings.tsx:54
 #: src/settings/components/sections/ImportExportCollectionSettings.tsx:68
-#: src/settings/components/sections/ImportExportStoreSettings.tsx:73
+#: src/settings/components/sections/ImportExportStoreSettings.tsx:74
 msgid "Export"
 msgstr "Export"
 
@@ -191,10 +191,6 @@ msgstr "File not supported"
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/app/components/MainMenuList.tsx:69
-msgid "Focused Writing"
-msgstr "Focused Writing"
-
 #: src/settings/components/sections/CurrentSpaceSettings.tsx:42
 msgid "History idle time (s)"
 msgstr "History idle time (s)"
@@ -207,17 +203,15 @@ msgstr "History save time (min)"
 msgid "Home"
 msgstr "Home"
 
-#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:112
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
-#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:105
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
 
-#: src/settings/components/sections/ImportExportStoreSettings.tsx:54
+#: src/settings/components/sections/ImportExportStoreSettings.tsx:55
 msgid "Import & export your app settings"
 msgstr "Import & export your app settings"
 
@@ -261,12 +255,10 @@ msgstr "Link"
 msgid "Loading..."
 msgstr "Loading..."
 
-#. placeholder {0}: localChanges.length
 #: src/synchronization/components/LocalChangesCard.tsx:38
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
-#. placeholder {0}: dateToStr('datetime', lastLocalChange)
 #: src/synchronization/components/LocalChangesCard.tsx:44
 msgid "Local: {0}"
 msgstr "Local: {0}"
@@ -279,7 +271,7 @@ msgstr "Logs"
 msgid "Manual Order"
 msgstr "Manual Order"
 
-#: src/settings/components/sections/ImportExportStoreSettings.tsx:57
+#: src/settings/components/sections/ImportExportStoreSettings.tsx:58
 msgid "Manually backup or restore your app settings"
 msgstr "Manually backup or restore your app settings"
 
@@ -396,7 +388,6 @@ msgstr "Pick a directory for your backups"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
-#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
 #: src/synchronization/components/LocalChangesCard.tsx:51
 msgid "Remote: {0}"
 msgstr "Remote: {0}"
@@ -406,7 +397,7 @@ msgid "Reorder"
 msgstr "Reorder"
 
 #: src/common/buttons/RestoreCollectionButton.tsx:88
-#: src/settings/components/sections/ImportExportStoreSettings.tsx:83
+#: src/settings/components/sections/ImportExportStoreSettings.tsx:84
 msgid "Restore"
 msgstr "Restore"
 
@@ -455,11 +446,11 @@ msgstr "space option modified"
 msgid "Space Settings"
 msgstr "Space Settings"
 
-#: src/dangerous-mode/components/DangerousMode.tsx:27
+#: src/dangerous-mode/components/DangerousMode.tsx:30
 msgid "Start"
 msgstr "Start"
 
-#: src/dangerous-mode/components/DangerousMode.tsx:47
+#: src/dangerous-mode/components/DangerousMode.tsx:50
 msgid "Start Writing"
 msgstr "Start Writing"
 
@@ -482,6 +473,10 @@ msgstr "Synchronize your collection on the filesystem"
 msgid "Syncing is disabled on the web version."
 msgstr "Syncing is disabled on the web version."
 
+#: src/dangerous-mode/components/DangerousMode.tsx:147
+msgid "temp session "
+msgstr "temp session "
+
 #: src/common/wysiwyg/lexical/EditLinkPlugin.tsx:44
 msgid "Text"
 msgstr "Text"
@@ -498,7 +493,7 @@ msgstr "The following file(s) with matching title(s) have been detected inside t
 msgid "The number of versions to keep per document. Set 0 for unlimited."
 msgstr "The number of versions to keep per document. Set 0 for unlimited."
 
-#: src/settings/components/sections/ImportExportStoreSettings.tsx:61
+#: src/settings/components/sections/ImportExportStoreSettings.tsx:62
 msgid "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page."
 msgstr "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page."
 
@@ -530,6 +525,10 @@ msgstr "words"
 #: src/common/modals/ConfirmMultipleImportModal.tsx:247
 msgid "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 msgstr "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
+
+#: src/app/components/MainMenuList.tsx:69
+msgid "Writing Session"
+msgstr "Writing Session"
 
 #: src/collection/components/CollectionItemList.tsx:74
 msgid "yes"

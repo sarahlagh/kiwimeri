@@ -136,6 +136,7 @@ export type StoreType = [
     exportIncludeMetadata: { type: 'boolean'; default: true };
     exportInlinePages: { type: 'boolean'; default: true };
     appVersion: { type: 'string' };
+    tempDoc: { type: 'string' };
   }
 ];
 

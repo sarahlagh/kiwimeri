@@ -66,7 +66,7 @@ const MainMenuList = () => {
     },
     {
       key: 'dangerous-mode',
-      title: t`Focused Writing`,
+      title: t`Writing Session`,
       url: DANGEROUS_MODE_ROUTE,
       icon: APPICONS.warning
     },

@@ -101,7 +101,8 @@ class StorageService {
         currentSpace: { type: 'string', default: DEFAULT_SPACE_ID },
         exportIncludeMetadata: { type: 'boolean', default: true },
         exportInlinePages: { type: 'boolean', default: true },
-        appVersion: { type: 'string' }
+        appVersion: { type: 'string' },
+        tempDoc: { type: 'string' }
       });
 
     this.storeQueries = createQueries(this.store);

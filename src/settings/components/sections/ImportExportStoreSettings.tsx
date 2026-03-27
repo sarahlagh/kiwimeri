@@ -39,6 +39,7 @@ const ImportExportCollectionSettings = () => {
     delete contentToExport['logs'];
     delete valuesToExport['currentSpace'];
     delete valuesToExport['showDevTools'];
+    delete valuesToExport['tempDoc'];
     return JSON.stringify([contentToExport, valuesToExport]);
   };
 
