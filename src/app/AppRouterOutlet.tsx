@@ -1,4 +1,5 @@
 import {
+  DANGEROUS_MODE_ROUTE,
   DEV_TOOLS_ROUTE,
   DOCUMENT_ROUTE,
   FOLDER_ROUTE,
@@ -9,6 +10,7 @@ import {
 import { IonRouterOutlet } from '@ionic/react';
 import { Redirect, Route } from 'react-router';
 import CollectionListPage from './pages/CollectionListPage';
+import DangerousModePage from './pages/DangerousModePage';
 import DevToolsPage from './pages/DevToolsPage';
 import DocumentEditorPage from './pages/DocumentEditorPage';
 import SettingsPage from './pages/SettingsPage';
@@ -23,6 +25,7 @@ const AppRouterOutlet = () => (
     <Route path={SYNCHRONIZATION_ROUTE} component={SynchronizationPage} />
     <Route path={SETTINGS_ROUTE} component={SettingsPage} />
     <Route path={DEV_TOOLS_ROUTE} component={DevToolsPage} />
+    <Route path={DANGEROUS_MODE_ROUTE} component={DangerousModePage} />
     <Redirect exact from="/" to={FOLDER_ROUTE} />
   </IonRouterOutlet>
 );

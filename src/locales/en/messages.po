@@ -13,6 +13,10 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: src/dangerous-mode/components/DangerousMode.tsx:40
+msgid "{v} minutes"
+msgstr "{v} minutes"
+
 #: src/common/modals/ConfirmMultipleImportModal.tsx:230
 msgid "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 msgstr "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
@@ -61,7 +65,7 @@ msgstr "Clear All"
 msgid "collection"
 msgstr "collection"
 
-#: src/app/components/MainMenuList.tsx:57
+#: src/app/components/MainMenuList.tsx:58
 msgid "Collection"
 msgstr "Collection"
 
@@ -96,6 +100,10 @@ msgstr "Creation Date"
 msgid "Current Notebook Settings ({notebookTitle})"
 msgstr "Current Notebook Settings ({notebookTitle})"
 
+#: src/app/pages/DangerousModePage.tsx:20
+msgid "Dangerous Writing App Mode"
+msgstr "Dangerous Writing App Mode"
+
 #: src/constants.ts:66
 msgid "Default"
 msgstr "Default"
@@ -104,7 +112,7 @@ msgstr "Default"
 msgid "deleted item"
 msgstr "deleted item"
 
-#: src/app/components/MainMenuList.tsx:82
+#: src/app/components/MainMenuList.tsx:89
 #: src/app/pages/DevToolsPage.tsx:15
 msgid "Dev Tools"
 msgstr "Dev Tools"
@@ -182,6 +190,10 @@ msgstr "File not supported"
 #: src/settings/components/sections/FilesystemSyncSettings.tsx:20
 msgid "Filesystem"
 msgstr "Filesystem"
+
+#: src/app/components/MainMenuList.tsx:69
+msgid "Focused Writing"
+msgstr "Focused Writing"
 
 #: src/settings/components/sections/CurrentSpaceSettings.tsx:42
 msgid "History idle time (s)"
@@ -422,7 +434,7 @@ msgstr "Select item tags"
 msgid "Server"
 msgstr "Server"
 
-#: src/app/components/MainMenuList.tsx:68
+#: src/app/components/MainMenuList.tsx:75
 #: src/app/pages/SettingsPage.tsx:9
 msgid "Settings"
 msgstr "Settings"
@@ -443,13 +455,21 @@ msgstr "space option modified"
 msgid "Space Settings"
 msgstr "Space Settings"
 
+#: src/dangerous-mode/components/DangerousMode.tsx:27
+msgid "Start"
+msgstr "Start"
+
+#: src/dangerous-mode/components/DangerousMode.tsx:47
+msgid "Start Writing"
+msgstr "Start Writing"
+
 #: src/common/buttons/GenericExportFileButton.tsx:48
 #: src/common/buttons/GenericImportFileButton.tsx:48
 #: src/common/buttons/ManageHistoryButton.tsx:154
 msgid "Success!"
 msgstr "Success!"
 
-#: src/app/components/MainMenuList.tsx:74
+#: src/app/components/MainMenuList.tsx:81
 #: src/app/pages/SynchronizationPage.tsx:9
 msgid "Synchronization"
 msgstr "Synchronization"

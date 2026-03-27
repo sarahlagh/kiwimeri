@@ -12,6 +12,8 @@ export const FOLDER_ROUTE = '/collection';
 export const DOCUMENT_ROUTE = '/document';
 export const VERSION_ROUTE = '/version';
 
+export const DANGEROUS_MODE_ROUTE = '/dangerous-mode';
+
 // TODO use URLSearchParams
 
 export const GET_FOLDER_ROUTE = (parent: string, query?: string | null) =>

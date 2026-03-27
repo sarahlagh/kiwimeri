@@ -1,6 +1,7 @@
 import { useLocation } from 'react-router-dom';
 
 import {
+  DANGEROUS_MODE_ROUTE,
   DEV_TOOLS_ROUTE,
   GET_ITEM_ROUTE,
   isCollectionRoute,
@@ -62,6 +63,12 @@ const MainMenuList = () => {
       ),
       icon: APPICONS.collectionPage,
       isActive: () => isCollectionRoute(location.pathname)
+    },
+    {
+      key: 'dangerous-mode',
+      title: t`Focused Writing`,
+      url: DANGEROUS_MODE_ROUTE,
+      icon: APPICONS.warning
     },
     {
       key: 'settings',
