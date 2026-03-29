@@ -69,7 +69,7 @@ const App = () => {
       return undefined;
     }
     console.debug('remaining timeouts', historyService['timeouts'].size);
-    if (!platformService.isWeb()) {
+    if (platformService.isAndroid()) {
       addAndroidListeners();
     }
     return () => {

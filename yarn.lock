@@ -829,10 +829,10 @@
     mime-types "~2.1.35"
     ora "^5.4.1"
 
-"@capacitor/android@^8.0.0":
-  version "8.3.0"
-  resolved "https://registry.yarnpkg.com/@capacitor/android/-/android-8.3.0.tgz#112eafa783124c74d6e8d1fe882ed2536a4f1f5e"
-  integrity sha512-EQy6ByUuKayQBJmMm/e0byJiHavqsQHrvW23BuT2GNVQvenAvipqwaePiJHzrv2PZr7A0T0+se4kgDCeROj0mQ==
+"@capacitor/android@8.2.0":
+  version "8.2.0"
+  resolved "https://registry.yarnpkg.com/@capacitor/android/-/android-8.2.0.tgz#b832a72d6279ab439a7ea5f8b497e13a7f8e4b36"
+  integrity sha512-XLm5OsWLPfXQxDxzFS7SOdMEgGvW+2c7TGLXkTR2cSKdkWK5Abns4imlT5qghKYhjM9r74IrDkBWg/9ALUGNKQ==
 
 "@capacitor/app@^8.0.0":
   version "8.1.0"
@@ -881,10 +881,10 @@
   resolved "https://registry.yarnpkg.com/@capacitor/haptics/-/haptics-8.0.1.tgz#2076f92554fff68a3d429901a675fcbe727beb44"
   integrity sha512-8v8rowLBMeb3CryqoQvXndwyUsoi4pPXf0qFw7IGA4D32Uk7+K6juN2SjRowqunoovkvvbFmU9TD7JIAz2zmFw==
 
-"@capacitor/keyboard@^8.0.0":
-  version "8.0.2"
-  resolved "https://registry.yarnpkg.com/@capacitor/keyboard/-/keyboard-8.0.2.tgz#eb0b4de69de13b21a45e53aafb685eb8b8b7ec86"
-  integrity sha512-he6xKmTBp5AhVrWJeEi6RYkJ25FjLLdNruBU2wafpITk3Nb7UdzOj96x3K6etFuEj8/rtn9WXBTs1o2XA86A1A==
+"@capacitor/keyboard@8.0.1":
+  version "8.0.1"
+  resolved "https://registry.yarnpkg.com/@capacitor/keyboard/-/keyboard-8.0.1.tgz#f694a06eca5f140d33d68165b4738df88146f504"
+  integrity sha512-HDf4qrvvhLRMsgBoqeqIld6hP8JMK/WPbCYMvz8ajhY6TaibYt6B+NQyky4oIPCOfHTz5OcVsuHkbb8fQvGDAg==
 
 "@capacitor/network@^8.0.0":
   version "8.0.1"

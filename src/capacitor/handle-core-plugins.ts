@@ -12,7 +12,7 @@ const updateKeyboardOffsetFromViewport = () => {
   );
   document.documentElement.style.setProperty(
     '--viewport-height',
-    `${vv.height}px`
+    vv.height > 0 ? `${vv.height}px` : ''
   );
 };
 
