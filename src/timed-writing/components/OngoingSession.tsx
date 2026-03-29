@@ -1,87 +1,25 @@
-import { dateToStr } from '@/common/utils';
 import KiwimeriEditor from '@/common/wysiwyg/lexical/KiwimeriEditor';
 import { APPICONS } from '@/constants';
-import collectionService, { initialContent } from '@/db/collection.service';
-import notebooksService from '@/db/notebooks.service';
-import storageService from '@/db/storage.service';
 import {
   IonButton,
   IonButtons,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardSubtitle,
-  IonCardTitle,
   IonContent,
   IonFooter,
   IonIcon,
-  IonItem,
   IonProgressBar,
-  IonRadio,
-  IonRadioGroup,
   IonToolbar
 } from '@ionic/react';
-import { Trans, useLingui } from '@lingui/react/macro';
+import { Trans } from '@lingui/react/macro';
 import {
   EditorState,
   SerializedEditorState,
   SerializedLexicalNode
 } from 'lexical';
 import { useEffect, useRef, useState } from 'react';
-import { useValue } from 'tinybase/ui-react';
 import KeystrokeListenerPlugin from './KeystrokeListenerPlugin';
 
 const WARN_TIME = 3000;
 const MAX_IDLE = WARN_TIME + 2000;
-
-const StartPanel = ({ onStart }: { onStart: (duration: number) => void }) => {
-  const [duration, setDuration] = useState<number>(10);
-  const options = [5, 10, 15, 20];
-  // TODO allow custom time
-  return (
-    <IonContent>
-      <IonCard>
-        <IonCardHeader>
-          <IonCardTitle>
-            <Trans>Choose a session length</Trans>
-          </IonCardTitle>
-          <IonCardSubtitle>
-            <Trans>
-              This feature is inspired by Squibler&apos;s Most Dangerous Writing
-              App (https://www.squibler.io/dangerous-writing-prompt-app). Choose
-              a length for your writing session. Once you start, you must keep
-              writing or all progress will be lost. You will have the option to
-              save your work in a new document in your collection once you
-              finish.
-            </Trans>
-          </IonCardSubtitle>
-        </IonCardHeader>
-        <IonCardContent>
-          <IonRadioGroup
-            value={duration}
-            onIonChange={e => {
-              setDuration(e.detail.value);
-            }}
-          >
-            {options.map(v => (
-              <IonItem key={v}>
-                <IonRadio value={v}>
-                  <Trans>{v} minutes</Trans>
-                </IonRadio>
-              </IonItem>
-            ))}
-          </IonRadioGroup>
-
-          <IonFooter>
-            <IonButton onClick={() => onStart(duration)}>
-              <Trans>Start Writing</Trans>
-            </IonButton>
-          </IonFooter>
-        </IonCardContent>
-      </IonCard>
-    </IonContent>
-  );
-};
 
 const ClockTicking = ({
   startedAt,
@@ -106,7 +44,7 @@ const ClockTicking = ({
   return <IonProgressBar color={color} value={progress} />;
 };
 
-const OngoingWritePanel = ({
+const OngoingSession = ({
   duration,
   initValue,
   onEnd,
@@ -241,54 +179,4 @@ const OngoingWritePanel = ({
   );
 };
 
-const DangerousMode = () => {
-  const { t } = useLingui();
-  const [ongoing, setOngoing] = useState<boolean>(false);
-  const [duration, setDuration] = useState<number>(10); // in minutes
-
-  const tempDoc = useValue('tempDoc', 'store');
-  useEffect(() => {
-    if (tempDoc) {
-      setOngoing(true);
-    }
-  }, [tempDoc]);
-
-  if (!ongoing) {
-    return (
-      <StartPanel
-        onStart={d => {
-          setDuration(d);
-          setOngoing(true);
-        }}
-      />
-    );
-  }
-
-  return (
-    <OngoingWritePanel
-      duration={duration * 60000}
-      initValue={tempDoc?.toString() || initialContent()}
-      onEnd={content => {
-        if (content) {
-          // immediately save to temp value in tinybase, then on user choice, properly create doc
-          storageService.getStore().setValue('tempDoc', content);
-        } else {
-          storageService.getStore().delValue('tempDoc');
-          setOngoing(false);
-        }
-        // TODO select old duration too
-      }}
-      onSave={content => {
-        // here transform content into real document
-        const notebook = notebooksService.getCurrentNotebook();
-        const { item } = collectionService.getNewDocumentObj(notebook);
-        item.title = t`temp session ` + dateToStr('iso');
-        collectionService.setUnsavedItemLexicalContent(item, content);
-        collectionService.saveItem(item);
-        // TODO redirect to document
-      }}
-    />
-  );
-};
-
-export default DangerousMode;
+export default OngoingSession;

@@ -1,12 +1,12 @@
 import { useLocation } from 'react-router-dom';
 
 import {
-  DANGEROUS_MODE_ROUTE,
   DEV_TOOLS_ROUTE,
   GET_ITEM_ROUTE,
   isCollectionRoute,
   SETTINGS_ROUTE,
-  SYNCHRONIZATION_ROUTE
+  SYNCHRONIZATION_ROUTE,
+  WRITING_SESSION_ROUTE
 } from '@/common/routes';
 import CatchClickLabel from '@/common/utils/CatchClickLabel';
 import { appConfig } from '@/config';
@@ -65,10 +65,10 @@ const MainMenuList = () => {
       isActive: () => isCollectionRoute(location.pathname)
     },
     {
-      key: 'dangerous-mode',
-      title: t`Writing Session`,
-      url: DANGEROUS_MODE_ROUTE,
-      icon: APPICONS.warning
+      key: 'write-session',
+      title: t`Timed Writing`,
+      url: WRITING_SESSION_ROUTE,
+      icon: APPICONS.clock
     },
     {
       key: 'settings',

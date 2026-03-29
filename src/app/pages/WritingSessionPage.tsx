@@ -1,4 +1,4 @@
-import DangerousMode from '@/dangerous-mode/components/DangerousMode';
+import WritingSession from '@/timed-writing/components/WritingSession';
 import {
   IonButtons,
   IonHeader,
@@ -8,7 +8,7 @@ import {
 } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 
-const DangerousModePage = () => {
+const WritingSessionPage = () => {
   return (
     <IonPage>
       <IonHeader>
@@ -16,11 +16,11 @@ const DangerousModePage = () => {
           <IonButtons slot="start">
             <IonMenuButton></IonMenuButton>
           </IonButtons>
-          <Trans>Dangerous Writing App Mode</Trans>
+          <Trans>Timed Writing Session</Trans>
         </IonToolbar>
       </IonHeader>
-      <DangerousMode />
+      <WritingSession />
     </IonPage>
   );
 };
-export default DangerousModePage;
+export default WritingSessionPage;

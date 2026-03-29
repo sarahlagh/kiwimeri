@@ -1,6 +1,7 @@
 import { msg } from '@lingui/core/macro';
 import {
   add,
+  alarmOutline,
   albums,
   alertOutline,
   arrowDown,
@@ -119,7 +120,8 @@ export const APPICONS = {
   search: searchOutline,
   history: caretBackCircleOutline,
   restore: arrowUndoOutline,
-  save: arrowRedoOutline
+  save: arrowRedoOutline,
+  clock: alarmOutline
 };
 
 export const APPICONS_PER_TYPE = new Map<CollectionItemTypeValues, string>();

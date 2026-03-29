@@ -12,7 +12,7 @@ export const FOLDER_ROUTE = '/collection';
 export const DOCUMENT_ROUTE = '/document';
 export const VERSION_ROUTE = '/version';
 
-export const DANGEROUS_MODE_ROUTE = '/dangerous-mode';
+export const WRITING_SESSION_ROUTE = '/write';
 
 // TODO use URLSearchParams
 
