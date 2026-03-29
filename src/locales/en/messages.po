@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/dangerous-mode/components/DangerousMode.tsx:43
+#: src/dangerous-mode/components/DangerousMode.tsx:69
 msgid "{v} minutes"
 msgstr "{v} minutes"
 
@@ -57,11 +57,15 @@ msgstr "Choose"
 msgid "Choose a new folder"
 msgstr "Choose a new folder"
 
+#: src/dangerous-mode/components/DangerousMode.tsx:46
+msgid "Choose a session length"
+msgstr "Choose a session length"
+
 #: src/synchronization/components/LocalChangesCard.tsx:154
 msgid "Clear All"
 msgstr "Clear All"
 
-#: src/constants.ts:72
+#: src/constants.ts:73
 msgid "collection"
 msgstr "collection"
 
@@ -88,7 +92,7 @@ msgstr "Configure where to synchronize your collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/constants.ts:67
+#: src/constants.ts:68
 msgid "Conflicts"
 msgstr "Conflicts"
 
@@ -100,11 +104,11 @@ msgstr "Creation Date"
 msgid "Current Notebook Settings ({notebookTitle})"
 msgstr "Current Notebook Settings ({notebookTitle})"
 
-#: src/app/pages/DangerousModePage.tsx:20
+#: src/app/pages/DangerousModePage.tsx:19
 msgid "Dangerous Writing App Mode"
 msgstr "Dangerous Writing App Mode"
 
-#: src/constants.ts:66
+#: src/constants.ts:67
 msgid "Default"
 msgstr "Default"
 
@@ -120,6 +124,10 @@ msgstr "Dev Tools"
 #: src/dev-tools/components/DevTools.tsx:37
 msgid "Dev Tools Enabled"
 msgstr "Dev Tools Enabled"
+
+#: src/dangerous-mode/components/DangerousMode.tsx:234
+msgid "Discard"
+msgstr "Discard"
 
 #: src/settings/components/sections/CurrentNotebookSettings.tsx:26
 msgid "Display options for the currently selected notebook. They can still be overriden per folder."
@@ -199,14 +207,16 @@ msgstr "History idle time (s)"
 msgid "History save time (min)"
 msgstr "History save time (min)"
 
-#: src/constants.ts:65
+#: src/constants.ts:66
 msgid "Home"
 msgstr "Home"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:112
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:105
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
@@ -255,10 +265,12 @@ msgstr "Link"
 msgid "Loading..."
 msgstr "Loading..."
 
+#. placeholder {0}: localChanges.length
 #: src/synchronization/components/LocalChangesCard.tsx:38
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
+#. placeholder {0}: dateToStr('datetime', lastLocalChange)
 #: src/synchronization/components/LocalChangesCard.tsx:44
 msgid "Local: {0}"
 msgstr "Local: {0}"
@@ -308,11 +320,11 @@ msgstr "Name"
 msgid "new"
 msgstr "new"
 
-#: src/constants.ts:68
+#: src/constants.ts:69
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:69
+#: src/constants.ts:70
 msgid "New folder"
 msgstr "New folder"
 
@@ -352,7 +364,7 @@ msgstr "Notebooks found in the archive, they will be converted to folders"
 msgid "Number of versions"
 msgstr "Number of versions"
 
-#: src/constants.ts:71
+#: src/constants.ts:72
 msgid "page"
 msgstr "page"
 
@@ -388,6 +400,7 @@ msgstr "Pick a directory for your backups"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
+#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
 #: src/synchronization/components/LocalChangesCard.tsx:51
 msgid "Remote: {0}"
 msgstr "Remote: {0}"
@@ -408,6 +421,10 @@ msgstr "Restore Collection"
 #: src/common/buttons/ManageHistoryButton.tsx:139
 msgid "Restore Version"
 msgstr "Restore Version"
+
+#: src/dangerous-mode/components/DangerousMode.tsx:229
+msgid "Save your work"
+msgstr "Save your work"
 
 #: src/common/buttons/DeepSearchButton.tsx:157
 msgid "Search Content"
@@ -446,11 +463,7 @@ msgstr "space option modified"
 msgid "Space Settings"
 msgstr "Space Settings"
 
-#: src/dangerous-mode/components/DangerousMode.tsx:30
-msgid "Start"
-msgstr "Start"
-
-#: src/dangerous-mode/components/DangerousMode.tsx:50
+#: src/dangerous-mode/components/DangerousMode.tsx:77
 msgid "Start Writing"
 msgstr "Start Writing"
 
@@ -473,7 +486,7 @@ msgstr "Synchronize your collection on the filesystem"
 msgid "Syncing is disabled on the web version."
 msgstr "Syncing is disabled on the web version."
 
-#: src/dangerous-mode/components/DangerousMode.tsx:147
+#: src/dangerous-mode/components/DangerousMode.tsx:285
 msgid "temp session "
 msgstr "temp session "
 
@@ -492,6 +505,10 @@ msgstr "The following file(s) with matching title(s) have been detected inside t
 #: src/settings/components/sections/CurrentSpaceSettings.tsx:55
 msgid "The number of versions to keep per document. Set 0 for unlimited."
 msgstr "The number of versions to keep per document. Set 0 for unlimited."
+
+#: src/dangerous-mode/components/DangerousMode.tsx:49
+msgid "This feature is inspired by Squibler's Most Dangerous Writing App (https://www.squibler.io/dangerous-writing-prompt-app). Choose a length for your writing session. Once you start, you must keep writing or all progress will be lost. You will have the option to save your work in a new document in your collection once you finish."
+msgstr "This feature is inspired by Squibler's Most Dangerous Writing App (https://www.squibler.io/dangerous-writing-prompt-app). Choose a length for your writing session. Once you start, you must keep writing or all progress will be lost. You will have the option to save your work in a new document in your collection once you finish."
 
 #: src/settings/components/sections/ImportExportStoreSettings.tsx:62
 msgid "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page."

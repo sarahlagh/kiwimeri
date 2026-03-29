@@ -1,7 +1,6 @@
 import DangerousMode from '@/dangerous-mode/components/DangerousMode';
 import {
   IonButtons,
-  IonContent,
   IonHeader,
   IonMenuButton,
   IonPage,
@@ -20,9 +19,7 @@ const DangerousModePage = () => {
           <Trans>Dangerous Writing App Mode</Trans>
         </IonToolbar>
       </IonHeader>
-      <IonContent>
-        <DangerousMode />
-      </IonContent>
+      <DangerousMode />
     </IonPage>
   );
 };

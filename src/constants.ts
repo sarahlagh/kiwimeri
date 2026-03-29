@@ -4,6 +4,7 @@ import {
   albums,
   alertOutline,
   arrowDown,
+  arrowRedoOutline,
   arrowUndoOutline,
   arrowUp,
   bugOutline,
@@ -117,7 +118,8 @@ export const APPICONS = {
   dragBar: reorderTwoOutline,
   search: searchOutline,
   history: caretBackCircleOutline,
-  restore: arrowUndoOutline
+  restore: arrowUndoOutline,
+  save: arrowRedoOutline
 };
 
 export const APPICONS_PER_TYPE = new Map<CollectionItemTypeValues, string>();
