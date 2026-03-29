@@ -121,7 +121,7 @@ msgstr "Dev Tools"
 msgid "Dev Tools Enabled"
 msgstr "Dev Tools Enabled"
 
-#: src/timed-writing/components/OngoingSession.tsx:172
+#: src/timed-writing/components/OngoingSession.tsx:178
 msgid "Discard"
 msgstr "Discard"
 
@@ -413,7 +413,7 @@ msgstr "Restore Collection"
 msgid "Restore Version"
 msgstr "Restore Version"
 
-#: src/timed-writing/components/OngoingSession.tsx:167
+#: src/timed-writing/components/OngoingSession.tsx:173
 msgid "Save your work"
 msgstr "Save your work"
 
@@ -485,7 +485,7 @@ msgstr "temp session "
 msgid "Text"
 msgstr "Text"
 
-#: src/common/wysiwyg/lexical/KiwimeriEditor.tsx:67
+#: src/common/wysiwyg/lexical/KiwimeriEditor.tsx:69
 msgid "Text..."
 msgstr "Text..."
 

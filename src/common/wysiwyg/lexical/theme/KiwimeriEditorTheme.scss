@@ -28,14 +28,19 @@
   opacity: 20%;
   overflow: hidden;
   position: absolute;
-  top: 44px;
+  top: 0px;
   left: 12px;
   font-size: 15px;
   user-select: none;
   display: inline-block;
   pointer-events: none;
 }
-.android .editor-placeholder {
+
+.editor-placeholder-toolbar {
+  top: 44px;
+}
+
+.android .editor-placeholder-toolbar {
   top: 52px; // account for the bigger icon size
 }
 

@@ -41,6 +41,7 @@ type KiwimeriEditorProps = {
   editable?: boolean;
   onChange?: (editorState: EditorState) => void;
   debounce?: number;
+  additionalClassNames?: string;
 } & Omit<ToolbarPluginProps, 'setIsLinkEditMode'> & {
     readonly children?: ReactNode;
   };
@@ -62,7 +63,8 @@ const KiwimeriEditor = (
     debounce = 0,
     enableDebugTreeView = true,
     editable = true,
-    searchText
+    searchText,
+    additionalClassNames
   } = props;
   const placeholder = t`Text...`;
 
@@ -84,10 +86,20 @@ const KiwimeriEditor = (
           <ContentEditable
             ref={ref}
             contentEditable={editable}
-            className="editor-input"
+            className={
+              'editor-input' +
+              (additionalClassNames ? ` ${additionalClassNames}` : '')
+            }
             aria-placeholder={placeholder}
             placeholder={
-              <div className="editor-placeholder">{placeholder}</div>
+              <div
+                className={
+                  'editor-placeholder' +
+                  (enableToolbar ? ' editor-placeholder-toolbar' : '')
+                }
+              >
+                {placeholder}
+              </div>
             }
           />
         }

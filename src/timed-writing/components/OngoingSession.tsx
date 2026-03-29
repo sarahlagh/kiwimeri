@@ -18,8 +18,10 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import KeystrokeListenerPlugin from './KeystrokeListenerPlugin';
 
-const WARN_TIME = 3000;
-const MAX_IDLE = WARN_TIME + 2000;
+import './OngoingSession.scss';
+
+const WARN_TIME = 2000;
+const MAX_IDLE = WARN_TIME + 3000;
 
 const ClockTicking = ({
   startedAt,
@@ -61,6 +63,7 @@ const OngoingSession = ({
   const [editorState, setEditorState] = useState<EditorState | null>(null);
   const refWriter = useRef(null);
   const [color, setColor] = useState<string | undefined>(undefined);
+  const [warnClass, setWarnClass] = useState<string>('');
 
   const onClickedAnywhere: React.MouseEventHandler<HTMLIonContentElement> = (
     event: React.MouseEvent<HTMLIonContentElement, MouseEvent>
@@ -84,11 +87,13 @@ const OngoingSession = ({
     const idle = now - updatedAt;
     console.debug('next tick', (now - startedAt) / 1000, idle / 1000);
     setColor(undefined);
+    setWarnClass('');
     if (now - startedAt > duration) {
       return 'success';
     }
     if (idle > WARN_TIME && idle < MAX_IDLE) {
       setColor('danger');
+      setWarnClass(`warn${Math.ceil((MAX_IDLE - idle) / 1000)}`);
     }
     if (idle > MAX_IDLE) {
       return 'fail';
@@ -131,6 +136,7 @@ const OngoingSession = ({
         )}
         <KiwimeriEditor
           ref={refWriter}
+          additionalClassNames={'timed-writing ' + warnClass}
           content={initValue}
           enableToolbar={false}
           enableDebugTreeView={false}
