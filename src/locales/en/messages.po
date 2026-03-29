@@ -17,6 +17,10 @@ msgstr ""
 msgid "{v} minutes"
 msgstr "{v} minutes"
 
+#: src/timed-writing/components/OngoingSession.tsx:177
+msgid "{wordCount} words"
+msgstr "{wordCount} words"
+
 #: src/common/modals/ConfirmMultipleImportModal.tsx:230
 msgid "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 msgstr "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
@@ -121,7 +125,7 @@ msgstr "Dev Tools"
 msgid "Dev Tools Enabled"
 msgstr "Dev Tools Enabled"
 
-#: src/timed-writing/components/OngoingSession.tsx:178
+#: src/timed-writing/components/OngoingSession.tsx:196
 msgid "Discard"
 msgstr "Discard"
 
@@ -413,7 +417,7 @@ msgstr "Restore Collection"
 msgid "Restore Version"
 msgstr "Restore Version"
 
-#: src/timed-writing/components/OngoingSession.tsx:173
+#: src/timed-writing/components/OngoingSession.tsx:191
 msgid "Save your work"
 msgstr "Save your work"
 
@@ -477,7 +481,7 @@ msgstr "Synchronize your collection on the filesystem"
 msgid "Syncing is disabled on the web version."
 msgstr "Syncing is disabled on the web version."
 
-#: src/timed-writing/components/WritingSession.tsx:52
+#: src/timed-writing/components/WritingSession.tsx:55
 msgid "temp session "
 msgstr "temp session "
 
@@ -509,6 +513,10 @@ msgstr "This is different than the import / export of the collection. Your colle
 msgid "This will delete your existing data. Are you sure?"
 msgstr "This will delete your existing data. Are you sure?"
 
+#: src/timed-writing/components/WritingSession.tsx:55
+msgid "timed session "
+msgstr "timed session "
+
 #: src/app/components/MainMenuList.tsx:69
 msgid "Timed Writing"
 msgstr "Timed Writing"
@@ -534,7 +542,7 @@ msgstr "When working on a document, a new version will be automatically at least
 msgid "When working on a document, a new version will be automatically if idle after XX seconds"
 msgstr "When working on a document, a new version will be automatically if idle after XX seconds"
 
-#: src/collection/components/WordCount.tsx:26
+#: src/collection/components/WordCount.tsx:23
 msgid "words"
 msgstr "words"
 

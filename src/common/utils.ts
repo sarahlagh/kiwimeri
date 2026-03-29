@@ -137,3 +137,10 @@ export const nOr0 = (key: string, obj?: AnyData, defaultValue: unknown = 0) => {
   if (!obj || !obj[key]) return defaultValue;
   return obj[key];
 };
+
+export const countWords = (plain: string) => {
+  const segmenter = new Intl.Segmenter(undefined, { granularity: 'word' });
+  return plain
+    ? Array.from(segmenter.segment(plain)).filter(seg => seg.isWordLike).length
+    : 0;
+};

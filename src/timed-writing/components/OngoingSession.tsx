@@ -6,6 +6,7 @@ import {
   IonContent,
   IonFooter,
   IonIcon,
+  IonLabel,
   IonProgressBar,
   IonToolbar
 } from '@ionic/react';
@@ -18,6 +19,8 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import KeystrokeListenerPlugin from './KeystrokeListenerPlugin';
 
+import { countWords } from '@/common/utils';
+import formatConverter from '@/format-conversion/format-converter.service';
 import './OngoingSession.scss';
 
 const WARN_TIME = 2000;
@@ -64,6 +67,7 @@ const OngoingSession = ({
   const refWriter = useRef(null);
   const [color, setColor] = useState<string | undefined>(undefined);
   const [warnClass, setWarnClass] = useState<string>('');
+  const [wordCount, setWordCount] = useState(0);
 
   const onClickedAnywhere: React.MouseEventHandler<HTMLIonContentElement> = (
     event: React.MouseEvent<HTMLIonContentElement, MouseEvent>
@@ -109,7 +113,9 @@ const OngoingSession = ({
         const now = Date.now();
         setEndedAt(now);
         if (status === 'success' && editorState) {
-          onEnd(JSON.stringify(editorState.toJSON()));
+          const lex = JSON.stringify(editorState.toJSON());
+          onEnd(lex);
+          setWordCount(countWords(formatConverter.toPlainText(lex)));
         } else {
           onEnd();
         }
@@ -151,6 +157,13 @@ const OngoingSession = ({
                 }
               } else {
                 onEnd(JSON.stringify(editorState.toJSON()));
+                setWordCount(
+                  countWords(
+                    formatConverter.toPlainText(
+                      JSON.stringify(editorState.toJSON())
+                    )
+                  )
+                );
               }
             }}
           />
@@ -159,6 +172,11 @@ const OngoingSession = ({
 
       <IonFooter>
         <IonToolbar color={color}>
+          {endedAt && (
+            <IonLabel style={{ paddingLeft: '10px' }}>
+              <Trans>{wordCount} words</Trans>
+            </IonLabel>
+          )}
           <IonButtons slot="end">
             {endedAt && (
               <IonButton

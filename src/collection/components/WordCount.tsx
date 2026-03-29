@@ -1,3 +1,4 @@
+import { countWords } from '@/common/utils';
 import { APPICONS } from '@/constants';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { IonIcon, IonItem, IonLabel, IonText } from '@ionic/react';
@@ -10,11 +11,7 @@ type WordCountProps = {
 const WordCount = ({ id }: WordCountProps) => {
   // temp until we store it in model
   const content = searchAncestryService.useItemPreview(id);
-  const segmenter = new Intl.Segmenter(undefined, { granularity: 'word' });
-  const wordCount = content
-    ? Array.from(segmenter.segment(content)).filter(seg => seg.isWordLike)
-        .length
-    : 0;
+  const wordCount = content ? countWords(content) : 0;
 
   return (
     <>

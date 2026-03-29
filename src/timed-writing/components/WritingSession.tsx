@@ -1,15 +1,18 @@
+import { GET_DOCUMENT_ROUTE } from '@/common/routes';
 import { dateToStr } from '@/common/utils';
 import collectionService, { initialContent } from '@/db/collection.service';
-import notebooksService from '@/db/notebooks.service';
+import navService from '@/db/nav.service';
 import storageService from '@/db/storage.service';
 import { useLingui } from '@lingui/react/macro';
 import { useEffect, useState } from 'react';
+import { useHistory } from 'react-router';
 import { useValue } from 'tinybase/ui-react';
 import OngoingSession from './OngoingSession';
 import { StartPanel } from './StartPanel';
 
 const WritingSession = () => {
   const { t } = useLingui();
+  const history = useHistory();
   const [ongoing, setOngoing] = useState<boolean>(false);
   const [duration, setDuration] = useState<number>(10); // in minutes
 
@@ -47,12 +50,13 @@ const WritingSession = () => {
       }}
       onSave={content => {
         // here transform content into real document
-        const notebook = notebooksService.getCurrentNotebook();
-        const { item } = collectionService.getNewDocumentObj(notebook);
-        item.title = t`temp session ` + dateToStr('iso');
+        const parent = navService.getCurrentFolder();
+        const { item } = collectionService.getNewDocumentObj(parent);
+        item.title = t`timed session ` + dateToStr('iso');
         collectionService.setUnsavedItemLexicalContent(item, content);
-        collectionService.saveItem(item);
-        // TODO redirect to document
+        const id = collectionService.saveItem(item);
+        // redirect to document
+        history.push(GET_DOCUMENT_ROUTE(parent, id));
       }}
     />
   );
