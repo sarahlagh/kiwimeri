@@ -132,14 +132,10 @@ const OngoingSession = ({
 
   return (
     <>
+      {startedAt && !endedAt && (
+        <ClockTicking startedAt={startedAt} duration={duration} color={color} />
+      )}
       <IonContent onClick={onClickedAnywhere}>
-        {startedAt && !endedAt && (
-          <ClockTicking
-            startedAt={startedAt}
-            duration={duration}
-            color={color}
-          />
-        )}
         <KiwimeriEditor
           ref={refWriter}
           additionalClassNames={'timed-writing ' + warnClass}
