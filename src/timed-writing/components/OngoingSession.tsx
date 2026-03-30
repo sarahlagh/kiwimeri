@@ -11,11 +11,7 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
-import {
-  EditorState,
-  SerializedEditorState,
-  SerializedLexicalNode
-} from 'lexical';
+import { EditorState } from 'lexical';
 import { useEffect, useRef, useState } from 'react';
 import KeystrokeListenerPlugin from './KeystrokeListenerPlugin';
 
@@ -58,7 +54,7 @@ const OngoingSession = ({
   duration: number;
   initValue: string;
   onEnd: (content?: string) => void;
-  onSave: (content: SerializedEditorState<SerializedLexicalNode>) => void;
+  onSave: (content: string) => void;
 }) => {
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [updatedAt, setUpdatedAt] = useState<number | null>(null);
@@ -179,9 +175,8 @@ const OngoingSession = ({
                 onClick={() => {
                   const content = editorState?.toJSON();
                   if (content) {
-                    onSave(content);
+                    onSave(JSON.stringify(content));
                   }
-                  onEnd(); // delete temp doc
                 }}
               >
                 <Trans>Save your work</Trans>

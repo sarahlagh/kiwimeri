@@ -10,10 +10,12 @@ import { useEffect, useState } from 'react';
 
 const CollectionItemBreadcrumb = ({
   folder,
-  onClick
+  onClick,
+  minBreadcrumb = 2
 }: {
   folder: string;
   onClick?: (item: string) => void;
+  minBreadcrumb?: number;
 }) => {
   const [maxBreadcrumbs, setMaxBreadcrumbs] = useState<number | undefined>(3);
   const [breadcrumb, setBreadcrumb] = useState<string[]>([]);
@@ -29,7 +31,7 @@ const CollectionItemBreadcrumb = ({
     collectionService.itemExists(id)
   );
 
-  if (checkedBreadcrumb.length < 2) {
+  if (checkedBreadcrumb.length < minBreadcrumb) {
     return <></>;
   }
 

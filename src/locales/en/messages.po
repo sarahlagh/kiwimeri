@@ -17,7 +17,7 @@ msgstr ""
 msgid "{v} minutes"
 msgstr "{v} minutes"
 
-#: src/timed-writing/components/OngoingSession.tsx:177
+#: src/timed-writing/components/OngoingSession.tsx:172
 msgid "{wordCount} words"
 msgstr "{wordCount} words"
 
@@ -65,9 +65,17 @@ msgstr "Choose a new folder"
 msgid "Choose a session length"
 msgstr "Choose a session length"
 
+#: src/timed-writing/components/SaveSessionModal.tsx:47
+msgid "Choose where to save your work"
+msgstr "Choose where to save your work"
+
 #: src/synchronization/components/LocalChangesCard.tsx:154
 msgid "Clear All"
 msgstr "Clear All"
+
+#: src/timed-writing/components/SaveSessionModal.tsx:75
+msgid "Close"
+msgstr "Close"
 
 #: src/constants.ts:74
 msgid "collection"
@@ -125,7 +133,7 @@ msgstr "Dev Tools"
 msgid "Dev Tools Enabled"
 msgstr "Dev Tools Enabled"
 
-#: src/timed-writing/components/OngoingSession.tsx:196
+#: src/timed-writing/components/OngoingSession.tsx:190
 msgid "Discard"
 msgstr "Discard"
 
@@ -417,7 +425,11 @@ msgstr "Restore Collection"
 msgid "Restore Version"
 msgstr "Restore Version"
 
-#: src/timed-writing/components/OngoingSession.tsx:191
+#: src/timed-writing/components/SaveSessionModal.tsx:87
+msgid "Save"
+msgstr "Save"
+
+#: src/timed-writing/components/OngoingSession.tsx:185
 msgid "Save your work"
 msgstr "Save your work"
 
@@ -481,10 +493,6 @@ msgstr "Synchronize your collection on the filesystem"
 msgid "Syncing is disabled on the web version."
 msgstr "Syncing is disabled on the web version."
 
-#: src/timed-writing/components/WritingSession.tsx:55
-msgid "temp session "
-msgstr "temp session "
-
 #: src/common/wysiwyg/lexical/EditLinkPlugin.tsx:44
 msgid "Text"
 msgstr "Text"
@@ -513,7 +521,7 @@ msgstr "This is different than the import / export of the collection. Your colle
 msgid "This will delete your existing data. Are you sure?"
 msgstr "This will delete your existing data. Are you sure?"
 
-#: src/timed-writing/components/WritingSession.tsx:55
+#: src/timed-writing/components/SaveSessionModal.tsx:34
 msgid "timed session "
 msgstr "timed session "
 

@@ -1,20 +1,33 @@
 import { GET_DOCUMENT_ROUTE } from '@/common/routes';
-import { dateToStr } from '@/common/utils';
 import collectionService, { initialContent } from '@/db/collection.service';
-import navService from '@/db/nav.service';
 import storageService from '@/db/storage.service';
-import { useLingui } from '@lingui/react/macro';
+import { useIonModal } from '@ionic/react';
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { useValue } from 'tinybase/ui-react';
 import OngoingSession from './OngoingSession';
+import SaveSessionModal, { SavePayload } from './SaveSessionModal';
 import { StartPanel } from './StartPanel';
 
 const WritingSession = () => {
-  const { t } = useLingui();
   const history = useHistory();
   const [ongoing, setOngoing] = useState<boolean>(false);
   const [duration, setDuration] = useState<number>(10); // in minutes
+
+  const [present, dismiss] = useIonModal(SaveSessionModal, {
+    onClose: (payload: SavePayload) => {
+      if (payload) {
+        storageService.getStore().delValue('tempDoc');
+        setOngoing(false);
+
+        // TODO check if item exists
+        const id = collectionService.saveItem(payload.item);
+        // redirect to document
+        history.push(GET_DOCUMENT_ROUTE(payload.item.parent, id));
+      }
+      dismiss();
+    }
+  });
 
   const tempDoc = useValue('tempDoc', 'store');
   useEffect(() => {
@@ -49,14 +62,8 @@ const WritingSession = () => {
         // TODO select old duration too
       }}
       onSave={content => {
-        // here transform content into real document
-        const parent = navService.getCurrentFolder();
-        const { item } = collectionService.getNewDocumentObj(parent);
-        item.title = t`timed session ` + dateToStr('iso');
-        collectionService.setUnsavedItemLexicalContent(item, content);
-        const id = collectionService.saveItem(item);
-        // redirect to document
-        history.push(GET_DOCUMENT_ROUTE(parent, id));
+        storageService.getStore().setValue('tempDoc', content);
+        present(); // show "save somewhere" modal
       }}
     />
   );
