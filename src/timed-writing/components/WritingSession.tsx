@@ -9,6 +9,26 @@ import OngoingSession from './OngoingSession';
 import SaveSessionModal, { SavePayload } from './SaveSessionModal';
 import { StartPanel } from './StartPanel';
 
+function saveTempDocument(payload: SavePayload) {
+  if (payload.newItem) {
+    collectionService.setUnsavedItemLexicalContent(
+      payload.newItem,
+      payload.content
+    );
+    const id = collectionService.saveItem(payload.newItem);
+    return { id, parent: payload.newItem.parent };
+  } else {
+    collectionService.setItemLexicalContent(
+      payload.existingItem!.id,
+      payload.content
+    );
+    return {
+      id: payload.existingItem!.id,
+      parent: payload.existingItem!.parent
+    };
+  }
+}
+
 const WritingSession = () => {
   const history = useHistory();
   const [ongoing, setOngoing] = useState<boolean>(false);
@@ -20,10 +40,8 @@ const WritingSession = () => {
         storageService.getStore().delValue('tempDoc');
         setOngoing(false);
 
-        // TODO check if item exists
-        const id = collectionService.saveItem(payload.item);
-        // redirect to document
-        history.push(GET_DOCUMENT_ROUTE(payload.item.parent, id));
+        const { id, parent } = saveTempDocument(payload);
+        history.push(GET_DOCUMENT_ROUTE(parent, id));
       }
       dismiss();
     }

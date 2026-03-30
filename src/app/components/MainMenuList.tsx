@@ -68,7 +68,7 @@ const MainMenuList = () => {
       key: 'write-session',
       title: t`Timed Writing`,
       url: WRITING_SESSION_ROUTE,
-      icon: APPICONS.clock
+      icon: APPICONS.timedWriting
     },
     {
       key: 'settings',

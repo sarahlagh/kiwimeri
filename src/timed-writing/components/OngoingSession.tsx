@@ -22,6 +22,8 @@ import './OngoingSession.scss';
 const WARN_TIME = 2000;
 const MAX_IDLE = WARN_TIME + 3000;
 
+const mode: string = 'dangerous';
+
 const ClockTicking = ({
   startedAt,
   duration,
@@ -37,7 +39,6 @@ const ClockTicking = ({
       setProgress((Date.now() - startedAt) / duration);
     }, 1000);
     return () => {
-      console.debug('clear ticking clock');
       clearInterval(interval);
     };
   }, [startedAt]);
@@ -64,6 +65,7 @@ const OngoingSession = ({
   const [color, setColor] = useState<string | undefined>(undefined);
   const [warnClass, setWarnClass] = useState<string>('');
   const [wordCount, setWordCount] = useState(0);
+  const [indicator, setIndicator] = useState<string | undefined>(undefined);
 
   const onClickedAnywhere: React.MouseEventHandler<HTMLIonContentElement> = (
     event: React.MouseEvent<HTMLIonContentElement, MouseEvent>
@@ -85,12 +87,12 @@ const OngoingSession = ({
     if (startedAt === null || updatedAt === null) return;
     const now = Date.now();
     const idle = now - updatedAt;
-    console.debug('next tick', (now - startedAt) / 1000, idle / 1000);
     setColor(undefined);
     setWarnClass('');
     if (now - startedAt > duration) {
       return 'success';
     }
+    if (mode !== 'dangerous') return 'continue';
     if (idle > WARN_TIME && idle < MAX_IDLE) {
       setColor('danger');
       setWarnClass(`warn${Math.ceil((MAX_IDLE - idle) / 1000)}`);
@@ -141,6 +143,10 @@ const OngoingSession = ({
         >
           <KeystrokeListenerPlugin
             onWritingKey={editorState => {
+              setIndicator('primary');
+              setTimeout(() => {
+                setIndicator(undefined);
+              }, 250);
               setEditorState(editorState);
               if (!endedAt) {
                 setUpdatedAt(Date.now());
@@ -170,6 +176,7 @@ const OngoingSession = ({
             </IonLabel>
           )}
           <IonButtons slot="end">
+            <IonIcon color={indicator} icon={APPICONS.indicator}></IonIcon>
             {endedAt && (
               <IonButton
                 onClick={() => {

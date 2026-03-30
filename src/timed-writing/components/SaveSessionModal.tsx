@@ -1,4 +1,8 @@
-import { CollectionItem, CollectionItemType } from '@/collection/collection';
+import {
+  CollectionItem,
+  CollectionItemResult,
+  CollectionItemType
+} from '@/collection/collection';
 import CollectionItemBreadcrumb from '@/collection/components/CollectionItemBreadcrumb';
 import CollectionItemList from '@/collection/components/CollectionItemList';
 import { dateToStr } from '@/common/utils';
@@ -14,10 +18,13 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useState } from 'react';
+import { SerializedEditorState } from 'lexical';
+import { useEffect, useState } from 'react';
 
 export type SavePayload = {
-  item: CollectionItem;
+  content: SerializedEditorState;
+  newItem?: CollectionItem;
+  existingItem?: CollectionItemResult;
 };
 
 type SaveSessionModalProps = {
@@ -27,18 +34,29 @@ type SaveSessionModalProps = {
 const SaveSessionModal = ({ onClose }: SaveSessionModalProps) => {
   const { t } = useLingui();
   const [parent, setParent] = useState(navService.getCurrentFolder());
+  const [tempItem, setTempItem] = useState<
+    (CollectionItem & { id: string }) | null
+  >(null);
+  const [item, setItem] = useState<CollectionItemResult | null>(null);
   const content = storageService.getStore().getValue('tempDoc');
-
   const items = collectionService.useBrowsableCollectionItems(parent);
-  const { item: previewItem, id } = collectionService.getNewDocumentObj(parent);
-  previewItem.title = t`timed session ` + dateToStr('iso');
-  if (content)
-    collectionService.setUnsavedItemLexicalContent(
-      previewItem,
-      JSON.parse(content)
-    );
 
-  const finalItems = [{ ...previewItem, id }, ...items];
+  useEffect(() => {
+    if (tempItem === null) {
+      const { item: previewItem, id } =
+        collectionService.getNewDocumentObj(parent);
+      previewItem.title = t`timed session ` + dateToStr('iso');
+      setTempItem({ ...previewItem, id });
+      if (item === null) {
+        setItem({ ...previewItem, id });
+      }
+    }
+  });
+
+  const finalItems =
+    item && item.id === tempItem?.id
+      ? [{ ...item, title: item.title + t` (new)` }, ...items]
+      : [...items];
 
   return (
     <>
@@ -56,12 +74,17 @@ const SaveSessionModal = ({ onClose }: SaveSessionModalProps) => {
       </IonHeader>
       <CollectionItemList
         items={finalItems}
-        onSelectedItem={item => {
-          if (item.type === CollectionItemType.folder) {
-            setParent(item.id);
+        onSelectedItem={selected => {
+          if (selected.type === CollectionItemType.folder) {
+            setParent(selected.id);
+          } else if (selected.id === item?.id) {
+            // unselect document
+            setItem(tempItem);
+          } else {
+            setItem(selected);
           }
         }}
-        selected={id}
+        selected={item?.id}
       ></CollectionItemList>
 
       <IonFooter>
@@ -78,13 +101,31 @@ const SaveSessionModal = ({ onClose }: SaveSessionModalProps) => {
           <IonButtons slot="end">
             <IonButton
               color={'primary'}
+              disabled={item === null}
               onClick={() => {
-                onClose({
-                  item: previewItem
-                });
+                if (!item) return;
+                const payload: SavePayload = {
+                  content: JSON.parse(content!)
+                };
+                if (item.id === tempItem?.id) {
+                  payload.newItem = tempItem;
+                } else {
+                  payload.existingItem = item;
+                  // merge existing content with new
+                  payload.content =
+                    collectionService.appendUnsavedLexicalContent(
+                      item.id,
+                      payload.content
+                    );
+                }
+                onClose(payload);
               }}
             >
-              <Trans>Save</Trans>
+              {item?.id === tempItem?.id ? (
+                <Trans>Save</Trans>
+              ) : (
+                <Trans>Merge</Trans>
+              )}
             </IonButton>
           </IonButtons>
         </IonToolbar>

@@ -13,11 +13,15 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: src/timed-writing/components/SaveSessionModal.tsx:58
+msgid " (new)"
+msgstr " (new)"
+
 #: src/timed-writing/components/StartPanel.tsx:54
 msgid "{v} minutes"
 msgstr "{v} minutes"
 
-#: src/timed-writing/components/OngoingSession.tsx:172
+#: src/timed-writing/components/OngoingSession.tsx:175
 msgid "{wordCount} words"
 msgstr "{wordCount} words"
 
@@ -65,7 +69,7 @@ msgstr "Choose a new folder"
 msgid "Choose a session length"
 msgstr "Choose a session length"
 
-#: src/timed-writing/components/SaveSessionModal.tsx:47
+#: src/timed-writing/components/SaveSessionModal.tsx:65
 msgid "Choose where to save your work"
 msgstr "Choose where to save your work"
 
@@ -73,11 +77,11 @@ msgstr "Choose where to save your work"
 msgid "Clear All"
 msgstr "Clear All"
 
-#: src/timed-writing/components/SaveSessionModal.tsx:75
+#: src/timed-writing/components/SaveSessionModal.tsx:98
 msgid "Close"
 msgstr "Close"
 
-#: src/constants.ts:74
+#: src/constants.ts:75
 msgid "collection"
 msgstr "collection"
 
@@ -104,7 +108,7 @@ msgstr "Configure where to synchronize your collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/constants.ts:69
+#: src/constants.ts:70
 msgid "Conflicts"
 msgstr "Conflicts"
 
@@ -116,7 +120,7 @@ msgstr "Creation Date"
 msgid "Current Notebook Settings ({notebookTitle})"
 msgstr "Current Notebook Settings ({notebookTitle})"
 
-#: src/constants.ts:68
+#: src/constants.ts:69
 msgid "Default"
 msgstr "Default"
 
@@ -133,7 +137,7 @@ msgstr "Dev Tools"
 msgid "Dev Tools Enabled"
 msgstr "Dev Tools Enabled"
 
-#: src/timed-writing/components/OngoingSession.tsx:190
+#: src/timed-writing/components/OngoingSession.tsx:194
 msgid "Discard"
 msgstr "Discard"
 
@@ -215,14 +219,16 @@ msgstr "History idle time (s)"
 msgid "History save time (min)"
 msgstr "History save time (min)"
 
-#: src/constants.ts:67
+#: src/constants.ts:68
 msgid "Home"
 msgstr "Home"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:112
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:105
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
@@ -271,10 +277,12 @@ msgstr "Link"
 msgid "Loading..."
 msgstr "Loading..."
 
+#. placeholder {0}: localChanges.length
 #: src/synchronization/components/LocalChangesCard.tsx:38
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
+#. placeholder {0}: dateToStr('datetime', lastLocalChange)
 #: src/synchronization/components/LocalChangesCard.tsx:44
 msgid "Local: {0}"
 msgstr "Local: {0}"
@@ -303,6 +311,10 @@ msgstr "Markdown (Kiwimeri flavor)"
 msgid "Max log history"
 msgstr "Max log history"
 
+#: src/timed-writing/components/SaveSessionModal.tsx:127
+msgid "Merge"
+msgstr "Merge"
+
 #: src/common/modals/ConfirmMultipleImportModal.tsx:96
 msgid "merged"
 msgstr "merged"
@@ -324,11 +336,11 @@ msgstr "Name"
 msgid "new"
 msgstr "new"
 
-#: src/constants.ts:70
+#: src/constants.ts:71
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:71
+#: src/constants.ts:72
 msgid "New folder"
 msgstr "New folder"
 
@@ -368,7 +380,7 @@ msgstr "Notebooks found in the archive, they will be converted to folders"
 msgid "Number of versions"
 msgstr "Number of versions"
 
-#: src/constants.ts:73
+#: src/constants.ts:74
 msgid "page"
 msgstr "page"
 
@@ -404,6 +416,7 @@ msgstr "Pick a directory for your backups"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
+#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
 #: src/synchronization/components/LocalChangesCard.tsx:51
 msgid "Remote: {0}"
 msgstr "Remote: {0}"
@@ -425,11 +438,11 @@ msgstr "Restore Collection"
 msgid "Restore Version"
 msgstr "Restore Version"
 
-#: src/timed-writing/components/SaveSessionModal.tsx:87
+#: src/timed-writing/components/SaveSessionModal.tsx:125
 msgid "Save"
 msgstr "Save"
 
-#: src/timed-writing/components/OngoingSession.tsx:185
+#: src/timed-writing/components/OngoingSession.tsx:189
 msgid "Save your work"
 msgstr "Save your work"
 
@@ -521,7 +534,7 @@ msgstr "This is different than the import / export of the collection. Your colle
 msgid "This will delete your existing data. Are you sure?"
 msgstr "This will delete your existing data. Are you sure?"
 
-#: src/timed-writing/components/SaveSessionModal.tsx:34
+#: src/timed-writing/components/SaveSessionModal.tsx:48
 msgid "timed session "
 msgstr "timed session "
 

@@ -19,6 +19,7 @@ import {
   createOutline,
   documentTextOutline,
   downloadOutline,
+  ellipse,
   ellipsisVertical,
   exitOutline,
   fileTrayStackedOutline,
@@ -121,7 +122,8 @@ export const APPICONS = {
   history: caretBackCircleOutline,
   restore: arrowUndoOutline,
   save: arrowRedoOutline,
-  clock: alarmOutline
+  timedWriting: alarmOutline,
+  indicator: ellipse
 };
 
 export const APPICONS_PER_TYPE = new Map<CollectionItemTypeValues, string>();

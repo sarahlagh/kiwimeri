@@ -17,7 +17,10 @@ import {
   SortableCollectionItem
 } from '@/collection/collection';
 import { genericReorder } from '@/common/dnd/utils';
-import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
+import {
+  minimizeContentForStorage,
+  unminimizeContentFromStorage
+} from '@/common/wysiwyg/compress-file-content';
 import { getGlobalTrans } from '@/config';
 import { ROOT_COLLECTION } from '@/constants';
 import { SerializedEditorState } from 'lexical';
@@ -599,6 +602,24 @@ class CollectionService {
     content: SerializedEditorState
   ) {
     item.content = minimizeContentForStorage(content);
+  }
+
+  public appendUnsavedLexicalContent(
+    itemId: string,
+    contentToAppend: SerializedEditorState
+  ) {
+    if (!this.itemExists(itemId) || !collectionService.getItemContent(itemId))
+      return contentToAppend;
+    const existingContent = JSON.parse(
+      unminimizeContentFromStorage(collectionService.getItemContent(itemId)!)
+    ) as SerializedEditorState;
+
+    const newChildren = [
+      ...existingContent.root.children,
+      ...contentToAppend.root.children
+    ];
+    contentToAppend.root.children = newChildren;
+    return contentToAppend;
   }
 
   // get display opts => raw data from db
