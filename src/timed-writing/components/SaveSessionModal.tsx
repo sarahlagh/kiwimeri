@@ -5,7 +5,7 @@ import {
 } from '@/collection/collection';
 import CollectionItemBreadcrumb from '@/collection/components/CollectionItemBreadcrumb';
 import CollectionItemList from '@/collection/components/CollectionItemList';
-import { dateToStr } from '@/common/utils';
+import { dateToStr } from '@/common/date-utils';
 import collectionService from '@/db/collection.service';
 import navService from '@/db/nav.service';
 import storageService from '@/db/storage.service';

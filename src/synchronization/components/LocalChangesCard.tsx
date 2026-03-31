@@ -1,8 +1,8 @@
 import { CollectionItemType } from '@/collection/collection';
 import DeleteButton from '@/common/buttons/DeleteButton';
+import { dateToStr } from '@/common/date-utils';
 import { GET_UNKNOWN_ITEM_ROUTE, SETTINGS_ROUTE } from '@/common/routes';
 import platformService from '@/common/services/platform.service';
-import { dateToStr } from '@/common/utils';
 import { APPICONS, APPICONS_PER_TYPE } from '@/constants';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/local-changes.service';

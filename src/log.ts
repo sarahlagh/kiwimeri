@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { Row } from 'tinybase/store';
-import { dateToStr } from './common/utils';
+import { dateToStr } from './common/date-utils';
 import storageService from './db/storage.service';
 import {
   useResultSortedRowIdsWithRef,

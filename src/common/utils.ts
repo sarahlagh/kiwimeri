@@ -99,40 +99,6 @@ export const unminimizeKeys = (
   return m;
 };
 
-export const dateLocale = 'fr-FR'; // TODO config
-export const dateToStr = (
-  format: 'time' | 'date' | 'datetime' | 'iso' | 'relative',
-  ts?: number
-) => {
-  const date = ts ? new Date(ts) : new Date();
-  let relativeSuff = '';
-  switch (format) {
-    case 'date':
-      return date.toLocaleDateString(dateLocale);
-    case 'time':
-      return date.toLocaleTimeString(dateLocale);
-    case 'datetime':
-      return date.toLocaleString(dateLocale);
-    case 'iso':
-      return date.toISOString().substring(0, 19).replaceAll(/[:T]/g, '-');
-    case 'relative':
-      if (Date.now() - date.getTime() < 604800000) {
-        const inDays = Math.ceil((Date.now() - date.getTime()) / 86400000);
-        const inHours = Math.ceil((Date.now() - date.getTime()) / 3600000);
-        const inMinutes = Math.ceil((Date.now() - date.getTime()) / 60000);
-        const inSeconds = Math.ceil((Date.now() - date.getTime()) / 1000);
-        if (inSeconds < 60)
-          relativeSuff = ` ${inSeconds} second${inSeconds > 1 ? 's' : ''} ago`;
-        else if (inMinutes < 60 * 2)
-          relativeSuff = ` ${inMinutes} minute${inMinutes > 1 ? 's' : ''} ago`;
-        else if (inHours < 24) relativeSuff = ` ${inHours} hours ago`;
-        else if (inHours < 48) relativeSuff = ` yesterday`;
-        else if (inDays < 7) relativeSuff = ` ${inDays} days ago`;
-      }
-      return date.toLocaleString(dateLocale) + relativeSuff;
-  }
-};
-
 export const nOr0 = (key: string, obj?: AnyData, defaultValue: unknown = 0) => {
   if (!obj || !obj[key]) return defaultValue;
   return obj[key];
