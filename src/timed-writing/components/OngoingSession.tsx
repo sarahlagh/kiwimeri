@@ -17,12 +17,11 @@ import KeystrokeListenerPlugin from './KeystrokeListenerPlugin';
 
 import { countWords } from '@/common/utils';
 import formatConverter from '@/format-conversion/format-converter.service';
+import { SessionMode } from '../mode';
 import './OngoingSession.scss';
 
 const WARN_TIME = 2000;
 const MAX_IDLE = WARN_TIME + 3000;
-
-const mode: string = 'dangerous';
 
 const ClockTicking = ({
   startedAt,
@@ -48,11 +47,13 @@ const ClockTicking = ({
 
 const OngoingSession = ({
   duration,
+  mode,
   initValue,
   onEnd,
   onSave
 }: {
   duration: number;
+  mode: SessionMode;
   initValue: string;
   onEnd: (content?: string) => void;
   onSave: (content: string) => void;

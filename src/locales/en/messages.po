@@ -17,11 +17,11 @@ msgstr ""
 msgid " (new)"
 msgstr " (new)"
 
-#: src/timed-writing/components/StartPanel.tsx:54
+#: src/timed-writing/components/StartPanel.tsx:70
 msgid "{v} minutes"
 msgstr "{v} minutes"
 
-#: src/timed-writing/components/OngoingSession.tsx:175
+#: src/timed-writing/components/OngoingSession.tsx:176
 msgid "{wordCount} words"
 msgstr "{wordCount} words"
 
@@ -42,13 +42,13 @@ msgid "Archive is empty"
 msgstr "Archive is empty"
 
 #: src/collection/components/CollectionItemList.tsx:66
-#: src/common/buttons/ManageHistoryButton.tsx:140
+#: src/common/buttons/ManageHistoryButton.tsx:141
 #: src/common/modals/ConfirmYesNoDialog.tsx:24
 msgid "Are you sure?"
 msgstr "Are you sure?"
 
 #: src/common/buttons/ExportItemsButton.tsx:132
-#: src/common/buttons/ManageHistoryButton.tsx:143
+#: src/common/buttons/ManageHistoryButton.tsx:144
 #: src/common/buttons/RestoreCollectionButton.tsx:61
 #: src/common/modals/ChooseTagsModal.tsx:100
 #: src/common/modals/ConfirmFileImportModal.tsx:81
@@ -61,11 +61,15 @@ msgstr "Cancel"
 msgid "Choose"
 msgstr "Choose"
 
+#: src/timed-writing/components/StartPanel.tsx:40
+msgid "Choose a length for your writing session. Once you start, you must keep writing or all progress will be lost. You will have the option to save your work in a new document once you finish. This feature is inspired by Squibler's Most Dangerous Writing App (https://www.squibler.io/dangerous-writing-prompt-app)"
+msgstr "Choose a length for your writing session. Once you start, you must keep writing or all progress will be lost. You will have the option to save your work in a new document once you finish. This feature is inspired by Squibler's Most Dangerous Writing App (https://www.squibler.io/dangerous-writing-prompt-app)"
+
 #: src/common/modals/ChooseFolderModal.tsx:110
 msgid "Choose a new folder"
 msgstr "Choose a new folder"
 
-#: src/timed-writing/components/StartPanel.tsx:31
+#: src/timed-writing/components/StartPanel.tsx:37
 msgid "Choose a session length"
 msgstr "Choose a session length"
 
@@ -98,7 +102,7 @@ msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
 
 #: src/common/buttons/ExportItemsButton.tsx:139
-#: src/common/buttons/ManageHistoryButton.tsx:147
+#: src/common/buttons/ManageHistoryButton.tsx:148
 #: src/common/buttons/RestoreCollectionButton.tsx:68
 #: src/common/modals/ChooseTagsModal.tsx:107
 #: src/common/modals/ConfirmFileImportModal.tsx:84
@@ -137,7 +141,7 @@ msgstr "Dev Tools"
 msgid "Dev Tools Enabled"
 msgstr "Dev Tools Enabled"
 
-#: src/timed-writing/components/OngoingSession.tsx:194
+#: src/timed-writing/components/OngoingSession.tsx:195
 msgid "Discard"
 msgstr "Discard"
 
@@ -153,7 +157,7 @@ msgstr "Display options for the currently selected space. They can still be over
 msgid "Do you want to import your content inside a new folder?"
 msgstr "Do you want to import your content inside a new folder?"
 
-#: src/common/buttons/ManageHistoryButton.tsx:98
+#: src/common/buttons/ManageHistoryButton.tsx:99
 msgid "Document History"
 msgstr "Document History"
 
@@ -223,12 +227,10 @@ msgstr "History save time (min)"
 msgid "Home"
 msgstr "Home"
 
-#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:112
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
-#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:105
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
@@ -277,12 +279,10 @@ msgstr "Link"
 msgid "Loading..."
 msgstr "Loading..."
 
-#. placeholder {0}: localChanges.length
 #: src/synchronization/components/LocalChangesCard.tsx:38
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
-#. placeholder {0}: dateToStr('datetime', lastLocalChange)
 #: src/synchronization/components/LocalChangesCard.tsx:44
 msgid "Local: {0}"
 msgstr "Local: {0}"
@@ -416,7 +416,6 @@ msgstr "Pick a directory for your backups"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
-#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
 #: src/synchronization/components/LocalChangesCard.tsx:51
 msgid "Remote: {0}"
 msgstr "Remote: {0}"
@@ -434,7 +433,7 @@ msgstr "Restore"
 msgid "Restore Collection"
 msgstr "Restore Collection"
 
-#: src/common/buttons/ManageHistoryButton.tsx:139
+#: src/common/buttons/ManageHistoryButton.tsx:140
 msgid "Restore Version"
 msgstr "Restore Version"
 
@@ -442,7 +441,7 @@ msgstr "Restore Version"
 msgid "Save"
 msgstr "Save"
 
-#: src/timed-writing/components/OngoingSession.tsx:189
+#: src/timed-writing/components/OngoingSession.tsx:190
 msgid "Save your work"
 msgstr "Save your work"
 
@@ -483,13 +482,13 @@ msgstr "space option modified"
 msgid "Space Settings"
 msgstr "Space Settings"
 
-#: src/timed-writing/components/StartPanel.tsx:62
+#: src/timed-writing/components/StartPanel.tsx:78
 msgid "Start Writing"
 msgstr "Start Writing"
 
 #: src/common/buttons/GenericExportFileButton.tsx:48
 #: src/common/buttons/GenericImportFileButton.tsx:48
-#: src/common/buttons/ManageHistoryButton.tsx:154
+#: src/common/buttons/ManageHistoryButton.tsx:155
 msgid "Success!"
 msgstr "Success!"
 
@@ -522,10 +521,6 @@ msgstr "The following file(s) with matching title(s) have been detected inside t
 msgid "The number of versions to keep per document. Set 0 for unlimited."
 msgstr "The number of versions to keep per document. Set 0 for unlimited."
 
-#: src/timed-writing/components/StartPanel.tsx:34
-msgid "This feature is inspired by Squibler's Most Dangerous Writing App (https://www.squibler.io/dangerous-writing-prompt-app). Choose a length for your writing session. Once you start, you must keep writing or all progress will be lost. You will have the option to save your work in a new document in your collection once you finish."
-msgstr "This feature is inspired by Squibler's Most Dangerous Writing App (https://www.squibler.io/dangerous-writing-prompt-app). Choose a length for your writing session. Once you start, you must keep writing or all progress will be lost. You will have the option to save your work in a new document in your collection once you finish."
-
 #: src/settings/components/sections/ImportExportStoreSettings.tsx:62
 msgid "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page."
 msgstr "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page."
@@ -549,6 +544,10 @@ msgstr "Timed Writing Session"
 #: src/synchronization/components/providers/PCloudSettings.tsx:93
 msgid "US"
 msgstr "US"
+
+#: src/timed-writing/components/StartPanel.tsx:56
+msgid "Use less dangerous mode (session is still timed but you will not lose progress on pause)"
+msgstr "Use less dangerous mode (session is still timed but you will not lose progress on pause)"
 
 #: src/synchronization/components/providers/PCloudSettings.tsx:112
 #: src/synchronization/components/providers/PCloudSettings.tsx:115

@@ -102,7 +102,9 @@ class StorageService {
         exportIncludeMetadata: { type: 'boolean', default: true },
         exportInlinePages: { type: 'boolean', default: true },
         appVersion: { type: 'string' },
-        tempDoc: { type: 'string' }
+        tempDoc: { type: 'string' },
+        defaultTimedDuration: { type: 'number', default: 10 },
+        defaultTimedMode: { type: 'string', default: 'dangerous' }
       });
 
     this.storeQueries = createQueries(this.store);

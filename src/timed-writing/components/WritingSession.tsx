@@ -1,10 +1,11 @@
 import { GET_DOCUMENT_ROUTE } from '@/common/routes';
 import collectionService, { initialContent } from '@/db/collection.service';
 import storageService from '@/db/storage.service';
+import { useValueWithRef } from '@/db/tinybase/hooks';
 import { useIonModal } from '@ionic/react';
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
-import { useValue } from 'tinybase/ui-react';
+import { SessionMode } from '../mode';
 import OngoingSession from './OngoingSession';
 import SaveSessionModal, { SavePayload } from './SaveSessionModal';
 import { StartPanel } from './StartPanel';
@@ -32,7 +33,13 @@ function saveTempDocument(payload: SavePayload) {
 const WritingSession = () => {
   const history = useHistory();
   const [ongoing, setOngoing] = useState<boolean>(false);
-  const [duration, setDuration] = useState<number>(10); // in minutes
+  const duration =
+    useValueWithRef<number>('store', 'defaultTimedDuration') || 10;
+  const mode = useValueWithRef<string>(
+    'store',
+    'defaultTimedMode'
+  ) as SessionMode;
+  const tempDoc = useValueWithRef<string>('store', 'tempDoc');
 
   const [present, dismiss] = useIonModal(SaveSessionModal, {
     onClose: (payload: SavePayload) => {
@@ -47,7 +54,6 @@ const WritingSession = () => {
     }
   });
 
-  const tempDoc = useValue('tempDoc', 'store');
   useEffect(() => {
     if (tempDoc) {
       setOngoing(true);
@@ -57,8 +63,11 @@ const WritingSession = () => {
   if (!ongoing) {
     return (
       <StartPanel
-        onStart={d => {
-          setDuration(d);
+        duration={duration}
+        mode={mode}
+        onStart={(d, m) => {
+          storageService.getStore().setValue('defaultTimedDuration', d);
+          storageService.getStore().setValue('defaultTimedMode', m);
           setOngoing(true);
         }}
       />
@@ -68,6 +77,7 @@ const WritingSession = () => {
   return (
     <OngoingSession
       duration={duration * 60000}
+      mode={mode}
       initValue={tempDoc?.toString() || initialContent()}
       onEnd={content => {
         if (content) {
@@ -77,7 +87,6 @@ const WritingSession = () => {
           storageService.getStore().delValue('tempDoc');
           setOngoing(false);
         }
-        // TODO select old duration too
       }}
       onSave={content => {
         storageService.getStore().setValue('tempDoc', content);

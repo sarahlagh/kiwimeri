@@ -137,6 +137,8 @@ export type StoreType = [
     exportInlinePages: { type: 'boolean'; default: true };
     appVersion: { type: 'string' };
     tempDoc: { type: 'string' };
+    defaultTimedDuration: { type: 'number'; default: number };
+    defaultTimedMode: { type: 'string'; default: string };
   }
 ];
 
