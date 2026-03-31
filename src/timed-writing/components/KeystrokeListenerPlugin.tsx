@@ -2,9 +2,8 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import {
   COMMAND_PRIORITY_LOW,
   EditorState,
-  INPUT_COMMAND,
-  KEY_DOWN_COMMAND,
-  KEY_ENTER_COMMAND,
+  INSERT_LINE_BREAK_COMMAND,
+  INSERT_PARAGRAPH_COMMAND,
   mergeRegister
 } from 'lexical';
 import { useEffect, useRef, useState } from 'react';
@@ -17,7 +16,8 @@ const KeystrokeListenerPlugin = ({
   onWritingKey
 }: KeystrokeListenerPluginProps) => {
   const [editor] = useLexicalComposerContext();
-  const [caughtFirstChar, setCaughtFirstChar] = useState(false);
+  const [lastText, setLastText] = useState<string | null>(null);
+  const [lastWasEnter, setLastWasEnter] = useState(false);
   const onWritingKeyRef = useRef(onWritingKey);
 
   useEffect(() => {
@@ -25,39 +25,38 @@ const KeystrokeListenerPlugin = ({
   }, [onWritingKey]);
 
   useEffect(() => {
-    if (caughtFirstChar) {
-      return mergeRegister(
-        editor.registerCommand(
-          INPUT_COMMAND,
-          (event: InputEvent) => {
-            if (event.inputType === 'deleteContentBackward') return false;
-            onWritingKeyRef.current(editor.getEditorState());
-            return false;
-          },
-          COMMAND_PRIORITY_LOW
-        ),
-        editor.registerCommand(
-          KEY_ENTER_COMMAND,
-          () => {
-            setCaughtFirstChar(false);
-            return false;
-          },
-          COMMAND_PRIORITY_LOW
-        )
-      );
-    }
-    // INPUT_COMMAND skips first char for some reason so fallback on KEY_DOWN
-    return editor.registerCommand(
-      KEY_DOWN_COMMAND,
-      event => {
-        console.debug('received key down event', event);
-        setCaughtFirstChar(true);
-        onWritingKeyRef.current(editor.getEditorState());
-        return false;
-      },
-      COMMAND_PRIORITY_LOW
+    // KEY DOWN not reliable on android
+    // INPUT_COMMAND skips first insert of paragraph for some reason
+    // so fallback on text listener
+    // doesn't prevent pasting text but reliable everywhere
+    // INSERT_PARAGRAPH_COMMAND and INSERT_LINE_BREAK_COMMAND work but... timing issue with text content listener?
+    return mergeRegister(
+      editor.registerCommand(
+        INSERT_PARAGRAPH_COMMAND,
+        () => {
+          setLastWasEnter(true);
+          return false;
+        },
+        COMMAND_PRIORITY_LOW
+      ),
+      editor.registerCommand(
+        INSERT_LINE_BREAK_COMMAND,
+        () => {
+          setLastWasEnter(true);
+          return false;
+        },
+        COMMAND_PRIORITY_LOW
+      ),
+      editor.registerTextContentListener(text => {
+        const lastTextLength = lastText?.length || 0;
+        if (lastTextLength < text.length && !lastWasEnter) {
+          onWritingKeyRef.current(editor.getEditorState());
+        }
+        setLastText(text);
+        setLastWasEnter(false);
+      })
     );
-  }, [editor, caughtFirstChar]);
+  }, [editor, lastText, lastWasEnter]);
   return null;
 };
 
