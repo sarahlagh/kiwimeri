@@ -12,6 +12,7 @@ import {
 } from 'tinybase/ui-react';
 import { Id } from 'tinybase/with-schemas';
 import storageService, { StoreId } from '../storage.service';
+import { StoreValue } from '../types/store-types';
 
 const store = (storeId: StoreId) => {
   return storageService.get(storeId) as unknown as Store;
@@ -33,6 +34,17 @@ export const useValueWithRef = <T>(storeId: StoreId, valueId: Id) => {
     return val as T;
   }
   return undefined;
+};
+
+export const useStoreValue = <T>(valueId: StoreValue) => {
+  return useValueWithRef<T>('store', valueId);
+};
+
+export const useStoreValueWithDefault = <T>(
+  valueId: StoreValue,
+  defaultValue: T
+) => {
+  return useValueWithRef<T>('store', valueId) || defaultValue;
 };
 
 export const useCellWithRef = <T>(

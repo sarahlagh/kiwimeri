@@ -41,6 +41,8 @@ import { Dispatch, useCallback, useEffect, useRef, useState } from 'react';
 const LowPriority = 1;
 
 import { APPICONS } from '@/constants';
+import { useStoreValueWithDefault } from '@/db/tinybase/hooks';
+import { ZOOM_IN_COMMAND, ZOOM_OUT_COMMAND } from './commands';
 import { getSelectedNode } from './playground/utils/getSelectedNode';
 import './theme/KiwimeriToolbarPlugin.scss';
 
@@ -143,14 +145,16 @@ function TextFormatToolbarButton({
 }
 
 export type ToolbarPluginProps = {
+  zoomIncrement?: number;
   enablePageBrowser?: boolean;
   pageBrowserButtonHighlighted?: boolean;
   openPageBrowser?: boolean;
   setOpenPageBrowser?: Dispatch<boolean>;
-  setIsLinkEditMode: Dispatch<boolean>;
+  setIsLinkEditMode: Dispatch<boolean>; // TODO refacto
 };
 
 export default function ToolbarPlugin({
+  zoomIncrement = 0.05,
   enablePageBrowser = false,
   pageBrowserButtonHighlighted = false,
   openPageBrowser = false,
@@ -175,6 +179,8 @@ export default function ToolbarPlugin({
   const [isOrderedList, setIsOrderedList] = useState(false);
   const [isCheckedList, setIsCheckedList] = useState(false);
   const [isLink, setIsLink] = useState(false);
+
+  const zoomLevel = useStoreValueWithDefault<number>('globalZoom', 1);
 
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -272,6 +278,24 @@ export default function ToolbarPlugin({
             setIsEditable(editor.isEditable());
           }}
         />
+        <ToolbarButton
+          ariaLabel="writer/zoom-in.svg"
+          icon="writer/zoom-in.svg"
+          disabled={zoomLevel >= 3}
+          onClick={() => {
+            editor.dispatchCommand(ZOOM_IN_COMMAND, zoomIncrement);
+          }}
+        />
+        <ToolbarButton
+          ariaLabel="writer/zoom-out.svg"
+          icon="writer/zoom-out.svg"
+          disabled={zoomLevel <= zoomIncrement}
+          onClick={() => {
+            editor.dispatchCommand(ZOOM_OUT_COMMAND, zoomIncrement);
+          }}
+        />
+        <Divider />
+
         <ToolbarButton
           ariaLabel="Undo"
           icon="writer/arrow-counterclockwise.svg"

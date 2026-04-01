@@ -104,7 +104,8 @@ class StorageService {
         appVersion: { type: 'string' },
         tempDoc: { type: 'string' },
         defaultTimedDuration: { type: 'number', default: 10 },
-        defaultTimedMode: { type: 'string', default: 'dangerous' }
+        defaultTimedMode: { type: 'string', default: 'dangerous' },
+        globalZoom: { type: 'number', default: 1 }
       });
 
     this.storeQueries = createQueries(this.store);

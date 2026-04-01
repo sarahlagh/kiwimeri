@@ -139,6 +139,7 @@ export type StoreType = [
     tempDoc: { type: 'string' };
     defaultTimedDuration: { type: 'number'; default: number };
     defaultTimedMode: { type: 'string'; default: string };
+    globalZoom: { type: 'number'; default: number };
   }
 ];
 

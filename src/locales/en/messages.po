@@ -42,13 +42,13 @@ msgid "Archive is empty"
 msgstr "Archive is empty"
 
 #: src/collection/components/CollectionItemList.tsx:66
-#: src/common/buttons/ManageHistoryButton.tsx:141
+#: src/common/buttons/ManageHistoryButton.tsx:143
 #: src/common/modals/ConfirmYesNoDialog.tsx:24
 msgid "Are you sure?"
 msgstr "Are you sure?"
 
 #: src/common/buttons/ExportItemsButton.tsx:132
-#: src/common/buttons/ManageHistoryButton.tsx:144
+#: src/common/buttons/ManageHistoryButton.tsx:146
 #: src/common/buttons/RestoreCollectionButton.tsx:61
 #: src/common/modals/ChooseTagsModal.tsx:100
 #: src/common/modals/ConfirmFileImportModal.tsx:81
@@ -102,7 +102,7 @@ msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
 
 #: src/common/buttons/ExportItemsButton.tsx:139
-#: src/common/buttons/ManageHistoryButton.tsx:148
+#: src/common/buttons/ManageHistoryButton.tsx:150
 #: src/common/buttons/RestoreCollectionButton.tsx:68
 #: src/common/modals/ChooseTagsModal.tsx:107
 #: src/common/modals/ConfirmFileImportModal.tsx:84
@@ -227,12 +227,10 @@ msgstr "History save time (min)"
 msgid "Home"
 msgstr "Home"
 
-#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:112
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
-#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:105
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
@@ -281,12 +279,10 @@ msgstr "Link"
 msgid "Loading..."
 msgstr "Loading..."
 
-#. placeholder {0}: localChanges.length
 #: src/synchronization/components/LocalChangesCard.tsx:38
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
-#. placeholder {0}: dateToStr('datetime', lastLocalChange)
 #: src/synchronization/components/LocalChangesCard.tsx:44
 msgid "Local: {0}"
 msgstr "Local: {0}"
@@ -420,7 +416,6 @@ msgstr "Pick a directory for your backups"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
-#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
 #: src/synchronization/components/LocalChangesCard.tsx:51
 msgid "Remote: {0}"
 msgstr "Remote: {0}"
@@ -438,7 +433,7 @@ msgstr "Restore"
 msgid "Restore Collection"
 msgstr "Restore Collection"
 
-#: src/common/buttons/ManageHistoryButton.tsx:140
+#: src/common/buttons/ManageHistoryButton.tsx:142
 msgid "Restore Version"
 msgstr "Restore Version"
 
@@ -493,7 +488,7 @@ msgstr "Start Writing"
 
 #: src/common/buttons/GenericExportFileButton.tsx:48
 #: src/common/buttons/GenericImportFileButton.tsx:48
-#: src/common/buttons/ManageHistoryButton.tsx:155
+#: src/common/buttons/ManageHistoryButton.tsx:157
 msgid "Success!"
 msgstr "Success!"
 
@@ -514,7 +509,7 @@ msgstr "Syncing is disabled on the web version."
 msgid "Text"
 msgstr "Text"
 
-#: src/common/wysiwyg/lexical/KiwimeriEditor.tsx:71
+#: src/common/wysiwyg/lexical/KiwimeriEditor.tsx:72
 msgid "Text..."
 msgstr "Text..."
 
