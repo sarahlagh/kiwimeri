@@ -21,7 +21,7 @@ msgstr " (new)"
 msgid "{v} minutes"
 msgstr "{v} minutes"
 
-#: src/timed-writing/components/OngoingSession.tsx:176
+#: src/timed-writing/components/OngoingSession.tsx:177
 msgid "{wordCount} words"
 msgstr "{wordCount} words"
 
@@ -62,8 +62,8 @@ msgid "Choose"
 msgstr "Choose"
 
 #: src/timed-writing/components/StartPanel.tsx:40
-msgid "Choose a length for your writing session. Once you start, you must keep writing or all progress will be lost. You will have the option to save your work in a new document once you finish. This feature is inspired by Squibler's Most Dangerous Writing App (https://www.squibler.io/dangerous-writing-prompt-app)"
-msgstr "Choose a length for your writing session. Once you start, you must keep writing or all progress will be lost. You will have the option to save your work in a new document once you finish. This feature is inspired by Squibler's Most Dangerous Writing App (https://www.squibler.io/dangerous-writing-prompt-app)"
+msgid "Choose a length for your writing session. Once you start, you must keep writing or all progress will be lost. You will have the option to save your work in a new document once you finish. This feature is inspired by Squibler's Most Dangerous Writing App (https://www.squibler.io/dangerous-writing-prompt-app)."
+msgstr "Choose a length for your writing session. Once you start, you must keep writing or all progress will be lost. You will have the option to save your work in a new document once you finish. This feature is inspired by Squibler's Most Dangerous Writing App (https://www.squibler.io/dangerous-writing-prompt-app)."
 
 #: src/common/modals/ChooseFolderModal.tsx:110
 msgid "Choose a new folder"
@@ -141,7 +141,7 @@ msgstr "Dev Tools"
 msgid "Dev Tools Enabled"
 msgstr "Dev Tools Enabled"
 
-#: src/timed-writing/components/OngoingSession.tsx:195
+#: src/timed-writing/components/OngoingSession.tsx:196
 msgid "Discard"
 msgstr "Discard"
 
@@ -227,10 +227,12 @@ msgstr "History save time (min)"
 msgid "Home"
 msgstr "Home"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:112
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:105
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
@@ -279,10 +281,12 @@ msgstr "Link"
 msgid "Loading..."
 msgstr "Loading..."
 
+#. placeholder {0}: localChanges.length
 #: src/synchronization/components/LocalChangesCard.tsx:38
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
+#. placeholder {0}: dateToStr('datetime', lastLocalChange)
 #: src/synchronization/components/LocalChangesCard.tsx:44
 msgid "Local: {0}"
 msgstr "Local: {0}"
@@ -416,6 +420,7 @@ msgstr "Pick a directory for your backups"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
+#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
 #: src/synchronization/components/LocalChangesCard.tsx:51
 msgid "Remote: {0}"
 msgstr "Remote: {0}"
@@ -441,7 +446,7 @@ msgstr "Restore Version"
 msgid "Save"
 msgstr "Save"
 
-#: src/timed-writing/components/OngoingSession.tsx:190
+#: src/timed-writing/components/OngoingSession.tsx:191
 msgid "Save your work"
 msgstr "Save your work"
 
@@ -509,7 +514,7 @@ msgstr "Syncing is disabled on the web version."
 msgid "Text"
 msgstr "Text"
 
-#: src/common/wysiwyg/lexical/KiwimeriEditor.tsx:69
+#: src/common/wysiwyg/lexical/KiwimeriEditor.tsx:71
 msgid "Text..."
 msgstr "Text..."
 

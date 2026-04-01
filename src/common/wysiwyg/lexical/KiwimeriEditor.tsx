@@ -39,6 +39,7 @@ type KiwimeriEditorProps = {
   enableDebugTreeView?: boolean;
   content: string;
   editable?: boolean;
+  enableHistory?: boolean;
   onChange?: (editorState: EditorState) => void;
   debounce?: number;
   additionalClassNames?: string;
@@ -63,6 +64,7 @@ const KiwimeriEditor = (
     debounce = 0,
     enableDebugTreeView = true,
     editable = true,
+    enableHistory = true,
     searchText,
     additionalClassNames
   } = props;
@@ -119,7 +121,7 @@ const KiwimeriEditor = (
           }}
         />
       )}
-      <HistoryPlugin externalHistoryState={history} />
+      {enableHistory && <HistoryPlugin externalHistoryState={history} />}
       <AutoFocusPlugin />
       <ListPlugin />
       <CheckListPlugin />

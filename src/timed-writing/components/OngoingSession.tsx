@@ -141,6 +141,7 @@ const OngoingSession = ({
           content={initValue}
           enableToolbar={false}
           enableDebugTreeView={false}
+          enableHistory={false}
         >
           <KeystrokeListenerPlugin
             onWritingKey={editorState => {

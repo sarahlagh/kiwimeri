@@ -42,7 +42,7 @@ export const StartPanel = ({
               keep writing or all progress will be lost. You will have the
               option to save your work in a new document once you finish. This
               feature is inspired by Squibler&apos;s Most Dangerous Writing App
-              (https://www.squibler.io/dangerous-writing-prompt-app)
+              (https://www.squibler.io/dangerous-writing-prompt-app).
             </Trans>
           </IonCardSubtitle>
         </IonCardHeader>
