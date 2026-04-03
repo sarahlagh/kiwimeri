@@ -1,4 +1,7 @@
+import { unminimizeItemsFromStorage } from '@/collection/compress-collection';
+import collectionService from '@/db/collection.service';
 import storageService from '@/db/storage.service';
+import { SingleFileStorageFileContent } from '@/remote-storage/storage-filesystems/singlefile.filesystem';
 import { useIonAlert } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
 import { importService } from '../services/import.service';
@@ -23,10 +26,22 @@ const RestoreCollectionButton = ({
 
   const onSingleJsonRead = async (content: string) => {
     // TODO validate schema
-    const [collection, values] = JSON.parse(content);
-    const space = storageService.getSpace();
-    space.setTable('collection', collection); // TODO handle history
-    space.setValues(values);
+    const json = JSON.parse(content);
+    if (Array.isArray(json)) {
+      const [collection, values] = json;
+      const space = storageService.getSpace();
+      space.setTable('collection', collection); // TODO handle history
+      space.setValues(values);
+    } else if ('i' in json) {
+      // attempt to restore sync format
+      const sync = json as SingleFileStorageFileContent;
+      const items = unminimizeItemsFromStorage(sync.i);
+      const values = sync.o;
+      const space = storageService.getSpace();
+      space.delTable('collection');
+      collectionService.saveItems(items);
+      space.setValues(values);
+    }
     return { confirm: true } as OnContentReadResponse;
   };
 

@@ -38,7 +38,7 @@ import {
   RemoteInfo
 } from '../sync-types';
 
-type SingleFileStorageFileContent = {
+export type SingleFileStorageFileContent = {
   i: CollectionItem[]; // the items
   o: SpaceValues; // the space options
   u: number; // last content change
