@@ -44,15 +44,16 @@ const PCloudSettings = ({
       syncConf.serverLocation = (e.detail.value as 'eu' | 'us') || 'eu';
     }
     remotesService.setRemoteConfig(remote.id, syncConf);
-    if (syncConf.username && syncConf.password) {
+    if (syncConf.token) {
       setChecking(true);
       const ok = await remotesService.configure(
         remote,
         // don't send full object, want to erase folderid & fileid
         {
           path: syncConf.path,
-          username: syncConf.username,
-          password: syncConf.password,
+          token: syncConf.token,
+          // username: syncConf.username,
+          // password: syncConf.password,
           serverLocation: syncConf.serverLocation
         }
       );
@@ -100,6 +101,7 @@ const PCloudSettings = ({
           <Trans>Path</Trans>
         </IonLabel>
         <IonInput
+          name="path"
           label={labelPlacement ? t`Path` : undefined}
           labelPlacement={labelPlacement}
           onIonChange={e => onChange('path', e)}
@@ -109,9 +111,25 @@ const PCloudSettings = ({
       </IonItem>
       <IonItem>
         <IonLabel slot="start" className="ion-hide-md-down">
+          <Trans>Device Token</Trans>
+        </IonLabel>
+        <IonInput
+          type="password"
+          name="token"
+          label={labelPlacement ? t`Device Token` : undefined}
+          labelPlacement={labelPlacement}
+          onIonChange={e => onChange('token', e)}
+          placeholder={t`Enter your device token`}
+          value={syncConf.token}
+        ></IonInput>
+      </IonItem>
+      <IonItem>
+        <IonLabel slot="start" className="ion-hide-md-down">
           <Trans>Username</Trans>
         </IonLabel>
         <IonInput
+          name="username"
+          disabled={true}
           label={labelPlacement ? t`Username` : undefined}
           labelPlacement={labelPlacement}
           onIonChange={e => onChange('username', e)}
@@ -124,7 +142,9 @@ const PCloudSettings = ({
           <Trans>Password</Trans>
         </IonLabel>
         <IonInput
+          disabled={true}
           type="password"
+          name="password"
           label={labelPlacement ? t`Password` : undefined}
           labelPlacement={labelPlacement}
           onIonChange={e => onChange('password', e)}

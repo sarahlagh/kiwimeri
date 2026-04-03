@@ -141,6 +141,11 @@ msgstr "Dev Tools"
 msgid "Dev Tools Enabled"
 msgstr "Dev Tools Enabled"
 
+#: src/synchronization/components/providers/PCloudSettings.tsx:114
+#: src/synchronization/components/providers/PCloudSettings.tsx:119
+msgid "Device Token"
+msgstr "Device Token"
+
 #: src/timed-writing/components/OngoingSession.tsx:196
 msgid "Discard"
 msgstr "Discard"
@@ -173,7 +178,11 @@ msgstr "empty doc"
 msgid "empty page"
 msgstr "empty page"
 
-#: src/synchronization/components/providers/PCloudSettings.tsx:131
+#: src/synchronization/components/providers/PCloudSettings.tsx:122
+msgid "Enter your device token"
+msgstr "Enter your device token"
+
+#: src/synchronization/components/providers/PCloudSettings.tsx:151
 msgid "Enter your password"
 msgstr "Enter your password"
 
@@ -181,7 +190,7 @@ msgstr "Enter your password"
 msgid "Enter your search"
 msgstr "Enter your search"
 
-#: src/synchronization/components/providers/PCloudSettings.tsx:118
+#: src/synchronization/components/providers/PCloudSettings.tsx:136
 msgid "Enter your username"
 msgstr "Enter your username"
 
@@ -193,7 +202,7 @@ msgstr "Error writing to file"
 msgid "Errors have been detected on the following files:"
 msgstr "Errors have been detected on the following files:"
 
-#: src/synchronization/components/providers/PCloudSettings.tsx:88
+#: src/synchronization/components/providers/PCloudSettings.tsx:89
 msgid "EU"
 msgstr "EU"
 
@@ -267,7 +276,7 @@ msgstr "Internal proxy"
 msgid "Kiwimeri format (single file)"
 msgstr "Kiwimeri format (single file)"
 
-#: src/synchronization/components/providers/PCloudSettings.tsx:106
+#: src/synchronization/components/providers/PCloudSettings.tsx:108
 msgid "Leave empty for root"
 msgstr "Leave empty for root"
 
@@ -400,17 +409,17 @@ msgstr "Pages should be in the same file as the document"
 msgid "Parsing Error"
 msgstr "Parsing Error"
 
-#: src/synchronization/components/providers/PCloudSettings.tsx:124
-#: src/synchronization/components/providers/PCloudSettings.tsx:128
+#: src/synchronization/components/providers/PCloudSettings.tsx:142
+#: src/synchronization/components/providers/PCloudSettings.tsx:148
 msgid "Password"
 msgstr "Password"
 
-#: src/synchronization/components/providers/PCloudSettings.tsx:100
-#: src/synchronization/components/providers/PCloudSettings.tsx:103
+#: src/synchronization/components/providers/PCloudSettings.tsx:101
+#: src/synchronization/components/providers/PCloudSettings.tsx:105
 msgid "Path"
 msgstr "Path"
 
-#: src/synchronization/components/providers/PCloudSettings.tsx:68
+#: src/synchronization/components/providers/PCloudSettings.tsx:69
 msgid "PCloud Configuration"
 msgstr "PCloud Configuration"
 
@@ -469,7 +478,7 @@ msgstr "Search input"
 msgid "Select item tags"
 msgstr "Select item tags"
 
-#: src/synchronization/components/providers/PCloudSettings.tsx:77
+#: src/synchronization/components/providers/PCloudSettings.tsx:78
 msgid "Server"
 msgstr "Server"
 
@@ -553,7 +562,7 @@ msgstr "Timed Writing"
 msgid "Timed Writing Session"
 msgstr "Timed Writing Session"
 
-#: src/synchronization/components/providers/PCloudSettings.tsx:93
+#: src/synchronization/components/providers/PCloudSettings.tsx:94
 msgid "US"
 msgstr "US"
 
@@ -561,8 +570,8 @@ msgstr "US"
 msgid "Use less dangerous mode (session is still timed but you will not lose progress on pause)"
 msgstr "Use less dangerous mode (session is still timed but you will not lose progress on pause)"
 
-#: src/synchronization/components/providers/PCloudSettings.tsx:112
-#: src/synchronization/components/providers/PCloudSettings.tsx:115
+#: src/synchronization/components/providers/PCloudSettings.tsx:128
+#: src/synchronization/components/providers/PCloudSettings.tsx:133
 msgid "Username"
 msgstr "Username"
 

@@ -11,6 +11,7 @@ import {
 } from './types';
 
 export type PCloudConf = {
+  token: string;
   username: string;
   password: string;
   serverLocation: 'us' | 'eu';
@@ -53,6 +54,7 @@ export class PCloudDriver extends CloudStorageDriver {
     console.log('[pCloud] server url', this.serverUrl);
     console.log('[pCloud] client configured', {
       ...this.config,
+      token: '*******',
       password: '*******'
     });
   }
@@ -201,7 +203,8 @@ export class PCloudDriver extends CloudStorageDriver {
   }
 
   private getUrl(opName: string) {
-    return `${this.serverUrl}/${opName}?username=${this.config!.username}&password=${this.config!.password}`;
+    // return `${this.serverUrl}/${opName}?username=${this.config!.username}&password=${this.config!.password}`;
+    return `${this.serverUrl}/${opName}?auth=${this.config!.token}`;
   }
 
   private parseDate(modified: string) {
