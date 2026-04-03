@@ -43,6 +43,7 @@ const LowPriority = 1;
 import { APPICONS } from '@/constants';
 import { useStoreValueWithDefault } from '@/db/tinybase/hooks';
 import { ZOOM_IN_COMMAND, ZOOM_OUT_COMMAND } from './commands';
+import { ZOOM_INCREMENT } from './constants';
 import { getSelectedNode } from './playground/utils/getSelectedNode';
 import './theme/KiwimeriToolbarPlugin.scss';
 
@@ -154,7 +155,7 @@ export type ToolbarPluginProps = {
 };
 
 export default function ToolbarPlugin({
-  zoomIncrement = 0.05,
+  zoomIncrement = ZOOM_INCREMENT,
   enablePageBrowser = false,
   pageBrowserButtonHighlighted = false,
   openPageBrowser = false,

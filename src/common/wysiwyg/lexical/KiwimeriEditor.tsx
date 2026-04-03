@@ -30,6 +30,7 @@ import DebugTreeViewPlugin from './playground/plugins/DebugTreeViewPlugin';
 import { validateUrl } from './playground/utils/url';
 import ReloadContentPlugin from './ReloadContentPlugin';
 import { SearchHighlightPlugin } from './SearchHighlightPlugin';
+import ShortcutsPlugin from './ShortcutsPlugin';
 import TextZoomPlugin from './TextZoomPlugin';
 
 type KiwimeriEditorProps = {
@@ -134,6 +135,7 @@ const KiwimeriEditor = (
       <MarkdownShortcutPlugin transformers={MARKDOWN_SHORTCUTS_TRANSFORMERS} />
 
       <TextZoomPlugin />
+      <ShortcutsPlugin />
       <SearchHighlightPlugin searchText={searchText} />
 
       <EditLinkPlugin
