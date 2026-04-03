@@ -17,7 +17,7 @@ msgstr ""
 msgid " (new)"
 msgstr " (new)"
 
-#: src/timed-writing/components/StartPanel.tsx:70
+#: src/timed-writing/components/StartPanel.tsx:74
 msgid "{v} minutes"
 msgstr "{v} minutes"
 
@@ -61,7 +61,7 @@ msgstr "Cancel"
 msgid "Choose"
 msgstr "Choose"
 
-#: src/timed-writing/components/StartPanel.tsx:40
+#: src/timed-writing/components/StartPanel.tsx:41
 msgid "Choose a length for your writing session. Once you start, you must keep writing or all progress will be lost. You will have the option to save your work in a new document once you finish. This feature is inspired by Squibler's Most Dangerous Writing App (https://www.squibler.io/dangerous-writing-prompt-app)."
 msgstr "Choose a length for your writing session. Once you start, you must keep writing or all progress will be lost. You will have the option to save your work in a new document once you finish. This feature is inspired by Squibler's Most Dangerous Writing App (https://www.squibler.io/dangerous-writing-prompt-app)."
 
@@ -69,7 +69,7 @@ msgstr "Choose a length for your writing session. Once you start, you must keep 
 msgid "Choose a new folder"
 msgstr "Choose a new folder"
 
-#: src/timed-writing/components/StartPanel.tsx:37
+#: src/timed-writing/components/StartPanel.tsx:38
 msgid "Choose a session length"
 msgstr "Choose a session length"
 
@@ -270,6 +270,10 @@ msgstr "Kiwimeri format (single file)"
 #: src/synchronization/components/providers/PCloudSettings.tsx:106
 msgid "Leave empty for root"
 msgstr "Leave empty for root"
+
+#: src/timed-writing/components/StartPanel.tsx:53
+msgid "Less dangerous mode (session is still timed but you will not lose progress on pause)"
+msgstr "Less dangerous mode (session is still timed but you will not lose progress on pause)"
 
 #: src/common/wysiwyg/lexical/EditLinkPlugin.tsx:58
 msgid "Link"
@@ -482,7 +486,7 @@ msgstr "space option modified"
 msgid "Space Settings"
 msgstr "Space Settings"
 
-#: src/timed-writing/components/StartPanel.tsx:78
+#: src/timed-writing/components/StartPanel.tsx:81
 msgid "Start Writing"
 msgstr "Start Writing"
 
@@ -545,7 +549,7 @@ msgstr "Timed Writing Session"
 msgid "US"
 msgstr "US"
 
-#: src/timed-writing/components/StartPanel.tsx:56
+#: src/timed-writing/components/StartPanel.tsx:53
 msgid "Use less dangerous mode (session is still timed but you will not lose progress on pause)"
 msgstr "Use less dangerous mode (session is still timed but you will not lose progress on pause)"
 

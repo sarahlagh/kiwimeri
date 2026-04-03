@@ -8,6 +8,7 @@ import {
   IonContent,
   IonFooter,
   IonItem,
+  IonLabel,
   IonRadio,
   IonRadioGroup,
   IonToggle
@@ -47,17 +48,20 @@ export const StartPanel = ({
           </IonCardSubtitle>
         </IonCardHeader>
         <IonCardContent>
-          <IonToggle
-            checked={mode === 'less-dangerous'}
-            onIonChange={e => {
-              setMode(e.detail.checked ? 'less-dangerous' : 'dangerous');
-            }}
-          >
-            <Trans>
-              Use less dangerous mode (session is still timed but you will not
-              lose progress on pause)
-            </Trans>
-          </IonToggle>
+          <IonItem>
+            <IonLabel>
+              <Trans>
+                Less dangerous mode (session is still timed but you will not
+                lose progress on pause)
+              </Trans>
+            </IonLabel>
+            <IonToggle
+              checked={mode === 'less-dangerous'}
+              onIonChange={e => {
+                setMode(e.detail.checked ? 'less-dangerous' : 'dangerous');
+              }}
+            ></IonToggle>
+          </IonItem>
           <IonRadioGroup
             value={duration}
             onIonChange={e => {
@@ -72,9 +76,8 @@ export const StartPanel = ({
               </IonItem>
             ))}
           </IonRadioGroup>
-
-          <IonFooter>
-            <IonButton onClick={() => onStart(duration, mode)}>
+          <IonFooter style={{ paddingTop: '12px' }}>
+            <IonButton slot="start" onClick={() => onStart(duration, mode)}>
               <Trans>Start Writing</Trans>
             </IonButton>
           </IonFooter>
