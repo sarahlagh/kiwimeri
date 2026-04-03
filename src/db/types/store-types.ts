@@ -140,6 +140,7 @@ export type StoreType = [
     defaultTimedDuration: { type: 'number'; default: number };
     defaultTimedMode: { type: 'string'; default: string };
     globalZoom: { type: 'number'; default: number };
+    rememberLastRoute: { type: 'boolean'; default: true };
   }
 ];
 

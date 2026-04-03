@@ -1,7 +1,7 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import collectionService from './collection.service';
 import storageService from './storage.service';
-import { useCellWithRef } from './tinybase/hooks';
+import { useCellWithRef, useStoreValueWithDefault } from './tinybase/hooks';
 
 class NavService {
   private readonly storeId = 'store';
@@ -107,6 +107,14 @@ class NavService {
         .getStore()
         .delCell(this.spacesTable, storageService.getSpaceId(), 'currentPage');
     }
+  }
+
+  public setRememberLastRoute(value: boolean) {
+    storageService.getStore().setValue('rememberLastRoute', value);
+  }
+
+  public useRememberLastRoute() {
+    return useStoreValueWithDefault('rememberLastRoute', true);
   }
 }
 

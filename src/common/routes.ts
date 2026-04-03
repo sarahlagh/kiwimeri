@@ -4,6 +4,8 @@ import {
 } from '@/collection/collection';
 import collectionService from '@/db/collection.service';
 
+export const INIT_ROUTE = '/';
+
 export const SETTINGS_ROUTE = '/settings';
 export const SYNCHRONIZATION_ROUTE = '/synchronization';
 export const DEV_TOOLS_ROUTE = '/devtools';

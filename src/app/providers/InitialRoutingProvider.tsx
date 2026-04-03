@@ -1,6 +1,7 @@
 import {
   GET_DOCUMENT_ROUTE,
   GET_FOLDER_ROUTE,
+  INIT_ROUTE,
   isCollectionRoute
 } from '@/common/routes';
 import { getSearchParams } from '@/common/utils';
@@ -20,6 +21,7 @@ const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
   const searchParams = getSearchParams(location.search);
   const notebook = notebooksService.useCurrentNotebook();
   const folder = searchParams.folder ? searchParams.folder : notebook;
+  const rememberLastRoute = navService.useRememberLastRoute();
 
   useEffect(() => {
     if (isCollectionRoute(location.pathname)) {
@@ -29,6 +31,20 @@ const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
     }
   }, [folder, searchParams.document, searchParams.page]);
 
+  if (location.pathname === INIT_ROUTE) {
+    if (rememberLastRoute) {
+      const document = navService.getCurrentDocument();
+      const folder = navService.getCurrentFolder();
+
+      if (document && collectionService.itemExists(document)) {
+        return <Redirect to={GET_DOCUMENT_ROUTE(folder, document)} />;
+      }
+      if (folder && collectionService.itemExists(folder)) {
+        return <Redirect to={GET_FOLDER_ROUTE(folder)} />;
+      }
+    }
+    return <Redirect to={GET_FOLDER_ROUTE(notebook)} />;
+  }
   if (isCollectionRoute(location.pathname)) {
     // if no folder, or if folder but doesn't exist
     if (

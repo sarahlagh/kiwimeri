@@ -1,3 +1,4 @@
+import navService from '@/db/nav.service';
 import userSettingsService from '@/db/user-settings.service';
 import {
   IonCard,
@@ -14,6 +15,7 @@ const CurrentSpaceSettings = () => {
   const defaultHistoryIdleTime = userSettingsService.useHistoryIdleTime();
   const defaultHistoryMaxInterval = userSettingsService.useHistoryMaxInterval();
   const defaultMaxVersionsPerDoc = userSettingsService.useHistoryMaxVersions();
+  const defaultRememberLastRoute = navService.useRememberLastRoute();
   const { t } = useLingui();
 
   return (
@@ -24,7 +26,7 @@ const CurrentSpaceSettings = () => {
         </IonCardTitle>
         <IonCardSubtitle>
           <Trans>
-            Display options for the currently selected space. They can still be
+            Options for the currently selected space. Some can still be
             overriden per notebook and per folder.
           </Trans>
         </IonCardSubtitle>
@@ -37,6 +39,12 @@ const CurrentSpaceSettings = () => {
             userSettingsService.setSpaceDefaultDisplayOpts(newDisplayOpts);
           }}
           withRows={[
+            {
+              key: 'rememberLastRoute',
+              label: t`Remember last route`,
+              description: t`When enabled, when you open the app you will be redirected to the last document you were working on instead of the root of the current space.`,
+              type: 'boolean'
+            },
             {
               key: 'history_idle_time',
               label: t`History idle time (s)`,
@@ -57,6 +65,7 @@ const CurrentSpaceSettings = () => {
             }
           ]}
           withInitialState={{
+            rememberLastRoute: defaultRememberLastRoute,
             history_idle_time: defaultHistoryIdleTime / 1000,
             history_max_interval: defaultHistoryMaxInterval / 60000,
             max_history_per_doc: defaultMaxVersionsPerDoc
@@ -70,6 +79,8 @@ const CurrentSpaceSettings = () => {
               );
             } else if (key === 'max_history_per_doc') {
               userSettingsService.setHistoryMaxVersions(val as number);
+            } else if (key === 'rememberLastRoute') {
+              navService.setRememberLastRoute(val as boolean);
             }
           }}
         />

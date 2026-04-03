@@ -30,7 +30,7 @@ const indexes = (storeId: StoreId) => {
 
 export const useValueWithRef = <T>(storeId: StoreId, valueId: Id) => {
   const val = useValue(valueId, store(storeId))?.valueOf();
-  if (val) {
+  if (val !== undefined) {
     return val as T;
   }
   return undefined;
@@ -44,7 +44,11 @@ export const useStoreValueWithDefault = <T>(
   valueId: StoreValue,
   defaultValue: T
 ) => {
-  return useValueWithRef<T>('store', valueId) || defaultValue;
+  const val = useValueWithRef<T>('store', valueId);
+  if (val !== undefined) {
+    return val;
+  }
+  return defaultValue;
 };
 
 export const useCellWithRef = <T>(
