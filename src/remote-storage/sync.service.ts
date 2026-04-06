@@ -2,6 +2,8 @@ import platformService from '@/common/services/platform.service';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/local-changes.service';
 import remotesService from '@/db/remotes.service';
+import storageService from '@/db/storage.service';
+import { useStoreValueWithDefault } from '@/db/tinybase/hooks';
 
 export type SyncDirection =
   | 'sync'
@@ -43,6 +45,9 @@ class SyncService {
     for (const remote of activeRemotes) {
       await remotesService.push(remote, force);
     }
+    if (force) {
+      storageService.getStore().setValue('onlyForcePush', false);
+    }
   }
 
   // only pull from primary by default
@@ -77,6 +82,13 @@ class SyncService {
 
   public useHasLocalConflicts() {
     return collectionService.useConflicts().length > 0;
+  }
+
+  public isMergeSyncEnabled() {
+    const isConnected = this.usePrimaryConnected();
+    const hasConflicts = this.useHasLocalConflicts();
+    const onlyForcePush = useStoreValueWithDefault('onlyForcePush', false);
+    return isConnected && !hasConflicts && !onlyForcePush;
   }
 }
 

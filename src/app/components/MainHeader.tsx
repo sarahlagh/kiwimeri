@@ -35,15 +35,15 @@ const MainHeader = ({
   const history = useHistory();
   const location = useLocation();
   const [isSyncing, setIsSyncing] = useState(false);
-  const isInit = syncService.usePrimaryConnected();
+  const isMergeSyncEnabled = syncService.isMergeSyncEnabled();
   const hasChanges = syncService.usePrimaryHasLocalChanges();
   const hasRemoteChanges = syncService.usePrimaryHasRemoteChanges();
   const hasConflicts = syncService.useHasLocalConflicts();
-  const pushEnabled = !isSyncing && isInit && hasChanges;
+  const enabled = !isSyncing && isMergeSyncEnabled;
 
   function getColor() {
     if (isSyncing) return 'warning';
-    if (pushEnabled) return 'danger';
+    if (hasChanges || hasConflicts) return 'danger';
     if (hasRemoteChanges) return 'tertiary';
     return undefined;
   }
@@ -80,7 +80,7 @@ const MainHeader = ({
         <DeepSearchButton />
         {platformService.isSyncEnabled() && (
           <SyncRemoteButton
-            disabled={!isInit}
+            disabled={!enabled}
             direction="sync"
             color={getColor()}
             showConflictsWarning={hasConflicts}

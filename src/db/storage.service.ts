@@ -106,7 +106,8 @@ class StorageService {
         defaultTimedDuration: { type: 'number', default: 10 },
         defaultTimedMode: { type: 'string', default: 'dangerous' },
         globalZoom: { type: 'number', default: 1 },
-        rememberLastRoute: { type: 'boolean', default: true }
+        rememberLastRoute: { type: 'boolean', default: true },
+        onlyForcePush: { type: 'boolean', default: false }
       });
 
     this.storeQueries = createQueries(this.store);

@@ -1,4 +1,3 @@
-import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
 import { lexicalConfig } from '@/common/wysiwyg/lexical/lexical-config';
 import storageService from '@/db/storage.service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
@@ -6,7 +5,7 @@ import { SearchOptions, searchService } from '@/search/search.service';
 import { createHeadlessEditor } from '@lexical/headless';
 import { readFile } from 'fs/promises';
 import { LexicalEditor, TextNode } from 'lexical';
-import { assert, describe } from 'vitest';
+import { assert, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 const docId = 'iFOR0KVPomZFm4bf';
 const docId2 = 'o3LTPA6vAffIZctP';
@@ -24,27 +23,26 @@ describe('search service', () => {
       assert.fail('failed to read test data:' + e.message);
     }
   });
-  beforeEach(() => {
+  beforeEach(async () => {
     storageService.getSpace().setJson(jsonCollection);
     searchAncestryService.start();
   });
 
   describe('Search Lexical State', () => {
     beforeEach(() => {
-      const minimized = storageService
+      const content = storageService
         .getSpace()
         .getCell('collection', docId, 'content')
         ?.toString();
-      expect(minimized).toBeDefined();
+      expect(content).toBeDefined();
       expect(
         storageService.getStore().getCell('search', docId, 'contentPreview')
       ).toBeDefined();
-      const content = unminimizeContentFromStorage(minimized!);
       editor = createHeadlessEditor({
         nodes: lexicalConfig.nodes,
         onError: () => {}
       });
-      const state = editor.parseEditorState(content);
+      const state = editor.parseEditorState(content!);
       editor.update(() => {
         editor.setEditorState(state);
       });

@@ -7,13 +7,10 @@ import {
 } from '@/collection/collection';
 import { getGlobalTrans } from '@/config';
 import { META_JSON } from '@/constants';
-import collectionService, {
-  INITIAL_CONTENT_START
-} from '@/db/collection.service';
+import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import formatConverter from '@/format-conversion/format-converter.service';
 import { strToU8, zip } from 'fflate';
-import { unminimizeContentFromStorage } from '../wysiwyg/compress-file-content';
 
 export type ZipFileTree = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -46,10 +43,7 @@ class ExportService {
   private readonly maxLength = 50;
 
   private getDocumentContentFormatted(storedJson: string) {
-    const content = storedJson.startsWith(INITIAL_CONTENT_START)
-      ? storedJson
-      : unminimizeContentFromStorage(storedJson);
-    return formatConverter.toMarkdown(content);
+    return formatConverter.toMarkdown(storedJson);
   }
 
   private getParentMeta(

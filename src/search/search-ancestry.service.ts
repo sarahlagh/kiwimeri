@@ -5,7 +5,6 @@ import {
   CollectionItemTypeValues,
   PageResult
 } from '@/collection/collection';
-import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
 import { DEFAULT_SPACE_ID, ROOT_COLLECTION } from '@/constants';
 import { useCellWithRef } from '@/db/tinybase/hooks';
 import formatConverter from '@/format-conversion/format-converter.service';
@@ -127,10 +126,9 @@ class CollectionSearchService {
   }
 
   public getUnsavedItemPreview(item: Pick<CollectionItem, 'content'>) {
-    return formatConverter.toPlainText(
-      unminimizeContentFromStorage(item.content as string),
-      { inline: true }
-    );
+    return formatConverter.toPlainText(item.content as string, {
+      inline: true
+    });
   }
 
   public sortPerContentPreview(

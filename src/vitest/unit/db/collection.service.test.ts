@@ -5,7 +5,6 @@ import {
   CollectionItemType,
   parseFieldMeta
 } from '@/collection/collection';
-import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
 import {
   DEFAULT_NOTEBOOK_ID,
   DEFAULT_SPACE_ID,
@@ -17,7 +16,7 @@ import { defaultOrder } from '@/db/types/space-types';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { renderHook } from '@testing-library/react';
 import { act } from 'react';
-import { it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   BROWSABLE_ITEM_TYPES,
   fakeTimersDelay,
@@ -29,13 +28,11 @@ import {
   UPDATABLE_FIELDS
 } from '../../setup/test.utils';
 
-const shortContent = JSON.parse(
-  '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"This is a short content","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}'
-);
+const shortContent =
+  '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"This is a short content","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}';
 
-const loremIpsum = JSON.parse(
-  '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum\\"","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}'
-);
+const loremIpsum =
+  '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum\\"","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}';
 
 describe('collection service', () => {
   beforeEach(() => {
@@ -486,9 +483,9 @@ describe('collection service', () => {
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       const id = collectionService.addPage(docId);
       vi.advanceTimersByTime(100);
-      collectionService.setItemLexicalContent(id, shortContent);
+      collectionService.setItemLexicalContent(id, JSON.parse(shortContent));
       const item = getCollectionItem(id);
-      expect(item.content).toBe(minimizeContentForStorage(shortContent));
+      expect(item.content).toBe(shortContent);
       expect(item.created).toBeLessThan(item.updated);
       const meta = parseFieldMeta(item.content_meta!);
       expect(meta.u).toBe(item.updated);
@@ -502,9 +499,9 @@ describe('collection service', () => {
       const docId = collectionService.addDocument(folderId3);
       const id = collectionService.addPage(docId);
       vi.advanceTimersByTime(100);
-      collectionService.setItemLexicalContent(id, shortContent);
+      collectionService.setItemLexicalContent(id, JSON.parse(shortContent));
       const item = getCollectionItem(id);
-      expect(item.content).toBe(minimizeContentForStorage(shortContent));
+      expect(item.content).toBe(shortContent);
       expect(item.created).toBeLessThan(item.updated);
       const meta = parseFieldMeta(item.content_meta!);
       expect(meta.u).toBe(item.updated);
@@ -685,7 +682,10 @@ describe('collection service', () => {
       item1.id = i1;
       item1.title = 'r1';
       item1.order = 2;
-      collectionService.setUnsavedItemLexicalContent(item1, shortContent);
+      collectionService.setUnsavedItemLexicalContent(
+        item1,
+        JSON.parse(shortContent)
+      );
       vi.advanceTimersByTime(fakeTimersDelay);
       collectionService.saveItem(item1, i1);
       const { id: i2, item: item2 } =
@@ -693,7 +693,10 @@ describe('collection service', () => {
       item2.id = i2;
       item2.title = 'r2';
       item2.order = 3;
-      collectionService.setUnsavedItemLexicalContent(item2, loremIpsum);
+      collectionService.setUnsavedItemLexicalContent(
+        item2,
+        JSON.parse(loremIpsum)
+      );
       vi.advanceTimersByTime(fakeTimersDelay);
       collectionService.saveItem(item2, i2);
       const { id: i3, item: item3 } =
@@ -701,8 +704,11 @@ describe('collection service', () => {
       item3.id = i3;
       item3.title = 'r3';
       item3.order = 1;
-      item3.content = minimizeContentForStorage(shortContent);
-      collectionService.setUnsavedItemLexicalContent(item3, shortContent);
+      item3.content = shortContent;
+      collectionService.setUnsavedItemLexicalContent(
+        item3,
+        JSON.parse(shortContent)
+      );
       vi.advanceTimersByTime(fakeTimersDelay);
       collectionService.saveItem(item3, i3);
 

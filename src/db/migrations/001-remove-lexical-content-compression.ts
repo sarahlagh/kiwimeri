@@ -1,5 +1,7 @@
-import { SerializedEditorState } from 'lexical';
-import { minimizeKeys, unminimizeKeys } from '../utils';
+import { CollectionItemType, isPageOrDocument } from '@/collection/collection';
+import { unminimizeKeys } from '@/common/utils';
+import { Store } from 'tinybase/with-schemas';
+import { SpaceType } from '../types/space-types';
 
 const keys = [
   ['children', 'c'],
@@ -53,14 +55,33 @@ keywords.forEach(([v1, v2]) => {
   keywordsMapReverse.set(v2, v1);
 });
 
-export const minimizeContentForStorage = (obj: SerializedEditorState) => {
-  return JSON.stringify(minimizeKeys(obj, keysMap, keywordsMap, ['text']));
-};
-
-export const unminimizeContentFromStorage = (json: string) => {
+const unminimizeContentFromStorage = (json: string) => {
   return JSON.stringify(
     unminimizeKeys(JSON.parse(json), keysMapReverse, keywordsMapReverse, [
       'text'
     ])
   );
 };
+
+export default function Migration(space: Store<SpaceType>) {
+  {
+    const collection = space.getTable('collection');
+    const rowIds = space.getRowIds('collection');
+    rowIds.forEach(rowId => {
+      const type = collection[rowId].type as CollectionItemType; 
+      if (!isPageOrDocument({type})) return;
+      const json = collection[rowId].content!.toString();
+      const content = unminimizeContentFromStorage(json);
+      space.setCell('collection', rowId, 'content', content);
+    });
+  }
+  {
+    const historyContent = space.getTable('history_content');
+    const rowIds = space.getRowIds('history_content');
+    rowIds.forEach(rowId => {
+      const json = historyContent[rowId].content!.toString();
+      const content = unminimizeContentFromStorage(json);
+      space.setCell('history_content', rowId, 'content', content);
+    });
+  }
+}

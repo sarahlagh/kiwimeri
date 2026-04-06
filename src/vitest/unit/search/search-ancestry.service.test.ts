@@ -1,4 +1,3 @@
-import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
 import {
   DEFAULT_NOTEBOOK_ID,
   DEFAULT_SPACE_ID,
@@ -9,17 +8,13 @@ import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { oneDocument, oneFolder, onePage } from '@/vitest/setup/test.utils';
-import { describe, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 
 const shortContentPreview = 'This is a short content';
-const shortContent = JSON.parse(
-  `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"${shortContentPreview}","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`
-);
+const shortContent = `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"${shortContentPreview}","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`;
 
 const shortContentPreviewUpdated = 'Updated content';
-const shortContentUpdated = JSON.parse(
-  `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"${shortContentPreviewUpdated}","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`
-);
+const shortContentUpdated = `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"${shortContentPreviewUpdated}","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`;
 
 const createTestData = () => {
   // F1 > FF1 > FFF1 > D1 > P1
@@ -32,11 +27,11 @@ const createTestData = () => {
   FFF1.id = 'FFF1';
   const D1 = oneDocument('D1', FFF1.id);
   D1.id = 'D1';
-  D1.content = minimizeContentForStorage(shortContent);
+  D1.content = shortContent;
   D1.tags = 'tag1';
   const P1 = onePage('P1', D1.id);
   P1.id = 'P1';
-  P1.content = minimizeContentForStorage(shortContent);
+  P1.content = shortContent;
   const F2 = oneFolder('F2');
   F2.id = 'F2';
   const FF2 = oneFolder('FF2', F2.id);
@@ -328,7 +323,10 @@ describe('search ancestry service', () => {
       createTestData();
       searchAncestryService.start(DEFAULT_SPACE_ID);
 
-      collectionService.setItemLexicalContent('D1', shortContentUpdated);
+      collectionService.setItemLexicalContent(
+        'D1',
+        JSON.parse(shortContentUpdated)
+      );
 
       expect(
         storageService.getStore().getCell('search', 'D1', 'contentPreview')
@@ -344,7 +342,7 @@ describe('search ancestry service', () => {
       // update items locally
       collectionService.setItemTitle('D1', 'D1 updated');
       collectionService.addItemTag('D1', 'tag1');
-      collectionService.setItemLexicalContent('P1', shortContent);
+      collectionService.setItemLexicalContent('P1', JSON.parse(shortContent));
 
       // reset
       const spaceContent = storageService.getSpace().getContent();

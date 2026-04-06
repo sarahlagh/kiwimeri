@@ -59,7 +59,7 @@ const SyncRemoteButton = ({
     <>
       <IonButton
         id={trigger}
-        disabled={disabled || showConflictsWarning}
+        disabled={disabled}
         color={color}
         fill={fill}
         onClick={askConfirm ? undefined : onConfirm}

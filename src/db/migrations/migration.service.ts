@@ -26,11 +26,23 @@ class MigrationService {
     }
 
     if (baseRuntimeVersion !== spaceVersion) {
-      console.warn(
-        `version mismatch detected: runtime is ${baseRuntimeVersion} (${runtimeCode}), local space is ${spaceVersion} (${spaceCode})`
+      if (baseRuntimeVersion !== spaceVersion) {
+        console.warn(
+          `version mismatch detected: runtime is ${baseRuntimeVersion} (${runtimeCode}), local space is ${spaceVersion} (${spaceCode})`
+        );
+      }
+      const disableMerge = await this.runSpaceMigrations(
+        space,
+        spaceCode,
+        runtimeCode
       );
-      await this.runSpaceMigrations(space, spaceCode, runtimeCode);
       space.setValue('schemaVersion', baseRuntimeVersion);
+      if (disableMerge) {
+        console.warn(
+          'some migrations require to disable merge sync, only force push will be allowed until next update'
+        );
+        store.setValue('onlyForcePush', true);
+      }
     }
   }
 
@@ -39,11 +51,22 @@ class MigrationService {
     from: number,
     to: number
   ) {
+    let blockPush = false;
     if (from <= 206 && to >= 207) {
       console.log('[space] 1 migration to run: history backfill');
       const func = await import('./000-create-document-versions');
       func.default(space);
     }
+
+    if (from <= 332) {
+      console.log(
+        '[space] 1 migration to run: remove lexical content compression'
+      );
+      const func = await import('./001-remove-lexical-content-compression');
+      func.default(space);
+      blockPush = true;
+    }
+    return blockPush;
   }
 
   private getVersionCode(version: string): number {

@@ -17,10 +17,6 @@ import {
   SortableCollectionItem
 } from '@/collection/collection';
 import { genericReorder } from '@/common/dnd/utils';
-import {
-  minimizeContentForStorage,
-  unminimizeContentFromStorage
-} from '@/common/wysiwyg/compress-file-content';
 import { getGlobalTrans } from '@/config';
 import { ROOT_COLLECTION } from '@/constants';
 import { SerializedEditorState } from 'lexical';
@@ -45,8 +41,6 @@ export const initialContent = () => {
   // 'empty' editor
   return '{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1}],"direction":null,"format":"","indent":0,"type":"root","version":1}}';
 };
-
-export const INITIAL_CONTENT_START = '{"root":{';
 
 class CollectionService {
   private readonly storeId = 'space';
@@ -594,14 +588,14 @@ class CollectionService {
   }
 
   public setItemLexicalContent(rowId: Id, content: SerializedEditorState) {
-    this.setItemField(rowId, 'content', minimizeContentForStorage(content));
+    this.setItemField(rowId, 'content', JSON.stringify(content));
   }
 
   public setUnsavedItemLexicalContent(
     item: Pick<CollectionItem, 'content'>,
     content: SerializedEditorState
   ) {
-    item.content = minimizeContentForStorage(content);
+    item.content = JSON.stringify(content);
   }
 
   public appendUnsavedLexicalContent(
@@ -611,7 +605,7 @@ class CollectionService {
     if (!this.itemExists(itemId) || !collectionService.getItemContent(itemId))
       return contentToAppend;
     const existingContent = JSON.parse(
-      unminimizeContentFromStorage(collectionService.getItemContent(itemId)!)
+      collectionService.getItemContent(itemId)!
     ) as SerializedEditorState;
 
     const newChildren = [

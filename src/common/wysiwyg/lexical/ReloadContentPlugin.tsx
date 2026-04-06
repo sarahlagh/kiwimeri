@@ -1,5 +1,4 @@
-import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
-import { INITIAL_CONTENT_START, initialContent } from '@/db/collection.service';
+import { initialContent } from '@/db/collection.service';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   createEmptyHistoryState,
@@ -21,11 +20,7 @@ export default function ReloadContentPlugin({
 
   useEffect(() => {
     if (content === '') content = initialContent();
-    const newState = editor.parseEditorState(
-      content.startsWith(INITIAL_CONTENT_START)
-        ? content
-        : unminimizeContentFromStorage(content)
-    );
+    const newState = editor.parseEditorState(content);
     queueMicrotask(() => {
       editor.setEditorState(newState, {
         tag: 'reload'
