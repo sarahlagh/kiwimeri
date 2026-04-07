@@ -1,7 +1,8 @@
 import {
   CollectionItem,
   CollectionItemVersionContentRow,
-  CollectionItemVersionRow
+  CollectionItemVersionRow,
+  DocumentResumeStateRow
 } from '@/collection/collection';
 import { ValueIdFromSchema } from 'tinybase/@types/_internal/store/with-schemas';
 import { CellSchema, Value } from 'tinybase/with-schemas';
@@ -11,6 +12,7 @@ type historyKeyEnum = keyof Required<Omit<CollectionItemVersionRow, 'id'>>;
 type historyContentKeyEnum = keyof Required<
   Omit<CollectionItemVersionContentRow, 'id'>
 >;
+type resumeStateKeyEnum = keyof Required<DocumentResumeStateRow>;
 
 export type SpaceType = [
   {
@@ -22,6 +24,9 @@ export type SpaceType = [
     };
     history_content: {
       [cellId in historyContentKeyEnum]: CellSchema;
+    };
+    document_resume_state: {
+      [cellId in resumeStateKeyEnum]: CellSchema;
     };
   },
   {

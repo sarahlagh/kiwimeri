@@ -1,3 +1,5 @@
+import { SerializedSelection } from '@/common/wysiwyg/lexical/selection-serializer';
+
 export enum CollectionItemType {
   notebook = 'n',
   folder = 'f',
@@ -28,6 +30,19 @@ export interface CollectionItem {
   display_opts?: string;
   display_opts_meta?: string;
 }
+
+export type DocumentResumeStateRow = {
+  itemId: string;
+  lastSelection: string | null; // SerializedSelection
+};
+
+export type DocumentResumeState = Omit<
+  DocumentResumeStateRow,
+  'lastSelection'
+> & {
+  id: string;
+  lastSelection: SerializedSelection | null;
+};
 
 export const sortBy = [
   'created',

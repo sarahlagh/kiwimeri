@@ -61,6 +61,7 @@ const DocumentEditor = ({
   const pages = collectionService.useDocumentPages(docId);
   const onTitleChange = onTitleChangeFn(docId);
 
+  console.debug('Loaded resume state', resumeState, itemId);
   const onClickedAnywhere: React.MouseEventHandler<HTMLIonContentElement> = (
     event: React.MouseEvent<HTMLIonContentElement, MouseEvent>
   ) => {

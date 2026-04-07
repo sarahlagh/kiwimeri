@@ -18,8 +18,9 @@ import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin
 import { useLingui } from '@lingui/react/macro';
 import { EditorState } from 'lexical';
 import React, { ReactNode, useState } from 'react';
-import { DebounceOnChangePlugin } from './DebounceOnChangePlugin';
+import { FOCUS_TAG, RELOAD_TAG } from './constants';
 import EditLinkPlugin from './EditLinkPlugin';
+import { KiwimeriOnChangePlugin } from './KiwimeriOnChangePlugin';
 import KiwimeriToolbarPlugin, {
   ToolbarPluginProps
 } from './KiwimeriToolbarPlugin';
@@ -30,6 +31,7 @@ import DebugTreeViewPlugin from './playground/plugins/DebugTreeViewPlugin';
 import { validateUrl } from './playground/utils/url';
 import ReloadContentPlugin from './ReloadContentPlugin';
 import { SearchHighlightPlugin } from './SearchHighlightPlugin';
+import { SerializedSelection } from './selection-serializer';
 import ShortcutsPlugin from './ShortcutsPlugin';
 import TextZoomPlugin from './TextZoomPlugin';
 
@@ -40,11 +42,13 @@ type KiwimeriEditorProps = {
   enableToolbar: boolean;
   enableDebugTreeView?: boolean;
   content: string;
+  selection?: SerializedSelection | null;
   editable?: boolean;
   enableHistory?: boolean;
-  onChange?: (editorState: EditorState) => void;
+  onChange?: (editorState: EditorState, isSelectionChange: boolean) => void;
   debounce?: number;
   additionalClassNames?: string;
+  ignoreSelectionChange?: boolean;
 } & Omit<ToolbarPluginProps, 'setIsLinkEditMode'> & {
     readonly children?: ReactNode;
   };
@@ -63,12 +67,12 @@ const KiwimeriEditor = (
     id,
     content,
     onChange,
-    debounce = 0,
     enableDebugTreeView = true,
     editable = true,
     enableHistory = true,
     searchText,
-    additionalClassNames
+    additionalClassNames,
+    ignoreSelectionChange = true
   } = props;
   const placeholder = t`Text...`;
 
@@ -112,14 +116,15 @@ const KiwimeriEditor = (
       <ReloadContentPlugin
         id={id || 'id'}
         content={content}
+        selection={props.selection}
         setHistory={setHistory}
       />
       {onChange && (
-        <DebounceOnChangePlugin
-          ignoreSelectionChange
-          waitFor={debounce}
-          onChange={editorState => {
-            onChange(editorState);
+        <KiwimeriOnChangePlugin
+          ignoreSelectionChange={ignoreSelectionChange}
+          skipTags={[FOCUS_TAG, RELOAD_TAG]}
+          onChange={({ editorState, isSelectionChange }) => {
+            onChange(editorState, isSelectionChange);
           }}
         />
       )}

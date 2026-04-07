@@ -199,6 +199,10 @@ class StorageService {
           content: { type: 'string' } as CellSchema,
           preview: { type: 'string' } as CellSchema,
           hash: { type: 'number' } as CellSchema
+        },
+        document_resume_state: {
+          itemId: { type: 'string' } as CellSchema,
+          lastSelection: { type: 'string' } as CellSchema
         }
       })
       .setValuesSchema({
