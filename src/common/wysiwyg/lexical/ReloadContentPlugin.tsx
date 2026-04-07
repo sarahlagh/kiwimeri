@@ -5,8 +5,9 @@ import {
   createEmptyHistoryState,
   HistoryState
 } from '@lexical/react/LexicalHistoryPlugin';
+import { $setSelection } from 'lexical';
 import { useEffect, useState } from 'react';
-import { IS_SELECTION_CHANGE_TAG, RELOAD_TAG } from './constants';
+import { RELOAD_TAG, SELECTION_CHANGE_TAG } from './constants';
 import {
   deserializeSelection,
   SerializedSelection
@@ -15,12 +16,12 @@ import {
 export default function ReloadContentPlugin({
   id,
   content,
-  selection,
+  serializedSelection,
   setHistory
 }: {
   id: string;
   content: string;
-  selection?: SerializedSelection | null;
+  serializedSelection?: SerializedSelection | null;
   setHistory: React.Dispatch<React.SetStateAction<HistoryState>>;
 }) {
   const [editor] = useLexicalComposerContext();
@@ -42,11 +43,14 @@ export default function ReloadContentPlugin({
     queueMicrotask(() => {
       editor.update(
         () => {
-          if (selection) {
-            deserializeSelection(selection);
+          if (serializedSelection) {
+            const selection = deserializeSelection(serializedSelection);
+            if (selection) {
+              $setSelection(selection);
+            }
           }
         },
-        { discrete: true, tag: IS_SELECTION_CHANGE_TAG }
+        { tag: [RELOAD_TAG, SELECTION_CHANGE_TAG] }
       );
     });
 

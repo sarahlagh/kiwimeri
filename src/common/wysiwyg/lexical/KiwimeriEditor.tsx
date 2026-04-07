@@ -116,7 +116,7 @@ const KiwimeriEditor = (
       <ReloadContentPlugin
         id={id || 'id'}
         content={content}
-        selection={props.selection}
+        serializedSelection={props.selection}
         setHistory={setHistory}
       />
       {onChange && (

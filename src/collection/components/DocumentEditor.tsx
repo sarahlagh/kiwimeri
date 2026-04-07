@@ -3,8 +3,10 @@ import { onTitleChangeFn } from '@/common/events/events';
 import { GET_UNKNOWN_ITEM_ROUTE } from '@/common/routes';
 import platformService from '@/common/services/platform.service';
 import KiwimeriEditor from '@/common/wysiwyg/lexical/KiwimeriEditor';
+import { serializeSelection } from '@/common/wysiwyg/lexical/selection-serializer';
 import CollectionPagesBrowser from '@/common/wysiwyg/pages-browser/CollectionPagesBrowser';
 import { APPICONS } from '@/constants';
+import { resumeStateService } from '@/db/collection-resume-state.service';
 import collectionService from '@/db/collection.service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import {
@@ -61,7 +63,8 @@ const DocumentEditor = ({
   const pages = collectionService.useDocumentPages(docId);
   const onTitleChange = onTitleChangeFn(docId);
 
-  console.debug('Loaded resume state', resumeState, itemId);
+  const resumeState = resumeStateService.getResumeState(itemId);
+
   const onClickedAnywhere: React.MouseEventHandler<HTMLIonContentElement> = (
     event: React.MouseEvent<HTMLIonContentElement, MouseEvent>
   ) => {
@@ -167,12 +170,20 @@ const DocumentEditor = ({
             ref={refWriter}
             id={`${itemId}-${uniqId}`}
             content={content}
+            selection={resumeState?.lastSelection || null}
             enableToolbar={!showDocumentActions && !toggleSearch}
             searchText={toggleSearch ? query : null}
-            onChange={editorState => {
-              collectionService.setItemLexicalContent(
+            ignoreSelectionChange={false}
+            onChange={(editorState, isSelectionChange) => {
+              if (!isSelectionChange) {
+                collectionService.setItemLexicalContent(
+                  itemId,
+                  editorState.toJSON()
+                );
+              }
+              resumeStateService.setResumeSelection(
                 itemId,
-                editorState.toJSON()
+                serializeSelection(editorState)
               );
             }}
             enablePageBrowser={true}

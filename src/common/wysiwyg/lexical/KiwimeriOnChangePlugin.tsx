@@ -15,7 +15,6 @@ import type { EditorState, LexicalEditor } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { HISTORY_MERGE_TAG } from 'lexical';
 import { useLayoutEffect } from 'react';
-import { IS_SELECTION_CHANGE_TAG } from './constants';
 
 export function KiwimeriOnChangePlugin({
   skipTags = [],
@@ -48,7 +47,6 @@ export function KiwimeriOnChangePlugin({
         }) => {
           const isSelectionChange =
             dirtyElements.size === 0 && dirtyLeaves.size === 0;
-          if (isSelectionChange) tags.add(IS_SELECTION_CHANGE_TAG);
           if (
             (ignoreSelectionChange && isSelectionChange) ||
             (ignoreHistoryMergeTagChange && tags.has(HISTORY_MERGE_TAG)) ||
