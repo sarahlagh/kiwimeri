@@ -1,7 +1,8 @@
 import {
   CollectionItemType,
   isDocument,
-  isPage
+  isPage,
+  isPageOrDocument
 } from '@/collection/collection';
 import { networkService } from '@/common/services/network.service';
 import platformService from '@/common/services/platform.service';
@@ -18,6 +19,7 @@ import {
 } from '@/remote-storage/sync-types';
 import { ConnectionStatusChangeListener } from '@capacitor/network';
 import { historyService } from './collection-history.service';
+import { resumeStateService } from './collection-resume-state.service';
 import localChangesService from './local-changes.service';
 import storageService from './storage.service';
 import {
@@ -458,6 +460,7 @@ class RemotesService {
           localChangesService.setLastPulled(resp.remoteInfo.lastRemoteChange);
 
         storageService.getSpace().setContent(resp.content);
+        this.handleResumeState(resp.changes);
         this.handleHistory(resp.changes);
       }
     } catch (e) {
@@ -472,6 +475,14 @@ class RemotesService {
       return false;
     }
     return true;
+  }
+
+  private handleResumeState(changes: AfterSyncHistChange[]) {
+    // reset resume state if content has changed
+    changes
+      .filter(ch => isPageOrDocument({ type: ch.type }))
+      .filter(ch => ch.field === 'content')
+      .forEach(ch => resumeStateService.setResumeSelection(ch.id, null));
   }
 
   private handleHistory(changes: AfterSyncHistChange[]) {

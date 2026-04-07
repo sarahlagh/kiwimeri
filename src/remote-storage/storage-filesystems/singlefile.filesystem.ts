@@ -377,7 +377,8 @@ export class SingleFileStorage extends CloudStorageFilesystem {
               id,
               type,
               parent: newItem.parent as string,
-              change: LocalChangeType.update
+              change: LocalChangeType.update,
+              field
             });
             break;
           }

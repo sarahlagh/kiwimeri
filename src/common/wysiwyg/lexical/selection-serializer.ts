@@ -22,6 +22,11 @@ export type SerializedSelection = {
   format: number;
 };
 
+const is = (node1: SerializedSelectedNode, node2: SerializedSelectedNode) =>
+  node1.index === node2.index &&
+  node1.offset === node2.offset &&
+  node1.type === node2.type;
+
 function* $iterCaretsDepthFirst<D extends CaretDirection>(
   startCaret: NodeCaret<D>
 ): Iterable<NodeCaret<D>> {
@@ -86,11 +91,8 @@ export const serializeSelection = (
           focus: serializedFocus,
           format: rangeSelection.format
         };
-        if (
-          serializedAnchor &&
-          (serializedAnchor.index !== serializedFocus.index ||
-            serializedAnchor.offset !== serializedFocus.offset)
-        ) {
+        // only serialize anchor if defined and different from focus
+        if (serializedAnchor && !is(serializedAnchor, serializedFocus)) {
           serializedSelection.anchor = serializedAnchor;
         }
       }

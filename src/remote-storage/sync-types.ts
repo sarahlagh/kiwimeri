@@ -1,4 +1,7 @@
-import { CollectionItem } from '@/collection/collection';
+import {
+  CollectionItem,
+  CollectionItemUpdatableFieldEnum
+} from '@/collection/collection';
 import { SpaceType } from '@/db/types/space-types';
 import {
   LocalChange,
@@ -27,6 +30,7 @@ export type AfterSyncHistChange = Pick<
   'id' | 'type' | 'parent'
 > & {
   change: LocalChangeType;
+  field?: CollectionItemUpdatableFieldEnum;
 };
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
