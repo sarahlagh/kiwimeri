@@ -17,7 +17,7 @@ msgstr ""
 msgid " (new)"
 msgstr " (new)"
 
-#: src/timed-writing/components/StartPanel.tsx:74
+#: src/timed-writing/components/StartPanel.tsx:75
 msgid "{v} minutes"
 msgstr "{v} minutes"
 
@@ -499,7 +499,7 @@ msgstr "space option modified"
 msgid "Space Settings"
 msgstr "Space Settings"
 
-#: src/timed-writing/components/StartPanel.tsx:81
+#: src/timed-writing/components/StartPanel.tsx:82
 msgid "Start Writing"
 msgstr "Start Writing"
 

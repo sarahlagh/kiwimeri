@@ -56,6 +56,7 @@ export const StartPanel = ({
               </Trans>
             </IonLabel>
             <IonToggle
+              slot="end"
               checked={mode === 'less-dangerous'}
               onIonChange={e => {
                 setMode(e.detail.checked ? 'less-dangerous' : 'dangerous');
