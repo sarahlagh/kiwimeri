@@ -1,13 +1,7 @@
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
 import tagsService from '@/db/tags.service';
-import {
-  IonButton,
-  IonIcon,
-  IonItem,
-  IonText,
-  useIonModal
-} from '@ionic/react';
+import { IonButton, IonIcon, IonText, useIonModal } from '@ionic/react';
 import { Id } from 'tinybase/with-schemas';
 import ChooseTagsModal from '../modals/ChooseTagsModal';
 
@@ -29,7 +23,7 @@ const AddTagsButton = ({ id }: AddTagsButtonProps) => {
   });
 
   return (
-    <IonItem className="inner-item">
+    <>
       <IonButton
         fill="clear"
         onClick={() => {
@@ -41,7 +35,7 @@ const AddTagsButton = ({ id }: AddTagsButtonProps) => {
         <IonIcon icon={APPICONS.tags}></IonIcon>
       </IonButton>
       <IonText>{itemTags.join(', ')}</IonText>
-    </IonItem>
+    </>
   );
 };
 export default AddTagsButton;

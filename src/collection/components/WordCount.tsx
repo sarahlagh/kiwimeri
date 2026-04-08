@@ -1,7 +1,7 @@
 import { countWords } from '@/common/utils';
 import { APPICONS } from '@/constants';
 import { searchAncestryService } from '@/search/search-ancestry.service';
-import { IonIcon, IonItem, IonLabel, IonText } from '@ionic/react';
+import { IonIcon, IonText } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 
 type WordCountProps = {
@@ -15,16 +15,13 @@ const WordCount = ({ id }: WordCountProps) => {
 
   return (
     <>
-      <IonItem className="inner-item">
-        <IonIcon icon={APPICONS.info}></IonIcon>
-        <IonText>
-          <i>
-            &nbsp;
-            {wordCount} <Trans>words</Trans>
-          </i>
-        </IonText>
-      </IonItem>
-      <IonLabel></IonLabel>
+      <IonIcon icon={APPICONS.info}></IonIcon>
+      <IonText>
+        <i>
+          &nbsp;
+          {wordCount} <Trans>words</Trans>
+        </i>
+      </IonText>
     </>
   );
 };

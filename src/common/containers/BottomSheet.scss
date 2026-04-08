@@ -1,0 +1,18 @@
+.bottom-sheet-card {
+  margin: 0;
+  padding: 0px;
+  height: 100%;
+
+  ion-card-content {
+    padding: 0 8px;
+  }
+  .expand-bar {
+    cursor: pointer;
+    display: flex;
+    flex-direction: row-reverse;
+    padding: 4px;
+    background: var(--ion-background-color);
+    border-top: 1px solid var(--ion-color-light);
+    border-right: 1px solid var(--ion-color-light);
+  }
+}

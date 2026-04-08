@@ -85,7 +85,7 @@ msgstr "Clear All"
 msgid "Close"
 msgstr "Close"
 
-#: src/constants.ts:75
+#: src/constants.ts:79
 msgid "collection"
 msgstr "collection"
 
@@ -112,9 +112,13 @@ msgstr "Configure where to synchronize your collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/constants.ts:70
+#: src/constants.ts:74
 msgid "Conflicts"
 msgstr "Conflicts"
+
+#: src/collection/components/DocumentInfoCard.tsx:46
+msgid "Created at"
+msgstr "Created at"
 
 #: src/settings/components/sections/GenericCollectionSettings.tsx:37
 msgid "Creation Date"
@@ -124,7 +128,7 @@ msgstr "Creation Date"
 msgid "Current Notebook Settings ({notebookTitle})"
 msgstr "Current Notebook Settings ({notebookTitle})"
 
-#: src/constants.ts:69
+#: src/constants.ts:73
 msgid "Default"
 msgstr "Default"
 
@@ -220,6 +224,10 @@ msgstr "File not supported"
 msgid "Filesystem"
 msgstr "Filesystem"
 
+#: src/collection/components/DocumentInfoCard.tsx:32
+msgid "General"
+msgstr "General"
+
 #: src/settings/components/sections/CurrentSpaceSettings.tsx:50
 msgid "History idle time (s)"
 msgstr "History idle time (s)"
@@ -228,7 +236,7 @@ msgstr "History idle time (s)"
 msgid "History save time (min)"
 msgstr "History save time (min)"
 
-#: src/constants.ts:68
+#: src/constants.ts:72
 msgid "Home"
 msgstr "Home"
 
@@ -349,11 +357,11 @@ msgstr "Name"
 msgid "new"
 msgstr "new"
 
-#: src/constants.ts:71
+#: src/constants.ts:75
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:72
+#: src/constants.ts:76
 msgid "New folder"
 msgstr "New folder"
 
@@ -397,7 +405,7 @@ msgstr "Number of versions"
 msgid "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 msgstr "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 
-#: src/constants.ts:74
+#: src/constants.ts:78
 msgid "page"
 msgstr "page"
 
@@ -508,6 +516,10 @@ msgstr "Space Settings"
 msgid "Start Writing"
 msgstr "Start Writing"
 
+#: src/collection/components/DocumentInfoCard.tsx:37
+msgid "Stats"
+msgstr "Stats"
+
 #: src/common/buttons/GenericExportFileButton.tsx:48
 #: src/common/buttons/GenericImportFileButton.tsx:48
 #: src/common/buttons/ManageHistoryButton.tsx:157
@@ -563,6 +575,10 @@ msgstr "Timed Writing"
 msgid "Timed Writing Session"
 msgstr "Timed Writing Session"
 
+#: src/collection/components/DocumentInfoCard.tsx:57
+msgid "Updated at"
+msgstr "Updated at"
+
 #: src/synchronization/components/providers/PCloudSettings.tsx:94
 msgid "US"
 msgstr "US"
@@ -584,7 +600,7 @@ msgstr "When working on a document, a new version will be automatically at least
 msgid "When working on a document, a new version will be automatically if idle after XX seconds"
 msgstr "When working on a document, a new version will be automatically if idle after XX seconds"
 
-#: src/collection/components/WordCount.tsx:23
+#: src/collection/components/WordCount.tsx:22
 msgid "words"
 msgstr "words"
 

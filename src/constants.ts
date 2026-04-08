@@ -11,6 +11,10 @@ import {
   bugOutline,
   caretBackCircleOutline,
   checkmarkOutline,
+  chevronCollapseOutline,
+  chevronDownOutline,
+  chevronExpandOutline,
+  chevronUpOutline,
   close,
   cloudDownloadOutline,
   cloudOfflineOutline,
@@ -123,7 +127,11 @@ export const APPICONS = {
   restore: arrowUndoOutline,
   save: arrowRedoOutline,
   timedWriting: alarmOutline,
-  indicator: ellipse
+  indicator: ellipse,
+  expand: chevronExpandOutline,
+  collapse: chevronCollapseOutline,
+  expandCard: chevronUpOutline,
+  collapseCard: chevronDownOutline
 };
 
 export const APPICONS_PER_TYPE = new Map<CollectionItemTypeValues, string>();
