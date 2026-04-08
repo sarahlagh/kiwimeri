@@ -11,6 +11,7 @@ import { APPICONS } from '@/constants';
 import { resumeStateService } from '@/db/collection-resume-state.service';
 import collectionService from '@/db/collection.service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
+import { statsService } from '@/stats/stats-service';
 import {
   InputCustomEvent,
   IonButton,
@@ -64,6 +65,10 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
     const onTitleChange = onTitleChangeFn(docId);
 
     const resumeState = resumeStateService.getResumeState(itemId);
+
+    useEffect(() => {
+      statsService.updateGlobalStats(itemId, { lastOpened: Date.now() });
+    }, [itemId]);
 
     useEffect(() => {
       if (query) {

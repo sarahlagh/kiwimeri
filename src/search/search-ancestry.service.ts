@@ -9,6 +9,7 @@ import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-con
 import { DEFAULT_SPACE_ID, ROOT_COLLECTION } from '@/constants';
 import { useCellWithRef } from '@/db/tinybase/hooks';
 import formatConverter from '@/format-conversion/format-converter.service';
+import { statsService } from '@/stats/stats-service';
 import { Id, Ids, Store, Table } from 'tinybase/with-schemas';
 import storageService from '../db/storage.service';
 import { SpaceType } from '../db/types/space-types';
@@ -78,6 +79,7 @@ class CollectionSearchService {
   }
 
   private addContentChangeListener(space: Store<SpaceType>) {
+    // TODO add timeouts?
     return space.addCellListener(
       this.collectionTableId,
       null,
@@ -89,7 +91,8 @@ class CollectionSearchService {
           space.getTable(tableId),
           storageService.getStore()
         );
-      }
+      },
+      true
     );
   }
 
@@ -234,11 +237,13 @@ class CollectionSearchService {
     store: Store<StoreType>
   ) {
     if (table[rowId]?.content) {
-      store.setCell(
-        'search',
+      // preview
+      const plain = this.getUnsavedItemPreview(table[rowId] as CollectionItem);
+      store.setCell('search', rowId, 'contentPreview', plain);
+      // stats
+      statsService.updateTodaysStats(
         rowId,
-        'contentPreview',
-        this.getUnsavedItemPreview(table[rowId] as CollectionItem)
+        statsService.getStats(plain, table[rowId].content_meta!.toString())
       );
     }
   }

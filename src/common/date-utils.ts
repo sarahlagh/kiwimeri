@@ -19,7 +19,19 @@ const formatRelative = (date: Date) => {
   return '';
 };
 
-const formatLocalISO = (date: Date, timeZone = 'Europe/Paris') => {
+const formatDatePrintable = (date: Date, timeZone = 'Europe/Paris') => {
+  const parts = new Intl.DateTimeFormat('fr-FR', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).formatToParts(date);
+
+  const map = Object.fromEntries(parts.map(p => [p.type, p.value]));
+  return `${map.year}-${map.month}-${map.day}`;
+};
+
+const formatDatetimePrintable = (date: Date, timeZone = 'Europe/Paris') => {
   const parts = new Intl.DateTimeFormat('fr-FR', {
     timeZone,
     year: 'numeric',
@@ -37,7 +49,7 @@ const formatLocalISO = (date: Date, timeZone = 'Europe/Paris') => {
 
 export const dateLocale = 'fr-FR'; // TODO config
 export const dateToStr = (
-  format: 'time' | 'date' | 'datetime' | 'iso' | 'relative',
+  format: 'time' | 'date' | 'date-printable' | 'datetime' | 'iso' | 'relative',
   ts?: number,
   locale = dateLocale
 ) => {
@@ -45,12 +57,14 @@ export const dateToStr = (
   switch (format) {
     case 'date':
       return date.toLocaleDateString(locale);
+    case 'date-printable':
+      return formatDatePrintable(date);
     case 'time':
       return date.toLocaleTimeString(locale);
     case 'datetime':
       return date.toLocaleString(locale);
     case 'iso':
-      return formatLocalISO(date);
+      return formatDatetimePrintable(date);
     case 'relative':
       return date.toLocaleString(locale) + formatRelative(date);
   }

@@ -104,6 +104,8 @@ export const nOr0 = (key: string, obj?: AnyData, defaultValue: unknown = 0) => {
   return obj[key];
 };
 
+export const n00 = (n?: number) => n || 0;
+
 export const countWords = (plain: string) => {
   const segmenter = new Intl.Segmenter(undefined, { granularity: 'word' });
   return plain

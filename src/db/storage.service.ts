@@ -203,6 +203,12 @@ class StorageService {
         document_resume_state: {
           itemId: { type: 'string' } as CellSchema,
           lastSelection: { type: 'string' } as CellSchema
+        },
+        stats: {
+          itemId: { type: 'string' } as CellSchema,
+          date: { type: 'string' } as CellSchema,
+          contentStatsJson: { type: 'string' } as CellSchema,
+          lastOpened: { type: 'number' } as CellSchema
         }
       })
       .setValuesSchema({
