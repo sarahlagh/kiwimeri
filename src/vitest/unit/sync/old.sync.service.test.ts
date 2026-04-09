@@ -26,7 +26,7 @@ import { LayerTypes } from '@/remote-storage/storage-filesystem.factory';
 import { syncService } from '@/remote-storage/sync.service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { renderHook } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   CONFLICT_CHANGES,
   countOrphans,

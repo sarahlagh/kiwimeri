@@ -402,14 +402,13 @@ class CollectionHistoryService {
     const existingTimeout = this.timeouts.get(id);
     if (existingTimeout) {
       clearTimeout(existingTimeout);
-    }
 
-    const lastVersion = this.getLatestVersion(id)?.createdAt || null;
-
-    // force periodic checkpoint during long continuous writing
-    if (lastVersion != null && now - lastVersion >= maxInterval) {
-      this.flushVersion(id);
-      return;
+      // force periodic checkpoint during long continuous writing
+      const lastVersion = this.getLatestVersion(id)?.createdAt || null;
+      if (lastVersion != null && now - lastVersion >= maxInterval) {
+        this.flushVersion(id);
+        return;
+      }
     }
 
     const timeout = setTimeout(() => {

@@ -10,7 +10,7 @@ import { LayerTypes } from '@/remote-storage/storage-filesystem.factory';
 import { syncService } from '@/remote-storage/sync.service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { fakeTimersDelay } from '@/vitest/setup/test.utils';
-import { vi } from 'vitest';
+import { expect, vi } from 'vitest';
 
 export let driver: InMemDriver;
 let iPull = 0;

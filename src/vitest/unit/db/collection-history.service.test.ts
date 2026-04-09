@@ -16,7 +16,7 @@ import { LocalChangeType } from '@/db/types/store-types';
 import userSettingsService from '@/db/user-settings.service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { renderHook } from '@testing-library/react';
-import { it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   fakeTimersDelay,
   GET_CONTENT_UPDATE_FIELDS,
@@ -127,6 +127,45 @@ describe('collection history service', () => {
       expect(historyService.getVersions(docId)).toHaveLength(1);
       vi.advanceTimersByTime(20);
       expect(historyService.getVersions(docId)).toHaveLength(2);
+    });
+
+    it(`should flush a new version on continuous writing after > maxInterval`, () => {
+      userSettingsService.setHistoryIdleTime(30);
+      userSettingsService.setHistoryMaxInterval(100);
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      expect(historyService.getVersions(docId)).toHaveLength(1);
+      vi.advanceTimersByTime(10);
+
+      for (let i = 0; i < 9; i++) {
+        collectionService.setItemTitle(docId, `new title ${i}`);
+        vi.advanceTimersByTime(10);
+      }
+      // no new version triggered yet
+      expect(historyService.getVersions(docId)).toHaveLength(1);
+
+      collectionService.setItemTitle(docId, `new title 10`);
+      vi.advanceTimersByTime(10); // we've reached max interval (100) at this point
+
+      // version triggered due to max interval
+      expect(historyService.getVersions(docId)).toHaveLength(2);
+
+      // start of new session
+      collectionService.setItemTitle(docId, `new title 11`);
+      expect(historyService.getVersions(docId)).toHaveLength(2);
+    });
+
+    it(`should not flush a new version on first time after > maxInterval`, () => {
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      expect(historyService.getVersions(docId)).toHaveLength(1);
+      vi.advanceTimersByTime(100);
+      userSettingsService.setHistoryIdleTime(30);
+      userSettingsService.setHistoryMaxInterval(100);
+
+      vi.advanceTimersByTime(200);
+      collectionService.setItemTitle(docId, `new title 1`);
+      expect(historyService.getVersions(docId)).toHaveLength(1); // new version not flushed but pending
+      vi.advanceTimersByTime(30);
+      expect(historyService.getVersions(docId)).toHaveLength(2); // flushed
     });
 
     it(`should restore to a previous version`, () => {
