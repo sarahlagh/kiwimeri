@@ -266,7 +266,11 @@ const CollectionItemList = ({
       <IonContent>
         <SortableList
           items={finalItems}
-          sortDisabled={!reorderEnabled || finalItems.length !== items.length}
+          sortDisabled={
+            !reorderEnabled ||
+            finalItems.length !== items.length ||
+            itemRenaming !== undefined
+          }
           handleDragStart={() => {
             setIsDragging(true);
           }}
