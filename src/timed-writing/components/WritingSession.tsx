@@ -1,4 +1,5 @@
 import { GET_DOCUMENT_ROUTE } from '@/common/routes';
+import { historyService } from '@/db/collection-history.service';
 import collectionService, { initialContent } from '@/db/collection.service';
 import storageService from '@/db/storage.service';
 import { useValueWithRef } from '@/db/tinybase/hooks';
@@ -21,8 +22,10 @@ function saveTempDocument(payload: SavePayload) {
   } else {
     collectionService.setItemLexicalContent(
       payload.existingItem!.id,
-      payload.content
+      payload.content,
+      true // make it sync
     );
+    historyService.addVersion(payload.existingItem!.id, true);
     return {
       id: payload.existingItem!.id,
       parent: payload.existingItem!.parent

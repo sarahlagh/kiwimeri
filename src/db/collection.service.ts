@@ -593,8 +593,17 @@ class CollectionService {
     return useCellWithRef<string>(this.storeId, this.tableId, rowId, 'type');
   }
 
-  public setItemLexicalContent(rowId: Id, content: SerializedEditorState) {
-    this.setItemField(rowId, 'content', minimizeContentForStorage(content));
+  public setItemLexicalContent(
+    rowId: Id,
+    content: SerializedEditorState,
+    skipVersion = false
+  ) {
+    this.setItemField(
+      rowId,
+      'content',
+      minimizeContentForStorage(content),
+      skipVersion
+    );
   }
 
   public setUnsavedItemLexicalContent(
@@ -818,9 +827,6 @@ class CollectionService {
     // title and content are real changes, order and display_opts are not (won't trigger an update ts)
     const isContentChange = this.isContentChange(type, key);
     storageService.getSpace().transaction(() => {
-      if (!skipVersion && this.isHistorizableContentChange(type, key)) {
-        historyService.addVersion(rowId);
-      }
       storageService.getSpace().setCell('collection', rowId, key, value);
       storageService
         .getSpace()
@@ -835,6 +841,10 @@ class CollectionService {
         storageService
           .getSpace()
           .setCell('collection', rowId, 'updated', updated);
+      }
+
+      if (!skipVersion && this.isHistorizableContentChange(type, key)) {
+        historyService.addVersion(rowId);
       }
 
       const wasConflict =
