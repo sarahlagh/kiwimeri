@@ -19,7 +19,7 @@ import {
   IonTitle,
   IonToolbar
 } from '@ionic/react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { isPageOrDocument } from '../collection';
 import CommonActionsToolbar from './CommonActionsToolbar';
@@ -40,7 +40,6 @@ const DocumentEditor = ({
   query
 }: DocumentEditorProps) => {
   const history = useHistory();
-  const refWriter = useRef(null);
   const [showDocumentActions, setShowDocumentActions] =
     useState<boolean>(false);
   const [showDocumentFooter, setShowDocumentFooter] = useState(showActions);
@@ -64,22 +63,6 @@ const DocumentEditor = ({
   const onTitleChange = onTitleChangeFn(docId);
 
   const resumeState = resumeStateService.getResumeState(itemId);
-
-  const onClickedAnywhere: React.MouseEventHandler<HTMLIonContentElement> = (
-    event: React.MouseEvent<HTMLIonContentElement, MouseEvent>
-  ) => {
-    const target = event.target as HTMLIonContentElement;
-    // exclude text area & toolbar from this handler
-    // focus the text editor when clicking on empty ion-content
-    if (
-      refWriter.current &&
-      target.role === 'main' &&
-      target.localName === 'ion-content'
-    ) {
-      const ref = refWriter.current as HTMLBaseElement;
-      ref.focus();
-    }
-  };
 
   useEffect(() => {
     if (query) {
@@ -164,10 +147,9 @@ const DocumentEditor = ({
         )}
       </IonHeader>
 
-      <IonContent onClick={onClickedAnywhere}>
+      <IonContent>
         {content && (
           <KiwimeriEditor
-            ref={refWriter}
             id={`${itemId}-${uniqId}`}
             content={content}
             selection={resumeState?.lastSelection || null}

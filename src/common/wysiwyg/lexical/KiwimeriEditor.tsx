@@ -96,6 +96,7 @@ const KiwimeriEditor = (
             contentEditable={editable}
             className={
               'editor-input' +
+              (enableToolbar ? ' editor-toolbar' : '') +
               (additionalClassNames ? ` ${additionalClassNames}` : '')
             }
             aria-placeholder={placeholder}

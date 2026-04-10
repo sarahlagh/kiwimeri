@@ -7,21 +7,16 @@
   outline: 0;
   padding: 0px 10px;
   caret-color: var(--ion-color-dark);
+  color: #2e2e2e;
+  background: #f5f5f3;
+  height: 100%;
+  overflow-y: auto;
 }
 
 .ion-palette-dark .editor-input {
   caret-color: #00e5ff;
-}
-
-.editor-paragraph {
-  margin: 0;
-  margin-bottom: 16px;
-  position: relative;
-  line-height: 20px;
-}
-
-.editor-paragraph:last-child {
-  margin-bottom: 0;
+  color: #c9ccd1;
+  background: #1f1f23;
 }
 
 .editor-placeholder {
@@ -40,8 +35,27 @@
   top: 44px;
 }
 
+.editor-toolbar {
+  height: calc(100% - 42px); // remove height of the toolbar
+}
+
+.android .editor-toolbar {
+  height: calc(100% - 50px);
+}
+
 .android .editor-placeholder-toolbar {
   top: 52px; // account for the bigger icon size
+}
+
+.editor-paragraph {
+  margin: 0;
+  margin-bottom: 16px;
+  position: relative;
+  line-height: 20px;
+}
+
+.editor-paragraph:last-child {
+  margin-bottom: 0;
 }
 
 .editor-text-bold {

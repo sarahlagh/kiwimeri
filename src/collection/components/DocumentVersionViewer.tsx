@@ -17,7 +17,7 @@ import {
   IonTitle,
   IonToolbar
 } from '@ionic/react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { CollectionItemSnapshotData, CollectionItemType } from '../collection';
 import CommonActionsToolbar from './CommonActionsToolbar';
@@ -62,7 +62,6 @@ const DocumentVersionViewer = ({
   query
 }: DocumentVersionViewerProps) => {
   const history = useHistory();
-  const refWriter = useRef(null);
   const [showDocumentActions, setShowDocumentActions] =
     useState<boolean>(false);
   const [openPageBrowser, setOpenPageBrowser] = useState(false);
@@ -132,7 +131,7 @@ const DocumentVersionViewer = ({
               setShowDocumentActions(false);
             }}
           >
-            <ManageHistoryButton id={docId} />
+            <ManageHistoryButton id={docId} onRestore={() => {}} />
             {platformService.hasHighlightSupport() && (
               <IonButton
                 onClick={() => {
@@ -179,7 +178,6 @@ const DocumentVersionViewer = ({
       <IonContent>
         {content && (
           <KiwimeriEditor
-            ref={refWriter}
             id={versionId}
             editable={false}
             enableToolbar={false}

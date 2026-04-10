@@ -12,7 +12,7 @@ import {
 } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 import { EditorState } from 'lexical';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import KeystrokeListenerPlugin from './KeystrokeListenerPlugin';
 
 import { countWords } from '@/common/utils';
@@ -62,27 +62,10 @@ const OngoingSession = ({
   const [updatedAt, setUpdatedAt] = useState<number | null>(null);
   const [endedAt, setEndedAt] = useState<number | null>(null);
   const [editorState, setEditorState] = useState<EditorState | null>(null);
-  const refWriter = useRef(null);
   const [color, setColor] = useState<string | undefined>(undefined);
   const [warnClass, setWarnClass] = useState<string>('');
   const [wordCount, setWordCount] = useState(0);
   const [indicator, setIndicator] = useState<string | undefined>(undefined);
-
-  const onClickedAnywhere: React.MouseEventHandler<HTMLIonContentElement> = (
-    event: React.MouseEvent<HTMLIonContentElement, MouseEvent>
-  ) => {
-    const target = event.target as HTMLIonContentElement;
-    // exclude text area & toolbar from this handler
-    // focus the text editor when clicking on empty ion-content
-    if (
-      refWriter.current &&
-      target.role === 'main' &&
-      target.localName === 'ion-content'
-    ) {
-      const ref = refWriter.current as HTMLBaseElement;
-      ref.focus();
-    }
-  };
 
   const onNextTick = () => {
     if (startedAt === null || updatedAt === null) return;
@@ -134,9 +117,8 @@ const OngoingSession = ({
       {startedAt && !endedAt && (
         <ClockTicking startedAt={startedAt} duration={duration} color={color} />
       )}
-      <IonContent onClick={onClickedAnywhere}>
+      <IonContent>
         <KiwimeriEditor
-          ref={refWriter}
           additionalClassNames={'timed-writing ' + warnClass}
           content={initValue}
           enableToolbar={false}

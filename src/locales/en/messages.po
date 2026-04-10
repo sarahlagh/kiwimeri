@@ -21,7 +21,7 @@ msgstr " (new)"
 msgid "{v} minutes"
 msgstr "{v} minutes"
 
-#: src/timed-writing/components/OngoingSession.tsx:177
+#: src/timed-writing/components/OngoingSession.tsx:159
 msgid "{wordCount} words"
 msgstr "{wordCount} words"
 
@@ -146,7 +146,7 @@ msgstr "Dev Tools Enabled"
 msgid "Device Token"
 msgstr "Device Token"
 
-#: src/timed-writing/components/OngoingSession.tsx:196
+#: src/timed-writing/components/OngoingSession.tsx:178
 msgid "Discard"
 msgstr "Discard"
 
@@ -232,10 +232,12 @@ msgstr "History save time (min)"
 msgid "Home"
 msgstr "Home"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:112
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:105
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
@@ -288,10 +290,12 @@ msgstr "Link"
 msgid "Loading..."
 msgstr "Loading..."
 
+#. placeholder {0}: localChanges.length
 #: src/synchronization/components/LocalChangesCard.tsx:38
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
+#. placeholder {0}: dateToStr('datetime', lastLocalChange)
 #: src/synchronization/components/LocalChangesCard.tsx:44
 msgid "Local: {0}"
 msgstr "Local: {0}"
@@ -433,6 +437,7 @@ msgstr "Remember last route"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
+#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
 #: src/synchronization/components/LocalChangesCard.tsx:51
 msgid "Remote: {0}"
 msgstr "Remote: {0}"
@@ -458,7 +463,7 @@ msgstr "Restore Version"
 msgid "Save"
 msgstr "Save"
 
-#: src/timed-writing/components/OngoingSession.tsx:191
+#: src/timed-writing/components/OngoingSession.tsx:173
 msgid "Save your work"
 msgstr "Save your work"
 
