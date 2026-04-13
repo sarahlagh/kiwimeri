@@ -13,6 +13,13 @@ import {
   SerializedSelection
 } from './selection-serializer';
 
+function getSafeContent(content: string) {
+  if (content === '') content = initialContent();
+  return content.startsWith(INITIAL_CONTENT_START)
+    ? content
+    : unminimizeContentFromStorage(content);
+}
+
 export default function ReloadContentPlugin({
   id,
   content,
@@ -27,40 +34,43 @@ export default function ReloadContentPlugin({
   const [editor] = useLexicalComposerContext();
   const [historyMap] = useState<Map<string, HistoryState>>(new Map());
 
+  // history per document
   useEffect(() => {
-    if (content === '') content = initialContent();
-    const newState = editor.parseEditorState(
-      content.startsWith(INITIAL_CONTENT_START)
-        ? content
-        : unminimizeContentFromStorage(content)
-    );
+    if (historyMap.has(id)) {
+      setHistory(historyMap.get(id)!);
+    } else {
+      const history = createEmptyHistoryState();
+      historyMap.set(id, history);
+      setHistory(history);
+    }
+  }, [id, historyMap, setHistory]);
+
+  // set editor state
+  useEffect(() => {
+    const newState = editor.parseEditorState(getSafeContent(content));
+    let cancelled = false;
+
     queueMicrotask(() => {
-      editor.setEditorState(newState, {
-        tag: RELOAD_TAG
+      editor.setEditorState(newState, { tag: RELOAD_TAG });
+
+      requestAnimationFrame(() => {
+        if (cancelled) return;
+
+        editor.update(
+          () => {
+            const selection = deserializeSelection(serializedSelection);
+            if (!selection) return;
+            $setSelection(selection);
+          },
+          { tag: [SELECTION_CHANGE_TAG, RELOAD_TAG], discrete: true }
+        );
       });
     });
 
-    queueMicrotask(() => {
-      editor.update(
-        () => {
-          if (serializedSelection) {
-            const selection = deserializeSelection(serializedSelection);
-            if (selection) {
-              $setSelection(selection);
-            }
-          }
-        },
-        { tag: [RELOAD_TAG, SELECTION_CHANGE_TAG] }
-      );
-    });
-
-    if (historyMap.has(id) && historyMap.get(id)) {
-      setHistory(historyMap.get(id)!);
-    } else {
-      historyMap.set(id, createEmptyHistoryState());
-      setHistory(historyMap.get(id)!);
-    }
-  }, [id]); // re-run the hook on document change
+    return () => {
+      cancelled = true;
+    };
+  }, [editor, id]); // re-run the hook on document change
 
   return null;
 }

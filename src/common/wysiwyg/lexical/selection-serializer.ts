@@ -102,8 +102,9 @@ export const serializeSelection = (
 };
 
 export const deserializeSelection = (
-  serializedSelection: SerializedSelection
+  serializedSelection?: SerializedSelection | null
 ) => {
+  if (!serializedSelection) return null;
   let index = 0;
   let anchorCaret: NodeCaret<'next'> | undefined = undefined;
   let focusCaret: NodeCaret<'next'> | undefined = undefined;
