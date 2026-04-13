@@ -134,9 +134,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: gh release edit "${{ needs.release-draft.outputs.tag }}" --draft=false
-      - uses: eregon/keep-last-n-releases@v1
+      - uses: sarahlagh/keep-last-n-releases@84a4c158f9214573b800fe07464e2b3bac8ef441
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           n: 10
-          remove_tags_without_release: false
+          remove_tags_without_release: 'false'
+          remove_tags: 'false'
