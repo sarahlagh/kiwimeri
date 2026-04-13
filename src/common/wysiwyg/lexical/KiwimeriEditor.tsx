@@ -3,6 +3,7 @@ import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
+import { EditorRefPlugin } from '@lexical/react/LexicalEditorRefPlugin';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import {
   createEmptyHistoryState,
@@ -16,8 +17,14 @@ import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { SelectionAlwaysOnDisplay } from '@lexical/react/LexicalSelectionAlwaysOnDisplay';
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
 import { useLingui } from '@lingui/react/macro';
-import { EditorState } from 'lexical';
-import React, { ReactNode, useState } from 'react';
+import { EditorState, LexicalEditor } from 'lexical';
+import React, {
+  ForwardedRef,
+  ReactNode,
+  useImperativeHandle,
+  useRef,
+  useState
+} from 'react';
 import { FOCUS_TAG, RELOAD_TAG } from './constants';
 import EditLinkPlugin from './EditLinkPlugin';
 import { KiwimeriOnChangePlugin } from './KiwimeriOnChangePlugin';
@@ -34,6 +41,10 @@ import { SearchHighlightPlugin } from './SearchHighlightPlugin';
 import { SerializedSelection } from './selection-serializer';
 import ShortcutsPlugin from './ShortcutsPlugin';
 import TextZoomPlugin from './TextZoomPlugin';
+
+export type KiwimeriEditorHandle = {
+  focusEditor: () => void;
+};
 
 type KiwimeriEditorProps = {
   id?: string;
@@ -55,11 +66,25 @@ type KiwimeriEditorProps = {
 
 const KiwimeriEditor = (
   props: KiwimeriEditorProps,
-  ref: React.LegacyRef<HTMLDivElement> | undefined
+  ref: ForwardedRef<KiwimeriEditorHandle>
 ) => {
   const { t } = useLingui();
   const [isLinkEditMode, setIsLinkEditMode] = useState(false);
   const [history, setHistory] = useState(createEmptyHistoryState());
+  const editorRef = useRef<LexicalEditor | null>(null);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      focusEditor() {
+        // note: this resumes the selection on small screens, but also triggers keyboard on small screen + android
+        // this is annoying, but no known workarounds at this time
+        // this will not be called on wide screens so not an issue there
+        editorRef.current?.focus();
+      }
+    }),
+    []
+  );
 
   const {
     enableToolbar,
@@ -92,7 +117,6 @@ const KiwimeriEditor = (
       <RichTextPlugin
         contentEditable={
           <ContentEditable
-            ref={ref}
             contentEditable={editable}
             className={
               'editor-input' +
@@ -114,6 +138,7 @@ const KiwimeriEditor = (
         }
         ErrorBoundary={LexicalErrorBoundary}
       />
+      <EditorRefPlugin editorRef={editorRef} />
       <ReloadContentPlugin
         id={id || 'id'}
         content={content}
@@ -157,4 +182,6 @@ const KiwimeriEditor = (
     </LexicalComposer>
   );
 };
-export default React.forwardRef(KiwimeriEditor);
+export default React.forwardRef<KiwimeriEditorHandle, KiwimeriEditorProps>(
+  KiwimeriEditor
+);

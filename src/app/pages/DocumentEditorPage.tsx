@@ -1,16 +1,19 @@
 import CollectionItemBrowserList from '@/collection/components/CollectionItemBrowserList';
-import DocumentEditor from '@/collection/components/DocumentEditor';
+import DocumentEditor, {
+  DocumentEditorHandle
+} from '@/collection/components/DocumentEditor';
 import { onTitleChangeFn } from '@/common/events/events';
 import { getSearchParams } from '@/common/utils';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import { IonButton, IonIcon } from '@ionic/react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useLocation } from 'react-router';
 import TemplateCompactableSplitPage from './TemplateCompactableSplitPage';
 
 const DocumentEditorPage = () => {
+  const editorRef = useRef<DocumentEditorHandle | null>(null);
   const location = useLocation();
   const searchParams = getSearchParams(location.search);
   const notebook = notebooksService.useCurrentNotebook();
@@ -53,9 +56,13 @@ const DocumentEditorPage = () => {
       menu={
         <CollectionItemBrowserList parent={parent}></CollectionItemBrowserList>
       }
+      onMenuClose={() => {
+        editorRef.current?.focusEditor();
+      }}
       contentId="documentExplorer"
     >
       <DocumentEditor
+        ref={editorRef}
         docId={docId}
         pageId={pageId}
         showActions={showDocumentActions}

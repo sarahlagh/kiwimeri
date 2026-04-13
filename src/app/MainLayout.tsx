@@ -21,7 +21,7 @@ const MainLayout = () => {
 
   return (
     <>
-      <IonMenu contentId="main-content">
+      <IonMenu menuId="main-menu" contentId="main-content">
         <IonHeader>
           <IonToolbar style={{ paddingLeft: '16px' }}>
             <IonIcon
