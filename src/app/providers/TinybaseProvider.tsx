@@ -19,8 +19,8 @@ const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
       console.log('[storage] starting');
       await storageService.start();
       setIsLoading(false);
-      await remotesService.initSync();
       appLog.gc(); // TODO run at interval
+      await remotesService.initSync();
       historyService.gc();
     }
     load();

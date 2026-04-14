@@ -56,7 +56,6 @@ export function KiwimeriOnChangePlugin({
           }
 
           if (!tags.isDisjointFrom(skipTagsSet)) {
-            console.debug('skipping editor change', tags);
             return;
           }
 

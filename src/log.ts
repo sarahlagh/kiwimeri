@@ -52,8 +52,10 @@ class AppLogService {
     return queryName;
   }
 
-  public gc() {
-    const maxLogHistory = storageService.getStore().getValue('maxLogHistory');
+  public gc(all = false) {
+    const maxLogHistory = all
+      ? 0
+      : storageService.getStore().getValue('maxLogHistory');
     const rowCount = storageService.getStore().getRowCount(this.table);
     if (rowCount > maxLogHistory) {
       console.log('running log gc', rowCount - maxLogHistory);

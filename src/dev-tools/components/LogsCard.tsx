@@ -1,9 +1,8 @@
 import GenericExportFileButton from '@/common/buttons/GenericExportFileButton';
 import { dateToStr } from '@/common/date-utils';
-import platformService from '@/common/services/platform.service';
-import { APPICONS } from '@/constants';
 import { appLevels, appLog, AppLogLevel } from '@/log';
 import {
+  IonButton,
   IonButtons,
   IonCard,
   IonCardContent,
@@ -29,7 +28,7 @@ const LogsCard = () => {
   const filters = Object.keys(stateMap).filter(
     k => stateMap[k as AppLogLevel]
   ) as AppLogLevel[];
-  const isWideEnough = platformService.isWideEnough();
+  const [showFilters, setShowFilters] = useState(false);
   const logs = appLog.useLogs(filters);
 
   function getColor(
@@ -91,31 +90,47 @@ const LogsCard = () => {
           })}
         </IonList>
       </IonCardContent>
+      {showFilters && (
+        <IonItem lines="none">
+          <IonButtons>
+            {appLevels.map(level => (
+              <IonChip
+                key={level}
+                color={getColor(level)}
+                outline={stateMap[level]}
+                onClick={() => {
+                  const newState = { ...stateMap };
+                  newState[level] = !newState[level];
+                  setStateMap(newState);
+                }}
+              >
+                {level}
+              </IonChip>
+            ))}
+          </IonButtons>
+        </IonItem>
+      )}
       <IonItem>
-        <IonButtons slot="end">
-          {appLevels.map(level => (
-            <IonChip
-              key={level}
-              color={getColor(level)}
-              outline={stateMap[level]}
-              onClick={() => {
-                const newState = { ...stateMap };
-                newState[level] = !newState[level];
-                setStateMap(newState);
-              }}
-            >
-              {level}
-            </IonChip>
-          ))}
-        </IonButtons>
         <GenericExportFileButton
           getFileContent={appLog.printLogs(filters)}
           getFileTitle={() => `${dateToStr('iso')}-logs.txt`}
-          label={isWideEnough ? t`Download Logs` : undefined}
-          icon={isWideEnough ? null : APPICONS.export}
+          label={t`Download Logs`}
+          icon={null}
           color="primary"
           fill="clear"
         />
+        <IonButton
+          color="primary"
+          fill="clear"
+          onClick={() => {
+            appLog.gc(true);
+          }}
+        >
+          <Trans>Delete All</Trans>
+        </IonButton>
+        <IonButton slot="end" onClick={() => setShowFilters(!showFilters)}>
+          <Trans>{showFilters ? 'Hide' : 'Show'} Filters</Trans>
+        </IonButton>
       </IonItem>
     </IonCard>
   );
