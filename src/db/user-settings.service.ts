@@ -11,15 +11,17 @@ import storageService from './storage.service';
 import { useValueWithRef } from './tinybase/hooks';
 import { LocalChangeType } from './types/store-types';
 
+export type Theme = 'light' | 'dark';
+
 class UserSettingsService {
   private readonly storeId = 'store';
   private readonly spaceId = 'space';
 
   public useTheme() {
-    return useValueWithRef(this.storeId, 'theme');
+    return useValueWithRef(this.storeId, 'theme') as Theme;
   }
 
-  public setTheme(theme: 'light' | 'dark') {
+  public setTheme(theme: Theme) {
     storageService.getStore().setValue('theme', theme);
   }
 

@@ -243,7 +243,7 @@ class CollectionSearchService {
       // stats
       statsService.updateTodaysStats(
         rowId,
-        statsService.getStats(plain, table[rowId].content_meta!.toString())
+        statsService.buildStats(plain, table[rowId].content_meta!.toString())
       );
     }
   }

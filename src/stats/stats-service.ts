@@ -2,13 +2,88 @@ import { parseFieldMeta } from '@/collection/collection';
 import { dateToStr } from '@/common/date-utils';
 import { countWords, n00 } from '@/common/utils';
 import storageService from '@/db/storage.service';
+import { ResultRow } from 'tinybase/with-schemas';
+import { DataPoint } from './components/charts/TimeChart';
 import {
   DocumentContentStatsBag,
-  DocumentGlobalStatsBag
+  DocumentDatedStat,
+  DocumentGlobalStatsBag,
+  DocumentStatRow
 } from './document-stats';
+
+type StatsQueryResult = ResultRow &
+  Required<Pick<DocumentStatRow, 'itemId' | 'date' | 'contentStatsJson'>>;
 
 class StatsService {
   private timeZone = 'Europe/Paris';
+
+  private buildStatsQuery(itemId: string, space?: string) {
+    const queries = storageService.getSpaceQueries(space);
+    const queryName = 'GetStatsForItem';
+    if (queries.hasQuery(queryName)) {
+      queries.setParamValues(queryName, { itemId });
+    } else {
+      queries.setQueryDefinition(
+        queryName,
+        'stats',
+        ({ select, where, param }) => {
+          select('itemId');
+          select('date');
+          select('contentStatsJson');
+          where('itemId', param('itemId')!.toString());
+          where(getCell => getCell('date') !== undefined);
+        },
+        { itemId }
+      );
+    }
+    return queryName;
+  }
+
+  public getStatsForItem(itemId: string): DocumentDatedStat[] {
+    return this.fromQuery<StatsQueryResult, DocumentDatedStat>(
+      () => this.buildStatsQuery(itemId),
+      (resultRow, rowId) => ({
+        id: rowId,
+        itemId: resultRow.itemId,
+        date: resultRow.date,
+        contentStats: JSON.parse(
+          resultRow.contentStatsJson
+        ) as DocumentContentStatsBag
+      })
+    );
+  }
+
+  public getDataPoints(itemId: string): DataPoint[] {
+    return this.fromQuery<StatsQueryResult, DataPoint>(
+      () => this.buildStatsQuery(itemId),
+      resultRow => ({
+        date: resultRow.date,
+        values: JSON.parse(
+          resultRow.contentStatsJson
+        ) as DocumentContentStatsBag
+      }),
+      'date',
+      true
+    );
+  }
+
+  private fromQuery<T, U>(
+    getQuery: () => string,
+    rowMapper: (row: T, rowId: string) => U,
+    sortBy?: string | undefined,
+    descending?: boolean | undefined,
+    offset?: number | undefined,
+    limit?: number | undefined
+  ) {
+    const queries = storageService.getSpaceQueries();
+    const queryName = getQuery();
+    return queries
+      .getResultSortedRowIds(queryName, sortBy, descending, offset, limit)
+      .map(rowId => {
+        const resultRow = queries.getResultRow(queryName, rowId) as T;
+        return rowMapper(resultRow, rowId);
+      });
+  }
 
   public updateTodaysStats(
     itemId: string,
@@ -37,7 +112,7 @@ class StatsService {
     });
   }
 
-  public getStats(
+  public buildStats(
     plain: string,
     content_meta: string
   ): Pick<

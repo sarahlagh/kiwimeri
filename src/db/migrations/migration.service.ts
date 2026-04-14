@@ -45,7 +45,7 @@ class MigrationService {
       func.default(space);
     }
 
-    if (from <= 330 && to >= 340) {
+    if (from <= 340 && to >= 350) {
       console.log('[space] 1 migration to run: stats backfill');
       const func = await import('./001-create-document-stats');
       func.default(space);

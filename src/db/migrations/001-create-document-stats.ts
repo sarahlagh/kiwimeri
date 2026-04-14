@@ -20,7 +20,7 @@ export default function Migration(space: Store<SpaceType>) {
       const version = versions[i];
       const plain = version.preview;
       const content_meta = version.snapshotJson.content_meta!;
-      const stats = statsService.getStats(plain, content_meta);
+      const stats = statsService.buildStats(plain, content_meta);
       statsService.updateTodaysStats(rowId, stats);
       statsService.updateGlobalStats(rowId, { lastOpened: stats.updatedAt! });
     }

@@ -48,6 +48,8 @@
     "react-router": "^5.3.4",
     "react-router-dom": "^5.3.4",
     "tinybase": "^7.3.0",
+    "uplot": "^1.6.32",
+    "uplot-react": "^1.2.4",
     "zod": "^4.0.14"
   },
   "devDependencies": {

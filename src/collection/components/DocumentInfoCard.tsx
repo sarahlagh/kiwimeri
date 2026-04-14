@@ -1,6 +1,7 @@
 import BottomSheet from '@/common/containers/BottomSheet';
 import { dateToStr } from '@/common/date-utils';
 import collectionService from '@/db/collection.service';
+import ChartContainer from '@/stats/components/ChartContainer';
 import {
   IonItem,
   IonLabel,
@@ -10,6 +11,7 @@ import {
 } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 import { useState } from 'react';
+import { CollectionItem } from '../collection';
 
 type DocumentInfoCardProps = {
   id: string;
@@ -17,8 +19,31 @@ type DocumentInfoCardProps = {
 
 type Tab = 'general' | 'stats';
 
+const DocumentGeneralInfo = ({ item }: { item: CollectionItem }) => {
+  return (
+    <IonList>
+      <IonItem>
+        <IonLabel>
+          <Trans>Created at</Trans>
+        </IonLabel>
+        <IonLabel slot="end" style={{ maxWidth: '160px', textAlign: 'end' }}>
+          {dateToStr('relative', item.created)}
+        </IonLabel>
+      </IonItem>
+      <IonItem>
+        <IonLabel>
+          <Trans>Updated at</Trans>
+        </IonLabel>
+        <IonLabel slot="end" style={{ maxWidth: '160px', textAlign: 'end' }}>
+          {dateToStr('relative', item.updated)}
+        </IonLabel>
+      </IonItem>
+    </IonList>
+  );
+};
+
 const DocumentInfoCard = ({ id }: DocumentInfoCardProps) => {
-  const [display, setDisplay] = useState<Tab>('general');
+  const [display, setDisplay] = useState<Tab>('stats');
   const item = collectionService.getItem(id);
 
   return (
@@ -39,33 +64,8 @@ const DocumentInfoCard = ({ id }: DocumentInfoCardProps) => {
         </IonSegmentButton>
       </IonSegment>
 
-      {display === 'general' && (
-        <IonList>
-          <IonItem>
-            <IonLabel>
-              <Trans>Created at</Trans>
-            </IonLabel>
-            <IonLabel
-              slot="end"
-              style={{ maxWidth: '160px', textAlign: 'end' }}
-            >
-              {dateToStr('relative', item.created)}
-            </IonLabel>
-          </IonItem>
-          <IonItem>
-            <IonLabel>
-              <Trans>Updated at</Trans>
-            </IonLabel>
-            <IonLabel
-              slot="end"
-              style={{ maxWidth: '160px', textAlign: 'end' }}
-            >
-              {dateToStr('relative', item.updated)}
-            </IonLabel>
-          </IonItem>
-        </IonList>
-      )}
-      {display === 'stats' && <IonLabel>stats</IonLabel>}
+      {display === 'general' && <DocumentGeneralInfo item={item} />}
+      {display === 'stats' && <ChartContainer id={id} />}
     </BottomSheet>
   );
 };
