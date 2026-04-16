@@ -65,7 +65,8 @@ const defaultValues: SpaceValues = {
   historyMaxInterval: 300000,
   maxHistoryPerDoc: 50,
   lastUpdated: Date.now(),
-  schemaVersion: ''
+  schemaVersion: '',
+  statsEnabled: false
 };
 
 const reInitRemoteData = async (
@@ -2257,7 +2258,8 @@ describe('sync service', () => {
           sort: {
             by: 'created',
             descending: false
-          }
+          },
+          statsEnabled: false
         });
 
         await syncService_pull();
@@ -2266,7 +2268,8 @@ describe('sync service', () => {
           sort: {
             by: 'order',
             descending: true
-          }
+          },
+          statsEnabled: false
         });
       });
 
@@ -2275,6 +2278,7 @@ describe('sync service', () => {
           ...defaultValues,
           defaultSortBy: 'order',
           defaultSortDesc: true,
+          statsEnabled: false,
           lastUpdated: Date.now()
         });
 
@@ -2283,7 +2287,8 @@ describe('sync service', () => {
           sort: {
             by: 'updated',
             descending: false
-          }
+          },
+          statsEnabled: true
         });
 
         await syncService_pull();
@@ -2292,7 +2297,8 @@ describe('sync service', () => {
           sort: {
             by: 'updated',
             descending: false
-          }
+          },
+          statsEnabled: true
         });
       });
 
@@ -2301,6 +2307,7 @@ describe('sync service', () => {
           ...defaultValues,
           defaultSortBy: 'order',
           defaultSortDesc: true,
+          statsEnabled: false,
           lastUpdated: Date.now()
         });
 
@@ -2309,7 +2316,8 @@ describe('sync service', () => {
           sort: {
             by: 'updated',
             descending: false
-          }
+          },
+          statsEnabled: true
         });
 
         await syncService_pull(true);
@@ -2318,7 +2326,8 @@ describe('sync service', () => {
           sort: {
             by: 'order',
             descending: true
-          }
+          },
+          statsEnabled: false
         });
       });
 
@@ -2327,6 +2336,7 @@ describe('sync service', () => {
           ...defaultValues,
           defaultSortBy: 'order',
           defaultSortDesc: true,
+          statsEnabled: false,
           lastUpdated: Date.now()
         });
 
@@ -2335,7 +2345,8 @@ describe('sync service', () => {
           sort: {
             by: 'updated',
             descending: false
-          }
+          },
+          statsEnabled: true
         });
         await syncService_push();
 
@@ -2344,6 +2355,7 @@ describe('sync service', () => {
           ...defaultValues,
           defaultSortBy: 'updated',
           defaultSortDesc: false,
+          statsEnabled: true,
           lastUpdated: storageService.getSpace().getValue('lastUpdated')
         });
       });
@@ -2353,7 +2365,8 @@ describe('sync service', () => {
           sort: {
             by: 'updated',
             descending: false
-          }
+          },
+          statsEnabled: true
         });
         vi.advanceTimersByTime(fakeTimersDelay);
 
@@ -2362,6 +2375,7 @@ describe('sync service', () => {
           ...defaultValues,
           defaultSortBy: 'order',
           defaultSortDesc: true,
+          statsEnabled: false,
           lastUpdated: pushTime
         });
 
@@ -2372,6 +2386,7 @@ describe('sync service', () => {
           ...defaultValues,
           defaultSortBy: 'order',
           defaultSortDesc: true,
+          statsEnabled: false,
           lastUpdated: pushTime
         });
       });
@@ -2382,7 +2397,8 @@ describe('sync service', () => {
           sort: {
             by: 'updated',
             descending: false
-          }
+          },
+          statsEnabled: true
         });
         vi.advanceTimersByTime(fakeTimersDelay);
 
@@ -2390,6 +2406,7 @@ describe('sync service', () => {
           ...defaultValues,
           defaultSortBy: 'order',
           defaultSortDesc: true,
+          statsEnabled: false,
           lastUpdated: Date.now()
         });
 
@@ -2400,6 +2417,7 @@ describe('sync service', () => {
           ...defaultValues,
           defaultSortBy: 'updated',
           defaultSortDesc: false,
+          statsEnabled: true,
           lastUpdated: localTime
         });
       });

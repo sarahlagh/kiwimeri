@@ -43,28 +43,33 @@ const DocumentGeneralInfo = ({ id }: { id: string }) => {
 };
 
 const DocumentInfoCard = ({ id }: DocumentInfoCardProps) => {
-  const [display, setDisplay] = useState<Tab>('stats');
+  const [display, setDisplay] = useState<Tab>('general');
+  const parent = collectionService.getItemParent(id);
+  const statsEnabled =
+    collectionService.getItemEffectiveDisplayOpts(parent).statsEnabled;
   const ChartContainer = lazy(
     () => import('@/stats/components/ChartContainer')
   );
 
   return (
     <BottomSheet>
-      <IonSegment
-        value={display}
-        onIonChange={e => setDisplay(e.detail.value as Tab)}
-      >
-        <IonSegmentButton value="general">
-          <IonLabel>
-            <Trans>General</Trans>
-          </IonLabel>
-        </IonSegmentButton>
-        <IonSegmentButton value="stats">
-          <IonLabel>
-            <Trans>Stats</Trans>
-          </IonLabel>
-        </IonSegmentButton>
-      </IonSegment>
+      {statsEnabled && (
+        <IonSegment
+          value={display}
+          onIonChange={e => setDisplay(e.detail.value as Tab)}
+        >
+          <IonSegmentButton value="general">
+            <IonLabel>
+              <Trans>General</Trans>
+            </IonLabel>
+          </IonSegmentButton>
+          <IonSegmentButton value="stats">
+            <IonLabel>
+              <Trans>Stats</Trans>
+            </IonLabel>
+          </IonSegmentButton>
+        </IonSegment>
+      )}
 
       {display === 'general' && <DocumentGeneralInfo id={id} />}
       {display === 'stats' && (

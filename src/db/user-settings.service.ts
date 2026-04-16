@@ -83,6 +83,10 @@ class UserSettingsService {
     if (!space) {
       space = storageService.getSpaceId();
     }
+    const statsEnabled = storageService
+      .getSpace()
+      .getValue('statsEnabled')
+      .valueOf();
     const by = storageService
       .getSpace()
       .getValue('defaultSortBy') as CollectionItemSortType;
@@ -94,7 +98,8 @@ class UserSettingsService {
       sort: {
         by,
         descending
-      }
+      },
+      statsEnabled
     };
   }
 
@@ -102,6 +107,10 @@ class UserSettingsService {
     if (!space) {
       space = storageService.getSpaceId();
     }
+    const statsEnabled = useValueWithRef(
+      this.spaceId,
+      'statsEnabled'
+    ) as boolean;
     const by = useValueWithRef(
       this.spaceId,
       'defaultSortBy'
@@ -114,7 +123,8 @@ class UserSettingsService {
       sort: {
         by,
         descending
-      }
+      },
+      statsEnabled
     };
   }
 
@@ -130,6 +140,9 @@ class UserSettingsService {
       storageService
         .getSpace()
         .setValue('defaultSortDesc', newDisplayOpts.sort.descending);
+      storageService
+        .getSpace()
+        .setValue('statsEnabled', newDisplayOpts.statsEnabled);
     });
   }
 

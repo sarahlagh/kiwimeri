@@ -23,7 +23,8 @@ const defaultValues: SpaceValues = {
   historyMaxInterval: 300000,
   maxHistoryPerDoc: 50,
   lastUpdated: Date.now(),
-  schemaVersion: ''
+  schemaVersion: '',
+  statsEnabled: false
 };
 
 export const testSyncBeforeEach = async () => {

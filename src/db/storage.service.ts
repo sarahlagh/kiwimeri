@@ -84,6 +84,7 @@ class StorageService {
           message: { type: 'string' } as CellSchema
         },
         search: {
+          // rowId = itemId
           breadcrumb: { type: 'string' } as CellSchema,
           contentPreview: { type: 'string' } as CellSchema
         },
@@ -218,7 +219,8 @@ class StorageService {
         historyIdleTime: { type: 'number', default: 15000 },
         historyMaxInterval: { type: 'number', default: 300000 },
         maxHistoryPerDoc: { type: 'number', default: 50 },
-        schemaVersion: { type: 'string', default: '' }
+        schemaVersion: { type: 'string', default: '' },
+        statsEnabled: { type: 'boolean', default: false }
       });
   }
 

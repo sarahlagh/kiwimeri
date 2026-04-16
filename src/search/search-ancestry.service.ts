@@ -7,6 +7,7 @@ import {
 } from '@/collection/collection';
 import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
 import { DEFAULT_SPACE_ID, ROOT_COLLECTION } from '@/constants';
+import collectionService from '@/db/collection.service';
 import { useCellWithRef } from '@/db/tinybase/hooks';
 import formatConverter from '@/format-conversion/format-converter.service';
 import { statsService } from '@/stats/stats-service';
@@ -240,11 +241,15 @@ class CollectionSearchService {
       // preview
       const plain = this.getUnsavedItemPreview(table[rowId] as CollectionItem);
       store.setCell('search', rowId, 'contentPreview', plain);
-      // stats
-      statsService.updateTodaysStats(
-        rowId,
-        statsService.buildStats(plain, table[rowId].content_meta!.toString())
-      );
+
+      const parent = table[rowId].parent as string;
+      if (collectionService.getItemEffectiveDisplayOpts(parent).statsEnabled) {
+        // stats
+        statsService.updateTodaysStats(
+          rowId,
+          statsService.buildStats(plain, table[rowId].content_meta!.toString())
+        );
+      }
     }
   }
 

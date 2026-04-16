@@ -45,11 +45,17 @@ const GenericCollectionSettings = ({
           type: 'boolean',
           if: state => state.sort_by === 'order'
         },
+        {
+          key: 'stats_enabled',
+          label: t`Track text statistics`,
+          type: 'boolean'
+        },
         ...withRows
       ]}
       initialState={{
         sort_by: defaultDisplayOpts.sort.by,
         sort_descending: defaultDisplayOpts.sort.descending,
+        stats_enabled: defaultDisplayOpts.statsEnabled,
         ...withInitialState
       }}
       onChange={(key, val) => {
@@ -63,6 +69,9 @@ const GenericCollectionSettings = ({
             newDisplayOpts.sort.descending = val as boolean;
             onDefaultDisplayOptsChange(newDisplayOpts);
             break;
+          case 'stats_enabled':
+            newDisplayOpts.statsEnabled = val as boolean;
+            onDefaultDisplayOptsChange(newDisplayOpts);
         }
         if (withOnChange) withOnChange(key, val);
       }}

@@ -60,6 +60,7 @@ export type CollectionItemSort = {
 
 export interface CollectionItemDisplayOpts {
   sort: CollectionItemSort;
+  statsEnabled: boolean; // TODO not the right place for this, but pending code reorga
 }
 
 export type CollectionItemFieldEnum = keyof Required<

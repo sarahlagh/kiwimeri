@@ -245,7 +245,7 @@ msgstr "File not supported"
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/collection/components/DocumentInfoCard.tsx:59
+#: src/collection/components/DocumentInfoCard.tsx:63
 msgid "General"
 msgstr "General"
 
@@ -532,7 +532,7 @@ msgstr "Space Settings"
 msgid "Start Writing"
 msgstr "Start Writing"
 
-#: src/collection/components/DocumentInfoCard.tsx:64
+#: src/collection/components/DocumentInfoCard.tsx:68
 msgid "Stats"
 msgstr "Stats"
 
@@ -590,6 +590,10 @@ msgstr "Timed Writing"
 #: src/app/pages/WritingSessionPage.tsx:19
 msgid "Timed Writing Session"
 msgstr "Timed Writing Session"
+
+#: src/settings/components/sections/GenericCollectionSettings.tsx:50
+msgid "Track text statistics"
+msgstr "Track text statistics"
 
 #: src/collection/components/DocumentInfoCard.tsx:35
 msgid "Updated at"

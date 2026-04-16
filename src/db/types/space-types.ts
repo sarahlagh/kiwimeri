@@ -42,6 +42,7 @@ export type SpaceType = [
     historyMaxInterval: { type: 'number'; default: number };
     maxHistoryPerDoc: { type: 'number'; default: number };
     schemaVersion: { type: 'string'; default: string };
+    statsEnabled: { type: 'boolean'; default: false };
   }
 ];
 

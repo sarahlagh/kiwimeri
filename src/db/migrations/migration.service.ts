@@ -44,12 +44,6 @@ class MigrationService {
       const func = await import('./000-create-document-versions');
       func.default(space);
     }
-
-    if (from <= 340 && to >= 350) {
-      console.log('[space] 1 migration to run: stats backfill');
-      const func = await import('./001-create-document-stats');
-      func.default(space);
-    }
   }
 
   private getVersionCode(version: string): number {
