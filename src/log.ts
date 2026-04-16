@@ -22,6 +22,8 @@ export type AppLogResult = Required<AppLog> & {
   longLevelName: AppLogLevel;
 };
 
+const MAX_STRING_LENGTH = 10000; // max length for a single arg
+
 class AppLogService {
   private readonly storeId = 'store';
   private readonly table = 'logs';
@@ -134,6 +136,10 @@ class AppLogService {
       if (t === 'symbol') return val.toString();
       if (t === 'function') return `[Function ${val.name || 'anonymous'}]`;
 
+      if (this.isDangerousObject(val)) {
+        return `[${val.constructor?.name || 'Object'} - too large to serialize]`;
+      }
+
       if (val instanceof Error) {
         const base: Record<string, any> = {
           name: val.name,
@@ -166,7 +172,14 @@ class AppLogService {
     };
 
     try {
-      return JSON.stringify(value, replacer);
+      const result = JSON.stringify(value, replacer);
+
+      // Safety check: if result is too large, truncate it
+      if (result.length > MAX_STRING_LENGTH) {
+        return result.substring(0, MAX_STRING_LENGTH) + '...[truncated]';
+      }
+
+      return result;
     } catch {
       return '[unable to stringify argument]';
     }
@@ -184,6 +197,58 @@ class AppLogService {
       return message;
     }
     return this.jsonStringify(message);
+  }
+
+  private isDangerousObject(val: any): boolean {
+    if (!val || typeof val !== 'object') return false;
+
+    // DOM/Browser elements and nodes
+    if (
+      val instanceof Node ||
+      val instanceof Element ||
+      val instanceof Document ||
+      val instanceof Window
+    ) {
+      return true;
+    }
+
+    // Canvas and graphics contexts
+    if (
+      val instanceof CanvasRenderingContext2D ||
+      val instanceof WebGLRenderingContext ||
+      val instanceof ImageData ||
+      val instanceof OffscreenCanvas
+    ) {
+      return true;
+    }
+
+    // Ionic/React DOM references
+    if (
+      val instanceof HTMLElement ||
+      val instanceof HTMLDocument ||
+      val instanceof HTMLCollection ||
+      val instanceof NodeList
+    ) {
+      return true;
+    }
+
+    // Large typed arrays (image data, audio buffers, etc.)
+    if (ArrayBuffer.isView(val) && val.byteLength > 10000) {
+      return true;
+    }
+
+    // File/Blob objects (can be large)
+    if (val instanceof File || val instanceof Blob) {
+      return true;
+    }
+
+    // Large objects by property count
+    const keys = Object.keys(val).length;
+    if (keys > 1000) {
+      return true;
+    }
+
+    return false;
   }
 
   public printLogs(filters?: AppLogLevel[]) {
