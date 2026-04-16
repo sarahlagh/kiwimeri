@@ -1,4 +1,4 @@
-import userSettingsService, { Theme } from '@/db/user-settings.service';
+import userSettingsService from '@/db/user-settings.service';
 import { IonSelect, IonSelectOption } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
 import { useEffect, useRef, useState } from 'react';
@@ -12,25 +12,12 @@ type ChartContainerProps = {
   id: string;
 };
 
-const COLORS: {
-  [key in Theme]: { TIME_SERIE_COLOR: string };
-} = {
-  light: {
-    TIME_SERIE_COLOR: '0,84,233'
-  },
-  dark: {
-    TIME_SERIE_COLOR: '77,141,255'
-  }
-};
-
 const ChartContainer = ({ id }: ChartContainerProps) => {
   const { t } = useLingui();
   const theme = userSettingsService.useTheme();
   const [stats, setStats] = useState<DataPoint[]>();
   const [statKey, setStatKey] = useState<TrackedStats>('lastWordCount');
   const [size, setSize] = useState<{ width: number; height: number }>();
-  const width = 10;
-  const height = 10;
 
   // attach fake stats to a real item so i can test normalization
   // const fakeStats = buildFake();
@@ -63,28 +50,28 @@ const ChartContainer = ({ id }: ChartContainerProps) => {
     [key in TrackedStats]: {
       key: string;
       label: string;
-      rgb?: string | undefined;
+      yUnit?: string | undefined;
     };
   } = {
     lastWordCount: {
       key: 'lastWordCount',
       label: t`Word Count`,
-      rgb: COLORS[theme].TIME_SERIE_COLOR
+      yUnit: t`words`
     },
     lastCharCount: {
       key: 'lastCharCount',
       label: t`Character Count`,
-      rgb: COLORS[theme].TIME_SERIE_COLOR
+      yUnit: t`characters`
     },
     maxWordCount: {
       key: 'maxWordCount',
       label: t`Word Count (Max)`,
-      rgb: COLORS[theme].TIME_SERIE_COLOR
+      yUnit: t`words`
     },
     maxCharCount: {
       key: 'maxCharCount',
       label: t`Character Count (Max)`,
-      rgb: COLORS[theme].TIME_SERIE_COLOR
+      yUnit: t`characters`
     }
   };
   // TODO if too recent, labels not right (4/1)

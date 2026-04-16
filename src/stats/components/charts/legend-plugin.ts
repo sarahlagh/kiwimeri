@@ -1,73 +1,75 @@
 import { dateToStr } from '@/common/date-utils';
+import uPlot, { Series } from 'uplot';
 
-export function legendPlugin() {
-  let seriestt;
+function isDefined(n: number | null | undefined): n is number {
+  return n !== null && n !== undefined;
+}
 
-  function hideTips() {
-    seriestt.forEach((tt, i) => {
-      if (i == 0) return;
-      tt.style.display = 'none';
-    });
-  }
+type PluginOptions = {
+  tooltipColor?: string;
+  tooltipBackground?: string;
+  yUnits?: string[];
+};
 
-  function init(u, opts, data) {
-    let over = u.over;
+export function legendPlugin({
+  tooltipColor,
+  tooltipBackground,
+  yUnits
+}: PluginOptions) {
+  let ySeries: Series[];
+  let tooltipElements: HTMLDivElement[];
+  let xMiddle: number;
+
+  function init(u: uPlot, opts: uPlot.Options, data: uPlot.AlignedData) {
+    const over = u.over;
     over.style.cursor = 'pointer';
 
-    seriestt = opts.series.map((s, i) => {
-      if (i == 0) return;
+    ySeries = u.series.toSpliced(0, 1); // removes the first, which is the x serie
 
-      let tt = document.createElement('div');
-      tt.className = 'tooltip';
-      tt.textContent = 'Tooltip!';
+    // assumes data is already sorted - if becomes a problem, might switch to u.data on setLegend
+    const xMin = data[0][0];
+    const xMax = data[0][data[0].length - 1];
+    xMiddle = (xMax - xMin) / 2 + xMin;
+
+    tooltipElements = ySeries.map(s => {
+      const tt = document.createElement('div');
+      tt.className = 'custom-tooltip';
       tt.style.pointerEvents = 'none';
       tt.style.position = 'absolute';
-      tt.style.background = 'rgba(0,0,0,0.1)';
-      tt.style.color = s.color;
+      tt.style.color = tooltipColor || 'var(--ion-color-light)';
+      tt.style.background = tooltipBackground || 'var(--ion-color-dark)';
+      tt.style.display = s.show ? 'block' : 'none';
       over.appendChild(tt);
       return tt;
     });
-
-    function showTips() {
-      // cursortt.style.display = null;
-      seriestt.forEach((tt, i) => {
-        if (i == 0) return;
-
-        let s = u.series[i];
-        tt.style.display = s.show ? null : 'none';
-      });
-    }
-
-    over.addEventListener('click', () => {
-      // console.debug('click');
-      // showTips()
-    });
-    showTips();
   }
 
-  function setLegend(u) {
+  function setLegend(u: uPlot) {
     const { idx } = u.cursor;
-    if (idx === null) {
-      hideTips();
+    if (!isDefined(idx)) {
+      // out of the canvas, hide all
+      tooltipElements.forEach(tt => {
+        tt.style.display = 'none';
+      });
       return;
     }
 
-    // can optimize further by not applying styles if idx did not change
-    seriestt.forEach((tt, i) => {
-      if (i == 0) return;
+    tooltipElements.forEach((tt, i) => {
+      const s = ySeries[i];
+      if (!s.show) return;
 
-      let s = u.series[i];
+      const xVal = u.data[0][idx];
+      const yVal = u.data[i + 1][idx]; // i + 1 because tooltipElements has 1 element less (the x serie)
+      if (!isDefined(yVal) || !s.scale) return;
 
-      if (s.show) {
-        const xVal = u.data[0][idx];
-        const yVal = u.data[i][idx];
+      const yUnit = yUnits ? yUnits[i] : '';
+      tt.innerHTML = `${dateToStr('date-printable', xVal * 1000)} </br> ${yVal} ${yUnit}`;
 
-        tt.innerHTML = `${dateToStr('date-printable', xVal * 1000)} </br> ${yVal}`;
-
-        tt.style.left = Math.round(u.valToPos(xVal, 'x')) + 'px';
-        tt.style.top = Math.round(u.valToPos(yVal, s.scale)) + 'px';
-        tt.style.display = null;
-      }
+      // position tooltip to the left or right of the cursor
+      const xOffset = xVal <= xMiddle ? 0 : tt.clientWidth;
+      tt.style.left = Math.round(u.valToPos(xVal, 'x')) - xOffset + 'px';
+      tt.style.top = Math.round(u.valToPos(yVal, s.scale)) + 'px';
+      tt.style.display = 'block';
     });
   }
 
