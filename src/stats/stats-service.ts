@@ -1,9 +1,10 @@
 import { parseFieldMeta } from '@/collection/collection';
 import { dateToStr } from '@/common/date-utils';
 import { countWords, n00 } from '@/common/utils';
+import { DEFAULT_SPACE_ID } from '@/constants';
 import storageService from '@/db/storage.service';
 import { ResultRow } from 'tinybase/with-schemas';
-import { DataPoint } from './components/charts/TimeChart';
+import { DataPoint } from './components/data-point';
 import {
   DocumentContentStatsBag,
   DocumentDatedStat,
@@ -14,14 +15,24 @@ import {
 type StatsQueryResult = ResultRow &
   Required<Pick<DocumentStatRow, 'itemId' | 'date' | 'contentStatsJson'>>;
 
+export const trackedStats = [
+  'lastWordCount',
+  'maxWordCount',
+  'lastCharCount',
+  'maxCharCount'
+] as const;
+export type TrackedStats = (typeof trackedStats)[number];
+
+export type SampleMode = 'day' | 'month' | 'year' | 'lifetime';
+
 class StatsService {
   private timeZone = 'Europe/Paris';
 
-  private buildStatsQuery(itemId: string, space?: string) {
-    const queries = storageService.getSpaceQueries(space);
+  private buildStatsQuery(itemId: string, since: string = '') {
+    const queries = storageService.getSpaceQueries(DEFAULT_SPACE_ID);
     const queryName = 'GetStatsForItem';
     if (queries.hasQuery(queryName)) {
-      queries.setParamValues(queryName, { itemId });
+      queries.setParamValues(queryName, { itemId, since });
     } else {
       queries.setQueryDefinition(
         queryName,
@@ -31,9 +42,16 @@ class StatsService {
           select('date');
           select('contentStatsJson');
           where('itemId', param('itemId')!.toString());
-          where(getCell => getCell('date') !== undefined);
+          where(getCell => {
+            if (!getCell('date')) return false;
+            if (!param('since') || param('since')!.toString().length === 0)
+              return true;
+            const since = param('since')!.toString();
+            const date = getCell('date')!.toString();
+            return date >= since;
+          });
         },
-        { itemId }
+        { itemId, since }
       );
     }
     return queryName;
@@ -41,7 +59,7 @@ class StatsService {
 
   public getStatsForItem(itemId: string): DocumentDatedStat[] {
     return this.fromQuery<StatsQueryResult, DocumentDatedStat>(
-      () => this.buildStatsQuery(itemId),
+      this.buildStatsQuery(itemId),
       (resultRow, rowId) => ({
         id: rowId,
         itemId: resultRow.itemId,
@@ -55,7 +73,7 @@ class StatsService {
 
   public getDataPoints(itemId: string): DataPoint[] {
     return this.fromQuery<StatsQueryResult, DataPoint>(
-      () => this.buildStatsQuery(itemId),
+      this.buildStatsQuery(itemId),
       resultRow => ({
         date: resultRow.date,
         values: JSON.parse(
@@ -63,12 +81,12 @@ class StatsService {
         ) as DocumentContentStatsBag
       }),
       'date',
-      true
+      false
     );
   }
 
   private fromQuery<T, U>(
-    getQuery: () => string,
+    queryName: string,
     rowMapper: (row: T, rowId: string) => U,
     sortBy?: string | undefined,
     descending?: boolean | undefined,
@@ -76,7 +94,6 @@ class StatsService {
     limit?: number | undefined
   ) {
     const queries = storageService.getSpaceQueries();
-    const queryName = getQuery();
     return queries
       .getResultSortedRowIds(queryName, sortBy, descending, offset, limit)
       .map(rowId => {
@@ -104,7 +121,6 @@ class StatsService {
       mergedStats.maxWordCount = statsBag.lastWordCount;
     }
 
-    console.debug('set today stats', rowId, mergedStats);
     space.setPartialRow('stats', rowId, {
       itemId,
       date,
@@ -127,7 +143,6 @@ class StatsService {
 
   public updateGlobalStats(itemId: string, globalBag: DocumentGlobalStatsBag) {
     const rowId = itemId;
-    console.debug('set global stats', itemId, globalBag);
     storageService.getSpace().setPartialRow('stats', rowId, {
       itemId,
       ...globalBag

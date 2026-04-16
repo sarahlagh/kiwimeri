@@ -17,7 +17,6 @@ msgstr ""
 msgid " (new)"
 msgstr " (new)"
 
-#. placeholder {0}: showFilters ? 'Hide' : 'Show'
 #: src/dev-tools/components/LogsCard.tsx:132
 msgid "{0} Filters"
 msgstr "{0} Filters"
@@ -61,6 +60,14 @@ msgstr "Are you sure?"
 #: src/common/modals/ConfirmYesNoDialog.tsx:28
 msgid "Cancel"
 msgstr "Cancel"
+
+#: src/stats/components/ChartContainer.tsx:76
+msgid "Character Count"
+msgstr "Character Count"
+
+#: src/stats/components/ChartContainer.tsx:86
+msgid "Character Count (Max)"
+msgstr "Character Count (Max)"
 
 #: src/common/modals/ChooseFolderModal.tsx:69
 msgid "Choose"
@@ -121,7 +128,7 @@ msgstr "Confirm"
 msgid "Conflicts"
 msgstr "Conflicts"
 
-#: src/collection/components/DocumentInfoCard.tsx:46
+#: src/collection/components/DocumentInfoCard.tsx:27
 msgid "Created at"
 msgstr "Created at"
 
@@ -233,7 +240,7 @@ msgstr "File not supported"
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/collection/components/DocumentInfoCard.tsx:32
+#: src/collection/components/DocumentInfoCard.tsx:59
 msgid "General"
 msgstr "General"
 
@@ -249,12 +256,10 @@ msgstr "History save time (min)"
 msgid "Home"
 msgstr "Home"
 
-#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:112
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
-#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:105
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
@@ -307,12 +312,10 @@ msgstr "Link"
 msgid "Loading..."
 msgstr "Loading..."
 
-#. placeholder {0}: localChanges.length
 #: src/synchronization/components/LocalChangesCard.tsx:38
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
-#. placeholder {0}: dateToStr('datetime', lastLocalChange)
 #: src/synchronization/components/LocalChangesCard.tsx:44
 msgid "Local: {0}"
 msgstr "Local: {0}"
@@ -454,7 +457,6 @@ msgstr "Remember last route"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
-#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
 #: src/synchronization/components/LocalChangesCard.tsx:51
 msgid "Remote: {0}"
 msgstr "Remote: {0}"
@@ -525,7 +527,7 @@ msgstr "Space Settings"
 msgid "Start Writing"
 msgstr "Start Writing"
 
-#: src/collection/components/DocumentInfoCard.tsx:37
+#: src/collection/components/DocumentInfoCard.tsx:64
 msgid "Stats"
 msgstr "Stats"
 
@@ -584,7 +586,7 @@ msgstr "Timed Writing"
 msgid "Timed Writing Session"
 msgstr "Timed Writing Session"
 
-#: src/collection/components/DocumentInfoCard.tsx:57
+#: src/collection/components/DocumentInfoCard.tsx:35
 msgid "Updated at"
 msgstr "Updated at"
 
@@ -608,6 +610,14 @@ msgstr "When working on a document, a new version will be automatically at least
 #: src/settings/components/sections/CurrentSpaceSettings.tsx:51
 msgid "When working on a document, a new version will be automatically if idle after XX seconds"
 msgstr "When working on a document, a new version will be automatically if idle after XX seconds"
+
+#: src/stats/components/ChartContainer.tsx:71
+msgid "Word Count"
+msgstr "Word Count"
+
+#: src/stats/components/ChartContainer.tsx:81
+msgid "Word Count (Max)"
+msgstr "Word Count (Max)"
 
 #: src/collection/components/WordCount.tsx:22
 msgid "words"

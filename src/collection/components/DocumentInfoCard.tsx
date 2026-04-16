@@ -1,7 +1,7 @@
+import Loading from '@/app/components/Loading';
 import BottomSheet from '@/common/containers/BottomSheet';
 import { dateToStr } from '@/common/date-utils';
 import collectionService from '@/db/collection.service';
-import ChartContainer from '@/stats/components/ChartContainer';
 import {
   IonItem,
   IonLabel,
@@ -10,8 +10,7 @@ import {
   IonSegmentButton
 } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
-import { useState } from 'react';
-import { CollectionItem } from '../collection';
+import { lazy, Suspense, useState } from 'react';
 
 type DocumentInfoCardProps = {
   id: string;
@@ -19,7 +18,8 @@ type DocumentInfoCardProps = {
 
 type Tab = 'general' | 'stats';
 
-const DocumentGeneralInfo = ({ item }: { item: CollectionItem }) => {
+const DocumentGeneralInfo = ({ id }: { id: string }) => {
+  const item = collectionService.getItem(id);
   return (
     <IonList>
       <IonItem>
@@ -44,7 +44,9 @@ const DocumentGeneralInfo = ({ item }: { item: CollectionItem }) => {
 
 const DocumentInfoCard = ({ id }: DocumentInfoCardProps) => {
   const [display, setDisplay] = useState<Tab>('stats');
-  const item = collectionService.getItem(id);
+  const ChartContainer = lazy(
+    () => import('@/stats/components/ChartContainer')
+  );
 
   return (
     <BottomSheet>
@@ -64,8 +66,12 @@ const DocumentInfoCard = ({ id }: DocumentInfoCardProps) => {
         </IonSegmentButton>
       </IonSegment>
 
-      {display === 'general' && <DocumentGeneralInfo item={item} />}
-      {display === 'stats' && <ChartContainer id={id} />}
+      {display === 'general' && <DocumentGeneralInfo id={id} />}
+      {display === 'stats' && (
+        <Suspense fallback={<Loading />}>
+          <ChartContainer id={id} />
+        </Suspense>
+      )}
     </BottomSheet>
   );
 };

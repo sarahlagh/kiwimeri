@@ -6,7 +6,7 @@ import { SearchOptions, searchService } from '@/search/search.service';
 import { createHeadlessEditor } from '@lexical/headless';
 import { readFile } from 'fs/promises';
 import { LexicalEditor, TextNode } from 'lexical';
-import { assert, describe } from 'vitest';
+import { assert, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 const docId = 'iFOR0KVPomZFm4bf';
 const docId2 = 'o3LTPA6vAffIZctP';

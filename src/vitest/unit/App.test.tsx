@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react';
+import { expect, test } from 'vitest';
 import App from '../../App';
 import { TestingProvider } from '../setup/test.react.utils';
 

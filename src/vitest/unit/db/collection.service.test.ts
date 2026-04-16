@@ -3,7 +3,8 @@ import {
   CollectionItemResult,
   CollectionItemSort,
   CollectionItemType,
-  parseFieldMeta
+  parseFieldMeta,
+  setFieldMeta
 } from '@/collection/collection';
 import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
 import {
@@ -17,7 +18,7 @@ import { defaultOrder } from '@/db/types/space-types';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { renderHook } from '@testing-library/react';
 import { act } from 'react';
-import { it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   BROWSABLE_ITEM_TYPES,
   fakeTimersDelay,
@@ -686,6 +687,7 @@ describe('collection service', () => {
       item1.title = 'r1';
       item1.order = 2;
       collectionService.setUnsavedItemLexicalContent(item1, shortContent);
+      item1.content_meta = setFieldMeta('', Date.now());
       vi.advanceTimersByTime(fakeTimersDelay);
       collectionService.saveItem(item1, i1);
       const { id: i2, item: item2 } =
@@ -694,6 +696,7 @@ describe('collection service', () => {
       item2.title = 'r2';
       item2.order = 3;
       collectionService.setUnsavedItemLexicalContent(item2, loremIpsum);
+      item2.content_meta = setFieldMeta('', Date.now());
       vi.advanceTimersByTime(fakeTimersDelay);
       collectionService.saveItem(item2, i2);
       const { id: i3, item: item3 } =
@@ -702,6 +705,7 @@ describe('collection service', () => {
       item3.title = 'r3';
       item3.order = 1;
       item3.content = minimizeContentForStorage(shortContent);
+      item3.content_meta = setFieldMeta('', Date.now());
       collectionService.setUnsavedItemLexicalContent(item3, shortContent);
       vi.advanceTimersByTime(fakeTimersDelay);
       collectionService.saveItem(item3, i3);

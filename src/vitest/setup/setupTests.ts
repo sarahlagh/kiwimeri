@@ -14,6 +14,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { historyService } from '@/db/collection-history.service';
 import { migrationService } from '@/db/migrations/migration.service';
 import '@/polyfills/log-polyfill';
+import { afterAll, afterEach, beforeAll, beforeEach, expect } from 'vitest';
 
 // Mock matchmedia
 window.matchMedia =

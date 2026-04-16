@@ -3,14 +3,8 @@ import { useMemo } from 'react';
 import { AlignedData } from 'uplot';
 import UplotReact from 'uplot-react';
 import 'uplot/dist/uPlot.min.css';
+import { DataPoint } from '../data-point';
 import { legendPlugin } from './legend-plugin';
-
-export type DataPoint = {
-  date: string; // 2026-06-01
-  values: {
-    [key: string]: number;
-  };
-};
 
 const defaultRgb = '0,0,255';
 
@@ -62,7 +56,6 @@ const TimeChart = ({
       axes: [
         {
           stroke: COLORS[theme].AXE_COLOR,
-          label: 'time',
           grid: {
             stroke: COLORS[theme].GRID_COLOR,
             show: showGrid
@@ -94,7 +87,6 @@ const TimeChart = ({
       options.axes!.push({
         scale: `${i}`,
         stroke: COLORS[theme].AXE_COLOR,
-        label: serie.label,
         side: i % 2 ? UPLOT_RIGHT : UPLOT_LEFT,
         grid: {
           stroke: COLORS[theme].GRID_COLOR,
@@ -105,7 +97,7 @@ const TimeChart = ({
 
     const data = [timestamps, ...values];
     return { options, data };
-  }, [rawData]);
+  }, [rawData, series]);
 
   return <UplotReact data={data as AlignedData} options={options} />;
 };

@@ -5,8 +5,12 @@
 
   ion-card-content {
     padding: 0 8px;
+    height: calc(100% - 22px);
+    display: flex;
+    flex-direction: column;
   }
   .expand-bar {
+    height: 22px;
     cursor: pointer;
     display: flex;
     flex-direction: row-reverse;
