@@ -1,5 +1,6 @@
 import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
 import { INITIAL_CONTENT_START, initialContent } from '@/db/collection.service';
+import userSettingsService from '@/db/user-settings.service';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   createEmptyHistoryState,
@@ -53,6 +54,7 @@ export default function ReloadContentPlugin({
     queueMicrotask(() => {
       editor.setEditorState(newState, { tag: RELOAD_TAG });
 
+      if (!userSettingsService.getResumeLastSelection()) return;
       requestAnimationFrame(() => {
         if (cancelled) return;
 

@@ -250,11 +250,11 @@ msgstr "Filesystem"
 msgid "General"
 msgstr "General"
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:58
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:65
 msgid "History idle time (s)"
 msgstr "History idle time (s)"
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:64
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:71
 msgid "History save time (min)"
 msgstr "History save time (min)"
 
@@ -419,11 +419,11 @@ msgstr "Notebook Selection"
 msgid "Notebooks found in the archive, they will be converted to folders"
 msgstr "Notebooks found in the archive, they will be converted to folders"
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:70
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:77
 msgid "Number of versions"
 msgstr "Number of versions"
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:29
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:31
 msgid "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 msgstr "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 
@@ -459,7 +459,7 @@ msgstr "PCloud Configuration"
 msgid "Pick a directory for your backups"
 msgstr "Pick a directory for your backups"
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:52
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:54
 msgid "Remember last route"
 msgstr "Remember last route"
 
@@ -497,6 +497,10 @@ msgstr "Save"
 msgid "Save your work"
 msgstr "Save your work"
 
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:60
+msgid "Scroll to the last position in document"
+msgstr "Scroll to the last position in document"
+
 #: src/common/buttons/DeepSearchButton.tsx:157
 msgid "Search Content"
 msgstr "Search Content"
@@ -530,7 +534,7 @@ msgstr "Sort items by..."
 msgid "space option modified"
 msgstr "space option modified"
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:26
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:28
 msgid "Space Settings"
 msgstr "Space Settings"
 
@@ -573,7 +577,7 @@ msgstr "Text..."
 msgid "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 msgstr "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:71
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:78
 msgid "The number of versions to keep per document. Set 0 for unlimited."
 msgstr "The number of versions to keep per document. Set 0 for unlimited."
 
@@ -614,15 +618,15 @@ msgstr "US"
 msgid "Username"
 msgstr "Username"
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:53
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:55
 msgid "When enabled, when you open the app you will be redirected to the last document you were working on instead of the root of the current space."
 msgstr "When enabled, when you open the app you will be redirected to the last document you were working on instead of the root of the current space."
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:65
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:72
 msgid "When working on a document, a new version will be automatically at least every XX minutes"
 msgstr "When working on a document, a new version will be automatically at least every XX minutes"
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:59
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:66
 msgid "When working on a document, a new version will be automatically if idle after XX seconds"
 msgstr "When working on a document, a new version will be automatically if idle after XX seconds"
 

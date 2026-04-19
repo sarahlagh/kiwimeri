@@ -209,6 +209,18 @@ class UserSettingsService {
   public setHistoryMaxVersions(value: number, space?: string) {
     storageService.getSpace(space).setValue('maxHistoryPerDoc', value);
   }
+
+  public getResumeLastSelection(): boolean {
+    return storageService.getStore().getValue('resumeLastSelection').valueOf();
+  }
+
+  public useResumeLastSelection() {
+    return useValueWithRef(this.storeId, 'resumeLastSelection') as boolean;
+  }
+
+  public setResumeLastSelection(value: boolean) {
+    storageService.getStore().setValue('resumeLastSelection', value);
+  }
 }
 
 const userSettingsService = new UserSettingsService();

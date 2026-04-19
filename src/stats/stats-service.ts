@@ -181,7 +181,6 @@ class StatsService {
     rowIds.forEach(rowId => {
       const rowType = collectionService.getItemType(rowId);
       if (!isDocument({ type: rowType })) return;
-      console.debug('backfilling', rowId);
 
       const globalBag = this.getGlobalStats(rowId);
       let lastOpened = globalBag.lastOpened;

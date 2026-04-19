@@ -17,6 +17,8 @@ const CurrentSpaceSettings = () => {
   const defaultHistoryMaxInterval = userSettingsService.useHistoryMaxInterval();
   const defaultMaxVersionsPerDoc = userSettingsService.useHistoryMaxVersions();
   const defaultRememberLastRoute = navService.useRememberLastRoute();
+  const defaultResumeLastSelection =
+    userSettingsService.useResumeLastSelection();
   const { t } = useLingui();
 
   return (
@@ -54,6 +56,11 @@ const CurrentSpaceSettings = () => {
               type: 'boolean'
             },
             {
+              key: 'resumeLastSelection',
+              label: t`Scroll to the last position in document`,
+              type: 'boolean'
+            },
+            {
               key: 'history_idle_time',
               label: t`History idle time (s)`,
               description: t`When working on a document, a new version will be automatically if idle after XX seconds`,
@@ -74,6 +81,7 @@ const CurrentSpaceSettings = () => {
           ]}
           withInitialState={{
             rememberLastRoute: defaultRememberLastRoute,
+            resumeLastSelection: defaultResumeLastSelection,
             history_idle_time: defaultHistoryIdleTime / 1000,
             history_max_interval: defaultHistoryMaxInterval / 60000,
             max_history_per_doc: defaultMaxVersionsPerDoc
@@ -89,6 +97,8 @@ const CurrentSpaceSettings = () => {
               userSettingsService.setHistoryMaxVersions(val as number);
             } else if (key === 'rememberLastRoute') {
               navService.setRememberLastRoute(val as boolean);
+            } else if (key === 'resumeLastSelection') {
+              userSettingsService.setResumeLastSelection(val as boolean);
             }
           }}
         />

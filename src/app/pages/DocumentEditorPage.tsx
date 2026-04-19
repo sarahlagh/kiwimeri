@@ -7,6 +7,7 @@ import { getSearchParams } from '@/common/utils';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
+import userSettingsService from '@/db/user-settings.service';
 import { IonButton, IonIcon } from '@ionic/react';
 import { useRef, useState } from 'react';
 import { useLocation } from 'react-router';
@@ -57,7 +58,9 @@ const DocumentEditorPage = () => {
         <CollectionItemBrowserList parent={parent}></CollectionItemBrowserList>
       }
       onMenuClose={() => {
-        editorRef.current?.focusEditor();
+        if (userSettingsService.getResumeLastSelection()) {
+          editorRef.current?.focusEditor();
+        }
       }}
       contentId="documentExplorer"
     >

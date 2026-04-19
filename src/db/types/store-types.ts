@@ -141,6 +141,7 @@ export type StoreType = [
     defaultTimedMode: { type: 'string'; default: string };
     globalZoom: { type: 'number'; default: number };
     rememberLastRoute: { type: 'boolean'; default: true };
+    resumeLastSelection: { type: 'boolean'; default: true };
   }
 ];
 
