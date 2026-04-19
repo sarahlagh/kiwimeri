@@ -1,10 +1,15 @@
 import { dateToStr } from '@/common/date-utils';
 import { DEFAULT_NOTEBOOK_ID, DEFAULT_SPACE_ID } from '@/constants';
+import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
+import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
+import userSettingsService from '@/db/user-settings.service';
+import { searchAncestryService } from '@/search/search-ancestry.service';
 import { DataPoint } from '@/stats/components/data-point';
 import { DocumentContentStatsBag } from '@/stats/document-stats';
 import { statsService } from '@/stats/stats-service';
+import { fakeTimersDelay, getNewContent } from '@/vitest/setup/test.utils';
 import { readFile } from 'fs/promises';
 import {
   afterEach,
@@ -186,5 +191,99 @@ describe('stats service', () => {
     expect(results).toHaveLength(26);
     expect(results[0].date).toBe('2026-04-15');
     expect(results[25].date).toBe('2026-03-16');
+  });
+
+  describe(`backfilling`, () => {
+    beforeEach(() => {
+      historyService['enabled'] = true;
+      userSettingsService.setHistoryIdleTime(50);
+      searchAncestryService.start();
+    });
+    afterEach(() => {
+      historyService['enabled'] = false;
+      searchAncestryService.stop();
+    });
+
+    it(`should backfill stats on notebook enabled`, () => {
+      const n1 = notebooksService.addNotebook('n1');
+      const docId0 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const docId1 = collectionService.addDocument(n1);
+      collectionService.setItemLexicalContent(
+        docId0,
+        JSON.parse(getNewContent('three little words'))
+      );
+      collectionService.setItemLexicalContent(
+        docId1,
+        JSON.parse(getNewContent('two words'))
+      );
+      vi.advanceTimersByTime(fakeTimersDelay);
+
+      statsService.backfillStats(n1);
+
+      expect(statsService.getDataPoints(docId0)).toHaveLength(0);
+      const dataPoints1 = statsService.getDataPoints(docId1);
+      expect(dataPoints1).toHaveLength(1);
+      expect(dataPoints1[0].values.lastWordCount).toBe(2);
+
+      expect(statsService.getGlobalStats(docId0).lastOpened).toBe(0);
+      expect(statsService.getGlobalStats(docId1).lastOpened).toBeGreaterThan(0);
+    });
+
+    it(`should backfill stats on space enabled`, () => {
+      const n1 = notebooksService.addNotebook('n1');
+      const docId0 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const docId1 = collectionService.addDocument(n1);
+      collectionService.setItemLexicalContent(
+        docId0,
+        JSON.parse(getNewContent('three little words'))
+      );
+      collectionService.setItemLexicalContent(
+        docId1,
+        JSON.parse(getNewContent('two words'))
+      );
+      vi.advanceTimersByTime(fakeTimersDelay);
+
+      statsService.backfillStats();
+
+      const dataPoints0 = statsService.getDataPoints(docId0);
+      expect(dataPoints0).toHaveLength(1);
+      expect(dataPoints0[0].values.lastWordCount).toBe(3);
+      const dataPoints1 = statsService.getDataPoints(docId1);
+      expect(dataPoints1).toHaveLength(1);
+      expect(dataPoints1[0].values.lastWordCount).toBe(2);
+
+      expect(statsService.getGlobalStats(docId0).lastOpened).toBeGreaterThan(0);
+      expect(statsService.getGlobalStats(docId1).lastOpened).toBeGreaterThan(0);
+    });
+
+    it(`should not override existing lastOpened on backfill`, () => {
+      const n1 = notebooksService.addNotebook('n1');
+      const docId0 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const docId1 = collectionService.addDocument(n1);
+      collectionService.setItemLexicalContent(
+        docId0,
+        JSON.parse(getNewContent('three little words'))
+      );
+      collectionService.setItemLexicalContent(
+        docId1,
+        JSON.parse(getNewContent('two words'))
+      );
+      vi.advanceTimersByTime(fakeTimersDelay);
+
+      const future = Date.now() + 500;
+      statsService.updateGlobalStats(docId1, {
+        lastOpened: future
+      });
+
+      statsService.backfillStats(n1);
+
+      expect(statsService.getDataPoints(docId0)).toHaveLength(0);
+      const dataPoints1 = statsService.getDataPoints(docId1);
+      expect(dataPoints1).toHaveLength(1);
+      expect(dataPoints1[0].values.lastWordCount).toBe(2);
+
+      expect(statsService.getGlobalStats(docId0).lastOpened).toBe(0);
+      expect(statsService.getGlobalStats(docId1).lastOpened).toBe(future);
+    });
   });
 });

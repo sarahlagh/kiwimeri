@@ -1,5 +1,6 @@
 import navService from '@/db/nav.service';
 import userSettingsService from '@/db/user-settings.service';
+import { statsService } from '@/stats/stats-service';
 import {
   IonCard,
   IonCardContent,
@@ -37,6 +38,13 @@ const CurrentSpaceSettings = () => {
           defaultDisplayOpts={defaultDisplayOpts}
           onDefaultDisplayOptsChange={newDisplayOpts => {
             userSettingsService.setSpaceDefaultDisplayOpts(newDisplayOpts);
+            if (
+              newDisplayOpts.statsEnabled &&
+              !defaultDisplayOpts.statsEnabled
+            ) {
+              console.log('stats setting enabled on space, backfilling');
+              statsService.backfillStats();
+            }
           }}
           withRows={[
             {

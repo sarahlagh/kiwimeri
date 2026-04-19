@@ -1,8 +1,12 @@
-import { parseFieldMeta } from '@/collection/collection';
+import { isDocument, parseFieldMeta } from '@/collection/collection';
 import { dateToStr } from '@/common/date-utils';
 import { countWords, n00 } from '@/common/utils';
-import { DEFAULT_SPACE_ID } from '@/constants';
+import { DEFAULT_SPACE_ID, ROOT_COLLECTION } from '@/constants';
+import { historyService } from '@/db/collection-history.service';
+import collectionService from '@/db/collection.service';
+import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
+import { searchAncestryService } from '@/search/search-ancestry.service';
 import { ResultRow } from 'tinybase/with-schemas';
 import { DataPoint } from './components/data-point';
 import {
@@ -146,6 +150,60 @@ class StatsService {
     storageService.getSpace().setPartialRow('stats', rowId, {
       itemId,
       ...globalBag
+    });
+  }
+
+  public getGlobalStats(itemId: string) {
+    const globalStats: DocumentGlobalStatsBag = { lastOpened: 0 };
+    const lastOpened = storageService
+      .getSpace()
+      .getCell('stats', itemId, 'lastOpened')
+      ?.valueOf();
+    if (lastOpened !== undefined) {
+      globalStats.lastOpened = lastOpened as number;
+    }
+    return globalStats;
+  }
+
+  public backfillStats(scope?: string) {
+    let rowIds: string[] = [];
+    if (scope) {
+      rowIds = searchAncestryService.getChildren(scope);
+    } else {
+      const allNotebooksIds = notebooksService
+        .getNotebooks(ROOT_COLLECTION)
+        .map(n => n.id);
+      allNotebooksIds.forEach(nId => {
+        rowIds = [...rowIds, ...searchAncestryService.getChildren(nId)];
+      });
+    }
+
+    rowIds.forEach(rowId => {
+      const rowType = collectionService.getItemType(rowId);
+      if (!isDocument({ type: rowType })) return;
+      console.debug('backfilling', rowId);
+
+      const globalBag = this.getGlobalStats(rowId);
+      let lastOpened = globalBag.lastOpened;
+
+      // backfill stats from versions in reverse order
+      const versions = historyService
+        .getVersions(rowId)
+        .filter(v => v.op === 'snapshot');
+
+      for (let i = versions.length - 1; i >= 0; i--) {
+        const version = versions[i];
+        const plain = version.preview;
+        const content_meta = version.snapshotJson.content_meta!;
+        const stats = statsService.buildStats(plain, content_meta);
+        statsService.updateTodaysStats(rowId, stats);
+        if (lastOpened <= stats.updatedAt!) {
+          statsService.updateGlobalStats(rowId, {
+            lastOpened: stats.updatedAt!
+          });
+          lastOpened = stats.updatedAt!;
+        }
+      }
     });
   }
 

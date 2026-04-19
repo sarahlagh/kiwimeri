@@ -1,6 +1,7 @@
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import userSettingsService from '@/db/user-settings.service';
+import { statsService } from '@/stats/stats-service';
 import {
   IonCard,
   IonCardContent,
@@ -38,6 +39,13 @@ const CurrentNotebookSettings = () => {
               currentNotebook,
               newDisplayOpts
             );
+            if (
+              newDisplayOpts.statsEnabled &&
+              !defaultDisplayOpts.statsEnabled
+            ) {
+              console.log('stats setting enabled on notebook, backfilling');
+              statsService.backfillStats(currentNotebook);
+            }
           }}
         />
       </IonCardContent>
