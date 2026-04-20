@@ -6,14 +6,12 @@ import { SpaceType } from '@/db/types/space-types';
 import {
   LocalChange,
   LocalChangeType,
-  RemoteItemInfo,
   RemoteState
 } from '@/db/types/store-types';
 import { Table as UntypedTable } from 'tinybase';
 import { Content } from 'tinybase/with-schemas';
 
 export type RemoteInfo = {
-  remoteItems?: RemoteItemInfo[];
   lastPulled: number;
 } & RemoteState;
 

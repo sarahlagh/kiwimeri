@@ -39,9 +39,17 @@ class SyncService {
       remoteId ? r.id === remoteId && r.connected : r.connected
     );
     console.log(`pushing to ${activeRemotes.length} active remote(s)`);
-    // TODO only primary, then use setTimeout for the others
-    for (const remote of activeRemotes) {
-      await remotesService.push(remote, force);
+    // only primary, then use setTimeout for the others
+    const primary = activeRemotes[0];
+    await remotesService.push(primary, force);
+
+    activeRemotes.shift();
+    if (activeRemotes.length > 0) {
+      setTimeout(async () => {
+        for (const remote of activeRemotes) {
+          await remotesService.push(remote, force);
+        }
+      });
     }
   }
 

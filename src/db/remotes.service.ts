@@ -30,7 +30,6 @@ import {
 import {
   AnyData,
   LocalChangeType,
-  RemoteItemInfo,
   RemoteResult,
   RemoteState
 } from './types/store-types';
@@ -71,7 +70,6 @@ class RemotesService {
 
   public async initSync() {
     if (platformService.isSyncEnabled()) {
-      this.initOnce();
       if (!this.networkListener) {
         this.networkListener = networkService.onStatusUp(
           () => {
@@ -91,12 +89,6 @@ class RemotesService {
 
   public async onReinit() {
     await this.configureRemotes(storageService.getSpaceId());
-  }
-
-  private initOnce() {
-    storageService
-      .getStoreIndexes()
-      .setIndexDefinition('remoteItemsByState', 'remoteItems', 'state');
   }
 
   public stopSync() {
@@ -298,24 +290,6 @@ class RemotesService {
     } as RemoteState;
   }
 
-  public getCachedRemoteItemInfo(stateId: string) {
-    const table = storageService.getStore().getTable(this.remoteItemsTable);
-    const rowIds = storageService
-      .getStoreIndexes()
-      .getSliceRowIds('remoteItemsByState', stateId);
-    const remoteItems: RemoteItemInfo[] = [];
-    rowIds.forEach(rowId => {
-      remoteItems.push({
-        ...table[rowId],
-        id: rowId,
-        info: table[rowId].info
-          ? JSON.parse(table[rowId].info as string)
-          : undefined
-      } as RemoteItemInfo);
-    });
-    return remoteItems;
-  }
-
   public updateRemoteStateInfo(stateId: string, remoteInfo: RemoteState) {
     storageService.getStore().transaction(() => {
       storageService
@@ -337,52 +311,6 @@ class RemotesService {
           );
       }
     });
-  }
-
-  public updateRemoteItemInfo(stateId: string, remoteItems: RemoteItemInfo[]) {
-    const dbItems = this.getCachedRemoteItemInfo(stateId);
-    const deletedItems = dbItems.filter(
-      c => !remoteItems.find(i => i.item === c.item)
-    );
-    const updatedItems = dbItems.filter(
-      c => remoteItems.find(i => i.item === c.item) !== undefined
-    );
-    const createdItems = remoteItems.filter(
-      r => !dbItems.find(i => i.item === r.item)
-    );
-    if (
-      deletedItems.length > 0 ||
-      updatedItems.length > 0 ||
-      createdItems.length > 0
-    ) {
-      // TODO paginate for transaction
-      storageService.getStore().transaction(() => {
-        // delete ones on local missing in remote
-        deletedItems.forEach(remoteItem => {
-          storageService
-            .getStore()
-            .delRow(this.remoteItemsTable, remoteItem.id!);
-        });
-        // update the existing ones
-        updatedItems.forEach(remoteItem => {
-          storageService
-            .getStore()
-            .setRow(this.remoteItemsTable, remoteItem.id!, {
-              ...remoteItem,
-              info: remoteItem.info
-                ? JSON.stringify(remoteItem.info)
-                : undefined
-            });
-        });
-        // create the rest
-        createdItems.forEach(remoteItem => {
-          storageService.getStore().addRow(this.remoteItemsTable, {
-            ...remoteItem,
-            info: remoteItem.info ? JSON.stringify(remoteItem.info) : undefined
-          });
-        });
-      });
-    }
   }
 
   public updateRemoteRank(currentRank: number, newRank: number) {
@@ -423,9 +351,6 @@ class RemotesService {
         localChangesService.clear();
       }
       this.updateRemoteStateInfo(state, remoteInfo);
-      if (remoteInfo.remoteItems) {
-        this.updateRemoteItemInfo(state, remoteInfo.remoteItems);
-      }
     });
   }
 
@@ -435,7 +360,6 @@ class RemotesService {
     const localChanges = localChangesService.getLocalChanges();
     const lastPulled = localChangesService.getLastPulled();
     const remoteState = this.getCachedRemoteStateInfo(remote.state);
-    const remoteItems = this.getCachedRemoteItemInfo(remote.state);
     try {
       const filesystem = this.filesystems.get(remote.id)!;
       const resp = await filesystem.pull(
@@ -443,7 +367,6 @@ class RemotesService {
         localChanges,
         {
           ...remoteState,
-          remoteItems,
           lastPulled
         },
         force
@@ -541,7 +464,6 @@ class RemotesService {
     const localChanges = localChangesService.getLocalChanges();
     const lastPulled = localChangesService.getLastPulled();
     const remoteState = this.getCachedRemoteStateInfo(remote.state);
-    const remoteItems = this.getCachedRemoteItemInfo(remote.state);
     try {
       const filesystem = this.filesystems.get(remote.id)!;
       const resp = await filesystem.push(
@@ -549,7 +471,6 @@ class RemotesService {
         localChanges,
         {
           ...remoteState,
-          remoteItems,
           lastPulled
         },
         force

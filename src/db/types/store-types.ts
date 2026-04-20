@@ -62,13 +62,6 @@ export interface RemoteState {
   info?: AnyData;
 }
 
-export interface RemoteItemInfo {
-  id?: string;
-  state: string; // id in remote state table
-  item: string; // id in collection table
-  info?: AnyData;
-}
-
 export type AppLogDbLevel = 'T' | 'D' | 'L' | 'W' | 'E';
 export interface AppLog {
   id?: string;
@@ -94,7 +87,6 @@ type spacesEnum = keyof Required<Space>;
 type localChangeEnum = keyof Required<Omit<LocalChange, 'id'>>;
 type remoteEnum = keyof Required<Omit<Remote, 'id'>>;
 type remoteStateEnum = keyof Required<Omit<RemoteState, 'id'>>;
-type remoteItemInfoEnum = keyof Required<Omit<RemoteItemInfo, 'id'>>;
 type appLogEnum = keyof Required<Omit<AppLog, 'id'>>;
 type localSearchIndex = keyof Required<Omit<LocalCollectionSearchIndex, 'id'>>;
 type localAncestorsEnum = keyof Required<Omit<LocalCollectionAncestor, 'id'>>;
@@ -113,9 +105,6 @@ export type StoreType = [
     };
     remoteState: {
       [cellId in remoteStateEnum]: CellSchema;
-    };
-    remoteItems: {
-      [cellId in remoteItemInfoEnum]: CellSchema;
     };
     logs: {
       [cellId in appLogEnum]: CellSchema;

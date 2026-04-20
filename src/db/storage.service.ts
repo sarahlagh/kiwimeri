@@ -73,11 +73,6 @@ class StorageService {
           lastRemoteChange: { type: 'number' } as CellSchema,
           info: { type: 'string' } as CellSchema
         },
-        remoteItems: {
-          state: { type: 'string' } as CellSchema,
-          item: { type: 'string' } as CellSchema,
-          info: { type: 'string' } as CellSchema
-        },
         logs: {
           ts: { type: 'number' } as CellSchema,
           level: { type: 'string' } as CellSchema,
