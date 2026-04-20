@@ -1,9 +1,3 @@
-import {
-  CollectionItemType,
-  isDocument,
-  isPage,
-  isPageOrDocument
-} from '@/collection/collection';
 import { networkService } from '@/common/services/network.service';
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
@@ -13,13 +7,10 @@ import {
   storageFilesystemFactory
 } from '@/remote-storage/storage-filesystem.factory';
 import {
-  AfterSyncHistChange,
   CloudStorageFilesystem,
   RemoteInfo
 } from '@/remote-storage/sync-types';
 import { ConnectionStatusChangeListener } from '@capacitor/network';
-import { historyService } from './collection-history.service';
-import { resumeStateService } from './collection-resume-state.service';
 import localChangesService from './local-changes.service';
 import storageService from './storage.service';
 import {
@@ -27,12 +18,7 @@ import {
   useResultSortedRowIdsWithRef,
   useResultTableWithRef
 } from './tinybase/hooks';
-import {
-  AnyData,
-  LocalChangeType,
-  RemoteResult,
-  RemoteState
-} from './types/store-types';
+import { AnyData, RemoteResult, RemoteState } from './types/store-types';
 
 class RemotesService {
   private readonly storeId = 'store';
@@ -358,21 +344,12 @@ class RemotesService {
     const store = storageService.getSpace(remote.space);
     const localContent = store.getContent();
     const localChanges = localChangesService.getLocalChanges();
-    const lastPulled = localChangesService.getLastPulled();
     const remoteState = this.getCachedRemoteStateInfo(remote.state);
+
     try {
       const filesystem = this.filesystems.get(remote.id)!;
-      const resp = await filesystem.pull(
-        structuredClone(localContent),
-        localChanges,
-        {
-          ...remoteState,
-          lastPulled
-        },
-        force
-      );
-      if (resp && resp.content) {
-        historyService.saveNow();
+      const resp = await filesystem.pull({ ...remote, ...remoteState }, force);
+      if (resp && resp.didPull) {
         this.updateRemoteInfo(
           remote.state,
           resp.remoteInfo,
@@ -381,10 +358,6 @@ class RemotesService {
         );
         if (resp.remoteInfo.lastRemoteChange)
           localChangesService.setLastPulled(resp.remoteInfo.lastRemoteChange);
-
-        storageService.getSpace().setContent(resp.content);
-        this.handleResumeState(resp.changes);
-        this.handleHistory(resp.changes);
       }
     } catch (e) {
       console.error(
@@ -400,81 +373,11 @@ class RemotesService {
     return true;
   }
 
-  private handleResumeState(changes: AfterSyncHistChange[]) {
-    // reset resume state if content has changed
-    changes
-      .filter(ch => isPageOrDocument({ type: ch.type }))
-      .filter(ch => ch.field === 'content')
-      .forEach(ch => resumeStateService.setResumeSelection(ch.id, null));
-  }
-
-  private handleHistory(changes: AfterSyncHistChange[]) {
-    // history must be updated
-    // only take single pages changes if a parent document change isn't present
-    const docsMap = new Map<string, AfterSyncHistChange>();
-    changes
-      .filter(ch => isDocument({ type: ch.type }))
-      .forEach(ch => docsMap.set(ch.id, ch));
-    changes
-      .filter(
-        ch =>
-          isPage({ type: ch.type }) &&
-          !docsMap.has(ch.parent) &&
-          ch.change !== LocalChangeType.delete
-      )
-      .forEach(ch => {
-        docsMap.set(ch.parent, {
-          id: ch.parent,
-          type: CollectionItemType.document,
-          change: ch.change,
-          parent: '' // on doc, parent not used
-        });
-      });
-
-    // special case for pages deleted
-    changes
-      .filter(
-        ch => isPage({ type: ch.type }) && ch.change === LocalChangeType.delete
-      )
-      .forEach(ch => {
-        historyService.markLatestVersionDeleted(
-          ch.type,
-          ch.id,
-          ch.parent,
-          true
-        );
-        if (!docsMap.has(ch.parent)) {
-          docsMap.set(ch.parent, {
-            id: ch.parent,
-            type: CollectionItemType.document,
-            change: LocalChangeType.update,
-            parent: '' // on doc, parent not used
-          });
-        }
-      });
-    [...docsMap.values()].forEach(ch => {
-      historyService.updateAfterSync(ch);
-    });
-    historyService.gc();
-  }
-
   public async push(remote: RemoteResult, force = false) {
-    const store = storageService.getSpace(remote.space);
-    const localContent = store.getContent();
-    const localChanges = localChangesService.getLocalChanges();
-    const lastPulled = localChangesService.getLastPulled();
     const remoteState = this.getCachedRemoteStateInfo(remote.state);
+    const filesystem = this.filesystems.get(remote.id)!;
     try {
-      const filesystem = this.filesystems.get(remote.id)!;
-      const resp = await filesystem.push(
-        localContent,
-        localChanges,
-        {
-          ...remoteState,
-          lastPulled
-        },
-        force
-      );
+      const resp = await filesystem.push({ ...remote, ...remoteState }, force);
       this.updateRemoteInfo(remote.state, resp.remoteInfo, true, true);
       if (resp.remoteInfo.lastRemoteChange)
         localChangesService.setLastPulled(resp.remoteInfo.lastRemoteChange);

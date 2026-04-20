@@ -62,6 +62,8 @@ export interface RemoteState {
   info?: AnyData;
 }
 
+export interface RemoteWithState extends Remote, RemoteState {}
+
 export type AppLogDbLevel = 'T' | 'D' | 'L' | 'W' | 'E';
 export interface AppLog {
   id?: string;

@@ -4,6 +4,9 @@ import {
   CollectionItemUpdatableConflictFields,
   CollectionItemUpdatableFieldEnum,
   CollectionItemUpdateChangeFields,
+  isDocument,
+  isPage,
+  isPageOrDocument,
   parseFieldMeta
 } from '@/collection/collection';
 import {
@@ -17,15 +20,19 @@ import {
   KIWIMERI_MODEL_VERSION,
   ROOT_COLLECTION
 } from '@/constants';
+import { historyService } from '@/db/collection-history.service';
+import { resumeStateService } from '@/db/collection-resume-state.service';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/local-changes.service';
 import notebooksService from '@/db/notebooks.service';
+import storageService from '@/db/storage.service';
 import { SpaceType, SpaceValues } from '@/db/types/space-types';
 import {
   AnyData,
   LocalChange,
   LocalChangeType,
-  RemoteState
+  RemoteState,
+  RemoteWithState
 } from '@/db/types/store-types';
 import userSettingsService from '@/db/user-settings.service';
 import { Row, Table } from 'tinybase/store';
@@ -101,7 +108,23 @@ export class SingleFileStorage extends CloudStorageFilesystem {
     return remoteState;
   }
 
-  public async push(
+  public async push(remote: RemoteWithState, force = false) {
+    const store = storageService.getSpace(remote.space);
+    const localContent = store.getContent();
+    const localChanges = localChangesService.getLocalChanges();
+    const lastPulled = localChangesService.getLastPulled();
+    return this.recomputeContentAndPush(
+      localContent,
+      localChanges,
+      {
+        ...remote,
+        lastPulled
+      },
+      force
+    );
+  }
+
+  private async recomputeContentAndPush(
     localContent: Content<SpaceType>,
     localChanges: LocalChange[],
     cachedRemoteInfo: RemoteInfo,
@@ -205,7 +228,33 @@ export class SingleFileStorage extends CloudStorageFilesystem {
     };
   }
 
-  public async pull(
+  public async pull(remote: RemoteWithState, force = false) {
+    const store = storageService.getSpace(remote.space);
+    const localContent = store.getContent();
+    const localChanges = localChangesService.getLocalChanges();
+    const lastPulled = localChangesService.getLastPulled();
+
+    const resp = await this.pullAndRecomputeContent(
+      structuredClone(localContent),
+      localChanges,
+      {
+        ...remote,
+        lastPulled
+      },
+      force
+    );
+
+    if (resp?.content) {
+      historyService.saveNow();
+      storageService.getSpace().setContent(resp.content);
+      this.handleResumeState(resp.changes);
+      this.handleHistory(resp.changes);
+      return { didPull: true, remoteInfo: resp.remoteInfo };
+    }
+    return { didPull: false, remoteInfo: resp.remoteInfo };
+  }
+
+  private async pullAndRecomputeContent(
     localContent: Content<SpaceType>,
     localChanges: LocalChange[],
     cachedRemoteInfo: RemoteInfo,
@@ -402,8 +451,62 @@ export class SingleFileStorage extends CloudStorageFilesystem {
     };
   }
 
-  public async destroy() {
-    this.driver.close();
+  private handleResumeState(changes: AfterSyncHistChange[]) {
+    // reset resume state if content has changed
+    changes
+      .filter(ch => isPageOrDocument({ type: ch.type }))
+      .filter(ch => ch.field === 'content')
+      .forEach(ch => resumeStateService.setResumeSelection(ch.id, null));
+  }
+
+  private handleHistory(changes: AfterSyncHistChange[]) {
+    // history must be updated
+    // only take single pages changes if a parent document change isn't present
+    const docsMap = new Map<string, AfterSyncHistChange>();
+    changes
+      .filter(ch => isDocument({ type: ch.type }))
+      .forEach(ch => docsMap.set(ch.id, ch));
+    changes
+      .filter(
+        ch =>
+          isPage({ type: ch.type }) &&
+          !docsMap.has(ch.parent) &&
+          ch.change !== LocalChangeType.delete
+      )
+      .forEach(ch => {
+        docsMap.set(ch.parent, {
+          id: ch.parent,
+          type: CollectionItemType.document,
+          change: ch.change,
+          parent: '' // on doc, parent not used
+        });
+      });
+
+    // special case for pages deleted
+    changes
+      .filter(
+        ch => isPage({ type: ch.type }) && ch.change === LocalChangeType.delete
+      )
+      .forEach(ch => {
+        historyService.markLatestVersionDeleted(
+          ch.type,
+          ch.id,
+          ch.parent,
+          true
+        );
+        if (!docsMap.has(ch.parent)) {
+          docsMap.set(ch.parent, {
+            id: ch.parent,
+            type: CollectionItemType.document,
+            change: LocalChangeType.update,
+            parent: '' // on doc, parent not used
+          });
+        }
+      });
+    [...docsMap.values()].forEach(ch => {
+      historyService.updateAfterSync(ch);
+    });
+    historyService.gc();
   }
 
   private shouldCreateConflict(
@@ -531,5 +634,9 @@ export class SingleFileStorage extends CloudStorageFilesystem {
       o: obj.o,
       v: obj.v
     };
+  }
+
+  public async destroy() {
+    this.driver.close();
   }
 }

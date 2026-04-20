@@ -2,14 +2,12 @@ import {
   CollectionItem,
   CollectionItemUpdatableFieldEnum
 } from '@/collection/collection';
-import { SpaceType } from '@/db/types/space-types';
 import {
-  LocalChange,
   LocalChangeType,
-  RemoteState
+  RemoteState,
+  RemoteWithState
 } from '@/db/types/store-types';
 import { Table as UntypedTable } from 'tinybase';
-import { Content } from 'tinybase/with-schemas';
 
 export type RemoteInfo = {
   lastPulled: number;
@@ -49,20 +47,15 @@ export abstract class CloudStorageFilesystem {
   }>;
 
   abstract pull(
-    localContent: Content<SpaceType>,
-    localChanges: LocalChange[],
-    cachedRemoteInfo: RemoteInfo,
+    state: RemoteWithState,
     force?: boolean
   ): Promise<{
-    content?: Content<SpaceType>;
-    changes: AfterSyncHistChange[];
+    didPull: boolean;
     remoteInfo: RemoteInfo;
   }>;
 
   abstract push(
-    localContent: Content<SpaceType>,
-    localChanges: LocalChange[],
-    cachedRemoteInfo: RemoteInfo,
+    state: RemoteWithState,
     force?: boolean
   ): Promise<{ remoteInfo: RemoteInfo }>;
 
