@@ -225,8 +225,10 @@ describe('stats service', () => {
       expect(dataPoints1).toHaveLength(1);
       expect(dataPoints1[0].values.lastWordCount).toBe(2);
 
-      expect(statsService.getGlobalStats(docId0).lastOpened).toBe(0);
-      expect(statsService.getGlobalStats(docId1).lastOpened).toBeGreaterThan(0);
+      expect(statsService.getGlobalStats(docId0).lastOpenedAt).toBe(0);
+      expect(statsService.getGlobalStats(docId1).lastOpenedAt).toBeGreaterThan(
+        0
+      );
     });
 
     it(`should backfill stats on space enabled`, () => {
@@ -252,8 +254,12 @@ describe('stats service', () => {
       expect(dataPoints1).toHaveLength(1);
       expect(dataPoints1[0].values.lastWordCount).toBe(2);
 
-      expect(statsService.getGlobalStats(docId0).lastOpened).toBeGreaterThan(0);
-      expect(statsService.getGlobalStats(docId1).lastOpened).toBeGreaterThan(0);
+      expect(statsService.getGlobalStats(docId0).lastOpenedAt).toBeGreaterThan(
+        0
+      );
+      expect(statsService.getGlobalStats(docId1).lastOpenedAt).toBeGreaterThan(
+        0
+      );
     });
 
     it(`should not override existing lastOpened on backfill`, () => {
@@ -272,7 +278,7 @@ describe('stats service', () => {
 
       const future = Date.now() + 500;
       statsService.updateGlobalStats(docId1, {
-        lastOpened: future
+        lastOpenedAt: future
       });
 
       statsService.backfillStats(n1);
@@ -282,8 +288,8 @@ describe('stats service', () => {
       expect(dataPoints1).toHaveLength(1);
       expect(dataPoints1[0].values.lastWordCount).toBe(2);
 
-      expect(statsService.getGlobalStats(docId0).lastOpened).toBe(0);
-      expect(statsService.getGlobalStats(docId1).lastOpened).toBe(future);
+      expect(statsService.getGlobalStats(docId0).lastOpenedAt).toBe(0);
+      expect(statsService.getGlobalStats(docId1).lastOpenedAt).toBe(future);
     });
   });
 });

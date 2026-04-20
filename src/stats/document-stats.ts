@@ -1,5 +1,5 @@
 export type DocumentGlobalStatsBag = {
-  lastOpened: number;
+  lastOpenedAt: number;
 };
 
 export type DocumentStatRow = {

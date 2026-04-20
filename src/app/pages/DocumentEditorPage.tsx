@@ -1,9 +1,8 @@
 import CollectionItemBrowserList from '@/collection/components/CollectionItemBrowserList';
-import DocumentEditor, {
-  DocumentEditorHandle
-} from '@/collection/components/DocumentEditor';
+import DocumentEditor from '@/collection/components/DocumentEditor';
 import { onTitleChangeFn } from '@/common/events/events';
 import { getSearchParams } from '@/common/utils';
+import { KiwimeriEditorHandle } from '@/common/wysiwyg/lexical/KiwimeriEditor';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
@@ -14,7 +13,7 @@ import { useLocation } from 'react-router';
 import TemplateCompactableSplitPage from './TemplateCompactableSplitPage';
 
 const DocumentEditorPage = () => {
-  const editorRef = useRef<DocumentEditorHandle | null>(null);
+  const editorRef = useRef<KiwimeriEditorHandle | null>(null);
   const location = useLocation();
   const searchParams = getSearchParams(location.search);
   const notebook = notebooksService.useCurrentNotebook();

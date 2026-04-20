@@ -154,13 +154,13 @@ class StatsService {
   }
 
   public getGlobalStats(itemId: string) {
-    const globalStats: DocumentGlobalStatsBag = { lastOpened: 0 };
+    const globalStats: DocumentGlobalStatsBag = { lastOpenedAt: 0 };
     const lastOpened = storageService
       .getSpace()
-      .getCell('stats', itemId, 'lastOpened')
+      .getCell('stats', itemId, 'lastOpenedAt')
       ?.valueOf();
     if (lastOpened !== undefined) {
-      globalStats.lastOpened = lastOpened as number;
+      globalStats.lastOpenedAt = lastOpened as number;
     }
     return globalStats;
   }
@@ -183,7 +183,7 @@ class StatsService {
       if (!isDocument({ type: rowType })) return;
 
       const globalBag = this.getGlobalStats(rowId);
-      let lastOpened = globalBag.lastOpened;
+      let lastOpenedAt = globalBag.lastOpenedAt;
 
       // backfill stats from versions in reverse order
       const versions = historyService
@@ -196,11 +196,11 @@ class StatsService {
         const content_meta = version.snapshotJson.content_meta!;
         const stats = statsService.buildStats(plain, content_meta);
         statsService.updateTodaysStats(rowId, stats);
-        if (lastOpened <= stats.updatedAt!) {
+        if (lastOpenedAt <= stats.updatedAt!) {
           statsService.updateGlobalStats(rowId, {
-            lastOpened: stats.updatedAt!
+            lastOpenedAt: stats.updatedAt!
           });
-          lastOpened = stats.updatedAt!;
+          lastOpenedAt = stats.updatedAt!;
         }
       }
     });

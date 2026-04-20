@@ -210,7 +210,7 @@ class StorageService {
           itemId: { type: 'string' } as CellSchema,
           date: { type: 'string' } as CellSchema,
           contentStatsJson: { type: 'string' } as CellSchema,
-          lastOpened: { type: 'number' } as CellSchema
+          lastOpenedAt: { type: 'number' } as CellSchema
         }
       })
       .setValuesSchema({

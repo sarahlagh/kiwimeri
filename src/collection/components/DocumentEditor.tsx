@@ -67,7 +67,7 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
     const resumeState = resumeStateService.getResumeState(itemId);
 
     useEffect(() => {
-      statsService.updateGlobalStats(itemId, { lastOpened: Date.now() });
+      statsService.updateGlobalStats(itemId, { lastOpenedAt: Date.now() });
     }, [itemId]);
 
     useEffect(() => {
