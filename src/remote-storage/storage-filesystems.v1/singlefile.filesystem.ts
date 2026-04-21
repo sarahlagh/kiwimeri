@@ -37,13 +37,9 @@ import {
 import userSettingsService from '@/db/user-settings.service';
 import { Row, Table } from 'tinybase/store';
 import { Content, getUniqueId } from 'tinybase/with-schemas';
-import {
-  AfterSyncHistChange,
-  CloudStorageDriver,
-  CloudStorageFilesystem,
-  DriverFileInfo,
-  RemoteInfo
-} from '../sync-types';
+import { CloudStorageDriver } from '../storage-drivers/abstract.driver';
+import { AfterSyncHistChange, DriverFileInfo, RemoteInfo } from '../sync-types';
+import { CloudStorageFilesystemV1 } from './abstract.filesystem';
 
 export type SingleFileStorageFileContent = {
   i: CollectionItem[]; // the items
@@ -52,7 +48,7 @@ export type SingleFileStorageFileContent = {
   v: number; // the model version
 };
 
-export class SingleFileStorage extends CloudStorageFilesystem {
+export class SingleFileStorage extends CloudStorageFilesystemV1 {
   protected readonly id = 'S';
   protected readonly version = 1;
   protected readonly filename = 'collection.json';

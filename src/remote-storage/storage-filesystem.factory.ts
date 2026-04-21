@@ -1,6 +1,6 @@
 import { InMemDriver } from './storage-drivers/inmem.driver';
 import { PCloudDriver } from './storage-drivers/pcloud/pcloud.driver';
-import { SingleFileStorage } from './storage-filesystems/singlefile.filesystem';
+import { SingleFileStorage } from './storage-filesystems.v1/singlefile.filesystem';
 
 export type DriverNames = 'pcloud' | 'inmem';
 export type LayerTypes = 'singlefile'; // | 'chunks';

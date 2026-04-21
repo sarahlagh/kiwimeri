@@ -6,10 +6,8 @@ import {
   LayerTypes,
   storageFilesystemFactory
 } from '@/remote-storage/storage-filesystem.factory';
-import {
-  CloudStorageFilesystem,
-  RemoteInfo
-} from '@/remote-storage/sync-types';
+import { CloudStorageFilesystemV1 } from '@/remote-storage/storage-filesystems.v1/abstract.filesystem';
+import { RemoteInfo } from '@/remote-storage/sync-types';
 import { ConnectionStatusChangeListener } from '@capacitor/network';
 import localChangesService from './local-changes.service';
 import storageService from './storage.service';
@@ -24,10 +22,9 @@ class RemotesService {
   private readonly storeId = 'store';
   private readonly remotesTable = 'remotes';
   private readonly stateTable = 'remoteState';
-  private readonly remoteItemsTable = 'remoteItems';
 
   private layer: LayerTypes = appConfig.DEFAULT_STORAGE_FS;
-  private filesystems: Map<string, CloudStorageFilesystem> = new Map();
+  private filesystems: Map<string, CloudStorageFilesystemV1> = new Map();
 
   private networkListener: ConnectionStatusChangeListener | null = null;
 

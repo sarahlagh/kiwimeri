@@ -8,7 +8,7 @@ import {
 import { fastHash } from '@/common/utils';
 import { KIWIMERI_MODEL_VERSION } from '@/constants';
 import { SpaceValues } from '@/db/types/space-types';
-import { CloudStorageDriver } from '@/remote-storage/sync-types';
+import { CloudStorageDriver } from './abstract.driver';
 
 // for testing
 export class InMemDriver extends CloudStorageDriver {

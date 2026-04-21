@@ -1,7 +1,5 @@
-import {
-  CloudStorageDriver,
-  DriverFileInfo
-} from '@/remote-storage/sync-types';
+import { DriverFileInfo } from '@/remote-storage/sync-types';
+import { CloudStorageDriver } from '../abstract.driver';
 import {
   PCloudLinkResponse,
   PCloudListResponse,

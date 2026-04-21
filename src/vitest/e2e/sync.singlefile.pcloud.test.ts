@@ -10,7 +10,7 @@ import storageService from '@/db/storage.service';
 import { SpaceValues } from '@/db/types/space-types';
 import userSettingsService from '@/db/user-settings.service';
 import { PCloudDriver } from '@/remote-storage/storage-drivers/pcloud/pcloud.driver';
-import { SingleFileStorage } from '@/remote-storage/storage-filesystems/singlefile.filesystem';
+import { SingleFileStorage } from '@/remote-storage/storage-filesystems.v1/singlefile.filesystem';
 import { syncService } from '@/remote-storage/sync.service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
