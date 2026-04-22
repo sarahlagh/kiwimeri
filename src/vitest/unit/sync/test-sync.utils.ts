@@ -6,8 +6,8 @@ import storageService from '@/db/storage.service';
 import { SpaceValues } from '@/db/types/space-types';
 import userSettingsService from '@/db/user-settings.service';
 import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
-import { LayerTypes } from '@/remote-storage/storage-filesystem.factory';
 import { syncService } from '@/remote-storage/sync.service';
+import { MultiSynchronizer } from '@/remote-storage/synchronizers/multi-synchronizer';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { fakeTimersDelay } from '@/vitest/setup/test.utils';
 import { expect, vi } from 'vitest';
@@ -28,12 +28,14 @@ const defaultValues: SpaceValues = {
 };
 
 export const testSyncBeforeEach = async () => {
-  remotesService['layer'] = 'singlefile' as LayerTypes;
   remotesService.addRemote('test', 0, 'inmem', {});
   await remotesService.configureRemotes(storageService.getSpaceId(), true);
-  driver = remotesService['filesystems'].values().next().value![
-    'driver'
-  ] as InMemDriver;
+  const multiSynchronizer = remotesService['synchronizers'].values().next()
+    .value! as MultiSynchronizer;
+  driver = multiSynchronizer['collectionSynchronizer']['driver'] as InMemDriver;
+  // driver = remotesService['synchronizers'].values().next().value![
+  //   'driver'
+  // ] as InMemDriver;
   vi.useFakeTimers();
   searchAncestryService.start(DEFAULT_SPACE_ID);
   historyService['enabled'] = true;

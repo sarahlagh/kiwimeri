@@ -1,4 +1,4 @@
-import { AnySerializableData } from '@/db/types/store-types';
+import { AnyData } from '@/db/types/store-types';
 import { DriverFileInfo } from '../sync-types';
 
 export abstract class CloudStorageDriver {
@@ -20,12 +20,12 @@ export abstract class CloudStorageDriver {
   }
 
   public abstract configure(
-    conf: AnySerializableData,
+    conf: AnyData,
     proxy?: string,
     useHttp?: boolean
   ): void; // accept user input and save in local store
 
-  public abstract getConfig(): AnySerializableData | null;
+  public abstract getConfig(): AnyData | null;
 
   public abstract fetchFilesInfo(names: string[]): Promise<{
     connected: boolean;

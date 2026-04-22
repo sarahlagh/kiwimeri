@@ -1,6 +1,7 @@
 import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
 import { renderHook } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 
 describe('remotes service', () => {
   it('should add a remote in db without testing connection', () => {
@@ -20,7 +21,7 @@ describe('remotes service', () => {
       .getRow('remoteState', state as string);
     expect(stateRow.connected).toBeFalsy();
     expect(stateRow.lastRemoteChange).toBeDefined();
-    expect(remotesService['filesystems'].get(rowId)).toBeUndefined();
+    expect(remotesService['synchronizers'].get(rowId)).toBeUndefined();
   });
 
   it('should not init sync for previously unconfigured remotes', async () => {
@@ -32,7 +33,7 @@ describe('remotes service', () => {
       .getStore()
       .getRow('remoteState', state as string);
     expect(stateRow.connected).toBeFalsy();
-    expect(remotesService['filesystems'].get(rowId)).toBeUndefined();
+    expect(remotesService['synchronizers'].get(rowId)).toBeUndefined();
   });
 
   it('should only init sync for previously configured remotes', async () => {
@@ -55,13 +56,13 @@ describe('remotes service', () => {
       {}
     );
     expect(ok).toBeTruthy();
-    expect(remotesService['filesystems'].get(rowId)).toBeDefined();
+    expect(remotesService['synchronizers'].get(rowId)).toBeDefined();
     await remotesService.configureRemotes(storageService.getSpaceId());
     const stateRow = storageService
       .getStore()
       .getRow('remoteState', state as string);
     expect(stateRow.connected).toBeTruthy();
-    expect(remotesService['filesystems'].get(rowId)).toBeDefined();
+    expect(remotesService['synchronizers'].get(rowId)).toBeDefined();
   });
 
   it('should only init sync for all remotes on demand', async () => {
@@ -73,7 +74,7 @@ describe('remotes service', () => {
       .getStore()
       .getRow('remoteState', state as string);
     expect(stateRow.connected).toBeTruthy();
-    expect(remotesService['filesystems'].get(rowId)).toBeDefined();
+    expect(remotesService['synchronizers'].get(rowId)).toBeDefined();
   });
 
   it('should sort remotes by rank', async () => {

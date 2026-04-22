@@ -1,23 +1,12 @@
-import { InMemDriver } from './storage-drivers/inmem.driver';
-import { PCloudDriver } from './storage-drivers/pcloud/pcloud.driver';
+import { driverFactory, DriverNames } from './storage-drivers/driver-factory';
 import { SingleFileStorage } from './storage-filesystems.v1/singlefile.filesystem';
 
-export type DriverNames = 'pcloud' | 'inmem';
 export type LayerTypes = 'singlefile'; // | 'chunks';
 
-export const storageFilesystemFactory = (
+export const storageFilesystemV1Factory = (
   driverName: DriverNames,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   layerType = 'singlefile'
 ) => {
-  let driver;
-  switch (driverName) {
-    case 'inmem':
-      driver = new InMemDriver();
-      break;
-    case 'pcloud':
-    default:
-      driver = new PCloudDriver();
-  }
-  return new SingleFileStorage(driver);
+  return new SingleFileStorage(driverFactory(driverName));
 };

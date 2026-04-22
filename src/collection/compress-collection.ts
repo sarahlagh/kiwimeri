@@ -23,6 +23,30 @@ const keys = [
   ['display_opts', 'do'],
   ['display_opts_meta', 'DO']
 ];
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const MIN_KEYS = [
+  'i',
+  'p',
+  'P',
+  'ty',
+  't',
+  'T',
+  'c',
+  'C',
+  'pw',
+  'ta',
+  'TA',
+  'cr',
+  'u',
+  'd',
+  'D',
+  'o',
+  'O',
+  'do',
+  'DO'
+] as const;
+export type MinKeys = typeof MIN_KEYS;
+
 const keysMap = new Map();
 const keysMapReverse = new Map();
 keys.forEach(([v1, v2]) => {

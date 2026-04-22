@@ -61,7 +61,8 @@ class SyncService {
     );
     if (activeRemotes.length > 0) {
       const remote = activeRemotes[0];
-      return await remotesService.pull(remote, force);
+      const resp = await remotesService.pull(remote, force);
+      return resp?.success;
     }
     return true;
   }

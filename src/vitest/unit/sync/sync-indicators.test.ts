@@ -2,6 +2,7 @@ import localChangesService from '@/db/local-changes.service';
 import { syncService } from '@/remote-storage/sync.service';
 import { renderHook } from '@testing-library/react';
 import { act } from 'react';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { testSyncAfterEach, testSyncBeforeEach } from './test-sync.utils';
 

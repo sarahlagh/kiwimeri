@@ -2,29 +2,23 @@ import { networkService } from '@/common/services/network.service';
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
 import { INTERNAL_FORMAT } from '@/constants';
-import {
-  LayerTypes,
-  storageFilesystemFactory
-} from '@/remote-storage/storage-filesystem.factory';
-import { CloudStorageFilesystemV1 } from '@/remote-storage/storage-filesystems.v1/abstract.filesystem';
-import { RemoteInfo } from '@/remote-storage/sync-types';
+import { CloudStorageSynchronizer } from '@/remote-storage/synchronizers/abstract-synchronizer';
+import { MultiSynchronizer } from '@/remote-storage/synchronizers/multi-synchronizer';
 import { ConnectionStatusChangeListener } from '@capacitor/network';
-import localChangesService from './local-changes.service';
 import storageService from './storage.service';
 import {
   useCellWithRef,
   useResultSortedRowIdsWithRef,
   useResultTableWithRef
 } from './tinybase/hooks';
-import { AnyData, RemoteResult, RemoteState } from './types/store-types';
+import { AnyData, RemoteResult } from './types/store-types';
 
 class RemotesService {
   private readonly storeId = 'store';
   private readonly remotesTable = 'remotes';
   private readonly stateTable = 'remoteState';
 
-  private layer: LayerTypes = appConfig.DEFAULT_STORAGE_FS;
-  private filesystems: Map<string, CloudStorageFilesystemV1> = new Map();
+  private synchronizers: Map<string, CloudStorageSynchronizer> = new Map();
 
   private networkListener: ConnectionStatusChangeListener | null = null;
 
@@ -34,7 +28,7 @@ class RemotesService {
     if (!queries.hasQuery(queryName)) {
       queries.setQueryDefinition(
         queryName,
-        this.remotesTable,
+        'remotes',
         ({ select, join, where }) => {
           select('rank');
           select('name');
@@ -75,10 +69,10 @@ class RemotesService {
   }
 
   public stopSync() {
-    this.filesystems.forEach(fs => {
+    this.synchronizers.forEach(fs => {
       fs.destroy();
     });
-    this.filesystems.clear();
+    this.synchronizers.clear();
     if (this.networkListener) {
       networkService.removeListener(this.networkListener);
       this.networkListener = null;
@@ -115,13 +109,10 @@ class RemotesService {
       proxy = platformService.getInternalProxy();
       useHttp = appConfig.DEV_USE_HTTP_IF_POSSIBLE;
     }
-    if (!this.filesystems.has(remote.id))
-      this.filesystems.set(
-        remote.id,
-        storageFilesystemFactory(remote.type, this.layer)
-      );
-    const filesystem = this.filesystems.get(remote.id)!;
-    filesystem.configure(config, proxy, useHttp);
+    if (!this.synchronizers.has(remote.id))
+      this.synchronizers.set(remote.id, new MultiSynchronizer(remote));
+    const synchronizer = this.synchronizers.get(remote.id)!;
+    synchronizer.configure(config, proxy, useHttp);
 
     const networkStatus = networkService.getStatus();
     if (networkStatus && !networkStatus.connected) {
@@ -129,26 +120,12 @@ class RemotesService {
       return false;
     }
 
-    const newConf = await filesystem.connect(remote.state);
-
-    if (newConf.config !== null) {
-      storageService.getStore().transaction(() => {
-        storageService
-          .getStore()
-          .setCell(
-            this.remotesTable,
-            remote.id,
-            'config',
-            JSON.stringify(newConf.config)
-          );
-        this.updateRemoteStateInfo(remote.state, newConf.remoteState);
-      });
+    const newConf = await synchronizer.connect();
+    if (newConf.config) {
+      this.setRemoteConfig(remote.id, newConf.config);
     }
 
-    this.setRemoteStateConnected(
-      remote.state,
-      newConf.remoteState.connected || false
-    );
+    this.setRemoteStateConnected(remote.state, newConf.connected || false);
     return true;
   }
 
@@ -245,7 +222,12 @@ class RemotesService {
       storageService.getStore().delRow(this.stateTable, remote);
     });
 
-    this.filesystems.delete(remote);
+    this.synchronizers
+      .get(remote)
+      ?.destroy()
+      .then(() => {
+        this.synchronizers.delete(remote);
+      });
   }
 
   public setRemoteName(remote: string, name: string) {
@@ -262,38 +244,6 @@ class RemotesService {
     storageService
       .getStore()
       .setCell(this.stateTable, remote, 'connected', connected);
-  }
-
-  public getCachedRemoteStateInfo(stateId: string) {
-    const row = storageService.getStore().getRow(this.stateTable, stateId);
-    return {
-      ...row,
-      id: stateId,
-      info: row.info ? JSON.parse(row.info as string) : undefined
-    } as RemoteState;
-  }
-
-  public updateRemoteStateInfo(stateId: string, remoteInfo: RemoteState) {
-    storageService.getStore().transaction(() => {
-      storageService
-        .getStore()
-        .setCell(
-          this.stateTable,
-          stateId,
-          'lastRemoteChange',
-          remoteInfo.lastRemoteChange || 0
-        );
-      if (remoteInfo.info) {
-        storageService
-          .getStore()
-          .setCell(
-            this.stateTable,
-            stateId,
-            'info',
-            JSON.stringify(remoteInfo.info)
-          );
-      }
-    });
   }
 
   public updateRemoteRank(currentRank: number, newRank: number) {
@@ -318,74 +268,16 @@ class RemotesService {
     });
   }
 
-  private updateRemoteInfo(
-    state: string,
-    remoteInfo: RemoteInfo,
-    updateLocalChanges: boolean,
-    clearLocalChanges: boolean
-  ) {
-    storageService.getStore().transaction(() => {
-      if (updateLocalChanges) {
-        localChangesService.setLastLocalChange(
-          remoteInfo.lastRemoteChange || 0
-        );
-      }
-      if (clearLocalChanges) {
-        localChangesService.clear();
-      }
-      this.updateRemoteStateInfo(state, remoteInfo);
-    });
+  public async push(remote: RemoteResult, force = false) {
+    const synchronizer = this.synchronizers.get(remote.id);
+    if (!synchronizer) return;
+    return synchronizer.push(force);
   }
 
   public async pull(remote: RemoteResult, force = false) {
-    const store = storageService.getSpace(remote.space);
-    const localContent = store.getContent();
-    const localChanges = localChangesService.getLocalChanges();
-    const remoteState = this.getCachedRemoteStateInfo(remote.state);
-
-    try {
-      const filesystem = this.filesystems.get(remote.id)!;
-      const resp = await filesystem.pull({ ...remote, ...remoteState }, force);
-      if (resp && resp.didPull) {
-        this.updateRemoteInfo(
-          remote.state,
-          resp.remoteInfo,
-          force || localChanges.length == 0,
-          force || false
-        );
-        if (resp.remoteInfo.lastRemoteChange)
-          localChangesService.setLastPulled(resp.remoteInfo.lastRemoteChange);
-      }
-    } catch (e) {
-      console.error(
-        'error pulling',
-        remote.name,
-        this.filesystems.get(remote.id)?.getName(),
-        e
-      );
-      // restore
-      storageService.getSpace().setContent(localContent);
-      return false;
-    }
-    return true;
-  }
-
-  public async push(remote: RemoteResult, force = false) {
-    const remoteState = this.getCachedRemoteStateInfo(remote.state);
-    const filesystem = this.filesystems.get(remote.id)!;
-    try {
-      const resp = await filesystem.push({ ...remote, ...remoteState }, force);
-      this.updateRemoteInfo(remote.state, resp.remoteInfo, true, true);
-      if (resp.remoteInfo.lastRemoteChange)
-        localChangesService.setLastPulled(resp.remoteInfo.lastRemoteChange);
-    } catch (e) {
-      console.error(
-        'error pushing',
-        remote.name,
-        this.filesystems.get(remote.id)?.getName(),
-        e
-      );
-    }
+    const synchronizer = this.synchronizers.get(remote.id);
+    if (!synchronizer) return;
+    return synchronizer.pull(force);
   }
 }
 

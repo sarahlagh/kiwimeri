@@ -22,8 +22,8 @@ import { SpaceValues } from '@/db/types/space-types';
 import { LocalChangeType } from '@/db/types/store-types';
 import userSettingsService from '@/db/user-settings.service';
 import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
-import { LayerTypes } from '@/remote-storage/storage-filesystem.factory';
 import { syncService } from '@/remote-storage/sync.service';
+import { MultiSynchronizer } from '@/remote-storage/synchronizers/multi-synchronizer';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -185,10 +185,11 @@ describe('sync service', () => {
   const layer = 'singlefile';
   describe(`with ${layer} layer`, () => {
     beforeEach(async () => {
-      remotesService['layer'] = layer as LayerTypes;
       remotesService.addRemote('test', 0, 'inmem', {});
       await remotesService.configureRemotes(storageService.getSpaceId(), true);
-      driver = remotesService['filesystems'].values().next().value![
+      const multiSynchronizer = remotesService['synchronizers'].values().next()
+        .value! as MultiSynchronizer;
+      driver = multiSynchronizer['collectionSynchronizer'][
         'driver'
       ] as InMemDriver;
       vi.useFakeTimers();

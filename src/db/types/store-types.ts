@@ -1,5 +1,5 @@
 import { CollectionItemUpdatableFieldEnum } from '@/collection/collection';
-import { DriverNames } from '@/remote-storage/storage-filesystem.factory';
+import { DriverNames } from '@/remote-storage/storage-drivers/driver-factory';
 import { ValueIdFromSchema } from 'tinybase/@types/_internal/store/with-schemas';
 import { CellSchema } from 'tinybase/with-schemas';
 
@@ -43,13 +43,13 @@ export interface LocalChange {
 
 export interface Remote {
   id?: string;
-  state?: string;
+  state?: string; // rename to stateId
   name: string;
   space: string;
   rank: number;
   type: DriverNames;
   config?: string;
-  formats: string;
+  formats: string; // remove
 }
 
 export type RemoteResult = Required<Remote> &

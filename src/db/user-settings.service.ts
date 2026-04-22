@@ -206,6 +206,13 @@ class UserSettingsService {
     return useValueWithRef(this.spaceId, 'maxHistoryPerDoc') as number;
   }
 
+  public getHistoryMaxVersions(space?: string): number {
+    return storageService
+      .getSpace(space)
+      .getValue('maxHistoryPerDoc')
+      .valueOf();
+  }
+
   public setHistoryMaxVersions(value: number, space?: string) {
     storageService.getSpace(space).setValue('maxHistoryPerDoc', value);
   }

@@ -1,8 +1,4 @@
-import {
-  AnySerializableData,
-  RemoteState,
-  RemoteWithState
-} from '@/db/types/store-types';
+import { AnyData, RemoteState, RemoteWithState } from '@/db/types/store-types';
 import { Table as UntypedTable } from 'tinybase';
 import { CloudStorageDriver } from '../storage-drivers/abstract.driver';
 import { RemoteInfo } from '../sync-types';
@@ -14,16 +10,12 @@ export abstract class CloudStorageFilesystemV1 {
     return `[${this.getVersionFile()}][${this.driver.driverName}]`;
   }
 
-  abstract configure(
-    conf: AnySerializableData,
-    proxy?: string,
-    useHttp?: boolean
-  ): void; // accept user input and save in local store
+  abstract configure(conf: AnyData, proxy?: string, useHttp?: boolean): void; // accept user input and save in local store
 
   abstract getVersionFile(): string;
 
   abstract connect(remoteStateId?: string): Promise<{
-    config: AnySerializableData | null;
+    config: AnyData | null;
     remoteState: RemoteState;
   }>;
 

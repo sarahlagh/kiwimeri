@@ -12,8 +12,8 @@ import {
   oneFolder,
   oneNotebook
 } from '@/vitest/setup/test.utils';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
-  driver,
   getRemoteContent,
   reInitRemoteData,
   syncService_pull,
@@ -113,11 +113,6 @@ describe(`sync general test`, () => {
     await reInitRemoteData(remoteData);
     await syncService_pull();
     expect(getRowCountInsideNotebook()).toBe(3);
-  });
-
-  it('should create version file on first init', async () => {
-    const { content } = await driver.pullFile('', 'S1');
-    expect(content).toBe('0');
   });
 
   it('should handle reinit on network down', async () => {
