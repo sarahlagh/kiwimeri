@@ -42,7 +42,7 @@ import { getUniqueId, Row, Table, Table as UntypedTable } from 'tinybase';
 import { Content } from 'tinybase/store/with-schemas';
 import { CloudStorageDriver } from '../storage-drivers/abstract.driver';
 import { SingleFileStorage } from '../storage-filesystems.v2/singlefile.filesystem';
-import { AfterSyncHistChange, RemoteInfo } from '../sync-types';
+import { AfterSyncHistChange } from '../sync-types';
 import { CloudStorageSynchronizer } from './abstract-synchronizer';
 
 export type MinimizedCollectionItem = {
@@ -118,10 +118,17 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
         const resp = await this.singlefileFS.acceptsChanges(data);
 
         // update remote info
-        const remoteInfo = resp.updatedRemoteState.info as RemoteInfo;
-        this.updateRemoteInfo(this.remote.state, remoteInfo, true, true);
-        if (remoteInfo.lastRemoteChange)
-          localChangesService.setLastPulled(remoteInfo.lastRemoteChange);
+        const updatedRemoteState = resp.updatedRemoteState;
+        this.updateRemoteState(
+          this.remote.state,
+          updatedRemoteState,
+          true,
+          true
+        );
+        if (updatedRemoteState.lastRemoteChange)
+          localChangesService.setLastPulled(
+            updatedRemoteState.lastRemoteChange
+          );
       }
 
       return { success: true };
@@ -152,10 +159,10 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
           resp.data as RemoteCollectionFileContent,
           force
         );
-        const remoteInfo = resp.updatedRemoteState.info as RemoteInfo;
-        this.updateRemoteInfo(
+        const updatedRemoteState = resp.updatedRemoteState;
+        this.updateRemoteState(
           this.remote.state,
-          remoteInfo,
+          updatedRemoteState,
           force || localChanges.length == 0,
           force || false
         );
@@ -559,22 +566,22 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     });
   }
 
-  private updateRemoteInfo(
+  private updateRemoteState(
     state: string,
-    remoteInfo: RemoteInfo,
+    updatedRemoteState: RemoteState,
     updateLocalChanges: boolean,
     clearLocalChanges: boolean
   ) {
     storageService.getStore().transaction(() => {
       if (updateLocalChanges) {
         localChangesService.setLastLocalChange(
-          remoteInfo.lastRemoteChange || 0
+          updatedRemoteState.lastRemoteChange || 0
         );
       }
       if (clearLocalChanges) {
         localChangesService.clear();
       }
-      this.updateRemoteStateInfo(state, remoteInfo);
+      this.updateRemoteStateInfo(state, updatedRemoteState);
     });
   }
 

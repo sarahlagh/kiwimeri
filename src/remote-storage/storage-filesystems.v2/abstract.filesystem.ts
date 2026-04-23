@@ -1,6 +1,6 @@
 import { AnyData, RemoteState } from '@/db/types/store-types';
 import { CloudStorageDriver } from '../storage-drivers/abstract.driver';
-import { DriverFileInfo, RemoteInfo } from '../sync-types';
+import { DriverFileInfo, UpdatedRemoteState } from '../sync-types';
 
 export abstract class CloudStorageFilesystemV2 {
   constructor(
@@ -57,7 +57,7 @@ export abstract class CloudStorageFilesystemV2 {
 
   abstract hasNewChanges(
     lastPulled: number,
-    cachedRemoteInfo?: RemoteInfo
+    cachedRemoteState?: UpdatedRemoteState
   ): Promise<{
     hasNewChanges: boolean;
     updatedRemoteState: RemoteState;
