@@ -1,14 +1,14 @@
 import { dateToStr } from '@/common/date-utils';
 import { DEFAULT_NOTEBOOK_ID, DEFAULT_SPACE_ID } from '@/constants';
+import { DocumentContentStatsBag } from '@/core/services/stats/document-stats';
+import { statsService } from '@/core/services/stats/stats-service';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
 import userSettingsService from '@/db/user-settings.service';
+import { DataPoint } from '@/modules/stats/models/data-point';
 import { searchAncestryService } from '@/search/search-ancestry.service';
-import { DataPoint } from '@/stats/components/data-point';
-import { DocumentContentStatsBag } from '@/stats/document-stats';
-import { statsService } from '@/stats/stats-service';
 import { fakeTimersDelay, getNewContent } from '@/vitest/setup/test.utils';
 import { readFile } from 'fs/promises';
 import {

@@ -1,4 +1,3 @@
-import { appConfig } from '@/config';
 import { AnyData, RemoteState } from '@/db/types/store-types';
 import { CloudStorageDriver } from '../storage-drivers/abstract.driver';
 import { DriverFileInfo } from '../sync-types';
@@ -22,10 +21,6 @@ export class SingleFileStorage extends CloudStorageFilesystemV2 {
       filename: 'data'
     };
     this.filename = this.opts.filename;
-  }
-
-  public runtimeVersion(): string {
-    return `SF${this.version}-${appConfig.KIWIMERI_VERSION}.version`;
   }
 
   public async connect(): Promise<{

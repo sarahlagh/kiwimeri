@@ -1,6 +1,6 @@
+import { statsService } from '@/core/services/stats/stats-service';
 import navService from '@/db/nav.service';
 import userSettingsService from '@/db/user-settings.service';
-import { statsService } from '@/stats/stats-service';
 import {
   IonCard,
   IonCardContent,

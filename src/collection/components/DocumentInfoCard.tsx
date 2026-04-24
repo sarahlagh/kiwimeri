@@ -48,7 +48,7 @@ const DocumentInfoCard = ({ id }: DocumentInfoCardProps) => {
   const statsEnabled =
     collectionService.getItemEffectiveDisplayOpts(parent).statsEnabled;
   const ChartContainer = lazy(
-    () => import('@/stats/components/ChartContainer')
+    () => import('@/modules/stats/components/ChartContainer')
   );
 
   return (

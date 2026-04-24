@@ -60,6 +60,7 @@ type RemoteContentRepresentation = {
 export class CollectionSynchronizer extends CloudStorageSynchronizer {
   protected singlefileFS: SingleFileStorage;
   protected connectedRemote: RemoteWithState;
+  protected ongoing = false;
 
   constructor(
     protected remote: RemoteResult,
@@ -91,6 +92,8 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   }
 
   public async push(force = false) {
+    if (this.ongoing) return { success: false };
+    this.ongoing = true;
     const store = storageService.getSpace(this.remote.space);
     const localContent = store.getContent();
     const localChanges = localChangesService.getLocalChanges();
@@ -135,10 +138,14 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
         e
       );
       return { success: false };
+    } finally {
+      this.ongoing = false;
     }
   }
 
   public async pull(force = false) {
+    if (this.ongoing) return { success: false };
+    this.ongoing = true;
     const store = storageService.getSpace(this.remote.space);
     const localContent = store.getContent();
     const localChanges = localChangesService.getLocalChanges();
@@ -171,6 +178,8 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       console.error('error pulling', this.remote.name, e);
       // restore
       storageService.getSpace().setContent(localContent);
+    } finally {
+      this.ongoing = false;
     }
     return { success: false };
   }

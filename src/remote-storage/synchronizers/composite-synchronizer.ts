@@ -5,7 +5,7 @@ import { CloudStorageSynchronizer } from './abstract-synchronizer';
 import { CollectionSynchronizer } from './collection-synchronizer';
 
 // target: have collection synchronizer share remote & driver with stats
-export class MultiSynchronizer extends CloudStorageSynchronizer {
+export class CompositeSynchronizer extends CloudStorageSynchronizer {
   protected collectionSynchronizer: CollectionSynchronizer;
   protected driver: CloudStorageDriver;
 

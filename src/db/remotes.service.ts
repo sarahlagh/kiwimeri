@@ -3,7 +3,7 @@ import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
 import { INTERNAL_FORMAT } from '@/constants';
 import { CloudStorageSynchronizer } from '@/remote-storage/synchronizers/abstract-synchronizer';
-import { MultiSynchronizer } from '@/remote-storage/synchronizers/multi-synchronizer';
+import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';
 import { ConnectionStatusChangeListener } from '@capacitor/network';
 import storageService from './storage.service';
 import {
@@ -110,7 +110,7 @@ class RemotesService {
       useHttp = appConfig.DEV_USE_HTTP_IF_POSSIBLE;
     }
     if (!this.synchronizers.has(remote.id))
-      this.synchronizers.set(remote.id, new MultiSynchronizer(remote));
+      this.synchronizers.set(remote.id, new CompositeSynchronizer(remote));
     const synchronizer = this.synchronizers.get(remote.id)!;
     synchronizer.configure(config, proxy, useHttp);
 

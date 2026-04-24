@@ -11,7 +11,7 @@ import { SpaceValues } from '@/db/types/space-types';
 import userSettingsService from '@/db/user-settings.service';
 import { PCloudDriver } from '@/remote-storage/storage-drivers/pcloud/pcloud.driver';
 import { syncService } from '@/remote-storage/sync.service';
-import { MultiSynchronizer } from '@/remote-storage/synchronizers/multi-synchronizer';
+import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
@@ -33,7 +33,7 @@ import { defaultValues } from '../unit/sync/test-sync.utils';
 
 let notebook: string = DEFAULT_NOTEBOOK_ID;
 let driver: PCloudDriver;
-let synchronizer: MultiSynchronizer;
+let synchronizer: CompositeSynchronizer;
 
 const reInitRemoteData = async (
   items: CollectionItem[],
@@ -94,7 +94,7 @@ describe.sequential(
       const keys = remotesService['synchronizers'].keys();
       synchronizer = remotesService['synchronizers'].get(
         keys.next().value!
-      )! as MultiSynchronizer;
+      )! as CompositeSynchronizer;
 
       driver = synchronizer['collectionSynchronizer']['driver'] as PCloudDriver;
 

@@ -23,7 +23,7 @@ import { LocalChangeType } from '@/db/types/store-types';
 import userSettingsService from '@/db/user-settings.service';
 import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
 import { syncService } from '@/remote-storage/sync.service';
-import { MultiSynchronizer } from '@/remote-storage/synchronizers/multi-synchronizer';
+import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -177,9 +177,10 @@ describe('sync service', () => {
     beforeEach(async () => {
       remotesService.addRemote('test', 0, 'inmem', {});
       await remotesService.configureRemotes(storageService.getSpaceId(), true);
-      const multiSynchronizer = remotesService['synchronizers'].values().next()
-        .value! as MultiSynchronizer;
-      driver = multiSynchronizer['collectionSynchronizer'][
+      const compositeSynchronizer = remotesService['synchronizers']
+        .values()
+        .next().value! as CompositeSynchronizer;
+      driver = compositeSynchronizer['collectionSynchronizer'][
         'driver'
       ] as InMemDriver;
       vi.useFakeTimers();

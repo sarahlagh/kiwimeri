@@ -8,10 +8,10 @@ import KiwimeriEditor, {
 import { serializeSelection } from '@/common/wysiwyg/lexical/selection-serializer';
 import CollectionPagesBrowser from '@/common/wysiwyg/pages-browser/CollectionPagesBrowser';
 import { APPICONS } from '@/constants';
+import { statsService } from '@/core/services/stats/stats-service';
 import { resumeStateService } from '@/db/collection-resume-state.service';
 import collectionService from '@/db/collection.service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
-import { statsService } from '@/stats/stats-service';
 import {
   InputCustomEvent,
   IonButton,

@@ -8,7 +8,7 @@ import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { ResultRow } from 'tinybase/with-schemas';
-import { DataPoint } from './components/data-point';
+import { DataPoint } from '../../../modules/stats/models/data-point';
 import {
   DocumentContentStatsBag,
   DocumentDatedStat,
