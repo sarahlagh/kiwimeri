@@ -48,8 +48,8 @@ const RemoteGenericSettings = ({
   const onNameChange = (value: string) => {
     remotesService.setRemoteName(remote.id, value);
   };
-  const deleteRemote = () => {
-    remotesService.delRemote(remote.id);
+  const deleteRemote = async () => {
+    await remotesService.delRemote(remote.id);
   };
 
   const labelPlacement = platformService.isWideEnough() ? undefined : 'stacked';

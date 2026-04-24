@@ -53,21 +53,11 @@ import {
   setLocalItemField,
   updateOnRemote
 } from '../../setup/test.utils';
+import { defaultValues } from './test-sync.utils';
 
 let driver: InMemDriver;
 let iPull = 0;
 let iPush = 0;
-
-const defaultValues: SpaceValues = {
-  defaultSortBy: 'order',
-  defaultSortDesc: true,
-  historyIdleTime: 15000,
-  historyMaxInterval: 300000,
-  maxHistoryPerDoc: 50,
-  lastUpdated: Date.now(),
-  schemaVersion: '',
-  statsEnabled: false
-};
 
 const reInitRemoteData = async (
   items: CollectionItem[],

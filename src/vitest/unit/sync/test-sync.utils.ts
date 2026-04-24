@@ -16,7 +16,7 @@ export let driver: InMemDriver;
 let iPull = 0;
 let iPush = 0;
 
-const defaultValues: SpaceValues = {
+export const defaultValues: SpaceValues = {
   defaultSortBy: 'order',
   defaultSortDesc: true,
   historyIdleTime: 15000,

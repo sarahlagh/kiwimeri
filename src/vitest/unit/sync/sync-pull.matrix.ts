@@ -17,6 +17,7 @@ import {
   tagsField,
   titleField
 } from '@/vitest/setup/test.utils';
+import { expect } from 'vitest';
 import { PullTestScenario } from './scenario-runner';
 
 export // covers single pull/force pull only

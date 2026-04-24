@@ -208,7 +208,7 @@ class RemotesService {
     );
   }
 
-  public delRemote(remote: string) {
+  public async delRemote(remote: string) {
     storageService.getStore().transaction(() => {
       // update ranks
       const remaining = this.getRemotes().filter(r => r.id !== remote);
@@ -222,12 +222,10 @@ class RemotesService {
       storageService.getStore().delRow(this.stateTable, remote);
     });
 
-    this.synchronizers
-      .get(remote)
-      ?.destroy()
-      .then(() => {
-        this.synchronizers.delete(remote);
-      });
+    if (this.synchronizers.has(remote))
+      await this.synchronizers.get(remote)?.destroy();
+
+    this.synchronizers.delete(remote);
   }
 
   public setRemoteName(remote: string, name: string) {
