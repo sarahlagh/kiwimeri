@@ -1,5 +1,4 @@
 import { appConfig } from '@/config';
-import storageService from '@/db/storage.service';
 import { AnyData, RemoteState } from '@/db/types/store-types';
 import { CloudStorageDriver } from '../storage-drivers/abstract.driver';
 import { DriverFileInfo } from '../sync-types';
@@ -115,14 +114,5 @@ export class SingleFileStorage extends CloudStorageFilesystemV2 {
       remoteState.info = filesInfo[0];
     }
     return remoteState;
-  }
-
-  private getCachedRemoteStateInfo(stateId: string) {
-    const row = storageService.getStore().getRow('remoteState', stateId);
-    return {
-      ...row,
-      id: stateId,
-      info: row.info ? JSON.parse(row.info as string) : undefined
-    } as RemoteState;
   }
 }

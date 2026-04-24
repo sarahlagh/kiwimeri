@@ -16,11 +16,7 @@ import {
 } from '@/collection/compress-collection';
 import { nOr0 } from '@/common/utils';
 import { appConfig, getGlobalTrans } from '@/config';
-import {
-  CONFLICTS_NOTEBOOK_ID,
-  KIWIMERI_MODEL_VERSION,
-  ROOT_COLLECTION
-} from '@/constants';
+import { CONFLICTS_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
 import { resumeStateService } from '@/db/collection-resume-state.service';
 import collectionService from '@/db/collection.service';
@@ -41,7 +37,7 @@ import userSettingsService from '@/db/user-settings.service';
 import { getUniqueId, Row, Table, Table as UntypedTable } from 'tinybase';
 import { Content } from 'tinybase/store/with-schemas';
 import { CloudStorageDriver } from '../storage-drivers/abstract.driver';
-import { SingleFileStorage } from '../storage-filesystems.v2/singlefile.filesystem';
+import { SingleFileStorage } from '../storage-filesystems/singlefile.filesystem';
 import { AfterSyncHistChange } from '../sync-types';
 import { CloudStorageSynchronizer } from './abstract-synchronizer';
 
@@ -53,7 +49,6 @@ export type RemoteCollectionFileContent = {
   i: MinimizedCollectionItem[]; // the items
   o: SpaceValues; // the space options
   u: number; // last content change
-  v: number; // the model version
 };
 
 type RemoteContentRepresentation = {
@@ -500,14 +495,6 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   ): RemoteContentRepresentation {
     const obj = data;
 
-    if (obj.v !== KIWIMERI_MODEL_VERSION) {
-      console.warn(
-        '[filesystem] model mismatch between server and client',
-        obj.v,
-        KIWIMERI_MODEL_VERSION
-      );
-    }
-
     if (!obj.o) {
       // shouldn't happen except in dev - TODO better version detection before pulling
       const spaceDefaults = userSettingsService.getSpaceDefaultDisplayOpts();
@@ -538,8 +525,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     return {
       i: minimizeItemsForStorage(items) as MinimizedCollectionItem[],
       o: values,
-      u: updated,
-      v: KIWIMERI_MODEL_VERSION
+      u: updated
     };
   }
 

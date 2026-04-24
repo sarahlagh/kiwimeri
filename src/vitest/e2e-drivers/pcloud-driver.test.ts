@@ -67,7 +67,6 @@ const getRemoteContent = async () => {
     ?.valueOf() as string;
   const info = JSON.parse(infoStr!) as { providerid: string };
   const { content } = await driver.pullFile(info.providerid, '');
-  console.debug('[getRemoteContent]', content);
   if (!content) {
     return undefined;
   }
@@ -423,16 +422,33 @@ describe.sequential(
       await syncService.pull();
 
       // now check
-      expect(getRowCountInsideNotebook()).toBe(22); // 20 + 2 added -2 deleted + 2 conflicts
-      expect(notebooksService.getNotebooks()).toHaveLength(2);
 
+      expect(collectionService.itemExists(idDocuments[0]));
+      expect(collectionService.itemExists(idFolders[0]));
+      expect(collectionService.itemExists(idDocuments[1]));
+      expect(collectionService.itemExists(idFolders[1]));
+      expect(collectionService.itemExists(idDocuments[2])).toBe(false); // deleted remotely
+      expect(collectionService.itemExists(idFolders[2]));
+      expect(collectionService.itemExists(idDocuments[3]));
+      expect(collectionService.itemExists(idFolders[3]));
+      expect(collectionService.itemExists(idDocuments[4]));
+      expect(collectionService.itemExists(idFolders[4]));
+      expect(collectionService.itemExists(idDocuments[5])).toBe(false); // deleted locally
+      expect(collectionService.itemExists(idFolders[5]));
+      expect(collectionService.itemExists(idDocuments[6]));
+      expect(collectionService.itemExists(idFolders[6]));
+      expect(collectionService.itemExists(idDocuments[7]));
+      expect(collectionService.itemExists(idFolders[7]));
+      expect(collectionService.itemExists(idDocuments[8]));
+      expect(collectionService.itemExists(idFolders[8]));
+      expect(collectionService.itemExists(idDocuments[9]));
+      expect(collectionService.itemExists(idFolders[9]));
       // check items created are still there
       expect(collectionService.itemExists(newLocalItem));
       expect(collectionService.itemExists(newRemoteItem.id!));
-
-      // check deleted items
-      expect(collectionService.itemExists(idDeleteLocal)).toBeFalsy(); // has been deleted locally
-      expect(collectionService.itemExists(idDeleteRemote)).toBeFalsy(); // has been deleted from remote
+      // in total
+      expect(getRowCountInsideNotebook()).toBe(22); // 20 + 2 added -2 deleted + 2 conflicts
+      expect(notebooksService.getNotebooks()).toHaveLength(2);
 
       // check updated items
       expect(getLocalItemField(idUpdateTitleLocal, 'title')).toBe(

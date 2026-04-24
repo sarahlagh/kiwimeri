@@ -4,11 +4,6 @@ import {
 } from '@/collection/collection';
 import { LocalChangeType, RemoteState } from '@/db/types/store-types';
 
-/* @deprecated in favor of UpdatedRemoteState */
-export type RemoteInfo = {
-  lastPulled: number;
-} & RemoteState;
-
 export type UpdatedRemoteState = {
   lastPulled: number;
 } & RemoteState;

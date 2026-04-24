@@ -6,7 +6,6 @@ import {
   unminimizeItemsFromStorage
 } from '@/collection/compress-collection';
 import { fastHash } from '@/common/utils';
-import { KIWIMERI_MODEL_VERSION } from '@/constants';
 import { SpaceValues } from '@/db/types/space-types';
 import { CloudStorageDriver } from './abstract.driver';
 
@@ -95,8 +94,7 @@ export class InMemDriver extends CloudStorageDriver {
       JSON.stringify({
         i: minimizeItemsForStorage(items),
         o: values,
-        u: updated,
-        v: KIWIMERI_MODEL_VERSION
+        u: updated
       })
     );
   }
