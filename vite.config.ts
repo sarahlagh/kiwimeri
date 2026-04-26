@@ -1,5 +1,4 @@
 import { lingui } from '@lingui/vite-plugin';
-import legacy from '@vitejs/plugin-legacy';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import { defineConfig, mergeConfig } from 'vite';
@@ -17,8 +16,7 @@ const viteConfig = defineConfig({
         plugins: ['@lingui/babel-plugin-lingui-macro']
       }
     }),
-    lingui(),
-    legacy()
+    lingui()
   ]
 });
 
