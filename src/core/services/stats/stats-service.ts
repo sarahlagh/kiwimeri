@@ -92,7 +92,9 @@ class StatsService {
         contentStats: JSON.parse(
           resultRow.contentStatsJson
         ) as DocumentContentStatsBag
-      })
+      }),
+      'date',
+      false
     );
   }
 

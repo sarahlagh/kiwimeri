@@ -75,12 +75,12 @@ export const reInitRemoteData = async (
     };
   }
   console.debug('[reInitRemoteData]', items, values, lastLocalChange);
-  await driver.setContent(items, values, lastLocalChange);
+  await driver.setCollectionContent(items, values, lastLocalChange);
   vi.advanceTimersByTime(fakeTimersDelay);
 };
 
 export const getRemoteContent = async () => {
-  return driver.getParsedContent();
+  return driver.getParsedCollectionContent();
 };
 
 export const syncService_pull = async (force = false) => {

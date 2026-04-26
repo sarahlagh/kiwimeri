@@ -7,6 +7,7 @@ import {
 } from '@/collection/compress-collection';
 import { fastHash } from '@/common/utils';
 import { SpaceValues } from '@/db/types/space-types';
+import { AnyData } from '@/db/types/store-types';
 import { CloudStorageDriver } from './abstract.driver';
 
 // for testing
@@ -18,9 +19,9 @@ export class InMemDriver extends CloudStorageDriver {
     { lastRemoteChange: number; hash: string }
   >();
 
-  public constructor() {
+  public constructor(names?: string[]) {
     super('inmem');
-    this.names = ['collection.json'];
+    this.names = names ? names : ['collection.json'];
   }
 
   public getConfig() {
@@ -88,23 +89,28 @@ export class InMemDriver extends CloudStorageDriver {
     }
   }
 
-  public setContent(
+  public setContent(data: AnyData) {
+    return this.pushFile(this.names[0], JSON.stringify(data));
+  }
+
+  public setCollectionContent(
     items: CollectionItem[],
     values: SpaceValues,
     updated: number
   ) {
-    return this.pushFile(
-      this.names[0],
-      JSON.stringify({
-        i: minimizeItemsForStorage(items),
-        o: values,
-        u: updated
-      })
-    );
+    return this.setContent({
+      i: minimizeItemsForStorage(items),
+      o: values,
+      u: updated
+    });
   }
 
-  public getParsedContent() {
-    console.debug('[getRemoteContent]', this.collection.get(this.names[0]));
+  public getParsedContent<T>() {
+    if (!this.collection.get(this.names[0])) return null;
+    return JSON.parse(this.collection.get(this.names[0])!) as T;
+  }
+
+  public getParsedCollectionContent() {
     const obj = JSON.parse(
       this.collection.get(this.names[0]) || '{"i":[],"u":0}'
     ) as {

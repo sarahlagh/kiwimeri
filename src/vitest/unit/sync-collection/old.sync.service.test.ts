@@ -84,7 +84,7 @@ const reInitRemoteData = async (
     };
   }
   console.debug('[reInitRemoteData]', items, values, lastLocalChange);
-  await driver.setContent(items, values, lastLocalChange);
+  await driver.setCollectionContent(items, values, lastLocalChange);
   vi.advanceTimersByTime(fakeTimersDelay);
 };
 
@@ -850,7 +850,7 @@ describe('sync service', () => {
 
                 // push, no conflict should be pushed
                 await syncService_push();
-                let remoteContent = await driver.getParsedContent();
+                let remoteContent = await driver.getParsedCollectionContent();
                 expect(remoteContent.content).toHaveLength(3);
                 testPushIndicator(false);
 
@@ -862,7 +862,7 @@ describe('sync service', () => {
                 // !! once conflict solved, should have one version
 
                 await syncService_push();
-                remoteContent = await driver.getParsedContent();
+                remoteContent = await driver.getParsedCollectionContent();
                 expect(remoteContent.content).toHaveLength(4);
 
                 testPushIndicator(false);
@@ -1099,7 +1099,7 @@ describe('sync service', () => {
 
                 // now push
                 await syncService_push();
-                const remoteContent = await driver.getParsedContent();
+                const remoteContent = await driver.getParsedCollectionContent();
                 expect(remoteContent.content).toHaveLength(2);
                 testPushIndicator(false);
               });
@@ -1200,7 +1200,7 @@ describe('sync service', () => {
 
                 // push, no conflict should be pushed
                 await syncService_push();
-                let remoteContent = await driver.getParsedContent();
+                let remoteContent = await driver.getParsedCollectionContent();
                 expect(remoteContent.content).toHaveLength(
                   newRemoteData.length
                 );
@@ -1215,7 +1215,7 @@ describe('sync service', () => {
                 expect(getLocalItemConflicts()).toHaveLength(0);
 
                 await syncService_push();
-                remoteContent = await driver.getParsedContent();
+                remoteContent = await driver.getParsedCollectionContent();
                 expect(remoteContent.content).toHaveLength(remoteData.length);
 
                 testPushIndicator(false);
@@ -1511,7 +1511,7 @@ describe('sync service', () => {
       it('should only push notebook on first push if collection is empty', async () => {
         expect(getRowCountInsideNotebook()).toBe(0);
         await syncService_push();
-        const remoteContent = await driver.getParsedContent();
+        const remoteContent = await driver.getParsedCollectionContent();
         expect(remoteContent.content).toHaveLength(1);
         expect(remoteContent.content[0].type).toBe(CollectionItemType.notebook);
       });
@@ -1525,7 +1525,7 @@ describe('sync service', () => {
 
         await syncService_pull();
         await syncService_push();
-        const remoteContent = await driver.getParsedContent();
+        const remoteContent = await driver.getParsedCollectionContent();
         expect(remoteContent.content).toHaveLength(0); // use force push for that scenario
       });
 
@@ -1539,7 +1539,7 @@ describe('sync service', () => {
         localChangesService.clear();
 
         await syncService_push();
-        const remoteContent = await driver.getParsedContent();
+        const remoteContent = await driver.getParsedCollectionContent();
         expect(remoteContent.content).toHaveLength(4); // 3 + 1 notebook
         expect(getDocsFolders(remoteContent.content)).toHaveLength(3);
       });
@@ -1550,7 +1550,7 @@ describe('sync service', () => {
         collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
         expect(getRowCountInsideNotebook()).toBe(3);
         await syncService_push();
-        const remoteContent = driver.getParsedContent();
+        const remoteContent = driver.getParsedCollectionContent();
         expect(remoteContent.content).toHaveLength(4); // 3 + 1 notebook
         expect(getDocsFolders(remoteContent.content)).toHaveLength(3);
 
@@ -1572,7 +1572,7 @@ describe('sync service', () => {
         await syncService_push();
 
         // item have been untouched
-        const remoteContent = await driver.getParsedContent();
+        const remoteContent = await driver.getParsedCollectionContent();
         expect(remoteContent.content).toHaveLength(6);
 
         testPushIndicator(false);
@@ -1591,7 +1591,7 @@ describe('sync service', () => {
             await syncService_push();
 
             // item has been erased
-            const remoteContent = await driver.getParsedContent();
+            const remoteContent = await driver.getParsedCollectionContent();
             expect(remoteContent.content).toHaveLength(remoteData.length - 1);
 
             testPushIndicator(false);
@@ -1607,7 +1607,7 @@ describe('sync service', () => {
             await syncService_push();
 
             // item has not been recreated
-            const remoteContent = await driver.getParsedContent();
+            const remoteContent = await driver.getParsedCollectionContent();
             expect(remoteContent.content).toHaveLength(remoteData.length - 1);
 
             testPushIndicator(false);
@@ -1626,7 +1626,7 @@ describe('sync service', () => {
               await syncService_push();
 
               // item has been updated
-              const remoteContent = await driver.getParsedContent();
+              const remoteContent = await driver.getParsedCollectionContent();
               expect(remoteContent.content).toHaveLength(remoteData.length);
               expect(getRemoteItemField(remoteContent.content, id, field)).toBe(
                 newValue
@@ -1650,7 +1650,7 @@ describe('sync service', () => {
               await syncService_push();
 
               // item has been erased
-              const remoteContent = await driver.getParsedContent();
+              const remoteContent = await driver.getParsedCollectionContent();
               expect(remoteContent.content).toHaveLength(remoteData.length - 1);
 
               testPushIndicator(false);
@@ -1672,7 +1672,7 @@ describe('sync service', () => {
               await syncService_push();
 
               // item has been erased
-              const remoteContent = await driver.getParsedContent();
+              const remoteContent = await driver.getParsedCollectionContent();
               expect(remoteContent.content).toHaveLength(remoteData.length - 1);
 
               testPushIndicator(false);
@@ -1694,7 +1694,7 @@ describe('sync service', () => {
               await syncService_push();
 
               // item has been recreated
-              const remoteContent = await driver.getParsedContent();
+              const remoteContent = await driver.getParsedCollectionContent();
               expect(remoteContent.content).toHaveLength(remoteData.length);
               expect(
                 getRemoteItemField(remoteContent.content, id!, field)
@@ -1718,7 +1718,7 @@ describe('sync service', () => {
               await syncService_push();
 
               // item has not been changed on remote
-              const remoteContent = await driver.getParsedContent();
+              const remoteContent = await driver.getParsedCollectionContent();
               expect(getRemoteItemField(remoteContent.content, id, field)).toBe(
                 newValue
               );
@@ -1749,7 +1749,7 @@ describe('sync service', () => {
                 // push
                 await syncService_push();
 
-                const remoteContent = await driver.getParsedContent();
+                const remoteContent = await driver.getParsedCollectionContent();
                 expect(remoteContent.content).toHaveLength(remoteData.length);
                 if (remote !== local) {
                   expect(
@@ -1784,7 +1784,7 @@ describe('sync service', () => {
 
                 // push
                 await syncService_push();
-                const remoteContent = await driver.getParsedContent();
+                const remoteContent = await driver.getParsedCollectionContent();
                 expect(remoteContent.content).toHaveLength(remoteData.length);
                 expect(
                   getRemoteItemField(remoteContent.content, id, remote)
@@ -1829,7 +1829,8 @@ describe('sync service', () => {
 
                   // conflict should not be pushed, remote value is kept
                   await syncService_push();
-                  const remoteContent = await driver.getParsedContent();
+                  const remoteContent =
+                    await driver.getParsedCollectionContent();
                   expect(remoteContent.content).toHaveLength(4);
                   expect(
                     getRemoteItemField(remoteContent.content, id, remote)
@@ -1853,7 +1854,7 @@ describe('sync service', () => {
         expect(getRowCountInsideNotebook(ROOT_COLLECTION)).toBe(5);
 
         await syncService_push();
-        const remoteContent = await driver.getParsedContent();
+        const remoteContent = await driver.getParsedCollectionContent();
         expect(remoteContent.content).toHaveLength(5);
       });
     });
@@ -1862,7 +1863,7 @@ describe('sync service', () => {
       it('should push nothing the first push if collection is empty', async () => {
         expect(getRowCountInsideNotebook()).toBe(0);
         await syncService.push(undefined, true);
-        const remoteContent = await driver.getParsedContent();
+        const remoteContent = await driver.getParsedCollectionContent();
         expect(remoteContent.content).toHaveLength(1);
         expect(getDocsFolders(remoteContent.content)).toHaveLength(0);
       });
@@ -1876,7 +1877,7 @@ describe('sync service', () => {
 
         await syncService_pull();
         await syncService.push(undefined, true);
-        const remoteContent = await driver.getParsedContent();
+        const remoteContent = await driver.getParsedCollectionContent();
         expect(remoteContent.content).toHaveLength(4);
         expect(getDocsFolders(remoteContent.content)).toHaveLength(3);
       });
@@ -1891,7 +1892,7 @@ describe('sync service', () => {
         localChangesService.clear();
 
         await syncService.push(undefined, true);
-        const remoteContent = await driver.getParsedContent();
+        const remoteContent = await driver.getParsedCollectionContent();
         expect(remoteContent.content).toHaveLength(5);
         expect(getDocsFolders(remoteContent.content)).toHaveLength(4);
       });
@@ -1902,7 +1903,7 @@ describe('sync service', () => {
         collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
         expect(getRowCountInsideNotebook()).toBe(3);
         await syncService.push(undefined, true);
-        const remoteContent = driver.getParsedContent();
+        const remoteContent = driver.getParsedCollectionContent();
         expect(remoteContent.content).toHaveLength(4); // 3 + 1 notebook
         expect(getDocsFolders(remoteContent.content)).toHaveLength(3);
 
@@ -1924,7 +1925,7 @@ describe('sync service', () => {
         await syncService.push(undefined, true);
 
         // item have been deleted
-        const remoteContent = await driver.getParsedContent();
+        const remoteContent = await driver.getParsedCollectionContent();
         expect(remoteContent.content).toHaveLength(4);
         expect(remoteContent.content.map(r => r.title)).toEqual([
           getGlobalTrans().defaultNotebookName,
@@ -1953,7 +1954,7 @@ describe('sync service', () => {
           await syncService.push(undefined, true);
 
           // item has been erased
-          const remoteContent = await driver.getParsedContent();
+          const remoteContent = await driver.getParsedCollectionContent();
           expect(remoteContent.content).toHaveLength(3);
 
           testPushIndicator(false);
@@ -1974,7 +1975,7 @@ describe('sync service', () => {
           await syncService.push(undefined, true);
 
           // item has been recreated
-          const remoteContent = await driver.getParsedContent();
+          const remoteContent = await driver.getParsedCollectionContent();
           expect(remoteContent.content).toHaveLength(4);
 
           testPushIndicator(false);
@@ -1998,7 +1999,7 @@ describe('sync service', () => {
             await syncService.push(undefined, true);
 
             // item has been updated
-            const remoteContent = await driver.getParsedContent();
+            const remoteContent = await driver.getParsedCollectionContent();
             expect(remoteContent.content).toHaveLength(4);
             expect(getRemoteItemField(remoteContent.content, id, field)).toBe(
               newValue
@@ -2027,7 +2028,7 @@ describe('sync service', () => {
             await syncService.push(undefined, true);
 
             // item has been erased
-            const remoteContent = await driver.getParsedContent();
+            const remoteContent = await driver.getParsedCollectionContent();
             expect(remoteContent.content).toHaveLength(3);
 
             testPushIndicator(false);
@@ -2054,7 +2055,7 @@ describe('sync service', () => {
             await syncService.push(undefined, true);
 
             // item has been erased
-            const remoteContent = await driver.getParsedContent();
+            const remoteContent = await driver.getParsedCollectionContent();
             expect(remoteContent.content).toHaveLength(3);
 
             testPushIndicator(false);
@@ -2085,7 +2086,7 @@ describe('sync service', () => {
             await syncService.push(undefined, true);
 
             // item has been recreated
-            const remoteContent = await driver.getParsedContent();
+            const remoteContent = await driver.getParsedCollectionContent();
             expect(remoteContent.content).toHaveLength(4);
             expect(getRemoteItemField(remoteContent.content, id!, field)).toBe(
               newValue
@@ -2114,7 +2115,7 @@ describe('sync service', () => {
             await syncService.push(undefined, true);
 
             // item has been changed on remote
-            const remoteContent = await driver.getParsedContent();
+            const remoteContent = await driver.getParsedCollectionContent();
             expect(
               getRemoteItemField(remoteContent.content, id, field)
             ).not.toBe(newValue);
@@ -2144,7 +2145,7 @@ describe('sync service', () => {
               // push
               await syncService.push(undefined, true);
 
-              const remoteContent = await driver.getParsedContent();
+              const remoteContent = await driver.getParsedCollectionContent();
               expect(remoteContent.content).toHaveLength(4);
               if (remote !== local) {
                 expect(
@@ -2184,7 +2185,7 @@ describe('sync service', () => {
 
               // push
               await syncService.push(undefined, true);
-              const remoteContent = await driver.getParsedContent();
+              const remoteContent = await driver.getParsedCollectionContent();
               expect(remoteContent.content).toHaveLength(4);
               expect(
                 getRemoteItemField(remoteContent.content, id, remote)
@@ -2225,7 +2226,7 @@ describe('sync service', () => {
 
             // conflict should not be pushed, remote value is kept
             await syncService.push(undefined, true);
-            const remoteContent = await driver.getParsedContent();
+            const remoteContent = await driver.getParsedCollectionContent();
             expect(remoteContent.content).toHaveLength(4);
             expect(getRemoteItemField(remoteContent.content, id, remote)).toBe(
               newRemoteValue
@@ -2344,7 +2345,7 @@ describe('sync service', () => {
         });
         await syncService_push();
 
-        const remoteContent = await driver.getParsedContent();
+        const remoteContent = await driver.getParsedCollectionContent();
         expect(remoteContent.values).toEqual({
           ...defaultValues,
           defaultSortBy: 'updated',
@@ -2375,7 +2376,7 @@ describe('sync service', () => {
 
         await syncService_push();
 
-        const remoteContent = await driver.getParsedContent();
+        const remoteContent = await driver.getParsedCollectionContent();
         expect(remoteContent.values).toEqual({
           ...defaultValues,
           defaultSortBy: 'order',
@@ -2406,7 +2407,7 @@ describe('sync service', () => {
 
         await syncService_push(true);
 
-        const remoteContent = await driver.getParsedContent();
+        const remoteContent = await driver.getParsedCollectionContent();
         expect(remoteContent.values).toEqual({
           ...defaultValues,
           defaultSortBy: 'updated',

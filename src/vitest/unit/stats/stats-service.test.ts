@@ -1,4 +1,3 @@
-import { dateToStr } from '@/common/date-utils';
 import { DEFAULT_NOTEBOOK_ID, DEFAULT_SPACE_ID } from '@/constants';
 import { DocumentContentStatsBag } from '@/core/services/stats/document-stats';
 import { statsService } from '@/core/services/stats/stats-service';
@@ -10,10 +9,8 @@ import userSettingsService from '@/db/user-settings.service';
 import { DataPoint } from '@/modules/stats/models/data-point';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { fakeTimersDelay, getNewContent } from '@/vitest/setup/test.utils';
-import { readFile } from 'fs/promises';
 import {
   afterEach,
-  assert,
   beforeAll,
   beforeEach,
   describe,
@@ -21,60 +18,13 @@ import {
   it,
   vi
 } from 'vitest';
+import { readFakeStats } from './test-stats.utils';
 
-function randInt(max = 1000) {
-  return Math.round(Math.random() * max);
-}
-
-function randBool(chance = 5) {
-  return randInt() % chance === 0;
-}
-
-function randSignedInt(max = 1000) {
-  const abs = randInt(max);
-  const sign = randBool(3) ? -1 : 1;
-  return sign * abs;
-}
-
-function buildRandomFake(n = 750) {
-  let wordCount = 0;
-  let charCount = 0;
-  const rawData: DataPoint[] = [];
-  for (let i = n; i >= 0; i--) {
-    const skip = randBool(5);
-    if (skip) continue;
-    const timesInDay = randInt(5) + 1;
-    const day = Date.now() - i * 60000 * 60 * 24;
-    for (let j = 0; j < timesInDay; j++) {
-      const date = dateToStr('date-printable', day);
-      wordCount += randSignedInt(100);
-      if (wordCount < 0) wordCount = randInt(10);
-      charCount += randSignedInt(1000);
-      if (charCount < 0) charCount = randInt(100);
-      rawData.push({
-        date,
-        values: {
-          lastWordCount: wordCount,
-          lastCharCount: charCount,
-          updatedAt: day + j * 60000 * 60
-        }
-      });
-    }
-  }
-  return rawData;
-}
-
-let fakeStatsStr = '';
 let fakeStats: DataPoint[] = [];
 let docId = '';
 describe('stats service', () => {
   beforeAll(async () => {
-    try {
-      fakeStatsStr = await readFile(`${__dirname}/_data/stats.json`, 'utf8');
-      fakeStats = JSON.parse(fakeStatsStr) as DataPoint[];
-    } catch (e: any) {
-      assert.fail('failed to read test data:' + e.message);
-    }
+    fakeStats = await readFakeStats();
   });
   beforeEach(() => {
     vi.useFakeTimers();
@@ -96,18 +46,6 @@ describe('stats service', () => {
   // TODO test stat migration on bootstrap
 
   it(`should query stats`, async () => {
-    // const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    // const fakeStats = JSON.parse(fakeStatsStr) as DataPoint[];
-    // const fakeStats = buildRandomFake(750);
-    // await writeFile(`${__dirname}/_data/stats.json`, JSON.stringify(fakeStats));
-    // fakeStats.forEach(dataPoint => {
-    //   statsService.updateTodaysStats(id, {
-    //     lastCharCount: dataPoint.values.lastCharCount,
-    //     lastWordCount: dataPoint.values.lastWordCount,
-    //     updatedAt: dataPoint.values.updatedAt
-    //   });
-    // });
-
     const stats = statsService.getDataPoints(docId);
     expect(stats.length).toBe(618);
     expect(

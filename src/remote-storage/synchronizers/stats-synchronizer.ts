@@ -15,7 +15,7 @@ type RemoteContentStatPerDate = {
   };
 };
 
-type RemoteStatsFileContent = {
+export type RemoteStatsFileContent = {
   content: RemoteContentStatPerDate[];
   global: {
     [key: string]: DocumentGlobalStatsBag; // key is the itemId
@@ -62,6 +62,10 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
     // if only get stats of the month, add button in dev tools to force push all
     try {
       const data = this.computeDataToPush();
+      if (data.content.length === 0 && Object.keys(data.global).length === 0) {
+        console.log('[stats][push] nothing to push');
+        return { success: true, didPush: false };
+      }
       const resp = await this.cloudFS.acceptsChanges(data);
       console.debug('stats pushed', resp);
     } catch (e) {
@@ -70,7 +74,7 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
     } finally {
       this.ongoing = false;
     }
-    return { success: true };
+    return { success: true, didPush: true };
   }
   public async pull() // force?: boolean
   : Promise<{ didPull?: boolean; success: boolean }> {
@@ -83,7 +87,7 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
         const newStats = resp.data as RemoteStatsFileContent;
         this.mergeRemoteStatsToLocal(newStats);
       }
-      return { success: resp.success };
+      return { success: resp.success, didPull: true };
     } catch (e) {
       console.error('[stats][pull] error pushing', e);
       return { success: false };
@@ -93,7 +97,7 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
   }
 
   public async destroy() {
-    /** */
+    return this.driver.close();
   }
 
   private computeDataToPush(): RemoteStatsFileContent {
