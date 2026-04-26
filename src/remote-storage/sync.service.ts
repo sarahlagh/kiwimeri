@@ -74,6 +74,13 @@ class SyncService {
   public useHasLocalConflicts() {
     return collectionService.useConflicts().length > 0;
   }
+
+  public useIsMergeSyncEnabled() {
+    const isConnected = this.usePrimaryConnected();
+    const hasConflicts = this.useHasLocalConflicts();
+    // const onlyForcePush = useStoreValueWithDefault('onlyForcePush', false);
+    return isConnected && !hasConflicts; // && !onlyForcePush;
+  }
 }
 
 export const syncService = new SyncService();

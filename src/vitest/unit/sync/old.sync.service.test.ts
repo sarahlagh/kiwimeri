@@ -125,6 +125,7 @@ const collectionService_deleteItem = (id: string) => {
 };
 
 const testPushIndicator = (res: boolean) => {
+  // TODO doesn't actually test the button status, to update
   const { result } = renderHook(() => syncService.usePrimaryHasLocalChanges());
   expect(result.current).toBe(res);
 };
