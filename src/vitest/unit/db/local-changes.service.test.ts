@@ -9,7 +9,7 @@ import {
   SerializableData
 } from '@/db/types/store-types';
 import userSettingsService from '@/db/user-settings.service';
-import { it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
   GET_UPDATABLE_FIELDS,
   getLocalItemField,
@@ -131,7 +131,8 @@ describe('local changes service', () => {
       sort: {
         by: 'order',
         descending: false
-      }
+      },
+      statsEnabled: false
     });
 
     let localChanges = localChangesService.getLocalChanges();
@@ -147,7 +148,8 @@ describe('local changes service', () => {
       sort: {
         by: 'updated',
         descending: true
-      }
+      },
+      statsEnabled: false
     });
 
     localChanges = localChangesService.getLocalChanges();

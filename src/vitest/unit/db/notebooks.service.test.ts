@@ -7,7 +7,7 @@ import {
   getLocalItemField,
   NON_PARENT_UPDATABLE_FIELDS
 } from '@/vitest/setup/test.utils';
-import { it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 describe('notebooks service', () => {
   it(`should always create a default notebook`, () => {

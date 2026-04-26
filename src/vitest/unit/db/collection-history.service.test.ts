@@ -711,7 +711,8 @@ describe('collection history service', () => {
 
         // set manual order
         collectionService.setItemDisplayOpts(docId, {
-          sort: { by: 'order', descending: false }
+          sort: { by: 'order', descending: false },
+          statsEnabled: false
         });
         vi.advanceTimersByTime(100);
         expect(historyService.getVersions(docId)).toHaveLength(4);
@@ -781,7 +782,8 @@ describe('collection history service', () => {
 
           // set order
           collectionService.setItemDisplayOpts(docId, {
-            sort: { by, descending }
+            sort: { by, descending },
+            statsEnabled: false
           });
           vi.advanceTimersByTime(100);
 

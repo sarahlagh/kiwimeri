@@ -23,7 +23,7 @@ import {
   getLocalItemField
 } from '@/vitest/setup/test.utils';
 import { readFile } from 'fs/promises';
-import { it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 type JsonTestDescriptor = {
   zipName?: string;

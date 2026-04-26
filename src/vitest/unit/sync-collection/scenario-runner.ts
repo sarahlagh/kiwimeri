@@ -24,7 +24,7 @@ import {
   oneNotebook,
   TestField
 } from '@/vitest/setup/test.utils';
-import { vi } from 'vitest';
+import { expect, vi } from 'vitest';
 import {
   PullTestEndStatsBuilder,
   PullTestEndStatsItem,

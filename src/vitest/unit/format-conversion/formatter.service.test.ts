@@ -1,6 +1,6 @@
 import formatConverter from '@/format-conversion/format-converter.service';
 import { readFile } from 'fs/promises';
-import { describe, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 const examples = [
   { name: 'text' },

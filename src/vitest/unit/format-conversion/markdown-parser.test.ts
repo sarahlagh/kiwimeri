@@ -2,7 +2,7 @@ import formatConverter from '@/format-conversion/format-converter.service';
 import { MarkdownParser } from '@/format-conversion/text-parsing/markdown-parser/markdown-parser';
 import { SerializedListNode } from '@lexical/list';
 import { SerializedElementNode, SerializedTextNode } from 'lexical';
-import { describe, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 describe('parser', () => {
   it(`should parse variations`, () => {

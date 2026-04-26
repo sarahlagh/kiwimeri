@@ -11,7 +11,7 @@ import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import formatConverter from '@/format-conversion/format-converter.service';
 import { strFromU8 } from 'fflate';
-import { describe, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('export service', () => {
   beforeEach(() => {
@@ -282,7 +282,8 @@ describe('export service', () => {
         it(`should export a folder with several levels as a zip with inlinePages=${opts.inlinePages}`, () => {
           const fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
           collectionService.setItemDisplayOpts(fId, {
-            sort: { by: 'updated', descending: true }
+            sort: { by: 'updated', descending: true },
+            statsEnabled: false
           });
           newDoc(fId, 'this is the document content');
           const fId2 = collectionService.addFolder(fId);

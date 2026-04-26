@@ -2,7 +2,7 @@ import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/local-changes.service';
 import tagsService from '@/db/tags.service';
-import { it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 describe('tags service', () => {
   it('should do nothing if there are no tags', () => {
