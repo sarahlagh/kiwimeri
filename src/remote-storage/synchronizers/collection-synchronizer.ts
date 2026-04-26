@@ -131,12 +131,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
 
       return { success: true };
     } catch (e) {
-      console.error(
-        'error pushing',
-        this.remote.name,
-        this.singlefileFS.getName(),
-        e
-      );
+      console.error('[collection][push] error', this.remote.name, e);
       return { success: false };
     } finally {
       this.ongoing = false;
@@ -175,7 +170,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       }
       return { success: resp.success };
     } catch (e) {
-      console.error('error pulling', this.remote.name, e);
+      console.error('[collection][pull] error', this.remote.name, e);
       // restore
       storageService.getSpace().setContent(localContent);
     } finally {
@@ -194,18 +189,10 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   ): Promise<RemoteContentRepresentation> {
     if (!force) {
       const lastPulled = localChangesService.getLastPulled();
-      const { success, didPull, updatedRemoteState, data } =
+      const { success, didPull, data } =
         await this.singlefileFS.fetchChanges(lastPulled);
       const hasNewChanges = success && didPull;
-      // const { hasNewChanges, updatedRemoteState } =
-      //   await this.singlefileFS.hasNewChanges(lastPulled);
       if (hasNewChanges) {
-        // pull
-        console.debug(
-          '[push] new changes on remote detected, pulling new file',
-          lastPulled,
-          updatedRemoteState.lastRemoteChange
-        );
         // TODO can't avoid calling driver.fetchFilesInfo twice for now
         // const { success, data } =
         //   await this.singlefileFS.fetchChanges(lastPulled);
@@ -225,7 +212,6 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       }
     }
     // else, just return local content
-    console.debug('[push] using local collection, not pulling');
     return this.toRepresentationFromLocal(localContent);
   }
 
@@ -249,7 +235,11 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
         const itemIdx = newRemoteItems.findIndex(
           ri => ri.id === localChange.item
         );
-        console.debug('[push] handling local change', localChange, itemIdx);
+        console.debug(
+          '[collection][push] handling local change',
+          localChange,
+          itemIdx
+        );
         if (
           itemIdx === -1 &&
           localChange.change !== LocalChangeType.delete &&
@@ -319,10 +309,6 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     const remoteItems = remoteContent.items;
     const changes: Map<string, AfterSyncHistChange> = new Map();
 
-    console.debug(
-      '[pull] content from file: u',
-      remoteContent.lastRemoteChange
-    );
     const localCollection = this.toMap<CollectionItem>(
       localContent[0].collection
     );
@@ -470,7 +456,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       }
     });
 
-    console.debug('[pull] changes after sync', changes);
+    console.debug('[collection][pull] changes after sync', changes);
     return {
       content: newLocalContent,
       changes: [...changes.values()]
@@ -664,7 +650,11 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     let remoteUpdated = remoteCollection[localChange.item]
       ? (remoteCollection[localChange.item].updated as number)
       : remoteContentUpdated || 0;
-    console.debug('[pull] handling local change', localChange, remoteUpdated);
+    console.debug(
+      '[collection][pull] handling local change',
+      localChange,
+      remoteUpdated
+    );
 
     // but if item exists on remote, and it's an update, only take the meta ts
     if (
@@ -675,7 +665,6 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
         `${localChange.field as CollectionItemUpdatableFieldEnum}_meta`
       ] as string;
       if (meta) {
-        console.debug('[pull] local change meta', localChange.field, meta);
         remoteUpdated = parseFieldMeta(meta).u;
       } else {
         remoteUpdated = 0;
@@ -700,7 +689,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
 
       // if parent doesn't exist, put the item in conflicts notebook
       // TODO check if parent is allowed too (page under doc, etc.)
-      console.debug('orphan detected', id, item.title);
+      console.debug('[collection][pull] orphan detected', id, item.title);
       this.createConflictsNotebookIfNeeded(newCollectionAfterPull);
       newCollectionAfterPull[id].parent = CONFLICTS_NOTEBOOK_ID;
       newCollectionAfterPull[id].conflict = id;

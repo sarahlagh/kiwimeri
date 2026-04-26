@@ -11,6 +11,7 @@ export class SingleFileStorage extends CloudStorageFilesystemV2 {
   protected readonly version = 2;
   protected opts: SingleFileStorageOpts;
   protected filename: string;
+  protected logPrefix: string;
 
   public constructor(
     protected driver: CloudStorageDriver,
@@ -21,6 +22,7 @@ export class SingleFileStorage extends CloudStorageFilesystemV2 {
       filename: 'data'
     };
     this.filename = this.opts.filename;
+    this.logPrefix = `[singlefile fs][filename: ${this.filename}, driver: ${this.driver.driverName}]`;
   }
 
   public async connect(): Promise<{
@@ -58,10 +60,14 @@ export class SingleFileStorage extends CloudStorageFilesystemV2 {
       throw new Error(`uninitialized ${this.driver.driverName} config`);
     }
     const content = JSON.stringify(data);
-    const driverInfo = await this.driver.pushFile(this.filename, content);
+    console.log(`${this.logPrefix}[acceptsChanges] will start pushing file`);
+    const { success, driverInfo } = await this.driver.pushFile(
+      this.filename,
+      content
+    );
     const updatedRemoteState = this.getRemoteState([driverInfo]);
 
-    return { success: false, updatedRemoteState };
+    return { success, updatedRemoteState };
   }
 
   // on pull
@@ -75,28 +81,39 @@ export class SingleFileStorage extends CloudStorageFilesystemV2 {
       throw new Error(`uninitialized ${this.driver.driverName} config`);
     }
 
+    console.log(
+      `${this.logPrefix}[fetchChanges] checking for remote changes. last pulled:`,
+      lastPulled
+    );
     const { hasNewChanges, updatedRemoteState } =
       await this.hasNewChanges(lastPulled);
 
     if (!hasNewChanges) {
-      console.debug('[pull] nothing to pull', updatedRemoteState);
+      console.log(
+        `${this.logPrefix}[fetchChanges] remote did not change`,
+        updatedRemoteState
+      );
       return { success: true, didPull: false, updatedRemoteState };
     }
+    console.log(
+      `${this.logPrefix}[fetchChanges] remote did change, will pull file`,
+      updatedRemoteState
+    );
     const localInfo = updatedRemoteState.info as DriverFileInfo;
 
-    const { content } = await this.driver.pullFile(
+    const { success, content } = await this.driver.pullFile(
       localInfo.providerid,
       this.filename
     );
     if (content) {
       return {
-        success: true,
+        success,
         didPull: true,
         updatedRemoteState,
         data: JSON.parse(content)
       };
     }
-    return { success: false, didPull: true, updatedRemoteState };
+    return { success, didPull: true, updatedRemoteState };
   }
 
   private getRemoteState(filesInfo: DriverFileInfo[]) {

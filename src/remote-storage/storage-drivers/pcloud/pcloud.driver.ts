@@ -96,17 +96,22 @@ export class PCloudDriver extends CloudStorageDriver {
     if (!this.config || !this.config.folderid) {
       throw new Error('uninitialized pcloud config');
     }
+    console.log('[pCloud] uploading file', filename);
     const resp = await this.uploadFile(content, filename, this.config.folderid);
     if (resp.result !== PCloudResult.ok || resp.metadata.length === 0) {
       console.error('[pCloud] error uploading changes');
       // TODO handle error
     }
     const f = resp.metadata[0];
+    console.log('[pCloud] file upload success', filename);
     return {
-      providerid: `${f.fileid}`,
-      filename: `${f.name}`,
-      hash: `${f.hash}`,
-      updated: this.parseDate(f.modified)
+      success: true,
+      driverInfo: {
+        providerid: `${f.fileid}`,
+        filename: `${f.name}`,
+        hash: `${f.hash}`,
+        updated: this.parseDate(f.modified)
+      }
     };
   }
 
@@ -123,22 +128,23 @@ export class PCloudDriver extends CloudStorageDriver {
   }
 
   private async downloadFile(fileid: string) {
-    console.log('[pCloud] fetching file link');
+    console.log('[pCloud] fetching file link', fileid);
     const res = await this.getFetch<PCloudLinkResponse>('getfilelink', {
       fileid: fileid,
       skipfilename: '1'
     });
     if (res.error) {
       console.error('[pCloud] unable to fetch file link', res);
-      return {};
+      return { success: false };
     }
     const linkUrl = `https://${res.hosts[0]}${res.path}`;
     const url = this.proxy ? `${this.proxy}/${linkUrl}` : linkUrl;
     // download file content
-    console.log('[pCloud] downloading file');
+    console.log('[pCloud] downloading file', fileid);
     const data = await fetch(url);
     const content = await data.json();
-    return { content: JSON.stringify(content) };
+    console.log('[pCloud] file download success', fileid);
+    return { content: JSON.stringify(content), success: true };
   }
 
   private async uploadFile(
@@ -160,21 +166,26 @@ export class PCloudDriver extends CloudStorageDriver {
   }
 
   public async deleteFile(providerid: string, filename: string) {
+    console.log('[pCloud] deleting file', providerid, filename);
     if (filename) {
       const res = await this.getFetch<PCloudResponse>('deletefile', {
         path: `${this.config?.path || ''}/${filename}`
       });
       if (res.error) {
-        console.error('error deleting file:', filename, res.error);
+        console.error('[pCloud] error deleting file:', filename, res.error);
+        return { success: false };
       }
     } else if (providerid) {
       const res = await this.getFetch<PCloudResponse>('deletefile', {
         fileid: providerid
       });
       if (res.error) {
-        console.error('error deleting file:', providerid, res.error);
+        console.error('[pCloud] error deleting file:', providerid, res.error);
+        return { success: false };
       }
     }
+    console.log('[pCloud] delete file success', providerid, filename);
+    return { success: true };
   }
 
   private async getFetch<T>(

@@ -7,7 +7,7 @@ export abstract class CloudStorageDriver {
   public async connect(names: string[]) {
     const { connected, filesInfo } = await this.fetchFilesInfo(names);
 
-    console.log(`${this.driverName} client initialized`, {
+    console.log(`[${this.driverName}] client initialized`, {
       ...this.getConfig(),
       password: '*******'
     });
@@ -35,17 +35,17 @@ export abstract class CloudStorageDriver {
   public abstract pushFile(
     filename: string,
     content: string
-  ): Promise<DriverFileInfo>;
+  ): Promise<{ success: boolean; driverInfo: DriverFileInfo }>;
 
   public abstract pullFile(
     providerid: string,
     filename: string
-  ): Promise<{ content?: string }>;
+  ): Promise<{ content?: string; success: boolean }>;
 
   public abstract deleteFile(
     providerid: string,
     filename: string
-  ): Promise<void>;
+  ): Promise<{ success: boolean }>;
 
   public abstract close(): Promise<void>;
 }

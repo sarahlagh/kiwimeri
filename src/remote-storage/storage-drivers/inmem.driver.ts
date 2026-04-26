@@ -60,16 +60,20 @@ export class InMemDriver extends CloudStorageDriver {
       hash
     });
     console.debug('[inmem] pushFile', updated, hash);
-    return { providerid: filename, filename, hash, updated };
+    return {
+      success: true,
+      driverInfo: { providerid: filename, filename, hash, updated }
+    };
   }
 
   public async pullFile(providerid: string, filename: string) {
     this.initMap(filename);
-    return { content: this.collection.get(filename) };
+    return { content: this.collection.get(filename), success: true };
   }
 
   public async deleteFile(providerid: string, filename: string) {
     this.initMap(filename, true);
+    return { success: true };
   }
 
   public async close() {
