@@ -3,11 +3,14 @@ import { CloudStorageDriver } from '../storage-drivers/abstract.driver';
 import { driverFactory } from '../storage-drivers/driver-factory';
 import { CloudStorageSynchronizer } from './abstract-synchronizer';
 import { CollectionSynchronizer } from './collection-synchronizer';
+import { StatsSynchronizer } from './stats-synchronizer';
 
 // target: have collection synchronizer share remote & driver with stats
 export class CompositeSynchronizer extends CloudStorageSynchronizer {
   protected collectionSynchronizer: CollectionSynchronizer;
+  protected statsSynchronizer: StatsSynchronizer;
   protected driver: CloudStorageDriver;
+  protected statsEnabled = false; // TODO configure
 
   constructor(protected remote: RemoteResult) {
     super();
@@ -16,6 +19,7 @@ export class CompositeSynchronizer extends CloudStorageSynchronizer {
       remote,
       this.driver
     );
+    this.statsSynchronizer = new StatsSynchronizer(this.driver);
   }
 
   public configure(conf: AnyData, proxy?: string, useHttp?: boolean) {
@@ -26,15 +30,23 @@ export class CompositeSynchronizer extends CloudStorageSynchronizer {
     config?: AnyData | null;
     connected: boolean;
   }> {
-    // TODO how about stats here
+    if (this.statsEnabled) {
+      setTimeout(async () => await this.statsSynchronizer.connect());
+    }
     return this.collectionSynchronizer.connect();
   }
 
   public async push(force = false) {
+    if (this.statsEnabled) {
+      setTimeout(async () => await this.statsSynchronizer.push(force));
+    }
     return this.collectionSynchronizer.push(force);
   }
 
   public async pull(force = false) {
+    if (this.statsEnabled) {
+      setTimeout(async () => await this.statsSynchronizer.pull(force));
+    }
     return this.collectionSynchronizer.pull(force);
   }
 

@@ -81,7 +81,7 @@ describe('stats service', () => {
     vi.setSystemTime('2026-04-15'); // TODO why needed? because of a starting stat at time of doc creation?
     docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     fakeStats.forEach(dataPoint => {
-      statsService.updateTodaysStats(docId, {
+      statsService.updateStatsAtDate(docId, {
         lastCharCount: dataPoint.values.lastCharCount,
         lastWordCount: dataPoint.values.lastWordCount,
         updatedAt: dataPoint.values.updatedAt

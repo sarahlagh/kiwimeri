@@ -3,29 +3,14 @@ import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/local-changes.service';
 import remotesService from '@/db/remotes.service';
 
-export type SyncDirection =
-  | 'sync'
-  | 'push'
-  | 'pull'
-  | 'force-push'
-  | 'force-pull';
+export type SyncDirection = 'sync' | 'force-push' | 'force-pull';
 
 class SyncService {
   public async sync(direction: SyncDirection, remote?: string) {
     switch (direction) {
       case 'sync':
         await this.pull(remote);
-        if (
-          localChangesService.getLocalChanges().length > 0 &&
-          collectionService.getConflicts().length === 0
-        ) {
-          return this.push(remote);
-        }
-        return;
-      case 'push':
         return this.push(remote);
-      case 'pull':
-        return this.pull(remote);
       case 'force-push':
         return this.push(remote, true);
       case 'force-pull':
@@ -41,16 +26,18 @@ class SyncService {
     console.log(`pushing to ${activeRemotes.length} active remote(s)`);
     // only primary, then use setTimeout for the others
     const primary = activeRemotes[0];
-    await remotesService.push(primary, force);
-
-    activeRemotes.shift();
-    if (activeRemotes.length > 0) {
-      setTimeout(async () => {
-        for (const remote of activeRemotes) {
-          await remotesService.push(remote, force);
-        }
-      });
+    const { success } = await remotesService.push(primary, force);
+    if (success) {
+      activeRemotes.shift();
+      if (activeRemotes.length > 0) {
+        setTimeout(async () => {
+          for (const remote of activeRemotes) {
+            await remotesService.push(remote, force);
+          }
+        });
+      }
     }
+    return success;
   }
 
   // only pull from primary by default

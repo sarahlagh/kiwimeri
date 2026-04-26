@@ -19,6 +19,13 @@ import {
 type StatsQueryResult = ResultRow &
   Required<Pick<DocumentStatRow, 'itemId' | 'date' | 'contentStatsJson'>>;
 
+type GlobalStatsQueryResult = ResultRow &
+  Required<Pick<DocumentStatRow, 'itemId' | 'lastOpenedAt'>>;
+
+export type AllGlobalStatsBag = {
+  [key: string]: DocumentGlobalStatsBag; // key is the itemId
+};
+
 export const trackedStats = [
   'lastWordCount',
   'maxWordCount',
@@ -32,7 +39,7 @@ export type SampleMode = 'day' | 'month' | 'year' | 'lifetime';
 class StatsService {
   private timeZone = 'Europe/Paris';
 
-  private buildStatsQuery(itemId: string, since: string = '') {
+  private buildStatsQuery(itemId: string | null, since: string = '') {
     const queries = storageService.getSpaceQueries(DEFAULT_SPACE_ID);
     const queryName = 'GetStatsForItem';
     if (queries.hasQuery(queryName)) {
@@ -45,7 +52,9 @@ class StatsService {
           select('itemId');
           select('date');
           select('contentStatsJson');
-          where('itemId', param('itemId')!.toString());
+          if (param('itemId') !== null) {
+            where('itemId', param('itemId')!.toString());
+          }
           where(getCell => {
             if (!getCell('date')) return false;
             if (!param('since') || param('since')!.toString().length === 0)
@@ -61,11 +70,23 @@ class StatsService {
     return queryName;
   }
 
-  public getStatsForItem(itemId: string): DocumentDatedStat[] {
+  private buildGlobalStatsQuery() {
+    const queries = storageService.getSpaceQueries(DEFAULT_SPACE_ID);
+    const queryName = 'GetGlobalStats';
+    if (!queries.hasQuery(queryName)) {
+      queries.setQueryDefinition(queryName, 'stats', ({ select, where }) => {
+        select('itemId');
+        select('lastOpenedAt');
+        where(getCell => getCell<'lastOpenedAt'>('lastOpenedAt') !== undefined);
+      });
+    }
+    return queryName;
+  }
+
+  public getStatsSince(since?: string): DocumentDatedStat[] {
     return this.fromQuery<StatsQueryResult, DocumentDatedStat>(
-      this.buildStatsQuery(itemId),
-      (resultRow, rowId) => ({
-        id: rowId,
+      this.buildStatsQuery(null, since),
+      resultRow => ({
         itemId: resultRow.itemId,
         date: resultRow.date,
         contentStats: JSON.parse(
@@ -89,6 +110,18 @@ class StatsService {
     );
   }
 
+  public getAllGlobalStats(): AllGlobalStatsBag {
+    const all: AllGlobalStatsBag = {};
+    this.fromQuery<GlobalStatsQueryResult, DocumentGlobalStatsBag>(
+      this.buildGlobalStatsQuery(),
+      resultRow => {
+        all[resultRow.itemId] = { lastOpenedAt: resultRow.lastOpenedAt };
+        return all[resultRow.itemId];
+      }
+    );
+    return all;
+  }
+
   private fromQuery<T, U>(
     queryName: string,
     rowMapper: (row: T, rowId: string) => U,
@@ -106,7 +139,7 @@ class StatsService {
       });
   }
 
-  public updateTodaysStats(
+  public updateStatsAtDate(
     itemId: string,
     statsBag: Pick<
       DocumentContentStatsBag,
@@ -114,7 +147,7 @@ class StatsService {
     >
   ) {
     const space = storageService.getSpace();
-    const date = this.getToday(statsBag.updatedAt);
+    const date = this.getStatsDate(statsBag.updatedAt);
     const rowId = `${itemId}-${date}`;
 
     const mergedStats = { ...this.getContentStats(rowId), ...statsBag };
@@ -195,7 +228,7 @@ class StatsService {
         const plain = version.preview;
         const content_meta = version.snapshotJson.content_meta!;
         const stats = statsService.buildStats(plain, content_meta);
-        statsService.updateTodaysStats(rowId, stats);
+        statsService.updateStatsAtDate(rowId, stats);
         if (lastOpenedAt <= stats.updatedAt!) {
           statsService.updateGlobalStats(rowId, {
             lastOpenedAt: stats.updatedAt!
@@ -217,7 +250,7 @@ class StatsService {
     return {};
   }
 
-  private getToday(ts?: number) {
+  private getStatsDate(ts?: number) {
     return dateToStr('date-printable', ts);
   }
 }

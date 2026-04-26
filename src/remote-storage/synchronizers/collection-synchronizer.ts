@@ -58,7 +58,7 @@ type RemoteContentRepresentation = {
 };
 
 export class CollectionSynchronizer extends CloudStorageSynchronizer {
-  protected singlefileFS: SingleFileStorage;
+  protected cloudFS: SingleFileStorage;
   protected connectedRemote: RemoteWithState;
   protected ongoing = false;
 
@@ -68,7 +68,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   ) {
     super();
     this.connectedRemote = remote;
-    this.singlefileFS = new SingleFileStorage(driver, {
+    this.cloudFS = new SingleFileStorage(driver, {
       filename: 'collection.json'
     });
   }
@@ -81,7 +81,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     config?: AnyData | null;
     connected: boolean;
   }> {
-    const resp = await this.singlefileFS.connect();
+    const resp = await this.cloudFS.connect();
     if (resp.remoteState.connected) {
       this.updateRemoteStateInfo(this.remote.state, resp.remoteState);
     }
@@ -94,6 +94,17 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   public async push(force = false) {
     if (this.ongoing) return { success: false };
     this.ongoing = true;
+    console.log(`[collection][push] starting`);
+    if (localChangesService.getLocalChanges().length === 0 && !force) {
+      console.log(`[collection][push] nothing to push`);
+      return { success: false };
+    }
+    if (collectionService.getConflicts().length > 0) {
+      console.log(
+        `[collection][push] found local conflicts; pushing is not allowed`
+      );
+      return { success: false };
+    }
     const store = storageService.getSpace(this.remote.space);
     const localContent = store.getContent();
     const localChanges = localChangesService.getLocalChanges();
@@ -113,7 +124,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
 
       // push to filesystem
       if ((hasNewChanges && data) || force) {
-        const resp = await this.singlefileFS.acceptsChanges(data);
+        const resp = await this.cloudFS.acceptsChanges(data);
 
         // update remote info
         const updatedRemoteState = resp.updatedRemoteState;
@@ -135,12 +146,14 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       return { success: false };
     } finally {
       this.ongoing = false;
+      console.log(`[collection][push] done`);
     }
   }
 
   public async pull(force = false) {
     if (this.ongoing) return { success: false };
     this.ongoing = true;
+    console.log(`[collection][pull] starting`);
     const store = storageService.getSpace(this.remote.space);
     const localContent = store.getContent();
     const localChanges = localChangesService.getLocalChanges();
@@ -148,7 +161,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     const lastPulled = localChangesService.getLastPulled();
 
     try {
-      const resp = await this.singlefileFS.fetchChanges(lastPulled);
+      const resp = await this.cloudFS.fetchChanges(lastPulled);
       if (resp.success && resp.didPull && resp.data) {
         this.applyMergeLocal(
           localContent,
@@ -175,6 +188,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       storageService.getSpace().setContent(localContent);
     } finally {
       this.ongoing = false;
+      console.log(`[collection][pull] done`);
     }
     return { success: false };
   }
@@ -190,7 +204,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     if (!force) {
       const lastPulled = localChangesService.getLastPulled();
       const { success, didPull, data } =
-        await this.singlefileFS.fetchChanges(lastPulled);
+        await this.cloudFS.fetchChanges(lastPulled);
       const hasNewChanges = success && didPull;
       if (hasNewChanges) {
         // TODO can't avoid calling driver.fetchFilesInfo twice for now

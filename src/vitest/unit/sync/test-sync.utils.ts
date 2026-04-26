@@ -32,6 +32,7 @@ export const testSyncBeforeEach = async () => {
   await remotesService.configureRemotes(storageService.getSpaceId(), true);
   const compositeSynchronizer = remotesService['synchronizers'].values().next()
     .value! as CompositeSynchronizer;
+  compositeSynchronizer['statsEnabled'] = false;
   driver = compositeSynchronizer['collectionSynchronizer'][
     'driver'
   ] as InMemDriver;

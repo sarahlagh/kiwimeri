@@ -50,8 +50,7 @@ const SyncRemoteButton = ({
       if (showRemoteChangesWarning) return APPICONS.cloudSyncRemote;
       return APPICONS.cloudSync;
     }
-    if (direction === 'pull' || direction === 'force-pull')
-      return APPICONS.cloudDownload;
+    if (direction === 'force-pull') return APPICONS.cloudDownload;
     return APPICONS.cloudUpload;
   };
 

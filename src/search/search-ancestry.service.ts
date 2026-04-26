@@ -245,7 +245,7 @@ class CollectionSearchService {
       const parent = table[rowId].parent as string;
       if (collectionService.getItemEffectiveDisplayOpts(parent).statsEnabled) {
         // stats
-        statsService.updateTodaysStats(
+        statsService.updateStatsAtDate(
           rowId,
           statsService.buildStats(plain, table[rowId].content_meta!.toString())
         );

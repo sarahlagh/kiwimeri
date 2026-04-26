@@ -25,11 +25,11 @@ export class SingleFileStorage extends CloudStorageFilesystemV2 {
     this.logPrefix = `[singlefile fs][filename: ${this.filename}, driver: ${this.driver.driverName}]`;
   }
 
-  public async connect(): Promise<{
+  public async connect(filenames?: string[]): Promise<{
     config: AnyData | null;
     remoteState: RemoteState;
   }> {
-    return this.connectAttempt([this.filename]);
+    return this.connectAttempt(filenames ? filenames : [this.filename]);
   }
 
   public async destroy() {

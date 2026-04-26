@@ -268,13 +268,13 @@ class RemotesService {
 
   public async push(remote: RemoteResult, force = false) {
     const synchronizer = this.synchronizers.get(remote.id);
-    if (!synchronizer) return;
+    if (!synchronizer) return { success: false };
     return synchronizer.push(force);
   }
 
   public async pull(remote: RemoteResult, force = false) {
     const synchronizer = this.synchronizers.get(remote.id);
-    if (!synchronizer) return;
+    if (!synchronizer) return { success: false };
     return synchronizer.pull(force);
   }
 }

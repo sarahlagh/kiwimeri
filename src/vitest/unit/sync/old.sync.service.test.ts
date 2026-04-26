@@ -180,6 +180,7 @@ describe('sync service', () => {
       const compositeSynchronizer = remotesService['synchronizers']
         .values()
         .next().value! as CompositeSynchronizer;
+      compositeSynchronizer['statsEnabled'] = false;
       driver = compositeSynchronizer['collectionSynchronizer'][
         'driver'
       ] as InMemDriver;
@@ -1835,7 +1836,7 @@ describe('sync service', () => {
                   expect(
                     getRemoteItemField(remoteContent.content, id, local)
                   ).not.toBe(newLocalValue);
-                  testPushIndicator(false);
+                  testPushIndicator(true);
                 });
               }
             );
@@ -2231,7 +2232,7 @@ describe('sync service', () => {
             expect(
               getRemoteItemField(remoteContent.content, id, local)
             ).not.toBe(newLocalValue);
-            testPushIndicator(false);
+            testPushIndicator(true);
           });
         }
       );

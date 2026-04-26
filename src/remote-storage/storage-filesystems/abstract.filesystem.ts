@@ -16,7 +16,7 @@ export abstract class CloudStorageFilesystemV2 {
     this.driver.configure(config, proxy, useHttp);
   }
 
-  abstract connect(remoteStateId?: string): Promise<{
+  abstract connect(filenames?: string[]): Promise<{
     config: AnyData | null;
     remoteState: RemoteState;
   }>;

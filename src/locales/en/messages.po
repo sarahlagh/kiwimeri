@@ -62,16 +62,16 @@ msgstr "Are you sure?"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: src/stats/components/ChartContainer.tsx:63
+#: src/modules/stats/components/ChartContainer.tsx:67
 msgid "Character Count"
 msgstr "Character Count"
 
-#: src/stats/components/ChartContainer.tsx:73
+#: src/modules/stats/components/ChartContainer.tsx:77
 msgid "Character Count (Max)"
 msgstr "Character Count (Max)"
 
-#: src/stats/components/ChartContainer.tsx:64
-#: src/stats/components/ChartContainer.tsx:74
+#: src/modules/stats/components/ChartContainer.tsx:68
+#: src/modules/stats/components/ChartContainer.tsx:78
 msgid "characters"
 msgstr "characters"
 
@@ -103,7 +103,7 @@ msgstr "Clear All"
 msgid "Close"
 msgstr "Close"
 
-#: src/constants.ts:79
+#: src/constants.ts:77
 msgid "collection"
 msgstr "collection"
 
@@ -130,7 +130,7 @@ msgstr "Configure where to synchronize your collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/constants.ts:74
+#: src/constants.ts:72
 msgid "Conflicts"
 msgstr "Conflicts"
 
@@ -146,7 +146,7 @@ msgstr "Creation Date"
 msgid "Current Notebook Settings ({notebookTitle})"
 msgstr "Current Notebook Settings ({notebookTitle})"
 
-#: src/constants.ts:73
+#: src/constants.ts:71
 msgid "Default"
 msgstr "Default"
 
@@ -258,7 +258,7 @@ msgstr "History idle time (s)"
 msgid "History save time (min)"
 msgstr "History save time (min)"
 
-#: src/constants.ts:72
+#: src/constants.ts:70
 msgid "Home"
 msgstr "Home"
 
@@ -379,11 +379,11 @@ msgstr "Name"
 msgid "new"
 msgstr "new"
 
-#: src/constants.ts:75
+#: src/constants.ts:73
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:76
+#: src/constants.ts:74
 msgid "New folder"
 msgstr "New folder"
 
@@ -427,7 +427,7 @@ msgstr "Number of versions"
 msgid "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 msgstr "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 
-#: src/constants.ts:78
+#: src/constants.ts:76
 msgid "page"
 msgstr "page"
 
@@ -630,17 +630,17 @@ msgstr "When working on a document, a new version will be automatically at least
 msgid "When working on a document, a new version will be automatically if idle after XX seconds"
 msgstr "When working on a document, a new version will be automatically if idle after XX seconds"
 
-#: src/stats/components/ChartContainer.tsx:58
+#: src/modules/stats/components/ChartContainer.tsx:62
 msgid "Word Count"
 msgstr "Word Count"
 
-#: src/stats/components/ChartContainer.tsx:68
+#: src/modules/stats/components/ChartContainer.tsx:72
 msgid "Word Count (Max)"
 msgstr "Word Count (Max)"
 
 #: src/collection/components/WordCount.tsx:22
-#: src/stats/components/ChartContainer.tsx:59
-#: src/stats/components/ChartContainer.tsx:69
+#: src/modules/stats/components/ChartContainer.tsx:63
+#: src/modules/stats/components/ChartContainer.tsx:73
 msgid "words"
 msgstr "words"
 
