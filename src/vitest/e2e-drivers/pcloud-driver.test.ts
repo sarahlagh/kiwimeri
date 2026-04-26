@@ -29,7 +29,7 @@ import {
   setLocalItemField,
   updateOnRemote
 } from '../setup/test.utils';
-import { defaultValues } from '../unit/sync/test-sync.utils';
+import { defaultValues } from '../unit/sync-collection/test-sync.utils';
 
 let notebook: string = DEFAULT_NOTEBOOK_ID;
 let driver: PCloudDriver;
