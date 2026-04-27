@@ -129,6 +129,7 @@ describe('stats synchronizer', () => {
       maxWordCount: 1500,
       maxCharCount: 0,
       lastWordCount: 498,
+      lastCharCount: 0,
       updatedAt: tsAtDate
     });
     expect(globalStats.lastOpenedAt).toBe(tsAtDate);

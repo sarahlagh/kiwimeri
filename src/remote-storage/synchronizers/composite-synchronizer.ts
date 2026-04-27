@@ -10,7 +10,7 @@ export class CompositeSynchronizer extends CloudStorageSynchronizer {
   protected collectionSynchronizer: CollectionSynchronizer;
   protected statsSynchronizer: StatsSynchronizer;
   protected driver: CloudStorageDriver;
-  protected statsEnabled = false; // TODO configure
+  protected statsEnabled = true; // TODO configure
 
   constructor(protected remote: RemoteResult) {
     super();
@@ -36,17 +36,18 @@ export class CompositeSynchronizer extends CloudStorageSynchronizer {
     return this.collectionSynchronizer.connect();
   }
 
-  public async push(force = false) {
+  public async sync() {
     if (this.statsEnabled) {
-      setTimeout(async () => await this.statsSynchronizer.push(force));
+      setTimeout(async () => await this.statsSynchronizer.sync());
     }
+    return this.collectionSynchronizer.sync();
+  }
+
+  public async push(force = false) {
     return this.collectionSynchronizer.push(force);
   }
 
   public async pull(force = false) {
-    if (this.statsEnabled) {
-      setTimeout(async () => await this.statsSynchronizer.pull(force));
-    }
     return this.collectionSynchronizer.pull(force);
   }
 

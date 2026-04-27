@@ -9,8 +9,7 @@ class SyncService {
   public async sync(direction: SyncDirection, remote?: string) {
     switch (direction) {
       case 'sync':
-        await this.pull(remote);
-        return this.push(remote);
+        return this.pullMerge(remote);
       case 'force-push':
         return this.push(remote, true);
       case 'force-pull':
@@ -18,29 +17,43 @@ class SyncService {
     }
   }
 
+  private async pullMerge(remoteId?: string) {
+    // merge only on primary & push force on others
+    const remotes = remotesService.getRemotes();
+    const activeRemotes = remotes.filter(r =>
+      remoteId ? r.id === remoteId && r.connected : r.connected
+    );
+    if (activeRemotes.length > 0) {
+      const primary = activeRemotes[0];
+      const { success } = await remotesService.sync(primary);
+      activeRemotes.shift();
+      if (activeRemotes.length > 0) {
+        setTimeout(async () => {
+          for (const remote of activeRemotes) {
+            await remotesService.push(remote, true);
+          }
+        });
+      }
+      return success;
+    }
+    return true;
+  }
+
+  // only push to primary or selected
   public async push(remoteId?: string, force = false) {
     const remotes = remotesService.getRemotes();
     const activeRemotes = remotes.filter(r =>
       remoteId ? r.id === remoteId && r.connected : r.connected
     );
-    console.log(`pushing to ${activeRemotes.length} active remote(s)`);
-    // only primary, then use setTimeout for the others
-    const primary = activeRemotes[0];
-    const { success } = await remotesService.push(primary, force);
-    if (success) {
-      activeRemotes.shift();
-      if (activeRemotes.length > 0) {
-        setTimeout(async () => {
-          for (const remote of activeRemotes) {
-            await remotesService.push(remote, force);
-          }
-        });
-      }
+    if (activeRemotes.length > 0) {
+      const remote = activeRemotes[0];
+      const { success } = await remotesService.push(remote, force);
+      return success;
     }
-    return success;
+    return false;
   }
 
-  // only pull from primary by default
+  // only pull from primary or selected
   public async pull(remoteId?: string, force = false) {
     const remotes = remotesService.getRemotes();
     const activeRemotes = remotes.filter(r =>
@@ -51,7 +64,7 @@ class SyncService {
       const resp = await remotesService.pull(remote, force);
       return resp?.success;
     }
-    return true;
+    return false;
   }
 
   public usePrimaryConnected() {

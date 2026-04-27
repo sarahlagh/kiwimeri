@@ -277,6 +277,12 @@ class RemotesService {
     if (!synchronizer) return { success: false };
     return synchronizer.pull(force);
   }
+
+  public async sync(remote: RemoteResult) {
+    const synchronizer = this.synchronizers.get(remote.id);
+    if (!synchronizer) return { success: false };
+    return synchronizer.sync();
+  }
 }
 
 const remotesService = new RemotesService();
