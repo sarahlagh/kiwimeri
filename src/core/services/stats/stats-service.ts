@@ -94,7 +94,7 @@ class StatsService {
         ) as DocumentContentStatsBag
       }),
       'date',
-      false
+      true
     );
   }
 
@@ -167,6 +167,51 @@ class StatsService {
     });
   }
 
+  private mergeLastStat(
+    stat: keyof DocumentContentStatsBag,
+    mostRecent: DocumentContentStatsBag,
+    statsBag1: DocumentContentStatsBag,
+    statsBag2: DocumentContentStatsBag
+  ) {
+    if (mostRecent[stat] === undefined)
+      mostRecent[stat] = Math.max(n00(statsBag1[stat]), n00(statsBag2[stat]));
+  }
+
+  public mergeStatsAtDate(itemId: string, statsBag: DocumentContentStatsBag) {
+    const space = storageService.getSpace();
+    const date = this.getStatsDate(statsBag.updatedAt);
+    const rowId = `${itemId}-${date}`;
+
+    const existingStats = this.getContentStats(rowId);
+    const mostRecent =
+      n00(existingStats.updatedAt) > n00(statsBag.updatedAt)
+        ? existingStats
+        : statsBag;
+
+    this.mergeLastStat('lastCharCount', mostRecent, existingStats, statsBag);
+    this.mergeLastStat('lastWordCount', mostRecent, existingStats, statsBag);
+
+    const mergedStats: DocumentContentStatsBag = {
+      maxCharCount: Math.max(
+        n00(existingStats.maxCharCount),
+        n00(statsBag.maxCharCount)
+      ),
+      maxWordCount: Math.max(
+        n00(existingStats.maxWordCount),
+        n00(statsBag.maxWordCount)
+      ),
+      updatedAt: mostRecent.updatedAt,
+      lastCharCount: mostRecent.lastCharCount,
+      lastWordCount: mostRecent.lastWordCount
+    };
+
+    space.setPartialRow('stats', rowId, {
+      itemId,
+      date,
+      contentStatsJson: JSON.stringify(mergedStats)
+    });
+  }
+
   public buildStats(
     plain: string,
     content_meta: string
@@ -185,6 +230,18 @@ class StatsService {
     storageService.getSpace().setPartialRow('stats', rowId, {
       itemId,
       ...globalBag
+    });
+  }
+
+  public mergeGlobalStats(itemId: string, globalBag: DocumentGlobalStatsBag) {
+    const rowId = itemId;
+    const existingStats = this.getGlobalStats(itemId);
+    const mergedStats: DocumentGlobalStatsBag = {
+      lastOpenedAt: Math.max(existingStats.lastOpenedAt, globalBag.lastOpenedAt)
+    };
+    storageService.getSpace().setPartialRow('stats', rowId, {
+      itemId,
+      ...mergedStats
     });
   }
 

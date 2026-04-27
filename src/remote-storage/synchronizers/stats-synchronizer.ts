@@ -130,13 +130,13 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
     remoteStats.content.forEach(statsAtDate => {
       const itemIds = Object.keys(statsAtDate.stats);
       itemIds.forEach(itemId => {
-        statsService.updateStatsAtDate(itemId, statsAtDate.stats[itemId]);
+        statsService.mergeStatsAtDate(itemId, statsAtDate.stats[itemId]);
       });
     });
     // global stats
     const itemIds = Object.keys(remoteStats.global);
     itemIds.forEach(itemId => {
-      statsService.updateGlobalStats(itemId, remoteStats.global[itemId]);
+      statsService.mergeGlobalStats(itemId, remoteStats.global[itemId]);
     });
   }
 }
