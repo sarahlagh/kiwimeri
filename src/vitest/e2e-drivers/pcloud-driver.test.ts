@@ -8,11 +8,13 @@ import notebooksService from '@/db/notebooks.service';
 import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
 import { SpaceValues } from '@/db/types/space-types';
+import { LocalChangeType } from '@/db/types/store-types';
 import userSettingsService from '@/db/user-settings.service';
 import { PCloudDriver } from '@/remote-storage/storage-drivers/pcloud/pcloud.driver';
 import { syncService } from '@/remote-storage/sync.service';
 import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';
 import { searchAncestryService } from '@/search/search-ancestry.service';
+import { renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   amount,
@@ -236,7 +238,8 @@ describe.sequential(
       await reInitRemoteData(remoteData);
 
       await amount(100);
-      await syncService.pull();
+      const ok = await syncService.sync('sync');
+      expect(ok);
       expect(getRowCountInsideNotebook()).toBe(3);
 
       // update locally
@@ -244,15 +247,15 @@ describe.sequential(
       const id = remoteData[0].id!;
       const newLocalTitle = getNewValue('string');
       setLocalItemField(id, 'title', newLocalTitle);
-      await amount(50);
 
       // erase on remote
+      await amount(1000);
       await reInitRemoteData(
         [remoteData[1], remoteData[2], remoteData[3]],
         Date.now()
       );
       await amount(100);
-      await syncService.pull();
+      await syncService.sync('sync');
 
       // conflict has been created
       expect(getRowCountInsideNotebook()).toBe(3);
@@ -261,19 +264,27 @@ describe.sequential(
       const conflictId = getLocalItemConflict()!;
       expect(getLocalItemField(conflictId, 'title')).toBe(newLocalTitle);
 
-      // push, no conflict should be pushed
+      // push should be disabled
+      const { result, unmount } = renderHook(() =>
+        syncService.useIsMergeSyncEnabled()
+      );
+      expect(result.current).toBe(false);
+      unmount();
+
       await amount(100);
-      await syncService.push();
-      await amount(100);
-      let content = (await getRemoteContent())?.items;
-      expect(content).toHaveLength(3);
-      await amount(100);
+
       // now, solve conflict
       setLocalItemField(conflictId, 'content', getNewContent('new content'));
       expect(getLocalItemConflicts()).toHaveLength(0);
-      await syncService.push();
+      expect(collectionService.getConflicts()).toHaveLength(0);
+      const localChanges = localChangesService.getLocalChanges();
+      // expect(localChanges).toHaveLength(1);
+      expect(localChanges[0].change).toBe(LocalChangeType.add);
+      expect(localChanges[0].item).toBe(conflictId);
+
+      await syncService.sync('sync');
       await amount(100);
-      content = (await getRemoteContent())?.items;
+      const content = (await getRemoteContent())?.items;
       expect(content).toHaveLength(4);
     });
 

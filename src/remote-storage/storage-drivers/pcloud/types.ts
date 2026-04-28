@@ -5,6 +5,7 @@ export enum PCloudResult {
   invalidName = 2001,
   accessDenied = 2003,
   dirNotFound = 2005,
+  fileNotFound = 2055,
   overQuota = 2008,
   connectionBroken = 2041,
   tooManyLoginTries = 4000,

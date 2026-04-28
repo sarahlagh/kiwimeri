@@ -28,11 +28,12 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
 
   constructor(protected driver: CloudStorageDriver) {
     super();
-    this.cloudFS = new SingleFileStorage(driver, {
+    this.cloudFS = new SingleFileStorage('stats', driver, {
       filename: 'stats.json'
     });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public configure(conf?: AnyData, proxy?: string, useHttp?: boolean): void {
     throw new Error('Method not implemented.');
   }

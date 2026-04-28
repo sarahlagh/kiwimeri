@@ -62,7 +62,7 @@ export class PCloudDriver extends CloudStorageDriver {
       throw new Error('uninitialized pcloud config');
     }
     let filesInfo: DriverFileInfo[] = [];
-    let res: PCloudListResponse;
+    let res: PCloudListResponse | null;
     if (!this.config.folderid) {
       res = await this.getFetch<PCloudListResponse>('listfolder', {
         path: this.config.path
@@ -72,9 +72,9 @@ export class PCloudDriver extends CloudStorageDriver {
         folderid: this.config.folderid
       });
     }
-    if (res.result !== PCloudResult.ok) {
+    if (!res || res.result !== PCloudResult.ok) {
       console.error('[pCloud] error:', res);
-      return { connected: false, filesInfo };
+      return { success: false, filesInfo };
     }
     this.config.folderid = `${res.metadata!.folderid!}`;
     if (res.metadata?.contents) {
@@ -89,7 +89,51 @@ export class PCloudDriver extends CloudStorageDriver {
         }));
     }
     console.log('[pCloud] connection tested OK');
-    return { connected: true, filesInfo };
+    return { success: true, filesInfo };
+  }
+
+  public async fileExists(
+    filename: string
+  ): Promise<{ success: boolean; exists?: boolean }> {
+    if (!this.config || !this.config.folderid) {
+      throw new Error('uninitialized pcloud config');
+    }
+    const res = await this.getFetch<PCloudListResponse>('stat', {
+      path: `${this.config.path}/${filename}`
+    });
+    if (!res) return { success: false };
+    if (res.result === 0 && res.metadata) {
+      return { success: true, exists: true };
+    }
+    if (res.result === PCloudResult.fileNotFound) {
+      return { success: true, exists: false };
+    }
+    return { success: false };
+  }
+
+  public async getFileInfo(
+    filename: string
+  ): Promise<{ success: boolean; fileInfo?: DriverFileInfo }> {
+    if (!this.config || !this.config.folderid) {
+      throw new Error('uninitialized pcloud config');
+    }
+    const res = await this.getFetch<PCloudListResponse>('stat', {
+      path: `${this.config.path}/${filename}`
+    });
+    if (res && res.result === 0 && res.metadata) {
+      const f = res.metadata;
+      return {
+        success: true,
+        fileInfo: {
+          providerid: `${f.fileid}`,
+          filename: f.name,
+          size: f.size,
+          hash: `${f.hash}`,
+          updated: this.parseDate(f.modified)
+        }
+      };
+    }
+    return { success: false };
   }
 
   public async pushFile(filename: string, content: string) {
@@ -98,9 +142,14 @@ export class PCloudDriver extends CloudStorageDriver {
     }
     console.log('[pCloud] uploading file', filename);
     const resp = await this.uploadFile(content, filename, this.config.folderid);
-    if (resp.result !== PCloudResult.ok || resp.metadata.length === 0) {
+    if (
+      !resp ||
+      resp.result !== PCloudResult.ok ||
+      resp.metadata.length === 0
+    ) {
       console.error('[pCloud] error uploading changes');
       // TODO handle error
+      return { success: false };
     }
     const f = resp.metadata[0];
     console.log('[pCloud] file upload success', filename);
@@ -123,6 +172,32 @@ export class PCloudDriver extends CloudStorageDriver {
     return this.downloadFile(providerid);
   }
 
+  public async renameFile(
+    providerid: string,
+    filename: string,
+    newFilename: string
+  ): Promise<{ success: boolean }> {
+    if (!this.config) {
+      throw new Error('uninitialized pcloud config');
+    }
+    let res: PCloudListResponse | null = null;
+    if (providerid) {
+      res = await this.getFetch<PCloudListResponse>('renamefile', {
+        fileid: providerid,
+        toname: newFilename
+      });
+    } else if (filename) {
+      res = await this.getFetch<PCloudListResponse>('renamefile', {
+        path: `${this.config.path}/${filename}`,
+        toname: newFilename
+      });
+    }
+    if (res && newFilename === res.metadata?.name) {
+      return { success: true };
+    }
+    return { success: false };
+  }
+
   public async close() {
     // no impl
   }
@@ -133,7 +208,7 @@ export class PCloudDriver extends CloudStorageDriver {
       fileid: fileid,
       skipfilename: '1'
     });
-    if (res.error) {
+    if (!res || res.error) {
       console.error('[pCloud] unable to fetch file link', res);
       return { success: false };
     }
@@ -161,7 +236,11 @@ export class PCloudDriver extends CloudStorageDriver {
           'Content-Type': 'application/json'
         }
       }
-    );
+    ).catch(e => {
+      console.error(e);
+      return null;
+    });
+    if (!res) return null;
     return (await res.json()) as PCloudUploadResponse;
   }
 
@@ -171,16 +250,16 @@ export class PCloudDriver extends CloudStorageDriver {
       const res = await this.getFetch<PCloudResponse>('deletefile', {
         path: `${this.config?.path || ''}/${filename}`
       });
-      if (res.error) {
-        console.error('[pCloud] error deleting file:', filename, res.error);
+      if (!res || res.error) {
+        console.error('[pCloud] error deleting file:', filename, res?.error);
         return { success: false };
       }
     } else if (providerid) {
       const res = await this.getFetch<PCloudResponse>('deletefile', {
         fileid: providerid
       });
-      if (res.error) {
-        console.error('[pCloud] error deleting file:', providerid, res.error);
+      if (!res || res.error) {
+        console.error('[pCloud] error deleting file:', providerid, res?.error);
         return { success: false };
       }
     }
@@ -196,18 +275,24 @@ export class PCloudDriver extends CloudStorageDriver {
       folderid?: string;
       skipfilename?: string;
       name?: string;
+      toname?: string;
     }
-  ) {
+  ): Promise<T | null> {
     const path = params?.path ? `&path=${params?.path}` : '';
     const fileid = params?.fileid ? `&fileid=${params?.fileid}` : '';
     const folderid = params?.folderid ? `&folderid=${params?.folderid}` : '';
     const name = params?.name ? `&name=${params?.name}` : '';
+    const toname = params?.toname ? `&toname=${params?.toname}` : '';
     const skipfilename = params?.skipfilename
       ? `&skipfilename=${params?.skipfilename}`
       : '';
     const res = await fetch(
-      `${this.getUrl(opName)}${fileid}${folderid}${path}${name}${skipfilename}`
-    );
+      `${this.getUrl(opName)}${fileid}${folderid}${path}${name}${skipfilename}${toname}`
+    ).catch(e => {
+      console.error(e);
+      return null;
+    });
+    if (!res) return null;
     return (await res.json()) as T;
   }
 

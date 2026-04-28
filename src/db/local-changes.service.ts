@@ -1,3 +1,4 @@
+import { CollectionItemUpdatableFieldEnum } from '@/collection/collection';
 import storageService from './storage.service';
 import {
   useCellWithRef,
@@ -55,7 +56,11 @@ class LocalChangesService {
     return queryName;
   }
 
-  public addLocalChange(item: string, change: LocalChangeType, field?: string) {
+  public addLocalChange(
+    item: string,
+    change: LocalChangeType,
+    field?: CollectionItemUpdatableFieldEnum
+  ) {
     const space = storageService.getSpaceId();
     const localChange: LocalChange = {
       space,

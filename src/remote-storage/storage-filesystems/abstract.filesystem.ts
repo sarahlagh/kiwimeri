@@ -57,24 +57,29 @@ export abstract class CloudStorageFilesystemV2 {
     lastPulled: number,
     cachedRemoteState?: UpdatedRemoteState
   ): Promise<{
-    hasNewChanges: boolean;
-    updatedRemoteState: RemoteState;
+    success: boolean;
+    hasNewChanges?: boolean;
+    updatedRemoteState?: RemoteState;
   }>;
 
   // on push
   abstract acceptsChanges(
     data: AnyData,
     force?: boolean
-  ): Promise<{ success: boolean; updatedRemoteState: RemoteState }>;
-  // on pull
+  ): Promise<{
+    success: boolean;
+    didPush: boolean;
+    updatedRemoteState?: RemoteState;
+  }>;
 
+  // on pull
   abstract fetchChanges(
     lastPulled: number,
     force?: boolean
   ): Promise<{
     success: boolean;
     didPull: boolean;
-    updatedRemoteState: RemoteState;
+    updatedRemoteState?: RemoteState;
     data?: AnyData;
   }>;
 

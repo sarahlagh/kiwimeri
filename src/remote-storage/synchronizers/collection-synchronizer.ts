@@ -68,7 +68,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   ) {
     super();
     this.connectedRemote = remote;
-    this.cloudFS = new SingleFileStorage(driver, {
+    this.cloudFS = new SingleFileStorage('collection', driver, {
       filename: 'collection.json'
     });
   }
@@ -93,7 +93,6 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
 
   public async push(force = false) {
     if (this.ongoing) return { success: false };
-    this.ongoing = true;
     console.log(`[collection][push] starting`);
     if (localChangesService.getLocalChanges().length === 0 && !force) {
       console.log(`[collection][push] nothing to push`);
@@ -105,6 +104,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       );
       return { success: false };
     }
+    this.ongoing = true;
     const store = storageService.getSpace(this.remote.space);
     const localContent = store.getContent();
     const localChanges = localChangesService.getLocalChanges();
@@ -125,7 +125,9 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       // push to filesystem
       if ((hasNewChanges && data) || force) {
         const resp = await this.cloudFS.acceptsChanges(data);
-
+        if (!resp.success || !resp.updatedRemoteState) {
+          return { success: false };
+        }
         // update remote info
         const updatedRemoteState = resp.updatedRemoteState;
         this.updateRemoteState(
@@ -161,8 +163,13 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     const lastPulled = localChangesService.getLastPulled();
 
     try {
-      const resp = await this.cloudFS.fetchChanges(lastPulled);
-      if (resp.success && resp.didPull && resp.data) {
+      const resp = await this.cloudFS.fetchChanges(lastPulled, force);
+      if (
+        resp.success &&
+        resp.didPull &&
+        resp.data &&
+        resp.updatedRemoteState
+      ) {
         this.applyMergeLocal(
           localContent,
           localChanges,

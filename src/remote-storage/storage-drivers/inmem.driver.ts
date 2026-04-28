@@ -8,6 +8,7 @@ import {
 import { fastHash } from '@/common/utils';
 import { SpaceValues } from '@/db/types/space-types';
 import { AnyData } from '@/db/types/store-types';
+import { DriverFileInfo } from '../sync-types';
 import { CloudStorageDriver } from './abstract.driver';
 
 // for testing
@@ -39,7 +40,7 @@ export class InMemDriver extends CloudStorageDriver {
         this.initMap(name);
       });
     return {
-      connected: true,
+      success: true,
       filesInfo: names
         .filter(name => this.metadata.has(name))
         .map(filename => ({
@@ -48,6 +49,28 @@ export class InMemDriver extends CloudStorageDriver {
           updated: this.metadata.get(filename)?.lastRemoteChange || 0,
           hash: this.metadata.get(filename)?.hash
         }))
+    };
+  }
+
+  public async fileExists(
+    filename: string
+  ): Promise<{ success: boolean; exists?: boolean }> {
+    return { success: true, exists: this.collection.has(filename) };
+  }
+
+  public async getFileInfo(
+    filename: string
+  ): Promise<{ success: boolean; fileInfo?: DriverFileInfo }> {
+    const { success, exists } = await this.fileExists(filename);
+    if (!success || exists === false) return { success };
+    return {
+      success: true,
+      fileInfo: {
+        filename,
+        providerid: filename,
+        updated: this.metadata.get(filename)?.lastRemoteChange || 0,
+        hash: this.metadata.get(filename)?.hash
+      }
     };
   }
 
@@ -73,6 +96,19 @@ export class InMemDriver extends CloudStorageDriver {
   }
 
   public async deleteFile(providerid: string, filename: string) {
+    this.initMap(filename, true);
+    return { success: true };
+  }
+
+  public async renameFile(
+    providerid: string,
+    filename: string,
+    newFilename: string
+  ): Promise<{ success: boolean }> {
+    const colValue = this.collection.get(filename);
+    if (colValue) this.collection.set(newFilename, colValue);
+    const metaValue = this.metadata.get(filename);
+    if (metaValue) this.metadata.set(newFilename, { ...metaValue });
     this.initMap(filename, true);
     return { success: true };
   }
