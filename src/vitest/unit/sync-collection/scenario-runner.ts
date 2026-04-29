@@ -15,6 +15,7 @@ import {
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/local-changes.service';
+import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
 import { LocalChangeType, SerializableData } from '@/db/types/store-types';
 import {
@@ -30,7 +31,7 @@ import {
   PullTestEndStatsItem,
   RelevantItem
 } from './scenario-stats-builder.test';
-import { reInitRemoteData } from './test-sync.utils';
+import { getRemoteFileInfo, reInitRemoteData } from './test-sync.utils';
 
 interface PullTestChangeScenario {
   id?: string;
@@ -58,6 +59,8 @@ export interface PullTestScenario {
   initLocalData?: ItemData[];
   fields?: TestField[];
   changesBeforePull: PullTestChangeScenario[];
+  didPush?: boolean;
+  didPull?: boolean;
   skipForcePull?: boolean;
   endStats: (
     b: PullTestEndStatsBuilder,
@@ -80,6 +83,8 @@ export class PullTestScenarioRunner {
   private relevantItems: RelevantItem[] = []; // = new Map<string, RelevantItem>();
   private newValuesMap = new Map<string, SerializableData>();
 
+  private postStatsHadConflict = false;
+
   public constructor(
     scenario: PullTestScenario,
     type: CollectionItemType,
@@ -88,6 +93,7 @@ export class PullTestScenarioRunner {
     this.scenario = scenario;
     this.type = type;
     if (force !== undefined) this.force = force;
+    this.postStatsHadConflict = false;
   }
 
   public withTestField(field: TestField) {
@@ -110,7 +116,7 @@ export class PullTestScenarioRunner {
     return this;
   }
 
-  public withRemoteData(): PullTestScenarioRunner {
+  public async withRemoteData(): Promise<PullTestScenarioRunner> {
     if (!this.scenario.initRemoteData) return this;
     for (const data of this.scenario.initRemoteData) {
       this.applyTestChangeOnRemote({
@@ -121,10 +127,17 @@ export class PullTestScenarioRunner {
         data: { type: data.type, parent: data.parent }
       });
     }
+    // make sure remote is seen as initially unchanged
+    if (this.scenario.initLocalData) {
+      await remotesService.configureRemotes(storageService.getSpaceId());
+      const remoteInfo = await getRemoteFileInfo('collection.json');
+      localChangesService.setLastPulled(remoteInfo?.updated || 0);
+    }
     return this;
   }
 
   public applyTestChangesInOrder(): PullTestScenarioRunner {
+    localChangesService.clear();
     this.scenario.changesBeforePull.forEach(ch => {
       vi.advanceTimersByTime(fakeTimersDelay);
       if (ch.where === 'local') {
@@ -428,6 +441,7 @@ export class PullTestScenarioRunner {
       collectionService.getAllCollectionItemsRecursive(ROOT_COLLECTION);
     const conflict = items.find(r => r.conflict === id);
     if (stats.hasConflict) {
+      this.postStatsHadConflict = true;
       expect(conflict).toBeDefined();
       if (stats.conflictHasParent === CONFLICTS_NOTEBOOK_ID) {
         expect(conflict?.id).toBe(id);
@@ -562,5 +576,46 @@ export class PullTestScenarioRunner {
       otherHistoryAssert: () => {}
     };
     return { ...defaultValues, ...values };
+  }
+
+  public async assertRemote(
+    resp: {
+      success: boolean;
+      didPush: boolean;
+      didPull: boolean;
+    },
+    force: boolean
+  ) {
+    if (force) return; // skip for now
+    if (this.scenario.didPull !== undefined) {
+      expect(resp.didPull).toBe(this.scenario.didPull);
+    } else {
+      const hadRemoteChanges =
+        this.scenario.changesBeforePull.filter(c => c.where === 'remote')
+          .length > 0;
+      expect(resp.didPull).toBe(hadRemoteChanges);
+    }
+    if (this.scenario.didPush !== undefined) {
+      expect(resp.didPush).toBe(this.scenario.didPush);
+    } else {
+      const hadLocalChanges =
+        this.scenario.changesBeforePull.filter(c => c.where === 'local')
+          .length > 0;
+      console.log(
+        'estimated didPush',
+        !this.postStatsHadConflict,
+        hadLocalChanges
+      );
+      console.log('real didPush', resp.didPush);
+      expect(resp.didPush).toBe(!this.postStatsHadConflict && hadLocalChanges);
+    }
+
+    if (resp.didPush) {
+      // TODO check remote content
+      // const localContent = storageService.getSpace().getTable('collection');
+      // const itemIds = Object.keys(localContent);
+      // const remoteContent = await getRemoteContent();
+      // expect(remoteContent.content).toHaveLength(itemIds.length);
+    }
   }
 }

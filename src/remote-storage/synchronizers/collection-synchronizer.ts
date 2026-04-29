@@ -92,17 +92,18 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   }
 
   public async push(force = false) {
-    if (this.ongoing) return { success: false };
+    let didPush = false;
+    if (this.ongoing) return { success: false, didPush };
     console.log(`[collection][push] starting`);
     if (localChangesService.getLocalChanges().length === 0 && !force) {
       console.log(`[collection][push] nothing to push`);
-      return { success: false };
+      return { success: true, didPush };
     }
     if (collectionService.getConflicts().length > 0) {
       console.log(
         `[collection][push] found local conflicts; pushing is not allowed`
       );
-      return { success: false };
+      return { success: true, didPush };
     }
     this.ongoing = true;
     const store = storageService.getSpace(this.remote.space);
@@ -125,8 +126,9 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       // push to filesystem
       if ((hasNewChanges && data) || force) {
         const resp = await this.cloudFS.acceptsChanges(data);
+        didPush = true;
         if (!resp.success || !resp.updatedRemoteState) {
-          return { success: false };
+          return { success: false, didPush };
         }
         // update remote info
         const updatedRemoteState = resp.updatedRemoteState;
@@ -142,10 +144,10 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
           );
       }
 
-      return { success: true };
+      return { success: true, didPush };
     } catch (e) {
       console.error('[collection][push] error', this.remote.name, e);
-      return { success: false };
+      return { success: false, didPush };
     } finally {
       this.ongoing = false;
       console.log(`[collection][push] done`);
@@ -153,7 +155,8 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   }
 
   public async pull(force = false) {
-    if (this.ongoing) return { success: false };
+    let didPull = false;
+    if (this.ongoing) return { success: false, didPull };
     this.ongoing = true;
     console.log(`[collection][pull] starting`);
     const store = storageService.getSpace(this.remote.space);
@@ -164,6 +167,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
 
     try {
       const resp = await this.cloudFS.fetchChanges(lastPulled, force);
+      didPull = resp.didPull;
       if (
         resp.success &&
         resp.didPull &&
@@ -188,7 +192,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
             resp.updatedRemoteState.lastRemoteChange
           );
       }
-      return { success: resp.success };
+      return { success: resp.success, didPull };
     } catch (e) {
       console.error('[collection][pull] error', this.remote.name, e);
       // restore
@@ -197,7 +201,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       this.ongoing = false;
       console.log(`[collection][pull] done`);
     }
-    return { success: false };
+    return { success: false, didPull };
   }
 
   public async destroy() {
@@ -708,6 +712,11 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
         continue;
       }
 
+      if (newCollectionAfterPull[id].conflict) {
+        // don't keep orphaned conflicts
+        delete newCollectionAfterPull[id];
+        continue;
+      }
       // if parent doesn't exist, put the item in conflicts notebook
       // TODO check if parent is allowed too (page under doc, etc.)
       console.debug('[collection][pull] orphan detected', id, item.title);

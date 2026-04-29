@@ -72,6 +72,8 @@ const scenarioMatrix: {
       {
         description:
           'item inexistent locally, added on remote → remote item pulled',
+        didPush: false,
+        didPull: true,
         changesBeforePull: [
           {
             change: LocalChangeType.add,
@@ -83,6 +85,8 @@ const scenarioMatrix: {
       {
         description:
           'item added locally, added on remote with different content → ?',
+        didPull: true,
+        didPush: true,
         initRemoteData: [{ id: '#id', applyInitValue: true }],
         fields: [titleField],
         changesBeforePull: [
@@ -120,9 +124,10 @@ const scenarioMatrix: {
     label: '[item deleted locally first]',
     scenarios: [
       {
-        id: 'debug',
         description:
           'item deleted locally, unchanged on remote → item stays deleted (local wins)',
+        didPull: false,
+        didPush: true,
         initLocalData: [{ id: '#id' }],
         initRemoteData: [{ id: '#id' }],
         changesBeforePull: [
@@ -1432,6 +1437,7 @@ const scenarioMatrix: {
       {
         description:
           'A deleted remotely, then item moved locally to A, then item moved remotely to B → remote wins',
+        // didPush: false,
         fields: [parentField],
         initLocalData: [
           { id: '#id', applyInitValue: true },

@@ -7,7 +7,7 @@ import { PullTestScenarioRunner } from './scenario-runner';
 import { scenarioMatrix } from './sync-pull.matrix';
 import {
   reInitRemoteData,
-  syncService_pull,
+  syncService_sync,
   testSyncAfterEach,
   testSyncBeforeEach
 } from './test-sync.utils';
@@ -19,7 +19,11 @@ const allTypes = [
   { type: CollectionItemType.notebook, typeName: 'notebook' }
 ];
 
-function generateTestSuite(force: boolean) {
+function generateTestSuite(
+  force: boolean,
+  callback: () => Promise<any>,
+  id?: string
+) {
   Object.keys(scenarioMatrix).forEach(key => {
     const category = scenarioMatrix[key];
 
@@ -32,11 +36,12 @@ function generateTestSuite(force: boolean) {
         }
         describe(`changes on a single ${typeName}`, () => {
           category.scenarios.forEach(scenario => {
+            if (id && scenario.id !== id) return;
             if (force === true && scenario.skipForcePull === true) return;
             if (scenario.types && !scenario.types.find(t => t === type)) return;
             if (scenario.skip === true) return;
 
-            const prefix = force ? 'Force Pull' : 'Pull';
+            const prefix = force ? 'Force Pull' : 'Pull/Push';
             const desc = scenario.description.replaceAll('item', typeName);
 
             if (scenario.fields && scenario.fields.length > 0) {
@@ -45,35 +50,42 @@ function generateTestSuite(force: boolean) {
                 scenario.fields!.forEach(f => {
                   // TODO check field applicable for type
                   it(`${prefix}: type: ${typeName} / field: ${f.field}`, async () => {
-                    const runner = new PullTestScenarioRunner(
+                    const runner = await new PullTestScenarioRunner(
                       scenario,
                       type,
                       force
                     )
                       .withTestField(f)
                       .withLocalData()
-                      .withRemoteData()
-                      .applyTestChangesInOrder();
+                      .withRemoteData();
+
+                    runner.applyTestChangesInOrder();
                     // pull
-                    await syncService_pull(force);
+                    const resp = await callback();
                     // assert stats
                     runner.assertStats();
                     runner.assertHistoryStats();
+                    await runner.assertRemote(resp, force);
                   });
                 });
               });
             } else {
               // simple test without loop
               it(`${prefix}: ${desc}`, async () => {
-                const runner = new PullTestScenarioRunner(scenario, type, force)
+                const runner = await new PullTestScenarioRunner(
+                  scenario,
+                  type,
+                  force
+                )
                   .withLocalData()
-                  .withRemoteData()
-                  .applyTestChangesInOrder();
+                  .withRemoteData();
+                runner.applyTestChangesInOrder();
                 // pull
-                await syncService_pull(force);
+                const resp = await callback();
                 // assert stats
                 runner.assertStats();
                 runner.assertHistoryStats();
+                await runner.assertRemote(resp, force);
               });
             }
           });
@@ -88,13 +100,13 @@ describe('on pull operation tests', () => {
   afterEach(testSyncAfterEach);
 
   describe(`simple/merge pull`, () => {
-    generateTestSuite(false);
+    generateTestSuite(false, () => syncService_sync('sync'));
   });
 
   describe('force pull', () => {
     beforeEach(() => {
       reInitRemoteData([oneNotebook()]);
     });
-    generateTestSuite(true);
+    generateTestSuite(true, () => syncService_sync('force-pull'));
   });
 });

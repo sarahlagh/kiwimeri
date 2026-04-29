@@ -238,8 +238,9 @@ describe.sequential(
       await reInitRemoteData(remoteData);
 
       await amount(100);
-      const ok = await syncService.sync('sync');
-      expect(ok);
+      const { success, didPull } = await syncService.sync('sync');
+      expect(success);
+      expect(didPull);
       expect(getRowCountInsideNotebook()).toBe(3);
 
       // update locally

@@ -13,8 +13,8 @@ export abstract class CloudStorageSynchronizer {
   }>;
 
   public async sync(): Promise<{
-    didPull?: boolean;
-    didPush?: boolean;
+    didPull: boolean;
+    didPush: boolean;
     success: boolean;
   }> {
     const { success: pullSuccess, didPull } = await this.pull();
@@ -27,11 +27,11 @@ export abstract class CloudStorageSynchronizer {
 
   public abstract push(
     force?: boolean
-  ): Promise<{ didPush?: boolean; success: boolean }>;
+  ): Promise<{ didPush: boolean; success: boolean }>;
 
   public abstract pull(
     force?: boolean
-  ): Promise<{ didPull?: boolean; success: boolean }>;
+  ): Promise<{ didPull: boolean; success: boolean }>;
 
   public abstract destroy(): Promise<void>;
 }

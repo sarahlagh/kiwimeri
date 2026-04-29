@@ -91,8 +91,8 @@ const reInitRemoteData = async (
 const syncService_pull = async (force = false) => {
   vi.advanceTimersByTime(fakeTimersDelay);
   console.debug('start pulling', ++iPull, Date.now());
-  const ok = await syncService.pull(undefined, force);
-  expect(ok).toBe(true);
+  const { success } = await syncService.pull(undefined, force);
+  expect(success).toBe(true);
   vi.advanceTimersByTime(fakeTimersDelay);
   console.debug('done pulling', Date.now());
 };

@@ -6,7 +6,10 @@ import remotesService from '@/db/remotes.service';
 export type SyncDirection = 'sync' | 'force-push' | 'force-pull';
 
 class SyncService {
-  public async sync(direction: SyncDirection, remote?: string) {
+  public async sync(
+    direction: SyncDirection,
+    remote?: string
+  ): Promise<{ success: boolean; didPull?: boolean; didPush?: boolean }> {
     switch (direction) {
       case 'sync':
         return this.pullMerge(remote);
@@ -25,7 +28,7 @@ class SyncService {
     );
     if (activeRemotes.length > 0) {
       const primary = activeRemotes[0];
-      const { success } = await remotesService.sync(primary);
+      const resp = await remotesService.sync(primary);
       activeRemotes.shift();
       if (activeRemotes.length > 0) {
         setTimeout(async () => {
@@ -34,9 +37,9 @@ class SyncService {
           }
         });
       }
-      return success;
+      return resp;
     }
-    return true;
+    return { success: true, didPull: false, didPush: false };
   }
 
   // only push to primary or selected
@@ -47,10 +50,9 @@ class SyncService {
     );
     if (activeRemotes.length > 0) {
       const remote = activeRemotes[0];
-      const { success } = await remotesService.push(remote, force);
-      return success;
+      return remotesService.push(remote, force);
     }
-    return false;
+    return { success: true, didPush: false };
   }
 
   // only pull from primary or selected
@@ -61,10 +63,9 @@ class SyncService {
     );
     if (activeRemotes.length > 0) {
       const remote = activeRemotes[0];
-      const resp = await remotesService.pull(remote, force);
-      return resp?.success;
+      return remotesService.pull(remote, force);
     }
-    return false;
+    return { success: true, didPull: false };
   }
 
   public usePrimaryConnected() {

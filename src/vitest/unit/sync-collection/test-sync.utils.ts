@@ -6,7 +6,7 @@ import storageService from '@/db/storage.service';
 import { SpaceValues } from '@/db/types/space-types';
 import userSettingsService from '@/db/user-settings.service';
 import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
-import { syncService } from '@/remote-storage/sync.service';
+import { SyncDirection, syncService } from '@/remote-storage/sync.service';
 import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { fakeTimersDelay } from '@/vitest/setup/test.utils';
@@ -83,19 +83,36 @@ export const getRemoteContent = async () => {
   return driver.getParsedCollectionContent();
 };
 
+export const getRemoteFileInfo = async (filename: string) => {
+  return (await driver.getFileInfo(filename)).fileInfo;
+};
+
 export const syncService_pull = async (force = false) => {
   vi.advanceTimersByTime(fakeTimersDelay);
   console.debug('start pulling', ++iPull, Date.now());
-  const ok = await syncService.pull(undefined, force);
-  expect(ok).toBe(true);
+  const resp = await syncService.pull(undefined, force);
+  expect(resp.success).toBe(true);
   vi.advanceTimersByTime(fakeTimersDelay);
   console.debug('done pulling', Date.now());
+  return resp;
+};
+
+export const syncService_sync = async (direction: SyncDirection) => {
+  vi.advanceTimersByTime(fakeTimersDelay);
+  console.debug('start syncing', ++iPull, Date.now());
+  const resp = await syncService.sync(direction);
+  expect(resp.success).toBe(true);
+  vi.advanceTimersByTime(fakeTimersDelay);
+  console.debug('done syncing', Date.now());
+  return resp;
 };
 
 export const syncService_push = async (force = false) => {
   vi.advanceTimersByTime(fakeTimersDelay);
   console.debug('start pushing', ++iPush, Date.now());
-  await syncService.push(undefined, force);
+  const resp = await syncService.push(undefined, force);
+  expect(resp.success).toBe(true);
   vi.advanceTimersByTime(fakeTimersDelay);
   console.debug('done pushing', Date.now());
+  return resp;
 };
