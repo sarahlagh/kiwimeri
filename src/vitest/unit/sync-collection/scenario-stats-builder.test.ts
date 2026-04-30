@@ -60,7 +60,7 @@ export type RelevantItem = {
 };
 
 export class PullTestEndStatsBuilder {
-  private force = false;
+  private forcePull = false;
   private type: CollectionItemType;
   private items: PullTestEndStatsItemGroup[] = [];
   private testField?: TestField;
@@ -71,11 +71,11 @@ export class PullTestEndStatsBuilder {
   public constructor(
     type: CollectionItemType,
     testField?: TestField,
-    force?: boolean
+    forcePull?: boolean
   ) {
     this.type = type;
     this.testField = testField;
-    if (force !== undefined) this.force = force;
+    if (forcePull !== undefined) this.forcePull = forcePull;
   }
   public theItem(item: PullTestEndStatsItem) {
     if (this.skip) return this;
@@ -109,9 +109,9 @@ export class PullTestEndStatsBuilder {
     }
     return this;
   }
-  public ifForce() {
+  public ifForcePull() {
     this.forceOverrideOn = true;
-    if (this.force === true) {
+    if (this.forcePull === true) {
       this.idx = -1;
       this.skip = false;
     } else {
@@ -132,7 +132,10 @@ export class PullTestEndStatsBuilder {
     return this.ifType(CollectionItemType.notebook);
   }
   private ifType(type: CollectionItemType) {
-    if (this.type === type && (!this.forceOverrideOn || this.force === true)) {
+    if (
+      this.type === type &&
+      (!this.forceOverrideOn || this.forcePull === true)
+    ) {
       this.idx = -1;
       this.skip = false;
     } else {
@@ -319,7 +322,7 @@ describe(`test stats builder`, () => {
       .itsParent({ hasVersions: 1 })
       .ifPage()
       .itsParent({ hasVersions: 2 })
-      .ifForce()
+      .ifForcePull()
       .theItem({ exists: false })
       .itsParent({ exists: false })
       .build([], false);
@@ -344,7 +347,7 @@ describe(`test stats builder`, () => {
       .itsParent({ hasVersions: 1 })
       .ifPage()
       .itsParent({ hasVersions: 2 })
-      .ifForce()
+      .ifForcePull()
       .theItem({ exists: false })
       .itsParent({ exists: true })
       .ifPage()
@@ -371,7 +374,7 @@ describe(`test stats builder`, () => {
       .itsParent({ hasVersions: 1 })
       .ifPage()
       .itsParent({ hasVersions: 2 })
-      .ifForce()
+      .ifForcePull()
       .theItem({ exists: false })
       .itsParent({ exists: true })
       .ifPage()

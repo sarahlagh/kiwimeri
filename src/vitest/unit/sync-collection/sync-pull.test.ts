@@ -1,6 +1,7 @@
 // out of scope: "what happens after conflict" or longer push pull sequences -> to other files
 
 import { CollectionItemType } from '@/collection/collection';
+import { SyncDirection } from '@/remote-storage/sync.service';
 import { oneNotebook } from '@/vitest/setup/test.utils';
 import { afterEach, beforeEach, describe, it } from 'vitest';
 import { PullTestScenarioRunner } from './scenario-runner';
@@ -20,15 +21,18 @@ const allTypes = [
 ];
 
 function generateTestSuite(
-  force: boolean,
+  direction: SyncDirection,
   callback: () => Promise<any>,
   id?: string
 ) {
+  const forcePull = direction === 'force-pull';
+  const forcePush = direction === 'force-push';
   Object.keys(scenarioMatrix).forEach(key => {
     const category = scenarioMatrix[key];
 
     if (category.skip === true) return;
-    if (force && category.skipForcePull === true) return;
+    if (forcePull && category.skipForcePull === true) return;
+    if (forcePush && category.skipForcePush === true) return;
     describe(`${category.label}`, () => {
       allTypes.forEach(({ type, typeName }) => {
         if (category.types && !category.types.find(t => t === type)) {
@@ -37,11 +41,17 @@ function generateTestSuite(
         describe(`changes on a single ${typeName}`, () => {
           category.scenarios.forEach(scenario => {
             if (id && scenario.id !== id) return;
-            if (force === true && scenario.skipForcePull === true) return;
+            if (forcePull === true && scenario.skipForcePull === true) return;
+            if (forcePush === true && scenario.skipForcePush === true) return;
             if (scenario.types && !scenario.types.find(t => t === type)) return;
             if (scenario.skip === true) return;
 
-            const prefix = force ? 'Force Pull' : 'Pull/Push';
+            const prefix =
+              !forcePull && !forcePush
+                ? 'Pull/Push'
+                : forcePull
+                  ? 'Force Pull'
+                  : 'Force Push';
             const desc = scenario.description.replaceAll('item', typeName);
 
             if (scenario.fields && scenario.fields.length > 0) {
@@ -53,7 +63,7 @@ function generateTestSuite(
                     const runner = await new PullTestScenarioRunner(
                       scenario,
                       type,
-                      force
+                      direction
                     )
                       .withTestField(f)
                       .withLocalData()
@@ -63,9 +73,11 @@ function generateTestSuite(
                     // pull
                     const resp = await callback();
                     // assert stats
-                    runner.assertStats();
-                    runner.assertHistoryStats();
-                    await runner.assertRemote(resp, force);
+                    if (direction !== 'force-push') {
+                      runner.assertStats();
+                      runner.assertHistoryStats();
+                    }
+                    await runner.assertRemote(resp);
                   });
                 });
               });
@@ -75,7 +87,7 @@ function generateTestSuite(
                 const runner = await new PullTestScenarioRunner(
                   scenario,
                   type,
-                  force
+                  direction
                 )
                   .withLocalData()
                   .withRemoteData();
@@ -83,9 +95,11 @@ function generateTestSuite(
                 // pull
                 const resp = await callback();
                 // assert stats
-                runner.assertStats();
-                runner.assertHistoryStats();
-                await runner.assertRemote(resp, force);
+                if (direction !== 'force-push') {
+                  runner.assertStats();
+                  runner.assertHistoryStats();
+                }
+                await runner.assertRemote(resp);
               });
             }
           });
@@ -100,13 +114,20 @@ describe('on pull operation tests', () => {
   afterEach(testSyncAfterEach);
 
   describe(`simple/merge pull`, () => {
-    generateTestSuite(false, () => syncService_sync('sync')); //, 'debug');
+    generateTestSuite('sync', () => syncService_sync('sync')); //, 'debug');
   });
 
   describe('force pull', () => {
     beforeEach(() => {
       reInitRemoteData([oneNotebook()]);
     });
-    generateTestSuite(true, () => syncService_sync('force-pull'));
+    generateTestSuite('force-pull', () => syncService_sync('force-pull'));
+  });
+
+  describe('force push', () => {
+    beforeEach(() => {
+      reInitRemoteData([oneNotebook()]);
+    });
+    generateTestSuite('force-push', () => syncService_sync('force-push'));
   });
 });

@@ -27,6 +27,7 @@ const scenarioMatrix: {
     types?: CollectionItemTypeValues[];
     skip?: boolean;
     skipForcePull?: boolean;
+    skipForcePush?: boolean;
     scenarios: PullTestScenario[];
   };
 } = {
@@ -48,7 +49,7 @@ const scenarioMatrix: {
             .ifPage()
             .itsParent({ hasVersions: 2 })
             // force pull: item is deleted
-            .ifForce()
+            .ifForcePull()
             .theItem({ exists: false })
             .itsParent({ exists: false })
             .ifPage()
@@ -112,7 +113,7 @@ const scenarioMatrix: {
             })
             .ifPage()
             .itsParent({ hasVersions: 2 })
-            .ifForce()
+            .ifForcePull()
             .theItem({
               otherAssert: () => {},
               hasValue: 'init'
@@ -158,7 +159,7 @@ const scenarioMatrix: {
               }
             })
             // if force pull, item pulled
-            .ifForce()
+            .ifForcePull()
             .theItem({ exists: true })
             .ifDocument()
             .theItem({
@@ -305,7 +306,7 @@ const scenarioMatrix: {
             .itsParent({
               hasVersions: 3
             })
-            .ifForce()
+            .ifForcePull()
             .theItem({ exists: true })
             .ifDocument()
             .theItem({ hasVersions: 3, latestVersionsOp: ['snapshot'] })
@@ -344,7 +345,7 @@ const scenarioMatrix: {
             .itsOldParent({
               hasVersions: 3
             })
-            .ifForce()
+            .ifForcePull()
             .theItem({ exists: true })
             .ifDocument()
             .theItem({ hasVersions: 3, latestVersionsOp: ['snapshot'] })
@@ -410,7 +411,7 @@ const scenarioMatrix: {
             .ifPage()
             .theItem({ hasVersions: 2 })
             .itsParent({ hasVersions: 3 })
-            .ifForce()
+            .ifForcePull()
             .theItem({ exists: false, hasValue: null })
             .ifDocument()
             .theItem({ hasVersions: 3, latestVersionsOp: ['deleted'] })
@@ -439,7 +440,7 @@ const scenarioMatrix: {
             .ifPage() // for page, order is a historizable field
             .theItem({ hasVersions: 2 })
             .itsParent({ hasVersions: 3 })
-            .ifForce()
+            .ifForcePull()
             .theItem({ exists: false, hasValue: null })
             .ifDocument()
             .theItem({ hasVersions: 2, latestVersionsOp: ['deleted'] })
@@ -465,7 +466,7 @@ const scenarioMatrix: {
             })
             .ifDocument()
             .theItem({ hasVersions: 1 })
-            .ifForce()
+            .ifForcePull()
             .theItem({ hasValue: null, exists: false })
             .itsParent({ exists: false }) // for doc, new parent only existed locally without push
             .itsOldParent({ exists: true })
@@ -530,7 +531,7 @@ const scenarioMatrix: {
             })
             .ifPage()
             .itsParent({ hasVersions: 4 })
-            .ifForce()
+            .ifForcePull()
             .theItem({
               hasConflict: false
             })
@@ -632,7 +633,7 @@ const scenarioMatrix: {
               hasVersions: 2,
               latestVersionsOp: ['deleted', 'snapshot']
             })
-            .ifForce()
+            .ifForcePull()
             .theItem({
               hasConflict: false
             })
@@ -666,7 +667,7 @@ const scenarioMatrix: {
             .ifPage()
             .theItem({ hasVersions: 2 })
             .itsParent({ hasVersions: 3 })
-            .ifForce()
+            .ifForcePull()
             .theItem({ hasValue: 'init' })
       },
       {
@@ -780,7 +781,7 @@ const scenarioMatrix: {
             .ifPage()
             .theItem({ hasVersions: 2 })
             .itsParent({ hasVersions: 3 })
-            .ifForce()
+            .ifForcePull()
             .theItem({ hasConflict: false })
       }
     ]
@@ -838,7 +839,7 @@ const scenarioMatrix: {
             .ifPage()
             .theItem({ hasVersions: 2 })
             .itsParent({ hasVersions: 3 })
-            .ifForce()
+            .ifForcePull()
             .theItem({ hasValue: 'remote' })
       },
       {
@@ -867,7 +868,7 @@ const scenarioMatrix: {
             .ifPage()
             .theItem({ hasVersions: 2 })
             .itsParent({ hasVersions: 3 })
-            .ifForce()
+            .ifForcePull()
             .theItem({ hasValue: 'remote' })
       },
       {
@@ -892,7 +893,7 @@ const scenarioMatrix: {
         endStats: b =>
           b
             .theItem({ hasValue: 'local' })
-            .ifForce()
+            .ifForcePull()
             .theItem({ hasValue: 'remote' })
       },
       {
@@ -924,7 +925,7 @@ const scenarioMatrix: {
             .ifPage()
             .theItem({ hasVersions: 2 })
             .itsParent({ hasVersions: 3 })
-            .ifForce()
+            .ifForcePull()
             .theItem({ hasValue: 'remote' })
       }
     ]
@@ -949,7 +950,7 @@ const scenarioMatrix: {
         endStats: b =>
           b
             .theItem({ exists: true, hasValue: 'local' })
-            .ifForce()
+            .ifForcePull()
             .theItem({ hasValue: 'init' })
             .itsParent({ exists: false })
       },
@@ -1023,7 +1024,7 @@ const scenarioMatrix: {
               conflictHasValue: 'local',
               conflictHasParent: '#parentA'
             })
-            .ifForce()
+            .ifForcePull()
             .theItem({ hasConflict: false })
       },
       {
@@ -1068,7 +1069,7 @@ const scenarioMatrix: {
               conflictHasValue: 'local',
               conflictHasParent: '#parentA'
             })
-            .ifForce()
+            .ifForcePull()
             .theItem({ hasConflict: false })
       },
       {
@@ -1105,7 +1106,7 @@ const scenarioMatrix: {
               conflictHasParent: CONFLICTS_NOTEBOOK_ID
             })
             .itsParent({ exists: false }) // #parentA
-            .ifForce()
+            .ifForcePull()
             .theItem({ hasConflict: false, hasValue: 'init' })
       },
       {
@@ -1143,7 +1144,7 @@ const scenarioMatrix: {
               conflictHasParent: CONFLICTS_NOTEBOOK_ID
             })
             .itsParent({ exists: false }) // #parentA
-            .ifForce()
+            .ifForcePull()
             .theItem({ hasConflict: false, hasValue: 'init' })
       },
       {
@@ -1190,7 +1191,7 @@ const scenarioMatrix: {
             .itsParent({
               exists: false // #parentB
             })
-            .ifForce()
+            .ifForcePull()
             .theItem({
               id: '#id',
               exists: true,
@@ -1243,7 +1244,7 @@ const scenarioMatrix: {
             .itsParent({
               exists: false // #parentB
             })
-            .ifForce()
+            .ifForcePull()
             .theItem({
               id: '#id',
               exists: true,
@@ -1302,7 +1303,7 @@ const scenarioMatrix: {
         endStats: b =>
           b
             .theItem({ id: '#id', hasValue: 'local' })
-            .ifForce()
+            .ifForcePull()
             .theItem({ hasValue: 'remote' })
       },
       {
@@ -1336,7 +1337,7 @@ const scenarioMatrix: {
         endStats: b =>
           b
             .theItem({ id: '#id', hasValue: 'local' })
-            .ifForce()
+            .ifForcePull()
             .theItem({ hasValue: 'remote' })
       },
       {
@@ -1372,7 +1373,7 @@ const scenarioMatrix: {
               conflictHasParent: CONFLICTS_NOTEBOOK_ID
             })
             .itsParent({ exists: false }) // #parentA
-            .ifForce()
+            .ifForcePull()
             .theItem({ hasConflict: false, hasValue: 'remote' })
             .itsParent({ exists: true })
       },
@@ -1420,7 +1421,7 @@ const scenarioMatrix: {
             .itsParent({
               exists: false // #parentB
             })
-            .ifForce()
+            .ifForcePull()
             .theItem({
               id: '#id',
               hasValue: 'remote',
@@ -1472,7 +1473,7 @@ const scenarioMatrix: {
             .itsParent({
               exists: false // #parentB
             })
-            .ifForce()
+            .ifForcePull()
             .theItem({
               id: '#id',
               exists: true,
@@ -1522,7 +1523,7 @@ const scenarioMatrix: {
             .itsParent({
               exists: false // #parentB
             })
-            .ifForce()
+            .ifForcePull()
             .theItem({
               id: '#id',
               hasValue: 'init',
@@ -1643,7 +1644,7 @@ const scenarioMatrix: {
               conflictHasParent: CONFLICTS_NOTEBOOK_ID
             })
             .itsParent({ exists: false })
-            .ifForce()
+            .ifForcePull()
             .theItem({ hasConflict: false, hasValue: 'remote' })
       }
     ]
@@ -1688,7 +1689,7 @@ const scenarioMatrix: {
             .itsParent({
               exists: false // #parentB
             })
-            .ifForce()
+            .ifForcePull()
             .theItem({
               id: '#id',
               hasValue: 'remote',
@@ -1732,7 +1733,7 @@ const scenarioMatrix: {
         endStats: b =>
           b
             .theItem({ id: '#id', hasValue: 'local' })
-            .ifForce()
+            .ifForcePull()
             .theItem({ hasValue: 'remote' })
       },
       {
@@ -1776,7 +1777,7 @@ const scenarioMatrix: {
               conflictHasParent: CONFLICTS_NOTEBOOK_ID
             })
             .itsParent({ exists: false })
-            .ifForce()
+            .ifForcePull()
             .theItem({ hasConflict: false, hasValue: 'remote' })
             .itsParent({ exists: true })
       }
@@ -2199,7 +2200,7 @@ const scenarioMatrix: {
               hasValue: 'local',
               hasVersions: 2
             })
-            .ifForce()
+            .ifForcePull()
             .itsParent({
               hasValue: 'init'
             })
@@ -2286,7 +2287,7 @@ const scenarioMatrix: {
                 expect(pageVersion0.id).not.toBe(pageVersion1.id);
               }
             })
-            .ifForce()
+            .ifForcePull()
             .itsParent({
               hasValue: 'init'
             })
@@ -2340,7 +2341,7 @@ const scenarioMatrix: {
                 expect(pageVersion0.id).not.toBe(pageVersion1.id);
               }
             })
-            .ifForce()
+            .ifForcePull()
             .theItem({
               hasValue: null,
               otherAssert: item => {
@@ -2437,7 +2438,7 @@ const scenarioMatrix: {
                 expect(tagsTs).toBeGreaterThan(titleTs);
               }
             })
-            .ifForce()
+            .ifForcePull()
             .theItem({
               otherAssert: item => {
                 const initTs = parseFieldMeta(item!.parent_meta).u;
@@ -2482,7 +2483,7 @@ const scenarioMatrix: {
             .ifPage()
             .theItem({ hasVersions: 3 })
             .itsParent({ hasVersions: 4 })
-            .ifForce()
+            .ifForcePull()
             .theItem({
               otherAssert: (item, rel) => {
                 const initTs = parseFieldMeta(item!.parent_meta).u;
@@ -2539,7 +2540,7 @@ const scenarioMatrix: {
             .ifPage()
             .theItem({ hasVersions: 4 })
             .itsParent({ hasVersions: 5 })
-            .ifForce()
+            .ifForcePull()
             .theItem({ hasConflict: false })
       }
     ]

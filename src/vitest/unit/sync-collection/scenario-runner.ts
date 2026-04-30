@@ -18,6 +18,7 @@ import localChangesService from '@/db/local-changes.service';
 import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
 import { LocalChangeType, SerializableData } from '@/db/types/store-types';
+import { SyncDirection } from '@/remote-storage/sync.service';
 import {
   createLocalItem,
   fakeTimersDelay,
@@ -66,6 +67,7 @@ export interface PullTestScenario {
   didPush?: boolean;
   didPull?: boolean;
   skipForcePull?: boolean;
+  skipForcePush?: boolean;
   endStats: (
     b: PullTestEndStatsBuilder,
     field?: TestField
@@ -80,7 +82,8 @@ type MinStatItem = Required<
 export class PullTestScenarioRunner {
   private readonly scenario: PullTestScenario;
   private readonly type: CollectionItemType;
-  private force = false;
+  private forcePull = false;
+  private forcePush = false;
   private testField?: TestField;
 
   private remoteItems = new Map<string, CollectionItem>();
@@ -92,11 +95,12 @@ export class PullTestScenarioRunner {
   public constructor(
     scenario: PullTestScenario,
     type: CollectionItemType,
-    force?: boolean
+    direction: SyncDirection
   ) {
     this.scenario = scenario;
     this.type = type;
-    if (force !== undefined) this.force = force;
+    if (direction === 'force-pull') this.forcePull = true;
+    if (direction === 'force-push') this.forcePush = true;
     this.postStatsHadConflict = false;
   }
 
@@ -379,7 +383,7 @@ export class PullTestScenarioRunner {
     const b = new PullTestEndStatsBuilder(
       this.type,
       this.testField,
-      this.force
+      this.forcePull
     );
     const finalStats = this.scenario
       .endStats(b, this.testField)
@@ -526,7 +530,7 @@ export class PullTestScenarioRunner {
     const b = new PullTestEndStatsBuilder(
       this.type,
       this.testField,
-      this.force
+      this.forcePull
     );
     const finalStats = this.scenario
       .endStats(b, this.testField)
@@ -582,31 +586,35 @@ export class PullTestScenarioRunner {
     return { ...defaultValues, ...values };
   }
 
-  public async assertRemote(
-    resp: {
-      success: boolean;
-      didPush: boolean;
-      didPull: boolean;
-    },
-    force: boolean
-  ) {
-    if (force) return; // skip for now
-    if (this.scenario.didPull !== undefined) {
-      expect(resp.didPull).toBe(this.scenario.didPull);
+  public async assertRemote(resp: {
+    success: boolean;
+    didPush: boolean;
+    didPull: boolean;
+  }) {
+    let didPull = this.scenario.didPull;
+    let didPush = this.scenario.didPush;
+    if (this.forcePull) {
+      didPull = true;
+      didPush = undefined;
+    } else if (this.forcePush) {
+      didPull = undefined;
+      didPush = true;
     } else {
-      const hadRemoteChanges =
-        this.scenario.changesBeforePull.filter(c => c.where === 'remote')
-          .length > 0;
-      expect(resp.didPull).toBe(hadRemoteChanges);
+      if (didPull === undefined) {
+        didPull =
+          this.scenario.changesBeforePull.filter(c => c.where === 'remote')
+            .length > 0;
+      }
+      if (didPush === undefined) {
+        const hadLocalChanges =
+          this.scenario.changesBeforePull.filter(c => c.where === 'local')
+            .length > 0;
+        didPush = !this.postStatsHadConflict && hadLocalChanges;
+      }
     }
-    if (this.scenario.didPush !== undefined) {
-      expect(resp.didPush).toBe(this.scenario.didPush);
-    } else {
-      const hadLocalChanges =
-        this.scenario.changesBeforePull.filter(c => c.where === 'local')
-          .length > 0;
-      expect(resp.didPush).toBe(!this.postStatsHadConflict && hadLocalChanges);
-    }
+
+    expect(resp.didPull).toBe(didPull);
+    expect(resp.didPush).toBe(didPush);
 
     if (resp.didPush) {
       // check remote content - should be identical to local
