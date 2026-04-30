@@ -319,6 +319,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     storageService.getSpace().setContent(resp.content);
     this.handleResumeState(resp.changes);
     this.handleHistory(resp.changes);
+    this.handleDiscardedChanges(resp.discardedChanges);
   }
 
   private computeDataToMergeLocally(
@@ -328,8 +329,10 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     force: boolean
   ): {
     content: Content<SpaceType>;
+    discardedChanges: LocalChange[];
     changes: AfterSyncHistChange[];
   } {
+    const discardedChanges: LocalChange[] = [];
     const remoteContent = this.toRepresentation(obj);
     const remoteItems = remoteContent.items;
     const changes: Map<string, AfterSyncHistChange> = new Map();
@@ -408,6 +411,8 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
               created: ts,
               updated: ts
             };
+          } else {
+            discardedChanges.push(localChange);
           }
         }
       }
@@ -481,9 +486,15 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       }
     });
 
-    console.debug('[collection][pull] changes after sync', changes);
+    console.debug(
+      '[collection][pull] changes after sync',
+      changes,
+      'discarded',
+      discardedChanges
+    );
     return {
       content: newLocalContent,
+      discardedChanges,
       changes: [...changes.values()]
     };
   }
@@ -647,6 +658,12 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       historyService.updateAfterSync(ch);
     });
     historyService.gc();
+  }
+
+  private handleDiscardedChanges(discardedChanges: LocalChange[]) {
+    discardedChanges.forEach(localChange => {
+      localChangesService.delLocalChange(localChange.id!);
+    });
   }
 
   private shouldCreateConflict(

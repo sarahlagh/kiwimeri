@@ -100,7 +100,7 @@ describe('on pull operation tests', () => {
   afterEach(testSyncAfterEach);
 
   describe(`simple/merge pull`, () => {
-    generateTestSuite(false, () => syncService_sync('sync'));
+    generateTestSuite(false, () => syncService_sync('sync')); //, 'debug');
   });
 
   describe('force pull', () => {

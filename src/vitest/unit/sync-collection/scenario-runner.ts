@@ -31,7 +31,11 @@ import {
   PullTestEndStatsItem,
   RelevantItem
 } from './scenario-stats-builder.test';
-import { getRemoteFileInfo, reInitRemoteData } from './test-sync.utils';
+import {
+  getRemoteContent,
+  getRemoteFileInfo,
+  reInitRemoteData
+} from './test-sync.utils';
 
 interface PullTestChangeScenario {
   id?: string;
@@ -601,21 +605,22 @@ export class PullTestScenarioRunner {
       const hadLocalChanges =
         this.scenario.changesBeforePull.filter(c => c.where === 'local')
           .length > 0;
-      console.log(
-        'estimated didPush',
-        !this.postStatsHadConflict,
-        hadLocalChanges
-      );
-      console.log('real didPush', resp.didPush);
       expect(resp.didPush).toBe(!this.postStatsHadConflict && hadLocalChanges);
     }
 
     if (resp.didPush) {
-      // TODO check remote content
-      // const localContent = storageService.getSpace().getTable('collection');
-      // const itemIds = Object.keys(localContent);
-      // const remoteContent = await getRemoteContent();
-      // expect(remoteContent.content).toHaveLength(itemIds.length);
+      // check remote content - should be identical to local
+      const localContent = storageService.getSpace().getTable('collection');
+      const itemIds = Object.keys(localContent);
+      const remoteContent = await getRemoteContent();
+      expect(remoteContent.content).toHaveLength(itemIds.length);
+      remoteContent.content.forEach(i => {
+        expect(i).toEqual({ ...localContent[i.id!], id: i.id! });
+      });
+      // check values
+      expect(remoteContent.values).toEqual(
+        storageService.getSpace().getValues()
+      );
     }
   }
 }

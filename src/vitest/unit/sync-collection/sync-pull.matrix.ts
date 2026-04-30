@@ -183,6 +183,7 @@ const scenarioMatrix: {
       {
         description:
           'item deleted locally, then deleted on remote → both win, item gone',
+        didPush: false,
         initLocalData: [{ id: '#id' }],
         initRemoteData: [{ id: '#id' }],
         changesBeforePull: [
@@ -214,6 +215,7 @@ const scenarioMatrix: {
       },
       {
         skipForcePull: true,
+        didPush: false,
         description:
           'item deleted locally, then updated on remote (any field) → remote wins, item exists with remote state',
         initLocalData: [{ id: '#id', applyInitValue: true }],
@@ -236,6 +238,7 @@ const scenarioMatrix: {
       },
       {
         skipForcePull: true,
+        didPush: false,
         description:
           'item deleted locally, then moved on remote → remote wins, item exists with remote state',
         initLocalData: [{ id: '#id', applyInitValue: true }],
@@ -533,6 +536,7 @@ const scenarioMatrix: {
             })
       },
       {
+        didPush: false,
         types: ['n', 'f'],
         description:
           'item updated locally (CONFLICT field), then deleted on remote → local change lost, item deleted (remote wins)',
@@ -549,6 +553,7 @@ const scenarioMatrix: {
           })
       },
       {
+        didPush: false,
         description:
           'item updated locally (NON-CONFLICT field), then deleted on remote → local change lost, item deleted (remote wins)',
         initLocalData: [{ id: '#id', applyInitValue: true }],
@@ -578,6 +583,7 @@ const scenarioMatrix: {
             })
       },
       {
+        didPush: false,
         description:
           'item updated locally (order field), then deleted on remote → local change lost, item deleted (remote wins)',
         initLocalData: [{ id: '#id', applyInitValue: true }],
@@ -664,6 +670,7 @@ const scenarioMatrix: {
             .theItem({ hasValue: 'init' })
       },
       {
+        didPush: false,
         description:
           'same field on item updated locally, then remotely with same value → remote change persists',
         fields: [...allFields],
@@ -693,6 +700,7 @@ const scenarioMatrix: {
             .itsParent({ hasVersions: 3 })
       },
       {
+        didPush: false,
         description:
           'same field (NON-CONFLICTING) on item updated locally, then remotely with different value → remote change persists',
         fields: [...nonConflictFields, orderField],
@@ -720,6 +728,7 @@ const scenarioMatrix: {
             .itsParent({ hasVersions: 3 })
       },
       {
+        didPush: false,
         types: ['n', 'f'],
         description:
           'same field (CONFLICTING) on item updated locally, then remotely with different value → remote change persists',
@@ -945,6 +954,7 @@ const scenarioMatrix: {
             .itsParent({ exists: false })
       },
       {
+        didPush: false,
         description:
           'item moved locally, then moved to same parent on remote → remote wins',
         fields: [parentField],
@@ -973,6 +983,7 @@ const scenarioMatrix: {
         endStats: b => b.theItem({ id: '#id', hasValue: 'remote' })
       },
       {
+        types: ['d'],
         description:
           'item moved locally to A, then moved remotely to B → conflict',
         fields: [parentField],
@@ -1016,6 +1027,90 @@ const scenarioMatrix: {
             .theItem({ hasConflict: false })
       },
       {
+        types: ['f', 'n'],
+        didPush: false,
+        description:
+          'item moved locally to A, then moved remotely to B → conflict',
+        fields: [parentField],
+        initLocalData: [
+          { id: '#id', applyInitValue: true },
+          { id: '#parentA', type: 'n' },
+          { id: '#parentB', type: 'n' }
+        ],
+        initRemoteData: [
+          { id: '#id', applyInitValue: true },
+          { id: '#parentA', type: 'n' },
+          { id: '#parentB', type: 'n' }
+        ],
+        changesBeforePull: [
+          {
+            id: '#id',
+            change: LocalChangeType.update,
+            where: 'local',
+            newValue: '#parentA'
+          },
+          {
+            id: '#id',
+            change: LocalChangeType.update,
+            where: 'remote',
+            newValue: '#parentB'
+          }
+        ],
+        endStats: b =>
+          b
+            .theItem({
+              id: '#id',
+              hasValue: 'remote'
+            })
+            .ifDocument()
+            .theItem({
+              hasConflict: true,
+              conflictHasValue: 'local',
+              conflictHasParent: '#parentA'
+            })
+            .ifForce()
+            .theItem({ hasConflict: false })
+      },
+      {
+        types: ['d'],
+        description:
+          'item moved locally to A, then A deleted remotely → orphaned conflict',
+        fields: [parentField],
+        initLocalData: [
+          { id: '#id', applyInitValue: true },
+          { id: '#parentA', type: 'n' }
+        ],
+        initRemoteData: [
+          { id: '#id', applyInitValue: true },
+          { id: '#parentA', type: 'n' }
+        ],
+        changesBeforePull: [
+          {
+            id: '#id',
+            change: LocalChangeType.update,
+            where: 'local',
+            newValue: '#parentA'
+          },
+          {
+            id: '#parentA',
+            change: LocalChangeType.delete,
+            where: 'remote'
+          }
+        ],
+        endStats: b =>
+          b
+            .theItem({
+              id: '#id',
+              hasConflict: true,
+              conflictHasParent: CONFLICTS_NOTEBOOK_ID
+            })
+            .itsParent({ exists: false }) // #parentA
+            .ifForce()
+            .theItem({ hasConflict: false, hasValue: 'init' })
+      },
+      {
+        types: ['f', 'n'],
+        didPush: false,
         description:
           'item moved locally to A, then A deleted remotely → orphaned conflict',
         fields: [parentField],
@@ -1435,9 +1530,46 @@ const scenarioMatrix: {
             })
       },
       {
+        types: ['d'],
         description:
           'A deleted remotely, then item moved locally to A, then item moved remotely to B → remote wins',
-        // didPush: false,
+        fields: [parentField],
+        initLocalData: [
+          { id: '#id', applyInitValue: true },
+          { id: '#parentA', type: 'n' },
+          { id: '#parentB', type: 'n' }
+        ],
+        initRemoteData: [
+          { id: '#id', applyInitValue: true },
+          { id: '#parentA', type: 'n' },
+          { id: '#parentB', type: 'n' }
+        ],
+        changesBeforePull: [
+          {
+            id: '#parentA',
+            change: LocalChangeType.delete,
+            where: 'remote'
+          },
+          {
+            id: '#id',
+            change: LocalChangeType.update,
+            where: 'local',
+            newValue: '#parentA'
+          },
+          {
+            id: '#id',
+            change: LocalChangeType.update,
+            where: 'remote',
+            newValue: '#parentB'
+          }
+        ],
+        endStats: b => b.theItem({ id: '#id', hasValue: 'remote' })
+      },
+      {
+        types: ['f', 'n'],
+        description:
+          'A deleted remotely, then item moved locally to A, then item moved remotely to B → remote wins',
+        didPush: false,
         fields: [parentField],
         initLocalData: [
           { id: '#id', applyInitValue: true },
