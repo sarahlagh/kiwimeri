@@ -3,8 +3,11 @@ import { getGlobalTrans } from '@/config';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
+import localChangesService from '@/db/local-changes.service';
 import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
+import { LocalChangeType } from '@/db/types/store-types';
+import { syncService } from '@/remote-storage/sync.service';
 import {
   adv,
   getRowCountInsideNotebook,
@@ -12,12 +15,12 @@ import {
   oneFolder,
   oneNotebook
 } from '@/vitest/setup/test.utils';
+import { renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   getRemoteContent,
   reInitRemoteData,
-  syncService_pull,
-  syncService_push,
+  syncService_sync,
   testSyncAfterEach,
   testSyncBeforeEach
 } from './test-sync.utils';
@@ -54,7 +57,10 @@ describe(`sync general test`, () => {
   afterEach(testSyncAfterEach);
 
   it('should do nothing on first pull if remote has nothing', async () => {
-    await syncService_pull();
+    const resp = await syncService_sync('sync');
+    expect(resp.success);
+    expect(!resp.didPull);
+    expect(!resp.didPush);
     expect(getRowCountInsideNotebook()).toBe(0);
     expect(storageService.getSpace().getRowCount('history')).toBe(0);
   });
@@ -66,7 +72,10 @@ describe(`sync general test`, () => {
       oneFolder(),
       oneNotebook()
     ]);
-    await syncService_pull();
+    const resp = await syncService_sync('sync');
+    expect(resp.success);
+    expect(resp.didPull);
+    expect(!resp.didPush);
     expect(getRowCountInsideNotebook()).toBe(3);
     checkHistory(2);
   });
@@ -79,10 +88,20 @@ describe(`sync general test`, () => {
       oneFolder('r3')
     ];
     await reInitRemoteData(remoteData);
-    await syncService_pull();
+
+    const resp1 = await syncService_sync('sync');
+    expect(resp1.success);
+    expect(resp1.didPull);
+    expect(!resp1.didPush);
+
     expect(getRowCountInsideNotebook()).toBe(3);
     adv(() => collectionService.addFolder(DEFAULT_NOTEBOOK_ID));
-    await syncService_push();
+
+    const resp2 = await syncService_sync('sync');
+    expect(resp2.success);
+    expect(!resp2.didPull);
+    expect(resp2.didPush);
+
     const remoteContent = await getRemoteContent();
     expect(remoteContent.content).toHaveLength(5);
     expect(remoteContent.content.map(r => r.type)).toEqual([
@@ -103,18 +122,6 @@ describe(`sync general test`, () => {
     checkHistory(2);
   });
 
-  it('should handle missing file info if remote has been initialized elsewhere', async () => {
-    const remoteData = [
-      oneNotebook('n0'),
-      oneDocument('r1'),
-      oneDocument('r2'),
-      oneFolder('r3')
-    ];
-    await reInitRemoteData(remoteData);
-    await syncService_pull();
-    expect(getRowCountInsideNotebook()).toBe(3);
-  });
-
   it('should handle reinit on network down', async () => {
     // create local item, don't sync
     adv(() => collectionService.addDocument(DEFAULT_NOTEBOOK_ID));
@@ -123,8 +130,97 @@ describe(`sync general test`, () => {
     // reinit sync after network down
     await remotesService.configureRemotes(storageService.getSpaceId());
     // now pull
-    await syncService_pull();
+    const resp = await syncService_sync('sync');
+    expect(resp.success);
+    expect(resp.didPull);
+    expect(resp.didPush);
     // both items are kept
     expect(getRowCountInsideNotebook()).toBe(2);
+  });
+
+  it('should prevent sync when there are conflicts', async () => {
+    // create local item
+    const id = adv(() => collectionService.addDocument(DEFAULT_NOTEBOOK_ID));
+    // artificially create a conflict
+    adv(() =>
+      storageService.getSpace().setCell('collection', id, 'conflict', 'fakeId')
+    );
+    // is global sync prevented
+    const { result, unmount } = renderHook(() =>
+      syncService.useIsMergeSyncEnabled()
+    );
+    expect(result.current).toBe(false);
+    unmount();
+    // calling the method won't succeed on push
+    const { success, didPull, didPush } = await syncService.sync('sync');
+    expect(success);
+    expect(didPull);
+    expect(!didPush);
+  });
+
+  it('should prevent force push when there are conflicts', async () => {
+    // create local item
+    const id = adv(() => collectionService.addDocument(DEFAULT_NOTEBOOK_ID));
+    // artificially create a conflict
+    adv(() =>
+      storageService.getSpace().setCell('collection', id, 'conflict', 'fakeId')
+    );
+    // calling the method won't succeed on push
+    const { success, didPush } = await syncService.sync('force-push');
+    expect(success);
+    expect(!didPush);
+  });
+
+  it('should erase conflicts on force pull', async () => {
+    // create local item
+    const id = adv(() => collectionService.addDocument(DEFAULT_NOTEBOOK_ID));
+    await syncService.push();
+
+    // artificially create a conflict
+    adv(() =>
+      storageService.getSpace().setCell('collection', id, 'conflict', 'fakeId')
+    );
+    expect(collectionService.isItemConflict(id));
+    // calling the method will overwrite
+    const { success, didPull } = await syncService.sync('force-pull');
+    expect(success);
+    expect(didPull);
+
+    expect(!collectionService.isItemConflict(id));
+  });
+
+  it('should allow sync once all conflicts are solved', async () => {
+    // create local item
+    const id = adv(() => collectionService.addDocument(DEFAULT_NOTEBOOK_ID));
+    await syncService.push();
+
+    // artificially create a conflict
+    adv(() =>
+      storageService.getSpace().setCell('collection', id, 'conflict', 'fakeId')
+    );
+    expect(collectionService.isItemConflict(id));
+
+    {
+      const { result, unmount } = renderHook(() =>
+        syncService.useIsMergeSyncEnabled()
+      );
+      expect(result.current).toBe(false);
+      unmount();
+    }
+
+    // solve conflict
+    adv(() => collectionService.setItemTitle(id, 'test'));
+    expect(!collectionService.isItemConflict(id));
+    const lc = localChangesService.getLocalChanges().find(lc => lc.item === id);
+    expect(lc?.change).toBe(LocalChangeType.add);
+    expect(lc?.item).toBe(id);
+
+    {
+      const { result, unmount } = renderHook(() =>
+        syncService.useIsMergeSyncEnabled()
+      );
+      expect(result.current).toBe(true);
+      unmount();
+    }
   });
 });

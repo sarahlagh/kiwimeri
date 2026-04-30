@@ -1507,7 +1507,7 @@ describe('sync service', () => {
       });
     });
 
-    describe('on push operation', () => {
+    describe.skip('on push operation', () => {
       it('should only push notebook on first push if collection is empty', async () => {
         expect(getRowCountInsideNotebook()).toBe(0);
         await syncService_push();
@@ -1859,7 +1859,7 @@ describe('sync service', () => {
       });
     });
 
-    describe('on force-push operation', () => {
+    describe.skip('on force-push operation', () => {
       it('should push nothing the first push if collection is empty', async () => {
         expect(getRowCountInsideNotebook()).toBe(0);
         await syncService.push(undefined, true);

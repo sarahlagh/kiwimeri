@@ -336,10 +336,11 @@ export const setLocalItemField = (
   });
 };
 
-export const adv = (cb: () => void, delay = fakeTimersDelay) => {
+export const adv = (cb: () => any, delay = fakeTimersDelay) => {
   if (vi.isFakeTimers()) vi.advanceTimersByTime(delay);
-  cb();
+  const resp = cb();
   if (vi.isFakeTimers()) vi.advanceTimersByTime(delay);
+  return resp;
 };
 
 export const updateOnRemote = (
