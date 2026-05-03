@@ -305,5 +305,28 @@ describe('stats service', () => {
       expect(statsService.getGlobalStats(docId0).lastOpenedAt).toBe(0);
       expect(statsService.getGlobalStats(docId1).lastOpenedAt).toBe(future);
     });
+
+    it(`should backfill page stats`, () => {
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const pageId = collectionService.addPage(docId);
+      collectionService.setItemLexicalContent(
+        pageId,
+        JSON.parse(getNewContent('two words'))
+      );
+      vi.advanceTimersByTime(3600000 * 26);
+      collectionService.setItemLexicalContent(
+        pageId,
+        JSON.parse(getNewContent('three little words'))
+      );
+      vi.advanceTimersByTime(3600000 * 26);
+      expect(historyService.getVersions(docId)).toHaveLength(4);
+
+      statsService.backfillStats(DEFAULT_NOTEBOOK_ID);
+
+      const pageStats = statsService.getDataPoints(pageId);
+      expect(pageStats).toHaveLength(2);
+      expect(pageStats[0].values.lastWordCount).toBe(2);
+      expect(pageStats[1].values.lastWordCount).toBe(3);
+    });
   });
 });
