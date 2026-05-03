@@ -5,11 +5,17 @@ type CommonResponse = {
   success: boolean;
 };
 
+export type FileReference = {
+  filename: string;
+  providerid?: string;
+};
+
 export abstract class CloudStorageDriver {
   public constructor(public driverName: string) {}
 
-  public async connect(names: string[]) {
-    const { success: connected, filesInfo } = await this.fetchFilesInfo(names);
+  public async connect(fileRefs: FileReference[]) {
+    const { success: connected, filesInfo } =
+      await this.fetchFilesInfo(fileRefs);
 
     console.log(`[${this.driverName}] client initialized`, {
       ...this.getConfig(),
@@ -31,38 +37,33 @@ export abstract class CloudStorageDriver {
 
   public abstract getConfig(): AnyData | null;
 
-  public abstract fetchFilesInfo(names: string[]): Promise<
+  public abstract fetchFilesInfo(fileRefs: FileReference[]): Promise<
     CommonResponse & {
       filesInfo?: DriverFileInfo[];
     }
   >;
 
   public abstract fileExists(
-    filename: string
+    fileRef: FileReference
   ): Promise<CommonResponse & { exists?: boolean }>;
 
   public abstract getFileInfo(
-    filename: string
+    fileRef: FileReference
   ): Promise<CommonResponse & { fileInfo?: DriverFileInfo }>;
 
   public abstract pushFile(
-    filename: string,
+    fileRef: FileReference,
     content: string
   ): Promise<CommonResponse & { driverInfo?: DriverFileInfo }>;
 
   public abstract pullFile(
-    providerid: string,
-    filename: string
+    fileRef: FileReference
   ): Promise<CommonResponse & { content?: string }>;
 
-  public abstract deleteFile(
-    providerid: string,
-    filename: string
-  ): Promise<CommonResponse>;
+  public abstract deleteFile(fileRef: FileReference): Promise<CommonResponse>;
 
   public abstract renameFile(
-    providerid: string,
-    filename: string,
+    fileRef: FileReference,
     newFilename: string
   ): Promise<CommonResponse>;
 

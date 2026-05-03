@@ -1,5 +1,5 @@
 import { DriverFileInfo } from '@/remote-storage/sync-types';
-import { CloudStorageDriver } from '../abstract.driver';
+import { CloudStorageDriver, FileReference } from '../abstract.driver';
 import {
   PCloudLinkResponse,
   PCloudListResponse,
@@ -57,7 +57,7 @@ export class PCloudDriver extends CloudStorageDriver {
     });
   }
 
-  public async fetchFilesInfo(names: string[]) {
+  public async fetchFilesInfo(fileRefs: FileReference[]) {
     if (!this.config) {
       throw new Error('uninitialized pcloud config');
     }
@@ -79,7 +79,9 @@ export class PCloudDriver extends CloudStorageDriver {
     this.config.folderid = `${res.metadata!.folderid!}`;
     if (res.metadata?.contents) {
       filesInfo = res.metadata.contents
-        .filter(f => !f.isfolder && names.find(name => f.name.match(name)))
+        .filter(
+          f => !f.isfolder && fileRefs.find(ref => f.name.match(ref.filename))
+        )
         .map(f => ({
           providerid: `${f.fileid}`,
           filename: f.name,
@@ -93,13 +95,13 @@ export class PCloudDriver extends CloudStorageDriver {
   }
 
   public async fileExists(
-    filename: string
+    fileRef: FileReference
   ): Promise<{ success: boolean; exists?: boolean }> {
     if (!this.config || !this.config.folderid) {
       throw new Error('uninitialized pcloud config');
     }
     const res = await this.getFetch<PCloudListResponse>('stat', {
-      path: `${this.config.path}/${filename}`
+      path: `${this.config.path}/${fileRef.filename}`
     });
     if (!res) return { success: false };
     if (res.result === 0 && res.metadata) {
@@ -112,13 +114,13 @@ export class PCloudDriver extends CloudStorageDriver {
   }
 
   public async getFileInfo(
-    filename: string
+    fileRef: FileReference
   ): Promise<{ success: boolean; fileInfo?: DriverFileInfo }> {
     if (!this.config || !this.config.folderid) {
       throw new Error('uninitialized pcloud config');
     }
     const res = await this.getFetch<PCloudListResponse>('stat', {
-      path: `${this.config.path}/${filename}`
+      path: `${this.config.path}/${fileRef.filename}`
     });
     if (res && res.result === 0 && res.metadata) {
       const f = res.metadata;
@@ -136,12 +138,16 @@ export class PCloudDriver extends CloudStorageDriver {
     return { success: false };
   }
 
-  public async pushFile(filename: string, content: string) {
+  public async pushFile(fileRef: FileReference, content: string) {
     if (!this.config || !this.config.folderid) {
       throw new Error('uninitialized pcloud config');
     }
-    console.log('[pCloud] uploading file', filename);
-    const resp = await this.uploadFile(content, filename, this.config.folderid);
+    console.log('[pCloud] uploading file', fileRef.filename);
+    const resp = await this.uploadFile(
+      content,
+      fileRef.filename,
+      this.config.folderid
+    );
     if (
       !resp ||
       resp.result !== PCloudResult.ok ||
@@ -152,7 +158,7 @@ export class PCloudDriver extends CloudStorageDriver {
       return { success: false };
     }
     const f = resp.metadata[0];
-    console.log('[pCloud] file upload success', filename);
+    console.log('[pCloud] file upload success', fileRef.filename);
     return {
       success: true,
       driverInfo: {
@@ -164,31 +170,32 @@ export class PCloudDriver extends CloudStorageDriver {
     };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async pullFile(providerid: string, filename: string) {
+  public async pullFile(fileRef: FileReference) {
     if (!this.config) {
       throw new Error('uninitialized pcloud config');
     }
-    return this.downloadFile(providerid);
+    if (!fileRef.providerid) {
+      throw new Error('[pCloud] missing fileid for download');
+    }
+    return this.downloadFile(fileRef.providerid);
   }
 
   public async renameFile(
-    providerid: string,
-    filename: string,
+    fileRef: FileReference,
     newFilename: string
   ): Promise<{ success: boolean }> {
     if (!this.config) {
       throw new Error('uninitialized pcloud config');
     }
     let res: PCloudListResponse | null = null;
-    if (providerid) {
+    if (fileRef.providerid) {
       res = await this.getFetch<PCloudListResponse>('renamefile', {
-        fileid: providerid,
+        fileid: fileRef.providerid,
         toname: newFilename
       });
-    } else if (filename) {
+    } else {
       res = await this.getFetch<PCloudListResponse>('renamefile', {
-        path: `${this.config.path}/${filename}`,
+        path: `${this.config.path}/${fileRef.filename}`,
         toname: newFilename
       });
     }
@@ -244,26 +251,34 @@ export class PCloudDriver extends CloudStorageDriver {
     return (await res.json()) as PCloudUploadResponse;
   }
 
-  public async deleteFile(providerid: string, filename: string) {
-    console.log('[pCloud] deleting file', providerid, filename);
-    if (filename) {
+  public async deleteFile(fileRef: FileReference) {
+    console.log('[pCloud] deleting file', fileRef.filename);
+    if (fileRef.providerid) {
       const res = await this.getFetch<PCloudResponse>('deletefile', {
-        path: `${this.config?.path || ''}/${filename}`
+        fileid: fileRef.providerid
       });
       if (!res || res.error) {
-        console.error('[pCloud] error deleting file:', filename, res?.error);
+        console.error(
+          '[pCloud] error deleting file:',
+          fileRef.providerid,
+          res?.error
+        );
         return { success: false };
       }
-    } else if (providerid) {
+    } else {
       const res = await this.getFetch<PCloudResponse>('deletefile', {
-        fileid: providerid
+        path: `${this.config?.path || ''}/${fileRef.filename}`
       });
       if (!res || res.error) {
-        console.error('[pCloud] error deleting file:', providerid, res?.error);
+        console.error(
+          '[pCloud] error deleting file:',
+          fileRef.filename,
+          res?.error
+        );
         return { success: false };
       }
     }
-    console.log('[pCloud] delete file success', providerid, filename);
+    console.log('[pCloud] delete file success', fileRef.filename);
     return { success: true };
   }
 

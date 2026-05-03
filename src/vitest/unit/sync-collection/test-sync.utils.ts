@@ -84,7 +84,7 @@ export const getRemoteContent = async () => {
 };
 
 export const getRemoteFileInfo = async (filename: string) => {
-  return (await driver.getFileInfo(filename)).fileInfo;
+  return (await driver.getFileInfo({ filename })).fileInfo;
 };
 
 export const syncService_pull = async (force = false) => {

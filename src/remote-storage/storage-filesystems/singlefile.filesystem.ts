@@ -39,7 +39,7 @@ export class SingleFileStorage extends CloudStorageFilesystemV2 {
 
   public async hasNewChanges(lastPulled: number) {
     const { success, filesInfo } = await this.driver.fetchFilesInfo([
-      this.filename
+      { filename: this.filename }
     ]);
     if (success && filesInfo) {
       const updatedRemoteState = this.getRemoteState(filesInfo);
@@ -65,13 +65,11 @@ export class SingleFileStorage extends CloudStorageFilesystemV2 {
       `${this.logPrefix}[acceptsChanges] push to temporary file ${tempName}`
     );
     const { success: pushSuccess, driverInfo } = await this.driver.pushFile(
-      tempName,
+      { filename: tempName },
       content
     );
     if (!pushSuccess || !driverInfo) {
-      setTimeout(async () =>
-        this.driver.deleteFile(driverInfo?.providerid || '', tempName)
-      );
+      setTimeout(async () => this.driver.deleteFile({ filename: tempName }));
       return { success: false, didPush: true };
     }
     // TODO check driverInfo, hash, size?
@@ -80,8 +78,10 @@ export class SingleFileStorage extends CloudStorageFilesystemV2 {
       `${this.logPrefix}[acceptsChanges] promote ${tempName} to ${this.filename}`
     );
     const { success: renameSuccess } = await this.driver.renameFile(
-      driverInfo.providerid,
-      driverInfo.filename,
+      {
+        filename: driverInfo.filename,
+        providerid: driverInfo.providerid
+      },
       this.filename
     );
     if (!renameSuccess) {
@@ -127,10 +127,10 @@ export class SingleFileStorage extends CloudStorageFilesystemV2 {
     );
     const localInfo = updatedRemoteState!.info as DriverFileInfo;
 
-    const { success, content } = await this.driver.pullFile(
-      localInfo.providerid,
-      this.filename
-    );
+    const { success, content } = await this.driver.pullFile({
+      filename: this.filename,
+      providerid: localInfo.providerid
+    });
     if (content) {
       return {
         success,

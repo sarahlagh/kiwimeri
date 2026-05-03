@@ -28,7 +28,7 @@ describe(`sync onboarding test`, () => {
 
   test('after adding a first remote, if the remote location already exists, pull should work', async () => {
     const driver = new InMemDriver();
-    driver.pushFile('newcollection.json', '');
+    driver.pushFile({ filename: 'newcollection.json' }, '');
 
     // add remote after
     adv(() =>

@@ -9,7 +9,7 @@ import { fastHash } from '@/common/utils';
 import { SpaceValues } from '@/db/types/space-types';
 import { AnyData } from '@/db/types/store-types';
 import { DriverFileInfo } from '../sync-types';
-import { CloudStorageDriver } from './abstract.driver';
+import { CloudStorageDriver, FileReference } from './abstract.driver';
 
 type InMemDriverConfig = {
   names?: string[];
@@ -46,7 +46,7 @@ export class InMemDriver extends CloudStorageDriver {
     console.debug('inmem driver config', this.config);
   }
 
-  public async fetchFilesInfo(names: string[]) {
+  public async fetchFilesInfo(fileRefs: FileReference[]) {
     this.config.names
       .filter(name => this.metadata.has(name))
       .forEach(name => {
@@ -54,78 +54,82 @@ export class InMemDriver extends CloudStorageDriver {
       });
     return {
       success: true, //names.some(name => this.metadata.has(name)),
-      filesInfo: names
-        .filter(name => this.metadata.has(name))
-        .map(filename => ({
-          filename,
-          providerid: filename,
-          updated: this.metadata.get(filename)?.lastRemoteChange || 0,
-          hash: this.metadata.get(filename)?.hash
+      filesInfo: fileRefs
+        .filter(ref => this.metadata.has(ref.filename))
+        .map(ref => ({
+          filename: ref.filename,
+          providerid: ref.providerid || ref.filename,
+          updated: this.metadata.get(ref.filename)?.lastRemoteChange || 0,
+          hash: this.metadata.get(ref.filename)?.hash
         }))
     };
   }
 
   public async fileExists(
-    filename: string
+    fileRef: FileReference
   ): Promise<{ success: boolean; exists?: boolean }> {
-    return { success: true, exists: this.collection.has(filename) };
+    return { success: true, exists: this.collection.has(fileRef.filename) };
   }
 
   public async getFileInfo(
-    filename: string
+    fileRef: FileReference
   ): Promise<{ success: boolean; fileInfo?: DriverFileInfo }> {
-    const { success, exists } = await this.fileExists(filename);
+    const { success, exists } = await this.fileExists(fileRef);
     if (!success || exists === false) return { success };
     return {
       success,
       fileInfo: {
-        filename,
-        providerid: filename,
-        updated: this.metadata.get(filename)?.lastRemoteChange || 0,
-        hash: this.metadata.get(filename)?.hash
+        filename: fileRef.filename,
+        providerid: fileRef.providerid || fileRef.filename,
+        updated: this.metadata.get(fileRef.filename)?.lastRemoteChange || 0,
+        hash: this.metadata.get(fileRef.filename)?.hash
       }
     };
   }
 
-  public async pushFile(filename: string, content: string) {
+  public async pushFile(fileRef: FileReference, content: string) {
     if (this.config.failOnPush) {
       return { success: false };
     }
-    this.clearMap(filename, true);
-    this.collection.set(filename, content);
+    this.clearMap(fileRef.filename, true);
+    this.collection.set(fileRef.filename, content);
     const hash = `${fastHash(content)}`;
     const updated = Date.now();
-    this.metadata.set(filename, {
+    this.metadata.set(fileRef.filename, {
       lastRemoteChange: updated,
       hash
     });
     console.debug('[inmem] pushFile', updated, hash);
     return {
       success: true,
-      driverInfo: { providerid: filename, filename, hash, updated }
+      driverInfo: {
+        filename: fileRef.filename,
+        providerid: fileRef.providerid || fileRef.filename,
+        hash,
+        updated
+      }
     };
   }
 
-  public async pullFile(providerid: string, filename: string) {
-    this.clearMap(filename);
-    return { content: this.collection.get(filename), success: true };
+  public async pullFile(fileRef: FileReference) {
+    this.clearMap(fileRef.filename);
+    return { content: this.collection.get(fileRef.filename), success: true };
   }
 
-  public async deleteFile(providerid: string, filename: string) {
-    this.clearMap(filename, true);
+  public async deleteFile(fileRef: FileReference) {
+    this.clearMap(fileRef.filename, true);
     return { success: true };
   }
 
   public async renameFile(
-    providerid: string,
-    filename: string,
+    fileRef: FileReference,
     newFilename: string
   ): Promise<{ success: boolean }> {
-    const colValue = this.collection.get(filename);
+    const colValue = this.collection.get(fileRef.filename);
     if (colValue) this.collection.set(newFilename, colValue);
-    const metaValue = this.metadata.get(filename);
+    const metaValue = this.metadata.get(fileRef.filename);
     if (metaValue) this.metadata.set(newFilename, { ...metaValue });
-    this.clearMap(filename, true);
+    this.clearMap(fileRef.filename, true);
     return { success: true };
   }
 
@@ -142,7 +146,10 @@ export class InMemDriver extends CloudStorageDriver {
   }
 
   public setContent(data: AnyData) {
-    return this.pushFile(this.config.names[0], JSON.stringify(data));
+    return this.pushFile(
+      { filename: this.config.names[0] },
+      JSON.stringify(data)
+    );
   }
 
   public setCollectionContent(

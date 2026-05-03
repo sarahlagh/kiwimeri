@@ -52,7 +52,7 @@ const reInitRemoteData = async (
   }
   console.debug('[reInitRemoteData]', items, values, lastRemoteChange);
   await driver.pushFile(
-    'collection.json',
+    { filename: 'collection.json' },
     JSON.stringify({ i: items, u: lastRemoteChange, o: values })
   );
 };
@@ -68,7 +68,10 @@ const getRemoteContent = async () => {
     .getCell('remoteState', id, 'info')
     ?.valueOf() as string;
   const info = JSON.parse(infoStr!) as { providerid: string };
-  const { content } = await driver.pullFile(info.providerid, '');
+  const { content } = await driver.pullFile({
+    filename: '',
+    providerid: info.providerid
+  });
   if (!content) {
     return undefined;
   }
@@ -106,7 +109,7 @@ describe.sequential(
     afterEach(async () => {
       console.debug('clearing files');
       if (driver) {
-        await driver.deleteFile('', 'collection.json');
+        await driver.deleteFile({ filename: 'collection.json' });
       }
       searchAncestryService.stop();
       await remotesService.delRemote(remotesService.getRemotes()[0].id);
