@@ -10,7 +10,7 @@ import { fakeTimersDelay } from '@/vitest/setup/test.utils';
 import { describe, expect, test, vi } from 'vitest';
 import { buildRandomFake } from './test-stats.utils';
 
-const driver = new InMemDriver(['stats.json']);
+const driver = new InMemDriver();
 const statsSynchronizer = new StatsSynchronizer(driver);
 
 function initLocalDocAndStats(n: number, skipDays = false) {
@@ -32,6 +32,7 @@ describe('stats synchronizer', () => {
   beforeEach(async () => {
     vi.useFakeTimers();
     statsSynchronizer.destroy();
+    statsSynchronizer.configure({ names: ['stats.json'] });
     const { connected } = await statsSynchronizer.connect();
     expect(connected).toBe(true);
   });

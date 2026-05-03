@@ -11,36 +11,49 @@ import { AnyData } from '@/db/types/store-types';
 import { DriverFileInfo } from '../sync-types';
 import { CloudStorageDriver } from './abstract.driver';
 
+type InMemDriverConfig = {
+  names?: string[];
+  failOnPush?: boolean;
+};
+
 // for testing
 export class InMemDriver extends CloudStorageDriver {
-  private names: string[] = [];
+  private config: Required<InMemDriverConfig>;
   private collection = new Map<string, string>();
   private metadata = new Map<
     string,
     { lastRemoteChange: number; hash: string }
   >();
 
-  public constructor(names?: string[]) {
+  public constructor() {
     super('inmem');
-    this.names = names ? names : ['collection.json'];
+    this.config = {
+      names: ['collection.json'],
+      failOnPush: false
+    };
   }
 
   public getConfig() {
-    return {};
+    return this.config;
   }
 
-  public configure(config: any, proxy?: string, useHttp?: boolean) {
-    /* */
+  public configure(
+    config: InMemDriverConfig,
+    proxy?: string,
+    useHttp?: boolean
+  ) {
+    this.config = { ...this.config, ...config };
+    console.debug('inmem driver config', this.config);
   }
 
   public async fetchFilesInfo(names: string[]) {
-    names
+    this.config.names
       .filter(name => this.metadata.has(name))
       .forEach(name => {
-        this.initMap(name);
+        this.clearMap(name);
       });
     return {
-      success: true,
+      success: true, //names.some(name => this.metadata.has(name)),
       filesInfo: names
         .filter(name => this.metadata.has(name))
         .map(filename => ({
@@ -64,7 +77,7 @@ export class InMemDriver extends CloudStorageDriver {
     const { success, exists } = await this.fileExists(filename);
     if (!success || exists === false) return { success };
     return {
-      success: true,
+      success,
       fileInfo: {
         filename,
         providerid: filename,
@@ -75,7 +88,10 @@ export class InMemDriver extends CloudStorageDriver {
   }
 
   public async pushFile(filename: string, content: string) {
-    this.initMap(filename, true);
+    if (this.config.failOnPush) {
+      return { success: false };
+    }
+    this.clearMap(filename, true);
     this.collection.set(filename, content);
     const hash = `${fastHash(content)}`;
     const updated = Date.now();
@@ -91,12 +107,12 @@ export class InMemDriver extends CloudStorageDriver {
   }
 
   public async pullFile(providerid: string, filename: string) {
-    this.initMap(filename);
+    this.clearMap(filename);
     return { content: this.collection.get(filename), success: true };
   }
 
   public async deleteFile(providerid: string, filename: string) {
-    this.initMap(filename, true);
+    this.clearMap(filename, true);
     return { success: true };
   }
 
@@ -109,7 +125,7 @@ export class InMemDriver extends CloudStorageDriver {
     if (colValue) this.collection.set(newFilename, colValue);
     const metaValue = this.metadata.get(filename);
     if (metaValue) this.metadata.set(newFilename, { ...metaValue });
-    this.initMap(filename, true);
+    this.clearMap(filename, true);
     return { success: true };
   }
 
@@ -118,7 +134,7 @@ export class InMemDriver extends CloudStorageDriver {
     this.metadata.clear();
   }
 
-  private initMap(filename: string, force = false) {
+  private clearMap(filename: string, force = false) {
     if (force || !this.collection.has(filename)) {
       this.collection.delete(filename);
       this.metadata.delete(filename);
@@ -126,7 +142,7 @@ export class InMemDriver extends CloudStorageDriver {
   }
 
   public setContent(data: AnyData) {
-    return this.pushFile(this.names[0], JSON.stringify(data));
+    return this.pushFile(this.config.names[0], JSON.stringify(data));
   }
 
   public setCollectionContent(
@@ -142,13 +158,13 @@ export class InMemDriver extends CloudStorageDriver {
   }
 
   public getParsedContent<T>() {
-    if (!this.collection.get(this.names[0])) return null;
-    return JSON.parse(this.collection.get(this.names[0])!) as T;
+    if (!this.collection.get(this.config.names[0])) return null;
+    return JSON.parse(this.collection.get(this.config.names[0])!) as T;
   }
 
   public getParsedCollectionContent() {
     const obj = JSON.parse(
-      this.collection.get(this.names[0]) || '{"i":[],"u":0}'
+      this.collection.get(this.config.names[0]) || '{"i":[],"u":0}'
     ) as {
       i: CollectionItem[];
       o: SpaceValues;

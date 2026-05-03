@@ -7,6 +7,8 @@ import localChangesService from '@/db/local-changes.service';
 import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
 import { LocalChangeType } from '@/db/types/store-types';
+import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
+import { SingleFileStorage } from '@/remote-storage/storage-filesystems/singlefile.filesystem';
 import { syncService } from '@/remote-storage/sync.service';
 import {
   adv,
@@ -222,5 +224,21 @@ describe(`sync general test`, () => {
       expect(result.current).toBe(true);
       unmount();
     }
+  });
+});
+
+describe(`filesystem test`, () => {
+  it(`should handle aborted push`, async () => {
+    const driver = new InMemDriver();
+    const filesystem = new SingleFileStorage('test', driver, {
+      filename: 'test.json'
+    });
+    filesystem.configureDriver({ failOnPush: true });
+    const { success, didPush } = await filesystem.acceptsChanges({
+      test: 'ok'
+    });
+    expect([...driver['collection'].keys()].some(k => k.endsWith('.part')));
+    expect(!success);
+    expect(didPush);
   });
 });

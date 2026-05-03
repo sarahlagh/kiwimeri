@@ -34,8 +34,8 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public configure(conf?: AnyData, proxy?: string, useHttp?: boolean): void {
-    throw new Error('Method not implemented.');
+  public configure(conf: AnyData, proxy?: string, useHttp?: boolean): void {
+    this.driver.configure(conf, proxy, useHttp);
   }
 
   public async connect(): Promise<{

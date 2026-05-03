@@ -28,7 +28,7 @@ export const defaultValues: SpaceValues = {
 };
 
 export const testSyncBeforeEach = async () => {
-  remotesService.addRemote('test', 0, 'inmem', {});
+  remotesService.addRemote('test', 0, 'inmem', { names: ['collection.json'] });
   await remotesService.configureRemotes(storageService.getSpaceId(), true);
   const compositeSynchronizer = remotesService['synchronizers'].values().next()
     .value! as CompositeSynchronizer;

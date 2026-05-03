@@ -1,4 +1,5 @@
 import { AnyData, RemoteState } from '@/db/types/store-types';
+import { getUniqueId } from 'tinybase/common';
 import { CloudStorageDriver } from '../storage-drivers/abstract.driver';
 import { DriverFileInfo } from '../sync-types';
 import { CloudStorageFilesystemV2 } from './abstract.filesystem';
@@ -59,24 +60,32 @@ export class SingleFileStorage extends CloudStorageFilesystemV2 {
     const content = JSON.stringify(data);
     console.log(`${this.logPrefix}[acceptsChanges] will start pushing file`);
 
-    const tempName = `${this.filename}.part`;
-    const { exists } = await this.driver.fileExists(tempName);
-    if (exists === undefined || exists === true)
-      return { success: false, didPush: true };
-
+    const tempName = `${getUniqueId()}.${this.filename}.part`;
+    console.debug(
+      `${this.logPrefix}[acceptsChanges] push to temporary file ${tempName}`
+    );
     const { success: pushSuccess, driverInfo } = await this.driver.pushFile(
       tempName,
       content
     );
     if (!pushSuccess || !driverInfo) {
+      setTimeout(async () =>
+        this.driver.deleteFile(driverInfo?.providerid || '', tempName)
+      );
       return { success: false, didPush: true };
     }
+    // TODO check driverInfo, hash, size?
+
+    console.debug(
+      `${this.logPrefix}[acceptsChanges] promote ${tempName} to ${this.filename}`
+    );
     const { success: renameSuccess } = await this.driver.renameFile(
       driverInfo.providerid,
       driverInfo.filename,
       this.filename
     );
     if (!renameSuccess) {
+      // TODO cleanup the .part file?
       return { success: false, didPush: true };
     }
     // consider file pushed
