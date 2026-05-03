@@ -2,6 +2,7 @@ import Loading from '@/app/components/Loading';
 import BottomSheet from '@/common/containers/BottomSheet';
 import { dateToStr } from '@/common/date-utils';
 import collectionService from '@/db/collection.service';
+import userSettingsService from '@/db/user-settings.service';
 import {
   IonItem,
   IonLabel,
@@ -44,9 +45,7 @@ const DocumentGeneralInfo = ({ id }: { id: string }) => {
 
 const DocumentInfoCard = ({ id }: DocumentInfoCardProps) => {
   const [display, setDisplay] = useState<Tab>('general');
-  const parent = collectionService.getItemParent(id);
-  const statsEnabled =
-    collectionService.getItemEffectiveDisplayOpts(parent).statsEnabled;
+  const statsEnabled = userSettingsService.getDefaultDisplayOpts().statsEnabled;
   const ChartContainer = lazy(
     () => import('@/modules/stats/components/ChartContainer')
   );

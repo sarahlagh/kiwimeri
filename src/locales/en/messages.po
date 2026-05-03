@@ -137,7 +137,7 @@ msgstr "Confirm"
 msgid "Conflicts"
 msgstr "Conflicts"
 
-#: src/collection/components/DocumentInfoCard.tsx:27
+#: src/collection/components/DocumentInfoCard.tsx:28
 msgid "Created at"
 msgstr "Created at"
 
@@ -249,7 +249,7 @@ msgstr "File not supported"
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/collection/components/DocumentInfoCard.tsx:63
+#: src/collection/components/DocumentInfoCard.tsx:62
 msgid "General"
 msgstr "General"
 
@@ -540,7 +540,7 @@ msgstr "Space Settings"
 msgid "Start Writing"
 msgstr "Start Writing"
 
-#: src/collection/components/DocumentInfoCard.tsx:68
+#: src/collection/components/DocumentInfoCard.tsx:67
 msgid "Stats"
 msgstr "Stats"
 
@@ -604,7 +604,7 @@ msgstr "Timed Writing Session"
 msgid "Track text statistics"
 msgstr "Track text statistics"
 
-#: src/collection/components/DocumentInfoCard.tsx:35
+#: src/collection/components/DocumentInfoCard.tsx:36
 msgid "Updated at"
 msgstr "Updated at"
 

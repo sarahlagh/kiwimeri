@@ -8,8 +8,8 @@ import {
 import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
 import { DEFAULT_SPACE_ID, ROOT_COLLECTION } from '@/constants';
 import { statsService } from '@/core/services/stats/stats-service';
-import collectionService from '@/db/collection.service';
 import { useCellWithRef } from '@/db/tinybase/hooks';
+import userSettingsService from '@/db/user-settings.service';
 import formatConverter from '@/format-conversion/format-converter.service';
 import { Id, Ids, Store, Table } from 'tinybase/with-schemas';
 import storageService from '../db/storage.service';
@@ -243,7 +243,8 @@ class CollectionSearchService {
       store.setCell('search', rowId, 'contentPreview', plain);
 
       const parent = table[rowId].parent as string;
-      if (collectionService.getItemEffectiveDisplayOpts(parent).statsEnabled) {
+      const notebook = this.getShortBreadcrumb(parent).split(',')[0];
+      if (userSettingsService.getDefaultDisplayOpts(notebook).statsEnabled) {
         // stats
         statsService.updateStatsAtDate(
           rowId,
