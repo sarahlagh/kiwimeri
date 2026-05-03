@@ -1,7 +1,4 @@
-import {
-  DocumentContentStatsBag,
-  DocumentGlobalStatsBag
-} from '@/core/services/stats/document-stats';
+import { DocumentContentStatsBag } from '@/core/services/stats/document-stats';
 import { statsService } from '@/core/services/stats/stats-service';
 import storageService from '@/db/storage.service';
 import { AnyData, RemoteResult } from '@/db/types/store-types';
@@ -18,9 +15,6 @@ type RemoteContentStatPerDate = {
 
 export type RemoteStatsFileContent = {
   content: RemoteContentStatPerDate[];
-  global: {
-    [key: string]: DocumentGlobalStatsBag; // key is the itemId
-  };
 };
 
 type RemoteRepresentation = Required<Pick<RemoteResult, 'id'>>;
@@ -130,15 +124,11 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
     force?: boolean
   ): RemoteStatsFileContent | null {
     const stats = statsService.getStatsSince();
-    const global = statsService.getAllGlobalStats();
     const perDate: {
       [key: string]: RemoteContentStatPerDate; // key is date
     } = {};
 
     const tsArray: number[] = stats.map(s => new Date(s.date).getTime());
-    const globalKeys = Object.keys(global);
-    globalKeys.forEach(key => tsArray.push(global[key].lastOpenedAt));
-
     const latest = Math.max(...tsArray);
     const statsSincePush = latest > lastPulled && stats.length > 0;
     console.debug(`[stats][push] had stats since last push`, statsSincePush);
@@ -158,8 +148,7 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
     });
 
     const fileData: RemoteStatsFileContent = {
-      content: Object.values(perDate),
-      global
+      content: Object.values(perDate)
     };
     return fileData;
   }
@@ -171,11 +160,6 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
       itemIds.forEach(itemId => {
         statsService.mergeStatsAtDate(itemId, statsAtDate.stats[itemId]);
       });
-    });
-    // global stats
-    const itemIds = Object.keys(remoteStats.global);
-    itemIds.forEach(itemId => {
-      statsService.mergeGlobalStats(itemId, remoteStats.global[itemId]);
     });
   }
 }

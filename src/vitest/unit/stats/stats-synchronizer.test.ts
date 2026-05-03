@@ -23,9 +23,7 @@ function initLocalDocAndStats(n: number, skipDays = false) {
       updatedAt: dataPoint.values.updatedAt
     });
   });
-  const now = Date.now();
-  statsService.updateGlobalStats(docId, { lastOpenedAt: now });
-  return { docId, now };
+  return docId;
 }
 
 describe('stats synchronizer', () => {
@@ -65,9 +63,9 @@ describe('stats synchronizer', () => {
   test('should push local stats', async () => {
     // init local stats
     vi.setSystemTime('2026-04-20');
-    const { docId: docId1, now: now1 } = initLocalDocAndStats(5);
+    const docId1 = initLocalDocAndStats(5);
     vi.setSystemTime('2026-04-26');
-    const { docId: docId2, now: now2 } = initLocalDocAndStats(10);
+    const docId2 = initLocalDocAndStats(10);
 
     const resp = await statsSynchronizer.push();
     expect(resp.didPush).toBe(true);
@@ -105,22 +103,14 @@ describe('stats synchronizer', () => {
       expect(content[i].stats[docId1]).toBeUndefined();
       expect(content[i].stats[docId2].updatedAt).toBeDefined();
     }
-
-    // global stats
-    const global = remoteContent!.global;
-    expect(Object.keys(global)).toHaveLength(2);
-    expect(global[docId1].lastOpenedAt).toBe(now1);
-    expect(global[docId2].lastOpenedAt).toBe(now2);
   });
 
   test('should pull remote stats', async () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     const remoteContent: RemoteStatsFileContent = {
-      content: [{ date: '2024-03-31', stats: {} }],
-      global: {}
+      content: [{ date: '2024-03-31', stats: {} }]
     };
     const tsAtDate = new Date('2024-03-31').getTime();
-    remoteContent.global[docId] = { lastOpenedAt: tsAtDate };
     remoteContent.content[0].stats[docId] = {
       maxWordCount: 1500,
       lastWordCount: 498,
@@ -137,7 +127,6 @@ describe('stats synchronizer', () => {
     expect(resp.success).toBe(true);
 
     const contentStats = statsService.getDataPoints(docId);
-    const globalStats = statsService.getGlobalStats(docId);
     expect(contentStats).toHaveLength(1);
     expect(contentStats[0].date).toBe('2024-03-31');
     expect(contentStats[0].values).toEqual({
@@ -147,63 +136,12 @@ describe('stats synchronizer', () => {
       lastCharCount: 0,
       updatedAt: tsAtDate
     });
-    expect(globalStats.lastOpenedAt).toBe(tsAtDate);
-  });
-
-  test('should pull remote stats and merge with global stats if remote more recent', async () => {
-    const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const remoteContent: RemoteStatsFileContent = {
-      content: [],
-      global: {}
-    };
-    const tsAtDate = new Date('2024-03-31').getTime();
-    remoteContent.global[docId] = { lastOpenedAt: tsAtDate };
-    driver.setContent(remoteContent);
-
-    statsService.updateGlobalStats(docId, {
-      lastOpenedAt: new Date('2024-03-30').getTime() // remote is more recent
-    });
-
-    // pull
-    vi.advanceTimersByTime(fakeTimersDelay);
-    const resp = await statsSynchronizer.pull();
-    expect(resp.didPull).toBe(true);
-    expect(resp.success).toBe(true);
-
-    const globalStats = statsService.getGlobalStats(docId);
-    expect(globalStats.lastOpenedAt).toBe(tsAtDate);
-  });
-
-  test('should pull remote stats and merge with global stats if remote less recent', async () => {
-    const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const remoteContent: RemoteStatsFileContent = {
-      content: [],
-      global: {}
-    };
-    const tsAtDate = new Date('2024-03-31').getTime();
-    remoteContent.global[docId] = { lastOpenedAt: tsAtDate };
-    driver.setContent(remoteContent);
-
-    const newTsAtDate = new Date('2024-04-01').getTime();
-    statsService.updateGlobalStats(docId, {
-      lastOpenedAt: newTsAtDate // remote is less recent
-    });
-
-    // pull
-    vi.advanceTimersByTime(fakeTimersDelay);
-    const resp = await statsSynchronizer.pull();
-    expect(resp.didPull).toBe(true);
-    expect(resp.success).toBe(true);
-
-    const globalStats = statsService.getGlobalStats(docId);
-    expect(globalStats.lastOpenedAt).toBe(newTsAtDate);
   });
 
   test('should pull remote stats and merge with content stats if remote more recent', async () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     const remoteContent: RemoteStatsFileContent = {
-      content: [{ date: '2024-03-31', stats: {} }],
-      global: {}
+      content: [{ date: '2024-03-31', stats: {} }]
     };
     const remoteTsAtDate = new Date('2024-03-31').getTime() + 60000;
     remoteContent.content[0].stats[docId] = {
@@ -243,15 +181,12 @@ describe('stats synchronizer', () => {
       lastCharCount: 4980,
       updatedAt: remoteTsAtDate
     });
-    const globalStats = statsService.getGlobalStats(docId);
-    expect(globalStats.lastOpenedAt).toBe(0);
   });
 
   test('should pull remote stats and merge with content stats if remote less recent', async () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     const remoteContent: RemoteStatsFileContent = {
-      content: [{ date: '2024-03-31', stats: {} }],
-      global: {}
+      content: [{ date: '2024-03-31', stats: {} }]
     };
     const remoteTsAtDate = new Date('2024-03-31').getTime() + 1000;
     remoteContent.content[0].stats[docId] = {
@@ -291,15 +226,12 @@ describe('stats synchronizer', () => {
       lastCharCount: 9000,
       updatedAt: localTsAtDate
     });
-    const globalStats = statsService.getGlobalStats(docId);
-    expect(globalStats.lastOpenedAt).toBe(0);
   });
 
   test('should pull remote stats and merge even when most recent has stat undefined', async () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     const remoteContent: RemoteStatsFileContent = {
-      content: [{ date: '2024-03-31', stats: {} }],
-      global: {}
+      content: [{ date: '2024-03-31', stats: {} }]
     };
     const remoteTsAtDate = new Date('2024-03-31').getTime() + 60000;
     remoteContent.content[0].stats[docId] = {
@@ -335,7 +267,5 @@ describe('stats synchronizer', () => {
       lastCharCount: 9000,
       updatedAt: remoteTsAtDate
     });
-    const globalStats = statsService.getGlobalStats(docId);
-    expect(globalStats.lastOpenedAt).toBe(0);
   });
 });

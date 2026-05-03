@@ -1,5 +1,6 @@
 import { CollectionItem, parseFieldMeta } from '@/collection/collection';
 import { DEFAULT_SPACE_ID } from '@/constants';
+import { AllGlobalStatsBag } from '@/core/services/stats/stats-service';
 import { historyService } from '@/db/collection-history.service';
 import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
@@ -53,7 +54,8 @@ export const testSyncAfterEach = () => {
 export const reInitRemoteData = async (
   items: CollectionItem[],
   updateTs?: number,
-  values?: SpaceValues
+  values?: SpaceValues,
+  global?: AllGlobalStatsBag
 ) => {
   vi.advanceTimersByTime(fakeTimersDelay);
   // parent update doesn't set the row update ts, so... parent_meta ts might be > i.updated
@@ -75,7 +77,7 @@ export const reInitRemoteData = async (
     };
   }
   console.debug('[reInitRemoteData]', items, values, lastLocalChange);
-  await driver.setCollectionContent(items, values, lastLocalChange);
+  await driver.setCollectionContent(items, values, lastLocalChange, global);
   vi.advanceTimersByTime(fakeTimersDelay);
 };
 

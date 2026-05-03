@@ -17,6 +17,10 @@ import {
 import { nOr0 } from '@/common/utils';
 import { appConfig, getGlobalTrans } from '@/config';
 import { CONFLICTS_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
+import {
+  AllGlobalStatsBag,
+  statsService
+} from '@/core/services/stats/stats-service';
 import { historyService } from '@/db/collection-history.service';
 import { resumeStateService } from '@/db/collection-resume-state.service';
 import collectionService from '@/db/collection.service';
@@ -49,11 +53,13 @@ export type RemoteCollectionFileContent = {
   i: MinimizedCollectionItem[]; // the items
   o: SpaceValues; // the space options
   u: number; // last content change
+  gs: AllGlobalStatsBag;
 };
 
 type RemoteContentRepresentation = {
   items: CollectionItem[];
   values: SpaceValues;
+  globalStats: AllGlobalStatsBag;
   lastRemoteChange: number;
 };
 
@@ -242,6 +248,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     remoteContent: RemoteContentRepresentation,
     force: boolean
   ): { data: AnyData; hasNewChanges: boolean } {
+    const globalStats = statsService.getAllGlobalStats();
     const newRemoteItems = remoteContent.items;
     const newRemoteValues = remoteContent.values;
     const collection = this.toMap<CollectionItem>(localContent[0].collection!);
@@ -285,6 +292,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       data = this.toFileContent(
         newRemoteItems,
         newRemoteValues,
+        globalStats,
         lastLocalChange
       );
     } else {
@@ -292,6 +300,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       data = this.toFileContent(
         localContentRep.items,
         localContentRep.values,
+        globalStats,
         lastLocalChange
       );
     }
@@ -482,6 +491,17 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       }
     });
 
+    // global stats
+    if (remoteContent.globalStats) {
+      const itemIds = Object.keys(remoteContent.globalStats);
+      itemIds.forEach(itemId => {
+        statsService.mergeGlobalStats(
+          itemId,
+          remoteContent.globalStats[itemId]
+        );
+      });
+    }
+
     console.debug(
       '[collection][pull] changes after sync',
       changes,
@@ -510,10 +530,12 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   ): RemoteContentRepresentation {
     const collection = this.toMap<CollectionItem>(localContent[0].collection!);
     const items = [...collection.values()].filter(v => !v.conflict);
+    const globalStats = statsService.getAllGlobalStats();
     return {
       items,
       values: localContent[1],
-      lastRemoteChange: localContent[1].lastUpdated
+      lastRemoteChange: localContent[1].lastUpdated,
+      globalStats
     };
   }
 
@@ -540,19 +562,22 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     return {
       items: unminimizeItemsFromStorage(obj.i),
       values: obj.o,
-      lastRemoteChange: obj.u
+      lastRemoteChange: obj.u,
+      globalStats: obj.gs
     };
   }
 
   private toFileContent(
     items: CollectionItem[],
     values: SpaceValues,
+    global: AllGlobalStatsBag,
     updated: number
   ): RemoteCollectionFileContent {
     return {
       i: minimizeItemsForStorage(items) as MinimizedCollectionItem[],
       o: values,
-      u: updated
+      u: updated,
+      gs: global
     };
   }
 

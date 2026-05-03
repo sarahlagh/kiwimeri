@@ -1,5 +1,8 @@
 import { CollectionItem } from '@/collection/collection';
-import { unminimizeItemsFromStorage } from '@/collection/compress-collection';
+import {
+  minimizeItemsForStorage,
+  unminimizeItemsFromStorage
+} from '@/collection/compress-collection';
 import { appConfig, getGlobalTrans } from '@/config';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import collectionService from '@/db/collection.service';
@@ -12,6 +15,10 @@ import { LocalChangeType } from '@/db/types/store-types';
 import userSettingsService from '@/db/user-settings.service';
 import { PCloudDriver } from '@/remote-storage/storage-drivers/pcloud/pcloud.driver';
 import { syncService } from '@/remote-storage/sync.service';
+import {
+  MinimizedCollectionItem,
+  RemoteCollectionFileContent
+} from '@/remote-storage/synchronizers/collection-synchronizer';
 import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { renderHook } from '@testing-library/react';
@@ -51,9 +58,15 @@ const reInitRemoteData = async (
     };
   }
   console.debug('[reInitRemoteData]', items, values, lastRemoteChange);
+  const remoteContent: RemoteCollectionFileContent = {
+    i: minimizeItemsForStorage(items) as MinimizedCollectionItem[],
+    u: lastRemoteChange,
+    o: values,
+    gs: {}
+  };
   await driver.pushFile(
     { filename: 'collection.json' },
-    JSON.stringify({ i: items, u: lastRemoteChange, o: values })
+    JSON.stringify(remoteContent)
   );
 };
 

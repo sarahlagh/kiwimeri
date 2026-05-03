@@ -6,9 +6,11 @@ import {
   unminimizeItemsFromStorage
 } from '@/collection/compress-collection';
 import { fastHash } from '@/common/utils';
+import { AllGlobalStatsBag } from '@/core/services/stats/stats-service';
 import { SpaceValues } from '@/db/types/space-types';
 import { AnyData } from '@/db/types/store-types';
 import { DriverFileInfo } from '../sync-types';
+import { RemoteCollectionFileContent } from '../synchronizers/collection-synchronizer';
 import { CloudStorageDriver, FileReference } from './abstract.driver';
 
 type InMemDriverConfig = {
@@ -160,13 +162,15 @@ export class InMemDriver extends CloudStorageDriver {
   public setCollectionContent(
     items: CollectionItem[],
     values: SpaceValues,
-    updated: number
+    updated: number,
+    global?: AllGlobalStatsBag
   ) {
     return this.setContent({
       i: minimizeItemsForStorage(items),
       o: values,
-      u: updated
-    });
+      u: updated,
+      gs: global || {}
+    } as RemoteCollectionFileContent);
   }
 
   public getParsedContent<T>() {
@@ -177,14 +181,12 @@ export class InMemDriver extends CloudStorageDriver {
   public getParsedCollectionContent() {
     const obj = JSON.parse(
       this.collection.get(this.config.names[0]) || '{"i":[],"u":0}'
-    ) as {
-      i: CollectionItem[];
-      o: SpaceValues;
-    };
+    ) as RemoteCollectionFileContent;
     const unminimizedObj = { ...obj, i: unminimizeItemsFromStorage(obj.i) };
     return {
       content: unminimizedObj.i,
-      values: unminimizedObj.o
+      values: unminimizedObj.o,
+      global: unminimizedObj.gs
     };
   }
 }
