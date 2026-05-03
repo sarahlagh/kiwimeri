@@ -103,7 +103,7 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
       const resp = await this.cloudFS.fetchChanges(lastPulled, force);
       if (resp.success && resp.data && resp.updatedRemoteState) {
         const newStats = resp.data as RemoteStatsFileContent;
-        this.mergeRemoteStatsToLocal(newStats);
+        this.mergeRemoteStatsToLocal(newStats, force);
         this.updateRemoteStateInfo(this.remoteStateId, resp.updatedRemoteState);
       }
       return { success: resp.success, didPull: true };
@@ -153,7 +153,13 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
     return fileData;
   }
 
-  private mergeRemoteStatsToLocal(remoteStats: RemoteStatsFileContent) {
+  private mergeRemoteStatsToLocal(
+    remoteStats: RemoteStatsFileContent,
+    force?: boolean
+  ) {
+    if (force) {
+      statsService.clearStats();
+    }
     // content stats
     remoteStats.content.forEach(statsAtDate => {
       const itemIds = Object.keys(statsAtDate.stats);

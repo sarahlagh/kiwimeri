@@ -45,6 +45,7 @@ const CurrentNotebookSettings = () => {
             ) {
               console.log('stats setting enabled on notebook, backfilling');
               statsService.backfillStats(currentNotebook);
+              console.log('stats backfilling done');
             }
           }}
         />

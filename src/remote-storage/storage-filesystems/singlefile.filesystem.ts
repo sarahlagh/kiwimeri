@@ -123,7 +123,13 @@ export class SingleFileStorage extends CloudStorageFilesystemV2 {
         `${this.logPrefix}[fetchChanges] remote did not change`,
         updatedRemoteState
       );
-      return { success: true, didPull: false, updatedRemoteState };
+      return { success: lookupSuccess, didPull: false, updatedRemoteState };
+    }
+    if (!updatedRemoteState?.info) {
+      console.log(
+        `${this.logPrefix}[fetchChanges] remote not found, will not pull`
+      );
+      return { success: lookupSuccess, didPull: false };
     }
     console.log(
       `${this.logPrefix}[fetchChanges] remote did change, will pull file`,

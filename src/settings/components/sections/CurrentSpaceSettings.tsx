@@ -46,6 +46,7 @@ const CurrentSpaceSettings = () => {
             ) {
               console.log('stats setting enabled on space, backfilling');
               statsService.backfillStats();
+              console.log('stats backfilling done');
             }
           }}
           withRows={[

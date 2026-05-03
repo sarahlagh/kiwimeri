@@ -248,7 +248,10 @@ class CollectionSearchService {
         // stats
         statsService.updateStatsAtDate(
           rowId,
-          statsService.buildStats(plain, table[rowId].content_meta!.toString())
+          statsService.buildStatsFromContentMeta(
+            plain,
+            table[rowId].content_meta!.toString()
+          )
         );
       }
     }
