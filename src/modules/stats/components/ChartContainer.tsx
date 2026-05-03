@@ -23,15 +23,6 @@ const ChartContainer = ({ id }: ChartContainerProps) => {
   const [statKey, setStatKey] = useState<TrackedStats>('lastWordCount');
   const [size, setSize] = useState<{ width: number; height: number }>();
 
-  // attach fake stats to a real item so i can test normalization
-  // const fakeStats = buildFake();
-  // fakeStats.forEach(dataPoint => {
-  //   statsService.updateTodaysStats('3H3jdctpzbhDofVU', {
-  //     lastCharCount: dataPoint.values.lastCharCount,
-  //     lastWordCount: dataPoint.values.lastWordCount,
-  //     updatedAt: new Date(dataPoint.date).getTime()
-  //   });
-  // });
   useEffect(() => {
     const stats = statsService.getDataPoints(id);
     console.debug('stats for item', id, stats);

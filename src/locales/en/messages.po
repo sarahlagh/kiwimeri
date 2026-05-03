@@ -61,16 +61,16 @@ msgstr "Are you sure?"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: src/modules/stats/components/ChartContainer.tsx:67
+#: src/modules/stats/components/ChartContainer.tsx:58
 msgid "Character Count"
 msgstr "Character Count"
 
-#: src/modules/stats/components/ChartContainer.tsx:77
+#: src/modules/stats/components/ChartContainer.tsx:68
 msgid "Character Count (Max)"
 msgstr "Character Count (Max)"
 
-#: src/modules/stats/components/ChartContainer.tsx:68
-#: src/modules/stats/components/ChartContainer.tsx:78
+#: src/modules/stats/components/ChartContainer.tsx:59
+#: src/modules/stats/components/ChartContainer.tsx:69
 msgid "characters"
 msgstr "characters"
 
@@ -624,17 +624,17 @@ msgstr "When working on a document, a new version will be automatically at least
 msgid "When working on a document, a new version will be automatically if idle after XX seconds"
 msgstr "When working on a document, a new version will be automatically if idle after XX seconds"
 
-#: src/modules/stats/components/ChartContainer.tsx:62
+#: src/modules/stats/components/ChartContainer.tsx:53
 msgid "Word Count"
 msgstr "Word Count"
 
-#: src/modules/stats/components/ChartContainer.tsx:72
+#: src/modules/stats/components/ChartContainer.tsx:63
 msgid "Word Count (Max)"
 msgstr "Word Count (Max)"
 
 #: src/collection/components/WordCount.tsx:22
-#: src/modules/stats/components/ChartContainer.tsx:63
-#: src/modules/stats/components/ChartContainer.tsx:73
+#: src/modules/stats/components/ChartContainer.tsx:54
+#: src/modules/stats/components/ChartContainer.tsx:64
 msgid "words"
 msgstr "words"
 

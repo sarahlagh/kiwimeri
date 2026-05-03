@@ -63,7 +63,8 @@ export function legendPlugin({
       if (!isDefined(yVal) || !s.scale) return;
 
       const yUnit = yUnits ? yUnits[i] : '';
-      tt.innerHTML = `${dateToStr('date-printable', xVal * 1000)} </br> ${yVal} ${yUnit}`;
+      const yDiff = yVal - (idx > 0 ? u.data[i + 1][idx - 1]! : 0);
+      tt.innerHTML = `${dateToStr('date-printable', xVal * 1000)} </br> ${yVal} ${yUnit} (${yDiff > 0 ? '+' : ''}${yDiff})`;
 
       // position tooltip to the left or right of the cursor
       const xOffset = xVal <= xMiddle ? 0 : tt.clientWidth;
