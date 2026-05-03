@@ -58,7 +58,7 @@ const reInitRemoteData = async (
 };
 
 const getRemoteContent = async () => {
-  expect(storageService.getStore().getRowCount('remoteState')).toBe(1);
+  expect(storageService.getStore().getRowCount('remoteState')).toBe(2);
   const id = storageService.getStore().getRowIds('remoteState')[0];
   expect(
     storageService.getStore().getCell('remoteState', id, 'info')

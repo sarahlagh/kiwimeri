@@ -187,12 +187,17 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     } catch (e) {
       console.error('[collection][pull] error', this.remote.name, e);
       // restore
-      storageService.getSpace().setContent(localContent);
+      this.setContent(localContent);
     } finally {
       this.ongoing = false;
       console.log(`[collection][pull] done`);
     }
     return { success: false, didPull };
+  }
+
+  private setContent(content: Content<SpaceType, false>) {
+    storageService.getSpace().setTable('collection', content[0].collection!);
+    storageService.getSpace().setValues(content[1]);
   }
 
   public async destroy() {
@@ -307,7 +312,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     );
     // TODO check success?
     historyService.saveNow();
-    storageService.getSpace().setContent(resp.content);
+    this.setContent(resp.content);
     this.handleResumeState(resp.changes);
     this.handleHistory(resp.changes);
     this.handleDiscardedChanges(resp.discardedChanges);

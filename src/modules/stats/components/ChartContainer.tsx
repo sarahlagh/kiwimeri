@@ -24,9 +24,7 @@ const ChartContainer = ({ id }: ChartContainerProps) => {
   const [size, setSize] = useState<{ width: number; height: number }>();
 
   useEffect(() => {
-    const stats = statsService.getDataPoints(id);
-    console.debug('stats for item', id, stats);
-    setStats(stats);
+    setStats(statsService.getDataPoints(id));
   }, [id]);
 
   const ref = useRef<HTMLDivElement | null>(null);

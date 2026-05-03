@@ -13,7 +13,7 @@ type SyncRemoteButtonProps = {
   color?: string;
   fill?: 'clear' | 'outline' | 'solid' | 'default';
   onSyncStart?: () => void;
-  onSyncEnd?: (resp?: {
+  onSyncEnd?: (resp: {
     success: boolean;
     didPull?: boolean;
     didPush?: boolean;

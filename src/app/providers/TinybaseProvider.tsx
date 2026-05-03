@@ -1,5 +1,4 @@
 import Loading from '@/app/components/Loading';
-import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
 import { historyService } from '@/db/collection-history.service';
 import remotesService from '@/db/remotes.service';
@@ -47,9 +46,7 @@ const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
       queriesById={{ store: storeQueries, space: spaceQueries }}
       indexesById={{ store: storeIndexes }}
     >
-      {platformService.isDev() && appConfig.DEV_ENABLE_INSPECTOR && (
-        <Inspector />
-      )}
+      {appConfig.DEV_ENABLE_INSPECTOR && <Inspector />}
       {children}
     </Provider>
   );

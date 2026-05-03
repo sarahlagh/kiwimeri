@@ -1,7 +1,7 @@
 import { unminimizeItemsFromStorage } from '@/collection/compress-collection';
 import collectionService from '@/db/collection.service';
 import storageService from '@/db/storage.service';
-import { SingleFileStorageFileContent } from '@/remote-storage/storage-filesystems.v1/singlefile.filesystem';
+import { RemoteCollectionFileContent } from '@/remote-storage/synchronizers/collection-synchronizer';
 import { useIonAlert } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
 import { importService } from '../services/import.service';
@@ -34,7 +34,7 @@ const RestoreCollectionButton = ({
       space.setValues(values);
     } else if ('i' in json) {
       // attempt to restore sync format
-      const sync = json as SingleFileStorageFileContent;
+      const sync = json as RemoteCollectionFileContent;
       const items = unminimizeItemsFromStorage(sync.i);
       const values = sync.o;
       const space = storageService.getSpace();
