@@ -1,7 +1,10 @@
 #!/bin/sh
 
+target=$1
+if [ "$target" != "prod" ] && [ "$target" != "beta" ]; then echo 1; fi
+
 echo "preparing gradle .env"
-cp -R android/environments/prod/* android
+cp -R android/environments/$target/* android
 
 if [ -f ".env.production.local" ]; then
     mv .env.production.local .env.production.local.bak
