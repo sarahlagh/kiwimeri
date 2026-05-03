@@ -131,6 +131,82 @@ describe('stats service', () => {
     expect(results[25].date).toBe('2026-03-16');
   });
 
+  describe(`stats generation`, () => {
+    beforeEach(() => {
+      searchAncestryService.start();
+      userSettingsService.setSpaceDefaultDisplayOpts({
+        sort: { by: 'created', descending: false },
+        statsEnabled: true
+      });
+    });
+    afterEach(() => {
+      searchAncestryService.stop();
+    });
+
+    it(`should generate stats per item per day`, () => {
+      const docId1 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const docId2 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+
+      vi.advanceTimersByTime(60000);
+      collectionService.setItemLexicalContent(
+        docId1,
+        JSON.parse(getNewContent('one'))
+      );
+      collectionService.setItemLexicalContent(
+        docId2,
+        JSON.parse(getNewContent('lots and lots of '))
+      );
+      vi.advanceTimersByTime(fakeTimersDelay);
+      collectionService.setItemLexicalContent(
+        docId1,
+        JSON.parse(getNewContent('one two'))
+      );
+      collectionService.setItemLexicalContent(
+        docId2,
+        JSON.parse(getNewContent('lots and lots of words'))
+      );
+
+      {
+        const points = statsService.getDataPoints(docId1);
+        expect(points).toHaveLength(1);
+        expect(points[0].values['lastWordCount']).toBe(2);
+      }
+
+      {
+        const points = statsService.getDataPoints(docId2);
+        expect(points).toHaveLength(1);
+        expect(points[0].values['lastWordCount']).toBe(5);
+      }
+
+      // advance by one day
+      vi.advanceTimersByTime(3600000 * 26);
+
+      collectionService.setItemLexicalContent(
+        docId1,
+        JSON.parse(getNewContent('one two three'))
+      );
+      collectionService.setItemLexicalContent(
+        docId2,
+        JSON.parse(getNewContent('lots'))
+      );
+      vi.advanceTimersByTime(fakeTimersDelay);
+
+      {
+        const points = statsService.getDataPoints(docId1);
+        expect(points).toHaveLength(2);
+        expect(points[0].values['lastWordCount']).toBe(2);
+        expect(points[1].values['lastWordCount']).toBe(3);
+      }
+
+      {
+        const points = statsService.getDataPoints(docId2);
+        expect(points).toHaveLength(2);
+        expect(points[0].values['lastWordCount']).toBe(5);
+        expect(points[1].values['lastWordCount']).toBe(1);
+      }
+    });
+  });
+
   describe(`backfilling`, () => {
     beforeEach(() => {
       historyService['enabled'] = true;
