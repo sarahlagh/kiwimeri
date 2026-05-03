@@ -13,7 +13,11 @@ type SyncRemoteButtonProps = {
   color?: string;
   fill?: 'clear' | 'outline' | 'solid' | 'default';
   onSyncStart?: () => void;
-  onSyncEnd?: () => void;
+  onSyncEnd?: (resp?: {
+    success: boolean;
+    didPull?: boolean;
+    didPush?: boolean;
+  }) => void;
   showConflictsWarning?: boolean;
   showRemoteChangesWarning?: boolean;
 };
@@ -34,8 +38,8 @@ const SyncRemoteButton = ({
   const trigger = `sync-${direction}-button-${remote}`;
   const onConfirm = async () => {
     if (onSyncStart) onSyncStart();
-    await syncService.sync(direction, remote);
-    if (onSyncEnd) onSyncEnd();
+    const resp = await syncService.sync(direction, remote);
+    if (onSyncEnd) onSyncEnd(resp);
   };
   if (!networkStatus?.connected) {
     return (

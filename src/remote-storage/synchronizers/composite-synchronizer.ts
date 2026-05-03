@@ -44,10 +44,16 @@ export class CompositeSynchronizer extends CloudStorageSynchronizer {
   }
 
   public async push(force = false) {
+    if (this.statsEnabled && force) {
+      setTimeout(async () => await this.statsSynchronizer.push(force));
+    }
     return this.collectionSynchronizer.push(force);
   }
 
   public async pull(force = false) {
+    if (this.statsEnabled && force) {
+      setTimeout(async () => await this.statsSynchronizer.pull(force));
+    }
     return this.collectionSynchronizer.pull(force);
   }
 

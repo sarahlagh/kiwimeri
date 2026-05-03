@@ -17,6 +17,7 @@ msgstr ""
 msgid " (new)"
 msgstr " (new)"
 
+#. placeholder {0}: showFilters ? 'Hide' : 'Show'
 #: src/dev-tools/components/LogsCard.tsx:132
 msgid "{0} Filters"
 msgstr "{0} Filters"
@@ -40,6 +41,10 @@ msgstr "Add config"
 #: src/common/buttons/GenericImportFileButton.tsx:47
 msgid "An error occurred loading the file"
 msgstr "An error occurred loading the file"
+
+#: src/synchronization/components/providers/RemoteGenericSettings.tsx:61
+msgid "An error occurred! Please check the logs."
+msgstr "An error occurred! Please check the logs."
 
 #: src/common/modals/ConfirmMultipleImportModal.tsx:155
 msgid "Archive is empty"
@@ -261,10 +266,12 @@ msgstr "History save time (min)"
 msgid "Home"
 msgstr "Home"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:112
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:105
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
@@ -317,10 +324,12 @@ msgstr "Link"
 msgid "Loading..."
 msgstr "Loading..."
 
+#. placeholder {0}: localChanges.length
 #: src/synchronization/components/LocalChangesCard.tsx:38
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
+#. placeholder {0}: dateToStr('datetime', lastLocalChange)
 #: src/synchronization/components/LocalChangesCard.tsx:44
 msgid "Local: {0}"
 msgstr "Local: {0}"
@@ -365,8 +374,8 @@ msgstr "Metadata found in the archive"
 msgid "Modified Date"
 msgstr "Modified Date"
 
-#: src/synchronization/components/providers/RemoteGenericSettings.tsx:109
-#: src/synchronization/components/providers/RemoteGenericSettings.tsx:112
+#: src/synchronization/components/providers/RemoteGenericSettings.tsx:120
+#: src/synchronization/components/providers/RemoteGenericSettings.tsx:123
 msgid "Name"
 msgstr "Name"
 
@@ -462,6 +471,7 @@ msgstr "Remember last route"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
+#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
 #: src/synchronization/components/LocalChangesCard.tsx:51
 msgid "Remote: {0}"
 msgstr "Remote: {0}"
@@ -543,6 +553,7 @@ msgstr "Stats"
 #: src/common/buttons/GenericExportFileButton.tsx:48
 #: src/common/buttons/GenericImportFileButton.tsx:48
 #: src/common/buttons/ManageHistoryButton.tsx:157
+#: src/synchronization/components/providers/RemoteGenericSettings.tsx:59
 msgid "Success!"
 msgstr "Success!"
 

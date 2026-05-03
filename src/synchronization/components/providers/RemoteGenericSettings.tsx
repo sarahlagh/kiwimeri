@@ -1,5 +1,6 @@
 import DeleteButton from '@/common/buttons/DeleteButton';
 import SyncRemoteButton from '@/common/buttons/SyncRemoteButton';
+import { useToastContext } from '@/common/context/ToastContext';
 import platformService from '@/common/services/platform.service';
 import { APPICONS } from '@/constants';
 import remotesService from '@/db/remotes.service';
@@ -43,6 +44,7 @@ const RemoteGenericSettings = ({
   children
 }: RemoteGenericSettingsProps) => {
   const { t } = useLingui();
+  const { setToast } = useToastContext();
   const syncStatus = remote.connected;
 
   const onNameChange = (value: string) => {
@@ -52,6 +54,13 @@ const RemoteGenericSettings = ({
     await remotesService.delRemote(remote.id);
   };
 
+  const onSyncEnd = (resp: { success: boolean }) => {
+    if (resp.success) {
+      setToast(t`Success!`, 'success');
+    } else {
+      setToast(t`An error occurred! Please check the logs.`, 'danger');
+    }
+  };
   const labelPlacement = platformService.isWideEnough() ? undefined : 'stacked';
 
   return (
@@ -87,6 +96,7 @@ const RemoteGenericSettings = ({
               remote={remote.id}
               color="light"
               askConfirm={true}
+              onSyncEnd={onSyncEnd}
               disabled={!remote.connected}
             />
             <SyncRemoteButton
@@ -94,6 +104,7 @@ const RemoteGenericSettings = ({
               remote={remote.id}
               color="light"
               askConfirm={true}
+              onSyncEnd={onSyncEnd}
               disabled={!remote.connected}
             />
             <DeleteButton

@@ -71,15 +71,16 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
     }
   }
 
-  public async push() // force?: boolean
-  : Promise<{ didPush: boolean; success: boolean }> {
+  public async push(
+    force?: boolean
+  ): Promise<{ didPush: boolean; success: boolean }> {
     console.log(`[stats][push] starting`, !this.ongoing);
     if (this.ongoing) return { success: false, didPush: false };
     this.ongoing = true;
 
     try {
       const lastPulled = this.getLastPulled(this.remoteStateId);
-      const data = this.computeDataToPush(lastPulled);
+      const data = this.computeDataToPush(lastPulled, force);
       if (!data) {
         console.log('[stats][push] nothing to push');
         return { success: true, didPush: false };
@@ -97,14 +98,15 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
     return { success: true, didPush: true };
   }
 
-  public async pull() // force?: boolean
-  : Promise<{ didPull: boolean; success: boolean }> {
+  public async pull(
+    force?: boolean
+  ): Promise<{ didPull: boolean; success: boolean }> {
     console.log(`[stats][pull] starting`, !this.ongoing);
     if (this.ongoing) return { success: false, didPull: false };
     this.ongoing = true;
     try {
       const lastPulled = this.getLastPulled(this.remoteStateId);
-      const resp = await this.cloudFS.fetchChanges(lastPulled);
+      const resp = await this.cloudFS.fetchChanges(lastPulled, force);
       if (resp.success && resp.data && resp.updatedRemoteState) {
         const newStats = resp.data as RemoteStatsFileContent;
         this.mergeRemoteStatsToLocal(newStats);
@@ -123,7 +125,10 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
     return this.driver.close();
   }
 
-  private computeDataToPush(lastPulled: number): RemoteStatsFileContent | null {
+  private computeDataToPush(
+    lastPulled: number,
+    force?: boolean
+  ): RemoteStatsFileContent | null {
     const stats = statsService.getStatsSince();
     const global = statsService.getAllGlobalStats();
     const perDate: {
@@ -137,7 +142,7 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
     const latest = Math.max(...tsArray);
     const statsSincePush = latest > lastPulled && stats.length > 0;
     console.debug(`[stats][push] had stats since last push`, statsSincePush);
-    if (!statsSincePush) {
+    if (!statsSincePush && !force) {
       return null;
     }
 
