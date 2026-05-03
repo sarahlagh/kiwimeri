@@ -121,16 +121,21 @@ export class InMemDriver extends CloudStorageDriver {
     return { success: true };
   }
 
-  public async renameFile(
-    fileRef: FileReference,
-    newFilename: string
-  ): Promise<{ success: boolean }> {
+  public async renameFile(fileRef: FileReference, newFilename: string) {
     const colValue = this.collection.get(fileRef.filename);
     if (colValue) this.collection.set(newFilename, colValue);
     const metaValue = this.metadata.get(fileRef.filename);
     if (metaValue) this.metadata.set(newFilename, { ...metaValue });
     this.clearMap(fileRef.filename, true);
-    return { success: true };
+    return {
+      success: true,
+      driverInfo: {
+        filename: newFilename,
+        providerid: fileRef.providerid || newFilename,
+        hash: this.metadata.get(newFilename)!.hash,
+        updated: this.metadata.get(newFilename)!.lastRemoteChange
+      }
+    };
   }
 
   public async close() {

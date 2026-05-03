@@ -65,7 +65,7 @@ export abstract class CloudStorageDriver {
   public abstract renameFile(
     fileRef: FileReference,
     newFilename: string
-  ): Promise<CommonResponse>;
+  ): Promise<CommonResponse & { driverInfo?: DriverFileInfo }>;
 
   public abstract close(): Promise<void>;
 }

@@ -180,10 +180,7 @@ export class PCloudDriver extends CloudStorageDriver {
     return this.downloadFile(fileRef.providerid);
   }
 
-  public async renameFile(
-    fileRef: FileReference,
-    newFilename: string
-  ): Promise<{ success: boolean }> {
+  public async renameFile(fileRef: FileReference, newFilename: string) {
     if (!this.config) {
       throw new Error('uninitialized pcloud config');
     }
@@ -200,7 +197,16 @@ export class PCloudDriver extends CloudStorageDriver {
       });
     }
     if (res && newFilename === res.metadata?.name) {
-      return { success: true };
+      const f = res.metadata;
+      return {
+        success: true,
+        driverInfo: {
+          providerid: `${f.fileid}`,
+          filename: `${f.name}`,
+          hash: `${f.hash}`,
+          updated: this.parseDate(f.modified)
+        }
+      };
     }
     return { success: false };
   }

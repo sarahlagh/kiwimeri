@@ -1,7 +1,6 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { statsService } from '@/core/services/stats/stats-service';
 import collectionService from '@/db/collection.service';
-import storageService from '@/db/storage.service';
 import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
 import {
   RemoteStatsFileContent,
@@ -47,6 +46,20 @@ describe('stats synchronizer', () => {
     expect(resp.success).toBe(true);
     const remoteContent = driver.getParsedContent();
     expect(remoteContent).toBeNull();
+  });
+
+  test('should push no stats if everything already pushed', async () => {
+    // init local stats
+    initLocalDocAndStats(5);
+    const resp1 = await statsSynchronizer.sync();
+    expect(resp1.didPush).toBe(true);
+    expect(resp1.success).toBe(true);
+
+    vi.advanceTimersByTime(1000);
+
+    const resp2 = await statsSynchronizer.push();
+    expect(resp2.didPush).toBe(false);
+    expect(resp2.success).toBe(true);
   });
 
   test('should push local stats', async () => {

@@ -69,11 +69,9 @@ export class SingleFileStorage extends CloudStorageFilesystemV2 {
     console.debug(
       `${this.logPrefix}[acceptsChanges] push to temporary file ${tempName}`
     );
-    const { success: pushSuccess, driverInfo } = await this.driver.pushFile(
-      { filename: tempName },
-      content
-    );
-    if (!pushSuccess || !driverInfo) {
+    const { success: pushSuccess, driverInfo: tempDriverInfo } =
+      await this.driver.pushFile({ filename: tempName }, content);
+    if (!pushSuccess || !tempDriverInfo) {
       setTimeout(async () => this.driver.deleteFile({ filename: tempName }));
       return { success: false, didPush: true };
     }
@@ -82,19 +80,20 @@ export class SingleFileStorage extends CloudStorageFilesystemV2 {
     console.debug(
       `${this.logPrefix}[acceptsChanges] promote ${tempName} to ${this.filename}`
     );
-    const { success: renameSuccess } = await this.driver.renameFile(
+    const { success: renameSuccess, driverInfo } = await this.driver.renameFile(
       {
-        filename: driverInfo.filename,
-        providerid: driverInfo.providerid
+        filename: tempName,
+        providerid: tempDriverInfo.providerid
       },
       this.filename
     );
-    if (!renameSuccess) {
+    if (!renameSuccess || !driverInfo) {
       // TODO cleanup the .part file?
       return { success: false, didPush: true };
     }
     // consider file pushed
     const updatedRemoteState = this.getRemoteState([driverInfo]);
+    updatedRemoteState.lastPulled = updatedRemoteState.lastRemoteChange;
     return { success: true, didPush: true, updatedRemoteState };
   }
 
@@ -136,7 +135,7 @@ export class SingleFileStorage extends CloudStorageFilesystemV2 {
       filename: this.filename,
       providerid: localInfo.providerid
     });
-    if (updatedRemoteState?.lastRemoteChange) {
+    if (updatedRemoteState) {
       updatedRemoteState.lastPulled = updatedRemoteState?.lastRemoteChange;
     }
     if (content) {

@@ -77,18 +77,14 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
     if (this.ongoing) return { success: false, didPush: false };
     this.ongoing = true;
 
-    // TODO
-    // if only get stats of the month, add button in dev tools to force push all
     try {
-      // TODO check if there are stats unpushed
-      const data = this.computeDataToPush();
-      if (data.content.length === 0 && Object.keys(data.global).length === 0) {
+      const lastPulled = this.getLastPulled(this.remoteStateId);
+      const data = this.computeDataToPush(lastPulled);
+      if (!data) {
         console.log('[stats][push] nothing to push');
         return { success: true, didPush: false };
       }
       const resp = await this.cloudFS.acceptsChanges(data);
-      console.debug('stats pushed', resp);
-
       if (resp.updatedRemoteState) {
         this.updateRemoteStateInfo(this.remoteStateId, resp.updatedRemoteState);
       }
@@ -107,14 +103,7 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
     if (this.ongoing) return { success: false, didPull: false };
     this.ongoing = true;
     try {
-      const lastPulled =
-        (storageService
-          .getStore()
-          .getCell(
-            'remoteState',
-            this.remoteStateId,
-            'lastRemoteChange'
-          ) as number) || 0;
+      const lastPulled = this.getLastPulled(this.remoteStateId);
       const resp = await this.cloudFS.fetchChanges(lastPulled);
       if (resp.success && resp.data && resp.updatedRemoteState) {
         const newStats = resp.data as RemoteStatsFileContent;
@@ -134,12 +123,23 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
     return this.driver.close();
   }
 
-  private computeDataToPush(): RemoteStatsFileContent {
+  private computeDataToPush(lastPulled: number): RemoteStatsFileContent | null {
     const stats = statsService.getStatsSince();
     const global = statsService.getAllGlobalStats();
     const perDate: {
       [key: string]: RemoteContentStatPerDate; // key is date
     } = {};
+
+    const tsArray: number[] = stats.map(s => new Date(s.date).getTime());
+    const globalKeys = Object.keys(global);
+    globalKeys.forEach(key => tsArray.push(global[key].lastOpenedAt));
+
+    const latest = Math.max(...tsArray);
+    const statsSincePush = latest > lastPulled && stats.length > 0;
+    console.debug(`[stats][push] had stats since last push`, statsSincePush);
+    if (!statsSincePush) {
+      return null;
+    }
 
     stats.forEach(stat => {
       if (!perDate[stat.date]) {
