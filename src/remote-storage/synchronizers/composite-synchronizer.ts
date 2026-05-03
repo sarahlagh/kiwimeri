@@ -19,7 +19,7 @@ export class CompositeSynchronizer extends CloudStorageSynchronizer {
       remote,
       this.driver
     );
-    this.statsSynchronizer = new StatsSynchronizer(this.driver);
+    this.statsSynchronizer = new StatsSynchronizer(remote, this.driver);
   }
 
   public configure(conf: AnyData, proxy?: string, useHttp?: boolean) {

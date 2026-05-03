@@ -2,6 +2,7 @@ import platformService from '@/common/services/platform.service';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/local-changes.service';
 import remotesService from '@/db/remotes.service';
+import { useCellWithRef } from '@/db/tinybase/hooks';
 
 export type SyncDirection = 'sync' | 'force-push' | 'force-pull';
 
@@ -79,8 +80,19 @@ class SyncService {
     return localChangesService.useHasLocalChanges();
   }
 
+  private useLastPulled() {
+    const primary = remotesService.usePrimaryRemote();
+    return (
+      useCellWithRef<number>(
+        'store',
+        'remoteState',
+        primary?.state || '-1',
+        'lastPulled'
+      ) || 0
+    );
+  }
   public usePrimaryHasRemoteChanges() {
-    const lastPulled = localChangesService.useLastPulled();
+    const lastPulled = this.useLastPulled();
     const lastRemoteChange = remotesService.usePrimaryLastRemoteChange();
     return lastPulled < lastRemoteChange;
   }

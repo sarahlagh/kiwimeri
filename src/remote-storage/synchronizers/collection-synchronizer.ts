@@ -138,10 +138,6 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
           true,
           true
         );
-        if (updatedRemoteState.lastRemoteChange)
-          localChangesService.setLastPulled(
-            updatedRemoteState.lastRemoteChange
-          );
       }
 
       return { success: true, didPush };
@@ -162,8 +158,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     const store = storageService.getSpace(this.remote.space);
     const localContent = store.getContent();
     const localChanges = localChangesService.getLocalChanges();
-    // const remoteState = this.getCachedRemoteStateInfo(this.remote.state);
-    const lastPulled = localChangesService.getLastPulled();
+    const lastPulled = this.getLastPulled(this.remote.state);
 
     try {
       const resp = await this.cloudFS.fetchChanges(lastPulled, force);
@@ -187,10 +182,6 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
           force || localChanges.length == 0,
           force || false
         );
-        if (resp.updatedRemoteState.lastRemoteChange)
-          localChangesService.setLastPulled(
-            resp.updatedRemoteState.lastRemoteChange
-          );
       }
       return { success: resp.success, didPull };
     } catch (e) {
@@ -213,7 +204,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     force: boolean
   ): Promise<RemoteContentRepresentation> {
     if (!force) {
-      const lastPulled = localChangesService.getLastPulled();
+      const lastPulled = this.getLastPulled(this.remote.state);
       const { success, didPull, data } =
         await this.cloudFS.fetchChanges(lastPulled);
       const hasNewChanges = success && didPull;
@@ -558,29 +549,6 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       o: values,
       u: updated
     };
-  }
-
-  private updateRemoteStateInfo(stateId: string, remoteInfo: RemoteState) {
-    storageService.getStore().transaction(() => {
-      storageService
-        .getStore()
-        .setCell(
-          'remoteState',
-          stateId,
-          'lastRemoteChange',
-          remoteInfo.lastRemoteChange || 0
-        );
-      if (remoteInfo.info) {
-        storageService
-          .getStore()
-          .setCell(
-            'remoteState',
-            stateId,
-            'info',
-            JSON.stringify(remoteInfo.info)
-          );
-      }
-    });
   }
 
   private updateRemoteState(

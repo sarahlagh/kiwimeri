@@ -1,6 +1,9 @@
 import { AnyData, RemoteState } from '@/db/types/store-types';
 import { getUniqueId } from 'tinybase/common';
-import { CloudStorageDriver } from '../storage-drivers/abstract.driver';
+import {
+  CloudStorageDriver,
+  FileReference
+} from '../storage-drivers/abstract.driver';
 import { DriverFileInfo } from '../sync-types';
 import { CloudStorageFilesystemV2 } from './abstract.filesystem';
 
@@ -26,11 +29,13 @@ export class SingleFileStorage extends CloudStorageFilesystemV2 {
     this.logPrefix = `[singlefile fs][${logName}][${this.driver.driverName}]`;
   }
 
-  public async connect(filenames?: string[]): Promise<{
+  public async connect(fileRefs?: FileReference[]): Promise<{
     config: AnyData | null;
     remoteState: RemoteState;
   }> {
-    return this.connectAttempt(filenames ? filenames : [this.filename]);
+    return this.connectAttempt(
+      fileRefs ? fileRefs : [{ filename: this.filename }]
+    );
   }
 
   public async destroy() {
@@ -131,6 +136,9 @@ export class SingleFileStorage extends CloudStorageFilesystemV2 {
       filename: this.filename,
       providerid: localInfo.providerid
     });
+    if (updatedRemoteState?.lastRemoteChange) {
+      updatedRemoteState.lastPulled = updatedRemoteState?.lastRemoteChange;
+    }
     if (content) {
       return {
         success,

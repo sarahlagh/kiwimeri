@@ -1,6 +1,7 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { statsService } from '@/core/services/stats/stats-service';
 import collectionService from '@/db/collection.service';
+import storageService from '@/db/storage.service';
 import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
 import {
   RemoteStatsFileContent,
@@ -11,7 +12,7 @@ import { describe, expect, test, vi } from 'vitest';
 import { buildRandomFake } from './test-stats.utils';
 
 const driver = new InMemDriver();
-const statsSynchronizer = new StatsSynchronizer(driver);
+const statsSynchronizer = new StatsSynchronizer({ id: '9999' }, driver);
 
 function initLocalDocAndStats(n: number, skipDays = false) {
   const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);

@@ -1,5 +1,8 @@
 import { AnyData, RemoteState } from '@/db/types/store-types';
-import { CloudStorageDriver } from '../storage-drivers/abstract.driver';
+import {
+  CloudStorageDriver,
+  FileReference
+} from '../storage-drivers/abstract.driver';
 import { DriverFileInfo, UpdatedRemoteState } from '../sync-types';
 
 export abstract class CloudStorageFilesystemV2 {
@@ -16,17 +19,17 @@ export abstract class CloudStorageFilesystemV2 {
     this.driver.configure(config, proxy, useHttp);
   }
 
-  abstract connect(filenames?: string[]): Promise<{
+  abstract connect(fileRefs: FileReference[]): Promise<{
     config: AnyData | null;
     remoteState: RemoteState;
   }>;
 
-  protected async connectAttempt(filenames: string[]): Promise<{
+  protected async connectAttempt(fileRefs: FileReference[]): Promise<{
     config: AnyData | null;
     remoteState: RemoteState;
   }> {
     const { config, connected, filesInfo } = await this.driver
-      .connect(filenames)
+      .connect(fileRefs)
       .catch(() => ({ connected: false, config: null, filesInfo: null }));
 
     if (config && filesInfo) {

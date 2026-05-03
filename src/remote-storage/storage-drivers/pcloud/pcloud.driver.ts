@@ -80,7 +80,7 @@ export class PCloudDriver extends CloudStorageDriver {
     if (res.metadata?.contents) {
       filesInfo = res.metadata.contents
         .filter(
-          f => !f.isfolder && fileRefs.find(ref => f.name.match(ref.filename))
+          f => !f.isfolder && fileRefs.some(ref => f.name === ref.filename)
         )
         .map(f => ({
           providerid: `${f.fileid}`,

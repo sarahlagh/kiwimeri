@@ -196,32 +196,6 @@ class LocalChangesService {
       .getStore()
       .setCell('spaces', storageService.getSpaceId(), 'lastLocalChange', now);
   }
-
-  public getLastPulled() {
-    return (
-      (storageService
-        .getStore()
-        .getCell('spaces', storageService.getSpaceId(), 'lastPulled')
-        ?.valueOf() as number) || 0
-    );
-  }
-
-  public useLastPulled() {
-    return (
-      useCellWithRef<number>(
-        this.storeId,
-        'spaces',
-        storageService.getSpaceId(),
-        'lastPulled'
-      ) || 0
-    );
-  }
-
-  public setLastPulled(now: number) {
-    storageService
-      .getStore()
-      .setCell('spaces', storageService.getSpaceId(), 'lastPulled', now);
-  }
 }
 
 const localChangesService = new LocalChangesService();

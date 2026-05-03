@@ -20,7 +20,6 @@ export interface Space {
   currentDocument?: string;
   currentPage?: string;
   lastLocalChange: number;
-  lastPulled: number;
 }
 
 export enum LocalChangeType {
@@ -58,6 +57,7 @@ export type RemoteResult = Required<Remote> &
 export interface RemoteState {
   id?: string;
   connected?: boolean;
+  lastPulled?: number;
   lastRemoteChange?: number;
   info?: AnyData;
 }

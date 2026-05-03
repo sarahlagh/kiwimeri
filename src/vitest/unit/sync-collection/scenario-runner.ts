@@ -139,7 +139,10 @@ export class PullTestScenarioRunner {
     if (this.scenario.initLocalData) {
       await remotesService.configureRemotes(storageService.getSpaceId());
       const remoteInfo = await getRemoteFileInfo('collection.json');
-      localChangesService.setLastPulled(remoteInfo?.updated || 0);
+      const state = remotesService.getRemotes()[0].state;
+      storageService
+        .getStore()
+        .setCell('remoteState', state, 'lastPulled', remoteInfo?.updated || 0);
     }
     return this;
   }
