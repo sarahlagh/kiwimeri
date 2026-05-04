@@ -5,7 +5,6 @@ import { historyService } from '@/db/collection-history.service';
 import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
 import { SpaceValues } from '@/db/types/space-types';
-import userSettingsService from '@/db/user-settings.service';
 import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
 import { SyncDirection, syncService } from '@/remote-storage/sync.service';
 import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';
@@ -40,7 +39,7 @@ export const testSyncBeforeEach = async () => {
   vi.useFakeTimers();
   searchAncestryService.start(DEFAULT_SPACE_ID);
   historyService['enabled'] = true;
-  userSettingsService.setHistoryIdleTime(0);
+  storageService.getSpace().setValue('historyIdleTime', 0);
 };
 
 export const testSyncAfterEach = () => {

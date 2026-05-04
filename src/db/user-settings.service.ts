@@ -9,6 +9,7 @@ import localChangesService from './local-changes.service';
 import notebooksService from './notebooks.service';
 import storageService from './storage.service';
 import { useValueWithRef } from './tinybase/hooks';
+import { SpaceValue, SpaceValues } from './types/space-types';
 import { LocalChangeType } from './types/store-types';
 
 export type Theme = 'light' | 'dark';
@@ -131,18 +132,24 @@ class UserSettingsService {
   public setSpaceDefaultDisplayOpts(newDisplayOpts: CollectionItemDisplayOpts) {
     if (newDisplayOpts.sort.by === 'order')
       newDisplayOpts.sort.descending = false;
+    this.setSyncableValues({
+      defaultSortBy: newDisplayOpts.sort.by,
+      defaultSortDesc: newDisplayOpts.sort.descending,
+      statsEnabled: newDisplayOpts.statsEnabled
+    });
+  }
+
+  private setSyncableValues(values: Partial<SpaceValues>) {
     storageService.getSpace().transaction(() => {
       localChangesService.addLocalChange('', LocalChangeType.value);
       storageService.getSpace().setValue('lastUpdated', Date.now());
-      storageService
-        .getSpace()
-        .setValue('defaultSortBy', newDisplayOpts.sort.by);
-      storageService
-        .getSpace()
-        .setValue('defaultSortDesc', newDisplayOpts.sort.descending);
-      storageService
-        .getSpace()
-        .setValue('statsEnabled', newDisplayOpts.statsEnabled);
+
+      const names = Object.keys(values) as SpaceValue[];
+      names.forEach(name => {
+        if (values[name]) {
+          storageService.getSpace().setValue(name, values[name]);
+        }
+      });
     });
   }
 
@@ -183,8 +190,10 @@ class UserSettingsService {
     return useValueWithRef(this.spaceId, 'historyIdleTime') as number;
   }
 
-  public setHistoryIdleTime(value: number, space?: string) {
-    storageService.getSpace(space).setValue('historyIdleTime', value);
+  public setHistoryIdleTime(value: number) {
+    this.setSyncableValues({
+      historyIdleTime: value
+    });
   }
 
   public getHistoryMaxInterval(space?: string): number {
@@ -198,8 +207,10 @@ class UserSettingsService {
     return useValueWithRef(this.spaceId, 'historyMaxInterval') as number;
   }
 
-  public setHistoryMaxInterval(value: number, space?: string) {
-    storageService.getSpace(space).setValue('historyMaxInterval', value);
+  public setHistoryMaxInterval(value: number) {
+    this.setSyncableValues({
+      historyMaxInterval: value
+    });
   }
 
   public useHistoryMaxVersions(): number {
@@ -213,8 +224,10 @@ class UserSettingsService {
       .valueOf();
   }
 
-  public setHistoryMaxVersions(value: number, space?: string) {
-    storageService.getSpace(space).setValue('maxHistoryPerDoc', value);
+  public setHistoryMaxVersions(value: number) {
+    this.setSyncableValues({
+      maxHistoryPerDoc: value
+    });
   }
 
   public getResumeLastSelection(): boolean {

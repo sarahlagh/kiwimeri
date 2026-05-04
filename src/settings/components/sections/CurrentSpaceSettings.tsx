@@ -1,5 +1,4 @@
 import { statsService } from '@/core/services/stats/stats-service';
-import navService from '@/db/nav.service';
 import userSettingsService from '@/db/user-settings.service';
 import {
   IonCard,
@@ -16,9 +15,6 @@ const CurrentSpaceSettings = () => {
   const defaultHistoryIdleTime = userSettingsService.useHistoryIdleTime();
   const defaultHistoryMaxInterval = userSettingsService.useHistoryMaxInterval();
   const defaultMaxVersionsPerDoc = userSettingsService.useHistoryMaxVersions();
-  const defaultRememberLastRoute = navService.useRememberLastRoute();
-  const defaultResumeLastSelection =
-    userSettingsService.useResumeLastSelection();
   const { t } = useLingui();
 
   return (
@@ -51,17 +47,6 @@ const CurrentSpaceSettings = () => {
           }}
           withRows={[
             {
-              key: 'rememberLastRoute',
-              label: t`Remember last route`,
-              description: t`When enabled, when you open the app you will be redirected to the last document you were working on instead of the root of the current space.`,
-              type: 'boolean'
-            },
-            {
-              key: 'resumeLastSelection',
-              label: t`Scroll to the last position in document`,
-              type: 'boolean'
-            },
-            {
               key: 'history_idle_time',
               label: t`History idle time (s)`,
               description: t`When working on a document, a new version will be automatically if idle after XX seconds`,
@@ -81,8 +66,6 @@ const CurrentSpaceSettings = () => {
             }
           ]}
           withInitialState={{
-            rememberLastRoute: defaultRememberLastRoute,
-            resumeLastSelection: defaultResumeLastSelection,
             history_idle_time: defaultHistoryIdleTime / 1000,
             history_max_interval: defaultHistoryMaxInterval / 60000,
             max_history_per_doc: defaultMaxVersionsPerDoc
@@ -96,10 +79,6 @@ const CurrentSpaceSettings = () => {
               );
             } else if (key === 'max_history_per_doc') {
               userSettingsService.setHistoryMaxVersions(val as number);
-            } else if (key === 'rememberLastRoute') {
-              navService.setRememberLastRoute(val as boolean);
-            } else if (key === 'resumeLastSelection') {
-              userSettingsService.setResumeLastSelection(val as boolean);
             }
           }}
         />

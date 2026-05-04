@@ -17,7 +17,6 @@ msgstr ""
 msgid " (new)"
 msgstr " (new)"
 
-#. placeholder {0}: showFilters ? 'Hide' : 'Show'
 #: src/dev-tools/components/LogsCard.tsx:132
 msgid "{0} Filters"
 msgstr "{0} Filters"
@@ -171,6 +170,10 @@ msgstr "Dev Tools"
 msgid "Dev Tools Enabled"
 msgstr "Dev Tools Enabled"
 
+#: src/settings/components/sections/CurrentDeviceSettings.tsx:23
+msgid "Device Settings"
+msgstr "Device Settings"
+
 #: src/synchronization/components/providers/PCloudSettings.tsx:114
 #: src/synchronization/components/providers/PCloudSettings.tsx:119
 msgid "Device Token"
@@ -254,11 +257,11 @@ msgstr "Filesystem"
 msgid "General"
 msgstr "General"
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:66
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:51
 msgid "History idle time (s)"
 msgstr "History idle time (s)"
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:72
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:57
 msgid "History save time (min)"
 msgstr "History save time (min)"
 
@@ -266,12 +269,10 @@ msgstr "History save time (min)"
 msgid "Home"
 msgstr "Home"
 
-#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:112
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
-#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:105
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
@@ -324,12 +325,10 @@ msgstr "Link"
 msgid "Loading..."
 msgstr "Loading..."
 
-#. placeholder {0}: localChanges.length
 #: src/synchronization/components/LocalChangesCard.tsx:38
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
-#. placeholder {0}: dateToStr('datetime', lastLocalChange)
 #: src/synchronization/components/LocalChangesCard.tsx:44
 msgid "Local: {0}"
 msgstr "Local: {0}"
@@ -423,11 +422,15 @@ msgstr "Notebook Selection"
 msgid "Notebooks found in the archive, they will be converted to folders"
 msgstr "Notebooks found in the archive, they will be converted to folders"
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:78
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:63
 msgid "Number of versions"
 msgstr "Number of versions"
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:31
+#: src/settings/components/sections/CurrentDeviceSettings.tsx:26
+msgid "Options for the currently selected device. These options are local-only."
+msgstr "Options for the currently selected device. These options are local-only."
+
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:27
 msgid "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 msgstr "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 
@@ -463,7 +466,7 @@ msgstr "PCloud Configuration"
 msgid "Pick a directory for your backups"
 msgstr "Pick a directory for your backups"
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:55
+#: src/settings/components/sections/CurrentDeviceSettings.tsx:38
 msgid "Remember last route"
 msgstr "Remember last route"
 
@@ -471,7 +474,6 @@ msgstr "Remember last route"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
-#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
 #: src/synchronization/components/LocalChangesCard.tsx:51
 msgid "Remote: {0}"
 msgstr "Remote: {0}"
@@ -501,7 +503,7 @@ msgstr "Save"
 msgid "Save your work"
 msgstr "Save your work"
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:61
+#: src/settings/components/sections/CurrentDeviceSettings.tsx:44
 msgid "Scroll to the last position in document"
 msgstr "Scroll to the last position in document"
 
@@ -538,7 +540,7 @@ msgstr "Sort items by..."
 msgid "space option modified"
 msgstr "space option modified"
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:28
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:24
 msgid "Space Settings"
 msgstr "Space Settings"
 
@@ -582,7 +584,7 @@ msgstr "Text..."
 msgid "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 msgstr "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:79
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:64
 msgid "The number of versions to keep per document. Set 0 for unlimited."
 msgstr "The number of versions to keep per document. Set 0 for unlimited."
 
@@ -623,15 +625,15 @@ msgstr "US"
 msgid "Username"
 msgstr "Username"
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:56
+#: src/settings/components/sections/CurrentDeviceSettings.tsx:39
 msgid "When enabled, when you open the app you will be redirected to the last document you were working on instead of the root of the current space."
 msgstr "When enabled, when you open the app you will be redirected to the last document you were working on instead of the root of the current space."
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:73
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:58
 msgid "When working on a document, a new version will be automatically at least every XX minutes"
 msgstr "When working on a document, a new version will be automatically at least every XX minutes"
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:67
+#: src/settings/components/sections/CurrentSpaceSettings.tsx:52
 msgid "When working on a document, a new version will be automatically if idle after XX seconds"
 msgstr "When working on a document, a new version will be automatically if idle after XX seconds"
 

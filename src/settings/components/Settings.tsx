@@ -1,3 +1,4 @@
+import CurrentDeviceSettings from './sections/CurrentDeviceSettings';
 import CurrentNotebookSettings from './sections/CurrentNotebookSettings';
 import CurrentSpaceSettings from './sections/CurrentSpaceSettings';
 import ImportExportCollectionSettings from './sections/ImportExportCollectionSettings';
@@ -7,6 +8,7 @@ const Settings = () => {
     <>
       <CurrentNotebookSettings />
       <CurrentSpaceSettings />
+      <CurrentDeviceSettings />
       <ImportExportCollectionSettings />
     </>
   );
