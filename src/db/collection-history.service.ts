@@ -517,10 +517,6 @@ class CollectionHistoryService {
       created: item.created,
       updated: item.updated
     };
-    if (item.type === CollectionItemType.page) {
-      data.order = item.order;
-      data.order_meta = item.order_meta;
-    }
     return JSON.stringify(data);
   }
 

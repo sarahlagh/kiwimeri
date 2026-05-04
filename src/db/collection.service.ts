@@ -702,8 +702,15 @@ class CollectionService {
     parent?: string
   ) {
     storageService.getSpace().transaction(() => {
-      genericReorder(from, to, (idx, order) => {
-        this.setItemField(items[idx].id, 'order', order, parent !== undefined);
+      historyService.disableForBulk(() => {
+        genericReorder(from, to, (idx, order) => {
+          this.setItemField(
+            items[idx].id,
+            'order',
+            order,
+            parent !== undefined
+          );
+        });
       });
       if (parent && items.length > 0) {
         historyService.saveWholeDocumentVersion(parent);
@@ -914,6 +921,44 @@ class CollectionService {
           .getSpace()
           .setCell(this.tableId, breadcrumb[i], 'updated', Date.now());
       }
+    });
+  }
+
+  public explodeDoc(docId: string, createNewGroup = true) {
+    const pages = this.getDocumentPages(docId, {
+      by: 'order',
+      descending: false
+    });
+    if (pages.length === 0) return;
+    let parent = this.getItemParent(docId);
+
+    if (createNewGroup) {
+      const title = collectionService.getItemTitle(docId);
+      const { item } = collectionService.getNewFolderObj(parent);
+      item.title = title;
+      parent = collectionService.saveItem(item);
+      collectionService.setItemParent(docId, parent);
+    }
+
+    const title = this.getItemTitle(docId);
+    const now = Date.now();
+    const newDocs: CollectionItem[] = [];
+    pages.forEach((p, idx) => {
+      const pageObj = this.getItem(p.id);
+      const newDoc = { ...pageObj };
+      newDoc.type = CollectionItemType.document;
+      newDoc.parent = parent;
+      const pageTitle = `${title} (${idx + 1})`;
+      newDoc.title = pageTitle;
+      newDoc.title_meta = setFieldMeta(pageTitle, now);
+      newDoc.order = idx + 1;
+      newDocs.push(newDoc);
+    });
+    this.saveItems(newDocs, parent, true);
+    storageService.getSpace().setCell('collection', docId, 'order', 0);
+    historyService.saveWholeDocumentVersion(docId, true);
+    newDocs.forEach(doc => {
+      historyService.saveWholeDocumentVersion(doc.id!, true);
     });
   }
 }

@@ -17,14 +17,13 @@ type QuickGroupButtonProps = {
 
 const QuickGroupButton = ({ id, type, onClose }: QuickGroupButtonProps) => {
   if (type !== CollectionItemType.document) return <></>;
-
-  const folder = navService.getCurrentFolder();
-  const title = collectionService.getItemTitle(id);
   return (
     <IonButton
       fill="clear"
       onClick={() => {
         // create folder and put current doc in it
+        const folder = navService.getCurrentFolder();
+        const title = collectionService.getItemTitle(id);
         const { item } = collectionService.getNewFolderObj(folder);
         item.title = title;
         const newParent = collectionService.saveItem(item);

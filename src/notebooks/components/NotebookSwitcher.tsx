@@ -28,7 +28,7 @@ const NotebookSwitcher = () => {
         });
       }}
     >
-      <IonIcon icon={APPICONS.moveAction}></IonIcon>
+      <IonIcon icon={APPICONS.notebook}></IonIcon>
       {name}
     </IonButton>
   );
