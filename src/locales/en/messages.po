@@ -106,7 +106,7 @@ msgstr "Clear All"
 msgid "Close"
 msgstr "Close"
 
-#: src/constants.ts:77
+#: src/constants.ts:78
 msgid "collection"
 msgstr "collection"
 
@@ -133,7 +133,7 @@ msgstr "Configure where to synchronize your collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/constants.ts:72
+#: src/constants.ts:73
 msgid "Conflicts"
 msgstr "Conflicts"
 
@@ -149,7 +149,7 @@ msgstr "Creation Date"
 msgid "Current Notebook Settings ({notebookTitle})"
 msgstr "Current Notebook Settings ({notebookTitle})"
 
-#: src/constants.ts:71
+#: src/constants.ts:72
 msgid "Default"
 msgstr "Default"
 
@@ -265,7 +265,7 @@ msgstr "History idle time (s)"
 msgid "History save time (min)"
 msgstr "History save time (min)"
 
-#: src/constants.ts:70
+#: src/constants.ts:71
 msgid "Home"
 msgstr "Home"
 
@@ -382,11 +382,11 @@ msgstr "Name"
 msgid "new"
 msgstr "new"
 
-#: src/constants.ts:73
+#: src/constants.ts:74
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:74
+#: src/constants.ts:75
 msgid "New folder"
 msgstr "New folder"
 
@@ -434,7 +434,7 @@ msgstr "Options for the currently selected device. These options are local-only.
 msgid "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 msgstr "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 
-#: src/constants.ts:76
+#: src/constants.ts:77
 msgid "page"
 msgstr "page"
 

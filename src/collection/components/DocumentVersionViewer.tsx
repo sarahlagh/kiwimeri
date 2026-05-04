@@ -1,6 +1,4 @@
-import ManageHistoryButton from '@/common/buttons/ManageHistoryButton';
 import { GET_UNKNOWN_ITEM_ROUTE, GET_VERSIONED_ROUTE } from '@/common/routes';
-import platformService from '@/common/services/platform.service';
 import KiwimeriEditor from '@/common/wysiwyg/lexical/KiwimeriEditor';
 import CollectionPagesBrowser from '@/common/wysiwyg/pages-browser/CollectionPagesBrowser';
 import { APPICONS } from '@/constants';
@@ -20,8 +18,8 @@ import {
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { CollectionItemSnapshotData, CollectionItemType } from '../collection';
-import CommonActionsToolbar from './CommonActionsToolbar';
 import SearchActionsToolbar from './SearchActionsToolbar';
+import ActionsFromDocumentVersionViewerToolbar from './actions/ActionsFromDocumentVersionViewerToolbar';
 
 interface DocumentVersionViewerProps {
   docId: string;
@@ -118,40 +116,25 @@ const DocumentVersionViewer = ({
           </IonButton>
         </IonToolbar>
         {showDocumentActions && (
-          <CommonActionsToolbar
+          <ActionsFromDocumentVersionViewerToolbar
             id={itemId}
             docId={docId}
-            showMoveFolder={false}
-            showRename={false}
-            showClose={true}
-            showInfo={false}
-            showDelete={false}
             getBackRoute={() => GET_UNKNOWN_ITEM_ROUTE(itemId, itemType, query)}
-            onClose={() => {
+            onSearch={() => {
               setShowDocumentActions(false);
+              setToggleSearch(true);
+              setToggleSearchAutoFocus(true);
+              if (pages.length > 0) setOpenPageBrowser(true);
             }}
-          >
-            <ManageHistoryButton id={docId} onRestore={() => {}} />
-            {platformService.hasHighlightSupport() && (
-              <IonButton
-                onClick={() => {
-                  setShowDocumentActions(false);
-                  setToggleSearch(true);
-                  setToggleSearchAutoFocus(true);
-                  if (pages.length > 0) setOpenPageBrowser(true);
-                }}
-              >
-                <IonIcon icon={APPICONS.search}></IonIcon>
-              </IonButton>
-            )}
-            <IonButton
-              slot="end"
-              fill="clear"
-              onClick={() => setOpenPageBrowser(!openPageBrowser)}
-            >
-              <IonIcon icon={APPICONS.page}></IonIcon>
-            </IonButton>
-          </CommonActionsToolbar>
+            onClose={role => {
+              console.debug('role', role, !openPageBrowser, pages.length);
+              if (role === 'pageBrowser') {
+                setOpenPageBrowser(!openPageBrowser);
+              } else {
+                setShowDocumentActions(false);
+              }
+            }}
+          />
         )}
         {toggleSearch && (
           <SearchActionsToolbar
@@ -183,9 +166,10 @@ const DocumentVersionViewer = ({
             enableToolbar={false}
             content={content}
             searchText={toggleSearch ? query : null}
+            openPageBrowser={openPageBrowser}
             enablePageBrowser={true}
           >
-            {pages.length > 0 && (
+            {openPageBrowser && (
               <CollectionPagesBrowser
                 id={itemId}
                 docId={docId}

@@ -27,7 +27,7 @@ import { GET_VERSIONED_ROUTE } from '../routes';
 
 type ManageHistoryButtonProps = {
   id: string;
-  onRestore: (id: string) => void;
+  afterRestore?: (id: string) => void;
 };
 
 type ManageHistoryModalProps = {
@@ -173,7 +173,10 @@ const ManageHistoryModal = ({
   );
 };
 
-const ManageHistoryButton = ({ id, onRestore }: ManageHistoryButtonProps) => {
+const ManageHistoryButton = ({
+  id,
+  afterRestore
+}: ManageHistoryButtonProps) => {
   const history = useHistory();
   const notebook = notebooksService.useCurrentNotebook();
   const location = useLocation(); // warning: location throws error if button in popover
@@ -205,8 +208,8 @@ const ManageHistoryButton = ({ id, onRestore }: ManageHistoryButtonProps) => {
                   query
                 )
               );
-            } else if (event.detail.role === 'restore') {
-              onRestore(id);
+            } else if (event.detail.role === 'restore' && afterRestore) {
+              afterRestore(id);
             }
           }
         });

@@ -29,7 +29,7 @@ const CloseDocumentButton = ({
           }
         }}
       >
-        <IonIcon icon={APPICONS.closeAction}></IonIcon>
+        <IonIcon icon={APPICONS.exitAction}></IonIcon>
       </IonButton>
     </>
   );

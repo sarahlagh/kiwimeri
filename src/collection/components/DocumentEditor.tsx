@@ -1,7 +1,5 @@
-import ManageHistoryButton from '@/common/buttons/ManageHistoryButton';
 import { onTitleChangeFn } from '@/common/events/events';
 import { GET_UNKNOWN_ITEM_ROUTE } from '@/common/routes';
-import platformService from '@/common/services/platform.service';
 import KiwimeriEditor, {
   KiwimeriEditorHandle
 } from '@/common/wysiwyg/lexical/KiwimeriEditor';
@@ -24,10 +22,9 @@ import {
 } from '@ionic/react';
 import { forwardRef, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
-import { isPageOrDocument } from '../collection';
-import CommonActionsToolbar from './CommonActionsToolbar';
 import DocumentEditorFooter from './DocumentEditorFooter';
 import SearchActionsToolbar from './SearchActionsToolbar';
+import ActionsFromDocumentEditorToolbar from './actions/ActionsFromDocumentEditorToolbar';
 
 interface DocumentEditorProps {
   docId: string;
@@ -107,39 +104,26 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
             </IonButton>
           </IonToolbar>
           {showDocumentActions && (
-            <CommonActionsToolbar
+            <ActionsFromDocumentEditorToolbar
               id={itemId}
               docId={docId}
-              showClose={true}
-              showInfo={true}
               onClose={role => {
                 if (role === 'info') {
                   setShowDocumentFooter(!showDocumentFooter);
+                  setShowDocumentActions(false);
+                } else if (role === 'restore') {
+                  setUniqId(uniqId + 1); // force editor to reload content
+                } else {
+                  setShowDocumentActions(false);
                 }
-                setShowDocumentActions(false);
               }}
-            >
-              {isPageOrDocument({ type: itemType }) && (
-                <ManageHistoryButton
-                  id={docId}
-                  onRestore={() => {
-                    setUniqId(uniqId + 1); // force editor to reload content
-                  }}
-                />
-              )}
-              {platformService.hasHighlightSupport() && (
-                <IonButton
-                  onClick={() => {
-                    setShowDocumentActions(false);
-                    setToggleSearch(true);
-                    setToggleSearchAutoFocus(true);
-                    if (pages.length > 0) setOpenPageBrowser(true);
-                  }}
-                >
-                  <IonIcon icon={APPICONS.search}></IonIcon>
-                </IonButton>
-              )}
-            </CommonActionsToolbar>
+              onSearch={() => {
+                setShowDocumentActions(false);
+                setToggleSearch(true);
+                setToggleSearchAutoFocus(true);
+                if (pages.length > 0) setOpenPageBrowser(true);
+              }}
+            />
           )}
           {toggleSearch && (
             <SearchActionsToolbar

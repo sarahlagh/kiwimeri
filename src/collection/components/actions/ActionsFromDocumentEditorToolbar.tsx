@@ -2,48 +2,31 @@ import { CollectionItemType } from '@/collection/collection';
 import CloseDocumentButton from '@/common/buttons/CloseDocumentButton';
 import DeleteItemButton from '@/common/buttons/DeleteItemButton';
 import ExportItemsButton from '@/common/buttons/ExportItemsButton';
+import ManageHistoryButton from '@/common/buttons/ManageHistoryButton';
 import MoveFolderButton from '@/common/buttons/MoveFolderButton';
-import RenameItemButton from '@/common/buttons/RenameItemButton';
+import SearchButton from '@/common/buttons/SearchButton';
 import { GET_DOCUMENT_ROUTE, GET_FOLDER_ROUTE } from '@/common/routes';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
 import navService from '@/db/nav.service';
 import { IonButton, IonButtons, IonIcon, IonToolbar } from '@ionic/react';
-import { ReactNode } from 'react';
 
-export type CommonActionsToolbarProps = {
+export type ActionsFromDocumentEditorToolbarProps = {
   id: string;
   docId: string;
-  rows?: number;
-  getBackRoute?: () => string;
   onClose: (role?: string, data?: unknown) => void;
-  showMoveFolder?: boolean;
-  showRename?: boolean;
-  showInfo?: boolean;
-  showClose?: boolean;
-  showDelete?: boolean;
-} & React.HTMLAttributes<HTMLIonToolbarElement> & {
-    readonly children?: ReactNode;
-  };
+  onSearch: () => void;
+};
 
-const CommonActionsToolbar = ({
+const ActionsFromDocumentEditorToolbar = ({
   id,
   docId,
-  rows = 1,
-  showMoveFolder = true,
-  showRename = false,
-  showClose = false,
-  showInfo = false,
-  showDelete = true,
-  children,
-  getBackRoute,
-  onClose
-}: CommonActionsToolbarProps) => {
+  onClose,
+  onSearch
+}: ActionsFromDocumentEditorToolbarProps) => {
   const type = collectionService.getItemType(id);
-  showMoveFolder = showMoveFolder && type !== CollectionItemType.page;
-
-  showRename = type !== CollectionItemType.page && showRename;
-  showInfo = type !== CollectionItemType.page && showInfo;
+  const showMoveFolder = type !== CollectionItemType.page;
+  const showInfo = type !== CollectionItemType.page;
 
   const folder = navService.getCurrentFolder();
   const fallbackRoute =
@@ -52,19 +35,15 @@ const CommonActionsToolbar = ({
       : GET_DOCUMENT_ROUTE(folder, docId);
 
   return (
-    <IonToolbar color="medium" style={{ height: rows * 56 + 'px' }}>
+    <IonToolbar color="medium" style={{ height: 56 + 'px' }}>
       <IonButtons slot="end">
-        {showRename && <RenameItemButton id={id} onClose={onClose} />}
         {showMoveFolder && <MoveFolderButton id={id} onClose={onClose} />}
         <ExportItemsButton id={id} type={type} onClose={onClose} />
-
-        {showDelete && (
-          <DeleteItemButton
-            id={id}
-            fallbackRoute={fallbackRoute}
-            onClose={onClose}
-          />
-        )}
+        <DeleteItemButton
+          id={id}
+          fallbackRoute={fallbackRoute}
+          onClose={onClose}
+        />
 
         {showInfo && (
           <IonButton
@@ -77,17 +56,14 @@ const CommonActionsToolbar = ({
           </IonButton>
         )}
 
-        {children}
-
-        {showClose && (
-          <CloseDocumentButton
-            id={docId}
-            getRoute={getBackRoute}
-            onClose={onClose}
-          />
-        )}
+        <ManageHistoryButton
+          id={docId}
+          afterRestore={() => onClose('restore', id)}
+        />
+        <SearchButton onSearch={onSearch} />
+        <CloseDocumentButton id={docId} onClose={onClose} />
       </IonButtons>
     </IonToolbar>
   );
 };
-export default CommonActionsToolbar;
+export default ActionsFromDocumentEditorToolbar;

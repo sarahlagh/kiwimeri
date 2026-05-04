@@ -23,8 +23,8 @@ import collectionService from '@/db/collection.service';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import CollectionItemBreadcrumb from './CollectionItemBreadcrumb';
 import CollectionItemList from './CollectionItemList';
-import CommonActionsToolbar from './CommonActionsToolbar';
 import SearchActionsToolbar from './SearchActionsToolbar';
+import ActionsFromBrowserToolbar from './actions/ActionsFromBrowserToolbar';
 
 interface CollectionItemBrowserListProps {
   parent: string;
@@ -132,21 +132,22 @@ export const CollectionItemBrowserList = ({
     setItemRenaming(undefined);
   }, [folder]);
 
-  const [presentActions, dismissActions] = useIonPopover(CommonActionsToolbar, {
-    id: selectedItem?.id,
-    docId: selectedItem?.id,
-    showRename: true,
-    onClose: (role: string, data?: string) => {
-      if (role === 'rename') {
-        setItemRenaming(data);
+  const [presentActions, dismissActions] = useIonPopover(
+    ActionsFromBrowserToolbar,
+    {
+      id: selectedItem?.id,
+      onClose: (role: string, data?: string) => {
+        if (role === 'rename') {
+          setItemRenaming(data);
+        }
+        if (role === 'delete') {
+          history.replace(data!);
+        }
+        dismissActions();
+        setSelectedItem(null);
       }
-      if (role === 'delete') {
-        history.replace(data!);
-      }
-      dismissActions();
-      setSelectedItem(null);
     }
-  });
+  );
 
   const [searchText, setSearchText] = useState<string | null>();
   const query =
