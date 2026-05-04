@@ -13,27 +13,34 @@ import {
   CollectionItemSortType,
   sortBy
 } from '../collection';
+import SearchActionsToolbarLite from './SearchActionsToolbarLite';
 
 export type SortFilterProps = {
   currentSort: CollectionItemSort;
-  onChange: (sort?: CollectionItemSort) => void;
+  onSortChange: (sort?: CollectionItemSort) => void;
   choices?: readonly CollectionItemSortType[];
+  searchEnabled?: boolean;
+  searchText?: string;
+  onSearch?: (val: string) => void;
 } & React.HTMLAttributes<HTMLIonToolbarElement>;
 
 const SortFilter = ({
   currentSort,
-  onChange,
-  choices = sortBy
+  onSortChange,
+  choices = sortBy,
+  searchEnabled,
+  searchText,
+  onSearch
 }: SortFilterProps) => {
   const { t } = useLingui();
   const sort = { ...currentSort };
 
   const valuesTransMap = new Map<CollectionItemSortType, string>();
-  valuesTransMap.set('created', 'Creation Date');
-  valuesTransMap.set('updated', 'Last Updated');
-  valuesTransMap.set('title', 'Title');
-  valuesTransMap.set('preview', 'Content');
-  valuesTransMap.set('order', 'Manual');
+  valuesTransMap.set('created', t`Creation Date`);
+  valuesTransMap.set('updated', t`Last Updated`);
+  valuesTransMap.set('title', t`Title`);
+  valuesTransMap.set('preview', t`Content`);
+  valuesTransMap.set('order', t`Manual`);
   // TODO opt to keep folders at top
   return (
     <IonList>
@@ -44,7 +51,7 @@ const SortFilter = ({
           placeholder={valuesTransMap.get(currentSort.by)}
           onIonChange={e => {
             sort.by = e.detail.value;
-            onChange(sort);
+            onSortChange(sort);
           }}
         >
           {choices.map(sort => (
@@ -60,7 +67,7 @@ const SortFilter = ({
             fill="clear"
             onClick={() => {
               sort.descending = !currentSort.descending;
-              onChange(sort);
+              onSortChange(sort);
             }}
           >
             {currentSort.descending ? (
@@ -71,6 +78,16 @@ const SortFilter = ({
           </IonButton>
         )}
       </IonItem>
+      {searchEnabled && (
+        <IonItem>
+          <SearchActionsToolbarLite
+            searchText={searchText || ''}
+            onValue={val => {
+              if (onSearch) onSearch(val);
+            }}
+          />
+        </IonItem>
+      )}
     </IonList>
   );
 };

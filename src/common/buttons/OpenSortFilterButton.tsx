@@ -11,6 +11,9 @@ import { Id } from 'tinybase/with-schemas';
 
 type OpenSortFilterButtonProps = {
   id: Id;
+  searchEnabled?: boolean;
+  searchText?: string;
+  onSearch?: (val: string) => void;
 };
 
 const buildChoices = (type: CollectionItemTypeValues) => {
@@ -24,7 +27,12 @@ const buildChoices = (type: CollectionItemTypeValues) => {
   return choices;
 };
 
-const OpenSortFilterButton = ({ id }: OpenSortFilterButtonProps) => {
+const OpenSortFilterButton = ({
+  id,
+  searchEnabled = false,
+  searchText,
+  onSearch
+}: OpenSortFilterButtonProps) => {
   const type = collectionService.getItemType(id);
   const choices = buildChoices(type);
   const displayOpts = collectionService.useItemEffectiveDisplayOpts(id);
@@ -33,7 +41,10 @@ const OpenSortFilterButton = ({ id }: OpenSortFilterButtonProps) => {
   const [present] = useIonPopover(SortFilter, {
     currentSort: sort,
     choices,
-    onChange: (sort?: CollectionItemSort) => {
+    searchEnabled,
+    searchText,
+    onSearch,
+    onSortChange: (sort?: CollectionItemSort) => {
       if (sort) {
         collectionService.setItemDisplayOpts(id, { ...displayOpts, sort });
       }

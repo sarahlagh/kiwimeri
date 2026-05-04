@@ -137,10 +137,15 @@ msgstr "Confirm"
 msgid "Conflicts"
 msgstr "Conflicts"
 
+#: src/collection/components/SortFilter.tsx:42
+msgid "Content"
+msgstr "Content"
+
 #: src/collection/components/DocumentInfoCard.tsx:28
 msgid "Created at"
 msgstr "Created at"
 
+#: src/collection/components/SortFilter.tsx:39
 #: src/settings/components/sections/GenericCollectionSettings.tsx:37
 msgid "Creation Date"
 msgstr "Creation Date"
@@ -309,6 +314,10 @@ msgstr "Internal proxy"
 msgid "Kiwimeri format (single file)"
 msgstr "Kiwimeri format (single file)"
 
+#: src/collection/components/SortFilter.tsx:40
+msgid "Last Updated"
+msgstr "Last Updated"
+
 #: src/synchronization/components/providers/PCloudSettings.tsx:108
 msgid "Leave empty for root"
 msgstr "Leave empty for root"
@@ -336,6 +345,10 @@ msgstr "Local: {0}"
 #: src/dev-tools/components/LogsCard.tsx:75
 msgid "Logs"
 msgstr "Logs"
+
+#: src/collection/components/SortFilter.tsx:43
+msgid "Manual"
+msgstr "Manual"
 
 #: src/settings/components/sections/GenericCollectionSettings.tsx:39
 msgid "Manual Order"
@@ -528,7 +541,7 @@ msgstr "Server"
 msgid "Settings"
 msgstr "Settings"
 
-#: src/collection/components/SortFilter.tsx:42
+#: src/collection/components/SortFilter.tsx:49
 msgid "Sort"
 msgstr "Sort"
 
@@ -611,6 +624,10 @@ msgstr "Timed Writing"
 #: src/app/pages/WritingSessionPage.tsx:19
 msgid "Timed Writing Session"
 msgstr "Timed Writing Session"
+
+#: src/collection/components/SortFilter.tsx:41
+msgid "Title"
+msgstr "Title"
 
 #: src/settings/components/sections/GenericCollectionSettings.tsx:50
 msgid "Track text statistics"

@@ -4,19 +4,25 @@ import {
   IonBreadcrumb,
   IonBreadcrumbs,
   IonButton,
+  IonButtons,
   IonIcon
 } from '@ionic/react';
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
+
+type CollectionItemBreadcrumbProps = {
+  folder: string;
+  onClick?: (item: string) => void;
+  minBreadcrumb?: number;
+} & {
+  readonly children?: ReactNode;
+};
 
 const CollectionItemBreadcrumb = ({
   folder,
   onClick,
-  minBreadcrumb = 2
-}: {
-  folder: string;
-  onClick?: (item: string) => void;
-  minBreadcrumb?: number;
-}) => {
+  minBreadcrumb = 2,
+  children
+}: CollectionItemBreadcrumbProps) => {
   const [maxBreadcrumbs, setMaxBreadcrumbs] = useState<number | undefined>(3);
   const [breadcrumb, setBreadcrumb] = useState<string[]>([]);
 
@@ -68,6 +74,7 @@ const CollectionItemBreadcrumb = ({
           </IonButton>
         </IonBreadcrumb>
       ))}
+      <IonButtons style={{ marginLeft: 'auto' }}>{children}</IonButtons>
     </IonBreadcrumbs>
   );
 };

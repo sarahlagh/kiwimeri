@@ -16,14 +16,12 @@ import ExportItemsButton from '@/common/buttons/ExportItemsButton';
 import ImportItemsButton from '@/common/buttons/ImportItemsButton';
 import OpenSortFilterButton from '@/common/buttons/OpenSortFilterButton';
 import { GET_ITEM_ROUTE } from '@/common/routes';
-import platformService from '@/common/services/platform.service';
 import { getSearchParams } from '@/common/utils';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import CollectionItemBreadcrumb from './CollectionItemBreadcrumb';
 import CollectionItemList from './CollectionItemList';
-import SearchActionsToolbar from './SearchActionsToolbar';
 import ActionsFromBrowserToolbar from './actions/ActionsFromBrowserToolbar';
 
 interface CollectionItemBrowserListProps {
@@ -41,22 +39,10 @@ const CollectionItemBrowserListToolbar = ({
   searchText?: string | null;
   setSearchText: Dispatch<SetStateAction<string | undefined | null>>;
 }) => {
-  const [toggleSearch, setToggleSearch] = useState(false);
-
   const history = useHistory();
   const openedDocumentFolder = openedDocument
     ? collectionService.getItemParent(openedDocument)
     : null;
-  if (toggleSearch) {
-    return (
-      <SearchActionsToolbar
-        searchText={searchText || ''}
-        onValue={val => setSearchText(val)}
-        setToggleSearch={setToggleSearch}
-        onClose={() => setSearchText(null)}
-      />
-    );
-  }
   return (
     <IonToolbar>
       <IonButtons slot="start">
@@ -72,16 +58,14 @@ const CollectionItemBrowserListToolbar = ({
         >
           <IonIcon icon={APPICONS.goToCurrentFolder}></IonIcon>
         </IonButton>
-        <OpenSortFilterButton id={folderId} />
-        {platformService.hasHighlightSupport() && (
-          <IonButton
-            onClick={() => {
-              setToggleSearch(true);
-            }}
-          >
-            <IonIcon icon={APPICONS.search}></IonIcon>
-          </IonButton>
-        )}
+        <OpenSortFilterButton
+          id={folderId}
+          searchEnabled={true}
+          searchText={searchText || ''}
+          onSearch={val => {
+            setSearchText(val);
+          }}
+        />
       </IonButtons>
 
       <IonButtons slot="end">
@@ -159,15 +143,6 @@ export const CollectionItemBrowserList = ({
   return (
     <CollectionItemList
       header={
-        // <IonToolbar className="slim">
-        //   <CollectionItemBreadcrumb
-        //     folder={folder}
-        //     onClick={item => {
-        //       history.push(GET_ITEM_ROUTE(item, openedDocument));
-        //     }}
-        //   />
-        //   <OpenSortFilterButton id={folder} />
-        // </IonToolbar>
         <CollectionItemBreadcrumb
           folder={folder}
           onClick={item => {
@@ -175,7 +150,7 @@ export const CollectionItemBrowserList = ({
               GET_ITEM_ROUTE(item, openedDocument, undefined, query)
             );
           }}
-        />
+        ></CollectionItemBreadcrumb>
       }
       searchText={searchText}
       reorderEnabled={sort.by === 'order'}
