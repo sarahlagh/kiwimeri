@@ -1,0 +1,46 @@
+import {
+  CollectionItemType,
+  CollectionItemTypeValues
+} from '@/collection/collection';
+import { APPICONS } from '@/constants';
+import collectionService from '@/db/collection.service';
+import { IonButton, IonIcon } from '@ionic/react';
+import { useLingui } from '@lingui/react/macro';
+import { Id } from 'tinybase/with-schemas';
+import ConfirmYesNoDialog from '../modals/ConfirmYesNoDialog';
+
+type QuickUngroupButtonProps = {
+  id: Id;
+  type: CollectionItemTypeValues;
+  onClose?: (role?: string, data?: string) => void;
+  trigger?: string;
+};
+
+const QuickUngroupButton = ({
+  id,
+  type,
+  onClose,
+  trigger
+}: QuickUngroupButtonProps) => {
+  const { t } = useLingui();
+  if (type !== CollectionItemType.folder) return <></>;
+  if (!trigger) trigger = `${id}-ungroup-btn`;
+  return (
+    <>
+      <IonButton fill="clear" id={trigger}>
+        <IonIcon icon={APPICONS.ungroupAction}></IonIcon>
+      </IonButton>
+      <ConfirmYesNoDialog
+        trigger={trigger}
+        message={t`This will delete this folder and move all its items to the current one.`}
+        onClose={confirmed => {
+          if (confirmed) {
+            collectionService.deleteItem(id, true);
+          }
+          if (onClose) onClose(confirmed ? 'ungroup' : 'cancel');
+        }}
+      />
+    </>
+  );
+};
+export default QuickUngroupButton;

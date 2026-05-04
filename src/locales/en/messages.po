@@ -106,7 +106,7 @@ msgstr "Clear All"
 msgid "Close"
 msgstr "Close"
 
-#: src/constants.ts:78
+#: src/constants.ts:80
 msgid "collection"
 msgstr "collection"
 
@@ -133,7 +133,7 @@ msgstr "Configure where to synchronize your collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/constants.ts:73
+#: src/constants.ts:75
 msgid "Conflicts"
 msgstr "Conflicts"
 
@@ -149,7 +149,7 @@ msgstr "Creation Date"
 msgid "Current Notebook Settings ({notebookTitle})"
 msgstr "Current Notebook Settings ({notebookTitle})"
 
-#: src/constants.ts:72
+#: src/constants.ts:74
 msgid "Default"
 msgstr "Default"
 
@@ -265,7 +265,7 @@ msgstr "History idle time (s)"
 msgid "History save time (min)"
 msgstr "History save time (min)"
 
-#: src/constants.ts:71
+#: src/constants.ts:73
 msgid "Home"
 msgstr "Home"
 
@@ -382,11 +382,11 @@ msgstr "Name"
 msgid "new"
 msgstr "new"
 
-#: src/constants.ts:74
+#: src/constants.ts:76
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:75
+#: src/constants.ts:77
 msgid "New folder"
 msgstr "New folder"
 
@@ -434,7 +434,7 @@ msgstr "Options for the currently selected device. These options are local-only.
 msgid "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 msgstr "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 
-#: src/constants.ts:77
+#: src/constants.ts:79
 msgid "page"
 msgstr "page"
 
@@ -591,6 +591,10 @@ msgstr "The number of versions to keep per document. Set 0 for unlimited."
 #: src/settings/components/sections/ImportExportStoreSettings.tsx:62
 msgid "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page."
 msgstr "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page."
+
+#: src/common/buttons/QuickUngroupButton.tsx:35
+msgid "This will delete this folder and move all its items to the current one."
+msgstr "This will delete this folder and move all its items to the current one."
 
 #: src/common/buttons/RestoreCollectionButton.tsx:73
 msgid "This will delete your existing data. Are you sure?"

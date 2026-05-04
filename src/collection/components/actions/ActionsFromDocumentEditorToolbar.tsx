@@ -4,6 +4,7 @@ import DeleteItemButton from '@/common/buttons/DeleteItemButton';
 import ExportItemsButton from '@/common/buttons/ExportItemsButton';
 import ManageHistoryButton from '@/common/buttons/ManageHistoryButton';
 import MoveFolderButton from '@/common/buttons/MoveFolderButton';
+import QuickGroupButton from '@/common/buttons/QuickGroupButton';
 import SearchButton from '@/common/buttons/SearchButton';
 import { GET_DOCUMENT_ROUTE, GET_FOLDER_ROUTE } from '@/common/routes';
 import { APPICONS } from '@/constants';
@@ -39,6 +40,7 @@ const ActionsFromDocumentEditorToolbar = ({
       <IonButtons slot="end">
         {showMoveFolder && <MoveFolderButton id={id} onClose={onClose} />}
         <ExportItemsButton id={id} type={type} onClose={onClose} />
+        <QuickGroupButton type={type} id={id} onClose={onClose} />
         <DeleteItemButton
           id={id}
           fallbackRoute={fallbackRoute}

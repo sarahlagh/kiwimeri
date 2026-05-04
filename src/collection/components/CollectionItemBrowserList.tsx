@@ -143,6 +143,9 @@ export const CollectionItemBrowserList = ({
         if (role === 'delete') {
           history.replace(data!);
         }
+        if (role === 'group') {
+          history.push(data!);
+        }
         dismissActions();
         setSelectedItem(null);
       }

@@ -107,12 +107,14 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
             <ActionsFromDocumentEditorToolbar
               id={itemId}
               docId={docId}
-              onClose={role => {
+              onClose={(role, data) => {
                 if (role === 'info') {
                   setShowDocumentFooter(!showDocumentFooter);
                   setShowDocumentActions(false);
                 } else if (role === 'restore') {
                   setUniqId(uniqId + 1); // force editor to reload content
+                } else if (role === 'group') {
+                  history.push(data!);
                 } else {
                   setShowDocumentActions(false);
                 }
