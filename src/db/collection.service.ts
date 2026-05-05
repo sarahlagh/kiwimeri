@@ -27,7 +27,10 @@ import { SerializedEditorState } from 'lexical';
 import { getUniqueId } from 'tinybase/common';
 import { Id } from 'tinybase/common/with-schemas';
 import { Table } from 'tinybase/store';
-import { searchAncestryService } from '../search/search-ancestry.service';
+import {
+  getAncestorId,
+  searchAncestryService
+} from '../search/search-ancestry.service';
 import { historyService } from './collection-history.service';
 import localChangesService from './local-changes.service';
 import notebooksService from './notebooks.service';
@@ -106,6 +109,62 @@ class CollectionService {
     return queryName;
   }
 
+  private fetchItemsForBrowserQuery(params: {
+    parent: string;
+    recursive: boolean;
+    onlyDocuments: boolean;
+  }) {
+    const queries = storageService.getSpaceQueries();
+    const queryName = `fetchItemsForBrowser`;
+
+    if (!queries.hasQuery(queryName)) {
+      queries.setQueryDefinition(
+        queryName,
+        'collection',
+        ({ select, where, param, join }) => {
+          const ancestry = storageService.getStore().getTable('ancestors');
+          // works but only because stats and collection have same id for global stats
+          join('stats', (getCell, itemId) => itemId).as('stats');
+          select('stats', 'lastOpenedAt');
+          select('title');
+          select('type');
+          select('tags');
+          select('created');
+          select('updated');
+          select('conflict');
+          select('order');
+          where('deleted', false);
+          if (param('recursive')?.valueOf() === false) {
+            if (param('parent')) {
+              where('parent', param('parent')!.toString());
+            }
+          } else {
+            where(getCell => {
+              const parent = param('parent')!.toString();
+              // i'm saved here because stats do have itemId
+              // but in next table model, include it in collection table too
+              const id = getCell('stats', 'itemId')?.toString();
+              if (!id) return false;
+              return ancestry[`${getAncestorId(id, parent)}`] !== undefined;
+            });
+          }
+          where(getCell => {
+            const type = getCell('type')?.valueOf();
+            const onlyDocuments = param('onlyDocuments')?.valueOf() as boolean;
+            if (onlyDocuments) {
+              return type === CollectionItemType.document;
+            }
+            return type !== CollectionItemType.page;
+          });
+        },
+        params
+      );
+    } else {
+      queries.setParamValues(queryName, params);
+    }
+    return queryName;
+  }
+
   private fetchPagesForDocQuery(document: string) {
     const queries = storageService.getSpaceQueries();
     const queryName = `fetchPagesForDoc${document}`;
@@ -153,13 +212,16 @@ class CollectionService {
   private useResultsSorted(
     table: Table,
     queryName: string,
-    sort: CollectionItemSort
+    sort: { by: string; descending: boolean },
+    limit?: number
   ) {
     const results = useResultSortedRowIdsWithRef(
       this.storeId,
       queryName,
       sort.by,
-      sort.descending
+      sort.descending,
+      0,
+      limit
     ).map(rowId => {
       const row = table[rowId];
       return { ...row, id: rowId } as CollectionItemResult;
@@ -277,6 +339,28 @@ class CollectionService {
     const table = useTableWithRef(this.storeId, this.tableId);
     const queryName = this.fetchDocsFoldersNotebooksPerParentQuery(parent);
     return this.useResultsSorted(table, queryName, sort);
+  }
+
+  public useItemsForBrowser(
+    options:
+      | { mode: 'browser'; parent: string; browserSort: CollectionItemSort }
+      | { mode: 'updated' | 'lastOpenedAt' }
+  ) {
+    const notebook = notebooksService.getCurrentNotebook();
+    const table = useTableWithRef(this.storeId, this.tableId);
+    let opts;
+    let sort;
+    let limit;
+    if (options.mode === 'browser') {
+      opts = { parent: options.parent, recursive: false, onlyDocuments: false };
+      sort = options.browserSort;
+    } else {
+      opts = { parent: notebook, recursive: true, onlyDocuments: true };
+      sort = { by: options.mode, descending: true };
+      limit = 20;
+    }
+    const queryName = this.fetchItemsForBrowserQuery(opts);
+    return this.useResultsSorted(table, queryName, sort, limit);
   }
 
   public getDocumentPages(

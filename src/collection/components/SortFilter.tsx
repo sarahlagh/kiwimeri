@@ -19,6 +19,7 @@ export type SortFilterProps = {
   currentSort: CollectionItemSort;
   onSortChange: (sort?: CollectionItemSort) => void;
   choices?: readonly CollectionItemSortType[];
+  sortEnabled?: boolean;
   searchEnabled?: boolean;
   searchText?: string;
   onSearch?: (val: string) => void;
@@ -28,6 +29,7 @@ const SortFilter = ({
   currentSort,
   onSortChange,
   choices = sortBy,
+  sortEnabled,
   searchEnabled,
   searchText,
   onSearch
@@ -44,40 +46,42 @@ const SortFilter = ({
   // TODO opt to keep folders at top
   return (
     <IonList>
-      <IonItem>
-        <IonSelect
-          label={t`Sort`}
-          value={currentSort.by}
-          placeholder={valuesTransMap.get(currentSort.by)}
-          onIonChange={e => {
-            sort.by = e.detail.value;
-            onSortChange(sort);
-          }}
-        >
-          {choices.map(sort => (
-            <IonSelectOption key={sort} value={sort}>
-              {valuesTransMap.get(sort)}
-            </IonSelectOption>
-          ))}
-        </IonSelect>
-
-        {sort.by !== 'order' && (
-          <IonButton
-            slot="end"
-            fill="clear"
-            onClick={() => {
-              sort.descending = !currentSort.descending;
+      {sortEnabled && (
+        <IonItem>
+          <IonSelect
+            label={t`Sort`}
+            value={currentSort.by}
+            placeholder={valuesTransMap.get(currentSort.by)}
+            onIonChange={e => {
+              sort.by = e.detail.value;
               onSortChange(sort);
             }}
           >
-            {currentSort.descending ? (
-              <IonIcon icon={APPICONS.moveDown}></IonIcon>
-            ) : (
-              <IonIcon icon={APPICONS.moveUp}></IonIcon>
-            )}
-          </IonButton>
-        )}
-      </IonItem>
+            {choices.map(sort => (
+              <IonSelectOption key={sort} value={sort}>
+                {valuesTransMap.get(sort)}
+              </IonSelectOption>
+            ))}
+          </IonSelect>
+
+          {sort.by !== 'order' && (
+            <IonButton
+              slot="end"
+              fill="clear"
+              onClick={() => {
+                sort.descending = !currentSort.descending;
+                onSortChange(sort);
+              }}
+            >
+              {currentSort.descending ? (
+                <IonIcon icon={APPICONS.moveDown}></IonIcon>
+              ) : (
+                <IonIcon icon={APPICONS.moveUp}></IonIcon>
+              )}
+            </IonButton>
+          )}
+        </IonItem>
+      )}
       {searchEnabled && (
         <IonItem>
           <SearchActionsToolbarLite

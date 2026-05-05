@@ -11,6 +11,7 @@ import { Id } from 'tinybase/with-schemas';
 
 type OpenSortFilterButtonProps = {
   id: Id;
+  sortEnabled?: boolean;
   searchEnabled?: boolean;
   searchText?: string;
   onSearch?: (val: string) => void;
@@ -29,6 +30,7 @@ const buildChoices = (type: CollectionItemTypeValues) => {
 
 const OpenSortFilterButton = ({
   id,
+  sortEnabled = true,
   searchEnabled = false,
   searchText,
   onSearch
@@ -41,6 +43,7 @@ const OpenSortFilterButton = ({
   const [present] = useIonPopover(SortFilter, {
     currentSort: sort,
     choices,
+    sortEnabled,
     searchEnabled,
     searchText,
     onSearch,

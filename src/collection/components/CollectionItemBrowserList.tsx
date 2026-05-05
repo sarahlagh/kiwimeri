@@ -4,6 +4,7 @@ import {
   IonButton,
   IonButtons,
   IonIcon,
+  IonLabel,
   IonToolbar,
   useIonPopover
 } from '@ionic/react';
@@ -19,6 +20,7 @@ import { GET_ITEM_ROUTE } from '@/common/routes';
 import { getSearchParams } from '@/common/utils';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
+import { useLingui } from '@lingui/react/macro';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import CollectionItemBreadcrumb from './CollectionItemBreadcrumb';
 import CollectionItemList from './CollectionItemList';
@@ -28,14 +30,21 @@ interface CollectionItemBrowserListProps {
   parent: string;
 }
 
+const modes = ['browser', 'updated', 'lastOpenedAt'] as const;
+type Mode = (typeof modes)[number];
+
 const CollectionItemBrowserListToolbar = ({
   folderId,
   openedDocument,
   searchText,
-  setSearchText
+  setSearchText,
+  mode,
+  nextMode
 }: {
   folderId: string;
   openedDocument: string | undefined;
+  mode: Mode;
+  nextMode: () => void;
   searchText?: string | null;
   setSearchText: Dispatch<SetStateAction<string | undefined | null>>;
 }) => {
@@ -61,11 +70,15 @@ const CollectionItemBrowserListToolbar = ({
         <OpenSortFilterButton
           id={folderId}
           searchEnabled={true}
+          sortEnabled={mode === 'browser'}
           searchText={searchText || ''}
           onSearch={val => {
             setSearchText(val);
           }}
         />
+        <IonButton onClick={() => nextMode()}>
+          <IonIcon icon={APPICONS.circleOptions}></IonIcon>
+        </IonButton>
       </IonButtons>
 
       <IonButtons slot="end">
@@ -94,6 +107,7 @@ const CollectionItemBrowserListToolbar = ({
 export const CollectionItemBrowserList = ({
   parent: folder
 }: CollectionItemBrowserListProps) => {
+  const { t } = useLingui();
   const history = useHistory();
   const location = useLocation();
   const searchParams = getSearchParams(location.search);
@@ -102,8 +116,16 @@ export const CollectionItemBrowserList = ({
   const displayOpts = collectionService.useItemEffectiveDisplayOpts(folder);
   const sort = displayOpts.sort;
 
-  const items: CollectionItemResult[] =
-    collectionService.useBrowsableCollectionItems(folder, sort);
+  const [modeIdx, setModeIdx] = useState(0);
+  const modeTrans = new Map<Mode, string>();
+  modeTrans.set('updated', t`Last updated documents`);
+  modeTrans.set('lastOpenedAt', t`Last consulted documents`);
+
+  const items: CollectionItemResult[] = collectionService.useItemsForBrowser({
+    mode: modes[modeIdx],
+    parent: folder,
+    browserSort: sort
+  });
 
   const [itemRenaming, setItemRenaming] = useState<string | undefined>(
     undefined
@@ -143,14 +165,24 @@ export const CollectionItemBrowserList = ({
   return (
     <CollectionItemList
       header={
-        <CollectionItemBreadcrumb
-          folder={folder}
-          onClick={item => {
-            history.push(
-              GET_ITEM_ROUTE(item, openedDocument, undefined, query)
-            );
-          }}
-        ></CollectionItemBreadcrumb>
+        <>
+          {modes[modeIdx] === 'browser' ? (
+            <CollectionItemBreadcrumb
+              folder={folder}
+              onClick={item => {
+                history.push(
+                  GET_ITEM_ROUTE(item, openedDocument, undefined, query)
+                );
+              }}
+            ></CollectionItemBreadcrumb>
+          ) : (
+            <>
+              <IonLabel style={{ lineHeight: '36px', marginLeft: '18px' }}>
+                <i>{modeTrans.get(modes[modeIdx])}</i>
+              </IonLabel>
+            </>
+          )}
+        </>
       }
       searchText={searchText}
       reorderEnabled={sort.by === 'order'}
@@ -180,6 +212,13 @@ export const CollectionItemBrowserList = ({
           openedDocument={openedDocument}
           searchText={searchText}
           setSearchText={setSearchText}
+          mode={modes[modeIdx]}
+          nextMode={() => {
+            let idx = modeIdx + 1;
+            if (idx === modes.length) idx = 0;
+            console.debug('next mode', modes[idx]);
+            setModeIdx(idx);
+          }}
         />
       }
     />

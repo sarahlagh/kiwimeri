@@ -106,7 +106,7 @@ msgstr "Clear All"
 msgid "Close"
 msgstr "Close"
 
-#: src/constants.ts:80
+#: src/constants.ts:82
 msgid "collection"
 msgstr "collection"
 
@@ -133,11 +133,11 @@ msgstr "Configure where to synchronize your collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/constants.ts:75
+#: src/constants.ts:77
 msgid "Conflicts"
 msgstr "Conflicts"
 
-#: src/collection/components/SortFilter.tsx:42
+#: src/collection/components/SortFilter.tsx:44
 msgid "Content"
 msgstr "Content"
 
@@ -145,7 +145,7 @@ msgstr "Content"
 msgid "Created at"
 msgstr "Created at"
 
-#: src/collection/components/SortFilter.tsx:39
+#: src/collection/components/SortFilter.tsx:41
 #: src/settings/components/sections/GenericCollectionSettings.tsx:37
 msgid "Creation Date"
 msgstr "Creation Date"
@@ -154,7 +154,7 @@ msgstr "Creation Date"
 msgid "Current Notebook Settings ({notebookTitle})"
 msgstr "Current Notebook Settings ({notebookTitle})"
 
-#: src/constants.ts:74
+#: src/constants.ts:76
 msgid "Default"
 msgstr "Default"
 
@@ -270,7 +270,7 @@ msgstr "History idle time (s)"
 msgid "History save time (min)"
 msgstr "History save time (min)"
 
-#: src/constants.ts:73
+#: src/constants.ts:75
 msgid "Home"
 msgstr "Home"
 
@@ -314,9 +314,17 @@ msgstr "Internal proxy"
 msgid "Kiwimeri format (single file)"
 msgstr "Kiwimeri format (single file)"
 
-#: src/collection/components/SortFilter.tsx:40
+#: src/collection/components/CollectionItemBrowserList.tsx:122
+msgid "Last consulted documents"
+msgstr "Last consulted documents"
+
+#: src/collection/components/SortFilter.tsx:42
 msgid "Last Updated"
 msgstr "Last Updated"
+
+#: src/collection/components/CollectionItemBrowserList.tsx:121
+msgid "Last updated documents"
+msgstr "Last updated documents"
 
 #: src/synchronization/components/providers/PCloudSettings.tsx:108
 msgid "Leave empty for root"
@@ -346,7 +354,7 @@ msgstr "Local: {0}"
 msgid "Logs"
 msgstr "Logs"
 
-#: src/collection/components/SortFilter.tsx:43
+#: src/collection/components/SortFilter.tsx:45
 msgid "Manual"
 msgstr "Manual"
 
@@ -395,11 +403,11 @@ msgstr "Name"
 msgid "new"
 msgstr "new"
 
-#: src/constants.ts:76
+#: src/constants.ts:78
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:77
+#: src/constants.ts:79
 msgid "New folder"
 msgstr "New folder"
 
@@ -447,7 +455,7 @@ msgstr "Options for the currently selected device. These options are local-only.
 msgid "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 msgstr "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 
-#: src/constants.ts:79
+#: src/constants.ts:81
 msgid "page"
 msgstr "page"
 
@@ -541,7 +549,7 @@ msgstr "Server"
 msgid "Settings"
 msgstr "Settings"
 
-#: src/collection/components/SortFilter.tsx:49
+#: src/collection/components/SortFilter.tsx:52
 msgid "Sort"
 msgstr "Sort"
 
@@ -625,7 +633,7 @@ msgstr "Timed Writing"
 msgid "Timed Writing Session"
 msgstr "Timed Writing Session"
 
-#: src/collection/components/SortFilter.tsx:41
+#: src/collection/components/SortFilter.tsx:43
 msgid "Title"
 msgstr "Title"
 

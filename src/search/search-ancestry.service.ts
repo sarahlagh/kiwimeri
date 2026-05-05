@@ -16,6 +16,10 @@ import storageService from '../db/storage.service';
 import { SpaceType } from '../db/types/space-types';
 import { StoreType } from '../db/types/store-types';
 
+export const getAncestorId = (childId: string, parentId: string) => {
+  return `${childId},${parentId}`;
+};
+
 class CollectionSearchService {
   private readonly ancestorsTableId = 'ancestors';
   private readonly collectionTableId = 'collection';
@@ -187,7 +191,7 @@ class CollectionSearchService {
     updatedItems.forEach(updatedItem => {
       store.delRow(
         this.ancestorsTableId,
-        this.getAncestorId(updatedItem, oldParent)
+        getAncestorId(updatedItem, oldParent)
       );
 
       // if old parent had other parents in breadcrumb, must delete ancestry too
@@ -198,7 +202,7 @@ class CollectionSearchService {
         }
         store.delRow(
           this.ancestorsTableId,
-          this.getAncestorId(updatedItem, oldParentOfParent)
+          getAncestorId(updatedItem, oldParentOfParent)
         );
       }
     });
@@ -222,7 +226,7 @@ class CollectionSearchService {
       // update ancestors
       const fullPath = this.getPath(rowId, table); // TODO don't call getPath twice
       fullPath.toReversed().forEach((parentId, idx) => {
-        const ancestorId = this.getAncestorId(rowId, parentId);
+        const ancestorId = getAncestorId(rowId, parentId);
         store.setRow(this.ancestorsTableId, ancestorId, {
           childId: rowId,
           parentId,
@@ -287,10 +291,6 @@ class CollectionSearchService {
       parent = parentParent;
     }
     return breadcrumb;
-  }
-
-  private getAncestorId(childId: string, parentId: string) {
-    return `${childId},${parentId}`;
   }
 }
 
