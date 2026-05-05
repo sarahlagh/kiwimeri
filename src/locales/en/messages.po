@@ -314,7 +314,7 @@ msgstr "Internal proxy"
 msgid "Kiwimeri format (single file)"
 msgstr "Kiwimeri format (single file)"
 
-#: src/collection/components/CollectionItemBrowserList.tsx:123
+#: src/collection/components/CollectionItemBrowserList.tsx:124
 msgid "Last consulted documents"
 msgstr "Last consulted documents"
 
@@ -322,7 +322,7 @@ msgstr "Last consulted documents"
 msgid "Last Updated"
 msgstr "Last Updated"
 
-#: src/collection/components/CollectionItemBrowserList.tsx:122
+#: src/collection/components/CollectionItemBrowserList.tsx:123
 msgid "Last updated documents"
 msgstr "Last updated documents"
 

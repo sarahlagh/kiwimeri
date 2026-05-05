@@ -214,11 +214,15 @@ class CollectionService {
     if (!sort) {
       sort = userSettingsService.getDefaultDisplayOpts().sort;
     }
-    return fetchItemsQuery.getResults({
-      parent,
-      recursive: false,
-      onlyDocuments: false
-    });
+    return fetchItemsQuery.getResults(
+      {
+        parent,
+        recursive: false,
+        onlyDocuments: false
+      },
+      sort.by,
+      sort.descending
+    );
     // const table = storageService.getSpace().getTable(this.tableId);
     // const queryName = this.fetchDocsFoldersNotebooksPerParentQuery(parent);
     // return this.getResultsSorted(table, queryName, sort);

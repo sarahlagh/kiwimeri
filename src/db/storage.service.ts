@@ -103,7 +103,8 @@ class StorageService {
         defaultTimedMode: { type: 'string', default: 'dangerous' },
         globalZoom: { type: 'number', default: 1 },
         rememberLastRoute: { type: 'boolean', default: true },
-        resumeLastSelection: { type: 'boolean', default: true }
+        resumeLastSelection: { type: 'boolean', default: true },
+        lastBrowserMode: { type: 'number', default: 0 }
       });
 
     this.storeQueries = createQueries(this.store);

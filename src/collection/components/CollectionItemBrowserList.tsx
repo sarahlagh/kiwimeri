@@ -19,8 +19,12 @@ import OpenSortFilterButton from '@/common/buttons/OpenSortFilterButton';
 import { GET_ITEM_ROUTE } from '@/common/routes';
 import { getSearchParams } from '@/common/utils';
 import { APPICONS } from '@/constants';
+import { useStoreValueState } from '@/core/hooks/useGenericValueState';
 import collectionService from '@/db/collection.service';
-import useCollectionItemBrowserListResults from '@/modules/collection/hooks/useCollectionItemBrowserListResults';
+import useCollectionItemBrowserListResults, {
+  browserModes,
+  BrowserQueryMode
+} from '@/modules/collection/hooks/useCollectionItemBrowserListResults';
 import { useLingui } from '@lingui/react/macro';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import CollectionItemBreadcrumb from './CollectionItemBreadcrumb';
@@ -30,9 +34,6 @@ import ActionsFromBrowserToolbar from './actions/ActionsFromBrowserToolbar';
 interface CollectionItemBrowserListProps {
   parent: string;
 }
-
-const modes = ['browser', 'updated', 'lastOpenedAt'] as const;
-type Mode = (typeof modes)[number];
 
 const CollectionItemBrowserListToolbar = ({
   folderId,
@@ -44,7 +45,7 @@ const CollectionItemBrowserListToolbar = ({
 }: {
   folderId: string;
   openedDocument: string | undefined;
-  mode: Mode;
+  mode: BrowserQueryMode;
   nextMode: () => void;
   searchText?: string | null;
   setSearchText: Dispatch<SetStateAction<string | undefined | null>>;
@@ -117,13 +118,13 @@ export const CollectionItemBrowserList = ({
   const displayOpts = collectionService.useItemEffectiveDisplayOpts(folder);
   const sort = displayOpts.sort;
 
-  const [modeIdx, setModeIdx] = useState(0);
-  const modeTrans = new Map<Mode, string>();
+  const [modeIdx, setModeIdx] = useStoreValueState<number>('lastBrowserMode');
+  const modeTrans = new Map<BrowserQueryMode, string>();
   modeTrans.set('updated', t`Last updated documents`);
   modeTrans.set('lastOpenedAt', t`Last consulted documents`);
 
   const items: CollectionItemResult[] = useCollectionItemBrowserListResults(
-    modes[modeIdx],
+    browserModes[modeIdx],
     folder,
     sort
   );
@@ -167,7 +168,7 @@ export const CollectionItemBrowserList = ({
     <CollectionItemList
       header={
         <>
-          {modes[modeIdx] === 'browser' ? (
+          {browserModes[modeIdx] === 'browser' ? (
             <CollectionItemBreadcrumb
               folder={folder}
               onClick={item => {
@@ -179,7 +180,7 @@ export const CollectionItemBrowserList = ({
           ) : (
             <>
               <IonLabel style={{ lineHeight: '36px', marginLeft: '18px' }}>
-                <i>{modeTrans.get(modes[modeIdx])}</i>
+                <i>{modeTrans.get(browserModes[modeIdx])}</i>
               </IonLabel>
             </>
           )}
@@ -213,10 +214,10 @@ export const CollectionItemBrowserList = ({
           openedDocument={openedDocument}
           searchText={searchText}
           setSearchText={setSearchText}
-          mode={modes[modeIdx]}
+          mode={browserModes[modeIdx]}
           nextMode={() => {
             let idx = modeIdx + 1;
-            if (idx === modes.length) idx = 0;
+            if (idx === browserModes.length) idx = 0;
             setModeIdx(idx);
           }}
         />

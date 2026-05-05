@@ -133,6 +133,7 @@ export type StoreType = [
     globalZoom: { type: 'number'; default: number };
     rememberLastRoute: { type: 'boolean'; default: true };
     resumeLastSelection: { type: 'boolean'; default: true };
+    lastBrowserMode: { type: 'number'; default: number };
   }
 ];
 

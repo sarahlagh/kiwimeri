@@ -7,9 +7,12 @@ import notebooksService from '@/db/notebooks.service';
 import userSettingsService from '@/db/user-settings.service';
 import { useEffect } from 'react';
 
+export const browserModes = ['browser', 'updated', 'lastOpenedAt'] as const;
+export type BrowserQueryMode = (typeof browserModes)[number];
+
 /** use only for the CollectionItemBrowserList component */
 export default function useCollectionItemBrowserListResults(
-  mode: 'browser' | 'updated' | 'lastOpenedAt',
+  mode: BrowserQueryMode,
   parent?: string,
   userSort?: CollectionItemSort,
   limit?: number

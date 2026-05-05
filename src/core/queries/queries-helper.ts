@@ -114,10 +114,8 @@ export class TinybaseQueryDefinition<
     offset?: number,
     limit?: number
   ) {
-    const tempQuery = this.clone();
-    const results = tempQuery
-      .loadParams(paramValues)
-      ._getResults(sortBy, descending, offset, limit);
+    const tempQuery = this.clone(paramValues);
+    const results = tempQuery._getResults(sortBy, descending, offset, limit);
     tempQuery.close();
     return results;
   }
