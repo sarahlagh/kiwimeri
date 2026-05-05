@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/timed-writing/components/SaveSessionModal.tsx:58
+#: src/timed-writing/components/SaveSessionModal.tsx:62
 msgid " (new)"
 msgstr " (new)"
 
@@ -78,7 +78,7 @@ msgstr "Character Count (Max)"
 msgid "characters"
 msgstr "characters"
 
-#: src/common/modals/ChooseFolderModal.tsx:69
+#: src/common/modals/ChooseFolderModal.tsx:71
 msgid "Choose"
 msgstr "Choose"
 
@@ -86,7 +86,7 @@ msgstr "Choose"
 msgid "Choose a length for your writing session. Once you start, you must keep writing or all progress will be lost. You will have the option to save your work in a new document once you finish. This feature is inspired by Squibler's Most Dangerous Writing App (https://www.squibler.io/dangerous-writing-prompt-app)."
 msgstr "Choose a length for your writing session. Once you start, you must keep writing or all progress will be lost. You will have the option to save your work in a new document once you finish. This feature is inspired by Squibler's Most Dangerous Writing App (https://www.squibler.io/dangerous-writing-prompt-app)."
 
-#: src/common/modals/ChooseFolderModal.tsx:110
+#: src/common/modals/ChooseFolderModal.tsx:114
 msgid "Choose a new folder"
 msgstr "Choose a new folder"
 
@@ -94,7 +94,7 @@ msgstr "Choose a new folder"
 msgid "Choose a session length"
 msgstr "Choose a session length"
 
-#: src/timed-writing/components/SaveSessionModal.tsx:65
+#: src/timed-writing/components/SaveSessionModal.tsx:69
 msgid "Choose where to save your work"
 msgstr "Choose where to save your work"
 
@@ -102,7 +102,7 @@ msgstr "Choose where to save your work"
 msgid "Clear All"
 msgstr "Clear All"
 
-#: src/timed-writing/components/SaveSessionModal.tsx:98
+#: src/timed-writing/components/SaveSessionModal.tsx:102
 msgid "Close"
 msgstr "Close"
 
@@ -314,7 +314,7 @@ msgstr "Internal proxy"
 msgid "Kiwimeri format (single file)"
 msgstr "Kiwimeri format (single file)"
 
-#: src/collection/components/CollectionItemBrowserList.tsx:122
+#: src/collection/components/CollectionItemBrowserList.tsx:123
 msgid "Last consulted documents"
 msgstr "Last consulted documents"
 
@@ -322,7 +322,7 @@ msgstr "Last consulted documents"
 msgid "Last Updated"
 msgstr "Last Updated"
 
-#: src/collection/components/CollectionItemBrowserList.tsx:121
+#: src/collection/components/CollectionItemBrowserList.tsx:122
 msgid "Last updated documents"
 msgstr "Last updated documents"
 
@@ -378,7 +378,7 @@ msgstr "Markdown (Kiwimeri flavor)"
 msgid "Max log history"
 msgstr "Max log history"
 
-#: src/timed-writing/components/SaveSessionModal.tsx:127
+#: src/timed-writing/components/SaveSessionModal.tsx:131
 msgid "Merge"
 msgstr "Merge"
 
@@ -516,7 +516,7 @@ msgstr "Restore Collection"
 msgid "Restore Version"
 msgstr "Restore Version"
 
-#: src/timed-writing/components/SaveSessionModal.tsx:125
+#: src/timed-writing/components/SaveSessionModal.tsx:129
 msgid "Save"
 msgstr "Save"
 
@@ -621,7 +621,7 @@ msgstr "This will delete this folder and move all its items to the current one."
 msgid "This will delete your existing data. Are you sure?"
 msgstr "This will delete your existing data. Are you sure?"
 
-#: src/timed-writing/components/SaveSessionModal.tsx:48
+#: src/timed-writing/components/SaveSessionModal.tsx:52
 msgid "timed session "
 msgstr "timed session "
 

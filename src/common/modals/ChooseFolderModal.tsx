@@ -7,6 +7,8 @@ import CollectionItemList from '@/collection/components/CollectionItemList';
 import { APPICONS, ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
+import useFetchItemsQuery from '@/modules/collection/hooks/useFetchItemsQuery';
+import useFetchItemsQueryParamsState from '@/modules/collection/hooks/useFetchItemsQueryParentState';
 import {
   IonButton,
   IonButtons,
@@ -86,14 +88,16 @@ const ChooseFolderModal = ({
   currentType,
   onClose
 }: ChooseFolderModalProps) => {
-  const [folder, setFolder] = useState<string>(currentParent);
   const [selected, setSelected] = useState<CollectionItemResult | null>(null);
   const [itemRenaming, setItemRenaming] = useState<string | undefined>(
     undefined
   );
 
-  const items: CollectionItemResult[] = collectionService
-    .useBrowsableCollectionItems(folder)
+  const query = useFetchItemsQuery(currentParent);
+  const [parent, setParent] = useFetchItemsQueryParamsState(query);
+
+  const items = query
+    .useResults()
     .filter(
       item =>
         item.type === CollectionItemType.folder ||
@@ -120,9 +124,9 @@ const ChooseFolderModal = ({
       <CollectionItemList
         header={
           <CollectionItemBreadcrumb
-            folder={folder}
-            onClick={item => {
-              setFolder(item);
+            folder={parent}
+            onClick={itemId => {
+              setParent(itemId);
               setSelected(null);
               setItemRenaming(undefined);
             }}
@@ -147,7 +151,7 @@ const ChooseFolderModal = ({
         }}
         onClickActions={(e, item) => {
           // this is the 'go into' click
-          setFolder(item.id);
+          setParent(item.id);
           setSelected(null);
           setItemRenaming(undefined);
         }}
@@ -158,10 +162,10 @@ const ChooseFolderModal = ({
         footer={
           <Toolbar
             selected={selected?.id}
-            folderId={folder}
+            folderId={parent}
             onClick={(role, newFolderId) => {
               if (role === 'gotonotebooks') {
-                setFolder(newFolderId);
+                setParent(newFolderId);
                 setSelected(null);
                 setItemRenaming(undefined);
               }

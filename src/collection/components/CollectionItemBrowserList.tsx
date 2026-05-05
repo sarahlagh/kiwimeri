@@ -20,6 +20,7 @@ import { GET_ITEM_ROUTE } from '@/common/routes';
 import { getSearchParams } from '@/common/utils';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
+import useCollectionItemBrowserListResults from '@/modules/collection/hooks/useCollectionItemBrowserListResults';
 import { useLingui } from '@lingui/react/macro';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import CollectionItemBreadcrumb from './CollectionItemBreadcrumb';
@@ -121,11 +122,11 @@ export const CollectionItemBrowserList = ({
   modeTrans.set('updated', t`Last updated documents`);
   modeTrans.set('lastOpenedAt', t`Last consulted documents`);
 
-  const items: CollectionItemResult[] = collectionService.useItemsForBrowser({
-    mode: modes[modeIdx],
-    parent: folder,
-    browserSort: sort
-  });
+  const items: CollectionItemResult[] = useCollectionItemBrowserListResults(
+    modes[modeIdx],
+    folder,
+    sort
+  );
 
   const [itemRenaming, setItemRenaming] = useState<string | undefined>(
     undefined
@@ -216,7 +217,6 @@ export const CollectionItemBrowserList = ({
           nextMode={() => {
             let idx = modeIdx + 1;
             if (idx === modes.length) idx = 0;
-            console.debug('next mode', modes[idx]);
             setModeIdx(idx);
           }}
         />

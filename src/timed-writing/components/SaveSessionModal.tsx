@@ -9,6 +9,8 @@ import { dateToStr } from '@/common/date-utils';
 import collectionService from '@/db/collection.service';
 import navService from '@/db/nav.service';
 import storageService from '@/db/storage.service';
+import useFetchItemsQuery from '@/modules/collection/hooks/useFetchItemsQuery';
+import useFetchItemsQueryParamsState from '@/modules/collection/hooks/useFetchItemsQueryParentState';
 import {
   IonButton,
   IonButtons,
@@ -33,13 +35,15 @@ type SaveSessionModalProps = {
 
 const SaveSessionModal = ({ onClose }: SaveSessionModalProps) => {
   const { t } = useLingui();
-  const [parent, setParent] = useState(navService.getCurrentFolder());
   const [tempItem, setTempItem] = useState<
     (CollectionItem & { id: string }) | null
   >(null);
   const [item, setItem] = useState<CollectionItemResult | null>(null);
   const content = storageService.getStore().getValue('tempDoc');
-  const items = collectionService.useBrowsableCollectionItems(parent);
+
+  const query = useFetchItemsQuery(navService.getCurrentFolder());
+  const [parent, setParent] = useFetchItemsQueryParamsState(query);
+  const items = query.useResults();
 
   useEffect(() => {
     if (tempItem === null) {

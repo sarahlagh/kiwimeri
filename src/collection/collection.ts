@@ -102,7 +102,10 @@ export type CollectionItemResult = Pick<
   | 'display_opts'
   | 'conflict'
 > &
-  Required<Pick<CollectionItem, 'id'>>;
+  Required<Pick<CollectionItem, 'id'>> & {
+    lastOpenedAt?: number;
+    preview?: string;
+  };
 
 export const CollectionItemUpdatableConflictFields: CollectionItemUpdatableFieldEnum[] =
   ['parent', 'title', 'content', 'deleted'] as const;
