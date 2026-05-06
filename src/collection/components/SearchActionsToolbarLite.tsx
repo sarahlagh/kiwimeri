@@ -1,12 +1,6 @@
 import { APPICONS } from '@/constants';
 import type { InputCustomEvent, JSX } from '@ionic/core/components';
-import {
-  IonButton,
-  IonButtons,
-  IonIcon,
-  IonInput,
-  IonToolbar
-} from '@ionic/react';
+import { IonButton, IonButtons, IonIcon, IonInput } from '@ionic/react';
 import { StyleReactProps } from '@ionic/react/dist/types/components/react-component-lib/interfaces';
 import { useEffect, useRef } from 'react';
 
@@ -30,7 +24,7 @@ const SearchActionsToolbarLite = ({
     }
   }, [refInput, toggleSearchAutoFocus]);
   return (
-    <IonToolbar>
+    <>
       <IonInput
         ref={refInput}
         style={{ marginLeft: 8 }}
@@ -45,7 +39,7 @@ const SearchActionsToolbarLite = ({
           <IonIcon icon={APPICONS.search}></IonIcon>
         </IonButton>
       </IonButtons>
-    </IonToolbar>
+    </>
   );
 };
 export default SearchActionsToolbarLite;

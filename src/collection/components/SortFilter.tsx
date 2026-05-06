@@ -8,6 +8,7 @@ import {
   IonSelectOption
 } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
+import { ReactNode } from 'react';
 import {
   CollectionItemSort,
   CollectionItemSortType,
@@ -23,7 +24,10 @@ export type SortFilterProps = {
   searchEnabled?: boolean;
   searchText?: string;
   onSearch?: (val: string) => void;
-} & React.HTMLAttributes<HTMLIonToolbarElement>;
+  toggleSearchAutoFocus?: boolean;
+} & React.HTMLAttributes<HTMLIonToolbarElement> & {
+    readonly children?: ReactNode;
+  };
 
 const SortFilter = ({
   currentSort,
@@ -32,7 +36,9 @@ const SortFilter = ({
   sortEnabled,
   searchEnabled,
   searchText,
-  onSearch
+  onSearch,
+  toggleSearchAutoFocus,
+  children
 }: SortFilterProps) => {
   const { t } = useLingui();
   const sort = { ...currentSort };
@@ -45,10 +51,11 @@ const SortFilter = ({
   valuesTransMap.set('order', t`Manual`);
   // TODO opt to keep folders at top
   return (
-    <IonList>
+    <IonList class="inner-list">
       {sortEnabled && (
-        <IonItem>
+        <IonItem className="inner-item-slim">
           <IonSelect
+            style={{ marginLeft: 6 }}
             label={t`Sort`}
             value={currentSort.by}
             placeholder={valuesTransMap.get(currentSort.by)}
@@ -83,8 +90,9 @@ const SortFilter = ({
         </IonItem>
       )}
       {searchEnabled && (
-        <IonItem>
+        <IonItem className="inner-item-slim">
           <SearchActionsToolbarLite
+            toggleSearchAutoFocus={toggleSearchAutoFocus}
             searchText={searchText || ''}
             onValue={val => {
               if (onSearch) onSearch(val);
@@ -92,6 +100,7 @@ const SortFilter = ({
           />
         </IonItem>
       )}
+      {children}
     </IonList>
   );
 };

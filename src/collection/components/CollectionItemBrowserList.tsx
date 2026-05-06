@@ -59,8 +59,75 @@ const CollectionItemBrowserListToolbar = ({
     : null;
 
   return (
-    <IonList>
-      {openFilters && (
+    <IonList class="inner-list">
+      <SortFilterInlineList
+        id={folderId}
+        sortEnabled={mode === 'browser' && openFilters}
+        searchEnabled={openFilters}
+        searchText={searchText || ''}
+        onSearch={val => {
+          setSearchText(val);
+        }}
+      >
+        <IonItem lines="none">
+          <IonToolbar>
+            <IonButtons slot="start">
+              <IonButton
+                disabled={folderId === openedDocumentFolder || !openedDocument}
+                onClick={() => {
+                  if (openedDocumentFolder) {
+                    history.push(
+                      GET_ITEM_ROUTE(openedDocumentFolder, openedDocument)
+                    );
+                  }
+                }}
+              >
+                <IonIcon icon={APPICONS.goToCurrentFolder}></IonIcon>
+              </IonButton>
+              <IonButton
+                disabled={mode !== 'browser'}
+                onClick={() => setOpenFilters(!openFilters)}
+              >
+                <IonIcon icon={APPICONS.sortFilter}></IonIcon>
+              </IonButton>
+
+              <IonButton
+                onClick={() => {
+                  setOpenFilters(false);
+                  nextMode();
+                }}
+              >
+                <IonIcon icon={APPICONS.circleOptions}></IonIcon>
+              </IonButton>
+            </IonButtons>
+
+            <IonButtons slot="end">
+              <ExportItemsButton
+                type={CollectionItemType.folder}
+                id={folderId}
+              />
+              <ImportItemsButton parent={folderId} />
+
+              <IonButton
+                onClick={() => {
+                  collectionService.addFolder(folderId);
+                }}
+              >
+                <IonIcon aria-hidden="true" icon={APPICONS.addFolder} />
+              </IonButton>
+              <IonButton
+                onClick={() => {
+                  collectionService.addDocument(folderId);
+                }}
+              >
+                <IonIcon aria-hidden="true" icon={APPICONS.addDocument} />
+              </IonButton>
+            </IonButtons>
+          </IonToolbar>
+        </IonItem>
+      </SortFilterInlineList>
+
+      {/* {openFilters && (
         <SortFilterInlineList
           id={folderId}
           searchEnabled={true}
@@ -70,55 +137,7 @@ const CollectionItemBrowserListToolbar = ({
             setSearchText(val);
           }}
         />
-      )}
-      <IonItem lines="none">
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonButton
-              disabled={folderId === openedDocumentFolder || !openedDocument}
-              onClick={() => {
-                if (openedDocumentFolder) {
-                  history.push(
-                    GET_ITEM_ROUTE(openedDocumentFolder, openedDocument)
-                  );
-                }
-              }}
-            >
-              <IonIcon icon={APPICONS.goToCurrentFolder}></IonIcon>
-            </IonButton>
-            <IonButton
-              disabled={mode !== 'browser'}
-              onClick={() => setOpenFilters(!openFilters)}
-            >
-              <IonIcon icon={APPICONS.sortFilter}></IonIcon>
-            </IonButton>
-
-            <IonButton onClick={() => nextMode()}>
-              <IonIcon icon={APPICONS.circleOptions}></IonIcon>
-            </IonButton>
-          </IonButtons>
-
-          <IonButtons slot="end">
-            <ExportItemsButton type={CollectionItemType.folder} id={folderId} />
-            <ImportItemsButton parent={folderId} />
-
-            <IonButton
-              onClick={() => {
-                collectionService.addFolder(folderId);
-              }}
-            >
-              <IonIcon aria-hidden="true" icon={APPICONS.addFolder} />
-            </IonButton>
-            <IonButton
-              onClick={() => {
-                collectionService.addDocument(folderId);
-              }}
-            >
-              <IonIcon aria-hidden="true" icon={APPICONS.addDocument} />
-            </IonButton>
-          </IonButtons>
-        </IonToolbar>
-      </IonItem>
+      )} */}
     </IonList>
   );
 };

@@ -6,6 +6,7 @@ import {
 } from '@/collection/collection';
 import SortFilter from '@/collection/components/SortFilter';
 import collectionService from '@/db/collection.service';
+import { ReactNode } from 'react';
 import { Id } from 'tinybase/with-schemas';
 
 type SortFilterInlineListProps = {
@@ -14,6 +15,8 @@ type SortFilterInlineListProps = {
   searchEnabled?: boolean;
   searchText?: string;
   onSearch?: (val: string) => void;
+} & {
+  readonly children?: ReactNode;
 };
 
 const buildChoices = (type: CollectionItemTypeValues) => {
@@ -32,7 +35,8 @@ const SortFilterInlineList = ({
   sortEnabled = true,
   searchEnabled = false,
   searchText,
-  onSearch
+  onSearch,
+  children
 }: SortFilterInlineListProps) => {
   const type = collectionService.getItemType(id);
   const choices = buildChoices(type);
@@ -41,6 +45,7 @@ const SortFilterInlineList = ({
 
   return (
     <SortFilter
+      toggleSearchAutoFocus={false}
       currentSort={sort}
       choices={choices}
       sortEnabled={sortEnabled}
@@ -55,7 +60,9 @@ const SortFilterInlineList = ({
       searchEnabled={searchEnabled}
       searchText={searchText}
       onSearch={onSearch}
-    />
+    >
+      {children}
+    </SortFilter>
   );
 };
 export default SortFilterInlineList;
