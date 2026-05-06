@@ -6,7 +6,9 @@ import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
 import navService from '@/db/nav.service';
 import { IonButton, IonIcon } from '@ionic/react';
+import { useLingui } from '@lingui/react/macro';
 import { Id } from 'tinybase/with-schemas';
+import { useToastContext } from '../context/ToastContext';
 import { GET_DOCUMENT_ROUTE } from '../routes';
 
 type QuickGroupButtonProps = {
@@ -16,7 +18,9 @@ type QuickGroupButtonProps = {
 };
 
 const QuickGroupButton = ({ id, type, onClose }: QuickGroupButtonProps) => {
+  const { t } = useLingui();
   if (type !== CollectionItemType.document) return <></>;
+  const { setToast } = useToastContext();
   return (
     <IonButton
       fill="clear"
@@ -29,6 +33,7 @@ const QuickGroupButton = ({ id, type, onClose }: QuickGroupButtonProps) => {
         const newParent = collectionService.saveItem(item);
         collectionService.setItemParent(id, newParent);
         if (onClose) onClose('group', GET_DOCUMENT_ROUTE(newParent, id));
+        setToast(t`Document grouped`, 'success');
       }}
     >
       <IonIcon icon={APPICONS.groupAction}></IonIcon>

@@ -197,6 +197,10 @@ msgstr "Display options for the currently selected notebook. They can still be o
 msgid "Do you want to import your content inside a new folder?"
 msgstr "Do you want to import your content inside a new folder?"
 
+#: src/common/buttons/QuickGroupButton.tsx:36
+msgid "Document grouped"
+msgstr "Document grouped"
+
 #: src/common/buttons/ManageHistoryButton.tsx:99
 msgid "Document History"
 msgstr "Document History"
