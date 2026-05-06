@@ -1,6 +1,6 @@
 import storageService from '@/db/storage.service';
 import { AnyData, RemoteResult } from '@/db/types/store-types';
-import { DocumentContentStatsBag } from '@/domain/stats/document-stats';
+import { DocumentContentStatsBag } from '@/domain/stats/model';
 import { statsService } from '@/domain/stats/stats-service';
 import { CloudStorageDriver } from '../storage-drivers/abstract.driver';
 import { SingleFileStorage } from '../storage-filesystems/singlefile.filesystem';

@@ -4,9 +4,8 @@ import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
 import userSettingsService from '@/db/user-settings.service';
-import { DocumentContentStatsBag } from '@/domain/stats/document-stats';
+import { DataPoint, DocumentContentStatsBag } from '@/domain/stats/model';
 import { statsService } from '@/domain/stats/stats-service';
-import { DataPoint } from '@/features/stats-ui/models/data-point';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { fakeTimersDelay, getNewContent } from '@/vitest/setup/test.utils';
 import {

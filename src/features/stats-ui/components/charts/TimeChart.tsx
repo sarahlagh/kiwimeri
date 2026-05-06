@@ -1,9 +1,9 @@
 import { Theme } from '@/db/user-settings.service';
+import { DataPoint } from '@/domain/stats/model';
 import { useMemo } from 'react';
 import { AlignedData } from 'uplot';
 import UplotReact from 'uplot-react';
 import 'uplot/dist/uPlot.min.css';
-import { DataPoint } from '../../models/data-point';
 import { legendPlugin } from './legend-plugin';
 
 type TimeChartOptions = {

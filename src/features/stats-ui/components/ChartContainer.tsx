@@ -3,9 +3,9 @@ import { IonSelect, IonSelectOption } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
 import { useEffect, useRef, useState } from 'react';
 
-import { DataPoint } from '../models/data-point';
 import TimeChart from './charts/TimeChart';
 
+import { DataPoint } from '@/domain/stats/model';
 import {
   TrackedStats,
   statsService,
