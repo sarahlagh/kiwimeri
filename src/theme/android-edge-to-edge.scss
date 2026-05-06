@@ -1,9 +1,9 @@
 // global main menu
 #root > ion-app > ion-menu {
-  margin-top: var(--safe-area-inset-top, 0px);
-  margin-bottom: var(--safe-area-inset-bottom, 0px);
-  margin-left: var(--safe-area-inset-left, 0px);
-  margin-right: var(--safe-area-inset-right, 0px);
+  margin-top: var(--ion-safe-area-top, 0px);
+  margin-bottom: var(--ion-safe-area-bottom, 0px);
+  margin-left: var(--ion-safe-area-left, 0px);
+  margin-right: var(--ion-safe-area-right, 0px);
 }
 
 // cancel global style with .ion-page to make it more specific
