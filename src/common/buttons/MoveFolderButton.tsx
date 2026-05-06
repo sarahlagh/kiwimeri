@@ -29,7 +29,7 @@ const MoveFolderButton = ({ id, onClose }: MoveFolderButtonProps) => {
     <IonButton
       expand="block"
       onClick={() => {
-        present();
+        present({ cssClass: 'keyboard-aware-modal' });
       }}
     >
       <IonIcon icon={APPICONS.moveAction}></IonIcon>

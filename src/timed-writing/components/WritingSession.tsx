@@ -93,7 +93,7 @@ const WritingSession = () => {
       }}
       onSave={content => {
         storageService.getStore().setValue('tempDoc', content);
-        present(); // show "save somewhere" modal
+        present({ cssClass: 'keyboard-aware-modal' }); // show "save somewhere" modal
       }}
     />
   );

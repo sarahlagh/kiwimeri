@@ -34,3 +34,8 @@ ion-modal.keyboard-aware-modal::part(content) {
     var(--viewport-height, var(--max-height, 0px)) - var(--ion-safe-area-top)
   );
 }
+
+// nothing you can't fix with an !important
+ion-app.android > ion-modal.md.modal-default.hydrated.show-modal {
+  --ion-safe-area-top: inherit !important;
+}
