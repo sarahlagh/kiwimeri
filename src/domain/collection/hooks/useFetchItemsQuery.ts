@@ -1,5 +1,5 @@
-import useGenericQuery from '@/core/hooks/useGenericQuery';
-import fetchItemsQuery from '@/core/queries/fetchItemsQuery';
+import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
+import useGenericQuery from '@/shared/hooks/useGenericQuery';
 
 export default function useFetchItemsQuery(
   parent: string,

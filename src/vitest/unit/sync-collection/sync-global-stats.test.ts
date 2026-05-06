@@ -1,9 +1,7 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
-import {
-  AllGlobalStatsBag,
-  statsService
-} from '@/core/services/stats/stats-service';
+
 import collectionService from '@/db/collection.service';
+import { AllGlobalStatsBag, statsService } from '@/domain/stats/stats-service';
 import {
   getRowCountInsideNotebook,
   oneDocument,

@@ -6,9 +6,9 @@ import {
   unminimizeItemsFromStorage
 } from '@/collection/compress-collection';
 import { fastHash } from '@/common/utils';
-import { AllGlobalStatsBag } from '@/core/services/stats/stats-service';
 import { SpaceValues } from '@/db/types/space-types';
 import { AnyData } from '@/db/types/store-types';
+import { AllGlobalStatsBag } from '@/domain/stats/stats-service';
 import { DriverFileInfo } from '../sync-types';
 import { RemoteCollectionFileContent } from '../synchronizers/collection-synchronizer';
 import { CloudStorageDriver, FileReference } from './abstract.driver';

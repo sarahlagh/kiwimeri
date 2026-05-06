@@ -4,7 +4,7 @@ import {
   CollectionItemVersionRow,
   DocumentResumeStateRow
 } from '@/collection/collection';
-import { DocumentStatRow } from '@/core/services/stats/document-stats';
+import { DocumentStatRow } from '@/domain/stats/document-stats';
 import { ValueIdFromSchema } from 'tinybase/@types/_internal/store/with-schemas';
 import { CellSchema, Value } from 'tinybase/with-schemas';
 

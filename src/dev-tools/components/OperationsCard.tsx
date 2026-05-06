@@ -44,7 +44,6 @@ const OperationCard = () => {
             storageService
               .getStore()
               .setCell('remoteState', '0', 'lastRemoteChange', 0);
-            storageService.getStore().delTable('remoteItems');
           }}
           color="danger"
         >

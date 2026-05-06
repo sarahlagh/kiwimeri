@@ -1,10 +1,10 @@
 import { CollectionItem, parseFieldMeta } from '@/collection/collection';
 import { DEFAULT_SPACE_ID } from '@/constants';
-import { AllGlobalStatsBag } from '@/core/services/stats/stats-service';
 import { historyService } from '@/db/collection-history.service';
 import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
 import { SpaceValues } from '@/db/types/space-types';
+import { AllGlobalStatsBag } from '@/domain/stats/stats-service';
 import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
 import { SyncDirection, syncService } from '@/remote-storage/sync.service';
 import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';

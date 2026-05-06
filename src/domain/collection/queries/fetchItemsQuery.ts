@@ -5,7 +5,7 @@ import {
 } from '@/collection/collection';
 import storageService from '@/db/storage.service';
 import { getAncestorId } from '@/search/search-ancestry.service';
-import { SpaceQueryDefinition } from './queries-helper';
+import { SpaceQueryDefinition } from '../../../core/db/queries-helper';
 
 export type FetchItemsQueryParam = {
   parent: string;

@@ -2,14 +2,15 @@ import userSettingsService from '@/db/user-settings.service';
 import { IonSelect, IonSelectOption } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
 import { useEffect, useRef, useState } from 'react';
-import {
-  statsService,
-  trackedStats,
-  TrackedStats
-} from '../../../core/services/stats/stats-service';
+
 import { DataPoint } from '../models/data-point';
 import TimeChart from './charts/TimeChart';
 
+import {
+  TrackedStats,
+  statsService,
+  trackedStats
+} from '@/domain/stats/stats-service';
 import './ChartContainer.scss';
 
 type ChartContainerProps = {

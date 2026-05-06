@@ -1,7 +1,7 @@
-import { DocumentContentStatsBag } from '@/core/services/stats/document-stats';
-import { statsService } from '@/core/services/stats/stats-service';
 import storageService from '@/db/storage.service';
 import { AnyData, RemoteResult } from '@/db/types/store-types';
+import { DocumentContentStatsBag } from '@/domain/stats/document-stats';
+import { statsService } from '@/domain/stats/stats-service';
 import { CloudStorageDriver } from '../storage-drivers/abstract.driver';
 import { SingleFileStorage } from '../storage-filesystems/singlefile.filesystem';
 import { CloudStorageSynchronizer } from './abstract-synchronizer';

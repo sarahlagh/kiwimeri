@@ -23,7 +23,7 @@ import {
 } from '@/common/wysiwyg/compress-file-content';
 import { getGlobalTrans } from '@/config';
 import { ROOT_COLLECTION } from '@/constants';
-import fetchItemsQuery from '@/core/queries/fetchItemsQuery';
+import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
 import { SerializedEditorState } from 'lexical';
 import { getUniqueId } from 'tinybase/common';
 import { Id } from 'tinybase/common/with-schemas';

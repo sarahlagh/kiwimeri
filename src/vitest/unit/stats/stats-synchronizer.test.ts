@@ -1,6 +1,6 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
-import { statsService } from '@/core/services/stats/stats-service';
 import collectionService from '@/db/collection.service';
+import { statsService } from '@/domain/stats/stats-service';
 import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
 import {
   RemoteStatsFileContent,

@@ -1,9 +1,9 @@
-import useGenericQueryParamsState from '@/core/hooks/useGenericQueryParamsState';
-import { FetchItemsQueryParam } from '@/core/queries/fetchItemsQuery';
 import {
   TableIdFromSchema,
   TinybaseQueryDefinition
-} from '@/core/queries/queries-helper';
+} from '@/core/db/queries-helper';
+import { FetchItemsQueryParam } from '@/domain/collection/queries/fetchItemsQuery';
+import useGenericQueryParamsState from '@/shared/hooks/useGenericQueryParamsState';
 import { OptionalSchemas } from 'tinybase/with-schemas';
 
 export default function useFetchItemsQueryParamsState<

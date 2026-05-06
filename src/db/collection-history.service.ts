@@ -471,6 +471,7 @@ class CollectionHistoryService {
       const pageVersion = pagesAtVersion.find(p => p.itemId === pId)!;
       const recreatedPage: CollectionItem = {
         ...pageVersion.snapshotJson,
+        itemId: pId,
         type: CollectionItemType.page,
         parent: docId,
         parent_meta: setFieldMeta(docId, pageVersion.snapshotJson.created),

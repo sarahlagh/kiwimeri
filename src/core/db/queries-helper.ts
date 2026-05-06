@@ -43,7 +43,6 @@ export class TinybaseQueryDefinition<
   QueryResult
 > {
   constructor(
-    // public queries: Queries<Schema>,
     private storeId: StoreId,
     public queryId: Id,
     protected tableId: RootTableId,
@@ -145,7 +144,7 @@ export class TinybaseQueryDefinition<
     this.getQueries().delQueryDefinition(this.queryId);
   }
 
-  protected getQueries() {
+  public getQueries() {
     return storageService.getQueries(this.storeId);
   }
 }

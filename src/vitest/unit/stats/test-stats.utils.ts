@@ -1,5 +1,5 @@
 import { dateToStr } from '@/common/date-utils';
-import { DataPoint } from '@/modules/stats/models/data-point';
+import { DataPoint } from '@/features/stats-ui/models/data-point';
 import assert from 'assert';
 import { readFile } from 'fs/promises';
 

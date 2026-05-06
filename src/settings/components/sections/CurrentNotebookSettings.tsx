@@ -1,7 +1,7 @@
-import { statsService } from '@/core/services/stats/stats-service';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import userSettingsService from '@/db/user-settings.service';
+import { statsService } from '@/domain/stats/stats-service';
 import {
   IonCard,
   IonCardContent,

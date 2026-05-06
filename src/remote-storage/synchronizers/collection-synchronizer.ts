@@ -17,10 +17,6 @@ import {
 import { nOr0 } from '@/common/utils';
 import { appConfig, getGlobalTrans } from '@/config';
 import { CONFLICTS_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
-import {
-  AllGlobalStatsBag,
-  statsService
-} from '@/core/services/stats/stats-service';
 import { historyService } from '@/db/collection-history.service';
 import { resumeStateService } from '@/db/collection-resume-state.service';
 import collectionService from '@/db/collection.service';
@@ -38,6 +34,7 @@ import {
   RemoteWithState
 } from '@/db/types/store-types';
 import userSettingsService from '@/db/user-settings.service';
+import { AllGlobalStatsBag, statsService } from '@/domain/stats/stats-service';
 import { getUniqueId, Row, Table, Table as UntypedTable } from 'tinybase';
 import { Content } from 'tinybase/store/with-schemas';
 import { CloudStorageDriver } from '../storage-drivers/abstract.driver';

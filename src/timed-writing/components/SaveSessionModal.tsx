@@ -9,8 +9,8 @@ import { dateToStr } from '@/common/date-utils';
 import collectionService from '@/db/collection.service';
 import navService from '@/db/nav.service';
 import storageService from '@/db/storage.service';
-import useFetchItemsQuery from '@/modules/common/hooks/useFetchItemsQuery';
-import useFetchItemsQueryParamsState from '@/modules/common/hooks/useFetchItemsQueryParentState';
+import useFetchItemsQuery from '@/domain/collection/hooks/useFetchItemsQuery';
+import useFetchItemsQueryParamsState from '@/domain/collection/hooks/useFetchItemsQueryParentState';
 import {
   IonButton,
   IonButtons,

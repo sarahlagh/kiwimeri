@@ -20,12 +20,13 @@ import ImportItemsButton from '@/common/buttons/ImportItemsButton';
 import { GET_ITEM_ROUTE } from '@/common/routes';
 import { getSearchParams } from '@/common/utils';
 import { APPICONS } from '@/constants';
-import { useStoreValueState } from '@/core/hooks/useGenericValueState';
 import collectionService from '@/db/collection.service';
+import { useStoreValueState } from '@/shared/hooks/useGenericValueState';
+
 import useCollectionItemBrowserListResults, {
-  browserModes,
-  BrowserQueryMode
-} from '@/modules/collection/hooks/useCollectionItemBrowserListResults';
+  BrowserQueryMode,
+  browserModes
+} from '@/features/collection-ui/hooks/useCollectionItemBrowserListResults';
 import { useLingui } from '@lingui/react/macro';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import ActionsFromBrowserToolbar from './actions/ActionsFromBrowserToolbar';
@@ -126,18 +127,6 @@ const CollectionItemBrowserListToolbar = ({
           </IonToolbar>
         </IonItem>
       </SortFilterInlineList>
-
-      {/* {openFilters && (
-        <SortFilterInlineList
-          id={folderId}
-          searchEnabled={true}
-          sortEnabled={mode === 'browser'}
-          searchText={searchText || ''}
-          onSearch={val => {
-            setSearchText(val);
-          }}
-        />
-      )} */}
     </IonList>
   );
 };

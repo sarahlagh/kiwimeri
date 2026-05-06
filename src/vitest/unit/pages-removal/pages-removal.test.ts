@@ -1,11 +1,11 @@
 import { CollectionItemType } from '@/collection/collection';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
-import { statsService } from '@/core/services/stats/stats-service';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/local-changes.service';
 import storageService from '@/db/storage.service';
 import { LocalChangeType } from '@/db/types/store-types';
+import { statsService } from '@/domain/stats/stats-service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { adv, getNewContent } from '@/vitest/setup/test.utils';
 import { describe, it, vi } from 'vitest';

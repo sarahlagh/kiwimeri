@@ -47,7 +47,7 @@ const DocumentInfoCard = ({ id }: DocumentInfoCardProps) => {
   const [display, setDisplay] = useState<Tab>('general');
   const statsEnabled = userSettingsService.getDefaultDisplayOpts().statsEnabled;
   const ChartContainer = lazy(
-    () => import('@/modules/stats/components/ChartContainer')
+    () => import('@/features/stats-ui/components/ChartContainer')
   );
 
   return (

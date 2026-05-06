@@ -3,7 +3,7 @@ import { OptionalSchemas, ParamValues } from 'tinybase/with-schemas';
 import {
   TableIdFromSchema,
   TinybaseQueryDefinition
-} from '../queries/queries-helper';
+} from '../../core/db/queries-helper';
 
 const useGenericQuery = <
   Schema extends OptionalSchemas,

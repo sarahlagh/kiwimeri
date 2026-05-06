@@ -2,9 +2,9 @@ import {
   CollectionItemResult,
   CollectionItemSort
 } from '@/collection/collection';
-import fetchItemsQuery from '@/core/queries/fetchItemsQuery';
 import notebooksService from '@/db/notebooks.service';
 import userSettingsService from '@/db/user-settings.service';
+import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
 import { useEffect } from 'react';
 
 export const browserModes = ['browser', 'updated', 'lastOpenedAt'] as const;
