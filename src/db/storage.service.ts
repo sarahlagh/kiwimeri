@@ -7,7 +7,12 @@ import {
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db/with-schemas';
 import { Persister } from 'tinybase/persisters/with-schemas';
 import { createQueries, Queries } from 'tinybase/queries/with-schemas';
-import { CellSchema, createStore, Store } from 'tinybase/store/with-schemas';
+import {
+  CellSchema,
+  createStore,
+  OptionalSchemas,
+  Store
+} from 'tinybase/store/with-schemas';
 import { createIndexes, Indexes } from 'tinybase/with-schemas';
 import { searchAncestryService } from '../search/search-ancestry.service';
 import { historyService } from './collection-history.service';
@@ -165,6 +170,7 @@ class StorageService {
     return createStore()
       .setTablesSchema({
         collection: {
+          itemId: { type: 'string' } as CellSchema,
           title: { type: 'string' } as CellSchema,
           title_meta: { type: 'string' } as CellSchema,
           parent: { type: 'string' } as CellSchema,
@@ -268,11 +274,13 @@ class StorageService {
     return this.store;
   }
 
-  public getQueries(storeId: StoreId) {
+  public getQueries<Schema extends OptionalSchemas>(
+    storeId: StoreId
+  ): Queries<Schema> {
     if (storeId === 'space') {
-      return this.getSpaceQueries();
+      return this.getSpaceQueries() as unknown as Queries<Schema>;
     }
-    return this.storeQueries;
+    return this.storeQueries as unknown as Queries<Schema>;
   }
 
   public getIndexes(storeId: StoreId) {

@@ -1,6 +1,7 @@
 import {
   CollectionItemResult,
-  CollectionItemType
+  CollectionItemType,
+  CollectionItemTypeValues
 } from '@/collection/collection';
 import storageService from '@/db/storage.service';
 import { getAncestorId } from '@/search/search-ancestry.service';
@@ -18,6 +19,13 @@ const fetchItemsQuery = new SpaceQueryDefinition<
   'collection'
 >('fetchItems', 'collection', ({ select, where, param, join }) => {
   const ancestry = storageService.getStore().getTable('ancestors');
+  const search = storageService.getStore().getTable('search');
+  const params: FetchItemsQueryParam = {
+    parent: param('parent') as string,
+    recursive: param('recursive') as boolean,
+    onlyDocuments: param('onlyDocuments') as boolean
+  };
+
   // works but only because stats and collection have same id for global stats
   join('stats', (getCell, itemId) => itemId).as('stats');
   select('stats', 'lastOpenedAt');
@@ -32,10 +40,8 @@ const fetchItemsQuery = new SpaceQueryDefinition<
   select('conflict');
   select('display_opts');
   where('deleted', false);
-  if (param('recursive')?.valueOf() === false) {
-    if (param('parent')) {
-      where('parent', param('parent')!.toString());
-    }
+  if (params.recursive === false) {
+    where('parent', params.parent);
   } else {
     where(getCell => {
       const parent = param('parent')!.toString();
@@ -43,13 +49,12 @@ const fetchItemsQuery = new SpaceQueryDefinition<
       // but in next table model, include it in collection table too
       const id = getCell('stats', 'itemId')?.toString();
       if (!id) return false;
-      return ancestry[`${getAncestorId(id, parent)}`] !== undefined;
+      return ancestry[`${getAncestorId(id, params.parent)}`] !== undefined;
     });
   }
   where(getCell => {
-    const type = getCell('type')?.valueOf();
-    const onlyDocuments = param('onlyDocuments')?.valueOf() as boolean;
-    if (onlyDocuments) {
+    const type = getCell('type') as CollectionItemTypeValues;
+    if (params.onlyDocuments) {
       return type === CollectionItemType.document;
     }
     return type !== CollectionItemType.page;
