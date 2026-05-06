@@ -4,7 +4,9 @@ import {
   IonButton,
   IonButtons,
   IonIcon,
+  IonItem,
   IonLabel,
+  IonList,
   IonToolbar,
   useIonPopover
 } from '@ionic/react';
@@ -15,7 +17,6 @@ import {
 } from '@/collection/collection';
 import ExportItemsButton from '@/common/buttons/ExportItemsButton';
 import ImportItemsButton from '@/common/buttons/ImportItemsButton';
-import OpenSortFilterButton from '@/common/buttons/OpenSortFilterButton';
 import { GET_ITEM_ROUTE } from '@/common/routes';
 import { getSearchParams } from '@/common/utils';
 import { APPICONS } from '@/constants';
@@ -27,9 +28,10 @@ import useCollectionItemBrowserListResults, {
 } from '@/modules/collection/hooks/useCollectionItemBrowserListResults';
 import { useLingui } from '@lingui/react/macro';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import ActionsFromBrowserToolbar from './actions/ActionsFromBrowserToolbar';
 import CollectionItemBreadcrumb from './CollectionItemBreadcrumb';
 import CollectionItemList from './CollectionItemList';
-import ActionsFromBrowserToolbar from './actions/ActionsFromBrowserToolbar';
+import SortFilterInlineList from './SortFilterInlineList';
 
 interface CollectionItemBrowserListProps {
   parent: string;
@@ -51,25 +53,15 @@ const CollectionItemBrowserListToolbar = ({
   setSearchText: Dispatch<SetStateAction<string | undefined | null>>;
 }) => {
   const history = useHistory();
+  const [openFilters, setOpenFilters] = useState(false);
   const openedDocumentFolder = openedDocument
     ? collectionService.getItemParent(openedDocument)
     : null;
+
   return (
-    <IonToolbar>
-      <IonButtons slot="start">
-        <IonButton
-          disabled={folderId === openedDocumentFolder || !openedDocument}
-          onClick={() => {
-            if (openedDocumentFolder) {
-              history.push(
-                GET_ITEM_ROUTE(openedDocumentFolder, openedDocument)
-              );
-            }
-          }}
-        >
-          <IonIcon icon={APPICONS.goToCurrentFolder}></IonIcon>
-        </IonButton>
-        <OpenSortFilterButton
+    <IonList>
+      {openFilters && (
+        <SortFilterInlineList
           id={folderId}
           searchEnabled={true}
           sortEnabled={mode === 'browser'}
@@ -78,31 +70,56 @@ const CollectionItemBrowserListToolbar = ({
             setSearchText(val);
           }}
         />
-        <IonButton onClick={() => nextMode()}>
-          <IonIcon icon={APPICONS.circleOptions}></IonIcon>
-        </IonButton>
-      </IonButtons>
+      )}
+      <IonItem lines="none">
+        <IonToolbar>
+          <IonButtons slot="start">
+            <IonButton
+              disabled={folderId === openedDocumentFolder || !openedDocument}
+              onClick={() => {
+                if (openedDocumentFolder) {
+                  history.push(
+                    GET_ITEM_ROUTE(openedDocumentFolder, openedDocument)
+                  );
+                }
+              }}
+            >
+              <IonIcon icon={APPICONS.goToCurrentFolder}></IonIcon>
+            </IonButton>
+            <IonButton
+              disabled={mode !== 'browser'}
+              onClick={() => setOpenFilters(!openFilters)}
+            >
+              <IonIcon icon={APPICONS.sortFilter}></IonIcon>
+            </IonButton>
 
-      <IonButtons slot="end">
-        <ExportItemsButton type={CollectionItemType.folder} id={folderId} />
-        <ImportItemsButton parent={folderId} />
+            <IonButton onClick={() => nextMode()}>
+              <IonIcon icon={APPICONS.circleOptions}></IonIcon>
+            </IonButton>
+          </IonButtons>
 
-        <IonButton
-          onClick={() => {
-            collectionService.addFolder(folderId);
-          }}
-        >
-          <IonIcon aria-hidden="true" icon={APPICONS.addFolder} />
-        </IonButton>
-        <IonButton
-          onClick={() => {
-            collectionService.addDocument(folderId);
-          }}
-        >
-          <IonIcon aria-hidden="true" icon={APPICONS.addDocument} />
-        </IonButton>
-      </IonButtons>
-    </IonToolbar>
+          <IonButtons slot="end">
+            <ExportItemsButton type={CollectionItemType.folder} id={folderId} />
+            <ImportItemsButton parent={folderId} />
+
+            <IonButton
+              onClick={() => {
+                collectionService.addFolder(folderId);
+              }}
+            >
+              <IonIcon aria-hidden="true" icon={APPICONS.addFolder} />
+            </IonButton>
+            <IonButton
+              onClick={() => {
+                collectionService.addDocument(folderId);
+              }}
+            >
+              <IonIcon aria-hidden="true" icon={APPICONS.addDocument} />
+            </IonButton>
+          </IonButtons>
+        </IonToolbar>
+      </IonItem>
+    </IonList>
   );
 };
 
