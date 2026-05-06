@@ -44,10 +44,8 @@ class NotebooksService {
   public initNotebooks() {
     if (!this.hasOneNotebook()) {
       console.log('[storage] no local notebooks detected, creating default');
-      const id = notebooksService.addNotebook(
-        getGlobalTrans().defaultNotebookName
-      );
-      navService.setCurrentFolder(id);
+      this.addDefaultNotebook();
+      navService.setCurrentFolder(DEFAULT_NOTEBOOK_ID);
     }
   }
 
@@ -55,12 +53,20 @@ class NotebooksService {
     return this.getNotebooks().length > 0;
   }
 
+  private addDefaultNotebook() {
+    const { item } = this.getNewNotebookObj(
+      ROOT_COLLECTION,
+      getGlobalTrans().defaultNotebookName
+    );
+    const id = DEFAULT_NOTEBOOK_ID;
+    storageService.getSpace().setRow(this.table, id, { ...item, itemId: id });
+    localChangesService.addLocalChange(id, LocalChangeType.add);
+  }
+
   public addNotebook(title: string, parent: string = ROOT_COLLECTION) {
-    const { item } = this.getNewNotebookObj(parent, title);
-    const id = storageService.getSpace().addRow(this.table, item);
-    if (id) {
-      localChangesService.addLocalChange(id, LocalChangeType.add);
-    }
+    const { item, id } = this.getNewNotebookObj(parent, title);
+    storageService.getSpace().setRow(this.table, id, item);
+    localChangesService.addLocalChange(id, LocalChangeType.add);
     return id!;
   }
 
@@ -68,6 +74,7 @@ class NotebooksService {
     const now = Date.now();
     const id = getUniqueId();
     const item: Notebook = {
+      itemId: id,
       title: title || '',
       title_meta: setFieldMeta(title || '', now),
       parent: parent ? parent : ROOT_COLLECTION,

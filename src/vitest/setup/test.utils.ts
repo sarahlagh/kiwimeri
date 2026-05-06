@@ -29,9 +29,11 @@ export const oneDocument = (
   parent = DEFAULT_NOTEBOOK_ID
 ): CollectionItem => {
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
+  const id = getUniqueId();
   return {
     ...collectionService.getNewDocumentObj(parent).item,
-    id: getUniqueId(),
+    id,
+    itemId: id,
     title,
     title_meta: setFieldMeta(title, Date.now())
   };
@@ -41,9 +43,11 @@ export const oneFolder = (
   parent = DEFAULT_NOTEBOOK_ID
 ): CollectionItem => {
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
+  const id = getUniqueId();
   return {
     ...collectionService.getNewFolderObj(parent).item,
-    id: getUniqueId(),
+    id,
+    itemId: id,
     title,
     title_meta: setFieldMeta(title, Date.now())
   };
@@ -55,7 +59,8 @@ export const oneNotebook = (
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   return {
     ...notebooksService.getNewNotebookObj(ROOT_COLLECTION, title).item,
-    id
+    id,
+    itemId: id
   };
 };
 export const onePage = (
@@ -64,9 +69,11 @@ export const onePage = (
 ): CollectionItem => {
   // note: title param is just there so the method has the same signature as the others
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
+  const id = getUniqueId();
   return {
     ...collectionService.getNewPageObj(parent).item,
-    id: getUniqueId(),
+    id,
+    itemId: id,
     title: '',
     title_meta: setFieldMeta('', Date.now())
   };

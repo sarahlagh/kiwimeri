@@ -11,6 +11,7 @@ export type CollectionItemTypeValues = 'n' | 'f' | 'd' | 'p';
 
 export interface CollectionItem {
   id?: string;
+  itemId: string;
   parent: string;
   parent_meta: string;
   type: CollectionItemTypeValues;

@@ -338,6 +338,7 @@ class CollectionService {
     const now = Date.now();
     const content = initialContent();
     const item: CollectionItem = {
+      itemId: id,
       title: getGlobalTrans().newDocTitle,
       title_meta: setFieldMeta(getGlobalTrans().newDocTitle, now),
       parent,
@@ -367,6 +368,7 @@ class CollectionService {
     const now = Date.now();
     const id = getUniqueId();
     const item: CollectionItem = {
+      itemId: id,
       title: getGlobalTrans().newFolderTitle,
       title_meta: setFieldMeta(getGlobalTrans().newFolderTitle, now),
       parent: parent,
@@ -395,6 +397,7 @@ class CollectionService {
     const now = Date.now();
     const content = initialContent();
     const item: Omit<CollectionItem, 'title' | 'title_meta'> = {
+      itemId: id,
       parent: document,
       parent_meta: setFieldMeta(document, now),
       content,
@@ -442,7 +445,7 @@ class CollectionService {
       ? LocalChangeType.update
       : LocalChangeType.add;
     space.transaction(() => {
-      space.setRow(this.tableId, id, { ...item });
+      space.setRow(this.tableId, id, { ...item, itemId: id });
       if (parent) {
         this.updateAllParentsInBreadcrumb(parent);
       }

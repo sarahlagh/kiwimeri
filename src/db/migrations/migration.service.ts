@@ -44,6 +44,12 @@ class MigrationService {
       const func = await import('./000-create-document-versions');
       func.default(space);
     }
+
+    if (from <= 306 && to >= 307) {
+      console.log('[space] 1 migration to run: itemId backfill');
+      const func = await import('./001-add-itemid-column');
+      func.default(space);
+    }
   }
 
   private getVersionCode(version: string): number {

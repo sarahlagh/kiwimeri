@@ -39,15 +39,18 @@ const fetchItemsQuery = new SpaceQueryDefinition<
   select('order');
   select('conflict');
   select('display_opts');
+  select(getCell => {
+    const id = getCell('itemId')?.toString();
+    if (!id) return undefined;
+    return search[id]?.contentPreview;
+  }).as('preview');
+
   where('deleted', false);
   if (params.recursive === false) {
     where('parent', params.parent);
   } else {
     where(getCell => {
-      const parent = param('parent')!.toString();
-      // i'm saved here because stats do have itemId
-      // but in next table model, include it in collection table too
-      const id = getCell('stats', 'itemId')?.toString();
+      const id = getCell('itemId')?.toString();
       if (!id) return false;
       return ancestry[`${getAncestorId(id, params.parent)}`] !== undefined;
     });
