@@ -53,7 +53,6 @@ class CollectionService {
   private readonly storeId = 'space';
   private readonly tableId = 'collection';
 
-  // TODO review what i actually need to select in queries - fields for sorting, what else?
   private fetchAllPerParentQuery(parent: string, deleted: boolean = false) {
     const queries = storageService.getSpaceQueries();
     const queryName = `fetchAllForParent${parent}`;
@@ -223,9 +222,6 @@ class CollectionService {
       sort.by,
       sort.descending
     );
-    // const table = storageService.getSpace().getTable(this.tableId);
-    // const queryName = this.fetchDocsFoldersNotebooksPerParentQuery(parent);
-    // return this.getResultsSorted(table, queryName, sort);
   }
 
   // can't i use ancestry instead???
@@ -880,7 +876,6 @@ class CollectionService {
     bulk = false
   ) {
     const allDocIds: string[] = [];
-    // storageService.getSpace().transaction(() => {
     historyService.disableForBulk(() => {
       items.forEach(item => {
         const id = this.saveItem(item, item.id, parent);
@@ -895,7 +890,6 @@ class CollectionService {
       );
     }
     return allDocIds;
-    // });
   }
 
   public getBreadcrumb(rowId: string, includeAllNotebooks = false) {

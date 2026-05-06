@@ -7,8 +7,8 @@ import CollectionItemList from '@/collection/components/CollectionItemList';
 import { APPICONS, ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
-import useFetchItemsQuery from '@/modules/collection/hooks/useFetchItemsQuery';
-import useFetchItemsQueryParamsState from '@/modules/collection/hooks/useFetchItemsQueryParentState';
+import useFetchItemsQuery from '@/modules/common/hooks/useFetchItemsQuery';
+import useFetchItemsQueryParamsState from '@/modules/common/hooks/useFetchItemsQueryParentState';
 import {
   IonButton,
   IonButtons,
