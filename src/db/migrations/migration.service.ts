@@ -1,9 +1,14 @@
+import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
 import { Store } from 'tinybase/with-schemas';
 import { SpaceType } from '../types/space-types';
 import { StoreType } from '../types/store-types';
 
 const versionRegexp = /^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/;
+
+function between(to: number, l: number, g: number) {
+  return to >= l && to <= g;
+}
 
 class MigrationService {
   private enabled = true;
@@ -31,6 +36,8 @@ class MigrationService {
       );
       await this.runSpaceMigrations(space, spaceCode, runtimeCode);
       space.setValue('schemaVersion', baseRuntimeVersion);
+    } else if (!platformService.isRelease()) {
+      await this.runSpaceMigrations(space, spaceCode, runtimeCode);
     }
   }
 
@@ -45,7 +52,7 @@ class MigrationService {
       func.default(space);
     }
 
-    if (from <= 306 && to >= 307) {
+    if (from <= 306 && between(to, 306, 307)) {
       console.log('[space] 1 migration to run: itemId backfill');
       const func = await import('./001-add-itemid-column');
       func.default(space);

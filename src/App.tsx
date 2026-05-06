@@ -29,7 +29,7 @@ import { ToastProvider } from './app/providers/ToastProvider';
 import {
   addAndroidListeners,
   removeAndroidListeners
-} from './capacitor/handle-core-plugins';
+} from './capacitor/handle-android-plugins';
 import platformService from './common/services/platform.service';
 import { initGlobalTrans } from './config';
 import { historyService } from './db/collection-history.service';
