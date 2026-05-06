@@ -87,9 +87,6 @@ describe('export service', () => {
               expect(meta.tags).toBeDefined();
             }
 
-            console.debug('meta', meta);
-            console.debug('zipContent', zipContent);
-
             const filesInZip = Object.keys(zipContent).filter(
               key => key !== META_JSON && Array.isArray(zipContent[key])
             );

@@ -613,8 +613,6 @@ describe('import service', () => {
                             return;
                           }
 
-                          console.debug('merge results', zipMerge);
-
                           checkResults(
                             zipMerge!,
                             scenario.expected,
@@ -627,11 +625,6 @@ describe('import service', () => {
                           importService.commitMergeResult(
                             zipMerge!,
                             commitOpts
-                          );
-
-                          console.debug(
-                            'db after save',
-                            storageService.getSpace().getTable('collection')
                           );
 
                           checkResultsDb(initialItems, zipMerge!, commitOpts);
