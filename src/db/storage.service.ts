@@ -213,6 +213,13 @@ class StorageService {
           date: { type: 'string' } as CellSchema,
           contentStatsJson: { type: 'string' } as CellSchema,
           lastOpenedAt: { type: 'number' } as CellSchema
+        },
+        comments: {
+          itemId: { type: 'string' } as CellSchema,
+          createdAt: { type: 'number' } as CellSchema,
+          updatedAt: { type: 'number' } as CellSchema,
+          content: { type: 'string' } as CellSchema,
+          plainText: { type: 'string' } as CellSchema
         }
       })
       .setValuesSchema({
