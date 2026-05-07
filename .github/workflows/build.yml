@@ -19,10 +19,11 @@ jobs:
           node-version: 22
           cache: 'yarn'
           cache-dependency-path: '**/yarn.lock'
-      - name: Build Production
+      - name: Check Build
         run: |
           yarn install --frozen-lockfile
-          npx ionic build --prod
+          yarn typecheck
+          yarn build:prod
 
   unit-tests:
     name: Unit Tests

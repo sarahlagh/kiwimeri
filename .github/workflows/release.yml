@@ -11,6 +11,26 @@ on:
       - '*'
 
 jobs:
+  pre-release-checks:
+    name: Release checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'yarn'
+          cache-dependency-path: '**/yarn.lock'
+      - name: Build Check
+        run: |
+          yarn install --frozen-lockfile
+          yarn typecheck
+          yarn build:prod
+          cp .env.ci .env
+          yarn test-unit
+
   release-draft:
     name: Create GitHub Release
     runs-on: ubuntu-latest
