@@ -9,13 +9,13 @@ import './CommentsBrowser.scss';
 import { CommentsMenu } from './CommentsMenu';
 
 export type CommentsBrowserProps = {
-  docId: string;
+  id: string;
   showActions?: boolean;
   editable?: boolean;
 };
 
 export default function CommentsBrowser({
-  docId,
+  id: docId,
   showActions = true,
   editable = true
 }: CommentsBrowserProps): JSX.Element {

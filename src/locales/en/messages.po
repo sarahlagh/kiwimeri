@@ -106,7 +106,7 @@ msgstr "Clear All"
 msgid "Close"
 msgstr "Close"
 
-#: src/constants.ts:85
+#: src/constants.ts:86
 msgid "collection"
 msgstr "collection"
 
@@ -137,7 +137,7 @@ msgstr "Configure where to synchronize your collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/constants.ts:80
+#: src/constants.ts:81
 msgid "Conflicts"
 msgstr "Conflicts"
 
@@ -150,6 +150,7 @@ msgid "create a comment"
 msgstr "create a comment"
 
 #: src/collection/components/DocumentInfoCard.tsx:31
+#: src/collection/components/sheets/DocumentGeneralInfo.tsx:18
 msgid "Created at"
 msgstr "Created at"
 
@@ -162,7 +163,7 @@ msgstr "Creation Date"
 msgid "Current Notebook Settings ({notebookTitle})"
 msgstr "Current Notebook Settings ({notebookTitle})"
 
-#: src/constants.ts:79
+#: src/constants.ts:80
 msgid "Default"
 msgstr "Default"
 
@@ -286,7 +287,7 @@ msgstr "History idle time (s)"
 msgid "History save time (min)"
 msgstr "History save time (min)"
 
-#: src/constants.ts:78
+#: src/constants.ts:79
 msgid "Home"
 msgstr "Home"
 
@@ -419,11 +420,11 @@ msgstr "Name"
 msgid "new"
 msgstr "new"
 
-#: src/constants.ts:81
+#: src/constants.ts:82
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:82
+#: src/constants.ts:83
 msgid "New folder"
 msgstr "New folder"
 
@@ -471,7 +472,7 @@ msgstr "Options for the currently selected device. These options are local-only.
 msgid "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 msgstr "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 
-#: src/constants.ts:84
+#: src/constants.ts:85
 msgid "page"
 msgstr "page"
 
@@ -614,6 +615,7 @@ msgid "Syncing is disabled on the web version."
 msgstr "Syncing is disabled on the web version."
 
 #: src/collection/components/DocumentInfoCard.tsx:47
+#: src/collection/components/sheets/DocumentGeneralInfo.tsx:34
 msgid "Tags"
 msgstr "Tags"
 
@@ -666,6 +668,7 @@ msgid "Track text statistics"
 msgstr "Track text statistics"
 
 #: src/collection/components/DocumentInfoCard.tsx:39
+#: src/collection/components/sheets/DocumentGeneralInfo.tsx:26
 msgid "Updated at"
 msgstr "Updated at"
 
@@ -691,6 +694,7 @@ msgid "When working on a document, a new version will be automatically if idle a
 msgstr "When working on a document, a new version will be automatically if idle after XX seconds"
 
 #: src/collection/components/DocumentInfoCard.tsx:53
+#: src/collection/components/sheets/DocumentGeneralInfo.tsx:40
 msgid "Word count"
 msgstr "Word count"
 

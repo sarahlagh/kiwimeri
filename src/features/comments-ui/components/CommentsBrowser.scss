@@ -6,7 +6,7 @@
     flex-grow: 3;
     padding-top: 8px;
     width: 80%;
-    height: calc(100% - 36px);
+    height: 100%; //calc(100% - 36px);
 
     .editor-input.comment-editor {
       padding: 0px;

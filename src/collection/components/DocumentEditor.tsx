@@ -26,8 +26,8 @@ import { forwardRef, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import ActionsFromDocumentEditorToolbar from './actions/ActionsFromDocumentEditorToolbar';
 import './DocumentEditor.scss';
-import DocumentInfoCard, { DocInfoTab } from './DocumentInfoCard';
 import SearchActionsToolbar from './SearchActionsToolbar';
+import DocumentBottomSheet, { DocSheet } from './sheets/DocumentBottomSheet';
 interface DocumentEditorProps {
   docId: string;
   pageId?: string;
@@ -38,14 +38,14 @@ interface DocumentEditorProps {
 const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
   function DocumentEditor(props, ref) {
     const [uniqId, setUniqId] = useState(0);
-    const [initialTab, setInitialTab] = useState<DocInfoTab>('general');
 
     const { docId, pageId, showActions = false, query } = { ...props };
 
     const history = useHistory();
     const [showDocumentActions, setShowDocumentActions] =
       useState<boolean>(false);
-    const [showDocumentFooter, setShowDocumentFooter] = useState(showActions);
+    const [showBottomSheet, setShowBottomSheet] = useState(showActions);
+    const [bottomSheet, setBottomSheet] = useState<DocSheet>('info');
     const [openPageBrowser, setOpenPageBrowser] = useState(false);
     const [toggleSearch, setToggleSearch] = useState(false);
     const [toggleSearchAutoFocus, setToggleSearchAutoFocus] = useState(true);
@@ -111,9 +111,9 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
               id={itemId}
               docId={docId}
               onClose={(role, data) => {
-                if (role === 'info') {
-                  setInitialTab('general');
-                  setShowDocumentFooter(!showDocumentFooter);
+                if (role === 'info' || role === 'stats') {
+                  setBottomSheet(role);
+                  setShowBottomSheet(true);
                   setShowDocumentActions(false);
                 } else if (role === 'restore') {
                   setUniqId(uniqId + 1); // force editor to reload content
@@ -184,11 +184,10 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
             </KiwimeriEditor>
           )}
         </IonContent>
-        {/* <CommentsBrowser docId={docId} /> */}
-        {showDocumentFooter && (
-          <DocumentInfoCard
+        {showBottomSheet && (
+          <DocumentBottomSheet
             id={pageId ? pageId : docId}
-            initialTab={initialTab}
+            select={bottomSheet}
           />
         )}
         <IonFab
@@ -197,20 +196,20 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
           vertical="bottom"
           horizontal="end"
         >
-          {showDocumentFooter && (
+          {showBottomSheet && (
             <IonFabButton
               size="small"
-              onClick={() => setShowDocumentFooter(false)}
+              onClick={() => setShowBottomSheet(false)}
             >
               <IonIcon icon={APPICONS.closeAction}></IonIcon>
             </IonFabButton>
           )}
-          {!showDocumentFooter && (
+          {!showBottomSheet && (
             <IonFabButton
               size="small"
               onClick={() => {
-                setInitialTab('comments');
-                setShowDocumentFooter(true);
+                setBottomSheet('comments');
+                setShowBottomSheet(true);
               }}
             >
               <IonIcon icon={APPICONS.comment}></IonIcon>

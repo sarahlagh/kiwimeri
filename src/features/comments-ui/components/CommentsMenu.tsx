@@ -80,8 +80,7 @@ export const CommentsMenu = ({
 
       {comments.length === 0 && <Trans>create a comment</Trans>}
       <SortableList
-        style={{ height: 'calc(100% - 66px)', overflowY: 'auto' }}
-        // style={{ overflowY: 'auto' }}
+        style={{ height: 'calc(100% - 28px)', overflowY: 'auto' }}
         className="inner-list"
         items={comments}
         // sortDisabled={sort.by !== 'order'}

@@ -11,6 +11,7 @@ import { GET_DOCUMENT_ROUTE, GET_FOLDER_ROUTE } from '@/common/routes';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
 import navService from '@/db/nav.service';
+import userSettingsService from '@/db/user-settings.service';
 import { IonButton, IonButtons, IonIcon, IonToolbar } from '@ionic/react';
 import { hammerOutline } from 'ionicons/icons';
 
@@ -40,6 +41,9 @@ const ActionsFromDocumentEditorToolbar = ({
   const hasPages =
     type === CollectionItemType.document &&
     collectionService.getDocumentPages(id).length > 0;
+
+  const statsEnabled = userSettingsService.getDefaultDisplayOpts().statsEnabled;
+  const showStats = statsEnabled && showInfo;
   return (
     <IonToolbar color="medium" style={{ height: 56 + 'px' }}>
       <IonButtons slot="end">
@@ -80,6 +84,16 @@ const ActionsFromDocumentEditorToolbar = ({
             }}
           >
             <IonIcon icon={APPICONS.info}></IonIcon>
+          </IonButton>
+        )}
+        {showStats && (
+          <IonButton
+            expand="block"
+            onClick={() => {
+              onClose('stats', id);
+            }}
+          >
+            <IonIcon icon={APPICONS.stats}></IonIcon>
           </IonButton>
         )}
 
