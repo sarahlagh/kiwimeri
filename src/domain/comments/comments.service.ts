@@ -37,8 +37,9 @@ class CommentsService {
         plainText: getPlainText(content),
         updatedAt: now
       });
-      const itemId = space.getCell('comments', id, 'itemId');
-      space.setCell('collection', itemId!, 'updated', now);
+      // TODO reactivate, but don't let that trigger re-rerender
+      // const itemId = space.getCell('comments', id, 'itemId');
+      // space.setCell('collection', itemId!, 'updated', now);
     });
   }
 
@@ -49,6 +50,10 @@ class CommentsService {
   public getComments(itemId: Id) {
     // TODO dynamic sort
     return fetchCommentsQuery.getResults({ itemId }, 'createdAt', false);
+  }
+
+  public getCommentContent(itemId: Id) {
+    return getSpace().getCell('comments', itemId, 'content');
   }
 }
 

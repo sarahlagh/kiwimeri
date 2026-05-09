@@ -2,6 +2,7 @@ import storageService, { StoreId } from '@/db/storage.service';
 import { useResultSortedRowIdsWithRef } from '@/db/tinybase/hooks';
 import { SpaceType } from '@/db/types/space-types';
 import { StoreType } from '@/db/types/store-types';
+import { useResultTable } from 'tinybase/ui-react';
 import {
   getUniqueId,
   Group,
@@ -72,7 +73,7 @@ export class TinybaseQueryDefinition<
     offset?: number,
     limit?: number
   ) {
-    const queries = this.getQueries();
+    const resultTable = useResultTable(this.queryId, this.storeId);
     return useResultSortedRowIdsWithRef(
       this.storeId,
       this.queryId,
@@ -83,9 +84,25 @@ export class TinybaseQueryDefinition<
     ).map(
       rowId =>
         ({
-          ...queries.getResultRow(this.queryId, rowId),
+          ...resultTable[rowId],
           id: rowId
         }) as QueryResult & { id: Id }
+    );
+  }
+
+  public useResultsIds(
+    sortBy?: SortCell<QueryResult>,
+    descending?: boolean,
+    offset?: number,
+    limit?: number
+  ) {
+    return useResultSortedRowIdsWithRef(
+      this.storeId,
+      this.queryId,
+      sortBy,
+      descending,
+      offset,
+      limit
     );
   }
 

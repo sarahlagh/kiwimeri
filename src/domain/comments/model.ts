@@ -21,7 +21,7 @@ export const commentSchema = {
 
 export type CommentResult = {
   id: string;
-} & CommentRow;
+} & Pick<CommentRow, 'createdAt' | 'updatedAt' | 'order' | 'plainText'>;
 
 export const sortBy = ['createdAt', 'updatedAt', 'order'] as const;
 export type CommentSortType = (typeof sortBy)[number];

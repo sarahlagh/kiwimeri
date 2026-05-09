@@ -67,33 +67,46 @@ const DocumentInfoCard = ({
   const ChartContainer = lazy(
     () => import('@/features/stats-ui/components/ChartContainer')
   );
+  const CommentsBrowser = lazy(
+    () => import('@/features/comments-ui/components/CommentsBrowser')
+  );
 
   return (
-    <BottomSheet>
-      {statsEnabled && (
-        <IonSegment
-          value={display}
-          onIonChange={e => setDisplay(e.detail.value as DocInfoTab)}
-        >
-          <IonSegmentButton value="general">
-            <IonLabel>
-              <Trans>General</Trans>
-            </IonLabel>
-          </IonSegmentButton>
-          <IonSegmentButton value="comments">
-            <IonLabel>
-              <Trans>Comments</Trans>
-            </IonLabel>
-          </IonSegmentButton>
-          <IonSegmentButton value="stats">
-            <IonLabel>
-              <Trans>Stats</Trans>
-            </IonLabel>
-          </IonSegmentButton>
-        </IonSegment>
+    <BottomSheet
+      header={
+        statsEnabled && (
+          <IonSegment
+            mode="ios"
+            value={display}
+            onIonChange={e => setDisplay(e.detail.value as DocInfoTab)}
+          >
+            <IonSegmentButton value="general">
+              <IonLabel>
+                <Trans>General</Trans>
+              </IonLabel>
+            </IonSegmentButton>
+            <IonSegmentButton value="comments">
+              <IonLabel>
+                <Trans>Comments</Trans>
+              </IonLabel>
+            </IonSegmentButton>
+            <IonSegmentButton value="stats">
+              <IonLabel>
+                <Trans>Stats</Trans>
+              </IonLabel>
+            </IonSegmentButton>
+          </IonSegment>
+        )
+      }
+    >
+      {display === 'general' && <DocumentGeneralInfo id={id} />}
+
+      {display === 'comments' && (
+        <Suspense fallback={<Loading />}>
+          <CommentsBrowser docId={id} />
+        </Suspense>
       )}
 
-      {display === 'general' && <DocumentGeneralInfo id={id} />}
       {display === 'stats' && (
         <Suspense fallback={<Loading />}>
           <ChartContainer id={id} />

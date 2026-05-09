@@ -4,14 +4,14 @@ import { ReactNode, useState } from 'react';
 import { APPICONS } from '@/constants';
 import './BottomSheet.scss';
 
-type BottomSheetProps = {
+type BottomSheetProps = { readonly header?: ReactNode } & {
   readonly children?: ReactNode;
 };
 
 const snaps = [45, 100];
 const nextSnap = (i: number) => (i < snaps.length - 1 ? i + 1 : 0);
 
-const BottomSheet = ({ children }: BottomSheetProps) => {
+const BottomSheet = ({ header, children }: BottomSheetProps) => {
   const [snap, setSnap] = useState<number>(0);
 
   return (
@@ -29,6 +29,7 @@ const BottomSheet = ({ children }: BottomSheetProps) => {
             }
           ></IonIcon>
         </div>
+        {header}
         <IonCardContent>{children}</IonCardContent>
       </IonCard>
     </div>

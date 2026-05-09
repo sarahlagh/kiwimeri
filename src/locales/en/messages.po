@@ -17,7 +17,6 @@ msgstr ""
 msgid " (new)"
 msgstr " (new)"
 
-#. placeholder {0}: showFilters ? 'Hide' : 'Show'
 #: src/dev-tools/components/LogsCard.tsx:132
 msgid "{0} Filters"
 msgstr "{0} Filters"
@@ -66,16 +65,16 @@ msgstr "Are you sure?"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: src/modules/stats/components/ChartContainer.tsx:56
+#: src/features/stats-ui/components/ChartContainer.tsx:57
 msgid "Character Count"
 msgstr "Character Count"
 
-#: src/modules/stats/components/ChartContainer.tsx:66
+#: src/features/stats-ui/components/ChartContainer.tsx:67
 msgid "Character Count (Max)"
 msgstr "Character Count (Max)"
 
-#: src/modules/stats/components/ChartContainer.tsx:57
-#: src/modules/stats/components/ChartContainer.tsx:67
+#: src/features/stats-ui/components/ChartContainer.tsx:58
+#: src/features/stats-ui/components/ChartContainer.tsx:68
 msgid "characters"
 msgstr "characters"
 
@@ -107,13 +106,17 @@ msgstr "Clear All"
 msgid "Close"
 msgstr "Close"
 
-#: src/constants.ts:82
+#: src/constants.ts:85
 msgid "collection"
 msgstr "collection"
 
 #: src/app/components/MainMenuList.tsx:58
 msgid "Collection"
 msgstr "Collection"
+
+#: src/collection/components/DocumentInfoCard.tsx:90
+msgid "Comments"
+msgstr "Comments"
 
 #: src/dev-tools/components/ConfigCard.tsx:166
 msgid "Config"
@@ -134,7 +137,7 @@ msgstr "Configure where to synchronize your collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/constants.ts:77
+#: src/constants.ts:80
 msgid "Conflicts"
 msgstr "Conflicts"
 
@@ -142,7 +145,11 @@ msgstr "Conflicts"
 msgid "Content"
 msgstr "Content"
 
-#: src/collection/components/DocumentInfoCard.tsx:28
+#: src/features/comments-ui/components/CommentsMenu.tsx:81
+msgid "create a comment"
+msgstr "create a comment"
+
+#: src/collection/components/DocumentInfoCard.tsx:31
 msgid "Created at"
 msgstr "Created at"
 
@@ -155,7 +162,7 @@ msgstr "Creation Date"
 msgid "Current Notebook Settings ({notebookTitle})"
 msgstr "Current Notebook Settings ({notebookTitle})"
 
-#: src/constants.ts:76
+#: src/constants.ts:79
 msgid "Default"
 msgstr "Default"
 
@@ -208,6 +215,10 @@ msgstr "Document History"
 #: src/dev-tools/components/LogsCard.tsx:117
 msgid "Download Logs"
 msgstr "Download Logs"
+
+#: src/features/comments-ui/components/CommentsMenu.tsx:47
+msgid "empty comment"
+msgstr "empty comment"
 
 #: src/common/wysiwyg/pages-browser/CollectionPagesBrowser.tsx:90
 msgid "empty doc"
@@ -263,7 +274,7 @@ msgstr "File not supported"
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/collection/components/DocumentInfoCard.tsx:62
+#: src/collection/components/DocumentInfoCard.tsx:85
 msgid "General"
 msgstr "General"
 
@@ -275,16 +286,14 @@ msgstr "History idle time (s)"
 msgid "History save time (min)"
 msgstr "History save time (min)"
 
-#: src/constants.ts:75
+#: src/constants.ts:78
 msgid "Home"
 msgstr "Home"
 
-#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:112
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
-#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:105
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
@@ -321,7 +330,7 @@ msgstr "Internal proxy"
 msgid "Kiwimeri format (single file)"
 msgstr "Kiwimeri format (single file)"
 
-#: src/collection/components/CollectionItemBrowserList.tsx:160
+#: src/collection/components/CollectionItemBrowserList.tsx:149
 msgid "Last consulted documents"
 msgstr "Last consulted documents"
 
@@ -329,7 +338,7 @@ msgstr "Last consulted documents"
 msgid "Last Updated"
 msgstr "Last Updated"
 
-#: src/collection/components/CollectionItemBrowserList.tsx:159
+#: src/collection/components/CollectionItemBrowserList.tsx:148
 msgid "Last updated documents"
 msgstr "Last updated documents"
 
@@ -345,16 +354,14 @@ msgstr "Less dangerous mode (session is still timed but you will not lose progre
 msgid "Link"
 msgstr "Link"
 
-#: src/app/components/Loading.tsx:8
+#: src/app/components/Loading.tsx:4
 msgid "Loading..."
 msgstr "Loading..."
 
-#. placeholder {0}: localChanges.length
 #: src/synchronization/components/LocalChangesCard.tsx:38
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
-#. placeholder {0}: dateToStr('datetime', lastLocalChange)
 #: src/synchronization/components/LocalChangesCard.tsx:44
 msgid "Local: {0}"
 msgstr "Local: {0}"
@@ -412,11 +419,11 @@ msgstr "Name"
 msgid "new"
 msgstr "new"
 
-#: src/constants.ts:78
+#: src/constants.ts:81
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:79
+#: src/constants.ts:82
 msgid "New folder"
 msgstr "New folder"
 
@@ -440,7 +447,7 @@ msgstr "no"
 msgid "No tag yet"
 msgstr "No tag yet"
 
-#: src/app/components/NotFound.tsx:8
+#: src/app/components/NotFound.tsx:4
 msgid "Not Found"
 msgstr "Not Found"
 
@@ -464,7 +471,7 @@ msgstr "Options for the currently selected device. These options are local-only.
 msgid "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 msgstr "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 
-#: src/constants.ts:81
+#: src/constants.ts:84
 msgid "page"
 msgstr "page"
 
@@ -504,7 +511,6 @@ msgstr "Remember last route"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
-#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
 #: src/synchronization/components/LocalChangesCard.tsx:51
 msgid "Remote: {0}"
 msgstr "Remote: {0}"
@@ -546,6 +552,10 @@ msgstr "Search Content"
 msgid "Search input"
 msgstr "Search input"
 
+#: src/features/comments-ui/components/CommentsBrowser.tsx:47
+msgid "select a comment"
+msgstr "select a comment"
+
 #: src/common/modals/ChooseTagsModal.tsx:39
 msgid "Select item tags"
 msgstr "Select item tags"
@@ -579,7 +589,7 @@ msgstr "Space Settings"
 msgid "Start Writing"
 msgstr "Start Writing"
 
-#: src/collection/components/DocumentInfoCard.tsx:67
+#: src/collection/components/DocumentInfoCard.tsx:95
 msgid "Stats"
 msgstr "Stats"
 
@@ -602,6 +612,10 @@ msgstr "Synchronize your collection on the filesystem"
 #: src/synchronization/components/providers/RemotesSettings.tsx:62
 msgid "Syncing is disabled on the web version."
 msgstr "Syncing is disabled on the web version."
+
+#: src/collection/components/DocumentInfoCard.tsx:47
+msgid "Tags"
+msgstr "Tags"
 
 #: src/common/wysiwyg/lexical/EditLinkPlugin.tsx:44
 msgid "Text"
@@ -651,7 +665,7 @@ msgstr "Title"
 msgid "Track text statistics"
 msgstr "Track text statistics"
 
-#: src/collection/components/DocumentInfoCard.tsx:36
+#: src/collection/components/DocumentInfoCard.tsx:39
 msgid "Updated at"
 msgstr "Updated at"
 
@@ -676,17 +690,21 @@ msgstr "When working on a document, a new version will be automatically at least
 msgid "When working on a document, a new version will be automatically if idle after XX seconds"
 msgstr "When working on a document, a new version will be automatically if idle after XX seconds"
 
-#: src/modules/stats/components/ChartContainer.tsx:51
+#: src/collection/components/DocumentInfoCard.tsx:53
+msgid "Word count"
+msgstr "Word count"
+
+#: src/features/stats-ui/components/ChartContainer.tsx:52
 msgid "Word Count"
 msgstr "Word Count"
 
-#: src/modules/stats/components/ChartContainer.tsx:61
+#: src/features/stats-ui/components/ChartContainer.tsx:62
 msgid "Word Count (Max)"
 msgstr "Word Count (Max)"
 
-#: src/collection/components/WordCount.tsx:22
-#: src/modules/stats/components/ChartContainer.tsx:52
-#: src/modules/stats/components/ChartContainer.tsx:62
+#: src/collection/components/WordCount.tsx:20
+#: src/features/stats-ui/components/ChartContainer.tsx:53
+#: src/features/stats-ui/components/ChartContainer.tsx:63
 msgid "words"
 msgstr "words"
 

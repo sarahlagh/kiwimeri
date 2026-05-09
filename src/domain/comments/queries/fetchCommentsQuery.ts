@@ -9,15 +9,14 @@ const fetchCommentsQuery = new SpaceQueryDefinition<
   FetchCommentsQueryParam,
   CommentResult,
   'comments'
->('fetchItems', 'comments', ({ select, where, param }) => {
+>('fetchComments', 'comments', ({ select, where, param }) => {
   const params: FetchCommentsQueryParam = {
     itemId: param('itemId') as string
   };
-  select('itemId');
   select('createdAt');
   select('updatedAt');
-  select('content');
   select('plainText');
+  select('order');
   where('itemId', params.itemId);
 });
 

@@ -1,0 +1,49 @@
+.comment-browser {
+  display: flex;
+  height: 100%;
+
+  .comment-area {
+    flex-grow: 3;
+    padding-top: 8px;
+    width: 80%;
+    height: calc(100% - 36px);
+
+    .editor-input.comment-editor {
+      padding: 0px;
+      // overflow-y: auto;
+    }
+    .editor-placeholder {
+      top: 8px;
+    }
+  }
+
+  .comment-browser-separator {
+    border-left: solid 0.4px;
+    width: 8px;
+  }
+  .comment-menu {
+    width: 20%;
+
+    .comment-actions-bar {
+      height: 28px;
+    }
+
+    .comment-preview {
+      margin-top: 5px;
+      font-size: small;
+      --inner-padding-start: 6px;
+      --inner-padding-end: 6px;
+      --inner-border-width: 1px;
+      --padding-start: 0px;
+      --padding-end: 0px;
+    }
+
+    .comment-preview-selected {
+      color: var(--ion-color-primary);
+    }
+
+    .comment-preview-empty {
+      --color: var(--ion-color-medium);
+    }
+  }
+}
