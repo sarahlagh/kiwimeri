@@ -1,4 +1,3 @@
-import Loading from '@/app/components/Loading';
 import { appConfig } from '@/config';
 import { historyService } from '@/db/collection-history.service';
 import remotesService from '@/db/remotes.service';
@@ -10,6 +9,7 @@ import { Queries } from 'tinybase/queries';
 import { Store } from 'tinybase/store';
 import { Provider } from 'tinybase/ui-react';
 import { Inspector } from 'tinybase/ui-react-inspector';
+import LoadingPage from '../pages/LoadingPage';
 
 const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -38,7 +38,7 @@ const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
   const storeIndexes = storageService.getStoreIndexes() as unknown as Indexes;
 
   if (isLoading) {
-    return <Loading />;
+    return <LoadingPage />;
   }
   return (
     <Provider

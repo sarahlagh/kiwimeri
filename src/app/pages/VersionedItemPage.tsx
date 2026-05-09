@@ -8,7 +8,7 @@ import notebooksService from '@/db/notebooks.service';
 import { IonButton, IonIcon } from '@ionic/react';
 import { useState } from 'react';
 import { useLocation } from 'react-router';
-import NotFound from '../components/NotFound';
+import NotFoundPage from './NotFoundPage';
 import TemplateCompactableSplitPage from './TemplateCompactableSplitPage';
 
 const VersionedItemPage = () => {
@@ -39,11 +39,11 @@ const VersionedItemPage = () => {
   };
 
   if (!docId || !docVersion || !historyService.versionExists(docVersion)) {
-    return <NotFound />;
+    return <NotFoundPage />;
   }
 
   if (pageVersion && !historyService.versionExists(pageVersion)) {
-    return <NotFound />;
+    return <NotFoundPage />;
   }
 
   return (
