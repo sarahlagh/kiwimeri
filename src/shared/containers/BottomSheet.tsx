@@ -4,7 +4,9 @@ import { ReactNode, useState } from 'react';
 import { APPICONS } from '@/constants';
 import './BottomSheet.scss';
 
-type BottomSheetProps = { readonly children?: ReactNode };
+type BottomSheetProps = {
+  readonly children?: ReactNode;
+};
 
 const snaps = [45, 100];
 const nextSnap = (i: number) => (i < snaps.length - 1 ? i + 1 : 0);

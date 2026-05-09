@@ -14,6 +14,8 @@ import {
   InputCustomEvent,
   IonButton,
   IonContent,
+  IonFab,
+  IonFabButton,
   IonHeader,
   IonIcon,
   IonInput,
@@ -22,10 +24,10 @@ import {
 } from '@ionic/react';
 import { forwardRef, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
-import DocumentEditorFooter from './DocumentEditorFooter';
-import SearchActionsToolbar from './SearchActionsToolbar';
 import ActionsFromDocumentEditorToolbar from './actions/ActionsFromDocumentEditorToolbar';
-
+import './DocumentEditor.scss';
+import DocumentInfoCard, { DocInfoTab } from './DocumentInfoCard';
+import SearchActionsToolbar from './SearchActionsToolbar';
 interface DocumentEditorProps {
   docId: string;
   pageId?: string;
@@ -36,6 +38,7 @@ interface DocumentEditorProps {
 const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
   function DocumentEditor(props, ref) {
     const [uniqId, setUniqId] = useState(0);
+    const [initialTab, setInitialTab] = useState<DocInfoTab>('general');
 
     const { docId, pageId, showActions = false, query } = { ...props };
 
@@ -109,6 +112,7 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
               docId={docId}
               onClose={(role, data) => {
                 if (role === 'info') {
+                  setInitialTab('general');
                   setShowDocumentFooter(!showDocumentFooter);
                   setShowDocumentActions(false);
                 } else if (role === 'restore') {
@@ -180,9 +184,40 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
             </KiwimeriEditor>
           )}
         </IonContent>
+        {/* <CommentsBrowser docId={docId} /> */}
         {showDocumentFooter && (
-          <DocumentEditorFooter docId={docId} pageId={pageId} />
+          <DocumentInfoCard
+            id={pageId ? pageId : docId}
+            initialTab={initialTab}
+          />
         )}
+        <IonFab
+          className="document-editor-fab"
+          slot="fixed"
+          vertical="bottom"
+          horizontal="end"
+        >
+          {showDocumentFooter && (
+            <IonFabButton
+              size="small"
+              onClick={() => setShowDocumentFooter(false)}
+            >
+              <IonIcon icon={APPICONS.closeAction}></IonIcon>
+            </IonFabButton>
+          )}
+          {!showDocumentFooter && (
+            <IonFabButton
+              size="small"
+              onClick={() => {
+                setInitialTab('comments');
+                setShowDocumentFooter(true);
+              }}
+            >
+              <IonIcon icon={APPICONS.comment}></IonIcon>
+            </IonFabButton>
+          )}
+        </IonFab>
+        {/* )} */}
       </>
     );
   }

@@ -1,7 +1,6 @@
 import { countWords } from '@/common/utils';
-import { APPICONS } from '@/constants';
 import { searchAncestryService } from '@/search/search-ancestry.service';
-import { IonIcon, IonText } from '@ionic/react';
+import { IonText } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 
 type WordCountProps = {
@@ -15,7 +14,6 @@ const WordCount = ({ id }: WordCountProps) => {
 
   return (
     <>
-      <IonIcon icon={APPICONS.info}></IonIcon>
       <IonText>
         <i>
           &nbsp;

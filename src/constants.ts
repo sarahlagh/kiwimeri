@@ -10,6 +10,7 @@ import {
   arrowUp,
   bugOutline,
   caretBackCircleOutline,
+  chatbubbleEllipsesOutline,
   checkmarkOutline,
   chevronCollapseOutline,
   chevronDownOutline,
@@ -71,6 +72,8 @@ export const INTERNAL_FORMAT = 'raw';
 
 export const CONFLICT_STR = '[!] ';
 
+export const PREVIEW_SIZE = 80;
+
 // messages
 export const ROOT_FOLDER_TITLE = msg`Home`;
 export const DEFAULT_NOTEBOOK_NAME = msg`Default`;
@@ -95,6 +98,7 @@ export const APPICONS = {
   folder: folderSharp,
   notebook: fileTrayStackedOutline,
   page: receiptOutline,
+  comment: chatbubbleEllipsesOutline,
   itemActions: ellipsisVertical,
   goToCurrentFolder: locateOutline,
   deleteAction: trashOutline,
