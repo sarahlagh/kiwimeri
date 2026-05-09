@@ -1,6 +1,6 @@
 import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
+import { getSpace } from '@/core/db/store';
 import { initialContent } from '@/db/collection.service';
-import storageService from '@/db/storage.service';
 import { getPlainText } from '@/shared/utils/getPlainText';
 import { SerializedEditorState } from 'lexical';
 import { getUniqueId, Id } from 'tinybase/common';
@@ -22,14 +22,14 @@ class CommentsService {
     return { item: comment, id };
   }
 
-  public addComment(itemId: Id) {
+  public addComment(itemId: Id, order?: number) {
     const { item, id } = this.getCommentObj(itemId);
-    storageService.getSpace().setRow('comments', id, item);
+    getSpace().setRow('comments', id, { ...item, order });
     return id;
   }
 
   public editComment(id: Id, content: SerializedEditorState) {
-    const space = storageService.getSpace();
+    const space = getSpace();
     space.transaction(() => {
       const now = Date.now();
       space.setPartialRow('comments', id, {
@@ -37,13 +37,13 @@ class CommentsService {
         plainText: getPlainText(content),
         updatedAt: now
       });
-      const itemId = space.getCell('comments', id, 'itemId') as string;
-      space.setCell('collection', itemId, 'updated', now);
+      const itemId = space.getCell('comments', id, 'itemId');
+      space.setCell('collection', itemId!, 'updated', now);
     });
   }
 
   public deleteComment(id: Id) {
-    storageService.getSpace().delRow('comments', id);
+    getSpace().delRow('comments', id);
   }
 
   public getComments(itemId: Id) {

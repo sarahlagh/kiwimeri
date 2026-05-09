@@ -4,6 +4,7 @@ import {
   DEFAULT_SPACE_ID,
   INTERNAL_FORMAT
 } from '@/constants';
+import { commentSchema } from '@/domain/comments/model';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db/with-schemas';
 import { Persister } from 'tinybase/persisters/with-schemas';
 import { createQueries, Queries } from 'tinybase/queries/with-schemas';
@@ -214,13 +215,7 @@ class StorageService {
           contentStatsJson: { type: 'string' } as CellSchema,
           lastOpenedAt: { type: 'number' } as CellSchema
         },
-        comments: {
-          itemId: { type: 'string' } as CellSchema,
-          createdAt: { type: 'number' } as CellSchema,
-          updatedAt: { type: 'number' } as CellSchema,
-          content: { type: 'string' } as CellSchema,
-          plainText: { type: 'string' } as CellSchema
-        }
+        comments: commentSchema
       })
       .setValuesSchema({
         lastUpdated: { type: 'number', default: 0 },
