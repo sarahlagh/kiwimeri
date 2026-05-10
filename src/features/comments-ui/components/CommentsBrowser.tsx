@@ -1,6 +1,6 @@
 import { useEffect, useState, type JSX } from 'react';
 
-import fetchCommentsQuery from '@/domain/comments/queries/fetchCommentsQuery';
+import fetchCommentsQuery from '@/features/comments-ui/queries/fetchCommentsQuery';
 import { IonNote } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 import { Id } from 'tinybase/with-schemas';

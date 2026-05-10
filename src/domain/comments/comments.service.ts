@@ -5,7 +5,6 @@ import { getPlainText } from '@/shared/utils/getPlainText';
 import { SerializedEditorState } from 'lexical';
 import { getUniqueId, Id } from 'tinybase/common';
 import { CommentRow } from './model';
-import fetchCommentsQuery from './queries/fetchCommentsQuery';
 
 class CommentsService {
   public getCommentObj(itemId: Id): { item: CommentRow; id: Id } {
@@ -45,11 +44,6 @@ class CommentsService {
 
   public deleteComment(id: Id) {
     getSpace().delRow('comments', id);
-  }
-
-  public getComments(itemId: Id) {
-    // TODO dynamic sort
-    return fetchCommentsQuery.getResults({ itemId }, 'createdAt', false);
   }
 
   public getCommentContent(itemId: Id) {

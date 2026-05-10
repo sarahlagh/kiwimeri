@@ -1,5 +1,3 @@
-import { Sort } from '@/shared/utils/sort';
-
 export type CommentRow = {
   itemId: string;
   createdAt: number;
@@ -18,11 +16,3 @@ export const commentSchema = {
   plainText: { type: 'string', default: '' },
   order: { type: 'number', default: 0 }
 } as const satisfies Record<keyof CommentRow, unknown>;
-
-export type CommentResult = {
-  id: string;
-} & Pick<CommentRow, 'createdAt' | 'updatedAt' | 'order' | 'plainText'>;
-
-export const sortBy = ['createdAt', 'updatedAt', 'order'] as const;
-export type CommentSortType = (typeof sortBy)[number];
-export type CollectionItemSort = Sort<CommentSortType>;

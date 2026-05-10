@@ -1,4 +1,4 @@
-import { SpaceQueryDefinition } from '../../../core/db/queries-helper';
+import { SpaceQueryDefinition } from '@/core/db/queries-helper';
 import { CommentResult } from '../model';
 
 export type FetchCommentsQueryParam = {
@@ -14,8 +14,6 @@ const fetchCommentsQuery = new SpaceQueryDefinition<
     itemId: param('itemId') as string
   };
   select('createdAt');
-  select('updatedAt');
-  select('plainText');
   select('order');
   where('itemId', params.itemId);
 });

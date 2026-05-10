@@ -106,17 +106,13 @@ msgstr "Clear All"
 msgid "Close"
 msgstr "Close"
 
-#: src/constants.ts:86
+#: src/constants.ts:87
 msgid "collection"
 msgstr "collection"
 
 #: src/app/components/MainMenuList.tsx:58
 msgid "Collection"
 msgstr "Collection"
-
-#: src/collection/components/DocumentInfoCard.tsx:90
-msgid "Comments"
-msgstr "Comments"
 
 #: src/dev-tools/components/ConfigCard.tsx:166
 msgid "Config"
@@ -137,7 +133,7 @@ msgstr "Configure where to synchronize your collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/constants.ts:81
+#: src/constants.ts:82
 msgid "Conflicts"
 msgstr "Conflicts"
 
@@ -145,11 +141,10 @@ msgstr "Conflicts"
 msgid "Content"
 msgstr "Content"
 
-#: src/features/comments-ui/components/CommentsMenu.tsx:81
+#: src/features/comments-ui/components/CommentsMenu.tsx:54
 msgid "create a comment"
 msgstr "create a comment"
 
-#: src/collection/components/DocumentInfoCard.tsx:31
 #: src/collection/components/sheets/DocumentGeneralInfo.tsx:18
 msgid "Created at"
 msgstr "Created at"
@@ -163,7 +158,7 @@ msgstr "Creation Date"
 msgid "Current Notebook Settings ({notebookTitle})"
 msgstr "Current Notebook Settings ({notebookTitle})"
 
-#: src/constants.ts:80
+#: src/constants.ts:81
 msgid "Default"
 msgstr "Default"
 
@@ -217,7 +212,7 @@ msgstr "Document History"
 msgid "Download Logs"
 msgstr "Download Logs"
 
-#: src/features/comments-ui/components/CommentsMenu.tsx:47
+#: src/features/comments-ui/components/CommentMenuPreview.tsx:35
 msgid "empty comment"
 msgstr "empty comment"
 
@@ -275,10 +270,6 @@ msgstr "File not supported"
 msgid "Filesystem"
 msgstr "Filesystem"
 
-#: src/collection/components/DocumentInfoCard.tsx:85
-msgid "General"
-msgstr "General"
-
 #: src/settings/components/sections/CurrentSpaceSettings.tsx:51
 msgid "History idle time (s)"
 msgstr "History idle time (s)"
@@ -287,7 +278,7 @@ msgstr "History idle time (s)"
 msgid "History save time (min)"
 msgstr "History save time (min)"
 
-#: src/constants.ts:79
+#: src/constants.ts:80
 msgid "Home"
 msgstr "Home"
 
@@ -420,11 +411,11 @@ msgstr "Name"
 msgid "new"
 msgstr "new"
 
-#: src/constants.ts:82
+#: src/constants.ts:83
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:83
+#: src/constants.ts:84
 msgid "New folder"
 msgstr "New folder"
 
@@ -472,7 +463,7 @@ msgstr "Options for the currently selected device. These options are local-only.
 msgid "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 msgstr "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 
-#: src/constants.ts:85
+#: src/constants.ts:86
 msgid "page"
 msgstr "page"
 
@@ -590,10 +581,6 @@ msgstr "Space Settings"
 msgid "Start Writing"
 msgstr "Start Writing"
 
-#: src/collection/components/DocumentInfoCard.tsx:95
-msgid "Stats"
-msgstr "Stats"
-
 #: src/common/buttons/GenericExportFileButton.tsx:48
 #: src/common/buttons/GenericImportFileButton.tsx:48
 #: src/common/buttons/ManageHistoryButton.tsx:157
@@ -614,7 +601,6 @@ msgstr "Synchronize your collection on the filesystem"
 msgid "Syncing is disabled on the web version."
 msgstr "Syncing is disabled on the web version."
 
-#: src/collection/components/DocumentInfoCard.tsx:47
 #: src/collection/components/sheets/DocumentGeneralInfo.tsx:34
 msgid "Tags"
 msgstr "Tags"
@@ -667,7 +653,6 @@ msgstr "Title"
 msgid "Track text statistics"
 msgstr "Track text statistics"
 
-#: src/collection/components/DocumentInfoCard.tsx:39
 #: src/collection/components/sheets/DocumentGeneralInfo.tsx:26
 msgid "Updated at"
 msgstr "Updated at"
@@ -693,7 +678,6 @@ msgstr "When working on a document, a new version will be automatically at least
 msgid "When working on a document, a new version will be automatically if idle after XX seconds"
 msgstr "When working on a document, a new version will be automatically if idle after XX seconds"
 
-#: src/collection/components/DocumentInfoCard.tsx:53
 #: src/collection/components/sheets/DocumentGeneralInfo.tsx:40
 msgid "Word count"
 msgstr "Word count"

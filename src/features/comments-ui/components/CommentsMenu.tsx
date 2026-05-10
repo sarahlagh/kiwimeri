@@ -1,17 +1,11 @@
 import SortableList from '@/common/dnd/containers/SortableList';
-import { APPICONS, PREVIEW_SIZE } from '@/constants';
+import { APPICONS } from '@/constants';
 import { commentsService } from '@/domain/comments/comments.service';
-import { CommentResult } from '@/domain/comments/model';
-import fetchCommentsQuery from '@/domain/comments/queries/fetchCommentsQuery';
-import { IonButton, IonIcon, IonItem } from '@ionic/react';
+import fetchCommentsQuery from '@/features/comments-ui/queries/fetchCommentsQuery';
+import { IonButton, IonIcon } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 import { Id } from 'tinybase/common';
-
-type CommentMenuPreviewProps = {
-  comment: CommentResult;
-  selected?: boolean;
-  onSelect?: (commentId: string) => void;
-};
+import { CommentMenuPreview } from './CommentMenuPreview';
 
 type CommentMenuProps = {
   docId: string;
@@ -19,37 +13,6 @@ type CommentMenuProps = {
   onSelect?: (selectedId: Id) => void;
   showActions?: boolean;
   editable?: boolean;
-};
-
-const CommentMenuPreview = ({
-  comment,
-  selected = false,
-  onSelect
-}: CommentMenuPreviewProps) => {
-  const emptyPage = comment.plainText.length === 0;
-  let classNames = `comment-preview`;
-  if (emptyPage) {
-    classNames += ' comment-preview-empty';
-  }
-  if (selected) {
-    classNames += ' comment-preview-selected';
-  }
-  return (
-    <IonItem
-      button
-      className={classNames}
-      disabled={selected}
-      onClick={() => {
-        if (onSelect) onSelect(comment.id);
-      }}
-    >
-      {emptyPage ? (
-        <Trans>empty comment</Trans>
-      ) : (
-        comment.plainText.substring(0, PREVIEW_SIZE)
-      )}
-    </IonItem>
-  );
 };
 
 export const CommentsMenu = ({
@@ -75,6 +38,16 @@ export const CommentsMenu = ({
           </IonButton>
 
           {/* <OpenSortFilterButton id={docId} sortChoices={sortBy} /> */}
+
+          {/* <IonButton
+            size="small"
+            fill="clear"
+            onClick={() => {
+              // commentsService.addComment(docId, comments.length);
+            }}
+          >
+            <IonIcon icon={APPICONS.bulkSelect}></IonIcon>
+          </IonButton> */}
         </div>
       )}
 
