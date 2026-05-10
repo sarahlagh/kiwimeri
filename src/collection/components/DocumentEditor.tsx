@@ -61,7 +61,7 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
     const documentPreview = searchAncestryService.useItemPreview(docId) || '';
     const itemType = collectionService.getItemType(itemId);
 
-    const pages = collectionService.useDocumentPages(docId);
+    const pages = collectionService.getDocumentPages(docId);
     const onTitleChange = onTitleChangeFn(docId);
 
     const resumeState = resumeStateService.getResumeState(itemId);

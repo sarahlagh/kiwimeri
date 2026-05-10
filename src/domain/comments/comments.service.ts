@@ -26,6 +26,11 @@ class CommentsService {
   public addComment(docId: Id, order?: number) {
     const { item, id } = this.getCommentObj(docId);
     getSpace().setRow('comments', id, { ...item, order });
+    const space = getSpace();
+    space.transaction(() => {
+      space.setRow('comments', id, { ...item, order });
+      space.setCell('collection', docId, 'updated', Date.now());
+    });
     return id;
   }
 
@@ -38,14 +43,29 @@ class CommentsService {
         plainText: getPlainText(content),
         updatedAt: now
       });
-      // TODO reactivate, but don't let that trigger re-rerender
-      // const itemId = space.getCell('comments', id, 'itemId');
-      // space.setCell('collection', itemId!, 'updated', now);
+      const itemId = space.getCell('comments', id, 'itemId');
+      space.setCell('collection', itemId!, 'updated', now);
     });
   }
 
   public deleteComment(id: Id) {
-    getSpace().delRow('comments', id);
+    const space = getSpace();
+    space.transaction(() => {
+      space.delRow('comments', id);
+      const itemId = space.getCell('comments', id, 'itemId');
+      space.setCell('collection', itemId!, 'updated', Date.now());
+    });
+  }
+
+  public reorderComments(comments: SortableType[], from: number, to: number) {
+    const space = getSpace();
+    space.transaction(() => {
+      genericReorder(from, to, (idx, order) => {
+        space.setCell('comments', comments[idx].id, 'order', order);
+      });
+      const itemId = space.getCell('comments', comments[0].id, 'itemId');
+      space.setCell('collection', itemId!, 'updated', Date.now());
+    });
   }
 
   public getCommentContent(id: Id) {
@@ -62,15 +82,6 @@ class CommentsService {
     const effectiveOpts = collectionService.getItemEffectiveDisplayOpts(docId);
     effectiveOpts.documentSort = newCommentSort;
     collectionService.setItemDisplayOpts(docId, effectiveOpts);
-  }
-
-  public reorderComments(comments: SortableType[], from: number, to: number) {
-    const space = getSpace();
-    space.transaction(() => {
-      genericReorder(from, to, (idx, order) => {
-        space.setCell('comments', comments[idx].id, 'order', order);
-      });
-    });
   }
 }
 
