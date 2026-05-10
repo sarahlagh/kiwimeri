@@ -38,16 +38,6 @@ export const CommentsMenu = ({
           </IonButton>
 
           {/* <OpenSortFilterButton id={docId} sortChoices={sortBy} /> */}
-
-          {/* <IonButton
-            size="small"
-            fill="clear"
-            onClick={() => {
-              // commentsService.addComment(docId, comments.length);
-            }}
-          >
-            <IonIcon icon={APPICONS.bulkSelect}></IonIcon>
-          </IonButton> */}
         </div>
       )}
 

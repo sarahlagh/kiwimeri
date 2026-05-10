@@ -49,6 +49,12 @@ class CommentsService {
   public getCommentContent(itemId: Id) {
     return getSpace().getCell('comments', itemId, 'content');
   }
+
+  public getCommentInfo(itemId: Id) {
+    const createdAt = getSpace().getCell('comments', itemId, 'createdAt');
+    const updatedAt = getSpace().getCell('comments', itemId, 'createdAt');
+    return { createdAt, updatedAt };
+  }
 }
 
 export const commentsService = new CommentsService();

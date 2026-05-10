@@ -6,14 +6,29 @@
     flex-grow: 3;
     padding-top: 8px;
     width: 80%;
-    height: 100%; //calc(100% - 36px);
+    height: 100%;
 
     .editor-input.comment-editor {
       padding: 0px;
-      // overflow-y: auto;
+      flex-grow: 10;
     }
     .editor-placeholder {
       top: 8px;
+    }
+
+    .comment-info {
+      position: fixed;
+      top: 0;
+    }
+
+    .comment-toolbar {
+      position: fixed;
+      bottom: 0;
+      opacity: 0.6;
+      right: calc(20% + 8px);
+      ion-buttons {
+        flex-direction: row-reverse;
+      }
     }
   }
 
@@ -21,6 +36,7 @@
     border-left: solid 0.4px;
     width: 8px;
   }
+
   .comment-menu {
     width: 20%;
 

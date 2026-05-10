@@ -1,0 +1,65 @@
+import { dateToStr } from '@/common/date-utils';
+import ConfirmYesNoDialog from '@/common/modals/ConfirmYesNoDialog';
+import { APPICONS } from '@/constants';
+import { commentsService } from '@/domain/comments/comments.service';
+import { IonButton, IonButtons, IonIcon } from '@ionic/react';
+import { Trans } from '@lingui/react/macro';
+import { useState } from 'react';
+
+type CommentToolbarProps = { commentId: string };
+
+const CommentToolbar = ({ commentId }: CommentToolbarProps) => {
+  const [expand, setExpand] = useState(false);
+  const [showCreatedAt, setShowCreatedAt] = useState(true);
+  const delTrigger = `${commentId}-delete-btn`;
+  const { createdAt, updatedAt } = commentsService.getCommentInfo(commentId);
+  return (
+    <>
+      {expand && (
+        <div className="comment-info">
+          {showCreatedAt && (
+            <p>
+              <Trans>Created at: {dateToStr('relative', createdAt)}</Trans>{' '}
+            </p>
+          )}
+          {!showCreatedAt && (
+            <p>
+              <Trans>Updated at: {dateToStr('relative', updatedAt)}</Trans>
+            </p>
+          )}
+        </div>
+      )}
+      <div className={'comment-toolbar'}>
+        <IonButtons>
+          <IonButton onClick={() => setExpand(!expand)}>
+            <IonIcon icon={APPICONS.itemActions}></IonIcon>
+          </IonButton>
+          {expand && (
+            <>
+              <IonButton id={delTrigger}>
+                <IonIcon icon={APPICONS.deleteAction}></IonIcon>
+              </IonButton>
+              <ConfirmYesNoDialog
+                trigger={delTrigger}
+                onClose={confirmed => {
+                  if (confirmed) {
+                    commentsService.deleteComment(commentId);
+                  }
+                }}
+              />
+              <IonButton
+                onClick={() => {
+                  setShowCreatedAt(!showCreatedAt);
+                }}
+              >
+                <IonIcon icon={APPICONS.info}></IonIcon>
+              </IonButton>
+            </>
+          )}
+        </IonButtons>
+      </div>
+    </>
+  );
+};
+
+export default CommentToolbar;

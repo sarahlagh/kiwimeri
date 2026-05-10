@@ -141,13 +141,17 @@ msgstr "Conflicts"
 msgid "Content"
 msgstr "Content"
 
-#: src/features/comments-ui/components/CommentsMenu.tsx:54
+#: src/features/comments-ui/components/CommentsMenu.tsx:44
 msgid "create a comment"
 msgstr "create a comment"
 
 #: src/collection/components/sheets/DocumentGeneralInfo.tsx:18
 msgid "Created at"
 msgstr "Created at"
+
+#: src/features/comments-ui/components/CommentToolbar.tsx:22
+msgid "Created at: {0}"
+msgstr "Created at: {0}"
 
 #: src/collection/components/SortFilter.tsx:47
 #: src/settings/components/sections/GenericCollectionSettings.tsx:37
@@ -544,7 +548,7 @@ msgstr "Search Content"
 msgid "Search input"
 msgstr "Search input"
 
-#: src/features/comments-ui/components/CommentsBrowser.tsx:47
+#: src/features/comments-ui/components/CommentsBrowser.tsx:51
 msgid "select a comment"
 msgstr "select a comment"
 
@@ -656,6 +660,10 @@ msgstr "Track text statistics"
 #: src/collection/components/sheets/DocumentGeneralInfo.tsx:26
 msgid "Updated at"
 msgstr "Updated at"
+
+#: src/features/comments-ui/components/CommentToolbar.tsx:27
+msgid "Updated at: {0}"
+msgstr "Updated at: {0}"
 
 #: src/synchronization/components/providers/PCloudSettings.tsx:94
 msgid "US"

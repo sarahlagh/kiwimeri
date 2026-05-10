@@ -7,6 +7,7 @@ import { Id } from 'tinybase/with-schemas';
 import CommentEditor from './CommentEditor';
 import './CommentsBrowser.scss';
 import { CommentsMenu } from './CommentsMenu';
+import CommentToolbar from './CommentToolbar';
 
 export type CommentsBrowserProps = {
   id: string;
@@ -34,9 +35,12 @@ export default function CommentsBrowser({
 
   // auto select first comment
   useEffect(() => {
-    if (!selectedId && commentIds.length > 0) {
+    if (
+      (!selectedId || !commentIds.find(c => c === selectedId)) &&
+      commentIds.length > 0
+    ) {
       setSelectedId(commentIds[0]);
-    }
+    } else setSelectedId(undefined);
   }, [commentIds]);
 
   return (
@@ -47,7 +51,10 @@ export default function CommentsBrowser({
             <Trans>select a comment</Trans>
           </IonNote>
         ) : (
-          <CommentEditor commentId={selectedId} editable={editable} />
+          <>
+            <CommentEditor commentId={selectedId} editable={editable} />
+            {showActions && <CommentToolbar commentId={selectedId} />}
+          </>
         )}
       </div>
       <div className="comment-browser-separator"></div>
