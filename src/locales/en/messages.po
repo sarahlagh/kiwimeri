@@ -13,6 +13,33 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#. js-lingui-explicit-id
+#: src/shared/utils/sort-filter/GenericSortFilter.tsx:44
+#: src/shared/utils/sort-filter/GenericSortFilter.tsx:45
+msgid "Creation Date"
+msgstr "Creation Date"
+
+#. js-lingui-explicit-id
+#: src/shared/utils/sort-filter/GenericSortFilter.tsx:46
+#: src/shared/utils/sort-filter/GenericSortFilter.tsx:47
+msgid "Last Updated"
+msgstr "Last Updated"
+
+#. js-lingui-explicit-id
+#: src/shared/utils/sort-filter/GenericSortFilter.tsx:48
+msgid "Title"
+msgstr "Title"
+
+#. js-lingui-explicit-id
+#: src/shared/utils/sort-filter/GenericSortFilter.tsx:49
+msgid "Content"
+msgstr "Content"
+
+#. js-lingui-explicit-id
+#: src/shared/utils/sort-filter/GenericSortFilter.tsx:50
+msgid "Manual"
+msgstr "Manual"
+
 #: src/timed-writing/components/SaveSessionModal.tsx:62
 msgid " (new)"
 msgstr " (new)"
@@ -106,7 +133,7 @@ msgstr "Clear All"
 msgid "Close"
 msgstr "Close"
 
-#: src/constants.ts:87
+#: src/constants.ts:86
 msgid "collection"
 msgstr "collection"
 
@@ -133,7 +160,7 @@ msgstr "Configure where to synchronize your collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/constants.ts:82
+#: src/constants.ts:81
 msgid "Conflicts"
 msgstr "Conflicts"
 
@@ -141,7 +168,7 @@ msgstr "Conflicts"
 msgid "Content"
 msgstr "Content"
 
-#: src/features/comments-ui/components/CommentsMenu.tsx:44
+#: src/features/comments-ui/components/CommentsMenu.tsx:49
 msgid "create a comment"
 msgstr "create a comment"
 
@@ -162,7 +189,7 @@ msgstr "Creation Date"
 msgid "Current Notebook Settings ({notebookTitle})"
 msgstr "Current Notebook Settings ({notebookTitle})"
 
-#: src/constants.ts:81
+#: src/constants.ts:80
 msgid "Default"
 msgstr "Default"
 
@@ -282,7 +309,7 @@ msgstr "History idle time (s)"
 msgid "History save time (min)"
 msgstr "History save time (min)"
 
-#: src/constants.ts:80
+#: src/constants.ts:79
 msgid "Home"
 msgstr "Home"
 
@@ -415,11 +442,11 @@ msgstr "Name"
 msgid "new"
 msgstr "new"
 
-#: src/constants.ts:83
+#: src/constants.ts:82
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:84
+#: src/constants.ts:83
 msgid "New folder"
 msgstr "New folder"
 
@@ -467,7 +494,7 @@ msgstr "Options for the currently selected device. These options are local-only.
 msgid "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 msgstr "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 
-#: src/constants.ts:86
+#: src/constants.ts:85
 msgid "page"
 msgstr "page"
 
@@ -548,7 +575,7 @@ msgstr "Search Content"
 msgid "Search input"
 msgstr "Search input"
 
-#: src/features/comments-ui/components/CommentsBrowser.tsx:52
+#: src/features/comments-ui/components/CommentsBrowser.tsx:49
 msgid "select a comment"
 msgstr "select a comment"
 
@@ -566,6 +593,7 @@ msgid "Settings"
 msgstr "Settings"
 
 #: src/collection/components/SortFilter.tsx:59
+#: src/shared/utils/sort-filter/GenericSortFilter.tsx:65
 msgid "Sort"
 msgstr "Sort"
 

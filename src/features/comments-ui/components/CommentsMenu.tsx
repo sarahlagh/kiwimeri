@@ -2,16 +2,18 @@ import SortableList from '@/common/dnd/containers/SortableList';
 import { APPICONS } from '@/constants';
 import { commentsService } from '@/domain/comments/comments.service';
 import fetchCommentsQuery from '@/features/comments-ui/queries/fetchCommentsQuery';
-import { IonButton, IonIcon } from '@ionic/react';
+import { IonButton, IonButtons, IonIcon } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 import { Id } from 'tinybase/common';
+import useCommentSort from '../hooks/useCommentSort';
 import { CommentMenuPreview } from './CommentMenuPreview';
+import CommentsSortFilterBtn from './CommentsSortFilterBtn';
 
 type CommentMenuProps = {
   docId: string;
   selectedId?: Id;
-  onSelect?: (selectedId: Id) => void;
-  showActions?: boolean;
+  onSelect: (selectedId: Id) => void;
+  showActions: boolean;
   editable?: boolean;
 };
 
@@ -20,24 +22,27 @@ export const CommentsMenu = ({
   selectedId,
   onSelect,
   showActions,
-  editable
+  editable = true
 }: CommentMenuProps) => {
-  const comments = fetchCommentsQuery.useResults('createdAt', false);
+  const sort = useCommentSort(docId);
+  const comments = fetchCommentsQuery.useResults(sort.by, sort.descending);
   return (
     <>
       {showActions && editable && (
         <div className="comment-actions-bar">
-          <IonButton
-            size="small"
-            fill="clear"
-            onClick={() => {
-              commentsService.addComment(docId, comments.length);
-            }}
-          >
-            <IonIcon icon={APPICONS.addGeneric}></IonIcon>
-          </IonButton>
+          <IonButtons>
+            <IonButton
+              size="small"
+              fill="clear"
+              onClick={() => {
+                commentsService.addComment(docId, comments.length);
+              }}
+            >
+              <IonIcon icon={APPICONS.addGeneric}></IonIcon>
+            </IonButton>
 
-          {/* <OpenSortFilterButton id={docId} sortChoices={sortBy} /> */}
+            <CommentsSortFilterBtn docId={docId} />
+          </IonButtons>
         </div>
       )}
 
@@ -46,10 +51,10 @@ export const CommentsMenu = ({
         style={{ height: 'calc(100% - 28px)', overflowY: 'auto' }}
         className="inner-list"
         items={comments}
-        // sortDisabled={sort.by !== 'order'}
-        // onItemMove={(from, to) => {
-        //   collectionService.reorderItems(pages!, from, to, docId);
-        // }}
+        sortDisabled={sort.by !== 'order'}
+        onItemMove={(from, to) => {
+          commentsService.reorderComments(comments, from, to);
+        }}
       >
         {comments.map(comment => (
           <CommentMenuPreview
@@ -57,7 +62,7 @@ export const CommentsMenu = ({
             comment={comment}
             selected={selectedId === comment.id}
             onSelect={() => {
-              if (onSelect) onSelect(comment.id);
+              onSelect(comment.id);
             }}
           />
         ))}

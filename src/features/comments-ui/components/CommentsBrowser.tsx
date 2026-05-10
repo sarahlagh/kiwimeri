@@ -4,7 +4,7 @@ import fetchCommentsQuery from '@/features/comments-ui/queries/fetchCommentsQuer
 import { IonNote } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 import { Id } from 'tinybase/with-schemas';
-import { CommentSort } from '../model';
+import useCommentSort from '../hooks/useCommentSort';
 import CommentActions from './CommentActions';
 import CommentEditor from './CommentEditor';
 import './CommentsBrowser.scss';
@@ -21,10 +21,7 @@ export default function CommentsBrowser({
   showActions = true,
   editable = true
 }: CommentsBrowserProps): JSX.Element {
-  const sort: CommentSort = {
-    by: 'createdAt',
-    descending: false
-  };
+  const sort = useCommentSort(docId);
   useEffect(() => {
     fetchCommentsQuery.loadParams({
       itemId: docId

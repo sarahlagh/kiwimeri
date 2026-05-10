@@ -2,7 +2,7 @@ import { PREVIEW_SIZE } from '@/constants';
 import { useSpaceCell } from '@/core/db/tinybase-hooks';
 import { Id } from 'tinybase/with-schemas';
 
-export const useCommentPreview = (rowId: Id) => {
+const useCommentPreview = (rowId: Id) => {
   const plainText = useSpaceCell<'comments', 'plainText'>(
     'comments',
     rowId,
@@ -10,3 +10,4 @@ export const useCommentPreview = (rowId: Id) => {
   ) as string;
   return plainText.substring(0, PREVIEW_SIZE);
 };
+export default useCommentPreview;

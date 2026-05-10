@@ -1,10 +1,12 @@
+import { genericReorder } from '@/common/dnd/utils';
 import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
 import { getSpace } from '@/core/db/store';
-import { initialContent } from '@/db/collection.service';
+import collectionService, { initialContent } from '@/db/collection.service';
 import { getPlainText } from '@/shared/utils/getPlainText';
+import { SortableType } from '@/shared/utils/sort-filter/sort';
 import { SerializedEditorState } from 'lexical';
 import { getUniqueId, Id } from 'tinybase/common';
-import { CommentRow } from './model';
+import { CommentRow, CommentSort } from './model';
 
 class CommentsService {
   public getCommentObj(itemId: Id): { item: CommentRow; id: Id } {
@@ -21,8 +23,8 @@ class CommentsService {
     return { item: comment, id };
   }
 
-  public addComment(itemId: Id, order?: number) {
-    const { item, id } = this.getCommentObj(itemId);
+  public addComment(docId: Id, order?: number) {
+    const { item, id } = this.getCommentObj(docId);
     getSpace().setRow('comments', id, { ...item, order });
     return id;
   }
@@ -46,14 +48,29 @@ class CommentsService {
     getSpace().delRow('comments', id);
   }
 
-  public getCommentContent(itemId: Id) {
-    return getSpace().getCell('comments', itemId, 'content');
+  public getCommentContent(id: Id) {
+    return getSpace().getCell('comments', id, 'content');
   }
 
-  public getCommentInfo(itemId: Id) {
-    const createdAt = getSpace().getCell('comments', itemId, 'createdAt');
-    const updatedAt = getSpace().getCell('comments', itemId, 'createdAt');
+  public getCommentInfo(id: Id) {
+    const createdAt = getSpace().getCell('comments', id, 'createdAt');
+    const updatedAt = getSpace().getCell('comments', id, 'updatedAt');
     return { createdAt, updatedAt };
+  }
+
+  public setCommentSort(docId: Id, newCommentSort: CommentSort) {
+    const effectiveOpts = collectionService.getItemEffectiveDisplayOpts(docId);
+    effectiveOpts.documentSort = newCommentSort;
+    collectionService.setItemDisplayOpts(docId, effectiveOpts);
+  }
+
+  public reorderComments(comments: SortableType[], from: number, to: number) {
+    const space = getSpace();
+    space.transaction(() => {
+      genericReorder(from, to, (idx, order) => {
+        space.setCell('comments', comments[idx].id, 'order', order);
+      });
+    });
   }
 }
 

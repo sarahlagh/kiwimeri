@@ -1,10 +1,6 @@
 import { CommentRow } from '@/domain/comments/model';
-import { Sort } from '@/shared/utils/sort';
+import { Id } from 'tinybase/with-schemas';
 
 export type CommentResult = {
-  id: string;
+  id: Id;
 } & Pick<CommentRow, 'createdAt' | 'order'>;
-
-export const sortBy = ['createdAt', 'order'] as const;
-export type CommentSortType = (typeof sortBy)[number];
-export type CommentSort = Sort<CommentSortType>;

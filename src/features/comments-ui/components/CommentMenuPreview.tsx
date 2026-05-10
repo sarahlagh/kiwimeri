@@ -1,6 +1,6 @@
 import { IonItem } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
-import { useCommentPreview } from '../hooks/useCommentPreview';
+import useCommentPreview from '../hooks/useCommentPreview';
 import { CommentResult } from '../model';
 
 type CommentMenuPreviewProps = {

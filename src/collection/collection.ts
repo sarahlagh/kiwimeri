@@ -1,4 +1,5 @@
 import { SerializedSelection } from '@/common/wysiwyg/lexical/selection-serializer';
+import { CommentSort } from '@/domain/comments/model';
 
 export enum CollectionItemType {
   notebook = 'n',
@@ -30,6 +31,8 @@ export interface CollectionItem {
   order_meta: string;
   display_opts?: string;
   display_opts_meta?: string;
+  // flags?: string;
+  // flags_meta?: string;
 }
 
 export type DocumentResumeStateRow = {
@@ -61,6 +64,7 @@ export type CollectionItemSort = {
 
 export interface CollectionItemDisplayOpts {
   sort: CollectionItemSort;
+  documentSort?: CommentSort;
   statsEnabled: boolean; // TODO not the right place for this, but pending code reorga
 }
 
