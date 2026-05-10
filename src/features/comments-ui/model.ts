@@ -7,4 +7,4 @@ export type CommentResult = {
 
 export const sortBy = ['createdAt', 'order'] as const;
 export type CommentSortType = (typeof sortBy)[number];
-export type CollectionItemSort = Sort<CommentSortType>;
+export type CommentSort = Sort<CommentSortType>;

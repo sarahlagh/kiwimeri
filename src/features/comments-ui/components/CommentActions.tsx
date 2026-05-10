@@ -6,9 +6,9 @@ import { IonButton, IonButtons, IonIcon } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 import { useState } from 'react';
 
-type CommentToolbarProps = { commentId: string };
+type CommentActionsProps = { commentId: string };
 
-const CommentToolbar = ({ commentId }: CommentToolbarProps) => {
+const CommentActions = ({ commentId }: CommentActionsProps) => {
   const [expand, setExpand] = useState(false);
   const [showCreatedAt, setShowCreatedAt] = useState(true);
   const delTrigger = `${commentId}-delete-btn`;
@@ -29,7 +29,7 @@ const CommentToolbar = ({ commentId }: CommentToolbarProps) => {
           )}
         </div>
       )}
-      <div className={'comment-toolbar'}>
+      <div className={'comment-actions'}>
         <IonButtons>
           <IonButton onClick={() => setExpand(!expand)}>
             <IonIcon icon={APPICONS.itemActions}></IonIcon>
@@ -62,4 +62,4 @@ const CommentToolbar = ({ commentId }: CommentToolbarProps) => {
   );
 };
 
-export default CommentToolbar;
+export default CommentActions;

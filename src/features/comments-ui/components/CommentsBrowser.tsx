@@ -4,10 +4,11 @@ import fetchCommentsQuery from '@/features/comments-ui/queries/fetchCommentsQuer
 import { IonNote } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 import { Id } from 'tinybase/with-schemas';
+import { CommentSort } from '../model';
+import CommentActions from './CommentActions';
 import CommentEditor from './CommentEditor';
 import './CommentsBrowser.scss';
 import { CommentsMenu } from './CommentsMenu';
-import CommentToolbar from './CommentToolbar';
 
 export type CommentsBrowserProps = {
   id: string;
@@ -20,17 +21,17 @@ export default function CommentsBrowser({
   showActions = true,
   editable = true
 }: CommentsBrowserProps): JSX.Element {
-  // const sort = collectionService.useItemEffectiveDisplayOpts(docId).sort;
-  // const query = useGenericQuery(fetchCommentsQuery, {
-  //   itemId: docId
-  // });
+  const sort: CommentSort = {
+    by: 'createdAt',
+    descending: false
+  };
   useEffect(() => {
     fetchCommentsQuery.loadParams({
       itemId: docId
     });
     setSelectedId(undefined);
   }, [docId]);
-  const commentIds = fetchCommentsQuery.useResultsIds('createdAt', false);
+  const commentIds = fetchCommentsQuery.useResultsIds(sort.by, sort.descending);
   const [selectedId, setSelectedId] = useState<Id | undefined>();
 
   // auto select first comment
@@ -53,7 +54,7 @@ export default function CommentsBrowser({
         ) : (
           <>
             <CommentEditor commentId={selectedId} editable={editable} />
-            {showActions && <CommentToolbar commentId={selectedId} />}
+            {showActions && <CommentActions commentId={selectedId} />}
           </>
         )}
       </div>

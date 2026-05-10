@@ -149,7 +149,7 @@ msgstr "create a comment"
 msgid "Created at"
 msgstr "Created at"
 
-#: src/features/comments-ui/components/CommentToolbar.tsx:22
+#: src/features/comments-ui/components/CommentActions.tsx:22
 msgid "Created at: {0}"
 msgstr "Created at: {0}"
 
@@ -548,7 +548,7 @@ msgstr "Search Content"
 msgid "Search input"
 msgstr "Search input"
 
-#: src/features/comments-ui/components/CommentsBrowser.tsx:51
+#: src/features/comments-ui/components/CommentsBrowser.tsx:52
 msgid "select a comment"
 msgstr "select a comment"
 
@@ -661,7 +661,7 @@ msgstr "Track text statistics"
 msgid "Updated at"
 msgstr "Updated at"
 
-#: src/features/comments-ui/components/CommentToolbar.tsx:27
+#: src/features/comments-ui/components/CommentActions.tsx:27
 msgid "Updated at: {0}"
 msgstr "Updated at: {0}"
 
