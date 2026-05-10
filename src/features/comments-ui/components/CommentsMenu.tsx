@@ -1,7 +1,7 @@
 import SortableList from '@/common/dnd/containers/SortableList';
 import { APPICONS } from '@/constants';
 import { commentsService } from '@/domain/comments/comments.service';
-import { IonButton, IonButtons, IonIcon } from '@ionic/react';
+import { IonButton, IonButtons, IonIcon, IonNote } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 import { Id } from 'tinybase/common';
 import useCommentSort from '../hooks/useCommentSort';
@@ -29,7 +29,7 @@ export const CommentsMenu = ({
   return (
     <>
       {showActions && editable && (
-        <div className="comment-actions-bar">
+        <div className={'comment-actions-bar'}>
           <IonButtons>
             <IonButton
               size="small"
@@ -46,7 +46,11 @@ export const CommentsMenu = ({
         </div>
       )}
 
-      {comments.length === 0 && <Trans>create a comment</Trans>}
+      {comments.length === 0 && (
+        <IonNote>
+          <Trans>create a comment</Trans>
+        </IonNote>
+      )}
       <SortableList
         style={{ height: 'calc(100% - 28px)', overflowY: 'auto' }}
         className="inner-list"

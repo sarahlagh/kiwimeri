@@ -168,7 +168,7 @@ msgstr "Conflicts"
 msgid "Content"
 msgstr "Content"
 
-#: src/features/comments-ui/components/CommentsMenu.tsx:49
+#: src/features/comments-ui/components/CommentsMenu.tsx:51
 msgid "create a comment"
 msgstr "create a comment"
 
@@ -353,7 +353,7 @@ msgstr "Internal proxy"
 msgid "Kiwimeri format (single file)"
 msgstr "Kiwimeri format (single file)"
 
-#: src/collection/components/CollectionItemBrowserList.tsx:149
+#: src/collection/components/CollectionItemBrowserList.tsx:150
 msgid "Last consulted documents"
 msgstr "Last consulted documents"
 
@@ -361,7 +361,7 @@ msgstr "Last consulted documents"
 msgid "Last Updated"
 msgstr "Last Updated"
 
-#: src/collection/components/CollectionItemBrowserList.tsx:148
+#: src/collection/components/CollectionItemBrowserList.tsx:149
 msgid "Last updated documents"
 msgstr "Last updated documents"
 

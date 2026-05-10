@@ -43,7 +43,7 @@ export default function CommentsBrowser({
 
   return (
     <div className="comment-browser">
-      <div className="comment-area">
+      <div className={'comment-area' + (!selectedId ? ' empty' : '')}>
         {!selectedId ? (
           <IonNote>
             <Trans>select a comment</Trans>
@@ -56,7 +56,9 @@ export default function CommentsBrowser({
         )}
       </div>
       <div className="comment-browser-separator"></div>
-      <div className="comment-menu">
+      <div
+        className={'comment-menu' + (commentIds.length === 0 ? ' empty' : '')}
+      >
         <CommentsMenu
           docId={docId}
           selectedId={selectedId}

@@ -2,6 +2,16 @@
   display: flex;
   height: 100%;
 
+  .comment-area.empty {
+    text-align: center;
+
+    ion-note {
+      height: 100%;
+      display: inline-block;
+      align-content: center;
+    }
+  }
+
   .comment-area {
     flex-grow: 3;
     padding-top: 8px;
@@ -35,6 +45,16 @@
   .comment-browser-separator {
     border-left: solid 0.4px;
     width: 8px;
+  }
+
+  .comment-menu.empty {
+    text-align: center;
+
+    ion-note {
+      height: calc(100% - 48px);
+      display: inline-block;
+      align-content: center;
+    }
   }
 
   .comment-menu {
