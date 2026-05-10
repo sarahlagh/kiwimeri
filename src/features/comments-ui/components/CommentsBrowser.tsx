@@ -27,6 +27,11 @@ export default function CommentsBrowser({
       itemId: docId
     });
   }, [docId]);
+  useEffect(() => {
+    return () => {
+      fetchCommentsQuery.close();
+    };
+  }, []);
   const commentIds = fetchCommentsQuery.useResultsIds(sort.by, sort.descending);
   const selectedId = useSelectedComment(docId);
 

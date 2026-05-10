@@ -9,22 +9,22 @@ type DocumentBottomSheetProps = {
   select: DocSheet;
 };
 
+const ChartContainer = lazy(() =>
+  import('@/features/stats-ui').then(m => ({
+    default: m.ChartContainer
+  }))
+);
+const CommentsBrowser = lazy(() =>
+  import('@/features/comments-ui').then(m => ({
+    default: m.CommentsBrowser
+  }))
+);
+
 const DocumentBottomSheetSwitcher = ({
   id,
   select
 }: DocumentBottomSheetProps) => {
   const DocumentGeneralInfo = lazy(() => import('./DocumentGeneralInfo'));
-  const ChartContainer = lazy(() =>
-    import('@/features/stats-ui').then(m => ({
-      default: m.ChartContainer
-    }))
-  );
-  const CommentsBrowser = lazy(() =>
-    import('@/features/comments-ui').then(m => ({
-      default: m.CommentsBrowser
-    }))
-  );
-
   switch (select) {
     case 'info':
     default:
