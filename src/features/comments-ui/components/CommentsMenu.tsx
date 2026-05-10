@@ -1,6 +1,7 @@
 import SortableList from '@/common/dnd/containers/SortableList';
 import { APPICONS } from '@/constants';
 import { commentsService } from '@/domain/comments/comments.service';
+import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { IonButton, IonButtons, IonIcon, IonNote } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 import { Id } from 'tinybase/common';
@@ -12,7 +13,6 @@ import CommentsSortFilterBtn from './CommentsSortFilterBtn';
 type CommentMenuProps = {
   docId: string;
   selectedId?: Id;
-  onSelect: (selectedId: Id) => void;
   showActions: boolean;
   editable?: boolean;
 };
@@ -20,7 +20,6 @@ type CommentMenuProps = {
 export const CommentsMenu = ({
   docId,
   selectedId,
-  onSelect,
   showActions,
   editable = true
 }: CommentMenuProps) => {
@@ -35,7 +34,11 @@ export const CommentsMenu = ({
               size="small"
               fill="clear"
               onClick={() => {
-                commentsService.addComment(docId, comments.length);
+                const commentId = commentsService.addComment(
+                  docId,
+                  comments.length
+                );
+                resumeService.setLastSelectedComment(docId, commentId);
               }}
             >
               <IonIcon icon={APPICONS.addGeneric}></IonIcon>
@@ -66,7 +69,7 @@ export const CommentsMenu = ({
             comment={comment}
             selected={selectedId === comment.id}
             onSelect={() => {
-              onSelect(comment.id);
+              resumeService.setLastSelectedComment(docId, comment.id);
             }}
           />
         ))}

@@ -1,4 +1,3 @@
-import { SerializedSelection } from '@/common/wysiwyg/lexical/selection-serializer';
 import { CommentSort } from '@/domain/comments/model';
 
 export enum CollectionItemType {
@@ -34,19 +33,6 @@ export interface CollectionItem {
   // flags?: string;
   // flags_meta?: string;
 }
-
-export type DocumentResumeStateRow = {
-  itemId: string;
-  lastSelection: string | null; // SerializedSelection
-};
-
-export type DocumentResumeState = Omit<
-  DocumentResumeStateRow,
-  'lastSelection'
-> & {
-  id: string;
-  lastSelection: SerializedSelection | null;
-};
 
 export const sortBy = [
   'created',

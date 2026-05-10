@@ -6079,10 +6079,10 @@ tiny-warning@^1.0.0:
   dependencies:
     esm "^3.2.25"
 
-tinybase@^7.3.0:
-  version "7.3.5"
-  resolved "https://registry.yarnpkg.com/tinybase/-/tinybase-7.3.5.tgz#013cb615102039f8da0eef11ccda80a3e53984aa"
-  integrity sha512-MhSJ/EHidpMzBvUK0S7vlsOLF3g9qbukl00zXng5x4ZKdUqHZHbcYGK463/RTG6s52Evgjsbahrlh9O4xXpH3Q==
+tinybase@^8.0.0:
+  version "8.3.0"
+  resolved "https://registry.yarnpkg.com/tinybase/-/tinybase-8.3.0.tgz#383e5b13853276f5a44c26a81db1701f52a30f60"
+  integrity sha512-VwCAbmjvafMqauRFJkt3nTAl08ooO9xh/MnF86OrLBXLIaUiuZSf5BkXW3Yh2+SjUNGxjEQ0v0i7zwa5p+//uA==
 
 tinybench@^2.9.0:
   version "2.9.0"

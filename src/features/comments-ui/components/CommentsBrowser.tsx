@@ -1,9 +1,9 @@
-import { useEffect, useState, type JSX } from 'react';
+import { useEffect, type JSX } from 'react';
 
 import { IonNote } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
-import { Id } from 'tinybase/with-schemas';
 import useCommentSort from '../hooks/useCommentSort';
+import useSelectedComment from '../hooks/useSelectedComment';
 import fetchCommentsQuery from '../queries/fetchCommentsQuery';
 import CommentActions from './CommentActions';
 import CommentEditor from './CommentEditor';
@@ -26,20 +26,9 @@ export default function CommentsBrowser({
     fetchCommentsQuery.loadParams({
       itemId: docId
     });
-    setSelectedId(undefined);
   }, [docId]);
   const commentIds = fetchCommentsQuery.useResultsIds(sort.by, sort.descending);
-  const [selectedId, setSelectedId] = useState<Id | undefined>();
-
-  // auto select first comment
-  useEffect(() => {
-    if (
-      (!selectedId || !commentIds.find(c => c === selectedId)) &&
-      commentIds.length > 0
-    ) {
-      setSelectedId(commentIds[0]);
-    } else setSelectedId(undefined);
-  }, [commentIds]);
+  const selectedId = useSelectedComment(docId);
 
   return (
     <div className="comment-browser">
@@ -51,7 +40,9 @@ export default function CommentsBrowser({
         ) : (
           <>
             <CommentEditor commentId={selectedId} editable={editable} />
-            {showActions && <CommentActions commentId={selectedId} />}
+            {showActions && (
+              <CommentActions docId={docId} commentId={selectedId} />
+            )}
           </>
         )}
       </div>
@@ -62,7 +53,6 @@ export default function CommentsBrowser({
         <CommentsMenu
           docId={docId}
           selectedId={selectedId}
-          onSelect={commentId => setSelectedId(commentId)}
           editable={editable}
           showActions={showActions}
         />

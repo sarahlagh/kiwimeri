@@ -6,8 +6,8 @@ import KiwimeriEditor, {
 import { serializeSelection } from '@/common/wysiwyg/lexical/selection-serializer';
 import CollectionPagesBrowser from '@/common/wysiwyg/pages-browser/CollectionPagesBrowser';
 import { APPICONS } from '@/constants';
-import { resumeStateService } from '@/db/collection-resume-state.service';
 import collectionService from '@/db/collection.service';
+import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { statsService } from '@/domain/stats/stats-service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import {
@@ -64,7 +64,7 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
     const pages = collectionService.getDocumentPages(docId);
     const onTitleChange = onTitleChangeFn(docId);
 
-    const resumeState = resumeStateService.getResumeState(itemId);
+    const resumeState = resumeService.getResumeState(itemId);
 
     useEffect(() => {
       statsService.updateGlobalStats(itemId, { lastOpenedAt: Date.now() });
@@ -160,7 +160,7 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
                     editorState.toJSON()
                   );
                 }
-                resumeStateService.setResumeSelection(
+                resumeService.setLastSelection(
                   itemId,
                   serializeSelection(editorState)
                 );

@@ -18,7 +18,6 @@ import { nOr0 } from '@/common/utils';
 import { appConfig, getGlobalTrans } from '@/config';
 import { CONFLICTS_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
-import { resumeStateService } from '@/db/collection-resume-state.service';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/local-changes.service';
 import notebooksService from '@/db/notebooks.service';
@@ -34,6 +33,7 @@ import {
   RemoteWithState
 } from '@/db/types/store-types';
 import userSettingsService from '@/db/user-settings.service';
+import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { AllGlobalStatsBag, statsService } from '@/domain/stats/stats-service';
 import { getUniqueId, Row, Table, Table as UntypedTable } from 'tinybase';
 import { Content } from 'tinybase/store/with-schemas';
@@ -602,7 +602,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     changes
       .filter(ch => isPageOrDocument({ type: ch.type }))
       .filter(ch => ch.field === 'content')
-      .forEach(ch => resumeStateService.setResumeSelection(ch.id, null));
+      .forEach(ch => resumeService.setLastSelection(ch.id, null));
   }
 
   private handleHistory(changes: AfterSyncHistChange[]) {

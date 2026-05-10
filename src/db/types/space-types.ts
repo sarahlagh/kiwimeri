@@ -1,10 +1,10 @@
 import {
   CollectionItem,
   CollectionItemVersionContentRow,
-  CollectionItemVersionRow,
-  DocumentResumeStateRow
+  CollectionItemVersionRow
 } from '@/collection/collection';
 import { commentSchema } from '@/domain/comments/model';
+import { resumeStateSchema } from '@/domain/resume-state/model';
 import { DocumentStatRow } from '@/domain/stats/model';
 import { ValueIdFromSchema } from 'tinybase/@types/_internal/store/with-schemas';
 import { CellSchema, Value } from 'tinybase/with-schemas';
@@ -14,7 +14,6 @@ type historyKeyEnum = keyof Required<Omit<CollectionItemVersionRow, 'id'>>;
 type historyContentKeyEnum = keyof Required<
   Omit<CollectionItemVersionContentRow, 'id'>
 >;
-type resumeStateKeyEnum = keyof Required<Omit<DocumentResumeStateRow, 'id'>>;
 type statsKeyEnum = keyof Required<Omit<DocumentStatRow, 'id'>>;
 
 export type SpaceType = [
@@ -28,9 +27,7 @@ export type SpaceType = [
     history_content: {
       [cellId in historyContentKeyEnum]: CellSchema;
     };
-    document_resume_state: {
-      [cellId in resumeStateKeyEnum]: CellSchema;
-    };
+    document_resume_state: typeof resumeStateSchema;
     stats: {
       [cellId in statsKeyEnum]: CellSchema;
     };

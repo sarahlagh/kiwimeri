@@ -5,6 +5,7 @@ import {
   INTERNAL_FORMAT
 } from '@/constants';
 import { commentSchema } from '@/domain/comments/model';
+import { resumeStateSchema } from '@/domain/resume-state/model';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db/with-schemas';
 import { Persister } from 'tinybase/persisters/with-schemas';
 import { createQueries, Queries } from 'tinybase/queries/with-schemas';
@@ -205,10 +206,7 @@ class StorageService {
           preview: { type: 'string' } as CellSchema,
           hash: { type: 'number' } as CellSchema
         },
-        document_resume_state: {
-          itemId: { type: 'string' } as CellSchema,
-          lastSelection: { type: 'string' } as CellSchema
-        },
+        document_resume_state: resumeStateSchema,
         stats: {
           itemId: { type: 'string' } as CellSchema,
           date: { type: 'string' } as CellSchema,

@@ -42,7 +42,8 @@ const fetchItemsQuery = new SpaceQueryDefinition<
   select(getCell => {
     const id = getCell('itemId')?.toString();
     if (!id) return undefined;
-    return search[id]?.contentPreview;
+    if (!search[id]?.contentPreview) return undefined;
+    return search[id].contentPreview as string;
   }).as('preview');
 
   where('deleted', false);

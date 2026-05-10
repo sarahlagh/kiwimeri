@@ -2,13 +2,14 @@ import { dateToStr } from '@/common/date-utils';
 import ConfirmYesNoDialog from '@/common/modals/ConfirmYesNoDialog';
 import { APPICONS } from '@/constants';
 import { commentsService } from '@/domain/comments/comments.service';
+import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { IonButton, IonButtons, IonIcon } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 import { useState } from 'react';
 
-type CommentActionsProps = { commentId: string };
+type CommentActionsProps = { docId: string; commentId: string };
 
-const CommentActions = ({ commentId }: CommentActionsProps) => {
+const CommentActions = ({ docId, commentId }: CommentActionsProps) => {
   const [expand, setExpand] = useState(false);
   const [showCreatedAt, setShowCreatedAt] = useState(true);
   const delTrigger = `${commentId}-delete-btn`;
@@ -44,6 +45,7 @@ const CommentActions = ({ commentId }: CommentActionsProps) => {
                 onClose={confirmed => {
                   if (confirmed) {
                     commentsService.deleteComment(commentId);
+                    resumeService.setLastSelectedComment(docId, null);
                   }
                 }}
               />
