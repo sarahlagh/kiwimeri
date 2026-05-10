@@ -23,6 +23,7 @@ import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
 import { useStoreValueState } from '@/shared/hooks/useGenericValueState';
 
+// eslint-disable-next-line no-restricted-imports
 import useCollectionItemBrowserListResults, {
   BrowserQueryMode,
   browserModes

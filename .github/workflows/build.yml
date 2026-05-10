@@ -44,3 +44,22 @@ jobs:
         run: |
           cp .env.ci .env
           yarn test-unit
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'yarn'
+          cache-dependency-path: '**/yarn.lock'
+      - name: Install dependencies
+        run: |
+          yarn install --frozen-lockfile
+      - name: Lint
+        run: |
+          yarn lint

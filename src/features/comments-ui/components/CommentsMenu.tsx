@@ -1,11 +1,11 @@
 import SortableList from '@/common/dnd/containers/SortableList';
 import { APPICONS } from '@/constants';
 import { commentsService } from '@/domain/comments/comments.service';
-import fetchCommentsQuery from '@/features/comments-ui/queries/fetchCommentsQuery';
 import { IonButton, IonButtons, IonIcon } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 import { Id } from 'tinybase/common';
 import useCommentSort from '../hooks/useCommentSort';
+import fetchCommentsQuery from '../queries/fetchCommentsQuery';
 import { CommentMenuPreview } from './CommentMenuPreview';
 import CommentsSortFilterBtn from './CommentsSortFilterBtn';
 

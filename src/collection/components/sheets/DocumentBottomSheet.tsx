@@ -14,11 +14,15 @@ const DocumentBottomSheetSwitcher = ({
   select
 }: DocumentBottomSheetProps) => {
   const DocumentGeneralInfo = lazy(() => import('./DocumentGeneralInfo'));
-  const ChartContainer = lazy(
-    () => import('@/features/stats-ui/components/ChartContainer')
+  const ChartContainer = lazy(() =>
+    import('@/features/stats-ui').then(m => ({
+      default: m.ChartContainer
+    }))
   );
-  const CommentsBrowser = lazy(
-    () => import('@/features/comments-ui/components/CommentsBrowser')
+  const CommentsBrowser = lazy(() =>
+    import('@/features/comments-ui').then(m => ({
+      default: m.CommentsBrowser
+    }))
   );
 
   switch (select) {

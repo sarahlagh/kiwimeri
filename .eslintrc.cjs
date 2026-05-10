@@ -10,7 +10,7 @@ module.exports = {
     'plugin:react/jsx-runtime'
   ],
   parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint'],
+  plugins: ['@typescript-eslint', 'import'],
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: 'module'
@@ -18,7 +18,25 @@ module.exports = {
   ignorePatterns: ['src/locales/**'],
   rules: {
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
-    'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off'
+    'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+    'no-restricted-imports': [
+      'error',
+      {
+        patterns: [
+          {
+            group: ['@/features/*/**'],
+            message: 'Import from feature public API only'
+          }
+        ]
+      }
+    ],
+    'no-restricted-syntax': [
+      'error',
+      {
+        selector: 'ImportExpression[source.value=/^@\\/features\\/[^/]+\\/.+/]',
+        message: 'Import from feature public API only'
+      }
+    ]
   },
   overrides: [
     {
@@ -34,9 +52,11 @@ module.exports = {
       }
     },
     {
-      files: ['./src/vitest/**'],
+      files: ['./src/vitest/**', './src/dev/**'],
       rules: {
-        '@typescript-eslint/no-unused-vars': 'off'
+        '@typescript-eslint/no-unused-vars': 'off',
+        'no-restricted-imports': 'off',
+        'no-restricted-syntax': 'off'
       }
     }
   ]
