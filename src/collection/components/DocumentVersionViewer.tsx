@@ -127,7 +127,6 @@ const DocumentVersionViewer = ({
               if (pages.length > 0) setOpenPageBrowser(true);
             }}
             onClose={role => {
-              console.debug('role', role, !openPageBrowser, pages.length);
               if (role === 'pageBrowser') {
                 setOpenPageBrowser(!openPageBrowser);
               } else {

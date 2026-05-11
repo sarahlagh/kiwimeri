@@ -1,5 +1,6 @@
 import CollectionItemBrowserList from '@/collection/components/CollectionItemBrowserList';
 import DocumentVersionViewer from '@/collection/components/DocumentVersionViewer';
+import { GET_DOCUMENT_ROUTE, VERSION_ROUTE } from '@/common/routes';
 import { getSearchParams } from '@/common/utils';
 import { APPICONS } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
@@ -7,7 +8,7 @@ import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import { IonButton, IonIcon } from '@ionic/react';
 import { useState } from 'react';
-import { useLocation } from 'react-router';
+import { Redirect, useLocation } from 'react-router';
 import NotFoundPage from './NotFoundPage';
 import TemplateCompactableSplitPage from './TemplateCompactableSplitPage';
 
@@ -37,6 +38,11 @@ const VersionedItemPage = () => {
       </IonButton>
     );
   };
+
+  if (location.pathname !== VERSION_ROUTE && docId) {
+    // TODO shouldn't be needed - check why
+    return <Redirect to={GET_DOCUMENT_ROUTE(parentFolder, docId)} />;
+  }
 
   if (!docId || !docVersion || !historyService.versionExists(docVersion)) {
     return <NotFoundPage />;
