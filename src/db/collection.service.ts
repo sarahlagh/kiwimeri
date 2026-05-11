@@ -23,7 +23,11 @@ import {
 } from '@/common/wysiwyg/compress-file-content';
 import { getGlobalTrans } from '@/config';
 import { ROOT_COLLECTION } from '@/constants';
+import { getSpace } from '@/core/db/store';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
+import { commentsService } from '@/domain/comments/comments.service';
+import { CommentRow } from '@/domain/comments/model';
+import { statsService } from '@/domain/stats/stats-service';
 import { SerializedEditorState } from 'lexical';
 import { getUniqueId } from 'tinybase/common';
 import { Id } from 'tinybase/common/with-schemas';
@@ -922,7 +926,7 @@ class CollectionService {
     });
   }
 
-  public explodeDoc(docId: string, createNewGroup = true) {
+  public explodeToDocuments(docId: string, createNewGroup = true) {
     const pages = this.getDocumentPages(docId, {
       by: 'order',
       descending: false
@@ -932,8 +936,29 @@ class CollectionService {
 
     if (createNewGroup) {
       const title = collectionService.getItemTitle(docId);
+      let opts: CollectionItemDisplayOpts = {
+        sort: {
+          by: 'order',
+          descending: false
+        },
+        statsEnabled: userSettingsService.getDefaultDisplayOpts().statsEnabled
+      };
+
+      // if document had sort, use it
+      const str = storageService
+        .getSpace()
+        .getCell(this.tableId, docId, 'display_opts');
+      if (str) {
+        const itemOpts = this.parseDisplayOpts(str as string);
+        if (itemOpts) {
+          opts = itemOpts;
+        }
+      }
+
       const { item } = collectionService.getNewFolderObj(parent);
       item.title = title;
+      item.display_opts = JSON.stringify(opts);
+      item.display_opts_meta = setFieldMeta(item.display_opts, Date.now());
       parent = collectionService.saveItem(item);
       collectionService.setItemParent(docId, parent);
     }
@@ -958,6 +983,64 @@ class CollectionService {
     newDocs.forEach(doc => {
       historyService.saveWholeDocumentVersion(doc.id!, true);
     });
+  }
+
+  public explodeToComments(docId: string) {
+    const space = getSpace();
+    const pages = this.getDocumentPages(docId, {
+      by: 'order',
+      descending: false
+    });
+    if (pages.length === 0) return;
+    const newComments: CommentRow[] = [];
+    pages.forEach(p => {
+      const pageObj = this.getItem(p.id);
+      const item: CommentRow = {
+        itemId: docId,
+        content: pageObj.content as string,
+        createdAt: pageObj.created,
+        updatedAt: pageObj.updated,
+        plainText: searchAncestryService.getItemPreview(p.id),
+        order: pageObj.order
+      };
+      newComments.push(item);
+    });
+    commentsService.addComments(docId, newComments);
+    // if document had sort, set commentSort
+    const str = space.getCell(this.tableId, docId, 'display_opts');
+    if (str) {
+      const itemOpts = this.parseDisplayOpts(str as string);
+      if (
+        itemOpts &&
+        (itemOpts.sort.by === 'created' || itemOpts.sort.by === 'order')
+      ) {
+        itemOpts.documentSort = {
+          by: itemOpts.sort.by === 'created' ? 'createdAt' : 'order',
+          descending: itemOpts.sort.descending
+        };
+        collectionService.setItemDisplayOpts(docId, itemOpts);
+      }
+    }
+
+    // cleanup
+    const docVersions = historyService.getVersions(docId);
+    space.transaction(() => {
+      pages.forEach(p => {
+        const stats = statsService.getDataPoints(p.id);
+        space.delRow('stats', p.id);
+        stats.forEach(dp => {
+          const rowId = `${p.id}-${dp.date}`;
+          space.delRow('stats', rowId);
+        });
+        historyService.hardDeleteVersions(p.id);
+        space.delRow('collection', p.id);
+        space.delRow('document_resume_state', p.id);
+      });
+      docVersions.forEach(v => {
+        space.delCell('history', v.id, 'pageVersionsArrayJson');
+      });
+    });
+    historyService.saveWholeDocumentVersion(docId, true);
   }
 }
 

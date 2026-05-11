@@ -1,11 +1,13 @@
-import { CollectionItemType } from '@/collection/collection';
+import { CollectionItemType, PageResult } from '@/collection/collection';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
+import { getSpace } from '@/core/db/store';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/db/local-changes.service';
 import storageService from '@/db/storage.service';
 import { LocalChangeType } from '@/db/types/store-types';
 import { statsService } from '@/domain/stats/stats-service';
+import fetchCommentsQuery from '@/features/comments-ui/queries/fetchCommentsQuery';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { adv, getNewContent } from '@/vitest/setup/test.utils';
 import { describe, it, vi } from 'vitest';
@@ -169,6 +171,65 @@ function assertDocsPostExplode(
   expect(page2Versions[0].snapshotJson.parent).toBe(newParent);
 }
 
+function assertCommentsPostExplode(
+  docId: string,
+  pageIds: string[],
+  pages: PageResult[]
+) {
+  expect(collectionService.itemExists(docId));
+  expect(collectionService.getDocumentPages(docId)).toHaveLength(0);
+  pageIds.forEach(p => {
+    // pages were deleted
+    expect(!collectionService.itemExists(p));
+  });
+  const comments = fetchCommentsQuery.getResults({
+    itemId: docId
+  });
+  expect(comments).toHaveLength(pageIds.length);
+  pages.forEach(p => {
+    const eqComment = comments.find(c => c.createdAt === p.created);
+    expect(eqComment).toBeDefined();
+    expect(eqComment?.order).toBe(p.order);
+    const commentPlainText = getSpace().getCell(
+      'comments',
+      eqComment!.id,
+      'plainText'
+    );
+    expect(commentPlainText).toBe(p.preview);
+    const commentContent = getSpace().getCell(
+      'comments',
+      eqComment!.id,
+      'content'
+    );
+    expect(commentContent).toBe((p as any)['content']);
+  });
+
+  // document sort was updated
+  const display_opts = collectionService.getItemDisplayOpts(docId);
+  expect(display_opts).toBeDefined();
+  expect(display_opts!.documentSort).toEqual({
+    by: 'order',
+    descending: false
+  });
+  expect(display_opts!.sort).toBeDefined();
+
+  // stats were deleted
+  expect(statsService.getDataPoints(pageIds[0])).toHaveLength(0);
+  expect(statsService.getDataPoints(pageIds[1])).toHaveLength(0);
+  expect(statsService.getDataPoints(pageIds[2])).toHaveLength(0);
+
+  // document history was updated
+  const docVersions = historyService.getVersions(docId);
+  expect(docVersions).toHaveLength(12); // + 1
+  expect(docVersions[0].pageVersionsArrayJson).toBeUndefined();
+  expect(docVersions[1].pageVersionsArrayJson).toBeUndefined(); // pages were deleted from older versions too
+
+  // page versions were deleted
+  expect(historyService.getVersions(pageIds[0])).toHaveLength(0);
+  expect(historyService.getVersions(pageIds[1])).toHaveLength(0);
+  expect(historyService.getVersions(pageIds[2])).toHaveLength(0);
+}
+
 describe('page removal test', () => {
   beforeEach(() => {
     historyService['enabled'] = true;
@@ -188,7 +249,7 @@ describe('page removal test', () => {
     const { docId, pageIds } = createDocWithHistory();
     assertDocAndPagesExist(docId, pageIds);
 
-    adv(() => collectionService.explodeDoc(docId, true));
+    adv(() => collectionService.explodeToDocuments(docId, true));
 
     // check what happened
 
@@ -208,7 +269,7 @@ describe('page removal test', () => {
     const { docId, pageIds } = createDocWithHistory();
     assertDocAndPagesExist(docId, pageIds);
 
-    adv(() => collectionService.explodeDoc(docId, false));
+    adv(() => collectionService.explodeToDocuments(docId, false));
 
     // check what happened
     const localChanges = localChangesService.getLocalChanges();
@@ -216,6 +277,17 @@ describe('page removal test', () => {
     assertDocsPostExplode(docId, pageIds, DEFAULT_NOTEBOOK_ID);
   });
 
-  // TODO test push
-  // TODO test once pushed, check things behave on pull
+  it('should turn pages to comments properly', () => {
+    const { docId, pageIds } = createDocWithHistory();
+    assertDocAndPagesExist(docId, pageIds);
+
+    const pages = collectionService.getDocumentPages(docId);
+
+    adv(() => collectionService.explodeToComments(docId));
+
+    // check what happened
+    assertCommentsPostExplode(docId, pageIds, pages);
+    // const localChanges = localChangesService.getLocalChanges();
+    // expect(localChanges).toHaveLength(4); // doc update + pages updates (x3)
+  });
 });

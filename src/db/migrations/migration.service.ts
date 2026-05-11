@@ -57,6 +57,12 @@ class MigrationService {
       const func = await import('./001-add-itemid-column');
       func.default(space);
     }
+
+    if (from <= 308 && between(to, 308, 401)) {
+      console.log('[space] 1 migration to run: versions gc post page removal');
+      const func = await import('./002-gc-page-versions');
+      func.default(space);
+    }
   }
 
   private getVersionCode(version: string): number {

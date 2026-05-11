@@ -34,6 +34,17 @@ class CommentsService {
     return id;
   }
 
+  public addComments(docId: Id, comments: CommentRow[]) {
+    const space = getSpace();
+    space.transaction(() => {
+      comments.forEach(comment => {
+        const id = getUniqueId();
+        space.setRow('comments', id, { ...comment, itemId: docId });
+      });
+      space.setCell('collection', docId, 'updated', Date.now());
+    });
+  }
+
   public editComment(id: Id, content: SerializedEditorState) {
     const space = getSpace();
     space.transaction(() => {

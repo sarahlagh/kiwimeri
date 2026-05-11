@@ -6,13 +6,18 @@ import ManageHistoryButton from '@/common/buttons/ManageHistoryButton';
 import MoveFolderButton from '@/common/buttons/MoveFolderButton';
 import QuickGroupButton from '@/common/buttons/QuickGroupButton';
 import SearchButton from '@/common/buttons/SearchButton';
-import ConfirmYesNoDialog from '@/common/modals/ConfirmYesNoDialog';
 import { GET_DOCUMENT_ROUTE, GET_FOLDER_ROUTE } from '@/common/routes';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
 import navService from '@/db/nav.service';
 import userSettingsService from '@/db/user-settings.service';
-import { IonButton, IonButtons, IonIcon, IonToolbar } from '@ionic/react';
+import {
+  IonAlert,
+  IonButton,
+  IonButtons,
+  IonIcon,
+  IonToolbar
+} from '@ionic/react';
 import { hammerOutline } from 'ionicons/icons';
 
 export type ActionsFromDocumentEditorToolbarProps = {
@@ -57,16 +62,39 @@ const ActionsFromDocumentEditorToolbar = ({
             <IonButton id={`${id}-explode-doc-btn`}>
               <IonIcon icon={hammerOutline}></IonIcon>
             </IonButton>
-            <ConfirmYesNoDialog
+            <IonAlert
               trigger={`${id}-explode-doc-btn`}
-              message={`This will explode this document into a folder.`}
-              onClose={confirmed => {
-                if (confirmed) {
-                  collectionService.explodeDoc(id, true);
+              message={`Choose how to convert your pages.`}
+              inputs={[
+                {
+                  type: 'radio',
+                  label: 'convert to documents 📄',
+                  value: 'to-docs'
+                },
+                {
+                  type: 'radio',
+                  label: 'convert to comments 💬',
+                  value: 'to-comments'
                 }
-                if (onClose) onClose(confirmed ? 'ungroup' : 'cancel');
-              }}
-            />
+              ]}
+              buttons={[
+                {
+                  text: `Cancel`,
+                  role: 'cancel'
+                },
+                {
+                  text: `Confirm`,
+                  role: 'confirm',
+                  handler: value => {
+                    if (value === 'to-docs') {
+                      collectionService.explodeToDocuments(id, true);
+                    } else if (value === 'to-comments') {
+                      collectionService.explodeToComments(id);
+                    }
+                  }
+                }
+              ]}
+            ></IonAlert>
           </>
         )}
 
