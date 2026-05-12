@@ -225,7 +225,6 @@ describe('comments service', () => {
     const comment4 = commentsService.addComment(docId, results.length);
     results = getResults();
     const comment5 = commentsService.addComment(docId, results.length);
-    const updated = getDocUpdatedTs(docId);
     vi.advanceTimersByTime(100);
 
     results = getResults();

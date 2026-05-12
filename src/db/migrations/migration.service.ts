@@ -1,4 +1,3 @@
-import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
 import { Store } from 'tinybase/with-schemas';
 import { SpaceType } from '../types/space-types';
@@ -34,11 +33,10 @@ class MigrationService {
       console.warn(
         `version mismatch detected: runtime is ${baseRuntimeVersion} (${runtimeCode}), local space is ${spaceVersion} (${spaceCode})`
       );
-      await this.runSpaceMigrations(space, spaceCode, runtimeCode);
       space.setValue('schemaVersion', baseRuntimeVersion);
-    } else if (!platformService.isRelease()) {
-      await this.runSpaceMigrations(space, spaceCode, runtimeCode);
     }
+
+    await this.runSpaceMigrations(space, spaceCode, runtimeCode);
   }
 
   private async runSpaceMigrations(
@@ -58,7 +56,7 @@ class MigrationService {
       func.default(space);
     }
 
-    if (from <= 308 && between(to, 308, 401)) {
+    if (between(to, 308, 401)) {
       console.log('[space] 1 migration to run: versions gc post page removal');
       const func = await import('./002-gc-page-versions');
       func.default(space);
