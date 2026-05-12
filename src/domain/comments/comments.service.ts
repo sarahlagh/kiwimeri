@@ -62,15 +62,22 @@ class CommentsService {
   public deleteComment(id: Id) {
     const space = getSpace();
     space.transaction(() => {
-      space.delRow('comments', id);
       const itemId = space.getCell('comments', id, 'itemId');
       space.setCell('collection', itemId!, 'updated', Date.now());
+      space.delRow('comments', id);
     });
   }
 
   public reorderComments(comments: SortableType[], from: number, to: number) {
+    if (comments.length === 0) return;
     const space = getSpace();
     space.transaction(() => {
+      if (comments[0].order === -1) {
+        // first time, reorder all
+        comments.forEach((c, i) => {
+          space.setCell('comments', c.id, 'order', i);
+        });
+      }
       genericReorder(from, to, (idx, order) => {
         space.setCell('comments', comments[idx].id, 'order', order);
       });

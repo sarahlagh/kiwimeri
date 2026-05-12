@@ -696,6 +696,8 @@ class CollectionService {
     display_opts: CollectionItemDisplayOpts
   ) {
     if (display_opts.sort.by === 'order') display_opts.sort.descending = false;
+    if (display_opts.documentSort?.by === 'order')
+      display_opts.documentSort.descending = false;
     this.setItemField(rowId, 'display_opts', JSON.stringify(display_opts));
   }
 

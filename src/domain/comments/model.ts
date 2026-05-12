@@ -16,7 +16,7 @@ export const commentSchema = {
   updatedAt: { type: 'number', default: 0 },
   content: { type: 'string', default: '' },
   plainText: { type: 'string', default: '' },
-  order: { type: 'number', default: 0 }
+  order: { type: 'number', default: -1 }
 } as const satisfies Record<keyof CommentRow, unknown>;
 
 export const sortBy = ['createdAt', 'order'] as const;
