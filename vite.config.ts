@@ -30,7 +30,11 @@ const vitestConfig = vitestDefineConfig({
     dir: './src/vitest',
     reporters: process.env.GITHUB_ACTIONS
       ? ['dot', 'github-actions']
-      : ['default', 'html']
+      : ['default', 'html'],
+    coverage: {
+      enabled: true,
+      exclude: ['src/vitest/setup/**']
+    }
   }
 });
 
