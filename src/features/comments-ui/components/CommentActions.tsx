@@ -4,12 +4,13 @@ import { APPICONS } from '@/constants';
 import { commentsService } from '@/domain/comments/comments.service';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { IonButton, IonButtons, IonIcon } from '@ionic/react';
-import { Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 
 type CommentActionsProps = { docId: string; commentId: string };
 
 const CommentActions = ({ docId, commentId }: CommentActionsProps) => {
+  const { t } = useLingui();
   const [expand, setExpand] = useState(false);
   const [showCreatedAt, setShowCreatedAt] = useState(true);
   const delTrigger = `${commentId}-delete-btn`;
@@ -32,12 +33,15 @@ const CommentActions = ({ docId, commentId }: CommentActionsProps) => {
       )}
       <div className={'comment-actions'}>
         <IonButtons>
-          <IonButton onClick={() => setExpand(!expand)}>
+          <IonButton
+            aria-label={t`Toggle actions`}
+            onClick={() => setExpand(!expand)}
+          >
             <IonIcon icon={APPICONS.itemActions}></IonIcon>
           </IonButton>
           {expand && (
             <>
-              <IonButton id={delTrigger}>
+              <IonButton id={delTrigger} aria-label={t`Delete comment`}>
                 <IonIcon icon={APPICONS.deleteAction}></IonIcon>
               </IonButton>
               <ConfirmYesNoDialog
@@ -50,6 +54,7 @@ const CommentActions = ({ docId, commentId }: CommentActionsProps) => {
                 }}
               />
               <IonButton
+                aria-label={t`Switch info`}
                 onClick={() => {
                   setShowCreatedAt(!showCreatedAt);
                 }}

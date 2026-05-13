@@ -29,7 +29,8 @@ jobs:
           yarn typecheck
           yarn build:prod
           cp .env.ci .env
-          yarn test-unit
+          yarn test:unit
+          yarn test:browser
 
   release-draft:
     name: Create GitHub Release

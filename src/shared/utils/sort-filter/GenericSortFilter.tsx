@@ -79,6 +79,7 @@ const GenericSortFilter = <SortType,>(
 
           {props.sort.by !== 'order' && (
             <IonButton
+              aria-label={t`Sort direction`}
               slot="end"
               fill="clear"
               onClick={() => {

@@ -18,7 +18,7 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "types": ["node"]
+    "types": ["node", "vitest/globals", "@vitest/browser"]
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]

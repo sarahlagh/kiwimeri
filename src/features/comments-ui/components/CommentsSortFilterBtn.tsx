@@ -3,6 +3,7 @@ import { commentsService } from '@/domain/comments/comments.service';
 import { CommentSort, CommentSortType, sortBy } from '@/domain/comments/model';
 import GenericSortFilter from '@/shared/utils/sort-filter/GenericSortFilter';
 import { IonButton, IonIcon, useIonPopover } from '@ionic/react';
+import { useLingui } from '@lingui/react/macro';
 import useCommentSort from '../hooks/useCommentSort';
 
 type CommentsSortFilterBtnProps = {
@@ -10,6 +11,7 @@ type CommentsSortFilterBtnProps = {
 };
 
 const CommentsSortFilterBtn = ({ docId }: CommentsSortFilterBtnProps) => {
+  const { t } = useLingui();
   const sort = useCommentSort(docId);
   const [present] = useIonPopover(GenericSortFilter<CommentSortType>, {
     searchEnabled: false,
@@ -26,6 +28,7 @@ const CommentsSortFilterBtn = ({ docId }: CommentsSortFilterBtnProps) => {
   return (
     <>
       <IonButton
+        aria-label={t`sort comments`}
         fill="clear"
         style={{ margin: '0' }}
         onClick={e => {

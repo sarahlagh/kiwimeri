@@ -43,7 +43,27 @@ jobs:
       - name: Unit Tests
         run: |
           cp .env.ci .env
-          yarn test-unit
+          yarn test:unit
+
+  browser-tests:
+    name: Browser Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'yarn'
+          cache-dependency-path: '**/yarn.lock'
+      - name: Install dependencies
+        run: |
+          yarn install --frozen-lockfile
+      - name: Browser Tests
+        run: |
+          cp .env.ci .env
+          yarn test:browser
 
   lint:
     name: Lint

@@ -1,5 +1,6 @@
 import { lingui } from '@lingui/vite-plugin';
 import react from '@vitejs/plugin-react';
+import { playwright } from '@vitest/browser-playwright';
 import path from 'path';
 import { defineConfig, mergeConfig } from 'vite';
 import { defineConfig as vitestDefineConfig } from 'vitest/config';
@@ -23,18 +24,17 @@ const viteConfig = defineConfig({
 
 const vitestConfig = vitestDefineConfig({
   test: {
-    name: '',
-    globals: true,
-    environment: 'jsdom',
-    globalSetup: ['./src/vitest/setup/globalSetup.ts'],
-    setupFiles: ['./src/vitest/setup/setupTests.ts'],
     dir: './src/vitest',
     reporters: process.env.GITHUB_ACTIONS
       ? ['dot', 'github-actions']
       : ['default', 'html'],
-    coverage: {
+    globalSetup: ['./src/vitest/setup/globalSetup.ts'],
+    setupFiles: ['./src/vitest/browser/setupTests.ts'],
+    browser: {
       enabled: true,
-      exclude: ['src/vitest/setup/**', 'src/capacitor/**']
+      provider: playwright(),
+      // https://vitest.dev/config/browser/playwright
+      instances: [{ browser: 'chromium' } /*{ browser: 'firefox' }*/]
     }
   }
 });

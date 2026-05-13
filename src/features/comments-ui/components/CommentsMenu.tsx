@@ -3,7 +3,7 @@ import { APPICONS } from '@/constants';
 import { commentsService } from '@/domain/comments/comments.service';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { IonButton, IonButtons, IonIcon, IonNote } from '@ionic/react';
-import { Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { Id } from 'tinybase/common';
 import useCommentSort from '../hooks/useCommentSort';
 import fetchCommentsQuery from '../queries/fetchCommentsQuery';
@@ -23,6 +23,7 @@ export const CommentsMenu = ({
   showActions,
   editable = true
 }: CommentMenuProps) => {
+  const { t } = useLingui();
   const sort = useCommentSort(docId);
   const comments = fetchCommentsQuery.useResults(sort.by, sort.descending);
   return (
@@ -31,6 +32,7 @@ export const CommentsMenu = ({
         <div className={'comment-actions-bar'}>
           <IonButtons>
             <IonButton
+              aria-label={t`add a comment`}
               size="small"
               fill="clear"
               onClick={() => {
