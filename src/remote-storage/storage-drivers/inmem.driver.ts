@@ -8,7 +8,6 @@ import {
 import { fastHash } from '@/common/utils';
 import { SpaceValues } from '@/db/types/space-types';
 import { AnyData } from '@/db/types/store-types';
-import { AllGlobalStatsBag } from '@/domain/stats/stats-service';
 import { DriverFileInfo } from '../sync-types';
 import { RemoteCollectionFileContent } from '../synchronizers/collection-synchronizer';
 import { CloudStorageDriver, FileReference } from './abstract.driver';
@@ -162,14 +161,12 @@ export class InMemDriver extends CloudStorageDriver {
   public setCollectionContent(
     items: CollectionItem[],
     values: SpaceValues,
-    updated: number,
-    global?: AllGlobalStatsBag
+    updated: number
   ) {
     return this.setContent({
       i: minimizeItemsForStorage(items),
       o: values,
-      u: updated,
-      gs: global || {}
+      u: updated
     } as RemoteCollectionFileContent);
   }
 
@@ -185,8 +182,7 @@ export class InMemDriver extends CloudStorageDriver {
     const unminimizedObj = { ...obj, i: unminimizeItemsFromStorage(obj.i) };
     return {
       content: unminimizedObj.i,
-      values: unminimizedObj.o,
-      global: unminimizedObj.gs
+      values: unminimizedObj.o
     };
   }
 }

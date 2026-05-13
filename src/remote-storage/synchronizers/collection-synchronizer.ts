@@ -25,12 +25,12 @@ import storageService from '@/db/storage.service';
 import { SpaceType, SpaceValues } from '@/db/types/space-types';
 import {
   AnyData,
-  AnySerializableData,
   LocalChange,
   LocalChangeType,
   RemoteResult,
   RemoteState,
-  RemoteWithState
+  RemoteWithState,
+  SerializableData
 } from '@/db/types/store-types';
 import userSettingsService from '@/db/user-settings.service';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
@@ -43,20 +43,18 @@ import { AfterSyncHistChange } from '../sync-types';
 import { CloudStorageSynchronizer } from './abstract-synchronizer';
 
 export type MinimizedCollectionItem = {
-  [key in MinKeys[number]]: AnySerializableData | undefined;
+  [key in MinKeys[number]]: SerializableData | undefined;
 };
 
 export type RemoteCollectionFileContent = {
   i: MinimizedCollectionItem[]; // the items
   o: SpaceValues; // the space options
   u: number; // last content change
-  gs: AllGlobalStatsBag;
 };
 
 type RemoteContentRepresentation = {
   items: CollectionItem[];
   values: SpaceValues;
-  globalStats: AllGlobalStatsBag;
   lastRemoteChange: number;
 };
 
@@ -488,17 +486,6 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       }
     });
 
-    // global stats
-    if (remoteContent.globalStats) {
-      const itemIds = Object.keys(remoteContent.globalStats);
-      itemIds.forEach(itemId => {
-        statsService.mergeGlobalStats(
-          itemId,
-          remoteContent.globalStats[itemId]
-        );
-      });
-    }
-
     console.debug(
       '[collection][pull] changes after sync',
       changes,
@@ -527,12 +514,10 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   ): RemoteContentRepresentation {
     const collection = this.toMap<CollectionItem>(localContent[0].collection!);
     const items = [...collection.values()].filter(v => !v.conflict);
-    const globalStats = statsService.getAllGlobalStats();
     return {
       items,
       values: localContent[1],
-      lastRemoteChange: localContent[1].lastUpdated,
-      globalStats
+      lastRemoteChange: localContent[1].lastUpdated
     };
   }
 
@@ -559,8 +544,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     return {
       items: unminimizeItemsFromStorage(obj.i),
       values: obj.o,
-      lastRemoteChange: obj.u,
-      globalStats: obj.gs
+      lastRemoteChange: obj.u
     };
   }
 
@@ -571,10 +555,11 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     updated: number
   ): RemoteCollectionFileContent {
     return {
-      i: minimizeItemsForStorage(items) as MinimizedCollectionItem[],
+      i: minimizeItemsForStorage(
+        items.map(item => ({ ...item, ...global[item.id!] }))
+      ) as MinimizedCollectionItem[],
       o: values,
-      u: updated,
-      gs: global
+      u: updated
     };
   }
 

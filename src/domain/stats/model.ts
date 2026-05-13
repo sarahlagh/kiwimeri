@@ -1,3 +1,4 @@
+// TODO not a good name, and not a good place for it...
 export type DocumentGlobalStatsBag = {
   lastOpenedAt: number;
 };

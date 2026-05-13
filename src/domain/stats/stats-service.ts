@@ -238,18 +238,6 @@ class StatsService {
     });
   }
 
-  public mergeGlobalStats(itemId: string, globalBag: DocumentGlobalStatsBag) {
-    const rowId = itemId;
-    const existingStats = this.getGlobalStats(itemId);
-    const mergedStats: DocumentGlobalStatsBag = {
-      lastOpenedAt: Math.max(existingStats.lastOpenedAt, globalBag.lastOpenedAt)
-    };
-    storageService.getSpace().setPartialRow('stats', rowId, {
-      itemId,
-      ...mergedStats
-    });
-  }
-
   public getGlobalStats(itemId: string) {
     const globalStats: DocumentGlobalStatsBag = { lastOpenedAt: 0 };
     const lastOpened = storageService

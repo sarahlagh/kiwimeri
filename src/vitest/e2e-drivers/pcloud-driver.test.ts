@@ -61,8 +61,7 @@ const reInitRemoteData = async (
   const remoteContent: RemoteCollectionFileContent = {
     i: minimizeItemsForStorage(items) as MinimizedCollectionItem[],
     u: lastRemoteChange,
-    o: values,
-    gs: {}
+    o: values
   };
   await driver.pushFile(
     { filename: 'collection.json' },
