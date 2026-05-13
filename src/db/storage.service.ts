@@ -18,7 +18,7 @@ import {
 import { createIndexes, Indexes } from 'tinybase/with-schemas';
 import { searchAncestryService } from '../search/search-ancestry.service';
 import { historyService } from './collection-history.service';
-import localChangesService from './local-changes.service';
+import localChangesServiceV1 from './local-changes.service.v1';
 import { migrationService } from './migrations/migration.service';
 import notebooksService from './notebooks.service';
 import tagsService from './tags.service';
@@ -293,7 +293,7 @@ class StorageService {
   public nukeSpace() {
     this.getSpace().setContent([{}, {}]);
     notebooksService.initNotebooks();
-    localChangesService.clear();
+    localChangesServiceV1.clear();
     tagsService.clear();
   }
 }

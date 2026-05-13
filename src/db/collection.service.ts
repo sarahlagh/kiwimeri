@@ -34,7 +34,7 @@ import { Id } from 'tinybase/common/with-schemas';
 import { Table } from 'tinybase/store';
 import { searchAncestryService } from '../search/search-ancestry.service';
 import { historyService } from './collection-history.service';
-import localChangesService from './local-changes.service';
+import localChangesServiceV1 from './local-changes.service.v1';
 import notebooksService from './notebooks.service';
 import storageService from './storage.service';
 import {
@@ -43,7 +43,7 @@ import {
   useTableWithRef
 } from './tinybase/hooks';
 import { defaultOrder } from './types/space-types';
-import { LocalChangeType, SerializableData } from './types/store-types';
+import { LocalChangeTypeV1, SerializableData } from './types/store-types';
 import userSettingsService from './user-settings.service';
 
 export const initialContent = () => {
@@ -446,14 +446,14 @@ class CollectionService {
     }
     const space = storageService.getSpace();
     const changeType = this.itemExists(id)
-      ? LocalChangeType.update
-      : LocalChangeType.add;
+      ? LocalChangeTypeV1.update
+      : LocalChangeTypeV1.add;
     space.transaction(() => {
       space.setRow(this.tableId, id, { ...item, itemId: id });
       if (parent) {
         this.updateAllParentsInBreadcrumb(parent);
       }
-      localChangesService.addLocalChange(id, changeType);
+      localChangesServiceV1.addLocalChange(id, changeType);
     });
 
     // TODO not sure why transaction breaks addVersionFromItem here - try startTransaction / endTransaction instead?
@@ -474,7 +474,7 @@ class CollectionService {
     const wasDocument = itemType === CollectionItemType.document;
     const wasPage = itemType === CollectionItemType.page;
     const parent = this.getItemParent(rowId);
-    localChangesService.addLocalChange(rowId, LocalChangeType.delete);
+    localChangesServiceV1.addLocalChange(rowId, LocalChangeTypeV1.delete);
     if (wasFolder) {
       const queryName = this.fetchDocsFoldersNotebooksPerParentQuery(rowId);
       const children = storageService
@@ -863,9 +863,9 @@ class CollectionService {
       const wasConflict =
         CollectionItemResetConflictFields.includes(key) &&
         this.resetItemIfConflict(rowId);
-      localChangesService.addLocalChange(
+      localChangesServiceV1.addLocalChange(
         rowId,
-        wasConflict ? LocalChangeType.add : LocalChangeType.update,
+        wasConflict ? LocalChangeTypeV1.add : LocalChangeTypeV1.update,
         key
       );
     });

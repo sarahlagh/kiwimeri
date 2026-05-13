@@ -22,20 +22,20 @@ export interface Space {
   lastLocalChange: number;
 }
 
-export enum LocalChangeType {
+export enum LocalChangeTypeV1 {
   add = 'a',
   update = 'u',
   delete = 'd',
   value = 'v'
 }
 
-export type LocalChangeTypeValues = 'a' | 'u' | 'd' | 'v';
+export type LocalChangeTypeValuesV1 = 'a' | 'u' | 'd' | 'v';
 
-export interface LocalChange {
+export interface LocalChangeV1 {
   id?: string;
   space: string;
   item: string;
-  change: LocalChangeType;
+  change: LocalChangeTypeV1;
   field?: CollectionItemUpdatableFieldEnum;
   updated: number;
 }
@@ -86,7 +86,7 @@ export interface LocalCollectionAncestor {
 }
 
 type spacesEnum = keyof Required<Space>;
-type localChangeEnum = keyof Required<Omit<LocalChange, 'id'>>;
+type localChangeEnum = keyof Required<Omit<LocalChangeV1, 'id'>>;
 type remoteEnum = keyof Required<Omit<Remote, 'id'>>;
 type remoteStateEnum = keyof Required<Omit<RemoteState, 'id'>>;
 type appLogEnum = keyof Required<Omit<AppLog, 'id'>>;

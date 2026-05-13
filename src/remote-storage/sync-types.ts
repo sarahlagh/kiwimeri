@@ -2,7 +2,7 @@ import {
   CollectionItem,
   CollectionItemUpdatableFieldEnum
 } from '@/collection/collection';
-import { LocalChangeType, RemoteState } from '@/db/types/store-types';
+import { LocalChangeTypeV1, RemoteState } from '@/db/types/store-types';
 
 export type UpdatedRemoteState = {
   lastPulled: number;
@@ -20,6 +20,6 @@ export type AfterSyncHistChange = Pick<
   Required<CollectionItem>,
   'id' | 'type' | 'parent'
 > & {
-  change: LocalChangeType;
+  change: LocalChangeTypeV1;
   field?: CollectionItemUpdatableFieldEnum;
 };

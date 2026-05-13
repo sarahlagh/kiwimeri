@@ -6,12 +6,12 @@ import {
 import { appConfig, getGlobalTrans } from '@/config';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import collectionService from '@/db/collection.service';
-import localChangesService from '@/db/local-changes.service';
+import localChangesServiceV1 from '@/db/local-changes.service.v1';
 import notebooksService from '@/db/notebooks.service';
 import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
 import { SpaceValues } from '@/db/types/space-types';
-import { LocalChangeType } from '@/db/types/store-types';
+import { LocalChangeTypeV1 } from '@/db/types/store-types';
 import userSettingsService from '@/db/user-settings.service';
 import { PCloudDriver } from '@/remote-storage/storage-drivers/pcloud/pcloud.driver';
 import { syncService } from '@/remote-storage/sync.service';
@@ -236,7 +236,7 @@ describe.sequential(
       collectionService.addDocument(notebook);
       collectionService.addFolder(notebook);
       expect(getRowCountInsideNotebook()).toBe(2);
-      localChangesService.clear(); // clear changes -> it's like they have been pushed somewhere else
+      localChangesServiceV1.clear(); // clear changes -> it's like they have been pushed somewhere else
 
       // pull items from new remote
       await syncService.pull();
@@ -293,9 +293,9 @@ describe.sequential(
       setLocalItemField(conflictId, 'content', getNewContent('new content'));
       expect(getLocalItemConflicts()).toHaveLength(0);
       expect(collectionService.getConflicts()).toHaveLength(0);
-      const localChanges = localChangesService.getLocalChanges();
+      const localChanges = localChangesServiceV1.getLocalChanges();
       // expect(localChanges).toHaveLength(1);
-      expect(localChanges[0].change).toBe(LocalChangeType.add);
+      expect(localChanges[0].change).toBe(LocalChangeTypeV1.add);
       expect(localChanges[0].item).toBe(conflictId);
 
       await syncService.sync('sync');

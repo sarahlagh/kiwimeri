@@ -1,11 +1,11 @@
 import { CollectionItemType } from '@/collection/collection';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import collectionService from '@/db/collection.service';
-import localChangesService from '@/db/local-changes.service';
+import localChangesServiceV1 from '@/db/local-changes.service.v1';
 import notebooksService from '@/db/notebooks.service';
 import {
-  LocalChange,
-  LocalChangeType,
+  LocalChangeTypeV1,
+  LocalChangeV1,
   SerializableData
 } from '@/db/types/store-types';
 import userSettingsService from '@/db/user-settings.service';
@@ -16,14 +16,14 @@ import {
   markAsConflict
 } from '../../setup/test.utils';
 
-const getNonNotebookLocalChanges = (localChanges: LocalChange[]) =>
+const getNonNotebookLocalChanges = (localChanges: LocalChangeV1[]) =>
   localChanges.filter(lc => lc.item !== notebooksService.getCurrentNotebook());
 
 describe('local changes service', () => {
   it('should only have notebook local changes by default', () => {
-    expect(localChangesService.getLocalChanges()).toHaveLength(1);
-    const lc = localChangesService.getLocalChanges()[0];
-    expect(lc.change).toBe(LocalChangeType.add);
+    expect(localChangesServiceV1.getLocalChanges()).toHaveLength(1);
+    const lc = localChangesServiceV1.getLocalChanges()[0];
+    expect(lc.change).toBe(LocalChangeTypeV1.add);
     expect(getLocalItemField(lc.item, 'type')).toBe(
       CollectionItemType.notebook
     );
@@ -34,7 +34,7 @@ describe('local changes service', () => {
     createdItems.push(collectionService.addDocument(DEFAULT_NOTEBOOK_ID));
     createdItems.push(collectionService.addFolder(DEFAULT_NOTEBOOK_ID));
     createdItems.push(collectionService.addDocument(DEFAULT_NOTEBOOK_ID));
-    const localChanges = localChangesService.getLocalChanges();
+    const localChanges = localChangesServiceV1.getLocalChanges();
     expect(localChanges).toHaveLength(4);
     expect(getNonNotebookLocalChanges(localChanges).map(l => l.item)).toEqual(
       createdItems.toReversed()
@@ -46,7 +46,7 @@ describe('local changes service', () => {
     collectionService.setItemTitle(id, 'new title');
     collectionService.setItemTitle(id, 'new title 2');
     collectionService.setItemField(id, 'content', 'new content');
-    const localChanges = localChangesService.getLocalChanges();
+    const localChanges = localChangesServiceV1.getLocalChanges();
     expect(localChanges).toHaveLength(2);
     const lc = getNonNotebookLocalChanges(localChanges)[0];
     expect(lc.item).toEqual(id);
@@ -56,13 +56,13 @@ describe('local changes service', () => {
 
   it('should merge local changes for each updated items into one change per field', () => {
     const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    localChangesService.clear();
+    localChangesServiceV1.clear();
 
     collectionService.setItemTitle(id, 'new title');
     collectionService.setItemTitle(id, 'new title 2');
     collectionService.setItemTitle(id, 'new title 3');
     collectionService.setItemField(id, 'content', 'new content');
-    const localChanges = localChangesService.getLocalChanges();
+    const localChanges = localChangesServiceV1.getLocalChanges();
 
     expect(localChanges).toHaveLength(2);
     expect(localChanges.map(l => l.item)).toEqual([id, id]);
@@ -76,7 +76,7 @@ describe('local changes service', () => {
     collectionService.setItemTitle(id, 'new title 2');
     collectionService.setItemField(id, 'content', 'new content');
     collectionService.deleteItem(id);
-    const localChanges = localChangesService.getLocalChanges();
+    const localChanges = localChangesServiceV1.getLocalChanges();
     expect(localChanges).toHaveLength(1);
     expect(getLocalItemField(localChanges[0].item, 'type')).toBe(
       CollectionItemType.notebook
@@ -85,34 +85,34 @@ describe('local changes service', () => {
 
   it('should merge local changes for each deleted items into one change', () => {
     const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    localChangesService.clear();
+    localChangesServiceV1.clear();
 
     collectionService.setItemTitle(id, 'new title');
     collectionService.setItemTitle(id, 'new title 2');
     collectionService.setItemField(id, 'content', 'new content');
     collectionService.deleteItem(id);
 
-    const localChanges = localChangesService.getLocalChanges();
+    const localChanges = localChangesServiceV1.getLocalChanges();
     expect(localChanges).toHaveLength(1);
-    expect(localChanges[0].change).toBe(LocalChangeType.delete);
+    expect(localChanges[0].change).toBe(LocalChangeTypeV1.delete);
   });
 
   it(`should consider previous conflicts as added`, () => {
     const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     const id2 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     markAsConflict(id, id2);
-    localChangesService.clear();
+    localChangesServiceV1.clear();
 
     collectionService.setItemTitle(id, 'new title');
 
-    const localChanges = localChangesService.getLocalChanges();
+    const localChanges = localChangesServiceV1.getLocalChanges();
     expect(localChanges).toHaveLength(1);
     expect(localChanges[0].change).toBe('a');
   });
 
   it(`should not add local changes if the value doesn't change`, () => {
     const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    localChangesService.clear();
+    localChangesServiceV1.clear();
 
     GET_UPDATABLE_FIELDS('document').forEach(({ field }) => {
       const current = collectionService.getItemField<SerializableData>(
@@ -122,7 +122,7 @@ describe('local changes service', () => {
       collectionService.setItemField(id, field, current!);
     });
 
-    const localChanges = localChangesService.getLocalChanges();
+    const localChanges = localChangesServiceV1.getLocalChanges();
     expect(localChanges).toHaveLength(0);
   });
 
@@ -135,7 +135,7 @@ describe('local changes service', () => {
       statsEnabled: false
     });
 
-    let localChanges = localChangesService.getLocalChanges();
+    let localChanges = localChangesServiceV1.getLocalChanges();
     expect(localChanges).toHaveLength(2);
     let lc = getNonNotebookLocalChanges(localChanges)[0];
     expect(lc.item).toEqual('');
@@ -152,7 +152,7 @@ describe('local changes service', () => {
       statsEnabled: false
     });
 
-    localChanges = localChangesService.getLocalChanges();
+    localChanges = localChangesServiceV1.getLocalChanges();
     expect(localChanges).toHaveLength(2);
     lc = getNonNotebookLocalChanges(localChanges)[0];
     expect(lc.item).toEqual('');

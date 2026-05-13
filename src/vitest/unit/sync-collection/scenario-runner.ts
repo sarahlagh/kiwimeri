@@ -14,10 +14,10 @@ import {
 } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
-import localChangesService from '@/db/local-changes.service';
+import localChangesServiceV1 from '@/db/local-changes.service.v1';
 import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
-import { LocalChangeType, SerializableData } from '@/db/types/store-types';
+import { LocalChangeTypeV1, SerializableData } from '@/db/types/store-types';
 import { SyncDirection } from '@/remote-storage/sync.service';
 import {
   createLocalItem,
@@ -41,7 +41,7 @@ import {
 interface PullTestChangeScenario {
   id?: string;
   // parentId?: string; // TODO
-  change: LocalChangeType;
+  change: LocalChangeTypeV1;
   applyInitValue?: boolean; // only used for ADD change
   where: 'local' | 'remote';
   newValue?: string;
@@ -113,14 +113,14 @@ export class PullTestScenarioRunner {
     if (!this.scenario.initLocalData) return this;
     for (const data of this.scenario.initLocalData) {
       this.applyTestChangeOnLocal({
-        change: LocalChangeType.add,
+        change: LocalChangeTypeV1.add,
         where: 'local',
         applyInitValue: data.applyInitValue,
         id: data.id,
         data: { type: data.type, parent: data.parent }
       });
     }
-    localChangesService.clear();
+    localChangesServiceV1.clear();
     return this;
   }
 
@@ -128,7 +128,7 @@ export class PullTestScenarioRunner {
     if (!this.scenario.initRemoteData) return this;
     for (const data of this.scenario.initRemoteData) {
       this.applyTestChangeOnRemote({
-        change: LocalChangeType.add,
+        change: LocalChangeTypeV1.add,
         where: 'remote',
         applyInitValue: data.applyInitValue,
         id: data.id,
@@ -148,7 +148,7 @@ export class PullTestScenarioRunner {
   }
 
   public applyTestChangesInOrder(): PullTestScenarioRunner {
-    localChangesService.clear();
+    localChangesServiceV1.clear();
     this.scenario.changesBeforePull.forEach(ch => {
       vi.advanceTimersByTime(fakeTimersDelay);
       if (ch.where === 'local') {
@@ -178,7 +178,7 @@ export class PullTestScenarioRunner {
     }
 
     switch (ch.change) {
-      case LocalChangeType.add:
+      case LocalChangeTypeV1.add:
         {
           let parent = DEFAULT_NOTEBOOK_ID;
           let parentType = CollectionItemType.notebook;
@@ -270,7 +270,7 @@ export class PullTestScenarioRunner {
           }
         }
         break;
-      case LocalChangeType.update:
+      case LocalChangeTypeV1.update:
         {
           if (!testField) {
             throw new Error('need a TestField to applyfield value');
@@ -321,7 +321,7 @@ export class PullTestScenarioRunner {
           updateFunc(id, testField.field, newValue);
         }
         break;
-      case LocalChangeType.delete:
+      case LocalChangeTypeV1.delete:
         {
           if (!ch.id && this.relevantItems.length !== 1) {
             throw new Error(

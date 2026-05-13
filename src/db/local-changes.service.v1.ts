@@ -5,7 +5,7 @@ import {
   useResultSortedRowIdsWithRef,
   useSliceRowIdsWithRef
 } from './tinybase/hooks';
-import { LocalChange, LocalChangeType } from './types/store-types';
+import { LocalChangeTypeV1, LocalChangeV1 } from './types/store-types';
 
 // TODO if reset update back to default / last value, should reset local change too
 class LocalChangesService {
@@ -58,11 +58,11 @@ class LocalChangesService {
 
   public addLocalChange(
     item: string,
-    change: LocalChangeType,
+    change: LocalChangeTypeV1,
     field?: CollectionItemUpdatableFieldEnum
   ) {
     const space = storageService.getSpaceId();
-    const localChange: LocalChange = {
+    const localChange: LocalChangeV1 = {
       space,
       item,
       change,
@@ -70,7 +70,10 @@ class LocalChangesService {
       updated: Date.now()
     };
 
-    if (change === LocalChangeType.update || change === LocalChangeType.value) {
+    if (
+      change === LocalChangeTypeV1.update ||
+      change === LocalChangeTypeV1.value
+    ) {
       // if field update, merge with existing row if any
       const table = storageService.getStore().getTable(this.table);
       const queryName = this.fetchLocalChangesForItemQuery(space, item);
@@ -82,7 +85,7 @@ class LocalChangesService {
       let oldestRow;
       for (const rowId of rowIds) {
         const row = table[rowId];
-        if (row.change === LocalChangeType.add) {
+        if (row.change === LocalChangeTypeV1.add) {
           oldestRow = rowId;
           break;
         } else if (row.field === field) {
@@ -96,7 +99,7 @@ class LocalChangesService {
         this.setLastLocalChange(localChange.updated);
         return;
       }
-    } else if (change === LocalChangeType.delete) {
+    } else if (change === LocalChangeTypeV1.delete) {
       // if row deletion, but was added as part of local changes, remove any local changes associated
       const table = storageService.getStore().getTable(this.table);
       const queryName = this.fetchLocalChangesForItemQuery(space, item);
@@ -107,7 +110,7 @@ class LocalChangesService {
         let wasAdded = false;
         storageService.getStore().transaction(() => {
           for (const rowId of rowIds) {
-            if (table[rowId].change === LocalChangeType.add) {
+            if (table[rowId].change === LocalChangeTypeV1.add) {
               wasAdded = true;
             }
             storageService.getStore().delRow(this.table, rowId);
@@ -133,7 +136,9 @@ class LocalChangesService {
     const rowIds = storageService
       .getStoreQueries()
       .getResultSortedRowIds(queryName, 'updated', true, offset, limit);
-    return rowIds.map(rowId => ({ ...table[rowId], id: rowId }) as LocalChange);
+    return rowIds.map(
+      rowId => ({ ...table[rowId], id: rowId }) as LocalChangeV1
+    );
   }
 
   public useLocalChanges(
@@ -151,7 +156,7 @@ class LocalChangesService {
       true,
       offset,
       limit
-    ).map(rowId => ({ ...table[rowId], id: rowId }) as LocalChange);
+    ).map(rowId => ({ ...table[rowId], id: rowId }) as LocalChangeV1);
   }
 
   public useHasLocalChanges() {
@@ -198,5 +203,5 @@ class LocalChangesService {
   }
 }
 
-const localChangesService = new LocalChangesService();
-export default localChangesService;
+const localChangesServiceV1 = new LocalChangesService();
+export default localChangesServiceV1;

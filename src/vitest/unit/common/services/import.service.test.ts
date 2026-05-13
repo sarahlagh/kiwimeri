@@ -11,11 +11,11 @@ import {
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
-import localChangesService from '@/db/local-changes.service';
+import localChangesServiceV1 from '@/db/local-changes.service.v1';
 import navService from '@/db/nav.service';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
-import { LocalChangeType } from '@/db/types/store-types';
+import { LocalChangeTypeV1 } from '@/db/types/store-types';
 import userSettingsService from '@/db/user-settings.service';
 import formatConverter from '@/format-conversion/format-converter.service';
 import {
@@ -492,19 +492,19 @@ describe('import service', () => {
         : true
     );
     expect(
-      localChangesService
+      localChangesServiceV1
         .getLocalChanges()
-        .filter(lc => lc.change === LocalChangeType.add)
+        .filter(lc => lc.change === LocalChangeTypeV1.add)
     ).toHaveLength(zipMerge.newItems.length);
     expect(
-      localChangesService
+      localChangesServiceV1
         .getLocalChanges()
-        .filter(lc => lc.change === LocalChangeType.delete)
+        .filter(lc => lc.change === LocalChangeTypeV1.delete)
     ).toHaveLength(initData.length - initDataNotDel.length);
     expect(
-      localChangesService
+      localChangesServiceV1
         .getLocalChanges()
-        .filter(lc => lc.change === LocalChangeType.update)
+        .filter(lc => lc.change === LocalChangeTypeV1.update)
     ).toHaveLength(zipMerge.updatedItems.length);
 
     const items = [...zipMerge.newItems, ...zipMerge.updatedItems];
@@ -576,7 +576,7 @@ describe('import service', () => {
                           const { ids: initDataIds, initialItems } =
                             createInitLocalData(testCase.initData);
 
-                          localChangesService.clear();
+                          localChangesServiceV1.clear();
                           vi.advanceTimersByTime(5000);
                           const updateTs = Date.now();
 

@@ -3,10 +3,10 @@ import { getGlobalTrans } from '@/config';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
-import localChangesService from '@/db/local-changes.service';
+import localChangesServiceV1 from '@/db/local-changes.service.v1';
 import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
-import { LocalChangeType } from '@/db/types/store-types';
+import { LocalChangeTypeV1 } from '@/db/types/store-types';
 import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
 import { SingleFileStorage } from '@/remote-storage/storage-filesystems/singlefile.filesystem';
 import { syncService } from '@/remote-storage/sync.service';
@@ -213,8 +213,10 @@ describe(`sync general test`, () => {
     // solve conflict
     adv(() => collectionService.setItemTitle(id, 'test'));
     expect(!collectionService.isItemConflict(id));
-    const lc = localChangesService.getLocalChanges().find(lc => lc.item === id);
-    expect(lc?.change).toBe(LocalChangeType.add);
+    const lc = localChangesServiceV1
+      .getLocalChanges()
+      .find(lc => lc.item === id);
+    expect(lc?.change).toBe(LocalChangeTypeV1.add);
     expect(lc?.item).toBe(id);
 
     {

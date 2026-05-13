@@ -9,10 +9,10 @@ import { getGlobalTrans } from '@/config';
 import { DEFAULT_NOTEBOOK_ID, DEFAULT_SPACE_ID } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
-import localChangesService from '@/db/local-changes.service';
+import localChangesServiceV1 from '@/db/local-changes.service.v1';
 import storageService from '@/db/storage.service';
 import { defaultOrder } from '@/db/types/space-types';
-import { LocalChangeType } from '@/db/types/store-types';
+import { LocalChangeTypeV1 } from '@/db/types/store-types';
 import userSettingsService from '@/db/user-settings.service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { renderHook } from '@testing-library/react';
@@ -183,7 +183,7 @@ describe('collection history service', () => {
       expect(versions).toHaveLength(2);
       expect(versions[0].snapshotJson.title).toBe(newValue);
       expect(versions[1].snapshotJson.title).toBe(itemBefore.title);
-      localChangesService.clear();
+      localChangesServiceV1.clear();
 
       historyService.restoreDocumentVersion(docId, versions[1].id!);
       const restoredItem = storageService
@@ -197,9 +197,9 @@ describe('collection history service', () => {
       expect(versions[1].snapshotJson.title).toBe(newValue);
       expect(versions[2].snapshotJson.title).toBe(itemBefore.title);
 
-      const lc = localChangesService.getLocalChanges();
+      const lc = localChangesServiceV1.getLocalChanges();
       expect(lc).toHaveLength(1);
-      expect(lc[0].change).toBe(LocalChangeType.update);
+      expect(lc[0].change).toBe(LocalChangeTypeV1.update);
       expect(lc[0].item).toBe(docId);
       expect(lc[0].field).toBeUndefined();
     });

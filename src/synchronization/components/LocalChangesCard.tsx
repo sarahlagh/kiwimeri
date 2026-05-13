@@ -5,9 +5,9 @@ import { GET_UNKNOWN_ITEM_ROUTE, SETTINGS_ROUTE } from '@/common/routes';
 import platformService from '@/common/services/platform.service';
 import { APPICONS, APPICONS_PER_TYPE } from '@/constants';
 import collectionService from '@/db/collection.service';
-import localChangesService from '@/db/local-changes.service';
+import localChangesServiceV1 from '@/db/local-changes.service.v1';
 import remotesService from '@/db/remotes.service';
-import { LocalChangeType } from '@/db/types/store-types';
+import { LocalChangeTypeV1 } from '@/db/types/store-types';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import {
   IonCard,
@@ -26,8 +26,8 @@ const LocalChangesCard = () => {
   const { t } = useLingui();
   const isRelease = platformService.isRelease();
   const isWideEnough = platformService.isWideEnough();
-  const localChanges = localChangesService.useLocalChanges();
-  const lastLocalChange = localChangesService.useLastLocalChange();
+  const localChanges = localChangesServiceV1.useLocalChanges();
+  const lastLocalChange = localChangesServiceV1.useLastLocalChange();
   const lastRemoteChange = remotesService.usePrimaryLastRemoteChange();
   const weightLocal = lastRemoteChange >= lastLocalChange ? 'normal' : 'bold';
   const weightRemote = lastRemoteChange < lastLocalChange ? 'normal' : 'bold';
@@ -60,7 +60,7 @@ const LocalChangesCard = () => {
           <>
             <IonList style={{ maxHeight: '400px', overflowY: 'auto' }}>
               {localChanges.map(lc => {
-                if (lc.change === LocalChangeType.value) {
+                if (lc.change === LocalChangeTypeV1.value) {
                   return (
                     <IonItem key={lc.id} routerLink={SETTINGS_ROUTE}>
                       <IonIcon
@@ -148,7 +148,7 @@ const LocalChangesCard = () => {
                   trigger={`del-clear`}
                   message={`This might create syncing problems`}
                   onConfirm={() => {
-                    localChangesService.clear();
+                    localChangesServiceV1.clear();
                   }}
                 >
                   <Trans>Clear All</Trans>

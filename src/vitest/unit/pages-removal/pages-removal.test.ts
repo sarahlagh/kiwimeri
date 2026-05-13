@@ -3,9 +3,9 @@ import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { getSpace } from '@/core/db/store';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
-import localChangesService from '@/db/local-changes.service';
+import localChangesServiceV1 from '@/db/local-changes.service.v1';
 import storageService from '@/db/storage.service';
-import { LocalChangeType } from '@/db/types/store-types';
+import { LocalChangeTypeV1 } from '@/db/types/store-types';
 import { statsService } from '@/domain/stats/stats-service';
 import fetchCommentsQuery from '@/features/comments-ui/queries/fetchCommentsQuery';
 import { searchAncestryService } from '@/search/search-ancestry.service';
@@ -118,17 +118,17 @@ function assertDocsPostExplode(
   expect(newDoc2.order).toBe(3);
 
   // localChanges created
-  const localChanges = localChangesService.getLocalChanges();
+  const localChanges = localChangesServiceV1.getLocalChanges();
   expect(
     localChanges.some(
-      lc => lc.item === newParent && lc.change === LocalChangeType.add
+      lc => lc.item === newParent && lc.change === LocalChangeTypeV1.add
     )
   );
   expect(
     localChanges.some(
       lc =>
         lc.item === docId &&
-        lc.change === LocalChangeType.update &&
+        lc.change === LocalChangeTypeV1.update &&
         lc.field === 'order'
     )
   );
@@ -136,7 +136,7 @@ function assertDocsPostExplode(
     expect(
       localChanges.some(
         lc =>
-          lc.item === pId && lc.change === LocalChangeType.update && !lc.field
+          lc.item === pId && lc.change === LocalChangeTypeV1.update && !lc.field
       )
     );
   });
@@ -236,7 +236,7 @@ describe('page removal test', () => {
     storageService.getSpace().setValue('historyIdleTime', 20);
     searchAncestryService.start();
     storageService.getSpace().setValue('statsEnabled', true);
-    localChangesService.clear();
+    localChangesServiceV1.clear();
     vi.useFakeTimers();
   });
   afterEach(() => {
@@ -260,7 +260,7 @@ describe('page removal test', () => {
     expect(newFolder.title).toBe('my title');
     expect(newFolder.parent).toBe(DEFAULT_NOTEBOOK_ID);
 
-    const localChanges = localChangesService.getLocalChanges();
+    const localChanges = localChangesServiceV1.getLocalChanges();
     expect(localChanges).toHaveLength(5); // folder creation + doc update + pages updates (x3)
     assertDocsPostExplode(docId, pageIds, newParent);
   });
@@ -272,7 +272,7 @@ describe('page removal test', () => {
     adv(() => collectionService.explodeToDocuments(docId, false));
 
     // check what happened
-    const localChanges = localChangesService.getLocalChanges();
+    const localChanges = localChangesServiceV1.getLocalChanges();
     expect(localChanges).toHaveLength(4); // doc update + pages updates (x3)
     assertDocsPostExplode(docId, pageIds, DEFAULT_NOTEBOOK_ID);
   });

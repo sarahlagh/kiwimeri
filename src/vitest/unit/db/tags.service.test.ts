@@ -1,6 +1,6 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import collectionService from '@/db/collection.service';
-import localChangesService from '@/db/local-changes.service';
+import localChangesServiceV1 from '@/db/local-changes.service.v1';
 import tagsService from '@/db/tags.service';
 import { describe, expect, it } from 'vitest';
 
@@ -48,7 +48,7 @@ describe('tags service', () => {
     const id2 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
     tagsService.addItemTag(id2, 'tag2');
     tagsService.addItemTag(id2, 'tag3');
-    localChangesService.clear();
+    localChangesServiceV1.clear();
 
     tagsService.reBuildTags();
     tagsService.renameTag('tag2', 'tag4');
@@ -68,7 +68,7 @@ describe('tags service', () => {
     expect(tagsService.getItemsPerTag('tag3')).toStrictEqual([id2]);
     expect(tagsService.getItemsPerTag('tag4')).toStrictEqual([id1, id2]);
 
-    expect(localChangesService.getLocalChanges()).toHaveLength(2);
+    expect(localChangesServiceV1.getLocalChanges()).toHaveLength(2);
   });
 
   it(`should do nothing on rename tag if tag doesn't exist`, () => {

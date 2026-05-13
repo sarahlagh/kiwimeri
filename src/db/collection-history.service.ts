@@ -21,7 +21,7 @@ import {
   useResultSortedRowIdsWithRef,
   useRowWithRef
 } from './tinybase/hooks';
-import { LocalChangeType } from './types/store-types';
+import { LocalChangeTypeV1 } from './types/store-types';
 import userSettingsService from './user-settings.service';
 
 type VersionsWithContentResult = ResultRow & {
@@ -766,7 +766,7 @@ class CollectionHistoryService {
   }
 
   public updateAfterSync(ch: AfterSyncHistChange) {
-    if (ch.change !== LocalChangeType.delete) {
+    if (ch.change !== LocalChangeTypeV1.delete) {
       if (ch.type === CollectionItemType.document) {
         historyService.saveWholeDocumentVersion(ch.id, true);
       } else {

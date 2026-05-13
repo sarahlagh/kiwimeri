@@ -5,12 +5,12 @@ import {
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
 import collectionService from './collection.service';
-import localChangesService from './local-changes.service';
+import localChangesServiceV1 from './local-changes.service.v1';
 import notebooksService from './notebooks.service';
 import storageService from './storage.service';
 import { useValueWithRef } from './tinybase/hooks';
 import { SpaceValue, SpaceValues } from './types/space-types';
-import { LocalChangeType } from './types/store-types';
+import { LocalChangeTypeV1 } from './types/store-types';
 
 export type Theme = 'light' | 'dark';
 
@@ -141,7 +141,7 @@ class UserSettingsService {
 
   private setSyncableValues(values: Partial<SpaceValues>) {
     storageService.getSpace().transaction(() => {
-      localChangesService.addLocalChange('', LocalChangeType.value);
+      localChangesServiceV1.addLocalChange('', LocalChangeTypeV1.value);
       storageService.getSpace().setValue('lastUpdated', Date.now());
 
       const names = Object.keys(values) as SpaceValue[];

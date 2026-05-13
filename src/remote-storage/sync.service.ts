@@ -1,6 +1,6 @@
 import platformService from '@/common/services/platform.service';
 import collectionService from '@/db/collection.service';
-import localChangesService from '@/db/local-changes.service';
+import localChangesServiceV1 from '@/db/local-changes.service.v1';
 import remotesService from '@/db/remotes.service';
 import { useCellWithRef } from '@/db/tinybase/hooks';
 
@@ -77,7 +77,7 @@ class SyncService {
     return primary.connected;
   }
   public usePrimaryHasLocalChanges() {
-    return localChangesService.useHasLocalChanges();
+    return localChangesServiceV1.useHasLocalChanges();
   }
 
   private useLastPulled() {
