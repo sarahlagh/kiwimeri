@@ -19,10 +19,11 @@ import {
   IonItem,
   IonLabel,
   IonList,
-  IonText
+  IonText,
+  useIonViewDidEnter,
+  useIonViewDidLeave
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useEffect } from 'react';
 import useLatestUpdatedAt from '../hooks/useLatestUpdatedAt';
 
 const LocalChangesCard = () => {
@@ -35,10 +36,11 @@ const LocalChangesCard = () => {
   const weightLocal = lastRemoteChange >= lastLocalChange ? 'normal' : 'bold';
   const weightRemote = lastRemoteChange < lastLocalChange ? 'normal' : 'bold';
 
-  useEffect(() => {
-    return () => {
-      fetchLocalChangesQuery.close();
-    };
+  useIonViewDidEnter(() => {
+    fetchLocalChangesQuery.initQuery();
+  });
+  useIonViewDidLeave(() => {
+    fetchLocalChangesQuery.close();
   });
 
   return (

@@ -5,6 +5,7 @@ import storageService from '@/db/storage.service';
 import { appLog } from '@/log';
 import { ReactNode, useEffect, useState } from 'react';
 import { Indexes } from 'tinybase/indexes';
+import { Metrics } from 'tinybase/metrics';
 import { Queries } from 'tinybase/queries';
 import { Store } from 'tinybase/store';
 import { Provider } from 'tinybase/ui-react';
@@ -33,6 +34,7 @@ const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
 
   const space = storageService.getSpace() as unknown as Store;
   const spaceQueries = storageService.getSpaceQueries() as unknown as Queries;
+  const spaceMetrics = storageService.getSpaceMetrics() as unknown as Metrics;
   const store = storageService.getStore() as unknown as Store;
   const storeQueries = storageService.getStoreQueries() as unknown as Queries;
   const storeIndexes = storageService.getStoreIndexes() as unknown as Indexes;
@@ -45,6 +47,7 @@ const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
       storesById={{ store, space }}
       queriesById={{ store: storeQueries, space: spaceQueries }}
       indexesById={{ store: storeIndexes }}
+      metricsById={{ space: spaceMetrics }}
     >
       {appConfig.DEV_ENABLE_INSPECTOR && <Inspector />}
       {children}

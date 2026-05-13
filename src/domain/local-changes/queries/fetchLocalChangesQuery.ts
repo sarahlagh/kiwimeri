@@ -6,7 +6,7 @@ const fetchLocalChangesQuery = new StoreQueryDefinition<
   ParamValues,
   LocalChangeResult,
   'localChanges'
->('fetchItems', 'localChanges', ({ select }) => {
+>('fetchLocalChanges', 'localChanges', ({ select }) => {
   select('on');
   select('itemId');
   select('createdAt');

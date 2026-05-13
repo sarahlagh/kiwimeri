@@ -50,6 +50,18 @@ export class TinybaseQueryDefinition<
     protected query: QueryDefinition<Schema, RootTableId>
   ) {}
 
+  public initQuery(paramValues?: ParamDef) {
+    const queries = this.getQueries();
+    if (!queries.hasQuery(this.queryId)) {
+      queries.setQueryDefinition(
+        this.queryId,
+        this.tableId,
+        this.query,
+        paramValues
+      );
+    }
+  }
+
   /** load a permanent query definition, for use in hooks */
   public loadParams(paramValues: ParamDef) {
     const queries = this.getQueries();

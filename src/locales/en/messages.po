@@ -60,6 +60,10 @@ msgstr "{wordCount} words"
 msgid "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 msgstr "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 
+#: src/features/comments-ui/components/CommentsMenu.tsx:35
+msgid "add a comment"
+msgstr "add a comment"
+
 #: src/synchronization/components/providers/RemotesSettings.tsx:102
 msgid "Add config"
 msgstr "Add config"
@@ -125,7 +129,7 @@ msgstr "Choose a session length"
 msgid "Choose where to save your work"
 msgstr "Choose where to save your work"
 
-#: src/synchronization/components/LocalChangesCard.tsx:154
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:179
 msgid "Clear All"
 msgstr "Clear All"
 
@@ -168,7 +172,7 @@ msgstr "Conflicts"
 msgid "Content"
 msgstr "Content"
 
-#: src/features/comments-ui/components/CommentsMenu.tsx:54
+#: src/features/comments-ui/components/CommentsMenu.tsx:56
 msgid "create a comment"
 msgstr "create a comment"
 
@@ -176,7 +180,7 @@ msgstr "create a comment"
 msgid "Created at"
 msgstr "Created at"
 
-#: src/features/comments-ui/components/CommentActions.tsx:23
+#: src/features/comments-ui/components/CommentActions.tsx:24
 msgid "Created at: {0}"
 msgstr "Created at: {0}"
 
@@ -197,7 +201,11 @@ msgstr "Default"
 msgid "Delete All"
 msgstr "Delete All"
 
-#: src/synchronization/components/LocalChangesCard.tsx:88
+#: src/features/comments-ui/components/CommentActions.tsx:44
+msgid "Delete comment"
+msgstr "Delete comment"
+
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:113
 msgid "deleted item"
 msgstr "deleted item"
 
@@ -381,11 +389,11 @@ msgstr "Link"
 msgid "Loading..."
 msgstr "Loading..."
 
-#: src/synchronization/components/LocalChangesCard.tsx:38
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:50
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
-#: src/synchronization/components/LocalChangesCard.tsx:44
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:56
 msgid "Local: {0}"
 msgstr "Local: {0}"
 
@@ -534,7 +542,7 @@ msgstr "Remember last route"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
-#: src/synchronization/components/LocalChangesCard.tsx:51
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:63
 msgid "Remote: {0}"
 msgstr "Remote: {0}"
 
@@ -597,11 +605,19 @@ msgstr "Settings"
 msgid "Sort"
 msgstr "Sort"
 
+#: src/features/comments-ui/components/CommentsSortFilterBtn.tsx:31
+msgid "sort comments"
+msgstr "sort comments"
+
+#: src/shared/utils/sort-filter/GenericSortFilter.tsx:82
+msgid "Sort direction"
+msgstr "Sort direction"
+
 #: src/settings/components/sections/GenericCollectionSettings.tsx:34
 msgid "Sort items by..."
 msgstr "Sort items by..."
 
-#: src/synchronization/components/LocalChangesCard.tsx:70
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:82
 msgid "space option modified"
 msgstr "space option modified"
 
@@ -619,6 +635,10 @@ msgstr "Start Writing"
 #: src/synchronization/components/providers/RemoteGenericSettings.tsx:59
 msgid "Success!"
 msgstr "Success!"
+
+#: src/features/comments-ui/components/CommentActions.tsx:57
+msgid "Switch info"
+msgstr "Switch info"
 
 #: src/app/components/MainMenuList.tsx:81
 #: src/app/pages/SynchronizationPage.tsx:9
@@ -681,6 +701,10 @@ msgstr "Timed Writing Session"
 msgid "Title"
 msgstr "Title"
 
+#: src/features/comments-ui/components/CommentActions.tsx:37
+msgid "Toggle actions"
+msgstr "Toggle actions"
+
 #: src/settings/components/sections/GenericCollectionSettings.tsx:50
 msgid "Track text statistics"
 msgstr "Track text statistics"
@@ -689,7 +713,7 @@ msgstr "Track text statistics"
 msgid "Updated at"
 msgstr "Updated at"
 
-#: src/features/comments-ui/components/CommentActions.tsx:28
+#: src/features/comments-ui/components/CommentActions.tsx:29
 msgid "Updated at: {0}"
 msgstr "Updated at: {0}"
 
