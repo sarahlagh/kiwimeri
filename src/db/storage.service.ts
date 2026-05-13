@@ -5,6 +5,8 @@ import {
   INTERNAL_FORMAT
 } from '@/constants';
 import { commentSchema } from '@/domain/comments/model';
+import localChangesService from '@/domain/local-changes/local-changes.service';
+import { localChangesSchema } from '@/domain/local-changes/model';
 import { resumeStateSchema } from '@/domain/resume-state/model';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db/with-schemas';
 import { Persister } from 'tinybase/persisters/with-schemas';
@@ -15,10 +17,14 @@ import {
   OptionalSchemas,
   Store
 } from 'tinybase/store/with-schemas';
-import { createIndexes, Indexes } from 'tinybase/with-schemas';
+import {
+  createIndexes,
+  createMetrics,
+  Indexes,
+  Metrics
+} from 'tinybase/with-schemas';
 import { searchAncestryService } from '../search/search-ancestry.service';
 import { historyService } from './collection-history.service';
-import localChangesServiceV1 from './local-changes.service.v1';
 import { migrationService } from './migrations/migration.service';
 import notebooksService from './notebooks.service';
 import tagsService from './tags.service';
@@ -31,9 +37,11 @@ class StorageService {
   private store!: Store<StoreType>;
   private storeLocalPersister!: Persister<StoreType>;
   private storeQueries!: Queries<StoreType>;
+  private storeMetrics!: Metrics<StoreType>;
   private storeIndexes!: Indexes<StoreType>;
 
   private spaces: Map<string, Store<SpaceType>> = new Map();
+  private spaceMetrics!: Metrics<SpaceType>;
   private spaceQueries: Map<string, Queries<SpaceType>> = new Map();
   private spaceIndexes: Map<string, Indexes<SpaceType>> = new Map();
   private spaceLocalPersisters: Map<string, Persister<SpaceType>> = new Map();
@@ -55,16 +63,9 @@ class StorageService {
             default: DEFAULT_NOTEBOOK_ID
           } as CellSchema,
           currentDocument: { type: 'string' } as CellSchema,
-          currentPage: { type: 'string' } as CellSchema,
-          lastLocalChange: { type: 'number' } as CellSchema
+          currentPage: { type: 'string' } as CellSchema
         },
-        localChanges: {
-          space: { type: 'string' } as CellSchema,
-          item: { type: 'string' } as CellSchema,
-          change: { type: 'string' } as CellSchema,
-          field: { type: 'string' } as CellSchema,
-          updated: { type: 'number' } as CellSchema
-        },
+        localChanges: localChangesSchema,
         remotes: {
           state: { type: 'string' } as CellSchema,
           name: { type: 'string' } as CellSchema,
@@ -116,10 +117,12 @@ class StorageService {
 
     this.storeQueries = createQueries(this.store);
     this.storeIndexes = createIndexes(this.store);
+    this.storeMetrics = createMetrics(this.store);
 
     // later: do that dynamically
     this.spaces.set(DEFAULT_SPACE_ID, this.createSpace());
 
+    this.spaceMetrics = createMetrics(this.getSpace(DEFAULT_SPACE_ID));
     this.spaceQueries.set(
       DEFAULT_SPACE_ID,
       createQueries(this.getSpace(DEFAULT_SPACE_ID))
@@ -267,6 +270,14 @@ class StorageService {
     return this.storeIndexes;
   }
 
+  public getStoreMetrics() {
+    return this.storeMetrics;
+  }
+
+  public getSpaceMetrics() {
+    return this.spaceMetrics;
+  }
+
   public get(storeId: StoreId) {
     if (storeId === 'space') {
       return this.getSpace();
@@ -293,7 +304,7 @@ class StorageService {
   public nukeSpace() {
     this.getSpace().setContent([{}, {}]);
     notebooksService.initNotebooks();
-    localChangesServiceV1.clear();
+    localChangesService.clear();
     tagsService.clear();
   }
 }

@@ -13,14 +13,14 @@ import {
 } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
-import localChangesServiceV1 from '@/db/local-changes.service.v1';
 import notebooksService from '@/db/notebooks.service';
 import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
 import tagsService from '@/db/tags.service';
 import { SpaceValues } from '@/db/types/space-types';
-import { LocalChangeTypeV1 } from '@/db/types/store-types';
 import userSettingsService from '@/db/user-settings.service';
+import localChangesService from '@/domain/local-changes/local-changes.service';
+import { LocalChangeType } from '@/domain/local-changes/model';
 import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
 import { syncService } from '@/remote-storage/sync.service';
 import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';
@@ -233,7 +233,7 @@ describe('sync service', () => {
         expect(getRowCountInsideNotebook()).toBe(2);
         checkHistory(1);
 
-        localChangesServiceV1.clear();
+        localChangesService.clear();
         await syncService_pull();
         expect(getRowCountInsideNotebook()).toBe(3);
         checkHistory(2);
@@ -282,7 +282,7 @@ describe('sync service', () => {
         collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
         collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
         expect(getRowCountInsideNotebook()).toBe(2);
-        localChangesServiceV1.clear(); // clear changes -> it's like they have been pushed
+        localChangesService.clear(); // clear changes -> it's like they have been pushed
 
         // pull items from new remote
         await syncService_pull();
@@ -385,7 +385,7 @@ describe('sync service', () => {
       NON_NOTEBOOK_ITEM_TYPES.forEach(({ type, typeVal, testAddFn }) => {
         describe(`tests on a ${type}`, () => {
           it(`should delete local ${type}s on pull if they have not been changed and erased on remote`, async () => {
-            localChangesServiceV1.clear();
+            localChangesService.clear();
             const remoteData = getSomeRemoteData(type, testAddFn);
             await reInitRemoteData(remoteData);
             await syncService_pull();
@@ -937,12 +937,12 @@ describe('sync service', () => {
                 );
                 historyService.saveNow();
                 expect(getRowCountInsideNotebook()).toBe(5);
-                expect(localChangesServiceV1.getLocalChanges()).toHaveLength(3);
-                const lc = localChangesServiceV1
+                expect(localChangesService.getLocalChanges()).toHaveLength(3);
+                const lc = localChangesService
                   .getLocalChanges()
-                  .find(lc => lc.item === conflictId);
+                  .find(lc => lc.itemId === conflictId);
                 expect(lc).toBeDefined();
-                expect(lc!.change).toBe(LocalChangeTypeV1.add);
+                expect(lc!.change).toBe(LocalChangeType.add);
                 // after update, conflict is no longer one
                 expect(collectionService.itemExists(conflictId!)).toBeTruthy();
                 expect(
@@ -1319,7 +1319,7 @@ describe('sync service', () => {
         collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
         collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
         expect(getRowCountInsideNotebook()).toBe(2);
-        localChangesServiceV1.clear();
+        localChangesService.clear();
         await syncService.pull(undefined, true);
         expect(getRowCountInsideNotebook()).toBe(3);
         expect(getRowIdsInsideNotebook()).toStrictEqual(
@@ -1521,7 +1521,7 @@ describe('sync service', () => {
         collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
         collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
         expect(getRowCountInsideNotebook()).toBe(3);
-        localChangesServiceV1.clear();
+        localChangesService.clear();
 
         await syncService_pull();
         await syncService_push();
@@ -1536,7 +1536,7 @@ describe('sync service', () => {
         await syncService_push();
 
         collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
-        localChangesServiceV1.clear();
+        localChangesService.clear();
 
         await syncService_push();
         const remoteContent = await driver.getParsedCollectionContent();
@@ -1873,7 +1873,7 @@ describe('sync service', () => {
         collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
         collectionService_addFolder(DEFAULT_NOTEBOOK_ID);
         expect(getRowCountInsideNotebook()).toBe(3);
-        localChangesServiceV1.clear();
+        localChangesService.clear();
 
         await syncService_pull();
         await syncService.push(undefined, true);
@@ -1889,7 +1889,7 @@ describe('sync service', () => {
         await syncService_push();
 
         collectionService_addDocument(DEFAULT_NOTEBOOK_ID);
-        localChangesServiceV1.clear();
+        localChangesService.clear();
 
         await syncService.push(undefined, true);
         const remoteContent = await driver.getParsedCollectionContent();

@@ -1,4 +1,5 @@
 import { Sort } from '@/shared/utils/sort-filter/sort';
+import { LocalChangeRow } from '../local-changes/model';
 
 export type CommentRow = {
   itemId: string;
@@ -7,7 +8,6 @@ export type CommentRow = {
   content: string;
   plainText: string;
   order?: number;
-  // TODO pinned, parentId, order/position
 };
 
 export const commentSchema = {
@@ -22,3 +22,10 @@ export const commentSchema = {
 export const sortBy = ['createdAt', 'order'] as const;
 export type CommentSortType = (typeof sortBy)[number];
 export type CommentSort = Sort<CommentSortType>;
+
+export type SyncableComment = {
+  id: string;
+} & Omit<CommentRow, 'plainText'>;
+
+type CommentUpdate = Pick<CommentRow, 'content' | 'order'>;
+export type CommentLocalChange = LocalChangeRow<CommentUpdate>;

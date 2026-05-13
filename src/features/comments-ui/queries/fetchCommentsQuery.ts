@@ -18,5 +18,4 @@ const fetchCommentsQuery = new SpaceQueryDefinition<
   where('itemId', params.itemId);
 });
 
-export type FetchCommentsQuery = typeof fetchCommentsQuery;
 export default fetchCommentsQuery;

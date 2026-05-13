@@ -6,13 +6,13 @@ import {
 import { appConfig, getGlobalTrans } from '@/config';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import collectionService from '@/db/collection.service';
-import localChangesServiceV1 from '@/db/local-changes.service.v1';
 import notebooksService from '@/db/notebooks.service';
 import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
 import { SpaceValues } from '@/db/types/space-types';
-import { LocalChangeTypeV1 } from '@/db/types/store-types';
 import userSettingsService from '@/db/user-settings.service';
+import localChangesService from '@/domain/local-changes/local-changes.service';
+import { LocalChangeType } from '@/domain/local-changes/model';
 import { PCloudDriver } from '@/remote-storage/storage-drivers/pcloud/pcloud.driver';
 import { syncService } from '@/remote-storage/sync.service';
 import {
@@ -236,7 +236,7 @@ describe.sequential(
       collectionService.addDocument(notebook);
       collectionService.addFolder(notebook);
       expect(getRowCountInsideNotebook()).toBe(2);
-      localChangesServiceV1.clear(); // clear changes -> it's like they have been pushed somewhere else
+      localChangesService.clear(); // clear changes -> it's like they have been pushed somewhere else
 
       // pull items from new remote
       await syncService.pull();
@@ -293,10 +293,10 @@ describe.sequential(
       setLocalItemField(conflictId, 'content', getNewContent('new content'));
       expect(getLocalItemConflicts()).toHaveLength(0);
       expect(collectionService.getConflicts()).toHaveLength(0);
-      const localChanges = localChangesServiceV1.getLocalChanges();
+      const localChanges = localChangesService.getLocalChanges();
       // expect(localChanges).toHaveLength(1);
-      expect(localChanges[0].change).toBe(LocalChangeTypeV1.add);
-      expect(localChanges[0].item).toBe(conflictId);
+      expect(localChanges[0].change).toBe(LocalChangeType.add);
+      expect(localChanges[0].itemId).toBe(conflictId);
 
       await syncService.sync('sync');
       await amount(100);

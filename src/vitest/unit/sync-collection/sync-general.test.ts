@@ -3,10 +3,10 @@ import { getGlobalTrans } from '@/config';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
-import localChangesServiceV1 from '@/db/local-changes.service.v1';
 import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
-import { LocalChangeTypeV1 } from '@/db/types/store-types';
+import localChangesService from '@/domain/local-changes/local-changes.service';
+import { LocalChangeType } from '@/domain/local-changes/model';
 import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
 import { SingleFileStorage } from '@/remote-storage/storage-filesystems/singlefile.filesystem';
 import { syncService } from '@/remote-storage/sync.service';
@@ -213,11 +213,11 @@ describe(`sync general test`, () => {
     // solve conflict
     adv(() => collectionService.setItemTitle(id, 'test'));
     expect(!collectionService.isItemConflict(id));
-    const lc = localChangesServiceV1
+    const lc = localChangesService
       .getLocalChanges()
-      .find(lc => lc.item === id);
-    expect(lc?.change).toBe(LocalChangeTypeV1.add);
-    expect(lc?.item).toBe(id);
+      .find(lc => lc.itemId === id);
+    expect(lc?.change).toBe(LocalChangeType.add);
+    expect(lc?.itemId).toBe(id);
 
     {
       const { result, unmount } = renderHook(() =>

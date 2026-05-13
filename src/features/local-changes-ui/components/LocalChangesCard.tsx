@@ -5,9 +5,10 @@ import { GET_UNKNOWN_ITEM_ROUTE, SETTINGS_ROUTE } from '@/common/routes';
 import platformService from '@/common/services/platform.service';
 import { APPICONS, APPICONS_PER_TYPE } from '@/constants';
 import collectionService from '@/db/collection.service';
-import localChangesServiceV1 from '@/db/local-changes.service.v1';
 import remotesService from '@/db/remotes.service';
-import { LocalChangeTypeV1 } from '@/db/types/store-types';
+import { commentsService } from '@/domain/comments/comments.service';
+import localChangesService from '@/domain/local-changes/local-changes.service';
+import fetchLocalChangesQuery from '@/domain/local-changes/queries/fetchLocalChangesQuery';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import {
   IonCard,
@@ -21,16 +22,25 @@ import {
   IonText
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
+import { useEffect } from 'react';
+import useLatestUpdatedAt from '../hooks/useLatestUpdatedAt';
 
 const LocalChangesCard = () => {
   const { t } = useLingui();
   const isRelease = platformService.isRelease();
   const isWideEnough = platformService.isWideEnough();
-  const localChanges = localChangesServiceV1.useLocalChanges();
-  const lastLocalChange = localChangesServiceV1.useLastLocalChange();
+  const localChanges = fetchLocalChangesQuery.useResults();
+  const lastLocalChange = useLatestUpdatedAt();
   const lastRemoteChange = remotesService.usePrimaryLastRemoteChange();
   const weightLocal = lastRemoteChange >= lastLocalChange ? 'normal' : 'bold';
   const weightRemote = lastRemoteChange < lastLocalChange ? 'normal' : 'bold';
+
+  useEffect(() => {
+    return () => {
+      fetchLocalChangesQuery.close();
+    };
+  });
+
   return (
     <IonCard>
       <IonCardHeader>
@@ -60,7 +70,7 @@ const LocalChangesCard = () => {
           <>
             <IonList style={{ maxHeight: '400px', overflowY: 'auto' }}>
               {localChanges.map(lc => {
-                if (lc.change === LocalChangeTypeV1.value) {
+                if (lc.on === 'values') {
                   return (
                     <IonItem key={lc.id} routerLink={SETTINGS_ROUTE}>
                       <IonIcon
@@ -69,16 +79,29 @@ const LocalChangesCard = () => {
                       ></IonIcon>
                       <IonText>{t`space option modified`}</IonText>
                       <IonText slot="end">
-                        {dateToStr('datetime', lc.updated)}
+                        {dateToStr('datetime', lc.createdAt)}
                       </IonText>
                     </IonItem>
                   );
                 }
-                const type = collectionService.getItemType(lc.item);
-                const route = GET_UNKNOWN_ITEM_ROUTE(lc.item, type);
+                let type;
+                let route;
+                if (lc.on === 'collection') {
+                  type = collectionService.getItemType(lc.itemId);
+                  route = GET_UNKNOWN_ITEM_ROUTE(lc.itemId, type);
+                } else {
+                  const document = commentsService.getCommentInfo(
+                    lc.itemId
+                  ).itemId;
+                  type = CollectionItemType.document;
+                  route = GET_UNKNOWN_ITEM_ROUTE(
+                    document,
+                    CollectionItemType.document
+                  );
+                }
                 return (
                   <IonItem key={lc.id} routerLink={route}>
-                    {!collectionService.itemExists(lc.item) ? (
+                    {!collectionService.itemExists(lc.itemId) ? (
                       <>
                         <IonIcon
                           slot="start"
@@ -96,7 +119,7 @@ const LocalChangesCard = () => {
                         <IonText>
                           <b>
                             {collectionService
-                              .getItemTitle(lc.item)
+                              .getItemTitle(lc.itemId)
                               .substring(0, 15)}
                           </b>
                           {isWideEnough ? (
@@ -105,7 +128,7 @@ const LocalChangesCard = () => {
                               <i>
                                 <sub>
                                   {searchAncestryService
-                                    .getItemPreview(lc.item)
+                                    .getItemPreview(lc.itemId)
                                     .substring(0, 200)}
                                 </sub>
                               </i>
@@ -116,7 +139,7 @@ const LocalChangesCard = () => {
                                 <i>
                                   <sub>
                                     {searchAncestryService
-                                      .getItemPreview(lc.item)
+                                      .getItemPreview(lc.itemId)
                                       .substring(0, 15)}
                                   </sub>
                                 </i>
@@ -135,7 +158,7 @@ const LocalChangesCard = () => {
                       </>
                     )}
                     <IonText slot="end">
-                      {dateToStr('datetime', lc.updated)}
+                      {dateToStr('datetime', lc.createdAt)}
                     </IonText>
                   </IonItem>
                 );
@@ -148,7 +171,7 @@ const LocalChangesCard = () => {
                   trigger={`del-clear`}
                   message={`This might create syncing problems`}
                   onConfirm={() => {
-                    localChangesServiceV1.clear();
+                    localChangesService.clear();
                   }}
                 >
                   <Trans>Clear All</Trans>

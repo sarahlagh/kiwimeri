@@ -5,10 +5,11 @@ import {
 } from '@/collection/collection';
 import { getGlobalTrans } from '@/config';
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
+import localChangesService from '@/domain/local-changes/local-changes.service';
+import { LocalChangeType } from '@/domain/local-changes/model';
 import { Notebook, NotebookResult } from '@/notebooks/notebooks';
 import { getUniqueId } from 'tinybase/with-schemas';
 import collectionService from './collection.service';
-import localChangesServiceV1 from './local-changes.service.v1';
 import navService from './nav.service';
 import storageService from './storage.service';
 import {
@@ -17,7 +18,6 @@ import {
   useTableWithRef
 } from './tinybase/hooks';
 import { defaultOrder } from './types/space-types';
-import { LocalChangeTypeV1 } from './types/store-types';
 import userSettingsService from './user-settings.service';
 
 class NotebooksService {
@@ -60,13 +60,13 @@ class NotebooksService {
     );
     const id = DEFAULT_NOTEBOOK_ID;
     storageService.getSpace().setRow(this.table, id, { ...item, itemId: id });
-    localChangesServiceV1.addLocalChange(id, LocalChangeTypeV1.add);
+    localChangesService.addLocalChange('collection', id, LocalChangeType.add);
   }
 
   public addNotebook(title: string, parent: string = ROOT_COLLECTION) {
     const { item, id } = this.getNewNotebookObj(parent, title);
     storageService.getSpace().setRow(this.table, id, item);
-    localChangesServiceV1.addLocalChange(id, LocalChangeTypeV1.add);
+    localChangesService.addLocalChange('collection', id, LocalChangeType.add);
     return id!;
   }
 
@@ -103,7 +103,11 @@ class NotebooksService {
       });
     }
     storageService.getSpace().delRow(this.table, id);
-    localChangesServiceV1.addLocalChange(id, LocalChangeTypeV1.delete);
+    localChangesService.addLocalChange(
+      'collection',
+      id,
+      LocalChangeType.delete
+    );
   }
 
   public getCurrentNotebook() {

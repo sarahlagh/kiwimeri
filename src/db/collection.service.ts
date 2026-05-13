@@ -27,6 +27,8 @@ import { getSpace } from '@/core/db/store';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
 import { commentsService } from '@/domain/comments/comments.service';
 import { CommentRow } from '@/domain/comments/model';
+import localChangesService from '@/domain/local-changes/local-changes.service';
+import { LocalChangeType } from '@/domain/local-changes/model';
 import { statsService } from '@/domain/stats/stats-service';
 import { SerializedEditorState } from 'lexical';
 import { getUniqueId } from 'tinybase/common';
@@ -34,7 +36,6 @@ import { Id } from 'tinybase/common/with-schemas';
 import { Table } from 'tinybase/store';
 import { searchAncestryService } from '../search/search-ancestry.service';
 import { historyService } from './collection-history.service';
-import localChangesServiceV1 from './local-changes.service.v1';
 import notebooksService from './notebooks.service';
 import storageService from './storage.service';
 import {
@@ -43,7 +44,7 @@ import {
   useTableWithRef
 } from './tinybase/hooks';
 import { defaultOrder } from './types/space-types';
-import { LocalChangeTypeV1, SerializableData } from './types/store-types';
+import { SerializableData } from './types/store-types';
 import userSettingsService from './user-settings.service';
 
 export const initialContent = () => {
@@ -446,14 +447,14 @@ class CollectionService {
     }
     const space = storageService.getSpace();
     const changeType = this.itemExists(id)
-      ? LocalChangeTypeV1.update
-      : LocalChangeTypeV1.add;
+      ? LocalChangeType.update
+      : LocalChangeType.add;
     space.transaction(() => {
       space.setRow(this.tableId, id, { ...item, itemId: id });
       if (parent) {
         this.updateAllParentsInBreadcrumb(parent);
       }
-      localChangesServiceV1.addLocalChange(id, changeType);
+      localChangesService.addLocalChange('collection', id, changeType);
     });
 
     // TODO not sure why transaction breaks addVersionFromItem here - try startTransaction / endTransaction instead?
@@ -474,7 +475,11 @@ class CollectionService {
     const wasDocument = itemType === CollectionItemType.document;
     const wasPage = itemType === CollectionItemType.page;
     const parent = this.getItemParent(rowId);
-    localChangesServiceV1.addLocalChange(rowId, LocalChangeTypeV1.delete);
+    localChangesService.addLocalChange(
+      'collection',
+      rowId,
+      LocalChangeType.delete
+    );
     if (wasFolder) {
       const queryName = this.fetchDocsFoldersNotebooksPerParentQuery(rowId);
       const children = storageService
@@ -863,9 +868,10 @@ class CollectionService {
       const wasConflict =
         CollectionItemResetConflictFields.includes(key) &&
         this.resetItemIfConflict(rowId);
-      localChangesServiceV1.addLocalChange(
+      localChangesService.addLocalChange(
+        'collection',
         rowId,
-        wasConflict ? LocalChangeTypeV1.add : LocalChangeTypeV1.update,
+        wasConflict ? LocalChangeType.add : LocalChangeType.update,
         key
       );
     });

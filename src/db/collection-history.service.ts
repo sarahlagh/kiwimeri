@@ -11,6 +11,7 @@ import {
   PageResult,
   setFieldMeta
 } from '@/collection/collection';
+import { LocalChangeType } from '@/domain/local-changes/model';
 import { AfterSyncHistChange } from '@/remote-storage/sync-types';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { getHash, Id, ResultRow } from 'tinybase/with-schemas';
@@ -21,7 +22,6 @@ import {
   useResultSortedRowIdsWithRef,
   useRowWithRef
 } from './tinybase/hooks';
-import { LocalChangeTypeV1 } from './types/store-types';
 import userSettingsService from './user-settings.service';
 
 type VersionsWithContentResult = ResultRow & {
@@ -766,7 +766,7 @@ class CollectionHistoryService {
   }
 
   public updateAfterSync(ch: AfterSyncHistChange) {
-    if (ch.change !== LocalChangeTypeV1.delete) {
+    if (ch.change !== LocalChangeType.delete) {
       if (ch.type === CollectionItemType.document) {
         historyService.saveWholeDocumentVersion(ch.id, true);
       } else {

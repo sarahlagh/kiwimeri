@@ -19,20 +19,22 @@ import { appConfig, getGlobalTrans } from '@/config';
 import { CONFLICTS_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
-import localChangesServiceV1 from '@/db/local-changes.service.v1';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
 import { SpaceType, SpaceValues } from '@/db/types/space-types';
 import {
   AnyData,
-  LocalChangeTypeV1,
-  LocalChangeV1,
   RemoteResult,
   RemoteState,
   RemoteWithState,
   SerializableData
 } from '@/db/types/store-types';
 import userSettingsService from '@/db/user-settings.service';
+import localChangesService from '@/domain/local-changes/local-changes.service';
+import {
+  LocalChangeResult,
+  LocalChangeType
+} from '@/domain/local-changes/model';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { AllGlobalStatsBag, statsService } from '@/domain/stats/stats-service';
 import { getUniqueId, Row, Table, Table as UntypedTable } from 'tinybase';
@@ -96,7 +98,8 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     let didPush = false;
     if (this.ongoing) return { success: false, didPush };
     console.log(`[collection][push] starting`);
-    if (localChangesServiceV1.getLocalChanges().length === 0 && !force) {
+    const localChanges = localChangesService.getLocalChanges();
+    if (localChanges.length === 0 && !force) {
       console.log(`[collection][push] nothing to push`);
       return { success: true, didPush };
     }
@@ -109,7 +112,6 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     this.ongoing = true;
     const store = storageService.getSpace(this.remote.space);
     const localContent = store.getContent();
-    const localChanges = localChangesServiceV1.getLocalChanges();
     try {
       // fetch remote if needed or use local content as comparison
       const remoteContent = await this.resolveRemoteContent(
@@ -133,12 +135,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
         }
         // update remote info
         const updatedRemoteState = resp.updatedRemoteState;
-        this.updateRemoteState(
-          this.remote.state,
-          updatedRemoteState,
-          true,
-          true
-        );
+        this.updateRemoteState(this.remote.state, updatedRemoteState, true);
       }
 
       return { success: true, didPush };
@@ -158,7 +155,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     console.log(`[collection][pull] starting`);
     const store = storageService.getSpace(this.remote.space);
     const localContent = store.getContent();
-    const localChanges = localChangesServiceV1.getLocalChanges();
+    const localChanges = localChangesService.getLocalChanges();
     const lastPulled = this.getLastPulled(this.remote.state);
 
     try {
@@ -180,7 +177,6 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
         this.updateRemoteState(
           this.remote.state,
           updatedRemoteState,
-          force || localChanges.length == 0,
           force || false
         );
       }
@@ -198,6 +194,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
 
   private setContent(content: Content<SpaceType, false>) {
     storageService.getSpace().setTable('collection', content[0].collection!);
+    // storageService.getSpace().setTable('comments', content[0].comments!);
     storageService.getSpace().setValues(content[1]);
   }
 
@@ -239,7 +236,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
 
   private computeDataToPush(
     localContent: Content<SpaceType>,
-    localChanges: LocalChangeV1[],
+    localChanges: LocalChangeResult[],
     remoteContent: RemoteContentRepresentation,
     force: boolean
   ): { data: AnyData; hasNewChanges: boolean } {
@@ -249,14 +246,14 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     const collection = this.toMap<CollectionItem>(localContent[0].collection!);
     let lastLocalChange = remoteContent.lastRemoteChange;
     if (localChanges.length > 0) {
-      lastLocalChange = Math.max(...localChanges.map(lc => lc.updated));
+      lastLocalChange = Math.max(...localChanges.map(lc => lc.createdAt));
       // reapply local changes
       for (const localChange of localChanges) {
-        if (localChange.change === LocalChangeTypeV1.value) {
+        if (localChange.on === 'values') {
           continue;
         }
         const itemIdx = newRemoteItems.findIndex(
-          ri => ri.id === localChange.item
+          ri => ri.id === localChange.itemId
         );
         console.debug(
           '[collection][push] handling local change',
@@ -265,17 +262,17 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
         );
         if (
           itemIdx === -1 &&
-          localChange.change !== LocalChangeTypeV1.delete &&
-          collection.has(localChange.item)
+          localChange.change !== LocalChangeType.delete &&
+          collection.has(localChange.itemId)
         ) {
-          newRemoteItems.push(collection.get(localChange.item)!);
+          newRemoteItems.push(collection.get(localChange.itemId)!);
           continue;
         }
         if (itemIdx > -1) {
-          if (localChange.change === LocalChangeTypeV1.update) {
+          if (localChange.change === LocalChangeType.update) {
             // local always wins
-            newRemoteItems[itemIdx] = collection.get(localChange.item)!;
-          } else if (localChange.change === LocalChangeTypeV1.delete) {
+            newRemoteItems[itemIdx] = collection.get(localChange.itemId)!;
+          } else if (localChange.change === LocalChangeType.delete) {
             newRemoteItems.splice(itemIdx, 1);
           }
         }
@@ -304,7 +301,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
 
   private applyMergeLocal(
     localContent: Content<SpaceType>,
-    localChanges: LocalChangeV1[],
+    localChanges: LocalChangeResult[],
     remoteContent: RemoteCollectionFileContent,
     force: boolean
   ) {
@@ -324,15 +321,15 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
 
   private computeDataToMergeLocally(
     localContent: Content<SpaceType>,
-    localChanges: LocalChangeV1[],
+    localChanges: LocalChangeResult[],
     obj: RemoteCollectionFileContent,
     force: boolean
   ): {
     content: Content<SpaceType>;
-    discardedChanges: LocalChangeV1[];
+    discardedChanges: LocalChangeResult[];
     changes: AfterSyncHistChange[];
   } {
-    const discardedChanges: LocalChangeV1[] = [];
+    const discardedChanges: LocalChangeResult[] = [];
     const remoteContent = this.toRepresentation(obj);
     const remoteItems = remoteContent.items;
     const changes: Map<string, AfterSyncHistChange> = new Map();
@@ -358,7 +355,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     if (!force && localChanges.length > 0) {
       // reapply localChanges
       for (const localChange of localChanges) {
-        if (localChange.change === LocalChangeTypeV1.value) {
+        if (localChange.on === 'values') {
           continue;
         }
         const remoteUpdated = this.getRemoteUpdatedTS(
@@ -366,32 +363,33 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
           newLocalContent[0].collection!,
           remoteContent.lastRemoteChange
         );
-        const localItem = localCollection.get(localChange.item);
+        const localItem = localCollection.get(localChange.itemId);
 
         // if added locally, add to newLocalContent
-        if (localChange.change === LocalChangeTypeV1.add) {
-          newLocalContent[0].collection![localChange.item] = localItem!;
+        if (localChange.change === LocalChangeType.add) {
+          newLocalContent[0].collection![localChange.itemId] = localItem!;
 
           // if local change on item is more recent than remote, local wins
-        } else if (localChange.updated > remoteUpdated) {
+        } else if (localChange.createdAt > remoteUpdated) {
           // if is update
-          if (localChange.change === LocalChangeTypeV1.update) {
-            const field = localChange.field!;
+          if (localChange.change === LocalChangeType.update) {
+            const field =
+              localChange.field! as CollectionItemUpdatableFieldEnum; // TODO not that
 
             // if doesn't exist on remote (has been deleted?) recreate it
-            if (!newLocalContent[0].collection![localChange.item]) {
-              newLocalContent[0].collection![localChange.item] = localItem!;
+            if (!newLocalContent[0].collection![localChange.itemId]) {
+              newLocalContent[0].collection![localChange.itemId] = localItem!;
             } else {
               // if exists on remote, update the field, its meta, and preview if field was content
-              newLocalContent[0].collection![localChange.item][field] =
+              newLocalContent[0].collection![localChange.itemId][field] =
                 localItem![field];
-              newLocalContent[0].collection![localChange.item][
+              newLocalContent[0].collection![localChange.itemId][
                 `${field}_meta`
               ] = localItem![`${field}_meta`];
             }
           } else {
             // is delete
-            delete newLocalContent[0].collection![localChange.item];
+            delete newLocalContent[0].collection![localChange.itemId];
           }
         } else {
           // if remote change on item is more recent than local
@@ -401,13 +399,15 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
             this.shouldCreateConflict(
               localChange,
               localItem,
-              newLocalContent[0].collection![localChange.item] as CollectionItem
+              newLocalContent[0].collection![
+                localChange.itemId
+              ] as CollectionItem
             )
           ) {
             const ts = Date.now();
             newLocalContent[0].collection![getUniqueId()] = {
               ...{ ...localItem, id: undefined },
-              conflict: localChange.item,
+              conflict: localChange.itemId,
               created: ts,
               updated: ts
             };
@@ -427,7 +427,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     ]);
     ids.forEach(id => {
       // TODO how do we handle local changes when force full?
-      const localChange = localChanges.find(lc => lc.item === id);
+      const localChange = localChanges.find(lc => lc.itemId === id);
       const newItem = newLocalContent[0].collection![id];
       const oldItem = localCollection.get(id);
       if (newItem && !newItem.conflict && !oldItem) {
@@ -437,19 +437,19 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
           id,
           type,
           parent: newItem.parent as string,
-          change: LocalChangeTypeV1.add
+          change: LocalChangeType.add
         });
       } else if (
         !newItem &&
         oldItem &&
-        (force || localChange?.change !== LocalChangeTypeV1.add)
+        (force || localChange?.change !== LocalChangeType.add)
       ) {
         // deleted by remote
         changes.set(id, {
           id,
           type: oldItem.type as CollectionItemType,
           parent: oldItem.parent as string,
-          change: LocalChangeTypeV1.delete
+          change: LocalChangeType.delete
         });
       } else if (newItem && oldItem) {
         const type = newItem.type as CollectionItemType;
@@ -477,7 +477,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
               id,
               type,
               parent: newItem.parent as string,
-              change: LocalChangeTypeV1.update,
+              change: LocalChangeType.update,
               field
             });
             break;
@@ -566,17 +566,11 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   private updateRemoteState(
     state: string,
     updatedRemoteState: RemoteState,
-    updateLocalChanges: boolean,
     clearLocalChanges: boolean
   ) {
     storageService.getStore().transaction(() => {
-      if (updateLocalChanges) {
-        localChangesServiceV1.setLastLocalChange(
-          updatedRemoteState.lastRemoteChange || 0
-        );
-      }
       if (clearLocalChanges) {
-        localChangesServiceV1.clear();
+        localChangesService.clear();
       }
       this.updateRemoteStateInfo(state, updatedRemoteState);
     });
@@ -602,7 +596,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
         ch =>
           isPage({ type: ch.type }) &&
           !docsMap.has(ch.parent) &&
-          ch.change !== LocalChangeTypeV1.delete
+          ch.change !== LocalChangeType.delete
       )
       .forEach(ch => {
         docsMap.set(ch.parent, {
@@ -616,8 +610,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     // special case for pages deleted
     changes
       .filter(
-        ch =>
-          isPage({ type: ch.type }) && ch.change === LocalChangeTypeV1.delete
+        ch => isPage({ type: ch.type }) && ch.change === LocalChangeType.delete
       )
       .forEach(ch => {
         historyService.markLatestVersionDeleted(
@@ -630,7 +623,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
           docsMap.set(ch.parent, {
             id: ch.parent,
             type: CollectionItemType.document,
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             parent: '' // on doc, parent not used
           });
         }
@@ -641,37 +634,37 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     historyService.gc();
   }
 
-  private handleDiscardedChanges(discardedChanges: LocalChangeV1[]) {
+  private handleDiscardedChanges(discardedChanges: LocalChangeResult[]) {
     discardedChanges.forEach(localChange => {
-      localChangesServiceV1.delLocalChange(localChange.id!);
+      localChangesService.delete(localChange.id);
     });
   }
 
   private shouldCreateConflict(
-    localChange: LocalChangeV1,
+    localChange: LocalChangeResult,
     localItem: CollectionItem | undefined,
     remoteItem: CollectionItem
   ) {
+    const field = localChange.field as CollectionItemUpdatableFieldEnum;
     return (
       localItem &&
       !localItem.conflict &&
       localItem.type !== CollectionItemType.folder &&
       localItem.type !== CollectionItemType.notebook &&
       (!localChange.field ||
-        (CollectionItemUpdatableConflictFields.includes(localChange.field) &&
-          (!remoteItem ||
-            localItem[localChange.field] !== remoteItem[localChange.field])))
+        (CollectionItemUpdatableConflictFields.includes(field) &&
+          (!remoteItem || localItem[field] !== remoteItem[field])))
     );
   }
 
   private getRemoteUpdatedTS(
-    localChange: LocalChangeV1,
+    localChange: LocalChangeResult,
     remoteCollection: Table,
     remoteContentUpdated?: number
   ) {
     // remoteUpdated is the 'updated' ts on the remote item, OR the collection updated ts if the item is deleted
-    let remoteUpdated = remoteCollection[localChange.item]
-      ? (remoteCollection[localChange.item].updated as number)
+    let remoteUpdated = remoteCollection[localChange.itemId]
+      ? (remoteCollection[localChange.itemId].updated as number)
       : remoteContentUpdated || 0;
     console.debug(
       '[collection][pull] handling local change',
@@ -681,10 +674,10 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
 
     // but if item exists on remote, and it's an update, only take the meta ts
     if (
-      localChange.change === LocalChangeTypeV1.update &&
-      remoteCollection[localChange.item]
+      localChange.change === LocalChangeType.update &&
+      remoteCollection[localChange.itemId]
     ) {
-      const meta = remoteCollection[localChange.item][
+      const meta = remoteCollection[localChange.itemId][
         `${localChange.field as CollectionItemUpdatableFieldEnum}_meta`
       ] as string;
       if (meta) {
@@ -730,9 +723,10 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
         ROOT_COLLECTION,
         getGlobalTrans().conflictsNotebookName
       );
-      localChangesServiceV1.addLocalChange(
+      localChangesService.addLocalChange(
+        'collection',
         CONFLICTS_NOTEBOOK_ID,
-        LocalChangeTypeV1.add
+        LocalChangeType.add
       );
       newCollectionAfterPull[CONFLICTS_NOTEBOOK_ID] =
         conflictsNotebook as unknown as Row;

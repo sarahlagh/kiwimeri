@@ -1,4 +1,4 @@
-import { CollectionItemUpdatableFieldEnum } from '@/collection/collection';
+import { localChangesSchema } from '@/domain/local-changes/model';
 import { DriverNames } from '@/remote-storage/storage-drivers/driver-factory';
 import { ValueIdFromSchema } from 'tinybase/@types/_internal/store/with-schemas';
 import { CellSchema } from 'tinybase/with-schemas';
@@ -19,25 +19,6 @@ export interface Space {
   currentFolder?: string;
   currentDocument?: string;
   currentPage?: string;
-  lastLocalChange: number;
-}
-
-export enum LocalChangeTypeV1 {
-  add = 'a',
-  update = 'u',
-  delete = 'd',
-  value = 'v'
-}
-
-export type LocalChangeTypeValuesV1 = 'a' | 'u' | 'd' | 'v';
-
-export interface LocalChangeV1 {
-  id?: string;
-  space: string;
-  item: string;
-  change: LocalChangeTypeV1;
-  field?: CollectionItemUpdatableFieldEnum;
-  updated: number;
 }
 
 export interface Remote {
@@ -86,7 +67,6 @@ export interface LocalCollectionAncestor {
 }
 
 type spacesEnum = keyof Required<Space>;
-type localChangeEnum = keyof Required<Omit<LocalChangeV1, 'id'>>;
 type remoteEnum = keyof Required<Omit<Remote, 'id'>>;
 type remoteStateEnum = keyof Required<Omit<RemoteState, 'id'>>;
 type appLogEnum = keyof Required<Omit<AppLog, 'id'>>;
@@ -99,9 +79,7 @@ export type StoreType = [
     spaces: {
       [cellId in spacesEnum]: CellSchema;
     };
-    localChanges: {
-      [cellId in localChangeEnum]: CellSchema;
-    };
+    localChanges: typeof localChangesSchema;
     remotes: {
       [cellId in remoteEnum]: CellSchema;
     };

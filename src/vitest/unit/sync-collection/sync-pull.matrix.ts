@@ -3,7 +3,7 @@ import {
   parseFieldMeta
 } from '@/collection/collection';
 import { CONFLICTS_NOTEBOOK_ID } from '@/constants';
-import { LocalChangeTypeV1 } from '@/db/types/store-types';
+import { LocalChangeType } from '@/domain/local-changes/model';
 import {
   allFields,
   allHistorizableFields,
@@ -39,7 +39,7 @@ const scenarioMatrix: {
           'item added locally, unchanged on remote → local add persists',
         changesBeforePull: [
           {
-            change: LocalChangeTypeV1.add,
+            change: LocalChangeType.add,
             where: 'local'
           }
         ],
@@ -77,7 +77,7 @@ const scenarioMatrix: {
         didPull: true,
         changesBeforePull: [
           {
-            change: LocalChangeTypeV1.add,
+            change: LocalChangeType.add,
             where: 'remote'
           }
         ],
@@ -93,7 +93,7 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#id',
-            change: LocalChangeTypeV1.add,
+            change: LocalChangeType.add,
             where: 'local',
             applyInitValue: true
           }
@@ -132,7 +132,7 @@ const scenarioMatrix: {
         initLocalData: [{ id: '#id' }],
         initRemoteData: [{ id: '#id' }],
         changesBeforePull: [
-          { id: '#id', change: LocalChangeTypeV1.delete, where: 'local' }
+          { id: '#id', change: LocalChangeType.delete, where: 'local' }
         ],
         endStats: b =>
           b
@@ -188,8 +188,8 @@ const scenarioMatrix: {
         initLocalData: [{ id: '#id' }],
         initRemoteData: [{ id: '#id' }],
         changesBeforePull: [
-          { id: '#id', change: LocalChangeTypeV1.delete, where: 'local' },
-          { id: '#id', change: LocalChangeTypeV1.delete, where: 'remote' }
+          { id: '#id', change: LocalChangeType.delete, where: 'local' },
+          { id: '#id', change: LocalChangeType.delete, where: 'remote' }
         ],
         endStats: b =>
           b
@@ -223,8 +223,8 @@ const scenarioMatrix: {
         initRemoteData: [{ id: '#id', applyInitValue: true }],
         fields: [...allFields],
         changesBeforePull: [
-          { id: '#id', change: LocalChangeTypeV1.delete, where: 'local' },
-          { id: '#id', change: LocalChangeTypeV1.update, where: 'remote' }
+          { id: '#id', change: LocalChangeType.delete, where: 'local' },
+          { id: '#id', change: LocalChangeType.update, where: 'remote' }
         ],
         endStats: b =>
           b
@@ -246,8 +246,8 @@ const scenarioMatrix: {
         initRemoteData: [{ id: '#id', applyInitValue: true }],
         fields: [parentField],
         changesBeforePull: [
-          { id: '#id', change: LocalChangeTypeV1.delete, where: 'local' },
-          { id: '#id', change: LocalChangeTypeV1.update, where: 'remote' }
+          { id: '#id', change: LocalChangeType.delete, where: 'local' },
+          { id: '#id', change: LocalChangeType.update, where: 'remote' }
         ],
         endStats: b =>
           b
@@ -285,8 +285,8 @@ const scenarioMatrix: {
         initRemoteData: [{ id: '#id', applyInitValue: true }],
         fields: [...allFields],
         changesBeforePull: [
-          { id: '#id', change: LocalChangeTypeV1.update, where: 'remote' },
-          { id: '#id', change: LocalChangeTypeV1.delete, where: 'local' }
+          { id: '#id', change: LocalChangeType.update, where: 'remote' },
+          { id: '#id', change: LocalChangeType.delete, where: 'local' }
         ],
         endStats: b =>
           b
@@ -321,8 +321,8 @@ const scenarioMatrix: {
         initRemoteData: [{ id: '#id', applyInitValue: true }],
         fields: [parentField],
         changesBeforePull: [
-          { id: '#id', change: LocalChangeTypeV1.update, where: 'remote' },
-          { id: '#id', change: LocalChangeTypeV1.delete, where: 'local' }
+          { id: '#id', change: LocalChangeType.update, where: 'remote' },
+          { id: '#id', change: LocalChangeType.delete, where: 'local' }
         ],
         endStats: b =>
           b
@@ -365,8 +365,8 @@ const scenarioMatrix: {
         initLocalData: [{ id: '#id' }],
         initRemoteData: [{ id: '#id' }],
         changesBeforePull: [
-          { id: '#id', change: LocalChangeTypeV1.delete, where: 'remote' },
-          { id: '#id', change: LocalChangeTypeV1.delete, where: 'local' }
+          { id: '#id', change: LocalChangeType.delete, where: 'remote' },
+          { id: '#id', change: LocalChangeType.delete, where: 'local' }
         ],
         endStats: b =>
           b
@@ -398,8 +398,8 @@ const scenarioMatrix: {
         initRemoteData: [{ id: '#id', applyInitValue: true }],
         fields: [...allHistorizableFields],
         changesBeforePull: [
-          { id: '#id', change: LocalChangeTypeV1.delete, where: 'remote' },
-          { id: '#id', change: LocalChangeTypeV1.update, where: 'local' }
+          { id: '#id', change: LocalChangeType.delete, where: 'remote' },
+          { id: '#id', change: LocalChangeType.update, where: 'local' }
         ],
         endStats: b =>
           b
@@ -427,8 +427,8 @@ const scenarioMatrix: {
         initRemoteData: [{ id: '#id', applyInitValue: true }],
         fields: [orderField],
         changesBeforePull: [
-          { id: '#id', change: LocalChangeTypeV1.delete, where: 'remote' },
-          { id: '#id', change: LocalChangeTypeV1.update, where: 'local' }
+          { id: '#id', change: LocalChangeType.delete, where: 'remote' },
+          { id: '#id', change: LocalChangeType.update, where: 'local' }
         ],
         endStats: b =>
           b
@@ -456,8 +456,8 @@ const scenarioMatrix: {
         initRemoteData: [{ id: '#id', applyInitValue: true }],
         fields: [parentField],
         changesBeforePull: [
-          { id: '#id', change: LocalChangeTypeV1.delete, where: 'remote' },
-          { id: '#id', change: LocalChangeTypeV1.update, where: 'local' }
+          { id: '#id', change: LocalChangeType.delete, where: 'remote' },
+          { id: '#id', change: LocalChangeType.update, where: 'local' }
         ],
         endStats: b =>
           b
@@ -479,7 +479,7 @@ const scenarioMatrix: {
         initLocalData: [{ id: '#id' }],
         initRemoteData: [{ id: '#id' }],
         changesBeforePull: [
-          { id: '#id', change: LocalChangeTypeV1.delete, where: 'remote' }
+          { id: '#id', change: LocalChangeType.delete, where: 'remote' }
         ],
         endStats: b =>
           b
@@ -517,8 +517,8 @@ const scenarioMatrix: {
         initRemoteData: [{ id: '#id', applyInitValue: true }],
         fields: [...conflictFields],
         changesBeforePull: [
-          { id: '#id', change: LocalChangeTypeV1.update, where: 'local' },
-          { id: '#id', change: LocalChangeTypeV1.delete, where: 'remote' }
+          { id: '#id', change: LocalChangeType.update, where: 'local' },
+          { id: '#id', change: LocalChangeType.delete, where: 'remote' }
         ],
         endStats: b =>
           b
@@ -545,8 +545,8 @@ const scenarioMatrix: {
         initRemoteData: [{ id: '#id', applyInitValue: true }],
         fields: [...conflictFields],
         changesBeforePull: [
-          { id: '#id', change: LocalChangeTypeV1.update, where: 'local' },
-          { id: '#id', change: LocalChangeTypeV1.delete, where: 'remote' }
+          { id: '#id', change: LocalChangeType.update, where: 'local' },
+          { id: '#id', change: LocalChangeType.delete, where: 'remote' }
         ],
         endStats: b =>
           b.theItem({
@@ -561,8 +561,8 @@ const scenarioMatrix: {
         initRemoteData: [{ id: '#id', applyInitValue: true }],
         fields: [...nonConflictFields],
         changesBeforePull: [
-          { id: '#id', change: LocalChangeTypeV1.update, where: 'local' },
-          { id: '#id', change: LocalChangeTypeV1.delete, where: 'remote' }
+          { id: '#id', change: LocalChangeType.update, where: 'local' },
+          { id: '#id', change: LocalChangeType.delete, where: 'remote' }
         ],
         endStats: b =>
           b
@@ -591,8 +591,8 @@ const scenarioMatrix: {
         initRemoteData: [{ id: '#id', applyInitValue: true }],
         fields: [orderField],
         changesBeforePull: [
-          { id: '#id', change: LocalChangeTypeV1.update, where: 'local' },
-          { id: '#id', change: LocalChangeTypeV1.delete, where: 'remote' }
+          { id: '#id', change: LocalChangeType.update, where: 'local' },
+          { id: '#id', change: LocalChangeType.delete, where: 'remote' }
         ],
         endStats: b =>
           b
@@ -621,8 +621,8 @@ const scenarioMatrix: {
         initRemoteData: [{ id: '#id', applyInitValue: true }],
         fields: [parentField],
         changesBeforePull: [
-          { id: '#id', change: LocalChangeTypeV1.update, where: 'local' },
-          { id: '#id', change: LocalChangeTypeV1.delete, where: 'remote' }
+          { id: '#id', change: LocalChangeType.update, where: 'local' },
+          { id: '#id', change: LocalChangeType.delete, where: 'remote' }
         ],
         endStats: b =>
           b
@@ -655,7 +655,7 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local'
           }
         ],
@@ -680,13 +680,13 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local',
             newValue: '#value'
           },
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote',
             newValue: '#value'
           }
@@ -710,12 +710,12 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local'
           },
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote'
           }
         ],
@@ -739,12 +739,12 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local'
           },
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote'
           }
         ],
@@ -760,12 +760,12 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local'
           },
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote'
           }
         ],
@@ -798,7 +798,7 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote'
           }
         ],
@@ -820,13 +820,13 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote',
             newValue: '#value'
           },
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local',
             newValue: '#value'
           }
@@ -851,12 +851,12 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote'
           },
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local'
           }
         ],
@@ -881,12 +881,12 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote'
           },
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local'
           }
         ],
@@ -906,12 +906,12 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote'
           },
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local'
           }
         ],
@@ -943,7 +943,7 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local'
           }
         ],
@@ -970,13 +970,13 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local',
             newValue: '#parentId'
           },
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote',
             newValue: '#parentId'
           }
@@ -1001,13 +1001,13 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local',
             newValue: '#parentA'
           },
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote',
             newValue: '#parentB'
           }
@@ -1046,13 +1046,13 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local',
             newValue: '#parentA'
           },
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote',
             newValue: '#parentB'
           }
@@ -1088,13 +1088,13 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local',
             newValue: '#parentA'
           },
           {
             id: '#parentA',
-            change: LocalChangeTypeV1.delete,
+            change: LocalChangeType.delete,
             where: 'remote'
           }
         ],
@@ -1126,13 +1126,13 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local',
             newValue: '#parentA'
           },
           {
             id: '#parentA',
-            change: LocalChangeTypeV1.delete,
+            change: LocalChangeType.delete,
             where: 'remote'
           }
         ],
@@ -1164,18 +1164,18 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local',
             newValue: '#parentA'
           },
           {
             id: '#parentB',
-            change: LocalChangeTypeV1.delete,
+            change: LocalChangeType.delete,
             where: 'local'
           },
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote',
             newValue: '#parentB'
           }
@@ -1217,19 +1217,19 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local',
             newValue: '#parentA'
           },
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote',
             newValue: '#parentB'
           },
           {
             id: '#parentB',
-            change: LocalChangeTypeV1.delete,
+            change: LocalChangeType.delete,
             where: 'local'
           }
         ],
@@ -1268,7 +1268,7 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote'
           }
         ],
@@ -1289,13 +1289,13 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote',
             newValue: '#parentId'
           },
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local',
             newValue: '#parentId'
           }
@@ -1323,13 +1323,13 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote',
             newValue: '#parentA'
           },
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local',
             newValue: '#parentB'
           }
@@ -1355,13 +1355,13 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote',
             newValue: '#parentA'
           },
           {
             id: '#parentA',
-            change: LocalChangeTypeV1.delete,
+            change: LocalChangeType.delete,
             where: 'local'
           }
         ],
@@ -1394,18 +1394,18 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote',
             newValue: '#parentA'
           },
           {
             id: '#parentB',
-            change: LocalChangeTypeV1.delete,
+            change: LocalChangeType.delete,
             where: 'remote'
           },
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local',
             newValue: '#parentB'
           }
@@ -1446,19 +1446,19 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote',
             newValue: '#parentA'
           },
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local',
             newValue: '#parentB'
           },
           {
             id: '#parentB',
-            change: LocalChangeTypeV1.delete,
+            change: LocalChangeType.delete,
             where: 'remote'
           }
         ],
@@ -1502,12 +1502,12 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#parentA',
-            change: LocalChangeTypeV1.delete,
+            change: LocalChangeType.delete,
             where: 'remote'
           },
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local',
             newValue: '#parentA'
           }
@@ -1548,18 +1548,18 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#parentA',
-            change: LocalChangeTypeV1.delete,
+            change: LocalChangeType.delete,
             where: 'remote'
           },
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local',
             newValue: '#parentA'
           },
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote',
             newValue: '#parentB'
           }
@@ -1585,18 +1585,18 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#parentA',
-            change: LocalChangeTypeV1.delete,
+            change: LocalChangeType.delete,
             where: 'remote'
           },
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local',
             newValue: '#parentA'
           },
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote',
             newValue: '#parentB'
           }
@@ -1620,18 +1620,18 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#parentA',
-            change: LocalChangeTypeV1.delete,
+            change: LocalChangeType.delete,
             where: 'remote'
           },
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote',
             newValue: '#parentB'
           },
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local',
             newValue: '#parentA'
           }
@@ -1668,12 +1668,12 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#parentA',
-            change: LocalChangeTypeV1.delete,
+            change: LocalChangeType.delete,
             where: 'local'
           },
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote',
             newValue: '#parentA'
           }
@@ -1714,18 +1714,18 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#parentA',
-            change: LocalChangeTypeV1.delete,
+            change: LocalChangeType.delete,
             where: 'local'
           },
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote',
             newValue: '#parentA'
           },
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local',
             newValue: '#parentB'
           }
@@ -1753,18 +1753,18 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#parentA',
-            change: LocalChangeTypeV1.delete,
+            change: LocalChangeType.delete,
             where: 'local'
           },
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local',
             newValue: '#parentB'
           },
           {
             id: '#id',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote',
             newValue: '#parentA'
           }
@@ -1803,12 +1803,12 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#doc',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote'
           },
           {
             id: '#page1',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote'
           }
         ],
@@ -1835,12 +1835,12 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#doc',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote'
           },
           {
             id: '#page1',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote',
             forceField: contentField
           }
@@ -1868,12 +1868,12 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#doc',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote'
           },
           {
             id: '#page2',
-            change: LocalChangeTypeV1.add,
+            change: LocalChangeType.add,
             data: { parent: '#doc', type: 'p' },
             where: 'remote'
           }
@@ -1906,12 +1906,12 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#page1',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote'
           },
           {
             id: '#page2',
-            change: LocalChangeTypeV1.add,
+            change: LocalChangeType.add,
             data: { parent: '#doc', type: 'p' },
             where: 'remote'
           }
@@ -1952,13 +1952,13 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#page2',
-            change: LocalChangeTypeV1.add,
+            change: LocalChangeType.add,
             data: { parent: '#doc', type: 'p' },
             where: 'remote'
           },
           {
             id: '#page3',
-            change: LocalChangeTypeV1.add,
+            change: LocalChangeType.add,
             data: { parent: '#doc', type: 'p' },
             where: 'remote'
           }
@@ -2018,12 +2018,12 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#page1',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote'
           },
           {
             id: '#page2',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote'
           }
         ],
@@ -2060,13 +2060,13 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#page2',
-            change: LocalChangeTypeV1.add,
+            change: LocalChangeType.add,
             data: { parent: '#doc', type: 'p' },
             where: 'remote'
           },
           {
             id: '#page1',
-            change: LocalChangeTypeV1.delete,
+            change: LocalChangeType.delete,
             where: 'remote'
           }
         ],
@@ -2123,12 +2123,12 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#page1',
-            change: LocalChangeTypeV1.delete,
+            change: LocalChangeType.delete,
             where: 'remote'
           },
           {
             id: '#page2',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote'
           }
         ],
@@ -2184,7 +2184,7 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#doc',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local'
           }
         ],
@@ -2221,7 +2221,7 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#doc',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote'
           }
         ],
@@ -2253,12 +2253,12 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#doc',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local'
           },
           {
             id: '#page1',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             forceField: contentField,
             where: 'remote'
           }
@@ -2307,12 +2307,12 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#doc',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote'
           },
           {
             id: '#page1',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             forceField: contentField,
             where: 'local'
           }
@@ -2368,12 +2368,12 @@ const scenarioMatrix: {
         changesBeforePull: [
           {
             id: '#doc',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote'
           },
           {
             id: '#page1',
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             forceField: contentField,
             where: 'remote'
           }
@@ -2417,11 +2417,11 @@ const scenarioMatrix: {
         initRemoteData: [{ id: '#id', applyInitValue: true }],
         changesBeforePull: [
           {
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local'
           },
           {
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             forceField: tagsField,
             where: 'remote'
           }
@@ -2458,11 +2458,11 @@ const scenarioMatrix: {
         initRemoteData: [{ id: '#id', applyInitValue: true }],
         changesBeforePull: [
           {
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local'
           },
           {
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             forceField: orderField,
             where: 'remote'
           }
@@ -2505,20 +2505,20 @@ const scenarioMatrix: {
         initRemoteData: [{ id: '#id', applyInitValue: true }],
         changesBeforePull: [
           {
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'local'
           },
           {
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             forceField: orderField,
             where: 'local'
           },
           {
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             where: 'remote'
           },
           {
-            change: LocalChangeTypeV1.update,
+            change: LocalChangeType.update,
             forceField: orderField,
             where: 'remote'
           }

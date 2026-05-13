@@ -1,14 +1,14 @@
 import { CollectionItemType } from '@/collection/collection';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import collectionService from '@/db/collection.service';
-import localChangesServiceV1 from '@/db/local-changes.service.v1';
 import notebooksService from '@/db/notebooks.service';
-import {
-  LocalChangeTypeV1,
-  LocalChangeV1,
-  SerializableData
-} from '@/db/types/store-types';
+import { SerializableData } from '@/db/types/store-types';
 import userSettingsService from '@/db/user-settings.service';
+import localChangesService from '@/domain/local-changes/local-changes.service';
+import {
+  LocalChangeResult,
+  LocalChangeType
+} from '@/domain/local-changes/model';
 import { describe, expect, it } from 'vitest';
 import {
   GET_UPDATABLE_FIELDS,
@@ -16,15 +16,17 @@ import {
   markAsConflict
 } from '../../setup/test.utils';
 
-const getNonNotebookLocalChanges = (localChanges: LocalChangeV1[]) =>
-  localChanges.filter(lc => lc.item !== notebooksService.getCurrentNotebook());
+const getNonNotebookLocalChanges = (localChanges: LocalChangeResult[]) =>
+  localChanges.filter(
+    lc => lc.itemId !== notebooksService.getCurrentNotebook()
+  );
 
 describe('local changes service', () => {
   it('should only have notebook local changes by default', () => {
-    expect(localChangesServiceV1.getLocalChanges()).toHaveLength(1);
-    const lc = localChangesServiceV1.getLocalChanges()[0];
-    expect(lc.change).toBe(LocalChangeTypeV1.add);
-    expect(getLocalItemField(lc.item, 'type')).toBe(
+    expect(localChangesService.getLocalChanges()).toHaveLength(1);
+    const lc = localChangesService.getLocalChanges()[0];
+    expect(lc.change).toBe(LocalChangeType.add);
+    expect(getLocalItemField(lc.itemId, 'type')).toBe(
       CollectionItemType.notebook
     );
   });
@@ -34,9 +36,9 @@ describe('local changes service', () => {
     createdItems.push(collectionService.addDocument(DEFAULT_NOTEBOOK_ID));
     createdItems.push(collectionService.addFolder(DEFAULT_NOTEBOOK_ID));
     createdItems.push(collectionService.addDocument(DEFAULT_NOTEBOOK_ID));
-    const localChanges = localChangesServiceV1.getLocalChanges();
+    const localChanges = localChangesService.getLocalChanges();
     expect(localChanges).toHaveLength(4);
-    expect(getNonNotebookLocalChanges(localChanges).map(l => l.item)).toEqual(
+    expect(getNonNotebookLocalChanges(localChanges).map(l => l.itemId)).toEqual(
       createdItems.toReversed()
     );
   });
@@ -46,26 +48,26 @@ describe('local changes service', () => {
     collectionService.setItemTitle(id, 'new title');
     collectionService.setItemTitle(id, 'new title 2');
     collectionService.setItemField(id, 'content', 'new content');
-    const localChanges = localChangesServiceV1.getLocalChanges();
+    const localChanges = localChangesService.getLocalChanges();
     expect(localChanges).toHaveLength(2);
     const lc = getNonNotebookLocalChanges(localChanges)[0];
-    expect(lc.item).toEqual(id);
+    expect(lc.itemId).toEqual(id);
     expect(lc.change).toEqual('a');
     expect(lc.field).toBeUndefined();
   });
 
   it('should merge local changes for each updated items into one change per field', () => {
     const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    localChangesServiceV1.clear();
+    localChangesService.clear();
 
     collectionService.setItemTitle(id, 'new title');
     collectionService.setItemTitle(id, 'new title 2');
     collectionService.setItemTitle(id, 'new title 3');
     collectionService.setItemField(id, 'content', 'new content');
-    const localChanges = localChangesServiceV1.getLocalChanges();
+    const localChanges = localChangesService.getLocalChanges();
 
     expect(localChanges).toHaveLength(2);
-    expect(localChanges.map(l => l.item)).toEqual([id, id]);
+    expect(localChanges.map(l => l.itemId)).toEqual([id, id]);
     expect(localChanges.map(l => l.change)).toEqual(['u', 'u']);
     expect(localChanges.map(l => l.field)).toEqual(['content', 'title']);
   });
@@ -76,43 +78,43 @@ describe('local changes service', () => {
     collectionService.setItemTitle(id, 'new title 2');
     collectionService.setItemField(id, 'content', 'new content');
     collectionService.deleteItem(id);
-    const localChanges = localChangesServiceV1.getLocalChanges();
+    const localChanges = localChangesService.getLocalChanges();
     expect(localChanges).toHaveLength(1);
-    expect(getLocalItemField(localChanges[0].item, 'type')).toBe(
+    expect(getLocalItemField(localChanges[0].itemId, 'type')).toBe(
       CollectionItemType.notebook
     );
   });
 
   it('should merge local changes for each deleted items into one change', () => {
     const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    localChangesServiceV1.clear();
+    localChangesService.clear();
 
     collectionService.setItemTitle(id, 'new title');
     collectionService.setItemTitle(id, 'new title 2');
     collectionService.setItemField(id, 'content', 'new content');
     collectionService.deleteItem(id);
 
-    const localChanges = localChangesServiceV1.getLocalChanges();
+    const localChanges = localChangesService.getLocalChanges();
     expect(localChanges).toHaveLength(1);
-    expect(localChanges[0].change).toBe(LocalChangeTypeV1.delete);
+    expect(localChanges[0].change).toBe(LocalChangeType.delete);
   });
 
   it(`should consider previous conflicts as added`, () => {
     const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     const id2 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     markAsConflict(id, id2);
-    localChangesServiceV1.clear();
+    localChangesService.clear();
 
     collectionService.setItemTitle(id, 'new title');
 
-    const localChanges = localChangesServiceV1.getLocalChanges();
+    const localChanges = localChangesService.getLocalChanges();
     expect(localChanges).toHaveLength(1);
     expect(localChanges[0].change).toBe('a');
   });
 
   it(`should not add local changes if the value doesn't change`, () => {
     const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    localChangesServiceV1.clear();
+    localChangesService.clear();
 
     GET_UPDATABLE_FIELDS('document').forEach(({ field }) => {
       const current = collectionService.getItemField<SerializableData>(
@@ -122,7 +124,7 @@ describe('local changes service', () => {
       collectionService.setItemField(id, field, current!);
     });
 
-    const localChanges = localChangesServiceV1.getLocalChanges();
+    const localChanges = localChangesService.getLocalChanges();
     expect(localChanges).toHaveLength(0);
   });
 
@@ -135,11 +137,12 @@ describe('local changes service', () => {
       statsEnabled: false
     });
 
-    let localChanges = localChangesServiceV1.getLocalChanges();
+    let localChanges = localChangesService.getLocalChanges();
     expect(localChanges).toHaveLength(2);
     let lc = getNonNotebookLocalChanges(localChanges)[0];
-    expect(lc.item).toEqual('');
-    expect(lc.change).toEqual('v');
+    expect(lc.itemId).toEqual('');
+    expect(lc.on).toBe('values');
+    expect(lc.change).toEqual(LocalChangeType.update);
     expect(lc.field).toBeUndefined();
 
     // merge others
@@ -152,11 +155,12 @@ describe('local changes service', () => {
       statsEnabled: false
     });
 
-    localChanges = localChangesServiceV1.getLocalChanges();
+    localChanges = localChangesService.getLocalChanges();
     expect(localChanges).toHaveLength(2);
     lc = getNonNotebookLocalChanges(localChanges)[0];
-    expect(lc.item).toEqual('');
-    expect(lc.change).toEqual('v');
+    expect(lc.itemId).toEqual('');
+    expect(lc.on).toBe('values');
+    expect(lc.change).toEqual(LocalChangeType.update);
     expect(lc.field).toBeUndefined();
   });
 });

@@ -40,9 +40,6 @@ const OperationCard = () => {
             storageService.getStore().setCell('remoteState', '0', 'info', '{}');
             storageService
               .getStore()
-              .setCell('spaces', 'default', 'lastLocalChange', 0);
-            storageService
-              .getStore()
               .setCell('remoteState', '0', 'lastRemoteChange', 0);
           }}
           color="danger"

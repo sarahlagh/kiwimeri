@@ -91,9 +91,10 @@ class CommentsService {
   }
 
   public getCommentInfo(id: Id) {
+    const itemId = getSpace().getCell('comments', id, 'itemId') as string;
     const createdAt = getSpace().getCell('comments', id, 'createdAt');
     const updatedAt = getSpace().getCell('comments', id, 'updatedAt');
-    return { createdAt, updatedAt };
+    return { createdAt, updatedAt, itemId };
   }
 
   public setCommentSort(docId: Id, newCommentSort: CommentSort) {

@@ -1,9 +1,9 @@
-import localChangesServiceV1 from '@/db/local-changes.service.v1';
 import { syncService } from '@/remote-storage/sync.service';
 import { renderHook } from '@testing-library/react';
 import { act } from 'react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import localChangesService from '@/domain/local-changes/local-changes.service';
 import { testSyncAfterEach, testSyncBeforeEach } from './test-sync.utils';
 
 describe(`sync indicators test`, () => {
@@ -17,7 +17,7 @@ describe(`sync indicators test`, () => {
 
   it('should tell if there is no local change', () => {
     act(() => {
-      localChangesServiceV1.clear();
+      localChangesService.clear();
     });
     const { result } = renderHook(() =>
       syncService.usePrimaryHasLocalChanges()
@@ -27,7 +27,7 @@ describe(`sync indicators test`, () => {
 
   it('should tell if there is are local changes', () => {
     // by default a new notebook is created
-    expect(localChangesServiceV1.getLocalChanges()).toHaveLength(1);
+    expect(localChangesService.getLocalChanges()).toHaveLength(1);
     const { result } = renderHook(() =>
       syncService.usePrimaryHasLocalChanges()
     );

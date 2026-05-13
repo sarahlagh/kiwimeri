@@ -34,7 +34,8 @@ describe('comments service', () => {
     expect(getDocUpdatedTs(docId)).toBeGreaterThan(updated);
     expect(commentsService.getCommentInfo(commentId)).toEqual({
       createdAt: updated + 100,
-      updatedAt: updated + 100
+      updatedAt: updated + 100,
+      itemId: docId
     });
   });
 

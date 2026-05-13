@@ -11,12 +11,12 @@ import {
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
-import localChangesServiceV1 from '@/db/local-changes.service.v1';
 import navService from '@/db/nav.service';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
-import { LocalChangeTypeV1 } from '@/db/types/store-types';
 import userSettingsService from '@/db/user-settings.service';
+import localChangesService from '@/domain/local-changes/local-changes.service';
+import { LocalChangeType } from '@/domain/local-changes/model';
 import formatConverter from '@/format-conversion/format-converter.service';
 import {
   createInitLocalData,
@@ -492,19 +492,19 @@ describe('import service', () => {
         : true
     );
     expect(
-      localChangesServiceV1
+      localChangesService
         .getLocalChanges()
-        .filter(lc => lc.change === LocalChangeTypeV1.add)
+        .filter(lc => lc.change === LocalChangeType.add)
     ).toHaveLength(zipMerge.newItems.length);
     expect(
-      localChangesServiceV1
+      localChangesService
         .getLocalChanges()
-        .filter(lc => lc.change === LocalChangeTypeV1.delete)
+        .filter(lc => lc.change === LocalChangeType.delete)
     ).toHaveLength(initData.length - initDataNotDel.length);
     expect(
-      localChangesServiceV1
+      localChangesService
         .getLocalChanges()
-        .filter(lc => lc.change === LocalChangeTypeV1.update)
+        .filter(lc => lc.change === LocalChangeType.update)
     ).toHaveLength(zipMerge.updatedItems.length);
 
     const items = [...zipMerge.newItems, ...zipMerge.updatedItems];
@@ -576,7 +576,7 @@ describe('import service', () => {
                           const { ids: initDataIds, initialItems } =
                             createInitLocalData(testCase.initData);
 
-                          localChangesServiceV1.clear();
+                          localChangesService.clear();
                           vi.advanceTimersByTime(5000);
                           const updateTs = Date.now();
 

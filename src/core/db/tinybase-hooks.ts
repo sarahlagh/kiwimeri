@@ -12,14 +12,16 @@ export const {
   useCell: useTypedStoreCell,
   useRow: useTypedStoreRow,
   useTable: useTypedStoreTable,
-  useResultSortedRowIds: useTypedStoreResultSortedRowIds
+  useResultSortedRowIds: useTypedStoreResultSortedRowIds,
+  useRowCount: useTypedStoreRowCount
 } = UiReact as typeof UiReact & WithSchemas<StoreType>;
 
 export const {
   useCell: useTypedSpaceCell,
   useRow: useTypedSpaceRow,
   useTable: useTypedSpaceTable,
-  useResultSortedRowIds: useTypedSpaceResultSortedRowIds
+  useResultSortedRowIds: useTypedSpaceResultSortedRowIds,
+  useMetric: useTypedSpaceMetric
 } = UiReact as typeof UiReact & WithSchemas<SpaceType>;
 
 // after refacto shouldn't be needed
