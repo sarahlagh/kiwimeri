@@ -1,4 +1,4 @@
-import { CollectionItem } from '@/collection/collection';
+import { CollectionItem, CollectionItemWithId } from '@/collection/collection';
 import {
   minimizeItemsForStorage,
   unminimizeItemsFromStorage
@@ -384,7 +384,7 @@ describe.sequential(
       // create remotely
       vi.setSystemTime(now + 11000);
       const newRemoteItem = oneFolder('r100');
-      content!.push(newRemoteItem);
+      content!.push(newRemoteItem as CollectionItemWithId);
       lastRemoteChange = Date.now();
 
       // create locally

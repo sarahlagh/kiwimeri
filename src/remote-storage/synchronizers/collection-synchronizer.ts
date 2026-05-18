@@ -4,6 +4,7 @@ import {
   CollectionItemUpdatableConflictFields,
   CollectionItemUpdatableFieldEnum,
   CollectionItemUpdateChangeFields,
+  CollectionItemWithId,
   isDocument,
   isPage,
   isPageOrDocument,
@@ -17,6 +18,7 @@ import {
 import { nOr0 } from '@/common/utils';
 import { appConfig, getGlobalTrans } from '@/config';
 import { CONFLICTS_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
+import { WithId } from '@/core/db/types';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
@@ -36,13 +38,18 @@ import {
   LocalChangeType
 } from '@/domain/local-changes/model';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
-import { AllGlobalStatsBag, statsService } from '@/domain/stats/stats-service';
-import { getUniqueId, Row, Table, Table as UntypedTable } from 'tinybase';
+import { Row, Table, Table as UntypedTable } from 'tinybase';
 import { Content } from 'tinybase/store/with-schemas';
 import { CloudStorageDriver } from '../storage-drivers/abstract.driver';
 import { SingleFileStorage } from '../storage-filesystems/singlefile.filesystem';
 import { AfterSyncHistChange } from '../sync-types';
 import { CloudStorageSynchronizer } from './abstract-synchronizer';
+import { collectionConflictPolicy } from './merge-helpers/conflict-policies';
+import {
+  applyLocalChangesToPull,
+  applyLocalChangesToPush
+} from './merge-helpers/merge-helpers';
+import { collectionOrphanPolicy } from './merge-helpers/orphan-policies';
 
 export type MinimizedCollectionItem = {
   [key in MinKeys[number]]: SerializableData | undefined;
@@ -55,7 +62,7 @@ export type RemoteCollectionFileContent = {
 };
 
 type RemoteContentRepresentation = {
-  items: CollectionItem[];
+  items: CollectionItemWithId[];
   values: SpaceValues;
   lastRemoteChange: number;
 };
@@ -208,14 +215,11 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   ): Promise<RemoteContentRepresentation> {
     if (!force) {
       const lastPulled = this.getLastPulled(this.remote.state);
+      // TODO can't avoid calling driver.fetchFilesInfo twice for now
       const { success, didPull, data } =
         await this.cloudFS.fetchChanges(lastPulled);
       const hasNewChanges = success && didPull;
       if (hasNewChanges) {
-        // TODO can't avoid calling driver.fetchFilesInfo twice for now
-        // const { success, data } =
-        //   await this.singlefileFS.fetchChanges(lastPulled);
-        // if (!success) throw new Error('unable to fetch new content');
         const remoteContent = this.toRepresentation(
           data as RemoteCollectionFileContent
         );
@@ -240,51 +244,25 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     remoteContent: RemoteContentRepresentation,
     force: boolean
   ): { data: AnyData; hasNewChanges: boolean } {
-    const globalStats = statsService.getAllGlobalStats();
     const newRemoteItems = remoteContent.items;
     const newRemoteValues = remoteContent.values;
-    const collection = this.toMap<CollectionItem>(localContent[0].collection!);
     let lastLocalChange = remoteContent.lastRemoteChange;
     if (localChanges.length > 0) {
       lastLocalChange = Math.max(...localChanges.map(lc => lc.createdAt));
-      // reapply local changes
-      for (const localChange of localChanges) {
-        if (localChange.on === 'values') {
-          continue;
-        }
-        const itemIdx = newRemoteItems.findIndex(
-          ri => ri.id === localChange.itemId
-        );
-        console.debug(
-          '[collection][push] handling local change',
-          localChange,
-          itemIdx
-        );
-        if (
-          itemIdx === -1 &&
-          localChange.change !== LocalChangeType.delete &&
-          collection.has(localChange.itemId)
-        ) {
-          newRemoteItems.push(collection.get(localChange.itemId)!);
-          continue;
-        }
-        if (itemIdx > -1) {
-          if (localChange.change === LocalChangeType.update) {
-            // local always wins
-            newRemoteItems[itemIdx] = collection.get(localChange.itemId)!;
-          } else if (localChange.change === LocalChangeType.delete) {
-            newRemoteItems.splice(itemIdx, 1);
-          }
-        }
-      }
     }
+
+    applyLocalChangesToPush(
+      localContent,
+      'collection',
+      localChanges,
+      remoteContent.items as WithId[]
+    );
 
     let data: RemoteCollectionFileContent;
     if (localChanges.length > 0 || force) {
       data = this.toFileContent(
         newRemoteItems,
         newRemoteValues,
-        globalStats,
         lastLocalChange
       );
     } else {
@@ -292,7 +270,6 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       data = this.toFileContent(
         localContentRep.items,
         localContentRep.values,
-        globalStats,
         lastLocalChange
       );
     }
@@ -329,113 +306,76 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     discardedChanges: LocalChangeResult[];
     changes: AfterSyncHistChange[];
   } {
-    const discardedChanges: LocalChangeResult[] = [];
     const remoteContent = this.toRepresentation(obj);
-    const remoteItems = remoteContent.items;
-    const changes: Map<string, AfterSyncHistChange> = new Map();
 
-    const localCollection = this.toMap<CollectionItem>(
-      localContent[0].collection
+    const { newLocalContent, discardedChanges } = applyLocalChangesToPull(
+      'collection',
+      localContent,
+      remoteContent.items,
+      remoteContent.lastRemoteChange,
+      localChanges,
+      collectionConflictPolicy,
+      collectionOrphanPolicy,
+      force
     );
+
+    // values
     const newValues =
       force ||
       remoteContent.values.lastUpdated > nOr0('lastUpdated', localContent[1])
         ? remoteContent.values
         : localContent[1];
+    newLocalContent[1] = newValues;
 
-    const newLocalContent: Content<SpaceType> = [
-      { ...localContent[0], collection: {} }, // don't override other tables
-      newValues
-    ];
-    // fill-in new collection with remote content
-    remoteItems.forEach(item => {
-      newLocalContent[0].collection![item.id!] = item;
-    });
+    // check historizable changes
+    const changes = this.afterSyncHistChanges(
+      newLocalContent,
+      localContent,
+      localChanges,
+      force
+    );
+    console.debug(
+      '[collection][pull] changes after sync',
+      changes,
+      'discarded',
+      discardedChanges
+    );
+    return {
+      content: newLocalContent,
+      discardedChanges,
+      changes
+    };
+  }
 
-    if (!force && localChanges.length > 0) {
-      // reapply localChanges
-      for (const localChange of localChanges) {
-        if (localChange.on === 'values') {
-          continue;
-        }
-        const remoteUpdated = this.getRemoteUpdatedTS(
-          localChange,
-          newLocalContent[0].collection!,
-          remoteContent.lastRemoteChange
-        );
-        const localItem = localCollection.get(localChange.itemId);
-
-        // if added locally, add to newLocalContent
-        if (localChange.change === LocalChangeType.add) {
-          newLocalContent[0].collection![localChange.itemId] = localItem!;
-
-          // if local change on item is more recent than remote, local wins
-        } else if (localChange.createdAt > remoteUpdated) {
-          // if is update
-          if (localChange.change === LocalChangeType.update) {
-            const field =
-              localChange.field! as CollectionItemUpdatableFieldEnum; // TODO not that
-
-            // if doesn't exist on remote (has been deleted?) recreate it
-            if (!newLocalContent[0].collection![localChange.itemId]) {
-              newLocalContent[0].collection![localChange.itemId] = localItem!;
-            } else {
-              // if exists on remote, update the field, its meta, and preview if field was content
-              newLocalContent[0].collection![localChange.itemId][field] =
-                localItem![field];
-              newLocalContent[0].collection![localChange.itemId][
-                `${field}_meta`
-              ] = localItem![`${field}_meta`];
-            }
-          } else {
-            // is delete
-            delete newLocalContent[0].collection![localChange.itemId];
-          }
-        } else {
-          // if remote change on item is more recent than local
-          // create conflict, only if item is not already a conflict and is a document or page
-          // do not create conflict for folders and notebooks
-          if (
-            this.shouldCreateConflict(
-              localChange,
-              localItem,
-              newLocalContent[0].collection![
-                localChange.itemId
-              ] as CollectionItem
-            )
-          ) {
-            const ts = Date.now();
-            newLocalContent[0].collection![getUniqueId()] = {
-              ...{ ...localItem, id: undefined },
-              conflict: localChange.itemId,
-              created: ts,
-              updated: ts
-            };
-          } else {
-            discardedChanges.push(localChange);
-          }
-        }
-      }
-
-      this.checkOrphans(newLocalContent[0].collection!);
-    }
-
-    // detect historizable remote changes
+  private afterSyncHistChanges(
+    newLocalContent: Content<SpaceType>,
+    localContent: Content<SpaceType>,
+    localChanges: LocalChangeResult[],
+    force?: boolean
+  ) {
+    const tableId = 'collection';
+    const changes: Map<string, AfterSyncHistChange> = new Map();
     const ids = new Set<string>([
       ...Object.keys(newLocalContent[0].collection!),
       ...Object.keys(localContent[0].collection!)
     ]);
+    // const localCollection = this.toMap<CollectionItemWithId>(
+    //   localContent[0].collection
+    // );
     ids.forEach(id => {
       // TODO how do we handle local changes when force full?
-      const localChange = localChanges.find(lc => lc.itemId === id);
+      const localChange = localChanges.find(
+        lc => lc.itemId === id && lc.on === tableId
+      );
       const newItem = newLocalContent[0].collection![id];
-      const oldItem = localCollection.get(id);
+      const oldItem = localContent[0].collection![id];
       if (newItem && !newItem.conflict && !oldItem) {
         const type = newItem.type as CollectionItemType;
         // added by remote
         changes.set(id, {
           id,
           type,
+          on: tableId,
           parent: newItem.parent as string,
           change: LocalChangeType.add
         });
@@ -447,6 +387,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
         // deleted by remote
         changes.set(id, {
           id,
+          on: tableId,
           type: oldItem.type as CollectionItemType,
           parent: oldItem.parent as string,
           change: LocalChangeType.delete
@@ -476,6 +417,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
             changes.set(id, {
               id,
               type,
+              on: tableId,
               parent: newItem.parent as string,
               change: LocalChangeType.update,
               field
@@ -485,18 +427,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
         }
       }
     });
-
-    console.debug(
-      '[collection][pull] changes after sync',
-      changes,
-      'discarded',
-      discardedChanges
-    );
-    return {
-      content: newLocalContent,
-      discardedChanges,
-      changes: [...changes.values()]
-    };
+    return [...changes.values()];
   }
 
   private toMap<T>(obj?: UntypedTable) {
@@ -512,7 +443,9 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   private toRepresentationFromLocal(
     localContent: Content<SpaceType>
   ): RemoteContentRepresentation {
-    const collection = this.toMap<CollectionItem>(localContent[0].collection!);
+    const collection = this.toMap<CollectionItemWithId>(
+      localContent[0].collection!
+    );
     const items = [...collection.values()].filter(v => !v.conflict);
     return {
       items,
@@ -551,12 +484,11 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   private toFileContent(
     items: CollectionItem[],
     values: SpaceValues,
-    global: AllGlobalStatsBag,
     updated: number
   ): RemoteCollectionFileContent {
     return {
       i: minimizeItemsForStorage(
-        items.map(item => ({ ...item, ...global[item.id!] }))
+        items.map(item => ({ ...item }))
       ) as MinimizedCollectionItem[],
       o: values,
       u: updated
@@ -601,6 +533,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       .forEach(ch => {
         docsMap.set(ch.parent, {
           id: ch.parent,
+          on: 'collection',
           type: CollectionItemType.document,
           change: ch.change,
           parent: '' // on doc, parent not used
@@ -622,6 +555,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
         if (!docsMap.has(ch.parent)) {
           docsMap.set(ch.parent, {
             id: ch.parent,
+            on: 'collection',
             type: CollectionItemType.document,
             change: LocalChangeType.update,
             parent: '' // on doc, parent not used

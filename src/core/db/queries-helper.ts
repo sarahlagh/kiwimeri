@@ -10,18 +10,13 @@ import {
   Id,
   Join,
   OptionalSchemas,
-  OptionalTablesSchema,
   Param,
   ParamValues,
   ResultRow,
   Select,
   Where
 } from 'tinybase/with-schemas';
-
-export type AsId<Key> = Exclude<Key & Id, number>;
-export type TableIdFromSchema<Schema extends OptionalTablesSchema> = AsId<
-  keyof Schema
->;
+import { AsId, TableIdFromSchema } from './types';
 
 export type SortCell<T> = AsId<keyof T>;
 

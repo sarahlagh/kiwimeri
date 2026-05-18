@@ -3,7 +3,7 @@ import {
   CollectionItemUpdatableFieldEnum
 } from '@/collection/collection';
 import { RemoteState } from '@/db/types/store-types';
-import { LocalChangeType } from '@/domain/local-changes/model';
+import { LocalChangeOn, LocalChangeType } from '@/domain/local-changes/model';
 
 export type UpdatedRemoteState = {
   lastPulled: number;
@@ -22,5 +22,6 @@ export type AfterSyncHistChange = Pick<
   'id' | 'type' | 'parent'
 > & {
   change: LocalChangeType;
+  on: LocalChangeOn;
   field?: CollectionItemUpdatableFieldEnum;
 };

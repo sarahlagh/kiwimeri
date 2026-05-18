@@ -1,5 +1,6 @@
 import { getStore } from '@/core/db/store';
-import { AsId } from 'tinybase/@types/_internal/store/with-schemas';
+import { AsId, TableIdFromSchema } from '@/core/db/types';
+import { SpaceType } from '@/db/types/space-types';
 import { Id } from 'tinybase/with-schemas';
 import { LocalChangeOn, LocalChangeRow, LocalChangeType } from './model';
 import fetchLocalChangesQuery from './queries/fetchLocalChangesQuery';
@@ -9,7 +10,7 @@ const LC = 'localChanges';
 class LocalChangesService {
   public addLocalChange(on: 'values'): void;
   public addLocalChange<T>(
-    on: Omit<LocalChangeOn, 'values'>,
+    on: TableIdFromSchema<SpaceType[0]>,
     itemId: Id,
     change: LocalChangeType,
     field?: AsId<T>
@@ -59,8 +60,10 @@ class LocalChangesService {
       const updates = store
         .getRowIds(LC)
         .filter(id => id.startsWith(updatedRowIdPrefix));
-      updates.forEach(u => {
-        store.delRow(LC, u);
+      store.transaction(() => {
+        updates.forEach(u => {
+          store.delRow(LC, u);
+        });
       });
     }
 

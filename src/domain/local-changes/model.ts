@@ -1,4 +1,4 @@
-import { AsId, TableIdFromSchema } from '@/core/db/queries-helper';
+import { AsId, TableIdFromSchema } from '@/core/db/types';
 import { SpaceType } from '@/db/types/space-types';
 
 export enum LocalChangeType {
@@ -25,8 +25,6 @@ export const localChangesSchema = {
   on: { type: 'string' },
   field: { type: 'string' }
 } as const satisfies Record<keyof LocalChangeRow<unknown>, unknown>;
-
-export type ValueLocalChange = LocalChangeRow<unknown>;
 
 export type LocalChangeResult = {
   id: string;

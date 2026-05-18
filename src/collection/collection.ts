@@ -33,6 +33,7 @@ export interface CollectionItem {
   // flags?: string;
   // flags_meta?: string;
 }
+export type CollectionItemWithId = CollectionItem & { id: string };
 
 export const sortBy = [
   'created',

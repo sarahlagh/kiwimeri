@@ -1,7 +1,5 @@
-import {
-  TableIdFromSchema,
-  TinybaseQueryDefinition
-} from '@/core/db/queries-helper';
+import { TinybaseQueryDefinition } from '@/core/db/queries-helper';
+import { TableIdFromSchema } from '@/core/db/types';
 import { Queries as UntypedQueries } from 'tinybase';
 import { useParamValuesState } from 'tinybase/ui-react';
 import { OptionalSchemas, ParamValues } from 'tinybase/with-schemas';

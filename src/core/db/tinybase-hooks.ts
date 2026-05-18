@@ -5,8 +5,8 @@ import { CellIdFromSchema } from 'tinybase/@types/_internal/store/with-schemas';
 import { Id } from 'tinybase/common';
 import * as UiReact from 'tinybase/ui-react';
 import { WithSchemas } from 'tinybase/ui-react/with-schemas';
-import { TableIdFromSchema } from './queries-helper';
 import { getSpace } from './store';
+import { TableIdFromSchema } from './types';
 
 export const {
   useCell: useTypedStoreCell,
