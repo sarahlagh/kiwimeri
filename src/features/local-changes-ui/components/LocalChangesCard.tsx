@@ -25,6 +25,10 @@ import {
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import useLatestUpdatedAt from '../hooks/useLatestUpdatedAt';
+import {
+  closeLatestCollectionUpdateMetric,
+  initLatestCollectionUpdateMetric
+} from '../metrics';
 
 const LocalChangesCard = () => {
   const { t } = useLingui();
@@ -38,9 +42,11 @@ const LocalChangesCard = () => {
 
   useIonViewDidEnter(() => {
     fetchLocalChangesQuery.initQuery();
+    initLatestCollectionUpdateMetric();
   });
   useIonViewDidLeave(() => {
     fetchLocalChangesQuery.close();
+    closeLatestCollectionUpdateMetric();
   });
 
   return (

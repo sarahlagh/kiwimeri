@@ -129,7 +129,7 @@ msgstr "Choose a session length"
 msgid "Choose where to save your work"
 msgstr "Choose where to save your work"
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:179
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:185
 msgid "Clear All"
 msgstr "Clear All"
 
@@ -205,7 +205,7 @@ msgstr "Delete All"
 msgid "Delete comment"
 msgstr "Delete comment"
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:113
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:119
 msgid "deleted item"
 msgstr "deleted item"
 
@@ -389,11 +389,11 @@ msgstr "Link"
 msgid "Loading..."
 msgstr "Loading..."
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:50
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:56
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:56
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:62
 msgid "Local: {0}"
 msgstr "Local: {0}"
 
@@ -542,7 +542,7 @@ msgstr "Remember last route"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:63
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:69
 msgid "Remote: {0}"
 msgstr "Remote: {0}"
 
@@ -617,7 +617,7 @@ msgstr "Sort direction"
 msgid "Sort items by..."
 msgstr "Sort items by..."
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:82
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:88
 msgid "space option modified"
 msgstr "space option modified"
 
