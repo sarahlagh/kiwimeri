@@ -25,8 +25,6 @@ import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
 import { syncService } from '@/remote-storage/sync.service';
 import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';
 import { searchAncestryService } from '@/search/search-ancestry.service';
-import { renderHook } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   CONFLICT_CHANGES,
   countOrphans,
@@ -52,7 +50,9 @@ import {
   oneNotebook,
   setLocalItemField,
   updateOnRemote
-} from '../../_setup/test.utils';
+} from '@@/_setup/test.utils';
+import { renderHook } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { defaultValues } from './test-sync.utils';
 
 let driver: InMemDriver;

@@ -1,7 +1,7 @@
 import { SerializedSelection } from '@/common/wysiwyg/lexical/selection-serializer';
 import { getSpace } from '@/core/db/store';
+import storageService from '@/db/storage.service';
 import { Id } from 'tinybase/with-schemas';
-import storageService from '../../db/storage.service';
 import { DocumentResumeState, DocumentResumeStateRow } from './model';
 
 class DocumentResumeStateService {

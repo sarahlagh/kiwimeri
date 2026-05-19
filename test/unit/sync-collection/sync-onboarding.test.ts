@@ -2,8 +2,8 @@ import remotesService from '@/db/remotes.service';
 import storageService from '@/db/storage.service';
 import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
 import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';
+import { adv } from '@@/_setup/test.utils';
 import { beforeEach, describe, test, vi } from 'vitest';
-import { adv } from '../../_setup/test.utils';
 import { syncService_sync } from './test-sync.utils';
 
 describe(`sync onboarding test`, () => {

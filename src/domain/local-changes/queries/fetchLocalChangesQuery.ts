@@ -1,6 +1,6 @@
+import { StoreQueryDefinition } from '@/core/db/queries-helper';
 import { LocalChangeResult } from '@/domain/local-changes/model';
 import { ParamValues } from 'tinybase/with-schemas';
-import { StoreQueryDefinition } from '../../../core/db/queries-helper';
 
 const fetchLocalChangesQuery = new StoreQueryDefinition<
   ParamValues,

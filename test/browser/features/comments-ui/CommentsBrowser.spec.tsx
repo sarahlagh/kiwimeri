@@ -4,9 +4,9 @@ import { commentsService } from '@/domain/comments/comments.service';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { CommentsBrowser } from '@/features/comments-ui';
 import fetchCommentsQuery from '@/features/comments-ui/queries/fetchCommentsQuery';
+import { getNewContent } from '@@/_setup/test.utils';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { getNewContent } from '../_setup/test.utils';
 import {
   getAddBtn,
   getCommentPreview,
@@ -24,7 +24,7 @@ import {
 
 import '@/features/comments-ui/components/CommentsBrowser.scss';
 import BottomSheet from '@/shared/containers/BottomSheet';
-import { TestingProvider } from './TestingProvider';
+import { TestingProvider } from '../../TestingProvider';
 
 describe('CommentsBrowser', () => {
   test('renders an empty comments browser', async () => {

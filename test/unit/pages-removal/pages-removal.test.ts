@@ -9,8 +9,8 @@ import { LocalChangeType } from '@/domain/local-changes/model';
 import { statsService } from '@/domain/stats/stats-service';
 import fetchCommentsQuery from '@/features/comments-ui/queries/fetchCommentsQuery';
 import { searchAncestryService } from '@/search/search-ancestry.service';
+import { adv, getNewContent } from '@@/_setup/test.utils';
 import { describe, it, vi } from 'vitest';
-import { adv, getNewContent } from '../../_setup/test.utils';
 
 function createDocWithHistory() {
   const pageIds: string[] = [];

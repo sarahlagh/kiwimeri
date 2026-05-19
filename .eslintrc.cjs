@@ -10,7 +10,7 @@ module.exports = {
     'plugin:react/jsx-runtime'
   ],
   parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint', 'import'],
+  plugins: ['@typescript-eslint'],
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: 'module'
@@ -26,6 +26,14 @@ module.exports = {
           {
             group: ['@/features/*/**'],
             message: 'Import from feature public API only'
+          },
+          {
+            group: ['**/features/*/**'],
+            message: 'Import from feature public API only'
+          },
+          {
+            group: ['../../*'],
+            message: 'Avoid deep relative imports; use aliases'
           }
         ]
       }

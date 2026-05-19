@@ -9,7 +9,8 @@ import { defineConfig as vitestDefineConfig } from 'vitest/config';
 const viteConfig = defineConfig({
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src/')
+      '@': path.resolve(__dirname, 'src/'),
+      '@@': path.resolve(__dirname, 'test/')
     }
   },
   plugins: [
@@ -45,7 +46,7 @@ const vitestConfig = vitestDefineConfig({
           globals: true,
           environment: 'jsdom',
           globalSetup: ['./test/_setup/globalSetup.ts'],
-          setupFiles: ['./test/_setup/setupTests.ts']
+          setupFiles: ['./test/_setup/unit.setupTests.ts']
         }
       },
       {
@@ -56,7 +57,7 @@ const vitestConfig = vitestDefineConfig({
           globals: true,
           environment: 'jsdom',
           globalSetup: ['./test/_setup/globalSetup.ts'],
-          setupFiles: ['./test/_setup/setupTests.ts']
+          setupFiles: ['./test/_setup/unit.setupTests.ts']
         }
       },
       {
@@ -65,7 +66,7 @@ const vitestConfig = vitestDefineConfig({
           name: 'browser',
           include: ['test/browser/**/*.{test,spec}.{ts,tsx}'],
           globalSetup: ['./test/_setup/globalSetup.ts'],
-          setupFiles: ['./test/browser/setupTests.ts'],
+          setupFiles: ['./test/_setup/browser.setupTests.ts'],
           browser: {
             enabled: true,
             provider: playwright(),

@@ -58,10 +58,6 @@ export function getUpdatedAtCommentInfo(
   );
 }
 
-export function getSortSelector(screen: RenderResult) {
-  return screen.locator('ion-popover');
-}
-
 export function getSortSwitchDirectionBtn(screen: RenderResult) {
   return screen.locator.getByRole('button', { name: 'Sort direction' });
 }

@@ -18,9 +18,6 @@ import notebooksService from '@/db/notebooks.service';
 import { defaultOrder } from '@/db/types/space-types';
 import userSettingsService from '@/db/user-settings.service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
-import { renderHook } from '@testing-library/react';
-import { act } from 'react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   BROWSABLE_ITEM_TYPES,
   fakeTimersDelay,
@@ -30,7 +27,10 @@ import {
   getNewValue,
   markAsConflict,
   UPDATABLE_FIELDS
-} from '../../_setup/test.utils';
+} from '@@/_setup/test.utils';
+import { renderHook } from '@testing-library/react';
+import { act } from 'react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const shortContent = JSON.parse(
   '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"This is a short content","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}'

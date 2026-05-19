@@ -15,15 +15,15 @@ import userSettingsService from '@/db/user-settings.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import { searchAncestryService } from '@/search/search-ancestry.service';
-import { renderHook } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   fakeTimersDelay,
   GET_CONTENT_UPDATE_FIELDS,
   getNewContent,
   getNewValue,
   ValueType
-} from '../../_setup/test.utils';
+} from '@@/_setup/test.utils';
+import { renderHook } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const idleTime = 50;
 

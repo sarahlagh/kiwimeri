@@ -6,8 +6,8 @@ import {
   CollectionItemVersionOp
 } from '@/collection/collection';
 import { SerializableData } from '@/db/types/store-types';
+import { parentField, TestField } from '@@/_setup/test.utils';
 import { describe, expect, it } from 'vitest';
-import { parentField, TestField } from '../../_setup/test.utils';
 
 export type PullTestEndStatsItem = {
   id?: string;

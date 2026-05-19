@@ -20,14 +20,14 @@ import { SerializableData } from '@/db/types/store-types';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import { SyncDirection } from '@/remote-storage/sync.service';
-import { expect, vi } from 'vitest';
 import {
   createLocalItem,
   fakeTimersDelay,
   getNewValue,
   oneNotebook,
   TestField
-} from '../../_setup/test.utils';
+} from '@@/_setup/test.utils';
+import { expect, vi } from 'vitest';
 import {
   PullTestEndStatsBuilder,
   PullTestEndStatsItem,

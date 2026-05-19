@@ -1,4 +1,4 @@
-import { SerializedEditorState } from 'lexical/LexicalEditorState';
+import { SerializedEditorState } from 'lexical';
 import { MARKDOWN_FORMATTER } from './lex-conversion/formatters/markdown-formatter';
 import {
   PLAIN_TEXT_FORMATTER,

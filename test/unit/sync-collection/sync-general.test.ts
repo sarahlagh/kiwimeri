@@ -10,15 +10,15 @@ import { LocalChangeType } from '@/domain/local-changes/model';
 import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
 import { SingleFileStorage } from '@/remote-storage/storage-filesystems/singlefile.filesystem';
 import { syncService } from '@/remote-storage/sync.service';
-import { renderHook } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   adv,
   getRowCountInsideNotebook,
   oneDocument,
   oneFolder,
   oneNotebook
-} from '../../_setup/test.utils';
+} from '@@/_setup/test.utils';
+import { renderHook } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   getRemoteContent,
   reInitRemoteData,

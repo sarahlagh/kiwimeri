@@ -7,8 +7,8 @@ import {
   unminimizeContentFromStorage
 } from '@/common/wysiwyg/compress-file-content';
 import { initialContent } from '@/db/collection.service';
+import { oneDocument, oneFolder, oneNotebook } from '@@/_setup/test.utils';
 import { describe, expect, it } from 'vitest';
-import { oneDocument, oneFolder, oneNotebook } from '../../_setup/test.utils';
 
 describe('lexical content compression', () => {
   it('avg time to minimize', () => {

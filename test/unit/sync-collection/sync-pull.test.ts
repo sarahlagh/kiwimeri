@@ -2,8 +2,8 @@
 
 import { CollectionItemType } from '@/collection/collection';
 import { SyncDirection } from '@/remote-storage/sync.service';
+import { oneNotebook } from '@@/_setup/test.utils';
 import { afterEach, beforeEach, describe, it } from 'vitest';
-import { oneNotebook } from '../../_setup/test.utils';
 import { PullTestScenarioRunner } from './scenario-runner';
 import { scenarioMatrix } from './sync-pull.matrix';
 import {

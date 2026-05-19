@@ -9,12 +9,12 @@ import {
   LocalChangeResult,
   LocalChangeType
 } from '@/domain/local-changes/model';
-import { describe, expect, it } from 'vitest';
 import {
   GET_UPDATABLE_FIELDS,
   getLocalItemField,
   markAsConflict
-} from '../../_setup/test.utils';
+} from '@@/_setup/test.utils';
+import { describe, expect, it } from 'vitest';
 
 const getNonNotebookLocalChanges = (localChanges: LocalChangeResult[]) =>
   localChanges.filter(

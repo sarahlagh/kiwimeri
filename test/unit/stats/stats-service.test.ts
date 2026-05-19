@@ -7,6 +7,7 @@ import userSettingsService from '@/db/user-settings.service';
 import { DataPoint, DocumentContentStatsBag } from '@/domain/stats/model';
 import { statsService } from '@/domain/stats/stats-service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
+import { fakeTimersDelay, getNewContent } from '@@/_setup/test.utils';
 import {
   afterEach,
   beforeAll,
@@ -16,7 +17,6 @@ import {
   it,
   vi
 } from 'vitest';
-import { fakeTimersDelay, getNewContent } from '../../_setup/test.utils';
 import { readFakeStats } from './test-stats.utils';
 
 let fakeStats: DataPoint[] = [];

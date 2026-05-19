@@ -1,6 +1,6 @@
+import ToastContext from '@/common/context/ToastContext';
 import { useIonToast } from '@ionic/react';
 import { ReactNode } from 'react';
-import ToastContext from '../../common/context/ToastContext';
 
 type ToastProviderProps = {
   readonly children?: ReactNode;

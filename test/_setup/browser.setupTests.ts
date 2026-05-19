@@ -13,7 +13,7 @@ import '@ionic/react/css/text-transformation.css';
 /* Dark Theme */
 import '@ionic/react/css/palettes/dark.class.css';
 /* global */
-import '../../src/theme/global.scss';
+import '@/theme/global.scss';
 
 import { initGlobalTrans } from '@/config';
 import notebooksService from '@/db/notebooks.service';

@@ -16,7 +16,8 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@@/*": ["./test/*"]
     },
     "types": ["node", "vitest/globals", "@vitest/browser"]
   },
