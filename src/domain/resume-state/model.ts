@@ -7,8 +7,8 @@ export type DocumentResumeStateRow = {
 };
 
 export const resumeStateSchema = {
-  lastSelection: { type: 'object', allowNull: true },
-  lastSelectedCommentId: { type: 'string', allowNull: true }
+  lastSelection: { type: 'object' },
+  lastSelectedCommentId: { type: 'string' }
 } as const satisfies Record<keyof DocumentResumeStateRow, unknown>;
 
 export type DocumentResumeState = DocumentResumeStateRow;

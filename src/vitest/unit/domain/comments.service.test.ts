@@ -45,8 +45,8 @@ describe('comments service', () => {
     vi.advanceTimersByTime(100);
 
     const comments: CommentRow[] = [];
-    comments.push(commentsService.getCommentObj(docId).item);
-    comments.push(commentsService.getCommentObj(docId + 'diff').item);
+    comments.push(commentsService.newCommentObj(docId).item);
+    comments.push(commentsService.newCommentObj(docId + 'diff').item);
     commentsService.addComments(docId, comments);
 
     const commentResults = fetchCommentsQuery.getResults({ itemId: docId });

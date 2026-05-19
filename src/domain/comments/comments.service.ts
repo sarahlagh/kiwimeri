@@ -9,7 +9,7 @@ import { getUniqueId, Id } from 'tinybase/common';
 import { CommentRow, CommentSort } from './model';
 
 class CommentsService {
-  public getCommentObj(itemId: Id): { item: CommentRow; id: Id } {
+  public newCommentObj(itemId: Id): { item: CommentRow; id: Id } {
     const id = getUniqueId();
     const content = initialContent();
     const now = Date.now();
@@ -24,7 +24,7 @@ class CommentsService {
   }
 
   public addComment(docId: Id, order?: number) {
-    const { item, id } = this.getCommentObj(docId);
+    const { item, id } = this.newCommentObj(docId);
     getSpace().setRow('comments', id, { ...item, order });
     const space = getSpace();
     space.transaction(() => {

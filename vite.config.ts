@@ -34,7 +34,12 @@ const vitestConfig = vitestDefineConfig({
       : ['default', 'html'],
     coverage: {
       enabled: true,
-      exclude: ['src/vitest/**', 'src/capacitor/**']
+      exclude: [
+        'src/vitest/**',
+        'src/capacitor/**',
+        'src/polyfills/**',
+        'src/locales/**'
+      ]
     }
   }
 });
