@@ -63,6 +63,7 @@ jobs:
       - name: Browser Tests
         run: |
           cp .env.ci .env
+          yarn playwright install
           yarn test:browser
 
   lint:

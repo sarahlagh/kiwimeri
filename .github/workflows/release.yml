@@ -30,6 +30,7 @@ jobs:
           yarn build:prod
           cp .env.ci .env
           yarn test:unit
+          yarn playwright install
           yarn test:browser
 
   release-draft:
