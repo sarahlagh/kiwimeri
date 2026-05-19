@@ -80,7 +80,7 @@ const reInitRemoteData = async (
       ...defaultValues,
       defaultSortBy: 'created',
       defaultSortDesc: false,
-      lastUpdated: 0
+      valuesLastUpdatedAt: 0
     };
   }
   console.debug('[reInitRemoteData]', items, values, lastLocalChange);
@@ -2246,7 +2246,7 @@ describe('sync service', () => {
           ...defaultValues,
           defaultSortBy: 'order',
           defaultSortDesc: true,
-          lastUpdated: Date.now()
+          valuesLastUpdatedAt: Date.now()
         });
 
         expect(userSettingsService.getSpaceDefaultDisplayOpts()).toEqual({
@@ -2274,7 +2274,7 @@ describe('sync service', () => {
           defaultSortBy: 'order',
           defaultSortDesc: true,
           statsEnabled: false,
-          lastUpdated: Date.now()
+          valuesLastUpdatedAt: Date.now()
         });
 
         vi.advanceTimersByTime(fakeTimersDelay);
@@ -2303,7 +2303,7 @@ describe('sync service', () => {
           defaultSortBy: 'order',
           defaultSortDesc: true,
           statsEnabled: false,
-          lastUpdated: Date.now()
+          valuesLastUpdatedAt: Date.now()
         });
 
         vi.advanceTimersByTime(fakeTimersDelay);
@@ -2332,7 +2332,7 @@ describe('sync service', () => {
           defaultSortBy: 'order',
           defaultSortDesc: true,
           statsEnabled: false,
-          lastUpdated: Date.now()
+          valuesLastUpdatedAt: Date.now()
         });
 
         vi.advanceTimersByTime(fakeTimersDelay);
@@ -2351,7 +2351,9 @@ describe('sync service', () => {
           defaultSortBy: 'updated',
           defaultSortDesc: false,
           statsEnabled: true,
-          lastUpdated: storageService.getSpace().getValue('lastUpdated')
+          valuesLastUpdatedAt: storageService
+            .getSpace()
+            .getValue('valuesLastUpdatedAt')
         });
       });
 
@@ -2371,7 +2373,7 @@ describe('sync service', () => {
           defaultSortBy: 'order',
           defaultSortDesc: true,
           statsEnabled: false,
-          lastUpdated: pushTime
+          valuesLastUpdatedAt: pushTime
         });
 
         await syncService_push();
@@ -2382,7 +2384,7 @@ describe('sync service', () => {
           defaultSortBy: 'order',
           defaultSortDesc: true,
           statsEnabled: false,
-          lastUpdated: pushTime
+          valuesLastUpdatedAt: pushTime
         });
       });
 
@@ -2402,7 +2404,7 @@ describe('sync service', () => {
           defaultSortBy: 'order',
           defaultSortDesc: true,
           statsEnabled: false,
-          lastUpdated: Date.now()
+          valuesLastUpdatedAt: Date.now()
         });
 
         await syncService_push(true);
@@ -2413,7 +2415,7 @@ describe('sync service', () => {
           defaultSortBy: 'updated',
           defaultSortDesc: false,
           statsEnabled: true,
-          lastUpdated: localTime
+          valuesLastUpdatedAt: localTime
         });
       });
     });

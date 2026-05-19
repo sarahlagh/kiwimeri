@@ -34,7 +34,7 @@ export type SpaceType = [
     comments: typeof commentSchema;
   },
   {
-    lastUpdated: { type: 'number'; default: number };
+    valuesLastUpdatedAt: { type: 'number'; default: number };
     defaultSortBy: { type: 'string'; default: string };
     defaultSortDesc: { type: 'boolean'; default: false };
     historyIdleTime: { type: 'number'; default: number };

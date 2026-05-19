@@ -220,8 +220,8 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
           data as RemoteCollectionFileContent
         );
         const values =
-          remoteContent.values.lastUpdated >
-          nOr0('lastUpdated', localContent[1])
+          remoteContent.values.valuesLastUpdatedAt >
+          nOr0('valuesLastUpdatedAt', localContent[1])
             ? remoteContent.values
             : localContent[1];
         return {
@@ -318,7 +318,8 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     // values
     const newValues =
       force ||
-      remoteContent.values.lastUpdated > nOr0('lastUpdated', localContent[1])
+      remoteContent.values.valuesLastUpdatedAt >
+        nOr0('valuesLastUpdatedAt', localContent[1])
         ? remoteContent.values
         : localContent[1];
     newLocalContent[1] = newValues;
@@ -443,7 +444,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     return {
       items,
       values: localContent[1],
-      lastRemoteChange: localContent[1].lastUpdated
+      lastRemoteChange: localContent[1].valuesLastUpdatedAt
     };
   }
 
@@ -463,7 +464,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
         historyMaxInterval: userSettingsService.getHistoryMaxInterval(),
         maxHistoryPerDoc: userSettingsService.getHistoryMaxVersions(),
         schemaVersion: appConfig.KIWIMERI_VERSION,
-        lastUpdated: 0
+        valuesLastUpdatedAt: 0
       };
     }
 

@@ -21,7 +21,7 @@ export const defaultValues: SpaceValues = {
   historyIdleTime: 15000,
   historyMaxInterval: 300000,
   maxHistoryPerDoc: 50,
-  lastUpdated: Date.now(),
+  valuesLastUpdatedAt: Date.now(),
   schemaVersion: '',
   statsEnabled: false
 };
@@ -70,7 +70,7 @@ export const reInitRemoteData = async (
       ...defaultValues,
       defaultSortBy: 'created',
       defaultSortDesc: false,
-      lastUpdated: 0
+      valuesLastUpdatedAt: 0
     };
   }
   console.debug('[reInitRemoteData]', items, values, lastLocalChange);

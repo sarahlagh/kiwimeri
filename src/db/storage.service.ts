@@ -219,7 +219,7 @@ class StorageService {
         comments: commentSchema
       })
       .setValuesSchema({
-        lastUpdated: { type: 'number', default: 0 },
+        valuesLastUpdatedAt: { type: 'number', default: 0 },
         defaultSortBy: { type: 'string', default: 'created' },
         defaultSortDesc: { type: 'boolean', default: false },
         historyIdleTime: { type: 'number', default: 15000 },

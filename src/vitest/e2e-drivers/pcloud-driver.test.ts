@@ -54,7 +54,7 @@ const reInitRemoteData = async (
   if (!values) {
     values = {
       ...defaultValues,
-      lastUpdated: 0
+      valuesLastUpdatedAt: 0
     };
   }
   console.debug('[reInitRemoteData]', items, values, lastRemoteChange);
@@ -525,7 +525,7 @@ describe.sequential(
           ...defaultValues,
           defaultSortBy: 'order',
           defaultSortDesc: true,
-          lastUpdated: Date.now()
+          valuesLastUpdatedAt: Date.now()
         });
 
         expect(userSettingsService.getSpaceDefaultDisplayOpts()).toEqual({
@@ -553,7 +553,7 @@ describe.sequential(
           ...defaultValues,
           defaultSortBy: 'order',
           defaultSortDesc: true,
-          lastUpdated: remoteTs
+          valuesLastUpdatedAt: remoteTs
         });
 
         userSettingsService.setSpaceDefaultDisplayOpts({
@@ -581,7 +581,7 @@ describe.sequential(
           ...defaultValues,
           defaultSortBy: 'order',
           defaultSortDesc: true,
-          lastUpdated: remoteTs
+          valuesLastUpdatedAt: remoteTs
         });
 
         userSettingsService.setSpaceDefaultDisplayOpts({
@@ -609,7 +609,7 @@ describe.sequential(
           ...defaultValues,
           defaultSortBy: 'order',
           defaultSortDesc: true,
-          lastUpdated: remoteTs
+          valuesLastUpdatedAt: remoteTs
         });
 
         userSettingsService.setSpaceDefaultDisplayOpts({
@@ -626,7 +626,9 @@ describe.sequential(
           ...defaultValues,
           defaultSortBy: 'updated',
           defaultSortDesc: false,
-          lastUpdated: storageService.getSpace().getValue('lastUpdated')
+          valuesLastUpdatedAt: storageService
+            .getSpace()
+            .getValue('valuesLastUpdatedAt')
         });
       });
 
@@ -644,7 +646,7 @@ describe.sequential(
           ...defaultValues,
           defaultSortBy: 'order',
           defaultSortDesc: true,
-          lastUpdated: pushTime
+          valuesLastUpdatedAt: pushTime
         });
 
         await syncService.push();
@@ -654,7 +656,7 @@ describe.sequential(
           ...defaultValues,
           defaultSortBy: 'order',
           defaultSortDesc: true,
-          lastUpdated: pushTime
+          valuesLastUpdatedAt: pushTime
         });
       });
 
@@ -671,7 +673,7 @@ describe.sequential(
           ...defaultValues,
           defaultSortBy: 'order',
           defaultSortDesc: true,
-          lastUpdated: Date.now() + 500
+          valuesLastUpdatedAt: Date.now() + 500
         });
 
         await syncService.push(undefined, true);
@@ -681,7 +683,9 @@ describe.sequential(
           ...defaultValues,
           defaultSortBy: 'updated',
           defaultSortDesc: false,
-          lastUpdated: storageService.getSpace().getValue('lastUpdated')
+          valuesLastUpdatedAt: storageService
+            .getSpace()
+            .getValue('valuesLastUpdatedAt')
         });
       });
     });
