@@ -1,14 +1,12 @@
 import {
   CollectionItem,
   CollectionItemType,
-  CollectionItemUpdatableConflictFields,
   CollectionItemUpdatableFieldEnum,
   CollectionItemUpdateChangeFields,
   CollectionItemWithId,
   isDocument,
   isPage,
-  isPageOrDocument,
-  parseFieldMeta
+  isPageOrDocument
 } from '@/collection/collection';
 import {
   minimizeItemsForStorage,
@@ -16,12 +14,10 @@ import {
   unminimizeItemsFromStorage
 } from '@/collection/compress-collection';
 import { nOr0 } from '@/common/utils';
-import { appConfig, getGlobalTrans } from '@/config';
-import { CONFLICTS_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
+import { appConfig } from '@/config';
 import { WithId } from '@/core/db/types';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
-import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
 import { SpaceType, SpaceValues } from '@/db/types/space-types';
 import {
@@ -38,7 +34,7 @@ import {
   LocalChangeType
 } from '@/domain/local-changes/model';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
-import { Row, Table, Table as UntypedTable } from 'tinybase';
+import { Table as UntypedTable } from 'tinybase';
 import { Content } from 'tinybase/store/with-schemas';
 import { CloudStorageDriver } from '../storage-drivers/abstract.driver';
 import { SingleFileStorage } from '../storage-filesystems/singlefile.filesystem';
@@ -359,9 +355,6 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       ...Object.keys(newLocalContent[0].collection!),
       ...Object.keys(localContent[0].collection!)
     ]);
-    // const localCollection = this.toMap<CollectionItemWithId>(
-    //   localContent[0].collection
-    // );
     ids.forEach(id => {
       // TODO how do we handle local changes when force full?
       const localChange = localChanges.find(
@@ -572,98 +565,5 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     discardedChanges.forEach(localChange => {
       localChangesService.delete(localChange.id);
     });
-  }
-
-  private shouldCreateConflict(
-    localChange: LocalChangeResult,
-    localItem: CollectionItem | undefined,
-    remoteItem: CollectionItem
-  ) {
-    const field = localChange.field as CollectionItemUpdatableFieldEnum;
-    return (
-      localItem &&
-      !localItem.conflict &&
-      localItem.type !== CollectionItemType.folder &&
-      localItem.type !== CollectionItemType.notebook &&
-      (!localChange.field ||
-        (CollectionItemUpdatableConflictFields.includes(field) &&
-          (!remoteItem || localItem[field] !== remoteItem[field])))
-    );
-  }
-
-  private getRemoteUpdatedTS(
-    localChange: LocalChangeResult,
-    remoteCollection: Table,
-    remoteContentUpdated?: number
-  ) {
-    // remoteUpdated is the 'updated' ts on the remote item, OR the collection updated ts if the item is deleted
-    let remoteUpdated = remoteCollection[localChange.itemId]
-      ? (remoteCollection[localChange.itemId].updated as number)
-      : remoteContentUpdated || 0;
-    console.debug(
-      '[collection][pull] handling local change',
-      localChange,
-      remoteUpdated
-    );
-
-    // but if item exists on remote, and it's an update, only take the meta ts
-    if (
-      localChange.change === LocalChangeType.update &&
-      remoteCollection[localChange.itemId]
-    ) {
-      const meta = remoteCollection[localChange.itemId][
-        `${localChange.field as CollectionItemUpdatableFieldEnum}_meta`
-      ] as string;
-      if (meta) {
-        remoteUpdated = parseFieldMeta(meta).u;
-      } else {
-        remoteUpdated = 0;
-      }
-    }
-
-    return remoteUpdated;
-  }
-
-  private checkOrphans(newCollectionAfterPull: Table) {
-    // check for orphans
-    // not sure I can do this in one loop here - still, optimize?
-    // here all the timestamps have already been checked, so any orphan here should be recreated safely
-    for (const id of Object.keys(newCollectionAfterPull)) {
-      const item = newCollectionAfterPull[id] as unknown as CollectionItem;
-      if (
-        item.parent === ROOT_COLLECTION ||
-        newCollectionAfterPull[item.parent]
-      ) {
-        continue;
-      }
-
-      if (newCollectionAfterPull[id].conflict) {
-        // don't keep orphaned conflicts
-        delete newCollectionAfterPull[id];
-        continue;
-      }
-      // if parent doesn't exist, put the item in conflicts notebook
-      // TODO check if parent is allowed too (page under doc, etc.)
-      console.debug('[collection][pull] orphan detected', id, item.title);
-      this.createConflictsNotebookIfNeeded(newCollectionAfterPull);
-      newCollectionAfterPull[id].parent = CONFLICTS_NOTEBOOK_ID;
-      newCollectionAfterPull[id].conflict = id;
-    }
-  }
-
-  private createConflictsNotebookIfNeeded(newCollectionAfterPull: Table) {
-    if (!newCollectionAfterPull[CONFLICTS_NOTEBOOK_ID]) {
-      const { item: conflictsNotebook } = notebooksService.getNewNotebookObj(
-        ROOT_COLLECTION,
-        getGlobalTrans().conflictsNotebookName
-      );
-      localChangesService.addLocalChange(
-        'collection',
-        CONFLICTS_NOTEBOOK_ID,
-        LocalChangeType.add
-      );
-      newCollectionAfterPull[CONFLICTS_NOTEBOOK_ID] =
-        conflictsNotebook as unknown as Row;
-    }
   }
 }

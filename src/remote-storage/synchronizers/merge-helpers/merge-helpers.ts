@@ -1,25 +1,20 @@
 import { parseFieldMeta } from '@/collection/collection';
-import { AsId, TableIdFromSchema, WithId } from '@/core/db/types';
+import { TableIdFromSchema, WithId } from '@/core/db/types';
 import { SpaceType } from '@/db/types/space-types';
 import {
   LocalChangeResult,
   LocalChangeType
 } from '@/domain/local-changes/model';
-import { getUniqueId, Table, Table as UntypedTable } from 'tinybase';
-import { Content } from 'tinybase/with-schemas';
+import { getUniqueId, Table } from 'tinybase';
+import { Content, Id, Row } from 'tinybase/with-schemas';
 import { ConflictPolicy } from './conflict-policies';
 import { OrphanPolicy } from './orphan-policies';
 
-// TODO to remove
-function toMap<T>(obj?: UntypedTable) {
-  const map: Map<string, T> = new Map();
-  if (obj) {
-    Object.keys(obj).forEach(id => {
-      map.set(id, { ...(obj[id] as unknown as T), id });
-    });
-  }
-  return map;
-}
+type StringKey<R> = Extract<keyof R, string>;
+type FieldWithMeta<R> = {
+  [K in StringKey<R>]: `${K}_meta` extends keyof R ? K : never;
+}[StringKey<R>];
+type MetaKey<K extends string> = `${K}_meta`;
 
 export function applyLocalChangesToPush<R extends WithId>(
   localContent: Content<SpaceType>,
@@ -27,7 +22,7 @@ export function applyLocalChangesToPush<R extends WithId>(
   allLocalChanges: LocalChangeResult[],
   newRemoteItems: R[]
 ): R[] {
-  const dataTable = toMap<R>(localContent[0][tableId]!);
+  const dataTable = localContent[0][tableId]! as { [key: Id]: R };
   const localChanges = allLocalChanges.filter(lc => lc.on === tableId);
   if (localChanges.length > 0) {
     // reapply local changes
@@ -43,15 +38,21 @@ export function applyLocalChangesToPush<R extends WithId>(
       if (
         itemIdx === -1 &&
         localChange.change !== LocalChangeType.delete &&
-        dataTable.has(localChange.itemId)
+        localChange.itemId in dataTable
       ) {
-        newRemoteItems.push(dataTable.get(localChange.itemId)!);
+        newRemoteItems.push({
+          ...dataTable[localChange.itemId],
+          id: localChange.itemId
+        });
         continue;
       }
       if (itemIdx > -1) {
         if (localChange.change === LocalChangeType.update) {
           // local always wins
-          newRemoteItems[itemIdx] = dataTable.get(localChange.itemId)!;
+          newRemoteItems[itemIdx] = {
+            ...dataTable[localChange.itemId],
+            id: localChange.itemId
+          };
         } else if (localChange.change === LocalChangeType.delete) {
           newRemoteItems.splice(itemIdx, 1);
         }
@@ -107,20 +108,25 @@ function checkOrphans<R>(
   }
 }
 
-export function applyLocalChangesToPull<R extends WithId>(
+export function applyLocalChangesToPull<
+  RootTableId extends TableIdFromSchema<SpaceType[0]>,
+  L extends Row<SpaceType[0], RootTableId>,
+  R extends WithId & L
+>(
   tableId: TableIdFromSchema<SpaceType[0]>,
   localContent: Content<SpaceType>,
   remoteItems: R[],
   lastRemoteChange: number,
   allLocalChanges: LocalChangeResult[],
-  conflictPolicy: ConflictPolicy<R>,
-  orphanPolicy: OrphanPolicy<R>,
+  conflictPolicy: ConflictPolicy<L>,
+  orphanPolicy: OrphanPolicy<L>,
   force?: boolean
 ) {
-  // TODO
+  const dataTable = localContent[0][tableId]! as {
+    [key: string]: L;
+  };
   const localChanges = allLocalChanges.filter(lc => lc.on === tableId);
   const discardedChanges: LocalChangeResult[] = [];
-  const localCollection = toMap<R>(localContent[0][tableId]);
   const newLocalContent: Content<SpaceType> = [
     { ...localContent[0] }, // don't override other tables
     localContent[1]
@@ -128,42 +134,44 @@ export function applyLocalChangesToPull<R extends WithId>(
   newLocalContent[0][tableId] = {};
   // fill-in new collection with remote content
   remoteItems.forEach(item => {
-    newLocalContent[0][tableId]![item.id!] = item;
+    newLocalContent[0][tableId]![item.id!] = { ...item, id: undefined };
   });
+  const newDataTable = newLocalContent[0][tableId]! as {
+    [key: string]: L;
+  };
 
   if (!force && localChanges.length > 0) {
     // reapply localChanges
     for (const localChange of localChanges) {
       const remoteUpdated = getRemoteUpdatedTS(
         localChange,
-        newLocalContent[0][tableId]!,
+        newDataTable,
         lastRemoteChange
       );
-      const localItem = localCollection.get(localChange.itemId);
+      const localItem = dataTable[localChange.itemId];
 
       // if added locally, add to newLocalContent
       if (localChange.change === LocalChangeType.add) {
-        newLocalContent[0][tableId]![localChange.itemId] = localItem!;
+        newDataTable[localChange.itemId] = localItem;
 
         // if local change on item is more recent than remote, local wins
       } else if (localChange.createdAt > remoteUpdated) {
         // if is update
         if (localChange.change === LocalChangeType.update) {
-          const field = localChange.field as AsId<keyof R>;
+          const field = localChange.field as FieldWithMeta<L>;
+          const metaField = `${field}_meta` as MetaKey<typeof field> & keyof L;
 
           // if doesn't exist on remote (has been deleted?) recreate it
-          if (!newLocalContent[0][tableId]![localChange.itemId]) {
-            newLocalContent[0][tableId]![localChange.itemId] = localItem;
+          if (!newDataTable[localChange.itemId]) {
+            newDataTable[localChange.itemId] = localItem;
           } else {
             // if exists on remote, update the field, its meta, and preview if field was content
-            newLocalContent[0][tableId]![localChange.itemId][field] =
-              localItem[field];
-            newLocalContent[0][tableId]![localChange.itemId][`${field}_meta`] =
-              localItem[`${field}_meta`];
+            newDataTable[localChange.itemId][field] = localItem[field];
+            newDataTable[localChange.itemId][metaField] = localItem[metaField];
           }
         } else {
           // is delete
-          delete newLocalContent[0][tableId]![localChange.itemId];
+          delete newDataTable[localChange.itemId];
         }
       } else {
         // if remote change on item is more recent than local
@@ -174,11 +182,13 @@ export function applyLocalChangesToPull<R extends WithId>(
           conflictPolicy.shouldCreateConflict(
             localChange,
             localItem,
-            newLocalContent[0][tableId]![localChange.itemId] as R
+            newDataTable[localChange.itemId]
           )
         ) {
-          newLocalContent[0][tableId]![getUniqueId()] =
-            conflictPolicy.newConflict(localChange, localItem);
+          newDataTable[getUniqueId()] = conflictPolicy.newConflict(
+            localChange,
+            localItem
+          );
         } else {
           // last write wins
           discardedChanges.push(localChange);
@@ -186,7 +196,7 @@ export function applyLocalChangesToPull<R extends WithId>(
       }
     }
 
-    checkOrphans(newLocalContent[0][tableId]!, orphanPolicy);
+    checkOrphans(newDataTable, orphanPolicy);
   }
 
   return { newLocalContent, discardedChanges };

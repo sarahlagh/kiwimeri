@@ -1,29 +1,29 @@
 import {
+  CollectionItem,
   CollectionItemType,
   CollectionItemUpdatableConflictFields,
-  CollectionItemUpdatableFieldEnum,
-  CollectionItemWithId
+  CollectionItemUpdatableFieldEnum
 } from '@/collection/collection';
 import { LocalChangeResult } from '@/domain/local-changes/model';
 
-export abstract class ConflictPolicy<R> {
+export abstract class ConflictPolicy<L> {
   public abstract shouldCreateConflict(
     localChange: LocalChangeResult,
-    localItem: R | undefined,
-    remoteItem: R
+    localItem: L | undefined,
+    remoteItem: L
   ): boolean;
 
   public abstract newConflict(
     localChange: LocalChangeResult,
-    localItem: R | undefined
-  ): Omit<R, 'id'>;
+    localItem: L | undefined
+  ): L;
 }
 
-class CollectionConflictPolicy extends ConflictPolicy<CollectionItemWithId> {
+class CollectionConflictPolicy extends ConflictPolicy<CollectionItem> {
   public shouldCreateConflict(
     localChange: LocalChangeResult,
-    localItem: CollectionItemWithId | undefined,
-    remoteItem: CollectionItemWithId
+    localItem: CollectionItem | undefined,
+    remoteItem: CollectionItem
   ): boolean {
     const field = localChange.field as CollectionItemUpdatableFieldEnum;
     return (
@@ -38,8 +38,8 @@ class CollectionConflictPolicy extends ConflictPolicy<CollectionItemWithId> {
   }
   public newConflict(
     localChange: LocalChangeResult,
-    localItem: CollectionItemWithId
-  ): Omit<CollectionItemWithId, 'id'> {
+    localItem: CollectionItem
+  ): Omit<CollectionItem, 'id'> {
     const ts = Date.now();
     return {
       ...{ ...localItem, id: undefined },

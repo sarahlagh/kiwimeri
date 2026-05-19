@@ -1,4 +1,4 @@
-import { CollectionItemWithId } from '@/collection/collection';
+import { CollectionItem } from '@/collection/collection';
 import { getGlobalTrans } from '@/config';
 import { CONFLICTS_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import notebooksService from '@/db/notebooks.service';
@@ -7,17 +7,17 @@ import { LocalChangeOn, LocalChangeType } from '@/domain/local-changes/model';
 import { Row, Table } from 'tinybase/store';
 import { Id } from 'tinybase/with-schemas';
 
-export abstract class OrphanPolicy<R> {
+export abstract class OrphanPolicy<L> {
   constructor(protected on: LocalChangeOn) {}
-  public abstract isOrphan(item: R, newTableAfterPull: Table): boolean;
+  public abstract isOrphan(item: L, newTableAfterPull: Table): boolean;
   public abstract handleOrphan(id: Id, newTableAfterPull: Table): void;
 }
 
-class CollectionOrphanPolicy extends OrphanPolicy<CollectionItemWithId> {
-  public isOrphan(
-    item: CollectionItemWithId,
-    newTableAfterPull: Table
-  ): boolean {
+class CollectionOrphanPolicy extends OrphanPolicy<CollectionItem> {
+  constructor() {
+    super('collection');
+  }
+  public isOrphan(item: CollectionItem, newTableAfterPull: Table): boolean {
     return item.parent !== ROOT_COLLECTION && !newTableAfterPull[item.parent];
   }
 
@@ -50,4 +50,4 @@ class CollectionOrphanPolicy extends OrphanPolicy<CollectionItemWithId> {
     newTableAfterPull[id].conflict = id;
   }
 }
-export const collectionOrphanPolicy = new CollectionOrphanPolicy('collection');
+export const collectionOrphanPolicy = new CollectionOrphanPolicy();
