@@ -4,6 +4,7 @@ import {
 } from '@/collection/collection';
 import { CONFLICTS_NOTEBOOK_ID } from '@/constants';
 import { LocalChangeType } from '@/domain/local-changes/model';
+import { expect } from 'vitest';
 import {
   allFields,
   allHistorizableFields,
@@ -16,8 +17,7 @@ import {
   parentField,
   tagsField,
   titleField
-} from '@/vitest/setup/test.utils';
-import { expect } from 'vitest';
+} from '../../setup/test.utils';
 import { PullTestScenario } from './scenario-runner';
 
 export // covers single pull/force pull only

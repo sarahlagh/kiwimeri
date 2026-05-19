@@ -3,11 +3,11 @@ import { getGlobalTrans } from '@/config';
 import { ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
+import { describe, expect, it, vi } from 'vitest';
 import {
   getLocalItemField,
   NON_PARENT_UPDATABLE_FIELDS
-} from '@/vitest/setup/test.utils';
-import { describe, expect, it, vi } from 'vitest';
+} from '../../setup/test.utils';
 
 describe('notebooks service', () => {
   it(`should always create a default notebook`, () => {

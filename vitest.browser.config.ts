@@ -24,12 +24,12 @@ const viteConfig = defineConfig({
 
 const vitestConfig = vitestDefineConfig({
   test: {
-    dir: './src/vitest',
+    dir: './test',
     reporters: process.env.GITHUB_ACTIONS
       ? ['dot', 'github-actions']
       : ['default', 'html'],
-    globalSetup: ['./src/vitest/setup/globalSetup.ts'],
-    setupFiles: ['./src/vitest/browser/setupTests.ts'],
+    globalSetup: ['./test/setup/globalSetup.ts'],
+    setupFiles: ['./test/browser/setupTests.ts'],
     browser: {
       enabled: true,
       provider: playwright(),

@@ -26,16 +26,16 @@ const vitestConfig = vitestDefineConfig({
     name: '',
     globals: true,
     environment: 'jsdom',
-    globalSetup: ['./src/vitest/setup/globalSetup.ts'],
-    setupFiles: ['./src/vitest/setup/setupTests.ts'],
-    dir: './src/vitest',
+    globalSetup: ['./test/setup/globalSetup.ts'],
+    setupFiles: ['./test/setup/setupTests.ts'],
+    dir: './test',
     reporters: process.env.GITHUB_ACTIONS
       ? ['dot', 'github-actions']
       : ['default', 'html'],
     coverage: {
       enabled: true,
       exclude: [
-        'src/vitest/**',
+        'test/**',
         'src/capacitor/**',
         'src/polyfills/**',
         'src/locales/**'

@@ -8,8 +8,8 @@ import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
 import { SyncDirection, syncService } from '@/remote-storage/sync.service';
 import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';
 import { searchAncestryService } from '@/search/search-ancestry.service';
-import { fakeTimersDelay } from '@/vitest/setup/test.utils';
 import { expect, vi } from 'vitest';
+import { fakeTimersDelay } from '../../setup/test.utils';
 
 export let driver: InMemDriver;
 let iPull = 0;

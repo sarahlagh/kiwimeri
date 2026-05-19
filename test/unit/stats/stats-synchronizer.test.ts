@@ -6,8 +6,8 @@ import {
   RemoteStatsFileContent,
   StatsSynchronizer
 } from '@/remote-storage/synchronizers/stats-synchronizer';
-import { fakeTimersDelay } from '@/vitest/setup/test.utils';
 import { describe, expect, test, vi } from 'vitest';
+import { fakeTimersDelay } from '../../setup/test.utils';
 import { buildRandomFake } from './test-stats.utils';
 
 const driver = new InMemDriver();

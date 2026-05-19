@@ -18,12 +18,12 @@ import userSettingsService from '@/db/user-settings.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import formatConverter from '@/format-conversion/format-converter.service';
+import { readFile } from 'fs/promises';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createInitLocalData,
   getLocalItemField
-} from '@/vitest/setup/test.utils';
-import { readFile } from 'fs/promises';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+} from '../../../setup/test.utils';
 
 type JsonTestDescriptor = {
   zipName?: string;

@@ -14,11 +14,11 @@ import { ARIA_DESCRIPTIONS_PER_TYPE, DEFAULT_NOTEBOOK_ID } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
-import { TestingProvider } from '@/vitest/setup/test.react.utils';
 import '@testing-library/jest-dom';
 import { render } from '@testing-library/react';
 import { readFile } from 'fs/promises';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { TestingProvider } from '../../../setup/test.react.utils';
 
 const readZip = async (
   parentDir: string,
