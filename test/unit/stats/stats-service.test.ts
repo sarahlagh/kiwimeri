@@ -16,7 +16,7 @@ import {
   it,
   vi
 } from 'vitest';
-import { fakeTimersDelay, getNewContent } from '../../setup/test.utils';
+import { fakeTimersDelay, getNewContent } from '../../_setup/test.utils';
 import { readFakeStats } from './test-stats.utils';
 
 let fakeStats: DataPoint[] = [];

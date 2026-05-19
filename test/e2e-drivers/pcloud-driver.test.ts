@@ -37,7 +37,7 @@ import {
   oneNotebook,
   setLocalItemField,
   updateOnRemote
-} from '../setup/test.utils';
+} from '../_setup/test.utils';
 import { defaultValues } from '../unit/sync-collection/test-sync.utils';
 
 let notebook: string = DEFAULT_NOTEBOOK_ID;

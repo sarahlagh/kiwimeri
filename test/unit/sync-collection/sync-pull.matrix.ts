@@ -17,7 +17,7 @@ import {
   parentField,
   tagsField,
   titleField
-} from '../../setup/test.utils';
+} from '../../_setup/test.utils';
 import { PullTestScenario } from './scenario-runner';
 
 export // covers single pull/force pull only

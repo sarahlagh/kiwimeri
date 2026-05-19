@@ -30,7 +30,7 @@ import {
   getNewValue,
   markAsConflict,
   UPDATABLE_FIELDS
-} from '../../setup/test.utils';
+} from '../../_setup/test.utils';
 
 const shortContent = JSON.parse(
   '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"This is a short content","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}'

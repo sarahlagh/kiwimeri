@@ -18,7 +18,7 @@ import '@testing-library/jest-dom';
 import { render } from '@testing-library/react';
 import { readFile } from 'fs/promises';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { TestingProvider } from '../../../setup/test.react.utils';
+import { TestingProvider } from '../../../_setup/test.react.utils';
 
 const readZip = async (
   parentDir: string,

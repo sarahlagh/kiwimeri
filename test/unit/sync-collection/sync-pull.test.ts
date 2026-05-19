@@ -3,7 +3,7 @@
 import { CollectionItemType } from '@/collection/collection';
 import { SyncDirection } from '@/remote-storage/sync.service';
 import { afterEach, beforeEach, describe, it } from 'vitest';
-import { oneNotebook } from '../../setup/test.utils';
+import { oneNotebook } from '../../_setup/test.utils';
 import { PullTestScenarioRunner } from './scenario-runner';
 import { scenarioMatrix } from './sync-pull.matrix';
 import {

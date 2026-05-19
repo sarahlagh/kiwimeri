@@ -23,7 +23,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createInitLocalData,
   getLocalItemField
-} from '../../../setup/test.utils';
+} from '../../../_setup/test.utils';
 
 type JsonTestDescriptor = {
   zipName?: string;

@@ -1,5 +1,6 @@
 import { lingui } from '@lingui/vite-plugin';
 import react from '@vitejs/plugin-react';
+import { playwright } from '@vitest/browser-playwright';
 import path from 'path';
 import { defineConfig, mergeConfig } from 'vite';
 import { defineConfig as vitestDefineConfig } from 'vitest/config';
@@ -23,12 +24,6 @@ const viteConfig = defineConfig({
 
 const vitestConfig = vitestDefineConfig({
   test: {
-    name: '',
-    globals: true,
-    environment: 'jsdom',
-    globalSetup: ['./test/setup/globalSetup.ts'],
-    setupFiles: ['./test/setup/setupTests.ts'],
-    dir: './test',
     reporters: process.env.GITHUB_ACTIONS
       ? ['dot', 'github-actions']
       : ['default', 'html'],
@@ -40,7 +35,46 @@ const vitestConfig = vitestDefineConfig({
         'src/polyfills/**',
         'src/locales/**'
       ]
-    }
+    },
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'unit',
+          include: ['test/unit/**/*.{test,spec}.{ts,tsx}'],
+          globals: true,
+          environment: 'jsdom',
+          globalSetup: ['./test/_setup/globalSetup.ts'],
+          setupFiles: ['./test/_setup/setupTests.ts']
+        }
+      },
+      {
+        extends: true,
+        test: {
+          name: 'e2e',
+          include: ['test/e2e-drivers/**/*.{test,spec}.{ts,tsx}'],
+          globals: true,
+          environment: 'jsdom',
+          globalSetup: ['./test/_setup/globalSetup.ts'],
+          setupFiles: ['./test/_setup/setupTests.ts']
+        }
+      },
+      {
+        extends: true,
+        test: {
+          name: 'browser',
+          include: ['test/browser/**/*.{test,spec}.{ts,tsx}'],
+          globalSetup: ['./test/_setup/globalSetup.ts'],
+          setupFiles: ['./test/browser/setupTests.ts'],
+          browser: {
+            enabled: true,
+            provider: playwright(),
+            // https://vitest.dev/config/browser/playwright
+            instances: [{ browser: 'chromium' } /*{ browser: 'firefox' }*/]
+          }
+        }
+      }
+    ]
   }
 });
 

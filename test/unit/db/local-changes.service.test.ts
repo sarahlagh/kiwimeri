@@ -14,7 +14,7 @@ import {
   GET_UPDATABLE_FIELDS,
   getLocalItemField,
   markAsConflict
-} from '../../setup/test.utils';
+} from '../../_setup/test.utils';
 
 const getNonNotebookLocalChanges = (localChanges: LocalChangeResult[]) =>
   localChanges.filter(

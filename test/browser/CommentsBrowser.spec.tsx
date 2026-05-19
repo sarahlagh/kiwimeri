@@ -6,7 +6,7 @@ import { CommentsBrowser } from '@/features/comments-ui';
 import fetchCommentsQuery from '@/features/comments-ui/queries/fetchCommentsQuery';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { getNewContent } from '../setup/test.utils';
+import { getNewContent } from '../_setup/test.utils';
 import {
   getAddBtn,
   getCommentPreview,

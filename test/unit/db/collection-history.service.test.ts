@@ -23,7 +23,7 @@ import {
   getNewContent,
   getNewValue,
   ValueType
-} from '../../setup/test.utils';
+} from '../../_setup/test.utils';
 
 const idleTime = 50;
 

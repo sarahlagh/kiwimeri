@@ -52,7 +52,7 @@ import {
   oneNotebook,
   setLocalItemField,
   updateOnRemote
-} from '../../setup/test.utils';
+} from '../../_setup/test.utils';
 import { defaultValues } from './test-sync.utils';
 
 let driver: InMemDriver;

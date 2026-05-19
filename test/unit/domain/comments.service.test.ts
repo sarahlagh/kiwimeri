@@ -8,7 +8,7 @@ import useCommentSort from '@/features/comments-ui/hooks/useCommentSort';
 import fetchCommentsQuery from '@/features/comments-ui/queries/fetchCommentsQuery';
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { getNewContent } from '../../setup/test.utils';
+import { getNewContent } from '../../_setup/test.utils';
 
 function getDocUpdatedTs(docId: string) {
   return getSpace().getCell('collection', docId, 'updated') as number;

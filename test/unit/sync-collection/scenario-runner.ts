@@ -27,7 +27,7 @@ import {
   getNewValue,
   oneNotebook,
   TestField
-} from '../../setup/test.utils';
+} from '../../_setup/test.utils';
 import {
   PullTestEndStatsBuilder,
   PullTestEndStatsItem,

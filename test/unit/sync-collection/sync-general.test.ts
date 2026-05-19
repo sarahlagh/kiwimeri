@@ -18,7 +18,7 @@ import {
   oneDocument,
   oneFolder,
   oneNotebook
-} from '../../setup/test.utils';
+} from '../../_setup/test.utils';
 import {
   getRemoteContent,
   reInitRemoteData,

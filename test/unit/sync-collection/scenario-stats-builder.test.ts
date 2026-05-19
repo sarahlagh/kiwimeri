@@ -7,7 +7,7 @@ import {
 } from '@/collection/collection';
 import { SerializableData } from '@/db/types/store-types';
 import { describe, expect, it } from 'vitest';
-import { parentField, TestField } from '../../setup/test.utils';
+import { parentField, TestField } from '../../_setup/test.utils';
 
 export type PullTestEndStatsItem = {
   id?: string;

@@ -9,7 +9,7 @@ import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { afterEach, describe, expect, it } from 'vitest';
-import { oneDocument, oneFolder, onePage } from '../../setup/test.utils';
+import { oneDocument, oneFolder, onePage } from '../../_setup/test.utils';
 
 const shortContentPreview = 'This is a short content';
 const shortContent = JSON.parse(

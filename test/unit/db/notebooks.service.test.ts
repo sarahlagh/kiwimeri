@@ -7,7 +7,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   getLocalItemField,
   NON_PARENT_UPDATABLE_FIELDS
-} from '../../setup/test.utils';
+} from '../../_setup/test.utils';
 
 describe('notebooks service', () => {
   it(`should always create a default notebook`, () => {

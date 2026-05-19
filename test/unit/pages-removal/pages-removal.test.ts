@@ -10,7 +10,7 @@ import { statsService } from '@/domain/stats/stats-service';
 import fetchCommentsQuery from '@/features/comments-ui/queries/fetchCommentsQuery';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { describe, it, vi } from 'vitest';
-import { adv, getNewContent } from '../../setup/test.utils';
+import { adv, getNewContent } from '../../_setup/test.utils';
 
 function createDocWithHistory() {
   const pageIds: string[] = [];

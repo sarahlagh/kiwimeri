@@ -9,7 +9,7 @@ import { SyncDirection, syncService } from '@/remote-storage/sync.service';
 import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { expect, vi } from 'vitest';
-import { fakeTimersDelay } from '../../setup/test.utils';
+import { fakeTimersDelay } from '../../_setup/test.utils';
 
 export let driver: InMemDriver;
 let iPull = 0;

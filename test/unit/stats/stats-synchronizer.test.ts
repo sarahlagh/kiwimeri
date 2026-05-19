@@ -7,7 +7,7 @@ import {
   StatsSynchronizer
 } from '@/remote-storage/synchronizers/stats-synchronizer';
 import { describe, expect, test, vi } from 'vitest';
-import { fakeTimersDelay } from '../../setup/test.utils';
+import { fakeTimersDelay } from '../../_setup/test.utils';
 import { buildRandomFake } from './test-stats.utils';
 
 const driver = new InMemDriver();
