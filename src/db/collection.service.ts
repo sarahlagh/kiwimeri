@@ -1006,10 +1006,12 @@ class CollectionService {
       const item: CommentRow = {
         itemId: docId,
         content: pageObj.content as string,
+        content_meta: pageObj.content_meta as string,
         createdAt: pageObj.created,
         updatedAt: pageObj.updated,
         plainText: searchAncestryService.getItemPreview(p.id),
-        order: pageObj.order
+        order: pageObj.order,
+        order_meta: pageObj.order_meta
       };
       newComments.push(item);
     });

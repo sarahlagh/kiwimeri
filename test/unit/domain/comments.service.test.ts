@@ -4,6 +4,8 @@ import { getSpace } from '@/core/db/store';
 import collectionService from '@/db/collection.service';
 import { commentsService } from '@/domain/comments/comments.service';
 import { CommentRow } from '@/domain/comments/model';
+import localChangesService from '@/domain/local-changes/local-changes.service';
+import { LocalChangeType } from '@/domain/local-changes/model';
 import useCommentSort from '@/features/comments-ui/hooks/useCommentSort';
 import fetchCommentsQuery from '@/features/comments-ui/queries/fetchCommentsQuery';
 import { getNewContent } from '@@/_setup/test.utils';
@@ -12,6 +14,20 @@ import { describe, expect, it, vi } from 'vitest';
 
 function getDocUpdatedTs(docId: string) {
   return getSpace().getCell('collection', docId, 'updated') as number;
+}
+
+function expectedLC(commentId: string, type: LocalChangeType, updated: number) {
+  return {
+    id: localChangesService['getLocalChangeId']({
+      on: 'comments',
+      change: type,
+      itemId: commentId
+    }),
+    on: 'comments',
+    itemId: commentId,
+    change: type,
+    createdAt: updated
+  };
 }
 
 describe('comments service', () => {
@@ -37,6 +53,9 @@ describe('comments service', () => {
       updatedAt: updated + 100,
       itemId: docId
     });
+    expect(localChangesService.getLocalChanges()).toContainEqual(
+      expectedLC(commentId, LocalChangeType.add, updated + 100)
+    );
   });
 
   it('should add comments in bulk to a document', () => {
@@ -52,6 +71,12 @@ describe('comments service', () => {
     const commentResults = fetchCommentsQuery.getResults({ itemId: docId });
     expect(commentResults).toHaveLength(2);
     expect(getDocUpdatedTs(docId)).toBeGreaterThan(updated);
+
+    for (const r of commentResults) {
+      expect(localChangesService.getLocalChanges()).toContainEqual(
+        expectedLC(r.id, LocalChangeType.add, r.createdAt)
+      );
+    }
   });
 
   it('should edit a comment', () => {
@@ -69,6 +94,10 @@ describe('comments service', () => {
     expect(comment.plainText).toBe('this is the content');
     expect(comment.updatedAt).toBeGreaterThan(updated);
     expect(getDocUpdatedTs(docId)).toBeGreaterThan(updated);
+
+    expect(localChangesService.getLocalChanges()).toContainEqual(
+      expectedLC(commentId, LocalChangeType.add, comment.updatedAt)
+    );
   });
 
   it('should delete a comment', () => {

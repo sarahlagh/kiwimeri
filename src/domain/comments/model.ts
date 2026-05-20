@@ -6,8 +6,11 @@ export type CommentRow = {
   createdAt: number;
   updatedAt: number;
   content: string;
+  content_meta: string;
   plainText: string;
   order?: number;
+  order_meta?: string;
+  conflict?: string;
 };
 
 export const commentSchema = {
@@ -15,8 +18,11 @@ export const commentSchema = {
   createdAt: { type: 'number', default: 0 },
   updatedAt: { type: 'number', default: 0 },
   content: { type: 'string', default: '' },
+  content_meta: { type: 'string' },
   plainText: { type: 'string', default: '' },
-  order: { type: 'number', default: -1 }
+  order: { type: 'number', default: -1 },
+  order_meta: { type: 'string' },
+  conflict: { type: 'string' }
 } as const satisfies Record<keyof CommentRow, unknown>;
 
 export const sortBy = ['createdAt', 'order'] as const;
@@ -25,7 +31,7 @@ export type CommentSort = Sort<CommentSortType>;
 
 export type SyncableComment = {
   id: string;
-} & Omit<CommentRow, 'plainText'>;
+} & Omit<CommentRow, 'plainText' | 'conflict'>;
 
 type CommentUpdate = Pick<CommentRow, 'content' | 'order'>;
 export type CommentLocalChange = LocalChangeRow<CommentUpdate>;
