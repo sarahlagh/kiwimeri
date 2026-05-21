@@ -7,12 +7,11 @@ const useCommentSort = (rowId: Id): CommentSort => {
   const display_opts = useSpaceCell<'collection', 'display_opts'>(
     'collection',
     rowId,
-    'display_opts'
+    'display_opts',
+    'space'
   );
   if (display_opts) {
-    const opts = JSON.parse(
-      display_opts as string
-    ) as CollectionItemDisplayOpts;
+    const opts = JSON.parse(display_opts) as CollectionItemDisplayOpts;
     if (opts.documentSort) {
       return opts.documentSort;
     }

@@ -6,8 +6,9 @@ const useCommentPreview = (rowId: Id) => {
   const plainText = useSpaceCell<'comments', 'plainText'>(
     'comments',
     rowId,
-    'plainText'
-  ) as string;
-  return plainText.substring(0, PREVIEW_SIZE);
+    'plainText',
+    'space'
+  );
+  return plainText?.substring(0, PREVIEW_SIZE);
 };
 export default useCommentPreview;

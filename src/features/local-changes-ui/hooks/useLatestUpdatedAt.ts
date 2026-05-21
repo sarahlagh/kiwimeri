@@ -1,7 +1,7 @@
 import { spaceMetrics } from '@/core/db/store';
-import { useTypedSpaceMetric } from '@/core/db/tinybase-hooks';
+import { useSpaceMetric } from '@/core/db/tinybase-hooks';
 import { LatestCollectionUpdateMetricId } from '../metrics';
 
 export default function useLatestUpdatedAt() {
-  return useTypedSpaceMetric(LatestCollectionUpdateMetricId, spaceMetrics) || 0;
+  return useSpaceMetric(LatestCollectionUpdateMetricId, spaceMetrics) || 0;
 }

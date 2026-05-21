@@ -1,3 +1,4 @@
+import TinybaseProvider from '@/app/providers/TinybaseProvider';
 import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { space } from '@/core/db/store';
@@ -130,7 +131,9 @@ describe('comments service', () => {
       descending: false
     });
     {
-      const { result, unmount } = renderHook(() => useCommentSort(docId));
+      const { result, unmount } = renderHook(() => useCommentSort(docId), {
+        wrapper: TinybaseProvider
+      });
       expect(result.current).toEqual({
         by: 'order',
         descending: false

@@ -1,6 +1,6 @@
 import { store } from '@/core/db/store';
-import { useTypedStoreRowCount } from '@/core/db/tinybase-hooks';
+import { useStoreRowCount } from '@/core/db/tinybase-hooks';
 
 export default function useHasLocalChanges() {
-  return useTypedStoreRowCount('localChanges', store) > 0;
+  return useStoreRowCount('localChanges', store) > 0;
 }

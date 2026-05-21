@@ -15,7 +15,7 @@ export const CommentMenuPreview = ({
   onSelect
 }: CommentMenuPreviewProps) => {
   const preview = useCommentPreview(comment.id);
-  const emptyPage = preview.length === 0;
+  const emptyPage = !preview || preview.length === 0;
   let classNames = `comment-preview`;
   if (emptyPage) {
     classNames += ' comment-preview-empty';
