@@ -1,4 +1,4 @@
-import storageService from '@/db/storage.service';
+import { store } from '@/core/db/store';
 import { AnyData, RemoteResult } from '@/db/types/store-types';
 import { DocumentContentStatsBag } from '@/domain/stats/model';
 import { statsService } from '@/domain/stats/stats-service';
@@ -56,7 +56,6 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
   }
 
   private createRemoteStateIfDoesntExist(id: string) {
-    const store = storageService.getStore();
     if (!store.hasRow('remoteState', id)) {
       store.setRow('remoteState', id, {
         connected: false,

@@ -1,6 +1,7 @@
 import GenericExportFileButton from '@/common/buttons/GenericExportFileButton';
 import { dateToStr } from '@/common/date-utils';
-import { appLevels, appLog, AppLogLevel } from '@/log';
+import { appLevels, AppLogLevel } from '@/core/infra/log-model';
+import { appLog } from '@/log';
 import {
   IonButton,
   IonButtons,

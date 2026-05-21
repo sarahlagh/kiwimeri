@@ -1,3 +1,5 @@
+import { getIndexes, getQueries, getStore } from '@/core/db/store';
+import { StoreId, StoreValue } from '@/core/db/store-schema';
 import { Indexes } from 'tinybase/indexes';
 import { Queries } from 'tinybase/queries';
 import { Store } from 'tinybase/store';
@@ -11,19 +13,17 @@ import {
   useValue
 } from 'tinybase/ui-react';
 import { Id } from 'tinybase/with-schemas';
-import storageService, { StoreId } from '../storage.service';
-import { StoreValue } from '../types/store-types';
 
 const store = (storeId: StoreId) => {
-  return storageService.get(storeId) as unknown as Store;
+  return getStore(storeId) as unknown as Store;
 };
 
 const queries = (storeId: StoreId) => {
-  return storageService.getQueries(storeId) as unknown as Queries;
+  return getQueries(storeId) as unknown as Queries;
 };
 
 const indexes = (storeId: StoreId) => {
-  return storageService.getIndexes(storeId) as unknown as Indexes;
+  return getIndexes(storeId) as unknown as Indexes;
 };
 
 // override common hooks

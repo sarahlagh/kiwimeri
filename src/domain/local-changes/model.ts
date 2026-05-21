@@ -1,5 +1,5 @@
+import { SpaceTablesType } from '@/core/db/store-schema';
 import { AsId, TableIdFromSchema } from '@/core/db/types';
-import { SpaceType } from '@/db/types/space-types';
 
 export enum LocalChangeType {
   add = 'a',
@@ -8,7 +8,7 @@ export enum LocalChangeType {
 }
 
 export type LocalChangeTypeValues = 'a' | 'u' | 'd';
-export type LocalChangeOn = TableIdFromSchema<SpaceType[0]> | 'values';
+export type LocalChangeOn = TableIdFromSchema<SpaceTablesType> | 'values';
 
 export interface LocalChangeRow<T> {
   itemId: string;

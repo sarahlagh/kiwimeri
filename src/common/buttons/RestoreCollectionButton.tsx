@@ -1,6 +1,6 @@
 import { unminimizeItemsFromStorage } from '@/collection/compress-collection';
+import { space } from '@/core/db/store';
 import collectionService from '@/db/collection.service';
-import storageService from '@/db/storage.service';
 import { RemoteCollectionFileContent } from '@/remote-storage/synchronizers/collection-synchronizer';
 import { useIonAlert } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
@@ -29,7 +29,6 @@ const RestoreCollectionButton = ({
     const json = JSON.parse(content);
     if (Array.isArray(json)) {
       const [collection, values] = json;
-      const space = storageService.getSpace();
       space.setTable('collection', collection); // TODO handle history
       space.setValues(values);
     } else if ('i' in json) {
@@ -37,7 +36,6 @@ const RestoreCollectionButton = ({
       const sync = json as RemoteCollectionFileContent;
       const items = unminimizeItemsFromStorage(sync.i);
       const values = sync.o;
-      const space = storageService.getSpace();
       space.delTable('collection');
       collectionService.saveItems(items);
       space.setValues(values);

@@ -15,19 +15,19 @@ import '@ionic/react/css/palettes/dark.class.css';
 /* global */
 import '@/theme/global.scss';
 
-import { initGlobalTrans } from '@/config';
 import notebooksService from '@/db/notebooks.service';
 import remotesService from '@/db/remotes.service';
-import storageService from '@/db/storage.service';
 import { messages as enMessages } from '@/locales/en/messages';
 import { i18n } from '@lingui/core';
 
 // allow the log level to be applied to tests
+import { initGlobalTrans } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
 import { migrationService } from '@/db/migrations/migration.service';
 import '@/polyfills/log-polyfill';
 import { setupIonicReact } from '@ionic/react';
 import { afterAll, afterEach, beforeAll, beforeEach } from 'vitest';
+import { nukeStorage } from './test.utils';
 
 i18n.load('en', enMessages);
 i18n.activate('en');
@@ -41,17 +41,16 @@ setupIonicReact({
 beforeAll(async () => {
   migrationService['enabled'] = false;
   historyService['enabled'] = false;
-  await storageService.start(false);
-  await remotesService.initSync();
+  remotesService.initSync();
+});
+beforeEach(() => {
   notebooksService.initNotebooks();
 });
 afterAll(() => {
   remotesService.stopSync();
-  storageService.stop();
 });
 beforeEach(() => {});
 afterEach(() => {
-  storageService.reInitDB();
-  notebooksService.initNotebooks();
+  nukeStorage();
   remotesService.stopSync();
 });

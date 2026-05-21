@@ -11,6 +11,7 @@
     "build": "tsc && vite build",
     "build:prod": "ionic build --prod",
     "preview": "vite preview",
+    "all-checks": "yarn typecheck && yarn lint && yarn test",
     "test": "vitest",
     "coverage": "vitest unit --coverage",
     "test:unit": "vitest --project unit",

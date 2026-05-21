@@ -6,11 +6,11 @@ import {
 } from '@/collection/collection';
 import { dateToStr } from '@/common/date-utils';
 import { countWords, n00 } from '@/common/utils';
-import { DEFAULT_SPACE_ID, ROOT_COLLECTION } from '@/constants';
+import { ROOT_COLLECTION } from '@/constants';
+import { space, spaceQueries } from '@/core/db/store';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
-import storageService from '@/db/storage.service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { ResultRow } from 'tinybase/with-schemas';
 import {
@@ -45,12 +45,11 @@ class StatsService {
   private timeZone = 'Europe/Paris';
 
   private buildStatsQuery(itemId: string | null, since: string = '') {
-    const queries = storageService.getSpaceQueries(DEFAULT_SPACE_ID);
     const queryName = 'GetStatsForItem';
-    if (queries.hasQuery(queryName)) {
-      queries.setParamValues(queryName, { itemId, since });
+    if (spaceQueries.hasQuery(queryName)) {
+      spaceQueries.setParamValues(queryName, { itemId, since });
     } else {
-      queries.setQueryDefinition(
+      spaceQueries.setQueryDefinition(
         queryName,
         'stats',
         ({ select, where, param }) => {
@@ -76,14 +75,19 @@ class StatsService {
   }
 
   private buildGlobalStatsQuery() {
-    const queries = storageService.getSpaceQueries(DEFAULT_SPACE_ID);
     const queryName = 'GetGlobalStats';
-    if (!queries.hasQuery(queryName)) {
-      queries.setQueryDefinition(queryName, 'stats', ({ select, where }) => {
-        select('itemId');
-        select('lastOpenedAt');
-        where(getCell => getCell<'lastOpenedAt'>('lastOpenedAt') !== undefined);
-      });
+    if (!spaceQueries.hasQuery(queryName)) {
+      spaceQueries.setQueryDefinition(
+        queryName,
+        'stats',
+        ({ select, where }) => {
+          select('itemId');
+          select('lastOpenedAt');
+          where(
+            getCell => getCell<'lastOpenedAt'>('lastOpenedAt') !== undefined
+          );
+        }
+      );
     }
     return queryName;
   }
@@ -137,11 +141,10 @@ class StatsService {
     offset?: number | undefined,
     limit?: number | undefined
   ) {
-    const queries = storageService.getSpaceQueries();
-    return queries
+    return spaceQueries
       .getResultSortedRowIds(queryName, sortBy, descending, offset, limit)
       .map(rowId => {
-        const resultRow = queries.getResultRow(queryName, rowId) as T;
+        const resultRow = spaceQueries.getResultRow(queryName, rowId) as T;
         return rowMapper(resultRow, rowId);
       });
   }
@@ -153,7 +156,6 @@ class StatsService {
       'lastWordCount' | 'lastCharCount' | 'updatedAt'
     >
   ) {
-    const space = storageService.getSpace();
     const date = this.getStatsDate(statsBag.updatedAt);
     const rowId = `${itemId}-${date}`;
 
@@ -183,7 +185,6 @@ class StatsService {
   }
 
   public mergeStatsAtDate(itemId: string, statsBag: DocumentContentStatsBag) {
-    const space = storageService.getSpace();
     const date = this.getStatsDate(statsBag.updatedAt);
     const rowId = `${itemId}-${date}`;
 
@@ -232,7 +233,7 @@ class StatsService {
 
   public updateGlobalStats(itemId: string, globalBag: DocumentGlobalStatsBag) {
     const rowId = itemId;
-    storageService.getSpace().setPartialRow('stats', rowId, {
+    space.setPartialRow('stats', rowId, {
       itemId,
       ...globalBag
     });
@@ -240,8 +241,7 @@ class StatsService {
 
   public getGlobalStats(itemId: string) {
     const globalStats: DocumentGlobalStatsBag = { lastOpenedAt: 0 };
-    const lastOpened = storageService
-      .getSpace()
+    const lastOpened = space
       .getCell('stats', itemId, 'lastOpenedAt')
       ?.valueOf();
     if (lastOpened !== undefined) {
@@ -330,10 +330,7 @@ class StatsService {
   }
 
   private getContentStats(rowId: string): DocumentContentStatsBag {
-    const json = storageService
-      .getSpace()
-      .getCell('stats', rowId, 'contentStatsJson')
-      ?.toString();
+    const json = space.getCell('stats', rowId, 'contentStatsJson')?.toString();
     if (json) {
       return JSON.parse(json) as DocumentContentStatsBag;
     }
@@ -341,7 +338,7 @@ class StatsService {
   }
 
   public clearStats() {
-    storageService.getSpace().delTable('stats');
+    space.delTable('stats');
   }
 
   private getStatsDate(ts?: number) {

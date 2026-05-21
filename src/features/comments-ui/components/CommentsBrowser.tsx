@@ -1,5 +1,6 @@
 import { useEffect, type JSX } from 'react';
 
+import { useQueryResultIds } from '@/core/db/queries-helper';
 import { IonNote } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 import useCommentSort from '../hooks/useCommentSort';
@@ -32,7 +33,11 @@ export default function CommentsBrowser({
       fetchCommentsQuery.close();
     };
   }, []);
-  const commentIds = fetchCommentsQuery.useResultsIds(sort.by, sort.descending);
+  const commentIds = useQueryResultIds(
+    fetchCommentsQuery,
+    sort.by,
+    sort.descending
+  );
   const selectedId = useSelectedComment(docId);
 
   return (

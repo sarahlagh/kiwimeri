@@ -10,6 +10,7 @@ import {
   sortBy
 } from '@/collection/collection';
 import { META_JSON, ROOT_COLLECTION } from '@/constants';
+import { space } from '@/core/db/store';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
@@ -923,7 +924,7 @@ class ImportService {
 
     // TODO re-enable transactions
     // remove the table from all queries as a start
-    // storageService.getSpace().transaction(() => {
+    // space.transaction(() => {
     if (commitOpts.deleteExistingPages) {
       historyService.disableForBulk(() => {
         zipMerge.updatedItems
@@ -954,7 +955,7 @@ class ImportService {
     docId?: string,
     commitOpts: ZipMergeCommitOptions = this.defaultOpts
   ) {
-    storageService.getSpace().transaction(() => {
+    space.transaction(() => {
       // handle history as one bulk change here
       historyService.disableForBulk(() => {
         if (docId) {

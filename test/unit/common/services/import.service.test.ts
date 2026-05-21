@@ -9,11 +9,11 @@ import {
   ZipParseError
 } from '@/common/services/import.service';
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
+import { space } from '@/core/db/store';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import navService from '@/db/nav.service';
 import notebooksService from '@/db/notebooks.service';
-import storageService from '@/db/storage.service';
 import userSettingsService from '@/db/user-settings.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
@@ -688,7 +688,7 @@ describe('import service', () => {
     let fId: string;
     let nId: string;
     beforeEach(() => {
-      storageService.getSpace().transaction(() => {
+      space.transaction(() => {
         dId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
         fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
         nId = notebooksService.addNotebook('Simple');

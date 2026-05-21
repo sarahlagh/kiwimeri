@@ -5,8 +5,7 @@ import {
   CollectionItemType,
   CollectionItemTypeValues
 } from '@/collection/collection';
-import { getGlobalTrans } from '@/config';
-import { META_JSON } from '@/constants';
+import { getGlobalTrans, META_JSON } from '@/constants';
 import collectionService, {
   INITIAL_CONTENT_START
 } from '@/db/collection.service';

@@ -4,7 +4,7 @@ import GenericExportFileButton from '@/common/buttons/GenericExportFileButton';
 import RestoreCollectionButton from '@/common/buttons/RestoreCollectionButton';
 import { dateToStr } from '@/common/date-utils';
 import platformService from '@/common/services/platform.service';
-import storageService from '@/db/storage.service';
+import { space } from '@/core/db/store';
 import {
   IonButtons,
   IonCard,
@@ -25,7 +25,7 @@ const ImportExportCollectionSettings = () => {
     `${dateToStr('iso')}-${exportFileSuffix}.json`;
 
   const getContentToExport = async () => {
-    const content = storageService.getSpace().getContent();
+    const content = space.getContent();
     return JSON.stringify([content[0].collection, content[1]]);
   };
 

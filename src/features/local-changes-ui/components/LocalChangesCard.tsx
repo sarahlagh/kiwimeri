@@ -1,9 +1,10 @@
-import { CollectionItemType } from '@/collection/collection';
+import { APPICONS_PER_TYPE, CollectionItemType } from '@/collection/collection';
 import DeleteButton from '@/common/buttons/DeleteButton';
 import { dateToStr } from '@/common/date-utils';
 import { GET_UNKNOWN_ITEM_ROUTE, SETTINGS_ROUTE } from '@/common/routes';
 import platformService from '@/common/services/platform.service';
-import { APPICONS, APPICONS_PER_TYPE } from '@/constants';
+import { APPICONS } from '@/constants';
+import { useQueryResults } from '@/core/db/queries-helper';
 import collectionService from '@/db/collection.service';
 import remotesService from '@/db/remotes.service';
 import { commentsService } from '@/domain/comments/comments.service';
@@ -34,7 +35,7 @@ const LocalChangesCard = () => {
   const { t } = useLingui();
   const isRelease = platformService.isRelease();
   const isWideEnough = platformService.isWideEnough();
-  const localChanges = fetchLocalChangesQuery.useResults();
+  const localChanges = useQueryResults(fetchLocalChangesQuery);
   const lastLocalChange = useLatestUpdatedAt();
   const lastRemoteChange = remotesService.usePrimaryLastRemoteChange();
   const weightLocal = lastRemoteChange >= lastLocalChange ? 'normal' : 'bold';

@@ -1,3 +1,4 @@
+import { useToastContext } from '@/app/context/ToastContext';
 import { CollectionItemVersion } from '@/collection/collection';
 import { dateToStr } from '@/common/date-utils';
 import { getSearchParams } from '@/common/utils';
@@ -22,7 +23,6 @@ import {
 import { Trans, useLingui } from '@lingui/react/macro';
 import { ChangeObject, diffChars } from 'diff';
 import { useHistory, useLocation } from 'react-router';
-import { useToastContext } from '../context/ToastContext';
 import { GET_VERSIONED_ROUTE } from '../routes';
 
 type ManageHistoryButtonProps = {

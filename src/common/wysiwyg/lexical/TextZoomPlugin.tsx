@@ -1,4 +1,4 @@
-import storageService from '@/db/storage.service';
+import { store } from '@/core/db/store';
 import { useStoreValueWithDefault } from '@/db/tinybase/hooks';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { COMMAND_PRIORITY_LOW, LexicalEditor, mergeRegister } from 'lexical';
@@ -14,7 +14,7 @@ type StyleWithZoom = CSSStyleDeclaration & {
 };
 
 function zoomTo(zoom: number, editor: LexicalEditor) {
-  storageService.getStore().setValue('globalZoom', zoom);
+  store.setValue('globalZoom', zoom);
   const editorElement = editor.getRootElement();
   if (editorElement) {
     const style = editorElement.style as StyleWithZoom;

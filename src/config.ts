@@ -1,15 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { i18n } from '@lingui/core';
-import {
-  CONFLICTS_NOTEBOOK_NAME,
-  DEFAULT_EXPORT_PAGE_FILENAME,
-  DEFAULT_EXPORT_SPACE_FILENAME,
-  DEFAULT_NOTEBOOK_NAME,
-  NEW_DOC_TITLE,
-  NEW_FOLDER_TITLE,
-  ROOT_FOLDER_TITLE
-} from './constants';
-import { AppLogLevel } from './log';
+
+import { AppLogLevel } from './core/infra/log-model';
 
 // hack to override VITE_ vars with docker container env
 const dynConfig = {
@@ -26,6 +17,7 @@ class AppConfig implements ImportMetaEnv {
   IS_RELEASE = false;
   INTERNAL_HTTP_PROXY?: string;
   DEV_USE_HTTP_IF_POSSIBLE = false;
+  /** @deprecated */
   DEV_OVERRIDE_PLATFORM?: 'web' | 'android' | 'electron';
   DEV_ENABLE_INSPECTOR = true;
 
@@ -73,24 +65,3 @@ class AppConfig implements ImportMetaEnv {
 
 const metaEnv = import.meta.env;
 export const appConfig = new AppConfig(metaEnv);
-
-// for where using lingui macros isn't possible
-const I18N = {
-  homeTitle: '',
-  defaultNotebookName: '',
-  conflictsNotebookName: '',
-  newDocTitle: '',
-  newFolderTitle: '',
-  defaultExportPageFilename: '',
-  defaultExportSpaceFilename: ''
-};
-export function initGlobalTrans() {
-  I18N.homeTitle = i18n._(ROOT_FOLDER_TITLE);
-  I18N.defaultNotebookName = i18n._(DEFAULT_NOTEBOOK_NAME);
-  I18N.conflictsNotebookName = i18n._(CONFLICTS_NOTEBOOK_NAME);
-  I18N.newDocTitle = i18n._(NEW_DOC_TITLE);
-  I18N.newFolderTitle = i18n._(NEW_FOLDER_TITLE);
-  I18N.defaultExportPageFilename = i18n._(DEFAULT_EXPORT_PAGE_FILENAME);
-  I18N.defaultExportSpaceFilename = i18n._(DEFAULT_EXPORT_SPACE_FILENAME);
-}
-export const getGlobalTrans = () => ({ ...I18N });

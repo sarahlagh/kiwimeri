@@ -1,8 +1,4 @@
-import storageService, { StoreId } from '@/db/storage.service';
-import { useResultSortedRowIdsWithRef } from '@/db/tinybase/hooks';
-import { SpaceType } from '@/db/types/space-types';
-import { StoreType } from '@/db/types/store-types';
-import { useResultTable } from 'tinybase/ui-react';
+import { useResultSortedRowIds, useResultTable } from 'tinybase/ui-react';
 import {
   getUniqueId,
   Group,
@@ -12,13 +8,31 @@ import {
   OptionalSchemas,
   Param,
   ParamValues,
+  Queries,
   ResultRow,
   Select,
   Where
 } from 'tinybase/with-schemas';
+import { spaceQueries, storeQueries } from './store';
+import {
+  SpaceTablesType,
+  SpaceType,
+  StoreId,
+  StoreTablesType,
+  StoreType
+} from './store-schema';
 import { AsId, TableIdFromSchema } from './types';
 
 export type SortCell<T> = AsId<keyof T>;
+
+function getQueries(storeId: StoreId) {
+  switch (storeId) {
+    case 'store':
+      return storeQueries;
+    case 'space':
+      return spaceQueries;
+  }
+}
 
 type QueryDefinition<
   Schema extends OptionalSchemas,
@@ -39,14 +53,14 @@ export class TinybaseQueryDefinition<
   QueryResult
 > {
   constructor(
-    private storeId: StoreId,
+    public storeId: StoreId,
     public queryId: Id,
-    protected tableId: RootTableId,
-    protected query: QueryDefinition<Schema, RootTableId>
+    public tableId: RootTableId,
+    public query: QueryDefinition<Schema, RootTableId>
   ) {}
 
   public initQuery(paramValues?: ParamDef) {
-    const queries = this.getQueries();
+    const queries = this.getQueries() as unknown as Queries<Schema>;
     if (!queries.hasQuery(this.queryId)) {
       queries.setQueryDefinition(
         this.queryId,
@@ -59,7 +73,7 @@ export class TinybaseQueryDefinition<
 
   /** load a permanent query definition, for use in hooks */
   public loadParams(paramValues: ParamDef) {
-    const queries = this.getQueries();
+    const queries = this.getQueries() as unknown as Queries<Schema>;
     if (!queries.hasQuery(this.queryId)) {
       queries.setQueryDefinition(
         this.queryId,
@@ -71,46 +85,6 @@ export class TinybaseQueryDefinition<
       queries.setParamValues(this.queryId, paramValues);
     }
     return this;
-  }
-
-  /** get results from a permanent query definition, hook version */
-  public useResults(
-    sortBy?: SortCell<QueryResult>,
-    descending?: boolean,
-    offset?: number,
-    limit?: number
-  ) {
-    const resultTable = useResultTable(this.queryId, this.storeId);
-    return useResultSortedRowIdsWithRef(
-      this.storeId,
-      this.queryId,
-      sortBy,
-      descending,
-      offset,
-      limit
-    ).map(
-      rowId =>
-        ({
-          ...resultTable[rowId],
-          id: rowId
-        }) as QueryResult & { id: Id }
-    );
-  }
-
-  public useResultsIds(
-    sortBy?: SortCell<QueryResult>,
-    descending?: boolean,
-    offset?: number,
-    limit?: number
-  ) {
-    return useResultSortedRowIdsWithRef(
-      this.storeId,
-      this.queryId,
-      sortBy,
-      descending,
-      offset,
-      limit
-    );
   }
 
   /** get results from a query */
@@ -169,14 +143,14 @@ export class TinybaseQueryDefinition<
   }
 
   public getQueries() {
-    return storageService.getQueries(this.storeId);
+    return getQueries(this.storeId);
   }
 }
 
 export class SpaceQueryDefinition<
   ParamDef extends ParamValues,
   QueryResult extends ResultRow,
-  RootTableId extends TableIdFromSchema<SpaceType[0]>
+  RootTableId extends TableIdFromSchema<SpaceTablesType>
 > extends TinybaseQueryDefinition<
   SpaceType,
   RootTableId,
@@ -185,8 +159,8 @@ export class SpaceQueryDefinition<
 > {
   constructor(
     public queryId: Id,
-    protected tableId: RootTableId,
-    protected query: QueryDefinition<SpaceType, RootTableId>
+    public tableId: RootTableId,
+    public query: QueryDefinition<SpaceType, RootTableId>
   ) {
     super('space', queryId, tableId, query);
   }
@@ -195,7 +169,7 @@ export class SpaceQueryDefinition<
 export class StoreQueryDefinition<
   ParamDef extends ParamValues,
   QueryResult extends ResultRow,
-  RootTableId extends TableIdFromSchema<StoreType[0]>
+  RootTableId extends TableIdFromSchema<StoreTablesType>
 > extends TinybaseQueryDefinition<
   StoreType,
   RootTableId,
@@ -204,9 +178,60 @@ export class StoreQueryDefinition<
 > {
   constructor(
     public queryId: Id,
-    protected tableId: RootTableId,
-    protected query: QueryDefinition<StoreType, RootTableId>
+    public tableId: RootTableId,
+    public query: QueryDefinition<StoreType, RootTableId>
   ) {
     super('store', queryId, tableId, query);
   }
 }
+
+export const useQueryResults = <
+  Schema extends OptionalSchemas,
+  RootTableId extends TableIdFromSchema<Schema[0]>,
+  ParamDef extends ParamValues,
+  QueryResult
+>(
+  queryDef: TinybaseQueryDefinition<Schema, RootTableId, ParamDef, QueryResult>,
+  sortBy?: SortCell<QueryResult>,
+  descending?: boolean,
+  offset?: number,
+  limit?: number
+) => {
+  const resultTable = useResultTable(queryDef.queryId, queryDef.storeId);
+  return useResultSortedRowIds(
+    queryDef.queryId,
+    sortBy,
+    descending,
+    offset,
+    limit,
+    queryDef.storeId
+  ).map(
+    rowId =>
+      ({
+        ...resultTable[rowId],
+        id: rowId
+      }) as QueryResult & { id: Id }
+  );
+};
+
+export const useQueryResultIds = <
+  Schema extends OptionalSchemas,
+  RootTableId extends TableIdFromSchema<Schema[0]>,
+  ParamDef extends ParamValues,
+  QueryResult
+>(
+  queryDef: TinybaseQueryDefinition<Schema, RootTableId, ParamDef, QueryResult>,
+  sortBy?: SortCell<QueryResult>,
+  descending?: boolean,
+  offset?: number,
+  limit?: number
+) => {
+  return useResultSortedRowIds(
+    queryDef.queryId,
+    sortBy,
+    descending,
+    offset,
+    limit,
+    queryDef.storeId
+  );
+};

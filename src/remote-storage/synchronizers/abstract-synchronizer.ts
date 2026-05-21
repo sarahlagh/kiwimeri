@@ -1,4 +1,4 @@
-import storageService from '@/db/storage.service';
+import { store } from '@/core/db/store';
 import { AnyData, RemoteResult, RemoteState } from '@/db/types/store-types';
 
 export type RemoteRepresentation = Required<Pick<RemoteResult, 'id' | 'name'>>;
@@ -40,37 +40,35 @@ export abstract class CloudStorageSynchronizer {
 
   protected getLastPulled(remoteStateId: string): number {
     return (
-      (storageService
-        .getStore()
+      (store
         .getCell('remoteState', remoteStateId, 'lastPulled')
         ?.valueOf() as number) || 0
     );
   }
 
   protected updateRemoteStateInfo(stateId: string, remoteInfo: RemoteState) {
-    storageService.getStore().transaction(() => {
-      storageService
-        .getStore()
-        .setCell(
+    store.transaction(() => {
+      store.setCell(
+        'remoteState',
+        stateId,
+        'lastRemoteChange',
+        remoteInfo.lastRemoteChange || 0
+      );
+      if (remoteInfo.lastPulled) {
+        store.setCell(
           'remoteState',
           stateId,
-          'lastRemoteChange',
-          remoteInfo.lastRemoteChange || 0
+          'lastPulled',
+          remoteInfo.lastPulled
         );
-      if (remoteInfo.lastPulled) {
-        storageService
-          .getStore()
-          .setCell('remoteState', stateId, 'lastPulled', remoteInfo.lastPulled);
       }
       if (remoteInfo.info) {
-        storageService
-          .getStore()
-          .setCell(
-            'remoteState',
-            stateId,
-            'info',
-            JSON.stringify(remoteInfo.info)
-          );
+        store.setCell(
+          'remoteState',
+          stateId,
+          'info',
+          JSON.stringify(remoteInfo.info)
+        );
       }
     });
   }

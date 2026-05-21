@@ -3,7 +3,7 @@ import {
   CollectionItemType,
   CollectionItemTypeValues
 } from '@/collection/collection';
-import { getGlobalTrans } from '@/config';
+import { getGlobalTrans } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import userSettingsService from '@/db/user-settings.service';

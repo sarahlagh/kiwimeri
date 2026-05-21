@@ -6,7 +6,7 @@ import {
   unminimizeItemsFromStorage
 } from '@/collection/compress-collection';
 import { fastHash } from '@/common/utils';
-import { SpaceValues } from '@/db/types/space-types';
+import { SpaceValues } from '@/core/db/store-schema';
 import { AnyData } from '@/db/types/store-types';
 import { DriverFileInfo } from '../sync-types';
 import { RemoteCollectionFileContent } from '../synchronizers/collection-synchronizer';

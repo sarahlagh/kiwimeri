@@ -4,20 +4,20 @@ import {
   isPageOrDocument,
   parseFieldMeta
 } from '@/collection/collection';
-import { getGlobalTrans } from '@/config';
 import {
   CONFLICTS_NOTEBOOK_ID,
   DEFAULT_NOTEBOOK_ID,
   DEFAULT_SPACE_ID,
+  getGlobalTrans,
   ROOT_COLLECTION
 } from '@/constants';
+import { space } from '@/core/db/store';
+import { SpaceValues } from '@/core/db/store-schema';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import remotesService from '@/db/remotes.service';
-import storageService from '@/db/storage.service';
 import tagsService from '@/db/tags.service';
-import { SpaceValues } from '@/db/types/space-types';
 import userSettingsService from '@/db/user-settings.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
@@ -177,7 +177,7 @@ describe('sync service', () => {
   describe(`with ${layer} layer`, () => {
     beforeEach(async () => {
       remotesService.addRemote('test', 0, 'inmem', {});
-      await remotesService.configureRemotes(storageService.getSpaceId(), true);
+      await remotesService.configureRemotes(DEFAULT_SPACE_ID, true);
       const compositeSynchronizer = remotesService['synchronizers']
         .values()
         .next().value! as CompositeSynchronizer;
@@ -2351,9 +2351,7 @@ describe('sync service', () => {
           defaultSortBy: 'updated',
           defaultSortDesc: false,
           statsEnabled: true,
-          valuesLastUpdatedAt: storageService
-            .getSpace()
-            .getValue('valuesLastUpdatedAt')
+          valuesLastUpdatedAt: space.getValue('valuesLastUpdatedAt')
         });
       });
 

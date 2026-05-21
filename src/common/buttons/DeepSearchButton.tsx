@@ -1,5 +1,5 @@
-import { CollectionItemType } from '@/collection/collection';
-import { APPICONS, APPICONS_PER_TYPE } from '@/constants';
+import { APPICONS_PER_TYPE, CollectionItemType } from '@/collection/collection';
+import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
 import {
   DeepSearchOptions,

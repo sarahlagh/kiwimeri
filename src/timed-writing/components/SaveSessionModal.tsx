@@ -6,9 +6,10 @@ import {
 import CollectionItemBreadcrumb from '@/collection/components/CollectionItemBreadcrumb';
 import CollectionItemList from '@/collection/components/CollectionItemList';
 import { dateToStr } from '@/common/date-utils';
+import { useQueryResults } from '@/core/db/queries-helper';
+import { store } from '@/core/db/store';
 import collectionService from '@/db/collection.service';
 import navService from '@/db/nav.service';
-import storageService from '@/db/storage.service';
 import useFetchItemsQuery from '@/domain/collection/hooks/useFetchItemsQuery';
 import useFetchItemsQueryParamsState from '@/domain/collection/hooks/useFetchItemsQueryParentState';
 import {
@@ -39,11 +40,11 @@ const SaveSessionModal = ({ onClose }: SaveSessionModalProps) => {
     (CollectionItem & { id: string }) | null
   >(null);
   const [item, setItem] = useState<CollectionItemResult | null>(null);
-  const content = storageService.getStore().getValue('tempDoc');
+  const content = store.getValue('tempDoc');
 
   const query = useFetchItemsQuery(navService.getCurrentFolder());
   const [parent, setParent] = useFetchItemsQueryParamsState(query);
-  const items = query.useResults();
+  const items = useQueryResults(query);
 
   useEffect(() => {
     if (tempItem === null) {

@@ -8,16 +8,19 @@ import {
   IonTitle,
   IonToolbar
 } from '@ionic/react';
+import { useEffect } from 'react';
 import AppRouterOutlet from './AppRouterOutlet';
 import MainMenuList from './components/MainMenuList';
 
 const MainLayout = () => {
   const appName = useAppInfo();
   const theme = userSettingsService.useTheme();
-  document.documentElement.classList.toggle(
-    'ion-palette-dark',
-    theme === 'dark'
-  );
+  useEffect(() => {
+    document.documentElement.classList.toggle(
+      'ion-palette-dark',
+      theme === 'dark'
+    );
+  }, [theme]);
 
   return (
     <>

@@ -2,8 +2,8 @@ import {
   CollectionItemSnapshotData,
   CollectionPageVersionData
 } from '@/collection/collection';
+import { SpaceType } from '@/core/db/store-schema';
 import { Store } from 'tinybase/with-schemas';
-import { SpaceType } from '../types/space-types';
 
 export default function Migration(space: Store<SpaceType>) {
   const collection = space.getTable('collection');

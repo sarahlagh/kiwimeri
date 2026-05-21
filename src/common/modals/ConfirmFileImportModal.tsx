@@ -1,6 +1,5 @@
 import { CollectionItemResult } from '@/collection/collection';
-import { getGlobalTrans } from '@/config';
-import { APPICONS } from '@/constants';
+import { APPICONS, getGlobalTrans } from '@/constants';
 import collectionService from '@/db/collection.service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import {

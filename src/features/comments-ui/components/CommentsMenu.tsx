@@ -1,5 +1,6 @@
 import SortableList from '@/common/dnd/containers/SortableList';
 import { APPICONS } from '@/constants';
+import { useQueryResults } from '@/core/db/queries-helper';
 import { commentsService } from '@/domain/comments/comments.service';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { IonButton, IonButtons, IonIcon, IonNote } from '@ionic/react';
@@ -25,7 +26,11 @@ export const CommentsMenu = ({
 }: CommentMenuProps) => {
   const { t } = useLingui();
   const sort = useCommentSort(docId);
-  const comments = fetchCommentsQuery.useResults(sort.by, sort.descending);
+  const comments = useQueryResults(
+    fetchCommentsQuery,
+    sort.by,
+    sort.descending
+  );
   return (
     <>
       {showActions && editable && (

@@ -10,13 +10,18 @@ import {
   setFieldMeta
 } from '@/collection/collection';
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
+import { space, store } from '@/core/db/store';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
-import storageService from '@/db/storage.service';
 import { SerializableData } from '@/db/types/store-types';
 import { Notebook } from '@/notebooks/notebooks';
 import { getUniqueId } from 'tinybase/with-schemas';
 import { expect, vi } from 'vitest';
+
+export function nukeStorage() {
+  store.setContent([{}, {}]);
+  space.setContent([{}, {}]);
+}
 
 export const amount = async (timeout = 500) => {
   return new Promise(resolve => setTimeout(resolve, timeout));
@@ -296,16 +301,13 @@ export const getRowCountInsideNotebook = (notebook?: string) => {
 
 export const countOrphans = () => {
   let orphans = 0;
-  storageService
-    .getSpace()
-    .getRowIds('collection')
-    .forEach(rowId => {
-      const parent = collectionService.getItemParent(rowId);
-      const parentExists = collectionService.itemExists(parent);
-      if (!parentExists) {
-        orphans++;
-      }
-    });
+  space.getRowIds('collection').forEach(rowId => {
+    const parent = collectionService.getItemParent(rowId);
+    const parentExists = collectionService.itemExists(parent);
+    if (!parentExists) {
+      orphans++;
+    }
+  });
   return orphans;
 };
 
@@ -319,7 +321,7 @@ export const getRowIdsInsideNotebook = (notebook?: string) => {
 };
 
 export const getCollectionItem = (id: string) => {
-  return storageService.getSpace().getRow('collection', id) as CollectionItem;
+  return space.getRow('collection', id) as CollectionItem;
 };
 
 export const getLocalItemField = (rowId: string, field: string) => {
@@ -381,7 +383,7 @@ export const getRemoteItemField = (
 };
 
 export const getLocalItemConflict = () => {
-  const rowIds = storageService.getSpace().getRowIds('collection');
+  const rowIds = space.getRowIds('collection');
   let conflictId;
   rowIds.forEach(id => {
     if (collectionService.isItemConflict(id)) {
@@ -392,7 +394,7 @@ export const getLocalItemConflict = () => {
 };
 
 export const getLocalItemConflicts = () => {
-  const rowIds = storageService.getSpace().getRowIds('collection');
+  const rowIds = space.getRowIds('collection');
   const conflictIds: string[] = [];
   rowIds.forEach(id => {
     if (collectionService.isItemConflict(id)) {
@@ -403,14 +405,14 @@ export const getLocalItemConflicts = () => {
 };
 
 export const markAsConflict = (rowId: string, conflict: string) => {
-  storageService.getSpace().setCell('collection', rowId, 'conflict', conflict);
+  space.setCell('collection', rowId, 'conflict', conflict);
 };
 
 export const expectHasLocalItemConflict = (
   conflictId: string,
   yesNo: boolean
 ) => {
-  const rowIds = storageService.getSpace().getRowIds('collection');
+  const rowIds = space.getRowIds('collection');
   if (yesNo) {
     expect(rowIds).toContain(conflictId);
   } else {

@@ -4,6 +4,7 @@ import {
   DEFAULT_SPACE_ID,
   ROOT_COLLECTION
 } from '@/constants';
+import { space, store } from '@/core/db/store';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
@@ -180,26 +181,22 @@ describe('search ancestry service', () => {
       searchAncestryService.start(DEFAULT_SPACE_ID);
 
       // test ancestors
-      expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(0); // no ancestry if parent is root
+      expect(store.getRowIds('ancestors')).toHaveLength(0); // no ancestry if parent is root
 
       // test path
-      expect(storageService.getStore().getRowIds('search')).toHaveLength(1);
-      expect(storageService.getStore().getRowIds('search')[0]).toBe(
+      expect(store.getRowIds('search')).toHaveLength(1);
+      expect(store.getRowIds('search')[0]).toBe(DEFAULT_NOTEBOOK_ID);
+      expect(store.getCell('search', DEFAULT_NOTEBOOK_ID, 'breadcrumb')).toBe(
         DEFAULT_NOTEBOOK_ID
       );
-      expect(
-        storageService
-          .getStore()
-          .getCell('search', DEFAULT_NOTEBOOK_ID, 'breadcrumb')
-      ).toBe(DEFAULT_NOTEBOOK_ID);
     });
 
     it(`should create correct ancestry on start`, () => {
       createTestData();
       searchAncestryService.start(DEFAULT_SPACE_ID);
 
-      expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(18);
-      const ancestors = storageService.getStore().getTable('ancestors');
+      expect(store.getRowIds('ancestors')).toHaveLength(18);
+      const ancestors = store.getTable('ancestors');
       expect(ancestors).toEqual(getHardcodedExpectedAncestry());
 
       testExpectedPaths([
@@ -210,11 +207,11 @@ describe('search ancestry service', () => {
 
     it(`should update ancestry on saveItems (import)`, () => {
       searchAncestryService.start(DEFAULT_SPACE_ID);
-      expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(0);
+      expect(store.getRowIds('ancestors')).toHaveLength(0);
 
       createTestData();
-      expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(18);
-      const ancestors = storageService.getStore().getTable('ancestors');
+      expect(store.getRowIds('ancestors')).toHaveLength(18);
+      const ancestors = store.getTable('ancestors');
       expect(ancestors).toEqual(getHardcodedExpectedAncestry());
 
       testExpectedPaths([
@@ -228,20 +225,20 @@ describe('search ancestry service', () => {
       // F2 > FF2
       createTestData();
       searchAncestryService.start(DEFAULT_SPACE_ID);
-      expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(18);
+      expect(store.getRowIds('ancestors')).toHaveLength(18);
 
       collectionService.setItemParent('FFF1', 'FF2');
       // F1 > FF1
       // F2 > FF2 > FFF1 > D1 > P1
 
-      const ancestors = storageService.getStore().getTable('ancestors');
+      const ancestors = store.getTable('ancestors');
       expect(ancestors).toEqual(
         getExpectedAncestry([
           ['0', 'F1', 'FF1'],
           ['0', 'F2', 'FF2', 'FFF1', 'D1', 'P1']
         ])
       );
-      expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(18);
+      expect(store.getRowIds('ancestors')).toHaveLength(18);
 
       testExpectedPaths([
         ['0', 'F1', 'FF1'],
@@ -251,7 +248,7 @@ describe('search ancestry service', () => {
 
     it(`should update ancestry on setContent (pull)`, () => {
       createTestData();
-      const spaceContent = storageService.getSpace().getContent();
+      const spaceContent = space.getContent();
       // add items locally
       collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
@@ -259,16 +256,16 @@ describe('search ancestry service', () => {
 
       searchAncestryService.start();
       // pull - newest items are removed
-      storageService.getSpace().setContent(spaceContent);
+      space.setContent(spaceContent);
 
-      const ancestors = storageService.getStore().getTable('ancestors');
+      const ancestors = store.getTable('ancestors');
       expect(ancestors).toEqual(
         getExpectedAncestry([
           ['0', 'F1', 'FF1', 'FFF1', 'D1', 'P1'],
           ['0', 'F2', 'FF2']
         ])
       );
-      expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(18);
+      expect(store.getRowIds('ancestors')).toHaveLength(18);
 
       testExpectedPaths([
         ['0', 'F1', 'FF1', 'FFF1', 'D1', 'P1'],
@@ -311,17 +308,17 @@ describe('search ancestry service', () => {
   describe(`search table update`, () => {
     it(`should update preview on saveItems (import)`, () => {
       searchAncestryService.start(DEFAULT_SPACE_ID);
-      expect(storageService.getStore().getRowIds('ancestors')).toHaveLength(0);
+      expect(store.getRowIds('ancestors')).toHaveLength(0);
 
       createTestData();
 
-      expect(
-        storageService.getStore().getCell('search', 'D1', 'contentPreview')
-      ).toBe(shortContentPreview);
+      expect(store.getCell('search', 'D1', 'contentPreview')).toBe(
+        shortContentPreview
+      );
 
-      expect(
-        storageService.getStore().getCell('search', 'P1', 'contentPreview')
-      ).toBe(shortContentPreview);
+      expect(store.getCell('search', 'P1', 'contentPreview')).toBe(
+        shortContentPreview
+      );
     });
 
     it(`should update preview on individual content change`, () => {
@@ -330,13 +327,13 @@ describe('search ancestry service', () => {
 
       collectionService.setItemLexicalContent('D1', shortContentUpdated);
 
-      expect(
-        storageService.getStore().getCell('search', 'D1', 'contentPreview')
-      ).toBe(shortContentPreviewUpdated);
+      expect(store.getCell('search', 'D1', 'contentPreview')).toBe(
+        shortContentPreviewUpdated
+      );
 
-      expect(
-        storageService.getStore().getCell('search', 'P1', 'contentPreview')
-      ).toBe(shortContentPreview);
+      expect(store.getCell('search', 'P1', 'contentPreview')).toBe(
+        shortContentPreview
+      );
     });
 
     it(`should update preview on pull`, () => {
@@ -347,16 +344,16 @@ describe('search ancestry service', () => {
       collectionService.setItemLexicalContent('P1', shortContent);
 
       // reset
-      const spaceContent = storageService.getSpace().getContent();
+      const spaceContent = space.getContent();
       storageService.nukeSpace();
       searchAncestryService.start();
 
       // pull
-      storageService.getSpace().setContent(spaceContent);
+      space.setContent(spaceContent);
 
-      expect(
-        storageService.getStore().getCell('search', 'P1', 'contentPreview')
-      ).toBe(shortContentPreview);
+      expect(store.getCell('search', 'P1', 'contentPreview')).toBe(
+        shortContentPreview
+      );
     });
   });
 });

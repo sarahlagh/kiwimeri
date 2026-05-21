@@ -1,7 +1,6 @@
 import platformService from '@/common/services/platform.service';
-import { APPICONS } from '@/constants';
+import { APPICONS, DEFAULT_SPACE_ID } from '@/constants';
 import remotesService from '@/db/remotes.service';
-import storageService from '@/db/storage.service';
 import { PCloudConf } from '@/remote-storage/storage-drivers/pcloud/pcloud.driver';
 import {
   IonButton,
@@ -36,7 +35,7 @@ const RemotesSettings = () => {
 
   const onConfigured = async (ok: boolean) => {
     if (ok) {
-      await remotesService.configureRemotes(storageService.getSpaceId());
+      await remotesService.configureRemotes(DEFAULT_SPACE_ID);
     }
   };
 

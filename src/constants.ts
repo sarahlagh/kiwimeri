@@ -1,3 +1,4 @@
+import { i18n } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
 import {
   add,
@@ -56,10 +57,6 @@ import {
   trashOutline,
   warningOutline
 } from 'ionicons/icons';
-import {
-  CollectionItemType,
-  CollectionItemTypeValues
-} from './collection/collection';
 
 export const DEFAULT_SPACE_ID = 'default';
 export const DEFAULT_NOTEBOOK_ID = '0';
@@ -69,11 +66,12 @@ export const ROOT_COLLECTION = 'root';
 
 export const META_JSON = 'meta.json';
 
-export const INTERNAL_FORMAT = 'raw';
-
 export const CONFLICT_STR = '[!] ';
 
 export const PREVIEW_SIZE = 80;
+
+/** @deprecated */
+export const DEFAULT_ORDER = 9999;
 
 // messages
 export const ROOT_FOLDER_TITLE = msg`Home`;
@@ -148,16 +146,23 @@ export const APPICONS = {
   collapseCard: chevronDownOutline
 };
 
-export const APPICONS_PER_TYPE = new Map<CollectionItemTypeValues, string>();
-APPICONS_PER_TYPE.set(CollectionItemType.document, APPICONS.document);
-APPICONS_PER_TYPE.set(CollectionItemType.folder, APPICONS.folder);
-APPICONS_PER_TYPE.set(CollectionItemType.notebook, APPICONS.notebook);
-APPICONS_PER_TYPE.set(CollectionItemType.page, APPICONS.page);
-
-export const ARIA_DESCRIPTIONS_PER_TYPE = new Map<
-  CollectionItemTypeValues,
-  string
->();
-ARIA_DESCRIPTIONS_PER_TYPE.set(CollectionItemType.document, 'a document');
-ARIA_DESCRIPTIONS_PER_TYPE.set(CollectionItemType.folder, 'a folder');
-ARIA_DESCRIPTIONS_PER_TYPE.set(CollectionItemType.notebook, 'a notebook');
+// for where using lingui macros isn't possible
+const I18N = {
+  homeTitle: '',
+  defaultNotebookName: '',
+  conflictsNotebookName: '',
+  newDocTitle: '',
+  newFolderTitle: '',
+  defaultExportPageFilename: '',
+  defaultExportSpaceFilename: ''
+};
+export function initGlobalTrans() {
+  I18N.homeTitle = i18n._(ROOT_FOLDER_TITLE);
+  I18N.defaultNotebookName = i18n._(DEFAULT_NOTEBOOK_NAME);
+  I18N.conflictsNotebookName = i18n._(CONFLICTS_NOTEBOOK_NAME);
+  I18N.newDocTitle = i18n._(NEW_DOC_TITLE);
+  I18N.newFolderTitle = i18n._(NEW_FOLDER_TITLE);
+  I18N.defaultExportPageFilename = i18n._(DEFAULT_EXPORT_PAGE_FILENAME);
+  I18N.defaultExportSpaceFilename = i18n._(DEFAULT_EXPORT_SPACE_FILENAME);
+}
+export const getGlobalTrans = () => ({ ...I18N });

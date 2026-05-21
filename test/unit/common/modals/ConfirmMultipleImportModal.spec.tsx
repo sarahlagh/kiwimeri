@@ -3,6 +3,7 @@ import {
   CollectionItemTypeValues
 } from '@/collection/collection';
 import ConfirmMultipleImportModal, {
+  ARIA_DESCRIPTIONS_PER_TYPE,
   ConfirmMultipleImportModalParams
 } from '@/common/modals/ConfirmMultipleImportModal';
 import {
@@ -10,10 +11,10 @@ import {
   ZipImportOptions,
   ZipMergeResult
 } from '@/common/services/import.service';
-import { ARIA_DESCRIPTIONS_PER_TYPE, DEFAULT_NOTEBOOK_ID } from '@/constants';
+import { DEFAULT_NOTEBOOK_ID } from '@/constants';
+import { space } from '@/core/db/store';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
-import storageService from '@/db/storage.service';
 import '@testing-library/jest-dom';
 import { render } from '@testing-library/react';
 import { readFile } from 'fs/promises';
@@ -689,7 +690,7 @@ describe('ConfirmMultipleImportModal', () => {
     let fId: string;
     let nId: string;
     beforeEach(() => {
-      storageService.getSpace().transaction(() => {
+      space.transaction(() => {
         dId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
         fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
         nId = notebooksService.addNotebook('Simple');

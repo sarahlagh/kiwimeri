@@ -1,17 +1,17 @@
-import { networkService } from '@/common/services/network.service';
-import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
-import { INTERNAL_FORMAT } from '@/constants';
+import { DEFAULT_SPACE_ID } from '@/constants';
+import { store, storeQueries } from '@/core/db/store';
+import { networkService } from '@/core/infra/network.service';
+import { plt } from '@/core/infra/platform';
 import { CloudStorageSynchronizer } from '@/remote-storage/synchronizers/abstract-synchronizer';
 import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';
-import { ConnectionStatusChangeListener } from '@capacitor/network';
-import storageService from './storage.service';
 import {
   useCellWithRef,
   useResultSortedRowIdsWithRef,
   useResultTableWithRef
 } from './tinybase/hooks';
 import { AnyData, RemoteResult } from './types/store-types';
+import userSettingsService from './user-settings.service';
 
 class RemotesService {
   private readonly storeId = 'store';
@@ -20,13 +20,12 @@ class RemotesService {
 
   private synchronizers: Map<string, CloudStorageSynchronizer> = new Map();
 
-  private networkListener: ConnectionStatusChangeListener | null = null;
+  // private networkListener: ConnectionStatusChangeListener | null = null;
 
   private fetchAllRemotesQuery(space: string) {
-    const queries = storageService.getStoreQueries();
     const queryName = `fetchAllRemotesFor${space}`;
-    if (!queries.hasQuery(queryName)) {
-      queries.setQueryDefinition(
+    if (!storeQueries.hasQuery(queryName)) {
+      storeQueries.setQueryDefinition(
         queryName,
         'remotes',
         ({ select, join, where }) => {
@@ -34,7 +33,6 @@ class RemotesService {
           select('name');
           select('type');
           select('config');
-          select('formats');
           select('state');
           select(this.stateTable, 'connected');
           join(this.stateTable, 'state');
@@ -45,27 +43,25 @@ class RemotesService {
     return queryName;
   }
 
-  public async initSync() {
-    if (platformService.isSyncEnabled()) {
-      if (!this.networkListener) {
-        this.networkListener = networkService.onStatusUp(
-          () => {
-            setTimeout(async () => {
-              console.log(
-                '[storage] network connected - will attempt to re init remotes'
-              );
-              await this.onReinit();
-            });
-          },
-          true,
-          '[storage reinit]'
-        );
-      }
+  public initSync() {
+    if (plt.isSyncEnabled()) {
+      networkService.onStatusUp(
+        '[storage reinit]',
+        () => {
+          setTimeout(async () => {
+            console.log(
+              '[sync] network connected - will attempt to re init remotes'
+            );
+            await this.onReinit();
+          });
+        },
+        true
+      );
     }
   }
 
   public async onReinit() {
-    await this.configureRemotes(storageService.getSpaceId());
+    await this.configureRemotes(DEFAULT_SPACE_ID);
   }
 
   public stopSync() {
@@ -73,10 +69,6 @@ class RemotesService {
       fs.destroy();
     });
     this.synchronizers.clear();
-    if (this.networkListener) {
-      networkService.removeListener(this.networkListener);
-      this.networkListener = null;
-    }
   }
 
   public async configureRemotes(space: string, initAll = false) {
@@ -86,13 +78,13 @@ class RemotesService {
     );
 
     if (connectedRemotes.length < 1) {
-      console.log('[storage] no initial sync configuration');
+      console.log('[sync] no initial sync configuration');
       return;
     }
 
     for (const remote of connectedRemotes) {
       console.log(
-        '[storage] found initial sync configurations',
+        '[sync] found initial sync configurations',
         space,
         remote.name,
         remote.type
@@ -105,8 +97,8 @@ class RemotesService {
   public async configure(remote: RemoteResult, config: AnyData) {
     let proxy = undefined;
     let useHttp = false;
-    if (platformService.isWeb()) {
-      proxy = platformService.getInternalProxy();
+    if (plt.isWeb()) {
+      proxy = userSettingsService.getInternalProxy();
       useHttp = appConfig.DEV_USE_HTTP_IF_POSSIBLE;
     }
     if (!this.synchronizers.has(remote.id))
@@ -131,22 +123,17 @@ class RemotesService {
 
   public getRemotes(space?: string) {
     if (!space) {
-      space = storageService.getSpaceId();
+      space = DEFAULT_SPACE_ID;
     }
     const queryName = this.fetchAllRemotesQuery(space);
-    return storageService
-      .getStoreQueries()
-      .getResultSortedRowIds(queryName, 'rank')
-      .map(rowId => {
-        const row = storageService
-          .getStoreQueries()
-          .getResultRow(queryName, rowId);
-        return { ...row, id: rowId } as RemoteResult;
-      });
+    return storeQueries.getResultSortedRowIds(queryName, 'rank').map(rowId => {
+      const row = storeQueries.getResultRow(queryName, rowId);
+      return { ...row, id: rowId } as RemoteResult;
+    });
   }
 
   public useRemotes() {
-    const queryName = this.fetchAllRemotesQuery(storageService.getSpaceId());
+    const queryName = this.fetchAllRemotesQuery(DEFAULT_SPACE_ID);
 
     const table = useResultTableWithRef(this.storeId, queryName);
     return useResultSortedRowIdsWithRef(this.storeId, queryName, 'rank').map(
@@ -176,8 +163,7 @@ class RemotesService {
 
   public getLastRemoteChange(state: string) {
     return (
-      (storageService
-        .getStore()
+      (store
         .getCell(this.stateTable, state || '-1', 'lastRemoteChange')
         ?.valueOf() as number) || 0
     );
@@ -189,37 +175,34 @@ class RemotesService {
     type: string,
     defaultConf?: AnyData
   ) {
-    const state = storageService.getStore().addRow(this.stateTable, {
+    const state = store.addRow(this.stateTable, {
       connected: false,
       lastRemoteChange: 0
     });
-    storageService.getStore().addRow(
+    store.addRow(
       this.remotesTable,
       {
         rank,
         name,
         state,
         type,
-        space: storageService.getSpaceId(),
-        config: defaultConf ? JSON.stringify(defaultConf) : '{}',
-        formats: INTERNAL_FORMAT
+        space: DEFAULT_SPACE_ID,
+        config: defaultConf ? JSON.stringify(defaultConf) : '{}'
       },
       false
     );
   }
 
   public async delRemote(remote: string) {
-    storageService.getStore().transaction(() => {
+    store.transaction(() => {
       // update ranks
       const remaining = this.getRemotes().filter(r => r.id !== remote);
       for (let i = 0; i < remaining.length; i++) {
-        storageService
-          .getStore()
-          .setCell(this.remotesTable, remaining[i].id, 'rank', i);
+        store.setCell(this.remotesTable, remaining[i].id, 'rank', i);
       }
       // delete the row
-      storageService.getStore().delRow(this.remotesTable, remote);
-      storageService.getStore().delRow(this.stateTable, remote);
+      store.delRow(this.remotesTable, remote);
+      store.delRow(this.stateTable, remote);
     });
 
     if (this.synchronizers.has(remote))
@@ -229,40 +212,35 @@ class RemotesService {
   }
 
   public setRemoteName(remote: string, name: string) {
-    storageService.getStore().setCell(this.remotesTable, remote, 'name', name);
+    store.setCell(this.remotesTable, remote, 'name', name);
   }
 
   public setRemoteConfig(remote: string, config: AnyData) {
-    storageService
-      .getStore()
-      .setCell(this.remotesTable, remote, 'config', JSON.stringify(config));
+    store.setCell(this.remotesTable, remote, 'config', JSON.stringify(config));
   }
 
   public setRemoteStateConnected(remote: string, connected: boolean) {
-    storageService
-      .getStore()
-      .setCell(this.stateTable, remote, 'connected', connected);
+    store.setCell(this.stateTable, remote, 'connected', connected);
   }
 
   public updateRemoteRank(currentRank: number, newRank: number) {
-    storageService.getStore().transaction(() => {
+    store.transaction(() => {
       const remotes = this.getRemotes();
       if (currentRank < newRank) {
         for (let i = currentRank + 1; i < newRank + 1; i++) {
-          storageService
-            .getStore()
-            .setCell(this.remotesTable, remotes[i].id, 'rank', i - 1);
+          store.setCell(this.remotesTable, remotes[i].id, 'rank', i - 1);
         }
       } else {
         for (let i = newRank; i < currentRank; i++) {
-          storageService
-            .getStore()
-            .setCell(this.remotesTable, remotes[i].id, 'rank', i + 1);
+          store.setCell(this.remotesTable, remotes[i].id, 'rank', i + 1);
         }
       }
-      storageService
-        .getStore()
-        .setCell(this.remotesTable, remotes[currentRank].id, 'rank', newRank);
+      store.setCell(
+        this.remotesTable,
+        remotes[currentRank].id,
+        'rank',
+        newRank
+      );
     });
   }
 

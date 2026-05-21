@@ -3,21 +3,25 @@ import {
   CollectionItemType,
   setFieldMeta
 } from '@/collection/collection';
-import { getGlobalTrans } from '@/config';
-import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
+import {
+  DEFAULT_NOTEBOOK_ID,
+  DEFAULT_ORDER,
+  DEFAULT_SPACE_ID,
+  getGlobalTrans,
+  ROOT_COLLECTION
+} from '@/constants';
+import { space, spaceQueries, store } from '@/core/db/store';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import { Notebook, NotebookResult } from '@/notebooks/notebooks';
 import { getUniqueId } from 'tinybase/with-schemas';
 import collectionService from './collection.service';
 import navService from './nav.service';
-import storageService from './storage.service';
 import {
   useCellWithRef,
   useResultSortedRowIdsWithRef,
   useTableWithRef
 } from './tinybase/hooks';
-import { defaultOrder } from './types/space-types';
 import userSettingsService from './user-settings.service';
 
 class NotebooksService {
@@ -26,17 +30,20 @@ class NotebooksService {
   private readonly spacesTable = 'spaces';
 
   private fetchAllNotebooksQuery(parent?: string, deleted: boolean = false) {
-    const queries = storageService.getSpaceQueries();
     const queryName = `fetchAllNotebooksFor${parent ? parent : ROOT_COLLECTION}`;
-    if (!queries.hasQuery(queryName)) {
-      queries.setQueryDefinition(queryName, this.table, ({ select, where }) => {
-        select('title');
-        select('created');
-        select('order');
-        where('type', CollectionItemType.notebook);
-        where('parent', parent ? parent : ROOT_COLLECTION);
-        where('deleted', deleted);
-      });
+    if (!spaceQueries.hasQuery(queryName)) {
+      spaceQueries.setQueryDefinition(
+        queryName,
+        this.table,
+        ({ select, where }) => {
+          select('title');
+          select('created');
+          select('order');
+          where('type', CollectionItemType.notebook);
+          where('parent', parent ? parent : ROOT_COLLECTION);
+          where('deleted', deleted);
+        }
+      );
     }
     return queryName;
   }
@@ -59,13 +66,13 @@ class NotebooksService {
       getGlobalTrans().defaultNotebookName
     );
     const id = DEFAULT_NOTEBOOK_ID;
-    storageService.getSpace().setRow(this.table, id, { ...item, itemId: id });
+    space.setRow(this.table, id, { ...item, itemId: id });
     localChangesService.addLocalChange('collection', id, LocalChangeType.add);
   }
 
   public addNotebook(title: string, parent: string = ROOT_COLLECTION) {
     const { item, id } = this.getNewNotebookObj(parent, title);
-    storageService.getSpace().setRow(this.table, id, item);
+    space.setRow(this.table, id, item);
     localChangesService.addLocalChange('collection', id, LocalChangeType.add);
     return id!;
   }
@@ -84,7 +91,7 @@ class NotebooksService {
       type: CollectionItemType.notebook,
       deleted: false,
       deleted_meta: setFieldMeta('false', now),
-      order: defaultOrder, // TODO dynamic order
+      order: DEFAULT_ORDER, // TODO dynamic order
       order_meta: setFieldMeta('0', now)
     };
     return {
@@ -98,11 +105,11 @@ class NotebooksService {
     // if items inside, delete them
     const items = collectionService.getCollectionItems(id);
     if (items.length > 0) {
-      storageService.getSpace().transaction(() => {
+      space.transaction(() => {
         items.forEach(i => collectionService.deleteItem(i.id));
       });
     }
-    storageService.getSpace().delRow(this.table, id);
+    space.delRow(this.table, id);
     localChangesService.addLocalChange(
       'collection',
       id,
@@ -112,13 +119,8 @@ class NotebooksService {
 
   public getCurrentNotebook() {
     return (
-      (storageService
-        .getStore()
-        .getCell(
-          this.spacesTable,
-          storageService.getSpaceId(),
-          'currentNotebook'
-        )
+      (store
+        .getCell(this.spacesTable, DEFAULT_SPACE_ID, 'currentNotebook')
         ?.valueOf() as string) || DEFAULT_NOTEBOOK_ID
     );
   }
@@ -128,7 +130,7 @@ class NotebooksService {
       useCellWithRef<string>(
         'store',
         this.spacesTable,
-        storageService.getSpaceId(),
+        DEFAULT_SPACE_ID,
         'currentNotebook'
       ) || DEFAULT_NOTEBOOK_ID
     );
@@ -146,10 +148,9 @@ class NotebooksService {
     if (!sort) {
       sort = userSettingsService.getSpaceDefaultDisplayOpts().sort;
     }
-    const table = storageService.getSpace().getTable(this.table);
+    const table = space.getTable(this.table);
     const queryName = this.fetchAllNotebooksQuery(parent);
-    return storageService
-      .getSpaceQueries()
+    return spaceQueries
       .getResultSortedRowIds(queryName, sort.by, sort.descending)
       .map(rowId => {
         const row = table[rowId];

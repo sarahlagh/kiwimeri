@@ -1,6 +1,9 @@
 import { CollectionItem } from '@/collection/collection';
-import { getGlobalTrans } from '@/config';
-import { CONFLICTS_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
+import {
+  CONFLICTS_NOTEBOOK_ID,
+  getGlobalTrans,
+  ROOT_COLLECTION
+} from '@/constants';
 import notebooksService from '@/db/notebooks.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeOn, LocalChangeType } from '@/domain/local-changes/model';

@@ -1,8 +1,8 @@
-import { DEFAULT_NOTEBOOK_ID, DEFAULT_SPACE_ID } from '@/constants';
+import { DEFAULT_NOTEBOOK_ID } from '@/constants';
+import { spaceQueries } from '@/core/db/store';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
-import storageService from '@/db/storage.service';
 import userSettingsService from '@/db/user-settings.service';
 import { DataPoint, DocumentContentStatsBag } from '@/domain/stats/model';
 import { statsService } from '@/domain/stats/stats-service';
@@ -70,9 +70,8 @@ describe('stats service', () => {
   it.skip(`should sample stats per last n days test`, async () => {
     const nDays = 30;
 
-    const queries = storageService.getSpaceQueries(DEFAULT_SPACE_ID);
     const queryName = 'GetStatsForItemSince';
-    queries.setQueryDefinition(
+    spaceQueries.setQueryDefinition(
       queryName,
       'stats',
       ({ select, where, param }) => {
@@ -102,10 +101,10 @@ describe('stats service', () => {
       { itemId: docId, nDays }
     );
 
-    const results = queries
+    const results = spaceQueries
       .getResultSortedRowIds(queryName, 'date', true)
       .map(rowId => {
-        const resultRow = queries.getResultRow(queryName, rowId) as {
+        const resultRow = spaceQueries.getResultRow(queryName, rowId) as {
           itemId: string;
           date: string;
           contentStatsJson: string;

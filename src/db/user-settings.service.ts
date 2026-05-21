@@ -4,12 +4,13 @@ import {
 } from '@/collection/collection';
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
+import { DEFAULT_SPACE_ID } from '@/constants';
+import { space, store } from '@/core/db/store';
+import { SpaceValue, SpaceValues } from '@/core/db/store-schema';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import collectionService from './collection.service';
 import notebooksService from './notebooks.service';
-import storageService from './storage.service';
 import { useValueWithRef } from './tinybase/hooks';
-import { SpaceValue, SpaceValues } from './types/space-types';
 
 export type Theme = 'light' | 'dark';
 
@@ -22,14 +23,11 @@ class UserSettingsService {
   }
 
   public setTheme(theme: Theme) {
-    storageService.getStore().setValue('theme', theme);
+    store.setValue('theme', theme);
   }
 
   public getExportIncludeMetadata() {
-    const val = storageService
-      .getStore()
-      .getValue('exportIncludeMetadata')
-      ?.valueOf();
+    const val = store.getValue('exportIncludeMetadata')?.valueOf();
     if (val === undefined) return true;
     return val;
   }
@@ -39,14 +37,11 @@ class UserSettingsService {
   }
 
   public setExportIncludeMetadata(value: boolean) {
-    storageService.getStore().setValue('exportIncludeMetadata', value);
+    store.setValue('exportIncludeMetadata', value);
   }
 
   public getExportInlinePages() {
-    const val = storageService
-      .getStore()
-      .getValue('exportInlinePages')
-      ?.valueOf();
+    const val = store.getValue('exportInlinePages')?.valueOf();
     if (val === undefined) return false;
     return val;
   }
@@ -56,7 +51,7 @@ class UserSettingsService {
   }
 
   public setExportInlinePages(value: boolean) {
-    storageService.getStore().setValue('exportInlinePages', value);
+    store.setValue('exportInlinePages', value);
   }
 
   public useShowDevTools(): boolean {
@@ -67,11 +62,12 @@ class UserSettingsService {
   }
 
   public setShowDevTools(value: boolean) {
-    storageService.getStore().setValue('showDevTools', value);
+    store.setValue('showDevTools', value);
   }
 
+  /** @deprecated */
   public getInternalProxy() {
-    const val = storageService.getStore().getValue('internalProxy')?.valueOf();
+    const val = store.getValue('internalProxy')?.valueOf();
     return val !== undefined ? val : appConfig.INTERNAL_HTTP_PROXY;
   }
 
@@ -79,21 +75,15 @@ class UserSettingsService {
 
   // here, options that are synchronized with collection
 
-  public getSpaceDefaultDisplayOpts(space?: string): CollectionItemDisplayOpts {
-    if (!space) {
-      space = storageService.getSpaceId();
+  public getSpaceDefaultDisplayOpts(
+    spaceId?: string
+  ): CollectionItemDisplayOpts {
+    if (!spaceId) {
+      spaceId = DEFAULT_SPACE_ID;
     }
-    const statsEnabled = storageService
-      .getSpace()
-      .getValue('statsEnabled')
-      .valueOf();
-    const by = storageService
-      .getSpace()
-      .getValue('defaultSortBy') as CollectionItemSortType;
-    const descending = storageService
-      .getSpace()
-      .getValue('defaultSortDesc')
-      .valueOf();
+    const statsEnabled = space.getValue('statsEnabled').valueOf();
+    const by = space.getValue('defaultSortBy') as CollectionItemSortType;
+    const descending = space.getValue('defaultSortDesc').valueOf();
     return {
       sort: {
         by,
@@ -105,7 +95,7 @@ class UserSettingsService {
 
   public useSpaceDefaultDisplayOpts(space?: string): CollectionItemDisplayOpts {
     if (!space) {
-      space = storageService.getSpaceId();
+      space = DEFAULT_SPACE_ID;
     }
     const statsEnabled = useValueWithRef(
       this.spaceId,
@@ -139,14 +129,14 @@ class UserSettingsService {
   }
 
   private setSyncableValues(values: Partial<SpaceValues>) {
-    storageService.getSpace().transaction(() => {
+    space.transaction(() => {
       localChangesService.addLocalChange('values');
-      storageService.getSpace().setValue('valuesLastUpdatedAt', Date.now());
+      space.setValue('valuesLastUpdatedAt', Date.now());
 
       const names = Object.keys(values) as SpaceValue[];
       names.forEach(name => {
         if (values[name]) {
-          storageService.getSpace().setValue(name, values[name]);
+          space.setValue(name, values[name]);
         }
       });
     });
@@ -181,8 +171,9 @@ class UserSettingsService {
     return this.getSpaceDefaultDisplayOpts(space);
   }
 
-  public getHistoryIdleTime(space?: string): number {
-    return storageService.getSpace(space).getValue('historyIdleTime').valueOf();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public getHistoryIdleTime(spaceId?: string): number {
+    return space.getValue('historyIdleTime').valueOf();
   }
 
   public useHistoryIdleTime(): number {
@@ -195,11 +186,9 @@ class UserSettingsService {
     });
   }
 
-  public getHistoryMaxInterval(space?: string): number {
-    return storageService
-      .getSpace(space)
-      .getValue('historyMaxInterval')
-      .valueOf();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public getHistoryMaxInterval(spaceId?: string): number {
+    return space.getValue('historyMaxInterval').valueOf();
   }
 
   public useHistoryMaxInterval(): number {
@@ -216,11 +205,9 @@ class UserSettingsService {
     return useValueWithRef(this.spaceId, 'maxHistoryPerDoc') as number;
   }
 
-  public getHistoryMaxVersions(space?: string): number {
-    return storageService
-      .getSpace(space)
-      .getValue('maxHistoryPerDoc')
-      .valueOf();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public getHistoryMaxVersions(spaceId?: string): number {
+    return space.getValue('maxHistoryPerDoc').valueOf();
   }
 
   public setHistoryMaxVersions(value: number) {
@@ -230,7 +217,7 @@ class UserSettingsService {
   }
 
   public getResumeLastSelection(): boolean {
-    return storageService.getStore().getValue('resumeLastSelection').valueOf();
+    return store.getValue('resumeLastSelection').valueOf();
   }
 
   public useResumeLastSelection() {
@@ -238,7 +225,7 @@ class UserSettingsService {
   }
 
   public setResumeLastSelection(value: boolean) {
-    storageService.getStore().setValue('resumeLastSelection', value);
+    store.setValue('resumeLastSelection', value);
   }
 }
 

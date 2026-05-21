@@ -1,7 +1,6 @@
 import { appConfig } from '@/config';
+import { SpaceType, StoreType } from '@/core/db/store-schema';
 import { Store } from 'tinybase/with-schemas';
-import { SpaceType } from '../types/space-types';
-import { StoreType } from '../types/store-types';
 
 const versionRegexp = /^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/;
 

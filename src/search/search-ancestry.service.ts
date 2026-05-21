@@ -7,14 +7,13 @@ import {
 } from '@/collection/collection';
 import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
 import { DEFAULT_SPACE_ID, ROOT_COLLECTION } from '@/constants';
+import { space, store, storeIndexes } from '@/core/db/store';
+import { SpaceType, StoreType } from '@/core/db/store-schema';
 import { useCellWithRef } from '@/db/tinybase/hooks';
 import userSettingsService from '@/db/user-settings.service';
 import { statsService } from '@/domain/stats/stats-service';
 import formatConverter from '@/format-conversion/format-converter.service';
 import { Id, Ids, Store, Table } from 'tinybase/with-schemas';
-import storageService from '../db/storage.service';
-import { SpaceType } from '../db/types/space-types';
-import { StoreType } from '../db/types/store-types';
 
 export const getAncestorId = (childId: string, parentId: string) => {
   return `${childId},${parentId}`;
@@ -27,11 +26,13 @@ class CollectionSearchService {
   private updateListeners: Map<Id, Ids> = new Map();
 
   public start(spaceId = DEFAULT_SPACE_ID) {
-    const store = storageService.getStore();
-    const space = storageService.getSpace(spaceId);
-    const indexes = storageService.getStoreIndexes();
-    indexes.setIndexDefinition('byParent', 'ancestors', 'parentId', 'depth');
-    indexes.setIndexDefinition('byChild', 'ancestors', 'childId', 'depth');
+    storeIndexes.setIndexDefinition(
+      'byParent',
+      'ancestors',
+      'parentId',
+      'depth'
+    );
+    storeIndexes.setIndexDefinition('byChild', 'ancestors', 'childId', 'depth');
 
     // on app start backfill tables
     if (
@@ -64,7 +65,7 @@ class CollectionSearchService {
       null,
       'parent',
       (space, tableId, rowId, cellId, newCell, oldCell) => {
-        storageService.getStore().transaction(() => {
+        store.transaction(() => {
           const oldParent = oldCell as string;
 
           const rowChildren = this.getChildren(rowId);
@@ -91,19 +92,14 @@ class CollectionSearchService {
       'content',
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       (space, tableId, rowId, cellId, newCell) => {
-        this.updateContentPreview(
-          rowId,
-          space.getTable(tableId),
-          storageService.getStore()
-        );
+        this.updateContentPreview(rowId, space.getTable(tableId), store);
       },
       true
     );
   }
 
   public stop() {
-    this.updateListeners.forEach((listenerIds, spaceId) => {
-      const space = storageService.getSpace(spaceId);
+    this.updateListeners.forEach(listenerIds => {
       listenerIds.forEach(listenerId => {
         space.delListener(listenerId);
       });
@@ -111,21 +107,11 @@ class CollectionSearchService {
   }
 
   public getShortBreadcrumb(rowId: string) {
-    return (
-      storageService
-        .getStore()
-        .getCell('search', rowId, 'breadcrumb')
-        ?.toString() || ''
-    );
+    return store.getCell('search', rowId, 'breadcrumb')?.toString() || '';
   }
 
   public getItemPreview(rowId: string) {
-    return (
-      storageService
-        .getStore()
-        .getCell('search', rowId, 'contentPreview')
-        ?.toString() || ''
-    );
+    return store.getCell('search', rowId, 'contentPreview')?.toString() || '';
   }
 
   public useItemPreview(rowId: Id) {
@@ -155,7 +141,7 @@ class CollectionSearchService {
   }
 
   public enrichWithPreview(results: CollectionItemResult[]): PageResult[] {
-    const table = storageService.getStore().getTable('search');
+    const table = store.getTable('search');
     return results.map(row => ({
       ...row,
       preview: table[row.id]?.contentPreview?.toString() || ''
@@ -163,15 +149,13 @@ class CollectionSearchService {
   }
 
   public getChildren(rowId: string) {
-    return storageService
-      .getStoreIndexes()
+    return storeIndexes
       .getSliceRowIds('byParent', rowId)
       .map(id => id.split(',')[0]);
   }
 
   private getParents(rowId: string) {
-    return storageService
-      .getStoreIndexes()
+    return storeIndexes
       .getSliceRowIds('byChild', rowId)
       .map(id => id.split(',')[1]);
   }
@@ -180,12 +164,10 @@ class CollectionSearchService {
     rowId: string,
     updatedItems: string[],
     oldParent: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     spaceId: string
   ) {
-    const store = storageService.getStore();
-    const collectionTable = storageService
-      .getSpace(spaceId)
-      .getTable(this.collectionTableId);
+    const collectionTable = space.getTable(this.collectionTableId);
     const rowParents = this.getParents(oldParent);
 
     updatedItems.forEach(updatedItem => {
@@ -212,8 +194,6 @@ class CollectionSearchService {
     rowIds: string[],
     table: Table<SpaceType[0], 'collection'>
   ) {
-    const store = storageService.getStore();
-
     rowIds.forEach(rowId => {
       // update 'search' info - partial path
       store.setCell(
@@ -243,7 +223,9 @@ class CollectionSearchService {
   ) {
     if (table[rowId]?.content) {
       // preview
-      const plain = this.getUnsavedItemPreview(table[rowId] as CollectionItem);
+      const plain = this.getUnsavedItemPreview(
+        table[rowId] as unknown as CollectionItem
+      );
       store.setCell('search', rowId, 'contentPreview', plain);
 
       const parent = table[rowId].parent as string;

@@ -11,12 +11,12 @@ import {
   PageResult,
   setFieldMeta
 } from '@/collection/collection';
+import { space, spaceQueries } from '@/core/db/store';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import { AfterSyncHistChange } from '@/remote-storage/sync-types';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { getHash, Id, ResultRow } from 'tinybase/with-schemas';
 import collectionService from './collection.service';
-import storageService from './storage.service';
 import {
   useCellWithRef,
   useResultSortedRowIdsWithRef,
@@ -56,10 +56,9 @@ class CollectionHistoryService {
 
   private buildVersionsWithContentQuery(
     params: VersionsWithContentParam | VersionsWithContentParam[],
-    latest: boolean,
-    space?: string
+    latest: boolean
   ) {
-    const queries = storageService.getSpaceQueries(space);
+    const queries = spaceQueries;
     let i = 0;
     const mainQueryName = 'GetVersionsWithContent';
     while (queries.hasQuery(`${mainQueryName}${i}`)) i++;
@@ -113,7 +112,7 @@ class CollectionHistoryService {
         if (param('itemId') && param('itemId')!.toString().length > 0) {
           where('itemId', param('itemId') as string);
           if (param('createdAt') && param('createdAt') !== 0) {
-            where('createdAt', param('createdAt') as string);
+            where('createdAt', param('createdAt') as number);
           }
         }
       },
@@ -127,9 +126,9 @@ class CollectionHistoryService {
     return queryName;
   }
 
-  private buildContentByHashQuery(hash: number, space?: string) {
+  private buildContentByHashQuery(hash: number) {
     const mainQueryName = 'ContentByHash';
-    const queries = storageService.getSpaceQueries(space);
+    const queries = spaceQueries;
     let i = 0;
     while (queries.hasQuery(`${mainQueryName}${i}`)) i++;
     const queryName = `${mainQueryName}${i}`;
@@ -140,15 +139,15 @@ class CollectionHistoryService {
         select('hash');
         select('content');
         select('preview');
-        where('hash', param('hash') as string);
+        where('hash', param('hash') as number);
       },
       { hash }
     );
     return queryName;
   }
 
-  private buildVersionsGCQuery(maxPerDoc: number, space?: string) {
-    const queries = storageService.getSpaceQueries(space);
+  private buildVersionsGCQuery(maxPerDoc: number) {
+    const queries = spaceQueries;
     const queryName = 'GetVersionsForGC';
     queries.setQueryDefinition(
       queryName,
@@ -166,9 +165,9 @@ class CollectionHistoryService {
     return queryName;
   }
 
-  private buildContentGCQuery(contentId: string, space?: string) {
+  private buildContentGCQuery(contentId: string) {
     const mainQueryName = 'ContentById';
-    const queries = storageService.getSpaceQueries(space);
+    const queries = spaceQueries;
     let i = 0;
     while (queries.hasQuery(`${mainQueryName}${i}`)) i++;
     const queryName = `${mainQueryName}${i}`;
@@ -184,12 +183,8 @@ class CollectionHistoryService {
     return queryName;
   }
 
-  public start(space?: string) {
-    this.useVersionedPagesQuery = this.buildVersionsWithContentQuery(
-      [],
-      true,
-      space
-    );
+  public start() {
+    this.useVersionedPagesQuery = this.buildVersionsWithContentQuery([], true);
   }
 
   private setVersionsWithContentQueryParams(
@@ -199,8 +194,7 @@ class CollectionHistoryService {
     const itemId = Array.isArray(params) ? '' : params.itemId;
     const createdAt = Array.isArray(params) ? 0 : params.createdAt || 0;
     const paramArray = Array.isArray(params) ? JSON.stringify(params) : '';
-    storageService
-      .getSpaceQueries()
+    spaceQueries
       .setParamValue(queryName, 'itemId', itemId)
       .setParamValue(queryName, 'createdAt', createdAt)
       .setParamValue(queryName, 'paramArray', paramArray);
@@ -230,9 +224,11 @@ class CollectionHistoryService {
   }
 
   private getResults(queryName: string, sort = defaultSort) {
-    return storageService
-      .getSpaceQueries()
-      .getResultSortedRowIds(queryName, sort.by, sort.descending);
+    return spaceQueries.getResultSortedRowIds(
+      queryName,
+      sort.by,
+      sort.descending
+    );
   }
 
   private useResults(queryName: string, sort = defaultSort) {
@@ -266,18 +262,17 @@ class CollectionHistoryService {
     offset?: number,
     limit?: number
   ) {
-    const queries = storageService.getSpaceQueries();
     const queryName = this.buildVersionsWithContentQuery(params, latest);
-    const results = queries
+    const results = spaceQueries
       .getResultSortedRowIds(queryName, sort.by, sort.descending, offset, limit)
       .map(rowId => {
-        const resultRow = queries.getResultRow(
+        const resultRow = spaceQueries.getResultRow(
           queryName,
           rowId
         ) as VersionsWithContentResult;
         return this.mapToCollectionItemVersion(rowId, resultRow);
       });
-    queries.delQueryDefinition(queryName);
+    spaceQueries.delQueryDefinition(queryName);
     return results;
   }
 
@@ -290,7 +285,6 @@ class CollectionHistoryService {
   }
 
   public getVersion(versionId: string) {
-    const space = storageService.getSpace();
     const pageRow = space.getRow(
       this.tableId,
       versionId
@@ -343,7 +337,6 @@ class CollectionHistoryService {
     docId: string,
     docVersionId?: string
   ): PageResult[] {
-    const queries = storageService.getSpaceQueries();
     const rawPageVersions = useCellWithRef<string>(
       this.storeId,
       this.tableId,
@@ -357,7 +350,7 @@ class CollectionHistoryService {
     const queryName = this.useVersionedPagesQuery;
     this.setVersionsWithContentQueryParams(queryName, pageVersions);
     const pageResults = this.useResults(queryName, pagesSort).map(rowId => {
-      const resultRow = queries.getResultRow(
+      const resultRow = spaceQueries.getResultRow(
         queryName,
         rowId
       ) as VersionsWithContentResult;
@@ -376,9 +369,11 @@ class CollectionHistoryService {
   }
 
   public getPagesForVersion(docVersionId: string): CollectionItemVersion[] {
-    const rawPageVersions = storageService
-      .getSpace()
-      .getCell(this.tableId, docVersionId, 'pageVersionsArrayJson');
+    const rawPageVersions = space.getCell(
+      this.tableId,
+      docVersionId,
+      'pageVersionsArrayJson'
+    );
     if (!rawPageVersions) return [];
     let pageVersions: CollectionPageVersionData[] = [];
     if (rawPageVersions) {
@@ -439,7 +434,7 @@ class CollectionHistoryService {
   }
 
   public versionExists(id: string) {
-    return storageService.getSpace().hasRow(this.tableId, id);
+    return space.hasRow(this.tableId, id);
   }
 
   public restoreDocumentVersion(docId: string, versionId: string) {
@@ -459,7 +454,6 @@ class CollectionHistoryService {
     );
     // must recreate or update the others
     const pagesToUpdate = uniqueIds.filter(id => pageIdsAtVersion.includes(id));
-    const space = storageService.getSpace();
     pagesToDelete.forEach(pId => {
       // bypass collectionService - don't want to delete versions
       // TODO how about local changes / sync
@@ -529,7 +523,6 @@ class CollectionHistoryService {
       item.type,
       skipPages
     );
-    const space = storageService.getSpace();
     const versionId = this.saveSingleVersion(item, 'snapshot');
     if (item.type === CollectionItemType.page) {
       // if page, add document version too, and relation to document
@@ -552,7 +545,6 @@ class CollectionHistoryService {
   }
 
   private saveSingleVersion(item: CollectionItem, op: CollectionItemVersionOp) {
-    const space = storageService.getSpace();
     let versionId: string | undefined;
     space.transaction(() => {
       // must update previous ranks - not ideal, but needed for the get latest pages query
@@ -575,12 +567,10 @@ class CollectionHistoryService {
   }
 
   private getOrCreatedContentId(item: Pick<CollectionItem, 'id' | 'content'>) {
-    const space = storageService.getSpace();
-    const queries = storageService.getSpaceQueries();
     const contentHash = getHash(item.id! + item.content || '');
     const queryName = this.buildContentByHashQuery(contentHash);
     const results = this.getResults(queryName);
-    queries.delQueryDefinition(queryName);
+    spaceQueries.delQueryDefinition(queryName);
     if (results.length > 0) {
       return { contentHash, contentId: results[0] };
     }
@@ -605,7 +595,7 @@ class CollectionHistoryService {
       .filter(p => !skipPages.includes(p.itemId));
     if (pageIds.length === 0) return;
     const pageResults = this.searchLatestVersions(pageIds);
-    storageService.getSpace().setCell(
+    space.setCell(
       this.tableId,
       docVersionId,
       'pageVersionsArrayJson',
@@ -660,7 +650,6 @@ class CollectionHistoryService {
     newVersion: CollectionItemVersion,
     op: CollectionItemVersionOp
   ) {
-    const space = storageService.getSpace();
     let versionId: string | undefined;
     space.transaction(() => {
       // must update previous ranks - not ideal, but needed for the get latest pages query
@@ -726,7 +715,6 @@ class CollectionHistoryService {
   }
 
   private hardDeleteVersion(versionId: string) {
-    const space = storageService.getSpace();
     const contentId = space
       .getCell(this.tableId, versionId, 'contentId')
       ?.toString();
@@ -740,7 +728,6 @@ class CollectionHistoryService {
   }
 
   private saveVersionSync(id: string, skipPages: string[] = []) {
-    const space = storageService.getSpace();
     if (!space.hasRow('collection', id)) return;
     const current = space.getRow('collection', id);
     this.saveVersionFromItem({ ...current, id } as CollectionItem, skipPages);
@@ -780,16 +767,12 @@ class CollectionHistoryService {
   }
 
   public gc() {
-    const maxHistoryPerDoc = storageService
-      .getSpace()
-      .getValue('maxHistoryPerDoc');
+    const maxHistoryPerDoc = space.getValue('maxHistoryPerDoc');
     if (maxHistoryPerDoc <= 0) return;
-    const space = storageService.getSpace();
-    const queries = storageService.getSpaceQueries();
     const queryName = this.buildVersionsGCQuery(maxHistoryPerDoc);
     // delete history entries with rank > maxHistoryPerDoc
-    const resultRows = queries.getResultRowIds(queryName).map(rowId => ({
-      ...(queries.getResultRow(queryName, rowId) as { contentId: string }),
+    const resultRows = spaceQueries.getResultRowIds(queryName).map(rowId => ({
+      ...(spaceQueries.getResultRow(queryName, rowId) as { contentId: string }),
       versionId: rowId
     }));
     console.log('running versions gc', resultRows.length);
@@ -797,14 +780,14 @@ class CollectionHistoryService {
     resultRows.forEach(row => {
       space.delRow('history', row.versionId);
       // query by contentId here
-      queries.setParamValue(contentQuery, 'contentId', row.contentId);
-      if (queries.getResultRowIds(contentQuery).length === 0) {
+      spaceQueries.setParamValue(contentQuery, 'contentId', row.contentId);
+      if (spaceQueries.getResultRowIds(contentQuery).length === 0) {
         // content is now unused
         space.delRow('history_content', row.contentId);
       }
     });
-    queries.delQueryDefinition(contentQuery);
-    queries.delQueryDefinition(queryName);
+    spaceQueries.delQueryDefinition(contentQuery);
+    spaceQueries.delQueryDefinition(queryName);
   }
 }
 

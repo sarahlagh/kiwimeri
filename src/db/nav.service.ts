@@ -1,6 +1,6 @@
-import { DEFAULT_NOTEBOOK_ID } from '@/constants';
+import { DEFAULT_NOTEBOOK_ID, DEFAULT_SPACE_ID } from '@/constants';
+import { store } from '@/core/db/store';
 import collectionService from './collection.service';
-import storageService from './storage.service';
 import { useCellWithRef, useStoreValueWithDefault } from './tinybase/hooks';
 
 class NavService {
@@ -9,9 +9,8 @@ class NavService {
 
   public getCurrentFolder() {
     return (
-      (storageService
-        .getStore()
-        .getCell(this.spacesTable, storageService.getSpaceId(), 'currentFolder')
+      (store
+        .getCell(this.spacesTable, DEFAULT_SPACE_ID, 'currentFolder')
         ?.valueOf() as string) || DEFAULT_NOTEBOOK_ID
     );
   }
@@ -21,96 +20,64 @@ class NavService {
       useCellWithRef<string>(
         this.storeId,
         this.spacesTable,
-        storageService.getSpaceId(),
+        DEFAULT_SPACE_ID,
         'currentFolder'
       ) || DEFAULT_NOTEBOOK_ID
     );
   }
 
   public setCurrentFolder(folder: string) {
-    storageService.getStore().transaction(() => {
-      storageService
-        .getStore()
-        .setCell(
-          this.spacesTable,
-          storageService.getSpaceId(),
-          'currentFolder',
-          folder
-        );
+    store.transaction(() => {
+      store.setCell(
+        this.spacesTable,
+        DEFAULT_SPACE_ID,
+        'currentFolder',
+        folder
+      );
       const breadcrumb = collectionService.getBreadcrumb(folder);
-      storageService
-        .getStore()
-        .setCell(
-          this.spacesTable,
-          storageService.getSpaceId(),
-          'currentNotebook',
-          breadcrumb[0]
-        );
+      store.setCell(
+        this.spacesTable,
+        DEFAULT_SPACE_ID,
+        'currentNotebook',
+        breadcrumb[0]
+      );
     });
   }
 
   public getCurrentDocument() {
     return (
-      (storageService
-        .getStore()
-        .getCell(
-          this.spacesTable,
-          storageService.getSpaceId(),
-          'currentDocument'
-        )
+      (store
+        .getCell(this.spacesTable, DEFAULT_SPACE_ID, 'currentDocument')
         ?.valueOf() as string) || undefined
     );
   }
 
   public setCurrentDocument(doc?: string) {
     if (doc) {
-      storageService
-        .getStore()
-        .setCell(
-          this.spacesTable,
-          storageService.getSpaceId(),
-          'currentDocument',
-          doc
-        );
+      store.setCell(this.spacesTable, DEFAULT_SPACE_ID, 'currentDocument', doc);
     } else {
-      storageService
-        .getStore()
-        .delCell(
-          this.spacesTable,
-          storageService.getSpaceId(),
-          'currentDocument'
-        );
+      store.delCell(this.spacesTable, DEFAULT_SPACE_ID, 'currentDocument');
     }
   }
 
   public getCurrentPage() {
     return (
-      (storageService
-        .getStore()
-        .getCell(this.spacesTable, storageService.getSpaceId(), 'currentPage')
+      (store
+        .getCell(this.spacesTable, DEFAULT_SPACE_ID, 'currentPage')
         ?.valueOf() as string) || undefined
     );
   }
 
   public setCurrentPage(page?: string) {
     if (page) {
-      storageService
-        .getStore()
-        .setCell(
-          this.spacesTable,
-          storageService.getSpaceId(),
-          'currentPage',
-          page
-        );
+      store.setCell(this.spacesTable, DEFAULT_SPACE_ID, 'currentPage', page);
     } else {
-      storageService
-        .getStore()
-        .delCell(this.spacesTable, storageService.getSpaceId(), 'currentPage');
+      store.delCell(this.spacesTable, DEFAULT_SPACE_ID, 'currentPage');
     }
   }
 
   public setRememberLastRoute(value: boolean) {
-    storageService.getStore().setValue('rememberLastRoute', value);
+    store.setValue('rememberLastRoute', value);
   }
 
   public useRememberLastRoute() {

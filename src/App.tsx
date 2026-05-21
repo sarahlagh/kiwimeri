@@ -1,92 +1,52 @@
+import './core/db/store';
+
 import '@ionic/react/css/core.css';
 /* Basic CSS for apps built with Ionic */
-import '@ionic/react/css/normalize.css';
-import '@ionic/react/css/structure.css';
-import '@ionic/react/css/typography.css';
-/* Optional CSS utils that can be commented out */
 import '@ionic/react/css/display.css';
 import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/float-elements.css';
+import '@ionic/react/css/normalize.css';
 import '@ionic/react/css/padding.css';
+import '@ionic/react/css/palettes/dark.class.css';
+import '@ionic/react/css/structure.css';
 import '@ionic/react/css/text-alignment.css';
 import '@ionic/react/css/text-transformation.css';
-/* Dark Theme */
-import '@ionic/react/css/palettes/dark.class.css';
+import '@ionic/react/css/typography.css';
 /* global */
 import './theme/global.scss';
 
-import { IonApp, setupIonicReact } from '@ionic/react';
-import { i18n } from '@lingui/core';
-import { I18nProvider } from '@lingui/react';
-
-import { IonReactRouter } from '@ionic/react-router';
-import { useEffect } from 'react';
-import MainLayout from './app/MainLayout';
-import InitialRoutingProvider from './app/providers/InitialRoutingProvider';
-import { NetworkStatusProvider } from './app/providers/NetworkStatusProvider';
-import TinybaseProvider from './app/providers/TinybaseProvider';
-import { ToastProvider } from './app/providers/ToastProvider';
-import {
-  addAndroidListeners,
-  removeAndroidListeners
-} from './capacitor/handle-android-plugins';
-import platformService from './common/services/platform.service';
-import { initGlobalTrans } from './config';
-import { historyService } from './db/collection-history.service';
-import { messages as enMessages } from './locales/en/messages';
-
-if (platformService.isAndroid()) {
+if (plt.isAndroid()) {
   import('./theme/android-edge-to-edge.scss').then(() => {
     console.debug('loaded stylesheet for android');
   });
 }
 
-setupIonicReact({
-  sanitizerEnabled: true
-});
-i18n.load('en', enMessages);
-i18n.activate('en');
-initGlobalTrans();
+import { IonApp } from '@ionic/react';
+import { IonReactRouter } from '@ionic/react-router';
+import { i18n } from '@lingui/core';
+import { I18nProvider } from '@lingui/react';
+import MainLayout from './app/MainLayout';
+import InitialRoutingProvider from './app/providers/InitialRoutingProvider';
+import { NetworkStatusProvider } from './app/providers/NetworkStatusProvider';
+import TinybaseProvider from './app/providers/TinybaseProvider';
+import { ToastProvider } from './app/providers/ToastProvider';
+import { plt } from './core/infra/platform';
+import './polyfills/capacitor-http-fetch-polyfill';
+import './polyfills/log-polyfill';
+
+import './app-init';
 
 const App = () => {
-  useEffect(() => {
-    const appInit = async () => {
-      // Check if site's storage has been marked as persistent
-      if (navigator.storage && navigator.storage.persist) {
-        const isPersisted = await navigator.storage.persist();
-        console.debug(`persisted storage granted: ${isPersisted}`);
-      }
-    };
-    appInit();
-  });
-
-  useEffect(() => {
-    // catch close tab on web
-    window.onbeforeunload = savePending;
-    function savePending() {
-      console.debug('onbeforeunload');
-      historyService.saveNow();
-      return undefined;
-    }
-    console.debug('remaining timeouts', historyService['timeouts'].size);
-    if (platformService.isAndroid()) {
-      addAndroidListeners();
-    }
-    return () => {
-      removeAndroidListeners();
-    };
-  }, []);
-
   return (
     <>
       <I18nProvider i18n={i18n}>
         <NetworkStatusProvider>
           <TinybaseProvider>
             <ToastProvider>
-              <IonApp className={platformService.getPlatform()}>
+              <IonApp className={plt.getPlatform()}>
                 <IonReactRouter>
                   <InitialRoutingProvider>
-                    <MainLayout></MainLayout>
+                    <MainLayout />
                   </InitialRoutingProvider>
                 </IonReactRouter>
               </IonApp>

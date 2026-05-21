@@ -1,6 +1,6 @@
+import { useToastContext } from '@/app/context/ToastContext';
 import DeleteButton from '@/common/buttons/DeleteButton';
 import SyncRemoteButton from '@/common/buttons/SyncRemoteButton';
-import { useToastContext } from '@/common/context/ToastContext';
 import platformService from '@/common/services/platform.service';
 import { APPICONS } from '@/constants';
 import remotesService from '@/db/remotes.service';

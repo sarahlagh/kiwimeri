@@ -1,7 +1,4 @@
-import { localChangesSchema } from '@/domain/local-changes/model';
 import { DriverNames } from '@/remote-storage/storage-drivers/driver-factory';
-import { ValueIdFromSchema } from 'tinybase/@types/_internal/store/with-schemas';
-import { CellSchema } from 'tinybase/with-schemas';
 
 export interface AnyData {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -65,54 +62,3 @@ export interface LocalCollectionAncestor {
   childId: string;
   depth: number;
 }
-
-type spacesEnum = keyof Required<Space>;
-type remoteEnum = keyof Required<Omit<Remote, 'id'>>;
-type remoteStateEnum = keyof Required<Omit<RemoteState, 'id'>>;
-type appLogEnum = keyof Required<Omit<AppLog, 'id'>>;
-type localSearchIndex = keyof Required<Omit<LocalCollectionSearchIndex, 'id'>>;
-type localAncestorsEnum = keyof Required<Omit<LocalCollectionAncestor, 'id'>>;
-
-export type StoreType = [
-  {
-    // settings per space that won't be persisted outside of the current client
-    spaces: {
-      [cellId in spacesEnum]: CellSchema;
-    };
-    localChanges: typeof localChangesSchema;
-    remotes: {
-      [cellId in remoteEnum]: CellSchema;
-    };
-    remoteState: {
-      [cellId in remoteStateEnum]: CellSchema;
-    };
-    logs: {
-      [cellId in appLogEnum]: CellSchema;
-    };
-    search: {
-      [cellId in localSearchIndex]: CellSchema;
-    };
-    ancestors: {
-      [cellId in localAncestorsEnum]: CellSchema;
-    };
-  },
-  {
-    theme: { type: 'string'; default: string };
-    currentSpace: { type: 'string'; default: string };
-    showDevTools: { type: 'boolean'; default: false };
-    maxLogHistory: { type: 'number'; default: number };
-    internalProxy: { type: 'string' };
-    exportIncludeMetadata: { type: 'boolean'; default: true };
-    exportInlinePages: { type: 'boolean'; default: true };
-    appVersion: { type: 'string' };
-    tempDoc: { type: 'string' };
-    defaultTimedDuration: { type: 'number'; default: number };
-    defaultTimedMode: { type: 'string'; default: string };
-    globalZoom: { type: 'number'; default: number };
-    rememberLastRoute: { type: 'boolean'; default: true };
-    resumeLastSelection: { type: 'boolean'; default: true };
-    lastBrowserMode: { type: 'number'; default: number };
-  }
-];
-
-export type StoreValue = ValueIdFromSchema<StoreType[1]>;

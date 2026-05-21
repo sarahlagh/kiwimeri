@@ -1,5 +1,5 @@
+import { DEFAULT_SPACE_ID } from '@/constants';
 import remotesService from '@/db/remotes.service';
-import storageService from '@/db/storage.service';
 import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
 import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';
 import { adv } from '@@/_setup/test.utils';
@@ -18,7 +18,7 @@ describe(`sync onboarding test`, () => {
     remotesService.addRemote('test', 0, 'inmem', {
       names: ['newcollection.json']
     });
-    await remotesService.configureRemotes(storageService.getSpaceId(), true);
+    await remotesService.configureRemotes(DEFAULT_SPACE_ID, true);
 
     const { success, didPull, didPush } = await syncService_sync('sync');
     expect(success);
@@ -36,7 +36,7 @@ describe(`sync onboarding test`, () => {
         names: ['newcollection.json']
       })
     );
-    await remotesService.configureRemotes(storageService.getSpaceId(), true);
+    await remotesService.configureRemotes(DEFAULT_SPACE_ID, true);
 
     // for test, replace driver
     const compositeSynchronizer = remotesService['synchronizers']

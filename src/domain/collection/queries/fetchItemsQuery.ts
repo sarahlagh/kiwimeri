@@ -4,7 +4,7 @@ import {
   CollectionItemTypeValues
 } from '@/collection/collection';
 import { SpaceQueryDefinition } from '@/core/db/queries-helper';
-import storageService from '@/db/storage.service';
+import { store } from '@/core/db/store';
 import { getAncestorId } from '@/search/search-ancestry.service';
 
 export type FetchItemsQueryParam = {
@@ -18,8 +18,8 @@ const fetchItemsQuery = new SpaceQueryDefinition<
   CollectionItemResult,
   'collection'
 >('fetchItems', 'collection', ({ select, where, param, join }) => {
-  const ancestry = storageService.getStore().getTable('ancestors');
-  const search = storageService.getStore().getTable('search');
+  const ancestry = store.getTable('ancestors');
+  const search = store.getTable('search');
   const params: FetchItemsQueryParam = {
     parent: param('parent') as string,
     recursive: param('recursive') as boolean,

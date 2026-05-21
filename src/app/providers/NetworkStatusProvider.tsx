@@ -1,5 +1,5 @@
-import NetworkStatusContext from '@/common/context/NetworkStatusContext';
-import { networkService } from '@/common/services/network.service';
+import NetworkStatusContext from '@/app/context/NetworkStatusContext';
+import { networkService } from '@/core/infra/network.service';
 import { ConnectionStatus } from '@capacitor/network';
 import { ReactNode, useEffect, useState } from 'react';
 
@@ -12,23 +12,28 @@ export const NetworkStatusProvider = ({
 }: NetworkStatusProviderProps) => {
   const [status, setStatus] = useState<ConnectionStatus>();
   useEffect(() => {
-    const appInit = async () => {
-      await networkService.init();
-    };
-    appInit();
-
     networkService.onStatusChange(
+      '[NetworkStatusProvider]',
       status => {
         setStatus(status);
       },
-      true,
-      '[NetworkStatusProvider]'
+      true
     );
+  }, [setStatus]);
 
-    return () => {
-      networkService.stop();
-    };
-  }, []);
+  // useEffect(() => {
+  //   networkService.onStatusChange(
+  //     '[NetworkStatusProvider]',
+  //     status => {
+  //       setStatus(status);
+  //     },
+  //     true
+  //   );
+
+  //   return () => {
+  //     networkService.stop();
+  //   };
+  // }, []);
 
   return (
     <NetworkStatusContext.Provider value={{ status }}>

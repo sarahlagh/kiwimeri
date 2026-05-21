@@ -1,8 +1,9 @@
 import GenericExportFileButton from '@/common/buttons/GenericExportFileButton';
 import GenericImportFileButton from '@/common/buttons/GenericImportFileButton';
 import { dateToStr } from '@/common/date-utils';
+import { DEFAULT_SPACE_ID } from '@/constants';
+import { store } from '@/core/db/store';
 import remotesService from '@/db/remotes.service';
-import storageService from '@/db/storage.service';
 import {
   IonButtons,
   IonCard,
@@ -22,12 +23,12 @@ const ImportExportCollectionSettings = () => {
   const exportFileSuffix = 'app-settings';
   const onRestoreContent = async (content: string) => {
     const json = JSON.parse(content);
-    storageService.getStore().setContent(json);
-    await remotesService.configureRemotes(storageService.getSpaceId(), true);
+    store.setContent(json);
+    await remotesService.configureRemotes(DEFAULT_SPACE_ID, true);
   };
   const getContentToExport = async () => {
     // export remotes and values
-    const content = storageService.getStore().getContent();
+    const content = store.getContent();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [contentToExport, valuesToExport]: [any, any] = content;
     delete contentToExport['spaces'];

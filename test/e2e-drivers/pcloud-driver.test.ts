@@ -3,13 +3,17 @@ import {
   minimizeItemsForStorage,
   unminimizeItemsFromStorage
 } from '@/collection/compress-collection';
-import { appConfig, getGlobalTrans } from '@/config';
-import { DEFAULT_NOTEBOOK_ID } from '@/constants';
+import { appConfig } from '@/config';
+import {
+  DEFAULT_NOTEBOOK_ID,
+  DEFAULT_SPACE_ID,
+  getGlobalTrans
+} from '@/constants';
+import { space, store } from '@/core/db/store';
+import { SpaceValues, SpaceValuesType } from '@/core/db/store-schema';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import remotesService from '@/db/remotes.service';
-import storageService from '@/db/storage.service';
-import { SpaceValues } from '@/db/types/space-types';
 import userSettingsService from '@/db/user-settings.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
@@ -70,15 +74,10 @@ const reInitRemoteData = async (
 };
 
 const getRemoteContent = async () => {
-  expect(storageService.getStore().getRowCount('remoteState')).toBe(2);
-  const id = storageService.getStore().getRowIds('remoteState')[0];
-  expect(
-    storageService.getStore().getCell('remoteState', id, 'info')
-  ).toBeDefined();
-  const infoStr = storageService
-    .getStore()
-    .getCell('remoteState', id, 'info')
-    ?.valueOf() as string;
+  expect(store.getRowCount('remoteState')).toBe(2);
+  const id = store.getRowIds('remoteState')[0];
+  expect(store.getCell('remoteState', id, 'info')).toBeDefined();
+  const infoStr = store.getCell('remoteState', id, 'info')?.valueOf() as string;
   const info = JSON.parse(infoStr!) as { providerid: string };
   const { content } = await driver.pullFile({
     filename: '',
@@ -90,7 +89,7 @@ const getRemoteContent = async () => {
   const parsed = JSON.parse(content);
   return {
     items: unminimizeItemsFromStorage(parsed.i as CollectionItem[]),
-    values: parsed.o as SpaceValues
+    values: parsed.o as SpaceValuesType
   };
 };
 
@@ -104,7 +103,7 @@ describe.sequential(
         path: `${appConfig.PCLOUD_E2E_PATH}`,
         serverLocation: appConfig.PCLOUD_E2E_SERVER_LOC
       });
-      await remotesService.configureRemotes(storageService.getSpaceId(), true);
+      await remotesService.configureRemotes(DEFAULT_SPACE_ID, true);
       const remotes = remotesService.getRemotes();
       expect(remotes).toHaveLength(1);
       expect(remotes[0].connected).toBeTruthy();
@@ -140,9 +139,7 @@ describe.sequential(
       await syncService.pull();
       expect(getRowCountInsideNotebook()).toBe(3);
 
-      expect(
-        storageService.getStore().getRowCount('ancestors')
-      ).toBeGreaterThan(0);
+      expect(store.getRowCount('ancestors')).toBeGreaterThan(0);
     });
 
     it('should push new local items', async () => {
@@ -512,7 +509,7 @@ describe.sequential(
       // create item on remote, sync
       await reInitRemoteData([oneDocument('remote')]);
       // reinit sync after network down
-      await remotesService.configureRemotes(storageService.getSpaceId());
+      await remotesService.configureRemotes(DEFAULT_SPACE_ID);
       // now pull
       await syncService.pull();
       // both items are kept
@@ -626,9 +623,7 @@ describe.sequential(
           ...defaultValues,
           defaultSortBy: 'updated',
           defaultSortDesc: false,
-          valuesLastUpdatedAt: storageService
-            .getSpace()
-            .getValue('valuesLastUpdatedAt')
+          valuesLastUpdatedAt: space.getValue('valuesLastUpdatedAt')
         });
       });
 
@@ -683,9 +678,7 @@ describe.sequential(
           ...defaultValues,
           defaultSortBy: 'updated',
           defaultSortDesc: false,
-          valuesLastUpdatedAt: storageService
-            .getSpace()
-            .getValue('valuesLastUpdatedAt')
+          valuesLastUpdatedAt: space.getValue('valuesLastUpdatedAt')
         });
       });
     });

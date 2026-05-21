@@ -10,12 +10,12 @@ import {
 import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
 import {
   DEFAULT_NOTEBOOK_ID,
+  DEFAULT_ORDER,
   DEFAULT_SPACE_ID,
   ROOT_COLLECTION
 } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
-import { defaultOrder } from '@/db/types/space-types';
 import userSettingsService from '@/db/user-settings.service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import {
@@ -823,9 +823,9 @@ describe('collection service', () => {
           expected: [
             `#0 r2`,
             `#1 r1`,
-            `#${defaultOrder} r3`,
-            `#${defaultOrder} r4`,
-            `#${defaultOrder} r5`
+            `#${DEFAULT_ORDER} r3`,
+            `#${DEFAULT_ORDER} r4`,
+            `#${DEFAULT_ORDER} r5`
           ]
         },
         {

@@ -1,6 +1,6 @@
 import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
 import { lexicalConfig } from '@/common/wysiwyg/lexical/lexical-config';
-import storageService from '@/db/storage.service';
+import { space, store } from '@/core/db/store';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { SearchOptions, searchService } from '@/search/search.service';
 import { createHeadlessEditor } from '@lexical/headless';
@@ -25,20 +25,17 @@ describe('search service', () => {
     }
   });
   beforeEach(() => {
-    storageService.getSpace().setJson(jsonCollection);
+    space.setJson(jsonCollection);
     searchAncestryService.start();
   });
 
   describe('Search Lexical State', () => {
     beforeEach(() => {
-      const minimized = storageService
-        .getSpace()
+      const minimized = space
         .getCell('collection', docId, 'content')
         ?.toString();
       expect(minimized).toBeDefined();
-      expect(
-        storageService.getStore().getCell('search', docId, 'contentPreview')
-      ).toBeDefined();
+      expect(store.getCell('search', docId, 'contentPreview')).toBeDefined();
       const content = unminimizeContentFromStorage(minimized!);
       editor = createHeadlessEditor({
         nodes: lexicalConfig.nodes,
@@ -356,11 +353,8 @@ describe('search service', () => {
 
     it('should search within pages too', () => {
       // doc with content in its page, not its main body
-      const pageText =
-        storageService
-          .getStore()
-          .getCell('search', 'page.id', 'contentPreview')
-          ?.toString() || '';
+      // const pageText =
+      //   store.getCell('search', 'page.id', 'contentPreview')?.toString() || '';
       expect(searchService.searchInPages(docId2, 'Lorem ipsum')).toEqual([
         'XNa1J-NR7RXnf6Qb'
       ]);

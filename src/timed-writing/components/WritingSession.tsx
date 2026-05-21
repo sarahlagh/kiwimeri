@@ -1,7 +1,7 @@
 import { GET_DOCUMENT_ROUTE } from '@/common/routes';
+import { store } from '@/core/db/store';
 import { historyService } from '@/db/collection-history.service';
 import collectionService, { initialContent } from '@/db/collection.service';
-import storageService from '@/db/storage.service';
 import { useValueWithRef } from '@/db/tinybase/hooks';
 import { useIonModal } from '@ionic/react';
 import { useEffect, useState } from 'react';
@@ -47,7 +47,7 @@ const WritingSession = () => {
   const [present, dismiss] = useIonModal(SaveSessionModal, {
     onClose: (payload: SavePayload) => {
       if (payload) {
-        storageService.getStore().delValue('tempDoc');
+        store.delValue('tempDoc');
         setOngoing(false);
 
         const { id, parent } = saveTempDocument(payload);
@@ -69,8 +69,8 @@ const WritingSession = () => {
         duration={duration}
         mode={mode}
         onStart={(d, m) => {
-          storageService.getStore().setValue('defaultTimedDuration', d);
-          storageService.getStore().setValue('defaultTimedMode', m);
+          store.setValue('defaultTimedDuration', d);
+          store.setValue('defaultTimedMode', m);
           setOngoing(true);
         }}
       />
@@ -85,14 +85,14 @@ const WritingSession = () => {
       onEnd={content => {
         if (content) {
           // immediately save to temp value in tinybase, then on user choice, properly create doc
-          storageService.getStore().setValue('tempDoc', content);
+          store.setValue('tempDoc', content);
         } else {
-          storageService.getStore().delValue('tempDoc');
+          store.delValue('tempDoc');
           setOngoing(false);
         }
       }}
       onSave={content => {
-        storageService.getStore().setValue('tempDoc', content);
+        store.setValue('tempDoc', content);
         present({ cssClass: 'keyboard-aware-modal' }); // show "save somewhere" modal
       }}
     />

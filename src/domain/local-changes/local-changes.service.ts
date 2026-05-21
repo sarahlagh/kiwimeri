@@ -1,6 +1,6 @@
-import { getStore } from '@/core/db/store';
+import { store } from '@/core/db/store';
+import { SpaceTablesType } from '@/core/db/store-schema';
 import { AsId, TableIdFromSchema } from '@/core/db/types';
-import { SpaceType } from '@/db/types/space-types';
 import { Id } from 'tinybase/with-schemas';
 import { LocalChangeOn, LocalChangeRow, LocalChangeType } from './model';
 import fetchLocalChangesQuery from './queries/fetchLocalChangesQuery';
@@ -10,7 +10,7 @@ const LC = 'localChanges';
 class LocalChangesService {
   public addLocalChange(on: 'values'): void;
   public addLocalChange<T>(
-    on: TableIdFromSchema<SpaceType[0]>,
+    on: TableIdFromSchema<SpaceTablesType>,
     itemId: Id,
     change: LocalChangeType,
     field?: AsId<T>
@@ -21,7 +21,6 @@ class LocalChangesService {
     change?: LocalChangeType,
     field?: AsId<T>
   ) {
-    const store = getStore();
     const localChange: LocalChangeRow<T> = {
       itemId: itemId || '',
       change: change || LocalChangeType.update,
@@ -38,12 +37,12 @@ class LocalChangesService {
     if (change === LocalChangeType.update) {
       if (store.hasRow(LC, addedRowId)) {
         // was added in same session
-        getStore().setCell(LC, addedRowId, 'createdAt', localChange.createdAt);
+        store.setCell(LC, addedRowId, 'createdAt', localChange.createdAt);
         return;
       }
       if (store.hasRow(LC, rowId)) {
         // already had update
-        getStore().setCell(LC, rowId, 'createdAt', localChange.createdAt);
+        store.setCell(LC, rowId, 'createdAt', localChange.createdAt);
         return;
       }
     } else if (change === LocalChangeType.delete) {
@@ -75,11 +74,11 @@ class LocalChangesService {
   }
 
   public delete(rowId: Id) {
-    getStore().delRow(LC, rowId);
+    store.delRow(LC, rowId);
   }
 
   public clear() {
-    getStore().delTable(LC);
+    store.delTable(LC);
   }
 
   private getLocalChangeId(

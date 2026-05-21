@@ -1,13 +1,10 @@
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
 import { APPICONS } from '@/constants';
+import { store } from '@/core/db/store';
+import { StoreValue } from '@/core/db/store-schema';
 import remotesService from '@/db/remotes.service';
-import storageService from '@/db/storage.service';
-import {
-  SerializableData,
-  StoreType,
-  StoreValue
-} from '@/db/types/store-types';
+import { SerializableData } from '@/db/types/store-types';
 import {
   IonButton,
   IonCard,
@@ -22,24 +19,20 @@ import {
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useEffect, useState } from 'react';
-import { ValueIdFromSchema } from 'tinybase/@types/_internal/store/with-schemas';
 
 const valueConfigMap: { [key in StoreValue]?: string } = {
   internalProxy: 'INTERNAL_HTTP_PROXY'
 };
 
-const getValue = (v: ValueIdFromSchema<StoreType[1]>) => {
+const getValue = (v: StoreValue) => {
   if (valueConfigMap[v]) {
-    const val = storageService.getStore().getValue(v);
+    const val = store.getValue(v);
     return val !== undefined ? val : appConfig[valueConfigMap[v]];
   }
-  return storageService.getStore().getValue(v);
+  return store.getValue(v);
 };
 
-const getNewValueOrDefault = (
-  v: ValueIdFromSchema<StoreType[1]>,
-  newValue?: SerializableData
-) => {
+const getNewValueOrDefault = (v: StoreValue, newValue?: SerializableData) => {
   if (valueConfigMap[v] === undefined) {
     return newValue;
   }
@@ -75,7 +68,7 @@ const ConfigValue = ({
         onIonChange={e => {
           if (e.detail.value) {
             const newValue = parseInt(e.detail.value);
-            storageService.getStore().setValue(row.key, newValue);
+            store.setValue(row.key, newValue);
           }
         }}
       ></IonInput>
@@ -87,7 +80,7 @@ const ConfigValue = ({
         checked={val as boolean}
         onIonChange={e => {
           const newValue = e.detail.checked;
-          storageService.getStore().setValue(row.key, newValue);
+          store.setValue(row.key, newValue);
         }}
       ></IonCheckbox>
     );
@@ -98,7 +91,7 @@ const ConfigValue = ({
       value={val as string}
       onIonChange={e => {
         const newValue = e.detail.value as string;
-        storageService.getStore().setValue(row.key, newValue);
+        store.setValue(row.key, newValue);
       }}
     ></IonInput>
   );
@@ -138,24 +131,22 @@ const ConfigCard = () => {
   });
 
   useEffect(() => {
-    const listenerId = storageService
-      .getStore()
-      .addValuesListener((store, getValueChange) => {
-        if (getValueChange) {
-          rows.forEach(row => {
-            const [changed, , newValue] = getValueChange(row.key);
-            if (changed) {
-              state[row.key] = getNewValueOrDefault(row.key, newValue);
-              setState({ ...state });
-              if (row.onChange) {
-                setTimeout(row.onChange);
-              }
+    const listenerId = store.addValuesListener((store, getValueChange) => {
+      if (getValueChange) {
+        rows.forEach(row => {
+          const [changed, , newValue] = getValueChange(row.key);
+          if (changed) {
+            state[row.key] = getNewValueOrDefault(row.key, newValue);
+            setState({ ...state });
+            if (row.onChange) {
+              setTimeout(row.onChange);
             }
-          });
-        }
-      });
+          }
+        });
+      }
+    });
     return () => {
-      storageService.getStore().delListener(listenerId);
+      store.delListener(listenerId);
     };
   });
 
@@ -176,7 +167,7 @@ const ConfigCard = () => {
               slot="end"
               fill="clear"
               onClick={() => {
-                storageService.getStore().delValue(v.key);
+                store.delValue(v.key);
               }}
             >
               <IonIcon icon={APPICONS.resetAction}></IonIcon>

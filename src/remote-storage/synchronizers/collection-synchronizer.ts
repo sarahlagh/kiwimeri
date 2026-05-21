@@ -15,11 +15,11 @@ import {
 } from '@/collection/compress-collection';
 import { nOr0 } from '@/common/utils';
 import { appConfig } from '@/config';
+import { space, store } from '@/core/db/store';
+import { SpaceType, SpaceValues } from '@/core/db/store-schema';
 import { WithId } from '@/core/db/types';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
-import storageService from '@/db/storage.service';
-import { SpaceType, SpaceValues } from '@/db/types/space-types';
 import {
   AnyData,
   RemoteResult,
@@ -113,8 +113,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       return { success: true, didPush };
     }
     this.ongoing = true;
-    const store = storageService.getSpace(this.remote.space);
-    const localContent = store.getContent();
+    const localContent = space.getContent();
     try {
       // fetch remote if needed or use local content as comparison
       const remoteContent = await this.resolveRemoteContent(
@@ -156,8 +155,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     if (this.ongoing) return { success: false, didPull };
     this.ongoing = true;
     console.log(`[collection][pull] starting`);
-    const store = storageService.getSpace(this.remote.space);
-    const localContent = store.getContent();
+    const localContent = space.getContent();
     const localChanges = localChangesService.getLocalChanges();
     const lastPulled = this.getLastPulled(this.remote.state);
 
@@ -196,9 +194,9 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   }
 
   private setContent(content: Content<SpaceType, false>) {
-    storageService.getSpace().setTable('collection', content[0].collection!);
-    // storageService.getSpace().setTable('comments', content[0].comments!);
-    storageService.getSpace().setValues(content[1]);
+    space.setTable('collection', content[0].collection!);
+    // space.setTable('comments', content[0].comments!);
+    space.setValues(content[1]);
   }
 
   public async destroy() {
@@ -494,7 +492,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     updatedRemoteState: RemoteState,
     clearLocalChanges: boolean
   ) {
-    storageService.getStore().transaction(() => {
+    store.transaction(() => {
       if (clearLocalChanges) {
         localChangesService.clear();
       }

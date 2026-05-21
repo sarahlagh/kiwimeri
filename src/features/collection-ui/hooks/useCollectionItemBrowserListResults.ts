@@ -2,6 +2,7 @@ import {
   CollectionItemResult,
   CollectionItemSort
 } from '@/collection/collection';
+import { useQueryResults } from '@/core/db/queries-helper';
 import notebooksService from '@/db/notebooks.service';
 import userSettingsService from '@/db/user-settings.service';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
@@ -44,5 +45,5 @@ export default function useCollectionItemBrowserListResults(
     limit = 20;
   }
 
-  return fetchItemsQuery.useResults(sort.by, sort.descending, 0, limit);
+  return useQueryResults(fetchItemsQuery, sort.by, sort.descending, 0, limit);
 }

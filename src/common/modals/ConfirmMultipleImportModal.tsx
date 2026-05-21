@@ -1,10 +1,9 @@
-import { getGlobalTrans } from '@/config';
 import {
-  APPICONS,
   APPICONS_PER_TYPE,
-  ARIA_DESCRIPTIONS_PER_TYPE,
-  ROOT_COLLECTION
-} from '@/constants';
+  CollectionItemType,
+  CollectionItemTypeValues
+} from '@/collection/collection';
+import { APPICONS, getGlobalTrans, ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/db/collection.service';
 import {
   InputCustomEvent,
@@ -30,6 +29,14 @@ import {
   ZipParsedData,
   ZipParseError
 } from '../services/import.service';
+
+export const ARIA_DESCRIPTIONS_PER_TYPE = new Map<
+  CollectionItemTypeValues,
+  string
+>();
+ARIA_DESCRIPTIONS_PER_TYPE.set(CollectionItemType.document, 'a document');
+ARIA_DESCRIPTIONS_PER_TYPE.set(CollectionItemType.folder, 'a folder');
+ARIA_DESCRIPTIONS_PER_TYPE.set(CollectionItemType.notebook, 'a notebook');
 
 export type ConfirmMultipleImportModalParams = {
   zipData: ZipParsedData;

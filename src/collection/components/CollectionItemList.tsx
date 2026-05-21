@@ -1,10 +1,11 @@
 import {
+  APPICONS_PER_TYPE,
   CollectionItemResult,
   CollectionItemType
 } from '@/collection/collection';
 import SortableList from '@/common/dnd/containers/SortableList';
 import platformService from '@/common/services/platform.service';
-import { APPICONS, APPICONS_PER_TYPE, CONFLICT_STR } from '@/constants';
+import { APPICONS, CONFLICT_STR } from '@/constants';
 import collectionService from '@/db/collection.service';
 import { searchService } from '@/search/search.service';
 import {

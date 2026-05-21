@@ -1,53 +1,34 @@
 import { appConfig } from '@/config';
-import { historyService } from '@/db/collection-history.service';
-import remotesService from '@/db/remotes.service';
-import storageService from '@/db/storage.service';
-import { appLog } from '@/log';
-import { ReactNode, useEffect, useState } from 'react';
+import {
+  space,
+  spaceMetrics,
+  spaceQueries,
+  store,
+  storeIndexes,
+  storeQueries
+} from '@/core/db/store';
+import { ReactNode } from 'react';
 import { Indexes } from 'tinybase/indexes';
 import { Metrics } from 'tinybase/metrics';
 import { Queries } from 'tinybase/queries';
 import { Store } from 'tinybase/store';
 import { Provider } from 'tinybase/ui-react';
 import { Inspector } from 'tinybase/ui-react-inspector';
-import LoadingPage from '../pages/LoadingPage';
 
 const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
-  const [isLoading, setIsLoading] = useState(true);
-  useEffect(() => {
-    async function load() {
-      console.log('[storage] starting');
-      await storageService.start();
-      setIsLoading(false);
-      appLog.gc(); // TODO run at interval
-      await remotesService.initSync();
-      historyService.gc();
-    }
-    load();
+  const untypedSpace = space as unknown as Store;
+  const untypedSpaceQueries = spaceQueries as unknown as Queries;
+  const untypedSpaceMetrics = spaceMetrics as unknown as Metrics;
+  const untypedStore = store as unknown as Store;
+  const untypedStoreQueries = storeQueries as unknown as Queries;
+  const untypedStoreIndexes = storeIndexes as unknown as Indexes;
 
-    return () => {
-      console.log('[storage] stopping');
-      remotesService.stopSync();
-      storageService.stop();
-    };
-  }, []);
-
-  const space = storageService.getSpace() as unknown as Store;
-  const spaceQueries = storageService.getSpaceQueries() as unknown as Queries;
-  const spaceMetrics = storageService.getSpaceMetrics() as unknown as Metrics;
-  const store = storageService.getStore() as unknown as Store;
-  const storeQueries = storageService.getStoreQueries() as unknown as Queries;
-  const storeIndexes = storageService.getStoreIndexes() as unknown as Indexes;
-
-  if (isLoading) {
-    return <LoadingPage />;
-  }
   return (
     <Provider
-      storesById={{ store, space }}
-      queriesById={{ store: storeQueries, space: spaceQueries }}
-      indexesById={{ store: storeIndexes }}
-      metricsById={{ space: spaceMetrics }}
+      storesById={{ store: untypedStore, space: untypedSpace }}
+      queriesById={{ store: untypedStoreQueries, space: untypedSpaceQueries }}
+      indexesById={{ store: untypedStoreIndexes }}
+      metricsById={{ space: untypedSpaceMetrics }}
     >
       {appConfig.DEV_ENABLE_INSPECTOR && <Inspector />}
       {children}

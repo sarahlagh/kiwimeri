@@ -5,8 +5,7 @@ import {
   ZipFileTree,
   ZipMetadata
 } from '@/common/services/export.service';
-import { getGlobalTrans } from '@/config';
-import { DEFAULT_NOTEBOOK_ID, META_JSON } from '@/constants';
+import { DEFAULT_NOTEBOOK_ID, getGlobalTrans, META_JSON } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import formatConverter from '@/format-conversion/format-converter.service';

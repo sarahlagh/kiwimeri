@@ -1,7 +1,7 @@
 import CollectionItemBrowserList from '@/collection/components/CollectionItemBrowserList';
 import { onTitleChangeFn } from '@/common/events/events';
 import { getSearchParams } from '@/common/utils';
-import { getGlobalTrans } from '@/config';
+import { getGlobalTrans } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import { useLocation } from 'react-router';

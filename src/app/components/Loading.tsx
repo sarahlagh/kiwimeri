@@ -1,6 +1,11 @@
-import { Trans } from '@lingui/react/macro';
+import { IonSpinner } from '@ionic/react';
 
 const Loading = () => {
-  return <Trans>Loading...</Trans>;
+  return (
+    <IonSpinner
+      name="circular"
+      style={{ left: '50%', top: '45vh' }}
+    ></IonSpinner>
+  );
 };
 export default Loading;

@@ -1,7 +1,7 @@
 import { setFieldMeta } from '@/collection/collection';
 import { genericReorder } from '@/common/dnd/utils';
 import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
-import { getSpace } from '@/core/db/store';
+import { space } from '@/core/db/store';
 import collectionService, { initialContent } from '@/db/collection.service';
 import { getPlainText } from '@/shared/utils/getPlainText';
 import { SortableType } from '@/shared/utils/sort-filter/sort';
@@ -32,7 +32,6 @@ class CommentsService {
 
   public addComment(docId: Id, order?: number) {
     const { item, id } = this.newCommentObj(docId);
-    const space = getSpace();
     space.transaction(() => {
       space.setRow(C, id, { ...item, order });
       space.setCell(CL, docId, 'updated', Date.now());
@@ -42,7 +41,6 @@ class CommentsService {
   }
 
   public addComments(docId: Id, comments: CommentRow[]) {
-    const space = getSpace();
     space.transaction(() => {
       comments.forEach(comment => {
         const id = getUniqueId();
@@ -54,7 +52,6 @@ class CommentsService {
   }
 
   public editComment(id: Id, content: SerializedEditorState) {
-    const space = getSpace();
     const contentStr = minimizeContentForStorage(content);
     space.transaction(() => {
       const now = Date.now();
@@ -71,7 +68,6 @@ class CommentsService {
   }
 
   public deleteComment(id: Id) {
-    const space = getSpace();
     space.transaction(() => {
       const itemId = space.getCell(C, id, 'itemId');
       space.setCell(CL, itemId!, 'updated', Date.now());
@@ -82,7 +78,6 @@ class CommentsService {
 
   public reorderComments(comments: SortableType[], from: number, to: number) {
     if (comments.length === 0) return;
-    const space = getSpace();
     const now = Date.now();
     space.transaction(() => {
       if (comments[0].order === -1) {
@@ -112,11 +107,10 @@ class CommentsService {
   }
 
   public getCommentContent(id: Id) {
-    return getSpace().getCell(C, id, 'content');
+    return space.getCell(C, id, 'content');
   }
 
   public getCommentInfo(id: Id) {
-    const space = getSpace();
     const itemId = space.getCell(C, id, 'itemId') as string;
     const createdAt = space.getCell(C, id, 'createdAt');
     const updatedAt = space.getCell(C, id, 'updatedAt');

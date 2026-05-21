@@ -1,7 +1,7 @@
+import { space } from '@/core/db/store';
 import { Id } from 'tinybase/with-schemas';
 import collectionService from './collection.service';
 import notebooksService from './notebooks.service';
-import storageService from './storage.service';
 
 class TagsService {
   private itemsPerTags = new Map<string, string[]>();
@@ -48,7 +48,7 @@ class TagsService {
       this.itemsPerTags.get(tag1)!.length > 0
     ) {
       // update all rows
-      storageService.getSpace().transaction(() => {
+      space.transaction(() => {
         this.itemsPerTags.get(tag1)!.forEach(rowId => {
           collectionService.renameItemTag(rowId, tag1, tag2);
         });

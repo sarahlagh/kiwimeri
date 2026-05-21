@@ -1,9 +1,9 @@
 import { CollectionItem, parseFieldMeta } from '@/collection/collection';
 import { DEFAULT_SPACE_ID } from '@/constants';
+import { space } from '@/core/db/store';
+import { SpaceValues } from '@/core/db/store-schema';
 import { historyService } from '@/db/collection-history.service';
 import remotesService from '@/db/remotes.service';
-import storageService from '@/db/storage.service';
-import { SpaceValues } from '@/db/types/space-types';
 import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
 import { SyncDirection, syncService } from '@/remote-storage/sync.service';
 import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';
@@ -28,7 +28,7 @@ export const defaultValues: SpaceValues = {
 
 export const testSyncBeforeEach = async () => {
   remotesService.addRemote('test', 0, 'inmem', { names: ['collection.json'] });
-  await remotesService.configureRemotes(storageService.getSpaceId(), true);
+  await remotesService.configureRemotes(DEFAULT_SPACE_ID, true);
   const compositeSynchronizer = remotesService['synchronizers'].values().next()
     .value! as CompositeSynchronizer;
   compositeSynchronizer['statsEnabled'] = false;
@@ -38,7 +38,7 @@ export const testSyncBeforeEach = async () => {
   vi.useFakeTimers();
   searchAncestryService.start(DEFAULT_SPACE_ID);
   historyService['enabled'] = true;
-  storageService.getSpace().setValue('historyIdleTime', 0);
+  space.setValue('historyIdleTime', 0);
 };
 
 export const testSyncAfterEach = () => {

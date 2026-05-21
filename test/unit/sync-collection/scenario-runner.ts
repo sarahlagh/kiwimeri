@@ -10,12 +10,13 @@ import {
 import {
   CONFLICTS_NOTEBOOK_ID,
   DEFAULT_NOTEBOOK_ID,
+  DEFAULT_SPACE_ID,
   ROOT_COLLECTION
 } from '@/constants';
+import { space, store } from '@/core/db/store';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import remotesService from '@/db/remotes.service';
-import storageService from '@/db/storage.service';
 import { SerializableData } from '@/db/types/store-types';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
@@ -138,12 +139,15 @@ export class PullTestScenarioRunner {
     }
     // make sure remote is seen as initially unchanged
     if (this.scenario.initLocalData) {
-      await remotesService.configureRemotes(storageService.getSpaceId());
+      await remotesService.configureRemotes(DEFAULT_SPACE_ID);
       const remoteInfo = await getRemoteFileInfo('collection.json');
       const state = remotesService.getRemotes()[0].state;
-      storageService
-        .getStore()
-        .setCell('remoteState', state, 'lastPulled', remoteInfo?.updated || 0);
+      store.setCell(
+        'remoteState',
+        state,
+        'lastPulled',
+        remoteInfo?.updated || 0
+      );
     }
     return this;
   }
@@ -438,7 +442,7 @@ export class PullTestScenarioRunner {
     stats: MinStatItem
   ) {
     console.debug('common stats', id, stats);
-    const localTable = storageService.getSpace().getTable('collection');
+    const localTable = space.getTable('collection');
     const relevantItem = this.relevantItems.find(i => i.id === id);
 
     if (stats.exists) {
@@ -622,7 +626,7 @@ export class PullTestScenarioRunner {
 
     if (resp.didPush) {
       // check remote content - should be identical to local
-      const localContent = storageService.getSpace().getTable('collection');
+      const localContent = space.getTable('collection');
       const itemIds = Object.keys(localContent);
       const remoteContent = await getRemoteContent();
       expect(remoteContent.content).toHaveLength(itemIds.length);
@@ -630,9 +634,7 @@ export class PullTestScenarioRunner {
         expect(i).toEqual({ ...localContent[i.id!], id: i.id! });
       });
       // check values
-      expect(remoteContent.values).toEqual(
-        storageService.getSpace().getValues()
-      );
+      expect(remoteContent.values).toEqual(space.getValues());
     }
   }
 }

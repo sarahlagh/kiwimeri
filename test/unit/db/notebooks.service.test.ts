@@ -1,6 +1,5 @@
 import { parseFieldMeta } from '@/collection/collection';
-import { getGlobalTrans } from '@/config';
-import { ROOT_COLLECTION } from '@/constants';
+import { getGlobalTrans, ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import {

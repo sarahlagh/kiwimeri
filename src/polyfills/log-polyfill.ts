@@ -1,6 +1,7 @@
-import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
-import { appLog, AppLogLevel } from '@/log';
+import { AppLogLevel } from '@/core/infra/log-model';
+import { plt } from '@/core/infra/platform';
+import { appLog } from '@/log';
 
 const logLevels = {
   trace: 1000,
@@ -23,7 +24,7 @@ const fnFactory =
     }
   };
 
-if (!platformService.isDev()) {
+if (!plt.isDev()) {
   console.trace = fnFactory(originalConsole.trace, 'trace');
   console.debug = fnFactory(originalConsole.debug, 'debug');
   console.log = fnFactory(originalConsole.log, 'info');

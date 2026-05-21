@@ -1,3 +1,4 @@
+import { store } from '@/core/db/store';
 import storageService from '@/db/storage.service';
 import {
   IonButton,
@@ -18,7 +19,7 @@ const OperationCard = () => {
         <IonButton
           fill="clear"
           onClick={() => {
-            storageService.getStore().setContent([{}, {}]);
+            store.setContent([{}, {}]);
           }}
           color="danger"
         >
@@ -37,10 +38,8 @@ const OperationCard = () => {
           fill="clear"
           onClick={() => {
             storageService.nukeSpace();
-            storageService.getStore().setCell('remoteState', '0', 'info', '{}');
-            storageService
-              .getStore()
-              .setCell('remoteState', '0', 'lastRemoteChange', 0);
+            store.setCell('remoteState', '0', 'info', '{}');
+            store.setCell('remoteState', '0', 'lastRemoteChange', 0);
           }}
           color="danger"
         >

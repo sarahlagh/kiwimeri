@@ -1,24 +1,21 @@
+import { DEFAULT_SPACE_ID } from '@/constants';
+import { store } from '@/core/db/store';
 import remotesService from '@/db/remotes.service';
-import storageService from '@/db/storage.service';
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 describe('remotes service', () => {
   it('should add a remote in db without testing connection', () => {
     remotesService.addRemote('test', 0, 'inmem');
-    expect(storageService.getStore().getRowCount('remotes')).toBe(1);
-    const rowId = storageService.getStore().getRowIds('remotes')[0];
-    const row = storageService.getStore().getRow('remotes', rowId);
+    expect(store.getRowCount('remotes')).toBe(1);
+    const rowId = store.getRowIds('remotes')[0];
+    const row = store.getRow('remotes', rowId);
     expect(row.name).toBe('test');
     expect(row.rank).toBe(0);
     expect(row.type).toBe('inmem');
     const state = row.state;
-    expect(
-      storageService.getStore().hasRow('remoteState', state as string)
-    ).toBeTruthy();
-    const stateRow = storageService
-      .getStore()
-      .getRow('remoteState', state as string);
+    expect(store.hasRow('remoteState', state as string)).toBeTruthy();
+    const stateRow = store.getRow('remoteState', state as string);
     expect(stateRow.connected).toBeFalsy();
     expect(stateRow.lastRemoteChange).toBeDefined();
     expect(remotesService['synchronizers'].get(rowId)).toBeUndefined();
@@ -26,25 +23,22 @@ describe('remotes service', () => {
 
   it('should not init sync for previously unconfigured remotes', async () => {
     remotesService.addRemote('test', 0, 'inmem');
-    await remotesService.configureRemotes(storageService.getSpaceId());
-    const rowId = storageService.getStore().getRowIds('remotes')[0];
-    const state = storageService.getStore().getRow('remotes', rowId).state;
-    const stateRow = storageService
-      .getStore()
-      .getRow('remoteState', state as string);
+    await remotesService.configureRemotes(DEFAULT_SPACE_ID);
+    const rowId = store.getRowIds('remotes')[0];
+    const state = store.getRow('remotes', rowId).state;
+    const stateRow = store.getRow('remoteState', state as string);
     expect(stateRow.connected).toBeFalsy();
     expect(remotesService['synchronizers'].get(rowId)).toBeUndefined();
   });
 
   it('should only init sync for previously configured remotes', async () => {
     remotesService.addRemote('test', 0, 'inmem');
-    const rowId = storageService.getStore().getRowIds('remotes')[0];
-    const state = storageService.getStore().getRow('remotes', rowId)
-      .state as string;
+    const rowId = store.getRowIds('remotes')[0];
+    const state = store.getRow('remotes', rowId).state as string;
     const ok = await remotesService.configure(
       {
         id: rowId,
-        space: storageService.getSpaceId(),
+        space: DEFAULT_SPACE_ID,
         state,
         type: 'inmem',
         config: '{}',
@@ -57,22 +51,18 @@ describe('remotes service', () => {
     );
     expect(ok).toBeTruthy();
     expect(remotesService['synchronizers'].get(rowId)).toBeDefined();
-    await remotesService.configureRemotes(storageService.getSpaceId());
-    const stateRow = storageService
-      .getStore()
-      .getRow('remoteState', state as string);
+    await remotesService.configureRemotes(DEFAULT_SPACE_ID);
+    const stateRow = store.getRow('remoteState', state as string);
     expect(stateRow.connected).toBeTruthy();
     expect(remotesService['synchronizers'].get(rowId)).toBeDefined();
   });
 
   it('should only init sync for all remotes on demand', async () => {
     remotesService.addRemote('test', 0, 'inmem');
-    await remotesService.configureRemotes(storageService.getSpaceId(), true);
-    const rowId = storageService.getStore().getRowIds('remotes')[0];
-    const state = storageService.getStore().getRow('remotes', rowId).state;
-    const stateRow = storageService
-      .getStore()
-      .getRow('remoteState', state as string);
+    await remotesService.configureRemotes(DEFAULT_SPACE_ID, true);
+    const rowId = store.getRowIds('remotes')[0];
+    const state = store.getRow('remotes', rowId).state;
+    const stateRow = store.getRow('remoteState', state as string);
     expect(stateRow.connected).toBeTruthy();
     expect(remotesService['synchronizers'].get(rowId)).toBeDefined();
   });

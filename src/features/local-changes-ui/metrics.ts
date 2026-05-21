@@ -1,5 +1,5 @@
-import { getSpaceMetrics } from '@/core/db/store';
-import { SpaceType } from '@/db/types/space-types';
+import { spaceMetrics } from '@/core/db/store';
+import { SpaceType } from '@/core/db/store-schema';
 import { Metrics } from 'tinybase/with-schemas';
 
 export const LatestCollectionUpdateMetricId = 'latestCollectionChange';
@@ -14,12 +14,11 @@ function latestCollectionUpdateMetric(metrics: Metrics<SpaceType>) {
 }
 
 export function initLatestCollectionUpdateMetric() {
-  const metrics = getSpaceMetrics();
-  if (!metrics.hasMetric(LatestCollectionUpdateMetricId)) {
-    latestCollectionUpdateMetric(metrics);
+  if (!spaceMetrics.hasMetric(LatestCollectionUpdateMetricId)) {
+    latestCollectionUpdateMetric(spaceMetrics);
   }
 }
 
 export function closeLatestCollectionUpdateMetric() {
-  getSpaceMetrics().delMetricDefinition(LatestCollectionUpdateMetricId);
+  spaceMetrics.delMetricDefinition(LatestCollectionUpdateMetricId);
 }

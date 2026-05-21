@@ -1,6 +1,6 @@
 import { parseFieldMeta } from '@/collection/collection';
+import { SpaceTablesType, SpaceType } from '@/core/db/store-schema';
 import { TableIdFromSchema, WithId } from '@/core/db/types';
-import { SpaceType } from '@/db/types/space-types';
 import {
   LocalChangeResult,
   LocalChangeType
@@ -18,7 +18,7 @@ type MetaKey<K extends string> = `${K}_meta`;
 
 export function applyLocalChangesToPush<R extends WithId>(
   localContent: Content<SpaceType>,
-  tableId: TableIdFromSchema<SpaceType[0]>,
+  tableId: TableIdFromSchema<SpaceTablesType>,
   allLocalChanges: LocalChangeResult[],
   newRemoteItems: R[]
 ): R[] {

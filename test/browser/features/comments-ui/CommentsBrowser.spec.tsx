@@ -49,11 +49,12 @@ describe('CommentsBrowser', () => {
 
     await getAddBtn(screen).click();
 
+    expect(fetchCommentsQuery.getResults({ itemId: docId })).toHaveLength(1);
+
     await expect.element(getCommentPreview(screen, '')).toBeInTheDocument();
     await expect.element(getContentEditor(screen)).toBeInTheDocument();
     await expect.element(getAddBtn(screen)).toBeInTheDocument();
 
-    expect(fetchCommentsQuery.getResults({ itemId: docId })).toHaveLength(1);
     expect(
       resumeService.getResumeState(docId)?.lastSelectedCommentId
     ).toBeDefined();

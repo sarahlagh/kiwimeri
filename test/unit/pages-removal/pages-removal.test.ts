@@ -1,9 +1,8 @@
 import { CollectionItemType, PageResult } from '@/collection/collection';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
-import { getSpace } from '@/core/db/store';
+import { space } from '@/core/db/store';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
-import storageService from '@/db/storage.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import { statsService } from '@/domain/stats/stats-service';
@@ -190,17 +189,13 @@ function assertCommentsPostExplode(
     const eqComment = comments.find(c => c.createdAt === p.created);
     expect(eqComment).toBeDefined();
     expect(eqComment?.order).toBe(p.order);
-    const commentPlainText = getSpace().getCell(
+    const commentPlainText = space.getCell(
       'comments',
       eqComment!.id,
       'plainText'
     );
     expect(commentPlainText).toBe(p.preview);
-    const commentContent = getSpace().getCell(
-      'comments',
-      eqComment!.id,
-      'content'
-    );
+    const commentContent = space.getCell('comments', eqComment!.id, 'content');
     expect(commentContent).toBe((p as any)['content']);
   });
 
@@ -233,9 +228,9 @@ function assertCommentsPostExplode(
 describe('page removal test', () => {
   beforeEach(() => {
     historyService['enabled'] = true;
-    storageService.getSpace().setValue('historyIdleTime', 20);
+    space.setValue('historyIdleTime', 20);
     searchAncestryService.start();
-    storageService.getSpace().setValue('statsEnabled', true);
+    space.setValue('statsEnabled', true);
     localChangesService.clear();
     vi.useFakeTimers();
   });

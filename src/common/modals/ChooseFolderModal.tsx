@@ -5,6 +5,7 @@ import {
 import CollectionItemBreadcrumb from '@/collection/components/CollectionItemBreadcrumb';
 import CollectionItemList from '@/collection/components/CollectionItemList';
 import { APPICONS, ROOT_COLLECTION } from '@/constants';
+import { useQueryResults } from '@/core/db/queries-helper';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import useFetchItemsQuery from '@/domain/collection/hooks/useFetchItemsQuery';
@@ -96,13 +97,11 @@ const ChooseFolderModal = ({
   const query = useFetchItemsQuery(currentParent);
   const [parent, setParent] = useFetchItemsQueryParamsState(query);
 
-  const items = query
-    .useResults()
-    .filter(
-      item =>
-        item.type === CollectionItemType.folder ||
-        item.type === CollectionItemType.notebook
-    );
+  const items = useQueryResults(query).filter(
+    item =>
+      item.type === CollectionItemType.folder ||
+      item.type === CollectionItemType.notebook
+  );
 
   const finalItems = items;
   return (

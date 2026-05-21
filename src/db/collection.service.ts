@@ -21,9 +21,8 @@ import {
   minimizeContentForStorage,
   unminimizeContentFromStorage
 } from '@/common/wysiwyg/compress-file-content';
-import { getGlobalTrans } from '@/config';
-import { ROOT_COLLECTION } from '@/constants';
-import { getSpace } from '@/core/db/store';
+import { DEFAULT_ORDER, getGlobalTrans, ROOT_COLLECTION } from '@/constants';
+import { space, spaceQueries } from '@/core/db/store';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
 import { commentsService } from '@/domain/comments/comments.service';
 import { CommentRow } from '@/domain/comments/model';
@@ -37,13 +36,11 @@ import { Table } from 'tinybase/store';
 import { searchAncestryService } from '../search/search-ancestry.service';
 import { historyService } from './collection-history.service';
 import notebooksService from './notebooks.service';
-import storageService from './storage.service';
 import {
   useCellWithRef,
   useResultSortedRowIdsWithRef,
   useTableWithRef
 } from './tinybase/hooks';
-import { defaultOrder } from './types/space-types';
 import { SerializableData } from './types/store-types';
 import userSettingsService from './user-settings.service';
 
@@ -59,10 +56,9 @@ class CollectionService {
   private readonly tableId = 'collection';
 
   private fetchAllPerParentQuery(parent: string, deleted: boolean = false) {
-    const queries = storageService.getSpaceQueries();
     const queryName = `fetchAllForParent${parent}`;
-    if (!queries.hasQuery(queryName)) {
-      queries.setQueryDefinition(
+    if (!spaceQueries.hasQuery(queryName)) {
+      spaceQueries.setQueryDefinition(
         queryName,
         this.tableId,
         ({ select, where }) => {
@@ -85,10 +81,9 @@ class CollectionService {
     parent: string,
     deleted: boolean = false
   ) {
-    const queries = storageService.getSpaceQueries();
     const queryName = `fetchAllCollectionItemsFor${parent}`;
-    if (!queries.hasQuery(queryName)) {
-      queries.setQueryDefinition(
+    if (!spaceQueries.hasQuery(queryName)) {
+      spaceQueries.setQueryDefinition(
         queryName,
         this.tableId,
         ({ select, where }) => {
@@ -112,10 +107,9 @@ class CollectionService {
   }
 
   private fetchPagesForDocQuery(document: string) {
-    const queries = storageService.getSpaceQueries();
     const queryName = `fetchPagesForDoc${document}`;
-    if (!queries.hasQuery(queryName)) {
-      queries.setQueryDefinition(
+    if (!spaceQueries.hasQuery(queryName)) {
+      spaceQueries.setQueryDefinition(
         queryName,
         this.tableId,
         ({ select, where }) => {
@@ -132,10 +126,9 @@ class CollectionService {
   }
 
   private fetchConflictsQuery() {
-    const queries = storageService.getSpaceQueries();
     const queryName = `fetchConflicts`;
-    if (!queries.hasQuery(queryName)) {
-      queries.setQueryDefinition(
+    if (!spaceQueries.hasQuery(queryName)) {
+      spaceQueries.setQueryDefinition(
         queryName,
         this.tableId,
         ({ select, where }) => {
@@ -186,8 +179,7 @@ class CollectionService {
     queryName: string,
     sort: CollectionItemSort
   ) {
-    const queries = storageService.getSpaceQueries();
-    const results = queries
+    const results = spaceQueries
       .getResultSortedRowIds(queryName, sort.by, sort.descending)
       .map(rowId => {
         const row = table[rowId];
@@ -206,7 +198,7 @@ class CollectionService {
     if (!sort) {
       sort = userSettingsService.getDefaultDisplayOpts().sort;
     }
-    const table = storageService.getSpace().getTable(this.tableId);
+    const table = space.getTable(this.tableId);
     const queryName = this.fetchAllPerParentQuery(parent);
     return this.getResultsSorted(table, queryName, sort);
   }
@@ -291,7 +283,7 @@ class CollectionService {
       sort = displayOpts.sort;
     }
     if (!this.itemExists(document)) return [];
-    const table = storageService.getSpace().getTable(this.tableId);
+    const table = space.getTable(this.tableId);
     const queryName = this.fetchPagesForDocQuery(document);
     const results = this.getResultsSorted(table, queryName, sort);
     if (sort.by !== 'preview') {
@@ -333,7 +325,7 @@ class CollectionService {
     if (!sort) {
       sort = userSettingsService.getDefaultDisplayOpts().sort;
     }
-    const table = storageService.getSpace().getTable(this.tableId);
+    const table = space.getTable(this.tableId);
     const queryName = this.fetchConflictsQuery();
     return this.getResultsSorted(table, queryName, sort);
   }
@@ -357,7 +349,7 @@ class CollectionService {
       type: CollectionItemType.document,
       deleted: false,
       deleted_meta: setFieldMeta('false', now),
-      order: defaultOrder, // TODO dynamic order
+      order: DEFAULT_ORDER, // TODO dynamic order
       order_meta: setFieldMeta('0', now)
     };
     return { item, id };
@@ -385,7 +377,7 @@ class CollectionService {
       type: CollectionItemType.folder,
       deleted: false,
       deleted_meta: setFieldMeta('false', now),
-      order: defaultOrder, // TODO dynamic order
+      order: DEFAULT_ORDER, // TODO dynamic order
       order_meta: setFieldMeta('0', now)
     };
     return { item, id };
@@ -412,7 +404,7 @@ class CollectionService {
       type: CollectionItemType.page,
       deleted: false,
       deleted_meta: setFieldMeta('false', now),
-      order: defaultOrder, // TODO dynamic order
+      order: DEFAULT_ORDER, // TODO dynamic order
       order_meta: setFieldMeta('0', now)
     };
     return { item, id };
@@ -432,7 +424,7 @@ class CollectionService {
 
   public getItem(id: string) {
     return {
-      ...storageService.getSpace().getRow(this.tableId, id),
+      ...space.getRow(this.tableId, id),
       id
     } as CollectionItem;
   }
@@ -445,7 +437,6 @@ class CollectionService {
     if (!id) {
       id = getUniqueId();
     }
-    const space = storageService.getSpace();
     const changeType = this.itemExists(id)
       ? LocalChangeType.update
       : LocalChangeType.add;
@@ -482,9 +473,7 @@ class CollectionService {
     );
     if (wasFolder) {
       const queryName = this.fetchDocsFoldersNotebooksPerParentQuery(rowId);
-      const children = storageService
-        .getSpaceQueries()
-        .getResultSortedRowIds(queryName);
+      const children = spaceQueries.getResultSortedRowIds(queryName);
       console.debug(`folder to delete had ${children.length} children`);
       if (children.length > 0) {
         children.forEach(id => {
@@ -501,9 +490,7 @@ class CollectionService {
     }
     if (wasDocument) {
       const queryName = this.fetchPagesForDocQuery(rowId);
-      const children = storageService
-        .getSpaceQueries()
-        .getResultSortedRowIds(queryName);
+      const children = spaceQueries.getResultSortedRowIds(queryName);
       console.debug(`document to delete had ${children.length} pages`);
       if (children.length > 0) {
         children.forEach(id => {
@@ -511,22 +498,20 @@ class CollectionService {
         });
       }
     }
-    storageService.getSpace().delRow(this.tableId, rowId);
+    space.delRow(this.tableId, rowId);
   }
 
   public itemExists(rowId: Id) {
     if (rowId === ROOT_COLLECTION) {
       return true;
     }
-    return storageService.getSpace().hasRow(this.tableId, rowId);
+    return space.hasRow(this.tableId, rowId);
   }
 
   public getItemParent(rowId: Id) {
     return (
-      (storageService
-        .getSpace()
-        .getCell(this.tableId, rowId, 'parent')
-        ?.valueOf() as string) || ROOT_COLLECTION
+      (space.getCell(this.tableId, rowId, 'parent')?.valueOf() as string) ||
+      ROOT_COLLECTION
     );
   }
 
@@ -564,10 +549,8 @@ class CollectionService {
     const isItemHomeFolder = this.getIsItemHomeFolder(rowId);
     const defaultValue = isItemHomeFolder ? getGlobalTrans().homeTitle : '';
     return (
-      (storageService
-        .getSpace()
-        .getCell(this.tableId, rowId, 'title')
-        ?.valueOf() as string) || defaultValue
+      (space.getCell(this.tableId, rowId, 'title')?.valueOf() as string) ||
+      defaultValue
     );
   }
 
@@ -577,10 +560,8 @@ class CollectionService {
 
   public getItemContent(rowId: Id) {
     return (
-      (storageService
-        .getSpace()
-        .getCell(this.tableId, rowId, 'content')
-        ?.valueOf() as string) || null
+      (space.getCell(this.tableId, rowId, 'content')?.valueOf() as string) ||
+      null
     );
   }
 
@@ -655,8 +636,7 @@ class CollectionService {
 
   public getItemDisplayOpts(rowId: Id): CollectionItemDisplayOpts | undefined {
     const str =
-      (storageService
-        .getSpace()
+      (space
         .getCell(this.tableId, rowId, 'display_opts')
         ?.valueOf() as string) || '';
 
@@ -680,8 +660,7 @@ class CollectionService {
 
   public getItemEffectiveDisplayOpts(rowId: Id): CollectionItemDisplayOpts {
     const str =
-      (storageService
-        .getSpace()
+      (space
         .getCell(this.tableId, rowId, 'display_opts')
         ?.valueOf() as string) || null;
     const obj = this.parseDisplayOpts(str);
@@ -712,7 +691,7 @@ class CollectionService {
     to: number,
     parent?: string
   ) {
-    storageService.getSpace().transaction(() => {
+    space.transaction(() => {
       historyService.disableForBulk(() => {
         genericReorder(from, to, (idx, order) => {
           this.setItemField(
@@ -739,12 +718,7 @@ class CollectionService {
 
   public getItemTags(rowId: Id) {
     return new Set(
-      (
-        (storageService
-          .getSpace()
-          .getCell(this.tableId, rowId, 'tags')
-          ?.valueOf() as string) || ''
-      )
+      ((space.getCell(this.tableId, rowId, 'tags')?.valueOf() as string) || '')
         .split(',')
         .filter(t => t.length > 0)
     );
@@ -782,25 +756,22 @@ class CollectionService {
   }
 
   public getItemType(rowId: Id): CollectionItemTypeValues {
-    return storageService
-      .getSpace()
+    return space
       .getCell(this.tableId, rowId, 'type')
       ?.valueOf() as CollectionItemTypeValues;
   }
 
   public isItemConflict(rowId: Id) {
     return (
-      (storageService
-        .getSpace()
-        .getCell(this.tableId, rowId, 'conflict')
-        ?.valueOf() as string) !== undefined || false
+      (space.getCell(this.tableId, rowId, 'conflict')?.valueOf() as string) !==
+        undefined || false
     );
   }
 
   private resetItemIfConflict(rowId: Id) {
     const isConflict = this.isItemConflict(rowId);
     if (isConflict) {
-      storageService.getSpace().delCell(this.tableId, rowId, 'conflict');
+      space.delCell(this.tableId, rowId, 'conflict');
     }
     return isConflict;
   }
@@ -844,21 +815,17 @@ class CollectionService {
     const updated = Date.now();
     // title and content are real changes, order and display_opts are not (won't trigger an update ts)
     const isContentChange = this.isContentChange(type, key);
-    storageService.getSpace().transaction(() => {
-      storageService.getSpace().setCell('collection', rowId, key, value);
-      storageService
-        .getSpace()
-        .setCell(
-          'collection',
-          rowId,
-          `${key}_meta`,
-          setFieldMeta(`${value}`, updated)
-        );
+    space.transaction(() => {
+      space.setCell('collection', rowId, key, value);
+      space.setCell(
+        'collection',
+        rowId,
+        `${key}_meta`,
+        setFieldMeta(`${value}`, updated)
+      );
 
       if (isContentChange) {
-        storageService
-          .getSpace()
-          .setCell('collection', rowId, 'updated', updated);
+        space.setCell('collection', rowId, 'updated', updated);
       }
 
       if (!skipVersion && this.isHistorizableContentChange(type, key)) {
@@ -882,7 +849,7 @@ class CollectionService {
   }
 
   public getItemField<T>(rowId: Id, key: CollectionItemFieldEnum) {
-    return storageService.getSpace().getCell('collection', rowId, key) as T;
+    return space.getCell('collection', rowId, key) as T;
   }
 
   public saveItems(
@@ -914,7 +881,7 @@ class CollectionService {
     }
     return searchAncestryService.getPath(
       rowId,
-      storageService.getSpace().getTable('collection'),
+      space.getTable('collection'),
       includeAllNotebooks,
       true
     );
@@ -925,11 +892,9 @@ class CollectionService {
       return;
     }
     const breadcrumb = this.getBreadcrumb(folder, true);
-    storageService.getSpace().transaction(() => {
+    space.transaction(() => {
       for (let i = 1; i < breadcrumb.length; i++) {
-        storageService
-          .getSpace()
-          .setCell(this.tableId, breadcrumb[i], 'updated', Date.now());
+        space.setCell(this.tableId, breadcrumb[i], 'updated', Date.now());
       }
     });
   }
@@ -953,9 +918,7 @@ class CollectionService {
       };
 
       // if document had sort, use it
-      const str = storageService
-        .getSpace()
-        .getCell(this.tableId, docId, 'display_opts');
+      const str = space.getCell(this.tableId, docId, 'display_opts');
       if (str) {
         const itemOpts = this.parseDisplayOpts(str as string);
         if (itemOpts) {
@@ -986,7 +949,7 @@ class CollectionService {
       newDocs.push(newDoc);
     });
     this.saveItems(newDocs, parent, true);
-    storageService.getSpace().setCell('collection', docId, 'order', 0);
+    space.setCell('collection', docId, 'order', 0);
     historyService.saveWholeDocumentVersion(docId, true);
     newDocs.forEach(doc => {
       historyService.saveWholeDocumentVersion(doc.id!, true);
@@ -994,7 +957,6 @@ class CollectionService {
   }
 
   public explodeToComments(docId: string) {
-    const space = getSpace();
     const pages = this.getDocumentPages(docId, {
       by: 'order',
       descending: false

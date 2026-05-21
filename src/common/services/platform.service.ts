@@ -38,10 +38,12 @@ class PlatformService {
     return useMediaQueryMatch('md');
   }
 
+  /** @deprecated */
   public getInternalProxy() {
     return userSettingsService.getInternalProxy() || '';
   }
 
+  /** @deprecated */
   public isSyncEnabled() {
     return !this.isWeb() || this.getInternalProxy().length > 0;
   }
@@ -51,5 +53,6 @@ class PlatformService {
   }
 }
 
+/** @deprecated */
 const platformService = new PlatformService();
 export default platformService;

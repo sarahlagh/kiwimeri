@@ -1,10 +1,13 @@
 import { CollectionItemType } from '@/collection/collection';
-import { getGlobalTrans } from '@/config';
-import { DEFAULT_NOTEBOOK_ID } from '@/constants';
+import {
+  DEFAULT_NOTEBOOK_ID,
+  DEFAULT_SPACE_ID,
+  getGlobalTrans
+} from '@/constants';
+import { space } from '@/core/db/store';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import remotesService from '@/db/remotes.service';
-import storageService from '@/db/storage.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
@@ -64,7 +67,7 @@ describe(`sync general test`, () => {
     expect(!resp.didPull);
     expect(!resp.didPush);
     expect(getRowCountInsideNotebook()).toBe(0);
-    expect(storageService.getSpace().getRowCount('history')).toBe(0);
+    expect(space.getRowCount('history')).toBe(0);
   });
 
   it('should pull everything on first pull if remote has content', async () => {
@@ -130,7 +133,7 @@ describe(`sync general test`, () => {
     // create item on remote, sync
     await reInitRemoteData([oneDocument('remote')]);
     // reinit sync after network down
-    await remotesService.configureRemotes(storageService.getSpaceId());
+    await remotesService.configureRemotes(DEFAULT_SPACE_ID);
     // now pull
     const resp = await syncService_sync('sync');
     expect(resp.success);
@@ -144,9 +147,7 @@ describe(`sync general test`, () => {
     // create local item
     const id = adv(() => collectionService.addDocument(DEFAULT_NOTEBOOK_ID));
     // artificially create a conflict
-    adv(() =>
-      storageService.getSpace().setCell('collection', id, 'conflict', 'fakeId')
-    );
+    adv(() => space.setCell('collection', id, 'conflict', 'fakeId'));
     // is global sync prevented
     const { result, unmount } = renderHook(() =>
       syncService.useIsMergeSyncEnabled()
@@ -164,9 +165,7 @@ describe(`sync general test`, () => {
     // create local item
     const id = adv(() => collectionService.addDocument(DEFAULT_NOTEBOOK_ID));
     // artificially create a conflict
-    adv(() =>
-      storageService.getSpace().setCell('collection', id, 'conflict', 'fakeId')
-    );
+    adv(() => space.setCell('collection', id, 'conflict', 'fakeId'));
     // calling the method won't succeed on push
     const { success, didPush } = await syncService.sync('force-push');
     expect(success);
@@ -179,9 +178,7 @@ describe(`sync general test`, () => {
     await syncService.push();
 
     // artificially create a conflict
-    adv(() =>
-      storageService.getSpace().setCell('collection', id, 'conflict', 'fakeId')
-    );
+    adv(() => space.setCell('collection', id, 'conflict', 'fakeId'));
     expect(collectionService.isItemConflict(id));
     // calling the method will overwrite
     const { success, didPull } = await syncService.sync('force-pull');
@@ -197,9 +194,7 @@ describe(`sync general test`, () => {
     await syncService.push();
 
     // artificially create a conflict
-    adv(() =>
-      storageService.getSpace().setCell('collection', id, 'conflict', 'fakeId')
-    );
+    adv(() => space.setCell('collection', id, 'conflict', 'fakeId'));
     expect(collectionService.isItemConflict(id));
 
     {

@@ -1,6 +1,6 @@
 import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
-import { getSpace } from '@/core/db/store';
+import { space } from '@/core/db/store';
 import collectionService from '@/db/collection.service';
 import { commentsService } from '@/domain/comments/comments.service';
 import { CommentRow } from '@/domain/comments/model';
@@ -13,7 +13,7 @@ import { renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 function getDocUpdatedTs(docId: string) {
-  return getSpace().getCell('collection', docId, 'updated') as number;
+  return space.getCell('collection', docId, 'updated') as number;
 }
 
 function expectedLC(commentId: string, type: LocalChangeType, updated: number) {
@@ -88,7 +88,7 @@ describe('comments service', () => {
     const content = getNewContent('this is the content');
     commentsService.editComment(commentId, JSON.parse(content));
 
-    const comment = getSpace().getRow('comments', commentId);
+    const comment = space.getRow('comments', commentId);
     expect(unminimizeContentFromStorage(comment.content)).toBe(content);
     expect(commentsService.getCommentContent(commentId)).toBe(comment.content);
     expect(comment.plainText).toBe('this is the content');

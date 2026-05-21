@@ -1,3 +1,4 @@
+import { useToastContext } from '@/app/context/ToastContext';
 import {
   CollectionItemType,
   CollectionItemTypeValues
@@ -8,7 +9,6 @@ import navService from '@/db/nav.service';
 import { IonButton, IonIcon } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
 import { Id } from 'tinybase/with-schemas';
-import { useToastContext } from '../context/ToastContext';
 import { GET_DOCUMENT_ROUTE } from '../routes';
 
 type QuickGroupButtonProps = {

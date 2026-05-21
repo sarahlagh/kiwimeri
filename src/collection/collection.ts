@@ -1,3 +1,4 @@
+import { APPICONS } from '@/constants';
 import { CommentSort } from '@/domain/comments/model';
 
 export enum CollectionItemType {
@@ -210,3 +211,9 @@ export const isPageOrDocument = (
     | Pick<CollectionItemResult, 'type'>
     | null
 ) => isDocument(item) || isPage(item);
+
+export const APPICONS_PER_TYPE = new Map<CollectionItemTypeValues, string>();
+APPICONS_PER_TYPE.set(CollectionItemType.document, APPICONS.document);
+APPICONS_PER_TYPE.set(CollectionItemType.folder, APPICONS.folder);
+APPICONS_PER_TYPE.set(CollectionItemType.notebook, APPICONS.notebook);
+APPICONS_PER_TYPE.set(CollectionItemType.page, APPICONS.page);
