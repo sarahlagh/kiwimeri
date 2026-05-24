@@ -86,8 +86,7 @@ type ZipParsedMetadata = {
   };
 } & ZipMetadata;
 
-// TODO auto convert from ts type to z schema
-// TODO include more checks /refine in the zod schema directly
+// TODO remove zod, not used enough
 export const ZipMetadataSchema = z.object({
   format: z.enum(['markdown']).optional(),
   type: z.enum(CollectionItemType).optional(),

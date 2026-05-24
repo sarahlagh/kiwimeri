@@ -3,7 +3,11 @@ import { commentSchema } from '@/domain/comments/model';
 import { localChangesSchema } from '@/domain/local-changes/model';
 import { resumeStateSchema } from '@/domain/resume-state/model';
 import { Value } from 'tinybase/with-schemas';
-import { ValueIdFromSchema } from './types';
+import {
+  CellIdFromSchema,
+  TableIdFromSchema,
+  ValueIdFromSchema
+} from './types';
 
 export const storeTablesSchema = {
   spaces: {
@@ -129,15 +133,22 @@ export const spaceValuesSchema = {
 export type StoreTablesType = typeof storeTablesSchema;
 export type StoreValuesType = typeof storeValuesSchema;
 export type StoreType = [StoreTablesType, StoreValuesType];
+export type StoreTableId = TableIdFromSchema<StoreTablesType>;
 export type StoreValue = ValueIdFromSchema<StoreValuesType>;
 
 export type SpaceTablesType = typeof spaceTablesSchema;
 export type SpaceValuesType = typeof spaceValuesSchema;
 export type SpaceType = [SpaceTablesType, SpaceValuesType];
 
+export type SpaceTableId = TableIdFromSchema<SpaceTablesType>;
 export type SpaceValue = ValueIdFromSchema<SpaceValuesType>;
 export type SpaceValues = {
   [key in SpaceValue]: Value<SpaceValuesType, key>;
 };
+
+export type SpaceCellId<T extends SpaceTableId> = CellIdFromSchema<
+  SpaceTablesType,
+  T
+>;
 
 export type StoreId = 'store' | 'space';

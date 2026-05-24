@@ -1,6 +1,6 @@
 import { parseFieldMeta } from '@/collection/collection';
-import { SpaceTablesType, SpaceType } from '@/core/db/store-schema';
-import { TableIdFromSchema, WithId } from '@/core/db/types';
+import { SpaceTableId, SpaceType } from '@/core/db/store-schema';
+import { WithId } from '@/core/db/types';
 import {
   LocalChangeResult,
   LocalChangeType
@@ -18,7 +18,7 @@ type MetaKey<K extends string> = `${K}_meta`;
 
 export function applyLocalChangesToPush<R extends WithId>(
   localContent: Content<SpaceType>,
-  tableId: TableIdFromSchema<SpaceTablesType>,
+  tableId: SpaceTableId,
   allLocalChanges: LocalChangeResult[],
   newRemoteItems: R[]
 ): R[] {
@@ -109,11 +109,11 @@ function checkOrphans<R>(
 }
 
 export function applyLocalChangesToPull<
-  RootTableId extends TableIdFromSchema<SpaceType[0]>,
+  RootTableId extends SpaceTableId,
   L extends Row<SpaceType[0], RootTableId>,
   R extends WithId & L
 >(
-  tableId: TableIdFromSchema<SpaceType[0]>,
+  tableId: SpaceTableId,
   localContent: Content<SpaceType>,
   remoteItems: R[],
   lastRemoteChange: number,

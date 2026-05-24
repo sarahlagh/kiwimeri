@@ -7,8 +7,6 @@ import { getPlainText } from '@/shared/utils/getPlainText';
 import { SortableType } from '@/shared/utils/sort-filter/sort';
 import { SerializedEditorState } from 'lexical';
 import { getUniqueId, Id } from 'tinybase/common';
-import localChangesService from '../local-changes/local-changes.service';
-import { LocalChangeType } from '../local-changes/model';
 import { CommentRow, CommentSort } from './model';
 
 const C = 'comments';
@@ -36,7 +34,6 @@ class CommentsService {
       space.setRow(C, id, { ...item, order });
       space.setCell(CL, docId, 'updated', Date.now());
     });
-    this.lc(id, LocalChangeType.add);
     return id;
   }
 
@@ -45,7 +42,6 @@ class CommentsService {
       comments.forEach(comment => {
         const id = getUniqueId();
         space.setRow(C, id, { ...comment, itemId: docId });
-        this.lc(id, LocalChangeType.add);
       });
       space.setCell('collection', docId, 'updated', Date.now());
     });
@@ -64,7 +60,6 @@ class CommentsService {
       const itemId = space.getCell(C, id, 'itemId');
       space.setCell(CL, itemId!, 'updated', now);
     });
-    this.lc(id, LocalChangeType.update, 'content');
   }
 
   public deleteComment(id: Id) {
@@ -73,7 +68,6 @@ class CommentsService {
       space.setCell(CL, itemId!, 'updated', Date.now());
       space.delRow(C, id);
     });
-    this.lc(id, LocalChangeType.delete);
   }
 
   public reorderComments(comments: SortableType[], from: number, to: number) {
@@ -87,7 +81,6 @@ class CommentsService {
             order: i,
             order_meta: setFieldMeta(`${c.id}`, now)
           });
-          this.lc(c.id, LocalChangeType.update, 'order');
         });
       }
       genericReorder(from, to, (idx, order) => {
@@ -95,15 +88,10 @@ class CommentsService {
           order,
           order_meta: setFieldMeta(`${order}`, now)
         });
-        this.lc(comments[idx].id, LocalChangeType.update, 'order');
       });
       const itemId = space.getCell(C, comments[0].id, 'itemId');
       space.setCell(CL, itemId!, 'updated', Date.now());
     });
-  }
-
-  private lc(id: Id, type: LocalChangeType, field?: string) {
-    localChangesService.addLocalChange(C, id, type, field);
   }
 
   public getCommentContent(id: Id) {

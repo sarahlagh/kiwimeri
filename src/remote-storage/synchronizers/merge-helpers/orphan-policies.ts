@@ -30,7 +30,7 @@ class CollectionOrphanPolicy extends OrphanPolicy<CollectionItem> {
         ROOT_COLLECTION,
         getGlobalTrans().conflictsNotebookName
       );
-      localChangesService.addLocalChange(
+      localChangesService.addManualLocalChange(
         'collection',
         CONFLICTS_NOTEBOOK_ID,
         LocalChangeType.add

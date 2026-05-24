@@ -12,6 +12,11 @@ export type ValueIdFromSchema<Schema extends OptionalValuesSchema> = AsId<
   keyof Schema
 >;
 
+export type CellIdFromSchema<
+  Schema extends OptionalTablesSchema,
+  TableId extends TableIdFromSchema<Schema>
+> = AsId<keyof Schema[TableId]>;
+
 export type WithId = {
   id: Id;
 };

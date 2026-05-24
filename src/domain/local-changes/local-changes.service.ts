@@ -1,20 +1,17 @@
 import { store } from '@/core/db/store';
-import { SpaceTablesType } from '@/core/db/store-schema';
-import { AsId, TableIdFromSchema } from '@/core/db/types';
+import { AsId } from '@/core/db/types';
 import { Id } from 'tinybase/with-schemas';
-import { LocalChangeOn, LocalChangeRow, LocalChangeType } from './model';
+import {
+  LocalChangeOn,
+  LocalChangeResult,
+  LocalChangeRow,
+  LocalChangeType
+} from './model';
 
 const LC = 'localChanges';
 
 class LocalChangesService {
-  public addLocalChange(on: 'values'): void;
-  public addLocalChange<T>(
-    on: TableIdFromSchema<SpaceTablesType>,
-    itemId: Id,
-    change: LocalChangeType,
-    field?: AsId<T>
-  ): void;
-  public addLocalChange<T>(
+  public addManualLocalChange<T>(
     on: LocalChangeOn,
     itemId?: Id,
     change?: LocalChangeType,
@@ -63,8 +60,36 @@ class LocalChangesService {
           store.delRow(LC, u);
         });
       });
-    }
+    } else if (change === LocalChangeType.add) {
+      const deletedRowId = this.getLocalChangeId({
+        itemId: itemId || '',
+        change: LocalChangeType.delete,
+        on
+      });
+      if (store.hasRow(LC, deletedRowId)) {
+        // was restored
+        store.delRow(LC, deletedRowId);
 
+        // no way to know if item was updated before restore
+        localChange.change = LocalChangeType.update;
+      }
+    }
+    store.setRow(LC, rowId, localChange);
+  }
+
+  public addValueLocalChange() {
+    const localChange: LocalChangeRow<never> = {
+      itemId: '',
+      change: LocalChangeType.update,
+      on: 'values',
+      createdAt: Date.now()
+    };
+    const rowId = this.getLocalChangeId(localChange);
+    if (store.hasRow(LC, rowId)) {
+      // already had update
+      store.setCell(LC, rowId, 'createdAt', localChange.createdAt);
+      return;
+    }
     store.setRow(LC, rowId, localChange);
   }
 

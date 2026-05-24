@@ -462,6 +462,15 @@ export class PullTestScenarioRunner {
       if (stats.conflictHasParent === CONFLICTS_NOTEBOOK_ID) {
         expect(conflict?.id).toBe(id);
         expect(conflict?.parent).toBe(CONFLICTS_NOTEBOOK_ID);
+        expect(
+          localChangesService
+            .getLocalChanges()
+            .filter(
+              lc =>
+                lc.change === LocalChangeType.add &&
+                lc.itemId === CONFLICTS_NOTEBOOK_ID
+            )
+        ).toHaveLength(1);
       } else {
         expect(conflict?.id).not.toBe(id);
         expect(conflict?.parent).toBe(

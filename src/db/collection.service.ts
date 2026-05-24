@@ -26,8 +26,6 @@ import { space, spaceQueries } from '@/core/db/store';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
 import { commentsService } from '@/domain/comments/comments.service';
 import { CommentRow } from '@/domain/comments/model';
-import localChangesService from '@/domain/local-changes/local-changes.service';
-import { LocalChangeType } from '@/domain/local-changes/model';
 import { statsService } from '@/domain/stats/stats-service';
 import { SerializedEditorState } from 'lexical';
 import { getUniqueId } from 'tinybase/common';
@@ -233,7 +231,7 @@ class CollectionService {
       sort = userSettingsService.getDefaultDisplayOpts().sort;
     }
     let results: CollectionItemResult[] = [];
-    const level = collectionService.getCollectionItems(parent, sort);
+    const level = this.getCollectionItems(parent, sort);
     if (cb) cb(level);
     results = [...level];
     const folders = level.filter(item => item.type !== CollectionItemType.page);
@@ -278,8 +276,7 @@ class CollectionService {
     sort?: CollectionItemSort
   ): PageResult[] {
     if (!sort) {
-      const displayOpts =
-        collectionService.getItemEffectiveDisplayOpts(document);
+      const displayOpts = this.getItemEffectiveDisplayOpts(document);
       sort = displayOpts.sort;
     }
     if (!this.itemExists(document)) return [];
@@ -298,8 +295,7 @@ class CollectionService {
     sort?: CollectionItemSort
   ): PageResult[] {
     if (!sort) {
-      const displayOpts =
-        collectionService.useItemEffectiveDisplayOpts(document);
+      const displayOpts = this.useItemEffectiveDisplayOpts(document);
       sort = displayOpts.sort;
     }
     const table = useTableWithRef(this.storeId, this.tableId);
@@ -437,15 +433,11 @@ class CollectionService {
     if (!id) {
       id = getUniqueId();
     }
-    const changeType = this.itemExists(id)
-      ? LocalChangeType.update
-      : LocalChangeType.add;
     space.transaction(() => {
       space.setRow(this.tableId, id, { ...item, itemId: id });
       if (parent) {
         this.updateAllParentsInBreadcrumb(parent);
       }
-      localChangesService.addLocalChange('collection', id, changeType);
     });
 
     // TODO not sure why transaction breaks addVersionFromItem here - try startTransaction / endTransaction instead?
@@ -466,11 +458,6 @@ class CollectionService {
     const wasDocument = itemType === CollectionItemType.document;
     const wasPage = itemType === CollectionItemType.page;
     const parent = this.getItemParent(rowId);
-    localChangesService.addLocalChange(
-      'collection',
-      rowId,
-      LocalChangeType.delete
-    );
     if (wasFolder) {
       const queryName = this.fetchDocsFoldersNotebooksPerParentQuery(rowId);
       const children = spaceQueries.getResultSortedRowIds(queryName);
@@ -607,10 +594,10 @@ class CollectionService {
     itemId: string,
     contentToAppend: SerializedEditorState
   ) {
-    if (!this.itemExists(itemId) || !collectionService.getItemContent(itemId))
+    if (!this.itemExists(itemId) || !this.getItemContent(itemId))
       return contentToAppend;
     const existingContent = JSON.parse(
-      unminimizeContentFromStorage(collectionService.getItemContent(itemId)!)
+      unminimizeContentFromStorage(this.getItemContent(itemId)!)
     ) as SerializedEditorState;
 
     const newChildren = [
@@ -832,15 +819,9 @@ class CollectionService {
         historyService.addVersion(rowId);
       }
 
-      const wasConflict =
-        CollectionItemResetConflictFields.includes(key) &&
+      if (CollectionItemResetConflictFields.includes(key)) {
         this.resetItemIfConflict(rowId);
-      localChangesService.addLocalChange(
-        'collection',
-        rowId,
-        wasConflict ? LocalChangeType.add : LocalChangeType.update,
-        key
-      );
+      }
     });
     if (isContentChange) {
       this.updateAllParentsInBreadcrumb(this.getItemParent(rowId));
@@ -908,7 +889,7 @@ class CollectionService {
     let parent = this.getItemParent(docId);
 
     if (createNewGroup) {
-      const title = collectionService.getItemTitle(docId);
+      const title = this.getItemTitle(docId);
       let opts: CollectionItemDisplayOpts = {
         sort: {
           by: 'order',
@@ -926,12 +907,12 @@ class CollectionService {
         }
       }
 
-      const { item } = collectionService.getNewFolderObj(parent);
+      const { item } = this.getNewFolderObj(parent);
       item.title = title;
       item.display_opts = JSON.stringify(opts);
       item.display_opts_meta = setFieldMeta(item.display_opts, Date.now());
-      parent = collectionService.saveItem(item);
-      collectionService.setItemParent(docId, parent);
+      parent = this.saveItem(item);
+      this.setItemParent(docId, parent);
     }
 
     const title = this.getItemTitle(docId);
@@ -990,7 +971,7 @@ class CollectionService {
           by: itemOpts.sort.by === 'created' ? 'createdAt' : 'order',
           descending: itemOpts.sort.descending
         };
-        collectionService.setItemDisplayOpts(docId, itemOpts);
+        this.setItemDisplayOpts(docId, itemOpts);
       }
     }
 

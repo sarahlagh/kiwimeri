@@ -35,3 +35,10 @@ export type SyncableComment = {
 
 type CommentUpdate = Pick<CommentRow, 'content' | 'order'>;
 export type CommentLocalChange = LocalChangeRow<CommentUpdate>;
+
+export type CommentUpdatableFieldEnum = keyof Required<CommentUpdate>;
+
+export const CommentUpdatableFields: CommentUpdatableFieldEnum[] = [
+  'content',
+  'order'
+];

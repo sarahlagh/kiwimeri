@@ -1,5 +1,6 @@
 import { CollectionItemType } from '@/collection/collection';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
+import { space } from '@/core/db/store';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import { SerializableData } from '@/db/types/store-types';
@@ -12,8 +13,13 @@ import {
 import {
   GET_UPDATABLE_FIELDS,
   getLocalItemField,
-  markAsConflict
+  getNewContent,
+  getNewValue,
+  markAsConflict,
+  UPDATABLE_FIELDS,
+  ValueType
 } from '@@/_setup/test.utils';
+import { Id } from 'tinybase/with-schemas';
 import { describe, expect, it } from 'vitest';
 
 const getNonNotebookLocalChanges = (localChanges: LocalChangeResult[]) =>
@@ -163,4 +169,316 @@ describe('local changes service', () => {
     expect(lc.change).toEqual(LocalChangeType.update);
     expect(lc.field).toBeUndefined();
   });
+
+  it(`should create local change after saveItem for a new item`, () => {
+    localChangesService.clear();
+    const { item } = collectionService.getNewDocumentObj(DEFAULT_NOTEBOOK_ID);
+    const id = collectionService.saveItem(item);
+    const localChanges = localChangesService.getLocalChanges();
+    expect(localChanges).toHaveLength(1);
+    expect(localChanges[0].change).toBe(LocalChangeType.add);
+    expect(localChanges[0].itemId).toBe(id);
+  });
+
+  it(`should create local change after saveItem for an updated item`, () => {
+    localChangesService.clear();
+    const { item } = collectionService.getNewDocumentObj(DEFAULT_NOTEBOOK_ID);
+    const id = collectionService.saveItem(item);
+    localChangesService.clear();
+    item.content = getNewContent('new stuff');
+
+    collectionService.saveItem(item, id);
+
+    const localChanges = localChangesService.getLocalChanges();
+    expect(localChanges).toHaveLength(1);
+    expect(localChanges[0].change).toBe(LocalChangeType.update);
+    expect(localChanges[0].field).toBe('content');
+    expect(localChanges[0].itemId).toBe(id);
+  });
+
+  it(`should create local change after saveItems`, () => {
+    localChangesService.clear();
+    const { item: item1 } =
+      collectionService.getNewDocumentObj(DEFAULT_NOTEBOOK_ID);
+    const id1 = collectionService.saveItem(item1);
+    const { item: item2 } =
+      collectionService.getNewDocumentObj(DEFAULT_NOTEBOOK_ID);
+    const id2 = collectionService.saveItem(item2);
+    localChangesService.clear();
+
+    const { item: item3, id: id3 } =
+      collectionService.getNewDocumentObj(DEFAULT_NOTEBOOK_ID);
+
+    item1.content = getNewContent('new stuff');
+    item2.title = 'new title';
+
+    collectionService.saveItems([
+      { ...item1, id: id1 },
+      { ...item2, id: id2 },
+      { ...item3, id: id3 }
+    ]);
+
+    const localChanges = localChangesService.getLocalChanges();
+    expect(localChanges).toHaveLength(3);
+    expect(
+      localChanges.map(lc => `${lc.itemId}-${lc.change}-${lc.field || ''}`)
+    ).toEqual([`${id3}-a-`, `${id2}-u-title`, `${id1}-u-content`]);
+  });
+});
+
+describe('local changes listeners', () => {
+  beforeEach(() => {
+    localChangesService.clear();
+  });
+  const watchedTables: {
+    tableId: Id;
+    watchedFields: { field: Id; valueType: ValueType }[];
+    nonWatchedFields: { field: Id; valueType: ValueType }[];
+  }[] = [
+    {
+      tableId: 'collection',
+      watchedFields: UPDATABLE_FIELDS,
+      nonWatchedFields: [
+        { field: 'updated', valueType: 'number' },
+        { field: 'itemId', valueType: 'id' }
+      ]
+    },
+    {
+      tableId: 'comments',
+      watchedFields: [
+        { field: 'content', valueType: 'lex' },
+        { field: 'order', valueType: 'number' }
+      ],
+      nonWatchedFields: [
+        { field: 'updatedAt', valueType: 'number' },
+        { field: 'preview', valueType: 'string' }
+      ]
+    }
+  ];
+  function getField(testField: { field: string; valueType: ValueType }) {
+    return testField.field as never;
+  }
+  function getValue(testField: { field: string; valueType: ValueType }) {
+    return getNewValue(testField.valueType) as never;
+  }
+
+  watchedTables.forEach(
+    ({ tableId: _tableId, watchedFields, nonWatchedFields }) => {
+      describe(`watches table ${_tableId}`, () => {
+        const tableId = _tableId as never;
+        const fakeRow = {};
+        fakeRow[getField(nonWatchedFields[0])] = getValue(nonWatchedFields[0]);
+        fakeRow[getField(watchedFields[0])] = getValue(watchedFields[0]);
+
+        it(`should create a local change for new rows`, () => {
+          const testId0 = space.addRow(tableId, fakeRow);
+          space.setRow(tableId, 'testId1', fakeRow);
+          space.setPartialRow(tableId, 'testId2', fakeRow);
+          space.setCell(
+            tableId,
+            'testId3',
+            getField(nonWatchedFields[0]),
+            getValue(nonWatchedFields[0])
+          );
+
+          const localChanges = localChangesService.getLocalChanges();
+          expect(localChanges).toHaveLength(4);
+          expect(
+            localChanges.map(lc => `${lc.on}-${lc.itemId}-${lc.change}`)
+          ).toEqual([
+            `${tableId}-testId3-a`,
+            `${tableId}-testId2-a`,
+            `${tableId}-testId1-a`,
+            `${tableId}-${testId0}-a`
+          ]);
+        });
+
+        it(`should create a local change for new rows in bulk`, () => {
+          const testId0 = space.addRow(tableId, fakeRow);
+          space.transaction(() => {
+            space.setRow(tableId, 'testId1', fakeRow);
+            space.setPartialRow(tableId, 'testId2', fakeRow);
+            space.setCell(
+              tableId,
+              'testId3',
+              getField(nonWatchedFields[0]),
+              getValue(nonWatchedFields[0])
+            );
+          });
+
+          const localChanges = localChangesService.getLocalChanges();
+          expect(localChanges).toHaveLength(4);
+          expect(
+            localChanges.map(lc => `${lc.on}-${lc.itemId}-${lc.change}`)
+          ).toEqual([
+            `${tableId}-testId3-a`,
+            `${tableId}-testId2-a`,
+            `${tableId}-testId1-a`,
+            `${tableId}-${testId0}-a`
+          ]);
+        });
+
+        it(`should create local changes for deleted rows`, () => {
+          space.delTable(tableId);
+          const rowId1 = space.addRow(tableId, fakeRow)!;
+          const rowId2 = space.addRow(tableId, fakeRow)!;
+          const rowId3 = space.addRow(tableId, fakeRow)!;
+          localChangesService.clear();
+
+          space.delCell(tableId, rowId1, getField(nonWatchedFields[0]));
+          expect(localChangesService.getLocalChanges()).toHaveLength(0);
+
+          space.delRow(tableId, rowId2);
+          expect(localChangesService.getLocalChanges()).toHaveLength(1);
+
+          space.delTable(tableId);
+          const localChanges = localChangesService.getLocalChanges();
+
+          expect(localChanges).toHaveLength(3);
+          expect(
+            localChanges.map(lc => `${lc.on}-${lc.itemId}-${lc.change}`)
+          ).toEqual([
+            `${tableId}-${rowId3}-d`,
+            `${tableId}-${rowId1}-d`,
+            `${tableId}-${rowId2}-d`
+          ]);
+        });
+
+        it(`should cancel local change if added then deleted in same session`, () => {
+          const testId = space.addRow(tableId, fakeRow)!;
+          expect(localChangesService.getLocalChanges()).toHaveLength(1);
+          space.delRow(tableId, testId);
+          expect(localChangesService.getLocalChanges()).toHaveLength(0);
+        });
+
+        it(`should cancel local change if added then deleted in same transaction`, () => {
+          space.transaction(() => {
+            const testId = space.addRow(tableId, fakeRow)!;
+            space.delRow(tableId, testId);
+          });
+          expect(localChangesService.getLocalChanges()).toHaveLength(0);
+        });
+
+        it(`should only keep a single add change if updated in same session`, () => {
+          const testId = space.addRow(tableId, fakeRow)!;
+          expect(localChangesService.getLocalChanges()).toHaveLength(1);
+          watchedFields.forEach(wf => {
+            space.setCell(tableId, testId, getField(wf), getValue(wf));
+          });
+          const localChanges = localChangesService.getLocalChanges();
+          expect(localChanges).toHaveLength(1);
+          expect(localChanges[0].change).toEqual(LocalChangeType.add);
+          expect(localChanges[0].itemId).toBe(testId);
+        });
+
+        it(`should cancel local change if updated then deleted in same session`, () => {
+          const testId = space.addRow(tableId, fakeRow)!;
+          localChangesService.clear(); // new session
+
+          watchedFields.forEach(wf => {
+            space.setCell(tableId, testId, getField(wf), getValue(wf));
+          });
+          expect(localChangesService.getLocalChanges()).toHaveLength(
+            watchedFields.length
+          );
+
+          space.delRow(tableId, testId);
+          const localChanges = localChangesService.getLocalChanges();
+          expect(localChanges).toHaveLength(1);
+          expect(localChanges[0].change).toEqual(LocalChangeType.delete);
+          expect(localChanges[0].itemId).toBe(testId);
+        });
+
+        it(`should create an add change if item was a conflict`, () => {
+          const testId = space.addRow(tableId, fakeRow)!;
+          localChangesService.clear();
+          space.setCell(tableId, testId, 'conflict', 'anyvalue' as never); // create conflict
+          expect(localChangesService.getLocalChanges()).toHaveLength(0);
+
+          // resolve conflict
+          space.transaction(() => {
+            space.setCell(
+              tableId,
+              testId,
+              getField(watchedFields[0]),
+              getValue(watchedFields[0])
+            );
+            space.delCell(tableId, testId, 'conflict');
+          });
+
+          const localChanges = localChangesService.getLocalChanges();
+          expect(localChanges).toHaveLength(1);
+          expect(localChanges[0].change).toEqual(LocalChangeType.add);
+          expect(localChanges[0].itemId).toBe(testId);
+        });
+
+        it(`should keep only one local changes per field update`, () => {
+          const testId = space.addRow(tableId, fakeRow)!;
+          localChangesService.clear();
+
+          for (let i = 0; i < 3; i++) {
+            space.setCell(
+              tableId,
+              testId,
+              getField(watchedFields[0]),
+              getValue(watchedFields[0])
+            );
+          }
+
+          space.setCell(
+            tableId,
+            testId,
+            getField(watchedFields[1]),
+            getValue(watchedFields[1])
+          );
+
+          const localChanges = localChangesService.getLocalChanges();
+          expect(localChanges).toHaveLength(2);
+          expect(localChanges[0].change).toEqual(LocalChangeType.update);
+          expect(localChanges[0].field).toEqual(getField(watchedFields[1]));
+          expect(localChanges[0].itemId).toBe(testId);
+          expect(localChanges[1].change).toEqual(LocalChangeType.update);
+          expect(localChanges[1].field).toEqual(getField(watchedFields[0]));
+          expect(localChanges[1].itemId).toBe(testId);
+        });
+
+        it(`should cancel local change if deleted then restored in same session`, () => {
+          const testId = space.addRow(tableId, fakeRow)!;
+          localChangesService.clear();
+          space.delRow(tableId, testId);
+          expect(localChangesService.getLocalChanges()).toHaveLength(1);
+          space.setRow(tableId, testId, fakeRow);
+          const localChanges = localChangesService.getLocalChanges();
+          expect(localChanges).toHaveLength(1);
+          expect(localChanges[0].change).toBe(LocalChangeType.update);
+          expect(localChanges[0].itemId).toBe(testId);
+        });
+
+        watchedFields.forEach(field => {
+          it(`should create update local changes for field ${field.field}`, () => {
+            const testId = space.addRow(tableId, fakeRow)!;
+            localChangesService.clear();
+
+            space.setCell(tableId, testId, getField(field), getValue(field));
+            const localChanges = localChangesService.getLocalChanges();
+            expect(localChanges).toHaveLength(1);
+            expect(localChanges[0].change).toEqual(LocalChangeType.update);
+            expect(localChanges[0].field).toEqual(getField(field));
+            expect(localChanges[0].itemId).toBe(testId);
+          });
+        });
+
+        nonWatchedFields.forEach(field => {
+          it(`should not create update local changes for field ${field.field}`, () => {
+            const testId = space.addRow(tableId, fakeRow)!;
+            localChangesService.clear();
+
+            space.setCell(tableId, testId, getField(field), getValue(field));
+            const localChanges = localChangesService.getLocalChanges();
+            expect(localChanges).toHaveLength(0);
+          });
+        });
+      });
+    }
+  );
 });

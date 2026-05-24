@@ -11,8 +11,6 @@ import {
   ROOT_COLLECTION
 } from '@/constants';
 import { space, spaceQueries, store } from '@/core/db/store';
-import localChangesService from '@/domain/local-changes/local-changes.service';
-import { LocalChangeType } from '@/domain/local-changes/model';
 import { Notebook, NotebookResult } from '@/notebooks/notebooks';
 import { getUniqueId } from 'tinybase/with-schemas';
 import collectionService from './collection.service';
@@ -67,13 +65,11 @@ class NotebooksService {
     );
     const id = DEFAULT_NOTEBOOK_ID;
     space.setRow(this.table, id, { ...item, itemId: id });
-    localChangesService.addLocalChange('collection', id, LocalChangeType.add);
   }
 
   public addNotebook(title: string, parent: string = ROOT_COLLECTION) {
     const { item, id } = this.getNewNotebookObj(parent, title);
     space.setRow(this.table, id, item);
-    localChangesService.addLocalChange('collection', id, LocalChangeType.add);
     return id!;
   }
 
@@ -110,11 +106,6 @@ class NotebooksService {
       });
     }
     space.delRow(this.table, id);
-    localChangesService.addLocalChange(
-      'collection',
-      id,
-      LocalChangeType.delete
-    );
   }
 
   public getCurrentNotebook() {

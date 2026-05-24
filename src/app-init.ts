@@ -1,6 +1,7 @@
 import { addAndroidListeners } from './capacitor/handle-android-plugins';
 import { DEFAULT_SPACE_ID } from './constants';
 import { space, store } from './core/db/store';
+import { startListeners } from './core/db/store-listeners';
 import { plt } from './core/infra/platform';
 import { historyService } from './db/collection-history.service';
 import { migrationService } from './db/migrations/migration.service';
@@ -29,6 +30,7 @@ setTimeout(() => {
   if (plt.isAndroid()) {
     addAndroidListeners();
   }
+  startListeners();
   migrationService.start(store, space);
   notebooksService.initNotebooks();
   searchAncestryService.start(DEFAULT_SPACE_ID);

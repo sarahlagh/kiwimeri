@@ -28,6 +28,10 @@ import {
   SerializableData
 } from '@/db/types/store-types';
 import userSettingsService from '@/db/user-settings.service';
+import {
+  startLocalChangesListeners,
+  stopLocalChangesListeners
+} from '@/domain/local-changes/listeners';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import {
   LocalChangeResult,
@@ -194,9 +198,11 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   }
 
   private setContent(content: Content<SpaceType, false>) {
+    stopLocalChangesListeners();
     space.setTable('collection', content[0].collection!);
     // space.setTable('comments', content[0].comments!);
     space.setValues(content[1]);
+    startLocalChangesListeners();
   }
 
   public async destroy() {

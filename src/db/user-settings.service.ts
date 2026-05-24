@@ -130,7 +130,7 @@ class UserSettingsService {
 
   private setSyncableValues(values: Partial<SpaceValues>) {
     space.transaction(() => {
-      localChangesService.addLocalChange('values');
+      localChangesService.addValueLocalChange();
       space.setValue('valuesLastUpdatedAt', Date.now());
 
       const names = Object.keys(values) as SpaceValue[];

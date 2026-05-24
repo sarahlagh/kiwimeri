@@ -196,7 +196,7 @@ describe('collection history service', () => {
       expect(lc).toHaveLength(1);
       expect(lc[0].change).toBe(LocalChangeType.update);
       expect(lc[0].itemId).toBe(docId);
-      expect(lc[0].field).toBeUndefined();
+      expect(lc[0].field).toBe('title');
     });
 
     it(`should version unsaved changes when restoring to a previous version`, () => {

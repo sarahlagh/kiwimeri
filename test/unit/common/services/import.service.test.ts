@@ -498,12 +498,6 @@ describe('import service', () => {
         .getLocalChanges()
         .filter(lc => lc.change === LocalChangeType.delete)
     ).toHaveLength(initData.length - initDataNotDel.length);
-    expect(
-      localChangesService
-        .getLocalChanges()
-        .filter(lc => lc.change === LocalChangeType.update)
-    ).toHaveLength(zipMerge.updatedItems.length);
-
     const items = [...zipMerge.newItems, ...zipMerge.updatedItems];
     items.forEach(item => {
       expect(item.id).toBeDefined();

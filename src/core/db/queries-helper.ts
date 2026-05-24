@@ -15,10 +15,10 @@ import {
 } from 'tinybase/with-schemas';
 import { spaceQueries, storeQueries } from './store';
 import {
-  SpaceTablesType,
+  SpaceTableId,
   SpaceType,
   StoreId,
-  StoreTablesType,
+  StoreTableId,
   StoreType
 } from './store-schema';
 import { AsId, TableIdFromSchema } from './types';
@@ -150,7 +150,7 @@ export class TinybaseQueryDefinition<
 export class SpaceQueryDefinition<
   ParamDef extends ParamValues,
   QueryResult extends ResultRow,
-  RootTableId extends TableIdFromSchema<SpaceTablesType>
+  RootTableId extends SpaceTableId
 > extends TinybaseQueryDefinition<
   SpaceType,
   RootTableId,
@@ -169,7 +169,7 @@ export class SpaceQueryDefinition<
 export class StoreQueryDefinition<
   ParamDef extends ParamValues,
   QueryResult extends ResultRow,
-  RootTableId extends TableIdFromSchema<StoreTablesType>
+  RootTableId extends StoreTableId
 > extends TinybaseQueryDefinition<
   StoreType,
   RootTableId,
