@@ -9,7 +9,6 @@ import collectionService from '@/db/collection.service';
 import remotesService from '@/db/remotes.service';
 import { commentsService } from '@/domain/comments/comments.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
-import fetchLocalChangesQuery from '@/domain/local-changes/queries/fetchLocalChangesQuery';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import {
   IonCard,
@@ -30,6 +29,7 @@ import {
   closeLatestCollectionUpdateMetric,
   initLatestCollectionUpdateMetric
 } from '../metrics';
+import fetchLocalChangesQuery from '../queries/fetchLocalChangesQuery';
 
 const LocalChangesCard = () => {
   const { t } = useLingui();

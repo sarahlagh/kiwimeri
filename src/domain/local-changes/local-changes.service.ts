@@ -3,7 +3,6 @@ import { SpaceTablesType } from '@/core/db/store-schema';
 import { AsId, TableIdFromSchema } from '@/core/db/types';
 import { Id } from 'tinybase/with-schemas';
 import { LocalChangeOn, LocalChangeRow, LocalChangeType } from './model';
-import fetchLocalChangesQuery from './queries/fetchLocalChangesQuery';
 
 const LC = 'localChanges';
 
@@ -70,7 +69,13 @@ class LocalChangesService {
   }
 
   public getLocalChanges() {
-    return fetchLocalChangesQuery.getResults({}, 'createdAt', true);
+    const results: LocalChangeResult[] = [];
+    const table = store.getTable(LC);
+    store.getSortedRowIds(LC, 'createdAt', true).forEach(rowId => {
+      const row = table[rowId] as LocalChangeRow<never>;
+      results.push({ ...row, id: rowId });
+    });
+    return results;
   }
 
   public delete(rowId: Id) {
