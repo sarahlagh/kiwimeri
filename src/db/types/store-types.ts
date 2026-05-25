@@ -22,11 +22,9 @@ export interface Remote {
   id?: string;
   state?: string; // rename to stateId
   name: string;
-  space: string;
   rank: number;
   type: DriverNames;
   config?: string;
-  formats: string; // remove
 }
 
 export type RemoteResult = Required<Remote> &

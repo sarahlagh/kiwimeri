@@ -26,7 +26,6 @@ export const storeTablesSchema = {
   remotes: {
     state: { type: 'string' },
     name: { type: 'string' },
-    space: { type: 'string' },
     rank: { type: 'number' },
     type: { type: 'string' },
     config: { type: 'string' }
