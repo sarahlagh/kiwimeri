@@ -7,6 +7,14 @@ import { defineConfig as vitestDefineConfig } from 'vitest/config';
 
 // https://vitejs.dev/config/
 const viteConfig = defineConfig({
+  optimizeDeps: {
+    esbuildOptions: {
+      target: 'esnext'
+    }
+  },
+  build: {
+    target: 'esnext'
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src/'),
