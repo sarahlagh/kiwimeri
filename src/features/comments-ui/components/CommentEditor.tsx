@@ -10,10 +10,14 @@ type CommentEditorProps = {
 
 const CommentEditor = ({ commentId, editable = true }: CommentEditorProps) => {
   const content = commentsService.getContent(commentId);
+  let classNames = `comment-editor`;
+  if (commentsService.isConflict(commentId)) {
+    classNames += ' comment-is-conflict';
+  }
   return (
     <KiwimeriEditor
       id={commentId}
-      additionalClassNames={'comment-editor'}
+      additionalClassNames={classNames}
       editable={editable}
       content={content || initialContent()}
       enableToolbar={false}

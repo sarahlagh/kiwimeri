@@ -23,6 +23,9 @@ export const CommentMenuPreview = ({
   if (selected) {
     classNames += ' comment-preview-selected';
   }
+  if (comment.conflict) {
+    classNames += ' comment-is-conflict';
+  }
   return (
     <IonItem
       button
@@ -32,7 +35,13 @@ export const CommentMenuPreview = ({
         if (onSelect) onSelect(comment.id);
       }}
     >
-      {emptyPage ? <Trans>empty comment</Trans> : preview}
+      {emptyPage ? (
+        <Trans>empty comment</Trans>
+      ) : comment.conflict ? (
+        <Trans>-- conflict --</Trans>
+      ) : (
+        preview
+      )}
     </IonItem>
   );
 };

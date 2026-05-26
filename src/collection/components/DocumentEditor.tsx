@@ -9,6 +9,7 @@ import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { statsService } from '@/domain/stats/stats-service';
+import { syncService } from '@/remote-storage/sync.service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import {
   InputCustomEvent,
@@ -49,7 +50,7 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
     const [openPageBrowser, setOpenPageBrowser] = useState(false);
     const [toggleSearch, setToggleSearch] = useState(false);
     const [toggleSearchAutoFocus, setToggleSearchAutoFocus] = useState(true);
-
+    const hasConflicts = syncService.useHasLocalConflicts();
     // TODO refactor
     useEffect(() => {
       setShowDocumentActions(showActions);
@@ -198,6 +199,7 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
         >
           {showBottomSheet && (
             <IonFabButton
+              color={hasConflicts ? 'warning' : 'primary'}
               size="small"
               onClick={() => setShowBottomSheet(false)}
             >
@@ -206,6 +208,7 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
           )}
           {!showBottomSheet && (
             <IonFabButton
+              color={hasConflicts ? 'warning' : 'primary'}
               size="small"
               onClick={() => {
                 setBottomSheet('comments');
@@ -216,7 +219,6 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
             </IonFabButton>
           )}
         </IonFab>
-        {/* )} */}
       </>
     );
   }

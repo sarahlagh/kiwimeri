@@ -3,4 +3,4 @@ import { Id } from 'tinybase/with-schemas';
 
 export type CommentResult = {
   id: Id;
-} & Pick<CommentRow, 'createdAt' | 'order'>;
+} & Pick<CommentRow, 'createdAt' | 'order' | 'conflict'>;

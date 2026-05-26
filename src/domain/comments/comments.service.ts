@@ -55,6 +55,7 @@ class CommentsService {
         content_meta: setFieldMeta(contentStr, now),
         updatedAt: now
       });
+      space.delCell(C, id, 'conflict');
       const itemId = space.getCell(C, id, 'itemId');
       space.setCell(CL, itemId!, 'updated', now);
     });
@@ -115,6 +116,10 @@ class CommentsService {
 
   public exists(id: Id) {
     return space.hasRow(C, id);
+  }
+
+  public isConflict(id: Id) {
+    return space.getCell(C, id, 'conflict') !== undefined;
   }
 }
 

@@ -1,6 +1,7 @@
 import { useEffect, type JSX } from 'react';
 
 import { useQueryResultIds } from '@/core/db/queries-helper';
+import { commentsService } from '@/domain/comments/comments.service';
 import { IonNote } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 import useCommentSort from '../hooks/useCommentSort';
@@ -39,10 +40,17 @@ export default function CommentsBrowser({
     sort.descending
   );
   const selectedId = useSelectedComment(docId);
+  const isConflict = selectedId && commentsService.isConflict(selectedId);
 
   return (
     <div className="comment-browser">
-      <div className={'comment-area' + (!selectedId ? ' empty' : '')}>
+      <div
+        className={
+          'comment-area' +
+          (!selectedId ? ' empty' : '') +
+          (isConflict ? ' comment-is-conflict' : '')
+        }
+      >
         {!selectedId ? (
           <IonNote>
             <Trans>select a comment</Trans>

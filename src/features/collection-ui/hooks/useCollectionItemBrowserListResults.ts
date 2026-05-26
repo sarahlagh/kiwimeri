@@ -9,7 +9,7 @@ import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
 import { useEffect } from 'react';
 
 export const browserModes = ['browser', 'updated', 'lastOpenedAt'] as const;
-export type BrowserQueryMode = (typeof browserModes)[number];
+export type BrowserQueryMode = (typeof browserModes)[number] | 'conflicts';
 
 /** use only for the CollectionItemBrowserList component */
 export default function useCollectionItemBrowserListResults(
@@ -25,17 +25,23 @@ export default function useCollectionItemBrowserListResults(
       opts = {
         parent: parent || notebook,
         recursive: false,
-        onlyDocuments: false
+        onlyDocuments: false,
+        onlyConflicts: false
       };
     } else {
-      opts = { parent: notebook, recursive: true, onlyDocuments: true };
+      opts = {
+        parent: notebook,
+        recursive: true,
+        onlyDocuments: true,
+        onlyConflicts: mode === 'conflicts'
+      };
     }
     fetchItemsQuery.loadParams(opts);
   }, [mode, parent]);
 
   let sort;
   //   let limit;
-  if (mode === 'browser') {
+  if (mode === 'browser' || mode === 'conflicts') {
     sort = userSort;
     if (!sort) {
       sort = userSettingsService.getDefaultDisplayOpts().sort; // should use hook

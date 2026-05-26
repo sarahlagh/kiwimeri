@@ -132,9 +132,7 @@ export class TinybaseQueryDefinition<
       this.tableId,
       this.query
     );
-    if (paramValues) {
-      copy.loadParams(paramValues);
-    }
+    copy.initQuery(paramValues);
     return copy;
   }
 

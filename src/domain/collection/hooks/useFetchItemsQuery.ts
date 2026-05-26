@@ -9,6 +9,7 @@ export default function useFetchItemsQuery(
   return useGenericQuery(fetchItemsQuery, {
     parent,
     onlyDocuments: recursive || false,
-    recursive: onlyDocuments || false
+    recursive: onlyDocuments || false,
+    onlyConflicts: false
   });
 }

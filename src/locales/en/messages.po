@@ -44,6 +44,10 @@ msgstr "Manual"
 msgid " (new)"
 msgstr " (new)"
 
+#: src/features/comments-ui/components/CommentMenuPreview.tsx:41
+msgid "-- conflict --"
+msgstr "-- conflict --"
+
 #: src/dev-tools/components/LogsCard.tsx:133
 msgid "{0} Filters"
 msgstr "{0} Filters"
@@ -164,6 +168,7 @@ msgstr "Configure where to synchronize your collection"
 msgid "Confirm"
 msgstr "Confirm"
 
+#: src/collection/components/CollectionItemBrowserList.tsx:154
 #: src/constants.ts:79
 msgid "Conflicts"
 msgstr "Conflicts"
@@ -251,7 +256,7 @@ msgstr "Document History"
 msgid "Download Logs"
 msgstr "Download Logs"
 
-#: src/features/comments-ui/components/CommentMenuPreview.tsx:35
+#: src/features/comments-ui/components/CommentMenuPreview.tsx:39
 msgid "empty comment"
 msgstr "empty comment"
 
@@ -361,7 +366,7 @@ msgstr "Internal proxy"
 msgid "Kiwimeri format (single file)"
 msgstr "Kiwimeri format (single file)"
 
-#: src/collection/components/CollectionItemBrowserList.tsx:150
+#: src/collection/components/CollectionItemBrowserList.tsx:153
 msgid "Last consulted documents"
 msgstr "Last consulted documents"
 
@@ -369,7 +374,7 @@ msgstr "Last consulted documents"
 msgid "Last Updated"
 msgstr "Last Updated"
 
-#: src/collection/components/CollectionItemBrowserList.tsx:149
+#: src/collection/components/CollectionItemBrowserList.tsx:152
 msgid "Last updated documents"
 msgstr "Last updated documents"
 
@@ -587,7 +592,7 @@ msgstr "Search Content"
 msgid "Search input"
 msgstr "Search input"
 
-#: src/features/comments-ui/components/CommentsBrowser.tsx:48
+#: src/features/comments-ui/components/CommentsBrowser.tsx:57
 msgid "select a comment"
 msgstr "select a comment"
 

@@ -1,8 +1,10 @@
 import DeepSearchButton from '@/common/buttons/DeepSearchButton';
 import SyncRemoteButton from '@/common/buttons/SyncRemoteButton';
-import platformService from '@/common/services/platform.service';
+import { plt } from '@/core/infra/platform';
 import collectionService from '@/db/collection.service';
 import navService from '@/db/nav.service';
+import fetchItemsConflictsQuery from '@/domain/collection/queries/fetchItemsConflictsQuery';
+import fetchCommentConflictsQuery from '@/domain/comments/queries/fetchCommentConflictsQuery';
 import { syncService } from '@/remote-storage/sync.service';
 import {
   InputCustomEvent,
@@ -13,7 +15,7 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactProps';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router';
 
 export type MainHeaderProps = {
@@ -40,6 +42,11 @@ const MainHeader = ({
   const hasRemoteChanges = syncService.usePrimaryHasRemoteChanges();
   const hasConflicts = syncService.useHasLocalConflicts();
   const enabled = !isSyncing && isMergeSyncEnabled;
+
+  useEffect(() => {
+    fetchItemsConflictsQuery.initQuery();
+    fetchCommentConflictsQuery.initQuery();
+  }, []);
 
   function getColor() {
     if (isSyncing) return 'warning';
@@ -78,7 +85,7 @@ const MainHeader = ({
 
       <IonButtons slot="end">
         <DeepSearchButton />
-        {platformService.isSyncEnabled() && (
+        {plt.isSyncEnabled() && (
           <SyncRemoteButton
             disabled={!enabled}
             direction="sync"

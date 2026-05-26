@@ -28,6 +28,7 @@ import useCollectionItemBrowserListResults, {
   BrowserQueryMode,
   browserModes
 } from '@/features/collection-ui/hooks/useCollectionItemBrowserListResults';
+import { syncService } from '@/remote-storage/sync.service';
 import { useLingui } from '@lingui/react/macro';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import ActionsFromBrowserToolbar from './actions/ActionsFromBrowserToolbar';
@@ -94,6 +95,7 @@ const CollectionItemBrowserListToolbar = ({
               </IonButton>
 
               <IonButton
+                disabled={mode === 'conflicts'}
                 onClick={() => {
                   setOpenFilters(false);
                   nextMode();
@@ -140,6 +142,7 @@ export const CollectionItemBrowserList = ({
   const location = useLocation();
   const searchParams = getSearchParams(location.search);
   const openedDocument = searchParams?.document;
+  const hasConflicts = syncService.useHasLocalConflicts();
 
   const displayOpts = collectionService.useItemEffectiveDisplayOpts(folder);
   const sort = displayOpts.sort;
@@ -148,9 +151,11 @@ export const CollectionItemBrowserList = ({
   const modeTrans = new Map<BrowserQueryMode, string>();
   modeTrans.set('updated', t`Last updated documents`);
   modeTrans.set('lastOpenedAt', t`Last consulted documents`);
+  modeTrans.set('conflicts', t`Conflicts`);
 
+  const currentMode = hasConflicts ? 'conflicts' : browserModes[modeIdx];
   const items: CollectionItemResult[] = useCollectionItemBrowserListResults(
-    browserModes[modeIdx],
+    currentMode,
     folder,
     sort
   );
@@ -194,7 +199,7 @@ export const CollectionItemBrowserList = ({
     <CollectionItemList
       header={
         <>
-          {browserModes[modeIdx] === 'browser' ? (
+          {currentMode === 'browser' ? (
             <CollectionItemBreadcrumb
               folder={folder}
               onClick={item => {
@@ -206,7 +211,7 @@ export const CollectionItemBrowserList = ({
           ) : (
             <>
               <IonLabel style={{ lineHeight: '36px', marginLeft: '18px' }}>
-                <i>{modeTrans.get(browserModes[modeIdx])}</i>
+                <i>{modeTrans.get(currentMode)}</i>
               </IonLabel>
             </>
           )}
@@ -240,7 +245,7 @@ export const CollectionItemBrowserList = ({
           openedDocument={openedDocument}
           searchText={searchText}
           setSearchText={setSearchText}
-          mode={browserModes[modeIdx]}
+          mode={currentMode}
           nextMode={() => {
             let idx = modeIdx + 1;
             if (idx === browserModes.length) idx = 0;

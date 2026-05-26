@@ -15,6 +15,7 @@ const fetchCommentsQuery = new SpaceQueryDefinition<
   };
   select('createdAt');
   select('order');
+  select('conflict');
   where('itemId', params.itemId);
 });
 

@@ -41,6 +41,11 @@
       }
     }
   }
+  .comment-area.comment-is-conflict {
+    .editor-input.comment-editor {
+      border: 1px solid var(--ion-color-danger);
+    }
+  }
 
   .comment-browser-separator {
     border-left: solid 0.4px;
@@ -80,6 +85,10 @@
 
     .comment-preview-empty {
       --color: var(--ion-color-medium);
+    }
+
+    .comment-is-conflict {
+      color: var(--ion-color-danger);
     }
   }
 }

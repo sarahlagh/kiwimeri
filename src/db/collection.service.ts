@@ -212,7 +212,8 @@ class CollectionService {
       {
         parent,
         recursive: false,
-        onlyDocuments: false
+        onlyDocuments: false,
+        onlyConflicts: false
       },
       sort.by,
       sort.descending
@@ -306,15 +307,6 @@ class CollectionService {
       return searchAncestryService.enrichWithPreview(results);
     }
     return results as PageResult[];
-  }
-
-  public useConflicts(sort?: CollectionItemSort): CollectionItemResult[] {
-    if (!sort) {
-      sort = userSettingsService.getDefaultDisplayOpts().sort;
-    }
-    const table = useTableWithRef(this.storeId, this.tableId);
-    const queryName = this.fetchConflictsQuery();
-    return this.useResultsSorted(table, queryName, sort);
   }
 
   public getConflicts(sort?: CollectionItemSort) {
@@ -749,10 +741,7 @@ class CollectionService {
   }
 
   public isItemConflict(rowId: Id) {
-    return (
-      (space.getCell(this.tableId, rowId, 'conflict')?.valueOf() as string) !==
-        undefined || false
-    );
+    return space.getCell(this.tableId, rowId, 'conflict') !== undefined;
   }
 
   private resetItemIfConflict(rowId: Id) {

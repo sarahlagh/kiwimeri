@@ -21,7 +21,8 @@ export default function useFetchItemsQueryParamsState<
     setParams({
       parent,
       onlyDocuments: false,
-      recursive: false
+      recursive: false,
+      onlyConflicts: false
     });
   };
 
