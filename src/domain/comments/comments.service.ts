@@ -1,13 +1,9 @@
 import { setFieldMeta } from '@/collection/collection';
 import { genericReorder } from '@/common/dnd/utils';
-import {
-  minimizeContentForStorage,
-  unminimizeContentFromStorage
-} from '@/common/wysiwyg/compress-file-content';
+import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
 import { PREVIEW_SIZE } from '@/constants';
 import { space } from '@/core/db/store';
 import collectionService, { initialContent } from '@/db/collection.service';
-import { getPlainText } from '@/shared/utils/getPlainText';
 import { SortableType } from '@/shared/utils/sort-filter/sort';
 import { SerializedEditorState } from 'lexical';
 import { getUniqueId, Id } from 'tinybase/common';
@@ -44,14 +40,7 @@ class CommentsService {
   public saveComments(docId: Id, comments: CommentRow[]) {
     space.transaction(() => {
       comments.forEach(comment => {
-        const id = getUniqueId();
-        // TODO must be a listener after all
-        // that way I don't have to worry about it even with a setTable or import
-        if (!comment.plainText) {
-          const content = unminimizeContentFromStorage(comment.content);
-          comment.plainText = getPlainText(content);
-        }
-        space.setRow(C, id, { ...comment, itemId: docId });
+        space.setRow(C, getUniqueId(), { ...comment, itemId: docId });
       });
       space.setCell('collection', docId, 'updated', Date.now());
     });
@@ -64,7 +53,6 @@ class CommentsService {
       space.setPartialRow(C, id, {
         content: contentStr,
         content_meta: setFieldMeta(contentStr, now),
-        plainText: getPlainText(content),
         updatedAt: now
       });
       const itemId = space.getCell(C, id, 'itemId');
@@ -109,7 +97,7 @@ class CommentsService {
   }
 
   public getPreview(id: Id) {
-    return space.getCell(C, id, 'plainText').substring(0, PREVIEW_SIZE);
+    return space.getCell(C, id, 'plainText')?.substring(0, PREVIEW_SIZE) || '';
   }
 
   public getCommentInfo(id: Id) {
