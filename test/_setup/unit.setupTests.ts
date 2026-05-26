@@ -38,18 +38,18 @@ beforeAll(async () => {
   migrationService['enabled'] = false;
   historyService['enabled'] = false;
   remotesService.initSync();
-  startListeners();
 });
 afterAll(() => {
   remotesService.stopSync();
-  stopListeners();
 });
 beforeEach(() => {
+  startListeners();
   localChangesService.clear();
   notebooksService.initNotebooks();
   expect(notebooksService.getCurrentNotebook()).toBe('0');
 });
 afterEach(() => {
+  stopListeners();
   nukeStorage();
   remotesService.stopSync();
 });

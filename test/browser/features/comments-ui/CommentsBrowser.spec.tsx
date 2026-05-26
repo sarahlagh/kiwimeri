@@ -256,7 +256,7 @@ describe('CommentsBrowser', () => {
       .element(getCommentPreview(screen, 'test 2'))
       .toBeInTheDocument();
 
-    expect(commentsService.getCommentContent(comment1)).toBeUndefined();
+    expect(commentsService.getContent(comment1)).toBeUndefined();
   });
 
   test('change comments sort order', async () => {

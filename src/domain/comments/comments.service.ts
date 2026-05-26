@@ -4,6 +4,7 @@ import {
   minimizeContentForStorage,
   unminimizeContentFromStorage
 } from '@/common/wysiwyg/compress-file-content';
+import { PREVIEW_SIZE } from '@/constants';
 import { space } from '@/core/db/store';
 import collectionService, { initialContent } from '@/db/collection.service';
 import { getPlainText } from '@/shared/utils/getPlainText';
@@ -103,8 +104,12 @@ class CommentsService {
     });
   }
 
-  public getCommentContent(id: Id) {
+  public getContent(id: Id) {
     return space.getCell(C, id, 'content');
+  }
+
+  public getPreview(id: Id) {
+    return space.getCell(C, id, 'plainText').substring(0, PREVIEW_SIZE);
   }
 
   public getCommentInfo(id: Id) {
@@ -118,6 +123,10 @@ class CommentsService {
     const effectiveOpts = collectionService.getItemEffectiveDisplayOpts(docId);
     effectiveOpts.documentSort = newCommentSort;
     collectionService.setItemDisplayOpts(docId, effectiveOpts);
+  }
+
+  public exists(id: Id) {
+    return space.hasRow(C, id);
   }
 }
 

@@ -91,7 +91,7 @@ describe('comments service', () => {
 
     const comment = space.getRow('comments', commentId);
     expect(unminimizeContentFromStorage(comment.content)).toBe(content);
-    expect(commentsService.getCommentContent(commentId)).toBe(comment.content);
+    expect(commentsService.getContent(commentId)).toBe(comment.content);
     expect(comment.plainText).toBe('this is the content');
     expect(comment.updatedAt).toBeGreaterThan(updated);
     expect(getDocUpdatedTs(docId)).toBeGreaterThan(updated);

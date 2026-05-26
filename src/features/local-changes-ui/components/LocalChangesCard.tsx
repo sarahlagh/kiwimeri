@@ -5,6 +5,7 @@ import { GET_UNKNOWN_ITEM_ROUTE, SETTINGS_ROUTE } from '@/common/routes';
 import platformService from '@/common/services/platform.service';
 import { APPICONS } from '@/constants';
 import { useQueryResults } from '@/core/db/queries-helper';
+import { plt } from '@/core/infra/platform';
 import collectionService from '@/db/collection.service';
 import remotesService from '@/db/remotes.service';
 import { commentsService } from '@/domain/comments/comments.service';
@@ -31,9 +32,19 @@ import {
 } from '../metrics';
 import fetchLocalChangesQuery from '../queries/fetchLocalChangesQuery';
 
+// keep outside for tests
+export function onRouteEnter() {
+  fetchLocalChangesQuery.initQuery();
+  initLatestCollectionUpdateMetric();
+}
+export function onRouteLeave() {
+  fetchLocalChangesQuery.close();
+  closeLatestCollectionUpdateMetric();
+}
+
 const LocalChangesCard = () => {
   const { t } = useLingui();
-  const isRelease = platformService.isRelease();
+  const isRelease = plt.isRelease();
   const isWideEnough = platformService.isWideEnough();
   const localChanges = useQueryResults(fetchLocalChangesQuery);
   const lastLocalChange = useLatestUpdatedAt();
@@ -42,12 +53,10 @@ const LocalChangesCard = () => {
   const weightRemote = lastRemoteChange < lastLocalChange ? 'normal' : 'bold';
 
   useIonViewDidEnter(() => {
-    fetchLocalChangesQuery.initQuery();
-    initLatestCollectionUpdateMetric();
+    onRouteEnter();
   });
   useIonViewDidLeave(() => {
-    fetchLocalChangesQuery.close();
-    closeLatestCollectionUpdateMetric();
+    onRouteLeave();
   });
 
   return (
@@ -60,17 +69,29 @@ const LocalChangesCard = () => {
       <IonCardContent>
         <IonItem lines="none">
           <IonLabel slot="start" style={{ fontWeight: weightLocal }}>
-            <Trans>
-              Local:&nbsp;
-              {dateToStr('datetime', lastLocalChange)}
-            </Trans>
+            {lastLocalChange > 0 ? (
+              <Trans>
+                Local:&nbsp; {dateToStr('datetime', lastLocalChange)}
+              </Trans>
+            ) : (
+              <Trans>
+                Local:&nbsp;
+                <i>never</i>
+              </Trans>
+            )}
           </IonLabel>
 
           <IonLabel slot="end" style={{ fontWeight: weightRemote }}>
-            <Trans>
-              Remote:&nbsp;
-              {dateToStr('datetime', lastRemoteChange)}
-            </Trans>
+            {lastRemoteChange > 0 ? (
+              <Trans>
+                Remote:&nbsp; {dateToStr('datetime', lastRemoteChange)}
+              </Trans>
+            ) : (
+              <Trans>
+                Remote:&nbsp;
+                <i>never</i>
+              </Trans>
+            )}
           </IonLabel>
         </IonItem>
         {/* TODO use this button to actually reset changes when feature is done */}
@@ -81,7 +102,11 @@ const LocalChangesCard = () => {
               {localChanges.map(lc => {
                 if (lc.on === 'values') {
                   return (
-                    <IonItem key={lc.id} routerLink={SETTINGS_ROUTE}>
+                    <IonItem
+                      key={lc.id}
+                      data-testid={`lc-key-${lc.id}`}
+                      routerLink={SETTINGS_ROUTE}
+                    >
                       <IonIcon
                         slot="start"
                         icon={APPICONS.settingsPage}
@@ -93,11 +118,19 @@ const LocalChangesCard = () => {
                     </IonItem>
                   );
                 }
+                let preview = '';
                 let type;
                 let route;
+                let itemExists = true;
                 if (lc.on === 'collection') {
                   type = collectionService.getItemType(lc.itemId);
                   route = GET_UNKNOWN_ITEM_ROUTE(lc.itemId, type);
+                  itemExists = collectionService.itemExists(lc.itemId);
+                  preview = itemExists
+                    ? searchAncestryService
+                        .getItemPreview(lc.itemId)
+                        .substring(0, 200)
+                    : '';
                 } else {
                   const document = commentsService.getCommentInfo(
                     lc.itemId
@@ -107,10 +140,18 @@ const LocalChangesCard = () => {
                     document,
                     CollectionItemType.document
                   );
+                  itemExists = commentsService.exists(lc.itemId);
+                  preview = itemExists
+                    ? commentsService.getPreview(lc.itemId)
+                    : '';
                 }
                 return (
-                  <IonItem key={lc.id} routerLink={route}>
-                    {!collectionService.itemExists(lc.itemId) ? (
+                  <IonItem
+                    key={lc.id}
+                    routerLink={route}
+                    data-testid={`lc-key-${lc.id}`}
+                  >
+                    {!itemExists && (
                       <>
                         <IonIcon
                           slot="start"
@@ -119,7 +160,9 @@ const LocalChangesCard = () => {
                         ></IonIcon>
                         <IonText>{t`deleted item`}</IonText>
                       </>
-                    ) : (
+                    )}
+
+                    {itemExists && lc.on === 'collection' && (
                       <>
                         <IonIcon
                           slot="start"
@@ -135,25 +178,30 @@ const LocalChangesCard = () => {
                             <>
                               {type !== CollectionItemType.page && <br />}
                               <i>
-                                <sub>
-                                  {searchAncestryService
-                                    .getItemPreview(lc.itemId)
-                                    .substring(0, 200)}
-                                </sub>
+                                <sub>{preview}</sub>
                               </i>
                             </>
                           ) : (
                             type === CollectionItemType.page && (
                               <>
                                 <i>
-                                  <sub>
-                                    {searchAncestryService
-                                      .getItemPreview(lc.itemId)
-                                      .substring(0, 15)}
-                                  </sub>
+                                  <sub>{preview.substring(0, 15)}</sub>
                                 </i>
                               </>
                             )
+                          )}
+                        </IonText>
+                      </>
+                    )}
+
+                    {itemExists && lc.on === 'comments' && (
+                      <>
+                        <IonIcon slot="start" icon={APPICONS.comment}></IonIcon>
+                        <IonText>
+                          {isWideEnough ? (
+                            <i>{preview}</i>
+                          ) : (
+                            <i>{preview.substring(0, 15)}</i>
                           )}
                         </IonText>
                       </>

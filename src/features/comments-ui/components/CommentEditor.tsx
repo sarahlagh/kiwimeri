@@ -9,7 +9,7 @@ type CommentEditorProps = {
 };
 
 const CommentEditor = ({ commentId, editable = true }: CommentEditorProps) => {
-  const content = commentsService.getCommentContent(commentId);
+  const content = commentsService.getContent(commentId);
   return (
     <KiwimeriEditor
       id={commentId}

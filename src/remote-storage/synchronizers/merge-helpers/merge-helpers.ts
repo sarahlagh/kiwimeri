@@ -123,7 +123,7 @@ export function applyLocalChangesToPull<
   orphanPolicy: OrphanPolicy<L>,
   force?: boolean
 ) {
-  const dataTable = localContent[0][tableId]! as {
+  const dataTable = (localContent[0][tableId] || {}) as {
     [key: string]: L;
   };
   const localChanges = allLocalChanges.filter(lc => lc.on === tableId);
