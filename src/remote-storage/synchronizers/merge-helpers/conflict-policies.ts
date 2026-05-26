@@ -4,6 +4,11 @@ import {
   CollectionItemUpdatableConflictFields,
   CollectionItemUpdatableFieldEnum
 } from '@/collection/collection';
+import {
+  CommentUpdatableConflictFields,
+  CommentUpdatableFieldEnum,
+  SyncableComment
+} from '@/domain/comments/model';
 import { LocalChangeResult } from '@/domain/local-changes/model';
 
 export abstract class ConflictPolicy<L> {
@@ -50,3 +55,33 @@ class CollectionConflictPolicy extends ConflictPolicy<CollectionItem> {
   }
 }
 export const collectionConflictPolicy = new CollectionConflictPolicy();
+
+class CommentsConflictPolicy extends ConflictPolicy<SyncableComment> {
+  public shouldCreateConflict(
+    localChange: LocalChangeResult,
+    localItem: SyncableComment | undefined,
+    remoteItem: SyncableComment
+  ): boolean {
+    const field = localChange.field as CommentUpdatableFieldEnum;
+    return (
+      localItem !== undefined &&
+      !localItem.conflict &&
+      (!localChange.field ||
+        (CommentUpdatableConflictFields.includes(field) &&
+          (!remoteItem || localItem[field] !== remoteItem[field])))
+    );
+  }
+  public newConflict(
+    localChange: LocalChangeResult,
+    localItem: SyncableComment
+  ) {
+    const ts = Date.now();
+    return {
+      ...{ ...localItem, id: 'to-be-dropped' },
+      conflict: localChange.itemId,
+      createdAt: ts,
+      updatedAt: ts
+    };
+  }
+}
+export const commentConflictPolicy = new CommentsConflictPolicy();

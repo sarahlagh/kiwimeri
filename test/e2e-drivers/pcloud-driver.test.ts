@@ -64,6 +64,7 @@ const reInitRemoteData = async (
   console.debug('[reInitRemoteData]', items, values, lastRemoteChange);
   const remoteContent: RemoteCollectionFileContent = {
     i: minimizeItemsForStorage(items) as MinimizedCollectionItem[],
+    c: [],
     u: lastRemoteChange,
     o: values
   };

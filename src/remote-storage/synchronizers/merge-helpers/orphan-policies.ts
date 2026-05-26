@@ -4,15 +4,21 @@ import {
   getGlobalTrans,
   ROOT_COLLECTION
 } from '@/constants';
+import { SpaceType } from '@/core/db/store-schema';
 import notebooksService from '@/db/notebooks.service';
+import { SyncableComment } from '@/domain/comments/model';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeOn, LocalChangeType } from '@/domain/local-changes/model';
 import { Row, Table } from 'tinybase/store';
-import { Id } from 'tinybase/with-schemas';
+import { Content, Id } from 'tinybase/with-schemas';
 
 export abstract class OrphanPolicy<L> {
   constructor(protected on: LocalChangeOn) {}
-  public abstract isOrphan(item: L, newTableAfterPull: Table): boolean;
+  public abstract isOrphan(
+    item: L,
+    newTableAfterPull: Table,
+    localContent: Content<SpaceType>
+  ): boolean;
   public abstract handleOrphan(id: Id, newTableAfterPull: Table): void;
 }
 
@@ -54,3 +60,23 @@ class CollectionOrphanPolicy extends OrphanPolicy<CollectionItem> {
   }
 }
 export const collectionOrphanPolicy = new CollectionOrphanPolicy();
+
+class CommentsOrphanPolicy extends OrphanPolicy<SyncableComment> {
+  constructor() {
+    super('comments');
+  }
+  public isOrphan(
+    item: SyncableComment,
+    newTableAfterPull: Table,
+    localContent: Content<SpaceType>
+  ): boolean {
+    const newCollectionAfterPull = localContent[0].collection!;
+    return !newCollectionAfterPull[item.itemId];
+  }
+
+  public handleOrphan(id: Id, newTableAfterPull: Table): void {
+    console.debug('[collection][pull] orphan detected', this.on, id);
+    delete newTableAfterPull[id];
+  }
+}
+export const commentsOrphanPolicy = new CommentsOrphanPolicy();

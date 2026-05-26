@@ -31,7 +31,7 @@ export type CommentSort = Sort<CommentSortType>;
 
 export type SyncableComment = {
   id: string;
-} & Omit<CommentRow, 'plainText' | 'conflict'>;
+} & Omit<CommentRow, 'plainText'>;
 
 type CommentUpdate = Pick<CommentRow, 'content' | 'order'>;
 export type CommentLocalChange = LocalChangeRow<CommentUpdate>;
@@ -41,4 +41,7 @@ export type CommentUpdatableFieldEnum = keyof Required<CommentUpdate>;
 export const CommentUpdatableFields: CommentUpdatableFieldEnum[] = [
   'content',
   'order'
+];
+export const CommentUpdatableConflictFields: CommentUpdatableFieldEnum[] = [
+  'content'
 ];

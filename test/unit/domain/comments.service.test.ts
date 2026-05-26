@@ -67,7 +67,7 @@ describe('comments service', () => {
     const comments: CommentRow[] = [];
     comments.push(commentsService.newCommentObj(docId).item);
     comments.push(commentsService.newCommentObj(docId + 'diff').item);
-    commentsService.addComments(docId, comments);
+    commentsService.saveComments(docId, comments);
 
     const commentResults = fetchCommentsQuery.getResults({ itemId: docId });
     expect(commentResults).toHaveLength(2);

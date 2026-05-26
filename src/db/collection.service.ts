@@ -958,7 +958,7 @@ class CollectionService {
       };
       newComments.push(item);
     });
-    commentsService.addComments(docId, newComments);
+    commentsService.saveComments(docId, newComments);
     // if document had sort, set commentSort
     const str = space.getCell(this.tableId, docId, 'display_opts');
     if (str) {

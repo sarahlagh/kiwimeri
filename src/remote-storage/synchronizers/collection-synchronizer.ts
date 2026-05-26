@@ -1,5 +1,4 @@
 import {
-  CollectionItem,
   CollectionItemType,
   CollectionItemUpdatableFieldEnum,
   CollectionItemUpdateChangeFields,
@@ -9,15 +8,15 @@ import {
   isPageOrDocument
 } from '@/collection/collection';
 import {
+  MinKeys as ItemsMinKeys,
   minimizeItemsForStorage,
-  MinKeys,
   unminimizeItemsFromStorage
 } from '@/collection/compress-collection';
 import { nOr0 } from '@/common/utils';
 import { appConfig } from '@/config';
 import { space, store } from '@/core/db/store';
 import { SpaceType, SpaceValues } from '@/core/db/store-schema';
-import { WithId } from '@/core/db/types';
+import { TypeWithId, WithId } from '@/core/db/types';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import {
@@ -28,6 +27,12 @@ import {
   SerializableData
 } from '@/db/types/store-types';
 import userSettingsService from '@/db/user-settings.service';
+import {
+  minimizeCommentsForStorage,
+  MinimizedComments,
+  unminimizeCommentsFromStorage
+} from '@/domain/comments/compress-comments';
+import { CommentRow, SyncableComment } from '@/domain/comments/model';
 import {
   startLocalChangesListeners,
   stopLocalChangesListeners
@@ -44,25 +49,33 @@ import { CloudStorageDriver } from '../storage-drivers/abstract.driver';
 import { SingleFileStorage } from '../storage-filesystems/singlefile.filesystem';
 import { AfterSyncHistChange } from '../sync-types';
 import { CloudStorageSynchronizer } from './abstract-synchronizer';
-import { collectionConflictPolicy } from './merge-helpers/conflict-policies';
+import {
+  collectionConflictPolicy,
+  commentConflictPolicy
+} from './merge-helpers/conflict-policies';
 import {
   applyLocalChangesToPull,
   applyLocalChangesToPush
 } from './merge-helpers/merge-helpers';
-import { collectionOrphanPolicy } from './merge-helpers/orphan-policies';
+import {
+  collectionOrphanPolicy,
+  commentsOrphanPolicy
+} from './merge-helpers/orphan-policies';
 
 export type MinimizedCollectionItem = {
-  [key in MinKeys[number]]: SerializableData | undefined;
+  [key in ItemsMinKeys[number]]: SerializableData | undefined;
 };
 
 export type RemoteCollectionFileContent = {
   i: MinimizedCollectionItem[]; // the items
+  c?: MinimizedComments[]; // the comments
   o: SpaceValues; // the space options
   u: number; // last content change
 };
 
 type RemoteContentRepresentation = {
   items: CollectionItemWithId[];
+  comments: SyncableComment[];
   values: SpaceValues;
   lastRemoteChange: number;
 };
@@ -200,7 +213,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   private setContent(content: Content<SpaceType, false>) {
     stopLocalChangesListeners();
     space.setTable('collection', content[0].collection!);
-    // space.setTable('comments', content[0].comments!);
+    space.setTable('comments', content[0].comments!);
     space.setValues(content[1]);
     startLocalChangesListeners();
   }
@@ -244,31 +257,40 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     remoteContent: RemoteContentRepresentation,
     force: boolean
   ): { data: AnyData; hasNewChanges: boolean } {
-    const newRemoteItems = remoteContent.items;
-    const newRemoteValues = remoteContent.values;
     let lastLocalChange = remoteContent.lastRemoteChange;
     if (localChanges.length > 0) {
       lastLocalChange = Math.max(...localChanges.map(lc => lc.createdAt));
     }
 
+    // merge collection
     applyLocalChangesToPush(
       localContent,
       'collection',
       localChanges,
-      remoteContent.items as WithId[]
+      remoteContent.items as TypeWithId[]
+    );
+
+    // merge comments
+    applyLocalChangesToPush(
+      localContent,
+      'comments',
+      localChanges,
+      remoteContent.comments as TypeWithId[]
     );
 
     let data: RemoteCollectionFileContent;
     if (localChanges.length > 0 || force) {
       data = this.toFileContent(
-        newRemoteItems,
-        newRemoteValues,
+        remoteContent.items,
+        remoteContent.comments,
+        remoteContent.values,
         lastLocalChange
       );
     } else {
       const localContentRep = this.toRepresentationFromLocal(localContent);
       data = this.toFileContent(
         localContentRep.items,
+        localContentRep.comments,
         localContentRep.values,
         lastLocalChange
       );
@@ -288,7 +310,6 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       remoteContent,
       force
     );
-    // TODO check success?
     historyService.saveNow();
     this.setContent(resp.content);
     this.handleResumeState(resp.changes);
@@ -308,7 +329,11 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   } {
     const remoteContent = this.toRepresentation(obj);
 
-    const { newLocalContent, discardedChanges } = applyLocalChangesToPull(
+    // merge collection
+    const {
+      newLocalContent: afterCollectionMergeContent,
+      discardedChanges: afterCollectionMergeDiscardedChanges
+    } = applyLocalChangesToPull(
       'collection',
       localContent,
       remoteContent.items,
@@ -318,6 +343,26 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       collectionOrphanPolicy,
       force
     );
+
+    // merge comments
+    const {
+      newLocalContent,
+      discardedChanges: afterCommentsMergeDiscardedChanges
+    } = applyLocalChangesToPull(
+      'comments',
+      afterCollectionMergeContent,
+      remoteContent.comments,
+      remoteContent.lastRemoteChange,
+      localChanges,
+      commentConflictPolicy,
+      commentsOrphanPolicy,
+      force
+    );
+
+    const discardedChanges = [
+      ...afterCollectionMergeDiscardedChanges,
+      ...afterCommentsMergeDiscardedChanges
+    ];
 
     // values
     const newValues =
@@ -343,7 +388,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     );
     return {
       content: newLocalContent,
-      discardedChanges,
+      discardedChanges: discardedChanges,
       changes
     };
   }
@@ -444,9 +489,11 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     const collection = this.toMap<CollectionItemWithId>(
       localContent[0].collection!
     );
+    const comments = this.toMap<WithId<CommentRow>>(localContent[0].comments);
     const items = [...collection.values()].filter(v => !v.conflict);
     return {
       items,
+      comments: [...comments.values()],
       values: localContent[1],
       lastRemoteChange: localContent[1].valuesLastUpdatedAt
     };
@@ -474,13 +521,15 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
 
     return {
       items: unminimizeItemsFromStorage(obj.i),
+      comments: unminimizeCommentsFromStorage(obj.c || []),
       values: obj.o,
       lastRemoteChange: obj.u
     };
   }
 
   private toFileContent(
-    items: CollectionItem[],
+    items: CollectionItemWithId[],
+    comments: SyncableComment[],
     values: SpaceValues,
     updated: number
   ): RemoteCollectionFileContent {
@@ -488,6 +537,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       i: minimizeItemsForStorage(
         items.map(item => ({ ...item }))
       ) as MinimizedCollectionItem[],
+      c: minimizeCommentsForStorage(comments),
       o: values,
       u: updated
     };

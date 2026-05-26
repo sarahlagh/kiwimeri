@@ -38,12 +38,10 @@ describe('remotes service', () => {
     const ok = await remotesService.configure(
       {
         id: rowId,
-        space: DEFAULT_SPACE_ID,
         state,
         type: 'inmem',
         config: '{}',
         connected: false,
-        formats: '',
         name: 'test',
         rank: 0
       },

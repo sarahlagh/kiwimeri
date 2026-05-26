@@ -28,7 +28,7 @@ class RemotesService {
       storeQueries.setQueryDefinition(
         queryName,
         'remotes',
-        ({ select, join, where }) => {
+        ({ select, join }) => {
           select('rank');
           select('name');
           select('type');
@@ -36,7 +36,6 @@ class RemotesService {
           select('state');
           select(this.stateTable, 'connected');
           join(this.stateTable, 'state');
-          where('space', space);
         }
       );
     }
@@ -186,7 +185,6 @@ class RemotesService {
         name,
         state,
         type,
-        space: DEFAULT_SPACE_ID,
         config: defaultConf ? JSON.stringify(defaultConf) : '{}'
       },
       false

@@ -17,6 +17,9 @@ export type CellIdFromSchema<
   TableId extends TableIdFromSchema<Schema>
 > = AsId<keyof Schema[TableId]>;
 
-export type WithId = {
+export type TypeWithId = {
   id: Id;
 };
+export type WithId<R> = {
+  id: Id;
+} & R;

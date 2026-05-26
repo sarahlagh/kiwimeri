@@ -1,6 +1,6 @@
 import { parseFieldMeta } from '@/collection/collection';
 import { SpaceTableId, SpaceType } from '@/core/db/store-schema';
-import { WithId } from '@/core/db/types';
+import { TypeWithId, WithId } from '@/core/db/types';
 import {
   LocalChangeResult,
   LocalChangeType
@@ -16,7 +16,7 @@ type FieldWithMeta<R> = {
 }[StringKey<R>];
 type MetaKey<K extends string> = `${K}_meta`;
 
-export function applyLocalChangesToPush<R extends WithId>(
+export function applyLocalChangesToPush<R extends TypeWithId>(
   localContent: Content<SpaceType>,
   tableId: SpaceTableId,
   allLocalChanges: LocalChangeResult[],
@@ -94,14 +94,15 @@ function getRemoteUpdatedTS(
 
 function checkOrphans<R>(
   newTableAfterPull: Table,
-  orphanPolicy: OrphanPolicy<R>
+  orphanPolicy: OrphanPolicy<R>,
+  localContent: Content<SpaceType>
 ) {
   // check for orphans
   // not sure I can do this in one loop here - still, optimize?
   // here all the timestamps have already been checked, so any orphan here should be recreated safely
   for (const id of Object.keys(newTableAfterPull)) {
     const item = newTableAfterPull[id] as unknown as R;
-    if (!orphanPolicy.isOrphan(item, newTableAfterPull)) {
+    if (!orphanPolicy.isOrphan(item, newTableAfterPull, localContent)) {
       continue;
     }
     orphanPolicy.handleOrphan(id, newTableAfterPull);
@@ -111,7 +112,7 @@ function checkOrphans<R>(
 export function applyLocalChangesToPull<
   RootTableId extends SpaceTableId,
   L extends Row<SpaceType[0], RootTableId>,
-  R extends WithId & L
+  R extends WithId<L>
 >(
   tableId: SpaceTableId,
   localContent: Content<SpaceType>,
@@ -185,7 +186,8 @@ export function applyLocalChangesToPull<
             newDataTable[localChange.itemId]
           )
         ) {
-          newDataTable[getUniqueId()] = conflictPolicy.newConflict(
+          const conflictId = getUniqueId();
+          newDataTable[conflictId] = conflictPolicy.newConflict(
             localChange,
             localItem
           );
@@ -196,7 +198,7 @@ export function applyLocalChangesToPull<
       }
     }
 
-    checkOrphans(newDataTable, orphanPolicy);
+    checkOrphans(newDataTable, orphanPolicy, localContent);
   }
 
   return { newLocalContent, discardedChanges };

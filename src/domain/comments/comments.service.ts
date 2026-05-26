@@ -1,6 +1,9 @@
 import { setFieldMeta } from '@/collection/collection';
 import { genericReorder } from '@/common/dnd/utils';
-import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
+import {
+  minimizeContentForStorage,
+  unminimizeContentFromStorage
+} from '@/common/wysiwyg/compress-file-content';
 import { space } from '@/core/db/store';
 import collectionService, { initialContent } from '@/db/collection.service';
 import { getPlainText } from '@/shared/utils/getPlainText';
@@ -37,10 +40,16 @@ class CommentsService {
     return id;
   }
 
-  public addComments(docId: Id, comments: CommentRow[]) {
+  public saveComments(docId: Id, comments: CommentRow[]) {
     space.transaction(() => {
       comments.forEach(comment => {
         const id = getUniqueId();
+        // TODO must be a listener after all
+        // that way I don't have to worry about it even with a setTable or import
+        if (!comment.plainText) {
+          const content = unminimizeContentFromStorage(comment.content);
+          comment.plainText = getPlainText(content);
+        }
         space.setRow(C, id, { ...comment, itemId: docId });
       });
       space.setCell('collection', docId, 'updated', Date.now());
