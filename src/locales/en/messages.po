@@ -80,6 +80,14 @@ msgstr "An error occurred loading the file"
 msgid "An error occurred! Please check the logs."
 msgstr "An error occurred! Please check the logs."
 
+#: src/features/ao3-html-ui/components/ViewAo3HtmlButton.tsx:31
+msgid "AO3"
+msgstr "AO3"
+
+#: src/features/ao3-html-ui/components/ViewAo3HtmlModal.tsx:35
+msgid "AO3 Viewer"
+msgstr "AO3 Viewer"
+
 #: src/common/modals/ConfirmMultipleImportModal.tsx:162
 msgid "Archive is empty"
 msgstr "Archive is empty"
@@ -219,7 +227,7 @@ msgstr "deleted item"
 msgid "Dev Tools"
 msgstr "Dev Tools"
 
-#: src/dev-tools/components/DevTools.tsx:37
+#: src/dev-tools/components/DevTools.tsx:41
 msgid "Dev Tools Enabled"
 msgstr "Dev Tools Enabled"
 

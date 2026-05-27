@@ -11,6 +11,7 @@ import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
 import navService from '@/db/nav.service';
 import userSettingsService from '@/db/user-settings.service';
+import { ViewAo3HtmlButton } from '@/features/ao3-html-ui';
 import {
   IonAlert,
   IonButton,
@@ -54,6 +55,7 @@ const ActionsFromDocumentEditorToolbar = ({
       <IonButtons slot="end">
         {showMoveFolder && <MoveFolderButton id={id} onClose={onClose} />}
         <ExportItemsButton id={id} type={type} onClose={onClose} />
+        <ViewAo3HtmlButton id={id} onClose={onClose} />
         <QuickGroupButton type={type} id={id} onClose={onClose} />
 
         {/** temp button to turn pages into documents */}

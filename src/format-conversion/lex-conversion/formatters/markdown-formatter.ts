@@ -23,7 +23,7 @@ const paragraphAlignOpeningTag = (ctx: KiwimeriLexTransformerCtx) => {
   const blockNode = ctx.elementNode ? ctx.elementNode : ctx.parent;
   if (blockNode) {
     const format = blockNode.format as ElementFormatType;
-    if (format !== '') {
+    if (format !== '' && format !== 'left' && format !== 'start') {
       return `<p style="text-align: ${format};">`;
     }
   }
