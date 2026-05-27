@@ -4,9 +4,11 @@ import {
   CollectionItemType
 } from '@/collection/collection';
 import SortableList from '@/common/dnd/containers/SortableList';
-import platformService from '@/common/services/platform.service';
 import { APPICONS, CONFLICT_STR } from '@/constants';
+import { plt } from '@/core/infra/platform';
 import collectionService from '@/db/collection.service';
+// eslint-disable-next-line no-restricted-imports
+import useItemsConflictMixIn from '@/features/collection-ui/hooks/useItemsConflictMixIn';
 import { searchService } from '@/search/search.service';
 import {
   InputCustomEvent,
@@ -32,8 +34,15 @@ const ROW_LABEL_PREFIX = 'collection-item-label-';
 
 type ConfirmCallback = (choice: boolean) => void;
 
+type CollectionItemMixIn = {
+  highlighted?: boolean;
+  isSearchResult?: boolean;
+  isConflict?: boolean;
+  hasCommentConflicts?: boolean;
+};
+
 type CollectionItemListSingleItemProps = {
-  item: CollectionItemResult;
+  item: CollectionItemResult & CollectionItemMixIn;
   actionsIcon?: string;
   selected?: string;
   highlighted?: boolean;
@@ -111,10 +120,19 @@ const CollectionItemListItem = ({
 
   const url = getUrl && !renaming ? getUrl(item) : undefined;
   const routerDirection = getUrl && !renaming ? 'none' : undefined;
-  const icon = APPICONS_PER_TYPE.get(item.type);
+  const icon = item.isConflict
+    ? APPICONS.warning
+    : item.hasCommentConflicts
+      ? APPICONS.comment
+      : APPICONS_PER_TYPE.get(item.type);
   const className =
     (itemProps ? itemProps(item)?.className : '') +
     (highlighted ? ' collection-item-highlighted' : '');
+  const labelColor = item.isConflict
+    ? 'danger'
+    : item.hasCommentConflicts
+      ? 'warning'
+      : undefined;
 
   return (
     <IonItem
@@ -180,19 +198,14 @@ const CollectionItemListItem = ({
         <IonLabel
           id={ROW_LABEL_PREFIX + item.id}
           ref={labelRef}
-          color={item.conflict ? 'danger' : undefined}
+          color={labelColor}
         >
-          {item.conflict ? CONFLICT_STR : ''}
+          {item.isConflict ? CONFLICT_STR : ''}
           {item.title}
         </IonLabel>
       )}
     </IonItem>
   );
-};
-
-type CollectionItemMixIn = {
-  highlighted?: boolean;
-  isSearchResult?: boolean;
 };
 
 const CollectionItemList = ({
@@ -227,7 +240,7 @@ const CollectionItemList = ({
   let finalItems = items;
   const itemsMixIn: Map<string, CollectionItemMixIn> = new Map();
 
-  if (platformService.hasHighlightSupport()) {
+  if (plt.hasHighlightSupport()) {
     const ranges: Range[] = [];
     if (searchService.acceptsSearchText(searchText)) {
       items.forEach(i => {
@@ -260,6 +273,8 @@ const CollectionItemList = ({
     const highlight = new Highlight(...ranges);
     CSS.highlights.set(SEARCH_RESULTS_HIGHLIGHT_KEY, highlight);
   }
+
+  finalItems = useItemsConflictMixIn(finalItems);
 
   return (
     <>

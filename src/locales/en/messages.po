@@ -84,7 +84,7 @@ msgstr "An error occurred! Please check the logs."
 msgid "Archive is empty"
 msgstr "Archive is empty"
 
-#: src/collection/components/CollectionItemList.tsx:67
+#: src/collection/components/CollectionItemList.tsx:76
 #: src/common/buttons/ManageHistoryButton.tsx:143
 #: src/common/modals/ConfirmYesNoDialog.tsx:24
 msgid "Are you sure?"
@@ -475,7 +475,7 @@ msgstr "New notebook name: "
 msgid "New tag"
 msgstr "New tag"
 
-#: src/collection/components/CollectionItemList.tsx:78
+#: src/collection/components/CollectionItemList.tsx:87
 msgid "no"
 msgstr "no"
 
@@ -592,7 +592,7 @@ msgstr "Search Content"
 msgid "Search input"
 msgstr "Search input"
 
-#: src/features/comments-ui/components/CommentsBrowser.tsx:57
+#: src/features/comments-ui/components/CommentsBrowser.tsx:56
 msgid "select a comment"
 msgstr "select a comment"
 
@@ -769,7 +769,7 @@ msgstr "words"
 msgid "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 msgstr "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 
-#: src/collection/components/CollectionItemList.tsx:75
+#: src/collection/components/CollectionItemList.tsx:84
 msgid "yes"
 msgstr "yes"
 

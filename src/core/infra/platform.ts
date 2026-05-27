@@ -33,6 +33,10 @@ class PlatformService {
     const val = store.getValue('internalProxy');
     return (val !== undefined ? val : appConfig.INTERNAL_HTTP_PROXY) || '';
   }
+
+  public hasHighlightSupport() {
+    return CSS.highlights !== undefined;
+  }
 }
 
 export const plt = new PlatformService();

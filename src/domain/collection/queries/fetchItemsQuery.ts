@@ -54,14 +54,6 @@ const fetchItemsQuery = new SpaceQueryDefinition<
     // !! not reactive if conflicts are solved
     const itemsConflicts = fetchItemsConflictsQuery.getResults({});
     const commentConflicts = fetchCommentConflictsQuery.getResults({});
-    select(getCell => {
-      const id = getCell('itemId')!;
-      return (
-        commentConflicts.filter(
-          c => c.itemId === id && c.conflict !== undefined
-        ).length > 0
-      );
-    }).as('hasConflictInComments');
     where(getCell => {
       const id = getCell('itemId')!;
       const isConflict = getCell('conflict') !== undefined;

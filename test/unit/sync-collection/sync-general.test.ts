@@ -1,3 +1,4 @@
+import TinybaseProvider from '@/app/providers/TinybaseProvider';
 import { CollectionItemType } from '@/collection/collection';
 import {
   DEFAULT_NOTEBOOK_ID,
@@ -8,6 +9,8 @@ import { space } from '@/core/db/store';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import remotesService from '@/db/remotes.service';
+import fetchItemsConflictsQuery from '@/domain/collection/queries/fetchItemsConflictsQuery';
+import fetchCommentConflictsQuery from '@/domain/comments/queries/fetchCommentConflictsQuery';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
@@ -144,13 +147,16 @@ describe(`sync general test`, () => {
   });
 
   it('should prevent sync when there are conflicts', async () => {
+    fetchItemsConflictsQuery.initQuery();
+    fetchCommentConflictsQuery.initQuery();
     // create local item
     const id = adv(() => collectionService.addDocument(DEFAULT_NOTEBOOK_ID));
     // artificially create a conflict
     adv(() => space.setCell('collection', id, 'conflict', 'fakeId'));
     // is global sync prevented
-    const { result, unmount } = renderHook(() =>
-      syncService.useIsMergeSyncEnabled()
+    const { result, unmount } = renderHook(
+      () => syncService.useIsMergeSyncEnabled(),
+      { wrapper: TinybaseProvider }
     );
     expect(result.current).toBe(false);
     unmount();
@@ -159,6 +165,8 @@ describe(`sync general test`, () => {
     expect(success);
     expect(didPull);
     expect(!didPush);
+    fetchItemsConflictsQuery.close();
+    fetchCommentConflictsQuery.close();
   });
 
   it('should prevent force push when there are conflicts', async () => {
@@ -189,6 +197,8 @@ describe(`sync general test`, () => {
   });
 
   it('should allow sync once all conflicts are solved', async () => {
+    fetchItemsConflictsQuery.initQuery();
+    fetchCommentConflictsQuery.initQuery();
     // create local item
     const id = adv(() => collectionService.addDocument(DEFAULT_NOTEBOOK_ID));
     await syncService.push();
@@ -198,8 +208,9 @@ describe(`sync general test`, () => {
     expect(collectionService.isItemConflict(id));
 
     {
-      const { result, unmount } = renderHook(() =>
-        syncService.useIsMergeSyncEnabled()
+      const { result, unmount } = renderHook(
+        () => syncService.useIsMergeSyncEnabled(),
+        { wrapper: TinybaseProvider }
       );
       expect(result.current).toBe(false);
       unmount();
@@ -221,6 +232,9 @@ describe(`sync general test`, () => {
       expect(result.current).toBe(true);
       unmount();
     }
+
+    fetchItemsConflictsQuery.close();
+    fetchCommentConflictsQuery.close();
   });
 });
 
