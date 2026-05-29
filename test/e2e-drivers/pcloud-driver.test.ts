@@ -1,4 +1,8 @@
-import { CollectionItem, CollectionItemWithId } from '@/collection/collection';
+import {
+  CollectionItem,
+  CollectionItemWithId,
+  setFieldMeta
+} from '@/collection/collection';
 import {
   minimizeItemsForStorage,
   unminimizeItemsFromStorage
@@ -15,6 +19,13 @@ import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import remotesService from '@/db/remotes.service';
 import userSettingsService from '@/db/user-settings.service';
+import { commentsService } from '@/domain/comments/comments.service';
+import {
+  minimizeCommentsForStorage,
+  unminimizeCommentsFromStorage
+} from '@/domain/comments/compress-comments';
+import { SyncableComment } from '@/domain/comments/model';
+import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import { PCloudDriver } from '@/remote-storage/storage-drivers/pcloud/pcloud.driver';
@@ -25,7 +36,6 @@ import {
 } from '@/remote-storage/synchronizers/collection-synchronizer';
 import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';
 import { searchAncestryService } from '@/search/search-ancestry.service';
-import { renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   amount,
@@ -36,11 +46,13 @@ import {
   getNewContent,
   getNewValue,
   getRowCountInsideNotebook,
+  oneComment,
   oneDocument,
   oneFolder,
   oneNotebook,
   setLocalItemField,
-  updateOnRemote
+  updateOnRemote,
+  wrappedRenderHook
 } from '../_setup/test.utils';
 import { defaultValues } from '../unit/sync-collection/test-sync.utils';
 
@@ -53,6 +65,15 @@ const reInitRemoteData = async (
   updateTs?: number,
   values?: SpaceValues
 ) => {
+  return reInitRemoteDataWithComments(items, undefined, updateTs, values);
+};
+
+const reInitRemoteDataWithComments = async (
+  items: CollectionItem[],
+  comments?: SyncableComment[],
+  updateTs?: number,
+  values?: SpaceValues
+) => {
   const lastRemoteChange =
     updateTs !== undefined ? updateTs : Math.max(...items.map(i => i.updated));
   if (!values) {
@@ -61,10 +82,16 @@ const reInitRemoteData = async (
       valuesLastUpdatedAt: 0
     };
   }
-  console.debug('[reInitRemoteData]', items, values, lastRemoteChange);
+  console.debug(
+    '[reInitRemoteData]',
+    items,
+    comments,
+    values,
+    lastRemoteChange
+  );
   const remoteContent: RemoteCollectionFileContent = {
     i: minimizeItemsForStorage(items) as MinimizedCollectionItem[],
-    c: [],
+    c: minimizeCommentsForStorage(comments || []),
     u: lastRemoteChange,
     o: values
   };
@@ -90,6 +117,9 @@ const getRemoteContent = async () => {
   const parsed = JSON.parse(content);
   return {
     items: unminimizeItemsFromStorage(parsed.i as CollectionItem[]),
+    comments: unminimizeCommentsFromStorage(
+      (parsed.c as SyncableComment[]) || []
+    ),
     values: parsed.o as SpaceValuesType
   };
 };
@@ -99,6 +129,7 @@ describe.sequential(
   { timeout: 10000 },
   () => {
     beforeEach(async () => {
+      conflictsService.initConflictQueries();
       remotesService.addRemote('test', 0, 'pcloud', {
         token: appConfig.PCLOUD_E2E_TOKEN,
         path: `${appConfig.PCLOUD_E2E_PATH}`,
@@ -119,9 +150,11 @@ describe.sequential(
       searchAncestryService.start();
     });
     afterEach(async () => {
+      conflictsService.closeConflictQueries();
       console.debug('clearing files');
       if (driver) {
         await driver.deleteFile({ filename: 'collection.json' });
+        await driver.deleteFile({ filename: 'stats.json' });
       }
       searchAncestryService.stop();
       await remotesService.delRemote(remotesService.getRemotes()[0].id);
@@ -279,7 +312,7 @@ describe.sequential(
       expect(getLocalItemField(conflictId, 'title')).toBe(newLocalTitle);
 
       // push should be disabled
-      const { result, unmount } = renderHook(() =>
+      const { result, unmount } = wrappedRenderHook(() =>
         syncService.useIsMergeSyncEnabled()
       );
       expect(result.current).toBe(false);
@@ -681,6 +714,94 @@ describe.sequential(
           defaultSortDesc: false,
           valuesLastUpdatedAt: space.getValue('valuesLastUpdatedAt')
         });
+      });
+    });
+
+    describe(`tests with comments`, () => {
+      test('synchronizer should push comments', async () => {
+        const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+        const commentId = commentsService.addComment(docId);
+        commentsService.editComment(
+          commentId,
+          JSON.parse(getNewContent('test'))
+        );
+        await synchronizer.sync();
+        {
+          const resp = await getRemoteContent();
+          expect(resp?.items).toHaveLength(2);
+          expect(resp?.items[1].id).toBe(docId);
+          expect(resp?.comments).toHaveLength(1);
+          expect(resp?.comments[0].id).toBe(commentId);
+        }
+      });
+
+      test('synchronizer should pull comments', async () => {
+        const items = [oneNotebook(), oneDocument()];
+        const comments = [oneComment(items[1].id!)];
+        await reInitRemoteDataWithComments(
+          items,
+          comments || [],
+          comments[0].updatedAt,
+          defaultValues
+        );
+
+        await amount(100);
+
+        await synchronizer.sync();
+
+        await amount(100);
+
+        expect(space.getRowCount('comments')).toBe(1);
+        expect(space.hasRow('comments', comments[0].id));
+      });
+
+      test('synchronizer should merge comments', async () => {
+        const items = [oneNotebook(), oneDocument()];
+        const comments = [oneComment(items[1].id!)];
+        const docId = items[1].id!;
+        const commentId = comments[0].id;
+        await reInitRemoteDataWithComments(
+          items,
+          comments,
+          comments[0].updatedAt,
+          defaultValues
+        );
+        await synchronizer.sync();
+        await amount(100);
+        // comment pulled
+
+        // update on remote
+        comments[0].order = 2;
+        comments[0].order_meta = setFieldMeta('', Date.now());
+        comments[0].updatedAt = Date.now();
+        await reInitRemoteDataWithComments(
+          items,
+          comments,
+          comments[0].updatedAt,
+          defaultValues
+        );
+        await amount(100);
+
+        // update locally
+        commentsService.editComment(
+          commentId,
+          JSON.parse(getNewContent('test'))
+        );
+
+        // sync
+        await synchronizer.sync();
+        await amount(100);
+        {
+          const resp = await getRemoteContent();
+          expect(resp?.items).toHaveLength(2);
+          expect(resp?.items[1].id).toBe(docId);
+          expect(resp?.comments).toHaveLength(1);
+          expect(resp?.comments[0].id).toBe(commentId);
+          expect(resp?.comments[0].order).toBe(2);
+          expect(resp?.comments[0].content).toBe(
+            space.getCell('comments', commentId, 'content')
+          );
+        }
       });
     });
   }

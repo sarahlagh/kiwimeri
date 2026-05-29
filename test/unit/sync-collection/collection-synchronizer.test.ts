@@ -5,21 +5,26 @@ import { space } from '@/core/db/store';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import { RemoteResult } from '@/db/types/store-types';
+import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
 import { commentsService } from '@/domain/comments/comments.service';
+import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
+import useItemsConflictMixIn from '@/features/collection-ui/hooks/useItemsConflictMixIn';
 import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
 import { syncService } from '@/remote-storage/sync.service';
 import { CollectionSynchronizer } from '@/remote-storage/synchronizers/collection-synchronizer';
+import { searchAncestryService } from '@/search/search-ancestry.service';
 import {
   adv,
   getLocalItemConflicts,
   getNewContent,
   oneComment,
   oneDocument,
-  oneNotebook
+  oneFolder,
+  oneNotebook,
+  wrappedRenderHook
 } from '@@/_setup/test.utils';
-import { renderHook } from '@testing-library/react';
 import { describe } from 'vitest';
 import { defaultValues } from './test-sync.utils';
 
@@ -564,13 +569,6 @@ describe('collection synchronizer', () => {
         expect(newComments[0].content).toBe(comments[0].content);
         expect(commentsService.isConflict(commentId));
       }
-      {
-        const { result, unmount } = renderHook(() =>
-          syncService.useIsMergeSyncEnabled()
-        );
-        expect(result.current).toBe(false);
-        unmount();
-      }
     });
 
     test('synchronizer should sync comments and delete orphans', async () => {
@@ -636,6 +634,280 @@ describe('collection synchronizer', () => {
 
       expect(!commentsService.exists(commentId));
       expect(!commentsService.exists(orphanId));
+    });
+  });
+
+  describe('should propagate conflicts', () => {
+    beforeEach(() => {
+      conflictsService.initConflictQueries();
+      searchAncestryService.start();
+    });
+    afterEach(() => {
+      conflictsService.closeConflictQueries();
+      searchAncestryService.stop();
+    });
+
+    test('should include documents with conflicts and their source in fetchItemsQuery with onlyConflicts=true', async () => {
+      const items = [oneNotebook(), oneDocument()];
+      const docId = items[1].id!;
+      await driver.setCollectionContent(items, defaultValues, items[1].updated);
+      await synchronizer.sync();
+      vi.advanceTimersByTime(100);
+      // comment pulled
+
+      // update locally
+      adv(() => {
+        collectionService.setItemLexicalContent(
+          docId,
+          JSON.parse(getNewContent('local'))
+        );
+      });
+
+      // update on remote
+      items[1].content = minimizeContentForStorage(
+        JSON.parse(getNewContent('remote'))
+      );
+      items[1].content_meta = setFieldMeta('', Date.now());
+      items[1].updated = Date.now();
+      await driver.setCollectionContent(items, defaultValues, items[1].updated);
+
+      // sync
+      const resp = await synchronizer.sync();
+      expect(resp.didPull);
+      expect(!resp.didPush);
+      {
+        const { content } = driver.getParsedCollectionContent();
+        expect(content).toHaveLength(2);
+        expect(content[1].id).toBe(docId);
+        expect(collectionService.isItemConflict(docId));
+      }
+
+      {
+        const { result, unmount } = wrappedRenderHook(() =>
+          syncService.useIsMergeSyncEnabled()
+        );
+        expect(result.current).toBe(false);
+        unmount();
+      }
+      {
+        const items = fetchItemsQuery.getResults(
+          {
+            onlyConflicts: true,
+            onlyDocuments: true,
+            recursive: true,
+            parent: DEFAULT_NOTEBOOK_ID
+          },
+          'created',
+          true
+        );
+        expect(items).toHaveLength(2);
+        const { result, unmount } = wrappedRenderHook(() =>
+          useItemsConflictMixIn(items)
+        );
+        expect(result.current).toHaveLength(2);
+        expect(result.current[0].hasCommentConflicts).toBe(false);
+        expect(result.current[0].conflict).toBe(result.current[1].id);
+        expect(result.current[0].isConflict).toBe(true);
+        expect(result.current[1].hasCommentConflicts).toBe(false);
+        expect(result.current[1].conflict).toBeUndefined();
+        expect(result.current[1].isConflict).toBe(false);
+        unmount();
+      }
+    });
+
+    test('should include documents with conflicts in comments in fetchItemsQuery with onlyConflicts=true', async () => {
+      const items = [oneNotebook(), oneDocument()];
+      const comments = [oneComment(items[1].id!)];
+      const docId = items[1].id!;
+      const commentId = comments[0].id;
+      await driver.setCollectionContentWithComments(
+        items,
+        comments,
+        defaultValues,
+        comments[0].updatedAt
+      );
+      await synchronizer.sync();
+      vi.advanceTimersByTime(100);
+      // comment pulled
+
+      // update locally
+      adv(() => {
+        commentsService.editComment(
+          commentId,
+          JSON.parse(getNewContent('local'))
+        );
+      });
+
+      // update on remote
+      comments[0].content = minimizeContentForStorage(
+        JSON.parse(getNewContent('remote'))
+      );
+      comments[0].content_meta = setFieldMeta('', Date.now());
+      comments[0].updatedAt = Date.now();
+      await driver.setCollectionContentWithComments(
+        items,
+        comments,
+        defaultValues,
+        comments[0].updatedAt
+      );
+
+      // sync
+      const resp = await synchronizer.sync();
+      expect(resp.didPull);
+      expect(!resp.didPush);
+      {
+        const { content, comments: newComments } =
+          driver.getParsedCollectionContent();
+        expect(content).toHaveLength(2);
+        expect(content[1].id).toBe(docId);
+        expect(newComments).toHaveLength(1);
+        expect(newComments[0].id).toBe(commentId);
+        expect(newComments[0].content).toBe(
+          space.getCell('comments', commentId, 'content')
+        );
+        expect(newComments[0].content).toBe(comments[0].content);
+        expect(commentsService.isConflict(commentId));
+      }
+
+      {
+        const { result, unmount } = wrappedRenderHook(() =>
+          syncService.useIsMergeSyncEnabled()
+        );
+        expect(result.current).toBe(false);
+        unmount();
+      }
+      {
+        const items = fetchItemsQuery.getResults({
+          onlyConflicts: true,
+          onlyDocuments: true,
+          recursive: true,
+          parent: DEFAULT_NOTEBOOK_ID
+        });
+        expect(items).toHaveLength(1);
+        const { result, unmount } = wrappedRenderHook(() =>
+          useItemsConflictMixIn(items)
+        );
+        expect(result.current).toHaveLength(1);
+        expect(result.current[0].hasCommentConflicts).toBe(true);
+        expect(result.current[0].isConflict).toBe(false);
+        unmount();
+      }
+    });
+
+    test('should include all kinds of conflicts and exclude other documents', async () => {
+      const items = [
+        oneNotebook(),
+        oneDocument(),
+        oneDocument(),
+        oneDocument(),
+        oneFolder()
+      ];
+      const comments = [oneComment(items[1].id!)];
+      const docWithComment = items[1].id!;
+      const docInConflict = items[2].id!;
+      const docExcluded = items[3].id!;
+      const commentId = comments[0].id;
+      await driver.setCollectionContentWithComments(
+        items,
+        comments,
+        defaultValues,
+        comments[0].updatedAt
+      );
+      await synchronizer.sync();
+      vi.advanceTimersByTime(100);
+
+      // update locally
+      adv(() => {
+        commentsService.editComment(
+          commentId,
+          JSON.parse(getNewContent('local'))
+        );
+      });
+      adv(() => {
+        collectionService.setItemLexicalContent(
+          docInConflict,
+          JSON.parse(getNewContent('local'))
+        );
+      });
+
+      // update on remote
+      comments[0].content = minimizeContentForStorage(
+        JSON.parse(getNewContent('remote'))
+      );
+      comments[0].content_meta = setFieldMeta('', Date.now());
+      comments[0].updatedAt = Date.now();
+
+      vi.advanceTimersByTime(100);
+      items[2].content = minimizeContentForStorage(
+        JSON.parse(getNewContent('remote'))
+      );
+      items[2].content_meta = setFieldMeta('', Date.now());
+      items[2].updated = Date.now();
+
+      await driver.setCollectionContentWithComments(
+        items,
+        comments,
+        defaultValues,
+        items[2].updated
+      );
+
+      // sync
+      const resp = await synchronizer.sync();
+      expect(resp.didPull);
+      expect(!resp.didPush);
+      {
+        const { content, comments: newComments } =
+          driver.getParsedCollectionContent();
+        expect(content).toHaveLength(5);
+        expect(content[1].id).toBe(docWithComment);
+        expect(content[2].id).toBe(docInConflict);
+        expect(content[3].id).toBe(docExcluded);
+        expect(collectionService.isItemConflict(docInConflict));
+        expect(!collectionService.isItemConflict(docWithComment));
+        expect(!collectionService.isItemConflict(docExcluded));
+        expect(newComments[0].content).toBe(comments[0].content);
+        expect(commentsService.isConflict(commentId));
+      }
+
+      {
+        const { result, unmount } = wrappedRenderHook(() =>
+          syncService.useIsMergeSyncEnabled()
+        );
+        expect(result.current).toBe(false);
+        unmount();
+      }
+
+      {
+        const items = fetchItemsQuery.getResults(
+          {
+            onlyConflicts: true,
+            onlyDocuments: true,
+            recursive: true,
+            parent: DEFAULT_NOTEBOOK_ID
+          },
+          'created',
+          true
+        );
+        expect(items).toHaveLength(3);
+        expect(items.filter(i => i.id === docExcluded)).toHaveLength(0);
+        const { result, unmount } = wrappedRenderHook(() =>
+          useItemsConflictMixIn(items)
+        );
+        expect(result.current).toHaveLength(3);
+        expect(result.current[0].conflict).toBe(docInConflict);
+        expect(result.current[0].isConflict).toBe(true);
+        expect(result.current[0].hasCommentConflicts).toBe(false);
+
+        expect(result.current[1].id).toBe(docInConflict);
+        expect(result.current[1].conflict).toBeUndefined();
+        expect(result.current[1].isConflict).toBe(false);
+        expect(result.current[1].hasCommentConflicts).toBe(false);
+
+        expect(result.current[2].id).toBe(docWithComment);
+        expect(result.current[2].hasCommentConflicts).toBe(true);
+        expect(result.current[2].isConflict).toBe(false);
+        unmount();
+      }
     });
   });
 });

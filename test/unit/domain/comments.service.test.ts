@@ -1,4 +1,3 @@
-import TinybaseProvider from '@/app/providers/TinybaseProvider';
 import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { space } from '@/core/db/store';
@@ -9,7 +8,7 @@ import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import useCommentSort from '@/features/comments-ui/hooks/useCommentSort';
 import fetchCommentsQuery from '@/features/comments-ui/queries/fetchCommentsQuery';
-import { getNewContent } from '@@/_setup/test.utils';
+import { getNewContent, wrappedRenderHook } from '@@/_setup/test.utils';
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -131,9 +130,9 @@ describe('comments service', () => {
       descending: false
     });
     {
-      const { result, unmount } = renderHook(() => useCommentSort(docId), {
-        wrapper: TinybaseProvider
-      });
+      const { result, unmount } = wrappedRenderHook(() =>
+        useCommentSort(docId)
+      );
       expect(result.current).toEqual({
         by: 'order',
         descending: false

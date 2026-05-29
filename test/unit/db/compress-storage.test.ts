@@ -7,7 +7,16 @@ import {
   unminimizeContentFromStorage
 } from '@/common/wysiwyg/compress-file-content';
 import { initialContent } from '@/db/collection.service';
-import { oneDocument, oneFolder, oneNotebook } from '@@/_setup/test.utils';
+import {
+  minimizeCommentsForStorage,
+  unminimizeCommentsFromStorage
+} from '@/domain/comments/compress-comments';
+import {
+  oneComment,
+  oneDocument,
+  oneFolder,
+  oneNotebook
+} from '@@/_setup/test.utils';
 import { describe, expect, it } from 'vitest';
 
 describe('lexical content compression', () => {
@@ -114,6 +123,27 @@ describe('collection item compression', () => {
       console.log('minimized json', minimized);
 
       const restored = unminimizeItemsFromStorage(minimized);
+      expect(restored).toStrictEqual(data);
+    });
+  });
+});
+
+describe('comment compression', () => {
+  [
+    {
+      name: 'empty array',
+      data: []
+    },
+    {
+      name: 'array of comments',
+      data: [oneComment('1')]
+    }
+  ].forEach(({ data, name }) => {
+    it(`should minimize then restore ${name}`, () => {
+      const minimized = minimizeCommentsForStorage(data);
+      console.log('minimized json', minimized);
+
+      const restored = unminimizeCommentsFromStorage(minimized);
       expect(restored).toStrictEqual(data);
     });
   });

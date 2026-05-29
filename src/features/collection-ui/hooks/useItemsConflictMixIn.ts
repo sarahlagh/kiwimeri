@@ -1,5 +1,6 @@
 import { CollectionItemResult } from '@/collection/collection';
 import { useQueryResults } from '@/core/db/queries-helper';
+import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import fetchCommentConflictsQuery from '@/domain/conflicts/queries/fetchCommentConflictsQuery';
 
 export default function useItemsConflictMixIn(items: CollectionItemResult[]) {
@@ -8,7 +9,10 @@ export default function useItemsConflictMixIn(items: CollectionItemResult[]) {
   return items.map(item => ({
     ...item,
     isConflict: item.conflict !== undefined,
-    hasCommentConflicts:
-      commentConflicts.filter(c => c.itemId === item.id).length > 0
+    hasCommentConflicts: conflictsService.itemHasConflicts(
+      item.id,
+      [],
+      commentConflicts
+    ).hasCommentConflicts
   }));
 }

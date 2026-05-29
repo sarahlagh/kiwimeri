@@ -1,4 +1,3 @@
-import TinybaseProvider from '@/app/providers/TinybaseProvider';
 import { CollectionItemType } from '@/collection/collection';
 import {
   DEFAULT_NOTEBOOK_ID,
@@ -20,7 +19,8 @@ import {
   getRowCountInsideNotebook,
   oneDocument,
   oneFolder,
-  oneNotebook
+  oneNotebook,
+  wrappedRenderHook
 } from '@@/_setup/test.utils';
 import { renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -152,9 +152,8 @@ describe(`sync general test`, () => {
     // artificially create a conflict
     adv(() => space.setCell('collection', id, 'conflict', 'fakeId'));
     // is global sync prevented
-    const { result, unmount } = renderHook(
-      () => syncService.useIsMergeSyncEnabled(),
-      { wrapper: TinybaseProvider }
+    const { result, unmount } = wrappedRenderHook(() =>
+      syncService.useIsMergeSyncEnabled()
     );
     expect(result.current).toBe(false);
     unmount();
@@ -204,9 +203,8 @@ describe(`sync general test`, () => {
     expect(collectionService.isItemConflict(id));
 
     {
-      const { result, unmount } = renderHook(
-        () => syncService.useIsMergeSyncEnabled(),
-        { wrapper: TinybaseProvider }
+      const { result, unmount } = wrappedRenderHook(() =>
+        syncService.useIsMergeSyncEnabled()
       );
       expect(result.current).toBe(false);
       unmount();

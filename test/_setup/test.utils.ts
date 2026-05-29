@@ -1,3 +1,4 @@
+import TinybaseProvider from '@/app/providers/TinybaseProvider';
 import {
   CollectionItem,
   CollectionItemFieldEnum,
@@ -18,8 +19,15 @@ import { SerializableData } from '@/db/types/store-types';
 import { commentsService } from '@/domain/comments/comments.service';
 import { CommentRow } from '@/domain/comments/model';
 import { Notebook } from '@/notebooks/notebooks';
+import { renderHook } from '@testing-library/react';
 import { getUniqueId } from 'tinybase/with-schemas';
 import { expect, vi } from 'vitest';
+
+export function wrappedRenderHook<Result, Props>(
+  render: (initialProps: Props) => Result
+) {
+  return renderHook(render, { wrapper: TinybaseProvider });
+}
 
 export function nukeStorage() {
   store.setContent([{}, {}]);

@@ -56,13 +56,9 @@ const fetchItemsQuery = new SpaceQueryDefinition<
     where(getCell => {
       const id = getCell('itemId')!;
       const isConflict = getCell('conflict') !== undefined;
-      const hasConflict =
-        itemsConflicts.filter(c => c.conflict === id).length > 0;
-      const hasConflictInComments =
-        commentConflicts.filter(
-          c => c.itemId === id && c.conflict !== undefined
-        ).length > 0;
-      return isConflict || hasConflict || hasConflictInComments;
+      const { hasConflict, hasCommentConflicts } =
+        conflictsService.itemHasConflicts(id, itemsConflicts, commentConflicts);
+      return isConflict || hasConflict || hasCommentConflicts;
     });
   }
 
