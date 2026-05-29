@@ -7,6 +7,7 @@ export type DocSheet = 'info' | 'notes' | 'stats';
 type DocumentBottomSheetProps = {
   id: string;
   select: DocSheet;
+  onCloseSelf?: () => void;
 };
 
 const ChartContainer = lazy(() =>
@@ -50,10 +51,11 @@ const DocumentBottomSheetSwitcher = ({
 
 const DocumentBottomSheet = ({
   id,
-  select = 'info'
+  select = 'info',
+  onCloseSelf
 }: DocumentBottomSheetProps) => {
   return (
-    <BottomSheet>
+    <BottomSheet onCloseSelf={onCloseSelf}>
       <DocumentBottomSheetSwitcher id={id} select={select} />
     </BottomSheet>
   );

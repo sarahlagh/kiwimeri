@@ -189,6 +189,9 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
           <DocumentBottomSheet
             id={pageId ? pageId : docId}
             select={bottomSheet}
+            onCloseSelf={() => {
+              setShowBottomSheet(false);
+            }}
           />
         )}
         <IonFab
@@ -197,15 +200,6 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
           vertical="bottom"
           horizontal="end"
         >
-          {showBottomSheet && (
-            <IonFabButton
-              color={hasConflicts ? 'warning' : 'primary'}
-              size="small"
-              onClick={() => setShowBottomSheet(false)}
-            >
-              <IonIcon icon={APPICONS.closeAction}></IonIcon>
-            </IonFabButton>
-          )}
           {!showBottomSheet && (
             <IonFabButton
               color={hasConflicts ? 'warning' : 'primary'}
