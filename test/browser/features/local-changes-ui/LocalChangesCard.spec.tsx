@@ -204,12 +204,12 @@ describe('LocalChangesCard', () => {
     );
   });
 
-  test('renders a card with "add comment" local changes', async () => {
+  test('renders a card with "add note" local changes', async () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     localChangesService.clear();
-    const commentId = docAnnotationsService.addComment(docId);
-    docAnnotationsService.editComment(
-      commentId,
+    const noteId = docAnnotationsService.addNote(docId);
+    docAnnotationsService.edit(
+      noteId,
       JSON.parse(getNewContent('test content'))
     );
 
@@ -225,12 +225,12 @@ describe('LocalChangesCard', () => {
     );
   });
 
-  test('renders a card with "update comment" local changes', async () => {
+  test('renders a card with "update note" local changes', async () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const commentId = docAnnotationsService.addComment(docId);
+    const noteId = docAnnotationsService.addNote(docId);
     localChangesService.clear();
-    docAnnotationsService.editComment(
-      commentId,
+    docAnnotationsService.edit(
+      noteId,
       JSON.parse(getNewContent('test updated content'))
     );
 
@@ -246,11 +246,11 @@ describe('LocalChangesCard', () => {
     );
   });
 
-  test('renders a card with "delete comment" local changes', async () => {
+  test('renders a card with "delete note" local changes', async () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const commentId = docAnnotationsService.addComment(docId);
+    const noteId = docAnnotationsService.addNote(docId);
     localChangesService.clear();
-    docAnnotationsService.deleteComment(commentId);
+    docAnnotationsService.delete(noteId);
 
     const localChanges = localChangesService.getLocalChanges();
     expect(localChanges).toHaveLength(1);

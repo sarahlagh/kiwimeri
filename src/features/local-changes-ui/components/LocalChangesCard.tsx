@@ -197,7 +197,10 @@ const LocalChangesCard = () => {
 
                     {itemExists && lc.on === DOC_ANNOTATION_TABLE && (
                       <>
-                        <IonIcon slot="start" icon={APPICONS.comment}></IonIcon>
+                        <IonIcon
+                          slot="start"
+                          icon={APPICONS.annotation}
+                        ></IonIcon>
                         <IonText>
                           {isWideEnough ? (
                             <i>{preview}</i>

@@ -44,11 +44,10 @@ msgstr "Manual"
 msgid " (new)"
 msgstr " (new)"
 
-#: src/features/comments-ui/components/CommentMenuPreview.tsx:41
+#: src/features/notes-ui/components/NotesMenuPreview.tsx:41
 msgid "-- conflict --"
 msgstr "-- conflict --"
 
-#. placeholder {0}: showFilters ? 'Hide' : 'Show'
 #: src/dev-tools/components/LogsCard.tsx:133
 msgid "{0} Filters"
 msgstr "{0} Filters"
@@ -65,9 +64,9 @@ msgstr "{wordCount} words"
 msgid "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 msgstr "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 
-#: src/features/comments-ui/components/CommentsMenu.tsx:40
-msgid "add a comment"
-msgstr "add a comment"
+#: src/features/notes-ui/components/NotesMenu.tsx:36
+msgid "add a note"
+msgstr "add a note"
 
 #: src/synchronization/components/providers/RemotesSettings.tsx:101
 msgid "Add config"
@@ -142,7 +141,7 @@ msgstr "Choose a session length"
 msgid "Choose where to save your work"
 msgstr "Choose where to save your work"
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:234
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:238
 msgid "Clear All"
 msgstr "Clear All"
 
@@ -186,16 +185,15 @@ msgstr "Conflicts"
 msgid "Content"
 msgstr "Content"
 
-#: src/features/comments-ui/components/CommentsMenu.tsx:61
-msgid "create a comment"
-msgstr "create a comment"
+#: src/features/notes-ui/components/NotesMenu.tsx:57
+msgid "create a note"
+msgstr "create a note"
 
 #: src/collection/components/sheets/DocumentGeneralInfo.tsx:18
 msgid "Created at"
 msgstr "Created at"
 
-#. placeholder {0}: dateToStr('relative', createdAt)
-#: src/features/comments-ui/components/CommentActions.tsx:24
+#: src/features/notes-ui/components/NotesActions.tsx:24
 msgid "Created at: {0}"
 msgstr "Created at: {0}"
 
@@ -216,11 +214,11 @@ msgstr "Default"
 msgid "Delete All"
 msgstr "Delete All"
 
-#: src/features/comments-ui/components/CommentActions.tsx:44
-msgid "Delete comment"
-msgstr "Delete comment"
+#: src/features/notes-ui/components/NotesActions.tsx:44
+msgid "Delete note"
+msgstr "Delete note"
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:161
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:162
 msgid "deleted item"
 msgstr "deleted item"
 
@@ -266,13 +264,13 @@ msgstr "Document History"
 msgid "Download Logs"
 msgstr "Download Logs"
 
-#: src/features/comments-ui/components/CommentMenuPreview.tsx:39
-msgid "empty comment"
-msgstr "empty comment"
-
 #: src/common/wysiwyg/pages-browser/CollectionPagesBrowser.tsx:90
 msgid "empty doc"
 msgstr "empty doc"
+
+#: src/features/notes-ui/components/NotesMenuPreview.tsx:39
+msgid "empty note"
+msgstr "empty note"
 
 #: src/common/wysiwyg/pages-browser/CollectionPagesBrowser.tsx:91
 msgid "empty page"
@@ -336,12 +334,10 @@ msgstr "History save time (min)"
 msgid "Home"
 msgstr "Home"
 
-#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:119
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
-#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:112
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
@@ -402,17 +398,15 @@ msgstr "Less dangerous mode (session is still timed but you will not lose progre
 msgid "Link"
 msgstr "Link"
 
-#. placeholder {0}: localChanges.length
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:66
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:67
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
-#. placeholder {0}: dateToStr('datetime', lastLocalChange)
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:73
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:74
 msgid "Local:  {0}"
 msgstr "Local:  {0}"
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:77
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:78
 msgid "Local: <0>never</0>"
 msgstr "Local: <0>never</0>"
 
@@ -561,12 +555,11 @@ msgstr "Remember last route"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
-#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:86
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:87
 msgid "Remote:  {0}"
 msgstr "Remote:  {0}"
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:90
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:91
 msgid "Remote: <0>never</0>"
 msgstr "Remote: <0>never</0>"
 
@@ -607,9 +600,9 @@ msgstr "Search Content"
 msgid "Search input"
 msgstr "Search input"
 
-#: src/features/comments-ui/components/CommentsBrowser.tsx:56
-msgid "select a comment"
-msgstr "select a comment"
+#: src/features/notes-ui/components/NotesBrowser.tsx:52
+msgid "select a note"
+msgstr "select a note"
 
 #: src/common/modals/ChooseTagsModal.tsx:39
 msgid "Select item tags"
@@ -629,10 +622,6 @@ msgstr "Settings"
 msgid "Sort"
 msgstr "Sort"
 
-#: src/features/comments-ui/components/CommentsSortFilterBtn.tsx:31
-msgid "sort comments"
-msgstr "sort comments"
-
 #: src/shared/utils/sort-filter/GenericSortFilter.tsx:82
 msgid "Sort direction"
 msgstr "Sort direction"
@@ -641,7 +630,11 @@ msgstr "Sort direction"
 msgid "Sort items by..."
 msgstr "Sort items by..."
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:114
+#: src/features/notes-ui/components/NotesSortFilterBtn.tsx:35
+msgid "sort notes"
+msgstr "sort notes"
+
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:115
 msgid "space option modified"
 msgstr "space option modified"
 
@@ -660,7 +653,7 @@ msgstr "Start Writing"
 msgid "Success!"
 msgstr "Success!"
 
-#: src/features/comments-ui/components/CommentActions.tsx:57
+#: src/features/notes-ui/components/NotesActions.tsx:57
 msgid "Switch info"
 msgstr "Switch info"
 
@@ -725,7 +718,7 @@ msgstr "Timed Writing Session"
 msgid "Title"
 msgstr "Title"
 
-#: src/features/comments-ui/components/CommentActions.tsx:37
+#: src/features/notes-ui/components/NotesActions.tsx:37
 msgid "Toggle actions"
 msgstr "Toggle actions"
 
@@ -737,8 +730,7 @@ msgstr "Track text statistics"
 msgid "Updated at"
 msgstr "Updated at"
 
-#. placeholder {0}: dateToStr('relative', updatedAt)
-#: src/features/comments-ui/components/CommentActions.tsx:29
+#: src/features/notes-ui/components/NotesActions.tsx:29
 msgid "Updated at: {0}"
 msgstr "Updated at: {0}"
 

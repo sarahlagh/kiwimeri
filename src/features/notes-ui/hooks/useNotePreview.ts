@@ -3,7 +3,7 @@ import { useSpaceCell } from '@/core/db/tinybase-hooks';
 import { DOC_ANNOTATION_TABLE } from '@/domain/document-annotations/model';
 import { Id } from 'tinybase/with-schemas';
 
-const useCommentPreview = (rowId: Id) => {
+const useNotePreview = (rowId: Id) => {
   const plainText = useSpaceCell<'document_annotation', 'plainText'>(
     DOC_ANNOTATION_TABLE,
     rowId,
@@ -12,4 +12,4 @@ const useCommentPreview = (rowId: Id) => {
   );
   return plainText?.substring(0, PREVIEW_SIZE);
 };
-export default useCommentPreview;
+export default useNotePreview;

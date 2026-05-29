@@ -20,15 +20,15 @@ class DocumentResumeStateService {
     }
   }
 
-  public setLastSelectedComment(itemId: Id, commentId: Id | null) {
-    if (!commentId) {
-      space.delCell('document_resume_state', itemId, 'lastSelectedCommentId');
+  public setLastSelectedNote(itemId: Id, noteId: Id | null) {
+    if (!noteId) {
+      space.delCell('document_resume_state', itemId, 'lastSelectedNoteId');
     } else {
       space.setCell(
         'document_resume_state',
         itemId,
-        'lastSelectedCommentId',
-        commentId
+        'lastSelectedNoteId',
+        noteId
       );
     }
   }

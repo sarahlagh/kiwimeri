@@ -3,12 +3,12 @@ import { Id } from 'tinybase/with-schemas';
 
 export type DocumentResumeStateRow = {
   lastSelection: SerializedSelection | null;
-  lastSelectedCommentId: Id | null;
+  lastSelectedNoteId: Id | null;
 };
 
 export const resumeStateSchema = {
   lastSelection: { type: 'object' },
-  lastSelectedCommentId: { type: 'string' }
+  lastSelectedNoteId: { type: 'string' }
 } as const satisfies Record<keyof DocumentResumeStateRow, unknown>;
 
 export type DocumentResumeState = DocumentResumeStateRow;

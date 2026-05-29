@@ -7,7 +7,7 @@ import { DOC_ANNOTATION_TABLE } from '@/domain/document-annotations/model';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import { statsService } from '@/domain/stats/stats-service';
-import fetchCommentsQuery from '@/features/comments-ui/queries/fetchCommentsQuery';
+import fetchNotesQuery from '@/features/notes-ui/queries/fetchNotesQuery';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { adv, getNewContent } from '@@/_setup/test.utils';
 import { describe, it, vi } from 'vitest';
@@ -171,7 +171,7 @@ function assertDocsPostExplode(
   expect(page2Versions[0].snapshotJson.parent).toBe(newParent);
 }
 
-function assertCommentsPostExplode(
+function assertNotesPostExplode(
   docId: string,
   pageIds: string[],
   pages: PageResult[]
@@ -182,26 +182,26 @@ function assertCommentsPostExplode(
     // pages were deleted
     expect(!collectionService.itemExists(p));
   });
-  const comments = fetchCommentsQuery.getResults({
+  const notes = fetchNotesQuery.getResults({
     itemId: docId
   });
-  expect(comments).toHaveLength(pageIds.length);
+  expect(notes).toHaveLength(pageIds.length);
   pages.forEach(p => {
-    const eqComment = comments.find(c => c.createdAt === p.created);
-    expect(eqComment).toBeDefined();
-    expect(eqComment?.order).toBe(p.order);
-    const commentPlainText = space.getCell(
+    const eqNote = notes.find(c => c.createdAt === p.created);
+    expect(eqNote).toBeDefined();
+    expect(eqNote?.order).toBe(p.order);
+    const notePlainText = space.getCell(
       DOC_ANNOTATION_TABLE,
-      eqComment!.id,
+      eqNote!.id,
       'plainText'
     );
-    expect(commentPlainText).toBe(p.preview);
-    const commentContent = space.getCell(
+    expect(notePlainText).toBe(p.preview);
+    const noteContent = space.getCell(
       DOC_ANNOTATION_TABLE,
-      eqComment!.id,
+      eqNote!.id,
       'content'
     );
-    expect(commentContent).toBe((p as any)['content']);
+    expect(noteContent).toBe((p as any)['content']);
   });
 
   // document sort was updated
@@ -277,16 +277,16 @@ describe('page removal test', () => {
     assertDocsPostExplode(docId, pageIds, DEFAULT_NOTEBOOK_ID);
   });
 
-  it('should turn pages to comments properly', () => {
+  it('should turn pages to notes properly', () => {
     const { docId, pageIds } = createDocWithHistory();
     assertDocAndPagesExist(docId, pageIds);
 
     const pages = collectionService.getDocumentPages(docId);
 
-    adv(() => collectionService.explodeToComments(docId));
+    adv(() => collectionService.explodeToNotes(docId));
 
     // check what happened
-    assertCommentsPostExplode(docId, pageIds, pages);
+    assertNotesPostExplode(docId, pageIds, pages);
     // const localChanges = localChangesService.getLocalChanges();
     // expect(localChanges).toHaveLength(4); // doc update + pages updates (x3)
   });

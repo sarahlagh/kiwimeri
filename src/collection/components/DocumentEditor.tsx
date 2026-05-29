@@ -211,11 +211,11 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
               color={hasConflicts ? 'warning' : 'primary'}
               size="small"
               onClick={() => {
-                setBottomSheet('comments');
+                setBottomSheet('notes');
                 setShowBottomSheet(true);
               }}
             >
-              <IonIcon icon={APPICONS.comment}></IonIcon>
+              <IonIcon icon={APPICONS.annotation}></IonIcon>
             </IonFabButton>
           )}
         </IonFab>

@@ -16,7 +16,7 @@ if (Capacitor.getPlatform() === 'android') {
       ...config
     };
     // TODO: support multipart form
-    // https://github.com/ionic-team/capacitor/pull/6708#issuecomment-1653366077
+    // https://github.com/ionic-team/capacitor/pull/6708#issuenote-1653366077
     // https://github.com/ionic-team/capacitor/pull/6206
 
     return CapacitorHttp.request(options as any).then(

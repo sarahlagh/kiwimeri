@@ -1,24 +1,24 @@
 import { dateToStr } from '@/common/date-utils';
 import { RenderResult } from 'vitest-browser-react';
 
-export function getSelectACommentNote(screen: RenderResult) {
-  return screen.locator.getByText('select a comment');
+export function getSelectANoteNote(screen: RenderResult) {
+  return screen.locator.getByText('select a note');
 }
 
-export function getCreateACommentNote(screen: RenderResult) {
-  return screen.locator.getByText('create a comment');
+export function getCreateANoteNote(screen: RenderResult) {
+  return screen.locator.getByText('create a note');
 }
 
 export function getAddBtn(screen: RenderResult) {
-  return screen.locator.getByRole('button', { name: 'add a comment' });
+  return screen.locator.getByRole('button', { name: 'add a note' });
 }
 
 export function getSortFilterBtn(screen: RenderResult) {
-  return screen.locator.getByRole('button', { name: 'sort comments' });
+  return screen.locator.getByRole('button', { name: 'sort notes' });
 }
 
-export function getCommentPreview(screen: RenderResult, preview?: string) {
-  if (!preview || preview.length === 0) preview = 'empty comment';
+export function getNotePreview(screen: RenderResult, preview?: string) {
+  if (!preview || preview.length === 0) preview = 'empty note';
   return screen.locator
     .getByRole('listitem')
     .getByRole('button', { name: preview });
@@ -32,27 +32,21 @@ export function getToggleActionsBtn(screen: RenderResult) {
   return screen.locator.getByRole('button', { name: 'Toggle actions' });
 }
 
-export function getDeleteCommentBtn(screen: RenderResult) {
-  return screen.locator.getByRole('button', { name: 'Delete comment' });
+export function getDeleteNoteBtn(screen: RenderResult) {
+  return screen.locator.getByRole('button', { name: 'Delete note' });
 }
 
-export function getSwitchCommentInfoBtn(screen: RenderResult) {
+export function getSwitchNoteInfoBtn(screen: RenderResult) {
   return screen.locator.getByRole('button', { name: 'Switch info' });
 }
 
-export function getCreatedAtCommentInfo(
-  screen: RenderResult,
-  createdAt: number
-) {
+export function getCreatedAtNoteInfo(screen: RenderResult, createdAt: number) {
   return screen.locator.getByText(
     `Created at: ${dateToStr('date', createdAt)}`
   );
 }
 
-export function getUpdatedAtCommentInfo(
-  screen: RenderResult,
-  updatedAt: number
-) {
+export function getUpdatedAtNoteInfo(screen: RenderResult, updatedAt: number) {
   return screen.locator.getByText(
     `Updated at: ${dateToStr('date', updatedAt)}`
   );

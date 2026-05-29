@@ -75,8 +75,8 @@ const ActionsFromDocumentEditorToolbar = ({
                 },
                 {
                   type: 'radio',
-                  label: 'convert to comments 💬',
-                  value: 'to-comments'
+                  label: 'convert to notes 💬',
+                  value: 'to-notes'
                 }
               ]}
               buttons={[
@@ -90,8 +90,8 @@ const ActionsFromDocumentEditorToolbar = ({
                   handler: value => {
                     if (value === 'to-docs') {
                       collectionService.explodeToDocuments(id, true);
-                    } else if (value === 'to-comments') {
-                      collectionService.explodeToComments(id);
+                    } else if (value === 'to-notes') {
+                      collectionService.explodeToNotes(id);
                     }
                   }
                 }

@@ -49,9 +49,9 @@ import {
   getNewContent,
   getNewValue,
   getRowCountInsideNotebook,
-  oneComment,
   oneDocument,
   oneFolder,
+  oneNote,
   oneNotebook,
   setLocalItemField,
   updateOnRemote,
@@ -114,9 +114,7 @@ const getRemoteContent = async () => {
   const parsed = JSON.parse(content);
   return {
     items: unminimizeItemsFromStorage(parsed.i as CollectionItem[]),
-    comments: unminimizeAnnotFromStorage(
-      (parsed.c as SyncableAnnotation[]) || []
-    ),
+    notes: unminimizeAnnotFromStorage((parsed.a as SyncableAnnotation[]) || []),
     values: parsed.o as SpaceValuesType
   };
 };
@@ -714,31 +712,28 @@ describe.sequential(
       });
     });
 
-    describe(`tests with comments`, () => {
-      test('synchronizer should push comments', async () => {
+    describe(`tests with notes`, () => {
+      test('synchronizer should push notes', async () => {
         const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-        const commentId = docAnnotationsService.addComment(docId);
-        docAnnotationsService.editComment(
-          commentId,
-          JSON.parse(getNewContent('test'))
-        );
+        const noteId = docAnnotationsService.addNote(docId);
+        docAnnotationsService.edit(noteId, JSON.parse(getNewContent('test')));
         await synchronizer.sync();
         {
           const resp = await getRemoteContent();
           expect(resp?.items).toHaveLength(2);
           expect(resp?.items[1].id).toBe(docId);
-          expect(resp?.comments).toHaveLength(1);
-          expect(resp?.comments[0].id).toBe(commentId);
+          expect(resp?.notes).toHaveLength(1);
+          expect(resp?.notes[0].id).toBe(noteId);
         }
       });
 
-      test('synchronizer should pull comments', async () => {
+      test('synchronizer should pull notes', async () => {
         const items = [oneNotebook(), oneDocument()];
-        const comments = [oneComment(items[1].id!)];
+        const notes = [oneNote(items[1].id!)];
         await reInitRemoteDataWithAnnots(
           items,
-          comments || [],
-          comments[0].updatedAt,
+          notes || [],
+          notes[0].updatedAt,
           defaultValues
         );
 
@@ -749,54 +744,52 @@ describe.sequential(
         await amount(100);
 
         expect(space.getRowCount(DOC_ANNOTATION_TABLE)).toBe(1);
-        expect(space.hasRow(DOC_ANNOTATION_TABLE, comments[0].id));
+        expect(space.hasRow(DOC_ANNOTATION_TABLE, notes[0].id));
       });
 
-      test('synchronizer should merge comments', async () => {
+      test('synchronizer should merge notes', async () => {
         const items = [oneNotebook(), oneDocument()];
-        const comments = [oneComment(items[1].id!)];
+        const notes = [oneNote(items[1].id!)];
         const docId = items[1].id!;
-        const commentId = comments[0].id;
+        const noteId = notes[0].id;
         await reInitRemoteDataWithAnnots(
           items,
-          comments,
-          comments[0].updatedAt,
+          notes,
+          notes[0].updatedAt,
           defaultValues
         );
         await synchronizer.sync();
         await amount(100);
-        // comment pulled
+        // note pulled
 
         // update on remote
-        comments[0].order = 2;
-        comments[0].order_meta = setFieldMeta('', Date.now());
-        comments[0].updatedAt = Date.now();
+        notes[0].order = 2;
+        notes[0].order_meta = setFieldMeta('', Date.now());
+        notes[0].updatedAt = Date.now();
         await reInitRemoteDataWithAnnots(
           items,
-          comments,
-          comments[0].updatedAt,
+          notes,
+          notes[0].updatedAt,
           defaultValues
         );
         await amount(100);
 
         // update locally
-        docAnnotationsService.editComment(
-          commentId,
-          JSON.parse(getNewContent('test'))
-        );
+        docAnnotationsService.edit(noteId, JSON.parse(getNewContent('test')));
 
         // sync
+        await amount(100);
         await synchronizer.sync();
         await amount(100);
         {
           const resp = await getRemoteContent();
           expect(resp?.items).toHaveLength(2);
           expect(resp?.items[1].id).toBe(docId);
-          expect(resp?.comments).toHaveLength(1);
-          expect(resp?.comments[0].id).toBe(commentId);
-          expect(resp?.comments[0].order).toBe(2);
-          expect(resp?.comments[0].content).toBe(
-            space.getCell(DOC_ANNOTATION_TABLE, commentId, 'content')
+          expect(resp?.notes).toHaveLength(1);
+          expect(resp?.notes[0].id).toBe(noteId);
+          expect(resp?.notes[0].order).toBe(2);
+          expect(resp?.notes[0].content).toBe(
+            space.getCell(DOC_ANNOTATION_TABLE, noteId, 'content')
           );
         }
       });

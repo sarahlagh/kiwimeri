@@ -7,19 +7,18 @@ import { IonButton, IonButtons, IonIcon } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 
-type CommentActionsProps = { docId: string; commentId: string };
+type NoteActionsProps = { docId: string; noteId: string };
 
-const CommentActions = ({ docId, commentId }: CommentActionsProps) => {
+const NoteActions = ({ docId, noteId }: NoteActionsProps) => {
   const { t } = useLingui();
   const [expand, setExpand] = useState(false);
   const [showCreatedAt, setShowCreatedAt] = useState(true);
-  const delTrigger = `${commentId}-delete-btn`;
-  const { createdAt, updatedAt } =
-    docAnnotationsService.getAnnotInfo(commentId);
+  const delTrigger = `${noteId}-delete-btn`;
+  const { createdAt, updatedAt } = docAnnotationsService.getAnnotInfo(noteId);
   return (
     <>
       {expand && (
-        <div className="comment-info">
+        <div className="note-info">
           {showCreatedAt && (
             <p>
               <Trans>Created at: {dateToStr('relative', createdAt)}</Trans>{' '}
@@ -32,7 +31,7 @@ const CommentActions = ({ docId, commentId }: CommentActionsProps) => {
           )}
         </div>
       )}
-      <div className={'comment-actions'}>
+      <div className={'note-actions'}>
         <IonButtons>
           <IonButton
             aria-label={t`Toggle actions`}
@@ -42,15 +41,15 @@ const CommentActions = ({ docId, commentId }: CommentActionsProps) => {
           </IonButton>
           {expand && (
             <>
-              <IonButton id={delTrigger} aria-label={t`Delete comment`}>
+              <IonButton id={delTrigger} aria-label={t`Delete note`}>
                 <IonIcon icon={APPICONS.deleteAction}></IonIcon>
               </IonButton>
               <ConfirmYesNoDialog
                 trigger={delTrigger}
                 onClose={confirmed => {
                   if (confirmed) {
-                    docAnnotationsService.deleteComment(commentId);
-                    resumeService.setLastSelectedComment(docId, null);
+                    docAnnotationsService.delete(noteId);
+                    resumeService.setLastSelectedNote(docId, null);
                   }
                 }}
               />
@@ -70,4 +69,4 @@ const CommentActions = ({ docId, commentId }: CommentActionsProps) => {
   );
 };
 
-export default CommentActions;
+export default NoteActions;

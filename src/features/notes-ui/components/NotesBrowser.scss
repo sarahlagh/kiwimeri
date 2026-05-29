@@ -1,8 +1,8 @@
-.comment-browser {
+.note-browser {
   display: flex;
   height: 100%;
 
-  .comment-area.empty {
+  .note-area.empty {
     text-align: center;
 
     ion-note {
@@ -12,13 +12,13 @@
     }
   }
 
-  .comment-area {
+  .note-area {
     flex-grow: 3;
     padding-top: 8px;
     width: 80%;
     height: 100%;
 
-    .editor-input.comment-editor {
+    .editor-input.note-editor {
       padding: 0px;
       flex-grow: 10;
     }
@@ -26,12 +26,12 @@
       top: 8px;
     }
 
-    .comment-info {
+    .note-info {
       position: fixed;
       top: 0;
     }
 
-    .comment-actions {
+    .note-actions {
       position: fixed;
       bottom: 0;
       opacity: 0.6;
@@ -41,18 +41,18 @@
       }
     }
   }
-  .comment-area.comment-is-conflict {
-    .editor-input.comment-editor {
+  .note-area.note-is-conflict {
+    .editor-input.note-editor {
       border: 1px solid var(--ion-color-danger);
     }
   }
 
-  .comment-browser-separator {
+  .note-browser-separator {
     border-left: solid 0.4px;
     width: 8px;
   }
 
-  .comment-menu.empty {
+  .note-menu.empty {
     text-align: center;
 
     ion-note {
@@ -62,14 +62,14 @@
     }
   }
 
-  .comment-menu {
+  .note-menu {
     width: 20%;
 
-    .comment-actions-bar {
+    .note-actions-bar {
       height: 28px;
     }
 
-    .comment-preview {
+    .note-preview {
       margin-top: 5px;
       font-size: small;
       --inner-padding-start: 6px;
@@ -79,15 +79,15 @@
       --padding-end: 0px;
     }
 
-    .comment-preview-selected {
+    .note-preview-selected {
       color: var(--ion-color-primary);
     }
 
-    .comment-preview-empty {
+    .note-preview-empty {
       --color: var(--ion-color-medium);
     }
 
-    .comment-is-conflict {
+    .note-is-conflict {
       color: var(--ion-color-danger);
     }
   }

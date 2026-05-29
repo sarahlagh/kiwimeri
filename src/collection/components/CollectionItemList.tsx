@@ -38,7 +38,7 @@ type CollectionItemMixIn = {
   highlighted?: boolean;
   isSearchResult?: boolean;
   isConflict?: boolean;
-  hasCommentConflicts?: boolean;
+  hasAnnotsConflicts?: boolean;
 };
 
 type CollectionItemListSingleItemProps = {
@@ -122,15 +122,15 @@ const CollectionItemListItem = ({
   const routerDirection = getUrl && !renaming ? 'none' : undefined;
   const icon = item.isConflict
     ? APPICONS.warning
-    : item.hasCommentConflicts
-      ? APPICONS.comment
+    : item.hasAnnotsConflicts
+      ? APPICONS.annotation
       : APPICONS_PER_TYPE.get(item.type);
   const className =
     (itemProps ? itemProps(item)?.className : '') +
     (highlighted ? ' collection-item-highlighted' : '');
   const labelColor = item.isConflict
     ? 'danger'
-    : item.hasCommentConflicts
+    : item.hasAnnotsConflicts
       ? 'warning'
       : undefined;
 

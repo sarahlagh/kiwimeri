@@ -1,17 +1,17 @@
 import { SpaceQueryDefinition } from '@/core/db/queries-helper';
 import { DOC_ANNOTATION_TABLE } from '@/domain/document-annotations/model';
-import { CommentResult } from '../model';
+import { NoteResult } from '../model';
 
-export type FetchCommentsQueryParam = {
+export type FetchNotesQueryParam = {
   itemId: string;
 };
 
-const fetchCommentsQuery = new SpaceQueryDefinition<
-  FetchCommentsQueryParam,
-  CommentResult,
+const fetchNotesQuery = new SpaceQueryDefinition<
+  FetchNotesQueryParam,
+  NoteResult,
   'document_annotation'
->('fetchComments', DOC_ANNOTATION_TABLE, ({ select, where, param }) => {
-  const params: FetchCommentsQueryParam = {
+>('fetchNotes', DOC_ANNOTATION_TABLE, ({ select, where, param }) => {
+  const params: FetchNotesQueryParam = {
     itemId: param('itemId') as string
   };
   select('createdAt');
@@ -20,4 +20,4 @@ const fetchCommentsQuery = new SpaceQueryDefinition<
   where('itemId', params.itemId);
 });
 
-export default fetchCommentsQuery;
+export default fetchNotesQuery;

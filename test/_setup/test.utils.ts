@@ -95,11 +95,11 @@ export const onePage = (
   };
 };
 
-export const oneComment = (docId: string): WithId<DocAnnotationRow> => {
+export const oneNote = (docId: string): WithId<DocAnnotationRow> => {
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   const id = getUniqueId();
   return {
-    ...docAnnotationsService.newCommentObj(docId).item,
+    ...docAnnotationsService.newNoteObj(docId).item,
     id
   };
 };

@@ -3,8 +3,11 @@ import { LocalChangeRow } from '../local-changes/model';
 
 export const DOC_ANNOTATION_TABLE = 'document_annotation' as const;
 
+export type DocAnnotationType = 'note'; // only one for now, to expand
+
 export type DocAnnotationRow = {
   itemId: string;
+  type: DocAnnotationType;
   createdAt: number;
   updatedAt: number;
   content: string;
@@ -17,6 +20,7 @@ export type DocAnnotationRow = {
 
 export const docAnnotationSchema = {
   itemId: { type: 'string' },
+  type: { type: 'string' },
   createdAt: { type: 'number', default: 0 },
   updatedAt: { type: 'number', default: 0 },
   content: { type: 'string', default: '' },
@@ -44,7 +48,7 @@ export const DocAnnotationUpdatableFields: DocAnnotationUpdatableFieldEnum[] = [
 export const DocAnnotationUpdatableConflictFields: DocAnnotationUpdatableFieldEnum[] =
   ['content'];
 
-// comments specific stuff
+// notes specific stuff
 export const sortBy = ['createdAt', 'order'] as const;
-export type CommentSortType = (typeof sortBy)[number];
-export type CommentSort = Sort<CommentSortType>;
+export type NotesSortType = (typeof sortBy)[number];
+export type NotesSort = Sort<NotesSortType>;

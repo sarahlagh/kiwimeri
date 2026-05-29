@@ -926,16 +926,17 @@ class CollectionService {
     });
   }
 
-  public explodeToComments(docId: string) {
+  public explodeToNotes(docId: string) {
     const pages = this.getDocumentPages(docId, {
       by: 'order',
       descending: false
     });
     if (pages.length === 0) return;
-    const newComments: DocAnnotationRow[] = [];
+    const newNotes: DocAnnotationRow[] = [];
     pages.forEach(p => {
       const pageObj = this.getItem(p.id);
       const item: DocAnnotationRow = {
+        type: 'note',
         itemId: docId,
         content: pageObj.content as string,
         content_meta: pageObj.content_meta as string,
@@ -945,10 +946,10 @@ class CollectionService {
         order: pageObj.order,
         order_meta: pageObj.order_meta
       };
-      newComments.push(item);
+      newNotes.push(item);
     });
-    docAnnotationsService.saveComments(docId, newComments);
-    // if document had sort, set commentSort
+    docAnnotationsService.saveNotes(docId, newNotes);
+    // if document had sort, set noteSort
     const str = space.getCell(this.tableId, docId, 'display_opts');
     if (str) {
       const itemOpts = this.parseDisplayOpts(str as string);

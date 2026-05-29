@@ -2,7 +2,7 @@ import Loading from '@/app/components/Loading';
 import BottomSheet from '@/shared/containers/BottomSheet';
 import { lazy, Suspense } from 'react';
 
-export type DocSheet = 'info' | 'comments' | 'stats';
+export type DocSheet = 'info' | 'notes' | 'stats';
 
 type DocumentBottomSheetProps = {
   id: string;
@@ -14,9 +14,9 @@ const ChartContainer = lazy(() =>
     default: m.ChartContainer
   }))
 );
-const CommentsBrowser = lazy(() =>
-  import('@/features/comments-ui').then(m => ({
-    default: m.CommentsBrowser
+const NotesBrowser = lazy(() =>
+  import('@/features/notes-ui').then(m => ({
+    default: m.NotesBrowser
   }))
 );
 
@@ -39,10 +39,10 @@ const DocumentBottomSheetSwitcher = ({
           <ChartContainer id={id} />
         </Suspense>
       );
-    case 'comments':
+    case 'notes':
       return (
         <Suspense fallback={<Loading />}>
-          <CommentsBrowser id={id} />
+          <NotesBrowser id={id} />
         </Suspense>
       );
   }

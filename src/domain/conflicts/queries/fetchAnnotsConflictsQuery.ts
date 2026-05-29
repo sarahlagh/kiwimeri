@@ -7,7 +7,7 @@ const fetchAnnotsConflictsQuery = new SpaceQueryDefinition<
   ParamValues,
   AnnotationConflictResult,
   'document_annotation'
->('fetchCommentConflicts', DOC_ANNOTATION_TABLE, ({ select, where }) => {
+>('fetchNoteConflicts', DOC_ANNOTATION_TABLE, ({ select, where }) => {
   select('itemId');
   select('conflict');
   where(getCell => getCell('conflict') !== undefined);

@@ -9,8 +9,8 @@ import {
 } from '@/domain/document-annotations/model';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
-import useCommentSort from '@/features/comments-ui/hooks/useCommentSort';
-import fetchCommentsQuery from '@/features/comments-ui/queries/fetchCommentsQuery';
+import useNotesSort from '@/features/notes-ui/hooks/useNotesSort';
+import fetchNotesQuery from '@/features/notes-ui/queries/fetchNotesQuery';
 import { getNewContent, wrappedRenderHook } from '@@/_setup/test.utils';
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
@@ -19,21 +19,21 @@ function getDocUpdatedTs(docId: string) {
   return space.getCell('collection', docId, 'updated') as number;
 }
 
-function expectedLC(commentId: string, type: LocalChangeType, updated: number) {
+function expectedLC(noteId: string, type: LocalChangeType, updated: number) {
   return {
     id: localChangesService['getLocalChangeId']({
       on: DOC_ANNOTATION_TABLE,
       change: type,
-      itemId: commentId
+      itemId: noteId
     }),
     on: DOC_ANNOTATION_TABLE,
-    itemId: commentId,
+    itemId: noteId,
     change: type,
     createdAt: updated
   };
 }
 
-describe('comments service', () => {
+describe('notes service', () => {
   beforeEach(() => {
     vi.useFakeTimers();
   });
@@ -41,83 +41,83 @@ describe('comments service', () => {
     vi.useRealTimers();
   });
 
-  it('should add a comment to a document', () => {
+  it('should add a note to a document', () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     const updated = getDocUpdatedTs(docId);
     vi.advanceTimersByTime(100);
 
-    const commentId = docAnnotationsService.addComment(docId);
-    const comments = fetchCommentsQuery.getResults({ itemId: docId });
-    expect(comments).toHaveLength(1);
-    expect(comments[0].id).toBe(commentId);
+    const noteId = docAnnotationsService.addNote(docId);
+    const notes = fetchNotesQuery.getResults({ itemId: docId });
+    expect(notes).toHaveLength(1);
+    expect(notes[0].id).toBe(noteId);
     expect(getDocUpdatedTs(docId)).toBeGreaterThan(updated);
-    expect(docAnnotationsService.getAnnotInfo(commentId)).toEqual({
+    expect(docAnnotationsService.getAnnotInfo(noteId)).toEqual({
       createdAt: updated + 100,
       updatedAt: updated + 100,
       itemId: docId
     });
     expect(localChangesService.getLocalChanges()).toContainEqual(
-      expectedLC(commentId, LocalChangeType.add, updated + 100)
+      expectedLC(noteId, LocalChangeType.add, updated + 100)
     );
   });
 
-  it('should add comments in bulk to a document', () => {
+  it('should add notes in bulk to a document', () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     const updated = getDocUpdatedTs(docId);
     vi.advanceTimersByTime(100);
 
-    const comments: DocAnnotationRow[] = [];
-    comments.push(docAnnotationsService.newCommentObj(docId).item);
-    comments.push(docAnnotationsService.newCommentObj(docId + 'diff').item);
-    docAnnotationsService.saveComments(docId, comments);
+    const notes: DocAnnotationRow[] = [];
+    notes.push(docAnnotationsService.newNoteObj(docId).item);
+    notes.push(docAnnotationsService.newNoteObj(docId + 'diff').item);
+    docAnnotationsService.saveNotes(docId, notes);
 
-    const commentResults = fetchCommentsQuery.getResults({ itemId: docId });
-    expect(commentResults).toHaveLength(2);
+    const noteResults = fetchNotesQuery.getResults({ itemId: docId });
+    expect(noteResults).toHaveLength(2);
     expect(getDocUpdatedTs(docId)).toBeGreaterThan(updated);
 
-    for (const r of commentResults) {
+    for (const r of noteResults) {
       expect(localChangesService.getLocalChanges()).toContainEqual(
         expectedLC(r.id, LocalChangeType.add, r.createdAt)
       );
     }
   });
 
-  it('should edit a comment', () => {
+  it('should edit a note', () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const commentId = docAnnotationsService.addComment(docId);
+    const noteId = docAnnotationsService.addNote(docId);
     const updated = getDocUpdatedTs(docId);
     vi.advanceTimersByTime(100);
 
     const content = getNewContent('this is the content');
-    docAnnotationsService.editComment(commentId, JSON.parse(content));
+    docAnnotationsService.edit(noteId, JSON.parse(content));
 
-    const comment = space.getRow(DOC_ANNOTATION_TABLE, commentId);
-    expect(unminimizeContentFromStorage(comment.content)).toBe(content);
-    expect(docAnnotationsService.getContent(commentId)).toBe(comment.content);
-    expect(comment.plainText).toBe('this is the content');
-    expect(comment.updatedAt).toBeGreaterThan(updated);
+    const note = space.getRow(DOC_ANNOTATION_TABLE, noteId);
+    expect(unminimizeContentFromStorage(note.content)).toBe(content);
+    expect(docAnnotationsService.getContent(noteId)).toBe(note.content);
+    expect(note.plainText).toBe('this is the content');
+    expect(note.updatedAt).toBeGreaterThan(updated);
     expect(getDocUpdatedTs(docId)).toBeGreaterThan(updated);
 
     expect(localChangesService.getLocalChanges()).toContainEqual(
-      expectedLC(commentId, LocalChangeType.add, comment.updatedAt)
+      expectedLC(noteId, LocalChangeType.add, note.updatedAt)
     );
   });
 
-  it('should delete a comment', () => {
+  it('should delete a note', () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const commentId = docAnnotationsService.addComment(docId);
+    const noteId = docAnnotationsService.addNote(docId);
     const updated = getDocUpdatedTs(docId);
     vi.advanceTimersByTime(100);
 
-    docAnnotationsService.deleteComment(commentId);
-    expect(fetchCommentsQuery.getResults({ itemId: docId })).toHaveLength(0);
+    docAnnotationsService.delete(noteId);
+    expect(fetchNotesQuery.getResults({ itemId: docId })).toHaveLength(0);
     expect(getDocUpdatedTs(docId)).toBeGreaterThan(updated);
   });
 
   it('should sort by createdAt by default', () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     {
-      const { result, unmount } = renderHook(() => useCommentSort(docId));
+      const { result, unmount } = renderHook(() => useNotesSort(docId));
       expect(result.current).toEqual({
         by: 'createdAt',
         descending: false
@@ -128,14 +128,12 @@ describe('comments service', () => {
 
   it('should sort by order on demand', () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    docAnnotationsService.setCommentSort(docId, {
+    docAnnotationsService.setNotesSortOnDocument(docId, {
       by: 'order',
       descending: false
     });
     {
-      const { result, unmount } = wrappedRenderHook(() =>
-        useCommentSort(docId)
-      );
+      const { result, unmount } = wrappedRenderHook(() => useNotesSort(docId));
       expect(result.current).toEqual({
         by: 'order',
         descending: false
@@ -144,147 +142,100 @@ describe('comments service', () => {
     }
   });
 
-  it('should reorder comments', () => {
+  it('should reorder notes', () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const comment1 = docAnnotationsService.addComment(docId);
-    const comment2 = docAnnotationsService.addComment(docId);
-    const comment3 = docAnnotationsService.addComment(docId);
-    const comment4 = docAnnotationsService.addComment(docId);
-    const comment5 = docAnnotationsService.addComment(docId);
+    const note1 = docAnnotationsService.addNote(docId);
+    const note2 = docAnnotationsService.addNote(docId);
+    const note3 = docAnnotationsService.addNote(docId);
+    const note4 = docAnnotationsService.addNote(docId);
+    const note5 = docAnnotationsService.addNote(docId);
     const updated = getDocUpdatedTs(docId);
     vi.advanceTimersByTime(100);
 
-    let results = fetchCommentsQuery.getResults(
-      { itemId: docId },
-      'order',
-      false
-    );
-    expect(results.map(r => r.id)).toEqual([
-      comment1,
-      comment2,
-      comment3,
-      comment4,
-      comment5
-    ]);
+    let results = fetchNotesQuery.getResults({ itemId: docId }, 'order', false);
+    expect(results.map(r => r.id)).toEqual([note1, note2, note3, note4, note5]);
 
-    docAnnotationsService.reorderComments(results, 2, 1);
+    docAnnotationsService.reorder(results, 2, 1);
 
-    results = fetchCommentsQuery.getResults({ itemId: docId }, 'order', false);
-    expect(results.map(r => r.id)).toEqual([
-      comment1,
-      comment3,
-      comment2,
-      comment4,
-      comment5
-    ]);
+    results = fetchNotesQuery.getResults({ itemId: docId }, 'order', false);
+    expect(results.map(r => r.id)).toEqual([note1, note3, note2, note4, note5]);
     expect(results.map(r => r.order)).toEqual([0, 1, 2, 3, 4]);
     expect(getDocUpdatedTs(docId)).toBeGreaterThan(updated);
 
     vi.advanceTimersByTime(100);
 
-    docAnnotationsService.reorderComments(results, 3, 4);
+    docAnnotationsService.reorder(results, 3, 4);
 
-    results = fetchCommentsQuery.getResults({ itemId: docId }, 'order', false);
-    expect(results.map(r => r.id)).toEqual([
-      comment1,
-      comment3,
-      comment2,
-      comment5,
-      comment4
-    ]);
+    results = fetchNotesQuery.getResults({ itemId: docId }, 'order', false);
+    expect(results.map(r => r.id)).toEqual([note1, note3, note2, note5, note4]);
     expect(results.map(r => r.order)).toEqual([0, 1, 2, 3, 4]);
     expect(getDocUpdatedTs(docId)).toBeGreaterThan(updated);
   });
 
-  it('should reorder new comments', () => {
+  it('should reorder new notes', () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const comment1 = docAnnotationsService.addComment(docId);
-    const comment2 = docAnnotationsService.addComment(docId);
-    const comment3 = docAnnotationsService.addComment(docId);
+    const note1 = docAnnotationsService.addNote(docId);
+    const note2 = docAnnotationsService.addNote(docId);
+    const note3 = docAnnotationsService.addNote(docId);
     const updated = getDocUpdatedTs(docId);
     vi.advanceTimersByTime(100);
 
-    let results = fetchCommentsQuery.getResults(
-      { itemId: docId },
-      'order',
-      false
-    );
-    docAnnotationsService.reorderComments(results, 2, 1);
+    let results = fetchNotesQuery.getResults({ itemId: docId }, 'order', false);
+    docAnnotationsService.reorder(results, 2, 1);
 
-    results = fetchCommentsQuery.getResults({ itemId: docId }, 'order', false);
-    expect(results.map(r => r.id)).toEqual([comment1, comment3, comment2]);
+    results = fetchNotesQuery.getResults({ itemId: docId }, 'order', false);
+    expect(results.map(r => r.id)).toEqual([note1, note3, note2]);
     expect(results.map(r => r.order)).toEqual([0, 1, 2]);
     expect(getDocUpdatedTs(docId)).toBeGreaterThan(updated);
 
     vi.advanceTimersByTime(100);
 
-    // now add new comments!
-    const comment4 = docAnnotationsService.addComment(docId);
-    const comment5 = docAnnotationsService.addComment(docId);
-    results = fetchCommentsQuery.getResults({ itemId: docId }, 'order', false);
-    expect(results.map(r => r.id)).toEqual([
-      comment4,
-      comment5,
-      comment1,
-      comment3,
-      comment2
-    ]);
+    // now add new notes!
+    const note4 = docAnnotationsService.addNote(docId);
+    const note5 = docAnnotationsService.addNote(docId);
+    results = fetchNotesQuery.getResults({ itemId: docId }, 'order', false);
+    expect(results.map(r => r.id)).toEqual([note4, note5, note1, note3, note2]);
     expect(results.map(r => r.order)).toEqual([-1, -1, 0, 1, 2]);
 
-    docAnnotationsService.reorderComments(results, 0, 3);
+    docAnnotationsService.reorder(results, 0, 3);
 
-    results = fetchCommentsQuery.getResults({ itemId: docId }, 'order', false);
-    expect(results.map(r => r.id)).toEqual([
-      comment5,
-      comment1,
-      comment3,
-      comment4,
-      comment2
-    ]);
+    results = fetchNotesQuery.getResults({ itemId: docId }, 'order', false);
+    expect(results.map(r => r.id)).toEqual([note5, note1, note3, note4, note2]);
     expect(results.map(r => r.order)).toEqual([0, 1, 2, 3, 4]);
     expect(getDocUpdatedTs(docId)).toBeGreaterThan(updated);
   });
 
-  it('should add comments with correct order anyway', () => {
+  it('should add notes with correct order anyway', () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     function getResults() {
-      return fetchCommentsQuery.getResults({ itemId: docId }, 'order', false);
+      return fetchNotesQuery.getResults({ itemId: docId }, 'order', false);
     }
     let results = getResults();
-    const comment1 = docAnnotationsService.addComment(docId, results.length);
+    const note1 = docAnnotationsService.addNote(docId, results.length);
     results = getResults();
-    const comment2 = docAnnotationsService.addComment(docId, results.length);
+    const note2 = docAnnotationsService.addNote(docId, results.length);
     results = getResults();
-    const comment3 = docAnnotationsService.addComment(docId, results.length);
+    const note3 = docAnnotationsService.addNote(docId, results.length);
     results = getResults();
-    const comment4 = docAnnotationsService.addComment(docId, results.length);
+    const note4 = docAnnotationsService.addNote(docId, results.length);
     results = getResults();
-    const comment5 = docAnnotationsService.addComment(docId, results.length);
+    const note5 = docAnnotationsService.addNote(docId, results.length);
     vi.advanceTimersByTime(100);
 
     results = getResults();
-    expect(results.map(r => r.id)).toEqual([
-      comment1,
-      comment2,
-      comment3,
-      comment4,
-      comment5
-    ]);
+    expect(results.map(r => r.id)).toEqual([note1, note2, note3, note4, note5]);
 
     expect(results.map(r => r.order)).toEqual([0, 1, 2, 3, 4]);
   });
 
   it('should reset conflict on content edit', () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const comment1 = docAnnotationsService.addComment(docId);
-    space.setCell(DOC_ANNOTATION_TABLE, comment1, 'conflict', 'conflict-id');
+    const note1 = docAnnotationsService.addNote(docId);
+    space.setCell(DOC_ANNOTATION_TABLE, note1, 'conflict', 'conflict-id');
 
-    expect(docAnnotationsService.isConflict(comment1));
+    expect(docAnnotationsService.isConflict(note1));
 
-    docAnnotationsService.editComment(
-      comment1,
-      JSON.parse(getNewContent('test'))
-    );
-    expect(!docAnnotationsService.isConflict(comment1));
+    docAnnotationsService.edit(note1, JSON.parse(getNewContent('test')));
+    expect(!docAnnotationsService.isConflict(note1));
   });
 });

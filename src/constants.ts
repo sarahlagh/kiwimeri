@@ -97,7 +97,7 @@ export const APPICONS = {
   folder: folderSharp,
   notebook: fileTrayStackedOutline,
   page: receiptOutline,
-  comment: chatbubbleEllipsesOutline,
+  annotation: chatbubbleEllipsesOutline,
   itemActions: ellipsisVertical,
   goToCurrentFolder: locateOutline,
   deleteAction: trashOutline,

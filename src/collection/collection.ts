@@ -1,5 +1,5 @@
 import { APPICONS } from '@/constants';
-import { CommentSort } from '@/domain/document-annotations/model';
+import { NotesSort } from '@/domain/document-annotations/model';
 
 export enum CollectionItemType {
   notebook = 'n',
@@ -52,7 +52,7 @@ export type CollectionItemSort = {
 
 export interface CollectionItemDisplayOpts {
   sort: CollectionItemSort;
-  documentSort?: CommentSort;
+  documentSort?: NotesSort;
   statsEnabled: boolean; // TODO not the right place for this, but pending code reorga
 }
 

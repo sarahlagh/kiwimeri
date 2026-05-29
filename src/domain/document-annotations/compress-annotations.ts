@@ -4,6 +4,7 @@ import { SyncableAnnotation } from './model';
 
 const keys = [
   ['id', 'i'],
+  ['type', 't'],
   ['itemId', 'p'],
   ['createdAt', 'cr'],
   ['updatedAt', 'u'],
@@ -13,7 +14,7 @@ const keys = [
   ['order_meta', 'O']
 ];
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const MIN_KEYS = ['i', 'p', 'c', 'C', 'cr', 'u', 'o', 'O'] as const;
+const MIN_KEYS = ['i', 'p', 't', 'c', 'C', 'cr', 'u', 'o', 'O'] as const;
 export type DocAnnotationMinKeys = typeof MIN_KEYS;
 
 export type MinimizedDocAnnotation = {

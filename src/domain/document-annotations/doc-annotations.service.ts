@@ -7,17 +7,18 @@ import collectionService, { initialContent } from '@/db/collection.service';
 import { SortableType } from '@/shared/utils/sort-filter/sort';
 import { SerializedEditorState } from 'lexical';
 import { getUniqueId, Id } from 'tinybase/common';
-import { CommentSort, DOC_ANNOTATION_TABLE, DocAnnotationRow } from './model';
+import { DOC_ANNOTATION_TABLE, DocAnnotationRow, NotesSort } from './model';
 
 const DA = DOC_ANNOTATION_TABLE;
 const CL = 'collection';
 
 class DocumentAnnotationsService {
-  public newCommentObj(itemId: Id): { item: DocAnnotationRow; id: Id } {
+  public newNoteObj(itemId: Id): { item: DocAnnotationRow; id: Id } {
     const id = getUniqueId();
     const content = initialContent();
     const now = Date.now();
-    const comment: DocAnnotationRow = {
+    const note: DocAnnotationRow = {
+      type: 'note',
       itemId,
       content,
       content_meta: setFieldMeta('', now),
@@ -25,11 +26,11 @@ class DocumentAnnotationsService {
       createdAt: now,
       updatedAt: now
     };
-    return { item: comment, id };
+    return { item: note, id };
   }
 
-  public addComment(docId: Id, order?: number) {
-    const { item, id } = this.newCommentObj(docId);
+  public addNote(docId: Id, order?: number) {
+    const { item, id } = this.newNoteObj(docId);
     space.transaction(() => {
       space.setRow(DA, id, { ...item, order });
       space.setCell(CL, docId, 'updated', Date.now());
@@ -37,16 +38,16 @@ class DocumentAnnotationsService {
     return id;
   }
 
-  public saveComments(docId: Id, comments: DocAnnotationRow[]) {
+  public saveNotes(docId: Id, notes: DocAnnotationRow[]) {
     space.transaction(() => {
-      comments.forEach(comment => {
-        space.setRow(DA, getUniqueId(), { ...comment, itemId: docId });
+      notes.forEach(note => {
+        space.setRow(DA, getUniqueId(), { ...note, itemId: docId });
       });
       space.setCell('collection', docId, 'updated', Date.now());
     });
   }
 
-  public editComment(id: Id, content: SerializedEditorState) {
+  public edit(id: Id, content: SerializedEditorState) {
     const contentStr = minimizeContentForStorage(content);
     space.transaction(() => {
       const now = Date.now();
@@ -61,7 +62,7 @@ class DocumentAnnotationsService {
     });
   }
 
-  public deleteComment(id: Id) {
+  public delete(id: Id) {
     space.transaction(() => {
       const itemId = space.getCell(DA, id, 'itemId');
       space.setCell(CL, itemId!, 'updated', Date.now());
@@ -69,26 +70,26 @@ class DocumentAnnotationsService {
     });
   }
 
-  public reorderComments(comments: SortableType[], from: number, to: number) {
-    if (comments.length === 0) return;
+  public reorder(notes: SortableType[], from: number, to: number) {
+    if (notes.length === 0) return;
     const now = Date.now();
     space.transaction(() => {
-      if (comments[0].order === -1) {
+      if (notes[0].order === -1) {
         // first time, reorder all
-        comments.forEach((c, i) => {
-          space.setPartialRow(DA, c.id, {
+        notes.forEach((n, i) => {
+          space.setPartialRow(DA, n.id, {
             order: i,
-            order_meta: setFieldMeta(`${c.id}`, now)
+            order_meta: setFieldMeta(`${n.id}`, now)
           });
         });
       }
       genericReorder(from, to, (idx, order) => {
-        space.setPartialRow(DA, comments[idx].id, {
+        space.setPartialRow(DA, notes[idx].id, {
           order,
           order_meta: setFieldMeta(`${order}`, now)
         });
       });
-      const itemId = space.getCell(DA, comments[0].id, 'itemId');
+      const itemId = space.getCell(DA, notes[0].id, 'itemId');
       space.setCell(CL, itemId!, 'updated', Date.now());
     });
   }
@@ -108,9 +109,9 @@ class DocumentAnnotationsService {
     return { createdAt, updatedAt, itemId };
   }
 
-  public setCommentSort(docId: Id, newCommentSort: CommentSort) {
+  public setNotesSortOnDocument(docId: Id, newNoteSort: NotesSort) {
     const effectiveOpts = collectionService.getItemEffectiveDisplayOpts(docId);
-    effectiveOpts.documentSort = newCommentSort;
+    effectiveOpts.documentSort = newNoteSort;
     collectionService.setItemDisplayOpts(docId, effectiveOpts);
   }
 

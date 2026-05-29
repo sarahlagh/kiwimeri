@@ -12,9 +12,9 @@ import {
   unminimizeAnnotFromStorage
 } from '@/domain/document-annotations/compress-annotations';
 import {
-  oneComment,
   oneDocument,
   oneFolder,
+  oneNote,
   oneNotebook
 } from '@@/_setup/test.utils';
 import { describe, expect, it } from 'vitest';
@@ -136,7 +136,7 @@ describe('annot compression', () => {
     },
     {
       name: 'array of annots',
-      data: [oneComment('1')]
+      data: [oneNote('1')]
     }
   ].forEach(({ data, name }) => {
     it(`should minimize then restore ${name}`, () => {

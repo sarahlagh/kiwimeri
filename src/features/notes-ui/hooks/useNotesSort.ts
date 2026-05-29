@@ -1,9 +1,9 @@
 import { CollectionItemDisplayOpts } from '@/collection/collection';
 import { useSpaceCell } from '@/core/db/tinybase-hooks';
-import { CommentSort } from '@/domain/document-annotations/model';
+import { NotesSort } from '@/domain/document-annotations/model';
 import { Id } from 'tinybase/common';
 
-const useCommentSort = (rowId: Id): CommentSort => {
+const useNotesSort = (rowId: Id): NotesSort => {
   const display_opts = useSpaceCell<'collection', 'display_opts'>(
     'collection',
     rowId,
@@ -19,4 +19,4 @@ const useCommentSort = (rowId: Id): CommentSort => {
   // return default
   return { by: 'createdAt', descending: false };
 };
-export default useCommentSort;
+export default useNotesSort;

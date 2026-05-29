@@ -20,9 +20,9 @@ import {
   adv,
   getLocalItemConflicts,
   getNewContent,
-  oneComment,
   oneDocument,
   oneFolder,
+  oneNote,
   oneNotebook,
   wrappedRenderHook
 } from '@@/_setup/test.utils';
@@ -381,123 +381,113 @@ describe('collection synchronizer', () => {
     });
   });
 
-  describe('should merge comments', () => {
-    test('synchronizer should push comments', async () => {
+  describe('should merge notes', () => {
+    test('synchronizer should push notes', async () => {
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-      const commentId = docAnnotationsService.addComment(docId);
-      docAnnotationsService.editComment(
-        commentId,
-        JSON.parse(getNewContent('test'))
-      );
+      const noteId = docAnnotationsService.addNote(docId);
+      docAnnotationsService.edit(noteId, JSON.parse(getNewContent('test')));
       await synchronizer.sync();
       {
-        const { content, annots: comments } =
-          driver.getParsedCollectionContent();
+        const { content, annots: notes } = driver.getParsedCollectionContent();
         expect(content).toHaveLength(2);
         expect(content[1].id).toBe(docId);
-        expect(comments).toHaveLength(1);
-        expect(comments[0].id).toBe(commentId);
+        expect(notes).toHaveLength(1);
+        expect(notes[0].id).toBe(noteId);
       }
     });
 
-    test('synchronizer should pull comments', async () => {
+    test('synchronizer should pull notes', async () => {
       const items = [oneNotebook(), oneDocument()];
-      const comments = [oneComment(items[1].id!)];
+      const notes = [oneNote(items[1].id!)];
       await driver.setCollectionContentWithAnnots(
         items,
-        comments || [],
+        notes || [],
         defaultValues,
-        comments[0].updatedAt
+        notes[0].updatedAt
       );
 
       await synchronizer.sync();
 
       expect(space.getRowCount(DOC_ANNOTATION_TABLE)).toBe(1);
-      expect(space.hasRow(DOC_ANNOTATION_TABLE, comments[0].id));
+      expect(space.hasRow(DOC_ANNOTATION_TABLE, notes[0].id));
     });
 
-    test('synchronizer should merge comments', async () => {
+    test('synchronizer should merge notes', async () => {
       const items = [oneNotebook(), oneDocument()];
-      const comments = [oneComment(items[1].id!)];
+      const notes = [oneNote(items[1].id!)];
       const docId = items[1].id!;
-      const commentId = comments[0].id;
+      const noteId = notes[0].id;
       await driver.setCollectionContentWithAnnots(
         items,
-        comments,
+        notes,
         defaultValues,
-        comments[0].updatedAt
+        notes[0].updatedAt
       );
       await synchronizer.sync();
       vi.advanceTimersByTime(100);
-      // comment pulled
+      // note pulled
 
       // update on remote
-      comments[0].order = 2;
-      comments[0].order_meta = setFieldMeta('', Date.now());
-      comments[0].updatedAt = Date.now();
+      notes[0].order = 2;
+      notes[0].order_meta = setFieldMeta('', Date.now());
+      notes[0].updatedAt = Date.now();
       await driver.setCollectionContentWithAnnots(
         items,
-        comments,
+        notes,
         defaultValues,
-        comments[0].updatedAt
+        notes[0].updatedAt
       );
 
       // update locally
       adv(() => {
-        docAnnotationsService.editComment(
-          commentId,
-          JSON.parse(getNewContent('test'))
-        );
+        docAnnotationsService.edit(noteId, JSON.parse(getNewContent('test')));
       });
 
       // sync
       await synchronizer.sync();
       {
-        const { content, annots: newComments } =
+        const { content, annots: newNotes } =
           driver.getParsedCollectionContent();
         expect(content).toHaveLength(2);
         expect(content[1].id).toBe(docId);
-        expect(newComments).toHaveLength(1);
-        expect(newComments[0].id).toBe(commentId);
-        expect(newComments[0].order).toBe(2);
-        expect(newComments[0].content).toBe(
-          space.getCell(DOC_ANNOTATION_TABLE, commentId, 'content')
+        expect(newNotes).toHaveLength(1);
+        expect(newNotes[0].id).toBe(noteId);
+        expect(newNotes[0].order).toBe(2);
+        expect(newNotes[0].content).toBe(
+          space.getCell(DOC_ANNOTATION_TABLE, noteId, 'content')
         );
       }
     });
 
-    test('synchronizer should sync comments and let local win if more recent', async () => {
+    test('synchronizer should sync notes and let local win if more recent', async () => {
       const items = [oneNotebook(), oneDocument()];
-      const comments = [oneComment(items[1].id!)];
+      const notes = [oneNote(items[1].id!)];
       const docId = items[1].id!;
-      const commentId = comments[0].id;
+      const noteId = notes[0].id;
       await driver.setCollectionContentWithAnnots(
         items,
-        comments,
+        notes,
         defaultValues,
-        comments[0].updatedAt
+        notes[0].updatedAt
       );
       await synchronizer.sync();
       vi.advanceTimersByTime(100);
-      // comment pulled
+      // note pulled
 
       // update on remote
-      comments[0].content = getNewContent('remote');
-      comments[0].content_meta = setFieldMeta('', Date.now());
-      comments[0].updatedAt = Date.now();
+      notes[0].content = getNewContent('remote');
+      notes[0].content_meta = setFieldMeta('', Date.now());
+      notes[0].updatedAt = Date.now();
       await driver.setCollectionContentWithAnnots(
         items,
-        comments,
+        notes,
         defaultValues,
-        comments[0].updatedAt
+        notes[0].updatedAt
       );
 
       // update locally
       adv(() => {
-        docAnnotationsService.editComment(
-          commentId,
-          JSON.parse(getNewContent('local'))
-        );
+        docAnnotationsService.edit(noteId, JSON.parse(getNewContent('local')));
       });
 
       // sync
@@ -505,56 +495,53 @@ describe('collection synchronizer', () => {
       expect(resp.didPull);
       expect(resp.didPush);
       {
-        const { content, annots: newComments } =
+        const { content, annots: newNotes } =
           driver.getParsedCollectionContent();
         expect(content).toHaveLength(2);
         expect(content[1].id).toBe(docId);
-        expect(newComments).toHaveLength(1);
-        expect(newComments[0].id).toBe(commentId);
-        expect(newComments[0].content).toBe(
-          space.getCell(DOC_ANNOTATION_TABLE, commentId, 'content')
+        expect(newNotes).toHaveLength(1);
+        expect(newNotes[0].id).toBe(noteId);
+        expect(newNotes[0].content).toBe(
+          space.getCell(DOC_ANNOTATION_TABLE, noteId, 'content')
         );
-        expect(newComments[0].content).toBe(
+        expect(newNotes[0].content).toBe(
           minimizeContentForStorage(JSON.parse(getNewContent('local')))
         );
-        expect(!docAnnotationsService.isConflict(commentId));
+        expect(!docAnnotationsService.isConflict(noteId));
       }
     });
 
-    test('synchronizer should sync comments and create conflict', async () => {
+    test('synchronizer should sync notes and create conflict', async () => {
       const items = [oneNotebook(), oneDocument()];
-      const comments = [oneComment(items[1].id!)];
+      const notes = [oneNote(items[1].id!)];
       const docId = items[1].id!;
-      const commentId = comments[0].id;
+      const noteId = notes[0].id;
       await driver.setCollectionContentWithAnnots(
         items,
-        comments,
+        notes,
         defaultValues,
-        comments[0].updatedAt
+        notes[0].updatedAt
       );
       await synchronizer.sync();
       vi.advanceTimersByTime(100);
-      // comment pulled
+      // note pulled
 
       // update locally
       adv(() => {
-        docAnnotationsService.editComment(
-          commentId,
-          JSON.parse(getNewContent('local'))
-        );
+        docAnnotationsService.edit(noteId, JSON.parse(getNewContent('local')));
       });
 
       // update on remote
-      comments[0].content = minimizeContentForStorage(
+      notes[0].content = minimizeContentForStorage(
         JSON.parse(getNewContent('remote'))
       );
-      comments[0].content_meta = setFieldMeta('', Date.now());
-      comments[0].updatedAt = Date.now();
+      notes[0].content_meta = setFieldMeta('', Date.now());
+      notes[0].updatedAt = Date.now();
       await driver.setCollectionContentWithAnnots(
         items,
-        comments,
+        notes,
         defaultValues,
-        comments[0].updatedAt
+        notes[0].updatedAt
       );
 
       // sync
@@ -562,40 +549,40 @@ describe('collection synchronizer', () => {
       expect(resp.didPull);
       expect(!resp.didPush);
       {
-        const { content, annots: newComments } =
+        const { content, annots: newNotes } =
           driver.getParsedCollectionContent();
         expect(content).toHaveLength(2);
         expect(content[1].id).toBe(docId);
-        expect(newComments).toHaveLength(1);
-        expect(newComments[0].id).toBe(commentId);
-        expect(newComments[0].content).toBe(
-          space.getCell(DOC_ANNOTATION_TABLE, commentId, 'content')
+        expect(newNotes).toHaveLength(1);
+        expect(newNotes[0].id).toBe(noteId);
+        expect(newNotes[0].content).toBe(
+          space.getCell(DOC_ANNOTATION_TABLE, noteId, 'content')
         );
-        expect(newComments[0].content).toBe(comments[0].content);
-        expect(docAnnotationsService.isConflict(commentId));
+        expect(newNotes[0].content).toBe(notes[0].content);
+        expect(docAnnotationsService.isConflict(noteId));
       }
     });
 
-    test('synchronizer should sync comments and delete orphans', async () => {
+    test('synchronizer should sync notes and delete orphans', async () => {
       const items = [oneNotebook(), oneDocument()];
-      const comments = [oneComment(items[1].id!)];
+      const notes = [oneNote(items[1].id!)];
       const docId = items[1].id!;
-      const commentId = comments[0].id;
+      const noteId = notes[0].id;
       await driver.setCollectionContentWithAnnots(
         items,
-        comments,
+        notes,
         defaultValues,
-        comments[0].updatedAt
+        notes[0].updatedAt
       );
       await synchronizer.sync();
       vi.advanceTimersByTime(100);
-      // comment pulled
+      // note pulled
 
-      // add comment locally
-      const orphanId = docAnnotationsService.addComment(docId);
+      // add note locally
+      const orphanId = docAnnotationsService.addNote(docId);
       vi.advanceTimersByTime(100);
 
-      // delete doc & comment on remote
+      // delete doc & note on remote
       await driver.setCollectionContentWithAnnots(
         [items[0]],
         [],
@@ -605,39 +592,39 @@ describe('collection synchronizer', () => {
 
       await synchronizer.sync();
 
-      expect(!docAnnotationsService.exists(commentId));
+      expect(!docAnnotationsService.exists(noteId));
       expect(!docAnnotationsService.exists(orphanId));
     });
 
-    test('synchronizer should sync comments and delete orphans 2', async () => {
+    test('synchronizer should sync notes and delete orphans 2', async () => {
       const items = [oneNotebook(), oneDocument()];
-      const comments = [oneComment(items[1].id!)];
+      const notes = [oneNote(items[1].id!)];
       const docId = items[1].id!;
-      const commentId = comments[0].id;
+      const noteId = notes[0].id;
       await driver.setCollectionContentWithAnnots(
         items,
-        comments,
+        notes,
         defaultValues,
-        comments[0].updatedAt
+        notes[0].updatedAt
       );
       await synchronizer.sync();
       vi.advanceTimersByTime(100);
-      // comment pulled
+      // note pulled
 
-      // delete doc & comment on remote
+      // delete doc & note on remote
       await driver.setCollectionContentWithAnnots(
         [items[0]],
         [],
         defaultValues,
         Date.now()
       );
-      // add comment locally
+      // add note locally
       vi.advanceTimersByTime(100);
-      const orphanId = docAnnotationsService.addComment(docId);
+      const orphanId = docAnnotationsService.addNote(docId);
 
       await synchronizer.sync();
 
-      expect(!docAnnotationsService.exists(commentId));
+      expect(!docAnnotationsService.exists(noteId));
       expect(!docAnnotationsService.exists(orphanId));
     });
   });
@@ -658,7 +645,7 @@ describe('collection synchronizer', () => {
       await driver.setCollectionContent(items, defaultValues, items[1].updated);
       await synchronizer.sync();
       vi.advanceTimersByTime(100);
-      // comment pulled
+      // note pulled
 
       // update locally
       adv(() => {
@@ -720,40 +707,37 @@ describe('collection synchronizer', () => {
       }
     });
 
-    test('should include documents with conflicts in comments in fetchItemsQuery with onlyConflicts=true', async () => {
+    test('should include documents with conflicts in notes in fetchItemsQuery with onlyConflicts=true', async () => {
       const items = [oneNotebook(), oneDocument()];
-      const comments = [oneComment(items[1].id!)];
+      const notes = [oneNote(items[1].id!)];
       const docId = items[1].id!;
-      const commentId = comments[0].id;
+      const noteId = notes[0].id;
       await driver.setCollectionContentWithAnnots(
         items,
-        comments,
+        notes,
         defaultValues,
-        comments[0].updatedAt
+        notes[0].updatedAt
       );
       await synchronizer.sync();
       vi.advanceTimersByTime(100);
-      // comment pulled
+      // note pulled
 
       // update locally
       adv(() => {
-        docAnnotationsService.editComment(
-          commentId,
-          JSON.parse(getNewContent('local'))
-        );
+        docAnnotationsService.edit(noteId, JSON.parse(getNewContent('local')));
       });
 
       // update on remote
-      comments[0].content = minimizeContentForStorage(
+      notes[0].content = minimizeContentForStorage(
         JSON.parse(getNewContent('remote'))
       );
-      comments[0].content_meta = setFieldMeta('', Date.now());
-      comments[0].updatedAt = Date.now();
+      notes[0].content_meta = setFieldMeta('', Date.now());
+      notes[0].updatedAt = Date.now();
       await driver.setCollectionContentWithAnnots(
         items,
-        comments,
+        notes,
         defaultValues,
-        comments[0].updatedAt
+        notes[0].updatedAt
       );
 
       // sync
@@ -761,17 +745,17 @@ describe('collection synchronizer', () => {
       expect(resp.didPull);
       expect(!resp.didPush);
       {
-        const { content, annots: newComments } =
+        const { content, annots: newNotes } =
           driver.getParsedCollectionContent();
         expect(content).toHaveLength(2);
         expect(content[1].id).toBe(docId);
-        expect(newComments).toHaveLength(1);
-        expect(newComments[0].id).toBe(commentId);
-        expect(newComments[0].content).toBe(
-          space.getCell(DOC_ANNOTATION_TABLE, commentId, 'content')
+        expect(newNotes).toHaveLength(1);
+        expect(newNotes[0].id).toBe(noteId);
+        expect(newNotes[0].content).toBe(
+          space.getCell(DOC_ANNOTATION_TABLE, noteId, 'content')
         );
-        expect(newComments[0].content).toBe(comments[0].content);
-        expect(docAnnotationsService.isConflict(commentId));
+        expect(newNotes[0].content).toBe(notes[0].content);
+        expect(docAnnotationsService.isConflict(noteId));
       }
 
       {
@@ -807,26 +791,23 @@ describe('collection synchronizer', () => {
         oneDocument(),
         oneFolder()
       ];
-      const comments = [oneComment(items[1].id!)];
-      const docWithComment = items[1].id!;
+      const notes = [oneNote(items[1].id!)];
+      const docWithNote = items[1].id!;
       const docInConflict = items[2].id!;
       const docExcluded = items[3].id!;
-      const commentId = comments[0].id;
+      const noteId = notes[0].id;
       await driver.setCollectionContentWithAnnots(
         items,
-        comments,
+        notes,
         defaultValues,
-        comments[0].updatedAt
+        notes[0].updatedAt
       );
       await synchronizer.sync();
       vi.advanceTimersByTime(100);
 
       // update locally
       adv(() => {
-        docAnnotationsService.editComment(
-          commentId,
-          JSON.parse(getNewContent('local'))
-        );
+        docAnnotationsService.edit(noteId, JSON.parse(getNewContent('local')));
       });
       adv(() => {
         collectionService.setItemLexicalContent(
@@ -836,11 +817,11 @@ describe('collection synchronizer', () => {
       });
 
       // update on remote
-      comments[0].content = minimizeContentForStorage(
+      notes[0].content = minimizeContentForStorage(
         JSON.parse(getNewContent('remote'))
       );
-      comments[0].content_meta = setFieldMeta('', Date.now());
-      comments[0].updatedAt = Date.now();
+      notes[0].content_meta = setFieldMeta('', Date.now());
+      notes[0].updatedAt = Date.now();
 
       vi.advanceTimersByTime(100);
       items[2].content = minimizeContentForStorage(
@@ -851,7 +832,7 @@ describe('collection synchronizer', () => {
 
       await driver.setCollectionContentWithAnnots(
         items,
-        comments,
+        notes,
         defaultValues,
         items[2].updated
       );
@@ -861,17 +842,17 @@ describe('collection synchronizer', () => {
       expect(resp.didPull);
       expect(!resp.didPush);
       {
-        const { content, annots: newComments } =
+        const { content, annots: newNotes } =
           driver.getParsedCollectionContent();
         expect(content).toHaveLength(5);
-        expect(content[1].id).toBe(docWithComment);
+        expect(content[1].id).toBe(docWithNote);
         expect(content[2].id).toBe(docInConflict);
         expect(content[3].id).toBe(docExcluded);
         expect(collectionService.isItemConflict(docInConflict));
-        expect(!collectionService.isItemConflict(docWithComment));
+        expect(!collectionService.isItemConflict(docWithNote));
         expect(!collectionService.isItemConflict(docExcluded));
-        expect(newComments[0].content).toBe(comments[0].content);
-        expect(docAnnotationsService.isConflict(commentId));
+        expect(newNotes[0].content).toBe(notes[0].content);
+        expect(docAnnotationsService.isConflict(noteId));
       }
 
       {
@@ -908,7 +889,7 @@ describe('collection synchronizer', () => {
         expect(result.current[1].isConflict).toBe(false);
         expect(result.current[1].hasAnnotsConflicts).toBe(false);
 
-        expect(result.current[2].id).toBe(docWithComment);
+        expect(result.current[2].id).toBe(docWithNote);
         expect(result.current[2].hasAnnotsConflicts).toBe(true);
         expect(result.current[2].isConflict).toBe(false);
         unmount();

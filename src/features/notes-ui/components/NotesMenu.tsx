@@ -6,77 +6,73 @@ import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { IonButton, IonButtons, IonIcon, IonNote } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Id } from 'tinybase/common';
-import useCommentSort from '../hooks/useCommentSort';
-import fetchCommentsQuery from '../queries/fetchCommentsQuery';
-import { CommentMenuPreview } from './CommentMenuPreview';
-import CommentsSortFilterBtn from './CommentsSortFilterBtn';
+import useNotesSort from '../hooks/useNotesSort';
+import fetchNotesQuery from '../queries/fetchNotesQuery';
+import { NotesMenuPreview } from './NotesMenuPreview';
+import NotesSortFilterBtn from './NotesSortFilterBtn';
 
-type CommentMenuProps = {
+type NoteMenuProps = {
   docId: string;
   selectedId?: Id;
   showActions: boolean;
   editable?: boolean;
 };
 
-export const CommentsMenu = ({
+export const NotesMenu = ({
   docId,
   selectedId,
   showActions,
   editable = true
-}: CommentMenuProps) => {
+}: NoteMenuProps) => {
   const { t } = useLingui();
-  const sort = useCommentSort(docId);
-  const comments = useQueryResults(
-    fetchCommentsQuery,
-    sort.by,
-    sort.descending
-  );
+  const sort = useNotesSort(docId);
+  const notes = useQueryResults(fetchNotesQuery, sort.by, sort.descending);
   return (
     <>
       {showActions && editable && (
-        <div className={'comment-actions-bar'}>
+        <div className={'note-actions-bar'}>
           <IonButtons>
             <IonButton
-              aria-label={t`add a comment`}
+              aria-label={t`add a note`}
               size="small"
               fill="clear"
               onClick={() => {
-                const commentId = docAnnotationsService.addComment(
+                const noteId = docAnnotationsService.addNote(
                   docId,
-                  comments.length
+                  notes.length
                 );
-                resumeService.setLastSelectedComment(docId, commentId);
+                resumeService.setLastSelectedNote(docId, noteId);
               }}
             >
               <IonIcon icon={APPICONS.addGeneric}></IonIcon>
             </IonButton>
 
-            <CommentsSortFilterBtn docId={docId} />
+            <NotesSortFilterBtn docId={docId} />
           </IonButtons>
         </div>
       )}
 
-      {comments.length === 0 && (
+      {notes.length === 0 && (
         <IonNote>
-          <Trans>create a comment</Trans>
+          <Trans>create a note</Trans>
         </IonNote>
       )}
       <SortableList
         style={{ height: 'calc(100% - 28px)', overflowY: 'auto' }}
         className="inner-list"
-        items={comments}
+        items={notes}
         sortDisabled={sort.by !== 'order'}
         onItemMove={(from, to) => {
-          docAnnotationsService.reorderComments(comments, from, to);
+          docAnnotationsService.reorder(notes, from, to);
         }}
       >
-        {comments.map(comment => (
-          <CommentMenuPreview
-            key={comment.id}
-            comment={comment}
-            selected={selectedId === comment.id}
+        {notes.map(note => (
+          <NotesMenuPreview
+            key={note.id}
+            note={note}
+            selected={selectedId === note.id}
             onSelect={() => {
-              resumeService.setLastSelectedComment(docId, comment.id);
+              resumeService.setLastSelectedNote(docId, note.id);
             }}
           />
         ))}

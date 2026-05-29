@@ -1,30 +1,30 @@
 import { APPICONS } from '@/constants';
 import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
 import {
-  CommentSort,
-  CommentSortType,
+  NotesSort,
+  NotesSortType,
   sortBy
 } from '@/domain/document-annotations/model';
 import GenericSortFilter from '@/shared/utils/sort-filter/GenericSortFilter';
 import { IonButton, IonIcon, useIonPopover } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
-import useCommentSort from '../hooks/useCommentSort';
+import useNotesSort from '../hooks/useNotesSort';
 
-type CommentsSortFilterBtnProps = {
+type NotesSortFilterBtnProps = {
   docId: string;
 };
 
-const CommentsSortFilterBtn = ({ docId }: CommentsSortFilterBtnProps) => {
+const NotesSortFilterBtn = ({ docId }: NotesSortFilterBtnProps) => {
   const { t } = useLingui();
-  const sort = useCommentSort(docId);
-  const [present] = useIonPopover(GenericSortFilter<CommentSortType>, {
+  const sort = useNotesSort(docId);
+  const [present] = useIonPopover(GenericSortFilter<NotesSortType>, {
     searchEnabled: false,
     sortEnabled: true,
     sort: sort,
     allowedSorts: sortBy,
-    onSortChange: (sort?: CommentSort) => {
+    onSortChange: (sort?: NotesSort) => {
       if (sort) {
-        docAnnotationsService.setCommentSort(docId, sort);
+        docAnnotationsService.setNotesSortOnDocument(docId, sort);
       }
     }
   });
@@ -32,7 +32,7 @@ const CommentsSortFilterBtn = ({ docId }: CommentsSortFilterBtnProps) => {
   return (
     <>
       <IonButton
-        aria-label={t`sort comments`}
+        aria-label={t`sort notes`}
         fill="clear"
         style={{ margin: '0' }}
         onClick={e => {
@@ -47,4 +47,4 @@ const CommentsSortFilterBtn = ({ docId }: CommentsSortFilterBtnProps) => {
   );
 };
 
-export default CommentsSortFilterBtn;
+export default NotesSortFilterBtn;
