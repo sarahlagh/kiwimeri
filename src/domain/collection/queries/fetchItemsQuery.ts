@@ -51,13 +51,12 @@ const fetchItemsQuery = new SpaceQueryDefinition<
 
   if (params.onlyConflicts) {
     // !! not reactive if conflicts are solved
-    const { itemsConflicts, commentConflicts } =
-      conflictsService.getConflicts();
+    const { itemsConflicts, annotsConflicts } = conflictsService.getConflicts();
     where(getCell => {
       const id = getCell('itemId')!;
       const isConflict = getCell('conflict') !== undefined;
-      const { hasConflict, hasCommentConflicts } =
-        conflictsService.itemHasConflicts(id, itemsConflicts, commentConflicts);
+      const { hasConflict, hasAnnotsConflicts: hasCommentConflicts } =
+        conflictsService.itemHasConflicts(id, itemsConflicts, annotsConflicts);
       return isConflict || hasConflict || hasCommentConflicts;
     });
   }

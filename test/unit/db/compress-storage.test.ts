@@ -8,9 +8,9 @@ import {
 } from '@/common/wysiwyg/compress-file-content';
 import { initialContent } from '@/db/collection.service';
 import {
-  minimizeCommentsForStorage,
-  unminimizeCommentsFromStorage
-} from '@/domain/comments/compress-comments';
+  minimizeAnnotForStorage,
+  unminimizeAnnotFromStorage
+} from '@/domain/document-annotations/compress-annotations';
 import {
   oneComment,
   oneDocument,
@@ -128,23 +128,25 @@ describe('collection item compression', () => {
   });
 });
 
-describe('comment compression', () => {
+describe('annot compression', () => {
   [
     {
       name: 'empty array',
       data: []
     },
     {
-      name: 'array of comments',
+      name: 'array of annots',
       data: [oneComment('1')]
     }
   ].forEach(({ data, name }) => {
     it(`should minimize then restore ${name}`, () => {
-      const minimized = minimizeCommentsForStorage(data);
+      const minimized = minimizeAnnotForStorage(data);
       console.log('minimized json', minimized);
 
-      const restored = unminimizeCommentsFromStorage(minimized);
-      expect(restored).toStrictEqual(data);
+      const restored = unminimizeAnnotFromStorage(minimized);
+      expect(restored).toStrictEqual(
+        data.map(a => ({ ...a, plainText: undefined }))
+      );
     });
   });
 });

@@ -1,7 +1,7 @@
 import { useEffect, type JSX } from 'react';
 
 import { useQueryResultIds } from '@/core/db/queries-helper';
-import { commentsService } from '@/domain/comments/comments.service';
+import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
 import { IonNote } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 import useCommentSort from '../hooks/useCommentSort';
@@ -40,7 +40,7 @@ export default function CommentsBrowser({
     sort.descending
   );
   const selectedId = useSelectedComment(docId);
-  const isConflict = selectedId && commentsService.isConflict(selectedId);
+  const isConflict = selectedId && docAnnotationsService.isConflict(selectedId);
 
   return (
     <div className="comment-browser">

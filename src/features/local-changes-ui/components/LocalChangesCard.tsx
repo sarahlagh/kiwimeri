@@ -8,7 +8,8 @@ import { useQueryResults } from '@/core/db/queries-helper';
 import { plt } from '@/core/infra/platform';
 import collectionService from '@/db/collection.service';
 import remotesService from '@/db/remotes.service';
-import { commentsService } from '@/domain/comments/comments.service';
+import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
+import { DOC_ANNOTATION_TABLE } from '@/domain/document-annotations/model';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import {
@@ -132,7 +133,7 @@ const LocalChangesCard = () => {
                         .substring(0, 200)
                     : '';
                 } else {
-                  const document = commentsService.getCommentInfo(
+                  const document = docAnnotationsService.getAnnotInfo(
                     lc.itemId
                   ).itemId;
                   type = CollectionItemType.document;
@@ -140,9 +141,9 @@ const LocalChangesCard = () => {
                     document,
                     CollectionItemType.document
                   );
-                  itemExists = commentsService.exists(lc.itemId);
+                  itemExists = docAnnotationsService.exists(lc.itemId);
                   preview = itemExists
-                    ? commentsService.getPreview(lc.itemId)
+                    ? docAnnotationsService.getPreview(lc.itemId)
                     : '';
                 }
                 return (
@@ -194,7 +195,7 @@ const LocalChangesCard = () => {
                       </>
                     )}
 
-                    {itemExists && lc.on === 'comments' && (
+                    {itemExists && lc.on === DOC_ANNOTATION_TABLE && (
                       <>
                         <IonIcon slot="start" icon={APPICONS.comment}></IonIcon>
                         <IonText>

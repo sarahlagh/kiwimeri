@@ -24,8 +24,8 @@ import {
 import { DEFAULT_ORDER, getGlobalTrans, ROOT_COLLECTION } from '@/constants';
 import { space, spaceQueries } from '@/core/db/store';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
-import { commentsService } from '@/domain/comments/comments.service';
-import { CommentRow } from '@/domain/comments/model';
+import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
+import { DocAnnotationRow } from '@/domain/document-annotations/model';
 import { statsService } from '@/domain/stats/stats-service';
 import { SerializedEditorState } from 'lexical';
 import { getUniqueId } from 'tinybase/common';
@@ -932,10 +932,10 @@ class CollectionService {
       descending: false
     });
     if (pages.length === 0) return;
-    const newComments: CommentRow[] = [];
+    const newComments: DocAnnotationRow[] = [];
     pages.forEach(p => {
       const pageObj = this.getItem(p.id);
-      const item: CommentRow = {
+      const item: DocAnnotationRow = {
         itemId: docId,
         content: pageObj.content as string,
         content_meta: pageObj.content_meta as string,
@@ -947,7 +947,7 @@ class CollectionService {
       };
       newComments.push(item);
     });
-    commentsService.saveComments(docId, newComments);
+    docAnnotationsService.saveComments(docId, newComments);
     // if document had sort, set commentSort
     const str = space.getCell(this.tableId, docId, 'display_opts');
     if (str) {

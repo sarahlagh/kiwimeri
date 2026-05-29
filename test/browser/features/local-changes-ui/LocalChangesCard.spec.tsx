@@ -2,7 +2,7 @@ import { DEFAULT_NOTEBOOK_ID, getGlobalTrans } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import userSettingsService from '@/db/user-settings.service';
-import { commentsService } from '@/domain/comments/comments.service';
+import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeResult } from '@/domain/local-changes/model';
 import LocalChangesCard, {
@@ -207,8 +207,8 @@ describe('LocalChangesCard', () => {
   test('renders a card with "add comment" local changes', async () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     localChangesService.clear();
-    const commentId = commentsService.addComment(docId);
-    commentsService.editComment(
+    const commentId = docAnnotationsService.addComment(docId);
+    docAnnotationsService.editComment(
       commentId,
       JSON.parse(getNewContent('test content'))
     );
@@ -227,9 +227,9 @@ describe('LocalChangesCard', () => {
 
   test('renders a card with "update comment" local changes', async () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const commentId = commentsService.addComment(docId);
+    const commentId = docAnnotationsService.addComment(docId);
     localChangesService.clear();
-    commentsService.editComment(
+    docAnnotationsService.editComment(
       commentId,
       JSON.parse(getNewContent('test updated content'))
     );
@@ -248,9 +248,9 @@ describe('LocalChangesCard', () => {
 
   test('renders a card with "delete comment" local changes', async () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const commentId = commentsService.addComment(docId);
+    const commentId = docAnnotationsService.addComment(docId);
     localChangesService.clear();
-    commentsService.deleteComment(commentId);
+    docAnnotationsService.deleteComment(commentId);
 
     const localChanges = localChangesService.getLocalChanges();
     expect(localChanges).toHaveLength(1);

@@ -5,10 +5,10 @@ import {
   CollectionItemUpdatableFieldEnum
 } from '@/collection/collection';
 import {
-  CommentUpdatableConflictFields,
-  CommentUpdatableFieldEnum,
-  SyncableComment
-} from '@/domain/comments/model';
+  DocAnnotationUpdatableConflictFields,
+  DocAnnotationUpdatableFieldEnum,
+  SyncableAnnotation
+} from '@/domain/document-annotations/model';
 import { LocalChangeResult } from '@/domain/local-changes/model';
 
 export abstract class ConflictPolicy<L> {
@@ -56,24 +56,24 @@ class CollectionConflictPolicy extends ConflictPolicy<CollectionItem> {
 }
 export const collectionConflictPolicy = new CollectionConflictPolicy();
 
-class CommentsConflictPolicy extends ConflictPolicy<SyncableComment> {
+class AnnotsConflictPolicy extends ConflictPolicy<SyncableAnnotation> {
   public shouldCreateConflict(
     localChange: LocalChangeResult,
-    localItem: SyncableComment | undefined,
-    remoteItem: SyncableComment
+    localItem: SyncableAnnotation | undefined,
+    remoteItem: SyncableAnnotation
   ): boolean {
-    const field = localChange.field as CommentUpdatableFieldEnum;
+    const field = localChange.field as DocAnnotationUpdatableFieldEnum;
     return (
       localItem !== undefined &&
       !localItem.conflict &&
       (!localChange.field ||
-        (CommentUpdatableConflictFields.includes(field) &&
+        (DocAnnotationUpdatableConflictFields.includes(field) &&
           (!remoteItem || localItem[field] !== remoteItem[field])))
     );
   }
   public newConflict(
     localChange: LocalChangeResult,
-    localItem: SyncableComment
+    localItem: SyncableAnnotation
   ) {
     const ts = Date.now();
     return {
@@ -84,4 +84,4 @@ class CommentsConflictPolicy extends ConflictPolicy<SyncableComment> {
     };
   }
 }
-export const commentConflictPolicy = new CommentsConflictPolicy();
+export const annotsConflictPolicy = new AnnotsConflictPolicy();

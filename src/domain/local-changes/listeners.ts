@@ -2,7 +2,10 @@ import { CollectionItemUpdatableFields } from '@/collection/collection';
 import { space } from '@/core/db/store';
 import { SpaceCellId, SpaceTableId } from '@/core/db/store-schema';
 import { Id } from 'tinybase/with-schemas';
-import { CommentUpdatableFields } from '../comments/model';
+import {
+  DOC_ANNOTATION_TABLE,
+  DocAnnotationUpdatableFields
+} from '../document-annotations/model';
 import localChangesService from './local-changes.service';
 import { LocalChangeType } from './model';
 
@@ -88,7 +91,7 @@ function watchTable<T extends SpaceTableId>(
 
 export function startLocalChangesListeners() {
   watchTable('collection', CollectionItemUpdatableFields);
-  watchTable('comments', CommentUpdatableFields);
+  watchTable(DOC_ANNOTATION_TABLE, DocAnnotationUpdatableFields);
 }
 
 export function stopLocalChangesListeners() {

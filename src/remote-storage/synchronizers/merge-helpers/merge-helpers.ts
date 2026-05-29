@@ -63,7 +63,7 @@ export function applyLocalChangesToPush<R extends TypeWithId>(
   return newRemoteItems;
 }
 
-// TODO depends on "updated" VS "updatedAt" for comments
+// TODO depends on "updated" VS "updatedAt" for annots
 function getRemoteUpdatedTS(
   localChange: LocalChangeResult,
   remoteCollection: Table,

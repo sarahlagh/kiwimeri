@@ -5,6 +5,7 @@ import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import { SerializableData } from '@/db/types/store-types';
 import userSettingsService from '@/db/user-settings.service';
+import { DOC_ANNOTATION_TABLE } from '@/domain/document-annotations/model';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import {
   LocalChangeResult,
@@ -244,7 +245,7 @@ describe('local changes listeners', () => {
       ]
     },
     {
-      tableId: 'comments',
+      tableId: DOC_ANNOTATION_TABLE,
       watchedFields: [
         { field: 'content', valueType: 'lex' },
         { field: 'order', valueType: 'number' }

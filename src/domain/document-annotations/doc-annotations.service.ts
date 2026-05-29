@@ -7,17 +7,17 @@ import collectionService, { initialContent } from '@/db/collection.service';
 import { SortableType } from '@/shared/utils/sort-filter/sort';
 import { SerializedEditorState } from 'lexical';
 import { getUniqueId, Id } from 'tinybase/common';
-import { CommentRow, CommentSort } from './model';
+import { CommentSort, DOC_ANNOTATION_TABLE, DocAnnotationRow } from './model';
 
-const C = 'comments';
+const DA = DOC_ANNOTATION_TABLE;
 const CL = 'collection';
 
-class CommentsService {
-  public newCommentObj(itemId: Id): { item: CommentRow; id: Id } {
+class DocumentAnnotationsService {
+  public newCommentObj(itemId: Id): { item: DocAnnotationRow; id: Id } {
     const id = getUniqueId();
     const content = initialContent();
     const now = Date.now();
-    const comment: CommentRow = {
+    const comment: DocAnnotationRow = {
       itemId,
       content,
       content_meta: setFieldMeta('', now),
@@ -31,16 +31,16 @@ class CommentsService {
   public addComment(docId: Id, order?: number) {
     const { item, id } = this.newCommentObj(docId);
     space.transaction(() => {
-      space.setRow(C, id, { ...item, order });
+      space.setRow(DA, id, { ...item, order });
       space.setCell(CL, docId, 'updated', Date.now());
     });
     return id;
   }
 
-  public saveComments(docId: Id, comments: CommentRow[]) {
+  public saveComments(docId: Id, comments: DocAnnotationRow[]) {
     space.transaction(() => {
       comments.forEach(comment => {
-        space.setRow(C, getUniqueId(), { ...comment, itemId: docId });
+        space.setRow(DA, getUniqueId(), { ...comment, itemId: docId });
       });
       space.setCell('collection', docId, 'updated', Date.now());
     });
@@ -50,22 +50,22 @@ class CommentsService {
     const contentStr = minimizeContentForStorage(content);
     space.transaction(() => {
       const now = Date.now();
-      space.setPartialRow(C, id, {
+      space.setPartialRow(DA, id, {
         content: contentStr,
         content_meta: setFieldMeta(contentStr, now),
         updatedAt: now
       });
-      space.delCell(C, id, 'conflict');
-      const itemId = space.getCell(C, id, 'itemId');
+      space.delCell(DA, id, 'conflict');
+      const itemId = space.getCell(DA, id, 'itemId');
       space.setCell(CL, itemId!, 'updated', now);
     });
   }
 
   public deleteComment(id: Id) {
     space.transaction(() => {
-      const itemId = space.getCell(C, id, 'itemId');
+      const itemId = space.getCell(DA, id, 'itemId');
       space.setCell(CL, itemId!, 'updated', Date.now());
-      space.delRow(C, id);
+      space.delRow(DA, id);
     });
   }
 
@@ -76,35 +76,35 @@ class CommentsService {
       if (comments[0].order === -1) {
         // first time, reorder all
         comments.forEach((c, i) => {
-          space.setPartialRow(C, c.id, {
+          space.setPartialRow(DA, c.id, {
             order: i,
             order_meta: setFieldMeta(`${c.id}`, now)
           });
         });
       }
       genericReorder(from, to, (idx, order) => {
-        space.setPartialRow(C, comments[idx].id, {
+        space.setPartialRow(DA, comments[idx].id, {
           order,
           order_meta: setFieldMeta(`${order}`, now)
         });
       });
-      const itemId = space.getCell(C, comments[0].id, 'itemId');
+      const itemId = space.getCell(DA, comments[0].id, 'itemId');
       space.setCell(CL, itemId!, 'updated', Date.now());
     });
   }
 
   public getContent(id: Id) {
-    return space.getCell(C, id, 'content');
+    return space.getCell(DA, id, 'content');
   }
 
   public getPreview(id: Id) {
-    return space.getCell(C, id, 'plainText')?.substring(0, PREVIEW_SIZE) || '';
+    return space.getCell(DA, id, 'plainText')?.substring(0, PREVIEW_SIZE) || '';
   }
 
-  public getCommentInfo(id: Id) {
-    const itemId = space.getCell(C, id, 'itemId') as string;
-    const createdAt = space.getCell(C, id, 'createdAt');
-    const updatedAt = space.getCell(C, id, 'updatedAt');
+  public getAnnotInfo(id: Id) {
+    const itemId = space.getCell(DA, id, 'itemId') as string;
+    const createdAt = space.getCell(DA, id, 'createdAt');
+    const updatedAt = space.getCell(DA, id, 'updatedAt');
     return { createdAt, updatedAt, itemId };
   }
 
@@ -115,12 +115,12 @@ class CommentsService {
   }
 
   public exists(id: Id) {
-    return space.hasRow(C, id);
+    return space.hasRow(DA, id);
   }
 
   public isConflict(id: Id) {
-    return space.getCell(C, id, 'conflict') !== undefined;
+    return space.getCell(DA, id, 'conflict') !== undefined;
   }
 }
 
-export const commentsService = new CommentsService();
+export const docAnnotationsService = new DocumentAnnotationsService();

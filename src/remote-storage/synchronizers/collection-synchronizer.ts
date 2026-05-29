@@ -27,13 +27,17 @@ import {
   SerializableData
 } from '@/db/types/store-types';
 import userSettingsService from '@/db/user-settings.service';
-import {
-  minimizeCommentsForStorage,
-  MinimizedComments,
-  unminimizeCommentsFromStorage
-} from '@/domain/comments/compress-comments';
-import { CommentRow, SyncableComment } from '@/domain/comments/model';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
+import {
+  minimizeAnnotForStorage,
+  MinimizedDocAnnotation,
+  unminimizeAnnotFromStorage
+} from '@/domain/document-annotations/compress-annotations';
+import {
+  DOC_ANNOTATION_TABLE,
+  DocAnnotationRow,
+  SyncableAnnotation
+} from '@/domain/document-annotations/model';
 import {
   startLocalChangesListeners,
   stopLocalChangesListeners
@@ -51,16 +55,16 @@ import { SingleFileStorage } from '../storage-filesystems/singlefile.filesystem'
 import { AfterSyncHistChange } from '../sync-types';
 import { CloudStorageSynchronizer } from './abstract-synchronizer';
 import {
-  collectionConflictPolicy,
-  commentConflictPolicy
+  annotsConflictPolicy,
+  collectionConflictPolicy
 } from './merge-helpers/conflict-policies';
 import {
   applyLocalChangesToPull,
   applyLocalChangesToPush
 } from './merge-helpers/merge-helpers';
 import {
-  collectionOrphanPolicy,
-  commentsOrphanPolicy
+  annotsOrphanPolicy,
+  collectionOrphanPolicy
 } from './merge-helpers/orphan-policies';
 
 export type MinimizedCollectionItem = {
@@ -69,14 +73,14 @@ export type MinimizedCollectionItem = {
 
 export type RemoteCollectionFileContent = {
   i: MinimizedCollectionItem[]; // the items
-  c?: MinimizedComments[]; // the comments
+  a?: MinimizedDocAnnotation[]; // the document annotations
   o: SpaceValues; // the space options
   u: number; // last content change
 };
 
 type RemoteContentRepresentation = {
   items: CollectionItemWithId[];
-  comments: SyncableComment[];
+  docAnnotations: SyncableAnnotation[];
   values: SpaceValues;
   lastRemoteChange: number;
 };
@@ -214,7 +218,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   private setContent(content: Content<SpaceType, false>) {
     stopLocalChangesListeners();
     space.setTable('collection', content[0].collection!);
-    space.setTable('comments', content[0].comments!);
+    space.setTable(DOC_ANNOTATION_TABLE, content[0].document_annotation!);
     space.setValues(content[1]);
     startLocalChangesListeners();
   }
@@ -271,19 +275,19 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       remoteContent.items as TypeWithId[]
     );
 
-    // merge comments
+    // merge annotations
     applyLocalChangesToPush(
       localContent,
-      'comments',
+      DOC_ANNOTATION_TABLE,
       localChanges,
-      remoteContent.comments as TypeWithId[]
+      remoteContent.docAnnotations as TypeWithId[]
     );
 
     let data: RemoteCollectionFileContent;
     if (localChanges.length > 0 || force) {
       data = this.toFileContent(
         remoteContent.items,
-        remoteContent.comments,
+        remoteContent.docAnnotations,
         remoteContent.values,
         lastLocalChange
       );
@@ -291,7 +295,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       const localContentRep = this.toRepresentationFromLocal(localContent);
       data = this.toFileContent(
         localContentRep.items,
-        localContentRep.comments,
+        localContentRep.docAnnotations,
         localContentRep.values,
         lastLocalChange
       );
@@ -345,24 +349,24 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       force
     );
 
-    // merge comments
+    // merge annotations
     const {
       newLocalContent,
-      discardedChanges: afterCommentsMergeDiscardedChanges
+      discardedChanges: afterAnnotMergeDiscardedChanges
     } = applyLocalChangesToPull(
-      'comments',
+      DOC_ANNOTATION_TABLE,
       afterCollectionMergeContent,
-      remoteContent.comments,
+      remoteContent.docAnnotations,
       remoteContent.lastRemoteChange,
       localChanges,
-      commentConflictPolicy,
-      commentsOrphanPolicy,
+      annotsConflictPolicy,
+      annotsOrphanPolicy,
       force
     );
 
     const discardedChanges = [
       ...afterCollectionMergeDiscardedChanges,
-      ...afterCommentsMergeDiscardedChanges
+      ...afterAnnotMergeDiscardedChanges
     ];
 
     // values
@@ -490,11 +494,13 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     const collection = this.toMap<CollectionItemWithId>(
       localContent[0].collection!
     );
-    const comments = this.toMap<WithId<CommentRow>>(localContent[0].comments);
+    const annots = this.toMap<WithId<DocAnnotationRow>>(
+      localContent[0].document_annotation
+    );
     const items = [...collection.values()].filter(v => !v.conflict);
     return {
       items,
-      comments: [...comments.values()],
+      docAnnotations: [...annots.values()],
       values: localContent[1],
       lastRemoteChange: localContent[1].valuesLastUpdatedAt
     };
@@ -522,7 +528,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
 
     return {
       items: unminimizeItemsFromStorage(obj.i),
-      comments: unminimizeCommentsFromStorage(obj.c || []),
+      docAnnotations: unminimizeAnnotFromStorage(obj.a || []),
       values: obj.o,
       lastRemoteChange: obj.u
     };
@@ -530,7 +536,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
 
   private toFileContent(
     items: CollectionItemWithId[],
-    comments: SyncableComment[],
+    annots: SyncableAnnotation[],
     values: SpaceValues,
     updated: number
   ): RemoteCollectionFileContent {
@@ -538,7 +544,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       i: minimizeItemsForStorage(
         items.map(item => ({ ...item }))
       ) as MinimizedCollectionItem[],
-      c: minimizeCommentsForStorage(comments),
+      a: minimizeAnnotForStorage(annots),
       o: values,
       u: updated
     };

@@ -3,6 +3,7 @@ import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { space } from '@/core/db/store';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
+import { DOC_ANNOTATION_TABLE } from '@/domain/document-annotations/model';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import { statsService } from '@/domain/stats/stats-service';
@@ -190,12 +191,16 @@ function assertCommentsPostExplode(
     expect(eqComment).toBeDefined();
     expect(eqComment?.order).toBe(p.order);
     const commentPlainText = space.getCell(
-      'comments',
+      DOC_ANNOTATION_TABLE,
       eqComment!.id,
       'plainText'
     );
     expect(commentPlainText).toBe(p.preview);
-    const commentContent = space.getCell('comments', eqComment!.id, 'content');
+    const commentContent = space.getCell(
+      DOC_ANNOTATION_TABLE,
+      eqComment!.id,
+      'content'
+    );
     expect(commentContent).toBe((p as any)['content']);
   });
 

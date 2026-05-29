@@ -9,10 +9,10 @@ import { fastHash } from '@/common/utils';
 import { SpaceValues } from '@/core/db/store-schema';
 import { AnyData } from '@/db/types/store-types';
 import {
-  minimizeCommentsForStorage,
-  unminimizeCommentsFromStorage
-} from '@/domain/comments/compress-comments';
-import { SyncableComment } from '@/domain/comments/model';
+  minimizeAnnotForStorage,
+  unminimizeAnnotFromStorage
+} from '@/domain/document-annotations/compress-annotations';
+import { SyncableAnnotation } from '@/domain/document-annotations/model';
 import { DriverFileInfo } from '../sync-types';
 import { RemoteCollectionFileContent } from '../synchronizers/collection-synchronizer';
 import { CloudStorageDriver, FileReference } from './abstract.driver';
@@ -163,15 +163,15 @@ export class InMemDriver extends CloudStorageDriver {
     );
   }
 
-  public setCollectionContentWithComments(
+  public setCollectionContentWithAnnots(
     items: CollectionItem[],
-    comments: SyncableComment[],
+    annots: SyncableAnnotation[],
     values: SpaceValues,
     updated: number
   ) {
     return this.setContent({
       i: minimizeItemsForStorage(items),
-      c: minimizeCommentsForStorage(comments),
+      a: minimizeAnnotForStorage(annots),
       o: values,
       u: updated
     } as RemoteCollectionFileContent);
@@ -201,11 +201,11 @@ export class InMemDriver extends CloudStorageDriver {
     const unminimizedObj = {
       ...obj,
       i: unminimizeItemsFromStorage(obj.i),
-      c: unminimizeCommentsFromStorage(obj.c || [])
+      a: unminimizeAnnotFromStorage(obj.a || [])
     };
     return {
       content: unminimizedObj.i,
-      comments: unminimizedObj.c,
+      annots: unminimizedObj.a,
       values: unminimizedObj.o
     };
   }

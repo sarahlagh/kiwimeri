@@ -1,6 +1,10 @@
 import { APPICONS } from '@/constants';
-import { commentsService } from '@/domain/comments/comments.service';
-import { CommentSort, CommentSortType, sortBy } from '@/domain/comments/model';
+import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
+import {
+  CommentSort,
+  CommentSortType,
+  sortBy
+} from '@/domain/document-annotations/model';
 import GenericSortFilter from '@/shared/utils/sort-filter/GenericSortFilter';
 import { IonButton, IonIcon, useIonPopover } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
@@ -20,7 +24,7 @@ const CommentsSortFilterBtn = ({ docId }: CommentsSortFilterBtnProps) => {
     allowedSorts: sortBy,
     onSortChange: (sort?: CommentSort) => {
       if (sort) {
-        commentsService.setCommentSort(docId, sort);
+        docAnnotationsService.setCommentSort(docId, sort);
       }
     }
   });

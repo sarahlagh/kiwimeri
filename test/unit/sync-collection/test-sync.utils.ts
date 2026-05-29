@@ -4,7 +4,7 @@ import { space } from '@/core/db/store';
 import { SpaceValues } from '@/core/db/store-schema';
 import { historyService } from '@/db/collection-history.service';
 import remotesService from '@/db/remotes.service';
-import { SyncableComment } from '@/domain/comments/model';
+import { SyncableAnnotation } from '@/domain/document-annotations/model';
 import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
 import { SyncDirection, syncService } from '@/remote-storage/sync.service';
 import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';
@@ -55,12 +55,12 @@ export const reInitRemoteData = async (
   updateTs?: number,
   values?: SpaceValues
 ) => {
-  return reInitRemoteDataWithComments(items, undefined, updateTs, values);
+  return reInitRemoteDataWithAnnots(items, undefined, updateTs, values);
 };
 
-export const reInitRemoteDataWithComments = async (
+export const reInitRemoteDataWithAnnots = async (
   items: CollectionItem[],
-  comments?: SyncableComment[],
+  annots?: SyncableAnnotation[],
   updateTs?: number,
   values?: SpaceValues
 ) => {
@@ -83,10 +83,10 @@ export const reInitRemoteDataWithComments = async (
       valuesLastUpdatedAt: 0
     };
   }
-  console.debug('[reInitRemoteData]', items, comments, values, lastLocalChange);
-  await driver.setCollectionContentWithComments(
+  console.debug('[reInitRemoteData]', items, annots, values, lastLocalChange);
+  await driver.setCollectionContentWithAnnots(
     items,
-    comments || [],
+    annots || [],
     values,
     lastLocalChange
   );

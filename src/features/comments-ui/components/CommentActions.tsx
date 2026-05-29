@@ -1,7 +1,7 @@
 import { dateToStr } from '@/common/date-utils';
 import ConfirmYesNoDialog from '@/common/modals/ConfirmYesNoDialog';
 import { APPICONS } from '@/constants';
-import { commentsService } from '@/domain/comments/comments.service';
+import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { IonButton, IonButtons, IonIcon } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -14,7 +14,8 @@ const CommentActions = ({ docId, commentId }: CommentActionsProps) => {
   const [expand, setExpand] = useState(false);
   const [showCreatedAt, setShowCreatedAt] = useState(true);
   const delTrigger = `${commentId}-delete-btn`;
-  const { createdAt, updatedAt } = commentsService.getCommentInfo(commentId);
+  const { createdAt, updatedAt } =
+    docAnnotationsService.getAnnotInfo(commentId);
   return (
     <>
       {expand && (
@@ -48,7 +49,7 @@ const CommentActions = ({ docId, commentId }: CommentActionsProps) => {
                 trigger={delTrigger}
                 onClose={confirmed => {
                   if (confirmed) {
-                    commentsService.deleteComment(commentId);
+                    docAnnotationsService.deleteComment(commentId);
                     resumeService.setLastSelectedComment(docId, null);
                   }
                 }}

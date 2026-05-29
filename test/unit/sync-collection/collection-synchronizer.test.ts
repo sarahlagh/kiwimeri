@@ -6,8 +6,9 @@ import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import { RemoteResult } from '@/db/types/store-types';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
-import { commentsService } from '@/domain/comments/comments.service';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
+import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
+import { DOC_ANNOTATION_TABLE } from '@/domain/document-annotations/model';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import useItemsConflictMixIn from '@/features/collection-ui/hooks/useItemsConflictMixIn';
@@ -383,11 +384,15 @@ describe('collection synchronizer', () => {
   describe('should merge comments', () => {
     test('synchronizer should push comments', async () => {
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-      const commentId = commentsService.addComment(docId);
-      commentsService.editComment(commentId, JSON.parse(getNewContent('test')));
+      const commentId = docAnnotationsService.addComment(docId);
+      docAnnotationsService.editComment(
+        commentId,
+        JSON.parse(getNewContent('test'))
+      );
       await synchronizer.sync();
       {
-        const { content, comments } = driver.getParsedCollectionContent();
+        const { content, annots: comments } =
+          driver.getParsedCollectionContent();
         expect(content).toHaveLength(2);
         expect(content[1].id).toBe(docId);
         expect(comments).toHaveLength(1);
@@ -398,7 +403,7 @@ describe('collection synchronizer', () => {
     test('synchronizer should pull comments', async () => {
       const items = [oneNotebook(), oneDocument()];
       const comments = [oneComment(items[1].id!)];
-      await driver.setCollectionContentWithComments(
+      await driver.setCollectionContentWithAnnots(
         items,
         comments || [],
         defaultValues,
@@ -407,8 +412,8 @@ describe('collection synchronizer', () => {
 
       await synchronizer.sync();
 
-      expect(space.getRowCount('comments')).toBe(1);
-      expect(space.hasRow('comments', comments[0].id));
+      expect(space.getRowCount(DOC_ANNOTATION_TABLE)).toBe(1);
+      expect(space.hasRow(DOC_ANNOTATION_TABLE, comments[0].id));
     });
 
     test('synchronizer should merge comments', async () => {
@@ -416,7 +421,7 @@ describe('collection synchronizer', () => {
       const comments = [oneComment(items[1].id!)];
       const docId = items[1].id!;
       const commentId = comments[0].id;
-      await driver.setCollectionContentWithComments(
+      await driver.setCollectionContentWithAnnots(
         items,
         comments,
         defaultValues,
@@ -430,7 +435,7 @@ describe('collection synchronizer', () => {
       comments[0].order = 2;
       comments[0].order_meta = setFieldMeta('', Date.now());
       comments[0].updatedAt = Date.now();
-      await driver.setCollectionContentWithComments(
+      await driver.setCollectionContentWithAnnots(
         items,
         comments,
         defaultValues,
@@ -439,7 +444,7 @@ describe('collection synchronizer', () => {
 
       // update locally
       adv(() => {
-        commentsService.editComment(
+        docAnnotationsService.editComment(
           commentId,
           JSON.parse(getNewContent('test'))
         );
@@ -448,7 +453,7 @@ describe('collection synchronizer', () => {
       // sync
       await synchronizer.sync();
       {
-        const { content, comments: newComments } =
+        const { content, annots: newComments } =
           driver.getParsedCollectionContent();
         expect(content).toHaveLength(2);
         expect(content[1].id).toBe(docId);
@@ -456,7 +461,7 @@ describe('collection synchronizer', () => {
         expect(newComments[0].id).toBe(commentId);
         expect(newComments[0].order).toBe(2);
         expect(newComments[0].content).toBe(
-          space.getCell('comments', commentId, 'content')
+          space.getCell(DOC_ANNOTATION_TABLE, commentId, 'content')
         );
       }
     });
@@ -466,7 +471,7 @@ describe('collection synchronizer', () => {
       const comments = [oneComment(items[1].id!)];
       const docId = items[1].id!;
       const commentId = comments[0].id;
-      await driver.setCollectionContentWithComments(
+      await driver.setCollectionContentWithAnnots(
         items,
         comments,
         defaultValues,
@@ -480,7 +485,7 @@ describe('collection synchronizer', () => {
       comments[0].content = getNewContent('remote');
       comments[0].content_meta = setFieldMeta('', Date.now());
       comments[0].updatedAt = Date.now();
-      await driver.setCollectionContentWithComments(
+      await driver.setCollectionContentWithAnnots(
         items,
         comments,
         defaultValues,
@@ -489,7 +494,7 @@ describe('collection synchronizer', () => {
 
       // update locally
       adv(() => {
-        commentsService.editComment(
+        docAnnotationsService.editComment(
           commentId,
           JSON.parse(getNewContent('local'))
         );
@@ -500,19 +505,19 @@ describe('collection synchronizer', () => {
       expect(resp.didPull);
       expect(resp.didPush);
       {
-        const { content, comments: newComments } =
+        const { content, annots: newComments } =
           driver.getParsedCollectionContent();
         expect(content).toHaveLength(2);
         expect(content[1].id).toBe(docId);
         expect(newComments).toHaveLength(1);
         expect(newComments[0].id).toBe(commentId);
         expect(newComments[0].content).toBe(
-          space.getCell('comments', commentId, 'content')
+          space.getCell(DOC_ANNOTATION_TABLE, commentId, 'content')
         );
         expect(newComments[0].content).toBe(
           minimizeContentForStorage(JSON.parse(getNewContent('local')))
         );
-        expect(!commentsService.isConflict(commentId));
+        expect(!docAnnotationsService.isConflict(commentId));
       }
     });
 
@@ -521,7 +526,7 @@ describe('collection synchronizer', () => {
       const comments = [oneComment(items[1].id!)];
       const docId = items[1].id!;
       const commentId = comments[0].id;
-      await driver.setCollectionContentWithComments(
+      await driver.setCollectionContentWithAnnots(
         items,
         comments,
         defaultValues,
@@ -533,7 +538,7 @@ describe('collection synchronizer', () => {
 
       // update locally
       adv(() => {
-        commentsService.editComment(
+        docAnnotationsService.editComment(
           commentId,
           JSON.parse(getNewContent('local'))
         );
@@ -545,7 +550,7 @@ describe('collection synchronizer', () => {
       );
       comments[0].content_meta = setFieldMeta('', Date.now());
       comments[0].updatedAt = Date.now();
-      await driver.setCollectionContentWithComments(
+      await driver.setCollectionContentWithAnnots(
         items,
         comments,
         defaultValues,
@@ -557,17 +562,17 @@ describe('collection synchronizer', () => {
       expect(resp.didPull);
       expect(!resp.didPush);
       {
-        const { content, comments: newComments } =
+        const { content, annots: newComments } =
           driver.getParsedCollectionContent();
         expect(content).toHaveLength(2);
         expect(content[1].id).toBe(docId);
         expect(newComments).toHaveLength(1);
         expect(newComments[0].id).toBe(commentId);
         expect(newComments[0].content).toBe(
-          space.getCell('comments', commentId, 'content')
+          space.getCell(DOC_ANNOTATION_TABLE, commentId, 'content')
         );
         expect(newComments[0].content).toBe(comments[0].content);
-        expect(commentsService.isConflict(commentId));
+        expect(docAnnotationsService.isConflict(commentId));
       }
     });
 
@@ -576,7 +581,7 @@ describe('collection synchronizer', () => {
       const comments = [oneComment(items[1].id!)];
       const docId = items[1].id!;
       const commentId = comments[0].id;
-      await driver.setCollectionContentWithComments(
+      await driver.setCollectionContentWithAnnots(
         items,
         comments,
         defaultValues,
@@ -587,11 +592,11 @@ describe('collection synchronizer', () => {
       // comment pulled
 
       // add comment locally
-      const orphanId = commentsService.addComment(docId);
+      const orphanId = docAnnotationsService.addComment(docId);
       vi.advanceTimersByTime(100);
 
       // delete doc & comment on remote
-      await driver.setCollectionContentWithComments(
+      await driver.setCollectionContentWithAnnots(
         [items[0]],
         [],
         defaultValues,
@@ -600,8 +605,8 @@ describe('collection synchronizer', () => {
 
       await synchronizer.sync();
 
-      expect(!commentsService.exists(commentId));
-      expect(!commentsService.exists(orphanId));
+      expect(!docAnnotationsService.exists(commentId));
+      expect(!docAnnotationsService.exists(orphanId));
     });
 
     test('synchronizer should sync comments and delete orphans 2', async () => {
@@ -609,7 +614,7 @@ describe('collection synchronizer', () => {
       const comments = [oneComment(items[1].id!)];
       const docId = items[1].id!;
       const commentId = comments[0].id;
-      await driver.setCollectionContentWithComments(
+      await driver.setCollectionContentWithAnnots(
         items,
         comments,
         defaultValues,
@@ -620,7 +625,7 @@ describe('collection synchronizer', () => {
       // comment pulled
 
       // delete doc & comment on remote
-      await driver.setCollectionContentWithComments(
+      await driver.setCollectionContentWithAnnots(
         [items[0]],
         [],
         defaultValues,
@@ -628,12 +633,12 @@ describe('collection synchronizer', () => {
       );
       // add comment locally
       vi.advanceTimersByTime(100);
-      const orphanId = commentsService.addComment(docId);
+      const orphanId = docAnnotationsService.addComment(docId);
 
       await synchronizer.sync();
 
-      expect(!commentsService.exists(commentId));
-      expect(!commentsService.exists(orphanId));
+      expect(!docAnnotationsService.exists(commentId));
+      expect(!docAnnotationsService.exists(orphanId));
     });
   });
 
@@ -705,10 +710,10 @@ describe('collection synchronizer', () => {
           useItemsConflictMixIn(items)
         );
         expect(result.current).toHaveLength(2);
-        expect(result.current[0].hasCommentConflicts).toBe(false);
+        expect(result.current[0].hasAnnotsConflicts).toBe(false);
         expect(result.current[0].conflict).toBe(result.current[1].id);
         expect(result.current[0].isConflict).toBe(true);
-        expect(result.current[1].hasCommentConflicts).toBe(false);
+        expect(result.current[1].hasAnnotsConflicts).toBe(false);
         expect(result.current[1].conflict).toBeUndefined();
         expect(result.current[1].isConflict).toBe(false);
         unmount();
@@ -720,7 +725,7 @@ describe('collection synchronizer', () => {
       const comments = [oneComment(items[1].id!)];
       const docId = items[1].id!;
       const commentId = comments[0].id;
-      await driver.setCollectionContentWithComments(
+      await driver.setCollectionContentWithAnnots(
         items,
         comments,
         defaultValues,
@@ -732,7 +737,7 @@ describe('collection synchronizer', () => {
 
       // update locally
       adv(() => {
-        commentsService.editComment(
+        docAnnotationsService.editComment(
           commentId,
           JSON.parse(getNewContent('local'))
         );
@@ -744,7 +749,7 @@ describe('collection synchronizer', () => {
       );
       comments[0].content_meta = setFieldMeta('', Date.now());
       comments[0].updatedAt = Date.now();
-      await driver.setCollectionContentWithComments(
+      await driver.setCollectionContentWithAnnots(
         items,
         comments,
         defaultValues,
@@ -756,17 +761,17 @@ describe('collection synchronizer', () => {
       expect(resp.didPull);
       expect(!resp.didPush);
       {
-        const { content, comments: newComments } =
+        const { content, annots: newComments } =
           driver.getParsedCollectionContent();
         expect(content).toHaveLength(2);
         expect(content[1].id).toBe(docId);
         expect(newComments).toHaveLength(1);
         expect(newComments[0].id).toBe(commentId);
         expect(newComments[0].content).toBe(
-          space.getCell('comments', commentId, 'content')
+          space.getCell(DOC_ANNOTATION_TABLE, commentId, 'content')
         );
         expect(newComments[0].content).toBe(comments[0].content);
-        expect(commentsService.isConflict(commentId));
+        expect(docAnnotationsService.isConflict(commentId));
       }
 
       {
@@ -788,7 +793,7 @@ describe('collection synchronizer', () => {
           useItemsConflictMixIn(items)
         );
         expect(result.current).toHaveLength(1);
-        expect(result.current[0].hasCommentConflicts).toBe(true);
+        expect(result.current[0].hasAnnotsConflicts).toBe(true);
         expect(result.current[0].isConflict).toBe(false);
         unmount();
       }
@@ -807,7 +812,7 @@ describe('collection synchronizer', () => {
       const docInConflict = items[2].id!;
       const docExcluded = items[3].id!;
       const commentId = comments[0].id;
-      await driver.setCollectionContentWithComments(
+      await driver.setCollectionContentWithAnnots(
         items,
         comments,
         defaultValues,
@@ -818,7 +823,7 @@ describe('collection synchronizer', () => {
 
       // update locally
       adv(() => {
-        commentsService.editComment(
+        docAnnotationsService.editComment(
           commentId,
           JSON.parse(getNewContent('local'))
         );
@@ -844,7 +849,7 @@ describe('collection synchronizer', () => {
       items[2].content_meta = setFieldMeta('', Date.now());
       items[2].updated = Date.now();
 
-      await driver.setCollectionContentWithComments(
+      await driver.setCollectionContentWithAnnots(
         items,
         comments,
         defaultValues,
@@ -856,7 +861,7 @@ describe('collection synchronizer', () => {
       expect(resp.didPull);
       expect(!resp.didPush);
       {
-        const { content, comments: newComments } =
+        const { content, annots: newComments } =
           driver.getParsedCollectionContent();
         expect(content).toHaveLength(5);
         expect(content[1].id).toBe(docWithComment);
@@ -866,7 +871,7 @@ describe('collection synchronizer', () => {
         expect(!collectionService.isItemConflict(docWithComment));
         expect(!collectionService.isItemConflict(docExcluded));
         expect(newComments[0].content).toBe(comments[0].content);
-        expect(commentsService.isConflict(commentId));
+        expect(docAnnotationsService.isConflict(commentId));
       }
 
       {
@@ -896,15 +901,15 @@ describe('collection synchronizer', () => {
         expect(result.current).toHaveLength(3);
         expect(result.current[0].conflict).toBe(docInConflict);
         expect(result.current[0].isConflict).toBe(true);
-        expect(result.current[0].hasCommentConflicts).toBe(false);
+        expect(result.current[0].hasAnnotsConflicts).toBe(false);
 
         expect(result.current[1].id).toBe(docInConflict);
         expect(result.current[1].conflict).toBeUndefined();
         expect(result.current[1].isConflict).toBe(false);
-        expect(result.current[1].hasCommentConflicts).toBe(false);
+        expect(result.current[1].hasAnnotsConflicts).toBe(false);
 
         expect(result.current[2].id).toBe(docWithComment);
-        expect(result.current[2].hasCommentConflicts).toBe(true);
+        expect(result.current[2].hasAnnotsConflicts).toBe(true);
         expect(result.current[2].isConflict).toBe(false);
         unmount();
       }

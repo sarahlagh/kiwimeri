@@ -1,6 +1,6 @@
 import { CollectionItemDisplayOpts } from '@/collection/collection';
 import { useSpaceCell } from '@/core/db/tinybase-hooks';
-import { CommentSort } from '@/domain/comments/model';
+import { CommentSort } from '@/domain/document-annotations/model';
 import { Id } from 'tinybase/common';
 
 const useCommentSort = (rowId: Id): CommentSort => {

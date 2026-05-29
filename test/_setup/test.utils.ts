@@ -16,8 +16,8 @@ import { WithId } from '@/core/db/types';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import { SerializableData } from '@/db/types/store-types';
-import { commentsService } from '@/domain/comments/comments.service';
-import { CommentRow } from '@/domain/comments/model';
+import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
+import { DocAnnotationRow } from '@/domain/document-annotations/model';
 import { Notebook } from '@/notebooks/notebooks';
 import { renderHook } from '@testing-library/react';
 import { getUniqueId } from 'tinybase/with-schemas';
@@ -95,11 +95,11 @@ export const onePage = (
   };
 };
 
-export const oneComment = (docId: string): WithId<CommentRow> => {
+export const oneComment = (docId: string): WithId<DocAnnotationRow> => {
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   const id = getUniqueId();
   return {
-    ...commentsService.newCommentObj(docId).item,
+    ...docAnnotationsService.newCommentObj(docId).item,
     id
   };
 };

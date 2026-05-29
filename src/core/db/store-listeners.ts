@@ -1,7 +1,7 @@
 import {
-  startCommentsListeners,
-  stopCommentsListeners
-} from '@/domain/comments/listeners';
+  startAnnotsListeners,
+  stopAnnotsListeners
+} from '@/domain/document-annotations/listeners';
 import {
   startLocalChangesListeners,
   stopLocalChangesListeners
@@ -10,13 +10,13 @@ import {
 export function startListeners() {
   console.log('[db] starting all listeners');
   startLocalChangesListeners();
-  startCommentsListeners();
+  startAnnotsListeners();
 }
 
 export function stopListeners() {
   console.log('[db] stopping all listeners');
   stopLocalChangesListeners();
-  stopCommentsListeners();
+  stopAnnotsListeners();
 }
 
 export function disableListeners(callback: () => void) {

@@ -1,5 +1,5 @@
 import { DEFAULT_NOTEBOOK_ID, DEFAULT_SPACE_ID } from '@/constants';
-import { commentSchema } from '@/domain/comments/model';
+import { docAnnotationSchema } from '@/domain/document-annotations/model';
 import { localChangesSchema } from '@/domain/local-changes/model';
 import { resumeStateSchema } from '@/domain/resume-state/model';
 import { Value } from 'tinybase/with-schemas';
@@ -114,7 +114,7 @@ export const spaceTablesSchema = {
     contentStatsJson: { type: 'string' },
     lastOpenedAt: { type: 'number' }
   },
-  comments: commentSchema
+  document_annotation: docAnnotationSchema
 } as const;
 export const spaceValuesSchema = {
   valuesLastUpdatedAt: { type: 'number', default: 0 },

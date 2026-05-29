@@ -1,6 +1,6 @@
 import { minimizeKeys, unminimizeKeys } from '@/common/utils';
 import { AnyData, SerializableData } from '@/db/types/store-types';
-import { SyncableComment } from './model';
+import { SyncableAnnotation } from './model';
 
 const keys = [
   ['id', 'i'],
@@ -14,10 +14,10 @@ const keys = [
 ];
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const MIN_KEYS = ['i', 'p', 'c', 'C', 'cr', 'u', 'o', 'O'] as const;
-export type CommentsMinKeys = typeof MIN_KEYS;
+export type DocAnnotationMinKeys = typeof MIN_KEYS;
 
-export type MinimizedComments = {
-  [key in CommentsMinKeys[number]]: SerializableData | undefined;
+export type MinimizedDocAnnotation = {
+  [key in DocAnnotationMinKeys[number]]: SerializableData | undefined;
 };
 
 const keysMap = new Map();
@@ -27,16 +27,18 @@ keys.forEach(([v1, v2]) => {
   keysMapReverse.set(v2, v1);
 });
 
-export const minimizeCommentsForStorage = (obj: SyncableComment[]) => {
+export const minimizeAnnotForStorage = (obj: SyncableAnnotation[]) => {
   return obj
     .map(obj => ({ ...obj, plainText: undefined }))
-    .map(item => minimizeKeys(item, keysMap, new Map()) as MinimizedComments);
+    .map(
+      item => minimizeKeys(item, keysMap, new Map()) as MinimizedDocAnnotation
+    );
 };
 
-export const unminimizeCommentsFromStorage = (
+export const unminimizeAnnotFromStorage = (
   obj: AnyData[]
-): SyncableComment[] => {
+): SyncableAnnotation[] => {
   return obj
     .map(o => unminimizeKeys(o, keysMapReverse, new Map()))
-    .map(o => ({ ...o }) as SyncableComment);
+    .map(o => ({ ...o }) as SyncableAnnotation);
 };

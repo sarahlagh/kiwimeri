@@ -1,5 +1,5 @@
 import { APPICONS } from '@/constants';
-import { CommentSort } from '@/domain/comments/model';
+import { CommentSort } from '@/domain/document-annotations/model';
 
 export enum CollectionItemType {
   notebook = 'n',

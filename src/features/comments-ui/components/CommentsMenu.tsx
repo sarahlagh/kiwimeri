@@ -1,7 +1,7 @@
 import SortableList from '@/common/dnd/containers/SortableList';
 import { APPICONS } from '@/constants';
 import { useQueryResults } from '@/core/db/queries-helper';
-import { commentsService } from '@/domain/comments/comments.service';
+import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { IonButton, IonButtons, IonIcon, IonNote } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -41,7 +41,7 @@ export const CommentsMenu = ({
               size="small"
               fill="clear"
               onClick={() => {
-                const commentId = commentsService.addComment(
+                const commentId = docAnnotationsService.addComment(
                   docId,
                   comments.length
                 );
@@ -67,7 +67,7 @@ export const CommentsMenu = ({
         items={comments}
         sortDisabled={sort.by !== 'order'}
         onItemMove={(from, to) => {
-          commentsService.reorderComments(comments, from, to);
+          docAnnotationsService.reorderComments(comments, from, to);
         }}
       >
         {comments.map(comment => (

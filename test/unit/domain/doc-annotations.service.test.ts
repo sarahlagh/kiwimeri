@@ -2,8 +2,11 @@ import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-con
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { space } from '@/core/db/store';
 import collectionService from '@/db/collection.service';
-import { commentsService } from '@/domain/comments/comments.service';
-import { CommentRow } from '@/domain/comments/model';
+import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
+import {
+  DOC_ANNOTATION_TABLE,
+  DocAnnotationRow
+} from '@/domain/document-annotations/model';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import useCommentSort from '@/features/comments-ui/hooks/useCommentSort';
@@ -19,11 +22,11 @@ function getDocUpdatedTs(docId: string) {
 function expectedLC(commentId: string, type: LocalChangeType, updated: number) {
   return {
     id: localChangesService['getLocalChangeId']({
-      on: 'comments',
+      on: DOC_ANNOTATION_TABLE,
       change: type,
       itemId: commentId
     }),
-    on: 'comments',
+    on: DOC_ANNOTATION_TABLE,
     itemId: commentId,
     change: type,
     createdAt: updated
@@ -43,12 +46,12 @@ describe('comments service', () => {
     const updated = getDocUpdatedTs(docId);
     vi.advanceTimersByTime(100);
 
-    const commentId = commentsService.addComment(docId);
+    const commentId = docAnnotationsService.addComment(docId);
     const comments = fetchCommentsQuery.getResults({ itemId: docId });
     expect(comments).toHaveLength(1);
     expect(comments[0].id).toBe(commentId);
     expect(getDocUpdatedTs(docId)).toBeGreaterThan(updated);
-    expect(commentsService.getCommentInfo(commentId)).toEqual({
+    expect(docAnnotationsService.getAnnotInfo(commentId)).toEqual({
       createdAt: updated + 100,
       updatedAt: updated + 100,
       itemId: docId
@@ -63,10 +66,10 @@ describe('comments service', () => {
     const updated = getDocUpdatedTs(docId);
     vi.advanceTimersByTime(100);
 
-    const comments: CommentRow[] = [];
-    comments.push(commentsService.newCommentObj(docId).item);
-    comments.push(commentsService.newCommentObj(docId + 'diff').item);
-    commentsService.saveComments(docId, comments);
+    const comments: DocAnnotationRow[] = [];
+    comments.push(docAnnotationsService.newCommentObj(docId).item);
+    comments.push(docAnnotationsService.newCommentObj(docId + 'diff').item);
+    docAnnotationsService.saveComments(docId, comments);
 
     const commentResults = fetchCommentsQuery.getResults({ itemId: docId });
     expect(commentResults).toHaveLength(2);
@@ -81,16 +84,16 @@ describe('comments service', () => {
 
   it('should edit a comment', () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const commentId = commentsService.addComment(docId);
+    const commentId = docAnnotationsService.addComment(docId);
     const updated = getDocUpdatedTs(docId);
     vi.advanceTimersByTime(100);
 
     const content = getNewContent('this is the content');
-    commentsService.editComment(commentId, JSON.parse(content));
+    docAnnotationsService.editComment(commentId, JSON.parse(content));
 
-    const comment = space.getRow('comments', commentId);
+    const comment = space.getRow(DOC_ANNOTATION_TABLE, commentId);
     expect(unminimizeContentFromStorage(comment.content)).toBe(content);
-    expect(commentsService.getContent(commentId)).toBe(comment.content);
+    expect(docAnnotationsService.getContent(commentId)).toBe(comment.content);
     expect(comment.plainText).toBe('this is the content');
     expect(comment.updatedAt).toBeGreaterThan(updated);
     expect(getDocUpdatedTs(docId)).toBeGreaterThan(updated);
@@ -102,11 +105,11 @@ describe('comments service', () => {
 
   it('should delete a comment', () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const commentId = commentsService.addComment(docId);
+    const commentId = docAnnotationsService.addComment(docId);
     const updated = getDocUpdatedTs(docId);
     vi.advanceTimersByTime(100);
 
-    commentsService.deleteComment(commentId);
+    docAnnotationsService.deleteComment(commentId);
     expect(fetchCommentsQuery.getResults({ itemId: docId })).toHaveLength(0);
     expect(getDocUpdatedTs(docId)).toBeGreaterThan(updated);
   });
@@ -125,7 +128,7 @@ describe('comments service', () => {
 
   it('should sort by order on demand', () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    commentsService.setCommentSort(docId, {
+    docAnnotationsService.setCommentSort(docId, {
       by: 'order',
       descending: false
     });
@@ -143,11 +146,11 @@ describe('comments service', () => {
 
   it('should reorder comments', () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const comment1 = commentsService.addComment(docId);
-    const comment2 = commentsService.addComment(docId);
-    const comment3 = commentsService.addComment(docId);
-    const comment4 = commentsService.addComment(docId);
-    const comment5 = commentsService.addComment(docId);
+    const comment1 = docAnnotationsService.addComment(docId);
+    const comment2 = docAnnotationsService.addComment(docId);
+    const comment3 = docAnnotationsService.addComment(docId);
+    const comment4 = docAnnotationsService.addComment(docId);
+    const comment5 = docAnnotationsService.addComment(docId);
     const updated = getDocUpdatedTs(docId);
     vi.advanceTimersByTime(100);
 
@@ -164,7 +167,7 @@ describe('comments service', () => {
       comment5
     ]);
 
-    commentsService.reorderComments(results, 2, 1);
+    docAnnotationsService.reorderComments(results, 2, 1);
 
     results = fetchCommentsQuery.getResults({ itemId: docId }, 'order', false);
     expect(results.map(r => r.id)).toEqual([
@@ -179,7 +182,7 @@ describe('comments service', () => {
 
     vi.advanceTimersByTime(100);
 
-    commentsService.reorderComments(results, 3, 4);
+    docAnnotationsService.reorderComments(results, 3, 4);
 
     results = fetchCommentsQuery.getResults({ itemId: docId }, 'order', false);
     expect(results.map(r => r.id)).toEqual([
@@ -195,9 +198,9 @@ describe('comments service', () => {
 
   it('should reorder new comments', () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const comment1 = commentsService.addComment(docId);
-    const comment2 = commentsService.addComment(docId);
-    const comment3 = commentsService.addComment(docId);
+    const comment1 = docAnnotationsService.addComment(docId);
+    const comment2 = docAnnotationsService.addComment(docId);
+    const comment3 = docAnnotationsService.addComment(docId);
     const updated = getDocUpdatedTs(docId);
     vi.advanceTimersByTime(100);
 
@@ -206,7 +209,7 @@ describe('comments service', () => {
       'order',
       false
     );
-    commentsService.reorderComments(results, 2, 1);
+    docAnnotationsService.reorderComments(results, 2, 1);
 
     results = fetchCommentsQuery.getResults({ itemId: docId }, 'order', false);
     expect(results.map(r => r.id)).toEqual([comment1, comment3, comment2]);
@@ -216,8 +219,8 @@ describe('comments service', () => {
     vi.advanceTimersByTime(100);
 
     // now add new comments!
-    const comment4 = commentsService.addComment(docId);
-    const comment5 = commentsService.addComment(docId);
+    const comment4 = docAnnotationsService.addComment(docId);
+    const comment5 = docAnnotationsService.addComment(docId);
     results = fetchCommentsQuery.getResults({ itemId: docId }, 'order', false);
     expect(results.map(r => r.id)).toEqual([
       comment4,
@@ -228,7 +231,7 @@ describe('comments service', () => {
     ]);
     expect(results.map(r => r.order)).toEqual([-1, -1, 0, 1, 2]);
 
-    commentsService.reorderComments(results, 0, 3);
+    docAnnotationsService.reorderComments(results, 0, 3);
 
     results = fetchCommentsQuery.getResults({ itemId: docId }, 'order', false);
     expect(results.map(r => r.id)).toEqual([
@@ -248,15 +251,15 @@ describe('comments service', () => {
       return fetchCommentsQuery.getResults({ itemId: docId }, 'order', false);
     }
     let results = getResults();
-    const comment1 = commentsService.addComment(docId, results.length);
+    const comment1 = docAnnotationsService.addComment(docId, results.length);
     results = getResults();
-    const comment2 = commentsService.addComment(docId, results.length);
+    const comment2 = docAnnotationsService.addComment(docId, results.length);
     results = getResults();
-    const comment3 = commentsService.addComment(docId, results.length);
+    const comment3 = docAnnotationsService.addComment(docId, results.length);
     results = getResults();
-    const comment4 = commentsService.addComment(docId, results.length);
+    const comment4 = docAnnotationsService.addComment(docId, results.length);
     results = getResults();
-    const comment5 = commentsService.addComment(docId, results.length);
+    const comment5 = docAnnotationsService.addComment(docId, results.length);
     vi.advanceTimersByTime(100);
 
     results = getResults();
@@ -273,12 +276,15 @@ describe('comments service', () => {
 
   it('should reset conflict on content edit', () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const comment1 = commentsService.addComment(docId);
-    space.setCell('comments', comment1, 'conflict', 'conflict-id');
+    const comment1 = docAnnotationsService.addComment(docId);
+    space.setCell(DOC_ANNOTATION_TABLE, comment1, 'conflict', 'conflict-id');
 
-    expect(commentsService.isConflict(comment1));
+    expect(docAnnotationsService.isConflict(comment1));
 
-    commentsService.editComment(comment1, JSON.parse(getNewContent('test')));
-    expect(!commentsService.isConflict(comment1));
+    docAnnotationsService.editComment(
+      comment1,
+      JSON.parse(getNewContent('test'))
+    );
+    expect(!docAnnotationsService.isConflict(comment1));
   });
 });

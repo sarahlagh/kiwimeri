@@ -6,7 +6,10 @@ import {
 } from '@/constants';
 import { SpaceType } from '@/core/db/store-schema';
 import notebooksService from '@/db/notebooks.service';
-import { SyncableComment } from '@/domain/comments/model';
+import {
+  DOC_ANNOTATION_TABLE,
+  SyncableAnnotation
+} from '@/domain/document-annotations/model';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeOn, LocalChangeType } from '@/domain/local-changes/model';
 import { Row, Table } from 'tinybase/store';
@@ -61,12 +64,12 @@ class CollectionOrphanPolicy extends OrphanPolicy<CollectionItem> {
 }
 export const collectionOrphanPolicy = new CollectionOrphanPolicy();
 
-class CommentsOrphanPolicy extends OrphanPolicy<SyncableComment> {
+class AnnotsOrphanPolicy extends OrphanPolicy<SyncableAnnotation> {
   constructor() {
-    super('comments');
+    super(DOC_ANNOTATION_TABLE);
   }
   public isOrphan(
-    item: SyncableComment,
+    item: SyncableAnnotation,
     newTableAfterPull: Table,
     localContent: Content<SpaceType>
   ): boolean {
@@ -79,4 +82,4 @@ class CommentsOrphanPolicy extends OrphanPolicy<SyncableComment> {
     delete newTableAfterPull[id];
   }
 }
-export const commentsOrphanPolicy = new CommentsOrphanPolicy();
+export const annotsOrphanPolicy = new AnnotsOrphanPolicy();

@@ -19,13 +19,16 @@ import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import remotesService from '@/db/remotes.service';
 import userSettingsService from '@/db/user-settings.service';
-import { commentsService } from '@/domain/comments/comments.service';
-import {
-  minimizeCommentsForStorage,
-  unminimizeCommentsFromStorage
-} from '@/domain/comments/compress-comments';
-import { SyncableComment } from '@/domain/comments/model';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
+import {
+  minimizeAnnotForStorage,
+  unminimizeAnnotFromStorage
+} from '@/domain/document-annotations/compress-annotations';
+import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
+import {
+  DOC_ANNOTATION_TABLE,
+  SyncableAnnotation
+} from '@/domain/document-annotations/model';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import { PCloudDriver } from '@/remote-storage/storage-drivers/pcloud/pcloud.driver';
@@ -65,12 +68,12 @@ const reInitRemoteData = async (
   updateTs?: number,
   values?: SpaceValues
 ) => {
-  return reInitRemoteDataWithComments(items, undefined, updateTs, values);
+  return reInitRemoteDataWithAnnots(items, undefined, updateTs, values);
 };
 
-const reInitRemoteDataWithComments = async (
+const reInitRemoteDataWithAnnots = async (
   items: CollectionItem[],
-  comments?: SyncableComment[],
+  annots?: SyncableAnnotation[],
   updateTs?: number,
   values?: SpaceValues
 ) => {
@@ -82,16 +85,10 @@ const reInitRemoteDataWithComments = async (
       valuesLastUpdatedAt: 0
     };
   }
-  console.debug(
-    '[reInitRemoteData]',
-    items,
-    comments,
-    values,
-    lastRemoteChange
-  );
+  console.debug('[reInitRemoteData]', items, annots, values, lastRemoteChange);
   const remoteContent: RemoteCollectionFileContent = {
     i: minimizeItemsForStorage(items) as MinimizedCollectionItem[],
-    c: minimizeCommentsForStorage(comments || []),
+    a: minimizeAnnotForStorage(annots || []),
     u: lastRemoteChange,
     o: values
   };
@@ -117,8 +114,8 @@ const getRemoteContent = async () => {
   const parsed = JSON.parse(content);
   return {
     items: unminimizeItemsFromStorage(parsed.i as CollectionItem[]),
-    comments: unminimizeCommentsFromStorage(
-      (parsed.c as SyncableComment[]) || []
+    comments: unminimizeAnnotFromStorage(
+      (parsed.c as SyncableAnnotation[]) || []
     ),
     values: parsed.o as SpaceValuesType
   };
@@ -720,8 +717,8 @@ describe.sequential(
     describe(`tests with comments`, () => {
       test('synchronizer should push comments', async () => {
         const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-        const commentId = commentsService.addComment(docId);
-        commentsService.editComment(
+        const commentId = docAnnotationsService.addComment(docId);
+        docAnnotationsService.editComment(
           commentId,
           JSON.parse(getNewContent('test'))
         );
@@ -738,7 +735,7 @@ describe.sequential(
       test('synchronizer should pull comments', async () => {
         const items = [oneNotebook(), oneDocument()];
         const comments = [oneComment(items[1].id!)];
-        await reInitRemoteDataWithComments(
+        await reInitRemoteDataWithAnnots(
           items,
           comments || [],
           comments[0].updatedAt,
@@ -751,8 +748,8 @@ describe.sequential(
 
         await amount(100);
 
-        expect(space.getRowCount('comments')).toBe(1);
-        expect(space.hasRow('comments', comments[0].id));
+        expect(space.getRowCount(DOC_ANNOTATION_TABLE)).toBe(1);
+        expect(space.hasRow(DOC_ANNOTATION_TABLE, comments[0].id));
       });
 
       test('synchronizer should merge comments', async () => {
@@ -760,7 +757,7 @@ describe.sequential(
         const comments = [oneComment(items[1].id!)];
         const docId = items[1].id!;
         const commentId = comments[0].id;
-        await reInitRemoteDataWithComments(
+        await reInitRemoteDataWithAnnots(
           items,
           comments,
           comments[0].updatedAt,
@@ -774,7 +771,7 @@ describe.sequential(
         comments[0].order = 2;
         comments[0].order_meta = setFieldMeta('', Date.now());
         comments[0].updatedAt = Date.now();
-        await reInitRemoteDataWithComments(
+        await reInitRemoteDataWithAnnots(
           items,
           comments,
           comments[0].updatedAt,
@@ -783,7 +780,7 @@ describe.sequential(
         await amount(100);
 
         // update locally
-        commentsService.editComment(
+        docAnnotationsService.editComment(
           commentId,
           JSON.parse(getNewContent('test'))
         );
@@ -799,7 +796,7 @@ describe.sequential(
           expect(resp?.comments[0].id).toBe(commentId);
           expect(resp?.comments[0].order).toBe(2);
           expect(resp?.comments[0].content).toBe(
-            space.getCell('comments', commentId, 'content')
+            space.getCell(DOC_ANNOTATION_TABLE, commentId, 'content')
           );
         }
       });

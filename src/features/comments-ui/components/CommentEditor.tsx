@@ -1,6 +1,6 @@
 import KiwimeriEditor from '@/common/wysiwyg/lexical/KiwimeriEditor';
 import { initialContent } from '@/db/collection.service';
-import { commentsService } from '@/domain/comments/comments.service';
+import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
 import { EditorState } from 'lexical';
 
 type CommentEditorProps = {
@@ -9,9 +9,9 @@ type CommentEditorProps = {
 };
 
 const CommentEditor = ({ commentId, editable = true }: CommentEditorProps) => {
-  const content = commentsService.getContent(commentId);
+  const content = docAnnotationsService.getContent(commentId);
   let classNames = `comment-editor`;
-  if (commentsService.isConflict(commentId)) {
+  if (docAnnotationsService.isConflict(commentId)) {
     classNames += ' comment-is-conflict';
   }
   return (
@@ -23,7 +23,7 @@ const CommentEditor = ({ commentId, editable = true }: CommentEditorProps) => {
       enableToolbar={false}
       enableDebugTreeView={false}
       onChange={(editorState: EditorState) => {
-        commentsService.editComment(commentId, editorState.toJSON());
+        docAnnotationsService.editComment(commentId, editorState.toJSON());
       }}
     />
   );

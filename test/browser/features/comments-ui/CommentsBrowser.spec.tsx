@@ -1,6 +1,6 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import collectionService from '@/db/collection.service';
-import { commentsService } from '@/domain/comments/comments.service';
+import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { CommentsBrowser } from '@/features/comments-ui';
 import fetchCommentsQuery from '@/features/comments-ui/queries/fetchCommentsQuery';
@@ -62,10 +62,16 @@ describe('CommentsBrowser', () => {
 
   test('renders a non-empty comments browser', async () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const comment1 = commentsService.addComment(docId);
-    commentsService.editComment(comment1, JSON.parse(getNewContent('test 1')));
-    const comment2 = commentsService.addComment(docId);
-    commentsService.editComment(comment2, JSON.parse(getNewContent('test 2')));
+    const comment1 = docAnnotationsService.addComment(docId);
+    docAnnotationsService.editComment(
+      comment1,
+      JSON.parse(getNewContent('test 1'))
+    );
+    const comment2 = docAnnotationsService.addComment(docId);
+    docAnnotationsService.editComment(
+      comment2,
+      JSON.parse(getNewContent('test 2'))
+    );
 
     const screen = await render(<CommentsBrowser id={docId} />, {
       wrapper: TestingProvider
@@ -87,10 +93,16 @@ describe('CommentsBrowser', () => {
 
   test('opens the last selected comment on render', async () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const comment1 = commentsService.addComment(docId);
-    commentsService.editComment(comment1, JSON.parse(getNewContent('test 1')));
-    const comment2 = commentsService.addComment(docId);
-    commentsService.editComment(comment2, JSON.parse(getNewContent('test 2')));
+    const comment1 = docAnnotationsService.addComment(docId);
+    docAnnotationsService.editComment(
+      comment1,
+      JSON.parse(getNewContent('test 1'))
+    );
+    const comment2 = docAnnotationsService.addComment(docId);
+    docAnnotationsService.editComment(
+      comment2,
+      JSON.parse(getNewContent('test 2'))
+    );
     resumeService.setLastSelectedComment(docId, comment1);
 
     const screen = await render(<CommentsBrowser id={docId} />, {
@@ -121,10 +133,16 @@ describe('CommentsBrowser', () => {
 
   test('select another existing comment', async () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const comment1 = commentsService.addComment(docId);
-    commentsService.editComment(comment1, JSON.parse(getNewContent('test 1')));
-    const comment2 = commentsService.addComment(docId);
-    commentsService.editComment(comment2, JSON.parse(getNewContent('test 2')));
+    const comment1 = docAnnotationsService.addComment(docId);
+    docAnnotationsService.editComment(
+      comment1,
+      JSON.parse(getNewContent('test 1'))
+    );
+    const comment2 = docAnnotationsService.addComment(docId);
+    docAnnotationsService.editComment(
+      comment2,
+      JSON.parse(getNewContent('test 2'))
+    );
     resumeService.setLastSelectedComment(docId, comment1);
 
     const screen = await render(<CommentsBrowser id={docId} />, {
@@ -160,12 +178,15 @@ describe('CommentsBrowser', () => {
   test('toggle comment info', async () => {
     vi.useFakeTimers();
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const comment1 = commentsService.addComment(docId);
+    const comment1 = docAnnotationsService.addComment(docId);
     vi.advanceTimersByTime(100);
-    commentsService.editComment(comment1, JSON.parse(getNewContent('test 1')));
+    docAnnotationsService.editComment(
+      comment1,
+      JSON.parse(getNewContent('test 1'))
+    );
     resumeService.setLastSelectedComment(docId, comment1);
     vi.useRealTimers();
-    const commentInfo = commentsService.getCommentInfo(comment1);
+    const commentInfo = docAnnotationsService.getAnnotInfo(comment1);
 
     const screen = await render(
       <BottomSheet>
@@ -208,10 +229,16 @@ describe('CommentsBrowser', () => {
 
   test('delete the selected comment', async () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const comment1 = commentsService.addComment(docId);
-    commentsService.editComment(comment1, JSON.parse(getNewContent('test 1')));
-    const comment2 = commentsService.addComment(docId);
-    commentsService.editComment(comment2, JSON.parse(getNewContent('test 2')));
+    const comment1 = docAnnotationsService.addComment(docId);
+    docAnnotationsService.editComment(
+      comment1,
+      JSON.parse(getNewContent('test 1'))
+    );
+    const comment2 = docAnnotationsService.addComment(docId);
+    docAnnotationsService.editComment(
+      comment2,
+      JSON.parse(getNewContent('test 2'))
+    );
     resumeService.setLastSelectedComment(docId, comment1);
 
     const screen = await render(
@@ -256,17 +283,26 @@ describe('CommentsBrowser', () => {
       .element(getCommentPreview(screen, 'test 2'))
       .toBeInTheDocument();
 
-    expect(commentsService.getContent(comment1)).toBeUndefined();
+    expect(docAnnotationsService.getContent(comment1)).toBeUndefined();
   });
 
   test('change comments sort order', async () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const comment1 = commentsService.addComment(docId, 0);
-    commentsService.editComment(comment1, JSON.parse(getNewContent('test 1')));
-    const comment2 = commentsService.addComment(docId, 3);
-    commentsService.editComment(comment2, JSON.parse(getNewContent('test 2')));
-    const comment3 = commentsService.addComment(docId, 1);
-    commentsService.editComment(comment3, JSON.parse(getNewContent('test 3')));
+    const comment1 = docAnnotationsService.addComment(docId, 0);
+    docAnnotationsService.editComment(
+      comment1,
+      JSON.parse(getNewContent('test 1'))
+    );
+    const comment2 = docAnnotationsService.addComment(docId, 3);
+    docAnnotationsService.editComment(
+      comment2,
+      JSON.parse(getNewContent('test 2'))
+    );
+    const comment3 = docAnnotationsService.addComment(docId, 1);
+    docAnnotationsService.editComment(
+      comment3,
+      JSON.parse(getNewContent('test 3'))
+    );
 
     const screen = await render(<CommentsBrowser id={docId} />, {
       wrapper: TestingProvider

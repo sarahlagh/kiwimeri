@@ -1,4 +1,7 @@
-import { CommentRow } from '../comments/model';
+import { DocAnnotationRow } from '../document-annotations/model';
 
 export type CollectionItemConflictResult = { conflict: string };
-export type CommentConflictResult = Pick<CommentRow, 'itemId' | 'conflict'>;
+export type AnnotationConflictResult = Pick<
+  DocAnnotationRow,
+  'itemId' | 'conflict'
+>;
