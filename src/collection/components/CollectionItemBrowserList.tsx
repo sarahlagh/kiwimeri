@@ -23,12 +23,12 @@ import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
 import { useStoreValueState } from '@/shared/hooks/useGenericValueState';
 
+import { conflictsService } from '@/domain/conflicts/conflicts-service';
 // eslint-disable-next-line no-restricted-imports
 import useCollectionItemBrowserListResults, {
   BrowserQueryMode,
   browserModes
 } from '@/features/collection-ui/hooks/useCollectionItemBrowserListResults';
-import { syncService } from '@/remote-storage/sync.service';
 import { useLingui } from '@lingui/react/macro';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import ActionsFromBrowserToolbar from './actions/ActionsFromBrowserToolbar';
@@ -142,7 +142,7 @@ export const CollectionItemBrowserList = ({
   const location = useLocation();
   const searchParams = getSearchParams(location.search);
   const openedDocument = searchParams?.document;
-  const hasConflicts = syncService.useHasLocalConflicts();
+  const hasConflicts = conflictsService.useHasLocalConflicts();
 
   const displayOpts = collectionService.useItemEffectiveDisplayOpts(folder);
   const sort = displayOpts.sort;

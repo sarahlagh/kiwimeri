@@ -11,9 +11,12 @@ import {
 } from '@/collection/collection';
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { space, store } from '@/core/db/store';
+import { WithId } from '@/core/db/types';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import { SerializableData } from '@/db/types/store-types';
+import { commentsService } from '@/domain/comments/comments.service';
+import { CommentRow } from '@/domain/comments/model';
 import { Notebook } from '@/notebooks/notebooks';
 import { getUniqueId } from 'tinybase/with-schemas';
 import { expect, vi } from 'vitest';
@@ -81,6 +84,15 @@ export const onePage = (
     itemId: id,
     title: '',
     title_meta: setFieldMeta('', Date.now())
+  };
+};
+
+export const oneComment = (docId: string): WithId<CommentRow> => {
+  if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
+  const id = getUniqueId();
+  return {
+    ...commentsService.newCommentObj(docId).item,
+    id
   };
 };
 

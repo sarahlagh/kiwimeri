@@ -9,8 +9,7 @@ import { space } from '@/core/db/store';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import remotesService from '@/db/remotes.service';
-import fetchItemsConflictsQuery from '@/domain/collection/queries/fetchItemsConflictsQuery';
-import fetchCommentConflictsQuery from '@/domain/comments/queries/fetchCommentConflictsQuery';
+import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
@@ -147,8 +146,7 @@ describe(`sync general test`, () => {
   });
 
   it('should prevent sync when there are conflicts', async () => {
-    fetchItemsConflictsQuery.initQuery();
-    fetchCommentConflictsQuery.initQuery();
+    conflictsService.initConflictQueries();
     // create local item
     const id = adv(() => collectionService.addDocument(DEFAULT_NOTEBOOK_ID));
     // artificially create a conflict
@@ -165,8 +163,7 @@ describe(`sync general test`, () => {
     expect(success);
     expect(didPull);
     expect(!didPush);
-    fetchItemsConflictsQuery.close();
-    fetchCommentConflictsQuery.close();
+    conflictsService.closeConflictQueries();
   });
 
   it('should prevent force push when there are conflicts', async () => {
@@ -197,8 +194,7 @@ describe(`sync general test`, () => {
   });
 
   it('should allow sync once all conflicts are solved', async () => {
-    fetchItemsConflictsQuery.initQuery();
-    fetchCommentConflictsQuery.initQuery();
+    conflictsService.initConflictQueries();
     // create local item
     const id = adv(() => collectionService.addDocument(DEFAULT_NOTEBOOK_ID));
     await syncService.push();
@@ -233,8 +229,7 @@ describe(`sync general test`, () => {
       unmount();
     }
 
-    fetchItemsConflictsQuery.close();
-    fetchCommentConflictsQuery.close();
+    conflictsService.closeConflictQueries();
   });
 });
 

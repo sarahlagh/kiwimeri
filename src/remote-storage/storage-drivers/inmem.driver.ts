@@ -8,6 +8,11 @@ import {
 import { fastHash } from '@/common/utils';
 import { SpaceValues } from '@/core/db/store-schema';
 import { AnyData } from '@/db/types/store-types';
+import {
+  minimizeCommentsForStorage,
+  unminimizeCommentsFromStorage
+} from '@/domain/comments/compress-comments';
+import { SyncableComment } from '@/domain/comments/model';
 import { DriverFileInfo } from '../sync-types';
 import { RemoteCollectionFileContent } from '../synchronizers/collection-synchronizer';
 import { CloudStorageDriver, FileReference } from './abstract.driver';
@@ -158,6 +163,20 @@ export class InMemDriver extends CloudStorageDriver {
     );
   }
 
+  public setCollectionContentWithComments(
+    items: CollectionItem[],
+    comments: SyncableComment[],
+    values: SpaceValues,
+    updated: number
+  ) {
+    return this.setContent({
+      i: minimizeItemsForStorage(items),
+      c: minimizeCommentsForStorage(comments),
+      o: values,
+      u: updated
+    } as RemoteCollectionFileContent);
+  }
+
   public setCollectionContent(
     items: CollectionItem[],
     values: SpaceValues,
@@ -179,9 +198,14 @@ export class InMemDriver extends CloudStorageDriver {
     const obj = JSON.parse(
       this.collection.get(this.config.names[0]) || '{"i":[],"u":0}'
     ) as RemoteCollectionFileContent;
-    const unminimizedObj = { ...obj, i: unminimizeItemsFromStorage(obj.i) };
+    const unminimizedObj = {
+      ...obj,
+      i: unminimizeItemsFromStorage(obj.i),
+      c: unminimizeCommentsFromStorage(obj.c || [])
+    };
     return {
       content: unminimizedObj.i,
+      comments: unminimizedObj.c,
       values: unminimizedObj.o
     };
   }

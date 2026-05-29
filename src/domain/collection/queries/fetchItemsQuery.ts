@@ -5,9 +5,8 @@ import {
 } from '@/collection/collection';
 import { SpaceQueryDefinition } from '@/core/db/queries-helper';
 import { store } from '@/core/db/store';
-import fetchCommentConflictsQuery from '@/domain/comments/queries/fetchCommentConflictsQuery';
+import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import { getAncestorId } from '@/search/search-ancestry.service';
-import fetchItemsConflictsQuery from './fetchItemsConflictsQuery';
 
 export type FetchItemsQueryParam = {
   parent: string;
@@ -52,8 +51,8 @@ const fetchItemsQuery = new SpaceQueryDefinition<
 
   if (params.onlyConflicts) {
     // !! not reactive if conflicts are solved
-    const itemsConflicts = fetchItemsConflictsQuery.getResults({});
-    const commentConflicts = fetchCommentConflictsQuery.getResults({});
+    const { itemsConflicts, commentConflicts } =
+      conflictsService.getConflicts();
     where(getCell => {
       const id = getCell('itemId')!;
       const isConflict = getCell('conflict') !== undefined;

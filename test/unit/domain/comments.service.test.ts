@@ -271,4 +271,15 @@ describe('comments service', () => {
 
     expect(results.map(r => r.order)).toEqual([0, 1, 2, 3, 4]);
   });
+
+  it('should reset conflict on content edit', () => {
+    const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+    const comment1 = commentsService.addComment(docId);
+    space.setCell('comments', comment1, 'conflict', 'conflict-id');
+
+    expect(commentsService.isConflict(comment1));
+
+    commentsService.editComment(comment1, JSON.parse(getNewContent('test')));
+    expect(!commentsService.isConflict(comment1));
+  });
 });

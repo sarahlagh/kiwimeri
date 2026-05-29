@@ -3,8 +3,7 @@ import SyncRemoteButton from '@/common/buttons/SyncRemoteButton';
 import { plt } from '@/core/infra/platform';
 import collectionService from '@/db/collection.service';
 import navService from '@/db/nav.service';
-import fetchItemsConflictsQuery from '@/domain/collection/queries/fetchItemsConflictsQuery';
-import fetchCommentConflictsQuery from '@/domain/comments/queries/fetchCommentConflictsQuery';
+import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import { syncService } from '@/remote-storage/sync.service';
 import {
   InputCustomEvent,
@@ -40,12 +39,11 @@ const MainHeader = ({
   const isMergeSyncEnabled = syncService.useIsMergeSyncEnabled();
   const hasChanges = syncService.usePrimaryHasLocalChanges();
   const hasRemoteChanges = syncService.usePrimaryHasRemoteChanges();
-  const hasConflicts = syncService.useHasLocalConflicts();
+  const hasConflicts = conflictsService.useHasLocalConflicts();
   const enabled = !isSyncing && isMergeSyncEnabled;
 
   useEffect(() => {
-    fetchItemsConflictsQuery.initQuery();
-    fetchCommentConflictsQuery.initQuery();
+    conflictsService.initConflictQueries();
   }, []);
 
   function getColor() {

@@ -1,6 +1,6 @@
 import { CollectionItemResult } from '@/collection/collection';
 import { useQueryResults } from '@/core/db/queries-helper';
-import fetchCommentConflictsQuery from '@/domain/comments/queries/fetchCommentConflictsQuery';
+import fetchCommentConflictsQuery from '@/domain/conflicts/queries/fetchCommentConflictsQuery';
 
 export default function useItemsConflictMixIn(items: CollectionItemResult[]) {
   const commentConflicts = useQueryResults(fetchCommentConflictsQuery);

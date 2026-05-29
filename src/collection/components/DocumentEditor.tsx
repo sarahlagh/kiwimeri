@@ -7,9 +7,9 @@ import { serializeSelection } from '@/common/wysiwyg/lexical/selection-serialize
 import CollectionPagesBrowser from '@/common/wysiwyg/pages-browser/CollectionPagesBrowser';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
+import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { statsService } from '@/domain/stats/stats-service';
-import { syncService } from '@/remote-storage/sync.service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import {
   InputCustomEvent,
@@ -50,7 +50,7 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
     const [openPageBrowser, setOpenPageBrowser] = useState(false);
     const [toggleSearch, setToggleSearch] = useState(false);
     const [toggleSearchAutoFocus, setToggleSearchAutoFocus] = useState(true);
-    const hasConflicts = syncService.useHasLocalConflicts();
+    const hasConflicts = conflictsService.useHasLocalConflicts();
     // TODO refactor
     useEffect(() => {
       setShowDocumentActions(showActions);

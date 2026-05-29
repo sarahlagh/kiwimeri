@@ -1,9 +1,7 @@
 import platformService from '@/common/services/platform.service';
-import { useQueryResults } from '@/core/db/queries-helper';
 import remotesService from '@/db/remotes.service';
 import { useCellWithRef } from '@/db/tinybase/hooks';
-import fetchItemsConflictsQuery from '@/domain/collection/queries/fetchItemsConflictsQuery';
-import fetchCommentConflictsQuery from '@/domain/comments/queries/fetchCommentConflictsQuery';
+import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import { useHasLocalChanges } from '@/features/local-changes-ui';
 
 export type SyncDirection = 'sync' | 'force-push' | 'force-pull';
@@ -99,15 +97,9 @@ class SyncService {
     return lastPulled < lastRemoteChange;
   }
 
-  public useHasLocalConflicts() {
-    const collectionConflicts = useQueryResults(fetchItemsConflictsQuery);
-    const commentConflicts = useQueryResults(fetchCommentConflictsQuery);
-    return collectionConflicts.length > 0 || commentConflicts.length > 0;
-  }
-
   public useIsMergeSyncEnabled() {
     const isConnected = this.usePrimaryConnected();
-    const hasConflicts = this.useHasLocalConflicts();
+    const hasConflicts = conflictsService.useHasLocalConflicts();
     // const onlyForcePush = useStoreValueWithDefault('onlyForcePush', false);
     return isConnected && !hasConflicts; // && !onlyForcePush;
   }

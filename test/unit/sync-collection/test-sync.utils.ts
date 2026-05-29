@@ -4,6 +4,7 @@ import { space } from '@/core/db/store';
 import { SpaceValues } from '@/core/db/store-schema';
 import { historyService } from '@/db/collection-history.service';
 import remotesService from '@/db/remotes.service';
+import { SyncableComment } from '@/domain/comments/model';
 import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
 import { SyncDirection, syncService } from '@/remote-storage/sync.service';
 import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';
@@ -54,6 +55,15 @@ export const reInitRemoteData = async (
   updateTs?: number,
   values?: SpaceValues
 ) => {
+  return reInitRemoteDataWithComments(items, undefined, updateTs, values);
+};
+
+export const reInitRemoteDataWithComments = async (
+  items: CollectionItem[],
+  comments?: SyncableComment[],
+  updateTs?: number,
+  values?: SpaceValues
+) => {
   vi.advanceTimersByTime(fakeTimersDelay);
   // parent update doesn't set the row update ts, so... parent_meta ts might be > i.updated
   // this is a test problem, lastLocalChange is supposed to be updated by localChanges service
@@ -73,8 +83,13 @@ export const reInitRemoteData = async (
       valuesLastUpdatedAt: 0
     };
   }
-  console.debug('[reInitRemoteData]', items, values, lastLocalChange);
-  await driver.setCollectionContent(items, values, lastLocalChange);
+  console.debug('[reInitRemoteData]', items, comments, values, lastLocalChange);
+  await driver.setCollectionContentWithComments(
+    items,
+    comments || [],
+    values,
+    lastLocalChange
+  );
   vi.advanceTimersByTime(fakeTimersDelay);
 };
 

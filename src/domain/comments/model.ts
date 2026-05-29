@@ -29,8 +29,6 @@ export const sortBy = ['createdAt', 'order'] as const;
 export type CommentSortType = (typeof sortBy)[number];
 export type CommentSort = Sort<CommentSortType>;
 
-export type CommentConflictResult = Pick<CommentRow, 'itemId' | 'conflict'>;
-
 export type SyncableComment = {
   id: string;
 } & Omit<CommentRow, 'plainText'>;

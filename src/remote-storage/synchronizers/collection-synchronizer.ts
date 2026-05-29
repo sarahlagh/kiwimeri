@@ -33,6 +33,7 @@ import {
   unminimizeCommentsFromStorage
 } from '@/domain/comments/compress-comments';
 import { CommentRow, SyncableComment } from '@/domain/comments/model';
+import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import {
   startLocalChangesListeners,
   stopLocalChangesListeners
@@ -123,7 +124,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       console.log(`[collection][push] nothing to push`);
       return { success: true, didPush };
     }
-    if (collectionService.getConflicts().length > 0) {
+    if (conflictsService.getHasLocalConflicts()) {
       console.log(
         `[collection][push] found local conflicts; pushing is not allowed`
       );

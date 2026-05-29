@@ -1,6 +1,12 @@
 import { store } from '@/core/db/store';
 import { useStoreRowCount } from '@/core/db/tinybase-hooks';
+import { useEffect, useState } from 'react';
 
 export default function useHasLocalChanges() {
-  return useStoreRowCount('localChanges', store) > 0;
+  const [hasAnyRow, setHasAnyRow] = useState(false);
+  const rowCount = useStoreRowCount('localChanges', store);
+  useEffect(() => {
+    setHasAnyRow(rowCount > 0);
+  }, [rowCount]);
+  return hasAnyRow;
 }
