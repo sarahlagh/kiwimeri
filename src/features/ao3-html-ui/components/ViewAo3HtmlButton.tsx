@@ -19,7 +19,7 @@ const ViewAo3HtmlButton = ({ id, onClose }: ViewAo3HtmlProps) => {
     <IonButton
       onClick={() => {
         present({
-          cssClass: 'keyboard-aware-modal',
+          cssClass: 'fixed-width-modal',
           onDidDismiss: () => {
             if (onClose) {
               onClose();

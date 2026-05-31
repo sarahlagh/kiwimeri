@@ -93,7 +93,7 @@ const WritingSession = () => {
       }}
       onSave={content => {
         store.setValue('tempDoc', content);
-        present({ cssClass: 'keyboard-aware-modal' }); // show "save somewhere" modal
+        present({ cssClass: 'fixed-width-modal' }); // show "save somewhere" modal
       }}
     />
   );

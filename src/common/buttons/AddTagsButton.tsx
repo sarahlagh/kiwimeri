@@ -28,7 +28,7 @@ const AddTagsButton = ({ id }: AddTagsButtonProps) => {
         fill="clear"
         onClick={() => {
           present({
-            cssClass: 'keyboard-aware-modal'
+            cssClass: 'fixed-width-modal'
           });
         }}
       >

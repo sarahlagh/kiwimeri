@@ -256,7 +256,7 @@ const DeepSearchButton = ({
       id={id}
       onClick={() => {
         present({
-          cssClass: 'keyboard-aware-modal',
+          cssClass: 'fixed-width-modal',
           onDidDismiss: event => {
             if (event.detail.data) {
               const { searchResult, searchText } = event.detail

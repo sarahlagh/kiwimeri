@@ -194,7 +194,7 @@ const ManageHistoryButton = ({
     <IonButton
       onClick={() => {
         present({
-          cssClass: 'keyboard-aware-modal',
+          cssClass: 'fixed-width-modal',
           onDidDismiss: event => {
             if (event.detail.role === 'goToVersion' && event.detail.data) {
               const version = event.detail.data as string;

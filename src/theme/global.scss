@@ -21,6 +21,14 @@ http://ionicframework.com/docs/theming/ */
   background-color: var(--search-color);
 }
 
+// modals
+
+@media (min-width: 992px) {
+  ion-modal.fixed-width-modal::part(content) {
+    width: 600px;
+  }
+}
+
 // TODO cleanup
 
 ion-toolbar.slim {

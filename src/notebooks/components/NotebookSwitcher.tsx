@@ -24,7 +24,7 @@ const NotebookSwitcher = () => {
       expand="block"
       onClick={() => {
         present({
-          cssClass: 'keyboard-aware-modal'
+          cssClass: 'fixed-width-modal'
         });
       }}
     >
