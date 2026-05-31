@@ -30,6 +30,11 @@
       position: fixed;
       top: 8px;
       left: 42px;
+      width: calc(100% - 80px);
+      overflow-x: hidden;
+      p {
+        text-wrap-mode: nowrap;
+      }
     }
 
     .note-actions {
