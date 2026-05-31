@@ -1,3 +1,9 @@
+.bottom-sheet.notes {
+  .bottom-sheet-card {
+    background: var(--editor-background);
+  }
+}
+
 .note-browser {
   display: flex;
   height: 100%;
@@ -14,7 +20,8 @@
 
   .note-area {
     flex-grow: 3;
-    padding-top: 8px;
+    padding-top: 4px;
+    padding-right: 4px;
     width: 80%;
     height: 100%;
 
@@ -28,7 +35,7 @@
 
     .note-info {
       position: fixed;
-      top: 8px;
+      top: 6px;
       left: 42px;
       width: calc(100% - 80px);
       overflow-x: hidden;
@@ -70,6 +77,10 @@
 
   .note-menu {
     width: 20%;
+
+    ion-list {
+      background: var(--editor-background);
+    }
 
     .note-actions-bar {
       height: 28px;

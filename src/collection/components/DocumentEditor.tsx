@@ -189,6 +189,7 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
           <DocumentBottomSheet
             id={pageId ? pageId : docId}
             select={bottomSheet}
+            className={bottomSheet}
             onCloseSelf={() => {
               setShowBottomSheet(false);
             }}

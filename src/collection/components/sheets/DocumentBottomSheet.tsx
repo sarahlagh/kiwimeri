@@ -7,6 +7,7 @@ export type DocSheet = 'info' | 'notes' | 'stats';
 type DocumentBottomSheetProps = {
   id: string;
   select: DocSheet;
+  className?: string;
   onCloseSelf?: () => void;
 };
 
@@ -52,10 +53,11 @@ const DocumentBottomSheetSwitcher = ({
 const DocumentBottomSheet = ({
   id,
   select = 'info',
+  className,
   onCloseSelf
 }: DocumentBottomSheetProps) => {
   return (
-    <BottomSheet onCloseSelf={onCloseSelf}>
+    <BottomSheet onCloseSelf={onCloseSelf} classNames={className}>
       <DocumentBottomSheetSwitcher id={id} select={select} />
     </BottomSheet>
   );

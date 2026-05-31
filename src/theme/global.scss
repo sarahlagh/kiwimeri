@@ -1,6 +1,28 @@
 /* For information on how to create your own theme, please see:
 http://ionicframework.com/docs/theming/ */
 
+:root {
+  --search-color: #22f3bc;
+  --diff-added-color: green;
+  --diff-removed-color: red;
+  --editor-background: #f5f5f3;
+  --editor-text-color: #2e2e2e;
+}
+
+.ion-palette-dark {
+  --search-color: #004634;
+  --editor-background: #1f1f23;
+  --editor-text-color: #c9ccd1;
+}
+
+::highlight(kiwimeri-search-results),
+::highlight(kiwimeri-content-search-results),
+::highlight(kiwimeri-deep-search-results) {
+  background-color: var(--search-color);
+}
+
+// TODO cleanup
+
 ion-toolbar.slim {
   --min-height: 36px;
 }
@@ -81,20 +103,4 @@ ion-modal.auto-height {
 
 ion-popover.larger-width {
   --width: 70%;
-}
-
-:root {
-  --search-color: #22f3bc;
-  --diff-added-color: green;
-  --diff-removed-color: red;
-}
-
-.ion-palette-dark {
-  --search-color: #004634;
-}
-
-::highlight(kiwimeri-search-results),
-::highlight(kiwimeri-content-search-results),
-::highlight(kiwimeri-deep-search-results) {
-  background-color: var(--search-color);
 }
