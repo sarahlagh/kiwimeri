@@ -31,6 +31,10 @@ export type KiwimeriLexTransformer = {
 export class KiwimeriLexConverter {
   constructor(protected transformers: KiwimeriLexTransformer[]) {}
 
+  public parseSimpleLexNode(node: SerializedLexicalNode, opts?: unknown) {
+    return this.parseLexNode(null, 0, 0, node, opts);
+  }
+
   public parseLexNode(
     parent: SerializedElementNode | null,
     indexInParent: number,

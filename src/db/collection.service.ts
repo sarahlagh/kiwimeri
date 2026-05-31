@@ -24,9 +24,6 @@ import {
 import { DEFAULT_ORDER, getGlobalTrans, ROOT_COLLECTION } from '@/constants';
 import { space, spaceQueries } from '@/core/db/store';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
-import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
-import { DocAnnotationRow } from '@/domain/document-annotations/model';
-import { statsService } from '@/domain/stats/stats-service';
 import { SerializedEditorState } from 'lexical';
 import { getUniqueId } from 'tinybase/common';
 import { Id } from 'tinybase/common/with-schemas';
@@ -867,123 +864,6 @@ class CollectionService {
         space.setCell(this.tableId, breadcrumb[i], 'updated', Date.now());
       }
     });
-  }
-
-  public explodeToDocuments(docId: string, createNewGroup = true) {
-    const pages = this.getDocumentPages(docId, {
-      by: 'order',
-      descending: false
-    });
-    if (pages.length === 0) return;
-    let parent = this.getItemParent(docId);
-
-    if (createNewGroup) {
-      const title = this.getItemTitle(docId);
-      let opts: CollectionItemDisplayOpts = {
-        sort: {
-          by: 'order',
-          descending: false
-        },
-        statsEnabled: userSettingsService.getDefaultDisplayOpts().statsEnabled
-      };
-
-      // if document had sort, use it
-      const str = space.getCell(this.tableId, docId, 'display_opts');
-      if (str) {
-        const itemOpts = this.parseDisplayOpts(str as string);
-        if (itemOpts) {
-          opts = itemOpts;
-        }
-      }
-
-      const { item } = this.getNewFolderObj(parent);
-      item.title = title;
-      item.display_opts = JSON.stringify(opts);
-      item.display_opts_meta = setFieldMeta(item.display_opts, Date.now());
-      parent = this.saveItem(item);
-      this.setItemParent(docId, parent);
-    }
-
-    const title = this.getItemTitle(docId);
-    const now = Date.now();
-    const newDocs: CollectionItem[] = [];
-    pages.forEach((p, idx) => {
-      const pageObj = this.getItem(p.id);
-      const newDoc = { ...pageObj };
-      newDoc.type = CollectionItemType.document;
-      newDoc.parent = parent;
-      const pageTitle = `${title} (${idx + 1})`;
-      newDoc.title = pageTitle;
-      newDoc.title_meta = setFieldMeta(pageTitle, now);
-      newDoc.order = idx + 1;
-      newDocs.push(newDoc);
-    });
-    this.saveItems(newDocs, parent, true);
-    space.setCell('collection', docId, 'order', 0);
-    historyService.saveWholeDocumentVersion(docId, true);
-    newDocs.forEach(doc => {
-      historyService.saveWholeDocumentVersion(doc.id!, true);
-    });
-  }
-
-  public explodeToNotes(docId: string) {
-    const pages = this.getDocumentPages(docId, {
-      by: 'order',
-      descending: false
-    });
-    if (pages.length === 0) return;
-    const newNotes: DocAnnotationRow[] = [];
-    pages.forEach(p => {
-      const pageObj = this.getItem(p.id);
-      const item: DocAnnotationRow = {
-        type: 'note',
-        itemId: docId,
-        content: pageObj.content as string,
-        content_meta: pageObj.content_meta as string,
-        createdAt: pageObj.created,
-        updatedAt: pageObj.updated,
-        plainText: searchAncestryService.getItemPreview(p.id),
-        order: pageObj.order,
-        order_meta: pageObj.order_meta
-      };
-      newNotes.push(item);
-    });
-    docAnnotationsService.saveNotes(docId, newNotes);
-    // if document had sort, set noteSort
-    const str = space.getCell(this.tableId, docId, 'display_opts');
-    if (str) {
-      const itemOpts = this.parseDisplayOpts(str as string);
-      if (
-        itemOpts &&
-        (itemOpts.sort.by === 'created' || itemOpts.sort.by === 'order')
-      ) {
-        itemOpts.documentSort = {
-          by: itemOpts.sort.by === 'created' ? 'createdAt' : 'order',
-          descending: itemOpts.sort.descending
-        };
-        this.setItemDisplayOpts(docId, itemOpts);
-      }
-    }
-
-    // cleanup
-    const docVersions = historyService.getVersions(docId);
-    space.transaction(() => {
-      pages.forEach(p => {
-        const stats = statsService.getDataPoints(p.id);
-        space.delRow('stats', p.id);
-        stats.forEach(dp => {
-          const rowId = `${p.id}-${dp.date}`;
-          space.delRow('stats', rowId);
-        });
-        historyService.hardDeleteVersions(p.id);
-        space.delRow('collection', p.id);
-        space.delRow('document_resume_state', p.id);
-      });
-      docVersions.forEach(v => {
-        space.delCell('history', v.id, 'pageVersionsArrayJson');
-      });
-    });
-    historyService.saveWholeDocumentVersion(docId, true);
   }
 }
 

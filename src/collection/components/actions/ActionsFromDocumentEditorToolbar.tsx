@@ -12,6 +12,7 @@ import collectionService from '@/db/collection.service';
 import navService from '@/db/nav.service';
 import userSettingsService from '@/db/user-settings.service';
 import { ViewAo3HtmlButton } from '@/features/ao3-html-ui';
+import pageMigrationService from '@/page-migration/page-migration.service';
 import {
   IonAlert,
   IonButton,
@@ -52,7 +53,7 @@ const ActionsFromDocumentEditorToolbar = ({
   const showStats = statsEnabled && showInfo;
   return (
     <IonToolbar color="medium" style={{ height: 56 + 'px' }}>
-      <IonButtons slot="end">
+      <IonButtons slot="end" style={{ overflowX: 'auto' }}>
         {showMoveFolder && <MoveFolderButton id={id} onClose={onClose} />}
         <ExportItemsButton id={id} type={type} onClose={onClose} />
         <ViewAo3HtmlButton id={id} onClose={onClose} />
@@ -89,9 +90,9 @@ const ActionsFromDocumentEditorToolbar = ({
                   role: 'confirm',
                   handler: value => {
                     if (value === 'to-docs') {
-                      collectionService.explodeToDocuments(id, true);
+                      pageMigrationService.explodeToDocuments(id, true, true);
                     } else if (value === 'to-notes') {
-                      collectionService.explodeToNotes(id);
+                      pageMigrationService.explodeToNotes(id);
                     }
                   }
                 }

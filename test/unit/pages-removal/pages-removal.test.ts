@@ -8,9 +8,16 @@ import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import { statsService } from '@/domain/stats/stats-service';
 import fetchNotesQuery from '@/features/notes-ui/queries/fetchNotesQuery';
+import pageMigrationService from '@/page-migration/page-migration.service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
-import { adv, getNewContent } from '@@/_setup/test.utils';
+import { adv } from '@@/_setup/test.utils';
 import { describe, it, vi } from 'vitest';
+
+const getNewContent = (text: string, heading?: string) => {
+  if (!heading)
+    return `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"${text}","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`;
+  return `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"${heading}","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"heading","version":1,"textFormat":0,"textStyle":""},{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"${text}","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`;
+};
 
 function createDocWithHistory() {
   const pageIds: string[] = [];
@@ -22,7 +29,7 @@ function createDocWithHistory() {
   adv(() => {
     collectionService.setItemLexicalContent(
       docId,
-      JSON.parse(getNewContent('doc content'))
+      JSON.parse(getNewContent('doc content', 'actual doc title'))
     );
   });
   adv(() => {
@@ -31,7 +38,9 @@ function createDocWithHistory() {
   adv(() => {
     collectionService.setItemLexicalContent(
       pageIds[0],
-      JSON.parse(getNewContent('page 0 content'))
+      JSON.parse(
+        getNewContent('page 0 content', 'actual new doc from page title')
+      )
     );
   });
   adv(() => {
@@ -94,10 +103,16 @@ function assertDocAndPagesExist(docId: string, pageIds: string[]) {
 function assertDocsPostExplode(
   docId: string,
   pageIds: string[],
-  newParent: string
+  newParent: string,
+  useHeadings: boolean
 ) {
   expect(collectionService.getDocumentPages(docId)).toHaveLength(0);
   expect(collectionService.getItem(docId).order).toBe(0);
+  if (!useHeadings) {
+    expect(collectionService.getItemTitle(docId)).toBe('my title');
+  } else {
+    expect(collectionService.getItemTitle(docId)).toBe('actual doc title');
+  }
 
   // pages were converted
   pageIds.forEach(pId => {
@@ -114,7 +129,11 @@ function assertDocsPostExplode(
   expect(newDoc1.title).toBe('my title (2)');
   expect(newDoc1.order).toBe(2);
   const newDoc2 = collectionService.getItem(pageIds[0]);
-  expect(newDoc2.title).toBe('my title (3)');
+  if (!useHeadings) {
+    expect(newDoc2.title).toBe('my title (3)');
+  } else {
+    expect(newDoc2.title).toBe('actual new doc from page title');
+  }
   expect(newDoc2.order).toBe(3);
 
   // localChanges created
@@ -156,7 +175,12 @@ function assertDocsPostExplode(
   // versions followed pages
   const page0Versions = historyService.getVersions(pageIds[0]);
   expect(page0Versions).toHaveLength(3); // + 1
-  expect(page0Versions[0].content).toBe(page0Versions[1].content);
+  if (!useHeadings) {
+    expect(page0Versions[0].content).toBe(page0Versions[1].content);
+  } else {
+    expect(page0Versions[0].content).not.toBe(page0Versions[1].content);
+  }
+
   expect(page0Versions[0].pageVersionsArrayJson).toBeUndefined();
   expect(page0Versions[0].snapshotJson.parent).toBe(newParent);
   const page1Versions = historyService.getVersions(pageIds[1]);
@@ -246,10 +270,13 @@ describe('page removal test', () => {
   });
 
   it('should explode document properly (with folder creation)', () => {
+    const useHeadings = false;
     const { docId, pageIds } = createDocWithHistory();
     assertDocAndPagesExist(docId, pageIds);
 
-    adv(() => collectionService.explodeToDocuments(docId, true));
+    adv(() =>
+      pageMigrationService.explodeToDocuments(docId, true, useHeadings)
+    );
 
     // check what happened
 
@@ -262,19 +289,34 @@ describe('page removal test', () => {
 
     const localChanges = localChangesService.getLocalChanges();
     expect(localChanges).toHaveLength(5); // folder creation + doc update + pages updates (x3)
-    assertDocsPostExplode(docId, pageIds, newParent);
+    assertDocsPostExplode(docId, pageIds, newParent, useHeadings);
   });
 
   it('should explode document properly (without folder creation)', () => {
+    const useHeadings = false;
     const { docId, pageIds } = createDocWithHistory();
     assertDocAndPagesExist(docId, pageIds);
 
-    adv(() => collectionService.explodeToDocuments(docId, false));
+    adv(() =>
+      pageMigrationService.explodeToDocuments(docId, false, useHeadings)
+    );
 
     // check what happened
     const localChanges = localChangesService.getLocalChanges();
     expect(localChanges).toHaveLength(4); // doc update + pages updates (x3)
-    assertDocsPostExplode(docId, pageIds, DEFAULT_NOTEBOOK_ID);
+    assertDocsPostExplode(docId, pageIds, DEFAULT_NOTEBOOK_ID, useHeadings);
+  });
+
+  it('should explode document and take first heading of pages as title', () => {
+    const { docId, pageIds } = createDocWithHistory();
+    assertDocAndPagesExist(docId, pageIds);
+
+    adv(() => pageMigrationService.explodeToDocuments(docId, false, true));
+
+    // check what happened
+    const localChanges = localChangesService.getLocalChanges();
+    expect(localChanges).toHaveLength(4); // doc update + pages updates (x3)
+    assertDocsPostExplode(docId, pageIds, DEFAULT_NOTEBOOK_ID, true);
   });
 
   it('should turn pages to notes properly', () => {
@@ -283,7 +325,7 @@ describe('page removal test', () => {
 
     const pages = collectionService.getDocumentPages(docId);
 
-    adv(() => collectionService.explodeToNotes(docId));
+    adv(() => pageMigrationService.explodeToNotes(docId));
 
     // check what happened
     assertNotesPostExplode(docId, pageIds, pages);
