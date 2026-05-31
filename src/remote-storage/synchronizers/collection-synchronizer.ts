@@ -15,7 +15,12 @@ import {
 import { nOr0 } from '@/common/utils';
 import { appConfig } from '@/config';
 import { space, store } from '@/core/db/store';
-import { SpaceType, SpaceValues } from '@/core/db/store-schema';
+import {
+  SpaceTableId,
+  SpaceTablesType,
+  SpaceType,
+  SpaceValues
+} from '@/core/db/store-schema';
 import { TypeWithId, WithId } from '@/core/db/types';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
@@ -49,7 +54,7 @@ import {
 } from '@/domain/local-changes/model';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { Table as UntypedTable } from 'tinybase';
-import { Content } from 'tinybase/store/with-schemas';
+import { Content, Table } from 'tinybase/store/with-schemas';
 import { CloudStorageDriver } from '../storage-drivers/abstract.driver';
 import { SingleFileStorage } from '../storage-filesystems/singlefile.filesystem';
 import { AfterSyncHistChange } from '../sync-types';
@@ -215,11 +220,25 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     return { success: false, didPull };
   }
 
+  private setTable(
+    tableName: SpaceTableId,
+    table?: Table<SpaceTablesType, SpaceTableId, true>
+  ) {
+    if (table && Object.keys(table).length === 0) {
+      space.delTable(tableName);
+    }
+    if (table) {
+      space.setTable(tableName, table);
+    }
+  }
+
   private setContent(content: Content<SpaceType, false>) {
     stopLocalChangesListeners();
-    space.setTable('collection', content[0].collection!);
-    space.setTable(DOC_ANNOTATION_TABLE, content[0].document_annotation!);
-    space.setValues(content[1]);
+    space.transaction(() => {
+      this.setTable('collection', content[0].collection);
+      this.setTable(DOC_ANNOTATION_TABLE, content[0].document_annotation);
+      space.setValues(content[1]);
+    });
     startLocalChangesListeners();
   }
 

@@ -26,7 +26,7 @@ import {
   oneNotebook,
   wrappedRenderHook
 } from '@@/_setup/test.utils';
-import { describe } from 'vitest';
+import { describe, it } from 'vitest';
 import { defaultValues } from './test-sync.utils';
 
 const driver = new InMemDriver();
@@ -60,7 +60,7 @@ describe('collection synchronizer', () => {
   });
 
   describe('should merge restored items', () => {
-    test('should merge restored items', async () => {
+    it('should merge restored items', async () => {
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       collectionService.setItemLexicalContent(
         docId,
@@ -101,7 +101,7 @@ describe('collection synchronizer', () => {
       }
     });
 
-    test('should merge deleted then restored items in same session', async () => {
+    it('should merge deleted then restored items in same session', async () => {
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       collectionService.setItemLexicalContent(
         docId,
@@ -139,7 +139,7 @@ describe('collection synchronizer', () => {
       }
     });
 
-    test('should merge updated, deleted then restored items in same session', async () => {
+    it('should merge updated, deleted then restored items in same session', async () => {
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       collectionService.setItemLexicalContent(
         docId,
@@ -190,7 +190,7 @@ describe('collection synchronizer', () => {
       }
     });
 
-    test('should merge updated, deleted then restored items in same session - with more recent remote updates', async () => {
+    it('should merge updated, deleted then restored items in same session - with more recent remote updates', async () => {
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       collectionService.setItemLexicalContent(
         docId,
@@ -254,7 +254,7 @@ describe('collection synchronizer', () => {
       expect(getLocalItemConflicts()).toHaveLength(0);
     });
 
-    test('should merge updated, deleted then restored items in same session - with less recent remote updates', async () => {
+    it('should merge updated, deleted then restored items in same session - with less recent remote updates', async () => {
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       collectionService.setItemLexicalContent(
         docId,
@@ -318,7 +318,7 @@ describe('collection synchronizer', () => {
       expect(getLocalItemConflicts()).toHaveLength(0);
     });
 
-    test('should merge updated, deleted then restored items in same session - with remote updates on other fields', async () => {
+    it('should merge updated, deleted then restored items in same session - with remote updates on other fields', async () => {
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       collectionService.setItemLexicalContent(
         docId,
@@ -382,7 +382,7 @@ describe('collection synchronizer', () => {
   });
 
   describe('should merge notes', () => {
-    test('synchronizer should push notes', async () => {
+    it('should push notes', async () => {
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       const noteId = docAnnotationsService.addNote(docId);
       docAnnotationsService.edit(noteId, JSON.parse(getNewContent('test')));
@@ -396,12 +396,13 @@ describe('collection synchronizer', () => {
       }
     });
 
-    test('synchronizer should pull notes', async () => {
+    it('should pull notes and fill plainText', async () => {
       const items = [oneNotebook(), oneDocument()];
       const notes = [oneNote(items[1].id!)];
+      notes[0].content = getNewContent('test');
       await driver.setCollectionContentWithAnnots(
         items,
-        notes || [],
+        notes,
         defaultValues,
         notes[0].updatedAt
       );
@@ -410,9 +411,12 @@ describe('collection synchronizer', () => {
 
       expect(space.getRowCount(DOC_ANNOTATION_TABLE)).toBe(1);
       expect(space.hasRow(DOC_ANNOTATION_TABLE, notes[0].id));
+      expect(
+        space.getCell(DOC_ANNOTATION_TABLE, notes[0].id, 'plainText')
+      ).toBe('test');
     });
 
-    test('synchronizer should merge notes', async () => {
+    it('should merge notes', async () => {
       const items = [oneNotebook(), oneDocument()];
       const notes = [oneNote(items[1].id!)];
       const docId = items[1].id!;
@@ -459,7 +463,7 @@ describe('collection synchronizer', () => {
       }
     });
 
-    test('synchronizer should sync notes and let local win if more recent', async () => {
+    it('should sync notes and let local win if more recent', async () => {
       const items = [oneNotebook(), oneDocument()];
       const notes = [oneNote(items[1].id!)];
       const docId = items[1].id!;
@@ -511,7 +515,7 @@ describe('collection synchronizer', () => {
       }
     });
 
-    test('synchronizer should sync notes and create conflict', async () => {
+    it('should sync notes and create conflict', async () => {
       const items = [oneNotebook(), oneDocument()];
       const notes = [oneNote(items[1].id!)];
       const docId = items[1].id!;
@@ -563,7 +567,7 @@ describe('collection synchronizer', () => {
       }
     });
 
-    test('synchronizer should sync notes and delete orphans', async () => {
+    it('should sync notes and delete orphans', async () => {
       const items = [oneNotebook(), oneDocument()];
       const notes = [oneNote(items[1].id!)];
       const docId = items[1].id!;
@@ -596,7 +600,7 @@ describe('collection synchronizer', () => {
       expect(!docAnnotationsService.exists(orphanId));
     });
 
-    test('synchronizer should sync notes and delete orphans 2', async () => {
+    it('should sync notes and delete orphans 2', async () => {
       const items = [oneNotebook(), oneDocument()];
       const notes = [oneNote(items[1].id!)];
       const docId = items[1].id!;
@@ -626,6 +630,65 @@ describe('collection synchronizer', () => {
 
       expect(!docAnnotationsService.exists(noteId));
       expect(!docAnnotationsService.exists(orphanId));
+    });
+
+    it('should not delete old annots on pull', async () => {
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const noteId = docAnnotationsService.addNote(docId);
+
+      const items = [oneNotebook(), oneDocument()];
+      await driver.setCollectionContentWithAnnots(
+        items,
+        [],
+        defaultValues,
+        items[1].updated
+      );
+
+      await synchronizer.sync();
+
+      expect(collectionService.itemExists(docId));
+      expect(collectionService.itemExists(items[1].id!));
+      expect(docAnnotationsService.exists(noteId));
+    });
+
+    it('should delete old annots on force pull', async () => {
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const noteId = docAnnotationsService.addNote(docId);
+
+      const items = [oneNotebook(), oneDocument()];
+      await driver.setCollectionContentWithAnnots(
+        items,
+        [],
+        defaultValues,
+        items[1].updated
+      );
+
+      await synchronizer.pull(true);
+
+      expect(!collectionService.itemExists(docId));
+      expect(collectionService.itemExists(items[1].id!));
+      expect(!docAnnotationsService.exists(noteId));
+      expect(space.getRowCount('document_annotation')).toBe(0);
+    });
+
+    it('should force pull notes and fill plainText', async () => {
+      const items = [oneNotebook(), oneDocument()];
+      const notes = [oneNote(items[1].id!)];
+      notes[0].content = getNewContent('test');
+      await driver.setCollectionContentWithAnnots(
+        items,
+        notes,
+        defaultValues,
+        notes[0].updatedAt
+      );
+
+      await synchronizer.pull(true);
+
+      expect(space.getRowCount(DOC_ANNOTATION_TABLE)).toBe(1);
+      expect(space.hasRow(DOC_ANNOTATION_TABLE, notes[0].id));
+      expect(
+        space.getCell(DOC_ANNOTATION_TABLE, notes[0].id, 'plainText')
+      ).toBe('test');
     });
   });
 
@@ -639,7 +702,7 @@ describe('collection synchronizer', () => {
       searchAncestryService.stop();
     });
 
-    test('should include documents with conflicts and their source in fetchItemsQuery with onlyConflicts=true', async () => {
+    it('should include documents with conflicts and their source in fetchItemsQuery with onlyConflicts=true', async () => {
       const items = [oneNotebook(), oneDocument()];
       const docId = items[1].id!;
       await driver.setCollectionContent(items, defaultValues, items[1].updated);
@@ -707,7 +770,7 @@ describe('collection synchronizer', () => {
       }
     });
 
-    test('should include documents with conflicts in notes in fetchItemsQuery with onlyConflicts=true', async () => {
+    it('should include documents with conflicts in notes in fetchItemsQuery with onlyConflicts=true', async () => {
       const items = [oneNotebook(), oneDocument()];
       const notes = [oneNote(items[1].id!)];
       const docId = items[1].id!;
@@ -783,7 +846,7 @@ describe('collection synchronizer', () => {
       }
     });
 
-    test('should include all kinds of conflicts and exclude other documents', async () => {
+    it('should include all kinds of conflicts and exclude other documents', async () => {
       const items = [
         oneNotebook(),
         oneDocument(),
