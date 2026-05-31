@@ -1,6 +1,6 @@
 import BetterFilesystem from '@/capacitor/better-filesystem.plugin';
+import { plt } from '@/core/infra/platform';
 import { strFromU8 } from 'fflate';
-import platformService from './platform.service';
 
 class FilesystemService {
   async exportToFile(
@@ -8,14 +8,22 @@ class FilesystemService {
     content: string | Uint8Array<ArrayBufferLike>,
     mimeType = 'application/json'
   ) {
-    if (!platformService.isAndroid()) {
-      return BetterFilesystem.exportToFile({
-        fileName,
-        mimeType,
-        content
-      });
+    if (plt.isAndroid()) {
+      return this.startStreaming(fileName, content, mimeType);
     }
 
+    return BetterFilesystem.exportToFile({
+      fileName,
+      mimeType,
+      content
+    });
+  }
+
+  private async startStreaming(
+    fileName: string,
+    content: string | Uint8Array<ArrayBufferLike>,
+    mimeType = 'application/json'
+  ) {
     if (typeof content === 'string') {
       return this.sendDataInChunk(
         fileName,
@@ -39,14 +47,20 @@ class FilesystemService {
     isBase64: boolean,
     getChunkAsString: (chunk: string | Uint8Array<ArrayBuffer>) => string
   ) {
-    console.debug('send binary data as base64', content.length);
+    console.debug('send binary data as base64', mimeType, content.length);
     let pos = 0;
     let streamId: number | undefined = undefined;
     do {
-      const end = pos + Math.min(75000, content.length);
+      // make first chunk smaller on purpose
+      // if callback needed (file picker or permission request), capacitor might save plugin call
+      // triggering TransactionTooLargeException
+      const end =
+        pos === 0
+          ? Math.min(30000, content.length)
+          : Math.min(pos + 150000, content.length);
       const chunk = getChunkAsString(content.slice(pos, end));
       const eof = end >= content.length;
-      console.debug('send chunk', pos, end, eof, streamId);
+      console.debug('send chunk', 'pos', pos, end - pos, eof, streamId);
 
       const resp = await BetterFilesystem.exportToFile({
         fileName,
@@ -57,7 +71,7 @@ class FilesystemService {
         eof
       });
       pos = end;
-      console.debug('success', resp.success, pos < content.length);
+      console.debug('success', resp.success);
       if (!resp.success) {
         return { success: false };
       }

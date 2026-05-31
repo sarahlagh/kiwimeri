@@ -577,7 +577,7 @@ class ImportService {
       if (isDirectoryInZip && !levelMap.has(itemKey)) {
         levelMap.set(itemKey, []);
       }
-      levelMap.get(parentPath)!.push(itemKey);
+      levelMap.get(parentPath)?.push(itemKey);
 
       if (isDirectoryInZip) {
         items.set(itemKey, item);
