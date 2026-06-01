@@ -7,7 +7,8 @@ export const {
   useRow: useStoreRow,
   useTable: useStoreTable,
   useResultSortedRowIds: useStoreResultSortedRowIds,
-  useRowCount: useStoreRowCount
+  useRowCount: useStoreRowCount,
+  useValue: useStoreValue
 } = UiReact as typeof UiReact & WithSchemas<StoreType>;
 
 export const {

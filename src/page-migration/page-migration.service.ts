@@ -20,8 +20,24 @@ import { statsService } from '@/domain/stats/stats-service';
 import { PLAIN_TEXT_FORMATTER } from '@/format-conversion/lex-conversion/formatters/plain-text-formatter';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { SerializedEditorState, SerializedLexicalNode } from 'lexical';
+import fetchDocsWithPagesQuery from './queries/fetchDocsWithPagesQuery';
 
 class PageMigrationService {
+  public start() {
+    fetchDocsWithPagesQuery.initQuery();
+    const table = space.getTable('collection');
+    let pagesCount = 0;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    space.forEachRow('collection', (rowId, forEachCell) => {
+      if (table[rowId].type === CollectionItemType.page) pagesCount++;
+    });
+    console.log(pagesCount, 'pages left to migrate');
+  }
+
+  public stop() {
+    fetchDocsWithPagesQuery.close();
+  }
+
   public explodeToDocuments(
     docId: string,
     createNewGroup: boolean,
@@ -31,6 +47,7 @@ class PageMigrationService {
       by: 'order',
       descending: false
     });
+    console.debug('found pages', pages);
     if (pages.length === 0) return;
     let parent = collectionService.getItemParent(docId);
 
@@ -203,4 +220,4 @@ class PageMigrationService {
   }
 }
 
-export default new PageMigrationService();
+export const pageMigrationService = new PageMigrationService();

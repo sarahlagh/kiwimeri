@@ -8,10 +8,11 @@ import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import { statsService } from '@/domain/stats/stats-service';
 import fetchNotesQuery from '@/features/notes-ui/queries/fetchNotesQuery';
-import pageMigrationService from '@/page-migration/page-migration.service';
+import { pageMigrationService } from '@/page-migration/page-migration.service';
+import fetchDocsWithPagesQuery from '@/page-migration/queries/fetchDocsWithPagesQuery';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { adv } from '@@/_setup/test.utils';
-import { describe, it, vi } from 'vitest';
+import { describe, it, test, vi } from 'vitest';
 
 const getNewContent = (text: string, heading?: string) => {
   if (!heading)
@@ -331,5 +332,75 @@ describe('page removal test', () => {
     assertNotesPostExplode(docId, pageIds, pages);
     // const localChanges = localChangesService.getLocalChanges();
     // expect(localChanges).toHaveLength(4); // doc update + pages updates (x3)
+  });
+});
+
+describe('queries', () => {
+  test('fetchDocsWithPages 1', () => {
+    const docWithPagesId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+    const docWithoutId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+    collectionService.addPage(docWithPagesId);
+    collectionService.addPage(docWithPagesId);
+
+    const res = fetchDocsWithPagesQuery.getResults({});
+    console.debug(res);
+    expect(res).toHaveLength(1);
+    expect(res[0].docId).toBe(docWithPagesId);
+    expect(res[0].title).toBeDefined();
+    expect(res[0].pagesCount).toBe(2);
+  });
+
+  test('fetchDocsWithPages 2', () => {
+    const docWithPagesId1 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+    collectionService.setItemTitle(docWithPagesId1, 'title 1');
+    const docWithPagesId2 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+    collectionService.setItemTitle(docWithPagesId2, 'title 2');
+    collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+
+    collectionService.addPage(docWithPagesId1);
+    collectionService.addPage(docWithPagesId1);
+    collectionService.addPage(docWithPagesId1);
+    collectionService.addPage(docWithPagesId1);
+    collectionService.addPage(docWithPagesId2);
+    collectionService.addPage(docWithPagesId2);
+
+    const res = fetchDocsWithPagesQuery.getResults({});
+    console.debug(res);
+    expect(res).toHaveLength(2);
+    expect(res[0].docId).toBe(docWithPagesId1);
+    expect(res[0].title).toBe('title 1');
+    expect(res[0].pagesCount).toBe(4);
+    expect(res[1].docId).toBe(docWithPagesId2);
+    expect(res[1].title).toBe('title 2');
+    expect(res[1].pagesCount).toBe(2);
+  });
+
+  test('fetchDocsWithPages 3', () => {
+    const docWithPagesId1 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+    collectionService.setItemTitle(docWithPagesId1, 'title 1');
+    const docWithPagesId2 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+    collectionService.setItemTitle(docWithPagesId2, 'title 2');
+    collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+
+    collectionService.addPage(docWithPagesId1);
+    collectionService.addPage(docWithPagesId1);
+    collectionService.addPage(docWithPagesId1);
+    collectionService.addPage(docWithPagesId1);
+    collectionService.addPage(docWithPagesId2);
+    collectionService.addPage(docWithPagesId2);
+
+    space.delRow('collection', docWithPagesId2);
+
+    const res = fetchDocsWithPagesQuery.getResults({});
+    console.debug(res);
+    expect(res).toHaveLength(2);
+    expect(res[0].docId).toBe(docWithPagesId1);
+    expect(res[0].title).toBe('title 1');
+    expect(res[0].created).toBeDefined();
+    expect(res[0].pagesCount).toBe(4);
+    expect(res[1].docId).toBe(docWithPagesId2);
+    expect(res[1].title).toBeUndefined();
+    expect(res[1].created).toBeUndefined();
+    expect(res[1].pagesCount).toBe(2);
   });
 });

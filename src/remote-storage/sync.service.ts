@@ -100,8 +100,7 @@ class SyncService {
   public useIsMergeSyncEnabled() {
     const isConnected = this.usePrimaryConnected();
     const hasConflicts = conflictsService.useHasLocalConflicts();
-    // const onlyForcePush = useStoreValueWithDefault('onlyForcePush', false);
-    return isConnected && !hasConflicts; // && !onlyForcePush;
+    return isConnected && !hasConflicts;
   }
 }
 

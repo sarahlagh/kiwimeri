@@ -12,15 +12,8 @@ import collectionService from '@/db/collection.service';
 import navService from '@/db/nav.service';
 import userSettingsService from '@/db/user-settings.service';
 import { ViewAo3HtmlButton } from '@/features/ao3-html-ui';
-import pageMigrationService from '@/page-migration/page-migration.service';
-import {
-  IonAlert,
-  IonButton,
-  IonButtons,
-  IonIcon,
-  IonToolbar
-} from '@ionic/react';
-import { hammerOutline } from 'ionicons/icons';
+import ExplodeDocButton from '@/page-migration/components/ExplodeDocButton';
+import { IonButton, IonButtons, IonIcon, IonToolbar } from '@ionic/react';
 
 export type ActionsFromDocumentEditorToolbarProps = {
   id: string;
@@ -51,6 +44,7 @@ const ActionsFromDocumentEditorToolbar = ({
 
   const statsEnabled = userSettingsService.getDefaultDisplayOpts().statsEnabled;
   const showStats = statsEnabled && showInfo;
+
   return (
     <IonToolbar color="medium" style={{ height: 56 + 'px' }}>
       <IonButtons slot="end" style={{ overflowX: 'auto' }}>
@@ -60,46 +54,7 @@ const ActionsFromDocumentEditorToolbar = ({
         <QuickGroupButton type={type} id={id} onClose={onClose} />
 
         {/** temp button to turn pages into documents */}
-        {hasPages && (
-          <>
-            <IonButton id={`${id}-explode-doc-btn`}>
-              <IonIcon icon={hammerOutline}></IonIcon>
-            </IonButton>
-            <IonAlert
-              trigger={`${id}-explode-doc-btn`}
-              message={`Choose how to convert your pages.`}
-              inputs={[
-                {
-                  type: 'radio',
-                  label: 'convert to documents 📄',
-                  value: 'to-docs'
-                },
-                {
-                  type: 'radio',
-                  label: 'convert to notes 💬',
-                  value: 'to-notes'
-                }
-              ]}
-              buttons={[
-                {
-                  text: `Cancel`,
-                  role: 'cancel'
-                },
-                {
-                  text: `Confirm`,
-                  role: 'confirm',
-                  handler: value => {
-                    if (value === 'to-docs') {
-                      pageMigrationService.explodeToDocuments(id, true, true);
-                    } else if (value === 'to-notes') {
-                      pageMigrationService.explodeToNotes(id);
-                    }
-                  }
-                }
-              ]}
-            ></IonAlert>
-          </>
-        )}
+        {hasPages && <ExplodeDocButton id={id} />}
 
         <DeleteItemButton
           id={id}
