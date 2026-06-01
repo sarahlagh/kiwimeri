@@ -690,6 +690,44 @@ describe('collection synchronizer', () => {
         space.getCell(DOC_ANNOTATION_TABLE, notes[0].id, 'plainText')
       ).toBe('test');
     });
+
+    it('should pull updated notes and fill plainText', async () => {
+      const items = [oneNotebook(), oneDocument()];
+      const notes = [oneNote(items[1].id!), oneNote(items[1].id!)];
+      notes[0].content = getNewContent('test');
+      notes[1].content = getNewContent('other test');
+      await driver.setCollectionContentWithAnnots(
+        items,
+        notes,
+        defaultValues,
+        notes[0].updatedAt
+      );
+      await synchronizer.sync();
+      vi.advanceTimersByTime(100);
+
+      // update on remote again
+      notes[0].content = getNewContent('test 2');
+      notes[0].content_meta = setFieldMeta('', Date.now());
+      notes[0].updatedAt = Date.now();
+      await driver.setCollectionContentWithAnnots(
+        items,
+        notes,
+        defaultValues,
+        notes[0].updatedAt
+      );
+
+      await synchronizer.sync();
+
+      expect(space.getRowCount(DOC_ANNOTATION_TABLE)).toBe(2);
+      expect(space.hasRow(DOC_ANNOTATION_TABLE, notes[0].id));
+      expect(space.hasRow(DOC_ANNOTATION_TABLE, notes[1].id));
+      expect(
+        space.getCell(DOC_ANNOTATION_TABLE, notes[0].id, 'plainText')
+      ).toBe('test 2');
+      expect(
+        space.getCell(DOC_ANNOTATION_TABLE, notes[1].id, 'plainText')
+      ).toBe('other test');
+    });
   });
 
   describe('should propagate conflicts', () => {

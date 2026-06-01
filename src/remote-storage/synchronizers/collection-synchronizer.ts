@@ -380,7 +380,8 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       localChanges,
       annotsConflictPolicy,
       annotsOrphanPolicy,
-      force
+      force,
+      true
     );
 
     const discardedChanges = [
