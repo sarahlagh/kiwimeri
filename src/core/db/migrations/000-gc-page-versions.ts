@@ -1,11 +1,9 @@
-import {
-  CollectionItemSnapshotData,
-  CollectionPageVersionData
-} from '@/collection/collection';
-import { SpaceType } from '@/core/db/store-schema';
-import { Store } from 'tinybase/with-schemas';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { NoSchemas, Store } from 'tinybase/with-schemas';
 
-export default function Migration(space: Store<SpaceType>) {
+export default function Migration(space: Store<NoSchemas>) {
+  if (!space.hasTable('collection')) return;
+  if (!space.hasTable('history')) return;
   const collection = space.getTable('collection');
   const history = space.getTable('history');
   const unknownVersions = new Set<string>();
@@ -24,7 +22,7 @@ export default function Migration(space: Store<SpaceType>) {
       // item doesn't exist anymore
       const snapshotJson = JSON.parse(
         history[rowId].snapshotJson as string
-      ) as CollectionItemSnapshotData;
+      ) as any;
       if (!snapshotJson.title) {
         // no title, was likely a page
         unknownVersions.add(rowId);
@@ -40,7 +38,7 @@ export default function Migration(space: Store<SpaceType>) {
     if (row.pageVersionsArrayJson) {
       const pageVersions = JSON.parse(
         row.pageVersionsArrayJson as string
-      ) as CollectionPageVersionData[];
+      ) as any[];
       for (const pv of pageVersions) {
         if (unknownVersions.has(pv.id)) {
           unknownVersions.delete(pv.id);

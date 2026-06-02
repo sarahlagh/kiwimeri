@@ -1,12 +1,12 @@
 import { Network } from '@capacitor/network';
 import { addAndroidListeners } from './capacitor/handle-android-plugins';
 import { DEFAULT_SPACE_ID } from './constants';
+import { postInitMigrationService } from './core/db/post-init-migrations/post-init-migration.service';
 import { space, store } from './core/db/store';
 import { startDbListeners } from './core/db/store-listeners';
 import { networkService } from './core/infra/network.service';
 import { plt } from './core/infra/platform';
 import { historyService } from './db/collection-history.service';
-import { migrationService } from './db/migrations/migration.service';
 import notebooksService from './db/notebooks.service';
 import remotesService from './db/remotes.service';
 import { appLog } from './log';
@@ -44,7 +44,7 @@ export function appInit() {
     console.debug('[app-init] got initial network status', initialStatus);
     networkService.init(initialStatus);
 
-    migrationService.start(store, space);
+    postInitMigrationService.start(store, space);
     notebooksService.initNotebooks();
     searchAncestryService.start(DEFAULT_SPACE_ID);
     remotesService.initSync();

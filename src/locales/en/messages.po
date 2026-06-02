@@ -48,6 +48,7 @@ msgstr " (new)"
 msgid "-- conflict --"
 msgstr "-- conflict --"
 
+#. placeholder {0}: showFilters ? 'Hide' : 'Show'
 #: src/dev-tools/components/LogsCard.tsx:133
 msgid "{0} Filters"
 msgstr "{0} Filters"
@@ -93,13 +94,13 @@ msgid "Archive is empty"
 msgstr "Archive is empty"
 
 #: src/collection/components/CollectionItemList.tsx:76
-#: src/common/buttons/ManageHistoryButton.tsx:143
+#: src/common/buttons/ManageHistoryButton.tsx:142
 #: src/common/modals/ConfirmYesNoDialog.tsx:24
 msgid "Are you sure?"
 msgstr "Are you sure?"
 
-#: src/common/buttons/ExportItemsButton.tsx:132
-#: src/common/buttons/ManageHistoryButton.tsx:146
+#: src/common/buttons/ExportItemsButton.tsx:102
+#: src/common/buttons/ManageHistoryButton.tsx:145
 #: src/common/buttons/RestoreCollectionButton.tsx:74
 #: src/common/modals/ChooseTagsModal.tsx:100
 #: src/common/modals/ConfirmFileImportModal.tsx:80
@@ -141,7 +142,7 @@ msgstr "Choose a session length"
 msgid "Choose where to save your work"
 msgstr "Choose where to save your work"
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:238
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:230
 msgid "Clear All"
 msgstr "Clear All"
 
@@ -149,7 +150,7 @@ msgstr "Clear All"
 msgid "Close"
 msgstr "Close"
 
-#: src/constants.ts:84
+#: src/constants.ts:82
 msgid "collection"
 msgstr "collection"
 
@@ -165,8 +166,8 @@ msgstr "Config"
 msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
 
-#: src/common/buttons/ExportItemsButton.tsx:139
-#: src/common/buttons/ManageHistoryButton.tsx:150
+#: src/common/buttons/ExportItemsButton.tsx:109
+#: src/common/buttons/ManageHistoryButton.tsx:149
 #: src/common/buttons/RestoreCollectionButton.tsx:81
 #: src/common/modals/ChooseTagsModal.tsx:107
 #: src/common/modals/ConfirmFileImportModal.tsx:83
@@ -177,7 +178,7 @@ msgid "Confirm"
 msgstr "Confirm"
 
 #: src/collection/components/CollectionItemBrowserList.tsx:154
-#: src/constants.ts:79
+#: src/constants.ts:78
 msgid "Conflicts"
 msgstr "Conflicts"
 
@@ -193,6 +194,7 @@ msgstr "create a note"
 msgid "Created at"
 msgstr "Created at"
 
+#. placeholder {0}: dateToStr('relative', createdAt)
 #: src/features/notes-ui/components/NotesActions.tsx:24
 msgid "Created at: {0}"
 msgstr "Created at: {0}"
@@ -206,7 +208,7 @@ msgstr "Creation Date"
 msgid "Current Notebook Settings ({notebookTitle})"
 msgstr "Current Notebook Settings ({notebookTitle})"
 
-#: src/constants.ts:78
+#: src/constants.ts:77
 msgid "Default"
 msgstr "Default"
 
@@ -222,7 +224,7 @@ msgstr "Delete note"
 msgid "deleted item"
 msgstr "deleted item"
 
-#: src/app/components/MainMenuList.tsx:89
+#: src/app/components/MainMenuList.tsx:88
 #: src/app/pages/DevToolsPage.tsx:15
 msgid "Dev Tools"
 msgstr "Dev Tools"
@@ -256,7 +258,7 @@ msgstr "Do you want to import your content inside a new folder?"
 msgid "Document grouped"
 msgstr "Document grouped"
 
-#: src/common/buttons/ManageHistoryButton.tsx:99
+#: src/common/buttons/ManageHistoryButton.tsx:98
 msgid "Document History"
 msgstr "Document History"
 
@@ -264,17 +266,9 @@ msgstr "Document History"
 msgid "Download Logs"
 msgstr "Download Logs"
 
-#: src/common/wysiwyg/pages-browser/CollectionPagesBrowser.tsx:90
-msgid "empty doc"
-msgstr "empty doc"
-
 #: src/features/notes-ui/components/NotesMenuPreview.tsx:39
 msgid "empty note"
 msgstr "empty note"
-
-#: src/common/wysiwyg/pages-browser/CollectionPagesBrowser.tsx:91
-msgid "empty page"
-msgstr "empty page"
 
 #: src/synchronization/components/providers/PCloudSettings.tsx:122
 msgid "Enter your device token"
@@ -284,7 +278,7 @@ msgstr "Enter your device token"
 msgid "Enter your password"
 msgstr "Enter your password"
 
-#: src/common/buttons/DeepSearchButton.tsx:173
+#: src/common/buttons/DeepSearchButton.tsx:170
 msgid "Enter your search"
 msgstr "Enter your search"
 
@@ -310,7 +304,7 @@ msgstr "EU"
 msgid "Export"
 msgstr "Export"
 
-#: src/common/buttons/ExportItemsButton.tsx:108
+#: src/common/buttons/ExportItemsButton.tsx:87
 msgid "Export Options"
 msgstr "Export Options"
 
@@ -330,14 +324,16 @@ msgstr "History idle time (s)"
 msgid "History save time (min)"
 msgstr "History save time (min)"
 
-#: src/constants.ts:77
+#: src/constants.ts:76
 msgid "Home"
 msgstr "Home"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:119
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/common/modals/ConfirmMultipleImportModal.tsx:112
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
@@ -358,7 +354,7 @@ msgstr "Import file in folder {folderName}"
 msgid "In descending order"
 msgstr "In descending order"
 
-#: src/common/buttons/ExportItemsButton.tsx:120
+#: src/common/buttons/ExportItemsButton.tsx:90
 msgid "Include metadata in zip"
 msgstr "Include metadata in zip"
 
@@ -398,10 +394,12 @@ msgstr "Less dangerous mode (session is still timed but you will not lose progre
 msgid "Link"
 msgstr "Link"
 
+#. placeholder {0}: localChanges.length
 #: src/features/local-changes-ui/components/LocalChangesCard.tsx:67
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
+#. placeholder {0}: dateToStr('datetime', lastLocalChange)
 #: src/features/local-changes-ui/components/LocalChangesCard.tsx:74
 msgid "Local:  {0}"
 msgstr "Local:  {0}"
@@ -463,11 +461,11 @@ msgstr "Name"
 msgid "new"
 msgstr "new"
 
-#: src/constants.ts:80
+#: src/constants.ts:79
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:81
+#: src/constants.ts:80
 msgid "New folder"
 msgstr "New folder"
 
@@ -515,14 +513,6 @@ msgstr "Options for the currently selected device. These options are local-only.
 msgid "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 msgstr "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 
-#: src/constants.ts:83
-msgid "page"
-msgstr "page"
-
-#: src/common/buttons/ExportItemsButton.tsx:111
-msgid "Pages should be in the same file as the document"
-msgstr "Pages should be in the same file as the document"
-
 #: src/common/modals/ConfirmMultipleImportModal.tsx:98
 msgid "Parsing Error"
 msgstr "Parsing Error"
@@ -555,6 +545,7 @@ msgstr "Remember last route"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
+#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
 #: src/features/local-changes-ui/components/LocalChangesCard.tsx:87
 msgid "Remote:  {0}"
 msgstr "Remote:  {0}"
@@ -576,7 +567,7 @@ msgstr "Restore"
 msgid "Restore Collection"
 msgstr "Restore Collection"
 
-#: src/common/buttons/ManageHistoryButton.tsx:142
+#: src/common/buttons/ManageHistoryButton.tsx:141
 msgid "Restore Version"
 msgstr "Restore Version"
 
@@ -592,11 +583,11 @@ msgstr "Save your work"
 msgid "Scroll to the last position in document"
 msgstr "Scroll to the last position in document"
 
-#: src/common/buttons/DeepSearchButton.tsx:157
+#: src/common/buttons/DeepSearchButton.tsx:154
 msgid "Search Content"
 msgstr "Search Content"
 
-#: src/common/buttons/DeepSearchButton.tsx:172
+#: src/common/buttons/DeepSearchButton.tsx:169
 msgid "Search input"
 msgstr "Search input"
 
@@ -612,7 +603,7 @@ msgstr "Select item tags"
 msgid "Server"
 msgstr "Server"
 
-#: src/app/components/MainMenuList.tsx:75
+#: src/app/components/MainMenuList.tsx:74
 #: src/app/pages/SettingsPage.tsx:9
 msgid "Settings"
 msgstr "Settings"
@@ -648,7 +639,7 @@ msgstr "Start Writing"
 
 #: src/common/buttons/GenericExportFileButton.tsx:48
 #: src/common/buttons/GenericImportFileButton.tsx:48
-#: src/common/buttons/ManageHistoryButton.tsx:157
+#: src/common/buttons/ManageHistoryButton.tsx:156
 #: src/synchronization/components/providers/RemoteGenericSettings.tsx:59
 msgid "Success!"
 msgstr "Success!"
@@ -657,7 +648,7 @@ msgstr "Success!"
 msgid "Switch info"
 msgstr "Switch info"
 
-#: src/app/components/MainMenuList.tsx:81
+#: src/app/components/MainMenuList.tsx:80
 #: src/app/pages/SynchronizationPage.tsx:9
 msgid "Synchronization"
 msgstr "Synchronization"
@@ -706,7 +697,7 @@ msgstr "This will delete your existing data. Are you sure?"
 msgid "timed session "
 msgstr "timed session "
 
-#: src/app/components/MainMenuList.tsx:69
+#: src/app/components/MainMenuList.tsx:68
 msgid "Timed Writing"
 msgstr "Timed Writing"
 
@@ -730,6 +721,7 @@ msgstr "Track text statistics"
 msgid "Updated at"
 msgstr "Updated at"
 
+#. placeholder {0}: dateToStr('relative', updatedAt)
 #: src/features/notes-ui/components/NotesActions.tsx:29
 msgid "Updated at: {0}"
 msgstr "Updated at: {0}"

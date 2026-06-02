@@ -22,9 +22,9 @@ import { i18n } from '@lingui/core';
 
 // allow the log level to be applied to tests
 import { initGlobalTrans } from '@/constants';
+import { postInitMigrationService } from '@/core/db/post-init-migrations/post-init-migration.service';
 import { startDbListeners, stopDbListeners } from '@/core/db/store-listeners';
 import { historyService } from '@/db/collection-history.service';
-import { migrationService } from '@/db/migrations/migration.service';
 import '@/polyfills/log-polyfill';
 import { setupIonicReact } from '@ionic/react';
 import { afterAll, afterEach, beforeAll, beforeEach } from 'vitest';
@@ -40,7 +40,7 @@ setupIonicReact({
 });
 
 beforeAll(async () => {
-  migrationService['enabled'] = false;
+  postInitMigrationService['enabled'] = false;
   historyService['enabled'] = false;
   remotesService.initSync();
 });
