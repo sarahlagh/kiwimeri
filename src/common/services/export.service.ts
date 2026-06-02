@@ -5,7 +5,7 @@ import {
   CollectionItemType,
   CollectionItemTypeValues
 } from '@/collection/collection';
-import { getGlobalTrans, META_JSON } from '@/constants';
+import { META_JSON } from '@/constants';
 import collectionService, {
   INITIAL_CONTENT_START
 } from '@/db/collection.service';
@@ -21,7 +21,6 @@ export type ZipFileTree = {
 
 export type ZipExportOptions = {
   includeMetadata?: boolean;
-  inlinePages?: boolean;
 };
 
 export type ZipMetadata = Partial<
@@ -39,8 +38,7 @@ export type ZipMetadata = Partial<
 
 class ExportService {
   private readonly opts: ZipExportOptions = {
-    includeMetadata: true,
-    inlinePages: true
+    includeMetadata: true
   };
   private readonly maxLength = 50;
 
@@ -59,10 +57,7 @@ class ExportService {
     return {
       type,
       format: 'markdown',
-      title:
-        type !== CollectionItemType.page
-          ? collectionService.getItemTitle(id)
-          : undefined,
+      title: collectionService.getItemTitle(id),
       tags: collectionService.getItemField(id, 'tags'),
       order: collectionService.getItemField(id, 'order'),
       display_opts: collectionService.getItemDisplayOpts(id),
@@ -181,55 +176,7 @@ class ExportService {
       opts = { ...this.opts, ...opts };
     }
     const json = collectionService.getItemContent(id) || '';
-    let content: string;
-    content = this.getDocumentContentFormatted(json);
-    const pages = collectionService.getDocumentPages(id);
-
-    // if inline pages, add content as string
-    if (opts.inlinePages) {
-      pages.forEach(page => {
-        content += formatConverter.getPagesSeparator();
-        content += this.getDocumentContentFormatted(
-          collectionService.getItemContent(page.id) || ''
-        );
-      });
-    } else if (pages.length > 0) {
-      // if not inline pages and has pages, create dir structure
-      const docTitle =
-        collectionService.getItemTitle(id) || getGlobalTrans().newDocTitle;
-      const itemKey = `${docTitle} 0.md`;
-      const fileTree: ZipFileTree = {};
-      fileTree[itemKey] = [strToU8(content)];
-      const meta: ZipMetadata = {
-        type: CollectionItemType.document,
-        files: {}
-      };
-      meta.files![itemKey] = this.getParentMeta(
-        id,
-        CollectionItemType.document,
-        false
-      );
-      pages.forEach((page, idx) => {
-        const pageContent = this.getDocumentContentFormatted(
-          collectionService.getItemContent(page.id) || ''
-        );
-        const pageKey = `${docTitle} ${idx + 1}.md`;
-        fileTree[pageKey] = [strToU8(pageContent)];
-        meta.files![pageKey] = this.getParentMeta(
-          page.id,
-          CollectionItemType.page,
-          false
-        );
-      });
-      if (opts.includeMetadata) {
-        fileTree[META_JSON] = [
-          // pretty print meta json
-          strToU8(JSON.stringify(meta, null, 2))
-        ];
-      }
-      return fileTree;
-    }
-    return content;
+    return this.getDocumentContentFormatted(json);
   }
 
   public getFolderContent(id: string, opts?: ZipExportOptions) {

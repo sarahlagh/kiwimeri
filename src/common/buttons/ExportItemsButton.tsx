@@ -35,26 +35,11 @@ const ExportItemsButton = ({
   const [alert] = useIonAlert();
 
   const notebook = notebooksService.getCurrentNotebook();
-  const hasPages =
-    id !== undefined &&
-    type === CollectionItemType.document &&
-    collectionService.getDocumentPages(id).length > 0;
 
-  const getFileMime = () => {
-    const inlinePages = userSettingsService.getExportInlinePages();
-    if (hasPages && !inlinePages) {
-      return 'application/zip';
-    }
-    return type !== CollectionItemType.folder
-      ? 'text/markdown'
-      : 'application/zip';
-  };
+  const getFileMime =
+    type !== CollectionItemType.folder ? 'text/markdown' : 'application/zip';
 
   const getFileTitle = () => {
-    const inlinePages = userSettingsService.getExportInlinePages();
-    if (type === CollectionItemType.page) {
-      return `${getGlobalTrans().defaultExportPageFilename}.md`;
-    }
     if (id === 'space') {
       return `${getGlobalTrans().defaultExportSpaceFilename}.zip`;
     }
@@ -65,10 +50,6 @@ const ExportItemsButton = ({
     if (type === CollectionItemType.folder) {
       return `${fileTitle}.zip`;
     }
-    // if not inline pages and doc has page, is a zip
-    if (hasPages && !inlinePages) {
-      return `${fileTitle}.zip`;
-    }
     return `${fileTitle}.md`;
   };
 
@@ -76,8 +57,7 @@ const ExportItemsButton = ({
     string | Uint8Array<ArrayBufferLike>
   > = async () => {
     const opts: ZipExportOptions = {
-      includeMetadata: userSettingsService.getExportIncludeMetadata(),
-      inlinePages: userSettingsService.getExportInlinePages()
+      includeMetadata: userSettingsService.getExportIncludeMetadata()
     };
     if (id === 'space') {
       return exportService.toZip(exportService.getSpaceContent(opts));
@@ -99,23 +79,13 @@ const ExportItemsButton = ({
 
   const confirm: () => Promise<boolean> = () => {
     const opts: ZipExportOptions = {
-      includeMetadata: userSettingsService.getExportIncludeMetadata(),
-      inlinePages: userSettingsService.getExportInlinePages()
+      includeMetadata: userSettingsService.getExportIncludeMetadata()
     };
     return new Promise<boolean>(resolve => {
-      if (type !== CollectionItemType.document || hasPages) {
+      if (type !== CollectionItemType.document) {
         alert({
           header: t`Export Options`,
           inputs: [
-            {
-              label: t`Pages should be in the same file as the document`,
-              type: 'checkbox',
-              checked: opts.inlinePages,
-              handler: opt => {
-                if (opt.checked !== undefined)
-                  userSettingsService.setExportInlinePages(opt.checked);
-              }
-            },
             {
               label: t`Include metadata in zip`,
               type: 'checkbox',

@@ -60,7 +60,6 @@ export const storeValuesSchema = {
   internalProxy: { type: 'string' },
   currentSpace: { type: 'string', default: DEFAULT_SPACE_ID },
   exportIncludeMetadata: { type: 'boolean', default: true },
-  exportInlinePages: { type: 'boolean', default: true },
   appVersion: { type: 'string' },
   tempDoc: { type: 'string' },
   defaultTimedDuration: { type: 'number', default: 10 },

@@ -40,20 +40,6 @@ class UserSettingsService {
     store.setValue('exportIncludeMetadata', value);
   }
 
-  public getExportInlinePages() {
-    const val = store.getValue('exportInlinePages')?.valueOf();
-    if (val === undefined) return false;
-    return val;
-  }
-
-  public useExportInlinePages(): boolean {
-    return useValueWithRef(this.storeId, 'exportInlinePages') || false;
-  }
-
-  public setExportInlinePages(value: boolean) {
-    store.setValue('exportInlinePages', value);
-  }
-
   public useShowDevTools(): boolean {
     return (
       useValueWithRef(this.storeId, 'showDevTools') ||
