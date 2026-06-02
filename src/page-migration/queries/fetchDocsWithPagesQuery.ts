@@ -4,7 +4,13 @@ import { ParamValues } from 'tinybase/with-schemas';
 
 const fetchDocsWithPagesQuery = new SpaceQueryDefinition<
   ParamValues,
-  { docId: string; pagesCount: number; title?: string; created?: number },
+  {
+    docId: string;
+    pagesCount: number;
+    folderOrNotebookId?: string;
+    title?: string;
+    created?: number;
+  },
   'collection'
 >('fetchDocsWithPages', 'collection', ({ select, where, group, join }) => {
   select('parent');
@@ -16,6 +22,7 @@ const fetchDocsWithPagesQuery = new SpaceQueryDefinition<
   select('parent').as('docId');
   join('collection', getCell => `${getCell('parent')}`).as('parentRow');
   select('parentRow', 'title');
+  select('parentRow', 'parent').as('folderOrNotebookId');
   select('parentRow', 'created');
 });
 

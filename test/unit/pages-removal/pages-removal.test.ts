@@ -335,7 +335,7 @@ describe('page removal test', () => {
   });
 });
 
-describe('queries', () => {
+describe('fetchDocsWithPage query', () => {
   test('fetchDocsWithPages 1', () => {
     const docWithPagesId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     const docWithoutId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);

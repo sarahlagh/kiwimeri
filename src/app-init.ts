@@ -10,6 +10,7 @@ import { migrationService } from './db/migrations/migration.service';
 import notebooksService from './db/notebooks.service';
 import remotesService from './db/remotes.service';
 import { appLog } from './log';
+import { pageMigrationService } from './page-migration/page-migration.service';
 import { searchAncestryService } from './search/search-ancestry.service';
 
 export function appInit() {
@@ -43,6 +44,7 @@ export function appInit() {
     const initialStatus = await Network.getStatus();
     console.debug('[app-init] got initial network status', initialStatus);
     networkService.init(initialStatus);
+    pageMigrationService.start();
 
     migrationService.start(store, space);
     notebooksService.initNotebooks();

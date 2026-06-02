@@ -1,5 +1,5 @@
 import { GET_DOCUMENT_ROUTE } from '@/common/routes';
-import { APPICONS } from '@/constants';
+import { APPICONS, DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { useQueryResults } from '@/core/db/queries-helper';
 import {
   IonButton,
@@ -15,7 +15,6 @@ import {
 } from '@ionic/react';
 import { hammerOutline } from 'ionicons/icons';
 import { useState } from 'react';
-import { pageMigrationService } from '../page-migration.service';
 import fetchDocsWithPagesQuery from '../queries/fetchDocsWithPagesQuery';
 import ExplodeDocModal from './ExplodeDocModal';
 
@@ -26,36 +25,6 @@ type PagesMigrationModalProps = {
 const PagesMigrationModal = ({ dismiss }: PagesMigrationModalProps) => {
   const [selected, setSelected] = useState<string | null>(null);
   const items = useQueryResults(fetchDocsWithPagesQuery);
-
-  if (items.length === 0) {
-    return (
-      <>
-        <IonHeader>
-          <IonToolbar>
-            <IonTitle>Everything OK.</IonTitle>
-          </IonToolbar>
-        </IonHeader>
-        <IonContent>
-          No more documents to migrate. Clicking on the button below will
-          terminate migration and allow syncing.
-        </IonContent>
-        <IonFooter>
-          <IonToolbar>
-            <IonButtons slot="end">
-              <IonButton
-                onClick={() => {
-                  pageMigrationService.stop();
-                  dismiss();
-                }}
-              >
-                Terminate
-              </IonButton>
-            </IonButtons>
-          </IonToolbar>
-        </IonFooter>
-      </>
-    );
-  }
 
   if (selected) {
     return (
@@ -84,7 +53,10 @@ const PagesMigrationModal = ({ dismiss }: PagesMigrationModalProps) => {
                 onClick={() => {
                   dismiss();
                 }}
-                routerLink={GET_DOCUMENT_ROUTE(item.docId, item.id)}
+                routerLink={GET_DOCUMENT_ROUTE(
+                  item.folderOrNotebookId || DEFAULT_NOTEBOOK_ID,
+                  item.docId
+                )}
               >
                 <IonIcon
                   icon={item.created ? APPICONS.document : APPICONS.warning}
@@ -96,7 +68,7 @@ const PagesMigrationModal = ({ dismiss }: PagesMigrationModalProps) => {
                   onClick={e => {
                     e.stopPropagation();
                     e.preventDefault();
-                    setSelected(item.id);
+                    setSelected(item.docId);
                   }}
                 >
                   <IonIcon icon={hammerOutline} />

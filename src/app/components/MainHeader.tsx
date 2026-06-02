@@ -88,7 +88,7 @@ const MainHeader = ({
 
       <IonButtons slot="end">
         <DeepSearchButton />
-        {plt.isSyncEnabled() && !migrationOnGoing && (
+        {plt.isSyncEnabled() && (
           <SyncRemoteButton
             disabled={!enabled}
             direction="sync"
