@@ -4,13 +4,11 @@ import KiwimeriEditor, {
   KiwimeriEditorHandle
 } from '@/common/wysiwyg/lexical/KiwimeriEditor';
 import { serializeSelection } from '@/common/wysiwyg/lexical/selection-serializer';
-import CollectionPagesBrowser from '@/common/wysiwyg/pages-browser/CollectionPagesBrowser';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { statsService } from '@/domain/stats/stats-service';
-import { searchAncestryService } from '@/search/search-ancestry.service';
 import {
   InputCustomEvent,
   IonButton,
@@ -47,7 +45,6 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
       useState<boolean>(false);
     const [showBottomSheet, setShowBottomSheet] = useState(showActions);
     const [bottomSheet, setBottomSheet] = useState<DocSheet>('info');
-    const [openPageBrowser, setOpenPageBrowser] = useState(false);
     const [toggleSearch, setToggleSearch] = useState(false);
     const [toggleSearchAutoFocus, setToggleSearchAutoFocus] = useState(true);
     const hasConflicts = conflictsService.useHasLocalConflicts();
@@ -59,10 +56,8 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
     const itemId = pageId ? pageId : docId;
     const content = collectionService.useItemContent(itemId);
     const documentTitle = collectionService.getItemTitle(docId);
-    const documentPreview = searchAncestryService.useItemPreview(docId) || '';
     const itemType = collectionService.getItemType(itemId);
 
-    const pages = collectionService.getDocumentPages(docId);
     const onTitleChange = onTitleChangeFn(docId);
 
     const resumeState = resumeService.getResumeState(itemId);
@@ -75,7 +70,6 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
       if (query) {
         setToggleSearch(query.length > 0);
         setToggleSearchAutoFocus(false);
-        if (pages.length > 0 && query.length > 0) setOpenPageBrowser(true);
       }
     }, [query, docId]);
 
@@ -128,7 +122,6 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
                 setShowDocumentActions(false);
                 setToggleSearch(true);
                 setToggleSearchAutoFocus(true);
-                if (pages.length > 0) setOpenPageBrowser(true);
               }}
             />
           )}
@@ -166,23 +159,7 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
                   serializeSelection(editorState)
                 );
               }}
-              enablePageBrowser={true}
-              pageBrowserButtonHighlighted={(pages?.length || 0) > 0}
-              openPageBrowser={openPageBrowser}
-              setOpenPageBrowser={setOpenPageBrowser}
-            >
-              {openPageBrowser && (
-                <CollectionPagesBrowser
-                  id={itemId}
-                  docId={docId}
-                  docPreview={documentPreview}
-                  pages={pages}
-                  searchText={toggleSearch ? query || '' : null}
-                  showActions={!toggleSearch}
-                  setOpenPageBrowser={setOpenPageBrowser}
-                />
-              )}
-            </KiwimeriEditor>
+            ></KiwimeriEditor>
           )}
         </IonContent>
         {showBottomSheet && (

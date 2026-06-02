@@ -1,12 +1,9 @@
 import DeepSearchButton from '@/common/buttons/DeepSearchButton';
 import SyncRemoteButton from '@/common/buttons/SyncRemoteButton';
-import { useQueryResults } from '@/core/db/queries-helper';
 import { plt } from '@/core/infra/platform';
 import collectionService from '@/db/collection.service';
 import navService from '@/db/nav.service';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
-import PagesMigrationButton from '@/page-migration/components/PagesMigrationButton';
-import fetchDocsWithPagesQuery from '@/page-migration/queries/fetchDocsWithPagesQuery';
 import { syncService } from '@/remote-storage/sync.service';
 import {
   InputCustomEvent,
@@ -39,8 +36,6 @@ const MainHeader = ({
   const history = useHistory();
   const location = useLocation();
   const [isSyncing, setIsSyncing] = useState(false);
-  const docsWithPages = useQueryResults(fetchDocsWithPagesQuery);
-  const migrationOnGoing = docsWithPages.length > 0;
   const isMergeSyncEnabled = syncService.useIsMergeSyncEnabled();
   const hasChanges = syncService.usePrimaryHasLocalChanges();
   const hasRemoteChanges = syncService.usePrimaryHasRemoteChanges();
@@ -99,7 +94,6 @@ const MainHeader = ({
             onSyncEnd={onSyncEnd}
           />
         )}
-        {plt.isSyncEnabled() && migrationOnGoing && <PagesMigrationButton />}
         {children}
       </IonButtons>
     </IonToolbar>

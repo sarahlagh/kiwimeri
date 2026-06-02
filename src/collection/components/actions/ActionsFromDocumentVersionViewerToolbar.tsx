@@ -2,9 +2,8 @@ import CloseDocumentButton from '@/common/buttons/CloseDocumentButton';
 import ExportItemsButton from '@/common/buttons/ExportItemsButton';
 import ManageHistoryButton from '@/common/buttons/ManageHistoryButton';
 import SearchButton from '@/common/buttons/SearchButton';
-import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
-import { IonButton, IonButtons, IonIcon, IonToolbar } from '@ionic/react';
+import { IonButtons, IonToolbar } from '@ionic/react';
 
 export type ActionsFromDocumentVersionViewerToolbarProps = {
   id: string;
@@ -26,14 +25,6 @@ const ActionsFromDocumentVersionViewerToolbar = ({
   return (
     <IonToolbar color="medium" style={{ height: 56 + 'px' }}>
       <IonButtons slot="end">
-        <IonButton
-          slot="end"
-          fill="clear"
-          onClick={() => onClose('pageBrowser')}
-        >
-          <IonIcon icon={APPICONS.page}></IonIcon>
-        </IonButton>
-
         <ExportItemsButton id={id} type={type} onClose={onClose} />
         <ManageHistoryButton id={docId} />
         <SearchButton onSearch={onSearch} />

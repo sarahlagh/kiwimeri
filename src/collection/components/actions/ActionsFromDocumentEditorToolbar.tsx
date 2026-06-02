@@ -12,7 +12,6 @@ import collectionService from '@/db/collection.service';
 import navService from '@/db/nav.service';
 import userSettingsService from '@/db/user-settings.service';
 import { ViewAo3HtmlButton } from '@/features/ao3-html-ui';
-import ExplodeDocButton from '@/page-migration/components/ExplodeDocButton';
 import { IonButton, IonButtons, IonIcon, IonToolbar } from '@ionic/react';
 
 export type ActionsFromDocumentEditorToolbarProps = {
@@ -38,10 +37,6 @@ const ActionsFromDocumentEditorToolbar = ({
       ? GET_FOLDER_ROUTE(folder)
       : GET_DOCUMENT_ROUTE(folder, docId);
 
-  const hasPages =
-    type === CollectionItemType.document &&
-    collectionService.getDocumentPages(id).length > 0;
-
   const statsEnabled = userSettingsService.getDefaultDisplayOpts().statsEnabled;
   const showStats = statsEnabled && showInfo;
 
@@ -52,9 +47,6 @@ const ActionsFromDocumentEditorToolbar = ({
         <ExportItemsButton id={id} type={type} onClose={onClose} />
         <ViewAo3HtmlButton id={id} onClose={onClose} />
         <QuickGroupButton type={type} id={id} onClose={onClose} />
-
-        {/** temp button to turn pages into documents */}
-        {hasPages && <ExplodeDocButton id={id} />}
 
         <DeleteItemButton
           id={id}

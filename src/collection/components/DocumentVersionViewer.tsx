@@ -1,6 +1,5 @@
 import { GET_UNKNOWN_ITEM_ROUTE, GET_VERSIONED_ROUTE } from '@/common/routes';
 import KiwimeriEditor from '@/common/wysiwyg/lexical/KiwimeriEditor';
-import CollectionPagesBrowser from '@/common/wysiwyg/pages-browser/CollectionPagesBrowser';
 import { APPICONS } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
 import {
@@ -80,7 +79,6 @@ const DocumentVersionViewer = ({
   const versionedDoc = historyService.useVersion(docVersion);
   const docVersionData = versionedDoc?.snapshotJson;
   const documentTitle = docVersionData?.title;
-  const documentPreview = versionedDoc?.preview;
 
   const itemType = pageId
     ? CollectionItemType.page
@@ -165,49 +163,7 @@ const DocumentVersionViewer = ({
             enableToolbar={false}
             content={content}
             searchText={toggleSearch ? query : null}
-            openPageBrowser={openPageBrowser}
-            enablePageBrowser={true}
-          >
-            {openPageBrowser && (
-              <CollectionPagesBrowser
-                id={itemId}
-                docId={docId}
-                docPreview={documentPreview || ''}
-                pages={pages}
-                searchText={toggleSearch ? query || '' : null}
-                showActions={false}
-                editable={false}
-                getUrl={(folderId, docId, pageId, searchText) => {
-                  if (!pageId) {
-                    return GET_VERSIONED_ROUTE(
-                      CollectionItemType.document,
-                      docVersion,
-                      docId,
-                      folderId,
-                      undefined,
-                      undefined,
-                      searchText
-                    );
-                  }
-                  // !! must find the pageVersion for the pageId
-                  const pageVersions =
-                    historyService.getPagesForVersion(docVersion);
-                  const pageVersion = pageVersions.find(
-                    v => v.itemId === pageId
-                  )?.id;
-                  return GET_VERSIONED_ROUTE(
-                    CollectionItemType.page,
-                    docVersion,
-                    docId,
-                    folderId,
-                    pageId,
-                    pageVersion,
-                    searchText
-                  );
-                }}
-              />
-            )}
-          </KiwimeriEditor>
+          ></KiwimeriEditor>
         )}
       </IonContent>
       {versionData && <DocumentVersionFooter versionData={versionData} />}

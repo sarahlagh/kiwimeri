@@ -40,7 +40,6 @@ import {
 import { Dispatch, useCallback, useEffect, useRef, useState } from 'react';
 const LowPriority = 1;
 
-import { APPICONS } from '@/constants';
 import { useStoreValueWithDefault } from '@/db/tinybase/hooks';
 import { ZOOM_IN_COMMAND, ZOOM_OUT_COMMAND } from './commands';
 import { ZOOM_INCREMENT } from './constants';
@@ -147,19 +146,11 @@ function TextFormatToolbarButton({
 
 export type ToolbarPluginProps = {
   zoomIncrement?: number;
-  enablePageBrowser?: boolean;
-  pageBrowserButtonHighlighted?: boolean;
-  openPageBrowser?: boolean;
-  setOpenPageBrowser?: Dispatch<boolean>;
   setIsLinkEditMode: Dispatch<boolean>; // TODO refacto
 };
 
 export default function ToolbarPlugin({
   zoomIncrement = ZOOM_INCREMENT,
-  enablePageBrowser = false,
-  pageBrowserButtonHighlighted = false,
-  openPageBrowser = false,
-  setOpenPageBrowser,
   setIsLinkEditMode
 }: ToolbarPluginProps) {
   const [editor] = useLexicalComposerContext();
@@ -269,209 +260,183 @@ export default function ToolbarPlugin({
 
   return (
     <div className="toolbar" ref={toolbarRef}>
-      <div className="floating">
-        <ToolbarButton
-          ariaLabel="Read Mode"
-          icon="writer/book.svg"
-          isActive={!isEditable}
-          onClick={() => {
-            editor.setEditable(!editor.isEditable());
-            setIsEditable(editor.isEditable());
-          }}
-        />
-        <ToolbarButton
-          ariaLabel="writer/zoom-in.svg"
-          icon="writer/zoom-in.svg"
-          disabled={zoomLevel >= 3}
-          onClick={() => {
-            editor.dispatchCommand(ZOOM_IN_COMMAND, zoomIncrement);
-          }}
-        />
-        <ToolbarButton
-          ariaLabel="writer/zoom-out.svg"
-          icon="writer/zoom-out.svg"
-          disabled={zoomLevel <= zoomIncrement}
-          onClick={() => {
-            editor.dispatchCommand(ZOOM_OUT_COMMAND, zoomIncrement);
-          }}
-        />
-        <Divider />
+      <ToolbarButton
+        ariaLabel="Read Mode"
+        icon="writer/book.svg"
+        isActive={!isEditable}
+        onClick={() => {
+          editor.setEditable(!editor.isEditable());
+          setIsEditable(editor.isEditable());
+        }}
+      />
+      <ToolbarButton
+        ariaLabel="writer/zoom-in.svg"
+        icon="writer/zoom-in.svg"
+        disabled={zoomLevel >= 3}
+        onClick={() => {
+          editor.dispatchCommand(ZOOM_IN_COMMAND, zoomIncrement);
+        }}
+      />
+      <ToolbarButton
+        ariaLabel="writer/zoom-out.svg"
+        icon="writer/zoom-out.svg"
+        disabled={zoomLevel <= zoomIncrement}
+        onClick={() => {
+          editor.dispatchCommand(ZOOM_OUT_COMMAND, zoomIncrement);
+        }}
+      />
+      <Divider />
 
-        <ToolbarButton
-          ariaLabel="Undo"
-          icon="writer/arrow-counterclockwise.svg"
-          disabled={!canUndo}
-          onClick={() => {
-            editor.dispatchCommand(UNDO_COMMAND, undefined);
-          }}
-        />
-        <ToolbarButton
-          ariaLabel="Redo"
-          icon="writer/arrow-clockwise.svg"
-          disabled={!canRedo}
-          onClick={() => {
-            editor.dispatchCommand(REDO_COMMAND, undefined);
-          }}
-        />
-        <Divider />
+      <ToolbarButton
+        ariaLabel="Undo"
+        icon="writer/arrow-counterclockwise.svg"
+        disabled={!canUndo}
+        onClick={() => {
+          editor.dispatchCommand(UNDO_COMMAND, undefined);
+        }}
+      />
+      <ToolbarButton
+        ariaLabel="Redo"
+        icon="writer/arrow-clockwise.svg"
+        disabled={!canRedo}
+        onClick={() => {
+          editor.dispatchCommand(REDO_COMMAND, undefined);
+        }}
+      />
+      <Divider />
 
-        <HeadingToolbarButton level={1} isActive={isH1} />
-        <HeadingToolbarButton level={2} isActive={isH2} />
-        <HeadingToolbarButton level={3} isActive={isH3} />
+      <HeadingToolbarButton level={1} isActive={isH1} />
+      <HeadingToolbarButton level={2} isActive={isH2} />
+      <HeadingToolbarButton level={3} isActive={isH3} />
 
-        <Divider />
+      <Divider />
 
-        <TextFormatToolbarButton formatType="bold" isActive={isBold} />
-        <TextFormatToolbarButton formatType="italic" isActive={isItalic} />
-        <TextFormatToolbarButton
-          formatType="strikethrough"
-          isActive={isStrikethrough}
-        />
-        <TextFormatToolbarButton
-          formatType="underline"
-          isActive={isUnderline}
-        />
-        <TextFormatToolbarButton
-          formatType="highlight"
-          isActive={isHighlight}
-        />
-        <SetBlockTypeToolbarButton
-          ariaLabel="Block Quote"
-          icon="writer/quote.svg"
-          isActive={isBlockQuote}
-          createBlock={() => $createQuoteNode()}
-        />
-        <Divider />
-        <ToolbarButton
-          ariaLabel="Insert Unordered List"
-          icon="writer/list-ul.svg"
-          isActive={isUnorderedList}
-          onClick={() => {
-            if (!isUnorderedList) {
-              editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
-            } else {
-              editor.update(() => {
-                const selection = $getSelection();
-                $setBlocksType(selection, () => $createParagraphNode());
-              });
-            }
-          }}
-        />
-        <ToolbarButton
-          ariaLabel="Insert Ordered List"
-          icon="writer/list-ol.svg"
-          isActive={isOrderedList}
-          onClick={() => {
-            if (!isOrderedList) {
-              editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
-            } else {
-              editor.update(() => {
-                const selection = $getSelection();
-                $setBlocksType(selection, () => $createParagraphNode());
-              });
-            }
-          }}
-        />
-        <ToolbarButton
-          ariaLabel="Insert Checked List"
-          icon="writer/list-check.svg"
-          isActive={isCheckedList}
-          onClick={() => {
-            if (!isCheckedList) {
-              editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined);
-            } else {
-              editor.update(() => {
-                const selection = $getSelection();
-                $setBlocksType(selection, () => $createParagraphNode());
-              });
-            }
-          }}
-        />
-        <Divider />
-        <ToolbarButton
-          ariaLabel="Left Align"
-          icon="writer/text-left.svg"
-          onClick={() => {
-            editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'left');
-          }}
-        />
-        <ToolbarButton
-          ariaLabel="Center Align"
-          icon="writer/text-center.svg"
-          onClick={() => {
-            editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'center');
-          }}
-        />
-        <ToolbarButton
-          ariaLabel="Right Align"
-          icon="writer/text-right.svg"
-          onClick={() => {
-            editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'right');
-          }}
-        />
-        <ToolbarButton
-          ariaLabel="Justify Align"
-          icon="writer/text-justify.svg"
-          onClick={() => {
-            editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'justify');
-          }}
-        />
-        <Divider />
-        <ToolbarButton
-          ariaLabel="Insert Horizontal Bar"
-          icon="writer/hr.svg"
-          onClick={() => {
-            editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined);
-          }}
-        />
-
-        <ToolbarButton
-          disabled={!isEditable}
-          isActive={isLink}
-          ariaLabel="Insert link"
-          icon="writer/link-45deg.svg"
-          onClick={() => {
-            setIsLinkEditMode(true);
-          }}
-        />
-        <Divider />
-
-        <ToolbarButton
-          ariaLabel="writer/x-square.svg"
-          icon="writer/x-square.svg"
-          onClick={() => {
+      <TextFormatToolbarButton formatType="bold" isActive={isBold} />
+      <TextFormatToolbarButton formatType="italic" isActive={isItalic} />
+      <TextFormatToolbarButton
+        formatType="strikethrough"
+        isActive={isStrikethrough}
+      />
+      <TextFormatToolbarButton formatType="underline" isActive={isUnderline} />
+      <TextFormatToolbarButton formatType="highlight" isActive={isHighlight} />
+      <SetBlockTypeToolbarButton
+        ariaLabel="Block Quote"
+        icon="writer/quote.svg"
+        isActive={isBlockQuote}
+        createBlock={() => $createQuoteNode()}
+      />
+      <Divider />
+      <ToolbarButton
+        ariaLabel="Insert Unordered List"
+        icon="writer/list-ul.svg"
+        isActive={isUnorderedList}
+        onClick={() => {
+          if (!isUnorderedList) {
+            editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+          } else {
             editor.update(() => {
               const selection = $getSelection();
-              if ($isRangeSelection(selection)) {
-                selection.getNodes().forEach(node => {
-                  if ($isTextNode(node)) {
-                    node.setFormat(0);
-                  }
-                });
-              }
               $setBlocksType(selection, () => $createParagraphNode());
             });
-          }}
-        />
-      </div>
-      <div className="fixed">
-        {enablePageBrowser && setOpenPageBrowser && (
-          <>
-            <button
-              onClick={() => {
-                openPageBrowser = !openPageBrowser;
-                setOpenPageBrowser(openPageBrowser);
-              }}
-              className={
-                'toolbar-item ' + (pageBrowserButtonHighlighted ? 'active' : '')
-              }
-              aria-label="Show page browser"
-            >
-              <IonIcon icon={APPICONS.page}></IonIcon>
-            </button>
-          </>
-        )}
-      </div>
+          }
+        }}
+      />
+      <ToolbarButton
+        ariaLabel="Insert Ordered List"
+        icon="writer/list-ol.svg"
+        isActive={isOrderedList}
+        onClick={() => {
+          if (!isOrderedList) {
+            editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
+          } else {
+            editor.update(() => {
+              const selection = $getSelection();
+              $setBlocksType(selection, () => $createParagraphNode());
+            });
+          }
+        }}
+      />
+      <ToolbarButton
+        ariaLabel="Insert Checked List"
+        icon="writer/list-check.svg"
+        isActive={isCheckedList}
+        onClick={() => {
+          if (!isCheckedList) {
+            editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined);
+          } else {
+            editor.update(() => {
+              const selection = $getSelection();
+              $setBlocksType(selection, () => $createParagraphNode());
+            });
+          }
+        }}
+      />
+      <Divider />
+      <ToolbarButton
+        ariaLabel="Left Align"
+        icon="writer/text-left.svg"
+        onClick={() => {
+          editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'left');
+        }}
+      />
+      <ToolbarButton
+        ariaLabel="Center Align"
+        icon="writer/text-center.svg"
+        onClick={() => {
+          editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'center');
+        }}
+      />
+      <ToolbarButton
+        ariaLabel="Right Align"
+        icon="writer/text-right.svg"
+        onClick={() => {
+          editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'right');
+        }}
+      />
+      <ToolbarButton
+        ariaLabel="Justify Align"
+        icon="writer/text-justify.svg"
+        onClick={() => {
+          editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'justify');
+        }}
+      />
+      <Divider />
+      <ToolbarButton
+        ariaLabel="Insert Horizontal Bar"
+        icon="writer/hr.svg"
+        onClick={() => {
+          editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined);
+        }}
+      />
+
+      <ToolbarButton
+        disabled={!isEditable}
+        isActive={isLink}
+        ariaLabel="Insert link"
+        icon="writer/link-45deg.svg"
+        onClick={() => {
+          setIsLinkEditMode(true);
+        }}
+      />
+      <Divider />
+
+      <ToolbarButton
+        ariaLabel="writer/x-square.svg"
+        icon="writer/x-square.svg"
+        onClick={() => {
+          editor.update(() => {
+            const selection = $getSelection();
+            if ($isRangeSelection(selection)) {
+              selection.getNodes().forEach(node => {
+                if ($isTextNode(node)) {
+                  node.setFormat(0);
+                }
+              });
+            }
+            $setBlocksType(selection, () => $createParagraphNode());
+          });
+        }}
+      />
     </div>
   );
 }
