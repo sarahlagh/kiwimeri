@@ -1,7 +1,7 @@
 import {
   CollectionItem,
   CollectionItemType,
-  isPageOrDocument,
+  isDocument,
   parseFieldMeta
 } from '@/collection/collection';
 import {
@@ -397,7 +397,7 @@ describe('sync service', () => {
             expect(getRowCountInsideNotebook()).toBe(remoteData.length - 2);
             testPushIndicator(false);
 
-            if (isPageOrDocument({ type: typeVal })) {
+            if (isDocument({ type: typeVal })) {
               const versions = historyService.getVersions(remoteData[0].id!);
               expect(versions).toHaveLength(2); // versions are not deleted, but left to gc (gives a chance to restore it)
               expect(versions[0].op).toBe('deleted');
@@ -564,7 +564,7 @@ describe('sync service', () => {
                   const versions = historyService.getVersions(id);
                   expect(versions[0].op).toBe('snapshot');
                   expect(versions[1].op).toBe('deleted');
-                }  else {
+                } else {
                   // folder
                   checkHistory(2, 1);
                 }

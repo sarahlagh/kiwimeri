@@ -205,26 +205,8 @@ export const isFolder = (item?: isTypeArg) =>
 export const isNotebook = (item?: isTypeArg) =>
   isA(CollectionItemType.notebook, item);
 
-export const isDocument = (
-  item?:
-    | Pick<CollectionItem, 'type'>
-    | Pick<CollectionItemResult, 'type'>
-    | null
-) => item?.type === CollectionItemType.document;
-
-export const isPage = (
-  item?:
-    | Pick<CollectionItem, 'type'>
-    | Pick<CollectionItemResult, 'type'>
-    | null
-) => item?.type === CollectionItemType.page;
-
-export const isPageOrDocument = (
-  item?:
-    | Pick<CollectionItem, 'type'>
-    | Pick<CollectionItemResult, 'type'>
-    | null
-) => isDocument(item) || isPage(item);
+export const isDocument = (item?: isTypeArg) =>
+  isA(CollectionItemType.document, item);
 
 export const APPICONS_PER_TYPE = new Map<CollectionItemTypeValues, string>();
 APPICONS_PER_TYPE.set(CollectionItemType.document, APPICONS.document);

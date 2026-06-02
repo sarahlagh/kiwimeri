@@ -9,7 +9,7 @@ import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
-import { oneDocument, oneFolder, onePage } from '@@/_setup/test.utils';
+import { oneDocument, oneFolder } from '@@/_setup/test.utils';
 import { afterEach, describe, expect, it } from 'vitest';
 
 const shortContentPreview = 'This is a short content';
@@ -35,14 +35,11 @@ const createTestData = () => {
   D1.id = 'D1';
   D1.content = minimizeContentForStorage(shortContent);
   D1.tags = 'tag1';
-  const P1 = onePage('P1', D1.id);
-  P1.id = 'P1';
-  P1.content = minimizeContentForStorage(shortContent);
   const F2 = oneFolder('F2');
   F2.id = 'F2';
   const FF2 = oneFolder('FF2', F2.id);
   FF2.id = 'FF2';
-  collectionService.saveItems([F1, FF1, FFF1, D1, P1, F2, FF2]);
+  collectionService.saveItems([F1, FF1, FFF1, D1, F2, FF2]);
 };
 
 const getHardcodedExpectedAncestry = () => {
@@ -59,7 +56,6 @@ const getHardcodedExpectedAncestry = () => {
     depth: 2
   };
   expectedTable['D1,0'] = { childId: 'D1', parentId: '0', depth: 3 };
-  expectedTable['P1,0'] = { childId: 'P1', parentId: '0', depth: 4 };
   expectedTable['F2,0'] = { childId: 'F2', parentId: '0', depth: 0 };
   expectedTable['FF2,0'] = {
     childId: 'FF2',
@@ -82,11 +78,6 @@ const getHardcodedExpectedAncestry = () => {
     parentId: 'F1',
     depth: 2
   };
-  expectedTable['P1,F1'] = {
-    childId: 'P1',
-    parentId: 'F1',
-    depth: 3
-  };
 
   expectedTable['FFF1,FF1'] = {
     childId: 'FFF1',
@@ -98,26 +89,10 @@ const getHardcodedExpectedAncestry = () => {
     parentId: 'FF1',
     depth: 1
   };
-  expectedTable['P1,FF1'] = {
-    childId: 'P1',
-    parentId: 'FF1',
-    depth: 2
-  };
 
   expectedTable['D1,FFF1'] = {
     childId: 'D1',
     parentId: 'FFF1',
-    depth: 0
-  };
-  expectedTable['P1,FFF1'] = {
-    childId: 'P1',
-    parentId: 'FFF1',
-    depth: 1
-  };
-
-  expectedTable['P1,D1'] = {
-    childId: 'P1',
-    parentId: 'D1',
     depth: 0
   };
 
@@ -170,7 +145,7 @@ describe('search ancestry service', () => {
       createTestData();
       expect(getHardcodedExpectedAncestry()).toEqual(
         getExpectedAncestry([
-          ['0', 'F1', 'FF1', 'FFF1', 'D1', 'P1'],
+          ['0', 'F1', 'FF1', 'FFF1', 'D1'],
           ['0', 'F2', 'FF2']
         ])
       );
@@ -195,12 +170,12 @@ describe('search ancestry service', () => {
       createTestData();
       searchAncestryService.start(DEFAULT_SPACE_ID);
 
-      expect(store.getRowIds('ancestors')).toHaveLength(18);
+      expect(store.getRowIds('ancestors')).toHaveLength(13);
       const ancestors = store.getTable('ancestors');
       expect(ancestors).toEqual(getHardcodedExpectedAncestry());
 
       testExpectedPaths([
-        ['0', 'F1', 'FF1', 'FFF1', 'D1', 'P1'],
+        ['0', 'F1', 'FF1', 'FFF1', 'D1'],
         ['0', 'F2', 'FF2']
       ]);
     });
@@ -210,12 +185,12 @@ describe('search ancestry service', () => {
       expect(store.getRowIds('ancestors')).toHaveLength(0);
 
       createTestData();
-      expect(store.getRowIds('ancestors')).toHaveLength(18);
+      expect(store.getRowIds('ancestors')).toHaveLength(13);
       const ancestors = store.getTable('ancestors');
       expect(ancestors).toEqual(getHardcodedExpectedAncestry());
 
       testExpectedPaths([
-        ['0', 'F1', 'FF1', 'FFF1', 'D1', 'P1'],
+        ['0', 'F1', 'FF1', 'FFF1', 'D1'],
         ['0', 'F2', 'FF2']
       ]);
     });
@@ -225,7 +200,7 @@ describe('search ancestry service', () => {
       // F2 > FF2
       createTestData();
       searchAncestryService.start(DEFAULT_SPACE_ID);
-      expect(store.getRowIds('ancestors')).toHaveLength(18);
+      expect(store.getRowIds('ancestors')).toHaveLength(13);
 
       collectionService.setItemParent('FFF1', 'FF2');
       // F1 > FF1
@@ -235,14 +210,14 @@ describe('search ancestry service', () => {
       expect(ancestors).toEqual(
         getExpectedAncestry([
           ['0', 'F1', 'FF1'],
-          ['0', 'F2', 'FF2', 'FFF1', 'D1', 'P1']
+          ['0', 'F2', 'FF2', 'FFF1', 'D1']
         ])
       );
-      expect(store.getRowIds('ancestors')).toHaveLength(18);
+      expect(store.getRowIds('ancestors')).toHaveLength(13);
 
       testExpectedPaths([
         ['0', 'F1', 'FF1'],
-        ['0', 'F2', 'FF2', 'FFF1', 'D1', 'P1']
+        ['0', 'F2', 'FF2', 'FFF1', 'D1']
       ]);
     });
 
@@ -261,14 +236,14 @@ describe('search ancestry service', () => {
       const ancestors = store.getTable('ancestors');
       expect(ancestors).toEqual(
         getExpectedAncestry([
-          ['0', 'F1', 'FF1', 'FFF1', 'D1', 'P1'],
+          ['0', 'F1', 'FF1', 'FFF1', 'D1'],
           ['0', 'F2', 'FF2']
         ])
       );
-      expect(store.getRowIds('ancestors')).toHaveLength(18);
+      expect(store.getRowIds('ancestors')).toHaveLength(13);
 
       testExpectedPaths([
-        ['0', 'F1', 'FF1', 'FFF1', 'D1', 'P1'],
+        ['0', 'F1', 'FF1', 'FFF1', 'D1'],
         ['0', 'F2', 'FF2']
       ]);
     });
@@ -278,7 +253,6 @@ describe('search ancestry service', () => {
       const idn1 = notebooksService.addNotebook('test');
       const idn2 = notebooksService.addNotebook('nested', idn1);
       const idd1 = collectionService.addDocument(idn2);
-      const idp1 = collectionService.addPage(idd1);
       const idf1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
       const idd2 = collectionService.addDocument(idf1);
 
@@ -292,9 +266,6 @@ describe('search ancestry service', () => {
       expect(searchAncestryService.getShortBreadcrumb(idn2)).toBe(idn2);
       expect(searchAncestryService.getShortBreadcrumb(idd1)).toBe(
         [idn2, idd1].join(',')
-      );
-      expect(searchAncestryService.getShortBreadcrumb(idp1)).toBe(
-        [idn2, idd1, idp1].join(',')
       );
       expect(searchAncestryService.getShortBreadcrumb(idf1)).toBe(
         [DEFAULT_NOTEBOOK_ID, idf1].join(',')
@@ -315,10 +286,6 @@ describe('search ancestry service', () => {
       expect(store.getCell('search', 'D1', 'contentPreview')).toBe(
         shortContentPreview
       );
-
-      expect(store.getCell('search', 'P1', 'contentPreview')).toBe(
-        shortContentPreview
-      );
     });
 
     it(`should update preview on individual content change`, () => {
@@ -329,10 +296,6 @@ describe('search ancestry service', () => {
 
       expect(store.getCell('search', 'D1', 'contentPreview')).toBe(
         shortContentPreviewUpdated
-      );
-
-      expect(store.getCell('search', 'P1', 'contentPreview')).toBe(
-        shortContentPreview
       );
     });
 
@@ -350,10 +313,6 @@ describe('search ancestry service', () => {
 
       // pull
       space.setContent(spaceContent);
-
-      expect(store.getCell('search', 'P1', 'contentPreview')).toBe(
-        shortContentPreview
-      );
     });
   });
 });

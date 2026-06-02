@@ -79,21 +79,6 @@ export const oneNotebook = (
     itemId: id
   };
 };
-export const onePage = (
-  title = '',
-  parent = DEFAULT_NOTEBOOK_ID
-): CollectionItem => {
-  // note: title param is just there so the method has the same signature as the others
-  if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
-  const id = getUniqueId();
-  return {
-    ...collectionService.getNewPageObj(parent).item,
-    id,
-    itemId: id,
-    title: '',
-    title_meta: setFieldMeta('', Date.now())
-  };
-};
 
 export const oneNote = (docId: string): WithId<DocAnnotationRow> => {
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
@@ -107,7 +92,7 @@ export const oneNote = (docId: string): WithId<DocAnnotationRow> => {
 type ItemTypesType = {
   type: string;
   typeVal: CollectionItemTypeValues;
-  addMethod: 'addDocument' | 'addFolder' | 'addPage' | 'addNotebook';
+  addMethod: 'addDocument' | 'addFolder' | 'addNotebook';
   testAddFn: (title?: string, parent?: string) => CollectionItem;
   defaultTitle: string;
 };
@@ -143,7 +128,6 @@ export const BROWSABLE_ITEM_TYPES: ItemTypesType[] = [
 export const ITEM_TYPES: ItemTypesType[] = [...BROWSABLE_ITEM_TYPES];
 
 export const NON_NOTEBOOK_ITEM_TYPES: ItemTypesType[] = ITEM_TYPES.filter(
-  // i => i.type === 'page'
   i => i.type !== 'notebook' // TODO revert
 );
 
@@ -190,7 +174,7 @@ export const conflictFields: TestField[] = [titleField, contentField];
 
 export const nonConflictFields: TestField[] = [
   tagsField,
-  // orderField, // order complicates tests because it's a historizable field for page but not for doc
+  // orderField, // TODO update test matrix
   displayOptsField
 ];
 
@@ -199,11 +183,6 @@ export const allHistorizableFields: TestField[] = [
   contentField,
   tagsField,
   displayOptsField
-];
-
-export const allPageHistorizableFields: TestField[] = [
-  contentField,
-  orderField
 ];
 
 export const getNewValue = (
@@ -453,9 +432,6 @@ export const createLocalItem = (
   if (data.type === CollectionItemType.document) {
     const { item, id } = collectionService.getNewDocumentObj(data.parent!);
     return createItem({ ...item, id }, data);
-  } else if (data.type === CollectionItemType.page) {
-    const { item, id } = collectionService.getNewPageObj(data.parent!);
-    return createItem({ ...item, id, title: '', title_meta: '' }, data);
   } else if (data.type === CollectionItemType.folder) {
     const { item, id } = collectionService.getNewFolderObj(data.parent!);
     return createItem({ ...item, id }, data);

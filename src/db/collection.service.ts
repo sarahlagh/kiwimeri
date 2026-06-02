@@ -11,8 +11,6 @@ import {
   CollectionItemUpdate,
   CollectionItemUpdateChangeFields,
   isDocument,
-  isPageOrDocument,
-  PageResult,
   setFieldMeta,
   SortableCollectionItem
 } from '@/collection/collection';
@@ -31,11 +29,7 @@ import { Table } from 'tinybase/store';
 import { searchAncestryService } from '../search/search-ancestry.service';
 import { historyService } from './collection-history.service';
 import notebooksService from './notebooks.service';
-import {
-  useCellWithRef,
-  useResultSortedRowIdsWithRef,
-  useTableWithRef
-} from './tinybase/hooks';
+import { useCellWithRef, useResultSortedRowIdsWithRef } from './tinybase/hooks';
 import { SerializableData } from './types/store-types';
 import userSettingsService from './user-settings.service';
 
@@ -91,29 +85,6 @@ class CollectionService {
           select('order');
           where('parent', parent);
           where('deleted', deleted);
-          where(getCell => {
-            const type = getCell('type')?.valueOf();
-            return type !== CollectionItemType.page;
-          });
-        }
-      );
-    }
-    return queryName;
-  }
-
-  private fetchPagesForDocQuery(document: string) {
-    const queryName = `fetchPagesForDoc${document}`;
-    if (!spaceQueries.hasQuery(queryName)) {
-      spaceQueries.setQueryDefinition(
-        queryName,
-        this.tableId,
-        ({ select, where }) => {
-          select('created');
-          select('updated');
-          select('conflict');
-          select('order');
-          where('parent', document);
-          where('type', CollectionItemType.page);
         }
       );
     }
@@ -217,9 +188,7 @@ class CollectionService {
     );
   }
 
-  // can't i use ancestry instead???
-  // oh right, slice row ids can't be sorted because ancestry table doesn't have enough info
-  // TODO need to rethink the model here
+  // TODO just use fetchItemsQuery without a parent
   public getAllCollectionItemsRecursive(
     parent: string,
     sort?: CollectionItemSort,
@@ -232,8 +201,7 @@ class CollectionService {
     const level = this.getCollectionItems(parent, sort);
     if (cb) cb(level);
     results = [...level];
-    const folders = level.filter(item => item.type !== CollectionItemType.page);
-    folders.forEach(folder => {
+    level.forEach(folder => {
       const subLevel = this.getAllCollectionItemsRecursive(folder.id, sort);
       if (cb) cb(subLevel);
       results = [...results, ...subLevel];
@@ -267,43 +235,6 @@ class CollectionService {
           return 0; // already covered above
       }
     });
-  }
-
-  public getDocumentPages(
-    document: string,
-    sort?: CollectionItemSort
-  ): PageResult[] {
-    if (!sort) {
-      const displayOpts = this.getItemEffectiveDisplayOpts(document);
-      sort = displayOpts.sort;
-    }
-    if (!this.itemExists(document)) return [];
-    const table = space.getTable(this.tableId);
-    const queryName = this.fetchPagesForDocQuery(document);
-    const results = this.getResultsSorted(table, queryName, sort);
-    if (sort.by !== 'preview') {
-      // if sort by preview, results have already been enriched
-      return searchAncestryService.enrichWithPreview(results);
-    }
-    return results as PageResult[];
-  }
-
-  public useDocumentPages(
-    document: string,
-    sort?: CollectionItemSort
-  ): PageResult[] {
-    if (!sort) {
-      const displayOpts = this.useItemEffectiveDisplayOpts(document);
-      sort = displayOpts.sort;
-    }
-    const table = useTableWithRef(this.storeId, this.tableId);
-    const queryName = this.fetchPagesForDocQuery(document);
-    const results = this.useResultsSorted(table, queryName, sort);
-    if (sort.by !== 'preview') {
-      // if sort by preview, results have already been enriched
-      return searchAncestryService.enrichWithPreview(results);
-    }
-    return results as PageResult[];
   }
 
   public getConflicts(sort?: CollectionItemSort) {
@@ -374,34 +305,6 @@ class CollectionService {
     return id;
   }
 
-  public getNewPageObj(document: string) {
-    const id = getUniqueId();
-    const now = Date.now();
-    const content = initialContent();
-    const item: Omit<CollectionItem, 'title' | 'title_meta'> = {
-      itemId: id,
-      parent: document,
-      parent_meta: setFieldMeta(document, now),
-      content,
-      content_meta: setFieldMeta(content, now),
-      created: now,
-      updated: now,
-      type: CollectionItemType.page,
-      deleted: false,
-      deleted_meta: setFieldMeta('false', now),
-      order: DEFAULT_ORDER, // TODO dynamic order
-      order_meta: setFieldMeta('0', now)
-    };
-    return { item, id };
-  }
-
-  public addPage(document: string) {
-    const { item, id } = this.getNewPageObj(document);
-    historyService.saveNow();
-    this.saveItem(item as CollectionItem, id, document);
-    return id;
-  }
-
   // for tests
   public addNotebook(parent: string, title = '') {
     return notebooksService.addNotebook(title, parent);
@@ -431,13 +334,13 @@ class CollectionService {
 
     // TODO not sure why transaction breaks addVersionFromItem here - try startTransaction / endTransaction instead?
     // TODO should probably check if a relevant field has been updated here
-    if (isPageOrDocument(item)) {
+    if (isDocument(item)) {
       historyService.saveVersionFromItem({ ...item, id } as CollectionItem);
     }
     return id;
   }
 
-  public deleteItem(rowId: Id, moveItemsUp = false, isRootDeletion = true) {
+  public deleteItem(rowId: Id, moveItemsUp = false) {
     this.updateAllParentsInBreadcrumb(this.getItemParent(rowId));
     const itemType = this.getItemType(rowId);
     if (isDocument({ type: itemType })) {
@@ -445,7 +348,6 @@ class CollectionService {
     }
     const wasFolder = itemType === CollectionItemType.folder;
     const wasDocument = itemType === CollectionItemType.document;
-    const wasPage = itemType === CollectionItemType.page;
     const parent = this.getItemParent(rowId);
     if (wasFolder) {
       const queryName = this.fetchDocsFoldersNotebooksPerParentQuery(rowId);
@@ -454,25 +356,15 @@ class CollectionService {
       if (children.length > 0) {
         children.forEach(id => {
           if (!moveItemsUp) {
-            this.deleteItem(id, undefined, false);
+            this.deleteItem(id, undefined);
           } else {
             this.setItemParent(id, parent);
           }
         });
       }
     }
-    if (wasDocument || (wasPage && isRootDeletion)) {
-      historyService.saveDeleteVersion(rowId);
-    }
     if (wasDocument) {
-      const queryName = this.fetchPagesForDocQuery(rowId);
-      const children = spaceQueries.getResultSortedRowIds(queryName);
-      console.debug(`document to delete had ${children.length} pages`);
-      if (children.length > 0) {
-        children.forEach(id => {
-          this.deleteItem(id, undefined, false);
-        });
-      }
+      historyService.saveDeleteVersion(rowId);
     }
     space.delRow(this.tableId, rowId);
   }
@@ -753,23 +645,14 @@ class CollectionService {
     type: CollectionItemTypeValues,
     key: CollectionItemUpdatableFieldEnum
   ) {
-    return (
-      CollectionItemUpdateChangeFields.includes(key) ||
-      type === CollectionItemType.page
-    );
+    return CollectionItemUpdateChangeFields.includes(key);
   }
 
   public isHistorizableContentChange(
     type: CollectionItemTypeValues,
     key: CollectionItemUpdatableFieldEnum
   ) {
-    if (
-      type !== CollectionItemType.page &&
-      type !== CollectionItemType.document
-    )
-      return false;
-    if (key === 'order' && type === CollectionItemType.page) return true;
-    if (key === 'order' && type === CollectionItemType.document) return false;
+    if (!isDocument(type)) return false;
     return CollectionItemUpdateChangeFields.includes(key);
   }
 

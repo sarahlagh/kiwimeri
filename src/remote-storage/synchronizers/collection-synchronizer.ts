@@ -3,9 +3,7 @@ import {
   CollectionItemUpdatableFieldEnum,
   CollectionItemUpdateChangeFields,
   CollectionItemWithId,
-  isDocument,
-  isPage,
-  isPageOrDocument
+  isDocument
 } from '@/collection/collection';
 import {
   MinKeys as ItemsMinKeys,
@@ -586,7 +584,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   private handleResumeState(changes: AfterSyncHistChange[]) {
     // reset resume state if content has changed
     changes
-      .filter(ch => isPageOrDocument({ type: ch.type }))
+      .filter(ch => isDocument({ type: ch.type }))
       .filter(ch => ch.field === 'content')
       .forEach(ch => resumeService.setLastSelection(ch.id, null));
   }
@@ -598,40 +596,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     changes
       .filter(ch => isDocument({ type: ch.type }))
       .forEach(ch => docsMap.set(ch.id, ch));
-    changes
-      .filter(
-        ch =>
-          isPage({ type: ch.type }) &&
-          !docsMap.has(ch.parent) &&
-          ch.change !== LocalChangeType.delete
-      )
-      .forEach(ch => {
-        docsMap.set(ch.parent, {
-          id: ch.parent,
-          on: 'collection',
-          type: CollectionItemType.document,
-          change: ch.change,
-          parent: '' // on doc, parent not used
-        });
-      });
 
-    // special case for pages deleted
-    changes
-      .filter(
-        ch => isPage({ type: ch.type }) && ch.change === LocalChangeType.delete
-      )
-      .forEach(ch => {
-        historyService.markLatestVersionDeleted(ch.id);
-        if (!docsMap.has(ch.parent)) {
-          docsMap.set(ch.parent, {
-            id: ch.parent,
-            on: 'collection',
-            type: CollectionItemType.document,
-            change: LocalChangeType.update,
-            parent: '' // on doc, parent not used
-          });
-        }
-      });
     [...docsMap.values()].forEach(ch => {
       historyService.updateAfterSync(ch);
     });

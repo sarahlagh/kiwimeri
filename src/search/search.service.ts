@@ -1,6 +1,5 @@
 import { CollectionItemTypeValues } from '@/collection/collection';
 import { space, store } from '@/core/db/store';
-import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import { $getRoot, ElementNode, LexicalEditor, TextNode } from 'lexical';
 import { searchAncestryService } from './search-ancestry.service';
@@ -58,30 +57,6 @@ class CollectionContentSearchService {
 
   public acceptsSearchText(searchText?: string | null) {
     return searchText && searchText.length >= MIN_INPUT_LENGTH;
-  }
-
-  public searchInPages(
-    rowId: string,
-    searchText: string,
-    searchOptions?: SearchOptions
-  ) {
-    if (!this.acceptsSearchText(searchText)) return [];
-    searchOptions = { ...defaultOptions, ...searchOptions };
-    const regex = this.buildRegex(searchText, searchOptions);
-    const ids: string[] = [];
-
-    const plainText =
-      store.getCell('search', rowId, 'contentPreview')?.toString() || '';
-    if (regex.exec(plainText.replaceAll(REPLACED_CHARS, ' ')) !== null)
-      ids.push(rowId);
-    const pages = collectionService.getDocumentPages(rowId);
-    for (const page of pages) {
-      const pageText =
-        store.getCell('search', page.id, 'contentPreview')?.toString() || '';
-      if (regex.exec(pageText.replaceAll(REPLACED_CHARS, ' ')) !== null)
-        ids.push(page.id);
-    }
-    return ids;
   }
 
   public *searchArbitraryText(

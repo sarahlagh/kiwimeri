@@ -261,9 +261,6 @@ const CollectionItemList = ({
             ranges.push(range);
           }
         }
-        if (searchService.searchInPages(i.id, searchText!).length > 0) {
-          itemsMixIn.set(i.id, { isSearchResult: true, highlighted: true });
-        }
       });
       finalItems = items.filter(
         i =>

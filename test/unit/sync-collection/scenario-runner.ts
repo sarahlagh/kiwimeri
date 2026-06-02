@@ -3,7 +3,7 @@ import {
   CollectionItemType,
   CollectionItemTypeValues,
   CollectionItemUpdatableFieldEnum,
-  isPageOrDocument,
+  isDocument,
   parseFieldMeta,
   setFieldMeta
 } from '@/collection/collection';
@@ -588,7 +588,7 @@ export class PullTestScenarioRunner {
     type: CollectionItemTypeValues,
     values: PullTestEndStatsItem
   ) {
-    const hasContent = isPageOrDocument({ type });
+    const hasContent = isDocument({ type });
     const defaultValues: MinStatItem = {
       exists: true,
       hasConflict: false,

@@ -321,12 +321,6 @@ describe('collection history service', () => {
 
   it(`getLatestVersion method`, () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    vi.advanceTimersByTime(100);
-    collectionService.addPage(docId);
-    vi.advanceTimersByTime(100);
-    collectionService.addPage(docId);
-    vi.advanceTimersByTime(100);
-
     const docVersions = historyService.getVersions(docId);
     const latestVersions = historyService.getLatestVersion(docId);
     expect(docVersions[0].id).toBe(latestVersions.id);

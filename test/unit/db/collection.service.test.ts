@@ -23,13 +23,10 @@ import {
   fakeTimersDelay,
   GET_NON_PARENT_UPDATABLE_FIELDS,
   getCollectionItem,
-  getLocalItemField,
   getNewValue,
   markAsConflict,
   UPDATABLE_FIELDS
 } from '@@/_setup/test.utils';
-import { renderHook } from '@testing-library/react';
-import { act } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const shortContent = JSON.parse(
@@ -378,19 +375,6 @@ describe('collection service', () => {
             }
           });
         });
-
-        it(`should delete all pages of a document when deleting the document`, () => {
-          const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-          const pageId1 = collectionService.addPage(id);
-          const pageId2 = collectionService.addPage(id);
-          const pageId3 = collectionService.addPage(id);
-
-          collectionService.deleteItem(id);
-          expect(collectionService.itemExists(id)).toBe(false);
-          expect(collectionService.itemExists(pageId1)).toBe(false);
-          expect(collectionService.itemExists(pageId2)).toBe(false);
-          expect(collectionService.itemExists(pageId3)).toBe(false);
-        });
       }
 
       if (type === 'folder') {
@@ -425,147 +409,11 @@ describe('collection service', () => {
     });
   });
 
-  describe(`operations on a page`, () => {
-    it('should add a page to a document', () => {
-      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-      act(() => {
-        const pageId = collectionService.addPage(docId);
-        expect(getLocalItemField(pageId, 'type')).toBe(CollectionItemType.page);
-      });
-
-      const { result } = renderHook(() =>
-        collectionService.useDocumentPages(docId)
-      );
-      expect(result.current).toHaveLength(1);
-    });
-
-    it(`should update the parent (document) of a page`, () => {
-      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-      const docId2 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-      const id = collectionService.addPage(docId);
-      vi.advanceTimersByTime(100);
-      collectionService.setItemParent(id, docId2);
-      const item = getCollectionItem(id);
-      expect(item.parent).toBe(docId2);
-      expect(item.created).toBeLessThan(item.updated); // parent change does update ts
-      const meta = parseFieldMeta(item.parent_meta);
-      expect(meta.u).toBe(item.updated);
-    });
-
-    it(`should update the parent (document) of a page and recursively update all parents timestamp`, () => {
-      const now = Date.now();
-      const folderIdO = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
-      const folderId1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
-      const folderId2 = collectionService.addFolder(folderId1);
-      const folderId3 = collectionService.addFolder(folderId2);
-      const docId = collectionService.addDocument(folderId3);
-      const docId2 = collectionService.addDocument(folderIdO);
-      const id = collectionService.addPage(docId);
-      vi.advanceTimersByTime(100);
-      collectionService.setItemParent(id, docId2);
-      const item = getCollectionItem(id);
-      expect(item.parent).toBe(docId2);
-      expect(item.created).toBeLessThan(item.updated);
-      const meta = parseFieldMeta(item.parent_meta);
-      expect(meta.u).toBe(item.updated);
-
-      const folderO = getCollectionItem(folderIdO);
-      const folder1 = getCollectionItem(folderId1);
-      const folder2 = getCollectionItem(folderId2);
-      const folder3 = getCollectionItem(folderId3);
-
-      // TODO: could also want to update old doc parents...
-      expect(folderO.updated).toBe(now + 100);
-      expect(parseFieldMeta(folderO.parent_meta).u).toBe(now);
-      expect(folder1.updated).toBe(now);
-      expect(parseFieldMeta(folder1.parent_meta).u).toBe(now);
-      expect(folder2.updated).toBe(now);
-      expect(parseFieldMeta(folder2.parent_meta).u).toBe(now);
-      expect(folder3.updated).toBe(now);
-      expect(parseFieldMeta(folder3.parent_meta).u).toBe(now);
-    });
-
-    it(`should update the content of a page`, () => {
-      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-      const id = collectionService.addPage(docId);
-      vi.advanceTimersByTime(100);
-      collectionService.setItemLexicalContent(id, shortContent);
-      const item = getCollectionItem(id);
-      expect(item.content).toBe(minimizeContentForStorage(shortContent));
-      expect(item.created).toBeLessThan(item.updated);
-      const meta = parseFieldMeta(item.content_meta!);
-      expect(meta.u).toBe(item.updated);
-    });
-
-    it(`should update the content of a page and update all parents timestamp too`, () => {
-      const now = Date.now();
-      const folderId1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
-      const folderId2 = collectionService.addFolder(folderId1);
-      const folderId3 = collectionService.addFolder(folderId2);
-      const docId = collectionService.addDocument(folderId3);
-      const id = collectionService.addPage(docId);
-      vi.advanceTimersByTime(100);
-      collectionService.setItemLexicalContent(id, shortContent);
-      const item = getCollectionItem(id);
-      expect(item.content).toBe(minimizeContentForStorage(shortContent));
-      expect(item.created).toBeLessThan(item.updated);
-      const meta = parseFieldMeta(item.content_meta!);
-      expect(meta.u).toBe(item.updated);
-
-      const folder1 = getCollectionItem(folderId1);
-      const folder2 = getCollectionItem(folderId2);
-      const folder3 = getCollectionItem(folderId3);
-
-      expect(folder1.updated).toBe(now + 100);
-      expect(folder2.updated).toBe(now + 100);
-      expect(folder3.updated).toBe(now + 100);
-    });
-
-    it(`should delete an existing page`, () => {
-      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-      const id = collectionService.addPage(docId);
-      const id2 = collectionService.addPage(docId);
-
-      vi.advanceTimersByTime(100);
-      collectionService.deleteItem(id!);
-
-      expect(collectionService.itemExists(docId)).toBe(true);
-      expect(collectionService.itemExists(id)).toBe(false);
-
-      const { result } = renderHook(() =>
-        collectionService.useDocumentPages(docId)
-      );
-      expect(result.current).toHaveLength(1);
-      expect(result.current[0].id).toBe(id2);
-    });
-
-    it(`should delete an existing page and recursively update all parents timestamp`, () => {
-      const now = Date.now();
-      const folderId1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
-      const folderId2 = collectionService.addFolder(folderId1);
-      const folderId3 = collectionService.addFolder(folderId2);
-      const docId = collectionService.addDocument(folderId3);
-      const id = collectionService.addPage(docId);
-      vi.advanceTimersByTime(100);
-      collectionService.deleteItem(id);
-      expect(collectionService.itemExists(id)).toBe(false);
-
-      const folder1 = getCollectionItem(folderId1);
-      const folder2 = getCollectionItem(folderId2);
-      const folder3 = getCollectionItem(folderId3);
-
-      expect(folder1.updated).toBe(now + 100);
-      expect(folder2.updated).toBe(now + 100);
-      expect(folder3.updated).toBe(now + 100);
-    });
-  });
-
   describe(`getting the breadcrumb`, () => {
     it(`should return a breadcrumb with only one parent notebook`, () => {
       const idn1 = notebooksService.addNotebook('test');
       const idn2 = notebooksService.addNotebook('nested', idn1);
       const idd1 = collectionService.addDocument(idn2);
-      const idp1 = collectionService.addPage(idd1);
       const idf1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
       const idd2 = collectionService.addDocument(idf1);
 
@@ -578,11 +426,6 @@ describe('collection service', () => {
       expect(collectionService.getBreadcrumb(idn1)).toStrictEqual([idn1]);
       expect(collectionService.getBreadcrumb(idn2)).toStrictEqual([idn2]);
       expect(collectionService.getBreadcrumb(idd1)).toStrictEqual([idn2, idd1]);
-      expect(collectionService.getBreadcrumb(idp1)).toStrictEqual([
-        idn2,
-        idd1,
-        idp1
-      ]);
       expect(collectionService.getBreadcrumb(idf1)).toStrictEqual([
         DEFAULT_NOTEBOOK_ID,
         idf1
@@ -598,7 +441,6 @@ describe('collection service', () => {
       const idn1 = notebooksService.addNotebook('test');
       const idn2 = notebooksService.addNotebook('nested', idn1);
       const idd1 = collectionService.addDocument(idn2);
-      const idp1 = collectionService.addPage(idd1);
       const idf1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
       const idd2 = collectionService.addDocument(idf1);
 
@@ -613,12 +455,6 @@ describe('collection service', () => {
         idn1,
         idn2,
         idd1
-      ]);
-      expect(collectionService.getBreadcrumb(idp1, true)).toStrictEqual([
-        idn1,
-        idn2,
-        idd1,
-        idp1
       ]);
       expect(collectionService.getBreadcrumb(idf1, true)).toStrictEqual([
         DEFAULT_NOTEBOOK_ID,
@@ -637,13 +473,12 @@ describe('collection service', () => {
       const idn1 = notebooksService.addNotebook('test');
       const idn2 = notebooksService.addNotebook('nested', idn1);
       const idd1 = collectionService.addDocument(idn2);
-      const idp1 = collectionService.addPage(idd1);
       const idf1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
       const idd2 = collectionService.addDocument(idf1);
 
       expect(
         collectionService.getAllCollectionItemsRecursive(ROOT_COLLECTION)
-      ).toHaveLength(7); // +1 for default notebook
+      ).toHaveLength(6); // +1 for default notebook
 
       expect(
         collectionService.getAllCollectionItemsRecursive(DEFAULT_NOTEBOOK_ID)
@@ -651,18 +486,14 @@ describe('collection service', () => {
 
       expect(
         collectionService.getAllCollectionItemsRecursive(idn1)
-      ).toHaveLength(3);
-
-      expect(
-        collectionService.getAllCollectionItemsRecursive(idn2)
       ).toHaveLength(2);
 
       expect(
-        collectionService.getAllCollectionItemsRecursive(idd1)
+        collectionService.getAllCollectionItemsRecursive(idn2)
       ).toHaveLength(1);
 
       expect(
-        collectionService.getAllCollectionItemsRecursive(idp1)
+        collectionService.getAllCollectionItemsRecursive(idd1)
       ).toHaveLength(0);
 
       expect(
