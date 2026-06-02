@@ -47,6 +47,7 @@ storePersister
   .then(() => {
     console.log('[store] auto save started');
   });
+
 spacePersister
   .save()
   .then(() => spacePersister.startAutoSave())

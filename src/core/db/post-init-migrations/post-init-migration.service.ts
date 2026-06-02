@@ -31,6 +31,7 @@ class PostInitMigrationService {
       space.setValue('schemaVersion', baseRuntimeVersion);
     }
 
+    await this.runStoreMigrations(store, storeCode, runtimeCode);
     await this.runSpaceMigrations(space, spaceCode, runtimeCode);
   }
 
@@ -43,6 +44,18 @@ class PostInitMigrationService {
       console.log('[space] 1 migration to run: itemId backfill');
       const func = await import('./001-add-itemid-column');
       func.default(space);
+    }
+  }
+
+  private async runStoreMigrations(
+    store: Store<StoreType>,
+    from: number,
+    to: number
+  ) {
+    if (between(to, 308, 401)) {
+      console.log('[store] 1 migration to run: reset search ancestry');
+      const func = await import('./xxx-reset-search-ancestry');
+      func.default(store);
     }
   }
 }

@@ -40,11 +40,11 @@ export function appInit() {
   startDbListeners();
 
   setTimeout(async () => {
+    await postInitMigrationService.start(store, space);
     const initialStatus = await Network.getStatus();
     console.debug('[app-init] got initial network status', initialStatus);
     networkService.init(initialStatus);
 
-    postInitMigrationService.start(store, space);
     notebooksService.initNotebooks();
     searchAncestryService.start(DEFAULT_SPACE_ID);
     remotesService.initSync();
