@@ -462,7 +462,7 @@ class CollectionService {
       }
     }
     if (wasDocument || (wasPage && isRootDeletion)) {
-      historyService.saveDeleteVersion(rowId, itemType);
+      historyService.saveDeleteVersion(rowId);
     }
     if (wasDocument) {
       const queryName = this.fetchPagesForDocQuery(rowId);
@@ -679,7 +679,7 @@ class CollectionService {
         });
       });
       if (parent && items.length > 0) {
-        historyService.saveWholeDocumentVersion(parent);
+        historyService.addVersion(parent);
       }
     });
   }
@@ -834,9 +834,7 @@ class CollectionService {
       });
     });
     if (!bulk) {
-      allDocIds.forEach(docId =>
-        historyService.saveWholeDocumentVersion(docId, true)
-      );
+      allDocIds.forEach(docId => historyService.addVersion(docId, true));
     }
     return allDocIds;
   }

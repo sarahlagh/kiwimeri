@@ -99,8 +99,7 @@ export const spaceTablesSchema = {
     createdAt: { type: 'number' },
     rank: { type: 'number' },
     snapshotJson: { type: 'string' },
-    contentId: { type: 'string' },
-    pageVersionsArrayJson: { type: 'string' }
+    contentId: { type: 'string' }
   },
   history_content: {
     content: { type: 'string' },

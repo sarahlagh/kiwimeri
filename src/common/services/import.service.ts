@@ -940,9 +940,7 @@ class ImportService {
       ...collectionService.saveItems(zipMerge.newItems, undefined, true),
       ...collectionService.saveItems(zipMerge.updatedItems, undefined, true)
     ];
-    allDocIds.forEach(docId =>
-      historyService.saveWholeDocumentVersion(docId, true)
-    );
+    allDocIds.forEach(docId => historyService.addVersion(docId, true));
     // });
   }
 
@@ -983,7 +981,7 @@ class ImportService {
       });
     });
     if (docId) {
-      historyService.saveWholeDocumentVersion(docId, true);
+      historyService.addVersion(docId, true);
     }
     return docId;
   }

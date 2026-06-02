@@ -8,6 +8,6 @@ export default function Migration(space: Store<SpaceType>) {
   const rowIds = space.getRowIds('collection');
   rowIds.forEach(rowId => {
     if (collection[rowId].type !== CollectionItemType.document) return;
-    historyService.saveWholeDocumentVersion(rowId, true);
+    historyService.addVersion(rowId, true);
   });
 }

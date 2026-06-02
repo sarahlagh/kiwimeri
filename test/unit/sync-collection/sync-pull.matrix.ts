@@ -7,10 +7,8 @@ import { LocalChangeType } from '@/domain/local-changes/model';
 import {
   allFields,
   allHistorizableFields,
-  allPageHistorizableFields,
   conflictFields,
   contentField,
-  displayOptsField,
   nonConflictFields,
   orderField,
   parentField,
@@ -46,21 +44,10 @@ const scenarioMatrix: {
         endStats: b =>
           b
             .theItem({ exists: true, hasConflict: false })
-            .ifPage()
-            .itsParent({ hasVersions: 2 })
             // force pull: item is deleted
             .ifForcePull()
             .theItem({ exists: false })
             .itsParent({ exists: false })
-            .ifPage()
-            .theItem({
-              hasVersions: 2,
-              latestVersionsOp: ['deleted', 'snapshot']
-            })
-            .itsParent({
-              hasVersions: 3,
-              latestVersionsOp: ['deleted', 'snapshot']
-            })
             .ifDocument()
             .theItem({
               hasVersions: 2,
@@ -111,8 +98,6 @@ const scenarioMatrix: {
                 expect(metaField.u).not.toBe(relevantItem?.initValue?.at);
               }
             })
-            .ifPage()
-            .itsParent({ hasVersions: 2 })
             .ifForcePull()
             .theItem({
               otherAssert: () => {},
@@ -143,21 +128,6 @@ const scenarioMatrix: {
               hasVersions: 2,
               latestVersionsOp: ['deleted', 'snapshot']
             })
-            .ifPage()
-            .theItem({
-              hasVersions: 2,
-              latestVersionsOp: ['deleted', 'snapshot']
-            })
-            .itsParent({
-              exists: true,
-              hasVersions: 3,
-              otherHistoryAssert: versions => {
-                expect(versions[0].rank).toBe(0);
-                expect(versions[0].pageVersionsArrayJson).toBeUndefined();
-                expect(versions[1].rank).toBe(1);
-                expect(versions[1].pageVersionsArrayJson).toHaveLength(1);
-              }
-            })
             // if force pull, item pulled
             .ifForcePull()
             .theItem({ exists: true })
@@ -165,20 +135,6 @@ const scenarioMatrix: {
             .theItem({
               hasVersions: 3,
               latestVersionsOp: ['snapshot', 'deleted', 'snapshot']
-            })
-            .ifPage()
-            .theItem({
-              hasVersions: 3,
-              latestVersionsOp: ['snapshot', 'deleted', 'snapshot']
-            })
-            .itsParent({
-              hasVersions: 4,
-              otherHistoryAssert: versions => {
-                expect(versions[0].rank).toBe(0);
-                expect(versions[0].pageVersionsArrayJson).toHaveLength(1);
-                expect(versions[1].rank).toBe(1);
-                expect(versions[1].pageVersionsArrayJson).toBeUndefined();
-              }
             })
       },
       {
@@ -200,19 +156,6 @@ const scenarioMatrix: {
               hasVersions: 2,
               latestVersionsOp: ['deleted', 'snapshot']
             })
-            .ifPage()
-            .theItem({
-              hasVersions: 2,
-              latestVersionsOp: ['deleted', 'snapshot']
-            })
-            .itsParent({
-              exists: true,
-              hasVersions: 3,
-              otherHistoryAssert: versions => {
-                expect(versions[0].pageVersionsArrayJson).toBeUndefined();
-                expect(versions[1].pageVersionsArrayJson).toHaveLength(1);
-              }
-            })
       },
       {
         skipForcePull: true,
@@ -233,9 +176,6 @@ const scenarioMatrix: {
             })
             .ifDocument()
             .theItem({ hasVersions: 3 })
-            .ifPage()
-            .theItem({ hasVersions: 3 })
-            .itsParent({ hasVersions: 4 })
       },
       {
         skipForcePull: true,
@@ -256,22 +196,6 @@ const scenarioMatrix: {
             })
             .ifDocument()
             .theItem({ hasVersions: 3 })
-            .ifPage()
-            .theItem({ hasVersions: 3 })
-            .itsParent({
-              hasVersions: 1,
-              otherHistoryAssert: versions => {
-                expect(versions[0].pageVersionsArrayJson).toHaveLength(1);
-              }
-            })
-            .itsOldParent({
-              hasVersions: 3,
-              latestVersionsOp: ['snapshot', 'snapshot', 'snapshot'],
-              otherHistoryAssert: versions => {
-                // check latest version doesn't have page
-                expect(versions[0].pageVersionsArrayJson).toBeUndefined();
-              }
-            })
       }
     ]
   },
@@ -298,21 +222,10 @@ const scenarioMatrix: {
               hasVersions: 2,
               latestVersionsOp: ['deleted', 'snapshot']
             })
-            .ifPage()
-            .theItem({
-              hasVersions: 2,
-              latestVersionsOp: ['deleted', 'snapshot']
-            })
-            .itsParent({
-              hasVersions: 3
-            })
             .ifForcePull()
             .theItem({ exists: true })
             .ifDocument()
             .theItem({ hasVersions: 3, latestVersionsOp: ['snapshot'] })
-            .ifPage()
-            .theItem({ hasVersions: 3, latestVersionsOp: ['snapshot'] })
-            .itsParent({ hasVersions: 4 })
       },
       {
         description:
@@ -334,25 +247,10 @@ const scenarioMatrix: {
               hasVersions: 2,
               latestVersionsOp: ['deleted', 'snapshot']
             })
-            .ifPage()
-            .theItem({
-              hasVersions: 2,
-              latestVersionsOp: ['deleted', 'snapshot']
-            })
-            .itsParent({
-              hasVersions: 1
-            })
-            .itsOldParent({
-              hasVersions: 3
-            })
             .ifForcePull()
             .theItem({ exists: true })
             .ifDocument()
             .theItem({ hasVersions: 3, latestVersionsOp: ['snapshot'] })
-            .ifPage()
-            .theItem({ hasVersions: 3, latestVersionsOp: ['snapshot'] })
-            .itsParent({ hasVersions: 1 })
-            .itsOldParent({ hasVersions: 3 })
       }
     ]
   },
@@ -377,19 +275,6 @@ const scenarioMatrix: {
               hasVersions: 2,
               latestVersionsOp: ['deleted', 'snapshot']
             })
-            .ifPage()
-            .theItem({
-              hasVersions: 2,
-              latestVersionsOp: ['deleted', 'snapshot']
-            })
-            .itsParent({
-              exists: true,
-              hasVersions: 3,
-              otherHistoryAssert: versions => {
-                expect(versions[0].pageVersionsArrayJson).toBeUndefined();
-                expect(versions[1].pageVersionsArrayJson).toHaveLength(1);
-              }
-            })
       },
       {
         description:
@@ -408,19 +293,13 @@ const scenarioMatrix: {
             })
             .ifDocument()
             .theItem({ hasVersions: 2 })
-            .ifPage()
-            .theItem({ hasVersions: 2 })
-            .itsParent({ hasVersions: 3 })
             .ifForcePull()
             .theItem({ exists: false, hasValue: null })
             .ifDocument()
             .theItem({ hasVersions: 3, latestVersionsOp: ['deleted'] })
-            .ifPage()
-            .theItem({ hasVersions: 3, latestVersionsOp: ['deleted'] })
-            .itsParent({ hasVersions: 4 })
       },
       {
-        types: ['d', 'p'],
+        types: ['d'],
         description:
           'item deleted on remote, then updated locally on order field → local wins, item stays',
         initLocalData: [{ id: '#id', applyInitValue: true }],
@@ -437,16 +316,10 @@ const scenarioMatrix: {
             })
             .ifDocument()
             .theItem({ hasVersions: 1 })
-            .ifPage() // for page, order is a historizable field
-            .theItem({ hasVersions: 2 })
-            .itsParent({ hasVersions: 3 })
             .ifForcePull()
             .theItem({ exists: false, hasValue: null })
             .ifDocument()
             .theItem({ hasVersions: 2, latestVersionsOp: ['deleted'] })
-            .ifPage()
-            .theItem({ hasVersions: 3, latestVersionsOp: ['deleted'] })
-            .itsParent({ hasVersions: 4 })
       },
       {
         types: ['d', 'f', 'n'], // pages cannot be moved
@@ -490,19 +363,6 @@ const scenarioMatrix: {
               hasVersions: 2,
               latestVersionsOp: ['deleted', 'snapshot']
             })
-            .ifPage()
-            .theItem({
-              hasVersions: 2,
-              latestVersionsOp: ['deleted', 'snapshot']
-            })
-            .itsParent({
-              exists: true,
-              hasVersions: 3,
-              otherHistoryAssert: versions => {
-                expect(versions[0].pageVersionsArrayJson).toBeUndefined();
-                expect(versions[1].pageVersionsArrayJson).toHaveLength(1);
-              }
-            })
       }
     ]
   },
@@ -510,7 +370,7 @@ const scenarioMatrix: {
     label: '[item deleted remotely second]',
     scenarios: [
       {
-        types: ['d', 'p'],
+        types: ['d'],
         description:
           'item updated locally (CONFLICT field), then deleted on remote → conflict created',
         initLocalData: [{ id: '#id', applyInitValue: true }],
@@ -529,8 +389,6 @@ const scenarioMatrix: {
               hasVersions: 3,
               latestVersionsOp: ['deleted', 'snapshot', 'snapshot']
             })
-            .ifPage()
-            .itsParent({ hasVersions: 4 })
             .ifForcePull()
             .theItem({
               hasConflict: false
@@ -574,14 +432,6 @@ const scenarioMatrix: {
               hasVersions: 3,
               latestVersionsOp: ['deleted', 'snapshot', 'snapshot']
             })
-            .ifPage()
-            .theItem({
-              hasVersions: 3,
-              latestVersionsOp: ['deleted', 'snapshot', 'snapshot']
-            })
-            .itsParent({
-              hasVersions: 4
-            })
       },
       {
         didPush: false,
@@ -603,14 +453,6 @@ const scenarioMatrix: {
             .theItem({
               hasVersions: 2,
               latestVersionsOp: ['deleted', 'snapshot'] // non historizable change on doc
-            })
-            .ifPage()
-            .theItem({
-              hasVersions: 3,
-              latestVersionsOp: ['deleted', 'snapshot', 'snapshot']
-            })
-            .itsParent({
-              hasVersions: 4
             })
       },
       {
@@ -664,9 +506,6 @@ const scenarioMatrix: {
             .theItem({ exists: true, hasValue: 'local' })
             .ifDocument()
             .theItem({ hasVersions: f?.field === 'order' ? 1 : 2 })
-            .ifPage()
-            .theItem({ hasVersions: 2 })
-            .itsParent({ hasVersions: 3 })
             .ifForcePull()
             .theItem({ hasValue: 'init' })
       },
@@ -696,9 +535,6 @@ const scenarioMatrix: {
             .theItem({ id: '#id', hasValue: 'remote' })
             .ifDocument()
             .theItem({ hasVersions: f?.field === 'order' ? 1 : 2 })
-            .ifPage()
-            .theItem({ hasVersions: 2 })
-            .itsParent({ hasVersions: 3 })
       },
       {
         didPush: false,
@@ -724,9 +560,6 @@ const scenarioMatrix: {
             .theItem({ hasValue: 'remote' })
             .ifDocument()
             .theItem({ hasVersions: f?.field === 'order' ? 1 : 2 })
-            .ifPage()
-            .theItem({ hasVersions: 2 })
-            .itsParent({ hasVersions: 3 })
       },
       {
         didPush: false,
@@ -751,7 +584,7 @@ const scenarioMatrix: {
         endStats: b => b.theItem({ hasValue: 'remote' })
       },
       {
-        types: ['d', 'p'],
+        types: ['d'],
         description:
           'same field (CONFLICTING) on item updated locally, then remotely with different value → conflict created',
         fields: [...conflictFields],
@@ -778,9 +611,6 @@ const scenarioMatrix: {
             })
             .ifDocument()
             .theItem({ hasVersions: 2 })
-            .ifPage()
-            .theItem({ hasVersions: 2 })
-            .itsParent({ hasVersions: 3 })
             .ifForcePull()
             .theItem({ hasConflict: false })
       }
@@ -807,9 +637,6 @@ const scenarioMatrix: {
             .theItem({ exists: true, hasValue: 'remote' })
             .ifDocument()
             .theItem({ hasVersions: f?.field === 'order' ? 1 : 2 })
-            .ifPage()
-            .theItem({ hasVersions: 2 })
-            .itsParent({ hasVersions: 3 })
       },
       {
         description:
@@ -836,9 +663,6 @@ const scenarioMatrix: {
             .theItem({ hasValue: 'local' })
             .ifDocument()
             .theItem({ hasVersions: f?.field === 'order' ? 1 : 2 })
-            .ifPage()
-            .theItem({ hasVersions: 2 })
-            .itsParent({ hasVersions: 3 })
             .ifForcePull()
             .theItem({ hasValue: 'remote' })
       },
@@ -865,9 +689,6 @@ const scenarioMatrix: {
             .theItem({ hasValue: 'local' })
             .ifDocument()
             .theItem({ hasVersions: f?.field === 'order' ? 1 : 2 })
-            .ifPage()
-            .theItem({ hasVersions: 2 })
-            .itsParent({ hasVersions: 3 })
             .ifForcePull()
             .theItem({ hasValue: 'remote' })
       },
@@ -897,7 +718,7 @@ const scenarioMatrix: {
             .theItem({ hasValue: 'remote' })
       },
       {
-        types: ['d', 'p'],
+        types: ['d'],
         description:
           'same field (CONFLICTING) on item updated remotely, then locally with different value → local change persists',
         fields: [...conflictFields],
@@ -922,9 +743,6 @@ const scenarioMatrix: {
             })
             .ifDocument()
             .theItem({ hasVersions: 2 })
-            .ifPage()
-            .theItem({ hasVersions: 2 })
-            .itsParent({ hasVersions: 3 })
             .ifForcePull()
             .theItem({ hasValue: 'remote' })
       }
@@ -1783,628 +1601,6 @@ const scenarioMatrix: {
       }
     ]
   },
-  documentWithPagesUpdatedRemotely: {
-    types: ['d'],
-    skipForcePull: true,
-    label: '[document with pages updated remotely]',
-    scenarios: [
-      {
-        description:
-          'a doc & its page unchanged locally, were both updated remotely',
-        fields: [contentField, orderField],
-        initLocalData: [
-          { id: '#doc', type: 'd', applyInitValue: true },
-          { id: '#page1', type: 'p', parent: '#doc', applyInitValue: true }
-        ],
-        initRemoteData: [
-          { id: '#doc', type: 'd', applyInitValue: true },
-          { id: '#page1', type: 'p', parent: '#doc', applyInitValue: true }
-        ],
-        changesBeforePull: [
-          {
-            id: '#doc',
-            change: LocalChangeType.update,
-            where: 'remote'
-          },
-          {
-            id: '#page1',
-            change: LocalChangeType.update,
-            where: 'remote'
-          }
-        ],
-        endStats: b =>
-          b
-            .theItem({
-              id: '#page1',
-              hasVersions: 2
-            })
-            .itsParent({ hasVersions: 3 })
-      },
-      {
-        description:
-          'a doc & its page unchanged locally, were both updated remotely on different fields',
-        fields: [titleField, tagsField, displayOptsField],
-        initLocalData: [
-          { id: '#doc', type: 'd', applyInitValue: true },
-          { id: '#page1', type: 'p', parent: '#doc', applyInitValue: true }
-        ],
-        initRemoteData: [
-          { id: '#doc', type: 'd', applyInitValue: true },
-          { id: '#page1', type: 'p', parent: '#doc', applyInitValue: true }
-        ],
-        changesBeforePull: [
-          {
-            id: '#doc',
-            change: LocalChangeType.update,
-            where: 'remote'
-          },
-          {
-            id: '#page1',
-            change: LocalChangeType.update,
-            where: 'remote',
-            forceField: contentField
-          }
-        ],
-        endStats: b =>
-          b
-            .theItem({
-              id: '#page1',
-              hasVersions: 2
-            })
-            .itsParent({ hasVersions: 3 })
-      },
-      {
-        description:
-          'a doc was updated remotely, a new page was added to it remotely',
-        fields: [...allHistorizableFields],
-        initLocalData: [
-          { id: '#doc', applyInitValue: true },
-          { id: '#page1', type: 'p', parent: '#doc' }
-        ],
-        initRemoteData: [
-          { id: '#doc', applyInitValue: true },
-          { id: '#page1', type: 'p', parent: '#doc' }
-        ],
-        changesBeforePull: [
-          {
-            id: '#doc',
-            change: LocalChangeType.update,
-            where: 'remote'
-          },
-          {
-            id: '#page2',
-            change: LocalChangeType.add,
-            data: { parent: '#doc', type: 'p' },
-            where: 'remote'
-          }
-        ],
-        endStats: b =>
-          b
-            .theItem({
-              id: '#page2',
-              otherAssert: item => {
-                expect(item?.parent).toBe('#doc');
-              }
-            })
-            .itsParent({
-              hasValue: 'remote',
-              hasVersions: 3
-            })
-      },
-      {
-        description:
-          'an existing page of a doc was updated remotely, a new page was added to it remotely',
-        fields: [...allPageHistorizableFields],
-        initLocalData: [
-          { id: '#doc', applyInitValue: true },
-          { id: '#page1', type: 'p', parent: '#doc' }
-        ],
-        initRemoteData: [
-          { id: '#doc', applyInitValue: true },
-          { id: '#page1', type: 'p', parent: '#doc' }
-        ],
-        changesBeforePull: [
-          {
-            id: '#page1',
-            change: LocalChangeType.update,
-            where: 'remote'
-          },
-          {
-            id: '#page2',
-            change: LocalChangeType.add,
-            data: { parent: '#doc', type: 'p' },
-            where: 'remote'
-          }
-        ],
-        endStats: b =>
-          b
-            .theItem({
-              id: '#page1',
-              hasValue: 'remote',
-              hasVersions: 2
-            })
-            .itsParent({
-              hasVersions: 3
-            })
-            .theItem({
-              id: '#page2',
-              otherAssert: item => {
-                expect(item?.parent).toBe('#doc');
-              }
-            })
-            .itsParent({
-              hasVersions: 3,
-              otherHistoryAssert(versions) {
-                expect(versions[0].pageVersionsArrayJson).toHaveLength(2);
-              }
-            })
-      },
-      {
-        description: 'unchanged locally, 2 pages of a doc were added remotely',
-        initLocalData: [
-          { id: '#doc' },
-          { id: '#page1', type: 'p', parent: '#doc' }
-        ],
-        initRemoteData: [
-          { id: '#doc' },
-          { id: '#page1', type: 'p', parent: '#doc' }
-        ],
-        changesBeforePull: [
-          {
-            id: '#page2',
-            change: LocalChangeType.add,
-            data: { parent: '#doc', type: 'p' },
-            where: 'remote'
-          },
-          {
-            id: '#page3',
-            change: LocalChangeType.add,
-            data: { parent: '#doc', type: 'p' },
-            where: 'remote'
-          }
-        ],
-        endStats: b =>
-          b
-            .theItem({
-              id: '#page1',
-              hasVersions: 2
-            })
-            .itsParent({
-              hasVersions: 3
-            })
-            .theItem({
-              id: '#page2',
-              hasVersions: 1,
-              otherAssert: item => {
-                expect(item?.parent).toBe('#doc');
-              }
-            })
-            .itsParent({
-              hasVersions: 3
-            })
-            .theItem({
-              id: '#page3',
-              hasVersions: 1,
-              otherAssert: item => {
-                expect(item?.parent).toBe('#doc');
-              }
-            })
-            .itsParent({
-              hasVersions: 3
-            })
-            .theItem({
-              id: '#doc',
-              hasVersions: 3,
-              otherHistoryAssert: versions => {
-                expect(versions[0].pageVersionsArrayJson).toHaveLength(3);
-                expect(versions[1].pageVersionsArrayJson).toHaveLength(1);
-              }
-            })
-      },
-      {
-        description:
-          'unchanged locally, 2 pages of a doc were updated remotely',
-        fields: [...allPageHistorizableFields],
-        initLocalData: [
-          { id: '#doc' },
-          { id: '#page1', type: 'p', parent: '#doc', applyInitValue: true },
-          { id: '#page2', type: 'p', parent: '#doc', applyInitValue: true }
-        ],
-        initRemoteData: [
-          { id: '#doc' },
-          { id: '#page1', type: 'p', parent: '#doc', applyInitValue: true },
-          { id: '#page2', type: 'p', parent: '#doc', applyInitValue: true }
-        ],
-        changesBeforePull: [
-          {
-            id: '#page1',
-            change: LocalChangeType.update,
-            where: 'remote'
-          },
-          {
-            id: '#page2',
-            change: LocalChangeType.update,
-            where: 'remote'
-          }
-        ],
-        endStats: b =>
-          b
-            .theItem({
-              id: '#page1',
-              hasVersions: 2,
-              hasValue: 'remote'
-            })
-            .itsParent({
-              hasVersions: 4
-            })
-            .theItem({
-              id: '#page2',
-              hasVersions: 2,
-              hasValue: 'remote'
-            })
-            .itsParent({
-              hasVersions: 4
-            })
-      },
-      {
-        description:
-          'unchanged locally, 1 page of a doc was added remotely and 1 page was deleted remotely',
-        initLocalData: [
-          { id: '#doc' },
-          { id: '#page1', type: 'p', parent: '#doc' }
-        ],
-        initRemoteData: [
-          { id: '#doc' },
-          { id: '#page1', type: 'p', parent: '#doc' }
-        ],
-        changesBeforePull: [
-          {
-            id: '#page2',
-            change: LocalChangeType.add,
-            data: { parent: '#doc', type: 'p' },
-            where: 'remote'
-          },
-          {
-            id: '#page1',
-            change: LocalChangeType.delete,
-            where: 'remote'
-          }
-        ],
-        endStats: b =>
-          b
-            .theItem({
-              id: '#page1',
-              exists: false,
-              hasVersions: 2,
-              latestVersionsOp: ['deleted', 'snapshot']
-            })
-            .itsParent({
-              hasVersions: 3
-            })
-            .theItem({
-              id: '#page2',
-              hasVersions: 1,
-              otherAssert: item => {
-                expect(item?.parent).toBe('#doc');
-              }
-            })
-            .itsParent({
-              hasVersions: 3
-            })
-            .theItem({
-              id: '#doc',
-              hasVersions: 3,
-              otherHistoryAssert: versions => {
-                expect(versions[0].pageVersionsArrayJson).toHaveLength(1);
-                expect(versions[0].pageVersionsArrayJson![0].itemId).toBe(
-                  '#page2'
-                );
-                expect(versions[1].pageVersionsArrayJson).toHaveLength(1);
-                expect(versions[1].pageVersionsArrayJson![0].itemId).toBe(
-                  '#page1'
-                );
-              }
-            })
-      },
-      {
-        description:
-          'unchanged locally, 1 page of a doc was updated remotely and 1 page was deleted remotely',
-        fields: [...allPageHistorizableFields],
-        initLocalData: [
-          { id: '#doc' },
-          { id: '#page1', type: 'p', parent: '#doc' },
-          { id: '#page2', type: 'p', parent: '#doc', applyInitValue: true }
-        ],
-        initRemoteData: [
-          { id: '#doc' },
-          { id: '#page1', type: 'p', parent: '#doc' },
-          { id: '#page2', type: 'p', parent: '#doc', applyInitValue: true }
-        ],
-        changesBeforePull: [
-          {
-            id: '#page1',
-            change: LocalChangeType.delete,
-            where: 'remote'
-          },
-          {
-            id: '#page2',
-            change: LocalChangeType.update,
-            where: 'remote'
-          }
-        ],
-        endStats: b =>
-          b
-            .theItem({
-              id: '#page1',
-              exists: false,
-              hasVersions: 2,
-              latestVersionsOp: ['deleted', 'snapshot']
-            })
-            .itsParent({
-              hasVersions: 4
-            })
-            .theItem({
-              id: '#page2',
-              hasVersions: 2,
-              hasValue: 'remote'
-            })
-            .itsParent({
-              hasVersions: 4
-            })
-            .theItem({
-              id: '#doc',
-              hasVersions: 4,
-              otherHistoryAssert: versions => {
-                expect(versions[0].pageVersionsArrayJson).toHaveLength(1);
-                expect(versions[0].pageVersionsArrayJson![0].itemId).toBe(
-                  '#page2'
-                );
-                expect(versions[1].pageVersionsArrayJson).toHaveLength(2);
-              }
-            })
-      }
-    ]
-  },
-  documentWithPagesMoved: {
-    types: ['d'],
-    label: '[document with pages moved]',
-    scenarios: [
-      {
-        description:
-          'document moved locally, document + pages unchanged on remote → local move persists, pages stay with document',
-        fields: [parentField],
-        initLocalData: [
-          { id: '#doc', applyInitValue: true },
-          { id: '#page1', type: 'p', parent: '#doc' }
-        ],
-        initRemoteData: [
-          { id: '#doc', applyInitValue: true },
-          { id: '#page1', type: 'p', parent: '#doc' }
-        ],
-        changesBeforePull: [
-          {
-            id: '#doc',
-            change: LocalChangeType.update,
-            where: 'local'
-          }
-        ],
-        endStats: b =>
-          b
-            .theItem({
-              id: '#page1',
-              otherAssert: item => {
-                expect(item?.parent).toBe('#doc');
-              }
-            })
-            .itsParent({
-              hasValue: 'local',
-              hasVersions: 2
-            })
-            .ifForcePull()
-            .itsParent({
-              hasValue: 'init'
-            })
-      },
-      {
-        skipForcePull: true,
-        description:
-          'document with pages unchanged locally, document moved on remote → remote move applied, pages follow',
-        fields: [parentField],
-        initLocalData: [
-          { id: '#doc', applyInitValue: true },
-          { id: '#page1', type: 'p', parent: '#doc' }
-        ],
-        initRemoteData: [
-          { id: '#doc', applyInitValue: true },
-          { id: '#page1', type: 'p', parent: '#doc' }
-        ],
-        changesBeforePull: [
-          {
-            id: '#doc',
-            change: LocalChangeType.update,
-            where: 'remote'
-          }
-        ],
-        endStats: b =>
-          b
-            .theItem({
-              id: '#page1',
-              otherAssert: item => {
-                expect(item?.parent).toBe('#doc');
-              }
-            })
-            .itsParent({
-              hasValue: 'remote',
-              hasVersions: 2
-            })
-      },
-      {
-        description:
-          'document moved locally, its page also updated on remote (different field) → doc in local parent, page has remote update',
-        fields: [parentField],
-        initLocalData: [
-          { id: '#doc', applyInitValue: true },
-          { id: '#page1', type: 'p', parent: '#doc' }
-        ],
-        initRemoteData: [
-          { id: '#doc', applyInitValue: true },
-          { id: '#page1', type: 'p', parent: '#doc' }
-        ],
-        changesBeforePull: [
-          {
-            id: '#doc',
-            change: LocalChangeType.update,
-            where: 'local'
-          },
-          {
-            id: '#page1',
-            change: LocalChangeType.update,
-            forceField: contentField,
-            where: 'remote'
-          }
-        ],
-        endStats: b =>
-          b
-            .theItem({
-              id: '#page1',
-              hasValue: 'remote',
-              hasVersions: 2,
-              otherAssert: item => {
-                expect(item?.parent).toBe('#doc');
-                const initTs = parseFieldMeta(item!.parent_meta).u;
-                const contentTs = parseFieldMeta(item!.content_meta!).u;
-                expect(contentTs).toBeGreaterThan(initTs);
-              }
-            })
-            .itsParent({
-              hasValue: 'local',
-              hasVersions: 3,
-              otherHistoryAssert: versions => {
-                expect(versions[0].pageVersionsArrayJson).toHaveLength(1);
-                expect(versions[1].pageVersionsArrayJson).toHaveLength(1);
-                const pageVersion0 = versions[0].pageVersionsArrayJson![0];
-                const pageVersion1 = versions[1].pageVersionsArrayJson![0];
-                expect(pageVersion0.id).not.toBe(pageVersion1.id);
-              }
-            })
-            .ifForcePull()
-            .itsParent({
-              hasValue: 'init'
-            })
-      },
-      {
-        description:
-          'document moved remotely, page updated locally (different field) → doc in remote parent, page has local update',
-        fields: [parentField],
-        initLocalData: [
-          { id: '#doc', applyInitValue: true },
-          { id: '#page1', type: 'p', parent: '#doc' }
-        ],
-        initRemoteData: [
-          { id: '#doc', applyInitValue: true },
-          { id: '#page1', type: 'p', parent: '#doc' }
-        ],
-        changesBeforePull: [
-          {
-            id: '#doc',
-            change: LocalChangeType.update,
-            where: 'remote'
-          },
-          {
-            id: '#page1',
-            change: LocalChangeType.update,
-            forceField: contentField,
-            where: 'local'
-          }
-        ],
-        endStats: b =>
-          b
-            .theItem({
-              id: '#page1',
-              hasValue: 'local',
-              hasVersions: 2,
-              otherAssert: item => {
-                expect(item?.parent).toBe('#doc');
-                const initTs = parseFieldMeta(item!.parent_meta).u;
-                const contentTs = parseFieldMeta(item!.content_meta!).u;
-                expect(contentTs).toBeGreaterThan(initTs);
-              }
-            })
-            .itsParent({
-              hasValue: 'remote',
-              hasVersions: 3,
-              otherHistoryAssert: versions => {
-                expect(versions[0].pageVersionsArrayJson).toHaveLength(1);
-                expect(versions[1].pageVersionsArrayJson).toHaveLength(1);
-                const pageVersion0 = versions[0].pageVersionsArrayJson![0];
-                const pageVersion1 = versions[1].pageVersionsArrayJson![0];
-                expect(pageVersion0.id).not.toBe(pageVersion1.id);
-              }
-            })
-            .ifForcePull()
-            .theItem({
-              hasValue: null,
-              otherAssert: item => {
-                expect(item?.parent).toBe('#doc');
-                const initTs = parseFieldMeta(item!.parent_meta).u;
-                const contentTs = parseFieldMeta(item!.content_meta!).u;
-                expect(contentTs).toBe(initTs);
-              }
-            })
-      },
-      {
-        skipForcePull: true,
-        description:
-          'document moved remotely, page updated remotely (different field) → doc in remote parent, page has remote update',
-        fields: [parentField],
-        initLocalData: [
-          { id: '#doc', applyInitValue: true },
-          { id: '#page1', type: 'p', parent: '#doc' }
-        ],
-        initRemoteData: [
-          { id: '#doc', applyInitValue: true },
-          { id: '#page1', type: 'p', parent: '#doc' }
-        ],
-        changesBeforePull: [
-          {
-            id: '#doc',
-            change: LocalChangeType.update,
-            where: 'remote'
-          },
-          {
-            id: '#page1',
-            change: LocalChangeType.update,
-            forceField: contentField,
-            where: 'remote'
-          }
-        ],
-        endStats: b =>
-          b
-            .theItem({
-              id: '#page1',
-              hasValue: 'remote',
-              hasVersions: 2,
-              otherAssert: item => {
-                expect(item?.parent).toBe('#doc');
-                const initTs = parseFieldMeta(item!.parent_meta).u;
-                const contentTs = parseFieldMeta(item!.content_meta!).u;
-                expect(contentTs).toBeGreaterThan(initTs);
-              }
-            })
-            .itsParent({
-              hasValue: 'remote',
-              hasVersions: 3,
-              otherHistoryAssert: versions => {
-                expect(versions[0].pageVersionsArrayJson).toHaveLength(1);
-                expect(versions[1].pageVersionsArrayJson).toHaveLength(1);
-                const pageVersion0 = versions[0].pageVersionsArrayJson![0];
-                const pageVersion1 = versions[1].pageVersionsArrayJson![0];
-                expect(pageVersion0.id).not.toBe(pageVersion1.id);
-              }
-            })
-      }
-    ]
-  },
   itemWithMultipleChanges: {
     label: '[item updated - multiple]',
     scenarios: [
@@ -2450,7 +1646,7 @@ const scenarioMatrix: {
             })
       },
       {
-        types: ['d', 'p'],
+        types: ['d'],
         description:
           'different fields on item updated locally and remotely → both changes persist',
         fields: [contentField],
@@ -2480,9 +1676,6 @@ const scenarioMatrix: {
                 expect(orderTs).toBeGreaterThan(contentTs);
               }
             })
-            .ifPage()
-            .theItem({ hasVersions: 3 })
-            .itsParent({ hasVersions: 4 })
             .ifForcePull()
             .theItem({
               otherAssert: (item, rel) => {
@@ -2497,7 +1690,7 @@ const scenarioMatrix: {
       },
 
       {
-        types: ['d', 'p'],
+        types: ['d'],
         description:
           'multiple fields on item updated locally (one conflicting, one non-conflicting), same fields updated remotely',
         fields: [contentField],
@@ -2537,9 +1730,6 @@ const scenarioMatrix: {
                 expect(item?.order).toBe(rel?.remoteValue?.value);
               }
             })
-            .ifPage()
-            .theItem({ hasVersions: 4 })
-            .itsParent({ hasVersions: 5 })
             .ifForcePull()
             .theItem({ hasConflict: false })
       }

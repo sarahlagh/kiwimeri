@@ -621,12 +621,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
         ch => isPage({ type: ch.type }) && ch.change === LocalChangeType.delete
       )
       .forEach(ch => {
-        historyService.markLatestVersionDeleted(
-          ch.type,
-          ch.id,
-          ch.parent,
-          true
-        );
+        historyService.markLatestVersionDeleted(ch.id);
         if (!docsMap.has(ch.parent)) {
           docsMap.set(ch.parent, {
             id: ch.parent,

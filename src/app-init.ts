@@ -47,7 +47,6 @@ export function appInit() {
     migrationService.start(store, space);
     notebooksService.initNotebooks();
     searchAncestryService.start(DEFAULT_SPACE_ID);
-    historyService.start();
     remotesService.initSync();
     historyService.gc();
     appLog.gc(); // TODO run at interval

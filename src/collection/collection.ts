@@ -140,12 +140,10 @@ export type CollectionItemVersionRow = {
   itemId: string;
   op: CollectionItemVersionOp;
   createdAt: number;
-  rank: number; // not ideal when created informs the order, but needed for the get latest pages query
+  rank: number; // not ideal when created informs the order, but convenient for the gc query
   contentId: string;
   /** CollectionItemSnapshotData */
   snapshotJson: string;
-  /** array of HistorizedCollectionPageVersion */
-  pageVersionsArrayJson?: string;
 };
 
 export type CollectionItemVersionContentRow = {
@@ -157,12 +155,11 @@ export type CollectionItemVersionContentRow = {
 
 export type CollectionItemVersion = Omit<
   CollectionItemVersionRow,
-  'contentId' | 'snapshotJson' | 'pageVersionsArrayJson'
+  'contentId' | 'snapshotJson'
 > &
   CollectionItemVersionContentRow & {
     id: string;
     snapshotJson: CollectionItemSnapshotData;
-    pageVersionsArrayJson?: CollectionPageVersionData[];
   };
 
 export type CollectionItemSnapshotData = Pick<
@@ -184,12 +181,6 @@ export type CollectionItemSnapshotData = Pick<
   | 'updated'
 > &
   Partial<Pick<CollectionItem, 'order' | 'order_meta'>>;
-
-export type CollectionPageVersionData = {
-  id: string;
-  itemId: string;
-  createdAt: number;
-};
 
 export const isDocument = (
   item?:
@@ -216,4 +207,3 @@ export const APPICONS_PER_TYPE = new Map<CollectionItemTypeValues, string>();
 APPICONS_PER_TYPE.set(CollectionItemType.document, APPICONS.document);
 APPICONS_PER_TYPE.set(CollectionItemType.folder, APPICONS.folder);
 APPICONS_PER_TYPE.set(CollectionItemType.notebook, APPICONS.notebook);
-APPICONS_PER_TYPE.set(CollectionItemType.page, APPICONS.page);

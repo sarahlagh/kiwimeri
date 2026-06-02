@@ -140,16 +140,7 @@ export const BROWSABLE_ITEM_TYPES: ItemTypesType[] = [
   }
 ];
 
-export const ITEM_TYPES: ItemTypesType[] = [
-  ...BROWSABLE_ITEM_TYPES,
-  {
-    type: 'page',
-    typeVal: CollectionItemType.page,
-    addMethod: 'addPage',
-    testAddFn: onePage,
-    defaultTitle: ''
-  }
-];
+export const ITEM_TYPES: ItemTypesType[] = [...BROWSABLE_ITEM_TYPES];
 
 export const NON_NOTEBOOK_ITEM_TYPES: ItemTypesType[] = ITEM_TYPES.filter(
   // i => i.type === 'page'

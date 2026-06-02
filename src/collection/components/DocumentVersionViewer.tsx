@@ -61,7 +61,6 @@ const DocumentVersionViewer = ({
   const history = useHistory();
   const [showDocumentActions, setShowDocumentActions] =
     useState<boolean>(false);
-  const [openPageBrowser, setOpenPageBrowser] = useState(false);
   const [toggleSearch, setToggleSearch] = useState(false);
   const [toggleSearchAutoFocus, setToggleSearchAutoFocus] = useState(true);
   // TODO refactor
@@ -83,8 +82,6 @@ const DocumentVersionViewer = ({
   const itemType = pageId
     ? CollectionItemType.page
     : CollectionItemType.document;
-
-  const pages = historyService.useDocumentVersionedPages(docId, docVersion);
 
   useEffect(() => {
     if (query) {
@@ -122,14 +119,9 @@ const DocumentVersionViewer = ({
               setShowDocumentActions(false);
               setToggleSearch(true);
               setToggleSearchAutoFocus(true);
-              if (pages.length > 0) setOpenPageBrowser(true);
             }}
-            onClose={role => {
-              if (role === 'pageBrowser') {
-                setOpenPageBrowser(!openPageBrowser);
-              } else {
-                setShowDocumentActions(false);
-              }
+            onClose={() => {
+              setShowDocumentActions(false);
             }}
           />
         )}

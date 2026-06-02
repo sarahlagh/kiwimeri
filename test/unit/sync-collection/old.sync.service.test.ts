@@ -564,26 +564,7 @@ describe('sync service', () => {
                   const versions = historyService.getVersions(id);
                   expect(versions[0].op).toBe('snapshot');
                   expect(versions[1].op).toBe('deleted');
-                } else if (type === 'page') {
-                  checkHistory(2, [3, 1]);
-                  const docId = remoteData[0].parent;
-                  // page has been recreated and is visible on the document
-                  expect(
-                    collectionService
-                      .getDocumentPages(docId)
-                      .find(p => p.id === id)
-                  ).toBeDefined();
-                  // a new version of the document has been created to reflect that
-                  const docVersions = historyService.getVersions(docId);
-                  expect(
-                    docVersions[0].pageVersionsArrayJson?.find(
-                      pv => pv.itemId === id
-                    )
-                  ).toBeDefined();
-                  const versions = historyService.getVersions(id);
-                  expect(versions[0].op).toBe('snapshot');
-                  expect(versions[1].op).toBe('deleted');
-                } else {
+                }  else {
                   // folder
                   checkHistory(2, 1);
                 }

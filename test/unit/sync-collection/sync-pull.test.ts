@@ -15,7 +15,6 @@ import {
 
 const allTypes = [
   { type: CollectionItemType.document, typeName: 'document' },
-  { type: CollectionItemType.page, typeName: 'page' },
   { type: CollectionItemType.folder, typeName: 'folder' },
   { type: CollectionItemType.notebook, typeName: 'notebook' }
 ];

@@ -1,9 +1,4 @@
-import {
-  isDocument,
-  isPageOrDocument,
-  parseFieldMeta,
-  setFieldMeta
-} from '@/collection/collection';
+import { isDocument, parseFieldMeta } from '@/collection/collection';
 import { dateToStr } from '@/common/date-utils';
 import { countWords, n00 } from '@/common/utils';
 import { ROOT_COLLECTION } from '@/constants';
@@ -265,13 +260,8 @@ class StatsService {
 
     rowIds.forEach(rowId => {
       const rowType = collectionService.getItemType(rowId);
-      if (!isPageOrDocument({ type: rowType })) return;
-
-      if (isDocument({ type: rowType })) {
-        this.backfillDocument(rowId);
-      } else {
-        this.backfillPage(rowId);
-      }
+      if (!isDocument({ type: rowType })) return;
+      this.backfillDocument(rowId);
     });
   }
 
@@ -289,36 +279,6 @@ class StatsService {
       const plain = version.preview;
       const content_meta = version.snapshotJson.content_meta!;
       const stats = this.buildStatsFromContentMeta(plain, content_meta);
-      this.updateStatsAtDate(rowId, stats);
-      if (lastOpenedAt <= stats.updatedAt!) {
-        this.updateGlobalStats(rowId, {
-          lastOpenedAt: stats.updatedAt!
-        });
-        lastOpenedAt = stats.updatedAt!;
-      }
-    }
-  }
-
-  private backfillPage(rowId: string) {
-    const globalBag = this.getGlobalStats(rowId);
-    let lastOpenedAt = globalBag.lastOpenedAt;
-
-    const docId = collectionService.getItemParent(rowId);
-    // backfill stats from versions in reverse order
-    const versions = historyService
-      .getVersions(docId)
-      .filter(v => v.op === 'snapshot');
-
-    for (let i = versions.length - 1; i >= 0; i--) {
-      const version = versions[i];
-      const pageVersions = historyService.getPagesForVersion(version.id);
-      if (!pageVersions) continue;
-      const pageVersion = pageVersions.find(pv => pv.itemId === rowId);
-      if (!pageVersion) continue;
-      const pageMeta = setFieldMeta('', pageVersion.createdAt);
-
-      const plain = pageVersion.preview;
-      const stats = this.buildStatsFromContentMeta(plain, pageMeta);
       this.updateStatsAtDate(rowId, stats);
       if (lastOpenedAt <= stats.updatedAt!) {
         this.updateGlobalStats(rowId, {

@@ -119,9 +119,6 @@ export class PullTestEndStatsBuilder {
     }
     return this;
   }
-  public ifPage() {
-    return this.ifType(CollectionItemType.page);
-  }
   public ifDocument() {
     return this.ifType(CollectionItemType.document);
   }
@@ -253,7 +250,7 @@ describe(`test stats builder`, () => {
       .theItem({ exists: false })
       .ifDocument()
       .theItem({ latestVersionsOp: ['deleted'] })
-      .ifPage()
+      .ifFolder()
       .theItem({ latestVersionsOp: ['deleted'] })
       .itsParent({ exists: false, latestVersionsOp: ['deleted'] })
       .build([], false);
@@ -272,7 +269,7 @@ describe(`test stats builder`, () => {
       .itsParent({ exists: true })
       .theItem({ id: 'r2', exists: true })
       .itsParent({ exists: true })
-      .ifPage()
+      .ifFolder()
       .theItem({ id: 'r1', exists: true })
       .itsParent({ hasVersions: 2 })
       .build([], false);
@@ -289,13 +286,13 @@ describe(`test stats builder`, () => {
   });
 
   it(`should build stats with type override`, () => {
-    const statsBuilder = new PullTestEndStatsBuilder(CollectionItemType.page);
+    const statsBuilder = new PullTestEndStatsBuilder(CollectionItemType.folder);
     const example = statsBuilder
       .theItem({ id: 'r1', exists: true })
       .itsParent({ exists: true })
       .theItem({ id: 'r2', exists: true })
       .itsParent({ exists: true })
-      .ifPage()
+      .ifFolder()
       // .theItem({ id: 'r1' })
       .itsParent({ hasVersions: 2 })
       .build([], false);
@@ -320,7 +317,7 @@ describe(`test stats builder`, () => {
     const example = statsBuilder
       .theItem({ exists: true, hasConflict: false })
       .itsParent({ hasVersions: 1 })
-      .ifPage()
+      .ifFolder()
       .itsParent({ hasVersions: 2 })
       .ifForcePull()
       .theItem({ exists: false })
@@ -345,12 +342,12 @@ describe(`test stats builder`, () => {
     const example = statsBuilder
       .theItem({ exists: true, hasConflict: false })
       .itsParent({ hasVersions: 1 })
-      .ifPage()
+      .ifFolder()
       .itsParent({ hasVersions: 2 })
       .ifForcePull()
       .theItem({ exists: false })
       .itsParent({ exists: true })
-      .ifPage()
+      .ifFolder()
       .itsParent({ exists: false })
       .build([], false);
 
@@ -365,19 +362,19 @@ describe(`test stats builder`, () => {
 
   it(`should build stats with force override and type override p`, () => {
     const statsBuilder = new PullTestEndStatsBuilder(
-      CollectionItemType.page,
+      CollectionItemType.folder,
       undefined,
       true
     );
     const example = statsBuilder
       .theItem({ exists: true, hasConflict: false })
       .itsParent({ hasVersions: 1 })
-      .ifPage()
+      .ifFolder()
       .itsParent({ hasVersions: 2 })
       .ifForcePull()
       .theItem({ exists: false })
       .itsParent({ exists: true })
-      .ifPage()
+      .ifFolder()
       .itsParent({ exists: false })
       .build([], false);
 
