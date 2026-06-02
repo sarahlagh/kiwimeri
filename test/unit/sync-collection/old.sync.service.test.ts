@@ -131,12 +131,11 @@ const testPushIndicator = (res: boolean) => {
 };
 
 const getSomeRemoteData = (
-  type: string,
   testAddFn: (title?: string, parent?: string) => CollectionItem
 ) => {
   const aDoc = oneDocument('r2');
   return [
-    testAddFn('r1', type === 'page' ? aDoc.id! : DEFAULT_NOTEBOOK_ID),
+    testAddFn('r1', DEFAULT_NOTEBOOK_ID),
     aDoc,
     oneDocument('r3'),
     oneFolder('r4'),
@@ -386,7 +385,7 @@ describe('sync service', () => {
         describe(`tests on a ${type}`, () => {
           it(`should delete local ${type}s on pull if they have not been changed and erased on remote`, async () => {
             localChangesService.clear();
-            const remoteData = getSomeRemoteData(type, testAddFn);
+            const remoteData = getSomeRemoteData(testAddFn);
             await reInitRemoteData(remoteData);
             await syncService_pull();
             expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
@@ -401,20 +400,12 @@ describe('sync service', () => {
               const versions = historyService.getVersions(remoteData[0].id!);
               expect(versions).toHaveLength(2); // versions are not deleted, but left to gc (gives a chance to restore it)
               expect(versions[0].op).toBe('deleted');
-
-              if (type === 'page') {
-                const versions = historyService.getVersions(
-                  remoteData[0].parent!
-                );
-                expect(versions).toHaveLength(2); // versions are not deleted, but left to gc (gives a chance to restore it)
-                expect(versions[0].op).toBe('snapshot');
-              }
             }
-            checkHistory(2, type === 'page' ? [2, 1] : 1); // getSomeRemoteData creates 3 docs (minus the first deleted) or 2
+            checkHistory(2, 1); // getSomeRemoteData creates 3 docs (minus the first deleted) or 2
           });
 
           it(`should not recreate ${type}s erased locally on pull if they have not changed on remote`, async () => {
-            const remoteData = getSomeRemoteData(type, testAddFn);
+            const remoteData = getSomeRemoteData(testAddFn);
             await reInitRemoteData(remoteData);
             await syncService_pull();
             expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
@@ -429,12 +420,12 @@ describe('sync service', () => {
             expect(getRowCountInsideNotebook()).toBe(remoteData.length - 2);
 
             testPushIndicator(true);
-            checkHistory(2, type === 'page' ? [2, 1] : 1);
+            checkHistory(2, 1);
           });
 
           GET_UPDATABLE_FIELDS(type).forEach(({ field, valueType }) => {
             it(`should pull updates on second pull if remote ${type} has been updated with ${field}`, async () => {
-              const remoteData = getSomeRemoteData(type, testAddFn);
+              const remoteData = getSomeRemoteData(testAddFn);
               await reInitRemoteData(remoteData);
               await syncService_pull();
               expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
@@ -458,7 +449,7 @@ describe('sync service', () => {
             });
 
             it(`should not delete local updates of field ${field} if they have not changed on remote ${type}`, async () => {
-              const remoteData = getSomeRemoteData(type, testAddFn);
+              const remoteData = getSomeRemoteData(testAddFn);
               await reInitRemoteData(remoteData);
               await syncService_pull();
               expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
@@ -477,7 +468,7 @@ describe('sync service', () => {
             });
 
             it(`should not delete local ${type}s on pull if they have been changed with ${field} after being erased on remote`, async () => {
-              const remoteData = getSomeRemoteData(type, testAddFn);
+              const remoteData = getSomeRemoteData(testAddFn);
               await reInitRemoteData(remoteData);
               await syncService_pull();
               checkHistory(type === 'document' ? 3 : 2, 1);
@@ -511,7 +502,7 @@ describe('sync service', () => {
             });
 
             it(`should not recreate ${type}s erased locally on pull if they have changed on remote with ${field} before delete`, async () => {
-              const remoteData = getSomeRemoteData(type, testAddFn);
+              const remoteData = getSomeRemoteData(testAddFn);
               await reInitRemoteData(remoteData);
               await syncService_pull();
               expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
@@ -531,14 +522,14 @@ describe('sync service', () => {
               expect(collectionService.itemExists(id)).toBeFalsy();
 
               testPushIndicator(true);
-              checkHistory(2, type === 'page' ? [2, 1] : 1);
+              checkHistory(2, 1);
             });
           });
 
           GET_NON_PARENT_UPDATABLE_FIELDS(type).forEach(
             ({ field, valueType }) => {
               it(`should recreate ${type}s erased locally on pull if they have changed on remote with ${field} after delete`, async () => {
-                const remoteData = getSomeRemoteData(type, testAddFn);
+                const remoteData = getSomeRemoteData(testAddFn);
                 await reInitRemoteData(remoteData);
                 await syncService_pull();
                 expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
@@ -574,7 +565,7 @@ describe('sync service', () => {
 
           // for folders, delete action takes precedence over the timestamp
           it(`should not recreate ${type}s erased locally on pull if they have changed on remote with parent after delete`, async () => {
-            const remoteData = getSomeRemoteData(type, testAddFn);
+            const remoteData = getSomeRemoteData(testAddFn);
             await reInitRemoteData(remoteData);
             await syncService_pull();
             expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
@@ -593,7 +584,7 @@ describe('sync service', () => {
             expect(collectionService.itemExists(id)).toBe(false);
 
             testPushIndicator(true);
-            checkHistory(2, type === 'page' ? [2, 1] : 1);
+            checkHistory(2, 1);
           });
 
           // fields that can change: parent, title, content, deleted
@@ -601,7 +592,7 @@ describe('sync service', () => {
             ({ local, localValueType, remote, remoteValueType }) => {
               it(`should merge changes on ${type} without conflict if localChange=${local} then remoteChange=${remote}`, async () => {
                 const remoteData = [
-                  ...getSomeRemoteData(type, testAddFn),
+                  ...getSomeRemoteData(testAddFn),
                   oneDocument('r9') // idx 5
                 ];
                 await reInitRemoteData(remoteData);
@@ -646,27 +637,26 @@ describe('sync service', () => {
                 if (remote !== local) {
                   expect(getLocalItemField(id, local)).toBe(newLocalValue);
                 }
-                const r9WasUpdatedToo = type === 'page' && local === 'parent';
                 if (
                   collectionService.isHistorizableContentChange(
                     typeVal,
                     remote
                   ) &&
                   remote !== local &&
-                  !r9WasUpdatedToo
+                  true
                 )
                   nbVersions++;
                 checkHistory(type === 'document' ? 4 : 3, [
                   nbVersions,
                   1,
-                  r9WasUpdatedToo ? 2 : 1, // if page, parent[5](r9) was updated too
+                  1,
                   1
                 ]);
               });
 
               it(`should merge changes on ${type} without conflict if remoteChange=${remote} then localChange=${local}`, async () => {
                 const remoteData = [
-                  ...getSomeRemoteData(type, testAddFn),
+                  ...getSomeRemoteData(testAddFn),
                   oneDocument('r9') // idx 5
                 ];
                 await reInitRemoteData(remoteData);
@@ -706,21 +696,20 @@ describe('sync service', () => {
 
                 testPushIndicator(true);
 
-                const r9WasUpdatedToo = type === 'page' && local === 'parent';
                 if (
                   remote !== local &&
                   collectionService.isHistorizableContentChange(
                     typeVal,
                     remote
                   ) &&
-                  !r9WasUpdatedToo
+                  true
                 )
                   nbVersions++;
 
                 checkHistory(type === 'document' ? 4 : 3, [
                   nbVersions,
                   1,
-                  r9WasUpdatedToo ? 2 : 1, // if page, parent[5](r9) was updated too
+                  1,
                   1
                 ]);
                 // checkHistory(type === 'document' ? 4 : 3, [nbVersions, 1, 1]);
@@ -730,7 +719,7 @@ describe('sync service', () => {
 
           GET_CONFLICT_CHANGES(type).forEach(({ field, valueType }) => {
             it(`should apply local change on ${type} when remoteChange=${field} then localChange=${field} (local wins)`, async () => {
-              const remoteData = getSomeRemoteData(type, testAddFn);
+              const remoteData = getSomeRemoteData(testAddFn);
               await reInitRemoteData(remoteData);
               await syncService_pull();
               const id = remoteData[0].id!;
@@ -762,9 +751,9 @@ describe('sync service', () => {
             });
           });
 
-          if (type === 'document' || type === 'page') {
+          if (type === 'document') {
             it(`should update preview on ${type} when remote content has changed`, async () => {
-              const remoteData = getSomeRemoteData(type, testAddFn);
+              const remoteData = getSomeRemoteData(testAddFn);
               await reInitRemoteData(remoteData);
               await syncService_pull(); // 1
               expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
@@ -1120,95 +1109,6 @@ describe('sync service', () => {
               });
             });
           }
-
-          if (type === 'page') {
-            GET_CONFLICT_CHANGES(type).forEach(({ field, valueType }) => {
-              it(`should create conflict for pages on pull if they have been changed with ${field} before being erased on remote`, async () => {
-                const remoteData = getSomeRemoteData(type, testAddFn);
-                await reInitRemoteData(remoteData);
-                await syncService_pull();
-                expect(getRowCountInsideNotebook()).toBe(remoteData.length - 1);
-                checkHistory(2, 1);
-
-                // update locally
-                const id = remoteData[0].id!;
-                const oldParent = collectionService.getItemParent(id);
-                const newValue = getNewValue(valueType, remoteData[2].id);
-                setLocalItemField(id, field, newValue);
-                historyService.saveNow();
-                vi.advanceTimersByTime(50);
-                const newParent = collectionService.getItemParent(id);
-                let nbVersions = 1;
-
-                expect(historyService.getVersions(id)).toHaveLength(nbVersions);
-                expect(historyService.getVersions(newParent)).toHaveLength(
-                  nbVersions
-                );
-                if (newParent !== oldParent) {
-                  expect(historyService.getVersions(oldParent)).toHaveLength(
-                    nbVersions
-                  );
-                }
-
-                // erase on remote
-                const newRemoteData = remoteData.slice(1);
-                await reInitRemoteData(newRemoteData, Date.now());
-                await syncService_pull();
-
-                // conflict has been created
-                expect(getRowCountInsideNotebook()).toBe(newRemoteData.length);
-                expect(getLocalItemConflicts()).toHaveLength(1);
-                expect(collectionService.itemExists(id)).toBeFalsy();
-
-                const conflictId = getLocalItemConflict()!;
-                expect(getLocalItemField(conflictId, field)).toBe(newValue);
-                testPushIndicator(true); // TODO: ideally, should be false
-
-                nbVersions++;
-                expect(historyService.getVersions(conflictId)).toHaveLength(0);
-                expect(historyService.getVersions(id)).toHaveLength(nbVersions);
-                if (newParent !== oldParent) {
-                  expect(historyService.getVersions(oldParent)).toHaveLength(
-                    nbVersions - 1
-                  );
-                }
-                expect(historyService.getVersions(newParent)).toHaveLength(
-                  nbVersions
-                );
-
-                // push, no conflict should be pushed
-                await syncService_push();
-                let remoteContent = await driver.getParsedCollectionContent();
-                expect(remoteContent.content).toHaveLength(
-                  newRemoteData.length
-                );
-                testPushIndicator(false);
-
-                // now, solve conflict
-                setLocalItemField(conflictId, 'tags', 'test');
-                historyService.saveNow();
-                console.debug(historyService.getVersions(conflictId));
-                expect(historyService.getVersions(conflictId)).toHaveLength(1);
-                testPushIndicator(true);
-                expect(getLocalItemConflicts()).toHaveLength(0);
-
-                await syncService_push();
-                remoteContent = await driver.getParsedCollectionContent();
-                expect(remoteContent.content).toHaveLength(remoteData.length);
-
-                testPushIndicator(false);
-                expect(historyService.getVersions(id)).toHaveLength(nbVersions);
-                if (newParent !== oldParent) {
-                  expect(historyService.getVersions(oldParent)).toHaveLength(
-                    nbVersions - 1
-                  );
-                }
-                expect(historyService.getVersions(newParent)).toHaveLength(
-                  nbVersions + 1 // the conflict triggered a parent update
-                );
-              });
-            });
-          }
         });
       });
 
@@ -1559,7 +1459,7 @@ describe('sync service', () => {
       NON_NOTEBOOK_ITEM_TYPES.forEach(({ type, testAddFn }) => {
         describe(`tests on a ${type}`, () => {
           it(`should delete remote ${type}s if they are erased locally and unchanged on remote`, async () => {
-            const remoteData = getSomeRemoteData(type, testAddFn);
+            const remoteData = getSomeRemoteData(testAddFn);
             await reInitRemoteData(remoteData);
             await syncService_pull();
             const id = remoteData[0].id!;
@@ -1576,7 +1476,7 @@ describe('sync service', () => {
           });
 
           it(`should not recreate ${type}s deleted on remote and unchanged locally`, async () => {
-            const remoteData = getSomeRemoteData(type, testAddFn);
+            const remoteData = getSomeRemoteData(testAddFn);
             await reInitRemoteData(remoteData);
             await syncService_pull();
 
@@ -1593,7 +1493,7 @@ describe('sync service', () => {
 
           GET_UPDATABLE_FIELDS(type).forEach(({ field, valueType }) => {
             it(`should update remote ${type}s if they are updated locally with ${field} and unchanged on remote`, async () => {
-              const remoteData = getSomeRemoteData(type, testAddFn);
+              const remoteData = getSomeRemoteData(testAddFn);
               await reInitRemoteData(remoteData);
               await syncService_pull();
               const id = remoteData[0].id!;
@@ -1613,7 +1513,7 @@ describe('sync service', () => {
             });
 
             it(`should delete remote ${type}s if they are updated with ${field} on remote then erased locally`, async () => {
-              const remoteData = getSomeRemoteData(type, testAddFn);
+              const remoteData = getSomeRemoteData(testAddFn);
               await reInitRemoteData(remoteData);
               await syncService_pull();
               const id = remoteData[0].id!;
@@ -1635,7 +1535,7 @@ describe('sync service', () => {
             });
 
             it(`should delete remote ${type}s if they are erased locally then updated with ${field} on remote`, async () => {
-              const remoteData = getSomeRemoteData(type, testAddFn);
+              const remoteData = getSomeRemoteData(testAddFn);
               await reInitRemoteData(remoteData);
               await syncService_pull();
               const id = remoteData[0].id!;
@@ -1657,7 +1557,7 @@ describe('sync service', () => {
             });
 
             it(`should recreate ${type}s deleted on remote and changed locally with ${field}`, async () => {
-              const remoteData = getSomeRemoteData(type, testAddFn);
+              const remoteData = getSomeRemoteData(testAddFn);
               await reInitRemoteData(remoteData);
               await syncService_pull();
               const id = remoteData[0].id!;
@@ -1682,7 +1582,7 @@ describe('sync service', () => {
             });
 
             it(`should not update ${type}s unchanged on local even if updated remotely with ${field} (server wins)`, async () => {
-              const remoteData = getSomeRemoteData(type, testAddFn);
+              const remoteData = getSomeRemoteData(testAddFn);
               await reInitRemoteData(remoteData);
               await syncService_pull();
 
@@ -1707,7 +1607,7 @@ describe('sync service', () => {
           GET_ALL_CHANGES(type).forEach(
             ({ local, localValueType, remote, remoteValueType }) => {
               it(`should update ${type} when localChange=${local} then remoteChange=${remote}: local wins`, async () => {
-                const remoteData = getSomeRemoteData(type, testAddFn);
+                const remoteData = getSomeRemoteData(testAddFn);
                 await reInitRemoteData(remoteData);
                 await syncService_pull();
                 const id = remoteData[0].id!;
@@ -1742,7 +1642,7 @@ describe('sync service', () => {
               });
 
               it(`should update ${type} when remoteChange=${remote} then localChange=${local}: local wins`, async () => {
-                const remoteData = getSomeRemoteData(type, testAddFn);
+                const remoteData = getSomeRemoteData(testAddFn);
                 await reInitRemoteData(remoteData);
                 await syncService_pull();
                 const id = remoteData[0].id!;

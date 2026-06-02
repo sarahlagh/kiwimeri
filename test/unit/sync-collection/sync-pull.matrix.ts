@@ -68,7 +68,7 @@ const scenarioMatrix: {
             where: 'remote'
           }
         ],
-        endStats: b => b.theItem({ exists: true, hasConflict: false }) // even if page, parent doc has 1 version
+        endStats: b => b.theItem({ exists: true, hasConflict: false })
       },
       {
         description:
@@ -322,7 +322,6 @@ const scenarioMatrix: {
             .theItem({ hasVersions: 2, latestVersionsOp: ['deleted'] })
       },
       {
-        types: ['d', 'f', 'n'], // pages cannot be moved
         description:
           'item deleted on remote, then moved locally → local wins, item stays',
         initLocalData: [{ id: '#id', applyInitValue: true }],
@@ -456,7 +455,7 @@ const scenarioMatrix: {
             })
       },
       {
-        types: ['d'], // pages cannot be moved
+        types: ['d'],
         description:
           'item moved locally, then deleted on remote → conflict created',
         initLocalData: [{ id: '#id', applyInitValue: true }],
@@ -749,7 +748,7 @@ const scenarioMatrix: {
     ]
   },
   itemMovedLocallyFirst: {
-    types: ['d', 'f', 'n'], // pages cannot be moved
+    types: ['d', 'f', 'n'],
     label: '[item moved locally first]',
     scenarios: [
       {
@@ -1074,7 +1073,7 @@ const scenarioMatrix: {
     ]
   },
   itemMovedRemotelyFirst: {
-    types: ['d', 'f', 'n'], // pages cannot be moved
+    types: ['d', 'f', 'n'],
     label: '[item moved remotely first]',
     scenarios: [
       {
@@ -1302,7 +1301,7 @@ const scenarioMatrix: {
     ]
   },
   itemParentDeletedRemotelyFirst: {
-    types: ['d', 'f', 'n'], // pages cannot be moved
+    types: ['d', 'f', 'n'],
     label: '[item parent deleted remotely first]',
     scenarios: [
       {
@@ -1468,7 +1467,7 @@ const scenarioMatrix: {
     ]
   },
   itemParentDeletedLocallyFirst: {
-    types: ['d', 'f', 'n'], // pages cannot be moved
+    types: ['d', 'f', 'n'],
     label: '[item parent deleted locally first]',
     scenarios: [
       {

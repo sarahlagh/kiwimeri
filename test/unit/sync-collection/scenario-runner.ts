@@ -210,8 +210,6 @@ export class PullTestScenarioRunner {
             parentParent = relevantParentItem.parentId;
           }
 
-          // if page and must create its doc on remote, the doc must have the same id as local...
-
           if (type === CollectionItemType.notebook && !relevantItem) {
             parent = ROOT_COLLECTION;
           }

@@ -172,11 +172,7 @@ export const allFields: TestField[] = [
 
 export const conflictFields: TestField[] = [titleField, contentField];
 
-export const nonConflictFields: TestField[] = [
-  tagsField,
-  // orderField, // TODO update test matrix
-  displayOptsField
-];
+export const nonConflictFields: TestField[] = [tagsField, displayOptsField];
 
 export const allHistorizableFields: TestField[] = [
   titleField,
