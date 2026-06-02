@@ -6,7 +6,7 @@ import {
   StoreValue,
   StoreValuesType
 } from '@/core/db/store-schema';
-import { ValueIdFromSchema } from 'tinybase/@types/_internal/store/with-schemas';
+import { ValueIdFromSchema } from '@/core/db/types';
 import { StoreOrStoreId, useValueState } from 'tinybase/ui-react';
 import { OptionalSchemas, Value } from 'tinybase/with-schemas';
 

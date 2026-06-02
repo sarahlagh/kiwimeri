@@ -134,7 +134,7 @@ describe('NotesBrowser', () => {
     await expect.element(getContentEditor(screen)).toBeInTheDocument();
     await expect.element(getContentEditor(screen)).toHaveTextContent('test 1');
 
-    await getNotePreview(screen, 'test 2').element().click();
+    await (getNotePreview(screen, 'test 2').element() as HTMLElement).click();
 
     await expect
       .element(getNotePreview(screen, 'test 1'))
