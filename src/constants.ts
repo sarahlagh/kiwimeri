@@ -79,7 +79,6 @@ export const CONFLICTS_NOTEBOOK_NAME = msg`Conflicts`;
 export const NEW_DOC_TITLE = msg`New document`;
 export const NEW_FOLDER_TITLE = msg`New folder`;
 
-export const DEFAULT_EXPORT_PAGE_FILENAME = msg`page`;
 export const DEFAULT_EXPORT_SPACE_FILENAME = msg`collection`;
 
 // icons
@@ -151,7 +150,6 @@ const I18N = {
   conflictsNotebookName: '',
   newDocTitle: '',
   newFolderTitle: '',
-  defaultExportPageFilename: '',
   defaultExportSpaceFilename: ''
 };
 export function initGlobalTrans() {
@@ -160,7 +158,6 @@ export function initGlobalTrans() {
   I18N.conflictsNotebookName = i18n._(CONFLICTS_NOTEBOOK_NAME);
   I18N.newDocTitle = i18n._(NEW_DOC_TITLE);
   I18N.newFolderTitle = i18n._(NEW_FOLDER_TITLE);
-  I18N.defaultExportPageFilename = i18n._(DEFAULT_EXPORT_PAGE_FILENAME);
   I18N.defaultExportSpaceFilename = i18n._(DEFAULT_EXPORT_SPACE_FILENAME);
 }
 export const getGlobalTrans = () => ({ ...I18N });

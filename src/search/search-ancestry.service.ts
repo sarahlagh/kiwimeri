@@ -3,7 +3,7 @@ import {
   CollectionItemResult,
   CollectionItemType,
   CollectionItemTypeValues,
-  PageResult
+  ItemWithPreview
 } from '@/collection/collection';
 import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
 import { DEFAULT_SPACE_ID, ROOT_COLLECTION } from '@/constants';
@@ -130,7 +130,7 @@ class CollectionSearchService {
   public sortPerContentPreview(
     results: CollectionItemResult[],
     descending: boolean
-  ): PageResult[] {
+  ): ItemWithPreview[] {
     const withPreviews = this.enrichWithPreview(results);
     if (!descending) {
       return withPreviews.sort((i1, i2) =>
@@ -140,7 +140,7 @@ class CollectionSearchService {
     return withPreviews.sort((i1, i2) => i2.preview.localeCompare(i1.preview));
   }
 
-  public enrichWithPreview(results: CollectionItemResult[]): PageResult[] {
+  public enrichWithPreview(results: CollectionItemResult[]): ItemWithPreview[] {
     const table = store.getTable('search');
     return results.map(row => ({
       ...row,

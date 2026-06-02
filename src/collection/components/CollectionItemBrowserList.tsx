@@ -203,9 +203,7 @@ export const CollectionItemBrowserList = ({
             <CollectionItemBreadcrumb
               folder={folder}
               onClick={item => {
-                history.push(
-                  GET_ITEM_ROUTE(item, openedDocument, undefined, query)
-                );
+                history.push(GET_ITEM_ROUTE(item, openedDocument, query));
               }}
             ></CollectionItemBreadcrumb>
           ) : (
@@ -223,8 +221,8 @@ export const CollectionItemBrowserList = ({
       selected={openedDocument}
       getUrl={item =>
         item.type === CollectionItemType.document
-          ? GET_ITEM_ROUTE(item.parent, item.id, undefined, query)
-          : GET_ITEM_ROUTE(item.id, openedDocument, undefined, query)
+          ? GET_ITEM_ROUTE(item.parent, item.id, query)
+          : GET_ITEM_ROUTE(item.id, openedDocument, query)
       }
       actionsIcon={APPICONS.itemActions}
       itemRenaming={itemRenaming}

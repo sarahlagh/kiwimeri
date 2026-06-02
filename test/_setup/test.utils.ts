@@ -242,9 +242,6 @@ const filterPerType = (field: string, type: string) => {
   if (type === 'folder' || type === 'notebook') {
     return field !== 'content';
   }
-  if (type === 'page') {
-    return field !== 'title' && field !== 'tags' && field !== 'display_opts';
-  }
   return true;
 };
 

@@ -1,7 +1,6 @@
 import {
   CollectionItemResult,
-  CollectionItemType,
-  CollectionItemTypeValues
+  CollectionItemType
 } from '@/collection/collection';
 import { SpaceQueryDefinition } from '@/core/db/queries-helper';
 import { store } from '@/core/db/store';
@@ -71,13 +70,9 @@ const fetchItemsQuery = new SpaceQueryDefinition<
       return ancestry[`${getAncestorId(id, params.parent)}`] !== undefined;
     });
   }
-  where(getCell => {
-    const type = getCell('type') as CollectionItemTypeValues;
-    if (params.onlyDocuments) {
-      return type === CollectionItemType.document;
-    }
-    return type !== CollectionItemType.page;
-  });
+  if (params.onlyDocuments) {
+    where('type', CollectionItemType.document);
+  }
 });
 
 export type FetchItemsQuery = typeof fetchItemsQuery;

@@ -18,9 +18,7 @@ const VersionedItemPage = () => {
   const searchParams = getSearchParams(location.search);
   const docId = searchParams.document;
   const parentFolder = searchParams.folder || notebook;
-  const pageId = searchParams.page;
   const docVersion = searchParams.docVersion;
-  const pageVersion = searchParams.pageVersion;
 
   const [showDocumentActions, setShowDocumentActions] = useState(false);
 
@@ -48,10 +46,6 @@ const VersionedItemPage = () => {
     return <NotFoundPage />;
   }
 
-  if (pageVersion && !historyService.versionExists(pageVersion)) {
-    return <NotFoundPage />;
-  }
-
   return (
     <TemplateCompactableSplitPage
       headerIfCompact={{
@@ -73,9 +67,7 @@ const VersionedItemPage = () => {
     >
       <DocumentVersionViewer
         docId={docId}
-        pageId={pageId}
         docVersion={docVersion}
-        pageVersion={pageVersion}
         showActions={showDocumentActions}
         folder={parentFolder}
         query={searchParams.query}

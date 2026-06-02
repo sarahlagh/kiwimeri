@@ -39,11 +39,6 @@ class FormatConversionService {
   public fromMarkdown(markdown: string) {
     return this.from(markdown, MARKDOWN_PARSER);
   }
-
-  public getPagesSeparator() {
-    // TODO should depend on the format
-    return '--------------------------------------------------------------\n--------------------------------------------------------------\n';
-  }
 }
 
 const formatConverter = new FormatConversionService();

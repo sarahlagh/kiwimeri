@@ -6,7 +6,6 @@ import collectionService from '@/db/collection.service';
 import { IonButtons, IonToolbar } from '@ionic/react';
 
 export type ActionsFromDocumentVersionViewerToolbarProps = {
-  id: string;
   docId: string;
   onClose: (role?: string, data?: unknown) => void;
   onSearch: () => void;
@@ -14,18 +13,17 @@ export type ActionsFromDocumentVersionViewerToolbarProps = {
 };
 
 const ActionsFromDocumentVersionViewerToolbar = ({
-  id,
   docId,
   onClose,
   onSearch,
   getBackRoute
 }: ActionsFromDocumentVersionViewerToolbarProps) => {
-  const type = collectionService.getItemType(id);
+  const type = collectionService.getItemType(docId);
 
   return (
     <IonToolbar color="medium" style={{ height: 56 + 'px' }}>
       <IonButtons slot="end">
-        <ExportItemsButton id={id} type={type} onClose={onClose} />
+        <ExportItemsButton id={docId} type={type} onClose={onClose} />
         <ManageHistoryButton id={docId} />
         <SearchButton onSearch={onSearch} />
         <CloseDocumentButton

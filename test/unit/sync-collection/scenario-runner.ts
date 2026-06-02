@@ -214,21 +214,6 @@ export class PullTestScenarioRunner {
 
           if (type === CollectionItemType.notebook && !relevantItem) {
             parent = ROOT_COLLECTION;
-          } else if (type === CollectionItemType.page && !ch.data?.parent) {
-            // must create parent doc for page
-            const parentDoc = createLocalItem({
-              type: CollectionItemType.document,
-              parent:
-                parentParent !== ROOT_COLLECTION
-                  ? parentParent
-                  : DEFAULT_NOTEBOOK_ID
-            });
-            if (!relevantItem) {
-              parent = parentDoc.id!;
-              parentType = CollectionItemType.document;
-              parentParent = parentDoc.parent;
-            }
-            saveFunc({ ...parentDoc, id: parent });
           }
           const ids = new Map<string, string>();
           ids.set(parent, parent);
@@ -530,10 +515,6 @@ export class PullTestScenarioRunner {
         if (this.testField?.field !== 'parent')
           expect(parentId).toBe(DEFAULT_NOTEBOOK_ID); // TODO can change across tests
         expect(parentType).toBe(CollectionItemType.notebook);
-        break;
-      case CollectionItemType.page:
-        expect(parentId).not.toBe(DEFAULT_NOTEBOOK_ID);
-        expect(parentType).toBe(CollectionItemType.document);
         break;
       case CollectionItemType.notebook:
         if (this.testField?.field !== 'parent')

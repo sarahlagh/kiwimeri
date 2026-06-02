@@ -407,9 +407,9 @@ describe(`test stats builder`, () => {
         },
         {
           id: '2',
-          type: CollectionItemType.page,
+          type: CollectionItemType.document,
           parentId: 'p2',
-          parentType: CollectionItemType.document,
+          parentType: CollectionItemType.folder,
           parentParentId: 'root',
           from: 'local'
         }
@@ -428,10 +428,10 @@ describe(`test stats builder`, () => {
     expect(example.groups[1].theItem).toBeDefined();
     expect(example.groups[1].theItem.exists).toBe(true);
     expect(example.groups[1].theItem.id).toBe('2');
-    expect(example.groups[1].theItem.type).toBe(CollectionItemType.page);
+    expect(example.groups[1].theItem.type).toBe(CollectionItemType.document);
     expect(example.groups[1].itsParent).toBeDefined();
     expect(example.groups[1].itsParent?.id).toBe('p2');
-    expect(example.groups[1].itsParent.type).toBe(CollectionItemType.document);
+    expect(example.groups[1].itsParent.type).toBe(CollectionItemType.folder);
   });
 
   it(`should resolve ids with test field = parent`, () => {

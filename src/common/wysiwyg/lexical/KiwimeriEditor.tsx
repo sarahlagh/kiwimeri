@@ -49,7 +49,7 @@ export type KiwimeriEditorHandle = {
 type KiwimeriEditorProps = {
   id?: string;
   searchText?: string | null;
-  // searchOpts?: any; // TODO match case, match whole words, regex, search in pages too
+  // searchOpts?: any; // TODO match case, match whole words, regex, search in notes too
   enableToolbar: boolean;
   enableDebugTreeView?: boolean;
   content: string;

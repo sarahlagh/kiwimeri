@@ -1,4 +1,4 @@
-import { APPICONS_PER_TYPE, CollectionItemType } from '@/collection/collection';
+import { APPICONS_PER_TYPE } from '@/collection/collection';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
 import {
@@ -102,9 +102,6 @@ const SearchResult = ({ searchResult }: SearchResultProps) => {
     title: collectionService.getItemTitle(id)
   }));
   textBreadcrumb.shift(); // remove the notebook
-  if (searchResult.type === CollectionItemType.page) {
-    textBreadcrumb.pop(); // remove self-entry from breadcrumb
-  }
   return (
     <>
       <IonIcon

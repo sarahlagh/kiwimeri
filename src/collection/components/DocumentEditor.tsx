@@ -1,5 +1,5 @@
 import { onTitleChangeFn } from '@/common/events/events';
-import { GET_UNKNOWN_ITEM_ROUTE } from '@/common/routes';
+import { GET_DOCUMENT_ROUTE } from '@/common/routes';
 import KiwimeriEditor, {
   KiwimeriEditorHandle
 } from '@/common/wysiwyg/lexical/KiwimeriEditor';
@@ -29,7 +29,6 @@ import SearchActionsToolbar from './SearchActionsToolbar';
 import DocumentBottomSheet, { DocSheet } from './sheets/DocumentBottomSheet';
 interface DocumentEditorProps {
   docId: string;
-  pageId?: string;
   showActions?: boolean;
   query?: string;
 }
@@ -38,7 +37,8 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
   function DocumentEditor(props, ref) {
     const [uniqId, setUniqId] = useState(0);
 
-    const { docId, pageId, showActions = false, query } = { ...props };
+    const { docId, showActions = false, query } = { ...props };
+    const parentId = collectionService.getItemParent(docId);
 
     const history = useHistory();
     const [showDocumentActions, setShowDocumentActions] =
@@ -53,18 +53,15 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
       setShowDocumentActions(showActions);
     }, [showActions]);
 
-    const itemId = pageId ? pageId : docId;
-    const content = collectionService.useItemContent(itemId);
+    const content = collectionService.useItemContent(docId);
     const documentTitle = collectionService.getItemTitle(docId);
-    const itemType = collectionService.getItemType(itemId);
-
     const onTitleChange = onTitleChangeFn(docId);
 
-    const resumeState = resumeService.getResumeState(itemId);
+    const resumeState = resumeService.getResumeState(docId);
 
     useEffect(() => {
-      statsService.updateGlobalStats(itemId, { lastOpenedAt: Date.now() });
-    }, [itemId]);
+      statsService.updateGlobalStats(docId, { lastOpenedAt: Date.now() });
+    }, [docId]);
 
     useEffect(() => {
       if (query) {
@@ -103,7 +100,6 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
           </IonToolbar>
           {showDocumentActions && (
             <ActionsFromDocumentEditorToolbar
-              id={itemId}
               docId={docId}
               onClose={(role, data) => {
                 if (role === 'info' || role === 'stats') {
@@ -131,7 +127,7 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
               setToggleSearch={setToggleSearch}
               toggleSearchAutoFocus={toggleSearchAutoFocus}
               onValue={val => {
-                history.push(GET_UNKNOWN_ITEM_ROUTE(itemId, itemType, val));
+                history.push(GET_DOCUMENT_ROUTE(parentId, docId, val));
               }}
             />
           )}
@@ -141,7 +137,7 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
           {content && (
             <KiwimeriEditor
               ref={ref}
-              id={`${itemId}-${uniqId}`}
+              id={`${docId}-${uniqId}`}
               content={content}
               selection={resumeState?.lastSelection || null}
               enableToolbar={!showDocumentActions && !toggleSearch}
@@ -150,12 +146,12 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
               onChange={(editorState, isSelectionChange) => {
                 if (!isSelectionChange) {
                   collectionService.setItemLexicalContent(
-                    itemId,
+                    docId,
                     editorState.toJSON()
                   );
                 }
                 resumeService.setLastSelection(
-                  itemId,
+                  docId,
                   serializeSelection(editorState)
                 );
               }}
@@ -164,7 +160,7 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
         </IonContent>
         {showBottomSheet && (
           <DocumentBottomSheet
-            id={pageId ? pageId : docId}
+            id={docId}
             select={bottomSheet}
             className={bottomSheet}
             onCloseSelf={() => {

@@ -1,7 +1,8 @@
-import { GET_UNKNOWN_ITEM_ROUTE, GET_VERSIONED_ROUTE } from '@/common/routes';
+import { GET_DOCUMENT_ROUTE, GET_VERSIONED_ROUTE } from '@/common/routes';
 import KiwimeriEditor from '@/common/wysiwyg/lexical/KiwimeriEditor';
 import { APPICONS } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
+import collectionService from '@/db/collection.service';
 import {
   IonButton,
   IonContent,
@@ -16,21 +17,17 @@ import {
 } from '@ionic/react';
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
-import { CollectionItemSnapshotData, CollectionItemType } from '../collection';
+import { CollectionItemSnapshotData } from '../collection';
 import SearchActionsToolbar from './SearchActionsToolbar';
 import ActionsFromDocumentVersionViewerToolbar from './actions/ActionsFromDocumentVersionViewerToolbar';
 
 interface DocumentVersionViewerProps {
   docId: string;
-  pageId?: string;
   docVersion: string;
-  pageVersion?: string;
   showActions?: boolean;
   folder: string;
   query?: string;
 }
-
-// TODO test search on pages
 
 const DocumentVersionFooter = ({
   versionData
@@ -51,9 +48,7 @@ const DocumentVersionFooter = ({
 
 const DocumentVersionViewer = ({
   docId,
-  pageId,
   docVersion,
-  pageVersion,
   showActions = false,
   folder,
   query
@@ -68,20 +63,11 @@ const DocumentVersionViewer = ({
     setShowDocumentActions(showActions);
   }, [showActions]);
 
-  const itemId = pageId ? pageId : docId;
-  const versionId = pageVersion ? pageVersion : docVersion;
-
-  const versionedItem = historyService.useVersion(versionId);
-  const content = versionedItem?.content;
-  const versionData = versionedItem?.snapshotJson;
-
   const versionedDoc = historyService.useVersion(docVersion);
-  const docVersionData = versionedDoc?.snapshotJson;
-  const documentTitle = docVersionData?.title;
-
-  const itemType = pageId
-    ? CollectionItemType.page
-    : CollectionItemType.document;
+  const content = versionedDoc?.content;
+  const versionData = versionedDoc?.snapshotJson;
+  const documentTitle = versionData?.title;
+  const parentId = collectionService.getItemParent(docId);
 
   useEffect(() => {
     if (query) {
@@ -112,9 +98,8 @@ const DocumentVersionViewer = ({
         </IonToolbar>
         {showDocumentActions && (
           <ActionsFromDocumentVersionViewerToolbar
-            id={itemId}
             docId={docId}
-            getBackRoute={() => GET_UNKNOWN_ITEM_ROUTE(itemId, itemType, query)}
+            getBackRoute={() => GET_DOCUMENT_ROUTE(parentId, docId, query)}
             onSearch={() => {
               setShowDocumentActions(false);
               setToggleSearch(true);
@@ -131,17 +116,7 @@ const DocumentVersionViewer = ({
             setToggleSearch={setToggleSearch}
             toggleSearchAutoFocus={toggleSearchAutoFocus}
             onValue={val => {
-              history.push(
-                GET_VERSIONED_ROUTE(
-                  itemType,
-                  docVersion,
-                  docId,
-                  folder,
-                  pageId,
-                  pageVersion,
-                  val
-                )
-              );
+              history.push(GET_VERSIONED_ROUTE(docVersion, docId, folder, val));
             }}
           />
         )}
@@ -150,7 +125,7 @@ const DocumentVersionViewer = ({
       <IonContent>
         {content && (
           <KiwimeriEditor
-            id={versionId}
+            id={docVersion}
             editable={false}
             enableToolbar={false}
             content={content}

@@ -27,9 +27,8 @@ const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
     if (isCollectionRoute(location.pathname)) {
       navService.setCurrentFolder(folder);
       navService.setCurrentDocument(searchParams.document);
-      navService.setCurrentPage(searchParams.page);
     }
-  }, [folder, searchParams.document, searchParams.page]);
+  }, [folder, searchParams.document]);
 
   if (location.pathname === INIT_ROUTE) {
     if (rememberLastRoute) {
@@ -59,32 +58,12 @@ const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
         notebooksService.getNotebooks()[0]?.id || ROOT_COLLECTION;
       return <Redirect to={GET_FOLDER_ROUTE(notebookId)} />;
     }
-    // if page but no document
-    if (!searchParams.document && searchParams.page) {
-      return <Redirect to={GET_FOLDER_ROUTE(folder)} />;
-    }
     // if document but doesn't exist
     if (
       searchParams.document &&
       !collectionService.itemExists(searchParams.document)
     ) {
       return <Redirect to={GET_FOLDER_ROUTE(folder)} />;
-    }
-    // if page but doesn't exist
-    if (
-      searchParams.document &&
-      searchParams.page &&
-      !collectionService.itemExists(searchParams.page)
-    ) {
-      return (
-        <Redirect
-          to={GET_DOCUMENT_ROUTE(
-            folder,
-            searchParams.document,
-            searchParams.query
-          )}
-        />
-      );
     }
   }
   return <>{children}</>;

@@ -83,7 +83,7 @@ type ZipParsedMetadata = {
 // TODO remove zod, not used enough
 export const ZipMetadataSchema = z.object({
   format: z.enum(['markdown']).optional(),
-  type: z.enum(CollectionItemType).optional(),
+  type: z.string().optional(),
   title: z.string().optional(),
   created: z.number().optional(),
   updated: z.number().optional(),

@@ -175,21 +175,13 @@ const LocalChangesCard = () => {
                               .getItemTitle(lc.itemId)
                               .substring(0, 15)}
                           </b>
-                          {isWideEnough ? (
+                          {isWideEnough && (
                             <>
-                              {type !== CollectionItemType.page && <br />}
+                              <br />
                               <i>
                                 <sub>{preview}</sub>
                               </i>
                             </>
-                          ) : (
-                            type === CollectionItemType.page && (
-                              <>
-                                <i>
-                                  <sub>{preview.substring(0, 15)}</sub>
-                                </i>
-                              </>
-                            )
                           )}
                         </IonText>
                       </>

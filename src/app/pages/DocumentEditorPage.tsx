@@ -19,7 +19,6 @@ const DocumentEditorPage = () => {
   const notebook = notebooksService.useCurrentNotebook();
   const docId = searchParams.document || notebook;
   const parent = searchParams.folder || notebook;
-  const pageId = searchParams.page;
 
   const [showDocumentActions, setShowDocumentActions] = useState(false);
 
@@ -66,7 +65,6 @@ const DocumentEditorPage = () => {
       <DocumentEditor
         ref={editorRef}
         docId={docId}
-        pageId={pageId}
         showActions={showDocumentActions}
         query={searchParams.query}
       ></DocumentEditor>

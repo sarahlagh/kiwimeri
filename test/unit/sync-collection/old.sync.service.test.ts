@@ -1140,9 +1140,6 @@ describe('sync service', () => {
                 const newParent = collectionService.getItemParent(id);
                 let nbVersions = 1;
 
-                if (collectionService.isHistorizableContentChange('p', field)) {
-                  nbVersions++;
-                }
                 expect(historyService.getVersions(id)).toHaveLength(nbVersions);
                 expect(historyService.getVersions(newParent)).toHaveLength(
                   nbVersions

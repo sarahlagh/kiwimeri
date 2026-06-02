@@ -19,8 +19,7 @@ export const storeTablesSchema = {
       type: 'string',
       default: DEFAULT_NOTEBOOK_ID
     },
-    currentDocument: { type: 'string' },
-    currentPage: { type: 'string' }
+    currentDocument: { type: 'string' }
   },
   localChanges: localChangesSchema,
   remotes: {

@@ -15,7 +15,6 @@ export interface Space {
   currentNotebook?: string;
   currentFolder?: string;
   currentDocument?: string;
-  currentPage?: string;
 }
 
 export interface Remote {

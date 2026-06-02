@@ -591,7 +591,6 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
 
   private handleHistory(changes: AfterSyncHistChange[]) {
     // history must be updated
-    // only take single pages changes if a parent document change isn't present
     const docsMap = new Map<string, AfterSyncHistChange>();
     changes
       .filter(ch => isDocument({ type: ch.type }))

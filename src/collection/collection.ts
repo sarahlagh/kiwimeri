@@ -4,11 +4,10 @@ import { NotesSort } from '@/domain/document-annotations/model';
 export enum CollectionItemType {
   notebook = 'n',
   folder = 'f',
-  document = 'd',
-  page = 'p'
+  document = 'd'
 }
 
-export type CollectionItemTypeValues = 'n' | 'f' | 'd' | 'p';
+export type CollectionItemTypeValues = 'n' | 'f' | 'd';
 
 export interface CollectionItem {
   id?: string;
@@ -114,7 +113,7 @@ export type CollectionItemUpdate = Pick<
 > &
   CollectionItemResult;
 
-export type PageResult = CollectionItemResult & {
+export type ItemWithPreview = CollectionItemResult & {
   preview: string;
 };
 

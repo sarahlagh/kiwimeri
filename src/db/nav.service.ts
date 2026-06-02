@@ -60,22 +60,6 @@ class NavService {
     }
   }
 
-  public getCurrentPage() {
-    return (
-      (store
-        .getCell(this.spacesTable, DEFAULT_SPACE_ID, 'currentPage')
-        ?.valueOf() as string) || undefined
-    );
-  }
-
-  public setCurrentPage(page?: string) {
-    if (page) {
-      store.setCell(this.spacesTable, DEFAULT_SPACE_ID, 'currentPage', page);
-    } else {
-      store.delCell(this.spacesTable, DEFAULT_SPACE_ID, 'currentPage');
-    }
-  }
-
   public setRememberLastRoute(value: boolean) {
     store.setValue('rememberLastRoute', value);
   }

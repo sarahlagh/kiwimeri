@@ -4,7 +4,6 @@ import { dateToStr } from '@/common/date-utils';
 import { getSearchParams } from '@/common/utils';
 import { APPICONS } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
-import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import {
   IonButton,
@@ -188,8 +187,6 @@ const ManageHistoryButton = ({
     dismiss: (data?: string, role?: string) => dismiss(data, role),
     docVersion
   });
-  const type = collectionService.getItemType(id);
-
   return (
     <IonButton
       onClick={() => {
@@ -200,12 +197,9 @@ const ManageHistoryButton = ({
               const version = event.detail.data as string;
               history.push(
                 GET_VERSIONED_ROUTE(
-                  type,
                   version,
                   id,
                   searchParams.folder || notebook,
-                  undefined,
-                  undefined,
                   query
                 )
               );

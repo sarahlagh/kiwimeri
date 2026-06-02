@@ -15,9 +15,9 @@ export const NotesMenuPreview = ({
   onSelect
 }: NotesMenuPreviewProps) => {
   const preview = useNotePreview(note.id);
-  const emptyPage = !preview || preview.length === 0;
+  const emptyNote = !preview || preview.length === 0;
   let classNames = `note-preview`;
-  if (emptyPage) {
+  if (emptyNote) {
     classNames += ' note-preview-empty';
   }
   if (selected) {
@@ -35,7 +35,7 @@ export const NotesMenuPreview = ({
         if (onSelect) onSelect(note.id);
       }}
     >
-      {emptyPage ? (
+      {emptyNote ? (
         <Trans>empty note</Trans>
       ) : note.conflict ? (
         <Trans>-- conflict --</Trans>

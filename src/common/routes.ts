@@ -30,22 +30,11 @@ export const GET_DOCUMENT_ROUTE = (
 export const GET_ITEM_ROUTE = (
   parent: string,
   docId?: string,
-  pageId?: string,
   query?: string | null
 ) =>
-  pageId && docId
-    ? GET_PAGE_ROUTE(parent, docId, pageId, query)
-    : docId
-      ? GET_DOCUMENT_ROUTE(parent, docId, query)
-      : GET_FOLDER_ROUTE(parent, query);
-
-export const GET_PAGE_ROUTE = (
-  parent: string,
-  docId: string,
-  pageId: string,
-  query?: string | null
-) =>
-  `${DOCUMENT_ROUTE}?folder=${parent}&document=${docId}&page=${pageId}${query ? '&query=' + query : ''}`;
+  docId
+    ? GET_DOCUMENT_ROUTE(parent, docId, query)
+    : GET_FOLDER_ROUTE(parent, query);
 
 export const isCollectionRoute = (pathname: string) => {
   return pathname === FOLDER_ROUTE || pathname === DOCUMENT_ROUTE;
@@ -56,17 +45,12 @@ export const GET_UNKNOWN_ITEM_ROUTE = (
   type: CollectionItemTypeValues,
   query?: string | null
 ) => {
-  let route, parent, doc;
+  let route, parent;
   switch (type) {
     case CollectionItemType.folder:
     case CollectionItemType.notebook:
     default:
       route = GET_FOLDER_ROUTE(itemId, query);
-      break;
-    case CollectionItemType.page:
-      doc = collectionService.getItemParent(itemId);
-      parent = collectionService.getItemParent(doc);
-      route = GET_PAGE_ROUTE(parent, doc, itemId, query);
       break;
     case CollectionItemType.document:
       // eslint-disable-next-line no-case-declarations
@@ -78,23 +62,9 @@ export const GET_UNKNOWN_ITEM_ROUTE = (
 };
 
 export const GET_VERSIONED_ROUTE = (
-  itemType: CollectionItemTypeValues,
   docVersion: string,
   docId: string,
   folder: string,
-  pageId?: string,
-  pageVersion?: string,
   query?: string | null
-) => {
-  let route;
-  switch (itemType) {
-    case CollectionItemType.page:
-      route = `${VERSION_ROUTE}?docVersion=${docVersion}&pageVersion=${pageVersion}&folder=${folder}&document=${docId}&page=${pageId}${query ? '&query=' + query : ''}`;
-      break;
-    case CollectionItemType.document:
-    default:
-      route = `${VERSION_ROUTE}?docVersion=${docVersion}&folder=${folder}&document=${docId}${query ? '&query=' + query : ''}`;
-      break;
-  }
-  return route;
-};
+) =>
+  `${VERSION_ROUTE}?docVersion=${docVersion}&folder=${folder}&document=${docId}${query ? '&query=' + query : ''}`;
