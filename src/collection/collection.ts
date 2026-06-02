@@ -182,6 +182,29 @@ export type CollectionItemSnapshotData = Pick<
 > &
   Partial<Pick<CollectionItem, 'order' | 'order_meta'>>;
 
+type isTypeArg =
+  | Pick<CollectionItem, 'type'>
+  | Pick<CollectionItemResult, 'type'>
+  | string
+  | null;
+
+const isA = (type: CollectionItemTypeValues, item?: isTypeArg) => {
+  if (item && typeof item !== 'string') {
+    return item.type === type;
+  }
+  return item === type;
+};
+
+export const isParent = (item?: isTypeArg) =>
+  isA(CollectionItemType.folder, item) ||
+  isA(CollectionItemType.notebook, item);
+
+export const isFolder = (item?: isTypeArg) =>
+  isA(CollectionItemType.folder, item);
+
+export const isNotebook = (item?: isTypeArg) =>
+  isA(CollectionItemType.notebook, item);
+
 export const isDocument = (
   item?:
     | Pick<CollectionItem, 'type'>

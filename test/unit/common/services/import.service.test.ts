@@ -2,7 +2,6 @@ import { CollectionItem, CollectionItemType } from '@/collection/collection';
 import {
   importService,
   ZipImportOptions,
-  ZipMergeCommitOptions,
   ZipMergeFistLevel,
   ZipMergeResult,
   ZipMetadataSchema,
@@ -17,7 +16,6 @@ import notebooksService from '@/db/notebooks.service';
 import userSettingsService from '@/db/user-settings.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
-import formatConverter from '@/format-conversion/format-converter.service';
 import { createInitLocalData, getLocalItemField } from '@@/_setup/test.utils';
 import { readFile } from 'fs/promises';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -33,7 +31,7 @@ type JsonTestDescriptor = {
       Partial<CollectionItem>,
       'id' | 'title' | 'type' | 'parent'
     >[];
-    commitOptions?: ZipMergeCommitOptions[];
+    commitOptions?: any[];
     scenarios: {
       ignore?: boolean;
       description: string;
@@ -180,14 +178,12 @@ describe('import service', () => {
 
   describe('merging single documents', () => {
     it('save single new document', () => {
-      const { doc, pages } = importService.parseNonLexicalContent(
+      const { doc } = importService.parseNonLexicalContent(
         'This is some content'
       );
       expect(doc).toBeDefined();
-      expect(pages).toHaveLength(0);
       const id = importService.commitDocument(
         doc!,
-        pages!,
         DEFAULT_NOTEBOOK_ID,
         'New doc'
       );
@@ -203,14 +199,12 @@ describe('import service', () => {
       vi.advanceTimersByTime(5000);
       expect(historyService.getVersions(id1!)).toHaveLength(2);
 
-      const { doc, pages } = importService.parseNonLexicalContent(
+      const { doc } = importService.parseNonLexicalContent(
         'This is some content'
       );
       expect(doc).toBeDefined();
-      expect(pages).toHaveLength(0);
       const id2 = importService.commitDocument(
         doc!,
-        pages!,
         DEFAULT_NOTEBOOK_ID,
         'New doc',
         id1
@@ -220,57 +214,6 @@ describe('import service', () => {
       expect(collectionService.getItemField(id2!, 'updated')).toBe(
         before + 5000
       );
-      expect(historyService.getVersions(id2!)).toHaveLength(3);
-    });
-
-    it('save single new document with pages', () => {
-      const { doc, pages } = importService.parseNonLexicalContent(
-        'This is some content' +
-          formatConverter.getPagesSeparator() +
-          'And a page'
-      );
-      expect(doc).toBeDefined();
-      expect(pages).toHaveLength(1);
-      const id = importService.commitDocument(
-        doc!,
-        pages!,
-        DEFAULT_NOTEBOOK_ID,
-        'New doc'
-      );
-      expect(id).toBeDefined();
-      expect(collectionService.itemExists(id!)).toBe(true);
-      expect(collectionService.getDocumentPages(id!)).toHaveLength(1);
-      expect(historyService.getVersions(id!)).toHaveLength(1);
-    });
-
-    it('overwrite existing document with no previous pages', () => {
-      const before = Date.now();
-      const id1 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-      collectionService.setItemTitle(id1, 'New doc');
-      vi.advanceTimersByTime(5000);
-      expect(historyService.getVersions(id1!)).toHaveLength(2);
-
-      const { doc, pages } = importService.parseNonLexicalContent(
-        'This is some content' +
-          formatConverter.getPagesSeparator() +
-          'And a page'
-      );
-
-      expect(doc).toBeDefined();
-      expect(pages).toHaveLength(1);
-      const id2 = importService.commitDocument(
-        doc!,
-        pages!,
-        DEFAULT_NOTEBOOK_ID,
-        'New doc',
-        id1
-      );
-      expect(id2).toBe(id1);
-      expect(collectionService.itemExists(id2!)).toBe(true);
-      expect(collectionService.getItemField(id2!, 'updated')).toBe(
-        before + 5000
-      );
-      expect(collectionService.getDocumentPages(id2!)).toHaveLength(1);
       expect(historyService.getVersions(id2!)).toHaveLength(3);
     });
   });
@@ -291,9 +234,6 @@ describe('import service', () => {
       }
       expectedArray.forEach((expectedItem, idx) => {
         const mergedItem = zipMergeArray[idx];
-        if (mergedItem.type !== CollectionItemType.page) {
-          expect(mergedItem.title).toBe(expectedItem.title);
-        }
         expect(mergedItem.type).toBe(expectedItem.type);
         if (expectedItem.id && !writeIdsMap) {
           expect(mergedItem.id).toBe(
@@ -406,14 +346,8 @@ describe('import service', () => {
 
   const checkResultsDb = (
     initData: CollectionItem[],
-    zipMerge: ZipMergeResult,
-    commitOpts: ZipMergeCommitOptions
+    zipMerge: ZipMergeResult
   ) => {
-    const initDataNotDel = initData.filter(data =>
-      commitOpts.deleteExistingPages && data.type === CollectionItemType.page
-        ? !zipMerge.updatedItems.find(i => i.id === data.parent)
-        : true
-    );
     expect(
       localChangesService
         .getLocalChanges()
@@ -423,18 +357,11 @@ describe('import service', () => {
       localChangesService
         .getLocalChanges()
         .filter(lc => lc.change === LocalChangeType.delete)
-    ).toHaveLength(initData.length - initDataNotDel.length);
+    ).toHaveLength(initData.length - initData.length);
     const items = [...zipMerge.newItems, ...zipMerge.updatedItems];
     items.forEach(item => {
       expect(item.id).toBeDefined();
       expect(collectionService.itemExists(item.id!)).toBe(true);
-      if (item.type === CollectionItemType.document) {
-        const pages = collectionService.getDocumentPages(item.id!);
-        expect(pages).toHaveLength(
-          items.filter(p => p.parent === item.id).length +
-            initDataNotDel.filter(p => p.parent === item.id).length
-        );
-      }
     });
     zipMerge.newItems
       .filter(item => item.type === CollectionItemType.document)
@@ -539,12 +466,9 @@ describe('import service', () => {
                           );
 
                           // save results and check db
-                          importService.commitMergeResult(
-                            zipMerge!,
-                            commitOpts
-                          );
+                          importService.commitMergeResult(zipMerge!);
 
-                          checkResultsDb(initialItems, zipMerge!, commitOpts);
+                          checkResultsDb(initialItems, zipMerge!);
                         });
                       });
                     });
@@ -560,7 +484,6 @@ describe('import service', () => {
     await generateTestsCases('zips_without_meta', false, [
       'Simple.zip',
       'SimpleLayer.zip',
-      'SimplePagesInline.zip',
       'SimpleWithDuplicates.zip',
       'Samples.zip'
     ]);
@@ -588,18 +511,14 @@ describe('import service', () => {
       'Empty.zip',
       'Simple.zip',
       'SimpleLayer.zip',
-      'SimplePagesInline.zip',
       'SimpleWithDuplicates.zip',
       'SimpleSub.zip',
       'SimpleSubPartialMeta.zip',
       'SimpleSubPartialFiles.zip',
       'Notebook.zip',
       'Space.zip',
-      'SpaceMix.zip',
-      'DocWithPages.zip',
-      'DocWithoutPages.zip',
-      'FolderWithPages.zip',
-      'TrickyDocsWithPages.zip'
+      'SimpleDoc.zip',
+      'SpaceMix.zip'
     ]);
   });
 
@@ -648,7 +567,7 @@ describe('import service', () => {
       const createdNotebook = notebooksService.getNotebooks()[0];
       expect(createdNotebook.id).toBe(DEFAULT_NOTEBOOK_ID);
       expect(createdNotebook.title).toBe('Samples');
-      checkCollectionAndHistory(createdNotebook.id!, 18);
+      checkCollectionAndHistory(createdNotebook.id!, 15);
     });
 
     it('should restore zip with no notebook meta for first level folders and ignore root meta', async () => {

@@ -1,98 +1,6 @@
 {
   "testCases": [
     {
-      "zipName": "DocWithPagesMalformed.zip",
-      "description": "DocWithPagesMalformed.zip",
-      "initData": [],
-      "scenarios": [
-        {
-          "description": "and detectInlinedPages=true",
-          "options": [
-            {
-              "detectInlinedPages": true
-            }
-          ],
-          "errors": [
-            {
-              "path": "Simple with pages 1.md",
-              "family": "incorrect_meta",
-              "code": "page_has_inline_items"
-            }
-          ],
-          "expected": {}
-        }
-      ]
-    },
-    {
-      "zipName": "DocWithPagesMalformed2.zip",
-      "description": "DocWithPagesMalformed2.zip",
-      "initData": [],
-      "scenarios": [
-        {
-          "description": "and default options",
-          "options": [
-            {
-              "detectInlinedPages": true
-            }
-          ],
-          "errors": [
-            {
-              "path": "meta.json",
-              "family": "incorrect_meta",
-              "code": "malformed_document"
-            }
-          ],
-          "expected": {}
-        }
-      ]
-    },
-    {
-      "zipName": "DocWithPagesMalformed3.zip",
-      "description": "DocWithPagesMalformed3.zip",
-      "initData": [],
-      "scenarios": [
-        {
-          "description": "and default options",
-          "options": [
-            {
-              "detectInlinedPages": true
-            }
-          ],
-          "errors": [
-            {
-              "path": "meta.json",
-              "family": "incorrect_meta",
-              "code": "malformed_document"
-            }
-          ],
-          "expected": {}
-        }
-      ]
-    },
-    {
-      "zipName": "FolderWithPagesMalformed.zip",
-      "description": "FolderWithPagesMalformed.zip",
-      "initData": [],
-      "scenarios": [
-        {
-          "description": "and detectInlinedPages=true",
-          "options": [
-            {
-              "detectInlinedPages": true
-            }
-          ],
-          "errors": [
-            {
-              "path": "Sub/Simple with pages.md/Simple with pages 1.md",
-              "family": "incorrect_meta",
-              "code": "page_has_inline_items"
-            }
-          ],
-          "expected": {}
-        }
-      ]
-    },
-    {
       "zipName": "SpaceMalformed.zip",
       "description": "SpaceMalformed.zip",
       "initData": [],
@@ -104,22 +12,27 @@
             {
               "path": "SimpleNotebook1/Sub/meta.json",
               "family": "incorrect_meta",
-              "code": "incorrect_child_type"
+              "code": "incorrect_parent_type"
             },
             {
               "path": "SimpleNotebook2/DandMissingType/meta.json",
               "family": "incorrect_meta",
-              "code": "malformed_document"
+              "code": "incorrect_parent_type"
+            },
+            {
+              "path": "SimpleNotebook2/DandNested/Other/meta.json",
+              "family": "incorrect_meta",
+              "code": "incorrect_parent_type"
             },
             {
               "path": "SimpleNotebook2/DandNested/meta.json",
               "family": "incorrect_meta",
-              "code": "malformed_document"
+              "code": "incorrect_parent_type"
             },
             {
-              "path": "SimpleNotebook2/DandSub/Other/",
+              "path": "SimpleNotebook2/DandSub/meta.json",
               "family": "incorrect_meta",
-              "code": "orphaned_folder"
+              "code": "incorrect_parent_type"
             },
             {
               "path": "SimpleNotebook2/IncorrectInFiles/meta.json",
@@ -129,7 +42,7 @@
             {
               "path": "SimpleNotebook2/OnlyPsInFiles/meta.json",
               "family": "incorrect_meta",
-              "code": "malformed_document"
+              "code": "incorrect_parent_type"
             },
             {
               "path": "SimpleNotebook2/Quote.md",
@@ -176,7 +89,7 @@
             {
               "path": "test/meta.json",
               "family": "incorrect_meta",
-              "code": "orphaned_page"
+              "code": "incorrect_child_type"
             },
             {
               "path": "meta.json",
@@ -200,12 +113,12 @@
             {
               "path": "test/meta.json",
               "family": "incorrect_meta",
-              "code": "orphaned_page"
+              "code": "incorrect_child_type"
             },
             {
               "path": "meta.json",
               "family": "incorrect_meta",
-              "code": "malformed_document"
+              "code": "incorrect_parent_type"
             }
           ],
           "expected": {}

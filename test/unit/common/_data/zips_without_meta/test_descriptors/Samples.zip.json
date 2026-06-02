@@ -75,11 +75,6 @@
                 "content": "__defined__"
               },
               {
-                "parent": "#dIDSimplePage0",
-                "type": "p",
-                "content": "__defined__"
-              },
-              {
                 "id": "#fID1",
                 "title": "folder 1",
                 "parent": "#fIDSamples",
@@ -111,11 +106,6 @@
                 "content": "__defined__"
               },
               {
-                "parent": "#dIDSimplePage1",
-                "type": "p",
-                "content": "__defined__"
-              },
-              {
                 "id": "#fID2",
                 "title": "folder 2",
                 "parent": "#fIDSamples",
@@ -138,11 +128,6 @@
                 "title": "New document",
                 "parent": "#fID2",
                 "type": "d",
-                "content": "__defined__"
-              },
-              {
-                "parent": "#dIDNewDoc",
-                "type": "p",
                 "content": "__defined__"
               }
             ],
@@ -210,11 +195,6 @@
                 "content": "__defined__"
               },
               {
-                "parent": "#dIDSimplePage0",
-                "type": "p",
-                "content": "__defined__"
-              },
-              {
                 "id": "#fID1",
                 "title": "folder 1",
                 "parent": "0",
@@ -246,11 +226,6 @@
                 "content": "__defined__"
               },
               {
-                "parent": "#dIDSimplePage1",
-                "type": "p",
-                "content": "__defined__"
-              },
-              {
                 "id": "#fID2",
                 "title": "folder 2",
                 "parent": "0",
@@ -273,11 +248,6 @@
                 "title": "New document",
                 "parent": "#fID2",
                 "type": "d",
-                "content": "__defined__"
-              },
-              {
-                "parent": "#dIDNewDoc",
-                "type": "p",
                 "content": "__defined__"
               }
             ],
@@ -386,11 +356,6 @@
                 "content": "__defined__"
               },
               {
-                "parent": "#dIDSimplePage0",
-                "type": "p",
-                "content": "__defined__"
-              },
-              {
                 "id": "#fID1",
                 "title": "folder 1",
                 "parent": "#fIDSamples",
@@ -422,11 +387,6 @@
                 "content": "__defined__"
               },
               {
-                "parent": "#dIDSimplePage1",
-                "type": "p",
-                "content": "__defined__"
-              },
-              {
                 "id": "#fID2",
                 "title": "folder 2",
                 "parent": "#fIDSamples",
@@ -449,11 +409,6 @@
                 "title": "New document",
                 "parent": "#fID2",
                 "type": "d",
-                "content": "__defined__"
-              },
-              {
-                "parent": "#dIDNewDoc",
-                "type": "p",
                 "content": "__defined__"
               }
             ],
@@ -505,14 +460,6 @@
           "title": "SimplePage",
           "parent": "#fID1SubFolder",
           "type": "d"
-        },
-        {
-          "parent": "#dIDSimplePage1",
-          "type": "p"
-        },
-        {
-          "parent": "#dIDSimplePage1",
-          "type": "p"
         },
         {
           "id": "#fID2",
@@ -606,11 +553,6 @@
                 "content": "__defined__"
               },
               {
-                "parent": "#dIDSimplePage0",
-                "type": "p",
-                "content": "__defined__"
-              },
-              {
                 "id": "#fID1",
                 "title": "folder 1",
                 "parent": "#fIDSamples",
@@ -642,11 +584,6 @@
                 "content": "__defined__"
               },
               {
-                "parent": "#dIDSimplePage1",
-                "type": "p",
-                "content": "__defined__"
-              },
-              {
                 "id": "#fID2",
                 "title": "folder 2",
                 "parent": "#fIDSamples",
@@ -669,11 +606,6 @@
                 "title": "New document",
                 "parent": "#fID2",
                 "type": "d",
-                "content": "__defined__"
-              },
-              {
-                "parent": "#dIDNewDoc",
-                "type": "p",
                 "content": "__defined__"
               }
             ],
@@ -777,11 +709,6 @@
                 "content": "__defined__"
               },
               {
-                "parent": "#dIDSimplePage0",
-                "type": "p",
-                "content": "__defined__"
-              },
-              {
                 "title": "Quote",
                 "parent": "#fID1",
                 "type": "d",
@@ -791,11 +718,6 @@
                 "title": "Simple",
                 "parent": "#fID1SubFolder",
                 "type": "d",
-                "content": "__defined__"
-              },
-              {
-                "parent": "#dIDSimplePage1",
-                "type": "p",
                 "content": "__defined__"
               },
               {
@@ -815,11 +737,6 @@
                 "title": "New document",
                 "parent": "#fID2",
                 "type": "d",
-                "content": "__defined__"
-              },
-              {
-                "parent": "#dIDNewDoc",
-                "type": "p",
                 "content": "__defined__"
               }
             ],
@@ -889,11 +806,6 @@
                 "content": "__defined__"
               },
               {
-                "parent": "#dIDSimplePage0",
-                "type": "p",
-                "content": "__defined__"
-              },
-              {
                 "id": "#fID1",
                 "title": "folder 1",
                 "parent": "0",
@@ -925,11 +837,6 @@
                 "content": "__defined__"
               },
               {
-                "parent": "#dIDSimplePage1",
-                "type": "p",
-                "content": "__defined__"
-              },
-              {
                 "id": "#fID2",
                 "title": "folder 2",
                 "parent": "0",
@@ -952,11 +859,6 @@
                 "title": "New document",
                 "parent": "#fID2",
                 "type": "d",
-                "content": "__defined__"
-              },
-              {
-                "parent": "#dIDNewDoc",
-                "type": "p",
                 "content": "__defined__"
               }
             ],
@@ -1057,11 +959,6 @@
                 "content": "__defined__"
               },
               {
-                "parent": "#dIDSimplePage0",
-                "type": "p",
-                "content": "__defined__"
-              },
-              {
                 "id": "#fID1",
                 "title": "folder 1",
                 "parent": "0",
@@ -1093,11 +990,6 @@
                 "content": "__defined__"
               },
               {
-                "parent": "#dIDSimplePage1",
-                "type": "p",
-                "content": "__defined__"
-              },
-              {
                 "id": "#fID2",
                 "title": "folder 2",
                 "parent": "0",
@@ -1120,11 +1012,6 @@
                 "title": "New document",
                 "parent": "#fID2",
                 "type": "d",
-                "content": "__defined__"
-              },
-              {
-                "parent": "#dIDNewDoc",
-                "type": "p",
                 "content": "__defined__"
               }
             ],
@@ -1235,11 +1122,6 @@
                 "content": "__defined__"
               },
               {
-                "parent": "#dIDSimplePage0",
-                "type": "p",
-                "content": "__defined__"
-              },
-              {
                 "id": "#fID1",
                 "title": "folder 1",
                 "parent": "#fIDSamples",
@@ -1271,11 +1153,6 @@
                 "content": "__defined__"
               },
               {
-                "parent": "#dIDSimplePage1",
-                "type": "p",
-                "content": "__defined__"
-              },
-              {
                 "id": "#fID2",
                 "title": "folder 2",
                 "parent": "#fIDSamples",
@@ -1298,11 +1175,6 @@
                 "title": "New document",
                 "parent": "#fID2",
                 "type": "d",
-                "content": "__defined__"
-              },
-              {
-                "parent": "#dIDNewDoc",
-                "type": "p",
                 "content": "__defined__"
               }
             ],
@@ -1386,11 +1258,6 @@
                 "content": "__defined__"
               },
               {
-                "parent": "#dIDSimplePage0",
-                "type": "p",
-                "content": "__defined__"
-              },
-              {
                 "id": "#fID1",
                 "title": "folder 1",
                 "parent": "#fIDSamples",
@@ -1422,11 +1289,6 @@
                 "content": "__defined__"
               },
               {
-                "parent": "#dIDSimplePage1",
-                "type": "p",
-                "content": "__defined__"
-              },
-              {
                 "id": "#fID2",
                 "title": "folder 2",
                 "parent": "#fIDSamples",
@@ -1449,11 +1311,6 @@
                 "title": "New document",
                 "parent": "#fID2",
                 "type": "d",
-                "content": "__defined__"
-              },
-              {
-                "parent": "#dIDNewDoc",
-                "type": "p",
                 "content": "__defined__"
               }
             ],

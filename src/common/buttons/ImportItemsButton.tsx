@@ -61,12 +61,11 @@ const ImportItemsButton = ({
   );
   const onContentReadConfirm = (
     lexical: SerializedEditorState<SerializedLexicalNode>,
-    pages: SerializedEditorState<SerializedLexicalNode>[],
     fileName: string,
     item?: CollectionItemResult
   ) => {
     const itemId = item?.id;
-    importService.commitDocument(lexical, pages, parent, fileName, itemId);
+    importService.commitDocument(lexical, parent, fileName, itemId);
 
     history.push(GET_ITEM_ROUTE(parent, itemId));
   };
@@ -74,7 +73,7 @@ const ImportItemsButton = ({
   const onSingleDocumentRead = async (content: string, file: File) => {
     // TODO don't hardcode the regex here
     const fileName = file.name.replace(/\.(md|MD)$/, '');
-    const { doc, pages } = importService.parseNonLexicalContent(content);
+    const { doc } = importService.parseNonLexicalContent(content);
 
     const itemsInCollection = importService.findDuplicates(parent, [
       {
@@ -93,19 +92,14 @@ const ImportItemsButton = ({
           cssClass: 'auto-height',
           onWillDismiss: (event: CustomEvent<OverlayEventDetail>) => {
             if (event.detail.data?.confirm === true) {
-              onContentReadConfirm(
-                doc,
-                pages,
-                fileName,
-                event.detail.data.item
-              );
+              onContentReadConfirm(doc, fileName, event.detail.data.item);
             }
             resolve({ confirm: event.detail.data?.confirm === true });
           }
         });
       });
     } else {
-      onContentReadConfirm(doc, pages, fileName);
+      onContentReadConfirm(doc, fileName);
       return { confirm: true } as OnContentReadResponse;
     }
   };

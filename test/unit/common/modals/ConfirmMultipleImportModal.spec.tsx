@@ -558,7 +558,7 @@ describe('ConfirmMultipleImportModal', () => {
       const rows = container.querySelector('#preview-list');
       expect(rows?.hasChildNodes()).toBe(true);
 
-      expect(rows?.childNodes).toHaveLength(8);
+      expect(rows?.childNodes).toHaveLength(9);
       const expectedRows = [
         { first: 'Incorrect Metadata', last: 'SimpleNotebook1/Sub/meta.json' },
         {
@@ -567,11 +567,15 @@ describe('ConfirmMultipleImportModal', () => {
         },
         {
           first: 'Incorrect Metadata',
+          last: 'SimpleNotebook2/DandNested/Other/meta.json'
+        },
+        {
+          first: 'Incorrect Metadata',
           last: 'SimpleNotebook2/DandNested/meta.json'
         },
         {
           first: 'Incorrect Metadata',
-          last: 'SimpleNotebook2/DandSub/Other/'
+          last: 'SimpleNotebook2/DandSub/meta.json'
         },
         {
           first: 'Incorrect Metadata',
@@ -637,7 +641,7 @@ describe('ConfirmMultipleImportModal', () => {
       const rows = container.querySelector('#preview-list');
       expect(rows?.hasChildNodes()).toBe(true);
 
-      expect(rows?.childNodes).toHaveLength(8);
+      expect(rows?.childNodes).toHaveLength(9);
       const expectedRows = [
         { first: 'Incorrect Metadata', last: 'SimpleNotebook1/Sub/meta.json' },
         {
@@ -646,11 +650,15 @@ describe('ConfirmMultipleImportModal', () => {
         },
         {
           first: 'Incorrect Metadata',
+          last: 'SimpleNotebook2/DandNested/Other/meta.json'
+        },
+        {
+          first: 'Incorrect Metadata',
           last: 'SimpleNotebook2/DandNested/meta.json'
         },
         {
           first: 'Incorrect Metadata',
-          last: 'SimpleNotebook2/DandSub/Other/'
+          last: 'SimpleNotebook2/DandSub/meta.json'
         },
         {
           first: 'Incorrect Metadata',

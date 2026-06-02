@@ -6,6 +6,10 @@ import {
   CollectionItemTypeValues,
   CollectionItemUpdatableFields,
   CollectionItemUpdate,
+  isDocument,
+  isFolder,
+  isNotebook,
+  isParent,
   setFieldMeta,
   sortBy
 } from '@/collection/collection';
@@ -30,9 +34,6 @@ export type ZipParseError = {
   code?:
     | 'incorrect_child_type'
     | 'incorrect_parent_type'
-    | 'malformed_document'
-    | 'page_has_inline_items'
-    | 'orphaned_page'
     | 'orphaned_folder'
     | 'orphaned_notebook';
   path: string;
@@ -57,7 +58,6 @@ export type ZipMergeResult = {
 
 export type ZipParseOptions = {
   ignoreMetadata?: boolean;
-  detectInlinedPages?: boolean;
   titleRemoveDuplicateIdentifiers?: boolean;
   titleRemoveExtension?: boolean;
 };
@@ -73,14 +73,8 @@ export type ZipMergeOptions = {
 
 export type ZipImportOptions = ZipParseOptions & ZipMergeOptions;
 
-export type ZipMergeCommitOptions = {
-  deleteExistingPages?: boolean;
-};
-
 type ZipParsedMetadata = {
   parentKey?: string;
-  orphans?: string[];
-  hasInlinePages?: boolean;
   files?: {
     [key: string]: ZipParsedMetadata;
   };
@@ -110,10 +104,9 @@ export const ZipMetadataSchema = z.object({
 
 class ImportService {
   private readonly zipRoot = 'zip-root';
-  private readonly defaultOpts: ZipImportOptions & ZipMergeCommitOptions = {
+  private readonly defaultOpts: ZipImportOptions = {
     // parse opts
     ignoreMetadata: false,
-    detectInlinedPages: true,
     titleRemoveDuplicateIdentifiers: true,
     titleRemoveExtension: true,
     // merge opts
@@ -121,9 +114,7 @@ class ImportService {
     removeNotebooks: false,
     overwrite: false,
     createNewFolder: false,
-    removeFirstFolder: false,
-    // commit opts
-    deleteExistingPages: true
+    removeFirstFolder: false
   };
 
   public parseNonLexicalContent(content: string, opts?: ZipParseOptions) {
@@ -133,28 +124,11 @@ class ImportService {
     } else {
       opts = { ...this.defaultOpts, ...opts };
     }
-    if (opts.detectInlinedPages) {
-      const pagesFormatted = content.split(formatConverter.getPagesSeparator());
-      const doc = pagesFormatted.shift()!;
-      const { obj: lexical, errors } = formatConverter.fromMarkdown(doc);
-      if (errors?.length || 0 > 0) {
-        return { errors };
-      }
-      const pages: SerializedEditorState<SerializedLexicalNode>[] = [];
-      pagesFormatted.forEach(page => {
-        const { obj: pageLexical, errors } = formatConverter.fromMarkdown(page);
-        if (errors?.length || 0 > 0) {
-          return { errors };
-        }
-        pages.push(pageLexical!);
-      });
-      return { doc: lexical, pages };
-    }
     const { obj, errors } = formatConverter.fromMarkdown(content);
     if (errors?.length || 0 > 0) {
       return { errors };
     }
-    return { doc: obj, pages: [] };
+    return { doc: obj };
   }
 
   // TODO less manual
@@ -171,7 +145,7 @@ class ImportService {
       item.parent = parentItem.id!;
     }
     if (meta.title) {
-      item.title = item.type === CollectionItemType.page ? '' : meta.title;
+      item.title = meta.title;
     }
     if (meta.created) {
       item.created = meta.created;
@@ -190,7 +164,7 @@ class ImportService {
       });
     }
     if (meta.tags) {
-      item.tags = item.type === CollectionItemType.page ? '' : meta.tags;
+      item.tags = meta.tags;
     }
     if (meta.order) {
       item.order = meta.order;
@@ -236,47 +210,29 @@ class ImportService {
     errors: ZipParseError[],
     opts: ZipParseOptions
   ) {
-    let fKey = itemKey;
     const item = items.get(itemKey)!;
     try {
       const content = strFromU8(unzipped[itemKey]);
-      const {
-        doc,
-        pages,
-        errors: parseErrors
-      } = this.parseNonLexicalContent(content, opts);
+      const { doc, errors: parseErrors } = this.parseNonLexicalContent(
+        content,
+        opts
+      );
       if (parseErrors?.length || 0 > 0) {
         console.error(parseErrors);
         errors.push({
           family: 'parse_error',
-          path: fKey
+          path: itemKey
         });
-        return false;
+        return;
       }
       collectionService.setUnsavedItemLexicalContent(item, doc!);
-      pages!.forEach((page, idx) => {
-        const { item: pItem, id: pId } = collectionService.getNewPageObj(
-          item.id!
-        );
-        fKey = `${itemKey}/${idx + 1}`;
-        const pageItem = {
-          ...pItem,
-          id: pId,
-          title: '',
-          title_meta: ''
-        };
-        items.set(fKey, pageItem);
-        collectionService.setUnsavedItemLexicalContent(pageItem, page);
-      });
-      return pages!.length > 0;
     } catch (e) {
       console.error(e);
       errors.push({
         family: 'parse_error',
-        path: fKey
+        path: itemKey
       });
     }
-    return false;
   }
 
   private goUpOneFolder(path: string) {
@@ -303,44 +259,24 @@ class ImportService {
         ...origMeta
       };
       metaMap.set(parentPath, meta);
-      // should always get the parent item before its meta unless its root
-      let finalParentPath = parentPath;
-      let parentIsDocument = false;
-      // fill in meta for closestParent
       if (items.has(parentPath)) {
-        const typeBefore = items.get(parentPath)!.type;
         this.fillInMeta(items.get(parentPath)!, meta);
-        // if document with non inline pages detected...
-        if (
-          typeBefore === CollectionItemType.folder &&
-          items.get(parentPath)!.type === CollectionItemType.document
-        ) {
-          parentIsDocument = true;
-          // update the children parent - go up one folder
-          finalParentPath = this.goUpOneFolder(finalParentPath);
-          // delete the item created for the directory
-          items.delete(parentPath);
-        }
       }
       // fill in meta for siblings
       if (meta.files) {
-        let docPath: string | undefined;
         const docTags = new Set<string>();
-        const orphanPages: string[] = [];
         Object.keys(meta.files).forEach(filename => {
           let parentKey: string | undefined = undefined;
-          let metaFile = meta.files![filename];
+          const metaFile = meta.files![filename];
           const metaFilePath = `${parentPath}${filename}`;
-          const oldMeta = metaMap.get(metaFilePath); // can happen with docs with inlined pages
-          metaFile = { ...oldMeta, ...metaFile };
+
           if (items.has(metaFilePath)) {
             const item = items.get(metaFilePath)!;
             this.fillInMeta(item, metaFile);
           }
           // if document update its parent
           if (metaFile.type === CollectionItemType.document) {
-            parentKey = finalParentPath;
-            docPath = metaFilePath;
+            parentKey = parentPath;
             if (items.has(metaFilePath) && items.get(parentKey)?.id) {
               items.get(metaFilePath)!.parent = items.get(parentKey)!.id!;
             }
@@ -349,50 +285,9 @@ class ImportService {
                 docTags.add(tag);
               });
             }
-          } else if (metaFile.type === CollectionItemType.page) {
-            // if page update its parent to document
-            if (docPath) {
-              parentKey = docPath;
-              if (items.has(metaFilePath) && items.get(parentKey)?.id) {
-                items.get(metaFilePath)!.parent = items.get(parentKey)!.id!;
-                // update doc tags
-                if (metaFile.tags) {
-                  metaFile.tags.split(',').forEach(tag => {
-                    docTags.add(tag);
-                  });
-                }
-              } else {
-                // is a page, but document is still unknown
-                orphanPages.push(metaFilePath);
-              }
-            } else {
-              // is a page, but document is still unknown
-              orphanPages.push(metaFilePath);
-            }
           }
           metaMap.set(metaFilePath, { parentKey, ...metaFile });
         });
-        if (docPath && metaMap.has(docPath)) {
-          metaMap.get(docPath)!.orphans = [...orphanPages];
-          orphanPages.forEach(pageKey => {
-            metaMap.get(pageKey)!.parentKey = docPath;
-            // update parent tags
-            if (metaMap.get(pageKey)?.tags) {
-              metaMap
-                .get(pageKey)!
-                .tags!.split(',')
-                .forEach(tag => {
-                  docTags.add(tag);
-                });
-            }
-          });
-          if (parentIsDocument) {
-            metaMap.get(docPath)!.tags = [...docTags].join(',');
-            if (items.get(docPath)) {
-              items.get(docPath)!.tags = metaMap.get(docPath)!.tags;
-            }
-          }
-        }
       }
     } catch (e) {
       console.error(e);
@@ -425,8 +320,14 @@ class ImportService {
       ? `${lastDirKey}${META_JSON}`
       : lastDirKey;
 
-    let nbDocs = 0;
-    let nbPages = 0;
+    if (!isParent(parentType)) {
+      return errors.push({
+        family: 'incorrect_meta',
+        code: 'incorrect_parent_type',
+        path: metaFilePath
+      });
+    }
+
     for (const child of level) {
       if (child === META_JSON || child.endsWith(`/${META_JSON}`)) {
         continue;
@@ -441,62 +342,18 @@ class ImportService {
         (isFileInZip ? CollectionItemType.document : CollectionItemType.folder);
 
       if (isFileInZip) {
-        if (childType === CollectionItemType.document) {
-          nbDocs++;
-        } else if (childType === CollectionItemType.page) {
-          nbPages++;
-          if (childItem?.parent === this.zipRoot) {
-            return errors.push({
-              family: 'incorrect_meta',
-              code: 'malformed_document',
-              path: metaFilePath
-            });
-          }
-        }
-        if (
-          childType === CollectionItemType.folder ||
-          childType === CollectionItemType.notebook
-        ) {
+        if (!isDocument({ type: childType })) {
           return errors.push({
             family: 'incorrect_meta',
             code: 'incorrect_child_type',
             path: metaFilePath
           });
         }
-        if (
-          childType === CollectionItemType.page &&
-          parentType !== CollectionItemType.document
-        ) {
-          return errors.push({
-            family: 'incorrect_meta',
-            code: 'orphaned_page',
-            path: metaFilePath
-          });
-        }
-        const hasInlinePages = childMeta?.hasInlinePages;
-        if (hasInlinePages && childType !== CollectionItemType.document) {
-          return errors.push({
-            path: child,
-            family: 'incorrect_meta',
-            code: 'page_has_inline_items'
-          });
-        }
       } else {
         // if is directory in zip
         const childMetaFilePath = childMeta ? `${child}${META_JSON}` : child;
 
-        if (childType === CollectionItemType.page) {
-          return errors.push({
-            family: 'incorrect_meta',
-            code: 'incorrect_parent_type',
-            path: childMetaFilePath
-          });
-        }
-        if (
-          childType === CollectionItemType.folder &&
-          parentType !== CollectionItemType.folder &&
-          parentType !== CollectionItemType.notebook
-        ) {
+        if (isFolder(childType) && !isParent(parentType)) {
           return errors.push({
             family: 'incorrect_meta',
             code: 'orphaned_folder',
@@ -504,8 +361,8 @@ class ImportService {
           });
         }
         if (
-          childType === CollectionItemType.notebook &&
-          parentType !== CollectionItemType.notebook &&
+          isNotebook(childType) &&
+          !isNotebook(parentType) &&
           lastDirKey.length > 0
         ) {
           return errors.push({
@@ -517,16 +374,6 @@ class ImportService {
       }
     }
 
-    if (
-      parentType === CollectionItemType.document &&
-      (nbDocs !== 1 || nbDocs + nbPages !== level.length - 1) // -1 for the meta.json
-    ) {
-      return errors.push({
-        family: 'incorrect_meta',
-        code: 'malformed_document',
-        path: metaFilePath
-      });
-    }
     return errors.length;
   }
 
@@ -592,33 +439,15 @@ class ImportService {
       } else if (currentName !== META_JSON || opts.ignoreMetadata) {
         // is document & not meta.json
         items.set(itemKey, item);
-        const hasInlinePages = this.parseItemContent(
-          unzipped,
-          itemKey,
-          items,
-          errors,
-          opts
-        );
-
-        if (hasInlinePages && !opts.ignoreMetadata && !metaMap.has(itemKey)) {
-          metaMap.set(itemKey, { hasInlinePages });
-        }
+        this.parseItemContent(unzipped, itemKey, items, errors, opts);
 
         if (!opts.ignoreMetadata && metaMap.has(itemKey)) {
           const meta = metaMap.get(itemKey)!;
-          meta.hasInlinePages = hasInlinePages;
           this.fillInMeta(
             item,
             meta,
             meta.parentKey ? items.get(meta.parentKey!) : undefined
           );
-          if (meta.orphans && meta.orphans.length > 0) {
-            meta.orphans.forEach(orphan => {
-              if (items.has(orphan)) {
-                items.get(orphan)!.parent = item.id!;
-              }
-            });
-          }
         }
       } else {
         // is meta.json
@@ -911,31 +740,10 @@ class ImportService {
     return this.mergeZipItemsWithOptions(items, parent, opts);
   }
 
-  public commitMergeResult(
-    zipMerge: ZipMergeResult,
-    commitOpts?: ZipMergeCommitOptions
-  ) {
-    if (!commitOpts) {
-      commitOpts = this.defaultOpts;
-    } else {
-      commitOpts = { ...this.defaultOpts, ...commitOpts };
-    }
-
+  public commitMergeResult(zipMerge: ZipMergeResult) {
     // TODO re-enable transactions
     // remove the table from all queries as a start
     // space.transaction(() => {
-    if (commitOpts.deleteExistingPages) {
-      historyService.disableForBulk(() => {
-        zipMerge.updatedItems
-          .filter(item => item.type === CollectionItemType.document)
-          .forEach(item => {
-            const pages = collectionService.getDocumentPages(item.id);
-            pages.forEach(page => {
-              collectionService.deleteItem(page.id);
-            });
-          });
-      });
-    }
     const allDocIds = [
       ...collectionService.saveItems(zipMerge.newItems, undefined, true),
       ...collectionService.saveItems(zipMerge.updatedItems, undefined, true)
@@ -946,38 +754,18 @@ class ImportService {
 
   public commitDocument(
     lexical: SerializedEditorState<SerializedLexicalNode>,
-    pages: SerializedEditorState<SerializedLexicalNode>[],
     parent: string,
     title: string,
-    docId?: string,
-    commitOpts: ZipMergeCommitOptions = this.defaultOpts
+    docId?: string
   ) {
     space.transaction(() => {
       // handle history as one bulk change here
       historyService.disableForBulk(() => {
-        if (docId) {
-          console.debug(
-            'overwriting document with the same file name',
-            parent,
-            docId
-          );
-          // delete exising pages
-          if (commitOpts.deleteExistingPages) {
-            const pages = collectionService.getDocumentPages(docId);
-            pages.forEach(page => {
-              collectionService.deleteItem(page.id);
-            });
-          }
-        } else {
+        if (!docId) {
           docId = collectionService.addDocument(parent);
           collectionService.setItemTitle(docId, title);
         }
         collectionService.setItemLexicalContent(docId, lexical);
-
-        pages.forEach(page => {
-          const pageId = collectionService.addPage(docId!);
-          collectionService.setItemLexicalContent(pageId, page);
-        });
       });
     });
     if (docId) {
@@ -1039,7 +827,7 @@ class ImportService {
     zipMerge.updatedItems[0].title = firstNotebookTitle;
     zipMerge.updatedItems[0].created = firstNotebookCreated;
 
-    this.commitMergeResult(zipMerge, { deleteExistingPages: false });
+    this.commitMergeResult(zipMerge);
     return true;
   }
 }
