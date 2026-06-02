@@ -7,20 +7,20 @@ import {
   stopLocalChangesListeners
 } from '@/domain/local-changes/listeners';
 
-export function startListeners() {
+export function startDbListeners() {
   console.log('[db] starting all listeners');
   startLocalChangesListeners();
   startAnnotsListeners();
 }
 
-export function stopListeners() {
+export function stopDbListeners() {
   console.log('[db] stopping all listeners');
   stopLocalChangesListeners();
   stopAnnotsListeners();
 }
 
 export function disableListeners(callback: () => void) {
-  stopListeners();
+  stopDbListeners();
   callback();
-  startListeners();
+  startDbListeners();
 }

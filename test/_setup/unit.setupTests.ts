@@ -11,7 +11,7 @@ import { i18n } from '@lingui/core';
 
 // allow the log level to be applied to tests
 import { initGlobalTrans } from '@/constants';
-import { startListeners, stopListeners } from '@/core/db/store-listeners';
+import { startDbListeners, stopDbListeners } from '@/core/db/store-listeners';
 import { historyService } from '@/db/collection-history.service';
 import { migrationService } from '@/db/migrations/migration.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
@@ -43,13 +43,13 @@ afterAll(() => {
   remotesService.stopSync();
 });
 beforeEach(() => {
-  startListeners();
+  startDbListeners();
   localChangesService.clear();
   notebooksService.initNotebooks();
   expect(notebooksService.getCurrentNotebook()).toBe('0');
 });
 afterEach(() => {
-  stopListeners();
+  stopDbListeners();
   nukeStorage();
   remotesService.stopSync();
 });

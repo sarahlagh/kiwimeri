@@ -22,7 +22,7 @@ import { i18n } from '@lingui/core';
 
 // allow the log level to be applied to tests
 import { initGlobalTrans } from '@/constants';
-import { startListeners, stopListeners } from '@/core/db/store-listeners';
+import { startDbListeners, stopDbListeners } from '@/core/db/store-listeners';
 import { historyService } from '@/db/collection-history.service';
 import { migrationService } from '@/db/migrations/migration.service';
 import '@/polyfills/log-polyfill';
@@ -49,10 +49,10 @@ afterAll(() => {
 });
 beforeEach(() => {
   notebooksService.initNotebooks();
-  startListeners();
+  startDbListeners();
 });
 afterEach(() => {
-  stopListeners();
+  stopDbListeners();
   nukeStorage();
   remotesService.stopSync();
 });

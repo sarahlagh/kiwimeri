@@ -21,20 +21,6 @@ export const NetworkStatusProvider = ({
     );
   }, [setStatus]);
 
-  // useEffect(() => {
-  //   networkService.onStatusChange(
-  //     '[NetworkStatusProvider]',
-  //     status => {
-  //       setStatus(status);
-  //     },
-  //     true
-  //   );
-
-  //   return () => {
-  //     networkService.stop();
-  //   };
-  // }, []);
-
   return (
     <NetworkStatusContext.Provider value={{ status }}>
       {children}

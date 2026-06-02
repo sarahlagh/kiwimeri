@@ -1,5 +1,7 @@
 import './core/db/store';
 
+import { appInit } from './app-init';
+
 import '@ionic/react/css/core.css';
 /* Basic CSS for apps built with Ionic */
 import '@ionic/react/css/display.css';
@@ -15,12 +17,6 @@ import '@ionic/react/css/typography.css';
 /* global */
 import './theme/global.scss';
 
-if (plt.isAndroid()) {
-  import('./theme/android-edge-to-edge.scss').then(() => {
-    console.debug('loaded stylesheet for android');
-  });
-}
-
 import { IonApp } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { i18n } from '@lingui/core';
@@ -30,11 +26,18 @@ import InitialRoutingProvider from './app/providers/InitialRoutingProvider';
 import { NetworkStatusProvider } from './app/providers/NetworkStatusProvider';
 import TinybaseProvider from './app/providers/TinybaseProvider';
 import { ToastProvider } from './app/providers/ToastProvider';
+
 import { plt } from './core/infra/platform';
 import './polyfills/capacitor-http-fetch-polyfill';
 import './polyfills/log-polyfill';
 
-import './app-init';
+if (plt.isAndroid()) {
+  import('./theme/android-edge-to-edge.scss').then(() => {
+    console.debug('loaded stylesheet for android');
+  });
+}
+
+appInit();
 
 const App = () => {
   return (

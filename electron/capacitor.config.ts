@@ -10,9 +10,6 @@ const config: CapacitorConfig = {
     },
     CapacitorHttp: {
       enabled: true
-    },
-    Keyboard: {
-      resizeOnFullScreen: false
     }
   },
   android: {
@@ -20,7 +17,6 @@ const config: CapacitorConfig = {
       '@capacitor/app',
       '@capacitor/filesystem',
       '@capacitor/haptics',
-      '@capacitor/keyboard',
       '@capacitor/network',
       '@capacitor/status-bar'
     ]

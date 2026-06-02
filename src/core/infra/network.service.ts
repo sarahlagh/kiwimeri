@@ -4,17 +4,17 @@ import {
   Network
 } from '@capacitor/network';
 
-const initialStatus = await Network.getStatus();
-
 class NetworkService {
-  private networkStatus: ConnectionStatus;
   private listeners: Map<string, ConnectionStatusChangeListener> = new Map();
 
-  constructor() {
-    this.networkStatus = initialStatus;
+  constructor(private networkStatus?: ConnectionStatus) {}
+
+  public init(networkStatus: ConnectionStatus) {
+    this.networkStatus = networkStatus;
+    this.fireInternalListeners(networkStatus);
 
     Network.addListener('networkStatusChange', status => {
-      if (this.networkStatus.connected !== status.connected) {
+      if (this.networkStatus!.connected !== status.connected) {
         console.log('[network] network status changed', status);
         this.networkStatus = status;
         this.fireInternalListeners(status);
@@ -39,7 +39,11 @@ class NetworkService {
         callback();
       }
     });
-    if (onInit && this.networkStatus && this.networkStatus.connected) {
+    if (
+      onInit &&
+      this.networkStatus !== undefined &&
+      this.networkStatus.connected
+    ) {
       this.listeners.get(callbackName)!(this.networkStatus);
     }
     return this.listeners.get(callbackName);
@@ -62,7 +66,7 @@ class NetworkService {
       );
       callback(status);
     });
-    if (onInit && this.networkStatus) {
+    if (onInit && this.networkStatus !== undefined) {
       this.listeners.get(callbackName)!(this.networkStatus);
     }
     return this.listeners.get(callbackName);
@@ -70,6 +74,10 @@ class NetworkService {
 
   getStatus() {
     return this.networkStatus;
+  }
+
+  setStatus(networkStatus: ConnectionStatus) {
+    this.networkStatus = networkStatus;
   }
 
   stop() {

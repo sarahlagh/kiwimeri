@@ -1,7 +1,9 @@
+import { Network } from '@capacitor/network';
 import { addAndroidListeners } from './capacitor/handle-android-plugins';
 import { DEFAULT_SPACE_ID } from './constants';
 import { space, store } from './core/db/store';
-import { startListeners } from './core/db/store-listeners';
+import { startDbListeners } from './core/db/store-listeners';
+import { networkService } from './core/infra/network.service';
 import { plt } from './core/infra/platform';
 import { historyService } from './db/collection-history.service';
 import { migrationService } from './db/migrations/migration.service';
@@ -10,33 +12,45 @@ import remotesService from './db/remotes.service';
 import { appLog } from './log';
 import { searchAncestryService } from './search/search-ancestry.service';
 
-if (navigator.storage && navigator.storage.persist) {
-  navigator.storage.persist().then(isPersisted => {
-    console.debug(`persisted storage granted: ${isPersisted}`);
-  });
-}
+export function appInit() {
+  console.debug('[app-init] app starting...');
+  console.debug(
+    '[app-init] remaining timeouts',
+    historyService['timeouts'].size
+  );
 
-// catch close tab on web
-window.onbeforeunload = savePending;
-function savePending() {
-  console.debug('onbeforeunload');
-  historyService.saveNow();
-  return undefined;
-}
+  if (navigator.storage && navigator.storage.persist) {
+    navigator.storage.persist().then(isPersisted => {
+      console.debug(`[app-init] persisted storage granted: ${isPersisted}`);
+    });
+  }
 
-setTimeout(() => {
-  console.debug('app starting...');
-  console.debug('remaining timeouts', historyService['timeouts'].size);
+  // catch close tab on web
+  window.onbeforeunload = savePending;
+  function savePending() {
+    console.debug('onbeforeunload');
+    historyService.saveNow();
+    return undefined;
+  }
+
   if (plt.isAndroid()) {
     addAndroidListeners();
   }
-  startListeners();
-  migrationService.start(store, space);
-  notebooksService.initNotebooks();
-  searchAncestryService.start(DEFAULT_SPACE_ID);
-  historyService.start();
-  remotesService.initSync();
-  historyService.gc();
-  appLog.gc(); // TODO run at interval
-  console.debug('app started');
-});
+
+  startDbListeners();
+
+  setTimeout(async () => {
+    const initialStatus = await Network.getStatus();
+    console.debug('[app-init] got initial network status', initialStatus);
+    networkService.init(initialStatus);
+
+    migrationService.start(store, space);
+    notebooksService.initNotebooks();
+    searchAncestryService.start(DEFAULT_SPACE_ID);
+    historyService.start();
+    remotesService.initSync();
+    historyService.gc();
+    appLog.gc(); // TODO run at interval
+    console.debug('[app-init] app started');
+  });
+}
