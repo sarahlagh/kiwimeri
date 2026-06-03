@@ -235,12 +235,6 @@ class ImportService {
     }
   }
 
-  private goUpOneFolder(path: string) {
-    const tempNames = path.replace(/\/$/, '').split('/');
-    tempNames.pop();
-    return tempNames.join('/') + '/';
-  }
-
   private parseMetadataFile(
     unzipped: Unzipped,
     itemKey: string,

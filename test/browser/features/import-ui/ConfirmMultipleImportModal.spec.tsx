@@ -15,19 +15,42 @@ import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { space } from '@/core/db/store';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
-import '@testing-library/jest-dom';
-import { render } from '@testing-library/react';
-import { readFile } from 'fs/promises';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { TestingProvider } from './TestingProvider';
+import { render } from 'vitest-browser-react';
+import { server } from 'vitest/browser';
+import { TestingProvider } from '../../TestingProvider';
+import {
+  expectShowCreateNewFolderQuestion,
+  expectShowEmptyZipWarning,
+  expectShowMalformedZipWarning,
+  expectShowMergeDuplicatesQuestion,
+  expectShowMetadataInfo,
+  expectShowNewFolderNameInput,
+  expectShowNewNotebookNameInput,
+  expectShowNotebooksWarning,
+  expectShowSingleFolderDetectedQuestion,
+  getModalTitle
+} from './ConfirmMultipleImportModal.locators';
+
+function str2ab(str: string) {
+  const buf = new ArrayBuffer(str.length * 2);
+  const bufView = new Uint8Array(buf);
+  for (let i = 0, strLen = str.length; i < strLen; i++) {
+    bufView[i] = str.charCodeAt(i);
+  }
+  return buf;
+}
 
 const readZip = async (
   parentDir: string,
   zipName: string,
   opts?: ZipImportOptions
 ) => {
-  const zip = await readFile(`${__dirname}/${parentDir}/${zipName}`);
-  const zipBuffer: ArrayBuffer = new Uint8Array(zip).buffer;
+  const zip = await server.commands.readFile(
+    `test/unit/common/_data/${parentDir}/${zipName}`,
+    { encoding: 'binary' }
+  );
+  const zipBuffer: ArrayBuffer = str2ab(zip);
   const unzipped = await importService.readZip(zipBuffer);
   return importService.parseZipData(zipName, unzipped, opts);
 };
@@ -95,77 +118,30 @@ describe('ConfirmMultipleImportModal', () => {
       expect(node.lastChild).toBe(node.firstChild);
     }
   };
-  const expectTestId = (testId: string, yes: boolean, queryByTestId: any) => {
-    if (yes) {
-      expect(queryByTestId(testId)).toBeInTheDocument();
-    } else {
-      expect(queryByTestId(testId)).not.toBeInTheDocument();
-    }
-  };
-  const expectShowMetadataInfo = (yes: boolean, queryByTestId: any) => {
-    expectTestId('item-metadata-info', yes, queryByTestId);
-  };
-  const expectShowNotebooksWarning = (yes: boolean, queryByTestId: any) => {
-    expectTestId('item-notebooks-warning', yes, queryByTestId);
-  };
-  const expectShowEmptyZipWarning = (yes: boolean, queryByTestId: any) => {
-    expectTestId('item-archive-empty-warning', yes, queryByTestId);
-  };
-  const expectShowMalformedZipWarning = (yes: boolean, queryByTestId: any) => {
-    expectTestId('item-archive-malformed-warning', yes, queryByTestId);
-  };
-  const expectShowCreateNewFolderQuestion = (
-    yes: boolean,
-    queryByTestId: any
-  ) => {
-    expectTestId('item-question-create-new-folder', yes, queryByTestId);
-  };
-  const expectShowSingleFolderDetectedQuestion = (
-    yes: boolean,
-    queryByTestId: any
-  ) => {
-    expectTestId('item-question-single-folder-detected', yes, queryByTestId);
-  };
-  const expectShowMergeDuplicatesQuestion = (
-    yes: boolean,
-    queryByTestId: any
-  ) => {
-    expectTestId('item-question-merge-duplicates', yes, queryByTestId);
-  };
-  const expectShowNewFolderNameInput = (yes: boolean, queryByTestId: any) => {
-    expectTestId('item-new-folder-name-input', yes, queryByTestId);
-  };
-  const expectShowNewNotebookNameInput = (yes: boolean, queryByTestId: any) => {
-    expectTestId('item-new-notebook-name-input', yes, queryByTestId);
-  };
 
-  describe('without duplicates', () => {
+  describe('without duplicates', async () => {
     it('should render the modal for a simple zip without meta, with createNotebook=false', async () => {
-      const zipData = await readZip(
-        '../_data/zips_without_meta',
-        'Simple.zip',
-        {}
-      );
+      const zipData = await readZip('zips_without_meta', 'Simple.zip', {});
 
       const params: ConfirmMultipleImportModalParams = { zipData };
-      const { container, queryByTestId } = renderModal(params);
+      const screen = await renderModal(params);
 
       // check questions
-      expect(queryByTestId('modal-title')).toBeInTheDocument();
-      expect(queryByTestId('modal-title')).toHaveTextContent(
+      expect(getModalTitle(screen)).toBeInTheDocument();
+      expect(getModalTitle(screen)).toHaveTextContent(
         'Import Simple.zip in folder'
       );
 
-      expectShowMetadataInfo(false, queryByTestId);
-      expectShowNotebooksWarning(false, queryByTestId);
-      expectShowCreateNewFolderQuestion(true, queryByTestId);
-      expectShowSingleFolderDetectedQuestion(false, queryByTestId);
-      expectShowNewFolderNameInput(false, queryByTestId);
-      expectShowNewNotebookNameInput(false, queryByTestId);
-      expectShowMergeDuplicatesQuestion(false, queryByTestId);
+      expectShowMetadataInfo(screen, false);
+      expectShowNotebooksWarning(screen, false);
+      expectShowCreateNewFolderQuestion(screen, true);
+      expectShowSingleFolderDetectedQuestion(screen, false);
+      expectShowNewFolderNameInput(screen, false);
+      expectShowNewNotebookNameInput(screen, false);
+      expectShowMergeDuplicatesQuestion(screen, false);
 
       // check that Simple and (new) must be in the same row
-      const rows = container.querySelector('#preview-list');
+      const rows = document.querySelector('#preview-list');
       expect(rows?.hasChildNodes()).toBe(true);
       expect(rows?.childElementCount).toBe(1);
 
@@ -179,34 +155,30 @@ describe('ConfirmMultipleImportModal', () => {
     });
 
     it('should render the modal for a simple zip without meta, with createNotebook=true', async () => {
-      const zipData = await readZip(
-        '../_data/zips_without_meta',
-        'Simple.zip',
-        {}
-      );
+      const zipData = await readZip('zips_without_meta', 'Simple.zip', {});
 
       const params: ConfirmMultipleImportModalParams = {
         zipData,
         createNotebook: true
       };
-      const { container, queryByTestId } = renderModal(params);
+      const screen = await renderModal(params);
 
       // check questions
-      expect(queryByTestId('modal-title')).toBeInTheDocument();
-      expect(queryByTestId('modal-title')).toHaveTextContent(
+      expect(getModalTitle(screen)).toBeInTheDocument();
+      expect(getModalTitle(screen)).toHaveTextContent(
         'Import Simple.zip in a new Notebook'
       );
 
-      expectShowMetadataInfo(false, queryByTestId);
-      expectShowNotebooksWarning(false, queryByTestId);
-      expectShowCreateNewFolderQuestion(false, queryByTestId);
-      expectShowSingleFolderDetectedQuestion(false, queryByTestId);
-      expectShowNewFolderNameInput(false, queryByTestId);
-      expectShowNewNotebookNameInput(true, queryByTestId);
-      expectShowMergeDuplicatesQuestion(false, queryByTestId);
+      expectShowMetadataInfo(screen, false);
+      expectShowNotebooksWarning(screen, false);
+      expectShowCreateNewFolderQuestion(screen, false);
+      expectShowSingleFolderDetectedQuestion(screen, false);
+      expectShowNewFolderNameInput(screen, false);
+      expectShowNewNotebookNameInput(screen, true);
+      expectShowMergeDuplicatesQuestion(screen, false);
 
       // check that Simple and (new) must be in the same row
-      const rows = container.querySelector('#preview-list');
+      const rows = document.querySelector('#preview-list');
       expect(rows?.hasChildNodes()).toBe(true);
       expect(rows?.childElementCount).toBe(2);
 
@@ -224,30 +196,26 @@ describe('ConfirmMultipleImportModal', () => {
     });
 
     it('should render the modal for a simple zip with meta, with createNotebook=false', async () => {
-      const zipData = await readZip(
-        '../_data/zips_with_meta',
-        'Simple.zip',
-        {}
-      );
+      const zipData = await readZip('zips_with_meta', 'Simple.zip', {});
       const params: ConfirmMultipleImportModalParams = { zipData };
-      const { container, queryByTestId } = renderModal(params);
+      const screen = await renderModal(params);
 
       // check questions
-      expect(queryByTestId('modal-title')).toBeInTheDocument();
-      expect(queryByTestId('modal-title')).toHaveTextContent(
+      expect(getModalTitle(screen)).toBeInTheDocument();
+      expect(getModalTitle(screen)).toHaveTextContent(
         'Import Simple.zip in folder'
       );
 
-      expectShowMetadataInfo(true, queryByTestId);
-      expectShowNotebooksWarning(false, queryByTestId);
-      expectShowCreateNewFolderQuestion(true, queryByTestId);
-      expectShowSingleFolderDetectedQuestion(false, queryByTestId);
-      expectShowNewFolderNameInput(false, queryByTestId);
-      expectShowNewNotebookNameInput(false, queryByTestId);
-      expectShowMergeDuplicatesQuestion(false, queryByTestId);
+      expectShowMetadataInfo(screen, true);
+      expectShowNotebooksWarning(screen, false);
+      expectShowCreateNewFolderQuestion(screen, true);
+      expectShowSingleFolderDetectedQuestion(screen, false);
+      expectShowNewFolderNameInput(screen, false);
+      expectShowNewNotebookNameInput(screen, false);
+      expectShowMergeDuplicatesQuestion(screen, false);
 
       // check that Simple and (new) must be in the same row
-      const rows = container.querySelector('#preview-list');
+      const rows = document.querySelector('#preview-list');
       expect(rows?.hasChildNodes()).toBe(true);
       expect(rows?.childElementCount).toBe(1);
 
@@ -261,34 +229,29 @@ describe('ConfirmMultipleImportModal', () => {
     });
 
     it('should render the modal for a simple zip with meta, with createNotebook=true', async () => {
-      const zipData = await readZip(
-        '../_data/zips_with_meta',
-        'Simple.zip',
-        {}
-      );
+      const zipData = await readZip('zips_with_meta', 'Simple.zip', {});
       const params: ConfirmMultipleImportModalParams = {
         zipData,
         createNotebook: true
       };
-      const { container, queryByTestId, getByDisplayValue } =
-        renderModal(params);
+      const screen = await renderModal(params);
 
       // check questions
-      expect(queryByTestId('modal-title')).toBeInTheDocument();
-      expect(queryByTestId('modal-title')).toHaveTextContent(
+      expect(getModalTitle(screen)).toBeInTheDocument();
+      expect(getModalTitle(screen)).toHaveTextContent(
         'Import Simple.zip in a new Notebook'
       );
 
-      expectShowMetadataInfo(true, queryByTestId);
-      expectShowNotebooksWarning(false, queryByTestId);
-      expectShowCreateNewFolderQuestion(false, queryByTestId);
-      expectShowSingleFolderDetectedQuestion(false, queryByTestId);
-      expectShowNewFolderNameInput(false, queryByTestId);
-      expectShowNewNotebookNameInput(true, queryByTestId);
-      expectShowMergeDuplicatesQuestion(false, queryByTestId);
+      expectShowMetadataInfo(screen, true);
+      expectShowNotebooksWarning(screen, false);
+      expectShowCreateNewFolderQuestion(screen, false);
+      expectShowSingleFolderDetectedQuestion(screen, false);
+      expectShowNewFolderNameInput(screen, false);
+      expectShowNewNotebookNameInput(screen, true);
+      expectShowMergeDuplicatesQuestion(screen, false);
 
       // check that Simple and (new) must be in the same row
-      const rows = container.querySelector('#preview-list');
+      const rows = document.querySelector('#preview-list');
       expect(rows?.hasChildNodes()).toBe(true);
       expect(rows?.childElementCount).toBe(2);
 
@@ -307,31 +270,27 @@ describe('ConfirmMultipleImportModal', () => {
     });
 
     it('should render the modal for a zip with single folder without meta, with createNotebook=false', async () => {
-      const zipData = await readZip(
-        '../_data/zips_without_meta',
-        'SimpleLayer.zip',
-        {}
-      );
+      const zipData = await readZip('zips_without_meta', 'SimpleLayer.zip', {});
 
       const params: ConfirmMultipleImportModalParams = { zipData };
-      const { container, queryByTestId } = renderModal(params);
+      const screen = await renderModal(params);
 
       // check questions
-      expect(queryByTestId('modal-title')).toBeInTheDocument();
-      expect(queryByTestId('modal-title')).toHaveTextContent(
+      expect(getModalTitle(screen)).toBeInTheDocument();
+      expect(getModalTitle(screen)).toHaveTextContent(
         'Import SimpleLayer.zip in folder'
       );
 
-      expectShowMetadataInfo(false, queryByTestId);
-      expectShowNotebooksWarning(false, queryByTestId);
-      expectShowCreateNewFolderQuestion(false, queryByTestId);
-      expectShowSingleFolderDetectedQuestion(true, queryByTestId);
-      expectShowNewFolderNameInput(false, queryByTestId);
-      expectShowNewNotebookNameInput(false, queryByTestId);
-      expectShowMergeDuplicatesQuestion(false, queryByTestId);
+      expectShowMetadataInfo(screen, false);
+      expectShowNotebooksWarning(screen, false);
+      expectShowCreateNewFolderQuestion(screen, false);
+      expectShowSingleFolderDetectedQuestion(screen, true);
+      expectShowNewFolderNameInput(screen, false);
+      expectShowNewNotebookNameInput(screen, false);
+      expectShowMergeDuplicatesQuestion(screen, false);
 
       // check that Simple and (new) must be in the same row
-      const rows = container.querySelector('#preview-list');
+      const rows = document.querySelector('#preview-list');
       expect(rows?.hasChildNodes()).toBe(true);
       expect(rows?.childElementCount).toBe(1);
 
@@ -345,34 +304,30 @@ describe('ConfirmMultipleImportModal', () => {
     });
 
     it('should render the modal for a zip with single folder without meta, with createNotebook=true', async () => {
-      const zipData = await readZip(
-        '../_data/zips_without_meta',
-        'SimpleLayer.zip',
-        {}
-      );
+      const zipData = await readZip('zips_without_meta', 'SimpleLayer.zip', {});
 
       const params: ConfirmMultipleImportModalParams = {
         zipData,
         createNotebook: true
       };
-      const { container, queryByTestId } = renderModal(params);
+      const screen = await renderModal(params);
 
       // check questions
-      expect(queryByTestId('modal-title')).toBeInTheDocument();
-      expect(queryByTestId('modal-title')).toHaveTextContent(
+      expect(getModalTitle(screen)).toBeInTheDocument();
+      expect(getModalTitle(screen)).toHaveTextContent(
         'Import SimpleLayer.zip in a new Notebook'
       );
 
-      expectShowMetadataInfo(false, queryByTestId);
-      expectShowNotebooksWarning(false, queryByTestId);
-      expectShowCreateNewFolderQuestion(false, queryByTestId);
-      expectShowSingleFolderDetectedQuestion(false, queryByTestId);
-      expectShowNewFolderNameInput(false, queryByTestId);
-      expectShowNewNotebookNameInput(true, queryByTestId);
-      expectShowMergeDuplicatesQuestion(false, queryByTestId);
+      expectShowMetadataInfo(screen, false);
+      expectShowNotebooksWarning(screen, false);
+      expectShowCreateNewFolderQuestion(screen, false);
+      expectShowSingleFolderDetectedQuestion(screen, false);
+      expectShowNewFolderNameInput(screen, false);
+      expectShowNewNotebookNameInput(screen, true);
+      expectShowMergeDuplicatesQuestion(screen, false);
 
       // check that Simple and (new) must be in the same row
-      const rows = container.querySelector('#preview-list');
+      const rows = document.querySelector('#preview-list');
       expect(rows?.hasChildNodes()).toBe(true);
       expect(rows?.childElementCount).toBe(2);
 
@@ -390,30 +345,26 @@ describe('ConfirmMultipleImportModal', () => {
     });
 
     it('should render the modal for a zip with single folder with meta, with createNotebook=false', async () => {
-      const zipData = await readZip(
-        '../_data/zips_with_meta',
-        'SimpleLayer.zip',
-        {}
-      );
+      const zipData = await readZip('zips_with_meta', 'SimpleLayer.zip', {});
       const params: ConfirmMultipleImportModalParams = { zipData };
-      const { container, queryByTestId } = renderModal(params);
+      const screen = await renderModal(params);
 
       // check questions
-      expect(queryByTestId('modal-title')).toBeInTheDocument();
-      expect(queryByTestId('modal-title')).toHaveTextContent(
+      expect(getModalTitle(screen)).toBeInTheDocument();
+      expect(getModalTitle(screen)).toHaveTextContent(
         'Import SimpleLayer.zip in folder'
       );
 
-      expectShowMetadataInfo(true, queryByTestId);
-      expectShowNotebooksWarning(false, queryByTestId);
-      expectShowCreateNewFolderQuestion(false, queryByTestId);
-      expectShowSingleFolderDetectedQuestion(true, queryByTestId);
-      expectShowNewFolderNameInput(false, queryByTestId);
-      expectShowNewNotebookNameInput(false, queryByTestId);
-      expectShowMergeDuplicatesQuestion(false, queryByTestId);
+      expectShowMetadataInfo(screen, true);
+      expectShowNotebooksWarning(screen, false);
+      expectShowCreateNewFolderQuestion(screen, false);
+      expectShowSingleFolderDetectedQuestion(screen, true);
+      expectShowNewFolderNameInput(screen, false);
+      expectShowNewNotebookNameInput(screen, false);
+      expectShowMergeDuplicatesQuestion(screen, false);
 
       // check that Simple and (new) must be in the same row
-      const rows = container.querySelector('#preview-list');
+      const rows = document.querySelector('#preview-list');
       expect(rows?.hasChildNodes()).toBe(true);
       expect(rows?.childElementCount).toBe(1);
 
@@ -427,33 +378,29 @@ describe('ConfirmMultipleImportModal', () => {
     });
 
     it('should render the modal for a zip with single folder with meta, with createNotebook=true', async () => {
-      const zipData = await readZip(
-        '../_data/zips_with_meta',
-        'SimpleLayer.zip',
-        {}
-      );
+      const zipData = await readZip('zips_with_meta', 'SimpleLayer.zip', {});
       const params: ConfirmMultipleImportModalParams = {
         zipData,
         createNotebook: true
       };
-      const { container, queryByTestId } = renderModal(params);
+      const screen = await renderModal(params);
 
       // check questions
-      expect(queryByTestId('modal-title')).toBeInTheDocument();
-      expect(queryByTestId('modal-title')).toHaveTextContent(
+      expect(getModalTitle(screen)).toBeInTheDocument();
+      expect(getModalTitle(screen)).toHaveTextContent(
         'Import SimpleLayer.zip in a new Notebook'
       );
 
-      expectShowMetadataInfo(true, queryByTestId);
-      expectShowNotebooksWarning(false, queryByTestId);
-      expectShowCreateNewFolderQuestion(false, queryByTestId);
-      expectShowSingleFolderDetectedQuestion(false, queryByTestId);
-      expectShowNewFolderNameInput(false, queryByTestId);
-      expectShowNewNotebookNameInput(true, queryByTestId);
-      expectShowMergeDuplicatesQuestion(false, queryByTestId);
+      expectShowMetadataInfo(screen, true);
+      expectShowNotebooksWarning(screen, false);
+      expectShowCreateNewFolderQuestion(screen, false);
+      expectShowSingleFolderDetectedQuestion(screen, false);
+      expectShowNewFolderNameInput(screen, false);
+      expectShowNewNotebookNameInput(screen, true);
+      expectShowMergeDuplicatesQuestion(screen, false);
 
       // check that Simple and (new) must be in the same row
-      const rows = container.querySelector('#preview-list');
+      const rows = document.querySelector('#preview-list');
       expect(rows?.hasChildNodes()).toBe(true);
       expect(rows?.childElementCount).toBe(2);
 
@@ -472,90 +419,86 @@ describe('ConfirmMultipleImportModal', () => {
     });
 
     it('should render the modal for an empty zip, with createNotebook=false', async () => {
-      const zipData = await readZip('../_data/zips_with_meta', 'Empty.zip', {});
+      const zipData = await readZip('zips_with_meta', 'Empty.zip', {});
 
       const params: ConfirmMultipleImportModalParams = { zipData };
-      const { container, queryByTestId } = renderModal(params);
+      const screen = await renderModal(params);
 
       // check questions
-      expect(queryByTestId('modal-title')).toBeInTheDocument();
-      expect(queryByTestId('modal-title')).toHaveTextContent(
+      expect(getModalTitle(screen)).toBeInTheDocument();
+      expect(getModalTitle(screen)).toHaveTextContent(
         'Import Empty.zip in folder'
       );
 
-      expectShowMetadataInfo(true, queryByTestId);
-      expectShowNotebooksWarning(false, queryByTestId);
-      expectShowEmptyZipWarning(true, queryByTestId);
-      expectShowMalformedZipWarning(false, queryByTestId);
-      expectShowCreateNewFolderQuestion(false, queryByTestId);
-      expectShowSingleFolderDetectedQuestion(false, queryByTestId);
-      expectShowNewFolderNameInput(false, queryByTestId);
-      expectShowNewNotebookNameInput(false, queryByTestId);
-      expectShowMergeDuplicatesQuestion(false, queryByTestId);
+      expectShowMetadataInfo(screen, true);
+      expectShowNotebooksWarning(screen, false);
+      expectShowEmptyZipWarning(screen, true);
+      expectShowMalformedZipWarning(screen, false);
+      expectShowCreateNewFolderQuestion(screen, false);
+      expectShowSingleFolderDetectedQuestion(screen, false);
+      expectShowNewFolderNameInput(screen, false);
+      expectShowNewNotebookNameInput(screen, false);
+      expectShowMergeDuplicatesQuestion(screen, false);
 
       // check that Simple and (new) must be in the same row
-      const rows = container.querySelector('#preview-list');
+      const rows = document.querySelector('#preview-list');
       expect(rows?.hasChildNodes()).toBe(false);
     });
 
     it('should render the modal for an empty zip, with createNotebook=true', async () => {
-      const zipData = await readZip('../_data/zips_with_meta', 'Empty.zip', {});
+      const zipData = await readZip('zips_with_meta', 'Empty.zip', {});
 
       const params: ConfirmMultipleImportModalParams = {
         zipData,
         createNotebook: true
       };
-      const { container, queryByTestId } = renderModal(params);
+      const screen = await renderModal(params);
 
       // check questions
-      expect(queryByTestId('modal-title')).toBeInTheDocument();
-      expect(queryByTestId('modal-title')).toHaveTextContent(
+      expect(getModalTitle(screen)).toBeInTheDocument();
+      expect(getModalTitle(screen)).toHaveTextContent(
         'Import Empty.zip in a new Notebook'
       );
 
-      expectShowMetadataInfo(true, queryByTestId);
-      expectShowNotebooksWarning(false, queryByTestId);
-      expectShowEmptyZipWarning(true, queryByTestId);
-      expectShowMalformedZipWarning(false, queryByTestId);
-      expectShowCreateNewFolderQuestion(false, queryByTestId);
-      expectShowSingleFolderDetectedQuestion(false, queryByTestId);
-      expectShowNewFolderNameInput(false, queryByTestId);
-      expectShowNewNotebookNameInput(false, queryByTestId);
-      expectShowMergeDuplicatesQuestion(false, queryByTestId);
+      expectShowMetadataInfo(screen, true);
+      expectShowNotebooksWarning(screen, false);
+      expectShowEmptyZipWarning(screen, true);
+      expectShowMalformedZipWarning(screen, false);
+      expectShowCreateNewFolderQuestion(screen, false);
+      expectShowSingleFolderDetectedQuestion(screen, false);
+      expectShowNewFolderNameInput(screen, false);
+      expectShowNewNotebookNameInput(screen, false);
+      expectShowMergeDuplicatesQuestion(screen, false);
 
       // check that Simple and (new) must be in the same row
-      const rows = container.querySelector('#preview-list');
+      const rows = document.querySelector('#preview-list');
       expect(rows?.hasChildNodes()).toBe(false);
     });
 
     it('should render the modal for a malformed zip, with createNotebook=false', async () => {
-      const zipData = await readZip(
-        '../_data/malformed',
-        'SpaceMalformed.zip',
-        {}
-      );
+      const zipData = await readZip('malformed', 'SpaceMalformed.zip', {});
 
       const params: ConfirmMultipleImportModalParams = { zipData };
-      const { container, queryByTestId } = renderModal(params);
+      const screen = await renderModal(params);
 
       // check questions
-      expect(queryByTestId('modal-title')).toBeInTheDocument();
-      expect(queryByTestId('modal-title')).toHaveTextContent(
+      expect(getModalTitle(screen)).toBeInTheDocument();
+      expect(getModalTitle(screen)).toHaveTextContent(
         'Import SpaceMalformed.zip in folder'
       );
 
-      expectShowMetadataInfo(true, queryByTestId);
-      expectShowNotebooksWarning(true, queryByTestId);
-      expectShowEmptyZipWarning(false, queryByTestId);
-      expectShowMalformedZipWarning(true, queryByTestId);
-      expectShowCreateNewFolderQuestion(false, queryByTestId);
-      expectShowSingleFolderDetectedQuestion(false, queryByTestId);
-      expectShowNewFolderNameInput(false, queryByTestId);
-      expectShowNewNotebookNameInput(false, queryByTestId);
-      expectShowMergeDuplicatesQuestion(false, queryByTestId);
+      expectShowMetadataInfo(screen, true);
+      expectShowNotebooksWarning(screen, true);
+      expectShowEmptyZipWarning(screen, false);
+      expectShowMalformedZipWarning(screen, true);
+      expectShowCreateNewFolderQuestion(screen, false);
+      expectShowSingleFolderDetectedQuestion(screen, false);
+      expectShowNewFolderNameInput(screen, false);
+      expectShowNewNotebookNameInput(screen, false);
+      expectShowMergeDuplicatesQuestion(screen, false);
 
       // check that Simple and (new) must be in the same row
-      const rows = container.querySelector('#preview-list');
+      const rows = document.querySelector('#preview-list');
       expect(rows?.hasChildNodes()).toBe(true);
 
       expect(rows?.childNodes).toHaveLength(9);
@@ -609,36 +552,32 @@ describe('ConfirmMultipleImportModal', () => {
     });
 
     it('should render the modal for a malformed zip, with createNotebook=true', async () => {
-      const zipData = await readZip(
-        '../_data/malformed',
-        'SpaceMalformed.zip',
-        {}
-      );
+      const zipData = await readZip('malformed', 'SpaceMalformed.zip', {});
 
       const params: ConfirmMultipleImportModalParams = {
         zipData,
         createNotebook: true
       };
-      const { container, queryByTestId } = renderModal(params);
+      const screen = await renderModal(params);
 
       // check questions
-      expect(queryByTestId('modal-title')).toBeInTheDocument();
-      expect(queryByTestId('modal-title')).toHaveTextContent(
+      expect(getModalTitle(screen)).toBeInTheDocument();
+      expect(getModalTitle(screen)).toHaveTextContent(
         'Import SpaceMalformed.zip in a new Notebook'
       );
 
-      expectShowMetadataInfo(true, queryByTestId);
-      expectShowNotebooksWarning(true, queryByTestId);
-      expectShowEmptyZipWarning(false, queryByTestId);
-      expectShowMalformedZipWarning(true, queryByTestId);
-      expectShowCreateNewFolderQuestion(false, queryByTestId);
-      expectShowSingleFolderDetectedQuestion(false, queryByTestId);
-      expectShowNewFolderNameInput(false, queryByTestId);
-      expectShowNewNotebookNameInput(false, queryByTestId);
-      expectShowMergeDuplicatesQuestion(false, queryByTestId);
+      expectShowMetadataInfo(screen, true);
+      expectShowNotebooksWarning(screen, true);
+      expectShowEmptyZipWarning(screen, false);
+      expectShowMalformedZipWarning(screen, true);
+      expectShowCreateNewFolderQuestion(screen, false);
+      expectShowSingleFolderDetectedQuestion(screen, false);
+      expectShowNewFolderNameInput(screen, false);
+      expectShowNewNotebookNameInput(screen, false);
+      expectShowMergeDuplicatesQuestion(screen, false);
 
       // check that Simple and (new) must be in the same row
-      const rows = container.querySelector('#preview-list');
+      const rows = document.querySelector('#preview-list');
       expect(rows?.hasChildNodes()).toBe(true);
 
       expect(rows?.childNodes).toHaveLength(9);
@@ -708,31 +647,27 @@ describe('ConfirmMultipleImportModal', () => {
     });
 
     it('should render the modal for a simple zip without meta, with createNotebook=false', async () => {
-      const zipData = await readZip(
-        '../_data/zips_without_meta',
-        'Simple.zip',
-        {}
-      );
+      const zipData = await readZip('zips_without_meta', 'Simple.zip', {});
 
       const params: ConfirmMultipleImportModalParams = { zipData };
-      const { container, queryByTestId } = renderModal(params);
+      const screen = await renderModal(params);
 
       // check questions
-      expect(queryByTestId('modal-title')).toBeInTheDocument();
-      expect(queryByTestId('modal-title')).toHaveTextContent(
+      expect(getModalTitle(screen)).toBeInTheDocument();
+      expect(getModalTitle(screen)).toHaveTextContent(
         'Import Simple.zip in folder'
       );
 
-      expectShowMetadataInfo(false, queryByTestId);
-      expectShowNotebooksWarning(false, queryByTestId);
-      expectShowCreateNewFolderQuestion(true, queryByTestId);
-      expectShowSingleFolderDetectedQuestion(false, queryByTestId);
-      expectShowNewFolderNameInput(false, queryByTestId);
-      expectShowNewNotebookNameInput(false, queryByTestId);
-      expectShowMergeDuplicatesQuestion(true, queryByTestId);
+      expectShowMetadataInfo(screen, false);
+      expectShowNotebooksWarning(screen, false);
+      expectShowCreateNewFolderQuestion(screen, true);
+      expectShowSingleFolderDetectedQuestion(screen, false);
+      expectShowNewFolderNameInput(screen, false);
+      expectShowNewNotebookNameInput(screen, false);
+      expectShowMergeDuplicatesQuestion(screen, true);
 
       // check that Simple and (new) must be in the same row
-      const rows = container.querySelector('#preview-list');
+      const rows = document.querySelector('#preview-list');
       expect(rows?.hasChildNodes()).toBe(true);
       expect(rows?.childElementCount).toBe(3);
 
@@ -754,34 +689,30 @@ describe('ConfirmMultipleImportModal', () => {
     });
 
     it('should render the modal for a simple zip without meta, with createNotebook=true', async () => {
-      const zipData = await readZip(
-        '../_data/zips_without_meta',
-        'Simple.zip',
-        {}
-      );
+      const zipData = await readZip('zips_without_meta', 'Simple.zip', {});
 
       const params: ConfirmMultipleImportModalParams = {
         zipData,
         createNotebook: true
       };
-      const { container, queryByTestId } = renderModal(params);
+      const screen = await renderModal(params);
 
       // check questions
-      expect(queryByTestId('modal-title')).toBeInTheDocument();
-      expect(queryByTestId('modal-title')).toHaveTextContent(
+      expect(getModalTitle(screen)).toBeInTheDocument();
+      expect(getModalTitle(screen)).toHaveTextContent(
         'Import Simple.zip in a new Notebook'
       );
 
-      expectShowMetadataInfo(false, queryByTestId);
-      expectShowNotebooksWarning(false, queryByTestId);
-      expectShowCreateNewFolderQuestion(false, queryByTestId);
-      expectShowSingleFolderDetectedQuestion(false, queryByTestId);
-      expectShowNewFolderNameInput(false, queryByTestId);
-      expectShowNewNotebookNameInput(true, queryByTestId);
-      expectShowMergeDuplicatesQuestion(true, queryByTestId);
+      expectShowMetadataInfo(screen, false);
+      expectShowNotebooksWarning(screen, false);
+      expectShowCreateNewFolderQuestion(screen, false);
+      expectShowSingleFolderDetectedQuestion(screen, false);
+      expectShowNewFolderNameInput(screen, false);
+      expectShowNewNotebookNameInput(screen, true);
+      expectShowMergeDuplicatesQuestion(screen, true);
 
       // check that Simple and (new) must be in the same row
-      const rows = container.querySelector('#preview-list');
+      const rows = document.querySelector('#preview-list');
       expect(rows?.hasChildNodes()).toBe(true);
       expect(rows?.childElementCount).toBe(3);
 
@@ -803,33 +734,29 @@ describe('ConfirmMultipleImportModal', () => {
     });
 
     it('should render the modal for a simple zip with meta, with createNotebook=false', async () => {
-      const zipData = await readZip(
-        '../_data/zips_with_meta',
-        'Simple.zip',
-        {}
-      );
+      const zipData = await readZip('zips_with_meta', 'Simple.zip', {});
 
       collectionService.setItemTitle(dId, 'Simple Original');
 
       const params: ConfirmMultipleImportModalParams = { zipData };
-      const { container, queryByTestId } = renderModal(params);
+      const screen = await renderModal(params);
 
       // check questions
-      expect(queryByTestId('modal-title')).toBeInTheDocument();
-      expect(queryByTestId('modal-title')).toHaveTextContent(
+      expect(getModalTitle(screen)).toBeInTheDocument();
+      expect(getModalTitle(screen)).toHaveTextContent(
         'Import Simple.zip in folder'
       );
 
-      expectShowMetadataInfo(true, queryByTestId);
-      expectShowNotebooksWarning(false, queryByTestId);
-      expectShowCreateNewFolderQuestion(true, queryByTestId);
-      expectShowSingleFolderDetectedQuestion(false, queryByTestId);
-      expectShowNewFolderNameInput(false, queryByTestId);
-      expectShowNewNotebookNameInput(false, queryByTestId);
-      expectShowMergeDuplicatesQuestion(true, queryByTestId);
+      expectShowMetadataInfo(screen, true);
+      expectShowNotebooksWarning(screen, false);
+      expectShowCreateNewFolderQuestion(screen, true);
+      expectShowSingleFolderDetectedQuestion(screen, false);
+      expectShowNewFolderNameInput(screen, false);
+      expectShowNewNotebookNameInput(screen, false);
+      expectShowMergeDuplicatesQuestion(screen, true);
 
       // check that Simple and (new) must be in the same row
-      const rows = container.querySelector('#preview-list');
+      const rows = document.querySelector('#preview-list');
       expect(rows?.hasChildNodes()).toBe(true);
       expect(rows?.childElementCount).toBe(3);
 
@@ -851,34 +778,30 @@ describe('ConfirmMultipleImportModal', () => {
     });
 
     it('should render the modal for a simple zip with meta, with createNotebook=true', async () => {
-      const zipData = await readZip(
-        '../_data/zips_with_meta',
-        'Simple.zip',
-        {}
-      );
+      const zipData = await readZip('zips_with_meta', 'Simple.zip', {});
       collectionService.setItemTitle(nId, 'New folder');
       const params: ConfirmMultipleImportModalParams = {
         zipData,
         createNotebook: true
       };
-      const { container, queryByTestId } = renderModal(params);
+      const screen = await renderModal(params);
 
       // check questions
-      expect(queryByTestId('modal-title')).toBeInTheDocument();
-      expect(queryByTestId('modal-title')).toHaveTextContent(
+      expect(getModalTitle(screen)).toBeInTheDocument();
+      expect(getModalTitle(screen)).toHaveTextContent(
         'Import Simple.zip in a new Notebook'
       );
 
-      expectShowMetadataInfo(true, queryByTestId);
-      expectShowNotebooksWarning(false, queryByTestId);
-      expectShowCreateNewFolderQuestion(false, queryByTestId);
-      expectShowSingleFolderDetectedQuestion(false, queryByTestId);
-      expectShowNewFolderNameInput(false, queryByTestId);
-      expectShowNewNotebookNameInput(true, queryByTestId);
-      expectShowMergeDuplicatesQuestion(true, queryByTestId);
+      expectShowMetadataInfo(screen, true);
+      expectShowNotebooksWarning(screen, false);
+      expectShowCreateNewFolderQuestion(screen, false);
+      expectShowSingleFolderDetectedQuestion(screen, false);
+      expectShowNewFolderNameInput(screen, false);
+      expectShowNewNotebookNameInput(screen, true);
+      expectShowMergeDuplicatesQuestion(screen, true);
 
       // check that Simple and (new) must be in the same row
-      const rows = container.querySelector('#preview-list');
+      const rows = document.querySelector('#preview-list');
       expect(rows?.hasChildNodes()).toBe(true);
       expect(rows?.childElementCount).toBe(3);
 
@@ -901,30 +824,26 @@ describe('ConfirmMultipleImportModal', () => {
     });
 
     it('should render the modal for a zip with single folder without meta, with createNotebook=false', async () => {
-      const zipData = await readZip(
-        '../_data/zips_without_meta',
-        'SimpleLayer.zip',
-        {}
-      );
+      const zipData = await readZip('zips_without_meta', 'SimpleLayer.zip', {});
       const params: ConfirmMultipleImportModalParams = { zipData };
-      const { container, queryByTestId } = renderModal(params);
+      const screen = await renderModal(params);
 
       // check questions
-      expect(queryByTestId('modal-title')).toBeInTheDocument();
-      expect(queryByTestId('modal-title')).toHaveTextContent(
+      expect(getModalTitle(screen)).toBeInTheDocument();
+      expect(getModalTitle(screen)).toHaveTextContent(
         'Import SimpleLayer.zip in folder'
       );
 
-      expectShowMetadataInfo(false, queryByTestId);
-      expectShowNotebooksWarning(false, queryByTestId);
-      expectShowCreateNewFolderQuestion(false, queryByTestId);
-      expectShowSingleFolderDetectedQuestion(true, queryByTestId);
-      expectShowNewFolderNameInput(false, queryByTestId);
-      expectShowNewNotebookNameInput(false, queryByTestId);
-      expectShowMergeDuplicatesQuestion(true, queryByTestId);
+      expectShowMetadataInfo(screen, false);
+      expectShowNotebooksWarning(screen, false);
+      expectShowCreateNewFolderQuestion(screen, false);
+      expectShowSingleFolderDetectedQuestion(screen, true);
+      expectShowNewFolderNameInput(screen, false);
+      expectShowNewNotebookNameInput(screen, false);
+      expectShowMergeDuplicatesQuestion(screen, true);
 
       // check that Simple and (new) must be in the same row
-      const rows = container.querySelector('#preview-list');
+      const rows = document.querySelector('#preview-list');
       expect(rows?.hasChildNodes()).toBe(true);
       expect(rows?.childElementCount).toBe(3);
 
@@ -946,34 +865,30 @@ describe('ConfirmMultipleImportModal', () => {
     });
 
     it('should render the modal for a zip with single folder without meta, with createNotebook=true', async () => {
-      const zipData = await readZip(
-        '../_data/zips_without_meta',
-        'SimpleLayer.zip',
-        {}
-      );
+      const zipData = await readZip('zips_without_meta', 'SimpleLayer.zip', {});
       collectionService.setItemTitle(nId, 'SimpleLayer');
       const params: ConfirmMultipleImportModalParams = {
         zipData,
         createNotebook: true
       };
-      const { container, queryByTestId } = renderModal(params);
+      const screen = await renderModal(params);
 
       // check questions
-      expect(queryByTestId('modal-title')).toBeInTheDocument();
-      expect(queryByTestId('modal-title')).toHaveTextContent(
+      expect(getModalTitle(screen)).toBeInTheDocument();
+      expect(getModalTitle(screen)).toHaveTextContent(
         'Import SimpleLayer.zip in a new Notebook'
       );
 
-      expectShowMetadataInfo(false, queryByTestId);
-      expectShowNotebooksWarning(false, queryByTestId);
-      expectShowCreateNewFolderQuestion(false, queryByTestId);
-      expectShowSingleFolderDetectedQuestion(false, queryByTestId);
-      expectShowNewFolderNameInput(false, queryByTestId);
-      expectShowNewNotebookNameInput(true, queryByTestId);
-      expectShowMergeDuplicatesQuestion(true, queryByTestId);
+      expectShowMetadataInfo(screen, false);
+      expectShowNotebooksWarning(screen, false);
+      expectShowCreateNewFolderQuestion(screen, false);
+      expectShowSingleFolderDetectedQuestion(screen, false);
+      expectShowNewFolderNameInput(screen, false);
+      expectShowNewNotebookNameInput(screen, true);
+      expectShowMergeDuplicatesQuestion(screen, true);
 
       // check that Simple and (new) must be in the same row
-      const rows = container.querySelector('#preview-list');
+      const rows = document.querySelector('#preview-list');
       expect(rows?.hasChildNodes()).toBe(true);
       expect(rows?.childElementCount).toBe(3);
 
@@ -995,31 +910,27 @@ describe('ConfirmMultipleImportModal', () => {
     });
 
     it('should render the modal for a zip with single folder with meta, with createNotebook=false', async () => {
-      const zipData = await readZip(
-        '../_data/zips_with_meta',
-        'SimpleLayer.zip',
-        {}
-      );
+      const zipData = await readZip('zips_with_meta', 'SimpleLayer.zip', {});
       collectionService.setItemTitle(fId, 'Simple Original');
       const params: ConfirmMultipleImportModalParams = { zipData };
-      const { container, queryByTestId } = renderModal(params);
+      const screen = await renderModal(params);
 
       // check questions
-      expect(queryByTestId('modal-title')).toBeInTheDocument();
-      expect(queryByTestId('modal-title')).toHaveTextContent(
+      expect(getModalTitle(screen)).toBeInTheDocument();
+      expect(getModalTitle(screen)).toHaveTextContent(
         'Import SimpleLayer.zip in folder'
       );
 
-      expectShowMetadataInfo(true, queryByTestId);
-      expectShowNotebooksWarning(false, queryByTestId);
-      expectShowCreateNewFolderQuestion(false, queryByTestId);
-      expectShowSingleFolderDetectedQuestion(true, queryByTestId);
-      expectShowNewFolderNameInput(false, queryByTestId);
-      expectShowNewNotebookNameInput(false, queryByTestId);
-      expectShowMergeDuplicatesQuestion(true, queryByTestId);
+      expectShowMetadataInfo(screen, true);
+      expectShowNotebooksWarning(screen, false);
+      expectShowCreateNewFolderQuestion(screen, false);
+      expectShowSingleFolderDetectedQuestion(screen, true);
+      expectShowNewFolderNameInput(screen, false);
+      expectShowNewNotebookNameInput(screen, false);
+      expectShowMergeDuplicatesQuestion(screen, true);
 
       // check that Simple and (new) must be in the same row
-      const rows = container.querySelector('#preview-list');
+      const rows = document.querySelector('#preview-list');
       expect(rows?.hasChildNodes()).toBe(true);
       expect(rows?.childElementCount).toBe(3);
 
@@ -1041,34 +952,30 @@ describe('ConfirmMultipleImportModal', () => {
     });
 
     it('should render the modal for a zip with single folder with meta, with createNotebook=true', async () => {
-      const zipData = await readZip(
-        '../_data/zips_with_meta',
-        'SimpleLayer.zip',
-        {}
-      );
+      const zipData = await readZip('zips_with_meta', 'SimpleLayer.zip', {});
       collectionService.setItemTitle(nId, 'New folder');
       const params: ConfirmMultipleImportModalParams = {
         zipData,
         createNotebook: true
       };
-      const { container, queryByTestId } = renderModal(params);
+      const screen = await renderModal(params);
 
       // check questions
-      expect(queryByTestId('modal-title')).toBeInTheDocument();
-      expect(queryByTestId('modal-title')).toHaveTextContent(
+      expect(getModalTitle(screen)).toBeInTheDocument();
+      expect(getModalTitle(screen)).toHaveTextContent(
         'Import SimpleLayer.zip in a new Notebook'
       );
 
-      expectShowMetadataInfo(true, queryByTestId);
-      expectShowNotebooksWarning(false, queryByTestId);
-      expectShowCreateNewFolderQuestion(false, queryByTestId);
-      expectShowSingleFolderDetectedQuestion(false, queryByTestId);
-      expectShowNewFolderNameInput(false, queryByTestId);
-      expectShowNewNotebookNameInput(true, queryByTestId);
-      expectShowMergeDuplicatesQuestion(true, queryByTestId);
+      expectShowMetadataInfo(screen, true);
+      expectShowNotebooksWarning(screen, false);
+      expectShowCreateNewFolderQuestion(screen, false);
+      expectShowSingleFolderDetectedQuestion(screen, false);
+      expectShowNewFolderNameInput(screen, false);
+      expectShowNewNotebookNameInput(screen, true);
+      expectShowMergeDuplicatesQuestion(screen, true);
 
       // check that Simple and (new) must be in the same row
-      const rows = container.querySelector('#preview-list');
+      const rows = document.querySelector('#preview-list');
       expect(rows?.hasChildNodes()).toBe(true);
       expect(rows?.childElementCount).toBe(3);
 
