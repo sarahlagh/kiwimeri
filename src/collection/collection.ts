@@ -1,5 +1,7 @@
 import { APPICONS } from '@/constants';
+import { MetaField } from '@/core/db/types';
 import { NotesSort } from '@/domain/document-annotations/model';
+import { AnyObject } from 'tinybase/with-schemas';
 
 export enum CollectionItemType {
   notebook = 'n',
@@ -13,26 +15,27 @@ export interface CollectionItem {
   id?: string;
   itemId: string;
   parent: string;
-  parent_meta: string;
+  parent_meta: MetaField;
   type: CollectionItemTypeValues;
   title: string;
-  title_meta: string;
+  title_meta: MetaField;
   content?: string;
-  content_meta?: string;
+  content_meta?: MetaField;
   tags?: string;
-  tags_meta?: string;
+  tags_meta?: MetaField;
   created: number;
   updated: number;
   deleted: boolean; // TODO remove
-  deleted_meta: string;
+  deleted_meta: MetaField;
   conflict?: string;
   order: number;
-  order_meta: string;
+  order_meta: MetaField;
   display_opts?: string;
-  display_opts_meta?: string;
-  // flags?: string;
-  // flags_meta?: string;
+  display_opts_meta?: MetaField;
+  flags?: CollectionItemFlags;
+  flags_meta?: MetaField;
 }
+
 export type CollectionItemWithId = CollectionItem & { id: string };
 
 export const sortBy = [
@@ -52,8 +55,15 @@ export type CollectionItemSort = {
 export interface CollectionItemDisplayOpts {
   sort: CollectionItemSort;
   documentSort?: NotesSort;
-  statsEnabled: boolean; // TODO not the right place for this, but pending code reorga
 }
+
+export interface CollectionItemFlags extends AnyObject {
+  statsEnabled?: boolean;
+}
+
+export const defaultFlags: Required<CollectionItemFlags> = {
+  statsEnabled: false
+};
 
 export type CollectionItemFieldEnum = keyof Required<
   Omit<CollectionItem, 'id'>
@@ -69,14 +79,24 @@ export type CollectionItemUpdatableFieldEnum = keyof Required<
     | 'deleted' // TODO remove
     | 'order'
     | 'display_opts'
+    | 'flags'
   >
 >;
 
 export const CollectionItemUpdatableFields: CollectionItemUpdatableFieldEnum[] =
-  ['parent', 'title', 'content', 'tags', 'deleted', 'order', 'display_opts'];
+  [
+    'parent',
+    'title',
+    'content',
+    'tags',
+    'deleted',
+    'order',
+    'display_opts',
+    'flags'
+  ];
 
 export const CollectionItemUpdateChangeFields: CollectionItemUpdatableFieldEnum[] =
-  ['title', 'content', 'tags', 'deleted', 'display_opts'];
+  ['title', 'content', 'tags', 'deleted', 'display_opts', 'flags'];
 
 export const CollectionItemResetConflictFields: CollectionItemUpdatableFieldEnum[] =
   ['parent', 'title', 'content', 'tags', 'deleted'];
@@ -109,7 +129,12 @@ export const CollectionItemUpdatableNonConflictFields: CollectionItemUpdatableFi
 
 export type CollectionItemUpdate = Pick<
   CollectionItem,
-  'content' | 'content_meta' | 'tags_meta' | 'order_meta' | 'display_opts_meta'
+  | 'content'
+  | 'content_meta'
+  | 'tags_meta'
+  | 'order_meta'
+  | 'display_opts_meta'
+  | 'flags_meta'
 > &
   CollectionItemResult;
 
@@ -119,18 +144,6 @@ export type ItemWithPreview = CollectionItemResult & {
 
 export type SortableCollectionItem = Pick<CollectionItem, 'order'> &
   Required<Pick<CollectionItem, 'id'>>;
-
-export type CollectionItemFieldMetadata = {
-  u: number;
-};
-
-export const setFieldMeta = (value: string, updated: number) => {
-  return JSON.stringify({ u: updated });
-};
-
-export const parseFieldMeta = (value: string): CollectionItemFieldMetadata => {
-  return JSON.parse(value);
-};
 
 export type CollectionItemVersionOp = 'snapshot' | 'deleted';
 
@@ -176,6 +189,8 @@ export type CollectionItemSnapshotData = Pick<
   | 'order_meta'
   | 'display_opts'
   | 'display_opts_meta'
+  | 'flags'
+  | 'flags_meta'
   | 'created'
   | 'updated'
 > &

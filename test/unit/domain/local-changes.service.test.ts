@@ -140,8 +140,7 @@ describe('local changes service', () => {
       sort: {
         by: 'order',
         descending: false
-      },
-      statsEnabled: false
+      }
     });
 
     let localChanges = localChangesService.getLocalChanges();
@@ -158,8 +157,7 @@ describe('local changes service', () => {
       sort: {
         by: 'updated',
         descending: true
-      },
-      statsEnabled: false
+      }
     });
 
     localChanges = localChangesService.getLocalChanges();

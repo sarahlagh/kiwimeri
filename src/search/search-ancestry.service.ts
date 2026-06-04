@@ -9,6 +9,7 @@ import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-con
 import { DEFAULT_SPACE_ID, ROOT_COLLECTION } from '@/constants';
 import { space, store, storeIndexes } from '@/core/db/store';
 import { SpaceType, StoreType } from '@/core/db/store-schema';
+import { MetaField } from '@/core/db/types';
 import { useCellWithRef } from '@/db/tinybase/hooks';
 import userSettingsService from '@/db/user-settings.service';
 import { statsService } from '@/domain/stats/stats-service';
@@ -230,13 +231,13 @@ class CollectionSearchService {
 
       const parent = table[rowId].parent as string;
       const notebook = this.getShortBreadcrumb(parent).split(',')[0];
-      if (userSettingsService.getDefaultDisplayOpts(notebook).statsEnabled) {
+      if (userSettingsService.getDefaultFlags(notebook).statsEnabled) {
         // stats
         statsService.updateStatsAtDate(
           rowId,
           statsService.buildStatsFromContentMeta(
             plain,
-            table[rowId].content_meta!.toString()
+            table[rowId].content_meta as MetaField
           )
         );
       }

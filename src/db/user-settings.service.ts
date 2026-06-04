@@ -1,12 +1,15 @@
 import {
   CollectionItemDisplayOpts,
-  CollectionItemSortType
+  CollectionItemFlags,
+  CollectionItemSortType,
+  defaultFlags
 } from '@/collection/collection';
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
 import { DEFAULT_SPACE_ID } from '@/constants';
 import { space, store } from '@/core/db/store';
 import { SpaceValue, SpaceValues } from '@/core/db/store-schema';
+import { useSpaceValue } from '@/core/db/tinybase-hooks';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import collectionService from './collection.service';
 import notebooksService from './notebooks.service';
@@ -67,14 +70,32 @@ class UserSettingsService {
     if (!spaceId) {
       spaceId = DEFAULT_SPACE_ID;
     }
-    const statsEnabled = space.getValue('statsEnabled').valueOf();
     const by = space.getValue('defaultSortBy') as CollectionItemSortType;
     const descending = space.getValue('defaultSortDesc').valueOf();
     return {
       sort: {
         by,
         descending
-      },
+      }
+    };
+  }
+
+  public getSpaceDefaultFlags(): Required<CollectionItemFlags> {
+    let statsEnabled = space.getValue<'statsEnabled'>('statsEnabled');
+    if (statsEnabled === undefined) {
+      statsEnabled = defaultFlags.statsEnabled;
+    }
+    return {
+      statsEnabled
+    };
+  }
+
+  public useSpaceDefaultFlags(): Required<CollectionItemFlags> {
+    let statsEnabled = useSpaceValue<'statsEnabled'>('statsEnabled', 'space');
+    if (statsEnabled === undefined) {
+      statsEnabled = defaultFlags.statsEnabled;
+    }
+    return {
       statsEnabled
     };
   }
@@ -83,10 +104,6 @@ class UserSettingsService {
     if (!space) {
       space = DEFAULT_SPACE_ID;
     }
-    const statsEnabled = useValueWithRef(
-      this.spaceId,
-      'statsEnabled'
-    ) as boolean;
     const by = useValueWithRef(
       this.spaceId,
       'defaultSortBy'
@@ -99,8 +116,7 @@ class UserSettingsService {
       sort: {
         by,
         descending
-      },
-      statsEnabled
+      }
     };
   }
 
@@ -109,9 +125,12 @@ class UserSettingsService {
       newDisplayOpts.sort.descending = false;
     this.setSyncableValues({
       defaultSortBy: newDisplayOpts.sort.by,
-      defaultSortDesc: newDisplayOpts.sort.descending,
-      statsEnabled: newDisplayOpts.statsEnabled
+      defaultSortDesc: newDisplayOpts.sort.descending
     });
+  }
+
+  public setSpaceDefaultFlags(newFlags: CollectionItemFlags) {
+    this.setSyncableValues(newFlags);
   }
 
   private setSyncableValues(values: Partial<SpaceValues>) {
@@ -155,6 +174,29 @@ class UserSettingsService {
       return notebookDisplayOpts!;
     }
     return this.getSpaceDefaultDisplayOpts(space);
+  }
+
+  public useDefaultFlags(notebook?: string): Required<CollectionItemFlags> {
+    const currentNotebook = notebooksService.useCurrentNotebook();
+    if (!notebook) {
+      notebook = currentNotebook;
+    }
+    const notebookDisplayOpts = collectionService.useItemFlags(notebook);
+    if (notebookDisplayOpts) {
+      return { ...defaultFlags, ...notebookDisplayOpts };
+    }
+    return this.getSpaceDefaultFlags();
+  }
+
+  public getDefaultFlags(notebook?: string): Required<CollectionItemFlags> {
+    if (!notebook) {
+      notebook = notebooksService.getCurrentNotebook();
+    }
+    const notebookDisplayOpts = collectionService.getItemFlags(notebook);
+    if (notebookDisplayOpts) {
+      return { ...defaultFlags, ...notebookDisplayOpts };
+    }
+    return this.getSpaceDefaultFlags();
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

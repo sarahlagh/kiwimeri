@@ -63,7 +63,9 @@ describe('collection history service', () => {
           order: rowBefore.order,
           order_meta: rowBefore.order_meta,
           created: rowBefore.created,
-          updated: rowBefore.updated
+          updated: rowBefore.updated,
+          flags: rowBefore.flags,
+          flags_meta: rowBefore.flags_meta
         });
         if (field !== 'content') {
           expect(versionData[field]).toBe(newValue);

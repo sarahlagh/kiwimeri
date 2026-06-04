@@ -28,7 +28,7 @@ const ActionsFromDocumentEditorToolbar = ({
   const folder = navService.getCurrentFolder();
   const fallbackRoute = GET_FOLDER_ROUTE(folder);
 
-  const statsEnabled = userSettingsService.getDefaultDisplayOpts().statsEnabled;
+  const statsEnabled = userSettingsService.getDefaultFlags().statsEnabled;
   const showStats = statsEnabled;
 
   return (

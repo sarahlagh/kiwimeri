@@ -1,5 +1,5 @@
-import { parseFieldMeta } from '@/collection/collection';
 import { getGlobalTrans, ROOT_COLLECTION } from '@/constants';
+import { MetaField } from '@/core/db/types';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import {
@@ -38,9 +38,9 @@ describe('notebooks service', () => {
     expect(collectionService.getItemField(n1, 'title')).toBe(
       'non default title'
     );
-    const meta = parseFieldMeta(getLocalItemField(n1, 'title_meta') as string);
-    expect(meta.u).toBe(getLocalItemField(n1, 'updated') as number);
-    expect(meta.u).toBeGreaterThan(created);
+    const meta = getLocalItemField(n1, 'title_meta') as MetaField;
+    expect(meta._u).toBe(getLocalItemField(n1, 'updated') as number);
+    expect(meta._u).toBeGreaterThan(created);
     vi.useRealTimers();
   });
 

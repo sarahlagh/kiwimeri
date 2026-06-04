@@ -1,7 +1,7 @@
-import { setFieldMeta } from '@/collection/collection';
 import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { space } from '@/core/db/store';
+import { setMetaField } from '@/core/db/types';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import { RemoteResult } from '@/db/types/store-types';
@@ -218,7 +218,7 @@ describe('collection synchronizer', () => {
           content[1],
           JSON.parse(getNewContent('remote update'))
         );
-        content[1].content_meta = setFieldMeta('', Date.now());
+        content[1].content_meta = setMetaField(Date.now());
         content[1].updated = Date.now();
         driver.setCollectionContent(content, values, Date.now());
       }
@@ -274,7 +274,7 @@ describe('collection synchronizer', () => {
           content[1],
           JSON.parse(getNewContent('remote update'))
         );
-        content[1].content_meta = setFieldMeta('', Date.now());
+        content[1].content_meta = setMetaField(Date.now());
         content[1].updated = Date.now();
         driver.setCollectionContent(content, values, Date.now());
       }
@@ -335,7 +335,7 @@ describe('collection synchronizer', () => {
       {
         const { content, values } = driver.getParsedCollectionContent();
         content[1].title = 'remote title';
-        content[1].title_meta = setFieldMeta('', Date.now());
+        content[1].title_meta = setMetaField(Date.now());
         content[1].updated = Date.now();
         driver.setCollectionContent(content, values, Date.now());
       }
@@ -433,7 +433,7 @@ describe('collection synchronizer', () => {
 
       // update on remote
       notes[0].order = 2;
-      notes[0].order_meta = setFieldMeta('', Date.now());
+      notes[0].order_meta = setMetaField(Date.now());
       notes[0].updatedAt = Date.now();
       await driver.setCollectionContentWithAnnots(
         items,
@@ -480,7 +480,7 @@ describe('collection synchronizer', () => {
 
       // update on remote
       notes[0].content = getNewContent('remote');
-      notes[0].content_meta = setFieldMeta('', Date.now());
+      notes[0].content_meta = setMetaField(Date.now());
       notes[0].updatedAt = Date.now();
       await driver.setCollectionContentWithAnnots(
         items,
@@ -539,7 +539,7 @@ describe('collection synchronizer', () => {
       notes[0].content = minimizeContentForStorage(
         JSON.parse(getNewContent('remote'))
       );
-      notes[0].content_meta = setFieldMeta('', Date.now());
+      notes[0].content_meta = setMetaField(Date.now());
       notes[0].updatedAt = Date.now();
       await driver.setCollectionContentWithAnnots(
         items,
@@ -707,7 +707,7 @@ describe('collection synchronizer', () => {
 
       // update on remote again
       notes[0].content = getNewContent('test 2');
-      notes[0].content_meta = setFieldMeta('', Date.now());
+      notes[0].content_meta = setMetaField(Date.now());
       notes[0].updatedAt = Date.now();
       await driver.setCollectionContentWithAnnots(
         items,
@@ -760,7 +760,7 @@ describe('collection synchronizer', () => {
       items[1].content = minimizeContentForStorage(
         JSON.parse(getNewContent('remote'))
       );
-      items[1].content_meta = setFieldMeta('', Date.now());
+      items[1].content_meta = setMetaField(Date.now());
       items[1].updated = Date.now();
       await driver.setCollectionContent(items, defaultValues, items[1].updated);
 
@@ -832,7 +832,7 @@ describe('collection synchronizer', () => {
       notes[0].content = minimizeContentForStorage(
         JSON.parse(getNewContent('remote'))
       );
-      notes[0].content_meta = setFieldMeta('', Date.now());
+      notes[0].content_meta = setMetaField(Date.now());
       notes[0].updatedAt = Date.now();
       await driver.setCollectionContentWithAnnots(
         items,
@@ -921,14 +921,14 @@ describe('collection synchronizer', () => {
       notes[0].content = minimizeContentForStorage(
         JSON.parse(getNewContent('remote'))
       );
-      notes[0].content_meta = setFieldMeta('', Date.now());
+      notes[0].content_meta = setMetaField(Date.now());
       notes[0].updatedAt = Date.now();
 
       vi.advanceTimersByTime(100);
       items[2].content = minimizeContentForStorage(
         JSON.parse(getNewContent('remote'))
       );
-      items[2].content_meta = setFieldMeta('', Date.now());
+      items[2].content_meta = setMetaField(Date.now());
       items[2].updated = Date.now();
 
       await driver.setCollectionContentWithAnnots(

@@ -532,10 +532,11 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     if (!obj.o) {
       // shouldn't happen except in dev - TODO better version detection before pulling
       const spaceDefaults = userSettingsService.getSpaceDefaultDisplayOpts();
+      const flagDefaults = userSettingsService.getSpaceDefaultFlags();
       obj.o = {
         defaultSortBy: spaceDefaults.sort.by,
         defaultSortDesc: spaceDefaults.sort.descending,
-        statsEnabled: spaceDefaults.statsEnabled,
+        statsEnabled: flagDefaults.statsEnabled,
         historyIdleTime: userSettingsService.getHistoryIdleTime(),
         historyMaxInterval: userSettingsService.getHistoryMaxInterval(),
         maxHistoryPerDoc: userSettingsService.getHistoryMaxVersions(),

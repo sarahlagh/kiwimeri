@@ -1,5 +1,6 @@
 import {
   CollectionItemDisplayOpts,
+  CollectionItemFlags,
   CollectionItemSortType
 } from '@/collection/collection';
 import EditConfigList, {
@@ -11,8 +12,10 @@ import { useLingui } from '@lingui/react/macro';
 type GenericCollectionSettingsProps = {
   defaultDisplayOpts: CollectionItemDisplayOpts;
   onDefaultDisplayOptsChange: (
-    newDfaultDisplayOpts: CollectionItemDisplayOpts
+    newDefaultDisplayOpts: CollectionItemDisplayOpts
   ) => void;
+  defaultFlags: Required<CollectionItemFlags>;
+  onDefaultFlagsChange: (newDefaultFlags: CollectionItemFlags) => void;
   withRows?: ConfigRowType[];
   withInitialState?: AnySerializableData;
   withOnChange?: (key: string, val: SerializableData) => void;
@@ -20,7 +23,9 @@ type GenericCollectionSettingsProps = {
 
 const GenericCollectionSettings = ({
   defaultDisplayOpts,
+  defaultFlags,
   onDefaultDisplayOptsChange,
+  onDefaultFlagsChange,
   withRows = [],
   withInitialState = {},
   withOnChange
@@ -55,11 +60,12 @@ const GenericCollectionSettings = ({
       initialState={{
         sort_by: defaultDisplayOpts.sort.by,
         sort_descending: defaultDisplayOpts.sort.descending,
-        stats_enabled: defaultDisplayOpts.statsEnabled,
+        stats_enabled: defaultFlags.statsEnabled,
         ...withInitialState
       }}
       onChange={(key, val) => {
         const newDisplayOpts = { ...defaultDisplayOpts };
+        const newFlags = { ...defaultFlags };
         switch (key) {
           case 'sort_by':
             newDisplayOpts.sort.by = val as string as CollectionItemSortType;
@@ -70,8 +76,8 @@ const GenericCollectionSettings = ({
             onDefaultDisplayOptsChange(newDisplayOpts);
             break;
           case 'stats_enabled':
-            newDisplayOpts.statsEnabled = val as boolean;
-            onDefaultDisplayOptsChange(newDisplayOpts);
+            newFlags.statsEnabled = val as boolean;
+            onDefaultFlagsChange(newFlags);
         }
         if (withOnChange) withOnChange(key, val);
       }}

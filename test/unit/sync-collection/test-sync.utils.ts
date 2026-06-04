@@ -1,4 +1,4 @@
-import { CollectionItem, parseFieldMeta } from '@/collection/collection';
+import { CollectionItem } from '@/collection/collection';
 import { DEFAULT_SPACE_ID } from '@/constants';
 import { space } from '@/core/db/store';
 import { SpaceValues } from '@/core/db/store-schema';
@@ -70,11 +70,7 @@ export const reInitRemoteDataWithAnnots = async (
   const lastLocalChange =
     updateTs !== undefined
       ? updateTs
-      : Math.max(
-          ...items.map(i =>
-            Math.max(i.updated, parseFieldMeta(i.parent_meta).u)
-          )
-        );
+      : Math.max(...items.map(i => Math.max(i.updated, i.parent_meta._u)));
   if (!values) {
     values = {
       ...defaultValues,

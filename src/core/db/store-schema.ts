@@ -5,6 +5,7 @@ import { resumeStateSchema } from '@/domain/resume-state/model';
 import { Value } from 'tinybase/with-schemas';
 import {
   CellIdFromSchema,
+  metaSchemaDefault,
   TableIdFromSchema,
   ValueIdFromSchema
 } from './types';
@@ -53,43 +54,46 @@ export const storeTablesSchema = {
 } as const;
 
 export const storeValuesSchema = {
-  theme: { type: 'string', default: 'dark' },
+  tempDoc: { type: 'string' },
+  appVersion: { type: 'string' }, // delete
+  currentSpace: { type: 'string', default: DEFAULT_SPACE_ID }, // delete
+  // put in space for native saving
   showDevTools: { type: 'boolean', default: false },
+  globalZoom: { type: 'number', default: 1 },
+  lastBrowserMode: { type: 'number', default: 0 },
+  exportIncludeMetadata: { type: 'boolean', default: true },
+  theme: { type: 'string', default: 'dark' },
   maxLogHistory: { type: 'number', default: 500 },
   internalProxy: { type: 'string' },
-  currentSpace: { type: 'string', default: DEFAULT_SPACE_ID },
-  exportIncludeMetadata: { type: 'boolean', default: true },
-  appVersion: { type: 'string' },
-  tempDoc: { type: 'string' },
   defaultTimedDuration: { type: 'number', default: 10 },
   defaultTimedMode: { type: 'string', default: 'dangerous' },
-  globalZoom: { type: 'number', default: 1 },
   rememberLastRoute: { type: 'boolean', default: true },
-  resumeLastSelection: { type: 'boolean', default: true },
-  lastBrowserMode: { type: 'number', default: 0 }
+  resumeLastSelection: { type: 'boolean', default: true }
 } as const;
 
 export const spaceTablesSchema = {
   collection: {
     itemId: { type: 'string' },
     title: { type: 'string' },
-    title_meta: { type: 'string' },
+    title_meta: { type: 'object', default: metaSchemaDefault },
     parent: { type: 'string' },
-    parent_meta: { type: 'string' },
+    parent_meta: { type: 'object', default: metaSchemaDefault },
     type: { type: 'string' },
     content: { type: 'string' },
-    content_meta: { type: 'string' },
+    content_meta: { type: 'object' },
     tags: { type: 'string' },
-    tags_meta: { type: 'string' },
+    tags_meta: { type: 'object' },
     created: { type: 'number' },
     updated: { type: 'number' },
     deleted: { type: 'boolean', default: false },
-    deleted_meta: { type: 'string' },
+    deleted_meta: { type: 'object' },
     conflict: { type: 'string' },
     order: { type: 'number' },
-    order_meta: { type: 'string' },
+    order_meta: { type: 'object' },
     display_opts: { type: 'string' },
-    display_opts_meta: { type: 'string' }
+    display_opts_meta: { type: 'object' },
+    flags: { type: 'object' },
+    flags_meta: { type: 'object' }
   },
   history: {
     itemId: { type: 'string' },
@@ -111,16 +115,17 @@ export const spaceTablesSchema = {
     contentStatsJson: { type: 'string' },
     lastOpenedAt: { type: 'number' }
   },
-  document_annotation: docAnnotationSchema
+  document_annotation: docAnnotationSchema,
 } as const;
 export const spaceValuesSchema = {
-  valuesLastUpdatedAt: { type: 'number', default: 0 },
+  valuesLastUpdatedAt: { type: 'number', default: 0 }, // delete
+  schemaVersion: { type: 'string', default: '' }, // keep, maybe rename to appVersion
+  // to user_preference:
   defaultSortBy: { type: 'string', default: 'created' },
   defaultSortDesc: { type: 'boolean', default: false },
   historyIdleTime: { type: 'number', default: 15000 },
   historyMaxInterval: { type: 'number', default: 300000 },
   maxHistoryPerDoc: { type: 'number', default: 50 },
-  schemaVersion: { type: 'string', default: '' },
   statsEnabled: { type: 'boolean', default: false }
 } as const;
 

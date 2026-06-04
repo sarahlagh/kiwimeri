@@ -13,24 +13,21 @@ describe('user settings service', () => {
       sort: {
         by: 'updated',
         descending: true
-      },
-      statsEnabled: false
+      }
     });
 
     collectionService.setItemDisplayOpts(currentNotebook, {
       sort: {
         by: 'order',
         descending: false
-      },
-      statsEnabled: true
+      }
     });
 
     collectionService.setItemDisplayOpts(folderId, {
       sort: {
         by: 'title',
         descending: false
-      },
-      statsEnabled: true
+      }
     });
 
     const defaultOpts = userSettingsService.getDefaultDisplayOpts();
@@ -39,16 +36,14 @@ describe('user settings service', () => {
       sort: {
         by: 'order',
         descending: false
-      },
-      statsEnabled: false
+      }
     });
 
     expect(folderOpts).toEqual({
       sort: {
         by: 'title',
         descending: false
-      },
-      statsEnabled: true
+      }
     });
   });
 
@@ -58,16 +53,14 @@ describe('user settings service', () => {
       sort: {
         by: 'updated',
         descending: true
-      },
-      statsEnabled: true
+      }
     });
 
     collectionService.setItemDisplayOpts(currentNotebook, {
       sort: {
         by: 'order',
         descending: false
-      },
-      statsEnabled: false
+      }
     });
 
     const defaultOpts = userSettingsService.getDefaultDisplayOpts();
@@ -75,8 +68,7 @@ describe('user settings service', () => {
       sort: {
         by: 'order',
         descending: false
-      },
-      statsEnabled: false
+      }
     });
   });
 
@@ -86,16 +78,14 @@ describe('user settings service', () => {
       sort: {
         by: 'updated',
         descending: true
-      },
-      statsEnabled: true
+      }
     });
 
     collectionService.setItemDisplayOpts(currentNotebook, {
       sort: {
         by: 'order',
         descending: false
-      },
-      statsEnabled: false
+      }
     });
 
     const defaultOpts = userSettingsService.getDefaultDisplayOpts('another');
@@ -103,8 +93,7 @@ describe('user settings service', () => {
       sort: {
         by: 'updated',
         descending: true
-      },
-      statsEnabled: true
+      }
     });
   });
 });

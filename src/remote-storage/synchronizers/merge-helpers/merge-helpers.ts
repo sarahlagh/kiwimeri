@@ -1,6 +1,5 @@
-import { parseFieldMeta } from '@/collection/collection';
 import { SpaceTableId, SpaceType } from '@/core/db/store-schema';
-import { TypeWithId, WithId } from '@/core/db/types';
+import { MetaField, TypeWithId, WithId } from '@/core/db/types';
 import {
   LocalChangeResult,
   LocalChangeType
@@ -71,7 +70,9 @@ function getRemoteUpdatedTS(
 ) {
   // remoteUpdated is the 'updated' ts on the remote item, OR the collection updated ts if the item is deleted
   let remoteUpdated = remoteCollection[localChange.itemId]
-    ? (remoteCollection[localChange.itemId].updated as number)
+    ? remoteCollection[localChange.itemId].updated !== undefined
+      ? (remoteCollection[localChange.itemId].updated as number)
+      : (remoteCollection[localChange.itemId].updatedAt as number)
     : remoteContentUpdated || 0;
 
   // but if item exists on remote, and it's an update, only take the meta ts
@@ -81,9 +82,9 @@ function getRemoteUpdatedTS(
   ) {
     const meta = remoteCollection[localChange.itemId][
       `${localChange.field}_meta`
-    ] as string;
+    ] as MetaField;
     if (meta) {
-      remoteUpdated = parseFieldMeta(meta).u;
+      remoteUpdated = meta._u;
     } else {
       remoteUpdated = 0;
     }

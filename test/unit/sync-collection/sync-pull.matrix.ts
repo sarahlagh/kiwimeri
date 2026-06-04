@@ -1,8 +1,6 @@
-import {
-  CollectionItemTypeValues,
-  parseFieldMeta
-} from '@/collection/collection';
+import { CollectionItemTypeValues } from '@/collection/collection';
 import { CONFLICTS_NOTEBOOK_ID } from '@/constants';
+import { MetaField } from '@/core/db/types';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import {
   allFields,
@@ -94,8 +92,8 @@ const scenarioMatrix: {
                 const json = item?.title_meta;
                 expect(json).toBeDefined();
                 // slightly weird but acceptable for this scenario
-                const metaField = parseFieldMeta(json as string);
-                expect(metaField.u).not.toBe(relevantItem?.initValue?.at);
+                const metaField = json as MetaField;
+                expect(metaField._u).not.toBe(relevantItem?.initValue?.at);
               }
             })
             .ifForcePull()
@@ -1626,20 +1624,20 @@ const scenarioMatrix: {
             .theItem({
               hasValue: 'remote',
               otherAssert: item => {
-                const initTs = parseFieldMeta(item!.parent_meta).u;
-                const titleTs = parseFieldMeta(item!.title_meta!).u;
+                const initTs = item!.parent_meta._u;
+                const titleTs = item!.title_meta._u;
                 expect(titleTs).toBeGreaterThan(initTs);
-                const tagsTs = parseFieldMeta(item!.tags_meta!).u;
+                const tagsTs = item!.tags_meta!._u;
                 expect(tagsTs).toBeGreaterThan(titleTs);
               }
             })
             .ifForcePull()
             .theItem({
               otherAssert: item => {
-                const initTs = parseFieldMeta(item!.parent_meta).u;
-                const titleTs = parseFieldMeta(item!.title_meta!).u;
+                const initTs = item!.parent_meta._u;
+                const titleTs = item!.title_meta!._u;
                 expect(titleTs).toBe(initTs);
-                const tagsTs = parseFieldMeta(item!.tags_meta!).u;
+                const tagsTs = item!.tags_meta!._u;
                 expect(tagsTs).toBeGreaterThan(titleTs);
               }
             })
@@ -1668,21 +1666,21 @@ const scenarioMatrix: {
               hasValue: 'remote', // order value is pulled
               hasVersions: 2, // if document, order triggers no version
               otherAssert: item => {
-                const initTs = parseFieldMeta(item!.parent_meta).u;
-                const contentTs = parseFieldMeta(item!.content_meta!).u;
+                const initTs = item!.parent_meta._u;
+                const contentTs = item!.content_meta!._u;
                 expect(contentTs).toBeGreaterThan(initTs);
-                const orderTs = parseFieldMeta(item!.order_meta!).u;
+                const orderTs = item!.order_meta!._u;
                 expect(orderTs).toBeGreaterThan(contentTs);
               }
             })
             .ifForcePull()
             .theItem({
               otherAssert: (item, rel) => {
-                const initTs = parseFieldMeta(item!.parent_meta).u;
-                const contentTs = parseFieldMeta(item!.content_meta!).u;
+                const initTs = item!.parent_meta._u;
+                const contentTs = item!.content_meta!._u;
                 expect(contentTs).toBe(initTs);
                 expect(item?.content).toBe(rel?.initValue?.value);
-                const orderTs = parseFieldMeta(item!.order_meta!).u;
+                const orderTs = item!.order_meta!._u;
                 expect(orderTs).toBeGreaterThan(contentTs);
               }
             })
@@ -1721,10 +1719,10 @@ const scenarioMatrix: {
               hasConflict: true,
               hasVersions: 3, // if document, order triggers no version
               otherAssert: (item, rel) => {
-                const initTs = parseFieldMeta(item!.parent_meta).u;
-                const contentTs = parseFieldMeta(item!.content_meta!).u;
+                const initTs = item!.parent_meta._u;
+                const contentTs = item!.content_meta!._u;
                 expect(contentTs).toBeGreaterThan(initTs);
-                const orderTs = parseFieldMeta(item!.order_meta!).u;
+                const orderTs = item!.order_meta!._u;
                 expect(orderTs).toBeGreaterThan(contentTs);
                 expect(item?.order).toBe(rel?.remoteValue?.value);
               }

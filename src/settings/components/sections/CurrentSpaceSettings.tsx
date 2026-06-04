@@ -12,6 +12,7 @@ import GenericCollectionSettings from './GenericCollectionSettings';
 
 const CurrentSpaceSettings = () => {
   const defaultDisplayOpts = userSettingsService.useSpaceDefaultDisplayOpts();
+  const defaultFlags = userSettingsService.useSpaceDefaultFlags();
   const defaultHistoryIdleTime = userSettingsService.useHistoryIdleTime();
   const defaultHistoryMaxInterval = userSettingsService.useHistoryMaxInterval();
   const defaultMaxVersionsPerDoc = userSettingsService.useHistoryMaxVersions();
@@ -36,10 +37,11 @@ const CurrentSpaceSettings = () => {
           defaultDisplayOpts={defaultDisplayOpts}
           onDefaultDisplayOptsChange={newDisplayOpts => {
             userSettingsService.setSpaceDefaultDisplayOpts(newDisplayOpts);
-            if (
-              newDisplayOpts.statsEnabled &&
-              !defaultDisplayOpts.statsEnabled
-            ) {
+          }}
+          defaultFlags={defaultFlags}
+          onDefaultFlagsChange={newFlags => {
+            userSettingsService.setSpaceDefaultFlags(newFlags);
+            if (newFlags.statsEnabled && !defaultFlags.statsEnabled) {
               console.log('stats setting enabled on space, backfilling');
               statsService.backfillStats();
               console.log('stats backfilling done');

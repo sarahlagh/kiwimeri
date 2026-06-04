@@ -7,15 +7,13 @@ import {
   CollectionItemUpdatableConflictFields,
   CollectionItemUpdatableFieldEnum,
   CollectionItemUpdatableNonConflictFields,
-  CollectionItemUpdateChangeFields,
-  setFieldMeta
+  CollectionItemUpdateChangeFields
 } from '@/collection/collection';
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { space, store } from '@/core/db/store';
-import { WithId } from '@/core/db/types';
+import { DbSerializableData, setMetaField, WithId } from '@/core/db/types';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
-import { SerializableData } from '@/db/types/store-types';
 import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
 import { DocAnnotationRow } from '@/domain/document-annotations/model';
 import { Notebook } from '@/notebooks/notebooks';
@@ -51,7 +49,7 @@ export const oneDocument = (
     id,
     itemId: id,
     title,
-    title_meta: setFieldMeta(title, Date.now())
+    title_meta: setMetaField(Date.now(), title)
   };
 };
 export const oneFolder = (
@@ -65,7 +63,7 @@ export const oneFolder = (
     id,
     itemId: id,
     title,
-    title_meta: setFieldMeta(title, Date.now())
+    title_meta: setMetaField(Date.now(), title)
   };
 };
 export const oneNotebook = (
@@ -131,7 +129,14 @@ export const NON_NOTEBOOK_ITEM_TYPES: ItemTypesType[] = ITEM_TYPES.filter(
   i => i.type !== 'notebook' // TODO revert
 );
 
-export type ValueType = 'id' | 'string' | 'lex' | 'json' | 'number' | 'boolean';
+export type ValueType =
+  | 'id'
+  | 'string'
+  | 'lex'
+  | 'number'
+  | 'boolean'
+  | 'display_opts'
+  | 'flags';
 export const NON_PARENT_UPDATABLE_FIELDS: {
   field: CollectionItemUpdatableFieldEnum;
   valueType: ValueType;
@@ -140,7 +145,8 @@ export const NON_PARENT_UPDATABLE_FIELDS: {
   { field: 'content', valueType: 'lex' },
   { field: 'tags', valueType: 'string' },
   { field: 'order', valueType: 'number' },
-  { field: 'display_opts', valueType: 'json' }
+  { field: 'display_opts', valueType: 'display_opts' },
+  { field: 'flags', valueType: 'flags' }
 ];
 
 export const getNewContent = (text: string) => {
@@ -159,7 +165,11 @@ export const tagsField: TestField = { field: 'tags', valueType: 'string' };
 export const orderField: TestField = { field: 'order', valueType: 'number' };
 export const displayOptsField: TestField = {
   field: 'display_opts',
-  valueType: 'json'
+  valueType: 'display_opts'
+};
+export const flagsField: TestField = {
+  field: 'flags',
+  valueType: 'flags'
 };
 
 export const allFields: TestField[] = [
@@ -167,12 +177,17 @@ export const allFields: TestField[] = [
   contentField,
   tagsField,
   orderField,
-  displayOptsField
+  displayOptsField,
+  flagsField
 ];
 
 export const conflictFields: TestField[] = [titleField, contentField];
 
-export const nonConflictFields: TestField[] = [tagsField, displayOptsField];
+export const nonConflictFields: TestField[] = [
+  tagsField,
+  displayOptsField,
+  flagsField
+];
 
 export const allHistorizableFields: TestField[] = [
   titleField,
@@ -184,14 +199,18 @@ export const allHistorizableFields: TestField[] = [
 export const getNewValue = (
   valueType: ValueType,
   potentialId?: string
-): SerializableData => {
+): DbSerializableData => {
   if (valueType === 'string') return `new string value ${getUniqueId()}`;
   if (valueType === 'lex') return getNewContent(`Sample text ${getUniqueId()}`);
   if (valueType === 'id') return potentialId ? potentialId : ROOT_COLLECTION;
-  if (valueType === 'json')
+  if (valueType === 'display_opts')
     return JSON.stringify({
-      rand: Math.floor(Math.random() * 10001)
+      sort: { rand: Math.floor(Math.random() * 10001) }
     });
+  if (valueType === 'flags')
+    return {
+      statsEnabled: Math.floor(Math.random() * 10001) % 2 === 0
+    };
   if (valueType === 'number') return Math.floor(Math.random() * 10001);
   return true;
 };
@@ -317,7 +336,7 @@ export const getLocalItemField = (rowId: string, field: string) => {
 export const setLocalItemField = (
   rowId: string,
   field: string,
-  newValue: SerializableData
+  newValue: DbSerializableData
 ) => {
   adv(() => {
     collectionService.setItemField(
@@ -339,15 +358,15 @@ export const updateOnRemote = (
   remoteData: CollectionItem[],
   id: string,
   field: string,
-  newValue: SerializableData
+  newValue: DbSerializableData
 ) => {
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   const idx = remoteData.findIndex(r => r.id === id);
   const remoteKey = field as CollectionItemUpdatableFieldEnum;
   remoteData[idx][remoteKey] = newValue as never;
-  remoteData[idx][`${remoteKey}_meta`] = setFieldMeta(
-    `${newValue}`,
-    Date.now()
+  remoteData[idx][`${remoteKey}_meta`] = setMetaField(
+    Date.now(),
+    `${newValue}`
   );
   if (remoteKey !== 'parent') {
     remoteData[idx].updated = Date.now();

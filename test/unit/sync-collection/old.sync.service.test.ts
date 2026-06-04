@@ -1,8 +1,7 @@
 import {
   CollectionItem,
   CollectionItemType,
-  isDocument,
-  parseFieldMeta
+  isDocument
 } from '@/collection/collection';
 import {
   CONFLICTS_NOTEBOOK_ID,
@@ -70,11 +69,7 @@ const reInitRemoteData = async (
   const lastLocalChange =
     updateTs !== undefined
       ? updateTs
-      : Math.max(
-          ...items.map(i =>
-            Math.max(i.updated, parseFieldMeta(i.parent_meta).u)
-          )
-        );
+      : Math.max(...items.map(i => Math.max(i.updated, i.parent_meta._u)));
   if (!values) {
     values = {
       ...defaultValues,
@@ -2131,8 +2126,7 @@ describe('sync service', () => {
           sort: {
             by: 'created',
             descending: false
-          },
-          statsEnabled: false
+          }
         });
 
         await syncService_pull();
@@ -2141,8 +2135,7 @@ describe('sync service', () => {
           sort: {
             by: 'order',
             descending: true
-          },
-          statsEnabled: false
+          }
         });
       });
 
@@ -2160,8 +2153,7 @@ describe('sync service', () => {
           sort: {
             by: 'updated',
             descending: false
-          },
-          statsEnabled: true
+          }
         });
 
         await syncService_pull();
@@ -2170,8 +2162,7 @@ describe('sync service', () => {
           sort: {
             by: 'updated',
             descending: false
-          },
-          statsEnabled: true
+          }
         });
       });
 
@@ -2189,8 +2180,7 @@ describe('sync service', () => {
           sort: {
             by: 'updated',
             descending: false
-          },
-          statsEnabled: true
+          }
         });
 
         await syncService_pull(true);
@@ -2199,8 +2189,7 @@ describe('sync service', () => {
           sort: {
             by: 'order',
             descending: true
-          },
-          statsEnabled: false
+          }
         });
       });
 
@@ -2218,7 +2207,9 @@ describe('sync service', () => {
           sort: {
             by: 'updated',
             descending: false
-          },
+          }
+        });
+        userSettingsService.setSpaceDefaultFlags({
           statsEnabled: true
         });
         await syncService_push();
@@ -2238,8 +2229,7 @@ describe('sync service', () => {
           sort: {
             by: 'updated',
             descending: false
-          },
-          statsEnabled: true
+          }
         });
         vi.advanceTimersByTime(fakeTimersDelay);
 
@@ -2270,7 +2260,9 @@ describe('sync service', () => {
           sort: {
             by: 'updated',
             descending: false
-          },
+          }
+        });
+        userSettingsService.setSpaceDefaultFlags({
           statsEnabled: true
         });
         vi.advanceTimersByTime(fakeTimersDelay);

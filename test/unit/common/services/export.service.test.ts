@@ -157,8 +157,7 @@ describe('export service', () => {
       it(`should export a folder with several levels as a zip`, () => {
         const fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
         collectionService.setItemDisplayOpts(fId, {
-          sort: { by: 'updated', descending: true },
-          statsEnabled: false
+          sort: { by: 'updated', descending: true }
         });
         newDoc(fId, 'this is the document content');
         const fId2 = collectionService.addFolder(fId);

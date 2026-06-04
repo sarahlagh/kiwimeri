@@ -1,8 +1,8 @@
-import { setFieldMeta } from '@/collection/collection';
 import { genericReorder } from '@/common/dnd/utils';
 import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
 import { PREVIEW_SIZE } from '@/constants';
 import { space } from '@/core/db/store';
+import { setMetaField } from '@/core/db/types';
 import collectionService, { initialContent } from '@/db/collection.service';
 import { SortableType } from '@/shared/utils/sort-filter/sort';
 import { SerializedEditorState } from 'lexical';
@@ -21,7 +21,7 @@ class DocumentAnnotationsService {
       type: 'note',
       itemId,
       content,
-      content_meta: setFieldMeta('', now),
+      content_meta: setMetaField(now),
       plainText: '',
       createdAt: now,
       updatedAt: now
@@ -53,7 +53,7 @@ class DocumentAnnotationsService {
       const now = Date.now();
       space.setPartialRow(DA, id, {
         content: contentStr,
-        content_meta: setFieldMeta(contentStr, now),
+        content_meta: setMetaField(now, contentStr),
         updatedAt: now
       });
       space.delCell(DA, id, 'conflict');
@@ -79,14 +79,14 @@ class DocumentAnnotationsService {
         notes.forEach((n, i) => {
           space.setPartialRow(DA, n.id, {
             order: i,
-            order_meta: setFieldMeta(`${n.id}`, now)
+            order_meta: setMetaField(now, `${n.id}`)
           });
         });
       }
       genericReorder(from, to, (idx, order) => {
         space.setPartialRow(DA, notes[idx].id, {
           order,
-          order_meta: setFieldMeta(`${order}`, now)
+          order_meta: setMetaField(now, `${order}`)
         });
       });
       const itemId = space.getCell(DA, notes[0].id, 'itemId');

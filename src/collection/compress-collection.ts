@@ -21,7 +21,10 @@ const keys = [
   ['order', 'o'],
   ['order_meta', 'O'],
   ['display_opts', 'do'],
-  ['display_opts_meta', 'DO']
+  ['display_opts_meta', 'DO'],
+  ['flags', 'f'],
+  ['flags_meta', 'F'],
+  ['statsEnabled', 's']
 ];
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const MIN_KEYS = [
@@ -43,7 +46,10 @@ const MIN_KEYS = [
   'o',
   'O',
   'do',
-  'DO'
+  'DO',
+  'f',
+  'F',
+  's'
 ] as const;
 export type MinKeys = typeof MIN_KEYS;
 

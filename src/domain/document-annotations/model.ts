@@ -1,3 +1,4 @@
+import { MetaField, metaSchemaDefault } from '@/core/db/types';
 import { Sort } from '@/shared/utils/sort-filter/sort';
 import { LocalChangeRow } from '../local-changes/model';
 
@@ -11,10 +12,10 @@ export type DocAnnotationRow = {
   createdAt: number;
   updatedAt: number;
   content: string;
-  content_meta: string;
+  content_meta: MetaField;
   plainText: string;
   order?: number;
-  order_meta?: string;
+  order_meta?: MetaField;
   conflict?: string;
 };
 
@@ -24,10 +25,10 @@ export const docAnnotationSchema = {
   createdAt: { type: 'number', default: 0 },
   updatedAt: { type: 'number', default: 0 },
   content: { type: 'string', default: '' },
-  content_meta: { type: 'string' },
+  content_meta: { type: 'object', default: metaSchemaDefault },
   plainText: { type: 'string', default: '' },
   order: { type: 'number', default: -1 },
-  order_meta: { type: 'string' },
+  order_meta: { type: 'object', default: metaSchemaDefault },
   conflict: { type: 'string' }
 } as const satisfies Record<keyof DocAnnotationRow, unknown>;
 

@@ -132,8 +132,7 @@ describe('stats service', () => {
   describe(`stats generation`, () => {
     beforeEach(() => {
       searchAncestryService.start();
-      userSettingsService.setSpaceDefaultDisplayOpts({
-        sort: { by: 'created', descending: false },
+      userSettingsService.setSpaceDefaultFlags({
         statsEnabled: true
       });
     });

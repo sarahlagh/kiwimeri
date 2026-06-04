@@ -1,6 +1,5 @@
 import {
   CollectionItem,
-  CollectionItemFieldEnum,
   CollectionItemResult,
   CollectionItemType,
   CollectionItemTypeValues,
@@ -10,11 +9,11 @@ import {
   isFolder,
   isNotebook,
   isParent,
-  setFieldMeta,
   sortBy
 } from '@/collection/collection';
 import { META_JSON, ROOT_COLLECTION } from '@/constants';
 import { space } from '@/core/db/store';
+import { setMetaField } from '@/core/db/types';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
@@ -154,12 +153,8 @@ class ImportService {
       item.updated = meta.updated;
       // all the _meta too,
       CollectionItemUpdatableFields.forEach(field => {
-        const metaField = `${field}_meta` as CollectionItemFieldEnum;
         if (item[field]) {
-          item[metaField] = setFieldMeta(
-            `${item[field]}`,
-            item.updated
-          ) as never;
+          item[`${field}_meta`] = setMetaField(item.updated, `${item[field]}`);
         }
       });
     }

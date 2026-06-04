@@ -2,6 +2,7 @@ import {
   CollectionItem,
   CollectionItemDisplayOpts,
   CollectionItemFieldEnum,
+  CollectionItemFlags,
   CollectionItemResetConflictFields,
   CollectionItemResult,
   CollectionItemSort,
@@ -11,7 +12,6 @@ import {
   CollectionItemUpdate,
   CollectionItemUpdateChangeFields,
   isDocument,
-  setFieldMeta,
   SortableCollectionItem
 } from '@/collection/collection';
 import { genericReorder } from '@/common/dnd/utils';
@@ -21,16 +21,16 @@ import {
 } from '@/common/wysiwyg/compress-file-content';
 import { DEFAULT_ORDER, getGlobalTrans, ROOT_COLLECTION } from '@/constants';
 import { space, spaceQueries } from '@/core/db/store';
+import { DbSerializableData, setMetaField } from '@/core/db/types';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
 import { SerializedEditorState } from 'lexical';
 import { getUniqueId } from 'tinybase/common';
-import { Id } from 'tinybase/common/with-schemas';
+import { AnyObject, Id } from 'tinybase/common/with-schemas';
 import { Table } from 'tinybase/store';
 import { searchAncestryService } from '../search/search-ancestry.service';
 import { historyService } from './collection-history.service';
 import notebooksService from './notebooks.service';
 import { useCellWithRef, useResultSortedRowIdsWithRef } from './tinybase/hooks';
-import { SerializableData } from './types/store-types';
 import userSettingsService from './user-settings.service';
 
 export const initialContent = () => {
@@ -253,20 +253,20 @@ class CollectionService {
     const item: CollectionItem = {
       itemId: id,
       title: getGlobalTrans().newDocTitle,
-      title_meta: setFieldMeta(getGlobalTrans().newDocTitle, now),
+      title_meta: setMetaField(now, getGlobalTrans().newDocTitle),
       parent,
-      parent_meta: setFieldMeta(parent, now),
+      parent_meta: setMetaField(now, parent),
       content,
-      content_meta: setFieldMeta(content, now),
+      content_meta: setMetaField(now, content),
       tags: '',
-      tags_meta: setFieldMeta('', now),
+      tags_meta: setMetaField(now),
       created: now,
       updated: now,
       type: CollectionItemType.document,
       deleted: false,
-      deleted_meta: setFieldMeta('false', now),
+      deleted_meta: setMetaField(now, false),
       order: DEFAULT_ORDER, // TODO dynamic order
-      order_meta: setFieldMeta('0', now)
+      order_meta: setMetaField(now, 0)
     };
     return { item, id };
   }
@@ -283,18 +283,18 @@ class CollectionService {
     const item: CollectionItem = {
       itemId: id,
       title: getGlobalTrans().newFolderTitle,
-      title_meta: setFieldMeta(getGlobalTrans().newFolderTitle, now),
+      title_meta: setMetaField(now, getGlobalTrans().newFolderTitle),
       parent: parent,
-      parent_meta: setFieldMeta(parent, now),
+      parent_meta: setMetaField(now, parent),
       tags: '',
-      tags_meta: setFieldMeta('', now),
+      tags_meta: setMetaField(now),
       created: now,
       updated: now,
       type: CollectionItemType.folder,
       deleted: false,
-      deleted_meta: setFieldMeta('false', now),
+      deleted_meta: setMetaField(now, false),
       order: DEFAULT_ORDER, // TODO dynamic order
-      order_meta: setFieldMeta('0', now)
+      order_meta: setMetaField(now, 0)
     };
     return { item, id };
   }
@@ -511,6 +511,19 @@ class CollectionService {
     return str ? JSON.parse(str) : undefined;
   }
 
+  public useItemFlags(rowId: Id): CollectionItemFlags | undefined {
+    return useCellWithRef<AnyObject>(
+      this.storeId,
+      this.tableId,
+      rowId,
+      'flags'
+    );
+  }
+
+  public getItemFlags(rowId: Id): CollectionItemFlags | undefined {
+    return space.getCell(this.tableId, rowId, 'flags');
+  }
+
   // get effective display opts => data merged with defaults if needed
 
   public useItemEffectiveDisplayOpts(rowId: Id): CollectionItemDisplayOpts {
@@ -551,6 +564,10 @@ class CollectionService {
     if (display_opts.documentSort?.by === 'order')
       display_opts.documentSort.descending = false;
     this.setItemField(rowId, 'display_opts', JSON.stringify(display_opts));
+  }
+
+  public setItemFlags(rowId: Id, flags: CollectionItemFlags) {
+    this.setItemField(rowId, 'flags', flags);
   }
 
   public reorderItems(
@@ -659,7 +676,7 @@ class CollectionService {
   public setItemField(
     rowId: Id,
     key: CollectionItemUpdatableFieldEnum,
-    value: SerializableData,
+    value: DbSerializableData,
     skipVersion = false
   ) {
     const current = this.getItemField(rowId, key);
@@ -672,12 +689,12 @@ class CollectionService {
     // title and content are real changes, order and display_opts are not (won't trigger an update ts)
     const isContentChange = this.isContentChange(type, key);
     space.transaction(() => {
-      space.setCell('collection', rowId, key, value);
+      space.setCell('collection', rowId, key, value as never);
       space.setCell(
         'collection',
         rowId,
         `${key}_meta`,
-        setFieldMeta(`${value}`, updated)
+        setMetaField(updated, `${value}`)
       );
 
       if (isContentChange) {

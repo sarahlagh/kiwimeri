@@ -15,6 +15,12 @@ async function migrateSpace(_store: Store<NoSchemas>) {
     const func = await import('./000-gc-page-versions');
     func.default(_store);
   }
+
+  if (between(runtimeCode, 400, 501)) {
+    console.log('[migration] 1 space migration to run: post-refacto migration');
+    const func = await import('./001-refacto-migrations');
+    func.default(_store, 'space');
+  }
 }
 
 export async function migrate(store: Store<NoSchemas>, storeId: StoreId) {

@@ -339,6 +339,8 @@ class CollectionHistoryService {
       deleted_meta: item.deleted_meta,
       display_opts: item.display_opts,
       display_opts_meta: item.display_opts_meta,
+      flags: item.flags,
+      flags_meta: item.flags_meta,
       order: item.order,
       order_meta: item.order_meta,
       created: item.created,

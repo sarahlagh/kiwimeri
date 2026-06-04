@@ -3,9 +3,7 @@ import {
   CollectionItemType,
   CollectionItemTypeValues,
   CollectionItemUpdatableFieldEnum,
-  isDocument,
-  parseFieldMeta,
-  setFieldMeta
+  isDocument
 } from '@/collection/collection';
 import {
   CONFLICTS_NOTEBOOK_ID,
@@ -14,10 +12,10 @@ import {
   ROOT_COLLECTION
 } from '@/constants';
 import { space, store } from '@/core/db/store';
+import { DbSerializableData, MetaField, setMetaField } from '@/core/db/types';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import remotesService from '@/db/remotes.service';
-import { SerializableData } from '@/db/types/store-types';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import { SyncDirection } from '@/remote-storage/sync.service';
@@ -90,7 +88,7 @@ export class PullTestScenarioRunner {
 
   private remoteItems = new Map<string, CollectionItem>();
   private relevantItems: RelevantItem[] = []; // = new Map<string, RelevantItem>();
-  private newValuesMap = new Map<string, SerializableData>();
+  private newValuesMap = new Map<string, DbSerializableData>();
 
   private postStatsHadConflict = false;
 
@@ -172,7 +170,7 @@ export class PullTestScenarioRunner {
     updateFunc: (
       id: string,
       field: CollectionItemUpdatableFieldEnum,
-      data: SerializableData
+      data: DbSerializableData
     ) => void,
     deleteFunc: (id: string) => void
   ) {
@@ -236,9 +234,9 @@ export class PullTestScenarioRunner {
                 };
               }
               (item as any)[testField.field] = initValue.value;
-              (item as any)[`${testField.field}_meta`] = setFieldMeta(
-                `${initValue.value}`,
-                item.created
+              (item as any)[`${testField.field}_meta`] = setMetaField(
+                item.created,
+                `${initValue.value}`
               );
             }
           }
@@ -355,7 +353,7 @@ export class PullTestScenarioRunner {
         const item = this.remoteItems.get(id) as any;
         item.updated = Date.now();
         item[field] = data;
-        item[`${field}_meta`] = setFieldMeta(`${data}`, Date.now());
+        item[`${field}_meta`] = setMetaField(Date.now(), `${data}`);
       },
       // delete func
       id => {
@@ -486,11 +484,11 @@ export class PullTestScenarioRunner {
       if (!testField) {
         throw new Error('need a TestField to check field value');
       }
-      expect(localTable[id][testField.field]).toBe(expectedValue?.value);
+      expect(localTable[id][testField.field]).toEqual(expectedValue?.value);
       const json = localTable[id][`${testField.field}_meta`];
       expect(json).toBeDefined();
-      const metaField = parseFieldMeta(json as string);
-      expect(metaField.u).toBe(expectedValue?.at);
+      const metaField = json as MetaField;
+      expect(metaField._u).toBe(expectedValue?.at);
     }
 
     stats.otherAssert(localTable[id] as CollectionItem, relevantItem);

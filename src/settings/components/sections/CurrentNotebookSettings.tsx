@@ -14,6 +14,7 @@ import GenericCollectionSettings from './GenericCollectionSettings';
 
 const CurrentNotebookSettings = () => {
   const defaultDisplayOpts = userSettingsService.useDefaultDisplayOpts();
+  const defaultFlags = userSettingsService.useDefaultFlags();
   const currentNotebook = notebooksService.useCurrentNotebook();
   const notebookTitle = notebooksService.useNotebookTitle(currentNotebook);
 
@@ -34,19 +35,20 @@ const CurrentNotebookSettings = () => {
       <IonCardContent>
         <GenericCollectionSettings
           defaultDisplayOpts={defaultDisplayOpts}
+          defaultFlags={defaultFlags}
           onDefaultDisplayOptsChange={newDisplayOpts => {
             collectionService.setItemDisplayOpts(
               currentNotebook,
               newDisplayOpts
             );
-            if (
-              newDisplayOpts.statsEnabled &&
-              !defaultDisplayOpts.statsEnabled
-            ) {
+            if (defaultFlags.statsEnabled && !defaultFlags.statsEnabled) {
               console.log('stats setting enabled on notebook, backfilling');
               statsService.backfillStats(currentNotebook);
               console.log('stats backfilling done');
             }
+          }}
+          onDefaultFlagsChange={newFlags => {
+            collectionService.setItemFlags(currentNotebook, newFlags);
           }}
         />
       </IonCardContent>

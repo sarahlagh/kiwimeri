@@ -1,8 +1,4 @@
-import {
-  CollectionItem,
-  CollectionItemWithId,
-  setFieldMeta
-} from '@/collection/collection';
+import { CollectionItem, CollectionItemWithId } from '@/collection/collection';
 import {
   minimizeItemsForStorage,
   unminimizeItemsFromStorage
@@ -15,6 +11,7 @@ import {
 } from '@/constants';
 import { space, store } from '@/core/db/store';
 import { SpaceValues, SpaceValuesType } from '@/core/db/store-schema';
+import { setMetaField } from '@/core/db/types';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import remotesService from '@/db/remotes.service';
@@ -586,8 +583,7 @@ describe.sequential(
           sort: {
             by: 'updated',
             descending: false
-          },
-          statsEnabled: false
+          }
         });
 
         await syncService.pull();
@@ -614,8 +610,7 @@ describe.sequential(
           sort: {
             by: 'updated',
             descending: false
-          },
-          statsEnabled: false
+          }
         });
 
         await syncService.pull(undefined, true);
@@ -642,8 +637,7 @@ describe.sequential(
           sort: {
             by: 'updated',
             descending: false
-          },
-          statsEnabled: false
+          }
         });
         await syncService.push();
 
@@ -661,8 +655,7 @@ describe.sequential(
           sort: {
             by: 'updated',
             descending: false
-          },
-          statsEnabled: false
+          }
         });
 
         const pushTime = Date.now() + 500;
@@ -689,8 +682,7 @@ describe.sequential(
           sort: {
             by: 'updated',
             descending: false
-          },
-          statsEnabled: false
+          }
         });
 
         await reInitRemoteData([oneNotebook()], Date.now() + 500, {
@@ -764,7 +756,7 @@ describe.sequential(
 
         // update on remote
         notes[0].order = 2;
-        notes[0].order_meta = setFieldMeta('', Date.now());
+        notes[0].order_meta = setMetaField(Date.now());
         notes[0].updatedAt = Date.now();
         await reInitRemoteDataWithAnnots(
           items,

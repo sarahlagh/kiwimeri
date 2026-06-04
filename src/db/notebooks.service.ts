@@ -1,7 +1,6 @@
 import {
   CollectionItemSort,
-  CollectionItemType,
-  setFieldMeta
+  CollectionItemType
 } from '@/collection/collection';
 import {
   DEFAULT_NOTEBOOK_ID,
@@ -11,6 +10,7 @@ import {
   ROOT_COLLECTION
 } from '@/constants';
 import { space, spaceQueries, store } from '@/core/db/store';
+import { setMetaField } from '@/core/db/types';
 import { Notebook, NotebookResult } from '@/notebooks/notebooks';
 import { getUniqueId } from 'tinybase/with-schemas';
 import collectionService from './collection.service';
@@ -73,22 +73,23 @@ class NotebooksService {
     return id!;
   }
 
-  public getNewNotebookObj(parent: string, title?: string) {
+  public getNewNotebookObj(_parent: string, title?: string) {
     const now = Date.now();
     const id = getUniqueId();
+    const parent = _parent ? _parent : ROOT_COLLECTION;
     const item: Notebook = {
       itemId: id,
       title: title || '',
-      title_meta: setFieldMeta(title || '', now),
-      parent: parent ? parent : ROOT_COLLECTION,
-      parent_meta: setFieldMeta(parent ? parent : ROOT_COLLECTION, now),
+      title_meta: setMetaField(now, title || ''),
+      parent,
+      parent_meta: setMetaField(now, parent),
       created: Date.now(),
       updated: Date.now(),
       type: CollectionItemType.notebook,
       deleted: false,
-      deleted_meta: setFieldMeta('false', now),
+      deleted_meta: setMetaField(now, false),
       order: DEFAULT_ORDER, // TODO dynamic order
-      order_meta: setFieldMeta('0', now)
+      order_meta: setMetaField(now, 0)
     };
     return {
       item,

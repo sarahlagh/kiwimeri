@@ -5,7 +5,7 @@ import {
   CollectionItemVersion,
   CollectionItemVersionOp
 } from '@/collection/collection';
-import { SerializableData } from '@/db/types/store-types';
+import { DbSerializableData } from '@/core/db/types';
 import { parentField, TestField } from '@@/_setup/test.utils';
 import { describe, expect, it } from 'vitest';
 
@@ -43,17 +43,17 @@ export type RelevantItem = {
   parentParentId: string;
   initValue?: {
     field: TestField;
-    value: SerializableData;
+    value: DbSerializableData;
     at: number;
   };
   localValue?: {
     field: TestField;
-    value: SerializableData;
+    value: DbSerializableData;
     at: number;
   };
   remoteValue?: {
     field: TestField;
-    value: SerializableData;
+    value: DbSerializableData;
     at: number;
   };
   from: 'local' | 'remote';

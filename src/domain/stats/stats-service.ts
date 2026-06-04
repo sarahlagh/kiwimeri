@@ -1,8 +1,9 @@
-import { isDocument, parseFieldMeta } from '@/collection/collection';
+import { isDocument } from '@/collection/collection';
 import { dateToStr } from '@/common/date-utils';
 import { countWords, n00 } from '@/common/utils';
 import { ROOT_COLLECTION } from '@/constants';
 import { space, spaceQueries } from '@/core/db/store';
+import { MetaField } from '@/core/db/types';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
@@ -215,14 +216,14 @@ class StatsService {
 
   public buildStatsFromContentMeta(
     plain: string,
-    content_meta: string
+    content_meta: MetaField
   ): Pick<
     DocumentContentStatsBag,
     'lastWordCount' | 'lastCharCount' | 'updatedAt'
   > {
     const lastWordCount = countWords(plain);
     const lastCharCount = plain.trim().length;
-    const updatedAt = parseFieldMeta(content_meta).u;
+    const updatedAt = content_meta._u;
     return { lastCharCount, lastWordCount, updatedAt };
   }
 
