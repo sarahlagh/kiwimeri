@@ -222,7 +222,7 @@ class StatsService {
     'lastWordCount' | 'lastCharCount' | 'updatedAt'
   > {
     const lastWordCount = countWords(plain);
-    const lastCharCount = plain.trim().length;
+    const lastCharCount = plain?.trim().length;
     const updatedAt = content_meta._u;
     return { lastCharCount, lastWordCount, updatedAt };
   }

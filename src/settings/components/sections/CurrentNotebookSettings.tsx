@@ -13,8 +13,8 @@ import { Trans } from '@lingui/react/macro';
 import GenericCollectionSettings from './GenericCollectionSettings';
 
 const CurrentNotebookSettings = () => {
-  const defaultDisplayOpts = userSettingsService.useDefaultDisplayOpts();
-  const defaultFlags = userSettingsService.useDefaultFlags();
+  const _defaultDisplayOpts = userSettingsService.useDefaultDisplayOpts();
+  const _defaultFlags = userSettingsService.useDefaultFlags();
   const currentNotebook = notebooksService.useCurrentNotebook();
   const notebookTitle = notebooksService.useNotebookTitle(currentNotebook);
 
@@ -34,20 +34,20 @@ const CurrentNotebookSettings = () => {
 
       <IonCardContent>
         <GenericCollectionSettings
-          defaultDisplayOpts={defaultDisplayOpts}
-          defaultFlags={defaultFlags}
+          defaultDisplayOpts={_defaultDisplayOpts}
+          defaultFlags={_defaultFlags}
           onDefaultDisplayOptsChange={newDisplayOpts => {
             collectionService.setItemDisplayOpts(
               currentNotebook,
               newDisplayOpts
             );
-            if (defaultFlags.statsEnabled && !defaultFlags.statsEnabled) {
+          }}
+          onDefaultFlagsChange={newFlags => {
+            if (newFlags.statsEnabled && !_defaultFlags.statsEnabled) {
               console.log('stats setting enabled on notebook, backfilling');
               statsService.backfillStats(currentNotebook);
               console.log('stats backfilling done');
             }
-          }}
-          onDefaultFlagsChange={newFlags => {
             collectionService.setItemFlags(currentNotebook, newFlags);
           }}
         />

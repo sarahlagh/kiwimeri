@@ -11,8 +11,8 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import GenericCollectionSettings from './GenericCollectionSettings';
 
 const CurrentSpaceSettings = () => {
-  const defaultDisplayOpts = userSettingsService.useSpaceDefaultDisplayOpts();
-  const defaultFlags = userSettingsService.useSpaceDefaultFlags();
+  const _defaultDisplayOpts = userSettingsService.useSpaceDefaultDisplayOpts();
+  const _defaultFlags = userSettingsService.useSpaceDefaultFlags();
   const defaultHistoryIdleTime = userSettingsService.useHistoryIdleTime();
   const defaultHistoryMaxInterval = userSettingsService.useHistoryMaxInterval();
   const defaultMaxVersionsPerDoc = userSettingsService.useHistoryMaxVersions();
@@ -34,18 +34,18 @@ const CurrentSpaceSettings = () => {
 
       <IonCardContent>
         <GenericCollectionSettings
-          defaultDisplayOpts={defaultDisplayOpts}
+          defaultDisplayOpts={_defaultDisplayOpts}
           onDefaultDisplayOptsChange={newDisplayOpts => {
             userSettingsService.setSpaceDefaultDisplayOpts(newDisplayOpts);
           }}
-          defaultFlags={defaultFlags}
+          defaultFlags={_defaultFlags}
           onDefaultFlagsChange={newFlags => {
-            userSettingsService.setSpaceDefaultFlags(newFlags);
-            if (newFlags.statsEnabled && !defaultFlags.statsEnabled) {
+            if (newFlags.statsEnabled && !_defaultFlags.statsEnabled) {
               console.log('stats setting enabled on space, backfilling');
               statsService.backfillStats();
               console.log('stats backfilling done');
             }
+            userSettingsService.setSpaceDefaultFlags(newFlags);
           }}
           withRows={[
             {

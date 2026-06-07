@@ -140,7 +140,7 @@ class UserSettingsService {
 
       const names = Object.keys(values) as SpaceValue[];
       names.forEach(name => {
-        if (values[name]) {
+        if (values[name] !== undefined) {
           space.setValue(name, values[name]);
         }
       });
