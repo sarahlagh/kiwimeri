@@ -1,7 +1,6 @@
 import {
   CollectionItemType,
-  CollectionItemUpdatableFieldEnum,
-  CollectionItemUpdateChangeFields,
+  CollectionItemUpdatableFields,
   CollectionItemWithId,
   isDocument
 } from '@/collection/collection';
@@ -10,7 +9,7 @@ import {
   minimizeItemsForStorage,
   unminimizeItemsFromStorage
 } from '@/collection/compress-collection';
-import { nOr0 } from '@/common/utils';
+import { cellEquals, nOr0 } from '@/common/utils';
 import { appConfig } from '@/config';
 import { space, store } from '@/core/db/store';
 import {
@@ -55,7 +54,7 @@ import { Table as UntypedTable } from 'tinybase';
 import { Content, Table } from 'tinybase/store/with-schemas';
 import { CloudStorageDriver } from '../storage-drivers/abstract.driver';
 import { SingleFileStorage } from '../storage-filesystems/singlefile.filesystem';
-import { AfterSyncHistChange } from '../sync-types';
+import { AfterSyncChange } from '../sync-types';
 import { CloudStorageSynchronizer } from './abstract-synchronizer';
 import {
   annotsConflictPolicy,
@@ -347,7 +346,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   ): {
     content: Content<SpaceType>;
     discardedChanges: LocalChangeResult[];
-    changes: AfterSyncHistChange[];
+    changes: AfterSyncChange[];
   } {
     const remoteContent = this.toRepresentation(obj);
 
@@ -396,7 +395,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
         : localContent[1];
     newLocalContent[1] = newValues;
 
-    // check historizable changes
+    // check cell changes
     const changes = this.afterSyncHistChanges(
       newLocalContent,
       localContent,
@@ -423,7 +422,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     force?: boolean
   ) {
     const tableId = 'collection';
-    const changes: Map<string, AfterSyncHistChange> = new Map();
+    const changes: Map<string, AfterSyncChange> = new Map();
     const ids = new Set<string>([
       ...Object.keys(newLocalContent[0].collection!),
       ...Object.keys(localContent[0].collection!)
@@ -460,13 +459,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
         });
       } else if (newItem && oldItem) {
         const type = newItem.type as CollectionItemType;
-        const historizableFields = [
-          ...CollectionItemUpdateChangeFields,
-          'order' as CollectionItemUpdatableFieldEnum
-        ]
-          .filter(field =>
-            collectionService.isHistorizableContentChange(type, field)
-          )
+        const historizableFields = [...CollectionItemUpdatableFields]
           .filter(field => localChange?.field !== field);
 
         // no local change, remote change on hist field                 => new version
@@ -479,7 +472,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
         for (const field of historizableFields) {
           // only create change for the first field
           // if local wins, mustn't have new version - won't happen if no local change
-          if (oldItem[field] !== newItem[field]) {
+          if (!cellEquals(oldItem[field], newItem[field])) {
             changes.set(id, {
               id,
               type,
@@ -582,19 +575,23 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     });
   }
 
-  private handleResumeState(changes: AfterSyncHistChange[]) {
+  private handleResumeState(changes: AfterSyncChange[]) {
     // reset resume state if content has changed
     changes
-      .filter(ch => isDocument({ type: ch.type }))
-      .filter(ch => ch.field === 'content')
+      .filter(ch => isDocument(ch.type) && ch.field === 'content')
       .forEach(ch => resumeService.setLastSelection(ch.id, null));
   }
 
-  private handleHistory(changes: AfterSyncHistChange[]) {
+  private handleHistory(changes: AfterSyncChange[]) {
     // history must be updated
-    const docsMap = new Map<string, AfterSyncHistChange>();
+    const docsMap = new Map<string, AfterSyncChange>();
     changes
       .filter(ch => isDocument({ type: ch.type }))
+      .filter(
+        ch =>
+          !ch.field ||
+          collectionService.isHistorizableContentChange(ch.type, ch.field)
+      )
       .forEach(ch => docsMap.set(ch.id, ch));
 
     [...docsMap.values()].forEach(ch => {

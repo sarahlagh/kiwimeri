@@ -4,10 +4,13 @@ import { MetaField } from '@/core/db/types';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import {
   allFields,
-  allHistorizableFields,
+  allNonHistorizableNonConflictFields,
   conflictFields,
+  conflictNonHistorizableFields,
   contentField,
+  historizableFields,
   nonConflictFields,
+  nonHistorizableFields,
   orderField,
   parentField,
   tagsField,
@@ -275,11 +278,12 @@ const scenarioMatrix: {
             })
       },
       {
+        types: ['d'],
         description:
           'item deleted on remote, then updated locally on HISTORIZABLE field → local wins, item stays',
         initLocalData: [{ id: '#id', applyInitValue: true }],
         initRemoteData: [{ id: '#id', applyInitValue: true }],
-        fields: [...allHistorizableFields],
+        fields: [...historizableFields],
         changesBeforePull: [
           { id: '#id', change: LocalChangeType.delete, where: 'remote' },
           { id: '#id', change: LocalChangeType.update, where: 'local' }
@@ -299,10 +303,10 @@ const scenarioMatrix: {
       {
         types: ['d'],
         description:
-          'item deleted on remote, then updated locally on order field → local wins, item stays',
+          'item deleted on remote, then updated locally on NON-HISTORIZABLE field → local wins, item stays',
         initLocalData: [{ id: '#id', applyInitValue: true }],
         initRemoteData: [{ id: '#id', applyInitValue: true }],
-        fields: [orderField],
+        fields: [...nonHistorizableFields],
         changesBeforePull: [
           { id: '#id', change: LocalChangeType.delete, where: 'remote' },
           { id: '#id', change: LocalChangeType.update, where: 'local' }
@@ -377,14 +381,14 @@ const scenarioMatrix: {
           { id: '#id', change: LocalChangeType.update, where: 'local' },
           { id: '#id', change: LocalChangeType.delete, where: 'remote' }
         ],
-        endStats: b =>
+        endStats: (b, f) =>
           b
             .theItem({
               exists: false,
               hasConflict: true,
               conflictHasValue: 'local',
-              hasVersions: 3,
-              latestVersionsOp: ['deleted', 'snapshot', 'snapshot']
+              hasVersions: f && historizableFields.includes(f) ? 3 : 2,
+              latestVersionsOp: ['deleted', 'snapshot']
             })
             .ifForcePull()
             .theItem({
@@ -398,7 +402,7 @@ const scenarioMatrix: {
           'item updated locally (CONFLICT field), then deleted on remote → local change lost, item deleted (remote wins)',
         initLocalData: [{ id: '#id', applyInitValue: true }],
         initRemoteData: [{ id: '#id', applyInitValue: true }],
-        fields: [...conflictFields],
+        fields: [...conflictNonHistorizableFields],
         changesBeforePull: [
           { id: '#id', change: LocalChangeType.update, where: 'local' },
           { id: '#id', change: LocalChangeType.delete, where: 'remote' }
@@ -426,17 +430,17 @@ const scenarioMatrix: {
             })
             .ifDocument()
             .theItem({
-              hasVersions: 3,
-              latestVersionsOp: ['deleted', 'snapshot', 'snapshot']
+              hasVersions: 2,
+              latestVersionsOp: ['deleted', 'snapshot']
             })
       },
       {
         didPush: false,
         description:
-          'item updated locally (order field), then deleted on remote → local change lost, item deleted (remote wins)',
+          'item updated locally (NON HISTORIZABLE NON CONFLICT field), then deleted on remote → local change lost, item deleted (remote wins)',
         initLocalData: [{ id: '#id', applyInitValue: true }],
         initRemoteData: [{ id: '#id', applyInitValue: true }],
-        fields: [orderField],
+        fields: [...allNonHistorizableNonConflictFields],
         changesBeforePull: [
           { id: '#id', change: LocalChangeType.update, where: 'local' },
           { id: '#id', change: LocalChangeType.delete, where: 'remote' }
@@ -502,7 +506,9 @@ const scenarioMatrix: {
           b
             .theItem({ exists: true, hasValue: 'local' })
             .ifDocument()
-            .theItem({ hasVersions: f?.field === 'order' ? 1 : 2 })
+            .theItem({
+              hasVersions: f && historizableFields.includes(f) ? 2 : 1
+            })
             .ifForcePull()
             .theItem({ hasValue: 'init' })
       },
@@ -531,13 +537,15 @@ const scenarioMatrix: {
           b
             .theItem({ id: '#id', hasValue: 'remote' })
             .ifDocument()
-            .theItem({ hasVersions: f?.field === 'order' ? 1 : 2 })
+            .theItem({
+              hasVersions: f && historizableFields.includes(f) ? 2 : 1
+            })
       },
       {
         didPush: false,
         description:
           'same field (NON-CONFLICTING) on item updated locally, then remotely with different value → remote change persists',
-        fields: [...nonConflictFields, orderField],
+        fields: [...nonConflictFields],
         initLocalData: [{ id: '#id', applyInitValue: true }],
         initRemoteData: [{ id: '#id', applyInitValue: true }],
         changesBeforePull: [
@@ -556,7 +564,9 @@ const scenarioMatrix: {
           b
             .theItem({ hasValue: 'remote' })
             .ifDocument()
-            .theItem({ hasVersions: f?.field === 'order' ? 1 : 2 })
+            .theItem({
+              hasVersions: f && historizableFields.includes(f) ? 2 : 1
+            })
       },
       {
         didPush: false,
@@ -599,7 +609,7 @@ const scenarioMatrix: {
             where: 'remote'
           }
         ],
-        endStats: b =>
+        endStats: (b, f) =>
           b
             .theItem({
               hasConflict: true,
@@ -607,7 +617,9 @@ const scenarioMatrix: {
               conflictHasValue: 'local'
             })
             .ifDocument()
-            .theItem({ hasVersions: 2 })
+            .theItem({
+              hasVersions: f && historizableFields.includes(f) ? 2 : 1
+            })
             .ifForcePull()
             .theItem({ hasConflict: false })
       }
@@ -633,7 +645,9 @@ const scenarioMatrix: {
           b
             .theItem({ exists: true, hasValue: 'remote' })
             .ifDocument()
-            .theItem({ hasVersions: f?.field === 'order' ? 1 : 2 })
+            .theItem({
+              hasVersions: f && historizableFields.includes(f) ? 2 : 1
+            })
       },
       {
         description:
@@ -659,14 +673,16 @@ const scenarioMatrix: {
           b
             .theItem({ hasValue: 'local' })
             .ifDocument()
-            .theItem({ hasVersions: f?.field === 'order' ? 1 : 2 })
+            .theItem({
+              hasVersions: f && historizableFields.includes(f) ? 2 : 1
+            })
             .ifForcePull()
             .theItem({ hasValue: 'remote' })
       },
       {
         description:
           'same field (NON-CONFLICTING) on item updated remotely, then locally with different value → local change persists',
-        fields: [...nonConflictFields, orderField],
+        fields: [...nonConflictFields],
         initLocalData: [{ id: '#id', applyInitValue: true }],
         initRemoteData: [{ id: '#id', applyInitValue: true }],
         changesBeforePull: [
@@ -685,7 +701,9 @@ const scenarioMatrix: {
           b
             .theItem({ hasValue: 'local' })
             .ifDocument()
-            .theItem({ hasVersions: f?.field === 'order' ? 1 : 2 })
+            .theItem({
+              hasVersions: f && historizableFields.includes(f) ? 2 : 1
+            })
             .ifForcePull()
             .theItem({ hasValue: 'remote' })
       },
@@ -733,13 +751,15 @@ const scenarioMatrix: {
             where: 'local'
           }
         ],
-        endStats: b =>
+        endStats: (b, f) =>
           b
             .theItem({
               hasValue: 'local'
             })
             .ifDocument()
-            .theItem({ hasVersions: 2 })
+            .theItem({
+              hasVersions: f && historizableFields.includes(f) ? 2 : 1
+            })
             .ifForcePull()
             .theItem({ hasValue: 'remote' })
       }

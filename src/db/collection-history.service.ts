@@ -9,7 +9,7 @@ import {
 } from '@/collection/collection';
 import { space, spaceQueries } from '@/core/db/store';
 import { LocalChangeType } from '@/domain/local-changes/model';
-import { AfterSyncHistChange } from '@/remote-storage/sync-types';
+import { AfterSyncChange } from '@/remote-storage/sync-types';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { getHash, Id, ResultRow } from 'tinybase/with-schemas';
 import collectionService from './collection.service';
@@ -479,7 +479,7 @@ class CollectionHistoryService {
     return result;
   }
 
-  public updateAfterSync(ch: AfterSyncHistChange) {
+  public updateAfterSync(ch: AfterSyncChange) {
     if (ch.change !== LocalChangeType.delete) {
       historyService.addVersion(ch.id, true);
     } else {

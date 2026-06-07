@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { NoSchemas, Store } from 'tinybase/with-schemas';
+import { NoSchemaStore } from '../types';
 
-export default function Migration(space: Store<NoSchemas>) {
+export default function Migration(space: NoSchemaStore) {
   if (!space.hasTable('collection')) return;
   if (!space.hasTable('history')) return;
   const collection = space.getTable('collection');

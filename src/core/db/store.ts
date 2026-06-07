@@ -25,8 +25,7 @@ const spacePersister = createIndexedDbPersister(rawSpace, spaceName);
 
 await Promise.all([storePersister.load(), spacePersister.load()]);
 console.log('[db] start to migrate stores');
-await migrate(rawStore, 'store');
-await migrate(rawSpace, 'space');
+await migrate(rawSpace, rawStore);
 console.log('[db] stores migrated');
 
 export const store = rawStore.setSchema(storeTablesSchema, storeValuesSchema);

@@ -2,6 +2,7 @@ import TinybaseProvider from '@/app/providers/TinybaseProvider';
 import {
   CollectionItem,
   CollectionItemFieldEnum,
+  CollectionItemHistorizableFields,
   CollectionItemType,
   CollectionItemTypeValues,
   CollectionItemUpdatableConflictFields,
@@ -182,19 +183,24 @@ export const allFields: TestField[] = [
 ];
 
 export const conflictFields: TestField[] = [titleField, contentField];
+export const historizableFields: TestField[] = [contentField];
 
-export const nonConflictFields: TestField[] = [
-  tagsField,
-  displayOptsField,
-  flagsField
-];
+export const conflictNonHistorizableFields: TestField[] = conflictFields.filter(
+  f => !historizableFields.includes(f)
+);
 
-export const allHistorizableFields: TestField[] = [
-  titleField,
-  contentField,
-  tagsField,
-  displayOptsField
-];
+export const nonConflictFields: TestField[] = allFields.filter(
+  f => !conflictFields.includes(f)
+);
+
+export const nonHistorizableFields: TestField[] = allFields.filter(
+  f => !historizableFields.includes(f)
+);
+
+export const allNonHistorizableNonConflictFields: TestField[] =
+  allFields.filter(
+    f => nonConflictFields.includes(f) && nonHistorizableFields.includes(f)
+  );
 
 export const getNewValue = (
   valueType: ValueType,
@@ -209,6 +215,7 @@ export const getNewValue = (
     });
   if (valueType === 'flags')
     return {
+      ___for_tests_: Math.floor(Math.random() * 10001),
       statsEnabled: Math.floor(Math.random() * 10001) % 2 === 0
     };
   if (valueType === 'number') return Math.floor(Math.random() * 10001);
@@ -292,6 +299,16 @@ export const GET_ALL_CHANGES = (type: string) =>
 export const GET_CONTENT_UPDATE_FIELDS = (type: string) =>
   UPDATABLE_FIELDS.filter(f => filterPerType(f.field, type)).filter(f =>
     CollectionItemUpdateChangeFields.includes(f.field)
+  );
+
+export const GET_HISTORIZABLE_UPDATE_FIELDS = (type: string) =>
+  UPDATABLE_FIELDS.filter(f => filterPerType(f.field, type)).filter(f =>
+    CollectionItemHistorizableFields.includes(f.field)
+  );
+
+export const GET_NON_HISTORIZABLE_UPDATE_FIELDS = (type: string) =>
+  UPDATABLE_FIELDS.filter(f => filterPerType(f.field, type)).filter(
+    f => !CollectionItemHistorizableFields.includes(f.field)
   );
 
 export const getRowCountInsideNotebook = (notebook?: string) => {

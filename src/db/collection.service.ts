@@ -3,18 +3,20 @@ import {
   CollectionItemDisplayOpts,
   CollectionItemFieldEnum,
   CollectionItemFlags,
+  CollectionItemHistorizableFields,
   CollectionItemResetConflictFields,
   CollectionItemResult,
+  CollectionItemUpdateChangeFields as CollectionItemRowUpdateChangeFields,
   CollectionItemSort,
   CollectionItemType,
   CollectionItemTypeValues,
   CollectionItemUpdatableFieldEnum,
   CollectionItemUpdate,
-  CollectionItemUpdateChangeFields,
   isDocument,
   SortableCollectionItem
 } from '@/collection/collection';
 import { genericReorder } from '@/common/dnd/utils';
+import { cellEquals } from '@/common/utils';
 import {
   minimizeContentForStorage,
   unminimizeContentFromStorage
@@ -658,11 +660,8 @@ class CollectionService {
     return isConflict;
   }
 
-  public isContentChange(
-    type: CollectionItemTypeValues,
-    key: CollectionItemUpdatableFieldEnum
-  ) {
-    return CollectionItemUpdateChangeFields.includes(key);
+  public shouldTriggerRowUpdatedChange(key: CollectionItemUpdatableFieldEnum) {
+    return CollectionItemRowUpdateChangeFields.includes(key);
   }
 
   public isHistorizableContentChange(
@@ -670,7 +669,7 @@ class CollectionService {
     key: CollectionItemUpdatableFieldEnum
   ) {
     if (!isDocument(type)) return false;
-    return CollectionItemUpdateChangeFields.includes(key);
+    return CollectionItemHistorizableFields.includes(key);
   }
 
   public setItemField(
@@ -680,14 +679,14 @@ class CollectionService {
     skipVersion = false
   ) {
     const current = this.getItemField(rowId, key);
-    const type = this.getItemType(rowId);
-    if (current === value) {
+    if (cellEquals(current, value)) {
       console.debug('no change, skipping', rowId, key);
       return false; // don't add unnecessary changes
     }
+    const type = this.getItemType(rowId);
     const updated = Date.now();
     // title and content are real changes, order and display_opts are not (won't trigger an update ts)
-    const isContentChange = this.isContentChange(type, key);
+    const isContentChange = this.shouldTriggerRowUpdatedChange(key);
     space.transaction(() => {
       space.setCell('collection', rowId, key, value as never);
       space.setCell(

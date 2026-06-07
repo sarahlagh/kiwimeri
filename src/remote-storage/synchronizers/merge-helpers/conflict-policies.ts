@@ -4,6 +4,7 @@ import {
   CollectionItemUpdatableConflictFields,
   CollectionItemUpdatableFieldEnum
 } from '@/collection/collection';
+import { cellEquals } from '@/common/utils';
 import {
   DocAnnotationUpdatableConflictFields,
   DocAnnotationUpdatableFieldEnum,
@@ -38,7 +39,7 @@ class CollectionConflictPolicy extends ConflictPolicy<CollectionItem> {
       localItem.type !== CollectionItemType.notebook &&
       (!localChange.field ||
         (CollectionItemUpdatableConflictFields.includes(field) &&
-          (!remoteItem || localItem[field] !== remoteItem[field])))
+          (!remoteItem || !cellEquals(localItem[field], remoteItem[field]))))
     );
   }
   public newConflict(

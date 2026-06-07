@@ -101,6 +101,9 @@ export const CollectionItemUpdateChangeFields: CollectionItemUpdatableFieldEnum[
 export const CollectionItemResetConflictFields: CollectionItemUpdatableFieldEnum[] =
   ['parent', 'title', 'content', 'tags', 'deleted'];
 
+export const CollectionItemHistorizableFields: CollectionItemUpdatableFieldEnum[] =
+  ['content'];
+
 export type CollectionItemResult = Pick<
   CollectionItem,
   | 'parent'

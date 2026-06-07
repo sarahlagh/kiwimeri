@@ -1,9 +1,8 @@
 import { appConfig } from '@/config';
-import { NoSchemas, Store } from 'tinybase/with-schemas';
-import { StoreId } from '../store-schema';
+import { NoSchemaStore } from '../types';
 import { between, getVersionCode } from './migration-utils';
 
-async function migrateSpace(_store: Store<NoSchemas>) {
+async function migrateSpace(_space: NoSchemaStore, _store: NoSchemaStore) {
   const runtimeVersion = appConfig.KIWIMERI_VERSION;
   const baseRuntimeVersion = runtimeVersion.split('~')[0];
   const runtimeCode = getVersionCode(baseRuntimeVersion);
@@ -13,18 +12,16 @@ async function migrateSpace(_store: Store<NoSchemas>) {
       '[migration] 1 space migration to run: versions gc post page removal'
     );
     const func = await import('./000-gc-page-versions');
-    func.default(_store);
+    func.default(_space);
   }
 
   if (between(runtimeCode, 400, 501)) {
     console.log('[migration] 1 space migration to run: post-refacto migration');
     const func = await import('./001-refacto-migrations');
-    func.default(_store, 'space');
+    func.default(_space, _store);
   }
 }
 
-export async function migrate(store: Store<NoSchemas>, storeId: StoreId) {
-  if (storeId === 'space') {
-    return migrateSpace(store);
-  }
+export async function migrate(_space: NoSchemaStore, _store: NoSchemaStore) {
+  return migrateSpace(_space, _store);
 }

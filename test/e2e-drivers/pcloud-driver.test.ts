@@ -555,8 +555,7 @@ describe.sequential(
           sort: {
             by: 'created',
             descending: false
-          },
-          statsEnabled: false
+          }
         });
 
         await syncService.pull();
@@ -565,8 +564,7 @@ describe.sequential(
           sort: {
             by: 'order',
             descending: true
-          },
-          statsEnabled: false
+          }
         });
       });
 
@@ -592,8 +590,7 @@ describe.sequential(
           sort: {
             by: 'updated',
             descending: false
-          },
-          statsEnabled: false
+          }
         });
       });
 
@@ -619,8 +616,7 @@ describe.sequential(
           sort: {
             by: 'order',
             descending: true
-          },
-          statsEnabled: false
+          }
         });
       });
 

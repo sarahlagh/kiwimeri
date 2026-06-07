@@ -16,7 +16,11 @@ import notebooksService from '@/db/notebooks.service';
 import userSettingsService from '@/db/user-settings.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
-import { createInitLocalData, getLocalItemField } from '@@/_setup/test.utils';
+import {
+  createInitLocalData,
+  getLocalItemField,
+  getNewContent
+} from '@@/_setup/test.utils';
 import { readFile } from 'fs/promises';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -196,6 +200,33 @@ describe('import service', () => {
       const before = Date.now();
       const id1 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       collectionService.setItemTitle(id1, 'New doc');
+      vi.advanceTimersByTime(5000);
+
+      const { doc } = importService.parseNonLexicalContent(
+        'This is some content'
+      );
+      expect(doc).toBeDefined();
+      const id2 = importService.commitDocument(
+        doc!,
+        DEFAULT_NOTEBOOK_ID,
+        'New doc',
+        id1
+      );
+      expect(id2).toBe(id1);
+      expect(collectionService.itemExists(id2!)).toBe(true);
+      expect(collectionService.getItemField(id2!, 'updated')).toBe(
+        before + 5000
+      );
+      expect(historyService.getVersions(id2!)).toHaveLength(2);
+    });
+
+    it('overwrite existing document on historizable field', () => {
+      const before = Date.now();
+      const id1 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      collectionService.setItemLexicalContent(
+        id1,
+        JSON.parse(getNewContent('new content'))
+      );
       vi.advanceTimersByTime(5000);
       expect(historyService.getVersions(id1!)).toHaveLength(2);
 

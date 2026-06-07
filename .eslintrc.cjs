@@ -24,6 +24,14 @@ module.exports = {
       {
         patterns: [
           {
+            group: ['@@/*/**'],
+            message: 'Import from tests forbidden'
+          },
+          {
+            group: ['**/test/**'],
+            message: 'Import from tests forbidden'
+          },
+          {
             group: ['@/features/*/**'],
             message: 'Import from feature public API only'
           },

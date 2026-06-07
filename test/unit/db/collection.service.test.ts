@@ -96,9 +96,9 @@ describe('collection service', () => {
           const newVal = getNewValue(valueType);
           collectionService.setItemField(id, field, newVal);
           const item = getCollectionItem(id);
-          expect(item[field]).toBe(newVal);
+          expect(item[field]).toEqual(newVal);
           const meta = item[`${field}_meta`]!;
-          if (collectionService.isContentChange(typeVal, field)) {
+          if (collectionService.shouldTriggerRowUpdatedChange(field)) {
             expect(item.created).toBeLessThan(item.updated);
             expect(meta._u).toBe(item.updated);
           } else {
@@ -118,10 +118,10 @@ describe('collection service', () => {
           const newVal = getNewValue(valueType);
           collectionService.setItemField(id, field, newVal);
           const item = getCollectionItem(id);
-          expect(item[field]).toBe(newVal);
+          expect(item[field]).toEqual(newVal);
 
           const meta = item[`${field}_meta`]!;
-          if (collectionService.isContentChange(typeVal, field)) {
+          if (collectionService.shouldTriggerRowUpdatedChange(field)) {
             expect(item.created).toBeLessThan(item.updated);
             expect(meta._u).toBe(item.updated);
 

@@ -17,7 +17,7 @@ export type DriverFileInfo = {
   size?: number;
 };
 
-export type AfterSyncHistChange = Pick<
+export type AfterSyncChange = Pick<
   Required<CollectionItem>,
   'id' | 'type' | 'parent'
 > & {

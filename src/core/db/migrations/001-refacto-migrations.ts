@@ -1,21 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { NoSchemas, Store } from 'tinybase/with-schemas';
-import { StoreId } from '../store-schema';
-import { MetaField } from '../types';
+import { MetaField, NoSchemaStore } from '../types';
 
 const C = 'collection';
 const AN = 'document_annotation';
 
-export default function Migration(space: Store<NoSchemas>, storeId: StoreId) {
-  if (storeId === 'space') {
-    metaFieldsBecomeObjects(space);
-    statsEnabledInItemFlags(space);
-  }
+export default function Migration(
+  _space: NoSchemaStore,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _store: NoSchemaStore
+) {
+  metaFieldsBecomeObjects(_space);
+  statsEnabledInItemFlags(_space);
 }
 
-function statsEnabledInItemFlags(space: Store<NoSchemas>) {
-  space.getRowIds(C).forEach(rowId => {
-    const display_opts = space.getCell(C, rowId, 'display_opts');
+function statsEnabledInItemFlags(_space: NoSchemaStore) {
+  _space.getRowIds(C).forEach(rowId => {
+    const display_opts = _space.getCell(C, rowId, 'display_opts');
     if (display_opts) {
       const oldDisplayOpts = JSON.parse(display_opts.toString()) as {
         statsEnabled?: boolean;
@@ -25,7 +25,7 @@ function statsEnabledInItemFlags(space: Store<NoSchemas>) {
       if (oldDisplayOpts.statsEnabled !== undefined) {
         const statsEnabled = oldDisplayOpts.statsEnabled;
         delete oldDisplayOpts.statsEnabled;
-        space.setPartialRow(C, rowId, {
+        _space.setPartialRow(C, rowId, {
           display_opts: JSON.stringify(oldDisplayOpts),
           flags: { statsEnabled }
         });
@@ -34,12 +34,12 @@ function statsEnabledInItemFlags(space: Store<NoSchemas>) {
   });
 }
 
-function metaFieldsBecomeObjects(space: Store<NoSchemas>) {
+function metaFieldsBecomeObjects(space: NoSchemaStore) {
   _metaFieldsBecomeObjects(space, C);
   _metaFieldsBecomeObjects(space, AN);
 }
 
-function _metaFieldsBecomeObjects(space: Store<NoSchemas>, tableId: string) {
+function _metaFieldsBecomeObjects(space: NoSchemaStore, tableId: string) {
   space.getRowIds(tableId).forEach(rowId => {
     const cellIds = space.getCellIds(tableId, rowId);
     for (const cellId of cellIds) {

@@ -465,6 +465,20 @@ describe('local changes listeners', () => {
             expect(localChanges[0].field).toEqual(getField(field));
             expect(localChanges[0].itemId).toBe(testId);
           });
+
+          it(`should create only one update local changes for field ${field.field}`, () => {
+            const testId = space.addRow(tableId, fakeRow)!;
+            localChangesService.clear();
+
+            space.setCell(tableId, testId, getField(field), getValue(field));
+            space.setCell(tableId, testId, getField(field), getValue(field));
+            space.setCell(tableId, testId, getField(field), getValue(field));
+            const localChanges = localChangesService.getLocalChanges();
+            expect(localChanges).toHaveLength(1);
+            expect(localChanges[0].change).toEqual(LocalChangeType.update);
+            expect(localChanges[0].field).toEqual(getField(field));
+            expect(localChanges[0].itemId).toBe(testId);
+          });
         });
 
         nonWatchedFields.forEach(field => {

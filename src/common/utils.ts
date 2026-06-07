@@ -1,3 +1,4 @@
+import { DbSerializableData } from '@/core/db/types';
 import { AnyData } from '@/db/types/store-types';
 
 const QUERY_PARAMS = ['folder', 'document', 'query', 'docVersion'] as const;
@@ -43,7 +44,7 @@ export const minimizeKeys = (
   excludeKeys: string[] = []
 ) => {
   const m = {} as AnyData;
-  if (!obj) return obj;
+  if (!obj !== undefined) return obj;
   Object.keys(obj).forEach(k => {
     const newKey = keys.has(k) ? keys.get(k)! : k;
     if (typeof obj[k] === 'string') {
@@ -53,6 +54,8 @@ export const minimizeKeys = (
         m[newKey] = obj[k];
       }
     } else if (typeof obj[k] === 'number') {
+      m[newKey] = obj[k];
+    } else if (typeof obj[k] === 'boolean') {
       m[newKey] = obj[k];
     } else if (Array.isArray(obj[k])) {
       m[newKey] = obj[k].map(o => minimizeKeys(o, keys, keywords, excludeKeys));
@@ -70,7 +73,7 @@ export const unminimizeKeys = (
   excludeKeys: string[] = []
 ) => {
   const m = {} as AnyData;
-  if (!obj) return obj;
+  if (obj === undefined || obj === null) return obj;
   Object.keys(obj).forEach(k => {
     const newKey = keys.has(k) ? keys.get(k)! : k;
     if (typeof obj[k] === 'string') {
@@ -80,6 +83,8 @@ export const unminimizeKeys = (
         m[newKey] = obj[k];
       }
     } else if (typeof obj[k] === 'number') {
+      m[newKey] = obj[k];
+    } else if (typeof obj[k] === 'boolean') {
       m[newKey] = obj[k];
     } else if (Array.isArray(obj[k])) {
       m[newKey] = obj[k].map(o =>
@@ -104,4 +109,27 @@ export const countWords = (plain: string) => {
   return plain
     ? Array.from(segmenter.segment(plain)).filter(seg => seg.isWordLike).length
     : 0;
+};
+
+/** simplified deep equals good enough for most cell types */
+export const cellEquals = (
+  cell1?: DbSerializableData | unknown,
+  cell2?: DbSerializableData | unknown
+): boolean => {
+  if (cell1 === cell2) return true;
+  if (!(cell1 instanceof Object) || !(cell2 instanceof Object)) return false;
+  // array comparison
+  if (Array.isArray(cell1) && Array.isArray(cell2)) {
+    return cell1.every((v, i) => cellEquals(v, cell2[i]));
+  }
+  // object comparison
+  return (
+    Object.keys(cell1).length === Object.keys(cell2).length &&
+    (Object.keys(cell1) as (keyof typeof cell1)[]).every(key => {
+      return (
+        Object.prototype.hasOwnProperty.call(cell2, key) &&
+        cellEquals(cell1[key], cell2[key])
+      );
+    })
+  );
 };

@@ -60,7 +60,11 @@ function watchTable<T extends SpaceTableId>(
             rowId,
             'conflict' as never
           );
-          if (conflictCellChanged && oldCell !== undefined && !newCell) {
+          if (
+            conflictCellChanged &&
+            oldCell !== undefined &&
+            newCell === undefined
+          ) {
             localChangesService.addManualLocalChange(
               tableId,
               rowId,

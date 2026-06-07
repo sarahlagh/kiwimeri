@@ -1,4 +1,5 @@
 import { dateLocale, dateToStr } from '@/common/date-utils';
+import { cellEquals } from '@/common/utils';
 import { describe, expect, it, vi } from 'vitest';
 
 const locale = dateLocale;
@@ -111,5 +112,105 @@ describe('utils test', () => {
     expect(dateToStr('relative', date.getTime(), locale)).toBe(`${baseStr}`);
 
     vi.useRealTimers();
+  });
+
+  it('should perform sufficient deep equal', () => {
+    expect(cellEquals(null, null)).toBe(true);
+    expect(cellEquals(undefined, undefined)).toBe(true);
+    expect(cellEquals('', '')).toBe(true);
+    expect(cellEquals('', undefined)).toBe(false);
+    expect(cellEquals('', null)).toBe(false);
+    expect(cellEquals(undefined, null)).toBe(false);
+    expect(cellEquals('test', 'test')).toBe(true);
+    expect(cellEquals('test', 'not test')).toBe(false);
+    expect(cellEquals(0, 0)).toBe(true);
+    expect(cellEquals(0, 1)).toBe(false);
+    expect(cellEquals(true, true)).toBe(true);
+    expect(cellEquals(false, false)).toBe(true);
+    expect(cellEquals(true, false)).toBe(false);
+    expect(
+      cellEquals({ isBool: false, num: 0 }, { isBool: false, num: 0 })
+    ).toBe(true);
+    expect(
+      cellEquals({ isBool: false, num: 0 }, { num: 0, isBool: false })
+    ).toBe(true);
+    expect(cellEquals(['el1', 'el2'], { el1: 'el1' })).toBe(false);
+    expect(
+      cellEquals(
+        { isBool: false, num: 0, nested: { val: 'value 1' } },
+        { isBool: false, num: 0, nested: { val: 'value 1' } }
+      )
+    ).toBe(true);
+    expect(
+      cellEquals(
+        { isBool: false, num: 0, nested: { val: 'value 1' } },
+        { nested: { val: 'value 1' }, isBool: false, num: 0 }
+      )
+    ).toBe(true);
+    expect(
+      cellEquals(
+        { isBool: false, nested: { val: 'value 1', nested2: { val2: 3 } } },
+        { isBool: false, nested: { val: 'value 1', nested2: { val2: 3 } } }
+      )
+    ).toBe(true);
+    expect(
+      cellEquals(
+        { arr1: ['el1', 'el2'], arr2: [{ val: 1 }, { val: 2 }] },
+        { arr1: ['el1', 'el2'], arr2: [{ val: 1 }, { val: 2 }] }
+      )
+    ).toBe(true);
+    expect(cellEquals(['el1', 'el2'], ['el1', 'el2'])).toBe(true);
+    expect(cellEquals([{ val: 1 }, { val: 2 }], [{ val: 1 }, { val: 2 }])).toBe(
+      true
+    );
+    expect(
+      cellEquals(
+        { isBool: false, num: 0, nested: { val: 'value 1' } },
+        { isBool: false, num: undefined, nested: { val: 'value 1' } }
+      )
+    ).toBe(false);
+    expect(
+      cellEquals(
+        { isBool: false, num: 0, nested: { val: 'value 1' } },
+        { isBool: false, num: null, nested: { val: 'value 1' } }
+      )
+    ).toBe(false);
+    expect(
+      cellEquals(
+        { isBool: false, nested: { val: 'value 1' } },
+        { isBool: true, nested: { val: 'value 1' } }
+      )
+    ).toBe(false);
+    expect(
+      cellEquals(
+        { isBool: true, nested: { val: 'value 1' } },
+        { isBool: true, nested: { val: 'value 2' } }
+      )
+    ).toBe(false);
+    expect(
+      cellEquals(
+        { isBool: true, nested: { val: 'value 1' } },
+        { isBool: true, nested: null }
+      )
+    ).toBe(false);
+    expect(
+      cellEquals({ isBool: true, nested: { val: 'value 1' } }, { isBool: true })
+    ).toBe(false);
+    expect(
+      cellEquals(
+        { isBool: true, nested: { val: 'value 1' } },
+        { nested: { val: 'value 1' } }
+      )
+    ).toBe(false);
+    expect(
+      cellEquals(
+        { isBool: true, nested: { val: 'value 1' } },
+        { isBool: true, nested: false }
+      )
+    ).toBe(false);
+    expect(cellEquals(['el1', 'el2'], ['el1', 'el3'])).toBe(false);
+    expect(cellEquals([{ val: 1 }, { val: 2 }], [{ val: 1 }, { val: 3 }])).toBe(
+      false
+    );
   });
 });

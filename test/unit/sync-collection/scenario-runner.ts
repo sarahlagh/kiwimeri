@@ -553,10 +553,10 @@ export class PullTestScenarioRunner {
 
   private assertCommonHistoryStatsItem(id: string, stats: MinStatItem) {
     const versions = historyService.getVersions(id);
+    expect(versions).toHaveLength(stats.hasVersions);
     for (let i = 0; i < stats.latestVersionsOp.length; i++) {
       expect(versions[i].op).toBe(stats.latestVersionsOp[i]);
     }
-    expect(versions).toHaveLength(stats.hasVersions);
 
     stats.otherHistoryAssert(versions);
   }
