@@ -5,7 +5,7 @@ import { CloudStorageSynchronizer } from './abstract-synchronizer';
 import { CollectionSynchronizer } from './collection-synchronizer';
 import { StatsSynchronizer } from './stats-synchronizer';
 
-// target: have collection synchronizer share remote & driver with stats
+// TODO warn user on stats errors
 export class CompositeSynchronizer extends CloudStorageSynchronizer {
   protected collectionSynchronizer: CollectionSynchronizer;
   protected statsSynchronizer: StatsSynchronizer;

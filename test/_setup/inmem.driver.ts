@@ -18,7 +18,10 @@ import {
   FileReference
 } from '@/remote-storage/storage-drivers/abstract.driver';
 import { DriverFileInfo } from '@/remote-storage/sync-types';
-import { RemoteCollectionFileContent } from '@/remote-storage/synchronizers/collection-synchronizer';
+import {
+  REMOTE_COLLECTION_SCHEMA_VERSION,
+  RemoteCollectionFileContent
+} from '@/remote-storage/synchronizers/collection-synchronizer';
 
 type InMemDriverConfig = {
   names?: string[];
@@ -176,7 +179,8 @@ export class InMemDriver extends CloudStorageDriver {
       i: minimizeItemsForStorage(items),
       a: minimizeAnnotForStorage(annots),
       o: values,
-      u: updated
+      u: updated,
+      _v: REMOTE_COLLECTION_SCHEMA_VERSION
     } as RemoteCollectionFileContent);
   }
 
@@ -188,7 +192,8 @@ export class InMemDriver extends CloudStorageDriver {
     return this.setContent({
       i: minimizeItemsForStorage(items),
       o: values,
-      u: updated
+      u: updated,
+      _v: REMOTE_COLLECTION_SCHEMA_VERSION
     } as RemoteCollectionFileContent);
   }
 
@@ -209,7 +214,8 @@ export class InMemDriver extends CloudStorageDriver {
     return {
       content: unminimizedObj.i,
       annots: unminimizedObj.a,
-      values: unminimizedObj.o
+      values: unminimizedObj.o,
+      _schemaVersion: obj._v
     };
   }
 }

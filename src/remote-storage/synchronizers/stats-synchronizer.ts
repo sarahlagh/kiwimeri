@@ -14,8 +14,11 @@ type RemoteContentStatPerDate = {
 };
 
 export type RemoteStatsFileContent = {
+  _schemaVersion?: number; // the schema version (!= app version)
   content: RemoteContentStatPerDate[];
 };
+
+export const REMOTE_STATS_SCHEMA_VERSION = 1; // increment each breaking change
 
 type RemoteRepresentation = Required<Pick<RemoteResult, 'id'>>;
 
@@ -102,6 +105,7 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
       const resp = await this.cloudFS.fetchChanges(lastPulled, force);
       if (resp.success && resp.data && resp.updatedRemoteState) {
         const newStats = resp.data as RemoteStatsFileContent;
+        if (newStats._schemaVersion === undefined) newStats._schemaVersion = 1;
         this.mergeRemoteStatsToLocal(newStats, force);
         this.updateRemoteStateInfo(this.remoteStateId, resp.updatedRemoteState);
       }
@@ -147,6 +151,7 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
     });
 
     const fileData: RemoteStatsFileContent = {
+      _schemaVersion: REMOTE_STATS_SCHEMA_VERSION,
       content: Object.values(perDate)
     };
     return fileData;
@@ -156,6 +161,11 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
     remoteStats: RemoteStatsFileContent,
     force?: boolean
   ) {
+    if (remoteStats._schemaVersion !== REMOTE_STATS_SCHEMA_VERSION) {
+      throw new Error(
+        `Version mismatch on remote stats filesystem: expected ${REMOTE_STATS_SCHEMA_VERSION}, got ${remoteStats._schemaVersion}`
+      );
+    }
     if (force) {
       statsService.clearStats();
     }

@@ -2,6 +2,7 @@ import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import collectionService from '@/db/collection.service';
 import { statsService } from '@/domain/stats/stats-service';
 import {
+  REMOTE_STATS_SCHEMA_VERSION,
   RemoteStatsFileContent,
   StatsSynchronizer
 } from '@/remote-storage/synchronizers/stats-synchronizer';
@@ -108,6 +109,7 @@ describe('stats synchronizer', () => {
   test('should pull remote stats', async () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     const remoteContent: RemoteStatsFileContent = {
+      _schemaVersion: REMOTE_STATS_SCHEMA_VERSION,
       content: [{ date: '2024-03-31', stats: {} }]
     };
     const tsAtDate = new Date('2024-03-31').getTime();
@@ -141,6 +143,7 @@ describe('stats synchronizer', () => {
   test('should pull remote stats and merge with content stats if remote more recent', async () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     const remoteContent: RemoteStatsFileContent = {
+      _schemaVersion: REMOTE_STATS_SCHEMA_VERSION,
       content: [{ date: '2024-03-31', stats: {} }]
     };
     const remoteTsAtDate = new Date('2024-03-31').getTime() + 60000;
@@ -186,6 +189,7 @@ describe('stats synchronizer', () => {
   test('should pull remote stats and merge with content stats if remote less recent', async () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     const remoteContent: RemoteStatsFileContent = {
+      _schemaVersion: REMOTE_STATS_SCHEMA_VERSION,
       content: [{ date: '2024-03-31', stats: {} }]
     };
     const remoteTsAtDate = new Date('2024-03-31').getTime() + 1000;
@@ -231,6 +235,7 @@ describe('stats synchronizer', () => {
   test('should pull remote stats and merge even when most recent has stat undefined', async () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     const remoteContent: RemoteStatsFileContent = {
+      _schemaVersion: REMOTE_STATS_SCHEMA_VERSION,
       content: [{ date: '2024-03-31', stats: {} }]
     };
     const remoteTsAtDate = new Date('2024-03-31').getTime() + 60000;

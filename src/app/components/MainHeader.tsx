@@ -14,8 +14,10 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactProps';
+import { useLingui } from '@lingui/react/macro';
 import { ReactNode, useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router';
+import { useToastContext } from '../context/ToastContext';
 
 export type MainHeaderProps = {
   title: string;
@@ -33,6 +35,7 @@ const MainHeader = ({
   children,
   color
 }: MainHeaderProps) => {
+  const { t } = useLingui();
   const history = useHistory();
   const location = useLocation();
   const [isSyncing, setIsSyncing] = useState(false);
@@ -41,6 +44,7 @@ const MainHeader = ({
   const hasRemoteChanges = syncService.usePrimaryHasRemoteChanges();
   const hasConflicts = conflictsService.useHasLocalConflicts();
   const enabled = !isSyncing && isMergeSyncEnabled;
+  const { setToast } = useToastContext();
 
   useEffect(() => {
     conflictsService.initConflictQueries();
@@ -53,7 +57,10 @@ const MainHeader = ({
     return undefined;
   }
 
-  function onSyncEnd() {
+  function onSyncEnd(resp: { success: boolean }) {
+    if (resp?.success === false) {
+      setToast(t`An error occurred during sync.`, 'danger');
+    }
     setIsSyncing(false);
     const currentFolder = navService.getCurrentFolder();
     if (!collectionService.itemExists(currentFolder)) {

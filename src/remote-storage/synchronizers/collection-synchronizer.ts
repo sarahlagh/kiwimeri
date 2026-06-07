@@ -78,6 +78,7 @@ export type RemoteCollectionFileContent = {
   a?: MinimizedDocAnnotation[]; // the document annotations
   o: SpaceValues; // the space options
   u: number; // last content change
+  _v?: number; // the schema version (!= app version)
 };
 
 type RemoteContentRepresentation = {
@@ -85,7 +86,10 @@ type RemoteContentRepresentation = {
   docAnnotations: SyncableAnnotation[];
   values: SpaceValues;
   lastRemoteChange: number;
+  schemaVersion: number;
 };
+
+export const REMOTE_COLLECTION_SCHEMA_VERSION = 1; // increment each breaking change
 
 export class CollectionSynchronizer extends CloudStorageSynchronizer {
   protected cloudFS: SingleFileStorage;
@@ -209,7 +213,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     } catch (e) {
       console.error('[collection][pull] error', this.remote.name, e);
       // restore
-      this.setContent(localContent);
+      this.setContent(localContent); // TODO remove
     } finally {
       this.ongoing = false;
       console.log(`[collection][pull] done`);
@@ -257,6 +261,11 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
         const remoteContent = this.toRepresentation(
           data as RemoteCollectionFileContent
         );
+        if (remoteContent.schemaVersion !== REMOTE_COLLECTION_SCHEMA_VERSION) {
+          throw new Error(
+            `Version mismatch on remote collection filesystem: expected ${REMOTE_COLLECTION_SCHEMA_VERSION}, got ${remoteContent.schemaVersion}`
+          );
+        }
         const values =
           remoteContent.values.valuesLastUpdatedAt >
           nOr0('valuesLastUpdatedAt', localContent[1])
@@ -305,6 +314,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
         remoteContent.items,
         remoteContent.docAnnotations,
         remoteContent.values,
+        REMOTE_COLLECTION_SCHEMA_VERSION,
         lastLocalChange
       );
     } else {
@@ -313,6 +323,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
         localContentRep.items,
         localContentRep.docAnnotations,
         localContentRep.values,
+        localContentRep.schemaVersion,
         lastLocalChange
       );
     }
@@ -325,6 +336,12 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     remoteContent: RemoteCollectionFileContent,
     force: boolean
   ) {
+    if (remoteContent._v !== REMOTE_COLLECTION_SCHEMA_VERSION) {
+      throw new Error(
+        `Version mismatch on remote collection filesystem: expected ${REMOTE_COLLECTION_SCHEMA_VERSION}, got ${remoteContent._v}`
+      );
+    }
+
     const resp = this.computeDataToMergeLocally(
       structuredClone(localContent),
       localChanges,
@@ -459,8 +476,9 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
         });
       } else if (newItem && oldItem) {
         const type = newItem.type as CollectionItemType;
-        const historizableFields = [...CollectionItemUpdatableFields]
-          .filter(field => localChange?.field !== field);
+        const historizableFields = [...CollectionItemUpdatableFields].filter(
+          field => localChange?.field !== field
+        );
 
         // no local change, remote change on hist field                 => new version
         // no local change, remote change on non hist field             => no new version
@@ -513,7 +531,8 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       items,
       docAnnotations: [...annots.values()],
       values: localContent[1],
-      lastRemoteChange: localContent[1].valuesLastUpdatedAt
+      lastRemoteChange: localContent[1].valuesLastUpdatedAt,
+      schemaVersion: REMOTE_COLLECTION_SCHEMA_VERSION
     };
   }
 
@@ -542,7 +561,8 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       items: unminimizeItemsFromStorage(obj.i),
       docAnnotations: unminimizeAnnotFromStorage(obj.a || []),
       values: obj.o,
-      lastRemoteChange: obj.u
+      lastRemoteChange: obj.u,
+      schemaVersion: obj._v || 0
     };
   }
 
@@ -550,6 +570,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     items: CollectionItemWithId[],
     annots: SyncableAnnotation[],
     values: SpaceValues,
+    schemaVersion: number,
     updated: number
   ): RemoteCollectionFileContent {
     return {
@@ -558,7 +579,8 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       ) as MinimizedCollectionItem[],
       a: minimizeAnnotForStorage(annots),
       o: values,
-      u: updated
+      u: updated,
+      _v: schemaVersion
     };
   }
 

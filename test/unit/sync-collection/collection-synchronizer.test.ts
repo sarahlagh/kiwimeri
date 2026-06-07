@@ -13,7 +13,11 @@ import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import useItemsConflictMixIn from '@/features/collection-ui/hooks/useItemsConflictMixIn';
 import { syncService } from '@/remote-storage/sync.service';
-import { CollectionSynchronizer } from '@/remote-storage/synchronizers/collection-synchronizer';
+import {
+  CollectionSynchronizer,
+  REMOTE_COLLECTION_SCHEMA_VERSION,
+  RemoteCollectionFileContent
+} from '@/remote-storage/synchronizers/collection-synchronizer';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { InMemDriver } from '@@/_setup/inmem.driver';
 import {
@@ -995,6 +999,179 @@ describe('collection synchronizer', () => {
         expect(result.current[2].isConflict).toBe(false);
         unmount();
       }
+    });
+  });
+
+  describe('should handle remote schema version change', () => {
+    test('client on newest version cannot pull remote file without version', async () => {
+      const remoteContent: RemoteCollectionFileContent = {
+        i: [],
+        o: { ...defaultValues },
+        u: Date.now()
+      };
+      driver.setContent(remoteContent);
+
+      const resp = await synchronizer.pull();
+      expect(resp.success).toBe(false);
+      expect(resp.didPull).toBe(true);
+    });
+
+    test('client on newest version cannot pull remote file with old version', async () => {
+      const remoteContent: RemoteCollectionFileContent = {
+        i: [],
+        o: { ...defaultValues },
+        u: Date.now(),
+        _v: REMOTE_COLLECTION_SCHEMA_VERSION - 1
+      };
+      driver.setContent(remoteContent);
+
+      const resp = await synchronizer.pull();
+      expect(resp.success).toBe(false);
+      expect(resp.didPull).toBe(true);
+    });
+
+    test('client on newest version cannot force pull remote file without version', async () => {
+      const remoteContent: RemoteCollectionFileContent = {
+        i: [],
+        o: { ...defaultValues },
+        u: Date.now()
+      };
+      driver.setContent(remoteContent);
+
+      const resp = await synchronizer.pull(true);
+      expect(resp.success).toBe(false);
+      expect(resp.didPull).toBe(true);
+    });
+
+    test('client on newest version cannot force pull remote file with old version', async () => {
+      const remoteContent: RemoteCollectionFileContent = {
+        i: [],
+        o: { ...defaultValues },
+        u: Date.now(),
+        _v: REMOTE_COLLECTION_SCHEMA_VERSION - 1
+      };
+      driver.setContent(remoteContent);
+
+      const resp = await synchronizer.pull(true);
+      expect(resp.success).toBe(false);
+      expect(resp.didPull).toBe(true);
+    });
+
+    test('client on newest version cannot push to remote file without version', async () => {
+      const remoteContent: RemoteCollectionFileContent = {
+        i: [],
+        o: { ...defaultValues },
+        u: Date.now()
+      };
+      driver.setContent(remoteContent);
+
+      const resp = await synchronizer.push();
+      expect(resp.success).toBe(false);
+      expect(resp.didPush).toBe(false);
+    });
+
+    test('client on newest version cannot push to remote file with old version', async () => {
+      const remoteContent: RemoteCollectionFileContent = {
+        i: [],
+        o: { ...defaultValues },
+        u: Date.now(),
+        _v: REMOTE_COLLECTION_SCHEMA_VERSION - 1
+      };
+      driver.setContent(remoteContent);
+
+      const resp = await synchronizer.push();
+      expect(resp.success).toBe(false);
+      expect(resp.didPush).toBe(false);
+    });
+
+    test('client on newest version can force push to remote file without version', async () => {
+      const remoteContent: RemoteCollectionFileContent = {
+        i: [],
+        o: { ...defaultValues },
+        u: Date.now()
+      };
+      driver.setContent(remoteContent);
+
+      const resp = await synchronizer.push(true);
+      expect(resp.success).toBe(true);
+      expect(resp.didPush).toBe(true);
+
+      const content = await driver.getParsedCollectionContent();
+      expect(content._schemaVersion).toBe(REMOTE_COLLECTION_SCHEMA_VERSION);
+    });
+
+    test('client on newest version can force push to remote file with old version', async () => {
+      const remoteContent: RemoteCollectionFileContent = {
+        i: [],
+        o: { ...defaultValues },
+        u: Date.now(),
+        _v: REMOTE_COLLECTION_SCHEMA_VERSION - 1
+      };
+      driver.setContent(remoteContent);
+
+      const resp = await synchronizer.push(true);
+      expect(resp.success).toBe(true);
+      expect(resp.didPush).toBe(true);
+
+      const content = await driver.getParsedCollectionContent();
+      expect(content._schemaVersion).toBe(REMOTE_COLLECTION_SCHEMA_VERSION);
+    });
+
+    test('client on old version cannot pull remote file on newest version', async () => {
+      const remoteContent: RemoteCollectionFileContent = {
+        i: [],
+        o: { ...defaultValues },
+        u: Date.now(),
+        _v: REMOTE_COLLECTION_SCHEMA_VERSION + 1
+      };
+      driver.setContent(remoteContent);
+
+      const resp = await synchronizer.pull();
+      expect(resp.success).toBe(false);
+      expect(resp.didPull).toBe(true);
+    });
+
+    test('client on old version cannot force pull remote file on newest version', async () => {
+      const remoteContent: RemoteCollectionFileContent = {
+        i: [],
+        o: { ...defaultValues },
+        u: Date.now(),
+        _v: REMOTE_COLLECTION_SCHEMA_VERSION + 1
+      };
+      driver.setContent(remoteContent);
+
+      const resp = await synchronizer.pull(true);
+      expect(resp.success).toBe(false);
+      expect(resp.didPull).toBe(true);
+    });
+
+    test('client on old version cannot push remote file on newest version', async () => {
+      const remoteContent: RemoteCollectionFileContent = {
+        i: [],
+        o: { ...defaultValues },
+        u: Date.now(),
+        _v: REMOTE_COLLECTION_SCHEMA_VERSION + 1
+      };
+      driver.setContent(remoteContent);
+
+      const resp = await synchronizer.push();
+      expect(resp.success).toBe(false);
+      expect(resp.didPush).toBe(false);
+    });
+
+    // can't be helped, or I'd have to pull file even on force push
+    test('client on old version can force push remote file on newest version (!!!!)', async () => {
+      const remoteContent: RemoteCollectionFileContent = {
+        i: [],
+        o: { ...defaultValues },
+        u: Date.now(),
+        _v: REMOTE_COLLECTION_SCHEMA_VERSION + 1
+      };
+      driver.setContent(remoteContent);
+
+      const resp = await synchronizer.push(true);
+      expect(resp.success).toBe(true);
+      expect(resp.didPush).toBe(true);
     });
   });
 });
