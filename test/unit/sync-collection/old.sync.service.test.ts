@@ -20,10 +20,10 @@ import tagsService from '@/db/tags.service';
 import userSettingsService from '@/db/user-settings.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
-import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
 import { syncService } from '@/remote-storage/sync.service';
 import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';
 import { searchAncestryService } from '@/search/search-ancestry.service';
+import { InMemDriver } from '@@/_setup/inmem.driver';
 import {
   CONFLICT_CHANGES,
   countOrphans,

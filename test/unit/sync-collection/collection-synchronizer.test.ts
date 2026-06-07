@@ -12,10 +12,10 @@ import { DOC_ANNOTATION_TABLE } from '@/domain/document-annotations/model';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import useItemsConflictMixIn from '@/features/collection-ui/hooks/useItemsConflictMixIn';
-import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
 import { syncService } from '@/remote-storage/sync.service';
 import { CollectionSynchronizer } from '@/remote-storage/synchronizers/collection-synchronizer';
 import { searchAncestryService } from '@/search/search-ancestry.service';
+import { InMemDriver } from '@@/_setup/inmem.driver';
 import {
   adv,
   getLocalItemConflicts,
@@ -34,7 +34,7 @@ const remoteResult: RemoteResult = {
   id: '9999',
   name: 'test',
   state: '0',
-  type: 'inmem',
+  type: 'pcloud',
   connected: true,
   config: '{}',
   rank: 0

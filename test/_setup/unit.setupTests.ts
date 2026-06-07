@@ -16,7 +16,12 @@ import { historyService } from '@/db/collection-history.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import '@/polyfills/log-polyfill';
 import { afterAll, afterEach, beforeAll, beforeEach, expect } from 'vitest';
+import { InMemDriver } from './inmem.driver';
 import { nukeStorage } from './test.utils';
+
+vi.mock(import('@/remote-storage/storage-drivers/driver-factory'), () => ({
+  driverFactory: () => new InMemDriver()
+}));
 
 // Mock matchmedia
 window.matchMedia =

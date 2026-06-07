@@ -1,7 +1,7 @@
 import { DEFAULT_SPACE_ID } from '@/constants';
 import remotesService from '@/db/remotes.service';
-import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
 import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';
+import { InMemDriver } from '@@/_setup/inmem.driver';
 import { adv } from '@@/_setup/test.utils';
 import { beforeEach, describe, test, vi } from 'vitest';
 import { syncService_sync } from './test-sync.utils';

@@ -39,7 +39,7 @@ describe('remotes service', () => {
       {
         id: rowId,
         state,
-        type: 'inmem',
+        type: 'pcloud',
         config: '{}',
         connected: false,
         name: 'test',

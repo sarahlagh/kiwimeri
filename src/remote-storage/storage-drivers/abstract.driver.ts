@@ -1,6 +1,8 @@
 import { AnyData } from '@/db/types/store-types';
 import { DriverFileInfo } from '../sync-types';
 
+export type DriverNames = 'pcloud';
+
 type CommonResponse = {
   success: boolean;
 };

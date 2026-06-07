@@ -1,11 +1,11 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import collectionService from '@/db/collection.service';
 import { statsService } from '@/domain/stats/stats-service';
-import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
 import {
   RemoteStatsFileContent,
   StatsSynchronizer
 } from '@/remote-storage/synchronizers/stats-synchronizer';
+import { InMemDriver } from '@@/_setup/inmem.driver';
 import { fakeTimersDelay } from '@@/_setup/test.utils';
 import { describe, expect, test, vi } from 'vitest';
 import { buildRandomFake } from './test-stats.utils';

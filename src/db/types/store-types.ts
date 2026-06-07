@@ -1,4 +1,4 @@
-import { DriverNames } from '@/remote-storage/storage-drivers/driver-factory';
+import { DriverNames } from '@/remote-storage/storage-drivers/abstract.driver';
 
 export interface AnyData {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

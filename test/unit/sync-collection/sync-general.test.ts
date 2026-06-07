@@ -11,9 +11,9 @@ import remotesService from '@/db/remotes.service';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
-import { InMemDriver } from '@/remote-storage/storage-drivers/inmem.driver';
 import { SingleFileStorage } from '@/remote-storage/storage-filesystems/singlefile.filesystem';
 import { syncService } from '@/remote-storage/sync.service';
+import { InMemDriver } from '@@/_setup/inmem.driver';
 import {
   adv,
   getRowCountInsideNotebook,

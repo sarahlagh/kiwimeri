@@ -13,9 +13,12 @@ import {
   unminimizeAnnotFromStorage
 } from '@/domain/document-annotations/compress-annotations';
 import { SyncableAnnotation } from '@/domain/document-annotations/model';
-import { DriverFileInfo } from '../sync-types';
-import { RemoteCollectionFileContent } from '../synchronizers/collection-synchronizer';
-import { CloudStorageDriver, FileReference } from './abstract.driver';
+import {
+  CloudStorageDriver,
+  FileReference
+} from '@/remote-storage/storage-drivers/abstract.driver';
+import { DriverFileInfo } from '@/remote-storage/sync-types';
+import { RemoteCollectionFileContent } from '@/remote-storage/synchronizers/collection-synchronizer';
 
 type InMemDriverConfig = {
   names?: string[];
