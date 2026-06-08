@@ -1,10 +1,12 @@
 import { CollectionItemType } from '@/collection/collection';
-import ExportItemsButton from '@/common/buttons/ExportItemsButton';
 import GenericExportFileButton from '@/common/buttons/GenericExportFileButton';
-import RestoreCollectionButton from '@/common/buttons/RestoreCollectionButton';
 import { dateToStr } from '@/common/date-utils';
 import platformService from '@/common/services/platform.service';
 import { space } from '@/core/db/store';
+import {
+  ExportItemsButton,
+  RestoreCollectionButton
+} from '@/features/import-export';
 import {
   IonButtons,
   IonCard,

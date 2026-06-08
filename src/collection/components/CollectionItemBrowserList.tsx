@@ -15,12 +15,11 @@ import {
   CollectionItemResult,
   CollectionItemType
 } from '@/collection/collection';
-import ExportItemsButton from '@/common/buttons/ExportItemsButton';
-import ImportItemsButton from '@/common/buttons/ImportItemsButton';
 import { GET_ITEM_ROUTE } from '@/common/routes';
 import { getSearchParams } from '@/common/utils';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
+import { ExportItemsButton, ImportItemsButton } from '@/features/import-export';
 import { useStoreValueState } from '@/shared/hooks/useGenericValueState';
 
 import { conflictsService } from '@/domain/conflicts/conflicts-service';

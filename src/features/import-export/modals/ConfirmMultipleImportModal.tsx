@@ -23,12 +23,11 @@ import {
 import { Trans, useLingui } from '@lingui/react/macro';
 import React, { useEffect, useState } from 'react';
 import {
-  importService,
-  ZipMergeOptions,
+  MultipleImportModalParams,
   ZipMergeResult,
-  ZipParsedData,
   ZipParseError
-} from '../services/import.service';
+} from '../model/model-import';
+import importService from '../services/import.service';
 
 export const ARIA_DESCRIPTIONS_PER_TYPE = new Map<
   CollectionItemTypeValues,
@@ -38,12 +37,8 @@ ARIA_DESCRIPTIONS_PER_TYPE.set(CollectionItemType.document, 'a document');
 ARIA_DESCRIPTIONS_PER_TYPE.set(CollectionItemType.folder, 'a folder');
 ARIA_DESCRIPTIONS_PER_TYPE.set(CollectionItemType.notebook, 'a notebook');
 
-export type ConfirmMultipleImportModalParams = {
-  zipData: ZipParsedData;
-} & ZipMergeOptions;
-
-export type ConfirmMultipleImportModalProps = {
-  params: ConfirmMultipleImportModalParams;
+type ConfirmMultipleImportModalProps = {
+  params: MultipleImportModalParams;
   parent: string;
   onClose: (confirm: boolean, zipMerge?: ZipMergeResult) => void;
 } & React.HTMLAttributes<HTMLIonModalElement>;

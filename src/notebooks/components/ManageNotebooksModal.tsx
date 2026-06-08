@@ -1,7 +1,7 @@
 import CollectionItemList from '@/collection/components/CollectionItemList';
-import ImportItemsButton from '@/common/buttons/ImportItemsButton';
 import { APPICONS } from '@/constants';
 import notebooksService from '@/db/notebooks.service';
+import { ImportItemsButton } from '@/features/import-export';
 import {
   IonButton,
   IonButtons,

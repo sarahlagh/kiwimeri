@@ -1,7 +1,6 @@
 import { CollectionItemType } from '@/collection/collection';
 import CloseDocumentButton from '@/common/buttons/CloseDocumentButton';
 import DeleteItemButton from '@/common/buttons/DeleteItemButton';
-import ExportItemsButton from '@/common/buttons/ExportItemsButton';
 import ManageHistoryButton from '@/common/buttons/ManageHistoryButton';
 import MoveFolderButton from '@/common/buttons/MoveFolderButton';
 import QuickGroupButton from '@/common/buttons/QuickGroupButton';
@@ -11,6 +10,7 @@ import { APPICONS } from '@/constants';
 import navService from '@/db/nav.service';
 import userSettingsService from '@/db/user-settings.service';
 import { ViewAo3HtmlButton } from '@/features/ao3-html-ui';
+import { ExportItemsButton } from '@/features/import-export';
 import { IonButton, IonButtons, IonIcon, IonToolbar } from '@ionic/react';
 
 export type ActionsFromDocumentEditorToolbarProps = {

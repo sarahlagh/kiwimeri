@@ -3,6 +3,7 @@ import {
   CollectionItemType,
   CollectionItemTypeValues
 } from '@/collection/collection';
+import GenericExportFileButton from '@/common/buttons/GenericExportFileButton';
 import { getGlobalTrans } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
@@ -10,8 +11,7 @@ import userSettingsService from '@/db/user-settings.service';
 import { useIonAlert } from '@ionic/react';
 import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactProps';
 import { useLingui } from '@lingui/react/macro';
-import { exportService, ZipExportOptions } from '../services/export.service';
-import GenericExportFileButton from './GenericExportFileButton';
+import { ZipExportOptions } from '../model/model-export';
 
 type ExportItemsButtonProps = {
   id?: string;
@@ -59,6 +59,7 @@ const ExportItemsButton = ({
     const opts: ZipExportOptions = {
       includeMetadata: userSettingsService.getExportIncludeMetadata()
     };
+    const exportService = (await import('../services/export.service')).default;
     if (id === 'space') {
       return exportService.toZip(exportService.getSpaceContent(opts));
     }

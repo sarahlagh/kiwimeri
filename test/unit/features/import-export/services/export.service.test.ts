@@ -1,13 +1,14 @@
 import { CollectionItemType } from '@/collection/collection';
-import {
-  exportService,
-  ZipExportOptions,
-  ZipFileTree,
-  ZipMetadata
-} from '@/common/services/export.service';
 import { DEFAULT_NOTEBOOK_ID, getGlobalTrans, META_JSON } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
+import {
+  ZipExportOptions,
+  ZipFileTree,
+  ZipMetadata
+} from '@/features/import-export/model/model-export';
+import exportService from '@/features/import-export/services/export.service';
+
 import formatConverter from '@/format-conversion/format-converter.service';
 import { strFromU8 } from 'fflate';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';

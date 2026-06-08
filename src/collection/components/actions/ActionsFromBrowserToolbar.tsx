@@ -1,5 +1,4 @@
 import DeleteItemButton from '@/common/buttons/DeleteItemButton';
-import ExportItemsButton from '@/common/buttons/ExportItemsButton';
 import MoveFolderButton from '@/common/buttons/MoveFolderButton';
 import QuickGroupButton from '@/common/buttons/QuickGroupButton';
 import QuickUngroupButton from '@/common/buttons/QuickUngroupButton';
@@ -7,6 +6,7 @@ import RenameItemButton from '@/common/buttons/RenameItemButton';
 import { GET_FOLDER_ROUTE } from '@/common/routes';
 import collectionService from '@/db/collection.service';
 import navService from '@/db/nav.service';
+import { ExportItemsButton } from '@/features/import-export';
 import { IonButtons, IonToolbar } from '@ionic/react';
 
 export type ActionsFromBrowserToolbarProps = {

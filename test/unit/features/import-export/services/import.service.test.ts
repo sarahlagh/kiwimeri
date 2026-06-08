@@ -1,12 +1,4 @@
 import { CollectionItem, CollectionItemType } from '@/collection/collection';
-import {
-  importService,
-  ZipImportOptions,
-  ZipMergeFistLevel,
-  ZipMergeResult,
-  ZipMetadataSchema,
-  ZipParseError
-} from '@/common/services/import.service';
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { space } from '@/core/db/store';
 import { historyService } from '@/db/collection-history.service';
@@ -16,6 +8,15 @@ import notebooksService from '@/db/notebooks.service';
 import userSettingsService from '@/db/user-settings.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
+import {
+  ZipImportOptions,
+  ZipMergeFistLevel,
+  ZipMergeResult,
+  ZipMetadataSchema,
+  ZipParseError
+} from '@/features/import-export/model/model-import';
+import importService from '@/features/import-export/services/import.service';
+
 import {
   createInitLocalData,
   getLocalItemField,

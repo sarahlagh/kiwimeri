@@ -1,14 +1,13 @@
 import { unminimizeItemsFromStorage } from '@/collection/compress-collection';
+import GenericImportFileButton, {
+  ImportFileRejectReason,
+  OnContentReadResponse
+} from '@/common/buttons/GenericImportFileButton';
 import { space } from '@/core/db/store';
 import collectionService from '@/db/collection.service';
 import { RemoteCollectionFileContent } from '@/remote-storage/synchronizers/collection-synchronizer';
 import { useIonAlert } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
-import { importService } from '../services/import.service';
-import GenericImportFileButton, {
-  ImportFileRejectReason,
-  OnContentReadResponse
-} from './GenericImportFileButton';
 
 type RestoreCollectionButtonProps = {
   id?: string;
@@ -44,6 +43,7 @@ const RestoreCollectionButton = ({
   };
 
   const onZipFileRead = async (content: ArrayBuffer, file: File) => {
+    const importService = (await import('../services/import.service')).default;
     return importService.readZip(content).then(unzipped => {
       const zipData = importService.parseZipData(file.name, unzipped);
       if (!importService.canRestoreSpace(zipData)) {

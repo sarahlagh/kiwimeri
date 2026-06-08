@@ -2,19 +2,20 @@ import {
   CollectionItemType,
   CollectionItemTypeValues
 } from '@/collection/collection';
-import ConfirmMultipleImportModal, {
-  ARIA_DESCRIPTIONS_PER_TYPE,
-  ConfirmMultipleImportModalParams
-} from '@/common/modals/ConfirmMultipleImportModal';
-import {
-  importService,
-  ZipImportOptions,
-  ZipMergeResult
-} from '@/common/services/import.service';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { space } from '@/core/db/store';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
+import ConfirmMultipleImportModal, {
+  ARIA_DESCRIPTIONS_PER_TYPE
+} from '@/features/import-export/modals/ConfirmMultipleImportModal';
+
+import {
+  MultipleImportModalParams,
+  ZipImportOptions,
+  ZipMergeResult
+} from '@/features/import-export/model/model-import';
+import importService from '@/features/import-export/services/import.service';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { server } from 'vitest/browser';
@@ -47,7 +48,7 @@ const readZip = async (
   opts?: ZipImportOptions
 ) => {
   const zip = await server.commands.readFile(
-    `test/unit/common/_data/${parentDir}/${zipName}`,
+    `test/unit/features/import-export/_data/${parentDir}/${zipName}`,
     { encoding: 'binary' }
   );
   const zipBuffer: ArrayBuffer = str2ab(zip);
@@ -56,7 +57,7 @@ const readZip = async (
 };
 
 describe('ConfirmMultipleImportModal', () => {
-  const renderModal = (params: ConfirmMultipleImportModalParams) => {
+  const renderModal = (params: any) => {
     const onClose = (confirm: boolean, zipMerge?: ZipMergeResult) => {};
     return render(
       <ConfirmMultipleImportModal
@@ -123,7 +124,7 @@ describe('ConfirmMultipleImportModal', () => {
     it('should render the modal for a simple zip without meta, with createNotebook=false', async () => {
       const zipData = await readZip('zips_without_meta', 'Simple.zip', {});
 
-      const params: ConfirmMultipleImportModalParams = { zipData };
+      const params: MultipleImportModalParams = { zipData };
       const screen = await renderModal(params);
 
       // check questions
@@ -157,7 +158,7 @@ describe('ConfirmMultipleImportModal', () => {
     it('should render the modal for a simple zip without meta, with createNotebook=true', async () => {
       const zipData = await readZip('zips_without_meta', 'Simple.zip', {});
 
-      const params: ConfirmMultipleImportModalParams = {
+      const params: MultipleImportModalParams = {
         zipData,
         createNotebook: true
       };
@@ -197,7 +198,7 @@ describe('ConfirmMultipleImportModal', () => {
 
     it('should render the modal for a simple zip with meta, with createNotebook=false', async () => {
       const zipData = await readZip('zips_with_meta', 'Simple.zip', {});
-      const params: ConfirmMultipleImportModalParams = { zipData };
+      const params: MultipleImportModalParams = { zipData };
       const screen = await renderModal(params);
 
       // check questions
@@ -230,7 +231,7 @@ describe('ConfirmMultipleImportModal', () => {
 
     it('should render the modal for a simple zip with meta, with createNotebook=true', async () => {
       const zipData = await readZip('zips_with_meta', 'Simple.zip', {});
-      const params: ConfirmMultipleImportModalParams = {
+      const params: MultipleImportModalParams = {
         zipData,
         createNotebook: true
       };
@@ -272,7 +273,7 @@ describe('ConfirmMultipleImportModal', () => {
     it('should render the modal for a zip with single folder without meta, with createNotebook=false', async () => {
       const zipData = await readZip('zips_without_meta', 'SimpleLayer.zip', {});
 
-      const params: ConfirmMultipleImportModalParams = { zipData };
+      const params: MultipleImportModalParams = { zipData };
       const screen = await renderModal(params);
 
       // check questions
@@ -306,7 +307,7 @@ describe('ConfirmMultipleImportModal', () => {
     it('should render the modal for a zip with single folder without meta, with createNotebook=true', async () => {
       const zipData = await readZip('zips_without_meta', 'SimpleLayer.zip', {});
 
-      const params: ConfirmMultipleImportModalParams = {
+      const params: MultipleImportModalParams = {
         zipData,
         createNotebook: true
       };
@@ -346,7 +347,7 @@ describe('ConfirmMultipleImportModal', () => {
 
     it('should render the modal for a zip with single folder with meta, with createNotebook=false', async () => {
       const zipData = await readZip('zips_with_meta', 'SimpleLayer.zip', {});
-      const params: ConfirmMultipleImportModalParams = { zipData };
+      const params: MultipleImportModalParams = { zipData };
       const screen = await renderModal(params);
 
       // check questions
@@ -379,7 +380,7 @@ describe('ConfirmMultipleImportModal', () => {
 
     it('should render the modal for a zip with single folder with meta, with createNotebook=true', async () => {
       const zipData = await readZip('zips_with_meta', 'SimpleLayer.zip', {});
-      const params: ConfirmMultipleImportModalParams = {
+      const params: MultipleImportModalParams = {
         zipData,
         createNotebook: true
       };
@@ -421,7 +422,7 @@ describe('ConfirmMultipleImportModal', () => {
     it('should render the modal for an empty zip, with createNotebook=false', async () => {
       const zipData = await readZip('zips_with_meta', 'Empty.zip', {});
 
-      const params: ConfirmMultipleImportModalParams = { zipData };
+      const params: MultipleImportModalParams = { zipData };
       const screen = await renderModal(params);
 
       // check questions
@@ -448,7 +449,7 @@ describe('ConfirmMultipleImportModal', () => {
     it('should render the modal for an empty zip, with createNotebook=true', async () => {
       const zipData = await readZip('zips_with_meta', 'Empty.zip', {});
 
-      const params: ConfirmMultipleImportModalParams = {
+      const params: MultipleImportModalParams = {
         zipData,
         createNotebook: true
       };
@@ -478,7 +479,7 @@ describe('ConfirmMultipleImportModal', () => {
     it('should render the modal for a malformed zip, with createNotebook=false', async () => {
       const zipData = await readZip('malformed', 'SpaceMalformed.zip', {});
 
-      const params: ConfirmMultipleImportModalParams = { zipData };
+      const params: MultipleImportModalParams = { zipData };
       const screen = await renderModal(params);
 
       // check questions
@@ -554,7 +555,7 @@ describe('ConfirmMultipleImportModal', () => {
     it('should render the modal for a malformed zip, with createNotebook=true', async () => {
       const zipData = await readZip('malformed', 'SpaceMalformed.zip', {});
 
-      const params: ConfirmMultipleImportModalParams = {
+      const params: MultipleImportModalParams = {
         zipData,
         createNotebook: true
       };
@@ -649,7 +650,7 @@ describe('ConfirmMultipleImportModal', () => {
     it('should render the modal for a simple zip without meta, with createNotebook=false', async () => {
       const zipData = await readZip('zips_without_meta', 'Simple.zip', {});
 
-      const params: ConfirmMultipleImportModalParams = { zipData };
+      const params: MultipleImportModalParams = { zipData };
       const screen = await renderModal(params);
 
       // check questions
@@ -691,7 +692,7 @@ describe('ConfirmMultipleImportModal', () => {
     it('should render the modal for a simple zip without meta, with createNotebook=true', async () => {
       const zipData = await readZip('zips_without_meta', 'Simple.zip', {});
 
-      const params: ConfirmMultipleImportModalParams = {
+      const params: MultipleImportModalParams = {
         zipData,
         createNotebook: true
       };
@@ -738,7 +739,7 @@ describe('ConfirmMultipleImportModal', () => {
 
       collectionService.setItemTitle(dId, 'Simple Original');
 
-      const params: ConfirmMultipleImportModalParams = { zipData };
+      const params: MultipleImportModalParams = { zipData };
       const screen = await renderModal(params);
 
       // check questions
@@ -780,7 +781,7 @@ describe('ConfirmMultipleImportModal', () => {
     it('should render the modal for a simple zip with meta, with createNotebook=true', async () => {
       const zipData = await readZip('zips_with_meta', 'Simple.zip', {});
       collectionService.setItemTitle(nId, 'New folder');
-      const params: ConfirmMultipleImportModalParams = {
+      const params: MultipleImportModalParams = {
         zipData,
         createNotebook: true
       };
@@ -825,7 +826,7 @@ describe('ConfirmMultipleImportModal', () => {
 
     it('should render the modal for a zip with single folder without meta, with createNotebook=false', async () => {
       const zipData = await readZip('zips_without_meta', 'SimpleLayer.zip', {});
-      const params: ConfirmMultipleImportModalParams = { zipData };
+      const params: MultipleImportModalParams = { zipData };
       const screen = await renderModal(params);
 
       // check questions
@@ -867,7 +868,7 @@ describe('ConfirmMultipleImportModal', () => {
     it('should render the modal for a zip with single folder without meta, with createNotebook=true', async () => {
       const zipData = await readZip('zips_without_meta', 'SimpleLayer.zip', {});
       collectionService.setItemTitle(nId, 'SimpleLayer');
-      const params: ConfirmMultipleImportModalParams = {
+      const params: MultipleImportModalParams = {
         zipData,
         createNotebook: true
       };
@@ -912,7 +913,7 @@ describe('ConfirmMultipleImportModal', () => {
     it('should render the modal for a zip with single folder with meta, with createNotebook=false', async () => {
       const zipData = await readZip('zips_with_meta', 'SimpleLayer.zip', {});
       collectionService.setItemTitle(fId, 'Simple Original');
-      const params: ConfirmMultipleImportModalParams = { zipData };
+      const params: MultipleImportModalParams = { zipData };
       const screen = await renderModal(params);
 
       // check questions
@@ -954,7 +955,7 @@ describe('ConfirmMultipleImportModal', () => {
     it('should render the modal for a zip with single folder with meta, with createNotebook=true', async () => {
       const zipData = await readZip('zips_with_meta', 'SimpleLayer.zip', {});
       collectionService.setItemTitle(nId, 'New folder');
-      const params: ConfirmMultipleImportModalParams = {
+      const params: MultipleImportModalParams = {
         zipData,
         createNotebook: true
       };

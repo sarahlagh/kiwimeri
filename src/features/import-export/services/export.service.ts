@@ -1,10 +1,9 @@
 import {
-  CollectionItem,
-  CollectionItemDisplayOpts,
   CollectionItemResult,
   CollectionItemType,
   CollectionItemTypeValues
 } from '@/collection/collection';
+import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
 import { META_JSON } from '@/constants';
 import collectionService, {
   INITIAL_CONTENT_START
@@ -12,29 +11,11 @@ import collectionService, {
 import notebooksService from '@/db/notebooks.service';
 import formatConverter from '@/format-conversion/format-converter.service';
 import { strToU8, zip } from 'fflate';
-import { unminimizeContentFromStorage } from '../wysiwyg/compress-file-content';
-
-export type ZipFileTree = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any;
-};
-
-export type ZipExportOptions = {
-  includeMetadata?: boolean;
-};
-
-export type ZipMetadata = Partial<
-  Pick<
-    CollectionItem,
-    'type' | 'title' | 'created' | 'updated' | 'tags' | 'order'
-  >
-> & {
-  display_opts?: CollectionItemDisplayOpts;
-  format?: 'markdown';
-  files?: {
-    [key: string]: ZipMetadata;
-  };
-};
+import {
+  ZipExportOptions,
+  ZipFileTree,
+  ZipMetadata
+} from '../model/model-export';
 
 class ExportService {
   private readonly opts: ZipExportOptions = {
@@ -205,4 +186,5 @@ class ExportService {
   }
 }
 
-export const exportService = new ExportService();
+const exportService = new ExportService();
+export default exportService;
