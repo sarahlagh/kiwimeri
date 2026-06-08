@@ -12,7 +12,10 @@ import {
   CollectionItemTypeValues,
   CollectionItemUpdatableFieldEnum,
   CollectionItemUpdate,
+  DocumentDisplayOpts,
+  FolderDisplayOpts,
   isDocument,
+  NotebookDisplayOpts,
   SortableCollectionItem
 } from '@/collection/collection';
 import { genericReorder } from '@/common/dnd/utils';
@@ -46,7 +49,7 @@ class CollectionService {
   private readonly storeId = 'space';
   private readonly tableId = 'collection';
 
-  private fetchAllPerParentQuery(parent: string, deleted: boolean = false) {
+  private fetchAllPerParentQuery(parent: string) {
     const queryName = `fetchAllForParent${parent}`;
     if (!spaceQueries.hasQuery(queryName)) {
       spaceQueries.setQueryDefinition(
@@ -61,17 +64,13 @@ class CollectionService {
           select('conflict');
           select('order');
           where('parent', parent);
-          where('deleted', deleted);
         }
       );
     }
     return queryName;
   }
 
-  private fetchDocsFoldersNotebooksPerParentQuery(
-    parent: string,
-    deleted: boolean = false
-  ) {
+  private fetchDocsFoldersNotebooksPerParentQuery(parent: string) {
     const queryName = `fetchAllCollectionItemsFor${parent}`;
     if (!spaceQueries.hasQuery(queryName)) {
       spaceQueries.setQueryDefinition(
@@ -86,7 +85,6 @@ class CollectionService {
           select('conflict');
           select('order');
           where('parent', parent);
-          where('deleted', deleted);
         }
       );
     }
@@ -164,7 +162,7 @@ class CollectionService {
 
   public getCollectionItems(parent: string, sort?: CollectionItemSort) {
     if (!sort) {
-      sort = userSettingsService.getDefaultDisplayOpts().sort;
+      sort = userSettingsService.getNotebookDisplayOpts().sort;
     }
     const table = space.getTable(this.tableId);
     const queryName = this.fetchAllPerParentQuery(parent);
@@ -176,7 +174,7 @@ class CollectionService {
     sort?: CollectionItemSort
   ) {
     if (!sort) {
-      sort = userSettingsService.getDefaultDisplayOpts().sort;
+      sort = userSettingsService.getNotebookDisplayOpts().sort;
     }
     return fetchItemsQuery.getResults(
       {
@@ -197,7 +195,7 @@ class CollectionService {
     cb?: (level: CollectionItemResult[]) => void
   ) {
     if (!sort) {
-      sort = userSettingsService.getDefaultDisplayOpts().sort;
+      sort = userSettingsService.getNotebookDisplayOpts().sort;
     }
     let results: CollectionItemResult[] = [];
     const level = this.getCollectionItems(parent, sort);
@@ -241,7 +239,7 @@ class CollectionService {
 
   public getConflicts(sort?: CollectionItemSort) {
     if (!sort) {
-      sort = userSettingsService.getDefaultDisplayOpts().sort;
+      sort = userSettingsService.getNotebookDisplayOpts().sort;
     }
     const table = space.getTable(this.tableId);
     const queryName = this.fetchConflictsQuery();
@@ -260,13 +258,9 @@ class CollectionService {
       parent_meta: setMetaField(now, parent),
       content,
       content_meta: setMetaField(now, content),
-      tags: '',
-      tags_meta: setMetaField(now),
       created: now,
       updated: now,
       type: CollectionItemType.document,
-      deleted: false,
-      deleted_meta: setMetaField(now, false),
       order: DEFAULT_ORDER, // TODO dynamic order
       order_meta: setMetaField(now, 0)
     };
@@ -288,13 +282,9 @@ class CollectionService {
       title_meta: setMetaField(now, getGlobalTrans().newFolderTitle),
       parent: parent,
       parent_meta: setMetaField(now, parent),
-      tags: '',
-      tags_meta: setMetaField(now),
       created: now,
       updated: now,
       type: CollectionItemType.folder,
-      deleted: false,
-      deleted_meta: setMetaField(now, false),
       order: DEFAULT_ORDER, // TODO dynamic order
       order_meta: setMetaField(now, 0)
     };
@@ -494,23 +484,16 @@ class CollectionService {
   // get display opts => raw data from db
 
   public useItemDisplayOpts(rowId: Id): CollectionItemDisplayOpts | undefined {
-    const str =
-      useCellWithRef<string>(
-        this.storeId,
-        this.tableId,
-        rowId,
-        'display_opts'
-      ) || null;
-    return str ? JSON.parse(str) : undefined;
+    return useCellWithRef<CollectionItemDisplayOpts>(
+      this.storeId,
+      this.tableId,
+      rowId,
+      'display_opts'
+    );
   }
 
   public getItemDisplayOpts(rowId: Id): CollectionItemDisplayOpts | undefined {
-    const str =
-      (space
-        .getCell(this.tableId, rowId, 'display_opts')
-        ?.valueOf() as string) || '';
-
-    return str ? JSON.parse(str) : undefined;
+    return space.getCell(this.tableId, rowId, 'display_opts');
   }
 
   public useItemFlags(rowId: Id): CollectionItemFlags | undefined {
@@ -528,44 +511,49 @@ class CollectionService {
 
   // get effective display opts => data merged with defaults if needed
 
-  public useItemEffectiveDisplayOpts(rowId: Id): CollectionItemDisplayOpts {
-    const defaultDisplayOpts = userSettingsService.useDefaultDisplayOpts();
-    const str =
-      useCellWithRef<string>(
-        this.storeId,
-        this.tableId,
-        rowId,
-        'display_opts'
-      ) || null;
-    const obj = this.parseDisplayOpts(str);
-    return obj ? obj : defaultDisplayOpts;
-  }
-
-  public getItemEffectiveDisplayOpts(rowId: Id): CollectionItemDisplayOpts {
-    const str =
-      (space
-        .getCell(this.tableId, rowId, 'display_opts')
-        ?.valueOf() as string) || null;
-    const obj = this.parseDisplayOpts(str);
-    return obj ? obj : userSettingsService.getDefaultDisplayOpts();
-  }
-
-  private parseDisplayOpts(str: string | null) {
-    const obj = str ? JSON.parse(str) : null;
-    if (obj && 'sort' in obj) {
-      return obj as CollectionItemDisplayOpts;
+  public useFolderEffectiveDisplayOpts(rowId: Id): FolderDisplayOpts {
+    const defaultDisplayOpts = userSettingsService.useNotebookDisplayOpts();
+    const folOpts = useCellWithRef<FolderDisplayOpts>(
+      this.storeId,
+      this.tableId,
+      rowId,
+      'display_opts'
+    );
+    if (folOpts === undefined) {
+      return defaultDisplayOpts;
     }
-    return null;
+    return folOpts;
   }
 
-  public setItemDisplayOpts(
-    rowId: Id,
-    display_opts: CollectionItemDisplayOpts
-  ) {
+  public getFolderEffectiveDisplayOpts(rowId: Id): FolderDisplayOpts {
+    const obj = space.getCell(this.tableId, rowId, 'display_opts');
+    return obj
+      ? (obj as FolderDisplayOpts)
+      : userSettingsService.getNotebookDisplayOpts();
+  }
+
+  public getDocumentDisplayOpts(rowId: Id): DocumentDisplayOpts | undefined {
+    return space.getCell(
+      this.tableId,
+      rowId,
+      'display_opts'
+    ) as DocumentDisplayOpts;
+  }
+
+  public setNotebookDisplayOpts(rowId: Id, display_opts: NotebookDisplayOpts) {
     if (display_opts.sort.by === 'order') display_opts.sort.descending = false;
+    this.setItemField(rowId, 'display_opts', display_opts);
+  }
+
+  public setFolderDisplayOpts(rowId: Id, display_opts: FolderDisplayOpts) {
+    if (display_opts.sort.by === 'order') display_opts.sort.descending = false;
+    this.setItemField(rowId, 'display_opts', display_opts);
+  }
+
+  public setDocumentDisplayOpts(rowId: Id, display_opts: DocumentDisplayOpts) {
     if (display_opts.documentSort?.by === 'order')
       display_opts.documentSort.descending = false;
-    this.setItemField(rowId, 'display_opts', JSON.stringify(display_opts));
+    this.setItemField(rowId, 'display_opts', display_opts);
   }
 
   public setItemFlags(rowId: Id, flags: CollectionItemFlags) {
@@ -604,17 +592,15 @@ class CollectionService {
   }
 
   public getItemTags(rowId: Id) {
-    return new Set(
-      ((space.getCell(this.tableId, rowId, 'tags')?.valueOf() as string) || '')
-        .split(',')
-        .filter(t => t.length > 0)
+    return new Set<string>(
+      space.getCell(this.tableId, rowId, 'tags') as string[]
     );
   }
 
   public addItemTag(rowId: Id, tag: string) {
     const tags = this.getItemTags(rowId);
     tags.add(tag);
-    this.setItemField(rowId, 'tags', [...tags].join(','));
+    this.setItemField(rowId, 'tags', [...tags]);
   }
 
   public addItemTags(rowId: Id, tags: string[]) {
@@ -622,24 +608,24 @@ class CollectionService {
     tags.forEach(tag => {
       currentTags.add(tag);
     });
-    this.setItemField(rowId, 'tags', [...currentTags].join(','));
+    this.setItemField(rowId, 'tags', [...currentTags]);
   }
 
   public setItemTags(rowId: Id, tags: string[]) {
-    this.setItemField(rowId, 'tags', [...tags].join(','));
+    this.setItemField(rowId, 'tags', [...tags]);
   }
 
   public delItemTag(rowId: Id, tag: string) {
     const tags = this.getItemTags(rowId);
     tags.delete(tag);
-    this.setItemField(rowId, 'tags', [...tags].join(','));
+    this.setItemField(rowId, 'tags', [...tags]);
   }
 
   public renameItemTag(rowId: Id, tag1: string, tag2: string) {
     const tags = this.getItemTags(rowId);
     tags.delete(tag1);
     tags.add(tag2);
-    this.setItemField(rowId, 'tags', [...tags].join(','));
+    this.setItemField(rowId, 'tags', [...tags]);
   }
 
   public getItemType(rowId: Id): CollectionItemTypeValues {

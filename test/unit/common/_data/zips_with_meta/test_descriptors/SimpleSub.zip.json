@@ -36,7 +36,7 @@
                 "content": "__defined__",
                 "created": 1753088323853,
                 "updated": 1753088323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               },
               {
                 "id": "#idSimpleSub",
@@ -53,7 +53,7 @@
                 "content": "__defined__",
                 "created": 1753088323853,
                 "updated": 1753088323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               },
               {
                 "id": "#idSub",
@@ -70,7 +70,7 @@
                 "content": "__defined__",
                 "created": 1753089323853,
                 "updated": 1753089323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               }
             ],
             "firstLevel": [
@@ -115,7 +115,7 @@
                 "content": "__defined__",
                 "created": 1753088323853,
                 "updated": 1753088323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               },
               {
                 "id": "#idSimpleSub",
@@ -132,7 +132,7 @@
                 "content": "__defined__",
                 "created": 1753088323853,
                 "updated": 1753088323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               },
               {
                 "id": "#idSub",
@@ -149,7 +149,7 @@
                 "content": "__defined__",
                 "created": 1753089323853,
                 "updated": 1753089323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               }
             ],
             "firstLevel": [
@@ -208,7 +208,7 @@
                 "content": "__defined__",
                 "created": 1753088323853,
                 "updated": 1753088323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               },
               {
                 "id": "#idSimpleSub",
@@ -225,7 +225,7 @@
                 "content": "__defined__",
                 "created": 1753088323853,
                 "updated": 1753088323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               },
               {
                 "id": "#idSub",
@@ -242,7 +242,7 @@
                 "content": "__defined__",
                 "created": 1753089323853,
                 "updated": 1753089323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               }
             ],
             "firstLevel": [
@@ -269,7 +269,7 @@
           "title": "Simple Original",
           "parent": "#id",
           "type": "d",
-          "tags": "tag1,tag2,tag3"
+          "tags": ["tag1", "tag2", "tag3"]
         },
         {
           "id": "#idSimpleSub",
@@ -281,7 +281,7 @@
           "title": "Quote",
           "parent": "#idSimpleSub",
           "type": "d",
-          "tags": "tag1,tag2,tag3"
+          "tags": ["tag1", "tag2", "tag3"]
         },
         {
           "id": "#idSub",
@@ -293,7 +293,7 @@
           "title": "Test",
           "parent": "#idSub",
           "type": "d",
-          "tags": "tag1"
+          "tags": ["tag1"]
         }
       ],
       "scenarios": [
@@ -325,7 +325,7 @@
                 "title": "Simple Original",
                 "parent": "#nid",
                 "type": "d",
-                "tags": "tag1,tag2",
+                "tags": ["tag1", "tag2"],
                 "created": 1753088323853,
                 "updated": 1753088323853
               },
@@ -341,7 +341,7 @@
                 "title": "Quote",
                 "parent": "#nidSimpleSub",
                 "type": "d",
-                "tags": "tag1,tag2",
+                "tags": ["tag1", "tag2"],
                 "created": 1753088323853,
                 "updated": 1753088323853
               },
@@ -357,7 +357,7 @@
                 "title": "Test",
                 "parent": "#nidSub",
                 "type": "d",
-                "tags": "tag1,tag2",
+                "tags": ["tag1", "tag2"],
                 "created": 1753089323853,
                 "updated": 1753089323853
               }
@@ -405,7 +405,7 @@
                 "title": "Simple Original",
                 "parent": "#id",
                 "type": "d",
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               },
               {
                 "id": "#idSimpleSub",
@@ -417,7 +417,7 @@
                 "title": "Quote",
                 "parent": "#idSimpleSub",
                 "type": "d",
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               },
               {
                 "id": "#idSub",
@@ -429,7 +429,7 @@
                 "title": "Test",
                 "parent": "#idSub",
                 "type": "d",
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               }
             ],
             "firstLevel": [
@@ -491,7 +491,7 @@
                 "title": "Simple Original",
                 "parent": "#nid",
                 "type": "d",
-                "tags": "tag1,tag2",
+                "tags": ["tag1", "tag2"],
                 "created": 1753088323853,
                 "updated": 1753088323853
               },
@@ -507,7 +507,7 @@
                 "title": "Quote",
                 "parent": "#nidSimpleSub",
                 "type": "d",
-                "tags": "tag1,tag2",
+                "tags": ["tag1", "tag2"],
                 "created": 1753088323853,
                 "updated": 1753088323853
               },
@@ -523,7 +523,7 @@
                 "title": "Test",
                 "parent": "#nidSub",
                 "type": "d",
-                "tags": "tag1,tag2",
+                "tags": ["tag1", "tag2"],
                 "created": 1753089323853,
                 "updated": 1753089323853
               }
@@ -555,7 +555,7 @@
                 "title": "Simple Original",
                 "parent": "0",
                 "type": "d",
-                "tags": "tag1,tag2",
+                "tags": ["tag1", "tag2"],
                 "created": 1753088323853,
                 "updated": 1753088323853
               },
@@ -571,7 +571,7 @@
                 "title": "Quote",
                 "parent": "#nidSimpleSub",
                 "type": "d",
-                "tags": "tag1,tag2",
+                "tags": ["tag1", "tag2"],
                 "created": 1753088323853,
                 "updated": 1753088323853
               },
@@ -587,7 +587,7 @@
                 "title": "Test",
                 "parent": "#nidSub",
                 "type": "d",
-                "tags": "tag1,tag2",
+                "tags": ["tag1", "tag2"],
                 "created": 1753089323853,
                 "updated": 1753089323853
               }
@@ -633,7 +633,7 @@
                 "title": "Simple Original",
                 "parent": "#nid",
                 "type": "d",
-                "tags": "tag1,tag2",
+                "tags": ["tag1", "tag2"],
                 "created": 1753088323853,
                 "updated": 1753088323853
               },
@@ -649,7 +649,7 @@
                 "title": "Quote",
                 "parent": "#nidSimpleSub",
                 "type": "d",
-                "tags": "tag1,tag2",
+                "tags": ["tag1", "tag2"],
                 "created": 1753088323853,
                 "updated": 1753088323853
               },
@@ -665,7 +665,7 @@
                 "title": "Test",
                 "parent": "#nidSub",
                 "type": "d",
-                "tags": "tag1,tag2",
+                "tags": ["tag1", "tag2"],
                 "created": 1753089323853,
                 "updated": 1753089323853
               }

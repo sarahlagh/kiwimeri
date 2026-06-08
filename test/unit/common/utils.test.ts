@@ -160,6 +160,7 @@ describe('utils test', () => {
       )
     ).toBe(true);
     expect(cellEquals(['el1', 'el2'], ['el1', 'el2'])).toBe(true);
+    expect(cellEquals(['el2', 'el1'], ['el1', 'el2'])).toBe(false);
     expect(cellEquals([{ val: 1 }, { val: 2 }], [{ val: 1 }, { val: 2 }])).toBe(
       true
     );
@@ -208,6 +209,7 @@ describe('utils test', () => {
         { isBool: true, nested: false }
       )
     ).toBe(false);
+    expect(cellEquals(['el1'], ['el1', 'el3'])).toBe(false);
     expect(cellEquals(['el1', 'el2'], ['el1', 'el3'])).toBe(false);
     expect(cellEquals([{ val: 1 }, { val: 2 }], [{ val: 1 }, { val: 3 }])).toBe(
       false

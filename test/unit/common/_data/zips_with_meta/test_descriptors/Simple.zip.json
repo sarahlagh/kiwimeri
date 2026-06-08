@@ -22,7 +22,7 @@
                 "content": "__defined__",
                 "created": 1753088323853,
                 "updated": 1753088323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               }
             ],
             "firstLevel": [
@@ -59,7 +59,7 @@
                 "content": "__defined__",
                 "created": 1753088323853,
                 "updated": 1753088323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               }
             ],
             "firstLevel": [
@@ -97,7 +97,7 @@
                 "content": "__defined__",
                 "created": 1753088323853,
                 "updated": 1753088323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               }
             ],
             "firstLevel": [
@@ -138,7 +138,7 @@
                 "content": "__defined__",
                 "created": 1753088323853,
                 "updated": 1753088323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               }
             ],
             "firstLevel": [
@@ -181,7 +181,7 @@
                 "content": "__defined__",
                 "created": 1753088323853,
                 "updated": 1753088323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               }
             ],
             "firstLevel": [
@@ -280,7 +280,7 @@
                 "content": "__defined__",
                 "created": 1753088323853,
                 "updated": 1753088323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               }
             ],
             "firstLevel": [
@@ -322,7 +322,7 @@
                 "parent": "#fID1",
                 "type": "d",
                 "content": "__defined__",
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               }
             ],
             "firstLevel": [
@@ -368,7 +368,7 @@
                 "content": "__defined__",
                 "created": 1753088323853,
                 "updated": 1753088323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               }
             ],
             "firstLevel": [
@@ -409,7 +409,7 @@
                 "content": "__defined__",
                 "created": 1753088323853,
                 "updated": 1753088323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               }
             ],
             "firstLevel": [
@@ -452,7 +452,7 @@
                 "content": "__defined__",
                 "created": 1753088323853,
                 "updated": 1753088323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               }
             ],
             "firstLevel": [
@@ -561,7 +561,7 @@
                 "content": "__defined__",
                 "created": 1753088323853,
                 "updated": 1753088323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               }
             ],
             "firstLevel": [
@@ -608,7 +608,7 @@
                 "parent": "#notebook",
                 "type": "d",
                 "content": "__defined__",
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               }
             ],
             "firstLevel": [
@@ -659,7 +659,7 @@
                 "content": "__defined__",
                 "created": 1753088323853,
                 "updated": 1753088323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               }
             ],
             "firstLevel": [

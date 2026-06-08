@@ -110,9 +110,12 @@ class DocumentAnnotationsService {
   }
 
   public setNotesSortOnDocument(docId: Id, newNoteSort: NotesSort) {
-    const effectiveOpts = collectionService.getItemEffectiveDisplayOpts(docId);
+    let effectiveOpts = collectionService.getDocumentDisplayOpts(docId);
+    if (!effectiveOpts) {
+      effectiveOpts = { documentSort: newNoteSort };
+    }
     effectiveOpts.documentSort = newNoteSort;
-    collectionService.setItemDisplayOpts(docId, effectiveOpts);
+    collectionService.setDocumentDisplayOpts(docId, effectiveOpts);
   }
 
   public exists(id: Id) {

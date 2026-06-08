@@ -3,8 +3,8 @@ import { CONFLICTS_NOTEBOOK_ID } from '@/constants';
 import { MetaField } from '@/core/db/types';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import {
-  allFields,
   allNonHistorizableNonConflictFields,
+  allNonParentUpdatableFields,
   conflictFields,
   conflictNonHistorizableFields,
   contentField,
@@ -165,7 +165,7 @@ const scenarioMatrix: {
           'item deleted locally, then updated on remote (any field) → remote wins, item exists with remote state',
         initLocalData: [{ id: '#id', applyInitValue: true }],
         initRemoteData: [{ id: '#id', applyInitValue: true }],
-        fields: [...allFields],
+        fields: [...allNonParentUpdatableFields],
         changesBeforePull: [
           { id: '#id', change: LocalChangeType.delete, where: 'local' },
           { id: '#id', change: LocalChangeType.update, where: 'remote' }
@@ -208,7 +208,7 @@ const scenarioMatrix: {
           'item updated on remote (any field), then deleted locally → item stays deleted (local wins)',
         initLocalData: [{ id: '#id', applyInitValue: true }],
         initRemoteData: [{ id: '#id', applyInitValue: true }],
-        fields: [...allFields],
+        fields: [...allNonParentUpdatableFields],
         changesBeforePull: [
           { id: '#id', change: LocalChangeType.update, where: 'remote' },
           { id: '#id', change: LocalChangeType.delete, where: 'local' }
@@ -492,7 +492,7 @@ const scenarioMatrix: {
       {
         description:
           'field updated locally on any field, unchanged on remote → local change persists',
-        fields: [...allFields],
+        fields: [...allNonParentUpdatableFields],
         initLocalData: [{ id: '#id', applyInitValue: true }],
         initRemoteData: [{ id: '#id', applyInitValue: true }],
         changesBeforePull: [
@@ -516,7 +516,7 @@ const scenarioMatrix: {
         didPush: false,
         description:
           'same field on item updated locally, then remotely with same value → remote change persists',
-        fields: [...allFields],
+        fields: [...allNonParentUpdatableFields],
         initLocalData: [{ id: '#id', applyInitValue: true }],
         initRemoteData: [{ id: '#id', applyInitValue: true }],
         changesBeforePull: [
@@ -631,7 +631,7 @@ const scenarioMatrix: {
       {
         description:
           'field unchanged locally, updated on remote on any field → remote value applied',
-        fields: [...allFields],
+        fields: [...allNonParentUpdatableFields],
         initLocalData: [{ id: '#id', applyInitValue: true }],
         initRemoteData: [{ id: '#id', applyInitValue: true }],
         changesBeforePull: [
@@ -652,7 +652,7 @@ const scenarioMatrix: {
       {
         description:
           'same field on item updated remotely, then locally with same value → local change persists',
-        fields: [...allFields],
+        fields: [...allNonParentUpdatableFields],
         initLocalData: [{ id: '#id', applyInitValue: true }],
         initRemoteData: [{ id: '#id', applyInitValue: true }],
         changesBeforePull: [

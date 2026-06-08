@@ -61,8 +61,6 @@ describe('collection history service', () => {
             content_meta: rowBefore.content_meta,
             tags: rowBefore.tags,
             tags_meta: rowBefore.tags_meta,
-            deleted: rowBefore.deleted,
-            deleted_meta: rowBefore.deleted_meta,
             display_opts: rowBefore.display_opts,
             display_opts_meta: rowBefore.display_opts_meta,
             order: rowBefore.order,

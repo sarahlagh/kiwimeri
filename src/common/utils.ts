@@ -44,7 +44,10 @@ export const minimizeKeys = (
   excludeKeys: string[] = []
 ) => {
   const m = {} as AnyData;
-  if (!obj !== undefined) return obj;
+  if (obj === undefined || obj === null) return obj;
+  if (typeof obj === 'string') return obj;
+  if (typeof obj === 'number') return obj;
+  if (typeof obj === 'boolean') return obj;
   Object.keys(obj).forEach(k => {
     const newKey = keys.has(k) ? keys.get(k)! : k;
     if (typeof obj[k] === 'string') {
@@ -74,6 +77,9 @@ export const unminimizeKeys = (
 ) => {
   const m = {} as AnyData;
   if (obj === undefined || obj === null) return obj;
+  if (typeof obj === 'string') return obj;
+  if (typeof obj === 'number') return obj;
+  if (typeof obj === 'boolean') return obj;
   Object.keys(obj).forEach(k => {
     const newKey = keys.has(k) ? keys.get(k)! : k;
     if (typeof obj[k] === 'string') {
@@ -120,7 +126,10 @@ export const cellEquals = (
   if (!(cell1 instanceof Object) || !(cell2 instanceof Object)) return false;
   // array comparison
   if (Array.isArray(cell1) && Array.isArray(cell2)) {
-    return cell1.every((v, i) => cellEquals(v, cell2[i]));
+    return (
+      cell1.length === cell2.length &&
+      cell1.every((v, i) => cellEquals(v, cell2[i]))
+    );
   }
   // object comparison
   return (

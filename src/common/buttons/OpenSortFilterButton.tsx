@@ -37,8 +37,8 @@ const OpenSortFilterButton = ({
 }: OpenSortFilterButtonProps) => {
   const type = collectionService.getItemType(id);
   const choices = buildChoices(type);
-  const displayOpts = collectionService.useItemEffectiveDisplayOpts(id);
-  const sort = displayOpts.sort;
+  const display_opts = collectionService.useFolderEffectiveDisplayOpts(id);
+  const sort = display_opts.sort;
 
   const [present] = useIonPopover(SortFilter, {
     currentSort: sort,
@@ -49,7 +49,7 @@ const OpenSortFilterButton = ({
     onSearch,
     onSortChange: (sort?: CollectionItemSort) => {
       if (sort) {
-        collectionService.setItemDisplayOpts(id, { ...displayOpts, sort });
+        collectionService.setFolderDisplayOpts(id, { ...display_opts, sort });
       }
     }
   });

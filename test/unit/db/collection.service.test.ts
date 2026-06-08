@@ -1,9 +1,10 @@
 import {
-  CollectionItemDisplayOpts,
   CollectionItemResetConflictFields,
   CollectionItemResult,
   CollectionItemSort,
-  CollectionItemType
+  CollectionItemType,
+  FolderDisplayOpts,
+  NotebookDisplayOpts
 } from '@/collection/collection';
 import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
 import {
@@ -72,9 +73,6 @@ describe('collection service', () => {
         // parent
         expect(item.parent).toBe(DEFAULT_NOTEBOOK_ID);
         expect(item.parent_meta._u).toBe(item.updated);
-        // deleted
-        expect(item.deleted).toBe(false);
-        expect(item.deleted_meta._u).toBe(item.updated);
       });
 
       it(`should create a new ${type} inside an existing folder`, () => {
@@ -751,29 +749,27 @@ describe('collection service', () => {
 
   describe(`effective options`, () => {
     it(`should return space defaults if undefined on notebook and folder`, () => {
-      const spaceDefaults = {
+      const spaceDefaults: NotebookDisplayOpts = {
         sort: { by: 'order', descending: true }
-      } as CollectionItemDisplayOpts;
+      };
       userSettingsService.setSpaceDefaultDisplayOpts(spaceDefaults);
       const fol1Id = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
       const fol2Id = collectionService.addFolder(fol1Id);
       const effectiveOpts =
-        collectionService.getItemEffectiveDisplayOpts(fol2Id);
+        collectionService.getFolderEffectiveDisplayOpts(fol2Id);
       expect(effectiveOpts).toEqual(spaceDefaults);
     });
 
     it(`should return notebook defaults if undefined on folder`, () => {
-      const spaceDefaults = {
-        sort: { by: 'order', descending: true },
-        statsEnabled: true
-      } as CollectionItemDisplayOpts;
+      const spaceDefaults: NotebookDisplayOpts = {
+        sort: { by: 'order', descending: true }
+      };
       userSettingsService.setSpaceDefaultDisplayOpts(spaceDefaults);
 
-      const notebookDefaults = {
-        sort: { by: 'title', descending: false },
-        statsEnabled: false
-      } as CollectionItemDisplayOpts;
-      collectionService.setItemDisplayOpts(
+      const notebookDefaults: NotebookDisplayOpts = {
+        sort: { by: 'title', descending: false }
+      };
+      collectionService.setFolderDisplayOpts(
         DEFAULT_NOTEBOOK_ID,
         notebookDefaults
       );
@@ -781,72 +777,65 @@ describe('collection service', () => {
       const fol1Id = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
       const fol2Id = collectionService.addFolder(fol1Id);
       const effectiveOpts =
-        collectionService.getItemEffectiveDisplayOpts(fol2Id);
+        collectionService.getFolderEffectiveDisplayOpts(fol2Id);
       expect(effectiveOpts).toEqual(notebookDefaults);
     });
 
     // TODO wait till reorga
     it.skip(`should return parent folder defaults if undefined on folder`, () => {
-      const spaceDefaults = {
-        sort: { by: 'order', descending: true },
-        statsEnabled: true
-      } as CollectionItemDisplayOpts;
+      const spaceDefaults: NotebookDisplayOpts = {
+        sort: { by: 'order', descending: true }
+      };
       userSettingsService.setSpaceDefaultDisplayOpts(spaceDefaults);
 
-      const notebookDefaults = {
-        sort: { by: 'title', descending: false },
-        statsEnabled: false
-      } as CollectionItemDisplayOpts;
-      collectionService.setItemDisplayOpts(
+      const notebookDefaults: NotebookDisplayOpts = {
+        sort: { by: 'title', descending: false }
+      };
+      collectionService.setFolderDisplayOpts(
         DEFAULT_NOTEBOOK_ID,
         notebookDefaults
       );
 
-      const fol1Defaults = {
-        sort: { by: 'updated', descending: true },
-        statsEnabled: true
-      } as CollectionItemDisplayOpts;
+      const fol1Defaults: FolderDisplayOpts = {
+        sort: { by: 'updated', descending: true }
+      };
       const fol1Id = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
-      collectionService.setItemDisplayOpts(fol1Id, fol1Defaults);
+      collectionService.setFolderDisplayOpts(fol1Id, fol1Defaults);
 
       const fol2Id = collectionService.addFolder(fol1Id);
       const effectiveOpts =
-        collectionService.getItemEffectiveDisplayOpts(fol2Id);
+        collectionService.getFolderEffectiveDisplayOpts(fol2Id);
       expect(effectiveOpts).toEqual(fol1Defaults);
     });
 
     it(`should return folder defaults if defined on folder`, () => {
-      const spaceDefaults = {
-        sort: { by: 'order', descending: true },
-        statsEnabled: true
-      } as CollectionItemDisplayOpts;
+      const spaceDefaults: NotebookDisplayOpts = {
+        sort: { by: 'order', descending: true }
+      };
       userSettingsService.setSpaceDefaultDisplayOpts(spaceDefaults);
 
-      const notebookDefaults = {
-        sort: { by: 'title', descending: false },
-        statsEnabled: false
-      } as CollectionItemDisplayOpts;
-      collectionService.setItemDisplayOpts(
+      const notebookDefaults: NotebookDisplayOpts = {
+        sort: { by: 'title', descending: false }
+      };
+      collectionService.setFolderDisplayOpts(
         DEFAULT_NOTEBOOK_ID,
         notebookDefaults
       );
 
-      const fol1Defaults = {
-        sort: { by: 'updated', descending: true },
-        statsEnabled: true
-      } as CollectionItemDisplayOpts;
+      const fol1Defaults: FolderDisplayOpts = {
+        sort: { by: 'updated', descending: true }
+      };
       const fol1Id = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
-      collectionService.setItemDisplayOpts(fol1Id, fol1Defaults);
+      collectionService.setFolderDisplayOpts(fol1Id, fol1Defaults);
 
-      const fol2Defaults = {
-        sort: { by: 'created', descending: false },
-        statsEnabled: false
-      } as CollectionItemDisplayOpts;
+      const fol2Defaults: FolderDisplayOpts = {
+        sort: { by: 'created', descending: false }
+      };
       const fol2Id = collectionService.addFolder(fol1Id);
-      collectionService.setItemDisplayOpts(fol2Id, fol2Defaults);
+      collectionService.setFolderDisplayOpts(fol2Id, fol2Defaults);
 
       const effectiveOpts =
-        collectionService.getItemEffectiveDisplayOpts(fol2Id);
+        collectionService.getFolderEffectiveDisplayOpts(fol2Id);
       expect(effectiveOpts).toEqual(fol2Defaults);
     });
   });

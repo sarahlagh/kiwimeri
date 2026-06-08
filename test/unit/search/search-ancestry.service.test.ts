@@ -34,7 +34,7 @@ const createTestData = () => {
   const D1 = oneDocument('D1', FFF1.id);
   D1.id = 'D1';
   D1.content = minimizeContentForStorage(shortContent);
-  D1.tags = 'tag1';
+  D1.tags = ['tag1'];
   const F2 = oneFolder('F2');
   F2.id = 'F2';
   const FF2 = oneFolder('FF2', F2.id);

@@ -289,13 +289,15 @@ describe('import service', () => {
           );
         }
         if ('tags' in expectedItem) {
-          expect((mergedItem as CollectionItem).tags).toBe(expectedItem.tags);
+          expect((mergedItem as CollectionItem).tags).toEqual(
+            expectedItem.tags
+          );
         }
         if ('order' in expectedItem) {
           expect((mergedItem as CollectionItem).order).toBe(expectedItem.order);
         }
         if ('display_opts' in expectedItem) {
-          expect((mergedItem as CollectionItem).display_opts).toBe(
+          expect((mergedItem as CollectionItem).display_opts).toEqual(
             expectedItem.display_opts
           );
         }

@@ -34,7 +34,7 @@ const DocumentVersionFooter = ({
 }: {
   versionData: CollectionItemSnapshotData;
 }) => {
-  const itemTags: string[] = versionData.tags?.split(',') || [];
+  const itemTags: string[] = versionData.tags || [];
   return (
     <IonFooter
       style={{ overflowX: 'auto', flexWrap: 'nowrap', display: 'flex' }}

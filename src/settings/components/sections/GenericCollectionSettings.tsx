@@ -1,7 +1,7 @@
 import {
-  CollectionItemDisplayOpts,
   CollectionItemFlags,
-  CollectionItemSortType
+  CollectionItemSortType,
+  NotebookDisplayOpts
 } from '@/collection/collection';
 import EditConfigList, {
   ConfigRowType
@@ -10,9 +10,9 @@ import { AnySerializableData, SerializableData } from '@/db/types/store-types';
 import { useLingui } from '@lingui/react/macro';
 
 type GenericCollectionSettingsProps = {
-  defaultDisplayOpts: CollectionItemDisplayOpts;
+  defaultDisplayOpts: NotebookDisplayOpts;
   onDefaultDisplayOptsChange: (
-    newDefaultDisplayOpts: CollectionItemDisplayOpts
+    newDefaultDisplayOpts: NotebookDisplayOpts
   ) => void;
   defaultFlags: Required<CollectionItemFlags>;
   onDefaultFlagsChange: (newDefaultFlags: CollectionItemFlags) => void;

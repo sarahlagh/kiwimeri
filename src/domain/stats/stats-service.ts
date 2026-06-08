@@ -94,9 +94,7 @@ class StatsService {
       resultRow => ({
         itemId: resultRow.itemId,
         date: resultRow.date,
-        contentStats: JSON.parse(
-          resultRow.contentStatsJson
-        ) as DocumentContentStatsBag
+        contentStats: resultRow.contentStatsJson
       }),
       'date',
       true
@@ -108,9 +106,7 @@ class StatsService {
       this.buildStatsQuery(itemId),
       resultRow => ({
         date: resultRow.date,
-        values: JSON.parse(
-          resultRow.contentStatsJson
-        ) as DocumentContentStatsBag
+        values: resultRow.contentStatsJson
       }),
       'date',
       false
@@ -166,7 +162,7 @@ class StatsService {
     space.setPartialRow('stats', rowId, {
       itemId,
       date,
-      contentStatsJson: JSON.stringify(mergedStats)
+      contentStatsJson: mergedStats
     });
   }
 
@@ -210,7 +206,7 @@ class StatsService {
     space.setPartialRow('stats', rowId, {
       itemId,
       date,
-      contentStatsJson: JSON.stringify(mergedStats)
+      contentStatsJson: mergedStats
     });
   }
 
@@ -291,11 +287,7 @@ class StatsService {
   }
 
   private getContentStats(rowId: string): DocumentContentStatsBag {
-    const json = space.getCell('stats', rowId, 'contentStatsJson')?.toString();
-    if (json) {
-      return JSON.parse(json) as DocumentContentStatsBag;
-    }
-    return {};
+    return space.getCell('stats', rowId, 'contentStatsJson') || {};
   }
 
   public clearStats() {

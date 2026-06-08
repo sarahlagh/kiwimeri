@@ -7,6 +7,6 @@ export interface Notebook extends CollectionItem {
 
 export type NotebookResult = Pick<
   Notebook,
-  'parent' | 'title' | 'type' | 'created' | 'updated' | 'deleted' | 'order'
+  'parent' | 'title' | 'type' | 'created' | 'updated' | 'order'
 > &
   Required<Pick<Notebook, 'id'>>;

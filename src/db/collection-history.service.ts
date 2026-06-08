@@ -20,7 +20,7 @@ type VersionsWithContentResult = ResultRow & {
   op: CollectionItemVersionOp;
   itemId: string;
   createdAt: number;
-  snapshotJson: string;
+  snapshotJson: Partial<CollectionItemSnapshotData>;
   content: string;
   preview: string;
   hash: number;
@@ -153,7 +153,7 @@ class CollectionHistoryService {
       op: resultRow.op,
       createdAt: resultRow.createdAt,
       itemId: resultRow.itemId,
-      snapshotJson: JSON.parse(resultRow.snapshotJson),
+      snapshotJson: resultRow.snapshotJson as CollectionItemSnapshotData,
       content: resultRow.content,
       preview: resultRow.preview,
       hash: resultRow.hash,
@@ -244,7 +244,7 @@ class CollectionHistoryService {
       op: versionRow.op,
       createdAt: versionRow.createdAt,
       itemId: versionRow.itemId,
-      snapshotJson: JSON.parse(versionRow.snapshotJson),
+      snapshotJson: versionRow.snapshotJson as CollectionItemSnapshotData,
       content: contentRow?.content || '',
       preview: contentRow?.preview || '',
       hash: contentRow?.hash || 0,
@@ -335,8 +335,6 @@ class CollectionHistoryService {
       content_meta: item.content_meta,
       tags: item.tags,
       tags_meta: item.tags_meta,
-      deleted: item.deleted,
-      deleted_meta: item.deleted_meta,
       display_opts: item.display_opts,
       display_opts_meta: item.display_opts_meta,
       flags: item.flags,
@@ -346,7 +344,7 @@ class CollectionHistoryService {
       created: item.created,
       updated: item.updated
     };
-    return JSON.stringify(data);
+    return data;
   }
 
   public saveVersionFromItem(item: CollectionItem) {
@@ -419,9 +417,7 @@ class CollectionHistoryService {
         op,
         itemId: newVersion.itemId,
         createdAt: Date.now(),
-        snapshotJson: newVersion.snapshotJson
-          ? JSON.stringify(newVersion.snapshotJson)
-          : undefined,
+        snapshotJson: newVersion.snapshotJson,
         contentId,
         rank: 0
       });

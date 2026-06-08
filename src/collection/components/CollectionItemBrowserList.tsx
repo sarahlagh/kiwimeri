@@ -144,8 +144,8 @@ export const CollectionItemBrowserList = ({
   const openedDocument = searchParams?.document;
   const hasConflicts = conflictsService.useHasLocalConflicts();
 
-  const displayOpts = collectionService.useItemEffectiveDisplayOpts(folder);
-  const sort = displayOpts.sort;
+  const display_opts = collectionService.useFolderEffectiveDisplayOpts(folder);
+  const sort = display_opts.sort;
 
   const [modeIdx, setModeIdx] = useStoreValueState<number>('lastBrowserMode');
   const modeTrans = new Map<BrowserQueryMode, string>();

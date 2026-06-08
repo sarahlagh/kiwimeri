@@ -2,6 +2,7 @@ import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import collectionService from '@/db/collection.service';
 import tagsService from '@/db/tags.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
+import { createStore } from 'tinybase';
 import { describe, expect, it } from 'vitest';
 
 describe('tags service', () => {
@@ -95,5 +96,22 @@ describe('tags service', () => {
     expect(tagsService.getItemsPerTag('tag1')).toStrictEqual([id1]);
     expect(tagsService.getItemsPerTag('tag2')).toStrictEqual([id1, id2]);
     expect(tagsService.getItemsPerTag('tag3')).toStrictEqual([id2]);
+  });
+});
+
+describe('to be sure', () => {
+  it('should tag', () => {
+    const _store = createStore().setTablesSchema({
+      collection: {
+        itemId: { type: 'string' },
+        tags: { type: 'array' }
+      }
+    });
+    _store.setRow('collection', '0', {
+      itemId: '0',
+      tags: ['tag1']
+    });
+    const tags = _store.getCell('collection', '0', 'tags');
+    expect(tags).toEqual(['tag1']);
   });
 });

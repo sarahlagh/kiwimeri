@@ -16,21 +16,21 @@ describe('user settings service', () => {
       }
     });
 
-    collectionService.setItemDisplayOpts(currentNotebook, {
+    collectionService.setFolderDisplayOpts(currentNotebook, {
       sort: {
         by: 'order',
         descending: false
       }
     });
 
-    collectionService.setItemDisplayOpts(folderId, {
+    collectionService.setFolderDisplayOpts(folderId, {
       sort: {
         by: 'title',
         descending: false
       }
     });
 
-    const defaultOpts = userSettingsService.getDefaultDisplayOpts();
+    const defaultOpts = userSettingsService.getNotebookDisplayOpts();
     const folderOpts = collectionService.getItemDisplayOpts(folderId);
     expect(defaultOpts).toEqual({
       sort: {
@@ -56,14 +56,14 @@ describe('user settings service', () => {
       }
     });
 
-    collectionService.setItemDisplayOpts(currentNotebook, {
+    collectionService.setFolderDisplayOpts(currentNotebook, {
       sort: {
         by: 'order',
         descending: false
       }
     });
 
-    const defaultOpts = userSettingsService.getDefaultDisplayOpts();
+    const defaultOpts = userSettingsService.getNotebookDisplayOpts();
     expect(defaultOpts).toEqual({
       sort: {
         by: 'order',
@@ -81,14 +81,14 @@ describe('user settings service', () => {
       }
     });
 
-    collectionService.setItemDisplayOpts(currentNotebook, {
+    collectionService.setFolderDisplayOpts(currentNotebook, {
       sort: {
         by: 'order',
         descending: false
       }
     });
 
-    const defaultOpts = userSettingsService.getDefaultDisplayOpts('another');
+    const defaultOpts = userSettingsService.getNotebookDisplayOpts('another');
     expect(defaultOpts).toEqual({
       sort: {
         by: 'updated',

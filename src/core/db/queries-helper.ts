@@ -9,7 +9,6 @@ import {
   Param,
   ParamValues,
   Queries,
-  ResultRow,
   Select,
   Where
 } from 'tinybase/with-schemas';
@@ -147,7 +146,7 @@ export class TinybaseQueryDefinition<
 
 export class SpaceQueryDefinition<
   ParamDef extends ParamValues,
-  QueryResult extends ResultRow,
+  QueryResult,
   RootTableId extends SpaceTableId
 > extends TinybaseQueryDefinition<
   SpaceType,
@@ -166,7 +165,7 @@ export class SpaceQueryDefinition<
 
 export class StoreQueryDefinition<
   ParamDef extends ParamValues,
-  QueryResult extends ResultRow,
+  QueryResult,
   RootTableId extends StoreTableId
 > extends TinybaseQueryDefinition<
   StoreType,

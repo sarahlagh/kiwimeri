@@ -135,24 +135,10 @@ export type ValueType =
   | 'string'
   | 'lex'
   | 'number'
+  | 'string_array'
   | 'boolean'
   | 'display_opts'
   | 'flags';
-export const NON_PARENT_UPDATABLE_FIELDS: {
-  field: CollectionItemUpdatableFieldEnum;
-  valueType: ValueType;
-}[] = [
-  { field: 'title', valueType: 'string' },
-  { field: 'content', valueType: 'lex' },
-  { field: 'tags', valueType: 'string' },
-  { field: 'order', valueType: 'number' },
-  { field: 'display_opts', valueType: 'display_opts' },
-  { field: 'flags', valueType: 'flags' }
-];
-
-export const getNewContent = (text: string) => {
-  return `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"${text}","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`;
-};
 
 export type TestField = {
   field: CollectionItemUpdatableFieldEnum;
@@ -162,7 +148,10 @@ export type TestField = {
 export const parentField: TestField = { field: 'parent', valueType: 'id' };
 export const titleField: TestField = { field: 'title', valueType: 'string' };
 export const contentField: TestField = { field: 'content', valueType: 'lex' };
-export const tagsField: TestField = { field: 'tags', valueType: 'string' };
+export const tagsField: TestField = {
+  field: 'tags',
+  valueType: 'string_array'
+};
 export const orderField: TestField = { field: 'order', valueType: 'number' };
 export const displayOptsField: TestField = {
   field: 'display_opts',
@@ -173,7 +162,7 @@ export const flagsField: TestField = {
   valueType: 'flags'
 };
 
-export const allFields: TestField[] = [
+export const allNonParentUpdatableFields: TestField[] = [
   titleField,
   contentField,
   tagsField,
@@ -189,30 +178,32 @@ export const conflictNonHistorizableFields: TestField[] = conflictFields.filter(
   f => !historizableFields.includes(f)
 );
 
-export const nonConflictFields: TestField[] = allFields.filter(
-  f => !conflictFields.includes(f)
-);
+export const nonConflictFields: TestField[] =
+  allNonParentUpdatableFields.filter(f => !conflictFields.includes(f));
 
-export const nonHistorizableFields: TestField[] = allFields.filter(
-  f => !historizableFields.includes(f)
-);
+export const nonHistorizableFields: TestField[] =
+  allNonParentUpdatableFields.filter(f => !historizableFields.includes(f));
 
 export const allNonHistorizableNonConflictFields: TestField[] =
-  allFields.filter(
+  allNonParentUpdatableFields.filter(
     f => nonConflictFields.includes(f) && nonHistorizableFields.includes(f)
   );
+
+export const getNewContent = (text: string) => {
+  return `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"${text}","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`;
+};
 
 export const getNewValue = (
   valueType: ValueType,
   potentialId?: string
 ): DbSerializableData => {
   if (valueType === 'string') return `new string value ${getUniqueId()}`;
+  if (valueType === 'string_array')
+    return [`new string value ${getUniqueId()}`];
   if (valueType === 'lex') return getNewContent(`Sample text ${getUniqueId()}`);
   if (valueType === 'id') return potentialId ? potentialId : ROOT_COLLECTION;
   if (valueType === 'display_opts')
-    return JSON.stringify({
-      sort: { rand: Math.floor(Math.random() * 10001) }
-    });
+    return { sort: { ___for_tests_: Math.floor(Math.random() * 10001) } };
   if (valueType === 'flags')
     return {
       ___for_tests_: Math.floor(Math.random() * 10001),
@@ -225,7 +216,7 @@ export const getNewValue = (
 export const UPDATABLE_FIELDS: {
   field: CollectionItemUpdatableFieldEnum;
   valueType: ValueType;
-}[] = [...NON_PARENT_UPDATABLE_FIELDS, { field: 'parent', valueType: 'id' }];
+}[] = [...allNonParentUpdatableFields, { field: 'parent', valueType: 'id' }];
 
 const NON_CONFLICT_CHANGES: {
   local: CollectionItemUpdatableFieldEnum;
@@ -279,7 +270,7 @@ export const GET_UPDATABLE_FIELDS = (type: string) =>
   UPDATABLE_FIELDS.filter(f => filterPerType(f.field, type));
 
 export const GET_NON_PARENT_UPDATABLE_FIELDS = (type: string) =>
-  NON_PARENT_UPDATABLE_FIELDS.filter(f => filterPerType(f.field, type));
+  allNonParentUpdatableFields.filter(f => filterPerType(f.field, type));
 
 export const GET_NON_CONFLICT_CHANGES = (type: string) =>
   NON_CONFLICT_CHANGES.filter(f =>

@@ -27,7 +27,7 @@ class NotebooksService {
   private readonly table = 'collection';
   private readonly spacesTable = 'spaces';
 
-  private fetchAllNotebooksQuery(parent?: string, deleted: boolean = false) {
+  private fetchAllNotebooksQuery(parent?: string) {
     const queryName = `fetchAllNotebooksFor${parent ? parent : ROOT_COLLECTION}`;
     if (!spaceQueries.hasQuery(queryName)) {
       spaceQueries.setQueryDefinition(
@@ -39,7 +39,6 @@ class NotebooksService {
           select('order');
           where('type', CollectionItemType.notebook);
           where('parent', parent ? parent : ROOT_COLLECTION);
-          where('deleted', deleted);
         }
       );
     }
@@ -86,8 +85,6 @@ class NotebooksService {
       created: Date.now(),
       updated: Date.now(),
       type: CollectionItemType.notebook,
-      deleted: false,
-      deleted_meta: setMetaField(now, false),
       order: DEFAULT_ORDER, // TODO dynamic order
       order_meta: setMetaField(now, 0)
     };

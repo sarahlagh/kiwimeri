@@ -38,7 +38,7 @@ describe('export service', () => {
         isRoot: boolean,
         metaType: CollectionItemType = CollectionItemType.folder,
         shouldBeDefined = true,
-        tags = ''
+        tags?: string[]
       ) => {
         if (!opts.includeMetadata || !shouldBeDefined) {
           expect(zipContent[META_JSON]).not.toBeDefined();
@@ -64,8 +64,8 @@ describe('export service', () => {
           if (metaType === CollectionItemType.folder) {
             expect(meta.updated).toBe(Date.now());
             expect(meta.created).toBe(Date.now());
-            expect(meta.tags).toBeDefined();
           }
+          expect(meta.tags).toBeUndefined();
 
           const filesInZip = Object.keys(zipContent).filter(
             key => key !== META_JSON && Array.isArray(zipContent[key])
@@ -82,7 +82,7 @@ describe('export service', () => {
               expect(metaFile.updated).toBe(Date.now());
               expect(metaFile.type).toBe(CollectionItemType.document);
               expect(metaFile.title).toBe('New document');
-              expect(metaFile.tags).toBe(tags);
+              expect(metaFile.tags).toEqual(tags);
             });
           } else {
             const docs = filesInZip.filter(
@@ -145,18 +145,15 @@ describe('export service', () => {
         expect(strFromU8(zipContent['New document.md'][0])).toBe(
           'this is the document content\n\n'
         );
-        checkMetadata(
-          zipContent,
-          true,
-          CollectionItemType.folder,
-          true,
-          'tag1,tag2'
-        );
+        checkMetadata(zipContent, true, CollectionItemType.folder, true, [
+          'tag1',
+          'tag2'
+        ]);
       });
 
       it(`should export a folder with several levels as a zip`, () => {
         const fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
-        collectionService.setItemDisplayOpts(fId, {
+        collectionService.setFolderDisplayOpts(fId, {
           sort: { by: 'updated', descending: true }
         });
         newDoc(fId, 'this is the document content');
@@ -182,8 +179,8 @@ describe('export service', () => {
           expect(meta).toBeDefined();
           expect(meta!.display_opts).toBeDefined();
           expect(meta!.display_opts!.sort).toBeDefined();
-          expect(meta!.display_opts!.sort.by).toBe('updated');
-          expect(meta!.display_opts!.sort.descending).toBe(true);
+          expect(meta!.display_opts!.sort!.by).toBe('updated');
+          expect(meta!.display_opts!.sort!.descending).toBe(true);
         }
       });
 

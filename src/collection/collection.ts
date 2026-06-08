@@ -21,16 +21,14 @@ export interface CollectionItem {
   title_meta: MetaField;
   content?: string;
   content_meta?: MetaField;
-  tags?: string;
+  tags?: string[];
   tags_meta?: MetaField;
   created: number;
   updated: number;
-  deleted: boolean; // TODO remove
-  deleted_meta: MetaField;
   conflict?: string;
   order: number;
   order_meta: MetaField;
-  display_opts?: string;
+  display_opts?: CollectionItemDisplayOpts;
   display_opts_meta?: MetaField;
   flags?: CollectionItemFlags;
   flags_meta?: MetaField;
@@ -52,10 +50,19 @@ export type CollectionItemSort = {
   descending: boolean;
 };
 
-export interface CollectionItemDisplayOpts {
+export type CollectionItemDisplayOpts = Partial<NotebookDisplayOpts> &
+  Partial<FolderDisplayOpts> &
+  Partial<DocumentDisplayOpts>;
+
+export type NotebookDisplayOpts = FolderDisplayOpts;
+
+export type FolderDisplayOpts = {
   sort: CollectionItemSort;
-  documentSort?: NotesSort;
-}
+};
+
+export type DocumentDisplayOpts = {
+  documentSort: NotesSort;
+};
 
 export interface CollectionItemFlags extends AnyObject {
   statsEnabled?: boolean;
@@ -72,34 +79,18 @@ export type CollectionItemFieldEnum = keyof Required<
 export type CollectionItemUpdatableFieldEnum = keyof Required<
   Pick<
     CollectionItem,
-    | 'parent'
-    | 'title'
-    | 'content'
-    | 'tags'
-    | 'deleted' // TODO remove
-    | 'order'
-    | 'display_opts'
-    | 'flags'
+    'parent' | 'title' | 'content' | 'tags' | 'order' | 'display_opts' | 'flags'
   >
 >;
 
 export const CollectionItemUpdatableFields: CollectionItemUpdatableFieldEnum[] =
-  [
-    'parent',
-    'title',
-    'content',
-    'tags',
-    'deleted',
-    'order',
-    'display_opts',
-    'flags'
-  ];
+  ['parent', 'title', 'content', 'tags', 'order', 'display_opts', 'flags'];
 
 export const CollectionItemUpdateChangeFields: CollectionItemUpdatableFieldEnum[] =
-  ['title', 'content', 'tags', 'deleted', 'display_opts', 'flags'];
+  ['title', 'content', 'tags', 'display_opts', 'flags'];
 
 export const CollectionItemResetConflictFields: CollectionItemUpdatableFieldEnum[] =
-  ['parent', 'title', 'content', 'tags', 'deleted'];
+  ['parent', 'title', 'content', 'tags'];
 
 export const CollectionItemHistorizableFields: CollectionItemUpdatableFieldEnum[] =
   ['content'];
@@ -112,7 +103,6 @@ export type CollectionItemResult = Pick<
   | 'tags'
   | 'created'
   | 'updated'
-  | 'deleted'
   | 'order'
   | 'display_opts'
   | 'conflict'
@@ -123,7 +113,7 @@ export type CollectionItemResult = Pick<
   };
 
 export const CollectionItemUpdatableConflictFields: CollectionItemUpdatableFieldEnum[] =
-  ['parent', 'title', 'content', 'deleted'] as const;
+  ['parent', 'title', 'content'] as const;
 
 export const CollectionItemUpdatableNonConflictFields: CollectionItemUpdatableFieldEnum[] =
   CollectionItemUpdatableFields.filter(
@@ -157,8 +147,7 @@ export type CollectionItemVersionRow = {
   createdAt: number;
   rank: number; // not ideal when created informs the order, but convenient for the gc query
   contentId: string;
-  /** CollectionItemSnapshotData */
-  snapshotJson: string;
+  snapshotJson: Partial<CollectionItemSnapshotData>;
 };
 
 export type CollectionItemVersionContentRow = {
@@ -186,8 +175,6 @@ export type CollectionItemSnapshotData = Pick<
   | 'content_meta'
   | 'tags'
   | 'tags_meta'
-  | 'deleted'
-  | 'deleted_meta'
   | 'order'
   | 'order_meta'
   | 'display_opts'

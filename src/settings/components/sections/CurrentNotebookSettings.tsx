@@ -13,7 +13,7 @@ import { Trans } from '@lingui/react/macro';
 import GenericCollectionSettings from './GenericCollectionSettings';
 
 const CurrentNotebookSettings = () => {
-  const _defaultDisplayOpts = userSettingsService.useDefaultDisplayOpts();
+  const _defaultDisplayOpts = userSettingsService.useNotebookDisplayOpts();
   const _defaultFlags = userSettingsService.useDefaultFlags();
   const currentNotebook = notebooksService.useCurrentNotebook();
   const notebookTitle = notebooksService.useNotebookTitle(currentNotebook);
@@ -37,7 +37,7 @@ const CurrentNotebookSettings = () => {
           defaultDisplayOpts={_defaultDisplayOpts}
           defaultFlags={_defaultFlags}
           onDefaultDisplayOptsChange={newDisplayOpts => {
-            collectionService.setItemDisplayOpts(
+            collectionService.setNotebookDisplayOpts(
               currentNotebook,
               newDisplayOpts
             );

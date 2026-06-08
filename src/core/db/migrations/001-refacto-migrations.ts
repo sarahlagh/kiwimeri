@@ -1,8 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { Id } from 'tinybase';
 import { MetaField, NoSchemaStore } from '../types';
 
 const C = 'collection';
 const AN = 'document_annotation';
+const H = 'history';
+const S = 'stats';
 
 export default function Migration(
   _space: NoSchemaStore,
@@ -11,6 +14,19 @@ export default function Migration(
 ) {
   metaFieldsBecomeObjects(_space);
   statsEnabledInItemFlags(_space);
+  displayOptsBecomeObjects(_space);
+  tagsBecomeArray(_space);
+  snapshotJsonBecomeObjectsAndUpdate(_space);
+  contentStatsBecomeObjects(_space);
+}
+
+function unstringify(space: NoSchemaStore, tableId: Id, cellId: Id) {
+  space.getRowIds(tableId).forEach(rowId => {
+    const cell = space.getCell(tableId, rowId, cellId);
+    if (cell && typeof cell === 'string') {
+      space.setCell(tableId, rowId, cellId, JSON.parse(cell));
+    }
+  });
 }
 
 function statsEnabledInItemFlags(_space: NoSchemaStore) {
@@ -56,4 +72,35 @@ function _metaFieldsBecomeObjects(space: NoSchemaStore, tableId: string) {
       }
     }
   });
+}
+
+function displayOptsBecomeObjects(space: NoSchemaStore) {
+  unstringify(space, C, 'display_opts');
+}
+
+function tagsBecomeArray(space: NoSchemaStore) {
+  space.getRowIds(C).forEach(rowId => {
+    const tags = space.getCell(C, rowId, 'tags');
+    if (tags && typeof tags === 'string') {
+      space.setCell(C, rowId, 'tags', tags.split(','));
+    }
+  });
+}
+
+function snapshotJsonBecomeObjectsAndUpdate(space: NoSchemaStore) {
+  space.getRowIds(H).forEach(rowId => {
+    const snapshotJson = space.getCell(H, rowId, 'snapshotJson');
+    if (snapshotJson && typeof snapshotJson === 'string') {
+      const newJson = JSON.parse(snapshotJson);
+      // TODO
+      // statsEnabled to flags
+      // metaFields to objects
+      // display_opts to objects
+      // tags to array
+      space.setCell(H, rowId, 'snapshotJson', newJson);
+    }
+  });
+}
+function contentStatsBecomeObjects(space: NoSchemaStore) {
+  unstringify(space, S, 'contentStatsJson');
 }

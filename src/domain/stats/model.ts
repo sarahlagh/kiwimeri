@@ -7,7 +7,7 @@ export type DocumentStatRow = {
   id?: string;
   itemId: string;
   date?: string;
-  contentStatsJson?: string;
+  contentStatsJson?: DocumentContentStatsBag;
 } & Partial<DocumentGlobalStatsBag>;
 
 export type DocumentContentStatsBag = {

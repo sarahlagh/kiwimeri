@@ -37,7 +37,6 @@ const fetchItemsQuery = new SpaceQueryDefinition<
   select('tags');
   select('created');
   select('updated');
-  select('deleted');
   select('order');
   select('conflict');
   select('display_opts');
@@ -60,7 +59,6 @@ const fetchItemsQuery = new SpaceQueryDefinition<
     });
   }
 
-  where('deleted', false);
   if (params.recursive === false) {
     where('parent', params.parent);
   } else {

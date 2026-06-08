@@ -36,7 +36,7 @@
                 "content": "__defined__",
                 "created": 1753088323853,
                 "updated": 1753088323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               },
               {
                 "id": "#idSimpleSub",
@@ -55,7 +55,7 @@
                 "title": "Sub",
                 "parent": "#idSimpleSub",
                 "type": "f",
-                "tags": "sub",
+                "tags": ["sub"],
                 "created": 1753088317446
               },
               {
@@ -64,7 +64,7 @@
                 "type": "d",
                 "content": "__defined__",
                 "updated": 1753089323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               }
             ],
             "firstLevel": [
@@ -109,7 +109,7 @@
                 "content": "__defined__",
                 "created": 1753088323853,
                 "updated": 1753088323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               },
               {
                 "id": "#idSimpleSub",
@@ -128,7 +128,7 @@
                 "title": "Sub",
                 "parent": "#idSimpleSub",
                 "type": "f",
-                "tags": "sub",
+                "tags": ["sub"],
                 "created": 1753088317446
               },
               {
@@ -137,7 +137,7 @@
                 "type": "d",
                 "content": "__defined__",
                 "updated": 1753089323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               }
             ],
             "firstLevel": [

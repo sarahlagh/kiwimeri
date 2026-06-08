@@ -30,7 +30,7 @@
                 "content": "__defined",
                 "created": 1753088323853,
                 "updated": 1753088323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               },
               {
                 "id": "#fIdSub",
@@ -39,7 +39,7 @@
                 "type": "f",
                 "created": 1753088317446,
                 "updated": 1753088377511,
-                "tags": "sub"
+                "tags": ["sub"]
               },
               {
                 "title": "Test",
@@ -48,7 +48,7 @@
                 "content": "__defined",
                 "created": 1753089323853,
                 "updated": 1753089323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               }
             ],
             "firstLevel": [
@@ -77,7 +77,7 @@
                 "content": "__defined",
                 "created": 1753088323853,
                 "updated": 1753088323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               },
               {
                 "id": "#fIdSub",
@@ -86,7 +86,7 @@
                 "type": "f",
                 "created": 1753088317446,
                 "updated": 1753088377511,
-                "tags": "sub"
+                "tags": ["sub"]
               },
               {
                 "title": "Test",
@@ -95,7 +95,7 @@
                 "content": "__defined",
                 "created": 1753089323853,
                 "updated": 1753089323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               }
             ],
             "firstLevel": [
@@ -142,7 +142,7 @@
                 "content": "__defined",
                 "created": 1753088323853,
                 "updated": 1753088323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               },
               {
                 "id": "#fIdSub",
@@ -151,7 +151,7 @@
                 "type": "f",
                 "created": 1753088317446,
                 "updated": 1753088377511,
-                "tags": "sub"
+                "tags": ["sub"]
               },
               {
                 "title": "Test",
@@ -160,7 +160,7 @@
                 "content": "__defined",
                 "created": 1753089323853,
                 "updated": 1753089323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               }
             ],
             "firstLevel": [
@@ -204,7 +204,7 @@
                 "content": "__defined",
                 "created": 1753088323853,
                 "updated": 1753088323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               },
               {
                 "id": "#fIdSub",
@@ -213,7 +213,7 @@
                 "type": "f",
                 "created": 1753088317446,
                 "updated": 1753088377511,
-                "tags": "sub"
+                "tags": ["sub"]
               },
               {
                 "title": "Test",
@@ -222,7 +222,7 @@
                 "content": "__defined",
                 "created": 1753089323853,
                 "updated": 1753089323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               }
             ],
             "firstLevel": [
@@ -277,7 +277,7 @@
                 "content": "__defined",
                 "created": 1753088323853,
                 "updated": 1753088323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               },
               {
                 "id": "#fIdSub",
@@ -286,7 +286,7 @@
                 "type": "f",
                 "created": 1753088317446,
                 "updated": 1753088377511,
-                "tags": "sub"
+                "tags": ["sub"]
               },
               {
                 "title": "Test",
@@ -295,7 +295,7 @@
                 "content": "__defined",
                 "created": 1753089323853,
                 "updated": 1753089323853,
-                "tags": "tag1,tag2"
+                "tags": ["tag1", "tag2"]
               }
             ],
             "firstLevel": [

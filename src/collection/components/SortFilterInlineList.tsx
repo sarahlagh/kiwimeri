@@ -40,8 +40,8 @@ const SortFilterInlineList = ({
 }: SortFilterInlineListProps) => {
   const type = collectionService.getItemType(id);
   const choices = buildChoices(type);
-  const displayOpts = collectionService.useItemEffectiveDisplayOpts(id);
-  const sort = displayOpts.sort;
+  const display_opts = collectionService.useFolderEffectiveDisplayOpts(id);
+  const sort = display_opts.sort;
 
   return (
     <SortFilter
@@ -51,8 +51,8 @@ const SortFilterInlineList = ({
       sortEnabled={sortEnabled}
       onSortChange={(sort?: CollectionItemSort) => {
         if (sort) {
-          collectionService.setItemDisplayOpts(id, {
-            ...displayOpts,
+          collectionService.setFolderDisplayOpts(id, {
+            ...display_opts,
             sort
           });
         }

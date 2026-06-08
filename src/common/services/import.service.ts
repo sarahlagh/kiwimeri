@@ -86,7 +86,7 @@ export const ZipMetadataSchema = z.object({
   title: z.string().optional(),
   created: z.number().optional(),
   updated: z.number().optional(),
-  tags: z.string().optional(),
+  tags: z.array(z.string()).optional(),
   order: z.number().optional(),
   display_opts: z
     .object({
@@ -165,7 +165,7 @@ class ImportService {
       item.order = meta.order;
     }
     if (meta.display_opts) {
-      item.display_opts = JSON.stringify(meta.display_opts);
+      item.display_opts = meta.display_opts;
     }
   }
 
@@ -270,7 +270,7 @@ class ImportService {
               items.get(metaFilePath)!.parent = items.get(parentKey)!.id!;
             }
             if (metaFile.tags) {
-              metaFile.tags.split(',').forEach(tag => {
+              metaFile.tags.forEach(tag => {
                 docTags.add(tag);
               });
             }

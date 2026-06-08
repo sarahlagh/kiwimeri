@@ -76,8 +76,6 @@ class ExportService {
       title: item.title,
       order: item.order,
       display_opts: item.display_opts
-        ? JSON.parse(item.display_opts)
-        : undefined
     };
   }
 

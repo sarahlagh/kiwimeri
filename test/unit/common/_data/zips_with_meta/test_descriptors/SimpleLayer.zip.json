@@ -119,7 +119,9 @@
                 "created": 1753088495423,
                 "updated": 1753088495423,
                 "order": 1,
-                "display_opts": "{\"sort\":{\"descending\":true,\"by\":\"updated\"}}"
+                "display_opts": {
+                  "sort": { "descending": true, "by": "updated" }
+                }
               },
               {
                 "title": "Simple",

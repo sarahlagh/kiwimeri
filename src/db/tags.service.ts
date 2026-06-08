@@ -18,7 +18,7 @@ class TagsService {
         level
           .filter(item => item.tags !== undefined && item.tags.length > 0)
           .forEach(item => {
-            item.tags!.split(',').forEach(t => {
+            item.tags!.forEach(t => {
               if (!this.itemsPerTags.has(t)) {
                 this.itemsPerTags.set(t, []);
               }

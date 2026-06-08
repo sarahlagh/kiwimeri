@@ -44,7 +44,7 @@ export default function useCollectionItemBrowserListResults(
   if (mode === 'browser' || mode === 'conflicts') {
     sort = userSort;
     if (!sort) {
-      sort = userSettingsService.getDefaultDisplayOpts().sort; // should use hook
+      sort = userSettingsService.getNotebookDisplayOpts().sort; // should use hook
     }
   } else {
     sort = { by: mode, descending: true };

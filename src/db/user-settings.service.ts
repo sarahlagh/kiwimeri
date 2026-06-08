@@ -1,8 +1,8 @@
 import {
-  CollectionItemDisplayOpts,
   CollectionItemFlags,
   CollectionItemSortType,
-  defaultFlags
+  defaultFlags,
+  NotebookDisplayOpts
 } from '@/collection/collection';
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
@@ -64,9 +64,7 @@ class UserSettingsService {
 
   // here, options that are synchronized with collection
 
-  public getSpaceDefaultDisplayOpts(
-    spaceId?: string
-  ): CollectionItemDisplayOpts {
+  public getSpaceDefaultDisplayOpts(spaceId?: string): NotebookDisplayOpts {
     if (!spaceId) {
       spaceId = DEFAULT_SPACE_ID;
     }
@@ -100,7 +98,7 @@ class UserSettingsService {
     };
   }
 
-  public useSpaceDefaultDisplayOpts(space?: string): CollectionItemDisplayOpts {
+  public useSpaceDefaultDisplayOpts(space?: string): NotebookDisplayOpts {
     if (!space) {
       space = DEFAULT_SPACE_ID;
     }
@@ -120,7 +118,7 @@ class UserSettingsService {
     };
   }
 
-  public setSpaceDefaultDisplayOpts(newDisplayOpts: CollectionItemDisplayOpts) {
+  public setSpaceDefaultDisplayOpts(newDisplayOpts: NotebookDisplayOpts) {
     if (newDisplayOpts.sort.by === 'order')
       newDisplayOpts.sort.descending = false;
     this.setSyncableValues({
@@ -147,31 +145,31 @@ class UserSettingsService {
     });
   }
 
-  public useDefaultDisplayOpts(
+  public useNotebookDisplayOpts(
     notebook?: string,
     space?: string
-  ): CollectionItemDisplayOpts {
+  ): NotebookDisplayOpts {
     const currentNotebook = notebooksService.useCurrentNotebook();
     if (!notebook) {
       notebook = currentNotebook;
     }
     const notebookDisplayOpts = collectionService.useItemDisplayOpts(notebook);
     if (notebookDisplayOpts) {
-      return notebookDisplayOpts!;
+      return notebookDisplayOpts as NotebookDisplayOpts;
     }
     return this.getSpaceDefaultDisplayOpts(space);
   }
 
-  public getDefaultDisplayOpts(
+  public getNotebookDisplayOpts(
     notebook?: string,
     space?: string
-  ): CollectionItemDisplayOpts {
+  ): NotebookDisplayOpts {
     if (!notebook) {
       notebook = notebooksService.getCurrentNotebook();
     }
     const notebookDisplayOpts = collectionService.getItemDisplayOpts(notebook);
     if (notebookDisplayOpts) {
-      return notebookDisplayOpts!;
+      return notebookDisplayOpts as NotebookDisplayOpts;
     }
     return this.getSpaceDefaultDisplayOpts(space);
   }

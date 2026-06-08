@@ -1,4 +1,4 @@
-import { DEFAULT_NOTEBOOK_ID, DEFAULT_SPACE_ID } from '@/constants';
+import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { docAnnotationSchema } from '@/domain/document-annotations/model';
 import { localChangesSchema } from '@/domain/local-changes/model';
 import { resumeStateSchema } from '@/domain/resume-state/model';
@@ -56,11 +56,11 @@ export const storeTablesSchema = {
 export const storeValuesSchema = {
   tempDoc: { type: 'string' },
   appVersion: { type: 'string' }, // delete
-  currentSpace: { type: 'string', default: DEFAULT_SPACE_ID }, // delete
+  // put in notebook display opts
+  lastBrowserMode: { type: 'number', default: 0 },
   // put in space for native saving
   showDevTools: { type: 'boolean', default: false },
   globalZoom: { type: 'number', default: 1 },
-  lastBrowserMode: { type: 'number', default: 0 },
   exportIncludeMetadata: { type: 'boolean', default: true },
   theme: { type: 'string', default: 'dark' },
   maxLogHistory: { type: 'number', default: 500 },
@@ -81,16 +81,14 @@ export const spaceTablesSchema = {
     type: { type: 'string' },
     content: { type: 'string' },
     content_meta: { type: 'object' },
-    tags: { type: 'string' },
+    tags: { type: 'array' },
     tags_meta: { type: 'object' },
     created: { type: 'number' },
     updated: { type: 'number' },
-    deleted: { type: 'boolean', default: false },
-    deleted_meta: { type: 'object' },
     conflict: { type: 'string' },
     order: { type: 'number' },
     order_meta: { type: 'object' },
-    display_opts: { type: 'string' },
+    display_opts: { type: 'object' },
     display_opts_meta: { type: 'object' },
     flags: { type: 'object' },
     flags_meta: { type: 'object' }
@@ -100,7 +98,7 @@ export const spaceTablesSchema = {
     op: { type: 'string' },
     createdAt: { type: 'number' },
     rank: { type: 'number' },
-    snapshotJson: { type: 'string' },
+    snapshotJson: { type: 'object' },
     contentId: { type: 'string' }
   },
   history_content: {
@@ -112,10 +110,10 @@ export const spaceTablesSchema = {
   stats: {
     itemId: { type: 'string' },
     date: { type: 'string' },
-    contentStatsJson: { type: 'string' },
+    contentStatsJson: { type: 'object' },
     lastOpenedAt: { type: 'number' }
   },
-  document_annotation: docAnnotationSchema,
+  document_annotation: docAnnotationSchema
 } as const;
 export const spaceValuesSchema = {
   valuesLastUpdatedAt: { type: 'number', default: 0 }, // delete

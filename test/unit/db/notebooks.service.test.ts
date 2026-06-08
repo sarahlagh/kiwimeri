@@ -3,8 +3,8 @@ import { MetaField } from '@/core/db/types';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import {
-  getLocalItemField,
-  NON_PARENT_UPDATABLE_FIELDS
+  allNonParentUpdatableFields,
+  getLocalItemField
 } from '@@/_setup/test.utils';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -44,7 +44,7 @@ describe('notebooks service', () => {
     vi.useRealTimers();
   });
 
-  NON_PARENT_UPDATABLE_FIELDS.forEach(({ field }) => {
+  allNonParentUpdatableFields.forEach(({ field }) => {
     it(`should not update notebook modified timestamp on items update with ${field}`, () => {
       vi.useFakeTimers();
       const created = Date.now();
