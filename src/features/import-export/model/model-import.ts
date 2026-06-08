@@ -1,34 +1,9 @@
 import {
   CollectionItem,
   CollectionItemResult,
-  CollectionItemUpdate,
-  sortBy
+  CollectionItemUpdate
 } from '@/collection/collection';
-import z from 'zod';
 import { ZipMetadata } from './model-export';
-
-// TODO remove zod, not used enough
-export const ZipMetadataSchema = z.object({
-  format: z.enum(['markdown']).optional(),
-  // type: z.enum(CollectionItemType).optional(),
-  type: z.string().optional(),
-  title: z.string().optional(),
-  created: z.number().optional(),
-  updated: z.number().optional(),
-  tags: z.array(z.string()).optional(),
-  order: z.number().optional(),
-  display_opts: z
-    .object({
-      sort: z
-        .object({
-          by: z.enum(sortBy),
-          descending: z.boolean()
-        })
-        .refine(val => val.by !== 'order' || val.descending === false)
-    })
-    .optional(),
-  files: z.object().optional()
-});
 
 export type ZipMergeFistLevel = {
   status: 'new' | 'merged';

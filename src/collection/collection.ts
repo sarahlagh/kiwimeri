@@ -8,8 +8,8 @@ export enum CollectionItemType {
   folder = 'f',
   document = 'd'
 }
-
-export type CollectionItemTypeValues = 'n' | 'f' | 'd';
+export const itemTypes = ['n', 'f', 'd'] as const;
+export type CollectionItemTypeValues = (typeof itemTypes)[number];
 
 export interface CollectionItem {
   id?: string;

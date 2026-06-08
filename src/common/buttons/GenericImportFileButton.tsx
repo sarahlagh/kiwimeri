@@ -4,7 +4,6 @@ import { IonButton, IonIcon } from '@ionic/react';
 import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactProps';
 import { useLingui } from '@lingui/react/macro';
 import React from 'react';
-import filesystemService from '../services/filesystem.service';
 
 export enum ImportFileRejectReason {
   NotSupported,
@@ -81,15 +80,17 @@ const GenericImportFileButton = ({
           });
       };
 
-      filesystemService.readFile(file).then(async content => {
-        if (onContentRead) {
-          await readContent(onContentRead(content, file));
-        } else if (onContentReadAsString) {
-          await readContent(
-            onContentReadAsString(new TextDecoder().decode(content), file)
-          );
-        }
-      });
+      import('@/common/services/filesystem.service')
+        .then(m => m.default.readFile(file))
+        .then(async content => {
+          if (onContentRead) {
+            await readContent(onContentRead(content, file));
+          } else if (onContentReadAsString) {
+            await readContent(
+              onContentReadAsString(new TextDecoder().decode(content), file)
+            );
+          }
+        });
     }
   };
 

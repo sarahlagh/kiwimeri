@@ -52,8 +52,7 @@
     "react-router-dom": "^5.3.4",
     "tinybase": "^8.0.0",
     "uplot": "^1.6.32",
-    "uplot-react": "^1.2.4",
-    "zod": "^4.0.14"
+    "uplot-react": "^1.2.4"
   },
   "devDependencies": {
     "@capacitor/cli": "^8.2.0",

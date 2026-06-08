@@ -3,7 +3,6 @@ import { APPICONS } from '@/constants';
 import { IonButton, IonIcon } from '@ionic/react';
 import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactProps';
 import { useLingui } from '@lingui/react/macro';
-import filesystemService from '../services/filesystem.service';
 import platformService from '../services/platform.service';
 
 type GenericExportFileButtonProps = {
@@ -41,8 +40,8 @@ const GenericExportFileButton = ({
     mime: string,
     content: string | Uint8Array<ArrayBufferLike>
   ) => {
-    filesystemService
-      .exportToFile(fileTitle, content, mime)
+    import('@/common/services/filesystem.service')
+      .then(m => m.default.exportToFile(fileTitle, content, mime))
       .then(res => {
         if (res.success && platformService.isAndroid()) {
           setToast(t`Success!`, 'success');

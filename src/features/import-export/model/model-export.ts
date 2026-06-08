@@ -1,5 +1,3 @@
-// export
-
 import {
   CollectionItem,
   CollectionItemDisplayOpts
