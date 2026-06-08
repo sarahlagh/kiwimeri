@@ -228,6 +228,10 @@ describe('local changes service', () => {
 describe('local changes listeners', () => {
   beforeEach(() => {
     localChangesService.clear();
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
   });
   const watchedTables: {
     tableId: Id;
@@ -296,13 +300,16 @@ describe('local changes listeners', () => {
           const testId0 = space.addRow(tableId, fakeRow);
           space.transaction(() => {
             space.setRow(tableId, 'testId1', fakeRow);
+            vi.advanceTimersByTime(10);
             space.setPartialRow(tableId, 'testId2', fakeRow);
+            vi.advanceTimersByTime(10);
             space.setCell(
               tableId,
               'testId3',
               getField(nonWatchedFields[0]),
               getValue(nonWatchedFields[0])
             );
+            vi.advanceTimersByTime(10);
           });
 
           const localChanges = localChangesService.getLocalChanges();

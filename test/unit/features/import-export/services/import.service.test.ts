@@ -12,10 +12,10 @@ import {
   ZipImportOptions,
   ZipMergeFistLevel,
   ZipMergeResult,
-  ZipMetadataSchema,
   ZipParseError
 } from '@/features/import-export/model/model-import';
 import importService from '@/features/import-export/services/import.service';
+import { validateMetadataFile } from '@/features/import-export/services/metadata-validation';
 
 import {
   createInitLocalData,
@@ -673,9 +673,28 @@ describe('import service', () => {
   });
 
   describe('parse schema', () => {
-    it('should parse display opts and throw errors', () => {
+    it('should validate empty json', () => {
+      expect(() => validateMetadataFile({})).not.toThrow();
+    });
+
+    it('should validate partial file', () => {
       expect(() =>
-        ZipMetadataSchema.parse({
+        validateMetadataFile({
+          type: CollectionItemType.document
+        })
+      ).not.toThrow();
+      expect(() =>
+        validateMetadataFile({
+          title: 'test'
+        })
+      ).not.toThrow();
+      expect(() =>
+        validateMetadataFile({
+          tags: ['test']
+        })
+      ).not.toThrow();
+      expect(() =>
+        validateMetadataFile({
           display_opts: {
             sort: {
               by: 'preview',
@@ -684,9 +703,80 @@ describe('import service', () => {
           }
         })
       ).not.toThrow();
+    });
 
+    it('should ignore unknown fields', () => {
       expect(() =>
-        ZipMetadataSchema.parse({
+        validateMetadataFile({
+          notAField: 'yes'
+        })
+      ).not.toThrow();
+    });
+
+    it('should not validate invalid types', () => {
+      expect(() => validateMetadataFile('test')).toThrow();
+      expect(() => validateMetadataFile(10)).toThrow();
+      expect(() => validateMetadataFile(true)).toThrow();
+      expect(() => validateMetadataFile([])).toThrow();
+      expect(() => validateMetadataFile(null)).toThrow();
+    });
+
+    it('should not validate invalid known fields', () => {
+      expect(() =>
+        validateMetadataFile({
+          title: 10
+        })
+      ).toThrow();
+      expect(() =>
+        validateMetadataFile({
+          type: 'p'
+        })
+      ).toThrow();
+      expect(() =>
+        validateMetadataFile({
+          tags: 'not an array'
+        })
+      ).toThrow();
+      expect(() =>
+        validateMetadataFile({
+          tags: null
+        })
+      ).toThrow();
+      expect(() =>
+        validateMetadataFile({
+          tags: [0, 1, 3]
+        })
+      ).toThrow();
+      expect(() =>
+        validateMetadataFile({
+          display_opts: null
+        })
+      ).toThrow();
+      expect(() =>
+        validateMetadataFile({
+          display_opts: {}
+        })
+      ).toThrow();
+      expect(() =>
+        validateMetadataFile({
+          display_opts: { sort: {} }
+        })
+      ).toThrow();
+      expect(() =>
+        validateMetadataFile({
+          display_opts: { sort: { by: 'invalid' } }
+        })
+      ).toThrow();
+      expect(() =>
+        validateMetadataFile({
+          display_opts: { sort: { descending: 'ok' } }
+        })
+      ).toThrow();
+    });
+
+    it('should not validate display_opts with by: order and descending: true', () => {
+      expect(() =>
+        validateMetadataFile({
           display_opts: {
             sort: {
               by: 'order',

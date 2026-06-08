@@ -50,8 +50,7 @@
             },
             {
               "path": "SimpleNotebook2/PinMeta/meta.json",
-              "family": "incorrect_meta",
-              "code": "incorrect_parent_type"
+              "family": "parse_error"
             }
           ],
           "expected": {}

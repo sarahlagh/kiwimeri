@@ -534,7 +534,7 @@ describe('ConfirmMultipleImportModal', () => {
           last: 'SimpleNotebook2/Quote.md'
         },
         {
-          first: 'Incorrect Metadata',
+          first: 'Parsing Error',
           last: 'SimpleNotebook2/PinMeta/meta.json'
         }
       ];
@@ -613,7 +613,7 @@ describe('ConfirmMultipleImportModal', () => {
           last: 'SimpleNotebook2/Quote.md'
         },
         {
-          first: 'Incorrect Metadata',
+          first: 'Parsing Error',
           last: 'SimpleNotebook2/PinMeta/meta.json'
         }
       ];
