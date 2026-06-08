@@ -54,7 +54,10 @@ const vitestConfig = vitestDefineConfig({
           globals: true,
           environment: 'jsdom',
           globalSetup: ['./test/_setup/globalSetup.ts'],
-          setupFiles: ['./test/_setup/unit.setupTests.ts']
+          setupFiles: [
+            './test/_setup/unit.setupMocks.ts',
+            './test/_setup/unit.setupTests.ts'
+          ]
         }
       },
       {

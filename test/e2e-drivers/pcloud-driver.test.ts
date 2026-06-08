@@ -32,6 +32,7 @@ import { PCloudDriver } from '@/remote-storage/storage-drivers/pcloud/pcloud.dri
 import { syncService } from '@/remote-storage/sync.service';
 import {
   MinimizedCollectionItem,
+  REMOTE_COLLECTION_SCHEMA_VERSION,
   RemoteCollectionFileContent
 } from '@/remote-storage/synchronizers/collection-synchronizer';
 import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';
@@ -87,7 +88,8 @@ const reInitRemoteDataWithAnnots = async (
     i: minimizeItemsForStorage(items) as MinimizedCollectionItem[],
     a: minimizeAnnotForStorage(annots || []),
     u: lastRemoteChange,
-    o: values
+    o: values,
+    _v: REMOTE_COLLECTION_SCHEMA_VERSION
   };
   await driver.pushFile(
     { filename: 'collection.json' },
