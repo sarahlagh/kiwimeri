@@ -20,9 +20,7 @@ export default function Migration(space: NoSchemaStore) {
     const itemId = row.itemId as string;
     if (!collection[itemId]?.type) {
       // item doesn't exist anymore
-      const snapshotJson = JSON.parse(
-        history[rowId].snapshotJson as string
-      ) as any;
+      const snapshotJson = history[rowId].snapshotJson as any;
       if (!snapshotJson.title) {
         // no title, was likely a page
         unknownVersions.add(rowId);

@@ -1,10 +1,15 @@
+import GenericExportFileButton from '@/common/buttons/GenericExportFileButton';
+import GenericImportFileButton from '@/common/buttons/GenericImportFileButton';
 import { GET_FOLDER_ROUTE } from '@/common/routes';
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
+import { space } from '@/core/db/store';
+import { plt } from '@/core/infra/platform';
 import notebooksService from '@/db/notebooks.service';
 import userSettingsService from '@/db/user-settings.service';
 import {
   getPlatforms,
+  IonButtons,
   IonCard,
   IonCardContent,
   IonCardHeader,
@@ -15,6 +20,7 @@ import { Trans } from '@lingui/react/macro';
 import { useHistory } from 'react-router';
 import ConfigCard from './ConfigCard';
 import LogsCard from './LogsCard';
+import OperationCard from './OperationsCard';
 import QuickRestore from './QuickRestore';
 
 const DevTools = () => {
@@ -65,7 +71,39 @@ const DevTools = () => {
       <ConfigCard />
 
       <QuickRestore />
-      {!platformService.isDev() && <LogsCard />}
+      {!plt.isDev() && <LogsCard />}
+
+      {!plt.isRelease() && (
+        <>
+          <IonCard>
+            <IonButtons>
+              <GenericExportFileButton
+                fill="clear"
+                color={'primary'}
+                label={`Export everything`}
+                icon={null}
+                getFileMime={'application/json'}
+                getFileTitle={() => 'full-space-backup.json'}
+                getFileContent={async () => {
+                  const content = space.getContent();
+                  return JSON.stringify(content);
+                }}
+              />
+              <GenericImportFileButton
+                label={`Import everything`}
+                color={'danger'}
+                icon={null}
+                onContentRead={async (content: ArrayBuffer) => {
+                  const textContent = new TextDecoder().decode(content);
+                  space.setContent(JSON.parse(textContent));
+                  return { confirm: true };
+                }}
+              />
+            </IonButtons>
+          </IonCard>
+          <OperationCard />
+        </>
+      )}
     </>
   );
 };

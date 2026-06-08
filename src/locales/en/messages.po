@@ -48,6 +48,7 @@ msgstr " (new)"
 msgid "-- conflict --"
 msgstr "-- conflict --"
 
+#. placeholder {0}: showFilters ? 'Hide' : 'Show'
 #: src/dev-tools/components/LogsCard.tsx:133
 msgid "{0} Filters"
 msgstr "{0} Filters"
@@ -60,7 +61,7 @@ msgstr "{v} minutes"
 msgid "{wordCount} words"
 msgstr "{wordCount} words"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:237
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:232
 msgid "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 msgstr "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 
@@ -76,7 +77,7 @@ msgstr "Add config"
 msgid "An error occurred during sync."
 msgstr "An error occurred during sync."
 
-#: src/common/buttons/GenericImportFileButton.tsx:47
+#: src/common/buttons/GenericImportFileButton.tsx:46
 msgid "An error occurred loading the file"
 msgstr "An error occurred loading the file"
 
@@ -92,7 +93,7 @@ msgstr "AO3"
 msgid "AO3 Viewer"
 msgstr "AO3 Viewer"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:162
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:157
 msgid "Archive is empty"
 msgstr "Archive is empty"
 
@@ -102,13 +103,13 @@ msgstr "Archive is empty"
 msgid "Are you sure?"
 msgstr "Are you sure?"
 
-#: src/common/buttons/ExportItemsButton.tsx:102
 #: src/common/buttons/ManageHistoryButton.tsx:145
-#: src/common/buttons/RestoreCollectionButton.tsx:74
 #: src/common/modals/ChooseTagsModal.tsx:100
-#: src/common/modals/ConfirmFileImportModal.tsx:80
-#: src/common/modals/ConfirmMultipleImportModal.tsx:337
 #: src/common/modals/ConfirmYesNoDialog.tsx:28
+#: src/features/import-export/buttons/ExportItemsButton.tsx:103
+#: src/features/import-export/buttons/RestoreCollectionButton.tsx:74
+#: src/features/import-export/modals/ConfirmFileImportModal.tsx:80
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:332
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -169,18 +170,18 @@ msgstr "Config"
 msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
 
-#: src/common/buttons/ExportItemsButton.tsx:109
 #: src/common/buttons/ManageHistoryButton.tsx:149
-#: src/common/buttons/RestoreCollectionButton.tsx:81
 #: src/common/modals/ChooseTagsModal.tsx:107
-#: src/common/modals/ConfirmFileImportModal.tsx:83
-#: src/common/modals/ConfirmMultipleImportModal.tsx:343
 #: src/common/modals/ConfirmYesNoDialog.tsx:36
+#: src/features/import-export/buttons/ExportItemsButton.tsx:110
+#: src/features/import-export/buttons/RestoreCollectionButton.tsx:81
+#: src/features/import-export/modals/ConfirmFileImportModal.tsx:83
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:338
 #: src/notebooks/components/ManageNotebooksModal.tsx:95
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/collection/components/CollectionItemBrowserList.tsx:154
+#: src/collection/components/CollectionItemBrowserList.tsx:153
 #: src/constants.ts:78
 msgid "Conflicts"
 msgstr "Conflicts"
@@ -197,6 +198,7 @@ msgstr "create a note"
 msgid "Created at"
 msgstr "Created at"
 
+#. placeholder {0}: dateToStr('relative', createdAt)
 #: src/features/notes-ui/components/NotesActions.tsx:24
 msgid "Created at: {0}"
 msgstr "Created at: {0}"
@@ -231,7 +233,7 @@ msgstr "deleted item"
 msgid "Dev Tools"
 msgstr "Dev Tools"
 
-#: src/dev-tools/components/DevTools.tsx:37
+#: src/dev-tools/components/DevTools.tsx:43
 msgid "Dev Tools Enabled"
 msgstr "Dev Tools Enabled"
 
@@ -252,7 +254,7 @@ msgstr "Discard"
 msgid "Display options for the currently selected notebook. They can still be overriden per folder."
 msgstr "Display options for the currently selected notebook. They can still be overriden per folder."
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:180
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:175
 msgid "Do you want to import your content inside a new folder?"
 msgstr "Do you want to import your content inside a new folder?"
 
@@ -288,11 +290,11 @@ msgstr "Enter your search"
 msgid "Enter your username"
 msgstr "Enter your username"
 
-#: src/common/buttons/GenericExportFileButton.tsx:53
+#: src/common/buttons/GenericExportFileButton.tsx:52
 msgid "Error writing to file"
 msgstr "Error writing to file"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:172
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:167
 msgid "Errors have been detected on the following files:"
 msgstr "Errors have been detected on the following files:"
 
@@ -300,17 +302,17 @@ msgstr "Errors have been detected on the following files:"
 msgid "EU"
 msgstr "EU"
 
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:54
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:68
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:56
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:70
 #: src/settings/components/sections/ImportExportStoreSettings.tsx:75
 msgid "Export"
 msgstr "Export"
 
-#: src/common/buttons/ExportItemsButton.tsx:87
+#: src/features/import-export/buttons/ExportItemsButton.tsx:88
 msgid "Export Options"
 msgstr "Export Options"
 
-#: src/common/buttons/GenericImportFileButton.tsx:49
+#: src/common/buttons/GenericImportFileButton.tsx:48
 msgid "File not supported"
 msgstr "File not supported"
 
@@ -330,11 +332,13 @@ msgstr "History save time (min)"
 msgid "Home"
 msgstr "Home"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:119
+#. placeholder {0}: params.zipData.zipName
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:114
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:112
+#. placeholder {0}: params.zipData.zipName
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:107
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
 
@@ -342,11 +346,11 @@ msgstr "Import {0}.zip in folder {parentName}"
 msgid "Import & export your app settings"
 msgstr "Import & export your app settings"
 
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:36
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:38
 msgid "Import & export your collection"
 msgstr "Import & export your collection"
 
-#: src/common/modals/ConfirmFileImportModal.tsx:43
+#: src/features/import-export/modals/ConfirmFileImportModal.tsx:43
 msgid "Import file in folder {folderName}"
 msgstr "Import file in folder {folderName}"
 
@@ -354,11 +358,11 @@ msgstr "Import file in folder {folderName}"
 msgid "In descending order"
 msgstr "In descending order"
 
-#: src/common/buttons/ExportItemsButton.tsx:90
+#: src/features/import-export/buttons/ExportItemsButton.tsx:91
 msgid "Include metadata in zip"
 msgstr "Include metadata in zip"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:95
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:90
 msgid "Incorrect Metadata"
 msgstr "Incorrect Metadata"
 
@@ -366,11 +370,11 @@ msgstr "Incorrect Metadata"
 msgid "Internal proxy"
 msgstr "Internal proxy"
 
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:49
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:51
 msgid "Kiwimeri format (single file)"
 msgstr "Kiwimeri format (single file)"
 
-#: src/collection/components/CollectionItemBrowserList.tsx:153
+#: src/collection/components/CollectionItemBrowserList.tsx:152
 msgid "Last consulted documents"
 msgstr "Last consulted documents"
 
@@ -378,7 +382,7 @@ msgstr "Last consulted documents"
 msgid "Last Updated"
 msgstr "Last Updated"
 
-#: src/collection/components/CollectionItemBrowserList.tsx:152
+#: src/collection/components/CollectionItemBrowserList.tsx:151
 msgid "Last updated documents"
 msgstr "Last updated documents"
 
@@ -394,10 +398,12 @@ msgstr "Less dangerous mode (session is still timed but you will not lose progre
 msgid "Link"
 msgstr "Link"
 
+#. placeholder {0}: localChanges.length
 #: src/features/local-changes-ui/components/LocalChangesCard.tsx:67
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
+#. placeholder {0}: dateToStr('datetime', lastLocalChange)
 #: src/features/local-changes-ui/components/LocalChangesCard.tsx:74
 msgid "Local:  {0}"
 msgstr "Local:  {0}"
@@ -422,11 +428,11 @@ msgstr "Manual Order"
 msgid "Manually backup or restore your app settings"
 msgstr "Manually backup or restore your app settings"
 
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:39
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:41
 msgid "Manually backup or restore your collection in the format of your choice"
 msgstr "Manually backup or restore your collection in the format of your choice"
 
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:63
+#: src/settings/components/sections/ImportExportCollectionSettings.tsx:65
 msgid "Markdown (Kiwimeri flavor)"
 msgstr "Markdown (Kiwimeri flavor)"
 
@@ -438,11 +444,11 @@ msgstr "Max log history"
 msgid "Merge"
 msgstr "Merge"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:103
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:98
 msgid "merged"
 msgstr "merged"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:140
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:135
 msgid "Metadata found in the archive"
 msgstr "Metadata found in the archive"
 
@@ -455,7 +461,7 @@ msgstr "Modified Date"
 msgid "Name"
 msgstr "Name"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:103
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:98
 msgid "new"
 msgstr "new"
 
@@ -467,11 +473,11 @@ msgstr "New document"
 msgid "New folder"
 msgstr "New folder"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:205
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:200
 msgid "New folder name: "
 msgstr "New folder name: "
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:223
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:218
 msgid "New notebook name: "
 msgstr "New notebook name: "
 
@@ -495,7 +501,7 @@ msgstr "Not Found"
 msgid "Notebook Selection"
 msgstr "Notebook Selection"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:150
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:145
 msgid "Notebooks found in the archive, they will be converted to folders"
 msgstr "Notebooks found in the archive, they will be converted to folders"
 
@@ -511,7 +517,7 @@ msgstr "Options for the currently selected device. These options are local-only.
 msgid "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 msgstr "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:98
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:93
 msgid "Parsing Error"
 msgstr "Parsing Error"
 
@@ -543,6 +549,7 @@ msgstr "Remember last route"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
+#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
 #: src/features/local-changes-ui/components/LocalChangesCard.tsx:87
 msgid "Remote:  {0}"
 msgstr "Remote:  {0}"
@@ -555,12 +562,12 @@ msgstr "Remote: <0>never</0>"
 msgid "Reorder"
 msgstr "Reorder"
 
-#: src/common/buttons/RestoreCollectionButton.tsx:101
+#: src/features/import-export/buttons/RestoreCollectionButton.tsx:101
 #: src/settings/components/sections/ImportExportStoreSettings.tsx:85
 msgid "Restore"
 msgstr "Restore"
 
-#: src/common/buttons/RestoreCollectionButton.tsx:70
+#: src/features/import-export/buttons/RestoreCollectionButton.tsx:70
 msgid "Restore Collection"
 msgstr "Restore Collection"
 
@@ -634,8 +641,8 @@ msgstr "Space Settings"
 msgid "Start Writing"
 msgstr "Start Writing"
 
-#: src/common/buttons/GenericExportFileButton.tsx:48
-#: src/common/buttons/GenericImportFileButton.tsx:48
+#: src/common/buttons/GenericExportFileButton.tsx:47
+#: src/common/buttons/GenericImportFileButton.tsx:47
 #: src/common/buttons/ManageHistoryButton.tsx:156
 #: src/synchronization/components/providers/RemoteGenericSettings.tsx:59
 msgid "Success!"
@@ -670,7 +677,7 @@ msgstr "Text"
 msgid "Text..."
 msgstr "Text..."
 
-#: src/common/modals/ConfirmFileImportModal.tsx:53
+#: src/features/import-export/modals/ConfirmFileImportModal.tsx:53
 msgid "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 msgstr "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 
@@ -686,7 +693,7 @@ msgstr "This is different than the import / export of the collection. Your colle
 msgid "This will delete this folder and move all its items to the current one."
 msgstr "This will delete this folder and move all its items to the current one."
 
-#: src/common/buttons/RestoreCollectionButton.tsx:71
+#: src/features/import-export/buttons/RestoreCollectionButton.tsx:71
 msgid "This will delete your existing data. Are you sure?"
 msgstr "This will delete your existing data. Are you sure?"
 
@@ -718,6 +725,7 @@ msgstr "Track text statistics"
 msgid "Updated at"
 msgstr "Updated at"
 
+#. placeholder {0}: dateToStr('relative', updatedAt)
 #: src/features/notes-ui/components/NotesActions.tsx:29
 msgid "Updated at: {0}"
 msgstr "Updated at: {0}"
@@ -761,7 +769,7 @@ msgstr "Word Count (Max)"
 msgid "words"
 msgstr "words"
 
-#: src/common/modals/ConfirmMultipleImportModal.tsx:254
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:249
 msgid "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 msgstr "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 
