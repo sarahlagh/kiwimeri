@@ -56,8 +56,6 @@ export const storeTablesSchema = {
 export const storeValuesSchema = {
   tempDoc: { type: 'string' },
   appVersion: { type: 'string' }, // delete
-  // put in notebook display opts
-  lastBrowserMode: { type: 'number', default: 0 },
   // put in space for native saving
   showDevTools: { type: 'boolean', default: false },
   globalZoom: { type: 'number', default: 1 },

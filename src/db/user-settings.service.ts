@@ -145,10 +145,7 @@ class UserSettingsService {
     });
   }
 
-  public useNotebookDisplayOpts(
-    notebook?: string,
-    space?: string
-  ): NotebookDisplayOpts {
+  public useNotebookDisplayOpts(notebook?: string): NotebookDisplayOpts {
     const currentNotebook = notebooksService.useCurrentNotebook();
     if (!notebook) {
       notebook = currentNotebook;
@@ -157,13 +154,22 @@ class UserSettingsService {
     if (notebookDisplayOpts) {
       return notebookDisplayOpts as NotebookDisplayOpts;
     }
-    return this.getSpaceDefaultDisplayOpts(space);
+    return this.getSpaceDefaultDisplayOpts();
   }
 
-  public getNotebookDisplayOpts(
-    notebook?: string,
-    space?: string
-  ): NotebookDisplayOpts {
+  public setNotebookLastBrowserModeIdx(
+    lastBrowserMode: number,
+    notebook?: string
+  ) {
+    if (!notebook) {
+      notebook = notebooksService.getCurrentNotebook();
+    }
+    const currentOpts = this.getNotebookDisplayOpts(notebook);
+    currentOpts.lastBrowserMode = lastBrowserMode;
+    collectionService.setNotebookDisplayOpts(notebook, currentOpts);
+  }
+
+  public getNotebookDisplayOpts(notebook?: string): NotebookDisplayOpts {
     if (!notebook) {
       notebook = notebooksService.getCurrentNotebook();
     }
@@ -171,7 +177,7 @@ class UserSettingsService {
     if (notebookDisplayOpts) {
       return notebookDisplayOpts as NotebookDisplayOpts;
     }
-    return this.getSpaceDefaultDisplayOpts(space);
+    return this.getSpaceDefaultDisplayOpts();
   }
 
   public useDefaultFlags(notebook?: string): Required<CollectionItemFlags> {

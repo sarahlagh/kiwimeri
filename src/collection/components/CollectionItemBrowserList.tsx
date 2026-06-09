@@ -20,13 +20,14 @@ import { getSearchParams } from '@/common/utils';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
 import { ExportItemsButton, ImportItemsButton } from '@/features/import-export';
-import { useStoreValueState } from '@/shared/hooks/useGenericValueState';
 
+import userSettingsService from '@/db/user-settings.service';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
+
 // eslint-disable-next-line no-restricted-imports
 import useCollectionItemBrowserListResults, {
-  BrowserQueryMode,
-  browserModes
+  browserModes,
+  BrowserQueryMode
 } from '@/features/collection-ui/hooks/useCollectionItemBrowserListResults';
 import { useLingui } from '@lingui/react/macro';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
@@ -146,7 +147,10 @@ export const CollectionItemBrowserList = ({
   const display_opts = collectionService.useFolderEffectiveDisplayOpts(folder);
   const sort = display_opts.sort;
 
-  const [modeIdx, setModeIdx] = useStoreValueState<number>('lastBrowserMode');
+  const modeIdx =
+    userSettingsService.useNotebookDisplayOpts().lastBrowserMode || 0;
+
+  // const [modeIdx, setModeIdx] = useStoreValueState<number>('lastBrowserMode');
   const modeTrans = new Map<BrowserQueryMode, string>();
   modeTrans.set('updated', t`Last updated documents`);
   modeTrans.set('lastOpenedAt', t`Last consulted documents`);
@@ -246,7 +250,7 @@ export const CollectionItemBrowserList = ({
           nextMode={() => {
             let idx = modeIdx + 1;
             if (idx === browserModes.length) idx = 0;
-            setModeIdx(idx);
+            userSettingsService.setNotebookLastBrowserModeIdx(idx);
           }}
         />
       }

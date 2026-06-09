@@ -54,7 +54,9 @@ export type CollectionItemDisplayOpts = Partial<NotebookDisplayOpts> &
   Partial<FolderDisplayOpts> &
   Partial<DocumentDisplayOpts>;
 
-export type NotebookDisplayOpts = FolderDisplayOpts;
+export type NotebookDisplayOpts = FolderDisplayOpts & {
+  lastBrowserMode?: number;
+};
 
 export type FolderDisplayOpts = {
   sort: CollectionItemSort;
