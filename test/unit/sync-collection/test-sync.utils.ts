@@ -1,10 +1,10 @@
 import { CollectionItem } from '@/collection/collection';
 import { DEFAULT_SPACE_ID } from '@/constants';
-import { space } from '@/core/db/store';
 import { SpaceValues } from '@/core/db/store-schema';
 import { historyService } from '@/db/collection-history.service';
 import remotesService from '@/db/remotes.service';
 import { SyncableAnnotation } from '@/domain/document-annotations/model';
+import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import { SyncDirection, syncService } from '@/remote-storage/sync.service';
 import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';
 import { searchAncestryService } from '@/search/search-ancestry.service';
@@ -17,14 +17,7 @@ let iPull = 0;
 let iPush = 0;
 
 export const defaultValues: SpaceValues = {
-  defaultSortBy: 'order',
-  defaultSortDesc: true,
-  historyIdleTime: 15000,
-  historyMaxInterval: 300000,
-  maxHistoryPerDoc: 50,
-  valuesLastUpdatedAt: Date.now(),
-  schemaVersion: '',
-  statsEnabled: false
+  appVersion: '0.0.0'
 };
 
 export const testSyncBeforeEach = async () => {
@@ -39,7 +32,7 @@ export const testSyncBeforeEach = async () => {
   vi.useFakeTimers();
   searchAncestryService.start(DEFAULT_SPACE_ID);
   historyService['enabled'] = true;
-  space.setValue('historyIdleTime', 0);
+  userPrefs.set('historyIdleTime', 0);
 };
 
 export const testSyncAfterEach = () => {
@@ -71,19 +64,16 @@ export const reInitRemoteDataWithAnnots = async (
     updateTs !== undefined
       ? updateTs
       : Math.max(...items.map(i => Math.max(i.updated, i.parent_meta._u)));
-  if (!values) {
-    values = {
-      ...defaultValues,
-      defaultSortBy: 'created',
-      defaultSortDesc: false,
-      valuesLastUpdatedAt: 0
-    };
-  }
-  console.debug('[reInitRemoteData]', items, annots, values, lastLocalChange);
+  console.debug(
+    '[reInitRemoteData]',
+    items,
+    annots,
+    values || defaultValues,
+    lastLocalChange
+  );
   await driver.setCollectionContentWithAnnots(
     items,
     annots || [],
-    values,
     lastLocalChange
   );
   vi.advanceTimersByTime(fakeTimersDelay);

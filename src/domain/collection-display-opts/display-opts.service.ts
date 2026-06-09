@@ -115,6 +115,10 @@ class EffectiveDisplayOptsService {
     collectionService.setItemDisplayOpts(rowId, display_opts);
   }
 
+  public getFolderDisplayOpts(rowId: Id): FolderDisplayOpts | undefined {
+    return space.getCell(C, rowId, 'display_opts') as FolderDisplayOpts;
+  }
+
   public getDocumentDisplayOpts(rowId: Id): DocumentDisplayOpts | undefined {
     return space.getCell(C, rowId, 'display_opts') as DocumentDisplayOpts;
   }

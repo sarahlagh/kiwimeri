@@ -4,7 +4,6 @@ import { space } from '@/core/db/store';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import { SerializableData } from '@/db/types/store-types';
-import userSettingsService from '@/db/user-settings.service';
 import { DOC_ANNOTATION_TABLE } from '@/domain/document-annotations/model';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import {
@@ -133,40 +132,6 @@ describe('local changes service', () => {
 
     const localChanges = localChangesService.getLocalChanges();
     expect(localChanges).toHaveLength(0);
-  });
-
-  it(`should create a local change for a value then merge for other values`, () => {
-    userSettingsService.setSpaceDefaultDisplayOpts({
-      sort: {
-        by: 'order',
-        descending: false
-      }
-    });
-
-    let localChanges = localChangesService.getLocalChanges();
-    expect(localChanges).toHaveLength(2);
-    let lc = getNonNotebookLocalChanges(localChanges)[0];
-    expect(lc.itemId).toEqual('');
-    expect(lc.on).toBe('values');
-    expect(lc.change).toEqual(LocalChangeType.update);
-    expect(lc.field).toBeUndefined();
-
-    // merge others
-
-    userSettingsService.setSpaceDefaultDisplayOpts({
-      sort: {
-        by: 'updated',
-        descending: true
-      }
-    });
-
-    localChanges = localChangesService.getLocalChanges();
-    expect(localChanges).toHaveLength(2);
-    lc = getNonNotebookLocalChanges(localChanges)[0];
-    expect(lc.itemId).toEqual('');
-    expect(lc.on).toBe('values');
-    expect(lc.change).toEqual(LocalChangeType.update);
-    expect(lc.field).toBeUndefined();
   });
 
   it(`should create local change after saveItem for a new item`, () => {

@@ -232,9 +232,8 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   private setContent(content: Content<SpaceType, false>) {
     stopLocalChangesListeners();
     space.transaction(() => {
-      this.setTable('collection', content[0].collection);
-      this.setTable(DOC_ANNOTATION_TABLE, content[0].document_annotation);
-      space.setValues(content[1]);
+      this.setTable(SpaceTables.C, content[0].collection);
+      this.setTable(SpaceTables.A, content[0].document_annotation);
     });
     startLocalChangesListeners();
   }

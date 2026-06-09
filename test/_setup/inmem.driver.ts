@@ -6,7 +6,6 @@ import {
   unminimizeItemsFromStorage
 } from '@/collection/compress-collection';
 import { fastHash } from '@/common/utils';
-import { SpaceValues } from '@/core/db/store-schema';
 import { AnyData } from '@/db/types/store-types';
 import {
   minimizeAnnotForStorage,
@@ -172,26 +171,19 @@ export class InMemDriver extends CloudStorageDriver {
   public setCollectionContentWithAnnots(
     items: CollectionItem[],
     annots: SyncableAnnotation[],
-    values: SpaceValues,
     updated: number
   ) {
     return this.setContent({
       i: minimizeItemsForStorage(items),
       a: minimizeAnnotForStorage(annots),
-      o: values,
       u: updated,
       _v: REMOTE_COLLECTION_SCHEMA_VERSION
     } as RemoteCollectionFileContent);
   }
 
-  public setCollectionContent(
-    items: CollectionItem[],
-    values: SpaceValues,
-    updated: number
-  ) {
+  public setCollectionContent(items: CollectionItem[], updated: number) {
     return this.setContent({
       i: minimizeItemsForStorage(items),
-      o: values,
       u: updated,
       _v: REMOTE_COLLECTION_SCHEMA_VERSION
     } as RemoteCollectionFileContent);
@@ -214,7 +206,6 @@ export class InMemDriver extends CloudStorageDriver {
     return {
       content: unminimizedObj.i,
       annots: unminimizedObj.a,
-      values: unminimizedObj.o,
       _schemaVersion: obj._v
     };
   }

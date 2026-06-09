@@ -10,14 +10,12 @@ import {
   getGlobalTrans,
   ROOT_COLLECTION
 } from '@/constants';
-import { space } from '@/core/db/store';
 import { SpaceValues } from '@/core/db/store-schema';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import remotesService from '@/db/remotes.service';
 import tagsService from '@/db/tags.service';
-import userSettingsService from '@/db/user-settings.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import { syncService } from '@/remote-storage/sync.service';
@@ -52,7 +50,6 @@ import {
 } from '@@/_setup/test.utils';
 import { renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { defaultValues } from './test-sync.utils';
 
 let driver: InMemDriver;
 let iPull = 0;
@@ -70,16 +67,8 @@ const reInitRemoteData = async (
     updateTs !== undefined
       ? updateTs
       : Math.max(...items.map(i => Math.max(i.updated, i.parent_meta._u)));
-  if (!values) {
-    values = {
-      ...defaultValues,
-      defaultSortBy: 'created',
-      defaultSortDesc: false,
-      valuesLastUpdatedAt: 0
-    };
-  }
-  console.debug('[reInitRemoteData]', items, values, lastLocalChange);
-  await driver.setCollectionContent(items, values, lastLocalChange);
+  console.debug('[reInitRemoteData]', items, lastLocalChange);
+  await driver.setCollectionContent(items, lastLocalChange);
   vi.advanceTimersByTime(fakeTimersDelay);
 };
 
@@ -2111,181 +2100,6 @@ describe('sync service', () => {
           });
         }
       );
-    });
-
-    describe(`tests with values`, () => {
-      it(`should pull updated values`, async () => {
-        await reInitRemoteData([oneNotebook()], Date.now(), {
-          ...defaultValues,
-          defaultSortBy: 'order',
-          defaultSortDesc: true,
-          valuesLastUpdatedAt: Date.now()
-        });
-
-        expect(userSettingsService.getSpaceDefaultDisplayOpts()).toEqual({
-          sort: {
-            by: 'created',
-            descending: false
-          }
-        });
-
-        await syncService_pull();
-
-        expect(userSettingsService.getSpaceDefaultDisplayOpts()).toEqual({
-          sort: {
-            by: 'order',
-            descending: true
-          }
-        });
-      });
-
-      it(`should not pull remote values if local changed`, async () => {
-        await reInitRemoteData([oneNotebook()], Date.now(), {
-          ...defaultValues,
-          defaultSortBy: 'order',
-          defaultSortDesc: true,
-          statsEnabled: false,
-          valuesLastUpdatedAt: Date.now()
-        });
-
-        vi.advanceTimersByTime(fakeTimersDelay);
-        userSettingsService.setSpaceDefaultDisplayOpts({
-          sort: {
-            by: 'updated',
-            descending: false
-          }
-        });
-
-        await syncService_pull();
-
-        expect(userSettingsService.getSpaceDefaultDisplayOpts()).toEqual({
-          sort: {
-            by: 'updated',
-            descending: false
-          }
-        });
-      });
-
-      it(`should force pull remote values even if local changed`, async () => {
-        await reInitRemoteData([oneNotebook()], Date.now(), {
-          ...defaultValues,
-          defaultSortBy: 'order',
-          defaultSortDesc: true,
-          statsEnabled: false,
-          valuesLastUpdatedAt: Date.now()
-        });
-
-        vi.advanceTimersByTime(fakeTimersDelay);
-        userSettingsService.setSpaceDefaultDisplayOpts({
-          sort: {
-            by: 'updated',
-            descending: false
-          }
-        });
-
-        await syncService_pull(true);
-
-        expect(userSettingsService.getSpaceDefaultDisplayOpts()).toEqual({
-          sort: {
-            by: 'order',
-            descending: true
-          }
-        });
-      });
-
-      it(`should push updated values`, async () => {
-        await reInitRemoteData([oneNotebook()], Date.now(), {
-          ...defaultValues,
-          defaultSortBy: 'order',
-          defaultSortDesc: true,
-          statsEnabled: false,
-          valuesLastUpdatedAt: Date.now()
-        });
-
-        vi.advanceTimersByTime(fakeTimersDelay);
-        userSettingsService.setSpaceDefaultDisplayOpts({
-          sort: {
-            by: 'updated',
-            descending: false
-          }
-        });
-        userSettingsService.setSpaceDefaultFlags({
-          statsEnabled: true
-        });
-        await syncService_push();
-
-        const remoteContent = await driver.getParsedCollectionContent();
-        expect(remoteContent.values).toEqual({
-          ...defaultValues,
-          defaultSortBy: 'updated',
-          defaultSortDesc: false,
-          statsEnabled: true,
-          valuesLastUpdatedAt: space.getValue('valuesLastUpdatedAt')
-        });
-      });
-
-      it(`should not push remote values if remote changed`, async () => {
-        userSettingsService.setSpaceDefaultDisplayOpts({
-          sort: {
-            by: 'updated',
-            descending: false
-          }
-        });
-        vi.advanceTimersByTime(fakeTimersDelay);
-
-        const pushTime = Date.now();
-        await reInitRemoteData([oneNotebook()], pushTime, {
-          ...defaultValues,
-          defaultSortBy: 'order',
-          defaultSortDesc: true,
-          statsEnabled: false,
-          valuesLastUpdatedAt: pushTime
-        });
-
-        await syncService_push();
-
-        const remoteContent = await driver.getParsedCollectionContent();
-        expect(remoteContent.values).toEqual({
-          ...defaultValues,
-          defaultSortBy: 'order',
-          defaultSortDesc: true,
-          statsEnabled: false,
-          valuesLastUpdatedAt: pushTime
-        });
-      });
-
-      it(`should force push remote values even if remote changed`, async () => {
-        const localTime = Date.now();
-        userSettingsService.setSpaceDefaultDisplayOpts({
-          sort: {
-            by: 'updated',
-            descending: false
-          }
-        });
-        userSettingsService.setSpaceDefaultFlags({
-          statsEnabled: true
-        });
-        vi.advanceTimersByTime(fakeTimersDelay);
-
-        await reInitRemoteData([oneNotebook()], Date.now(), {
-          ...defaultValues,
-          defaultSortBy: 'order',
-          defaultSortDesc: true,
-          statsEnabled: false,
-          valuesLastUpdatedAt: Date.now()
-        });
-
-        await syncService_push(true);
-
-        const remoteContent = await driver.getParsedCollectionContent();
-        expect(remoteContent.values).toEqual({
-          ...defaultValues,
-          defaultSortBy: 'updated',
-          defaultSortDesc: false,
-          statsEnabled: true,
-          valuesLastUpdatedAt: localTime
-        });
-      });
     });
   });
   // });

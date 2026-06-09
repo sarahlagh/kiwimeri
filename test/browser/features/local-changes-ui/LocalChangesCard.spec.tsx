@@ -1,7 +1,6 @@
 import { DEFAULT_NOTEBOOK_ID, getGlobalTrans } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
-import userSettingsService from '@/db/user-settings.service';
 import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeResult } from '@/domain/local-changes/model';
@@ -187,20 +186,6 @@ describe('LocalChangesCard', () => {
     await expectChangeInList(screen, localChanges);
     expect(getListItem(screen, localChanges[0].id)).toHaveTextContent(
       'deleted item'
-    );
-  });
-
-  test('renders a card with value local changes', async () => {
-    userSettingsService.setHistoryMaxVersions(300);
-    const localChanges = localChangesService.getLocalChanges();
-    expect(localChanges).toHaveLength(1);
-
-    const screen = await render(<LocalChangesCard />, {
-      wrapper: TestingProvider
-    });
-    await expectChangeInList(screen, localChanges);
-    expect(getListItem(screen, localChanges[0].id)).toHaveTextContent(
-      'space option modified'
     );
   });
 

@@ -78,22 +78,6 @@ class LocalChangesService {
     store.setRow(LC, rowId, localChange);
   }
 
-  public addValueLocalChange() {
-    const localChange: LocalChangeRow<never> = {
-      itemId: '',
-      change: LocalChangeType.update,
-      on: 'values',
-      createdAt: Date.now()
-    };
-    const rowId = this.getLocalChangeId(localChange);
-    if (store.hasRow(LC, rowId)) {
-      // already had update
-      store.setCell(LC, rowId, 'createdAt', localChange.createdAt);
-      return;
-    }
-    store.setRow(LC, rowId, localChange);
-  }
-
   public getLocalChanges() {
     const results: LocalChangeResult[] = [];
     const table = store.getTable(LC);

@@ -1,7 +1,7 @@
 import { APPICONS_PER_TYPE, CollectionItemType } from '@/collection/collection';
 import DeleteButton from '@/common/buttons/DeleteButton';
 import { dateToStr } from '@/common/date-utils';
-import { GET_UNKNOWN_ITEM_ROUTE, SETTINGS_ROUTE } from '@/common/routes';
+import { GET_UNKNOWN_ITEM_ROUTE } from '@/common/routes';
 import platformService from '@/common/services/platform.service';
 import { APPICONS } from '@/constants';
 import { useQueryResults } from '@/core/db/queries-helper';
@@ -101,24 +101,6 @@ const LocalChangesCard = () => {
           <>
             <IonList style={{ maxHeight: '400px', overflowY: 'auto' }}>
               {localChanges.map(lc => {
-                if (lc.on === 'values') {
-                  return (
-                    <IonItem
-                      key={lc.id}
-                      data-testid={`lc-key-${lc.id}`}
-                      routerLink={SETTINGS_ROUTE}
-                    >
-                      <IonIcon
-                        slot="start"
-                        icon={APPICONS.settingsPage}
-                      ></IonIcon>
-                      <IonText>{t`space option modified`}</IonText>
-                      <IonText slot="end">
-                        {dateToStr('datetime', lc.createdAt)}
-                      </IonText>
-                    </IonItem>
-                  );
-                }
                 let preview = '';
                 let type;
                 let route;

@@ -619,8 +619,6 @@ export class PullTestScenarioRunner {
       remoteContent.content.forEach(i => {
         expect(i).toEqual({ ...localContent[i.id!], id: i.id! });
       });
-      // check values
-      expect(remoteContent.values).toEqual(space.getValues());
     }
   }
 }

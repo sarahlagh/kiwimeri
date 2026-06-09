@@ -5,9 +5,9 @@ import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import navService from '@/db/nav.service';
 import notebooksService from '@/db/notebooks.service';
-import userSettingsService from '@/db/user-settings.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
+import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import {
   ZipImportOptions,
   ZipMergeFistLevel,
@@ -63,7 +63,7 @@ describe('import service', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.advanceTimersByTime(2000);
-    userSettingsService.setHistoryIdleTime(50);
+    userPrefs.set('historyIdleTime', 50);
     historyService['enabled'] = true;
   });
   afterEach(() => {

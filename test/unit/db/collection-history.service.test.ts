@@ -3,9 +3,9 @@ import { DEFAULT_NOTEBOOK_ID, DEFAULT_SPACE_ID } from '@/constants';
 import { space } from '@/core/db/store';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
-import userSettingsService from '@/db/user-settings.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
+import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import {
   fakeTimersDelay,
@@ -25,11 +25,12 @@ describe('collection history service', () => {
     historyService['enabled'] = true;
     vi.useFakeTimers();
     searchAncestryService.start(DEFAULT_SPACE_ID);
-    userSettingsService.setHistoryIdleTime(idleTime);
+    userPrefs.set('historyIdleTime', idleTime);
   });
   afterEach(() => {
     vi.useRealTimers();
-    space.delValue('maxHistoryPerDoc');
+    userPrefs.set('historyIdleTime', null);
+    userPrefs.set('maxHistoryPerDoc', null);
     searchAncestryService.stop();
   });
 
@@ -117,7 +118,7 @@ describe('collection history service', () => {
       expect(historyService.getVersions(docId)).toHaveLength(1);
       vi.advanceTimersByTime(100);
 
-      userSettingsService.setHistoryIdleTime(30);
+      userPrefs.set('historyIdleTime', 30);
       collectionService.setItemLexicalContent(docId, newContent('new 1'));
       vi.advanceTimersByTime(10);
 
@@ -136,8 +137,8 @@ describe('collection history service', () => {
     });
 
     it(`should flush a new version on continuous writing after > maxInterval`, () => {
-      userSettingsService.setHistoryIdleTime(30);
-      userSettingsService.setHistoryMaxInterval(100);
+      userPrefs.set('historyIdleTime', 30);
+      userPrefs.set('historyMaxInterval', 100);
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       expect(historyService.getVersions(docId)).toHaveLength(1);
       vi.advanceTimersByTime(10);
@@ -164,8 +165,8 @@ describe('collection history service', () => {
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       expect(historyService.getVersions(docId)).toHaveLength(1);
       vi.advanceTimersByTime(100);
-      userSettingsService.setHistoryIdleTime(30);
-      userSettingsService.setHistoryMaxInterval(100);
+      userPrefs.set('historyIdleTime', 30);
+      userPrefs.set('historyMaxInterval', 100);
 
       vi.advanceTimersByTime(200);
       collectionService.setItemLexicalContent(docId, newContent('new 1'));
@@ -363,7 +364,7 @@ describe('collection history service', () => {
   });
 
   it(`should gc versions and content`, () => {
-    space.setValue('maxHistoryPerDoc', 2);
+    userPrefs.set('maxHistoryPerDoc', 2);
     const doc1 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     vi.advanceTimersByTime(fakeTimersDelay);
     collectionService.setItemField(doc1, 'content', getNewValue('lex'));

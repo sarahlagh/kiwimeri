@@ -8,7 +8,7 @@ export enum LocalChangeType {
 }
 
 export type LocalChangeTypeValues = 'a' | 'u' | 'd';
-export type LocalChangeOn = SpaceTableId | 'values';
+export type LocalChangeOn = SpaceTableId;
 
 export interface LocalChangeRow<T> {
   itemId: string;

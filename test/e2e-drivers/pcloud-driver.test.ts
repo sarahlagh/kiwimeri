@@ -15,7 +15,6 @@ import { setMetaField } from '@/core/db/types';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import remotesService from '@/db/remotes.service';
-import userSettingsService from '@/db/user-settings.service';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import {
   minimizeAnnotForStorage,
@@ -77,18 +76,12 @@ const reInitRemoteDataWithAnnots = async (
 ) => {
   const lastRemoteChange =
     updateTs !== undefined ? updateTs : Math.max(...items.map(i => i.updated));
-  if (!values) {
-    values = {
-      ...defaultValues,
-      valuesLastUpdatedAt: 0
-    };
-  }
-  console.debug('[reInitRemoteData]', items, annots, values, lastRemoteChange);
+
+  console.debug('[reInitRemoteData]', items, annots, lastRemoteChange);
   const remoteContent: RemoteCollectionFileContent = {
     i: minimizeItemsForStorage(items) as MinimizedCollectionItem[],
     a: minimizeAnnotForStorage(annots || []),
     u: lastRemoteChange,
-    o: values,
     _v: REMOTE_COLLECTION_SCHEMA_VERSION
   };
   await driver.pushFile(
@@ -542,164 +535,6 @@ describe.sequential(
       await syncService.pull();
       // both items are kept
       expect(getRowCountInsideNotebook()).toBe(2);
-    });
-
-    describe(`tests with values`, () => {
-      it(`should pull updated values`, async () => {
-        await reInitRemoteData([oneNotebook()], Date.now(), {
-          ...defaultValues,
-          defaultSortBy: 'order',
-          defaultSortDesc: true,
-          valuesLastUpdatedAt: Date.now()
-        });
-
-        expect(userSettingsService.getSpaceDefaultDisplayOpts()).toEqual({
-          sort: {
-            by: 'created',
-            descending: false
-          }
-        });
-
-        await syncService.pull();
-
-        expect(userSettingsService.getSpaceDefaultDisplayOpts()).toEqual({
-          sort: {
-            by: 'order',
-            descending: true
-          }
-        });
-      });
-
-      it(`should not pull remote values if local changed`, async () => {
-        const remoteTs = Date.now() - 500;
-        await reInitRemoteData([oneNotebook()], remoteTs, {
-          ...defaultValues,
-          defaultSortBy: 'order',
-          defaultSortDesc: true,
-          valuesLastUpdatedAt: remoteTs
-        });
-
-        userSettingsService.setSpaceDefaultDisplayOpts({
-          sort: {
-            by: 'updated',
-            descending: false
-          }
-        });
-
-        await syncService.pull();
-
-        expect(userSettingsService.getSpaceDefaultDisplayOpts()).toEqual({
-          sort: {
-            by: 'updated',
-            descending: false
-          }
-        });
-      });
-
-      it(`should force pull remote values even if local changed`, async () => {
-        const remoteTs = Date.now() - 500;
-        await reInitRemoteData([oneNotebook()], remoteTs, {
-          ...defaultValues,
-          defaultSortBy: 'order',
-          defaultSortDesc: true,
-          valuesLastUpdatedAt: remoteTs
-        });
-
-        userSettingsService.setSpaceDefaultDisplayOpts({
-          sort: {
-            by: 'updated',
-            descending: false
-          }
-        });
-
-        await syncService.pull(undefined, true);
-
-        expect(userSettingsService.getSpaceDefaultDisplayOpts()).toEqual({
-          sort: {
-            by: 'order',
-            descending: true
-          }
-        });
-      });
-
-      it(`should push updated values`, async () => {
-        const remoteTs = Date.now() - 500;
-        await reInitRemoteData([oneNotebook()], remoteTs, {
-          ...defaultValues,
-          defaultSortBy: 'order',
-          defaultSortDesc: true,
-          valuesLastUpdatedAt: remoteTs
-        });
-
-        userSettingsService.setSpaceDefaultDisplayOpts({
-          sort: {
-            by: 'updated',
-            descending: false
-          }
-        });
-        await syncService.push();
-
-        const remoteContent = await getRemoteContent();
-        expect(remoteContent?.values).toEqual({
-          ...defaultValues,
-          defaultSortBy: 'updated',
-          defaultSortDesc: false,
-          valuesLastUpdatedAt: space.getValue('valuesLastUpdatedAt')
-        });
-      });
-
-      it(`should not push remote values if remote changed`, async () => {
-        userSettingsService.setSpaceDefaultDisplayOpts({
-          sort: {
-            by: 'updated',
-            descending: false
-          }
-        });
-
-        const pushTime = Date.now() + 500;
-        await reInitRemoteData([oneNotebook()], pushTime, {
-          ...defaultValues,
-          defaultSortBy: 'order',
-          defaultSortDesc: true,
-          valuesLastUpdatedAt: pushTime
-        });
-
-        await syncService.push();
-
-        const remoteContent = await getRemoteContent();
-        expect(remoteContent?.values).toEqual({
-          ...defaultValues,
-          defaultSortBy: 'order',
-          defaultSortDesc: true,
-          valuesLastUpdatedAt: pushTime
-        });
-      });
-
-      it(`should force push remote values even if remote changed`, async () => {
-        userSettingsService.setSpaceDefaultDisplayOpts({
-          sort: {
-            by: 'updated',
-            descending: false
-          }
-        });
-
-        await reInitRemoteData([oneNotebook()], Date.now() + 500, {
-          ...defaultValues,
-          defaultSortBy: 'order',
-          defaultSortDesc: true,
-          valuesLastUpdatedAt: Date.now() + 500
-        });
-
-        await syncService.push(undefined, true);
-
-        const remoteContent = await getRemoteContent();
-        expect(remoteContent?.values).toEqual({
-          ...defaultValues,
-          defaultSortBy: 'updated',
-          defaultSortDesc: false,
-          valuesLastUpdatedAt: space.getValue('valuesLastUpdatedAt')
-        });
-      });
     });
 
     describe(`tests with notes`, () => {

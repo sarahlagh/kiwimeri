@@ -31,7 +31,6 @@ import {
   wrappedRenderHook
 } from '@@/_setup/test.utils';
 import { describe, it } from 'vitest';
-import { defaultValues } from './test-sync.utils';
 
 const driver = new InMemDriver();
 const remoteResult: RemoteResult = {
@@ -217,14 +216,14 @@ describe('collection synchronizer', () => {
 
       // twist: remote update
       {
-        const { content, values } = driver.getParsedCollectionContent();
+        const { content } = driver.getParsedCollectionContent();
         collectionService.setUnsavedItemLexicalContent(
           content[1],
           JSON.parse(getNewContent('remote update'))
         );
         content[1].content_meta = setMetaField(Date.now());
         content[1].updated = Date.now();
-        driver.setCollectionContent(content, values, Date.now());
+        driver.setCollectionContent(content, Date.now());
       }
 
       // delete, NOT push
@@ -273,14 +272,14 @@ describe('collection synchronizer', () => {
 
       // twist: remote update
       {
-        const { content, values } = driver.getParsedCollectionContent();
+        const { content } = driver.getParsedCollectionContent();
         collectionService.setUnsavedItemLexicalContent(
           content[1],
           JSON.parse(getNewContent('remote update'))
         );
         content[1].content_meta = setMetaField(Date.now());
         content[1].updated = Date.now();
-        driver.setCollectionContent(content, values, Date.now());
+        driver.setCollectionContent(content, Date.now());
       }
 
       // update, NOT push
@@ -337,11 +336,11 @@ describe('collection synchronizer', () => {
 
       // twist: remote update on title
       {
-        const { content, values } = driver.getParsedCollectionContent();
+        const { content } = driver.getParsedCollectionContent();
         content[1].title = 'remote title';
         content[1].title_meta = setMetaField(Date.now());
         content[1].updated = Date.now();
-        driver.setCollectionContent(content, values, Date.now());
+        driver.setCollectionContent(content, Date.now());
       }
 
       // update, NOT push
@@ -407,7 +406,6 @@ describe('collection synchronizer', () => {
       await driver.setCollectionContentWithAnnots(
         items,
         notes,
-        defaultValues,
         notes[0].updatedAt
       );
 
@@ -428,7 +426,6 @@ describe('collection synchronizer', () => {
       await driver.setCollectionContentWithAnnots(
         items,
         notes,
-        defaultValues,
         notes[0].updatedAt
       );
       await synchronizer.sync();
@@ -442,7 +439,6 @@ describe('collection synchronizer', () => {
       await driver.setCollectionContentWithAnnots(
         items,
         notes,
-        defaultValues,
         notes[0].updatedAt
       );
 
@@ -475,7 +471,6 @@ describe('collection synchronizer', () => {
       await driver.setCollectionContentWithAnnots(
         items,
         notes,
-        defaultValues,
         notes[0].updatedAt
       );
       await synchronizer.sync();
@@ -489,7 +484,6 @@ describe('collection synchronizer', () => {
       await driver.setCollectionContentWithAnnots(
         items,
         notes,
-        defaultValues,
         notes[0].updatedAt
       );
 
@@ -527,7 +521,6 @@ describe('collection synchronizer', () => {
       await driver.setCollectionContentWithAnnots(
         items,
         notes,
-        defaultValues,
         notes[0].updatedAt
       );
       await synchronizer.sync();
@@ -548,7 +541,6 @@ describe('collection synchronizer', () => {
       await driver.setCollectionContentWithAnnots(
         items,
         notes,
-        defaultValues,
         notes[0].updatedAt
       );
 
@@ -579,7 +571,6 @@ describe('collection synchronizer', () => {
       await driver.setCollectionContentWithAnnots(
         items,
         notes,
-        defaultValues,
         notes[0].updatedAt
       );
       await synchronizer.sync();
@@ -591,12 +582,7 @@ describe('collection synchronizer', () => {
       vi.advanceTimersByTime(100);
 
       // delete doc & note on remote
-      await driver.setCollectionContentWithAnnots(
-        [items[0]],
-        [],
-        defaultValues,
-        Date.now()
-      );
+      await driver.setCollectionContentWithAnnots([items[0]], [], Date.now());
 
       await synchronizer.sync();
 
@@ -612,7 +598,6 @@ describe('collection synchronizer', () => {
       await driver.setCollectionContentWithAnnots(
         items,
         notes,
-        defaultValues,
         notes[0].updatedAt
       );
       await synchronizer.sync();
@@ -620,12 +605,7 @@ describe('collection synchronizer', () => {
       // note pulled
 
       // delete doc & note on remote
-      await driver.setCollectionContentWithAnnots(
-        [items[0]],
-        [],
-        defaultValues,
-        Date.now()
-      );
+      await driver.setCollectionContentWithAnnots([items[0]], [], Date.now());
       // add note locally
       vi.advanceTimersByTime(100);
       const orphanId = docAnnotationsService.addNote(docId);
@@ -641,12 +621,7 @@ describe('collection synchronizer', () => {
       const noteId = docAnnotationsService.addNote(docId);
 
       const items = [oneNotebook(), oneDocument()];
-      await driver.setCollectionContentWithAnnots(
-        items,
-        [],
-        defaultValues,
-        items[1].updated
-      );
+      await driver.setCollectionContentWithAnnots(items, [], items[1].updated);
 
       await synchronizer.sync();
 
@@ -660,12 +635,7 @@ describe('collection synchronizer', () => {
       const noteId = docAnnotationsService.addNote(docId);
 
       const items = [oneNotebook(), oneDocument()];
-      await driver.setCollectionContentWithAnnots(
-        items,
-        [],
-        defaultValues,
-        items[1].updated
-      );
+      await driver.setCollectionContentWithAnnots(items, [], items[1].updated);
 
       await synchronizer.pull(true);
 
@@ -682,7 +652,6 @@ describe('collection synchronizer', () => {
       await driver.setCollectionContentWithAnnots(
         items,
         notes,
-        defaultValues,
         notes[0].updatedAt
       );
 
@@ -703,7 +672,6 @@ describe('collection synchronizer', () => {
       await driver.setCollectionContentWithAnnots(
         items,
         notes,
-        defaultValues,
         notes[0].updatedAt
       );
       await synchronizer.sync();
@@ -716,7 +684,6 @@ describe('collection synchronizer', () => {
       await driver.setCollectionContentWithAnnots(
         items,
         notes,
-        defaultValues,
         notes[0].updatedAt
       );
 
@@ -747,7 +714,7 @@ describe('collection synchronizer', () => {
     it('should include documents with conflicts and their source in fetchItemsQuery with onlyConflicts=true', async () => {
       const items = [oneNotebook(), oneDocument()];
       const docId = items[1].id!;
-      await driver.setCollectionContent(items, defaultValues, items[1].updated);
+      await driver.setCollectionContent(items, items[1].updated);
       await synchronizer.sync();
       vi.advanceTimersByTime(100);
       // note pulled
@@ -766,7 +733,7 @@ describe('collection synchronizer', () => {
       );
       items[1].content_meta = setMetaField(Date.now());
       items[1].updated = Date.now();
-      await driver.setCollectionContent(items, defaultValues, items[1].updated);
+      await driver.setCollectionContent(items, items[1].updated);
 
       // sync
       const resp = await synchronizer.sync();
@@ -820,7 +787,6 @@ describe('collection synchronizer', () => {
       await driver.setCollectionContentWithAnnots(
         items,
         notes,
-        defaultValues,
         notes[0].updatedAt
       );
       await synchronizer.sync();
@@ -841,7 +807,6 @@ describe('collection synchronizer', () => {
       await driver.setCollectionContentWithAnnots(
         items,
         notes,
-        defaultValues,
         notes[0].updatedAt
       );
 
@@ -904,7 +869,6 @@ describe('collection synchronizer', () => {
       await driver.setCollectionContentWithAnnots(
         items,
         notes,
-        defaultValues,
         notes[0].updatedAt
       );
       await synchronizer.sync();
@@ -938,7 +902,6 @@ describe('collection synchronizer', () => {
       await driver.setCollectionContentWithAnnots(
         items,
         notes,
-        defaultValues,
         items[2].updated
       );
 
@@ -1006,7 +969,6 @@ describe('collection synchronizer', () => {
     test('client on newest version cannot pull remote file without version', async () => {
       const remoteContent: RemoteCollectionFileContent = {
         i: [],
-        o: { ...defaultValues },
         u: Date.now()
       };
       driver.setContent(remoteContent);
@@ -1019,7 +981,6 @@ describe('collection synchronizer', () => {
     test('client on newest version cannot pull remote file with old version', async () => {
       const remoteContent: RemoteCollectionFileContent = {
         i: [],
-        o: { ...defaultValues },
         u: Date.now(),
         _v: REMOTE_COLLECTION_SCHEMA_VERSION - 1
       };
@@ -1033,7 +994,6 @@ describe('collection synchronizer', () => {
     test('client on newest version cannot force pull remote file without version', async () => {
       const remoteContent: RemoteCollectionFileContent = {
         i: [],
-        o: { ...defaultValues },
         u: Date.now()
       };
       driver.setContent(remoteContent);
@@ -1046,7 +1006,6 @@ describe('collection synchronizer', () => {
     test('client on newest version cannot force pull remote file with old version', async () => {
       const remoteContent: RemoteCollectionFileContent = {
         i: [],
-        o: { ...defaultValues },
         u: Date.now(),
         _v: REMOTE_COLLECTION_SCHEMA_VERSION - 1
       };
@@ -1060,7 +1019,6 @@ describe('collection synchronizer', () => {
     test('client on newest version cannot push to remote file without version', async () => {
       const remoteContent: RemoteCollectionFileContent = {
         i: [],
-        o: { ...defaultValues },
         u: Date.now()
       };
       driver.setContent(remoteContent);
@@ -1073,7 +1031,6 @@ describe('collection synchronizer', () => {
     test('client on newest version cannot push to remote file with old version', async () => {
       const remoteContent: RemoteCollectionFileContent = {
         i: [],
-        o: { ...defaultValues },
         u: Date.now(),
         _v: REMOTE_COLLECTION_SCHEMA_VERSION - 1
       };
@@ -1087,7 +1044,6 @@ describe('collection synchronizer', () => {
     test('client on newest version can force push to remote file without version', async () => {
       const remoteContent: RemoteCollectionFileContent = {
         i: [],
-        o: { ...defaultValues },
         u: Date.now()
       };
       driver.setContent(remoteContent);
@@ -1103,7 +1059,6 @@ describe('collection synchronizer', () => {
     test('client on newest version can force push to remote file with old version', async () => {
       const remoteContent: RemoteCollectionFileContent = {
         i: [],
-        o: { ...defaultValues },
         u: Date.now(),
         _v: REMOTE_COLLECTION_SCHEMA_VERSION - 1
       };
@@ -1120,7 +1075,6 @@ describe('collection synchronizer', () => {
     test('client on old version cannot pull remote file on newest version', async () => {
       const remoteContent: RemoteCollectionFileContent = {
         i: [],
-        o: { ...defaultValues },
         u: Date.now(),
         _v: REMOTE_COLLECTION_SCHEMA_VERSION + 1
       };
@@ -1134,7 +1088,6 @@ describe('collection synchronizer', () => {
     test('client on old version cannot force pull remote file on newest version', async () => {
       const remoteContent: RemoteCollectionFileContent = {
         i: [],
-        o: { ...defaultValues },
         u: Date.now(),
         _v: REMOTE_COLLECTION_SCHEMA_VERSION + 1
       };
@@ -1148,7 +1101,6 @@ describe('collection synchronizer', () => {
     test('client on old version cannot push remote file on newest version', async () => {
       const remoteContent: RemoteCollectionFileContent = {
         i: [],
-        o: { ...defaultValues },
         u: Date.now(),
         _v: REMOTE_COLLECTION_SCHEMA_VERSION + 1
       };
@@ -1163,7 +1115,6 @@ describe('collection synchronizer', () => {
     test('client on old version can force push remote file on newest version (!!!!)', async () => {
       const remoteContent: RemoteCollectionFileContent = {
         i: [],
-        o: { ...defaultValues },
         u: Date.now(),
         _v: REMOTE_COLLECTION_SCHEMA_VERSION + 1
       };
