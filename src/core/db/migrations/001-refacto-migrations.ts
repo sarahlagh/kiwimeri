@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { SpaceTables } from '../store-schema';
 import { MetaField, NoSchemaStore } from '../types';
 
-const C = 'collection';
-const AN = 'document_annotation';
-const H = 'history';
-const S = 'stats';
+const C = SpaceTables.C;
+const A = SpaceTables.A;
+const H = SpaceTables.H;
+const S = SpaceTables.S;
+const UP = SpaceTables.UP;
 
 export default function Migration(
   _space: NoSchemaStore,
@@ -17,6 +19,7 @@ export default function Migration(
   tagsBecomeArray(_space);
   snapshotJsonBecomeObjectsAndUpdate(_space);
   contentStatsBecomeObjects(_space);
+  someValuesGoToUserPrefs(_space);
 }
 
 function statsEnabledInItemFlags(_space: NoSchemaStore) {
@@ -44,7 +47,7 @@ function statsEnabledInItemFlags(_space: NoSchemaStore) {
 
 function metaFieldsBecomeObjects(space: NoSchemaStore) {
   _metaFieldsBecomeObjects(space, C);
-  _metaFieldsBecomeObjects(space, AN);
+  _metaFieldsBecomeObjects(space, A);
 }
 
 function _metaFieldsBecomeObjects(space: NoSchemaStore, tableId: string) {
@@ -197,6 +200,7 @@ function snapshotJsonBecomeObjectsAndUpdate(space: NoSchemaStore) {
     }
   });
 }
+
 function contentStatsBecomeObjects(space: NoSchemaStore) {
   space.getRowIds(S).forEach(rowId => {
     const cell = space.getCell(S, rowId, 'contentStatsJson');
@@ -204,4 +208,33 @@ function contentStatsBecomeObjects(space: NoSchemaStore) {
       space.setCell(S, rowId, 'contentStatsJson', JSON.parse(cell));
     }
   });
+}
+
+function valueToUserPref(
+  space: NoSchemaStore,
+  valueKey: string,
+  updatedAt: number
+) {
+  if (space.hasValue(valueKey)) {
+    space.setRow(UP, valueKey, {
+      value: { _v: space.getValue(valueKey) },
+      updatedAt: updatedAt
+    });
+  }
+}
+
+function someValuesGoToUserPrefs(space: NoSchemaStore) {
+  let valuesLastUpdatedAt = Date.now();
+  if (space.hasValue('schemaVersion')) {
+    space.setValue('appVersion', space.getValue('schemaVersion')!);
+  }
+  if (space.hasValue('valuesLastUpdatedAt')) {
+    valuesLastUpdatedAt = space.getValue('valuesLastUpdatedAt') as number;
+  }
+  valueToUserPref(space, 'defaultSortBy', valuesLastUpdatedAt);
+  valueToUserPref(space, 'defaultSortDesc', valuesLastUpdatedAt);
+  valueToUserPref(space, 'historyIdleTime', valuesLastUpdatedAt);
+  valueToUserPref(space, 'historyMaxInterval', valuesLastUpdatedAt);
+  valueToUserPref(space, 'maxHistoryPerDoc', valuesLastUpdatedAt);
+  valueToUserPref(space, 'statsEnabled', valuesLastUpdatedAt);
 }

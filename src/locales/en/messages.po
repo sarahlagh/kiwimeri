@@ -107,7 +107,7 @@ msgstr "Are you sure?"
 #: src/common/modals/ChooseTagsModal.tsx:100
 #: src/common/modals/ConfirmYesNoDialog.tsx:28
 #: src/features/import-export/buttons/ExportItemsButton.tsx:103
-#: src/features/import-export/buttons/RestoreCollectionButton.tsx:74
+#: src/features/import-export/buttons/RestoreCollectionButton.tsx:72
 #: src/features/import-export/modals/ConfirmFileImportModal.tsx:80
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:332
 msgid "Cancel"
@@ -174,14 +174,14 @@ msgstr "Configure where to synchronize your collection"
 #: src/common/modals/ChooseTagsModal.tsx:107
 #: src/common/modals/ConfirmYesNoDialog.tsx:36
 #: src/features/import-export/buttons/ExportItemsButton.tsx:110
-#: src/features/import-export/buttons/RestoreCollectionButton.tsx:81
+#: src/features/import-export/buttons/RestoreCollectionButton.tsx:79
 #: src/features/import-export/modals/ConfirmFileImportModal.tsx:83
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:338
 #: src/notebooks/components/ManageNotebooksModal.tsx:95
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/collection/components/CollectionItemBrowserList.tsx:153
+#: src/collection/components/CollectionItemBrowserList.tsx:157
 #: src/constants.ts:78
 msgid "Conflicts"
 msgstr "Conflicts"
@@ -204,11 +204,11 @@ msgid "Created at: {0}"
 msgstr "Created at: {0}"
 
 #: src/collection/components/SortFilter.tsx:47
-#: src/settings/components/sections/GenericCollectionSettings.tsx:42
+#: src/features/settings-ui/components/GenericCollectionSettings.tsx:40
 msgid "Creation Date"
 msgstr "Creation Date"
 
-#: src/settings/components/sections/CurrentNotebookSettings.tsx:25
+#: src/features/settings-ui/components/CurrentNotebookSettings.tsx:27
 msgid "Current Notebook Settings ({notebookTitle})"
 msgstr "Current Notebook Settings ({notebookTitle})"
 
@@ -237,7 +237,7 @@ msgstr "Dev Tools"
 msgid "Dev Tools Enabled"
 msgstr "Dev Tools Enabled"
 
-#: src/settings/components/sections/CurrentDeviceSettings.tsx:23
+#: src/features/settings-ui/components/CurrentDeviceSettings.tsx:23
 msgid "Device Settings"
 msgstr "Device Settings"
 
@@ -250,7 +250,7 @@ msgstr "Device Token"
 msgid "Discard"
 msgstr "Discard"
 
-#: src/settings/components/sections/CurrentNotebookSettings.tsx:28
+#: src/features/settings-ui/components/CurrentNotebookSettings.tsx:30
 msgid "Display options for the currently selected notebook. They can still be overriden per folder."
 msgstr "Display options for the currently selected notebook. They can still be overriden per folder."
 
@@ -302,9 +302,9 @@ msgstr "Errors have been detected on the following files:"
 msgid "EU"
 msgstr "EU"
 
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:56
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:70
-#: src/settings/components/sections/ImportExportStoreSettings.tsx:75
+#: src/features/settings-ui/components/ImportExportCollectionSettings.tsx:56
+#: src/features/settings-ui/components/ImportExportCollectionSettings.tsx:70
+#: src/features/settings-ui/components/ImportExportStoreSettings.tsx:75
 msgid "Export"
 msgstr "Export"
 
@@ -316,15 +316,11 @@ msgstr "Export Options"
 msgid "File not supported"
 msgstr "File not supported"
 
-#: src/settings/components/sections/FilesystemSyncSettings.tsx:20
-msgid "Filesystem"
-msgstr "Filesystem"
-
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:53
+#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:63
 msgid "History idle time (s)"
 msgstr "History idle time (s)"
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:59
+#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:69
 msgid "History save time (min)"
 msgstr "History save time (min)"
 
@@ -342,11 +338,11 @@ msgstr "Import {0}.zip in a new Notebook"
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
 
-#: src/settings/components/sections/ImportExportStoreSettings.tsx:56
+#: src/features/settings-ui/components/ImportExportStoreSettings.tsx:56
 msgid "Import & export your app settings"
 msgstr "Import & export your app settings"
 
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:38
+#: src/features/settings-ui/components/ImportExportCollectionSettings.tsx:38
 msgid "Import & export your collection"
 msgstr "Import & export your collection"
 
@@ -354,7 +350,7 @@ msgstr "Import & export your collection"
 msgid "Import file in folder {folderName}"
 msgstr "Import file in folder {folderName}"
 
-#: src/settings/components/sections/GenericCollectionSettings.tsx:49
+#: src/features/settings-ui/components/GenericCollectionSettings.tsx:47
 msgid "In descending order"
 msgstr "In descending order"
 
@@ -370,11 +366,11 @@ msgstr "Incorrect Metadata"
 msgid "Internal proxy"
 msgstr "Internal proxy"
 
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:51
+#: src/features/settings-ui/components/ImportExportCollectionSettings.tsx:51
 msgid "Kiwimeri format (single file)"
 msgstr "Kiwimeri format (single file)"
 
-#: src/collection/components/CollectionItemBrowserList.tsx:152
+#: src/collection/components/CollectionItemBrowserList.tsx:156
 msgid "Last consulted documents"
 msgstr "Last consulted documents"
 
@@ -382,7 +378,7 @@ msgstr "Last consulted documents"
 msgid "Last Updated"
 msgstr "Last Updated"
 
-#: src/collection/components/CollectionItemBrowserList.tsx:151
+#: src/collection/components/CollectionItemBrowserList.tsx:155
 msgid "Last updated documents"
 msgstr "Last updated documents"
 
@@ -420,19 +416,19 @@ msgstr "Logs"
 msgid "Manual"
 msgstr "Manual"
 
-#: src/settings/components/sections/GenericCollectionSettings.tsx:44
+#: src/features/settings-ui/components/GenericCollectionSettings.tsx:42
 msgid "Manual Order"
 msgstr "Manual Order"
 
-#: src/settings/components/sections/ImportExportStoreSettings.tsx:59
+#: src/features/settings-ui/components/ImportExportStoreSettings.tsx:59
 msgid "Manually backup or restore your app settings"
 msgstr "Manually backup or restore your app settings"
 
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:41
+#: src/features/settings-ui/components/ImportExportCollectionSettings.tsx:41
 msgid "Manually backup or restore your collection in the format of your choice"
 msgstr "Manually backup or restore your collection in the format of your choice"
 
-#: src/settings/components/sections/ImportExportCollectionSettings.tsx:65
+#: src/features/settings-ui/components/ImportExportCollectionSettings.tsx:65
 msgid "Markdown (Kiwimeri flavor)"
 msgstr "Markdown (Kiwimeri flavor)"
 
@@ -452,7 +448,7 @@ msgstr "merged"
 msgid "Metadata found in the archive"
 msgstr "Metadata found in the archive"
 
-#: src/settings/components/sections/GenericCollectionSettings.tsx:43
+#: src/features/settings-ui/components/GenericCollectionSettings.tsx:41
 msgid "Modified Date"
 msgstr "Modified Date"
 
@@ -505,15 +501,15 @@ msgstr "Notebook Selection"
 msgid "Notebooks found in the archive, they will be converted to folders"
 msgstr "Notebooks found in the archive, they will be converted to folders"
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:65
+#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:75
 msgid "Number of versions"
 msgstr "Number of versions"
 
-#: src/settings/components/sections/CurrentDeviceSettings.tsx:26
+#: src/features/settings-ui/components/CurrentDeviceSettings.tsx:26
 msgid "Options for the currently selected device. These options are local-only."
 msgstr "Options for the currently selected device. These options are local-only."
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:28
+#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:38
 msgid "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 msgstr "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 
@@ -535,13 +531,7 @@ msgstr "Path"
 msgid "PCloud Configuration"
 msgstr "PCloud Configuration"
 
-#: src/settings/components/sections/FilesystemSyncSettings.tsx:30
-#: src/settings/components/sections/FilesystemSyncSettings.tsx:31
-#: src/settings/components/sections/FilesystemSyncSettings.tsx:36
-msgid "Pick a directory for your backups"
-msgstr "Pick a directory for your backups"
-
-#: src/settings/components/sections/CurrentDeviceSettings.tsx:38
+#: src/features/settings-ui/components/CurrentDeviceSettings.tsx:38
 msgid "Remember last route"
 msgstr "Remember last route"
 
@@ -562,12 +552,12 @@ msgstr "Remote: <0>never</0>"
 msgid "Reorder"
 msgstr "Reorder"
 
-#: src/features/import-export/buttons/RestoreCollectionButton.tsx:101
-#: src/settings/components/sections/ImportExportStoreSettings.tsx:85
+#: src/features/import-export/buttons/RestoreCollectionButton.tsx:99
+#: src/features/settings-ui/components/ImportExportStoreSettings.tsx:85
 msgid "Restore"
 msgstr "Restore"
 
-#: src/features/import-export/buttons/RestoreCollectionButton.tsx:70
+#: src/features/import-export/buttons/RestoreCollectionButton.tsx:68
 msgid "Restore Collection"
 msgstr "Restore Collection"
 
@@ -583,7 +573,7 @@ msgstr "Save"
 msgid "Save your work"
 msgstr "Save your work"
 
-#: src/settings/components/sections/CurrentDeviceSettings.tsx:44
+#: src/features/settings-ui/components/CurrentDeviceSettings.tsx:44
 msgid "Scroll to the last position in document"
 msgstr "Scroll to the last position in document"
 
@@ -621,7 +611,7 @@ msgstr "Sort"
 msgid "Sort direction"
 msgstr "Sort direction"
 
-#: src/settings/components/sections/GenericCollectionSettings.tsx:39
+#: src/features/settings-ui/components/GenericCollectionSettings.tsx:37
 msgid "Sort items by..."
 msgstr "Sort items by..."
 
@@ -633,7 +623,7 @@ msgstr "sort notes"
 msgid "space option modified"
 msgstr "space option modified"
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:25
+#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:35
 msgid "Space Settings"
 msgstr "Space Settings"
 
@@ -657,10 +647,6 @@ msgstr "Switch info"
 msgid "Synchronization"
 msgstr "Synchronization"
 
-#: src/settings/components/sections/FilesystemSyncSettings.tsx:23
-msgid "Synchronize your collection on the filesystem"
-msgstr "Synchronize your collection on the filesystem"
-
 #: src/synchronization/components/providers/RemotesSettings.tsx:61
 msgid "Syncing is disabled on the web version."
 msgstr "Syncing is disabled on the web version."
@@ -681,11 +667,11 @@ msgstr "Text..."
 msgid "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 msgstr "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:66
+#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:76
 msgid "The number of versions to keep per document. Set 0 for unlimited."
 msgstr "The number of versions to keep per document. Set 0 for unlimited."
 
-#: src/settings/components/sections/ImportExportStoreSettings.tsx:63
+#: src/features/settings-ui/components/ImportExportStoreSettings.tsx:63
 msgid "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page."
 msgstr "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page."
 
@@ -693,7 +679,7 @@ msgstr "This is different than the import / export of the collection. Your colle
 msgid "This will delete this folder and move all its items to the current one."
 msgstr "This will delete this folder and move all its items to the current one."
 
-#: src/features/import-export/buttons/RestoreCollectionButton.tsx:71
+#: src/features/import-export/buttons/RestoreCollectionButton.tsx:69
 msgid "This will delete your existing data. Are you sure?"
 msgstr "This will delete your existing data. Are you sure?"
 
@@ -717,7 +703,7 @@ msgstr "Title"
 msgid "Toggle actions"
 msgstr "Toggle actions"
 
-#: src/settings/components/sections/GenericCollectionSettings.tsx:55
+#: src/features/settings-ui/components/GenericCollectionSettings.tsx:53
 msgid "Track text statistics"
 msgstr "Track text statistics"
 
@@ -739,15 +725,15 @@ msgstr "US"
 msgid "Username"
 msgstr "Username"
 
-#: src/settings/components/sections/CurrentDeviceSettings.tsx:39
+#: src/features/settings-ui/components/CurrentDeviceSettings.tsx:39
 msgid "When enabled, when you open the app you will be redirected to the last document you were working on instead of the root of the current space."
 msgstr "When enabled, when you open the app you will be redirected to the last document you were working on instead of the root of the current space."
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:60
+#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:70
 msgid "When working on a document, a new version will be automatically at least every XX minutes"
 msgstr "When working on a document, a new version will be automatically at least every XX minutes"
 
-#: src/settings/components/sections/CurrentSpaceSettings.tsx:54
+#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:64
 msgid "When working on a document, a new version will be automatically if idle after XX seconds"
 msgstr "When working on a document, a new version will be automatically if idle after XX seconds"
 

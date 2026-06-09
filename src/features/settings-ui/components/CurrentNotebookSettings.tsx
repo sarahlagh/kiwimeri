@@ -1,6 +1,8 @@
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
-import userSettingsService from '@/db/user-settings.service';
+import { displayOptsService } from '@/domain/collection-display-opts/display-opts.service';
+import useNotebookDefaultSort from '@/domain/collection-display-opts/hooks/useNotebookDefaultSort';
+import useNotebookDefaultFlags from '@/domain/collection-flags/hooks/useNotebookDefaultFlags';
 import { statsService } from '@/domain/stats/stats-service';
 import {
   IonCard,
@@ -13,8 +15,8 @@ import { Trans } from '@lingui/react/macro';
 import GenericCollectionSettings from './GenericCollectionSettings';
 
 const CurrentNotebookSettings = () => {
-  const _defaultDisplayOpts = userSettingsService.useNotebookDisplayOpts();
-  const _defaultFlags = userSettingsService.useDefaultFlags();
+  const _defaultDisplayOpts = useNotebookDefaultSort();
+  const _defaultFlags = useNotebookDefaultFlags();
   const currentNotebook = notebooksService.useCurrentNotebook();
   const notebookTitle = notebooksService.useNotebookTitle(currentNotebook);
 
@@ -34,13 +36,10 @@ const CurrentNotebookSettings = () => {
 
       <IonCardContent>
         <GenericCollectionSettings
-          defaultDisplayOpts={_defaultDisplayOpts}
+          defaultSort={_defaultDisplayOpts}
           defaultFlags={_defaultFlags}
-          onDefaultDisplayOptsChange={newDisplayOpts => {
-            collectionService.setNotebookDisplayOpts(
-              currentNotebook,
-              newDisplayOpts
-            );
+          onDefaultSortChange={newSort => {
+            displayOptsService.setNotebookDefaultSort(currentNotebook, newSort);
           }}
           onDefaultFlagsChange={newFlags => {
             if (newFlags.statsEnabled && !_defaultFlags.statsEnabled) {

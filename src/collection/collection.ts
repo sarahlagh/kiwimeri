@@ -1,7 +1,7 @@
 import { APPICONS } from '@/constants';
 import { MetaField } from '@/core/db/types';
-import { NotesSort } from '@/domain/document-annotations/model';
-import { AnyObject } from 'tinybase/with-schemas';
+import { CollectionItemDisplayOpts } from '@/domain/collection-display-opts/model';
+import { CollectionItemFlags } from '@/domain/collection-flags/model';
 
 export enum CollectionItemType {
   notebook = 'n',
@@ -35,44 +35,6 @@ export interface CollectionItem {
 }
 
 export type CollectionItemWithId = CollectionItem & { id: string };
-
-export const sortBy = [
-  'created',
-  'updated',
-  'title',
-  'preview',
-  'order'
-] as const;
-export type CollectionItemSortType = (typeof sortBy)[number];
-
-export type CollectionItemSort = {
-  by: CollectionItemSortType;
-  descending: boolean;
-};
-
-export type CollectionItemDisplayOpts = Partial<NotebookDisplayOpts> &
-  Partial<FolderDisplayOpts> &
-  Partial<DocumentDisplayOpts>;
-
-export type NotebookDisplayOpts = FolderDisplayOpts & {
-  lastBrowserMode?: number;
-};
-
-export type FolderDisplayOpts = {
-  sort: CollectionItemSort;
-};
-
-export type DocumentDisplayOpts = {
-  documentSort: NotesSort;
-};
-
-export interface CollectionItemFlags extends AnyObject {
-  statsEnabled?: boolean;
-}
-
-export const defaultFlags: Required<CollectionItemFlags> = {
-  statsEnabled: false
-};
 
 export type CollectionItemFieldEnum = keyof Required<
   Omit<CollectionItem, 'id'>

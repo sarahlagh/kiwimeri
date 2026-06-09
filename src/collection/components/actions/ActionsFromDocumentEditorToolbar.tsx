@@ -8,7 +8,7 @@ import SearchButton from '@/common/buttons/SearchButton';
 import { GET_FOLDER_ROUTE } from '@/common/routes';
 import { APPICONS } from '@/constants';
 import navService from '@/db/nav.service';
-import userSettingsService from '@/db/user-settings.service';
+import { itemFlagsService } from '@/domain/collection-flags/flags.service';
 import { ViewAo3HtmlButton } from '@/features/ao3-html-ui';
 import { ExportItemsButton } from '@/features/import-export';
 import { IonButton, IonButtons, IonIcon, IonToolbar } from '@ionic/react';
@@ -28,7 +28,7 @@ const ActionsFromDocumentEditorToolbar = ({
   const folder = navService.getCurrentFolder();
   const fallbackRoute = GET_FOLDER_ROUTE(folder);
 
-  const statsEnabled = userSettingsService.getDefaultFlags().statsEnabled;
+  const statsEnabled = itemFlagsService.getNotebookDefaultFlags().statsEnabled;
   const showStats = statsEnabled;
 
   return (

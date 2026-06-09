@@ -1,4 +1,4 @@
-import Settings from '@/settings/components/Settings';
+import { Settings } from '@/features/settings-ui';
 import { IonContent } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
 import TemplateMainPage from './TemplateMainPage';

@@ -21,13 +21,15 @@ import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
 import { ExportItemsButton, ImportItemsButton } from '@/features/import-export';
 
-import userSettingsService from '@/db/user-settings.service';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
+
+import useFolderEffectiveSort from '@/domain/collection-display-opts/hooks/useFolderEffectiveSort';
+import useNotebookLastBrowserModeState from '@/domain/collection-display-opts/hooks/useNotebookLastBrowserModeState';
 
 // eslint-disable-next-line no-restricted-imports
 import useCollectionItemBrowserListResults, {
-  browserModes,
-  BrowserQueryMode
+  BrowserQueryMode,
+  browserModes
 } from '@/features/collection-ui/hooks/useCollectionItemBrowserListResults';
 import { useLingui } from '@lingui/react/macro';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
@@ -144,11 +146,9 @@ export const CollectionItemBrowserList = ({
   const openedDocument = searchParams?.document;
   const hasConflicts = conflictsService.useHasLocalConflicts();
 
-  const display_opts = collectionService.useFolderEffectiveDisplayOpts(folder);
-  const sort = display_opts.sort;
+  const sort = useFolderEffectiveSort(folder);
 
-  const modeIdx =
-    userSettingsService.useNotebookDisplayOpts().lastBrowserMode || 0;
+  const [modeIdx, setModeIdx] = useNotebookLastBrowserModeState();
 
   // const [modeIdx, setModeIdx] = useStoreValueState<number>('lastBrowserMode');
   const modeTrans = new Map<BrowserQueryMode, string>();
@@ -250,7 +250,7 @@ export const CollectionItemBrowserList = ({
           nextMode={() => {
             let idx = modeIdx + 1;
             if (idx === browserModes.length) idx = 0;
-            userSettingsService.setNotebookLastBrowserModeIdx(idx);
+            setModeIdx(idx);
           }}
         />
       }

@@ -1,7 +1,5 @@
-import {
-  CollectionItem,
-  CollectionItemDisplayOpts
-} from '@/collection/collection';
+import { CollectionItem } from '@/collection/collection';
+import { CollectionItemDisplayOpts } from '@/domain/collection-display-opts/model';
 
 export type ZipFileTree = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -1,4 +1,5 @@
 import { store } from '@/core/db/store';
+import { StoreTables } from '@/core/db/store-schema';
 import { AsId } from '@/core/db/types';
 import { Id } from 'tinybase/with-schemas';
 import {
@@ -8,7 +9,7 @@ import {
   LocalChangeType
 } from './model';
 
-const LC = 'localChanges';
+const LC = StoreTables.LC;
 
 class LocalChangesService {
   public addManualLocalChange<T>(

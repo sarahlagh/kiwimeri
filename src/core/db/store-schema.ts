@@ -2,6 +2,7 @@ import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { docAnnotationSchema } from '@/domain/document-annotations/model';
 import { localChangesSchema } from '@/domain/local-changes/model';
 import { resumeStateSchema } from '@/domain/resume-state/model';
+import { userPreferenceSchema } from '@/domain/user-preferences/model';
 import { Value } from 'tinybase/with-schemas';
 import {
   CellIdFromSchema,
@@ -9,6 +10,16 @@ import {
   TableIdFromSchema,
   ValueIdFromSchema
 } from './types';
+
+export enum StoreTables {
+  SP = 'spaces',
+  LC = 'localChanges',
+  R = 'remotes',
+  RS = 'remoteState',
+  L = 'logs',
+  S = 'search',
+  A = 'ancestors'
+}
 
 export const storeTablesSchema = {
   spaces: {
@@ -51,7 +62,7 @@ export const storeTablesSchema = {
     childId: { type: 'string' },
     depth: { type: 'number', default: 0 }
   }
-} as const;
+} as const satisfies Record<StoreTables, unknown>;
 
 export const storeValuesSchema = {
   tempDoc: { type: 'string' },
@@ -68,6 +79,16 @@ export const storeValuesSchema = {
   rememberLastRoute: { type: 'boolean', default: true },
   resumeLastSelection: { type: 'boolean', default: true }
 } as const;
+
+export enum SpaceTables {
+  C = 'collection',
+  H = 'history',
+  HC = 'history_content',
+  R = 'document_resume_state',
+  S = 'stats',
+  A = 'document_annotation',
+  UP = 'user_preference'
+}
 
 export const spaceTablesSchema = {
   collection: {
@@ -111,18 +132,12 @@ export const spaceTablesSchema = {
     contentStatsJson: { type: 'object' },
     lastOpenedAt: { type: 'number' }
   },
-  document_annotation: docAnnotationSchema
-} as const;
+  document_annotation: docAnnotationSchema,
+  user_preference: userPreferenceSchema
+} as const satisfies Record<SpaceTables, unknown>;
+
 export const spaceValuesSchema = {
-  valuesLastUpdatedAt: { type: 'number', default: 0 }, // delete
-  schemaVersion: { type: 'string', default: '' }, // keep, maybe rename to appVersion
-  // to user_preference:
-  defaultSortBy: { type: 'string', default: 'created' },
-  defaultSortDesc: { type: 'boolean', default: false },
-  historyIdleTime: { type: 'number', default: 15000 },
-  historyMaxInterval: { type: 'number', default: 300000 },
-  maxHistoryPerDoc: { type: 'number', default: 50 },
-  statsEnabled: { type: 'boolean', default: false }
+  appVersion: { type: 'string', default: '' }
 } as const;
 
 // types
@@ -149,3 +164,7 @@ export type SpaceCellId<T extends SpaceTableId> = CellIdFromSchema<
 >;
 
 export type StoreId = 'store' | 'space';
+export enum SID {
+  space = 'space',
+  store = 'store'
+}

@@ -1,10 +1,7 @@
 import {
   CollectionItemResetConflictFields,
   CollectionItemResult,
-  CollectionItemSort,
-  CollectionItemType,
-  FolderDisplayOpts,
-  NotebookDisplayOpts
+  CollectionItemType
 } from '@/collection/collection';
 import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
 import {
@@ -17,6 +14,11 @@ import { setMetaField } from '@/core/db/types';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import userSettingsService from '@/db/user-settings.service';
+import {
+  CollectionItemSort,
+  FolderDisplayOpts,
+  NotebookDisplayOpts
+} from '@/domain/collection-display-opts/model';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import {
   BROWSABLE_ITEM_TYPES,

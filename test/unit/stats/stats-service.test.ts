@@ -3,9 +3,10 @@ import { spaceQueries } from '@/core/db/store';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
-import userSettingsService from '@/db/user-settings.service';
+import { itemFlagsService } from '@/domain/collection-flags/flags.service';
 import { DataPoint, DocumentContentStatsBag } from '@/domain/stats/model';
 import { statsService } from '@/domain/stats/stats-service';
+import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { fakeTimersDelay, getNewContent } from '@@/_setup/test.utils';
 import {
@@ -132,7 +133,7 @@ describe('stats service', () => {
   describe(`stats generation`, () => {
     beforeEach(() => {
       searchAncestryService.start();
-      userSettingsService.setSpaceDefaultFlags({
+      itemFlagsService.setSpaceDefaultFlags({
         statsEnabled: true
       });
     });
@@ -207,7 +208,7 @@ describe('stats service', () => {
   describe(`backfilling`, () => {
     beforeEach(() => {
       historyService['enabled'] = true;
-      userSettingsService.setHistoryIdleTime(50);
+      userPrefs.set('historyIdleTime', 50);
       searchAncestryService.start();
     });
     afterEach(() => {

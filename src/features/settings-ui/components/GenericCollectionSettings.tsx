@@ -1,19 +1,17 @@
-import {
-  CollectionItemFlags,
-  CollectionItemSortType,
-  NotebookDisplayOpts
-} from '@/collection/collection';
 import EditConfigList, {
   ConfigRowType
 } from '@/common/containers/EditConfigList';
 import { AnySerializableData, SerializableData } from '@/db/types/store-types';
+import {
+  CollectionItemSortType,
+  NotebookDisplayOpts
+} from '@/domain/collection-display-opts/model';
+import { CollectionItemFlags } from '@/domain/collection-flags/model';
 import { useLingui } from '@lingui/react/macro';
 
 type GenericCollectionSettingsProps = {
-  defaultDisplayOpts: NotebookDisplayOpts;
-  onDefaultDisplayOptsChange: (
-    newDefaultDisplayOpts: NotebookDisplayOpts
-  ) => void;
+  defaultSort: NotebookDisplayOpts['sort'];
+  onDefaultSortChange: (newDefaultSort: NotebookDisplayOpts['sort']) => void;
   defaultFlags: Required<CollectionItemFlags>;
   onDefaultFlagsChange: (newDefaultFlags: CollectionItemFlags) => void;
   withRows?: ConfigRowType[];
@@ -22,9 +20,9 @@ type GenericCollectionSettingsProps = {
 };
 
 const GenericCollectionSettings = ({
-  defaultDisplayOpts,
+  defaultSort,
   defaultFlags,
-  onDefaultDisplayOptsChange,
+  onDefaultSortChange,
   onDefaultFlagsChange,
   withRows = [],
   withInitialState = {},
@@ -58,22 +56,22 @@ const GenericCollectionSettings = ({
         ...withRows
       ]}
       initialState={{
-        sort_by: defaultDisplayOpts.sort.by,
-        sort_descending: defaultDisplayOpts.sort.descending,
+        sort_by: defaultSort.by,
+        sort_descending: defaultSort.descending,
         stats_enabled: defaultFlags.statsEnabled,
         ...withInitialState
       }}
       onChange={(key, val) => {
-        const newDisplayOpts = { ...defaultDisplayOpts };
+        const newSort = { ...defaultSort };
         const newFlags = { ...defaultFlags };
         switch (key) {
           case 'sort_by':
-            newDisplayOpts.sort.by = val as string as CollectionItemSortType;
-            onDefaultDisplayOptsChange(newDisplayOpts);
+            newSort.by = val as string as CollectionItemSortType;
+            onDefaultSortChange(newSort);
             break;
           case 'sort_descending':
-            newDisplayOpts.sort.descending = val as boolean;
-            onDefaultDisplayOptsChange(newDisplayOpts);
+            newSort.descending = val as boolean;
+            onDefaultSortChange(newSort);
             break;
           case 'stats_enabled':
             newFlags.statsEnabled = val as boolean;

@@ -1,5 +1,9 @@
-import userSettingsService from '@/db/user-settings.service';
+import { displayOptsService } from '@/domain/collection-display-opts/display-opts.service';
+import useSpaceDefaultSort from '@/domain/collection-display-opts/hooks/useSpaceDefaultSort';
+import { itemFlagsService } from '@/domain/collection-flags/flags.service';
+import useSpaceDefaultFlags from '@/domain/collection-flags/hooks/useSpaceDefaultFlags';
 import { statsService } from '@/domain/stats/stats-service';
+import usePrefState from '@/domain/user-preferences/hooks/usePrefState';
 import {
   IonCard,
   IonCardContent,
@@ -11,12 +15,18 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import GenericCollectionSettings from './GenericCollectionSettings';
 
 const CurrentSpaceSettings = () => {
-  const _defaultDisplayOpts = userSettingsService.useSpaceDefaultDisplayOpts();
-  const _defaultFlags = userSettingsService.useSpaceDefaultFlags();
-  const defaultHistoryIdleTime = userSettingsService.useHistoryIdleTime();
-  const defaultHistoryMaxInterval = userSettingsService.useHistoryMaxInterval();
-  const defaultMaxVersionsPerDoc = userSettingsService.useHistoryMaxVersions();
+  const _defaultSort = useSpaceDefaultSort();
+  const _defaultFlags = useSpaceDefaultFlags();
   const { t } = useLingui();
+
+  const [maxHistoryPerDoc, setMaxHistoryPerDoc] =
+    usePrefState<'maxHistoryPerDoc'>('maxHistoryPerDoc');
+
+  const [historyIdleTime, setHistoryIdleTime] =
+    usePrefState<'historyIdleTime'>('historyIdleTime');
+
+  const [historyMaxInterval, setHistoryMaxInterval] =
+    usePrefState<'historyMaxInterval'>('historyMaxInterval');
 
   return (
     <IonCard className="primary">
@@ -34,9 +44,9 @@ const CurrentSpaceSettings = () => {
 
       <IonCardContent>
         <GenericCollectionSettings
-          defaultDisplayOpts={_defaultDisplayOpts}
-          onDefaultDisplayOptsChange={newDisplayOpts => {
-            userSettingsService.setSpaceDefaultDisplayOpts(newDisplayOpts);
+          defaultSort={_defaultSort}
+          onDefaultSortChange={newSort => {
+            displayOptsService.setSpaceDefaultSort(newSort);
           }}
           defaultFlags={_defaultFlags}
           onDefaultFlagsChange={newFlags => {
@@ -45,7 +55,7 @@ const CurrentSpaceSettings = () => {
               statsService.backfillStats();
               console.log('stats backfilling done');
             }
-            userSettingsService.setSpaceDefaultFlags(newFlags);
+            itemFlagsService.setSpaceDefaultFlags(newFlags);
           }}
           withRows={[
             {
@@ -68,19 +78,17 @@ const CurrentSpaceSettings = () => {
             }
           ]}
           withInitialState={{
-            history_idle_time: defaultHistoryIdleTime / 1000,
-            history_max_interval: defaultHistoryMaxInterval / 60000,
-            max_history_per_doc: defaultMaxVersionsPerDoc
+            history_idle_time: historyIdleTime / 1000,
+            history_max_interval: historyMaxInterval / 60000,
+            max_history_per_doc: maxHistoryPerDoc
           }}
           withOnChange={(key, val) => {
             if (key === 'history_idle_time') {
-              userSettingsService.setHistoryIdleTime((val as number) * 1000);
+              setHistoryIdleTime((val as number) * 1000);
             } else if (key === 'history_max_interval') {
-              userSettingsService.setHistoryMaxInterval(
-                (val as number) * 60000
-              );
+              setHistoryMaxInterval((val as number) * 60000);
             } else if (key === 'max_history_per_doc') {
-              userSettingsService.setHistoryMaxVersions(val as number);
+              setMaxHistoryPerDoc(val as number);
             }
           }}
         />

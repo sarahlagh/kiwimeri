@@ -1,5 +1,5 @@
-import { DocumentDisplayOpts } from '@/collection/collection';
 import { useSpaceCell } from '@/core/db/tinybase-hooks';
+import { DocumentDisplayOpts } from '@/domain/collection-display-opts/model';
 import { NotesSort } from '@/domain/document-annotations/model';
 import { Id } from 'tinybase/common';
 

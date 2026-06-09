@@ -1,11 +1,15 @@
 import {
-  CollectionItemSort,
-  CollectionItemSortType,
   CollectionItemType,
   CollectionItemTypeValues
 } from '@/collection/collection';
 import SortFilter from '@/collection/components/SortFilter';
 import collectionService from '@/db/collection.service';
+import { displayOptsService } from '@/domain/collection-display-opts/display-opts.service';
+import useFolderEffectiveSort from '@/domain/collection-display-opts/hooks/useFolderEffectiveSort';
+import {
+  CollectionItemSort,
+  CollectionItemSortType
+} from '@/domain/collection-display-opts/model';
 import { ReactNode } from 'react';
 import { Id } from 'tinybase/with-schemas';
 
@@ -40,8 +44,7 @@ const SortFilterInlineList = ({
 }: SortFilterInlineListProps) => {
   const type = collectionService.getItemType(id);
   const choices = buildChoices(type);
-  const display_opts = collectionService.useFolderEffectiveDisplayOpts(id);
-  const sort = display_opts.sort;
+  const sort = useFolderEffectiveSort(id);
 
   return (
     <SortFilter
@@ -51,10 +54,7 @@ const SortFilterInlineList = ({
       sortEnabled={sortEnabled}
       onSortChange={(sort?: CollectionItemSort) => {
         if (sort) {
-          collectionService.setFolderDisplayOpts(id, {
-            ...display_opts,
-            sort
-          });
+          displayOptsService.setFolderSort(id, sort);
         }
       }}
       searchEnabled={searchEnabled}

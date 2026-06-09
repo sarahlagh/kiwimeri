@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { SpaceTables } from '../store-schema';
 import { NoSchemaStore } from '../types';
 
-const C = 'collection';
-const H = 'history';
-const HC = 'history_content';
-const RS = 'document_resume_state';
-const S = 'stats';
+const C = SpaceTables.C;
+const H = SpaceTables.H;
+const HC = SpaceTables.HC;
+const R = SpaceTables.R;
+const S = SpaceTables.S;
 
 export default function Migration(space: NoSchemaStore) {
   if (!space.hasTable(C)) return;
@@ -72,7 +73,7 @@ export default function Migration(space: NoSchemaStore) {
       space.delRow(HC, v);
     });
     leftoverPageIds.forEach(i => {
-      space.delRow(RS, i);
+      space.delRow(R, i);
       space.getRowIds(S).forEach(rowId => {
         if (rowId.startsWith(i)) {
           space.delRow(S, rowId);

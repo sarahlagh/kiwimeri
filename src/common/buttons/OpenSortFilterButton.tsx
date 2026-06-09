@@ -1,11 +1,13 @@
 import {
-  CollectionItemSort,
   CollectionItemType,
   CollectionItemTypeValues
 } from '@/collection/collection';
 import SortFilter from '@/collection/components/SortFilter';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
+import { displayOptsService } from '@/domain/collection-display-opts/display-opts.service';
+import useFolderEffectiveSort from '@/domain/collection-display-opts/hooks/useFolderEffectiveSort';
+import { CollectionItemSort } from '@/domain/collection-display-opts/model';
 import { IonButton, IonIcon, useIonPopover } from '@ionic/react';
 import { Id } from 'tinybase/with-schemas';
 
@@ -37,8 +39,7 @@ const OpenSortFilterButton = ({
 }: OpenSortFilterButtonProps) => {
   const type = collectionService.getItemType(id);
   const choices = buildChoices(type);
-  const display_opts = collectionService.useFolderEffectiveDisplayOpts(id);
-  const sort = display_opts.sort;
+  const sort = useFolderEffectiveSort(id);
 
   const [present] = useIonPopover(SortFilter, {
     currentSort: sort,
@@ -49,7 +50,7 @@ const OpenSortFilterButton = ({
     onSearch,
     onSortChange: (sort?: CollectionItemSort) => {
       if (sort) {
-        collectionService.setFolderDisplayOpts(id, { ...display_opts, sort });
+        displayOptsService.setFolderSort(id, sort);
       }
     }
   });

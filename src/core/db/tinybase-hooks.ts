@@ -17,5 +17,6 @@ export const {
   useTable: useSpaceTable,
   useValue: useSpaceValue,
   useResultSortedRowIds: useSpaceResultSortedRowIds,
-  useMetric: useSpaceMetric
+  useMetric: useSpaceMetric,
+  useCellState: useSpaceCellState
 } = UiReact as typeof UiReact & WithSchemas<SpaceType>;

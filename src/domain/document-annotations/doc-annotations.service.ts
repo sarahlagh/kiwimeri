@@ -3,10 +3,11 @@ import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-conten
 import { PREVIEW_SIZE } from '@/constants';
 import { space } from '@/core/db/store';
 import { setMetaField } from '@/core/db/types';
-import collectionService, { initialContent } from '@/db/collection.service';
+import { initialContent } from '@/db/collection.service';
 import { SortableType } from '@/shared/utils/sort-filter/sort';
 import { SerializedEditorState } from 'lexical';
 import { getUniqueId, Id } from 'tinybase/common';
+import { displayOptsService } from '../collection-display-opts/display-opts.service';
 import { DOC_ANNOTATION_TABLE, DocAnnotationRow, NotesSort } from './model';
 
 const DA = DOC_ANNOTATION_TABLE;
@@ -110,12 +111,7 @@ class DocumentAnnotationsService {
   }
 
   public setNotesSortOnDocument(docId: Id, newNoteSort: NotesSort) {
-    let effectiveOpts = collectionService.getDocumentDisplayOpts(docId);
-    if (!effectiveOpts) {
-      effectiveOpts = { documentSort: newNoteSort };
-    }
-    effectiveOpts.documentSort = newNoteSort;
-    collectionService.setDocumentDisplayOpts(docId, effectiveOpts);
+    displayOptsService.setDocumentSort(docId, newNoteSort);
   }
 
   public exists(id: Id) {

@@ -34,10 +34,8 @@ const RestoreCollectionButton = ({
       // attempt to restore sync format
       const sync = json as RemoteCollectionFileContent;
       const items = unminimizeItemsFromStorage(sync.i);
-      const values = sync.o;
       space.delTable('collection');
       collectionService.saveItems(items);
-      space.setValues(values);
     }
     return { confirm: true } as OnContentReadResponse;
   };

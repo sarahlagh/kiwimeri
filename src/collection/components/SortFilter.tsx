@@ -1,5 +1,10 @@
 import { APPICONS } from '@/constants';
 import {
+  CollectionItemSort,
+  CollectionItemSortType,
+  sortBy
+} from '@/domain/collection-display-opts/model';
+import {
   IonButton,
   IonIcon,
   IonItem,
@@ -9,11 +14,6 @@ import {
 } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
 import { ReactNode } from 'react';
-import {
-  CollectionItemSort,
-  CollectionItemSortType,
-  sortBy
-} from '../collection';
 import SearchActionsToolbarLite from './SearchActionsToolbarLite';
 
 export type SortFilterProps = {

@@ -1,4 +1,5 @@
-import { CollectionItemType, itemTypes, sortBy } from '@/collection/collection';
+import { CollectionItemType, itemTypes } from '@/collection/collection';
+import { sortBy } from '@/domain/collection-display-opts/model';
 import { ZipMetadata } from '../model/model-export';
 
 function isObject(value: unknown): value is Record<string, unknown> {

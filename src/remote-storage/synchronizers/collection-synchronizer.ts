@@ -9,14 +9,13 @@ import {
   minimizeItemsForStorage,
   unminimizeItemsFromStorage
 } from '@/collection/compress-collection';
-import { cellEquals, nOr0 } from '@/common/utils';
-import { appConfig } from '@/config';
+import { cellEquals } from '@/common/utils';
 import { space, store } from '@/core/db/store';
 import {
   SpaceTableId,
+  SpaceTables,
   SpaceTablesType,
-  SpaceType,
-  SpaceValues
+  SpaceType
 } from '@/core/db/store-schema';
 import { TypeWithId, WithId } from '@/core/db/types';
 import { historyService } from '@/db/collection-history.service';
@@ -28,7 +27,6 @@ import {
   RemoteWithState,
   SerializableData
 } from '@/db/types/store-types';
-import userSettingsService from '@/db/user-settings.service';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import {
   minimizeAnnotForStorage,
@@ -76,7 +74,6 @@ export type MinimizedCollectionItem = {
 export type RemoteCollectionFileContent = {
   i: MinimizedCollectionItem[]; // the items
   a?: MinimizedDocAnnotation[]; // the document annotations
-  o: SpaceValues; // the space options
   u: number; // last content change
   _v?: number; // the schema version (!= app version)
 };
@@ -84,7 +81,6 @@ export type RemoteCollectionFileContent = {
 type RemoteContentRepresentation = {
   items: CollectionItemWithId[];
   docAnnotations: SyncableAnnotation[];
-  values: SpaceValues;
   lastRemoteChange: number;
   schemaVersion: number;
 };
@@ -266,15 +262,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
             `Version mismatch on remote collection filesystem: expected ${REMOTE_COLLECTION_SCHEMA_VERSION}, got ${remoteContent.schemaVersion}`
           );
         }
-        const values =
-          remoteContent.values.valuesLastUpdatedAt >
-          nOr0('valuesLastUpdatedAt', localContent[1])
-            ? remoteContent.values
-            : localContent[1];
-        return {
-          ...remoteContent,
-          values
-        };
+        return remoteContent;
       }
     }
     // else, just return local content
@@ -313,7 +301,6 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       data = this.toFileContent(
         remoteContent.items,
         remoteContent.docAnnotations,
-        remoteContent.values,
         REMOTE_COLLECTION_SCHEMA_VERSION,
         lastLocalChange
       );
@@ -322,7 +309,6 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       data = this.toFileContent(
         localContentRep.items,
         localContentRep.docAnnotations,
-        localContentRep.values,
         localContentRep.schemaVersion,
         lastLocalChange
       );
@@ -372,7 +358,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       newLocalContent: afterCollectionMergeContent,
       discardedChanges: afterCollectionMergeDiscardedChanges
     } = applyLocalChangesToPull(
-      'collection',
+      SpaceTables.C,
       localContent,
       remoteContent.items,
       remoteContent.lastRemoteChange,
@@ -387,7 +373,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       newLocalContent,
       discardedChanges: afterAnnotMergeDiscardedChanges
     } = applyLocalChangesToPull(
-      DOC_ANNOTATION_TABLE,
+      SpaceTables.A,
       afterCollectionMergeContent,
       remoteContent.docAnnotations,
       remoteContent.lastRemoteChange,
@@ -398,19 +384,12 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       true
     );
 
+    // TODO merge user preferences
+
     const discardedChanges = [
       ...afterCollectionMergeDiscardedChanges,
       ...afterAnnotMergeDiscardedChanges
     ];
-
-    // values
-    const newValues =
-      force ||
-      remoteContent.values.valuesLastUpdatedAt >
-        nOr0('valuesLastUpdatedAt', localContent[1])
-        ? remoteContent.values
-        : localContent[1];
-    newLocalContent[1] = newValues;
 
     // check cell changes
     const changes = this.afterSyncHistChanges(
@@ -523,15 +502,19 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     const collection = this.toMap<CollectionItemWithId>(
       localContent[0].collection!
     );
-    const annots = this.toMap<WithId<DocAnnotationRow>>(
+    const annotation = this.toMap<WithId<DocAnnotationRow>>(
       localContent[0].document_annotation
     );
     const items = [...collection.values()].filter(v => !v.conflict);
+    const annots = [...annotation.values()];
+    const lastRemoteChange = Math.max(
+      ...items.map(i => i.updated),
+      ...annots.map(i => i.updatedAt)
+    );
     return {
       items,
-      docAnnotations: [...annots.values()],
-      values: localContent[1],
-      lastRemoteChange: localContent[1].valuesLastUpdatedAt,
+      docAnnotations: annots,
+      lastRemoteChange: lastRemoteChange,
       schemaVersion: REMOTE_COLLECTION_SCHEMA_VERSION
     };
   }
@@ -541,26 +524,9 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   ): RemoteContentRepresentation {
     const obj = data;
 
-    if (!obj.o) {
-      // shouldn't happen except in dev - TODO better version detection before pulling
-      const spaceDefaults = userSettingsService.getSpaceDefaultDisplayOpts();
-      const flagDefaults = userSettingsService.getSpaceDefaultFlags();
-      obj.o = {
-        defaultSortBy: spaceDefaults.sort.by,
-        defaultSortDesc: spaceDefaults.sort.descending,
-        statsEnabled: flagDefaults.statsEnabled,
-        historyIdleTime: userSettingsService.getHistoryIdleTime(),
-        historyMaxInterval: userSettingsService.getHistoryMaxInterval(),
-        maxHistoryPerDoc: userSettingsService.getHistoryMaxVersions(),
-        schemaVersion: appConfig.KIWIMERI_VERSION,
-        valuesLastUpdatedAt: 0
-      };
-    }
-
     return {
       items: unminimizeItemsFromStorage(obj.i),
       docAnnotations: unminimizeAnnotFromStorage(obj.a || []),
-      values: obj.o,
       lastRemoteChange: obj.u,
       schemaVersion: obj._v || 0
     };
@@ -569,7 +535,6 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   private toFileContent(
     items: CollectionItemWithId[],
     annots: SyncableAnnotation[],
-    values: SpaceValues,
     schemaVersion: number,
     updated: number
   ): RemoteCollectionFileContent {
@@ -578,7 +543,6 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
         items.map(item => ({ ...item }))
       ) as MinimizedCollectionItem[],
       a: minimizeAnnotForStorage(annots),
-      o: values,
       u: updated,
       _v: schemaVersion
     };

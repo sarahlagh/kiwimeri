@@ -35,15 +35,16 @@ class ExportService {
     type?: CollectionItemTypeValues,
     withFiles = false
   ): ZipMetadata {
+    const item = collectionService.getItem(id);
     return {
       type,
       format: 'markdown',
-      title: collectionService.getItemTitle(id),
-      tags: collectionService.getItemField(id, 'tags'),
-      order: collectionService.getItemField(id, 'order'),
-      display_opts: collectionService.getItemDisplayOpts(id),
-      created: collectionService.getItemField(id, 'created'),
-      updated: collectionService.getItemField(id, 'updated'),
+      title: item.title,
+      tags: item.tags,
+      order: item.order,
+      display_opts: item.display_opts,
+      created: item.created,
+      updated: item.updated,
       files: withFiles ? {} : undefined
     };
   }

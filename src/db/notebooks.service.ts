@@ -1,7 +1,4 @@
-import {
-  CollectionItemSort,
-  CollectionItemType
-} from '@/collection/collection';
+import { CollectionItemType } from '@/collection/collection';
 import {
   DEFAULT_NOTEBOOK_ID,
   DEFAULT_ORDER,
@@ -11,6 +8,8 @@ import {
 } from '@/constants';
 import { space, spaceQueries, store } from '@/core/db/store';
 import { setMetaField } from '@/core/db/types';
+import { displayOptsService } from '@/domain/collection-display-opts/display-opts.service';
+import { CollectionItemSort } from '@/domain/collection-display-opts/model';
 import { Notebook, NotebookResult } from '@/notebooks/notebooks';
 import { getUniqueId } from 'tinybase/with-schemas';
 import collectionService from './collection.service';
@@ -20,7 +19,6 @@ import {
   useResultSortedRowIdsWithRef,
   useTableWithRef
 } from './tinybase/hooks';
-import userSettingsService from './user-settings.service';
 
 class NotebooksService {
   private readonly storeId = 'space';
@@ -135,7 +133,7 @@ class NotebooksService {
 
   public getNotebooks(parent?: string, sort?: CollectionItemSort) {
     if (!sort) {
-      sort = userSettingsService.getSpaceDefaultDisplayOpts().sort;
+      sort = displayOptsService.getSpaceDefaultSort();
     }
     const table = space.getTable(this.table);
     const queryName = this.fetchAllNotebooksQuery(parent);

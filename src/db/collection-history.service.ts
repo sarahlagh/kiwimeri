@@ -9,12 +9,12 @@ import {
 } from '@/collection/collection';
 import { space, spaceQueries } from '@/core/db/store';
 import { LocalChangeType } from '@/domain/local-changes/model';
+import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import { AfterSyncChange } from '@/remote-storage/sync-types';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { getHash, Id, ResultRow } from 'tinybase/with-schemas';
 import collectionService from './collection.service';
 import { useRowWithRef } from './tinybase/hooks';
-import userSettingsService from './user-settings.service';
 
 type VersionsWithContentResult = ResultRow & {
   op: CollectionItemVersionOp;
@@ -261,8 +261,9 @@ class CollectionHistoryService {
     }
 
     const now = Date.now();
-    const idleDelay = userSettingsService.getHistoryIdleTime();
-    const maxInterval = userSettingsService.getHistoryMaxInterval();
+    const idleDelay = userPrefs.get<'historyIdleTime'>('historyIdleTime');
+    const maxInterval =
+      userPrefs.get<'historyMaxInterval'>('historyMaxInterval');
 
     const existingTimeout = this.timeouts.get(id);
     if (existingTimeout) {
@@ -484,7 +485,8 @@ class CollectionHistoryService {
   }
 
   public gc() {
-    const maxHistoryPerDoc = space.getValue('maxHistoryPerDoc');
+    const maxHistoryPerDoc =
+      userPrefs.get<'maxHistoryPerDoc'>('maxHistoryPerDoc');
     if (maxHistoryPerDoc <= 0) return;
     const queryName = this.buildVersionsGCQuery(maxHistoryPerDoc);
     // delete history entries with rank > maxHistoryPerDoc

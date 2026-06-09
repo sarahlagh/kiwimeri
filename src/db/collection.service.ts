@@ -1,21 +1,15 @@
 import {
   CollectionItem,
-  CollectionItemDisplayOpts,
   CollectionItemFieldEnum,
-  CollectionItemFlags,
   CollectionItemHistorizableFields,
   CollectionItemResetConflictFields,
   CollectionItemResult,
   CollectionItemUpdateChangeFields as CollectionItemRowUpdateChangeFields,
-  CollectionItemSort,
   CollectionItemType,
   CollectionItemTypeValues,
   CollectionItemUpdatableFieldEnum,
   CollectionItemUpdate,
-  DocumentDisplayOpts,
-  FolderDisplayOpts,
   isDocument,
-  NotebookDisplayOpts,
   SortableCollectionItem
 } from '@/collection/collection';
 import { genericReorder } from '@/common/dnd/utils';
@@ -27,6 +21,12 @@ import {
 import { DEFAULT_ORDER, getGlobalTrans, ROOT_COLLECTION } from '@/constants';
 import { space, spaceQueries } from '@/core/db/store';
 import { DbSerializableData, setMetaField } from '@/core/db/types';
+import { displayOptsService } from '@/domain/collection-display-opts/display-opts.service';
+import {
+  CollectionItemDisplayOpts,
+  CollectionItemSort
+} from '@/domain/collection-display-opts/model';
+import { CollectionItemFlags } from '@/domain/collection-flags/model';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
 import { SerializedEditorState } from 'lexical';
 import { getUniqueId } from 'tinybase/common';
@@ -36,7 +36,6 @@ import { searchAncestryService } from '../search/search-ancestry.service';
 import { historyService } from './collection-history.service';
 import notebooksService from './notebooks.service';
 import { useCellWithRef, useResultSortedRowIdsWithRef } from './tinybase/hooks';
-import userSettingsService from './user-settings.service';
 
 export const initialContent = () => {
   // 'empty' editor
@@ -162,7 +161,7 @@ class CollectionService {
 
   public getCollectionItems(parent: string, sort?: CollectionItemSort) {
     if (!sort) {
-      sort = userSettingsService.getNotebookDisplayOpts().sort;
+      sort = displayOptsService.getNotebookDefaultSort();
     }
     const table = space.getTable(this.tableId);
     const queryName = this.fetchAllPerParentQuery(parent);
@@ -174,7 +173,7 @@ class CollectionService {
     sort?: CollectionItemSort
   ) {
     if (!sort) {
-      sort = userSettingsService.getNotebookDisplayOpts().sort;
+      sort = displayOptsService.getNotebookDefaultSort();
     }
     return fetchItemsQuery.getResults(
       {
@@ -195,7 +194,7 @@ class CollectionService {
     cb?: (level: CollectionItemResult[]) => void
   ) {
     if (!sort) {
-      sort = userSettingsService.getNotebookDisplayOpts().sort;
+      sort = displayOptsService.getNotebookDefaultSort();
     }
     let results: CollectionItemResult[] = [];
     const level = this.getCollectionItems(parent, sort);
@@ -239,7 +238,7 @@ class CollectionService {
 
   public getConflicts(sort?: CollectionItemSort) {
     if (!sort) {
-      sort = userSettingsService.getNotebookDisplayOpts().sort;
+      sort = displayOptsService.getNotebookDefaultSort();
     }
     const table = space.getTable(this.tableId);
     const queryName = this.fetchConflictsQuery();
@@ -481,21 +480,6 @@ class CollectionService {
     return contentToAppend;
   }
 
-  // get display opts => raw data from db
-
-  public useItemDisplayOpts(rowId: Id): CollectionItemDisplayOpts | undefined {
-    return useCellWithRef<CollectionItemDisplayOpts>(
-      this.storeId,
-      this.tableId,
-      rowId,
-      'display_opts'
-    );
-  }
-
-  public getItemDisplayOpts(rowId: Id): CollectionItemDisplayOpts | undefined {
-    return space.getCell(this.tableId, rowId, 'display_opts');
-  }
-
   public useItemFlags(rowId: Id): CollectionItemFlags | undefined {
     return useCellWithRef<AnyObject>(
       this.storeId,
@@ -509,50 +493,10 @@ class CollectionService {
     return space.getCell(this.tableId, rowId, 'flags');
   }
 
-  // get effective display opts => data merged with defaults if needed
-
-  public useFolderEffectiveDisplayOpts(rowId: Id): FolderDisplayOpts {
-    const defaultDisplayOpts = userSettingsService.useNotebookDisplayOpts();
-    const folOpts = useCellWithRef<FolderDisplayOpts>(
-      this.storeId,
-      this.tableId,
-      rowId,
-      'display_opts'
-    );
-    if (folOpts === undefined) {
-      return defaultDisplayOpts;
-    }
-    return folOpts;
-  }
-
-  public getFolderEffectiveDisplayOpts(rowId: Id): FolderDisplayOpts {
-    const obj = space.getCell(this.tableId, rowId, 'display_opts');
-    return obj
-      ? (obj as FolderDisplayOpts)
-      : userSettingsService.getNotebookDisplayOpts();
-  }
-
-  public getDocumentDisplayOpts(rowId: Id): DocumentDisplayOpts | undefined {
-    return space.getCell(
-      this.tableId,
-      rowId,
-      'display_opts'
-    ) as DocumentDisplayOpts;
-  }
-
-  public setNotebookDisplayOpts(rowId: Id, display_opts: NotebookDisplayOpts) {
-    if (display_opts.sort.by === 'order') display_opts.sort.descending = false;
-    this.setItemField(rowId, 'display_opts', display_opts);
-  }
-
-  public setFolderDisplayOpts(rowId: Id, display_opts: FolderDisplayOpts) {
-    if (display_opts.sort.by === 'order') display_opts.sort.descending = false;
-    this.setItemField(rowId, 'display_opts', display_opts);
-  }
-
-  public setDocumentDisplayOpts(rowId: Id, display_opts: DocumentDisplayOpts) {
-    if (display_opts.documentSort?.by === 'order')
-      display_opts.documentSort.descending = false;
+  public setItemDisplayOpts(
+    rowId: Id,
+    display_opts: CollectionItemDisplayOpts
+  ) {
     this.setItemField(rowId, 'display_opts', display_opts);
   }
 

@@ -12,7 +12,7 @@ class PostInitMigrationService {
     const runtimeVersion = appConfig.KIWIMERI_VERSION;
     const baseRuntimeVersion = runtimeVersion.split('~')[0];
     const storeVersion = store.getValue('appVersion')?.valueOf() || '0.2.6';
-    const spaceVersion = space.getValue('schemaVersion')?.valueOf() || '0.2.6';
+    const spaceVersion = space.getValue('appVersion')?.valueOf() || '0.2.6';
     const runtimeCode = getVersionCode(baseRuntimeVersion);
     const storeCode = getVersionCode(storeVersion);
     const spaceCode = getVersionCode(spaceVersion);
@@ -28,7 +28,7 @@ class PostInitMigrationService {
       console.warn(
         `version mismatch detected: runtime is ${baseRuntimeVersion} (${runtimeCode}), local space is ${spaceVersion} (${spaceCode})`
       );
-      space.setValue('schemaVersion', baseRuntimeVersion);
+      space.setValue('appVersion', baseRuntimeVersion);
     }
 
     await this.runStoreMigrations(store, storeCode, runtimeCode);
