@@ -2,11 +2,11 @@
 import { SpaceTables } from '../store-schema';
 import { MetaField, NoSchemaStore } from '../types';
 
-const C = SpaceTables.C;
-const A = SpaceTables.A;
-const H = SpaceTables.H;
-const S = SpaceTables.S;
-const UP = SpaceTables.UP;
+const C = SpaceTables.Collection;
+const A = SpaceTables.Annotations;
+const H = SpaceTables.History;
+const S = SpaceTables.Stats;
+const UP = SpaceTables.UserPreference;
 
 export default function Migration(
   _space: NoSchemaStore,

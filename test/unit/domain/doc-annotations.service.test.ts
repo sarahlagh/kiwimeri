@@ -1,12 +1,10 @@
 import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { space } from '@/core/db/store';
+import { SpaceTables } from '@/core/db/store-schema';
 import collectionService from '@/db/collection.service';
 import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
-import {
-  DOC_ANNOTATION_TABLE,
-  DocAnnotationRow
-} from '@/domain/document-annotations/model';
+import { DocAnnotationRow } from '@/domain/document-annotations/model';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import useNotesSort from '@/features/notes-ui/hooks/useNotesSort';
@@ -22,11 +20,11 @@ function getDocUpdatedTs(docId: string) {
 function expectedLC(noteId: string, type: LocalChangeType, updated: number) {
   return {
     id: localChangesService['getLocalChangeId']({
-      on: DOC_ANNOTATION_TABLE,
+      on: SpaceTables.Annotations,
       change: type,
       itemId: noteId
     }),
-    on: DOC_ANNOTATION_TABLE,
+    on: SpaceTables.Annotations,
     itemId: noteId,
     change: type,
     createdAt: updated
@@ -91,7 +89,7 @@ describe('notes service', () => {
     const content = getNewContent('this is the content');
     docAnnotationsService.edit(noteId, JSON.parse(content));
 
-    const note = space.getRow(DOC_ANNOTATION_TABLE, noteId);
+    const note = space.getRow(SpaceTables.Annotations, noteId);
     expect(unminimizeContentFromStorage(note.content)).toBe(content);
     expect(docAnnotationsService.getContent(noteId)).toBe(note.content);
     expect(note.plainText).toBe('this is the content');
@@ -231,7 +229,7 @@ describe('notes service', () => {
   it('should reset conflict on content edit', () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     const note1 = docAnnotationsService.addNote(docId);
-    space.setCell(DOC_ANNOTATION_TABLE, note1, 'conflict', 'conflict-id');
+    space.setCell(SpaceTables.Annotations, note1, 'conflict', 'conflict-id');
 
     expect(docAnnotationsService.isConflict(note1));
 

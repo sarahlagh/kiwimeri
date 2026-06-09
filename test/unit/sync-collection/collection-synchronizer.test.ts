@@ -1,6 +1,7 @@
 import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { space } from '@/core/db/store';
+import { SpaceTables } from '@/core/db/store-schema';
 import { setMetaField } from '@/core/db/types';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
@@ -8,7 +9,6 @@ import { RemoteResult } from '@/db/types/store-types';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
-import { DOC_ANNOTATION_TABLE } from '@/domain/document-annotations/model';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import useItemsConflictMixIn from '@/features/collection-ui/hooks/useItemsConflictMixIn';
@@ -411,10 +411,10 @@ describe('collection synchronizer', () => {
 
       await synchronizer.sync();
 
-      expect(space.getRowCount(DOC_ANNOTATION_TABLE)).toBe(1);
-      expect(space.hasRow(DOC_ANNOTATION_TABLE, notes[0].id));
+      expect(space.getRowCount(SpaceTables.Annotations)).toBe(1);
+      expect(space.hasRow(SpaceTables.Annotations, notes[0].id));
       expect(
-        space.getCell(DOC_ANNOTATION_TABLE, notes[0].id, 'plainText')
+        space.getCell(SpaceTables.Annotations, notes[0].id, 'plainText')
       ).toBe('test');
     });
 
@@ -458,7 +458,7 @@ describe('collection synchronizer', () => {
         expect(newNotes[0].id).toBe(noteId);
         expect(newNotes[0].order).toBe(2);
         expect(newNotes[0].content).toBe(
-          space.getCell(DOC_ANNOTATION_TABLE, noteId, 'content')
+          space.getCell(SpaceTables.Annotations, noteId, 'content')
         );
       }
     });
@@ -504,7 +504,7 @@ describe('collection synchronizer', () => {
         expect(newNotes).toHaveLength(1);
         expect(newNotes[0].id).toBe(noteId);
         expect(newNotes[0].content).toBe(
-          space.getCell(DOC_ANNOTATION_TABLE, noteId, 'content')
+          space.getCell(SpaceTables.Annotations, noteId, 'content')
         );
         expect(newNotes[0].content).toBe(
           minimizeContentForStorage(JSON.parse(getNewContent('local')))
@@ -556,7 +556,7 @@ describe('collection synchronizer', () => {
         expect(newNotes).toHaveLength(1);
         expect(newNotes[0].id).toBe(noteId);
         expect(newNotes[0].content).toBe(
-          space.getCell(DOC_ANNOTATION_TABLE, noteId, 'content')
+          space.getCell(SpaceTables.Annotations, noteId, 'content')
         );
         expect(newNotes[0].content).toBe(notes[0].content);
         expect(docAnnotationsService.isConflict(noteId));
@@ -657,10 +657,10 @@ describe('collection synchronizer', () => {
 
       await synchronizer.pull(true);
 
-      expect(space.getRowCount(DOC_ANNOTATION_TABLE)).toBe(1);
-      expect(space.hasRow(DOC_ANNOTATION_TABLE, notes[0].id));
+      expect(space.getRowCount(SpaceTables.Annotations)).toBe(1);
+      expect(space.hasRow(SpaceTables.Annotations, notes[0].id));
       expect(
-        space.getCell(DOC_ANNOTATION_TABLE, notes[0].id, 'plainText')
+        space.getCell(SpaceTables.Annotations, notes[0].id, 'plainText')
       ).toBe('test');
     });
 
@@ -689,14 +689,14 @@ describe('collection synchronizer', () => {
 
       await synchronizer.sync();
 
-      expect(space.getRowCount(DOC_ANNOTATION_TABLE)).toBe(2);
-      expect(space.hasRow(DOC_ANNOTATION_TABLE, notes[0].id));
-      expect(space.hasRow(DOC_ANNOTATION_TABLE, notes[1].id));
+      expect(space.getRowCount(SpaceTables.Annotations)).toBe(2);
+      expect(space.hasRow(SpaceTables.Annotations, notes[0].id));
+      expect(space.hasRow(SpaceTables.Annotations, notes[1].id));
       expect(
-        space.getCell(DOC_ANNOTATION_TABLE, notes[0].id, 'plainText')
+        space.getCell(SpaceTables.Annotations, notes[0].id, 'plainText')
       ).toBe('test 2');
       expect(
-        space.getCell(DOC_ANNOTATION_TABLE, notes[1].id, 'plainText')
+        space.getCell(SpaceTables.Annotations, notes[1].id, 'plainText')
       ).toBe('other test');
     });
   });
@@ -822,7 +822,7 @@ describe('collection synchronizer', () => {
         expect(newNotes).toHaveLength(1);
         expect(newNotes[0].id).toBe(noteId);
         expect(newNotes[0].content).toBe(
-          space.getCell(DOC_ANNOTATION_TABLE, noteId, 'content')
+          space.getCell(SpaceTables.Annotations, noteId, 'content')
         );
         expect(newNotes[0].content).toBe(notes[0].content);
         expect(docAnnotationsService.isConflict(noteId));

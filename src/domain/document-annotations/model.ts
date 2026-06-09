@@ -2,8 +2,6 @@ import { MetaField, metaSchemaDefault } from '@/core/db/types';
 import { Sort } from '@/shared/utils/sort-filter/sort';
 import { LocalChangeRow } from '../local-changes/model';
 
-export const DOC_ANNOTATION_TABLE = 'document_annotation' as const; // TODO replace
-
 export type DocAnnotationType = 'note'; // only one for now, to expand
 
 export type DocAnnotationRow = {

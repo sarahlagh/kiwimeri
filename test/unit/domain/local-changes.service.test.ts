@@ -1,10 +1,10 @@
 import { CollectionItemType } from '@/collection/collection';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { space } from '@/core/db/store';
+import { SpaceTables } from '@/core/db/store-schema';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import { SerializableData } from '@/db/types/store-types';
-import { DOC_ANNOTATION_TABLE } from '@/domain/document-annotations/model';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import {
   LocalChangeResult,
@@ -204,7 +204,7 @@ describe('local changes listeners', () => {
     nonWatchedFields: { field: Id; valueType: ValueType }[];
   }[] = [
     {
-      tableId: 'collection',
+      tableId: SpaceTables.Collection,
       watchedFields: UPDATABLE_FIELDS,
       nonWatchedFields: [
         { field: 'updated', valueType: 'number' },
@@ -212,7 +212,7 @@ describe('local changes listeners', () => {
       ]
     },
     {
-      tableId: DOC_ANNOTATION_TABLE,
+      tableId: SpaceTables.Annotations,
       watchedFields: [
         { field: 'content', valueType: 'lex' },
         { field: 'order', valueType: 'number' }

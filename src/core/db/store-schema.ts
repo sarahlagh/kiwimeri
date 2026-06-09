@@ -12,13 +12,13 @@ import {
 } from './types';
 
 export enum StoreTables {
-  SP = 'spaces',
-  LC = 'localChanges',
-  R = 'remotes',
-  RS = 'remoteState',
-  L = 'logs',
-  S = 'search',
-  A = 'ancestors'
+  Spaces = 'spaces',
+  LocalChanges = 'localChanges',
+  Remotes = 'remotes',
+  RemoteStates = 'remoteState',
+  Logs = 'logs',
+  Search = 'search',
+  Ancestors = 'ancestors'
 }
 
 export const storeTablesSchema = {
@@ -81,13 +81,13 @@ export const storeValuesSchema = {
 } as const;
 
 export enum SpaceTables {
-  C = 'collection',
-  H = 'history',
-  HC = 'history_content',
-  R = 'document_resume_state',
-  S = 'stats',
-  A = 'document_annotation',
-  UP = 'user_preference'
+  Collection = 'collection',
+  History = 'history',
+  HistoryContent = 'history_content',
+  ResumeState = 'document_resume_state',
+  Stats = 'stats',
+  Annotations = 'document_annotation',
+  UserPreference = 'user_preference'
 }
 
 export const spaceTablesSchema = {

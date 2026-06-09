@@ -9,7 +9,7 @@ import {
   LocalChangeType
 } from './model';
 
-const LC = StoreTables.LC;
+const LC = StoreTables.LocalChanges;
 
 class LocalChangesService {
   public addManualLocalChange<T>(

@@ -4,12 +4,9 @@ import {
   getGlobalTrans,
   ROOT_COLLECTION
 } from '@/constants';
-import { SpaceType } from '@/core/db/store-schema';
+import { SpaceTables, SpaceType } from '@/core/db/store-schema';
 import notebooksService from '@/db/notebooks.service';
-import {
-  DOC_ANNOTATION_TABLE,
-  SyncableAnnotation
-} from '@/domain/document-annotations/model';
+import { SyncableAnnotation } from '@/domain/document-annotations/model';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeOn, LocalChangeType } from '@/domain/local-changes/model';
 import { Row, Table } from 'tinybase/store';
@@ -66,7 +63,7 @@ export const collectionOrphanPolicy = new CollectionOrphanPolicy();
 
 class AnnotsOrphanPolicy extends OrphanPolicy<SyncableAnnotation> {
   constructor() {
-    super(DOC_ANNOTATION_TABLE);
+    super(SpaceTables.Annotations);
   }
   public isOrphan(
     item: SyncableAnnotation,

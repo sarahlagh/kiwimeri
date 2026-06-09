@@ -5,7 +5,7 @@ import { Id } from 'tinybase';
 import { userPrefs } from '../user-preferences/user-preferences.service';
 import { defaultNotebookFlags, NotebookFlags } from './model';
 
-const C = SpaceTables.C;
+const C = SpaceTables.Collection;
 
 class EffectiveFlagsService {
   public getSpaceDefaultFlags(): Required<NotebookFlags> {

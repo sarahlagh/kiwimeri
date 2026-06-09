@@ -5,11 +5,11 @@ import { GET_UNKNOWN_ITEM_ROUTE } from '@/common/routes';
 import platformService from '@/common/services/platform.service';
 import { APPICONS } from '@/constants';
 import { useQueryResults } from '@/core/db/queries-helper';
+import { SpaceTables } from '@/core/db/store-schema';
 import { plt } from '@/core/infra/platform';
 import collectionService from '@/db/collection.service';
 import remotesService from '@/db/remotes.service';
 import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
-import { DOC_ANNOTATION_TABLE } from '@/domain/document-annotations/model';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import {
@@ -145,7 +145,7 @@ const LocalChangesCard = () => {
                       </>
                     )}
 
-                    {itemExists && lc.on === 'collection' && (
+                    {itemExists && lc.on === SpaceTables.Collection && (
                       <>
                         <IonIcon
                           slot="start"
@@ -169,7 +169,7 @@ const LocalChangesCard = () => {
                       </>
                     )}
 
-                    {itemExists && lc.on === DOC_ANNOTATION_TABLE && (
+                    {itemExists && lc.on === SpaceTables.Annotations && (
                       <>
                         <IonIcon
                           slot="start"

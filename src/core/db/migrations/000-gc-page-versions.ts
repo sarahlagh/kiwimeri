@@ -2,11 +2,11 @@
 import { SpaceTables } from '../store-schema';
 import { NoSchemaStore } from '../types';
 
-const C = SpaceTables.C;
-const H = SpaceTables.H;
-const HC = SpaceTables.HC;
-const R = SpaceTables.R;
-const S = SpaceTables.S;
+const C = SpaceTables.Collection;
+const H = SpaceTables.History;
+const HC = SpaceTables.HistoryContent;
+const R = SpaceTables.ResumeState;
+const S = SpaceTables.Stats;
 
 export default function Migration(space: NoSchemaStore) {
   if (!space.hasTable(C)) return;

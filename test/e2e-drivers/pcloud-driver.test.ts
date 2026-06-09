@@ -10,7 +10,11 @@ import {
   getGlobalTrans
 } from '@/constants';
 import { space, store } from '@/core/db/store';
-import { SpaceValues, SpaceValuesType } from '@/core/db/store-schema';
+import {
+  SpaceTables,
+  SpaceValues,
+  SpaceValuesType
+} from '@/core/db/store-schema';
 import { setMetaField } from '@/core/db/types';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
@@ -21,10 +25,7 @@ import {
   unminimizeAnnotFromStorage
 } from '@/domain/document-annotations/compress-annotations';
 import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
-import {
-  DOC_ANNOTATION_TABLE,
-  SyncableAnnotation
-} from '@/domain/document-annotations/model';
+import { SyncableAnnotation } from '@/domain/document-annotations/model';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import { PCloudDriver } from '@/remote-storage/storage-drivers/pcloud/pcloud.driver';
@@ -568,8 +569,8 @@ describe.sequential(
 
         await amount(100);
 
-        expect(space.getRowCount(DOC_ANNOTATION_TABLE)).toBe(1);
-        expect(space.hasRow(DOC_ANNOTATION_TABLE, notes[0].id));
+        expect(space.getRowCount(SpaceTables.Annotations)).toBe(1);
+        expect(space.hasRow(SpaceTables.Annotations, notes[0].id));
       });
 
       test('synchronizer should merge notes', async () => {
@@ -614,7 +615,7 @@ describe.sequential(
           expect(resp?.notes[0].id).toBe(noteId);
           expect(resp?.notes[0].order).toBe(2);
           expect(resp?.notes[0].content).toBe(
-            space.getCell(DOC_ANNOTATION_TABLE, noteId, 'content')
+            space.getCell(SpaceTables.Annotations, noteId, 'content')
           );
         }
       });

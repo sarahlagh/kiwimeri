@@ -34,7 +34,6 @@ import {
   unminimizeAnnotFromStorage
 } from '@/domain/document-annotations/compress-annotations';
 import {
-  DOC_ANNOTATION_TABLE,
   DocAnnotationRow,
   SyncableAnnotation
 } from '@/domain/document-annotations/model';
@@ -232,8 +231,8 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   private setContent(content: Content<SpaceType, false>) {
     stopLocalChangesListeners();
     space.transaction(() => {
-      this.setTable(SpaceTables.C, content[0].collection);
-      this.setTable(SpaceTables.A, content[0].document_annotation);
+      this.setTable(SpaceTables.Collection, content[0].collection);
+      this.setTable(SpaceTables.Annotations, content[0].document_annotation);
     });
     startLocalChangesListeners();
   }
@@ -282,7 +281,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     // merge collection
     applyLocalChangesToPush(
       localContent,
-      'collection',
+      SpaceTables.Collection,
       localChanges,
       remoteContent.items as TypeWithId[]
     );
@@ -290,7 +289,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     // merge annotations
     applyLocalChangesToPush(
       localContent,
-      DOC_ANNOTATION_TABLE,
+      SpaceTables.Annotations,
       localChanges,
       remoteContent.docAnnotations as TypeWithId[]
     );
@@ -357,7 +356,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       newLocalContent: afterCollectionMergeContent,
       discardedChanges: afterCollectionMergeDiscardedChanges
     } = applyLocalChangesToPull(
-      SpaceTables.C,
+      SpaceTables.Collection,
       localContent,
       remoteContent.items,
       remoteContent.lastRemoteChange,
@@ -372,7 +371,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       newLocalContent,
       discardedChanges: afterAnnotMergeDiscardedChanges
     } = applyLocalChangesToPull(
-      SpaceTables.A,
+      SpaceTables.Annotations,
       afterCollectionMergeContent,
       remoteContent.docAnnotations,
       remoteContent.lastRemoteChange,

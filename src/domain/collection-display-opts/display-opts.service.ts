@@ -11,7 +11,7 @@ import {
   NotebookDisplayOpts
 } from './model';
 
-const C = SpaceTables.C;
+const C = SpaceTables.Collection;
 
 class EffectiveDisplayOptsService {
   public getSpaceDefaultSort(): NotebookDisplayOpts['sort'] {
