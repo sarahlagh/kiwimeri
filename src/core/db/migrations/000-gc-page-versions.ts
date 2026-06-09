@@ -1,20 +1,44 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NoSchemaStore } from '../types';
 
+const C = 'collection';
+const H = 'history';
+const HC = 'history_content';
+const RS = 'document_resume_state';
+const S = 'stats';
+
 export default function Migration(space: NoSchemaStore) {
-  if (!space.hasTable('collection')) return;
+  if (!space.hasTable(C)) return;
   if (!space.hasTable('history')) return;
-  const collection = space.getTable('collection');
-  const history = space.getTable('history');
+  const collection = space.getTable(C);
+  const history = space.getTable(H);
   const unknownVersions = new Set<string>();
   const unknownContentIds = new Map<string, string>();
+  const leftoverPageIds = new Set<string>();
+
+  // identify leftover pages
+  space.getRowIds(C).forEach(rowId => {
+    const row = collection[rowId];
+    if (row.type === 'p') {
+      console.warn('leftover page', {
+        ...row,
+        content: row.content?.toString().substring(0, 50)
+      });
+      delete collection[rowId];
+      space.delRow(C, rowId);
+    }
+  });
 
   // identify orphaned pages
-  space.getRowIds('history').forEach(rowId => {
+  space.getRowIds(H).forEach(rowId => {
     const row = history[rowId];
     if (!row.itemId) {
       console.warn('history row had no itemId', row);
-      space.delRow('history', rowId);
+      space.delRow(H, rowId);
+      return;
+    }
+    if (row.pageVersionsArrayJson) {
+      space.delCell(H, rowId, 'pageVersionsArrayJson');
       return;
     }
     const itemId = row.itemId as string;
@@ -23,25 +47,9 @@ export default function Migration(space: NoSchemaStore) {
       const snapshotJson = history[rowId].snapshotJson as any;
       if (!snapshotJson.title) {
         // no title, was likely a page
+        leftoverPageIds.add(itemId);
         unknownVersions.add(rowId);
         unknownContentIds.set(rowId, row.contentId as string);
-      }
-    }
-  });
-
-  // identify which pages don't belong to a document anymore
-  space.getRowIds('history').forEach(rowId => {
-    if (unknownVersions.has(rowId)) return;
-    const row = history[rowId];
-    if (row.pageVersionsArrayJson) {
-      const pageVersions = JSON.parse(
-        row.pageVersionsArrayJson as string
-      ) as any[];
-      for (const pv of pageVersions) {
-        if (unknownVersions.has(pv.id)) {
-          unknownVersions.delete(pv.id);
-          unknownContentIds.delete(pv.id);
-        }
       }
     }
   });
@@ -58,10 +66,18 @@ export default function Migration(space: NoSchemaStore) {
   // delete those
   space.transaction(() => {
     unknownVersions.forEach(v => {
-      space.delRow('history', v);
+      space.delRow(H, v);
     });
     contentIds.forEach(v => {
-      space.delRow('history_content', v);
+      space.delRow(HC, v);
+    });
+    leftoverPageIds.forEach(i => {
+      space.delRow(RS, i);
+      space.getRowIds(S).forEach(rowId => {
+        if (rowId.startsWith(i)) {
+          space.delRow(S, rowId);
+        }
+      });
     });
   });
 }
