@@ -23,8 +23,10 @@ import { ExportItemsButton, ImportItemsButton } from '@/features/import-export';
 
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
 
+import notebooksService from '@/db/notebooks.service';
+import { displayOptsService } from '@/domain/collection-display-opts/display-opts.service';
 import useFolderEffectiveSort from '@/domain/collection-display-opts/hooks/useFolderEffectiveSort';
-import useNotebookLastBrowserModeState from '@/domain/collection-display-opts/hooks/useNotebookLastBrowserModeState';
+import useNotebookLastBrowserModeState from '@/domain/collection-display-opts/hooks/useNotebookLastBrowserMode';
 
 // eslint-disable-next-line no-restricted-imports
 import useCollectionItemBrowserListResults, {
@@ -148,9 +150,8 @@ export const CollectionItemBrowserList = ({
 
   const sort = useFolderEffectiveSort(folder);
 
-  const [modeIdx, setModeIdx] = useNotebookLastBrowserModeState();
+  const modeIdx = useNotebookLastBrowserModeState();
 
-  // const [modeIdx, setModeIdx] = useStoreValueState<number>('lastBrowserMode');
   const modeTrans = new Map<BrowserQueryMode, string>();
   modeTrans.set('updated', t`Last updated documents`);
   modeTrans.set('lastOpenedAt', t`Last consulted documents`);
@@ -250,7 +251,8 @@ export const CollectionItemBrowserList = ({
           nextMode={() => {
             let idx = modeIdx + 1;
             if (idx === browserModes.length) idx = 0;
-            setModeIdx(idx);
+            const notebook = notebooksService.getCurrentNotebook();
+            displayOptsService.setNotebookDefaultBrowserMode(notebook, idx);
           }}
         />
       }

@@ -146,7 +146,7 @@ msgstr "Choose a session length"
 msgid "Choose where to save your work"
 msgstr "Choose where to save your work"
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:230
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:212
 msgid "Clear All"
 msgstr "Clear All"
 
@@ -181,7 +181,7 @@ msgstr "Configure where to synchronize your collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/collection/components/CollectionItemBrowserList.tsx:157
+#: src/collection/components/CollectionItemBrowserList.tsx:158
 #: src/constants.ts:78
 msgid "Conflicts"
 msgstr "Conflicts"
@@ -224,7 +224,7 @@ msgstr "Delete All"
 msgid "Delete note"
 msgstr "Delete note"
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:162
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:144
 msgid "deleted item"
 msgstr "deleted item"
 
@@ -370,7 +370,7 @@ msgstr "Internal proxy"
 msgid "Kiwimeri format (single file)"
 msgstr "Kiwimeri format (single file)"
 
-#: src/collection/components/CollectionItemBrowserList.tsx:156
+#: src/collection/components/CollectionItemBrowserList.tsx:157
 msgid "Last consulted documents"
 msgstr "Last consulted documents"
 
@@ -378,7 +378,7 @@ msgstr "Last consulted documents"
 msgid "Last Updated"
 msgstr "Last Updated"
 
-#: src/collection/components/CollectionItemBrowserList.tsx:155
+#: src/collection/components/CollectionItemBrowserList.tsx:156
 msgid "Last updated documents"
 msgstr "Last updated documents"
 
@@ -618,10 +618,6 @@ msgstr "Sort items by..."
 #: src/features/notes-ui/components/NotesSortFilterBtn.tsx:35
 msgid "sort notes"
 msgstr "sort notes"
-
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:115
-msgid "space option modified"
-msgstr "space option modified"
 
 #: src/features/settings-ui/components/CurrentSpaceSettings.tsx:35
 msgid "Space Settings"
