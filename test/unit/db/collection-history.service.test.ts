@@ -62,14 +62,12 @@ describe('collection history service', () => {
             content_meta: rowBefore.content_meta,
             tags: rowBefore.tags,
             tags_meta: rowBefore.tags_meta,
-            display_opts: rowBefore.display_opts,
-            display_opts_meta: rowBefore.display_opts_meta,
+            settings: rowBefore.settings,
+            settings_meta: rowBefore.settings_meta,
             order: rowBefore.order,
             order_meta: rowBefore.order_meta,
             created: rowBefore.created,
-            updated: rowBefore.updated,
-            flags: rowBefore.flags,
-            flags_meta: rowBefore.flags_meta
+            updated: rowBefore.updated
           });
           if (field !== 'content') {
             expect(versionData[field]).toBe(newValue);

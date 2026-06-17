@@ -8,8 +8,8 @@ import {
 } from '@/constants';
 import { space, spaceQueries, store } from '@/core/db/store';
 import { setMetaField } from '@/core/db/types';
-import { displayOptsService } from '@/domain/collection-display-opts/display-opts.service';
-import { CollectionItemSort } from '@/domain/collection-display-opts/model';
+import { settingsService } from '@/domain/collection-settings/collection-settings.service';
+import { CollectionItemSort } from '@/domain/collection-settings/model';
 import { Notebook, NotebookResult } from '@/notebooks/notebooks';
 import { getUniqueId } from 'tinybase/with-schemas';
 import collectionService from './collection.service';
@@ -133,7 +133,7 @@ class NotebooksService {
 
   public getNotebooks(parent?: string, sort?: CollectionItemSort) {
     if (!sort) {
-      sort = displayOptsService.getSpaceDefaultSort();
+      sort = settingsService.getSpaceDefaultSort();
     }
     const table = space.getTable(this.table);
     const queryName = this.fetchAllNotebooksQuery(parent);

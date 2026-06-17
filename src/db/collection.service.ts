@@ -21,16 +21,15 @@ import {
 import { DEFAULT_ORDER, getGlobalTrans, ROOT_COLLECTION } from '@/constants';
 import { space, spaceQueries } from '@/core/db/store';
 import { DbSerializableData, setMetaField } from '@/core/db/types';
-import { displayOptsService } from '@/domain/collection-display-opts/display-opts.service';
+import { settingsService } from '@/domain/collection-settings/collection-settings.service';
 import {
-  CollectionItemDisplayOpts,
+  CollectionItemSettings,
   CollectionItemSort
-} from '@/domain/collection-display-opts/model';
-import { CollectionItemFlags } from '@/domain/collection-flags/model';
+} from '@/domain/collection-settings/model';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
 import { SerializedEditorState } from 'lexical';
 import { getUniqueId } from 'tinybase/common';
-import { AnyObject, Id } from 'tinybase/common/with-schemas';
+import { Id } from 'tinybase/common/with-schemas';
 import { Table } from 'tinybase/store';
 import { searchAncestryService } from '../search/search-ancestry.service';
 import { historyService } from './collection-history.service';
@@ -161,7 +160,7 @@ class CollectionService {
 
   public getCollectionItems(parent: string, sort?: CollectionItemSort) {
     if (!sort) {
-      sort = displayOptsService.getNotebookDefaultSort();
+      sort = settingsService.getNotebookDefaultSort();
     }
     const table = space.getTable(this.tableId);
     const queryName = this.fetchAllPerParentQuery(parent);
@@ -173,7 +172,7 @@ class CollectionService {
     sort?: CollectionItemSort
   ) {
     if (!sort) {
-      sort = displayOptsService.getNotebookDefaultSort();
+      sort = settingsService.getNotebookDefaultSort();
     }
     return fetchItemsQuery.getResults(
       {
@@ -194,7 +193,7 @@ class CollectionService {
     cb?: (level: CollectionItemResult[]) => void
   ) {
     if (!sort) {
-      sort = displayOptsService.getNotebookDefaultSort();
+      sort = settingsService.getNotebookDefaultSort();
     }
     let results: CollectionItemResult[] = [];
     const level = this.getCollectionItems(parent, sort);
@@ -238,7 +237,7 @@ class CollectionService {
 
   public getConflicts(sort?: CollectionItemSort) {
     if (!sort) {
-      sort = displayOptsService.getNotebookDefaultSort();
+      sort = settingsService.getNotebookDefaultSort();
     }
     const table = space.getTable(this.tableId);
     const queryName = this.fetchConflictsQuery();
@@ -480,28 +479,8 @@ class CollectionService {
     return contentToAppend;
   }
 
-  public useItemFlags(rowId: Id): CollectionItemFlags | undefined {
-    return useCellWithRef<AnyObject>(
-      this.storeId,
-      this.tableId,
-      rowId,
-      'flags'
-    );
-  }
-
-  public getItemFlags(rowId: Id): CollectionItemFlags | undefined {
-    return space.getCell(this.tableId, rowId, 'flags');
-  }
-
-  public setItemDisplayOpts(
-    rowId: Id,
-    display_opts: CollectionItemDisplayOpts
-  ) {
-    this.setItemField(rowId, 'display_opts', display_opts);
-  }
-
-  public setItemFlags(rowId: Id, flags: CollectionItemFlags) {
-    this.setItemField(rowId, 'flags', flags);
+  public setItemSettings(rowId: Id, settings: CollectionItemSettings) {
+    this.setItemField(rowId, 'settings', settings);
   }
 
   public reorderItems(
@@ -615,7 +594,7 @@ class CollectionService {
     }
     const type = this.getItemType(rowId);
     const updated = Date.now();
-    // title and content are real changes, order and display_opts are not (won't trigger an update ts)
+    // title and content are real changes, order and settings are not (won't trigger an update ts)
     const isContentChange = this.shouldTriggerRowUpdatedChange(key);
     space.transaction(() => {
       space.setCell('collection', rowId, key, value as never);

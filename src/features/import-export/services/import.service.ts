@@ -95,8 +95,8 @@ class ImportService {
     if (meta.order) {
       item.order = meta.order;
     }
-    if (meta.display_opts) {
-      item.display_opts = meta.display_opts;
+    if (meta.settings) {
+      item.settings = meta.settings;
     }
   }
 
@@ -480,9 +480,9 @@ class ImportService {
         update.order = newItem.order;
         update.order_meta = newItem.order_meta;
       }
-      if (newItem.display_opts) {
-        update.display_opts = newItem.display_opts;
-        update.display_opts_meta = newItem.display_opts_meta;
+      if (newItem.settings) {
+        update.settings = newItem.settings;
+        update.settings_meta = newItem.settings_meta;
       }
     }
     return update;

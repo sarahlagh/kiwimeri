@@ -1,10 +1,10 @@
 import { APPICONS } from '@/constants';
-import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
 import {
+  annotSortBy,
   NotesSort,
-  NotesSortType,
-  sortBy
-} from '@/domain/document-annotations/model';
+  NotesSortType
+} from '@/domain/collection-settings/model';
+import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
 import GenericSortFilter from '@/shared/utils/sort-filter/GenericSortFilter';
 import { IonButton, IonIcon, useIonPopover } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
@@ -21,7 +21,7 @@ const NotesSortFilterBtn = ({ docId }: NotesSortFilterBtnProps) => {
     searchEnabled: false,
     sortEnabled: true,
     sort: sort,
-    allowedSorts: sortBy,
+    allowedSorts: annotSortBy,
     onSortChange: (sort?: NotesSort) => {
       if (sort) {
         docAnnotationsService.setNotesSortOnDocument(docId, sort);

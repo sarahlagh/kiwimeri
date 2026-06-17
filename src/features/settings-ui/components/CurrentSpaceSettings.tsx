@@ -1,7 +1,6 @@
-import { displayOptsService } from '@/domain/collection-display-opts/display-opts.service';
-import useSpaceDefaultSort from '@/domain/collection-display-opts/hooks/useSpaceDefaultSort';
-import { itemFlagsService } from '@/domain/collection-flags/flags.service';
-import useSpaceDefaultFlags from '@/domain/collection-flags/hooks/useSpaceDefaultFlags';
+import { cellEquals } from '@/common/utils';
+import { settingsService } from '@/domain/collection-settings/collection-settings.service';
+import useSpaceDefaultSettings from '@/domain/collection-settings/hooks/useSpaceDefaultSettings';
 import { statsService } from '@/domain/stats/stats-service';
 import usePrefState from '@/domain/user-preferences/hooks/usePrefState';
 import {
@@ -15,8 +14,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import GenericCollectionSettings from './GenericCollectionSettings';
 
 const CurrentSpaceSettings = () => {
-  const _defaultSort = useSpaceDefaultSort();
-  const _defaultFlags = useSpaceDefaultFlags();
+  const _defaultSettings = useSpaceDefaultSettings();
   const { t } = useLingui();
 
   const [maxHistoryPerDoc, setMaxHistoryPerDoc] =
@@ -44,18 +42,21 @@ const CurrentSpaceSettings = () => {
 
       <IonCardContent>
         <GenericCollectionSettings
-          defaultSort={_defaultSort}
-          onDefaultSortChange={newSort => {
-            displayOptsService.setSpaceDefaultSort(newSort);
-          }}
-          defaultFlags={_defaultFlags}
-          onDefaultFlagsChange={newFlags => {
-            if (newFlags.statsEnabled && !_defaultFlags.statsEnabled) {
+          defaultSettings={_defaultSettings}
+          onDefaultSettingsChange={newSettings => {
+            if (newSettings.statsEnabled && !_defaultSettings.statsEnabled) {
               console.log('stats setting enabled on space, backfilling');
               statsService.backfillStats();
               console.log('stats backfilling done');
             }
-            itemFlagsService.setSpaceDefaultFlags(newFlags);
+            if (newSettings.statsEnabled !== _defaultSettings.statsEnabled) {
+              settingsService.setSpaceDefaultStatsEnabled(
+                newSettings.statsEnabled
+              );
+            }
+            if (!cellEquals(newSettings.sort, _defaultSettings.sort)) {
+              settingsService.setSpaceDefaultSort(newSettings.sort);
+            }
           }}
           withRows={[
             {

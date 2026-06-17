@@ -14,35 +14,11 @@ export default function Migration(
   _store: NoSchemaStore
 ) {
   metaFieldsBecomeObjects(_space);
-  displayOptsBecomeObjects(_space);
-  statsEnabledInItemFlags(_space);
+  displayOptsBecomeSettings(_space);
   tagsBecomeArray(_space);
   snapshotJsonBecomeObjectsAndUpdate(_space);
   contentStatsBecomeObjects(_space);
   someValuesGoToUserPrefs(_space);
-}
-
-function statsEnabledInItemFlags(_space: NoSchemaStore) {
-  _space.getRowIds(C).forEach(rowId => {
-    const display_opts = _space.getCell(C, rowId, 'display_opts');
-    if (display_opts) {
-      const oldDisplayOpts = display_opts as {
-        statsEnabled?: boolean;
-        sort: any;
-        documentSort?: any;
-      };
-      if (oldDisplayOpts.statsEnabled !== undefined) {
-        const meta = _space.getCell(C, rowId, 'display_opts_meta');
-        const statsEnabled = oldDisplayOpts.statsEnabled;
-        delete oldDisplayOpts.statsEnabled;
-        _space.setPartialRow(C, rowId, {
-          display_opts: oldDisplayOpts,
-          flags: { statsEnabled },
-          flags_meta: meta
-        });
-      }
-    }
-  });
 }
 
 function metaFieldsBecomeObjects(space: NoSchemaStore) {
@@ -71,8 +47,14 @@ function _metaFieldsBecomeObjects(space: NoSchemaStore, tableId: string) {
 
 function _transformOldDisplayOpts(type: string, display_opts_str: string) {
   const old_display_opts = JSON.parse(display_opts_str);
-  if (type === 'n' && old_display_opts.documentSort !== undefined) {
-    delete old_display_opts.documentSort;
+  if (type === 'n') {
+    if (old_display_opts.documentSort !== undefined) {
+      delete old_display_opts.documentSort;
+    }
+    if (old_display_opts.lastBrowserMode !== undefined) {
+      old_display_opts.browserMode = old_display_opts.lastBrowserMode;
+      delete old_display_opts.lastBrowserMode;
+    }
   }
   if (type === 'f') {
     if (old_display_opts.documentSort !== undefined) {
@@ -92,18 +74,20 @@ function _transformOldDisplayOpts(type: string, display_opts_str: string) {
   return old_display_opts;
 }
 
-function displayOptsBecomeObjects(space: NoSchemaStore) {
+function displayOptsBecomeSettings(space: NoSchemaStore) {
   const tableId = C;
-  const cellId = 'display_opts';
+  const oldCellId = 'display_opts';
   space.getRowIds(tableId).forEach(rowId => {
-    const display_opts_str = space.getCell(tableId, rowId, 'display_opts');
+    const display_opts_str = space.getCell(tableId, rowId, oldCellId);
     const type = space.getCell(tableId, rowId, 'type');
     if (display_opts_str && typeof display_opts_str === 'string') {
       const transformed_display_opts = _transformOldDisplayOpts(
         type as string,
         display_opts_str
       );
-      space.setCell(tableId, rowId, cellId, transformed_display_opts);
+      space.setCell(tableId, rowId, 'settings', transformed_display_opts);
+      const oldMeta = space.getCell(tableId, rowId, 'display_opts_meta');
+      if (oldMeta) space.setCell(tableId, rowId, 'settings_meta', oldMeta);
     }
   });
 }
@@ -137,7 +121,7 @@ function historyMetaFieldsToObjects(snapshotJson: any) {
   });
 }
 
-function historyDisplayOptsToObjects(type: string, snapshotJson: any) {
+function historyDisplayOptsToSettings(type: string, snapshotJson: any) {
   if (
     snapshotJson['display_opts'] !== undefined &&
     typeof snapshotJson['display_opts'] === 'string'
@@ -146,26 +130,8 @@ function historyDisplayOptsToObjects(type: string, snapshotJson: any) {
       type as string,
       snapshotJson['display_opts']
     );
-    snapshotJson['display_opts'] = transformed_display_opts;
-  }
-}
-
-function historyStatsEnabledToFlags(snapshotJson: any) {
-  const display_opts = snapshotJson['display_opts'];
-  if (display_opts) {
-    const oldDisplayOpts = display_opts as {
-      statsEnabled?: boolean;
-      sort: any;
-      documentSort?: any;
-    };
-    if (oldDisplayOpts.statsEnabled !== undefined) {
-      const meta = snapshotJson['display_opts_meta'];
-      const statsEnabled = oldDisplayOpts.statsEnabled;
-      delete oldDisplayOpts.statsEnabled;
-      snapshotJson['display_opts'] = oldDisplayOpts;
-      snapshotJson['flags'] = { statsEnabled };
-      snapshotJson['flags_meta'] = meta;
-    }
+    snapshotJson['settings'] = transformed_display_opts;
+    delete snapshotJson['display_opts'];
   }
 }
 
@@ -191,8 +157,7 @@ function snapshotJsonBecomeObjectsAndUpdate(space: NoSchemaStore) {
     if (snapshotJson && typeof snapshotJson === 'string') {
       const newJson = JSON.parse(snapshotJson);
       historyMetaFieldsToObjects(newJson);
-      historyDisplayOptsToObjects(type as string, newJson);
-      historyStatsEnabledToFlags(newJson);
+      historyDisplayOptsToSettings(type as string, newJson);
       historyTagsToArray(newJson);
       delete newJson['deleted'];
       delete newJson['deleted_meta'];

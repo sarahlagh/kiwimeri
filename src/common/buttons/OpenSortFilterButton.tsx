@@ -5,9 +5,9 @@ import {
 import SortFilter from '@/collection/components/SortFilter';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
-import { displayOptsService } from '@/domain/collection-display-opts/display-opts.service';
-import useFolderEffectiveSort from '@/domain/collection-display-opts/hooks/useFolderEffectiveSort';
-import { CollectionItemSort } from '@/domain/collection-display-opts/model';
+import { settingsService } from '@/domain/collection-settings/collection-settings.service';
+import useFolderEffectiveSort from '@/domain/collection-settings/hooks/useFolderEffectiveSort';
+import { CollectionItemSort } from '@/domain/collection-settings/model';
 import { IonButton, IonIcon, useIonPopover } from '@ionic/react';
 import { Id } from 'tinybase/with-schemas';
 
@@ -50,7 +50,7 @@ const OpenSortFilterButton = ({
     onSearch,
     onSortChange: (sort?: CollectionItemSort) => {
       if (sort) {
-        displayOptsService.setFolderSort(id, sort);
+        settingsService.setFolderSort(id, sort);
       }
     }
   });

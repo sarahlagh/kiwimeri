@@ -1,18 +1,22 @@
 import { useSpaceCell } from '@/core/db/tinybase-hooks';
-import { DocumentDisplayOpts } from '@/domain/collection-display-opts/model';
-import { NotesSort } from '@/domain/document-annotations/model';
+import {
+  DocumentSettings,
+  NotesSort
+} from '@/domain/collection-settings/model';
 import { Id } from 'tinybase/common';
 
 const useNotesSort = (rowId: Id): NotesSort => {
-  const display_opts = useSpaceCell<'collection', 'display_opts'>(
+  const settings = useSpaceCell<'collection', 'settings'>(
     'collection',
     rowId,
-    'display_opts',
+    'settings',
     'space'
   );
-  if (display_opts) {
-    const opts = display_opts as DocumentDisplayOpts;
-    return opts.documentSort;
+  if (settings) {
+    const opts = settings as DocumentSettings;
+    if (opts.documentSort) {
+      return opts.documentSort;
+    }
   }
   // return default
   return { by: 'createdAt', descending: false };

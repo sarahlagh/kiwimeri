@@ -13,7 +13,7 @@ import {
 import { setMetaField } from '@/core/db/types';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
-import { CollectionItemSort } from '@/domain/collection-display-opts/model';
+import { CollectionItemSort } from '@/domain/collection-settings/model';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import {
   BROWSABLE_ITEM_TYPES,

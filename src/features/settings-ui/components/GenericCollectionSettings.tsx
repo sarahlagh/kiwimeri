@@ -4,26 +4,21 @@ import EditConfigList, {
 import { AnySerializableData, SerializableData } from '@/db/types/store-types';
 import {
   CollectionItemSortType,
-  NotebookDisplayOpts
-} from '@/domain/collection-display-opts/model';
-import { CollectionItemFlags } from '@/domain/collection-flags/model';
+  SpaceSettings
+} from '@/domain/collection-settings/model';
 import { useLingui } from '@lingui/react/macro';
 
 type GenericCollectionSettingsProps = {
-  defaultSort: NotebookDisplayOpts['sort'];
-  onDefaultSortChange: (newDefaultSort: NotebookDisplayOpts['sort']) => void;
-  defaultFlags: Required<CollectionItemFlags>;
-  onDefaultFlagsChange: (newDefaultFlags: CollectionItemFlags) => void;
+  defaultSettings: SpaceSettings;
+  onDefaultSettingsChange: (newSettings: SpaceSettings) => void;
   withRows?: ConfigRowType[];
   withInitialState?: AnySerializableData;
   withOnChange?: (key: string, val: SerializableData) => void;
 };
 
 const GenericCollectionSettings = ({
-  defaultSort,
-  defaultFlags,
-  onDefaultSortChange,
-  onDefaultFlagsChange,
+  defaultSettings,
+  onDefaultSettingsChange,
   withRows = [],
   withInitialState = {},
   withOnChange
@@ -56,26 +51,25 @@ const GenericCollectionSettings = ({
         ...withRows
       ]}
       initialState={{
-        sort_by: defaultSort.by,
-        sort_descending: defaultSort.descending,
-        stats_enabled: defaultFlags.statsEnabled,
+        sort_by: defaultSettings.sort.by,
+        sort_descending: defaultSettings.sort.descending,
+        stats_enabled: defaultSettings.statsEnabled,
         ...withInitialState
       }}
       onChange={(key, val) => {
-        const newSort = { ...defaultSort };
-        const newFlags = { ...defaultFlags };
+        const newSettings = { ...defaultSettings };
         switch (key) {
           case 'sort_by':
-            newSort.by = val as string as CollectionItemSortType;
-            onDefaultSortChange(newSort);
+            newSettings.sort.by = val as string as CollectionItemSortType;
+            onDefaultSettingsChange(newSettings);
             break;
           case 'sort_descending':
-            newSort.descending = val as boolean;
-            onDefaultSortChange(newSort);
+            newSettings.sort.descending = val as boolean;
+            onDefaultSettingsChange(newSettings);
             break;
           case 'stats_enabled':
-            newFlags.statsEnabled = val as boolean;
-            onDefaultFlagsChange(newFlags);
+            newSettings.statsEnabled = val as boolean;
+            onDefaultSettingsChange(newSettings);
         }
         if (withOnChange) withOnChange(key, val);
       }}

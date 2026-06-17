@@ -1,5 +1,5 @@
 import { CollectionItemType, itemTypes } from '@/collection/collection';
-import { sortBy } from '@/domain/collection-display-opts/model';
+import { docSortBy } from '@/domain/collection-settings/model';
 import { ZipMetadata } from '../model/model-export';
 
 function isObject(value: unknown): value is Record<string, unknown> {
@@ -17,31 +17,31 @@ function isEnumValue<T extends string>(
   return Object.values(enumObj).includes(value as T);
 }
 
-function validateMetadataDisplay(
-  display_opts: unknown
-): asserts display_opts is ZipMetadata['display_opts'] {
-  if (!isObject(display_opts)) {
-    throw new Error('parsing error: display_opts must be an object');
+function validateMetadataSettings(
+  settings: unknown
+): asserts settings is ZipMetadata['settings'] {
+  if (!isObject(settings)) {
+    throw new Error('parsing error: settings must be an object');
   }
-  if (!('sort' in display_opts) || !isObject(display_opts.sort)) {
-    throw new Error('parsing error: display_opts.sort must be an object');
+  if (!('sort' in settings) || !isObject(settings.sort)) {
+    throw new Error('parsing error: settings.sort must be an object');
   }
-  const sort = display_opts.sort;
+  const sort = settings.sort;
   if (
     !('by' in sort) ||
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    !Object.values(sortBy).includes(sort.by as any)
+    !Object.values(docSortBy).includes(sort.by as any)
   ) {
-    throw new Error('parsing error: display_opts.sort.by must be a sort field');
+    throw new Error('parsing error: settings.sort.by must be a sort field');
   }
   if (!('descending' in sort) || typeof sort.descending !== 'boolean') {
     throw new Error(
-      'parsing error: display_opts.sort.descending must be a boolean'
+      'parsing error: settings.sort.descending must be a boolean'
     );
   }
   if (sort.by === 'order' && sort.descending !== false) {
     throw new Error(
-      'parsing error: display_opts.sort.descending must be a false for display_opts.sort.by = order'
+      'parsing error: settings.sort.descending must be a false for settings.sort.by = order'
     );
   }
 }
@@ -73,8 +73,8 @@ export function validateMetadataFile(
   if ('order' in value && typeof value.order !== 'number') {
     throw new Error('parsing error: order is not a number');
   }
-  if ('display_opts' in value) {
-    validateMetadataDisplay(value.display_opts);
+  if ('settings' in value) {
+    validateMetadataSettings(value.settings);
   }
   if ('files' in value && !isObject(value.files)) {
     throw new Error('parsing error: files must be an object');

@@ -1,5 +1,4 @@
 import { MetaField, metaSchemaDefault } from '@/core/db/types';
-import { Sort } from '@/shared/utils/sort-filter/sort';
 import { LocalChangeRow } from '../local-changes/model';
 
 export type DocAnnotationType = 'note'; // only one for now, to expand
@@ -46,8 +45,3 @@ export const DocAnnotationUpdatableFields: DocAnnotationUpdatableFieldEnum[] = [
 ];
 export const DocAnnotationUpdatableConflictFields: DocAnnotationUpdatableFieldEnum[] =
   ['content'];
-
-// notes specific stuff
-export const sortBy = ['createdAt', 'order'] as const;
-export type NotesSortType = (typeof sortBy)[number];
-export type NotesSort = Sort<NotesSortType>;

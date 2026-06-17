@@ -39,7 +39,7 @@ const fetchItemsQuery = new SpaceQueryDefinition<
   select('updated');
   select('order');
   select('conflict');
-  select('display_opts');
+  select('settings');
   select(getCell => {
     const id = getCell('itemId')?.toString();
     if (!id) return undefined;

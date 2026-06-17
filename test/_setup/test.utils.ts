@@ -137,8 +137,7 @@ export type ValueType =
   | 'number'
   | 'string_array'
   | 'boolean'
-  | 'display_opts'
-  | 'flags';
+  | 'settings';
 
 export type TestField = {
   field: CollectionItemUpdatableFieldEnum;
@@ -153,13 +152,9 @@ export const tagsField: TestField = {
   valueType: 'string_array'
 };
 export const orderField: TestField = { field: 'order', valueType: 'number' };
-export const displayOptsField: TestField = {
-  field: 'display_opts',
-  valueType: 'display_opts'
-};
-export const flagsField: TestField = {
-  field: 'flags',
-  valueType: 'flags'
+export const settingsField: TestField = {
+  field: 'settings',
+  valueType: 'settings'
 };
 
 export const allNonParentUpdatableFields: TestField[] = [
@@ -167,8 +162,7 @@ export const allNonParentUpdatableFields: TestField[] = [
   contentField,
   tagsField,
   orderField,
-  displayOptsField,
-  flagsField
+  settingsField
 ];
 
 export const conflictFields: TestField[] = [titleField, contentField];
@@ -202,11 +196,9 @@ export const getNewValue = (
     return [`new string value ${getUniqueId()}`];
   if (valueType === 'lex') return getNewContent(`Sample text ${getUniqueId()}`);
   if (valueType === 'id') return potentialId ? potentialId : ROOT_COLLECTION;
-  if (valueType === 'display_opts')
-    return { sort: { ___for_tests_: Math.floor(Math.random() * 10001) } };
-  if (valueType === 'flags')
+  if (valueType === 'settings')
     return {
-      ___for_tests_: Math.floor(Math.random() * 10001),
+      sort: { ___for_tests_: Math.floor(Math.random() * 10001) },
       statsEnabled: Math.floor(Math.random() * 10001) % 2 === 0
     };
   if (valueType === 'number') return Math.floor(Math.random() * 10001);

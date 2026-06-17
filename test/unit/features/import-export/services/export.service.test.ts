@@ -2,7 +2,7 @@ import { CollectionItemType } from '@/collection/collection';
 import { DEFAULT_NOTEBOOK_ID, getGlobalTrans, META_JSON } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
-import { displayOptsService } from '@/domain/collection-display-opts/display-opts.service';
+import { settingsService } from '@/domain/collection-settings/collection-settings.service';
 import {
   ZipExportOptions,
   ZipFileTree,
@@ -155,7 +155,7 @@ describe('export service', () => {
 
       it(`should export a folder with several levels as a zip`, () => {
         const fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
-        displayOptsService.setFolderDisplayOpts(fId, {
+        settingsService.setFolderSettings(fId, {
           sort: { by: 'updated', descending: true }
         });
         newDoc(fId, 'this is the document content');
@@ -176,13 +176,13 @@ describe('export service', () => {
         const meta = checkMetadata(zipContent, true);
         checkMetadata(zipContent['New folder'], false);
 
-        // check for display opts
+        // check for settings
         if (includeMetadata) {
           expect(meta).toBeDefined();
-          expect(meta!.display_opts).toBeDefined();
-          expect(meta!.display_opts!.sort).toBeDefined();
-          expect(meta!.display_opts!.sort!.by).toBe('updated');
-          expect(meta!.display_opts!.sort!.descending).toBe(true);
+          expect(meta!.settings).toBeDefined();
+          expect(meta!.settings!.sort).toBeDefined();
+          expect(meta!.settings!.sort!.by).toBe('updated');
+          expect(meta!.settings!.sort!.descending).toBe(true);
         }
       });
 

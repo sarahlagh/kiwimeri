@@ -2,8 +2,8 @@ import { APPICONS } from '@/constants';
 import {
   CollectionItemSort,
   CollectionItemSortType,
-  sortBy
-} from '@/domain/collection-display-opts/model';
+  docSortBy
+} from '@/domain/collection-settings/model';
 import {
   IonButton,
   IonIcon,
@@ -32,7 +32,7 @@ export type SortFilterProps = {
 const SortFilter = ({
   currentSort,
   onSortChange,
-  choices = sortBy,
+  choices = docSortBy,
   sortEnabled,
   searchEnabled,
   searchText,

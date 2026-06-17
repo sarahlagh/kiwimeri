@@ -1,8 +1,8 @@
 import { CollectionItemResult } from '@/collection/collection';
 import { useQueryResults } from '@/core/db/queries-helper';
 import notebooksService from '@/db/notebooks.service';
-import { displayOptsService } from '@/domain/collection-display-opts/display-opts.service';
-import { CollectionItemSort } from '@/domain/collection-display-opts/model';
+import { settingsService } from '@/domain/collection-settings/collection-settings.service';
+import { CollectionItemSort } from '@/domain/collection-settings/model';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
 import { useEffect } from 'react';
 
@@ -42,7 +42,7 @@ export default function useCollectionItemBrowserListResults(
   if (mode === 'browser' || mode === 'conflicts') {
     sort = userSort;
     if (!sort) {
-      sort = displayOptsService.getNotebookDefaultSort(); // should use hook
+      sort = settingsService.getNotebookDefaultSort(); // should use hook
     }
   } else {
     sort = { by: mode, descending: true };

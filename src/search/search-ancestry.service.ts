@@ -11,7 +11,7 @@ import { space, store, storeIndexes } from '@/core/db/store';
 import { SpaceType, StoreType } from '@/core/db/store-schema';
 import { MetaField } from '@/core/db/types';
 import { useCellWithRef } from '@/db/tinybase/hooks';
-import { itemFlagsService } from '@/domain/collection-flags/flags.service';
+import { settingsService } from '@/domain/collection-settings/collection-settings.service';
 import { statsService } from '@/domain/stats/stats-service';
 import formatConverter from '@/format-conversion/format-converter.service';
 import { Id, Ids, Store, Table } from 'tinybase/with-schemas';
@@ -231,7 +231,7 @@ class CollectionSearchService {
 
       const parent = table[rowId].parent as string;
       const notebook = this.getShortBreadcrumb(parent).split(',')[0];
-      if (itemFlagsService.getNotebookDefaultFlags(notebook).statsEnabled) {
+      if (settingsService.getNotebookDefaultStatsEnabled(notebook)) {
         // stats
         statsService.updateStatsAtDate(
           rowId,

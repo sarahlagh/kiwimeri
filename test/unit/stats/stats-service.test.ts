@@ -3,7 +3,7 @@ import { spaceQueries } from '@/core/db/store';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
-import { itemFlagsService } from '@/domain/collection-flags/flags.service';
+import { settingsService } from '@/domain/collection-settings/collection-settings.service';
 import { DataPoint, DocumentContentStatsBag } from '@/domain/stats/model';
 import { statsService } from '@/domain/stats/stats-service';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
@@ -133,9 +133,7 @@ describe('stats service', () => {
   describe(`stats generation`, () => {
     beforeEach(() => {
       searchAncestryService.start();
-      itemFlagsService.setSpaceDefaultFlags({
-        statsEnabled: true
-      });
+      settingsService.setSpaceDefaultStatsEnabled(true);
     });
     afterEach(() => {
       searchAncestryService.stop();

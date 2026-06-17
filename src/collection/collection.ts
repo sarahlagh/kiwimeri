@@ -1,7 +1,6 @@
 import { APPICONS } from '@/constants';
 import { MetaField } from '@/core/db/types';
-import { CollectionItemDisplayOpts } from '@/domain/collection-display-opts/model';
-import { CollectionItemFlags } from '@/domain/collection-flags/model';
+import { CollectionItemSettings } from '@/domain/collection-settings/model';
 
 export enum CollectionItemType {
   notebook = 'n',
@@ -28,10 +27,8 @@ export interface CollectionItem {
   conflict?: string;
   order: number;
   order_meta: MetaField;
-  display_opts?: CollectionItemDisplayOpts;
-  display_opts_meta?: MetaField;
-  flags?: CollectionItemFlags;
-  flags_meta?: MetaField;
+  settings?: CollectionItemSettings;
+  settings_meta?: MetaField;
 }
 
 export type CollectionItemWithId = CollectionItem & { id: string };
@@ -43,15 +40,15 @@ export type CollectionItemFieldEnum = keyof Required<
 export type CollectionItemUpdatableFieldEnum = keyof Required<
   Pick<
     CollectionItem,
-    'parent' | 'title' | 'content' | 'tags' | 'order' | 'display_opts' | 'flags'
+    'parent' | 'title' | 'content' | 'tags' | 'order' | 'settings'
   >
 >;
 
 export const CollectionItemUpdatableFields: CollectionItemUpdatableFieldEnum[] =
-  ['parent', 'title', 'content', 'tags', 'order', 'display_opts', 'flags'];
+  ['parent', 'title', 'content', 'tags', 'order', 'settings'];
 
 export const CollectionItemUpdateChangeFields: CollectionItemUpdatableFieldEnum[] =
-  ['title', 'content', 'tags', 'display_opts', 'flags'];
+  ['title', 'content', 'tags', 'settings'];
 
 export const CollectionItemResetConflictFields: CollectionItemUpdatableFieldEnum[] =
   ['parent', 'title', 'content', 'tags'];
@@ -68,7 +65,7 @@ export type CollectionItemResult = Pick<
   | 'created'
   | 'updated'
   | 'order'
-  | 'display_opts'
+  | 'settings'
   | 'conflict'
 > &
   Required<Pick<CollectionItem, 'id'>> & {
@@ -86,12 +83,7 @@ export const CollectionItemUpdatableNonConflictFields: CollectionItemUpdatableFi
 
 export type CollectionItemUpdate = Pick<
   CollectionItem,
-  | 'content'
-  | 'content_meta'
-  | 'tags_meta'
-  | 'order_meta'
-  | 'display_opts_meta'
-  | 'flags_meta'
+  'content' | 'content_meta' | 'tags_meta' | 'order_meta' | 'settings_meta'
 > &
   CollectionItemResult;
 
@@ -141,10 +133,8 @@ export type CollectionItemSnapshotData = Pick<
   | 'tags_meta'
   | 'order'
   | 'order_meta'
-  | 'display_opts'
-  | 'display_opts_meta'
-  | 'flags'
-  | 'flags_meta'
+  | 'settings'
+  | 'settings_meta'
   | 'created'
   | 'updated'
 > &

@@ -24,9 +24,9 @@ import { ExportItemsButton, ImportItemsButton } from '@/features/import-export';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
 
 import notebooksService from '@/db/notebooks.service';
-import { displayOptsService } from '@/domain/collection-display-opts/display-opts.service';
-import useFolderEffectiveSort from '@/domain/collection-display-opts/hooks/useFolderEffectiveSort';
-import useNotebookLastBrowserModeState from '@/domain/collection-display-opts/hooks/useNotebookLastBrowserMode';
+import { settingsService } from '@/domain/collection-settings/collection-settings.service';
+import useFolderEffectiveSort from '@/domain/collection-settings/hooks/useFolderEffectiveSort';
+import useNotebookLastBrowserModeState from '@/domain/collection-settings/hooks/useNotebookLastBrowserMode';
 
 // eslint-disable-next-line no-restricted-imports
 import useCollectionItemBrowserListResults, {
@@ -252,7 +252,7 @@ export const CollectionItemBrowserList = ({
             let idx = modeIdx + 1;
             if (idx === browserModes.length) idx = 0;
             const notebook = notebooksService.getCurrentNotebook();
-            displayOptsService.setNotebookDefaultBrowserMode(notebook, idx);
+            settingsService.setNotebookDefaultBrowserMode(notebook, idx);
           }}
         />
       }

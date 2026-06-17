@@ -8,8 +8,9 @@ import { initialContent } from '@/db/collection.service';
 import { SortableType } from '@/shared/utils/sort-filter/sort';
 import { SerializedEditorState } from 'lexical';
 import { getUniqueId, Id } from 'tinybase/common';
-import { displayOptsService } from '../collection-display-opts/display-opts.service';
-import { DocAnnotationRow, NotesSort } from './model';
+import { settingsService } from '../collection-settings/collection-settings.service';
+import { NotesSort } from '../collection-settings/model';
+import { DocAnnotationRow } from './model';
 
 const A = SpaceTables.Annotations;
 const C = SpaceTables.Collection;
@@ -112,7 +113,7 @@ class DocumentAnnotationsService {
   }
 
   public setNotesSortOnDocument(docId: Id, newNoteSort: NotesSort) {
-    displayOptsService.setDocumentSort(docId, newNoteSort);
+    settingsService.setDocumentSort(docId, newNoteSort);
   }
 
   public exists(id: Id) {

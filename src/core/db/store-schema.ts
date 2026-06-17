@@ -107,10 +107,8 @@ export const spaceTablesSchema = {
     conflict: { type: 'string' },
     order: { type: 'number' },
     order_meta: { type: 'object' },
-    display_opts: { type: 'object' },
-    display_opts_meta: { type: 'object' },
-    flags: { type: 'object' },
-    flags_meta: { type: 'object' }
+    settings: { type: 'object' },
+    settings_meta: { type: 'object' }
   },
   history: {
     itemId: { type: 'string' },

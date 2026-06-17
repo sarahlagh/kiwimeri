@@ -42,7 +42,7 @@ class ExportService {
       title: item.title,
       tags: item.tags,
       order: item.order,
-      display_opts: item.display_opts,
+      settings: item.settings?.sort ? { sort: item.settings.sort } : undefined,
       created: item.created,
       updated: item.updated,
       files: withFiles ? {} : undefined
@@ -56,19 +56,18 @@ class ExportService {
       updated: item.updated,
       tags: item.tags,
       title: item.title,
-      order: item.order,
-      display_opts: item.display_opts
+      order: item.order
     };
   }
 
   private fillDirectoryStructure(
-    id: string,
+    folderId: string,
     fileTree: ZipFileTree,
     opts: ZipExportOptions,
     folderType?: CollectionItemTypeValues
   ) {
     const meta = new Map<string, ZipMetadata>();
-    const items = collectionService.getBrowsableCollectionItems(id);
+    const items = collectionService.getBrowsableCollectionItems(folderId);
 
     // create text files
     items
@@ -80,18 +79,13 @@ class ExportService {
           itemKey = `${title} (${idx}).md`;
         }
         const docResp = this.getSingleDocumentContent(item.id, opts);
-        if (typeof docResp === 'string') {
-          fileTree[itemKey] = [strToU8(docResp)];
-          if (opts.includeMetadata) {
-            const metaId = item.parent;
-            if (!meta.has(metaId)) {
-              meta.set(metaId, this.getParentMeta(id, folderType, true));
-            }
-            meta.get(metaId)!.files![itemKey] = this.getFileMeta(item);
+        fileTree[itemKey] = [strToU8(docResp)];
+        if (opts.includeMetadata) {
+          const metaId = item.parent;
+          if (!meta.has(metaId)) {
+            meta.set(metaId, this.getParentMeta(folderId, folderType, true));
           }
-        } else {
-          fileTree[`${itemKey}`] = docResp;
-          itemKey = `${itemKey}/`;
+          meta.get(metaId)!.files![itemKey] = this.getFileMeta(item);
         }
       });
 
@@ -116,9 +110,9 @@ class ExportService {
         );
       });
 
-    const metaId = id;
+    const metaId = folderId;
     if (!meta.has(metaId)) {
-      meta.set(metaId, this.getParentMeta(id, folderType));
+      meta.set(metaId, this.getParentMeta(folderId, folderType));
     }
 
     if (opts.includeMetadata && meta.has(metaId)) {
@@ -146,10 +140,7 @@ class ExportService {
     });
   }
 
-  public getSingleDocumentContent(
-    id: string,
-    opts?: ZipExportOptions
-  ): string | ZipFileTree {
+  public getSingleDocumentContent(id: string, opts?: ZipExportOptions): string {
     if (!opts) {
       opts = this.opts;
     } else {

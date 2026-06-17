@@ -12,10 +12,11 @@
         "type": "n",
         "order": 9999,
         "order_meta": { "_u": 1780926207731 },
-        "display_opts": { "sort": { "by": "created", "descending": false } },
-        "display_opts_meta": { "_u": 1780926700174 },
-        "flags": { "statsEnabled": true },
-        "flags_meta": { "_u": 1780926700174 }
+        "settings": {
+          "sort": { "by": "created", "descending": false },
+          "statsEnabled": true
+        },
+        "settings_meta": { "_u": 1780926700174 }
       },
       "h-MOhEAYItMcMOJb": {
         "itemId": "h-MOhEAYItMcMOJb",
@@ -30,10 +31,8 @@
         "type": "d",
         "order": 9999,
         "order_meta": { "_u": 1780926231479 },
-        "display_opts": {
-          "documentSort": { "by": "order", "descending": false }
-        },
-        "display_opts_meta": { "_u": 1780926383563 }
+        "settings": { "documentSort": { "by": "order", "descending": false } },
+        "settings_meta": { "_u": 1780926383563 }
       },
       "-br8f-vij3m0LJ8k": {
         "itemId": "-br8f-vij3m0LJ8k",
@@ -46,8 +45,8 @@
         "type": "f",
         "order": 9999,
         "order_meta": { "_u": 1780926457044 },
-        "display_opts": { "sort": { "by": "updated", "descending": false } },
-        "display_opts_meta": { "_u": 1780926689771 }
+        "settings": { "sort": { "by": "updated", "descending": false } },
+        "settings_meta": { "_u": 1780926689771 }
       },
       "xtid1X1laW4E5oUI": {
         "itemId": "xtid1X1laW4E5oUI",
@@ -174,14 +173,12 @@
           "title": "Document manual sort on notes",
           "title_meta": { "_u": 1780926410096 },
           "content_meta": { "_u": 1780926231479 },
-          "display_opts": {
-            "documentSort": { "by": "order", "descending": false }
-          },
           "display_opts_meta": { "_u": 1780926383563 },
           "order": 9999,
           "order_meta": { "_u": 1780926231479 },
           "created": 1780926231479,
-          "updated": 1780926410096
+          "updated": 1780926410096,
+          "settings": { "documentSort": { "by": "order", "descending": false } }
         },
         "contentId": "0",
         "rank": 0
@@ -275,45 +272,13 @@
       }
     },
     "user_preference": {
-      "defaultSortBy": {
-        "updatedAt": 0,
-        "value": {
-          "_v": "created"
-        }
-      },
-      "defaultSortDesc": {
-        "updatedAt": 0,
-        "value": {
-          "_v": false
-        }
-      },
-      "historyIdleTime": {
-        "updatedAt": 0,
-        "value": {
-          "_v": 15000
-        }
-      },
-      "historyMaxInterval": {
-        "updatedAt": 0,
-        "value": {
-          "_v": 300000
-        }
-      },
-      "maxHistoryPerDoc": {
-        "updatedAt": 0,
-        "value": {
-          "_v": 50
-        }
-      },
-      "statsEnabled": {
-        "updatedAt": 0,
-        "value": {
-          "_v": false
-        }
-      }
+      "defaultSortBy": { "value": { "_v": "created" }, "updatedAt": 0 },
+      "defaultSortDesc": { "value": { "_v": false }, "updatedAt": 0 },
+      "historyIdleTime": { "value": { "_v": 15000 }, "updatedAt": 0 },
+      "historyMaxInterval": { "value": { "_v": 300000 }, "updatedAt": 0 },
+      "maxHistoryPerDoc": { "value": { "_v": 50 }, "updatedAt": 0 },
+      "statsEnabled": { "value": { "_v": false }, "updatedAt": 0 }
     }
   },
-  {
-    "appVersion": "0.4.0"
-  }
+  { "appVersion": "0.4.0" }
 ]

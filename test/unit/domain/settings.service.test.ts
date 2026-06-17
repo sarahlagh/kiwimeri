@@ -1,31 +1,31 @@
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
-import { displayOptsService } from '@/domain/collection-display-opts/display-opts.service';
+import { settingsService } from '@/domain/collection-settings/collection-settings.service';
 import { describe, expect, it } from 'vitest';
 
-describe('display opts service', () => {
+describe('settings service', () => {
   // TODO actually merge into one method
-  it.skip('should override space display opts per folder', () => {
+  it.skip('should override space settings per folder', () => {
     const currentNotebook = notebooksService.getCurrentNotebook();
     const folderId = collectionService.addFolder(currentNotebook);
 
-    displayOptsService.setSpaceDefaultSort({
+    settingsService.setSpaceDefaultSort({
       by: 'updated',
       descending: true
     });
 
-    displayOptsService.setNotebookDefaultSort(currentNotebook, {
+    settingsService.setNotebookDefaultSort(currentNotebook, {
       by: 'order',
       descending: false
     });
 
-    displayOptsService.setFolderSort(folderId, {
+    settingsService.setFolderSort(folderId, {
       by: 'title',
       descending: false
     });
 
-    const defaultSort = displayOptsService.getNotebookDefaultSort();
-    const folderOpts = displayOptsService.getFolderDisplayOpts(folderId);
+    const defaultSort = settingsService.getNotebookDefaultSort();
+    const folderOpts = settingsService.getFolderSettings(folderId)?.sort;
     expect(defaultSort).toEqual({
       by: 'order',
       descending: false
@@ -39,37 +39,37 @@ describe('display opts service', () => {
     });
   });
 
-  it('should override space display opts per notebook', () => {
+  it('should override space settings per notebook', () => {
     const currentNotebook = notebooksService.getCurrentNotebook();
-    displayOptsService.setSpaceDefaultSort({
+    settingsService.setSpaceDefaultSort({
       by: 'updated',
       descending: true
     });
 
-    displayOptsService.setNotebookDefaultSort(currentNotebook, {
+    settingsService.setNotebookDefaultSort(currentNotebook, {
       by: 'order',
       descending: false
     });
 
-    const defaultSort = displayOptsService.getNotebookDefaultSort();
+    const defaultSort = settingsService.getNotebookDefaultSort();
     expect(defaultSort).toEqual({
       by: 'order',
       descending: false
     });
   });
 
-  it('should use space display opts as fallback', () => {
+  it('should use space settings as fallback', () => {
     const currentNotebook = notebooksService.getCurrentNotebook();
-    displayOptsService.setSpaceDefaultSort({
+    settingsService.setSpaceDefaultSort({
       by: 'updated',
       descending: true
     });
-    displayOptsService.setNotebookDefaultSort(currentNotebook, {
+    settingsService.setNotebookDefaultSort(currentNotebook, {
       by: 'order',
       descending: false
     });
 
-    const defaultSort = displayOptsService.getNotebookDefaultSort('another');
+    const defaultSort = settingsService.getNotebookDefaultSort('another');
     expect(defaultSort).toEqual({
       by: 'updated',
       descending: true

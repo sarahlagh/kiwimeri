@@ -297,9 +297,9 @@ describe('import service', () => {
         if ('order' in expectedItem) {
           expect((mergedItem as CollectionItem).order).toBe(expectedItem.order);
         }
-        if ('display_opts' in expectedItem) {
-          expect((mergedItem as CollectionItem).display_opts).toEqual(
-            expectedItem.display_opts
+        if ('settings' in expectedItem) {
+          expect((mergedItem as CollectionItem).settings).toEqual(
+            expectedItem.settings
           );
         }
       });
@@ -695,7 +695,7 @@ describe('import service', () => {
       ).not.toThrow();
       expect(() =>
         validateMetadataFile({
-          display_opts: {
+          settings: {
             sort: {
               by: 'preview',
               descending: true
@@ -749,35 +749,35 @@ describe('import service', () => {
       ).toThrow();
       expect(() =>
         validateMetadataFile({
-          display_opts: null
+          settings: null
         })
       ).toThrow();
       expect(() =>
         validateMetadataFile({
-          display_opts: {}
+          settings: {}
         })
       ).toThrow();
       expect(() =>
         validateMetadataFile({
-          display_opts: { sort: {} }
+          settings: { sort: {} }
         })
       ).toThrow();
       expect(() =>
         validateMetadataFile({
-          display_opts: { sort: { by: 'invalid' } }
+          settings: { sort: { by: 'invalid' } }
         })
       ).toThrow();
       expect(() =>
         validateMetadataFile({
-          display_opts: { sort: { descending: 'ok' } }
+          settings: { sort: { descending: 'ok' } }
         })
       ).toThrow();
     });
 
-    it('should not validate display_opts with by: order and descending: true', () => {
+    it('should not validate settings with by: order and descending: true', () => {
       expect(() =>
         validateMetadataFile({
-          display_opts: {
+          settings: {
             sort: {
               by: 'order',
               descending: true
