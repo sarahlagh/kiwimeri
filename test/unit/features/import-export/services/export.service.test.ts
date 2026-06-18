@@ -3,6 +3,7 @@ import { DEFAULT_NOTEBOOK_ID, getGlobalTrans, META_JSON } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import { settingsService } from '@/domain/collection-settings/collection-settings.service';
+import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
 import {
   ZipExportOptions,
   ZipFileTree,
@@ -386,6 +387,49 @@ describe('export service', () => {
         );
         checkMetadata(zipContent['Default']['New folder'], false);
       });
+    });
+  });
+
+  describe('export settings', () => {
+    it('should only export sort on folders / notebooks', () => {
+      settingsService.setNotebookSettings(DEFAULT_NOTEBOOK_ID, {
+        browserMode: 0,
+        statsEnabled: true
+      });
+      const fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+      collectionService.setItemSettings(fId, {
+        sort: { by: 'created', descending: false },
+        statsEnabled: true
+      });
+      const fTitle = collectionService.getItemTitle(fId);
+      const dId = collectionService.addDocument(fId);
+      const dTitle = collectionService.getItemTitle(dId);
+      docAnnotationsService.addNote(dId);
+      docAnnotationsService.setNotesSortOnDocument(dId, {
+        by: 'order',
+        descending: false
+      });
+
+      const zipContent = exportService.getFolderContent(DEFAULT_NOTEBOOK_ID, {
+        includeMetadata: true
+      });
+
+      expect(zipContent[META_JSON]).toBeDefined();
+      expect(zipContent[fTitle]).toBeDefined();
+      expect(zipContent[fTitle][META_JSON]).toBeDefined();
+      const notebookMeta = JSON.parse(
+        strFromU8(zipContent[META_JSON][0])
+      ) as ZipMetadata;
+      const folderMeta = JSON.parse(
+        strFromU8(zipContent[fTitle][META_JSON][0])
+      ) as ZipMetadata;
+      expect(notebookMeta.settings).toBeUndefined();
+      expect(folderMeta.settings).toEqual({
+        sort: { by: 'created', descending: false }
+      });
+      expect(folderMeta.files).toBeDefined();
+      expect(folderMeta.files![`${dTitle}.md`]).toBeDefined();
+      expect(folderMeta.files![`${dTitle}.md`].settings).toBeUndefined();
     });
   });
 });

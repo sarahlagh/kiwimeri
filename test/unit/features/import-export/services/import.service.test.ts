@@ -5,6 +5,7 @@ import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import navService from '@/db/nav.service';
 import notebooksService from '@/db/notebooks.service';
+import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
@@ -554,6 +555,50 @@ describe('import service', () => {
       'SimpleDoc.zip',
       'SpaceMix.zip'
     ]);
+
+    it('should import settings on folders / notebook by merging instead of replacing', async () => {
+      const fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+      collectionService.setItemSettings(fId, {
+        sort: { by: 'created', descending: false },
+        statsEnabled: true
+      });
+      const dId = collectionService.addDocument(fId);
+      collectionService.setItemTitle(dId, 'Simple');
+      docAnnotationsService.setNotesSortOnDocument(dId, {
+        by: 'order',
+        descending: false
+      });
+
+      // import
+      const zipParsedData = await readZip(
+        'zips_with_meta',
+        'SimpleSettings.zip'
+      );
+      const zipMerge = importService.mergeZipItems(
+        DEFAULT_NOTEBOOK_ID,
+        zipParsedData,
+        {
+          overwrite: true,
+          createNewFolder: true
+        }
+      );
+      expect(zipMerge?.duplicates.length).toBe(1);
+      expect(zipMerge?.updatedItems.length).toBe(2);
+      expect(zipMerge?.updatedItems[0].id).toBe(fId);
+      expect(zipMerge?.updatedItems[1].id).toBe(dId);
+      importService.commitMergeResult(zipMerge!);
+
+      // check settings
+      const fSettings = space.getCell('collection', fId, 'settings');
+      const dSettings = space.getCell('collection', dId, 'settings');
+      expect(fSettings).toEqual({
+        sort: { by: 'updated', descending: true },
+        statsEnabled: true
+      });
+      expect(dSettings).toEqual({
+        documentSort: { by: 'order', descending: false }
+      });
+    });
   });
 
   describe('import zip as space', () => {
@@ -719,6 +764,37 @@ describe('import service', () => {
       expect(() => validateMetadataFile(true)).toThrow();
       expect(() => validateMetadataFile([])).toThrow();
       expect(() => validateMetadataFile(null)).toThrow();
+    });
+
+    it('should not validate invalid files map', () => {
+      expect(() => validateMetadataFile({ files: null })).toThrow();
+      expect(() => validateMetadataFile({ files: 'test' })).toThrow();
+      expect(() => validateMetadataFile({ files: [] })).toThrow();
+      expect(() =>
+        validateMetadataFile({ files: { filename: 'invalid' } })
+      ).toThrow();
+      expect(() =>
+        validateMetadataFile({ files: { filename: null } })
+      ).toThrow();
+      expect(() => validateMetadataFile({ files: { filename: [] } })).toThrow();
+      expect(() =>
+        validateMetadataFile({
+          files: {
+            filename: {
+              type: 'invalid'
+            }
+          }
+        })
+      ).toThrow();
+      expect(() =>
+        validateMetadataFile({
+          files: {
+            filename: {
+              type: 'd'
+            }
+          }
+        })
+      ).not.toThrow();
     });
 
     it('should not validate invalid known fields', () => {

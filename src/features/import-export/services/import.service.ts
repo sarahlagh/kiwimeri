@@ -481,7 +481,11 @@ class ImportService {
         update.order_meta = newItem.order_meta;
       }
       if (newItem.settings) {
-        update.settings = newItem.settings;
+        if (!update.settings) {
+          update.settings = { sort: newItem.settings.sort };
+        } else {
+          update.settings.sort = newItem.settings.sort;
+        }
         update.settings_meta = newItem.settings_meta;
       }
     }

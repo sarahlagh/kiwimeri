@@ -47,7 +47,8 @@ function validateMetadataSettings(
 }
 
 export function validateMetadataFile(
-  value: unknown
+  value: unknown,
+  root = true
 ): asserts value is ZipMetadata {
   if (!isObject(value) || Array.isArray(value)) {
     throw new Error('parsing error: metadata must be an object');
@@ -73,10 +74,15 @@ export function validateMetadataFile(
   if ('order' in value && typeof value.order !== 'number') {
     throw new Error('parsing error: order is not a number');
   }
-  if ('settings' in value) {
+  if (root && 'settings' in value) {
     validateMetadataSettings(value.settings);
   }
-  if ('files' in value && !isObject(value.files)) {
-    throw new Error('parsing error: files must be an object');
+  if (root && 'files' in value) {
+    if (!isObject(value.files) || Array.isArray(value.files)) {
+      throw new Error('parsing error: files must be an object');
+    }
+    Object.keys(value.files).forEach(f => {
+      validateMetadataFile((value.files as never)[f], false);
+    });
   }
 }
