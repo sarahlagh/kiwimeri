@@ -480,7 +480,7 @@ class ImportService {
         update.order = newItem.order;
         update.order_meta = newItem.order_meta;
       }
-      if (newItem.settings) {
+      if (isParent(newItem.type) && newItem.settings?.sort) {
         if (!update.settings) {
           update.settings = { sort: newItem.settings.sort };
         } else {

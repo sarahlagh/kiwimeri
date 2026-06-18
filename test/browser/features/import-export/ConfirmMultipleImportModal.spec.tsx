@@ -531,11 +531,11 @@ describe('ConfirmMultipleImportModal', () => {
         },
         {
           first: 'Parsing Error',
-          last: 'SimpleNotebook2/Quote.md'
+          last: 'SimpleNotebook2/PinMeta/meta.json'
         },
         {
           first: 'Parsing Error',
-          last: 'SimpleNotebook2/PinMeta/meta.json'
+          last: 'SimpleNotebook2/Quote.md'
         }
       ];
       rows?.childNodes.forEach((node, idx) => {
@@ -610,11 +610,11 @@ describe('ConfirmMultipleImportModal', () => {
         },
         {
           first: 'Parsing Error',
-          last: 'SimpleNotebook2/Quote.md'
+          last: 'SimpleNotebook2/PinMeta/meta.json'
         },
         {
           first: 'Parsing Error',
-          last: 'SimpleNotebook2/PinMeta/meta.json'
+          last: 'SimpleNotebook2/Quote.md'
         }
       ];
 

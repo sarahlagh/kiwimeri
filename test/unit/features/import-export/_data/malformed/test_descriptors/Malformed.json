@@ -45,11 +45,11 @@
               "code": "incorrect_parent_type"
             },
             {
-              "path": "SimpleNotebook2/Quote.md",
+              "path": "SimpleNotebook2/PinMeta/meta.json",
               "family": "parse_error"
             },
             {
-              "path": "SimpleNotebook2/PinMeta/meta.json",
+              "path": "SimpleNotebook2/Quote.md",
               "family": "parse_error"
             }
           ],
@@ -86,11 +86,6 @@
           "options": [{}],
           "errors": [
             {
-              "path": "test/meta.json",
-              "family": "incorrect_meta",
-              "code": "incorrect_child_type"
-            },
-            {
               "path": "meta.json",
               "family": "incorrect_meta",
               "code": "incorrect_child_type"
@@ -109,11 +104,6 @@
           "description": "and default options",
           "options": [{}],
           "errors": [
-            {
-              "path": "test/meta.json",
-              "family": "incorrect_meta",
-              "code": "incorrect_child_type"
-            },
             {
               "path": "meta.json",
               "family": "incorrect_meta",
