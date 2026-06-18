@@ -204,11 +204,11 @@ msgid "Created at: {0}"
 msgstr "Created at: {0}"
 
 #: src/collection/components/SortFilter.tsx:47
-#: src/features/settings-ui/components/GenericCollectionSettings.tsx:40
+#: src/features/settings-ui/components/GenericCollectionSettings.tsx:35
 msgid "Creation Date"
 msgstr "Creation Date"
 
-#: src/features/settings-ui/components/CurrentNotebookSettings.tsx:27
+#: src/features/settings-ui/components/CurrentNotebookSettings.tsx:24
 msgid "Current Notebook Settings ({notebookTitle})"
 msgstr "Current Notebook Settings ({notebookTitle})"
 
@@ -250,7 +250,7 @@ msgstr "Device Token"
 msgid "Discard"
 msgstr "Discard"
 
-#: src/features/settings-ui/components/CurrentNotebookSettings.tsx:30
+#: src/features/settings-ui/components/CurrentNotebookSettings.tsx:27
 msgid "Display options for the currently selected notebook. They can still be overriden per folder."
 msgstr "Display options for the currently selected notebook. They can still be overriden per folder."
 
@@ -316,11 +316,11 @@ msgstr "Export Options"
 msgid "File not supported"
 msgstr "File not supported"
 
-#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:63
+#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:64
 msgid "History idle time (s)"
 msgstr "History idle time (s)"
 
-#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:69
+#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:70
 msgid "History save time (min)"
 msgstr "History save time (min)"
 
@@ -350,7 +350,7 @@ msgstr "Import & export your collection"
 msgid "Import file in folder {folderName}"
 msgstr "Import file in folder {folderName}"
 
-#: src/features/settings-ui/components/GenericCollectionSettings.tsx:47
+#: src/features/settings-ui/components/GenericCollectionSettings.tsx:42
 msgid "In descending order"
 msgstr "In descending order"
 
@@ -416,7 +416,7 @@ msgstr "Logs"
 msgid "Manual"
 msgstr "Manual"
 
-#: src/features/settings-ui/components/GenericCollectionSettings.tsx:42
+#: src/features/settings-ui/components/GenericCollectionSettings.tsx:37
 msgid "Manual Order"
 msgstr "Manual Order"
 
@@ -448,7 +448,7 @@ msgstr "merged"
 msgid "Metadata found in the archive"
 msgstr "Metadata found in the archive"
 
-#: src/features/settings-ui/components/GenericCollectionSettings.tsx:41
+#: src/features/settings-ui/components/GenericCollectionSettings.tsx:36
 msgid "Modified Date"
 msgstr "Modified Date"
 
@@ -501,7 +501,7 @@ msgstr "Notebook Selection"
 msgid "Notebooks found in the archive, they will be converted to folders"
 msgstr "Notebooks found in the archive, they will be converted to folders"
 
-#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:75
+#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:76
 msgid "Number of versions"
 msgstr "Number of versions"
 
@@ -509,7 +509,7 @@ msgstr "Number of versions"
 msgid "Options for the currently selected device. These options are local-only."
 msgstr "Options for the currently selected device. These options are local-only."
 
-#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:38
+#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:36
 msgid "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 msgstr "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 
@@ -611,7 +611,7 @@ msgstr "Sort"
 msgid "Sort direction"
 msgstr "Sort direction"
 
-#: src/features/settings-ui/components/GenericCollectionSettings.tsx:37
+#: src/features/settings-ui/components/GenericCollectionSettings.tsx:32
 msgid "Sort items by..."
 msgstr "Sort items by..."
 
@@ -619,7 +619,7 @@ msgstr "Sort items by..."
 msgid "sort notes"
 msgstr "sort notes"
 
-#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:35
+#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:33
 msgid "Space Settings"
 msgstr "Space Settings"
 
@@ -663,7 +663,7 @@ msgstr "Text..."
 msgid "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 msgstr "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 
-#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:76
+#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:77
 msgid "The number of versions to keep per document. Set 0 for unlimited."
 msgstr "The number of versions to keep per document. Set 0 for unlimited."
 
@@ -699,7 +699,7 @@ msgstr "Title"
 msgid "Toggle actions"
 msgstr "Toggle actions"
 
-#: src/features/settings-ui/components/GenericCollectionSettings.tsx:53
+#: src/features/settings-ui/components/GenericCollectionSettings.tsx:48
 msgid "Track text statistics"
 msgstr "Track text statistics"
 
@@ -725,11 +725,11 @@ msgstr "Username"
 msgid "When enabled, when you open the app you will be redirected to the last document you were working on instead of the root of the current space."
 msgstr "When enabled, when you open the app you will be redirected to the last document you were working on instead of the root of the current space."
 
-#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:70
+#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:71
 msgid "When working on a document, a new version will be automatically at least every XX minutes"
 msgstr "When working on a document, a new version will be automatically at least every XX minutes"
 
-#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:64
+#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:65
 msgid "When working on a document, a new version will be automatically if idle after XX seconds"
 msgstr "When working on a document, a new version will be automatically if idle after XX seconds"
 

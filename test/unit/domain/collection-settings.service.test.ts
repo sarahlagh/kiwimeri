@@ -1,9 +1,24 @@
+import { DEFAULT_NOTEBOOK_ID } from '@/constants';
+import { space } from '@/core/db/store';
+import { MetaField } from '@/core/db/types';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import { settingsService } from '@/domain/collection-settings/collection-settings.service';
+import useFolderEffectiveSort from '@/domain/collection-settings/hooks/useFolderEffectiveSort';
+import useNotebookDefaultSettings from '@/domain/collection-settings/hooks/useNotebookDefaultSettings';
+import useNotebookLastBrowserMode from '@/domain/collection-settings/hooks/useNotebookLastBrowserMode';
+import useSpaceDefaultSettings from '@/domain/collection-settings/hooks/useSpaceDefaultSettings';
+import { adv, fakeTimersDelay, wrappedRenderHook } from '@@/_setup/test.utils';
 import { describe, expect, it } from 'vitest';
 
 describe('settings service', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   // TODO actually merge into one method
   it.skip('should override space settings per folder', () => {
     const currentNotebook = notebooksService.getCurrentNotebook();
@@ -39,7 +54,7 @@ describe('settings service', () => {
     });
   });
 
-  it('should override space settings per notebook', () => {
+  it('should override space settings sort per notebook', () => {
     const currentNotebook = notebooksService.getCurrentNotebook();
     settingsService.setSpaceDefaultSort({
       by: 'updated',
@@ -58,7 +73,7 @@ describe('settings service', () => {
     });
   });
 
-  it('should use space settings as fallback', () => {
+  it('should use space settings sort as fallback', () => {
     const currentNotebook = notebooksService.getCurrentNotebook();
     settingsService.setSpaceDefaultSort({
       by: 'updated',
@@ -74,5 +89,350 @@ describe('settings service', () => {
       by: 'updated',
       descending: true
     });
+  });
+
+  it('should override space settings statsEnabled per notebook', () => {
+    settingsService.setSpaceDefaultStatsEnabled(true);
+    settingsService.setNotebookSettings(DEFAULT_NOTEBOOK_ID, {
+      statsEnabled: false
+    });
+
+    const defaultStatsEnabled =
+      settingsService.getNotebookDefaultStatsEnabled();
+    expect(defaultStatsEnabled).toEqual(false);
+  });
+
+  it('should use space settings statsEnabled as fallback 1', () => {
+    settingsService.setSpaceDefaultStatsEnabled(true);
+    settingsService.setNotebookDefaultSort(DEFAULT_NOTEBOOK_ID, {
+      // no stats enabled here
+      by: 'order',
+      descending: false
+    });
+
+    const defaultStatsEnabled =
+      settingsService.getNotebookDefaultStatsEnabled();
+    expect(defaultStatsEnabled).toEqual(true);
+  });
+
+  it('should use space settings statsEnabled as fallback 2', () => {
+    settingsService.setSpaceDefaultStatsEnabled(true);
+
+    const defaultStatsEnabled =
+      settingsService.getNotebookDefaultStatsEnabled();
+    expect(defaultStatsEnabled).toEqual(true);
+  });
+
+  it('should merge value when updating notebook settings', () => {
+    const now = Date.now();
+    adv(() =>
+      settingsService.setNotebookDefaultBrowserMode(DEFAULT_NOTEBOOK_ID, 0)
+    );
+    adv(() =>
+      settingsService.setNotebookDefaultSort(DEFAULT_NOTEBOOK_ID, {
+        by: 'created',
+        descending: false
+      })
+    );
+    const settings = space.getCell(
+      'collection',
+      DEFAULT_NOTEBOOK_ID,
+      'settings'
+    );
+    const settings_meta = space.getCell(
+      'collection',
+      DEFAULT_NOTEBOOK_ID,
+      'settings_meta'
+    ) as MetaField;
+    expect(settings).toEqual({
+      browserMode: 0,
+      sort: {
+        by: 'created',
+        descending: false
+      }
+    });
+    expect(settings_meta._u).toBe(now + 3 * fakeTimersDelay);
+  });
+
+  it('should merge value when updating folder settings', () => {
+    const fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+    space.setCell('collection', fId, 'settings', { test: true });
+
+    const now = Date.now();
+    adv(() =>
+      settingsService.setFolderSort(fId, {
+        by: 'created',
+        descending: false
+      })
+    );
+    const settings = space.getCell('collection', fId, 'settings');
+    const settings_meta = space.getCell(
+      'collection',
+      fId,
+      'settings_meta'
+    ) as MetaField;
+    expect(settings).toEqual({
+      test: true,
+      sort: {
+        by: 'created',
+        descending: false
+      }
+    });
+    expect(settings_meta._u).toBe(now + fakeTimersDelay);
+  });
+
+  it('should merge value when updating document settings', () => {
+    const dId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+    space.setCell('collection', dId, 'settings', { test: true });
+
+    const now = Date.now();
+    adv(() =>
+      settingsService.setDocumentSort(dId, {
+        by: 'createdAt',
+        descending: false
+      })
+    );
+    const settings = space.getCell('collection', dId, 'settings');
+    const settings_meta = space.getCell(
+      'collection',
+      dId,
+      'settings_meta'
+    ) as MetaField;
+    expect(settings).toEqual({
+      test: true,
+      documentSort: {
+        by: 'createdAt',
+        descending: false
+      }
+    });
+    expect(settings_meta._u).toBe(now + fakeTimersDelay);
+  });
+});
+
+describe('settings hooks', () => {
+  it('[useSpaceDefaultSettings] should return space defaults even when not set', () => {
+    {
+      const { result, unmount } = wrappedRenderHook(() =>
+        useSpaceDefaultSettings()
+      );
+      expect(result.current).toEqual({
+        sort: {
+          by: 'created',
+          descending: false
+        },
+        statsEnabled: false
+      });
+      unmount();
+    }
+  });
+
+  it('[useSpaceDefaultSettings] should return space defaults even when partially set', () => {
+    settingsService.setSpaceDefaultStatsEnabled(true);
+    {
+      const { result, unmount } = wrappedRenderHook(() =>
+        useSpaceDefaultSettings()
+      );
+      expect(result.current).toEqual({
+        sort: {
+          by: 'created',
+          descending: false
+        },
+        statsEnabled: true
+      });
+      unmount();
+    }
+  });
+
+  it('[useSpaceDefaultSettings] should return space defaults when set', () => {
+    settingsService.setSpaceDefaultStatsEnabled(true);
+    settingsService.setSpaceDefaultSort({ by: 'order', descending: true });
+    {
+      const { result, unmount } = wrappedRenderHook(() =>
+        useSpaceDefaultSettings()
+      );
+      expect(result.current).toEqual({
+        sort: {
+          by: 'order',
+          descending: false
+        },
+        statsEnabled: true
+      });
+      unmount();
+    }
+  });
+
+  it('[useNotebookDefaultSettings] should return space defaults when not set', () => {
+    {
+      const { result, unmount } = wrappedRenderHook(() =>
+        useNotebookDefaultSettings()
+      );
+      expect(result.current).toEqual({
+        sort: {
+          by: 'created',
+          descending: false
+        },
+        statsEnabled: false
+      });
+      unmount();
+    }
+  });
+
+  it('[useNotebookDefaultSettings] should return space defaults + own when partially set 1', () => {
+    settingsService.setNotebookDefaultBrowserMode(DEFAULT_NOTEBOOK_ID, 0);
+    {
+      const { result, unmount } = wrappedRenderHook(() =>
+        useNotebookDefaultSettings()
+      );
+      expect(result.current).toEqual({
+        sort: {
+          by: 'created',
+          descending: false
+        },
+        statsEnabled: false,
+        browserMode: 0
+      });
+      unmount();
+    }
+  });
+
+  it('[useNotebookDefaultSettings] should return space defaults + own when partially set 2', () => {
+    settingsService.setNotebookDefaultBrowserMode(DEFAULT_NOTEBOOK_ID, 0);
+    settingsService.setNotebookDefaultSort(DEFAULT_NOTEBOOK_ID, {
+      by: 'title',
+      descending: true
+    });
+    {
+      const { result, unmount } = wrappedRenderHook(() =>
+        useNotebookDefaultSettings()
+      );
+      expect(result.current).toEqual({
+        sort: {
+          by: 'title',
+          descending: true
+        },
+        statsEnabled: false,
+        browserMode: 0
+      });
+      unmount();
+    }
+  });
+
+  it('[useNotebookDefaultSettings] should return space defaults + own when partially set 3', () => {
+    settingsService.setNotebookSettings(DEFAULT_NOTEBOOK_ID, {
+      statsEnabled: true
+    });
+    {
+      const { result, unmount } = wrappedRenderHook(() =>
+        useNotebookDefaultSettings()
+      );
+      expect(result.current).toEqual({
+        sort: {
+          by: 'created',
+          descending: false
+        },
+        statsEnabled: true
+      });
+      unmount();
+    }
+  });
+
+  it('[useNotebookDefaultSettings] should return own when set', () => {
+    settingsService.setNotebookSettings(DEFAULT_NOTEBOOK_ID, {
+      statsEnabled: true,
+      sort: {
+        by: 'title',
+        descending: true
+      }
+    });
+    {
+      const { result, unmount } = wrappedRenderHook(() =>
+        useNotebookDefaultSettings()
+      );
+      expect(result.current).toEqual({
+        sort: {
+          by: 'title',
+          descending: true
+        },
+        statsEnabled: true
+      });
+      unmount();
+    }
+  });
+
+  it('[useNotebookLastBrowserMode] should return 0 when not set 1', () => {
+    settingsService.setNotebookSettings(DEFAULT_NOTEBOOK_ID, {
+      statsEnabled: true,
+      sort: {
+        by: 'title',
+        descending: true
+      }
+    });
+    {
+      const { result, unmount } = wrappedRenderHook(() =>
+        useNotebookLastBrowserMode()
+      );
+      expect(result.current).toEqual(0);
+      unmount();
+    }
+  });
+
+  it('[useNotebookLastBrowserMode] should return 0 when not set 2', () => {
+    {
+      const { result, unmount } = wrappedRenderHook(() =>
+        useNotebookLastBrowserMode()
+      );
+      expect(result.current).toEqual(0);
+      unmount();
+    }
+  });
+
+  it('[useNotebookLastBrowserMode] should return value when set', () => {
+    settingsService.setNotebookSettings(DEFAULT_NOTEBOOK_ID, {
+      statsEnabled: true,
+      sort: {
+        by: 'title',
+        descending: true
+      }
+    });
+    settingsService.setNotebookDefaultBrowserMode(DEFAULT_NOTEBOOK_ID, 2);
+    {
+      const { result, unmount } = wrappedRenderHook(() =>
+        useNotebookLastBrowserMode()
+      );
+      expect(result.current).toEqual(2);
+      unmount();
+    }
+  });
+
+  it('[useFolderEffectiveSort] should return notebook value when not set', () => {
+    const fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+    {
+      const { result, unmount } = wrappedRenderHook(() =>
+        useFolderEffectiveSort(fId)
+      );
+      expect(result.current).toEqual({
+        by: 'created',
+        descending: false
+      });
+      unmount();
+    }
+  });
+
+  it('[useFolderEffectiveSort] should return own value when set', () => {
+    const fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+    settingsService.setFolderSort(fId, {
+      by: 'title',
+      descending: true
+    });
+    {
+      const { result, unmount } = wrappedRenderHook(() =>
+        useFolderEffectiveSort(fId)
+      );
+      expect(result.current).toEqual({
+        by: 'title',
+        descending: true
+      });
+      unmount();
+    }
   });
 });
