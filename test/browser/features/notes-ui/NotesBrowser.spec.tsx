@@ -56,7 +56,7 @@ describe('NotesBrowser', () => {
     await expect.element(getAddBtn(screen)).toBeInTheDocument();
 
     expect(
-      resumeService.getResumeState(docId)?.lastSelectedNoteId
+      resumeService.getDocumentResumeState(docId)?.lastSelectedNoteId
     ).toBeDefined();
   });
 

@@ -57,7 +57,7 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
     const documentTitle = collectionService.getItemTitle(docId);
     const onTitleChange = onTitleChangeFn(docId);
 
-    const resumeState = resumeService.getResumeState(docId);
+    const resumeState = resumeService.getDocumentResumeState(docId);
 
     useEffect(() => {
       statsService.updateGlobalStats(docId, { lastOpenedAt: Date.now() });

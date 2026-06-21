@@ -6,9 +6,11 @@ export type DocumentResumeStateRow = {
   lastSelectedNoteId: Id | null;
 };
 
+export type CollectionResumeStateRow = DocumentResumeStateRow;
+
 export const resumeStateSchema = {
   lastSelection: { type: 'object' },
   lastSelectedNoteId: { type: 'string' }
-} as const satisfies Record<keyof DocumentResumeStateRow, unknown>;
+} as const satisfies Record<keyof CollectionResumeStateRow, unknown>;
 
 export type DocumentResumeState = DocumentResumeStateRow;

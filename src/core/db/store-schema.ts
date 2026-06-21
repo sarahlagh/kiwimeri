@@ -84,7 +84,7 @@ export enum SpaceTables {
   Collection = 'collection',
   History = 'history',
   HistoryContent = 'history_content',
-  ResumeState = 'document_resume_state',
+  ResumeState = 'collection_resume_state',
   Stats = 'stats',
   Annotations = 'document_annotation',
   UserPreference = 'user_preference'
@@ -123,7 +123,7 @@ export const spaceTablesSchema = {
     preview: { type: 'string' },
     hash: { type: 'number' }
   },
-  document_resume_state: resumeStateSchema,
+  collection_resume_state: resumeStateSchema,
   stats: {
     itemId: { type: 'string' },
     date: { type: 'string' },

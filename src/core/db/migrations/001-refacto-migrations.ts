@@ -19,6 +19,7 @@ export default function Migration(
   snapshotJsonBecomeObjectsAndUpdate(_space);
   contentStatsBecomeObjects(_space);
   someValuesGoToUserPrefs(_space);
+  documentResumeStateToCollectionResumeState(_space);
 }
 
 function metaFieldsBecomeObjects(space: NoSchemaStore) {
@@ -202,4 +203,18 @@ function someValuesGoToUserPrefs(space: NoSchemaStore) {
   valueToUserPref(space, 'historyMaxInterval', valuesLastUpdatedAt);
   valueToUserPref(space, 'maxHistoryPerDoc', valuesLastUpdatedAt);
   valueToUserPref(space, 'statsEnabled', valuesLastUpdatedAt);
+}
+
+function renameTable(space: NoSchemaStore, oldTable: string, newTable: string) {
+  if (!space.hasTable(oldTable)) {
+    return;
+  }
+  space.getRowIds(oldTable).forEach(rowId => {
+    const row = space.getRow(oldTable, rowId);
+    space.setRow(newTable, rowId, row);
+  });
+}
+
+function documentResumeStateToCollectionResumeState(space: NoSchemaStore) {
+  renameTable(space, 'document_resume_state', 'collection_resume_state');
 }

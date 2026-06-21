@@ -1,9 +1,10 @@
+import { SpaceTables } from '@/core/db/store-schema';
 import { useSpaceCell } from '@/core/db/tinybase-hooks';
 import { Id } from 'tinybase/with-schemas';
 
 const useSelectedNote = (docId: Id): string | undefined => {
-  return useSpaceCell<'document_resume_state', 'lastSelectedNoteId'>(
-    'document_resume_state',
+  return useSpaceCell<SpaceTables.ResumeState, 'lastSelectedNoteId'>(
+    SpaceTables.ResumeState,
     docId,
     'lastSelectedNoteId',
     'space'
