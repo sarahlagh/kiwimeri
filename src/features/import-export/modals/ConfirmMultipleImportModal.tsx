@@ -20,6 +20,8 @@ import {
   IonToggle,
   IonToolbar
 } from '@ionic/react';
+import { i18n } from '@lingui/core';
+import { msg } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import React, { useEffect, useState } from 'react';
 import {
@@ -33,9 +35,18 @@ export const ARIA_DESCRIPTIONS_PER_TYPE = new Map<
   CollectionItemTypeValues,
   string
 >();
-ARIA_DESCRIPTIONS_PER_TYPE.set(CollectionItemType.document, 'a document');
-ARIA_DESCRIPTIONS_PER_TYPE.set(CollectionItemType.folder, 'a folder');
-ARIA_DESCRIPTIONS_PER_TYPE.set(CollectionItemType.notebook, 'a notebook');
+ARIA_DESCRIPTIONS_PER_TYPE.set(
+  CollectionItemType.document,
+  i18n._(msg`a document`)
+);
+ARIA_DESCRIPTIONS_PER_TYPE.set(
+  CollectionItemType.folder,
+  i18n._(msg`a folder`)
+);
+ARIA_DESCRIPTIONS_PER_TYPE.set(
+  CollectionItemType.notebook,
+  i18n._(msg`a notebook`)
+);
 
 type ConfirmMultipleImportModalProps = {
   params: MultipleImportModalParams;
