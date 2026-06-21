@@ -86,3 +86,13 @@ class AnnotsConflictPolicy extends ConflictPolicy<SyncableAnnotation> {
   }
 }
 export const annotsConflictPolicy = new AnnotsConflictPolicy();
+
+class NoConflictPolicy extends ConflictPolicy<never> {
+  public shouldCreateConflict(): boolean {
+    return false;
+  }
+  public newConflict() {
+    return {} as never;
+  }
+}
+export const noConflictPolicy = new NoConflictPolicy();

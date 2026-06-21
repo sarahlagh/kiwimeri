@@ -47,6 +47,15 @@ import {
   LocalChangeType
 } from '@/domain/local-changes/model';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
+import {
+  MinimizedUserPref,
+  minimizePrefsForStorage,
+  unminimizePrefsFromStorage
+} from '@/domain/user-preferences/compress-user-prefs';
+import {
+  SyncableUserPref,
+  UserPreferenceRow
+} from '@/domain/user-preferences/model';
 import { Table as UntypedTable } from 'tinybase';
 import { Content, Table } from 'tinybase/store/with-schemas';
 import { CloudStorageDriver } from '../storage-drivers/abstract.driver';
@@ -55,15 +64,18 @@ import { AfterSyncChange } from '../sync-types';
 import { CloudStorageSynchronizer } from './abstract-synchronizer';
 import {
   annotsConflictPolicy,
-  collectionConflictPolicy
+  collectionConflictPolicy,
+  noConflictPolicy
 } from './merge-helpers/conflict-policies';
 import {
   applyLocalChangesToPull,
-  applyLocalChangesToPush
+  applyLocalChangesToPush,
+  chainMerge
 } from './merge-helpers/merge-helpers';
 import {
   annotsOrphanPolicy,
-  collectionOrphanPolicy
+  collectionOrphanPolicy,
+  noOrphanPolicy
 } from './merge-helpers/orphan-policies';
 
 export type MinimizedCollectionItem = {
@@ -73,6 +85,7 @@ export type MinimizedCollectionItem = {
 export type RemoteCollectionFileContent = {
   i: MinimizedCollectionItem[]; // the items
   a?: MinimizedDocAnnotation[]; // the document annotations
+  o?: MinimizedUserPref[]; // the user preferences / options
   u: number; // last content change
   _v?: number; // the schema version (!= app version)
 };
@@ -80,6 +93,7 @@ export type RemoteCollectionFileContent = {
 type RemoteContentRepresentation = {
   items: CollectionItemWithId[];
   docAnnotations: SyncableAnnotation[];
+  userPrefs: SyncableUserPref[];
   lastRemoteChange: number;
   schemaVersion: number;
 };
@@ -233,6 +247,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     space.transaction(() => {
       this.setTable(SpaceTables.Collection, content[0].collection);
       this.setTable(SpaceTables.Annotations, content[0].document_annotation);
+      this.setTable(SpaceTables.UserPreference, content[0].user_preference);
     });
     startLocalChangesListeners();
   }
@@ -294,19 +309,25 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       remoteContent.docAnnotations as TypeWithId[]
     );
 
+    // merge user prefs
+    applyLocalChangesToPush(
+      localContent,
+      SpaceTables.UserPreference,
+      localChanges,
+      remoteContent.userPrefs as TypeWithId[]
+    );
+
     let data: RemoteCollectionFileContent;
     if (localChanges.length > 0 || force) {
       data = this.toFileContent(
-        remoteContent.items,
-        remoteContent.docAnnotations,
+        remoteContent,
         REMOTE_COLLECTION_SCHEMA_VERSION,
         lastLocalChange
       );
     } else {
       const localContentRep = this.toRepresentationFromLocal(localContent);
       data = this.toFileContent(
-        localContentRep.items,
-        localContentRep.docAnnotations,
+        localContentRep,
         localContentRep.schemaVersion,
         lastLocalChange
       );
@@ -351,43 +372,42 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   } {
     const remoteContent = this.toRepresentation(obj);
 
-    // merge collection
-    const {
-      newLocalContent: afterCollectionMergeContent,
-      discardedChanges: afterCollectionMergeDiscardedChanges
-    } = applyLocalChangesToPull(
-      SpaceTables.Collection,
-      localContent,
-      remoteContent.items,
-      remoteContent.lastRemoteChange,
-      localChanges,
-      collectionConflictPolicy,
-      collectionOrphanPolicy,
-      force
-    );
-
-    // merge annotations
-    const {
-      newLocalContent,
-      discardedChanges: afterAnnotMergeDiscardedChanges
-    } = applyLocalChangesToPull(
-      SpaceTables.Annotations,
-      afterCollectionMergeContent,
-      remoteContent.docAnnotations,
-      remoteContent.lastRemoteChange,
-      localChanges,
-      annotsConflictPolicy,
-      annotsOrphanPolicy,
-      force,
-      true
-    );
-
-    // TODO merge user preferences
-
-    const discardedChanges = [
-      ...afterCollectionMergeDiscardedChanges,
-      ...afterAnnotMergeDiscardedChanges
-    ];
+    const { newLocalContent, discardedChanges } = chainMerge(localContent, [
+      res =>
+        applyLocalChangesToPull(
+          SpaceTables.Collection,
+          res.newLocalContent,
+          remoteContent.items,
+          remoteContent.lastRemoteChange,
+          localChanges,
+          collectionConflictPolicy,
+          collectionOrphanPolicy,
+          force
+        ),
+      res =>
+        applyLocalChangesToPull(
+          SpaceTables.Annotations,
+          res.newLocalContent,
+          remoteContent.docAnnotations,
+          remoteContent.lastRemoteChange,
+          localChanges,
+          annotsConflictPolicy,
+          annotsOrphanPolicy,
+          force,
+          true
+        ),
+      res =>
+        applyLocalChangesToPull(
+          SpaceTables.UserPreference,
+          res.newLocalContent,
+          remoteContent.userPrefs as never[],
+          remoteContent.lastRemoteChange,
+          localChanges,
+          noConflictPolicy,
+          noOrphanPolicy,
+          force
+        )
+    ]);
 
     // check cell changes
     const changes = this.afterSyncHistChanges(
@@ -503,15 +523,20 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     const annotation = this.toMap<WithId<DocAnnotationRow>>(
       localContent[0].document_annotation
     );
+    const userPreference = this.toMap<WithId<UserPreferenceRow>>(
+      localContent[0].user_preference
+    );
     const items = [...collection.values()].filter(v => !v.conflict);
-    const annots = [...annotation.values()];
+    const docAnnotations = [...annotation.values()];
+    const userPrefs = [...userPreference.values()];
     const lastRemoteChange = Math.max(
       ...items.map(i => i.updated),
-      ...annots.map(i => i.updatedAt)
+      ...docAnnotations.map(i => i.updatedAt)
     );
     return {
       items,
-      docAnnotations: annots,
+      docAnnotations,
+      userPrefs,
       lastRemoteChange: lastRemoteChange,
       schemaVersion: REMOTE_COLLECTION_SCHEMA_VERSION
     };
@@ -525,22 +550,23 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     return {
       items: unminimizeItemsFromStorage(obj.i),
       docAnnotations: unminimizeAnnotFromStorage(obj.a || []),
+      userPrefs: unminimizePrefsFromStorage(obj.o || []),
       lastRemoteChange: obj.u,
       schemaVersion: obj._v || 0
     };
   }
 
   private toFileContent(
-    items: CollectionItemWithId[],
-    annots: SyncableAnnotation[],
+    remoteContent: RemoteContentRepresentation,
     schemaVersion: number,
     updated: number
   ): RemoteCollectionFileContent {
     return {
       i: minimizeItemsForStorage(
-        items.map(item => ({ ...item }))
+        remoteContent.items.map(item => ({ ...item }))
       ) as MinimizedCollectionItem[],
-      a: minimizeAnnotForStorage(annots),
+      a: minimizeAnnotForStorage(remoteContent.docAnnotations),
+      o: minimizePrefsForStorage(remoteContent.userPrefs),
       u: updated,
       _v: schemaVersion
     };

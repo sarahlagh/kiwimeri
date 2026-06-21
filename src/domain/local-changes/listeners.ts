@@ -3,6 +3,7 @@ import { space } from '@/core/db/store';
 import { SpaceCellId, SpaceTableId, SpaceTables } from '@/core/db/store-schema';
 import { Id } from 'tinybase/with-schemas';
 import { DocAnnotationUpdatableFields } from '../document-annotations/model';
+import { UserPrefUpdatableFields } from '../user-preferences/model';
 import localChangesService from './local-changes.service';
 import { LocalChangeType } from './model';
 
@@ -93,6 +94,7 @@ function watchTable<T extends SpaceTableId>(
 export function startLocalChangesListeners() {
   watchTable(SpaceTables.Collection, CollectionItemUpdatableFields);
   watchTable(SpaceTables.Annotations, DocAnnotationUpdatableFields);
+  watchTable(SpaceTables.UserPreference, UserPrefUpdatableFields);
 }
 
 export function stopLocalChangesListeners() {

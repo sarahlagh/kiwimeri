@@ -1,7 +1,11 @@
-import { APPICONS_PER_TYPE, CollectionItemType } from '@/collection/collection';
+import {
+  APPICONS_PER_TYPE,
+  CollectionItemType,
+  CollectionItemTypeValues
+} from '@/collection/collection';
 import DeleteButton from '@/common/buttons/DeleteButton';
 import { dateToStr } from '@/common/date-utils';
-import { GET_UNKNOWN_ITEM_ROUTE } from '@/common/routes';
+import { GET_UNKNOWN_ITEM_ROUTE, SETTINGS_ROUTE } from '@/common/routes';
 import platformService from '@/common/services/platform.service';
 import { APPICONS } from '@/constants';
 import { useQueryResults } from '@/core/db/queries-helper';
@@ -102,10 +106,11 @@ const LocalChangesCard = () => {
             <IonList style={{ maxHeight: '400px', overflowY: 'auto' }}>
               {localChanges.map(lc => {
                 let preview = '';
-                let type;
+                let type: CollectionItemTypeValues =
+                  CollectionItemType.document;
                 let route;
                 let itemExists = true;
-                if (lc.on === 'collection') {
+                if (lc.on === SpaceTables.Collection) {
                   type = collectionService.getItemType(lc.itemId);
                   route = GET_UNKNOWN_ITEM_ROUTE(lc.itemId, type);
                   itemExists = collectionService.itemExists(lc.itemId);
@@ -114,7 +119,7 @@ const LocalChangesCard = () => {
                         .getItemPreview(lc.itemId)
                         .substring(0, 200)
                     : '';
-                } else {
+                } else if (lc.on === SpaceTables.Annotations) {
                   const document = docAnnotationsService.getAnnotInfo(
                     lc.itemId
                   ).itemId;
@@ -127,6 +132,8 @@ const LocalChangesCard = () => {
                   preview = itemExists
                     ? docAnnotationsService.getPreview(lc.itemId)
                     : '';
+                } else {
+                  route = SETTINGS_ROUTE;
                 }
                 return (
                   <IonItem
@@ -181,6 +188,20 @@ const LocalChangesCard = () => {
                           ) : (
                             <i>{preview.substring(0, 15)}</i>
                           )}
+                        </IonText>
+                      </>
+                    )}
+
+                    {itemExists && lc.on === SpaceTables.UserPreference && (
+                      <>
+                        <IonIcon
+                          slot="start"
+                          icon={APPICONS.settingsPage}
+                        ></IonIcon>
+                        <IonText>
+                          <i>
+                            <Trans>Space setting modified:</Trans> {lc.itemId}
+                          </i>
                         </IonText>
                       </>
                     )}

@@ -13,6 +13,11 @@ import {
 } from '@/domain/document-annotations/compress-annotations';
 import { SyncableAnnotation } from '@/domain/document-annotations/model';
 import {
+  minimizePrefsForStorage,
+  unminimizePrefsFromStorage
+} from '@/domain/user-preferences/compress-user-prefs';
+import { SyncableUserPref } from '@/domain/user-preferences/model';
+import {
   CloudStorageDriver,
   FileReference
 } from '@/remote-storage/storage-drivers/abstract.driver';
@@ -181,6 +186,19 @@ export class InMemDriver extends CloudStorageDriver {
     } as RemoteCollectionFileContent);
   }
 
+  public setCollectionContentWithPrefs(
+    items: CollectionItem[],
+    prefs: SyncableUserPref[],
+    updated: number
+  ) {
+    return this.setContent({
+      i: minimizeItemsForStorage(items),
+      o: minimizePrefsForStorage(prefs),
+      u: updated,
+      _v: REMOTE_COLLECTION_SCHEMA_VERSION
+    } as RemoteCollectionFileContent);
+  }
+
   public setCollectionContent(items: CollectionItem[], updated: number) {
     return this.setContent({
       i: minimizeItemsForStorage(items),
@@ -201,11 +219,13 @@ export class InMemDriver extends CloudStorageDriver {
     const unminimizedObj = {
       ...obj,
       i: unminimizeItemsFromStorage(obj.i),
-      a: unminimizeAnnotFromStorage(obj.a || [])
+      a: unminimizeAnnotFromStorage(obj.a || []),
+      o: unminimizePrefsFromStorage(obj.o || [])
     };
     return {
       content: unminimizedObj.i,
       annots: unminimizedObj.a,
+      prefs: unminimizedObj.o,
       _schemaVersion: obj._v
     };
   }

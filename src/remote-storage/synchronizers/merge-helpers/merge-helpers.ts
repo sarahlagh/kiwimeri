@@ -108,6 +108,10 @@ function checkOrphans<R>(
   }
 }
 
+type ApplyLCResult = {
+  newLocalContent: Content<SpaceType>;
+  discardedChanges: LocalChangeResult[];
+};
 export function applyLocalChangesToPull<
   RootTableId extends SpaceTableId,
   L extends Row<SpaceType[0], RootTableId>,
@@ -122,7 +126,7 @@ export function applyLocalChangesToPull<
   orphanPolicy: OrphanPolicy<L>,
   force?: boolean,
   mergeLocalRemoteAsBase = false
-) {
+): ApplyLCResult {
   const dataTable = (localContent[0][tableId] || {}) as {
     [key: string]: L;
   };
@@ -210,4 +214,25 @@ export function applyLocalChangesToPull<
   }
 
   return { newLocalContent, discardedChanges };
+}
+
+type Chainable = (result: ApplyLCResult) => ApplyLCResult;
+
+export function chainMerge(
+  initialContent: Content<SpaceType>,
+  chain: Chainable[]
+) {
+  const result: ApplyLCResult = {
+    newLocalContent: initialContent,
+    discardedChanges: []
+  };
+  for (const callable of chain) {
+    const newResult = callable(result);
+    result.discardedChanges = [
+      ...result.discardedChanges,
+      ...newResult.discardedChanges
+    ];
+    result.newLocalContent = newResult.newLocalContent;
+  }
+  return result;
 }

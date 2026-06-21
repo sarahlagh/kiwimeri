@@ -1,5 +1,3 @@
-export const USER_PREFERENCE_TABLE = 'user_preference' as const;
-
 export type UserPreference =
   | 'defaultSortBy'
   | 'defaultSortDesc'
@@ -36,3 +34,10 @@ export type UserPref<
   : PType extends 'boolean'
     ? boolean
     : string;
+
+export type SyncableUserPref = {
+  id: string;
+} & UserPreferenceRow;
+
+export type UserPrefUpdatableFieldEnum = keyof Pick<UserPreferenceRow, 'value'>;
+export const UserPrefUpdatableFields: UserPrefUpdatableFieldEnum[] = ['value'];

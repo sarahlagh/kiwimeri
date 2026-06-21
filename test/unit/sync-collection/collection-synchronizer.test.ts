@@ -11,6 +11,7 @@ import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
+import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import useItemsConflictMixIn from '@/features/collection-ui/hooks/useItemsConflictMixIn';
 import { syncService } from '@/remote-storage/sync.service';
 import {
@@ -698,6 +699,119 @@ describe('collection synchronizer', () => {
       expect(
         space.getCell(SpaceTables.Annotations, notes[1].id, 'plainText')
       ).toBe('other test');
+    });
+  });
+
+  describe('should merge user preferences', () => {
+    it('should not push default user prefs', async () => {
+      await synchronizer.sync();
+      {
+        const { prefs } = driver.getParsedCollectionContent();
+        expect(prefs).toHaveLength(0);
+      }
+    });
+
+    it('should push changed user prefs', async () => {
+      userPrefs.set('defaultSortBy', 'manual');
+      await synchronizer.sync();
+      {
+        const { prefs } = driver.getParsedCollectionContent();
+        expect(prefs).toHaveLength(1);
+        expect(prefs[0]).toEqual({
+          id: 'defaultSortBy',
+          value: { _v: 'manual' },
+          updatedAt: Date.now()
+        });
+      }
+    });
+
+    it('should pull other changed user prefs', async () => {
+      const before = Date.now();
+      userPrefs.set('defaultSortBy', 'manual');
+      vi.advanceTimersByTime(100);
+      const items = [oneNotebook(), oneDocument()];
+      const remotePrefs = [
+        { id: 'maxHistoryPerDoc', value: { _v: 127 }, updatedAt: Date.now() }
+      ];
+      await driver.setCollectionContentWithPrefs(
+        items,
+        remotePrefs,
+        remotePrefs[0].updatedAt
+      );
+      vi.advanceTimersByTime(100);
+      await synchronizer.sync();
+
+      const { prefs } = driver.getParsedCollectionContent();
+      expect(prefs).toHaveLength(2);
+      expect(prefs[0]).toEqual({
+        id: 'defaultSortBy',
+        value: { _v: 'manual' },
+        updatedAt: before
+      });
+      expect(prefs[1]).toEqual({
+        id: 'maxHistoryPerDoc',
+        value: { _v: 127 },
+        updatedAt: remotePrefs[0].updatedAt
+      });
+
+      expect(userPrefs.get('defaultSortBy')).toBe('manual');
+      expect(userPrefs.get('maxHistoryPerDoc')).toBe(127);
+    });
+
+    it('should merge changed user prefs (local wins)', async () => {
+      const before = Date.now();
+      userPrefs.set('defaultSortBy', 'manual');
+      vi.advanceTimersByTime(100);
+      const items = [oneNotebook(), oneDocument()];
+      const remotePrefs = [
+        { id: 'defaultSortBy', value: { _v: 'order' }, updatedAt: Date.now() }
+      ];
+      await driver.setCollectionContentWithPrefs(
+        items,
+        remotePrefs,
+        remotePrefs[0].updatedAt
+      );
+      vi.advanceTimersByTime(100);
+      await synchronizer.sync();
+
+      const { prefs } = driver.getParsedCollectionContent();
+      expect(prefs).toHaveLength(1);
+      expect(prefs[0]).toEqual({
+        id: 'defaultSortBy',
+        value: { _v: 'manual' },
+        updatedAt: before
+      });
+
+      expect(userPrefs.get('defaultSortBy')).toBe('manual');
+    });
+
+    it('should merge changed user prefs (local wins 2)', async () => {
+      const items = [oneNotebook(), oneDocument()];
+      const remotePrefs = [
+        { id: 'defaultSortBy', value: { _v: 'order' }, updatedAt: Date.now() }
+      ];
+      await driver.setCollectionContentWithPrefs(
+        items,
+        remotePrefs,
+        remotePrefs[0].updatedAt
+      );
+      vi.advanceTimersByTime(100);
+
+      const local = Date.now();
+      userPrefs.set('defaultSortBy', 'manual');
+      vi.advanceTimersByTime(100);
+
+      await synchronizer.sync();
+
+      const { prefs } = driver.getParsedCollectionContent();
+      expect(prefs).toHaveLength(1);
+      expect(prefs[0]).toEqual({
+        id: 'defaultSortBy',
+        value: { _v: 'manual' },
+        updatedAt: local
+      });
+
+      expect(userPrefs.get('defaultSortBy')).toBe('manual');
     });
   });
 

@@ -4,6 +4,8 @@ import notebooksService from '@/db/notebooks.service';
 import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeResult } from '@/domain/local-changes/model';
+import { userPreferenceDefaults } from '@/domain/user-preferences/model';
+import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import LocalChangesCard, {
   onRouteEnter,
   onRouteLeave
@@ -246,6 +248,23 @@ describe('LocalChangesCard', () => {
     await expectChangeInList(screen, localChanges);
     expect(getListItem(screen, localChanges[0].id)).toHaveTextContent(
       'deleted item'
+    );
+  });
+
+  test('renders a card with "update user pref" local changes', async () => {
+    userPrefs.set(
+      'statsEnabled',
+      !userPreferenceDefaults['statsEnabled'].default
+    );
+    const localChanges = localChangesService.getLocalChanges();
+    expect(localChanges).toHaveLength(1);
+
+    const screen = await render(<LocalChangesCard />, {
+      wrapper: TestingProvider
+    });
+    await expectChangeInList(screen, localChanges);
+    expect(getListItem(screen, localChanges[0].id)).toHaveTextContent(
+      'Space setting modified: statsEnabled'
     );
   });
 });

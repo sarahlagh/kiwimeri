@@ -80,3 +80,17 @@ class AnnotsOrphanPolicy extends OrphanPolicy<SyncableAnnotation> {
   }
 }
 export const annotsOrphanPolicy = new AnnotsOrphanPolicy();
+
+class NoOrphanPolicy extends OrphanPolicy<never> {
+  constructor() {
+    super(SpaceTables.Collection); // table doesn't matter
+  }
+  public isOrphan(): boolean {
+    return false;
+  }
+
+  public handleOrphan(): void {
+    /* */
+  }
+}
+export const noOrphanPolicy = new NoOrphanPolicy();

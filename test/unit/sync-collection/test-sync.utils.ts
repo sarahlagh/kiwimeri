@@ -4,6 +4,10 @@ import { SpaceValues } from '@/core/db/store-schema';
 import { historyService } from '@/db/collection-history.service';
 import remotesService from '@/db/remotes.service';
 import { SyncableAnnotation } from '@/domain/document-annotations/model';
+import {
+  startLocalChangesListeners,
+  stopLocalChangesListeners
+} from '@/domain/local-changes/listeners';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import { SyncDirection, syncService } from '@/remote-storage/sync.service';
 import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';
@@ -21,6 +25,7 @@ export const defaultValues: SpaceValues = {
 };
 
 export const testSyncBeforeEach = async () => {
+  stopLocalChangesListeners();
   remotesService.addRemote('test', 0, 'inmem', { names: ['collection.json'] });
   await remotesService.configureRemotes(DEFAULT_SPACE_ID, true);
   const compositeSynchronizer = remotesService['synchronizers'].values().next()
@@ -33,6 +38,7 @@ export const testSyncBeforeEach = async () => {
   searchAncestryService.start(DEFAULT_SPACE_ID);
   historyService['enabled'] = true;
   userPrefs.set('historyIdleTime', 0);
+  startLocalChangesListeners();
 };
 
 export const testSyncAfterEach = () => {
