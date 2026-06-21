@@ -1,31 +1,37 @@
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-schema';
-import { UserPref, UserPreference, userPreferenceDefaults } from './model';
+import {
+  UserPreferenceKey,
+  UserPreferenceValue,
+  userPreferenceDefinitions
+} from './model';
 
 const UP = SpaceTables.UserPreference;
 
 class UserPreferenceService {
-  public get<P extends UserPreference>(pref: UserPreference): UserPref<P> {
+  public get<P extends UserPreferenceKey>(
+    pref: UserPreferenceKey
+  ): UserPreferenceValue<P> {
     const value = space.getCell(UP, pref, 'value');
     if (value === undefined) {
-      return userPreferenceDefaults[pref].default as UserPref<P>;
+      return userPreferenceDefinitions[pref].default as UserPreferenceValue<P>;
     }
-    return value._v as UserPref<P>;
+    return value._v as UserPreferenceValue<P>;
   }
 
-  public getDefault<P extends UserPreference>(
-    pref: UserPreference
-  ): UserPref<P> {
-    return userPreferenceDefaults[pref].default as UserPref<P>;
+  public getDefault<P extends UserPreferenceKey>(
+    pref: UserPreferenceKey
+  ): UserPreferenceValue<P> {
+    return userPreferenceDefinitions[pref].default as UserPreferenceValue<P>;
   }
 
-  public set<P extends UserPreference>(
-    pref: UserPreference,
-    value: UserPref<P> | null
+  public set<P extends UserPreferenceKey>(
+    pref: UserPreferenceKey,
+    value: UserPreferenceValue<P> | null
   ) {
     let finalValue;
     if (value === null) {
-      finalValue = userPreferenceDefaults[pref].default;
+      finalValue = userPreferenceDefinitions[pref].default;
     } else {
       finalValue = value;
     }

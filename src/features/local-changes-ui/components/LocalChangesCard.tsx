@@ -15,6 +15,10 @@ import collectionService from '@/db/collection.service';
 import remotesService from '@/db/remotes.service';
 import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
+import {
+  UserPreferenceKey,
+  userPreferenceDefinitions
+} from '@/domain/user-preferences/model';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import {
   IonCard,
@@ -48,7 +52,7 @@ export function onRouteLeave() {
 }
 
 const LocalChangesCard = () => {
-  const { t } = useLingui();
+  const { t, i18n } = useLingui();
   const isRelease = plt.isRelease();
   const isWideEnough = platformService.isWideEnough();
   const localChanges = useQueryResults(fetchLocalChangesQuery);
@@ -200,7 +204,12 @@ const LocalChangesCard = () => {
                         ></IonIcon>
                         <IonText>
                           <i>
-                            <Trans>Space setting modified:</Trans> {lc.itemId}
+                            <Trans>Space setting modified:</Trans>{' '}
+                            {i18n._(
+                              userPreferenceDefinitions[
+                                lc.itemId as UserPreferenceKey
+                              ].label
+                            )}
                           </i>
                         </IonText>
                       </>

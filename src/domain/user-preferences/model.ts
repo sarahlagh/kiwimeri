@@ -1,4 +1,6 @@
-export type UserPreference =
+import { msg } from '@lingui/core/macro';
+
+export type UserPreferenceKey =
   | 'defaultSortBy'
   | 'defaultSortDesc'
   | 'historyIdleTime'
@@ -6,15 +8,39 @@ export type UserPreference =
   | 'maxHistoryPerDoc'
   | 'statsEnabled';
 
-export const userPreferenceDefaults = {
-  defaultSortBy: { type: 'string', default: 'created' },
-  defaultSortDesc: { type: 'boolean', default: false },
-  historyIdleTime: { type: 'number', default: 15000 },
-  historyMaxInterval: { type: 'number', default: 300000 },
-  maxHistoryPerDoc: { type: 'number', default: 50 },
-  statsEnabled: { type: 'boolean', default: false }
-} as const satisfies Record<UserPreference, unknown>;
-type UserPreferenceDefaults = typeof userPreferenceDefaults;
+export const userPreferenceDefinitions = {
+  defaultSortBy: {
+    type: 'string',
+    default: 'created',
+    label: msg`Default sort field`
+  },
+  defaultSortDesc: {
+    type: 'boolean',
+    default: false,
+    label: msg`Sort descending by default`
+  },
+  historyIdleTime: {
+    type: 'number',
+    default: 15000,
+    label: msg`History idle time (s)`
+  },
+  historyMaxInterval: {
+    type: 'number',
+    default: 300000,
+    label: msg`History save time (min)`
+  },
+  maxHistoryPerDoc: {
+    type: 'number',
+    default: 50,
+    label: msg`Number of versions`
+  },
+  statsEnabled: {
+    type: 'boolean',
+    default: false,
+    label: msg`Track text statistics`
+  }
+} as const satisfies Record<UserPreferenceKey, unknown>;
+type UserPreferenceDefinitions = typeof userPreferenceDefinitions;
 
 export type UserPreferenceRow = {
   value: { _v: string | number | boolean };
@@ -26,9 +52,9 @@ export const userPreferenceSchema = {
   updatedAt: { type: 'number' }
 } as const satisfies Record<keyof UserPreferenceRow, unknown>;
 
-export type UserPref<
-  P extends UserPreference,
-  PType = UserPreferenceDefaults[P]['type']
+export type UserPreferenceValue<
+  P extends UserPreferenceKey,
+  PType = UserPreferenceDefinitions[P]['type']
 > = PType extends 'number'
   ? number
   : PType extends 'boolean'

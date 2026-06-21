@@ -6,6 +6,7 @@ import {
   CollectionItemSortType,
   SpaceSettings
 } from '@/domain/collection-settings/model';
+import { userPreferenceDefinitions } from '@/domain/user-preferences/model';
 import { useLingui } from '@lingui/react/macro';
 
 type GenericCollectionSettingsProps = {
@@ -23,7 +24,7 @@ const GenericCollectionSettings = ({
   withInitialState = {},
   withOnChange
 }: GenericCollectionSettingsProps) => {
-  const { t } = useLingui();
+  const { t, i18n } = useLingui();
   return (
     <EditConfigList
       rows={[
@@ -45,7 +46,7 @@ const GenericCollectionSettings = ({
         },
         {
           key: 'stats_enabled',
-          label: t`Track text statistics`,
+          label: i18n._(userPreferenceDefinitions['statsEnabled'].label),
           type: 'boolean'
         },
         ...withRows

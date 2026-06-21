@@ -3,6 +3,7 @@ import { settingsService } from '@/domain/collection-settings/collection-setting
 import useSpaceDefaultSettings from '@/domain/collection-settings/hooks/useSpaceDefaultSettings';
 import { statsService } from '@/domain/stats/stats-service';
 import usePrefState from '@/domain/user-preferences/hooks/usePrefState';
+import { userPreferenceDefinitions } from '@/domain/user-preferences/model';
 import {
   IonCard,
   IonCardContent,
@@ -15,7 +16,7 @@ import GenericCollectionSettings from './GenericCollectionSettings';
 
 const CurrentSpaceSettings = () => {
   const _defaultSettings = useSpaceDefaultSettings();
-  const { t } = useLingui();
+  const { t, i18n } = useLingui();
 
   const [maxHistoryPerDoc, setMaxHistoryPerDoc] =
     usePrefState<'maxHistoryPerDoc'>('maxHistoryPerDoc');
@@ -61,19 +62,23 @@ const CurrentSpaceSettings = () => {
           withRows={[
             {
               key: 'historyIdleTime',
-              label: t`History idle time (s)`,
+              label: i18n._(userPreferenceDefinitions['historyIdleTime'].label),
               description: t`When working on a document, a new version will be automatically if idle after XX seconds`,
               type: 'number'
             },
             {
               key: 'historyMaxInterval',
-              label: t`History save time (min)`,
+              label: i18n._(
+                userPreferenceDefinitions['historyMaxInterval'].label
+              ),
               description: t`When working on a document, a new version will be automatically at least every XX minutes`,
               type: 'number'
             },
             {
               key: 'maxHistoryPerDoc',
-              label: t`Number of versions`,
+              label: i18n._(
+                userPreferenceDefinitions['maxHistoryPerDoc'].label
+              ),
               description: t`The number of versions to keep per document. Set 0 for unlimited.`,
               type: 'number'
             }
