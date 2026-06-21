@@ -18,7 +18,7 @@ const C = SpaceTables.Collection;
 class CollectionSettingsService {
   public getSpaceDefaultSort(): Required<NotebookSettings>['sort'] {
     const by = userPrefs.get('defaultSortBy') as CollectionItemSortType;
-    const descending = userPrefs.get<'defaultSortDesc'>('defaultSortDesc');
+    const descending = userPrefs.get('defaultSortDesc');
     return {
       by,
       descending
@@ -27,9 +27,9 @@ class CollectionSettingsService {
 
   public getSpaceDefaultSettings(): SpaceSettings {
     const sort = this.getSpaceDefaultSort();
-    let statsEnabled = userPrefs.get<'statsEnabled'>('statsEnabled');
+    let statsEnabled = userPrefs.get('statsEnabled');
     if (statsEnabled === undefined) {
-      statsEnabled = userPrefs.getDefault<'statsEnabled'>('statsEnabled');
+      statsEnabled = userPrefs.getDefault('statsEnabled');
     }
     return {
       sort,

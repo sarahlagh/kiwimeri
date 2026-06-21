@@ -9,9 +9,7 @@ import {
 const UP = SpaceTables.UserPreference;
 
 class UserPreferenceService {
-  public get<P extends UserPreferenceKey>(
-    pref: UserPreferenceKey
-  ): UserPreferenceValue<P> {
+  public get<P extends UserPreferenceKey>(pref: P): UserPreferenceValue<P> {
     const value = space.getCell(UP, pref, 'value');
     if (value === undefined) {
       return userPreferenceDefinitions[pref].default as UserPreferenceValue<P>;
@@ -20,13 +18,13 @@ class UserPreferenceService {
   }
 
   public getDefault<P extends UserPreferenceKey>(
-    pref: UserPreferenceKey
+    pref: P
   ): UserPreferenceValue<P> {
     return userPreferenceDefinitions[pref].default as UserPreferenceValue<P>;
   }
 
   public set<P extends UserPreferenceKey>(
-    pref: UserPreferenceKey,
+    pref: P,
     value: UserPreferenceValue<P> | null
   ) {
     let finalValue;

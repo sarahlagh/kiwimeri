@@ -261,9 +261,8 @@ class CollectionHistoryService {
     }
 
     const now = Date.now();
-    const idleDelay = userPrefs.get<'historyIdleTime'>('historyIdleTime');
-    const maxInterval =
-      userPrefs.get<'historyMaxInterval'>('historyMaxInterval');
+    const idleDelay = userPrefs.get('historyIdleTime');
+    const maxInterval = userPrefs.get('historyMaxInterval');
 
     const existingTimeout = this.timeouts.get(id);
     if (existingTimeout) {
@@ -483,8 +482,7 @@ class CollectionHistoryService {
   }
 
   public gc() {
-    const maxHistoryPerDoc =
-      userPrefs.get<'maxHistoryPerDoc'>('maxHistoryPerDoc');
+    const maxHistoryPerDoc = userPrefs.get('maxHistoryPerDoc');
     if (maxHistoryPerDoc <= 0) return;
     const queryName = this.buildVersionsGCQuery(maxHistoryPerDoc);
     // delete history entries with rank > maxHistoryPerDoc
