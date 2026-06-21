@@ -60,35 +60,35 @@ const CurrentSpaceSettings = () => {
           }}
           withRows={[
             {
-              key: 'history_idle_time',
+              key: 'historyIdleTime',
               label: t`History idle time (s)`,
               description: t`When working on a document, a new version will be automatically if idle after XX seconds`,
               type: 'number'
             },
             {
-              key: 'history_max_interval',
+              key: 'historyMaxInterval',
               label: t`History save time (min)`,
               description: t`When working on a document, a new version will be automatically at least every XX minutes`,
               type: 'number'
             },
             {
-              key: 'max_history_per_doc',
+              key: 'maxHistoryPerDoc',
               label: t`Number of versions`,
               description: t`The number of versions to keep per document. Set 0 for unlimited.`,
               type: 'number'
             }
           ]}
           withInitialState={{
-            history_idle_time: historyIdleTime / 1000,
-            history_max_interval: historyMaxInterval / 60000,
-            max_history_per_doc: maxHistoryPerDoc
+            historyIdleTime: historyIdleTime / 1000,
+            historyMaxInterval: historyMaxInterval / 60000,
+            maxHistoryPerDoc
           }}
           withOnChange={(key, val) => {
-            if (key === 'history_idle_time') {
+            if (key === 'historyIdleTime') {
               setHistoryIdleTime((val as number) * 1000);
-            } else if (key === 'history_max_interval') {
+            } else if (key === 'historyMaxInterval') {
               setHistoryMaxInterval((val as number) * 60000);
-            } else if (key === 'max_history_per_doc') {
+            } else if (key === 'maxHistoryPerDoc') {
               setMaxHistoryPerDoc(val as number);
             }
           }}

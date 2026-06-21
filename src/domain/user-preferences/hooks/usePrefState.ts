@@ -1,7 +1,6 @@
-import { SID } from '@/core/db/store-schema';
+import { SID, SpaceTables } from '@/core/db/store-schema';
 import { useSpaceCell } from '@/core/db/tinybase-hooks';
 import {
-  USER_PREFERENCE_TABLE,
   UserPref,
   UserPreference,
   UserPreferenceRow
@@ -9,15 +8,12 @@ import {
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 
+const UP = SpaceTables.UserPreference;
+
 export default function usePrefState<P extends UserPreference>(
   pref: UserPreference
 ): [UserPref<P>, Dispatch<SetStateAction<UserPref<P>>>] {
-  const cellValue = useSpaceCell(
-    USER_PREFERENCE_TABLE,
-    pref,
-    'value',
-    SID.space
-  );
+  const cellValue = useSpaceCell(UP, pref, 'value', SID.space);
   const rawValue: UserPref<P> =
     cellValue !== undefined
       ? ((cellValue as UserPreferenceRow['value'])._v as UserPref<P>)

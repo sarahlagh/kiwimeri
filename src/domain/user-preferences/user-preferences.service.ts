@@ -1,12 +1,8 @@
 import { space } from '@/core/db/store';
-import {
-  USER_PREFERENCE_TABLE,
-  UserPref,
-  UserPreference,
-  userPreferenceDefaults
-} from './model';
+import { SpaceTables } from '@/core/db/store-schema';
+import { UserPref, UserPreference, userPreferenceDefaults } from './model';
 
-const UP = USER_PREFERENCE_TABLE;
+const UP = SpaceTables.UserPreference;
 
 class UserPreferenceService {
   public get<P extends UserPreference>(pref: UserPreference): UserPref<P> {
