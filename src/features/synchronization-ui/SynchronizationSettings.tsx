@@ -1,9 +1,13 @@
-import platformService from '@/common/services/platform.service';
+import { plt } from '@/core/infra/platform';
 import OperationCard from '@/dev-tools/components/OperationsCard';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { LocalChangesCard } from '@/features/local-changes-ui';
-import { ImportExportStoreSettings } from '@/features/settings-ui';
-import RemotesSettings from './providers/RemotesSettings';
+
+import {
+  ImportExportCollectionSettings,
+  ImportExportStoreSettings
+} from '@/features/import-export';
+import RemotesSettings from './components/RemotesSettings';
 
 const SynchronizationSettings = () => {
   const syncEnabled = deviceSettings.isSyncEnabled();
@@ -12,7 +16,8 @@ const SynchronizationSettings = () => {
       <RemotesSettings />
       {syncEnabled && <LocalChangesCard />}
       <ImportExportStoreSettings />
-      {!platformService.isRelease() && <OperationCard />}
+      <ImportExportCollectionSettings />
+      {!plt.isRelease() && <OperationCard />}
     </>
   );
 };

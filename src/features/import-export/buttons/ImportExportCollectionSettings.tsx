@@ -1,8 +1,8 @@
 import { CollectionItemType } from '@/collection/collection';
 import GenericExportFileButton from '@/common/buttons/GenericExportFileButton';
 import { dateToStr } from '@/common/date-utils';
-import platformService from '@/common/services/platform.service';
 import { space } from '@/core/db/store';
+import { plt } from '@/core/infra/platform';
 import {
   ExportItemsButton,
   RestoreCollectionButton
@@ -22,13 +22,31 @@ import { Trans, useLingui } from '@lingui/react/macro';
 const ImportExportCollectionSettings = () => {
   const { t } = useLingui();
 
-  const exportFileSuffix = `${platformService.getPlatform()}-backup`;
-  const getExportFileName = () =>
-    `${dateToStr('iso')}-${exportFileSuffix}.json`;
+  const exportFileSuffix = `${plt.getPlatform()}-backup`;
+  const getExportFileName = (full = false) =>
+    `${dateToStr('iso')}-${exportFileSuffix}${full ? '-full' : ''}.json`;
 
   const getContentToExport = async () => {
     const content = space.getContent();
-    return JSON.stringify([content[0].collection, content[1]]);
+    return JSON.stringify([
+      {
+        collection: content[0].collection,
+        document_annotation: content[0].document_annotation
+      }
+    ]);
+  };
+
+  const getContentWithHistoryToExport = async () => {
+    const content = space.getContent();
+    return JSON.stringify([
+      {
+        collection: content[0].collection,
+        document_annotation: content[0].document_annotation,
+        history: content[0].history,
+        history_content: content[0].history_content,
+        stats: content[0].stats
+      }
+    ]);
   };
 
   return (
@@ -48,7 +66,21 @@ const ImportExportCollectionSettings = () => {
       <IonCardContent>
         <IonList>
           <IonItem>
-            <Trans>Kiwimeri format (single file)</Trans>
+            <Trans>Kiwimeri format (with history & stats)</Trans>
+            <IonButtons slot="end">
+              <GenericExportFileButton
+                fill="clear"
+                color={'primary'}
+                label={t`Export`}
+                icon={null}
+                getFileMime={'application/json'}
+                getFileTitle={() => getExportFileName(true)}
+                getFileContent={getContentWithHistoryToExport}
+              />
+            </IonButtons>
+          </IonItem>
+          <IonItem>
+            <Trans>Kiwimeri format (content only)</Trans>
             <IonButtons slot="end">
               <GenericExportFileButton
                 fill="clear"

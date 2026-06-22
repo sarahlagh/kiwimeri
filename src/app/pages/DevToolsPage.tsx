@@ -1,5 +1,5 @@
 import DevTools from '@/dev-tools/components/DevTools';
-import useDeviceSetting from '@/domain/device-settings/hooks/useDeviceSetting';
+import useShowDevTools from '@/domain/device-settings/hooks/useShowDevTools';
 import { IonContent } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
 import NotFoundPage from './NotFoundPage';
@@ -7,7 +7,7 @@ import TemplateMainPage from './TemplateMainPage';
 
 const DevToolsPage = () => {
   const { t } = useLingui();
-  const showDevTools = useDeviceSetting('showDevTools');
+  const showDevTools = useShowDevTools();
   if (!showDevTools) {
     return <NotFoundPage />;
   }

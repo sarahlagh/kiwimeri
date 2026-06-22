@@ -21,7 +21,7 @@ import {
 } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 import { useState } from 'react';
-import PCloudSettings from './PCloudSettings';
+import PCloudSettings from './providers/PCloudSettings';
 
 const RemotesSettings = () => {
   const [reorderEnabled, setReorderEnabled] = useState(false);

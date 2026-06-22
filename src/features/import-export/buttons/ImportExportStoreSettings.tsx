@@ -2,7 +2,8 @@ import GenericExportFileButton from '@/common/buttons/GenericExportFileButton';
 import GenericImportFileButton from '@/common/buttons/GenericImportFileButton';
 import { dateToStr } from '@/common/date-utils';
 import { DEFAULT_SPACE_ID } from '@/constants';
-import { store } from '@/core/db/store';
+import { space, store } from '@/core/db/store';
+import { SpaceTables, StoreTables } from '@/core/db/store-constants';
 import remotesService from '@/db/remotes.service';
 import {
   IonButtons,
@@ -14,7 +15,7 @@ import {
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 
-const ImportExportCollectionSettings = () => {
+const ImportExportStoreSettings = () => {
   const { t } = useLingui();
 
   const getExportFileName = () =>
@@ -22,26 +23,29 @@ const ImportExportCollectionSettings = () => {
 
   const exportFileSuffix = 'app-settings';
   const onRestoreContent = async (content: string) => {
-    const json = JSON.parse(content);
-    store.setContent(json);
+    const [tables, values] = JSON.parse(content);
+    store.setTable(StoreTables.Remotes, tables.remotes);
+    space.setTable(SpaceTables.UserPreference, tables.user_preference);
+    space.setPartialValues(values);
     await remotesService.configureRemotes(DEFAULT_SPACE_ID, true);
   };
   const getContentToExport = async () => {
-    // export remotes and values
-    const content = store.getContent();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [contentToExport, valuesToExport]: [any, any] = content;
-    delete contentToExport['spaces'];
-    delete contentToExport['localChanges'];
-    delete contentToExport['remoteState'];
-    delete contentToExport['remoteItems'];
-    delete contentToExport['ancestors'];
-    delete contentToExport['search'];
-    delete contentToExport['logs'];
-    delete valuesToExport['currentSpace'];
-    delete valuesToExport['showDevTools'];
-    delete valuesToExport['tempDoc'];
-    return JSON.stringify([contentToExport, valuesToExport]);
+    // export remotes and & space values
+    const remotes = store.getTable(StoreTables.Remotes);
+    const user_preference = space.getTable(SpaceTables.UserPreference);
+    const values = space.getValues();
+    const valuesToExport = {
+      ...values,
+      appVersion: undefined,
+      currentNotebook: undefined
+    };
+    return JSON.stringify([
+      {
+        remotes,
+        user_preference
+      },
+      valuesToExport
+    ]);
   };
 
   const onImportContentRead = async (content: string) => {
@@ -64,7 +68,7 @@ const ImportExportCollectionSettings = () => {
           This is different than the import / export of the collection. Your
           collection consists of your files and folders, and can be configured
           to synchronize with a cloud provider. The app settings consist of
-          anything configured in this page.
+          anything configured in this page and the Settings page.
         </Trans>
       </IonCardContent>
 
@@ -89,4 +93,4 @@ const ImportExportCollectionSettings = () => {
     </IonCard>
   );
 };
-export default ImportExportCollectionSettings;
+export default ImportExportStoreSettings;

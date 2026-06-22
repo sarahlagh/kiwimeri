@@ -2,7 +2,6 @@ import { docAnnotationSchema } from '@/domain/document-annotations/model';
 import { localChangesSchema } from '@/domain/local-changes/model';
 import { resumeStateSchema } from '@/domain/resume-state/model';
 import { userPreferenceSchema } from '@/domain/user-preferences/model';
-import { Value } from 'tinybase/with-schemas';
 import { SpaceTables, StoreTables } from './store-constants';
 import {
   CellIdFromSchema,
@@ -123,12 +122,12 @@ export type SpaceType = [SpaceTablesType, SpaceValuesType];
 
 export type SpaceTableId = TableIdFromSchema<SpaceTablesType>;
 export type SpaceValue = ValueIdFromSchema<SpaceValuesType>;
-export type SpaceValues = {
-  [key in SpaceValue]: Value<SpaceValuesType, key>;
-};
+
 export type SpaceValueType<ValueId extends SpaceValue> =
   DefaultedValueFromSchema<SpaceValuesType, ValueId>;
-
+export type SpaceValues = {
+  [key in SpaceValue]: SpaceValueType<key>;
+};
 export type SpaceCellId<T extends SpaceTableId> = CellIdFromSchema<
   SpaceTablesType,
   T

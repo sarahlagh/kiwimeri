@@ -14,7 +14,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 import RemoteGenericSettings, {
   RemoteGenericSettingsChildProps
-} from './RemoteGenericSettings';
+} from '../RemoteGenericSettings';
 
 type PCloudSettingsProps = {} & RemoteGenericSettingsChildProps;
 

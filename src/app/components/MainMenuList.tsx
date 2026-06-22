@@ -13,6 +13,7 @@ import { appConfig } from '@/config';
 import { APPICONS } from '@/constants';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import useDeviceSetting from '@/domain/device-settings/hooks/useDeviceSetting';
+import useShowDevTools from '@/domain/device-settings/hooks/useShowDevTools';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
 import NotebookSwitcher from '@/notebooks/components/NotebookSwitcher';
 import {
@@ -41,7 +42,7 @@ const MainMenuList = () => {
   const { t } = useLingui();
   const location = useLocation();
   const theme = useDeviceSetting('theme');
-  const showDevTools = useDeviceSetting('showDevTools');
+  const showDevTools = useShowDevTools();
 
   function isActive(appPage: AppPage) {
     if (appPage.isActive) {
@@ -78,7 +79,7 @@ const MainMenuList = () => {
     },
     {
       key: 'sync',
-      title: t`Synchronization`,
+      title: t`Synchronization & Backup`,
       url: SYNCHRONIZATION_ROUTE,
       icon: APPICONS.synchronizationPage
     }

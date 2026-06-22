@@ -1,15 +1,11 @@
-import GenericExportFileButton from '@/common/buttons/GenericExportFileButton';
-import GenericImportFileButton from '@/common/buttons/GenericImportFileButton';
 import { GET_FOLDER_ROUTE } from '@/common/routes';
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
-import { space } from '@/core/db/store';
 import { plt } from '@/core/infra/platform';
 import notebooksService from '@/db/notebooks.service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import {
   getPlatforms,
-  IonButtons,
   IonCard,
   IonCardContent,
   IonCardHeader,
@@ -45,18 +41,18 @@ const DevTools = () => {
         </IonCardContent>
       </IonCard>
 
-      {!platformService.isRelease() && (
+      {!plt.isRelease() && (
         <>
           <IonCard>
             <IonCardHeader>
               <IonCardTitle>Debug</IonCardTitle>
             </IonCardHeader>
             <IonCardContent>
-              <p>(capacitor) platform: {platformService.getPlatform()}</p>
+              <p>(capacitor) platform: {plt.getPlatform()}</p>
               <p>(ionic) platforms: {JSON.stringify(getPlatforms())}</p>
-              <p>is dev: {platformService.isDev() ? 'yes' : 'no'}</p>
-              <p>is android: {platformService.isAndroid() ? 'yes' : 'no'}</p>
-              <p>is web: {platformService.isWeb() ? 'yes' : 'no'}</p>
+              <p>is dev: {plt.isDev() ? 'yes' : 'no'}</p>
+              <p>is android: {plt.isAndroid() ? 'yes' : 'no'}</p>
+              <p>is web: {plt.isWeb() ? 'yes' : 'no'}</p>
               <p>is electron: {platformService.isElectron() ? 'yes' : 'no'}</p>
               <p>is wide: {platformService.isWideEnough() ? 'yes' : 'no'}</p>
               <p>
@@ -73,37 +69,7 @@ const DevTools = () => {
       <QuickRestore />
       {!plt.isDev() && <LogsCard />}
 
-      {!plt.isRelease() && (
-        <>
-          <IonCard>
-            <IonButtons>
-              <GenericExportFileButton
-                fill="clear"
-                color={'primary'}
-                label={`Export everything`}
-                icon={null}
-                getFileMime={'application/json'}
-                getFileTitle={() => 'full-space-backup.json'}
-                getFileContent={async () => {
-                  const content = space.getContent();
-                  return JSON.stringify(content);
-                }}
-              />
-              <GenericImportFileButton
-                label={`Import everything`}
-                color={'danger'}
-                icon={null}
-                onContentRead={async (content: ArrayBuffer) => {
-                  const textContent = new TextDecoder().decode(content);
-                  space.setContent(JSON.parse(textContent));
-                  return { confirm: true };
-                }}
-              />
-            </IonButtons>
-          </IonCard>
-          <OperationCard />
-        </>
-      )}
+      {!plt.isRelease() && <OperationCard />}
     </>
   );
 };

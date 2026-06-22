@@ -1,7 +1,6 @@
 import CurrentDeviceSettings from './components/CurrentDeviceSettings';
 import CurrentNotebookSettings from './components/CurrentNotebookSettings';
 import CurrentSpaceSettings from './components/CurrentSpaceSettings';
-import ImportExportCollectionSettings from './components/ImportExportCollectionSettings';
 
 const Settings = () => {
   return (
@@ -9,7 +8,6 @@ const Settings = () => {
       <CurrentNotebookSettings />
       <CurrentSpaceSettings />
       <CurrentDeviceSettings />
-      <ImportExportCollectionSettings />
     </>
   );
 };

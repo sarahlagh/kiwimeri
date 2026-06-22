@@ -1,11 +1,9 @@
-import { unminimizeItemsFromStorage } from '@/collection/compress-collection';
 import GenericImportFileButton, {
   ImportFileRejectReason,
   OnContentReadResponse
 } from '@/common/buttons/GenericImportFileButton';
 import { space } from '@/core/db/store';
-import collectionService from '@/db/collection.service';
-import { RemoteCollectionFileContent } from '@/remote-storage/synchronizers/collection-synchronizer';
+import { SpaceTables } from '@/core/db/store-constants';
 import { useIonAlert } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
 
@@ -26,16 +24,17 @@ const RestoreCollectionButton = ({
   const onSingleJsonRead = async (content: string) => {
     // TODO validate schema
     const json = JSON.parse(content);
-    if (Array.isArray(json)) {
-      const [collection, values] = json;
-      space.setTable('collection', collection); // TODO handle history
-      space.setValues(values);
-    } else if ('i' in json) {
-      // attempt to restore sync format
-      const sync = json as RemoteCollectionFileContent;
-      const items = unminimizeItemsFromStorage(sync.i);
-      space.delTable('collection');
-      collectionService.saveItems(items);
+    const [tables] = json;
+    space.setTable(SpaceTables.Collection, tables.collection);
+    space.setTable(SpaceTables.Annotations, tables.document_annotation);
+    if (tables.history) {
+      space.setTable(SpaceTables.History, tables.history);
+    }
+    if (tables.history_content) {
+      space.setTable(SpaceTables.HistoryContent, tables.history_content);
+    }
+    if (tables.stats) {
+      space.setTable(SpaceTables.Stats, tables.stats);
     }
     return { confirm: true } as OnContentReadResponse;
   };
