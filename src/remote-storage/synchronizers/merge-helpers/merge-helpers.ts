@@ -124,8 +124,7 @@ export function applyLocalChangesToPull<
   allLocalChanges: LocalChangeResult[],
   conflictPolicy: ConflictPolicy<L>,
   orphanPolicy: OrphanPolicy<L>,
-  force?: boolean,
-  mergeLocalRemoteAsBase = false
+  force?: boolean
 ): ApplyLCResult {
   const dataTable = (localContent[0][tableId] || {}) as {
     [key: string]: L;
@@ -139,15 +138,7 @@ export function applyLocalChangesToPull<
   newLocalContent[0][tableId] = {};
   // fill-in new collection with remote content
   remoteItems.forEach(item => {
-    if (dataTable[item.id] && mergeLocalRemoteAsBase) {
-      newLocalContent[0][tableId]![item.id] = {
-        ...dataTable[item.id],
-        ...item,
-        id: undefined
-      };
-    } else {
-      newLocalContent[0][tableId]![item.id] = { ...item, id: undefined };
-    }
+    newLocalContent[0][tableId]![item.id] = { ...item, id: undefined };
   });
   const newDataTable = newLocalContent[0][tableId]! as {
     [key: string]: L;

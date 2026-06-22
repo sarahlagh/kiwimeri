@@ -1,3 +1,4 @@
+import { SpaceTables } from '@/core/db/store-constants';
 import { useSpaceCell } from '@/core/db/tinybase-hooks';
 import {
   DocumentSettings,
@@ -6,8 +7,8 @@ import {
 import { Id } from 'tinybase/common';
 
 const useNotesSort = (rowId: Id): NotesSort => {
-  const settings = useSpaceCell<'collection', 'settings'>(
-    'collection',
+  const settings = useSpaceCell<SpaceTables.Collection, 'settings'>(
+    SpaceTables.Collection,
     rowId,
     'settings',
     'space'

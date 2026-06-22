@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
+import { getPlainText } from '@/shared/utils/getPlainText';
 import { MetaField } from '../types';
 import { NoSchemaStore } from './migrate';
 
@@ -9,7 +11,8 @@ enum _SpaceTables {
   ResumeState = 'collection_resume_state',
   Stats = 'stats',
   Annotations = 'document_annotation',
-  UserPreference = 'user_preference'
+  UserPreference = 'user_preference',
+  DerivedContent = 'derived_content'
 }
 
 const C = _SpaceTables.Collection;
@@ -17,6 +20,7 @@ const A = _SpaceTables.Annotations;
 const H = _SpaceTables.History;
 const S = _SpaceTables.Stats;
 const UP = _SpaceTables.UserPreference;
+const D = _SpaceTables.DerivedContent;
 
 export default function Migration(
   _space: NoSchemaStore,
@@ -30,6 +34,7 @@ export default function Migration(
   someValuesGoToUserPrefs(_space);
   documentResumeStateToCollectionResumeState(_space);
   storeValuesGoToSpace(_store, _space);
+  addDerivedContent(_space); // TODO
 }
 
 function metaFieldsBecomeObjects(_space: NoSchemaStore) {
@@ -252,4 +257,25 @@ function storeValuesGoToSpace(_store: NoSchemaStore, _space: NoSchemaStore) {
   _migrateValue(_store, _space, 'defaultTimedMode');
   _migrateValue(_store, _space, 'rememberLastRoute');
   _migrateValue(_store, _space, 'resumeLastSelection');
+}
+
+function addDerivedContent(_space: NoSchemaStore) {
+  _space.getRowIds(C).forEach(rowId => {
+    const content = _space.getCell(C, rowId, 'content') as string;
+    if (content) {
+      _space.setRow(D, rowId, {
+        on: C,
+        plainText: getPlainText(unminimizeContentFromStorage(content))
+      });
+    }
+  });
+  _space.getRowIds(A).forEach(rowId => {
+    const content = _space.getCell(A, rowId, 'content') as string;
+    if (content) {
+      _space.setRow(D, rowId, {
+        on: A,
+        plainText: getPlainText(unminimizeContentFromStorage(content))
+      });
+    }
+  });
 }

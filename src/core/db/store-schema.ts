@@ -1,3 +1,4 @@
+import { derivedContentSchema } from '@/domain/derived-content/model';
 import { docAnnotationSchema } from '@/domain/document-annotations/model';
 import { localChangesSchema } from '@/domain/local-changes/model';
 import { resumeStateSchema } from '@/domain/resume-state/model';
@@ -88,7 +89,8 @@ export const spaceTablesSchema = {
     lastOpenedAt: { type: 'number' }
   },
   document_annotation: docAnnotationSchema,
-  user_preference: userPreferenceSchema
+  user_preference: userPreferenceSchema,
+  derived_content: derivedContentSchema
 } as const satisfies Record<SpaceTables, unknown>;
 
 export const spaceValuesSchema = {

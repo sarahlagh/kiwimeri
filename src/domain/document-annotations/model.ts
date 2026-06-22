@@ -10,7 +10,6 @@ export type DocAnnotationRow = {
   updatedAt: number;
   content: string;
   content_meta: MetaField;
-  plainText: string;
   order?: number;
   order_meta?: MetaField;
   conflict?: string;
@@ -23,7 +22,6 @@ export const docAnnotationSchema = {
   updatedAt: { type: 'number', default: 0 },
   content: { type: 'string', default: '' },
   content_meta: { type: 'object', default: metaSchemaDefault },
-  plainText: { type: 'string', default: '' },
   order: { type: 'number', default: -1 },
   order_meta: { type: 'object', default: metaSchemaDefault },
   conflict: { type: 'string' }
@@ -31,7 +29,7 @@ export const docAnnotationSchema = {
 
 export type SyncableAnnotation = {
   id: string;
-} & Omit<DocAnnotationRow, 'plainText'>;
+} & DocAnnotationRow;
 
 type DocAnnotationUpdate = Pick<DocAnnotationRow, 'content' | 'order'>;
 export type DocAnnotationLocalChange = LocalChangeRow<DocAnnotationUpdate>;

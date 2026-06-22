@@ -14,6 +14,7 @@ import {
   GET_UPDATABLE_FIELDS,
   getLocalItemField,
   getNewContent,
+  getNewParsedContent,
   getNewValue,
   markAsConflict,
   UPDATABLE_FIELDS,
@@ -53,7 +54,7 @@ describe('local changes service', () => {
     const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     collectionService.setItemTitle(id, 'new title');
     collectionService.setItemTitle(id, 'new title 2');
-    collectionService.setItemField(id, 'content', 'new content');
+    collectionService.setItemLexicalContent(id, getNewParsedContent('test'));
     const localChanges = localChangesService.getLocalChanges();
     expect(localChanges).toHaveLength(2);
     const lc = getNonNotebookLocalChanges(localChanges)[0];
@@ -69,7 +70,7 @@ describe('local changes service', () => {
     collectionService.setItemTitle(id, 'new title');
     collectionService.setItemTitle(id, 'new title 2');
     collectionService.setItemTitle(id, 'new title 3');
-    collectionService.setItemField(id, 'content', 'new content');
+    collectionService.setItemLexicalContent(id, getNewParsedContent('test'));
     const localChanges = localChangesService.getLocalChanges();
 
     expect(localChanges).toHaveLength(2);
@@ -82,7 +83,7 @@ describe('local changes service', () => {
     const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     collectionService.setItemTitle(id, 'new title');
     collectionService.setItemTitle(id, 'new title 2');
-    collectionService.setItemField(id, 'content', 'new content');
+    collectionService.setItemLexicalContent(id, getNewParsedContent('test'));
     collectionService.deleteItem(id);
     const localChanges = localChangesService.getLocalChanges();
     expect(localChanges).toHaveLength(1);
@@ -97,7 +98,7 @@ describe('local changes service', () => {
 
     collectionService.setItemTitle(id, 'new title');
     collectionService.setItemTitle(id, 'new title 2');
-    collectionService.setItemField(id, 'content', 'new content');
+    collectionService.setItemLexicalContent(id, getNewParsedContent('test'));
     collectionService.deleteItem(id);
 
     const localChanges = localChangesService.getLocalChanges();

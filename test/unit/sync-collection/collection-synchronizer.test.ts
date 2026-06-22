@@ -415,7 +415,7 @@ describe('collection synchronizer', () => {
       expect(space.getRowCount(SpaceTables.Annotations)).toBe(1);
       expect(space.hasRow(SpaceTables.Annotations, notes[0].id));
       expect(
-        space.getCell(SpaceTables.Annotations, notes[0].id, 'plainText')
+        space.getCell(SpaceTables.DerivedContent, notes[0].id, 'plainText')
       ).toBe('test');
     });
 
@@ -661,7 +661,7 @@ describe('collection synchronizer', () => {
       expect(space.getRowCount(SpaceTables.Annotations)).toBe(1);
       expect(space.hasRow(SpaceTables.Annotations, notes[0].id));
       expect(
-        space.getCell(SpaceTables.Annotations, notes[0].id, 'plainText')
+        space.getCell(SpaceTables.DerivedContent, notes[0].id, 'plainText')
       ).toBe('test');
     });
 
@@ -694,10 +694,10 @@ describe('collection synchronizer', () => {
       expect(space.hasRow(SpaceTables.Annotations, notes[0].id));
       expect(space.hasRow(SpaceTables.Annotations, notes[1].id));
       expect(
-        space.getCell(SpaceTables.Annotations, notes[0].id, 'plainText')
+        space.getCell(SpaceTables.DerivedContent, notes[0].id, 'plainText')
       ).toBe('test 2');
       expect(
-        space.getCell(SpaceTables.Annotations, notes[1].id, 'plainText')
+        space.getCell(SpaceTables.DerivedContent, notes[1].id, 'plainText')
       ).toBe('other test');
     });
   });

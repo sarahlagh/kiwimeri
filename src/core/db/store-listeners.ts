@@ -1,7 +1,7 @@
 import {
-  startAnnotsListeners,
-  stopAnnotsListeners
-} from '@/domain/document-annotations/listeners';
+  startDerivedContentListeners,
+  stopDerivedContentListeners
+} from '@/domain/derived-content/listeners';
 import {
   startLocalChangesListeners,
   stopLocalChangesListeners
@@ -10,13 +10,13 @@ import {
 export function startDbListeners() {
   console.log('[db] starting all listeners');
   startLocalChangesListeners();
-  startAnnotsListeners();
+  startDerivedContentListeners();
 }
 
 export function stopDbListeners() {
   console.log('[db] stopping all listeners');
   stopLocalChangesListeners();
-  stopAnnotsListeners();
+  stopDerivedContentListeners();
 }
 
 export function disableListeners(callback: () => void) {

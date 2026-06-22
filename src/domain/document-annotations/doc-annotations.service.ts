@@ -14,6 +14,7 @@ import { DocAnnotationRow } from './model';
 
 const A = SpaceTables.Annotations;
 const C = SpaceTables.Collection;
+const D = SpaceTables.DerivedContent;
 
 class DocumentAnnotationsService {
   public newNoteObj(itemId: Id): { item: DocAnnotationRow; id: Id } {
@@ -25,7 +26,6 @@ class DocumentAnnotationsService {
       itemId,
       content,
       content_meta: setMetaField(now),
-      plainText: '',
       createdAt: now,
       updatedAt: now
     };
@@ -102,7 +102,7 @@ class DocumentAnnotationsService {
   }
 
   public getPreview(id: Id) {
-    return space.getCell(A, id, 'plainText')?.substring(0, PREVIEW_SIZE) || '';
+    return space.getCell(D, id, 'plainText')?.substring(0, PREVIEW_SIZE) || '';
   }
 
   public getAnnotInfo(id: Id) {

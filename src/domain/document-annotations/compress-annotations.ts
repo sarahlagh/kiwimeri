@@ -29,17 +29,15 @@ keys.forEach(([v1, v2]) => {
 });
 
 export const minimizeAnnotForStorage = (obj: SyncableAnnotation[]) => {
-  return obj
-    .map(obj => ({ ...obj, plainText: undefined }))
-    .map(
-      item => minimizeKeys(item, keysMap, new Map()) as MinimizedDocAnnotation
-    );
+  return obj.map(
+    item => minimizeKeys(item, keysMap, new Map()) as MinimizedDocAnnotation
+  );
 };
 
 export const unminimizeAnnotFromStorage = (
   obj: AnyData[]
 ): SyncableAnnotation[] => {
-  return obj
-    .map(o => unminimizeKeys(o, keysMapReverse, new Map()))
-    .map(o => ({ ...o }) as SyncableAnnotation);
+  return obj.map(
+    o => unminimizeKeys(o, keysMapReverse, new Map()) as SyncableAnnotation
+  );
 };

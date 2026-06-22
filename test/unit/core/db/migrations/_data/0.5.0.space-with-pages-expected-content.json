@@ -69,7 +69,6 @@
         "itemId": "cZ6l5keLw_D7s9Yq",
         "content": "{\"r\":{\"c\":[{\"c\":[{\"d\":0,\"f\":0,\"m\":\"n\",\"s\":\"\",\"t\":\"this is a comment\",\"ty\":\"t\",\"v\":1}],\"di\":null,\"f\":\"\",\"i\":0,\"ty\":\"p\",\"v\":1,\"tf\":0,\"ts\":\"\"},{\"c\":[{\"d\":0,\"f\":0,\"m\":\"n\",\"s\":\"\",\"t\":\"no a note\",\"ty\":\"t\",\"v\":1}],\"di\":null,\"f\":\"\",\"i\":0,\"ty\":\"p\",\"v\":1,\"tf\":0,\"ts\":\"\"},{\"c\":[{\"d\":0,\"f\":0,\"m\":\"n\",\"s\":\"\",\"t\":\"an annotation\",\"ty\":\"t\",\"v\":1}],\"di\":null,\"f\":\"\",\"i\":0,\"ty\":\"p\",\"v\":1,\"tf\":0,\"ts\":\"\"}],\"di\":null,\"f\":\"\",\"i\":0,\"ty\":\"r\",\"v\":1}}",
         "content_meta": { "_u": 1780926265741 },
-        "plainText": "this is a comment no a note an annotation",
         "createdAt": 1780926256062,
         "updatedAt": 1780926265741,
         "order": 0
@@ -79,7 +78,6 @@
         "itemId": "h-MOhEAYItMcMOJb",
         "content": "{\"r\":{\"c\":[{\"c\":[{\"d\":0,\"f\":0,\"m\":\"n\",\"s\":\"\",\"t\":\"1\",\"ty\":\"t\",\"v\":1}],\"di\":null,\"f\":\"\",\"i\":0,\"ty\":\"p\",\"v\":1,\"tf\":0,\"ts\":\"\"}],\"di\":null,\"f\":\"\",\"i\":0,\"ty\":\"r\",\"v\":1}}",
         "content_meta": { "_u": 1780926370105 },
-        "plainText": "1",
         "createdAt": 1780926364978,
         "updatedAt": 1780926370105,
         "order": 0
@@ -89,7 +87,6 @@
         "itemId": "h-MOhEAYItMcMOJb",
         "content": "{\"r\":{\"c\":[{\"c\":[{\"d\":0,\"f\":0,\"m\":\"n\",\"s\":\"\",\"t\":\"2\",\"ty\":\"t\",\"v\":1}],\"di\":null,\"f\":\"\",\"i\":0,\"ty\":\"p\",\"v\":1,\"tf\":0,\"ts\":\"\"}],\"di\":null,\"f\":\"\",\"i\":0,\"ty\":\"r\",\"v\":1}}",
         "content_meta": { "_u": 1780926373217 },
-        "plainText": "2",
         "createdAt": 1780926371925,
         "updatedAt": 1780926373217,
         "order": 2,
@@ -100,7 +97,6 @@
         "itemId": "h-MOhEAYItMcMOJb",
         "content": "{\"r\":{\"c\":[{\"c\":[{\"d\":0,\"f\":0,\"m\":\"n\",\"s\":\"\",\"t\":\"3\",\"ty\":\"t\",\"v\":1}],\"di\":null,\"f\":\"\",\"i\":0,\"ty\":\"p\",\"v\":1,\"tf\":0,\"ts\":\"\"}],\"di\":null,\"f\":\"\",\"i\":0,\"ty\":\"r\",\"v\":1}}",
         "content_meta": { "_u": 1780926375267 },
-        "plainText": "3",
         "createdAt": 1780926374228,
         "updatedAt": 1780926375267,
         "order": 1,
@@ -276,6 +272,21 @@
         },
         "lastSelectedNoteId": "jjm_oGzicsvYfSGM"
       }
+    },
+    "derived_content": {
+      "h-MOhEAYItMcMOJb": { "on": "collection", "plainText": "" },
+      "xtid1X1laW4E5oUI": { "on": "collection", "plainText": "content" },
+      "8-jzP7Mubb-laAcb": {
+        "on": "collection",
+        "plainText": "page content page update"
+      },
+      "u0R3jqIujM3O_8IT": {
+        "on": "document_annotation",
+        "plainText": "this is a comment no a note an annotation"
+      },
+      "dfa7xjA21tkzBm44": { "on": "document_annotation", "plainText": "1" },
+      "0INbpodHu1NOc3hA": { "on": "document_annotation", "plainText": "2" },
+      "jjm_oGzicsvYfSGM": { "on": "document_annotation", "plainText": "3" }
     }
   },
   {

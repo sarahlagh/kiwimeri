@@ -154,9 +154,7 @@ describe('annot compression', () => {
       }
 
       const restored = unminimizeAnnotFromStorage(minimized);
-      expect(restored).toStrictEqual(
-        data.map(a => ({ ...a, plainText: undefined }))
-      );
+      expect(restored).toStrictEqual(data);
     });
   });
 });

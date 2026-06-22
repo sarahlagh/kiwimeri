@@ -393,8 +393,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
           localChanges,
           annotsConflictPolicy,
           annotsOrphanPolicy,
-          force,
-          true
+          force
         ),
       res =>
         applyLocalChangesToPull(

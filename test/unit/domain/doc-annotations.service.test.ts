@@ -90,9 +90,10 @@ describe('notes service', () => {
     docAnnotationsService.edit(noteId, JSON.parse(content));
 
     const note = space.getRow(SpaceTables.Annotations, noteId);
+    const derived = space.getRow(SpaceTables.DerivedContent, noteId);
     expect(unminimizeContentFromStorage(note.content)).toBe(content);
     expect(docAnnotationsService.getContent(noteId)).toBe(note.content);
-    expect(note.plainText).toBe('this is the content');
+    expect(derived.plainText).toBe('this is the content');
     expect(note.updatedAt).toBeGreaterThan(updated);
     expect(getDocUpdatedTs(docId)).toBeGreaterThan(updated);
 

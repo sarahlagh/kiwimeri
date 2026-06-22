@@ -4,7 +4,8 @@ import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import {
   allNonParentUpdatableFields,
-  getLocalItemField
+  getLocalItemField,
+  getNewValue
 } from '@@/_setup/test.utils';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -44,7 +45,7 @@ describe('notebooks service', () => {
     vi.useRealTimers();
   });
 
-  allNonParentUpdatableFields.forEach(({ field }) => {
+  allNonParentUpdatableFields.forEach(({ field, valueType }) => {
     it(`should not update notebook modified timestamp on items update with ${field}`, () => {
       vi.useFakeTimers();
       const created = Date.now();
@@ -53,8 +54,8 @@ describe('notebooks service', () => {
 
       const id1 = collectionService.addDocument(n1);
       const id2 = collectionService.addFolder(n1);
-      collectionService.setItemField(id1, field, 'newValue');
-      collectionService.setItemField(id2, field, 'newValue');
+      collectionService.setItemField(id1, field, getNewValue(valueType));
+      collectionService.setItemField(id2, field, getNewValue(valueType));
 
       expect(getLocalItemField(n1, 'updated')).toBe(created);
       vi.useRealTimers();

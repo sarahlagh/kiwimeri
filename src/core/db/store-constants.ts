@@ -14,7 +14,8 @@ export enum SpaceTables {
   ResumeState = 'collection_resume_state',
   Stats = 'stats',
   Annotations = 'document_annotation',
-  UserPreference = 'user_preference'
+  UserPreference = 'user_preference',
+  DerivedContent = 'derived_content'
 }
 
 export type StoreId = 'store' | 'space';
