@@ -5,7 +5,7 @@ import {
 } from '@/collection/collection';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
-import navService from '@/db/nav.service';
+import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { IonButton, IonIcon } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
 import { Id } from 'tinybase/with-schemas';
@@ -26,7 +26,7 @@ const QuickGroupButton = ({ id, type, onClose }: QuickGroupButtonProps) => {
       fill="clear"
       onClick={() => {
         // create folder and put current doc in it
-        const folder = navService.getCurrentFolder();
+        const folder = resumeService.getCurrentFolder();
         const title = collectionService.getItemTitle(id);
         const { item } = collectionService.getNewFolderObj(folder);
         item.title = title;

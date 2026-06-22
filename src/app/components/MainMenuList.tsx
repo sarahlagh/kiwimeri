@@ -11,8 +11,8 @@ import {
 import CatchClickLabel from '@/common/utils/CatchClickLabel';
 import { appConfig } from '@/config';
 import { APPICONS } from '@/constants';
-import navService from '@/db/nav.service';
 import userSettingsService from '@/db/user-settings.service';
+import { resumeService } from '@/domain/resume-state/resume-state.service';
 import NotebookSwitcher from '@/notebooks/components/NotebookSwitcher';
 import {
   IonButton,
@@ -57,8 +57,8 @@ const MainMenuList = () => {
       key: 'collection',
       title: t`Collection`,
       url: GET_ITEM_ROUTE(
-        `${navService.getCurrentFolder()}`,
-        navService.getCurrentDocument()
+        `${resumeService.getNotebookResumeState()?.lastFolder}`,
+        `${resumeService.getNotebookResumeState()?.lastDocument}`
       ),
       icon: APPICONS.collectionPage,
       isActive: () => isCollectionRoute(location.pathname)

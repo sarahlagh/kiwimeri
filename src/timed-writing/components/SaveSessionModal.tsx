@@ -9,9 +9,9 @@ import { dateToStr } from '@/common/date-utils';
 import { useQueryResults } from '@/core/db/queries-helper';
 import { store } from '@/core/db/store';
 import collectionService from '@/db/collection.service';
-import navService from '@/db/nav.service';
 import useFetchItemsQuery from '@/domain/collection/hooks/useFetchItemsQuery';
 import useFetchItemsQueryParamsState from '@/domain/collection/hooks/useFetchItemsQueryParentState';
+import { resumeService } from '@/domain/resume-state/resume-state.service';
 import {
   IonButton,
   IonButtons,
@@ -42,7 +42,7 @@ const SaveSessionModal = ({ onClose }: SaveSessionModalProps) => {
   const [item, setItem] = useState<CollectionItemResult | null>(null);
   const content = store.getValue('tempDoc');
 
-  const query = useFetchItemsQuery(navService.getCurrentFolder());
+  const query = useFetchItemsQuery(resumeService.getCurrentFolder());
   const [parent, setParent] = useFetchItemsQueryParamsState(query);
   const items = useQueryResults(query);
 

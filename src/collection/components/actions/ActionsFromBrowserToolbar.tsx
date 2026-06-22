@@ -5,7 +5,7 @@ import QuickUngroupButton from '@/common/buttons/QuickUngroupButton';
 import RenameItemButton from '@/common/buttons/RenameItemButton';
 import { GET_FOLDER_ROUTE } from '@/common/routes';
 import collectionService from '@/db/collection.service';
-import navService from '@/db/nav.service';
+import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { ExportItemsButton } from '@/features/import-export';
 import { IonButtons, IonToolbar } from '@ionic/react';
 
@@ -19,7 +19,7 @@ const ActionsFromBrowserToolbar = ({
   onClose
 }: ActionsFromBrowserToolbarProps) => {
   const type = collectionService.getItemType(id);
-  const folder = navService.getCurrentFolder();
+  const folder = resumeService.getCurrentFolder();
   const fallbackRoute = GET_FOLDER_ROUTE(folder);
 
   return (

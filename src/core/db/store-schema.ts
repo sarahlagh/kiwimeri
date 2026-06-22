@@ -1,4 +1,3 @@
-import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { docAnnotationSchema } from '@/domain/document-annotations/model';
 import { localChangesSchema } from '@/domain/local-changes/model';
 import { resumeStateSchema } from '@/domain/resume-state/model';
@@ -12,7 +11,6 @@ import {
 } from './types';
 
 export enum StoreTables {
-  Spaces = 'spaces',
   LocalChanges = 'localChanges',
   Remotes = 'remotes',
   RemoteStates = 'remoteState',
@@ -22,17 +20,6 @@ export enum StoreTables {
 }
 
 export const storeTablesSchema = {
-  spaces: {
-    currentNotebook: {
-      type: 'string',
-      default: DEFAULT_NOTEBOOK_ID
-    },
-    currentFolder: {
-      type: 'string',
-      default: DEFAULT_NOTEBOOK_ID
-    },
-    currentDocument: { type: 'string' }
-  },
   localChanges: localChangesSchema,
   remotes: {
     state: { type: 'string' },
@@ -135,7 +122,8 @@ export const spaceTablesSchema = {
 } as const satisfies Record<SpaceTables, unknown>;
 
 export const spaceValuesSchema = {
-  appVersion: { type: 'string', default: '' }
+  appVersion: { type: 'string', default: '' },
+  currentNotebook: { type: 'string' }
 } as const;
 
 // types

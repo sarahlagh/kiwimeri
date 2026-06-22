@@ -7,8 +7,8 @@ import QuickGroupButton from '@/common/buttons/QuickGroupButton';
 import SearchButton from '@/common/buttons/SearchButton';
 import { GET_FOLDER_ROUTE } from '@/common/routes';
 import { APPICONS } from '@/constants';
-import navService from '@/db/nav.service';
 import { settingsService } from '@/domain/collection-settings/collection-settings.service';
+import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { ViewAo3HtmlButton } from '@/features/ao3-html-ui';
 import { ExportItemsButton } from '@/features/import-export';
 import { IonButton, IonButtons, IonIcon, IonToolbar } from '@ionic/react';
@@ -25,7 +25,7 @@ const ActionsFromDocumentEditorToolbar = ({
   onSearch
 }: ActionsFromDocumentEditorToolbarProps) => {
   const type = CollectionItemType.document;
-  const folder = navService.getCurrentFolder();
+  const folder = resumeService.getCurrentFolder();
   const fallbackRoute = GET_FOLDER_ROUTE(folder);
 
   const statsEnabled = settingsService.getNotebookDefaultStatsEnabled();

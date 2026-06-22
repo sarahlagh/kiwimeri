@@ -2,8 +2,8 @@ import DeepSearchButton from '@/common/buttons/DeepSearchButton';
 import SyncRemoteButton from '@/common/buttons/SyncRemoteButton';
 import { plt } from '@/core/infra/platform';
 import collectionService from '@/db/collection.service';
-import navService from '@/db/nav.service';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
+import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { syncService } from '@/remote-storage/sync.service';
 import {
   InputCustomEvent,
@@ -62,7 +62,7 @@ const MainHeader = ({
       setToast(t`An error occurred during sync.`, 'danger');
     }
     setIsSyncing(false);
-    const currentFolder = navService.getCurrentFolder();
+    const currentFolder = resumeService.getCurrentFolder();
     if (!collectionService.itemExists(currentFolder)) {
       console.debug('current folder deleted', currentFolder);
       // soft refresh, InitialRoutingProvider will do the rest

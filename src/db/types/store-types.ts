@@ -11,12 +11,6 @@ export interface AnySerializableData {
   [k: string]: SerializableData;
 }
 
-export interface Space {
-  currentNotebook?: string;
-  currentFolder?: string;
-  currentDocument?: string;
-}
-
 export interface Remote {
   id?: string;
   state?: string; // rename to stateId

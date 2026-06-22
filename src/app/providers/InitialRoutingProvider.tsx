@@ -9,6 +9,7 @@ import { ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/db/collection.service';
 import navService from '@/db/nav.service';
 import notebooksService from '@/db/notebooks.service';
+import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { ReactNode, useEffect } from 'react';
 import { Redirect, useLocation } from 'react-router';
 
@@ -25,15 +26,16 @@ const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
 
   useEffect(() => {
     if (isCollectionRoute(location.pathname)) {
-      navService.setCurrentFolder(folder);
-      navService.setCurrentDocument(searchParams.document);
+      resumeService.setLastFolder(folder);
+      resumeService.setLastDocument(searchParams.document);
     }
   }, [folder, searchParams.document]);
 
   if (location.pathname === INIT_ROUTE) {
     if (rememberLastRoute) {
-      const document = navService.getCurrentDocument();
-      const folder = navService.getCurrentFolder();
+      const state = resumeService.getNotebookResumeState(notebook);
+      const document = state?.lastDocument;
+      const folder = state?.lastFolder || notebook;
 
       if (document && collectionService.itemExists(document)) {
         return <Redirect to={GET_DOCUMENT_ROUTE(folder, document)} />;

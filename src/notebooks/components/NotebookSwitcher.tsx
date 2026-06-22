@@ -1,4 +1,4 @@
-import { GET_FOLDER_ROUTE } from '@/common/routes';
+import { INIT_ROUTE } from '@/common/routes';
 import { APPICONS } from '@/constants';
 import notebooksService from '@/db/notebooks.service';
 import { IonButton, IonIcon, useIonModal } from '@ionic/react';
@@ -13,7 +13,8 @@ const NotebookSwitcher = () => {
   const [present, dismiss] = useIonModal(ManageNotebooksModal, {
     onClose: (parentId?: string) => {
       if (parentId) {
-        history.push(GET_FOLDER_ROUTE(parentId));
+        notebooksService.setCurrentNotebook(parentId);
+        history.push(INIT_ROUTE);
       }
       dismiss();
     }

@@ -2,18 +2,19 @@ import { CollectionItemType } from '@/collection/collection';
 import {
   DEFAULT_NOTEBOOK_ID,
   DEFAULT_ORDER,
-  DEFAULT_SPACE_ID,
   getGlobalTrans,
   ROOT_COLLECTION
 } from '@/constants';
-import { space, spaceQueries, store } from '@/core/db/store';
+import { space, spaceQueries } from '@/core/db/store';
+import { SID } from '@/core/db/store-schema';
+import { useSpaceValue } from '@/core/db/tinybase-hooks';
 import { setMetaField } from '@/core/db/types';
 import { settingsService } from '@/domain/collection-settings/collection-settings.service';
 import { CollectionItemSort } from '@/domain/collection-settings/model';
+import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { Notebook, NotebookResult } from '@/notebooks/notebooks';
 import { getUniqueId } from 'tinybase/with-schemas';
 import collectionService from './collection.service';
-import navService from './nav.service';
 import {
   useCellWithRef,
   useResultSortedRowIdsWithRef,
@@ -47,7 +48,8 @@ class NotebooksService {
     if (!this.hasOneNotebook()) {
       console.log('[storage] no local notebooks detected, creating default');
       this.addDefaultNotebook();
-      navService.setCurrentFolder(DEFAULT_NOTEBOOK_ID);
+      this.setCurrentNotebook(DEFAULT_NOTEBOOK_ID);
+      resumeService.setLastFolder(DEFAULT_NOTEBOOK_ID);
     }
   }
 
@@ -104,25 +106,23 @@ class NotebooksService {
     space.delRow(this.table, id);
   }
 
-  public getCurrentNotebook() {
-    return (
-      (store
-        .getCell(this.spacesTable, DEFAULT_SPACE_ID, 'currentNotebook')
-        ?.valueOf() as string) || DEFAULT_NOTEBOOK_ID
-    );
+  public setCurrentNotebook(notebookId: string) {
+    space.setValue('currentNotebook', notebookId);
   }
 
+  public getCurrentNotebook() {
+    return space.getValue('currentNotebook') || DEFAULT_NOTEBOOK_ID;
+  }
+
+  /** @deprecated use separate hook */
   public useCurrentNotebook() {
     return (
-      useCellWithRef<string>(
-        'store',
-        this.spacesTable,
-        DEFAULT_SPACE_ID,
-        'currentNotebook'
-      ) || DEFAULT_NOTEBOOK_ID
+      useSpaceValue<'currentNotebook'>('currentNotebook', SID.space) ||
+      DEFAULT_NOTEBOOK_ID
     );
   }
 
+  /** @deprecated use separate hook */
   public useNotebookTitle(id: string) {
     return useCellWithRef<string>(this.storeId, this.table, id, 'title');
   }
@@ -145,6 +145,7 @@ class NotebooksService {
       });
   }
 
+  /** @deprecated use separate hook */
   public useNotebooks(parent?: string, sort?: CollectionItemSort) {
     if (!sort) {
       sort = { by: 'order', descending: false };

@@ -3,11 +3,11 @@ import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { space } from '@/core/db/store';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
-import navService from '@/db/nav.service';
 import notebooksService from '@/db/notebooks.service';
 import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
+import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import {
   ZipImportOptions,
@@ -685,7 +685,7 @@ describe('import service', () => {
     });
 
     it('should handle case where default notebook has been changed', async () => {
-      navService.setCurrentFolder(nId);
+      resumeService.setLastFolder(nId);
       notebooksService.deleteNotebook(DEFAULT_NOTEBOOK_ID);
 
       const zipData = await readZip('zips_with_meta', 'Space.zip', {});
