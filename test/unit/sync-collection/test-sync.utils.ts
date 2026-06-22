@@ -1,6 +1,5 @@
 import { CollectionItem } from '@/collection/collection';
 import { DEFAULT_SPACE_ID } from '@/constants';
-import { SpaceValues } from '@/core/db/store-schema';
 import { historyService } from '@/db/collection-history.service';
 import remotesService from '@/db/remotes.service';
 import { SyncableAnnotation } from '@/domain/document-annotations/model';
@@ -19,10 +18,6 @@ import { expect, vi } from 'vitest';
 export let driver: InMemDriver;
 let iPull = 0;
 let iPush = 0;
-
-export const defaultValues: SpaceValues = {
-  appVersion: '0.0.0'
-};
 
 export const testSyncBeforeEach = async () => {
   stopLocalChangesListeners();
@@ -49,34 +44,21 @@ export const testSyncAfterEach = () => {
   // expect(countOrphans()).toBe(0);
 };
 
-export const reInitRemoteData = async (
-  items: CollectionItem[],
-  updateTs?: number,
-  values?: SpaceValues
-) => {
-  return reInitRemoteDataWithAnnots(items, undefined, updateTs, values);
+export const reInitRemoteData = async (items: CollectionItem[]) => {
+  return reInitRemoteDataWithAnnots(items);
 };
 
 export const reInitRemoteDataWithAnnots = async (
   items: CollectionItem[],
-  annots?: SyncableAnnotation[],
-  updateTs?: number,
-  values?: SpaceValues
+  annots?: SyncableAnnotation[]
 ) => {
   vi.advanceTimersByTime(fakeTimersDelay);
   // parent update doesn't set the row update ts, so... parent_meta ts might be > i.updated
   // this is a test problem, lastLocalChange is supposed to be updated by localChanges service
-  const lastLocalChange =
-    updateTs !== undefined
-      ? updateTs
-      : Math.max(...items.map(i => Math.max(i.updated, i.parent_meta._u)));
-  console.debug(
-    '[reInitRemoteData]',
-    items,
-    annots,
-    values || defaultValues,
-    lastLocalChange
+  const lastLocalChange = Math.max(
+    ...items.map(i => Math.max(i.updated, i.parent_meta._u))
   );
+  console.debug('[reInitRemoteData]', items, annots, lastLocalChange);
   await driver.setCollectionContentWithAnnots(
     items,
     annots || [],

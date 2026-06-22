@@ -5,8 +5,8 @@ export default function useSpaceDefaultSettings(): SpaceSettings {
   const by = usePref<'defaultSortBy'>(
     'defaultSortBy'
   ) as CollectionItemSortType;
-  const descending = usePref<'defaultSortDesc'>('defaultSortDesc');
-  const statsEnabled = usePref<'statsEnabled'>('statsEnabled');
+  const descending = usePref('defaultSortDesc');
+  const statsEnabled = usePref('statsEnabled');
   return {
     statsEnabled: statsEnabled,
     sort: { by, descending }

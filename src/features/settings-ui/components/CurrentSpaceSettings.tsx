@@ -19,13 +19,12 @@ const CurrentSpaceSettings = () => {
   const { t, i18n } = useLingui();
 
   const [maxHistoryPerDoc, setMaxHistoryPerDoc] =
-    usePrefState<'maxHistoryPerDoc'>('maxHistoryPerDoc');
+    usePrefState('maxHistoryPerDoc');
 
-  const [historyIdleTime, setHistoryIdleTime] =
-    usePrefState<'historyIdleTime'>('historyIdleTime');
+  const [historyIdleTime, setHistoryIdleTime] = usePrefState('historyIdleTime');
 
   const [historyMaxInterval, setHistoryMaxInterval] =
-    usePrefState<'historyMaxInterval'>('historyMaxInterval');
+    usePrefState('historyMaxInterval');
 
   return (
     <IonCard className="primary">

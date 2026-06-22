@@ -11,13 +11,18 @@ import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 const UP = SpaceTables.UserPreference;
 
 export default function usePrefState<P extends UserPreferenceKey>(
-  pref: UserPreferenceKey
+  pref: P
 ): [UserPreferenceValue<P>, Dispatch<SetStateAction<UserPreferenceValue<P>>>] {
-  const cellValue = useSpaceCell(UP, pref, 'value', SID.space);
+  const cellValue = useSpaceCell(
+    UP,
+    pref,
+    'value',
+    SID.space
+  ) as UserPreferenceRow['value'];
   const rawValue: UserPreferenceValue<P> =
     cellValue !== undefined
-      ? ((cellValue as UserPreferenceRow['value'])._v as UserPreferenceValue<P>)
-      : userPrefs.getDefault(pref);
+      ? (cellValue._v as UserPreferenceValue<P>)
+      : userPrefs.getDefault<P>(pref);
   const [value, setValue] = useState<UserPreferenceValue<P>>(rawValue);
   useEffect(() => {
     userPrefs.set(pref, value);

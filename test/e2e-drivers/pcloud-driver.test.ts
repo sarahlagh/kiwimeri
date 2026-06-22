@@ -10,11 +10,7 @@ import {
   getGlobalTrans
 } from '@/constants';
 import { space, store } from '@/core/db/store';
-import {
-  SpaceTables,
-  SpaceValues,
-  SpaceValuesType
-} from '@/core/db/store-schema';
+import { SpaceTables, SpaceValuesType } from '@/core/db/store-schema';
 import { setMetaField } from '@/core/db/types';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
@@ -55,25 +51,19 @@ import {
   updateOnRemote,
   wrappedRenderHook
 } from '../_setup/test.utils';
-import { defaultValues } from '../unit/sync-collection/test-sync.utils';
 
 let notebook: string = DEFAULT_NOTEBOOK_ID;
 let driver: PCloudDriver;
 let synchronizer: CompositeSynchronizer;
 
-const reInitRemoteData = async (
-  items: CollectionItem[],
-  updateTs?: number,
-  values?: SpaceValues
-) => {
-  return reInitRemoteDataWithAnnots(items, undefined, updateTs, values);
+const reInitRemoteData = async (items: CollectionItem[], updateTs?: number) => {
+  return reInitRemoteDataWithAnnots(items, undefined, updateTs);
 };
 
 const reInitRemoteDataWithAnnots = async (
   items: CollectionItem[],
   annots?: SyncableAnnotation[],
-  updateTs?: number,
-  values?: SpaceValues
+  updateTs?: number
 ) => {
   const lastRemoteChange =
     updateTs !== undefined ? updateTs : Math.max(...items.map(i => i.updated));
@@ -559,8 +549,7 @@ describe.sequential(
         await reInitRemoteDataWithAnnots(
           items,
           notes || [],
-          notes[0].updatedAt,
-          defaultValues
+          notes[0].updatedAt
         );
 
         await amount(100);
@@ -578,12 +567,7 @@ describe.sequential(
         const notes = [oneNote(items[1].id!)];
         const docId = items[1].id!;
         const noteId = notes[0].id;
-        await reInitRemoteDataWithAnnots(
-          items,
-          notes,
-          notes[0].updatedAt,
-          defaultValues
-        );
+        await reInitRemoteDataWithAnnots(items, notes, notes[0].updatedAt);
         await synchronizer.sync();
         await amount(100);
         // note pulled
@@ -592,12 +576,7 @@ describe.sequential(
         notes[0].order = 2;
         notes[0].order_meta = setMetaField(Date.now());
         notes[0].updatedAt = Date.now();
-        await reInitRemoteDataWithAnnots(
-          items,
-          notes,
-          notes[0].updatedAt,
-          defaultValues
-        );
+        await reInitRemoteDataWithAnnots(items, notes, notes[0].updatedAt);
         await amount(100);
 
         // update locally
