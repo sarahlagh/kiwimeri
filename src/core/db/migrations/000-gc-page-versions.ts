@@ -1,12 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { SpaceTables } from '../store-schema';
-import { NoSchemaStore } from '../types';
+import { NoSchemaStore } from './migrate';
 
-const C = SpaceTables.Collection;
-const H = SpaceTables.History;
-const HC = SpaceTables.HistoryContent;
-const R = SpaceTables.ResumeState;
-const S = SpaceTables.Stats;
+enum _SpaceTables {
+  Collection = 'collection',
+  History = 'history',
+  HistoryContent = 'history_content',
+  ResumeState = 'collection_resume_state',
+  Stats = 'stats',
+  Annotations = 'document_annotation',
+  UserPreference = 'user_preference'
+}
+
+const C = _SpaceTables.Collection;
+const H = _SpaceTables.History;
+const HC = _SpaceTables.HistoryContent;
+const R = _SpaceTables.ResumeState;
+const S = _SpaceTables.Stats;
 
 export default function Migration(space: NoSchemaStore) {
   if (!space.hasTable(C)) return;

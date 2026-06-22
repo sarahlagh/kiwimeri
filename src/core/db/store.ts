@@ -10,7 +10,6 @@ import { migrate } from './migrations/migrate';
 import {
   spaceTablesSchema,
   spaceValuesSchema,
-  StoreId,
   storeTablesSchema,
   storeValuesSchema
 } from './store-schema';
@@ -60,27 +59,30 @@ export async function destroyStore() {
 
 // to delete
 
-export function getStore(storeId: StoreId) {
+export function getStore(storeId: string) {
   switch (storeId) {
     case 'store':
       return store;
     case 'space':
+    default:
       return space;
   }
 }
-export function getQueries(storeId: StoreId) {
+export function getQueries(storeId: string) {
   switch (storeId) {
     case 'store':
       return storeQueries;
     case 'space':
+    default:
       return spaceQueries;
   }
 }
-export function getIndexes(storeId: StoreId) {
+export function getIndexes(storeId: string) {
   switch (storeId) {
     case 'store':
       return storeIndexes;
     case 'space':
+    default:
       return spaceIndexes;
   }
 }

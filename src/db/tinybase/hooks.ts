@@ -1,5 +1,5 @@
 import { getIndexes, getQueries, getStore } from '@/core/db/store';
-import { StoreId, StoreValue } from '@/core/db/store-schema';
+import { StoreId } from '@/core/db/store-constants';
 import { Indexes } from 'tinybase/indexes';
 import { Queries } from 'tinybase/queries';
 import { Store } from 'tinybase/store';
@@ -34,21 +34,6 @@ export const useValueWithRef = <T>(storeId: StoreId, valueId: Id) => {
     return val as T;
   }
   return undefined;
-};
-
-export const useStoreValue = <T>(valueId: StoreValue) => {
-  return useValueWithRef<T>('store', valueId);
-};
-
-export const useStoreValueWithDefault = <T>(
-  valueId: StoreValue,
-  defaultValue: T
-) => {
-  const val = useValueWithRef<T>('store', valueId);
-  if (val !== undefined) {
-    return val;
-  }
-  return defaultValue;
 };
 
 export const useCellWithRef = <T>(

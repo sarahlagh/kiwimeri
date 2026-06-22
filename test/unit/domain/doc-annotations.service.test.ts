@@ -1,7 +1,7 @@
 import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { space } from '@/core/db/store';
-import { SpaceTables } from '@/core/db/store-schema';
+import { SpaceTables } from '@/core/db/store-constants';
 import collectionService from '@/db/collection.service';
 import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
 import { DocAnnotationRow } from '@/domain/document-annotations/model';

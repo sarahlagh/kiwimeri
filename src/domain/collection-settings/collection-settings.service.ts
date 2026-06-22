@@ -1,5 +1,5 @@
 import { space } from '@/core/db/store';
-import { SpaceTables } from '@/core/db/store-schema';
+import { SpaceTables } from '@/core/db/store-constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import { Id } from 'tinybase/with-schemas';

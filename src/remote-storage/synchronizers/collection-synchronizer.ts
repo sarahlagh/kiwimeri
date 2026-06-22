@@ -11,9 +11,9 @@ import {
 } from '@/collection/compress-collection';
 import { cellEquals } from '@/common/utils';
 import { space, store } from '@/core/db/store';
+import { SpaceTables } from '@/core/db/store-constants';
 import {
   SpaceTableId,
-  SpaceTables,
   SpaceTablesType,
   SpaceType
 } from '@/core/db/store-schema';

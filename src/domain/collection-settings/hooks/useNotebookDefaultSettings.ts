@@ -1,4 +1,4 @@
-import { SID, SpaceTables } from '@/core/db/store-schema';
+import { SID, SpaceTables } from '@/core/db/store-constants';
 import { useSpaceCell } from '@/core/db/tinybase-hooks';
 import notebooksService from '@/db/notebooks.service';
 import { Id } from 'tinybase/with-schemas';

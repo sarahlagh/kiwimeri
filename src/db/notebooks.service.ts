@@ -6,7 +6,7 @@ import {
   ROOT_COLLECTION
 } from '@/constants';
 import { space, spaceQueries } from '@/core/db/store';
-import { SID } from '@/core/db/store-schema';
+import { SID } from '@/core/db/store-constants';
 import { useSpaceValue } from '@/core/db/tinybase-hooks';
 import { setMetaField } from '@/core/db/types';
 import { settingsService } from '@/domain/collection-settings/collection-settings.service';

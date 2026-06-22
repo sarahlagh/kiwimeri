@@ -1,5 +1,5 @@
 import { store } from '@/core/db/store';
-import { StoreTables } from '@/core/db/store-schema';
+import { StoreTables } from '@/core/db/store-constants';
 import { AsId } from '@/core/db/types';
 import { Id } from 'tinybase/with-schemas';
 import {

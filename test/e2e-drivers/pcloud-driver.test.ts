@@ -10,7 +10,8 @@ import {
   getGlobalTrans
 } from '@/constants';
 import { space, store } from '@/core/db/store';
-import { SpaceTables, SpaceValuesType } from '@/core/db/store-schema';
+import { SpaceTables } from '@/core/db/store-constants';
+import { SpaceValuesType } from '@/core/db/store-schema';
 import { setMetaField } from '@/core/db/types';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';

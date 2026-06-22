@@ -1,6 +1,8 @@
 import { appConfig } from '@/config';
-import { NoSchemaStore } from '../types';
+import { NoSchemas, Store } from 'tinybase/with-schemas';
 import { between, getVersionCode } from './migration-utils';
+
+export type NoSchemaStore = Store<NoSchemas>;
 
 async function migrateSpace(_space: NoSchemaStore, _store: NoSchemaStore) {
   const runtimeVersion = appConfig.KIWIMERI_VERSION;

@@ -1,4 +1,5 @@
-import { SID, SpaceValue, SpaceValueType } from '@/core/db/store-schema';
+import { SID } from '@/core/db/store-constants';
+import { SpaceValue, SpaceValueType } from '@/core/db/store-schema';
 import { useSpaceValue } from '@/core/db/tinybase-hooks';
 
 export default function useDeviceSetting<S extends SpaceValue>(

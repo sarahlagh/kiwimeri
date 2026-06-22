@@ -1,9 +1,11 @@
 import { GET_DOCUMENT_ROUTE } from '@/common/routes';
 import { store } from '@/core/db/store';
+import { SID } from '@/core/db/store-constants';
+import { useStoreValue } from '@/core/db/tinybase-hooks';
 import { historyService } from '@/db/collection-history.service';
 import collectionService, { initialContent } from '@/db/collection.service';
-import { useValueWithRef } from '@/db/tinybase/hooks';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
+import useDeviceSetting from '@/domain/device-settings/hooks/useDeviceSetting';
 import { useIonModal } from '@ionic/react';
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
@@ -37,13 +39,9 @@ function saveTempDocument(payload: SavePayload) {
 const WritingSession = () => {
   const history = useHistory();
   const [ongoing, setOngoing] = useState<boolean>(false);
-  const duration =
-    useValueWithRef<number>('store', 'defaultTimedDuration') || 10;
-  const mode = useValueWithRef<string>(
-    'store',
-    'defaultTimedMode'
-  ) as SessionMode;
-  const tempDoc = useValueWithRef<string>('store', 'tempDoc');
+  const duration = useDeviceSetting('defaultTimedDuration');
+  const mode = useDeviceSetting('defaultTimedMode') as SessionMode;
+  const tempDoc = useStoreValue('tempDoc', SID.store);
 
   const [present, dismiss] = useIonModal(SaveSessionModal, {
     onClose: (payload: SavePayload) => {

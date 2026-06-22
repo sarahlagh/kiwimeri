@@ -3,6 +3,7 @@ import { localChangesSchema } from '@/domain/local-changes/model';
 import { resumeStateSchema } from '@/domain/resume-state/model';
 import { userPreferenceSchema } from '@/domain/user-preferences/model';
 import { Value } from 'tinybase/with-schemas';
+import { SpaceTables, StoreTables } from './store-constants';
 import {
   CellIdFromSchema,
   DefaultedValueFromSchema,
@@ -10,15 +11,6 @@ import {
   TableIdFromSchema,
   ValueIdFromSchema
 } from './types';
-
-export enum StoreTables {
-  LocalChanges = 'localChanges',
-  Remotes = 'remotes',
-  RemoteStates = 'remoteState',
-  Logs = 'logs',
-  Search = 'search',
-  Ancestors = 'ancestors'
-}
 
 export const storeTablesSchema = {
   localChanges: localChangesSchema,
@@ -55,16 +47,6 @@ export const storeTablesSchema = {
 export const storeValuesSchema = {
   tempDoc: { type: 'string' }
 } as const;
-
-export enum SpaceTables {
-  Collection = 'collection',
-  History = 'history',
-  HistoryContent = 'history_content',
-  ResumeState = 'collection_resume_state',
-  Stats = 'stats',
-  Annotations = 'document_annotation',
-  UserPreference = 'user_preference'
-}
 
 export const spaceTablesSchema = {
   collection: {
@@ -151,9 +133,3 @@ export type SpaceCellId<T extends SpaceTableId> = CellIdFromSchema<
   SpaceTablesType,
   T
 >;
-
-export type StoreId = 'store' | 'space';
-export enum SID {
-  space = 'space',
-  store = 'store'
-}

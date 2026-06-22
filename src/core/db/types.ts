@@ -2,14 +2,10 @@ import {
   AnyArray,
   AnyObject,
   Id,
-  NoSchemas,
   OptionalTablesSchema,
   OptionalValuesSchema,
-  Store,
   Value
 } from 'tinybase/with-schemas';
-
-export type NoSchemaStore = Store<NoSchemas>;
 
 export type AsId<Key> = Exclude<Key & Id, number>;
 export type TableIdFromSchema<Schema extends OptionalTablesSchema> = AsId<

@@ -2,7 +2,7 @@ import { genericReorder } from '@/common/dnd/utils';
 import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
 import { PREVIEW_SIZE } from '@/constants';
 import { space } from '@/core/db/store';
-import { SpaceTables } from '@/core/db/store-schema';
+import { SpaceTables } from '@/core/db/store-constants';
 import { setMetaField } from '@/core/db/types';
 import { initialContent } from '@/db/collection.service';
 import { SortableType } from '@/shared/utils/sort-filter/sort';

@@ -13,10 +13,10 @@ import {
   Where
 } from 'tinybase/with-schemas';
 import { spaceQueries, storeQueries } from './store';
+import { StoreId } from './store-constants';
 import {
   SpaceTableId,
   SpaceType,
-  StoreId,
   StoreTableId,
   StoreType
 } from './store-schema';

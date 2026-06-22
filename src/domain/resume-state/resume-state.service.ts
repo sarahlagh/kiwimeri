@@ -1,6 +1,6 @@
 import { SerializedSelection } from '@/common/wysiwyg/lexical/selection-serializer';
 import { space } from '@/core/db/store';
-import { SpaceTables } from '@/core/db/store-schema';
+import { SpaceTables } from '@/core/db/store-constants';
 import notebooksService from '@/db/notebooks.service';
 import { Id } from 'tinybase/with-schemas';
 import { DocumentResumeState, NotebookResumeState } from './model';

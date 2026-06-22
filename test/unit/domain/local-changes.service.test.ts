@@ -1,7 +1,7 @@
 import { CollectionItemType } from '@/collection/collection';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { space } from '@/core/db/store';
-import { SpaceTables } from '@/core/db/store-schema';
+import { SpaceTables } from '@/core/db/store-constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import { SerializableData } from '@/db/types/store-types';

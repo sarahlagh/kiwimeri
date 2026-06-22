@@ -4,7 +4,8 @@ import {
   getGlobalTrans,
   ROOT_COLLECTION
 } from '@/constants';
-import { SpaceTables, SpaceType } from '@/core/db/store-schema';
+import { SpaceTables } from '@/core/db/store-constants';
+import { SpaceType } from '@/core/db/store-schema';
 import notebooksService from '@/db/notebooks.service';
 import { SyncableAnnotation } from '@/domain/document-annotations/model';
 import localChangesService from '@/domain/local-changes/local-changes.service';

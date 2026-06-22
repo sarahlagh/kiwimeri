@@ -1,5 +1,5 @@
 import { SpaceQueryDefinition } from '@/core/db/queries-helper';
-import { SpaceTables } from '@/core/db/store-schema';
+import { SpaceTables } from '@/core/db/store-constants';
 import { ParamValues } from 'tinybase/with-schemas';
 import { AnnotationConflictResult } from '../model';
 

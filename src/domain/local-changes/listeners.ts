@@ -1,6 +1,7 @@
 import { CollectionItemUpdatableFields } from '@/collection/collection';
 import { space } from '@/core/db/store';
-import { SpaceCellId, SpaceTableId, SpaceTables } from '@/core/db/store-schema';
+import { SpaceTables } from '@/core/db/store-constants';
+import { SpaceCellId, SpaceTableId } from '@/core/db/store-schema';
 import { Id } from 'tinybase/with-schemas';
 import { DocAnnotationUpdatableFields } from '../document-annotations/model';
 import { UserPrefUpdatableFields } from '../user-preferences/model';

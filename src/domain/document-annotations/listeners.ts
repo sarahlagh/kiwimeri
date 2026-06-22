@@ -1,6 +1,6 @@
 import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
 import { space } from '@/core/db/store';
-import { SpaceTables } from '@/core/db/store-schema';
+import { SpaceTables } from '@/core/db/store-constants';
 import { getPlainText } from '@/shared/utils/getPlainText';
 import { Id } from 'tinybase/with-schemas';
 

@@ -9,7 +9,7 @@ import { GET_UNKNOWN_ITEM_ROUTE, SETTINGS_ROUTE } from '@/common/routes';
 import platformService from '@/common/services/platform.service';
 import { APPICONS } from '@/constants';
 import { useQueryResults } from '@/core/db/queries-helper';
-import { SpaceTables } from '@/core/db/store-schema';
+import { SpaceTables } from '@/core/db/store-constants';
 import { plt } from '@/core/infra/platform';
 import collectionService from '@/db/collection.service';
 import remotesService from '@/db/remotes.service';

@@ -1,12 +1,22 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { SpaceTables } from '../store-schema';
-import { MetaField, NoSchemaStore } from '../types';
+import { MetaField } from '../types';
+import { NoSchemaStore } from './migrate';
 
-const C = SpaceTables.Collection;
-const A = SpaceTables.Annotations;
-const H = SpaceTables.History;
-const S = SpaceTables.Stats;
-const UP = SpaceTables.UserPreference;
+enum _SpaceTables {
+  Collection = 'collection',
+  History = 'history',
+  HistoryContent = 'history_content',
+  ResumeState = 'collection_resume_state',
+  Stats = 'stats',
+  Annotations = 'document_annotation',
+  UserPreference = 'user_preference'
+}
+
+const C = _SpaceTables.Collection;
+const A = _SpaceTables.Annotations;
+const H = _SpaceTables.History;
+const S = _SpaceTables.Stats;
+const UP = _SpaceTables.UserPreference;
 
 export default function Migration(
   _space: NoSchemaStore,

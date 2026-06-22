@@ -1,7 +1,7 @@
 import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { space } from '@/core/db/store';
-import { SpaceTables } from '@/core/db/store-schema';
+import { SpaceTables } from '@/core/db/store-constants';
 import { setMetaField } from '@/core/db/types';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
