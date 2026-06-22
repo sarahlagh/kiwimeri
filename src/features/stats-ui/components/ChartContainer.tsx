@@ -1,10 +1,11 @@
-import userSettingsService from '@/db/user-settings.service';
 import { IonSelect, IonSelectOption } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
 import { useEffect, useRef, useState } from 'react';
 
 import TimeChart from './charts/TimeChart';
 
+import useDeviceSetting from '@/domain/device-settings/hooks/useDeviceSetting';
+import { Theme } from '@/domain/device-settings/model';
 import { DataPoint } from '@/domain/stats/model';
 import {
   TrackedStats,
@@ -19,7 +20,7 @@ type ChartContainerProps = {
 
 const ChartContainer = ({ id }: ChartContainerProps) => {
   const { t } = useLingui();
-  const theme = userSettingsService.useTheme();
+  const theme = useDeviceSetting('theme') as Theme;
   const [stats, setStats] = useState<DataPoint[]>();
   const [statKey, setStatKey] = useState<TrackedStats>('lastWordCount');
   const [size, setSize] = useState<{ width: number; height: number }>();

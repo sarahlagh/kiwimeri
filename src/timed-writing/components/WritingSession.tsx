@@ -3,6 +3,7 @@ import { store } from '@/core/db/store';
 import { historyService } from '@/db/collection-history.service';
 import collectionService, { initialContent } from '@/db/collection.service';
 import { useValueWithRef } from '@/db/tinybase/hooks';
+import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { useIonModal } from '@ionic/react';
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
@@ -69,8 +70,8 @@ const WritingSession = () => {
         duration={duration}
         mode={mode}
         onStart={(d, m) => {
-          store.setValue('defaultTimedDuration', d);
-          store.setValue('defaultTimedMode', m);
+          deviceSettings.set('defaultTimedDuration', d);
+          deviceSettings.set('defaultTimedMode', m);
           setOngoing(true);
         }}
       />

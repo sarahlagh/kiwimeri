@@ -5,7 +5,8 @@ import {
   NoSchemas,
   OptionalTablesSchema,
   OptionalValuesSchema,
-  Store
+  Store,
+  Value
 } from 'tinybase/with-schemas';
 
 export type NoSchemaStore = Store<NoSchemas>;
@@ -17,6 +18,25 @@ export type TableIdFromSchema<Schema extends OptionalTablesSchema> = AsId<
 export type ValueIdFromSchema<Schema extends OptionalValuesSchema> = AsId<
   keyof Schema
 >;
+
+export type ValueIsDefaultedFromSchema<
+  Schema extends OptionalValuesSchema,
+  ValueId extends ValueIdFromSchema<Schema>,
+  Then,
+  Else
+> = Schema[ValueId] extends {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  default: infer _;
+}
+  ? Then
+  : Else;
+
+export type DefaultedValueFromSchema<
+  Schema extends OptionalValuesSchema,
+  ValueId extends ValueIdFromSchema<Schema>
+> =
+  | Value<Schema, ValueId>
+  | ValueIsDefaultedFromSchema<Schema, ValueId, never, undefined>;
 
 export type CellIdFromSchema<
   Schema extends OptionalTablesSchema,
@@ -49,6 +69,7 @@ export interface AnySerializableData {
   [k: string]: SerializableData;
 }
 
+// TODO move somewhere else
 export const metaSchemaDefault = { u: 0 };
 export interface MetaField extends AnyObject {
   _u: number;

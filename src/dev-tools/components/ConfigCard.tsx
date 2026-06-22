@@ -1,8 +1,8 @@
 import platformService from '@/common/services/platform.service';
 import { appConfig } from '@/config';
 import { APPICONS } from '@/constants';
-import { store } from '@/core/db/store';
-import { StoreValue } from '@/core/db/store-schema';
+import { space } from '@/core/db/store';
+import { SpaceValue } from '@/core/db/store-schema';
 import remotesService from '@/db/remotes.service';
 import { SerializableData } from '@/db/types/store-types';
 import {
@@ -20,19 +20,19 @@ import {
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useEffect, useState } from 'react';
 
-const valueConfigMap: { [key in StoreValue]?: string } = {
+const valueConfigMap: { [key in SpaceValue]?: string } = {
   internalProxy: 'INTERNAL_HTTP_PROXY'
 };
 
-const getValue = (v: StoreValue) => {
+const getValue = (v: SpaceValue) => {
   if (valueConfigMap[v]) {
-    const val = store.getValue(v);
+    const val = space.getValue(v);
     return val !== undefined ? val : appConfig[valueConfigMap[v]];
   }
-  return store.getValue(v);
+  return space.getValue(v);
 };
 
-const getNewValueOrDefault = (v: StoreValue, newValue?: SerializableData) => {
+const getNewValueOrDefault = (v: SpaceValue, newValue?: SerializableData) => {
   if (valueConfigMap[v] === undefined) {
     return newValue;
   }
@@ -43,7 +43,7 @@ const getNewValueOrDefault = (v: StoreValue, newValue?: SerializableData) => {
 };
 
 export type ConfigRowType = {
-  key: StoreValue;
+  key: SpaceValue;
   type: 'string' | 'number' | 'boolean';
   label: string;
   min?: number;
@@ -68,7 +68,7 @@ const ConfigValue = ({
         onIonChange={e => {
           if (e.detail.value) {
             const newValue = parseInt(e.detail.value);
-            store.setValue(row.key, newValue);
+            space.setValue(row.key, newValue);
           }
         }}
       ></IonInput>
@@ -80,7 +80,7 @@ const ConfigValue = ({
         checked={val as boolean}
         onIonChange={e => {
           const newValue = e.detail.checked;
-          store.setValue(row.key, newValue);
+          space.setValue(row.key, newValue);
         }}
       ></IonCheckbox>
     );
@@ -91,7 +91,7 @@ const ConfigValue = ({
       value={val as string}
       onIonChange={e => {
         const newValue = e.detail.value as string;
-        store.setValue(row.key, newValue);
+        space.setValue(row.key, newValue);
       }}
     ></IonInput>
   );
@@ -119,10 +119,10 @@ const ConfigCard = () => {
   }
 
   const [state, setState] = useState<{
-    [key in StoreValue]?: SerializableData;
+    [key in SpaceValue]?: SerializableData;
   }>(() => {
     const initialState: {
-      [key in StoreValue]?: SerializableData;
+      [key in SpaceValue]?: SerializableData;
     } = {};
     rows.forEach(row => {
       initialState[row.key] = getValue(row.key);
@@ -131,7 +131,7 @@ const ConfigCard = () => {
   });
 
   useEffect(() => {
-    const listenerId = store.addValuesListener((store, getValueChange) => {
+    const listenerId = space.addValuesListener((space, getValueChange) => {
       if (getValueChange) {
         rows.forEach(row => {
           const [changed, , newValue] = getValueChange(row.key);
@@ -146,7 +146,7 @@ const ConfigCard = () => {
       }
     });
     return () => {
-      store.delListener(listenerId);
+      space.delListener(listenerId);
     };
   });
 
@@ -167,7 +167,7 @@ const ConfigCard = () => {
               slot="end"
               fill="clear"
               onClick={() => {
-                store.delValue(v.key);
+                space.delValue(v.key);
               }}
             >
               <IonIcon icon={APPICONS.resetAction}></IonIcon>

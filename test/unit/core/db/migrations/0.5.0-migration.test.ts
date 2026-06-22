@@ -10,8 +10,10 @@ import { readFile, writeFile } from 'fs/promises';
 import { createStore } from 'tinybase/with-schemas';
 
 const migrationFixedVersion = '0.4.1';
-const migrationFilename = '0.4.0.space-content.json';
-const migrationExpectedFilename = '0.5.0.space-expected-content.json';
+const spaceMigrationFilename = '0.4.0.space-content.json';
+const storeMigrationFilename = '0.4.0.store-content.json';
+const spaceMigrationExpectedFilename = '0.5.0.space-expected-content.json';
+const storeMigrationExpectedFilename = '0.5.0.store-expected-content.json';
 const migrationWithPagesFilename = '0.4.0.space-content-with-pages.json';
 const migrationWithPagesExpectedFilename =
   '0.5.0.space-with-pages-expected-content.json';
@@ -29,11 +31,16 @@ const getFileContent = async (filename: string) => {
   }
 };
 
-async function migrateRawStore(spaceContent: any, fixedVersion: string) {
-  appConfig.KIWIMERI_VERSION = '0.4.1';
+async function migrateRawStore(
+  spaceContent: any,
+  storeContent: any | null,
+  fixedVersion: string
+) {
+  appConfig.KIWIMERI_VERSION = fixedVersion;
   const rawSpace = createStore();
   const rawStore = createStore();
   rawSpace.setContent(spaceContent);
+  if (storeContent !== null) rawStore.setContent(storeContent);
   await migrate(rawSpace, rawStore);
 
   const store = rawStore.setSchema(storeTablesSchema, storeValuesSchema);
@@ -47,31 +54,49 @@ async function migrateRawStore(spaceContent: any, fixedVersion: string) {
 
 describe('0.5.0 migration', () => {
   test.skip('regenerate 4.0.1 migration expected file', async () => {
-    const preMigrationSpaceContent = await getFileContent(migrationFilename);
-    const { spaceContent } = await migrateRawStore(
+    const preMigrationSpaceContent = await getFileContent(
+      spaceMigrationFilename
+    );
+    const preMigrationStoreContent = await getFileContent(
+      storeMigrationFilename
+    );
+    const { spaceContent, storeContent } = await migrateRawStore(
       preMigrationSpaceContent,
+      preMigrationStoreContent,
       migrationFixedVersion
     );
-    await generateExpectedFile(migrationExpectedFilename, spaceContent);
+    await generateExpectedFile(spaceMigrationExpectedFilename, spaceContent);
+    await generateExpectedFile(storeMigrationExpectedFilename, storeContent);
   });
 
   test('4.0.1 migration should be successful', async () => {
-    const preMigrationSpaceContent = await getFileContent(migrationFilename);
-    const { spaceContent } = await migrateRawStore(
+    const preMigrationSpaceContent = await getFileContent(
+      spaceMigrationFilename
+    );
+    const preMigrationStoreContent = await getFileContent(
+      storeMigrationFilename
+    );
+    const { spaceContent, storeContent } = await migrateRawStore(
       preMigrationSpaceContent,
+      preMigrationStoreContent,
       migrationFixedVersion
     );
     const expectedSpaceContent = await getFileContent(
-      migrationExpectedFilename
+      spaceMigrationExpectedFilename
     );
     expect(spaceContent).toEqual(expectedSpaceContent);
 
-    // should run a second time
-    const { spaceContent: spaceContent2 } = await migrateRawStore(
-      spaceContent,
-      migrationFixedVersion
+    const expectedStoreContent = await getFileContent(
+      storeMigrationExpectedFilename
     );
+    expect(spaceContent).toEqual(expectedSpaceContent);
+    expect(storeContent).toEqual(expectedStoreContent);
+
+    // should run a second time
+    const { spaceContent: spaceContent2, storeContent: storeContent2 } =
+      await migrateRawStore(spaceContent, storeContent, migrationFixedVersion);
     expect(spaceContent2).toEqual(expectedSpaceContent);
+    expect(storeContent2).toEqual(expectedStoreContent);
   });
 
   test.skip('regenerate 4.0.1 migration-with-pages expected file', async () => {
@@ -80,6 +105,7 @@ describe('0.5.0 migration', () => {
     );
     const { spaceContent } = await migrateRawStore(
       preMigrationSpaceContent,
+      null,
       migrationFixedVersion
     );
     await generateExpectedFile(
@@ -94,6 +120,7 @@ describe('0.5.0 migration', () => {
     );
     const { spaceContent } = await migrateRawStore(
       preMigrationSpaceContent,
+      null,
       migrationFixedVersion
     );
     const expectedSpaceContent = await getFileContent(
@@ -104,6 +131,7 @@ describe('0.5.0 migration', () => {
     // should run a second time
     const { spaceContent: spaceContent2 } = await migrateRawStore(
       spaceContent,
+      null,
       migrationFixedVersion
     );
     expect(spaceContent2).toEqual(expectedSpaceContent);

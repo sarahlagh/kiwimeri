@@ -9,6 +9,7 @@ import {
   useTableWithRef
 } from './db/tinybase/hooks';
 import { AppLog, AppLogDbLevel } from './db/types/store-types';
+import { deviceSettings } from './domain/device-settings/device-settings.service';
 
 const MAX_STRING_LENGTH = 10000; // max length for a single arg
 
@@ -46,7 +47,7 @@ class AppLogService {
   }
 
   public gc(all = false) {
-    const maxLogHistory = all ? 0 : store.getValue('maxLogHistory');
+    const maxLogHistory = all ? 0 : deviceSettings.get('maxLogHistory');
     const rowCount = store.getRowCount(this.table);
     if (rowCount > maxLogHistory) {
       console.log('running log gc', rowCount - maxLogHistory);

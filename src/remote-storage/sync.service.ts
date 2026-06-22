@@ -1,7 +1,7 @@
-import platformService from '@/common/services/platform.service';
 import remotesService from '@/db/remotes.service';
 import { useCellWithRef } from '@/db/tinybase/hooks';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
+import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { useHasLocalChanges } from '@/features/local-changes-ui';
 
 export type SyncDirection = 'sync' | 'force-push' | 'force-pull';
@@ -71,7 +71,7 @@ class SyncService {
 
   public usePrimaryConnected() {
     const primary = remotesService.usePrimaryRemote();
-    if (!primary || !platformService.isSyncEnabled()) {
+    if (!primary || !deviceSettings.isSyncEnabled()) {
       return false;
     }
     return primary.connected;

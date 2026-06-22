@@ -11,18 +11,9 @@ class PostInitMigrationService {
     if (!this.enabled) return;
     const runtimeVersion = appConfig.KIWIMERI_VERSION;
     const baseRuntimeVersion = runtimeVersion.split('~')[0];
-    const storeVersion = store.getValue('appVersion')?.valueOf() || '0.2.6';
     const spaceVersion = space.getValue('appVersion')?.valueOf() || '0.2.6';
     const runtimeCode = getVersionCode(baseRuntimeVersion);
-    const storeCode = getVersionCode(storeVersion);
     const spaceCode = getVersionCode(spaceVersion);
-
-    if (baseRuntimeVersion !== storeVersion) {
-      console.warn(
-        `version mismatch detected: runtime is ${baseRuntimeVersion} (${runtimeCode}), local store is ${storeVersion} (${storeCode})`
-      );
-      store.setValue('appVersion', baseRuntimeVersion);
-    }
 
     if (baseRuntimeVersion !== spaceVersion) {
       console.warn(
@@ -31,7 +22,7 @@ class PostInitMigrationService {
       space.setValue('appVersion', baseRuntimeVersion);
     }
 
-    await this.runStoreMigrations(store, storeCode, runtimeCode);
+    await this.runStoreMigrations(store, spaceCode, runtimeCode);
     await this.runSpaceMigrations(space, spaceCode, runtimeCode);
   }
 

@@ -7,7 +7,7 @@ import GenericExportFileButton from '@/common/buttons/GenericExportFileButton';
 import { getGlobalTrans } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
-import userSettingsService from '@/db/user-settings.service';
+import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { useIonAlert } from '@ionic/react';
 import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactProps';
 import { useLingui } from '@lingui/react/macro';
@@ -57,7 +57,7 @@ const ExportItemsButton = ({
     string | Uint8Array<ArrayBufferLike>
   > = async () => {
     const opts: ZipExportOptions = {
-      includeMetadata: userSettingsService.getExportIncludeMetadata()
+      includeMetadata: deviceSettings.get('exportIncludeMetadata')
     };
     const exportService = (await import('../services/export.service')).default;
     if (id === 'space') {
@@ -80,7 +80,7 @@ const ExportItemsButton = ({
 
   const confirm: () => Promise<boolean> = () => {
     const opts: ZipExportOptions = {
-      includeMetadata: userSettingsService.getExportIncludeMetadata()
+      includeMetadata: deviceSettings.get('exportIncludeMetadata')
     };
     return new Promise<boolean>(resolve => {
       if (type !== CollectionItemType.document) {
@@ -93,7 +93,7 @@ const ExportItemsButton = ({
               checked: opts.includeMetadata,
               handler: opt => {
                 if (opt.checked !== undefined) {
-                  userSettingsService.setExportIncludeMetadata(opt.checked);
+                  deviceSettings.set('exportIncludeMetadata', opt.checked);
                 }
               }
             }

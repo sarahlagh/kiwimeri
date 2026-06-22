@@ -3,6 +3,7 @@ import { DEFAULT_SPACE_ID } from '@/constants';
 import { store, storeQueries } from '@/core/db/store';
 import { networkService } from '@/core/infra/network.service';
 import { plt } from '@/core/infra/platform';
+import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { CloudStorageSynchronizer } from '@/remote-storage/synchronizers/abstract-synchronizer';
 import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';
 import {
@@ -11,7 +12,6 @@ import {
   useResultTableWithRef
 } from './tinybase/hooks';
 import { AnyData, RemoteResult } from './types/store-types';
-import userSettingsService from './user-settings.service';
 
 class RemotesService {
   private readonly storeId = 'store';
@@ -43,7 +43,7 @@ class RemotesService {
   }
 
   public initSync() {
-    if (plt.isSyncEnabled()) {
+    if (deviceSettings.isSyncEnabled()) {
       networkService.onStatusUp(
         '[storage reinit]',
         () => {
@@ -97,7 +97,7 @@ class RemotesService {
     let proxy = undefined;
     let useHttp = false;
     if (plt.isWeb()) {
-      proxy = userSettingsService.getInternalProxy();
+      proxy = deviceSettings.getInternalProxy();
       useHttp = appConfig.DEV_USE_HTTP_IF_POSSIBLE;
     }
     if (!this.synchronizers.has(remote.id))

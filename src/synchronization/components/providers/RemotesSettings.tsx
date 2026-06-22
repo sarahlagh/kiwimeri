@@ -1,6 +1,7 @@
 import platformService from '@/common/services/platform.service';
 import { APPICONS, DEFAULT_SPACE_ID } from '@/constants';
 import remotesService from '@/db/remotes.service';
+import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { PCloudConf } from '@/remote-storage/storage-drivers/pcloud/pcloud.driver';
 import {
   IonButton,
@@ -44,7 +45,7 @@ const RemotesSettings = () => {
     event.detail.complete();
   }
 
-  const syncEnabled = platformService.isSyncEnabled();
+  const syncEnabled = deviceSettings.isSyncEnabled();
 
   return (
     <IonCard className="primary" disabled={!syncEnabled}>

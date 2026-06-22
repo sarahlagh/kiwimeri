@@ -5,6 +5,7 @@ import { userPreferenceSchema } from '@/domain/user-preferences/model';
 import { Value } from 'tinybase/with-schemas';
 import {
   CellIdFromSchema,
+  DefaultedValueFromSchema,
   metaSchemaDefault,
   TableIdFromSchema,
   ValueIdFromSchema
@@ -52,19 +53,7 @@ export const storeTablesSchema = {
 } as const satisfies Record<StoreTables, unknown>;
 
 export const storeValuesSchema = {
-  tempDoc: { type: 'string' },
-  appVersion: { type: 'string' }, // delete
-  // put in space for native saving
-  showDevTools: { type: 'boolean', default: false },
-  globalZoom: { type: 'number', default: 1 },
-  exportIncludeMetadata: { type: 'boolean', default: true },
-  theme: { type: 'string', default: 'dark' },
-  maxLogHistory: { type: 'number', default: 500 },
-  internalProxy: { type: 'string' },
-  defaultTimedDuration: { type: 'number', default: 10 },
-  defaultTimedMode: { type: 'string', default: 'dangerous' },
-  rememberLastRoute: { type: 'boolean', default: true },
-  resumeLastSelection: { type: 'boolean', default: true }
+  tempDoc: { type: 'string' }
 } as const;
 
 export enum SpaceTables {
@@ -123,7 +112,17 @@ export const spaceTablesSchema = {
 
 export const spaceValuesSchema = {
   appVersion: { type: 'string', default: '' },
-  currentNotebook: { type: 'string' }
+  currentNotebook: { type: 'string' },
+  showDevTools: { type: 'boolean', default: false },
+  globalZoom: { type: 'number', default: 1 },
+  exportIncludeMetadata: { type: 'boolean', default: true },
+  theme: { type: 'string', default: 'dark' },
+  maxLogHistory: { type: 'number', default: 500 },
+  internalProxy: { type: 'string' },
+  defaultTimedDuration: { type: 'number', default: 10 },
+  defaultTimedMode: { type: 'string', default: 'dangerous' },
+  rememberLastRoute: { type: 'boolean', default: true },
+  resumeLastSelection: { type: 'boolean', default: true }
 } as const;
 
 // types
@@ -133,6 +132,8 @@ export type StoreValuesType = typeof storeValuesSchema;
 export type StoreType = [StoreTablesType, StoreValuesType];
 export type StoreTableId = TableIdFromSchema<StoreTablesType>;
 export type StoreValue = ValueIdFromSchema<StoreValuesType>;
+export type StoreValueType<ValueId extends StoreValue> =
+  DefaultedValueFromSchema<StoreValuesType, ValueId>;
 
 export type SpaceTablesType = typeof spaceTablesSchema;
 export type SpaceValuesType = typeof spaceValuesSchema;
@@ -143,6 +144,8 @@ export type SpaceValue = ValueIdFromSchema<SpaceValuesType>;
 export type SpaceValues = {
   [key in SpaceValue]: Value<SpaceValuesType, key>;
 };
+export type SpaceValueType<ValueId extends SpaceValue> =
+  DefaultedValueFromSchema<SpaceValuesType, ValueId>;
 
 export type SpaceCellId<T extends SpaceTableId> = CellIdFromSchema<
   SpaceTablesType,

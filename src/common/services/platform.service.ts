@@ -1,6 +1,5 @@
 import { useMediaQueryMatch } from '@/common/hooks/useMediaQueryMatch';
 import { appConfig } from '@/config';
-import userSettingsService from '@/db/user-settings.service';
 import { Capacitor } from '@capacitor/core';
 
 class PlatformService {
@@ -36,16 +35,6 @@ class PlatformService {
 
   public isWideEnough() {
     return useMediaQueryMatch('md');
-  }
-
-  /** @deprecated */
-  public getInternalProxy() {
-    return userSettingsService.getInternalProxy() || '';
-  }
-
-  /** @deprecated */
-  public isSyncEnabled() {
-    return !this.isWeb() || this.getInternalProxy().length > 0;
   }
 
   public hasHighlightSupport() {

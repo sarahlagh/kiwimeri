@@ -1,4 +1,4 @@
-import { Theme } from '@/db/user-settings.service';
+import { Theme } from '@/domain/device-settings/model';
 import { DataPoint } from '@/domain/stats/model';
 import { useMemo } from 'react';
 import { AlignedData } from 'uplot';

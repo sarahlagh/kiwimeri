@@ -7,8 +7,8 @@ import {
 import { getSearchParams } from '@/common/utils';
 import { ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/db/collection.service';
-import navService from '@/db/nav.service';
 import notebooksService from '@/db/notebooks.service';
+import useDeviceSetting from '@/domain/device-settings/hooks/useDeviceSetting';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { ReactNode, useEffect } from 'react';
 import { Redirect, useLocation } from 'react-router';
@@ -22,7 +22,7 @@ const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
   const searchParams = getSearchParams(location.search);
   const notebook = notebooksService.useCurrentNotebook();
   const folder = searchParams.folder ? searchParams.folder : notebook;
-  const rememberLastRoute = navService.useRememberLastRoute();
+  const rememberLastRoute = useDeviceSetting('rememberLastRoute');
 
   useEffect(() => {
     if (isCollectionRoute(location.pathname)) {

@@ -11,7 +11,8 @@ import {
 import CatchClickLabel from '@/common/utils/CatchClickLabel';
 import { appConfig } from '@/config';
 import { APPICONS } from '@/constants';
-import userSettingsService from '@/db/user-settings.service';
+import { deviceSettings } from '@/domain/device-settings/device-settings.service';
+import useDeviceSetting from '@/domain/device-settings/hooks/useDeviceSetting';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
 import NotebookSwitcher from '@/notebooks/components/NotebookSwitcher';
 import {
@@ -39,8 +40,8 @@ interface AppPage {
 const MainMenuList = () => {
   const { t } = useLingui();
   const location = useLocation();
-  const theme = userSettingsService.useTheme();
-  const showDevTools = userSettingsService.useShowDevTools();
+  const theme = useDeviceSetting('theme');
+  const showDevTools = useDeviceSetting('showDevTools');
 
   function isActive(appPage: AppPage) {
     if (appPage.isActive) {
@@ -127,7 +128,7 @@ const MainMenuList = () => {
             <CatchClickLabel
               goalClicks={7}
               onFinalClick={() => {
-                userSettingsService.setShowDevTools(true);
+                deviceSettings.set('showDevTools', true);
               }}
             >
               {appConfig.KIWIMERI_VERSION}
@@ -136,9 +137,7 @@ const MainMenuList = () => {
           <IonButtons slot="end">
             <IonButton
               onClick={() => {
-                userSettingsService.setTheme(
-                  theme === 'dark' ? 'light' : 'dark'
-                );
+                deviceSettings.setTheme(theme === 'dark' ? 'light' : 'dark');
               }}
             >
               {theme === 'light' && (

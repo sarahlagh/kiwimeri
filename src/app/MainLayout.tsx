@@ -1,5 +1,5 @@
 import useAppInfo from '@/common/hooks/useAppInfo';
-import userSettingsService from '@/db/user-settings.service';
+import useDeviceSetting from '@/domain/device-settings/hooks/useDeviceSetting';
 import {
   IonHeader,
   IonIcon,
@@ -14,7 +14,7 @@ import MainMenuList from './components/MainMenuList';
 
 const MainLayout = () => {
   const appName = useAppInfo();
-  const theme = userSettingsService.useTheme();
+  const theme = useDeviceSetting('theme');
   useEffect(() => {
     document.documentElement.classList.toggle(
       'ion-palette-dark',

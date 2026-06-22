@@ -1,6 +1,6 @@
 import EditConfigList from '@/common/containers/EditConfigList';
-import navService from '@/db/nav.service';
-import userSettingsService from '@/db/user-settings.service';
+import { deviceSettings } from '@/domain/device-settings/device-settings.service';
+import useDeviceSetting from '@/domain/device-settings/hooks/useDeviceSetting';
 import {
   IonCard,
   IonCardContent,
@@ -11,9 +11,8 @@ import {
 import { Trans, useLingui } from '@lingui/react/macro';
 
 const CurrentDeviceSettings = () => {
-  const defaultRememberLastRoute = navService.useRememberLastRoute();
-  const defaultResumeLastSelection =
-    userSettingsService.useResumeLastSelection();
+  const defaultRememberLastRoute = useDeviceSetting('rememberLastRoute');
+  const defaultResumeLastSelection = useDeviceSetting('resumeLastSelection');
   const { t } = useLingui();
 
   return (
@@ -51,9 +50,9 @@ const CurrentDeviceSettings = () => {
           }}
           onChange={(key, val) => {
             if (key === 'rememberLastRoute') {
-              navService.setRememberLastRoute(val as boolean);
+              deviceSettings.set('rememberLastRoute', val as boolean);
             } else if (key === 'resumeLastSelection') {
-              userSettingsService.setResumeLastSelection(val as boolean);
+              deviceSettings.set('resumeLastSelection', val as boolean);
             }
           }}
         />

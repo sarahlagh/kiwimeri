@@ -10,7 +10,6 @@ const UP = SpaceTables.UserPreference;
 
 export default function Migration(
   _space: NoSchemaStore,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _store: NoSchemaStore
 ) {
   metaFieldsBecomeObjects(_space);
@@ -20,24 +19,25 @@ export default function Migration(
   contentStatsBecomeObjects(_space);
   someValuesGoToUserPrefs(_space);
   documentResumeStateToCollectionResumeState(_space);
+  storeValuesGoToSpace(_store, _space);
 }
 
-function metaFieldsBecomeObjects(space: NoSchemaStore) {
-  _metaFieldsBecomeObjects(space, C);
-  _metaFieldsBecomeObjects(space, A);
+function metaFieldsBecomeObjects(_space: NoSchemaStore) {
+  _metaFieldsBecomeObjects(_space, C);
+  _metaFieldsBecomeObjects(_space, A);
 }
 
-function _metaFieldsBecomeObjects(space: NoSchemaStore, tableId: string) {
-  space.getRowIds(tableId).forEach(rowId => {
-    const cellIds = space.getCellIds(tableId, rowId);
+function _metaFieldsBecomeObjects(_space: NoSchemaStore, tableId: string) {
+  _space.getRowIds(tableId).forEach(rowId => {
+    const cellIds = _space.getCellIds(tableId, rowId);
     for (const cellId of cellIds) {
       if (cellId.endsWith('_meta')) {
-        const metaField = space.getCell(tableId, rowId, cellId);
+        const metaField = _space.getCell(tableId, rowId, cellId);
         if (metaField && typeof metaField === 'string') {
           const oldMetaField = JSON.parse(metaField.toString()) as {
             u: number;
           };
-          space.setCell(tableId, rowId, cellId, {
+          _space.setCell(tableId, rowId, cellId, {
             _u: oldMetaField.u
           } as MetaField);
         }
@@ -75,32 +75,32 @@ function _transformOldDisplayOpts(type: string, display_opts_str: string) {
   return old_display_opts;
 }
 
-function displayOptsBecomeSettings(space: NoSchemaStore) {
+function displayOptsBecomeSettings(_space: NoSchemaStore) {
   const tableId = C;
   const oldCellId = 'display_opts';
-  space.getRowIds(tableId).forEach(rowId => {
-    const display_opts_str = space.getCell(tableId, rowId, oldCellId);
-    const type = space.getCell(tableId, rowId, 'type');
+  _space.getRowIds(tableId).forEach(rowId => {
+    const display_opts_str = _space.getCell(tableId, rowId, oldCellId);
+    const type = _space.getCell(tableId, rowId, 'type');
     if (display_opts_str && typeof display_opts_str === 'string') {
       const transformed_display_opts = _transformOldDisplayOpts(
         type as string,
         display_opts_str
       );
-      space.setCell(tableId, rowId, 'settings', transformed_display_opts);
-      const oldMeta = space.getCell(tableId, rowId, 'display_opts_meta');
-      if (oldMeta) space.setCell(tableId, rowId, 'settings_meta', oldMeta);
+      _space.setCell(tableId, rowId, 'settings', transformed_display_opts);
+      const oldMeta = _space.getCell(tableId, rowId, 'display_opts_meta');
+      if (oldMeta) _space.setCell(tableId, rowId, 'settings_meta', oldMeta);
     }
   });
 }
 
-function tagsBecomeArray(space: NoSchemaStore) {
-  space.getRowIds(C).forEach(rowId => {
-    const tags = space.getCell(C, rowId, 'tags');
+function tagsBecomeArray(_space: NoSchemaStore) {
+  _space.getRowIds(C).forEach(rowId => {
+    const tags = _space.getCell(C, rowId, 'tags');
     if (tags !== undefined && typeof tags === 'string') {
       if (tags.length === 0) {
-        space.delCell(C, rowId, 'tags_meta');
+        _space.delCell(C, rowId, 'tags_meta');
       } else {
-        space.setCell(C, rowId, 'tags', tags.split(','));
+        _space.setCell(C, rowId, 'tags', tags.split(','));
       }
     }
   });
@@ -148,13 +148,13 @@ function historyTagsToArray(snapshotJson: any) {
   }
 }
 
-function snapshotJsonBecomeObjectsAndUpdate(space: NoSchemaStore) {
-  space.getRowIds(H).forEach(rowId => {
-    const itemId = space.getCell(H, rowId, 'itemId');
+function snapshotJsonBecomeObjectsAndUpdate(_space: NoSchemaStore) {
+  _space.getRowIds(H).forEach(rowId => {
+    const itemId = _space.getCell(H, rowId, 'itemId');
     if (itemId === undefined) return; // should delete instead
-    const type = space.getCell(C, itemId as string, 'type');
+    const type = _space.getCell(C, itemId as string, 'type');
     if (type === undefined) return; // should delete instead
-    const snapshotJson = space.getCell(H, rowId, 'snapshotJson');
+    const snapshotJson = _space.getCell(H, rowId, 'snapshotJson');
     if (snapshotJson && typeof snapshotJson === 'string') {
       const newJson = JSON.parse(snapshotJson);
       historyMetaFieldsToObjects(newJson);
@@ -162,59 +162,84 @@ function snapshotJsonBecomeObjectsAndUpdate(space: NoSchemaStore) {
       historyTagsToArray(newJson);
       delete newJson['deleted'];
       delete newJson['deleted_meta'];
-      space.setCell(H, rowId, 'snapshotJson', newJson);
+      _space.setCell(H, rowId, 'snapshotJson', newJson);
     }
   });
 }
 
-function contentStatsBecomeObjects(space: NoSchemaStore) {
-  space.getRowIds(S).forEach(rowId => {
-    const cell = space.getCell(S, rowId, 'contentStatsJson');
+function contentStatsBecomeObjects(_space: NoSchemaStore) {
+  _space.getRowIds(S).forEach(rowId => {
+    const cell = _space.getCell(S, rowId, 'contentStatsJson');
     if (cell && typeof cell === 'string') {
-      space.setCell(S, rowId, 'contentStatsJson', JSON.parse(cell));
+      _space.setCell(S, rowId, 'contentStatsJson', JSON.parse(cell));
     }
   });
 }
 
 function valueToUserPref(
-  space: NoSchemaStore,
+  _space: NoSchemaStore,
   valueKey: string,
   updatedAt: number
 ) {
-  if (space.hasValue(valueKey)) {
-    space.setRow(UP, valueKey, {
-      value: { _v: space.getValue(valueKey) },
+  if (_space.hasValue(valueKey)) {
+    _space.setRow(UP, valueKey, {
+      value: { _v: _space.getValue(valueKey) },
       updatedAt: updatedAt
     });
   }
 }
 
-function someValuesGoToUserPrefs(space: NoSchemaStore) {
+function someValuesGoToUserPrefs(_space: NoSchemaStore) {
   let valuesLastUpdatedAt = Date.now();
-  if (space.hasValue('schemaVersion')) {
-    space.setValue('appVersion', space.getValue('schemaVersion')!);
+  if (_space.hasValue('schemaVersion')) {
+    _space.setValue('appVersion', _space.getValue('schemaVersion')!);
   }
-  if (space.hasValue('valuesLastUpdatedAt')) {
-    valuesLastUpdatedAt = space.getValue('valuesLastUpdatedAt') as number;
+  if (_space.hasValue('valuesLastUpdatedAt')) {
+    valuesLastUpdatedAt = _space.getValue('valuesLastUpdatedAt') as number;
   }
-  valueToUserPref(space, 'defaultSortBy', valuesLastUpdatedAt);
-  valueToUserPref(space, 'defaultSortDesc', valuesLastUpdatedAt);
-  valueToUserPref(space, 'historyIdleTime', valuesLastUpdatedAt);
-  valueToUserPref(space, 'historyMaxInterval', valuesLastUpdatedAt);
-  valueToUserPref(space, 'maxHistoryPerDoc', valuesLastUpdatedAt);
-  valueToUserPref(space, 'statsEnabled', valuesLastUpdatedAt);
+  valueToUserPref(_space, 'defaultSortBy', valuesLastUpdatedAt);
+  valueToUserPref(_space, 'defaultSortDesc', valuesLastUpdatedAt);
+  valueToUserPref(_space, 'historyIdleTime', valuesLastUpdatedAt);
+  valueToUserPref(_space, 'historyMaxInterval', valuesLastUpdatedAt);
+  valueToUserPref(_space, 'maxHistoryPerDoc', valuesLastUpdatedAt);
+  valueToUserPref(_space, 'statsEnabled', valuesLastUpdatedAt);
 }
 
-function renameTable(space: NoSchemaStore, oldTable: string, newTable: string) {
-  if (!space.hasTable(oldTable)) {
+function renameTable(
+  _space: NoSchemaStore,
+  oldTable: string,
+  newTable: string
+) {
+  if (!_space.hasTable(oldTable)) {
     return;
   }
-  space.getRowIds(oldTable).forEach(rowId => {
-    const row = space.getRow(oldTable, rowId);
-    space.setRow(newTable, rowId, row);
+  _space.getRowIds(oldTable).forEach(rowId => {
+    const row = _space.getRow(oldTable, rowId);
+    _space.setRow(newTable, rowId, row);
   });
 }
 
-function documentResumeStateToCollectionResumeState(space: NoSchemaStore) {
-  renameTable(space, 'document_resume_state', 'collection_resume_state');
+function documentResumeStateToCollectionResumeState(_space: NoSchemaStore) {
+  renameTable(_space, 'document_resume_state', 'collection_resume_state');
+}
+
+function _migrateValue(
+  _store: NoSchemaStore,
+  _space: NoSchemaStore,
+  valueKey: string
+) {
+  const value = _store.getValue(valueKey);
+  if (value !== undefined) _space.setValue(valueKey, value);
+}
+
+function storeValuesGoToSpace(_store: NoSchemaStore, _space: NoSchemaStore) {
+  _migrateValue(_store, _space, 'globalZoom');
+  _migrateValue(_store, _space, 'exportIncludeMetadata');
+  _migrateValue(_store, _space, 'theme');
+  _migrateValue(_store, _space, 'maxLogHistory');
+  _migrateValue(_store, _space, 'internalProxy');
+  _migrateValue(_store, _space, 'defaultTimedDuration');
+  _migrateValue(_store, _space, 'defaultTimedMode');
+  _migrateValue(_store, _space, 'rememberLastRoute');
+  _migrateValue(_store, _space, 'resumeLastSelection');
 }

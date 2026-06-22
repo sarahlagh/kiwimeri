@@ -1,6 +1,5 @@
 import { appConfig } from '@/config';
 import { Capacitor } from '@capacitor/core';
-import { store } from '../db/store';
 
 class PlatformService {
   public isAndroid() {
@@ -23,15 +22,6 @@ class PlatformService {
     return appConfig.DEV_OVERRIDE_PLATFORM
       ? appConfig.DEV_OVERRIDE_PLATFORM
       : Capacitor.getPlatform();
-  }
-
-  public isSyncEnabled() {
-    return !this.isWeb() || this.getInternalProxy().length > 0;
-  }
-
-  private getInternalProxy() {
-    const val = store.getValue('internalProxy');
-    return (val !== undefined ? val : appConfig.INTERNAL_HTTP_PROXY) || '';
   }
 
   public hasHighlightSupport() {

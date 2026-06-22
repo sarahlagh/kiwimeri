@@ -40,7 +40,7 @@ import {
 import { Dispatch, useCallback, useEffect, useRef, useState } from 'react';
 const LowPriority = 1;
 
-import { useStoreValueWithDefault } from '@/db/tinybase/hooks';
+import useDeviceSetting from '@/domain/device-settings/hooks/useDeviceSetting';
 import { ZOOM_IN_COMMAND, ZOOM_OUT_COMMAND } from './commands';
 import { ZOOM_INCREMENT } from './constants';
 import { getSelectedNode } from './playground/utils/getSelectedNode';
@@ -172,7 +172,7 @@ export default function ToolbarPlugin({
   const [isCheckedList, setIsCheckedList] = useState(false);
   const [isLink, setIsLink] = useState(false);
 
-  const zoomLevel = useStoreValueWithDefault<number>('globalZoom', 1);
+  const zoomLevel = useDeviceSetting('globalZoom');
 
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection();

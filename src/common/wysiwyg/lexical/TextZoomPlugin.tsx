@@ -1,5 +1,5 @@
-import { store } from '@/core/db/store';
-import { useStoreValueWithDefault } from '@/db/tinybase/hooks';
+import { deviceSettings } from '@/domain/device-settings/device-settings.service';
+import useDeviceSetting from '@/domain/device-settings/hooks/useDeviceSetting';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { COMMAND_PRIORITY_LOW, LexicalEditor, mergeRegister } from 'lexical';
 import { useEffect } from 'react';
@@ -14,7 +14,7 @@ type StyleWithZoom = CSSStyleDeclaration & {
 };
 
 function zoomTo(zoom: number, editor: LexicalEditor) {
-  store.setValue('globalZoom', zoom);
+  deviceSettings.set('globalZoom', zoom);
   const editorElement = editor.getRootElement();
   if (editorElement) {
     const style = editorElement.style as StyleWithZoom;
@@ -25,7 +25,7 @@ function zoomTo(zoom: number, editor: LexicalEditor) {
 
 export default function TextZoomPlugin() {
   const [editor] = useLexicalComposerContext();
-  const zoom = useStoreValueWithDefault<number>('globalZoom', 1);
+  const zoom = useDeviceSetting('globalZoom');
   useEffect(() => {
     return mergeRegister(
       editor.registerCommand(

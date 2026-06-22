@@ -1,11 +1,12 @@
 import platformService from '@/common/services/platform.service';
 import OperationCard from '@/dev-tools/components/OperationsCard';
+import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { LocalChangesCard } from '@/features/local-changes-ui';
 import { ImportExportStoreSettings } from '@/features/settings-ui';
 import RemotesSettings from './providers/RemotesSettings';
 
 const SynchronizationSettings = () => {
-  const syncEnabled = platformService.isSyncEnabled();
+  const syncEnabled = deviceSettings.isSyncEnabled();
   return (
     <>
       <RemotesSettings />

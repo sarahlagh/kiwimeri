@@ -6,7 +6,7 @@ import { appConfig } from '@/config';
 import { space } from '@/core/db/store';
 import { plt } from '@/core/infra/platform';
 import notebooksService from '@/db/notebooks.service';
-import userSettingsService from '@/db/user-settings.service';
+import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import {
   getPlatforms,
   IonButtons,
@@ -34,7 +34,7 @@ const DevTools = () => {
             disabled={!platformService.isRelease()}
             checked={true}
             onIonChange={() => {
-              userSettingsService.setShowDevTools(false);
+              deviceSettings.set('showDevTools', false);
               history.replace(
                 GET_FOLDER_ROUTE(notebooksService.getCurrentNotebook())
               );
@@ -60,7 +60,7 @@ const DevTools = () => {
               <p>is electron: {platformService.isElectron() ? 'yes' : 'no'}</p>
               <p>is wide: {platformService.isWideEnough() ? 'yes' : 'no'}</p>
               <p>
-                sync enabled: {platformService.isSyncEnabled() ? 'yes' : 'no'}
+                sync enabled: {deviceSettings.isSyncEnabled() ? 'yes' : 'no'}
               </p>
               <p>config: {JSON.stringify(appConfig)}</p>
             </IonCardContent>
