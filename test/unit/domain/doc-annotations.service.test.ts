@@ -3,6 +3,7 @@ import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import collectionService from '@/db/collection.service';
+import { getDerivedId } from '@/domain/derived-content/model';
 import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
 import { DocAnnotationRow } from '@/domain/document-annotations/model';
 import localChangesService from '@/domain/local-changes/local-changes.service';
@@ -90,7 +91,10 @@ describe('notes service', () => {
     docAnnotationsService.edit(noteId, JSON.parse(content));
 
     const note = space.getRow(SpaceTables.Annotations, noteId);
-    const derived = space.getRow(SpaceTables.DerivedContent, noteId);
+    const derived = space.getRow(
+      SpaceTables.DerivedContent,
+      getDerivedId('a', noteId)
+    );
     expect(unminimizeContentFromStorage(note.content)).toBe(content);
     expect(docAnnotationsService.getContent(noteId)).toBe(note.content);
     expect(derived.plainText).toBe('this is the content');

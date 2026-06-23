@@ -263,8 +263,7 @@ function addDerivedContent(_space: NoSchemaStore) {
   _space.getRowIds(C).forEach(rowId => {
     const content = _space.getCell(C, rowId, 'content') as string;
     if (content) {
-      _space.setRow(D, rowId, {
-        on: C,
+      _space.setRow(D, `c-${rowId}`, {
         plainText: getPlainText(unminimizeContentFromStorage(content))
       });
     }
@@ -272,8 +271,7 @@ function addDerivedContent(_space: NoSchemaStore) {
   _space.getRowIds(A).forEach(rowId => {
     const content = _space.getCell(A, rowId, 'content') as string;
     if (content) {
-      _space.setRow(D, rowId, {
-        on: A,
+      _space.setRow(D, `a-${rowId}`, {
         plainText: getPlainText(unminimizeContentFromStorage(content))
       });
     }

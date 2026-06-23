@@ -8,10 +8,12 @@ import {
 import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
 import { DEFAULT_SPACE_ID, ROOT_COLLECTION } from '@/constants';
 import { space, store, storeIndexes } from '@/core/db/store';
+import { SpaceTables } from '@/core/db/store-constants';
 import { SpaceType, StoreType } from '@/core/db/store-schema';
 import { MetaField } from '@/core/db/types';
 import { useCellWithRef } from '@/db/tinybase/hooks';
 import { settingsService } from '@/domain/collection-settings/collection-settings.service';
+import { getDerivedId } from '@/domain/derived-content/model';
 import { statsService } from '@/domain/stats/stats-service';
 import formatConverter from '@/format-conversion/format-converter.service';
 import { Id, Ids, Store, Table } from 'tinybase/with-schemas';
@@ -112,7 +114,15 @@ class CollectionSearchService {
   }
 
   public getItemPreview(rowId: string) {
-    return store.getCell('search', rowId, 'contentPreview')?.toString() || '';
+    return (
+      space
+        .getCell(
+          SpaceTables.DerivedContent,
+          getDerivedId('c', rowId),
+          'plainText'
+        )
+        ?.toString() || ''
+    );
   }
 
   public useItemPreview(rowId: Id) {

@@ -8,6 +8,7 @@ import collectionService from '@/db/collection.service';
 import { RemoteResult } from '@/db/types/store-types';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
+import { getDerivedId } from '@/domain/derived-content/model';
 import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
@@ -415,7 +416,11 @@ describe('collection synchronizer', () => {
       expect(space.getRowCount(SpaceTables.Annotations)).toBe(1);
       expect(space.hasRow(SpaceTables.Annotations, notes[0].id));
       expect(
-        space.getCell(SpaceTables.DerivedContent, notes[0].id, 'plainText')
+        space.getCell(
+          SpaceTables.DerivedContent,
+          getDerivedId('a', notes[0].id),
+          'plainText'
+        )
       ).toBe('test');
     });
 
@@ -661,7 +666,11 @@ describe('collection synchronizer', () => {
       expect(space.getRowCount(SpaceTables.Annotations)).toBe(1);
       expect(space.hasRow(SpaceTables.Annotations, notes[0].id));
       expect(
-        space.getCell(SpaceTables.DerivedContent, notes[0].id, 'plainText')
+        space.getCell(
+          SpaceTables.DerivedContent,
+          getDerivedId('a', notes[0].id),
+          'plainText'
+        )
       ).toBe('test');
     });
 
@@ -691,13 +700,25 @@ describe('collection synchronizer', () => {
       await synchronizer.sync();
 
       expect(space.getRowCount(SpaceTables.Annotations)).toBe(2);
-      expect(space.hasRow(SpaceTables.Annotations, notes[0].id));
-      expect(space.hasRow(SpaceTables.Annotations, notes[1].id));
       expect(
-        space.getCell(SpaceTables.DerivedContent, notes[0].id, 'plainText')
+        space.hasRow(SpaceTables.Annotations, getDerivedId('a', notes[0].id))
+      );
+      expect(
+        space.hasRow(SpaceTables.Annotations, getDerivedId('a', notes[1].id))
+      );
+      expect(
+        space.getCell(
+          SpaceTables.DerivedContent,
+          getDerivedId('a', notes[0].id),
+          'plainText'
+        )
       ).toBe('test 2');
       expect(
-        space.getCell(SpaceTables.DerivedContent, notes[1].id, 'plainText')
+        space.getCell(
+          SpaceTables.DerivedContent,
+          getDerivedId('a', notes[1].id),
+          'plainText'
+        )
       ).toBe('other test');
     });
   });

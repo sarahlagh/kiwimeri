@@ -274,19 +274,17 @@
       }
     },
     "derived_content": {
-      "h-MOhEAYItMcMOJb": { "on": "collection", "plainText": "" },
-      "xtid1X1laW4E5oUI": { "on": "collection", "plainText": "content" },
-      "8-jzP7Mubb-laAcb": {
-        "on": "collection",
+      "c-h-MOhEAYItMcMOJb": { "plainText": "" },
+      "c-xtid1X1laW4E5oUI": { "plainText": "content" },
+      "c-8-jzP7Mubb-laAcb": {
         "plainText": "page content page update"
       },
-      "u0R3jqIujM3O_8IT": {
-        "on": "document_annotation",
+      "a-u0R3jqIujM3O_8IT": {
         "plainText": "this is a comment no a note an annotation"
       },
-      "dfa7xjA21tkzBm44": { "on": "document_annotation", "plainText": "1" },
-      "0INbpodHu1NOc3hA": { "on": "document_annotation", "plainText": "2" },
-      "jjm_oGzicsvYfSGM": { "on": "document_annotation", "plainText": "3" }
+      "a-dfa7xjA21tkzBm44": { "plainText": "1" },
+      "a-0INbpodHu1NOc3hA": { "plainText": "2" },
+      "a-jjm_oGzicsvYfSGM": { "plainText": "3" }
     }
   },
   {

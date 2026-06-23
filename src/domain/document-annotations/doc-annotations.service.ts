@@ -10,6 +10,7 @@ import { SerializedEditorState } from 'lexical';
 import { getUniqueId, Id } from 'tinybase/common';
 import { settingsService } from '../collection-settings/collection-settings.service';
 import { NotesSort } from '../collection-settings/model';
+import { getDerivedId } from '../derived-content/model';
 import { DocAnnotationRow } from './model';
 
 const A = SpaceTables.Annotations;
@@ -102,7 +103,11 @@ class DocumentAnnotationsService {
   }
 
   public getPreview(id: Id) {
-    return space.getCell(D, id, 'plainText')?.substring(0, PREVIEW_SIZE) || '';
+    return (
+      space
+        .getCell(D, getDerivedId('a', id), 'plainText')
+        ?.substring(0, PREVIEW_SIZE) || ''
+    );
   }
 
   public getAnnotInfo(id: Id) {
