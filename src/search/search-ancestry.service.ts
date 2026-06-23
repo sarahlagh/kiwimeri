@@ -1,31 +1,26 @@
 import {
   CollectionItem,
-  CollectionItemResult,
   CollectionItemType,
-  CollectionItemTypeValues,
-  ItemWithPreview
+  CollectionItemTypeValues
 } from '@/collection/collection';
 import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
 import { DEFAULT_SPACE_ID, ROOT_COLLECTION } from '@/constants';
 import { space, store, storeIndexes } from '@/core/db/store';
-import { SpaceTables } from '@/core/db/store-constants';
-import { SpaceType, StoreType } from '@/core/db/store-schema';
-import { MetaField } from '@/core/db/types';
-import { useCellWithRef } from '@/db/tinybase/hooks';
-import { settingsService } from '@/domain/collection-settings/collection-settings.service';
+import { SID, SpaceTables, StoreTables } from '@/core/db/store-constants';
+import { SpaceType } from '@/core/db/store-schema';
+import { useSpaceCell } from '@/core/db/tinybase-hooks';
 import { getDerivedId } from '@/domain/derived-content/model';
-import { statsService } from '@/domain/stats/stats-service';
 import formatConverter from '@/format-conversion/format-converter.service';
 import { Id, Ids, Store, Table } from 'tinybase/with-schemas';
+
+const C = SpaceTables.Collection;
+const AN = StoreTables.Ancestors;
 
 export const getAncestorId = (childId: string, parentId: string) => {
   return `${childId},${parentId}`;
 };
 
 class CollectionSearchService {
-  private readonly ancestorsTableId = 'ancestors';
-  private readonly collectionTableId = 'collection';
-
   private updateListeners: Map<Id, Ids> = new Map();
 
   public start(spaceId = DEFAULT_SPACE_ID) {
@@ -44,27 +39,22 @@ class CollectionSearchService {
     ) {
       console.log('backfilling ancestry and search tables');
       store.transaction(() => {
-        const collectionTable = space.getTable(this.collectionTableId);
-        space.getRowIds(this.collectionTableId).forEach(rowId => {
+        const collectionTable = space.getTable(C);
+        space.getRowIds(C).forEach(rowId => {
           this.updateAncestry([rowId], collectionTable);
-          this.updateContentPreview(rowId, collectionTable, store);
         });
       });
     }
 
     // update data as user changes stuff
     const onParentChangeListener = this.addParentChangeListener(spaceId, space);
-    const onContentChangeListener = this.addContentChangeListener(space);
 
-    this.updateListeners.set(spaceId, [
-      onParentChangeListener,
-      onContentChangeListener
-    ]);
+    this.updateListeners.set(spaceId, [onParentChangeListener]);
   }
 
   private addParentChangeListener(spaceId: string, space: Store<SpaceType>) {
     return space.addCellListener(
-      this.collectionTableId,
+      C,
       null,
       'parent',
       (space, tableId, rowId, cellId, newCell, oldCell) => {
@@ -87,20 +77,6 @@ class CollectionSearchService {
     );
   }
 
-  private addContentChangeListener(space: Store<SpaceType>) {
-    // TODO add timeouts?
-    return space.addCellListener(
-      this.collectionTableId,
-      null,
-      'content',
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      (space, tableId, rowId, cellId, newCell) => {
-        this.updateContentPreview(rowId, space.getTable(tableId), store);
-      },
-      true
-    );
-  }
-
   public stop() {
     this.updateListeners.forEach(listenerIds => {
       listenerIds.forEach(listenerId => {
@@ -113,6 +89,7 @@ class CollectionSearchService {
     return store.getCell('search', rowId, 'breadcrumb')?.toString() || '';
   }
 
+  /** @deprecated */
   public getItemPreview(rowId: string) {
     return (
       space
@@ -125,9 +102,15 @@ class CollectionSearchService {
     );
   }
 
+  /** @deprecated */
   public useItemPreview(rowId: Id) {
     return (
-      useCellWithRef<string>('store', 'search', rowId, 'contentPreview') || null
+      useSpaceCell<SpaceTables.DerivedContent, 'plainText'>(
+        SpaceTables.DerivedContent,
+        getDerivedId('c', rowId),
+        'plainText',
+        SID.space
+      ) || null
     );
   }
 
@@ -136,27 +119,6 @@ class CollectionSearchService {
       unminimizeContentFromStorage(item.content as string),
       { inline: true }
     );
-  }
-
-  public sortPerContentPreview(
-    results: CollectionItemResult[],
-    descending: boolean
-  ): ItemWithPreview[] {
-    const withPreviews = this.enrichWithPreview(results);
-    if (!descending) {
-      return withPreviews.sort((i1, i2) =>
-        i1.preview.localeCompare(i2.preview)
-      );
-    }
-    return withPreviews.sort((i1, i2) => i2.preview.localeCompare(i1.preview));
-  }
-
-  public enrichWithPreview(results: CollectionItemResult[]): ItemWithPreview[] {
-    const table = store.getTable('search');
-    return results.map(row => ({
-      ...row,
-      preview: table[row.id]?.contentPreview?.toString() || ''
-    }));
   }
 
   public getChildren(rowId: string) {
@@ -178,14 +140,11 @@ class CollectionSearchService {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     spaceId: string
   ) {
-    const collectionTable = space.getTable(this.collectionTableId);
+    const collectionTable = space.getTable(C);
     const rowParents = this.getParents(oldParent);
 
     updatedItems.forEach(updatedItem => {
-      store.delRow(
-        this.ancestorsTableId,
-        getAncestorId(updatedItem, oldParent)
-      );
+      store.delRow(AN, getAncestorId(updatedItem, oldParent));
 
       // if old parent had other parents in breadcrumb, must delete ancestry too
       for (const oldParentOfParent of rowParents) {
@@ -193,10 +152,7 @@ class CollectionSearchService {
         if (path.includes(oldParentOfParent)) {
           break;
         }
-        store.delRow(
-          this.ancestorsTableId,
-          getAncestorId(updatedItem, oldParentOfParent)
-        );
+        store.delRow(AN, getAncestorId(updatedItem, oldParentOfParent));
       }
     });
   }
@@ -218,40 +174,13 @@ class CollectionSearchService {
       const fullPath = this.getPath(rowId, table); // TODO don't call getPath twice
       fullPath.toReversed().forEach((parentId, idx) => {
         const ancestorId = getAncestorId(rowId, parentId);
-        store.setRow(this.ancestorsTableId, ancestorId, {
+        store.setRow(AN, ancestorId, {
           childId: rowId,
           parentId,
           depth: idx
         });
       });
     });
-  }
-
-  private updateContentPreview(
-    rowId: string,
-    table: Table<SpaceType[0], 'collection'>,
-    store: Store<StoreType>
-  ) {
-    if (table[rowId]?.content) {
-      // preview
-      const plain = this.getUnsavedItemPreview(
-        table[rowId] as unknown as CollectionItem
-      );
-      store.setCell('search', rowId, 'contentPreview', plain);
-
-      const parent = table[rowId].parent as string;
-      const notebook = this.getShortBreadcrumb(parent).split(',')[0];
-      if (settingsService.getNotebookDefaultStatsEnabled(notebook)) {
-        // stats
-        statsService.updateStatsAtDate(
-          rowId,
-          statsService.buildStatsFromContentMeta(
-            plain,
-            table[rowId].content_meta as MetaField
-          )
-        );
-      }
-    }
   }
 
   // store path with includeAllNotebooks = false

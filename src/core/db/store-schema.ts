@@ -34,8 +34,7 @@ export const storeTablesSchema = {
   },
   search: {
     // rowId = itemId
-    breadcrumb: { type: 'string' },
-    contentPreview: { type: 'string' }
+    breadcrumb: { type: 'string' }
   },
   ancestors: {
     parentId: { type: 'string' },

@@ -34,7 +34,7 @@ import { Table } from 'tinybase/store';
 import { searchAncestryService } from '../search/search-ancestry.service';
 import { historyService } from './collection-history.service';
 import notebooksService from './notebooks.service';
-import { useCellWithRef, useResultSortedRowIdsWithRef } from './tinybase/hooks';
+import { useCellWithRef } from './tinybase/hooks';
 
 export const initialContent = () => {
   // 'empty' editor
@@ -112,32 +112,6 @@ class CollectionService {
     return queryName;
   }
 
-  private useResultsSorted(
-    table: Table,
-    queryName: string,
-    sort: { by: string; descending: boolean },
-    limit?: number
-  ) {
-    const results = useResultSortedRowIdsWithRef(
-      this.storeId,
-      queryName,
-      sort.by,
-      sort.descending,
-      0,
-      limit
-    ).map(rowId => {
-      const row = table[rowId];
-      return { ...row, id: rowId } as CollectionItemResult;
-    });
-    if (sort.by === 'preview') {
-      return searchAncestryService.sortPerContentPreview(
-        results,
-        sort.descending
-      );
-    }
-    return results;
-  }
-
   private getResultsSorted(
     table: Table,
     queryName: string,
@@ -149,12 +123,6 @@ class CollectionService {
         const row = table[rowId];
         return { ...row, id: rowId } as CollectionItemResult;
       });
-    if (sort.by === 'preview') {
-      return searchAncestryService.sortPerContentPreview(
-        results,
-        sort.descending
-      );
-    }
     return results;
   }
 
@@ -187,6 +155,7 @@ class CollectionService {
   }
 
   // TODO just use fetchItemsQuery without a parent
+  /** @deprecated */
   public getAllCollectionItemsRecursive(
     parent: string,
     sort?: CollectionItemSort,
@@ -213,12 +182,6 @@ class CollectionService {
     results: CollectionItemResult[],
     sort: CollectionItemSort
   ) {
-    if (sort.by === 'preview') {
-      return searchAncestryService.sortPerContentPreview(
-        results,
-        sort.descending
-      );
-    }
     results.sort((r1, r2) => {
       const a = sort.descending ? r2 : r1;
       const b = sort.descending ? r1 : r2;

@@ -4,11 +4,16 @@ import { SpaceTables } from '@/core/db/store-constants';
 import { SpaceTableId } from '@/core/db/store-schema';
 import { getPlainText } from '@/shared/utils/getPlainText';
 import { Id } from 'tinybase/with-schemas';
+import { statsOnPlainTextCallback } from '../stats/on-change-callback';
 import { DerivedPrefix, getDerivedId } from './model';
 
 const listeners: Id[] = [];
 
-function addDerivedContentListener(tableId: SpaceTableId, l: DerivedPrefix) {
+function addDerivedContentListener(
+  tableId: SpaceTableId,
+  l: DerivedPrefix,
+  onPlainTextChange?: (rowId: string, plainText: string) => void
+) {
   listeners.push(
     space.addCellListener(
       tableId,
@@ -17,9 +22,11 @@ function addDerivedContentListener(tableId: SpaceTableId, l: DerivedPrefix) {
       (_store, tableId, rowId, cellId, newCell, oldCell) => {
         if (newCell && newCell !== oldCell) {
           const content = unminimizeContentFromStorage(newCell);
+          const plainText = getPlainText(content);
           _store.setRow(SpaceTables.DerivedContent, getDerivedId(l, rowId), {
-            plainText: getPlainText(content)
+            plainText
           });
+          if (onPlainTextChange) onPlainTextChange(rowId, plainText);
         }
       },
       true
@@ -28,7 +35,11 @@ function addDerivedContentListener(tableId: SpaceTableId, l: DerivedPrefix) {
 }
 
 export function startDerivedContentListeners() {
-  addDerivedContentListener(SpaceTables.Collection, 'c');
+  addDerivedContentListener(
+    SpaceTables.Collection,
+    'c',
+    statsOnPlainTextCallback
+  );
   addDerivedContentListener(SpaceTables.Annotations, 'a');
 }
 

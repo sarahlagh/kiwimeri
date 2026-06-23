@@ -1,6 +1,8 @@
 import { CollectionItemTypeValues } from '@/collection/collection';
 import { space, store } from '@/core/db/store';
+import { SpaceTables } from '@/core/db/store-constants';
 import notebooksService from '@/db/notebooks.service';
+import { getDerivedId } from '@/domain/derived-content/model';
 import { $getRoot, ElementNode, LexicalEditor, TextNode } from 'lexical';
 import { searchAncestryService } from './search-ancestry.service';
 
@@ -166,12 +168,15 @@ class CollectionContentSearchService {
     }
     const results: DeepSearchResult[] = [];
     const searchTable = store.getTable('search');
-    const collectionTable = space.getTable('collection');
+    const collectionTable = space.getTable(SpaceTables.Collection);
+    const derivedContentTable = space.getTable(SpaceTables.DerivedContent);
     searchAncestryService.getChildren(searchOptions.scope).forEach(rowId => {
       const row = searchTable[rowId];
+      const plainText =
+        derivedContentTable[getDerivedId('c', rowId)]?.plainText;
       const item = collectionTable[rowId];
       if (!row || !item) return;
-      if (!searchOptions.searchInTitle && !row.contentPreview) return;
+      if (!searchOptions.searchInTitle && !plainText) return;
       const title = item.title?.toString() || '';
 
       const result: DeepSearchResult = {
@@ -196,7 +201,7 @@ class CollectionContentSearchService {
 
       // optionally search in content
       if (searchOptions.searchInContent) {
-        const content = row.contentPreview?.toString() || '';
+        const content = plainText?.toString() || '';
         const search = this.searchArbitraryText(
           content,
           searchText!,

@@ -5,6 +5,7 @@ import {
 import { SpaceQueryDefinition } from '@/core/db/queries-helper';
 import { store } from '@/core/db/store';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
+import { getDerivedId } from '@/domain/derived-content/model';
 import { getAncestorId } from '@/search/search-ancestry.service';
 
 export type FetchItemsQueryParam = {
@@ -20,7 +21,6 @@ const fetchItemsQuery = new SpaceQueryDefinition<
   'collection'
 >('fetchItems', 'collection', ({ select, where, param, join }) => {
   const ancestry = store.getTable('ancestors');
-  const search = store.getTable('search');
   const params: FetchItemsQueryParam = {
     parent: param('parent') as string,
     recursive: param('recursive') as boolean,
@@ -30,6 +30,9 @@ const fetchItemsQuery = new SpaceQueryDefinition<
 
   // works but only because stats and collection have same id for global stats
   join('stats', (getCell, itemId) => itemId).as('stats');
+  join('derived_content', (getCell, itemId) => getDerivedId('c', itemId)).as(
+    'content'
+  );
   select('stats', 'lastOpenedAt');
   select('parent');
   select('title');
@@ -40,12 +43,7 @@ const fetchItemsQuery = new SpaceQueryDefinition<
   select('order');
   select('conflict');
   select('settings');
-  select(getCell => {
-    const id = getCell('itemId')?.toString();
-    if (!id) return undefined;
-    if (!search[id]?.contentPreview) return undefined;
-    return search[id].contentPreview as string;
-  }).as('preview');
+  select('content', 'plainText').as('preview');
 
   if (params.onlyConflicts) {
     // !! not reactive if conflicts are solved

@@ -283,7 +283,7 @@ describe('search ancestry service', () => {
 
       createTestData();
 
-      expect(store.getCell('search', 'D1', 'contentPreview')).toBe(
+      expect(space.getCell('derived_content', 'c-D1', 'plainText')).toBe(
         shortContentPreview
       );
     });
@@ -294,7 +294,7 @@ describe('search ancestry service', () => {
 
       collectionService.setItemLexicalContent('D1', shortContentUpdated);
 
-      expect(store.getCell('search', 'D1', 'contentPreview')).toBe(
+      expect(space.getCell('derived_content', 'c-D1', 'plainText')).toBe(
         shortContentPreviewUpdated
       );
     });

@@ -1,6 +1,7 @@
 import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
 import { lexicalConfig } from '@/common/wysiwyg/lexical/lexical-config';
-import { space, store } from '@/core/db/store';
+import { space } from '@/core/db/store';
+import { getDerivedId } from '@/domain/derived-content/model';
 import { searchAncestryService } from '@/search/search-ancestry.service';
 import { SearchOptions, searchService } from '@/search/search.service';
 import { createHeadlessEditor } from '@lexical/headless';
@@ -35,7 +36,9 @@ describe('search service', () => {
         .getCell('collection', docId, 'content')
         ?.toString();
       expect(minimized).toBeDefined();
-      expect(store.getCell('search', docId, 'contentPreview')).toBeDefined();
+      expect(
+        space.getCell('derived_content', getDerivedId('c', docId), 'plainText')
+      ).toBeDefined();
       const content = unminimizeContentFromStorage(minimized!);
       editor = createHeadlessEditor({
         nodes: lexicalConfig.nodes,
