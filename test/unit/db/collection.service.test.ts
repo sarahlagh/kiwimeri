@@ -457,33 +457,21 @@ describe('collection service', () => {
       const idf1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
       const idd2 = collectionService.addDocument(idf1);
 
-      expect(
-        collectionService.getAllCollectionItemsRecursive(ROOT_COLLECTION)
-      ).toHaveLength(6); // +1 for default notebook
+      expect(collectionService.getAllChildren(ROOT_COLLECTION)).toHaveLength(6); // +1 for default notebook
 
       expect(
-        collectionService.getAllCollectionItemsRecursive(DEFAULT_NOTEBOOK_ID)
+        collectionService.getAllChildren(DEFAULT_NOTEBOOK_ID)
       ).toHaveLength(2);
 
-      expect(
-        collectionService.getAllCollectionItemsRecursive(idn1)
-      ).toHaveLength(2);
+      expect(collectionService.getAllChildren(idn1)).toHaveLength(2);
 
-      expect(
-        collectionService.getAllCollectionItemsRecursive(idn2)
-      ).toHaveLength(1);
+      expect(collectionService.getAllChildren(idn2)).toHaveLength(1);
 
-      expect(
-        collectionService.getAllCollectionItemsRecursive(idd1)
-      ).toHaveLength(0);
+      expect(collectionService.getAllChildren(idd1)).toHaveLength(0);
 
-      expect(
-        collectionService.getAllCollectionItemsRecursive(idf1)
-      ).toHaveLength(1);
+      expect(collectionService.getAllChildren(idf1)).toHaveLength(1);
 
-      expect(
-        collectionService.getAllCollectionItemsRecursive(idd2)
-      ).toHaveLength(0);
+      expect(collectionService.getAllChildren(idd2)).toHaveLength(0);
     });
   });
 
@@ -663,7 +651,7 @@ describe('collection service', () => {
       });
     });
 
-    it(`getAllCollectionItemsRecursive should also sort`, () => {
+    it(`getAllChildren should also sort`, () => {
       const doc1 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       collectionService.setItemTitle(doc1, 'r1');
       vi.advanceTimersByTime(100);
@@ -676,7 +664,7 @@ describe('collection service', () => {
       const doc3 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       collectionService.setItemTitle(doc3, 'abc');
 
-      const byCreatedAsc = collectionService.getAllCollectionItemsRecursive(
+      const byCreatedAsc = collectionService.getAllChildren(
         DEFAULT_NOTEBOOK_ID,
         {
           by: 'created',
@@ -692,7 +680,7 @@ describe('collection service', () => {
       expect(byCreatedAsc[2].title).toBe('new value qwfg');
       expect(byCreatedAsc[3].title).toBe('abc');
 
-      const byCreatedDesc = collectionService.getAllCollectionItemsRecursive(
+      const byCreatedDesc = collectionService.getAllChildren(
         DEFAULT_NOTEBOOK_ID,
         {
           by: 'created',
@@ -708,13 +696,10 @@ describe('collection service', () => {
       expect(byCreatedDesc[2].title).toBe('f1');
       expect(byCreatedDesc[3].title).toBe('r1');
 
-      const byTitleAsc = collectionService.getAllCollectionItemsRecursive(
-        DEFAULT_NOTEBOOK_ID,
-        {
-          by: 'title',
-          descending: false
-        }
-      );
+      const byTitleAsc = collectionService.getAllChildren(DEFAULT_NOTEBOOK_ID, {
+        by: 'title',
+        descending: false
+      });
       console.log(
         'title asc',
         byTitleAsc.map(i => i.title)
@@ -724,7 +709,7 @@ describe('collection service', () => {
       expect(byTitleAsc[2].title).toBe('new value qwfg');
       expect(byTitleAsc[3].title).toBe('r1');
 
-      const byTitleDesc = collectionService.getAllCollectionItemsRecursive(
+      const byTitleDesc = collectionService.getAllChildren(
         DEFAULT_NOTEBOOK_ID,
         {
           by: 'title',

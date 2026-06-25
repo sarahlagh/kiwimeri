@@ -434,8 +434,7 @@ export class PullTestScenarioRunner {
       expect(localTable[id]).toBeUndefined();
     }
 
-    const items =
-      collectionService.getAllCollectionItemsRecursive(ROOT_COLLECTION);
+    const items = collectionService.getAllChildren(ROOT_COLLECTION);
     const conflict = items.find(r => r.conflict === id);
     if (stats.hasConflict) {
       this.postStatsHadConflict = true;

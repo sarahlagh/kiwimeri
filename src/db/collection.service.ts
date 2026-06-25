@@ -156,50 +156,6 @@ class CollectionService {
     );
   }
 
-  // TODO just use fetchItemsQuery without a parent
-  /** @deprecated */
-  public getAllCollectionItemsRecursive(
-    parent: string,
-    sort?: CollectionItemSort,
-    cb?: (level: CollectionItemResult[]) => void
-  ) {
-    if (!sort) {
-      sort = settingsService.getNotebookDefaultSort();
-    }
-    let results: CollectionItemResult[] = [];
-    const level = this.getCollectionItems(parent, sort);
-    if (cb) cb(level);
-    results = [...level];
-    level.forEach(folder => {
-      const subLevel = this.getAllCollectionItemsRecursive(folder.id, sort);
-      if (cb) cb(subLevel);
-      results = [...results, ...subLevel];
-      // sort again (tch..) TODO should rethink ancestry so i can do sorting from there
-      this.sortResults(results, sort);
-    });
-    return results;
-  }
-
-  private sortResults(
-    results: CollectionItemResult[],
-    sort: CollectionItemSort
-  ) {
-    results.sort((r1, r2) => {
-      const a = sort.descending ? r2 : r1;
-      const b = sort.descending ? r1 : r2;
-      switch (sort.by) {
-        case 'created':
-        case 'updated':
-        case 'order':
-          return a[sort.by] - b[sort.by];
-        case 'title':
-          return a.title.localeCompare(b.title);
-        case 'preview':
-          return 0; // already covered above
-      }
-    });
-  }
-
   public getConflicts(sort?: CollectionItemSort) {
     if (!sort) {
       sort = settingsService.getNotebookDefaultSort();
@@ -276,13 +232,20 @@ class CollectionService {
     } as CollectionItem;
   }
 
-  public getAllChildren(parent: string) {
-    return fetchItemsQuery.getResults({
-      parent,
-      recursive: true,
-      onlyDocuments: false,
-      onlyConflicts: false
-    });
+  public getAllChildren(parent: string, sort?: CollectionItemSort) {
+    if (!sort) {
+      sort = settingsService.getNotebookDefaultSort();
+    }
+    return fetchItemsQuery.getResults(
+      {
+        parent,
+        recursive: true,
+        onlyDocuments: false,
+        onlyConflicts: false
+      },
+      sort.by,
+      sort.descending
+    );
   }
 
   public deleteItem(rowId: Id, moveItemsUp = false) {

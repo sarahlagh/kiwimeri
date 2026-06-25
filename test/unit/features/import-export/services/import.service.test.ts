@@ -593,7 +593,7 @@ describe('import service', () => {
     });
 
     function checkCollectionAndHistory(parent: string, expectedLength: number) {
-      const allItems = collectionService.getAllCollectionItemsRecursive(parent);
+      const allItems = collectionService.getAllChildren(parent);
       expect(allItems).toHaveLength(expectedLength);
       const allDocIds = allItems
         .filter(item => item.type === CollectionItemType.document)

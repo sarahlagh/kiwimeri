@@ -37,7 +37,7 @@ const checkHistory = (
   expectedVersions: number | number[] = 1,
   notebook = DEFAULT_NOTEBOOK_ID
 ) => {
-  const items = collectionService.getAllCollectionItemsRecursive(notebook, {
+  const items = collectionService.getAllChildren(notebook, {
     by: 'title',
     descending: false
   });

@@ -57,6 +57,7 @@ const fetchItemsQuery = new SpaceQueryDefinition<
     });
   }
 
+  where(getCell => getCell('itemId') !== params.parent);
   if (params.recursive === false) {
     where('parent', params.parent);
   } else if (params.parent !== ROOT_COLLECTION) {
