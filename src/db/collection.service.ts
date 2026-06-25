@@ -265,11 +265,24 @@ class CollectionService {
     return notebooksService.addNotebook(title, parent);
   }
 
+  public getDocumentPreview(id: string) {
+    return space.getCell(SpaceTables.DerivedContent, id, 'plainText') || '';
+  }
+
   public getItem(id: string) {
     return {
       ...space.getRow(this.tableId, id),
       id
     } as CollectionItem;
+  }
+
+  public getAllChildren(parent: string) {
+    return fetchItemsQuery.getResults({
+      parent,
+      recursive: true,
+      onlyDocuments: false,
+      onlyConflicts: false
+    });
   }
 
   public deleteItem(rowId: Id, moveItemsUp = false) {

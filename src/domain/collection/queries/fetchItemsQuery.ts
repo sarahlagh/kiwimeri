@@ -2,6 +2,7 @@ import {
   CollectionItemResult,
   CollectionItemType
 } from '@/collection/collection';
+import { ROOT_COLLECTION } from '@/constants';
 import { SpaceQueryDefinition } from '@/core/db/queries-helper';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import { getDerivedId } from '@/domain/derived-content/model';
@@ -58,7 +59,7 @@ const fetchItemsQuery = new SpaceQueryDefinition<
 
   if (params.recursive === false) {
     where('parent', params.parent);
-  } else {
+  } else if (params.parent !== ROOT_COLLECTION) {
     where(getCell => {
       const fullPath = getCell('state', 'fullPath') as string[];
       return fullPath?.includes(params.parent);

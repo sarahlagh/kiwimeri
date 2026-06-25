@@ -1,0 +1,79 @@
+[
+  {
+    "spaces": {
+      "default": {
+        "currentFolder": "0",
+        "currentNotebook": "0",
+        "currentDocument": "h-MOhEAYItMcMOJb"
+      }
+    },
+    "search": {
+      "0": { "breadcrumb": "0" },
+      "h-MOhEAYItMcMOJb": {
+        "breadcrumb": "0,h-MOhEAYItMcMOJb",
+        "contentPreview": ""
+      },
+      "-br8f-vij3m0LJ8k": { "breadcrumb": "0,-br8f-vij3m0LJ8k" },
+      "xtid1X1laW4E5oUI": {
+        "breadcrumb": "0,-br8f-vij3m0LJ8k,xtid1X1laW4E5oUI",
+        "contentPreview": "content"
+      },
+      "8-jzP7Mubb-laAcb": {
+        "breadcrumb": "0,-br8f-vij3m0LJ8k,xtid1X1laW4E5oUI,8-jzP7Mubb-laAcb",
+        "contentPreview": "page content page update"
+      }
+    },
+    "ancestors": {
+      "h-MOhEAYItMcMOJb,0": {
+        "childId": "h-MOhEAYItMcMOJb",
+        "parentId": "0",
+        "depth": 0
+      },
+      "-br8f-vij3m0LJ8k,0": {
+        "childId": "-br8f-vij3m0LJ8k",
+        "parentId": "0",
+        "depth": 0
+      },
+      "xtid1X1laW4E5oUI,-br8f-vij3m0LJ8k": {
+        "childId": "xtid1X1laW4E5oUI",
+        "parentId": "-br8f-vij3m0LJ8k",
+        "depth": 0
+      },
+      "xtid1X1laW4E5oUI,0": {
+        "childId": "xtid1X1laW4E5oUI",
+        "parentId": "0",
+        "depth": 1
+      },
+      "8-jzP7Mubb-laAcb,xtid1X1laW4E5oUI": {
+        "childId": "8-jzP7Mubb-laAcb",
+        "parentId": "xtid1X1laW4E5oUI",
+        "depth": 0
+      },
+      "8-jzP7Mubb-laAcb,-br8f-vij3m0LJ8k": {
+        "childId": "8-jzP7Mubb-laAcb",
+        "parentId": "-br8f-vij3m0LJ8k",
+        "depth": 1
+      },
+      "8-jzP7Mubb-laAcb,0": {
+        "childId": "8-jzP7Mubb-laAcb",
+        "parentId": "0",
+        "depth": 2
+      }
+    }
+  },
+  {
+    "appVersion": "0.4.0",
+    "currentSpace": "default",
+    "defaultTimedDuration": 10,
+    "defaultTimedMode": "dangerous",
+    "exportIncludeMetadata": true,
+    "exportInlinePages": true,
+    "globalZoom": 1,
+    "lastBrowserMode": 0,
+    "maxLogHistory": 500,
+    "rememberLastRoute": true,
+    "resumeLastSelection": true,
+    "showDevTools": false,
+    "theme": "dark"
+  }
+]

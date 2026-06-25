@@ -6,8 +6,6 @@ import { space, spaceQueries } from '@/core/db/store';
 import { MetaField } from '@/core/db/types';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
-import notebooksService from '@/db/notebooks.service';
-import { searchAncestryService } from '@/search/search-ancestry.service';
 import { ResultRow } from 'tinybase/with-schemas';
 import {
   DataPoint,
@@ -243,22 +241,11 @@ class StatsService {
   }
 
   public backfillStats(scope?: string) {
-    let rowIds: string[] = [];
-    if (scope) {
-      rowIds = searchAncestryService.getChildren(scope);
-    } else {
-      const allNotebooksIds = notebooksService
-        .getNotebooks(ROOT_COLLECTION)
-        .map(n => n.id);
-      allNotebooksIds.forEach(nId => {
-        rowIds = [...rowIds, ...searchAncestryService.getChildren(nId)];
-      });
-    }
+    const rows = collectionService.getAllChildren(scope || ROOT_COLLECTION);
 
-    rowIds.forEach(rowId => {
-      const rowType = collectionService.getItemType(rowId);
-      if (!isDocument({ type: rowType })) return;
-      this.backfillDocument(rowId);
+    rows.forEach(row => {
+      if (!isDocument({ type: row.type })) return;
+      this.backfillDocument(row.id);
     });
   }
 

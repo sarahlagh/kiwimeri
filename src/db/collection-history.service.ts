@@ -11,7 +11,7 @@ import { space, spaceQueries } from '@/core/db/store';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import { AfterSyncChange } from '@/remote-storage/sync-types';
-import { searchAncestryService } from '@/search/search-ancestry.service';
+import { getPlainText } from '@/shared/utils/getPlainText';
 import { getHash, Id, ResultRow } from 'tinybase/with-schemas';
 import collectionService from './collection.service';
 import { useRowWithRef } from './tinybase/hooks';
@@ -385,7 +385,7 @@ class CollectionHistoryService {
       contentHash,
       contentId: space.addRow(this.contentTableId, {
         content: item.content || '',
-        preview: searchAncestryService.getUnsavedItemPreview(item),
+        preview: getPlainText(item.content),
         hash: contentHash
       })
     };

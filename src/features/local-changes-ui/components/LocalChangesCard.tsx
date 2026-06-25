@@ -19,7 +19,6 @@ import {
   UserPreferenceKey,
   userPreferenceDefinitions
 } from '@/domain/user-preferences/model';
-import { searchAncestryService } from '@/search/search-ancestry.service';
 import {
   IonCard,
   IonCardContent,
@@ -119,8 +118,8 @@ const LocalChangesCard = () => {
                   route = GET_UNKNOWN_ITEM_ROUTE(lc.itemId, type);
                   itemExists = collectionService.itemExists(lc.itemId);
                   preview = itemExists
-                    ? searchAncestryService
-                        .getItemPreview(lc.itemId)
+                    ? collectionService
+                        .getDocumentPreview(lc.itemId)
                         .substring(0, 200)
                     : '';
                 } else if (lc.on === SpaceTables.Annotations) {

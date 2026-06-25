@@ -10,7 +10,6 @@ import {
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import { SyncDirection, syncService } from '@/remote-storage/sync.service';
 import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';
-import { searchAncestryService } from '@/search/search-ancestry.service';
 import { InMemDriver } from '@@/_setup/inmem.driver';
 import { fakeTimersDelay } from '@@/_setup/test.utils';
 import { expect, vi } from 'vitest';
@@ -30,7 +29,6 @@ export const testSyncBeforeEach = async () => {
     'driver'
   ] as InMemDriver;
   vi.useFakeTimers();
-  searchAncestryService.start(DEFAULT_SPACE_ID);
   historyService['enabled'] = true;
   userPrefs.set('historyIdleTime', 0);
   startLocalChangesListeners();
@@ -40,7 +38,6 @@ export const testSyncAfterEach = () => {
   iPull = 0;
   iPush = 0;
   vi.useRealTimers();
-  searchAncestryService.stop();
   // expect(countOrphans()).toBe(0);
 };
 

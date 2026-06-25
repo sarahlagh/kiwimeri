@@ -1,5 +1,6 @@
 import { countWords } from '@/common/utils';
-import { searchAncestryService } from '@/search/search-ancestry.service';
+import { SID, SpaceTables } from '@/core/db/store-constants';
+import { useSpaceCell } from '@/core/db/tinybase-hooks';
 import { IonText } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 
@@ -7,9 +8,15 @@ type WordCountProps = {
   id: string;
 };
 
+// temp until we store it in model
 const WordCount = ({ id }: WordCountProps) => {
-  // temp until we store it in model
-  const content = searchAncestryService.useItemPreview(id);
+  // probably provide hook somewhere
+  const content = useSpaceCell<SpaceTables.DerivedContent, 'plainText'>(
+    SpaceTables.DerivedContent,
+    id,
+    'plainText',
+    SID.space
+  );
   const wordCount = content ? countWords(content) : 0;
 
   return (

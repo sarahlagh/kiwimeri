@@ -1,6 +1,5 @@
 import { Network } from '@capacitor/network';
 import { addAndroidListeners } from './capacitor/handle-android-plugins';
-import { DEFAULT_SPACE_ID } from './constants';
 import { postInitMigrationService } from './core/db/post-init-migrations/post-init-migration.service';
 import { space, store } from './core/db/store';
 import { startDbListeners } from './core/db/store-listeners';
@@ -10,7 +9,6 @@ import { historyService } from './db/collection-history.service';
 import notebooksService from './db/notebooks.service';
 import remotesService from './db/remotes.service';
 import { appLog } from './log';
-import { searchAncestryService } from './search/search-ancestry.service';
 
 export function appInit() {
   console.debug('[app-init] app starting...');
@@ -46,7 +44,6 @@ export function appInit() {
     networkService.init(initialStatus);
 
     notebooksService.initNotebooks();
-    searchAncestryService.start(DEFAULT_SPACE_ID);
     remotesService.initSync();
     historyService.gc();
     appLog.gc(); // TODO run at interval

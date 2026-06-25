@@ -1,9 +1,6 @@
 import { CollectionItemTypeValues } from '@/collection/collection';
-import { space } from '@/core/db/store';
-import { SpaceTables } from '@/core/db/store-constants';
+import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
-import { getDerivedId } from '@/domain/derived-content/model';
-import { searchAncestryService } from '@/search/search-ancestry.service';
 import { $getRoot, ElementNode, LexicalEditor, TextNode } from 'lexical';
 
 export type DeepSearchResult = {
@@ -167,20 +164,15 @@ class CollectionContentSearchService {
       searchOptions.scope = notebooksService.getCurrentNotebook();
     }
     const results: DeepSearchResult[] = [];
-    const collectionTable = space.getTable(SpaceTables.Collection);
-    const derivedContentTable = space.getTable(SpaceTables.DerivedContent);
-    const derivedStateTable = space.getTable(SpaceTables.DerivedState);
-    searchAncestryService.getChildren(searchOptions.scope).forEach(rowId => {
-      const shortPath = derivedStateTable[rowId]?.shortPath;
-      const plainText =
-        derivedContentTable[getDerivedId('c', rowId)]?.plainText;
-      const item = collectionTable[rowId];
+    collectionService.getAllChildren(searchOptions.scope).forEach(item => {
+      const shortPath = item.breadcrumb;
+      const plainText = item.preview;
       if (!shortPath || !item) return;
       if (!searchOptions.searchInTitle && !plainText) return;
       const title = item.title?.toString() || '';
 
       const result: DeepSearchResult = {
-        id: rowId,
+        id: item.id,
         type: item.type as CollectionItemTypeValues,
         title,
         shortBreadcrumb: shortPath as string[]

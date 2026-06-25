@@ -1,7 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
-import { getPlainText } from '@/shared/utils/getPlainText';
-import { NoTablesSchema, Table } from 'tinybase/with-schemas';
 import { MetaField } from '../types';
 import { NoSchemaStore } from './migrate';
 
@@ -37,8 +34,8 @@ export default function Migration(
   someValuesGoToUserPrefs(_space);
   documentResumeStateToCollectionResumeState(_space);
   storeValuesGoToSpace(_store, _space);
-  addDerivedContent(_space);
-  addDerivedState(_space);
+  addDerivedContent(_store, _space);
+  addDerivedState(_store, _space);
 }
 
 function metaFieldsBecomeObjects(_space: NoSchemaStore) {
@@ -263,64 +260,36 @@ function storeValuesGoToSpace(_store: NoSchemaStore, _space: NoSchemaStore) {
   _migrateValue(_store, _space, 'resumeLastSelection');
 }
 
-function addDerivedContent(_space: NoSchemaStore) {
+function addDerivedContent(_store: NoSchemaStore, _space: NoSchemaStore) {
   _space.getRowIds(C).forEach(rowId => {
-    const content = _space.getCell(C, rowId, 'content') as string;
-    if (content) {
-      _space.setRow(D, `c-${rowId}`, {
-        plainText: getPlainText(unminimizeContentFromStorage(content))
-      });
-    }
+    const existing = _space.getCell(D, `c-${rowId}`, 'plainText');
+    if (existing) return;
+    const preview = _store.getCell('search', rowId, 'contentPreview');
+    _space.setRow(D, `c-${rowId}`, {
+      plainText: preview
+    });
   });
   _space.getRowIds(A).forEach(rowId => {
+    const existing = _space.getCell(D, `a-${rowId}`, 'plainText');
+    if (existing) return;
     const content = _space.getCell(A, rowId, 'content') as string;
+    const plainText = _space.getCell(A, rowId, 'plainText') as string;
     if (content) {
       _space.setRow(D, `a-${rowId}`, {
-        plainText: getPlainText(unminimizeContentFromStorage(content))
+        plainText
       });
     }
   });
 }
 
-const ROOT_COLLECTION = 'root';
-function getPath(
-  rowId: string,
-  table: Table<NoTablesSchema, _SpaceTables.Collection, false>,
-  includeAllNotebooks = true,
-  includeSelf = false // TODO always true
-) {
-  let parent = rowId;
-  let breadcrumb: string[] = [];
-  let nbNotebooks = 0;
-  while (parent !== ROOT_COLLECTION && nbNotebooks < 2) {
-    if (!table[parent]) {
-      break;
-    }
-    if (parent !== rowId || includeSelf) {
-      breadcrumb = [parent, ...breadcrumb];
-    }
-    const parentType = table[parent].type;
-    if (!includeAllNotebooks && parentType === 'n') {
-      nbNotebooks++;
-      break;
-    }
-    const parentParent = (table[parent].parent as string) || ROOT_COLLECTION;
-    if (parentParent === parent && parent !== ROOT_COLLECTION) {
-      throw new Error('circular parent reference');
-    }
-    parent = parentParent;
-  }
-  return breadcrumb;
-}
-
-function addDerivedState(_space: NoSchemaStore) {
-  const tmpTable = _space.getTable(C);
+function addDerivedState(_store: NoSchemaStore, _space: NoSchemaStore) {
   _space.getRowIds(C).forEach(rowId => {
-    const fullPath = getPath(rowId, tmpTable, true, true);
-    const shortPath = getPath(rowId, tmpTable, false, true);
+    const breadcrumb = _store.getCell('search', rowId, 'breadcrumb') as string;
+    if (!breadcrumb || _space.hasRow(CS, rowId)) return;
+    const path = breadcrumb.split(','); // assumes no nested notebooks yet
     _space.setPartialRow(CS, rowId, {
-      fullPath,
-      shortPath
+      fullPath: path,
+      shortPath: path
     });
   });
 }

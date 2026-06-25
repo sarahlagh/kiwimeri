@@ -2,8 +2,7 @@ export enum StoreTables {
   LocalChanges = 'localChanges',
   Remotes = 'remotes',
   RemoteStates = 'remoteState',
-  Logs = 'logs',
-  Ancestors = 'ancestors'
+  Logs = 'logs'
 }
 
 export enum SpaceTables {

@@ -14,8 +14,9 @@ const spaceMigrationFilename = '0.4.0.space-content.json';
 const storeMigrationFilename = '0.4.0.store-content.json';
 const spaceMigrationExpectedFilename = '0.5.0.space-expected-content.json';
 const storeMigrationExpectedFilename = '0.5.0.store-expected-content.json';
-const migrationWithPagesFilename = '0.4.0.space-content-with-pages.json';
-const migrationWithPagesExpectedFilename =
+const spaceMigrationWithPagesFilename = '0.4.0.space-content-with-pages.json';
+const storeMigrationWithPagesFilename = '0.4.0.store-content-with-pages.json';
+const spaceMigrationWithPagesExpectedFilename =
   '0.5.0.space-with-pages-expected-content.json';
 
 async function generateExpectedFile(filename: string, content: any) {
@@ -101,7 +102,7 @@ describe('0.5.0 migration', () => {
 
   test.skip('regenerate 4.0.1 migration-with-pages expected file', async () => {
     const preMigrationSpaceContent = await getFileContent(
-      migrationWithPagesFilename
+      spaceMigrationWithPagesFilename
     );
     const { spaceContent } = await migrateRawStore(
       preMigrationSpaceContent,
@@ -109,22 +110,25 @@ describe('0.5.0 migration', () => {
       migrationFixedVersion
     );
     await generateExpectedFile(
-      migrationWithPagesExpectedFilename,
+      spaceMigrationWithPagesExpectedFilename,
       spaceContent
     );
   });
 
   test('4.0.1 migration-with-pages should be successful', async () => {
     const preMigrationSpaceContent = await getFileContent(
-      migrationWithPagesFilename
+      spaceMigrationWithPagesFilename
+    );
+    const preMigrationStoreContent = await getFileContent(
+      storeMigrationWithPagesFilename
     );
     const { spaceContent } = await migrateRawStore(
       preMigrationSpaceContent,
-      null,
+      preMigrationStoreContent,
       migrationFixedVersion
     );
     const expectedSpaceContent = await getFileContent(
-      migrationWithPagesExpectedFilename
+      spaceMigrationWithPagesExpectedFilename
     );
     expect(spaceContent).toEqual(expectedSpaceContent);
 

@@ -1,32 +1,5 @@
 [
   {
-    "ancestors": {
-      "h-MOhEAYItMcMOJb,0": {
-        "childId": "h-MOhEAYItMcMOJb",
-        "parentId": "0",
-        "depth": 0
-      },
-      "cZ6l5keLw_D7s9Yq,0": {
-        "childId": "cZ6l5keLw_D7s9Yq",
-        "parentId": "0",
-        "depth": 0
-      },
-      "-br8f-vij3m0LJ8k,0": {
-        "childId": "-br8f-vij3m0LJ8k",
-        "parentId": "0",
-        "depth": 0
-      },
-      "xtid1X1laW4E5oUI,-br8f-vij3m0LJ8k": {
-        "childId": "xtid1X1laW4E5oUI",
-        "parentId": "-br8f-vij3m0LJ8k",
-        "depth": 0
-      },
-      "xtid1X1laW4E5oUI,0": {
-        "childId": "xtid1X1laW4E5oUI",
-        "parentId": "0",
-        "depth": 1
-      }
-    },
     "localChanges": {
       "collection-cZ6l5keLw_D7s9Yq-u-content": {
         "itemId": "cZ6l5keLw_D7s9Yq",

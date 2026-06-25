@@ -149,7 +149,8 @@ describe.sequential(
       await syncService.pull();
       expect(getRowCountInsideNotebook()).toBe(3);
 
-      expect(store.getRowCount('ancestors')).toBeGreaterThan(0);
+      expect(space.getRowCount('derived_content')).toBeGreaterThan(0);
+      expect(space.getRowCount('derived_item_state')).toBeGreaterThan(0);
     });
 
     it('should push new local items', async () => {

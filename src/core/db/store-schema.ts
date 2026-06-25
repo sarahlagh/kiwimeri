@@ -32,11 +32,6 @@ export const storeTablesSchema = {
     ts: { type: 'number' },
     level: { type: 'string' },
     message: { type: 'string' }
-  },
-  ancestors: {
-    parentId: { type: 'string' },
-    childId: { type: 'string' },
-    depth: { type: 'number', default: 0 }
   }
 } as const satisfies Record<StoreTables, unknown>;
 

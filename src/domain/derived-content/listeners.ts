@@ -1,4 +1,3 @@
-import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { SpaceTableId } from '@/core/db/store-schema';
@@ -21,8 +20,7 @@ function addDerivedContentListener(
       'content',
       (_store, tableId, rowId, cellId, newCell, oldCell) => {
         if (newCell && newCell !== oldCell) {
-          const content = unminimizeContentFromStorage(newCell);
-          const plainText = getPlainText(content);
+          const plainText = getPlainText(newCell);
           _store.setRow(SpaceTables.DerivedContent, getDerivedId(l, rowId), {
             plainText
           });

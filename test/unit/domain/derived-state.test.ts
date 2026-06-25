@@ -1,7 +1,7 @@
 import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
-import { space, store } from '@/core/db/store';
-import { SpaceTables, StoreTables } from '@/core/db/store-constants';
+import { space } from '@/core/db/store';
+import { SpaceTables } from '@/core/db/store-constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
@@ -38,86 +38,6 @@ const createTestData = () => {
   collectionService.saveItems([F1, FF1, FFF1, D1, F2, FF2]);
 };
 
-const getHardcodedExpectedAncestry = () => {
-  const expectedTable = {} as any;
-  expectedTable['F1,0'] = { childId: 'F1', parentId: '0', depth: 0 };
-  expectedTable['FF1,0'] = {
-    childId: 'FF1',
-    parentId: '0',
-    depth: 1
-  };
-  expectedTable['FFF1,0'] = {
-    childId: 'FFF1',
-    parentId: '0',
-    depth: 2
-  };
-  expectedTable['D1,0'] = { childId: 'D1', parentId: '0', depth: 3 };
-  expectedTable['F2,0'] = { childId: 'F2', parentId: '0', depth: 0 };
-  expectedTable['FF2,0'] = {
-    childId: 'FF2',
-    parentId: '0',
-    depth: 1
-  };
-
-  expectedTable['FF1,F1'] = {
-    childId: 'FF1',
-    parentId: 'F1',
-    depth: 0
-  };
-  expectedTable['FFF1,F1'] = {
-    childId: 'FFF1',
-    parentId: 'F1',
-    depth: 1
-  };
-  expectedTable['D1,F1'] = {
-    childId: 'D1',
-    parentId: 'F1',
-    depth: 2
-  };
-
-  expectedTable['FFF1,FF1'] = {
-    childId: 'FFF1',
-    parentId: 'FF1',
-    depth: 0
-  };
-  expectedTable['D1,FF1'] = {
-    childId: 'D1',
-    parentId: 'FF1',
-    depth: 1
-  };
-
-  expectedTable['D1,FFF1'] = {
-    childId: 'D1',
-    parentId: 'FFF1',
-    depth: 0
-  };
-
-  expectedTable['FF2,F2'] = {
-    childId: 'FF2',
-    parentId: 'F2',
-    depth: 0
-  };
-  return expectedTable;
-};
-
-const getExpectedAncestry = (paths: string[][]) => {
-  const expectedTable = {} as any;
-  paths.forEach(path => {
-    for (let i = 0; i < path.length; i++) {
-      const parentId = path[i];
-      for (let j = i + 1; j < path.length; j++) {
-        const childId = path[j];
-        expectedTable[`${childId},${parentId}`] = {
-          childId,
-          parentId,
-          depth: j - i - 1
-        };
-      }
-    }
-  });
-  return expectedTable;
-};
-
 const testExpectedPaths = (paths: string[][]) => {
   paths.forEach(path => {
     const breadcrumb: string[] = [];
@@ -128,23 +48,10 @@ const testExpectedPaths = (paths: string[][]) => {
   });
 };
 
-describe('search ancestry service', () => {
-  describe(`ancestry & breadcrumb`, () => {
-    it(`should get correct expected ancestry (test)`, () => {
-      createTestData();
-      expect(getHardcodedExpectedAncestry()).toEqual(
-        getExpectedAncestry([
-          ['0', 'F1', 'FF1', 'FFF1', 'D1'],
-          ['0', 'F2', 'FF2']
-        ])
-      );
-    });
-
+describe('derived state', () => {
+  describe(`breadcrumb`, () => {
     it(`should handle notebook on start if collection is empty`, () => {
       // has at least one notebook
-
-      // test ancestors
-      expect(store.getRowIds(StoreTables.Ancestors)).toHaveLength(0); // no ancestry if parent is root
 
       // test path
       expect(space.getRowIds(SpaceTables.DerivedState)).toHaveLength(1);
@@ -160,26 +67,8 @@ describe('search ancestry service', () => {
       ).toEqual([DEFAULT_NOTEBOOK_ID]);
     });
 
-    it(`should create correct ancestry on start`, () => {
+    it(`should create correct item states on saveItems`, () => {
       createTestData();
-
-      expect(store.getRowIds('ancestors')).toHaveLength(13);
-      const ancestors = store.getTable('ancestors');
-      expect(ancestors).toEqual(getHardcodedExpectedAncestry());
-
-      testExpectedPaths([
-        ['0', 'F1', 'FF1', 'FFF1', 'D1'],
-        ['0', 'F2', 'FF2']
-      ]);
-    });
-
-    it(`should update ancestry on saveItems (import)`, () => {
-      expect(store.getRowIds('ancestors')).toHaveLength(0);
-
-      createTestData();
-      expect(store.getRowIds('ancestors')).toHaveLength(13);
-      const ancestors = store.getTable('ancestors');
-      expect(ancestors).toEqual(getHardcodedExpectedAncestry());
 
       testExpectedPaths([
         ['0', 'F1', 'FF1', 'FFF1', 'D1'],
@@ -188,23 +77,13 @@ describe('search ancestry service', () => {
     });
 
     it(`should update ancestry on individual parent change`, () => {
-      // F1 > FF1 > FFF1 > D1 > P1
+      // F1 > FF1 > FFF1 > D1
       // F2 > FF2
       createTestData();
-      expect(store.getRowIds('ancestors')).toHaveLength(13);
 
       collectionService.setItemParent('FFF1', 'FF2');
       // F1 > FF1
-      // F2 > FF2 > FFF1 > D1 > P1
-
-      const ancestors = store.getTable('ancestors');
-      expect(ancestors).toEqual(
-        getExpectedAncestry([
-          ['0', 'F1', 'FF1'],
-          ['0', 'F2', 'FF2', 'FFF1', 'D1']
-        ])
-      );
-      expect(store.getRowIds('ancestors')).toHaveLength(13);
+      // F2 > FF2 > FFF1 > D1
 
       testExpectedPaths([
         ['0', 'F1', 'FF1'],
@@ -222,15 +101,7 @@ describe('search ancestry service', () => {
 
       // pull - newest items are removed
       space.setContent(spaceContent);
-
-      const ancestors = store.getTable('ancestors');
-      expect(ancestors).toEqual(
-        getExpectedAncestry([
-          ['0', 'F1', 'FF1', 'FFF1', 'D1'],
-          ['0', 'F2', 'FF2']
-        ])
-      );
-      expect(store.getRowIds('ancestors')).toHaveLength(13);
+      collectionService.backfillDerivedStates(spaceContent[0].collection);
 
       testExpectedPaths([
         ['0', 'F1', 'FF1', 'FFF1', 'D1'],
@@ -266,8 +137,6 @@ describe('search ancestry service', () => {
 
   describe(`search table update`, () => {
     it(`should update preview on saveItems (import)`, () => {
-      expect(store.getRowIds('ancestors')).toHaveLength(0);
-
       createTestData();
 
       expect(space.getCell('derived_content', 'c-D1', 'plainText')).toBe(
