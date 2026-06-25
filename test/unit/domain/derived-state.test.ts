@@ -49,7 +49,7 @@ const testExpectedPaths = (paths: string[][]) => {
 };
 
 describe('derived state', () => {
-  describe(`breadcrumb`, () => {
+  describe(`derived state - full path, short path`, () => {
     it(`should handle notebook on start if collection is empty`, () => {
       // has at least one notebook
 
@@ -76,7 +76,7 @@ describe('derived state', () => {
       ]);
     });
 
-    it(`should update ancestry on individual parent change`, () => {
+    it(`should update path on individual parent change`, () => {
       // F1 > FF1 > FFF1 > D1
       // F2 > FF2
       createTestData();
@@ -91,7 +91,7 @@ describe('derived state', () => {
       ]);
     });
 
-    it(`should update ancestry on setContent (pull)`, () => {
+    it(`should update path on setContent (pull)`, () => {
       createTestData();
       const spaceContent = space.getContent();
       // add items locally
@@ -109,7 +109,7 @@ describe('derived state', () => {
       ]);
     });
 
-    it(`should cache and a breadcrumb with only one parent notebook`, () => {
+    it(`should return breadcrumb with only one parent notebook`, () => {
       const idn1 = notebooksService.addNotebook('test');
       const idn2 = notebooksService.addNotebook('nested', idn1);
       const idd1 = collectionService.addDocument(idn2);
@@ -133,10 +133,56 @@ describe('derived state', () => {
         idd2
       ]);
     });
+
+    it(`should return breadcrumb with all parent notebooks`, () => {
+      const idn1 = notebooksService.addNotebook('test');
+      const idn2 = notebooksService.addNotebook('nested', idn1);
+      const idd1 = collectionService.addDocument(idn2);
+      const idf1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+      const idd2 = collectionService.addDocument(idf1);
+
+      expect(collectionService.getBreadcrumb(ROOT_COLLECTION, true)).toEqual(
+        []
+      );
+      expect(
+        collectionService.getBreadcrumb(DEFAULT_NOTEBOOK_ID, true)
+      ).toEqual([DEFAULT_NOTEBOOK_ID]);
+      expect(collectionService.getBreadcrumb(idn1, true)).toEqual([idn1]);
+      expect(collectionService.getBreadcrumb(idn2, true)).toEqual([idn1, idn2]);
+      expect(collectionService.getBreadcrumb(idd1, true)).toEqual([
+        idn1,
+        idn2,
+        idd1
+      ]);
+      expect(collectionService.getBreadcrumb(idf1, true)).toEqual([
+        DEFAULT_NOTEBOOK_ID,
+        idf1
+      ]);
+      expect(collectionService.getBreadcrumb(idd2, true)).toEqual([
+        DEFAULT_NOTEBOOK_ID,
+        idf1,
+        idd2
+      ]);
+    });
+
+    it(`should delete state on item deletion`, () => {
+      // F1 > FF1 > FFF1 > D1
+      // F2 > FF2
+      createTestData();
+
+      collectionService.deleteItem('FF1');
+
+      expect(space.hasRow(SpaceTables.DerivedState, 'F1')).toBe(true);
+      expect(space.hasRow(SpaceTables.DerivedState, 'FF1')).toBe(false);
+      expect(space.hasRow(SpaceTables.DerivedState, 'FFF1')).toBe(false);
+      expect(space.hasRow(SpaceTables.DerivedState, 'D1')).toBe(false);
+      expect(space.hasRow(SpaceTables.DerivedState, 'F2')).toBe(true);
+      expect(space.hasRow(SpaceTables.DerivedState, 'FF2')).toBe(true);
+    });
   });
 
-  describe(`search table update`, () => {
-    it(`should update preview on saveItems (import)`, () => {
+  describe(`derived content update`, () => {
+    it(`should update plainText on saveItems (import)`, () => {
       createTestData();
 
       expect(space.getCell('derived_content', 'c-D1', 'plainText')).toBe(
@@ -144,7 +190,7 @@ describe('derived state', () => {
       );
     });
 
-    it(`should update preview on individual content change`, () => {
+    it(`should update plainText on individual content change`, () => {
       createTestData();
 
       collectionService.setItemLexicalContent('D1', shortContentUpdated);
@@ -154,7 +200,7 @@ describe('derived state', () => {
       );
     });
 
-    it(`should update preview on pull`, () => {
+    it(`should update plainText on pull`, () => {
       createTestData();
       // update items locally
       collectionService.setItemTitle('D1', 'D1 updated');
@@ -171,6 +217,18 @@ describe('derived state', () => {
       expect(
         space.getCell(SpaceTables.DerivedContent, 'c-D1', 'plainText')
       ).toBeDefined();
+    });
+
+    it(`should delete plainText on item deletion`, () => {
+      // F1 > FF1 > FFF1 > D1
+      // F2 > FF2
+      createTestData();
+
+      expect(space.hasRow(SpaceTables.DerivedContent, 'c-D1')).toBe(true);
+
+      collectionService.deleteItem('FF1');
+
+      expect(space.hasRow(SpaceTables.DerivedState, 'c-D1')).toBe(false);
     });
   });
 });
