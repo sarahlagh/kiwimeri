@@ -343,6 +343,25 @@
       "a-dfa7xjA21tkzBm44": { "plainText": "1" },
       "a-0INbpodHu1NOc3hA": { "plainText": "2" },
       "a-jjm_oGzicsvYfSGM": { "plainText": "3" }
+    },
+    "derived_item_state": {
+      "0": { "fullPath": ["0"], "shortPath": ["0"] },
+      "h-MOhEAYItMcMOJb": {
+        "fullPath": ["0", "h-MOhEAYItMcMOJb"],
+        "shortPath": ["0", "h-MOhEAYItMcMOJb"]
+      },
+      "cZ6l5keLw_D7s9Yq": {
+        "fullPath": ["0", "cZ6l5keLw_D7s9Yq"],
+        "shortPath": ["0", "cZ6l5keLw_D7s9Yq"]
+      },
+      "-br8f-vij3m0LJ8k": {
+        "fullPath": ["0", "-br8f-vij3m0LJ8k"],
+        "shortPath": ["0", "-br8f-vij3m0LJ8k"]
+      },
+      "xtid1X1laW4E5oUI": {
+        "fullPath": ["0", "-br8f-vij3m0LJ8k", "xtid1X1laW4E5oUI"],
+        "shortPath": ["0", "-br8f-vij3m0LJ8k", "xtid1X1laW4E5oUI"]
+      }
     }
   },
   {

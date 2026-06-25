@@ -1,8 +1,8 @@
 import CloseDocumentButton from '@/common/buttons/CloseDocumentButton';
 import ManageHistoryButton from '@/common/buttons/ManageHistoryButton';
-import SearchButton from '@/common/buttons/SearchButton';
 import collectionService from '@/db/collection.service';
 import { ExportItemsButton } from '@/features/import-export';
+import { SearchButton } from '@/features/search';
 import { IonButtons, IonToolbar } from '@ionic/react';
 
 export type ActionsFromDocumentVersionViewerToolbarProps = {

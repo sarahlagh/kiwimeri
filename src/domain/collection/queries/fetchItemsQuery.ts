@@ -3,10 +3,8 @@ import {
   CollectionItemType
 } from '@/collection/collection';
 import { SpaceQueryDefinition } from '@/core/db/queries-helper';
-import { store } from '@/core/db/store';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import { getDerivedId } from '@/domain/derived-content/model';
-import { getAncestorId } from '@/search/search-ancestry.service';
 
 export type FetchItemsQueryParam = {
   parent: string;
@@ -20,7 +18,6 @@ const fetchItemsQuery = new SpaceQueryDefinition<
   CollectionItemResult,
   'collection'
 >('fetchItems', 'collection', ({ select, where, param, join }) => {
-  const ancestry = store.getTable('ancestors');
   const params: FetchItemsQueryParam = {
     parent: param('parent') as string,
     recursive: param('recursive') as boolean,
@@ -33,6 +30,7 @@ const fetchItemsQuery = new SpaceQueryDefinition<
   join('derived_content', (getCell, itemId) => getDerivedId('c', itemId)).as(
     'content'
   );
+  join('derived_item_state', (getCell, itemId) => itemId).as('state');
   select('stats', 'lastOpenedAt');
   select('parent');
   select('title');
@@ -44,6 +42,7 @@ const fetchItemsQuery = new SpaceQueryDefinition<
   select('conflict');
   select('settings');
   select('content', 'plainText').as('preview');
+  select('state', 'shortPath').as('breadcrumb');
 
   if (params.onlyConflicts) {
     // !! not reactive if conflicts are solved
@@ -61,9 +60,8 @@ const fetchItemsQuery = new SpaceQueryDefinition<
     where('parent', params.parent);
   } else {
     where(getCell => {
-      const id = getCell('itemId');
-      if (!id) return false;
-      return ancestry[`${getAncestorId(id, params.parent)}`] !== undefined;
+      const fullPath = getCell('state', 'fullPath') as string[];
+      return fullPath?.includes(params.parent);
     });
   }
   if (params.onlyDocuments) {

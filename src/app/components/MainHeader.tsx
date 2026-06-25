@@ -1,9 +1,9 @@
-import DeepSearchButton from '@/common/buttons/DeepSearchButton';
 import SyncRemoteButton from '@/common/buttons/SyncRemoteButton';
 import collectionService from '@/db/collection.service';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
+import { DeepSearchButton } from '@/features/search';
 import { syncService } from '@/remote-storage/sync.service';
 import {
   InputCustomEvent,

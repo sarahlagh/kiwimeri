@@ -33,15 +33,11 @@ class CollectionSearchService {
     storeIndexes.setIndexDefinition('byChild', 'ancestors', 'childId', 'depth');
 
     // on app start backfill tables
-    if (
-      store.getRowCount('ancestors') === 0 ||
-      store.getRowCount('search') === 0
-    ) {
+    if (store.getRowCount('ancestors') === 0) {
       console.log('backfilling ancestry and search tables');
       store.transaction(() => {
-        const collectionTable = space.getTable(C);
         space.getRowIds(C).forEach(rowId => {
-          this.updateAncestry([rowId], collectionTable);
+          this.updateAncestry([rowId]);
         });
       });
     }
@@ -69,8 +65,7 @@ class CollectionSearchService {
 
           // add new paths
           if (newCell) {
-            const collectionTable = space.getTable(tableId);
-            this.updateAncestry(updatedItems, collectionTable);
+            this.updateAncestry(updatedItems);
           }
         });
       }
@@ -83,10 +78,6 @@ class CollectionSearchService {
         space.delListener(listenerId);
       });
     });
-  }
-
-  public getShortBreadcrumb(rowId: string) {
-    return store.getCell('search', rowId, 'breadcrumb')?.toString() || '';
   }
 
   /** @deprecated */
@@ -157,22 +148,16 @@ class CollectionSearchService {
     });
   }
 
-  private updateAncestry(
-    rowIds: string[],
-    table: Table<SpaceType[0], 'collection'>
-  ) {
+  private updateAncestry(rowIds: string[]) {
     rowIds.forEach(rowId => {
-      // update 'search' info - partial path
-      store.setCell(
-        'search',
+      const fullPath = space.getCell(
+        SpaceTables.DerivedState,
         rowId,
-        'breadcrumb',
-        this.getPath(rowId, table, false, true).join(',')
-      );
-
+        'fullPath'
+      ) as string[];
+      fullPath?.pop(); // remove self
       // update ancestors
-      const fullPath = this.getPath(rowId, table); // TODO don't call getPath twice
-      fullPath.toReversed().forEach((parentId, idx) => {
+      fullPath?.toReversed().forEach((parentId, idx) => {
         const ancestorId = getAncestorId(rowId, parentId);
         store.setRow(AN, ancestorId, {
           childId: rowId,
@@ -185,7 +170,7 @@ class CollectionSearchService {
 
   // store path with includeAllNotebooks = false
   // but use path with includeAllNotebooks = true when testing ancestry
-  public getPath(
+  private getPath(
     rowId: string,
     table: Table<SpaceType[0], 'collection'>,
     includeAllNotebooks = true,
@@ -216,4 +201,5 @@ class CollectionSearchService {
   }
 }
 
+/** @deprecated */
 export const searchAncestryService = new CollectionSearchService();

@@ -20,18 +20,20 @@ import {
 } from '@/common/wysiwyg/compress-file-content';
 import { DEFAULT_ORDER, getGlobalTrans, ROOT_COLLECTION } from '@/constants';
 import { space, spaceQueries } from '@/core/db/store';
-import { DbSerializableData, setMetaField } from '@/core/db/types';
+import { SpaceTables } from '@/core/db/store-constants';
+import { SpaceTablesType } from '@/core/db/store-schema';
+import { DbSerializableData, setMetaField, WithId } from '@/core/db/types';
 import { settingsService } from '@/domain/collection-settings/collection-settings.service';
 import {
   CollectionItemSettings,
   CollectionItemSort
 } from '@/domain/collection-settings/model';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
+import { getDerivedId } from '@/domain/derived-content/model';
 import { SerializedEditorState } from 'lexical';
 import { getUniqueId } from 'tinybase/common';
-import { Id } from 'tinybase/common/with-schemas';
-import { Table } from 'tinybase/store';
-import { searchAncestryService } from '../search/search-ancestry.service';
+import { Id, Ids } from 'tinybase/common/with-schemas';
+import { Table } from 'tinybase/with-schemas';
 import { historyService } from './collection-history.service';
 import notebooksService from './notebooks.service';
 import { useCellWithRef } from './tinybase/hooks';
@@ -113,7 +115,7 @@ class CollectionService {
   }
 
   private getResultsSorted(
-    table: Table,
+    table: Table<SpaceTablesType, never>,
     queryName: string,
     sort: CollectionItemSort
   ) {
@@ -132,7 +134,7 @@ class CollectionService {
     }
     const table = space.getTable(this.tableId);
     const queryName = this.fetchAllPerParentQuery(parent);
-    return this.getResultsSorted(table, queryName, sort);
+    return this.getResultsSorted(table as never, queryName, sort);
   }
 
   public getBrowsableCollectionItems(
@@ -204,7 +206,7 @@ class CollectionService {
     }
     const table = space.getTable(this.tableId);
     const queryName = this.fetchConflictsQuery();
-    return this.getResultsSorted(table, queryName, sort);
+    return this.getResultsSorted(table as never, queryName, sort);
   }
 
   public getNewDocumentObj(parent: string) {
@@ -230,7 +232,7 @@ class CollectionService {
 
   public addDocument(parent: string) {
     const { item, id } = this.getNewDocumentObj(parent);
-    this.saveItem(item, id, parent);
+    this.saveItem(item, id);
     return id;
   }
 
@@ -270,29 +272,6 @@ class CollectionService {
     } as CollectionItem;
   }
 
-  public saveItem(
-    item: CollectionItem | CollectionItemUpdate,
-    id?: string,
-    parent?: string
-  ) {
-    if (!id) {
-      id = getUniqueId();
-    }
-    space.transaction(() => {
-      space.setRow(this.tableId, id, { ...item, itemId: id });
-      if (parent) {
-        this.updateAllParentsInBreadcrumb(parent);
-      }
-    });
-
-    // TODO not sure why transaction breaks addVersionFromItem here - try startTransaction / endTransaction instead?
-    // TODO should probably check if a relevant field has been updated here
-    if (isDocument(item)) {
-      historyService.saveVersionFromItem({ ...item, id } as CollectionItem);
-    }
-    return id;
-  }
-
   public deleteItem(rowId: Id, moveItemsUp = false) {
     this.updateAllParentsInBreadcrumb(this.getItemParent(rowId));
     const itemType = this.getItemType(rowId);
@@ -319,7 +298,11 @@ class CollectionService {
     if (wasDocument) {
       historyService.saveDeleteVersion(rowId);
     }
-    space.delRow(this.tableId, rowId);
+    space.transaction(() => {
+      space.delRow(this.tableId, rowId);
+      space.delRow(SpaceTables.DerivedState, rowId);
+      space.delRow(SpaceTables.DerivedContent, getDerivedId('c', rowId));
+    });
   }
 
   public itemExists(rowId: Id) {
@@ -449,23 +432,12 @@ class CollectionService {
   public reorderItems(
     items: SortableCollectionItem[],
     from: number,
-    to: number,
-    parent?: string
+    to: number
   ) {
     space.transaction(() => {
-      historyService.disableForBulk(() => {
-        genericReorder(from, to, (idx, order) => {
-          this.setItemField(
-            items[idx].id,
-            'order',
-            order,
-            parent !== undefined
-          );
-        });
+      genericReorder(from, to, (idx, order) => {
+        this.setItemField(items[idx].id, 'order', order, true);
       });
-      if (parent && items.length > 0) {
-        historyService.addVersion(parent);
-      }
     });
   }
 
@@ -559,8 +531,9 @@ class CollectionService {
     const updated = Date.now();
     // title and content are real changes, order and settings are not (won't trigger an update ts)
     const isContentChange = this.shouldTriggerRowUpdatedChange(key);
+    const isParentChange = key === 'parent';
     space.transaction(() => {
-      space.setCell('collection', rowId, key, value as never);
+      space.setCell(SpaceTables.Collection, rowId, key, value as never);
       space.setCell(
         'collection',
         rowId,
@@ -569,7 +542,7 @@ class CollectionService {
       );
 
       if (isContentChange) {
-        space.setCell('collection', rowId, 'updated', updated);
+        space.setCell(SpaceTables.Collection, rowId, 'updated', updated);
       }
 
       if (!skipVersion && this.isHistorizableContentChange(type, key)) {
@@ -579,6 +552,12 @@ class CollectionService {
       if (CollectionItemResetConflictFields.includes(key)) {
         this.resetItemIfConflict(rowId);
       }
+
+      if (isParentChange) {
+        const tmpTable = space.getTable(SpaceTables.Collection);
+        tmpTable[rowId].parent = value as string;
+        this.propagateBreadcrumbChange(rowId, tmpTable);
+      }
     });
     if (isContentChange) {
       this.updateAllParentsInBreadcrumb(this.getItemParent(rowId));
@@ -586,22 +565,117 @@ class CollectionService {
     return true;
   }
 
+  private propagateBreadcrumbChange(
+    parent: string,
+    tmpTable: Table<SpaceTablesType, SpaceTables.Collection>
+  ) {
+    this.calcState(parent, tmpTable);
+    // if has children, update their breadcrumbs too
+    const stateTable = space.getTable(SpaceTables.DerivedState);
+    Object.keys(stateTable).forEach(rowId => {
+      const state = stateTable[rowId];
+      if (state.fullPath?.includes(parent)) {
+        this.calcState(rowId, tmpTable);
+      }
+    });
+  }
+
   public getItemField<T>(rowId: Id, key: CollectionItemFieldEnum) {
     return space.getCell('collection', rowId, key) as T;
   }
 
+  private getPath(
+    rowId: string,
+    table: Table<SpaceTablesType, SpaceTables.Collection>,
+    includeAllNotebooks = true,
+    includeSelf = false // TODO always true
+  ) {
+    let parent = rowId;
+    let breadcrumb: string[] = [];
+    let nbNotebooks = 0;
+    while (parent !== ROOT_COLLECTION && nbNotebooks < 2) {
+      if (!table[parent]) {
+        break;
+      }
+      if (parent !== rowId || includeSelf) {
+        breadcrumb = [parent, ...breadcrumb];
+      }
+      const parentType = table[parent].type as CollectionItemTypeValues;
+      if (!includeAllNotebooks && parentType === CollectionItemType.notebook) {
+        nbNotebooks++;
+        break;
+      }
+      const parentParent = (table[parent].parent as string) || ROOT_COLLECTION;
+      if (parentParent === parent && parent !== ROOT_COLLECTION) {
+        throw new Error('circular parent reference');
+      }
+      parent = parentParent;
+    }
+    return breadcrumb;
+  }
+
+  public calcState(
+    id: Id,
+    table: Table<SpaceTablesType, SpaceTables.Collection>
+  ) {
+    const fullPath = this.getPath(id, table, true, true); // TODO don't call getPath twice
+    const shortPath = this.getPath(id, table, false, true);
+    space.setPartialRow(SpaceTables.DerivedState, id, {
+      fullPath,
+      shortPath
+    });
+  }
+
+  private getTempTable(item: WithId<CollectionItem>) {
+    const tmpTable = space.getTable(SpaceTables.Collection);
+    tmpTable[item.id] = item;
+    return tmpTable;
+  }
+
+  public saveItem(item: CollectionItem, id?: string) {
+    if (!id) {
+      id = getUniqueId();
+    }
+    space.transaction(() => {
+      const row = { ...item, itemId: id } as CollectionItem;
+      this.calcState(id, this.getTempTable({ ...row, id }));
+      space.setRow(SpaceTables.Collection, id, row);
+      this.updateAllParentsInBreadcrumb(item.parent);
+    });
+
+    // TODO not sure why transaction breaks addVersionFromItem here - try startTransaction / endTransaction instead?
+    // TODO should probably check if a relevant field has been updated here
+    if (isDocument(item)) {
+      historyService.saveVersionFromItem({ ...item, id } as CollectionItem);
+    }
+    return id;
+  }
+
   public saveItems(
     items: (CollectionItem | CollectionItemUpdate)[],
-    parent?: string,
     bulk = false
   ) {
+    const tmpTable = space.getTable(SpaceTables.Collection);
     const allDocIds: string[] = [];
-    historyService.disableForBulk(() => {
+    const allIds: string[] = [];
+    space.transaction(() => {
       items.forEach(item => {
-        const id = this.saveItem(item, item.id, parent);
+        const id = item.id || getUniqueId();
+        const oldRow = tmpTable[id];
+        const newRow = { ...oldRow, ...item, itemId: id } as CollectionItem;
+        tmpTable[id] = newRow;
+        allIds.push(id);
         if (item.type === CollectionItemType.document) {
           allDocIds.push(id);
         }
+        space.setRow(SpaceTables.Collection, id, newRow);
+      });
+      // can probably optimize
+      allIds.forEach(rowId => this.calcState(rowId, tmpTable));
+
+      // backfill all for now- should optimize
+      Object.keys(tmpTable).forEach(rowId => {
+        this.calcState(rowId, tmpTable);
       });
     });
     if (!bulk) {
@@ -610,17 +684,27 @@ class CollectionService {
     return allDocIds;
   }
 
+  public backfillDerivedStates(
+    tmpTable?: Table<SpaceTablesType, SpaceTables.Collection>,
+    rowIds?: Ids
+  ) {
+    if (!tmpTable) tmpTable = space.getTable(SpaceTables.Collection);
+    if (!rowIds) rowIds = Object.keys(tmpTable);
+    space.transaction(() => {
+      rowIds.forEach(rowId => {
+        this.calcState(rowId, tmpTable);
+      });
+    });
+  }
+
   public getBreadcrumb(rowId: string, includeAllNotebooks = false) {
-    if (!includeAllNotebooks) {
-      const breadcrumb = searchAncestryService.getShortBreadcrumb(rowId);
-      return breadcrumb.length > 0 ? breadcrumb.split(',') : [];
-    }
-    return searchAncestryService.getPath(
+    const breadcrumb = space.getCell(
+      SpaceTables.DerivedState,
       rowId,
-      space.getTable('collection'),
-      includeAllNotebooks,
-      true
+      includeAllNotebooks ? 'fullPath' : 'shortPath'
     );
+    if (breadcrumb) return breadcrumb as string[];
+    return [];
   }
 
   private updateAllParentsInBreadcrumb(folder: string) {

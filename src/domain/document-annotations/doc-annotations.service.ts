@@ -71,6 +71,7 @@ class DocumentAnnotationsService {
       const itemId = space.getCell(A, id, 'itemId');
       space.setCell(C, itemId!, 'updated', Date.now());
       space.delRow(A, id);
+      space.delRow(D, getDerivedId('a', id));
     });
   }
 

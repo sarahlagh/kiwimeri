@@ -4,13 +4,13 @@ import DeleteItemButton from '@/common/buttons/DeleteItemButton';
 import ManageHistoryButton from '@/common/buttons/ManageHistoryButton';
 import MoveFolderButton from '@/common/buttons/MoveFolderButton';
 import QuickGroupButton from '@/common/buttons/QuickGroupButton';
-import SearchButton from '@/common/buttons/SearchButton';
 import { GET_FOLDER_ROUTE } from '@/common/routes';
 import { APPICONS } from '@/constants';
 import { settingsService } from '@/domain/collection-settings/collection-settings.service';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { ViewAo3HtmlButton } from '@/features/ao3-html-ui';
 import { ExportItemsButton } from '@/features/import-export';
+import { SearchButton } from '@/features/search';
 import { IonButton, IonButtons, IonIcon, IonToolbar } from '@ionic/react';
 
 export type ActionsFromDocumentEditorToolbarProps = {

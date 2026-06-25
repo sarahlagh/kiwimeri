@@ -1,16 +1,12 @@
 import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
-import {
-  DEFAULT_NOTEBOOK_ID,
-  DEFAULT_SPACE_ID,
-  ROOT_COLLECTION
-} from '@/constants';
+import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { space, store } from '@/core/db/store';
+import { SpaceTables, StoreTables } from '@/core/db/store-constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
-import { searchAncestryService } from '@/search/search-ancestry.service';
 import { oneDocument, oneFolder } from '@@/_setup/test.utils';
-import { afterEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 const shortContentPreview = 'This is a short content';
 const shortContent = JSON.parse(
@@ -124,22 +120,15 @@ const getExpectedAncestry = (paths: string[][]) => {
 
 const testExpectedPaths = (paths: string[][]) => {
   paths.forEach(path => {
-    let breadcrumb = '';
+    const breadcrumb: string[] = [];
     for (let i = 0; i < path.length; i++) {
-      if (breadcrumb.length > 0) breadcrumb += ',';
-      breadcrumb += path[i];
-      expect(searchAncestryService.getShortBreadcrumb(path[i])).toBe(
-        breadcrumb
-      );
+      breadcrumb.push(path[i]);
+      expect(collectionService.getBreadcrumb(path[i])).toEqual(breadcrumb);
     }
   });
 };
 
 describe('search ancestry service', () => {
-  afterEach(() => {
-    searchAncestryService.stop();
-  });
-
   describe(`ancestry & breadcrumb`, () => {
     it(`should get correct expected ancestry (test)`, () => {
       createTestData();
@@ -153,22 +142,26 @@ describe('search ancestry service', () => {
 
     it(`should handle notebook on start if collection is empty`, () => {
       // has at least one notebook
-      searchAncestryService.start(DEFAULT_SPACE_ID);
 
       // test ancestors
-      expect(store.getRowIds('ancestors')).toHaveLength(0); // no ancestry if parent is root
+      expect(store.getRowIds(StoreTables.Ancestors)).toHaveLength(0); // no ancestry if parent is root
 
       // test path
-      expect(store.getRowIds('search')).toHaveLength(1);
-      expect(store.getRowIds('search')[0]).toBe(DEFAULT_NOTEBOOK_ID);
-      expect(store.getCell('search', DEFAULT_NOTEBOOK_ID, 'breadcrumb')).toBe(
+      expect(space.getRowIds(SpaceTables.DerivedState)).toHaveLength(1);
+      expect(space.getRowIds(SpaceTables.DerivedState)[0]).toBe(
         DEFAULT_NOTEBOOK_ID
       );
+      expect(
+        space.getCell(
+          SpaceTables.DerivedState,
+          DEFAULT_NOTEBOOK_ID,
+          'shortPath'
+        )
+      ).toEqual([DEFAULT_NOTEBOOK_ID]);
     });
 
     it(`should create correct ancestry on start`, () => {
       createTestData();
-      searchAncestryService.start(DEFAULT_SPACE_ID);
 
       expect(store.getRowIds('ancestors')).toHaveLength(13);
       const ancestors = store.getTable('ancestors');
@@ -181,7 +174,6 @@ describe('search ancestry service', () => {
     });
 
     it(`should update ancestry on saveItems (import)`, () => {
-      searchAncestryService.start(DEFAULT_SPACE_ID);
       expect(store.getRowIds('ancestors')).toHaveLength(0);
 
       createTestData();
@@ -199,7 +191,6 @@ describe('search ancestry service', () => {
       // F1 > FF1 > FFF1 > D1 > P1
       // F2 > FF2
       createTestData();
-      searchAncestryService.start(DEFAULT_SPACE_ID);
       expect(store.getRowIds('ancestors')).toHaveLength(13);
 
       collectionService.setItemParent('FFF1', 'FF2');
@@ -229,7 +220,6 @@ describe('search ancestry service', () => {
       collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
       notebooksService.addNotebook('N1');
 
-      searchAncestryService.start();
       // pull - newest items are removed
       space.setContent(spaceContent);
 
@@ -249,36 +239,33 @@ describe('search ancestry service', () => {
     });
 
     it(`should cache and a breadcrumb with only one parent notebook`, () => {
-      searchAncestryService.start(DEFAULT_SPACE_ID);
       const idn1 = notebooksService.addNotebook('test');
       const idn2 = notebooksService.addNotebook('nested', idn1);
       const idd1 = collectionService.addDocument(idn2);
       const idf1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
       const idd2 = collectionService.addDocument(idf1);
 
-      expect(searchAncestryService.getShortBreadcrumb(ROOT_COLLECTION)).toBe(
-        ''
-      );
-      expect(
-        searchAncestryService.getShortBreadcrumb(DEFAULT_NOTEBOOK_ID)
-      ).toBe(DEFAULT_NOTEBOOK_ID);
-      expect(searchAncestryService.getShortBreadcrumb(idn1)).toBe(idn1);
-      expect(searchAncestryService.getShortBreadcrumb(idn2)).toBe(idn2);
-      expect(searchAncestryService.getShortBreadcrumb(idd1)).toBe(
-        [idn2, idd1].join(',')
-      );
-      expect(searchAncestryService.getShortBreadcrumb(idf1)).toBe(
-        [DEFAULT_NOTEBOOK_ID, idf1].join(',')
-      );
-      expect(searchAncestryService.getShortBreadcrumb(idd2)).toBe(
-        [DEFAULT_NOTEBOOK_ID, idf1, idd2].join(',')
-      );
+      expect(collectionService.getBreadcrumb(ROOT_COLLECTION)).toEqual([]);
+      expect(collectionService.getBreadcrumb(DEFAULT_NOTEBOOK_ID)).toEqual([
+        DEFAULT_NOTEBOOK_ID
+      ]);
+      expect(collectionService.getBreadcrumb(idn1)).toEqual([idn1]);
+      expect(collectionService.getBreadcrumb(idn2)).toEqual([idn2]);
+      expect(collectionService.getBreadcrumb(idd1)).toEqual([idn2, idd1]);
+      expect(collectionService.getBreadcrumb(idf1)).toEqual([
+        DEFAULT_NOTEBOOK_ID,
+        idf1
+      ]);
+      expect(collectionService.getBreadcrumb(idd2)).toEqual([
+        DEFAULT_NOTEBOOK_ID,
+        idf1,
+        idd2
+      ]);
     });
   });
 
   describe(`search table update`, () => {
     it(`should update preview on saveItems (import)`, () => {
-      searchAncestryService.start(DEFAULT_SPACE_ID);
       expect(store.getRowIds('ancestors')).toHaveLength(0);
 
       createTestData();
@@ -290,7 +277,6 @@ describe('search ancestry service', () => {
 
     it(`should update preview on individual content change`, () => {
       createTestData();
-      searchAncestryService.start(DEFAULT_SPACE_ID);
 
       collectionService.setItemLexicalContent('D1', shortContentUpdated);
 
@@ -304,15 +290,18 @@ describe('search ancestry service', () => {
       // update items locally
       collectionService.setItemTitle('D1', 'D1 updated');
       collectionService.addItemTag('D1', 'tag1');
-      collectionService.setItemLexicalContent('P1', shortContent);
+      collectionService.setItemLexicalContent('D1', shortContent);
 
       // reset
       const spaceContent = space.getContent();
       storageService.nukeSpace();
-      searchAncestryService.start();
 
       // pull
       space.setContent(spaceContent);
+
+      expect(
+        space.getCell(SpaceTables.DerivedContent, 'c-D1', 'plainText')
+      ).toBeDefined();
     });
   });
 });

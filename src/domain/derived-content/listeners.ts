@@ -4,7 +4,7 @@ import { SpaceTables } from '@/core/db/store-constants';
 import { SpaceTableId } from '@/core/db/store-schema';
 import { getPlainText } from '@/shared/utils/getPlainText';
 import { Id } from 'tinybase/with-schemas';
-import { statsOnPlainTextCallback } from '../stats/on-change-callback';
+import { statsOnPlainTextCallback } from '../stats/stats-on-change-callback';
 import { DerivedPrefix, getDerivedId } from './model';
 
 const listeners: Id[] = [];

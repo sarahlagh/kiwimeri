@@ -1,20 +1,17 @@
 import {
   CollectionItemResetConflictFields,
-  CollectionItemResult,
   CollectionItemType
 } from '@/collection/collection';
 import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
 import {
   DEFAULT_NOTEBOOK_ID,
   DEFAULT_ORDER,
-  DEFAULT_SPACE_ID,
   ROOT_COLLECTION
 } from '@/constants';
 import { setMetaField } from '@/core/db/types';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import { CollectionItemSort } from '@/domain/collection-settings/model';
-import { searchAncestryService } from '@/search/search-ancestry.service';
 import {
   BROWSABLE_ITEM_TYPES,
   fakeTimersDelay,
@@ -37,11 +34,9 @@ const loremIpsum = JSON.parse(
 describe('collection service', () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    searchAncestryService.start(DEFAULT_SPACE_ID);
   });
   afterEach(() => {
     vi.useRealTimers();
-    searchAncestryService.stop();
   });
 
   BROWSABLE_ITEM_TYPES.forEach(({ type, typeVal, addMethod, defaultTitle }) => {
@@ -627,12 +622,15 @@ describe('collection service', () => {
       item5.title = 'r5';
       collectionService.saveItems([item1, item2, item3, item4, item5]);
 
-      let items = [item1, item2, item3, item4, item5] as CollectionItemResult[];
-
       const sort: CollectionItemSort = {
         by: 'order',
         descending: false
       };
+      let items = collectionService.getBrowsableCollectionItems(
+        DEFAULT_NOTEBOOK_ID,
+        sort
+      );
+
       [
         {
           from: 0,

@@ -51,15 +51,6 @@
         "type": "pcloud",
         "config": "{\"path\":\"/kiwimeri\",\"token\":\"fake token\",\"serverLocation\":\"eu\"}"
       }
-    },
-    "search": {
-      "0": { "breadcrumb": "0" },
-      "h-MOhEAYItMcMOJb": { "breadcrumb": "0,h-MOhEAYItMcMOJb" },
-      "cZ6l5keLw_D7s9Yq": { "breadcrumb": "0,cZ6l5keLw_D7s9Yq" },
-      "xtid1X1laW4E5oUI": {
-        "breadcrumb": "0,-br8f-vij3m0LJ8k,xtid1X1laW4E5oUI"
-      },
-      "-br8f-vij3m0LJ8k": { "breadcrumb": "0,-br8f-vij3m0LJ8k" }
     }
   },
   {}

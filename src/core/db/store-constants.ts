@@ -3,7 +3,6 @@ export enum StoreTables {
   Remotes = 'remotes',
   RemoteStates = 'remoteState',
   Logs = 'logs',
-  Search = 'search',
   Ancestors = 'ancestors'
 }
 
@@ -15,7 +14,8 @@ export enum SpaceTables {
   Stats = 'stats',
   Annotations = 'document_annotation',
   UserPreference = 'user_preference',
-  DerivedContent = 'derived_content'
+  DerivedContent = 'derived_content',
+  DerivedState = 'derived_item_state'
 }
 
 export type StoreId = 'store' | 'space';

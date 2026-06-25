@@ -276,15 +276,42 @@
     "derived_content": {
       "c-h-MOhEAYItMcMOJb": { "plainText": "" },
       "c-xtid1X1laW4E5oUI": { "plainText": "content" },
-      "c-8-jzP7Mubb-laAcb": {
-        "plainText": "page content page update"
-      },
+      "c-8-jzP7Mubb-laAcb": { "plainText": "page content page update" },
       "a-u0R3jqIujM3O_8IT": {
         "plainText": "this is a comment no a note an annotation"
       },
       "a-dfa7xjA21tkzBm44": { "plainText": "1" },
       "a-0INbpodHu1NOc3hA": { "plainText": "2" },
       "a-jjm_oGzicsvYfSGM": { "plainText": "3" }
+    },
+    "derived_item_state": {
+      "0": { "fullPath": ["0"], "shortPath": ["0"] },
+      "h-MOhEAYItMcMOJb": {
+        "fullPath": ["0", "h-MOhEAYItMcMOJb"],
+        "shortPath": ["0", "h-MOhEAYItMcMOJb"]
+      },
+      "-br8f-vij3m0LJ8k": {
+        "fullPath": ["0", "-br8f-vij3m0LJ8k"],
+        "shortPath": ["0", "-br8f-vij3m0LJ8k"]
+      },
+      "xtid1X1laW4E5oUI": {
+        "fullPath": ["0", "-br8f-vij3m0LJ8k", "xtid1X1laW4E5oUI"],
+        "shortPath": ["0", "-br8f-vij3m0LJ8k", "xtid1X1laW4E5oUI"]
+      },
+      "8-jzP7Mubb-laAcb": {
+        "fullPath": [
+          "0",
+          "-br8f-vij3m0LJ8k",
+          "xtid1X1laW4E5oUI",
+          "8-jzP7Mubb-laAcb"
+        ],
+        "shortPath": [
+          "0",
+          "-br8f-vij3m0LJ8k",
+          "xtid1X1laW4E5oUI",
+          "8-jzP7Mubb-laAcb"
+        ]
+      }
     }
   },
   {

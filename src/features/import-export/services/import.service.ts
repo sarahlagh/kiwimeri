@@ -669,8 +669,8 @@ class ImportService {
     // remove the table from all queries as a start
     // space.transaction(() => {
     const allDocIds = [
-      ...collectionService.saveItems(zipMerge.newItems, undefined, true),
-      ...collectionService.saveItems(zipMerge.updatedItems, undefined, true)
+      ...collectionService.saveItems(zipMerge.newItems, true),
+      ...collectionService.saveItems(zipMerge.updatedItems, true)
     ];
     allDocIds.forEach(docId => historyService.addVersion(docId, true));
     // });

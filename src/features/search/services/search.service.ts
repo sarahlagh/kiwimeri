@@ -1,15 +1,15 @@
 import { CollectionItemTypeValues } from '@/collection/collection';
-import { space, store } from '@/core/db/store';
+import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import notebooksService from '@/db/notebooks.service';
 import { getDerivedId } from '@/domain/derived-content/model';
+import { searchAncestryService } from '@/search/search-ancestry.service';
 import { $getRoot, ElementNode, LexicalEditor, TextNode } from 'lexical';
-import { searchAncestryService } from './search-ancestry.service';
 
 export type DeepSearchResult = {
   id: string;
   type: CollectionItemTypeValues;
-  shortBreadcrumb: string;
+  shortBreadcrumb: string[];
   title?: string;
   preview?: string;
   firstContentMatch?: {
@@ -167,15 +167,15 @@ class CollectionContentSearchService {
       searchOptions.scope = notebooksService.getCurrentNotebook();
     }
     const results: DeepSearchResult[] = [];
-    const searchTable = store.getTable('search');
     const collectionTable = space.getTable(SpaceTables.Collection);
     const derivedContentTable = space.getTable(SpaceTables.DerivedContent);
+    const derivedStateTable = space.getTable(SpaceTables.DerivedState);
     searchAncestryService.getChildren(searchOptions.scope).forEach(rowId => {
-      const row = searchTable[rowId];
+      const shortPath = derivedStateTable[rowId]?.shortPath;
       const plainText =
         derivedContentTable[getDerivedId('c', rowId)]?.plainText;
       const item = collectionTable[rowId];
-      if (!row || !item) return;
+      if (!shortPath || !item) return;
       if (!searchOptions.searchInTitle && !plainText) return;
       const title = item.title?.toString() || '';
 
@@ -183,7 +183,7 @@ class CollectionContentSearchService {
         id: rowId,
         type: item.type as CollectionItemTypeValues,
         title,
-        shortBreadcrumb: row.breadcrumb as string // TODO resolve to titles
+        shortBreadcrumb: shortPath as string[]
       };
 
       // optionally search in title

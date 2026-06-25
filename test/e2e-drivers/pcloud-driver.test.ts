@@ -33,7 +33,6 @@ import {
   RemoteCollectionFileContent
 } from '@/remote-storage/synchronizers/collection-synchronizer';
 import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';
-import { searchAncestryService } from '@/search/search-ancestry.service';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   amount,
@@ -126,7 +125,6 @@ describe.sequential(
       driver = synchronizer['collectionSynchronizer']['driver'] as PCloudDriver;
 
       notebook = notebooksService.getNotebooks()[0].id;
-      searchAncestryService.start();
     });
     afterEach(async () => {
       conflictsService.closeConflictQueries();
@@ -135,7 +133,6 @@ describe.sequential(
         await driver.deleteFile({ filename: 'collection.json' });
         await driver.deleteFile({ filename: 'stats.json' });
       }
-      searchAncestryService.stop();
       await remotesService.delRemote(remotesService.getRemotes()[0].id);
       expect(countOrphans()).toBe(0);
     });

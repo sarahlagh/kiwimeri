@@ -1,5 +1,5 @@
 import platformService from '@/common/services/platform.service';
-import { searchService } from '@/search/search.service';
+import { searchService } from '@/features/search';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 
 type SearchHighlightPluginProps = {

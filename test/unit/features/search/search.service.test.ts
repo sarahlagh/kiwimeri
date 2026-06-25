@@ -1,9 +1,12 @@
 import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
 import { lexicalConfig } from '@/common/wysiwyg/lexical/lexical-config';
 import { space } from '@/core/db/store';
+import collectionService from '@/db/collection.service';
 import { getDerivedId } from '@/domain/derived-content/model';
-import { searchAncestryService } from '@/search/search-ancestry.service';
-import { SearchOptions, searchService } from '@/search/search.service';
+import {
+  SearchOptions,
+  searchService
+} from '@/features/search/services/search.service';
 import { createHeadlessEditor } from '@lexical/headless';
 import { readFile } from 'fs/promises';
 import { LexicalEditor, TextNode } from 'lexical';
@@ -26,8 +29,10 @@ describe('search service', () => {
     }
   });
   beforeEach(() => {
-    space.setJson(jsonCollection);
-    searchAncestryService.start();
+    space.transaction(() => {
+      space.setJson(jsonCollection);
+      collectionService.backfillDerivedStates();
+    });
   });
 
   describe('Search Lexical State', () => {

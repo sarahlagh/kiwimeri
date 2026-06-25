@@ -6,7 +6,7 @@ import {
   ROOT_COLLECTION
 } from '@/constants';
 import { space, spaceQueries } from '@/core/db/store';
-import { SID } from '@/core/db/store-constants';
+import { SID, SpaceTables } from '@/core/db/store-constants';
 import { useSpaceValue } from '@/core/db/tinybase-hooks';
 import { setMetaField } from '@/core/db/types';
 import { settingsService } from '@/domain/collection-settings/collection-settings.service';
@@ -63,12 +63,23 @@ class NotebooksService {
       getGlobalTrans().defaultNotebookName
     );
     const id = DEFAULT_NOTEBOOK_ID;
-    space.setRow(this.table, id, { ...item, itemId: id });
+    const row = { ...item, itemId: id };
+    space.transaction(() => {
+      const tmpTable = space.getTable(SpaceTables.Collection);
+      tmpTable[id] = row;
+      collectionService.calcState(id, tmpTable);
+      space.setRow(this.table, id, row);
+    });
   }
 
   public addNotebook(title: string, parent: string = ROOT_COLLECTION) {
     const { item, id } = this.getNewNotebookObj(parent, title);
-    space.setRow(this.table, id, item);
+    space.transaction(() => {
+      const tmpTable = space.getTable(SpaceTables.Collection);
+      tmpTable[id] = { ...item, itemId: id };
+      collectionService.calcState(id, tmpTable);
+      space.setRow(this.table, id, item);
+    });
     return id!;
   }
 

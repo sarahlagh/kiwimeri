@@ -1,12 +1,11 @@
 import { CollectionItem } from '@/collection/collection';
-import { DEFAULT_NOTEBOOK_ID, DEFAULT_SPACE_ID } from '@/constants';
+import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { space } from '@/core/db/store';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
-import { searchAncestryService } from '@/search/search-ancestry.service';
 import {
   fakeTimersDelay,
   GET_HISTORIZABLE_UPDATE_FIELDS,
@@ -24,14 +23,12 @@ describe('collection history service', () => {
   beforeEach(() => {
     historyService['enabled'] = true;
     vi.useFakeTimers();
-    searchAncestryService.start(DEFAULT_SPACE_ID);
     userPrefs.set('historyIdleTime', idleTime);
   });
   afterEach(() => {
     vi.useRealTimers();
     userPrefs.set('historyIdleTime', null);
     userPrefs.set('maxHistoryPerDoc', null);
-    searchAncestryService.stop();
   });
 
   describe(`operations on a document`, () => {

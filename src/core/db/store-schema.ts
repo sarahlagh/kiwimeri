@@ -1,4 +1,5 @@
 import { derivedContentSchema } from '@/domain/derived-content/model';
+import { derivedItemStateSchema } from '@/domain/derived-item-state/model';
 import { docAnnotationSchema } from '@/domain/document-annotations/model';
 import { localChangesSchema } from '@/domain/local-changes/model';
 import { resumeStateSchema } from '@/domain/resume-state/model';
@@ -31,10 +32,6 @@ export const storeTablesSchema = {
     ts: { type: 'number' },
     level: { type: 'string' },
     message: { type: 'string' }
-  },
-  search: {
-    // rowId = itemId
-    breadcrumb: { type: 'string' }
   },
   ancestors: {
     parentId: { type: 'string' },
@@ -89,7 +86,8 @@ export const spaceTablesSchema = {
   },
   document_annotation: docAnnotationSchema,
   user_preference: userPreferenceSchema,
-  derived_content: derivedContentSchema
+  derived_content: derivedContentSchema,
+  derived_item_state: derivedItemStateSchema
 } as const satisfies Record<SpaceTables, unknown>;
 
 export const spaceValuesSchema = {

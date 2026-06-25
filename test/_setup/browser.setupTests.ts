@@ -26,6 +26,7 @@ import { postInitMigrationService } from '@/core/db/post-init-migrations/post-in
 import { startDbListeners, stopDbListeners } from '@/core/db/store-listeners';
 import { historyService } from '@/db/collection-history.service';
 import '@/polyfills/log-polyfill';
+import { searchAncestryService } from '@/search/search-ancestry.service';
 import { setupIonicReact } from '@ionic/react';
 import { afterAll, afterEach, beforeAll, beforeEach } from 'vitest';
 import { nukeStorage } from './test.utils';
@@ -50,9 +51,11 @@ afterAll(() => {
 beforeEach(() => {
   notebooksService.initNotebooks();
   startDbListeners();
+  searchAncestryService.start();
 });
 afterEach(() => {
   stopDbListeners();
+  searchAncestryService.stop();
   nukeStorage();
   remotesService.stopSync();
 });

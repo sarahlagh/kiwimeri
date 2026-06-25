@@ -5,12 +5,17 @@ import { SpaceTables } from '@/core/db/store-constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import { SerializableData } from '@/db/types/store-types';
+import {
+  startDerivedContentListeners,
+  stopDerivedContentListeners
+} from '@/domain/derived-content/listeners';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import {
   LocalChangeResult,
   LocalChangeType
 } from '@/domain/local-changes/model';
 import {
+  fakeTimersDelay,
   GET_UPDATABLE_FIELDS,
   getLocalItemField,
   getNewContent,
@@ -162,6 +167,7 @@ describe('local changes service', () => {
   });
 
   it(`should create local change after saveItems`, () => {
+    vi.useFakeTimers();
     localChangesService.clear();
     const { item: item1 } =
       collectionService.getNewDocumentObj(DEFAULT_NOTEBOOK_ID);
@@ -177,26 +183,31 @@ describe('local changes service', () => {
     item1.content = getNewContent('new stuff');
     item2.title = 'new title';
 
+    vi.advanceTimersByTime(fakeTimersDelay);
     collectionService.saveItems([
       { ...item1, id: id1 },
       { ...item2, id: id2 },
       { ...item3, id: id3 }
     ]);
 
+    // add change is older than update changes
     const localChanges = localChangesService.getLocalChanges();
     expect(localChanges).toHaveLength(3);
     expect(
       localChanges.map(lc => `${lc.itemId}-${lc.change}-${lc.field || ''}`)
-    ).toEqual([`${id3}-a-`, `${id2}-u-title`, `${id1}-u-content`]);
+    ).toEqual([`${id2}-u-title`, `${id1}-u-content`, `${id3}-a-`]);
+    vi.useRealTimers();
   });
 });
 
 describe('local changes listeners', () => {
   beforeEach(() => {
     localChangesService.clear();
+    stopDerivedContentListeners();
     vi.useFakeTimers();
   });
   afterEach(() => {
+    startDerivedContentListeners();
     vi.useRealTimers();
   });
   const watchedTables: {

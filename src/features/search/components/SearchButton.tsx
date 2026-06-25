@@ -1,6 +1,6 @@
 import { APPICONS } from '@/constants';
+import { plt } from '@/core/infra/platform';
 import { IonButton, IonIcon } from '@ionic/react';
-import platformService from '../services/platform.service';
 
 type SearchButtonProps = {
   onSearch: () => void;
@@ -9,7 +9,7 @@ type SearchButtonProps = {
 const SearchButton = ({ onSearch }: SearchButtonProps) => {
   return (
     <>
-      {platformService.hasHighlightSupport() && (
+      {plt.hasHighlightSupport() && (
         <IonButton onClick={onSearch}>
           <IonIcon icon={APPICONS.search}></IonIcon>
         </IonButton>

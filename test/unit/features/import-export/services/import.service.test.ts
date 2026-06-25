@@ -18,11 +18,7 @@ import {
 import importService from '@/features/import-export/services/import.service';
 import { validateMetadataFile } from '@/features/import-export/services/metadata-validation';
 
-import {
-  createInitLocalData,
-  getLocalItemField,
-  getNewContent
-} from '@@/_setup/test.utils';
+import { createInitLocalData, getNewContent } from '@@/_setup/test.utils';
 import { readFile } from 'fs/promises';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -522,23 +518,6 @@ describe('import service', () => {
       'SimpleWithDuplicates.zip',
       'Samples.zip'
     ]);
-
-    it(`should update parent ts when importing if not home`, async () => {
-      const before = Date.now();
-      const id = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
-      vi.advanceTimersByTime(5000);
-      const zipParsedData = await readZip('zips_without_meta', 'Simple.zip');
-      const zipMerge = importService.mergeZipItems(id, zipParsedData, {
-        createNewFolder: false,
-        overwrite: false
-      });
-      expect(zipMerge).not.toBeNull();
-      expect(zipMerge!.newItems).toHaveLength(1);
-      expect(zipMerge!.newItems[0].parent).toBe(id);
-      // save results and check db
-      collectionService.saveItems(zipMerge!.newItems, id);
-      expect(getLocalItemField(id, 'updated')).toBe(before + 5000);
-    });
   });
 
   describe('merging zips with metadata', async () => {

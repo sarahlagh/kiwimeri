@@ -1,12 +1,15 @@
 import { APPICONS_PER_TYPE } from '@/collection/collection';
+import { GET_UNKNOWN_ITEM_ROUTE } from '@/common/routes';
+import { getSearchParams } from '@/common/utils';
 import { APPICONS } from '@/constants';
+import { plt } from '@/core/infra/platform';
 import collectionService from '@/db/collection.service';
 import {
   DeepSearchOptions,
   DeepSearchResult,
   SearchOptions,
   searchService
-} from '@/search/search.service';
+} from '@/features/search';
 import {
   InputCustomEvent,
   IonBadge,
@@ -28,9 +31,6 @@ import {
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router';
-import { GET_UNKNOWN_ITEM_ROUTE } from '../routes';
-import platformService from '../services/platform.service';
-import { getSearchParams } from '../utils';
 
 const DEEP_SEARCH_RESULTS_HIGHLIGHT_KEY = 'kiwimeri-deep-search-results';
 const CONTENT_LABEL_ID_PREFIX = 'global-search-result-content-';
@@ -60,7 +60,7 @@ const searchOptions = {
 };
 
 function highlightResults(searchResults: DeepSearchResult[]) {
-  if (platformService.hasHighlightSupport()) {
+  if (plt.hasHighlightSupport()) {
     const createRange = (
       node: ChildNode,
       firstMatch: {
@@ -98,7 +98,7 @@ function highlightResults(searchResults: DeepSearchResult[]) {
 }
 
 const SearchResult = ({ searchResult }: SearchResultProps) => {
-  const textBreadcrumb = searchResult.shortBreadcrumb.split(',').map(id => ({
+  const textBreadcrumb = searchResult.shortBreadcrumb.map(id => ({
     title: collectionService.getItemTitle(id)
   }));
   textBreadcrumb.shift(); // remove the notebook

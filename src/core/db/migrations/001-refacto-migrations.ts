@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
 import { getPlainText } from '@/shared/utils/getPlainText';
+import { NoTablesSchema, Table } from 'tinybase/with-schemas';
 import { MetaField } from '../types';
 import { NoSchemaStore } from './migrate';
 
@@ -12,7 +13,8 @@ enum _SpaceTables {
   Stats = 'stats',
   Annotations = 'document_annotation',
   UserPreference = 'user_preference',
-  DerivedContent = 'derived_content'
+  DerivedContent = 'derived_content',
+  DerivedState = 'derived_item_state'
 }
 
 const C = _SpaceTables.Collection;
@@ -21,6 +23,7 @@ const H = _SpaceTables.History;
 const S = _SpaceTables.Stats;
 const UP = _SpaceTables.UserPreference;
 const D = _SpaceTables.DerivedContent;
+const CS = _SpaceTables.DerivedState;
 
 export default function Migration(
   _space: NoSchemaStore,
@@ -34,7 +37,8 @@ export default function Migration(
   someValuesGoToUserPrefs(_space);
   documentResumeStateToCollectionResumeState(_space);
   storeValuesGoToSpace(_store, _space);
-  addDerivedContent(_space); // TODO
+  addDerivedContent(_space);
+  addDerivedState(_space);
 }
 
 function metaFieldsBecomeObjects(_space: NoSchemaStore) {
@@ -275,5 +279,48 @@ function addDerivedContent(_space: NoSchemaStore) {
         plainText: getPlainText(unminimizeContentFromStorage(content))
       });
     }
+  });
+}
+
+const ROOT_COLLECTION = 'root';
+function getPath(
+  rowId: string,
+  table: Table<NoTablesSchema, _SpaceTables.Collection, false>,
+  includeAllNotebooks = true,
+  includeSelf = false // TODO always true
+) {
+  let parent = rowId;
+  let breadcrumb: string[] = [];
+  let nbNotebooks = 0;
+  while (parent !== ROOT_COLLECTION && nbNotebooks < 2) {
+    if (!table[parent]) {
+      break;
+    }
+    if (parent !== rowId || includeSelf) {
+      breadcrumb = [parent, ...breadcrumb];
+    }
+    const parentType = table[parent].type;
+    if (!includeAllNotebooks && parentType === 'n') {
+      nbNotebooks++;
+      break;
+    }
+    const parentParent = (table[parent].parent as string) || ROOT_COLLECTION;
+    if (parentParent === parent && parent !== ROOT_COLLECTION) {
+      throw new Error('circular parent reference');
+    }
+    parent = parentParent;
+  }
+  return breadcrumb;
+}
+
+function addDerivedState(_space: NoSchemaStore) {
+  const tmpTable = _space.getTable(C);
+  _space.getRowIds(C).forEach(rowId => {
+    const fullPath = getPath(rowId, tmpTable, true, true);
+    const shortPath = getPath(rowId, tmpTable, false, true);
+    _space.setPartialRow(CS, rowId, {
+      fullPath,
+      shortPath
+    });
   });
 }

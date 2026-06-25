@@ -15,6 +15,7 @@ import { startDbListeners, stopDbListeners } from '@/core/db/store-listeners';
 import { historyService } from '@/db/collection-history.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import '@/polyfills/log-polyfill';
+import { searchAncestryService } from '@/search/search-ancestry.service';
 import { afterAll, afterEach, beforeAll, beforeEach, expect } from 'vitest';
 import { nukeStorage } from './test.utils';
 
@@ -45,10 +46,12 @@ beforeEach(() => {
   startDbListeners();
   localChangesService.clear();
   notebooksService.initNotebooks();
+  searchAncestryService.start();
   expect(notebooksService.getCurrentNotebook()).toBe('0');
 });
 afterEach(() => {
   stopDbListeners();
+  searchAncestryService.stop();
   nukeStorage();
   remotesService.stopSync();
 });

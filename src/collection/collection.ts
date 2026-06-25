@@ -1,5 +1,5 @@
 import { APPICONS } from '@/constants';
-import { MetaField } from '@/core/db/types';
+import { MetaField, WithId } from '@/core/db/types';
 import { CollectionItemSettings } from '@/domain/collection-settings/model';
 
 export enum CollectionItemType {
@@ -31,7 +31,7 @@ export interface CollectionItem {
   settings_meta?: MetaField;
 }
 
-export type CollectionItemWithId = CollectionItem & { id: string };
+export type CollectionItemWithId = WithId<CollectionItem>;
 
 export type CollectionItemFieldEnum = keyof Required<
   Omit<CollectionItem, 'id'>
@@ -71,6 +71,7 @@ export type CollectionItemResult = Pick<
   Required<Pick<CollectionItem, 'id'>> & {
     lastOpenedAt?: number;
     preview?: string;
+    breadcrumb?: string[];
   };
 
 export const CollectionItemUpdatableConflictFields: CollectionItemUpdatableFieldEnum[] =

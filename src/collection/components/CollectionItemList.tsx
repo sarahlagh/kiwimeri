@@ -9,7 +9,7 @@ import { plt } from '@/core/infra/platform';
 import collectionService from '@/db/collection.service';
 // eslint-disable-next-line no-restricted-imports
 import useItemsConflictMixIn from '@/features/collection-ui/hooks/useItemsConflictMixIn';
-import { searchService } from '@/search/search.service';
+import { searchService } from '@/features/search';
 import {
   InputCustomEvent,
   IonButton,

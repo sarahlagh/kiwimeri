@@ -469,7 +469,7 @@ export const createInitLocalData = (initData: Partial<CollectionItem>[]) => {
   );
   console.debug('initial items', initialItems);
   if (initialItems.length > 0) {
-    collectionService.saveItems(initialItems, DEFAULT_NOTEBOOK_ID);
+    collectionService.saveItems(initialItems);
   }
   return { ids, initialItems };
 };

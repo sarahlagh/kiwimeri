@@ -7,7 +7,6 @@ import { settingsService } from '@/domain/collection-settings/collection-setting
 import { DataPoint, DocumentContentStatsBag } from '@/domain/stats/model';
 import { statsService } from '@/domain/stats/stats-service';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
-import { searchAncestryService } from '@/search/search-ancestry.service';
 import { fakeTimersDelay, getNewContent } from '@@/_setup/test.utils';
 import {
   afterEach,
@@ -132,11 +131,7 @@ describe('stats service', () => {
 
   describe(`stats generation`, () => {
     beforeEach(() => {
-      searchAncestryService.start();
       settingsService.setSpaceDefaultStatsEnabled(true);
-    });
-    afterEach(() => {
-      searchAncestryService.stop();
     });
 
     it(`should generate stats per item per day`, () => {
@@ -207,11 +202,9 @@ describe('stats service', () => {
     beforeEach(() => {
       historyService['enabled'] = true;
       userPrefs.set('historyIdleTime', 50);
-      searchAncestryService.start();
     });
     afterEach(() => {
       historyService['enabled'] = false;
-      searchAncestryService.stop();
     });
 
     it(`should backfill stats on notebook enabled`, () => {

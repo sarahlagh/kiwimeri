@@ -326,7 +326,7 @@ export class PullTestScenarioRunner {
       ch,
       // save func
       item => {
-        collectionService.saveItem(item, item.id, DEFAULT_NOTEBOOK_ID);
+        collectionService.saveItem(item, item.id);
         return item.id;
       },
       // update func

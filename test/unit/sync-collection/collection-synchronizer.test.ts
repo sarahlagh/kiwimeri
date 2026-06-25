@@ -20,7 +20,6 @@ import {
   REMOTE_COLLECTION_SCHEMA_VERSION,
   RemoteCollectionFileContent
 } from '@/remote-storage/synchronizers/collection-synchronizer';
-import { searchAncestryService } from '@/search/search-ancestry.service';
 import { InMemDriver } from '@@/_setup/inmem.driver';
 import {
   adv,
@@ -839,11 +838,9 @@ describe('collection synchronizer', () => {
   describe('should propagate conflicts', () => {
     beforeEach(() => {
       conflictsService.initConflictQueries();
-      searchAncestryService.start();
     });
     afterEach(() => {
       conflictsService.closeConflictQueries();
-      searchAncestryService.stop();
     });
 
     it('should include documents with conflicts and their source in fetchItemsQuery with onlyConflicts=true', async () => {
