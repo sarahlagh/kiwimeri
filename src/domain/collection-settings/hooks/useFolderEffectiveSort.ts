@@ -1,4 +1,4 @@
-import { SID, SpaceTables } from '@/core/db/store-constants';
+import { SpaceTables } from '@/core/db/store-constants';
 import { useSpaceCell } from '@/core/db/tinybase-hooks';
 import { Id } from 'tinybase/with-schemas';
 import { FolderSettings } from '../model';
@@ -11,8 +11,7 @@ export default function useFolderEffectiveSort(
   const cellValue = useSpaceCell<SpaceTables.Collection, 'settings'>(
     SpaceTables.Collection,
     folderId,
-    'settings',
-    SID.space
+    'settings'
   );
 
   if (cellValue) {

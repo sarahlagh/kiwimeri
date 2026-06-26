@@ -1,4 +1,4 @@
-import { SID, SpaceTables } from '@/core/db/store-constants';
+import { SpaceTables } from '@/core/db/store-constants';
 import { useSpaceCell } from '@/core/db/tinybase-hooks';
 import notebooksService from '@/db/notebooks.service';
 import { Id } from 'tinybase/with-schemas';
@@ -13,8 +13,7 @@ export default function useNotebookLastBrowserMode(
   const cellValue = useSpaceCell<SpaceTables.Collection, 'settings'>(
     SpaceTables.Collection,
     notebook,
-    'settings',
-    SID.space
+    'settings'
   ) as NotebookSettings | undefined;
 
   return cellValue?.browserMode || 0;

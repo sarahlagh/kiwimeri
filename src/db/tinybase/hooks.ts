@@ -1,6 +1,5 @@
-import { getIndexes, getQueries, getStore } from '@/core/db/store';
+import { space, spaceQueries, storeQueries } from '@/core/db/store';
 import { StoreId } from '@/core/db/store-constants';
-import { Indexes } from 'tinybase/indexes';
 import { Queries } from 'tinybase/queries';
 import { Store } from 'tinybase/store';
 import {
@@ -8,11 +7,29 @@ import {
   useResultSortedRowIds,
   useResultTable,
   useRow,
-  useSliceRowIds,
   useTable,
   useValue
 } from 'tinybase/ui-react';
 import { Id } from 'tinybase/with-schemas';
+
+function getStore(storeId: string) {
+  switch (storeId) {
+    case 'store':
+      return store;
+    case 'space':
+    default:
+      return space;
+  }
+}
+function getQueries(storeId: string) {
+  switch (storeId) {
+    case 'store':
+      return storeQueries;
+    case 'space':
+    default:
+      return spaceQueries;
+  }
+}
 
 const store = (storeId: StoreId) => {
   return getStore(storeId) as unknown as Store;
@@ -20,10 +37,6 @@ const store = (storeId: StoreId) => {
 
 const queries = (storeId: StoreId) => {
   return getQueries(storeId) as unknown as Queries;
-};
-
-const indexes = (storeId: StoreId) => {
-  return getIndexes(storeId) as unknown as Indexes;
 };
 
 // override common hooks
@@ -82,12 +95,4 @@ export const useResultSortedRowIdsWithRef = (
     limit,
     queries(storeId)
   );
-};
-
-export const useSliceRowIdsWithRef = (
-  storeId: StoreId,
-  indexId: Id,
-  sliceId: Id
-) => {
-  return useSliceRowIds(indexId, sliceId, indexes(storeId));
 };

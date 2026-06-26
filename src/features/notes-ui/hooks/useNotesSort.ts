@@ -10,8 +10,7 @@ const useNotesSort = (rowId: Id): NotesSort => {
   const settings = useSpaceCell<SpaceTables.Collection, 'settings'>(
     SpaceTables.Collection,
     rowId,
-    'settings',
-    'space'
+    'settings'
   );
   if (settings) {
     const opts = settings as DocumentSettings;

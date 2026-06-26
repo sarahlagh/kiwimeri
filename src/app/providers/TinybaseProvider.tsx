@@ -4,11 +4,9 @@ import {
   spaceMetrics,
   spaceQueries,
   store,
-  storeIndexes,
   storeQueries
 } from '@/core/db/store';
 import { ReactNode } from 'react';
-import { Indexes } from 'tinybase/indexes';
 import { Metrics } from 'tinybase/metrics';
 import { Queries } from 'tinybase/queries';
 import { Store } from 'tinybase/store';
@@ -21,13 +19,14 @@ const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
   const untypedSpaceMetrics = spaceMetrics as unknown as Metrics;
   const untypedStore = store as unknown as Store;
   const untypedStoreQueries = storeQueries as unknown as Queries;
-  const untypedStoreIndexes = storeIndexes as unknown as Indexes;
 
   return (
     <Provider
+      store={untypedSpace}
+      queries={untypedSpaceQueries}
+      metrics={untypedSpaceMetrics}
       storesById={{ store: untypedStore, space: untypedSpace }}
       queriesById={{ store: untypedStoreQueries, space: untypedSpaceQueries }}
-      indexesById={{ store: untypedStoreIndexes }}
       metricsById={{ space: untypedSpaceMetrics }}
     >
       {appConfig.DEV_ENABLE_INSPECTOR && <Inspector />}

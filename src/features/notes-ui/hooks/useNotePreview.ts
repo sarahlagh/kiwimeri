@@ -1,5 +1,5 @@
 import { PREVIEW_SIZE } from '@/constants';
-import { SID, SpaceTables } from '@/core/db/store-constants';
+import { SpaceTables } from '@/core/db/store-constants';
 import { useSpaceCell } from '@/core/db/tinybase-hooks';
 import { getDerivedId } from '@/domain/derived-content/model';
 import { Id } from 'tinybase/with-schemas';
@@ -8,8 +8,7 @@ const useNotePreview = (rowId: Id) => {
   const plainText = useSpaceCell<SpaceTables.DerivedContent, 'plainText'>(
     SpaceTables.DerivedContent,
     getDerivedId('a', rowId),
-    'plainText',
-    SID.space
+    'plainText'
   );
   return plainText?.substring(0, PREVIEW_SIZE);
 };

@@ -1,4 +1,4 @@
-import { SID, SpaceTables } from '@/core/db/store-constants';
+import { SpaceTables } from '@/core/db/store-constants';
 import { useSpaceCell } from '@/core/db/tinybase-hooks';
 import {
   UserPreferenceKey,
@@ -16,8 +16,7 @@ export default function usePrefState<P extends UserPreferenceKey>(
   const cellValue = useSpaceCell(
     UP,
     pref,
-    'value',
-    SID.space
+    'value'
   ) as UserPreferenceRow['value'];
   const rawValue: UserPreferenceValue<P> =
     cellValue !== undefined

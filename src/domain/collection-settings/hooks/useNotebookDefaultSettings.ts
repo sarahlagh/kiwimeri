@@ -1,4 +1,4 @@
-import { SID, SpaceTables } from '@/core/db/store-constants';
+import { SpaceTables } from '@/core/db/store-constants';
 import { useSpaceCell } from '@/core/db/tinybase-hooks';
 import notebooksService from '@/db/notebooks.service';
 import { Id } from 'tinybase/with-schemas';
@@ -15,8 +15,7 @@ export default function useNotebookDefaultSettings(
   const cellValue = useSpaceCell<SpaceTables.Collection, 'settings'>(
     SpaceTables.Collection,
     notebook,
-    'settings',
-    SID.space
+    'settings'
   );
   if (cellValue) {
     return { ...spaceDefault, ...cellValue };

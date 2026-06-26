@@ -1,9 +1,9 @@
 import { syncService } from '@/remote-storage/sync.service';
-import { renderHook } from '@testing-library/react';
 import { act } from 'react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import localChangesService from '@/domain/local-changes/local-changes.service';
+import { wrappedRenderHook } from '@@/_setup/test.utils';
 import { testSyncAfterEach, testSyncBeforeEach } from './test-sync.utils';
 
 describe(`sync indicators test`, () => {
@@ -11,7 +11,9 @@ describe(`sync indicators test`, () => {
   afterEach(testSyncAfterEach);
 
   it('should detect if primary remote is connected', () => {
-    const { result } = renderHook(() => syncService.usePrimaryConnected());
+    const { result } = wrappedRenderHook(() =>
+      syncService.usePrimaryConnected()
+    );
     expect(result.current).toBeTruthy();
   });
 
@@ -19,7 +21,7 @@ describe(`sync indicators test`, () => {
     act(() => {
       localChangesService.clear();
     });
-    const { result } = renderHook(() =>
+    const { result } = wrappedRenderHook(() =>
       syncService.usePrimaryHasLocalChanges()
     );
     expect(result.current).toBeFalsy();
@@ -28,7 +30,7 @@ describe(`sync indicators test`, () => {
   it('should tell if there is are local changes', () => {
     // by default a new notebook is created
     expect(localChangesService.getLocalChanges()).toHaveLength(1);
-    const { result } = renderHook(() =>
+    const { result } = wrappedRenderHook(() =>
       syncService.usePrimaryHasLocalChanges()
     );
     expect(result.current).toBeTruthy();
