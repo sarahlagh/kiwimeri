@@ -14,7 +14,6 @@ import {
 } from './types';
 
 export const storeTablesSchema = {
-  localChanges: localChangesSchema,
   remotes: {
     state: { type: 'string' },
     name: { type: 'string' },
@@ -34,10 +33,6 @@ export const storeTablesSchema = {
     message: { type: 'string' }
   }
 } as const satisfies Record<StoreTables, unknown>;
-
-export const storeValuesSchema = {
-  tempDoc: { type: 'string' }
-} as const;
 
 export const spaceTablesSchema = {
   collection: {
@@ -82,8 +77,13 @@ export const spaceTablesSchema = {
   document_annotation: docAnnotationSchema,
   user_preference: userPreferenceSchema,
   derived_content: derivedContentSchema,
-  derived_item_state: derivedItemStateSchema
+  derived_item_state: derivedItemStateSchema,
+  local_changes: localChangesSchema
 } as const satisfies Record<SpaceTables, unknown>;
+
+export const storeValuesSchema = {
+  tempDoc: { type: 'string' }
+} as const;
 
 export const spaceValuesSchema = {
   appVersion: { type: 'string', default: '' },

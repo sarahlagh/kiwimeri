@@ -14,6 +14,7 @@ export const {
 export const {
   useCell: useSpaceCell,
   useRow: useSpaceRow,
+  useRowCount: useSpaceRowCount,
   useTable: useSpaceTable,
   useValue: useSpaceValue,
   useResultSortedRowIds: useSpaceResultSortedRowIds,

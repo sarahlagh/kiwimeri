@@ -1,5 +1,5 @@
-import { store } from '@/core/db/store';
-import { StoreTables } from '@/core/db/store-constants';
+import { space } from '@/core/db/store';
+import { SpaceTables } from '@/core/db/store-constants';
 import { AsId } from '@/core/db/types';
 import { Id } from 'tinybase/with-schemas';
 import {
@@ -9,7 +9,7 @@ import {
   LocalChangeType
 } from './model';
 
-const LC = StoreTables.LocalChanges;
+const LC = SpaceTables.LocalChanges;
 
 class LocalChangesService {
   public addManualLocalChange<T>(
@@ -32,20 +32,20 @@ class LocalChangesService {
       on
     });
     if (change === LocalChangeType.update) {
-      if (store.hasRow(LC, addedRowId)) {
+      if (space.hasRow(LC, addedRowId)) {
         // was added in same session
-        store.setCell(LC, addedRowId, 'createdAt', localChange.createdAt);
+        space.setCell(LC, addedRowId, 'createdAt', localChange.createdAt);
         return;
       }
-      if (store.hasRow(LC, rowId)) {
+      if (space.hasRow(LC, rowId)) {
         // already had update
-        store.setCell(LC, rowId, 'createdAt', localChange.createdAt);
+        space.setCell(LC, rowId, 'createdAt', localChange.createdAt);
         return;
       }
     } else if (change === LocalChangeType.delete) {
-      if (store.hasRow(LC, addedRowId)) {
+      if (space.hasRow(LC, addedRowId)) {
         // was added in same session
-        store.delRow(LC, addedRowId);
+        space.delRow(LC, addedRowId);
         return;
       }
       const updatedRowIdPrefix = this.getLocalChangeId({
@@ -53,12 +53,12 @@ class LocalChangesService {
         change: LocalChangeType.update,
         on
       });
-      const updates = store
+      const updates = space
         .getRowIds(LC)
         .filter(id => id.startsWith(updatedRowIdPrefix));
-      store.transaction(() => {
+      space.transaction(() => {
         updates.forEach(u => {
-          store.delRow(LC, u);
+          space.delRow(LC, u);
         });
       });
     } else if (change === LocalChangeType.add) {
@@ -67,21 +67,21 @@ class LocalChangesService {
         change: LocalChangeType.delete,
         on
       });
-      if (store.hasRow(LC, deletedRowId)) {
+      if (space.hasRow(LC, deletedRowId)) {
         // was restored
-        store.delRow(LC, deletedRowId);
+        space.delRow(LC, deletedRowId);
 
         // no way to know if item was updated before restore
         localChange.change = LocalChangeType.update;
       }
     }
-    store.setRow(LC, rowId, localChange);
+    space.setRow(LC, rowId, localChange);
   }
 
   public getLocalChanges() {
     const results: LocalChangeResult[] = [];
-    const table = store.getTable(LC);
-    store.getSortedRowIds(LC, 'createdAt', true).forEach(rowId => {
+    const table = space.getTable(LC);
+    space.getSortedRowIds(LC, 'createdAt', true).forEach(rowId => {
       const row = table[rowId] as LocalChangeRow<never>;
       results.push({ ...row, id: rowId });
     });
@@ -89,11 +89,11 @@ class LocalChangesService {
   }
 
   public delete(rowId: Id) {
-    store.delRow(LC, rowId);
+    space.delRow(LC, rowId);
   }
 
   public clear() {
-    store.delTable(LC);
+    space.delTable(LC);
   }
 
   private getLocalChangeId(

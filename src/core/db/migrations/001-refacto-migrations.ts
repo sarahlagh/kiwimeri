@@ -36,6 +36,7 @@ export default function Migration(
   storeValuesGoToSpace(_store, _space);
   addDerivedContent(_store, _space);
   addDerivedState(_store, _space);
+  localChangesGoToSpace(_store, _space);
 }
 
 function metaFieldsBecomeObjects(_space: NoSchemaStore) {
@@ -291,5 +292,17 @@ function addDerivedState(_store: NoSchemaStore, _space: NoSchemaStore) {
       fullPath: path,
       shortPath: path
     });
+  });
+}
+
+function localChangesGoToSpace(_store: NoSchemaStore, _space: NoSchemaStore) {
+  const oldTable = 'localChanges';
+  const newTable = 'local_changes';
+  if (!_store.hasTable(oldTable)) {
+    return;
+  }
+  _store.getRowIds(oldTable).forEach(rowId => {
+    const row = _store.getRow(oldTable, rowId);
+    _space.setRow(newTable, rowId, row);
   });
 }

@@ -362,6 +362,21 @@
         "fullPath": ["0", "-br8f-vij3m0LJ8k", "xtid1X1laW4E5oUI"],
         "shortPath": ["0", "-br8f-vij3m0LJ8k", "xtid1X1laW4E5oUI"]
       }
+    },
+    "local_changes": {
+      "collection-cZ6l5keLw_D7s9Yq-u-content": {
+        "itemId": "cZ6l5keLw_D7s9Yq",
+        "change": "u",
+        "field": "content",
+        "on": "collection",
+        "createdAt": 1782124333151
+      },
+      "values--u-": {
+        "itemId": "",
+        "change": "u",
+        "on": "values",
+        "createdAt": 1782124378069
+      }
     }
   },
   {

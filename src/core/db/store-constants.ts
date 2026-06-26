@@ -1,5 +1,4 @@
 export enum StoreTables {
-  LocalChanges = 'localChanges',
   Remotes = 'remotes',
   RemoteStates = 'remoteState',
   Logs = 'logs'
@@ -14,7 +13,8 @@ export enum SpaceTables {
   Annotations = 'document_annotation',
   UserPreference = 'user_preference',
   DerivedContent = 'derived_content',
-  DerivedState = 'derived_item_state'
+  DerivedState = 'derived_item_state',
+  LocalChanges = 'local_changes'
 }
 
 export type StoreId = 'store' | 'space';

@@ -87,7 +87,8 @@ function watchTable<T extends SpaceTableId>(
             }
           }
         }
-      }
+      },
+      true
     )
   );
 }
