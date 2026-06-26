@@ -21,7 +21,7 @@ import {
 import { DEFAULT_ORDER, getGlobalTrans, ROOT_COLLECTION } from '@/constants';
 import { space, spaceQueries } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
-import { SpaceTablesType } from '@/core/db/store-schema';
+import { SpaceTableId, SpaceTablesType } from '@/core/db/store-schema';
 import { DbSerializableData, setMetaField, WithId } from '@/core/db/types';
 import { settingsService } from '@/domain/collection-settings/collection-settings.service';
 import {
@@ -697,6 +697,16 @@ class CollectionService {
         this.calcState(rowId, tmpTable);
       });
     });
+  }
+
+  public cleanupDerivedState(rowId: string, on: SpaceTableId) {
+    if (on === SpaceTables.Collection) {
+      space.delRow(SpaceTables.DerivedState, rowId);
+      space.delRow(SpaceTables.DerivedContent, getDerivedId('c', rowId));
+    }
+    if (on === SpaceTables.Annotations) {
+      space.delRow(SpaceTables.DerivedContent, getDerivedId('a', rowId));
+    }
   }
 
   public getBreadcrumb(rowId: string, includeAllNotebooks = false) {

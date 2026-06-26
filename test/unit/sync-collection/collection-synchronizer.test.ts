@@ -1257,4 +1257,61 @@ describe('collection synchronizer', () => {
       expect(resp.didPush).toBe(true);
     });
   });
+
+  describe('should handle derived state after sync', () => {
+    test('after pull derived state should be updated', async () => {
+      const items = [oneNotebook(), oneDocument()];
+      await driver.setCollectionContent(items, items[1].updated);
+      await synchronizer.sync();
+
+      expect(
+        space.getCell(SpaceTables.DerivedState, items[0].id!, 'fullPath')
+      ).toEqual([DEFAULT_NOTEBOOK_ID]);
+      expect(
+        space.getCell(SpaceTables.DerivedState, items[1].id!, 'fullPath')
+      ).toEqual([DEFAULT_NOTEBOOK_ID, items[1].id]);
+    });
+
+    test('after pull derived state of deleted rows should be updated', async () => {
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const items = [oneNotebook(), oneDocument()];
+      await driver.setCollectionContent(items, items[1].updated);
+      await synchronizer.pull(true);
+
+      expect(collectionService.itemExists(docId)).toBe(false);
+      expect(space.hasRow(SpaceTables.DerivedState, docId)).toBe(false);
+      expect(
+        space.getCell(SpaceTables.DerivedState, items[0].id!, 'fullPath')
+      ).toEqual([DEFAULT_NOTEBOOK_ID]);
+      expect(
+        space.getCell(SpaceTables.DerivedState, items[1].id!, 'fullPath')
+      ).toEqual([DEFAULT_NOTEBOOK_ID, items[1].id]);
+    });
+
+    test('after pull derived state of moved rows should be updated', async () => {
+      const folId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+      const docId = collectionService.addDocument(folId);
+      await synchronizer.sync();
+
+      const items = driver.getParsedCollectionContent().content;
+      const fol2 = oneFolder();
+      items.push(fol2);
+      const fol1 = items.find(i => i.id === folId)!;
+      fol1.parent = fol2.id;
+
+      await driver.setCollectionContent(items, fol2.updated);
+
+      await synchronizer.sync();
+
+      expect(
+        space.getCell(SpaceTables.DerivedState, fol2.id, 'fullPath')
+      ).toEqual([DEFAULT_NOTEBOOK_ID, fol2.id]);
+      expect(
+        space.getCell(SpaceTables.DerivedState, fol1.id, 'fullPath')
+      ).toEqual([DEFAULT_NOTEBOOK_ID, fol2.id, fol1.id]);
+      expect(
+        space.getCell(SpaceTables.DerivedState, docId, 'fullPath')
+      ).toEqual([DEFAULT_NOTEBOOK_ID, fol2.id, folId, docId]);
+    });
+  });
 });

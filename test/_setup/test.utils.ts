@@ -42,7 +42,7 @@ export const fakeTimersDelay = 100;
 export const oneDocument = (
   title = 'new doc',
   parent = DEFAULT_NOTEBOOK_ID
-): CollectionItem => {
+): WithId<CollectionItem> => {
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   const id = getUniqueId();
   return {
@@ -56,7 +56,7 @@ export const oneDocument = (
 export const oneFolder = (
   title = 'new folder',
   parent = DEFAULT_NOTEBOOK_ID
-): CollectionItem => {
+): WithId<CollectionItem> => {
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   const id = getUniqueId();
   return {

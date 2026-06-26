@@ -358,6 +358,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     this.setContent(resp.content);
     this.handleResumeState(resp.changes);
     this.handleHistory(resp.changes);
+    this.handleDeletedRows(resp.changes);
     this.handleDiscardedChanges(resp.discardedChanges);
   }
 
@@ -608,6 +609,14 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       historyService.updateAfterSync(ch);
     });
     historyService.gc();
+  }
+
+  private handleDeletedRows(changes: AfterSyncChange[]) {
+    changes
+      .filter(ch => ch.change === LocalChangeType.delete)
+      .forEach(ch => {
+        collectionService.cleanupDerivedState(ch.id, ch.on);
+      });
   }
 
   private handleDiscardedChanges(discardedChanges: LocalChangeResult[]) {
