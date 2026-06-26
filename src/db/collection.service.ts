@@ -590,12 +590,38 @@ class CollectionService {
     return breadcrumb;
   }
 
+  private getPaths(
+    rowId: string,
+    table: Table<SpaceTablesType, SpaceTables.Collection>
+  ) {
+    let fullPath: string[] = [];
+    let shortPath: string[] = [];
+    let parent = rowId;
+    let nbNotebooks = 0;
+    while (parent !== ROOT_COLLECTION) {
+      if (!table[parent]) {
+        break;
+      }
+      fullPath = [parent, ...fullPath];
+      const parentType = table[parent].type as CollectionItemTypeValues;
+      if (parentType !== CollectionItemType.notebook || ++nbNotebooks < 2) {
+        shortPath = [parent, ...shortPath];
+      }
+      const parentParent = (table[parent].parent as string) || ROOT_COLLECTION;
+      if (fullPath.includes(parentParent) && parent !== ROOT_COLLECTION) {
+        throw new Error('circular parent reference');
+      }
+      parent = parentParent;
+    }
+
+    return { fullPath, shortPath };
+  }
+
   public calcState(
     id: Id,
     table: Table<SpaceTablesType, SpaceTables.Collection>
   ) {
-    const fullPath = this.getPath(id, table, true, true); // TODO don't call getPath twice
-    const shortPath = this.getPath(id, table, false, true);
+    const { fullPath, shortPath } = this.getPaths(id, table);
     space.setPartialRow(SpaceTables.DerivedState, id, {
       fullPath,
       shortPath
