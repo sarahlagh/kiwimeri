@@ -1,15 +1,15 @@
 import { CollectionItem } from '@/collection/collection';
 import { DEFAULT_SPACE_ID } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
-import remotesService from '@/db/remotes.service';
 import { SyncableAnnotation } from '@/domain/document-annotations/model';
 import {
   startLocalChangesListeners,
   stopLocalChangesListeners
 } from '@/domain/local-changes/listeners';
+import remotesService from '@/domain/remotes/remotes.service';
+import { CompositeSynchronizer } from '@/domain/replication/merging/synchronizers/composite-synchronizer';
+import { SyncDirection, syncService } from '@/domain/replication/sync.service';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
-import { SyncDirection, syncService } from '@/remote-storage/sync.service';
-import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';
 import { InMemDriver } from '@@/_setup/inmem.driver';
 import { fakeTimersDelay } from '@@/_setup/test.utils';
 import { expect, vi } from 'vitest';

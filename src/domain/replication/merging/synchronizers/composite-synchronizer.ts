@@ -1,7 +1,7 @@
 import { AnyData, RemoteResult } from '@/db/types/store-types';
-import { CloudStorageDriver } from '../storage-drivers/abstract.driver';
-import { driverFactory } from '../storage-drivers/driver-factory';
-import { CloudStorageSynchronizer } from './abstract-synchronizer';
+import { CloudStorageDriver } from '@/domain/remotes/drivers/abstract.driver';
+import { driverFactory } from '@/domain/remotes/drivers/driver-factory';
+import { CloudStorageSynchronizer } from '../abstract-synchronizer';
 import { CollectionSynchronizer } from './collection-synchronizer';
 import { StatsSynchronizer } from './stats-synchronizer';
 

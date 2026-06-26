@@ -1,7 +1,7 @@
-import remotesService from '@/db/remotes.service';
 import { useCellWithRef } from '@/db/tinybase/hooks';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
+import remotesService from '@/domain/remotes/remotes.service';
 import { useHasLocalChanges } from '@/features/local-changes-ui';
 
 export type SyncDirection = 'sync' | 'force-push' | 'force-pull';

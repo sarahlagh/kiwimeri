@@ -15,7 +15,6 @@ import { SpaceValuesType } from '@/core/db/store-schema';
 import { setMetaField } from '@/core/db/types';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
-import remotesService from '@/db/remotes.service';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import {
   minimizeAnnotForStorage,
@@ -25,14 +24,15 @@ import { docAnnotationsService } from '@/domain/document-annotations/doc-annotat
 import { SyncableAnnotation } from '@/domain/document-annotations/model';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
-import { PCloudDriver } from '@/remote-storage/storage-drivers/pcloud/pcloud.driver';
-import { syncService } from '@/remote-storage/sync.service';
+import { PCloudDriver } from '@/domain/remotes/drivers/pcloud/pcloud.driver';
+import remotesService from '@/domain/remotes/remotes.service';
 import {
   MinimizedCollectionItem,
   REMOTE_COLLECTION_SCHEMA_VERSION,
   RemoteCollectionFileContent
-} from '@/remote-storage/synchronizers/collection-synchronizer';
-import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';
+} from '@/domain/replication/merging/synchronizers/collection-synchronizer';
+import { CompositeSynchronizer } from '@/domain/replication/merging/synchronizers/composite-synchronizer';
+import { syncService } from '@/domain/replication/sync.service';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   amount,

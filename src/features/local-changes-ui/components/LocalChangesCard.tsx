@@ -12,9 +12,9 @@ import { useQueryResults } from '@/core/db/queries-helper';
 import { SpaceTables } from '@/core/db/store-constants';
 import { plt } from '@/core/infra/platform';
 import collectionService from '@/db/collection.service';
-import remotesService from '@/db/remotes.service';
 import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
+import remotesService from '@/domain/remotes/remotes.service';
 import {
   UserPreferenceKey,
   userPreferenceDefinitions

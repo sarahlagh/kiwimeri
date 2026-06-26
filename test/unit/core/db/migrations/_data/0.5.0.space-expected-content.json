@@ -363,7 +363,7 @@
         "shortPath": ["0", "-br8f-vij3m0LJ8k", "xtid1X1laW4E5oUI"]
       }
     },
-    "local_changes": {
+    "local_change": {
       "collection-cZ6l5keLw_D7s9Yq-u-content": {
         "itemId": "cZ6l5keLw_D7s9Yq",
         "change": "u",
@@ -376,6 +376,19 @@
         "change": "u",
         "on": "values",
         "createdAt": 1782124378069
+      }
+    },
+    "replica_state": { "0": { "connected": false, "lastRemoteChange": 0 } },
+    "remote": {
+      "0": {
+        "rank": 0,
+        "name": "pcloud",
+        "type": "pcloud",
+        "config": {
+          "path": "/kiwimeri",
+          "token": "fake token",
+          "serverLocation": "eu"
+        }
       }
     }
   },

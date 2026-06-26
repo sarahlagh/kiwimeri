@@ -2,9 +2,9 @@ import { store } from '@/core/db/store';
 import { AnyData, RemoteResult } from '@/db/types/store-types';
 import { DocumentContentStatsBag } from '@/domain/stats/model';
 import { statsService } from '@/domain/stats/stats-service';
-import { CloudStorageDriver } from '../storage-drivers/abstract.driver';
-import { SingleFileStorage } from '../storage-filesystems/singlefile.filesystem';
-import { CloudStorageSynchronizer } from './abstract-synchronizer';
+import { CloudStorageDriver } from '../../../remotes/drivers/abstract.driver';
+import { SingleFileStorage } from '../../layouts/singlefile.filesystem';
+import { CloudStorageSynchronizer } from '../abstract-synchronizer';
 
 type RemoteContentStatPerDate = {
   date: string;

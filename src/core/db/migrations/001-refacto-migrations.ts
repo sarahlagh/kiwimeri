@@ -11,7 +11,9 @@ enum _SpaceTables {
   Annotations = 'document_annotation',
   UserPreference = 'user_preference',
   DerivedContent = 'derived_content',
-  DerivedState = 'derived_item_state'
+  DerivedState = 'derived_item_state',
+  RemoteConfig = 'remote',
+  ReplicaState = 'replica_state'
 }
 
 const C = _SpaceTables.Collection;
@@ -21,6 +23,8 @@ const S = _SpaceTables.Stats;
 const UP = _SpaceTables.UserPreference;
 const D = _SpaceTables.DerivedContent;
 const CS = _SpaceTables.DerivedState;
+const RC = _SpaceTables.RemoteConfig;
+const RS = _SpaceTables.ReplicaState;
 
 export default function Migration(
   _space: NoSchemaStore,
@@ -37,6 +41,7 @@ export default function Migration(
   addDerivedContent(_store, _space);
   addDerivedState(_store, _space);
   localChangesGoToSpace(_store, _space);
+  remotesGoToSpace(_store, _space);
 }
 
 function metaFieldsBecomeObjects(_space: NoSchemaStore) {
@@ -295,14 +300,40 @@ function addDerivedState(_store: NoSchemaStore, _space: NoSchemaStore) {
   });
 }
 
-function localChangesGoToSpace(_store: NoSchemaStore, _space: NoSchemaStore) {
-  const oldTable = 'localChanges';
-  const newTable = 'local_changes';
+function _migrateTableToSpace(
+  _store: NoSchemaStore,
+  _space: NoSchemaStore,
+  oldTable: string,
+  newTable: string,
+  transform?: (row: any) => any
+) {
   if (!_store.hasTable(oldTable)) {
     return;
   }
   _store.getRowIds(oldTable).forEach(rowId => {
-    const row = _store.getRow(oldTable, rowId);
+    let row = _store.getRow(oldTable, rowId);
+    if (transform) row = transform(row);
     _space.setRow(newTable, rowId, row);
+  });
+}
+
+function localChangesGoToSpace(_store: NoSchemaStore, _space: NoSchemaStore) {
+  _migrateTableToSpace(_store, _space, 'localChanges', 'local_change');
+}
+
+function remotesGoToSpace(_store: NoSchemaStore, _space: NoSchemaStore) {
+  _migrateTableToSpace(_store, _space, 'remotes', RC, row => {
+    const config = row.config;
+    if (typeof config === 'string') {
+      row.config = JSON.parse(config);
+    }
+    return row;
+  });
+  _migrateTableToSpace(_store, _space, 'remoteState', RS, row => {
+    const info = row.info;
+    if (typeof info === 'string') {
+      row.info = JSON.parse(info);
+    }
+    return row;
   });
 }

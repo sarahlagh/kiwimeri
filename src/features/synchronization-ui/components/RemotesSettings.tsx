@@ -1,8 +1,8 @@
 import platformService from '@/common/services/platform.service';
 import { APPICONS, DEFAULT_SPACE_ID } from '@/constants';
-import remotesService from '@/db/remotes.service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
-import { PCloudConf } from '@/remote-storage/storage-drivers/pcloud/pcloud.driver';
+import { PCloudConf } from '@/domain/remotes/drivers/pcloud/pcloud.driver';
+import remotesService from '@/domain/remotes/remotes.service';
 import {
   IonButton,
   IonButtons,

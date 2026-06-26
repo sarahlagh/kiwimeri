@@ -1,4 +1,4 @@
-import { syncService } from '@/remote-storage/sync.service';
+import { syncService } from '@/domain/replication/sync.service';
 import { act } from 'react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 

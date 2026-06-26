@@ -1,6 +1,6 @@
 import { DEFAULT_SPACE_ID } from '@/constants';
 import { store } from '@/core/db/store';
-import remotesService from '@/db/remotes.service';
+import remotesService from '@/domain/remotes/remotes.service';
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 

@@ -3,8 +3,8 @@ import { APPICONS } from '@/constants';
 import { space } from '@/core/db/store';
 import { SpaceValue } from '@/core/db/store-schema';
 import { plt } from '@/core/infra/platform';
-import remotesService from '@/db/remotes.service';
 import { SerializableData } from '@/db/types/store-types';
+import remotesService from '@/domain/remotes/remotes.service';
 import {
   IonButton,
   IonCard,

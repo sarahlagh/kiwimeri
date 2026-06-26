@@ -14,7 +14,9 @@ export enum SpaceTables {
   UserPreference = 'user_preference',
   DerivedContent = 'derived_content',
   DerivedState = 'derived_item_state',
-  LocalChanges = 'local_changes'
+  LocalChanges = 'local_change',
+  RemoteConfig = 'remote',
+  RemoteState = 'replica_state'
 }
 
 export type StoreId = 'store' | 'space';

@@ -1,17 +1,18 @@
 import { appConfig } from '@/config';
 import { DEFAULT_SPACE_ID } from '@/constants';
 import { store, storeQueries } from '@/core/db/store';
+import { AnyData } from '@/core/db/types';
 import { networkService } from '@/core/infra/network.service';
 import { plt } from '@/core/infra/platform';
-import { deviceSettings } from '@/domain/device-settings/device-settings.service';
-import { CloudStorageSynchronizer } from '@/remote-storage/synchronizers/abstract-synchronizer';
-import { CompositeSynchronizer } from '@/remote-storage/synchronizers/composite-synchronizer';
 import {
   useCellWithRef,
   useResultSortedRowIdsWithRef,
   useResultTableWithRef
-} from './tinybase/hooks';
-import { AnyData, RemoteResult } from './types/store-types';
+} from '@/db/tinybase/hooks';
+import { RemoteResult } from '@/db/types/store-types';
+import { deviceSettings } from '@/domain/device-settings/device-settings.service';
+import { CloudStorageSynchronizer } from '@/domain/replication/merging/abstract-synchronizer';
+import { CompositeSynchronizer } from '@/domain/replication/merging/synchronizers/composite-synchronizer';
 
 class RemotesService {
   private readonly storeId = 'store';
@@ -242,18 +243,21 @@ class RemotesService {
     });
   }
 
+  /** @deprecated split to replica service in replication domain */
   public async push(remote: RemoteResult, force = false) {
     const synchronizer = this.synchronizers.get(remote.id);
     if (!synchronizer) return { success: false };
     return synchronizer.push(force);
   }
 
+  /** @deprecated split to replica service in replication domain */
   public async pull(remote: RemoteResult, force = false) {
     const synchronizer = this.synchronizers.get(remote.id);
     if (!synchronizer) return { success: false };
     return synchronizer.pull(force);
   }
 
+  /** @deprecated split to replica service in replication domain */
   public async sync(remote: RemoteResult) {
     const synchronizer = this.synchronizers.get(remote.id);
     if (!synchronizer) return { success: false };

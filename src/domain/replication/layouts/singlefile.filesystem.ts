@@ -1,10 +1,7 @@
 import { AnyData, RemoteState } from '@/db/types/store-types';
+import { CloudStorageDriver } from '@/domain/remotes/drivers/abstract.driver';
+import { DriverFileInfo, FileReference } from '@/domain/remotes/drivers/model';
 import { getUniqueId } from 'tinybase/common';
-import {
-  CloudStorageDriver,
-  FileReference
-} from '../storage-drivers/abstract.driver';
-import { DriverFileInfo } from '../sync-types';
 import { CloudStorageFilesystemV2 } from './abstract.filesystem';
 
 export type SingleFileStorageOpts = {

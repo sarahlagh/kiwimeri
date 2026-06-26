@@ -3,8 +3,8 @@ import DeleteButton from '@/common/buttons/DeleteButton';
 import SyncRemoteButton from '@/common/buttons/SyncRemoteButton';
 import platformService from '@/common/services/platform.service';
 import { APPICONS } from '@/constants';
-import remotesService from '@/db/remotes.service';
 import { RemoteResult } from '@/db/types/store-types';
+import remotesService from '@/domain/remotes/remotes.service';
 import {
   IonButton,
   IonIcon,

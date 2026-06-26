@@ -46,6 +46,8 @@ import {
   LocalChangeResult,
   LocalChangeType
 } from '@/domain/local-changes/model';
+import { CloudStorageDriver } from '@/domain/remotes/drivers/abstract.driver';
+import { SingleFileStorage } from '@/domain/replication/layouts/singlefile.filesystem';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
 import {
   MinimizedUserPref,
@@ -58,25 +60,23 @@ import {
 } from '@/domain/user-preferences/model';
 import { Table as UntypedTable } from 'tinybase';
 import { Content, Table } from 'tinybase/store/with-schemas';
-import { CloudStorageDriver } from '../storage-drivers/abstract.driver';
-import { SingleFileStorage } from '../storage-filesystems/singlefile.filesystem';
-import { AfterSyncChange } from '../sync-types';
-import { CloudStorageSynchronizer } from './abstract-synchronizer';
+import { CloudStorageSynchronizer } from '../abstract-synchronizer';
 import {
   annotsConflictPolicy,
   collectionConflictPolicy,
   noConflictPolicy
-} from './merge-helpers/conflict-policies';
+} from '../merge-helpers/conflict-policies';
 import {
   applyLocalChangesToPull,
   applyLocalChangesToPush,
   chainMerge
-} from './merge-helpers/merge-helpers';
+} from '../merge-helpers/merge-helpers';
 import {
   annotsOrphanPolicy,
   collectionOrphanPolicy,
   noOrphanPolicy
-} from './merge-helpers/orphan-policies';
+} from '../merge-helpers/orphan-policies';
+import { AfterSyncChange } from '../model';
 
 export type MinimizedCollectionItem = {
   [key in ItemsMinKeys[number]]: SerializableData | undefined;

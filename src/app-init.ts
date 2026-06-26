@@ -7,7 +7,7 @@ import { networkService } from './core/infra/network.service';
 import { plt } from './core/infra/platform';
 import { historyService } from './db/collection-history.service';
 import notebooksService from './db/notebooks.service';
-import remotesService from './db/remotes.service';
+import remotesService from './domain/remotes/remotes.service';
 import { appLog } from './log';
 
 export function appInit() {

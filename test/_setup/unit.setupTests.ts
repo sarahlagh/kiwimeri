@@ -4,7 +4,7 @@
 // learn more: https://github.com/testing-library/jest-dom
 
 import notebooksService from '@/db/notebooks.service';
-import remotesService from '@/db/remotes.service';
+import remotesService from '@/domain/remotes/remotes.service';
 import { messages as enMessages } from '@/locales/en/messages';
 import { i18n } from '@lingui/core';
 

@@ -4,7 +4,7 @@ import { dateToStr } from '@/common/date-utils';
 import { DEFAULT_SPACE_ID } from '@/constants';
 import { space, store } from '@/core/db/store';
 import { SpaceTables, StoreTables } from '@/core/db/store-constants';
-import remotesService from '@/db/remotes.service';
+import remotesService from '@/domain/remotes/remotes.service';
 import {
   IonButtons,
   IonCard,

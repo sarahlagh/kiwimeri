@@ -7,12 +7,12 @@ import {
 import { space } from '@/core/db/store';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
-import remotesService from '@/db/remotes.service';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
-import { SingleFileStorage } from '@/remote-storage/storage-filesystems/singlefile.filesystem';
-import { syncService } from '@/remote-storage/sync.service';
+import remotesService from '@/domain/remotes/remotes.service';
+import { SingleFileStorage } from '@/domain/replication/layouts/singlefile.filesystem';
+import { syncService } from '@/domain/replication/sync.service';
 import { InMemDriver } from '@@/_setup/inmem.driver';
 import {
   adv,

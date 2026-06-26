@@ -1,9 +1,8 @@
 import { AnyData, RemoteState } from '@/db/types/store-types';
-import {
-  CloudStorageDriver,
-  FileReference
-} from '../storage-drivers/abstract.driver';
-import { DriverFileInfo, UpdatedRemoteState } from '../sync-types';
+
+import { CloudStorageDriver } from '@/domain/remotes/drivers/abstract.driver';
+import { DriverFileInfo, FileReference } from '@/domain/remotes/drivers/model';
+import { UpdatedRemoteState } from './model';
 
 export abstract class CloudStorageFilesystemV2 {
   constructor(

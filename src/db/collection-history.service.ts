@@ -9,8 +9,8 @@ import {
 } from '@/collection/collection';
 import { space, spaceQueries } from '@/core/db/store';
 import { LocalChangeType } from '@/domain/local-changes/model';
+import { AfterSyncChange } from '@/domain/replication/merging/model';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
-import { AfterSyncChange } from '@/remote-storage/sync-types';
 import { getPlainText } from '@/shared/utils/getPlainText';
 import { getHash, Id, ResultRow } from 'tinybase/with-schemas';
 import collectionService from './collection.service';

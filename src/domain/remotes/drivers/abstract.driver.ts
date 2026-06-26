@@ -1,15 +1,8 @@
 import { AnyData } from '@/db/types/store-types';
-import { DriverFileInfo } from '../sync-types';
-
-export type DriverNames = 'pcloud';
+import { DriverFileInfo, FileReference } from './model';
 
 type CommonResponse = {
   success: boolean;
-};
-
-export type FileReference = {
-  filename: string;
-  providerid?: string;
 };
 
 export abstract class CloudStorageDriver {

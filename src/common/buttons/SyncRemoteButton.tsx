@@ -1,6 +1,6 @@
 import { useNetworkStatus } from '@/app/context/NetworkStatusContext';
 import { APPICONS } from '@/constants';
-import { SyncDirection, syncService } from '@/remote-storage/sync.service';
+import { SyncDirection, syncService } from '@/domain/replication/sync.service';
 import { IonButton, IonIcon } from '@ionic/react';
 import { Id } from 'tinybase/with-schemas';
 import ConfirmYesNoDialog from '../modals/ConfirmYesNoDialog';

@@ -1,4 +1,5 @@
-import { CloudStorageDriver, DriverNames } from './abstract.driver';
+import { CloudStorageDriver } from './abstract.driver';
+import { DriverNames } from './model';
 import { PCloudDriver } from './pcloud/pcloud.driver';
 
 export const driverFactory = (driverName: DriverNames): CloudStorageDriver => {

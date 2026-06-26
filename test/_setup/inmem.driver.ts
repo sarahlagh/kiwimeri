@@ -12,20 +12,17 @@ import {
   unminimizeAnnotFromStorage
 } from '@/domain/document-annotations/compress-annotations';
 import { SyncableAnnotation } from '@/domain/document-annotations/model';
+import { CloudStorageDriver } from '@/domain/remotes/drivers/abstract.driver';
+import { DriverFileInfo, FileReference } from '@/domain/remotes/drivers/model';
+import {
+  REMOTE_COLLECTION_SCHEMA_VERSION,
+  RemoteCollectionFileContent
+} from '@/domain/replication/merging/synchronizers/collection-synchronizer';
 import {
   minimizePrefsForStorage,
   unminimizePrefsFromStorage
 } from '@/domain/user-preferences/compress-user-prefs';
 import { SyncableUserPref } from '@/domain/user-preferences/model';
-import {
-  CloudStorageDriver,
-  FileReference
-} from '@/remote-storage/storage-drivers/abstract.driver';
-import { DriverFileInfo } from '@/remote-storage/sync-types';
-import {
-  REMOTE_COLLECTION_SCHEMA_VERSION,
-  RemoteCollectionFileContent
-} from '@/remote-storage/synchronizers/collection-synchronizer';
 
 type InMemDriverConfig = {
   names?: string[];

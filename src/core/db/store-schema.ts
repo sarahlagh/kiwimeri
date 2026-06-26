@@ -2,6 +2,8 @@ import { derivedContentSchema } from '@/domain/derived-content/model';
 import { derivedItemStateSchema } from '@/domain/derived-item-state/model';
 import { docAnnotationSchema } from '@/domain/document-annotations/model';
 import { localChangesSchema } from '@/domain/local-changes/model';
+import { remotesSchema } from '@/domain/remotes/configuration/model';
+import { replicaStatesSchema } from '@/domain/replication/state/model';
 import { resumeStateSchema } from '@/domain/resume-state/model';
 import { userPreferenceSchema } from '@/domain/user-preferences/model';
 import { SpaceTables, StoreTables } from './store-constants';
@@ -78,7 +80,9 @@ export const spaceTablesSchema = {
   user_preference: userPreferenceSchema,
   derived_content: derivedContentSchema,
   derived_item_state: derivedItemStateSchema,
-  local_changes: localChangesSchema
+  local_change: localChangesSchema,
+  remote: remotesSchema,
+  replica_state: replicaStatesSchema
 } as const satisfies Record<SpaceTables, unknown>;
 
 export const storeValuesSchema = {

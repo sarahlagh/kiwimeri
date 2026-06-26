@@ -12,14 +12,14 @@ import { getDerivedId } from '@/domain/derived-content/model';
 import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
-import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
-import useItemsConflictMixIn from '@/features/collection-ui/hooks/useItemsConflictMixIn';
-import { syncService } from '@/remote-storage/sync.service';
 import {
   CollectionSynchronizer,
   REMOTE_COLLECTION_SCHEMA_VERSION,
   RemoteCollectionFileContent
-} from '@/remote-storage/synchronizers/collection-synchronizer';
+} from '@/domain/replication/merging/synchronizers/collection-synchronizer';
+import { syncService } from '@/domain/replication/sync.service';
+import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
+import useItemsConflictMixIn from '@/features/collection-ui/hooks/useItemsConflictMixIn';
 import { InMemDriver } from '@@/_setup/inmem.driver';
 import {
   adv,
