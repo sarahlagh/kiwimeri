@@ -6,7 +6,7 @@ import { settingsService } from '../collection-settings/collection-settings.serv
 import { statsService } from './stats-service';
 
 export function statsOnPlainTextCallback(rowId: string, plainText: string) {
-  const parentId = space.getCell(SpaceTables.Collection, rowId, 'parent')!;
+  const parentId = space.getCell(SpaceTables.Collection, rowId, 'parentId')!;
   const breadcrumb = space.getCell(
     SpaceTables.DerivedState,
     parentId,

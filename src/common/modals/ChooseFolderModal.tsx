@@ -1,7 +1,3 @@
-import {
-  CollectionItemResult,
-  CollectionItemType
-} from '@/collection/collection';
 import CollectionItemBreadcrumb from '@/collection/components/CollectionItemBreadcrumb';
 import CollectionItemList from '@/collection/components/CollectionItemList';
 import { APPICONS, ROOT_COLLECTION } from '@/constants';
@@ -10,6 +6,10 @@ import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import useFetchItemsQuery from '@/domain/collection/hooks/useFetchItemsQuery';
 import useFetchItemsQueryParamsState from '@/domain/collection/hooks/useFetchItemsQueryParentState';
+import {
+  CollectionItemResult,
+  CollectionItemType
+} from '@/domain/collection/model';
 import {
   IonButton,
   IonButtons,

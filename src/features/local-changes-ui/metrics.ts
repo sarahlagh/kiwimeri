@@ -9,7 +9,7 @@ function latestCollectionUpdateMetric(metrics: Metrics<SpaceType>) {
     LatestCollectionUpdateMetricId,
     'collection',
     'max',
-    'updated'
+    'updatedAt'
   );
 }
 

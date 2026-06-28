@@ -15,7 +15,7 @@ describe('notebooks service', () => {
     expect(notebooksService.getCurrentNotebook()).toBeDefined();
     const notebooks = notebooksService.getNotebooks();
     expect(notebooks).toHaveLength(1);
-    expect(notebooks[0].parent).toBe(ROOT_COLLECTION);
+    expect(notebooks[0].parentId).toBe(ROOT_COLLECTION);
     expect(notebooks[0].title).toBe(getGlobalTrans().defaultNotebookName);
   });
 
@@ -40,7 +40,7 @@ describe('notebooks service', () => {
       'non default title'
     );
     const meta = getLocalItemField(n1, 'title_meta') as MetaField;
-    expect(meta._u).toBe(getLocalItemField(n1, 'updated') as number);
+    expect(meta._u).toBe(getLocalItemField(n1, 'updatedAt') as number);
     expect(meta._u).toBeGreaterThan(created);
     vi.useRealTimers();
   });
@@ -57,7 +57,7 @@ describe('notebooks service', () => {
       collectionService.setItemField(id1, field, getNewValue(valueType));
       collectionService.setItemField(id2, field, getNewValue(valueType));
 
-      expect(getLocalItemField(n1, 'updated')).toBe(created);
+      expect(getLocalItemField(n1, 'updatedAt')).toBe(created);
       vi.useRealTimers();
     });
   });

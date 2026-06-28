@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  CollectionItemType,
-  CollectionItemTypeValues
-} from '@/collection/collection';
 import GenericExportFileButton from '@/common/buttons/GenericExportFileButton';
 import { getGlobalTrans } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
+import {
+  CollectionItemType,
+  CollectionItemTypeValues
+} from '@/domain/collection/model';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { useIonAlert } from '@ionic/react';
 import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactProps';

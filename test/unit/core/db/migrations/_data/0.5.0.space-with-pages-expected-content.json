@@ -5,62 +5,62 @@
         "itemId": "0",
         "title": "Default",
         "title_meta": { "_u": 1780926207731 },
-        "parent": "root",
-        "parent_meta": { "_u": 1780926207731 },
-        "created": 1780926207731,
-        "updated": 1780926700174,
         "type": "n",
         "order": 9999,
         "order_meta": { "_u": 1780926207731 },
         "settings": {
-          "sort": { "by": "created", "descending": false },
+          "sort": { "by": "createdAt", "descending": false },
           "statsEnabled": true
         },
-        "settings_meta": { "_u": 1780926700174 }
+        "settings_meta": { "_u": 1780926700174 },
+        "parentId": "root",
+        "parentId_meta": { "_u": 1780926207731 },
+        "createdAt": 1780926207731,
+        "updatedAt": 1780926700174
       },
       "h-MOhEAYItMcMOJb": {
         "itemId": "h-MOhEAYItMcMOJb",
         "title": "Document manual sort on notes",
         "title_meta": { "_u": 1780926410096 },
-        "parent": "0",
-        "parent_meta": { "_u": 1780926231479 },
         "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
         "content_meta": { "_u": 1780926231479 },
-        "created": 1780926231479,
-        "updated": 1780926410096,
         "type": "d",
         "order": 9999,
         "order_meta": { "_u": 1780926231479 },
         "settings": { "documentSort": { "by": "order", "descending": false } },
-        "settings_meta": { "_u": 1780926383563 }
+        "settings_meta": { "_u": 1780926383563 },
+        "parentId": "0",
+        "parentId_meta": { "_u": 1780926231479 },
+        "createdAt": 1780926231479,
+        "updatedAt": 1780926410096
       },
       "-br8f-vij3m0LJ8k": {
         "itemId": "-br8f-vij3m0LJ8k",
         "title": "New folder",
         "title_meta": { "_u": 1780926457044 },
-        "parent": "0",
-        "parent_meta": { "_u": 1780926457044 },
-        "created": 1780926457044,
-        "updated": 1780928190507,
         "type": "f",
         "order": 9999,
         "order_meta": { "_u": 1780926457044 },
-        "settings": { "sort": { "by": "updated", "descending": false } },
-        "settings_meta": { "_u": 1780926689771 }
+        "settings": { "sort": { "by": "updatedAt", "descending": false } },
+        "settings_meta": { "_u": 1780926689771 },
+        "parentId": "0",
+        "parentId_meta": { "_u": 1780926457044 },
+        "createdAt": 1780926457044,
+        "updatedAt": 1780928190507
       },
       "xtid1X1laW4E5oUI": {
         "itemId": "xtid1X1laW4E5oUI",
         "title": "New document with pages",
         "title_meta": { "_u": 1780928164780 },
-        "parent": "-br8f-vij3m0LJ8k",
-        "parent_meta": { "_u": 1780926465066 },
         "content": "{\"r\":{\"c\":[{\"c\":[{\"d\":0,\"f\":0,\"m\":\"n\",\"s\":\"\",\"t\":\"content\",\"ty\":\"t\",\"v\":1}],\"di\":null,\"f\":\"\",\"i\":0,\"ty\":\"p\",\"v\":1,\"tf\":0,\"ts\":\"\"}],\"di\":null,\"f\":\"\",\"i\":0,\"ty\":\"r\",\"v\":1}}",
         "content_meta": { "_u": 1780928165763 },
-        "created": 1780926465066,
-        "updated": 1780928190507,
         "type": "d",
         "order": 9999,
-        "order_meta": { "_u": 1780926465066 }
+        "order_meta": { "_u": 1780926465066 },
+        "parentId": "-br8f-vij3m0LJ8k",
+        "parentId_meta": { "_u": 1780926465066 },
+        "createdAt": 1780926465066,
+        "updatedAt": 1780928190507
       }
     },
     "document_annotation": {
@@ -109,17 +109,19 @@
         "itemId": "h-MOhEAYItMcMOJb",
         "createdAt": 1782123938271,
         "snapshotJson": {
-          "parent": "0",
-          "parent_meta": { "_u": 1780926231479 },
           "title": "Document manual sort on notes",
           "title_meta": { "_u": 1780926410096 },
           "content_meta": { "_u": 1780926231479 },
           "display_opts_meta": { "_u": 1780926383563 },
           "order": 9999,
           "order_meta": { "_u": 1780926231479 },
-          "created": 1780926231479,
-          "updated": 1780926410096,
-          "settings": { "documentSort": { "by": "order", "descending": false } }
+          "settings": {
+            "documentSort": { "by": "order", "descending": false }
+          },
+          "parentId": "0",
+          "parentId_meta": { "_u": 1780926231479 },
+          "createdAt": 1780926231479,
+          "updatedAt": 1780926410096
         },
         "contentId": "0",
         "rank": 1
@@ -129,15 +131,15 @@
         "itemId": "xtid1X1laW4E5oUI",
         "createdAt": 1782123938275,
         "snapshotJson": {
-          "parent": "-br8f-vij3m0LJ8k",
-          "parent_meta": { "_u": 1780926465066 },
           "title": "New document with pages",
           "title_meta": { "_u": 1780928164780 },
           "content_meta": { "_u": 1780928165763 },
           "order": 9999,
           "order_meta": { "_u": 1780926465066 },
-          "created": 1780926465066,
-          "updated": 1780928190507
+          "parentId": "-br8f-vij3m0LJ8k",
+          "parentId_meta": { "_u": 1780926465066 },
+          "createdAt": 1780926465066,
+          "updatedAt": 1780928190507
         },
         "contentId": "2",
         "rank": 1
@@ -147,17 +149,19 @@
         "itemId": "h-MOhEAYItMcMOJb",
         "createdAt": 1782123984277,
         "snapshotJson": {
-          "parent": "0",
-          "parent_meta": { "_u": 1780926231479 },
           "title": "Document manual sort on notes",
           "title_meta": { "_u": 1780926410096 },
           "content_meta": { "_u": 1780926231479 },
           "display_opts_meta": { "_u": 1780926383563 },
           "order": 9999,
           "order_meta": { "_u": 1780926231479 },
-          "created": 1780926231479,
-          "updated": 1780926410096,
-          "settings": { "documentSort": { "by": "order", "descending": false } }
+          "settings": {
+            "documentSort": { "by": "order", "descending": false }
+          },
+          "parentId": "0",
+          "parentId_meta": { "_u": 1780926231479 },
+          "createdAt": 1780926231479,
+          "updatedAt": 1780926410096
         },
         "contentId": "0",
         "rank": 0
@@ -167,15 +171,15 @@
         "itemId": "xtid1X1laW4E5oUI",
         "createdAt": 1782123984281,
         "snapshotJson": {
-          "parent": "-br8f-vij3m0LJ8k",
-          "parent_meta": { "_u": 1780926465066 },
           "title": "New document with pages",
           "title_meta": { "_u": 1780928164780 },
           "content_meta": { "_u": 1780928165763 },
           "order": 9999,
           "order_meta": { "_u": 1780926465066 },
-          "created": 1780926465066,
-          "updated": 1780928190507
+          "parentId": "-br8f-vij3m0LJ8k",
+          "parentId_meta": { "_u": 1780926465066 },
+          "createdAt": 1780926465066,
+          "updatedAt": 1780928190507
         },
         "contentId": "2",
         "rank": 0
@@ -316,7 +320,6 @@
   },
   {
     "appVersion": "0.4.0",
-    "showDevTools": false,
     "globalZoom": 1,
     "exportIncludeMetadata": true,
     "theme": "dark",
@@ -324,6 +327,7 @@
     "defaultTimedDuration": 10,
     "defaultTimedMode": "dangerous",
     "rememberLastRoute": true,
-    "resumeLastSelection": true
+    "resumeLastSelection": true,
+    "showDevTools": false
   }
 ]

@@ -1,10 +1,4 @@
 import {
-  CollectionItemType,
-  CollectionItemUpdatableFields,
-  CollectionItemWithId,
-  isDocument
-} from '@/collection/collection';
-import {
   MinKeys as ItemsMinKeys,
   minimizeItemsForStorage,
   unminimizeItemsFromStorage
@@ -21,6 +15,12 @@ import { TypeWithId, WithId } from '@/core/db/types';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import { AnyData, SerializableData } from '@/db/types/store-types';
+import {
+  CollectionItemType,
+  CollectionItemUpdatableFields,
+  CollectionItemWithId,
+  isDocument
+} from '@/domain/collection/model';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import {
   minimizeAnnotForStorage,
@@ -446,14 +446,14 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       );
       const newItem = newLocalContent[0].collection![id];
       const oldItem = localContent[0].collection![id];
-      if (newItem && !newItem.conflict && !oldItem) {
+      if (newItem && !newItem.conflictId && !oldItem) {
         const type = newItem.type as CollectionItemType;
         // added by remote
         changes.set(id, {
           id,
           type,
           on: tableId,
-          parent: newItem.parent as string,
+          parentId: newItem.parentId as string,
           change: LocalChangeType.add
         });
       } else if (
@@ -466,7 +466,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
           id,
           on: tableId,
           type: oldItem.type as CollectionItemType,
-          parent: oldItem.parent as string,
+          parentId: oldItem.parentId as string,
           change: LocalChangeType.delete
         });
       } else if (newItem && oldItem) {
@@ -490,7 +490,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
               id,
               type,
               on: tableId,
-              parent: newItem.parent as string,
+              parentId: newItem.parentId as string,
               change: LocalChangeType.update,
               field
             });
@@ -524,11 +524,11 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     const userPreference = this.toMap<WithId<UserPreferenceRow>>(
       localContent[0].user_preference
     );
-    const items = [...collection.values()].filter(v => !v.conflict);
+    const items = [...collection.values()].filter(v => !v.conflictId);
     const docAnnotations = [...annotation.values()];
     const userPrefs = [...userPreference.values()];
     const lastRemoteChange = Math.max(
-      ...items.map(i => i.updated),
+      ...items.map(i => i.updatedAt),
       ...docAnnotations.map(i => i.updatedAt)
     );
     return {

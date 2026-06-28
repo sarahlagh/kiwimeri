@@ -104,9 +104,12 @@ describe('0.5.0 migration', () => {
     const preMigrationSpaceContent = await getFileContent(
       spaceMigrationWithPagesFilename
     );
+    const preMigrationStoreContent = await getFileContent(
+      storeMigrationWithPagesFilename
+    );
     const { spaceContent } = await migrateRawStore(
       preMigrationSpaceContent,
-      null,
+      preMigrationStoreContent,
       migrationFixedVersion
     );
     await generateExpectedFile(

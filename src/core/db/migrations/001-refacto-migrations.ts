@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { Id } from 'tinybase';
 import { MetaField } from '../types';
 import { NoSchemaStore } from './migrate';
 
@@ -43,6 +44,7 @@ export default function Migration(
   localChangesGoToSpace(_store, _space);
   remotesGoToSpace(_store, _space);
   remoteStatesMergeIntoOne(_space);
+  collectionFieldsRename(_space);
 }
 
 function metaFieldsBecomeObjects(_space: NoSchemaStore) {
@@ -403,5 +405,64 @@ function remoteStatesMergeIntoOne(_space: NoSchemaStore) {
     });
 
     _space.delRow(RS, rowId);
+  });
+}
+
+function _renameField(
+  _space: NoSchemaStore,
+  tableId: Id,
+  rowId: Id,
+  oldField: string,
+  newField: string
+) {
+  if (_space.hasCell(tableId, rowId, oldField)) {
+    const value = _space.getCell(C, rowId, oldField)!;
+    _space.setCell(C, rowId, newField, value);
+  }
+}
+
+function _renameHistoryField(
+  snapshotJson: any,
+  oldField: string,
+  newField: string
+) {
+  if (snapshotJson[oldField]) {
+    snapshotJson[newField] = snapshotJson[oldField];
+    delete snapshotJson[oldField];
+  }
+}
+
+function collectionFieldsRename(_space: NoSchemaStore) {
+  _space.transaction(() => {
+    // collection table
+    _space.getRowIds(C).forEach(rowId => {
+      _renameField(_space, C, rowId, 'parent', 'parentId');
+      _renameField(_space, C, rowId, 'parent_meta', 'parentId_meta');
+      _renameField(_space, C, rowId, 'conflict', 'conflictId');
+      _renameField(_space, C, rowId, 'created', 'createdAt');
+      _renameField(_space, C, rowId, 'updated', 'updatedAt');
+      // sort values in notebook / folder settings
+      const settings = _space.getCell(C, rowId, 'settings') as any;
+      if (settings?.sort) {
+        if (settings.sort.by === 'created') {
+          settings.sort.by = 'createdAt';
+        } else if (settings.sort.by === 'updated') {
+          settings.sort.by = 'updatedAt';
+        }
+        _space.setCell(C, rowId, 'settings', settings);
+      }
+    });
+    // history table
+    _space.getRowIds(H).forEach(rowId => {
+      const snapshotJson = _space.getCell(H, rowId, 'snapshotJson') as any;
+      if (snapshotJson) {
+        _renameHistoryField(snapshotJson, 'parent', 'parentId');
+        _renameHistoryField(snapshotJson, 'parent_meta', 'parentId_meta');
+        _renameHistoryField(snapshotJson, 'conflict', 'conflictId');
+        _renameHistoryField(snapshotJson, 'created', 'createdAt');
+        _renameHistoryField(snapshotJson, 'updated', 'updatedAt');
+        _space.setCell(H, rowId, 'snapshotJson', snapshotJson);
+      }
+    });
   });
 }

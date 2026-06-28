@@ -1,17 +1,3 @@
-import {
-  CollectionItem,
-  CollectionItemFieldEnum,
-  CollectionItemHistorizableFields,
-  CollectionItemResetConflictFields,
-  CollectionItemResult,
-  CollectionItemUpdateChangeFields as CollectionItemRowUpdateChangeFields,
-  CollectionItemType,
-  CollectionItemTypeValues,
-  CollectionItemUpdatableFieldEnum,
-  CollectionItemUpdate,
-  isDocument,
-  SortableCollectionItem
-} from '@/collection/collection';
 import { genericReorder } from '@/common/dnd/utils';
 import { cellEquals } from '@/common/utils';
 import {
@@ -28,6 +14,20 @@ import {
   CollectionItemSettings,
   CollectionItemSort
 } from '@/domain/collection-settings/model';
+import {
+  CollectionItem,
+  CollectionItemFieldEnum,
+  CollectionItemHistorizableFields,
+  CollectionItemResetConflictFields,
+  CollectionItemResult,
+  CollectionItemUpdateChangeFields as CollectionItemRowUpdateChangeFields,
+  CollectionItemType,
+  CollectionItemTypeValues,
+  CollectionItemUpdatableFieldEnum,
+  CollectionItemUpdate,
+  isDocument,
+  SortableCollectionItem
+} from '@/domain/collection/model';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
 import { getDerivedId } from '@/domain/derived-content/model';
 import { SerializedEditorState } from 'lexical';
@@ -59,11 +59,11 @@ class CollectionService {
           select('title');
           select('type');
           select('tags');
-          select('created');
-          select('updated');
-          select('conflict');
+          select('createdAt');
+          select('updatedAt');
+          select('conflictId');
           select('order');
-          where('parent', parent);
+          where('parentId', parent);
         }
       );
     }
@@ -80,11 +80,11 @@ class CollectionService {
           select('title');
           select('type');
           select('tags');
-          select('created');
-          select('updated');
-          select('conflict');
+          select('createdAt');
+          select('updatedAt');
+          select('conflictId');
           select('order');
-          where('parent', parent);
+          where('parentId', parent);
         }
       );
     }
@@ -101,11 +101,11 @@ class CollectionService {
           select('title');
           select('type');
           select('tags');
-          select('created');
-          select('updated');
-          select('conflict');
+          select('createdAt');
+          select('updatedAt');
+          select('conflictId');
           where(getCell => {
-            const conflict = getCell('conflict')?.valueOf();
+            const conflict = getCell('conflictId')?.valueOf();
             return !!conflict;
           });
         }
@@ -146,7 +146,7 @@ class CollectionService {
     }
     return fetchItemsQuery.getResults(
       {
-        parent,
+        parentId: parent,
         recursive: false,
         onlyDocuments: false,
         onlyConflicts: false
@@ -173,12 +173,12 @@ class CollectionService {
       itemId: id,
       title: getGlobalTrans().newDocTitle,
       title_meta: setMetaField(now, getGlobalTrans().newDocTitle),
-      parent,
-      parent_meta: setMetaField(now, parent),
+      parentId: parent,
+      parentId_meta: setMetaField(now, parent),
       content,
       content_meta: setMetaField(now, content),
-      created: now,
-      updated: now,
+      createdAt: now,
+      updatedAt: now,
       type: CollectionItemType.document,
       order: DEFAULT_ORDER, // TODO dynamic order
       order_meta: setMetaField(now, 0)
@@ -199,10 +199,10 @@ class CollectionService {
       itemId: id,
       title: getGlobalTrans().newFolderTitle,
       title_meta: setMetaField(now, getGlobalTrans().newFolderTitle),
-      parent: parent,
-      parent_meta: setMetaField(now, parent),
-      created: now,
-      updated: now,
+      parentId: parent,
+      parentId_meta: setMetaField(now, parent),
+      createdAt: now,
+      updatedAt: now,
       type: CollectionItemType.folder,
       order: DEFAULT_ORDER, // TODO dynamic order
       order_meta: setMetaField(now, 0)
@@ -238,7 +238,7 @@ class CollectionService {
     }
     return fetchItemsQuery.getResults(
       {
-        parent,
+        parentId: parent,
         recursive: true,
         onlyDocuments: false,
         onlyConflicts: false
@@ -290,13 +290,13 @@ class CollectionService {
 
   public getItemParent(rowId: Id) {
     return (
-      (space.getCell(this.tableId, rowId, 'parent')?.valueOf() as string) ||
+      (space.getCell(this.tableId, rowId, 'parentId')?.valueOf() as string) ||
       ROOT_COLLECTION
     );
   }
 
   public setItemParent(rowId: Id, parentId: Id) {
-    this.setItemField(rowId, 'parent', parentId);
+    this.setItemField(rowId, 'parentId', parentId);
   }
 
   public getIsItemHomeFolder(rowId: Id) {
@@ -354,7 +354,7 @@ class CollectionService {
 
   public useItemParent(rowId: Id) {
     return (
-      useCellWithRef<string>(this.storeId, this.tableId, rowId, 'parent') ||
+      useCellWithRef<string>(this.storeId, this.tableId, rowId, 'parentId') ||
       ROOT_COLLECTION
     );
   }
@@ -469,13 +469,13 @@ class CollectionService {
   }
 
   public isItemConflict(rowId: Id) {
-    return space.getCell(this.tableId, rowId, 'conflict') !== undefined;
+    return space.getCell(this.tableId, rowId, 'conflictId') !== undefined;
   }
 
   private resetItemIfConflict(rowId: Id) {
     const isConflict = this.isItemConflict(rowId);
     if (isConflict) {
-      space.delCell(this.tableId, rowId, 'conflict');
+      space.delCell(this.tableId, rowId, 'conflictId');
     }
     return isConflict;
   }
@@ -507,7 +507,7 @@ class CollectionService {
     const updated = Date.now();
     // title and content are real changes, order and settings are not (won't trigger an update ts)
     const isContentChange = this.shouldTriggerRowUpdatedChange(key);
-    const isParentChange = key === 'parent';
+    const isParentChange = key === 'parentId';
     space.transaction(() => {
       space.setCell(SpaceTables.Collection, rowId, key, value as never);
       space.setCell(
@@ -518,7 +518,7 @@ class CollectionService {
       );
 
       if (isContentChange) {
-        space.setCell(SpaceTables.Collection, rowId, 'updated', updated);
+        space.setCell(SpaceTables.Collection, rowId, 'updatedAt', updated);
       }
 
       if (!skipVersion && this.isHistorizableContentChange(type, key)) {
@@ -531,7 +531,7 @@ class CollectionService {
 
       if (isParentChange) {
         const tmpTable = space.getTable(SpaceTables.Collection);
-        tmpTable[rowId].parent = value as string;
+        tmpTable[rowId].parentId = value as string;
         this.propagateBreadcrumbChange(rowId, tmpTable);
       }
     });
@@ -560,58 +560,29 @@ class CollectionService {
     return space.getCell('collection', rowId, key) as T;
   }
 
-  private getPath(
-    rowId: string,
-    table: Table<SpaceTablesType, SpaceTables.Collection>,
-    includeAllNotebooks = true,
-    includeSelf = false // TODO always true
-  ) {
-    let parent = rowId;
-    let breadcrumb: string[] = [];
-    let nbNotebooks = 0;
-    while (parent !== ROOT_COLLECTION && nbNotebooks < 2) {
-      if (!table[parent]) {
-        break;
-      }
-      if (parent !== rowId || includeSelf) {
-        breadcrumb = [parent, ...breadcrumb];
-      }
-      const parentType = table[parent].type as CollectionItemTypeValues;
-      if (!includeAllNotebooks && parentType === CollectionItemType.notebook) {
-        nbNotebooks++;
-        break;
-      }
-      const parentParent = (table[parent].parent as string) || ROOT_COLLECTION;
-      if (parentParent === parent && parent !== ROOT_COLLECTION) {
-        throw new Error('circular parent reference');
-      }
-      parent = parentParent;
-    }
-    return breadcrumb;
-  }
-
   private getPaths(
     rowId: string,
     table: Table<SpaceTablesType, SpaceTables.Collection>
   ) {
     let fullPath: string[] = [];
     let shortPath: string[] = [];
-    let parent = rowId;
+    let parentId = rowId;
     let nbNotebooks = 0;
-    while (parent !== ROOT_COLLECTION) {
-      if (!table[parent]) {
+    while (parentId !== ROOT_COLLECTION) {
+      if (!table[parentId]) {
         break;
       }
-      fullPath = [parent, ...fullPath];
-      const parentType = table[parent].type as CollectionItemTypeValues;
+      fullPath = [parentId, ...fullPath];
+      const parentType = table[parentId].type as CollectionItemTypeValues;
       if (parentType !== CollectionItemType.notebook || ++nbNotebooks < 2) {
-        shortPath = [parent, ...shortPath];
+        shortPath = [parentId, ...shortPath];
       }
-      const parentParent = (table[parent].parent as string) || ROOT_COLLECTION;
-      if (fullPath.includes(parentParent) && parent !== ROOT_COLLECTION) {
+      const parentParent =
+        (table[parentId].parentId as string) || ROOT_COLLECTION;
+      if (fullPath.includes(parentParent) && parentId !== ROOT_COLLECTION) {
         throw new Error('circular parent reference');
       }
-      parent = parentParent;
+      parentId = parentParent;
     }
 
     return { fullPath, shortPath };
@@ -642,7 +613,7 @@ class CollectionService {
       const row = { ...item, itemId: id } as CollectionItem;
       this.calcState(id, this.getTempTable({ ...row, id }));
       space.setRow(SpaceTables.Collection, id, row);
-      this.updateAllParentsInBreadcrumb(item.parent);
+      this.updateAllParentsInBreadcrumb(item.parentId);
     });
 
     // TODO not sure why transaction breaks addVersionFromItem here - try startTransaction / endTransaction instead?
@@ -726,7 +697,7 @@ class CollectionService {
     const breadcrumb = this.getBreadcrumb(folder, true);
     space.transaction(() => {
       for (let i = 1; i < breadcrumb.length; i++) {
-        space.setCell(this.tableId, breadcrumb[i], 'updated', Date.now());
+        space.setCell(this.tableId, breadcrumb[i], 'updatedAt', Date.now());
       }
     });
   }

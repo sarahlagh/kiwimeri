@@ -1,4 +1,3 @@
-import { CollectionItem } from '@/collection/collection';
 import {
   CONFLICTS_NOTEBOOK_ID,
   getGlobalTrans,
@@ -7,6 +6,7 @@ import {
 import { SpaceTables } from '@/core/db/store-constants';
 import { SpaceType } from '@/core/db/store-schema';
 import notebooksService from '@/db/notebooks.service';
+import { CollectionItem } from '@/domain/collection/model';
 import { SyncableAnnotation } from '@/domain/document-annotations/model';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeOn, LocalChangeType } from '@/domain/local-changes/model';
@@ -28,7 +28,9 @@ class CollectionOrphanPolicy extends OrphanPolicy<CollectionItem> {
     super('collection');
   }
   public isOrphan(item: CollectionItem, newTableAfterPull: Table): boolean {
-    return item.parent !== ROOT_COLLECTION && !newTableAfterPull[item.parent];
+    return (
+      item.parentId !== ROOT_COLLECTION && !newTableAfterPull[item.parentId]
+    );
   }
 
   private createConflictsNotebookIfNeeded(newCollectionAfterPull: Table) {
@@ -48,7 +50,7 @@ class CollectionOrphanPolicy extends OrphanPolicy<CollectionItem> {
   }
 
   public handleOrphan(id: Id, newTableAfterPull: Table): void {
-    if (newTableAfterPull[id].conflict) {
+    if (newTableAfterPull[id].conflictId) {
       // don't keep orphaned conflicts
       delete newTableAfterPull[id];
       return;
@@ -56,8 +58,8 @@ class CollectionOrphanPolicy extends OrphanPolicy<CollectionItem> {
     // if parent doesn't exist, put the item in conflicts notebook
     console.debug('[collection][pull] orphan detected', this.on, id);
     this.createConflictsNotebookIfNeeded(newTableAfterPull);
-    newTableAfterPull[id].parent = CONFLICTS_NOTEBOOK_ID;
-    newTableAfterPull[id].conflict = id;
+    newTableAfterPull[id].parentId = CONFLICTS_NOTEBOOK_ID;
+    newTableAfterPull[id].conflictId = id;
   }
 }
 export const collectionOrphanPolicy = new CollectionOrphanPolicy();

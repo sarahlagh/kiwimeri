@@ -2,12 +2,12 @@ import {
   CollectionItem,
   CollectionItemResult,
   CollectionItemUpdate
-} from '@/collection/collection';
+} from '@/domain/collection/model';
 import { ZipMetadata } from './model-export';
 
 export type ZipMergeFistLevel = {
   status: 'new' | 'merged';
-} & Pick<CollectionItem, 'id' | 'title' | 'type' | 'created' | 'updated'>;
+} & Pick<CollectionItem, 'id' | 'title' | 'type' | 'createdAt' | 'updatedAt'>;
 
 export type ZipParseError = {
   family: 'incorrect_meta' | 'parse_error';

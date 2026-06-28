@@ -1,7 +1,3 @@
-import {
-  CollectionItemResetConflictFields,
-  CollectionItemType
-} from '@/collection/collection';
 import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
 import {
   DEFAULT_NOTEBOOK_ID,
@@ -12,6 +8,10 @@ import { setMetaField } from '@/core/db/types';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import { CollectionItemSort } from '@/domain/collection-settings/model';
+import {
+  CollectionItemResetConflictFields,
+  CollectionItemType
+} from '@/domain/collection/model';
 import {
   BROWSABLE_ITEM_TYPES,
   fakeTimersDelay,
@@ -47,24 +47,24 @@ describe('collection service', () => {
         expect(collectionService.itemExists(id)).toBeTruthy();
         const item = getCollectionItem(id);
         expect(item.type).toBe(typeVal);
-        expect(item.created).toBe(now);
-        expect(item.updated).toBe(now);
-        expect(item.conflict).toBeUndefined();
+        expect(item.createdAt).toBe(now);
+        expect(item.updatedAt).toBe(now);
+        expect(item.conflictId).toBeUndefined();
         // title
         expect(item.title).toBe(defaultTitle);
-        expect(item.title_meta._u).toBe(item.updated);
+        expect(item.title_meta._u).toBe(item.updatedAt);
         // content
         if (typeVal === CollectionItemType.document) {
           expect(item.content).not.toHaveLength(0);
-          expect(item.content_meta?._u).toBe(item.updated);
+          expect(item.content_meta?._u).toBe(item.updatedAt);
         }
         if (typeVal === CollectionItemType.folder) {
           expect(item.content).toBeUndefined();
           expect(item.content_meta).toBeUndefined();
         }
         // parent
-        expect(item.parent).toBe(DEFAULT_NOTEBOOK_ID);
-        expect(item.parent_meta._u).toBe(item.updated);
+        expect(item.parentId).toBe(DEFAULT_NOTEBOOK_ID);
+        expect(item.parentId_meta._u).toBe(item.updatedAt);
       });
 
       it(`should create a new ${type} inside an existing folder`, () => {
@@ -75,8 +75,8 @@ describe('collection service', () => {
         expect(collectionService.itemExists(id)).toBeTruthy();
         const folder = getCollectionItem(folderId);
         const item = getCollectionItem(id);
-        expect(item.parent).toBe(folderId);
-        expect(item.created).toBeGreaterThan(folder.created);
+        expect(item.parentId).toBe(folderId);
+        expect(item.createdAt).toBeGreaterThan(folder.createdAt);
       });
 
       GET_NON_PARENT_UPDATABLE_FIELDS(type).forEach(({ field, valueType }) => {
@@ -89,11 +89,11 @@ describe('collection service', () => {
           expect(item[field]).toEqual(newVal);
           const meta = item[`${field}_meta`]!;
           if (collectionService.shouldTriggerRowUpdatedChange(field)) {
-            expect(item.created).toBeLessThan(item.updated);
-            expect(meta._u).toBe(item.updated);
+            expect(item.createdAt).toBeLessThan(item.updatedAt);
+            expect(meta._u).toBe(item.updatedAt);
           } else {
-            expect(item.created).toBe(item.updated);
-            expect(meta._u).toBeGreaterThan(item.updated);
+            expect(item.createdAt).toBe(item.updatedAt);
+            expect(meta._u).toBeGreaterThan(item.updatedAt);
           }
         });
 
@@ -112,25 +112,25 @@ describe('collection service', () => {
 
           const meta = item[`${field}_meta`]!;
           if (collectionService.shouldTriggerRowUpdatedChange(field)) {
-            expect(item.created).toBeLessThan(item.updated);
-            expect(meta._u).toBe(item.updated);
+            expect(item.createdAt).toBeLessThan(item.updatedAt);
+            expect(meta._u).toBe(item.updatedAt);
 
             const folderO = getCollectionItem(folderIdO);
             const folder1 = getCollectionItem(folderId1);
             const folder2 = getCollectionItem(folderId2);
             const folder3 = getCollectionItem(folderId3);
 
-            expect(folderO.updated).toBe(now); // this one is untouched
-            expect(folderO.parent_meta._u).toBe(now);
-            expect(folder1.updated).toBe(now + 100);
-            expect(folder1.parent_meta._u).toBe(now);
-            expect(folder2.updated).toBe(now + 100);
-            expect(folder2.parent_meta._u).toBe(now);
-            expect(folder3.updated).toBe(now + 100);
-            expect(folder3.parent_meta._u).toBe(now);
+            expect(folderO.updatedAt).toBe(now); // this one is untouched
+            expect(folderO.parentId_meta._u).toBe(now);
+            expect(folder1.updatedAt).toBe(now + 100);
+            expect(folder1.parentId_meta._u).toBe(now);
+            expect(folder2.updatedAt).toBe(now + 100);
+            expect(folder2.parentId_meta._u).toBe(now);
+            expect(folder3.updatedAt).toBe(now + 100);
+            expect(folder3.parentId_meta._u).toBe(now);
           } else {
-            expect(item.created).toBe(item.updated);
-            expect(meta._u).toBeGreaterThan(item.updated);
+            expect(item.createdAt).toBe(item.updatedAt);
+            expect(meta._u).toBeGreaterThan(item.updatedAt);
           }
         });
       });
@@ -141,9 +141,9 @@ describe('collection service', () => {
         vi.advanceTimersByTime(100);
         collectionService.setItemParent(id, folderId);
         const item = getCollectionItem(id);
-        expect(item.parent).toBe(folderId);
-        expect(item.created).toBe(item.updated); // parent change doesn't update ts
-        expect(item.parent_meta._u).toBeGreaterThan(item.updated);
+        expect(item.parentId).toBe(folderId);
+        expect(item.createdAt).toBe(item.updatedAt); // parent change doesn't update ts
+        expect(item.parentId_meta._u).toBeGreaterThan(item.updatedAt);
       });
 
       it(`should update the parent of a ${type} and leave all parents timestamp untouched`, () => {
@@ -156,23 +156,23 @@ describe('collection service', () => {
         vi.advanceTimersByTime(100);
         collectionService.setItemParent(id, folderId2);
         const item = getCollectionItem(id);
-        expect(item.parent).toBe(folderId2);
-        expect(item.created).toBe(item.updated);
-        expect(item.parent_meta._u).toBeGreaterThan(item.updated);
+        expect(item.parentId).toBe(folderId2);
+        expect(item.createdAt).toBe(item.updatedAt);
+        expect(item.parentId_meta._u).toBeGreaterThan(item.updatedAt);
 
         const folderO = getCollectionItem(folderIdO);
         const folder1 = getCollectionItem(folderId1);
         const folder2 = getCollectionItem(folderId2);
         const folder3 = getCollectionItem(folderId3);
 
-        expect(folderO.updated).toBe(now); // all are untouched
-        expect(folderO.parent_meta._u).toBe(now);
-        expect(folder1.updated).toBe(now);
-        expect(folder1.parent_meta._u).toBe(now);
-        expect(folder2.updated).toBe(now);
-        expect(folder2.parent_meta._u).toBe(now);
-        expect(folder3.updated).toBe(now);
-        expect(folder3.parent_meta._u).toBe(now);
+        expect(folderO.updatedAt).toBe(now); // all are untouched
+        expect(folderO.parentId_meta._u).toBe(now);
+        expect(folder1.updatedAt).toBe(now);
+        expect(folder1.parentId_meta._u).toBe(now);
+        expect(folder2.updatedAt).toBe(now);
+        expect(folder2.parentId_meta._u).toBe(now);
+        expect(folder3.updatedAt).toBe(now);
+        expect(folder3.parentId_meta._u).toBe(now);
       });
 
       it(`should update the notebook of a ${type}`, () => {
@@ -181,9 +181,9 @@ describe('collection service', () => {
         vi.advanceTimersByTime(100);
         collectionService.setItemParent(id, notebookId);
         const item = getCollectionItem(id);
-        expect(item.parent).toBe(notebookId);
-        expect(item.created).toBe(item.updated); // parent change doesn't update ts
-        expect(item.parent_meta._u).toBeGreaterThan(item.updated);
+        expect(item.parentId).toBe(notebookId);
+        expect(item.createdAt).toBe(item.updatedAt); // parent change doesn't update ts
+        expect(item.parentId_meta._u).toBeGreaterThan(item.updatedAt);
       });
 
       it(`should update the notebook of a ${type} and leave all parents timestamp untouched`, () => {
@@ -197,21 +197,21 @@ describe('collection service', () => {
         // can't update notebook without parent // TODO enforce at service level
         collectionService.setItemParent(id, notebookId);
         const item = getCollectionItem(id);
-        expect(item.parent).toBe(notebookId);
-        expect(item.created).toBe(item.updated);
-        expect(item.parent_meta._u).toBeGreaterThan(item.updated);
+        expect(item.parentId).toBe(notebookId);
+        expect(item.createdAt).toBe(item.updatedAt);
+        expect(item.parentId_meta._u).toBeGreaterThan(item.updatedAt);
 
         const folder1 = getCollectionItem(folderId1);
         const folder2 = getCollectionItem(folderId2);
         const folder3 = getCollectionItem(folderId3);
 
         // all are untouched
-        expect(folder1.updated).toBe(now);
-        expect(folder1.parent_meta._u).toBe(now);
-        expect(folder2.updated).toBe(now);
-        expect(folder2.parent_meta._u).toBe(now);
-        expect(folder3.updated).toBe(now);
-        expect(folder3.parent_meta._u).toBe(now);
+        expect(folder1.updatedAt).toBe(now);
+        expect(folder1.parentId_meta._u).toBe(now);
+        expect(folder2.updatedAt).toBe(now);
+        expect(folder2.parentId_meta._u).toBe(now);
+        expect(folder3.updatedAt).toBe(now);
+        expect(folder3.parentId_meta._u).toBe(now);
       });
 
       it(`should delete an existing ${type}`, () => {
@@ -241,14 +241,14 @@ describe('collection service', () => {
         const folder2 = getCollectionItem(folderId2);
         const folder3 = getCollectionItem(folderId3);
 
-        expect(folderO.updated).toBe(now); // this one is untouched
-        expect(folderO.parent_meta._u).toBe(now);
-        expect(folder1.updated).toBe(now + 100);
-        expect(folder1.parent_meta._u).toBe(now);
-        expect(folder2.updated).toBe(now + 100);
-        expect(folder2.parent_meta._u).toBe(now);
-        expect(folder3.updated).toBe(now + 100);
-        expect(folder3.parent_meta._u).toBe(now);
+        expect(folderO.updatedAt).toBe(now); // this one is untouched
+        expect(folderO.parentId_meta._u).toBe(now);
+        expect(folder1.updatedAt).toBe(now + 100);
+        expect(folder1.parentId_meta._u).toBe(now);
+        expect(folder2.updatedAt).toBe(now + 100);
+        expect(folder2.parentId_meta._u).toBe(now);
+        expect(folder3.updatedAt).toBe(now + 100);
+        expect(folder3.parentId_meta._u).toBe(now);
       });
 
       it(`should add a single tag to a ${type} without changing the rest`, () => {
@@ -346,13 +346,13 @@ describe('collection service', () => {
             const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
             const id2 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
             markAsConflict(id, id2);
-            expect(getCollectionItem(id).conflict).toBeDefined();
+            expect(getCollectionItem(id).conflictId).toBeDefined();
 
             collectionService.setItemField(id, field, getNewValue(valueType));
             if (CollectionItemResetConflictFields.includes(field)) {
-              expect(getCollectionItem(id).conflict).toBeUndefined();
+              expect(getCollectionItem(id).conflictId).toBeUndefined();
             } else {
-              expect(getCollectionItem(id).conflict).toBeDefined();
+              expect(getCollectionItem(id).conflictId).toBeDefined();
             }
           });
         });
@@ -517,7 +517,7 @@ describe('collection service', () => {
       expect(
         collectionService
           .getBrowsableCollectionItems(DEFAULT_NOTEBOOK_ID, {
-            by: 'created',
+            by: 'createdAt',
             descending: false
           })
           .map(i => `${i.title}`)
@@ -526,7 +526,7 @@ describe('collection service', () => {
       expect(
         collectionService
           .getBrowsableCollectionItems(DEFAULT_NOTEBOOK_ID, {
-            by: 'created',
+            by: 'createdAt',
             descending: true
           })
           .map(i => `${i.title}`)
@@ -535,7 +535,7 @@ describe('collection service', () => {
       expect(
         collectionService
           .getBrowsableCollectionItems(DEFAULT_NOTEBOOK_ID, {
-            by: 'updated',
+            by: 'updatedAt',
             descending: false
           })
           .map(i => `${i.title}`)
@@ -544,7 +544,7 @@ describe('collection service', () => {
       expect(
         collectionService
           .getBrowsableCollectionItems(DEFAULT_NOTEBOOK_ID, {
-            by: 'updated',
+            by: 'updatedAt',
             descending: true
           })
           .map(i => `${i.title}`)
@@ -667,7 +667,7 @@ describe('collection service', () => {
       const byCreatedAsc = collectionService.getAllChildren(
         DEFAULT_NOTEBOOK_ID,
         {
-          by: 'created',
+          by: 'createdAt',
           descending: false
         }
       );
@@ -683,7 +683,7 @@ describe('collection service', () => {
       const byCreatedDesc = collectionService.getAllChildren(
         DEFAULT_NOTEBOOK_ID,
         {
-          by: 'created',
+          by: 'createdAt',
           descending: true
         }
       );

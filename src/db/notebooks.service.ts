@@ -1,4 +1,3 @@
-import { CollectionItemType } from '@/collection/collection';
 import {
   DEFAULT_NOTEBOOK_ID,
   DEFAULT_ORDER,
@@ -11,6 +10,7 @@ import { useSpaceValue } from '@/core/db/tinybase-hooks';
 import { setMetaField } from '@/core/db/types';
 import { settingsService } from '@/domain/collection-settings/collection-settings.service';
 import { CollectionItemSort } from '@/domain/collection-settings/model';
+import { CollectionItemType } from '@/domain/collection/model';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { Notebook, NotebookResult } from '@/notebooks/notebooks';
 import { getUniqueId } from 'tinybase/with-schemas';
@@ -34,10 +34,10 @@ class NotebooksService {
         this.table,
         ({ select, where }) => {
           select('title');
-          select('created');
+          select('createdAt');
           select('order');
           where('type', CollectionItemType.notebook);
-          where('parent', parent ? parent : ROOT_COLLECTION);
+          where('parentId', parent ? parent : ROOT_COLLECTION);
         }
       );
     }
@@ -91,10 +91,10 @@ class NotebooksService {
       itemId: id,
       title: title || '',
       title_meta: setMetaField(now, title || ''),
-      parent,
-      parent_meta: setMetaField(now, parent),
-      created: Date.now(),
-      updated: Date.now(),
+      parentId: parent,
+      parentId_meta: setMetaField(now, parent),
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
       type: CollectionItemType.notebook,
       order: DEFAULT_ORDER, // TODO dynamic order
       order_meta: setMetaField(now, 0)

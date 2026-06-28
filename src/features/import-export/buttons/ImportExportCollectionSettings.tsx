@@ -1,8 +1,8 @@
-import { CollectionItemType } from '@/collection/collection';
 import GenericExportFileButton from '@/common/buttons/GenericExportFileButton';
 import { dateToStr } from '@/common/date-utils';
 import { space } from '@/core/db/store';
 import { plt } from '@/core/infra/platform';
+import { CollectionItemType } from '@/domain/collection/model';
 import {
   ExportItemsButton,
   RestoreCollectionButton

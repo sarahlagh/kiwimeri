@@ -19,18 +19,18 @@
               {
                 "id": "#id",
                 "title": "New folder",
-                "parent": "0",
+                "parentId": "0",
                 "type": "f",
-                "created": 1753088490685,
-                "updated": 1753088490685
+                "createdAt": 1753088490685,
+                "updatedAt": 1753088490685
               },
               {
                 "title": "Simple",
-                "parent": "#id",
+                "parentId": "#id",
                 "type": "d",
                 "content": "__defined__",
-                "created": 1753088495423,
-                "updated": 1753088495423
+                "createdAt": 1753088495423,
+                "updatedAt": 1753088495423
               }
             ],
             "firstLevel": [
@@ -55,18 +55,18 @@
               {
                 "id": "#id",
                 "title": "New folder",
-                "parent": "0",
-                "created": 1753088490685,
-                "updated": 1753088490685,
+                "parentId": "0",
+                "createdAt": 1753088490685,
+                "updatedAt": 1753088490685,
                 "type": "f"
               },
               {
                 "title": "Simple",
-                "parent": "#id",
+                "parentId": "#id",
                 "type": "d",
                 "content": "__defined__",
-                "created": 1753088495423,
-                "updated": 1753088495423
+                "createdAt": 1753088495423,
+                "updatedAt": 1753088495423
               }
             ],
             "firstLevel": [
@@ -108,28 +108,28 @@
                 "id": "#notebook",
                 "title": "New folder",
                 "type": "n",
-                "created": 1753088490685,
-                "updated": 1753088490685
+                "createdAt": 1753088490685,
+                "updatedAt": 1753088490685
               },
               {
                 "id": "#id2",
                 "title": "Simple Original",
-                "parent": "#notebook",
+                "parentId": "#notebook",
                 "type": "f",
-                "created": 1753088495423,
-                "updated": 1753088495423,
+                "createdAt": 1753088495423,
+                "updatedAt": 1753088495423,
                 "order": 1,
                 "settings": {
-                  "sort": { "descending": true, "by": "updated" }
+                  "sort": { "descending": true, "by": "updatedAt" }
                 }
               },
               {
                 "title": "Simple",
-                "parent": "#id2",
+                "parentId": "#id2",
                 "type": "d",
                 "content": "__defined__",
-                "created": 1753088495423,
-                "updated": 1753088495423
+                "createdAt": 1753088495423,
+                "updatedAt": 1753088495423
               }
             ],
             "firstLevel": [

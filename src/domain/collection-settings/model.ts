@@ -3,8 +3,8 @@ import { Sort } from '@/shared/utils/sort-filter/sort';
 // sort
 
 export const docSortBy = [
-  'created',
-  'updated',
+  'createdAt',
+  'updatedAt',
   'title',
   'preview',
   'order'

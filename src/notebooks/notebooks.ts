@@ -1,4 +1,4 @@
-import { CollectionItem, CollectionItemType } from '@/collection/collection';
+import { CollectionItem, CollectionItemType } from '@/domain/collection/model';
 
 export interface Notebook extends CollectionItem {
   id?: string;
@@ -7,6 +7,6 @@ export interface Notebook extends CollectionItem {
 
 export type NotebookResult = Pick<
   Notebook,
-  'parent' | 'title' | 'type' | 'created' | 'updated' | 'order'
+  'parentId' | 'title' | 'type' | 'createdAt' | 'updatedAt' | 'order'
 > &
   Required<Pick<Notebook, 'id'>>;

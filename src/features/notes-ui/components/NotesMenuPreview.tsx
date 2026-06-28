@@ -23,7 +23,7 @@ export const NotesMenuPreview = ({
   if (selected) {
     classNames += ' note-preview-selected';
   }
-  if (note.conflict) {
+  if (note.conflictId) {
     classNames += ' note-is-conflict';
   }
   return (
@@ -37,7 +37,7 @@ export const NotesMenuPreview = ({
     >
       {emptyNote ? (
         <Trans>empty note</Trans>
-      ) : note.conflict ? (
+      ) : note.conflictId ? (
         <Trans>-- conflict --</Trans>
       ) : (
         preview

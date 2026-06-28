@@ -21,7 +21,7 @@ function saveTempDocument(payload: SavePayload) {
       payload.content
     );
     const id = collectionService.saveItem(payload.newItem);
-    return { id, parent: payload.newItem.parent };
+    return { id, parent: payload.newItem.parentId };
   } else {
     collectionService.setItemLexicalContent(
       payload.existingItem!.id,
@@ -31,7 +31,7 @@ function saveTempDocument(payload: SavePayload) {
     historyService.addVersion(payload.existingItem!.id, true);
     return {
       id: payload.existingItem!.id,
-      parent: payload.existingItem!.parent
+      parent: payload.existingItem!.parentId
     };
   }
 }

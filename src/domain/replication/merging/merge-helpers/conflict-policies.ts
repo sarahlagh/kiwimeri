@@ -1,10 +1,10 @@
+import { cellEquals } from '@/common/utils';
 import {
   CollectionItem,
   CollectionItemType,
   CollectionItemUpdatableConflictFields,
   CollectionItemUpdatableFieldEnum
-} from '@/collection/collection';
-import { cellEquals } from '@/common/utils';
+} from '@/domain/collection/model';
 import {
   DocAnnotationUpdatableConflictFields,
   DocAnnotationUpdatableFieldEnum,
@@ -34,7 +34,7 @@ class CollectionConflictPolicy extends ConflictPolicy<CollectionItem> {
     const field = localChange.field as CollectionItemUpdatableFieldEnum;
     return (
       localItem !== undefined &&
-      !localItem.conflict &&
+      !localItem.conflictId &&
       localItem.type !== CollectionItemType.folder &&
       localItem.type !== CollectionItemType.notebook &&
       (!localChange.field ||
@@ -49,9 +49,9 @@ class CollectionConflictPolicy extends ConflictPolicy<CollectionItem> {
     const ts = Date.now();
     return {
       ...{ ...localItem, id: undefined },
-      conflict: localChange.itemId,
-      created: ts,
-      updated: ts
+      conflictId: localChange.itemId,
+      createdAt: ts,
+      updatedAt: ts
     };
   }
 }
@@ -66,7 +66,7 @@ class AnnotsConflictPolicy extends ConflictPolicy<SyncableAnnotation> {
     const field = localChange.field as DocAnnotationUpdatableFieldEnum;
     return (
       localItem !== undefined &&
-      !localItem.conflict &&
+      !localItem.conflictId &&
       (!localChange.field ||
         (DocAnnotationUpdatableConflictFields.includes(field) &&
           (!remoteItem || localItem[field] !== remoteItem[field])))

@@ -33,8 +33,8 @@ const GenericCollectionSettings = ({
           label: t`Sort items by...`,
           type: 'enum',
           values: [
-            { val: 'created', label: t`Creation Date` },
-            { val: 'updated', label: t`Modified Date` },
+            { val: 'createdAt', label: t`Creation Date` },
+            { val: 'updatedAt', label: t`Modified Date` },
             { val: 'order', label: t`Manual Order` }
           ] as { val: CollectionItemSortType; label: string }[]
         },

@@ -1,6 +1,6 @@
-import { CollectionItemTypeValues } from '@/collection/collection';
 import { CONFLICTS_NOTEBOOK_ID } from '@/constants';
 import { MetaField } from '@/core/db/types';
+import { CollectionItemTypeValues } from '@/domain/collection/model';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import {
   allNonHistorizableNonConflictFields,
@@ -1644,7 +1644,7 @@ const scenarioMatrix: {
             .theItem({
               hasValue: 'remote',
               otherAssert: item => {
-                const initTs = item!.parent_meta._u;
+                const initTs = item!.parentId_meta._u;
                 const titleTs = item!.title_meta._u;
                 expect(titleTs).toBeGreaterThan(initTs);
                 const tagsTs = item!.tags_meta!._u;
@@ -1654,7 +1654,7 @@ const scenarioMatrix: {
             .ifForcePull()
             .theItem({
               otherAssert: item => {
-                const initTs = item!.parent_meta._u;
+                const initTs = item!.parentId_meta._u;
                 const titleTs = item!.title_meta!._u;
                 expect(titleTs).toBe(initTs);
                 const tagsTs = item!.tags_meta!._u;
@@ -1686,7 +1686,7 @@ const scenarioMatrix: {
               hasValue: 'remote', // order value is pulled
               hasVersions: 2, // if document, order triggers no version
               otherAssert: item => {
-                const initTs = item!.parent_meta._u;
+                const initTs = item!.parentId_meta._u;
                 const contentTs = item!.content_meta!._u;
                 expect(contentTs).toBeGreaterThan(initTs);
                 const orderTs = item!.order_meta!._u;
@@ -1696,7 +1696,7 @@ const scenarioMatrix: {
             .ifForcePull()
             .theItem({
               otherAssert: (item, rel) => {
-                const initTs = item!.parent_meta._u;
+                const initTs = item!.parentId_meta._u;
                 const contentTs = item!.content_meta!._u;
                 expect(contentTs).toBe(initTs);
                 expect(item?.content).toBe(rel?.initValue?.value);
@@ -1739,7 +1739,7 @@ const scenarioMatrix: {
               hasConflict: true,
               hasVersions: 3, // if document, order triggers no version
               otherAssert: (item, rel) => {
-                const initTs = item!.parent_meta._u;
+                const initTs = item!.parentId_meta._u;
                 const contentTs = item!.content_meta!._u;
                 expect(contentTs).toBeGreaterThan(initTs);
                 const orderTs = item!.order_meta!._u;

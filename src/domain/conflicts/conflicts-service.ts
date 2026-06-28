@@ -45,7 +45,7 @@ class ConflictsService {
       annotsConflicts = fetchAnnotsConflictsQuery.getResults({});
     }
     const hasConflict =
-      itemsConflicts.filter(c => c.conflict === id).length > 0;
+      itemsConflicts.filter(c => c.conflictId === id).length > 0;
     const hasAnnotsConflicts =
       annotsConflicts.filter(c => c.itemId === id).length > 0;
     return { hasConflict, hasAnnotsConflicts };

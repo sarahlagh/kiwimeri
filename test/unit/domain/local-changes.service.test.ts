@@ -1,10 +1,10 @@
-import { CollectionItemType } from '@/collection/collection';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import { SerializableData } from '@/db/types/store-types';
+import { CollectionItemType } from '@/domain/collection/model';
 import {
   startDerivedContentListeners,
   stopDerivedContentListeners
@@ -219,7 +219,7 @@ describe('local changes listeners', () => {
       tableId: SpaceTables.Collection,
       watchedFields: UPDATABLE_FIELDS,
       nonWatchedFields: [
-        { field: 'updated', valueType: 'number' },
+        { field: 'updatedAt', valueType: 'number' },
         { field: 'itemId', valueType: 'id' }
       ]
     },
@@ -375,7 +375,7 @@ describe('local changes listeners', () => {
         it(`should create an add change if item was a conflict`, () => {
           const testId = space.addRow(tableId, fakeRow)!;
           localChangesService.clear();
-          space.setCell(tableId, testId, 'conflict', 'anyvalue' as never); // create conflict
+          space.setCell(tableId, testId, 'conflictId', 'anyvalue' as never); // create conflict
           expect(localChangesService.getLocalChanges()).toHaveLength(0);
 
           // resolve conflict
@@ -386,7 +386,7 @@ describe('local changes listeners', () => {
               getField(watchedFields[0]),
               getValue(watchedFields[0])
             );
-            space.delCell(tableId, testId, 'conflict');
+            space.delCell(tableId, testId, 'conflictId');
           });
 
           const localChanges = localChangesService.getLocalChanges();

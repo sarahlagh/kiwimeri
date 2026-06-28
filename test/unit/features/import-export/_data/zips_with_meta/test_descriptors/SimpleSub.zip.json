@@ -24,52 +24,52 @@
               {
                 "id": "#id",
                 "title": "New folder",
-                "parent": "0",
+                "parentId": "0",
                 "type": "f",
-                "created": 1753088317511,
-                "updated": 1753088317511
+                "createdAt": 1753088317511,
+                "updatedAt": 1753088317511
               },
               {
                 "title": "Simple Original",
-                "parent": "#id",
+                "parentId": "#id",
                 "type": "d",
                 "content": "__defined__",
-                "created": 1753088323853,
-                "updated": 1753088323853,
+                "createdAt": 1753088323853,
+                "updatedAt": 1753088323853,
                 "tags": ["tag1", "tag2"]
               },
               {
                 "id": "#idSimpleSub",
                 "title": "SimpleSub",
-                "parent": "#id",
+                "parentId": "#id",
                 "type": "f",
-                "created": 1753088317511,
-                "updated": 1753088317511
+                "createdAt": 1753088317511,
+                "updatedAt": 1753088317511
               },
               {
                 "title": "Quote",
-                "parent": "#idSimpleSub",
+                "parentId": "#idSimpleSub",
                 "type": "d",
                 "content": "__defined__",
-                "created": 1753088323853,
-                "updated": 1753088323853,
+                "createdAt": 1753088323853,
+                "updatedAt": 1753088323853,
                 "tags": ["tag1", "tag2"]
               },
               {
                 "id": "#idSub",
                 "title": "Sub",
-                "parent": "#idSimpleSub",
+                "parentId": "#idSimpleSub",
                 "type": "f",
-                "created": 1753088317446,
-                "updated": 1753088377511
+                "createdAt": 1753088317446,
+                "updatedAt": 1753088377511
               },
               {
                 "title": "Test",
-                "parent": "#idSub",
+                "parentId": "#idSub",
                 "type": "d",
                 "content": "__defined__",
-                "created": 1753089323853,
-                "updated": 1753089323853,
+                "createdAt": 1753089323853,
+                "updatedAt": 1753089323853,
                 "tags": ["tag1", "tag2"]
               }
             ],
@@ -110,45 +110,45 @@
             "newItems": [
               {
                 "title": "Simple Original",
-                "parent": "0",
+                "parentId": "0",
                 "type": "d",
                 "content": "__defined__",
-                "created": 1753088323853,
-                "updated": 1753088323853,
+                "createdAt": 1753088323853,
+                "updatedAt": 1753088323853,
                 "tags": ["tag1", "tag2"]
               },
               {
                 "id": "#idSimpleSub",
                 "title": "SimpleSub",
-                "parent": "0",
+                "parentId": "0",
                 "type": "f",
-                "created": 1753088317511,
-                "updated": 1753088317511
+                "createdAt": 1753088317511,
+                "updatedAt": 1753088317511
               },
               {
                 "title": "Quote",
-                "parent": "#idSimpleSub",
+                "parentId": "#idSimpleSub",
                 "type": "d",
                 "content": "__defined__",
-                "created": 1753088323853,
-                "updated": 1753088323853,
+                "createdAt": 1753088323853,
+                "updatedAt": 1753088323853,
                 "tags": ["tag1", "tag2"]
               },
               {
                 "id": "#idSub",
                 "title": "Sub",
-                "parent": "#idSimpleSub",
+                "parentId": "#idSimpleSub",
                 "type": "f",
-                "created": 1753088317446,
-                "updated": 1753088377511
+                "createdAt": 1753088317446,
+                "updatedAt": 1753088377511
               },
               {
                 "title": "Test",
-                "parent": "#idSub",
+                "parentId": "#idSub",
                 "type": "d",
                 "content": "__defined__",
-                "created": 1753089323853,
-                "updated": 1753089323853,
+                "createdAt": 1753089323853,
+                "updatedAt": 1753089323853,
                 "tags": ["tag1", "tag2"]
               }
             ],
@@ -196,52 +196,52 @@
               {
                 "id": "#id",
                 "title": "New folder",
-                "parent": "root",
+                "parentId": "root",
                 "type": "n",
-                "created": 1753088317511,
-                "updated": 1753088317511
+                "createdAt": 1753088317511,
+                "updatedAt": 1753088317511
               },
               {
                 "title": "Simple Original",
-                "parent": "#id",
+                "parentId": "#id",
                 "type": "d",
                 "content": "__defined__",
-                "created": 1753088323853,
-                "updated": 1753088323853,
+                "createdAt": 1753088323853,
+                "updatedAt": 1753088323853,
                 "tags": ["tag1", "tag2"]
               },
               {
                 "id": "#idSimpleSub",
                 "title": "SimpleSub",
-                "parent": "#id",
+                "parentId": "#id",
                 "type": "f",
-                "created": 1753088317511,
-                "updated": 1753088317511
+                "createdAt": 1753088317511,
+                "updatedAt": 1753088317511
               },
               {
                 "title": "Quote",
-                "parent": "#idSimpleSub",
+                "parentId": "#idSimpleSub",
                 "type": "d",
                 "content": "__defined__",
-                "created": 1753088323853,
-                "updated": 1753088323853,
+                "createdAt": 1753088323853,
+                "updatedAt": 1753088323853,
                 "tags": ["tag1", "tag2"]
               },
               {
                 "id": "#idSub",
                 "title": "Sub",
-                "parent": "#idSimpleSub",
+                "parentId": "#idSimpleSub",
                 "type": "f",
-                "created": 1753088317446,
-                "updated": 1753088377511
+                "createdAt": 1753088317446,
+                "updatedAt": 1753088377511
               },
               {
                 "title": "Test",
-                "parent": "#idSub",
+                "parentId": "#idSub",
                 "type": "d",
                 "content": "__defined__",
-                "created": 1753089323853,
-                "updated": 1753089323853,
+                "createdAt": 1753089323853,
+                "updatedAt": 1753089323853,
                 "tags": ["tag1", "tag2"]
               }
             ],
@@ -262,36 +262,36 @@
         {
           "id": "#id",
           "title": "New folder",
-          "parent": "0",
+          "parentId": "0",
           "type": "f"
         },
         {
           "title": "Simple Original",
-          "parent": "#id",
+          "parentId": "#id",
           "type": "d",
           "tags": ["tag1", "tag2", "tag3"]
         },
         {
           "id": "#idSimpleSub",
           "title": "SimpleSub",
-          "parent": "#id",
+          "parentId": "#id",
           "type": "f"
         },
         {
           "title": "Quote",
-          "parent": "#idSimpleSub",
+          "parentId": "#idSimpleSub",
           "type": "d",
           "tags": ["tag1", "tag2", "tag3"]
         },
         {
           "id": "#idSub",
           "title": "Sub",
-          "parent": "#idSimpleSub",
+          "parentId": "#idSimpleSub",
           "type": "f"
         },
         {
           "title": "Test",
-          "parent": "#idSub",
+          "parentId": "#idSub",
           "type": "d",
           "tags": ["tag1"]
         }
@@ -316,50 +316,50 @@
               {
                 "id": "#nid",
                 "title": "New folder",
-                "parent": "0",
-                "created": 1753088317511,
-                "updated": 1753088317511,
+                "parentId": "0",
+                "createdAt": 1753088317511,
+                "updatedAt": 1753088317511,
                 "type": "f"
               },
               {
                 "title": "Simple Original",
-                "parent": "#nid",
+                "parentId": "#nid",
                 "type": "d",
                 "tags": ["tag1", "tag2"],
-                "created": 1753088323853,
-                "updated": 1753088323853
+                "createdAt": 1753088323853,
+                "updatedAt": 1753088323853
               },
               {
                 "id": "#nidSimpleSub",
                 "title": "SimpleSub",
-                "parent": "#nid",
+                "parentId": "#nid",
                 "type": "f",
-                "created": 1753088317511,
-                "updated": 1753088317511
+                "createdAt": 1753088317511,
+                "updatedAt": 1753088317511
               },
               {
                 "title": "Quote",
-                "parent": "#nidSimpleSub",
+                "parentId": "#nidSimpleSub",
                 "type": "d",
                 "tags": ["tag1", "tag2"],
-                "created": 1753088323853,
-                "updated": 1753088323853
+                "createdAt": 1753088323853,
+                "updatedAt": 1753088323853
               },
               {
                 "id": "#nidSub",
                 "title": "Sub",
-                "parent": "#nidSimpleSub",
+                "parentId": "#nidSimpleSub",
                 "type": "f",
-                "created": 1753088317446,
-                "updated": 1753088377511
+                "createdAt": 1753088317446,
+                "updatedAt": 1753088377511
               },
               {
                 "title": "Test",
-                "parent": "#nidSub",
+                "parentId": "#nidSub",
                 "type": "d",
                 "tags": ["tag1", "tag2"],
-                "created": 1753089323853,
-                "updated": 1753089323853
+                "createdAt": 1753089323853,
+                "updatedAt": 1753089323853
               }
             ],
             "firstLevel": [
@@ -373,7 +373,7 @@
               {
                 "id": "#id",
                 "title": "New folder",
-                "parent": "0",
+                "parentId": "0",
                 "type": "f"
               }
             ]
@@ -398,36 +398,36 @@
               {
                 "id": "#id",
                 "title": "New folder",
-                "parent": "0",
+                "parentId": "0",
                 "type": "f"
               },
               {
                 "title": "Simple Original",
-                "parent": "#id",
+                "parentId": "#id",
                 "type": "d",
                 "tags": ["tag1", "tag2"]
               },
               {
                 "id": "#idSimpleSub",
                 "title": "SimpleSub",
-                "parent": "#id",
+                "parentId": "#id",
                 "type": "f"
               },
               {
                 "title": "Quote",
-                "parent": "#idSimpleSub",
+                "parentId": "#idSimpleSub",
                 "type": "d",
                 "tags": ["tag1", "tag2"]
               },
               {
                 "id": "#idSub",
                 "title": "Sub",
-                "parent": "#idSimpleSub",
+                "parentId": "#idSimpleSub",
                 "type": "f"
               },
               {
                 "title": "Test",
-                "parent": "#idSub",
+                "parentId": "#idSub",
                 "type": "d",
                 "tags": ["tag1", "tag2"]
               }
@@ -443,7 +443,7 @@
               {
                 "id": "#id",
                 "title": "New folder",
-                "parent": "0",
+                "parentId": "0",
                 "type": "f"
               }
             ]
@@ -482,50 +482,50 @@
               {
                 "id": "#nid",
                 "title": "NewName",
-                "parent": "0",
-                "created": 1753088317511,
-                "updated": 1753088317511,
+                "parentId": "0",
+                "createdAt": 1753088317511,
+                "updatedAt": 1753088317511,
                 "type": "f"
               },
               {
                 "title": "Simple Original",
-                "parent": "#nid",
+                "parentId": "#nid",
                 "type": "d",
                 "tags": ["tag1", "tag2"],
-                "created": 1753088323853,
-                "updated": 1753088323853
+                "createdAt": 1753088323853,
+                "updatedAt": 1753088323853
               },
               {
                 "id": "#nidSimpleSub",
                 "title": "SimpleSub",
-                "parent": "#nid",
+                "parentId": "#nid",
                 "type": "f",
-                "created": 1753088317511,
-                "updated": 1753088317511
+                "createdAt": 1753088317511,
+                "updatedAt": 1753088317511
               },
               {
                 "title": "Quote",
-                "parent": "#nidSimpleSub",
+                "parentId": "#nidSimpleSub",
                 "type": "d",
                 "tags": ["tag1", "tag2"],
-                "created": 1753088323853,
-                "updated": 1753088323853
+                "createdAt": 1753088323853,
+                "updatedAt": 1753088323853
               },
               {
                 "id": "#nidSub",
                 "title": "Sub",
-                "parent": "#nidSimpleSub",
+                "parentId": "#nidSimpleSub",
                 "type": "f",
-                "created": 1753088317446,
-                "updated": 1753088377511
+                "createdAt": 1753088317446,
+                "updatedAt": 1753088377511
               },
               {
                 "title": "Test",
-                "parent": "#nidSub",
+                "parentId": "#nidSub",
                 "type": "d",
                 "tags": ["tag1", "tag2"],
-                "created": 1753089323853,
-                "updated": 1753089323853
+                "createdAt": 1753089323853,
+                "updatedAt": 1753089323853
               }
             ],
             "firstLevel": [
@@ -553,43 +553,43 @@
             "newItems": [
               {
                 "title": "Simple Original",
-                "parent": "0",
+                "parentId": "0",
                 "type": "d",
                 "tags": ["tag1", "tag2"],
-                "created": 1753088323853,
-                "updated": 1753088323853
+                "createdAt": 1753088323853,
+                "updatedAt": 1753088323853
               },
               {
                 "id": "#nidSimpleSub",
                 "title": "SimpleSub",
-                "parent": "0",
+                "parentId": "0",
                 "type": "f",
-                "created": 1753088317511,
-                "updated": 1753088317511
+                "createdAt": 1753088317511,
+                "updatedAt": 1753088317511
               },
               {
                 "title": "Quote",
-                "parent": "#nidSimpleSub",
+                "parentId": "#nidSimpleSub",
                 "type": "d",
                 "tags": ["tag1", "tag2"],
-                "created": 1753088323853,
-                "updated": 1753088323853
+                "createdAt": 1753088323853,
+                "updatedAt": 1753088323853
               },
               {
                 "id": "#nidSub",
                 "title": "Sub",
-                "parent": "#nidSimpleSub",
+                "parentId": "#nidSimpleSub",
                 "type": "f",
-                "created": 1753088317446,
-                "updated": 1753088377511
+                "createdAt": 1753088317446,
+                "updatedAt": 1753088377511
               },
               {
                 "title": "Test",
-                "parent": "#nidSub",
+                "parentId": "#nidSub",
                 "type": "d",
                 "tags": ["tag1", "tag2"],
-                "created": 1753089323853,
-                "updated": 1753089323853
+                "createdAt": 1753089323853,
+                "updatedAt": 1753089323853
               }
             ],
             "firstLevel": [
@@ -624,50 +624,50 @@
               {
                 "id": "#nid",
                 "title": "New folder",
-                "parent": "root",
-                "created": 1753088317511,
-                "updated": 1753088317511,
+                "parentId": "root",
+                "createdAt": 1753088317511,
+                "updatedAt": 1753088317511,
                 "type": "n"
               },
               {
                 "title": "Simple Original",
-                "parent": "#nid",
+                "parentId": "#nid",
                 "type": "d",
                 "tags": ["tag1", "tag2"],
-                "created": 1753088323853,
-                "updated": 1753088323853
+                "createdAt": 1753088323853,
+                "updatedAt": 1753088323853
               },
               {
                 "id": "#nidSimpleSub",
                 "title": "SimpleSub",
-                "parent": "#nid",
+                "parentId": "#nid",
                 "type": "f",
-                "created": 1753088317511,
-                "updated": 1753088317511
+                "createdAt": 1753088317511,
+                "updatedAt": 1753088317511
               },
               {
                 "title": "Quote",
-                "parent": "#nidSimpleSub",
+                "parentId": "#nidSimpleSub",
                 "type": "d",
                 "tags": ["tag1", "tag2"],
-                "created": 1753088323853,
-                "updated": 1753088323853
+                "createdAt": 1753088323853,
+                "updatedAt": 1753088323853
               },
               {
                 "id": "#nidSub",
                 "title": "Sub",
-                "parent": "#nidSimpleSub",
+                "parentId": "#nidSimpleSub",
                 "type": "f",
-                "created": 1753088317446,
-                "updated": 1753088377511
+                "createdAt": 1753088317446,
+                "updatedAt": 1753088377511
               },
               {
                 "title": "Test",
-                "parent": "#nidSub",
+                "parentId": "#nidSub",
                 "type": "d",
                 "tags": ["tag1", "tag2"],
-                "created": 1753089323853,
-                "updated": 1753089323853
+                "createdAt": 1753089323853,
+                "updatedAt": 1753089323853
               }
             ],
             "firstLevel": [

@@ -1,8 +1,8 @@
-import { CollectionItemType } from '@/collection/collection';
 import { DEFAULT_NOTEBOOK_ID, getGlobalTrans } from '@/constants';
 import { space } from '@/core/db/store';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
+import { CollectionItemType } from '@/domain/collection/model';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
@@ -146,7 +146,7 @@ describe(`sync general test`, () => {
     // create local item
     const id = adv(() => collectionService.addDocument(DEFAULT_NOTEBOOK_ID));
     // artificially create a conflict
-    adv(() => space.setCell('collection', id, 'conflict', 'fakeId'));
+    adv(() => space.setCell('collection', id, 'conflictId', 'fakeId'));
     // is global sync prevented
     const { result, unmount } = wrappedRenderHook(() =>
       useIsMergeSyncEnabled()
@@ -165,7 +165,7 @@ describe(`sync general test`, () => {
     // create local item
     const id = adv(() => collectionService.addDocument(DEFAULT_NOTEBOOK_ID));
     // artificially create a conflict
-    adv(() => space.setCell('collection', id, 'conflict', 'fakeId'));
+    adv(() => space.setCell('collection', id, 'conflictId', 'fakeId'));
     // calling the method won't succeed on push
     const { success, didPush } = await syncService.sync('force-push');
     expect(success);
@@ -178,7 +178,7 @@ describe(`sync general test`, () => {
     await syncService.push();
 
     // artificially create a conflict
-    adv(() => space.setCell('collection', id, 'conflict', 'fakeId'));
+    adv(() => space.setCell('collection', id, 'conflictId', 'fakeId'));
     expect(collectionService.isItemConflict(id));
     // calling the method will overwrite
     const { success, didPull } = await syncService.sync('force-pull');
@@ -196,7 +196,7 @@ describe(`sync general test`, () => {
     await syncService.push();
 
     // artificially create a conflict
-    adv(() => space.setCell('collection', id, 'conflict', 'fakeId'));
+    adv(() => space.setCell('collection', id, 'conflictId', 'fakeId'));
     expect(collectionService.isItemConflict(id));
 
     {

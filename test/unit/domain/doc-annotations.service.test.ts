@@ -15,7 +15,7 @@ import { renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 function getDocUpdatedTs(docId: string) {
-  return space.getCell('collection', docId, 'updated') as number;
+  return space.getCell('collection', docId, 'updatedAt') as number;
 }
 
 function expectedLC(noteId: string, type: LocalChangeType, updated: number) {
@@ -234,7 +234,7 @@ describe('notes service', () => {
   it('should reset conflict on content edit', () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     const note1 = docAnnotationsService.addNote(docId);
-    space.setCell(SpaceTables.Annotations, note1, 'conflict', 'conflict-id');
+    space.setCell(SpaceTables.Annotations, note1, 'conflictId', 'conflict-id');
 
     expect(docAnnotationsService.isConflict(note1));
 

@@ -1,11 +1,11 @@
-import {
-  CollectionItemType,
-  CollectionItemTypeValues
-} from '@/collection/collection';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { space } from '@/core/db/store';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
+import {
+  CollectionItemType,
+  CollectionItemTypeValues
+} from '@/domain/collection/model';
 import ConfirmMultipleImportModal, {
   ARIA_DESCRIPTIONS_PER_TYPE
 } from '@/features/import-export/modals/ConfirmMultipleImportModal';
@@ -257,7 +257,7 @@ describe('ConfirmMultipleImportModal', () => {
       expect(rows?.childElementCount).toBe(2);
 
       checkRows(rows, [
-        // new notebook had 'created' timestamp in past in its meta
+        // new notebook had 'createdAt' timestamp in past in its meta
         {
           itemType: CollectionItemType.notebook,
           title: 'New folder',
@@ -406,7 +406,7 @@ describe('ConfirmMultipleImportModal', () => {
       expect(rows?.childElementCount).toBe(2);
 
       checkRows(rows, [
-        // new notebook had 'created' timestamp in past in its meta
+        // new notebook had 'createdAt' timestamp in past in its meta
         {
           itemType: CollectionItemType.notebook,
           title: 'New folder',
@@ -807,7 +807,7 @@ describe('ConfirmMultipleImportModal', () => {
       expect(rows?.childElementCount).toBe(3);
 
       checkRows(rows, [
-        // new notebook had 'created' timestamp in past in its meta
+        // new notebook had 'createdAt' timestamp in past in its meta
         {
           itemType: CollectionItemType.notebook,
           title: 'New folder',
@@ -981,7 +981,7 @@ describe('ConfirmMultipleImportModal', () => {
       expect(rows?.childElementCount).toBe(3);
 
       checkRows(rows, [
-        // new notebook had 'created' timestamp in past in its meta
+        // new notebook had 'createdAt' timestamp in past in its meta
         {
           itemType: CollectionItemType.notebook,
           title: 'New folder',

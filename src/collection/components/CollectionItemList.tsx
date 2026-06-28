@@ -1,12 +1,12 @@
-import {
-  APPICONS_PER_TYPE,
-  CollectionItemResult,
-  CollectionItemType
-} from '@/collection/collection';
 import SortableList from '@/common/dnd/containers/SortableList';
 import { APPICONS, CONFLICT_STR } from '@/constants';
 import { plt } from '@/core/infra/platform';
 import collectionService from '@/db/collection.service';
+import {
+  APPICONS_PER_TYPE,
+  CollectionItemResult,
+  CollectionItemType
+} from '@/domain/collection/model';
 // eslint-disable-next-line no-restricted-imports
 import useItemsConflictMixIn from '@/features/collection-ui/hooks/useItemsConflictMixIn';
 import { searchService } from '@/features/search';

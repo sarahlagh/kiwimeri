@@ -30,10 +30,10 @@
             "newItems": [
               {
                 "title": "NewName",
-                "parent": "0",
+                "parentId": "0",
                 "type": "f",
-                "created": 1752772097139,
-                "updated": 1752772101238
+                "createdAt": 1752772097139,
+                "updatedAt": 1752772101238
               }
             ],
             "firstLevel": [
@@ -68,10 +68,10 @@
             "newItems": [
               {
                 "title": "empty",
-                "parent": "0",
+                "parentId": "0",
                 "type": "n",
-                "created": 1752772097139,
-                "updated": 1752772101238
+                "createdAt": 1752772097139,
+                "updatedAt": 1752772101238
               }
             ],
             "firstLevel": [
@@ -103,10 +103,10 @@
             "newItems": [
               {
                 "title": "NewName",
-                "parent": "0",
+                "parentId": "0",
                 "type": "n",
-                "created": 1752772097139,
-                "updated": 1752772101238
+                "createdAt": 1752772097139,
+                "updatedAt": 1752772101238
               }
             ],
             "firstLevel": [
@@ -131,7 +131,7 @@
             "newItems": [
               {
                 "title": "meta.json",
-                "parent": "0",
+                "parentId": "0",
                 "type": "d"
               }
             ],

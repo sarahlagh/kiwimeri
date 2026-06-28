@@ -1,3 +1,4 @@
+import { collectionSchema } from '@/domain/collection/model';
 import { derivedContentSchema } from '@/domain/derived-content/model';
 import { derivedItemStateSchema } from '@/domain/derived-item-state/model';
 import { docAnnotationSchema } from '@/domain/document-annotations/model';
@@ -10,7 +11,6 @@ import { SpaceTables, StoreTables } from './store-constants';
 import {
   CellIdFromSchema,
   DefaultedValueFromSchema,
-  metaSchemaDefault,
   TableIdFromSchema,
   ValueIdFromSchema
 } from './types';
@@ -24,25 +24,7 @@ export const storeTablesSchema = {
 } as const satisfies Record<StoreTables, unknown>;
 
 export const spaceTablesSchema = {
-  collection: {
-    itemId: { type: 'string' },
-    title: { type: 'string' },
-    title_meta: { type: 'object', default: metaSchemaDefault },
-    parent: { type: 'string' },
-    parent_meta: { type: 'object', default: metaSchemaDefault },
-    type: { type: 'string' },
-    content: { type: 'string' },
-    content_meta: { type: 'object' },
-    tags: { type: 'array' },
-    tags_meta: { type: 'object' },
-    created: { type: 'number' },
-    updated: { type: 'number' },
-    conflict: { type: 'string' },
-    order: { type: 'number' },
-    order_meta: { type: 'object' },
-    settings: { type: 'object' },
-    settings_meta: { type: 'object' }
-  },
+  collection: collectionSchema,
   history: {
     itemId: { type: 'string' },
     op: { type: 'string' },

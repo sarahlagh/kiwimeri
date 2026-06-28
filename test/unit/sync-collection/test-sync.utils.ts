@@ -1,5 +1,5 @@
-import { CollectionItem } from '@/collection/collection';
 import { historyService } from '@/db/collection-history.service';
+import { CollectionItem } from '@/domain/collection/model';
 import { SyncableAnnotation } from '@/domain/document-annotations/model';
 import {
   startLocalChangesListeners,
@@ -55,7 +55,7 @@ export const reInitRemoteDataWithAnnots = async (
   // parent update doesn't set the row update ts, so... parent_meta ts might be > i.updated
   // this is a test problem, lastLocalChange is supposed to be updated by localChanges service
   const lastLocalChange = Math.max(
-    ...items.map(i => Math.max(i.updated, i.parent_meta._u))
+    ...items.map(i => Math.max(i.updatedAt, i.parentId_meta._u))
   );
   console.debug('[reInitRemoteData]', items, annots, lastLocalChange);
   await driver.setCollectionContentWithAnnots(

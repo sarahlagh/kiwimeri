@@ -18,36 +18,36 @@
               {
                 "id": "#fId",
                 "title": "Notebook",
-                "parent": "0",
+                "parentId": "0",
                 "type": "f",
-                "created": 1753088317511,
-                "updated": 1753088317511
+                "createdAt": 1753088317511,
+                "updatedAt": 1753088317511
               },
               {
                 "title": "Quote",
-                "parent": "#fId",
+                "parentId": "#fId",
                 "type": "d",
                 "content": "__defined",
-                "created": 1753088323853,
-                "updated": 1753088323853,
+                "createdAt": 1753088323853,
+                "updatedAt": 1753088323853,
                 "tags": ["tag1", "tag2"]
               },
               {
                 "id": "#fIdSub",
                 "title": "Sub",
-                "parent": "#fId",
+                "parentId": "#fId",
                 "type": "f",
-                "created": 1753088317446,
-                "updated": 1753088377511,
+                "createdAt": 1753088317446,
+                "updatedAt": 1753088377511,
                 "tags": ["sub"]
               },
               {
                 "title": "Test",
-                "parent": "#fIdSub",
+                "parentId": "#fIdSub",
                 "type": "d",
                 "content": "__defined",
-                "created": 1753089323853,
-                "updated": 1753089323853,
+                "createdAt": 1753089323853,
+                "updatedAt": 1753089323853,
                 "tags": ["tag1", "tag2"]
               }
             ],
@@ -72,29 +72,29 @@
             "newItems": [
               {
                 "title": "Quote",
-                "parent": "0",
+                "parentId": "0",
                 "type": "d",
                 "content": "__defined",
-                "created": 1753088323853,
-                "updated": 1753088323853,
+                "createdAt": 1753088323853,
+                "updatedAt": 1753088323853,
                 "tags": ["tag1", "tag2"]
               },
               {
                 "id": "#fIdSub",
                 "title": "Sub",
-                "parent": "0",
+                "parentId": "0",
                 "type": "f",
-                "created": 1753088317446,
-                "updated": 1753088377511,
+                "createdAt": 1753088317446,
+                "updatedAt": 1753088377511,
                 "tags": ["sub"]
               },
               {
                 "title": "Test",
-                "parent": "#fIdSub",
+                "parentId": "#fIdSub",
                 "type": "d",
                 "content": "__defined",
-                "created": 1753089323853,
-                "updated": 1753089323853,
+                "createdAt": 1753089323853,
+                "updatedAt": 1753089323853,
                 "tags": ["tag1", "tag2"]
               }
             ],
@@ -130,36 +130,36 @@
               {
                 "id": "#notebook",
                 "title": "Notebook",
-                "parent": "root",
+                "parentId": "root",
                 "type": "n",
-                "created": 1753088317511,
-                "updated": 1753088317511
+                "createdAt": 1753088317511,
+                "updatedAt": 1753088317511
               },
               {
                 "title": "Quote",
-                "parent": "#notebook",
+                "parentId": "#notebook",
                 "type": "d",
                 "content": "__defined",
-                "created": 1753088323853,
-                "updated": 1753088323853,
+                "createdAt": 1753088323853,
+                "updatedAt": 1753088323853,
                 "tags": ["tag1", "tag2"]
               },
               {
                 "id": "#fIdSub",
                 "title": "Sub",
-                "parent": "#notebook",
+                "parentId": "#notebook",
                 "type": "f",
-                "created": 1753088317446,
-                "updated": 1753088377511,
+                "createdAt": 1753088317446,
+                "updatedAt": 1753088377511,
                 "tags": ["sub"]
               },
               {
                 "title": "Test",
-                "parent": "#fIdSub",
+                "parentId": "#fIdSub",
                 "type": "d",
                 "content": "__defined",
-                "created": 1753089323853,
-                "updated": 1753089323853,
+                "createdAt": 1753089323853,
+                "updatedAt": 1753089323853,
                 "tags": ["tag1", "tag2"]
               }
             ],
@@ -192,36 +192,36 @@
               {
                 "id": "#notebook",
                 "title": "Default",
-                "parent": "root",
+                "parentId": "root",
                 "type": "n",
-                "created": 1753088317511,
-                "updated": 1753088317511
+                "createdAt": 1753088317511,
+                "updatedAt": 1753088317511
               },
               {
                 "title": "Quote",
-                "parent": "#notebook",
+                "parentId": "#notebook",
                 "type": "d",
                 "content": "__defined",
-                "created": 1753088323853,
-                "updated": 1753088323853,
+                "createdAt": 1753088323853,
+                "updatedAt": 1753088323853,
                 "tags": ["tag1", "tag2"]
               },
               {
                 "id": "#fIdSub",
                 "title": "Sub",
-                "parent": "#notebook",
+                "parentId": "#notebook",
                 "type": "f",
-                "created": 1753088317446,
-                "updated": 1753088377511,
+                "createdAt": 1753088317446,
+                "updatedAt": 1753088377511,
                 "tags": ["sub"]
               },
               {
                 "title": "Test",
-                "parent": "#fIdSub",
+                "parentId": "#fIdSub",
                 "type": "d",
                 "content": "__defined",
-                "created": 1753089323853,
-                "updated": 1753089323853,
+                "createdAt": 1753089323853,
+                "updatedAt": 1753089323853,
                 "tags": ["tag1", "tag2"]
               }
             ],
@@ -236,7 +236,7 @@
               {
                 "id": "0",
                 "title": "Default",
-                "parent": "root",
+                "parentId": "root",
                 "type": "n"
               }
             ]
@@ -264,37 +264,37 @@
               {
                 "id": "0",
                 "title": "Default",
-                "parent": "root",
+                "parentId": "root",
                 "type": "n",
-                "created": -1
+                "createdAt": -1
               }
             ],
             "newItems": [
               {
                 "title": "Quote",
-                "parent": "0",
+                "parentId": "0",
                 "type": "d",
                 "content": "__defined",
-                "created": 1753088323853,
-                "updated": 1753088323853,
+                "createdAt": 1753088323853,
+                "updatedAt": 1753088323853,
                 "tags": ["tag1", "tag2"]
               },
               {
                 "id": "#fIdSub",
                 "title": "Sub",
-                "parent": "0",
+                "parentId": "0",
                 "type": "f",
-                "created": 1753088317446,
-                "updated": 1753088377511,
+                "createdAt": 1753088317446,
+                "updatedAt": 1753088377511,
                 "tags": ["sub"]
               },
               {
                 "title": "Test",
-                "parent": "#fIdSub",
+                "parentId": "#fIdSub",
                 "type": "d",
                 "content": "__defined",
-                "created": 1753089323853,
-                "updated": 1753089323853,
+                "createdAt": 1753089323853,
+                "updatedAt": 1753089323853,
                 "tags": ["tag1", "tag2"]
               }
             ],
@@ -309,7 +309,7 @@
               {
                 "id": "0",
                 "title": "Default",
-                "parent": "root",
+                "parentId": "root",
                 "type": "n"
               }
             ]

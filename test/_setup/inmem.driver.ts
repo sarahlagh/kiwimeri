@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { CollectionItem } from '@/collection/collection';
 import {
   minimizeItemsForStorage,
   unminimizeItemsFromStorage
 } from '@/collection/compress-collection';
 import { fastHash } from '@/common/utils';
 import { AnyData } from '@/db/types/store-types';
+import { CollectionItem } from '@/domain/collection/model';
 import {
   minimizeAnnotForStorage,
   unminimizeAnnotFromStorage

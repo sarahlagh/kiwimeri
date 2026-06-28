@@ -19,12 +19,12 @@ export default function useFetchItemsQueryParamsState<
   const [params, setParams] = useGenericQueryParamsState(query);
   const setParent = (parent: string) => {
     setParams({
-      parent,
+      parentId: parent,
       onlyDocuments: false,
       recursive: false,
       onlyConflicts: false
     });
   };
 
-  return [params.parent, setParent];
+  return [params.parentId, setParent];
 }

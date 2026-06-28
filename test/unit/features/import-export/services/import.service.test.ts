@@ -1,9 +1,9 @@
-import { CollectionItem, CollectionItemType } from '@/collection/collection';
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { space } from '@/core/db/store';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
+import { CollectionItem, CollectionItemType } from '@/domain/collection/model';
 import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
@@ -31,7 +31,7 @@ type JsonTestDescriptor = {
     ignore?: boolean;
     initData: Pick<
       Partial<CollectionItem>,
-      'id' | 'title' | 'type' | 'parent'
+      'id' | 'title' | 'type' | 'parentId'
     >[];
     commitOptions?: any[];
     scenarios: {
@@ -212,7 +212,7 @@ describe('import service', () => {
       );
       expect(id2).toBe(id1);
       expect(collectionService.itemExists(id2!)).toBe(true);
-      expect(collectionService.getItemField(id2!, 'updated')).toBe(
+      expect(collectionService.getItemField(id2!, 'updatedAt')).toBe(
         before + 5000
       );
       expect(historyService.getVersions(id2!)).toHaveLength(2);
@@ -240,7 +240,7 @@ describe('import service', () => {
       );
       expect(id2).toBe(id1);
       expect(collectionService.itemExists(id2!)).toBe(true);
-      expect(collectionService.getItemField(id2!, 'updated')).toBe(
+      expect(collectionService.getItemField(id2!, 'updatedAt')).toBe(
         before + 5000
       );
       expect(historyService.getVersions(id2!)).toHaveLength(3);
@@ -271,19 +271,19 @@ describe('import service', () => {
               : expectedItem.id
           );
         }
-        if ('parent' in expectedItem && expectedItem.parent) {
-          expect((mergedItem as CollectionItem).parent).toBe(
-            expectedItem.parent.startsWith('#')
-              ? ids.get(expectedItem.parent)
-              : expectedItem.parent
+        if ('parentId' in expectedItem && expectedItem.parentId) {
+          expect((mergedItem as CollectionItem).parentId).toBe(
+            expectedItem.parentId.startsWith('#')
+              ? ids.get(expectedItem.parentId)
+              : expectedItem.parentId
           );
         }
         if ('content' in expectedItem && expectedItem.content !== undefined) {
           expect((mergedItem as CollectionItem).content).toBeDefined();
         }
-        if ('updated' in expectedItem) {
-          expect((mergedItem as CollectionItem).updated).toBe(
-            expectedItem.updated
+        if ('updatedAt' in expectedItem) {
+          expect((mergedItem as CollectionItem).updatedAt).toBe(
+            expectedItem.updatedAt
           );
         }
         if ('tags' in expectedItem) {
@@ -347,30 +347,34 @@ describe('import service', () => {
       const expectedItem = expected.newItems
         ? expected.newItems[idx]
         : undefined;
-      expect(item.created).toBe(
-        expectedItem?.created !== undefined
-          ? expectedItem.created >= -1
-            ? expectedItem.created
-            : collectionService.getItemField(DEFAULT_NOTEBOOK_ID, 'created')
+      expect(item.createdAt).toBe(
+        expectedItem?.createdAt !== undefined
+          ? expectedItem.createdAt >= -1
+            ? expectedItem.createdAt
+            : collectionService.getItemField(DEFAULT_NOTEBOOK_ID, 'createdAt')
           : updateTs
       );
-      expect(item.updated).toBe(
-        expectedItem?.updated !== undefined ? expectedItem.updated : updateTs
+      expect(item.updatedAt).toBe(
+        expectedItem?.updatedAt !== undefined
+          ? expectedItem.updatedAt
+          : updateTs
       );
     });
     zipMerge.updatedItems.forEach((item, idx) => {
       const expectedItem = expected.updatedItems
         ? expected.updatedItems[idx]
         : undefined;
-      expect(item.created).toBe(
-        expectedItem?.created !== undefined
-          ? expectedItem.created > -1
-            ? expectedItem.created
-            : collectionService.getItemField(DEFAULT_NOTEBOOK_ID, 'created')
+      expect(item.createdAt).toBe(
+        expectedItem?.createdAt !== undefined
+          ? expectedItem.createdAt > -1
+            ? expectedItem.createdAt
+            : collectionService.getItemField(DEFAULT_NOTEBOOK_ID, 'createdAt')
           : creationTs
       );
-      expect(item.updated).toBe(
-        expectedItem?.updated !== undefined ? expectedItem.updated : updateTs
+      expect(item.updatedAt).toBe(
+        expectedItem?.updatedAt !== undefined
+          ? expectedItem.updatedAt
+          : updateTs
       );
     });
   };
@@ -538,7 +542,7 @@ describe('import service', () => {
     it('should import settings on folders / notebook by merging instead of replacing', async () => {
       const fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
       collectionService.setItemSettings(fId, {
-        sort: { by: 'created', descending: false },
+        sort: { by: 'createdAt', descending: false },
         statsEnabled: true
       });
       const dId = collectionService.addDocument(fId);
@@ -571,7 +575,7 @@ describe('import service', () => {
       const fSettings = space.getCell('collection', fId, 'settings');
       const dSettings = space.getCell('collection', dId, 'settings');
       expect(fSettings).toEqual({
-        sort: { by: 'updated', descending: true },
+        sort: { by: 'updatedAt', descending: true },
         statsEnabled: true
       });
       expect(dSettings).toEqual({

@@ -3,6 +3,7 @@ import KiwimeriEditor from '@/common/wysiwyg/lexical/KiwimeriEditor';
 import { APPICONS } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
+import { CollectionItemSnapshotData } from '@/domain/collection/model';
 import {
   IonButton,
   IonContent,
@@ -17,7 +18,6 @@ import {
 } from '@ionic/react';
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
-import { CollectionItemSnapshotData } from '../collection';
 import SearchActionsToolbar from './SearchActionsToolbar';
 import ActionsFromDocumentVersionViewerToolbar from './actions/ActionsFromDocumentVersionViewerToolbar';
 

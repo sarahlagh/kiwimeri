@@ -1,8 +1,8 @@
+import collectionService from '@/db/collection.service';
 import {
   CollectionItemType,
   CollectionItemTypeValues
-} from '@/collection/collection';
-import collectionService from '@/db/collection.service';
+} from '@/domain/collection/model';
 
 export const INIT_ROUTE = '/';
 

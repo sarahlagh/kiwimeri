@@ -1,6 +1,6 @@
 // out of scope: "what happens after conflict" or longer push pull sequences -> to other files
 
-import { CollectionItemType } from '@/collection/collection';
+import { CollectionItemType } from '@/domain/collection/model';
 import { SyncDirection } from '@/domain/replication/sync.service';
 import { oneNotebook } from '@@/_setup/test.utils';
 import { afterEach, beforeEach, describe, it } from 'vitest';

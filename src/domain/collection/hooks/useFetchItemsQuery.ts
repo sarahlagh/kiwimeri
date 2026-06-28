@@ -7,7 +7,7 @@ export default function useFetchItemsQuery(
   onlyDocuments?: boolean
 ) {
   return useGenericQuery(fetchItemsQuery, {
-    parent,
+    parentId: parent,
     onlyDocuments: recursive || false,
     recursive: onlyDocuments || false,
     onlyConflicts: false

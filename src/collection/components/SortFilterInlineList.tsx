@@ -1,7 +1,3 @@
-import {
-  CollectionItemType,
-  CollectionItemTypeValues
-} from '@/collection/collection';
 import SortFilter from '@/collection/components/SortFilter';
 import collectionService from '@/db/collection.service';
 import { settingsService } from '@/domain/collection-settings/collection-settings.service';
@@ -10,6 +6,10 @@ import {
   CollectionItemSort,
   CollectionItemSortType
 } from '@/domain/collection-settings/model';
+import {
+  CollectionItemType,
+  CollectionItemTypeValues
+} from '@/domain/collection/model';
 import { ReactNode } from 'react';
 import { Id } from 'tinybase/with-schemas';
 
@@ -24,7 +24,7 @@ type SortFilterInlineListProps = {
 };
 
 const buildChoices = (type: CollectionItemTypeValues) => {
-  const choices = ['created', 'updated'];
+  const choices = ['createdAt', 'updatedAt'];
   if (type === CollectionItemType.document) {
     choices.push('preview');
   } else {

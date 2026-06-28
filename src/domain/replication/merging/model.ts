@@ -1,12 +1,12 @@
 import {
   CollectionItem,
   CollectionItemUpdatableFieldEnum
-} from '@/collection/collection';
+} from '@/domain/collection/model';
 import { LocalChangeOn, LocalChangeType } from '@/domain/local-changes/model';
 
 export type AfterSyncChange = Pick<
   Required<CollectionItem>,
-  'id' | 'type' | 'parent'
+  'id' | 'type' | 'parentId'
 > & {
   change: LocalChangeType;
   on: LocalChangeOn;

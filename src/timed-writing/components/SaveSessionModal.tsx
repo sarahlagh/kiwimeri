@@ -1,8 +1,3 @@
-import {
-  CollectionItem,
-  CollectionItemResult,
-  CollectionItemType
-} from '@/collection/collection';
 import CollectionItemBreadcrumb from '@/collection/components/CollectionItemBreadcrumb';
 import CollectionItemList from '@/collection/components/CollectionItemList';
 import { dateToStr } from '@/common/date-utils';
@@ -11,6 +6,11 @@ import { store } from '@/core/db/store';
 import collectionService from '@/db/collection.service';
 import useFetchItemsQuery from '@/domain/collection/hooks/useFetchItemsQuery';
 import useFetchItemsQueryParamsState from '@/domain/collection/hooks/useFetchItemsQueryParentState';
+import {
+  CollectionItem,
+  CollectionItemResult,
+  CollectionItemType
+} from '@/domain/collection/model';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
 import {
   IonButton,

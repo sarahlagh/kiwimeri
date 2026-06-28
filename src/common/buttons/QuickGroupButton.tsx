@@ -1,10 +1,10 @@
 import { useToastContext } from '@/app/context/ToastContext';
+import { APPICONS } from '@/constants';
+import collectionService from '@/db/collection.service';
 import {
   CollectionItemType,
   CollectionItemTypeValues
-} from '@/collection/collection';
-import { APPICONS } from '@/constants';
-import collectionService from '@/db/collection.service';
+} from '@/domain/collection/model';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { IonButton, IonIcon } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';

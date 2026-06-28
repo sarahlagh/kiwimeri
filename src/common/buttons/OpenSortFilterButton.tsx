@@ -1,13 +1,13 @@
-import {
-  CollectionItemType,
-  CollectionItemTypeValues
-} from '@/collection/collection';
 import SortFilter from '@/collection/components/SortFilter';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
 import { settingsService } from '@/domain/collection-settings/collection-settings.service';
 import useFolderEffectiveSort from '@/domain/collection-settings/hooks/useFolderEffectiveSort';
 import { CollectionItemSort } from '@/domain/collection-settings/model';
+import {
+  CollectionItemType,
+  CollectionItemTypeValues
+} from '@/domain/collection/model';
 import { IonButton, IonIcon, useIonPopover } from '@ionic/react';
 import { Id } from 'tinybase/with-schemas';
 
@@ -20,7 +20,7 @@ type OpenSortFilterButtonProps = {
 };
 
 const buildChoices = (type: CollectionItemTypeValues) => {
-  const choices = ['created', 'updated'];
+  const choices = ['createdAt', 'updatedAt'];
   if (type === CollectionItemType.document) {
     choices.push('preview');
   } else {

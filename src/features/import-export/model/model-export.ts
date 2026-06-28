@@ -1,4 +1,4 @@
-import { CollectionItem } from '@/collection/collection';
+import { CollectionItem } from '@/domain/collection/model';
 
 export type ZipFileTree = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -12,7 +12,7 @@ export type ZipExportOptions = {
 export type ZipMetadata = Partial<
   Pick<
     CollectionItem,
-    'type' | 'title' | 'created' | 'updated' | 'tags' | 'order' | 'settings'
+    'type' | 'title' | 'createdAt' | 'updatedAt' | 'tags' | 'order' | 'settings'
   >
 > & {
   format?: 'markdown';

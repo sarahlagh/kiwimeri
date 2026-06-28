@@ -220,7 +220,7 @@ describe('collection synchronizer', () => {
           JSON.parse(getNewContent('remote update'))
         );
         content[1].content_meta = setMetaField(Date.now());
-        content[1].updated = Date.now();
+        content[1].updatedAt = Date.now();
         driver.setCollectionContent(content, Date.now());
       }
 
@@ -276,7 +276,7 @@ describe('collection synchronizer', () => {
           JSON.parse(getNewContent('remote update'))
         );
         content[1].content_meta = setMetaField(Date.now());
-        content[1].updated = Date.now();
+        content[1].updatedAt = Date.now();
         driver.setCollectionContent(content, Date.now());
       }
 
@@ -337,7 +337,7 @@ describe('collection synchronizer', () => {
         const { content } = driver.getParsedCollectionContent();
         content[1].title = 'remote title';
         content[1].title_meta = setMetaField(Date.now());
-        content[1].updated = Date.now();
+        content[1].updatedAt = Date.now();
         driver.setCollectionContent(content, Date.now());
       }
 
@@ -623,7 +623,11 @@ describe('collection synchronizer', () => {
       const noteId = docAnnotationsService.addNote(docId);
 
       const items = [oneNotebook(), oneDocument()];
-      await driver.setCollectionContentWithAnnots(items, [], items[1].updated);
+      await driver.setCollectionContentWithAnnots(
+        items,
+        [],
+        items[1].updatedAt
+      );
 
       await synchronizer.sync();
 
@@ -637,7 +641,11 @@ describe('collection synchronizer', () => {
       const noteId = docAnnotationsService.addNote(docId);
 
       const items = [oneNotebook(), oneDocument()];
-      await driver.setCollectionContentWithAnnots(items, [], items[1].updated);
+      await driver.setCollectionContentWithAnnots(
+        items,
+        [],
+        items[1].updatedAt
+      );
 
       await synchronizer.pull(true);
 
@@ -843,7 +851,7 @@ describe('collection synchronizer', () => {
     it('should include documents with conflicts and their source in fetchItemsQuery with onlyConflicts=true', async () => {
       const items = [oneNotebook(), oneDocument()];
       const docId = items[1].id!;
-      await driver.setCollectionContent(items, items[1].updated);
+      await driver.setCollectionContent(items, items[1].updatedAt);
       await synchronizer.sync();
       vi.advanceTimersByTime(100);
       // note pulled
@@ -861,8 +869,8 @@ describe('collection synchronizer', () => {
         JSON.parse(getNewContent('remote'))
       );
       items[1].content_meta = setMetaField(Date.now());
-      items[1].updated = Date.now();
-      await driver.setCollectionContent(items, items[1].updated);
+      items[1].updatedAt = Date.now();
+      await driver.setCollectionContent(items, items[1].updatedAt);
 
       // sync
       const resp = await synchronizer.sync();
@@ -888,9 +896,9 @@ describe('collection synchronizer', () => {
             onlyConflicts: true,
             onlyDocuments: true,
             recursive: true,
-            parent: DEFAULT_NOTEBOOK_ID
+            parentId: DEFAULT_NOTEBOOK_ID
           },
-          'created',
+          'createdAt',
           true
         );
         expect(items).toHaveLength(2);
@@ -899,10 +907,10 @@ describe('collection synchronizer', () => {
         );
         expect(result.current).toHaveLength(2);
         expect(result.current[0].hasAnnotsConflicts).toBe(false);
-        expect(result.current[0].conflict).toBe(result.current[1].id);
+        expect(result.current[0].conflictId).toBe(result.current[1].id);
         expect(result.current[0].isConflict).toBe(true);
         expect(result.current[1].hasAnnotsConflicts).toBe(false);
-        expect(result.current[1].conflict).toBeUndefined();
+        expect(result.current[1].conflictId).toBeUndefined();
         expect(result.current[1].isConflict).toBe(false);
         unmount();
       }
@@ -969,7 +977,7 @@ describe('collection synchronizer', () => {
           onlyConflicts: true,
           onlyDocuments: true,
           recursive: true,
-          parent: DEFAULT_NOTEBOOK_ID
+          parentId: DEFAULT_NOTEBOOK_ID
         });
         expect(items).toHaveLength(1);
         const { result, unmount } = wrappedRenderHook(() =>
@@ -1026,12 +1034,12 @@ describe('collection synchronizer', () => {
         JSON.parse(getNewContent('remote'))
       );
       items[2].content_meta = setMetaField(Date.now());
-      items[2].updated = Date.now();
+      items[2].updatedAt = Date.now();
 
       await driver.setCollectionContentWithAnnots(
         items,
         notes,
-        items[2].updated
+        items[2].updatedAt
       );
 
       // sync
@@ -1066,9 +1074,9 @@ describe('collection synchronizer', () => {
             onlyConflicts: true,
             onlyDocuments: true,
             recursive: true,
-            parent: DEFAULT_NOTEBOOK_ID
+            parentId: DEFAULT_NOTEBOOK_ID
           },
-          'created',
+          'createdAt',
           true
         );
         expect(items).toHaveLength(3);
@@ -1077,12 +1085,12 @@ describe('collection synchronizer', () => {
           useItemsConflictMixIn(items)
         );
         expect(result.current).toHaveLength(3);
-        expect(result.current[0].conflict).toBe(docInConflict);
+        expect(result.current[0].conflictId).toBe(docInConflict);
         expect(result.current[0].isConflict).toBe(true);
         expect(result.current[0].hasAnnotsConflicts).toBe(false);
 
         expect(result.current[1].id).toBe(docInConflict);
-        expect(result.current[1].conflict).toBeUndefined();
+        expect(result.current[1].conflictId).toBeUndefined();
         expect(result.current[1].isConflict).toBe(false);
         expect(result.current[1].hasAnnotsConflicts).toBe(false);
 
@@ -1258,7 +1266,7 @@ describe('collection synchronizer', () => {
   describe('should handle derived state after sync', () => {
     test('after pull derived state should be updated', async () => {
       const items = [oneNotebook(), oneDocument()];
-      await driver.setCollectionContent(items, items[1].updated);
+      await driver.setCollectionContent(items, items[1].updatedAt);
       await synchronizer.sync();
 
       expect(
@@ -1272,7 +1280,7 @@ describe('collection synchronizer', () => {
     test('after pull derived state of deleted rows should be updated', async () => {
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       const items = [oneNotebook(), oneDocument()];
-      await driver.setCollectionContent(items, items[1].updated);
+      await driver.setCollectionContent(items, items[1].updatedAt);
       await synchronizer.pull(true);
 
       expect(collectionService.itemExists(docId)).toBe(false);
@@ -1294,9 +1302,9 @@ describe('collection synchronizer', () => {
       const fol2 = oneFolder();
       items.push(fol2);
       const fol1 = items.find(i => i.id === folId)!;
-      fol1.parent = fol2.id;
+      fol1.parentId = fol2.id;
 
-      await driver.setCollectionContent(items, fol2.updated);
+      await driver.setCollectionContent(items, fol2.updatedAt);
 
       await synchronizer.sync();
 

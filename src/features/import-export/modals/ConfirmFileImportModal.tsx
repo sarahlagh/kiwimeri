@@ -1,6 +1,6 @@
-import { CollectionItemResult } from '@/collection/collection';
 import { APPICONS, getGlobalTrans } from '@/constants';
 import collectionService from '@/db/collection.service';
+import { CollectionItemResult } from '@/domain/collection/model';
 import {
   IonButton,
   IonButtons,

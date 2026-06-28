@@ -1,3 +1,4 @@
+import { space, spaceQueries } from '@/core/db/store';
 import {
   CollectionItem,
   CollectionItemSnapshotData,
@@ -6,8 +7,7 @@ import {
   CollectionItemVersionContentRow,
   CollectionItemVersionOp,
   CollectionItemVersionRow
-} from '@/collection/collection';
-import { space, spaceQueries } from '@/core/db/store';
+} from '@/domain/collection/model';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import { AfterSyncChange } from '@/domain/replication/merging/model';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
@@ -277,7 +277,7 @@ class CollectionHistoryService {
     }
 
     const timeout = setTimeout(() => {
-      const lastChange = collectionService.getItem(id)?.updated || 0;
+      const lastChange = collectionService.getItem(id)?.updatedAt || 0;
       if (lastChange == null) {
         this.timeouts.delete(id);
         return;
@@ -320,7 +320,7 @@ class CollectionHistoryService {
         type: CollectionItemType.document,
         ...version.snapshotJson,
         content: version.content,
-        updated: Date.now()
+        updatedAt: Date.now()
       },
       docId
     );
@@ -328,8 +328,8 @@ class CollectionHistoryService {
 
   private buildVersionData(item: CollectionItem) {
     const data: CollectionItemSnapshotData = {
-      parent: item.parent,
-      parent_meta: item.parent_meta,
+      parentId: item.parentId,
+      parentId_meta: item.parentId_meta,
       title: item.title,
       title_meta: item.title_meta,
       content_meta: item.content_meta,
@@ -339,8 +339,8 @@ class CollectionHistoryService {
       settings_meta: item.settings_meta,
       order: item.order,
       order_meta: item.order_meta,
-      created: item.created,
-      updated: item.updated
+      createdAt: item.createdAt,
+      updatedAt: item.updatedAt
     };
     return data;
   }

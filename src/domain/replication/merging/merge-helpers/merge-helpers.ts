@@ -68,7 +68,7 @@ function getRemoteUpdatedTS(
   remoteCollection: Table,
   remoteContentUpdated?: number
 ) {
-  // remoteUpdated is the 'updated' ts on the remote item, OR the collection updated ts if the item is deleted
+  // remoteUpdated is the 'updatedAt' ts on the remote item, OR the collection updated ts if the item is deleted
   let remoteUpdated = remoteCollection[localChange.itemId]
     ? (remoteCollection[localChange.itemId].updated as number)
     : remoteContentUpdated || 0;

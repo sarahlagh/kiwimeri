@@ -1,7 +1,7 @@
-import { CollectionItemUpdatableFields } from '@/collection/collection';
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { SpaceCellId, SpaceTableId } from '@/core/db/store-schema';
+import { CollectionItemUpdatableFields } from '@/domain/collection/model';
 import { Id } from 'tinybase/with-schemas';
 import { DocAnnotationUpdatableFields } from '../document-annotations/model';
 import { UserPrefUpdatableFields } from '../user-preferences/model';
@@ -57,7 +57,7 @@ function watchTable<T extends SpaceTableId>(
           const [conflictCellChanged, oldCell, newCell] = getCellChange(
             tableId,
             rowId,
-            'conflict' as never
+            'conflictId' as never
           );
           if (
             conflictCellChanged &&

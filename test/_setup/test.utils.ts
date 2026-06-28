@@ -1,4 +1,9 @@
 import TinybaseProvider from '@/app/providers/TinybaseProvider';
+import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
+import { space, store } from '@/core/db/store';
+import { DbSerializableData, setMetaField, WithId } from '@/core/db/types';
+import collectionService from '@/db/collection.service';
+import notebooksService from '@/db/notebooks.service';
 import {
   CollectionItem,
   CollectionItemFieldEnum,
@@ -9,12 +14,7 @@ import {
   CollectionItemUpdatableFieldEnum,
   CollectionItemUpdatableNonConflictFields,
   CollectionItemUpdateChangeFields
-} from '@/collection/collection';
-import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
-import { space, store } from '@/core/db/store';
-import { DbSerializableData, setMetaField, WithId } from '@/core/db/types';
-import collectionService from '@/db/collection.service';
-import notebooksService from '@/db/notebooks.service';
+} from '@/domain/collection/model';
 import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
 import { DocAnnotationRow } from '@/domain/document-annotations/model';
 import { Notebook } from '@/notebooks/notebooks';
@@ -144,7 +144,7 @@ export type TestField = {
   valueType: ValueType;
 };
 
-export const parentField: TestField = { field: 'parent', valueType: 'id' };
+export const parentField: TestField = { field: 'parentId', valueType: 'id' };
 export const titleField: TestField = { field: 'title', valueType: 'string' };
 export const contentField: TestField = { field: 'content', valueType: 'lex' };
 export const tagsField: TestField = {
@@ -212,7 +212,7 @@ export const getNewValue = (
 export const UPDATABLE_FIELDS: {
   field: CollectionItemUpdatableFieldEnum;
   valueType: ValueType;
-}[] = [...allNonParentUpdatableFields, { field: 'parent', valueType: 'id' }];
+}[] = [...allNonParentUpdatableFields, { field: 'parentId', valueType: 'id' }];
 
 const NON_CONFLICT_CHANGES: {
   local: CollectionItemUpdatableFieldEnum;
@@ -370,8 +370,8 @@ export const updateOnRemote = (
     Date.now(),
     `${newValue}`
   );
-  if (remoteKey !== 'parent') {
-    remoteData[idx].updated = Date.now();
+  if (remoteKey !== 'parentId') {
+    remoteData[idx].updatedAt = Date.now();
   }
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   console.debug('after updateOnRemote', idx, id, field, remoteData);
@@ -409,7 +409,7 @@ export const getLocalItemConflicts = () => {
 };
 
 export const markAsConflict = (rowId: string, conflict: string) => {
-  space.setCell('collection', rowId, 'conflict', conflict);
+  space.setCell('collection', rowId, 'conflictId', conflict);
 };
 
 export const expectHasLocalItemConflict = (
@@ -436,22 +436,22 @@ export const createLocalItem = (
     if (data.id) {
       ids.set(data.id, item.id!);
     }
-    if (data.parent) {
-      item.parent = data.parent.startsWith('#')
-        ? ids.get(data.parent)!
-        : data.parent;
+    if (data.parentId) {
+      item.parentId = data.parentId.startsWith('#')
+        ? ids.get(data.parentId)!
+        : data.parentId;
     }
     return item;
   };
   if (data.type === CollectionItemType.document) {
-    const { item, id } = collectionService.getNewDocumentObj(data.parent!);
+    const { item, id } = collectionService.getNewDocumentObj(data.parentId!);
     return createItem({ ...item, id }, data);
   } else if (data.type === CollectionItemType.folder) {
-    const { item, id } = collectionService.getNewFolderObj(data.parent!);
+    const { item, id } = collectionService.getNewFolderObj(data.parentId!);
     return createItem({ ...item, id }, data);
   } else if (data.type === CollectionItemType.notebook) {
     const { item, id } = notebooksService.getNewNotebookObj(
-      data.parent!,
+      data.parentId!,
       data.title
     );
     return createItem({ ...item, id }, data);

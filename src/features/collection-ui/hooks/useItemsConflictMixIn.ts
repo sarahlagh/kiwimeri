@@ -1,5 +1,5 @@
-import { CollectionItemResult } from '@/collection/collection';
 import { useQueryResults } from '@/core/db/queries-helper';
+import { CollectionItemResult } from '@/domain/collection/model';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import fetchAnnotsConflictsQuery from '@/domain/conflicts/queries/fetchAnnotsConflictsQuery';
 
@@ -8,7 +8,7 @@ export default function useItemsConflictMixIn(items: CollectionItemResult[]) {
 
   return items.map(item => ({
     ...item,
-    isConflict: item.conflict !== undefined,
+    isConflict: item.conflictId !== undefined,
     hasAnnotsConflicts: conflictsService.itemHasConflicts(
       item.id,
       [],

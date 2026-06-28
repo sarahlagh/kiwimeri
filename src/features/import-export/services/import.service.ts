@@ -1,3 +1,10 @@
+import { META_JSON, ROOT_COLLECTION } from '@/constants';
+import { space } from '@/core/db/store';
+import { setMetaField } from '@/core/db/types';
+import { historyService } from '@/db/collection-history.service';
+import collectionService from '@/db/collection.service';
+import notebooksService from '@/db/notebooks.service';
+import storageService from '@/db/storage.service';
 import {
   CollectionItem,
   CollectionItemResult,
@@ -9,14 +16,7 @@ import {
   isFolder,
   isNotebook,
   isParent
-} from '@/collection/collection';
-import { META_JSON, ROOT_COLLECTION } from '@/constants';
-import { space } from '@/core/db/store';
-import { setMetaField } from '@/core/db/types';
-import { historyService } from '@/db/collection-history.service';
-import collectionService from '@/db/collection.service';
-import notebooksService from '@/db/notebooks.service';
-import storageService from '@/db/storage.service';
+} from '@/domain/collection/model';
 import formatConverter from '@/format-conversion/format-converter.service';
 import { Unzipped, strFromU8, unzip } from 'fflate';
 import { SerializedEditorState, SerializedLexicalNode } from 'lexical';
@@ -72,20 +72,23 @@ class ImportService {
       item.type = meta.type;
     }
     if (parentItem) {
-      item.parent = parentItem.id!;
+      item.parentId = parentItem.id!;
     }
     if (meta.title) {
       item.title = meta.title;
     }
-    if (meta.created) {
-      item.created = meta.created;
+    if (meta.createdAt) {
+      item.createdAt = meta.createdAt;
     }
-    if (meta.updated) {
-      item.updated = meta.updated;
+    if (meta.updatedAt) {
+      item.updatedAt = meta.updatedAt;
       // all the _meta too,
       CollectionItemUpdatableFields.forEach(field => {
         if (item[field]) {
-          item[`${field}_meta`] = setMetaField(item.updated, `${item[field]}`);
+          item[`${field}_meta`] = setMetaField(
+            item.updatedAt,
+            `${item[field]}`
+          );
         }
       });
     }
@@ -198,7 +201,7 @@ class ImportService {
           if (metaFile.type === CollectionItemType.document) {
             parentKey = parentPath;
             if (items.has(metaFilePath) && items.get(parentKey)?.id) {
-              items.get(metaFilePath)!.parent = items.get(parentKey)!.id!;
+              items.get(metaFilePath)!.parentId = items.get(parentKey)!.id!;
             }
             if (metaFile.tags) {
               metaFile.tags.forEach(tag => {
@@ -466,7 +469,7 @@ class ImportService {
     newItem?: CollectionItem
   ): CollectionItemUpdate {
     const update = dupl as CollectionItemUpdate;
-    update.updated = Date.now();
+    update.updatedAt = Date.now();
     if (newItem) {
       if (newItem.tags) {
         update.tags = newItem.tags;
@@ -500,12 +503,14 @@ class ImportService {
 
     for (let i = 0; i < newItems.length; i++) {
       const item = newItems[i];
-      if (!duplicatesMap.has(item.parent)) {
-        const siblings = newItems.filter(item => item.parent === item.parent);
-        const duplicates = this.findDuplicates(item.parent, siblings);
-        duplicatesMap.set(item.parent, duplicates);
+      if (!duplicatesMap.has(item.parentId)) {
+        const siblings = newItems.filter(
+          item => item.parentId === item.parentId
+        );
+        const duplicates = this.findDuplicates(item.parentId, siblings);
+        duplicatesMap.set(item.parentId, duplicates);
       }
-      const newDuplicates = duplicatesMap.get(item.parent)!;
+      const newDuplicates = duplicatesMap.get(item.parentId)!;
 
       const dupl = this.isDuplicate(newDuplicates, item);
       if (dupl) {
@@ -519,8 +524,8 @@ class ImportService {
         i--;
         // update dupl children
         newItems
-          .filter(newItem => newItem.parent === item.id)
-          .forEach(newItem => (newItem.parent = dupl.id));
+          .filter(newItem => newItem.parentId === item.id)
+          .forEach(newItem => (newItem.parentId = dupl.id));
       }
     }
   }
@@ -530,7 +535,7 @@ class ImportService {
     parent: string,
     options: ZipMergeOptions
   ) {
-    const firstLevelItems = items.filter(item => item.parent === parent);
+    const firstLevelItems = items.filter(item => item.parentId === parent);
     // check duplicates for each item
     const duplicates = this.findDuplicates(parent, firstLevelItems);
     const newItems = [...items];
@@ -549,10 +554,10 @@ class ImportService {
       this.overwriteDuplicates(newItems, updatedItems);
       firstLevel = [
         ...updatedItems
-          .filter(item => item.parent === parent)
+          .filter(item => item.parentId === parent)
           .map(item => ({ ...item, status: 'merged' }) as ZipMergeFistLevel),
         ...newItems
-          .filter(item => item.parent === parent)
+          .filter(item => item.parentId === parent)
           .map(item => ({ ...item, status: 'new' }) as ZipMergeFistLevel)
       ];
     }
@@ -565,7 +570,7 @@ class ImportService {
   }
 
   private removeFirstFolder(items: CollectionItem[], parent: string) {
-    const firstLayer = items.filter(item => item.parent === parent);
+    const firstLayer = items.filter(item => item.parentId === parent);
     if (
       firstLayer.length !== 1 ||
       firstLayer[0].type !== CollectionItemType.folder
@@ -579,8 +584,8 @@ class ImportService {
     items.splice(items.indexOf(firstLayer[0]), 1);
     // update its children
     items
-      .filter(item => item.parent === firstLayer[0].id)
-      .forEach(item => (item.parent = parent));
+      .filter(item => item.parentId === firstLayer[0].id)
+      .forEach(item => (item.parentId = parent));
   }
 
   private createNewParent(
@@ -591,7 +596,7 @@ class ImportService {
     options: ZipMergeOptions,
     rootMeta?: ZipParsedMetadata
   ) {
-    const firstLayer = items.filter(item => item.parent === parent);
+    const firstLayer = items.filter(item => item.parentId === parent);
     const { item, id } =
       type === CollectionItemType.folder
         ? collectionService.getNewFolderObj(parent)
@@ -604,7 +609,7 @@ class ImportService {
       item.title = options.newFolderName || zipName;
     }
     items.unshift({ ...item, id });
-    firstLayer.forEach(item => (item.parent = id));
+    firstLayer.forEach(item => (item.parentId = id));
     return id;
   }
 
@@ -622,8 +627,8 @@ class ImportService {
 
     // zipRoot is a fake temporary parent, replace
     items
-      .filter(i => i.parent === this.zipRoot)
-      .forEach(i => (i.parent = parent));
+      .filter(i => i.parentId === this.zipRoot)
+      .forEach(i => (i.parentId = parent));
 
     if (opts.removeNotebooks) {
       items
@@ -702,7 +707,7 @@ class ImportService {
     if (zipData.errors.length > 0) {
       return false;
     }
-    const firstLevel = zipData.items.filter(i => i.parent === this.zipRoot);
+    const firstLevel = zipData.items.filter(i => i.parentId === this.zipRoot);
     return !firstLevel.find(
       i =>
         i.type !== CollectionItemType.folder &&
@@ -714,7 +719,7 @@ class ImportService {
     if (zipData.errors.length > 0) {
       return false;
     }
-    const firstLevel = zipData.items.filter(i => i.parent === this.zipRoot);
+    const firstLevel = zipData.items.filter(i => i.parentId === this.zipRoot);
     // if docs at root, stop / error
     const canRestoreSpace = !firstLevel.find(
       i =>
@@ -728,11 +733,11 @@ class ImportService {
     firstLevel.forEach(i => (i.type = CollectionItemType.notebook));
 
     // sort by created date if metadata present
-    firstLevel.sort((i1, i2) => i1.created - i2.created); // TODO adjust according to setting
+    firstLevel.sort((i1, i2) => i1.createdAt - i2.createdAt); // TODO adjust according to setting
 
     // save first notebook title to force merge with default notebook
     const firstNotebookTitle = firstLevel[0].title;
-    const firstNotebookCreated = firstLevel[0].created;
+    const firstNotebookCreated = firstLevel[0].createdAt;
 
     storageService.nukeSpace();
     const notebook = notebooksService.getCurrentNotebook();
@@ -749,7 +754,7 @@ class ImportService {
     }
     // restore first notebook title & creation date
     zipMerge.updatedItems[0].title = firstNotebookTitle;
-    zipMerge.updatedItems[0].created = firstNotebookCreated;
+    zipMerge.updatedItems[0].createdAt = firstNotebookCreated;
 
     this.commitMergeResult(zipMerge);
     return true;

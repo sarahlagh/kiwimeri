@@ -1,8 +1,3 @@
-import {
-  APPICONS_PER_TYPE,
-  CollectionItemType,
-  CollectionItemTypeValues
-} from '@/collection/collection';
 import DeleteButton from '@/common/buttons/DeleteButton';
 import { dateToStr } from '@/common/date-utils';
 import { GET_UNKNOWN_ITEM_ROUTE, SETTINGS_ROUTE } from '@/common/routes';
@@ -12,6 +7,11 @@ import { useQueryResults } from '@/core/db/queries-helper';
 import { SpaceTables } from '@/core/db/store-constants';
 import { plt } from '@/core/infra/platform';
 import collectionService from '@/db/collection.service';
+import {
+  APPICONS_PER_TYPE,
+  CollectionItemType,
+  CollectionItemTypeValues
+} from '@/domain/collection/model';
 import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import {

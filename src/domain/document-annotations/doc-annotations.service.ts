@@ -37,7 +37,7 @@ class DocumentAnnotationsService {
     const { item, id } = this.newNoteObj(docId);
     space.transaction(() => {
       space.setRow(A, id, { ...item, order });
-      space.setCell(C, docId, 'updated', Date.now());
+      space.setCell(C, docId, 'updatedAt', Date.now());
     });
     return id;
   }
@@ -47,7 +47,7 @@ class DocumentAnnotationsService {
       notes.forEach(note => {
         space.setRow(A, getUniqueId(), { ...note, itemId: docId });
       });
-      space.setCell('collection', docId, 'updated', Date.now());
+      space.setCell('collection', docId, 'updatedAt', Date.now());
     });
   }
 
@@ -60,16 +60,16 @@ class DocumentAnnotationsService {
         content_meta: setMetaField(now, contentStr),
         updatedAt: now
       });
-      space.delCell(A, id, 'conflict');
+      space.delCell(A, id, 'conflictId');
       const itemId = space.getCell(A, id, 'itemId');
-      space.setCell(C, itemId!, 'updated', now);
+      space.setCell(C, itemId!, 'updatedAt', now);
     });
   }
 
   public delete(id: Id) {
     space.transaction(() => {
       const itemId = space.getCell(A, id, 'itemId');
-      space.setCell(C, itemId!, 'updated', Date.now());
+      space.setCell(C, itemId!, 'updatedAt', Date.now());
       space.delRow(A, id);
       space.delRow(D, getDerivedId('a', id));
     });
@@ -95,7 +95,7 @@ class DocumentAnnotationsService {
         });
       });
       const itemId = space.getCell(A, notes[0].id, 'itemId');
-      space.setCell(C, itemId!, 'updated', Date.now());
+      space.setCell(C, itemId!, 'updatedAt', Date.now());
     });
   }
 
@@ -127,7 +127,7 @@ class DocumentAnnotationsService {
   }
 
   public isConflict(id: Id) {
-    return space.getCell(A, id, 'conflict') !== undefined;
+    return space.getCell(A, id, 'conflictId') !== undefined;
   }
 }
 

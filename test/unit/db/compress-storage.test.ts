@@ -126,7 +126,7 @@ describe('collection item compression', () => {
       const minimized = minimizeItemsForStorage(data);
       console.log('minimized json', minimized);
       if (data.length > 0) {
-        expect(minimized[0].p).toBe(data[0].parent);
+        expect(minimized[0].p).toBe(data[0].parentId);
       }
 
       const restored = unminimizeItemsFromStorage(minimized);

@@ -11,14 +11,14 @@ import {
   useIonPopover
 } from '@ionic/react';
 
-import {
-  CollectionItemResult,
-  CollectionItemType
-} from '@/collection/collection';
 import { GET_ITEM_ROUTE } from '@/common/routes';
 import { getSearchParams } from '@/common/utils';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db/collection.service';
+import {
+  CollectionItemResult,
+  CollectionItemType
+} from '@/domain/collection/model';
 import { ExportItemsButton, ImportItemsButton } from '@/features/import-export';
 
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
@@ -153,7 +153,7 @@ export const CollectionItemBrowserList = ({
   const modeIdx = useNotebookLastBrowserModeState();
 
   const modeTrans = new Map<BrowserQueryMode, string>();
-  modeTrans.set('updated', t`Last updated documents`);
+  modeTrans.set('updatedAt', t`Last updated documents`);
   modeTrans.set('lastOpenedAt', t`Last consulted documents`);
   modeTrans.set('conflicts', t`Conflicts`);
 
@@ -225,7 +225,7 @@ export const CollectionItemBrowserList = ({
       selected={openedDocument}
       getUrl={item =>
         item.type === CollectionItemType.document
-          ? GET_ITEM_ROUTE(item.parent, item.id, query)
+          ? GET_ITEM_ROUTE(item.parentId, item.id, query)
           : GET_ITEM_ROUTE(item.id, openedDocument, query)
       }
       actionsIcon={APPICONS.itemActions}

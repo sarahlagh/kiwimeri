@@ -1,4 +1,4 @@
-import { MetaField, metaSchemaDefault } from '@/core/db/types';
+import { MetaField, metaSchemaDefault, WithId } from '@/core/db/types';
 import { LocalChangeRow } from '../local-changes/model';
 
 export type DocAnnotationType = 'note'; // only one for now, to expand
@@ -12,7 +12,7 @@ export type DocAnnotationRow = {
   content_meta: MetaField;
   order?: number;
   order_meta?: MetaField;
-  conflict?: string;
+  conflictId?: string;
 };
 
 export const docAnnotationSchema = {
@@ -24,12 +24,10 @@ export const docAnnotationSchema = {
   content_meta: { type: 'object', default: metaSchemaDefault },
   order: { type: 'number', default: -1 },
   order_meta: { type: 'object', default: metaSchemaDefault },
-  conflict: { type: 'string' }
+  conflictId: { type: 'string' }
 } as const satisfies Record<keyof DocAnnotationRow, unknown>;
 
-export type SyncableAnnotation = {
-  id: string;
-} & DocAnnotationRow;
+export type SyncableAnnotation = WithId<DocAnnotationRow>;
 
 type DocAnnotationUpdate = Pick<DocAnnotationRow, 'content' | 'order'>;
 export type DocAnnotationLocalChange = LocalChangeRow<DocAnnotationUpdate>;

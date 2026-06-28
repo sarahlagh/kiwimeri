@@ -1,9 +1,9 @@
-import { APPICONS_PER_TYPE } from '@/collection/collection';
 import { GET_UNKNOWN_ITEM_ROUTE } from '@/common/routes';
 import { getSearchParams } from '@/common/utils';
 import { APPICONS } from '@/constants';
 import { plt } from '@/core/infra/platform';
 import collectionService from '@/db/collection.service';
+import { APPICONS_PER_TYPE } from '@/domain/collection/model';
 import {
   DeepSearchOptions,
   DeepSearchResult,

@@ -1,5 +1,5 @@
-import { CollectionItemType, itemTypes } from '@/collection/collection';
 import { docSortBy } from '@/domain/collection-settings/model';
+import { CollectionItemType, itemTypes } from '@/domain/collection/model';
 import { ZipMetadata } from '../model/model-export';
 
 function isObject(value: unknown): value is Record<string, unknown> {
@@ -62,11 +62,11 @@ export function validateMetadataFile(
   if ('title' in value && typeof value.title !== 'string') {
     throw new Error('parsing error: title is not a string');
   }
-  if ('created' in value && typeof value.created !== 'number') {
-    throw new Error('parsing error: created is not a number');
+  if ('createdAt' in value && typeof value.createdAt !== 'number') {
+    throw new Error('parsing error: createdAt is not a number');
   }
-  if ('updated' in value && typeof value.updated !== 'number') {
-    throw new Error('parsing error: updated is not a number');
+  if ('updatedAt' in value && typeof value.updatedAt !== 'number') {
+    throw new Error('parsing error: updatedAt is not a number');
   }
   if ('tags' in value && !isStringArray(value.tags)) {
     throw new Error('parsing error: tags must be an array of strings');

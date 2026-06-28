@@ -1,14 +1,14 @@
-import {
-  CollectionItemResult,
-  CollectionItemType,
-  CollectionItemTypeValues
-} from '@/collection/collection';
 import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
 import { META_JSON } from '@/constants';
 import collectionService, {
   INITIAL_CONTENT_START
 } from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
+import {
+  CollectionItemResult,
+  CollectionItemType,
+  CollectionItemTypeValues
+} from '@/domain/collection/model';
 import formatConverter from '@/format-conversion/format-converter.service';
 import { strToU8, zip } from 'fflate';
 import {
@@ -43,8 +43,8 @@ class ExportService {
       tags: item.tags,
       order: item.order,
       settings: item.settings?.sort ? { sort: item.settings.sort } : undefined,
-      created: item.created,
-      updated: item.updated,
+      createdAt: item.createdAt,
+      updatedAt: item.updatedAt,
       files: withFiles ? {} : undefined
     };
   }
@@ -52,8 +52,8 @@ class ExportService {
   private getFileMeta(item: CollectionItemResult): ZipMetadata {
     return {
       type: item.type,
-      created: item.created,
-      updated: item.updated,
+      createdAt: item.createdAt,
+      updatedAt: item.updatedAt,
       tags: item.tags,
       title: item.title,
       order: item.order
@@ -81,7 +81,7 @@ class ExportService {
         const docResp = this.getSingleDocumentContent(item.id, opts);
         fileTree[itemKey] = [strToU8(docResp)];
         if (opts.includeMetadata) {
-          const metaId = item.parent;
+          const metaId = item.parentId;
           if (!meta.has(metaId)) {
             meta.set(metaId, this.getParentMeta(folderId, folderType, true));
           }
@@ -126,6 +126,7 @@ class ExportService {
   }
 
   // TODO use fflate to stream zip
+  // TODO or just use zipSync
   public async toZip(
     fileTree: ZipFileTree
   ): Promise<Uint8Array<ArrayBufferLike>> {

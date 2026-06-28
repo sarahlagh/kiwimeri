@@ -1,4 +1,3 @@
-import { CollectionItem, CollectionItemWithId } from '@/collection/collection';
 import {
   minimizeItemsForStorage,
   unminimizeItemsFromStorage
@@ -11,6 +10,10 @@ import { SpaceValuesType } from '@/core/db/store-schema';
 import { setMetaField } from '@/core/db/types';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
+import {
+  CollectionItem,
+  CollectionItemWithId
+} from '@/domain/collection/model';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import {
   minimizeAnnotForStorage,
@@ -66,7 +69,9 @@ const reInitRemoteDataWithAnnots = async (
   updateTs?: number
 ) => {
   const lastRemoteChange =
-    updateTs !== undefined ? updateTs : Math.max(...items.map(i => i.updated));
+    updateTs !== undefined
+      ? updateTs
+      : Math.max(...items.map(i => i.updatedAt));
 
   console.debug('[reInitRemoteData]', items, annots, lastRemoteChange);
   const remoteContent: RemoteCollectionFileContent = {
@@ -351,7 +356,7 @@ describe.sequential(
       // update parent locally
       const idUpdateParentLocal = idDocuments[0];
       vi.setSystemTime(now + 5000);
-      setLocalItemField(idUpdateParentLocal, 'parent', lastParent);
+      setLocalItemField(idUpdateParentLocal, 'parentId', lastParent);
 
       // update content locally
       const idUpdateContentLocal = idDocuments[1];
@@ -452,7 +457,7 @@ describe.sequential(
       updateOnRemote(
         content!,
         idUpdateParentLocal,
-        'parent',
+        'parentId',
         newRemoteItem.id!
       );
       lastRemoteChange = Date.now();
@@ -500,7 +505,7 @@ describe.sequential(
       expect(getLocalItemField(idUpdateContentLocal, 'content')).toBe(
         getNewContent('newRemoteContent')
       );
-      expect(getLocalItemField(idUpdateParentLocal, 'parent')).toBe(
+      expect(getLocalItemField(idUpdateParentLocal, 'parentId')).toBe(
         newRemoteItem.id
       );
 
@@ -514,10 +519,10 @@ describe.sequential(
       // check conflicts
       const conflictIds = getLocalItemConflicts();
       expect(conflictIds).toHaveLength(2);
-      expect(getLocalItemField(conflictIds[0], 'conflict')).toBe(
+      expect(getLocalItemField(conflictIds[0], 'conflictId')).toBe(
         idUpdateContentLocal
       );
-      expect(getLocalItemField(conflictIds[1], 'conflict')).toBe(
+      expect(getLocalItemField(conflictIds[1], 'conflictId')).toBe(
         idUpdateParentLocal
       );
     });

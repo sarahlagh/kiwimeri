@@ -1,14 +1,14 @@
+import { ROOT_COLLECTION } from '@/constants';
+import { SpaceQueryDefinition } from '@/core/db/queries-helper';
 import {
   CollectionItemResult,
   CollectionItemType
-} from '@/collection/collection';
-import { ROOT_COLLECTION } from '@/constants';
-import { SpaceQueryDefinition } from '@/core/db/queries-helper';
+} from '@/domain/collection/model';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import { getDerivedId } from '@/domain/derived-content/model';
 
 export type FetchItemsQueryParam = {
-  parent: string;
+  parentId: string;
   recursive: boolean;
   onlyDocuments: boolean; // TODO more flexible filter
   onlyConflicts: boolean;
@@ -20,7 +20,7 @@ const fetchItemsQuery = new SpaceQueryDefinition<
   'collection'
 >('fetchItems', 'collection', ({ select, where, param, join }) => {
   const params: FetchItemsQueryParam = {
-    parent: param('parent') as string,
+    parentId: param('parentId') as string,
     recursive: param('recursive') as boolean,
     onlyDocuments: param('onlyDocuments') as boolean,
     onlyConflicts: param('onlyConflicts') as boolean
@@ -33,14 +33,14 @@ const fetchItemsQuery = new SpaceQueryDefinition<
   );
   join('derived_item_state', (getCell, itemId) => itemId).as('state');
   select('stats', 'lastOpenedAt');
-  select('parent');
+  select('parentId');
   select('title');
   select('type');
   select('tags');
-  select('created');
-  select('updated');
+  select('createdAt');
+  select('updatedAt');
   select('order');
-  select('conflict');
+  select('conflictId');
   select('settings');
   select('content', 'plainText').as('preview');
   select('state', 'shortPath').as('breadcrumb');
@@ -50,20 +50,20 @@ const fetchItemsQuery = new SpaceQueryDefinition<
     const { itemsConflicts, annotsConflicts } = conflictsService.getConflicts();
     where(getCell => {
       const id = getCell('itemId')!;
-      const isConflict = getCell('conflict') !== undefined;
+      const isConflict = getCell('conflictId') !== undefined;
       const { hasConflict, hasAnnotsConflicts: hasNoteConflicts } =
         conflictsService.itemHasConflicts(id, itemsConflicts, annotsConflicts);
       return isConflict || hasConflict || hasNoteConflicts;
     });
   }
 
-  where(getCell => getCell('itemId') !== params.parent);
+  where(getCell => getCell('itemId') !== params.parentId);
   if (params.recursive === false) {
-    where('parent', params.parent);
-  } else if (params.parent !== ROOT_COLLECTION) {
+    where('parentId', params.parentId);
+  } else if (params.parentId !== ROOT_COLLECTION) {
     where(getCell => {
       const fullPath = getCell('state', 'fullPath') as string[];
-      return fullPath?.includes(params.parent);
+      return fullPath?.includes(params.parentId);
     });
   }
   if (params.onlyDocuments) {

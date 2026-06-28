@@ -1,6 +1,6 @@
-import { CollectionItemTypeValues } from '@/collection/collection';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
+import { CollectionItemTypeValues } from '@/domain/collection/model';
 import { $getRoot, ElementNode, LexicalEditor, TextNode } from 'lexical';
 
 export type DeepSearchResult = {

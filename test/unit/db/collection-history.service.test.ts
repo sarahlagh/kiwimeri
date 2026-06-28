@@ -1,8 +1,8 @@
-import { CollectionItem } from '@/collection/collection';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { space } from '@/core/db/store';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
+import { CollectionItem } from '@/domain/collection/model';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
@@ -48,12 +48,12 @@ describe('collection history service', () => {
           expect(versions).toHaveLength(2);
 
           expect(versions[0].createdAt).toBe(docUpdatedTime + idleTime);
-          expect(versions[0].snapshotJson.updated).toBe(docUpdatedTime);
+          expect(versions[0].snapshotJson.updatedAt).toBe(docUpdatedTime);
           expect(versions[0].itemId).toBe(docId);
           const versionData = versions[0].snapshotJson;
           expect(versionData).toEqual({
-            parent: rowBefore.parent,
-            parent_meta: rowBefore.parent_meta,
+            parentId: rowBefore.parentId,
+            parentId_meta: rowBefore.parentId_meta,
             title: rowBefore.title,
             title_meta: rowBefore.title_meta,
             content_meta: rowBefore.content_meta,
@@ -63,8 +63,8 @@ describe('collection history service', () => {
             settings_meta: rowBefore.settings_meta,
             order: rowBefore.order,
             order_meta: rowBefore.order_meta,
-            created: rowBefore.created,
-            updated: rowBefore.updated
+            createdAt: rowBefore.createdAt,
+            updatedAt: rowBefore.updatedAt
           });
           if (field !== 'content') {
             expect(versionData[field]).toBe(newValue);
@@ -190,7 +190,7 @@ describe('collection history service', () => {
 
       historyService.restoreDocumentVersion(docId, versions[1].id!);
       const restoredItem = space.getRow('collection', docId) as CollectionItem;
-      expect(restoredItem).toEqual({ ...itemBefore, updated: Date.now() });
+      expect(restoredItem).toEqual({ ...itemBefore, updatedAt: Date.now() });
 
       versions = historyService.getVersions(docId);
       expect(versions).toHaveLength(3);
@@ -238,12 +238,18 @@ describe('collection history service', () => {
       expect(versions).toHaveLength(4);
       expect(versions[0].content).toBe(itemBefore.content);
       expect(versions[0].snapshotJson.title).toBe(itemBefore.title);
-      expect(versions[0].snapshotJson.updated).toBe(itemBefore.updated + 210);
+      expect(versions[0].snapshotJson.updatedAt).toBe(
+        itemBefore.updatedAt + 210
+      );
       expect(versions[1].content).toBe(newValue2);
-      expect(versions[1].snapshotJson.updated).toBe(itemBefore.updated + 200);
+      expect(versions[1].snapshotJson.updatedAt).toBe(
+        itemBefore.updatedAt + 200
+      );
       expect(versions[2].content).toBe(newValue1);
-      expect(versions[2].snapshotJson.updated).toBe(itemBefore.updated + 100);
-      expect(versions[3].snapshotJson.updated).toBe(itemBefore.updated);
+      expect(versions[2].snapshotJson.updatedAt).toBe(
+        itemBefore.updatedAt + 100
+      );
+      expect(versions[3].snapshotJson.updatedAt).toBe(itemBefore.updatedAt);
     });
 
     it(`should do nothing for a document order change`, () => {
@@ -294,9 +300,9 @@ describe('collection history service', () => {
       const ts = Date.now();
       const conflictId = space.addRow('collection', {
         ...{ ...item, id: undefined },
-        conflict: docId,
-        created: ts,
-        updated: ts
+        conflictId: docId,
+        createdAt: ts,
+        updatedAt: ts
       })!;
       expect(collectionService.isItemConflict(conflictId)).toBe(true);
       expect(historyService.getVersions(conflictId)).toHaveLength(0);
@@ -333,9 +339,9 @@ describe('collection history service', () => {
       const ts = Date.now();
       const conflictId = space.addRow('collection', {
         ...{ ...item, id: undefined },
-        conflict: docId,
-        created: ts,
-        updated: ts
+        conflictId: docId,
+        createdAt: ts,
+        updatedAt: ts
       })!;
       expect(collectionService.isItemConflict(conflictId)).toBe(true);
       expect(historyService.getVersions(conflictId)).toHaveLength(0);

@@ -1,9 +1,9 @@
+import { APPICONS } from '@/constants';
+import collectionService from '@/db/collection.service';
 import {
   CollectionItemType,
   CollectionItemTypeValues
-} from '@/collection/collection';
-import { APPICONS } from '@/constants';
-import collectionService from '@/db/collection.service';
+} from '@/domain/collection/model';
 import { IonButton, IonIcon } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
 import { Id } from 'tinybase/with-schemas';

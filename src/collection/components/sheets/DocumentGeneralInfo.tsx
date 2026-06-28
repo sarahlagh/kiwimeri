@@ -18,7 +18,7 @@ const DocumentGeneralInfo = ({ id }: DocumentInfoCardProps) => {
           <Trans>Created at</Trans>
         </IonLabel>
         <IonLabel slot="end" style={{ maxWidth: '160px', textAlign: 'end' }}>
-          {dateToStr('relative', item.created)}
+          {dateToStr('relative', item.createdAt)}
         </IonLabel>
       </IonItem>
       <IonItem>
@@ -26,7 +26,7 @@ const DocumentGeneralInfo = ({ id }: DocumentInfoCardProps) => {
           <Trans>Updated at</Trans>
         </IonLabel>
         <IonLabel slot="end" style={{ maxWidth: '160px', textAlign: 'end' }}>
-          {dateToStr('relative', item.updated)}
+          {dateToStr('relative', item.updatedAt)}
         </IonLabel>
       </IonItem>
       <IonItem>

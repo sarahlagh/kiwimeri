@@ -25,7 +25,7 @@ describe('settings service', () => {
     const folderId = collectionService.addFolder(currentNotebook);
 
     settingsService.setSpaceDefaultSort({
-      by: 'updated',
+      by: 'updatedAt',
       descending: true
     });
 
@@ -57,7 +57,7 @@ describe('settings service', () => {
   it('should override space settings sort per notebook', () => {
     const currentNotebook = notebooksService.getCurrentNotebook();
     settingsService.setSpaceDefaultSort({
-      by: 'updated',
+      by: 'updatedAt',
       descending: true
     });
 
@@ -76,7 +76,7 @@ describe('settings service', () => {
   it('should use space settings sort as fallback', () => {
     const currentNotebook = notebooksService.getCurrentNotebook();
     settingsService.setSpaceDefaultSort({
-      by: 'updated',
+      by: 'updatedAt',
       descending: true
     });
     settingsService.setNotebookDefaultSort(currentNotebook, {
@@ -86,7 +86,7 @@ describe('settings service', () => {
 
     const defaultSort = settingsService.getNotebookDefaultSort('another');
     expect(defaultSort).toEqual({
-      by: 'updated',
+      by: 'updatedAt',
       descending: true
     });
   });
@@ -130,7 +130,7 @@ describe('settings service', () => {
     );
     adv(() =>
       settingsService.setNotebookDefaultSort(DEFAULT_NOTEBOOK_ID, {
-        by: 'created',
+        by: 'createdAt',
         descending: false
       })
     );
@@ -147,7 +147,7 @@ describe('settings service', () => {
     expect(settings).toEqual({
       browserMode: 0,
       sort: {
-        by: 'created',
+        by: 'createdAt',
         descending: false
       }
     });
@@ -161,7 +161,7 @@ describe('settings service', () => {
     const now = Date.now();
     adv(() =>
       settingsService.setFolderSort(fId, {
-        by: 'created',
+        by: 'createdAt',
         descending: false
       })
     );
@@ -174,7 +174,7 @@ describe('settings service', () => {
     expect(settings).toEqual({
       test: true,
       sort: {
-        by: 'created',
+        by: 'createdAt',
         descending: false
       }
     });
@@ -217,7 +217,7 @@ describe('settings hooks', () => {
       );
       expect(result.current).toEqual({
         sort: {
-          by: 'created',
+          by: 'createdAt',
           descending: false
         },
         statsEnabled: false
@@ -234,7 +234,7 @@ describe('settings hooks', () => {
       );
       expect(result.current).toEqual({
         sort: {
-          by: 'created',
+          by: 'createdAt',
           descending: false
         },
         statsEnabled: true
@@ -268,7 +268,7 @@ describe('settings hooks', () => {
       );
       expect(result.current).toEqual({
         sort: {
-          by: 'created',
+          by: 'createdAt',
           descending: false
         },
         statsEnabled: false
@@ -285,7 +285,7 @@ describe('settings hooks', () => {
       );
       expect(result.current).toEqual({
         sort: {
-          by: 'created',
+          by: 'createdAt',
           descending: false
         },
         statsEnabled: false,
@@ -327,7 +327,7 @@ describe('settings hooks', () => {
       );
       expect(result.current).toEqual({
         sort: {
-          by: 'created',
+          by: 'createdAt',
           descending: false
         },
         statsEnabled: true
@@ -411,7 +411,7 @@ describe('settings hooks', () => {
         useFolderEffectiveSort(fId)
       );
       expect(result.current).toEqual({
-        by: 'created',
+        by: 'createdAt',
         descending: false
       });
       unmount();

@@ -7,8 +7,8 @@ const fetchItemsConflictsQuery = new SpaceQueryDefinition<
   CollectionItemConflictResult,
   'collection'
 >('fetchItemsConflictsQuery', 'collection', ({ select, where }) => {
-  select('conflict');
-  where(getCell => getCell('conflict') !== undefined);
+  select('conflictId');
+  where(getCell => getCell('conflictId') !== undefined);
 });
 
 export default fetchItemsConflictsQuery;

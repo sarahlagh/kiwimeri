@@ -44,8 +44,8 @@ const SortFilter = ({
   const sort = { ...currentSort };
 
   const valuesTransMap = new Map<CollectionItemSortType, string>();
-  valuesTransMap.set('created', t`Creation Date`);
-  valuesTransMap.set('updated', t`Last Updated`);
+  valuesTransMap.set('createdAt', t`Creation Date`);
+  valuesTransMap.set('updatedAt', t`Last Updated`);
   valuesTransMap.set('title', t`Title`);
   valuesTransMap.set('preview', t`Content`);
   valuesTransMap.set('order', t`Manual`);

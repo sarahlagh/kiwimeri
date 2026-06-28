@@ -1,10 +1,10 @@
 import { useToastContext } from '@/app/context/ToastContext';
-import { CollectionItemVersion } from '@/collection/collection';
 import { dateToStr } from '@/common/date-utils';
 import { getSearchParams } from '@/common/utils';
 import { APPICONS } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
 import notebooksService from '@/db/notebooks.service';
+import { CollectionItemVersion } from '@/domain/collection/model';
 import {
   IonButton,
   IonButtons,
@@ -64,7 +64,7 @@ const VersionPreview = ({
     const diff = diffChars(lastPreview, version.preview);
     return (
       <IonLabel style={style}>
-        {dateToStr('relative', version.snapshotJson.updated)}
+        {dateToStr('relative', version.snapshotJson.updatedAt)}
         <p>
           {diff.map((part, idx) => (
             <DiffFragment part={part} key={idx} />
@@ -75,7 +75,7 @@ const VersionPreview = ({
   }
   return (
     <IonLabel style={style}>
-      {dateToStr('relative', version.snapshotJson.updated)}
+      {dateToStr('relative', version.snapshotJson.updatedAt)}
       <p>{version.preview.substring(0, 200)}</p>
     </IonLabel>
   );

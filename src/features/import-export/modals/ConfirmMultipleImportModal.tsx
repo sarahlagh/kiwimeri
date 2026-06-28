@@ -1,10 +1,10 @@
+import { APPICONS, getGlobalTrans, ROOT_COLLECTION } from '@/constants';
+import collectionService from '@/db/collection.service';
 import {
   APPICONS_PER_TYPE,
   CollectionItemType,
   CollectionItemTypeValues
-} from '@/collection/collection';
-import { APPICONS, getGlobalTrans, ROOT_COLLECTION } from '@/constants';
-import collectionService from '@/db/collection.service';
+} from '@/domain/collection/model';
 import {
   InputCustomEvent,
   IonButton,
@@ -80,7 +80,7 @@ const ConfirmMultipleImportModal = ({
       item => !zipMerge?.firstLevel.find(i => i.id === item.id)
     ),
     ...(zipMerge?.firstLevel || [])
-  ].sort((i1, i2) => i1.created - i2.created); // TODO adjust according to setting
+  ].sort((i1, i2) => i1.createdAt - i2.createdAt); // TODO adjust according to setting
 
   useEffect(() => {
     setZipMerge(

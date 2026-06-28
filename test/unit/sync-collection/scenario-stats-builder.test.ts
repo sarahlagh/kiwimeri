@@ -1,18 +1,18 @@
+import { DbSerializableData } from '@/core/db/types';
 import {
   CollectionItem,
   CollectionItemType,
   CollectionItemTypeValues,
   CollectionItemVersion,
   CollectionItemVersionOp
-} from '@/collection/collection';
-import { DbSerializableData } from '@/core/db/types';
+} from '@/domain/collection/model';
 import { parentField, TestField } from '@@/_setup/test.utils';
 import { describe, expect, it } from 'vitest';
 
 export type PullTestEndStatsItem = {
   id?: string;
   type?: CollectionItemTypeValues;
-  parent?: string;
+  parentId?: string;
   exists?: boolean;
   hasValue?: 'init' | 'local' | 'remote' | null;
   hasConflict?: boolean;
@@ -181,26 +181,26 @@ export class PullTestEndStatsBuilder {
       }
       const testField = value?.field || this.testField;
 
-      if (testField && testField.field === 'parent' && value) {
+      if (testField && testField.field === 'parentId' && value) {
         // item was moved
         const oldParent = item.parentId;
         if (!group.itsOldParent) {
           group.itsOldParent = {
             id: oldParent,
-            parent: item.parentParentId // assumes new parent is always under the same parent
+            parentId: item.parentParentId // assumes new parent is always under the same parent
           };
         }
         if (!group.itsOldParent.id) {
           group.itsOldParent.id = oldParent;
         }
-        if (!group.itsOldParent.parent) {
-          group.itsOldParent.parent = item.parentParentId;
+        if (!group.itsOldParent.parentId) {
+          group.itsOldParent.parentId = item.parentParentId;
         }
         itemParent = value.value as string;
       }
 
-      if (!group.theItem.parent) {
-        group.theItem.parent = itemParent;
+      if (!group.theItem.parentId) {
+        group.theItem.parentId = itemParent;
       }
       if (!group.theItem.type) {
         group.theItem.type = item.type;
@@ -208,12 +208,12 @@ export class PullTestEndStatsBuilder {
       if (!group.itsParent) {
         group.itsParent = {
           id: itemParent,
-          parent: item.parentParentId,
+          parentId: item.parentParentId,
           type: item.parentType
         };
       } else if (!group.itsParent!.id) {
         group.itsParent!.id = itemParent;
-        group.itsParent!.parent = item.parentParentId;
+        group.itsParent!.parentId = item.parentParentId;
         group.itsParent!.type = item.parentType;
       }
     }

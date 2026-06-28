@@ -11,7 +11,7 @@ export type UserPreferenceKey =
 export const userPreferenceDefinitions = {
   defaultSortBy: {
     type: 'string',
-    default: 'created',
+    default: 'createdAt',
     label: msg`Default sort field`
   },
   defaultSortDesc: {

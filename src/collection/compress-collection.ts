@@ -1,10 +1,13 @@
-import { CollectionItem, CollectionItemWithId } from '@/collection/collection';
+import {
+  CollectionItem,
+  CollectionItemWithId
+} from '@/domain/collection/model';
 import { minimizeKeys, unminimizeKeys } from '../common/utils';
 import { AnyData } from '../db/types/store-types';
 
 const keys = [
   ['id', 'i'],
-  ['parent', 'p'],
+  ['parentId', 'p'],
   ['parent_meta', 'P'],
   ['type', 'ty'],
   ['title', 't'],
@@ -14,8 +17,8 @@ const keys = [
   ['preview', 'pw'],
   ['tags', 'ta'],
   ['tags_meta', 'TA'],
-  ['created', 'cr'],
-  ['updated', 'u'],
+  ['createdAt', 'cr'],
+  ['updatedAt', 'u'],
   ['order', 'o'],
   ['order_meta', 'O'],
   ['settings', 's'],

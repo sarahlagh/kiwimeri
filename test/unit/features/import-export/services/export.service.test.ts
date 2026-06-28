@@ -1,8 +1,8 @@
-import { CollectionItemType } from '@/collection/collection';
 import { DEFAULT_NOTEBOOK_ID, getGlobalTrans, META_JSON } from '@/constants';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import { settingsService } from '@/domain/collection-settings/collection-settings.service';
+import { CollectionItemType } from '@/domain/collection/model';
 import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
 import {
   ZipExportOptions,
@@ -65,8 +65,8 @@ describe('export service', () => {
             expect(meta.title).not.toBe('');
           }
           if (metaType === CollectionItemType.folder) {
-            expect(meta.updated).toBe(Date.now());
-            expect(meta.created).toBe(Date.now());
+            expect(meta.updatedAt).toBe(Date.now());
+            expect(meta.createdAt).toBe(Date.now());
           }
           expect(meta.tags).toBeUndefined();
 
@@ -81,8 +81,8 @@ describe('export service', () => {
             filesInZip.forEach(fileInZip => {
               const metaFile = meta.files![fileInZip];
               expect(metaFile).toBeDefined();
-              expect(metaFile.created).toBe(Date.now());
-              expect(metaFile.updated).toBe(Date.now());
+              expect(metaFile.createdAt).toBe(Date.now());
+              expect(metaFile.updatedAt).toBe(Date.now());
               expect(metaFile.type).toBe(CollectionItemType.document);
               expect(metaFile.title).toBe('New document');
               expect(metaFile.tags).toEqual(tags);
@@ -97,8 +97,8 @@ describe('export service', () => {
             const docMeta = meta.files![docs[0]];
             expect(docMeta);
             expect(docMeta).toBeDefined();
-            expect(docMeta.created).toBe(Date.now());
-            expect(docMeta.updated).toBe(Date.now());
+            expect(docMeta.createdAt).toBe(Date.now());
+            expect(docMeta.updatedAt).toBe(Date.now());
             expect(docMeta.type).toBe(CollectionItemType.document);
             expect(docMeta.title).toBe('New document');
             expect(docMeta.tags).toBe(tags);
@@ -157,7 +157,7 @@ describe('export service', () => {
       it(`should export a folder with several levels as a zip`, () => {
         const fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
         settingsService.setFolderSettings(fId, {
-          sort: { by: 'updated', descending: true }
+          sort: { by: 'updatedAt', descending: true }
         });
         newDoc(fId, 'this is the document content');
         const fId2 = collectionService.addFolder(fId);
@@ -182,7 +182,7 @@ describe('export service', () => {
           expect(meta).toBeDefined();
           expect(meta!.settings).toBeDefined();
           expect(meta!.settings!.sort).toBeDefined();
-          expect(meta!.settings!.sort!.by).toBe('updated');
+          expect(meta!.settings!.sort!.by).toBe('updatedAt');
           expect(meta!.settings!.sort!.descending).toBe(true);
         }
       });
@@ -398,7 +398,7 @@ describe('export service', () => {
       });
       const fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
       collectionService.setItemSettings(fId, {
-        sort: { by: 'created', descending: false },
+        sort: { by: 'createdAt', descending: false },
         statsEnabled: true
       });
       const fTitle = collectionService.getItemTitle(fId);
@@ -425,7 +425,7 @@ describe('export service', () => {
       ) as ZipMetadata;
       expect(notebookMeta.settings).toBeUndefined();
       expect(folderMeta.settings).toEqual({
-        sort: { by: 'created', descending: false }
+        sort: { by: 'createdAt', descending: false }
       });
       expect(folderMeta.files).toBeDefined();
       expect(folderMeta.files![`${dTitle}.md`]).toBeDefined();

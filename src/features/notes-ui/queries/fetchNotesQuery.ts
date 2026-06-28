@@ -16,7 +16,7 @@ const fetchNotesQuery = new SpaceQueryDefinition<
   };
   select('createdAt');
   select('order');
-  select('conflict');
+  select('conflictId');
   where('itemId', params.itemId);
 });
 

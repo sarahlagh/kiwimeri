@@ -1,7 +1,7 @@
 import {
   CollectionItemResult,
   CollectionItemType
-} from '@/collection/collection';
+} from '@/domain/collection/model';
 import { OverlayEventDetail } from '@ionic/core/components';
 import { useIonModal } from '@ionic/react';
 import { SerializedEditorState, SerializedLexicalNode } from 'lexical';

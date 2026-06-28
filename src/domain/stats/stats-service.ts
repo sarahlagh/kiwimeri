@@ -1,4 +1,3 @@
-import { isDocument } from '@/collection/collection';
 import { dateToStr } from '@/common/date-utils';
 import { countWords, n00 } from '@/common/utils';
 import { ROOT_COLLECTION } from '@/constants';
@@ -6,6 +5,7 @@ import { space, spaceQueries } from '@/core/db/store';
 import { MetaField } from '@/core/db/types';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
+import { isDocument } from '@/domain/collection/model';
 import { ResultRow } from 'tinybase/with-schemas';
 import {
   DataPoint,
