@@ -25,7 +25,7 @@ import { SyncableAnnotation } from '@/domain/document-annotations/model';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import { PCloudDriver } from '@/domain/remotes/drivers/pcloud/pcloud.driver';
-import remotesService from '@/domain/remotes/remotes.service';
+import oldRemotesService from '@/domain/remotes/old.remotes.service';
 import {
   MinimizedCollectionItem,
   REMOTE_COLLECTION_SCHEMA_VERSION,
@@ -33,6 +33,7 @@ import {
 } from '@/domain/replication/merging/synchronizers/collection-synchronizer';
 import { CompositeSynchronizer } from '@/domain/replication/merging/synchronizers/composite-synchronizer';
 import { syncService } from '@/domain/replication/sync.service';
+import { useIsMergeSyncEnabled } from '@/features/synchronization-ui';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   amount,
@@ -108,17 +109,17 @@ describe.sequential(
   () => {
     beforeEach(async () => {
       conflictsService.initConflictQueries();
-      remotesService.addRemote('test', 0, 'pcloud', {
+      oldRemotesService.addRemote('test', 0, 'pcloud', {
         token: appConfig.PCLOUD_E2E_TOKEN,
         path: `${appConfig.PCLOUD_E2E_PATH}`,
         serverLocation: appConfig.PCLOUD_E2E_SERVER_LOC
       });
-      await remotesService.configureRemotes(DEFAULT_SPACE_ID, true);
-      const remotes = remotesService.getRemotes();
+      await oldRemotesService.configureRemotes(DEFAULT_SPACE_ID, true);
+      const remotes = oldRemotesService.getRemotes();
       expect(remotes).toHaveLength(1);
       expect(remotes[0].connected).toBeTruthy();
-      const keys = remotesService['synchronizers'].keys();
-      synchronizer = remotesService['synchronizers'].get(
+      const keys = oldRemotesService['synchronizers'].keys();
+      synchronizer = oldRemotesService['synchronizers'].get(
         keys.next().value!
       )! as CompositeSynchronizer;
 
@@ -133,7 +134,7 @@ describe.sequential(
         await driver.deleteFile({ filename: 'collection.json' });
         await driver.deleteFile({ filename: 'stats.json' });
       }
-      await remotesService.delRemote(remotesService.getRemotes()[0].id);
+      await oldRemotesService.delRemote(oldRemotesService.getRemotes()[0].id);
       expect(countOrphans()).toBe(0);
     });
 
@@ -290,7 +291,7 @@ describe.sequential(
 
       // push should be disabled
       const { result, unmount } = wrappedRenderHook(() =>
-        syncService.useIsMergeSyncEnabled()
+        useIsMergeSyncEnabled()
       );
       expect(result.current).toBe(false);
       unmount();
@@ -520,7 +521,7 @@ describe.sequential(
       // create item on remote, sync
       await reInitRemoteData([oneDocument('remote')]);
       // reinit sync after network down
-      await remotesService.configureRemotes(DEFAULT_SPACE_ID);
+      await syncService.reinit();
       // now pull
       await syncService.pull();
       // both items are kept

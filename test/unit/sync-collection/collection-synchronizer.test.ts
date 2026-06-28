@@ -5,7 +5,6 @@ import { SpaceTables } from '@/core/db/store-constants';
 import { setMetaField } from '@/core/db/types';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
-import { RemoteResult } from '@/db/types/store-types';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import { getDerivedId } from '@/domain/derived-content/model';
@@ -17,9 +16,9 @@ import {
   REMOTE_COLLECTION_SCHEMA_VERSION,
   RemoteCollectionFileContent
 } from '@/domain/replication/merging/synchronizers/collection-synchronizer';
-import { syncService } from '@/domain/replication/sync.service';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import useItemsConflictMixIn from '@/features/collection-ui/hooks/useItemsConflictMixIn';
+import { useIsMergeSyncEnabled } from '@/features/synchronization-ui';
 import { InMemDriver } from '@@/_setup/inmem.driver';
 import {
   adv,
@@ -34,16 +33,14 @@ import {
 import { describe, it } from 'vitest';
 
 const driver = new InMemDriver();
-const remoteResult: RemoteResult = {
-  id: '9999',
-  name: 'test',
-  state: '0',
-  type: 'pcloud',
-  connected: true,
-  config: '{}',
-  rank: 0
-};
-const synchronizer = new CollectionSynchronizer(remoteResult, driver);
+
+const synchronizer = new CollectionSynchronizer(
+  {
+    id: '9999',
+    name: 'test'
+  },
+  driver
+);
 
 describe('collection synchronizer', () => {
   beforeAll(() => {
@@ -880,7 +877,7 @@ describe('collection synchronizer', () => {
 
       {
         const { result, unmount } = wrappedRenderHook(() =>
-          syncService.useIsMergeSyncEnabled()
+          useIsMergeSyncEnabled()
         );
         expect(result.current).toBe(false);
         unmount();
@@ -962,7 +959,7 @@ describe('collection synchronizer', () => {
 
       {
         const { result, unmount } = wrappedRenderHook(() =>
-          syncService.useIsMergeSyncEnabled()
+          useIsMergeSyncEnabled()
         );
         expect(result.current).toBe(false);
         unmount();
@@ -1057,7 +1054,7 @@ describe('collection synchronizer', () => {
 
       {
         const { result, unmount } = wrappedRenderHook(() =>
-          syncService.useIsMergeSyncEnabled()
+          useIsMergeSyncEnabled()
         );
         expect(result.current).toBe(false);
         unmount();

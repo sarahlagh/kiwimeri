@@ -378,12 +378,37 @@
         "createdAt": 1782124378069
       }
     },
-    "replica_state": { "0": { "connected": false, "lastRemoteChange": 0 } },
+    "replica_state": {
+      "0": {
+        "connected": true,
+        "collectionInfo": {
+          "lastRemoteChange": 1780840953000,
+          "driverInfo": {
+            "providerid": "97510863680",
+            "filename": "collection.json",
+            "size": 472636,
+            "hash": "13705697680891652000",
+            "updated": 1780840953000
+          }
+        },
+        "statsInfo": {
+          "lastRemoteChange": 1780840952000,
+          "lastPulled": 1780840952000,
+          "driverInfo": {
+            "providerid": "97510863356",
+            "filename": "stats.json",
+            "size": 136282,
+            "hash": "16088262883219816000",
+            "updated": 1780840952000
+          }
+        }
+      }
+    },
     "remote": {
       "0": {
         "rank": 0,
         "name": "pcloud",
-        "type": "pcloud",
+        "driver": "pcloud",
         "config": {
           "path": "/kiwimeri",
           "token": "fake token",

@@ -1,15 +1,1 @@
-[
-  {
-    "remoteState": { "0": { "connected": false, "lastRemoteChange": 0 } },
-    "remotes": {
-      "0": {
-        "rank": 0,
-        "name": "pcloud",
-        "state": "0",
-        "type": "pcloud",
-        "config": "{\"path\":\"/kiwimeri\",\"token\":\"fake token\",\"serverLocation\":\"eu\"}"
-      }
-    }
-  },
-  {}
-]
+[{}, {}]

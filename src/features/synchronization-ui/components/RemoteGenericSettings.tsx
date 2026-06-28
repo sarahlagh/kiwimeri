@@ -3,8 +3,8 @@ import DeleteButton from '@/common/buttons/DeleteButton';
 import SyncRemoteButton from '@/common/buttons/SyncRemoteButton';
 import platformService from '@/common/services/platform.service';
 import { APPICONS } from '@/constants';
-import { RemoteResult } from '@/db/types/store-types';
-import remotesService from '@/domain/remotes/remotes.service';
+import remotesService from '@/domain/remotes/configuration/remotes.service';
+import { ConnectedRemote } from '@/domain/replication/replica-state/model';
 import {
   IonButton,
   IonIcon,
@@ -20,7 +20,7 @@ import { ReactNode } from 'react';
 export type RemoteGenericSettingsChildProps = {
   isPrimary: boolean;
   isLast: boolean;
-  remote: RemoteResult;
+  remote: ConnectedRemote;
   reorderEnabled?: boolean;
   onConfigured: (ok: boolean) => Promise<void>;
 };
@@ -30,7 +30,7 @@ type RemoteGenericSettingsProps = {
   isLast: boolean;
   title: string;
   checking: boolean;
-  remote: RemoteResult;
+  remote: ConnectedRemote;
   reorderEnabled?: boolean;
 } & { readonly children?: ReactNode };
 

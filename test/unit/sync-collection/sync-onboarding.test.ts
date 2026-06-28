@@ -1,6 +1,7 @@
-import { DEFAULT_SPACE_ID } from '@/constants';
-import remotesService from '@/domain/remotes/remotes.service';
+import remotesService from '@/domain/remotes/configuration/remotes.service';
 import { CompositeSynchronizer } from '@/domain/replication/merging/synchronizers/composite-synchronizer';
+import replicaService from '@/domain/replication/replica-state/replica.service';
+import { syncService } from '@/domain/replication/sync.service';
 import { InMemDriver } from '@@/_setup/inmem.driver';
 import { adv } from '@@/_setup/test.utils';
 import { beforeEach, describe, test, vi } from 'vitest';
@@ -18,7 +19,7 @@ describe(`sync onboarding test`, () => {
     remotesService.addRemote('test', 0, 'inmem', {
       names: ['newcollection.json']
     });
-    await remotesService.configureRemotes(DEFAULT_SPACE_ID, true);
+    await syncService.reinit(true);
 
     const { success, didPull, didPush } = await syncService_sync('sync');
     expect(success);
@@ -36,10 +37,10 @@ describe(`sync onboarding test`, () => {
         names: ['newcollection.json']
       })
     );
-    await remotesService.configureRemotes(DEFAULT_SPACE_ID, true);
+    await syncService.reinit(true);
 
     // for test, replace driver
-    const compositeSynchronizer = remotesService['synchronizers']
+    const compositeSynchronizer = replicaService['synchronizers']
       .values()
       .next().value! as CompositeSynchronizer;
     compositeSynchronizer['statsEnabled'] = false;

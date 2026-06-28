@@ -1,8 +1,8 @@
-import { AnyData, RemoteState } from '@/db/types/store-types';
+import { AnyData } from '@/db/types/store-types';
 
 import { CloudStorageDriver } from '@/domain/remotes/drivers/abstract.driver';
 import { DriverFileInfo, FileReference } from '@/domain/remotes/drivers/model';
-import { UpdatedRemoteState } from './model';
+import { ReplicaRemoteState, ReplicaState } from '../replica-state/model';
 
 export abstract class CloudStorageFilesystemV2 {
   constructor(
@@ -20,48 +20,40 @@ export abstract class CloudStorageFilesystemV2 {
 
   abstract connect(fileRefs: FileReference[]): Promise<{
     config: AnyData | null;
-    remoteState: RemoteState;
+    replicaState: ReplicaRemoteState;
   }>;
 
   protected async connectAttempt(fileRefs: FileReference[]): Promise<{
+    connected: boolean;
     config: AnyData | null;
-    remoteState: RemoteState;
+    lastRemoteChange: number;
+    filesInfo?: DriverFileInfo[];
   }> {
     const { config, connected, filesInfo } = await this.driver
       .connect(fileRefs)
-      .catch(() => ({ connected: false, config: null, filesInfo: null }));
+      .catch(() => ({ connected: false, config: null, filesInfo: undefined }));
 
     if (config && filesInfo) {
-      const remoteState = this.buildRemoteState(filesInfo);
       return {
+        connected,
         config,
-        remoteState: { ...remoteState, connected }
+        filesInfo,
+        lastRemoteChange:
+          filesInfo.length > 0
+            ? Math.max(...filesInfo.map(fi => fi.updated))
+            : 0
       };
     }
-    return { config, remoteState: { connected } };
-  }
-
-  protected buildRemoteState(filesInfo: DriverFileInfo[]) {
-    const remoteState: RemoteState = {
-      connected: true,
-      lastRemoteChange:
-        filesInfo.length > 0 ? Math.max(...filesInfo.map(fi => fi.updated)) : 0
-    };
-    if (filesInfo.length === 1) {
-      remoteState.info = filesInfo[0];
-    } else {
-      remoteState.info = filesInfo;
-    }
-    return remoteState;
+    return { connected, config, filesInfo, lastRemoteChange: 0 };
   }
 
   abstract hasNewChanges(
     lastPulled: number,
-    cachedRemoteState?: UpdatedRemoteState
+    cachedRemoteState?: ReplicaState
   ): Promise<{
     success: boolean;
     hasNewChanges?: boolean;
-    updatedRemoteState?: RemoteState;
+    remoteState?: ReplicaState;
   }>;
 
   // on push
@@ -71,7 +63,7 @@ export abstract class CloudStorageFilesystemV2 {
   ): Promise<{
     success: boolean;
     didPush: boolean;
-    updatedRemoteState?: RemoteState;
+    updatedRemoteState?: ReplicaState;
   }>;
 
   // on pull
@@ -81,7 +73,7 @@ export abstract class CloudStorageFilesystemV2 {
   ): Promise<{
     success: boolean;
     didPull: boolean;
-    updatedRemoteState?: RemoteState;
+    updatedRemoteState?: ReplicaState;
     data?: AnyData;
   }>;
 

@@ -1,10 +1,14 @@
-import { store } from '@/core/db/store';
-import { AnyData, RemoteResult } from '@/db/types/store-types';
+import { AnyData } from '@/core/db/types';
+import { CloudStorageDriver } from '@/domain/remotes/drivers/abstract.driver';
+import { SingleFileStorage } from '@/domain/replication/layouts/singlefile.filesystem';
 import { DocumentContentStatsBag } from '@/domain/stats/model';
 import { statsService } from '@/domain/stats/stats-service';
-import { CloudStorageDriver } from '../../../remotes/drivers/abstract.driver';
-import { SingleFileStorage } from '../../layouts/singlefile.filesystem';
-import { CloudStorageSynchronizer } from '../abstract-synchronizer';
+import {
+  CloudStorageSynchronizer,
+  RemoteRepresentation
+} from '../abstract-synchronizer';
+
+const COL = 'statsInfo';
 
 type RemoteContentStatPerDate = {
   date: string;
@@ -20,12 +24,10 @@ export type RemoteStatsFileContent = {
 
 export const REMOTE_STATS_SCHEMA_VERSION = 1; // increment each breaking change
 
-type RemoteRepresentation = Required<Pick<RemoteResult, 'id'>>;
-
 export class StatsSynchronizer extends CloudStorageSynchronizer {
   protected cloudFS: SingleFileStorage; // move to rolling file
   protected ongoing = false;
-  protected remoteStateId;
+  protected remoteId;
 
   constructor(
     protected remote: RemoteRepresentation,
@@ -35,7 +37,7 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
     this.cloudFS = new SingleFileStorage('stats', driver, {
       filename: 'stats.json'
     });
-    this.remoteStateId = `${this.remote.id}-stats`;
+    this.remoteId = `${this.remote.id}-stats`;
   }
 
   public configure(conf: AnyData, proxy?: string, useHttp?: boolean): void {
@@ -48,23 +50,13 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
   }> {
     const resp = await this.cloudFS.connect();
     console.debug('[stats][connect]', resp);
-    if (resp.remoteState.connected) {
-      this.createRemoteStateIfDoesntExist(this.remoteStateId);
-      this.updateRemoteStateInfo(this.remoteStateId, resp.remoteState);
+    if (resp.replicaState.connected) {
+      this.storeReplicaStateInfo(this.remoteId, resp.replicaState, COL);
     }
     return {
       config: resp.config,
-      connected: resp.remoteState.connected || false
+      connected: resp.replicaState.connected || false
     };
-  }
-
-  private createRemoteStateIfDoesntExist(id: string) {
-    if (!store.hasRow('remoteState', id)) {
-      store.setRow('remoteState', id, {
-        connected: false,
-        lastRemoteChange: 0
-      });
-    }
   }
 
   public async push(
@@ -75,7 +67,7 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
     this.ongoing = true;
 
     try {
-      const lastPulled = this.getLastPulled(this.remoteStateId);
+      const lastPulled = this.getLastPulled(this.remoteId, COL);
       const data = this.computeDataToPush(lastPulled, force);
       if (!data) {
         console.log('[stats][push] nothing to push');
@@ -83,7 +75,7 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
       }
       const resp = await this.cloudFS.acceptsChanges(data);
       if (resp.updatedRemoteState) {
-        this.updateRemoteStateInfo(this.remoteStateId, resp.updatedRemoteState);
+        this.storeReplicaStateInfo(this.remoteId, resp.updatedRemoteState, COL);
       }
     } catch (e) {
       console.error('[stats][push] error pushing', e);
@@ -101,13 +93,13 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
     if (this.ongoing) return { success: false, didPull: false };
     this.ongoing = true;
     try {
-      const lastPulled = this.getLastPulled(this.remoteStateId);
+      const lastPulled = this.getLastPulled(this.remoteId, COL);
       const resp = await this.cloudFS.fetchChanges(lastPulled, force);
       if (resp.success && resp.data && resp.updatedRemoteState) {
         const newStats = resp.data as RemoteStatsFileContent;
         if (newStats._schemaVersion === undefined) newStats._schemaVersion = 1;
         this.mergeRemoteStatsToLocal(newStats, force);
-        this.updateRemoteStateInfo(this.remoteStateId, resp.updatedRemoteState);
+        this.storeReplicaStateInfo(this.remoteId, resp.updatedRemoteState, COL);
       }
       return { success: resp.success, didPull: true };
     } catch (e) {

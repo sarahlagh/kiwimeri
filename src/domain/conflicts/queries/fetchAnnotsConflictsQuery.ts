@@ -6,7 +6,7 @@ import { AnnotationConflictResult } from '../model';
 const fetchAnnotsConflictsQuery = new SpaceQueryDefinition<
   ParamValues,
   AnnotationConflictResult,
-  'document_annotation'
+  SpaceTables.Annotations
 >('fetchNoteConflicts', SpaceTables.Annotations, ({ select, where }) => {
   select('itemId');
   select('conflict');

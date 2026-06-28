@@ -1,10 +1,9 @@
 import GenericExportFileButton from '@/common/buttons/GenericExportFileButton';
 import GenericImportFileButton from '@/common/buttons/GenericImportFileButton';
 import { dateToStr } from '@/common/date-utils';
-import { DEFAULT_SPACE_ID } from '@/constants';
-import { space, store } from '@/core/db/store';
-import { SpaceTables, StoreTables } from '@/core/db/store-constants';
-import remotesService from '@/domain/remotes/remotes.service';
+import { space } from '@/core/db/store';
+import { SpaceTables } from '@/core/db/store-constants';
+import { syncService } from '@/domain/replication/sync.service';
 import {
   IonButtons,
   IonCard,
@@ -24,14 +23,14 @@ const ImportExportStoreSettings = () => {
   const exportFileSuffix = 'app-settings';
   const onRestoreContent = async (content: string) => {
     const [tables, values] = JSON.parse(content);
-    store.setTable(StoreTables.Remotes, tables.remotes);
+    space.setTable(SpaceTables.Remote, tables.remotes);
     space.setTable(SpaceTables.UserPreference, tables.user_preference);
     space.setPartialValues(values);
-    await remotesService.configureRemotes(DEFAULT_SPACE_ID, true);
+    await syncService.reinit(true);
   };
   const getContentToExport = async () => {
     // export remotes and & space values
-    const remotes = store.getTable(StoreTables.Remotes);
+    const remotes = space.getTable(SpaceTables.Remote);
     const user_preference = space.getTable(SpaceTables.UserPreference);
     const values = space.getValues();
     const valuesToExport = {

@@ -1,5 +1,5 @@
 import { TinybaseQueryDefinition } from '@/core/db/queries-helper';
-import { TableIdFromSchema } from '@/core/db/types';
+import { TableIdFromSchema, WithId } from '@/core/db/types';
 import { FetchItemsQueryParam } from '@/domain/collection/queries/fetchItemsQuery';
 import useGenericQueryParamsState from '@/shared/hooks/useGenericQueryParamsState';
 import { OptionalSchemas } from 'tinybase/with-schemas';
@@ -7,7 +7,7 @@ import { OptionalSchemas } from 'tinybase/with-schemas';
 export default function useFetchItemsQueryParamsState<
   Schema extends OptionalSchemas,
   RootTableId extends TableIdFromSchema<Schema[0]>,
-  QueryResult
+  QueryResult extends WithId<unknown>
 >(
   query: TinybaseQueryDefinition<
     Schema,

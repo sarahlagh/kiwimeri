@@ -4,7 +4,7 @@ import { space } from '@/core/db/store';
 import { SpaceValue } from '@/core/db/store-schema';
 import { plt } from '@/core/infra/platform';
 import { SerializableData } from '@/db/types/store-types';
-import remotesService from '@/domain/remotes/remotes.service';
+import { syncService } from '@/domain/replication/sync.service';
 import {
   IonButton,
   IonCard,
@@ -106,7 +106,7 @@ const ConfigCard = () => {
       type: 'string',
       label: t`Internal proxy`,
       onChange: async () => {
-        await remotesService.onReinit();
+        await syncService.reinit();
       }
     });
   } else {

@@ -1,78 +1,73 @@
-import { DEFAULT_SPACE_ID } from '@/constants';
-import { store } from '@/core/db/store';
-import remotesService from '@/domain/remotes/remotes.service';
-import { renderHook } from '@testing-library/react';
+import { useQueryResults } from '@/core/db/queries-helper';
+import { space } from '@/core/db/store';
+import { SpaceTables } from '@/core/db/store-constants';
+import remotesService from '@/domain/remotes/configuration/remotes.service';
+import fetchRemotesQuery from '@/domain/replication/replica-state/queries/fetchRemotesQuery';
+import replicaService from '@/domain/replication/replica-state/replica.service';
+import { syncService } from '@/domain/replication/sync.service';
+import { wrappedRenderHook } from '@@/_setup/test.utils';
 import { describe, expect, it } from 'vitest';
 
 describe('remotes service', () => {
   it('should add a remote in db without testing connection', () => {
     remotesService.addRemote('test', 0, 'inmem');
-    expect(store.getRowCount('remotes')).toBe(1);
-    const rowId = store.getRowIds('remotes')[0];
-    const row = store.getRow('remotes', rowId);
+    expect(space.getRowCount(SpaceTables.Remote)).toBe(1);
+    const rowId = space.getRowIds(SpaceTables.Remote)[0];
+    const row = space.getRow(SpaceTables.Remote, rowId);
     expect(row.name).toBe('test');
     expect(row.rank).toBe(0);
-    expect(row.type).toBe('inmem');
-    const state = row.state;
-    expect(store.hasRow('remoteState', state as string)).toBeTruthy();
-    const stateRow = store.getRow('remoteState', state as string);
-    expect(stateRow.connected).toBeFalsy();
-    expect(stateRow.lastRemoteChange).toBeDefined();
-    expect(remotesService['synchronizers'].get(rowId)).toBeUndefined();
+    expect(row.driver).toBe('inmem');
+    expect(space.hasRow(SpaceTables.ReplicaState, rowId)).toBeFalsy();
   });
 
   it('should not init sync for previously unconfigured remotes', async () => {
     remotesService.addRemote('test', 0, 'inmem');
-    await remotesService.configureRemotes(DEFAULT_SPACE_ID);
-    const rowId = store.getRowIds('remotes')[0];
-    const state = store.getRow('remotes', rowId).state;
-    const stateRow = store.getRow('remoteState', state as string);
+    await syncService.reinit();
+    const rowId = space.getRowIds(SpaceTables.Remote)[0];
+    const stateRow = space.getRow(SpaceTables.ReplicaState, rowId);
     expect(stateRow.connected).toBeFalsy();
-    expect(remotesService['synchronizers'].get(rowId)).toBeUndefined();
+    expect(replicaService['synchronizers'].get(rowId)).toBeUndefined();
   });
 
   it('should only init sync for previously configured remotes', async () => {
     remotesService.addRemote('test', 0, 'inmem');
-    const rowId = store.getRowIds('remotes')[0];
-    const state = store.getRow('remotes', rowId).state as string;
-    const ok = await remotesService.configure(
-      {
-        id: rowId,
-        state,
-        type: 'pcloud',
-        config: '{}',
-        connected: false,
-        name: 'test',
-        rank: 0
-      },
-      {}
-    );
+    const rowId = space.getRowIds(SpaceTables.Remote)[0];
+    const ok = await replicaService.ping({
+      id: rowId,
+      driver: 'pcloud',
+      config: {},
+      connected: false,
+      name: 'test',
+      rank: 0
+    });
     expect(ok).toBeTruthy();
-    expect(remotesService['synchronizers'].get(rowId)).toBeDefined();
-    await remotesService.configureRemotes(DEFAULT_SPACE_ID);
-    const stateRow = store.getRow('remoteState', state as string);
+    expect(replicaService['synchronizers'].get(rowId)).toBeDefined();
+    await syncService.reinit();
+    const stateRow = space.getRow(SpaceTables.ReplicaState, rowId);
     expect(stateRow.connected).toBeTruthy();
-    expect(remotesService['synchronizers'].get(rowId)).toBeDefined();
+    expect(replicaService['synchronizers'].get(rowId)).toBeDefined();
   });
 
   it('should only init sync for all remotes on demand', async () => {
     remotesService.addRemote('test', 0, 'inmem');
-    await remotesService.configureRemotes(DEFAULT_SPACE_ID, true);
-    const rowId = store.getRowIds('remotes')[0];
-    const state = store.getRow('remotes', rowId).state;
-    const stateRow = store.getRow('remoteState', state as string);
+    await syncService.reinit(true);
+    const rowId = space.getRowIds(SpaceTables.Remote)[0];
+    const stateRow = space.getRow(SpaceTables.ReplicaState, rowId);
     expect(stateRow.connected).toBeTruthy();
-    expect(remotesService['synchronizers'].get(rowId)).toBeDefined();
+    expect(replicaService['synchronizers'].get(rowId)).toBeDefined();
   });
 
   it('should sort remotes by rank', async () => {
+    fetchRemotesQuery.initQuery();
     remotesService.addRemote('test3', 3, 'inmem');
     remotesService.addRemote('test2', 2, 'inmem');
     remotesService.addRemote('test0', 0, 'inmem');
     remotesService.addRemote('test4', 4, 'inmem');
     remotesService.addRemote('test1', 1, 'inmem');
 
-    const { result } = renderHook(() => remotesService.useRemotes());
+    const { result } = wrappedRenderHook(() =>
+      useQueryResults(fetchRemotesQuery)
+    );
     expect(result.current).toHaveLength(5);
     expect(result.current.map(r => r.rank)).toStrictEqual([0, 1, 2, 3, 4]);
     expect(result.current.map(r => r.name)).toStrictEqual([
@@ -96,6 +91,7 @@ describe('remotes service', () => {
       { current: 3, next: 1, expected: [0, 3, 1, 2, 4] }
     ].forEach(({ current, next, expected }) => {
       it(`${current} -> ${next}`, async () => {
+        fetchRemotesQuery.initQuery();
         remotesService.addRemote('test3', 3, 'inmem');
         remotesService.addRemote('test2', 2, 'inmem');
         remotesService.addRemote('test0', 0, 'inmem');
@@ -104,7 +100,9 @@ describe('remotes service', () => {
 
         remotesService.updateRemoteRank(current, next);
 
-        const { result } = renderHook(() => remotesService.useRemotes());
+        const { result } = wrappedRenderHook(() =>
+          useQueryResults(fetchRemotesQuery)
+        );
         expect(result.current).toHaveLength(5);
         expect(result.current.map(r => r.name)).toStrictEqual(
           expected.map(r => `test${r}`)

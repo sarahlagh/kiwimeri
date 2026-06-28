@@ -14,7 +14,6 @@ import { plt } from '@/core/infra/platform';
 import collectionService from '@/db/collection.service';
 import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
-import remotesService from '@/domain/remotes/remotes.service';
 import {
   UserPreferenceKey,
   userPreferenceDefinitions
@@ -34,6 +33,7 @@ import {
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import useLatestUpdatedAt from '../hooks/useLatestUpdatedAt';
+import usePrimaryLastRemoteChange from '../hooks/usePrimaryLastRemoteChange';
 import {
   closeLatestCollectionUpdateMetric,
   initLatestCollectionUpdateMetric
@@ -56,7 +56,7 @@ const LocalChangesCard = () => {
   const isWideEnough = platformService.isWideEnough();
   const localChanges = useQueryResults(fetchLocalChangesQuery);
   const lastLocalChange = useLatestUpdatedAt();
-  const lastRemoteChange = remotesService.usePrimaryLastRemoteChange();
+  const lastRemoteChange = usePrimaryLastRemoteChange();
   const weightLocal = lastRemoteChange >= lastLocalChange ? 'normal' : 'bold';
   const weightRemote = lastRemoteChange < lastLocalChange ? 'normal' : 'bold';
 

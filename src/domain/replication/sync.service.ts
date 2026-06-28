@@ -1,12 +1,56 @@
-import { useCellWithRef } from '@/db/tinybase/hooks';
-import { conflictsService } from '@/domain/conflicts/conflicts-service';
+import { networkService } from '@/core/infra/network.service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
-import remotesService from '@/domain/remotes/remotes.service';
-import { useHasLocalChanges } from '@/features/local-changes-ui';
+import fetchRemotesQuery from './replica-state/queries/fetchRemotesQuery';
+import replicaService from './replica-state/replica.service';
 
 export type SyncDirection = 'sync' | 'force-push' | 'force-pull';
 
 class SyncService {
+  public start() {
+    if (deviceSettings.isSyncEnabled()) {
+      networkService.onStatusUp(
+        '[storage reinit]',
+        () => {
+          setTimeout(async () => {
+            console.log(
+              '[sync] network connected - will attempt to re init remotes'
+            );
+            await this.reinit();
+          });
+        },
+        true
+      );
+    }
+  }
+
+  public stop() {
+    replicaService.clearAll();
+  }
+
+  public async reinit(initAll = false) {
+    const connectedRemotes = fetchRemotesQuery.getResults(
+      {
+        connected: initAll ? undefined : true
+      },
+      'rank'
+    );
+
+    if (connectedRemotes.length < 1) {
+      console.log('[sync] no initial sync configuration');
+      return;
+    }
+
+    for (const remote of connectedRemotes) {
+      console.log(
+        '[sync] found initial sync configurations',
+        remote.name,
+        remote.driver
+      );
+      const connected = await replicaService.ping(remote);
+      console.debug(`remote ${remote.name} configured: ${connected}`);
+    }
+  }
+
   public async sync(
     direction: SyncDirection,
     remote?: string
@@ -23,18 +67,18 @@ class SyncService {
 
   private async pullMerge(remoteId?: string) {
     // merge only on primary & push force on others
-    const remotes = remotesService.getRemotes();
+    const remotes = fetchRemotesQuery.getResults({});
     const activeRemotes = remotes.filter(r =>
       remoteId ? r.id === remoteId && r.connected : r.connected
     );
     if (activeRemotes.length > 0) {
       const primary = activeRemotes[0];
-      const resp = await remotesService.sync(primary);
+      const resp = await replicaService.sync(primary.id);
       activeRemotes.shift();
       if (activeRemotes.length > 0) {
         setTimeout(async () => {
           for (const remote of activeRemotes) {
-            await remotesService.push(remote, true);
+            await replicaService.push(remote.id, true);
           }
         });
       }
@@ -45,62 +89,28 @@ class SyncService {
 
   // only push to primary or selected
   public async push(remoteId?: string, force = false) {
-    const remotes = remotesService.getRemotes();
+    const remotes = fetchRemotesQuery.getResults({});
     const activeRemotes = remotes.filter(r =>
       remoteId ? r.id === remoteId && r.connected : r.connected
     );
     if (activeRemotes.length > 0) {
       const remote = activeRemotes[0];
-      return remotesService.push(remote, force);
+      return replicaService.push(remote.id, force);
     }
     return { success: true, didPush: false };
   }
 
   // only pull from primary or selected
   public async pull(remoteId?: string, force = false) {
-    const remotes = remotesService.getRemotes();
+    const remotes = fetchRemotesQuery.getResults({});
     const activeRemotes = remotes.filter(r =>
       remoteId ? r.id === remoteId && r.connected : r.connected
     );
     if (activeRemotes.length > 0) {
       const remote = activeRemotes[0];
-      return remotesService.pull(remote, force);
+      return replicaService.pull(remote.id, force);
     }
     return { success: true, didPull: false };
-  }
-
-  public usePrimaryConnected() {
-    const primary = remotesService.usePrimaryRemote();
-    if (!primary || !deviceSettings.isSyncEnabled()) {
-      return false;
-    }
-    return primary.connected;
-  }
-  public usePrimaryHasLocalChanges() {
-    return useHasLocalChanges();
-  }
-
-  private useLastPulled() {
-    const primary = remotesService.usePrimaryRemote();
-    return (
-      useCellWithRef<number>(
-        'store',
-        'remoteState',
-        primary?.state || '-1',
-        'lastPulled'
-      ) || 0
-    );
-  }
-  public usePrimaryHasRemoteChanges() {
-    const lastPulled = this.useLastPulled();
-    const lastRemoteChange = remotesService.usePrimaryLastRemoteChange();
-    return lastPulled < lastRemoteChange;
-  }
-
-  public useIsMergeSyncEnabled() {
-    const isConnected = this.usePrimaryConnected();
-    const hasConflicts = conflictsService.useHasLocalConflicts();
-    return isConnected && !hasConflicts;
   }
 }
 

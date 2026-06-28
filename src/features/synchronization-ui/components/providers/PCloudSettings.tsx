@@ -1,6 +1,7 @@
 import platformService from '@/common/services/platform.service';
+import remotesService from '@/domain/remotes/configuration/remotes.service';
 import { PCloudConf } from '@/domain/remotes/drivers/pcloud/pcloud.driver';
-import remotesService from '@/domain/remotes/remotes.service';
+import replicaService from '@/domain/replication/replica-state/replica.service';
 import {
   InputCustomEvent,
   IonInput,
@@ -27,7 +28,7 @@ const PCloudSettings = ({
 }: PCloudSettingsProps) => {
   const { t } = useLingui();
   const [checking, setChecking] = useState(false);
-  const syncConf = JSON.parse(remote.config) as PCloudConf;
+  const syncConf = remote.config as PCloudConf;
 
   const onChange = async (
     key: keyof PCloudConf | 'name',
@@ -46,14 +47,12 @@ const PCloudSettings = ({
     remotesService.setRemoteConfig(remote.id, syncConf);
     if (syncConf.token) {
       setChecking(true);
-      const ok = await remotesService.configure(
+      const ok = await replicaService.ping(
         remote,
         // don't send full object, want to erase folderid & fileid
         {
           path: syncConf.path,
           token: syncConf.token,
-          // username: syncConf.username,
-          // password: syncConf.password,
           serverLocation: syncConf.serverLocation
         }
       );

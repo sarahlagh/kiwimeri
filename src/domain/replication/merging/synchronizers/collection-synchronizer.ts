@@ -20,13 +20,7 @@ import {
 import { TypeWithId, WithId } from '@/core/db/types';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
-import {
-  AnyData,
-  RemoteResult,
-  RemoteState,
-  RemoteWithState,
-  SerializableData
-} from '@/db/types/store-types';
+import { AnyData, SerializableData } from '@/db/types/store-types';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import {
   minimizeAnnotForStorage,
@@ -48,6 +42,7 @@ import {
 } from '@/domain/local-changes/model';
 import { CloudStorageDriver } from '@/domain/remotes/drivers/abstract.driver';
 import { SingleFileStorage } from '@/domain/replication/layouts/singlefile.filesystem';
+import { ReplicaState } from '@/domain/replication/replica-state/model';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
 import {
   MinimizedUserPref,
@@ -60,7 +55,10 @@ import {
 } from '@/domain/user-preferences/model';
 import { Table as UntypedTable } from 'tinybase';
 import { Content, Table } from 'tinybase/store/with-schemas';
-import { CloudStorageSynchronizer } from '../abstract-synchronizer';
+import {
+  CloudStorageSynchronizer,
+  RemoteRepresentation
+} from '../abstract-synchronizer';
 import {
   annotsConflictPolicy,
   collectionConflictPolicy,
@@ -100,17 +98,16 @@ type RemoteContentRepresentation = {
 
 export const REMOTE_COLLECTION_SCHEMA_VERSION = 1; // increment each breaking change
 
+const COL = 'collectionInfo';
 export class CollectionSynchronizer extends CloudStorageSynchronizer {
   protected cloudFS: SingleFileStorage;
-  protected connectedRemote: RemoteWithState;
   protected ongoing = false;
 
   constructor(
-    protected remote: RemoteResult,
+    protected remote: RemoteRepresentation,
     protected driver: CloudStorageDriver
   ) {
     super();
-    this.connectedRemote = remote;
     this.cloudFS = new SingleFileStorage('collection', driver, {
       filename: 'collection.json'
     });
@@ -125,12 +122,12 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     connected: boolean;
   }> {
     const resp = await this.cloudFS.connect();
-    if (resp.remoteState.connected) {
-      this.updateRemoteStateInfo(this.remote.state, resp.remoteState);
+    if (resp.replicaState.connected) {
+      this.storeReplicaStateInfo(this.remote.id, resp.replicaState, COL);
     }
     return {
       config: resp.config,
-      connected: resp.remoteState.connected || false
+      connected: resp.replicaState.connected || false
     };
   }
 
@@ -174,7 +171,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
         }
         // update remote info
         const updatedRemoteState = resp.updatedRemoteState;
-        this.updateRemoteState(this.remote.state, updatedRemoteState, true);
+        this.updateRemoteState(this.remote.id, updatedRemoteState, true);
       }
 
       return { success: true, didPush };
@@ -194,7 +191,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     console.log(`[collection][pull] starting`);
     const localContent = space.getContent();
     const localChanges = localChangesService.getLocalChanges();
-    const lastPulled = this.getLastPulled(this.remote.state);
+    const lastPulled = this.getLastPulled(this.remote.id, COL);
 
     try {
       const resp = await this.cloudFS.fetchChanges(lastPulled, force);
@@ -213,7 +210,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
         );
         const updatedRemoteState = resp.updatedRemoteState;
         this.updateRemoteState(
-          this.remote.state,
+          this.remote.id,
           updatedRemoteState,
           force || false
         );
@@ -262,7 +259,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     force: boolean
   ): Promise<RemoteContentRepresentation> {
     if (!force) {
-      const lastPulled = this.getLastPulled(this.remote.state);
+      const lastPulled = this.getLastPulled(this.remote.id, COL);
       // TODO can't avoid calling driver.fetchFilesInfo twice for now
       const { success, didPull, data } =
         await this.cloudFS.fetchChanges(lastPulled);
@@ -575,14 +572,14 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
 
   private updateRemoteState(
     state: string,
-    updatedRemoteState: RemoteState,
+    updatedRemoteState: ReplicaState,
     clearLocalChanges: boolean
   ) {
     store.transaction(() => {
       if (clearLocalChanges) {
         localChangesService.clear();
       }
-      this.updateRemoteStateInfo(state, updatedRemoteState);
+      this.storeReplicaStateInfo(state, updatedRemoteState, COL);
     });
   }
 

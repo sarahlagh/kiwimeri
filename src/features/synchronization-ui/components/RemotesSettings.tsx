@@ -1,8 +1,11 @@
 import platformService from '@/common/services/platform.service';
-import { APPICONS, DEFAULT_SPACE_ID } from '@/constants';
+import { APPICONS } from '@/constants';
+import { useQueryResults } from '@/core/db/queries-helper';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
+import remotesService from '@/domain/remotes/configuration/remotes.service';
 import { PCloudConf } from '@/domain/remotes/drivers/pcloud/pcloud.driver';
-import remotesService from '@/domain/remotes/remotes.service';
+import fetchRemotesQuery from '@/domain/replication/replica-state/queries/fetchRemotesQuery';
+import { syncService } from '@/domain/replication/sync.service';
 import {
   IonButton,
   IonButtons,
@@ -25,7 +28,7 @@ import PCloudSettings from './providers/PCloudSettings';
 
 const RemotesSettings = () => {
   const [reorderEnabled, setReorderEnabled] = useState(false);
-  const remotes = remotesService.useRemotes();
+  const remotes = useQueryResults(fetchRemotesQuery);
 
   const addRemote = () => {
     // TODO: later add the possibility to choose which type
@@ -36,7 +39,7 @@ const RemotesSettings = () => {
 
   const onConfigured = async (ok: boolean) => {
     if (ok) {
-      await remotesService.configureRemotes(DEFAULT_SPACE_ID);
+      await syncService.reinit();
     }
   };
 

@@ -1,18 +1,15 @@
 import { CollectionItemType } from '@/collection/collection';
-import {
-  DEFAULT_NOTEBOOK_ID,
-  DEFAULT_SPACE_ID,
-  getGlobalTrans
-} from '@/constants';
+import { DEFAULT_NOTEBOOK_ID, getGlobalTrans } from '@/constants';
 import { space } from '@/core/db/store';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
-import remotesService from '@/domain/remotes/remotes.service';
 import { SingleFileStorage } from '@/domain/replication/layouts/singlefile.filesystem';
+import fetchRemotesQuery from '@/domain/replication/replica-state/queries/fetchRemotesQuery';
 import { syncService } from '@/domain/replication/sync.service';
+import { useIsMergeSyncEnabled } from '@/features/synchronization-ui';
 import { InMemDriver } from '@@/_setup/inmem.driver';
 import {
   adv,
@@ -22,7 +19,6 @@ import {
   oneNotebook,
   wrappedRenderHook
 } from '@@/_setup/test.utils';
-import { renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   getRemoteContent,
@@ -135,7 +131,7 @@ describe(`sync general test`, () => {
     // create item on remote, sync
     await reInitRemoteData([oneDocument('remote')]);
     // reinit sync after network down
-    await remotesService.configureRemotes(DEFAULT_SPACE_ID);
+    await syncService.reinit();
     // now pull
     const resp = await syncService_sync('sync');
     expect(resp.success);
@@ -153,7 +149,7 @@ describe(`sync general test`, () => {
     adv(() => space.setCell('collection', id, 'conflict', 'fakeId'));
     // is global sync prevented
     const { result, unmount } = wrappedRenderHook(() =>
-      syncService.useIsMergeSyncEnabled()
+      useIsMergeSyncEnabled()
     );
     expect(result.current).toBe(false);
     unmount();
@@ -193,6 +189,7 @@ describe(`sync general test`, () => {
   });
 
   it('should allow sync once all conflicts are solved', async () => {
+    fetchRemotesQuery.initQuery();
     conflictsService.initConflictQueries();
     // create local item
     const id = adv(() => collectionService.addDocument(DEFAULT_NOTEBOOK_ID));
@@ -204,7 +201,7 @@ describe(`sync general test`, () => {
 
     {
       const { result, unmount } = wrappedRenderHook(() =>
-        syncService.useIsMergeSyncEnabled()
+        useIsMergeSyncEnabled()
       );
       expect(result.current).toBe(false);
       unmount();
@@ -220,8 +217,8 @@ describe(`sync general test`, () => {
     expect(lc?.itemId).toBe(id);
 
     {
-      const { result, unmount } = renderHook(() =>
-        syncService.useIsMergeSyncEnabled()
+      const { result, unmount } = wrappedRenderHook(() =>
+        useIsMergeSyncEnabled()
       );
       expect(result.current).toBe(true);
       unmount();

@@ -7,7 +7,7 @@ import { networkService } from './core/infra/network.service';
 import { plt } from './core/infra/platform';
 import { historyService } from './db/collection-history.service';
 import notebooksService from './db/notebooks.service';
-import remotesService from './domain/remotes/remotes.service';
+import { syncService } from './domain/replication/sync.service';
 import { appLog } from './log';
 
 export function appInit() {
@@ -44,7 +44,7 @@ export function appInit() {
     networkService.init(initialStatus);
 
     notebooksService.initNotebooks();
-    remotesService.initSync();
+    syncService.start();
     historyService.gc();
     appLog.gc(); // TODO run at interval
     console.debug('[app-init] app started');

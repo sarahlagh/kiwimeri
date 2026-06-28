@@ -1,7 +1,15 @@
-import { store } from '@/core/db/store';
-import { AnyData, RemoteResult, RemoteState } from '@/db/types/store-types';
+import { space } from '@/core/db/store';
+import { SpaceTables } from '@/core/db/store-constants';
+import { WithId } from '@/core/db/types';
+import { AnyData } from '@/db/types/store-types';
+import { Remote } from '@/domain/remotes/configuration/model';
+import {
+  ReplicaState,
+  ReplicaStateRow,
+  StoredStateInfo
+} from '../replica-state/model';
 
-export type RemoteRepresentation = Required<Pick<RemoteResult, 'id' | 'name'>>;
+export type RemoteRepresentation = WithId<Partial<Remote>>;
 
 export abstract class CloudStorageSynchronizer {
   public abstract configure(
@@ -38,38 +46,28 @@ export abstract class CloudStorageSynchronizer {
 
   public abstract destroy(): Promise<void>;
 
-  protected getLastPulled(remoteStateId: string): number {
-    return (
-      (store
-        .getCell('remoteState', remoteStateId, 'lastPulled')
-        ?.valueOf() as number) || 0
-    );
+  protected storeReplicaStateInfo<
+    K extends keyof Omit<ReplicaStateRow, 'connected'>
+  >(remoteId: string, remoteInfo: ReplicaState, key: K) {
+    const storedState: StoredStateInfo = {
+      lastPulled: remoteInfo.lastPulled,
+      lastRemoteChange: remoteInfo.lastRemoteChange,
+      driverInfo: remoteInfo.driverInfo
+    };
+    const row: Partial<Record<K, unknown>> = {};
+    row[key] = storedState;
+    space.setPartialRow(SpaceTables.ReplicaState, remoteId, row);
   }
 
-  protected updateRemoteStateInfo(stateId: string, remoteInfo: RemoteState) {
-    store.transaction(() => {
-      store.setCell(
-        'remoteState',
-        stateId,
-        'lastRemoteChange',
-        remoteInfo.lastRemoteChange || 0
-      );
-      if (remoteInfo.lastPulled) {
-        store.setCell(
-          'remoteState',
-          stateId,
-          'lastPulled',
-          remoteInfo.lastPulled
-        );
-      }
-      if (remoteInfo.info) {
-        store.setCell(
-          'remoteState',
-          stateId,
-          'info',
-          JSON.stringify(remoteInfo.info)
-        );
-      }
-    });
+  protected getLastPulled<K extends keyof Omit<ReplicaStateRow, 'connected'>>(
+    remoteId: string,
+    key: K
+  ): number {
+    const stateInfo = space.getCell(
+      SpaceTables.ReplicaState,
+      remoteId,
+      key
+    ) as ReplicaStateRow[K];
+    return stateInfo?.lastPulled || 0;
   }
 }

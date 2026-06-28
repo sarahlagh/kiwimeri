@@ -42,6 +42,7 @@ export default function Migration(
   addDerivedState(_store, _space);
   localChangesGoToSpace(_store, _space);
   remotesGoToSpace(_store, _space);
+  remoteStatesMergeIntoOne(_space);
 }
 
 function metaFieldsBecomeObjects(_space: NoSchemaStore) {
@@ -305,14 +306,14 @@ function _migrateTableToSpace(
   _space: NoSchemaStore,
   oldTable: string,
   newTable: string,
-  transform?: (row: any) => any
+  transform?: (row: any, rowId: string) => any
 ) {
   if (!_store.hasTable(oldTable)) {
     return;
   }
   _store.getRowIds(oldTable).forEach(rowId => {
     let row = _store.getRow(oldTable, rowId);
-    if (transform) row = transform(row);
+    if (transform) row = transform(row, rowId);
     _space.setRow(newTable, rowId, row);
   });
 }
@@ -322,18 +323,83 @@ function localChangesGoToSpace(_store: NoSchemaStore, _space: NoSchemaStore) {
 }
 
 function remotesGoToSpace(_store: NoSchemaStore, _space: NoSchemaStore) {
-  _migrateTableToSpace(_store, _space, 'remotes', RC, row => {
-    const config = row.config;
-    if (typeof config === 'string') {
-      row.config = JSON.parse(config);
-    }
-    return row;
-  });
+  // first remoteState
   _migrateTableToSpace(_store, _space, 'remoteState', RS, row => {
     const info = row.info;
     if (typeof info === 'string') {
       row.info = JSON.parse(info);
     }
     return row;
+  });
+
+  // then remotes
+  _migrateTableToSpace(_store, _space, 'remotes', RC, (row, rowId) => {
+    const config = row.config;
+    if (typeof config === 'string') {
+      row.config = JSON.parse(config);
+    }
+    const type = row.type;
+    row.driver = type;
+    if (row.state !== rowId) {
+      // migrate states (if didn't have the same id has their remote, correct that)
+      const stateRow = _space.getRow(RS, row.state);
+      _space.setRow(RS, `${rowId}-collection`, stateRow);
+      _space.delRow(RS, row.state);
+      row.state = rowId;
+    }
+    return row;
+  });
+}
+
+function remoteStatesMergeIntoOne(_space: NoSchemaStore) {
+  const rowIds = _space.getRowIds(RS);
+  const nonStatsToMigrate = rowIds.filter(rowId =>
+    rowId.endsWith('-collection')
+  );
+  const statsToMigrate = rowIds.filter(rowId => rowId.endsWith('-stats'));
+
+  // first migrate collection states
+  nonStatsToMigrate.forEach(rowId => {
+    const targetId = rowId.replace('-collection', '');
+    const connected = _space.getCell(RS, rowId, 'connected') as boolean;
+    const lastRemoteChange = _space.getCell(
+      RS,
+      rowId,
+      'lastRemoteChange'
+    ) as number;
+    const lastPulled = _space.getCell(RS, rowId, 'lastPulled') as number;
+    const info = _space.getCell(RS, rowId, 'info') as any;
+
+    _space.setPartialRow(RS, targetId, {
+      connected,
+      collectionInfo: {
+        lastRemoteChange,
+        lastPulled,
+        driverInfo: info
+      }
+    });
+
+    _space.delRow(RS, rowId);
+  });
+
+  // then merge stats
+  statsToMigrate.forEach(rowId => {
+    const targetId = rowId.replace('-stats', '');
+
+    const lastRemoteChange = _space.getCell(
+      RS,
+      rowId,
+      'lastRemoteChange'
+    ) as number;
+    const lastPulled = _space.getCell(RS, rowId, 'lastPulled') as number;
+    const info = _space.getCell(RS, rowId, 'info') as any;
+
+    _space.setCell(RS, targetId, 'statsInfo', {
+      lastRemoteChange,
+      lastPulled,
+      driverInfo: info
+    });
+
+    _space.delRow(RS, rowId);
   });
 }

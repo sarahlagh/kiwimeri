@@ -8,17 +8,17 @@ import {
 import {
   CONFLICTS_NOTEBOOK_ID,
   DEFAULT_NOTEBOOK_ID,
-  DEFAULT_SPACE_ID,
   ROOT_COLLECTION
 } from '@/constants';
-import { space, store } from '@/core/db/store';
+import { space } from '@/core/db/store';
+import { SpaceTables } from '@/core/db/store-constants';
 import { DbSerializableData, MetaField, setMetaField } from '@/core/db/types';
 import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
-import remotesService from '@/domain/remotes/remotes.service';
-import { SyncDirection } from '@/domain/replication/sync.service';
+import remotesService from '@/domain/remotes/configuration/remotes.service';
+import { SyncDirection, syncService } from '@/domain/replication/sync.service';
 import {
   createLocalItem,
   fakeTimersDelay,
@@ -137,15 +137,18 @@ export class PullTestScenarioRunner {
     }
     // make sure remote is seen as initially unchanged
     if (this.scenario.initLocalData) {
-      await remotesService.configureRemotes(DEFAULT_SPACE_ID);
+      await syncService.reinit();
       const remoteInfo = await getRemoteFileInfo('collection.json');
-      const state = remotesService.getRemotes()[0].state;
-      store.setCell(
-        'remoteState',
-        state,
-        'lastPulled',
-        remoteInfo?.updated || 0
+      const remoteId = remotesService.getRemotes()[0].id;
+      const info = space.getCell(
+        SpaceTables.ReplicaState,
+        remoteId,
+        'collectionInfo'
       );
+      space.setCell(SpaceTables.ReplicaState, remoteId, 'collectionInfo', {
+        ...info,
+        lastPulled: remoteInfo?.updated || 0
+      });
     }
     return this;
   }

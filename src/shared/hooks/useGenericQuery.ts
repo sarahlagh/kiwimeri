@@ -1,5 +1,5 @@
 import { TinybaseQueryDefinition } from '@/core/db/queries-helper';
-import { TableIdFromSchema } from '@/core/db/types';
+import { TableIdFromSchema, WithId } from '@/core/db/types';
 import { useEffect, useState } from 'react';
 import { OptionalSchemas, ParamValues } from 'tinybase/with-schemas';
 
@@ -7,7 +7,7 @@ const useGenericQuery = <
   Schema extends OptionalSchemas,
   RootTableId extends TableIdFromSchema<Schema[0]>,
   ParamDef extends ParamValues,
-  QueryResult
+  QueryResult extends WithId<unknown>
 >(
   initialQuery: TinybaseQueryDefinition<
     Schema,

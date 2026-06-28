@@ -1,6 +1,7 @@
-import { AnyData, RemoteResult } from '@/db/types/store-types';
+import { AnyData } from '@/db/types/store-types';
 import { CloudStorageDriver } from '@/domain/remotes/drivers/abstract.driver';
 import { driverFactory } from '@/domain/remotes/drivers/driver-factory';
+import { ConnectedRemote } from '@/domain/replication/replica-state/model';
 import { CloudStorageSynchronizer } from '../abstract-synchronizer';
 import { CollectionSynchronizer } from './collection-synchronizer';
 import { StatsSynchronizer } from './stats-synchronizer';
@@ -12,9 +13,9 @@ export class CompositeSynchronizer extends CloudStorageSynchronizer {
   protected driver: CloudStorageDriver;
   protected statsEnabled = true; // TODO configure
 
-  constructor(protected remote: RemoteResult) {
+  constructor(protected remote: ConnectedRemote) {
     super();
-    this.driver = driverFactory(remote.type);
+    this.driver = driverFactory(remote.driver);
     this.collectionSynchronizer = new CollectionSynchronizer(
       remote,
       this.driver

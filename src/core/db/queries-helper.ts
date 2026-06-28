@@ -20,9 +20,10 @@ import {
   StoreTableId,
   StoreType
 } from './store-schema';
-import { AsId, TableIdFromSchema } from './types';
+import { AsId, TableIdFromSchema, WithId } from './types';
 
-export type SortCell<T> = AsId<keyof T>;
+export type SortCell<T> = Exclude<AsId<keyof T>, 'id'>;
+// export type SortCell<T> = AsId<keyof T>;
 
 function getQueries(storeId: StoreId) {
   switch (storeId) {
@@ -49,13 +50,15 @@ export class TinybaseQueryDefinition<
   Schema extends OptionalSchemas,
   RootTableId extends TableIdFromSchema<Schema[0]>,
   ParamDef extends ParamValues,
-  QueryResult
+  QueryResult extends WithId<unknown>
 > {
   constructor(
     public storeId: StoreId,
     public queryId: Id,
     public tableId: RootTableId,
-    public query: QueryDefinition<Schema, RootTableId>
+    public query: QueryDefinition<Schema, RootTableId>,
+    public defaultSortBy?: SortCell<QueryResult>,
+    public defaultDescending?: boolean
   ) {}
 
   public initQuery(paramValues?: ParamDef) {
@@ -93,6 +96,8 @@ export class TinybaseQueryDefinition<
     offset?: number,
     limit?: number
   ) {
+    if (descending === undefined) descending = this.defaultDescending;
+    if (sortBy === undefined) sortBy = this.defaultSortBy;
     const queries = this.getQueries();
     return queries
       .getResultSortedRowIds(this.queryId, sortBy, descending, offset, limit)
@@ -101,7 +106,7 @@ export class TinybaseQueryDefinition<
           ({
             ...queries.getResultRow(this.queryId, rowId),
             id: rowId
-          }) as QueryResult & { id: Id }
+          }) as WithId<QueryResult>
       );
   }
 
@@ -129,7 +134,9 @@ export class TinybaseQueryDefinition<
       this.storeId,
       `${this.queryId}-${getUniqueId()}`,
       this.tableId,
-      this.query
+      this.query,
+      this.defaultSortBy,
+      this.defaultDescending
     );
     copy.initQuery(paramValues);
     return copy;
@@ -146,7 +153,7 @@ export class TinybaseQueryDefinition<
 
 export class SpaceQueryDefinition<
   ParamDef extends ParamValues,
-  QueryResult,
+  QueryResult extends WithId<unknown>,
   RootTableId extends SpaceTableId
 > extends TinybaseQueryDefinition<
   SpaceType,
@@ -157,15 +164,17 @@ export class SpaceQueryDefinition<
   constructor(
     public queryId: Id,
     public tableId: RootTableId,
-    public query: QueryDefinition<SpaceType, RootTableId>
+    public query: QueryDefinition<SpaceType, RootTableId>,
+    public defaultSortBy?: SortCell<QueryResult>,
+    public defaultDescending?: boolean
   ) {
-    super('space', queryId, tableId, query);
+    super('space', queryId, tableId, query, defaultSortBy, defaultDescending);
   }
 }
 
 export class StoreQueryDefinition<
   ParamDef extends ParamValues,
-  QueryResult,
+  QueryResult extends WithId<unknown>,
   RootTableId extends StoreTableId
 > extends TinybaseQueryDefinition<
   StoreType,
@@ -186,7 +195,7 @@ export const useQueryResults = <
   Schema extends OptionalSchemas,
   RootTableId extends TableIdFromSchema<Schema[0]>,
   ParamDef extends ParamValues,
-  QueryResult
+  QueryResult extends WithId<unknown>
 >(
   queryDef: TinybaseQueryDefinition<Schema, RootTableId, ParamDef, QueryResult>,
   sortBy?: SortCell<QueryResult>,
@@ -194,6 +203,8 @@ export const useQueryResults = <
   offset?: number,
   limit?: number
 ) => {
+  if (descending === undefined) descending = queryDef.defaultDescending;
+  if (sortBy === undefined) sortBy = queryDef.defaultSortBy;
   const resultTable = useResultTable(queryDef.queryId, queryDef.storeId);
   return useResultSortedRowIds(
     queryDef.queryId,
@@ -207,7 +218,7 @@ export const useQueryResults = <
       ({
         ...resultTable[rowId],
         id: rowId
-      }) as QueryResult & { id: Id }
+      }) as WithId<QueryResult>
   );
 };
 
@@ -215,7 +226,7 @@ export const useQueryResultIds = <
   Schema extends OptionalSchemas,
   RootTableId extends TableIdFromSchema<Schema[0]>,
   ParamDef extends ParamValues,
-  QueryResult
+  QueryResult extends WithId<unknown>
 >(
   queryDef: TinybaseQueryDefinition<Schema, RootTableId, ParamDef, QueryResult>,
   sortBy?: SortCell<QueryResult>,
@@ -223,6 +234,8 @@ export const useQueryResultIds = <
   offset?: number,
   limit?: number
 ) => {
+  if (descending === undefined) descending = queryDef.defaultDescending;
+  if (sortBy === undefined) sortBy = queryDef.defaultSortBy;
   return useResultSortedRowIds(
     queryDef.queryId,
     sortBy,

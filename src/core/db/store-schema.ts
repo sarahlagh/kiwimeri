@@ -3,7 +3,7 @@ import { derivedItemStateSchema } from '@/domain/derived-item-state/model';
 import { docAnnotationSchema } from '@/domain/document-annotations/model';
 import { localChangesSchema } from '@/domain/local-changes/model';
 import { remotesSchema } from '@/domain/remotes/configuration/model';
-import { replicaStatesSchema } from '@/domain/replication/state/model';
+import { replicaStatesSchema } from '@/domain/replication/replica-state/model';
 import { resumeStateSchema } from '@/domain/resume-state/model';
 import { userPreferenceSchema } from '@/domain/user-preferences/model';
 import { SpaceTables, StoreTables } from './store-constants';
@@ -16,19 +16,6 @@ import {
 } from './types';
 
 export const storeTablesSchema = {
-  remotes: {
-    state: { type: 'string' },
-    name: { type: 'string' },
-    rank: { type: 'number' },
-    type: { type: 'string' },
-    config: { type: 'string' }
-  },
-  remoteState: {
-    connected: { type: 'boolean' },
-    lastRemoteChange: { type: 'number' },
-    lastPulled: { type: 'number' },
-    info: { type: 'string' }
-  },
   logs: {
     ts: { type: 'number' },
     level: { type: 'string' },

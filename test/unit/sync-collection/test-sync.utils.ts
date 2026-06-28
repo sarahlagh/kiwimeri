@@ -1,13 +1,13 @@
 import { CollectionItem } from '@/collection/collection';
-import { DEFAULT_SPACE_ID } from '@/constants';
 import { historyService } from '@/db/collection-history.service';
 import { SyncableAnnotation } from '@/domain/document-annotations/model';
 import {
   startLocalChangesListeners,
   stopLocalChangesListeners
 } from '@/domain/local-changes/listeners';
-import remotesService from '@/domain/remotes/remotes.service';
+import remotesService from '@/domain/remotes/configuration/remotes.service';
 import { CompositeSynchronizer } from '@/domain/replication/merging/synchronizers/composite-synchronizer';
+import replicaService from '@/domain/replication/replica-state/replica.service';
 import { SyncDirection, syncService } from '@/domain/replication/sync.service';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import { InMemDriver } from '@@/_setup/inmem.driver';
@@ -20,9 +20,11 @@ let iPush = 0;
 
 export const testSyncBeforeEach = async () => {
   stopLocalChangesListeners();
-  remotesService.addRemote('test', 0, 'inmem', { names: ['collection.json'] });
-  await remotesService.configureRemotes(DEFAULT_SPACE_ID, true);
-  const compositeSynchronizer = remotesService['synchronizers'].values().next()
+  remotesService.addRemote('test', 0, 'inmem', {
+    names: ['collection.json']
+  });
+  await syncService.reinit(true);
+  const compositeSynchronizer = replicaService['synchronizers'].values().next()
     .value! as CompositeSynchronizer;
   compositeSynchronizer['statsEnabled'] = false;
   driver = compositeSynchronizer['collectionSynchronizer'][

@@ -2,9 +2,14 @@ import SyncRemoteButton from '@/common/buttons/SyncRemoteButton';
 import collectionService from '@/db/collection.service';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
-import { syncService } from '@/domain/replication/sync.service';
+import fetchRemotesQuery from '@/domain/replication/replica-state/queries/fetchRemotesQuery';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
+import { useHasLocalChanges } from '@/features/local-changes-ui';
 import { DeepSearchButton } from '@/features/search';
+import {
+  useIsMergeSyncEnabled,
+  usePrimaryHasRemoteChanges
+} from '@/features/synchronization-ui';
 import {
   InputCustomEvent,
   IonButtons,
@@ -39,15 +44,16 @@ const MainHeader = ({
   const history = useHistory();
   const location = useLocation();
   const [isSyncing, setIsSyncing] = useState(false);
-  const isMergeSyncEnabled = syncService.useIsMergeSyncEnabled();
-  const hasChanges = syncService.usePrimaryHasLocalChanges();
-  const hasRemoteChanges = syncService.usePrimaryHasRemoteChanges();
+  const isMergeSyncEnabled = useIsMergeSyncEnabled();
+  const hasChanges = useHasLocalChanges();
+  const hasRemoteChanges = usePrimaryHasRemoteChanges();
   const hasConflicts = conflictsService.useHasLocalConflicts();
   const enabled = !isSyncing && isMergeSyncEnabled;
   const { setToast } = useToastContext();
 
   useEffect(() => {
     conflictsService.initConflictQueries();
+    fetchRemotesQuery.initQuery();
   }, []);
 
   function getColor() {

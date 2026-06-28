@@ -16,7 +16,6 @@ import '@ionic/react/css/palettes/dark.class.css';
 import '@/theme/global.scss';
 
 import notebooksService from '@/db/notebooks.service';
-import remotesService from '@/domain/remotes/remotes.service';
 import { messages as enMessages } from '@/locales/en/messages';
 import { i18n } from '@lingui/core';
 
@@ -25,6 +24,7 @@ import { initGlobalTrans } from '@/constants';
 import { postInitMigrationService } from '@/core/db/post-init-migrations/post-init-migration.service';
 import { startDbListeners, stopDbListeners } from '@/core/db/store-listeners';
 import { historyService } from '@/db/collection-history.service';
+import { syncService } from '@/domain/replication/sync.service';
 import '@/polyfills/log-polyfill';
 import { setupIonicReact } from '@ionic/react';
 import { afterAll, afterEach, beforeAll, beforeEach } from 'vitest';
@@ -42,10 +42,10 @@ setupIonicReact({
 beforeAll(async () => {
   postInitMigrationService['enabled'] = false;
   historyService['enabled'] = false;
-  remotesService.initSync();
+  syncService.start();
 });
 afterAll(() => {
-  remotesService.stopSync();
+  //
 });
 beforeEach(() => {
   notebooksService.initNotebooks();
@@ -54,5 +54,5 @@ beforeEach(() => {
 afterEach(() => {
   stopDbListeners();
   nukeStorage();
-  remotesService.stopSync();
+  syncService.stop();
 });

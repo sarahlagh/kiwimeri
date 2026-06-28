@@ -36,18 +36,6 @@ const OperationCard = () => {
         >
           nuke space
         </IonButton>
-        <IonButton
-          fill="clear"
-          onClick={() => {
-            storageService.nukeSpace();
-            store.setCell('remoteState', '0', 'info', '{}');
-            store.setCell('remoteState', '0', 'lastRemoteChange', 0);
-          }}
-          color="danger"
-        >
-          nuke space & remote
-        </IonButton>
-
         <GenericExportFileButton
           fill="clear"
           color={'primary'}

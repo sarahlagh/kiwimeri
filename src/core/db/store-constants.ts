@@ -1,6 +1,4 @@
 export enum StoreTables {
-  Remotes = 'remotes',
-  RemoteStates = 'remoteState',
   Logs = 'logs'
 }
 
@@ -15,8 +13,8 @@ export enum SpaceTables {
   DerivedContent = 'derived_content',
   DerivedState = 'derived_item_state',
   LocalChanges = 'local_change',
-  RemoteConfig = 'remote',
-  RemoteState = 'replica_state'
+  Remote = 'remote',
+  ReplicaState = 'replica_state'
 }
 
 export type StoreId = 'store' | 'space';

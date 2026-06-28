@@ -9,7 +9,7 @@ export type FetchNotesQueryParam = {
 const fetchNotesQuery = new SpaceQueryDefinition<
   FetchNotesQueryParam,
   NoteResult,
-  'document_annotation'
+  SpaceTables.Annotations
 >('fetchNotes', SpaceTables.Annotations, ({ select, where, param }) => {
   const params: FetchNotesQueryParam = {
     itemId: param('itemId') as string

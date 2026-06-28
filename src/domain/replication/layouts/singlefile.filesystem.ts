@@ -1,7 +1,8 @@
-import { AnyData, RemoteState } from '@/db/types/store-types';
+import { AnyData } from '@/db/types/store-types';
 import { CloudStorageDriver } from '@/domain/remotes/drivers/abstract.driver';
-import { DriverFileInfo, FileReference } from '@/domain/remotes/drivers/model';
+import { DriverFileInfo } from '@/domain/remotes/drivers/model';
 import { getUniqueId } from 'tinybase/common';
+import { ReplicaRemoteState, ReplicaState } from '../replica-state/model';
 import { CloudStorageFilesystemV2 } from './abstract.filesystem';
 
 export type SingleFileStorageOpts = {
@@ -26,13 +27,19 @@ export class SingleFileStorage extends CloudStorageFilesystemV2 {
     this.logPrefix = `[singlefile fs][${logName}][${this.driver.driverName}]`;
   }
 
-  public async connect(fileRefs?: FileReference[]): Promise<{
+  public async connect(): Promise<{
     config: AnyData | null;
-    remoteState: RemoteState;
+    replicaState: ReplicaRemoteState;
   }> {
-    return this.connectAttempt(
-      fileRefs ? fileRefs : [{ filename: this.filename }]
-    );
+    const resp = await this.connectAttempt([{ filename: this.filename }]);
+    return {
+      config: resp.config,
+      replicaState: {
+        connected: resp.connected,
+        lastRemoteChange: resp.lastRemoteChange,
+        driverInfo: resp.filesInfo
+      }
+    };
   }
 
   public async destroy() {
@@ -44,14 +51,14 @@ export class SingleFileStorage extends CloudStorageFilesystemV2 {
       { filename: this.filename }
     ]);
     if (success && filesInfo) {
-      const updatedRemoteState = this.getRemoteState(filesInfo);
-      const localInfo = updatedRemoteState.info as DriverFileInfo;
-      const newLastRemoteChange = updatedRemoteState.lastRemoteChange || 0;
+      const remoteState = this.getRemoteState(filesInfo);
+      const localInfo = remoteState.driverInfo;
+      const newLastRemoteChange = remoteState.lastRemoteChange || 0;
       const hasNewChanges = localInfo && lastPulled < newLastRemoteChange;
       return {
         success: true,
         hasNewChanges,
-        updatedRemoteState
+        remoteState
       };
     }
     return { success: false };
@@ -89,7 +96,9 @@ export class SingleFileStorage extends CloudStorageFilesystemV2 {
       return { success: false, didPush: true };
     }
     // consider file pushed
-    const updatedRemoteState = this.getRemoteState([driverInfo]);
+    const updatedRemoteState = this.getRemoteState([
+      driverInfo
+    ]) as ReplicaState;
     updatedRemoteState.lastPulled = updatedRemoteState.lastRemoteChange;
     return { success: true, didPush: true, updatedRemoteState };
   }
@@ -101,7 +110,7 @@ export class SingleFileStorage extends CloudStorageFilesystemV2 {
   ): Promise<{
     success: boolean;
     didPull: boolean;
-    updatedRemoteState?: RemoteState;
+    updatedRemoteState?: ReplicaState;
     data?: AnyData;
   }> {
     console.log(
@@ -111,9 +120,10 @@ export class SingleFileStorage extends CloudStorageFilesystemV2 {
     const {
       success: lookupSuccess,
       hasNewChanges,
-      updatedRemoteState
+      remoteState
     } = await this.hasNewChanges(lastPulled);
     if (!lookupSuccess) return { success: false, didPull: false };
+    const updatedRemoteState = remoteState as ReplicaState;
 
     if (!force && !hasNewChanges) {
       console.log(
@@ -122,7 +132,7 @@ export class SingleFileStorage extends CloudStorageFilesystemV2 {
       );
       return { success: lookupSuccess, didPull: false, updatedRemoteState };
     }
-    if (!updatedRemoteState?.info) {
+    if (!updatedRemoteState || !updatedRemoteState.driverInfo) {
       console.log(
         `${this.logPrefix}[fetchChanges] remote not found, will not pull`
       );
@@ -132,14 +142,14 @@ export class SingleFileStorage extends CloudStorageFilesystemV2 {
       `${this.logPrefix}[fetchChanges] remote did change, will pull file`,
       updatedRemoteState
     );
-    const localInfo = updatedRemoteState!.info as DriverFileInfo;
+    const localInfo = updatedRemoteState.driverInfo[0];
 
     const { success, content } = await this.driver.pullFile({
       filename: this.filename,
       providerid: localInfo.providerid
     });
     if (updatedRemoteState) {
-      updatedRemoteState.lastPulled = updatedRemoteState?.lastRemoteChange;
+      updatedRemoteState.lastPulled = updatedRemoteState.lastRemoteChange;
     }
     if (content) {
       return {
@@ -152,14 +162,14 @@ export class SingleFileStorage extends CloudStorageFilesystemV2 {
     return { success, didPull: true, updatedRemoteState };
   }
 
-  private getRemoteState(filesInfo: DriverFileInfo[]) {
-    const remoteState: RemoteState = {
+  private getRemoteState(filesInfo: DriverFileInfo[]): ReplicaRemoteState {
+    const remoteState: ReplicaRemoteState = {
       connected: true,
       lastRemoteChange:
         filesInfo.length > 0 ? Math.max(...filesInfo.map(fi => fi.updated)) : 0
     };
     if (filesInfo.length > 0) {
-      remoteState.info = filesInfo[0];
+      remoteState.driverInfo = filesInfo;
     }
     return remoteState;
   }

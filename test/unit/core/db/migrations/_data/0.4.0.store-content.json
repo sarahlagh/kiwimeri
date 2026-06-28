@@ -42,12 +42,24 @@
         "createdAt": 1782124378069
       }
     },
-    "remoteState": { "0": { "connected": false, "lastRemoteChange": 0 } },
+    "remoteState": {
+      "1": {
+        "connected": true,
+        "lastRemoteChange": 1780840953000,
+        "info": "{\"providerid\":\"97510863680\",\"filename\":\"collection.json\",\"size\":472636,\"hash\":\"13705697680891652000\",\"updated\":1780840953000}"
+      },
+      "0-stats": {
+        "connected": false,
+        "lastRemoteChange": 1780840952000,
+        "info": "{\"providerid\":\"97510863356\",\"filename\":\"stats.json\",\"size\":136282,\"hash\":\"16088262883219816000\",\"updated\":1780840952000}",
+        "lastPulled": 1780840952000
+      }
+    },
     "remotes": {
       "0": {
         "rank": 0,
         "name": "pcloud",
-        "state": "0",
+        "state": "1",
         "type": "pcloud",
         "config": "{\"path\":\"/kiwimeri\",\"token\":\"fake token\",\"serverLocation\":\"eu\"}"
       }
