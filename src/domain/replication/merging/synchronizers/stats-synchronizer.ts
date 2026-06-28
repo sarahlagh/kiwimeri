@@ -37,7 +37,7 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
     this.cloudFS = new SingleFileStorage('stats', driver, {
       filename: 'stats.json'
     });
-    this.remoteId = `${this.remote.id}-stats`;
+    this.remoteId = this.remote.id;
   }
 
   public configure(conf: AnyData, proxy?: string, useHttp?: boolean): void {

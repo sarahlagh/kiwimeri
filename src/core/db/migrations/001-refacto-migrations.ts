@@ -369,13 +369,14 @@ function remoteStatesMergeIntoOne(_space: NoSchemaStore) {
     ) as number;
     const lastPulled = _space.getCell(RS, rowId, 'lastPulled') as number;
     const info = _space.getCell(RS, rowId, 'info') as any;
+    const aInfo = !Array.isArray(info) ? [info] : info;
 
     _space.setPartialRow(RS, targetId, {
       connected,
       collectionInfo: {
         lastRemoteChange,
         lastPulled,
-        driverInfo: info
+        driverInfo: aInfo
       }
     });
 
@@ -393,11 +394,12 @@ function remoteStatesMergeIntoOne(_space: NoSchemaStore) {
     ) as number;
     const lastPulled = _space.getCell(RS, rowId, 'lastPulled') as number;
     const info = _space.getCell(RS, rowId, 'info') as any;
+    const arrayInfo = !Array.isArray(info) ? [info] : info;
 
     _space.setCell(RS, targetId, 'statsInfo', {
       lastRemoteChange,
       lastPulled,
-      driverInfo: info
+      driverInfo: arrayInfo
     });
 
     _space.delRow(RS, rowId);

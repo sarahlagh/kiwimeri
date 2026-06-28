@@ -4,12 +4,8 @@ import {
   unminimizeItemsFromStorage
 } from '@/collection/compress-collection';
 import { appConfig } from '@/config';
-import {
-  DEFAULT_NOTEBOOK_ID,
-  DEFAULT_SPACE_ID,
-  getGlobalTrans
-} from '@/constants';
-import { space, store } from '@/core/db/store';
+import { DEFAULT_NOTEBOOK_ID, getGlobalTrans } from '@/constants';
+import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { SpaceValuesType } from '@/core/db/store-schema';
 import { setMetaField } from '@/core/db/types';
@@ -24,14 +20,17 @@ import { docAnnotationsService } from '@/domain/document-annotations/doc-annotat
 import { SyncableAnnotation } from '@/domain/document-annotations/model';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
+import remotesService from '@/domain/remotes/configuration/remotes.service';
 import { PCloudDriver } from '@/domain/remotes/drivers/pcloud/pcloud.driver';
-import oldRemotesService from '@/domain/remotes/old.remotes.service';
 import {
   MinimizedCollectionItem,
   REMOTE_COLLECTION_SCHEMA_VERSION,
   RemoteCollectionFileContent
 } from '@/domain/replication/merging/synchronizers/collection-synchronizer';
 import { CompositeSynchronizer } from '@/domain/replication/merging/synchronizers/composite-synchronizer';
+import { StoredStateInfo } from '@/domain/replication/replica-state/model';
+import fetchRemotesQuery from '@/domain/replication/replica-state/queries/fetchRemotesQuery';
+import replicaService from '@/domain/replication/replica-state/replica.service';
 import { syncService } from '@/domain/replication/sync.service';
 import { useIsMergeSyncEnabled } from '@/features/synchronization-ui';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -83,14 +82,22 @@ const reInitRemoteDataWithAnnots = async (
 };
 
 const getRemoteContent = async () => {
-  expect(store.getRowCount('remoteState')).toBe(2);
-  const id = store.getRowIds('remoteState')[0];
-  expect(store.getCell('remoteState', id, 'info')).toBeDefined();
-  const infoStr = store.getCell('remoteState', id, 'info')?.valueOf() as string;
-  const info = JSON.parse(infoStr!) as { providerid: string };
+  const table = space.getTable(SpaceTables.Remote);
+  const tableS = space.getTable(SpaceTables.ReplicaState);
+  console.debug(table, tableS);
+  expect(space.getRowCount(SpaceTables.ReplicaState)).toBe(1);
+  const id = space.getRowIds(SpaceTables.ReplicaState)[0];
+  expect(
+    space.getCell(SpaceTables.ReplicaState, id, 'collectionInfo')
+  ).toBeDefined();
+  const collectionInfo = space.getCell(
+    SpaceTables.ReplicaState,
+    id,
+    'collectionInfo'
+  ) as StoredStateInfo;
   const { content } = await driver.pullFile({
     filename: '',
-    providerid: info.providerid
+    providerid: collectionInfo.driverInfo![0].providerid
   });
   if (!content) {
     return undefined;
@@ -109,17 +116,17 @@ describe.sequential(
   () => {
     beforeEach(async () => {
       conflictsService.initConflictQueries();
-      oldRemotesService.addRemote('test', 0, 'pcloud', {
+      remotesService.addRemote('test', 0, 'pcloud', {
         token: appConfig.PCLOUD_E2E_TOKEN,
         path: `${appConfig.PCLOUD_E2E_PATH}`,
         serverLocation: appConfig.PCLOUD_E2E_SERVER_LOC
       });
-      await oldRemotesService.configureRemotes(DEFAULT_SPACE_ID, true);
-      const remotes = oldRemotesService.getRemotes();
+      await syncService.reinit(true);
+      const remotes = fetchRemotesQuery.getResults({});
       expect(remotes).toHaveLength(1);
       expect(remotes[0].connected).toBeTruthy();
-      const keys = oldRemotesService['synchronizers'].keys();
-      synchronizer = oldRemotesService['synchronizers'].get(
+      const keys = replicaService['synchronizers'].keys();
+      synchronizer = replicaService['synchronizers'].get(
         keys.next().value!
       )! as CompositeSynchronizer;
 
@@ -134,7 +141,7 @@ describe.sequential(
         await driver.deleteFile({ filename: 'collection.json' });
         await driver.deleteFile({ filename: 'stats.json' });
       }
-      await oldRemotesService.delRemote(oldRemotesService.getRemotes()[0].id);
+      await remotesService.delRemote(remotesService.getRemotes()[0].id);
       expect(countOrphans()).toBe(0);
     });
 
