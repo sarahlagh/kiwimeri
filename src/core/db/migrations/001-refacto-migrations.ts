@@ -14,7 +14,8 @@ enum _SpaceTables {
   DerivedContent = 'derived_content',
   DerivedState = 'derived_item_state',
   RemoteConfig = 'remote',
-  ReplicaState = 'replica_state'
+  ReplicaState = 'replica_state',
+  LocalChanges = 'local_change'
 }
 
 const C = _SpaceTables.Collection;
@@ -25,7 +26,8 @@ const UP = _SpaceTables.UserPreference;
 const D = _SpaceTables.DerivedContent;
 const CS = _SpaceTables.DerivedState;
 const RC = _SpaceTables.RemoteConfig;
-const RS = _SpaceTables.ReplicaState;
+const RPS = _SpaceTables.ReplicaState;
+const LC = _SpaceTables.LocalChanges;
 
 export default function Migration(
   _space: NoSchemaStore,
@@ -326,7 +328,7 @@ function localChangesGoToSpace(_store: NoSchemaStore, _space: NoSchemaStore) {
 
 function remotesGoToSpace(_store: NoSchemaStore, _space: NoSchemaStore) {
   // first remoteState
-  _migrateTableToSpace(_store, _space, 'remoteState', RS, row => {
+  _migrateTableToSpace(_store, _space, 'remoteState', RPS, row => {
     const info = row.info;
     if (typeof info === 'string') {
       row.info = JSON.parse(info);
@@ -344,9 +346,9 @@ function remotesGoToSpace(_store: NoSchemaStore, _space: NoSchemaStore) {
     row.driver = type;
     if (row.state !== rowId) {
       // migrate states (if didn't have the same id has their remote, correct that)
-      const stateRow = _space.getRow(RS, row.state);
-      _space.setRow(RS, `${rowId}-collection`, stateRow);
-      _space.delRow(RS, row.state);
+      const stateRow = _space.getRow(RPS, row.state);
+      _space.setRow(RPS, `${rowId}-collection`, stateRow);
+      _space.delRow(RPS, row.state);
       row.state = rowId;
     }
     return row;
@@ -354,7 +356,7 @@ function remotesGoToSpace(_store: NoSchemaStore, _space: NoSchemaStore) {
 }
 
 function remoteStatesMergeIntoOne(_space: NoSchemaStore) {
-  const rowIds = _space.getRowIds(RS);
+  const rowIds = _space.getRowIds(RPS);
   const nonStatsToMigrate = rowIds.filter(rowId =>
     rowId.endsWith('-collection')
   );
@@ -363,17 +365,17 @@ function remoteStatesMergeIntoOne(_space: NoSchemaStore) {
   // first migrate collection states
   nonStatsToMigrate.forEach(rowId => {
     const targetId = rowId.replace('-collection', '');
-    const connected = _space.getCell(RS, rowId, 'connected') as boolean;
+    const connected = _space.getCell(RPS, rowId, 'connected') as boolean;
     const lastRemoteChange = _space.getCell(
-      RS,
+      RPS,
       rowId,
       'lastRemoteChange'
     ) as number;
-    const lastPulled = _space.getCell(RS, rowId, 'lastPulled') as number;
-    const info = _space.getCell(RS, rowId, 'info') as any;
+    const lastPulled = _space.getCell(RPS, rowId, 'lastPulled') as number;
+    const info = _space.getCell(RPS, rowId, 'info') as any;
     const aInfo = !Array.isArray(info) ? [info] : info;
 
-    _space.setPartialRow(RS, targetId, {
+    _space.setPartialRow(RPS, targetId, {
       connected,
       collectionInfo: {
         lastRemoteChange,
@@ -382,7 +384,7 @@ function remoteStatesMergeIntoOne(_space: NoSchemaStore) {
       }
     });
 
-    _space.delRow(RS, rowId);
+    _space.delRow(RPS, rowId);
   });
 
   // then merge stats
@@ -390,21 +392,21 @@ function remoteStatesMergeIntoOne(_space: NoSchemaStore) {
     const targetId = rowId.replace('-stats', '');
 
     const lastRemoteChange = _space.getCell(
-      RS,
+      RPS,
       rowId,
       'lastRemoteChange'
     ) as number;
-    const lastPulled = _space.getCell(RS, rowId, 'lastPulled') as number;
-    const info = _space.getCell(RS, rowId, 'info') as any;
+    const lastPulled = _space.getCell(RPS, rowId, 'lastPulled') as number;
+    const info = _space.getCell(RPS, rowId, 'info') as any;
     const arrayInfo = !Array.isArray(info) ? [info] : info;
 
-    _space.setCell(RS, targetId, 'statsInfo', {
+    _space.setCell(RPS, targetId, 'statsInfo', {
       lastRemoteChange,
       lastPulled,
       driverInfo: arrayInfo
     });
 
-    _space.delRow(RS, rowId);
+    _space.delRow(RPS, rowId);
   });
 }
 
@@ -462,6 +464,12 @@ function collectionFieldsRename(_space: NoSchemaStore) {
         _renameHistoryField(snapshotJson, 'created', 'createdAt');
         _renameHistoryField(snapshotJson, 'updated', 'updatedAt');
         _space.setCell(H, rowId, 'snapshotJson', snapshotJson);
+      }
+    });
+    // local changes
+    _space.getRowIds(LC).forEach(rowId => {
+      if (_space.getCell(LC, rowId, 'parent') === 'created') {
+        _space.setCell(LC, rowId, 'parentId', 'createdAt');
       }
     });
   });

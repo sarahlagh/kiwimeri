@@ -52,7 +52,7 @@ export const reInitRemoteDataWithAnnots = async (
   annots?: SyncableAnnotation[]
 ) => {
   vi.advanceTimersByTime(fakeTimersDelay);
-  // parent update doesn't set the row update ts, so... parent_meta ts might be > i.updated
+  // parent update doesn't set the row update ts, so... parentId_meta ts might be > i.updated
   // this is a test problem, lastLocalChange is supposed to be updated by localChanges service
   const lastLocalChange = Math.max(
     ...items.map(i => Math.max(i.updatedAt, i.parentId_meta._u))

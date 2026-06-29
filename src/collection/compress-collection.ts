@@ -8,7 +8,7 @@ import { AnyData } from '../db/types/store-types';
 const keys = [
   ['id', 'i'],
   ['parentId', 'p'],
-  ['parent_meta', 'P'],
+  ['parentId_meta', 'P'],
   ['type', 'ty'],
   ['title', 't'],
   ['title_meta', 'T'],

@@ -357,7 +357,7 @@ export class PullTestScenarioRunner {
       // update func
       (id, field, data) => {
         const item = this.remoteItems.get(id) as any;
-        item.updated = Date.now();
+        item.updatedAt = Date.now();
         item[field] = data;
         item[`${field}_meta`] = setMetaField(Date.now(), `${data}`);
       },

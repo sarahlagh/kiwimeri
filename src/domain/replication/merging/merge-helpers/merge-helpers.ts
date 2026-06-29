@@ -62,16 +62,16 @@ export function applyLocalChangesToPush<R extends TypeWithId>(
   return newRemoteItems;
 }
 
-// TODO depends on "updated" VS "updatedAt" for annots
 function getRemoteUpdatedTS(
   localChange: LocalChangeResult,
   remoteCollection: Table,
   remoteContentUpdated?: number
 ) {
-  // remoteUpdated is the 'updatedAt' ts on the remote item, OR the collection updated ts if the item is deleted
-  let remoteUpdated = remoteCollection[localChange.itemId]
-    ? (remoteCollection[localChange.itemId].updated as number)
-    : remoteContentUpdated || 0;
+  // remoteUpdated is the 'updatedAt' ts on the remote item, OR the collection updatedAt ts if the item is deleted
+  let remoteUpdated = remoteContentUpdated || 0;
+  if (remoteCollection[localChange.itemId]?.updatedAt !== undefined) {
+    remoteUpdated = remoteCollection[localChange.itemId].updatedAt as number;
+  }
 
   // but if item exists on remote, and it's an update, only take the meta ts
   if (

@@ -79,7 +79,7 @@ class AnnotsConflictPolicy extends ConflictPolicy<SyncableAnnotation> {
     const ts = Date.now();
     return {
       ...{ ...localItem, id: 'to-be-dropped' },
-      conflict: localChange.itemId,
+      conflictId: localChange.itemId,
       createdAt: ts,
       updatedAt: ts
     };
