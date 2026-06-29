@@ -1,3 +1,7 @@
+import {
+  historyContentSchema,
+  historySchema
+} from '@/domain/collection-history/model';
 import { collectionSchema } from '@/domain/collection/model';
 import { derivedContentSchema } from '@/domain/derived-content/model';
 import { derivedItemStateSchema } from '@/domain/derived-item-state/model';
@@ -25,19 +29,8 @@ export const storeTablesSchema = {
 
 export const spaceTablesSchema = {
   collection: collectionSchema,
-  history: {
-    itemId: { type: 'string' },
-    op: { type: 'string' },
-    createdAt: { type: 'number' },
-    rank: { type: 'number' },
-    snapshotJson: { type: 'object' },
-    contentId: { type: 'string' }
-  },
-  history_content: {
-    content: { type: 'string' },
-    preview: { type: 'string' },
-    hash: { type: 'number' }
-  },
+  history: historySchema,
+  history_content: historyContentSchema,
   collection_resume_state: resumeStateSchema,
   stats: {
     itemId: { type: 'string' },

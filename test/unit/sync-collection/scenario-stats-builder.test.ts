@@ -1,10 +1,10 @@
 import { DbSerializableData } from '@/core/db/types';
+import { CollectionItemVersionOp } from '@/domain/collection-history/model';
 import {
   CollectionItem,
   CollectionItemType,
   CollectionItemTypeValues,
-  CollectionItemVersion,
-  CollectionItemVersionOp
+  CollectionItemVersion
 } from '@/domain/collection/model';
 import { parentField, TestField } from '@@/_setup/test.utils';
 import { describe, expect, it } from 'vitest';

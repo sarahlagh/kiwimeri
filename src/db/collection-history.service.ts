@@ -1,12 +1,14 @@
 import { space, spaceQueries } from '@/core/db/store';
 import {
-  CollectionItem,
-  CollectionItemSnapshotData,
-  CollectionItemType,
-  CollectionItemVersion,
   CollectionItemVersionContentRow,
   CollectionItemVersionOp,
   CollectionItemVersionRow
+} from '@/domain/collection-history/model';
+import {
+  CollectionItem,
+  CollectionItemSnapshotData,
+  CollectionItemType,
+  CollectionItemVersion
 } from '@/domain/collection/model';
 import { LocalChangeType } from '@/domain/local-changes/model';
 import { AfterSyncChange } from '@/domain/replication/merging/model';

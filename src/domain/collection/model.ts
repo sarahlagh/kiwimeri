@@ -1,6 +1,10 @@
 import { APPICONS } from '@/constants';
 import { MetaField, metaSchemaDefault, WithId } from '@/core/db/types';
 import { CollectionItemSettings } from '@/domain/collection-settings/model';
+import {
+  CollectionItemVersionContentRow,
+  CollectionItemVersionRow
+} from '../collection-history/model';
 
 export type CollectionItemRow = {
   itemId: string;
@@ -119,25 +123,6 @@ export type ItemWithPreview = CollectionItemResult & {
 
 export type SortableCollectionItem = Pick<CollectionItem, 'order'> &
   Required<Pick<CollectionItem, 'id'>>;
-
-export type CollectionItemVersionOp = 'snapshot' | 'deleted';
-
-export type CollectionItemVersionRow = {
-  id?: string;
-  itemId: string;
-  op: CollectionItemVersionOp;
-  createdAt: number;
-  rank: number; // not ideal when created informs the order, but convenient for the gc query
-  contentId: string;
-  snapshotJson: Partial<CollectionItemSnapshotData>;
-};
-
-export type CollectionItemVersionContentRow = {
-  id?: string;
-  content: string;
-  preview: string;
-  hash: number;
-};
 
 export type CollectionItemVersion = Omit<
   CollectionItemVersionRow,
