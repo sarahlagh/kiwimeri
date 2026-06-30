@@ -20,20 +20,20 @@ import {
 import { SyncableAnnotation } from '@/domain/collection/doc-annotations';
 import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
 import notebooksService from '@/domain/collection/notebooks.service';
-import remotesService from '@/domain/synchronization/configuration/remotes.service';
-import { conflictsService } from '@/domain/synchronization/conflicts/conflicts-service';
+import { conflictsService } from '@/domain/synchronization/conflicts-service';
 import { PCloudDriver } from '@/domain/synchronization/drivers/pcloud/pcloud.driver';
-import localChangesService from '@/domain/synchronization/local-changes/local-changes.service';
-import { LocalChangeType } from '@/domain/synchronization/local-changes/model';
+import { LocalChangeType } from '@/domain/synchronization/local-changes';
+import localChangesService from '@/domain/synchronization/local-changes.service';
 import {
   MinimizedCollectionItem,
   REMOTE_COLLECTION_SCHEMA_VERSION,
   RemoteCollectionFileContent
 } from '@/domain/synchronization/merging/synchronizers/collection-synchronizer';
 import { CompositeSynchronizer } from '@/domain/synchronization/merging/synchronizers/composite-synchronizer';
-import { StoredStateInfo } from '@/domain/synchronization/replica-state/model';
-import fetchRemotesQuery from '@/domain/synchronization/replica-state/queries/fetchRemotesQuery';
-import replicaService from '@/domain/synchronization/replica-state/replica.service';
+import fetchRemotesQuery from '@/domain/synchronization/queries/fetchRemotesQuery';
+import remotesService from '@/domain/synchronization/remotes.service';
+import { StoredStateInfo } from '@/domain/synchronization/replica-state';
+import replicaService from '@/domain/synchronization/replica.service';
 import { syncService } from '@/domain/synchronization/sync.service';
 import { useSynchronizationStates } from '@/features/synchronization-ui';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';

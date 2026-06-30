@@ -15,8 +15,8 @@ import {
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import { getPlainText } from '@/shared/utils/getPlainText';
 import { getHash, Id, Table } from 'tinybase/with-schemas';
-import { LocalChangeType } from '../synchronization/local-changes/model';
-import { AfterSyncChange } from '../synchronization/merging/model';
+import { LocalChangeType } from '../synchronization/local-changes';
+import { AfterSyncChange } from '../synchronization/merging/types';
 import fetchVersionsQuery, {
   CollectionItemVersion
 } from './queries/fetchVersionsQuery';

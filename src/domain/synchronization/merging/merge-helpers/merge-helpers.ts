@@ -3,7 +3,7 @@ import { MetaField, TypeWithId, WithId } from '@/core/db/types';
 import {
   LocalChangeResult,
   LocalChangeType
-} from '@/domain/synchronization/local-changes/model';
+} from '@/domain/synchronization/local-changes';
 import { getUniqueId, Table } from 'tinybase';
 import { Content, Id, Row } from 'tinybase/with-schemas';
 import { ConflictPolicy } from './conflict-policies';

@@ -2,9 +2,9 @@ import platformService from '@/common_to_migrate/services/platform.service';
 import { APPICONS } from '@/constants';
 import { useQueryResults } from '@/core/db/queries-helper';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
-import remotesService from '@/domain/synchronization/configuration/remotes.service';
 import { PCloudConf } from '@/domain/synchronization/drivers/pcloud/pcloud.driver';
-import fetchRemotesQuery from '@/domain/synchronization/replica-state/queries/fetchRemotesQuery';
+import fetchRemotesQuery from '@/domain/synchronization/queries/fetchRemotesQuery';
+import remotesService from '@/domain/synchronization/remotes.service';
 import { syncService } from '@/domain/synchronization/sync.service';
 import {
   IonButton,

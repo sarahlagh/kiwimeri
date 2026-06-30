@@ -1,5 +1,5 @@
-import { Remote } from '@/domain/synchronization/configuration/model';
-import { DriverFileInfo } from '@/domain/synchronization/drivers/model';
+import { DriverFileInfo } from '@/domain/synchronization/drivers/types';
+import { Remote } from '@/domain/synchronization/remotes';
 
 export type StoredStateInfo = Partial<{
   lastPulled: number;

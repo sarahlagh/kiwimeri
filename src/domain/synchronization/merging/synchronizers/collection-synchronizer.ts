@@ -30,19 +30,19 @@ import {
 } from '@/domain/collection/doc-annotations';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { historyService } from '@/domain/history/history.service';
-import { conflictsService } from '@/domain/synchronization/conflicts/conflicts-service';
+import { conflictsService } from '@/domain/synchronization/conflicts-service';
 import { CloudStorageDriver } from '@/domain/synchronization/drivers/abstract.driver';
-import { SingleFileStorage } from '@/domain/synchronization/layouts/singlefile.filesystem';
-import {
-  startLocalChangesListeners,
-  stopLocalChangesListeners
-} from '@/domain/synchronization/local-changes/listeners';
-import localChangesService from '@/domain/synchronization/local-changes/local-changes.service';
 import {
   LocalChangeResult,
   LocalChangeType
-} from '@/domain/synchronization/local-changes/model';
-import { ReplicaState } from '@/domain/synchronization/replica-state/model';
+} from '@/domain/synchronization/local-changes';
+import {
+  startLocalChangesListeners,
+  stopLocalChangesListeners
+} from '@/domain/synchronization/local-changes-listeners';
+import localChangesService from '@/domain/synchronization/local-changes.service';
+import { SingleFileStorage } from '@/domain/synchronization/merging/layouts/singlefile.filesystem';
+import { ReplicaState } from '@/domain/synchronization/replica-state';
 import {
   MinimizedUserPref,
   minimizePrefsForStorage,
@@ -73,7 +73,7 @@ import {
   collectionOrphanPolicy,
   noOrphanPolicy
 } from '../merge-helpers/orphan-policies';
-import { AfterSyncChange } from '../model';
+import { AfterSyncChange } from '../types';
 
 export type MinimizedCollectionItem = {
   [key in ItemsMinKeys[number]]: SerializableData | undefined;

@@ -1,6 +1,6 @@
 import { SpaceQueryDefinition } from '@/core/db/queries-helper';
 import { ParamValues } from 'tinybase/with-schemas';
-import { CollectionItemConflictResult } from '../model';
+import { CollectionItemConflictResult } from '../conflicts';
 
 const fetchItemsConflictsQuery = new SpaceQueryDefinition<
   ParamValues,

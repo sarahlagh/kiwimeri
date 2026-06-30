@@ -9,8 +9,8 @@ import { docAnnotationsService } from '@/domain/collection/doc-annotations.servi
 import notebooksService from '@/domain/collection/notebooks.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { historyService } from '@/domain/history/history.service';
-import localChangesService from '@/domain/synchronization/local-changes/local-changes.service';
-import { LocalChangeType } from '@/domain/synchronization/local-changes/model';
+import { LocalChangeType } from '@/domain/synchronization/local-changes';
+import localChangesService from '@/domain/synchronization/local-changes.service';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import {
   ZipImportOptions,

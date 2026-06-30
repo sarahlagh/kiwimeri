@@ -1,12 +1,12 @@
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { AnyData, WithId } from '@/core/db/types';
-import { Remote } from '../configuration/model';
+import { Remote } from '../remotes';
 import {
   ReplicaState,
   ReplicaStateRow,
   StoredStateInfo
-} from '../replica-state/model';
+} from '../replica-state';
 
 export type RemoteRepresentation = WithId<Partial<Remote>>;
 

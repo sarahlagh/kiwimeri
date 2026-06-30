@@ -5,7 +5,7 @@ import {
 import {
   startLocalChangesListeners,
   stopLocalChangesListeners
-} from '@/domain/synchronization/local-changes/listeners';
+} from '@/domain/synchronization/local-changes-listeners';
 
 export function startDbListeners() {
   console.log('[db] starting all listeners');

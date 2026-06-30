@@ -5,8 +5,8 @@ import { CollectionItemUpdatableFields } from '@/domain/collection/collection';
 import { DocAnnotationUpdatableFields } from '@/domain/collection/doc-annotations';
 import { UserPrefUpdatableFields } from '@/domain/user-preferences/user-preferences';
 import { Id } from 'tinybase/with-schemas';
+import { LocalChangeType } from './local-changes';
 import localChangesService from './local-changes.service';
-import { LocalChangeType } from './model';
 
 const listeners: Id[] = [];
 

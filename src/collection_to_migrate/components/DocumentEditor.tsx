@@ -8,7 +8,7 @@ import { APPICONS } from '@/constants';
 import collectionService from '@/db_to_migrate/collection.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { statsService } from '@/domain/stats/stats-service';
-import { conflictsService } from '@/domain/synchronization/conflicts/conflicts-service';
+import { conflictsService } from '@/domain/synchronization/conflicts-service';
 import {
   InputCustomEvent,
   IonButton,

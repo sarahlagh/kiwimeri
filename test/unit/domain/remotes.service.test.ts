@@ -1,9 +1,9 @@
 import { useQueryResults } from '@/core/db/queries-helper';
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
-import remotesService from '@/domain/synchronization/configuration/remotes.service';
-import fetchRemotesQuery from '@/domain/synchronization/replica-state/queries/fetchRemotesQuery';
-import replicaService from '@/domain/synchronization/replica-state/replica.service';
+import fetchRemotesQuery from '@/domain/synchronization/queries/fetchRemotesQuery';
+import remotesService from '@/domain/synchronization/remotes.service';
+import replicaService from '@/domain/synchronization/replica.service';
 import { syncService } from '@/domain/synchronization/sync.service';
 import { wrappedRenderHook } from '@@/_setup/test.utils';
 import { describe, expect, it } from 'vitest';

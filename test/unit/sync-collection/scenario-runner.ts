@@ -15,9 +15,9 @@ import {
   isDocument
 } from '@/domain/collection/collection';
 import { historyService } from '@/domain/history/history.service';
-import remotesService from '@/domain/synchronization/configuration/remotes.service';
-import localChangesService from '@/domain/synchronization/local-changes/local-changes.service';
-import { LocalChangeType } from '@/domain/synchronization/local-changes/model';
+import { LocalChangeType } from '@/domain/synchronization/local-changes';
+import localChangesService from '@/domain/synchronization/local-changes.service';
+import remotesService from '@/domain/synchronization/remotes.service';
 import {
   SyncDirection,
   syncService

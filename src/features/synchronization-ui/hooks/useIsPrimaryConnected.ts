@@ -1,5 +1,5 @@
 import { useQueryResults } from '@/core/db/queries-helper';
-import fetchRemotesQuery from '@/domain/synchronization/replica-state/queries/fetchRemotesQuery';
+import fetchRemotesQuery from '@/domain/synchronization/queries/fetchRemotesQuery';
 
 export default function useIsPrimaryConnected() {
   const remotes = useQueryResults(fetchRemotesQuery);

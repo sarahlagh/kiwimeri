@@ -1,8 +1,8 @@
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { AnyData } from '@/core/db/types';
-import replicaService from '../replica-state/replica.service';
-import { Remote } from './model';
+import { Remote } from './remotes';
+import replicaService from './replica.service';
 
 const R = SpaceTables.Remote;
 

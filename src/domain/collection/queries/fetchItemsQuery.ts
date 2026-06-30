@@ -6,7 +6,7 @@ import {
   CollectionItemTypeValues
 } from '@/domain/collection/collection';
 import { getDerivedId } from '@/domain/collection/derived-content';
-import { conflictsService } from '@/domain/synchronization/conflicts/conflicts-service';
+import { conflictsService } from '@/domain/synchronization/conflicts-service';
 
 export type FetchItemsQueryParam = {
   parentId: string;
