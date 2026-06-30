@@ -2,7 +2,7 @@ import collectionService from '@/db_to_migrate/collection.service';
 import { settingsService } from '@/domain/collection/collection-settings.service';
 import useNotebookDefaultSettings from '@/domain/collection/hooks/useNotebookDefaultSettings';
 import { statsService } from '@/domain/stats/stats-service';
-import { useCurrentNotebook } from '@/features/notebooks-ui';
+import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
 import {
   IonCard,
   IonCardContent,

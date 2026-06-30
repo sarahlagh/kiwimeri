@@ -3,7 +3,7 @@ import { ManageHistoryButton } from '@/features/collection-history-ui';
 import { ExportItemsButton } from '@/features/import-export';
 import { SearchButton } from '@/features/search';
 import { IonButtons, IonToolbar } from '@ionic/react';
-import CloseDocumentButton from '../buttons/CloseDocumentButton';
+import CloseDocumentButton from '../collection-browser/buttons/CloseDocumentButton';
 
 export type ActionsFromDocumentVersionViewerToolbarProps = {
   docId: string;

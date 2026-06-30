@@ -28,14 +28,13 @@ import useFolderEffectiveSort from '@/domain/collection/hooks/useFolderEffective
 import useNotebookLastBrowserMode from '@/domain/collection/hooks/useNotebookLastBrowserMode';
 import notebooksService from '@/domain/collection/notebooks.service';
 
-// eslint-disable-next-line no-restricted-imports
+import { ActionsFromBrowserToolbar } from '@/features/collection-item-actions';
+import { useLingui } from '@lingui/react/macro';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import useCollectionItemBrowserListResults, {
   BrowserQueryMode,
   browserModes
-} from '@/features/collection-ui/hooks/useCollectionItemBrowserListResults';
-import { useLingui } from '@lingui/react/macro';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import ActionsFromBrowserToolbar from '../actions/ActionsFromBrowserToolbar';
+} from '../hooks/useCollectionItemBrowserListResults';
 import CollectionItemBreadcrumb from './CollectionItemBreadcrumb';
 import CollectionItemList from './CollectionItemList';
 import SortFilterInlineList from './SortFilterInlineList';

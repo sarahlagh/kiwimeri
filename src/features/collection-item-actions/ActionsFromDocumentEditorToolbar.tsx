@@ -8,10 +8,10 @@ import { ManageHistoryButton } from '@/features/collection-history-ui';
 import { ExportItemsButton } from '@/features/import-export';
 import { SearchButton } from '@/features/search';
 import { IonButton, IonButtons, IonIcon, IonToolbar } from '@ionic/react';
-import CloseDocumentButton from '../buttons/CloseDocumentButton';
-import DeleteItemButton from '../buttons/DeleteItemButton';
-import MoveFolderButton from '../buttons/MoveFolderButton';
-import QuickGroupButton from '../buttons/QuickGroupButton';
+import CloseDocumentButton from '../collection-browser/buttons/CloseDocumentButton';
+import DeleteItemButton from '../collection-browser/buttons/DeleteItemButton';
+import MoveFolderButton from '../collection-browser/buttons/MoveFolderButton';
+import QuickGroupButton from '../collection-browser/buttons/QuickGroupButton';
 
 export type ActionsFromDocumentEditorToolbarProps = {
   docId: string;

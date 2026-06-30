@@ -5,7 +5,7 @@ import { resumeService } from '@/domain/collection/resume-state.service';
 import { statsService } from '@/domain/stats/stats-service';
 import { conflictsService } from '@/domain/synchronization/conflicts-service';
 
-import { ActionsFromDocumentEditorToolbar } from '@/features/collection-ui';
+import { ActionsFromDocumentEditorToolbar } from '@/features/collection-browser';
 import { SearchActionsToolbar } from '@/features/search';
 import { onTitleChangeFn } from '@/shared/misc/onTitleChangeFn';
 import {

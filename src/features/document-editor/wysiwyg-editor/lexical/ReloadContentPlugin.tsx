@@ -3,6 +3,7 @@ import {
   initialContent
 } from '@/db_to_migrate/collection.service';
 import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-content';
+import { SerializedSelection } from '@/domain/collection/resume-state';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
@@ -12,10 +13,7 @@ import {
 import { $setSelection } from 'lexical';
 import { useEffect, useState } from 'react';
 import { RELOAD_TAG, SELECTION_CHANGE_TAG } from './constants';
-import {
-  deserializeSelection,
-  SerializedSelection
-} from './selection-serializer';
+import { deserializeSelection } from './selection-serializer';
 
 function getSafeContent(content: string) {
   if (content === '') content = initialContent();

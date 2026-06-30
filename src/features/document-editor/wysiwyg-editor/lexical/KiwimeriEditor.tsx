@@ -1,4 +1,5 @@
 import { plt } from '@/core/infra/platform';
+import { SerializedSelection } from '@/domain/collection/resume-state';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
@@ -39,7 +40,6 @@ import DebugTreeViewPlugin from './playground/plugins/DebugTreeViewPlugin';
 import { validateUrl } from './playground/utils/url';
 import ReloadContentPlugin from './ReloadContentPlugin';
 import { SearchHighlightPlugin } from './SearchHighlightPlugin';
-import { SerializedSelection } from './selection-serializer';
 import ShortcutsPlugin from './ShortcutsPlugin';
 import TextZoomPlugin from './TextZoomPlugin';
 

@@ -1,7 +1,7 @@
 import { getGlobalTrans } from '@/constants';
 import collectionService from '@/db_to_migrate/collection.service';
-import { CollectionItemBrowserList } from '@/features/collection-ui';
-import { useCurrentNotebook } from '@/features/notebooks-ui';
+import { CollectionItemBrowserList } from '@/features/collection-browser';
+import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
 import { onTitleChangeFn } from '@/shared/misc/onTitleChangeFn';
 import { getSearchParams } from '@/shared/utils';
 import { useLocation } from 'react-router';

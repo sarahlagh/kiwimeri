@@ -3,11 +3,11 @@ import collectionService from '@/db_to_migrate/collection.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { ExportItemsButton } from '@/features/import-export';
 import { IonButtons, IonToolbar } from '@ionic/react';
-import DeleteItemButton from '../buttons/DeleteItemButton';
-import MoveFolderButton from '../buttons/MoveFolderButton';
-import QuickGroupButton from '../buttons/QuickGroupButton';
-import QuickUngroupButton from '../buttons/QuickUngroupButton';
-import RenameItemButton from '../buttons/RenameItemButton';
+import DeleteItemButton from '../collection-browser/buttons/DeleteItemButton';
+import MoveFolderButton from '../collection-browser/buttons/MoveFolderButton';
+import QuickGroupButton from '../collection-browser/buttons/QuickGroupButton';
+import QuickUngroupButton from '../collection-browser/buttons/QuickUngroupButton';
+import RenameItemButton from '../collection-browser/buttons/RenameItemButton';
 
 export type ActionsFromBrowserToolbarProps = {
   id: string;

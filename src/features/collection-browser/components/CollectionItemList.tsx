@@ -6,10 +6,8 @@ import {
   CollectionItemResult,
   CollectionItemType
 } from '@/domain/collection/collection';
-import SortableList from '@/shared/dnd/containers/SortableList';
-// eslint-disable-next-line no-restricted-imports
-import useItemsConflictMixIn from '@/features/collection-ui/hooks/useItemsConflictMixIn';
 import { searchService } from '@/features/search';
+import SortableList from '@/shared/dnd/containers/SortableList';
 import {
   InputCustomEvent,
   IonButton,
@@ -25,6 +23,7 @@ import {
 import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactProps';
 import { Trans } from '@lingui/react/macro';
 import { Fragment, ReactNode, useEffect, useRef, useState } from 'react';
+import useItemsConflictMixIn from '../hooks/useItemsConflictMixIn';
 import './CollectionItemList.css';
 
 // TODO: tech debt - rewrite props, confirm code

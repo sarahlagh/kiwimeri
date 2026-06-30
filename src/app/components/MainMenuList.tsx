@@ -14,7 +14,7 @@ import { resumeService } from '@/domain/collection/resume-state.service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import useDeviceSetting from '@/domain/device-settings/hooks/useDeviceSetting';
 import useShowDevTools from '@/domain/device-settings/hooks/useShowDevTools';
-import { NotebookSwitcher } from '@/features/notebooks-ui';
+import { NotebookSwitcher } from '@/features/collection-notebooks-ui';
 import CatchClickLabel from '@/shared/components/CatchClickLabel';
 import {
   IonButton,
