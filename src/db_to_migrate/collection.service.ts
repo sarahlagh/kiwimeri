@@ -416,11 +416,13 @@ class CollectionService {
   }
 
   public useItemTags(rowId: Id) {
-    return new Set(
-      (useCellWithRef<string>(this.storeId, this.tableId, rowId, 'tags') || '')
-        .split(',')
-        .filter(t => t.length > 0)
+    const tags = useCellWithRef<string[]>(
+      this.storeId,
+      this.tableId,
+      rowId,
+      'tags'
     );
+    return new Set(tags ? tags.filter(t => t.length > 0) : []);
   }
 
   public getItemTags(rowId: Id) {
