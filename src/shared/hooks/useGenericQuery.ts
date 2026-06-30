@@ -1,6 +1,7 @@
 import { TinybaseQueryDefinition } from '@/core/db/queries-helper';
 import { TableIdFromSchema, WithId } from '@/core/db/types';
 import { useEffect, useState } from 'react';
+import { Id } from 'tinybase';
 import { OptionalSchemas, ParamValues } from 'tinybase/with-schemas';
 
 const useGenericQuery = <
@@ -9,6 +10,7 @@ const useGenericQuery = <
   ParamDef extends ParamValues,
   QueryResult extends WithId<unknown>
 >(
+  querySuffix: Id,
   initialQuery: TinybaseQueryDefinition<
     Schema,
     RootTableId,
@@ -17,7 +19,7 @@ const useGenericQuery = <
   >,
   initialParams?: ParamDef
 ) => {
-  const [query] = useState(initialQuery.clone());
+  const [query] = useState(initialQuery.clone(querySuffix));
   useEffect(() => {
     if (initialParams) {
       query.loadParams(initialParams);

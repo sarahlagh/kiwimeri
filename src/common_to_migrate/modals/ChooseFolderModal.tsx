@@ -96,7 +96,11 @@ const ChooseFolderModal = ({
     undefined
   );
 
-  const query = useFetchItemsQuery(currentParent, restrictTypes);
+  const query = useFetchItemsQuery(
+    'ChooseFolderModal',
+    currentParent,
+    restrictTypes
+  );
   const [parent, setParent] = useFetchItemsQueryParamsState(
     query,
     restrictTypes
