@@ -1,7 +1,3 @@
-import {
-  minimizeContentForStorage,
-  unminimizeContentFromStorage
-} from '@/common_to_migrate/wysiwyg/compress-file-content';
 import { DEFAULT_ORDER, getGlobalTrans, ROOT_COLLECTION } from '@/constants';
 import { space, spaceQueries } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
@@ -26,6 +22,10 @@ import {
   CollectionItemSort
 } from '@/domain/collection/collection-settings';
 import { settingsService } from '@/domain/collection/collection-settings.service';
+import {
+  minimizeContentForStorage,
+  unminimizeContentFromStorage
+} from '@/domain/collection/compress-file-content';
 import { getDerivedId } from '@/domain/collection/derived-content';
 import notebooksService from '@/domain/collection/notebooks.service';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';

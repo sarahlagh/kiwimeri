@@ -26,7 +26,9 @@ const DocumentBottomSheetSwitcher = ({
   id,
   select
 }: DocumentBottomSheetProps) => {
-  const DocumentGeneralInfo = lazy(() => import('./DocumentGeneralInfo'));
+  const DocumentGeneralInfo = lazy(
+    () => import('../../collection-ui/sheets/DocumentGeneralInfo')
+  );
   switch (select) {
     case 'info':
     default:

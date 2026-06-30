@@ -1,7 +1,3 @@
-import {
-  minimizeContentForStorage,
-  unminimizeContentFromStorage
-} from '@/common_to_migrate/wysiwyg/compress-file-content';
 import { initialContent } from '@/db_to_migrate/collection.service';
 import {
   minimizeAnnotForStorage,
@@ -11,6 +7,10 @@ import {
   minimizeItemsForStorage,
   unminimizeItemsFromStorage
 } from '@/domain/collection/compress-collection';
+import {
+  minimizeContentForStorage,
+  unminimizeContentFromStorage
+} from '@/domain/collection/compress-file-content';
 import {
   oneDocument,
   oneFolder,

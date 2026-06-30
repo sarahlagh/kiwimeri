@@ -1,8 +1,8 @@
-import { unminimizeContentFromStorage } from '@/common_to_migrate/wysiwyg/compress-file-content';
 import {
   INITIAL_CONTENT_START,
   initialContent
 } from '@/db_to_migrate/collection.service';
+import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-content';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {

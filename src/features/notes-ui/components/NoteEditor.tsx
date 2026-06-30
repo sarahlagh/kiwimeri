@@ -1,6 +1,6 @@
-import KiwimeriEditor from '@/common_to_migrate/wysiwyg/lexical/KiwimeriEditor';
 import { initialContent } from '@/db_to_migrate/collection.service';
 import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import { KiwimeriEditor } from '@/features/document-editor';
 import { EditorState } from 'lexical';
 
 type NoteEditorProps = {

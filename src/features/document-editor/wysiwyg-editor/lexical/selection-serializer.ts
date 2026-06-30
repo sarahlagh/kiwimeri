@@ -1,4 +1,8 @@
 import {
+  SerializedSelectedNode,
+  SerializedSelection
+} from '@/domain/collection/resume-state';
+import {
   $caretFromPoint,
   $createRangeSelection,
   $getChildCaret,
@@ -10,17 +14,6 @@ import {
   RangeSelection,
   TextNode
 } from 'lexical';
-
-type SerializedSelectedNode = {
-  index: number;
-  offset: number;
-  type: string;
-};
-export type SerializedSelection = {
-  anchor?: SerializedSelectedNode;
-  focus: SerializedSelectedNode;
-  format: number;
-};
 
 const is = (node1: SerializedSelectedNode, node2: SerializedSelectedNode) =>
   node1.index === node2.index &&

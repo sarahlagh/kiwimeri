@@ -1,15 +1,13 @@
 import { GET_DOCUMENT_ROUTE } from '@/app/routes';
-import { onTitleChangeFn } from '@/common_to_migrate/events/events';
-import KiwimeriEditor, {
-  KiwimeriEditorHandle
-} from '@/common_to_migrate/wysiwyg/lexical/KiwimeriEditor';
-import { serializeSelection } from '@/common_to_migrate/wysiwyg/lexical/selection-serializer';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db_to_migrate/collection.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { statsService } from '@/domain/stats/stats-service';
 import { conflictsService } from '@/domain/synchronization/conflicts-service';
+
+import { ActionsFromDocumentEditorToolbar } from '@/features/collection-ui';
 import { SearchActionsToolbar } from '@/features/search';
+import { onTitleChangeFn } from '@/shared/misc/onTitleChangeFn';
 import {
   InputCustomEvent,
   IonButton,
@@ -24,8 +22,10 @@ import {
 } from '@ionic/react';
 import { forwardRef, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
-import ActionsFromDocumentEditorToolbar from '../actions/ActionsFromDocumentEditorToolbar';
-import DocumentBottomSheet, { DocSheet } from '../sheets/DocumentBottomSheet';
+import KiwimeriEditor from '../wysiwyg-editor/lexical/KiwimeriEditor';
+import { KiwimeriEditorHandle } from '../wysiwyg-editor/lexical/KiwimeriEditorHandle';
+import { serializeSelection } from '../wysiwyg-editor/lexical/selection-serializer';
+import DocumentBottomSheet, { DocSheet } from './DocumentBottomSheet';
 import './DocumentEditor.scss';
 interface DocumentEditorProps {
   docId: string;

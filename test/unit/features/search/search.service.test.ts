@@ -1,8 +1,8 @@
-import { unminimizeContentFromStorage } from '@/common_to_migrate/wysiwyg/compress-file-content';
-import { lexicalConfig } from '@/common_to_migrate/wysiwyg/lexical/lexical-config';
 import { space } from '@/core/db/store';
 import collectionService from '@/db_to_migrate/collection.service';
+import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-content';
 import { getDerivedId } from '@/domain/collection/derived-content';
+import { lexicalConfig } from '@/features/document-editor/wysiwyg-editor/lexical/lexical-config';
 import {
   SearchOptions,
   searchService

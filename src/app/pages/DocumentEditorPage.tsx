@@ -1,5 +1,3 @@
-import { onTitleChangeFn } from '@/common_to_migrate/events/events';
-import { KiwimeriEditorHandle } from '@/common_to_migrate/wysiwyg/lexical/KiwimeriEditor';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db_to_migrate/collection.service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
@@ -7,7 +5,9 @@ import {
   CollectionItemBrowserList,
   DocumentEditor
 } from '@/features/collection-ui';
+import { KiwimeriEditorHandle } from '@/features/document-editor';
 import { useCurrentNotebook } from '@/features/notebooks-ui';
+import { onTitleChangeFn } from '@/shared/misc/onTitleChangeFn';
 import { getSearchParams } from '@/shared/utils';
 import { IonButton, IonIcon } from '@ionic/react';
 import { useRef, useState } from 'react';

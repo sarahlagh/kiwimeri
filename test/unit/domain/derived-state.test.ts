@@ -1,8 +1,8 @@
-import { minimizeContentForStorage } from '@/common_to_migrate/wysiwyg/compress-file-content';
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import collectionService from '@/db_to_migrate/collection.service';
+import { minimizeContentForStorage } from '@/domain/collection/compress-file-content';
 import notebooksService from '@/domain/collection/notebooks.service';
 import storageService from '@/domain/storage.service';
 import { oneDocument, oneFolder } from '@@/_setup/test.utils';

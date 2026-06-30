@@ -1,5 +1,5 @@
-import KiwimeriEditor from '@/common_to_migrate/wysiwyg/lexical/KiwimeriEditor';
 import { APPICONS } from '@/constants';
+import { KiwimeriEditor } from '@/features/document-editor';
 import {
   IonButton,
   IonButtons,

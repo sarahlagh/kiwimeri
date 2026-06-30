@@ -1,4 +1,3 @@
-import { minimizeContentForStorage } from '@/common_to_migrate/wysiwyg/compress-file-content';
 import {
   DEFAULT_NOTEBOOK_ID,
   DEFAULT_ORDER,
@@ -11,6 +10,7 @@ import {
   CollectionItemType
 } from '@/domain/collection/collection';
 import { CollectionItemSort } from '@/domain/collection/collection-settings';
+import { minimizeContentForStorage } from '@/domain/collection/compress-file-content';
 import notebooksService from '@/domain/collection/notebooks.service';
 import {
   BROWSABLE_ITEM_TYPES,
