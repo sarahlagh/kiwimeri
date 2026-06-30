@@ -3,26 +3,29 @@
 import {
   minimizeItemsForStorage,
   unminimizeItemsFromStorage
-} from '@/collection/compress-collection';
-import { fastHash } from '@/common/utils';
-import { AnyData } from '@/db/types/store-types';
-import { CollectionItem } from '@/domain/collection/model';
+} from '@/collection_to_migrate/compress-collection';
+import { fastHash } from '@/common_to_migrate/utils';
+import { AnyData } from '@/db_to_migrate/types/store-types';
+import { CollectionItem } from '@/domain/collection/collection';
 import {
   minimizeAnnotForStorage,
   unminimizeAnnotFromStorage
-} from '@/domain/document-annotations/compress-annotations';
-import { SyncableAnnotation } from '@/domain/document-annotations/model';
-import { CloudStorageDriver } from '@/domain/remotes/drivers/abstract.driver';
-import { DriverFileInfo, FileReference } from '@/domain/remotes/drivers/model';
+} from '@/domain/collection/compress-annotations';
+import { SyncableAnnotation } from '@/domain/collection/doc-annotations';
+import { CloudStorageDriver } from '@/domain/synchronization/drivers/abstract.driver';
+import {
+  DriverFileInfo,
+  FileReference
+} from '@/domain/synchronization/drivers/model';
 import {
   REMOTE_COLLECTION_SCHEMA_VERSION,
   RemoteCollectionFileContent
-} from '@/domain/replication/merging/synchronizers/collection-synchronizer';
+} from '@/domain/synchronization/merging/synchronizers/collection-synchronizer';
 import {
   minimizePrefsForStorage,
   unminimizePrefsFromStorage
 } from '@/domain/user-preferences/compress-user-prefs';
-import { SyncableUserPref } from '@/domain/user-preferences/model';
+import { SyncableUserPref } from '@/domain/user-preferences/user-preferences';
 
 type InMemDriverConfig = {
   names?: string[];

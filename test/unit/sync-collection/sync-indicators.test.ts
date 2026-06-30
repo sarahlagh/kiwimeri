@@ -1,7 +1,7 @@
 import { act } from 'react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import localChangesService from '@/domain/local-changes/local-changes.service';
+import localChangesService from '@/domain/synchronization/local-changes/local-changes.service';
 import { useHasLocalChanges } from '@/features/local-changes-ui';
 import { wrappedRenderHook } from '@@/_setup/test.utils';
 import { testSyncAfterEach, testSyncBeforeEach } from './test-sync.utils';

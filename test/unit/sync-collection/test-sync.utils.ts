@@ -1,14 +1,17 @@
-import { historyService } from '@/domain/collection-history/collection-history.service';
-import { CollectionItem } from '@/domain/collection/model';
-import { SyncableAnnotation } from '@/domain/document-annotations/model';
+import { CollectionItem } from '@/domain/collection/collection';
+import { SyncableAnnotation } from '@/domain/collection/doc-annotations';
+import { historyService } from '@/domain/history/history.service';
+import remotesService from '@/domain/synchronization/configuration/remotes.service';
 import {
   startLocalChangesListeners,
   stopLocalChangesListeners
-} from '@/domain/local-changes/listeners';
-import remotesService from '@/domain/remotes/configuration/remotes.service';
-import { CompositeSynchronizer } from '@/domain/replication/merging/synchronizers/composite-synchronizer';
-import replicaService from '@/domain/replication/replica-state/replica.service';
-import { SyncDirection, syncService } from '@/domain/replication/sync.service';
+} from '@/domain/synchronization/local-changes/listeners';
+import { CompositeSynchronizer } from '@/domain/synchronization/merging/synchronizers/composite-synchronizer';
+import replicaService from '@/domain/synchronization/replica-state/replica.service';
+import {
+  SyncDirection,
+  syncService
+} from '@/domain/synchronization/sync.service';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import { InMemDriver } from '@@/_setup/inmem.driver';
 import { fakeTimersDelay } from '@@/_setup/test.utils';

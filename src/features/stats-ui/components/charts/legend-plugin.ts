@@ -1,4 +1,4 @@
-import { dateToStr } from '@/common/date-utils';
+import { dateToStr } from '@/common_to_migrate/date-utils';
 import uPlot, { Series } from 'uplot';
 
 function isDefined(n: number | null | undefined): n is number {

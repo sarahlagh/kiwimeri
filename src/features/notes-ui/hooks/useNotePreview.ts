@@ -1,7 +1,7 @@
 import { PREVIEW_SIZE } from '@/constants';
 import { SpaceTables } from '@/core/db/store-constants';
 import { useSpaceCell } from '@/core/db/tinybase-hooks';
-import { getDerivedId } from '@/domain/derived-content/model';
+import { getDerivedId } from '@/domain/collection/derived-content';
 import { Id } from 'tinybase/with-schemas';
 
 const useNotePreview = (rowId: Id) => {

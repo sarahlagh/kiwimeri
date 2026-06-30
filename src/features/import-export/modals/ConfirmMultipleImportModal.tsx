@@ -1,10 +1,10 @@
 import { APPICONS, getGlobalTrans, ROOT_COLLECTION } from '@/constants';
-import collectionService from '@/db/collection.service';
+import collectionService from '@/db_to_migrate/collection.service';
 import {
   APPICONS_PER_TYPE,
   CollectionItemType,
   CollectionItemTypeValues
-} from '@/domain/collection/model';
+} from '@/domain/collection/collection';
 import {
   InputCustomEvent,
   IonButton,

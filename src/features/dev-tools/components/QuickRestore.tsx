@@ -1,6 +1,6 @@
-import { dateToStr } from '@/common/date-utils';
+import { dateToStr } from '@/common_to_migrate/date-utils';
 import { APPICONS } from '@/constants';
-import { historyService } from '@/domain/collection-history/collection-history.service';
+import { historyService } from '@/domain/history/history.service';
 import {
   IonButton,
   IonCard,

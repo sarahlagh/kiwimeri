@@ -1,9 +1,9 @@
 import { DEFAULT_NOTEBOOK_ID, getGlobalTrans, META_JSON } from '@/constants';
-import collectionService from '@/db/collection.service';
-import notebooksService from '@/db/notebooks.service';
-import { settingsService } from '@/domain/collection-settings/collection-settings.service';
-import { CollectionItemType } from '@/domain/collection/model';
-import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
+import collectionService from '@/db_to_migrate/collection.service';
+import notebooksService from '@/db_to_migrate/notebooks.service';
+import { CollectionItemType } from '@/domain/collection/collection';
+import { settingsService } from '@/domain/collection/collection-settings.service';
+import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
 import {
   ZipExportOptions,
   ZipFileTree,
@@ -11,7 +11,7 @@ import {
 } from '@/features/import-export/model/model-export';
 import exportService from '@/features/import-export/services/export.service';
 
-import formatConverter from '@/format-conversion/format-converter.service';
+import formatConverter from '@/features/format-conversion/format-converter.service';
 import { strFromU8 } from 'fflate';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 

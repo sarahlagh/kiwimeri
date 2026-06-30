@@ -1,10 +1,10 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { spaceQueries } from '@/core/db/store';
-import collectionService from '@/db/collection.service';
-import notebooksService from '@/db/notebooks.service';
-import { historyService } from '@/domain/collection-history/collection-history.service';
-import { settingsService } from '@/domain/collection-settings/collection-settings.service';
-import { DataPoint, DocumentContentStatsBag } from '@/domain/stats/model';
+import collectionService from '@/db_to_migrate/collection.service';
+import notebooksService from '@/db_to_migrate/notebooks.service';
+import { settingsService } from '@/domain/collection/collection-settings.service';
+import { historyService } from '@/domain/history/history.service';
+import { DataPoint, DocumentContentStatsBag } from '@/domain/stats/stats';
 import { statsService } from '@/domain/stats/stats-service';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import { fakeTimersDelay, getNewContent } from '@@/_setup/test.utils';

@@ -1,5 +1,5 @@
 import MainHeader, { MainHeaderProps } from '@/app/components/MainHeader';
-import platformService from '@/common/services/platform.service';
+import platformService from '@/common_to_migrate/services/platform.service';
 import {
   IonContent,
   IonHeader,

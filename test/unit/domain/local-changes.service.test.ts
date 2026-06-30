@@ -1,19 +1,19 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
-import collectionService from '@/db/collection.service';
-import notebooksService from '@/db/notebooks.service';
-import { SerializableData } from '@/db/types/store-types';
-import { CollectionItemType } from '@/domain/collection/model';
+import collectionService from '@/db_to_migrate/collection.service';
+import notebooksService from '@/db_to_migrate/notebooks.service';
+import { SerializableData } from '@/db_to_migrate/types/store-types';
+import { CollectionItemType } from '@/domain/collection/collection';
 import {
   startDerivedContentListeners,
   stopDerivedContentListeners
-} from '@/domain/derived-content/listeners';
-import localChangesService from '@/domain/local-changes/local-changes.service';
+} from '@/domain/collection/derived-content-listeners';
+import localChangesService from '@/domain/synchronization/local-changes/local-changes.service';
 import {
   LocalChangeResult,
   LocalChangeType
-} from '@/domain/local-changes/model';
+} from '@/domain/synchronization/local-changes/model';
 import {
   fakeTimersDelay,
   GET_UPDATABLE_FIELDS,

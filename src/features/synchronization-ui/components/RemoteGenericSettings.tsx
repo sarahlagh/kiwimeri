@@ -1,10 +1,10 @@
 import { useToastContext } from '@/app/context/ToastContext';
-import DeleteButton from '@/common/buttons/DeleteButton';
-import SyncRemoteButton from '@/common/buttons/SyncRemoteButton';
-import platformService from '@/common/services/platform.service';
+import DeleteButton from '@/common_to_migrate/buttons/DeleteButton';
+import SyncRemoteButton from '@/common_to_migrate/buttons/SyncRemoteButton';
+import platformService from '@/common_to_migrate/services/platform.service';
 import { APPICONS } from '@/constants';
-import remotesService from '@/domain/remotes/configuration/remotes.service';
-import { ConnectedRemote } from '@/domain/replication/replica-state/model';
+import remotesService from '@/domain/synchronization/configuration/remotes.service';
+import { ConnectedRemote } from '@/domain/synchronization/replica-state/model';
 import {
   IonButton,
   IonIcon,

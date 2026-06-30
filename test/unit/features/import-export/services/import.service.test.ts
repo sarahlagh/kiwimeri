@@ -1,13 +1,16 @@
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { space } from '@/core/db/store';
-import collectionService from '@/db/collection.service';
-import notebooksService from '@/db/notebooks.service';
-import { historyService } from '@/domain/collection-history/collection-history.service';
-import { CollectionItem, CollectionItemType } from '@/domain/collection/model';
-import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
-import localChangesService from '@/domain/local-changes/local-changes.service';
-import { LocalChangeType } from '@/domain/local-changes/model';
-import { resumeService } from '@/domain/resume-state/resume-state.service';
+import collectionService from '@/db_to_migrate/collection.service';
+import notebooksService from '@/db_to_migrate/notebooks.service';
+import {
+  CollectionItem,
+  CollectionItemType
+} from '@/domain/collection/collection';
+import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import { resumeService } from '@/domain/collection/resume-state.service';
+import { historyService } from '@/domain/history/history.service';
+import localChangesService from '@/domain/synchronization/local-changes/local-changes.service';
+import { LocalChangeType } from '@/domain/synchronization/local-changes/model';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import {
   ZipImportOptions,

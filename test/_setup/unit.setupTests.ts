@@ -3,7 +3,7 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 
-import notebooksService from '@/db/notebooks.service';
+import notebooksService from '@/db_to_migrate/notebooks.service';
 import { messages as enMessages } from '@/locales/en/messages';
 import { i18n } from '@lingui/core';
 
@@ -11,10 +11,10 @@ import { i18n } from '@lingui/core';
 import { initGlobalTrans } from '@/constants';
 import { postInitMigrationService } from '@/core/db/post-init-migrations/post-init-migration.service';
 import { startDbListeners, stopDbListeners } from '@/core/db/store-listeners';
-import { historyService } from '@/domain/collection-history/collection-history.service';
-import localChangesService from '@/domain/local-changes/local-changes.service';
-import { syncService } from '@/domain/replication/sync.service';
-import '@/polyfills/log-polyfill';
+import '@/core/infra/polyfills/log-polyfill';
+import { historyService } from '@/domain/history/history.service';
+import localChangesService from '@/domain/synchronization/local-changes/local-changes.service';
+import { syncService } from '@/domain/synchronization/sync.service';
 import { afterAll, afterEach, beforeAll, beforeEach, expect } from 'vitest';
 import { nukeStorage } from './test.utils';
 

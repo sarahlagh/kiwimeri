@@ -3,7 +3,7 @@ import { useSpaceCell } from '@/core/db/tinybase-hooks';
 import {
   DocumentSettings,
   NotesSort
-} from '@/domain/collection-settings/model';
+} from '@/domain/collection/collection-settings';
 import { Id } from 'tinybase/common';
 
 const useNotesSort = (rowId: Id): NotesSort => {

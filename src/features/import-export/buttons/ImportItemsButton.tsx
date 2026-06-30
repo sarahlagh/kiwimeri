@@ -1,7 +1,7 @@
 import {
   CollectionItemResult,
   CollectionItemType
-} from '@/domain/collection/model';
+} from '@/domain/collection/collection';
 import { OverlayEventDetail } from '@ionic/core/components';
 import { useIonModal } from '@ionic/react';
 import { SerializedEditorState, SerializedLexicalNode } from 'lexical';
@@ -11,8 +11,8 @@ import { useHistory } from 'react-router';
 import GenericImportFileButton, {
   ImportFileRejectReason,
   OnContentReadResponse
-} from '@/common/buttons/GenericImportFileButton';
-import { GET_ITEM_ROUTE } from '@/common/routes';
+} from '@/common_to_migrate/buttons/GenericImportFileButton';
+import { GET_ITEM_ROUTE } from '@/common_to_migrate/routes';
 
 import {
   MultipleImportModalParams,

@@ -1,7 +1,7 @@
-import remotesService from '@/domain/remotes/configuration/remotes.service';
-import { CompositeSynchronizer } from '@/domain/replication/merging/synchronizers/composite-synchronizer';
-import replicaService from '@/domain/replication/replica-state/replica.service';
-import { syncService } from '@/domain/replication/sync.service';
+import remotesService from '@/domain/synchronization/configuration/remotes.service';
+import { CompositeSynchronizer } from '@/domain/synchronization/merging/synchronizers/composite-synchronizer';
+import replicaService from '@/domain/synchronization/replica-state/replica.service';
+import { syncService } from '@/domain/synchronization/sync.service';
 import { InMemDriver } from '@@/_setup/inmem.driver';
 import { adv } from '@@/_setup/test.utils';
 import { beforeEach, describe, test, vi } from 'vitest';

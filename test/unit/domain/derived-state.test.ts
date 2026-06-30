@@ -1,10 +1,10 @@
-import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
+import { minimizeContentForStorage } from '@/common_to_migrate/wysiwyg/compress-file-content';
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
-import collectionService from '@/db/collection.service';
-import notebooksService from '@/db/notebooks.service';
-import storageService from '@/db/storage.service';
+import collectionService from '@/db_to_migrate/collection.service';
+import notebooksService from '@/db_to_migrate/notebooks.service';
+import storageService from '@/db_to_migrate/storage.service';
 import { oneDocument, oneFolder } from '@@/_setup/test.utils';
 import { describe, expect, it } from 'vitest';
 

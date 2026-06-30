@@ -6,19 +6,22 @@ import {
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { DbSerializableData, MetaField, setMetaField } from '@/core/db/types';
-import collectionService from '@/db/collection.service';
-import { historyService } from '@/domain/collection-history/collection-history.service';
+import collectionService from '@/db_to_migrate/collection.service';
 import {
   CollectionItem,
   CollectionItemType,
   CollectionItemTypeValues,
   CollectionItemUpdatableFieldEnum,
   isDocument
-} from '@/domain/collection/model';
-import localChangesService from '@/domain/local-changes/local-changes.service';
-import { LocalChangeType } from '@/domain/local-changes/model';
-import remotesService from '@/domain/remotes/configuration/remotes.service';
-import { SyncDirection, syncService } from '@/domain/replication/sync.service';
+} from '@/domain/collection/collection';
+import { historyService } from '@/domain/history/history.service';
+import remotesService from '@/domain/synchronization/configuration/remotes.service';
+import localChangesService from '@/domain/synchronization/local-changes/local-changes.service';
+import { LocalChangeType } from '@/domain/synchronization/local-changes/model';
+import {
+  SyncDirection,
+  syncService
+} from '@/domain/synchronization/sync.service';
 import {
   createLocalItem,
   fakeTimersDelay,

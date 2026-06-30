@@ -1,5 +1,5 @@
-import { dateToStr } from '@/common/date-utils';
-import { DataPoint } from '@/domain/stats/model';
+import { dateToStr } from '@/common_to_migrate/date-utils';
+import { DataPoint } from '@/domain/stats/stats';
 import assert from 'assert';
 import { readFile } from 'fs/promises';
 

@@ -1,9 +1,9 @@
-import SyncRemoteButton from '@/common/buttons/SyncRemoteButton';
-import collectionService from '@/db/collection.service';
-import { conflictsService } from '@/domain/conflicts/conflicts-service';
+import SyncRemoteButton from '@/common_to_migrate/buttons/SyncRemoteButton';
+import collectionService from '@/db_to_migrate/collection.service';
+import { resumeService } from '@/domain/collection/resume-state.service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
-import fetchRemotesQuery from '@/domain/replication/replica-state/queries/fetchRemotesQuery';
-import { resumeService } from '@/domain/resume-state/resume-state.service';
+import { conflictsService } from '@/domain/synchronization/conflicts/conflicts-service';
+import fetchRemotesQuery from '@/domain/synchronization/replica-state/queries/fetchRemotesQuery';
 import { DeepSearchButton } from '@/features/search';
 import { useSynchronizationStates } from '@/features/synchronization-ui';
 import {

@@ -4,7 +4,7 @@ import {
   UserPreferenceKey,
   UserPreferenceValue,
   userPreferenceDefinitions
-} from './model';
+} from './user-preferences';
 
 const UP = SpaceTables.UserPreference;
 

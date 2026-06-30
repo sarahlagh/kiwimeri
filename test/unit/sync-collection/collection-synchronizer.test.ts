@@ -1,21 +1,21 @@
-import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
+import { minimizeContentForStorage } from '@/common_to_migrate/wysiwyg/compress-file-content';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { setMetaField } from '@/core/db/types';
-import collectionService from '@/db/collection.service';
-import { historyService } from '@/domain/collection-history/collection-history.service';
+import collectionService from '@/db_to_migrate/collection.service';
+import { getDerivedId } from '@/domain/collection/derived-content';
+import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
-import { conflictsService } from '@/domain/conflicts/conflicts-service';
-import { getDerivedId } from '@/domain/derived-content/model';
-import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
-import localChangesService from '@/domain/local-changes/local-changes.service';
-import { LocalChangeType } from '@/domain/local-changes/model';
+import { historyService } from '@/domain/history/history.service';
+import { conflictsService } from '@/domain/synchronization/conflicts/conflicts-service';
+import localChangesService from '@/domain/synchronization/local-changes/local-changes.service';
+import { LocalChangeType } from '@/domain/synchronization/local-changes/model';
 import {
   CollectionSynchronizer,
   REMOTE_COLLECTION_SCHEMA_VERSION,
   RemoteCollectionFileContent
-} from '@/domain/replication/merging/synchronizers/collection-synchronizer';
+} from '@/domain/synchronization/merging/synchronizers/collection-synchronizer';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import useItemsConflictMixIn from '@/features/collection-ui/hooks/useItemsConflictMixIn';
 import { useSynchronizationStates } from '@/features/synchronization-ui';

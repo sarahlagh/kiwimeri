@@ -1,11 +1,11 @@
-import CollectionItemBrowserList from '@/collection/components/CollectionItemBrowserList';
-import DocumentEditor from '@/collection/components/DocumentEditor';
-import { onTitleChangeFn } from '@/common/events/events';
-import { getSearchParams } from '@/common/utils';
-import { KiwimeriEditorHandle } from '@/common/wysiwyg/lexical/KiwimeriEditor';
+import CollectionItemBrowserList from '@/collection_to_migrate/components/CollectionItemBrowserList';
+import DocumentEditor from '@/collection_to_migrate/components/DocumentEditor';
+import { onTitleChangeFn } from '@/common_to_migrate/events/events';
+import { getSearchParams } from '@/common_to_migrate/utils';
+import { KiwimeriEditorHandle } from '@/common_to_migrate/wysiwyg/lexical/KiwimeriEditor';
 import { APPICONS } from '@/constants';
-import collectionService from '@/db/collection.service';
-import notebooksService from '@/db/notebooks.service';
+import collectionService from '@/db_to_migrate/collection.service';
+import notebooksService from '@/db_to_migrate/notebooks.service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { IonButton, IonIcon } from '@ionic/react';
 import { useRef, useState } from 'react';

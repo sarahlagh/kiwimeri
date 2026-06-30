@@ -1,7 +1,7 @@
 import { CONFLICTS_NOTEBOOK_ID } from '@/constants';
 import { MetaField } from '@/core/db/types';
-import { CollectionItemTypeValues } from '@/domain/collection/model';
-import { LocalChangeType } from '@/domain/local-changes/model';
+import { CollectionItemTypeValues } from '@/domain/collection/collection';
+import { LocalChangeType } from '@/domain/synchronization/local-changes/model';
 import {
   allNonHistorizableNonConflictFields,
   allNonParentUpdatableFields,

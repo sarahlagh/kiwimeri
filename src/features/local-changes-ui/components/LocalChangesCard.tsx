@@ -1,23 +1,26 @@
-import DeleteButton from '@/common/buttons/DeleteButton';
-import { dateToStr } from '@/common/date-utils';
-import { GET_UNKNOWN_ITEM_ROUTE, SETTINGS_ROUTE } from '@/common/routes';
-import platformService from '@/common/services/platform.service';
+import DeleteButton from '@/common_to_migrate/buttons/DeleteButton';
+import { dateToStr } from '@/common_to_migrate/date-utils';
+import {
+  GET_UNKNOWN_ITEM_ROUTE,
+  SETTINGS_ROUTE
+} from '@/common_to_migrate/routes';
+import platformService from '@/common_to_migrate/services/platform.service';
 import { APPICONS } from '@/constants';
 import { useQueryResults } from '@/core/db/queries-helper';
 import { SpaceTables } from '@/core/db/store-constants';
 import { plt } from '@/core/infra/platform';
-import collectionService from '@/db/collection.service';
+import collectionService from '@/db_to_migrate/collection.service';
 import {
   APPICONS_PER_TYPE,
   CollectionItemType,
   CollectionItemTypeValues
-} from '@/domain/collection/model';
-import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
-import localChangesService from '@/domain/local-changes/local-changes.service';
+} from '@/domain/collection/collection';
+import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import localChangesService from '@/domain/synchronization/local-changes/local-changes.service';
 import {
   UserPreferenceKey,
   userPreferenceDefinitions
-} from '@/domain/user-preferences/model';
+} from '@/domain/user-preferences/user-preferences';
 import {
   IonCard,
   IonCardContent,

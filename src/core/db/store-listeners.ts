@@ -1,11 +1,11 @@
 import {
   startDerivedContentListeners,
   stopDerivedContentListeners
-} from '@/domain/derived-content/listeners';
+} from '@/domain/collection/derived-content-listeners';
 import {
   startLocalChangesListeners,
   stopLocalChangesListeners
-} from '@/domain/local-changes/listeners';
+} from '@/domain/synchronization/local-changes/listeners';
 
 export function startDbListeners() {
   console.log('[db] starting all listeners');

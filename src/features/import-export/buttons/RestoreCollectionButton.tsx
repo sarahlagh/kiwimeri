@@ -1,7 +1,7 @@
 import GenericImportFileButton, {
   ImportFileRejectReason,
   OnContentReadResponse
-} from '@/common/buttons/GenericImportFileButton';
+} from '@/common_to_migrate/buttons/GenericImportFileButton';
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { useIonAlert } from '@ionic/react';

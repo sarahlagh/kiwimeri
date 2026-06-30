@@ -3,7 +3,7 @@ import { SpaceTables } from '@/core/db/store-constants';
 import {
   UserPreferenceKey,
   userPreferenceDefinitions
-} from '@/domain/user-preferences/model';
+} from '@/domain/user-preferences/user-preferences';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import { adv } from '@@/_setup/test.utils';
 

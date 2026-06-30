@@ -1,7 +1,7 @@
 import { getGlobalTrans, ROOT_COLLECTION } from '@/constants';
 import { MetaField } from '@/core/db/types';
-import collectionService from '@/db/collection.service';
-import notebooksService from '@/db/notebooks.service';
+import collectionService from '@/db_to_migrate/collection.service';
+import notebooksService from '@/db_to_migrate/notebooks.service';
 import {
   allNonParentUpdatableFields,
   getLocalItemField,

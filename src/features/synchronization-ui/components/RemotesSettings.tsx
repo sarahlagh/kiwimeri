@@ -1,11 +1,11 @@
-import platformService from '@/common/services/platform.service';
+import platformService from '@/common_to_migrate/services/platform.service';
 import { APPICONS } from '@/constants';
 import { useQueryResults } from '@/core/db/queries-helper';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
-import remotesService from '@/domain/remotes/configuration/remotes.service';
-import { PCloudConf } from '@/domain/remotes/drivers/pcloud/pcloud.driver';
-import fetchRemotesQuery from '@/domain/replication/replica-state/queries/fetchRemotesQuery';
-import { syncService } from '@/domain/replication/sync.service';
+import remotesService from '@/domain/synchronization/configuration/remotes.service';
+import { PCloudConf } from '@/domain/synchronization/drivers/pcloud/pcloud.driver';
+import fetchRemotesQuery from '@/domain/synchronization/replica-state/queries/fetchRemotesQuery';
+import { syncService } from '@/domain/synchronization/sync.service';
 import {
   IonButton,
   IonButtons,

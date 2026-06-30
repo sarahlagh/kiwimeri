@@ -1,7 +1,7 @@
-import { GET_VERSIONED_ROUTE } from '@/common/routes';
-import { getSearchParams } from '@/common/utils';
+import { GET_VERSIONED_ROUTE } from '@/common_to_migrate/routes';
+import { getSearchParams } from '@/common_to_migrate/utils';
 import { APPICONS } from '@/constants';
-import notebooksService from '@/db/notebooks.service';
+import notebooksService from '@/db_to_migrate/notebooks.service';
 import { IonButton, IonIcon, useIonModal } from '@ionic/react';
 import { lazy } from 'react';
 import { useHistory, useLocation } from 'react-router';

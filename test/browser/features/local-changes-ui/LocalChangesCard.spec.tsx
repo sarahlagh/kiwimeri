@@ -1,10 +1,10 @@
 import { DEFAULT_NOTEBOOK_ID, getGlobalTrans } from '@/constants';
-import collectionService from '@/db/collection.service';
-import notebooksService from '@/db/notebooks.service';
-import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
-import localChangesService from '@/domain/local-changes/local-changes.service';
-import { LocalChangeResult } from '@/domain/local-changes/model';
-import { userPreferenceDefinitions } from '@/domain/user-preferences/model';
+import collectionService from '@/db_to_migrate/collection.service';
+import notebooksService from '@/db_to_migrate/notebooks.service';
+import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import localChangesService from '@/domain/synchronization/local-changes/local-changes.service';
+import { LocalChangeResult } from '@/domain/synchronization/local-changes/model';
+import { userPreferenceDefinitions } from '@/domain/user-preferences/user-preferences';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import LocalChangesCard, {
   onRouteEnter,

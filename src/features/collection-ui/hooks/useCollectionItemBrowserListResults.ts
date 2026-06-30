@@ -1,8 +1,8 @@
 import { useQueryResults } from '@/core/db/queries-helper';
-import notebooksService from '@/db/notebooks.service';
-import { settingsService } from '@/domain/collection-settings/collection-settings.service';
-import { CollectionItemSort } from '@/domain/collection-settings/model';
-import { CollectionItemResult } from '@/domain/collection/model';
+import notebooksService from '@/db_to_migrate/notebooks.service';
+import { CollectionItemResult } from '@/domain/collection/collection';
+import { CollectionItemSort } from '@/domain/collection/collection-settings';
+import { settingsService } from '@/domain/collection/collection-settings.service';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
 import { useEffect } from 'react';
 

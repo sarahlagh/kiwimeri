@@ -1,11 +1,11 @@
-import { dateToStr } from '@/common/date-utils';
-import { countWords, n00 } from '@/common/utils';
+import { dateToStr } from '@/common_to_migrate/date-utils';
+import { countWords, n00 } from '@/common_to_migrate/utils';
 import { ROOT_COLLECTION } from '@/constants';
 import { space, spaceQueries } from '@/core/db/store';
 import { MetaField } from '@/core/db/types';
-import collectionService from '@/db/collection.service';
-import { historyService } from '@/domain/collection-history/collection-history.service';
-import { isDocument } from '@/domain/collection/model';
+import collectionService from '@/db_to_migrate/collection.service';
+import { isDocument } from '@/domain/collection/collection';
+import { historyService } from '@/domain/history/history.service';
 import { ResultRow } from 'tinybase/with-schemas';
 import {
   DataPoint,
@@ -13,7 +13,7 @@ import {
   DocumentDatedStat,
   DocumentGlobalStatsBag,
   DocumentStatRow
-} from './model';
+} from './stats';
 
 type StatsQueryResult = ResultRow &
   Required<Pick<DocumentStatRow, 'itemId' | 'date' | 'contentStatsJson'>>;

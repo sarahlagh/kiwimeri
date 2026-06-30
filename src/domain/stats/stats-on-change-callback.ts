@@ -2,7 +2,7 @@ import { ROOT_COLLECTION } from '@/constants';
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { MetaField } from '@/core/db/types';
-import { settingsService } from '../collection-settings/collection-settings.service';
+import { settingsService } from '../collection/collection-settings.service';
 import { statsService } from './stats-service';
 
 export function statsOnPlainTextCallback(rowId: string, plainText: string) {

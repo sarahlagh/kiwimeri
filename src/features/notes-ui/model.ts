@@ -1,4 +1,4 @@
-import { DocAnnotationRow } from '@/domain/document-annotations/model';
+import { DocAnnotationRow } from '@/domain/collection/doc-annotations';
 import { Id } from 'tinybase/with-schemas';
 
 export type NoteResult = {

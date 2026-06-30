@@ -1,5 +1,5 @@
-import { Theme } from '@/domain/device-settings/model';
-import { DataPoint } from '@/domain/stats/model';
+import { Theme } from '@/domain/device-settings/device-settings';
+import { DataPoint } from '@/domain/stats/stats';
 import { useMemo } from 'react';
 import { AlignedData } from 'uplot';
 import UplotReact from 'uplot-react';

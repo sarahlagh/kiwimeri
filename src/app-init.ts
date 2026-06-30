@@ -1,13 +1,13 @@
 import { Network } from '@capacitor/network';
-import { addAndroidListeners } from './capacitor/handle-android-plugins';
 import { postInitMigrationService } from './core/db/post-init-migrations/post-init-migration.service';
 import { space, store } from './core/db/store';
 import { startDbListeners } from './core/db/store-listeners';
+import { addAndroidListeners } from './core/infra/capacitor/handle-android-plugins';
 import { networkService } from './core/infra/network.service';
 import { plt } from './core/infra/platform';
-import notebooksService from './db/notebooks.service';
-import { historyService } from './domain/collection-history/collection-history.service';
-import { syncService } from './domain/replication/sync.service';
+import notebooksService from './db_to_migrate/notebooks.service';
+import { historyService } from './domain/history/history.service';
+import { syncService } from './domain/synchronization/sync.service';
 import { appLog } from './log';
 
 export function appInit() {

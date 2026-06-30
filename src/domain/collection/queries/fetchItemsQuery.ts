@@ -4,9 +4,9 @@ import { SpaceTables } from '@/core/db/store-constants';
 import {
   CollectionItemResult,
   CollectionItemType
-} from '@/domain/collection/model';
-import { conflictsService } from '@/domain/conflicts/conflicts-service';
-import { getDerivedId } from '@/domain/derived-content/model';
+} from '@/domain/collection/collection';
+import { getDerivedId } from '@/domain/collection/derived-content';
+import { conflictsService } from '@/domain/synchronization/conflicts/conflicts-service';
 
 export type FetchItemsQueryParam = {
   parentId: string;
