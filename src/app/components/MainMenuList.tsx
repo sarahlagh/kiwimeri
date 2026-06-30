@@ -15,7 +15,7 @@ import { deviceSettings } from '@/domain/device-settings/device-settings.service
 import useDeviceSetting from '@/domain/device-settings/hooks/useDeviceSetting';
 import useShowDevTools from '@/domain/device-settings/hooks/useShowDevTools';
 import { NotebookSwitcher } from '@/features/notebooks-ui';
-import CatchClickLabel from '@/shared/utils/CatchClickLabel';
+import CatchClickLabel from '@/shared/components/CatchClickLabel';
 import {
   IonButton,
   IonButtons,

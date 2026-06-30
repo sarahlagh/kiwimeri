@@ -1,7 +1,7 @@
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { SpaceTableId } from '@/core/db/store-schema';
-import { getPlainText } from '@/shared/utils/getPlainText';
+import { getPlainText } from '@/shared/misc/getPlainText';
 import { Id } from 'tinybase/with-schemas';
 import { statsOnPlainTextCallback } from '../stats/stats-on-change-callback';
 import { DerivedPrefix, getDerivedId } from './derived-content';

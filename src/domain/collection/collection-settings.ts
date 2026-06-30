@@ -1,4 +1,4 @@
-import { Sort } from '@/shared/utils/sort-filter/sort';
+import { Sort } from '@/shared/misc/sort-filter/sort';
 
 // sort
 

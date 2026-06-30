@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { dateToStr } from './common_to_migrate/date-utils';
 import { store } from './core/db/store';
 import { StoreTables } from './core/db/store-constants';
 import { AppLog, AppLogLevel } from './core/infra/log-model';
 import { deviceSettings } from './domain/device-settings/device-settings.service';
+import { dateToStr } from './shared/misc/date-utils';
 
 const MAX_STRING_LENGTH = 10000; // max length for a single arg
 

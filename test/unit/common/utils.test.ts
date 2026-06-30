@@ -1,4 +1,4 @@
-import { dateLocale, dateToStr } from '@/common_to_migrate/date-utils';
+import { dateLocale, dateToStr } from '@/shared/misc/date-utils';
 import { cellEquals } from '@/shared/utils';
 import { describe, expect, it, vi } from 'vitest';
 

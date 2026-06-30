@@ -1,5 +1,4 @@
 import { GET_UNKNOWN_ITEM_ROUTE, SETTINGS_ROUTE } from '@/app/routes';
-import { dateToStr } from '@/common_to_migrate/date-utils';
 import { APPICONS } from '@/constants';
 import { useQueryResults } from '@/core/db/queries-helper';
 import { SpaceTables } from '@/core/db/store-constants';
@@ -18,6 +17,7 @@ import {
 } from '@/domain/user-preferences/user-preferences';
 import DeleteButton from '@/shared/buttons/DeleteButton';
 import useIsWideEnough from '@/shared/hooks/useIsWideEnough';
+import { dateToStr } from '@/shared/misc/date-utils';
 import {
   IonCard,
   IonCardContent,

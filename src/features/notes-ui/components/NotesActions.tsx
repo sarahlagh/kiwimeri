@@ -1,7 +1,7 @@
-import { dateToStr } from '@/common_to_migrate/date-utils';
 import { APPICONS } from '@/constants';
 import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
+import { dateToStr } from '@/shared/misc/date-utils';
 import ConfirmYesNoDialog from '@/shared/modals/ConfirmYesNoDialog';
 import { IonButton, IonButtons, IonIcon } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';

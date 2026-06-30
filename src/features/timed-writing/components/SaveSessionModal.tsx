@@ -1,4 +1,3 @@
-import { dateToStr } from '@/common_to_migrate/date-utils';
 import { useQueryResults } from '@/core/db/queries-helper';
 import { store } from '@/core/db/store';
 import collectionService from '@/db_to_migrate/collection.service';
@@ -14,6 +13,7 @@ import {
   CollectionItemBreadcrumb,
   CollectionItemList
 } from '@/features/collection-ui';
+import { dateToStr } from '@/shared/misc/date-utils';
 import {
   IonButton,
   IonButtons,
