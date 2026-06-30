@@ -4,11 +4,17 @@ export type DocumentGlobalStatsBag = {
 };
 
 export type DocumentStatRow = {
-  id?: string;
   itemId: string;
   date?: string;
   contentStatsJson?: DocumentContentStatsBag;
 } & Partial<DocumentGlobalStatsBag>;
+
+export const statsSchema = {
+  itemId: { type: 'string' },
+  date: { type: 'string' },
+  contentStatsJson: { type: 'object' },
+  lastOpenedAt: { type: 'number' }
+} as const satisfies Record<keyof DocumentStatRow, unknown>;
 
 export type DocumentContentStatsBag = {
   lastWordCount?: number;

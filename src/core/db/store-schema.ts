@@ -10,6 +10,7 @@ import { localChangesSchema } from '@/domain/local-changes/model';
 import { remotesSchema } from '@/domain/remotes/configuration/model';
 import { replicaStatesSchema } from '@/domain/replication/replica-state/model';
 import { resumeStateSchema } from '@/domain/resume-state/model';
+import { statsSchema } from '@/domain/stats/model';
 import { userPreferenceSchema } from '@/domain/user-preferences/model';
 import { SpaceTables, StoreTables } from './store-constants';
 import {
@@ -32,12 +33,7 @@ export const spaceTablesSchema = {
   history: historySchema,
   history_content: historyContentSchema,
   collection_resume_state: resumeStateSchema,
-  stats: {
-    itemId: { type: 'string' },
-    date: { type: 'string' },
-    contentStatsJson: { type: 'object' },
-    lastOpenedAt: { type: 'number' }
-  },
+  stats: statsSchema,
   document_annotation: docAnnotationSchema,
   user_preference: userPreferenceSchema,
   derived_content: derivedContentSchema,
