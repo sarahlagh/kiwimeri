@@ -16,7 +16,7 @@ import { Trans } from '@lingui/react/macro';
 import { useHistory } from 'react-router';
 import ConfigCard from './ConfigCard';
 import LogsCard from './LogsCard';
-import OperationCard from './OperationsCard';
+import OperationsCard from './OperationsCard';
 import QuickRestore from './QuickRestore';
 
 const DevTools = () => {
@@ -69,7 +69,7 @@ const DevTools = () => {
       <QuickRestore />
       {!plt.isDev() && <LogsCard />}
 
-      {!plt.isRelease() && <OperationCard />}
+      {!plt.isRelease() && <OperationsCard />}
     </>
   );
 };

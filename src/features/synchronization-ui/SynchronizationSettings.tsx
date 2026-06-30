@@ -1,6 +1,6 @@
 import { plt } from '@/core/infra/platform';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
-import OperationCard from '@/features/dev-tools/components/OperationsCard';
+import { OperationsCard } from '@/features/dev-tools';
 import { LocalChangesCard } from '@/features/local-changes-ui';
 
 import {
@@ -17,7 +17,7 @@ const SynchronizationSettings = () => {
       {syncEnabled && <LocalChangesCard />}
       <ImportExportStoreSettings />
       <ImportExportCollectionSettings />
-      {!plt.isRelease() && <OperationCard />}
+      {!plt.isRelease() && <OperationsCard />}
     </>
   );
 };

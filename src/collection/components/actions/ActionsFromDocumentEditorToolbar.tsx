@@ -8,7 +8,7 @@ import { settingsService } from '@/domain/collection-settings/collection-setting
 import { CollectionItemType } from '@/domain/collection/model';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { ViewAo3HtmlButton } from '@/features/ao3-html-ui';
-import ManageHistoryButton from '@/features/collection-history-ui/components/ManageHistoryButton';
+import { ManageHistoryButton } from '@/features/collection-history-ui';
 import { ExportItemsButton } from '@/features/import-export';
 import { SearchButton } from '@/features/search';
 import { IonButton, IonButtons, IonIcon, IonToolbar } from '@ionic/react';

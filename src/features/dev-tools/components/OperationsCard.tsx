@@ -10,7 +10,7 @@ import {
   IonCardTitle
 } from '@ionic/react';
 
-const OperationCard = () => {
+const OperationsCard = () => {
   return (
     <IonCard>
       <IonCardHeader>
@@ -82,4 +82,4 @@ const OperationCard = () => {
     </IonCard>
   );
 };
-export default OperationCard;
+export default OperationsCard;
