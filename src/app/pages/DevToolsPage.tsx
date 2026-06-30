@@ -1,5 +1,5 @@
-import DevTools from '@/dev-tools/components/DevTools';
 import useShowDevTools from '@/domain/device-settings/hooks/useShowDevTools';
+import { DevTools } from '@/features/dev-tools';
 import { IonContent } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
 import NotFoundPage from './NotFoundPage';
@@ -14,7 +14,7 @@ const DevToolsPage = () => {
   return (
     <TemplateMainPage title={t`Dev Tools`}>
       <IonContent>
-        <DevTools></DevTools>
+        <DevTools />
       </IonContent>
     </TemplateMainPage>
   );

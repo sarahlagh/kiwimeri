@@ -1,6 +1,6 @@
 import { plt } from '@/core/infra/platform';
-import OperationCard from '@/dev-tools/components/OperationsCard';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
+import OperationCard from '@/features/dev-tools/components/OperationsCard';
 import { LocalChangesCard } from '@/features/local-changes-ui';
 
 import {

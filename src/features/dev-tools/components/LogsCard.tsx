@@ -1,5 +1,6 @@
 import GenericExportFileButton from '@/common/buttons/GenericExportFileButton';
 import { dateToStr } from '@/common/date-utils';
+import { useQueryResults } from '@/core/db/queries-helper';
 import { appLevels, AppLogLevel } from '@/core/infra/log-model';
 import { appLog } from '@/log';
 import {
@@ -12,10 +13,21 @@ import {
   IonChip,
   IonItem,
   IonList,
-  IonText
+  IonText,
+  useIonViewDidEnter,
+  useIonViewDidLeave
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { createRef, RefObject, useState } from 'react';
+import fetchLogsQuery from '../queries/fetchLogsQuery';
+
+// keep outside for tests
+export function onRouteEnter() {
+  fetchLogsQuery.initQuery();
+}
+export function onRouteLeave() {
+  fetchLogsQuery.close();
+}
 
 const LogsCard = () => {
   const { t } = useLingui();
@@ -30,7 +42,16 @@ const LogsCard = () => {
     k => stateMap[k as AppLogLevel]
   ) as AppLogLevel[];
   const [showFilters, setShowFilters] = useState(false);
-  const logs = appLog.useLogs(filters);
+  const logs = useQueryResults(fetchLogsQuery, 'ts', false).filter(l =>
+    filters ? filters.includes(l.longLevelName) : true
+  );
+
+  useIonViewDidEnter(() => {
+    onRouteEnter();
+  });
+  useIonViewDidLeave(() => {
+    onRouteLeave();
+  });
 
   function getColor(
     level: AppLogLevel
@@ -113,7 +134,7 @@ const LogsCard = () => {
       )}
       <IonItem>
         <GenericExportFileButton
-          getFileContent={appLog.printLogs(filters)}
+          getFileContent={appLog.printLogs(logs)}
           getFileTitle={() => `${dateToStr('iso')}-logs.txt`}
           label={t`Download Logs`}
           icon={null}

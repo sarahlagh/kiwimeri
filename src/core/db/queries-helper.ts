@@ -185,9 +185,11 @@ export class StoreQueryDefinition<
   constructor(
     public queryId: Id,
     public tableId: RootTableId,
-    public query: QueryDefinition<StoreType, RootTableId>
+    public query: QueryDefinition<StoreType, RootTableId>,
+    public defaultSortBy?: SortCell<QueryResult>,
+    public defaultDescending?: boolean
   ) {
-    super('store', queryId, tableId, query);
+    super('store', queryId, tableId, query, defaultSortBy, defaultDescending);
   }
 }
 

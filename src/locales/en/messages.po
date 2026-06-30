@@ -48,7 +48,8 @@ msgstr " (new)"
 msgid "-- conflict --"
 msgstr "-- conflict --"
 
-#: src/dev-tools/components/LogsCard.tsx:133
+#. placeholder {0}: showFilters ? 'Hide' : 'Show'
+#: src/features/dev-tools/components/LogsCard.tsx:154
 msgid "{0} Filters"
 msgstr "{0} Filters"
 
@@ -173,7 +174,7 @@ msgstr "collection"
 msgid "Collection"
 msgstr "Collection"
 
-#: src/dev-tools/components/ConfigCard.tsx:157
+#: src/features/dev-tools/components/ConfigCard.tsx:157
 msgid "Config"
 msgstr "Config"
 
@@ -209,6 +210,7 @@ msgstr "create a note"
 msgid "Created at"
 msgstr "Created at"
 
+#. placeholder {0}: dateToStr('relative', createdAt)
 #: src/features/notes-ui/components/NotesActions.tsx:24
 msgid "Created at: {0}"
 msgstr "Created at: {0}"
@@ -230,7 +232,7 @@ msgstr "Default"
 msgid "Default sort field"
 msgstr "Default sort field"
 
-#: src/dev-tools/components/LogsCard.tsx:130
+#: src/features/dev-tools/components/LogsCard.tsx:151
 msgid "Delete All"
 msgstr "Delete All"
 
@@ -247,7 +249,7 @@ msgstr "deleted item"
 msgid "Dev Tools"
 msgstr "Dev Tools"
 
-#: src/dev-tools/components/DevTools.tsx:39
+#: src/features/dev-tools/components/DevTools.tsx:39
 msgid "Dev Tools Enabled"
 msgstr "Dev Tools Enabled"
 
@@ -280,7 +282,7 @@ msgstr "Document grouped"
 msgid "Document History"
 msgstr "Document History"
 
-#: src/dev-tools/components/LogsCard.tsx:118
+#: src/features/dev-tools/components/LogsCard.tsx:139
 msgid "Download Logs"
 msgstr "Download Logs"
 
@@ -343,10 +345,12 @@ msgstr "History save time (min)"
 msgid "Home"
 msgstr "Home"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:125
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:118
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
@@ -375,7 +379,7 @@ msgstr "Include metadata in zip"
 msgid "Incorrect Metadata"
 msgstr "Incorrect Metadata"
 
-#: src/dev-tools/components/ConfigCard.tsx:107
+#: src/features/dev-tools/components/ConfigCard.tsx:107
 msgid "Internal proxy"
 msgstr "Internal proxy"
 
@@ -411,10 +415,12 @@ msgstr "Less dangerous mode (session is still timed but you will not lose progre
 msgid "Link"
 msgstr "Link"
 
+#. placeholder {0}: localChanges.length
 #: src/features/local-changes-ui/components/LocalChangesCard.tsx:74
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
+#. placeholder {0}: dateToStr('datetime', lastLocalChange)
 #: src/features/local-changes-ui/components/LocalChangesCard.tsx:81
 msgid "Local:  {0}"
 msgstr "Local:  {0}"
@@ -423,7 +429,7 @@ msgstr "Local:  {0}"
 msgid "Local: <0>never</0>"
 msgstr "Local: <0>never</0>"
 
-#: src/dev-tools/components/LogsCard.tsx:76
+#: src/features/dev-tools/components/LogsCard.tsx:97
 msgid "Logs"
 msgstr "Logs"
 
@@ -447,7 +453,7 @@ msgstr "Manually backup or restore your collection in the format of your choice"
 msgid "Markdown (Kiwimeri flavor)"
 msgstr "Markdown (Kiwimeri flavor)"
 
-#: src/dev-tools/components/ConfigCard.tsx:116
+#: src/features/dev-tools/components/ConfigCard.tsx:116
 msgid "Max log history"
 msgstr "Max log history"
 
@@ -554,6 +560,7 @@ msgstr "Remember last route"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
+#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
 #: src/features/local-changes-ui/components/LocalChangesCard.tsx:94
 msgid "Remote:  {0}"
 msgstr "Remote:  {0}"
@@ -729,6 +736,7 @@ msgstr "Track text statistics"
 msgid "Updated at"
 msgstr "Updated at"
 
+#. placeholder {0}: dateToStr('relative', updatedAt)
 #: src/features/notes-ui/components/NotesActions.tsx:29
 msgid "Updated at: {0}"
 msgstr "Updated at: {0}"

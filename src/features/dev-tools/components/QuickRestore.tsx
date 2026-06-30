@@ -1,7 +1,6 @@
 import { dateToStr } from '@/common/date-utils';
 import { APPICONS } from '@/constants';
 import { historyService } from '@/domain/collection-history/collection-history.service';
-import { appLog } from '@/log';
 import {
   IonButton,
   IonCard,
@@ -12,11 +11,12 @@ import {
   IonItem,
   IonList
 } from '@ionic/react';
+import fetchLogsQuery from '../queries/fetchLogsQuery';
 
 // quick win until trash/restore feature is done, to remove after
 const QuickRestore = () => {
-  const potentialLogs = appLog
-    .getLogs()
+  const potentialLogs = fetchLogsQuery
+    .getResults({})
     .filter(l => l.message.startsWith('deleting document,'));
   return (
     <IonCard>

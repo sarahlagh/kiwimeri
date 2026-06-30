@@ -1,26 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Row } from 'tinybase/store';
 import { dateToStr } from './common/date-utils';
-import { store, storeQueries } from './core/db/store';
+import { store } from './core/db/store';
+import { StoreTables } from './core/db/store-constants';
 import { AppLogLevel } from './core/infra/log-model';
-import {
-  useResultSortedRowIdsWithRef,
-  useTableWithRef
-} from './db/tinybase/hooks';
-import { AppLog, AppLogDbLevel } from './db/types/store-types';
+import { AppLog } from './db/types/store-types';
 import { deviceSettings } from './domain/device-settings/device-settings.service';
 
 const MAX_STRING_LENGTH = 10000; // max length for a single arg
 
-type AppLogResult = Required<AppLog> & {
+export type AppLogResult = Required<AppLog> & {
   longLevelName: AppLogLevel;
 };
 
-class AppLogService {
-  private readonly storeId = 'store';
-  private readonly table = 'logs';
+const L = StoreTables.Logs;
 
+class AppLogService {
   private levelMap = {
     trace: 'T',
     T: 'trace',
@@ -34,80 +29,33 @@ class AppLogService {
     E: 'error'
   };
 
-  private fetchAllLogsQuery() {
-    const queryName = `fetchAllLogs`;
-    if (!storeQueries.hasQuery(queryName)) {
-      storeQueries.setQueryDefinition(queryName, this.table, ({ select }) => {
-        select('ts');
-        select('level');
-        select('message');
-      });
-    }
-    return queryName;
-  }
-
   public gc(all = false) {
     const maxLogHistory = all ? 0 : deviceSettings.get('maxLogHistory');
-    const rowCount = store.getRowCount(this.table);
+    const rowCount = store.getRowCount(L);
     if (rowCount > maxLogHistory) {
       console.log('running log gc', rowCount - maxLogHistory);
       this.delLogs(rowCount - maxLogHistory);
     }
   }
 
+  public getLongName(level: AppLogLevel) {
+    return this.levelMap[level];
+  }
+
   public addLog(level: AppLogLevel, args: any[]) {
-    store.addRow(this.table, {
+    store.addRow(L, {
       level: this.levelMap[level],
       message: this.format(args),
       ts: Date.now()
     });
   }
 
-  public useLogs(filters?: AppLogLevel[], descending = false) {
-    const table = useTableWithRef(this.storeId, this.table);
-    const queryName = this.fetchAllLogsQuery();
-    return useResultSortedRowIdsWithRef(
-      this.storeId,
-      queryName,
-      'ts',
-      descending
-    )
-      .map(rowId => {
-        const row = table[rowId];
-        return this.asLogResult(rowId, row);
-      })
-      .filter(l => (filters ? filters.includes(l.longLevelName) : true));
-  }
-
-  public getLogs(filters?: AppLogLevel[], descending = false) {
-    const table = store.getTable(this.table);
-    const queryName = this.fetchAllLogsQuery();
-    return storeQueries
-      .getResultSortedRowIds(queryName, 'ts', descending)
-      .map(rowId => {
-        const row = table[rowId];
-        return this.asLogResult(rowId, row);
-      })
-      .filter(l => (filters ? filters.includes(l.longLevelName) : true));
-  }
-
   private delLogs(limit: number) {
-    const queryName = this.fetchAllLogsQuery();
     store.transaction(() => {
-      storeQueries
-        .getResultSortedRowIds(queryName, 'ts', false, 0, limit)
-        .forEach(rowId => {
-          store.delRow(this.table, rowId);
-        });
+      store.getSortedRowIds(L, 'ts', false, 0, limit).forEach(rowId => {
+        store.delRow(L, rowId);
+      });
     });
-  }
-
-  private asLogResult(rowId: string, row: Row) {
-    return {
-      ...row,
-      longLevelName: this.levelMap[row.level as AppLogDbLevel] as AppLogLevel,
-      id: rowId
-    } as AppLogResult;
   }
 
   private format(args: any[]) {
@@ -239,8 +187,8 @@ class AppLogService {
     return false;
   }
 
-  public printLogs(filters?: AppLogLevel[]) {
-    return this.getLogs(filters)
+  public printLogs(logs: AppLogResult[]) {
+    return logs
       .map(l => `${l.level} ${dateToStr('datetime', l.ts)} ${l.message}`)
       .join('\n');
   }
