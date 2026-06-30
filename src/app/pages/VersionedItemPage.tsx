@@ -1,10 +1,10 @@
-import CollectionItemBrowserList from '@/collection/components/CollectionItemBrowserList';
-import { GET_DOCUMENT_ROUTE, VERSION_ROUTE } from '@/common/routes';
-import { getSearchParams } from '@/common/utils';
+import CollectionItemBrowserList from '@/collection_to_migrate/components/CollectionItemBrowserList';
+import { GET_DOCUMENT_ROUTE, VERSION_ROUTE } from '@/common_to_migrate/routes';
+import { getSearchParams } from '@/common_to_migrate/utils';
 import { APPICONS } from '@/constants';
-import collectionService from '@/db/collection.service';
-import notebooksService from '@/db/notebooks.service';
-import { historyService } from '@/domain/collection-history/collection-history.service';
+import collectionService from '@/db_to_migrate/collection.service';
+import notebooksService from '@/db_to_migrate/notebooks.service';
+import { historyService } from '@/domain/history/history.service';
 import { DocumentVersionViewer } from '@/features/collection-history-ui';
 import { IonButton, IonIcon } from '@ionic/react';
 import { useState } from 'react';

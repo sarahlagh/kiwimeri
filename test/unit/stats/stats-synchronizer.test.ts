@@ -1,11 +1,11 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
-import collectionService from '@/db/collection.service';
+import collectionService from '@/db_to_migrate/collection.service';
+import { statsService } from '@/domain/stats/stats-service';
 import {
   REMOTE_STATS_SCHEMA_VERSION,
   RemoteStatsFileContent,
   StatsSynchronizer
-} from '@/domain/replication/merging/synchronizers/stats-synchronizer';
-import { statsService } from '@/domain/stats/stats-service';
+} from '@/domain/synchronization/merging/synchronizers/stats-synchronizer';
 import { InMemDriver } from '@@/_setup/inmem.driver';
 import { fakeTimersDelay } from '@@/_setup/test.utils';
 import { describe, expect, test, vi } from 'vitest';

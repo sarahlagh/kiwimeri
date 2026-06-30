@@ -1,9 +1,9 @@
-import { GET_UNKNOWN_ITEM_ROUTE } from '@/common/routes';
-import { getSearchParams } from '@/common/utils';
+import { GET_UNKNOWN_ITEM_ROUTE } from '@/common_to_migrate/routes';
+import { getSearchParams } from '@/common_to_migrate/utils';
 import { APPICONS } from '@/constants';
 import { plt } from '@/core/infra/platform';
-import collectionService from '@/db/collection.service';
-import { APPICONS_PER_TYPE } from '@/domain/collection/model';
+import collectionService from '@/db_to_migrate/collection.service';
+import { APPICONS_PER_TYPE } from '@/domain/collection/collection';
 import {
   DeepSearchOptions,
   DeepSearchResult,

@@ -1,15 +1,15 @@
-import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
+import { unminimizeContentFromStorage } from '@/common_to_migrate/wysiwyg/compress-file-content';
 import { META_JSON } from '@/constants';
 import collectionService, {
   INITIAL_CONTENT_START
-} from '@/db/collection.service';
-import notebooksService from '@/db/notebooks.service';
+} from '@/db_to_migrate/collection.service';
+import notebooksService from '@/db_to_migrate/notebooks.service';
 import {
   CollectionItemResult,
   CollectionItemType,
   CollectionItemTypeValues
-} from '@/domain/collection/model';
-import formatConverter from '@/format-conversion/format-converter.service';
+} from '@/domain/collection/collection';
+import formatConverter from '@/features/format-conversion/format-converter.service';
 import { strToU8, zip } from 'fflate';
 import {
   ZipExportOptions,

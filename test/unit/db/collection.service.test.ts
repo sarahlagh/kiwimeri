@@ -1,17 +1,17 @@
-import { minimizeContentForStorage } from '@/common/wysiwyg/compress-file-content';
+import { minimizeContentForStorage } from '@/common_to_migrate/wysiwyg/compress-file-content';
 import {
   DEFAULT_NOTEBOOK_ID,
   DEFAULT_ORDER,
   ROOT_COLLECTION
 } from '@/constants';
 import { setMetaField } from '@/core/db/types';
-import collectionService from '@/db/collection.service';
-import notebooksService from '@/db/notebooks.service';
-import { CollectionItemSort } from '@/domain/collection-settings/model';
+import collectionService from '@/db_to_migrate/collection.service';
+import notebooksService from '@/db_to_migrate/notebooks.service';
 import {
   CollectionItemResetConflictFields,
   CollectionItemType
-} from '@/domain/collection/model';
+} from '@/domain/collection/collection';
+import { CollectionItemSort } from '@/domain/collection/collection-settings';
 import {
   BROWSABLE_ITEM_TYPES,
   fakeTimersDelay,

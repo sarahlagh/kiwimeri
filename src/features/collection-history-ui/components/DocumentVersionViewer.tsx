@@ -1,10 +1,13 @@
-import ActionsFromDocumentVersionViewerToolbar from '@/collection/components/actions/ActionsFromDocumentVersionViewerToolbar';
-import SearchActionsToolbar from '@/collection/components/SearchActionsToolbar';
-import { GET_DOCUMENT_ROUTE, GET_VERSIONED_ROUTE } from '@/common/routes';
-import KiwimeriEditor from '@/common/wysiwyg/lexical/KiwimeriEditor';
+import ActionsFromDocumentVersionViewerToolbar from '@/collection_to_migrate/components/actions/ActionsFromDocumentVersionViewerToolbar';
+import SearchActionsToolbar from '@/collection_to_migrate/components/SearchActionsToolbar';
+import {
+  GET_DOCUMENT_ROUTE,
+  GET_VERSIONED_ROUTE
+} from '@/common_to_migrate/routes';
+import KiwimeriEditor from '@/common_to_migrate/wysiwyg/lexical/KiwimeriEditor';
 import { APPICONS } from '@/constants';
-import collectionService from '@/db/collection.service';
-import { CollectionItemSnapshotData } from '@/domain/collection/model';
+import collectionService from '@/db_to_migrate/collection.service';
+import { CollectionItemSnapshotData } from '@/domain/collection/collection';
 import {
   IonButton,
   IonContent,

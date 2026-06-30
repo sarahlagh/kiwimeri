@@ -1,8 +1,8 @@
-import { unminimizeContentFromStorage } from '@/common/wysiwyg/compress-file-content';
+import { unminimizeContentFromStorage } from '@/common_to_migrate/wysiwyg/compress-file-content';
 import { APPICONS } from '@/constants';
-import collectionService from '@/db/collection.service';
-import formatConverter from '@/format-conversion/format-converter.service';
-import { AO3_HTML_FORMATTER } from '@/format-conversion/lex-conversion/formatters/ao3-html-formatter';
+import collectionService from '@/db_to_migrate/collection.service';
+import formatConverter from '@/features/format-conversion/format-converter.service';
+import { AO3_HTML_FORMATTER } from '@/features/format-conversion/lex-conversion/formatters/ao3-html-formatter';
 import {
   IonButton,
   IonButtons,

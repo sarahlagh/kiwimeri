@@ -1,7 +1,7 @@
-import platformService from '@/common/services/platform.service';
-import remotesService from '@/domain/remotes/configuration/remotes.service';
-import { PCloudConf } from '@/domain/remotes/drivers/pcloud/pcloud.driver';
-import replicaService from '@/domain/replication/replica-state/replica.service';
+import platformService from '@/common_to_migrate/services/platform.service';
+import remotesService from '@/domain/synchronization/configuration/remotes.service';
+import { PCloudConf } from '@/domain/synchronization/drivers/pcloud/pcloud.driver';
+import replicaService from '@/domain/synchronization/replica-state/replica.service';
 import {
   InputCustomEvent,
   IonInput,

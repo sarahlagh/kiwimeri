@@ -1,4 +1,4 @@
-import { conflictsService } from '@/domain/conflicts/conflicts-service';
+import { conflictsService } from '@/domain/synchronization/conflicts/conflicts-service';
 import { useHasLocalChanges } from '@/features/local-changes-ui';
 import useIsPrimaryConnected from './useIsPrimaryConnected';
 import usePrimaryHasRemoteChanges from './usePrimaryHasRemoteChanges';

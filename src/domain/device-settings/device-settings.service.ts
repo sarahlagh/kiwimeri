@@ -2,7 +2,7 @@ import { appConfig } from '@/config';
 import { space } from '@/core/db/store';
 import { SpaceValue, SpaceValueType } from '@/core/db/store-schema';
 import { plt } from '@/core/infra/platform';
-import { Theme } from './model';
+import { Theme } from './device-settings';
 
 class DeviceSettingService {
   public get<S extends SpaceValue>(setting: S): SpaceValueType<S> {

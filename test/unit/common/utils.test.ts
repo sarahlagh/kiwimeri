@@ -1,5 +1,5 @@
-import { dateLocale, dateToStr } from '@/common/date-utils';
-import { cellEquals } from '@/common/utils';
+import { dateLocale, dateToStr } from '@/common_to_migrate/date-utils';
+import { cellEquals } from '@/common_to_migrate/utils';
 import { describe, expect, it, vi } from 'vitest';
 
 const locale = dateLocale;

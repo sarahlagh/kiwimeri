@@ -1,17 +1,14 @@
-import {
-  historyContentSchema,
-  historySchema
-} from '@/domain/collection-history/model';
-import { collectionSchema } from '@/domain/collection/model';
-import { derivedContentSchema } from '@/domain/derived-content/model';
-import { derivedItemStateSchema } from '@/domain/derived-item-state/model';
-import { docAnnotationSchema } from '@/domain/document-annotations/model';
-import { localChangesSchema } from '@/domain/local-changes/model';
-import { remotesSchema } from '@/domain/remotes/configuration/model';
-import { replicaStatesSchema } from '@/domain/replication/replica-state/model';
-import { resumeStateSchema } from '@/domain/resume-state/model';
-import { statsSchema } from '@/domain/stats/model';
-import { userPreferenceSchema } from '@/domain/user-preferences/model';
+import { collectionSchema } from '@/domain/collection/collection';
+import { derivedContentSchema } from '@/domain/collection/derived-content';
+import { derivedItemStateSchema } from '@/domain/collection/derived-item-state';
+import { docAnnotationSchema } from '@/domain/collection/doc-annotations';
+import { resumeStateSchema } from '@/domain/collection/resume-state';
+import { historyContentSchema, historySchema } from '@/domain/history/history';
+import { statsSchema } from '@/domain/stats/stats';
+import { remotesSchema } from '@/domain/synchronization/configuration/model';
+import { localChangesSchema } from '@/domain/synchronization/local-changes/model';
+import { replicaStatesSchema } from '@/domain/synchronization/replica-state/model';
+import { userPreferenceSchema } from '@/domain/user-preferences/user-preferences';
 import { SpaceTables, StoreTables } from './store-constants';
 import {
   CellIdFromSchema,

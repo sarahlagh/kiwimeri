@@ -1,11 +1,11 @@
 import { DbSerializableData } from '@/core/db/types';
-import { CollectionItemVersionOp } from '@/domain/collection-history/model';
-import { CollectionItemVersion } from '@/domain/collection-history/queries/fetchVersionsQuery';
 import {
   CollectionItem,
   CollectionItemType,
   CollectionItemTypeValues
-} from '@/domain/collection/model';
+} from '@/domain/collection/collection';
+import { CollectionItemVersionOp } from '@/domain/history/history';
+import { CollectionItemVersion } from '@/domain/history/queries/fetchVersionsQuery';
 import { parentField, TestField } from '@@/_setup/test.utils';
 import { describe, expect, it } from 'vitest';
 

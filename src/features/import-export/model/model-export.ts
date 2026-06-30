@@ -1,4 +1,4 @@
-import { CollectionItem } from '@/domain/collection/model';
+import { CollectionItem } from '@/domain/collection/collection';
 
 export type ZipFileTree = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

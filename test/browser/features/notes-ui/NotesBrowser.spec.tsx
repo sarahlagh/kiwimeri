@@ -1,7 +1,7 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
-import collectionService from '@/db/collection.service';
-import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
-import { resumeService } from '@/domain/resume-state/resume-state.service';
+import collectionService from '@/db_to_migrate/collection.service';
+import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import { resumeService } from '@/domain/collection/resume-state.service';
 import { NotesBrowser } from '@/features/notes-ui';
 import fetchNotesQuery from '@/features/notes-ui/queries/fetchNotesQuery';
 import { getNewContent } from '@@/_setup/test.utils';

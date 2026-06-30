@@ -3,8 +3,8 @@ import {
   annotSortBy,
   NotesSort,
   NotesSortType
-} from '@/domain/collection-settings/model';
-import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
+} from '@/domain/collection/collection-settings';
+import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
 import GenericSortFilter from '@/shared/utils/sort-filter/GenericSortFilter';
 import { IonButton, IonIcon, useIonPopover } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';

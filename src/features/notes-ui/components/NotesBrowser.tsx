@@ -1,7 +1,7 @@
 import { useEffect, type JSX } from 'react';
 
 import { useQueryResultIds } from '@/core/db/queries-helper';
-import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
+import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
 import { IonNote } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 import useNotesSort from '../hooks/useNotesSort';

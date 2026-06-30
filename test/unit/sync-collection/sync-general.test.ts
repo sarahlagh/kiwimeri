@@ -1,14 +1,14 @@
 import { DEFAULT_NOTEBOOK_ID, getGlobalTrans } from '@/constants';
 import { space } from '@/core/db/store';
-import collectionService from '@/db/collection.service';
-import { historyService } from '@/domain/collection-history/collection-history.service';
-import { CollectionItemType } from '@/domain/collection/model';
-import { conflictsService } from '@/domain/conflicts/conflicts-service';
-import localChangesService from '@/domain/local-changes/local-changes.service';
-import { LocalChangeType } from '@/domain/local-changes/model';
-import { SingleFileStorage } from '@/domain/replication/layouts/singlefile.filesystem';
-import fetchRemotesQuery from '@/domain/replication/replica-state/queries/fetchRemotesQuery';
-import { syncService } from '@/domain/replication/sync.service';
+import collectionService from '@/db_to_migrate/collection.service';
+import { CollectionItemType } from '@/domain/collection/collection';
+import { historyService } from '@/domain/history/history.service';
+import { conflictsService } from '@/domain/synchronization/conflicts/conflicts-service';
+import { SingleFileStorage } from '@/domain/synchronization/layouts/singlefile.filesystem';
+import localChangesService from '@/domain/synchronization/local-changes/local-changes.service';
+import { LocalChangeType } from '@/domain/synchronization/local-changes/model';
+import fetchRemotesQuery from '@/domain/synchronization/replica-state/queries/fetchRemotesQuery';
+import { syncService } from '@/domain/synchronization/sync.service';
 import { useSynchronizationStates } from '@/features/synchronization-ui';
 import { InMemDriver } from '@@/_setup/inmem.driver';
 import {

@@ -2,7 +2,7 @@ import {
   CollectionItem,
   CollectionItemResult,
   CollectionItemUpdate
-} from '@/domain/collection/model';
+} from '@/domain/collection/collection';
 import { ZipMetadata } from './model-export';
 
 export type ZipMergeFistLevel = {

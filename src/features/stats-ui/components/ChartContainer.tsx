@@ -4,9 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 
 import TimeChart from './charts/TimeChart';
 
+import { Theme } from '@/domain/device-settings/device-settings';
 import useDeviceSetting from '@/domain/device-settings/hooks/useDeviceSetting';
-import { Theme } from '@/domain/device-settings/model';
-import { DataPoint } from '@/domain/stats/model';
+import { DataPoint } from '@/domain/stats/stats';
 import {
   TrackedStats,
   statsService,

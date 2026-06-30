@@ -1,6 +1,6 @@
-import notebooksService from '@/db/notebooks.service';
-import { settingsService } from '@/domain/collection-settings/collection-settings.service';
-import useNotebookDefaultSettings from '@/domain/collection-settings/hooks/useNotebookDefaultSettings';
+import notebooksService from '@/db_to_migrate/notebooks.service';
+import { settingsService } from '@/domain/collection/collection-settings.service';
+import useNotebookDefaultSettings from '@/domain/collection/hooks/useNotebookDefaultSettings';
 import { statsService } from '@/domain/stats/stats-service';
 import {
   IonCard,

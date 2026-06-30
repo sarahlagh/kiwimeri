@@ -1,4 +1,4 @@
-import WritingSession from '@/timed-writing/components/WritingSession';
+import { WritingSession } from '@/features/timed-writing';
 import {
   IonButtons,
   IonHeader,

@@ -1,40 +1,40 @@
 import {
   minimizeItemsForStorage,
   unminimizeItemsFromStorage
-} from '@/collection/compress-collection';
+} from '@/collection_to_migrate/compress-collection';
 import { appConfig } from '@/config';
 import { DEFAULT_NOTEBOOK_ID, getGlobalTrans } from '@/constants';
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { SpaceValuesType } from '@/core/db/store-schema';
 import { setMetaField } from '@/core/db/types';
-import collectionService from '@/db/collection.service';
-import notebooksService from '@/db/notebooks.service';
+import collectionService from '@/db_to_migrate/collection.service';
+import notebooksService from '@/db_to_migrate/notebooks.service';
 import {
   CollectionItem,
   CollectionItemWithId
-} from '@/domain/collection/model';
-import { conflictsService } from '@/domain/conflicts/conflicts-service';
+} from '@/domain/collection/collection';
 import {
   minimizeAnnotForStorage,
   unminimizeAnnotFromStorage
-} from '@/domain/document-annotations/compress-annotations';
-import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
-import { SyncableAnnotation } from '@/domain/document-annotations/model';
-import localChangesService from '@/domain/local-changes/local-changes.service';
-import { LocalChangeType } from '@/domain/local-changes/model';
-import remotesService from '@/domain/remotes/configuration/remotes.service';
-import { PCloudDriver } from '@/domain/remotes/drivers/pcloud/pcloud.driver';
+} from '@/domain/collection/compress-annotations';
+import { SyncableAnnotation } from '@/domain/collection/doc-annotations';
+import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import remotesService from '@/domain/synchronization/configuration/remotes.service';
+import { conflictsService } from '@/domain/synchronization/conflicts/conflicts-service';
+import { PCloudDriver } from '@/domain/synchronization/drivers/pcloud/pcloud.driver';
+import localChangesService from '@/domain/synchronization/local-changes/local-changes.service';
+import { LocalChangeType } from '@/domain/synchronization/local-changes/model';
 import {
   MinimizedCollectionItem,
   REMOTE_COLLECTION_SCHEMA_VERSION,
   RemoteCollectionFileContent
-} from '@/domain/replication/merging/synchronizers/collection-synchronizer';
-import { CompositeSynchronizer } from '@/domain/replication/merging/synchronizers/composite-synchronizer';
-import { StoredStateInfo } from '@/domain/replication/replica-state/model';
-import fetchRemotesQuery from '@/domain/replication/replica-state/queries/fetchRemotesQuery';
-import replicaService from '@/domain/replication/replica-state/replica.service';
-import { syncService } from '@/domain/replication/sync.service';
+} from '@/domain/synchronization/merging/synchronizers/collection-synchronizer';
+import { CompositeSynchronizer } from '@/domain/synchronization/merging/synchronizers/composite-synchronizer';
+import { StoredStateInfo } from '@/domain/synchronization/replica-state/model';
+import fetchRemotesQuery from '@/domain/synchronization/replica-state/queries/fetchRemotesQuery';
+import replicaService from '@/domain/synchronization/replica-state/replica.service';
+import { syncService } from '@/domain/synchronization/sync.service';
 import { useSynchronizationStates } from '@/features/synchronization-ui';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {

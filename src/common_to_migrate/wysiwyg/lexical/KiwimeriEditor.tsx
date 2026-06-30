@@ -1,0 +1,187 @@
+import platformService from '@/common_to_migrate/services/platform.service';
+import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
+import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
+import { LexicalComposer } from '@lexical/react/LexicalComposer';
+import { ContentEditable } from '@lexical/react/LexicalContentEditable';
+import { EditorRefPlugin } from '@lexical/react/LexicalEditorRefPlugin';
+import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
+import {
+  createEmptyHistoryState,
+  HistoryPlugin
+} from '@lexical/react/LexicalHistoryPlugin';
+import { HorizontalRulePlugin } from '@lexical/react/LexicalHorizontalRulePlugin';
+import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
+import { ListPlugin } from '@lexical/react/LexicalListPlugin';
+import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
+import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
+import { SelectionAlwaysOnDisplay } from '@lexical/react/LexicalSelectionAlwaysOnDisplay';
+import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
+import { useLingui } from '@lingui/react/macro';
+import { EditorState, LexicalEditor } from 'lexical';
+import React, {
+  ForwardedRef,
+  ReactNode,
+  useImperativeHandle,
+  useRef,
+  useState
+} from 'react';
+import { FOCUS_TAG, RELOAD_TAG } from './constants';
+import EditLinkPlugin from './EditLinkPlugin';
+import { KiwimeriOnChangePlugin } from './KiwimeriOnChangePlugin';
+import KiwimeriToolbarPlugin, {
+  ToolbarPluginProps
+} from './KiwimeriToolbarPlugin';
+import { lexicalConfig } from './lexical-config';
+import { MARKDOWN_SHORTCUTS_TRANSFORMERS } from './playground/markdown-transformers';
+import AutoLinkPlugin from './playground/plugins/AutoLinkPlugin';
+import DebugTreeViewPlugin from './playground/plugins/DebugTreeViewPlugin';
+import { validateUrl } from './playground/utils/url';
+import ReloadContentPlugin from './ReloadContentPlugin';
+import { SearchHighlightPlugin } from './SearchHighlightPlugin';
+import { SerializedSelection } from './selection-serializer';
+import ShortcutsPlugin from './ShortcutsPlugin';
+import TextZoomPlugin from './TextZoomPlugin';
+
+export type KiwimeriEditorHandle = {
+  focusEditor: () => void;
+};
+
+type KiwimeriEditorProps = {
+  id?: string;
+  searchText?: string | null;
+  // searchOpts?: any; // TODO match case, match whole words, regex, search in notes too
+  enableToolbar: boolean;
+  enableDebugTreeView?: boolean;
+  content: string;
+  selection?: SerializedSelection | null;
+  editable?: boolean;
+  enableHistory?: boolean;
+  onChange?: (editorState: EditorState, isSelectionChange: boolean) => void;
+  debounce?: number;
+  additionalClassNames?: string;
+  ignoreSelectionChange?: boolean;
+} & Omit<ToolbarPluginProps, 'setIsLinkEditMode'> & {
+    readonly children?: ReactNode;
+  };
+
+const KiwimeriEditor = (
+  props: KiwimeriEditorProps,
+  ref: ForwardedRef<KiwimeriEditorHandle>
+) => {
+  const { t } = useLingui();
+  const [isLinkEditMode, setIsLinkEditMode] = useState(false);
+  const [history, setHistory] = useState(createEmptyHistoryState());
+  const editorRef = useRef<LexicalEditor | null>(null);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      focusEditor() {
+        // note: this resumes the selection on small screens, but also triggers keyboard on small screen + android
+        // this is annoying, but no known workarounds at this time
+        // this will not be called on wide screens so not an issue there
+        editorRef.current?.focus();
+      }
+    }),
+    []
+  );
+
+  const {
+    enableToolbar,
+    children,
+    id,
+    content,
+    onChange,
+    enableDebugTreeView = true,
+    editable = true,
+    enableHistory = true,
+    searchText,
+    additionalClassNames,
+    ignoreSelectionChange = true
+  } = props;
+  const placeholder = t`Text...`;
+
+  return (
+    <LexicalComposer
+      initialConfig={{
+        ...lexicalConfig,
+        editable
+      }}
+    >
+      {enableToolbar && (
+        <KiwimeriToolbarPlugin
+          setIsLinkEditMode={setIsLinkEditMode}
+          {...props}
+        />
+      )}
+      <RichTextPlugin
+        contentEditable={
+          <ContentEditable
+            contentEditable={editable}
+            className={
+              'editor-input' +
+              (enableToolbar ? ' editor-toolbar' : '') +
+              (additionalClassNames ? ` ${additionalClassNames}` : '')
+            }
+            aria-placeholder={placeholder}
+            placeholder={
+              <div
+                className={
+                  'editor-placeholder' +
+                  (enableToolbar ? ' editor-placeholder-toolbar' : '')
+                }
+              >
+                {placeholder}
+              </div>
+            }
+          />
+        }
+        ErrorBoundary={LexicalErrorBoundary}
+      />
+      <EditorRefPlugin editorRef={editorRef} />
+      <ReloadContentPlugin
+        id={id || 'id'}
+        content={content}
+        serializedSelection={props.selection}
+        setHistory={setHistory}
+      />
+      {onChange && (
+        <KiwimeriOnChangePlugin
+          ignoreSelectionChange={ignoreSelectionChange}
+          skipTags={[FOCUS_TAG, RELOAD_TAG]}
+          onChange={({ editorState, isSelectionChange }) => {
+            onChange(editorState, isSelectionChange);
+          }}
+        />
+      )}
+      {enableHistory && <HistoryPlugin externalHistoryState={history} />}
+      <AutoFocusPlugin />
+      <ListPlugin />
+      <CheckListPlugin />
+      <LinkPlugin validateUrl={validateUrl} />
+      <AutoLinkPlugin />
+      <HorizontalRulePlugin />
+      <TabIndentationPlugin />
+      <SelectionAlwaysOnDisplay />
+      <MarkdownShortcutPlugin transformers={MARKDOWN_SHORTCUTS_TRANSFORMERS} />
+
+      <TextZoomPlugin />
+      <ShortcutsPlugin />
+      <SearchHighlightPlugin searchText={searchText} />
+
+      <EditLinkPlugin
+        isLinkEditMode={isLinkEditMode}
+        setIsLinkEditMode={setIsLinkEditMode}
+      />
+
+      {children}
+
+      {platformService.isWeb() && enableDebugTreeView && editable && (
+        <DebugTreeViewPlugin />
+      )}
+    </LexicalComposer>
+  );
+};
+export default React.forwardRef<KiwimeriEditorHandle, KiwimeriEditorProps>(
+  KiwimeriEditor
+);

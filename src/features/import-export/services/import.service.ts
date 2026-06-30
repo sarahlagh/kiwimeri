@@ -1,10 +1,9 @@
 import { META_JSON, ROOT_COLLECTION } from '@/constants';
 import { space } from '@/core/db/store';
 import { setMetaField } from '@/core/db/types';
-import collectionService from '@/db/collection.service';
-import notebooksService from '@/db/notebooks.service';
-import storageService from '@/db/storage.service';
-import { historyService } from '@/domain/collection-history/collection-history.service';
+import collectionService from '@/db_to_migrate/collection.service';
+import notebooksService from '@/db_to_migrate/notebooks.service';
+import storageService from '@/db_to_migrate/storage.service';
 import {
   CollectionItem,
   CollectionItemResult,
@@ -16,8 +15,9 @@ import {
   isFolder,
   isNotebook,
   isParent
-} from '@/domain/collection/model';
-import formatConverter from '@/format-conversion/format-converter.service';
+} from '@/domain/collection/collection';
+import { historyService } from '@/domain/history/history.service';
+import formatConverter from '@/features/format-conversion/format-converter.service';
 import { Unzipped, strFromU8, unzip } from 'fflate';
 import { SerializedEditorState, SerializedLexicalNode } from 'lexical';
 import {

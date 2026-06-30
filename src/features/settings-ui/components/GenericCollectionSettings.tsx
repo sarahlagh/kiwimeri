@@ -1,12 +1,15 @@
 import EditConfigList, {
   ConfigRowType
-} from '@/common/containers/EditConfigList';
-import { AnySerializableData, SerializableData } from '@/db/types/store-types';
+} from '@/common_to_migrate/containers/EditConfigList';
+import {
+  AnySerializableData,
+  SerializableData
+} from '@/db_to_migrate/types/store-types';
 import {
   CollectionItemSortType,
   SpaceSettings
-} from '@/domain/collection-settings/model';
-import { userPreferenceDefinitions } from '@/domain/user-preferences/model';
+} from '@/domain/collection/collection-settings';
+import { userPreferenceDefinitions } from '@/domain/user-preferences/user-preferences';
 import { useLingui } from '@lingui/react/macro';
 
 type GenericCollectionSettingsProps = {

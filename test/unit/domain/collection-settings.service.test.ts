@@ -1,13 +1,13 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { space } from '@/core/db/store';
 import { MetaField } from '@/core/db/types';
-import collectionService from '@/db/collection.service';
-import notebooksService from '@/db/notebooks.service';
-import { settingsService } from '@/domain/collection-settings/collection-settings.service';
-import useFolderEffectiveSort from '@/domain/collection-settings/hooks/useFolderEffectiveSort';
-import useNotebookDefaultSettings from '@/domain/collection-settings/hooks/useNotebookDefaultSettings';
-import useNotebookLastBrowserMode from '@/domain/collection-settings/hooks/useNotebookLastBrowserMode';
-import useSpaceDefaultSettings from '@/domain/collection-settings/hooks/useSpaceDefaultSettings';
+import collectionService from '@/db_to_migrate/collection.service';
+import notebooksService from '@/db_to_migrate/notebooks.service';
+import { settingsService } from '@/domain/collection/collection-settings.service';
+import useFolderEffectiveSort from '@/domain/collection/hooks/useFolderEffectiveSort';
+import useNotebookDefaultSettings from '@/domain/collection/hooks/useNotebookDefaultSettings';
+import useNotebookLastBrowserMode from '@/domain/collection/hooks/useNotebookLastBrowserMode';
+import useSpaceDefaultSettings from '@/domain/collection/hooks/useSpaceDefaultSettings';
 import { adv, fakeTimersDelay, wrappedRenderHook } from '@@/_setup/test.utils';
 import { describe, expect, it } from 'vitest';
 

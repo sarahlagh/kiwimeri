@@ -1,16 +1,16 @@
 import {
   minimizeItemsForStorage,
   unminimizeItemsFromStorage
-} from '@/collection/compress-collection';
+} from '@/collection_to_migrate/compress-collection';
 import {
   minimizeContentForStorage,
   unminimizeContentFromStorage
-} from '@/common/wysiwyg/compress-file-content';
-import { initialContent } from '@/db/collection.service';
+} from '@/common_to_migrate/wysiwyg/compress-file-content';
+import { initialContent } from '@/db_to_migrate/collection.service';
 import {
   minimizeAnnotForStorage,
   unminimizeAnnotFromStorage
-} from '@/domain/document-annotations/compress-annotations';
+} from '@/domain/collection/compress-annotations';
 import {
   oneDocument,
   oneFolder,

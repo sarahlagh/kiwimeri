@@ -1,4 +1,4 @@
-import { dateToStr } from '@/common/date-utils';
+import { dateToStr } from '@/common_to_migrate/date-utils';
 import { RenderResult } from 'vitest-browser-react';
 
 export function getSelectANoteNote(screen: RenderResult) {
