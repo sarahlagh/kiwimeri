@@ -5,7 +5,7 @@ import {
   unminimizeItemsFromStorage
 } from '@/collection_to_migrate/compress-collection';
 import { fastHash } from '@/common_to_migrate/utils';
-import { AnyData } from '@/db_to_migrate/types/store-types';
+import { AnyData } from '@/core/db/types';
 import { CollectionItem } from '@/domain/collection/collection';
 import {
   minimizeAnnotForStorage,

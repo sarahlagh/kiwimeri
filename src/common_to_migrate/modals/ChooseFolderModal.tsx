@@ -76,6 +76,8 @@ const Toolbar = ({
   );
 };
 
+const restrictTypes = [CollectionItemType.folder, CollectionItemType.notebook];
+
 type ChooseFolderModalProps = {
   id: string;
   currentParent: string;
@@ -94,16 +96,13 @@ const ChooseFolderModal = ({
     undefined
   );
 
-  const query = useFetchItemsQuery(currentParent);
-  const [parent, setParent] = useFetchItemsQueryParamsState(query);
-
-  const items = useQueryResults(query).filter(
-    item =>
-      item.type === CollectionItemType.folder ||
-      item.type === CollectionItemType.notebook
+  const query = useFetchItemsQuery(currentParent, restrictTypes);
+  const [parent, setParent] = useFetchItemsQueryParamsState(
+    query,
+    restrictTypes
   );
+  const finalItems = useQueryResults(query);
 
-  const finalItems = items;
   return (
     <>
       <IonHeader>

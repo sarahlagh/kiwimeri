@@ -148,7 +148,6 @@ class CollectionService {
       {
         parentId: parent,
         recursive: false,
-        onlyDocuments: false,
         onlyConflicts: false
       },
       sort.by,
@@ -240,7 +239,6 @@ class CollectionService {
       {
         parentId: parent,
         recursive: true,
-        onlyDocuments: false,
         onlyConflicts: false
       },
       sort.by,

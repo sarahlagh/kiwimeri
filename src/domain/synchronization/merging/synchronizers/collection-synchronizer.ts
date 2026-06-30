@@ -11,9 +11,8 @@ import {
   SpaceTablesType,
   SpaceType
 } from '@/core/db/store-schema';
-import { TypeWithId, WithId } from '@/core/db/types';
+import { AnyData, SerializableData, TypeWithId, WithId } from '@/core/db/types';
 import collectionService from '@/db_to_migrate/collection.service';
-import { AnyData, SerializableData } from '@/db_to_migrate/types/store-types';
 import {
   CollectionItemType,
   CollectionItemUpdatableFields,

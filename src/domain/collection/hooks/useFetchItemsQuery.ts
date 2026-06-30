@@ -1,15 +1,13 @@
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
 import useGenericQuery from '@/shared/hooks/useGenericQuery';
+import { CollectionItemType } from '../collection';
 
 export default function useFetchItemsQuery(
   parent: string,
-  recursive?: boolean,
-  onlyDocuments?: boolean
+  restrictTypes?: CollectionItemType[]
 ) {
   return useGenericQuery(fetchItemsQuery, {
     parentId: parent,
-    onlyDocuments: recursive || false,
-    recursive: onlyDocuments || false,
-    onlyConflicts: false
+    restrictTypes
   });
 }

@@ -1,7 +1,6 @@
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
-import { WithId } from '@/core/db/types';
-import { AnyData } from '@/db_to_migrate/types/store-types';
+import { AnyData, WithId } from '@/core/db/types';
 import { Remote } from '../configuration/model';
 import {
   ReplicaState,

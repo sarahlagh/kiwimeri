@@ -40,7 +40,7 @@ msgstr "Content"
 msgid "Manual"
 msgstr "Manual"
 
-#: src/timed-writing/components/SaveSessionModal.tsx:63
+#: src/features/timed-writing/components/SaveSessionModal.tsx:63
 msgid " (new)"
 msgstr " (new)"
 
@@ -52,11 +52,11 @@ msgstr "-- conflict --"
 msgid "{0} Filters"
 msgstr "{0} Filters"
 
-#: src/timed-writing/components/StartPanel.tsx:75
+#: src/features/timed-writing/components/StartPanel.tsx:75
 msgid "{v} minutes"
 msgstr "{v} minutes"
 
-#: src/timed-writing/components/OngoingSession.tsx:159
+#: src/features/timed-writing/components/OngoingSession.tsx:159
 msgid "{wordCount} words"
 msgstr "{wordCount} words"
 
@@ -88,7 +88,7 @@ msgstr "Add config"
 msgid "An error occurred during sync."
 msgstr "An error occurred during sync."
 
-#: src/common/buttons/GenericImportFileButton.tsx:46
+#: src/common_to_migrate/buttons/GenericImportFileButton.tsx:46
 msgid "An error occurred loading the file"
 msgstr "An error occurred loading the file"
 
@@ -108,14 +108,14 @@ msgstr "AO3 Viewer"
 msgid "Archive is empty"
 msgstr "Archive is empty"
 
-#: src/collection/components/CollectionItemList.tsx:76
-#: src/common/modals/ConfirmYesNoDialog.tsx:24
+#: src/collection_to_migrate/components/CollectionItemList.tsx:76
+#: src/common_to_migrate/modals/ConfirmYesNoDialog.tsx:24
 #: src/features/collection-history-ui/components/ManageHistoryModal.tsx:142
 msgid "Are you sure?"
 msgstr "Are you sure?"
 
-#: src/common/modals/ChooseTagsModal.tsx:100
-#: src/common/modals/ConfirmYesNoDialog.tsx:28
+#: src/common_to_migrate/modals/ChooseTagsModal.tsx:100
+#: src/common_to_migrate/modals/ConfirmYesNoDialog.tsx:28
 #: src/features/collection-history-ui/components/ManageHistoryModal.tsx:145
 #: src/features/import-export/buttons/ExportItemsButton.tsx:103
 #: src/features/import-export/buttons/RestoreCollectionButton.tsx:71
@@ -137,31 +137,31 @@ msgstr "Character Count (Max)"
 msgid "characters"
 msgstr "characters"
 
-#: src/common/modals/ChooseFolderModal.tsx:72
+#: src/common_to_migrate/modals/ChooseFolderModal.tsx:72
 msgid "Choose"
 msgstr "Choose"
 
-#: src/timed-writing/components/StartPanel.tsx:41
+#: src/features/timed-writing/components/StartPanel.tsx:41
 msgid "Choose a length for your writing session. Once you start, you must keep writing or all progress will be lost. You will have the option to save your work in a new document once you finish. This feature is inspired by Squibler's Most Dangerous Writing App (https://www.squibler.io/dangerous-writing-prompt-app)."
 msgstr "Choose a length for your writing session. Once you start, you must keep writing or all progress will be lost. You will have the option to save your work in a new document once you finish. This feature is inspired by Squibler's Most Dangerous Writing App (https://www.squibler.io/dangerous-writing-prompt-app)."
 
-#: src/common/modals/ChooseFolderModal.tsx:113
+#: src/common_to_migrate/modals/ChooseFolderModal.tsx:112
 msgid "Choose a new folder"
 msgstr "Choose a new folder"
 
-#: src/timed-writing/components/StartPanel.tsx:38
+#: src/features/timed-writing/components/StartPanel.tsx:38
 msgid "Choose a session length"
 msgstr "Choose a session length"
 
-#: src/timed-writing/components/SaveSessionModal.tsx:70
+#: src/features/timed-writing/components/SaveSessionModal.tsx:70
 msgid "Choose where to save your work"
 msgstr "Choose where to save your work"
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:241
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:244
 msgid "Clear All"
 msgstr "Clear All"
 
-#: src/timed-writing/components/SaveSessionModal.tsx:103
+#: src/features/timed-writing/components/SaveSessionModal.tsx:103
 msgid "Close"
 msgstr "Close"
 
@@ -181,23 +181,23 @@ msgstr "Config"
 msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
 
-#: src/common/modals/ChooseTagsModal.tsx:107
-#: src/common/modals/ConfirmYesNoDialog.tsx:36
+#: src/common_to_migrate/modals/ChooseTagsModal.tsx:107
+#: src/common_to_migrate/modals/ConfirmYesNoDialog.tsx:36
 #: src/features/collection-history-ui/components/ManageHistoryModal.tsx:149
 #: src/features/import-export/buttons/ExportItemsButton.tsx:110
 #: src/features/import-export/buttons/RestoreCollectionButton.tsx:78
 #: src/features/import-export/modals/ConfirmFileImportModal.tsx:82
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:349
-#: src/notebooks/components/ManageNotebooksModal.tsx:95
+#: src/features/notebooks-ui/components/ManageNotebooksModal.tsx:95
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/collection/components/CollectionItemBrowserList.tsx:158
+#: src/collection_to_migrate/components/CollectionItemBrowserList.tsx:158
 #: src/constants.ts:79
 msgid "Conflicts"
 msgstr "Conflicts"
 
-#: src/collection/components/SortFilter.tsx:50
+#: src/collection_to_migrate/components/SortFilter.tsx:50
 msgid "Content"
 msgstr "Content"
 
@@ -205,7 +205,7 @@ msgstr "Content"
 msgid "create a note"
 msgstr "create a note"
 
-#: src/collection/components/sheets/DocumentGeneralInfo.tsx:18
+#: src/collection_to_migrate/components/sheets/DocumentGeneralInfo.tsx:18
 msgid "Created at"
 msgstr "Created at"
 
@@ -213,7 +213,7 @@ msgstr "Created at"
 msgid "Created at: {0}"
 msgstr "Created at: {0}"
 
-#: src/collection/components/SortFilter.tsx:47
+#: src/collection_to_migrate/components/SortFilter.tsx:47
 #: src/features/settings-ui/components/GenericCollectionSettings.tsx:36
 msgid "Creation Date"
 msgstr "Creation Date"
@@ -226,7 +226,7 @@ msgstr "Current Notebook Settings ({notebookTitle})"
 msgid "Default"
 msgstr "Default"
 
-#: src/domain/user-preferences/model.ts:15
+#: src/domain/user-preferences/user-preferences.ts:15
 msgid "Default sort field"
 msgstr "Default sort field"
 
@@ -238,7 +238,7 @@ msgstr "Delete All"
 msgid "Delete note"
 msgstr "Delete note"
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:154
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:157
 msgid "deleted item"
 msgstr "deleted item"
 
@@ -260,7 +260,7 @@ msgstr "Device Settings"
 msgid "Device Token"
 msgstr "Device Token"
 
-#: src/timed-writing/components/OngoingSession.tsx:178
+#: src/features/timed-writing/components/OngoingSession.tsx:178
 msgid "Discard"
 msgstr "Discard"
 
@@ -272,7 +272,7 @@ msgstr "Display options for the currently selected notebook. They can still be o
 msgid "Do you want to import your content inside a new folder?"
 msgstr "Do you want to import your content inside a new folder?"
 
-#: src/common/buttons/QuickGroupButton.tsx:36
+#: src/common_to_migrate/buttons/QuickGroupButton.tsx:36
 msgid "Document grouped"
 msgstr "Document grouped"
 
@@ -304,7 +304,7 @@ msgstr "Enter your search"
 msgid "Enter your username"
 msgstr "Enter your username"
 
-#: src/common/buttons/GenericExportFileButton.tsx:52
+#: src/common_to_migrate/buttons/GenericExportFileButton.tsx:52
 msgid "Error writing to file"
 msgstr "Error writing to file"
 
@@ -327,15 +327,15 @@ msgstr "Export"
 msgid "Export Options"
 msgstr "Export Options"
 
-#: src/common/buttons/GenericImportFileButton.tsx:48
+#: src/common_to_migrate/buttons/GenericImportFileButton.tsx:48
 msgid "File not supported"
 msgstr "File not supported"
 
-#: src/domain/user-preferences/model.ts:25
+#: src/domain/user-preferences/user-preferences.ts:25
 msgid "History idle time (s)"
 msgstr "History idle time (s)"
 
-#: src/domain/user-preferences/model.ts:30
+#: src/domain/user-preferences/user-preferences.ts:30
 msgid "History save time (min)"
 msgstr "History save time (min)"
 
@@ -387,15 +387,15 @@ msgstr "Kiwimeri format (content only)"
 msgid "Kiwimeri format (with history & stats)"
 msgstr "Kiwimeri format (with history & stats)"
 
-#: src/collection/components/CollectionItemBrowserList.tsx:157
+#: src/collection_to_migrate/components/CollectionItemBrowserList.tsx:157
 msgid "Last consulted documents"
 msgstr "Last consulted documents"
 
-#: src/collection/components/SortFilter.tsx:48
+#: src/collection_to_migrate/components/SortFilter.tsx:48
 msgid "Last Updated"
 msgstr "Last Updated"
 
-#: src/collection/components/CollectionItemBrowserList.tsx:156
+#: src/collection_to_migrate/components/CollectionItemBrowserList.tsx:156
 msgid "Last updated documents"
 msgstr "Last updated documents"
 
@@ -403,23 +403,23 @@ msgstr "Last updated documents"
 msgid "Leave empty for root"
 msgstr "Leave empty for root"
 
-#: src/timed-writing/components/StartPanel.tsx:53
+#: src/features/timed-writing/components/StartPanel.tsx:53
 msgid "Less dangerous mode (session is still timed but you will not lose progress on pause)"
 msgstr "Less dangerous mode (session is still timed but you will not lose progress on pause)"
 
-#: src/common/wysiwyg/lexical/EditLinkPlugin.tsx:58
+#: src/common_to_migrate/wysiwyg/lexical/EditLinkPlugin.tsx:58
 msgid "Link"
 msgstr "Link"
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:74
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:77
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:81
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:84
 msgid "Local:  {0}"
 msgstr "Local:  {0}"
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:85
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:88
 msgid "Local: <0>never</0>"
 msgstr "Local: <0>never</0>"
 
@@ -427,7 +427,7 @@ msgstr "Local: <0>never</0>"
 msgid "Logs"
 msgstr "Logs"
 
-#: src/collection/components/SortFilter.tsx:51
+#: src/collection_to_migrate/components/SortFilter.tsx:51
 msgid "Manual"
 msgstr "Manual"
 
@@ -451,7 +451,7 @@ msgstr "Markdown (Kiwimeri flavor)"
 msgid "Max log history"
 msgstr "Max log history"
 
-#: src/timed-writing/components/SaveSessionModal.tsx:132
+#: src/features/timed-writing/components/SaveSessionModal.tsx:132
 msgid "Merge"
 msgstr "Merge"
 
@@ -492,15 +492,15 @@ msgstr "New folder name: "
 msgid "New notebook name: "
 msgstr "New notebook name: "
 
-#: src/common/modals/ChooseTagsModal.tsx:85
+#: src/common_to_migrate/modals/ChooseTagsModal.tsx:85
 msgid "New tag"
 msgstr "New tag"
 
-#: src/collection/components/CollectionItemList.tsx:87
+#: src/collection_to_migrate/components/CollectionItemList.tsx:87
 msgid "no"
 msgstr "no"
 
-#: src/common/modals/ChooseTagsModal.tsx:53
+#: src/common_to_migrate/modals/ChooseTagsModal.tsx:53
 msgid "No tag yet"
 msgstr "No tag yet"
 
@@ -508,7 +508,7 @@ msgstr "No tag yet"
 msgid "Not Found"
 msgstr "Not Found"
 
-#: src/notebooks/components/ManageNotebooksModal.tsx:34
+#: src/features/notebooks-ui/components/ManageNotebooksModal.tsx:34
 msgid "Notebook Selection"
 msgstr "Notebook Selection"
 
@@ -516,7 +516,7 @@ msgstr "Notebook Selection"
 msgid "Notebooks found in the archive, they will be converted to folders"
 msgstr "Notebooks found in the archive, they will be converted to folders"
 
-#: src/domain/user-preferences/model.ts:35
+#: src/domain/user-preferences/user-preferences.ts:35
 msgid "Number of versions"
 msgstr "Number of versions"
 
@@ -554,11 +554,11 @@ msgstr "Remember last route"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:94
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:97
 msgid "Remote:  {0}"
 msgstr "Remote:  {0}"
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:98
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:101
 msgid "Remote: <0>never</0>"
 msgstr "Remote: <0>never</0>"
 
@@ -579,11 +579,11 @@ msgstr "Restore Collection"
 msgid "Restore Version"
 msgstr "Restore Version"
 
-#: src/timed-writing/components/SaveSessionModal.tsx:130
+#: src/features/timed-writing/components/SaveSessionModal.tsx:130
 msgid "Save"
 msgstr "Save"
 
-#: src/timed-writing/components/OngoingSession.tsx:173
+#: src/features/timed-writing/components/OngoingSession.tsx:173
 msgid "Save your work"
 msgstr "Save your work"
 
@@ -603,7 +603,7 @@ msgstr "Search input"
 msgid "select a note"
 msgstr "select a note"
 
-#: src/common/modals/ChooseTagsModal.tsx:39
+#: src/common_to_migrate/modals/ChooseTagsModal.tsx:39
 msgid "Select item tags"
 msgstr "Select item tags"
 
@@ -616,12 +616,12 @@ msgstr "Server"
 msgid "Settings"
 msgstr "Settings"
 
-#: src/collection/components/SortFilter.tsx:59
+#: src/collection_to_migrate/components/SortFilter.tsx:59
 #: src/shared/utils/sort-filter/GenericSortFilter.tsx:65
 msgid "Sort"
 msgstr "Sort"
 
-#: src/domain/user-preferences/model.ts:20
+#: src/domain/user-preferences/user-preferences.ts:20
 msgid "Sort descending by default"
 msgstr "Sort descending by default"
 
@@ -637,7 +637,7 @@ msgstr "Sort items by..."
 msgid "sort notes"
 msgstr "sort notes"
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:206
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:209
 msgid "Space setting modified:"
 msgstr "Space setting modified:"
 
@@ -645,12 +645,12 @@ msgstr "Space setting modified:"
 msgid "Space Settings"
 msgstr "Space Settings"
 
-#: src/timed-writing/components/StartPanel.tsx:82
+#: src/features/timed-writing/components/StartPanel.tsx:82
 msgid "Start Writing"
 msgstr "Start Writing"
 
-#: src/common/buttons/GenericExportFileButton.tsx:47
-#: src/common/buttons/GenericImportFileButton.tsx:47
+#: src/common_to_migrate/buttons/GenericExportFileButton.tsx:47
+#: src/common_to_migrate/buttons/GenericImportFileButton.tsx:47
 #: src/features/collection-history-ui/components/ManageHistoryModal.tsx:156
 #: src/features/synchronization-ui/components/RemoteGenericSettings.tsx:59
 msgid "Success!"
@@ -669,15 +669,15 @@ msgstr "Synchronization & Backup"
 msgid "Syncing is disabled on the web version."
 msgstr "Syncing is disabled on the web version."
 
-#: src/collection/components/sheets/DocumentGeneralInfo.tsx:34
+#: src/collection_to_migrate/components/sheets/DocumentGeneralInfo.tsx:34
 msgid "Tags"
 msgstr "Tags"
 
-#: src/common/wysiwyg/lexical/EditLinkPlugin.tsx:44
+#: src/common_to_migrate/wysiwyg/lexical/EditLinkPlugin.tsx:44
 msgid "Text"
 msgstr "Text"
 
-#: src/common/wysiwyg/lexical/KiwimeriEditor.tsx:102
+#: src/common_to_migrate/wysiwyg/lexical/KiwimeriEditor.tsx:102
 msgid "Text..."
 msgstr "Text..."
 
@@ -693,7 +693,7 @@ msgstr "The number of versions to keep per document. Set 0 for unlimited."
 msgid "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page and the Settings page."
 msgstr "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page and the Settings page."
 
-#: src/common/buttons/QuickUngroupButton.tsx:35
+#: src/common_to_migrate/buttons/QuickUngroupButton.tsx:35
 msgid "This will delete this folder and move all its items to the current one."
 msgstr "This will delete this folder and move all its items to the current one."
 
@@ -701,7 +701,7 @@ msgstr "This will delete this folder and move all its items to the current one."
 msgid "This will delete your existing data. Are you sure?"
 msgstr "This will delete your existing data. Are you sure?"
 
-#: src/timed-writing/components/SaveSessionModal.tsx:53
+#: src/features/timed-writing/components/SaveSessionModal.tsx:53
 msgid "timed session "
 msgstr "timed session "
 
@@ -713,7 +713,7 @@ msgstr "Timed Writing"
 msgid "Timed Writing Session"
 msgstr "Timed Writing Session"
 
-#: src/collection/components/SortFilter.tsx:49
+#: src/collection_to_migrate/components/SortFilter.tsx:49
 msgid "Title"
 msgstr "Title"
 
@@ -721,11 +721,11 @@ msgstr "Title"
 msgid "Toggle actions"
 msgstr "Toggle actions"
 
-#: src/domain/user-preferences/model.ts:40
+#: src/domain/user-preferences/user-preferences.ts:40
 msgid "Track text statistics"
 msgstr "Track text statistics"
 
-#: src/collection/components/sheets/DocumentGeneralInfo.tsx:26
+#: src/collection_to_migrate/components/sheets/DocumentGeneralInfo.tsx:26
 msgid "Updated at"
 msgstr "Updated at"
 
@@ -754,7 +754,7 @@ msgstr "When working on a document, a new version will be automatically at least
 msgid "When working on a document, a new version will be automatically if idle after XX seconds"
 msgstr "When working on a document, a new version will be automatically if idle after XX seconds"
 
-#: src/collection/components/sheets/DocumentGeneralInfo.tsx:40
+#: src/collection_to_migrate/components/sheets/DocumentGeneralInfo.tsx:40
 msgid "Word count"
 msgstr "Word count"
 
@@ -766,7 +766,7 @@ msgstr "Word Count"
 msgid "Word Count (Max)"
 msgstr "Word Count (Max)"
 
-#: src/collection/components/WordCount.tsx:26
+#: src/collection_to_migrate/components/WordCount.tsx:26
 #: src/features/stats-ui/components/ChartContainer.tsx:54
 #: src/features/stats-ui/components/ChartContainer.tsx:64
 msgid "words"
@@ -776,7 +776,7 @@ msgstr "words"
 msgid "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 msgstr "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 
-#: src/collection/components/CollectionItemList.tsx:84
+#: src/collection_to_migrate/components/CollectionItemList.tsx:84
 msgid "yes"
 msgstr "yes"
 
