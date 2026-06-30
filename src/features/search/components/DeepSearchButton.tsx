@@ -1,5 +1,4 @@
-import { GET_UNKNOWN_ITEM_ROUTE } from '@/common_to_migrate/routes';
-import { getSearchParams } from '@/common_to_migrate/utils';
+import { GET_UNKNOWN_ITEM_ROUTE } from '@/app/routes';
 import { APPICONS } from '@/constants';
 import { plt } from '@/core/infra/platform';
 import collectionService from '@/db_to_migrate/collection.service';
@@ -10,6 +9,7 @@ import {
   SearchOptions,
   searchService
 } from '@/features/search';
+import { getSearchParams } from '@/shared/utils';
 import {
   InputCustomEvent,
   IonBadge,

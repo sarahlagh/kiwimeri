@@ -9,7 +9,7 @@ import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import LocalChangesCard, {
   onRouteEnter,
   onRouteLeave
-} from '@/features/local-changes-ui/components/LocalChangesCard';
+} from '@/features/synchronization-ui/local-changes-ui/LocalChangesCard';
 import { getNewContent } from '@@/_setup/test.utils';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { render, RenderResult } from 'vitest-browser-react';

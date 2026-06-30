@@ -1,9 +1,3 @@
-import {
-  MinKeys as ItemsMinKeys,
-  minimizeItemsForStorage,
-  unminimizeItemsFromStorage
-} from '@/collection_to_migrate/compress-collection';
-import { cellEquals } from '@/common_to_migrate/utils';
 import { space, store } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import {
@@ -24,6 +18,11 @@ import {
   MinimizedDocAnnotation,
   unminimizeAnnotFromStorage
 } from '@/domain/collection/compress-annotations';
+import {
+  MinKeys as ItemsMinKeys,
+  minimizeItemsForStorage,
+  unminimizeItemsFromStorage
+} from '@/domain/collection/compress-collection';
 import {
   DocAnnotationRow,
   SyncableAnnotation
@@ -52,6 +51,7 @@ import {
   SyncableUserPref,
   UserPreferenceRow
 } from '@/domain/user-preferences/user-preferences';
+import { cellEquals } from '@/shared/utils';
 import { Table as UntypedTable } from 'tinybase';
 import { Content, Table } from 'tinybase/store/with-schemas';
 import {

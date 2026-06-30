@@ -1,4 +1,4 @@
-import platformService from '@/common_to_migrate/services/platform.service';
+import { plt } from '@/core/infra/platform';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
@@ -176,7 +176,7 @@ const KiwimeriEditor = (
 
       {children}
 
-      {platformService.isWeb() && enableDebugTreeView && editable && (
+      {plt.isWeb() && enableDebugTreeView && editable && (
         <DebugTreeViewPlugin />
       )}
     </LexicalComposer>

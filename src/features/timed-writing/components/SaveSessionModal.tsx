@@ -1,5 +1,3 @@
-import CollectionItemBreadcrumb from '@/collection_to_migrate/components/CollectionItemBreadcrumb';
-import CollectionItemList from '@/collection_to_migrate/components/CollectionItemList';
 import { dateToStr } from '@/common_to_migrate/date-utils';
 import { useQueryResults } from '@/core/db/queries-helper';
 import { store } from '@/core/db/store';
@@ -12,6 +10,10 @@ import {
 import useFetchItemsQuery from '@/domain/collection/hooks/useFetchItemsQuery';
 import useFetchItemsQueryParamsState from '@/domain/collection/hooks/useFetchItemsQueryParentState';
 import { resumeService } from '@/domain/collection/resume-state.service';
+import {
+  CollectionItemBreadcrumb,
+  CollectionItemList
+} from '@/features/collection-ui';
 import {
   IonButton,
   IonButtons,

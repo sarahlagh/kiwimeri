@@ -1,4 +1,4 @@
-import { INIT_ROUTE } from '@/common_to_migrate/routes';
+import { INIT_ROUTE } from '@/app/routes';
 import { APPICONS } from '@/constants';
 import { SpaceTables } from '@/core/db/store-constants';
 import { useSpaceCell } from '@/core/db/tinybase-hooks';

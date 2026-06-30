@@ -1,5 +1,3 @@
-import { genericReorder } from '@/common_to_migrate/dnd/utils';
-import { cellEquals } from '@/common_to_migrate/utils';
 import {
   minimizeContentForStorage,
   unminimizeContentFromStorage
@@ -31,6 +29,8 @@ import { settingsService } from '@/domain/collection/collection-settings.service
 import { getDerivedId } from '@/domain/collection/derived-content';
 import notebooksService from '@/domain/collection/notebooks.service';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
+import { genericReorder } from '@/shared/dnd/utils';
+import { cellEquals } from '@/shared/utils';
 import { SerializedEditorState } from 'lexical';
 import { getUniqueId } from 'tinybase/common';
 import { Id, Ids } from 'tinybase/common/with-schemas';

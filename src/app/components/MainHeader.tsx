@@ -1,11 +1,13 @@
-import SyncRemoteButton from '@/common_to_migrate/buttons/SyncRemoteButton';
 import collectionService from '@/db_to_migrate/collection.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { conflictsService } from '@/domain/synchronization/conflicts-service';
 import fetchRemotesQuery from '@/domain/synchronization/queries/fetchRemotesQuery';
 import { DeepSearchButton } from '@/features/search';
-import { useSynchronizationStates } from '@/features/synchronization-ui';
+import {
+  SyncRemoteButton,
+  useSynchronizationStates
+} from '@/features/synchronization-ui';
 import {
   InputCustomEvent,
   IonButtons,

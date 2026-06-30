@@ -1,9 +1,9 @@
-import { cellEquals } from '@/common_to_migrate/utils';
 import { settingsService } from '@/domain/collection/collection-settings.service';
 import useSpaceDefaultSettings from '@/domain/collection/hooks/useSpaceDefaultSettings';
 import { statsService } from '@/domain/stats/stats-service';
 import usePrefState from '@/domain/user-preferences/hooks/usePrefState';
 import { userPreferenceDefinitions } from '@/domain/user-preferences/user-preferences';
+import { cellEquals } from '@/shared/utils';
 import {
   IonCard,
   IonCardContent,

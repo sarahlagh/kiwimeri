@@ -7,8 +7,7 @@ import {
   SETTINGS_ROUTE,
   SYNCHRONIZATION_ROUTE,
   WRITING_SESSION_ROUTE
-} from '@/common_to_migrate/routes';
-import CatchClickLabel from '@/common_to_migrate/utils/CatchClickLabel';
+} from '@/app/routes';
 import { appConfig } from '@/config';
 import { APPICONS } from '@/constants';
 import { resumeService } from '@/domain/collection/resume-state.service';
@@ -16,6 +15,7 @@ import { deviceSettings } from '@/domain/device-settings/device-settings.service
 import useDeviceSetting from '@/domain/device-settings/hooks/useDeviceSetting';
 import useShowDevTools from '@/domain/device-settings/hooks/useShowDevTools';
 import { NotebookSwitcher } from '@/features/notebooks-ui';
+import CatchClickLabel from '@/shared/utils/CatchClickLabel';
 import {
   IonButton,
   IonButtons,

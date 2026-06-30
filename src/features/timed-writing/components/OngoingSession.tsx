@@ -15,8 +15,8 @@ import { EditorState } from 'lexical';
 import { useEffect, useState } from 'react';
 import KeystrokeListenerPlugin from './KeystrokeListenerPlugin';
 
-import { countWords } from '@/common_to_migrate/utils';
 import formatConverter from '@/domain/format-conversion/format-converter.service';
+import { countWords } from '@/shared/utils';
 import { SessionMode } from '../mode';
 import './OngoingSession.scss';
 

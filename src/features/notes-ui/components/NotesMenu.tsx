@@ -1,8 +1,8 @@
-import SortableList from '@/common_to_migrate/dnd/containers/SortableList';
 import { APPICONS } from '@/constants';
 import { useQueryResults } from '@/core/db/queries-helper';
 import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
+import SortableList from '@/shared/dnd/containers/SortableList';
 import { IonButton, IonButtons, IonIcon, IonNote } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Id } from 'tinybase/common';

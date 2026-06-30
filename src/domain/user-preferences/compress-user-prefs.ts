@@ -1,5 +1,5 @@
-import { minimizeKeys, unminimizeKeys } from '@/common_to_migrate/utils';
 import { AnyData, SerializableData } from '@/core/db/types';
+import { minimizeKeys, unminimizeKeys } from '@/shared/utils';
 import { SyncableUserPref, UserPreferenceRow } from './user-preferences';
 
 const keys = [

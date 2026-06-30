@@ -1,13 +1,12 @@
-import EditConfigList, {
-  ConfigRowType
-} from '@/common_to_migrate/containers/EditConfigList';
 import { AnySerializableData, SerializableData } from '@/core/db/types';
 import {
   CollectionItemSortType,
   SpaceSettings
 } from '@/domain/collection/collection-settings';
 import { userPreferenceDefinitions } from '@/domain/user-preferences/user-preferences';
+
 import { useLingui } from '@lingui/react/macro';
+import EditConfigList, { ConfigRowType } from './EditConfigList';
 
 type GenericCollectionSettingsProps = {
   defaultSettings: SpaceSettings;

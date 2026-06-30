@@ -1,10 +1,10 @@
-import { genericReorder } from '@/common_to_migrate/dnd/utils';
 import { minimizeContentForStorage } from '@/common_to_migrate/wysiwyg/compress-file-content';
 import { PREVIEW_SIZE } from '@/constants';
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { setMetaField } from '@/core/db/types';
 import { initialContent } from '@/db_to_migrate/collection.service';
+import { genericReorder } from '@/shared/dnd/utils';
 import { SortableType } from '@/shared/utils/sort-filter/sort';
 import { SerializedEditorState } from 'lexical';
 import { getUniqueId, Id } from 'tinybase/common';

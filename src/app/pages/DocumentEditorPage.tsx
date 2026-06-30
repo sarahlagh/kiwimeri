@@ -1,12 +1,14 @@
-import CollectionItemBrowserList from '@/collection_to_migrate/components/CollectionItemBrowserList';
-import DocumentEditor from '@/collection_to_migrate/components/DocumentEditor';
 import { onTitleChangeFn } from '@/common_to_migrate/events/events';
-import { getSearchParams } from '@/common_to_migrate/utils';
 import { KiwimeriEditorHandle } from '@/common_to_migrate/wysiwyg/lexical/KiwimeriEditor';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db_to_migrate/collection.service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
+import {
+  CollectionItemBrowserList,
+  DocumentEditor
+} from '@/features/collection-ui';
 import { useCurrentNotebook } from '@/features/notebooks-ui';
+import { getSearchParams } from '@/shared/utils';
 import { IonButton, IonIcon } from '@ionic/react';
 import { useRef, useState } from 'react';
 import { useLocation } from 'react-router';

@@ -1,4 +1,4 @@
-import { GET_DOCUMENT_ROUTE } from '@/common_to_migrate/routes';
+import { GET_DOCUMENT_ROUTE } from '@/app/routes';
 import { store } from '@/core/db/store';
 import { SID } from '@/core/db/store-constants';
 import { useStoreValue } from '@/core/db/tinybase-hooks';

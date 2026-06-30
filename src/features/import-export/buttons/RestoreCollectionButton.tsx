@@ -1,9 +1,9 @@
+import { space } from '@/core/db/store';
+import { SpaceTables } from '@/core/db/store-constants';
 import GenericImportFileButton, {
   ImportFileRejectReason,
   OnContentReadResponse
-} from '@/common_to_migrate/buttons/GenericImportFileButton';
-import { space } from '@/core/db/store';
-import { SpaceTables } from '@/core/db/store-constants';
+} from '@/shared/buttons/GenericImportFileButton';
 import { useIonAlert } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
 

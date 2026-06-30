@@ -1,5 +1,5 @@
 import MainHeader, { MainHeaderProps } from '@/app/components/MainHeader';
-import platformService from '@/common_to_migrate/services/platform.service';
+import useIsWideEnough from '@/shared/hooks/useIsWideEnough';
 import {
   IonContent,
   IonHeader,
@@ -30,7 +30,7 @@ const TemplateCompactableSplitPage = ({
   onMenuClose,
   children
 }: TemplateCompactableSplitPageProps) => {
-  const isWideEnough = platformService.isWideEnough();
+  const isWideEnough = useIsWideEnough();
   const menuRef = useRef<HTMLIonMenuElement>(null);
 
   useEffect(() => {

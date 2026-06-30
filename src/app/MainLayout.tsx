@@ -1,5 +1,5 @@
-import useAppInfo from '@/common_to_migrate/hooks/useAppInfo';
 import useDeviceSetting from '@/domain/device-settings/hooks/useDeviceSetting';
+import useAppInfo from '@/shared/hooks/useAppInfo';
 import {
   IonHeader,
   IonIcon,

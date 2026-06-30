@@ -1,9 +1,9 @@
-import CollectionItemBrowserList from '@/collection_to_migrate/components/CollectionItemBrowserList';
 import { onTitleChangeFn } from '@/common_to_migrate/events/events';
-import { getSearchParams } from '@/common_to_migrate/utils';
 import { getGlobalTrans } from '@/constants';
 import collectionService from '@/db_to_migrate/collection.service';
+import { CollectionItemBrowserList } from '@/features/collection-ui';
 import { useCurrentNotebook } from '@/features/notebooks-ui';
+import { getSearchParams } from '@/shared/utils';
 import { useLocation } from 'react-router';
 import TemplateMainPage from './TemplateMainPage';
 
