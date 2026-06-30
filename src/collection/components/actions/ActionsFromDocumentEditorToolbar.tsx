@@ -1,6 +1,5 @@
 import CloseDocumentButton from '@/common/buttons/CloseDocumentButton';
 import DeleteItemButton from '@/common/buttons/DeleteItemButton';
-import ManageHistoryButton from '@/common/buttons/ManageHistoryButton';
 import MoveFolderButton from '@/common/buttons/MoveFolderButton';
 import QuickGroupButton from '@/common/buttons/QuickGroupButton';
 import { GET_FOLDER_ROUTE } from '@/common/routes';
@@ -9,6 +8,7 @@ import { settingsService } from '@/domain/collection-settings/collection-setting
 import { CollectionItemType } from '@/domain/collection/model';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
 import { ViewAo3HtmlButton } from '@/features/ao3-html-ui';
+import ManageHistoryButton from '@/features/collection-history-ui/components/ManageHistoryButton';
 import { ExportItemsButton } from '@/features/import-export';
 import { SearchButton } from '@/features/search';
 import { IonButton, IonButtons, IonIcon, IonToolbar } from '@ionic/react';

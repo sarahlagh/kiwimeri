@@ -1,10 +1,9 @@
 import { useToastContext } from '@/app/context/ToastContext';
 import { dateToStr } from '@/common/date-utils';
-import { getSearchParams } from '@/common/utils';
 import { APPICONS } from '@/constants';
-import notebooksService from '@/db/notebooks.service';
 import { historyService } from '@/domain/collection-history/collection-history.service';
 import { CollectionItemVersion } from '@/domain/collection-history/queries/fetchVersionsQuery';
+import LoadingInline from '@/shared/components/LoadingInline';
 import {
   IonButton,
   IonButtons,
@@ -16,18 +15,11 @@ import {
   IonList,
   IonTitle,
   IonToolbar,
-  useIonAlert,
-  useIonModal
+  useIonAlert
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { ChangeObject, diffChars } from 'diff';
-import { useHistory, useLocation } from 'react-router';
-import { GET_VERSIONED_ROUTE } from '../routes';
-
-type ManageHistoryButtonProps = {
-  id: string;
-  afterRestore?: (id: string) => void;
-};
+import { useState } from 'react';
 
 type ManageHistoryModalProps = {
   id: string;
@@ -59,9 +51,17 @@ const VersionPreview = ({
   isActive: boolean;
   lastPreview?: string;
 }) => {
+  const [diff, setDiff] = useState<ChangeObject<string>[] | null>(null);
   const style = isActive ? { fontWeight: 'bold' } : {};
   if (lastPreview) {
-    const diff = diffChars(lastPreview, version.preview);
+    setTimeout(() => {
+      diffChars(lastPreview, version.preview, {
+        callback: result => {
+          setDiff(result);
+        }
+      });
+    });
+    if (diff === null) return <LoadingInline />;
     return (
       <IonLabel style={style}>
         {dateToStr('relative', version.snapshotJson.updatedAt)}
@@ -89,7 +89,7 @@ const ManageHistoryModal = ({
   const { t } = useLingui();
   const [alert] = useIonAlert();
   const { setToast } = useToastContext();
-  const docHistory = historyService.getVersions(id);
+  const docHistory = historyService.getVersions(id, 15);
   return (
     <>
       <IonHeader>
@@ -172,47 +172,4 @@ const ManageHistoryModal = ({
   );
 };
 
-const ManageHistoryButton = ({
-  id,
-  afterRestore
-}: ManageHistoryButtonProps) => {
-  const history = useHistory();
-  const notebook = notebooksService.useCurrentNotebook();
-  const location = useLocation(); // warning: location throws error if button in popover
-  const searchParams = getSearchParams(location.search);
-  const query = searchParams.query;
-  const docVersion = searchParams.docVersion;
-  const [present, dismiss] = useIonModal(ManageHistoryModal, {
-    id,
-    dismiss: (data?: string, role?: string) => dismiss(data, role),
-    docVersion
-  });
-  return (
-    <IonButton
-      onClick={() => {
-        present({
-          cssClass: 'fixed-width-modal',
-          onDidDismiss: event => {
-            if (event.detail.role === 'goToVersion' && event.detail.data) {
-              const version = event.detail.data as string;
-              history.push(
-                GET_VERSIONED_ROUTE(
-                  version,
-                  id,
-                  searchParams.folder || notebook,
-                  query
-                )
-              );
-            } else if (event.detail.role === 'restore' && afterRestore) {
-              afterRestore(id);
-            }
-          }
-        });
-      }}
-    >
-      <IonIcon icon={APPICONS.history}></IonIcon>
-    </IonButton>
-  );
-};
-
-export default ManageHistoryButton;
+export default ManageHistoryModal;

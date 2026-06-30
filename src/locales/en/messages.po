@@ -80,11 +80,11 @@ msgstr "A single folder has been detected inside your archive, would you like to
 msgid "add a note"
 msgstr "add a note"
 
-#: src/features/synchronization-ui/components/RemotesSettings.tsx:102
+#: src/features/synchronization-ui/components/RemotesSettings.tsx:105
 msgid "Add config"
 msgstr "Add config"
 
-#: src/app/components/MainHeader.tsx:62
+#: src/app/components/MainHeader.tsx:68
 msgid "An error occurred during sync."
 msgstr "An error occurred during sync."
 
@@ -109,17 +109,17 @@ msgid "Archive is empty"
 msgstr "Archive is empty"
 
 #: src/collection/components/CollectionItemList.tsx:76
-#: src/common/buttons/ManageHistoryButton.tsx:142
 #: src/common/modals/ConfirmYesNoDialog.tsx:24
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:142
 msgid "Are you sure?"
 msgstr "Are you sure?"
 
-#: src/common/buttons/ManageHistoryButton.tsx:145
 #: src/common/modals/ChooseTagsModal.tsx:100
 #: src/common/modals/ConfirmYesNoDialog.tsx:28
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:145
 #: src/features/import-export/buttons/ExportItemsButton.tsx:103
 #: src/features/import-export/buttons/RestoreCollectionButton.tsx:71
-#: src/features/import-export/modals/ConfirmFileImportModal.tsx:80
+#: src/features/import-export/modals/ConfirmFileImportModal.tsx:79
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:343
 msgid "Cancel"
 msgstr "Cancel"
@@ -157,7 +157,7 @@ msgstr "Choose a session length"
 msgid "Choose where to save your work"
 msgstr "Choose where to save your work"
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:242
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:241
 msgid "Clear All"
 msgstr "Clear All"
 
@@ -165,7 +165,7 @@ msgstr "Clear All"
 msgid "Close"
 msgstr "Close"
 
-#: src/constants.ts:82
+#: src/constants.ts:83
 msgid "collection"
 msgstr "collection"
 
@@ -177,23 +177,23 @@ msgstr "Collection"
 msgid "Config"
 msgstr "Config"
 
-#: src/features/synchronization-ui/components/RemotesSettings.tsx:57
+#: src/features/synchronization-ui/components/RemotesSettings.tsx:60
 msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
 
-#: src/common/buttons/ManageHistoryButton.tsx:149
 #: src/common/modals/ChooseTagsModal.tsx:107
 #: src/common/modals/ConfirmYesNoDialog.tsx:36
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:149
 #: src/features/import-export/buttons/ExportItemsButton.tsx:110
 #: src/features/import-export/buttons/RestoreCollectionButton.tsx:78
-#: src/features/import-export/modals/ConfirmFileImportModal.tsx:83
+#: src/features/import-export/modals/ConfirmFileImportModal.tsx:82
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:349
 #: src/notebooks/components/ManageNotebooksModal.tsx:95
 msgid "Confirm"
 msgstr "Confirm"
 
 #: src/collection/components/CollectionItemBrowserList.tsx:158
-#: src/constants.ts:78
+#: src/constants.ts:79
 msgid "Conflicts"
 msgstr "Conflicts"
 
@@ -222,7 +222,7 @@ msgstr "Creation Date"
 msgid "Current Notebook Settings ({notebookTitle})"
 msgstr "Current Notebook Settings ({notebookTitle})"
 
-#: src/constants.ts:77
+#: src/constants.ts:78
 msgid "Default"
 msgstr "Default"
 
@@ -238,7 +238,7 @@ msgstr "Delete All"
 msgid "Delete note"
 msgstr "Delete note"
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:155
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:154
 msgid "deleted item"
 msgstr "deleted item"
 
@@ -255,8 +255,8 @@ msgstr "Dev Tools Enabled"
 msgid "Device Settings"
 msgstr "Device Settings"
 
-#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:114
-#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:119
+#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:113
+#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:118
 msgid "Device Token"
 msgstr "Device Token"
 
@@ -276,7 +276,7 @@ msgstr "Do you want to import your content inside a new folder?"
 msgid "Document grouped"
 msgstr "Document grouped"
 
-#: src/common/buttons/ManageHistoryButton.tsx:98
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:98
 msgid "Document History"
 msgstr "Document History"
 
@@ -288,19 +288,19 @@ msgstr "Download Logs"
 msgid "empty note"
 msgstr "empty note"
 
-#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:122
+#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:121
 msgid "Enter your device token"
 msgstr "Enter your device token"
 
-#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:151
+#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:150
 msgid "Enter your password"
 msgstr "Enter your password"
 
-#: src/common/buttons/DeepSearchButton.tsx:170
+#: src/features/search/components/DeepSearchButton.tsx:170
 msgid "Enter your search"
 msgstr "Enter your search"
 
-#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:136
+#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:135
 msgid "Enter your username"
 msgstr "Enter your username"
 
@@ -312,14 +312,14 @@ msgstr "Error writing to file"
 msgid "Errors have been detected on the following files:"
 msgstr "Errors have been detected on the following files:"
 
-#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:89
+#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:88
 msgid "EU"
 msgstr "EU"
 
 #: src/features/import-export/buttons/ImportExportCollectionSettings.tsx:74
 #: src/features/import-export/buttons/ImportExportCollectionSettings.tsx:88
 #: src/features/import-export/buttons/ImportExportCollectionSettings.tsx:102
-#: src/features/import-export/buttons/ImportExportStoreSettings.tsx:79
+#: src/features/import-export/buttons/ImportExportStoreSettings.tsx:78
 msgid "Export"
 msgstr "Export"
 
@@ -339,7 +339,7 @@ msgstr "History idle time (s)"
 msgid "History save time (min)"
 msgstr "History save time (min)"
 
-#: src/constants.ts:76
+#: src/constants.ts:77
 msgid "Home"
 msgstr "Home"
 
@@ -351,7 +351,7 @@ msgstr "Import {0}.zip in a new Notebook"
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
 
-#: src/features/import-export/buttons/ImportExportStoreSettings.tsx:60
+#: src/features/import-export/buttons/ImportExportStoreSettings.tsx:59
 msgid "Import & export your app settings"
 msgstr "Import & export your app settings"
 
@@ -359,7 +359,7 @@ msgstr "Import & export your app settings"
 msgid "Import & export your collection"
 msgstr "Import & export your collection"
 
-#: src/features/import-export/modals/ConfirmFileImportModal.tsx:43
+#: src/features/import-export/modals/ConfirmFileImportModal.tsx:42
 msgid "Import file in folder {folderName}"
 msgstr "Import file in folder {folderName}"
 
@@ -399,7 +399,7 @@ msgstr "Last Updated"
 msgid "Last updated documents"
 msgstr "Last updated documents"
 
-#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:108
+#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:107
 msgid "Leave empty for root"
 msgstr "Leave empty for root"
 
@@ -411,15 +411,15 @@ msgstr "Less dangerous mode (session is still timed but you will not lose progre
 msgid "Link"
 msgstr "Link"
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:75
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:74
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:82
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:81
 msgid "Local:  {0}"
 msgstr "Local:  {0}"
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:86
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:85
 msgid "Local: <0>never</0>"
 msgstr "Local: <0>never</0>"
 
@@ -435,7 +435,7 @@ msgstr "Manual"
 msgid "Manual Order"
 msgstr "Manual Order"
 
-#: src/features/import-export/buttons/ImportExportStoreSettings.tsx:63
+#: src/features/import-export/buttons/ImportExportStoreSettings.tsx:62
 msgid "Manually backup or restore your app settings"
 msgstr "Manually backup or restore your app settings"
 
@@ -476,11 +476,11 @@ msgstr "Name"
 msgid "new"
 msgstr "new"
 
-#: src/constants.ts:79
+#: src/constants.ts:80
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:80
+#: src/constants.ts:81
 msgid "New folder"
 msgstr "New folder"
 
@@ -532,17 +532,17 @@ msgstr "Options for the currently selected space. Some can still be overriden pe
 msgid "Parsing Error"
 msgstr "Parsing Error"
 
-#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:142
-#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:148
+#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:141
+#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:147
 msgid "Password"
 msgstr "Password"
 
-#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:101
-#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:105
+#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:100
+#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:104
 msgid "Path"
 msgstr "Path"
 
-#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:69
+#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:68
 msgid "PCloud Configuration"
 msgstr "PCloud Configuration"
 
@@ -550,23 +550,23 @@ msgstr "PCloud Configuration"
 msgid "Remember last route"
 msgstr "Remember last route"
 
-#: src/features/synchronization-ui/components/RemotesSettings.tsx:54
+#: src/features/synchronization-ui/components/RemotesSettings.tsx:57
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:95
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:94
 msgid "Remote:  {0}"
 msgstr "Remote:  {0}"
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:99
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:98
 msgid "Remote: <0>never</0>"
 msgstr "Remote: <0>never</0>"
 
-#: src/features/synchronization-ui/components/RemotesSettings.tsx:110
+#: src/features/synchronization-ui/components/RemotesSettings.tsx:113
 msgid "Reorder"
 msgstr "Reorder"
 
-#: src/features/import-export/buttons/ImportExportStoreSettings.tsx:89
+#: src/features/import-export/buttons/ImportExportStoreSettings.tsx:88
 #: src/features/import-export/buttons/RestoreCollectionButton.tsx:98
 msgid "Restore"
 msgstr "Restore"
@@ -575,7 +575,7 @@ msgstr "Restore"
 msgid "Restore Collection"
 msgstr "Restore Collection"
 
-#: src/common/buttons/ManageHistoryButton.tsx:141
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:141
 msgid "Restore Version"
 msgstr "Restore Version"
 
@@ -591,11 +591,11 @@ msgstr "Save your work"
 msgid "Scroll to the last position in document"
 msgstr "Scroll to the last position in document"
 
-#: src/common/buttons/DeepSearchButton.tsx:154
+#: src/features/search/components/DeepSearchButton.tsx:154
 msgid "Search Content"
 msgstr "Search Content"
 
-#: src/common/buttons/DeepSearchButton.tsx:169
+#: src/features/search/components/DeepSearchButton.tsx:169
 msgid "Search input"
 msgstr "Search input"
 
@@ -607,7 +607,7 @@ msgstr "select a note"
 msgid "Select item tags"
 msgstr "Select item tags"
 
-#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:78
+#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:77
 msgid "Server"
 msgstr "Server"
 
@@ -637,7 +637,7 @@ msgstr "Sort items by..."
 msgid "sort notes"
 msgstr "sort notes"
 
-#: src/features/local-changes-ui/components/LocalChangesCard.tsx:207
+#: src/features/local-changes-ui/components/LocalChangesCard.tsx:206
 msgid "Space setting modified:"
 msgstr "Space setting modified:"
 
@@ -651,7 +651,7 @@ msgstr "Start Writing"
 
 #: src/common/buttons/GenericExportFileButton.tsx:47
 #: src/common/buttons/GenericImportFileButton.tsx:47
-#: src/common/buttons/ManageHistoryButton.tsx:156
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:156
 #: src/features/synchronization-ui/components/RemoteGenericSettings.tsx:59
 msgid "Success!"
 msgstr "Success!"
@@ -665,7 +665,7 @@ msgstr "Switch info"
 msgid "Synchronization & Backup"
 msgstr "Synchronization & Backup"
 
-#: src/features/synchronization-ui/components/RemotesSettings.tsx:62
+#: src/features/synchronization-ui/components/RemotesSettings.tsx:65
 msgid "Syncing is disabled on the web version."
 msgstr "Syncing is disabled on the web version."
 
@@ -681,7 +681,7 @@ msgstr "Text"
 msgid "Text..."
 msgstr "Text..."
 
-#: src/features/import-export/modals/ConfirmFileImportModal.tsx:53
+#: src/features/import-export/modals/ConfirmFileImportModal.tsx:52
 msgid "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 msgstr "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 
@@ -689,7 +689,7 @@ msgstr "The following file(s) with matching title(s) have been detected inside t
 msgid "The number of versions to keep per document. Set 0 for unlimited."
 msgstr "The number of versions to keep per document. Set 0 for unlimited."
 
-#: src/features/import-export/buttons/ImportExportStoreSettings.tsx:67
+#: src/features/import-export/buttons/ImportExportStoreSettings.tsx:66
 msgid "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page and the Settings page."
 msgstr "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page and the Settings page."
 
@@ -733,12 +733,12 @@ msgstr "Updated at"
 msgid "Updated at: {0}"
 msgstr "Updated at: {0}"
 
-#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:94
+#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:93
 msgid "US"
 msgstr "US"
 
-#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:128
-#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:133
+#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:127
+#: src/features/synchronization-ui/components/providers/PCloudSettings.tsx:132
 msgid "Username"
 msgstr "Username"
 
@@ -766,7 +766,7 @@ msgstr "Word Count"
 msgid "Word Count (Max)"
 msgstr "Word Count (Max)"
 
-#: src/collection/components/WordCount.tsx:20
+#: src/collection/components/WordCount.tsx:26
 #: src/features/stats-ui/components/ChartContainer.tsx:54
 #: src/features/stats-ui/components/ChartContainer.tsx:64
 msgid "words"
@@ -780,6 +780,6 @@ msgstr "Would you like to merge the content of your archive with your existing c
 msgid "yes"
 msgstr "yes"
 
-#: src/features/synchronization-ui/components/RemotesSettings.tsx:71
+#: src/features/synchronization-ui/components/RemotesSettings.tsx:74
 msgid "You have not configured any remote yet."
 msgstr "You have not configured any remote yet."

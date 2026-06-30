@@ -1,6 +1,6 @@
 import CloseDocumentButton from '@/common/buttons/CloseDocumentButton';
-import ManageHistoryButton from '@/common/buttons/ManageHistoryButton';
 import collectionService from '@/db/collection.service';
+import { ManageHistoryButton } from '@/features/collection-history-ui';
 import { ExportItemsButton } from '@/features/import-export';
 import { SearchButton } from '@/features/search';
 import { IonButtons, IonToolbar } from '@ionic/react';
