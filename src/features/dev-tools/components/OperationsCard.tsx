@@ -1,7 +1,7 @@
 import GenericExportFileButton from '@/common_to_migrate/buttons/GenericExportFileButton';
 import GenericImportFileButton from '@/common_to_migrate/buttons/GenericImportFileButton';
 import { space, store } from '@/core/db/store';
-import storageService from '@/db_to_migrate/storage.service';
+import storageService from '@/domain/storage.service';
 import {
   IonButton,
   IonButtons,

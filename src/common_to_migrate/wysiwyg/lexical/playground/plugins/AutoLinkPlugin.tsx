@@ -11,7 +11,7 @@ import type { JSX } from 'react';
 import {
   EMAIL_REGEX,
   URL_REGEX
-} from '@/features/format-conversion/text-parsing/markdown-parser/markdown-elements';
+} from '@/domain/format-conversion/text-parsing/markdown-parser/markdown-elements';
 import {
   AutoLinkPlugin,
   createLinkMatcherWithRegExp

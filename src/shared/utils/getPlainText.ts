@@ -1,7 +1,7 @@
 import { unminimizeContentFromStorage } from '@/common_to_migrate/wysiwyg/compress-file-content';
 import { INITIAL_CONTENT_START } from '@/db_to_migrate/collection.service';
 // eslint-disable-next-line no-restricted-imports
-import formatConverter from '@/features/format-conversion/format-converter.service';
+import formatConverter from '@/domain/format-conversion/format-converter.service';
 import { SerializedEditorState } from 'lexical';
 
 export function getPlainText(content?: string): string;

@@ -1,4 +1,4 @@
-import formatConverter from '@/features/format-conversion/format-converter.service';
+import formatConverter from '@/domain/format-conversion/format-converter.service';
 import { readFile } from 'fs/promises';
 import { describe, expect, it } from 'vitest';
 

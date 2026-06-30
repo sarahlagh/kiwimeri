@@ -1,5 +1,5 @@
-import formatConverter from '@/features/format-conversion/format-converter.service';
-import { MarkdownParser } from '@/features/format-conversion/text-parsing/markdown-parser/markdown-parser';
+import formatConverter from '@/domain/format-conversion/format-converter.service';
+import { MarkdownParser } from '@/domain/format-conversion/text-parsing/markdown-parser/markdown-parser';
 import { SerializedListNode } from '@lexical/list';
 import { SerializedElementNode, SerializedTextNode } from 'lexical';
 import { describe, expect, it } from 'vitest';

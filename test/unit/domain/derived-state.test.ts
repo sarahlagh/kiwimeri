@@ -3,8 +3,8 @@ import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import collectionService from '@/db_to_migrate/collection.service';
-import storageService from '@/db_to_migrate/storage.service';
 import notebooksService from '@/domain/collection/notebooks.service';
+import storageService from '@/domain/storage.service';
 import { oneDocument, oneFolder } from '@@/_setup/test.utils';
 import { describe, expect, it } from 'vitest';
 

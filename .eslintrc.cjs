@@ -62,7 +62,7 @@ module.exports = {
       }
     },
     {
-      files: ['*.js', '*.cjs', './test/**', './src/polyfills/*'],
+      files: ['*.js', '*.cjs', './test/**', './src/core/infra/polyfills/*'],
       rules: {
         '@typescript-eslint/no-explicit-any': 'off'
       }
