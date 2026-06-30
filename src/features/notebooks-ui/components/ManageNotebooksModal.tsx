@@ -1,6 +1,6 @@
 import CollectionItemList from '@/collection_to_migrate/components/CollectionItemList';
 import { APPICONS } from '@/constants';
-import notebooksService from '@/db_to_migrate/notebooks.service';
+import notebooksService from '@/domain/collection/notebooks.service';
 import { ImportItemsButton } from '@/features/import-export';
 import {
   IonButton,
@@ -14,14 +14,16 @@ import {
 import { Trans } from '@lingui/react/macro';
 import React, { useState } from 'react';
 import { getUniqueId } from 'tinybase/with-schemas';
+import useCurrentNotebook from '../hooks/useCurrentNotebook';
+import useNotebooks from '../hooks/useNotebooks';
 
 type ManageNotebooksModalProps = {
   onClose: (selected?: string) => void;
 } & React.HTMLAttributes<HTMLIonModalElement>;
 
 const ManageNotebooksModal = ({ onClose }: ManageNotebooksModalProps) => {
-  const notebooks = notebooksService.useNotebooks();
-  const current = notebooksService.useCurrentNotebook();
+  const notebooks = useNotebooks();
+  const current = useCurrentNotebook();
   const [selected, setSelected] = useState<string>(current);
   const [itemRenaming, setItemRenaming] = useState<string | undefined>(
     undefined

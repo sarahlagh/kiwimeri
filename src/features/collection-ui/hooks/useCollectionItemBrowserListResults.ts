@@ -1,11 +1,11 @@
 import { useQueryResults } from '@/core/db/queries-helper';
-import notebooksService from '@/db_to_migrate/notebooks.service';
 import {
   CollectionItemResult,
   CollectionItemType
 } from '@/domain/collection/collection';
 import { CollectionItemSort } from '@/domain/collection/collection-settings';
 import { settingsService } from '@/domain/collection/collection-settings.service';
+import notebooksService from '@/domain/collection/notebooks.service';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
 import { useEffect } from 'react';
 

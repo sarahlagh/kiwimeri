@@ -4,46 +4,21 @@ import {
   getGlobalTrans,
   ROOT_COLLECTION
 } from '@/constants';
-import { space, spaceQueries } from '@/core/db/store';
+import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
-import { useSpaceValue } from '@/core/db/tinybase-hooks';
 import { setMetaField } from '@/core/db/types';
+import collectionService from '@/db_to_migrate/collection.service';
 import { CollectionItemType } from '@/domain/collection/collection';
 import { CollectionItemSort } from '@/domain/collection/collection-settings';
 import { settingsService } from '@/domain/collection/collection-settings.service';
-import { Notebook, NotebookResult } from '@/domain/collection/notebooks';
+import { Notebook } from '@/domain/collection/notebooks';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { getUniqueId } from 'tinybase/with-schemas';
-import collectionService from './collection.service';
-import {
-  useCellWithRef,
-  useResultSortedRowIdsWithRef,
-  useTableWithRef
-} from './tinybase/hooks';
+import fetchItemsQuery from './queries/fetchItemsQuery';
+
+const C = SpaceTables.Collection;
 
 class NotebooksService {
-  private readonly storeId = 'space';
-  private readonly table = 'collection';
-  private readonly spacesTable = 'spaces';
-
-  private fetchAllNotebooksQuery(parent?: string) {
-    const queryName = `fetchAllNotebooksFor${parent ? parent : ROOT_COLLECTION}`;
-    if (!spaceQueries.hasQuery(queryName)) {
-      spaceQueries.setQueryDefinition(
-        queryName,
-        this.table,
-        ({ select, where }) => {
-          select('title');
-          select('createdAt');
-          select('order');
-          where('type', CollectionItemType.notebook);
-          where('parentId', parent ? parent : ROOT_COLLECTION);
-        }
-      );
-    }
-    return queryName;
-  }
-
   public initNotebooks() {
     if (!this.hasOneNotebook()) {
       console.log('[storage] no local notebooks detected, creating default');
@@ -68,7 +43,7 @@ class NotebooksService {
       const tmpTable = space.getTable(SpaceTables.Collection);
       tmpTable[id] = row;
       collectionService.calcState(id, tmpTable);
-      space.setRow(this.table, id, row);
+      space.setRow(C, id, row);
     });
   }
 
@@ -78,7 +53,7 @@ class NotebooksService {
       const tmpTable = space.getTable(SpaceTables.Collection);
       tmpTable[id] = { ...item, itemId: id };
       collectionService.calcState(id, tmpTable);
-      space.setRow(this.table, id, item);
+      space.setRow(C, id, item);
     });
     return id!;
   }
@@ -114,7 +89,7 @@ class NotebooksService {
         items.forEach(i => collectionService.deleteItem(i.id));
       });
     }
-    space.delRow(this.table, id);
+    space.delRow(C, id);
   }
 
   public setCurrentNotebook(notebookId: string) {
@@ -125,52 +100,22 @@ class NotebooksService {
     return space.getValue('currentNotebook') || DEFAULT_NOTEBOOK_ID;
   }
 
-  /** @deprecated use separate hook */
-  public useCurrentNotebook() {
-    return (
-      useSpaceValue<'currentNotebook'>('currentNotebook') || DEFAULT_NOTEBOOK_ID
-    );
-  }
-
-  /** @deprecated use separate hook */
-  public useNotebookTitle(id: string) {
-    return useCellWithRef<string>(this.storeId, this.table, id, 'title');
-  }
-
   public setNotebookTitle(id: string, title: string) {
     collectionService.setItemTitle(id, title);
   }
 
-  public getNotebooks(parent?: string, sort?: CollectionItemSort) {
+  public getNotebooks(parentId?: string, sort?: CollectionItemSort) {
     if (!sort) {
       sort = settingsService.getSpaceDefaultSort();
     }
-    const table = space.getTable(this.table);
-    const queryName = this.fetchAllNotebooksQuery(parent);
-    return spaceQueries
-      .getResultSortedRowIds(queryName, sort.by, sort.descending)
-      .map(rowId => {
-        const row = table[rowId];
-        return { ...row, id: rowId } as NotebookResult;
-      });
-  }
-
-  /** @deprecated use separate hook */
-  public useNotebooks(parent?: string, sort?: CollectionItemSort) {
-    if (!sort) {
-      sort = { by: 'order', descending: false };
-    }
-    const table = useTableWithRef(this.storeId, this.table);
-    const queryName = this.fetchAllNotebooksQuery(parent);
-    return useResultSortedRowIdsWithRef(
-      this.storeId,
-      queryName,
+    return fetchItemsQuery.getResults(
+      {
+        parentId: parentId || ROOT_COLLECTION,
+        restrictType: CollectionItemType.notebook
+      },
       sort.by,
       sort.descending
-    ).map(rowId => {
-      const row = table[rowId];
-      return { ...row, id: rowId } as NotebookResult;
-    });
+    );
   }
 }
 

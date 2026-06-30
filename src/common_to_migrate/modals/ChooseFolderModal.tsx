@@ -3,13 +3,13 @@ import CollectionItemList from '@/collection_to_migrate/components/CollectionIte
 import { APPICONS, ROOT_COLLECTION } from '@/constants';
 import { useQueryResults } from '@/core/db/queries-helper';
 import collectionService from '@/db_to_migrate/collection.service';
-import notebooksService from '@/db_to_migrate/notebooks.service';
 import {
   CollectionItemResult,
   CollectionItemType
 } from '@/domain/collection/collection';
 import useFetchItemsQuery from '@/domain/collection/hooks/useFetchItemsQuery';
 import useFetchItemsQueryParamsState from '@/domain/collection/hooks/useFetchItemsQueryParentState';
+import notebooksService from '@/domain/collection/notebooks.service';
 import {
   IonButton,
   IonButtons,

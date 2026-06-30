@@ -29,13 +29,13 @@ import {
 } from '@/domain/collection/collection-settings';
 import { settingsService } from '@/domain/collection/collection-settings.service';
 import { getDerivedId } from '@/domain/collection/derived-content';
+import notebooksService from '@/domain/collection/notebooks.service';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
 import { SerializedEditorState } from 'lexical';
 import { getUniqueId } from 'tinybase/common';
 import { Id, Ids } from 'tinybase/common/with-schemas';
 import { Table } from 'tinybase/with-schemas';
 import { historyService } from '../domain/history/history.service';
-import notebooksService from './notebooks.service';
 import { useCellWithRef } from './tinybase/hooks';
 
 export const initialContent = () => {

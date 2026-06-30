@@ -2,7 +2,7 @@ import { GET_FOLDER_ROUTE } from '@/common_to_migrate/routes';
 import platformService from '@/common_to_migrate/services/platform.service';
 import { appConfig } from '@/config';
 import { plt } from '@/core/infra/platform';
-import notebooksService from '@/db_to_migrate/notebooks.service';
+import notebooksService from '@/domain/collection/notebooks.service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import {
   getPlatforms,

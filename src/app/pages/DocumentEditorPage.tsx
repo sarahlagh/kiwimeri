@@ -5,8 +5,8 @@ import { getSearchParams } from '@/common_to_migrate/utils';
 import { KiwimeriEditorHandle } from '@/common_to_migrate/wysiwyg/lexical/KiwimeriEditor';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db_to_migrate/collection.service';
-import notebooksService from '@/db_to_migrate/notebooks.service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
+import { useCurrentNotebook } from '@/features/notebooks-ui';
 import { IonButton, IonIcon } from '@ionic/react';
 import { useRef, useState } from 'react';
 import { useLocation } from 'react-router';
@@ -16,7 +16,7 @@ const DocumentEditorPage = () => {
   const editorRef = useRef<KiwimeriEditorHandle | null>(null);
   const location = useLocation();
   const searchParams = getSearchParams(location.search);
-  const notebook = notebooksService.useCurrentNotebook();
+  const notebook = useCurrentNotebook();
   const docId = searchParams.document || notebook;
   const parent = searchParams.folder || notebook;
 

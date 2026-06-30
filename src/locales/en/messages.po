@@ -188,7 +188,7 @@ msgstr "Configure where to synchronize your collection"
 #: src/features/import-export/buttons/RestoreCollectionButton.tsx:78
 #: src/features/import-export/modals/ConfirmFileImportModal.tsx:82
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:349
-#: src/features/notebooks-ui/components/ManageNotebooksModal.tsx:95
+#: src/features/notebooks-ui/components/ManageNotebooksModal.tsx:97
 msgid "Confirm"
 msgstr "Confirm"
 
@@ -218,7 +218,7 @@ msgstr "Created at: {0}"
 msgid "Creation Date"
 msgstr "Creation Date"
 
-#: src/features/settings-ui/components/CurrentNotebookSettings.tsx:24
+#: src/features/settings-ui/components/CurrentNotebookSettings.tsx:25
 msgid "Current Notebook Settings ({notebookTitle})"
 msgstr "Current Notebook Settings ({notebookTitle})"
 
@@ -264,7 +264,7 @@ msgstr "Device Token"
 msgid "Discard"
 msgstr "Discard"
 
-#: src/features/settings-ui/components/CurrentNotebookSettings.tsx:27
+#: src/features/settings-ui/components/CurrentNotebookSettings.tsx:28
 msgid "Display options for the currently selected notebook. They can still be overriden per folder."
 msgstr "Display options for the currently selected notebook. They can still be overriden per folder."
 
@@ -508,7 +508,7 @@ msgstr "No tag yet"
 msgid "Not Found"
 msgstr "Not Found"
 
-#: src/features/notebooks-ui/components/ManageNotebooksModal.tsx:34
+#: src/features/notebooks-ui/components/ManageNotebooksModal.tsx:36
 msgid "Notebook Selection"
 msgstr "Notebook Selection"
 

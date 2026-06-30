@@ -3,12 +3,12 @@ import { META_JSON } from '@/constants';
 import collectionService, {
   INITIAL_CONTENT_START
 } from '@/db_to_migrate/collection.service';
-import notebooksService from '@/db_to_migrate/notebooks.service';
 import {
   CollectionItemResult,
   CollectionItemType,
   CollectionItemTypeValues
 } from '@/domain/collection/collection';
+import notebooksService from '@/domain/collection/notebooks.service';
 import formatConverter from '@/features/format-conversion/format-converter.service';
 import { strToU8, zip } from 'fflate';
 import {

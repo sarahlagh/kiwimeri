@@ -3,9 +3,9 @@ import { GET_DOCUMENT_ROUTE, VERSION_ROUTE } from '@/common_to_migrate/routes';
 import { getSearchParams } from '@/common_to_migrate/utils';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db_to_migrate/collection.service';
-import notebooksService from '@/db_to_migrate/notebooks.service';
 import { historyService } from '@/domain/history/history.service';
 import { DocumentVersionViewer } from '@/features/collection-history-ui';
+import { useCurrentNotebook } from '@/features/notebooks-ui';
 import { IonButton, IonIcon } from '@ionic/react';
 import { useState } from 'react';
 import { Redirect, useLocation } from 'react-router';
@@ -14,7 +14,7 @@ import TemplateCompactableSplitPage from './TemplateCompactableSplitPage';
 
 const VersionedItemPage = () => {
   const location = useLocation();
-  const notebook = notebooksService.useCurrentNotebook();
+  const notebook = useCurrentNotebook();
   const searchParams = getSearchParams(location.search);
   const docId = searchParams.document;
   const parentFolder = searchParams.folder || notebook;

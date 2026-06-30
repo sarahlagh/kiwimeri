@@ -1,7 +1,7 @@
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import collectionService from '@/db_to_migrate/collection.service';
-import notebooksService from '@/db_to_migrate/notebooks.service';
+import notebooksService from '@/domain/collection/notebooks.service';
 import { Id } from 'tinybase/with-schemas';
 import { userPrefs } from '../user-preferences/user-preferences.service';
 import {

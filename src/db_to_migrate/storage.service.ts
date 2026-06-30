@@ -1,6 +1,6 @@
 import { space } from '@/core/db/store';
+import notebooksService from '@/domain/collection/notebooks.service';
 import localChangesService from '@/domain/synchronization/local-changes/local-changes.service';
-import notebooksService from './notebooks.service';
 import tagsService from './tags.service';
 
 class StorageService {

@@ -3,12 +3,12 @@ import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { SerializableData } from '@/core/db/types';
 import collectionService from '@/db_to_migrate/collection.service';
-import notebooksService from '@/db_to_migrate/notebooks.service';
 import { CollectionItemType } from '@/domain/collection/collection';
 import {
   startDerivedContentListeners,
   stopDerivedContentListeners
 } from '@/domain/collection/derived-content-listeners';
+import notebooksService from '@/domain/collection/notebooks.service';
 import localChangesService from '@/domain/synchronization/local-changes/local-changes.service';
 import {
   LocalChangeResult,
