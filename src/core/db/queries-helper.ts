@@ -118,13 +118,13 @@ export class TinybaseQueryDefinition<
     offset?: number,
     limit?: number
   ) {
-    const tempQuery = this.clone(paramValues);
+    const tempQuery = this.clone(`${getUniqueId()}`, paramValues);
     const results = tempQuery._getResults(sortBy, descending, offset, limit);
     tempQuery.close();
     return results;
   }
 
-  public clone(paramValues?: ParamDef) {
+  public clone(id: Id, paramValues?: ParamDef) {
     const copy = new TinybaseQueryDefinition<
       Schema,
       RootTableId,
@@ -132,7 +132,7 @@ export class TinybaseQueryDefinition<
       QueryResult
     >(
       this.storeId,
-      `${this.queryId}-${getUniqueId()}`,
+      `${this.queryId}-${id}`,
       this.tableId,
       this.query,
       this.defaultSortBy,

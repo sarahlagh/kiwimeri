@@ -42,7 +42,10 @@ const SaveSessionModal = ({ onClose }: SaveSessionModalProps) => {
   const [item, setItem] = useState<CollectionItemResult | null>(null);
   const content = store.getValue('tempDoc');
 
-  const query = useFetchItemsQuery(resumeService.getCurrentFolder());
+  const query = useFetchItemsQuery(
+    'SaveSessionModal',
+    resumeService.getCurrentFolder()
+  );
   const [parent, setParent] = useFetchItemsQueryParamsState(query);
   const items = useQueryResults(query);
 

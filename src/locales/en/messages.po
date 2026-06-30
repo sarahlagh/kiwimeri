@@ -40,7 +40,7 @@ msgstr "Content"
 msgid "Manual"
 msgstr "Manual"
 
-#: src/features/timed-writing/components/SaveSessionModal.tsx:63
+#: src/features/timed-writing/components/SaveSessionModal.tsx:66
 msgid " (new)"
 msgstr " (new)"
 
@@ -145,7 +145,7 @@ msgstr "Choose"
 msgid "Choose a length for your writing session. Once you start, you must keep writing or all progress will be lost. You will have the option to save your work in a new document once you finish. This feature is inspired by Squibler's Most Dangerous Writing App (https://www.squibler.io/dangerous-writing-prompt-app)."
 msgstr "Choose a length for your writing session. Once you start, you must keep writing or all progress will be lost. You will have the option to save your work in a new document once you finish. This feature is inspired by Squibler's Most Dangerous Writing App (https://www.squibler.io/dangerous-writing-prompt-app)."
 
-#: src/common_to_migrate/modals/ChooseFolderModal.tsx:112
+#: src/common_to_migrate/modals/ChooseFolderModal.tsx:116
 msgid "Choose a new folder"
 msgstr "Choose a new folder"
 
@@ -153,7 +153,7 @@ msgstr "Choose a new folder"
 msgid "Choose a session length"
 msgstr "Choose a session length"
 
-#: src/features/timed-writing/components/SaveSessionModal.tsx:70
+#: src/features/timed-writing/components/SaveSessionModal.tsx:73
 msgid "Choose where to save your work"
 msgstr "Choose where to save your work"
 
@@ -161,7 +161,7 @@ msgstr "Choose where to save your work"
 msgid "Clear All"
 msgstr "Clear All"
 
-#: src/features/timed-writing/components/SaveSessionModal.tsx:103
+#: src/features/timed-writing/components/SaveSessionModal.tsx:106
 msgid "Close"
 msgstr "Close"
 
@@ -188,7 +188,7 @@ msgstr "Configure where to synchronize your collection"
 #: src/features/import-export/buttons/RestoreCollectionButton.tsx:78
 #: src/features/import-export/modals/ConfirmFileImportModal.tsx:82
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:349
-#: src/features/notebooks-ui/components/ManageNotebooksModal.tsx:97
+#: src/features/notebooks-ui/components/ManageNotebooksModal.tsx:100
 msgid "Confirm"
 msgstr "Confirm"
 
@@ -451,7 +451,7 @@ msgstr "Markdown (Kiwimeri flavor)"
 msgid "Max log history"
 msgstr "Max log history"
 
-#: src/features/timed-writing/components/SaveSessionModal.tsx:132
+#: src/features/timed-writing/components/SaveSessionModal.tsx:135
 msgid "Merge"
 msgstr "Merge"
 
@@ -508,7 +508,7 @@ msgstr "No tag yet"
 msgid "Not Found"
 msgstr "Not Found"
 
-#: src/features/notebooks-ui/components/ManageNotebooksModal.tsx:36
+#: src/features/notebooks-ui/components/ManageNotebooksModal.tsx:39
 msgid "Notebook Selection"
 msgstr "Notebook Selection"
 
@@ -579,7 +579,7 @@ msgstr "Restore Collection"
 msgid "Restore Version"
 msgstr "Restore Version"
 
-#: src/features/timed-writing/components/SaveSessionModal.tsx:130
+#: src/features/timed-writing/components/SaveSessionModal.tsx:133
 msgid "Save"
 msgstr "Save"
 
@@ -701,7 +701,7 @@ msgstr "This will delete this folder and move all its items to the current one."
 msgid "This will delete your existing data. Are you sure?"
 msgstr "This will delete your existing data. Are you sure?"
 
-#: src/features/timed-writing/components/SaveSessionModal.tsx:53
+#: src/features/timed-writing/components/SaveSessionModal.tsx:56
 msgid "timed session "
 msgstr "timed session "
 
