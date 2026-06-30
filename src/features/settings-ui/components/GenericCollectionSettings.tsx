@@ -1,10 +1,7 @@
 import EditConfigList, {
   ConfigRowType
 } from '@/common_to_migrate/containers/EditConfigList';
-import {
-  AnySerializableData,
-  SerializableData
-} from '@/db_to_migrate/types/store-types';
+import { AnySerializableData, SerializableData } from '@/core/db/types';
 import {
   CollectionItemSortType,
   SpaceSettings

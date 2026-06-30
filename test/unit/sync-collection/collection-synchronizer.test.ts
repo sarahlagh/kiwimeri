@@ -4,6 +4,7 @@ import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { setMetaField } from '@/core/db/types';
 import collectionService from '@/db_to_migrate/collection.service';
+import { CollectionItemType } from '@/domain/collection/collection';
 import { getDerivedId } from '@/domain/collection/derived-content';
 import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
@@ -894,7 +895,7 @@ describe('collection synchronizer', () => {
         const items = fetchItemsQuery.getResults(
           {
             onlyConflicts: true,
-            onlyDocuments: true,
+            restrictType: CollectionItemType.document,
             recursive: true,
             parentId: DEFAULT_NOTEBOOK_ID
           },
@@ -975,7 +976,7 @@ describe('collection synchronizer', () => {
       {
         const items = fetchItemsQuery.getResults({
           onlyConflicts: true,
-          onlyDocuments: true,
+          restrictType: CollectionItemType.document,
           recursive: true,
           parentId: DEFAULT_NOTEBOOK_ID
         });
@@ -1072,7 +1073,7 @@ describe('collection synchronizer', () => {
         const items = fetchItemsQuery.getResults(
           {
             onlyConflicts: true,
-            onlyDocuments: true,
+            restrictType: CollectionItemType.document,
             recursive: true,
             parentId: DEFAULT_NOTEBOOK_ID
           },

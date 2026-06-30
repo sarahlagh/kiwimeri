@@ -3,13 +3,13 @@
 import { dateToStr } from './common_to_migrate/date-utils';
 import { store } from './core/db/store';
 import { StoreTables } from './core/db/store-constants';
-import { AppLogLevel } from './core/infra/log-model';
-import { AppLog } from './db_to_migrate/types/store-types';
+import { AppLog, AppLogLevel } from './core/infra/log-model';
 import { deviceSettings } from './domain/device-settings/device-settings.service';
 
 const MAX_STRING_LENGTH = 10000; // max length for a single arg
 
 export type AppLogResult = Required<AppLog> & {
+  id: string;
   longLevelName: AppLogLevel;
 };
 

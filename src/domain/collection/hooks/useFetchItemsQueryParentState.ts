@@ -3,6 +3,7 @@ import { TableIdFromSchema, WithId } from '@/core/db/types';
 import { FetchItemsQueryParam } from '@/domain/collection/queries/fetchItemsQuery';
 import useGenericQueryParamsState from '@/shared/hooks/useGenericQueryParamsState';
 import { OptionalSchemas } from 'tinybase/with-schemas';
+import { CollectionItemTypeValues } from '../collection';
 
 export default function useFetchItemsQueryParamsState<
   Schema extends OptionalSchemas,
@@ -14,15 +15,16 @@ export default function useFetchItemsQueryParamsState<
     RootTableId,
     FetchItemsQueryParam,
     QueryResult
-  >
+  >,
+  restrictTypes?: CollectionItemTypeValues[]
 ): [string, (p: string) => void] {
   const [params, setParams] = useGenericQueryParamsState(query);
   const setParent = (parent: string) => {
     setParams({
       parentId: parent,
-      onlyDocuments: false,
       recursive: false,
-      onlyConflicts: false
+      onlyConflicts: false,
+      restrictTypes
     });
   };
 

@@ -1,8 +1,5 @@
 import { APPICONS } from '@/constants';
-import {
-  AnySerializableData,
-  SerializableData
-} from '@/db_to_migrate/types/store-types';
+import { AnySerializableData, SerializableData } from '@/core/db/types';
 import {
   IonButton,
   IonCheckbox,

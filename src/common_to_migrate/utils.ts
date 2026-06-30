@@ -1,5 +1,4 @@
-import { DbSerializableData } from '@/core/db/types';
-import { AnyData } from '@/db_to_migrate/types/store-types';
+import { AnyData, DbSerializableData } from '@/core/db/types';
 
 const QUERY_PARAMS = ['folder', 'document', 'query', 'docVersion'] as const;
 

@@ -1,4 +1,4 @@
-import { AnyData } from '@/db_to_migrate/types/store-types';
+import { AnyData } from '@/core/db/types';
 import {
   closestCenter,
   DndContext,

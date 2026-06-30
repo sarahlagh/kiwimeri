@@ -1,9 +1,9 @@
+import { AnyData } from '@/core/db/types';
 import {
   CollectionItem,
   CollectionItemWithId
 } from '@/domain/collection/collection';
 import { minimizeKeys, unminimizeKeys } from '../common_to_migrate/utils';
-import { AnyData } from '../db_to_migrate/types/store-types';
 
 const keys = [
   ['id', 'i'],

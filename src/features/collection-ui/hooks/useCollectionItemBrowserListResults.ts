@@ -1,6 +1,9 @@
 import { useQueryResults } from '@/core/db/queries-helper';
 import notebooksService from '@/db_to_migrate/notebooks.service';
-import { CollectionItemResult } from '@/domain/collection/collection';
+import {
+  CollectionItemResult,
+  CollectionItemType
+} from '@/domain/collection/collection';
 import { CollectionItemSort } from '@/domain/collection/collection-settings';
 import { settingsService } from '@/domain/collection/collection-settings.service';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
@@ -23,14 +26,13 @@ export default function useCollectionItemBrowserListResults(
       opts = {
         parentId: parent || notebook,
         recursive: false,
-        onlyDocuments: false,
         onlyConflicts: false
       };
     } else {
       opts = {
         parentId: notebook,
         recursive: true,
-        onlyDocuments: true,
+        restrictType: CollectionItemType.document,
         onlyConflicts: mode === 'conflicts'
       };
     }

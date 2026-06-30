@@ -1,5 +1,5 @@
 import { minimizeKeys, unminimizeKeys } from '@/common_to_migrate/utils';
-import { AnyData, SerializableData } from '@/db_to_migrate/types/store-types';
+import { AnyData, SerializableData } from '@/core/db/types';
 import { SyncableAnnotation } from './doc-annotations';
 
 const keys = [

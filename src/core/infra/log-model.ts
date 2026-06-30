@@ -6,3 +6,10 @@ export const appLevels: AppLogLevel[] = [
   'warn',
   'error'
 ];
+
+type AppLogDbLevel = 'T' | 'D' | 'L' | 'W' | 'E';
+export type AppLog = {
+  ts: number;
+  level: AppLogDbLevel;
+  message: string;
+};

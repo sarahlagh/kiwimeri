@@ -3,16 +3,17 @@ import { SpaceQueryDefinition } from '@/core/db/queries-helper';
 import { SpaceTables } from '@/core/db/store-constants';
 import {
   CollectionItemResult,
-  CollectionItemType
+  CollectionItemTypeValues
 } from '@/domain/collection/collection';
 import { getDerivedId } from '@/domain/collection/derived-content';
 import { conflictsService } from '@/domain/synchronization/conflicts/conflicts-service';
 
 export type FetchItemsQueryParam = {
   parentId: string;
-  recursive: boolean;
-  onlyDocuments: boolean; // TODO more flexible filter
-  onlyConflicts: boolean;
+  recursive?: boolean;
+  restrictType?: CollectionItemTypeValues;
+  restrictTypes?: CollectionItemTypeValues[];
+  onlyConflicts?: boolean;
 };
 
 const fetchItemsQuery = new SpaceQueryDefinition<
@@ -23,9 +24,12 @@ const fetchItemsQuery = new SpaceQueryDefinition<
   const params: FetchItemsQueryParam = {
     parentId: param('parentId') as string,
     recursive: param('recursive') as boolean,
-    onlyDocuments: param('onlyDocuments') as boolean,
+    restrictType: param('restrictType') as CollectionItemTypeValues,
+    restrictTypes: param('restrictTypes') as CollectionItemTypeValues[],
     onlyConflicts: param('onlyConflicts') as boolean
   };
+  if (params.recursive === undefined) params.recursive = false;
+  if (params.onlyConflicts === undefined) params.onlyConflicts = false;
 
   // works but only because stats and collection have same id for global stats
   join('stats', (getCell, itemId) => itemId).as('stats');
@@ -67,8 +71,15 @@ const fetchItemsQuery = new SpaceQueryDefinition<
       return fullPath?.includes(params.parentId);
     });
   }
-  if (params.onlyDocuments) {
-    where('type', CollectionItemType.document);
+  if (params.restrictType !== undefined) {
+    where('type', params.restrictType);
+  }
+  if (params.restrictTypes !== undefined) {
+    where(getCell =>
+      params.restrictTypes!.includes(
+        getCell('type') as CollectionItemTypeValues
+      )
+    );
   }
 });
 
