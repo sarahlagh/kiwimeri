@@ -1,6 +1,5 @@
-import { unminimizeContentFromStorage } from '@/common_to_migrate/wysiwyg/compress-file-content';
 import { INITIAL_CONTENT_START } from '@/db_to_migrate/collection.service';
-// eslint-disable-next-line no-restricted-imports
+import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-content';
 import formatConverter from '@/domain/format-conversion/format-converter.service';
 import { SerializedEditorState } from 'lexical';
 

@@ -1,5 +1,15 @@
-import { SerializedSelection } from '@/common_to_migrate/wysiwyg/lexical/selection-serializer';
 import { Id } from 'tinybase/with-schemas';
+
+export type SerializedSelectedNode = {
+  index: number;
+  offset: number;
+  type: string;
+};
+export type SerializedSelection = {
+  anchor?: SerializedSelectedNode;
+  focus: SerializedSelectedNode;
+  format: number;
+};
 
 export type DocumentResumeState = {
   lastSelection: SerializedSelection | null;

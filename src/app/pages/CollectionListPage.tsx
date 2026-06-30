@@ -1,8 +1,8 @@
-import { onTitleChangeFn } from '@/common_to_migrate/events/events';
 import { getGlobalTrans } from '@/constants';
 import collectionService from '@/db_to_migrate/collection.service';
 import { CollectionItemBrowserList } from '@/features/collection-ui';
 import { useCurrentNotebook } from '@/features/notebooks-ui';
+import { onTitleChangeFn } from '@/shared/misc/onTitleChangeFn';
 import { getSearchParams } from '@/shared/utils';
 import { useLocation } from 'react-router';
 import TemplateMainPage from './TemplateMainPage';

@@ -27,6 +27,7 @@ import React, {
 } from 'react';
 import { FOCUS_TAG, RELOAD_TAG } from './constants';
 import EditLinkPlugin from './EditLinkPlugin';
+import { KiwimeriEditorHandle } from './KiwimeriEditorHandle';
 import { KiwimeriOnChangePlugin } from './KiwimeriOnChangePlugin';
 import KiwimeriToolbarPlugin, {
   ToolbarPluginProps
@@ -41,10 +42,6 @@ import { SearchHighlightPlugin } from './SearchHighlightPlugin';
 import { SerializedSelection } from './selection-serializer';
 import ShortcutsPlugin from './ShortcutsPlugin';
 import TextZoomPlugin from './TextZoomPlugin';
-
-export type KiwimeriEditorHandle = {
-  focusEditor: () => void;
-};
 
 type KiwimeriEditorProps = {
   id?: string;

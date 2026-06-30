@@ -1,9 +1,12 @@
-import { SerializedSelection } from '@/common_to_migrate/wysiwyg/lexical/selection-serializer';
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { Id } from 'tinybase/with-schemas';
-import { DocumentResumeState, NotebookResumeState } from './resume-state';
+import {
+  DocumentResumeState,
+  NotebookResumeState,
+  SerializedSelection
+} from './resume-state';
 
 class ResumeStateService {
   public setLastSelection(

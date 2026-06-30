@@ -1,4 +1,3 @@
-import { unminimizeContentFromStorage } from '@/common_to_migrate/wysiwyg/compress-file-content';
 import { META_JSON } from '@/constants';
 import collectionService, {
   INITIAL_CONTENT_START
@@ -8,6 +7,7 @@ import {
   CollectionItemType,
   CollectionItemTypeValues
 } from '@/domain/collection/collection';
+import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-content';
 import notebooksService from '@/domain/collection/notebooks.service';
 import formatConverter from '@/domain/format-conversion/format-converter.service';
 import { strToU8, zip } from 'fflate';

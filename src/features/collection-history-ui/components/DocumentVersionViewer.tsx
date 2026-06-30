@@ -1,9 +1,9 @@
 import { GET_DOCUMENT_ROUTE, GET_VERSIONED_ROUTE } from '@/app/routes';
-import KiwimeriEditor from '@/common_to_migrate/wysiwyg/lexical/KiwimeriEditor';
 import { APPICONS } from '@/constants';
 import collectionService from '@/db_to_migrate/collection.service';
 import { CollectionItemSnapshotData } from '@/domain/collection/collection';
 import { ActionsFromDocumentVersionViewerToolbar } from '@/features/collection-ui';
+import { KiwimeriEditor } from '@/features/document-editor';
 import { SearchActionsToolbar } from '@/features/search';
 import {
   IonButton,
