@@ -1,4 +1,3 @@
-import { dateToStr } from '@/common_to_migrate/date-utils';
 import { space } from '@/core/db/store';
 import { plt } from '@/core/infra/platform';
 import { CollectionItemType } from '@/domain/collection/collection';
@@ -7,6 +6,7 @@ import {
   RestoreCollectionButton
 } from '@/features/import-export';
 import GenericExportFileButton from '@/shared/buttons/GenericExportFileButton';
+import { dateToStr } from '@/shared/misc/date-utils';
 import {
   IonButtons,
   IonCard,

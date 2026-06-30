@@ -1,9 +1,9 @@
 import { useToastContext } from '@/app/context/ToastContext';
-import { dateToStr } from '@/common_to_migrate/date-utils';
 import { APPICONS } from '@/constants';
 import { historyService } from '@/domain/history/history.service';
 import { CollectionItemVersion } from '@/domain/history/queries/fetchVersionsQuery';
 import LoadingInline from '@/shared/components/LoadingInline';
+import { dateToStr } from '@/shared/misc/date-utils';
 import {
   IonButton,
   IonButtons,

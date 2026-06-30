@@ -5,7 +5,7 @@ import {
   NotesSortType
 } from '@/domain/collection/collection-settings';
 import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
-import GenericSortFilter from '@/shared/utils/sort-filter/GenericSortFilter';
+import GenericSortFilter from '@/shared/misc/sort-filter/GenericSortFilter';
 import { IonButton, IonIcon, useIonPopover } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
 import useNotesSort from '../hooks/useNotesSort';

@@ -1,5 +1,5 @@
-import { dateToStr } from '@/common_to_migrate/date-utils';
 import collectionService from '@/db_to_migrate/collection.service';
+import { dateToStr } from '@/shared/misc/date-utils';
 import { IonItem, IonLabel, IonList } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 import AddTagsButton from '../buttons/AddTagsButton';

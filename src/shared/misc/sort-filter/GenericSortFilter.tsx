@@ -1,5 +1,5 @@
 import { APPICONS } from '@/constants';
-import { Sort } from '@/shared/utils/sort-filter/sort';
+import { Sort } from '@/shared/misc/sort-filter/sort';
 import {
   IonButton,
   IonIcon,
