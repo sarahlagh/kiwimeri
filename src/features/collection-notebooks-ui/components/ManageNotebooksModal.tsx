@@ -1,7 +1,7 @@
 import { APPICONS } from '@/constants';
 import { useQueryResults } from '@/core/db/queries-helper';
 import notebooksService from '@/domain/collection/notebooks.service';
-import { CollectionItemList } from '@/features/collection-ui';
+import { CollectionItemList } from '@/features/collection-browser';
 import { ImportItemsButton } from '@/features/import-export';
 import {
   IonButton,

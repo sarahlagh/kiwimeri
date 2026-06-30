@@ -14,29 +14,29 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
-#: src/shared/utils/sort-filter/GenericSortFilter.tsx:44
-#: src/shared/utils/sort-filter/GenericSortFilter.tsx:45
+#: src/shared/misc/sort-filter/GenericSortFilter.tsx:44
+#: src/shared/misc/sort-filter/GenericSortFilter.tsx:45
 msgid "Creation Date"
 msgstr "Creation Date"
 
 #. js-lingui-explicit-id
-#: src/shared/utils/sort-filter/GenericSortFilter.tsx:46
-#: src/shared/utils/sort-filter/GenericSortFilter.tsx:47
+#: src/shared/misc/sort-filter/GenericSortFilter.tsx:46
+#: src/shared/misc/sort-filter/GenericSortFilter.tsx:47
 msgid "Last Updated"
 msgstr "Last Updated"
 
 #. js-lingui-explicit-id
-#: src/shared/utils/sort-filter/GenericSortFilter.tsx:48
+#: src/shared/misc/sort-filter/GenericSortFilter.tsx:48
 msgid "Title"
 msgstr "Title"
 
 #. js-lingui-explicit-id
-#: src/shared/utils/sort-filter/GenericSortFilter.tsx:49
+#: src/shared/misc/sort-filter/GenericSortFilter.tsx:49
 msgid "Content"
 msgstr "Content"
 
 #. js-lingui-explicit-id
-#: src/shared/utils/sort-filter/GenericSortFilter.tsx:50
+#: src/shared/misc/sort-filter/GenericSortFilter.tsx:50
 msgid "Manual"
 msgstr "Manual"
 
@@ -44,7 +44,7 @@ msgstr "Manual"
 msgid " (new)"
 msgstr " (new)"
 
-#: src/features/notes-ui/components/NotesMenuPreview.tsx:41
+#: src/features/collection-notes-ui/components/NotesMenuPreview.tsx:41
 msgid "-- conflict --"
 msgstr "-- conflict --"
 
@@ -77,7 +77,7 @@ msgstr "a notebook"
 msgid "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 msgstr "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 
-#: src/features/notes-ui/components/NotesMenu.tsx:36
+#: src/features/collection-notes-ui/components/NotesMenu.tsx:36
 msgid "add a note"
 msgstr "add a note"
 
@@ -109,14 +109,14 @@ msgstr "AO3 Viewer"
 msgid "Archive is empty"
 msgstr "Archive is empty"
 
+#: src/features/collection-browser/components/CollectionItemList.tsx:75
 #: src/features/collection-history-ui/components/ManageHistoryModal.tsx:142
-#: src/features/collection-ui/components/CollectionItemList.tsx:76
 #: src/shared/modals/ConfirmYesNoDialog.tsx:24
 msgid "Are you sure?"
 msgstr "Are you sure?"
 
 #: src/features/collection-history-ui/components/ManageHistoryModal.tsx:145
-#: src/features/collection-ui/modals/ChooseTagsModal.tsx:100
+#: src/features/document-editor/tags/ChooseTagsModal.tsx:100
 #: src/features/import-export/buttons/ExportItemsButton.tsx:103
 #: src/features/import-export/buttons/RestoreCollectionButton.tsx:71
 #: src/features/import-export/modals/ConfirmFileImportModal.tsx:79
@@ -138,7 +138,7 @@ msgstr "Character Count (Max)"
 msgid "characters"
 msgstr "characters"
 
-#: src/features/collection-ui/modals/ChooseFolderModal.tsx:71
+#: src/features/collection-browser/modals/ChooseFolderModal.tsx:71
 msgid "Choose"
 msgstr "Choose"
 
@@ -146,7 +146,7 @@ msgstr "Choose"
 msgid "Choose a length for your writing session. Once you start, you must keep writing or all progress will be lost. You will have the option to save your work in a new document once you finish. This feature is inspired by Squibler's Most Dangerous Writing App (https://www.squibler.io/dangerous-writing-prompt-app)."
 msgstr "Choose a length for your writing session. Once you start, you must keep writing or all progress will be lost. You will have the option to save your work in a new document once you finish. This feature is inspired by Squibler's Most Dangerous Writing App (https://www.squibler.io/dangerous-writing-prompt-app)."
 
-#: src/features/collection-ui/modals/ChooseFolderModal.tsx:115
+#: src/features/collection-browser/modals/ChooseFolderModal.tsx:115
 msgid "Choose a new folder"
 msgstr "Choose a new folder"
 
@@ -183,39 +183,39 @@ msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
 
 #: src/features/collection-history-ui/components/ManageHistoryModal.tsx:149
-#: src/features/collection-ui/modals/ChooseTagsModal.tsx:107
+#: src/features/collection-notebooks-ui/components/ManageNotebooksModal.tsx:100
+#: src/features/document-editor/tags/ChooseTagsModal.tsx:107
 #: src/features/import-export/buttons/ExportItemsButton.tsx:110
 #: src/features/import-export/buttons/RestoreCollectionButton.tsx:78
 #: src/features/import-export/modals/ConfirmFileImportModal.tsx:82
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:349
-#: src/features/notebooks-ui/components/ManageNotebooksModal.tsx:100
 #: src/shared/modals/ConfirmYesNoDialog.tsx:36
 msgid "Confirm"
 msgstr "Confirm"
 
 #: src/constants.ts:79
-#: src/features/collection-ui/components/CollectionItemBrowserList.tsx:158
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:157
 msgid "Conflicts"
 msgstr "Conflicts"
 
-#: src/features/collection-ui/components/SortFilter.tsx:50
+#: src/features/collection-browser/components/SortFilter.tsx:50
 msgid "Content"
 msgstr "Content"
 
-#: src/features/notes-ui/components/NotesMenu.tsx:57
+#: src/features/collection-notes-ui/components/NotesMenu.tsx:57
 msgid "create a note"
 msgstr "create a note"
 
-#: src/features/collection-ui/sheets/DocumentGeneralInfo.tsx:18
+#: src/features/document-editor/components/DocumentGeneralInfo.tsx:18
 msgid "Created at"
 msgstr "Created at"
 
 #. placeholder {0}: dateToStr('relative', createdAt)
-#: src/features/notes-ui/components/NotesActions.tsx:24
+#: src/features/collection-notes-ui/components/NotesActions.tsx:24
 msgid "Created at: {0}"
 msgstr "Created at: {0}"
 
-#: src/features/collection-ui/components/SortFilter.tsx:47
+#: src/features/collection-browser/components/SortFilter.tsx:47
 #: src/features/settings-ui/components/GenericCollectionSettings.tsx:35
 msgid "Creation Date"
 msgstr "Creation Date"
@@ -236,7 +236,7 @@ msgstr "Default sort field"
 msgid "Delete All"
 msgstr "Delete All"
 
-#: src/features/notes-ui/components/NotesActions.tsx:44
+#: src/features/collection-notes-ui/components/NotesActions.tsx:44
 msgid "Delete note"
 msgstr "Delete note"
 
@@ -274,7 +274,7 @@ msgstr "Display options for the currently selected notebook. They can still be o
 msgid "Do you want to import your content inside a new folder?"
 msgstr "Do you want to import your content inside a new folder?"
 
-#: src/features/collection-ui/buttons/QuickGroupButton.tsx:36
+#: src/features/collection-browser/buttons/QuickGroupButton.tsx:36
 msgid "Document grouped"
 msgstr "Document grouped"
 
@@ -286,7 +286,7 @@ msgstr "Document History"
 msgid "Download Logs"
 msgstr "Download Logs"
 
-#: src/features/notes-ui/components/NotesMenuPreview.tsx:39
+#: src/features/collection-notes-ui/components/NotesMenuPreview.tsx:39
 msgid "empty note"
 msgstr "empty note"
 
@@ -391,15 +391,15 @@ msgstr "Kiwimeri format (content only)"
 msgid "Kiwimeri format (with history & stats)"
 msgstr "Kiwimeri format (with history & stats)"
 
-#: src/features/collection-ui/components/CollectionItemBrowserList.tsx:157
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:156
 msgid "Last consulted documents"
 msgstr "Last consulted documents"
 
-#: src/features/collection-ui/components/SortFilter.tsx:48
+#: src/features/collection-browser/components/SortFilter.tsx:48
 msgid "Last Updated"
 msgstr "Last Updated"
 
-#: src/features/collection-ui/components/CollectionItemBrowserList.tsx:156
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:155
 msgid "Last updated documents"
 msgstr "Last updated documents"
 
@@ -411,7 +411,7 @@ msgstr "Leave empty for root"
 msgid "Less dangerous mode (session is still timed but you will not lose progress on pause)"
 msgstr "Less dangerous mode (session is still timed but you will not lose progress on pause)"
 
-#: src/common_to_migrate/wysiwyg/lexical/EditLinkPlugin.tsx:58
+#: src/features/document-editor/wysiwyg-editor/lexical/EditLinkPlugin.tsx:58
 msgid "Link"
 msgstr "Link"
 
@@ -433,7 +433,7 @@ msgstr "Local: <0>never</0>"
 msgid "Logs"
 msgstr "Logs"
 
-#: src/features/collection-ui/components/SortFilter.tsx:51
+#: src/features/collection-browser/components/SortFilter.tsx:51
 msgid "Manual"
 msgstr "Manual"
 
@@ -498,15 +498,15 @@ msgstr "New folder name: "
 msgid "New notebook name: "
 msgstr "New notebook name: "
 
-#: src/features/collection-ui/modals/ChooseTagsModal.tsx:85
+#: src/features/document-editor/tags/ChooseTagsModal.tsx:85
 msgid "New tag"
 msgstr "New tag"
 
-#: src/features/collection-ui/components/CollectionItemList.tsx:87
+#: src/features/collection-browser/components/CollectionItemList.tsx:86
 msgid "no"
 msgstr "no"
 
-#: src/features/collection-ui/modals/ChooseTagsModal.tsx:53
+#: src/features/document-editor/tags/ChooseTagsModal.tsx:53
 msgid "No tag yet"
 msgstr "No tag yet"
 
@@ -514,7 +514,7 @@ msgstr "No tag yet"
 msgid "Not Found"
 msgstr "Not Found"
 
-#: src/features/notebooks-ui/components/ManageNotebooksModal.tsx:39
+#: src/features/collection-notebooks-ui/components/ManageNotebooksModal.tsx:39
 msgid "Notebook Selection"
 msgstr "Notebook Selection"
 
@@ -606,11 +606,11 @@ msgstr "Search Content"
 msgid "Search input"
 msgstr "Search input"
 
-#: src/features/notes-ui/components/NotesBrowser.tsx:52
+#: src/features/collection-notes-ui/components/NotesBrowser.tsx:52
 msgid "select a note"
 msgstr "select a note"
 
-#: src/features/collection-ui/modals/ChooseTagsModal.tsx:39
+#: src/features/document-editor/tags/ChooseTagsModal.tsx:39
 msgid "Select item tags"
 msgstr "Select item tags"
 
@@ -623,8 +623,8 @@ msgstr "Server"
 msgid "Settings"
 msgstr "Settings"
 
-#: src/features/collection-ui/components/SortFilter.tsx:59
-#: src/shared/utils/sort-filter/GenericSortFilter.tsx:65
+#: src/features/collection-browser/components/SortFilter.tsx:59
+#: src/shared/misc/sort-filter/GenericSortFilter.tsx:65
 msgid "Sort"
 msgstr "Sort"
 
@@ -632,7 +632,7 @@ msgstr "Sort"
 msgid "Sort descending by default"
 msgstr "Sort descending by default"
 
-#: src/shared/utils/sort-filter/GenericSortFilter.tsx:82
+#: src/shared/misc/sort-filter/GenericSortFilter.tsx:82
 msgid "Sort direction"
 msgstr "Sort direction"
 
@@ -640,7 +640,7 @@ msgstr "Sort direction"
 msgid "Sort items by..."
 msgstr "Sort items by..."
 
-#: src/features/notes-ui/components/NotesSortFilterBtn.tsx:35
+#: src/features/collection-notes-ui/components/NotesSortFilterBtn.tsx:35
 msgid "sort notes"
 msgstr "sort notes"
 
@@ -663,7 +663,7 @@ msgstr "Start Writing"
 msgid "Success!"
 msgstr "Success!"
 
-#: src/features/notes-ui/components/NotesActions.tsx:57
+#: src/features/collection-notes-ui/components/NotesActions.tsx:57
 msgid "Switch info"
 msgstr "Switch info"
 
@@ -676,15 +676,15 @@ msgstr "Synchronization & Backup"
 msgid "Syncing is disabled on the web version."
 msgstr "Syncing is disabled on the web version."
 
-#: src/features/collection-ui/sheets/DocumentGeneralInfo.tsx:34
+#: src/features/document-editor/components/DocumentGeneralInfo.tsx:34
 msgid "Tags"
 msgstr "Tags"
 
-#: src/common_to_migrate/wysiwyg/lexical/EditLinkPlugin.tsx:44
+#: src/features/document-editor/wysiwyg-editor/lexical/EditLinkPlugin.tsx:44
 msgid "Text"
 msgstr "Text"
 
-#: src/common_to_migrate/wysiwyg/lexical/KiwimeriEditor.tsx:102
+#: src/features/document-editor/wysiwyg-editor/lexical/KiwimeriEditor.tsx:99
 msgid "Text..."
 msgstr "Text..."
 
@@ -700,7 +700,7 @@ msgstr "The number of versions to keep per document. Set 0 for unlimited."
 msgid "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page and the Settings page."
 msgstr "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page and the Settings page."
 
-#: src/features/collection-ui/buttons/QuickUngroupButton.tsx:35
+#: src/features/collection-browser/buttons/QuickUngroupButton.tsx:35
 msgid "This will delete this folder and move all its items to the current one."
 msgstr "This will delete this folder and move all its items to the current one."
 
@@ -720,11 +720,11 @@ msgstr "Timed Writing"
 msgid "Timed Writing Session"
 msgstr "Timed Writing Session"
 
-#: src/features/collection-ui/components/SortFilter.tsx:49
+#: src/features/collection-browser/components/SortFilter.tsx:49
 msgid "Title"
 msgstr "Title"
 
-#: src/features/notes-ui/components/NotesActions.tsx:37
+#: src/features/collection-notes-ui/components/NotesActions.tsx:37
 msgid "Toggle actions"
 msgstr "Toggle actions"
 
@@ -732,12 +732,12 @@ msgstr "Toggle actions"
 msgid "Track text statistics"
 msgstr "Track text statistics"
 
-#: src/features/collection-ui/sheets/DocumentGeneralInfo.tsx:26
+#: src/features/document-editor/components/DocumentGeneralInfo.tsx:26
 msgid "Updated at"
 msgstr "Updated at"
 
 #. placeholder {0}: dateToStr('relative', updatedAt)
-#: src/features/notes-ui/components/NotesActions.tsx:29
+#: src/features/collection-notes-ui/components/NotesActions.tsx:29
 msgid "Updated at: {0}"
 msgstr "Updated at: {0}"
 
@@ -762,7 +762,7 @@ msgstr "When working on a document, a new version will be automatically at least
 msgid "When working on a document, a new version will be automatically if idle after XX seconds"
 msgstr "When working on a document, a new version will be automatically if idle after XX seconds"
 
-#: src/features/collection-ui/sheets/DocumentGeneralInfo.tsx:40
+#: src/features/document-editor/components/DocumentGeneralInfo.tsx:40
 msgid "Word count"
 msgstr "Word count"
 
@@ -774,7 +774,7 @@ msgstr "Word Count"
 msgid "Word Count (Max)"
 msgstr "Word Count (Max)"
 
-#: src/features/collection-ui/components/WordCount.tsx:26
+#: src/features/document-editor/components/WordCount.tsx:26
 #: src/features/stats-ui/components/ChartContainer.tsx:54
 #: src/features/stats-ui/components/ChartContainer.tsx:64
 msgid "words"
@@ -784,7 +784,7 @@ msgstr "words"
 msgid "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 msgstr "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 
-#: src/features/collection-ui/components/CollectionItemList.tsx:84
+#: src/features/collection-browser/components/CollectionItemList.tsx:83
 msgid "yes"
 msgstr "yes"
 

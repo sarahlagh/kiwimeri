@@ -18,7 +18,7 @@ import {
   RemoteCollectionFileContent
 } from '@/domain/synchronization/merging/synchronizers/collection-synchronizer';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
-import useItemsConflictMixIn from '@/features/collection-ui/hooks/useItemsConflictMixIn';
+import useItemsConflictMixIn from '@/features/collection-browser/hooks/useItemsConflictMixIn';
 import { useSynchronizationStates } from '@/features/synchronization-ui';
 import { InMemDriver } from '@@/_setup/inmem.driver';
 import {

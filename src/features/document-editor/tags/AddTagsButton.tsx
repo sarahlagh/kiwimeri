@@ -3,7 +3,7 @@ import collectionService from '@/db_to_migrate/collection.service';
 import tagsService from '@/domain/collection/tags.service';
 import { IonButton, IonIcon, IonText, useIonModal } from '@ionic/react';
 import { Id } from 'tinybase/with-schemas';
-import ChooseTagsModal from '../modals/ChooseTagsModal';
+import ChooseTagsModal from './ChooseTagsModal';
 
 type AddTagsButtonProps = {
   id: Id;

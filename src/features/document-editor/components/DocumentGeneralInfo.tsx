@@ -2,8 +2,8 @@ import collectionService from '@/db_to_migrate/collection.service';
 import { dateToStr } from '@/shared/misc/date-utils';
 import { IonItem, IonLabel, IonList } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
-import AddTagsButton from '../buttons/AddTagsButton';
-import WordCount from '../components/WordCount';
+import AddTagsButton from '../tags/AddTagsButton';
+import WordCount from './WordCount';
 
 type DocumentInfoCardProps = {
   id: string;

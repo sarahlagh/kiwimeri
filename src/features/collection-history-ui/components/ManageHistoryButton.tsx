@@ -1,6 +1,6 @@
 import { GET_VERSIONED_ROUTE } from '@/app/routes';
 import { APPICONS } from '@/constants';
-import { useCurrentNotebook } from '@/features/notebooks-ui';
+import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
 import { getSearchParams } from '@/shared/utils';
 import { IonButton, IonIcon, useIonModal } from '@ionic/react';
 import { lazy } from 'react';

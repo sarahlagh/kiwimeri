@@ -12,7 +12,7 @@ import { resumeService } from '@/domain/collection/resume-state.service';
 import {
   CollectionItemBreadcrumb,
   CollectionItemList
-} from '@/features/collection-ui';
+} from '@/features/collection-browser';
 import { dateToStr } from '@/shared/misc/date-utils';
 import {
   IonButton,

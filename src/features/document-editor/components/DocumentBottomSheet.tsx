@@ -17,7 +17,7 @@ const ChartContainer = lazy(() =>
   }))
 );
 const NotesBrowser = lazy(() =>
-  import('@/features/notes-ui').then(m => ({
+  import('@/features/collection-notes-ui').then(m => ({
     default: m.NotesBrowser
   }))
 );
@@ -26,9 +26,7 @@ const DocumentBottomSheetSwitcher = ({
   id,
   select
 }: DocumentBottomSheetProps) => {
-  const DocumentGeneralInfo = lazy(
-    () => import('../../collection-ui/sheets/DocumentGeneralInfo')
-  );
+  const DocumentGeneralInfo = lazy(() => import('./DocumentGeneralInfo'));
   switch (select) {
     case 'info':
     default:

@@ -1,6 +1,6 @@
 import { SpaceTables } from '@/core/db/store-constants';
 import { useSpaceCell } from '@/core/db/tinybase-hooks';
-import { useCurrentNotebook } from '@/features/notebooks-ui';
+import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
 import { Id } from 'tinybase/with-schemas';
 import { NotebookSettings } from '../collection-settings';
 
