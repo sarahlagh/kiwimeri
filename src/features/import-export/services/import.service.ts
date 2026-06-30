@@ -2,7 +2,6 @@ import { META_JSON, ROOT_COLLECTION } from '@/constants';
 import { space } from '@/core/db/store';
 import { setMetaField } from '@/core/db/types';
 import collectionService from '@/db_to_migrate/collection.service';
-import notebooksService from '@/db_to_migrate/notebooks.service';
 import storageService from '@/db_to_migrate/storage.service';
 import {
   CollectionItem,
@@ -16,6 +15,7 @@ import {
   isNotebook,
   isParent
 } from '@/domain/collection/collection';
+import notebooksService from '@/domain/collection/notebooks.service';
 import { historyService } from '@/domain/history/history.service';
 import formatConverter from '@/features/format-conversion/format-converter.service';
 import { Unzipped, strFromU8, unzip } from 'fflate';

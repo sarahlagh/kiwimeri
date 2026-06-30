@@ -1,14 +1,21 @@
 import { INIT_ROUTE } from '@/common_to_migrate/routes';
 import { APPICONS } from '@/constants';
-import notebooksService from '@/db_to_migrate/notebooks.service';
+import { SpaceTables } from '@/core/db/store-constants';
+import { useSpaceCell } from '@/core/db/tinybase-hooks';
+import notebooksService from '@/domain/collection/notebooks.service';
 import { IonButton, IonIcon, useIonModal } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
+import useCurrentNotebook from '../hooks/useCurrentNotebook';
 import ManageNotebooksModal from './ManageNotebooksModal';
 
 const NotebookSwitcher = () => {
   const history = useHistory();
-  const current = notebooksService.useCurrentNotebook();
-  const name = notebooksService.useNotebookTitle(current);
+  const current = useCurrentNotebook();
+  const name = useSpaceCell<SpaceTables.Collection, 'title'>(
+    SpaceTables.Collection,
+    current,
+    'title'
+  );
 
   const [present, dismiss] = useIonModal(ManageNotebooksModal, {
     onClose: (parentId?: string) => {

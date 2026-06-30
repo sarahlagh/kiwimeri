@@ -15,7 +15,7 @@ import '@ionic/react/css/palettes/dark.class.css';
 /* global */
 import '@/theme/global.scss';
 
-import notebooksService from '@/db_to_migrate/notebooks.service';
+import notebooksService from '@/domain/collection/notebooks.service';
 import { messages as enMessages } from '@/locales/en/messages';
 import { i18n } from '@lingui/core';
 

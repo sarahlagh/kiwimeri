@@ -5,7 +5,7 @@ import { startDbListeners } from './core/db/store-listeners';
 import { addAndroidListeners } from './core/infra/capacitor/handle-android-plugins';
 import { networkService } from './core/infra/network.service';
 import { plt } from './core/infra/platform';
-import notebooksService from './db_to_migrate/notebooks.service';
+import notebooksService from './domain/collection/notebooks.service';
 import { historyService } from './domain/history/history.service';
 import { syncService } from './domain/synchronization/sync.service';
 import { appLog } from './log';

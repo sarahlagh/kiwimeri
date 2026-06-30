@@ -3,7 +3,7 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 
-import notebooksService from '@/db_to_migrate/notebooks.service';
+import notebooksService from '@/domain/collection/notebooks.service';
 import { messages as enMessages } from '@/locales/en/messages';
 import { i18n } from '@lingui/core';
 

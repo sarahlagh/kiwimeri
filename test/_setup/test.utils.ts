@@ -3,7 +3,6 @@ import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { space, store } from '@/core/db/store';
 import { DbSerializableData, setMetaField, WithId } from '@/core/db/types';
 import collectionService from '@/db_to_migrate/collection.service';
-import notebooksService from '@/db_to_migrate/notebooks.service';
 import {
   CollectionItem,
   CollectionItemFieldEnum,
@@ -18,6 +17,7 @@ import {
 import { DocAnnotationRow } from '@/domain/collection/doc-annotations';
 import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
 import { Notebook } from '@/domain/collection/notebooks';
+import notebooksService from '@/domain/collection/notebooks.service';
 import { renderHook } from '@testing-library/react';
 import { getUniqueId } from 'tinybase/with-schemas';
 import { expect, vi } from 'vitest';

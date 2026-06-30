@@ -1,7 +1,7 @@
 import { space } from '@/core/db/store';
+import notebooksService from '@/domain/collection/notebooks.service';
 import { Id } from 'tinybase/with-schemas';
 import collectionService from './collection.service';
-import notebooksService from './notebooks.service';
 
 class TagsService {
   private itemsPerTags = new Map<string, string[]>();

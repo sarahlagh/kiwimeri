@@ -1,6 +1,6 @@
 import collectionService from '@/db_to_migrate/collection.service';
-import notebooksService from '@/db_to_migrate/notebooks.service';
 import { CollectionItemTypeValues } from '@/domain/collection/collection';
+import notebooksService from '@/domain/collection/notebooks.service';
 import { $getRoot, ElementNode, LexicalEditor, TextNode } from 'lexical';
 
 export type DeepSearchResult = {

@@ -5,9 +5,9 @@ import {
 } from '@/constants';
 import { SpaceTables } from '@/core/db/store-constants';
 import { SpaceType } from '@/core/db/store-schema';
-import notebooksService from '@/db_to_migrate/notebooks.service';
 import { CollectionItem } from '@/domain/collection/collection';
 import { SyncableAnnotation } from '@/domain/collection/doc-annotations';
+import notebooksService from '@/domain/collection/notebooks.service';
 import localChangesService from '@/domain/synchronization/local-changes/local-changes.service';
 import {
   LocalChangeOn,

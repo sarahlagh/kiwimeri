@@ -1,6 +1,6 @@
 import { SpaceTables } from '@/core/db/store-constants';
 import { useSpaceCell } from '@/core/db/tinybase-hooks';
-import notebooksService from '@/db_to_migrate/notebooks.service';
+import notebooksService from '@/domain/collection/notebooks.service';
 import { Id } from 'tinybase/with-schemas';
 import { SpaceSettings } from '../../collection/collection-settings';
 import useSpaceDefaultSettings from './useSpaceDefaultSettings';

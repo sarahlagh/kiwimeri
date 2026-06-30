@@ -9,7 +9,6 @@ import { SpaceTables } from '@/core/db/store-constants';
 import { SpaceValuesType } from '@/core/db/store-schema';
 import { setMetaField } from '@/core/db/types';
 import collectionService from '@/db_to_migrate/collection.service';
-import notebooksService from '@/db_to_migrate/notebooks.service';
 import {
   CollectionItem,
   CollectionItemWithId
@@ -20,6 +19,7 @@ import {
 } from '@/domain/collection/compress-annotations';
 import { SyncableAnnotation } from '@/domain/collection/doc-annotations';
 import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import notebooksService from '@/domain/collection/notebooks.service';
 import remotesService from '@/domain/synchronization/configuration/remotes.service';
 import { conflictsService } from '@/domain/synchronization/conflicts/conflicts-service';
 import { PCloudDriver } from '@/domain/synchronization/drivers/pcloud/pcloud.driver';

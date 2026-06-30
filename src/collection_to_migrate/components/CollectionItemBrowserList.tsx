@@ -23,10 +23,10 @@ import { ExportItemsButton, ImportItemsButton } from '@/features/import-export';
 
 import { conflictsService } from '@/domain/synchronization/conflicts/conflicts-service';
 
-import notebooksService from '@/db_to_migrate/notebooks.service';
 import { settingsService } from '@/domain/collection/collection-settings.service';
 import useFolderEffectiveSort from '@/domain/collection/hooks/useFolderEffectiveSort';
 import useNotebookLastBrowserMode from '@/domain/collection/hooks/useNotebookLastBrowserMode';
+import notebooksService from '@/domain/collection/notebooks.service';
 
 // eslint-disable-next-line no-restricted-imports
 import useCollectionItemBrowserListResults, {

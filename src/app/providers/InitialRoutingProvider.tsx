@@ -7,9 +7,10 @@ import {
 import { getSearchParams } from '@/common_to_migrate/utils';
 import { ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/db_to_migrate/collection.service';
-import notebooksService from '@/db_to_migrate/notebooks.service';
+import notebooksService from '@/domain/collection/notebooks.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import useDeviceSetting from '@/domain/device-settings/hooks/useDeviceSetting';
+import { useCurrentNotebook } from '@/features/notebooks-ui';
 import { ReactNode, useEffect } from 'react';
 import { Redirect, useLocation } from 'react-router';
 
@@ -20,7 +21,7 @@ type InitialRoutingProviderProps = {
 const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
   const location = useLocation();
   const searchParams = getSearchParams(location.search);
-  const notebook = notebooksService.useCurrentNotebook();
+  const notebook = useCurrentNotebook();
   const folder = searchParams.folder ? searchParams.folder : notebook;
   const rememberLastRoute = useDeviceSetting('rememberLastRoute');
 
