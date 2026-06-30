@@ -1,5 +1,5 @@
 import { CloudStorageDriver } from '../abstract.driver';
-import { DriverFileInfo, FileReference } from '../model';
+import { DriverFileInfo, FileReference } from '../types';
 import {
   PCloudLinkResponse,
   PCloudListResponse,

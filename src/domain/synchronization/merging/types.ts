@@ -5,7 +5,7 @@ import {
 import {
   LocalChangeOn,
   LocalChangeType
-} from '@/domain/synchronization/local-changes/model';
+} from '@/domain/synchronization/local-changes';
 
 export type AfterSyncChange = Pick<
   Required<CollectionItem>,

@@ -21,7 +21,7 @@ import {
 } from '@/domain/collection/collection';
 import { ExportItemsButton, ImportItemsButton } from '@/features/import-export';
 
-import { conflictsService } from '@/domain/synchronization/conflicts/conflicts-service';
+import { conflictsService } from '@/domain/synchronization/conflicts-service';
 
 import { settingsService } from '@/domain/collection/collection-settings.service';
 import useFolderEffectiveSort from '@/domain/collection/hooks/useFolderEffectiveSort';

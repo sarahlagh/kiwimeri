@@ -1,7 +1,7 @@
 import { AnyData } from '@/core/db/types';
 import { CloudStorageDriver } from '@/domain/synchronization/drivers/abstract.driver';
 import { driverFactory } from '@/domain/synchronization/drivers/driver-factory';
-import { ConnectedRemote } from '@/domain/synchronization/replica-state/model';
+import { ConnectedRemote } from '@/domain/synchronization/replica-state';
 import { CloudStorageSynchronizer } from '../abstract-synchronizer';
 import { CollectionSynchronizer } from './collection-synchronizer';
 import { StatsSynchronizer } from './stats-synchronizer';

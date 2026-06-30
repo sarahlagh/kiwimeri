@@ -3,7 +3,7 @@ import { Id } from 'tinybase/with-schemas';
 import {
   AnnotationConflictResult,
   CollectionItemConflictResult
-} from './model';
+} from './conflicts';
 import fetchAnnotsConflictsQuery from './queries/fetchAnnotsConflictsQuery';
 import fetchItemsConflictsQuery from './queries/fetchItemsConflictsQuery';
 

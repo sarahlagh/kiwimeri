@@ -9,9 +9,9 @@ import { getDerivedId } from '@/domain/collection/derived-content';
 import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
 import { historyService } from '@/domain/history/history.service';
-import { conflictsService } from '@/domain/synchronization/conflicts/conflicts-service';
-import localChangesService from '@/domain/synchronization/local-changes/local-changes.service';
-import { LocalChangeType } from '@/domain/synchronization/local-changes/model';
+import { conflictsService } from '@/domain/synchronization/conflicts-service';
+import { LocalChangeType } from '@/domain/synchronization/local-changes';
+import localChangesService from '@/domain/synchronization/local-changes.service';
 import {
   CollectionSynchronizer,
   REMOTE_COLLECTION_SCHEMA_VERSION,

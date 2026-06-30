@@ -9,11 +9,11 @@ import {
   stopDerivedContentListeners
 } from '@/domain/collection/derived-content-listeners';
 import notebooksService from '@/domain/collection/notebooks.service';
-import localChangesService from '@/domain/synchronization/local-changes/local-changes.service';
 import {
   LocalChangeResult,
   LocalChangeType
-} from '@/domain/synchronization/local-changes/model';
+} from '@/domain/synchronization/local-changes';
+import localChangesService from '@/domain/synchronization/local-changes.service';
 import {
   fakeTimersDelay,
   GET_UPDATABLE_FIELDS,

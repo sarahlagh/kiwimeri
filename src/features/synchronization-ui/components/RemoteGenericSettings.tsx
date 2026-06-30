@@ -3,8 +3,8 @@ import DeleteButton from '@/common_to_migrate/buttons/DeleteButton';
 import SyncRemoteButton from '@/common_to_migrate/buttons/SyncRemoteButton';
 import platformService from '@/common_to_migrate/services/platform.service';
 import { APPICONS } from '@/constants';
-import remotesService from '@/domain/synchronization/configuration/remotes.service';
-import { ConnectedRemote } from '@/domain/synchronization/replica-state/model';
+import remotesService from '@/domain/synchronization/remotes.service';
+import { ConnectedRemote } from '@/domain/synchronization/replica-state';
 import {
   IonButton,
   IonIcon,

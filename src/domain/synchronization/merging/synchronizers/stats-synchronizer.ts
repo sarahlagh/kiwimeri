@@ -2,7 +2,7 @@ import { AnyData } from '@/core/db/types';
 import { DocumentContentStatsBag } from '@/domain/stats/stats';
 import { statsService } from '@/domain/stats/stats-service';
 import { CloudStorageDriver } from '@/domain/synchronization/drivers/abstract.driver';
-import { SingleFileStorage } from '@/domain/synchronization/layouts/singlefile.filesystem';
+import { SingleFileStorage } from '@/domain/synchronization/merging/layouts/singlefile.filesystem';
 import {
   CloudStorageSynchronizer,
   RemoteRepresentation

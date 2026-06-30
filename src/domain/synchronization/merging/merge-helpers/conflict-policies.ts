@@ -10,7 +10,7 @@ import {
   DocAnnotationUpdatableFieldEnum,
   SyncableAnnotation
 } from '@/domain/collection/doc-annotations';
-import { LocalChangeResult } from '@/domain/synchronization/local-changes/model';
+import { LocalChangeResult } from '@/domain/synchronization/local-changes';
 
 export abstract class ConflictPolicy<L> {
   public abstract shouldCreateConflict(

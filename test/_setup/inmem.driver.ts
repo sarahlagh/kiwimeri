@@ -16,7 +16,7 @@ import { CloudStorageDriver } from '@/domain/synchronization/drivers/abstract.dr
 import {
   DriverFileInfo,
   FileReference
-} from '@/domain/synchronization/drivers/model';
+} from '@/domain/synchronization/drivers/types';
 import {
   REMOTE_COLLECTION_SCHEMA_VERSION,
   RemoteCollectionFileContent

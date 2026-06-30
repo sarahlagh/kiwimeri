@@ -1,5 +1,5 @@
 import { AnyData, WithId } from '@/core/db/types';
-import { DriverNames } from '../../synchronization/drivers/model';
+import { DriverNames } from './drivers/types';
 
 export type RemoteRow = {
   name: string;

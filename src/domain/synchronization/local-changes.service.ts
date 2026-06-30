@@ -7,7 +7,7 @@ import {
   LocalChangeResult,
   LocalChangeRow,
   LocalChangeType
-} from './model';
+} from './local-changes';
 
 const LC = SpaceTables.LocalChanges;
 

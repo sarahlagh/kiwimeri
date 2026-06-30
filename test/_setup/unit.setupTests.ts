@@ -13,7 +13,7 @@ import { postInitMigrationService } from '@/core/db/post-init-migrations/post-in
 import { startDbListeners, stopDbListeners } from '@/core/db/store-listeners';
 import '@/core/infra/polyfills/log-polyfill';
 import { historyService } from '@/domain/history/history.service';
-import localChangesService from '@/domain/synchronization/local-changes/local-changes.service';
+import localChangesService from '@/domain/synchronization/local-changes.service';
 import { syncService } from '@/domain/synchronization/sync.service';
 import { afterAll, afterEach, beforeAll, beforeEach, expect } from 'vitest';
 import { nukeStorage } from './test.utils';

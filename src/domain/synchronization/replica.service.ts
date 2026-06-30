@@ -5,11 +5,11 @@ import { AnyData } from '@/core/db/types';
 import { networkService } from '@/core/infra/network.service';
 import { plt } from '@/core/infra/platform';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
-import remotesService from '@/domain/synchronization/configuration/remotes.service';
+import remotesService from '@/domain/synchronization/remotes.service';
 import { Id } from 'tinybase/with-schemas';
-import { CloudStorageSynchronizer } from '../merging/abstract-synchronizer';
-import { CompositeSynchronizer } from '../merging/synchronizers/composite-synchronizer';
-import { ConnectedRemote } from './model';
+import { CloudStorageSynchronizer } from './merging/abstract-synchronizer';
+import { CompositeSynchronizer } from './merging/synchronizers/composite-synchronizer';
+import { ConnectedRemote } from './replica-state';
 
 const RPS = SpaceTables.ReplicaState;
 

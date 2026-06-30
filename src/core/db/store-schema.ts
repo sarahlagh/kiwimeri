@@ -5,9 +5,9 @@ import { docAnnotationSchema } from '@/domain/collection/doc-annotations';
 import { resumeStateSchema } from '@/domain/collection/resume-state';
 import { historyContentSchema, historySchema } from '@/domain/history/history';
 import { statsSchema } from '@/domain/stats/stats';
-import { remotesSchema } from '@/domain/synchronization/configuration/model';
-import { localChangesSchema } from '@/domain/synchronization/local-changes/model';
-import { replicaStatesSchema } from '@/domain/synchronization/replica-state/model';
+import { localChangesSchema } from '@/domain/synchronization/local-changes';
+import { remotesSchema } from '@/domain/synchronization/remotes';
+import { replicaStatesSchema } from '@/domain/synchronization/replica-state';
 import { userPreferenceSchema } from '@/domain/user-preferences/user-preferences';
 import { SpaceTables, StoreTables } from './store-constants';
 import {

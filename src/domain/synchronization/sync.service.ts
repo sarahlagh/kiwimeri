@@ -1,7 +1,7 @@
 import { networkService } from '@/core/infra/network.service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
-import fetchRemotesQuery from './replica-state/queries/fetchRemotesQuery';
-import replicaService from './replica-state/replica.service';
+import fetchRemotesQuery from './queries/fetchRemotesQuery';
+import replicaService from './replica.service';
 
 export type SyncDirection = 'sync' | 'force-push' | 'force-pull';
 

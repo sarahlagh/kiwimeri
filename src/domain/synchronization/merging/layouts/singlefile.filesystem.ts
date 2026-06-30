@@ -1,8 +1,9 @@
 import { AnyData } from '@/core/db/types';
 import { CloudStorageDriver } from '@/domain/synchronization/drivers/abstract.driver';
-import { DriverFileInfo } from '@/domain/synchronization/drivers/model';
+import { DriverFileInfo } from '@/domain/synchronization/drivers/types';
 import { getUniqueId } from 'tinybase/common';
-import { ReplicaRemoteState, ReplicaState } from '../replica-state/model';
+// eslint-disable-next-line no-restricted-imports
+import { ReplicaRemoteState, ReplicaState } from '../../replica-state';
 import { CloudStorageFilesystemV2 } from './abstract.filesystem';
 
 export type SingleFileStorageOpts = {

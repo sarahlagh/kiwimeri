@@ -1,5 +1,5 @@
 import { MetaField, metaSchemaDefault, WithId } from '@/core/db/types';
-import { LocalChangeRow } from '../synchronization/local-changes/model';
+import { LocalChangeRow } from '../synchronization/local-changes';
 
 export type DocAnnotationType = 'note'; // only one for now, to expand
 

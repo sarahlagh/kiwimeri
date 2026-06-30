@@ -1,13 +1,13 @@
 import { CollectionItem } from '@/domain/collection/collection';
 import { SyncableAnnotation } from '@/domain/collection/doc-annotations';
 import { historyService } from '@/domain/history/history.service';
-import remotesService from '@/domain/synchronization/configuration/remotes.service';
 import {
   startLocalChangesListeners,
   stopLocalChangesListeners
-} from '@/domain/synchronization/local-changes/listeners';
+} from '@/domain/synchronization/local-changes-listeners';
 import { CompositeSynchronizer } from '@/domain/synchronization/merging/synchronizers/composite-synchronizer';
-import replicaService from '@/domain/synchronization/replica-state/replica.service';
+import remotesService from '@/domain/synchronization/remotes.service';
+import replicaService from '@/domain/synchronization/replica.service';
 import {
   SyncDirection,
   syncService

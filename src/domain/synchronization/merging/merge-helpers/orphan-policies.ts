@@ -8,11 +8,11 @@ import { SpaceType } from '@/core/db/store-schema';
 import { CollectionItem } from '@/domain/collection/collection';
 import { SyncableAnnotation } from '@/domain/collection/doc-annotations';
 import notebooksService from '@/domain/collection/notebooks.service';
-import localChangesService from '@/domain/synchronization/local-changes/local-changes.service';
 import {
   LocalChangeOn,
   LocalChangeType
-} from '@/domain/synchronization/local-changes/model';
+} from '@/domain/synchronization/local-changes';
+import localChangesService from '@/domain/synchronization/local-changes.service';
 import { Row, Table } from 'tinybase/store';
 import { Content, Id } from 'tinybase/with-schemas';
 

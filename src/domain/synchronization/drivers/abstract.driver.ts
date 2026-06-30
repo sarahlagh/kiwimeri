@@ -1,5 +1,5 @@
 import { AnyData } from '@/core/db/types';
-import { DriverFileInfo, FileReference } from './model';
+import { DriverFileInfo, FileReference } from './types';
 
 type CommonResponse = {
   success: boolean;

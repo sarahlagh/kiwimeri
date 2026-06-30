@@ -1,8 +1,8 @@
 import { useQueryResults } from '@/core/db/queries-helper';
 import { SpaceTables } from '@/core/db/store-constants';
 import { useSpaceCell } from '@/core/db/tinybase-hooks';
-import { ReplicaStateRow } from '@/domain/synchronization/replica-state/model';
-import fetchRemotesQuery from '@/domain/synchronization/replica-state/queries/fetchRemotesQuery';
+import fetchRemotesQuery from '@/domain/synchronization/queries/fetchRemotesQuery';
+import { ReplicaStateRow } from '@/domain/synchronization/replica-state';
 
 export default function usePrimaryLastRemoteChange() {
   const remotes = useQueryResults(fetchRemotesQuery);

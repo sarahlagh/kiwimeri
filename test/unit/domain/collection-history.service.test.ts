@@ -3,8 +3,8 @@ import { space } from '@/core/db/store';
 import collectionService from '@/db_to_migrate/collection.service';
 import { CollectionItem } from '@/domain/collection/collection';
 import { historyService } from '@/domain/history/history.service';
-import localChangesService from '@/domain/synchronization/local-changes/local-changes.service';
-import { LocalChangeType } from '@/domain/synchronization/local-changes/model';
+import { LocalChangeType } from '@/domain/synchronization/local-changes';
+import localChangesService from '@/domain/synchronization/local-changes.service';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import {
   fakeTimersDelay,

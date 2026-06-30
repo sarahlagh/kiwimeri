@@ -1,6 +1,6 @@
 import { SpaceQueryDefinition } from '@/core/db/queries-helper';
 import { SpaceTables } from '@/core/db/store-constants';
-import { ConnectedRemote } from '@/domain/synchronization/replica-state/model';
+import { ConnectedRemote } from '@/domain/synchronization/replica-state';
 
 export type FetchRemotesQueryParam = {
   connected?: boolean;
