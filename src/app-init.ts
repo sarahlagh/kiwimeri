@@ -5,8 +5,8 @@ import { space, store } from './core/db/store';
 import { startDbListeners } from './core/db/store-listeners';
 import { networkService } from './core/infra/network.service';
 import { plt } from './core/infra/platform';
-import { historyService } from './db/collection-history.service';
 import notebooksService from './db/notebooks.service';
+import { historyService } from './domain/collection-history/collection-history.service';
 import { syncService } from './domain/replication/sync.service';
 import { appLog } from './log';
 

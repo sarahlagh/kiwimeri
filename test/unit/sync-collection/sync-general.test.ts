@@ -1,7 +1,7 @@
 import { DEFAULT_NOTEBOOK_ID, getGlobalTrans } from '@/constants';
 import { space } from '@/core/db/store';
-import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
+import { historyService } from '@/domain/collection-history/collection-history.service';
 import { CollectionItemType } from '@/domain/collection/model';
 import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import localChangesService from '@/domain/local-changes/local-changes.service';

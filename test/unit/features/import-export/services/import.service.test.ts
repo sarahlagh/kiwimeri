@@ -1,8 +1,8 @@
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { space } from '@/core/db/store';
-import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
+import { historyService } from '@/domain/collection-history/collection-history.service';
 import { CollectionItem, CollectionItemType } from '@/domain/collection/model';
 import { docAnnotationsService } from '@/domain/document-annotations/doc-annotations.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';

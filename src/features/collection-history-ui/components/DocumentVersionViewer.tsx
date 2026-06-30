@@ -1,7 +1,8 @@
+import ActionsFromDocumentVersionViewerToolbar from '@/collection/components/actions/ActionsFromDocumentVersionViewerToolbar';
+import SearchActionsToolbar from '@/collection/components/SearchActionsToolbar';
 import { GET_DOCUMENT_ROUTE, GET_VERSIONED_ROUTE } from '@/common/routes';
 import KiwimeriEditor from '@/common/wysiwyg/lexical/KiwimeriEditor';
 import { APPICONS } from '@/constants';
-import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import { CollectionItemSnapshotData } from '@/domain/collection/model';
 import {
@@ -18,8 +19,7 @@ import {
 } from '@ionic/react';
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
-import SearchActionsToolbar from './SearchActionsToolbar';
-import ActionsFromDocumentVersionViewerToolbar from './actions/ActionsFromDocumentVersionViewerToolbar';
+import useVersion from '../hooks/useVersion';
 
 interface DocumentVersionViewerProps {
   docId: string;
@@ -63,7 +63,7 @@ const DocumentVersionViewer = ({
     setShowDocumentActions(showActions);
   }, [showActions]);
 
-  const versionedDoc = historyService.useVersion(docVersion);
+  const versionedDoc = useVersion(docVersion);
   const content = versionedDoc?.content;
   const versionData = versionedDoc?.snapshotJson;
   const documentTitle = versionData?.title;

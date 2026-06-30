@@ -1,6 +1,6 @@
 import { dateToStr } from '@/common/date-utils';
 import { APPICONS } from '@/constants';
-import { historyService } from '@/db/collection-history.service';
+import { historyService } from '@/domain/collection-history/collection-history.service';
 import { appLog } from '@/log';
 import {
   IonButton,

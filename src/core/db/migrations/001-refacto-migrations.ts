@@ -21,6 +21,7 @@ enum _SpaceTables {
 const C = _SpaceTables.Collection;
 const A = _SpaceTables.Annotations;
 const H = _SpaceTables.History;
+const HC = _SpaceTables.HistoryContent;
 const S = _SpaceTables.Stats;
 const UP = _SpaceTables.UserPreference;
 const D = _SpaceTables.DerivedContent;
@@ -47,6 +48,7 @@ export default function Migration(
   remotesGoToSpace(_store, _space);
   remoteStatesMergeIntoOne(_space);
   collectionFieldsRename(_space);
+  dropHashFieldFromVersions(_space);
 }
 
 function metaFieldsBecomeObjects(_space: NoSchemaStore) {
@@ -470,6 +472,29 @@ function collectionFieldsRename(_space: NoSchemaStore) {
     _space.getRowIds(LC).forEach(rowId => {
       if (_space.getCell(LC, rowId, 'parent') === 'created') {
         _space.setCell(LC, rowId, 'parentId', 'createdAt');
+      }
+    });
+  });
+}
+
+function dropHashFieldFromVersions(_space: NoSchemaStore) {
+  // hash column dropped, but becomes the new rowId
+  _space.transaction(() => {
+    // first update contentId in history
+    _space.getRowIds(H).forEach(rowId => {
+      const contentId = _space.getCell(H, rowId, 'contentId') as string;
+      const hash = _space.getCell(HC, contentId, 'hash') as number;
+      if (hash !== undefined) {
+        _space.setCell(H, rowId, 'contentId', `${hash}`);
+      }
+    });
+    // then update the content row id
+    _space.getRowIds(HC).forEach(rowId => {
+      const row = _space.getRow(HC, rowId);
+      if (row.hash !== undefined) {
+        const newId = `${row.hash as number}`;
+        _space.setRow(HC, newId, row);
+        _space.delRow(HC, rowId);
       }
     });
   });

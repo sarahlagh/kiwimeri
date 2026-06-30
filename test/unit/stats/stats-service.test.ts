@@ -1,8 +1,8 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { spaceQueries } from '@/core/db/store';
-import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
+import { historyService } from '@/domain/collection-history/collection-history.service';
 import { settingsService } from '@/domain/collection-settings/collection-settings.service';
 import { DataPoint, DocumentContentStatsBag } from '@/domain/stats/model';
 import { statsService } from '@/domain/stats/stats-service';

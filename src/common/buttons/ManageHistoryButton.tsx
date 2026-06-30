@@ -2,9 +2,9 @@ import { useToastContext } from '@/app/context/ToastContext';
 import { dateToStr } from '@/common/date-utils';
 import { getSearchParams } from '@/common/utils';
 import { APPICONS } from '@/constants';
-import { historyService } from '@/db/collection-history.service';
 import notebooksService from '@/db/notebooks.service';
-import { CollectionItemVersion } from '@/domain/collection/model';
+import { historyService } from '@/domain/collection-history/collection-history.service';
+import { CollectionItemVersion } from '@/domain/collection-history/queries/fetchVersionsQuery';
 import {
   IonButton,
   IonButtons,
@@ -130,7 +130,7 @@ const ManageHistoryModal = ({
                   }
                 />
 
-                {version.rank !== 0 && (
+                {idx !== 0 && (
                   <IonButton
                     slot="end"
                     fill="clear"

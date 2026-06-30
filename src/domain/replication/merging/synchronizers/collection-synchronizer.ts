@@ -12,9 +12,9 @@ import {
   SpaceType
 } from '@/core/db/store-schema';
 import { TypeWithId, WithId } from '@/core/db/types';
-import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import { AnyData, SerializableData } from '@/db/types/store-types';
+import { historyService } from '@/domain/collection-history/collection-history.service';
 import {
   CollectionItemType,
   CollectionItemUpdatableFields,

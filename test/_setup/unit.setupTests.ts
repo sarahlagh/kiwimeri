@@ -11,7 +11,7 @@ import { i18n } from '@lingui/core';
 import { initGlobalTrans } from '@/constants';
 import { postInitMigrationService } from '@/core/db/post-init-migrations/post-init-migration.service';
 import { startDbListeners, stopDbListeners } from '@/core/db/store-listeners';
-import { historyService } from '@/db/collection-history.service';
+import { historyService } from '@/domain/collection-history/collection-history.service';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { syncService } from '@/domain/replication/sync.service';
 import '@/polyfills/log-polyfill';

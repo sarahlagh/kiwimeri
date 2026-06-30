@@ -1,4 +1,4 @@
-import { historyService } from '@/db/collection-history.service';
+import { historyService } from '@/domain/collection-history/collection-history.service';
 import { CollectionItem } from '@/domain/collection/model';
 import { SyncableAnnotation } from '@/domain/document-annotations/model';
 import {

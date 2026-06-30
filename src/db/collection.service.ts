@@ -34,7 +34,7 @@ import { SerializedEditorState } from 'lexical';
 import { getUniqueId } from 'tinybase/common';
 import { Id, Ids } from 'tinybase/common/with-schemas';
 import { Table } from 'tinybase/with-schemas';
-import { historyService } from './collection-history.service';
+import { historyService } from '../domain/collection-history/collection-history.service';
 import notebooksService from './notebooks.service';
 import { useCellWithRef } from './tinybase/hooks';
 

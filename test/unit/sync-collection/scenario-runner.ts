@@ -6,8 +6,8 @@ import {
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { DbSerializableData, MetaField, setMetaField } from '@/core/db/types';
-import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
+import { historyService } from '@/domain/collection-history/collection-history.service';
 import {
   CollectionItem,
   CollectionItemType,

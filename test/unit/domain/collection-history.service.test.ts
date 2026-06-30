@@ -1,7 +1,7 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { space } from '@/core/db/store';
-import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
+import { historyService } from '@/domain/collection-history/collection-history.service';
 import { CollectionItem } from '@/domain/collection/model';
 import localChangesService from '@/domain/local-changes/local-changes.service';
 import { LocalChangeType } from '@/domain/local-changes/model';
@@ -392,5 +392,25 @@ describe('collection history service', () => {
     historyService.gc();
     expect(historyService.getVersions(doc1)).toHaveLength(2);
     expect(space.getRowCount('history_content')).toBe(2);
+  });
+
+  it(`should not gc if setting is negative or zero`, () => {
+    userPrefs.set('maxHistoryPerDoc', 0);
+    const doc1 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+    vi.advanceTimersByTime(fakeTimersDelay);
+    collectionService.setItemField(doc1, 'content', getNewValue('lex'));
+    vi.advanceTimersByTime(fakeTimersDelay);
+    collectionService.setItemField(doc1, 'title', getNewValue('string'));
+    vi.advanceTimersByTime(fakeTimersDelay);
+    collectionService.setItemField(doc1, 'content', getNewValue('lex'));
+    vi.advanceTimersByTime(fakeTimersDelay);
+    collectionService.setItemField(doc1, 'title', getNewValue('string'));
+    vi.advanceTimersByTime(fakeTimersDelay);
+    expect(historyService.getVersions(doc1)).toHaveLength(3);
+    expect(space.getRowCount('history_content')).toBe(3);
+
+    historyService.gc();
+    expect(historyService.getVersions(doc1)).toHaveLength(3);
+    expect(space.getRowCount('history_content')).toBe(3);
   });
 });

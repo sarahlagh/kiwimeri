@@ -1,4 +1,4 @@
-import { historyService } from '@/db/collection-history.service';
+import { historyService } from '@/domain/collection-history/collection-history.service';
 import { App as CapacitorApp } from '@capacitor/app';
 
 const updateKeyboardOffsetFromViewport = () => {

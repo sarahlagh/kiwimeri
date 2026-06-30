@@ -1,10 +1,10 @@
 import { META_JSON, ROOT_COLLECTION } from '@/constants';
 import { space } from '@/core/db/store';
 import { setMetaField } from '@/core/db/types';
-import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
 import storageService from '@/db/storage.service';
+import { historyService } from '@/domain/collection-history/collection-history.service';
 import {
   CollectionItem,
   CollectionItemResult,

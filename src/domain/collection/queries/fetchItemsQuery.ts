@@ -1,5 +1,6 @@
 import { ROOT_COLLECTION } from '@/constants';
 import { SpaceQueryDefinition } from '@/core/db/queries-helper';
+import { SpaceTables } from '@/core/db/store-constants';
 import {
   CollectionItemResult,
   CollectionItemType
@@ -17,8 +18,8 @@ export type FetchItemsQueryParam = {
 const fetchItemsQuery = new SpaceQueryDefinition<
   FetchItemsQueryParam,
   CollectionItemResult,
-  'collection'
->('fetchItems', 'collection', ({ select, where, param, join }) => {
+  SpaceTables.Collection
+>('fetchItems', SpaceTables.Collection, ({ select, where, param, join }) => {
   const params: FetchItemsQueryParam = {
     parentId: param('parentId') as string,
     recursive: param('recursive') as boolean,

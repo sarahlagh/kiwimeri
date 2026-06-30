@@ -1,11 +1,11 @@
 import CollectionItemBrowserList from '@/collection/components/CollectionItemBrowserList';
-import DocumentVersionViewer from '@/collection/components/DocumentVersionViewer';
 import { GET_DOCUMENT_ROUTE, VERSION_ROUTE } from '@/common/routes';
 import { getSearchParams } from '@/common/utils';
 import { APPICONS } from '@/constants';
-import { historyService } from '@/db/collection-history.service';
 import collectionService from '@/db/collection.service';
 import notebooksService from '@/db/notebooks.service';
+import { historyService } from '@/domain/collection-history/collection-history.service';
+import { DocumentVersionViewer } from '@/features/collection-history-ui';
 import { IonButton, IonIcon } from '@ionic/react';
 import { useState } from 'react';
 import { Redirect, useLocation } from 'react-router';

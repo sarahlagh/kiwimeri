@@ -1,10 +1,6 @@
 import { APPICONS } from '@/constants';
 import { MetaField, metaSchemaDefault, WithId } from '@/core/db/types';
 import { CollectionItemSettings } from '@/domain/collection-settings/model';
-import {
-  CollectionItemVersionContentRow,
-  CollectionItemVersionRow
-} from '../collection-history/model';
 
 export type CollectionItemRow = {
   itemId: string;
@@ -123,15 +119,6 @@ export type ItemWithPreview = CollectionItemResult & {
 
 export type SortableCollectionItem = Pick<CollectionItem, 'order'> &
   Required<Pick<CollectionItem, 'id'>>;
-
-export type CollectionItemVersion = Omit<
-  CollectionItemVersionRow,
-  'contentId' | 'snapshotJson'
-> &
-  CollectionItemVersionContentRow & {
-    id: string;
-    snapshotJson: CollectionItemSnapshotData;
-  };
 
 export type CollectionItemSnapshotData = Pick<
   CollectionItem,
