@@ -9,7 +9,7 @@ import { LocalChangeType } from '@/domain/local-changes/model';
 import { SingleFileStorage } from '@/domain/replication/layouts/singlefile.filesystem';
 import fetchRemotesQuery from '@/domain/replication/replica-state/queries/fetchRemotesQuery';
 import { syncService } from '@/domain/replication/sync.service';
-import { useIsMergeSyncEnabled } from '@/features/synchronization-ui';
+import { useSynchronizationStates } from '@/features/synchronization-ui';
 import { InMemDriver } from '@@/_setup/inmem.driver';
 import {
   adv,
@@ -149,9 +149,9 @@ describe(`sync general test`, () => {
     adv(() => space.setCell('collection', id, 'conflictId', 'fakeId'));
     // is global sync prevented
     const { result, unmount } = wrappedRenderHook(() =>
-      useIsMergeSyncEnabled()
+      useSynchronizationStates()
     );
-    expect(result.current).toBe(false);
+    expect(result.current.isSyncEnabled).toBe(false);
     unmount();
     // calling the method won't succeed on push
     const { success, didPull, didPush } = await syncService.sync('sync');
@@ -201,9 +201,9 @@ describe(`sync general test`, () => {
 
     {
       const { result, unmount } = wrappedRenderHook(() =>
-        useIsMergeSyncEnabled()
+        useSynchronizationStates()
       );
-      expect(result.current).toBe(false);
+      expect(result.current.isSyncEnabled).toBe(false);
       unmount();
     }
 
@@ -218,9 +218,9 @@ describe(`sync general test`, () => {
 
     {
       const { result, unmount } = wrappedRenderHook(() =>
-        useIsMergeSyncEnabled()
+        useSynchronizationStates()
       );
-      expect(result.current).toBe(true);
+      expect(result.current.isSyncEnabled).toBe(true);
       unmount();
     }
 

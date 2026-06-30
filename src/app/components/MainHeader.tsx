@@ -4,12 +4,8 @@ import { conflictsService } from '@/domain/conflicts/conflicts-service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import fetchRemotesQuery from '@/domain/replication/replica-state/queries/fetchRemotesQuery';
 import { resumeService } from '@/domain/resume-state/resume-state.service';
-import { useHasLocalChanges } from '@/features/local-changes-ui';
 import { DeepSearchButton } from '@/features/search';
-import {
-  useIsMergeSyncEnabled,
-  usePrimaryHasRemoteChanges
-} from '@/features/synchronization-ui';
+import { useSynchronizationStates } from '@/features/synchronization-ui';
 import {
   InputCustomEvent,
   IonButtons,
@@ -44,11 +40,14 @@ const MainHeader = ({
   const history = useHistory();
   const location = useLocation();
   const [isSyncing, setIsSyncing] = useState(false);
-  const isMergeSyncEnabled = useIsMergeSyncEnabled();
-  const hasChanges = useHasLocalChanges();
-  const hasRemoteChanges = usePrimaryHasRemoteChanges();
-  const hasConflicts = conflictsService.useHasLocalConflicts();
-  const enabled = !isSyncing && isMergeSyncEnabled;
+  const {
+    isPrimaryConnected,
+    hasChanges,
+    hasRemoteChanges,
+    hasConflicts,
+    isSyncEnabled
+  } = useSynchronizationStates();
+  const enabled = !isSyncing && isSyncEnabled;
   const { setToast } = useToastContext();
 
   useEffect(() => {
@@ -57,6 +56,7 @@ const MainHeader = ({
   }, []);
 
   function getColor() {
+    if (!isPrimaryConnected) return undefined;
     if (isSyncing) return 'warning';
     if (hasChanges || hasConflicts) return 'danger';
     if (hasRemoteChanges) return 'tertiary';

@@ -35,7 +35,7 @@ import { StoredStateInfo } from '@/domain/replication/replica-state/model';
 import fetchRemotesQuery from '@/domain/replication/replica-state/queries/fetchRemotesQuery';
 import replicaService from '@/domain/replication/replica-state/replica.service';
 import { syncService } from '@/domain/replication/sync.service';
-import { useIsMergeSyncEnabled } from '@/features/synchronization-ui';
+import { useSynchronizationStates } from '@/features/synchronization-ui';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   amount,
@@ -303,9 +303,9 @@ describe.sequential(
 
       // push should be disabled
       const { result, unmount } = wrappedRenderHook(() =>
-        useIsMergeSyncEnabled()
+        useSynchronizationStates()
       );
-      expect(result.current).toBe(false);
+      expect(result.current.isSyncEnabled).toBe(false);
       unmount();
 
       await amount(100);

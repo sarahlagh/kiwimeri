@@ -18,7 +18,7 @@ import {
 } from '@/domain/replication/merging/synchronizers/collection-synchronizer';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import useItemsConflictMixIn from '@/features/collection-ui/hooks/useItemsConflictMixIn';
-import { useIsMergeSyncEnabled } from '@/features/synchronization-ui';
+import { useSynchronizationStates } from '@/features/synchronization-ui';
 import { InMemDriver } from '@@/_setup/inmem.driver';
 import {
   adv,
@@ -885,9 +885,9 @@ describe('collection synchronizer', () => {
 
       {
         const { result, unmount } = wrappedRenderHook(() =>
-          useIsMergeSyncEnabled()
+          useSynchronizationStates()
         );
-        expect(result.current).toBe(false);
+        expect(result.current.isSyncEnabled).toBe(false);
         unmount();
       }
       {
@@ -967,9 +967,9 @@ describe('collection synchronizer', () => {
 
       {
         const { result, unmount } = wrappedRenderHook(() =>
-          useIsMergeSyncEnabled()
+          useSynchronizationStates()
         );
-        expect(result.current).toBe(false);
+        expect(result.current.isPrimaryConnected).toBe(false);
         unmount();
       }
       {
@@ -1062,9 +1062,9 @@ describe('collection synchronizer', () => {
 
       {
         const { result, unmount } = wrappedRenderHook(() =>
-          useIsMergeSyncEnabled()
+          useSynchronizationStates()
         );
-        expect(result.current).toBe(false);
+        expect(result.current.isSyncEnabled).toBe(false);
         unmount();
       }
 
