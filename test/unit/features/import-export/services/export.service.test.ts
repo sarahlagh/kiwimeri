@@ -11,7 +11,7 @@ import {
 } from '@/features/import-export/model/model-export';
 import exportService from '@/features/import-export/services/export.service';
 
-import formatConverter from '@/features/format-conversion/format-converter.service';
+import formatConverter from '@/domain/format-conversion/format-converter.service';
 import { strFromU8 } from 'fflate';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 

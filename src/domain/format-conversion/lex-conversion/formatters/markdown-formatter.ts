@@ -1,7 +1,7 @@
 import {
   ESCAPE_CHARS,
   EXTENDED_ESCAPE_CHARS
-} from '@/features/format-conversion/text-parsing/markdown-parser/markdown-elements';
+} from '@/domain/format-conversion/text-parsing/markdown-parser/markdown-elements';
 import { ListType } from '@lexical/list';
 import {
   ElementFormatType,

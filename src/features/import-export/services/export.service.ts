@@ -9,7 +9,7 @@ import {
   CollectionItemTypeValues
 } from '@/domain/collection/collection';
 import notebooksService from '@/domain/collection/notebooks.service';
-import formatConverter from '@/features/format-conversion/format-converter.service';
+import formatConverter from '@/domain/format-conversion/format-converter.service';
 import { strToU8, zip } from 'fflate';
 import {
   ZipExportOptions,
