@@ -7,7 +7,7 @@ import {
   SYNCHRONIZATION_ROUTE,
   VERSION_ROUTE,
   WRITING_SESSION_ROUTE
-} from '@/common_to_migrate/routes';
+} from '@/app/routes';
 import { IonRouterOutlet } from '@ionic/react';
 import { Route } from 'react-router';
 import CollectionListPage from './pages/CollectionListPage';

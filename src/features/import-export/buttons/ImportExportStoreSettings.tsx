@@ -1,9 +1,9 @@
-import GenericExportFileButton from '@/common_to_migrate/buttons/GenericExportFileButton';
-import GenericImportFileButton from '@/common_to_migrate/buttons/GenericImportFileButton';
 import { dateToStr } from '@/common_to_migrate/date-utils';
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { syncService } from '@/domain/synchronization/sync.service';
+import GenericExportFileButton from '@/shared/buttons/GenericExportFileButton';
+import GenericImportFileButton from '@/shared/buttons/GenericImportFileButton';
 import {
   IonButtons,
   IonCard,

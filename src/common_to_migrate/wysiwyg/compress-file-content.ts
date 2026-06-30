@@ -1,5 +1,5 @@
+import { minimizeKeys, unminimizeKeys } from '@/shared/utils';
 import { SerializedEditorState } from 'lexical';
-import { minimizeKeys, unminimizeKeys } from '../utils';
 
 const keys = [
   ['children', 'c'],

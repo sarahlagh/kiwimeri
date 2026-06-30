@@ -1,4 +1,3 @@
-import EditConfigList from '@/common_to_migrate/containers/EditConfigList';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import useDeviceSetting from '@/domain/device-settings/hooks/useDeviceSetting';
 import {
@@ -9,6 +8,7 @@ import {
   IonCardTitle
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
+import EditConfigList from './EditConfigList';
 
 const CurrentDeviceSettings = () => {
   const defaultRememberLastRoute = useDeviceSetting('rememberLastRoute');

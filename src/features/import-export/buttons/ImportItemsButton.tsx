@@ -8,11 +8,11 @@ import { SerializedEditorState, SerializedLexicalNode } from 'lexical';
 import { lazy, useState } from 'react';
 import { useHistory } from 'react-router';
 
+import { GET_ITEM_ROUTE } from '@/app/routes';
 import GenericImportFileButton, {
   ImportFileRejectReason,
   OnContentReadResponse
-} from '@/common_to_migrate/buttons/GenericImportFileButton';
-import { GET_ITEM_ROUTE } from '@/common_to_migrate/routes';
+} from '@/shared/buttons/GenericImportFileButton';
 
 import {
   MultipleImportModalParams,

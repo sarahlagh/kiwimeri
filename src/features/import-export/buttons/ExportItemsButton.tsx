@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import GenericExportFileButton from '@/common_to_migrate/buttons/GenericExportFileButton';
 import { getGlobalTrans } from '@/constants';
 import collectionService from '@/db_to_migrate/collection.service';
 import {
@@ -8,6 +7,7 @@ import {
 } from '@/domain/collection/collection';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
+import GenericExportFileButton from '@/shared/buttons/GenericExportFileButton';
 import { useIonAlert } from '@ionic/react';
 import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactProps';
 import { useLingui } from '@lingui/react/macro';

@@ -1,7 +1,3 @@
-import {
-  minimizeItemsForStorage,
-  unminimizeItemsFromStorage
-} from '@/collection_to_migrate/compress-collection';
 import { appConfig } from '@/config';
 import { DEFAULT_NOTEBOOK_ID, getGlobalTrans } from '@/constants';
 import { space } from '@/core/db/store';
@@ -17,6 +13,10 @@ import {
   minimizeAnnotForStorage,
   unminimizeAnnotFromStorage
 } from '@/domain/collection/compress-annotations';
+import {
+  minimizeItemsForStorage,
+  unminimizeItemsFromStorage
+} from '@/domain/collection/compress-collection';
 import { SyncableAnnotation } from '@/domain/collection/doc-annotations';
 import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
 import notebooksService from '@/domain/collection/notebooks.service';

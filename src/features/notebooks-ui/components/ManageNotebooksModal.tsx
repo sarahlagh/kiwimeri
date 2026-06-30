@@ -1,7 +1,7 @@
-import CollectionItemList from '@/collection_to_migrate/components/CollectionItemList';
 import { APPICONS } from '@/constants';
 import { useQueryResults } from '@/core/db/queries-helper';
 import notebooksService from '@/domain/collection/notebooks.service';
+import { CollectionItemList } from '@/features/collection-ui';
 import { ImportItemsButton } from '@/features/import-export';
 import {
   IonButton,

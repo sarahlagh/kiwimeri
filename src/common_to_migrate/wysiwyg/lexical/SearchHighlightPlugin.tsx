@@ -1,4 +1,4 @@
-import platformService from '@/common_to_migrate/services/platform.service';
+import { plt } from '@/core/infra/platform';
 import { searchService } from '@/features/search';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 
@@ -14,7 +14,7 @@ export function SearchHighlightPlugin({
   searchText
 }: SearchHighlightPluginProps) {
   const [editor] = useLexicalComposerContext();
-  if (!platformService.hasHighlightSupport()) {
+  if (!plt.hasHighlightSupport()) {
     return null;
   }
   if (!searchText || searchText.length < 2) {

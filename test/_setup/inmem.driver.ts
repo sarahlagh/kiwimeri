@@ -1,16 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import {
-  minimizeItemsForStorage,
-  unminimizeItemsFromStorage
-} from '@/collection_to_migrate/compress-collection';
-import { fastHash } from '@/common_to_migrate/utils';
 import { AnyData } from '@/core/db/types';
 import { CollectionItem } from '@/domain/collection/collection';
 import {
   minimizeAnnotForStorage,
   unminimizeAnnotFromStorage
 } from '@/domain/collection/compress-annotations';
+import {
+  minimizeItemsForStorage,
+  unminimizeItemsFromStorage
+} from '@/domain/collection/compress-collection';
 import { SyncableAnnotation } from '@/domain/collection/doc-annotations';
 import { CloudStorageDriver } from '@/domain/synchronization/drivers/abstract.driver';
 import {
@@ -26,6 +25,7 @@ import {
   unminimizePrefsFromStorage
 } from '@/domain/user-preferences/compress-user-prefs';
 import { SyncableUserPref } from '@/domain/user-preferences/user-preferences';
+import { fastHash } from '@/shared/utils';
 
 type InMemDriverConfig = {
   names?: string[];

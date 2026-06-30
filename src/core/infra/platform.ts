@@ -14,6 +14,10 @@ class PlatformService {
     return this.getPlatform() === 'web';
   }
 
+  public isElectron() {
+    return this.getPlatform() === 'electron';
+  }
+
   public isRelease() {
     return appConfig.IS_RELEASE;
   }

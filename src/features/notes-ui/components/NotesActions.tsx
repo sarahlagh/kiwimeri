@@ -1,8 +1,8 @@
 import { dateToStr } from '@/common_to_migrate/date-utils';
-import ConfirmYesNoDialog from '@/common_to_migrate/modals/ConfirmYesNoDialog';
 import { APPICONS } from '@/constants';
 import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
+import ConfirmYesNoDialog from '@/shared/modals/ConfirmYesNoDialog';
 import { IonButton, IonButtons, IonIcon } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';

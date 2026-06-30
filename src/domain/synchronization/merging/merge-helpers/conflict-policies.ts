@@ -1,4 +1,3 @@
-import { cellEquals } from '@/common_to_migrate/utils';
 import {
   CollectionItem,
   CollectionItemType,
@@ -11,6 +10,7 @@ import {
   SyncableAnnotation
 } from '@/domain/collection/doc-annotations';
 import { LocalChangeResult } from '@/domain/synchronization/local-changes';
+import { cellEquals } from '@/shared/utils';
 
 export abstract class ConflictPolicy<L> {
   public abstract shouldCreateConflict(

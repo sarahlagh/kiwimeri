@@ -3,14 +3,14 @@ import {
   GET_FOLDER_ROUTE,
   INIT_ROUTE,
   isCollectionRoute
-} from '@/common_to_migrate/routes';
-import { getSearchParams } from '@/common_to_migrate/utils';
+} from '@/app/routes';
 import { ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/db_to_migrate/collection.service';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import useDeviceSetting from '@/domain/device-settings/hooks/useDeviceSetting';
 import { useCurrentNotebook } from '@/features/notebooks-ui';
+import { getSearchParams } from '@/shared/utils';
 import { ReactNode, useEffect } from 'react';
 import { Redirect, useLocation } from 'react-router';
 
