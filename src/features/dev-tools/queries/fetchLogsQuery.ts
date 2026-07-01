@@ -1,7 +1,7 @@
 import { StoreQueryDefinition } from '@/core/db/queries-helper';
 import { StoreTables } from '@/core/db/store-constants';
-import { AppLogLevel } from '@/core/infra/log-model';
-import { appLog, AppLogResult } from '@/log';
+import { appLog } from '@/core/infra/log';
+import { AppLogLevel, AppLogResult } from '@/core/infra/log-model';
 import { ParamValues } from 'tinybase/with-schemas';
 
 const fetchLogsQuery = new StoreQueryDefinition<

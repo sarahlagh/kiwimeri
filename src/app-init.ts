@@ -3,12 +3,12 @@ import { postInitMigrationService } from './core/db/post-init-migrations/post-in
 import { space, store } from './core/db/store';
 import { startDbListeners } from './core/db/store-listeners';
 import { addAndroidListeners } from './core/infra/capacitor/handle-android-plugins';
+import { appLog } from './core/infra/log';
 import { networkService } from './core/infra/network.service';
 import { plt } from './core/infra/platform';
 import notebooksService from './domain/collection/notebooks.service';
 import { historyService } from './domain/history/history.service';
 import { syncService } from './domain/synchronization/sync.service';
-import { appLog } from './log';
 
 export function appInit() {
   console.debug('[app-init] app starting...');

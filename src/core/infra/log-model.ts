@@ -13,3 +13,7 @@ export type AppLog = {
   level: AppLogDbLevel;
   message: string;
 };
+export type AppLogResult = Required<AppLog> & {
+  id: string;
+  longLevelName: AppLogLevel;
+};
