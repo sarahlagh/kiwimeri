@@ -5,8 +5,6 @@ import {
   CollectionItemType
 } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
-import useFetchItemsQuery from '@/domain/collection/hooks/useFetchItemsQuery';
-import useFetchItemsQueryParamsState from '@/domain/collection/hooks/useFetchItemsQueryParentState';
 import notebooksService from '@/domain/collection/notebooks.service';
 import {
   IonButton,
@@ -19,6 +17,8 @@ import {
 import { Trans } from '@lingui/react/macro';
 import React, { useState } from 'react';
 import { CollectionItemBreadcrumb, CollectionItemList } from '..';
+import useFetchItemsQuery from '../hooks/useFetchItemsQuery';
+import useFetchItemsQueryParamsState from '../hooks/useFetchItemsQueryParamsState';
 
 const Toolbar = ({
   selected,

@@ -6,7 +6,7 @@ import { statsService } from '@/domain/stats/stats-service';
 
 import { SpaceTables } from '@/core/db/store-constants';
 import { useSpaceCell } from '@/core/db/tinybase-hooks';
-import { ActionsFromDocumentEditorToolbar } from '@/features/collection-browser';
+import { ActionsFromDocumentEditorToolbar } from '@/features/collection-item-actions';
 import { SearchActionsToolbar } from '@/features/search';
 import { useHasLocalConflicts } from '@/features/synchronization-ui';
 import { onTitleChangeFn } from '@/shared/misc/onTitleChangeFn';

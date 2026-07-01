@@ -1,9 +1,9 @@
 import { TinybaseQueryDefinition } from '@/core/db/queries-helper';
 import { TableIdFromSchema, WithId } from '@/core/db/types';
-import { FetchItemsQueryParam } from '@/domain/collection/queries/fetchItemsQuery';
+import { CollectionItemTypeValues } from '@/domain/collection/collection';
 import useGenericQueryParamsState from '@/shared/hooks/useGenericQueryParamsState';
 import { OptionalSchemas } from 'tinybase/with-schemas';
-import { CollectionItemTypeValues } from '../collection';
+import { FetchSortableItemsQueryParam } from '../queries/fetchSortableItemsQuery';
 
 export default function useFetchItemsQueryParamsState<
   Schema extends OptionalSchemas,
@@ -13,7 +13,7 @@ export default function useFetchItemsQueryParamsState<
   query: TinybaseQueryDefinition<
     Schema,
     RootTableId,
-    FetchItemsQueryParam,
+    FetchSortableItemsQueryParam,
     QueryResult
   >,
   restrictTypes?: CollectionItemTypeValues[]

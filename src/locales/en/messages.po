@@ -182,7 +182,7 @@ msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
 
 #: src/features/collection-history-ui/components/ManageHistoryModal.tsx:149
-#: src/features/collection-notebooks-ui/components/ManageNotebooksModal.tsx:100
+#: src/features/collection-notebooks-ui/components/ManageNotebooksModal.tsx:104
 #: src/features/document-editor/tags/ChooseTagsModal.tsx:107
 #: src/features/import-export/buttons/ExportItemsButton.tsx:110
 #: src/features/import-export/buttons/RestoreCollectionButton.tsx:78
@@ -193,7 +193,7 @@ msgid "Confirm"
 msgstr "Confirm"
 
 #: src/constants.ts:79
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:156
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:155
 msgid "Conflicts"
 msgstr "Conflicts"
 
@@ -387,7 +387,7 @@ msgstr "Kiwimeri format (content only)"
 msgid "Kiwimeri format (with history & stats)"
 msgstr "Kiwimeri format (with history & stats)"
 
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:155
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:154
 msgid "Last consulted documents"
 msgstr "Last consulted documents"
 
@@ -395,7 +395,7 @@ msgstr "Last consulted documents"
 msgid "Last Updated"
 msgstr "Last Updated"
 
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:154
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:153
 msgid "Last updated documents"
 msgstr "Last updated documents"
 
@@ -508,7 +508,7 @@ msgstr "No tag yet"
 msgid "Not Found"
 msgstr "Not Found"
 
-#: src/features/collection-notebooks-ui/components/ManageNotebooksModal.tsx:39
+#: src/features/collection-notebooks-ui/components/ManageNotebooksModal.tsx:43
 msgid "Notebook Selection"
 msgstr "Notebook Selection"
 
@@ -599,7 +599,7 @@ msgstr "Search Content"
 msgid "Search input"
 msgstr "Search input"
 
-#: src/features/collection-notes-ui/components/NotesBrowser.tsx:52
+#: src/features/collection-notes-ui/components/NotesBrowser.tsx:46
 msgid "select a note"
 msgstr "select a note"
 

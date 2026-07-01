@@ -1,11 +1,11 @@
 import { APPICONS } from '@/constants';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
-import {
-  CollectionItemBrowserList,
-  DocumentEditor
-} from '@/features/collection-browser';
+import { CollectionItemBrowserList } from '@/features/collection-browser';
 import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
-import { KiwimeriEditorHandle } from '@/features/document-editor';
+import {
+  DocumentEditor,
+  KiwimeriEditorHandle
+} from '@/features/document-editor';
 import { onTitleChangeFn } from '@/shared/misc/onTitleChangeFn';
 import { getSearchParams } from '@/shared/utils';
 import { IonButton, IonIcon } from '@ionic/react';
