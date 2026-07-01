@@ -1,17 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { store } from './core/db/store';
-import { StoreTables } from './core/db/store-constants';
-import { AppLog, AppLogLevel } from './core/infra/log-model';
-import { deviceSettings } from './domain/device-settings/device-settings.service';
-import { dateToStr } from './shared/misc/date-utils';
+import { deviceSettings } from '@/domain/device-settings/device-settings.service';
+import { dateToStr } from '@/shared/misc/date-utils';
+import { store } from '../db/store';
+import { StoreTables } from '../db/store-constants';
+import { AppLogLevel, AppLogResult } from './log-model';
 
 const MAX_STRING_LENGTH = 10000; // max length for a single arg
-
-export type AppLogResult = Required<AppLog> & {
-  id: string;
-  longLevelName: AppLogLevel;
-};
 
 const L = StoreTables.Logs;
 
