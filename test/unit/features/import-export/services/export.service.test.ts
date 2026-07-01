@@ -1,7 +1,7 @@
 import { DEFAULT_NOTEBOOK_ID, getGlobalTrans, META_JSON } from '@/constants';
-import collectionService from '@/db_to_migrate/collection.service';
 import { CollectionItemType } from '@/domain/collection/collection';
 import { settingsService } from '@/domain/collection/collection-settings.service';
+import collectionService from '@/domain/collection/collection.service';
 import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
 import notebooksService from '@/domain/collection/notebooks.service';
 import {

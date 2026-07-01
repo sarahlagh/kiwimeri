@@ -1,5 +1,5 @@
 import { APPICONS, ROOT_COLLECTION } from '@/constants';
-import collectionService from '@/db_to_migrate/collection.service';
+import collectionService from '@/domain/collection/collection.service';
 import {
   IonBreadcrumb,
   IonBreadcrumbs,

@@ -1,11 +1,11 @@
 import { APPICONS, CONFLICT_STR } from '@/constants';
 import { plt } from '@/core/infra/platform';
-import collectionService from '@/db_to_migrate/collection.service';
 import {
   APPICONS_PER_TYPE,
   CollectionItemResult,
   CollectionItemType
 } from '@/domain/collection/collection';
+import collectionService from '@/domain/collection/collection.service';
 import { searchService } from '@/features/search';
 import SortableList from '@/shared/dnd/containers/SortableList';
 import {

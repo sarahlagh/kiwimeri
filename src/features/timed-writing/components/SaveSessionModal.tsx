@@ -1,11 +1,11 @@
 import { useQueryResults } from '@/core/db/queries-helper';
 import { store } from '@/core/db/store';
-import collectionService from '@/db_to_migrate/collection.service';
 import {
   CollectionItem,
   CollectionItemResult,
   CollectionItemType
 } from '@/domain/collection/collection';
+import collectionService from '@/domain/collection/collection.service';
 import useFetchItemsQuery from '@/domain/collection/hooks/useFetchItemsQuery';
 import useFetchItemsQueryParamsState from '@/domain/collection/hooks/useFetchItemsQueryParentState';
 import { resumeService } from '@/domain/collection/resume-state.service';

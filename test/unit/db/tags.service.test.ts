@@ -1,5 +1,5 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
-import collectionService from '@/db_to_migrate/collection.service';
+import collectionService from '@/domain/collection/collection.service';
 import tagsService from '@/domain/collection/tags.service';
 import localChangesService from '@/domain/synchronization/local-changes.service';
 import { createStore } from 'tinybase';

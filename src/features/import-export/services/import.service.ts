@@ -1,7 +1,6 @@
 import { META_JSON, ROOT_COLLECTION } from '@/constants';
 import { space } from '@/core/db/store';
 import { setMetaField } from '@/core/db/types';
-import collectionService from '@/db_to_migrate/collection.service';
 import {
   CollectionItem,
   CollectionItemResult,
@@ -14,6 +13,7 @@ import {
   isNotebook,
   isParent
 } from '@/domain/collection/collection';
+import collectionService from '@/domain/collection/collection.service';
 import notebooksService from '@/domain/collection/notebooks.service';
 import formatConverter from '@/domain/format-conversion/format-converter.service';
 import { historyService } from '@/domain/history/history.service';

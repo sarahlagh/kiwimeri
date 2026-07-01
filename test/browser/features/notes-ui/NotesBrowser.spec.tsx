@@ -1,5 +1,5 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
-import collectionService from '@/db_to_migrate/collection.service';
+import collectionService from '@/domain/collection/collection.service';
 import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { NotesBrowser } from '@/features/collection-notes-ui';

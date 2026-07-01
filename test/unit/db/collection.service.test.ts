@@ -4,12 +4,12 @@ import {
   ROOT_COLLECTION
 } from '@/constants';
 import { setMetaField } from '@/core/db/types';
-import collectionService from '@/db_to_migrate/collection.service';
 import {
   CollectionItemResetConflictFields,
   CollectionItemType
 } from '@/domain/collection/collection';
 import { CollectionItemSort } from '@/domain/collection/collection-settings';
+import collectionService from '@/domain/collection/collection.service';
 import { minimizeContentForStorage } from '@/domain/collection/compress-file-content';
 import notebooksService from '@/domain/collection/notebooks.service';
 import {

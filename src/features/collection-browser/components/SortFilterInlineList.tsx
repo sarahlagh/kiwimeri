@@ -1,4 +1,3 @@
-import collectionService from '@/db_to_migrate/collection.service';
 import {
   CollectionItemType,
   CollectionItemTypeValues
@@ -8,6 +7,7 @@ import {
   CollectionItemSortType
 } from '@/domain/collection/collection-settings';
 import { settingsService } from '@/domain/collection/collection-settings.service';
+import collectionService from '@/domain/collection/collection.service';
 import useFolderEffectiveSort from '@/domain/collection/hooks/useFolderEffectiveSort';
 import { ReactNode } from 'react';
 import { Id } from 'tinybase/with-schemas';

@@ -1,6 +1,5 @@
 import { GET_DOCUMENT_ROUTE, VERSION_ROUTE } from '@/app/routes';
 import { APPICONS } from '@/constants';
-import collectionService from '@/db_to_migrate/collection.service';
 import { historyService } from '@/domain/history/history.service';
 import { CollectionItemBrowserList } from '@/features/collection-browser';
 import { DocumentVersionViewer } from '@/features/collection-history-ui';
@@ -9,6 +8,7 @@ import { getSearchParams } from '@/shared/utils';
 import { IonButton, IonIcon } from '@ionic/react';
 import { useState } from 'react';
 import { Redirect, useLocation } from 'react-router';
+import useItemTitle from '../hooks/useItemTitle';
 import NotFoundPage from './NotFoundPage';
 import TemplateCompactableSplitPage from './TemplateCompactableSplitPage';
 
@@ -22,8 +22,8 @@ const VersionedItemPage = () => {
 
   const [showDocumentActions, setShowDocumentActions] = useState(false);
 
-  const title = collectionService.useItemTitle(docId || '');
-  const folderTitle = collectionService.useItemTitle(parentFolder || '');
+  const title = useItemTitle(docId || '');
+  const folderTitle = useItemTitle(parentFolder || '');
 
   const CollectionItemActionsMenu = () => {
     return (

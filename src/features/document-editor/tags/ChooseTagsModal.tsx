@@ -1,5 +1,4 @@
 import { APPICONS } from '@/constants';
-import collectionService from '@/db_to_migrate/collection.service';
 import tagsService from '@/domain/collection/tags.service';
 import {
   IonButton,
@@ -17,6 +16,7 @@ import {
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import React from 'react';
+import useItemTags from './useItemTags';
 
 type ChooseTagsModalProps = {
   id: string;
@@ -25,7 +25,7 @@ type ChooseTagsModalProps = {
 
 const ChooseTagsModal = ({ id, onClose }: ChooseTagsModalProps) => {
   const { t } = useLingui();
-  const itemTags = collectionService.useItemTags(id);
+  const itemTags = useItemTags(id);
   tagsService.reBuildTags();
   const allTags = tagsService.getTags();
   let inputValue: string | undefined = undefined;

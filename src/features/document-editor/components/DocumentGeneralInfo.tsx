@@ -1,4 +1,4 @@
-import collectionService from '@/db_to_migrate/collection.service';
+import collectionService from '@/domain/collection/collection.service';
 import { dateToStr } from '@/shared/misc/date-utils';
 import { IonItem, IonLabel, IonList } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';

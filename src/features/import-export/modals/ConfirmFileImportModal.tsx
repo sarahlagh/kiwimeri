@@ -1,6 +1,6 @@
 import { APPICONS, getGlobalTrans } from '@/constants';
-import collectionService from '@/db_to_migrate/collection.service';
 import { CollectionItemResult } from '@/domain/collection/collection';
+import collectionService from '@/domain/collection/collection.service';
 import {
   IonButton,
   IonButtons,

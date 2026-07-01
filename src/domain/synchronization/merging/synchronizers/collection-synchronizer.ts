@@ -6,13 +6,13 @@ import {
   SpaceType
 } from '@/core/db/store-schema';
 import { AnyData, SerializableData, TypeWithId, WithId } from '@/core/db/types';
-import collectionService from '@/db_to_migrate/collection.service';
 import {
   CollectionItemType,
   CollectionItemUpdatableFields,
   CollectionItemWithId,
   isDocument
 } from '@/domain/collection/collection';
+import collectionService from '@/domain/collection/collection.service';
 import {
   minimizeAnnotForStorage,
   MinimizedDocAnnotation,

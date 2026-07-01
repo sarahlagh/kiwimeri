@@ -1,5 +1,5 @@
 import { space } from '@/core/db/store';
-import collectionService from '@/db_to_migrate/collection.service';
+import collectionService from '@/domain/collection/collection.service';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { Id } from 'tinybase/with-schemas';
 

@@ -1,4 +1,4 @@
-import { initialContent } from '@/db_to_migrate/collection.service';
+import { initialContent } from '@/domain/collection/collection.service';
 import {
   minimizeAnnotForStorage,
   unminimizeAnnotFromStorage

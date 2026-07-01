@@ -1,4 +1,4 @@
-import collectionService from '@/db_to_migrate/collection.service';
+import collectionService from '@/domain/collection/collection.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { conflictsService } from '@/domain/synchronization/conflicts-service';

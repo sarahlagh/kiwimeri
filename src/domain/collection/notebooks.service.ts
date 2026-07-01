@@ -7,10 +7,10 @@ import {
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { setMetaField } from '@/core/db/types';
-import collectionService from '@/db_to_migrate/collection.service';
 import { CollectionItemType } from '@/domain/collection/collection';
 import { CollectionItemSort } from '@/domain/collection/collection-settings';
 import { settingsService } from '@/domain/collection/collection-settings.service';
+import collectionService from '@/domain/collection/collection.service';
 import { Notebook } from '@/domain/collection/notebooks';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { getUniqueId } from 'tinybase/with-schemas';
@@ -80,16 +80,16 @@ class NotebooksService {
     };
   }
 
-  public deleteNotebook(id: string): void {
+  public deleteNotebook(parentId: string): void {
     // TODO handle nested notebooks
     // if items inside, delete them
-    const items = collectionService.getCollectionItems(id);
+    const items = fetchItemsQuery.getResults({ parentId });
     if (items.length > 0) {
       space.transaction(() => {
         items.forEach(i => collectionService.deleteItem(i.id));
       });
     }
-    space.delRow(C, id);
+    space.delRow(C, parentId);
   }
 
   public setCurrentNotebook(notebookId: string) {

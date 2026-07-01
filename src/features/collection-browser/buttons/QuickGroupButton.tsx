@@ -1,11 +1,11 @@
 import { useToastContext } from '@/app/context/ToastContext';
 import { GET_DOCUMENT_ROUTE } from '@/app/routes';
 import { APPICONS } from '@/constants';
-import collectionService from '@/db_to_migrate/collection.service';
 import {
   CollectionItemType,
   CollectionItemTypeValues
 } from '@/domain/collection/collection';
+import collectionService from '@/domain/collection/collection.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { IonButton, IonIcon } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';

@@ -2,7 +2,6 @@ import TinybaseProvider from '@/app/providers/TinybaseProvider';
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { space, store } from '@/core/db/store';
 import { DbSerializableData, setMetaField, WithId } from '@/core/db/types';
-import collectionService from '@/db_to_migrate/collection.service';
 import {
   CollectionItem,
   CollectionItemFieldEnum,
@@ -14,6 +13,7 @@ import {
   CollectionItemUpdatableNonConflictFields,
   CollectionItemUpdateChangeFields
 } from '@/domain/collection/collection';
+import collectionService from '@/domain/collection/collection.service';
 import { DocAnnotationRow } from '@/domain/collection/doc-annotations';
 import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
 import { Notebook } from '@/domain/collection/notebooks';

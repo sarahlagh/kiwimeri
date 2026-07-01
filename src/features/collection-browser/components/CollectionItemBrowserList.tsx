@@ -13,11 +13,11 @@ import {
 
 import { GET_ITEM_ROUTE } from '@/app/routes';
 import { APPICONS } from '@/constants';
-import collectionService from '@/db_to_migrate/collection.service';
 import {
   CollectionItemResult,
   CollectionItemType
 } from '@/domain/collection/collection';
+import collectionService from '@/domain/collection/collection.service';
 import { ExportItemsButton, ImportItemsButton } from '@/features/import-export';
 import { getSearchParams } from '@/shared/utils';
 

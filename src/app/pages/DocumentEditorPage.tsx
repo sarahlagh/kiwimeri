@@ -1,5 +1,4 @@
 import { APPICONS } from '@/constants';
-import collectionService from '@/db_to_migrate/collection.service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import {
   CollectionItemBrowserList,
@@ -12,6 +11,7 @@ import { getSearchParams } from '@/shared/utils';
 import { IonButton, IonIcon } from '@ionic/react';
 import { useRef, useState } from 'react';
 import { useLocation } from 'react-router';
+import useItemTitle from '../hooks/useItemTitle';
 import TemplateCompactableSplitPage from './TemplateCompactableSplitPage';
 
 const DocumentEditorPage = () => {
@@ -24,8 +24,8 @@ const DocumentEditorPage = () => {
 
   const [showDocumentActions, setShowDocumentActions] = useState(false);
 
-  const title = collectionService.useItemTitle(docId);
-  const folderTitle = collectionService.useItemTitle(parent);
+  const title = useItemTitle(docId);
+  const folderTitle = useItemTitle(parent);
   const onTitleChange = onTitleChangeFn(docId);
   const onFolderTitleChange = onTitleChangeFn(parent);
 

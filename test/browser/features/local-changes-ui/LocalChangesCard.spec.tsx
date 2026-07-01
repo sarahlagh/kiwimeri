@@ -1,5 +1,5 @@
 import { DEFAULT_NOTEBOOK_ID, getGlobalTrans } from '@/constants';
-import collectionService from '@/db_to_migrate/collection.service';
+import collectionService from '@/domain/collection/collection.service';
 import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { LocalChangeResult } from '@/domain/synchronization/local-changes';
