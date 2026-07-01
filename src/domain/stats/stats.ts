@@ -24,9 +24,9 @@ export type DocumentContentStatsBag = {
   updatedAt?: number;
 };
 
-export type DocumentDatedStat = Omit<DocumentStatRow, 'id'> & {
+export type DocumentDatedStat = DocumentStatRow & {
   date: string;
-  contentStats: DocumentContentStatsBag;
+  contentStatsJson: DocumentContentStatsBag;
 };
 
 export type DocumentAllStats = {

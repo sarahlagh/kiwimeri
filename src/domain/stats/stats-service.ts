@@ -1,25 +1,18 @@
 import { ROOT_COLLECTION } from '@/constants';
 import { space, spaceQueries } from '@/core/db/store';
+import { SpaceTables } from '@/core/db/store-constants';
 import { MetaField } from '@/core/db/types';
 import { isDocument } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
 import { historyService } from '@/domain/history/history.service';
 import { dateToStr } from '@/shared/misc/date-utils';
 import { countWords, n00 } from '@/shared/utils';
-import { ResultRow } from 'tinybase/with-schemas';
 import {
   DataPoint,
   DocumentContentStatsBag,
   DocumentDatedStat,
-  DocumentGlobalStatsBag,
-  DocumentStatRow
+  DocumentGlobalStatsBag
 } from './stats';
-
-type StatsQueryResult = ResultRow &
-  Required<Pick<DocumentStatRow, 'itemId' | 'date' | 'contentStatsJson'>>;
-
-type GlobalStatsQueryResult = ResultRow &
-  Required<Pick<DocumentStatRow, 'itemId' | 'lastOpenedAt'>>;
 
 export type AllGlobalStatsBag = {
   [key: string]: DocumentGlobalStatsBag; // key is the itemId
@@ -35,92 +28,53 @@ export type TrackedStats = (typeof trackedStats)[number];
 
 export type SampleMode = 'day' | 'month' | 'year' | 'lifetime';
 
+const S = SpaceTables.Stats;
+
 class StatsService {
   private timeZone = 'Europe/Paris';
 
-  private buildStatsQuery(itemId: string | null, since: string = '') {
-    const queryName = 'GetStatsForItem';
-    if (spaceQueries.hasQuery(queryName)) {
-      spaceQueries.setParamValues(queryName, { itemId, since });
-    } else {
-      spaceQueries.setQueryDefinition(
-        queryName,
-        'stats',
-        ({ select, where, param }) => {
-          select('itemId');
-          select('date');
-          select('contentStatsJson');
-          if (param('itemId') !== null) {
-            where('itemId', param('itemId')!.toString());
-          }
-          where(getCell => {
-            if (!getCell('date')) return false;
-            if (!param('since') || param('since')!.toString().length === 0)
-              return true;
-            const since = param('since')!.toString();
-            const date = getCell('date')!.toString();
-            return date >= since;
-          });
-        },
-        { itemId, since }
-      );
-    }
-    return queryName;
-  }
-
-  private buildGlobalStatsQuery() {
-    const queryName = 'GetGlobalStats';
-    if (!spaceQueries.hasQuery(queryName)) {
-      spaceQueries.setQueryDefinition(
-        queryName,
-        'stats',
-        ({ select, where }) => {
-          select('itemId');
-          select('lastOpenedAt');
-          where(
-            getCell => getCell<'lastOpenedAt'>('lastOpenedAt') !== undefined
-          );
-        }
-      );
-    }
-    return queryName;
+  private fetchStatsSince(
+    desc: boolean,
+    itemId: string | null,
+    since?: string
+  ) {
+    const results: DocumentDatedStat[] = [];
+    const table = space.getTable(S);
+    space.getSortedRowIds(S, 'date', desc).forEach(rowId => {
+      const date = table[rowId].date;
+      if (!date) return;
+      if (since !== undefined && date < since) return;
+      if (itemId !== null && itemId !== table[rowId].itemId) return;
+      results.push({
+        date,
+        itemId: table[rowId].itemId || '',
+        contentStatsJson: table[rowId].contentStatsJson || {}
+      });
+    });
+    return results;
   }
 
   public getStatsSince(since?: string): DocumentDatedStat[] {
-    return this.fromQuery<StatsQueryResult, DocumentDatedStat>(
-      this.buildStatsQuery(null, since),
-      resultRow => ({
-        itemId: resultRow.itemId,
-        date: resultRow.date,
-        contentStats: resultRow.contentStatsJson
-      }),
-      'date',
-      true
-    );
+    return this.fetchStatsSince(true, null, since);
   }
 
   public getDataPoints(itemId: string): DataPoint[] {
-    return this.fromQuery<StatsQueryResult, DataPoint>(
-      this.buildStatsQuery(itemId),
-      resultRow => ({
-        date: resultRow.date,
-        values: resultRow.contentStatsJson
-      }),
-      'date',
-      false
-    );
+    return this.fetchStatsSince(false, itemId).map(result => ({
+      date: result.date,
+      values: result.contentStatsJson
+    }));
   }
 
   public getAllGlobalStats(): AllGlobalStatsBag {
-    const all: AllGlobalStatsBag = {};
-    this.fromQuery<GlobalStatsQueryResult, DocumentGlobalStatsBag>(
-      this.buildGlobalStatsQuery(),
-      resultRow => {
-        all[resultRow.itemId] = { lastOpenedAt: resultRow.lastOpenedAt };
-        return all[resultRow.itemId];
-      }
-    );
-    return all;
+    const result: AllGlobalStatsBag = {};
+    const table = space.getTable(S);
+    space.getSortedRowIds(S).forEach(rowId => {
+      const lastOpenedAt = table[rowId].lastOpenedAt;
+      if (lastOpenedAt === undefined) return;
+      const itemId = table[rowId].itemId!;
+      result[itemId] = { lastOpenedAt };
+    });
+    return result;
   }
 
   private fromQuery<T, U>(

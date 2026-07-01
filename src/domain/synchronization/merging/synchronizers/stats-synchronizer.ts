@@ -139,7 +139,7 @@ export class StatsSynchronizer extends CloudStorageSynchronizer {
         };
       }
       const perItem = perDate[stat.date]!.stats;
-      perItem[stat.itemId] = stat.contentStats;
+      perItem[stat.itemId] = stat.contentStatsJson;
     });
 
     const fileData: RemoteStatsFileContent = {
