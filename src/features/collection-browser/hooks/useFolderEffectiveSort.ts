@@ -1,8 +1,8 @@
 import { SpaceTables } from '@/core/db/store-constants';
 import { useSpaceCell } from '@/core/db/tinybase-hooks';
+import { FolderSettings } from '@/domain/collection/collection-settings';
+import useNotebookDefaultSettings from '@/shared/hooks/useNotebookDefaultSettings';
 import { Id } from 'tinybase/with-schemas';
-import { FolderSettings } from '../collection-settings';
-import useNotebookDefaultSettings from './useNotebookDefaultSettings';
 
 export default function useFolderEffectiveSort(
   folderId: Id

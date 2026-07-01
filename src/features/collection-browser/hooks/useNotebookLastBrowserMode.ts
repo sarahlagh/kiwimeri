@@ -1,8 +1,8 @@
 import { SpaceTables } from '@/core/db/store-constants';
 import { useSpaceCell } from '@/core/db/tinybase-hooks';
+import { NotebookSettings } from '@/domain/collection/collection-settings';
 import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
 import { Id } from 'tinybase/with-schemas';
-import { NotebookSettings } from '../collection-settings';
 
 export default function useNotebookLastBrowserMode(
   notebook?: Id

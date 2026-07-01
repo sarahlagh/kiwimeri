@@ -1,5 +1,5 @@
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
-import useDeviceSetting from '@/domain/device-settings/hooks/useDeviceSetting';
+import useDeviceSetting from '@/shared/hooks/useDeviceSetting';
 import {
   IonCard,
   IonCardContent,

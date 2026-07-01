@@ -1,5 +1,8 @@
-import usePref from '@/domain/user-preferences/hooks/usePref';
-import { CollectionItemSortType, SpaceSettings } from '../collection-settings';
+import {
+  CollectionItemSortType,
+  SpaceSettings
+} from '@/domain/collection/collection-settings';
+import usePref from '@/shared/hooks/usePref';
 
 export default function useSpaceDefaultSettings(): SpaceSettings {
   const by = usePref<'defaultSortBy'>(

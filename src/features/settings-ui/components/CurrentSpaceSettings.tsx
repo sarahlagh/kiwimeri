@@ -1,8 +1,8 @@
 import { settingsService } from '@/domain/collection/collection-settings.service';
-import useSpaceDefaultSettings from '@/domain/collection/hooks/useSpaceDefaultSettings';
 import { statsService } from '@/domain/stats/stats-service';
-import usePrefState from '@/domain/user-preferences/hooks/usePrefState';
 import { userPreferenceDefinitions } from '@/domain/user-preferences/user-preferences';
+import usePrefState from '@/shared/hooks/usePrefState';
+import useSpaceDefaultSettings from '@/shared/hooks/useSpaceDefaultSettings';
 import { cellEquals } from '@/shared/utils';
 import {
   IonCard,

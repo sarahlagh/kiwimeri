@@ -40,7 +40,7 @@ import {
 import { Dispatch, useCallback, useEffect, useRef, useState } from 'react';
 const LowPriority = 1;
 
-import useDeviceSetting from '@/domain/device-settings/hooks/useDeviceSetting';
+import useDeviceSetting from '@/shared/hooks/useDeviceSetting';
 import { ZOOM_IN_COMMAND, ZOOM_OUT_COMMAND } from './commands';
 import { ZOOM_INCREMENT } from './constants';
 import { getSelectedNode } from './playground/utils/getSelectedNode';

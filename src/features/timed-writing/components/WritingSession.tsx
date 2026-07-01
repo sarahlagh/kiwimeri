@@ -6,8 +6,8 @@ import collectionService, {
   initialContent
 } from '@/domain/collection/collection.service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
-import useDeviceSetting from '@/domain/device-settings/hooks/useDeviceSetting';
 import { historyService } from '@/domain/history/history.service';
+import useDeviceSetting from '@/shared/hooks/useDeviceSetting';
 import { useIonModal } from '@ionic/react';
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
