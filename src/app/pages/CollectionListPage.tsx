@@ -1,10 +1,10 @@
 import { getGlobalTrans } from '@/constants';
-import collectionService from '@/db_to_migrate/collection.service';
 import { CollectionItemBrowserList } from '@/features/collection-browser';
 import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
 import { onTitleChangeFn } from '@/shared/misc/onTitleChangeFn';
 import { getSearchParams } from '@/shared/utils';
 import { useLocation } from 'react-router';
+import useItemTitle from '../hooks/useItemTitle';
 import TemplateMainPage from './TemplateMainPage';
 
 const CollectionListPage = () => {
@@ -12,7 +12,7 @@ const CollectionListPage = () => {
   const searchParams = getSearchParams(location.search);
   const notebook = useCurrentNotebook();
   const parent = searchParams?.folder || notebook;
-  const folderTitle = collectionService.useItemTitle(parent);
+  const folderTitle = useItemTitle(parent);
 
   const title = notebook !== parent ? folderTitle : getGlobalTrans().homeTitle;
   const onFolderTitleChange = onTitleChangeFn(parent);

@@ -1,4 +1,4 @@
-import { INITIAL_CONTENT_START } from '@/db_to_migrate/collection.service';
+import { INITIAL_CONTENT_START } from '@/domain/collection/collection.service';
 import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-content';
 import formatConverter from '@/domain/format-conversion/format-converter.service';
 import { SerializedEditorState } from 'lexical';

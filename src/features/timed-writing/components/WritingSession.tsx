@@ -4,7 +4,7 @@ import { SID } from '@/core/db/store-constants';
 import { useStoreValue } from '@/core/db/tinybase-hooks';
 import collectionService, {
   initialContent
-} from '@/db_to_migrate/collection.service';
+} from '@/domain/collection/collection.service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import useDeviceSetting from '@/domain/device-settings/hooks/useDeviceSetting';
 import { historyService } from '@/domain/history/history.service';

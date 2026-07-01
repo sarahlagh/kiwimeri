@@ -1,12 +1,12 @@
 import { META_JSON } from '@/constants';
-import collectionService, {
-  INITIAL_CONTENT_START
-} from '@/db_to_migrate/collection.service';
 import {
   CollectionItemResult,
   CollectionItemType,
   CollectionItemTypeValues
 } from '@/domain/collection/collection';
+import collectionService, {
+  INITIAL_CONTENT_START
+} from '@/domain/collection/collection.service';
 import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-content';
 import notebooksService from '@/domain/collection/notebooks.service';
 import formatConverter from '@/domain/format-conversion/format-converter.service';

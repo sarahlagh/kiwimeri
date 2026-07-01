@@ -1,5 +1,5 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
-import collectionService from '@/db_to_migrate/collection.service';
+import collectionService from '@/domain/collection/collection.service';
 import { statsService } from '@/domain/stats/stats-service';
 import {
   REMOTE_STATS_SCHEMA_VERSION,

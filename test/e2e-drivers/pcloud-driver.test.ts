@@ -4,11 +4,11 @@ import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { SpaceValuesType } from '@/core/db/store-schema';
 import { setMetaField } from '@/core/db/types';
-import collectionService from '@/db_to_migrate/collection.service';
 import {
   CollectionItem,
   CollectionItemWithId
 } from '@/domain/collection/collection';
+import collectionService from '@/domain/collection/collection.service';
 import {
   minimizeAnnotForStorage,
   unminimizeAnnotFromStorage
@@ -113,6 +113,15 @@ const getRemoteContent = async () => {
     notes: unminimizeAnnotFromStorage((parsed.a as SyncableAnnotation[]) || []),
     values: parsed.o as SpaceValuesType
   };
+};
+
+const getConflicts = () => {
+  const conflicts: string[] = [];
+  const table = space.getTable(SpaceTables.Collection);
+  Object.keys(table).forEach(rowId => {
+    if (table[rowId].conflictId) conflicts.push(rowId);
+  });
+  return conflicts;
 };
 
 describe.sequential(
@@ -313,7 +322,7 @@ describe.sequential(
       // now, solve conflict
       setLocalItemField(conflictId, 'content', getNewContent('new content'));
       expect(getLocalItemConflicts()).toHaveLength(0);
-      expect(collectionService.getConflicts()).toHaveLength(0);
+      expect(getConflicts()).toHaveLength(0);
       const localChanges = localChangesService.getLocalChanges();
       // expect(localChanges).toHaveLength(1);
       expect(localChanges[0].change).toBe(LocalChangeType.add);

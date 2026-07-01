@@ -1,7 +1,7 @@
 import {
   INITIAL_CONTENT_START,
   initialContent
-} from '@/db_to_migrate/collection.service';
+} from '@/domain/collection/collection.service';
 import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-content';
 import { SerializedSelection } from '@/domain/collection/resume-state';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';

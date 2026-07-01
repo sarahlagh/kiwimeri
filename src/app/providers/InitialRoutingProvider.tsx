@@ -5,7 +5,7 @@ import {
   isCollectionRoute
 } from '@/app/routes';
 import { ROOT_COLLECTION } from '@/constants';
-import collectionService from '@/db_to_migrate/collection.service';
+import collectionService from '@/domain/collection/collection.service';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import useDeviceSetting from '@/domain/device-settings/hooks/useDeviceSetting';

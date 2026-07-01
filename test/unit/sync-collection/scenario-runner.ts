@@ -6,7 +6,6 @@ import {
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { DbSerializableData, MetaField, setMetaField } from '@/core/db/types';
-import collectionService from '@/db_to_migrate/collection.service';
 import {
   CollectionItem,
   CollectionItemType,
@@ -14,6 +13,7 @@ import {
   CollectionItemUpdatableFieldEnum,
   isDocument
 } from '@/domain/collection/collection';
+import collectionService from '@/domain/collection/collection.service';
 import { historyService } from '@/domain/history/history.service';
 import { LocalChangeType } from '@/domain/synchronization/local-changes';
 import localChangesService from '@/domain/synchronization/local-changes.service';

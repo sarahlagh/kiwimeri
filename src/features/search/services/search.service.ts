@@ -1,5 +1,5 @@
-import collectionService from '@/db_to_migrate/collection.service';
 import { CollectionItemTypeValues } from '@/domain/collection/collection';
+import collectionService from '@/domain/collection/collection.service';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { $getRoot, ElementNode, LexicalEditor, TextNode } from 'lexical';
 

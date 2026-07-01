@@ -1,10 +1,12 @@
 import { GET_DOCUMENT_ROUTE } from '@/app/routes';
 import { APPICONS } from '@/constants';
-import collectionService from '@/db_to_migrate/collection.service';
+import collectionService from '@/domain/collection/collection.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { statsService } from '@/domain/stats/stats-service';
 import { conflictsService } from '@/domain/synchronization/conflicts-service';
 
+import { SpaceTables } from '@/core/db/store-constants';
+import { useSpaceCell } from '@/core/db/tinybase-hooks';
 import { ActionsFromDocumentEditorToolbar } from '@/features/collection-browser';
 import { SearchActionsToolbar } from '@/features/search';
 import { onTitleChangeFn } from '@/shared/misc/onTitleChangeFn';
@@ -53,7 +55,11 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
       setShowDocumentActions(showActions);
     }, [showActions]);
 
-    const content = collectionService.useItemContent(docId);
+    const content = useSpaceCell<SpaceTables.Collection, 'content'>(
+      SpaceTables.Collection,
+      docId,
+      'content'
+    );
     const documentTitle = collectionService.getItemTitle(docId);
     const onTitleChange = onTitleChangeFn(docId);
 

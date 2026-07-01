@@ -3,12 +3,12 @@ import { APPICONS } from '@/constants';
 import { useQueryResults } from '@/core/db/queries-helper';
 import { SpaceTables } from '@/core/db/store-constants';
 import { plt } from '@/core/infra/platform';
-import collectionService from '@/db_to_migrate/collection.service';
 import {
   APPICONS_PER_TYPE,
   CollectionItemType,
   CollectionItemTypeValues
 } from '@/domain/collection/collection';
+import collectionService from '@/domain/collection/collection.service';
 import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
 import localChangesService from '@/domain/synchronization/local-changes.service';
 import {

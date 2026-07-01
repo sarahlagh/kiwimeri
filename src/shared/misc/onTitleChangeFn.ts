@@ -1,4 +1,4 @@
-import collectionService from '@/db_to_migrate/collection.service';
+import collectionService from '@/domain/collection/collection.service';
 import { Id } from 'tinybase/common/with-schemas';
 
 export const onTitleChangeFn = (id: Id) => {

@@ -1,10 +1,10 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { space } from '@/core/db/store';
-import collectionService from '@/db_to_migrate/collection.service';
 import {
   CollectionItemType,
   CollectionItemTypeValues
 } from '@/domain/collection/collection';
+import collectionService from '@/domain/collection/collection.service';
 import notebooksService from '@/domain/collection/notebooks.service';
 import ConfirmMultipleImportModal, {
   ARIA_DESCRIPTIONS_PER_TYPE

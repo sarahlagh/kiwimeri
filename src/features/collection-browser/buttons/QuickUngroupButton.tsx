@@ -1,9 +1,9 @@
 import { APPICONS } from '@/constants';
-import collectionService from '@/db_to_migrate/collection.service';
 import {
   CollectionItemType,
   CollectionItemTypeValues
 } from '@/domain/collection/collection';
+import collectionService from '@/domain/collection/collection.service';
 import ConfirmYesNoDialog from '@/shared/modals/ConfirmYesNoDialog';
 import { IonButton, IonIcon } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';

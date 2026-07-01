@@ -1,6 +1,6 @@
 import { GET_FOLDER_ROUTE } from '@/app/routes';
 import { APPICONS } from '@/constants';
-import collectionService from '@/db_to_migrate/collection.service';
+import collectionService from '@/domain/collection/collection.service';
 import { IonButton, IonIcon } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { Id } from 'tinybase/with-schemas';

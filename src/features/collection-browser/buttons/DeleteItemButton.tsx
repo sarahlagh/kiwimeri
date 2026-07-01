@@ -1,4 +1,4 @@
-import collectionService from '@/db_to_migrate/collection.service';
+import collectionService from '@/domain/collection/collection.service';
 import DeleteButton from '@/shared/buttons/DeleteButton';
 import { useHistory } from 'react-router-dom';
 import { Id } from 'tinybase/with-schemas';

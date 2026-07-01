@@ -1,8 +1,8 @@
 import { ROOT_COLLECTION } from '@/constants';
 import { space, spaceQueries } from '@/core/db/store';
 import { MetaField } from '@/core/db/types';
-import collectionService from '@/db_to_migrate/collection.service';
 import { isDocument } from '@/domain/collection/collection';
+import collectionService from '@/domain/collection/collection.service';
 import { historyService } from '@/domain/history/history.service';
 import { dateToStr } from '@/shared/misc/date-utils';
 import { countWords, n00 } from '@/shared/utils';

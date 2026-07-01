@@ -1,5 +1,5 @@
 import { GET_FOLDER_ROUTE } from '@/app/routes';
-import collectionService from '@/db_to_migrate/collection.service';
+import collectionService from '@/domain/collection/collection.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { ExportItemsButton } from '@/features/import-export';
 import { IonButtons, IonToolbar } from '@ionic/react';

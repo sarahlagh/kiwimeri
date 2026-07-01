@@ -1,16 +1,16 @@
 import { APPICONS } from '@/constants';
-import collectionService from '@/db_to_migrate/collection.service';
 import tagsService from '@/domain/collection/tags.service';
 import { IonButton, IonIcon, IonText, useIonModal } from '@ionic/react';
 import { Id } from 'tinybase/with-schemas';
 import ChooseTagsModal from './ChooseTagsModal';
+import useItemTags from './useItemTags';
 
 type AddTagsButtonProps = {
   id: Id;
 };
 
 const AddTagsButton = ({ id }: AddTagsButtonProps) => {
-  const itemTags = [...collectionService.useItemTags(id)];
+  const itemTags = [...useItemTags(id)];
 
   const [present, dismiss] = useIonModal(ChooseTagsModal, {
     id,

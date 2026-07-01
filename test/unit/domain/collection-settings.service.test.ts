@@ -1,8 +1,8 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { space } from '@/core/db/store';
 import { MetaField } from '@/core/db/types';
-import collectionService from '@/db_to_migrate/collection.service';
 import { settingsService } from '@/domain/collection/collection-settings.service';
+import collectionService from '@/domain/collection/collection.service';
 import useFolderEffectiveSort from '@/domain/collection/hooks/useFolderEffectiveSort';
 import useNotebookDefaultSettings from '@/domain/collection/hooks/useNotebookDefaultSettings';
 import useNotebookLastBrowserMode from '@/domain/collection/hooks/useNotebookLastBrowserMode';

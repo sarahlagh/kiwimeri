@@ -1,5 +1,5 @@
 import { APPICONS } from '@/constants';
-import collectionService from '@/db_to_migrate/collection.service';
+import collectionService from '@/domain/collection/collection.service';
 import { IonButton, IonIcon, useIonModal } from '@ionic/react';
 import { Id } from 'tinybase/with-schemas';
 import ChooseFolderModal from '../modals/ChooseFolderModal';

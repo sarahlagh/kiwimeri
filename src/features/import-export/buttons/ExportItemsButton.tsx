@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getGlobalTrans } from '@/constants';
-import collectionService from '@/db_to_migrate/collection.service';
 import {
   CollectionItemType,
   CollectionItemTypeValues
 } from '@/domain/collection/collection';
+import collectionService from '@/domain/collection/collection.service';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import GenericExportFileButton from '@/shared/buttons/GenericExportFileButton';

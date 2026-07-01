@@ -1,7 +1,7 @@
 import { GET_DOCUMENT_ROUTE, GET_VERSIONED_ROUTE } from '@/app/routes';
 import { APPICONS } from '@/constants';
-import collectionService from '@/db_to_migrate/collection.service';
 import { CollectionItemSnapshotData } from '@/domain/collection/collection';
+import collectionService from '@/domain/collection/collection.service';
 import { ActionsFromDocumentVersionViewerToolbar } from '@/features/collection-browser';
 import { KiwimeriEditor } from '@/features/document-editor';
 import { SearchActionsToolbar } from '@/features/search';

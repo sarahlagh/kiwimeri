@@ -1,6 +1,6 @@
 import { getGlobalTrans, ROOT_COLLECTION } from '@/constants';
 import { MetaField } from '@/core/db/types';
-import collectionService from '@/db_to_migrate/collection.service';
+import collectionService from '@/domain/collection/collection.service';
 import notebooksService from '@/domain/collection/notebooks.service';
 import {
   allNonParentUpdatableFields,
