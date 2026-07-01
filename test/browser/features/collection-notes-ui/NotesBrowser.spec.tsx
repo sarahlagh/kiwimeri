@@ -22,7 +22,7 @@ import {
   getUpdatedAtNoteInfo
 } from './NotesBrowser.locators';
 
-import '@/features/notes-ui/components/NotesBrowser.scss';
+import '@/features/collection-notes-ui/components/NotesBrowser.scss';
 import BottomSheet from '@/shared/containers/BottomSheet';
 import { TestingProvider } from '../../TestingProvider';
 
