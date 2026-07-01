@@ -6,13 +6,12 @@ import {
 import { CollectionItemSort } from '@/domain/collection/collection-settings';
 import { settingsService } from '@/domain/collection/collection-settings.service';
 import notebooksService from '@/domain/collection/notebooks.service';
-import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
 import { useEffect } from 'react';
+import fetchSortableItemsQuery from '../queries/fetchSortableItemsQuery';
 
 export const browserModes = ['browser', 'updatedAt', 'lastOpenedAt'] as const;
 export type BrowserQueryMode = (typeof browserModes)[number] | 'conflicts';
 
-/** use only for the CollectionItemBrowserList component */
 export default function useCollectionItemBrowserListResults(
   mode: BrowserQueryMode,
   parent?: string,
@@ -36,7 +35,7 @@ export default function useCollectionItemBrowserListResults(
         onlyConflicts: mode === 'conflicts'
       };
     }
-    fetchItemsQuery.loadParams(opts);
+    fetchSortableItemsQuery.loadParams(opts);
   }, [mode, parent]);
 
   let sort;
@@ -51,5 +50,11 @@ export default function useCollectionItemBrowserListResults(
     limit = 20;
   }
 
-  return useQueryResults(fetchItemsQuery, sort.by, sort.descending, 0, limit);
+  return useQueryResults(
+    fetchSortableItemsQuery,
+    sort.by,
+    sort.descending,
+    0,
+    limit
+  );
 }

@@ -1,8 +1,9 @@
-import { APPICONS } from '@/constants';
+import { APPICONS, ROOT_COLLECTION } from '@/constants';
 import { useQueryResults } from '@/core/db/queries-helper';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { CollectionItemList } from '@/features/collection-browser';
 import { ImportItemsButton } from '@/features/import-export';
+import useLoadQuery from '@/shared/hooks/useLoadQuery';
 import {
   IonButton,
   IonButtons,
@@ -16,21 +17,24 @@ import { Trans } from '@lingui/react/macro';
 import React, { useState } from 'react';
 import { getUniqueId } from 'tinybase/with-schemas';
 import useCurrentNotebook from '../hooks/useCurrentNotebook';
-import useNotebooksQuery from '../hooks/useNotebooksQuery';
+import fetchNotebooksQuery from '../queries/fetchNotebooksQuery';
 
 type ManageNotebooksModalProps = {
   onClose: (selected?: string) => void;
 } & React.HTMLAttributes<HTMLIonModalElement>;
 
 const ManageNotebooksModal = ({ onClose }: ManageNotebooksModalProps) => {
-  const query = useNotebooksQuery('ManageNotebooksModal');
-  const notebooks = useQueryResults(query, 'order', false);
+  useLoadQuery(fetchNotebooksQuery, {
+    parentId: ROOT_COLLECTION
+  });
+  const notebooks = useQueryResults(fetchNotebooksQuery, 'order', false);
 
   const current = useCurrentNotebook();
   const [selected, setSelected] = useState<string>(current);
   const [itemRenaming, setItemRenaming] = useState<string | undefined>(
     undefined
   );
+
   return (
     <>
       <IonHeader>

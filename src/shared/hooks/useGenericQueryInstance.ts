@@ -21,6 +21,8 @@ const useGenericQueryInstance = <
 ) => {
   const [query] = useState(initialQuery.clone(querySuffix));
   useEffect(() => {
+    // don't load params beyond init
+    // this hook is supposed to be used with useGenericQueryParamsState
     if (initialParams) {
       query.loadParams(initialParams);
     }

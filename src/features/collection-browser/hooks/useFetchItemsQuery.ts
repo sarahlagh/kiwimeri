@@ -1,14 +1,14 @@
-import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
+import { CollectionItemType } from '@/domain/collection/collection';
 import useGenericQueryInstance from '@/shared/hooks/useGenericQueryInstance';
 import { Id } from 'tinybase';
-import { CollectionItemType } from '../collection';
+import fetchSortableItemsQuery from '../queries/fetchSortableItemsQuery';
 
 export default function useFetchItemsQuery(
   querySuffix: Id,
   parent: string,
   restrictTypes?: CollectionItemType[]
 ) {
-  return useGenericQueryInstance(querySuffix, fetchItemsQuery, {
+  return useGenericQueryInstance(querySuffix, fetchSortableItemsQuery, {
     parentId: parent,
     restrictTypes
   });

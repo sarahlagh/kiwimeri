@@ -16,6 +16,7 @@ export type FetchItemsQueryParam = {
   onlyConflicts?: boolean;
 };
 
+// TODO replace by table method
 const fetchItemsQuery = new SpaceQueryDefinition<
   FetchItemsQueryParam,
   CollectionItemResult,
@@ -83,5 +84,4 @@ const fetchItemsQuery = new SpaceQueryDefinition<
   }
 });
 
-export type FetchItemsQuery = typeof fetchItemsQuery;
 export default fetchItemsQuery;

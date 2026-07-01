@@ -1,7 +1,8 @@
-import { useEffect, type JSX } from 'react';
+import { type JSX } from 'react';
 
 import { useQueryResultIds } from '@/core/db/queries-helper';
 import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import useLoadQuery from '@/shared/hooks/useLoadQuery';
 import { IonNote } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 import useNotesSort from '../hooks/useNotesSort';
@@ -24,16 +25,9 @@ export default function NotesBrowser({
   editable = true
 }: NotesBrowserProps): JSX.Element {
   const sort = useNotesSort(docId);
-  useEffect(() => {
-    fetchNotesQuery.loadParams({
-      itemId: docId
-    });
-  }, [docId]);
-  useEffect(() => {
-    return () => {
-      fetchNotesQuery.close();
-    };
-  }, []);
+  useLoadQuery(fetchNotesQuery, {
+    itemId: docId
+  });
   const noteIds = useQueryResultIds(fetchNotesQuery, sort.by, sort.descending);
   const selectedId = useSelectedNote(docId);
   const isConflict = selectedId && docAnnotationsService.isConflict(selectedId);

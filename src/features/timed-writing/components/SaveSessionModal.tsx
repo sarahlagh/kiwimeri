@@ -6,12 +6,12 @@ import {
   CollectionItemType
 } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
-import useFetchItemsQuery from '@/domain/collection/hooks/useFetchItemsQuery';
-import useFetchItemsQueryParamsState from '@/domain/collection/hooks/useFetchItemsQueryParentState';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import {
   CollectionItemBreadcrumb,
-  CollectionItemList
+  CollectionItemList,
+  useFetchItemsQuery,
+  useFetchItemsQueryParamsState
 } from '@/features/collection-browser';
 import { dateToStr } from '@/shared/misc/date-utils';
 import {
