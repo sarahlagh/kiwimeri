@@ -129,6 +129,7 @@ describe.sequential(
   { timeout: 10000 },
   () => {
     beforeEach(async () => {
+      fetchRemotesQuery.initQuery();
       conflictsService.initConflictQueries();
       remotesService.addRemote('test', 0, 'pcloud', {
         token: appConfig.PCLOUD_E2E_TOKEN,
@@ -149,6 +150,7 @@ describe.sequential(
       notebook = notebooksService.getNotebooks()[0].id;
     });
     afterEach(async () => {
+      fetchRemotesQuery.close();
       conflictsService.closeConflictQueries();
       console.debug('clearing files');
       if (driver) {
@@ -536,15 +538,90 @@ describe.sequential(
       );
     });
 
-    it('should handle reinit on network down', async () => {
+    it('should handle reinit on network down - with remote changes', async () => {
       // create local item, don't sync
       collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-      // create item on remote, sync
+      // create item on remote
       await reInitRemoteData([oneDocument('remote')]);
+
+      await syncService.reinit();
+
+      {
+        const { result, unmount } = wrappedRenderHook(() =>
+          useSynchronizationStates()
+        );
+        expect(result.current.isPrimaryConnected).toBe(true);
+        expect(result.current.hasConflicts).toBe(false);
+        expect(result.current.isSyncEnabled).toBe(true);
+        expect(result.current.hasRemoteChanges).toBe(true);
+        expect(result.current.hasChanges).toBe(true);
+        unmount();
+      }
+
       // reinit sync after network down
       await syncService.reinit();
+
+      {
+        const { result, unmount } = wrappedRenderHook(() =>
+          useSynchronizationStates()
+        );
+        expect(result.current.isPrimaryConnected).toBe(true);
+        expect(result.current.hasConflicts).toBe(false);
+        expect(result.current.isSyncEnabled).toBe(true);
+        expect(result.current.hasRemoteChanges).toBe(true);
+        expect(result.current.hasChanges).toBe(true);
+        unmount();
+      }
+
+      // now sync
+      const resp = await syncService.sync('sync');
+      expect(resp.success).toBe(true);
+      expect(resp.didPull).toBe(true);
+      expect(resp.didPush).toBe(true);
+      // both items are kept
+      expect(getRowCountInsideNotebook()).toBe(2);
+    });
+
+    it('should handle reinit on network down - no remote changes', async () => {
+      // create local item, don't sync
+      collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      // create item on remote
+      await reInitRemoteData([oneDocument('remote')]);
+      await syncService.sync('sync');
+      expect(getRowCountInsideNotebook()).toBe(2);
+
+      {
+        const { result, unmount } = wrappedRenderHook(() =>
+          useSynchronizationStates()
+        );
+        expect(result.current.isPrimaryConnected).toBe(true);
+        expect(result.current.hasConflicts).toBe(false);
+        expect(result.current.isSyncEnabled).toBe(true);
+        expect(result.current.hasRemoteChanges).toBe(false);
+        expect(result.current.hasChanges).toBe(false);
+        unmount();
+      }
+
+      // reinit sync after network down
+      await syncService.reinit();
+
+      {
+        const { result, unmount } = wrappedRenderHook(() =>
+          useSynchronizationStates()
+        );
+        expect(result.current.isPrimaryConnected).toBe(true);
+        expect(result.current.hasConflicts).toBe(false);
+        expect(result.current.isSyncEnabled).toBe(true);
+        expect(result.current.hasRemoteChanges).toBe(false);
+        expect(result.current.hasChanges).toBe(false);
+        unmount();
+      }
+
       // now pull
-      await syncService.pull();
+      const resp = await syncService.sync('sync');
+      expect(resp.success).toBe(true);
+      expect(resp.didPull).toBe(false);
+      expect(resp.didPush).toBe(false);
       // both items are kept
       expect(getRowCountInsideNotebook()).toBe(2);
     });

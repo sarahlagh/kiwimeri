@@ -48,14 +48,25 @@ export abstract class CloudStorageSynchronizer {
   protected storeReplicaStateInfo<
     K extends keyof Omit<ReplicaStateRow, 'connected'>
   >(remoteId: string, remoteInfo: ReplicaState, key: K) {
+    const existing = space.getCell(
+      SpaceTables.ReplicaState,
+      remoteId,
+      key
+    ) as StoredStateInfo;
     const storedState: StoredStateInfo = {
-      lastPulled: remoteInfo.lastPulled,
+      ...existing,
       lastRemoteChange: remoteInfo.lastRemoteChange,
       driverInfo: remoteInfo.driverInfo
     };
-    const row: Partial<Record<K, unknown>> = {};
-    row[key] = storedState;
-    space.setPartialRow(SpaceTables.ReplicaState, remoteId, row);
+    if (remoteInfo.lastPulled !== undefined) {
+      storedState.lastPulled = remoteInfo.lastPulled;
+    }
+    space.setCell(
+      SpaceTables.ReplicaState,
+      remoteId,
+      key,
+      storedState as never
+    );
   }
 
   protected getLastPulled<K extends keyof Omit<ReplicaStateRow, 'connected'>>(
