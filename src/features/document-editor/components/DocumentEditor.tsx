@@ -3,12 +3,12 @@ import { APPICONS } from '@/constants';
 import collectionService from '@/domain/collection/collection.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { statsService } from '@/domain/stats/stats-service';
-import { conflictsService } from '@/domain/synchronization/conflicts-service';
 
 import { SpaceTables } from '@/core/db/store-constants';
 import { useSpaceCell } from '@/core/db/tinybase-hooks';
 import { ActionsFromDocumentEditorToolbar } from '@/features/collection-browser';
 import { SearchActionsToolbar } from '@/features/search';
+import { useHasLocalConflicts } from '@/features/synchronization-ui';
 import { onTitleChangeFn } from '@/shared/misc/onTitleChangeFn';
 import {
   InputCustomEvent,
@@ -49,7 +49,7 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
     const [bottomSheet, setBottomSheet] = useState<DocSheet>('info');
     const [toggleSearch, setToggleSearch] = useState(false);
     const [toggleSearchAutoFocus, setToggleSearchAutoFocus] = useState(true);
-    const hasConflicts = conflictsService.useHasLocalConflicts();
+    const hasConflicts = useHasLocalConflicts();
     // TODO refactor
     useEffect(() => {
       setShowDocumentActions(showActions);

@@ -1,4 +1,3 @@
-import { useQueryResults } from '@/core/db/queries-helper';
 import { Id } from 'tinybase/with-schemas';
 import {
   AnnotationConflictResult,
@@ -16,12 +15,6 @@ class ConflictsService {
   public closeConflictQueries() {
     fetchItemsConflictsQuery.close();
     fetchAnnotsConflictsQuery.close();
-  }
-
-  public useHasLocalConflicts() {
-    const collectionConflicts = useQueryResults(fetchItemsConflictsQuery);
-    const annotsConflicts = useQueryResults(fetchAnnotsConflictsQuery);
-    return collectionConflicts.length > 0 || annotsConflicts.length > 0;
   }
 
   public getHasLocalConflicts() {

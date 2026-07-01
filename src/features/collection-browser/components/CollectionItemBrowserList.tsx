@@ -21,14 +21,13 @@ import collectionService from '@/domain/collection/collection.service';
 import { ExportItemsButton, ImportItemsButton } from '@/features/import-export';
 import { getSearchParams } from '@/shared/utils';
 
-import { conflictsService } from '@/domain/synchronization/conflicts-service';
-
 import { settingsService } from '@/domain/collection/collection-settings.service';
 import useFolderEffectiveSort from '@/domain/collection/hooks/useFolderEffectiveSort';
 import useNotebookLastBrowserMode from '@/domain/collection/hooks/useNotebookLastBrowserMode';
 import notebooksService from '@/domain/collection/notebooks.service';
 
 import { ActionsFromBrowserToolbar } from '@/features/collection-item-actions';
+import { useHasLocalConflicts } from '@/features/synchronization-ui';
 import { useLingui } from '@lingui/react/macro';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import useCollectionItemBrowserListResults, {
@@ -145,7 +144,7 @@ export const CollectionItemBrowserList = ({
   const location = useLocation();
   const searchParams = getSearchParams(location.search);
   const openedDocument = searchParams?.document;
-  const hasConflicts = conflictsService.useHasLocalConflicts();
+  const hasConflicts = useHasLocalConflicts();
 
   const sort = useFolderEffectiveSort(folder);
 
