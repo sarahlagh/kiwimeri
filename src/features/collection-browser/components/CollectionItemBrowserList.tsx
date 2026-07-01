@@ -22,8 +22,6 @@ import { ExportItemsButton, ImportItemsButton } from '@/features/import-export';
 import { getSearchParams } from '@/shared/utils';
 
 import { settingsService } from '@/domain/collection/collection-settings.service';
-import useFolderEffectiveSort from '@/domain/collection/hooks/useFolderEffectiveSort';
-import useNotebookLastBrowserMode from '@/domain/collection/hooks/useNotebookLastBrowserMode';
 import notebooksService from '@/domain/collection/notebooks.service';
 
 import { ActionsFromBrowserToolbar } from '@/features/collection-item-actions';
@@ -34,6 +32,8 @@ import useCollectionItemBrowserListResults, {
   BrowserQueryMode,
   browserModes
 } from '../hooks/useCollectionItemBrowserListResults';
+import useFolderEffectiveSort from '../hooks/useFolderEffectiveSort';
+import useNotebookLastBrowserMode from '../hooks/useNotebookLastBrowserMode';
 import CollectionItemBreadcrumb from './CollectionItemBreadcrumb';
 import CollectionItemList from './CollectionItemList';
 import SortFilterInlineList from './SortFilterInlineList';
@@ -147,7 +147,6 @@ export const CollectionItemBrowserList = ({
   const hasConflicts = useHasLocalConflicts();
 
   const sort = useFolderEffectiveSort(folder);
-
   const modeIdx = useNotebookLastBrowserMode();
 
   const modeTrans = new Map<BrowserQueryMode, string>();

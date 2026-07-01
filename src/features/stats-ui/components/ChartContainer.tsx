@@ -5,13 +5,13 @@ import { useEffect, useRef, useState } from 'react';
 import TimeChart from './charts/TimeChart';
 
 import { Theme } from '@/domain/device-settings/device-settings';
-import useDeviceSetting from '@/domain/device-settings/hooks/useDeviceSetting';
 import { DataPoint } from '@/domain/stats/stats';
 import {
   TrackedStats,
   statsService,
   trackedStats
 } from '@/domain/stats/stats-service';
+import useDeviceSetting from '@/shared/hooks/useDeviceSetting';
 import './ChartContainer.scss';
 
 type ChartContainerProps = {

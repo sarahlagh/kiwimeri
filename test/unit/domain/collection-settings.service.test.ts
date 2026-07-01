@@ -3,11 +3,11 @@ import { space } from '@/core/db/store';
 import { MetaField } from '@/core/db/types';
 import { settingsService } from '@/domain/collection/collection-settings.service';
 import collectionService from '@/domain/collection/collection.service';
-import useFolderEffectiveSort from '@/domain/collection/hooks/useFolderEffectiveSort';
-import useNotebookDefaultSettings from '@/domain/collection/hooks/useNotebookDefaultSettings';
-import useNotebookLastBrowserMode from '@/domain/collection/hooks/useNotebookLastBrowserMode';
-import useSpaceDefaultSettings from '@/domain/collection/hooks/useSpaceDefaultSettings';
 import notebooksService from '@/domain/collection/notebooks.service';
+import useFolderEffectiveSort from '@/features/collection-browser/hooks/useFolderEffectiveSort';
+import useNotebookLastBrowserMode from '@/features/collection-browser/hooks/useNotebookLastBrowserMode';
+import useNotebookDefaultSettings from '@/shared/hooks/useNotebookDefaultSettings';
+import useSpaceDefaultSettings from '@/shared/hooks/useSpaceDefaultSettings';
 import { adv, fakeTimersDelay, wrappedRenderHook } from '@@/_setup/test.utils';
 import { describe, expect, it } from 'vitest';
 

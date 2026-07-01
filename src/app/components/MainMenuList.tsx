@@ -1,5 +1,6 @@
 import { useLocation } from 'react-router-dom';
 
+import useShowDevTools from '@/app/hooks/useShowDevTools';
 import {
   DEV_TOOLS_ROUTE,
   GET_ITEM_ROUTE,
@@ -12,10 +13,9 @@ import { appConfig } from '@/config';
 import { APPICONS } from '@/constants';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
-import useDeviceSetting from '@/domain/device-settings/hooks/useDeviceSetting';
-import useShowDevTools from '@/domain/device-settings/hooks/useShowDevTools';
 import { NotebookSwitcher } from '@/features/collection-notebooks-ui';
 import CatchClickLabel from '@/shared/components/CatchClickLabel';
+import useDeviceSetting from '@/shared/hooks/useDeviceSetting';
 import {
   IonButton,
   IonButtons,

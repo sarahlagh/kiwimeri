@@ -1,4 +1,4 @@
-import useShowDevTools from '@/domain/device-settings/hooks/useShowDevTools';
+import useShowDevTools from '@/app/hooks/useShowDevTools';
 import { DevTools } from '@/features/dev-tools';
 import { IonContent } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
