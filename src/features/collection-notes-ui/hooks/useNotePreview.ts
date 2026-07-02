@@ -1,4 +1,4 @@
-import { PREVIEW_SIZE } from '@/constants';
+import { ANNOT_PREVIEW_SIZE } from '@/constants';
 import { SpaceTables } from '@/core/db/store-constants';
 import { useSpaceCell } from '@/core/db/tinybase-hooks';
 import { getDerivedId } from '@/domain/collection/derived-content';
@@ -10,6 +10,6 @@ const useNotePreview = (rowId: Id) => {
     getDerivedId('a', rowId),
     'plainText'
   );
-  return plainText?.substring(0, PREVIEW_SIZE);
+  return plainText?.substring(0, ANNOT_PREVIEW_SIZE);
 };
 export default useNotePreview;

@@ -1,4 +1,4 @@
-import { PREVIEW_SIZE } from '@/constants';
+import { ANNOT_PREVIEW_SIZE } from '@/constants';
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { setMetaField } from '@/core/db/types';
@@ -107,7 +107,7 @@ class DocumentAnnotationsService {
     return (
       space
         .getCell(D, getDerivedId('a', id), 'plainText')
-        ?.substring(0, PREVIEW_SIZE) || ''
+        ?.substring(0, ANNOT_PREVIEW_SIZE) || ''
     );
   }
 
