@@ -94,9 +94,8 @@ export type CollectionItemResult = Pick<
   | 'conflictId'
 > &
   Required<Pick<CollectionItem, 'id'>> & {
-    lastOpenedAt?: number;
-    preview?: string;
     breadcrumb?: string[];
+    plainText?: string;
   };
 
 export const CollectionItemUpdatableConflictFields: CollectionItemUpdatableFieldEnum[] =

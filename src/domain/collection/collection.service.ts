@@ -116,7 +116,7 @@ class CollectionService {
   }
 
   public getBrowsableCollectionItems(
-    parent: string,
+    parentId: string,
     sort?: CollectionItemSort
   ) {
     if (!sort) {
@@ -124,9 +124,8 @@ class CollectionService {
     }
     return fetchItemsQuery.getResults(
       {
-        parentId: parent,
-        recursive: false,
-        onlyConflicts: false
+        parentId,
+        recursive: false
       },
       sort.by,
       sort.descending
@@ -140,8 +139,7 @@ class CollectionService {
     return fetchItemsQuery.getResults(
       {
         parentId: parent,
-        recursive: true,
-        onlyConflicts: false
+        recursive: true
       },
       sort.by,
       sort.descending

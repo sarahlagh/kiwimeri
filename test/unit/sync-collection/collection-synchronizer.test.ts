@@ -7,7 +7,6 @@ import collectionService from '@/domain/collection/collection.service';
 import { minimizeContentForStorage } from '@/domain/collection/compress-file-content';
 import { getDerivedId } from '@/domain/collection/derived-content';
 import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
-import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
 import { historyService } from '@/domain/history/history.service';
 import { conflictsService } from '@/domain/synchronization/conflicts-service';
 import { LocalChangeType } from '@/domain/synchronization/local-changes';
@@ -19,6 +18,7 @@ import {
 } from '@/domain/synchronization/merging/synchronizers/collection-synchronizer';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import useItemsConflictMixIn from '@/features/collection-browser/hooks/useItemsConflictMixIn';
+import fetchSortableItemsQuery from '@/features/collection-browser/queries/fetchSortableItemsQuery';
 import { useSynchronizationStates } from '@/features/synchronization-ui';
 import { InMemDriver } from '@@/_setup/inmem.driver';
 import {
@@ -892,7 +892,7 @@ describe('collection synchronizer', () => {
         unmount();
       }
       {
-        const items = fetchItemsQuery.getResults(
+        const items = fetchSortableItemsQuery.getResults(
           {
             onlyConflicts: true,
             restrictType: CollectionItemType.document,
@@ -974,7 +974,7 @@ describe('collection synchronizer', () => {
         unmount();
       }
       {
-        const items = fetchItemsQuery.getResults({
+        const items = fetchSortableItemsQuery.getResults({
           onlyConflicts: true,
           restrictType: CollectionItemType.document,
           recursive: true,
@@ -1070,7 +1070,7 @@ describe('collection synchronizer', () => {
       }
 
       {
-        const items = fetchItemsQuery.getResults(
+        const items = fetchSortableItemsQuery.getResults(
           {
             onlyConflicts: true,
             restrictType: CollectionItemType.document,

@@ -2,7 +2,7 @@ import { ROOT_COLLECTION } from '@/constants';
 import { SpaceQueryDefinition } from '@/core/db/queries-helper';
 import { SpaceTables } from '@/core/db/store-constants';
 import {
-  CollectionItemResult,
+  CollectionItem,
   CollectionItemTypeValues
 } from '@/domain/collection/collection';
 import { getDerivedId } from '@/domain/collection/derived-content';
@@ -16,9 +16,27 @@ export type FetchSortableItemsQueryParam = {
   onlyConflicts?: boolean;
 };
 
+export type SortableItemResult = Pick<
+  CollectionItem,
+  | 'parentId'
+  | 'title'
+  | 'type'
+  | 'tags'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'order'
+  | 'settings'
+  | 'conflictId'
+> &
+  Required<Pick<CollectionItem, 'id'>> & {
+    lastOpenedAt?: number;
+    plainText?: string;
+    breadcrumb?: string[];
+  };
+
 const fetchSortableItemsQuery = new SpaceQueryDefinition<
   FetchSortableItemsQueryParam,
-  CollectionItemResult,
+  SortableItemResult,
   SpaceTables.Collection
 >(
   'fetchBrowserItems',
@@ -50,7 +68,7 @@ const fetchSortableItemsQuery = new SpaceQueryDefinition<
     select('order');
     select('conflictId');
     select('settings');
-    select('content', 'plainText').as('preview');
+    select('content', 'plainText').as('plainText');
     select('state', 'shortPath').as('breadcrumb');
 
     if (params.onlyConflicts) {
