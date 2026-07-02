@@ -3,11 +3,11 @@ import {
   CollectionItemResult,
   CollectionItemType
 } from '@/domain/collection/collection';
-import { CollectionItemSort } from '@/domain/collection/collection-settings';
 import { settingsService } from '@/domain/collection/collection-settings.service';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { useEffect } from 'react';
 import fetchBrowsableItemsQuery from '../queries/fetchBrowsableItemsQuery';
+import { BrowsableItemSort, fromCollectionItemSort } from '../sortable-item';
 
 export const browserModes = ['browser', 'updatedAt', 'lastOpenedAt'] as const;
 export type BrowserQueryMode = (typeof browserModes)[number] | 'conflicts';
@@ -15,7 +15,7 @@ export type BrowserQueryMode = (typeof browserModes)[number] | 'conflicts';
 export default function useCollectionItemBrowserListResults(
   mode: BrowserQueryMode,
   parent?: string,
-  userSort?: CollectionItemSort,
+  userSort?: BrowsableItemSort,
   limit?: number
 ): CollectionItemResult[] {
   useEffect(() => {
@@ -38,12 +38,13 @@ export default function useCollectionItemBrowserListResults(
     fetchBrowsableItemsQuery.loadParams(opts);
   }, [mode, parent]);
 
-  let sort;
+  let sort: BrowsableItemSort;
   //   let limit;
   if (mode === 'browser' || mode === 'conflicts') {
-    sort = userSort;
-    if (!sort) {
-      sort = settingsService.getNotebookDefaultSort(); // should use hook
+    if (userSort) {
+      sort = userSort;
+    } else {
+      sort = fromCollectionItemSort(settingsService.getNotebookDefaultSort());
     }
   } else {
     sort = { by: mode, descending: true };

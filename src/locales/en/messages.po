@@ -48,6 +48,7 @@ msgstr " (new)"
 msgid "-- conflict --"
 msgstr "-- conflict --"
 
+#. placeholder {0}: showFilters ? 'Hide' : 'Show'
 #: src/features/dev-tools/components/LogsCard.tsx:154
 msgid "{0} Filters"
 msgstr "{0} Filters"
@@ -157,7 +158,7 @@ msgstr "Choose a session length"
 msgid "Choose where to save your work"
 msgstr "Choose where to save your work"
 
-#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:241
+#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:239
 msgid "Clear All"
 msgstr "Clear All"
 
@@ -165,7 +166,7 @@ msgstr "Clear All"
 msgid "Close"
 msgstr "Close"
 
-#: src/constants.ts:83
+#: src/constants.ts:84
 msgid "collection"
 msgstr "collection"
 
@@ -192,8 +193,8 @@ msgstr "Configure where to synchronize your collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/constants.ts:79
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:155
+#: src/constants.ts:80
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:156
 msgid "Conflicts"
 msgstr "Conflicts"
 
@@ -209,6 +210,7 @@ msgstr "create a note"
 msgid "Created at"
 msgstr "Created at"
 
+#. placeholder {0}: dateToStr('relative', createdAt)
 #: src/features/collection-notes-ui/components/NotesActions.tsx:24
 msgid "Created at: {0}"
 msgstr "Created at: {0}"
@@ -222,7 +224,7 @@ msgstr "Creation Date"
 msgid "Current Notebook Settings ({notebookTitle})"
 msgstr "Current Notebook Settings ({notebookTitle})"
 
-#: src/constants.ts:78
+#: src/constants.ts:79
 msgid "Default"
 msgstr "Default"
 
@@ -238,7 +240,7 @@ msgstr "Delete All"
 msgid "Delete note"
 msgstr "Delete note"
 
-#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:154
+#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:152
 msgid "deleted item"
 msgstr "deleted item"
 
@@ -339,14 +341,16 @@ msgstr "History idle time (s)"
 msgid "History save time (min)"
 msgstr "History save time (min)"
 
-#: src/constants.ts:77
+#: src/constants.ts:78
 msgid "Home"
 msgstr "Home"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:125
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:118
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
@@ -387,7 +391,7 @@ msgstr "Kiwimeri format (content only)"
 msgid "Kiwimeri format (with history & stats)"
 msgstr "Kiwimeri format (with history & stats)"
 
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:154
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:155
 msgid "Last consulted documents"
 msgstr "Last consulted documents"
 
@@ -395,7 +399,7 @@ msgstr "Last consulted documents"
 msgid "Last Updated"
 msgstr "Last Updated"
 
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:153
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:154
 msgid "Last updated documents"
 msgstr "Last updated documents"
 
@@ -411,10 +415,12 @@ msgstr "Less dangerous mode (session is still timed but you will not lose progre
 msgid "Link"
 msgstr "Link"
 
+#. placeholder {0}: localChanges.length
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:74
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
+#. placeholder {0}: dateToStr('datetime', lastLocalChange)
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:81
 msgid "Local:  {0}"
 msgstr "Local:  {0}"
@@ -476,11 +482,11 @@ msgstr "Name"
 msgid "new"
 msgstr "new"
 
-#: src/constants.ts:80
+#: src/constants.ts:81
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:81
+#: src/constants.ts:82
 msgid "New folder"
 msgstr "New folder"
 
@@ -554,6 +560,7 @@ msgstr "Remember last route"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
+#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:94
 msgid "Remote:  {0}"
 msgstr "Remote:  {0}"
@@ -637,7 +644,7 @@ msgstr "Sort items by..."
 msgid "sort notes"
 msgstr "sort notes"
 
-#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:206
+#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:204
 msgid "Space setting modified:"
 msgstr "Space setting modified:"
 
@@ -729,6 +736,7 @@ msgstr "Track text statistics"
 msgid "Updated at"
 msgstr "Updated at"
 
+#. placeholder {0}: dateToStr('relative', updatedAt)
 #: src/features/collection-notes-ui/components/NotesActions.tsx:29
 msgid "Updated at: {0}"
 msgstr "Updated at: {0}"
