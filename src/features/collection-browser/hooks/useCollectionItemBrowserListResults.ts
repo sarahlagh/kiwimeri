@@ -7,7 +7,7 @@ import { CollectionItemSort } from '@/domain/collection/collection-settings';
 import { settingsService } from '@/domain/collection/collection-settings.service';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { useEffect } from 'react';
-import fetchSortableItemsQuery from '../queries/fetchSortableItemsQuery';
+import fetchBrowsableItemsQuery from '../queries/fetchBrowsableItemsQuery';
 
 export const browserModes = ['browser', 'updatedAt', 'lastOpenedAt'] as const;
 export type BrowserQueryMode = (typeof browserModes)[number] | 'conflicts';
@@ -35,7 +35,7 @@ export default function useCollectionItemBrowserListResults(
         onlyConflicts: mode === 'conflicts'
       };
     }
-    fetchSortableItemsQuery.loadParams(opts);
+    fetchBrowsableItemsQuery.loadParams(opts);
   }, [mode, parent]);
 
   let sort;
@@ -51,7 +51,7 @@ export default function useCollectionItemBrowserListResults(
   }
 
   return useQueryResults(
-    fetchSortableItemsQuery,
+    fetchBrowsableItemsQuery,
     sort.by,
     sort.descending,
     0,

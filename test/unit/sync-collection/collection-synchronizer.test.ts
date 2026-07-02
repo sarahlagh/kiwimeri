@@ -18,7 +18,7 @@ import {
 } from '@/domain/synchronization/merging/synchronizers/collection-synchronizer';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import useItemsConflictMixIn from '@/features/collection-browser/hooks/useItemsConflictMixIn';
-import fetchSortableItemsQuery from '@/features/collection-browser/queries/fetchSortableItemsQuery';
+import fetchBrowsableItemsQuery from '@/features/collection-browser/queries/fetchBrowsableItemsQuery';
 import { useSynchronizationStates } from '@/features/synchronization-ui';
 import { InMemDriver } from '@@/_setup/inmem.driver';
 import {
@@ -892,7 +892,7 @@ describe('collection synchronizer', () => {
         unmount();
       }
       {
-        const items = fetchSortableItemsQuery.getResults(
+        const items = fetchBrowsableItemsQuery.getResults(
           {
             onlyConflicts: true,
             restrictType: CollectionItemType.document,
@@ -974,7 +974,7 @@ describe('collection synchronizer', () => {
         unmount();
       }
       {
-        const items = fetchSortableItemsQuery.getResults({
+        const items = fetchBrowsableItemsQuery.getResults({
           onlyConflicts: true,
           restrictType: CollectionItemType.document,
           recursive: true,
@@ -1070,7 +1070,7 @@ describe('collection synchronizer', () => {
       }
 
       {
-        const items = fetchSortableItemsQuery.getResults(
+        const items = fetchBrowsableItemsQuery.getResults(
           {
             onlyConflicts: true,
             restrictType: CollectionItemType.document,

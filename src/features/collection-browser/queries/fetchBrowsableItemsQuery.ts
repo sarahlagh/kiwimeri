@@ -1,14 +1,12 @@
-import { ROOT_COLLECTION } from '@/constants';
+import { DOC_PREVIEW_SIZE, ROOT_COLLECTION } from '@/constants';
 import { SpaceQueryDefinition } from '@/core/db/queries-helper';
 import { SpaceTables } from '@/core/db/store-constants';
-import {
-  CollectionItem,
-  CollectionItemTypeValues
-} from '@/domain/collection/collection';
+import { CollectionItemTypeValues } from '@/domain/collection/collection';
 import { getDerivedId } from '@/domain/collection/derived-content';
 import { conflictsService } from '@/domain/synchronization/conflicts-service';
+import { BrowsableItemResult } from '../sortable-item';
 
-export type FetchSortableItemsQueryParam = {
+export type fetchBrowsableItemsQueryParam = {
   parentId: string;
   recursive?: boolean;
   restrictType?: CollectionItemTypeValues;
@@ -16,33 +14,15 @@ export type FetchSortableItemsQueryParam = {
   onlyConflicts?: boolean;
 };
 
-export type SortableItemResult = Pick<
-  CollectionItem,
-  | 'parentId'
-  | 'title'
-  | 'type'
-  | 'tags'
-  | 'createdAt'
-  | 'updatedAt'
-  | 'order'
-  | 'settings'
-  | 'conflictId'
-> &
-  Required<Pick<CollectionItem, 'id'>> & {
-    lastOpenedAt?: number;
-    plainText?: string;
-    breadcrumb?: string[];
-  };
-
-const fetchSortableItemsQuery = new SpaceQueryDefinition<
-  FetchSortableItemsQueryParam,
-  SortableItemResult,
+const fetchBrowsableItemsQuery = new SpaceQueryDefinition<
+  fetchBrowsableItemsQueryParam,
+  BrowsableItemResult,
   SpaceTables.Collection
 >(
   'fetchBrowserItems',
   SpaceTables.Collection,
   ({ select, where, param, join }) => {
-    const params: FetchSortableItemsQueryParam = {
+    const params: fetchBrowsableItemsQueryParam = {
       parentId: param('parentId') as string,
       recursive: param('recursive') as boolean,
       restrictType: param('restrictType') as CollectionItemTypeValues,
@@ -68,7 +48,9 @@ const fetchSortableItemsQuery = new SpaceQueryDefinition<
     select('order');
     select('conflictId');
     select('settings');
-    select('content', 'plainText').as('plainText');
+    select(getCell =>
+      getCell('content', 'plainText')?.toString().substring(0, DOC_PREVIEW_SIZE)
+    ).as('preview');
     select('state', 'shortPath').as('breadcrumb');
 
     if (params.onlyConflicts) {
@@ -110,5 +92,5 @@ const fetchSortableItemsQuery = new SpaceQueryDefinition<
   }
 );
 
-export type FetchSortableItemsQuery = typeof fetchSortableItemsQuery;
-export default fetchSortableItemsQuery;
+export type FetchBrowsableItemsQuery = typeof fetchBrowsableItemsQuery;
+export default fetchBrowsableItemsQuery;
