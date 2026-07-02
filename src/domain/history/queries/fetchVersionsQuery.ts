@@ -16,7 +16,7 @@ export type CollectionItemVersion = WithId<{
   createdAt: number;
   snapshotJson: CollectionItemSnapshotData;
   content: string;
-  preview: string;
+  plainText: string;
   hash: Id;
 }>;
 
@@ -38,7 +38,7 @@ const fetchVersionsQuery = new SpaceQueryDefinition<
     select('snapshotJson');
     select('contentId').as('hash');
     select('contentData', 'content');
-    select('contentData', 'preview');
+    select('contentData', 'plainText');
     join(SpaceTables.HistoryContent, 'contentId').as('contentData');
 
     if (params.itemId !== undefined) {

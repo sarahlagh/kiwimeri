@@ -1,5 +1,5 @@
 import { useToastContext } from '@/app/context/ToastContext';
-import { APPICONS } from '@/constants';
+import { APPICONS, DOC_PREVIEW_SIZE } from '@/constants';
 import { historyService } from '@/domain/history/history.service';
 import { CollectionItemVersion } from '@/domain/history/queries/fetchVersionsQuery';
 import LoadingInline from '@/shared/components/LoadingInline';
@@ -55,7 +55,7 @@ const VersionPreview = ({
   const style = isActive ? { fontWeight: 'bold' } : {};
   if (lastPreview) {
     setTimeout(() => {
-      diffChars(lastPreview, version.preview, {
+      diffChars(lastPreview, version.plainText, {
         callback: result => {
           setDiff(result);
         }
@@ -76,7 +76,7 @@ const VersionPreview = ({
   return (
     <IonLabel style={style}>
       {dateToStr('relative', version.snapshotJson.updatedAt)}
-      <p>{version.preview.substring(0, 200)}</p>
+      <p>{version.plainText.substring(0, DOC_PREVIEW_SIZE)}</p>
     </IonLabel>
   );
 };
@@ -125,7 +125,7 @@ const ManageHistoryModal = ({
                   isActive={version.id === docVersion}
                   lastPreview={
                     idx < docHistory.length - 1
-                      ? docHistory[idx + 1].preview
+                      ? docHistory[idx + 1].plainText
                       : undefined
                   }
                 />

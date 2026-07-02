@@ -65,7 +65,7 @@ class CollectionHistoryService {
       snapshotJson: versionRow.snapshotJson as CollectionItemSnapshotData,
       hash: versionRow.contentId,
       content: contentRow?.content || '',
-      preview: contentRow?.preview || ''
+      plainText: contentRow?.plainText || ''
     };
   }
 
@@ -190,7 +190,7 @@ class CollectionHistoryService {
     }
     space.setRow(HC, contentHash, {
       content: item.content || '',
-      preview: getPlainText(item.content)
+      plainText: getPlainText(item.content)
     });
     return contentHash;
   }

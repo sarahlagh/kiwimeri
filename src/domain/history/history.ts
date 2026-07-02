@@ -11,7 +11,7 @@ export type CollectionItemVersionRow = {
 };
 export type CollectionItemVersionContentRow = {
   content: string;
-  preview: string;
+  plainText: string;
 };
 
 export const historySchema = {
@@ -24,5 +24,5 @@ export const historySchema = {
 
 export const historyContentSchema = {
   content: { type: 'string' },
-  preview: { type: 'string' }
+  plainText: { type: 'string' }
 } as const satisfies Record<keyof CollectionItemVersionContentRow, unknown>;
