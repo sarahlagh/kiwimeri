@@ -166,7 +166,7 @@ class CollectionContentSearchService {
     const results: DeepSearchResult[] = [];
     collectionService.getAllChildren(searchOptions.scope).forEach(item => {
       const shortPath = item.breadcrumb;
-      const plainText = item.preview;
+      const plainText = item.plainText;
       if (!shortPath || !item) return;
       if (!searchOptions.searchInTitle && !plainText) return;
       const title = item.title?.toString() || '';

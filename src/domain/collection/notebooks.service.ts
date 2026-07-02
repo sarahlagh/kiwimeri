@@ -8,10 +8,8 @@ import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { setMetaField } from '@/core/db/types';
 import { CollectionItemType } from '@/domain/collection/collection';
-import { CollectionItemSort } from '@/domain/collection/collection-settings';
-import { settingsService } from '@/domain/collection/collection-settings.service';
 import collectionService from '@/domain/collection/collection.service';
-import { Notebook } from '@/domain/collection/notebooks';
+import { Notebook, NotebookSort } from '@/domain/collection/notebooks';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { getUniqueId } from 'tinybase/with-schemas';
 import fetchItemsQuery from './queries/fetchItemsQuery';
@@ -104,9 +102,9 @@ class NotebooksService {
     collectionService.setItemTitle(id, title);
   }
 
-  public getNotebooks(parentId?: string, sort?: CollectionItemSort) {
+  public getNotebooks(parentId?: string, sort?: NotebookSort) {
     if (!sort) {
-      sort = settingsService.getSpaceDefaultSort();
+      sort = { by: 'createdAt', descending: false };
     }
     return fetchItemsQuery.getResults(
       {

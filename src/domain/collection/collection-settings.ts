@@ -6,15 +6,12 @@ export const docSortBy = [
   'createdAt',
   'updatedAt',
   'title',
-  'preview',
+  'plainText',
   'order'
 ] as const;
 export type CollectionItemSortType = (typeof docSortBy)[number];
 
-export type CollectionItemSort = {
-  by: CollectionItemSortType;
-  descending: boolean;
-};
+export type CollectionItemSort = Sort<CollectionItemSortType>;
 
 export const annotSortBy = ['createdAt', 'order'] as const;
 export type NotesSortType = (typeof annotSortBy)[number];

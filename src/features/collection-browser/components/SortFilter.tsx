@@ -47,7 +47,7 @@ const SortFilter = ({
   valuesTransMap.set('createdAt', t`Creation Date`);
   valuesTransMap.set('updatedAt', t`Last Updated`);
   valuesTransMap.set('title', t`Title`);
-  valuesTransMap.set('preview', t`Content`);
+  valuesTransMap.set('plainText', t`Content`);
   valuesTransMap.set('order', t`Manual`);
   // TODO opt to keep folders at top
   return (
