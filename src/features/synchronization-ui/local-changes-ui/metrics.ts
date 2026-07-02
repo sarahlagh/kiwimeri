@@ -1,21 +1,15 @@
 import { spaceMetrics } from '@/core/db/store';
-import { SpaceType } from '@/core/db/store-schema';
-import { Metrics } from 'tinybase/with-schemas';
 
 export const LatestCollectionUpdateMetricId = 'latestCollectionChange';
 
-function latestCollectionUpdateMetric(metrics: Metrics<SpaceType>) {
-  metrics.setMetricDefinition(
-    LatestCollectionUpdateMetricId,
-    'collection',
-    'max',
-    'updatedAt'
-  );
-}
-
 export function initLatestCollectionUpdateMetric() {
   if (!spaceMetrics.hasMetric(LatestCollectionUpdateMetricId)) {
-    latestCollectionUpdateMetric(spaceMetrics);
+    spaceMetrics.setMetricDefinition(
+      LatestCollectionUpdateMetricId,
+      'collection',
+      'max',
+      'updatedAt'
+    );
   }
 }
 

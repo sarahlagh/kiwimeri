@@ -138,7 +138,7 @@ msgstr "Character Count (Max)"
 msgid "characters"
 msgstr "characters"
 
-#: src/features/collection-browser/modals/ChooseFolderModal.tsx:71
+#: src/features/collection-browser/modals/ChooseFolderModal.tsx:69
 msgid "Choose"
 msgstr "Choose"
 
@@ -146,7 +146,7 @@ msgstr "Choose"
 msgid "Choose a length for your writing session. Once you start, you must keep writing or all progress will be lost. You will have the option to save your work in a new document once you finish. This feature is inspired by Squibler's Most Dangerous Writing App (https://www.squibler.io/dangerous-writing-prompt-app)."
 msgstr "Choose a length for your writing session. Once you start, you must keep writing or all progress will be lost. You will have the option to save your work in a new document once you finish. This feature is inspired by Squibler's Most Dangerous Writing App (https://www.squibler.io/dangerous-writing-prompt-app)."
 
-#: src/features/collection-browser/modals/ChooseFolderModal.tsx:115
+#: src/features/collection-browser/modals/ChooseFolderModal.tsx:113
 msgid "Choose a new folder"
 msgstr "Choose a new folder"
 
@@ -194,7 +194,7 @@ msgid "Confirm"
 msgstr "Confirm"
 
 #: src/constants.ts:80
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:156
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:153
 msgid "Conflicts"
 msgstr "Conflicts"
 
@@ -391,7 +391,7 @@ msgstr "Kiwimeri format (content only)"
 msgid "Kiwimeri format (with history & stats)"
 msgstr "Kiwimeri format (with history & stats)"
 
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:155
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:152
 msgid "Last consulted documents"
 msgstr "Last consulted documents"
 
@@ -399,7 +399,7 @@ msgstr "Last consulted documents"
 msgid "Last Updated"
 msgstr "Last Updated"
 
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:154
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:151
 msgid "Last updated documents"
 msgstr "Last updated documents"
 

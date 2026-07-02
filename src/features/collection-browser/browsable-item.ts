@@ -4,11 +4,11 @@ import { Sort } from '@/shared/misc/sort-filter/sort';
 
 export const browserSortBy = [
   'createdAt',
-  'updatedAt',
+  'updatedAtRank',
   'title',
   'preview',
   'order',
-  'lastOpenedAt'
+  'lastOpenedAtRank'
 ] as const;
 export type BrowsableItemSortType = (typeof browserSortBy)[number];
 
@@ -22,6 +22,8 @@ export function fromCollectionItemSort(
   switch (by) {
     case 'plainText':
       return { by: 'preview', descending };
+    case 'updatedAt':
+      return { by: 'updatedAtRank', descending };
   }
   return { by, descending };
 }
@@ -33,13 +35,13 @@ export type BrowsableItemResult = Pick<
   | 'type'
   | 'tags'
   | 'createdAt'
-  | 'updatedAt'
   | 'order'
   | 'settings'
   | 'conflictId'
 > &
   Required<Pick<CollectionItem, 'id'>> & {
-    lastOpenedAt?: number;
+    lastOpenedAtRank?: number;
+    updatedAtRank?: number;
     preview?: string;
     breadcrumb?: string[];
   };

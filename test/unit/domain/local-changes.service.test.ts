@@ -5,9 +5,9 @@ import { SerializableData } from '@/core/db/types';
 import { CollectionItemType } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
 import {
-  startDerivedContentListeners,
-  stopDerivedContentListeners
-} from '@/domain/collection/derived-content-listeners';
+  startDerivedTablesListeners,
+  stopDerivedTablesListeners
+} from '@/domain/collection/derived-tables-listeners';
 import notebooksService from '@/domain/collection/notebooks.service';
 import {
   LocalChangeResult,
@@ -203,11 +203,11 @@ describe('local changes service', () => {
 describe('local changes listeners', () => {
   beforeEach(() => {
     localChangesService.clear();
-    stopDerivedContentListeners();
+    stopDerivedTablesListeners();
     vi.useFakeTimers();
   });
   afterEach(() => {
-    startDerivedContentListeners();
+    startDerivedTablesListeners();
     vi.useRealTimers();
   });
   const watchedTables: {

@@ -2,7 +2,6 @@ import { APPICONS, CONFLICT_STR } from '@/constants';
 import { plt } from '@/core/infra/platform';
 import {
   APPICONS_PER_TYPE,
-  CollectionItemResult,
   CollectionItemType
 } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
@@ -23,6 +22,7 @@ import {
 import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactProps';
 import { Trans } from '@lingui/react/macro';
 import { Fragment, ReactNode, useEffect, useRef, useState } from 'react';
+import { BrowsableItemResult } from '../browsable-item';
 import useItemsConflictMixIn from '../hooks/useItemsConflictMixIn';
 import './CollectionItemList.css';
 
@@ -41,28 +41,28 @@ type CollectionItemMixIn = {
 };
 
 type CollectionItemListSingleItemProps = {
-  item: CollectionItemResult & CollectionItemMixIn;
+  item: BrowsableItemResult & CollectionItemMixIn;
   actionsIcon?: string;
   selected?: string;
   highlighted?: boolean;
   itemRenaming?: string;
-  itemProps?: (item: CollectionItemResult) => IonicReactProps | undefined;
-  itemDisabled?: (item: CollectionItemResult) => boolean;
-  actionDisabled?: (item: CollectionItemResult) => boolean;
-  actionVisible?: (item: CollectionItemResult) => boolean;
-  getUrl?: (item: CollectionItemResult) => string;
+  itemProps?: (item: BrowsableItemResult) => IonicReactProps | undefined;
+  itemDisabled?: (item: BrowsableItemResult) => boolean;
+  actionDisabled?: (item: BrowsableItemResult) => boolean;
+  actionVisible?: (item: BrowsableItemResult) => boolean;
+  getUrl?: (item: BrowsableItemResult) => string;
   onClickActions?: (
     e: Event,
-    selectedItem: CollectionItemResult,
+    selectedItem: BrowsableItemResult,
     confirm: (id: string, callback: ConfirmCallback) => void
   ) => void;
-  onSelectedItem?: (selectedItem: CollectionItemResult) => void;
+  onSelectedItem?: (selectedItem: BrowsableItemResult) => void;
   onRenamingDone?: () => void;
   confirm: (id: string, callback: ConfirmCallback) => void;
 };
 
 type CollectionItemListProps = {
-  items: CollectionItemResult[];
+  items: BrowsableItemResult[];
   searchText?: string | null;
   reorderEnabled?: boolean;
   header?: ReactNode;
@@ -294,8 +294,8 @@ const CollectionItemList = ({
             collectionService.reorderItems(items, from, to);
           }}
           isContainer={item =>
-            (item as CollectionItemResult).type === CollectionItemType.folder ||
-            (item as CollectionItemResult).type === CollectionItemType.notebook
+            (item as BrowsableItemResult).type === CollectionItemType.folder ||
+            (item as BrowsableItemResult).type === CollectionItemType.notebook
           }
           onContainerOver={id => {
             setOverId(id as string);

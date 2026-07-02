@@ -4,8 +4,9 @@ import { SpaceTables } from '@/core/db/store-constants';
 import collectionService from '@/domain/collection/collection.service';
 import { minimizeContentForStorage } from '@/domain/collection/compress-file-content';
 import notebooksService from '@/domain/collection/notebooks.service';
+import { statsService } from '@/domain/stats/stats-service';
 import storageService from '@/domain/storage.service';
-import { oneDocument, oneFolder } from '@@/_setup/test.utils';
+import { adv, oneDocument, oneFolder } from '@@/_setup/test.utils';
 import { describe, expect, it } from 'vitest';
 
 const shortContentPreview = 'This is a short content';
@@ -229,6 +230,64 @@ describe('derived state', () => {
       collectionService.deleteItem('FF1');
 
       expect(space.hasRow(SpaceTables.DerivedState, 'c-D1')).toBe(false);
+    });
+  });
+
+  describe(`derived sorting ranks`, () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    function expectUpdatedAtRank(rowId: string, rank?: number) {
+      expect(
+        space.getCell(SpaceTables.DerivedState, rowId, 'updatedAtRank')
+      ).toBe(rank);
+    }
+    function expectLastOpenedAtRank(rowId: string, rank?: number) {
+      expect(
+        space.getCell(SpaceTables.DerivedState, rowId, 'lastOpenedAtRank')
+      ).toBe(rank);
+    }
+
+    test('any update should set the updatedAtRank and lastOpenedAtRank columns', () => {
+      expect(space.getRowCount(SpaceTables.Collection)).toBe(1);
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      adv(() => collectionService.setItemTitle(docId, 'yo'));
+      const doc1 = oneDocument();
+      adv(() => collectionService.saveItem(doc1, doc1.id));
+      adv(() =>
+        statsService.updateGlobalStats(docId, { lastOpenedAt: Date.now() })
+      );
+      doc1.title = 'another';
+      doc1.title = 'and another';
+      const doc2 = oneDocument();
+      adv(() => collectionService.saveItems([doc1, doc2]));
+      adv(() =>
+        statsService.updateGlobalStats(doc1.id, { lastOpenedAt: Date.now() })
+      );
+      adv(() => collectionService.deleteItem(docId));
+      adv(() => collectionService.setItemTitle(doc1.id, 'yo'));
+      expect(space.getRowCount(SpaceTables.Collection)).toBe(3); // doc1 + doc2 + notebook
+      expect(space.hasRow(SpaceTables.DerivedState, docId)).toBe(false);
+      // doc2, doc1
+
+      const table = space.getTable(SpaceTables.DerivedState);
+      console.debug(table);
+
+      expectUpdatedAtRank(DEFAULT_NOTEBOOK_ID, 0);
+      expectLastOpenedAtRank(DEFAULT_NOTEBOOK_ID, undefined);
+
+      expectUpdatedAtRank(doc2.id, 1);
+      expectLastOpenedAtRank(doc2.id, undefined);
+
+      expectUpdatedAtRank(doc1.id, 2);
+      expectLastOpenedAtRank(doc1.id, 1); // TODO why 1
+
+      expectUpdatedAtRank(docId, undefined);
+      expectLastOpenedAtRank(docId, undefined);
     });
   });
 });

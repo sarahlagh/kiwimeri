@@ -2,12 +2,12 @@ import { useQueryResults } from '@/core/db/queries-helper';
 import { store } from '@/core/db/store';
 import {
   CollectionItem,
-  CollectionItemResult,
   CollectionItemType
 } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import {
+  BrowsableItemResult,
   CollectionItemBreadcrumb,
   CollectionItemList,
   useFetchItemsQuery,
@@ -29,7 +29,7 @@ import { useEffect, useState } from 'react';
 export type SavePayload = {
   content: SerializedEditorState;
   newItem?: CollectionItem;
-  existingItem?: CollectionItemResult;
+  existingItem?: BrowsableItemResult;
 };
 
 type SaveSessionModalProps = {
@@ -41,7 +41,7 @@ const SaveSessionModal = ({ onClose }: SaveSessionModalProps) => {
   const [tempItem, setTempItem] = useState<
     (CollectionItem & { id: string }) | null
   >(null);
-  const [item, setItem] = useState<CollectionItemResult | null>(null);
+  const [item, setItem] = useState<BrowsableItemResult | null>(null);
   const content = store.getValue('tempDoc');
 
   const query = useFetchItemsQuery(
