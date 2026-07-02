@@ -34,6 +34,7 @@ import useCollectionItemBrowserListResults, {
 } from '../hooks/useCollectionItemBrowserListResults';
 import useFolderEffectiveSort from '../hooks/useFolderEffectiveSort';
 import useNotebookLastBrowserMode from '../hooks/useNotebookLastBrowserMode';
+import { fromCollectionItemSort } from '../sortable-item';
 import CollectionItemBreadcrumb from './CollectionItemBreadcrumb';
 import CollectionItemList from './CollectionItemList';
 import SortFilterInlineList from './SortFilterInlineList';
@@ -146,7 +147,7 @@ export const CollectionItemBrowserList = ({
   const openedDocument = searchParams?.document;
   const hasConflicts = useHasLocalConflicts();
 
-  const sort = useFolderEffectiveSort(folder);
+  const sort = fromCollectionItemSort(useFolderEffectiveSort(folder));
   const modeIdx = useNotebookLastBrowserMode();
 
   const modeTrans = new Map<BrowserQueryMode, string>();
