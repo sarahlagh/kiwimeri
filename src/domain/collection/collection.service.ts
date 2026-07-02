@@ -1,4 +1,9 @@
-import { DEFAULT_ORDER, getGlobalTrans, ROOT_COLLECTION } from '@/constants';
+import {
+  DEFAULT_ORDER,
+  DOC_PREVIEW_SIZE,
+  getGlobalTrans,
+  ROOT_COLLECTION
+} from '@/constants';
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { SpaceTableId, SpaceTablesType } from '@/core/db/store-schema';
@@ -105,7 +110,9 @@ class CollectionService {
   }
 
   public getDocumentPreview(id: string) {
-    return space.getCell(SpaceTables.DerivedContent, id, 'plainText') || '';
+    return (
+      space.getCell(SpaceTables.DerivedContent, id, 'plainText') || ''
+    ).substring(0, DOC_PREVIEW_SIZE);
   }
 
   public getItem(id: string) {

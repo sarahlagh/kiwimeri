@@ -118,9 +118,7 @@ const LocalChangesCard = () => {
                   route = GET_UNKNOWN_ITEM_ROUTE(lc.itemId, type);
                   itemExists = collectionService.itemExists(lc.itemId);
                   preview = itemExists
-                    ? collectionService
-                        .getDocumentPreview(lc.itemId)
-                        .substring(0, 200)
+                    ? collectionService.getDocumentPreview(lc.itemId)
                     : '';
                 } else if (lc.on === SpaceTables.Annotations) {
                   const document = docAnnotationsService.getAnnotInfo(

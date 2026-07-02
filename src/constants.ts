@@ -68,7 +68,8 @@ export const META_JSON = 'meta.json';
 
 export const CONFLICT_STR = '[!] ';
 
-export const PREVIEW_SIZE = 80;
+export const ANNOT_PREVIEW_SIZE = 80;
+export const DOC_PREVIEW_SIZE = 200;
 
 /** @deprecated */
 export const DEFAULT_ORDER = 9999;
