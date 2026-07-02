@@ -4,7 +4,7 @@ import { SpaceTables } from '@/core/db/store-constants';
 import { CollectionItemTypeValues } from '@/domain/collection/collection';
 import { getDerivedId } from '@/domain/collection/derived-content';
 import { conflictsService } from '@/domain/synchronization/conflicts-service';
-import { BrowsableItemResult } from '../sortable-item';
+import { BrowsableItemResult } from '../browsable-item';
 
 export type fetchBrowsableItemsQueryParam = {
   parentId: string;
@@ -33,7 +33,6 @@ const fetchBrowsableItemsQuery = new SpaceQueryDefinition<
     if (params.onlyConflicts === undefined) params.onlyConflicts = false;
 
     // works but only because stats and collection have same id for global stats
-    join('stats', (getCell, itemId) => itemId).as('stats');
     join('derived_content', (getCell, itemId) => getDerivedId('c', itemId)).as(
       'content'
     );
@@ -44,7 +43,6 @@ const fetchBrowsableItemsQuery = new SpaceQueryDefinition<
     select('type');
     select('tags');
     select('createdAt');
-    select('updatedAt');
     select('order');
     select('conflictId');
     select('settings');
@@ -52,6 +50,8 @@ const fetchBrowsableItemsQuery = new SpaceQueryDefinition<
       getCell('content', 'plainText')?.toString().substring(0, DOC_PREVIEW_SIZE)
     ).as('preview');
     select('state', 'shortPath').as('breadcrumb');
+    select('state', 'updatedAtRank');
+    select('state', 'lastOpenedAtRank');
 
     if (params.onlyConflicts) {
       // !! not reactive if conflicts are solved

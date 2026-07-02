@@ -13,10 +13,7 @@ import {
 
 import { GET_ITEM_ROUTE } from '@/app/routes';
 import { APPICONS } from '@/constants';
-import {
-  CollectionItemResult,
-  CollectionItemType
-} from '@/domain/collection/collection';
+import { CollectionItemType } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
 import { ExportItemsButton, ImportItemsButton } from '@/features/import-export';
 import { getSearchParams } from '@/shared/utils';
@@ -28,13 +25,13 @@ import { ActionsFromBrowserToolbar } from '@/features/collection-item-actions';
 import { useHasLocalConflicts } from '@/features/synchronization-ui';
 import { useLingui } from '@lingui/react/macro';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { BrowsableItemResult, fromCollectionItemSort } from '../browsable-item';
 import useCollectionItemBrowserListResults, {
   BrowserQueryMode,
   browserModes
 } from '../hooks/useCollectionItemBrowserListResults';
 import useFolderEffectiveSort from '../hooks/useFolderEffectiveSort';
 import useNotebookLastBrowserMode from '../hooks/useNotebookLastBrowserMode';
-import { fromCollectionItemSort } from '../sortable-item';
 import CollectionItemBreadcrumb from './CollectionItemBreadcrumb';
 import CollectionItemList from './CollectionItemList';
 import SortFilterInlineList from './SortFilterInlineList';
@@ -151,12 +148,12 @@ export const CollectionItemBrowserList = ({
   const modeIdx = useNotebookLastBrowserMode();
 
   const modeTrans = new Map<BrowserQueryMode, string>();
-  modeTrans.set('updatedAt', t`Last updated documents`);
-  modeTrans.set('lastOpenedAt', t`Last consulted documents`);
+  modeTrans.set('updatedAtRank', t`Last updated documents`);
+  modeTrans.set('lastOpenedAtRank', t`Last consulted documents`);
   modeTrans.set('conflicts', t`Conflicts`);
 
   const currentMode = hasConflicts ? 'conflicts' : browserModes[modeIdx];
-  const items: CollectionItemResult[] = useCollectionItemBrowserListResults(
+  const items: BrowsableItemResult[] = useCollectionItemBrowserListResults(
     currentMode,
     folder,
     sort
@@ -165,7 +162,7 @@ export const CollectionItemBrowserList = ({
   const [itemRenaming, setItemRenaming] = useState<string | undefined>(
     undefined
   );
-  const [selectedItem, setSelectedItem] = useState<CollectionItemResult | null>(
+  const [selectedItem, setSelectedItem] = useState<BrowsableItemResult | null>(
     null
   );
 

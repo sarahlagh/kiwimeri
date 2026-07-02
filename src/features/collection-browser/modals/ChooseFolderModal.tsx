@@ -1,9 +1,6 @@
 import { APPICONS, ROOT_COLLECTION } from '@/constants';
 import { useQueryResults } from '@/core/db/queries-helper';
-import {
-  CollectionItemResult,
-  CollectionItemType
-} from '@/domain/collection/collection';
+import { CollectionItemType } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
 import notebooksService from '@/domain/collection/notebooks.service';
 import {
@@ -17,6 +14,7 @@ import {
 import { Trans } from '@lingui/react/macro';
 import React, { useState } from 'react';
 import { CollectionItemBreadcrumb, CollectionItemList } from '..';
+import { BrowsableItemResult } from '../browsable-item';
 import useFetchBrowsableItemsQuery from '../hooks/useFetchBrowsableItemsQuery';
 import useFetchBrowsableItemsQueryParamsState from '../hooks/useFetchBrowsableItemsQueryParamsState';
 
@@ -90,7 +88,7 @@ const ChooseFolderModal = ({
   currentType,
   onClose
 }: ChooseFolderModalProps) => {
-  const [selected, setSelected] = useState<CollectionItemResult | null>(null);
+  const [selected, setSelected] = useState<BrowsableItemResult | null>(null);
   const [itemRenaming, setItemRenaming] = useState<string | undefined>(
     undefined
   );

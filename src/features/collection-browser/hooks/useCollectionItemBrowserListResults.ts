@@ -1,15 +1,20 @@
 import { useQueryResults } from '@/core/db/queries-helper';
-import {
-  CollectionItemResult,
-  CollectionItemType
-} from '@/domain/collection/collection';
+import { CollectionItemType } from '@/domain/collection/collection';
 import { settingsService } from '@/domain/collection/collection-settings.service';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { useEffect } from 'react';
+import {
+  BrowsableItemResult,
+  BrowsableItemSort,
+  fromCollectionItemSort
+} from '../browsable-item';
 import fetchBrowsableItemsQuery from '../queries/fetchBrowsableItemsQuery';
-import { BrowsableItemSort, fromCollectionItemSort } from '../sortable-item';
 
-export const browserModes = ['browser', 'updatedAt', 'lastOpenedAt'] as const;
+export const browserModes = [
+  'browser',
+  'updatedAtRank',
+  'lastOpenedAtRank'
+] as const;
 export type BrowserQueryMode = (typeof browserModes)[number] | 'conflicts';
 
 export default function useCollectionItemBrowserListResults(
@@ -17,7 +22,7 @@ export default function useCollectionItemBrowserListResults(
   parent?: string,
   userSort?: BrowsableItemSort,
   limit?: number
-): CollectionItemResult[] {
+): BrowsableItemResult[] {
   useEffect(() => {
     const notebook = notebooksService.getCurrentNotebook();
     let opts;

@@ -1,7 +1,7 @@
 import {
-  startDerivedContentListeners,
-  stopDerivedContentListeners
-} from '@/domain/collection/derived-content-listeners';
+  startDerivedTablesListeners,
+  stopDerivedTablesListeners
+} from '@/domain/collection/derived-tables-listeners';
 import {
   startLocalChangesListeners,
   stopLocalChangesListeners
@@ -10,13 +10,13 @@ import {
 export function startDbListeners() {
   console.log('[db] starting all listeners');
   startLocalChangesListeners();
-  startDerivedContentListeners();
+  startDerivedTablesListeners();
 }
 
 export function stopDbListeners() {
   console.log('[db] stopping all listeners');
   stopLocalChangesListeners();
-  stopDerivedContentListeners();
+  stopDerivedTablesListeners();
 }
 
 export function disableListeners(callback: () => void) {

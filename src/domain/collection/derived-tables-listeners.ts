@@ -1,6 +1,6 @@
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
-import { SpaceTableId } from '@/core/db/store-schema';
+import { SpaceCellId, SpaceTableId } from '@/core/db/store-schema';
 import { getPlainText } from '@/shared/misc/getPlainText';
 import { Id } from 'tinybase/with-schemas';
 import { statsOnPlainTextCallback } from '../stats/stats-on-change-callback';
@@ -32,16 +32,58 @@ function addDerivedContentListener(
   );
 }
 
-export function startDerivedContentListeners() {
+function addDerivedRankListeners<T extends SpaceTableId>(
+  tableId: T,
+  cellId: SpaceCellId<T>,
+  rankColumn: SpaceCellId<SpaceTables.DerivedState>
+) {
+  listeners.push(
+    space.addTableListener(
+      tableId,
+      _space => {
+        _space.transaction(() => {
+          _space
+            .getSortedRowIds(tableId, cellId, false)
+            .forEach((rowId, idx) => {
+              if (
+                idx !==
+                _space.getCell(SpaceTables.DerivedState, rowId, rankColumn)
+              ) {
+                _space.setCell(
+                  SpaceTables.DerivedState,
+                  rowId,
+                  rankColumn,
+                  idx
+                );
+              }
+            });
+        });
+      },
+      true
+    )
+  );
+}
+
+function addDerivedStateListeners() {
+  addDerivedRankListeners(SpaceTables.Collection, 'updatedAt', 'updatedAtRank');
+  addDerivedRankListeners(
+    SpaceTables.Stats,
+    'lastOpenedAt',
+    'lastOpenedAtRank'
+  );
+}
+
+export function startDerivedTablesListeners() {
   addDerivedContentListener(
     SpaceTables.Collection,
     'c',
     statsOnPlainTextCallback
   );
   addDerivedContentListener(SpaceTables.Annotations, 'a');
+  addDerivedStateListeners();
 }
 
-export function stopDerivedContentListeners() {
+export function stopDerivedTablesListeners() {
   listeners.forEach(l => space.delListener(l));
   listeners.length = 0;
 }
