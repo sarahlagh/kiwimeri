@@ -17,8 +17,8 @@ import {
 import { Trans } from '@lingui/react/macro';
 import React, { useState } from 'react';
 import { CollectionItemBreadcrumb, CollectionItemList } from '..';
-import useFetchItemsQuery from '../hooks/useFetchItemsQuery';
-import useFetchItemsQueryParamsState from '../hooks/useFetchItemsQueryParamsState';
+import useFetchBrowsableItemsQuery from '../hooks/useFetchBrowsableItemsQuery';
+import useFetchBrowsableItemsQueryParamsState from '../hooks/useFetchBrowsableItemsQueryParamsState';
 
 const Toolbar = ({
   selected,
@@ -95,12 +95,12 @@ const ChooseFolderModal = ({
     undefined
   );
 
-  const query = useFetchItemsQuery(
+  const query = useFetchBrowsableItemsQuery(
     'ChooseFolderModal',
     currentParent,
     restrictTypes
   );
-  const [parent, setParent] = useFetchItemsQueryParamsState(
+  const [parent, setParent] = useFetchBrowsableItemsQueryParamsState(
     query,
     restrictTypes
   );
