@@ -214,7 +214,7 @@ class StatsService {
 
     for (let i = versions.length - 1; i >= 0; i--) {
       const version = versions[i];
-      const plain = version.preview;
+      const plain = version.plainText;
       const content_meta = version.snapshotJson.content_meta!;
       const stats = this.buildStatsFromContentMeta(plain, content_meta);
       this.updateStatsAtDate(rowId, stats);

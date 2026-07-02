@@ -184,11 +184,11 @@
     "history_content": {
       "3655348761": {
         "content": "{\"r\":{\"c\":[{\"c\":[{\"d\":0,\"f\":0,\"m\":\"n\",\"s\":\"\",\"t\":\"content\",\"ty\":\"t\",\"v\":1}],\"di\":null,\"f\":\"\",\"i\":0,\"ty\":\"p\",\"v\":1,\"tf\":0,\"ts\":\"\"}],\"di\":null,\"f\":\"\",\"i\":0,\"ty\":\"r\",\"v\":1}}",
-        "preview": "content"
+        "plainText": "content"
       },
       "4012550272": {
         "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
-        "preview": ""
+        "plainText": ""
       }
     },
     "stats": {

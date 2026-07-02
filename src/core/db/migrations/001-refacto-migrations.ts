@@ -49,6 +49,7 @@ export default function Migration(
   remoteStatesMergeIntoOne(_space);
   collectionFieldsRename(_space);
   dropHashFieldFromVersions(_space);
+  previewBecomesPlainText(_space);
 }
 
 function metaFieldsBecomeObjects(_space: NoSchemaStore) {
@@ -497,5 +498,14 @@ function dropHashFieldFromVersions(_space: NoSchemaStore) {
         _space.delRow(HC, rowId);
       }
     });
+  });
+}
+
+function previewBecomesPlainText(_space: NoSchemaStore) {
+  _space.getRowIds(HC).forEach(rowId => {
+    if (_space.hasCell(HC, rowId, 'preview')) {
+      const plainText = _space.getCell(HC, rowId, 'preview') as string;
+      _space.setCell(HC, rowId, 'plainText', plainText);
+    }
   });
 }
