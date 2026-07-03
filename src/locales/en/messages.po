@@ -774,7 +774,7 @@ msgstr "Word Count"
 msgid "Word Count (Max)"
 msgstr "Word Count (Max)"
 
-#: src/features/document-editor/components/WordCount.tsx:26
+#: src/features/document-editor/components/WordCount.tsx:27
 #: src/features/stats-ui/components/ChartContainer.tsx:54
 #: src/features/stats-ui/components/ChartContainer.tsx:64
 msgid "words"

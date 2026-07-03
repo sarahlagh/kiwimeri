@@ -1,5 +1,6 @@
 import { SpaceTables } from '@/core/db/store-constants';
 import { useSpaceCell } from '@/core/db/tinybase-hooks';
+import { getDerivedId } from '@/domain/collection/derived-content';
 import { countWords } from '@/shared/utils';
 import { IonText } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
@@ -13,7 +14,7 @@ const WordCount = ({ id }: WordCountProps) => {
   // probably provide hook somewhere
   const content = useSpaceCell<SpaceTables.DerivedContent, 'plainText'>(
     SpaceTables.DerivedContent,
-    id,
+    getDerivedId('c', id),
     'plainText'
   );
   const wordCount = content ? countWords(content) : 0;

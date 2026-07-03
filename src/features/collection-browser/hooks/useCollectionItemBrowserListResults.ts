@@ -37,7 +37,8 @@ export default function useCollectionItemBrowserListResults(
         parentId: notebook,
         recursive: true,
         restrictType: CollectionItemType.document,
-        onlyConflicts: mode === 'conflicts'
+        onlyConflicts: mode === 'conflicts',
+        withLastOpenedAt: mode === 'lastOpenedAtRank'
       };
     }
     fetchBrowsableItemsQuery.loadParams(opts);

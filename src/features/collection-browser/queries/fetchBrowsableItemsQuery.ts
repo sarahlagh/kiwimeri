@@ -12,6 +12,7 @@ export type fetchBrowsableItemsQueryParam = {
   restrictType?: CollectionItemTypeValues;
   restrictTypes?: CollectionItemTypeValues[];
   onlyConflicts?: boolean;
+  withLastOpenedAt?: boolean;
 };
 
 const fetchBrowsableItemsQuery = new SpaceQueryDefinition<
@@ -27,17 +28,19 @@ const fetchBrowsableItemsQuery = new SpaceQueryDefinition<
       recursive: param('recursive') as boolean,
       restrictType: param('restrictType') as CollectionItemTypeValues,
       restrictTypes: param('restrictTypes') as CollectionItemTypeValues[],
-      onlyConflicts: param('onlyConflicts') as boolean
+      onlyConflicts: param('onlyConflicts') as boolean,
+      withLastOpenedAt: param('withLastOpenedAt') as boolean
     };
     if (params.recursive === undefined) params.recursive = false;
     if (params.onlyConflicts === undefined) params.onlyConflicts = false;
+    if (params.withLastOpenedAt === undefined) params.withLastOpenedAt = false;
 
     // works but only because stats and collection have same id for global stats
-    join('derived_content', (getCell, itemId) => getDerivedId('c', itemId)).as(
-      'content'
-    );
-    join('derived_item_state', (getCell, itemId) => itemId).as('state');
-    select('stats', 'lastOpenedAt');
+    join(SpaceTables.DerivedContent, (getCell, itemId) =>
+      getDerivedId('c', itemId)
+    ).as('content');
+    join(SpaceTables.DerivedState, (getCell, itemId) => itemId).as('state');
+
     select('parentId');
     select('title');
     select('type');
@@ -51,7 +54,10 @@ const fetchBrowsableItemsQuery = new SpaceQueryDefinition<
     ).as('preview');
     select('state', 'shortPath').as('breadcrumb');
     select('state', 'updatedAtRank');
-    select('state', 'lastOpenedAtRank');
+
+    if (params.withLastOpenedAt) {
+      select('state', 'lastOpenedAtRank');
+    }
 
     if (params.onlyConflicts) {
       // !! not reactive if conflicts are solved
