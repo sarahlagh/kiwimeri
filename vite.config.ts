@@ -15,6 +15,7 @@ const viteConfig = defineConfig({
   },
   build: {
     target: 'esnext',
+    chunkSizeWarningLimit: 1050,
     rollupOptions: {
       treeshake: {
         preset: 'smallest'
@@ -42,8 +43,6 @@ if (process.env.ANALYZE) {
       filename: 'dist/stats.html',
       gzipSize: true,
       open: true
-      // template: 'raw-data'
-      // sourcemap: true
     })
   );
 }

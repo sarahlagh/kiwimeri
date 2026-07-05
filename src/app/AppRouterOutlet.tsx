@@ -8,14 +8,16 @@ import {
   VERSION_ROUTE,
   WRITING_SESSION_ROUTE
 } from '@/app/routes';
+import { lazy } from 'react';
 import { Route, Routes } from 'react-router';
-import CollectionListPage from './pages/CollectionListPage';
-import DevToolsPage from './pages/DevToolsPage';
-import DocumentEditorPage from './pages/DocumentEditorPage';
-import SettingsPage from './pages/SettingsPage';
-import SynchronizationPage from './pages/SynchronizationPage';
-import VersionedItemPage from './pages/VersionedItemPage';
-import WritingSessionPage from './pages/WritingSessionPage';
+
+const CollectionListPage = lazy(() => import('./pages/CollectionListPage'));
+const DocumentEditorPage = lazy(() => import('./pages/DocumentEditorPage'));
+const VersionedItemPage = lazy(() => import('./pages/VersionedItemPage'));
+const SynchronizationPage = lazy(() => import('./pages/SynchronizationPage'));
+const SettingsPage = lazy(() => import('./pages/SettingsPage'));
+const DevToolsPage = lazy(() => import('./pages/DevToolsPage'));
+const WritingSessionPage = lazy(() => import('./pages/WritingSessionPage'));
 
 const AppRouterOutlet = () => (
   <Routes>
