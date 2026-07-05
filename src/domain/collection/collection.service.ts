@@ -39,7 +39,7 @@ import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
 import { genericReorder } from '@/shared/dnd/utils';
 import { getPlainText } from '@/shared/misc/getPlainText';
 import { cellEquals } from '@/shared/utils';
-import { SerializedEditorState } from 'lexical';
+import type { SerializedEditorState } from 'lexical';
 import { getUniqueId } from 'tinybase/common';
 import { Id, Ids } from 'tinybase/common/with-schemas';
 import { Table } from 'tinybase/with-schemas';

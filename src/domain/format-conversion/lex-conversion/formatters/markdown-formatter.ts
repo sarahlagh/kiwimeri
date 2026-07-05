@@ -2,17 +2,20 @@ import {
   ESCAPE_CHARS,
   EXTENDED_ESCAPE_CHARS
 } from '@/domain/format-conversion/text-parsing/markdown-parser/markdown-elements';
-import { ListType } from '@lexical/list';
-import {
+import type { ListType } from '@lexical/list';
+import type {
   ElementFormatType,
+  SerializedElementNode,
+  SerializedTextNode
+} from 'lexical';
+// eslint-disable-next-line no-restricted-imports
+import {
   IS_BOLD,
   IS_HIGHLIGHT,
   IS_ITALIC,
   IS_STRIKETHROUGH,
-  IS_UNDERLINE,
-  SerializedElementNode,
-  SerializedTextNode
-} from 'lexical';
+  IS_UNDERLINE
+} from '../../constants';
 import {
   KiwimeriLexConverter,
   KiwimeriLexTransformer,

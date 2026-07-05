@@ -3,8 +3,6 @@ import { APPICONS } from '@/constants';
 import collectionService from '@/domain/collection/collection.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { statsService } from '@/domain/stats/stats-service';
-
-import { ActionsFromDocumentEditorToolbar } from '@/features/collection-item-actions';
 import { SearchActionsToolbar } from '@/features/search';
 import { useHasLocalConflicts } from '@/features/synchronization-ui';
 import { onTitleChangeFn } from '@/shared/misc/onTitleChangeFn';
@@ -20,13 +18,20 @@ import {
   IonTitle,
   IonToolbar
 } from '@ionic/react';
-import { forwardRef, useEffect, useState } from 'react';
+import { forwardRef, lazy, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import KiwimeriEditor from '../wysiwyg-editor/lexical/KiwimeriEditor';
 import { KiwimeriEditorHandle } from '../wysiwyg-editor/lexical/KiwimeriEditorHandle';
 import { serializeSelection } from '../wysiwyg-editor/lexical/selection-serializer';
 import DocumentBottomSheet, { DocSheet } from './DocumentBottomSheet';
 import './DocumentEditor.scss';
+
+const ActionsFromDocumentEditorToolbar = lazy(() =>
+  import('@/features/collection-item-actions').then(m => ({
+    default: m.ActionsFromDocumentEditorToolbar
+  }))
+);
+
 interface DocumentEditorProps {
   docId: string;
   showActions?: boolean;

@@ -4,9 +4,10 @@ import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-
 import { getDerivedId } from '@/domain/collection/document-content';
 import { lexicalConfig } from '@/features/document-editor/wysiwyg-editor/lexical/lexical-config';
 import {
+  searchLexicalService,
   SearchOptions,
   searchService
-} from '@/features/search/services/search.service';
+} from '@/features/search';
 import { createHeadlessEditor } from '@lexical/headless';
 import { readFile } from 'fs/promises';
 import { LexicalEditor, TextNode } from 'lexical';
@@ -65,7 +66,7 @@ describe('search service', () => {
         startOffset: number;
         endOffset: number;
       }[] = [];
-      searchService.searchLexicalState(
+      searchLexicalService.searchEditorState(
         editor,
         searchText,
         (node, startOffset, endOffset) => {

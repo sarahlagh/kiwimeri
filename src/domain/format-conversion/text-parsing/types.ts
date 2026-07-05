@@ -1,6 +1,6 @@
-import { SerializedEditorState, SerializedLexicalNode } from 'lexical';
-import { KiwimeriParserContext } from './parser-context';
-import { KiwimeriTextLexer } from './text-lexer';
+import type { SerializedEditorState, SerializedLexicalNode } from 'lexical';
+import type { KiwimeriParserContext } from './parser-context';
+import type { KiwimeriTextLexer } from './text-lexer';
 
 export type KiwimeriParserTextBlock = {
   node: SerializedLexicalNode;

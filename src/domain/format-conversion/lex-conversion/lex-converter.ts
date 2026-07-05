@@ -1,4 +1,4 @@
-import { SerializedElementNode, SerializedLexicalNode } from 'lexical';
+import type { SerializedElementNode, SerializedLexicalNode } from 'lexical';
 
 export type KiwimeriLexTransformerCtx = {
   node: SerializedLexicalNode;

@@ -1,7 +1,7 @@
 import { initialContent } from '@/domain/collection/collection.service';
 import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
 import { KiwimeriEditor } from '@/features/document-editor';
-import { EditorState } from 'lexical';
+import type { EditorState } from 'lexical';
 
 type NoteEditorProps = {
   noteId: string;

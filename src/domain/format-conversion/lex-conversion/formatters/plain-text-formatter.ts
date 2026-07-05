@@ -1,4 +1,4 @@
-import { SerializedElementNode } from 'lexical';
+import type { SerializedElementNode } from 'lexical';
 import {
   KiwimeriLexConverter,
   KiwimeriLexTransformer,

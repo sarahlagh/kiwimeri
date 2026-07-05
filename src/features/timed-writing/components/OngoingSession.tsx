@@ -11,7 +11,7 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
-import { EditorState } from 'lexical';
+import type { EditorState } from 'lexical';
 import { useEffect, useState } from 'react';
 import KeystrokeListenerPlugin from './KeystrokeListenerPlugin';
 

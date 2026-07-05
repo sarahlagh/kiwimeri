@@ -1,5 +1,5 @@
 import { plt } from '@/core/infra/platform';
-import { searchService } from '@/features/search';
+import { searchLexicalService } from '@/features/search';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 
 type SearchHighlightPluginProps = {
@@ -24,7 +24,7 @@ export function SearchHighlightPlugin({
   }
 
   const ranges: Range[] = [];
-  searchService.searchLexicalState(
+  searchLexicalService.searchEditorState(
     editor,
     searchText,
     (textNode, startOffset, endOffset) => {

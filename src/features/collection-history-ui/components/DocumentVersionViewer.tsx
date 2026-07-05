@@ -2,8 +2,7 @@ import { GET_DOCUMENT_ROUTE, GET_VERSIONED_ROUTE } from '@/app/routes';
 import { APPICONS } from '@/constants';
 import { CollectionItemSnapshotData } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
-import { ActionsFromDocumentVersionViewerToolbar } from '@/features/collection-item-actions';
-import { KiwimeriEditor } from '@/features/document-editor';
+import {} from '@/features/collection-item-actions';
 import { SearchActionsToolbar } from '@/features/search';
 import {
   IonButton,
@@ -17,9 +16,21 @@ import {
   IonTitle,
   IonToolbar
 } from '@ionic/react';
-import { useEffect, useState } from 'react';
+import { lazy, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import useVersion from '../hooks/useVersion';
+
+const ActionsFromDocumentVersionViewerToolbar = lazy(() =>
+  import('@/features/collection-item-actions').then(m => ({
+    default: m.ActionsFromDocumentVersionViewerToolbar
+  }))
+);
+
+const KiwimeriEditor = lazy(() =>
+  import('@/features/document-editor').then(m => ({
+    default: m.KiwimeriEditor
+  }))
+);
 
 interface DocumentVersionViewerProps {
   docId: string;

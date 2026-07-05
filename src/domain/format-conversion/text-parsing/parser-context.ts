@@ -1,4 +1,4 @@
-import {
+import type {
   ElementFormatType,
   SerializedElementNode,
   SerializedLexicalNode

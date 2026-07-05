@@ -1,16 +1,16 @@
-import { SerializedListNode } from '@lexical/list';
-import { SerializedHorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode';
-import {
+import type { SerializedListNode } from '@lexical/list';
+import type { SerializedHorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode';
+import type {
   HeadingTagType,
   SerializedHeadingNode,
   SerializedQuoteNode
 } from '@lexical/rich-text';
-import {
+import type {
   ElementFormatType,
   SerializedElementNode,
   SerializedParagraphNode
 } from 'lexical';
-import { KiwimeriTextBlockParser } from '../types';
+import type { KiwimeriTextBlockParser } from '../types';
 import { CHECKED_LIST_ITEM_REGEX } from './markdown-elements';
 
 const baseElementNode = (type: string): SerializedElementNode => {

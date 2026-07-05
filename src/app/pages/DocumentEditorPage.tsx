@@ -1,6 +1,5 @@
 import { APPICONS } from '@/constants';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
-import { CollectionItemBrowserList } from '@/features/collection-browser';
 import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
 import { KiwimeriEditorHandle } from '@/features/document-editor';
 import { onTitleChangeFn } from '@/shared/misc/onTitleChangeFn';
@@ -14,6 +13,12 @@ import TemplateCompactableSplitPage from './TemplateCompactableSplitPage';
 const DocumentEditor = lazy(() =>
   import('@/features/document-editor').then(m => ({
     default: m.DocumentEditor
+  }))
+);
+
+const CollectionItemBrowserList = lazy(() =>
+  import('@/features/collection-browser').then(m => ({
+    default: m.CollectionItemBrowserList
   }))
 );
 

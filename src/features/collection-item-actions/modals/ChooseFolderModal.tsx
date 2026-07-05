@@ -4,6 +4,13 @@ import { CollectionItemType } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
 import notebooksService from '@/domain/collection/notebooks.service';
 import {
+  BrowsableItemResult,
+  CollectionItemBreadcrumb,
+  CollectionItemList,
+  useFetchBrowsableItemsQuery,
+  useFetchBrowsableItemsQueryParamsState
+} from '@/features/collection-browser';
+import {
   IonButton,
   IonButtons,
   IonHeader,
@@ -13,11 +20,6 @@ import {
 } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 import React, { useState } from 'react';
-import { CollectionItemBreadcrumb, CollectionItemList } from '..';
-import { BrowsableItemResult } from '../browsable-item';
-import useFetchBrowsableItemsQuery from '../hooks/useFetchBrowsableItemsQuery';
-import useFetchBrowsableItemsQueryParamsState from '../hooks/useFetchBrowsableItemsQueryParamsState';
-
 const Toolbar = ({
   selected,
   folderId,

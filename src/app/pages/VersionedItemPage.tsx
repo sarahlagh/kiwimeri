@@ -1,7 +1,6 @@
 import { GET_DOCUMENT_ROUTE, VERSION_ROUTE } from '@/app/routes';
 import { APPICONS } from '@/constants';
 import { historyService } from '@/domain/history/history.service';
-import { CollectionItemBrowserList } from '@/features/collection-browser';
 import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
 import { getSearchParams } from '@/shared/utils';
 import { IonButton, IonIcon } from '@ionic/react';
@@ -14,6 +13,12 @@ import TemplateCompactableSplitPage from './TemplateCompactableSplitPage';
 const DocumentVersionViewer = lazy(() =>
   import('@/features/collection-history-ui').then(m => ({
     default: m.DocumentVersionViewer
+  }))
+);
+
+const CollectionItemBrowserList = lazy(() =>
+  import('@/features/collection-browser').then(m => ({
+    default: m.CollectionItemBrowserList
   }))
 );
 

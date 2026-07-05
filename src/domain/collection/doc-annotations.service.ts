@@ -7,7 +7,7 @@ import collectionService, {
 import { minimizeContentForStorage } from '@/domain/collection/compress-file-content';
 import { genericReorder } from '@/shared/dnd/utils';
 import { SortableType } from '@/shared/misc/sort-filter/sort';
-import { SerializedEditorState } from 'lexical';
+import type { SerializedEditorState } from 'lexical';
 import { getUniqueId, Id } from 'tinybase/common';
 import { NotesSort } from './collection-settings';
 import { settingsService } from './collection-settings.service';

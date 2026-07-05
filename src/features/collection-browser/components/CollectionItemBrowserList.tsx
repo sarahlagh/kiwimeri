@@ -21,21 +21,26 @@ import { getSearchParams } from '@/shared/utils';
 import { settingsService } from '@/domain/collection/collection-settings.service';
 import notebooksService from '@/domain/collection/notebooks.service';
 
-import { ActionsFromBrowserToolbar } from '@/features/collection-item-actions';
 import { useHasLocalConflicts } from '@/features/synchronization-ui';
 import { useLingui } from '@lingui/react/macro';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, lazy, SetStateAction, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { BrowsableItemResult, fromCollectionItemSort } from '../browsable-item';
 import useCollectionItemBrowserListResults, {
-  BrowserQueryMode,
-  browserModes
+  browserModes,
+  BrowserQueryMode
 } from '../hooks/useCollectionItemBrowserListResults';
 import useFolderEffectiveSort from '../hooks/useFolderEffectiveSort';
 import useNotebookLastBrowserMode from '../hooks/useNotebookLastBrowserMode';
 import CollectionItemBreadcrumb from './CollectionItemBreadcrumb';
 import CollectionItemList from './CollectionItemList';
 import SortFilterInlineList from './SortFilterInlineList';
+
+const ActionsFromBrowserToolbar = lazy(() =>
+  import('@/features/collection-item-actions').then(m => ({
+    default: m.ActionsFromBrowserToolbar
+  }))
+);
 
 interface CollectionItemBrowserListProps {
   parent: string;

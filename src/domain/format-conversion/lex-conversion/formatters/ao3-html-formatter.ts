@@ -1,12 +1,15 @@
-import {
+import type {
   ElementFormatType,
-  IS_BOLD,
-  IS_ITALIC,
-  IS_STRIKETHROUGH,
-  IS_UNDERLINE,
   SerializedElementNode,
   SerializedTextNode
 } from 'lexical';
+// eslint-disable-next-line no-restricted-imports
+import {
+  IS_BOLD,
+  IS_ITALIC,
+  IS_STRIKETHROUGH,
+  IS_UNDERLINE
+} from '../../constants';
 import {
   KiwimeriLexConverter,
   KiwimeriLexTransformer,

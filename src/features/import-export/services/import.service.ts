@@ -19,7 +19,7 @@ import formatConverter from '@/domain/format-conversion/format-converter.service
 import { historyService } from '@/domain/history/history.service';
 import storageService from '@/domain/storage.service';
 import { Unzipped, strFromU8, unzip } from 'fflate';
-import { SerializedEditorState, SerializedLexicalNode } from 'lexical';
+import type { SerializedEditorState, SerializedLexicalNode } from 'lexical';
 import {
   ZipImportOptions,
   ZipMergeFistLevel,

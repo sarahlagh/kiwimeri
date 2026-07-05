@@ -12,9 +12,9 @@ import {
   $isHorizontalRuleNode,
   HorizontalRuleNode
 } from '@lexical/react/LexicalHorizontalRuleNode';
-import { LexicalNode } from 'lexical';
+import type { LexicalNode } from 'lexical';
 
-export const HR: ElementTransformer = {
+const HR: ElementTransformer = {
   dependencies: [HorizontalRuleNode],
   export: (node: LexicalNode) => {
     return $isHorizontalRuleNode(node) ? '---' : null;
@@ -34,7 +34,7 @@ export const HR: ElementTransformer = {
   type: 'element'
 };
 
-export const CHECK_LIST: ElementTransformer = {
+const CHECK_LIST: ElementTransformer = {
   ...LEXICAL_CHECK_LIST,
   // "- [" will be transformed into an unordered list
   // so this allows typing "-[ ]" without space

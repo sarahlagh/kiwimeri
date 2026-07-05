@@ -1,15 +1,18 @@
-import { SerializedAutoLinkNode, SerializedLinkNode } from '@lexical/link';
-import { SerializedListItemNode } from '@lexical/list';
+import type { SerializedAutoLinkNode, SerializedLinkNode } from '@lexical/link';
+import type { SerializedListItemNode } from '@lexical/list';
+import { type SerializedLineBreakNode, type SerializedTextNode } from 'lexical';
+// eslint-disable-next-line no-restricted-imports
 import {
   IS_BOLD,
   IS_HIGHLIGHT,
   IS_ITALIC,
   IS_STRIKETHROUGH,
-  IS_UNDERLINE,
-  SerializedLineBreakNode,
-  SerializedTextNode
-} from 'lexical';
-import { KiwimeriLexerResponse, KiwimeriTextElementParser } from '../types';
+  IS_UNDERLINE
+} from '../../constants';
+import type {
+  KiwimeriLexerResponse,
+  KiwimeriTextElementParser
+} from '../types';
 import { getTextAlign } from './markdown-blocks';
 import { MarkdownParser } from './markdown-parser';
 

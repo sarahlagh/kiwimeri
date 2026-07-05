@@ -10,8 +10,8 @@ import {
   BrowsableItemResult,
   CollectionItemBreadcrumb,
   CollectionItemList,
-  useFetchItemsQuery,
-  useFetchItemsQueryParamsState
+  useFetchBrowsableItemsQuery,
+  useFetchBrowsableItemsQueryParamsState
 } from '@/features/collection-browser';
 import { dateToStr } from '@/shared/misc/date-utils';
 import {
@@ -23,7 +23,7 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { SerializedEditorState } from 'lexical';
+import type { SerializedEditorState } from 'lexical';
 import { useEffect, useState } from 'react';
 
 export type SavePayload = {
@@ -44,11 +44,11 @@ const SaveSessionModal = ({ onClose }: SaveSessionModalProps) => {
   const [item, setItem] = useState<BrowsableItemResult | null>(null);
   const content = store.getValue('tempDoc');
 
-  const query = useFetchItemsQuery(
+  const query = useFetchBrowsableItemsQuery(
     'SaveSessionModal',
     resumeService.getCurrentFolder()
   );
-  const [parent, setParent] = useFetchItemsQueryParamsState(query);
+  const [parent, setParent] = useFetchBrowsableItemsQueryParamsState(query);
   const items = useQueryResults(query);
 
   useEffect(() => {

@@ -1,7 +1,7 @@
 import { INITIAL_CONTENT_START } from '@/domain/collection/collection.service';
 import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-content';
 import formatConverter from '@/domain/format-conversion/format-converter.service';
-import { SerializedEditorState } from 'lexical';
+import type { SerializedEditorState } from 'lexical';
 
 export function getPlainText(content?: string): string;
 export function getPlainText(content: SerializedEditorState): string;
