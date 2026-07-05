@@ -8,6 +8,8 @@ import { messages as enMessages } from './locales/en/messages';
 
 import LoadingPage from './app/pages/LoadingPage';
 
+import './core/infra/polyfills/prism-polyfill';
+
 setupIonicReact({
   sanitizerEnabled: true
 });

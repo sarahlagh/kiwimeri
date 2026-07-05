@@ -30,7 +30,6 @@ import { BrowserRouter } from 'react-router';
 import { plt } from './core/infra/platform';
 import './core/infra/polyfills/capacitor-http-fetch-polyfill';
 import './core/infra/polyfills/log-polyfill';
-import './core/infra/polyfills/prism-polyfill';
 
 if (plt.isAndroid()) {
   import('./theme/android-edge-to-edge.scss').then(() => {
