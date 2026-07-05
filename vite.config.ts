@@ -2,6 +2,7 @@ import { lingui } from '@lingui/vite-plugin';
 import react from '@vitejs/plugin-react';
 import { playwright } from '@vitest/browser-playwright';
 import path from 'path';
+import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig, mergeConfig } from 'vite';
 import { defineConfig as vitestDefineConfig } from 'vitest/config';
 
@@ -30,6 +31,15 @@ const viteConfig = defineConfig({
     lingui()
   ]
 });
+if (process.env.ANALYZE) {
+  viteConfig.plugins?.push(
+    visualizer({
+      filename: 'dist/stats.html',
+      gzipSize: true,
+      open: true
+    })
+  );
+}
 
 const vitestConfig = vitestDefineConfig({
   test: {
