@@ -351,7 +351,7 @@ class CollectionService {
     const type = this.getItemType(rowId);
     const updated = Date.now();
     // title and content are real changes, order and settings are not (won't trigger an update ts)
-    const isContentChange = this.shouldTriggerRowUpdatedChange(key);
+    const isRowUpdateChange = this.shouldTriggerRowUpdatedChange(key);
     const isParentChange = key === 'parentId';
     space.transaction(() => {
       space.setCell(SpaceTables.Collection, rowId, key, value as never);
@@ -362,7 +362,7 @@ class CollectionService {
         setMetaField(updated, `${value}`)
       );
 
-      if (isContentChange) {
+      if (isRowUpdateChange) {
         space.setCell(SpaceTables.Collection, rowId, 'updatedAt', updated);
       }
 
@@ -379,10 +379,11 @@ class CollectionService {
         tmpTable[rowId].parentId = value as string;
         this.propagateBreadcrumbChange(rowId, tmpTable);
       }
+
+      if (isRowUpdateChange) {
+        this.updateAllParentsInBreadcrumb(this.getItemParent(rowId));
+      }
     });
-    if (isContentChange) {
-      this.updateAllParentsInBreadcrumb(this.getItemParent(rowId));
-    }
     return true;
   }
 

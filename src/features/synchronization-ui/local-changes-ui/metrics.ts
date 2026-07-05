@@ -1,12 +1,10 @@
 import { spaceMetrics } from '@/core/db/store';
-import { SpaceTables } from '@/core/db/store-constants';
-
-export const LatestCollectionUpdateMetricId = 'latestCollectionChange';
+import { SpaceMetrics, SpaceTables } from '@/core/db/store-constants';
 
 export function initLatestCollectionUpdateMetric() {
-  if (!spaceMetrics.hasMetric(LatestCollectionUpdateMetricId)) {
+  if (!spaceMetrics.hasMetric(SpaceMetrics.latestCollectionChange)) {
     spaceMetrics.setMetricDefinition(
-      LatestCollectionUpdateMetricId,
+      SpaceMetrics.latestCollectionChange,
       SpaceTables.Collection,
       'max',
       'updatedAt'
@@ -15,5 +13,5 @@ export function initLatestCollectionUpdateMetric() {
 }
 
 export function closeLatestCollectionUpdateMetric() {
-  spaceMetrics.delMetricDefinition(LatestCollectionUpdateMetricId);
+  spaceMetrics.delMetricDefinition(SpaceMetrics.latestCollectionChange);
 }
