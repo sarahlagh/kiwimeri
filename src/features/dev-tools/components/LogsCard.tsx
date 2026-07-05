@@ -13,19 +13,16 @@ import {
   IonChip,
   IonItem,
   IonList,
-  IonText,
-  useIonViewDidEnter,
-  useIonViewDidLeave
+  IonText
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { createRef, RefObject, useState } from 'react';
+import { createRef, RefObject, useEffect, useState } from 'react';
 import fetchLogsQuery from '../queries/fetchLogsQuery';
 
-// keep outside for tests
-export function onRouteEnter() {
+function onRouteEnter() {
   fetchLogsQuery.initQuery();
 }
-export function onRouteLeave() {
+function onRouteLeave() {
   fetchLogsQuery.close();
 }
 
@@ -46,12 +43,12 @@ const LogsCard = () => {
     filters ? filters.includes(l.longLevelName) : true
   );
 
-  useIonViewDidEnter(() => {
+  useEffect(() => {
     onRouteEnter();
-  });
-  useIonViewDidLeave(() => {
-    onRouteLeave();
-  });
+    return () => {
+      onRouteLeave();
+    };
+  }, []);
 
   function getColor(
     level: AppLogLevel

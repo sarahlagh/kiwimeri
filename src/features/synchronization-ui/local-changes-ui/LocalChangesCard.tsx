@@ -27,11 +27,10 @@ import {
   IonItem,
   IonLabel,
   IonList,
-  IonText,
-  useIonViewDidEnter,
-  useIonViewDidLeave
+  IonText
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import useLatestUpdatedAt from '../hooks/useLatestUpdatedAt';
 import usePrimaryLastRemoteChange from '../hooks/usePrimaryLastRemoteChange';
@@ -41,12 +40,11 @@ import {
 } from './metrics';
 import fetchLocalChangesQuery from './queries/fetchLocalChangesQuery';
 
-// keep outside for tests
-export function onRouteEnter() {
+function onRouteEnter() {
   fetchLocalChangesQuery.initQuery();
   initLatestCollectionUpdateMetric();
 }
-export function onRouteLeave() {
+function onRouteLeave() {
   fetchLocalChangesQuery.close();
   closeLatestCollectionUpdateMetric();
 }
@@ -62,12 +60,12 @@ const LocalChangesCard = () => {
   const weightLocal = lastRemoteChange >= lastLocalChange ? 'normal' : 'bold';
   const weightRemote = lastRemoteChange < lastLocalChange ? 'normal' : 'bold';
 
-  useIonViewDidEnter(() => {
+  useEffect(() => {
     onRouteEnter();
-  });
-  useIonViewDidLeave(() => {
-    onRouteLeave();
-  });
+    return () => {
+      onRouteLeave();
+    };
+  }, []);
 
   return (
     <IonCard>

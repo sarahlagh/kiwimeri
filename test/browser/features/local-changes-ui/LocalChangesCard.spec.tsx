@@ -6,12 +6,9 @@ import { LocalChangeResult } from '@/domain/synchronization/local-changes';
 import localChangesService from '@/domain/synchronization/local-changes.service';
 import { userPreferenceDefinitions } from '@/domain/user-preferences/user-preferences';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
-import LocalChangesCard, {
-  onRouteEnter,
-  onRouteLeave
-} from '@/features/synchronization-ui/local-changes-ui/LocalChangesCard';
+import LocalChangesCard from '@/features/synchronization-ui/local-changes-ui/LocalChangesCard';
 import { getNewContent } from '@@/_setup/test.utils';
-import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { render, RenderResult } from 'vitest-browser-react';
 import { TestingProvider } from '../../TestingProvider';
 import {
@@ -22,13 +19,6 @@ import {
 } from './LocalChangesCard.locators';
 
 describe('LocalChangesCard', () => {
-  beforeEach(() => {
-    onRouteEnter();
-  });
-  afterEach(() => {
-    onRouteLeave();
-  });
-
   test('renders an empty card', async () => {
     const screen = await render(<LocalChangesCard />, {
       wrapper: TestingProvider
