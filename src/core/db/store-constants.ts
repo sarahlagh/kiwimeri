@@ -17,6 +17,10 @@ export enum SpaceTables {
   ReplicaState = 'replica_state'
 }
 
+export enum SpaceMetrics {
+  latestCollectionChange = 'latestCollectionChange'
+}
+
 export type StoreId = 'store' | 'space';
 export enum SID {
   space = 'space',
