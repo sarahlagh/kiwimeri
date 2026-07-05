@@ -30,14 +30,7 @@ export function fromCollectionItemSort(
 
 export type BrowsableItemResult = Pick<
   CollectionItem,
-  | 'parentId'
-  | 'title'
-  | 'type'
-  | 'tags'
-  | 'createdAt'
-  | 'order'
-  | 'settings'
-  | 'conflictId'
+  'parentId' | 'title' | 'type' | 'tags' | 'createdAt' | 'order' | 'conflictId'
 > &
   Required<Pick<CollectionItem, 'id'>> & {
     lastOpenedAtRank?: number;

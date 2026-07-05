@@ -1,6 +1,7 @@
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
+import { startDbListeners, stopDbListeners } from '@/core/db/store-listeners';
 import collectionService from '@/domain/collection/collection.service';
 import { minimizeContentForStorage } from '@/domain/collection/compress-file-content';
 import notebooksService from '@/domain/collection/notebooks.service';
@@ -274,9 +275,6 @@ describe('derived state', () => {
       expect(space.hasRow(SpaceTables.DerivedState, docId)).toBe(false);
       // doc2, doc1
 
-      const table = space.getTable(SpaceTables.DerivedState);
-      console.debug(table);
-
       expectUpdatedAtRank(DEFAULT_NOTEBOOK_ID, 0);
       expectLastOpenedAtRank(DEFAULT_NOTEBOOK_ID, undefined);
 
@@ -284,10 +282,35 @@ describe('derived state', () => {
       expectLastOpenedAtRank(doc2.id, undefined);
 
       expectUpdatedAtRank(doc1.id, 2);
-      expectLastOpenedAtRank(doc1.id, 1); // TODO why 1
+      expectLastOpenedAtRank(doc1.id, 1);
 
       expectUpdatedAtRank(docId, undefined);
       expectLastOpenedAtRank(docId, undefined);
+    });
+
+    test('rank should be updated after sync', () => {
+      stopDbListeners();
+      const doc1Id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const doc2Id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const doc3Id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      expectUpdatedAtRank(doc1Id, undefined);
+      expectUpdatedAtRank(doc2Id, undefined);
+      expectUpdatedAtRank(doc3Id, undefined);
+      const content = space.getContent();
+      space.setContent([{}, {}]);
+      startDbListeners();
+
+      space.setContent([
+        {
+          collection: content[0].collection,
+          derived_item_state: content[0].derived_item_state
+        },
+        {}
+      ]);
+      collectionService.backfillDerivedStates();
+      expectUpdatedAtRank(doc1Id, 1);
+      expectUpdatedAtRank(doc2Id, 2);
+      expectUpdatedAtRank(doc3Id, 3);
     });
   });
 });
