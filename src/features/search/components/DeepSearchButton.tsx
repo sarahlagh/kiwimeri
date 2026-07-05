@@ -30,7 +30,7 @@ import {
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useEffect, useState } from 'react';
-import { useHistory, useLocation } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 
 const DEEP_SEARCH_RESULTS_HIGHLIGHT_KEY = 'kiwimeri-deep-search-results';
 const CONTENT_LABEL_ID_PREFIX = 'global-search-result-content-';
@@ -240,7 +240,7 @@ const DeepSearchModal = ({ query, dismiss }: DeepSearchModalProps) => {
 const DeepSearchButton = ({
   id = 'global-search-btn'
 }: DeepSearchButtonProps) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
   const searchParams = getSearchParams(location.search);
   const [present, dismiss] = useIonModal(DeepSearchModal, {
@@ -258,7 +258,7 @@ const DeepSearchButton = ({
             if (event.detail.data) {
               const { searchResult, searchText } = event.detail
                 .data as DismissData;
-              history.push(
+              navigate(
                 GET_UNKNOWN_ITEM_ROUTE(
                   searchResult.id,
                   searchResult.type,

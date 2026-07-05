@@ -4,12 +4,12 @@ import { SpaceTables } from '@/core/db/store-constants';
 import { useSpaceCell } from '@/core/db/tinybase-hooks';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { IonButton, IonIcon, useIonModal } from '@ionic/react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import useCurrentNotebook from '../hooks/useCurrentNotebook';
 import ManageNotebooksModal from './ManageNotebooksModal';
 
 const NotebookSwitcher = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const current = useCurrentNotebook();
   const name = useSpaceCell<SpaceTables.Collection, 'title'>(
     SpaceTables.Collection,
@@ -21,7 +21,7 @@ const NotebookSwitcher = () => {
     onClose: (parentId?: string) => {
       if (parentId) {
         notebooksService.setCurrentNotebook(parentId);
-        history.push(INIT_ROUTE);
+        navigate(INIT_ROUTE);
       }
       dismiss();
     }

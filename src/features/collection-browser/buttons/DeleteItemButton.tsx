@@ -1,6 +1,6 @@
 import collectionService from '@/domain/collection/collection.service';
 import DeleteButton from '@/shared/buttons/DeleteButton';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { Id } from 'tinybase/with-schemas';
 
 type DeleteItemButtonProps = {
@@ -14,7 +14,7 @@ const DeleteItemButton = ({
   fallbackRoute,
   onClose
 }: DeleteItemButtonProps) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   return (
     <DeleteButton
       trigger="open-modal-delete-item"
@@ -23,7 +23,7 @@ const DeleteItemButton = ({
         collectionService.deleteItem(id);
         if (history) {
           // history not available in modals and popovers
-          history.replace(fallbackRoute);
+          navigate(fallbackRoute);
         } else if (onClose) {
           onClose('delete', fallbackRoute);
         }

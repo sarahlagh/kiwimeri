@@ -18,7 +18,6 @@ import '@ionic/react/css/typography.css';
 import './theme/global.scss';
 
 import { IonApp } from '@ionic/react';
-import { IonReactRouter } from '@ionic/react-router';
 import { i18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/react';
 import MainLayout from './app/MainLayout';
@@ -27,6 +26,7 @@ import { NetworkStatusProvider } from './app/providers/NetworkStatusProvider';
 import TinybaseProvider from './app/providers/TinybaseProvider';
 import { ToastProvider } from './app/providers/ToastProvider';
 
+import { BrowserRouter } from 'react-router';
 import { plt } from './core/infra/platform';
 import './core/infra/polyfills/capacitor-http-fetch-polyfill';
 import './core/infra/polyfills/log-polyfill';
@@ -47,11 +47,11 @@ const App = () => {
           <TinybaseProvider>
             <ToastProvider>
               <IonApp className={plt.getPlatform()}>
-                <IonReactRouter>
+                <BrowserRouter>
                   <InitialRoutingProvider>
                     <MainLayout />
                   </InitialRoutingProvider>
-                </IonReactRouter>
+                </BrowserRouter>
               </IonApp>
             </ToastProvider>
           </TinybaseProvider>

@@ -75,7 +75,7 @@ const LogsCard = () => {
       return acc;
     },
     {} as {
-      [key: string]: RefObject<HTMLIonTextElement>;
+      [key: string]: RefObject<HTMLIonTextElement | null>;
     }
   );
 

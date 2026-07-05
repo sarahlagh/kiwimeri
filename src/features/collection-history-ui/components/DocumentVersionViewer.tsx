@@ -18,7 +18,7 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { useEffect, useState } from 'react';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router';
 import useVersion from '../hooks/useVersion';
 
 interface DocumentVersionViewerProps {
@@ -53,7 +53,7 @@ const DocumentVersionViewer = ({
   folder,
   query
 }: DocumentVersionViewerProps) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [showDocumentActions, setShowDocumentActions] =
     useState<boolean>(false);
   const [toggleSearch, setToggleSearch] = useState(false);
@@ -116,7 +116,7 @@ const DocumentVersionViewer = ({
             setToggleSearch={setToggleSearch}
             toggleSearchAutoFocus={toggleSearchAutoFocus}
             onValue={val => {
-              history.push(GET_VERSIONED_ROUTE(docVersion, docId, folder, val));
+              navigate(GET_VERSIONED_ROUTE(docVersion, docId, folder, val));
             }}
           />
         )}

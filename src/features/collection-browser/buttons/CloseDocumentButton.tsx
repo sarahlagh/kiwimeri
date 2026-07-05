@@ -2,7 +2,7 @@ import { GET_FOLDER_ROUTE } from '@/app/routes';
 import { APPICONS } from '@/constants';
 import collectionService from '@/domain/collection/collection.service';
 import { IonButton, IonIcon } from '@ionic/react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { Id } from 'tinybase/with-schemas';
 
 type CloseDocumentButtonProps = {
@@ -16,14 +16,14 @@ const CloseDocumentButton = ({
   getRoute,
   onClose
 }: CloseDocumentButtonProps) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const parent = collectionService.getItemParent(id);
   const backRoute = getRoute ? getRoute() : GET_FOLDER_ROUTE(parent);
   return (
     <>
       <IonButton
         onClick={() => {
-          history.push(backRoute);
+          navigate(backRoute);
           if (onClose) {
             onClose('close');
           }

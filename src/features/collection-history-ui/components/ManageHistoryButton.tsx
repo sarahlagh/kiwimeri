@@ -4,7 +4,7 @@ import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
 import { getSearchParams } from '@/shared/utils';
 import { IonButton, IonIcon, useIonModal } from '@ionic/react';
 import { lazy } from 'react';
-import { useHistory, useLocation } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 
 type ManageHistoryButtonProps = {
   id: string;
@@ -17,7 +17,7 @@ const ManageHistoryButton = ({
   id,
   afterRestore
 }: ManageHistoryButtonProps) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const notebook = useCurrentNotebook();
   const location = useLocation(); // warning: location throws error if button in popover
   const searchParams = getSearchParams(location.search);
@@ -36,7 +36,7 @@ const ManageHistoryButton = ({
           onDidDismiss: event => {
             if (event.detail.role === 'goToVersion' && event.detail.data) {
               const version = event.detail.data as string;
-              history.push(
+              navigate(
                 GET_VERSIONED_ROUTE(
                   version,
                   id,

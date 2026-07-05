@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 
 import useShowDevTools from '@/app/hooks/useShowDevTools';
 import {
@@ -41,6 +41,7 @@ interface AppPage {
 const MainMenuList = () => {
   const { t } = useLingui();
   const location = useLocation();
+  const navigate = useNavigate();
   const theme = useDeviceSetting('theme');
   const showDevTools = useShowDevTools();
 
@@ -106,10 +107,12 @@ const MainMenuList = () => {
                 <IonItem
                   key={appPage.key}
                   color={isActive(appPage) ? 'primary' : ''}
-                  routerLink={appPage.url}
-                  routerDirection="none"
                   lines="none"
                   detail={false}
+                  onClick={() => {
+                    navigate(appPage.url);
+                  }}
+                  button
                 >
                   <IonIcon
                     aria-hidden="true"

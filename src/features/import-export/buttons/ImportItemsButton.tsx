@@ -6,7 +6,6 @@ import { OverlayEventDetail } from '@ionic/core/components';
 import { useIonModal } from '@ionic/react';
 import { SerializedEditorState, SerializedLexicalNode } from 'lexical';
 import { lazy, useState } from 'react';
-import { useHistory } from 'react-router';
 
 import { GET_ITEM_ROUTE } from '@/app/routes';
 import GenericImportFileButton, {
@@ -14,6 +13,7 @@ import GenericImportFileButton, {
   OnContentReadResponse
 } from '@/shared/buttons/GenericImportFileButton';
 
+import { useNavigate } from 'react-router';
 import {
   MultipleImportModalParams,
   ZipImportOptions,
@@ -38,7 +38,7 @@ const ImportItemsButton = ({
   parent,
   createNotebook = false
 }: ImportItemsButtonProps) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [singleDuplicates, setSingleDuplicates] = useState<
     CollectionItemResult[]
   >([]);
@@ -89,7 +89,7 @@ const ImportItemsButton = ({
       const itemId = item?.id;
       importService.commitDocument(lexical, parent, fileName, itemId);
 
-      history.push(GET_ITEM_ROUTE(parent, itemId));
+      navigate(GET_ITEM_ROUTE(parent, itemId));
     };
     if (itemsInCollection.length > 0) {
       setSingleDuplicates(itemsInCollection);

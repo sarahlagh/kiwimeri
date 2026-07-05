@@ -176,9 +176,10 @@ const SortableList = (props: SortableIonListProps) => {
             ? applyStyle(id === overId, id === active?.id)
             : {};
           const el = child as ReactElement;
+          const childProps = typeof el.props === 'object' ? el.props : {};
           const itemNode = {
             ...el,
-            props: { ...el.props, ...additionalStyle }
+            props: { ...childProps, ...additionalStyle }
           };
           return (
             <Fragment key={id}>

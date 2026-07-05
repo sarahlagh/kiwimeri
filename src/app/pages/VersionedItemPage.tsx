@@ -7,7 +7,7 @@ import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
 import { getSearchParams } from '@/shared/utils';
 import { IonButton, IonIcon } from '@ionic/react';
 import { useState } from 'react';
-import { Redirect, useLocation } from 'react-router';
+import { Navigate, useLocation } from 'react-router';
 import useItemTitle from '../hooks/useItemTitle';
 import NotFoundPage from './NotFoundPage';
 import TemplateCompactableSplitPage from './TemplateCompactableSplitPage';
@@ -39,7 +39,13 @@ const VersionedItemPage = () => {
 
   if (location.pathname !== VERSION_ROUTE && docId) {
     // TODO shouldn't be needed - check why
-    return <Redirect to={GET_DOCUMENT_ROUTE(parentFolder, docId)} />;
+    return (
+      <Navigate
+        to={GET_DOCUMENT_ROUTE(parentFolder, docId)}
+        // state={{ from: location }}
+        // replace
+      />
+    );
   }
 
   if (!docId || !docVersion || !historyService.versionExists(docVersion)) {

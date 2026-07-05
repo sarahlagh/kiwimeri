@@ -12,7 +12,7 @@ import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
 import useDeviceSetting from '@/shared/hooks/useDeviceSetting';
 import { getSearchParams } from '@/shared/utils';
 import { ReactNode, useEffect } from 'react';
-import { Redirect, useLocation } from 'react-router';
+import { Navigate, useLocation } from 'react-router';
 
 type InitialRoutingProviderProps = {
   readonly children?: ReactNode;
@@ -39,13 +39,13 @@ const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
       const folder = state?.lastFolder || notebook;
 
       if (document && collectionService.itemExists(document)) {
-        return <Redirect to={GET_DOCUMENT_ROUTE(folder, document)} />;
+        return <Navigate to={GET_DOCUMENT_ROUTE(folder, document)} />;
       }
       if (folder && collectionService.itemExists(folder)) {
-        return <Redirect to={GET_FOLDER_ROUTE(folder)} />;
+        return <Navigate to={GET_FOLDER_ROUTE(folder)} />;
       }
     }
-    return <Redirect to={GET_FOLDER_ROUTE(notebook)} />;
+    return <Navigate to={GET_FOLDER_ROUTE(notebook)} />;
   }
   if (isCollectionRoute(location.pathname)) {
     // if no folder, or if folder but doesn't exist
@@ -54,19 +54,19 @@ const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
       !collectionService.itemExists(searchParams.folder)
     ) {
       if (collectionService.itemExists(notebook)) {
-        return <Redirect to={GET_FOLDER_ROUTE(notebook)} />;
+        return <Navigate to={GET_FOLDER_ROUTE(notebook)} />;
       }
       // current notebook doesn't exist, fallback to first
       const notebookId =
         notebooksService.getNotebooks()[0]?.id || ROOT_COLLECTION;
-      return <Redirect to={GET_FOLDER_ROUTE(notebookId)} />;
+      return <Navigate to={GET_FOLDER_ROUTE(notebookId)} />;
     }
     // if document but doesn't exist
     if (
       searchParams.document &&
       !collectionService.itemExists(searchParams.document)
     ) {
-      return <Redirect to={GET_FOLDER_ROUTE(folder)} />;
+      return <Navigate to={GET_FOLDER_ROUTE(folder)} />;
     }
   }
   return <>{children}</>;

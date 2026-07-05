@@ -10,7 +10,7 @@ import { historyService } from '@/domain/history/history.service';
 import useDeviceSetting from '@/shared/hooks/useDeviceSetting';
 import { useIonModal } from '@ionic/react';
 import { useEffect, useState } from 'react';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router';
 import { SessionMode } from '../mode';
 import OngoingSession from './OngoingSession';
 import SaveSessionModal, { SavePayload } from './SaveSessionModal';
@@ -39,7 +39,7 @@ function saveTempDocument(payload: SavePayload) {
 }
 
 const WritingSession = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [ongoing, setOngoing] = useState<boolean>(false);
   const duration = useDeviceSetting('defaultTimedDuration');
   const mode = useDeviceSetting('defaultTimedMode') as SessionMode;
@@ -52,7 +52,7 @@ const WritingSession = () => {
         setOngoing(false);
 
         const { id, parent } = saveTempDocument(payload);
-        history.push(GET_DOCUMENT_ROUTE(parent, id));
+        navigate(GET_DOCUMENT_ROUTE(parent, id));
       }
       dismiss();
     }

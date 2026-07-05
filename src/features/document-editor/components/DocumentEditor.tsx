@@ -21,7 +21,7 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { forwardRef, useEffect, useState } from 'react';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router';
 import KiwimeriEditor from '../wysiwyg-editor/lexical/KiwimeriEditor';
 import { KiwimeriEditorHandle } from '../wysiwyg-editor/lexical/KiwimeriEditorHandle';
 import { serializeSelection } from '../wysiwyg-editor/lexical/selection-serializer';
@@ -40,7 +40,7 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
     const { docId, showActions = false, query } = { ...props };
     const parentId = collectionService.getItemParent(docId);
 
-    const history = useHistory();
+    const navigate = useNavigate();
     const [showDocumentActions, setShowDocumentActions] =
       useState<boolean>(false);
     const [showBottomSheet, setShowBottomSheet] = useState(showActions);
@@ -109,7 +109,7 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
                 } else if (role === 'restore') {
                   setUniqId(uniqId + 1); // force editor to reload content
                 } else if (role === 'group') {
-                  history.push(data!);
+                  navigate(data!);
                 } else {
                   setShowDocumentActions(false);
                 }
@@ -127,7 +127,7 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
               setToggleSearch={setToggleSearch}
               toggleSearchAutoFocus={toggleSearchAutoFocus}
               onValue={val => {
-                history.push(GET_DOCUMENT_ROUTE(parentId, docId, val));
+                navigate(GET_DOCUMENT_ROUTE(parentId, docId, val));
               }}
             />
           )}

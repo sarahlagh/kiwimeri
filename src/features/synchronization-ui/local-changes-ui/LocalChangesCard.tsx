@@ -32,6 +32,7 @@ import {
   useIonViewDidLeave
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
+import { useNavigate } from 'react-router';
 import useLatestUpdatedAt from '../hooks/useLatestUpdatedAt';
 import usePrimaryLastRemoteChange from '../hooks/usePrimaryLastRemoteChange';
 import {
@@ -52,6 +53,7 @@ export function onRouteLeave() {
 
 const LocalChangesCard = () => {
   const { t, i18n } = useLingui();
+  const navigate = useNavigate();
   const isRelease = plt.isRelease();
   const isWideEnough = useIsWideEnough();
   const localChanges = useQueryResults(fetchLocalChangesQuery);
@@ -136,8 +138,11 @@ const LocalChangesCard = () => {
                 }
                 return (
                   <IonItem
+                    button
                     key={lc.id}
-                    routerLink={route}
+                    onClick={() => {
+                      navigate(route);
+                    }}
                     data-testid={`lc-key-${lc.id}`}
                   >
                     {!itemExists && (

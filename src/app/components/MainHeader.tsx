@@ -19,7 +19,7 @@ import {
 import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactProps';
 import { useLingui } from '@lingui/react/macro';
 import { ReactNode, useEffect, useState } from 'react';
-import { useHistory, useLocation } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { useToastContext } from '../context/ToastContext';
 
 export type MainHeaderProps = {
@@ -39,7 +39,7 @@ const MainHeader = ({
   color
 }: MainHeaderProps) => {
   const { t } = useLingui();
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
   const [isSyncing, setIsSyncing] = useState(false);
   const {
@@ -74,7 +74,7 @@ const MainHeader = ({
     if (!collectionService.itemExists(currentFolder)) {
       console.debug('current folder deleted', currentFolder);
       // soft refresh, InitialRoutingProvider will do the rest
-      history.replace(location);
+      navigate(location);
     }
   }
 

@@ -22,6 +22,7 @@ import {
 import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactProps';
 import { Trans } from '@lingui/react/macro';
 import { Fragment, ReactNode, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router';
 import { BrowsableItemResult } from '../browsable-item';
 import useItemsConflictMixIn from '../hooks/useItemsConflictMixIn';
 import './CollectionItemList.css';
@@ -109,6 +110,7 @@ const CollectionItemListItem = ({
   const labelRef = useRef<HTMLIonLabelElement>(null);
   const inputRenaming = useRef<HTMLIonInputElement>(null);
   const [renaming, setRenaming] = useState<boolean>(false);
+  const navigate = useNavigate();
   useEffect(() => {
     setRenaming(itemRenaming === item.id);
   }, [itemRenaming]);
@@ -118,7 +120,7 @@ const CollectionItemListItem = ({
   }
 
   const url = getUrl && !renaming ? getUrl(item) : undefined;
-  const routerDirection = getUrl && !renaming ? 'none' : undefined;
+  // const routerDirection = getUrl && !renaming ? 'none' : undefined;
   const icon = item.isConflict
     ? APPICONS.warning
     : item.hasAnnotsConflicts
@@ -135,15 +137,13 @@ const CollectionItemListItem = ({
 
   return (
     <IonItem
+      button
       id={'collection-item-' + item.id}
       className={className}
       style={itemProps ? itemProps(item)?.style : undefined}
       disabled={itemDisabled ? itemDisabled(item) : false}
-      button={!url}
       key={item.id}
       color={selected === item.id ? 'primary' : ''}
-      routerLink={url}
-      routerDirection={routerDirection}
       lines="none"
       detail={false}
       onClick={e => {
@@ -151,6 +151,9 @@ const CollectionItemListItem = ({
           e.stopPropagation();
           e.preventDefault();
           return;
+        }
+        if (url) {
+          navigate(url);
         }
         if (!url && onSelectedItem) {
           onSelectedItem(item);

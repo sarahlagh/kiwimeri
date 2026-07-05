@@ -13,14 +13,14 @@ import {
   IonToggle
 } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router';
 import ConfigCard from './ConfigCard';
 import LogsCard from './LogsCard';
 import OperationsCard from './OperationsCard';
 import QuickRestore from './QuickRestore';
 
 const DevTools = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const isWideEnough = useIsWideEnough();
 
   return (
@@ -32,9 +32,7 @@ const DevTools = () => {
             checked={true}
             onIonChange={() => {
               deviceSettings.set('showDevTools', false);
-              history.replace(
-                GET_FOLDER_ROUTE(notebooksService.getCurrentNotebook())
-              );
+              navigate(GET_FOLDER_ROUTE(notebooksService.getCurrentNotebook()));
             }}
           >
             <Trans>Dev Tools Enabled</Trans>

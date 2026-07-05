@@ -1,4 +1,4 @@
-import { useHistory, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 
 import {
   IonButton,
@@ -25,6 +25,7 @@ import { ActionsFromBrowserToolbar } from '@/features/collection-item-actions';
 import { useHasLocalConflicts } from '@/features/synchronization-ui';
 import { useLingui } from '@lingui/react/macro';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
 import { BrowsableItemResult, fromCollectionItemSort } from '../browsable-item';
 import useCollectionItemBrowserListResults, {
   BrowserQueryMode,
@@ -55,7 +56,7 @@ const CollectionItemBrowserListToolbar = ({
   searchText?: string | null;
   setSearchText: Dispatch<SetStateAction<string | undefined | null>>;
 }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [openFilters, setOpenFilters] = useState(false);
   const openedDocumentFolder = openedDocument
     ? collectionService.getItemParent(openedDocument)
@@ -79,7 +80,7 @@ const CollectionItemBrowserListToolbar = ({
                 disabled={folderId === openedDocumentFolder || !openedDocument}
                 onClick={() => {
                   if (openedDocumentFolder) {
-                    history.push(
+                    navigate(
                       GET_ITEM_ROUTE(openedDocumentFolder, openedDocument)
                     );
                   }
@@ -138,7 +139,7 @@ export const CollectionItemBrowserList = ({
   parent: folder
 }: CollectionItemBrowserListProps) => {
   const { t } = useLingui();
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
   const searchParams = getSearchParams(location.search);
   const openedDocument = searchParams?.document;
@@ -179,10 +180,10 @@ export const CollectionItemBrowserList = ({
           setItemRenaming(data);
         }
         if (role === 'delete') {
-          history.replace(data!);
+          navigate(data!);
         }
         if (role === 'group') {
-          history.push(data!);
+          navigate(data!);
         }
         dismissActions();
         setSelectedItem(null);
@@ -202,7 +203,7 @@ export const CollectionItemBrowserList = ({
             <CollectionItemBreadcrumb
               folder={folder}
               onClick={item => {
-                history.push(GET_ITEM_ROUTE(item, openedDocument, query));
+                navigate(GET_ITEM_ROUTE(item, openedDocument, query));
               }}
             ></CollectionItemBreadcrumb>
           ) : (
