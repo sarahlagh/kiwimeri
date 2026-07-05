@@ -55,11 +55,7 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
       setShowDocumentActions(showActions);
     }, [showActions]);
 
-    const content = useSpaceCell<SpaceTables.Collection, 'content'>(
-      SpaceTables.Collection,
-      docId,
-      'content'
-    );
+    const content = collectionService.getItemContent(docId);
     const documentTitle = collectionService.getItemTitle(docId);
     const onTitleChange = onTitleChangeFn(docId);
 
