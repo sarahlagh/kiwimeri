@@ -1,4 +1,4 @@
-import { CodeNode } from '@lexical/code';
+// import { CodeNode } from '@lexical/code';
 import { AutoLinkNode, LinkNode } from '@lexical/link';
 import { ListItemNode, ListNode } from '@lexical/list';
 import { MarkNode } from '@lexical/mark';
@@ -23,7 +23,7 @@ export const lexicalConfig: InitialConfigType = {
   nodes: [
     MarkNode,
     HeadingNode,
-    CodeNode,
+    // CodeNode,
     QuoteNode,
     LinkNode,
     AutoLinkNode,

@@ -14,7 +14,12 @@ const viteConfig = defineConfig({
     }
   },
   build: {
-    target: 'esnext'
+    target: 'esnext',
+    rollupOptions: {
+      treeshake: {
+        preset: 'smallest'
+      }
+    }
   },
   resolve: {
     alias: {
@@ -37,6 +42,8 @@ if (process.env.ANALYZE) {
       filename: 'dist/stats.html',
       gzipSize: true,
       open: true
+      // template: 'raw-data'
+      // sourcemap: true
     })
   );
 }
