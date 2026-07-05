@@ -1,11 +1,17 @@
 import { getGlobalTrans } from '@/constants';
-import { CollectionItemBrowserList } from '@/features/collection-browser';
 import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
 import { onTitleChangeFn } from '@/shared/misc/onTitleChangeFn';
 import { getSearchParams } from '@/shared/utils';
+import { lazy } from 'react';
 import { useLocation } from 'react-router';
 import useItemTitle from '../hooks/useItemTitle';
 import TemplateMainPage from './TemplateMainPage';
+
+const CollectionItemBrowserList = lazy(() =>
+  import('@/features/collection-browser').then(m => ({
+    default: m.CollectionItemBrowserList
+  }))
+);
 
 const CollectionListPage = () => {
   const location = useLocation();

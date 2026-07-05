@@ -1,4 +1,3 @@
-import { WritingSession } from '@/features/timed-writing';
 import {
   IonButtons,
   IonHeader,
@@ -7,6 +6,13 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
+import { lazy } from 'react';
+
+const WritingSession = lazy(() =>
+  import('@/features/timed-writing').then(m => ({
+    default: m.WritingSession
+  }))
+);
 
 const WritingSessionPage = () => {
   return (

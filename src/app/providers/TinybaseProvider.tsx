@@ -7,12 +7,17 @@ import {
   store,
   storeQueries
 } from '@/core/db/store';
-import { ReactNode } from 'react';
+import { lazy, ReactNode } from 'react';
 import { Metrics } from 'tinybase/metrics';
 import { Queries } from 'tinybase/queries';
 import { Store } from 'tinybase/store';
 import { Provider } from 'tinybase/ui-react';
-import { Inspector } from 'tinybase/ui-react-inspector';
+
+const Inspector = lazy(() =>
+  import('tinybase/ui-react-inspector').then(m => ({
+    default: m.Inspector
+  }))
+);
 
 const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
   const untypedSpace = space as unknown as Store;

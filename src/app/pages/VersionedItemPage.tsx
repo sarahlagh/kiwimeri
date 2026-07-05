@@ -2,15 +2,20 @@ import { GET_DOCUMENT_ROUTE, VERSION_ROUTE } from '@/app/routes';
 import { APPICONS } from '@/constants';
 import { historyService } from '@/domain/history/history.service';
 import { CollectionItemBrowserList } from '@/features/collection-browser';
-import { DocumentVersionViewer } from '@/features/collection-history-ui';
 import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
 import { getSearchParams } from '@/shared/utils';
 import { IonButton, IonIcon } from '@ionic/react';
-import { useState } from 'react';
+import { lazy, useState } from 'react';
 import { Navigate, useLocation } from 'react-router';
 import useItemTitle from '../hooks/useItemTitle';
 import NotFoundPage from './NotFoundPage';
 import TemplateCompactableSplitPage from './TemplateCompactableSplitPage';
+
+const DocumentVersionViewer = lazy(() =>
+  import('@/features/collection-history-ui').then(m => ({
+    default: m.DocumentVersionViewer
+  }))
+);
 
 const VersionedItemPage = () => {
   const location = useLocation();

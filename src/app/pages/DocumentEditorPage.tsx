@@ -2,17 +2,20 @@ import { APPICONS } from '@/constants';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { CollectionItemBrowserList } from '@/features/collection-browser';
 import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
-import {
-  DocumentEditor,
-  KiwimeriEditorHandle
-} from '@/features/document-editor';
+import { KiwimeriEditorHandle } from '@/features/document-editor';
 import { onTitleChangeFn } from '@/shared/misc/onTitleChangeFn';
 import { getSearchParams } from '@/shared/utils';
 import { IonButton, IonIcon } from '@ionic/react';
-import { useRef, useState } from 'react';
+import { lazy, useRef, useState } from 'react';
 import { useLocation } from 'react-router';
 import useItemTitle from '../hooks/useItemTitle';
 import TemplateCompactableSplitPage from './TemplateCompactableSplitPage';
+
+const DocumentEditor = lazy(() =>
+  import('@/features/document-editor').then(m => ({
+    default: m.DocumentEditor
+  }))
+);
 
 const DocumentEditorPage = () => {
   const editorRef = useRef<KiwimeriEditorHandle | null>(null);

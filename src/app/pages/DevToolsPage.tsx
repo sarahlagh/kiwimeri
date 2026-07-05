@@ -1,9 +1,15 @@
 import useShowDevTools from '@/app/hooks/useShowDevTools';
-import { DevTools } from '@/features/dev-tools';
 import { IonContent } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
+import { lazy } from 'react';
 import NotFoundPage from './NotFoundPage';
 import TemplateMainPage from './TemplateMainPage';
+
+const DevTools = lazy(() =>
+  import('@/features/dev-tools').then(m => ({
+    default: m.DevTools
+  }))
+);
 
 const DevToolsPage = () => {
   const { t } = useLingui();
