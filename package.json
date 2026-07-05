@@ -27,7 +27,7 @@
     "release:android": "scripts/release-android.sh prod",
     "release:android:beta": "scripts/release-android.sh beta",
     "release": "yarn release:electron && yarn release:android",
-    "analyze-bundle": "ANALYZE=true yarn build"
+    "analyze-bundle": "ANALYZE=true yarn build:prod"
   },
   "dependencies": {
     "@capacitor-community/electron": "^5.0.1",
