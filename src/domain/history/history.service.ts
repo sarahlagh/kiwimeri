@@ -13,6 +13,7 @@ import {
   CollectionItemVersionRow
 } from '@/domain/history/history';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
+import { dateToStr } from '@/shared/misc/date-utils';
 import { getPlainText } from '@/shared/misc/getPlainText';
 import { getHash, Id, Table } from 'tinybase/with-schemas';
 import { LocalChangeType } from '../synchronization/local-changes';
@@ -290,9 +291,11 @@ class CollectionHistoryService {
   public gc() {
     const maxHistoryPerDoc = userPrefs.get('maxHistoryPerDoc');
     if (maxHistoryPerDoc <= 0) return;
+    console.log('running history gc');
     const rankMap = new Map<string, number>();
     const historyTable = space.getTable(H);
     const rowIds = space.getSortedRowIds(H, 'createdAt', true);
+    let count = 0;
 
     rowIds.forEach(rowId => {
       const row = historyTable[rowId];
@@ -303,6 +306,7 @@ class CollectionHistoryService {
       }
       rankMap.set(itemId, rank);
       if (rank >= maxHistoryPerDoc) {
+        count++;
         space.delRow(H, rowId);
         delete historyTable[rowId];
         // query by contentId here
@@ -312,6 +316,56 @@ class CollectionHistoryService {
         }
       }
     });
+    console.log('history gc done, deleted', count);
+  }
+
+  public compact(skipDays = 0) {
+    console.log('running history compaction');
+    const historyTable = space.getTable(H);
+    const rowIds = space.getSortedRowIds(H, 'createdAt', true);
+    const itemMap = new Map<
+      Id,
+      Map<string, { rowId: string; createdAt: number }>
+    >();
+    const lastActiveDayMap = new Map<Id, number>();
+    let count = 0;
+
+    space.transaction(() => {
+      rowIds.forEach(rowId => {
+        const row = historyTable[rowId];
+        const itemId = row.itemId as string;
+        const createdAt = row.createdAt as number;
+
+        // when was the item last active, don't delete history on that day
+        if (!lastActiveDayMap.has(itemId)) {
+          const day = dateToStr(
+            'date-printable',
+            (row.createdAt as number) - skipDays * 86400000
+          );
+          const dayTs = new Date(day).getTime();
+          lastActiveDayMap.set(itemId, dayTs);
+        }
+        const lastActiveTs = lastActiveDayMap.get(itemId)!;
+
+        if (createdAt >= lastActiveTs) return;
+        const day = dateToStr('date-printable', createdAt);
+        if (!itemMap.has(itemId)) itemMap.set(itemId, new Map());
+        const dayMap = itemMap.get(itemId)!;
+        if (!dayMap.has(day)) {
+          dayMap.set(day, { rowId, createdAt });
+        } else {
+          space.delRow(H, rowId);
+          delete historyTable[rowId];
+          count++;
+        }
+        // query by contentId here
+        if (!this.isContentIdUsed(historyTable, row.contentId!)) {
+          // content is now unused
+          space.delRow(HC, row.contentId!);
+        }
+      });
+    });
+    console.log('history compaction done, deleted', count);
   }
 }
 

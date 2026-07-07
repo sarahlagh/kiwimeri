@@ -364,53 +364,164 @@ describe('collection history service', () => {
     expect(docVersions[0].id).toBe(latestVersions.id);
   });
 
-  it(`should gc versions and content`, () => {
-    userPrefs.set('maxHistoryPerDoc', 2);
-    const doc1 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    vi.advanceTimersByTime(fakeTimersDelay);
-    collectionService.setItemField(doc1, 'content', getNewValue('lex'));
-    vi.advanceTimersByTime(fakeTimersDelay);
-    collectionService.setItemField(doc1, 'title', getNewValue('string'));
-    vi.advanceTimersByTime(fakeTimersDelay);
-    collectionService.setItemField(doc1, 'content', getNewValue('lex'));
-    vi.advanceTimersByTime(fakeTimersDelay);
-    collectionService.setItemField(doc1, 'title', getNewValue('string'));
-    vi.advanceTimersByTime(fakeTimersDelay);
-    expect(historyService.getVersions(doc1)).toHaveLength(3);
-    expect(space.getRowCount('history_content')).toBe(3);
+  describe(`gc versions`, () => {
+    it(`should gc versions and content`, () => {
+      userPrefs.set('maxHistoryPerDoc', 2);
+      const doc1 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      vi.advanceTimersByTime(fakeTimersDelay);
+      collectionService.setItemField(doc1, 'content', getNewValue('lex'));
+      vi.advanceTimersByTime(fakeTimersDelay);
+      collectionService.setItemField(doc1, 'title', getNewValue('string'));
+      vi.advanceTimersByTime(fakeTimersDelay);
+      collectionService.setItemField(doc1, 'content', getNewValue('lex'));
+      vi.advanceTimersByTime(fakeTimersDelay);
+      collectionService.setItemField(doc1, 'title', getNewValue('string'));
+      vi.advanceTimersByTime(fakeTimersDelay);
+      expect(historyService.getVersions(doc1)).toHaveLength(3);
+      expect(space.getRowCount('history_content')).toBe(3);
 
-    historyService.gc();
-    expect(historyService.getVersions(doc1)).toHaveLength(2);
-    expect(space.getRowCount('history_content')).toBe(2);
+      historyService.gc();
+      expect(historyService.getVersions(doc1)).toHaveLength(2);
+      expect(space.getRowCount('history_content')).toBe(2);
 
-    // one more title version - one content is removed
-    // TODO test not relevant anymore since title doesn't create a new version
-    vi.advanceTimersByTime(fakeTimersDelay);
-    collectionService.setItemField(doc1, 'title', getNewValue('string'));
-    vi.advanceTimersByTime(fakeTimersDelay);
+      // one more title version - one content is removed
+      // TODO test not relevant anymore since title doesn't create a new version
+      vi.advanceTimersByTime(fakeTimersDelay);
+      collectionService.setItemField(doc1, 'title', getNewValue('string'));
+      vi.advanceTimersByTime(fakeTimersDelay);
 
-    historyService.gc();
-    expect(historyService.getVersions(doc1)).toHaveLength(2);
-    expect(space.getRowCount('history_content')).toBe(2);
+      historyService.gc();
+      expect(historyService.getVersions(doc1)).toHaveLength(2);
+      expect(space.getRowCount('history_content')).toBe(2);
+    });
+
+    it(`should not gc if setting is negative or zero`, () => {
+      userPrefs.set('maxHistoryPerDoc', 0);
+      const doc1 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      vi.advanceTimersByTime(fakeTimersDelay);
+      collectionService.setItemField(doc1, 'content', getNewValue('lex'));
+      vi.advanceTimersByTime(fakeTimersDelay);
+      collectionService.setItemField(doc1, 'title', getNewValue('string'));
+      vi.advanceTimersByTime(fakeTimersDelay);
+      collectionService.setItemField(doc1, 'content', getNewValue('lex'));
+      vi.advanceTimersByTime(fakeTimersDelay);
+      collectionService.setItemField(doc1, 'title', getNewValue('string'));
+      vi.advanceTimersByTime(fakeTimersDelay);
+      expect(historyService.getVersions(doc1)).toHaveLength(3);
+      expect(space.getRowCount('history_content')).toBe(3);
+
+      historyService.gc();
+      expect(historyService.getVersions(doc1)).toHaveLength(3);
+      expect(space.getRowCount('history_content')).toBe(3);
+    });
   });
 
-  it(`should not gc if setting is negative or zero`, () => {
-    userPrefs.set('maxHistoryPerDoc', 0);
-    const doc1 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    vi.advanceTimersByTime(fakeTimersDelay);
-    collectionService.setItemField(doc1, 'content', getNewValue('lex'));
-    vi.advanceTimersByTime(fakeTimersDelay);
-    collectionService.setItemField(doc1, 'title', getNewValue('string'));
-    vi.advanceTimersByTime(fakeTimersDelay);
-    collectionService.setItemField(doc1, 'content', getNewValue('lex'));
-    vi.advanceTimersByTime(fakeTimersDelay);
-    collectionService.setItemField(doc1, 'title', getNewValue('string'));
-    vi.advanceTimersByTime(fakeTimersDelay);
-    expect(historyService.getVersions(doc1)).toHaveLength(3);
-    expect(space.getRowCount('history_content')).toBe(3);
+  describe(`compact versions`, () => {
+    it(`should compact history`, () => {
+      const now = Date.now();
+      const dayM3 = now - 3 * 86400000;
+      const dayM2 = now - 2 * 86400000;
+      const dayM1 = now - 1 * 86400000;
+      // version d-3
+      vi.setSystemTime(dayM3);
+      const doc1 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const doc2 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      vi.advanceTimersByTime(fakeTimersDelay);
+      collectionService.setItemField(doc1, 'content', getNewValue('lex'));
+      collectionService.setItemField(doc2, 'content', getNewValue('lex'));
+      vi.advanceTimersByTime(fakeTimersDelay);
+      collectionService.setItemField(doc1, 'content', getNewValue('lex'));
+      vi.advanceTimersByTime(fakeTimersDelay);
+      collectionService.setItemField(doc1, 'content', getNewValue('lex'));
+      collectionService.setItemField(doc2, 'content', getNewValue('lex'));
+      vi.advanceTimersByTime(fakeTimersDelay);
+      collectionService.setItemField(doc2, 'content', getNewValue('lex'));
+      vi.advanceTimersByTime(fakeTimersDelay);
+      // version d-2
+      vi.setSystemTime(dayM2);
+      collectionService.setItemField(doc2, 'content', getNewValue('lex'));
+      vi.advanceTimersByTime(fakeTimersDelay);
+      collectionService.setItemField(doc2, 'content', getNewValue('lex'));
+      vi.advanceTimersByTime(fakeTimersDelay);
+      // version d-1
+      vi.setSystemTime(dayM1);
+      collectionService.setItemField(doc1, 'content', getNewValue('lex'));
+      collectionService.setItemField(doc2, 'content', getNewValue('lex'));
+      vi.advanceTimersByTime(fakeTimersDelay);
+      collectionService.setItemField(doc2, 'content', getNewValue('lex'));
+      vi.advanceTimersByTime(fakeTimersDelay);
+      collectionService.setItemField(doc1, 'content', getNewValue('lex'));
+      collectionService.setItemField(doc2, 'content', getNewValue('lex'));
+      vi.advanceTimersByTime(fakeTimersDelay);
+      collectionService.setItemField(doc2, 'content', getNewValue('lex'));
+      vi.advanceTimersByTime(fakeTimersDelay);
+      // version d
+      vi.setSystemTime(now);
+      collectionService.setItemField(doc1, 'content', getNewValue('lex'));
+      collectionService.setItemField(doc2, 'content', getNewValue('lex'));
+      vi.advanceTimersByTime(fakeTimersDelay);
+      collectionService.setItemField(doc1, 'content', getNewValue('lex'));
+      collectionService.setItemField(doc2, 'content', getNewValue('lex'));
+      vi.advanceTimersByTime(fakeTimersDelay);
 
-    historyService.gc();
-    expect(historyService.getVersions(doc1)).toHaveLength(3);
-    expect(space.getRowCount('history_content')).toBe(3);
+      expect(historyService.getVersions(doc1)).toHaveLength(8);
+      expect(historyService.getVersions(doc2)).toHaveLength(12);
+      expect(space.getRowCount('history_content')).toBe(20);
+
+      historyService.compact();
+      const doc1Versions = historyService.getVersions(doc1);
+      expect(doc1Versions).toHaveLength(4);
+      const doc2Versions = historyService.getVersions(doc2);
+      expect(doc2Versions).toHaveLength(5);
+      expect(space.getRowCount('history_content')).toBe(9);
+    });
+
+    it(`should not compact today's history`, () => {
+      const doc1 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      vi.advanceTimersByTime(fakeTimersDelay);
+      collectionService.setItemField(doc1, 'content', getNewValue('lex'));
+      vi.advanceTimersByTime(fakeTimersDelay);
+      collectionService.setItemField(doc1, 'content', getNewValue('lex'));
+      vi.advanceTimersByTime(fakeTimersDelay);
+      collectionService.setItemField(doc1, 'content', getNewValue('lex'));
+      vi.advanceTimersByTime(fakeTimersDelay);
+
+      expect(historyService.getVersions(doc1)).toHaveLength(4);
+      expect(space.getRowCount('history_content')).toBe(4);
+
+      historyService.compact();
+      expect(historyService.getVersions(doc1)).toHaveLength(4);
+      expect(space.getRowCount('history_content')).toBe(4);
+    });
+
+    it(`should not compact last active day`, () => {
+      const doc1 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      vi.advanceTimersByTime(fakeTimersDelay);
+      collectionService.setItemField(doc1, 'content', getNewValue('lex'));
+      vi.advanceTimersByTime(fakeTimersDelay);
+      collectionService.setItemField(doc1, 'content', getNewValue('lex'));
+      vi.advanceTimersByTime(fakeTimersDelay);
+      collectionService.setItemField(doc1, 'content', getNewValue('lex'));
+      vi.advanceTimersByTime(fakeTimersDelay);
+
+      expect(historyService.getVersions(doc1)).toHaveLength(4);
+      expect(space.getRowCount('history_content')).toBe(4);
+
+      historyService.compact();
+      expect(historyService.getVersions(doc1)).toHaveLength(4);
+      expect(space.getRowCount('history_content')).toBe(4);
+
+      vi.setSystemTime(Date.now() + 3 * 86400000);
+      historyService.compact(); // last active day unchanged
+      expect(historyService.getVersions(doc1)).toHaveLength(4);
+      expect(space.getRowCount('history_content')).toBe(4);
+
+      vi.advanceTimersByTime(fakeTimersDelay);
+      collectionService.setItemField(doc1, 'content', getNewValue('lex'));
+      vi.advanceTimersByTime(fakeTimersDelay);
+      historyService.compact(); // today's the last active day
+      expect(historyService.getVersions(doc1)).toHaveLength(2);
+      expect(space.getRowCount('history_content')).toBe(2);
+    });
   });
 });
