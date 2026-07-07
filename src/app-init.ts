@@ -46,6 +46,7 @@ export function appInit() {
     notebooksService.initNotebooks();
     syncService.start();
     historyService.gc();
+    historyService.compact();
     appLog.gc(); // TODO run at interval
     console.debug('[app-init] app started');
   });

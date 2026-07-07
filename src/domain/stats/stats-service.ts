@@ -1,5 +1,5 @@
 import { ROOT_COLLECTION } from '@/constants';
-import { space, spaceQueries } from '@/core/db/store';
+import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { MetaField } from '@/core/db/types';
 import { isDocument } from '@/domain/collection/collection';
@@ -75,22 +75,6 @@ class StatsService {
       result[itemId] = { lastOpenedAt };
     });
     return result;
-  }
-
-  private fromQuery<T, U>(
-    queryName: string,
-    rowMapper: (row: T, rowId: string) => U,
-    sortBy?: string | undefined,
-    descending?: boolean | undefined,
-    offset?: number | undefined,
-    limit?: number | undefined
-  ) {
-    return spaceQueries
-      .getResultSortedRowIds(queryName, sortBy, descending, offset, limit)
-      .map(rowId => {
-        const resultRow = spaceQueries.getResultRow(queryName, rowId) as T;
-        return rowMapper(resultRow, rowId);
-      });
   }
 
   public updateStatsAtDate(
