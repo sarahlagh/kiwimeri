@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"POT-Creation-Date: 2026-07-09 22:01+0200\n"
+"POT-Creation-Date: 2026-07-09 22:08+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -42,6 +42,7 @@ msgstr " (new)"
 msgid "-- conflict --"
 msgstr "-- conflict --"
 
+#. placeholder {0}: showFilters ? 'Hide' : 'Show'
 #: src/features/dev-tools/components/LogsCard.tsx:151
 msgid "{0} Filters"
 msgstr "{0} Filters"
@@ -131,7 +132,7 @@ msgstr "Character Count (Max)"
 msgid "characters"
 msgstr "characters"
 
-#: src/features/collection-browser/modals/ChooseFolderModal.tsx:69
+#: src/features/collection-item-actions/modals/ChooseFolderModal.tsx:71
 msgid "Choose"
 msgstr "Choose"
 
@@ -139,7 +140,7 @@ msgstr "Choose"
 msgid "Choose a length for your writing session. Once you start, you must keep writing or all progress will be lost. You will have the option to save your work in a new document once you finish. This feature is inspired by Squibler's Most Dangerous Writing App (https://www.squibler.io/dangerous-writing-prompt-app)."
 msgstr "Choose a length for your writing session. Once you start, you must keep writing or all progress will be lost. You will have the option to save your work in a new document once you finish. This feature is inspired by Squibler's Most Dangerous Writing App (https://www.squibler.io/dangerous-writing-prompt-app)."
 
-#: src/features/collection-browser/modals/ChooseFolderModal.tsx:113
+#: src/features/collection-item-actions/modals/ChooseFolderModal.tsx:115
 msgid "Choose a new folder"
 msgstr "Choose a new folder"
 
@@ -151,7 +152,7 @@ msgstr "Choose a session length"
 msgid "Choose where to save your work"
 msgstr "Choose where to save your work"
 
-#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:242
+#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:240
 msgid "Clear All"
 msgstr "Clear All"
 
@@ -187,7 +188,7 @@ msgid "Confirm"
 msgstr "Confirm"
 
 #: src/constants.ts:80
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:154
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:159
 msgid "Conflicts"
 msgstr "Conflicts"
 
@@ -203,6 +204,7 @@ msgstr "create a note"
 msgid "Created at"
 msgstr "Created at"
 
+#. placeholder {0}: dateToStr('relative', createdAt)
 #: src/features/collection-notes-ui/components/NotesActions.tsx:24
 msgid "Created at: {0}"
 msgstr "Created at: {0}"
@@ -232,7 +234,7 @@ msgstr "Delete All"
 msgid "Delete note"
 msgstr "Delete note"
 
-#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:155
+#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:153
 msgid "deleted item"
 msgstr "deleted item"
 
@@ -266,7 +268,7 @@ msgstr "Display options for the currently selected notebook. They can still be o
 msgid "Do you want to import your content inside a new folder?"
 msgstr "Do you want to import your content inside a new folder?"
 
-#: src/features/collection-browser/buttons/QuickGroupButton.tsx:36
+#: src/features/collection-item-actions/buttons/QuickGroupButton.tsx:36
 msgid "Document grouped"
 msgstr "Document grouped"
 
@@ -337,10 +339,12 @@ msgstr "History save time (min)"
 msgid "Home"
 msgstr "Home"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:125
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:118
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
@@ -381,7 +385,7 @@ msgstr "Kiwimeri format (content only)"
 msgid "Kiwimeri format (with history & stats)"
 msgstr "Kiwimeri format (with history & stats)"
 
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:153
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:158
 msgid "Last consulted documents"
 msgstr "Last consulted documents"
 
@@ -389,7 +393,7 @@ msgstr "Last consulted documents"
 msgid "Last Updated"
 msgstr "Last Updated"
 
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:152
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:157
 msgid "Last updated documents"
 msgstr "Last updated documents"
 
@@ -405,10 +409,12 @@ msgstr "Less dangerous mode (session is still timed but you will not lose progre
 msgid "Link"
 msgstr "Link"
 
+#. placeholder {0}: localChanges.length
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:74
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
+#. placeholder {0}: dateToStr('datetime', lastLocalChange)
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:81
 msgid "Local:  {0}"
 msgstr "Local:  {0}"
@@ -548,6 +554,7 @@ msgstr "Remember last route"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
+#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:94
 msgid "Remote:  {0}"
 msgstr "Remote:  {0}"
@@ -631,7 +638,7 @@ msgstr "Sort items by..."
 msgid "sort notes"
 msgstr "sort notes"
 
-#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:207
+#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:205
 msgid "Space setting modified:"
 msgstr "Space setting modified:"
 
@@ -687,7 +694,7 @@ msgstr "The number of versions to keep per document. Set 0 for unlimited."
 msgid "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page and the Settings page."
 msgstr "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page and the Settings page."
 
-#: src/features/collection-browser/buttons/QuickUngroupButton.tsx:35
+#: src/features/collection-item-actions/buttons/QuickUngroupButton.tsx:35
 msgid "This will delete this folder and move all its items to the current one."
 msgstr "This will delete this folder and move all its items to the current one."
 
@@ -723,6 +730,7 @@ msgstr "Track text statistics"
 msgid "Updated at"
 msgstr "Updated at"
 
+#. placeholder {0}: dateToStr('relative', updatedAt)
 #: src/features/collection-notes-ui/components/NotesActions.tsx:29
 msgid "Updated at: {0}"
 msgstr "Updated at: {0}"

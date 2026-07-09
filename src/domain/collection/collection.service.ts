@@ -202,6 +202,10 @@ class CollectionService {
       space.delRow(C, rowId);
       this.cleanupDerivedState(rowId, C);
     });
+    spaceContent.delRow(
+      SpaceContentTables.DerivedContent,
+      getDerivedId('c', rowId)
+    );
   }
 
   public itemExists(rowId: Id) {
