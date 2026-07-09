@@ -1,10 +1,8 @@
 import { SpaceQueryDefinition } from '@/core/db/queries-helper';
 import { SpaceTables } from '@/core/db/store-constants';
-import { WithId } from '@/core/db/types';
-import { CollectionItemSnapshotData } from '@/domain/collection/collection';
 import { Id } from 'tinybase/with-schemas';
 import {
-  CollectionItemVersionContentRow,
+  CollectionItemMetadataVersion,
   CollectionItemVersionOp
 } from '../history';
 
@@ -12,18 +10,6 @@ export type VersionsWithContentQueryParam = {
   itemId?: Id;
   op?: CollectionItemVersionOp;
 };
-
-export type CollectionItemMetadataVersion = WithId<{
-  id: Id;
-  op: CollectionItemVersionOp;
-  itemId: string;
-  createdAt: number;
-  snapshotJson: CollectionItemSnapshotData;
-  hash: Id;
-}>;
-
-export type CollectionItemVersion = CollectionItemMetadataVersion &
-  CollectionItemVersionContentRow;
 
 const fetchVersionsQuery = new SpaceQueryDefinition<
   VersionsWithContentQueryParam,

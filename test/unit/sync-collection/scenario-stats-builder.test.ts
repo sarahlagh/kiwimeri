@@ -4,8 +4,10 @@ import {
   CollectionItemType,
   CollectionItemTypeValues
 } from '@/domain/collection/collection';
-import { CollectionItemVersionOp } from '@/domain/history/history';
-import { CollectionItemMetadataVersion } from '@/domain/history/queries/fetchVersionsQuery';
+import {
+  CollectionItemMetadataVersion,
+  CollectionItemVersionOp
+} from '@/domain/history/history';
 import { parentField, TestField } from '@@/_setup/test.utils';
 import { describe, expect, it } from 'vitest';
 

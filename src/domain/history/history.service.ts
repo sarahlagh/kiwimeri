@@ -14,15 +14,15 @@ import {
 } from '@/domain/history/history';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import { dateToStr } from '@/shared/misc/date-utils';
-import { getPlainText } from '@/shared/misc/getPlainText';
 import { Ids } from 'tinybase';
 import { getHash, Id, Table } from 'tinybase/with-schemas';
 import { LocalChangeType } from '../synchronization/local-changes';
 import { AfterSyncChange } from '../synchronization/merging/types';
-import fetchVersionsQuery, {
+import {
   CollectionItemMetadataVersion,
   CollectionItemVersion
-} from './queries/fetchVersionsQuery';
+} from './history';
+import fetchVersionsQuery from './queries/fetchVersionsQuery';
 
 const H = SpaceTables.History;
 const HC = SpaceContentTables.HistoryContent;
@@ -87,8 +87,7 @@ class CollectionHistoryService {
       itemId: versionRow.itemId,
       snapshotJson: versionRow.snapshotJson as CollectionItemSnapshotData,
       hash: versionRow.contentId,
-      content: contentRow?.content || '',
-      plainText: contentRow?.plainText || ''
+      content: contentRow?.content || ''
     };
   }
 
@@ -212,8 +211,7 @@ class CollectionHistoryService {
       return contentHash;
     }
     spaceContent.setRow(HC, contentHash, {
-      content: item.content || '',
-      plainText: getPlainText(item.content)
+      content: item.content || ''
     });
     return contentHash;
   }

@@ -1,9 +1,10 @@
 import { useToastContext } from '@/app/context/ToastContext';
 import { APPICONS, DOC_PREVIEW_SIZE } from '@/constants';
+import { CollectionItemVersion } from '@/domain/history/history';
 import { historyService } from '@/domain/history/history.service';
-import { CollectionItemVersion } from '@/domain/history/queries/fetchVersionsQuery';
 import LoadingInline from '@/shared/components/LoadingInline';
 import { dateToStr } from '@/shared/misc/date-utils';
+import { getPlainText } from '@/shared/misc/getPlainText';
 import {
   IonButton,
   IonButtons,
@@ -44,18 +45,20 @@ const DiffFragment = ({ part }: { part: ChangeObject<string> }) => {
 
 const VersionPreview = ({
   version,
-  lastPreview,
+  plainText,
+  lastPlainText,
   isActive
 }: {
   version: CollectionItemVersion;
   isActive: boolean;
-  lastPreview?: string;
+  plainText: string;
+  lastPlainText?: string;
 }) => {
   const [diff, setDiff] = useState<ChangeObject<string>[] | null>(null);
   const style = isActive ? { fontWeight: 'bold' } : {};
-  if (lastPreview) {
+  if (lastPlainText) {
     setTimeout(() => {
-      diffChars(lastPreview, version.plainText, {
+      diffChars(lastPlainText, plainText, {
         callback: result => {
           setDiff(result);
         }
@@ -76,7 +79,7 @@ const VersionPreview = ({
   return (
     <IonLabel style={style}>
       {dateToStr('relative', version.snapshotJson.updatedAt)}
-      <p>{version.plainText.substring(0, DOC_PREVIEW_SIZE)}</p>
+      <p>{plainText.substring(0, DOC_PREVIEW_SIZE)}</p>
     </IonLabel>
   );
 };
@@ -90,7 +93,13 @@ const ManageHistoryModal = ({
   const [alert] = useIonAlert();
   const { setToast } = useToastContext();
   const docHistoryIds = historyService.getVersionIds(id, 'snapshot', 15);
-  const docHistory = docHistoryIds.map(vId => historyService.getVersion(vId)!);
+  const docHistory = docHistoryIds.map(vId => {
+    const version = historyService.getVersion(vId)!;
+    return {
+      ...version,
+      plainText: getPlainText(version.content)
+    };
+  });
   return (
     <>
       <IonHeader>
@@ -122,7 +131,8 @@ const ManageHistoryModal = ({
               <VersionPreview
                 version={version}
                 isActive={version.id === docVersion}
-                lastPreview={
+                plainText={version.plainText}
+                lastPlainText={
                   idx < docHistory.length - 1
                     ? docHistory[idx + 1].plainText
                     : undefined
