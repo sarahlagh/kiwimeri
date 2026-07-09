@@ -1,4 +1,10 @@
-import { DEFAULT_ORDER, getGlobalTrans, ROOT_COLLECTION } from '@/constants';
+import {
+  ANNOT_PREVIEW_SIZE,
+  DEFAULT_ORDER,
+  DOC_PREVIEW_SIZE,
+  getGlobalTrans,
+  ROOT_COLLECTION
+} from '@/constants';
 import { space, spaceContent } from '@/core/db/store';
 import { SpaceContentTables, SpaceTables } from '@/core/db/store-constants';
 import { SpaceTableId, SpaceTablesType } from '@/core/db/store-schema';
@@ -31,12 +37,14 @@ import { getDerivedId } from '@/domain/collection/document-content';
 import notebooksService from '@/domain/collection/notebooks.service';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
 import { genericReorder } from '@/shared/dnd/utils';
+import { getPlainText } from '@/shared/misc/getPlainText';
 import { cellEquals } from '@/shared/utils';
 import { SerializedEditorState } from 'lexical';
 import { getUniqueId } from 'tinybase/common';
 import { Id, Ids } from 'tinybase/common/with-schemas';
 import { Table } from 'tinybase/with-schemas';
 import { historyService } from '../history/history.service';
+import { statsOnPlainTextCallback } from '../stats/stats-on-change-callback';
 
 export const initialContent = () => {
   // 'empty' editor
@@ -192,12 +200,8 @@ class CollectionService {
     }
     space.transaction(() => {
       space.delRow(C, rowId);
-      space.delRow(DS, rowId);
+      this.cleanupDerivedState(rowId, C);
     });
-    spaceContent.delRow(
-      SpaceContentTables.DerivedContent,
-      getDerivedId('c', rowId)
-    );
   }
 
   public itemExists(rowId: Id) {
@@ -521,6 +525,41 @@ class CollectionService {
     return allDocIds;
   }
 
+  public backfillDerivedContent() {
+    // TODO this belongs elsewhere
+    const collection = space.getTable(C);
+    const annotations = space.getTable(SpaceTables.Annotations);
+    spaceContent.startTransaction();
+    space.transaction(() => {
+      space.getRowIds(C).forEach(rowId => {
+        if (!collection[rowId].content) return;
+        const plainText = getPlainText(collection[rowId].content);
+        const previewText = plainText.substring(0, DOC_PREVIEW_SIZE);
+        const derivedId = getDerivedId('c', rowId);
+        space.setRow(SpaceTables.DerivedPreview, derivedId, {
+          previewText
+        });
+        spaceContent.setRow(SpaceContentTables.DerivedContent, derivedId, {
+          plainText
+        });
+        statsOnPlainTextCallback(rowId, plainText);
+      });
+      space.getRowIds(SpaceTables.Annotations).forEach(rowId => {
+        if (!annotations[rowId].content) return;
+        const plainText = getPlainText(annotations[rowId].content);
+        const previewText = plainText.substring(0, ANNOT_PREVIEW_SIZE);
+        const derivedId = getDerivedId('a', rowId);
+        space.setRow(SpaceTables.DerivedPreview, derivedId, {
+          previewText
+        });
+        spaceContent.setRow(SpaceContentTables.DerivedContent, derivedId, {
+          plainText
+        });
+      });
+    });
+    spaceContent.finishTransaction();
+  }
+
   public backfillDerivedStates(
     tmpTable?: Table<SpaceTablesType, SpaceTables.Collection>,
     rowIds?: Ids
@@ -528,6 +567,7 @@ class CollectionService {
     if (!tmpTable) tmpTable = space.getTable(C);
     if (!rowIds) rowIds = Object.keys(tmpTable);
     space.transaction(() => {
+      // space.delTable(SpaceTables.DerivedState); // TODO clear derived states after sync or restore
       rowIds.forEach(rowId => {
         this.calcState(rowId, tmpTable);
       });
@@ -538,8 +578,8 @@ class CollectionService {
     if (on === SpaceTables.Collection) {
       space.delRow(DS, rowId);
       space.delRow(DP, getDerivedId('c', rowId));
-      spaceContent.delRow(CC, rowId);
       spaceContent.delRow(DC, getDerivedId('c', rowId));
+      spaceContent.delRow(CC, rowId);
     }
     if (on === SpaceTables.Annotations) {
       space.delRow(DP, getDerivedId('a', rowId));

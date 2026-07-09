@@ -1,7 +1,9 @@
-import { space, spaceContent } from '@/core/db/store';
-import { SpaceContentTables, SpaceTables } from '@/core/db/store-constants';
+import { space } from '@/core/db/store';
+import { SpaceTables } from '@/core/db/store-constants';
 import { setMetaField } from '@/core/db/types';
-import { initialContent } from '@/domain/collection/collection.service';
+import collectionService, {
+  initialContent
+} from '@/domain/collection/collection.service';
 import { minimizeContentForStorage } from '@/domain/collection/compress-file-content';
 import { genericReorder } from '@/shared/dnd/utils';
 import { SortableType } from '@/shared/misc/sort-filter/sort';
@@ -15,7 +17,6 @@ import { getDerivedId } from './document-content';
 const A = SpaceTables.Annotations;
 const C = SpaceTables.Collection;
 const DP = SpaceTables.DerivedPreview;
-const DC = SpaceContentTables.DerivedContent;
 
 class DocumentAnnotationsService {
   public newNoteObj(itemId: Id): { item: DocAnnotationRow; id: Id } {
@@ -67,14 +68,12 @@ class DocumentAnnotationsService {
   }
 
   public delete(id: Id) {
-    const derivedId = getDerivedId('a', id);
     space.transaction(() => {
       const itemId = space.getCell(A, id, 'itemId');
       space.setCell(C, itemId!, 'updatedAt', Date.now());
       space.delRow(A, id);
-      space.delRow(DP, derivedId);
+      collectionService.cleanupDerivedState(id, A);
     });
-    spaceContent.delRow(DC, derivedId);
   }
 
   public reorder(notes: SortableType[], from: number, to: number) {

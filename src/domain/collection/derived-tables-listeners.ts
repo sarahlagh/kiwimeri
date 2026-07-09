@@ -51,10 +51,14 @@ function addDerivedRankListeners<T extends SpaceTableId>(
           _space
             .getSortedRowIds(tableId, cellId, false)
             .forEach((rowId, idx) => {
-              if (
-                idx !==
-                _space.getCell(SpaceTables.DerivedState, rowId, rankColumn)
-              ) {
+              if (!_space.hasRow(SpaceTables.Collection, rowId)) return;
+              const existingRank = _space.getCell(
+                SpaceTables.DerivedState,
+                rowId,
+                rankColumn
+              );
+
+              if (idx !== existingRank) {
                 _space.setCell(
                   SpaceTables.DerivedState,
                   rowId,

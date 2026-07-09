@@ -118,7 +118,7 @@ msgstr "Are you sure?"
 #: src/features/collection-history-ui/components/ManageHistoryModal.tsx:154
 #: src/features/document-editor/tags/ChooseTagsModal.tsx:100
 #: src/features/import-export/buttons/ExportItemsButton.tsx:103
-#: src/features/import-export/buttons/RestoreCollectionButton.tsx:74
+#: src/features/import-export/buttons/RestoreCollectionButton.tsx:81
 #: src/features/import-export/modals/ConfirmFileImportModal.tsx:79
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:343
 #: src/shared/modals/ConfirmYesNoDialog.tsx:28
@@ -186,7 +186,7 @@ msgstr "Configure where to synchronize your collection"
 #: src/features/collection-notebooks-ui/components/ManageNotebooksModal.tsx:104
 #: src/features/document-editor/tags/ChooseTagsModal.tsx:107
 #: src/features/import-export/buttons/ExportItemsButton.tsx:110
-#: src/features/import-export/buttons/RestoreCollectionButton.tsx:81
+#: src/features/import-export/buttons/RestoreCollectionButton.tsx:88
 #: src/features/import-export/modals/ConfirmFileImportModal.tsx:82
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:349
 #: src/shared/modals/ConfirmYesNoDialog.tsx:36
@@ -574,11 +574,11 @@ msgid "Reorder"
 msgstr "Reorder"
 
 #: src/features/import-export/buttons/ImportExportStoreSettings.tsx:88
-#: src/features/import-export/buttons/RestoreCollectionButton.tsx:101
+#: src/features/import-export/buttons/RestoreCollectionButton.tsx:108
 msgid "Restore"
 msgstr "Restore"
 
-#: src/features/import-export/buttons/RestoreCollectionButton.tsx:70
+#: src/features/import-export/buttons/RestoreCollectionButton.tsx:77
 msgid "Restore Collection"
 msgstr "Restore Collection"
 
@@ -704,7 +704,7 @@ msgstr "This is different than the import / export of the collection. Your colle
 msgid "This will delete this folder and move all its items to the current one."
 msgstr "This will delete this folder and move all its items to the current one."
 
-#: src/features/import-export/buttons/RestoreCollectionButton.tsx:71
+#: src/features/import-export/buttons/RestoreCollectionButton.tsx:78
 msgid "This will delete your existing data. Are you sure?"
 msgstr "This will delete your existing data. Are you sure?"
 
