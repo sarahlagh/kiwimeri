@@ -110,12 +110,12 @@ msgid "Archive is empty"
 msgstr "Archive is empty"
 
 #: src/features/collection-browser/components/CollectionItemList.tsx:75
-#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:141
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:151
 #: src/shared/modals/ConfirmYesNoDialog.tsx:24
 msgid "Are you sure?"
 msgstr "Are you sure?"
 
-#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:144
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:154
 #: src/features/document-editor/tags/ChooseTagsModal.tsx:100
 #: src/features/import-export/buttons/ExportItemsButton.tsx:103
 #: src/features/import-export/buttons/RestoreCollectionButton.tsx:74
@@ -182,7 +182,7 @@ msgstr "Config"
 msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
 
-#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:148
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:158
 #: src/features/collection-notebooks-ui/components/ManageNotebooksModal.tsx:104
 #: src/features/document-editor/tags/ChooseTagsModal.tsx:107
 #: src/features/import-export/buttons/ExportItemsButton.tsx:110
@@ -278,7 +278,7 @@ msgstr "Do you want to import your content inside a new folder?"
 msgid "Document grouped"
 msgstr "Document grouped"
 
-#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:99
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:108
 msgid "Document History"
 msgstr "Document History"
 
@@ -582,7 +582,7 @@ msgstr "Restore"
 msgid "Restore Collection"
 msgstr "Restore Collection"
 
-#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:140
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:150
 msgid "Restore Version"
 msgstr "Restore Version"
 
@@ -656,7 +656,7 @@ msgstr "Space Settings"
 msgid "Start Writing"
 msgstr "Start Writing"
 
-#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:155
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:165
 #: src/features/synchronization-ui/settings-ui/components/RemoteGenericSettings.tsx:60
 #: src/shared/buttons/GenericExportFileButton.tsx:47
 #: src/shared/buttons/GenericImportFileButton.tsx:47
