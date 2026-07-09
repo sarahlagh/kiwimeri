@@ -86,7 +86,7 @@ describe('collection synchronizer', () => {
 
       // restore
       const latest = historyService.getLatestVersion(docId);
-      historyService.restoreDocumentVersion(docId, latest.id);
+      historyService.restoreDocumentVersion(docId, latest!.id);
 
       // then
       const localChanges = localChangesService.getLocalChanges();
@@ -123,7 +123,7 @@ describe('collection synchronizer', () => {
 
       // restore
       const latest = historyService.getLatestVersion(docId);
-      historyService.restoreDocumentVersion(docId, latest.id);
+      historyService.restoreDocumentVersion(docId, latest!.id);
 
       // then
       const localChanges = localChangesService.getLocalChanges();
@@ -170,7 +170,7 @@ describe('collection synchronizer', () => {
       // restore
       adv(() => {
         const latest = historyService.getLatestVersion(docId);
-        historyService.restoreDocumentVersion(docId, latest.id);
+        historyService.restoreDocumentVersion(docId, latest!.id);
       });
 
       // then
@@ -233,7 +233,7 @@ describe('collection synchronizer', () => {
       // restore
       adv(() => {
         const latest = historyService.getLatestVersion(docId);
-        historyService.restoreDocumentVersion(docId, latest.id);
+        historyService.restoreDocumentVersion(docId, latest!.id);
       });
 
       // then
@@ -297,7 +297,7 @@ describe('collection synchronizer', () => {
       // restore
       adv(() => {
         const latest = historyService.getLatestVersion(docId);
-        historyService.restoreDocumentVersion(docId, latest.id);
+        historyService.restoreDocumentVersion(docId, latest!.id);
       });
 
       // then
@@ -358,7 +358,7 @@ describe('collection synchronizer', () => {
       // restore
       adv(() => {
         const latest = historyService.getLatestVersion(docId);
-        historyService.restoreDocumentVersion(docId, latest.id);
+        historyService.restoreDocumentVersion(docId, latest!.id);
       });
 
       // then

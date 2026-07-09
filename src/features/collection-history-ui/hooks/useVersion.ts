@@ -5,11 +5,11 @@ import {
 } from '@/core/db/store-constants';
 import { useSpaceContentRow, useSpaceRow } from '@/core/db/tinybase-hooks';
 import {
+  CollectionItemVersion,
   CollectionItemVersionContentRow,
   CollectionItemVersionRow
 } from '@/domain/history/history';
 import { historyService } from '@/domain/history/history.service';
-import { CollectionItemVersion } from '@/domain/history/queries/fetchVersionsQuery';
 import { Id } from 'tinybase/with-schemas';
 
 export default function useVersion(versionId: Id): CollectionItemVersion {

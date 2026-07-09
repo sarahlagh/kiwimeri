@@ -6,6 +6,7 @@ import { isDocument } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
 import { historyService } from '@/domain/history/history.service';
 import { dateToStr } from '@/shared/misc/date-utils';
+import { getPlainText } from '@/shared/misc/getPlainText';
 import { countWords, n00 } from '@/shared/utils';
 import {
   DataPoint,
@@ -196,7 +197,7 @@ class StatsService {
 
     for (let i = versionIds.length - 1; i >= 0; i--) {
       const version = historyService.getVersion(versionIds[i])!;
-      const plain = version.plainText;
+      const plain = getPlainText(version.content);
       const content_meta = version.snapshotJson.content_meta!;
       const stats = this.buildStatsFromContentMeta(plain, content_meta);
       this.updateStatsAtDate(rowId, stats);
