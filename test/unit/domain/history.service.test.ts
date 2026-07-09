@@ -332,8 +332,8 @@ describe('collection history service', () => {
 
       expect(historyService.getVersions(docId)).toHaveLength(1);
       expect(historyService.getVersions(conflictId)).toHaveLength(1);
-      expect(historyService.getLatestVersion(conflictId).op).toBe('snapshot');
-      expect(historyService.getLatestVersion(conflictId).content).toBe(
+      expect(historyService.getLatestVersion(conflictId)!.op).toBe('snapshot');
+      expect(historyService.getLatestVersion(conflictId)!.content).toBe(
         newContentValue
       );
     });
@@ -369,8 +369,8 @@ describe('collection history service', () => {
   it(`getLatestVersion method`, () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     const docVersions = historyService.getVersions(docId);
-    const latestVersions = historyService.getLatestVersion(docId);
-    expect(docVersions[0].id).toBe(latestVersions.id);
+    const latestVersion = historyService.getLatestVersion(docId);
+    expect(docVersions[0].id).toBe(latestVersion!.id);
   });
 
   describe(`gc versions`, () => {

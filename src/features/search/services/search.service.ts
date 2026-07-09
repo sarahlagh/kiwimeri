@@ -1,5 +1,6 @@
 import { CollectionItemTypeValues } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
+import { getDerivedId } from '@/domain/collection/document-content';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { $getRoot, ElementNode, LexicalEditor, TextNode } from 'lexical';
 
@@ -164,16 +165,18 @@ class CollectionContentSearchService {
       searchOptions.scope = notebooksService.getCurrentNotebook();
     }
     const results: DeepSearchResult[] = [];
-    // TODO recursive method should return rowIds only
-    collectionService.getAllChildren(searchOptions.scope).forEach(item => {
-      const shortPath = item.breadcrumb;
-      const plainText = ''; //item.previewText; // TODO broken
+    collectionService.getAllChildrenIds(searchOptions.scope).forEach(itemId => {
+      const item = collectionService.getItem(itemId);
+      const shortPath = collectionService.getBreadcrumb(itemId);
+      const plainText = collectionService.getDocumentPlainText(
+        getDerivedId('c', itemId)
+      );
       if (!shortPath || !item) return;
       if (!searchOptions.searchInTitle && !plainText) return;
       const title = item.title?.toString() || '';
 
       const result: DeepSearchResult = {
-        id: item.id,
+        id: itemId,
         type: item.type as CollectionItemTypeValues,
         title,
         shortBreadcrumb: shortPath as string[]

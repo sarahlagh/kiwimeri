@@ -1,6 +1,6 @@
 import TinybaseProvider from '@/app/providers/TinybaseProvider';
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
-import { space, store } from '@/core/db/store';
+import { space, spaceContent, store } from '@/core/db/store';
 import { DbSerializableData, setMetaField, WithId } from '@/core/db/types';
 import {
   CollectionItem,
@@ -31,6 +31,7 @@ export function wrappedRenderHook<Result, Props>(
 export function nukeStorage() {
   store.setContent([{}, {}]);
   space.setContent([{}, {}]);
+  spaceContent.setContent([{}, {}]);
 }
 
 export const amount = async (timeout = 500) => {

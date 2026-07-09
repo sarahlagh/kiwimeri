@@ -728,7 +728,7 @@ describe('import service', () => {
         validateMetadataFile({
           settings: {
             sort: {
-              by: 'plainText',
+              by: 'previewText',
               descending: true
             }
           }
