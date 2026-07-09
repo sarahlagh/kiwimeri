@@ -1,5 +1,6 @@
 import { space, spaceContent } from '@/core/db/store';
 import { SpaceContentTables, SpaceTables } from '@/core/db/store-constants';
+import collectionService from '@/domain/collection/collection.service';
 import GenericImportFileButton, {
   ImportFileRejectReason,
   OnContentReadResponse
@@ -25,20 +26,26 @@ const RestoreCollectionButton = ({
     // TODO validate schema
     const json = JSON.parse(content);
     const [tables] = json;
-    space.setTable(SpaceTables.Collection, tables.collection);
-    space.setTable(SpaceTables.Annotations, tables.document_annotation);
-    if (tables.history) {
-      space.setTable(SpaceTables.History, tables.history);
-    }
-    if (tables.history_content) {
-      spaceContent.setTable(
-        SpaceContentTables.HistoryContent,
-        tables.history_content
-      );
-    }
+    spaceContent.delTable(SpaceContentTables.DerivedContent);
+    space.transaction(() => {
+      space.delTable(SpaceTables.DerivedPreview);
+      space.setTable(SpaceTables.Collection, tables.collection);
+      space.setTable(SpaceTables.Annotations, tables.document_annotation);
+      collectionService.backfillDerivedStates(tables.collection);
+      if (tables.history) {
+        space.setTable(SpaceTables.History, tables.history);
+      }
+      if (tables.history_content) {
+        spaceContent.setTable(
+          SpaceContentTables.HistoryContent,
+          tables.history_content
+        );
+      }
+    });
     if (tables.stats) {
       space.setTable(SpaceTables.Stats, tables.stats);
     }
+    collectionService.backfillDerivedContent();
     return { confirm: true } as OnContentReadResponse;
   };
 
