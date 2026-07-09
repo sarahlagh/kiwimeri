@@ -128,10 +128,10 @@ describe('ConfirmMultipleImportModal', () => {
       const screen = await renderModal(params);
 
       // check questions
-      expect(getModalTitle(screen)).toBeInTheDocument();
-      expect(getModalTitle(screen)).toHaveTextContent(
-        'Import Simple.zip in folder'
-      );
+      await expect.element(getModalTitle(screen)).toBeInTheDocument();
+      await expect
+        .element(getModalTitle(screen))
+        .toHaveTextContent('Import Simple.zip in folder');
 
       expectShowMetadataInfo(screen, false);
       expectShowNotebooksWarning(screen, false);
@@ -165,10 +165,10 @@ describe('ConfirmMultipleImportModal', () => {
       const screen = await renderModal(params);
 
       // check questions
-      expect(getModalTitle(screen)).toBeInTheDocument();
-      expect(getModalTitle(screen)).toHaveTextContent(
-        'Import Simple.zip in a new Notebook'
-      );
+      await expect.element(getModalTitle(screen)).toBeInTheDocument();
+      await expect
+        .element(getModalTitle(screen))
+        .toHaveTextContent('Import Simple.zip in a new Notebook');
 
       expectShowMetadataInfo(screen, false);
       expectShowNotebooksWarning(screen, false);
@@ -202,10 +202,10 @@ describe('ConfirmMultipleImportModal', () => {
       const screen = await renderModal(params);
 
       // check questions
-      expect(getModalTitle(screen)).toBeInTheDocument();
-      expect(getModalTitle(screen)).toHaveTextContent(
-        'Import Simple.zip in folder'
-      );
+      await expect.element(getModalTitle(screen)).toBeInTheDocument();
+      await expect
+        .element(getModalTitle(screen))
+        .toHaveTextContent('Import Simple.zip in folder');
 
       expectShowMetadataInfo(screen, true);
       expectShowNotebooksWarning(screen, false);
@@ -238,10 +238,10 @@ describe('ConfirmMultipleImportModal', () => {
       const screen = await renderModal(params);
 
       // check questions
-      expect(getModalTitle(screen)).toBeInTheDocument();
-      expect(getModalTitle(screen)).toHaveTextContent(
-        'Import Simple.zip in a new Notebook'
-      );
+      await expect.element(getModalTitle(screen)).toBeInTheDocument();
+      await expect
+        .element(getModalTitle(screen))
+        .toHaveTextContent('Import Simple.zip in a new Notebook');
 
       expectShowMetadataInfo(screen, true);
       expectShowNotebooksWarning(screen, false);
@@ -277,10 +277,10 @@ describe('ConfirmMultipleImportModal', () => {
       const screen = await renderModal(params);
 
       // check questions
-      expect(getModalTitle(screen)).toBeInTheDocument();
-      expect(getModalTitle(screen)).toHaveTextContent(
-        'Import SimpleLayer.zip in folder'
-      );
+      await expect.element(getModalTitle(screen)).toBeInTheDocument();
+      await expect
+        .element(getModalTitle(screen))
+        .toHaveTextContent('Import SimpleLayer.zip in folder');
 
       expectShowMetadataInfo(screen, false);
       expectShowNotebooksWarning(screen, false);
@@ -314,10 +314,10 @@ describe('ConfirmMultipleImportModal', () => {
       const screen = await renderModal(params);
 
       // check questions
-      expect(getModalTitle(screen)).toBeInTheDocument();
-      expect(getModalTitle(screen)).toHaveTextContent(
-        'Import SimpleLayer.zip in a new Notebook'
-      );
+      await expect.element(getModalTitle(screen)).toBeInTheDocument();
+      await expect
+        .element(getModalTitle(screen))
+        .toHaveTextContent('Import SimpleLayer.zip in a new Notebook');
 
       expectShowMetadataInfo(screen, false);
       expectShowNotebooksWarning(screen, false);
@@ -351,10 +351,10 @@ describe('ConfirmMultipleImportModal', () => {
       const screen = await renderModal(params);
 
       // check questions
-      expect(getModalTitle(screen)).toBeInTheDocument();
-      expect(getModalTitle(screen)).toHaveTextContent(
-        'Import SimpleLayer.zip in folder'
-      );
+      await expect.element(getModalTitle(screen)).toBeInTheDocument();
+      await expect
+        .element(getModalTitle(screen))
+        .toHaveTextContent('Import SimpleLayer.zip in folder');
 
       expectShowMetadataInfo(screen, true);
       expectShowNotebooksWarning(screen, false);
@@ -387,10 +387,10 @@ describe('ConfirmMultipleImportModal', () => {
       const screen = await renderModal(params);
 
       // check questions
-      expect(getModalTitle(screen)).toBeInTheDocument();
-      expect(getModalTitle(screen)).toHaveTextContent(
-        'Import SimpleLayer.zip in a new Notebook'
-      );
+      await expect.element(getModalTitle(screen)).toBeInTheDocument();
+      await expect
+        .element(getModalTitle(screen))
+        .toHaveTextContent('Import SimpleLayer.zip in a new Notebook');
 
       expectShowMetadataInfo(screen, true);
       expectShowNotebooksWarning(screen, false);
@@ -426,10 +426,10 @@ describe('ConfirmMultipleImportModal', () => {
       const screen = await renderModal(params);
 
       // check questions
-      expect(getModalTitle(screen)).toBeInTheDocument();
-      expect(getModalTitle(screen)).toHaveTextContent(
-        'Import Empty.zip in folder'
-      );
+      await expect.element(getModalTitle(screen)).toBeInTheDocument();
+      await expect
+        .element(getModalTitle(screen))
+        .toHaveTextContent('Import Empty.zip in folder');
 
       expectShowMetadataInfo(screen, true);
       expectShowNotebooksWarning(screen, false);
@@ -456,10 +456,10 @@ describe('ConfirmMultipleImportModal', () => {
       const screen = await renderModal(params);
 
       // check questions
-      expect(getModalTitle(screen)).toBeInTheDocument();
-      expect(getModalTitle(screen)).toHaveTextContent(
-        'Import Empty.zip in a new Notebook'
-      );
+      await expect.element(getModalTitle(screen)).toBeInTheDocument();
+      await expect
+        .element(getModalTitle(screen))
+        .toHaveTextContent('Import Empty.zip in a new Notebook');
 
       expectShowMetadataInfo(screen, true);
       expectShowNotebooksWarning(screen, false);
@@ -483,10 +483,10 @@ describe('ConfirmMultipleImportModal', () => {
       const screen = await renderModal(params);
 
       // check questions
-      expect(getModalTitle(screen)).toBeInTheDocument();
-      expect(getModalTitle(screen)).toHaveTextContent(
-        'Import SpaceMalformed.zip in folder'
-      );
+      await expect.element(getModalTitle(screen)).toBeInTheDocument();
+      await expect
+        .element(getModalTitle(screen))
+        .toHaveTextContent('Import SpaceMalformed.zip in folder');
 
       expectShowMetadataInfo(screen, true);
       expectShowNotebooksWarning(screen, true);
@@ -562,10 +562,10 @@ describe('ConfirmMultipleImportModal', () => {
       const screen = await renderModal(params);
 
       // check questions
-      expect(getModalTitle(screen)).toBeInTheDocument();
-      expect(getModalTitle(screen)).toHaveTextContent(
-        'Import SpaceMalformed.zip in a new Notebook'
-      );
+      await expect.element(getModalTitle(screen)).toBeInTheDocument();
+      await expect
+        .element(getModalTitle(screen))
+        .toHaveTextContent('Import SpaceMalformed.zip in a new Notebook');
 
       expectShowMetadataInfo(screen, true);
       expectShowNotebooksWarning(screen, true);
@@ -654,10 +654,10 @@ describe('ConfirmMultipleImportModal', () => {
       const screen = await renderModal(params);
 
       // check questions
-      expect(getModalTitle(screen)).toBeInTheDocument();
-      expect(getModalTitle(screen)).toHaveTextContent(
-        'Import Simple.zip in folder'
-      );
+      await expect.element(getModalTitle(screen)).toBeInTheDocument();
+      await expect
+        .element(getModalTitle(screen))
+        .toHaveTextContent('Import Simple.zip in folder');
 
       expectShowMetadataInfo(screen, false);
       expectShowNotebooksWarning(screen, false);
@@ -699,10 +699,10 @@ describe('ConfirmMultipleImportModal', () => {
       const screen = await renderModal(params);
 
       // check questions
-      expect(getModalTitle(screen)).toBeInTheDocument();
-      expect(getModalTitle(screen)).toHaveTextContent(
-        'Import Simple.zip in a new Notebook'
-      );
+      await expect.element(getModalTitle(screen)).toBeInTheDocument();
+      await expect
+        .element(getModalTitle(screen))
+        .toHaveTextContent('Import Simple.zip in a new Notebook');
 
       expectShowMetadataInfo(screen, false);
       expectShowNotebooksWarning(screen, false);
@@ -743,10 +743,10 @@ describe('ConfirmMultipleImportModal', () => {
       const screen = await renderModal(params);
 
       // check questions
-      expect(getModalTitle(screen)).toBeInTheDocument();
-      expect(getModalTitle(screen)).toHaveTextContent(
-        'Import Simple.zip in folder'
-      );
+      await expect.element(getModalTitle(screen)).toBeInTheDocument();
+      await expect
+        .element(getModalTitle(screen))
+        .toHaveTextContent('Import Simple.zip in folder');
 
       expectShowMetadataInfo(screen, true);
       expectShowNotebooksWarning(screen, false);
@@ -788,10 +788,10 @@ describe('ConfirmMultipleImportModal', () => {
       const screen = await renderModal(params);
 
       // check questions
-      expect(getModalTitle(screen)).toBeInTheDocument();
-      expect(getModalTitle(screen)).toHaveTextContent(
-        'Import Simple.zip in a new Notebook'
-      );
+      await expect.element(getModalTitle(screen)).toBeInTheDocument();
+      await expect
+        .element(getModalTitle(screen))
+        .toHaveTextContent('Import Simple.zip in a new Notebook');
 
       expectShowMetadataInfo(screen, true);
       expectShowNotebooksWarning(screen, false);
@@ -830,10 +830,10 @@ describe('ConfirmMultipleImportModal', () => {
       const screen = await renderModal(params);
 
       // check questions
-      expect(getModalTitle(screen)).toBeInTheDocument();
-      expect(getModalTitle(screen)).toHaveTextContent(
-        'Import SimpleLayer.zip in folder'
-      );
+      await expect.element(getModalTitle(screen)).toBeInTheDocument();
+      await expect
+        .element(getModalTitle(screen))
+        .toHaveTextContent('Import SimpleLayer.zip in folder');
 
       expectShowMetadataInfo(screen, false);
       expectShowNotebooksWarning(screen, false);
@@ -875,10 +875,10 @@ describe('ConfirmMultipleImportModal', () => {
       const screen = await renderModal(params);
 
       // check questions
-      expect(getModalTitle(screen)).toBeInTheDocument();
-      expect(getModalTitle(screen)).toHaveTextContent(
-        'Import SimpleLayer.zip in a new Notebook'
-      );
+      await expect.element(getModalTitle(screen)).toBeInTheDocument();
+      await expect
+        .element(getModalTitle(screen))
+        .toHaveTextContent('Import SimpleLayer.zip in a new Notebook');
 
       expectShowMetadataInfo(screen, false);
       expectShowNotebooksWarning(screen, false);
@@ -917,10 +917,10 @@ describe('ConfirmMultipleImportModal', () => {
       const screen = await renderModal(params);
 
       // check questions
-      expect(getModalTitle(screen)).toBeInTheDocument();
-      expect(getModalTitle(screen)).toHaveTextContent(
-        'Import SimpleLayer.zip in folder'
-      );
+      await expect.element(getModalTitle(screen)).toBeInTheDocument();
+      await expect
+        .element(getModalTitle(screen))
+        .toHaveTextContent('Import SimpleLayer.zip in folder');
 
       expectShowMetadataInfo(screen, true);
       expectShowNotebooksWarning(screen, false);
@@ -962,10 +962,10 @@ describe('ConfirmMultipleImportModal', () => {
       const screen = await renderModal(params);
 
       // check questions
-      expect(getModalTitle(screen)).toBeInTheDocument();
-      expect(getModalTitle(screen)).toHaveTextContent(
-        'Import SimpleLayer.zip in a new Notebook'
-      );
+      await expect.element(getModalTitle(screen)).toBeInTheDocument();
+      await expect
+        .element(getModalTitle(screen))
+        .toHaveTextContent('Import SimpleLayer.zip in a new Notebook');
 
       expectShowMetadataInfo(screen, true);
       expectShowNotebooksWarning(screen, false);
