@@ -59,8 +59,9 @@ class CollectionHistoryService {
     );
   }
 
-  public getLatestVersion(itemId: string): CollectionItemVersion {
+  public getLatestVersion(itemId: string): CollectionItemVersion | undefined {
     const latest = this.getVersions(itemId, undefined, 1)[0];
+    if (!latest) return undefined;
     return this.getVersion(latest.id)!;
   }
 
@@ -245,8 +246,7 @@ class CollectionHistoryService {
   public markLatestVersionDeleted(itemId: string) {
     if (!this.enabled) return;
     const latest = this.getLatestVersion(itemId);
-    if (latest.op === 'deleted') return; // no-op
-
+    if (!latest || latest.op === 'deleted') return; // no-op
     this.duplicateSingleVersion(latest, 'deleted');
   }
 

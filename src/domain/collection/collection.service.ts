@@ -108,6 +108,10 @@ class CollectionService {
     return notebooksService.addNotebook(title, parent);
   }
 
+  public getDocumentPlainText(id: string) {
+    return spaceContent.getCell(DC, id, 'plainText') || '';
+  }
+
   public getDocumentPreview(id: string) {
     return space.getCell(DP, id, 'previewText') || '';
   }
@@ -141,6 +145,20 @@ class CollectionService {
       sort = settingsService.getNotebookDefaultSort();
     }
     return fetchItemsQuery.getResults(
+      {
+        parentId: parent,
+        recursive: true
+      },
+      sort.by,
+      sort.descending
+    );
+  }
+
+  public getAllChildrenIds(parent: string, sort?: CollectionItemSort) {
+    if (!sort) {
+      sort = settingsService.getNotebookDefaultSort();
+    }
+    return fetchItemsQuery.getResultIds(
       {
         parentId: parent,
         recursive: true

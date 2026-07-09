@@ -65,7 +65,14 @@ spacePersister
     console.log('[space] auto save started');
   });
 
-spaceContentPersister.save().then(() => console.log('[spaceContent] saved'));
+// spaceContentPersister.save().then(() => console.log('[spaceContent] saved'));
+// TODO temporary
+spaceContentPersister
+  .save()
+  .then(() => spaceContentPersister.startAutoSave())
+  .then(() => {
+    console.log('[spaceContent] auto save started');
+  });
 
 export async function destroyStore() {
   return Promise.all([
