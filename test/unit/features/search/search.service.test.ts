@@ -1,7 +1,7 @@
-import { space } from '@/core/db/store';
+import { space, spaceContent } from '@/core/db/store';
 import collectionService from '@/domain/collection/collection.service';
 import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-content';
-import { getDerivedId } from '@/domain/collection/derived-content';
+import { getDerivedId } from '@/domain/collection/document-content';
 import { lexicalConfig } from '@/features/document-editor/wysiwyg-editor/lexical/lexical-config';
 import {
   SearchOptions,
@@ -42,7 +42,11 @@ describe('search service', () => {
         ?.toString();
       expect(minimized).toBeDefined();
       expect(
-        space.getCell('derived_content', getDerivedId('c', docId), 'plainText')
+        spaceContent.getCell(
+          'derived_content',
+          getDerivedId('c', docId),
+          'plainText'
+        )
       ).toBeDefined();
       const content = unminimizeContentFromStorage(minimized!);
       editor = createHeadlessEditor({

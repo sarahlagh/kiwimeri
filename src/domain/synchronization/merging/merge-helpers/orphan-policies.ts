@@ -6,7 +6,7 @@ import {
 import { SpaceTables } from '@/core/db/store-constants';
 import { SpaceType } from '@/core/db/store-schema';
 import { CollectionItem } from '@/domain/collection/collection';
-import { SyncableAnnotation } from '@/domain/collection/doc-annotations';
+import { SyncableAnnotation } from '@/domain/collection/document-annotations';
 import notebooksService from '@/domain/collection/notebooks.service';
 import {
   LocalChangeOn,

@@ -31,8 +31,8 @@ const RPS = _SpaceTables.ReplicaState;
 const LC = _SpaceTables.LocalChanges;
 
 export default function Migration(
-  _space: NoSchemaStore,
-  _store: NoSchemaStore
+  _store: NoSchemaStore,
+  _space: NoSchemaStore
 ) {
   metaFieldsBecomeObjects(_space);
   displayOptsBecomeSettings(_space);

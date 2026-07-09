@@ -14,8 +14,8 @@ import {
   CollectionItemUpdateChangeFields
 } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
-import { DocAnnotationRow } from '@/domain/collection/doc-annotations';
 import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import { DocAnnotationRow } from '@/domain/collection/document-annotations';
 import { Notebook } from '@/domain/collection/notebooks';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { renderHook } from '@testing-library/react';

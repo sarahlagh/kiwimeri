@@ -6,7 +6,7 @@ export const docSortBy = [
   'createdAt',
   'updatedAt',
   'title',
-  'plainText',
+  'previewText',
   'order'
 ] as const;
 export type CollectionItemSortType = (typeof docSortBy)[number];

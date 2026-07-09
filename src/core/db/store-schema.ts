@@ -1,7 +1,11 @@
 import { collectionSchema } from '@/domain/collection/collection';
-import { derivedContentSchema } from '@/domain/collection/derived-content';
 import { derivedItemStateSchema } from '@/domain/collection/derived-item-state';
-import { docAnnotationSchema } from '@/domain/collection/doc-annotations';
+import { docAnnotationSchema } from '@/domain/collection/document-annotations';
+import {
+  contentSchema,
+  derivedContentSchema,
+  derivedPreviewSchema
+} from '@/domain/collection/document-content';
 import { resumeStateSchema } from '@/domain/collection/resume-state';
 import { historyContentSchema, historySchema } from '@/domain/history/history';
 import { statsSchema } from '@/domain/stats/stats';
@@ -9,7 +13,12 @@ import { localChangesSchema } from '@/domain/synchronization/local-changes';
 import { remotesSchema } from '@/domain/synchronization/remotes';
 import { replicaStatesSchema } from '@/domain/synchronization/replica-state';
 import { userPreferenceSchema } from '@/domain/user-preferences/user-preferences';
-import { SpaceTables, StoreTables } from './store-constants';
+import { NoValuesSchema } from 'tinybase/with-schemas';
+import {
+  SpaceContentTables,
+  SpaceTables,
+  StoreTables
+} from './store-constants';
 import {
   CellIdFromSchema,
   DefaultedValueFromSchema,
@@ -28,17 +37,23 @@ export const storeTablesSchema = {
 export const spaceTablesSchema = {
   collection: collectionSchema,
   history: historySchema,
-  history_content: historyContentSchema,
   collection_resume_state: resumeStateSchema,
   stats: statsSchema,
   document_annotation: docAnnotationSchema,
   user_preference: userPreferenceSchema,
-  derived_content: derivedContentSchema,
   derived_item_state: derivedItemStateSchema,
+  derived_preview: derivedPreviewSchema,
   local_change: localChangesSchema,
   remote: remotesSchema,
   replica_state: replicaStatesSchema
 } as const satisfies Record<SpaceTables, unknown>;
+
+export const spaceContentTablesSchema = {
+  collection_content: contentSchema,
+  document_annotation_content: contentSchema,
+  history_content: historyContentSchema,
+  derived_content: derivedContentSchema
+} as const satisfies Record<SpaceContentTables, unknown>;
 
 export const storeValuesSchema = {
   tempDoc: { type: 'string' }
@@ -85,3 +100,6 @@ export type SpaceCellId<T extends SpaceTableId> = CellIdFromSchema<
   SpaceTablesType,
   T
 >;
+
+export type SpaceContentTablesType = typeof spaceContentTablesSchema;
+export type SpaceContentType = [SpaceContentTablesType, NoValuesSchema];

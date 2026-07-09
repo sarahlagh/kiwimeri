@@ -46,7 +46,7 @@ valuesTransMap.set('createdAt', i18n._(`Creation Date`));
 valuesTransMap.set('updatedAt', i18n._(`Last Updated`));
 valuesTransMap.set('updatedAt', i18n._(`Last Updated`));
 valuesTransMap.set('title', i18n._(`Title`));
-valuesTransMap.set('preview', i18n._(`Content`));
+valuesTransMap.set('previewText', i18n._(`Content`));
 valuesTransMap.set('order', i18n._(`Manual`));
 
 const GenericSortFilter = <SortType,>(

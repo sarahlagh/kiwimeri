@@ -1,11 +1,11 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
-import { space } from '@/core/db/store';
-import { SpaceTables } from '@/core/db/store-constants';
+import { space, spaceContent } from '@/core/db/store';
+import { SpaceContentTables, SpaceTables } from '@/core/db/store-constants';
 import collectionService from '@/domain/collection/collection.service';
 import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-content';
-import { getDerivedId } from '@/domain/collection/derived-content';
-import { DocAnnotationRow } from '@/domain/collection/doc-annotations';
 import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import { DocAnnotationRow } from '@/domain/collection/document-annotations';
+import { getDerivedId } from '@/domain/collection/document-content';
 import { LocalChangeType } from '@/domain/synchronization/local-changes';
 import localChangesService from '@/domain/synchronization/local-changes.service';
 import useNotesSort from '@/features/collection-notes-ui/hooks/useNotesSort';
@@ -91,8 +91,8 @@ describe('notes service', () => {
     docAnnotationsService.edit(noteId, JSON.parse(content));
 
     const note = space.getRow(SpaceTables.Annotations, noteId);
-    const derived = space.getRow(
-      SpaceTables.DerivedContent,
+    const derived = spaceContent.getRow(
+      SpaceContentTables.DerivedContent,
       getDerivedId('a', noteId)
     );
     expect(unminimizeContentFromStorage(note.content)).toBe(content);

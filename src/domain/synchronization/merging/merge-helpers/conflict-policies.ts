@@ -8,7 +8,7 @@ import {
   DocAnnotationUpdatableConflictFields,
   DocAnnotationUpdatableFieldEnum,
   SyncableAnnotation
-} from '@/domain/collection/doc-annotations';
+} from '@/domain/collection/document-annotations';
 import { LocalChangeResult } from '@/domain/synchronization/local-changes';
 import { cellEquals } from '@/shared/utils';
 

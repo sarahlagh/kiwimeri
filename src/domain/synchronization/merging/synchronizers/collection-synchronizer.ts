@@ -26,7 +26,7 @@ import {
 import {
   DocAnnotationRow,
   SyncableAnnotation
-} from '@/domain/collection/doc-annotations';
+} from '@/domain/collection/document-annotations';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { historyService } from '@/domain/history/history.service';
 import { conflictsService } from '@/domain/synchronization/conflicts-service';

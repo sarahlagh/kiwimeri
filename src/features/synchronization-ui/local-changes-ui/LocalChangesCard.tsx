@@ -130,9 +130,7 @@ const LocalChangesCard = () => {
                     CollectionItemType.document
                   );
                   itemExists = docAnnotationsService.exists(lc.itemId);
-                  preview = itemExists
-                    ? docAnnotationsService.getPreview(lc.itemId)
-                    : '';
+                  preview = docAnnotationsService.getPreview(lc.itemId);
                 } else {
                   route = SETTINGS_ROUTE;
                 }

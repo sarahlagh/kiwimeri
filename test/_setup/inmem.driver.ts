@@ -10,7 +10,7 @@ import {
   minimizeItemsForStorage,
   unminimizeItemsFromStorage
 } from '@/domain/collection/compress-collection';
-import { SyncableAnnotation } from '@/domain/collection/doc-annotations';
+import { SyncableAnnotation } from '@/domain/collection/document-annotations';
 import { CloudStorageDriver } from '@/domain/synchronization/drivers/abstract.driver';
 import {
   DriverFileInfo,

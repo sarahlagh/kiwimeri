@@ -1,5 +1,5 @@
-import { space } from '@/core/db/store';
-import { SpaceTables } from '@/core/db/store-constants';
+import { space, spaceContent } from '@/core/db/store';
+import { SpaceContentTables, SpaceTables } from '@/core/db/store-constants';
 import { SpaceTablesType } from '@/core/db/store-schema';
 import {
   CollectionItem,
@@ -15,23 +15,29 @@ import {
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import { dateToStr } from '@/shared/misc/date-utils';
 import { getPlainText } from '@/shared/misc/getPlainText';
+import { Ids } from 'tinybase';
 import { getHash, Id, Table } from 'tinybase/with-schemas';
 import { LocalChangeType } from '../synchronization/local-changes';
 import { AfterSyncChange } from '../synchronization/merging/types';
 import fetchVersionsQuery, {
+  CollectionItemMetadataVersion,
   CollectionItemVersion
 } from './queries/fetchVersionsQuery';
 
 const H = SpaceTables.History;
-const HC = SpaceTables.HistoryContent;
+const HC = SpaceContentTables.HistoryContent;
 
 class CollectionHistoryService {
   private enabled = true;
   private timeouts = new Map<string, NodeJS.Timeout>();
 
-  public getVersions(itemId: string, limit?: number): CollectionItemVersion[] {
+  public getVersions(
+    itemId: string,
+    op?: CollectionItemVersionOp,
+    limit?: number
+  ): CollectionItemMetadataVersion[] {
     return fetchVersionsQuery.getResults(
-      { itemId },
+      { itemId, op },
       undefined,
       undefined,
       0,
@@ -39,13 +45,28 @@ class CollectionHistoryService {
     );
   }
 
-  public getLatestVersion(itemId: string) {
-    return this.getVersions(itemId, 1)[0];
+  public getVersionIds(
+    itemId: string,
+    op?: CollectionItemVersionOp,
+    limit?: number
+  ): Ids {
+    return fetchVersionsQuery.getResultIds(
+      { itemId, op },
+      undefined,
+      undefined,
+      0,
+      limit
+    );
+  }
+
+  public getLatestVersion(itemId: string): CollectionItemVersion {
+    const latest = this.getVersions(itemId, undefined, 1)[0];
+    return this.getVersion(latest.id)!;
   }
 
   public getVersion(versionId: string) {
     const versionRow = space.getRow(H, versionId) as CollectionItemVersionRow;
-    const contentRow = space.getRow(
+    const contentRow = spaceContent.getRow(
       HC,
       versionRow?.contentId || ''
     ) as CollectionItemVersionContentRow;
@@ -186,10 +207,10 @@ class CollectionHistoryService {
 
   private getOrCreatedContentId(item: Pick<CollectionItem, 'id' | 'content'>) {
     const contentHash = `${getHash(item.id! + item.content || '')}`;
-    if (space.hasRow(HC, contentHash)) {
+    if (spaceContent.hasRow(HC, contentHash)) {
       return contentHash;
     }
-    space.setRow(HC, contentHash, {
+    spaceContent.setRow(HC, contentHash, {
       content: item.content || '',
       plainText: getPlainText(item.content)
     });
@@ -238,10 +259,8 @@ class CollectionHistoryService {
 
     // assuming there is no individual version delete for a doc
     // because otherwise should check if contentId is not used elsewhere
-    space.transaction(() => {
-      space.delRow(H, versionId);
-      if (contentId) space.delRow(HC, contentId);
-    });
+    space.delRow(H, versionId);
+    if (contentId) spaceContent.delRow(HC, contentId);
   }
 
   private saveVersionSync(id: string) {
@@ -312,7 +331,7 @@ class CollectionHistoryService {
         // query by contentId here
         if (!this.isContentIdUsed(historyTable, row.contentId!)) {
           // content is now unused
-          space.delRow(HC, row.contentId!);
+          spaceContent.delRow(HC, row.contentId!);
         }
       }
     });
@@ -361,7 +380,7 @@ class CollectionHistoryService {
         // query by contentId here
         if (!this.isContentIdUsed(historyTable, row.contentId!)) {
           // content is now unused
-          space.delRow(HC, row.contentId!);
+          spaceContent.delRow(HC, row.contentId!);
         }
       });
     });

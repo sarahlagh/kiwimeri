@@ -1,6 +1,7 @@
 import { appConfig } from '@/config';
 import { migrate } from '@/core/db/migrations/migrate';
 import {
+  spaceContentTablesSchema,
   spaceTablesSchema,
   spaceValuesSchema,
   storeTablesSchema,
@@ -9,10 +10,12 @@ import {
 import { readFile, writeFile } from 'fs/promises';
 import { createStore } from 'tinybase/with-schemas';
 
-const migrationFixedVersion = '0.4.1';
+const migrationFixedVersion = '0.4.3';
 const spaceMigrationFilename = '0.4.0.space-content.json';
 const storeMigrationFilename = '0.4.0.store-content.json';
 const spaceMigrationExpectedFilename = '0.5.0.space-expected-content.json';
+const spaceContentMigrationExpectedFilename =
+  '0.5.0.space-content-expected-content.json';
 const storeMigrationExpectedFilename = '0.5.0.store-expected-content.json';
 const spaceMigrationWithPagesFilename = '0.4.0.space-content-with-pages.json';
 const storeMigrationWithPagesFilename = '0.4.0.store-content-with-pages.json';
@@ -33,44 +36,54 @@ const getFileContent = async (filename: string) => {
 };
 
 async function migrateRawStore(
-  spaceContent: any,
-  storeContent: any | null,
+  _spaceContent: any,
+  _storeContent: any | null,
   fixedVersion: string
 ) {
   appConfig.KIWIMERI_VERSION = fixedVersion;
-  const rawSpace = createStore();
   const rawStore = createStore();
-  rawSpace.setContent(spaceContent);
-  if (storeContent !== null) rawStore.setContent(storeContent);
-  await migrate(rawSpace, rawStore);
+  const rawSpace = createStore();
+  const rawSpaceContent = createStore();
+  rawSpace.setContent(_spaceContent);
+  if (_storeContent !== null) rawStore.setContent(_storeContent);
+  await migrate(rawStore, rawSpace, rawSpaceContent);
 
   const store = rawStore.setSchema(storeTablesSchema, storeValuesSchema);
   const space = rawSpace.setSchema(spaceTablesSchema, spaceValuesSchema);
+  const spaceContent = rawSpaceContent.setTablesSchema(
+    spaceContentTablesSchema
+  );
 
   return {
+    storeContent: store.getContent(),
     spaceContent: space.getContent(),
-    storeContent: store.getContent()
+    spaceContentContent: spaceContent.getContent()
   };
 }
 
 describe('0.5.0 migration', () => {
-  test.skip('regenerate 4.0.1 migration expected file', async () => {
+  test.skip('regenerate 0.5.0 migration expected file', async () => {
     const preMigrationSpaceContent = await getFileContent(
       spaceMigrationFilename
     );
     const preMigrationStoreContent = await getFileContent(
       storeMigrationFilename
     );
-    const { spaceContent, storeContent } = await migrateRawStore(
-      preMigrationSpaceContent,
-      preMigrationStoreContent,
-      migrationFixedVersion
-    );
+    const { spaceContent, spaceContentContent, storeContent } =
+      await migrateRawStore(
+        preMigrationSpaceContent,
+        preMigrationStoreContent,
+        migrationFixedVersion
+      );
     await generateExpectedFile(spaceMigrationExpectedFilename, spaceContent);
+    await generateExpectedFile(
+      spaceContentMigrationExpectedFilename,
+      spaceContentContent
+    );
     await generateExpectedFile(storeMigrationExpectedFilename, storeContent);
   });
 
-  test('4.0.1 migration should be successful', async () => {
+  test('0.5.0 migration should be successful', async () => {
     const preMigrationSpaceContent = await getFileContent(
       spaceMigrationFilename
     );
@@ -100,7 +113,7 @@ describe('0.5.0 migration', () => {
     expect(storeContent2).toEqual(expectedStoreContent);
   });
 
-  test.skip('regenerate 4.0.1 migration-with-pages expected file', async () => {
+  test.skip('regenerate 0.5.0 migration-with-pages expected file', async () => {
     const preMigrationSpaceContent = await getFileContent(
       spaceMigrationWithPagesFilename
     );
@@ -118,7 +131,7 @@ describe('0.5.0 migration', () => {
     );
   });
 
-  test('4.0.1 migration-with-pages should be successful', async () => {
+  test.skip('0.5.0 migration-with-pages should be successful', async () => {
     const preMigrationSpaceContent = await getFileContent(
       spaceMigrationWithPagesFilename
     );

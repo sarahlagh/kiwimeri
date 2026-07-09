@@ -1,6 +1,6 @@
 import { appConfig } from '@/config';
 import { DEFAULT_NOTEBOOK_ID, getGlobalTrans } from '@/constants';
-import { space } from '@/core/db/store';
+import { space, spaceContent } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { SpaceValuesType } from '@/core/db/store-schema';
 import { setMetaField } from '@/core/db/types';
@@ -17,8 +17,8 @@ import {
   minimizeItemsForStorage,
   unminimizeItemsFromStorage
 } from '@/domain/collection/compress-collection';
-import { SyncableAnnotation } from '@/domain/collection/doc-annotations';
 import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import { SyncableAnnotation } from '@/domain/collection/document-annotations';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { conflictsService } from '@/domain/synchronization/conflicts-service';
 import { PCloudDriver } from '@/domain/synchronization/drivers/pcloud/pcloud.driver';
@@ -173,7 +173,7 @@ describe.sequential(
       await syncService.pull();
       expect(getRowCountInsideNotebook()).toBe(3);
 
-      expect(space.getRowCount('derived_content')).toBeGreaterThan(0);
+      expect(spaceContent.getRowCount('derived_content')).toBeGreaterThan(0);
       expect(space.getRowCount('derived_item_state')).toBeGreaterThan(0);
     });
 

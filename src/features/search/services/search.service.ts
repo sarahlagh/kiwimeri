@@ -164,9 +164,10 @@ class CollectionContentSearchService {
       searchOptions.scope = notebooksService.getCurrentNotebook();
     }
     const results: DeepSearchResult[] = [];
+    // TODO recursive method should return rowIds only
     collectionService.getAllChildren(searchOptions.scope).forEach(item => {
       const shortPath = item.breadcrumb;
-      const plainText = item.plainText;
+      const plainText = ''; //item.previewText; // TODO broken
       if (!shortPath || !item) return;
       if (!searchOptions.searchInTitle && !plainText) return;
       const title = item.title?.toString() || '';

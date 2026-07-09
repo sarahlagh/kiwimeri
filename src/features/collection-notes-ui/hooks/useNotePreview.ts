@@ -1,15 +1,15 @@
 import { ANNOT_PREVIEW_SIZE } from '@/constants';
 import { SpaceTables } from '@/core/db/store-constants';
 import { useSpaceCell } from '@/core/db/tinybase-hooks';
-import { getDerivedId } from '@/domain/collection/derived-content';
+import { getDerivedId } from '@/domain/collection/document-content';
 import { Id } from 'tinybase/with-schemas';
 
 const useNotePreview = (rowId: Id) => {
-  const plainText = useSpaceCell<SpaceTables.DerivedContent, 'plainText'>(
-    SpaceTables.DerivedContent,
+  const previewText = useSpaceCell<SpaceTables.DerivedPreview, 'previewText'>(
+    SpaceTables.DerivedPreview,
     getDerivedId('a', rowId),
-    'plainText'
+    'previewText'
   );
-  return plainText?.substring(0, ANNOT_PREVIEW_SIZE);
+  return previewText?.substring(0, ANNOT_PREVIEW_SIZE); // keep if < doc size
 };
 export default useNotePreview;

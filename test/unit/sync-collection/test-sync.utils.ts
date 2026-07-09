@@ -1,5 +1,5 @@
 import { CollectionItem } from '@/domain/collection/collection';
-import { SyncableAnnotation } from '@/domain/collection/doc-annotations';
+import { SyncableAnnotation } from '@/domain/collection/document-annotations';
 import { historyService } from '@/domain/history/history.service';
 import {
   startLocalChangesListeners,

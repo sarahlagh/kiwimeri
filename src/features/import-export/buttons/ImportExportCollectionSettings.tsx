@@ -1,4 +1,4 @@
-import { space } from '@/core/db/store';
+import { space, spaceContent } from '@/core/db/store';
 import { plt } from '@/core/infra/platform';
 import { CollectionItemType } from '@/domain/collection/collection';
 import {
@@ -37,14 +37,15 @@ const ImportExportCollectionSettings = () => {
   };
 
   const getContentWithHistoryToExport = async () => {
-    const content = space.getContent();
+    const space_content = space.getContent();
+    const space_content_content = spaceContent.getContent();
     return JSON.stringify([
       {
-        collection: content[0].collection,
-        document_annotation: content[0].document_annotation,
-        history: content[0].history,
-        history_content: content[0].history_content,
-        stats: content[0].stats
+        collection: space_content[0].collection,
+        document_annotation: space_content[0].document_annotation,
+        history: space_content[0].history,
+        history_content: space_content_content[0].history_content,
+        stats: space_content[0].stats
       }
     ]);
   };

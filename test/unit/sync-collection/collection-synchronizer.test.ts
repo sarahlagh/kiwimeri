@@ -1,12 +1,12 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
-import { space } from '@/core/db/store';
-import { SpaceTables } from '@/core/db/store-constants';
+import { space, spaceContent } from '@/core/db/store';
+import { SpaceContentTables, SpaceTables } from '@/core/db/store-constants';
 import { setMetaField } from '@/core/db/types';
 import { CollectionItemType } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
 import { minimizeContentForStorage } from '@/domain/collection/compress-file-content';
-import { getDerivedId } from '@/domain/collection/derived-content';
 import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import { getDerivedId } from '@/domain/collection/document-content';
 import { historyService } from '@/domain/history/history.service';
 import { conflictsService } from '@/domain/synchronization/conflicts-service';
 import { LocalChangeType } from '@/domain/synchronization/local-changes';
@@ -413,8 +413,8 @@ describe('collection synchronizer', () => {
       expect(space.getRowCount(SpaceTables.Annotations)).toBe(1);
       expect(space.hasRow(SpaceTables.Annotations, notes[0].id));
       expect(
-        space.getCell(
-          SpaceTables.DerivedContent,
+        spaceContent.getCell(
+          SpaceContentTables.DerivedContent,
           getDerivedId('a', notes[0].id),
           'plainText'
         )
@@ -671,8 +671,8 @@ describe('collection synchronizer', () => {
       expect(space.getRowCount(SpaceTables.Annotations)).toBe(1);
       expect(space.hasRow(SpaceTables.Annotations, notes[0].id));
       expect(
-        space.getCell(
-          SpaceTables.DerivedContent,
+        spaceContent.getCell(
+          SpaceContentTables.DerivedContent,
           getDerivedId('a', notes[0].id),
           'plainText'
         )
@@ -712,15 +712,15 @@ describe('collection synchronizer', () => {
         space.hasRow(SpaceTables.Annotations, getDerivedId('a', notes[1].id))
       );
       expect(
-        space.getCell(
-          SpaceTables.DerivedContent,
+        spaceContent.getCell(
+          SpaceContentTables.DerivedContent,
           getDerivedId('a', notes[0].id),
           'plainText'
         )
       ).toBe('test 2');
       expect(
-        space.getCell(
-          SpaceTables.DerivedContent,
+        spaceContent.getCell(
+          SpaceContentTables.DerivedContent,
           getDerivedId('a', notes[1].id),
           'plainText'
         )

@@ -1,6 +1,6 @@
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
-import { space } from '@/core/db/store';
-import { SpaceTables } from '@/core/db/store-constants';
+import { space, spaceContent } from '@/core/db/store';
+import { SpaceContentTables, SpaceTables } from '@/core/db/store-constants';
 import { startDbListeners, stopDbListeners } from '@/core/db/store-listeners';
 import collectionService from '@/domain/collection/collection.service';
 import { minimizeContentForStorage } from '@/domain/collection/compress-file-content';
@@ -187,7 +187,7 @@ describe('derived state', () => {
     it(`should update plainText on saveItems (import)`, () => {
       createTestData();
 
-      expect(space.getCell('derived_content', 'c-D1', 'plainText')).toBe(
+      expect(spaceContent.getCell('derived_content', 'c-D1', 'plainText')).toBe(
         shortContentPreview
       );
     });
@@ -197,7 +197,7 @@ describe('derived state', () => {
 
       collectionService.setItemLexicalContent('D1', shortContentUpdated);
 
-      expect(space.getCell('derived_content', 'c-D1', 'plainText')).toBe(
+      expect(spaceContent.getCell('derived_content', 'c-D1', 'plainText')).toBe(
         shortContentPreviewUpdated
       );
     });
@@ -210,14 +210,18 @@ describe('derived state', () => {
       collectionService.setItemLexicalContent('D1', shortContent);
 
       // reset
-      const spaceContent = space.getContent();
+      const space_content = space.getContent();
       storageService.nukeSpace();
 
       // pull
-      space.setContent(spaceContent);
+      space.setContent(space_content);
 
       expect(
-        space.getCell(SpaceTables.DerivedContent, 'c-D1', 'plainText')
+        spaceContent.getCell(
+          SpaceContentTables.DerivedContent,
+          'c-D1',
+          'plainText'
+        )
       ).toBeDefined();
     });
 
@@ -226,7 +230,9 @@ describe('derived state', () => {
       // F2 > FF2
       createTestData();
 
-      expect(space.hasRow(SpaceTables.DerivedContent, 'c-D1')).toBe(true);
+      expect(
+        spaceContent.hasRow(SpaceContentTables.DerivedContent, 'c-D1')
+      ).toBe(true);
 
       collectionService.deleteItem('FF1');
 
