@@ -1,5 +1,5 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
-import { space } from '@/core/db/store';
+import { space, spaceContent } from '@/core/db/store';
 import { CollectionItem } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
 import { historyService } from '@/domain/history/history.service';
@@ -44,13 +44,14 @@ describe('collection history service', () => {
           collectionService.setItemField(docId, field, newValue);
           const rowBefore = space.getRow('collection', docId);
           vi.advanceTimersByTime(100);
-          const versions = historyService.getVersions(docId);
+          const versions = historyService.getVersionIds(docId);
           expect(versions).toHaveLength(2);
+          const version0 = historyService.getVersion(versions[0])!;
 
-          expect(versions[0].createdAt).toBe(docUpdatedTime + idleTime);
-          expect(versions[0].snapshotJson.updatedAt).toBe(docUpdatedTime);
-          expect(versions[0].itemId).toBe(docId);
-          const versionData = versions[0].snapshotJson;
+          expect(version0.createdAt).toBe(docUpdatedTime + idleTime);
+          expect(version0.snapshotJson.updatedAt).toBe(docUpdatedTime);
+          expect(version0.itemId).toBe(docId);
+          const versionData = version0.snapshotJson;
           expect(versionData).toEqual({
             parentId: rowBefore.parentId,
             parentId_meta: rowBefore.parentId_meta,
@@ -68,10 +69,10 @@ describe('collection history service', () => {
           });
           if (field !== 'content') {
             expect(versionData[field]).toBe(newValue);
-            expect(space.getRowCount('history_content')).toBe(1);
+            expect(spaceContent.getRowCount('history_content')).toBe(1);
           } else {
-            expect(versions[0].content).toBe(newValue);
-            expect(space.getRowCount('history_content')).toBe(2);
+            expect(version0.content).toBe(newValue);
+            expect(spaceContent.getRowCount('history_content')).toBe(2);
           }
         });
       }
@@ -181,22 +182,28 @@ describe('collection history service', () => {
       collectionService.setItemLexicalContent(docId, newContent('new 1'));
       const newContentValue = space.getCell('collection', docId, 'content');
       vi.advanceTimersByTime(100);
-      let versions = historyService.getVersions(docId);
+      let versions = historyService.getVersionIds(docId);
+      let version0 = historyService.getVersion(versions[0])!;
+      let version1 = historyService.getVersion(versions[1])!;
       expect(versions).toHaveLength(2);
-      expect(versions[0].snapshotJson.title).toBe(newValue);
-      expect(versions[1].snapshotJson.title).toBe(itemBefore.title);
-      expect(versions[0].content).toBe(newContentValue);
+      expect(version0.snapshotJson.title).toBe(newValue);
+      expect(version1.snapshotJson.title).toBe(itemBefore.title);
+      expect(version0.content).toBe(newContentValue);
       localChangesService.clear();
 
-      historyService.restoreDocumentVersion(docId, versions[1].id!);
+      historyService.restoreDocumentVersion(docId, version1.id!);
       const restoredItem = space.getRow('collection', docId) as CollectionItem;
       expect(restoredItem).toEqual({ ...itemBefore, updatedAt: Date.now() });
 
-      versions = historyService.getVersions(docId);
+      versions = historyService.getVersionIds(docId);
+      version0 = historyService.getVersion(versions[0])!;
+      version1 = historyService.getVersion(versions[1])!;
       expect(versions).toHaveLength(3);
-      expect(versions[0].snapshotJson.title).toBe(itemBefore.title);
-      expect(versions[1].snapshotJson.title).toBe(newValue);
-      expect(versions[2].snapshotJson.title).toBe(itemBefore.title);
+      expect(version0.snapshotJson.title).toBe(itemBefore.title);
+      expect(version1.snapshotJson.title).toBe(newValue);
+      expect(historyService.getVersion(versions[2])!.snapshotJson.title).toBe(
+        itemBefore.title
+      );
 
       const lc = localChangesService.getLocalChanges();
       expect(lc).toHaveLength(2);
@@ -218,38 +225,39 @@ describe('collection history service', () => {
       collectionService.setItemLexicalContent(docId, newContent('test 1'));
       const newValue1 = space.getCell('collection', docId, 'content');
       vi.advanceTimersByTime(100);
-      let versions = historyService.getVersions(docId);
+      let versions = historyService.getVersionIds(docId);
       expect(versions).toHaveLength(2);
-      expect(versions[0].content).toBe(newValue1);
-      expect(versions[1].content).toBe(itemBefore.content);
+      let version0 = historyService.getVersion(versions[0])!;
+      let version1 = historyService.getVersion(versions[1])!;
+      expect(version0.content).toBe(newValue1);
+      expect(version1.content).toBe(itemBefore.content);
 
       // new change, not yet in version
       collectionService.setItemLexicalContent(docId, newContent('test 2'));
       const newValue2 = space.getCell('collection', docId, 'content');
-      versions = historyService.getVersions(docId);
+      versions = historyService.getVersionIds(docId);
       expect(versions).toHaveLength(2);
       vi.advanceTimersByTime(10);
 
-      historyService.restoreDocumentVersion(docId, versions[1].id!);
+      historyService.restoreDocumentVersion(docId, version1.id!);
       const restoredItem = space.getRow('collection', docId) as CollectionItem;
       expect(restoredItem.title).toEqual(itemBefore.title);
 
-      versions = historyService.getVersions(docId);
+      versions = historyService.getVersionIds(docId);
+      version0 = historyService.getVersion(versions[0])!;
+      version1 = historyService.getVersion(versions[1])!;
+      const version2 = historyService.getVersion(versions[2])!;
       expect(versions).toHaveLength(4);
-      expect(versions[0].content).toBe(itemBefore.content);
-      expect(versions[0].snapshotJson.title).toBe(itemBefore.title);
-      expect(versions[0].snapshotJson.updatedAt).toBe(
-        itemBefore.updatedAt + 210
-      );
-      expect(versions[1].content).toBe(newValue2);
-      expect(versions[1].snapshotJson.updatedAt).toBe(
-        itemBefore.updatedAt + 200
-      );
-      expect(versions[2].content).toBe(newValue1);
-      expect(versions[2].snapshotJson.updatedAt).toBe(
-        itemBefore.updatedAt + 100
-      );
-      expect(versions[3].snapshotJson.updatedAt).toBe(itemBefore.updatedAt);
+      expect(version0.content).toBe(itemBefore.content);
+      expect(version0.snapshotJson.title).toBe(itemBefore.title);
+      expect(version0.snapshotJson.updatedAt).toBe(itemBefore.updatedAt + 210);
+      expect(version1.content).toBe(newValue2);
+      expect(version1.snapshotJson.updatedAt).toBe(itemBefore.updatedAt + 200);
+      expect(version2.content).toBe(newValue1);
+      expect(version2.snapshotJson.updatedAt).toBe(itemBefore.updatedAt + 100);
+      expect(
+        historyService.getVersion(versions[3])!.snapshotJson.updatedAt
+      ).toBe(itemBefore.updatedAt);
     });
 
     it(`should do nothing for a document order change`, () => {
@@ -271,9 +279,9 @@ describe('collection history service', () => {
       vi.advanceTimersByTime(100);
 
       collectionService.deleteItem(docId);
-      const versions = historyService.getVersions(docId);
+      const versions = historyService.getVersionIds(docId);
       expect(versions).toHaveLength(3);
-      expect(versions[0].op).toBe('deleted');
+      expect(historyService.getVersion(versions[0])!.op).toBe('deleted');
     });
 
     it(`should not create new version if change debounced but hard delete in between`, () => {
@@ -284,10 +292,11 @@ describe('collection history service', () => {
 
       collectionService.deleteItem(docId);
       vi.advanceTimersByTime(100);
-      const versions = historyService.getVersions(docId);
+      const versions = historyService.getVersionIds(docId);
+      const version0 = historyService.getVersion(versions[0])!;
       expect(versions).toHaveLength(2);
-      expect(versions[0].op).toBe('deleted');
-      expect(versions[0].snapshotJson.title).toBe('new title');
+      expect(version0.op).toBe('deleted');
+      expect(version0.snapshotJson.title).toBe('new title');
     });
 
     it(`should create a new version after a conflict resolution by update`, () => {
@@ -378,11 +387,11 @@ describe('collection history service', () => {
       collectionService.setItemField(doc1, 'title', getNewValue('string'));
       vi.advanceTimersByTime(fakeTimersDelay);
       expect(historyService.getVersions(doc1)).toHaveLength(3);
-      expect(space.getRowCount('history_content')).toBe(3);
+      expect(spaceContent.getRowCount('history_content')).toBe(3);
 
       historyService.gc();
       expect(historyService.getVersions(doc1)).toHaveLength(2);
-      expect(space.getRowCount('history_content')).toBe(2);
+      expect(spaceContent.getRowCount('history_content')).toBe(2);
 
       // one more title version - one content is removed
       // TODO test not relevant anymore since title doesn't create a new version
@@ -392,7 +401,7 @@ describe('collection history service', () => {
 
       historyService.gc();
       expect(historyService.getVersions(doc1)).toHaveLength(2);
-      expect(space.getRowCount('history_content')).toBe(2);
+      expect(spaceContent.getRowCount('history_content')).toBe(2);
     });
 
     it(`should not gc if setting is negative or zero`, () => {
@@ -408,11 +417,11 @@ describe('collection history service', () => {
       collectionService.setItemField(doc1, 'title', getNewValue('string'));
       vi.advanceTimersByTime(fakeTimersDelay);
       expect(historyService.getVersions(doc1)).toHaveLength(3);
-      expect(space.getRowCount('history_content')).toBe(3);
+      expect(spaceContent.getRowCount('history_content')).toBe(3);
 
       historyService.gc();
       expect(historyService.getVersions(doc1)).toHaveLength(3);
-      expect(space.getRowCount('history_content')).toBe(3);
+      expect(spaceContent.getRowCount('history_content')).toBe(3);
     });
   });
 
@@ -466,14 +475,14 @@ describe('collection history service', () => {
 
       expect(historyService.getVersions(doc1)).toHaveLength(8);
       expect(historyService.getVersions(doc2)).toHaveLength(12);
-      expect(space.getRowCount('history_content')).toBe(20);
+      expect(spaceContent.getRowCount('history_content')).toBe(20);
 
       historyService.compact();
       const doc1Versions = historyService.getVersions(doc1);
       expect(doc1Versions).toHaveLength(4);
       const doc2Versions = historyService.getVersions(doc2);
       expect(doc2Versions).toHaveLength(5);
-      expect(space.getRowCount('history_content')).toBe(9);
+      expect(spaceContent.getRowCount('history_content')).toBe(9);
     });
 
     it(`should not compact today's history`, () => {
@@ -487,11 +496,11 @@ describe('collection history service', () => {
       vi.advanceTimersByTime(fakeTimersDelay);
 
       expect(historyService.getVersions(doc1)).toHaveLength(4);
-      expect(space.getRowCount('history_content')).toBe(4);
+      expect(spaceContent.getRowCount('history_content')).toBe(4);
 
       historyService.compact();
       expect(historyService.getVersions(doc1)).toHaveLength(4);
-      expect(space.getRowCount('history_content')).toBe(4);
+      expect(spaceContent.getRowCount('history_content')).toBe(4);
     });
 
     it(`should not compact last active day`, () => {
@@ -505,23 +514,23 @@ describe('collection history service', () => {
       vi.advanceTimersByTime(fakeTimersDelay);
 
       expect(historyService.getVersions(doc1)).toHaveLength(4);
-      expect(space.getRowCount('history_content')).toBe(4);
+      expect(spaceContent.getRowCount('history_content')).toBe(4);
 
       historyService.compact();
       expect(historyService.getVersions(doc1)).toHaveLength(4);
-      expect(space.getRowCount('history_content')).toBe(4);
+      expect(spaceContent.getRowCount('history_content')).toBe(4);
 
       vi.setSystemTime(Date.now() + 3 * 86400000);
       historyService.compact(); // last active day unchanged
       expect(historyService.getVersions(doc1)).toHaveLength(4);
-      expect(space.getRowCount('history_content')).toBe(4);
+      expect(spaceContent.getRowCount('history_content')).toBe(4);
 
       vi.advanceTimersByTime(fakeTimersDelay);
       collectionService.setItemField(doc1, 'content', getNewValue('lex'));
       vi.advanceTimersByTime(fakeTimersDelay);
       historyService.compact(); // today's the last active day
       expect(historyService.getVersions(doc1)).toHaveLength(2);
-      expect(space.getRowCount('history_content')).toBe(2);
+      expect(spaceContent.getRowCount('history_content')).toBe(2);
     });
   });
 });

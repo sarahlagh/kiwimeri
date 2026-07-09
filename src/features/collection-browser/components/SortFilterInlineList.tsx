@@ -26,7 +26,7 @@ type SortFilterInlineListProps = {
 const buildChoices = (type: CollectionItemTypeValues) => {
   const choices = ['createdAt', 'updatedAt'];
   if (type === CollectionItemType.document) {
-    choices.push('preview');
+    choices.push('previewText');
   } else {
     choices.push('title');
   }

@@ -1,6 +1,5 @@
-import { ANNOT_PREVIEW_SIZE } from '@/constants';
-import { space } from '@/core/db/store';
-import { SpaceTables } from '@/core/db/store-constants';
+import { space, spaceContent } from '@/core/db/store';
+import { SpaceContentTables, SpaceTables } from '@/core/db/store-constants';
 import { setMetaField } from '@/core/db/types';
 import { initialContent } from '@/domain/collection/collection.service';
 import { minimizeContentForStorage } from '@/domain/collection/compress-file-content';
@@ -10,12 +9,13 @@ import { SerializedEditorState } from 'lexical';
 import { getUniqueId, Id } from 'tinybase/common';
 import { NotesSort } from './collection-settings';
 import { settingsService } from './collection-settings.service';
-import { getDerivedId } from './derived-content';
-import { DocAnnotationRow } from './doc-annotations';
+import { DocAnnotationRow } from './document-annotations';
+import { getDerivedId } from './document-content';
 
 const A = SpaceTables.Annotations;
 const C = SpaceTables.Collection;
-const D = SpaceTables.DerivedContent;
+const DP = SpaceTables.DerivedPreview;
+const DC = SpaceContentTables.DerivedContent;
 
 class DocumentAnnotationsService {
   public newNoteObj(itemId: Id): { item: DocAnnotationRow; id: Id } {
@@ -67,12 +67,14 @@ class DocumentAnnotationsService {
   }
 
   public delete(id: Id) {
+    const derivedId = getDerivedId('a', id);
     space.transaction(() => {
       const itemId = space.getCell(A, id, 'itemId');
       space.setCell(C, itemId!, 'updatedAt', Date.now());
       space.delRow(A, id);
-      space.delRow(D, getDerivedId('a', id));
+      space.delRow(DP, derivedId);
     });
+    spaceContent.delRow(DC, derivedId);
   }
 
   public reorder(notes: SortableType[], from: number, to: number) {
@@ -104,11 +106,7 @@ class DocumentAnnotationsService {
   }
 
   public getPreview(id: Id) {
-    return (
-      space
-        .getCell(D, getDerivedId('a', id), 'plainText')
-        ?.substring(0, ANNOT_PREVIEW_SIZE) || ''
-    );
+    return space.getCell(DP, getDerivedId('a', id), 'previewText') || '';
   }
 
   public getAnnotInfo(id: Id) {

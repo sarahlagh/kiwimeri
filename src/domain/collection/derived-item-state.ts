@@ -2,7 +2,7 @@ export type DerivedItemStateRow = {
   shortPath: string[];
   fullPath: string[];
   updatedAtRank: number;
-  lastOpenedAtRank: number;
+  lastOpenedAtRank?: number;
 };
 
 export const derivedItemStateSchema = {

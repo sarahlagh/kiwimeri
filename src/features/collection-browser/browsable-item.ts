@@ -6,7 +6,7 @@ export const browserSortBy = [
   'createdAt',
   'updatedAtRank',
   'title',
-  'preview',
+  'previewText',
   'order',
   'lastOpenedAtRank'
 ] as const;
@@ -20,8 +20,6 @@ export function fromCollectionItemSort(
   const descending = sort.descending;
   const by = sort.by;
   switch (by) {
-    case 'plainText':
-      return { by: 'preview', descending };
     case 'updatedAt':
       return { by: 'updatedAtRank', descending };
   }
@@ -35,6 +33,6 @@ export type BrowsableItemResult = Pick<
   Required<Pick<CollectionItem, 'id'>> & {
     lastOpenedAtRank?: number;
     updatedAtRank?: number;
-    preview?: string;
+    previewText?: string;
     breadcrumb?: string[];
   };

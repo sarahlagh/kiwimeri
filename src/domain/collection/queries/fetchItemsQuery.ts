@@ -5,7 +5,7 @@ import {
   CollectionItemResult,
   CollectionItemTypeValues
 } from '@/domain/collection/collection';
-import { getDerivedId } from '@/domain/collection/derived-content';
+import { getDerivedId } from '@/domain/collection/document-content';
 
 export type FetchItemsQueryParam = {
   parentId: string;
@@ -25,9 +25,9 @@ const fetchItemsQuery = new SpaceQueryDefinition<
   };
   if (params.recursive === undefined) params.recursive = false;
 
-  join('derived_content', (getCell, itemId) => getDerivedId('c', itemId)).as(
-    'content'
-  );
+  join(SpaceTables.DerivedPreview, (getCell, itemId) =>
+    getDerivedId('c', itemId)
+  ).as('content');
   join('derived_item_state', (getCell, itemId) => itemId).as('state');
   select('parentId');
   select('title');
@@ -38,7 +38,7 @@ const fetchItemsQuery = new SpaceQueryDefinition<
   select('order');
   select('conflictId');
   select('settings');
-  select('content', 'plainText').as('plainText');
+  select('content', 'previewText');
   select('state', 'shortPath').as('breadcrumb');
 
   where(getCell => getCell('itemId') !== params.parentId);

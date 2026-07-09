@@ -1,5 +1,5 @@
-import { space } from '@/core/db/store';
-import { SpaceTables } from '@/core/db/store-constants';
+import { space, spaceContent } from '@/core/db/store';
+import { SpaceContentTables, SpaceTables } from '@/core/db/store-constants';
 import GenericImportFileButton, {
   ImportFileRejectReason,
   OnContentReadResponse
@@ -31,7 +31,10 @@ const RestoreCollectionButton = ({
       space.setTable(SpaceTables.History, tables.history);
     }
     if (tables.history_content) {
-      space.setTable(SpaceTables.HistoryContent, tables.history_content);
+      spaceContent.setTable(
+        SpaceContentTables.HistoryContent,
+        tables.history_content
+      );
     }
     if (tables.stats) {
       space.setTable(SpaceTables.Stats, tables.stats);

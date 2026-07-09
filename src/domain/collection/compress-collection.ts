@@ -14,7 +14,6 @@ const keys = [
   ['title_meta', 'T'],
   ['content', 'c'],
   ['content_meta', 'C'],
-  ['preview', 'pw'],
   ['tags', 'ta'],
   ['tags_meta', 'TA'],
   ['createdAt', 'cr'],

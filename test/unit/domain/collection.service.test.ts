@@ -571,7 +571,7 @@ describe('collection service', () => {
       expect(
         collectionService
           .getBrowsableCollectionItems(DEFAULT_NOTEBOOK_ID, {
-            by: 'plainText',
+            by: 'previewText',
             descending: false
           })
           .map(i => `${i.title}`)
@@ -580,7 +580,7 @@ describe('collection service', () => {
       expect(
         collectionService
           .getBrowsableCollectionItems(DEFAULT_NOTEBOOK_ID, {
-            by: 'plainText',
+            by: 'previewText',
             descending: true
           })
           .map(i => `${i.title}`)

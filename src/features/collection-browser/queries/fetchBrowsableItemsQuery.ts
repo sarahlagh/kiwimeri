@@ -2,7 +2,7 @@ import { DOC_PREVIEW_SIZE, ROOT_COLLECTION } from '@/constants';
 import { SpaceQueryDefinition } from '@/core/db/queries-helper';
 import { SpaceTables } from '@/core/db/store-constants';
 import { CollectionItemTypeValues } from '@/domain/collection/collection';
-import { getDerivedId } from '@/domain/collection/derived-content';
+import { getDerivedId } from '@/domain/collection/document-content';
 import { conflictsService } from '@/domain/synchronization/conflicts-service';
 import { BrowsableItemResult } from '../browsable-item';
 
@@ -35,7 +35,7 @@ const fetchBrowsableItemsQuery = new SpaceQueryDefinition<
     };
 
     // works but only because stats and collection have same id for global stats
-    join(SpaceTables.DerivedContent, (getCell, itemId) =>
+    join(SpaceTables.DerivedPreview, (getCell, itemId) =>
       getDerivedId('c', itemId)
     ).as('content');
     join(SpaceTables.DerivedState, (getCell, itemId) => itemId).as('state');
@@ -52,7 +52,7 @@ const fetchBrowsableItemsQuery = new SpaceQueryDefinition<
         getCell('content', 'plainText')
           ?.toString()
           .substring(0, DOC_PREVIEW_SIZE)
-      ).as('preview');
+      ).as('previewText');
     }
     select('state', 'shortPath').as('breadcrumb');
     select('state', 'updatedAtRank');

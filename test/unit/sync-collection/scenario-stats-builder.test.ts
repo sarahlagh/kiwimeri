@@ -5,7 +5,7 @@ import {
   CollectionItemTypeValues
 } from '@/domain/collection/collection';
 import { CollectionItemVersionOp } from '@/domain/history/history';
-import { CollectionItemVersion } from '@/domain/history/queries/fetchVersionsQuery';
+import { CollectionItemMetadataVersion } from '@/domain/history/queries/fetchVersionsQuery';
 import { parentField, TestField } from '@@/_setup/test.utils';
 import { describe, expect, it } from 'vitest';
 
@@ -21,7 +21,7 @@ export type PullTestEndStatsItem = {
   hasVersions?: number;
   latestVersionsOp?: CollectionItemVersionOp[];
   otherAssert?: (item?: CollectionItem, relevantItem?: RelevantItem) => void;
-  otherHistoryAssert?: (versions: CollectionItemVersion[]) => void;
+  otherHistoryAssert?: (versions: CollectionItemMetadataVersion[]) => void;
 };
 
 type PullTestEndStatsItemGroup = {

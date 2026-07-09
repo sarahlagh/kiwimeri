@@ -2,7 +2,7 @@ import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { SpaceCellId, SpaceTableId } from '@/core/db/store-schema';
 import { CollectionItemUpdatableFields } from '@/domain/collection/collection';
-import { DocAnnotationUpdatableFields } from '@/domain/collection/doc-annotations';
+import { DocAnnotationUpdatableFields } from '@/domain/collection/document-annotations';
 import { UserPrefUpdatableFields } from '@/domain/user-preferences/user-preferences';
 import { Id } from 'tinybase/with-schemas';
 import { LocalChangeType } from './local-changes';

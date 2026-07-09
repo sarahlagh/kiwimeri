@@ -89,7 +89,8 @@ const ManageHistoryModal = ({
   const { t } = useLingui();
   const [alert] = useIonAlert();
   const { setToast } = useToastContext();
-  const docHistory = historyService.getVersions(id, 15);
+  const docHistoryIds = historyService.getVersionIds(id, 'snapshot', 15);
+  const docHistory = docHistoryIds.map(vId => historyService.getVersion(vId)!);
   return (
     <>
       <IonHeader>
@@ -112,60 +113,58 @@ const ManageHistoryModal = ({
             padding: '0 8px'
           }}
         >
-          {docHistory
-            .filter(version => version.op !== 'deleted')
-            .map((version, idx) => (
-              <IonItem
-                key={version.id}
-                button
-                onClick={() => dismiss(version.id, 'goToVersion')}
-              >
-                <VersionPreview
-                  version={version}
-                  isActive={version.id === docVersion}
-                  lastPreview={
-                    idx < docHistory.length - 1
-                      ? docHistory[idx + 1].plainText
-                      : undefined
-                  }
-                />
+          {docHistory.map((version, idx) => (
+            <IonItem
+              key={version.id}
+              button
+              onClick={() => dismiss(version.id, 'goToVersion')}
+            >
+              <VersionPreview
+                version={version}
+                isActive={version.id === docVersion}
+                lastPreview={
+                  idx < docHistory.length - 1
+                    ? docHistory[idx + 1].plainText
+                    : undefined
+                }
+              />
 
-                {idx !== 0 && (
-                  <IonButton
-                    slot="end"
-                    fill="clear"
-                    onClick={async e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      alert({
-                        header: t`Restore Version`,
-                        message: t`Are you sure?`,
-                        buttons: [
-                          {
-                            text: t`Cancel`,
-                            role: 'cancel'
-                          },
-                          {
-                            text: t`Confirm`,
-                            role: 'destructive',
-                            handler: () => {
-                              historyService.restoreDocumentVersion(
-                                id,
-                                version.id!
-                              );
-                              setToast(t`Success!`, 'success');
-                              dismiss(version.id, 'restore');
-                            }
+              {idx !== 0 && (
+                <IonButton
+                  slot="end"
+                  fill="clear"
+                  onClick={async e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    alert({
+                      header: t`Restore Version`,
+                      message: t`Are you sure?`,
+                      buttons: [
+                        {
+                          text: t`Cancel`,
+                          role: 'cancel'
+                        },
+                        {
+                          text: t`Confirm`,
+                          role: 'destructive',
+                          handler: () => {
+                            historyService.restoreDocumentVersion(
+                              id,
+                              version.id!
+                            );
+                            setToast(t`Success!`, 'success');
+                            dismiss(version.id, 'restore');
                           }
-                        ]
-                      });
-                    }}
-                  >
-                    <IonIcon icon={APPICONS.restore}></IonIcon>
-                  </IonButton>
-                )}
-              </IonItem>
-            ))}
+                        }
+                      ]
+                    });
+                  }}
+                >
+                  <IonIcon icon={APPICONS.restore}></IonIcon>
+                </IonButton>
+              )}
+            </IonItem>
+          ))}
         </IonList>
       </IonContent>
     </>

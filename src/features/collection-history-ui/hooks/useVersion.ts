@@ -1,5 +1,9 @@
-import { SpaceTables } from '@/core/db/store-constants';
-import { useSpaceRow } from '@/core/db/tinybase-hooks';
+import {
+  SID,
+  SpaceContentTables,
+  SpaceTables
+} from '@/core/db/store-constants';
+import { useSpaceContentRow, useSpaceRow } from '@/core/db/tinybase-hooks';
 import {
   CollectionItemVersionContentRow,
   CollectionItemVersionRow
@@ -13,9 +17,10 @@ export default function useVersion(versionId: Id): CollectionItemVersion {
     SpaceTables.History,
     versionId
   ) as CollectionItemVersionRow;
-  const contentRow = useSpaceRow<SpaceTables.HistoryContent>(
-    SpaceTables.HistoryContent,
-    versionRow.contentId
+  const contentRow = useSpaceContentRow<SpaceContentTables.HistoryContent>(
+    SpaceContentTables.HistoryContent,
+    versionRow.contentId,
+    SID.spaceContent
   ) as CollectionItemVersionContentRow;
   return historyService.mapToVersion(versionId, versionRow, contentRow);
 }

@@ -1,5 +1,5 @@
 import { WithId } from '@/core/db/types';
-import { DocAnnotationRow } from '@/domain/collection/doc-annotations';
+import { DocAnnotationRow } from '@/domain/collection/document-annotations';
 
 export type CollectionItemConflictResult = WithId<{ conflictId: string }>;
 export type AnnotationConflictResult = WithId<

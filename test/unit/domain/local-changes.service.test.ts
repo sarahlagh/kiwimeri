@@ -231,7 +231,7 @@ describe('local changes listeners', () => {
       ],
       nonWatchedFields: [
         { field: 'updatedAt', valueType: 'number' },
-        { field: 'preview', valueType: 'string' }
+        { field: 'previewText', valueType: 'string' }
       ]
     }
   ];

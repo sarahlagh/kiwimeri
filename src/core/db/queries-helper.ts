@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useResultSortedRowIds, useResultTable } from 'tinybase/ui-react';
 import {
   getUniqueId,
@@ -13,7 +14,7 @@ import {
   Where
 } from 'tinybase/with-schemas';
 import { spaceQueries, storeQueries } from './store';
-import { StoreId } from './store-constants';
+import { StoreQueriesId } from './store-constants';
 import {
   SpaceTableId,
   SpaceType,
@@ -25,7 +26,7 @@ import { AsId, TableIdFromSchema, WithId } from './types';
 export type SortCell<T> = Exclude<AsId<keyof T>, 'id'>;
 // export type SortCell<T> = AsId<keyof T>;
 
-function getQueries(storeId: StoreId) {
+function getQueries(storeId: StoreQueriesId) {
   switch (storeId) {
     case 'store':
       return storeQueries;
@@ -53,7 +54,7 @@ export class TinybaseQueryDefinition<
   QueryResult extends WithId<unknown>
 > {
   constructor(
-    public storeId: StoreId,
+    public storeId: StoreQueriesId,
     public queryId: Id,
     public tableId: RootTableId,
     public query: QueryDefinition<Schema, RootTableId>,
@@ -110,6 +111,24 @@ export class TinybaseQueryDefinition<
       );
   }
 
+  private _getResultIds(
+    sortBy?: SortCell<QueryResult>,
+    descending?: boolean,
+    offset?: number,
+    limit?: number
+  ) {
+    if (descending === undefined) descending = this.defaultDescending;
+    if (sortBy === undefined) sortBy = this.defaultSortBy;
+    const queries = this.getQueries();
+    return queries.getResultSortedRowIds(
+      this.queryId,
+      sortBy,
+      descending,
+      offset,
+      limit
+    );
+  }
+
   /** loads a query definition once then delete it after results */
   public getResults(
     paramValues: ParamDef,
@@ -120,6 +139,19 @@ export class TinybaseQueryDefinition<
   ) {
     const tempQuery = this.clone(`${getUniqueId()}`, paramValues);
     const results = tempQuery._getResults(sortBy, descending, offset, limit);
+    tempQuery.close();
+    return results;
+  }
+
+  public getResultIds(
+    paramValues: ParamDef,
+    sortBy?: SortCell<QueryResult>,
+    descending?: boolean,
+    offset?: number,
+    limit?: number
+  ) {
+    const tempQuery = this.clone(`${getUniqueId()}`, paramValues);
+    const results = tempQuery._getResultIds(sortBy, descending, offset, limit);
     tempQuery.close();
     return results;
   }
@@ -208,19 +240,24 @@ export const useQueryResults = <
   if (descending === undefined) descending = queryDef.defaultDescending;
   if (sortBy === undefined) sortBy = queryDef.defaultSortBy;
   const resultTable = useResultTable(queryDef.queryId, queryDef.storeId);
-  return useResultSortedRowIds(
+  const rowIds = useResultSortedRowIds(
     queryDef.queryId,
     sortBy,
     descending,
     offset,
     limit,
     queryDef.storeId
-  ).map(
-    rowId =>
-      ({
-        ...resultTable[rowId],
-        id: rowId
-      }) as WithId<QueryResult>
+  );
+  return useMemo(
+    () =>
+      rowIds.map(
+        rowId =>
+          ({
+            ...resultTable[rowId],
+            id: rowId
+          }) as WithId<QueryResult>
+      ),
+    [rowIds, resultTable]
   );
 };
 

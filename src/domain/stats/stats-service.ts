@@ -192,12 +192,10 @@ class StatsService {
     let lastOpenedAt = globalBag.lastOpenedAt;
 
     // backfill stats from versions in reverse order
-    const versions = historyService
-      .getVersions(rowId)
-      .filter(v => v.op === 'snapshot');
+    const versionIds = historyService.getVersionIds(rowId, 'snapshot');
 
-    for (let i = versions.length - 1; i >= 0; i--) {
-      const version = versions[i];
+    for (let i = versionIds.length - 1; i >= 0; i--) {
+      const version = historyService.getVersion(versionIds[i])!;
       const plain = version.plainText;
       const content_meta = version.snapshotJson.content_meta!;
       const stats = this.buildStatsFromContentMeta(plain, content_meta);

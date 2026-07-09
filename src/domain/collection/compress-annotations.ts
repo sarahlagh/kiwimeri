@@ -1,6 +1,6 @@
 import { AnyData, SerializableData } from '@/core/db/types';
 import { minimizeKeys, unminimizeKeys } from '@/shared/utils';
-import { SyncableAnnotation } from './doc-annotations';
+import { SyncableAnnotation } from './document-annotations';
 
 const keys = [
   ['id', 'i'],
