@@ -21,12 +21,7 @@ import {
 import { Trans, useLingui } from '@lingui/react/macro';
 import { ChangeObject, diffChars } from 'diff';
 import { useState } from 'react';
-
-type ManageHistoryModalProps = {
-  id: string;
-  dismiss: (version?: string, role?: 'goToVersion' | 'restore') => void;
-  docVersion?: string;
-};
+import { ManageHistoryModalProps } from './ManageHistoryButton';
 
 // TODO diff can't show style differences
 

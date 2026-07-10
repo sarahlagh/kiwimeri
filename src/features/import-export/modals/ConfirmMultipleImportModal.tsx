@@ -23,12 +23,9 @@ import {
 import { i18n } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
-import React, { useEffect, useState } from 'react';
-import {
-  MultipleImportModalParams,
-  ZipMergeResult,
-  ZipParseError
-} from '../model/model-import';
+import { useEffect, useState } from 'react';
+import { ConfirmMultipleImportModalProps } from '../buttons/ImportItemsButton';
+import { ZipMergeResult, ZipParseError } from '../model/model-import';
 import importService from '../services/import.service';
 
 export const ARIA_DESCRIPTIONS_PER_TYPE = new Map<
@@ -47,12 +44,6 @@ ARIA_DESCRIPTIONS_PER_TYPE.set(
   CollectionItemType.notebook,
   i18n._(msg`a notebook`)
 );
-
-type ConfirmMultipleImportModalProps = {
-  params: MultipleImportModalParams;
-  parent: string;
-  onClose: (confirm: boolean, zipMerge?: ZipMergeResult) => void;
-} & React.HTMLAttributes<HTMLIonModalElement>;
 
 const ConfirmMultipleImportModal = ({
   params,

@@ -18,7 +18,7 @@ import {
   IonTitle,
   IonToolbar
 } from '@ionic/react';
-import { forwardRef, lazy, useEffect, useState } from 'react';
+import { forwardRef, lazy, Suspense, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import KiwimeriEditor from '../wysiwyg-editor/lexical/KiwimeriEditor';
 import { KiwimeriEditorHandle } from '../wysiwyg-editor/lexical/KiwimeriEditorHandle';
@@ -104,27 +104,29 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
             </IonButton>
           </IonToolbar>
           {showDocumentActions && (
-            <ActionsFromDocumentEditorToolbar
-              docId={docId}
-              onClose={(role, data) => {
-                if (role === 'info' || role === 'stats') {
-                  setBottomSheet(role);
-                  setShowBottomSheet(true);
+            <Suspense>
+              <ActionsFromDocumentEditorToolbar
+                docId={docId}
+                onClose={(role, data) => {
+                  if (role === 'info' || role === 'stats') {
+                    setBottomSheet(role);
+                    setShowBottomSheet(true);
+                    setShowDocumentActions(false);
+                  } else if (role === 'restore') {
+                    setUniqId(uniqId + 1); // force editor to reload content
+                  } else if (role === 'group') {
+                    navigate(data!);
+                  } else {
+                    setShowDocumentActions(false);
+                  }
+                }}
+                onSearch={() => {
                   setShowDocumentActions(false);
-                } else if (role === 'restore') {
-                  setUniqId(uniqId + 1); // force editor to reload content
-                } else if (role === 'group') {
-                  navigate(data!);
-                } else {
-                  setShowDocumentActions(false);
-                }
-              }}
-              onSearch={() => {
-                setShowDocumentActions(false);
-                setToggleSearch(true);
-                setToggleSearchAutoFocus(true);
-              }}
-            />
+                  setToggleSearch(true);
+                  setToggleSearchAutoFocus(true);
+                }}
+              />
+            </Suspense>
           )}
           {toggleSearch && (
             <SearchActionsToolbar

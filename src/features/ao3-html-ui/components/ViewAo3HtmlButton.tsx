@@ -1,3 +1,4 @@
+import LazyModalTemplate from '@/shared/modals/LazyModalTemplate';
 import { IonButton, useIonModal } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 import { lazy } from 'react';
@@ -7,10 +8,23 @@ type ViewAo3HtmlProps = {
   onClose?: (role?: string) => void;
 };
 
+export type ViewAo3HtmlModalProps = {
+  id: string;
+  dismiss: (version?: string, role?: 'goToVersion' | 'restore') => void;
+};
+
 const ViewAo3HtmlModal = lazy(() => import('./ViewAo3HtmlModal'));
 
+function ViewAo3HtmlModalWrapped(props: ViewAo3HtmlModalProps) {
+  return (
+    <LazyModalTemplate>
+      <ViewAo3HtmlModal {...props} />
+    </LazyModalTemplate>
+  );
+}
+
 const ViewAo3HtmlButton = ({ id, onClose }: ViewAo3HtmlProps) => {
-  const [present, dismiss] = useIonModal(ViewAo3HtmlModal, {
+  const [present, dismiss] = useIonModal(ViewAo3HtmlModalWrapped, {
     id,
     dismiss: (data?: string, role?: string) => dismiss(data, role)
   });

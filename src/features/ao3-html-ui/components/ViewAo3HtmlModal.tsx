@@ -15,13 +15,9 @@ import {
 } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 import { useRef } from 'react';
+import { ViewAo3HtmlModalProps } from './ViewAo3HtmlButton';
 
-type ManageHistoryModalProps = {
-  id: string;
-  dismiss: (version?: string, role?: 'goToVersion' | 'restore') => void;
-};
-
-const ViewAo3HtmlModal = ({ id, dismiss }: ManageHistoryModalProps) => {
+const ViewAo3HtmlModal = ({ id, dismiss }: ViewAo3HtmlModalProps) => {
   const ref = useRef<HTMLIonTextareaElement>(null);
   const content = unminimizeContentFromStorage(
     collectionService.getItemContent(id) || ''

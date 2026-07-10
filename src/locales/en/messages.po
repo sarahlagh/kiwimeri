@@ -6,6 +6,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: @lingui/cli\n"
 "Language: en\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
 
 #. js-lingui-explicit-id
 #: src/shared/misc/sort-filter/GenericSortFilter.tsx:44
@@ -42,7 +48,6 @@ msgstr " (new)"
 msgid "-- conflict --"
 msgstr "-- conflict --"
 
-#. placeholder {0}: showFilters ? 'Hide' : 'Show'
 #: src/features/dev-tools/components/LogsCard.tsx:151
 msgid "{0} Filters"
 msgstr "{0} Filters"
@@ -55,19 +60,19 @@ msgstr "{v} minutes"
 msgid "{wordCount} words"
 msgstr "{wordCount} words"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:40
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:37
 msgid "a document"
 msgstr "a document"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:44
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:41
 msgid "a folder"
 msgstr "a folder"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:48
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:45
 msgid "a notebook"
 msgstr "a notebook"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:243
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:234
 msgid "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 msgstr "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 
@@ -91,30 +96,30 @@ msgstr "An error occurred loading the file"
 msgid "An error occurred! Please check the logs."
 msgstr "An error occurred! Please check the logs."
 
-#: src/features/ao3-html-ui/components/ViewAo3HtmlButton.tsx:31
+#: src/features/ao3-html-ui/components/ViewAo3HtmlButton.tsx:45
 msgid "AO3"
 msgstr "AO3"
 
-#: src/features/ao3-html-ui/components/ViewAo3HtmlModal.tsx:35
+#: src/features/ao3-html-ui/components/ViewAo3HtmlModal.tsx:31
 msgid "AO3 Viewer"
 msgstr "AO3 Viewer"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:168
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:159
 msgid "Archive is empty"
 msgstr "Archive is empty"
 
 #: src/features/collection-browser/components/CollectionItemList.tsx:76
-#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:151
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:146
 #: src/shared/modals/ConfirmYesNoDialog.tsx:24
 msgid "Are you sure?"
 msgstr "Are you sure?"
 
-#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:154
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:149
 #: src/features/document-editor/tags/ChooseTagsModal.tsx:100
 #: src/features/import-export/buttons/ExportItemsButton.tsx:103
 #: src/features/import-export/buttons/RestoreCollectionButton.tsx:81
-#: src/features/import-export/modals/ConfirmFileImportModal.tsx:79
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:343
+#: src/features/import-export/modals/ConfirmFileImportModal.tsx:74
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:334
 #: src/shared/modals/ConfirmYesNoDialog.tsx:28
 msgid "Cancel"
 msgstr "Cancel"
@@ -176,13 +181,13 @@ msgstr "Config"
 msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
 
-#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:158
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:153
 #: src/features/collection-notebooks-ui/components/ManageNotebooksModal.tsx:104
 #: src/features/document-editor/tags/ChooseTagsModal.tsx:107
 #: src/features/import-export/buttons/ExportItemsButton.tsx:110
 #: src/features/import-export/buttons/RestoreCollectionButton.tsx:88
-#: src/features/import-export/modals/ConfirmFileImportModal.tsx:82
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:349
+#: src/features/import-export/modals/ConfirmFileImportModal.tsx:77
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:340
 #: src/shared/modals/ConfirmYesNoDialog.tsx:36
 msgid "Confirm"
 msgstr "Confirm"
@@ -204,7 +209,6 @@ msgstr "create a note"
 msgid "Created at"
 msgstr "Created at"
 
-#. placeholder {0}: dateToStr('relative', createdAt)
 #: src/features/collection-notes-ui/components/NotesActions.tsx:24
 msgid "Created at: {0}"
 msgstr "Created at: {0}"
@@ -264,7 +268,7 @@ msgstr "Discard"
 msgid "Display options for the currently selected notebook. They can still be overriden per folder."
 msgstr "Display options for the currently selected notebook. They can still be overriden per folder."
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:186
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:177
 msgid "Do you want to import your content inside a new folder?"
 msgstr "Do you want to import your content inside a new folder?"
 
@@ -272,7 +276,7 @@ msgstr "Do you want to import your content inside a new folder?"
 msgid "Document grouped"
 msgstr "Document grouped"
 
-#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:108
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:103
 msgid "Document History"
 msgstr "Document History"
 
@@ -304,7 +308,7 @@ msgstr "Enter your username"
 msgid "Error writing to file"
 msgstr "Error writing to file"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:178
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:169
 msgid "Errors have been detected on the following files:"
 msgstr "Errors have been detected on the following files:"
 
@@ -339,13 +343,11 @@ msgstr "History save time (min)"
 msgid "Home"
 msgstr "Home"
 
-#. placeholder {0}: params.zipData.zipName
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:125
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:116
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
-#. placeholder {0}: params.zipData.zipName
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:118
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:109
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
 
@@ -357,7 +359,7 @@ msgstr "Import & export your app settings"
 msgid "Import & export your collection"
 msgstr "Import & export your collection"
 
-#: src/features/import-export/modals/ConfirmFileImportModal.tsx:42
+#: src/features/import-export/modals/ConfirmFileImportModal.tsx:37
 msgid "Import file in folder {folderName}"
 msgstr "Import file in folder {folderName}"
 
@@ -369,7 +371,7 @@ msgstr "In descending order"
 msgid "Include metadata in zip"
 msgstr "Include metadata in zip"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:101
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:92
 msgid "Incorrect Metadata"
 msgstr "Incorrect Metadata"
 
@@ -409,12 +411,10 @@ msgstr "Less dangerous mode (session is still timed but you will not lose progre
 msgid "Link"
 msgstr "Link"
 
-#. placeholder {0}: localChanges.length
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:74
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
-#. placeholder {0}: dateToStr('datetime', lastLocalChange)
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:81
 msgid "Local:  {0}"
 msgstr "Local:  {0}"
@@ -455,11 +455,11 @@ msgstr "Max log history"
 msgid "Merge"
 msgstr "Merge"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:109
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:100
 msgid "merged"
 msgstr "merged"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:146
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:137
 msgid "Metadata found in the archive"
 msgstr "Metadata found in the archive"
 
@@ -472,7 +472,7 @@ msgstr "Modified Date"
 msgid "Name"
 msgstr "Name"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:109
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:100
 msgid "new"
 msgstr "new"
 
@@ -484,11 +484,11 @@ msgstr "New document"
 msgid "New folder"
 msgstr "New folder"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:211
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:202
 msgid "New folder name: "
 msgstr "New folder name: "
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:229
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:220
 msgid "New notebook name: "
 msgstr "New notebook name: "
 
@@ -512,7 +512,7 @@ msgstr "Not Found"
 msgid "Notebook Selection"
 msgstr "Notebook Selection"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:156
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:147
 msgid "Notebooks found in the archive, they will be converted to folders"
 msgstr "Notebooks found in the archive, they will be converted to folders"
 
@@ -528,7 +528,7 @@ msgstr "Options for the currently selected device. These options are local-only.
 msgid "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 msgstr "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:104
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:95
 msgid "Parsing Error"
 msgstr "Parsing Error"
 
@@ -554,7 +554,6 @@ msgstr "Remember last route"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
-#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:94
 msgid "Remote:  {0}"
 msgstr "Remote:  {0}"
@@ -576,7 +575,7 @@ msgstr "Restore"
 msgid "Restore Collection"
 msgstr "Restore Collection"
 
-#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:150
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:145
 msgid "Restore Version"
 msgstr "Restore Version"
 
@@ -650,7 +649,7 @@ msgstr "Space Settings"
 msgid "Start Writing"
 msgstr "Start Writing"
 
-#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:165
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:160
 #: src/features/synchronization-ui/settings-ui/components/RemoteGenericSettings.tsx:60
 #: src/shared/buttons/GenericExportFileButton.tsx:47
 #: src/shared/buttons/GenericImportFileButton.tsx:47
@@ -682,7 +681,7 @@ msgstr "Text"
 msgid "Text..."
 msgstr "Text..."
 
-#: src/features/import-export/modals/ConfirmFileImportModal.tsx:52
+#: src/features/import-export/modals/ConfirmFileImportModal.tsx:47
 msgid "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 msgstr "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 
@@ -730,7 +729,6 @@ msgstr "Track text statistics"
 msgid "Updated at"
 msgstr "Updated at"
 
-#. placeholder {0}: dateToStr('relative', updatedAt)
 #: src/features/collection-notes-ui/components/NotesActions.tsx:29
 msgid "Updated at: {0}"
 msgstr "Updated at: {0}"
@@ -774,7 +772,7 @@ msgstr "Word Count (Max)"
 msgid "words"
 msgstr "words"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:260
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:251
 msgid "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 msgstr "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 

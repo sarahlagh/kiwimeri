@@ -13,6 +13,8 @@ import GenericImportFileButton, {
   OnContentReadResponse
 } from '@/shared/buttons/GenericImportFileButton';
 
+import LazyModalTemplate from '@/shared/modals/LazyModalTemplate';
+import React from 'react';
 import { useNavigate } from 'react-router';
 import {
   MultipleImportModalParams,
@@ -24,15 +26,43 @@ type ImportItemsButtonProps = {
   parent: string;
 } & Partial<ZipImportOptions>;
 
+export type ConfirmFileImportModalProps = {
+  folder: string;
+  duplicates: CollectionItemResult[];
+  onClose: (confirm: boolean, item?: CollectionItemResult) => void;
+} & React.HTMLAttributes<HTMLIonModalElement>;
+
+export type ConfirmMultipleImportModalProps = {
+  params: MultipleImportModalParams;
+  parent: string;
+  onClose: (confirm: boolean, zipMerge?: ZipMergeResult) => void;
+} & React.HTMLAttributes<HTMLIonModalElement>;
+
 const zipTypes = ['application/zip'];
 const textTypes = ['text/plain', 'text/markdown'];
 
 const ConfirmFileImportModal = lazy(
   () => import('../modals/ConfirmFileImportModal')
 );
+function ConfirmFileImportModalWrapped(props: ConfirmFileImportModalProps) {
+  return (
+    <LazyModalTemplate>
+      <ConfirmFileImportModal {...props} />
+    </LazyModalTemplate>
+  );
+}
 const ConfirmMultipleImportModal = lazy(
   () => import('../modals/ConfirmMultipleImportModal')
 );
+function ConfirmMultipleImportModalWrapped(
+  props: ConfirmMultipleImportModalProps
+) {
+  return (
+    <LazyModalTemplate>
+      <ConfirmMultipleImportModal {...props} />
+    </LazyModalTemplate>
+  );
+}
 
 const ImportItemsButton = ({
   parent,
@@ -46,16 +76,19 @@ const ImportItemsButton = ({
     Partial<MultipleImportModalParams> | undefined
   >(undefined);
 
-  const [presentSingle, dismissSingle] = useIonModal(ConfirmFileImportModal, {
-    folder: parent,
-    duplicates: singleDuplicates,
-    onClose: (confirm: boolean, item?: CollectionItemResult) => {
-      dismissSingle({ confirm, item });
+  const [presentSingle, dismissSingle] = useIonModal(
+    ConfirmFileImportModalWrapped,
+    {
+      folder: parent,
+      duplicates: singleDuplicates,
+      onClose: (confirm: boolean, item?: CollectionItemResult) => {
+        dismissSingle({ confirm, item });
+      }
     }
-  });
+  );
 
   const [presentMultiple, dismissMultiple] = useIonModal(
-    ConfirmMultipleImportModal,
+    ConfirmMultipleImportModalWrapped,
     {
       params,
       parent,

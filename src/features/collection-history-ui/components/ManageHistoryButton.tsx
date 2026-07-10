@@ -1,6 +1,7 @@
 import { GET_VERSIONED_ROUTE } from '@/app/routes';
 import { APPICONS } from '@/constants';
 import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
+import LazyModalTemplate from '@/shared/modals/LazyModalTemplate';
 import { getSearchParams } from '@/shared/utils';
 import { IonButton, IonIcon, useIonModal } from '@ionic/react';
 import { lazy } from 'react';
@@ -11,7 +12,20 @@ type ManageHistoryButtonProps = {
   afterRestore?: (id: string) => void;
 };
 
+export type ManageHistoryModalProps = {
+  id: string;
+  dismiss: (version?: string, role?: 'goToVersion' | 'restore') => void;
+  docVersion?: string;
+};
+
 const ManageHistoryModal = lazy(() => import('./ManageHistoryModal'));
+function ManageHistoryModalWrapped(props: ManageHistoryModalProps) {
+  return (
+    <LazyModalTemplate>
+      <ManageHistoryModal {...props} />
+    </LazyModalTemplate>
+  );
+}
 
 const ManageHistoryButton = ({
   id,
@@ -23,7 +37,7 @@ const ManageHistoryButton = ({
   const searchParams = getSearchParams(location.search);
   const query = searchParams.query;
   const docVersion = searchParams.docVersion;
-  const [present, dismiss] = useIonModal(ManageHistoryModal, {
+  const [present, dismiss] = useIonModal(ManageHistoryModalWrapped, {
     id,
     dismiss: (data?: string, role?: string) => dismiss(data, role),
     docVersion

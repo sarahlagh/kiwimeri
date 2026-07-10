@@ -16,13 +16,8 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
-import React, { useState } from 'react';
-
-export type ConfirmFileImportModalProps = {
-  folder: string;
-  duplicates: CollectionItemResult[];
-  onClose: (confirm: boolean, item?: CollectionItemResult) => void;
-} & React.HTMLAttributes<HTMLIonModalElement>;
+import { useState } from 'react';
+import { ConfirmFileImportModalProps } from '../buttons/ImportItemsButton';
 
 const ConfirmFileImportModal = ({
   folder,
