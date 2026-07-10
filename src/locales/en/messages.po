@@ -193,7 +193,7 @@ msgid "Confirm"
 msgstr "Confirm"
 
 #: src/constants.ts:80
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:159
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:173
 msgid "Conflicts"
 msgstr "Conflicts"
 
@@ -387,7 +387,7 @@ msgstr "Kiwimeri format (content only)"
 msgid "Kiwimeri format (with history & stats)"
 msgstr "Kiwimeri format (with history & stats)"
 
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:158
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:172
 msgid "Last consulted documents"
 msgstr "Last consulted documents"
 
@@ -395,7 +395,7 @@ msgstr "Last consulted documents"
 msgid "Last Updated"
 msgstr "Last Updated"
 
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:157
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:171
 msgid "Last updated documents"
 msgstr "Last updated documents"
 

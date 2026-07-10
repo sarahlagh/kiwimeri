@@ -2,7 +2,7 @@ import { getGlobalTrans } from '@/constants';
 import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
 import { onTitleChangeFn } from '@/shared/misc/onTitleChangeFn';
 import { getSearchParams } from '@/shared/utils';
-import { lazy } from 'react';
+import { lazy, Suspense } from 'react';
 import { useLocation } from 'react-router';
 import useItemTitle from '../hooks/useItemTitle';
 import TemplateMainPage from './TemplateMainPage';
@@ -29,7 +29,9 @@ const CollectionListPage = () => {
       editable={parent !== notebook}
       onEdited={onFolderTitleChange}
     >
-      <CollectionItemBrowserList parent={parent}></CollectionItemBrowserList>
+      <Suspense>
+        <CollectionItemBrowserList parent={parent}></CollectionItemBrowserList>
+      </Suspense>
     </TemplateMainPage>
   );
 };

@@ -6,7 +6,7 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
-import { lazy } from 'react';
+import { lazy, Suspense } from 'react';
 
 const WritingSession = lazy(() =>
   import('@/features/timed-writing').then(m => ({
@@ -25,7 +25,9 @@ const WritingSessionPage = () => {
           <Trans>Timed Writing Session</Trans>
         </IonToolbar>
       </IonHeader>
-      <WritingSession />
+      <Suspense>
+        <WritingSession />
+      </Suspense>
     </IonPage>
   );
 };

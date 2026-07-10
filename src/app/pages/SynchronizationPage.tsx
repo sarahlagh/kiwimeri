@@ -1,6 +1,6 @@
 import { IonContent } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
-import { lazy } from 'react';
+import { lazy, Suspense } from 'react';
 import TemplateMainPage from './TemplateMainPage';
 
 const SynchronizationSettings = lazy(() =>
@@ -14,7 +14,9 @@ const SynchronizationPage = () => {
   return (
     <TemplateMainPage title={t`Synchronization & Backup`}>
       <IonContent>
-        <SynchronizationSettings />
+        <Suspense>
+          <SynchronizationSettings />
+        </Suspense>
       </IonContent>
     </TemplateMainPage>
   );

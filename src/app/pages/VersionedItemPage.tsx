@@ -4,7 +4,7 @@ import { historyService } from '@/domain/history/history.service';
 import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
 import { getSearchParams } from '@/shared/utils';
 import { IonButton, IonIcon } from '@ionic/react';
-import { lazy, useState } from 'react';
+import { lazy, Suspense, useCallback, useState } from 'react';
 import { Navigate, useLocation } from 'react-router';
 import useItemTitle from '../hooks/useItemTitle';
 import NotFoundPage from './NotFoundPage';
@@ -35,7 +35,7 @@ const VersionedItemPage = () => {
   const title = useItemTitle(docId || '');
   const folderTitle = useItemTitle(parentFolder || '');
 
-  const CollectionItemActionsMenu = () => {
+  const CollectionItemActionsMenu = useCallback(() => {
     return (
       <IonButton
         onClick={() => {
@@ -45,7 +45,7 @@ const VersionedItemPage = () => {
         <IonIcon icon={APPICONS.itemActions}></IonIcon>
       </IonButton>
     );
-  };
+  }, [showDocumentActions, setShowDocumentActions]);
 
   if (location.pathname !== VERSION_ROUTE && docId) {
     // TODO shouldn't be needed - check why
@@ -75,19 +75,23 @@ const VersionedItemPage = () => {
         editable: false
       }}
       menu={
-        <CollectionItemBrowserList
-          parent={parentFolder}
-        ></CollectionItemBrowserList>
+        <Suspense>
+          <CollectionItemBrowserList
+            parent={parentFolder}
+          ></CollectionItemBrowserList>
+        </Suspense>
       }
       contentId="documentExplorer"
     >
-      <DocumentVersionViewer
-        docId={docId}
-        docVersion={docVersion}
-        showActions={showDocumentActions}
-        folder={parentFolder}
-        query={searchParams.query}
-      ></DocumentVersionViewer>
+      <Suspense>
+        <DocumentVersionViewer
+          docId={docId}
+          docVersion={docVersion}
+          showActions={showDocumentActions}
+          folder={parentFolder}
+          query={searchParams.query}
+        ></DocumentVersionViewer>
+      </Suspense>
     </TemplateCompactableSplitPage>
   );
 };

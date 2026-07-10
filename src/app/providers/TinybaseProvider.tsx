@@ -7,7 +7,7 @@ import {
   store,
   storeQueries
 } from '@/core/db/store';
-import { lazy, ReactNode } from 'react';
+import { lazy, ReactNode, Suspense } from 'react';
 import { Metrics } from 'tinybase/metrics';
 import { Queries } from 'tinybase/queries';
 import { Store } from 'tinybase/store';
@@ -40,7 +40,11 @@ const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
       queriesById={{ store: untypedStoreQueries, space: untypedSpaceQueries }}
       metricsById={{ space: untypedSpaceMetrics }}
     >
-      {appConfig.DEV_ENABLE_INSPECTOR && <Inspector />}
+      {appConfig.DEV_ENABLE_INSPECTOR && (
+        <Suspense>
+          <Inspector />
+        </Suspense>
+      )}
       {children}
     </Provider>
   );

@@ -1,6 +1,6 @@
 import { IonContent } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
-import { lazy } from 'react';
+import { lazy, Suspense } from 'react';
 import TemplateMainPage from './TemplateMainPage';
 
 const Settings = lazy(() =>
@@ -14,7 +14,9 @@ const SettingsPage = () => {
   return (
     <TemplateMainPage title={t`Settings`}>
       <IonContent>
-        <Settings />
+        <Suspense>
+          <Settings />
+        </Suspense>
       </IonContent>
     </TemplateMainPage>
   );

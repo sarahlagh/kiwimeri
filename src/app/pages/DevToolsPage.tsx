@@ -1,7 +1,7 @@
 import useShowDevTools from '@/app/hooks/useShowDevTools';
 import { IonContent } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
-import { lazy } from 'react';
+import { lazy, Suspense } from 'react';
 import NotFoundPage from './NotFoundPage';
 import TemplateMainPage from './TemplateMainPage';
 
@@ -20,7 +20,9 @@ const DevToolsPage = () => {
   return (
     <TemplateMainPage title={t`Dev Tools`}>
       <IonContent>
-        <DevTools />
+        <Suspense>
+          <DevTools />
+        </Suspense>
       </IonContent>
     </TemplateMainPage>
   );

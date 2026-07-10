@@ -23,7 +23,14 @@ import notebooksService from '@/domain/collection/notebooks.service';
 
 import { useHasLocalConflicts } from '@/features/synchronization-ui';
 import { useLingui } from '@lingui/react/macro';
-import { Dispatch, lazy, SetStateAction, useEffect, useState } from 'react';
+import {
+  Dispatch,
+  lazy,
+  SetStateAction,
+  Suspense,
+  useEffect,
+  useState
+} from 'react';
 import { useNavigate } from 'react-router';
 import { BrowsableItemResult, fromCollectionItemSort } from '../browsable-item';
 import useCollectionItemBrowserListResults, {
@@ -41,7 +48,14 @@ const ActionsFromBrowserToolbar = lazy(() =>
     default: m.ActionsFromBrowserToolbar
   }))
 );
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function ActionsFromBrowserToolbarWrapped(props: any) {
+  return (
+    <Suspense>
+      <ActionsFromBrowserToolbar {...props} />
+    </Suspense>
+  );
+}
 interface CollectionItemBrowserListProps {
   parent: string;
 }
@@ -177,7 +191,7 @@ export const CollectionItemBrowserList = ({
   }, [folder]);
 
   const [presentActions, dismissActions] = useIonPopover(
-    ActionsFromBrowserToolbar,
+    ActionsFromBrowserToolbarWrapped,
     {
       id: selectedItem?.id,
       onClose: (role: string, data?: string) => {

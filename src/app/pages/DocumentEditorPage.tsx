@@ -5,7 +5,7 @@ import { KiwimeriEditorHandle } from '@/features/document-editor';
 import { onTitleChangeFn } from '@/shared/misc/onTitleChangeFn';
 import { getSearchParams } from '@/shared/utils';
 import { IonButton, IonIcon } from '@ionic/react';
-import { lazy, useRef, useState } from 'react';
+import { lazy, Suspense, useRef, useState } from 'react';
 import { useLocation } from 'react-router';
 import useItemTitle from '../hooks/useItemTitle';
 import TemplateCompactableSplitPage from './TemplateCompactableSplitPage';
@@ -63,7 +63,11 @@ const DocumentEditorPage = () => {
         onEdited: onFolderTitleChange
       }}
       menu={
-        <CollectionItemBrowserList parent={parent}></CollectionItemBrowserList>
+        <Suspense>
+          <CollectionItemBrowserList
+            parent={parent}
+          ></CollectionItemBrowserList>
+        </Suspense>
       }
       onMenuClose={() => {
         if (deviceSettings.get('resumeLastSelection')) {
@@ -72,12 +76,14 @@ const DocumentEditorPage = () => {
       }}
       contentId="documentExplorer"
     >
-      <DocumentEditor
-        ref={editorRef}
-        docId={docId}
-        showActions={showDocumentActions}
-        query={searchParams.query}
-      ></DocumentEditor>
+      <Suspense>
+        <DocumentEditor
+          ref={editorRef}
+          docId={docId}
+          showActions={showDocumentActions}
+          query={searchParams.query}
+        ></DocumentEditor>
+      </Suspense>
     </TemplateCompactableSplitPage>
   );
 };

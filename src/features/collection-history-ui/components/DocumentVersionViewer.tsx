@@ -16,7 +16,7 @@ import {
   IonTitle,
   IonToolbar
 } from '@ionic/react';
-import { lazy, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import useVersion from '../hooks/useVersion';
 
@@ -108,18 +108,20 @@ const DocumentVersionViewer = ({
           </IonButton>
         </IonToolbar>
         {showDocumentActions && (
-          <ActionsFromDocumentVersionViewerToolbar
-            docId={docId}
-            getBackRoute={() => GET_DOCUMENT_ROUTE(parentId, docId, query)}
-            onSearch={() => {
-              setShowDocumentActions(false);
-              setToggleSearch(true);
-              setToggleSearchAutoFocus(true);
-            }}
-            onClose={() => {
-              setShowDocumentActions(false);
-            }}
-          />
+          <Suspense>
+            <ActionsFromDocumentVersionViewerToolbar
+              docId={docId}
+              getBackRoute={() => GET_DOCUMENT_ROUTE(parentId, docId, query)}
+              onSearch={() => {
+                setShowDocumentActions(false);
+                setToggleSearch(true);
+                setToggleSearchAutoFocus(true);
+              }}
+              onClose={() => {
+                setShowDocumentActions(false);
+              }}
+            />
+          </Suspense>
         )}
         {toggleSearch && (
           <SearchActionsToolbar
@@ -135,13 +137,15 @@ const DocumentVersionViewer = ({
 
       <IonContent>
         {content && (
-          <KiwimeriEditor
-            id={docVersion}
-            editable={false}
-            enableToolbar={false}
-            content={content}
-            searchText={toggleSearch ? query : null}
-          ></KiwimeriEditor>
+          <Suspense>
+            <KiwimeriEditor
+              id={docVersion}
+              editable={false}
+              enableToolbar={false}
+              content={content}
+              searchText={toggleSearch ? query : null}
+            ></KiwimeriEditor>
+          </Suspense>
         )}
       </IonContent>
       {versionData && <DocumentVersionFooter versionData={versionData} />}
