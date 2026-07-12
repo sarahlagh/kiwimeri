@@ -46,13 +46,13 @@ const App = () => {
         <NetworkStatusProvider>
           <TinybaseProvider>
             <ToastProvider>
-              <IonApp className={plt.getPlatform()}>
-                <BrowserRouter>
+              <BrowserRouter>
+                <IonApp className={plt.getPlatform()}>
                   <InitialRoutingProvider>
                     <MainLayout />
                   </InitialRoutingProvider>
-                </BrowserRouter>
-              </IonApp>
+                </IonApp>
+              </BrowserRouter>
             </ToastProvider>
           </TinybaseProvider>
         </NetworkStatusProvider>

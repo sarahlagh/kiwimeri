@@ -226,7 +226,7 @@ msgstr "Current Notebook Settings ({notebookTitle})"
 msgid "Default"
 msgstr "Default"
 
-#: src/domain/user-preferences/user-preferences.ts:15
+#: src/domain/user-preferences/user-preferences.ts:16
 msgid "Default sort field"
 msgstr "Default sort field"
 
@@ -331,11 +331,11 @@ msgstr "Export Options"
 msgid "File not supported"
 msgstr "File not supported"
 
-#: src/domain/user-preferences/user-preferences.ts:25
+#: src/domain/user-preferences/user-preferences.ts:26
 msgid "History idle time (s)"
 msgstr "History idle time (s)"
 
-#: src/domain/user-preferences/user-preferences.ts:30
+#: src/domain/user-preferences/user-preferences.ts:31
 msgid "History save time (min)"
 msgstr "History save time (min)"
 
@@ -516,7 +516,7 @@ msgstr "Notebook Selection"
 msgid "Notebooks found in the archive, they will be converted to folders"
 msgstr "Notebooks found in the archive, they will be converted to folders"
 
-#: src/domain/user-preferences/user-preferences.ts:35
+#: src/domain/user-preferences/user-preferences.ts:36
 msgid "Number of versions"
 msgstr "Number of versions"
 
@@ -621,7 +621,7 @@ msgstr "Settings"
 msgid "Sort"
 msgstr "Sort"
 
-#: src/domain/user-preferences/user-preferences.ts:20
+#: src/domain/user-preferences/user-preferences.ts:21
 msgid "Sort descending by default"
 msgstr "Sort descending by default"
 
@@ -721,7 +721,7 @@ msgstr "Title"
 msgid "Toggle actions"
 msgstr "Toggle actions"
 
-#: src/domain/user-preferences/user-preferences.ts:40
+#: src/domain/user-preferences/user-preferences.ts:41
 msgid "Track text statistics"
 msgstr "Track text statistics"
 
