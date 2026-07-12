@@ -68,6 +68,7 @@ describe('import service', () => {
   });
   afterEach(() => {
     vi.useRealTimers();
+    historyService['enabled'] = false;
   });
 
   describe('finding duplicates', () => {

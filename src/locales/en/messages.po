@@ -48,6 +48,7 @@ msgstr " (new)"
 msgid "-- conflict --"
 msgstr "-- conflict --"
 
+#. placeholder {0}: showFilters ? 'Hide' : 'Show'
 #: src/features/dev-tools/components/LogsCard.tsx:151
 msgid "{0} Filters"
 msgstr "{0} Filters"
@@ -117,7 +118,7 @@ msgstr "Are you sure?"
 #: src/features/collection-history-ui/components/ManageHistoryModal.tsx:149
 #: src/features/document-editor/tags/ChooseTagsModal.tsx:100
 #: src/features/import-export/buttons/ExportItemsButton.tsx:103
-#: src/features/import-export/buttons/RestoreCollectionButton.tsx:81
+#: src/features/import-export/buttons/RestoreCollectionButton.tsx:59
 #: src/features/import-export/modals/ConfirmFileImportModal.tsx:74
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:334
 #: src/shared/modals/ConfirmYesNoDialog.tsx:28
@@ -185,7 +186,7 @@ msgstr "Configure where to synchronize your collection"
 #: src/features/collection-notebooks-ui/components/ManageNotebooksModal.tsx:104
 #: src/features/document-editor/tags/ChooseTagsModal.tsx:107
 #: src/features/import-export/buttons/ExportItemsButton.tsx:110
-#: src/features/import-export/buttons/RestoreCollectionButton.tsx:88
+#: src/features/import-export/buttons/RestoreCollectionButton.tsx:66
 #: src/features/import-export/modals/ConfirmFileImportModal.tsx:77
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:340
 #: src/shared/modals/ConfirmYesNoDialog.tsx:36
@@ -209,6 +210,7 @@ msgstr "create a note"
 msgid "Created at"
 msgstr "Created at"
 
+#. placeholder {0}: dateToStr('relative', createdAt)
 #: src/features/collection-notes-ui/components/NotesActions.tsx:24
 msgid "Created at: {0}"
 msgstr "Created at: {0}"
@@ -316,9 +318,9 @@ msgstr "Errors have been detected on the following files:"
 msgid "EU"
 msgstr "EU"
 
-#: src/features/import-export/buttons/ImportExportCollectionSettings.tsx:75
-#: src/features/import-export/buttons/ImportExportCollectionSettings.tsx:89
-#: src/features/import-export/buttons/ImportExportCollectionSettings.tsx:103
+#: src/features/import-export/buttons/ImportExportCollectionSettings.tsx:59
+#: src/features/import-export/buttons/ImportExportCollectionSettings.tsx:73
+#: src/features/import-export/buttons/ImportExportCollectionSettings.tsx:87
 #: src/features/import-export/buttons/ImportExportStoreSettings.tsx:78
 msgid "Export"
 msgstr "Export"
@@ -343,10 +345,12 @@ msgstr "History save time (min)"
 msgid "Home"
 msgstr "Home"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:116
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:109
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
@@ -355,7 +359,7 @@ msgstr "Import {0}.zip in folder {parentName}"
 msgid "Import & export your app settings"
 msgstr "Import & export your app settings"
 
-#: src/features/import-export/buttons/ImportExportCollectionSettings.tsx:57
+#: src/features/import-export/buttons/ImportExportCollectionSettings.tsx:41
 msgid "Import & export your collection"
 msgstr "Import & export your collection"
 
@@ -379,11 +383,11 @@ msgstr "Incorrect Metadata"
 msgid "Internal proxy"
 msgstr "Internal proxy"
 
-#: src/features/import-export/buttons/ImportExportCollectionSettings.tsx:84
+#: src/features/import-export/buttons/ImportExportCollectionSettings.tsx:68
 msgid "Kiwimeri format (content only)"
 msgstr "Kiwimeri format (content only)"
 
-#: src/features/import-export/buttons/ImportExportCollectionSettings.tsx:70
+#: src/features/import-export/buttons/ImportExportCollectionSettings.tsx:54
 msgid "Kiwimeri format (with history & stats)"
 msgstr "Kiwimeri format (with history & stats)"
 
@@ -411,10 +415,12 @@ msgstr "Less dangerous mode (session is still timed but you will not lose progre
 msgid "Link"
 msgstr "Link"
 
+#. placeholder {0}: localChanges.length
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:74
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
+#. placeholder {0}: dateToStr('datetime', lastLocalChange)
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:81
 msgid "Local:  {0}"
 msgstr "Local:  {0}"
@@ -439,11 +445,11 @@ msgstr "Manual Order"
 msgid "Manually backup or restore your app settings"
 msgstr "Manually backup or restore your app settings"
 
-#: src/features/import-export/buttons/ImportExportCollectionSettings.tsx:60
+#: src/features/import-export/buttons/ImportExportCollectionSettings.tsx:44
 msgid "Manually backup or restore your collection in the format of your choice"
 msgstr "Manually backup or restore your collection in the format of your choice"
 
-#: src/features/import-export/buttons/ImportExportCollectionSettings.tsx:98
+#: src/features/import-export/buttons/ImportExportCollectionSettings.tsx:82
 msgid "Markdown (Kiwimeri flavor)"
 msgstr "Markdown (Kiwimeri flavor)"
 
@@ -554,6 +560,7 @@ msgstr "Remember last route"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
+#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:94
 msgid "Remote:  {0}"
 msgstr "Remote:  {0}"
@@ -567,11 +574,11 @@ msgid "Reorder"
 msgstr "Reorder"
 
 #: src/features/import-export/buttons/ImportExportStoreSettings.tsx:88
-#: src/features/import-export/buttons/RestoreCollectionButton.tsx:108
+#: src/features/import-export/buttons/RestoreCollectionButton.tsx:86
 msgid "Restore"
 msgstr "Restore"
 
-#: src/features/import-export/buttons/RestoreCollectionButton.tsx:77
+#: src/features/import-export/buttons/RestoreCollectionButton.tsx:55
 msgid "Restore Collection"
 msgstr "Restore Collection"
 
@@ -697,7 +704,7 @@ msgstr "This is different than the import / export of the collection. Your colle
 msgid "This will delete this folder and move all its items to the current one."
 msgstr "This will delete this folder and move all its items to the current one."
 
-#: src/features/import-export/buttons/RestoreCollectionButton.tsx:78
+#: src/features/import-export/buttons/RestoreCollectionButton.tsx:56
 msgid "This will delete your existing data. Are you sure?"
 msgstr "This will delete your existing data. Are you sure?"
 
@@ -729,6 +736,7 @@ msgstr "Track text statistics"
 msgid "Updated at"
 msgstr "Updated at"
 
+#. placeholder {0}: dateToStr('relative', updatedAt)
 #: src/features/collection-notes-ui/components/NotesActions.tsx:29
 msgid "Updated at: {0}"
 msgstr "Updated at: {0}"

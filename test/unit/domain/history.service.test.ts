@@ -26,6 +26,7 @@ describe('collection history service', () => {
     userPrefs.set('historyIdleTime', idleTime);
   });
   afterEach(() => {
+    historyService['enabled'] = false;
     vi.useRealTimers();
     userPrefs.set('historyIdleTime', null);
     userPrefs.set('maxHistoryPerDoc', null);

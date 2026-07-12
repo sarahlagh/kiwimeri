@@ -1,6 +1,6 @@
-import { space, spaceContent } from '@/core/db/store';
 import { plt } from '@/core/infra/platform';
 import { CollectionItemType } from '@/domain/collection/collection';
+import storageService from '@/domain/storage.service';
 import {
   ExportItemsButton,
   RestoreCollectionButton
@@ -27,27 +27,11 @@ const ImportExportCollectionSettings = () => {
     `${dateToStr('iso')}-${exportFileSuffix}${full ? '-full' : ''}.json`;
 
   const getContentToExport = async () => {
-    const content = space.getContent();
-    return JSON.stringify([
-      {
-        collection: content[0].collection,
-        document_annotation: content[0].document_annotation
-      }
-    ]);
+    return storageService.exportJson(false);
   };
 
   const getContentWithHistoryToExport = async () => {
-    const space_content = space.getContent();
-    const space_content_content = spaceContent.getContent();
-    return JSON.stringify([
-      {
-        collection: space_content[0].collection,
-        document_annotation: space_content[0].document_annotation,
-        history: space_content[0].history,
-        history_content: space_content_content[0].history_content,
-        stats: space_content[0].stats
-      }
-    ]);
+    return storageService.exportJson(true);
   };
 
   return (

@@ -24,6 +24,7 @@ import {
 } from './history';
 import fetchVersionsQuery from './queries/fetchVersionsQuery';
 
+const C = SpaceTables.Collection;
 const H = SpaceTables.History;
 const HC = SpaceContentTables.HistoryContent;
 
@@ -152,7 +153,7 @@ class CollectionHistoryService {
     if (!version) return;
 
     // copy version data to current collection item
-    const current = space.getRow('collection', docId) as CollectionItem;
+    const current = space.getRow(C, docId) as CollectionItem;
     collectionService.saveItem(
       {
         ...current,
@@ -206,7 +207,7 @@ class CollectionHistoryService {
   }
 
   private getOrCreatedContentId(item: Pick<CollectionItem, 'id' | 'content'>) {
-    const contentHash = `${getHash(item.id! + item.content || '')}`;
+    const contentHash = `${getHash(item.id + item.content || '')}`;
     if (spaceContent.hasRow(HC, contentHash)) {
       return contentHash;
     }
@@ -262,8 +263,8 @@ class CollectionHistoryService {
   }
 
   private saveVersionSync(id: string) {
-    if (!space.hasRow('collection', id)) return;
-    const current = space.getRow('collection', id);
+    if (!space.hasRow(C, id)) return;
+    const current = space.getRow(C, id);
     this.saveVersionFromItem({ ...current, id } as CollectionItem);
   }
 

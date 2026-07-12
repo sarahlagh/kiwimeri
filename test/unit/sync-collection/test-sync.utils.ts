@@ -43,6 +43,7 @@ export const testSyncAfterEach = () => {
   iPull = 0;
   iPush = 0;
   vi.useRealTimers();
+  historyService['enabled'] = false;
   // expect(countOrphans()).toBe(0);
 };
 

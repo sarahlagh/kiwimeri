@@ -1,13 +1,7 @@
-import {
-  ANNOT_PREVIEW_SIZE,
-  DEFAULT_ORDER,
-  DOC_PREVIEW_SIZE,
-  getGlobalTrans,
-  ROOT_COLLECTION
-} from '@/constants';
+import { DEFAULT_ORDER, getGlobalTrans, ROOT_COLLECTION } from '@/constants';
 import { space, spaceContent } from '@/core/db/store';
 import { SpaceContentTables, SpaceTables } from '@/core/db/store-constants';
-import { SpaceTableId, SpaceTablesType } from '@/core/db/store-schema';
+import { SpaceTablesType } from '@/core/db/store-schema';
 import { DbSerializableData, setMetaField, WithId } from '@/core/db/types';
 import {
   CollectionItem,
@@ -38,14 +32,13 @@ import { getDerivedId } from '@/domain/collection/document-content';
 import notebooksService from '@/domain/collection/notebooks.service';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
 import { genericReorder } from '@/shared/dnd/utils';
-import { getPlainText } from '@/shared/misc/getPlainText';
 import { cellEquals } from '@/shared/utils';
 import type { SerializedEditorState } from 'lexical';
 import { getUniqueId } from 'tinybase/common';
 import { Id, Ids } from 'tinybase/common/with-schemas';
 import { Table } from 'tinybase/with-schemas';
 import { historyService } from '../history/history.service';
-import { statsOnPlainTextCallback } from '../stats/stats-on-change-callback';
+import storageService from '../storage.service';
 
 export const initialContent = () => {
   // 'empty' editor
@@ -55,10 +48,9 @@ export const initialContent = () => {
 export const INITIAL_CONTENT_START = '{"root":{';
 
 const C = SpaceTables.Collection;
-const CC = SpaceContentTables.CollectionContent;
-const DP = SpaceTables.DerivedPreview;
-const DS = SpaceTables.DerivedState;
-const DC = SpaceContentTables.DerivedContent;
+const DerivedPreview = SpaceTables.DerivedPreview;
+const DerivedState = SpaceTables.DerivedState;
+const DerivedContent = SpaceContentTables.DerivedContent;
 
 class CollectionService {
   public getNewDocumentObj(parent: string) {
@@ -118,11 +110,11 @@ class CollectionService {
   }
 
   public getDocumentPlainText(id: string) {
-    return spaceContent.getCell(DC, id, 'plainText') || '';
+    return spaceContent.getCell(DerivedContent, id, 'plainText') || '';
   }
 
   public getDocumentPreview(id: string) {
-    return space.getCell(DP, id, 'previewText') || '';
+    return space.getCell(DerivedPreview, id, 'previewText') || '';
   }
 
   public getItem(id: string) {
@@ -201,7 +193,7 @@ class CollectionService {
     }
     space.transaction(() => {
       space.delRow(C, rowId);
-      this.cleanupDerivedState(rowId, C);
+      storageService.cleanupRow(rowId, C);
     });
     spaceContent.delRow(
       SpaceContentTables.DerivedContent,
@@ -340,6 +332,10 @@ class CollectionService {
     return space.getCell(C, rowId, 'type') as CollectionItemTypeValues;
   }
 
+  public isDocument(rowId: Id): boolean {
+    return isDocument(this.getItemType(rowId));
+  }
+
   public isItemConflict(rowId: Id) {
     return space.getCell(C, rowId, 'conflictId') !== undefined;
   }
@@ -420,7 +416,7 @@ class CollectionService {
   ) {
     this.calcState(parent, tmpTable);
     // if has children, update their breadcrumbs too
-    const stateTable = space.getTable(DS);
+    const stateTable = space.getTable(DerivedState);
     Object.keys(stateTable).forEach(rowId => {
       const state = stateTable[rowId];
       if (state.fullPath?.includes(parent)) {
@@ -466,7 +462,7 @@ class CollectionService {
     table: Table<SpaceTablesType, SpaceTables.Collection>
   ) {
     const { fullPath, shortPath } = this.getPaths(id, table);
-    space.setPartialRow(DS, id, {
+    space.setPartialRow(DerivedState, id, {
       fullPath,
       shortPath
     });
@@ -530,41 +526,6 @@ class CollectionService {
     return allDocIds;
   }
 
-  public backfillDerivedContent() {
-    // TODO this belongs elsewhere
-    const collection = space.getTable(C);
-    const annotations = space.getTable(SpaceTables.Annotations);
-    spaceContent.startTransaction();
-    space.transaction(() => {
-      space.getRowIds(C).forEach(rowId => {
-        if (!collection[rowId].content) return;
-        const plainText = getPlainText(collection[rowId].content);
-        const previewText = plainText.substring(0, DOC_PREVIEW_SIZE);
-        const derivedId = getDerivedId('c', rowId);
-        space.setRow(SpaceTables.DerivedPreview, derivedId, {
-          previewText
-        });
-        spaceContent.setRow(SpaceContentTables.DerivedContent, derivedId, {
-          plainText
-        });
-        statsOnPlainTextCallback(rowId, plainText);
-      });
-      space.getRowIds(SpaceTables.Annotations).forEach(rowId => {
-        if (!annotations[rowId].content) return;
-        const plainText = getPlainText(annotations[rowId].content);
-        const previewText = plainText.substring(0, ANNOT_PREVIEW_SIZE);
-        const derivedId = getDerivedId('a', rowId);
-        space.setRow(SpaceTables.DerivedPreview, derivedId, {
-          previewText
-        });
-        spaceContent.setRow(SpaceContentTables.DerivedContent, derivedId, {
-          plainText
-        });
-      });
-    });
-    spaceContent.finishTransaction();
-  }
-
   public backfillDerivedStates(
     tmpTable?: Table<SpaceTablesType, SpaceTables.Collection>,
     rowIds?: Ids
@@ -572,30 +533,15 @@ class CollectionService {
     if (!tmpTable) tmpTable = space.getTable(C);
     if (!rowIds) rowIds = Object.keys(tmpTable);
     space.transaction(() => {
-      // space.delTable(SpaceTables.DerivedState); // TODO clear derived states after sync or restore
       rowIds.forEach(rowId => {
         this.calcState(rowId, tmpTable);
       });
     });
   }
 
-  public cleanupDerivedState(rowId: string, on: SpaceTableId) {
-    if (on === SpaceTables.Collection) {
-      space.delRow(DS, rowId);
-      space.delRow(DP, getDerivedId('c', rowId));
-      spaceContent.delRow(DC, getDerivedId('c', rowId));
-      spaceContent.delRow(CC, rowId);
-    }
-    if (on === SpaceTables.Annotations) {
-      space.delRow(DP, getDerivedId('a', rowId));
-      spaceContent.delRow(SpaceContentTables.AnnotationContent, rowId);
-      spaceContent.delRow(DC, getDerivedId('a', rowId));
-    }
-  }
-
   public getBreadcrumb(rowId: string, includeAllNotebooks = false) {
     const breadcrumb = space.getCell(
-      DS,
+      DerivedState,
       rowId,
       includeAllNotebooks ? 'fullPath' : 'shortPath'
     );

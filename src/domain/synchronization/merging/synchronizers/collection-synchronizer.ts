@@ -1,18 +1,8 @@
 import { space, store } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
-import {
-  SpaceTableId,
-  SpaceTablesType,
-  SpaceType
-} from '@/core/db/store-schema';
+import { SpaceType } from '@/core/db/store-schema';
 import { AnyData, SerializableData, TypeWithId } from '@/core/db/types';
-import {
-  CollectionItem,
-  CollectionItemType,
-  CollectionItemUpdatableFields,
-  isDocument
-} from '@/domain/collection/collection';
-import collectionService from '@/domain/collection/collection.service';
+import { CollectionItem } from '@/domain/collection/collection';
 import {
   minimizeAnnotForStorage,
   MinimizedDocAnnotation,
@@ -24,18 +14,15 @@ import {
   unminimizeItemsFromStorage
 } from '@/domain/collection/compress-collection';
 import { SyncableAnnotation } from '@/domain/collection/document-annotations';
-import { resumeService } from '@/domain/collection/resume-state.service';
 import { historyService } from '@/domain/history/history.service';
-import { conflictsService } from '@/domain/synchronization/conflicts-service';
-import { CloudStorageDriver } from '@/domain/synchronization/drivers/abstract.driver';
-import {
-  LocalChangeResult,
-  LocalChangeType
-} from '@/domain/synchronization/local-changes';
+import storageService from '@/domain/storage.service';
 import {
   startLocalChangesListeners,
   stopLocalChangesListeners
-} from '@/domain/synchronization/local-changes-listeners';
+} from '@/domain/synchronization//local-changes-listeners';
+import { conflictsService } from '@/domain/synchronization/conflicts-service';
+import { CloudStorageDriver } from '@/domain/synchronization/drivers/abstract.driver';
+import { LocalChangeResult } from '@/domain/synchronization/local-changes';
 import localChangesService from '@/domain/synchronization/local-changes.service';
 import { SingleFileStorage } from '@/domain/synchronization/merging/layouts/singlefile.filesystem';
 import { ReplicaState } from '@/domain/synchronization/replica-state';
@@ -45,9 +32,8 @@ import {
   unminimizePrefsFromStorage
 } from '@/domain/user-preferences/compress-user-prefs';
 import { SyncableUserPref } from '@/domain/user-preferences/user-preferences';
-import { cellEquals } from '@/shared/utils';
 import { Table as UntypedTable } from 'tinybase';
-import { Content, Table } from 'tinybase/store/with-schemas';
+import { Content } from 'tinybase/store/with-schemas';
 import {
   CloudStorageSynchronizer,
   RemoteRepresentation
@@ -211,36 +197,12 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       return { success: resp.success, didPull };
     } catch (e) {
       console.error('[collection][pull] error', this.remote.name, e);
-      // restore
-      this.setContent(localContent); // TODO remove
+      // TODO restore
     } finally {
       this.ongoing = false;
       console.log(`[collection][pull] done`);
     }
     return { success: false, didPull };
-  }
-
-  private setTable(
-    tableName: SpaceTableId,
-    table?: Table<SpaceTablesType, SpaceTableId, true>
-  ) {
-    if (table && Object.keys(table).length === 0) {
-      space.delTable(tableName);
-    }
-    if (table) {
-      space.setTable(tableName, table);
-    }
-  }
-
-  private setContent(content: Content<SpaceType, false>) {
-    stopLocalChangesListeners();
-    space.transaction(() => {
-      this.setTable(SpaceTables.Collection, content[0].collection);
-      collectionService.backfillDerivedStates(content[0].collection);
-      this.setTable(SpaceTables.Annotations, content[0].document_annotation);
-      this.setTable(SpaceTables.UserPreference, content[0].user_preference);
-    });
-    startLocalChangesListeners();
   }
 
   public async destroy() {
@@ -345,10 +307,13 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       force
     );
     historyService.saveNow();
-    this.setContent(resp.content);
-    this.handleResumeState(resp.changes);
-    this.handleHistory(resp.changes);
-    this.handleDeletedRows(resp.changes);
+    stopLocalChangesListeners();
+    storageService.restoreContent(resp.content, resp.changes);
+    startLocalChangesListeners();
+    // this.setContent(resp.content);
+    // this.handleResumeState(resp.changes);
+    // this.handleHistory(resp.changes);
+    // this.handleDeletedRows(resp.changes);
     this.handleDiscardedChanges(resp.discardedChanges);
   }
 
@@ -401,7 +366,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     ]);
 
     // check cell changes
-    const changes = this.afterSyncHistChanges(
+    const changes = storageService.afterSyncHistChanges(
       newLocalContent,
       localContent,
       localChanges,
@@ -418,81 +383,6 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       discardedChanges: discardedChanges,
       changes
     };
-  }
-
-  private afterSyncHistChanges(
-    newLocalContent: Content<SpaceType>,
-    localContent: Content<SpaceType>,
-    localChanges: LocalChangeResult[],
-    force?: boolean
-  ) {
-    const tableId = 'collection';
-    const changes: Map<string, AfterSyncChange> = new Map();
-    const ids = new Set<string>([
-      ...Object.keys(newLocalContent[0].collection!),
-      ...Object.keys(localContent[0].collection!)
-    ]);
-    ids.forEach(id => {
-      // TODO how do we handle local changes when force full?
-      const localChange = localChanges.find(
-        lc => lc.itemId === id && lc.on === tableId
-      );
-      const newItem = newLocalContent[0].collection![id];
-      const oldItem = localContent[0].collection![id];
-      if (newItem && !newItem.conflictId && !oldItem) {
-        const type = newItem.type as CollectionItemType;
-        // added by remote
-        changes.set(id, {
-          id,
-          type,
-          on: tableId,
-          parentId: newItem.parentId as string,
-          change: LocalChangeType.add
-        });
-      } else if (
-        !newItem &&
-        oldItem &&
-        (force || localChange?.change !== LocalChangeType.add)
-      ) {
-        // deleted by remote
-        changes.set(id, {
-          id,
-          on: tableId,
-          type: oldItem.type as CollectionItemType,
-          parentId: oldItem.parentId as string,
-          change: LocalChangeType.delete
-        });
-      } else if (newItem && oldItem) {
-        const type = newItem.type as CollectionItemType;
-        const historizableFields = [...CollectionItemUpdatableFields].filter(
-          field => localChange?.field !== field
-        );
-
-        // no local change, remote change on hist field                 => new version
-        // no local change, remote change on non hist field             => no new version
-        // local change, no remote change                               => no new version
-        // local change, remote change on hist field, local wins        => no new version
-        // local change, remote change on hist field, remote wins       => new version
-        // local change, remote change on non hist field, local wins    => no new version
-        // local change, remote change on non hist field, remote wins   => no new version
-        for (const field of historizableFields) {
-          // only create change for the first field
-          // if local wins, mustn't have new version - won't happen if no local change
-          if (!cellEquals(oldItem[field], newItem[field])) {
-            changes.set(id, {
-              id,
-              type,
-              on: tableId,
-              parentId: newItem.parentId as string,
-              change: LocalChangeType.update,
-              field
-            });
-            break;
-          }
-        }
-      }
-    });
-    return [...changes.values()];
   }
 
   private toMap<T>(obj?: UntypedTable) {
@@ -572,39 +462,6 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       }
       this.storeReplicaStateInfo(state, updatedRemoteState, COL);
     });
-  }
-
-  private handleResumeState(changes: AfterSyncChange[]) {
-    // reset resume state if content has changed
-    changes
-      .filter(ch => isDocument(ch.type) && ch.field === 'content')
-      .forEach(ch => resumeService.setLastSelection(ch.id, null));
-  }
-
-  private handleHistory(changes: AfterSyncChange[]) {
-    // history must be updated
-    const docsMap = new Map<string, AfterSyncChange>();
-    changes
-      .filter(ch => isDocument({ type: ch.type }))
-      .filter(
-        ch =>
-          !ch.field ||
-          collectionService.isHistorizableContentChange(ch.type, ch.field)
-      )
-      .forEach(ch => docsMap.set(ch.id, ch));
-
-    [...docsMap.values()].forEach(ch => {
-      historyService.updateAfterSync(ch);
-    });
-    historyService.gc();
-  }
-
-  private handleDeletedRows(changes: AfterSyncChange[]) {
-    changes
-      .filter(ch => ch.change === LocalChangeType.delete)
-      .forEach(ch => {
-        collectionService.cleanupDerivedState(ch.id, ch.on);
-      });
   }
 
   private handleDiscardedChanges(discardedChanges: LocalChangeResult[]) {
