@@ -1,3 +1,4 @@
+import { WithId } from '@/core/db/types';
 import { msg } from '@lingui/core/macro';
 
 export type UserPreferenceKey =
@@ -61,9 +62,7 @@ export type UserPreferenceValue<
     ? boolean
     : string;
 
-export type SyncableUserPref = {
-  id: string;
-} & UserPreferenceRow;
+export type SyncableUserPref = WithId<UserPreferenceRow>;
 
 export type UserPrefUpdatableFieldEnum = keyof Pick<UserPreferenceRow, 'value'>;
 export const UserPrefUpdatableFields: UserPrefUpdatableFieldEnum[] = ['value'];

@@ -1,8 +1,5 @@
 import { AnyData } from '@/core/db/types';
-import {
-  CollectionItem,
-  CollectionItemWithId
-} from '@/domain/collection/collection';
+import { CollectionItem } from '@/domain/collection/collection';
 import { minimizeKeys, unminimizeKeys } from '@/shared/utils';
 
 const keys = [
@@ -64,10 +61,8 @@ export const minimizeItemsForStorage = (obj: CollectionItem[]) => {
 
 export const unminimizeItemsFromStorage = (
   obj: AnyData[]
-): CollectionItemWithId[] => {
+): CollectionItem[] => {
   return obj
-    .map(
-      o => unminimizeKeys(o, keysMapReverse, new Map()) as CollectionItemWithId
-    )
+    .map(o => unminimizeKeys(o, keysMapReverse, new Map()) as CollectionItem)
     .map(o => ({ ...o, itemId: o.id! }));
 };

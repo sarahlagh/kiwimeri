@@ -4,7 +4,7 @@ import {
   LocalChangeResult,
   LocalChangeType
 } from '@/domain/synchronization/local-changes';
-import { getUniqueId, Table } from 'tinybase';
+import { Table } from 'tinybase';
 import { Content, Id, Row } from 'tinybase/with-schemas';
 import { ConflictPolicy } from './conflict-policies';
 import { OrphanPolicy } from './orphan-policies';
@@ -189,11 +189,8 @@ export function applyLocalChangesToPull<
             newDataTable[localChange.itemId]
           )
         ) {
-          const conflictId = getUniqueId();
-          newDataTable[conflictId] = conflictPolicy.newConflict(
-            localChange,
-            localItem
-          );
+          const conflict = conflictPolicy.newConflict(localChange, localItem);
+          newDataTable[conflict.id] = conflict;
         } else {
           // last write wins
           discardedChanges.push(localChange);

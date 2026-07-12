@@ -71,7 +71,7 @@ export const oneFolder = (
 export const oneNotebook = (
   title = 'new notebook',
   id = DEFAULT_NOTEBOOK_ID
-): Notebook => {
+): WithId<Notebook> => {
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   return {
     ...notebooksService.getNewNotebookObj(ROOT_COLLECTION, title).item,

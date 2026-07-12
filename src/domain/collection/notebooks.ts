@@ -1,10 +1,10 @@
 import {
-  CollectionItem,
+  CollectionItemRow,
   CollectionItemType
 } from '@/domain/collection/collection';
 import { Sort } from '@/shared/misc/sort-filter/sort';
 
-export interface Notebook extends CollectionItem {
+export interface Notebook extends CollectionItemRow {
   type: CollectionItemType.notebook;
 }
 

@@ -485,7 +485,6 @@ describe('collection service', () => {
     it(`should sort according to the correct field`, () => {
       const { id: i1, item: item1 } =
         collectionService.getNewFolderObj(DEFAULT_NOTEBOOK_ID);
-      item1.id = i1;
       item1.title = 'r1';
       item1.order = 2;
       collectionService.setUnsavedItemLexicalContent(item1, shortContent);
@@ -494,7 +493,6 @@ describe('collection service', () => {
       collectionService.saveItem(item1, i1);
       const { id: i2, item: item2 } =
         collectionService.getNewDocumentObj(DEFAULT_NOTEBOOK_ID);
-      item2.id = i2;
       item2.title = 'r2';
       item2.order = 3;
       collectionService.setUnsavedItemLexicalContent(item2, loremIpsum);
@@ -503,7 +501,6 @@ describe('collection service', () => {
       collectionService.saveItem(item2, i2);
       const { id: i3, item: item3 } =
         collectionService.getNewDocumentObj(DEFAULT_NOTEBOOK_ID);
-      item3.id = i3;
       item3.title = 'r3';
       item3.order = 1;
       item3.content = minimizeContentForStorage(shortContent);
@@ -590,25 +587,26 @@ describe('collection service', () => {
     it(`should order items within a folder or notebook`, () => {
       const { id: i1, item: item1 } =
         collectionService.getNewFolderObj(DEFAULT_NOTEBOOK_ID);
-      item1.id = i1;
       item1.title = 'r1';
       const { id: i2, item: item2 } =
         collectionService.getNewDocumentObj(DEFAULT_NOTEBOOK_ID);
-      item2.id = i2;
       item2.title = 'r2';
       const { id: i3, item: item3 } =
         collectionService.getNewDocumentObj(DEFAULT_NOTEBOOK_ID);
-      item3.id = i3;
       item3.title = 'r3';
       const { id: i4, item: item4 } =
         collectionService.getNewFolderObj(DEFAULT_NOTEBOOK_ID);
-      item4.id = i4;
       item4.title = 'r4';
       const { id: i5, item: item5 } =
         collectionService.getNewDocumentObj(DEFAULT_NOTEBOOK_ID);
-      item5.id = i5;
       item5.title = 'r5';
-      collectionService.saveItems([item1, item2, item3, item4, item5]);
+      collectionService.saveItems([
+        { ...item1, id: i1 },
+        { ...item2, id: i2 },
+        { ...item3, id: i3 },
+        { ...item4, id: i4 },
+        { ...item5, id: i5 }
+      ]);
 
       const sort: CollectionItemSort = {
         by: 'order',

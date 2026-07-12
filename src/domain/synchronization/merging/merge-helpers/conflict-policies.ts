@@ -1,3 +1,4 @@
+import { WithId } from '@/core/db/types';
 import {
   CollectionItem,
   CollectionItemType,
@@ -11,6 +12,7 @@ import {
 } from '@/domain/collection/document-annotations';
 import { LocalChangeResult } from '@/domain/synchronization/local-changes';
 import { cellEquals } from '@/shared/utils';
+import { getUniqueId } from 'tinybase';
 
 export abstract class ConflictPolicy<L> {
   public abstract shouldCreateConflict(
@@ -22,7 +24,7 @@ export abstract class ConflictPolicy<L> {
   public abstract newConflict(
     localChange: LocalChangeResult,
     localItem: L | undefined
-  ): L;
+  ): WithId<L>;
 }
 
 class CollectionConflictPolicy extends ConflictPolicy<CollectionItem> {
@@ -45,10 +47,10 @@ class CollectionConflictPolicy extends ConflictPolicy<CollectionItem> {
   public newConflict(
     localChange: LocalChangeResult,
     localItem: CollectionItem
-  ): Omit<CollectionItem, 'id'> {
+  ): CollectionItem {
     const ts = Date.now();
     return {
-      ...{ ...localItem, id: undefined },
+      ...{ ...localItem, id: getUniqueId() },
       conflictId: localChange.itemId,
       createdAt: ts,
       updatedAt: ts
@@ -78,7 +80,7 @@ class AnnotsConflictPolicy extends ConflictPolicy<SyncableAnnotation> {
   ) {
     const ts = Date.now();
     return {
-      ...{ ...localItem, id: 'to-be-dropped' },
+      ...{ ...localItem, id: getUniqueId() },
       conflictId: localChange.itemId,
       createdAt: ts,
       updatedAt: ts

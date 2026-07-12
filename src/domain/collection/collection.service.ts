@@ -14,6 +14,7 @@ import {
   CollectionItemFieldEnum,
   CollectionItemHistorizableFields,
   CollectionItemResetConflictFields,
+  CollectionItemRow,
   CollectionItemUpdateChangeFields as CollectionItemRowUpdateChangeFields,
   CollectionItemType,
   CollectionItemTypeValues,
@@ -64,7 +65,7 @@ class CollectionService {
     const id = getUniqueId();
     const now = Date.now();
     const content = initialContent();
-    const item: CollectionItem = {
+    const item: CollectionItemRow = {
       itemId: id,
       title: getGlobalTrans().newDocTitle,
       title_meta: setMetaField(now, getGlobalTrans().newDocTitle),
@@ -90,7 +91,7 @@ class CollectionService {
   public getNewFolderObj(parent: string) {
     const now = Date.now();
     const id = getUniqueId();
-    const item: CollectionItem = {
+    const item: CollectionItemRow = {
       itemId: id,
       title: getGlobalTrans().newFolderTitle,
       title_meta: setMetaField(now, getGlobalTrans().newFolderTitle),
@@ -477,7 +478,7 @@ class CollectionService {
     return tmpTable;
   }
 
-  public saveItem(item: CollectionItem, id?: string) {
+  public saveItem(item: CollectionItemRow, id?: string) {
     if (!id) {
       id = getUniqueId();
     }

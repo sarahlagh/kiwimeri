@@ -4,6 +4,7 @@ import { setMetaField } from '@/core/db/types';
 import {
   CollectionItem,
   CollectionItemResult,
+  CollectionItemRow,
   CollectionItemType,
   CollectionItemTypeValues,
   CollectionItemUpdatableFields,
@@ -63,7 +64,7 @@ class ImportService {
 
   // TODO less manual
   private fillInMeta(
-    item: CollectionItem,
+    item: CollectionItemRow,
     meta: ZipParsedMetadata,
     parentItem?: CollectionItem,
     ignoreType = false
@@ -72,7 +73,7 @@ class ImportService {
       item.type = meta.type;
     }
     if (parentItem) {
-      item.parentId = parentItem.id!;
+      item.parentId = parentItem.id;
     }
     if (meta.title) {
       item.title = meta.title;

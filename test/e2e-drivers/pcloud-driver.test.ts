@@ -4,10 +4,7 @@ import { space, spaceContent } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { SpaceValuesType } from '@/core/db/store-schema';
 import { setMetaField } from '@/core/db/types';
-import {
-  CollectionItem,
-  CollectionItemWithId
-} from '@/domain/collection/collection';
+import { CollectionItem } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
 import {
   minimizeAnnotForStorage,
@@ -416,7 +413,7 @@ describe.sequential(
       // create remotely
       vi.setSystemTime(now + 11000);
       const newRemoteItem = oneFolder('r100');
-      content!.push(newRemoteItem as CollectionItemWithId);
+      content!.push(newRemoteItem as CollectionItem);
       lastRemoteChange = Date.now();
 
       // create locally

@@ -54,13 +54,9 @@ export enum CollectionItemType {
 export const itemTypes = ['n', 'f', 'd'] as const;
 export type CollectionItemTypeValues = (typeof itemTypes)[number];
 
-export type CollectionItem = CollectionItemRow & { id?: string };
+export type CollectionItem = WithId<CollectionItemRow>;
 
-export type CollectionItemWithId = WithId<CollectionItem>;
-
-export type CollectionItemFieldEnum = keyof Required<
-  Omit<CollectionItem, 'id'>
->;
+export type CollectionItemFieldEnum = keyof Required<CollectionItemRow>;
 
 export type CollectionItemUpdatableFieldEnum = keyof Required<
   Pick<

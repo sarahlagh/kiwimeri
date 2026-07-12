@@ -5,11 +5,11 @@ import {
   SpaceTablesType,
   SpaceType
 } from '@/core/db/store-schema';
-import { AnyData, SerializableData, TypeWithId, WithId } from '@/core/db/types';
+import { AnyData, SerializableData, TypeWithId } from '@/core/db/types';
 import {
+  CollectionItem,
   CollectionItemType,
   CollectionItemUpdatableFields,
-  CollectionItemWithId,
   isDocument
 } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
@@ -23,10 +23,7 @@ import {
   minimizeItemsForStorage,
   unminimizeItemsFromStorage
 } from '@/domain/collection/compress-collection';
-import {
-  DocAnnotationRow,
-  SyncableAnnotation
-} from '@/domain/collection/document-annotations';
+import { SyncableAnnotation } from '@/domain/collection/document-annotations';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { historyService } from '@/domain/history/history.service';
 import { conflictsService } from '@/domain/synchronization/conflicts-service';
@@ -47,10 +44,7 @@ import {
   minimizePrefsForStorage,
   unminimizePrefsFromStorage
 } from '@/domain/user-preferences/compress-user-prefs';
-import {
-  SyncableUserPref,
-  UserPreferenceRow
-} from '@/domain/user-preferences/user-preferences';
+import { SyncableUserPref } from '@/domain/user-preferences/user-preferences';
 import { cellEquals } from '@/shared/utils';
 import { Table as UntypedTable } from 'tinybase';
 import { Content, Table } from 'tinybase/store/with-schemas';
@@ -88,7 +82,7 @@ export type RemoteCollectionFileContent = {
 };
 
 type RemoteContentRepresentation = {
-  items: CollectionItemWithId[];
+  items: CollectionItem[];
   docAnnotations: SyncableAnnotation[];
   userPrefs: SyncableUserPref[];
   lastRemoteChange: number;
@@ -514,13 +508,11 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   private toRepresentationFromLocal(
     localContent: Content<SpaceType>
   ): RemoteContentRepresentation {
-    const collection = this.toMap<CollectionItemWithId>(
-      localContent[0].collection!
-    );
-    const annotation = this.toMap<WithId<DocAnnotationRow>>(
+    const collection = this.toMap<CollectionItem>(localContent[0].collection!);
+    const annotation = this.toMap<SyncableAnnotation>(
       localContent[0].document_annotation
     );
-    const userPreference = this.toMap<WithId<UserPreferenceRow>>(
+    const userPreference = this.toMap<SyncableUserPref>(
       localContent[0].user_preference
     );
     const items = [...collection.values()].filter(v => !v.conflictId);
