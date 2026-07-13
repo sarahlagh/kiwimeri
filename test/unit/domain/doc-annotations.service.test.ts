@@ -46,14 +46,14 @@ describe('notes service', () => {
     vi.advanceTimersByTime(100);
 
     const noteId = docAnnotationsService.addNote(docId);
-    const notes = fetchNotesQuery.getResults({ itemId: docId });
+    const notes = fetchNotesQuery.getResults({ parentId: docId });
     expect(notes).toHaveLength(1);
     expect(notes[0].id).toBe(noteId);
     expect(getDocUpdatedTs(docId)).toBeGreaterThan(updated);
     expect(docAnnotationsService.getAnnotInfo(noteId)).toEqual({
       createdAt: updated + 100,
       updatedAt: updated + 100,
-      itemId: docId
+      parentId: docId
     });
     expect(localChangesService.getLocalChanges()).toContainEqual(
       expectedLC(noteId, LocalChangeType.add, updated + 100)
@@ -70,7 +70,7 @@ describe('notes service', () => {
     notes.push(docAnnotationsService.newNoteObj(docId + 'diff').item);
     docAnnotationsService.saveNotes(docId, notes);
 
-    const noteResults = fetchNotesQuery.getResults({ itemId: docId });
+    const noteResults = fetchNotesQuery.getResults({ parentId: docId });
     expect(noteResults).toHaveLength(2);
     expect(getDocUpdatedTs(docId)).toBeGreaterThan(updated);
 
@@ -113,7 +113,7 @@ describe('notes service', () => {
     vi.advanceTimersByTime(100);
 
     docAnnotationsService.delete(noteId);
-    expect(fetchNotesQuery.getResults({ itemId: docId })).toHaveLength(0);
+    expect(fetchNotesQuery.getResults({ parentId: docId })).toHaveLength(0);
     expect(getDocUpdatedTs(docId)).toBeGreaterThan(updated);
   });
 
@@ -155,12 +155,16 @@ describe('notes service', () => {
     const updated = getDocUpdatedTs(docId);
     vi.advanceTimersByTime(100);
 
-    let results = fetchNotesQuery.getResults({ itemId: docId }, 'order', false);
+    let results = fetchNotesQuery.getResults(
+      { parentId: docId },
+      'order',
+      false
+    );
     expect(results.map(r => r.id)).toEqual([note1, note2, note3, note4, note5]);
 
     docAnnotationsService.reorder(results, 2, 1);
 
-    results = fetchNotesQuery.getResults({ itemId: docId }, 'order', false);
+    results = fetchNotesQuery.getResults({ parentId: docId }, 'order', false);
     expect(results.map(r => r.id)).toEqual([note1, note3, note2, note4, note5]);
     expect(results.map(r => r.order)).toEqual([0, 1, 2, 3, 4]);
     expect(getDocUpdatedTs(docId)).toBeGreaterThan(updated);
@@ -169,7 +173,7 @@ describe('notes service', () => {
 
     docAnnotationsService.reorder(results, 3, 4);
 
-    results = fetchNotesQuery.getResults({ itemId: docId }, 'order', false);
+    results = fetchNotesQuery.getResults({ parentId: docId }, 'order', false);
     expect(results.map(r => r.id)).toEqual([note1, note3, note2, note5, note4]);
     expect(results.map(r => r.order)).toEqual([0, 1, 2, 3, 4]);
     expect(getDocUpdatedTs(docId)).toBeGreaterThan(updated);
@@ -183,10 +187,14 @@ describe('notes service', () => {
     const updated = getDocUpdatedTs(docId);
     vi.advanceTimersByTime(100);
 
-    let results = fetchNotesQuery.getResults({ itemId: docId }, 'order', false);
+    let results = fetchNotesQuery.getResults(
+      { parentId: docId },
+      'order',
+      false
+    );
     docAnnotationsService.reorder(results, 2, 1);
 
-    results = fetchNotesQuery.getResults({ itemId: docId }, 'order', false);
+    results = fetchNotesQuery.getResults({ parentId: docId }, 'order', false);
     expect(results.map(r => r.id)).toEqual([note1, note3, note2]);
     expect(results.map(r => r.order)).toEqual([0, 1, 2]);
     expect(getDocUpdatedTs(docId)).toBeGreaterThan(updated);
@@ -196,13 +204,13 @@ describe('notes service', () => {
     // now add new notes!
     const note4 = docAnnotationsService.addNote(docId);
     const note5 = docAnnotationsService.addNote(docId);
-    results = fetchNotesQuery.getResults({ itemId: docId }, 'order', false);
+    results = fetchNotesQuery.getResults({ parentId: docId }, 'order', false);
     expect(results.map(r => r.id)).toEqual([note4, note5, note1, note3, note2]);
     expect(results.map(r => r.order)).toEqual([-1, -1, 0, 1, 2]);
 
     docAnnotationsService.reorder(results, 0, 3);
 
-    results = fetchNotesQuery.getResults({ itemId: docId }, 'order', false);
+    results = fetchNotesQuery.getResults({ parentId: docId }, 'order', false);
     expect(results.map(r => r.id)).toEqual([note5, note1, note3, note4, note2]);
     expect(results.map(r => r.order)).toEqual([0, 1, 2, 3, 4]);
     expect(getDocUpdatedTs(docId)).toBeGreaterThan(updated);
@@ -211,7 +219,7 @@ describe('notes service', () => {
   it('should add notes with correct order anyway', () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     function getResults() {
-      return fetchNotesQuery.getResults({ itemId: docId }, 'order', false);
+      return fetchNotesQuery.getResults({ parentId: docId }, 'order', false);
     }
     let results = getResults();
     const note1 = docAnnotationsService.addNote(docId, results.length);

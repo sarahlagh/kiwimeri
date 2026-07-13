@@ -3,7 +3,7 @@ import { SpaceTables } from '@/core/db/store-constants';
 import { NoteResult } from '../model';
 
 export type FetchNotesQueryParam = {
-  itemId: string;
+  parentId: string;
 };
 
 const fetchNotesQuery = new SpaceQueryDefinition<
@@ -12,12 +12,12 @@ const fetchNotesQuery = new SpaceQueryDefinition<
   SpaceTables.Annotations
 >('fetchNotes', SpaceTables.Annotations, ({ select, where, param }) => {
   const params: FetchNotesQueryParam = {
-    itemId: param('itemId') as string
+    parentId: param('parentId') as string
   };
   select('createdAt');
   select('order');
   select('conflictId');
-  where('itemId', params.itemId);
+  where('parentId', params.parentId);
 });
 
 export default fetchNotesQuery;

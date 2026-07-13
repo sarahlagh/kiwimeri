@@ -49,7 +49,7 @@ describe('NotesBrowser', () => {
 
     await getAddBtn(screen).click();
 
-    expect(fetchNotesQuery.getResults({ itemId: docId })).toHaveLength(1);
+    expect(fetchNotesQuery.getResults({ parentId: docId })).toHaveLength(1);
 
     await expect.element(getNotePreview(screen, '')).toBeInTheDocument();
     await expect.element(getContentEditor(screen)).toBeInTheDocument();

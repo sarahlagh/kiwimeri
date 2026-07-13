@@ -5,7 +5,7 @@ import { SyncableAnnotation } from './document-annotations';
 const keys = [
   ['id', 'i'],
   ['type', 't'],
-  ['itemId', 'p'],
+  ['parentId', 'p'],
   ['createdAt', 'cr'],
   ['updatedAt', 'u'],
   ['content', 'c'],

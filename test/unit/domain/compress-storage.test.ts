@@ -150,7 +150,7 @@ describe('annot compression', () => {
       const minimized = minimizeAnnotForStorage(data);
       console.log('minimized json', minimized);
       if (data.length > 0) {
-        expect(minimized[0].p).toBe(data[0].itemId);
+        expect(minimized[0].p).toBe(data[0].parentId);
       }
 
       const restored = unminimizeAnnotFromStorage(minimized);

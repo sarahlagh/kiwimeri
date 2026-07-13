@@ -26,7 +26,7 @@ export default function NotesBrowser({
 }: NotesBrowserProps): JSX.Element {
   const sort = useNotesSort(docId);
   useLoadQuery(fetchNotesQuery, {
-    itemId: docId
+    parentId: docId
   });
   const noteIds = useQueryResultIds(fetchNotesQuery, sort.by, sort.descending);
   const selectedId = useSelectedNote(docId);

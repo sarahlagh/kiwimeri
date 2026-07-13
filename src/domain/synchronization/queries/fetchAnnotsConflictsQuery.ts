@@ -8,7 +8,7 @@ const fetchAnnotsConflictsQuery = new SpaceQueryDefinition<
   AnnotationConflictResult,
   SpaceTables.Annotations
 >('fetchNoteConflicts', SpaceTables.Annotations, ({ select, where }) => {
-  select('itemId');
+  select('parentId');
   select('conflictId');
   where(getCell => getCell('conflictId') !== undefined);
 });

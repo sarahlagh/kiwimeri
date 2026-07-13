@@ -24,7 +24,7 @@ class DocumentAnnotationsService {
     const now = Date.now();
     const note: DocAnnotationRow = {
       type: 'note',
-      itemId,
+      parentId: itemId,
       content,
       content_meta: setMetaField(now),
       createdAt: now,
@@ -45,7 +45,7 @@ class DocumentAnnotationsService {
   public saveNotes(docId: Id, notes: DocAnnotationRow[]) {
     space.transaction(() => {
       notes.forEach(note => {
-        space.setRow(A, getUniqueId(), { ...note, itemId: docId });
+        space.setRow(A, getUniqueId(), { ...note, parentId: docId });
       });
       space.setCell('collection', docId, 'updatedAt', Date.now());
     });
@@ -61,14 +61,14 @@ class DocumentAnnotationsService {
         updatedAt: now
       });
       space.delCell(A, id, 'conflictId');
-      const itemId = space.getCell(A, id, 'itemId');
+      const itemId = space.getCell(A, id, 'parentId');
       space.setCell(C, itemId!, 'updatedAt', now);
     });
   }
 
   public delete(id: Id) {
     space.transaction(() => {
-      const itemId = space.getCell(A, id, 'itemId');
+      const itemId = space.getCell(A, id, 'parentId');
       space.setCell(C, itemId!, 'updatedAt', Date.now());
       space.delRow(A, id);
       storageService.cleanupRow(id, A);
@@ -94,7 +94,7 @@ class DocumentAnnotationsService {
           order_meta: setMetaField(now, `${order}`)
         });
       });
-      const itemId = space.getCell(A, notes[0].id, 'itemId');
+      const itemId = space.getCell(A, notes[0].id, 'parentId');
       space.setCell(C, itemId!, 'updatedAt', Date.now());
     });
   }
@@ -108,10 +108,10 @@ class DocumentAnnotationsService {
   }
 
   public getAnnotInfo(id: Id) {
-    const itemId = space.getCell(A, id, 'itemId') as string;
+    const parentId = space.getCell(A, id, 'parentId') as string;
     const createdAt = space.getCell(A, id, 'createdAt');
     const updatedAt = space.getCell(A, id, 'updatedAt');
-    return { createdAt, updatedAt, itemId };
+    return { createdAt, updatedAt, parentId };
   }
 
   public setNotesSortOnDocument(docId: Id, newNoteSort: NotesSort) {

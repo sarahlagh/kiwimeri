@@ -3,5 +3,5 @@ import { DocAnnotationRow } from '@/domain/collection/document-annotations';
 
 export type CollectionItemConflictResult = WithId<{ conflictId: string }>;
 export type AnnotationConflictResult = WithId<
-  Pick<DocAnnotationRow, 'itemId' | 'conflictId'>
+  Pick<DocAnnotationRow, 'parentId' | 'conflictId'>
 >;

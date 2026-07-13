@@ -50,6 +50,7 @@ export default function Migration(
   collectionFieldsRename(_space);
   dropHashFieldFromVersions(_space);
   previewBecomesPlainText(_space);
+  notesItemIdBecomesParentId(_space);
 }
 
 function metaFieldsBecomeObjects(_space: NoSchemaStore) {
@@ -506,6 +507,15 @@ function previewBecomesPlainText(_space: NoSchemaStore) {
     if (_space.hasCell(HC, rowId, 'preview')) {
       const plainText = _space.getCell(HC, rowId, 'preview') as string;
       _space.setCell(HC, rowId, 'plainText', plainText);
+    }
+  });
+}
+
+function notesItemIdBecomesParentId(_space: NoSchemaStore) {
+  _space.getRowIds(A).forEach(rowId => {
+    if (_space.hasCell(A, rowId, 'itemId')) {
+      const itemId = _space.getCell(A, rowId, 'itemId') as string;
+      _space.setCell(A, rowId, 'parentId', itemId);
     }
   });
 }

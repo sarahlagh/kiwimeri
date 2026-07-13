@@ -40,7 +40,7 @@ class ConflictsService {
     const hasConflict =
       itemsConflicts.filter(c => c.conflictId === id).length > 0;
     const hasAnnotsConflicts =
-      annotsConflicts.filter(c => c.itemId === id).length > 0;
+      annotsConflicts.filter(c => c.parentId === id).length > 0;
     return { hasConflict, hasAnnotsConflicts };
   }
 }

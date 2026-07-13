@@ -123,7 +123,7 @@ const LocalChangesCard = () => {
                 } else if (lc.on === SpaceTables.Annotations) {
                   const document = docAnnotationsService.getAnnotInfo(
                     lc.itemId
-                  ).itemId;
+                  ).parentId;
                   type = CollectionItemType.document;
                   route = GET_UNKNOWN_ITEM_ROUTE(
                     document,

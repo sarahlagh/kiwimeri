@@ -77,7 +77,7 @@ class AnnotsOrphanPolicy extends OrphanPolicy<SyncableAnnotation> {
     localContent: Content<SpaceType>
   ): boolean {
     const newCollectionAfterPull = localContent[0].collection!;
-    return !newCollectionAfterPull[item.itemId];
+    return !newCollectionAfterPull[item.parentId];
   }
 
   public handleOrphan(id: Id, newTableAfterPull: Table): void {

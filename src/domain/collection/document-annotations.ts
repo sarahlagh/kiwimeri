@@ -4,7 +4,7 @@ import { LocalChangeRow } from '../synchronization/local-changes';
 export type DocAnnotationType = 'note'; // only one for now, to expand
 
 export type DocAnnotationRow = {
-  itemId: string;
+  parentId: string;
   type: DocAnnotationType;
   createdAt: number;
   updatedAt: number;
@@ -16,7 +16,7 @@ export type DocAnnotationRow = {
 };
 
 export const docAnnotationSchema = {
-  itemId: { type: 'string' },
+  parentId: { type: 'string' },
   type: { type: 'string' },
   createdAt: { type: 'number', default: 0 },
   updatedAt: { type: 'number', default: 0 },
