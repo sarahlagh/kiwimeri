@@ -28,7 +28,7 @@ export abstract class OrphanPolicy<L> {
 
 class CollectionOrphanPolicy extends OrphanPolicy<CollectionItem> {
   constructor() {
-    super('collection');
+    super(SpaceTables.Collection);
   }
   public isOrphan(item: CollectionItem, newTableAfterPull: Table): boolean {
     return (
@@ -43,9 +43,10 @@ class CollectionOrphanPolicy extends OrphanPolicy<CollectionItem> {
         getGlobalTrans().conflictsNotebookName
       );
       localChangesService.addManualLocalChange(
-        'collection',
+        SpaceTables.Collection,
+        LocalChangeType.add,
         CONFLICTS_NOTEBOOK_ID,
-        LocalChangeType.add
+        conflictsNotebook
       );
       newCollectionAfterPull[CONFLICTS_NOTEBOOK_ID] =
         conflictsNotebook as unknown as Row;

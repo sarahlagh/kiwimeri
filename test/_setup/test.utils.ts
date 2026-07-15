@@ -128,7 +128,7 @@ export const BROWSABLE_ITEM_TYPES: ItemTypesType[] = [
 export const ITEM_TYPES: ItemTypesType[] = [...BROWSABLE_ITEM_TYPES];
 
 export const NON_NOTEBOOK_ITEM_TYPES: ItemTypesType[] = ITEM_TYPES.filter(
-  i => i.type !== 'notebook' // TODO revert
+  i => i.type !== 'notebook'
 );
 
 export type ValueType =
@@ -200,7 +200,7 @@ export const getNewValue = (
   if (valueType === 'string_array')
     return [`new string value ${getUniqueId()}`];
   if (valueType === 'lex') return getNewContent(`Sample text ${getUniqueId()}`);
-  if (valueType === 'id') return potentialId ? potentialId : ROOT_COLLECTION;
+  if (valueType === 'id') return potentialId ? potentialId : getUniqueId();
   if (valueType === 'settings')
     return {
       sort: { ___for_tests_: Math.floor(Math.random() * 10001) },

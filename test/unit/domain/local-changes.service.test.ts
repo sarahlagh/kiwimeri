@@ -140,6 +140,27 @@ describe('local changes service', () => {
     expect(localChanges).toHaveLength(0);
   });
 
+  it(`should cancel local changes if the value goes back to previous value`, () => {
+    const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+    localChangesService.clear();
+
+    GET_UPDATABLE_FIELDS('document').forEach(({ field, valueType }) => {
+      const previousValue = getNewValue(valueType);
+      collectionService.setItemField(id, field, previousValue);
+      localChangesService.clear();
+
+      const newValue = getNewValue(valueType);
+      expect(newValue).not.toBe(previousValue);
+      collectionService.setItemField(id, field, newValue);
+      expect(localChangesService.getLocalChanges()).toHaveLength(1);
+
+      collectionService.setItemField(id, field, previousValue);
+      expect(localChangesService.getLocalChanges()).toHaveLength(0);
+    });
+    // won't work if goes from undefined to defined
+    // like if tags === undefined -> tags = [] local change is kept
+  });
+
   it(`should create local change after saveItem for a new item`, () => {
     localChangesService.clear();
     const { item } = collectionService.getNewDocumentObj(DEFAULT_NOTEBOOK_ID);
@@ -234,6 +255,11 @@ describe('local changes listeners', () => {
         { field: 'previewText', valueType: 'string' }
       ]
     }
+    // {
+    //   tableId: SpaceTables.UserPreference,
+    //   watchedFields: [{ field: 'value', valueType: 'string' }],
+    //   nonWatchedFields: [{ field: 'updatedAt', valueType: 'number' }]
+    // }
   ];
   function getField(testField: { field: string; valueType: ValueType }) {
     return testField.field as never;
@@ -248,7 +274,9 @@ describe('local changes listeners', () => {
         const tableId = _tableId as never;
         const fakeRow = {};
         fakeRow[getField(nonWatchedFields[0])] = getValue(nonWatchedFields[0]);
-        fakeRow[getField(watchedFields[0])] = getValue(watchedFields[0]);
+        watchedFields.forEach(watchedField => {
+          fakeRow[getField(watchedField)] = getValue(watchedField);
+        });
 
         it(`should create a local change for new rows`, () => {
           const testId0 = space.addRow(tableId, fakeRow);
@@ -395,35 +423,38 @@ describe('local changes listeners', () => {
           expect(localChanges[0].itemId).toBe(testId);
         });
 
-        it(`should keep only one local changes per field update`, () => {
-          const testId = space.addRow(tableId, fakeRow)!;
-          localChangesService.clear();
+        it.runIf(watchedFields.length > 1)(
+          `should keep only one local changes per field update`,
+          () => {
+            const testId = space.addRow(tableId, fakeRow)!;
+            localChangesService.clear();
 
-          for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < 3; i++) {
+              space.setCell(
+                tableId,
+                testId,
+                getField(watchedFields[0]),
+                getValue(watchedFields[0])
+              );
+            }
+
             space.setCell(
               tableId,
               testId,
-              getField(watchedFields[0]),
-              getValue(watchedFields[0])
+              getField(watchedFields[1]),
+              getValue(watchedFields[1])
             );
+
+            const localChanges = localChangesService.getLocalChanges();
+            expect(localChanges).toHaveLength(2);
+            expect(localChanges[0].change).toEqual(LocalChangeType.update);
+            expect(localChanges[0].field).toEqual(getField(watchedFields[1]));
+            expect(localChanges[0].itemId).toBe(testId);
+            expect(localChanges[1].change).toEqual(LocalChangeType.update);
+            expect(localChanges[1].field).toEqual(getField(watchedFields[0]));
+            expect(localChanges[1].itemId).toBe(testId);
           }
-
-          space.setCell(
-            tableId,
-            testId,
-            getField(watchedFields[1]),
-            getValue(watchedFields[1])
-          );
-
-          const localChanges = localChangesService.getLocalChanges();
-          expect(localChanges).toHaveLength(2);
-          expect(localChanges[0].change).toEqual(LocalChangeType.update);
-          expect(localChanges[0].field).toEqual(getField(watchedFields[1]));
-          expect(localChanges[0].itemId).toBe(testId);
-          expect(localChanges[1].change).toEqual(LocalChangeType.update);
-          expect(localChanges[1].field).toEqual(getField(watchedFields[0]));
-          expect(localChanges[1].itemId).toBe(testId);
-        });
+        );
 
         it(`should cancel local change if deleted then restored in same session`, () => {
           const testId = space.addRow(tableId, fakeRow)!;
@@ -462,6 +493,41 @@ describe('local changes listeners', () => {
             expect(localChanges[0].change).toEqual(LocalChangeType.update);
             expect(localChanges[0].field).toEqual(getField(field));
             expect(localChanges[0].itemId).toBe(testId);
+          });
+
+          it(`should cancel local changes for ${field.field} if the value goes back to previous value`, () => {
+            const testId = space.addRow(tableId, fakeRow)!;
+            localChangesService.clear();
+            const previousValue = space.getCell(
+              tableId,
+              testId,
+              getField(field)
+            );
+
+            space.setCell(tableId, testId, getField(field), getValue(field));
+            expect(localChangesService.getLocalChanges()).toHaveLength(1);
+
+            space.setCell(tableId, testId, getField(field), previousValue);
+            expect(localChangesService.getLocalChanges()).toHaveLength(0);
+          });
+
+          it(`should cancel local changes for ${field.field} if the value eventually goes back to previous value`, () => {
+            const testId = space.addRow(tableId, fakeRow)!;
+            localChangesService.clear();
+            const previousValue = space.getCell(
+              tableId,
+              testId,
+              getField(field)
+            );
+
+            space.setCell(tableId, testId, getField(field), getValue(field));
+            expect(localChangesService.getLocalChanges()).toHaveLength(1);
+
+            space.setCell(tableId, testId, getField(field), getValue(field));
+            expect(localChangesService.getLocalChanges()).toHaveLength(1);
+
+            space.setCell(tableId, testId, getField(field), previousValue);
+            expect(localChangesService.getLocalChanges()).toHaveLength(0);
           });
         });
 

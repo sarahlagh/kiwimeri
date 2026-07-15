@@ -29,14 +29,16 @@ function watchTable<T extends SpaceTableId>(
             if (changes[rowId] === WAS_ADDED) {
               localChangesService.addManualLocalChange(
                 tableId,
+                LocalChangeType.add,
                 rowId,
-                LocalChangeType.add
+                _store.getRow(tableId, rowId)
               );
             } else if (changes[rowId] === WAS_REMOVED) {
               localChangesService.addManualLocalChange(
                 tableId,
+                LocalChangeType.delete,
                 rowId,
-                LocalChangeType.delete
+                ''
               );
             }
           });
@@ -54,25 +56,23 @@ function watchTable<T extends SpaceTableId>(
       (_store, tableId, rowId, getCellChange) => {
         if (!_store.hasRow(tableId, rowId)) return; // skip row deletion
         if (getCellChange) {
-          const [conflictCellChanged, oldCell, newCell] = getCellChange(
-            tableId,
-            rowId,
-            'conflictId' as never
-          );
+          const [conflictCellChanged, oldConflictCell, newConflictCell] =
+            getCellChange(tableId, rowId, 'conflictId' as never);
           if (
             conflictCellChanged &&
-            oldCell !== undefined &&
-            newCell === undefined
+            oldConflictCell !== undefined &&
+            newConflictCell === undefined
           ) {
             localChangesService.addManualLocalChange(
               tableId,
+              LocalChangeType.add,
               rowId,
-              LocalChangeType.add
+              _store.getRow(tableId, rowId)
             );
             return;
           }
           for (const cellId of cellIds) {
-            const [cellChanged] = getCellChange(
+            const [cellChanged, oldCell, newCell] = getCellChange(
               tableId,
               rowId,
               cellId as never
@@ -80,9 +80,13 @@ function watchTable<T extends SpaceTableId>(
             if (cellChanged) {
               localChangesService.addManualLocalChange(
                 tableId,
-                rowId,
                 LocalChangeType.update,
-                cellId
+                rowId,
+                newCell,
+                {
+                  field: cellId,
+                  previousData: oldCell
+                }
               );
             }
           }

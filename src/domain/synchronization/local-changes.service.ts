@@ -1,6 +1,7 @@
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
-import { AsId } from '@/core/db/types';
+import { AsId, DbSerializableData } from '@/core/db/types';
+import { getHash } from 'tinybase';
 import { Id } from 'tinybase/with-schemas';
 import {
   LocalChangeOn,
@@ -14,20 +15,30 @@ const LC = SpaceTables.LocalChanges;
 class LocalChangesService {
   public addManualLocalChange<T>(
     on: LocalChangeOn,
-    itemId?: Id,
-    change?: LocalChangeType,
-    field?: AsId<T>
+    change: LocalChangeType,
+    itemId: Id,
+    newData: DbSerializableData | undefined,
+    props?: {
+      field: AsId<T>;
+      previousData: DbSerializableData | undefined;
+    }
   ) {
+    const newDataHash = getHash(JSON.stringify(newData));
+    const previousDataHash = props
+      ? getHash(JSON.stringify(props.previousData))
+      : 0;
     const localChange: LocalChangeRow<T> = {
-      itemId: itemId || '',
+      itemId,
       change: change || LocalChangeType.update,
-      field,
+      field: props?.field,
       on,
-      createdAt: Date.now()
+      createdAt: Date.now(),
+      previousHash: previousDataHash,
+      previousData: props?.previousData ? { _v: props.previousData } : undefined
     };
     const rowId = this.getLocalChangeId(localChange);
     const addedRowId = this.getLocalChangeId({
-      itemId: itemId || '',
+      itemId,
       change: LocalChangeType.add,
       on
     });
@@ -39,6 +50,12 @@ class LocalChangesService {
       }
       if (space.hasRow(LC, rowId)) {
         // already had update
+        const lastPreviousHash = space.getCell(LC, rowId, 'previousHash');
+        if (newDataHash === lastPreviousHash) {
+          // should cancel self
+          space.delRow(LC, rowId);
+          return;
+        }
         space.setCell(LC, rowId, 'createdAt', localChange.createdAt);
         return;
       }
@@ -49,7 +66,7 @@ class LocalChangesService {
         return;
       }
       const updatedRowIdPrefix = this.getLocalChangeId({
-        itemId: itemId || '',
+        itemId,
         change: LocalChangeType.update,
         on
       });
@@ -63,7 +80,7 @@ class LocalChangesService {
       });
     } else if (change === LocalChangeType.add) {
       const deletedRowId = this.getLocalChangeId({
-        itemId: itemId || '',
+        itemId,
         change: LocalChangeType.delete,
         on
       });
@@ -75,7 +92,9 @@ class LocalChangesService {
         localChange.change = LocalChangeType.update;
       }
     }
-    space.setRow(LC, rowId, localChange);
+    if (previousDataHash !== newDataHash) {
+      space.setRow(LC, rowId, localChange);
+    }
   }
 
   public getLocalChanges() {
@@ -97,7 +116,10 @@ class LocalChangesService {
   }
 
   private getLocalChangeId(
-    localChange: Omit<LocalChangeRow<unknown>, 'createdAt'>
+    localChange: Pick<
+      LocalChangeRow<unknown>,
+      'on' | 'itemId' | 'change' | 'field'
+    >
   ) {
     return `${localChange.on}-${localChange.itemId}-${localChange.change}-${localChange.field || ''}`;
   }
