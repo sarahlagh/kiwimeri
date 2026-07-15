@@ -28,7 +28,6 @@ import {
   minimizeContentForStorage,
   unminimizeContentFromStorage
 } from '@/domain/collection/compress-file-content';
-import { getDerivedId } from '@/domain/collection/document-content';
 import notebooksService from '@/domain/collection/notebooks.service';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
 import { genericReorder } from '@/shared/dnd/utils';
@@ -39,6 +38,7 @@ import { Id, Ids } from 'tinybase/common/with-schemas';
 import { Table } from 'tinybase/with-schemas';
 import { historyService } from '../history/history.service';
 import storageService from '../storage.service';
+import { docAnnotationsService } from './doc-annotations.service';
 
 export const initialContent = () => {
   // 'empty' editor
@@ -169,7 +169,10 @@ class CollectionService {
     );
   }
 
-  public deleteItem(rowId: Id, moveItemsUp = false) {
+  public deleteItem(
+    rowId: Id,
+    flags?: { softDelete?: boolean; moveItemsUp?: boolean }
+  ) {
     const parent = this.getItemParent(rowId);
     const itemType = this.getItemType(rowId);
     const wasFolder = isFolder(itemType);
@@ -180,8 +183,8 @@ class CollectionService {
       console.debug(`folder to delete had ${children.length} children`);
       if (children.length > 0) {
         children.forEach(child => {
-          if (!moveItemsUp) {
-            this.deleteItem(child.id, undefined);
+          if (flags?.moveItemsUp !== true) {
+            this.deleteItem(child.id, flags);
           } else {
             this.setItemParent(child.id, parent);
           }
@@ -189,16 +192,25 @@ class CollectionService {
       }
     }
     if (wasDocument) {
-      historyService.saveDeleteVersion(rowId);
+      if (flags?.softDelete !== false) {
+        // restore should be able to restore deleted annotations too
+        // so don't delete annotations here, gc later
+        historyService.saveDeleteVersion(rowId);
+      } else {
+        docAnnotationsService.deleteAll(rowId);
+        historyService.hardDeleteVersions(rowId);
+      }
     }
     space.transaction(() => {
       space.delRow(C, rowId);
       storageService.cleanupRow(rowId, C);
     });
-    spaceContent.delRow(
-      SpaceContentTables.DerivedContent,
-      getDerivedId('c', rowId)
-    );
+  }
+
+  public restoreItem(rowId: Id) {
+    const latest = historyService.getLatestVersion(rowId);
+    if (!latest || latest.op !== 'deleted') return;
+    historyService.restoreDocumentVersion(rowId, latest.id);
   }
 
   public itemExists(rowId: Id) {

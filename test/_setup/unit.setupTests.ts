@@ -34,14 +34,14 @@ i18n.activate('en');
 initGlobalTrans();
 
 beforeAll(async () => {
-  postInitMigrationService['enabled'] = false;
-  historyService['enabled'] = false;
   syncService.start();
 });
 afterAll(() => {
   //
 });
 beforeEach(() => {
+  postInitMigrationService['enabled'] = false;
+  historyService['enabled'] = false;
   startDbListeners();
   localChangesService.clear();
   notebooksService.initNotebooks();

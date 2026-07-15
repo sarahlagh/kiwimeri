@@ -35,7 +35,7 @@ const QuickUngroupButton = ({
         message={t`This will delete this folder and move all its items to the current one.`}
         onClose={confirmed => {
           if (confirmed) {
-            collectionService.deleteItem(id, true);
+            collectionService.deleteItem(id, { moveItemsUp: true });
           }
           if (onClose) onClose(confirmed ? 'ungroup' : 'cancel');
         }}

@@ -38,6 +38,10 @@ class UserPreferenceService {
       updatedAt: Date.now()
     });
   }
+
+  public del<P extends UserPreferenceKey>(pref: P) {
+    space.delRow(UP, pref);
+  }
 }
 
 export const userPrefs = new UserPreferenceService();

@@ -377,7 +377,7 @@ describe('collection service', () => {
           const id = collectionService.addDocument(folderId);
           const id2 = collectionService.addDocument(folderId);
 
-          collectionService.deleteItem(folderId, true);
+          collectionService.deleteItem(folderId, { moveItemsUp: true });
           expect(collectionService.itemExists(folderId)).toBe(false);
           expect(collectionService.itemExists(id)).toBe(true);
           expect(collectionService.getItemParent(id)).toBe(DEFAULT_NOTEBOOK_ID);

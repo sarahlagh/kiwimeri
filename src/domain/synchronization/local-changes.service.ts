@@ -1,14 +1,22 @@
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
+import { SpaceTableId } from '@/core/db/store-schema';
 import { AsId, DbSerializableData } from '@/core/db/types';
 import { getHash } from 'tinybase';
 import { Id } from 'tinybase/with-schemas';
+import collectionService from '../collection/collection.service';
+import { docAnnotationsService } from '../collection/doc-annotations.service';
+import { userPrefs } from '../user-preferences/user-preferences.service';
 import {
   LocalChangeOn,
   LocalChangeResult,
   LocalChangeRow,
   LocalChangeType
 } from './local-changes';
+import {
+  startLocalChangesListeners,
+  stopLocalChangesListeners
+} from './local-changes-listeners';
 
 const LC = SpaceTables.LocalChanges;
 
@@ -105,6 +113,67 @@ class LocalChangesService {
       results.push({ ...row, id: rowId });
     });
     return results;
+  }
+
+  public canChangeBeReset(rowId: Id) {
+    const localChange = space.getRow(LC, rowId) as LocalChangeRow<never>;
+    if (!localChange) return false;
+    if (localChange.change === LocalChangeType.delete) {
+      return localChange.on === SpaceTables.Collection;
+    }
+    if (localChange.change === LocalChangeType.update && !localChange.field) {
+      return false;
+    }
+    return true;
+  }
+
+  public reset(rowId: Id) {
+    const localChange = space.getRow(LC, rowId) as LocalChangeRow<never>;
+    const itemId = localChange.itemId;
+    const on = localChange.on;
+    switch (localChange.change) {
+      case LocalChangeType.add:
+        this.delItem(on, itemId);
+        break;
+      case LocalChangeType.update:
+        if (localChange.field) {
+          if (localChange.previousData) {
+            space.setCell(
+              on,
+              itemId,
+              localChange.field,
+              localChange.previousData._v as never
+            );
+          } else {
+            space.delCell(on, itemId, localChange.field);
+          }
+        }
+        break;
+      case LocalChangeType.delete:
+        if (on === SpaceTables.Collection) {
+          stopLocalChangesListeners();
+          collectionService.restoreItem(itemId);
+          space.delRow(LC, rowId);
+          startLocalChangesListeners();
+        }
+        break;
+    }
+  }
+
+  private delItem(on: SpaceTableId, itemId: Id) {
+    if (on === SpaceTables.Collection) {
+      collectionService.deleteItem(itemId, { softDelete: false });
+    } else if (on === SpaceTables.Annotations) {
+      docAnnotationsService.delete(itemId);
+    } else {
+      userPrefs.del(itemId as never);
+    }
+  }
+
+  public resetAll() {
+    space.transaction(() => {
+      space.getRowIds(LC).forEach(rowId => this.reset(rowId));
+    });
   }
 
   public delete(rowId: Id) {

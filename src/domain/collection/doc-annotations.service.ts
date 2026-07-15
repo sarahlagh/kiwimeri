@@ -69,9 +69,22 @@ class DocumentAnnotationsService {
   public delete(id: Id) {
     space.transaction(() => {
       const itemId = space.getCell(A, id, 'parentId');
-      space.setCell(C, itemId!, 'updatedAt', Date.now());
+      if (itemId && space.hasRow(C, itemId)) {
+        space.setCell(C, itemId, 'updatedAt', Date.now());
+      }
       space.delRow(A, id);
       storageService.cleanupRow(id, A);
+    });
+  }
+
+  public deleteAll(parentId: Id) {
+    const table = space.getTable(A);
+    space.transaction(() => {
+      space.getRowIds(A).forEach(rowId => {
+        if (table[rowId].parentId === parentId) {
+          this.delete(rowId);
+        }
+      });
     });
   }
 

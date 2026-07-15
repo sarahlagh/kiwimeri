@@ -8,12 +8,15 @@ import {
   startDerivedTablesListeners,
   stopDerivedTablesListeners
 } from '@/domain/collection/derived-tables-listeners';
+import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
 import notebooksService from '@/domain/collection/notebooks.service';
+import { historyService } from '@/domain/history/history.service';
 import {
   LocalChangeResult,
   LocalChangeType
 } from '@/domain/synchronization/local-changes';
 import localChangesService from '@/domain/synchronization/local-changes.service';
+import fetchNotesQuery from '@/features/collection-notes-ui/queries/fetchNotesQuery';
 import {
   fakeTimersDelay,
   GET_UPDATABLE_FIELDS,
@@ -33,7 +36,7 @@ const getNonNotebookLocalChanges = (localChanges: LocalChangeResult[]) =>
     lc => lc.itemId !== notebooksService.getCurrentNotebook()
   );
 
-describe('local changes service', () => {
+describe('local changes for collection', () => {
   it('should only have notebook local changes by default', () => {
     expect(localChangesService.getLocalChanges()).toHaveLength(1);
     const lc = localChangesService.getLocalChanges()[0];
@@ -161,6 +164,74 @@ describe('local changes service', () => {
     // like if tags === undefined -> tags = [] local change is kept
   });
 
+  it(`should cancel local changes if on reset`, () => {
+    const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+    localChangesService.clear();
+
+    GET_UPDATABLE_FIELDS('document').forEach(({ field, valueType }) => {
+      const previousValue = getNewValue(valueType);
+      collectionService.setItemField(id, field, previousValue);
+      localChangesService.clear();
+
+      const newValue = getNewValue(valueType);
+      expect(newValue).not.toBe(previousValue);
+      collectionService.setItemField(id, field, newValue);
+      const lc = localChangesService.getLocalChanges();
+      expect(lc).toHaveLength(1);
+
+      localChangesService.reset(lc[0].id);
+      expect(collectionService.getItemField(id, field)).toEqual(previousValue);
+      expect(localChangesService.getLocalChanges()).toHaveLength(0);
+    });
+    // won't work if goes from undefined to defined
+    // like if tags === undefined -> tags = [] local change is kept
+  });
+
+  it(`add change should be resettable and be a hard delete`, () => {
+    historyService['enabled'] = true;
+    localChangesService.clear();
+    const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+    const noteId = docAnnotationsService.addNote(id);
+    const changes = localChangesService.getLocalChanges();
+    expect(changes).toHaveLength(2);
+    expect(changes[1].itemId).toBe(id);
+    expect(historyService.getVersions(id)).toHaveLength(1);
+    expect(localChangesService.canChangeBeReset(changes[1].id)).toBe(true);
+
+    localChangesService.reset(changes[1].id);
+    expect(space.hasRow(SpaceTables.LocalChanges, 'testId1')).toBe(false);
+
+    // test the hard delete flag
+    expect(space.hasRow(SpaceTables.Annotations, noteId)).toBe(false);
+    expect(historyService.getVersions(id)).toHaveLength(0);
+
+    // change for note should have been cancelled via listener
+    expect(localChangesService.getLocalChanges()).toHaveLength(0);
+  });
+
+  it(`delete change should be resettable`, () => {
+    historyService['enabled'] = true;
+    const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+    const noteId = docAnnotationsService.addNote(id);
+    localChangesService.clear();
+
+    collectionService.deleteItem(id);
+
+    const changes = localChangesService.getLocalChanges();
+    expect(changes).toHaveLength(1);
+    expect(docAnnotationsService.exists(noteId)); // not deleted, saved for gc
+
+    expect(historyService.getVersions(id)).toHaveLength(2);
+    expect(localChangesService.canChangeBeReset(changes[0].id)).toBe(true);
+
+    localChangesService.reset(changes[0].id);
+
+    expect(space.hasRow(SpaceTables.LocalChanges, changes[0].id)).toBe(false);
+    expect(collectionService.itemExists(id)).toBe(true);
+    expect(historyService.getVersions(id)).toHaveLength(3);
+    expect(fetchNotesQuery.getResults({ parentId: id })).toHaveLength(1);
+  });
+
   it(`should create local change after saveItem for a new item`, () => {
     localChangesService.clear();
     const { item } = collectionService.getNewDocumentObj(DEFAULT_NOTEBOOK_ID);
@@ -251,15 +322,16 @@ describe('local changes listeners', () => {
         { field: 'order', valueType: 'number' }
       ],
       nonWatchedFields: [
+        { field: 'parentId', valueType: 'id' },
         { field: 'updatedAt', valueType: 'number' },
         { field: 'previewText', valueType: 'string' }
       ]
+    },
+    {
+      tableId: SpaceTables.UserPreference,
+      watchedFields: [{ field: 'value', valueType: 'settings' }],
+      nonWatchedFields: [{ field: 'updatedAt', valueType: 'number' }]
     }
-    // {
-    //   tableId: SpaceTables.UserPreference,
-    //   watchedFields: [{ field: 'value', valueType: 'string' }],
-    //   nonWatchedFields: [{ field: 'updatedAt', valueType: 'number' }]
-    // }
   ];
   function getField(testField: { field: string; valueType: ValueType }) {
     return testField.field as never;
@@ -400,28 +472,31 @@ describe('local changes listeners', () => {
           expect(localChanges[0].itemId).toBe(testId);
         });
 
-        it(`should create an add change if item was a conflict`, () => {
-          const testId = space.addRow(tableId, fakeRow)!;
-          localChangesService.clear();
-          space.setCell(tableId, testId, 'conflictId', 'anyvalue' as never); // create conflict
-          expect(localChangesService.getLocalChanges()).toHaveLength(0);
+        it.runIf(tableId !== SpaceTables.UserPreference)(
+          `should create an add change if item was a conflict`,
+          () => {
+            const testId = space.addRow(tableId, fakeRow)!;
+            localChangesService.clear();
+            space.setCell(tableId, testId, 'conflictId', 'anyvalue' as never); // create conflict
+            expect(localChangesService.getLocalChanges()).toHaveLength(0);
 
-          // resolve conflict
-          space.transaction(() => {
-            space.setCell(
-              tableId,
-              testId,
-              getField(watchedFields[0]),
-              getValue(watchedFields[0])
-            );
-            space.delCell(tableId, testId, 'conflictId');
-          });
+            // resolve conflict
+            space.transaction(() => {
+              space.setCell(
+                tableId,
+                testId,
+                getField(watchedFields[0]),
+                getValue(watchedFields[0])
+              );
+              space.delCell(tableId, testId, 'conflictId');
+            });
 
-          const localChanges = localChangesService.getLocalChanges();
-          expect(localChanges).toHaveLength(1);
-          expect(localChanges[0].change).toEqual(LocalChangeType.add);
-          expect(localChanges[0].itemId).toBe(testId);
-        });
+            const localChanges = localChangesService.getLocalChanges();
+            expect(localChanges).toHaveLength(1);
+            expect(localChanges[0].change).toEqual(LocalChangeType.add);
+            expect(localChanges[0].itemId).toBe(testId);
+          }
+        );
 
         it.runIf(watchedFields.length > 1)(
           `should keep only one local changes per field update`,
@@ -468,6 +543,75 @@ describe('local changes listeners', () => {
           expect(localChanges[0].itemId).toBe(testId);
         });
 
+        it(`add change should be resettable`, () => {
+          space.setRow(tableId, 'testId1', fakeRow);
+          const changes = localChangesService.getLocalChanges();
+          expect(changes).toHaveLength(1);
+          expect(localChangesService.canChangeBeReset(changes[0].id)).toBe(
+            true
+          );
+
+          localChangesService.reset(changes[0].id);
+          expect(space.hasRow(SpaceTables.LocalChanges, changes[0].id)).toBe(
+            false
+          );
+          expect(space.hasRow(tableId, 'testId1')).toBe(false);
+          expect(localChangesService.getLocalChanges()).toHaveLength(0);
+        });
+
+        it.runIf(tableId === SpaceTables.Collection)(
+          `delete change should be resettable`,
+          () => {
+            space.delTable(tableId);
+            space.setRow(tableId, 'testId1', fakeRow);
+            localChangesService.clear();
+
+            space.delRow(tableId, 'testId1');
+
+            const changes = localChangesService.getLocalChanges();
+            expect(changes).toHaveLength(1);
+            expect(localChangesService.canChangeBeReset(changes[0].id)).toBe(
+              true
+            );
+            // restore mechanic tested in previous test section
+          }
+        );
+
+        it.runIf(tableId !== SpaceTables.Collection)(
+          `delete change should not be resettable`,
+          () => {
+            space.delTable(tableId);
+            space.setRow(tableId, 'testId1', fakeRow);
+            localChangesService.clear();
+
+            space.delRow(tableId, 'testId1');
+
+            const changes = localChangesService.getLocalChanges();
+            expect(changes).toHaveLength(1);
+            expect(localChangesService.canChangeBeReset(changes[0].id)).toBe(
+              false
+            );
+          }
+        );
+
+        it(`update change without a field should not be resettable`, () => {
+          space.setRow(tableId, 'testId1', fakeRow);
+          localChangesService.clear();
+
+          space.addRow(SpaceTables.LocalChanges, {
+            change: LocalChangeType.update,
+            createdAt: Date.now(),
+            itemId: 'testId1',
+            on: SpaceTables.Collection
+          });
+
+          const changes = localChangesService.getLocalChanges();
+          expect(changes).toHaveLength(1);
+          expect(localChangesService.canChangeBeReset(changes[0].id)).toBe(
+            false
+          );
+        });
+
         watchedFields.forEach(field => {
           it(`should create update local changes for field ${field.field}`, () => {
             const testId = space.addRow(tableId, fakeRow)!;
@@ -479,6 +623,32 @@ describe('local changes listeners', () => {
             expect(localChanges[0].change).toEqual(LocalChangeType.update);
             expect(localChanges[0].field).toEqual(getField(field));
             expect(localChanges[0].itemId).toBe(testId);
+          });
+
+          it(`update change ${field.field} should be resettable`, () => {
+            const testId = space.addRow(tableId, fakeRow)!;
+            localChangesService.clear();
+
+            const previousValue = space.getCell(
+              tableId,
+              testId,
+              getField(field)
+            );
+            const newValue = getValue(field);
+            space.setCell(tableId, testId, getField(field), newValue);
+            expect(previousValue).not.toEqual(newValue);
+            const changes = localChangesService.getLocalChanges();
+            expect(changes).toHaveLength(1);
+
+            expect(localChangesService.canChangeBeReset(changes[0].id)).toBe(
+              true
+            );
+
+            localChangesService.reset(changes[0].id);
+            expect(localChangesService.getLocalChanges()).toHaveLength(0);
+            expect(space.getCell(tableId, testId, getField(field))).toEqual(
+              previousValue
+            );
           });
 
           it(`should create only one update local changes for field ${field.field}`, () => {
