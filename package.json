@@ -15,7 +15,7 @@
     "test": "vitest",
     "coverage": "vitest unit --coverage",
     "test:unit": "vitest --project unit",
-    "test:e2e": "vitest --project e2e",
+    "test:e2e": "concurrently \"docker compose up nginx -d\" \"vitest --project e2e\"",
     "test:browser": "vitest --project browser --browser.headless",
     "test:browser:ui": "vitest --project browser",
     "lint": "eslint src test",

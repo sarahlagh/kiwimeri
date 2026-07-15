@@ -1,0 +1,29 @@
+name: e2e test
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 0 * * 1'
+
+jobs:
+  e2e-tests:
+    name: e2e Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'yarn'
+          cache-dependency-path: '**/yarn.lock'
+      - name: Install dependencies
+        run: |
+          yarn install --frozen-lockfile
+      - name: e2e Tests
+        env:
+          E2E_TOKEN: ${{ secrets.PCLOUD_E2E_TOKEN }}
+        run: |
+          cp .env.ci .env
+          sed -i "s/_PCLOUD_E2E_TOKEN_/${E2E_TOKEN}/" .env
+          yarn test:e2e
