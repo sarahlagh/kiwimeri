@@ -144,6 +144,7 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
           {content && (
             <KiwimeriEditor
               ref={ref}
+              additionalClassNames={'document-editor'}
               id={`${docId}-${uniqId}`}
               content={content}
               selection={resumeState?.lastSelection || null}
