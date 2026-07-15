@@ -5,6 +5,7 @@ import { ReactNode } from 'react';
 
 type DeleteButtonProps = {
   trigger: string;
+  slot?: string | undefined;
   onConfirm: () => void;
   onClose?: (role?: string) => void;
   message?: string;
@@ -17,6 +18,7 @@ type DeleteButtonProps = {
 
 const DeleteButton = ({
   trigger,
+  slot = '',
   onConfirm,
   onClose,
   color,
@@ -29,6 +31,7 @@ const DeleteButton = ({
     <>
       <IonButton
         id={trigger}
+        slot={slot}
         expand="block"
         disabled={disabled}
         color={color}

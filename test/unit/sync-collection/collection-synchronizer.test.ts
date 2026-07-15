@@ -44,21 +44,17 @@ const synchronizer = new CollectionSynchronizer(
 );
 
 describe('collection synchronizer', () => {
-  beforeAll(() => {
-    historyService['enabled'] = true;
-  });
-  afterAll(() => {
-    historyService['enabled'] = false;
-  });
   beforeEach(async () => {
     vi.useFakeTimers();
     synchronizer.destroy();
     synchronizer.configure({ names: ['collection.json'] });
     const { connected } = await synchronizer.connect();
     expect(connected).toBe(true);
+    historyService['enabled'] = true;
   });
   afterEach(() => {
     vi.useRealTimers();
+    historyService['enabled'] = false;
   });
 
   describe('should merge restored items', () => {

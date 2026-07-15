@@ -2,7 +2,6 @@ import { GET_UNKNOWN_ITEM_ROUTE, SETTINGS_ROUTE } from '@/app/routes';
 import { APPICONS } from '@/constants';
 import { useQueryResults } from '@/core/db/queries-helper';
 import { SpaceTables } from '@/core/db/store-constants';
-import { plt } from '@/core/infra/platform';
 import {
   APPICONS_PER_TYPE,
   CollectionItemType,
@@ -18,6 +17,7 @@ import {
 import DeleteButton from '@/shared/buttons/DeleteButton';
 import useIsWideEnough from '@/shared/hooks/useIsWideEnough';
 import { dateToStr } from '@/shared/misc/date-utils';
+import ConfirmYesNoDialog from '@/shared/modals/ConfirmYesNoDialog';
 import {
   IonCard,
   IonCardContent,
@@ -25,6 +25,9 @@ import {
   IonCardTitle,
   IonIcon,
   IonItem,
+  IonItemOption,
+  IonItemOptions,
+  IonItemSliding,
   IonLabel,
   IonList,
   IonText
@@ -52,7 +55,6 @@ function onRouteLeave() {
 const LocalChangesCard = () => {
   const { t, i18n } = useLingui();
   const navigate = useNavigate();
-  const isRelease = plt.isRelease();
   const isWideEnough = useIsWideEnough();
   const localChanges = useQueryResults(fetchLocalChangesQuery);
   const lastLocalChange = useLatestUpdatedAt();
@@ -102,7 +104,6 @@ const LocalChangesCard = () => {
             )}
           </IonLabel>
         </IonItem>
-        {/* TODO use this button to actually reset changes when feature is done */}
 
         {localChanges.length > 0 && (
           <>
@@ -135,112 +136,136 @@ const LocalChangesCard = () => {
                   route = SETTINGS_ROUTE;
                 }
                 return (
-                  <IonItem
-                    button
-                    key={lc.id}
-                    onClick={() => {
-                      navigate(route);
-                    }}
-                    data-testid={`lc-key-${lc.id}`}
-                  >
-                    {!itemExists && (
-                      <>
-                        <IonIcon
-                          slot="start"
-                          color="warning"
-                          icon={APPICONS.warning}
-                        ></IonIcon>
-                        <IonText>{t`deleted item`}</IonText>
-                      </>
-                    )}
-
-                    {itemExists && lc.on === SpaceTables.Collection && (
-                      <>
-                        <IonIcon
-                          slot="start"
-                          icon={APPICONS_PER_TYPE.get(type)}
-                        ></IonIcon>
-                        <IonText>
-                          <b>
-                            {collectionService
-                              .getItemTitle(lc.itemId)
-                              .substring(0, 15)}
-                          </b>
-                          {isWideEnough && (
-                            <>
-                              <br />
-                              <i>
-                                <sub>{preview}</sub>
-                              </i>
-                            </>
+                  <IonItemSliding key={lc.id}>
+                    <IonItem
+                      button
+                      data-testid={`lc-key-${lc.id}`}
+                      onClick={() => {
+                        navigate(route);
+                      }}
+                    >
+                      {!itemExists && (
+                        <>
+                          <IonIcon
+                            slot="start"
+                            color="warning"
+                            icon={APPICONS.warning}
+                          ></IonIcon>
+                          {lc.on === SpaceTables.Collection && (
+                            <IonText>{t`deleted item`}</IonText>
                           )}
-                        </IonText>
-                      </>
-                    )}
-
-                    {itemExists && lc.on === SpaceTables.Annotations && (
-                      <>
-                        <IonIcon
-                          slot="start"
-                          icon={APPICONS.annotation}
-                        ></IonIcon>
-                        <IonText>
-                          {isWideEnough ? (
-                            <i>{preview}</i>
-                          ) : (
-                            <i>{preview.substring(0, 15)}</i>
+                          {lc.on === SpaceTables.Annotations && (
+                            <IonText>{t`deleted comment`}</IonText>
                           )}
-                        </IonText>
-                      </>
-                    )}
+                        </>
+                      )}
 
-                    {itemExists && lc.on === SpaceTables.UserPreference && (
-                      <>
-                        <IonIcon
-                          slot="start"
-                          icon={APPICONS.settingsPage}
-                        ></IonIcon>
-                        <IonText>
-                          <i>
-                            <Trans>Space setting modified:</Trans>{' '}
-                            {i18n._(
-                              userPreferenceDefinitions[
-                                lc.itemId as UserPreferenceKey
-                              ].label
+                      {itemExists && lc.on === SpaceTables.Collection && (
+                        <>
+                          <IonIcon
+                            slot="start"
+                            icon={APPICONS_PER_TYPE.get(type)}
+                          ></IonIcon>
+                          <IonText>
+                            <b>
+                              {collectionService
+                                .getItemTitle(lc.itemId)
+                                .substring(0, 15)}
+                            </b>
+                            {isWideEnough && (
+                              <>
+                                <br />
+                                <i>
+                                  <sub>{preview}</sub>
+                                </i>
+                              </>
                             )}
-                          </i>
-                        </IonText>
-                      </>
-                    )}
+                          </IonText>
+                        </>
+                      )}
 
-                    {isWideEnough && (
-                      <>
-                        {/* TODO translate field & change */}
-                        <IonText slot="end">{lc.field || ''}</IonText>
-                        <IonText slot="end">{lc.change}</IonText>
-                      </>
-                    )}
-                    <IonText slot="end">
-                      {dateToStr('datetime', lc.createdAt)}
-                    </IonText>
-                  </IonItem>
+                      {itemExists && lc.on === SpaceTables.Annotations && (
+                        <>
+                          <IonIcon
+                            slot="start"
+                            icon={APPICONS.annotation}
+                          ></IonIcon>
+                          <IonText>
+                            {isWideEnough ? (
+                              <i>{preview}</i>
+                            ) : (
+                              <i>{preview.substring(0, 15)}</i>
+                            )}
+                          </IonText>
+                        </>
+                      )}
+
+                      {itemExists && lc.on === SpaceTables.UserPreference && (
+                        <>
+                          <IonIcon
+                            slot="start"
+                            icon={APPICONS.settingsPage}
+                          ></IonIcon>
+                          <IonText>
+                            <i>
+                              <Trans>Space setting modified:</Trans>{' '}
+                              {i18n._(
+                                userPreferenceDefinitions[
+                                  lc.itemId as UserPreferenceKey
+                                ].label
+                              )}
+                            </i>
+                          </IonText>
+                        </>
+                      )}
+
+                      {isWideEnough && (
+                        <>
+                          {/* TODO translate field */}
+                          <IonText slot="end">{lc.field || ''}</IonText>
+                          <IonText slot="end">
+                            {dateToStr('datetime', lc.createdAt)}
+                          </IonText>
+                        </>
+                      )}
+                    </IonItem>
+                    <IonItemOptions>
+                      <IonItemOption
+                        color="danger"
+                        id={`lc-actions-${lc.id}`}
+                        disabled={!localChangesService.canChangeBeReset(lc.id)}
+                      >
+                        <IonIcon
+                          slot="icon-only"
+                          icon={APPICONS.deleteAction}
+                        ></IonIcon>
+                        <ConfirmYesNoDialog
+                          trigger={`lc-actions-${lc.id}`}
+                          message={t`This will reset this change`}
+                          onClose={confirmed => {
+                            if (confirmed) {
+                              localChangesService.reset(lc.id);
+                            }
+                          }}
+                        />
+                      </IonItemOption>
+                    </IonItemOptions>
+                  </IonItemSliding>
                 );
               })}
             </IonList>
-            {!isRelease && (
-              <IonItem lines="none">
-                <DeleteButton
-                  color="danger"
-                  trigger={`del-clear`}
-                  message={`This might create syncing problems`}
-                  onConfirm={() => {
-                    localChangesService.clear();
-                  }}
-                >
-                  <Trans>Clear All</Trans>
-                </DeleteButton>
-              </IonItem>
-            )}
+            <IonItem lines="none">
+              <DeleteButton
+                color="danger"
+                trigger={`del-clear`}
+                message={t`This will reset all values`}
+                onConfirm={() => {
+                  localChangesService.resetAll();
+                }}
+              >
+                <Trans>Reset All</Trans>
+              </DeleteButton>
+            </IonItem>
           </>
         )}
       </IonCardContent>
