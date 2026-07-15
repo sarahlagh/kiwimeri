@@ -57,7 +57,7 @@ const GenericCollectionSettings = ({
         ...withInitialState
       }}
       onChange={(key, val) => {
-        const newSettings = { ...defaultSettings };
+        const newSettings = structuredClone(defaultSettings);
         switch (key) {
           case 'sort_by':
             newSettings.sort.by = val as string as CollectionItemSortType;
