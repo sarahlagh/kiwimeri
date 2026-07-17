@@ -14,7 +14,7 @@ import {
   CollectionItemUpdateChangeFields
 } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
-import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import { annotsService } from '@/domain/collection/doc-annotations.service';
 import { DocAnnotationRow } from '@/domain/collection/document-annotations';
 import { Notebook } from '@/domain/collection/notebooks';
 import notebooksService from '@/domain/collection/notebooks.service';
@@ -84,7 +84,7 @@ export const oneNote = (docId: string): WithId<DocAnnotationRow> => {
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   const id = getUniqueId();
   return {
-    ...docAnnotationsService.newNoteObj(docId).item,
+    ...annotsService.newNoteObj(docId).item,
     id
   };
 };

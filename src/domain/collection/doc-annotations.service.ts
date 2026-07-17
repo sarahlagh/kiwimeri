@@ -140,4 +140,4 @@ class DocumentAnnotationsService {
   }
 }
 
-export const docAnnotationsService = new DocumentAnnotationsService();
+export const annotsService = new DocumentAnnotationsService();

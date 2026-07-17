@@ -8,7 +8,7 @@ import {
   CollectionItemTypeValues
 } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
-import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import { annotsService } from '@/domain/collection/doc-annotations.service';
 import localChangesService from '@/domain/synchronization/local-changes.service';
 import {
   UserPreferenceKey,
@@ -122,7 +122,7 @@ const LocalChangesCard = () => {
                     ? collectionService.getDocumentPreview(lc.itemId)
                     : '';
                 } else if (lc.on === SpaceTables.Annotations) {
-                  const document = docAnnotationsService.getAnnotInfo(
+                  const document = annotsService.getAnnotInfo(
                     lc.itemId
                   ).parentId;
                   type = CollectionItemType.document;
@@ -130,8 +130,8 @@ const LocalChangesCard = () => {
                     document,
                     CollectionItemType.document
                   );
-                  itemExists = docAnnotationsService.exists(lc.itemId);
-                  preview = docAnnotationsService.getPreview(lc.itemId);
+                  itemExists = annotsService.exists(lc.itemId);
+                  preview = annotsService.getPreview(lc.itemId);
                 } else {
                   route = SETTINGS_ROUTE;
                 }

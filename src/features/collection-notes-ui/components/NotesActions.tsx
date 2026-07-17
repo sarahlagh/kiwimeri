@@ -1,5 +1,5 @@
 import { APPICONS } from '@/constants';
-import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import { annotsService } from '@/domain/collection/doc-annotations.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { dateToStr } from '@/shared/misc/date-utils';
 import ConfirmYesNoDialog from '@/shared/modals/ConfirmYesNoDialog';
@@ -14,7 +14,7 @@ const NoteActions = ({ docId, noteId }: NoteActionsProps) => {
   const [expand, setExpand] = useState(false);
   const [showCreatedAt, setShowCreatedAt] = useState(true);
   const delTrigger = `${noteId}-delete-btn`;
-  const { createdAt, updatedAt } = docAnnotationsService.getAnnotInfo(noteId);
+  const { createdAt, updatedAt } = annotsService.getAnnotInfo(noteId);
   return (
     <>
       {expand && (
@@ -48,7 +48,7 @@ const NoteActions = ({ docId, noteId }: NoteActionsProps) => {
                 trigger={delTrigger}
                 onClose={confirmed => {
                   if (confirmed) {
-                    docAnnotationsService.delete(noteId);
+                    annotsService.delete(noteId);
                     resumeService.setLastSelectedNote(docId, null);
                   }
                 }}

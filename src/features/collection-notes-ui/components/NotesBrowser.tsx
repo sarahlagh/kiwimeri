@@ -1,7 +1,7 @@
 import { type JSX } from 'react';
 
 import { useQueryResultIds } from '@/core/db/queries-helper';
-import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import { annotsService } from '@/domain/collection/doc-annotations.service';
 import useLoadQuery from '@/shared/hooks/useLoadQuery';
 import { IonNote } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
@@ -30,7 +30,7 @@ export default function NotesBrowser({
   });
   const noteIds = useQueryResultIds(fetchNotesQuery, sort.by, sort.descending);
   const selectedId = useSelectedNote(docId);
-  const isConflict = selectedId && docAnnotationsService.isConflict(selectedId);
+  const isConflict = selectedId && annotsService.isConflict(selectedId);
 
   return (
     <div className="note-browser">

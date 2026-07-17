@@ -14,7 +14,7 @@ import {
   minimizeItemsForStorage,
   unminimizeItemsFromStorage
 } from '@/domain/collection/compress-collection';
-import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import { annotsService } from '@/domain/collection/doc-annotations.service';
 import { SyncableAnnotation } from '@/domain/collection/document-annotations';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { conflictsService } from '@/domain/synchronization/conflicts-service';
@@ -626,8 +626,8 @@ describe.sequential(
     describe(`tests with notes`, () => {
       test('synchronizer should push notes', async () => {
         const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-        const noteId = docAnnotationsService.addNote(docId);
-        docAnnotationsService.edit(noteId, JSON.parse(getNewContent('test')));
+        const noteId = annotsService.addNote(docId);
+        annotsService.edit(noteId, JSON.parse(getNewContent('test')));
         await synchronizer.sync();
         {
           const resp = await getRemoteContent();
@@ -675,7 +675,7 @@ describe.sequential(
         await amount(100);
 
         // update locally
-        docAnnotationsService.edit(noteId, JSON.parse(getNewContent('test')));
+        annotsService.edit(noteId, JSON.parse(getNewContent('test')));
 
         // sync
         await amount(100);

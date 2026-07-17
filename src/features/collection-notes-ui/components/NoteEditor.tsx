@@ -1,5 +1,5 @@
 import { initialContent } from '@/domain/collection/collection.service';
-import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import { annotsService } from '@/domain/collection/doc-annotations.service';
 import { KiwimeriEditor } from '@/features/document-editor';
 import type { EditorState } from 'lexical';
 
@@ -9,9 +9,9 @@ type NoteEditorProps = {
 };
 
 const NoteEditor = ({ noteId, editable = true }: NoteEditorProps) => {
-  const content = docAnnotationsService.getContent(noteId);
+  const content = annotsService.getContent(noteId);
   let classNames = `note-editor`;
-  if (docAnnotationsService.isConflict(noteId)) {
+  if (annotsService.isConflict(noteId)) {
     classNames += ' note-is-conflict';
   }
   return (
@@ -23,7 +23,7 @@ const NoteEditor = ({ noteId, editable = true }: NoteEditorProps) => {
       enableToolbar={false}
       enableDebugTreeView={false}
       onChange={(editorState: EditorState) => {
-        docAnnotationsService.edit(noteId, editorState.toJSON());
+        annotsService.edit(noteId, editorState.toJSON());
       }}
     />
   );

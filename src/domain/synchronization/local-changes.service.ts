@@ -5,7 +5,7 @@ import { AsId, DbSerializableData } from '@/core/db/types';
 import { getHash } from 'tinybase';
 import { Id } from 'tinybase/with-schemas';
 import collectionService from '../collection/collection.service';
-import { docAnnotationsService } from '../collection/doc-annotations.service';
+import { annotsService } from '../collection/doc-annotations.service';
 import { userPrefs } from '../user-preferences/user-preferences.service';
 import {
   LocalChangeOn,
@@ -164,7 +164,7 @@ class LocalChangesService {
     if (on === SpaceTables.Collection) {
       collectionService.deleteItem(itemId, { softDelete: false });
     } else if (on === SpaceTables.Annotations) {
-      docAnnotationsService.delete(itemId);
+      annotsService.delete(itemId);
     } else {
       userPrefs.del(itemId as never);
     }

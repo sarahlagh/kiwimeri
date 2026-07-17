@@ -5,7 +5,7 @@ import { setMetaField } from '@/core/db/types';
 import { CollectionItemType } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
 import { minimizeContentForStorage } from '@/domain/collection/compress-file-content';
-import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import { annotsService } from '@/domain/collection/doc-annotations.service';
 import { getDerivedId } from '@/domain/collection/document-content';
 import { historyService } from '@/domain/history/history.service';
 import { conflictsService } from '@/domain/synchronization/conflicts-service';
@@ -382,8 +382,8 @@ describe('collection synchronizer', () => {
   describe('should merge notes', () => {
     it('should push notes', async () => {
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-      const noteId = docAnnotationsService.addNote(docId);
-      docAnnotationsService.edit(noteId, JSON.parse(getNewContent('test')));
+      const noteId = annotsService.addNote(docId);
+      annotsService.edit(noteId, JSON.parse(getNewContent('test')));
       await synchronizer.sync();
       {
         const { content, annots: notes } = driver.getParsedCollectionContent();
@@ -443,7 +443,7 @@ describe('collection synchronizer', () => {
 
       // update locally
       adv(() => {
-        docAnnotationsService.edit(noteId, JSON.parse(getNewContent('test')));
+        annotsService.edit(noteId, JSON.parse(getNewContent('test')));
       });
 
       // sync
@@ -488,7 +488,7 @@ describe('collection synchronizer', () => {
 
       // update locally
       adv(() => {
-        docAnnotationsService.edit(noteId, JSON.parse(getNewContent('local')));
+        annotsService.edit(noteId, JSON.parse(getNewContent('local')));
       });
 
       // sync
@@ -508,7 +508,7 @@ describe('collection synchronizer', () => {
         expect(newNotes[0].content).toBe(
           minimizeContentForStorage(JSON.parse(getNewContent('local')))
         );
-        expect(!docAnnotationsService.isConflict(noteId));
+        expect(!annotsService.isConflict(noteId));
       }
     });
 
@@ -528,7 +528,7 @@ describe('collection synchronizer', () => {
 
       // update locally
       adv(() => {
-        docAnnotationsService.edit(noteId, JSON.parse(getNewContent('local')));
+        annotsService.edit(noteId, JSON.parse(getNewContent('local')));
       });
 
       // update on remote
@@ -558,7 +558,7 @@ describe('collection synchronizer', () => {
           space.getCell(SpaceTables.Annotations, noteId, 'content')
         );
         expect(newNotes[0].content).toBe(notes[0].content);
-        expect(docAnnotationsService.isConflict(noteId));
+        expect(annotsService.isConflict(noteId));
       }
     });
 
@@ -577,7 +577,7 @@ describe('collection synchronizer', () => {
       // note pulled
 
       // add note locally
-      const orphanId = docAnnotationsService.addNote(docId);
+      const orphanId = annotsService.addNote(docId);
       vi.advanceTimersByTime(100);
 
       // delete doc & note on remote
@@ -585,8 +585,8 @@ describe('collection synchronizer', () => {
 
       await synchronizer.sync();
 
-      expect(!docAnnotationsService.exists(noteId));
-      expect(!docAnnotationsService.exists(orphanId));
+      expect(!annotsService.exists(noteId));
+      expect(!annotsService.exists(orphanId));
     });
 
     it('should sync notes and delete orphans 2', async () => {
@@ -607,17 +607,17 @@ describe('collection synchronizer', () => {
       await driver.setCollectionContentWithAnnots([items[0]], [], Date.now());
       // add note locally
       vi.advanceTimersByTime(100);
-      const orphanId = docAnnotationsService.addNote(docId);
+      const orphanId = annotsService.addNote(docId);
 
       await synchronizer.sync();
 
-      expect(!docAnnotationsService.exists(noteId));
-      expect(!docAnnotationsService.exists(orphanId));
+      expect(!annotsService.exists(noteId));
+      expect(!annotsService.exists(orphanId));
     });
 
     it('should not delete old annots on pull', async () => {
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-      const noteId = docAnnotationsService.addNote(docId);
+      const noteId = annotsService.addNote(docId);
 
       const items = [oneNotebook(), oneDocument()];
       await driver.setCollectionContentWithAnnots(
@@ -630,12 +630,12 @@ describe('collection synchronizer', () => {
 
       expect(collectionService.itemExists(docId));
       expect(collectionService.itemExists(items[1].id!));
-      expect(docAnnotationsService.exists(noteId));
+      expect(annotsService.exists(noteId));
     });
 
     it('should delete old annots on force pull', async () => {
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-      const noteId = docAnnotationsService.addNote(docId);
+      const noteId = annotsService.addNote(docId);
 
       const items = [oneNotebook(), oneDocument()];
       await driver.setCollectionContentWithAnnots(
@@ -648,7 +648,7 @@ describe('collection synchronizer', () => {
 
       expect(!collectionService.itemExists(docId));
       expect(collectionService.itemExists(items[1].id!));
-      expect(!docAnnotationsService.exists(noteId));
+      expect(!annotsService.exists(noteId));
       expect(space.getRowCount('document_annotation')).toBe(0);
     });
 
@@ -929,7 +929,7 @@ describe('collection synchronizer', () => {
 
       // update locally
       adv(() => {
-        docAnnotationsService.edit(noteId, JSON.parse(getNewContent('local')));
+        annotsService.edit(noteId, JSON.parse(getNewContent('local')));
       });
 
       // update on remote
@@ -959,7 +959,7 @@ describe('collection synchronizer', () => {
           space.getCell(SpaceTables.Annotations, noteId, 'content')
         );
         expect(newNotes[0].content).toBe(notes[0].content);
-        expect(docAnnotationsService.isConflict(noteId));
+        expect(annotsService.isConflict(noteId));
       }
 
       {
@@ -1010,7 +1010,7 @@ describe('collection synchronizer', () => {
 
       // update locally
       adv(() => {
-        docAnnotationsService.edit(noteId, JSON.parse(getNewContent('local')));
+        annotsService.edit(noteId, JSON.parse(getNewContent('local')));
       });
       adv(() => {
         collectionService.setItemLexicalContent(
@@ -1054,7 +1054,7 @@ describe('collection synchronizer', () => {
         expect(!collectionService.isItemConflict(docWithNote));
         expect(!collectionService.isItemConflict(docExcluded));
         expect(newNotes[0].content).toBe(notes[0].content);
-        expect(docAnnotationsService.isConflict(noteId));
+        expect(annotsService.isConflict(noteId));
       }
 
       {

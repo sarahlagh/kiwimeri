@@ -2,7 +2,7 @@ import { DEFAULT_NOTEBOOK_ID, getGlobalTrans, META_JSON } from '@/constants';
 import { CollectionItemType } from '@/domain/collection/collection';
 import { settingsService } from '@/domain/collection/collection-settings.service';
 import collectionService from '@/domain/collection/collection.service';
-import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import { annotsService } from '@/domain/collection/doc-annotations.service';
 import notebooksService from '@/domain/collection/notebooks.service';
 import {
   ZipExportOptions,
@@ -404,8 +404,8 @@ describe('export service', () => {
       const fTitle = collectionService.getItemTitle(fId);
       const dId = collectionService.addDocument(fId);
       const dTitle = collectionService.getItemTitle(dId);
-      docAnnotationsService.addNote(dId);
-      docAnnotationsService.setNotesSortOnDocument(dId, {
+      annotsService.addNote(dId);
+      annotsService.setNotesSortOnDocument(dId, {
         by: 'order',
         descending: false
       });

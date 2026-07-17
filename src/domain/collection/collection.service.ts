@@ -38,7 +38,7 @@ import { Id, Ids } from 'tinybase/common/with-schemas';
 import { Table } from 'tinybase/with-schemas';
 import { historyService } from '../history/history.service';
 import storageService from '../storage.service';
-import { docAnnotationsService } from './doc-annotations.service';
+import { annotsService } from './doc-annotations.service';
 
 export const initialContent = () => {
   // 'empty' editor
@@ -197,7 +197,7 @@ class CollectionService {
         // so don't delete annotations here, gc later
         historyService.saveDeleteVersion(rowId);
       } else {
-        docAnnotationsService.deleteAll(rowId);
+        annotsService.deleteAll(rowId);
         historyService.hardDeleteVersions(rowId);
       }
     }

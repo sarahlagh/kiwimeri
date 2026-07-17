@@ -1,6 +1,6 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import collectionService from '@/domain/collection/collection.service';
-import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import { annotsService } from '@/domain/collection/doc-annotations.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { NotesBrowser } from '@/features/collection-notes-ui';
 import fetchNotesQuery from '@/features/collection-notes-ui/queries/fetchNotesQuery';
@@ -62,10 +62,10 @@ describe('NotesBrowser', () => {
 
   test('renders a non-empty notes browser', async () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const note1 = docAnnotationsService.addNote(docId);
-    docAnnotationsService.edit(note1, JSON.parse(getNewContent('test 1')));
-    const note2 = docAnnotationsService.addNote(docId);
-    docAnnotationsService.edit(note2, JSON.parse(getNewContent('test 2')));
+    const note1 = annotsService.addNote(docId);
+    annotsService.edit(note1, JSON.parse(getNewContent('test 1')));
+    const note2 = annotsService.addNote(docId);
+    annotsService.edit(note2, JSON.parse(getNewContent('test 2')));
 
     const screen = await render(<NotesBrowser id={docId} />, {
       wrapper: TestingProvider
@@ -83,10 +83,10 @@ describe('NotesBrowser', () => {
 
   test('opens the last selected note on render', async () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const note1 = docAnnotationsService.addNote(docId);
-    docAnnotationsService.edit(note1, JSON.parse(getNewContent('test 1')));
-    const note2 = docAnnotationsService.addNote(docId);
-    docAnnotationsService.edit(note2, JSON.parse(getNewContent('test 2')));
+    const note1 = annotsService.addNote(docId);
+    annotsService.edit(note1, JSON.parse(getNewContent('test 1')));
+    const note2 = annotsService.addNote(docId);
+    annotsService.edit(note2, JSON.parse(getNewContent('test 2')));
     resumeService.setLastSelectedNote(docId, note1);
 
     const screen = await render(<NotesBrowser id={docId} />, {
@@ -113,10 +113,10 @@ describe('NotesBrowser', () => {
 
   test('select another existing note', async () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const note1 = docAnnotationsService.addNote(docId);
-    docAnnotationsService.edit(note1, JSON.parse(getNewContent('test 1')));
-    const note2 = docAnnotationsService.addNote(docId);
-    docAnnotationsService.edit(note2, JSON.parse(getNewContent('test 2')));
+    const note1 = annotsService.addNote(docId);
+    annotsService.edit(note1, JSON.parse(getNewContent('test 1')));
+    const note2 = annotsService.addNote(docId);
+    annotsService.edit(note2, JSON.parse(getNewContent('test 2')));
     resumeService.setLastSelectedNote(docId, note1);
 
     const screen = await render(<NotesBrowser id={docId} />, {
@@ -148,12 +148,12 @@ describe('NotesBrowser', () => {
   test('toggle note info', async () => {
     vi.useFakeTimers();
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const note1 = docAnnotationsService.addNote(docId);
+    const note1 = annotsService.addNote(docId);
     vi.advanceTimersByTime(100);
-    docAnnotationsService.edit(note1, JSON.parse(getNewContent('test 1')));
+    annotsService.edit(note1, JSON.parse(getNewContent('test 1')));
     resumeService.setLastSelectedNote(docId, note1);
     vi.useRealTimers();
-    const noteInfo = docAnnotationsService.getAnnotInfo(note1);
+    const noteInfo = annotsService.getAnnotInfo(note1);
 
     const screen = await render(
       <BottomSheet>
@@ -194,10 +194,10 @@ describe('NotesBrowser', () => {
 
   test('delete the selected note', async () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const note1 = docAnnotationsService.addNote(docId);
-    docAnnotationsService.edit(note1, JSON.parse(getNewContent('test 1')));
-    const note2 = docAnnotationsService.addNote(docId);
-    docAnnotationsService.edit(note2, JSON.parse(getNewContent('test 2')));
+    const note1 = annotsService.addNote(docId);
+    annotsService.edit(note1, JSON.parse(getNewContent('test 1')));
+    const note2 = annotsService.addNote(docId);
+    annotsService.edit(note2, JSON.parse(getNewContent('test 2')));
     resumeService.setLastSelectedNote(docId, note1);
 
     const screen = await render(
@@ -240,17 +240,17 @@ describe('NotesBrowser', () => {
       .not.toBeInTheDocument();
     await expect.element(getNotePreview(screen, 'test 2')).toBeInTheDocument();
 
-    expect(docAnnotationsService.getContent(note1)).toBeUndefined();
+    expect(annotsService.getContent(note1)).toBeUndefined();
   });
 
   test('change notes sort order', async () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const note1 = docAnnotationsService.addNote(docId, 0);
-    docAnnotationsService.edit(note1, JSON.parse(getNewContent('test 1')));
-    const note2 = docAnnotationsService.addNote(docId, 3);
-    docAnnotationsService.edit(note2, JSON.parse(getNewContent('test 2')));
-    const note3 = docAnnotationsService.addNote(docId, 1);
-    docAnnotationsService.edit(note3, JSON.parse(getNewContent('test 3')));
+    const note1 = annotsService.addNote(docId, 0);
+    annotsService.edit(note1, JSON.parse(getNewContent('test 1')));
+    const note2 = annotsService.addNote(docId, 3);
+    annotsService.edit(note2, JSON.parse(getNewContent('test 2')));
+    const note3 = annotsService.addNote(docId, 1);
+    annotsService.edit(note3, JSON.parse(getNewContent('test 3')));
 
     const screen = await render(<NotesBrowser id={docId} />, {
       wrapper: TestingProvider

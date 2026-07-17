@@ -8,7 +8,7 @@ import {
   startDerivedTablesListeners,
   stopDerivedTablesListeners
 } from '@/domain/collection/derived-tables-listeners';
-import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import { annotsService } from '@/domain/collection/doc-annotations.service';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { historyService } from '@/domain/history/history.service';
 import {
@@ -191,7 +191,7 @@ describe('local changes for collection', () => {
     historyService['enabled'] = true;
     localChangesService.clear();
     const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const noteId = docAnnotationsService.addNote(id);
+    const noteId = annotsService.addNote(id);
     const changes = localChangesService.getLocalChanges();
     expect(changes).toHaveLength(2);
     expect(changes[1].itemId).toBe(id);
@@ -212,14 +212,14 @@ describe('local changes for collection', () => {
   it(`delete change should be resettable`, () => {
     historyService['enabled'] = true;
     const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const noteId = docAnnotationsService.addNote(id);
+    const noteId = annotsService.addNote(id);
     localChangesService.clear();
 
     collectionService.deleteItem(id);
 
     const changes = localChangesService.getLocalChanges();
     expect(changes).toHaveLength(1);
-    expect(docAnnotationsService.exists(noteId)); // not deleted, saved for gc
+    expect(annotsService.exists(noteId)); // not deleted, saved for gc
 
     expect(historyService.getVersions(id)).toHaveLength(2);
     expect(localChangesService.canChangeBeReset(changes[0].id)).toBe(true);

@@ -5,7 +5,7 @@ import {
   CollectionItemType
 } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
-import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import { annotsService } from '@/domain/collection/doc-annotations.service';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { historyService } from '@/domain/history/history.service';
@@ -551,7 +551,7 @@ describe('import service', () => {
       });
       const dId = collectionService.addDocument(fId);
       collectionService.setItemTitle(dId, 'Simple');
-      docAnnotationsService.setNotesSortOnDocument(dId, {
+      annotsService.setNotesSortOnDocument(dId, {
         by: 'order',
         descending: false
       });

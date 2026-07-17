@@ -1,6 +1,6 @@
 import { DEFAULT_NOTEBOOK_ID, getGlobalTrans } from '@/constants';
 import collectionService from '@/domain/collection/collection.service';
-import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import { annotsService } from '@/domain/collection/doc-annotations.service';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { LocalChangeResult } from '@/domain/synchronization/local-changes';
 import localChangesService from '@/domain/synchronization/local-changes.service';
@@ -184,11 +184,8 @@ describe('LocalChangesCard', () => {
   test('renders a card with "add note" local changes', async () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     localChangesService.clear();
-    const noteId = docAnnotationsService.addNote(docId);
-    docAnnotationsService.edit(
-      noteId,
-      JSON.parse(getNewContent('test content'))
-    );
+    const noteId = annotsService.addNote(docId);
+    annotsService.edit(noteId, JSON.parse(getNewContent('test content')));
 
     const localChanges = localChangesService.getLocalChanges();
     expect(localChanges).toHaveLength(1);
@@ -204,9 +201,9 @@ describe('LocalChangesCard', () => {
 
   test('renders a card with "update note" local changes', async () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const noteId = docAnnotationsService.addNote(docId);
+    const noteId = annotsService.addNote(docId);
     localChangesService.clear();
-    docAnnotationsService.edit(
+    annotsService.edit(
       noteId,
       JSON.parse(getNewContent('test updated content'))
     );
@@ -225,9 +222,9 @@ describe('LocalChangesCard', () => {
 
   test('renders a card with "delete note" local changes', async () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const noteId = docAnnotationsService.addNote(docId);
+    const noteId = annotsService.addNote(docId);
     localChangesService.clear();
-    docAnnotationsService.delete(noteId);
+    annotsService.delete(noteId);
 
     const localChanges = localChangesService.getLocalChanges();
     expect(localChanges).toHaveLength(1);

@@ -13,7 +13,7 @@ import {
 import { CollectionItemSort } from '@/domain/collection/collection-settings';
 import collectionService from '@/domain/collection/collection.service';
 import { minimizeContentForStorage } from '@/domain/collection/compress-file-content';
-import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import { annotsService } from '@/domain/collection/doc-annotations.service';
 import { getDerivedId } from '@/domain/collection/document-content';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
@@ -405,11 +405,8 @@ describe('collection service', () => {
             id,
             getNewParsedContent('test')
           );
-          const noteId = docAnnotationsService.addNote(id);
-          docAnnotationsService.edit(
-            noteId,
-            getNewParsedContent('another test')
-          );
+          const noteId = annotsService.addNote(id);
+          annotsService.edit(noteId, getNewParsedContent('another test'));
           resumeService.setLastSelectedNote(id, noteId);
           vi.advanceTimersByTime(100);
           assertDerivedTablesAreNotCleared('c', id);
@@ -420,7 +417,7 @@ describe('collection service', () => {
           expect(item.title).toBeUndefined();
           expect(collectionService.itemExists(id)).toBe(false);
           expect(historyService.getLatestVersion(id)?.op).toBe('deleted');
-          expect(docAnnotationsService.exists(noteId)).toBe(true);
+          expect(annotsService.exists(noteId)).toBe(true);
 
           assertDerivedTablesAreCleared('c', id);
           assertDerivedTablesAreNotCleared('a', noteId);
@@ -433,7 +430,7 @@ describe('collection service', () => {
             id,
             getNewParsedContent('test')
           );
-          const noteId = docAnnotationsService.addNote(id);
+          const noteId = annotsService.addNote(id);
           resumeService.setLastSelectedNote(id, noteId);
           vi.advanceTimersByTime(100);
           assertDerivedTablesAreNotCleared('c', id);
@@ -456,7 +453,7 @@ describe('collection service', () => {
               spaceContent.hasRow(SpaceContentTables.HistoryContent, hash)
             ).toBe(false);
           });
-          expect(docAnnotationsService.exists(noteId)).toBe(false);
+          expect(annotsService.exists(noteId)).toBe(false);
 
           assertDerivedTablesAreCleared('c', id);
           assertDerivedTablesAreCleared('a', noteId);

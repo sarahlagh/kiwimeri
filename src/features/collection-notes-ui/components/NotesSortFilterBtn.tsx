@@ -4,7 +4,7 @@ import {
   NotesSort,
   NotesSortType
 } from '@/domain/collection/collection-settings';
-import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import { annotsService } from '@/domain/collection/doc-annotations.service';
 import GenericSortFilter from '@/shared/misc/sort-filter/GenericSortFilter';
 import { IonButton, IonIcon, useIonPopover } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
@@ -24,7 +24,7 @@ const NotesSortFilterBtn = ({ docId }: NotesSortFilterBtnProps) => {
     allowedSorts: annotSortBy,
     onSortChange: (sort?: NotesSort) => {
       if (sort) {
-        docAnnotationsService.setNotesSortOnDocument(docId, sort);
+        annotsService.setNotesSortOnDocument(docId, sort);
       }
     }
   });

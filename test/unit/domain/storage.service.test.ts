@@ -2,7 +2,7 @@ import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { space, spaceContent } from '@/core/db/store';
 import { SpaceContentTables, SpaceTables } from '@/core/db/store-constants';
 import collectionService from '@/domain/collection/collection.service';
-import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import { annotsService } from '@/domain/collection/doc-annotations.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { historyService } from '@/domain/history/history.service';
 import storageService from '@/domain/storage.service';
@@ -19,10 +19,8 @@ function initData() {
       JSON.parse(getNewContent('doc'))
     )
   );
-  const noteId = docAnnotationsService.addNote(docId);
-  adv(() =>
-    docAnnotationsService.edit(noteId, JSON.parse(getNewContent('annot')))
-  );
+  const noteId = annotsService.addNote(docId);
+  adv(() => annotsService.edit(noteId, JSON.parse(getNewContent('annot'))));
   resumeService.setLastSelectedNote(docId, noteId);
   return { docId, noteId };
 }

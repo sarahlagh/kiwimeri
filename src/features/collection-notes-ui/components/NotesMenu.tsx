@@ -1,6 +1,6 @@
 import { APPICONS } from '@/constants';
 import { useQueryResults } from '@/core/db/queries-helper';
-import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import { annotsService } from '@/domain/collection/doc-annotations.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import SortableList from '@/shared/dnd/containers/SortableList';
 import { IonButton, IonButtons, IonIcon, IonNote } from '@ionic/react';
@@ -37,10 +37,7 @@ export const NotesMenu = ({
               size="small"
               fill="clear"
               onClick={() => {
-                const noteId = docAnnotationsService.addNote(
-                  docId,
-                  notes.length
-                );
+                const noteId = annotsService.addNote(docId, notes.length);
                 resumeService.setLastSelectedNote(docId, noteId);
               }}
             >
@@ -63,7 +60,7 @@ export const NotesMenu = ({
         items={notes}
         sortDisabled={sort.by !== 'order'}
         onItemMove={(from, to) => {
-          docAnnotationsService.reorder(notes, from, to);
+          annotsService.reorder(notes, from, to);
         }}
       >
         {notes.map(note => (

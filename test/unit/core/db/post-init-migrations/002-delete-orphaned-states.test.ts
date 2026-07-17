@@ -4,7 +4,7 @@ import { space, spaceContent } from '@/core/db/store';
 import { SpaceContentTables, SpaceTables } from '@/core/db/store-constants';
 import { disableListeners } from '@/core/db/store-listeners';
 import collectionService from '@/domain/collection/collection.service';
-import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import { annotsService } from '@/domain/collection/doc-annotations.service';
 import {
   DerivedPrefix,
   getDerivedId
@@ -60,8 +60,8 @@ describe('002-delete-orphaned-states', () => {
   it('should not clear existing rows', () => {
     const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     collectionService.setItemLexicalContent(id, getNewParsedContent('test'));
-    const noteId = docAnnotationsService.addNote(id);
-    docAnnotationsService.edit(noteId, getNewParsedContent('another test'));
+    const noteId = annotsService.addNote(id);
+    annotsService.edit(noteId, getNewParsedContent('another test'));
     resumeService.setLastSelectedNote(id, noteId);
     disableListeners(() => {
       Migration(space as never, spaceContent as never);
@@ -74,8 +74,8 @@ describe('002-delete-orphaned-states', () => {
   it('should clear orphaned items', () => {
     const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     collectionService.setItemLexicalContent(id, getNewParsedContent('test'));
-    const noteId = docAnnotationsService.addNote(id);
-    docAnnotationsService.edit(noteId, getNewParsedContent('another test'));
+    const noteId = annotsService.addNote(id);
+    annotsService.edit(noteId, getNewParsedContent('another test'));
     resumeService.setLastSelectedNote(id, noteId);
 
     // orphan id
@@ -91,8 +91,8 @@ describe('002-delete-orphaned-states', () => {
   it('should clear orphaned annots', () => {
     const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     collectionService.setItemLexicalContent(id, getNewParsedContent('test'));
-    const noteId = docAnnotationsService.addNote(id);
-    docAnnotationsService.edit(noteId, getNewParsedContent('another test'));
+    const noteId = annotsService.addNote(id);
+    annotsService.edit(noteId, getNewParsedContent('another test'));
     resumeService.setLastSelectedNote(id, noteId);
 
     // orphan id
