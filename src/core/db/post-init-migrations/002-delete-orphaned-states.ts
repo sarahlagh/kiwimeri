@@ -1,10 +1,15 @@
 import { Store } from 'tinybase/with-schemas';
-import { SpaceArchiveTables, SpaceTables } from '../store-constants';
+import {
+  SpaceArchiveTables,
+  SpaceDocContentTables,
+  SpaceTables
+} from '../store-constants';
 
 // TODO test that one
 
 export default function Migration(
   _space: Store<never>,
+  _spaceDocContent: Store<never>,
   _spaceArchive: Store<never>
 ) {
   rowIdForRowId(_space, SpaceTables.ResumeState);
@@ -12,15 +17,15 @@ export default function Migration(
   rowIdForDerivedRowId(_space, SpaceTables.DerivedPreview);
   rowIdForContentRowId(
     _space,
-    _spaceArchive,
+    _spaceDocContent,
     SpaceTables.Collection,
-    SpaceArchiveTables.CollectionContent
+    SpaceDocContentTables.CollectionContent
   );
   rowIdForContentRowId(
     _space,
-    _spaceArchive,
+    _spaceDocContent,
     SpaceTables.Annotations,
-    SpaceArchiveTables.AnnotationContent
+    SpaceDocContentTables.AnnotationContent
   );
   rowIdForContentDerivedRowId(
     _space,
@@ -68,16 +73,16 @@ function rowIdForDerivedRowId(_space: Store<never>, tableId: SpaceTables) {
 
 function rowIdForContentRowId(
   _space: Store<never>,
-  _spaceArchive: Store<never>,
+  _spaceText: Store<never>,
   targetId: SpaceTables,
-  tableId: SpaceArchiveTables
+  tableId: SpaceDocContentTables
 ) {
   let count = 0;
-  const rowIds = _spaceArchive.getRowIds(tableId);
-  _spaceArchive.transaction(() => {
+  const rowIds = _spaceText.getRowIds(tableId);
+  _spaceText.transaction(() => {
     rowIds.forEach(rowId => {
       if (!_space.hasRow(targetId, rowId)) {
-        _spaceArchive.delRow(tableId, rowId);
+        _spaceText.delRow(tableId, rowId);
         count++;
       }
     });

@@ -8,7 +8,6 @@ export async function migrateArchiveDatabase(): Promise<void> {
   if (!(window as any).indexedDB) return; // if indexedDB is not defined, don't bother
   const oldDbName = 'kiwimeri-space-content-default';
   const newDbName = 'kiwimeri-space-archive-default';
-  console.debug('exists?', await databaseExists(oldDbName));
 
   if (!(await databaseExists(oldDbName))) return;
 

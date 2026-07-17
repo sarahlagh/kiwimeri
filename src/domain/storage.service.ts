@@ -1,6 +1,10 @@
 import { ANNOT_PREVIEW_SIZE, DOC_PREVIEW_SIZE } from '@/constants';
-import { space, spaceArchive } from '@/core/db/store';
-import { SpaceArchiveTables, SpaceTables } from '@/core/db/store-constants';
+import { space, spaceArchive, spaceDocContent } from '@/core/db/store';
+import {
+  SpaceArchiveTables,
+  SpaceDocContentTables,
+  SpaceTables
+} from '@/core/db/store-constants';
 import {
   SpaceTableId,
   SpaceTablesType,
@@ -33,16 +37,17 @@ const A = SpaceTables.Annotations;
 const H = SpaceArchiveTables.History;
 const HC = SpaceArchiveTables.HistoryContent;
 const S = SpaceTables.Stats;
-const CollectionContent = SpaceArchiveTables.CollectionContent;
+const CollectionContent = SpaceDocContentTables.CollectionContent;
 const DerivedPreview = SpaceTables.DerivedPreview;
 const DerivedState = SpaceTables.DerivedState;
 const DerivedContent = SpaceArchiveTables.DerivedContent;
-const AnnotationContent = SpaceArchiveTables.AnnotationContent;
+const AnnotationContent = SpaceDocContentTables.AnnotationContent;
 const ResumeState = SpaceTables.ResumeState;
 
 class StorageService {
   public nukeSpace() {
     space.setContent([{}, {}]);
+    spaceDocContent.setContent([{}, {}]);
     spaceArchive.setContent([{}, {}]);
     notebooksService.initNotebooks();
     localChangesService.clear();
@@ -89,11 +94,11 @@ class StorageService {
       derivedId = getDerivedId('c', rowId);
       space.delRow(DerivedState, rowId);
       space.delRow(ResumeState, rowId);
-      spaceArchive.delRow(CollectionContent, rowId);
+      spaceDocContent.delRow(CollectionContent, rowId);
     }
     if (on === SpaceTables.Annotations) {
       derivedId = getDerivedId('a', rowId);
-      spaceArchive.delRow(AnnotationContent, rowId);
+      spaceDocContent.delRow(AnnotationContent, rowId);
     }
     if (derivedId) {
       space.delRow(DerivedPreview, derivedId);

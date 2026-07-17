@@ -2,6 +2,7 @@ import { appConfig } from '@/config';
 import { migrate } from '@/core/db/migrations/migrate';
 import {
   spaceArchiveTablesSchema,
+  spaceDocContentTablesSchema,
   spaceTablesSchema,
   spaceValuesSchema,
   storeTablesSchema,
@@ -42,15 +43,19 @@ async function migrateRawStore(
   appConfig.KIWIMERI_VERSION = fixedVersion;
   const rawStore = createStore();
   const rawSpace = createStore();
+  const rawSpaceDocContent = createStore();
   const rawSpaceArchive = createStore();
   rawSpace.setContent(_spaceContent);
   if (_storeContent !== null) rawStore.setContent(_storeContent);
   if (_spaceArchiveContent !== null)
     rawSpaceArchive.setContent(_spaceArchiveContent);
-  await migrate(rawStore, rawSpace, rawSpaceArchive);
+  await migrate(rawStore, rawSpace, rawSpaceDocContent, rawSpaceArchive);
 
   const store = rawStore.setSchema(storeTablesSchema, storeValuesSchema);
   const space = rawSpace.setSchema(spaceTablesSchema, spaceValuesSchema);
+  const spaceDocContent = rawSpaceDocContent.setTablesSchema(
+    spaceDocContentTablesSchema
+  );
   const spaceArchive = rawSpaceArchive.setTablesSchema(
     spaceArchiveTablesSchema
   );
@@ -58,6 +63,7 @@ async function migrateRawStore(
   return {
     storeContent: store.getContent(),
     spaceContent: space.getContent(),
+    spaceDocContent: spaceDocContent.getContent(),
     spaceArchiveContent: spaceArchive.getContent()
   };
 }

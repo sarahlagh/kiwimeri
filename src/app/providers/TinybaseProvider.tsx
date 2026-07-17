@@ -3,11 +3,13 @@ import {
   space,
   spaceArchive,
   spaceArchiveQueries,
+  spaceDocContent,
   spaceMetrics,
   spaceQueries,
   store,
   storeQueries
 } from '@/core/db/store';
+import { SID } from '@/core/db/store-constants';
 import { lazy, ReactNode, Suspense } from 'react';
 import { Metrics } from 'tinybase/metrics';
 import { Queries } from 'tinybase/queries';
@@ -24,6 +26,7 @@ const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
   const untypedSpace = space as unknown as Store;
   const untypedSpaceQueries = spaceQueries as unknown as Queries;
   const untypedSpaceMetrics = spaceMetrics as unknown as Metrics;
+  const untypedSpaceDocContent = spaceDocContent as unknown as Store;
   const untypedSpaceArchive = spaceArchive as unknown as Store;
   const untypedSpaceArchiveQueries = spaceArchiveQueries as unknown as Queries;
   const untypedStore = store as unknown as Store;
@@ -34,11 +37,14 @@ const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
       store={untypedSpace}
       queries={untypedSpaceQueries}
       metrics={untypedSpaceMetrics}
-      storesById={{
-        store: untypedStore,
-        space: untypedSpace,
-        spaceArchive: untypedSpaceArchive
-      }}
+      storesById={
+        {
+          store: untypedStore,
+          space: untypedSpace,
+          spaceDocContent: untypedSpaceDocContent,
+          spaceArchive: untypedSpaceArchive
+        } as const satisfies Record<SID, Store>
+      }
       queriesById={{
         store: untypedStoreQueries,
         space: untypedSpaceQueries,

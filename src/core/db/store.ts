@@ -8,6 +8,7 @@ import { migrateArchiveDatabase } from './migrate-content-store';
 import { migrate } from './migrations/migrate';
 import {
   spaceArchiveTablesSchema,
+  spaceDocContentTablesSchema,
   spaceTablesSchema,
   spaceValuesSchema,
   storeTablesSchema,
@@ -40,13 +41,21 @@ const spaceArchivePersister = createIndexedDbPersister(
   spaceArchiveName
 );
 
+const rawSpaceDocContentText = createStore();
+const spaceDocContentName = `kiwimeri-space-document-content-default`;
+const spaceDocContentPersister = createIndexedDbPersister(
+  rawSpaceDocContentText,
+  spaceDocContentName
+);
+
 await Promise.all([
   storePersister.load(),
   spacePersister.load(),
+  spaceDocContentPersister.load(),
   spaceArchivePersister.load()
 ]);
 console.log('[db] start to migrate stores');
-await migrate(rawStore, rawSpace, rawSpaceArchive);
+await migrate(rawStore, rawSpace, rawSpaceDocContentText, rawSpaceArchive);
 console.log('[db] stores migrated');
 
 export const store = rawStore.setSchema(storeTablesSchema, storeValuesSchema);
@@ -57,6 +66,10 @@ export const space = rawSpace.setSchema(spaceTablesSchema, spaceValuesSchema);
 export const spaceQueries = createQueries(space);
 export const spaceMetrics = createMetrics(space);
 
+export const spaceDocContent = rawSpaceDocContentText.setTablesSchema(
+  spaceDocContentTablesSchema
+);
+
 export const spaceArchive = rawSpaceArchive.setTablesSchema(
   spaceArchiveTablesSchema
 );
@@ -64,32 +77,33 @@ export const spaceArchiveQueries = createQueries(spaceArchive);
 
 console.log('[db] stores initialized');
 
-storePersister
-  .save()
-  .then(() => storePersister.startAutoSave())
-  .then(() => {
-    console.log('[store] auto save started');
-  });
+await Promise.all([
+  storePersister.save(),
+  spacePersister.save(),
+  spaceDocContentPersister.save(),
+  spaceArchivePersister.save()
+]);
+storePersister.startAutoSave().then(() => {
+  console.log('[store] auto save started');
+});
+spacePersister.startAutoSave().then(() => {
+  console.log('[space] auto save started');
+});
 
-spacePersister
-  .save()
-  .then(() => spacePersister.startAutoSave())
-  .then(() => {
-    console.log('[space] auto save started');
-  });
+// TODO don't auto save
+spaceDocContentPersister.startAutoSave().then(() => {
+  console.log('[spaceDocContent] auto save started');
+});
 
-// spaceTextPersister.save().then(() => console.log('[spaceText] saved'));
-spaceArchivePersister
-  .save()
-  .then(() => spaceArchivePersister.startAutoSave())
-  .then(() => {
-    console.log('[spaceArchive] auto save started');
-  });
+spaceArchivePersister.startAutoSave().then(() => {
+  console.log('[spaceArchive] auto save started');
+});
 
 export async function destroyStore() {
   return Promise.all([
     storePersister.destroy(),
     spacePersister.destroy(),
+    spaceDocContentPersister.destroy(),
     spaceArchivePersister.destroy()
   ]);
 }

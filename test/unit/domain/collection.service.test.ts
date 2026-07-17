@@ -3,8 +3,12 @@ import {
   DEFAULT_ORDER,
   ROOT_COLLECTION
 } from '@/constants';
-import { space, spaceArchive } from '@/core/db/store';
-import { SpaceArchiveTables, SpaceTables } from '@/core/db/store-constants';
+import { space, spaceArchive, spaceDocContent } from '@/core/db/store';
+import {
+  SpaceArchiveTables,
+  SpaceDocContentTables,
+  SpaceTables
+} from '@/core/db/store-constants';
 import { setMetaField } from '@/core/db/types';
 import {
   CollectionItemResetConflictFields,
@@ -44,12 +48,12 @@ function assertDerivedTablesAreCleared(on: 'c' | 'a', id: string) {
   );
   expect(space.hasRow(SpaceTables.DerivedState, id)).toBe(false);
   expect(space.hasRow(SpaceTables.ResumeState, id)).toBe(false);
-  expect(spaceArchive.hasRow(SpaceArchiveTables.CollectionContent, id)).toBe(
-    false
-  );
-  expect(spaceArchive.hasRow(SpaceArchiveTables.AnnotationContent, id)).toBe(
-    false
-  );
+  expect(
+    spaceDocContent.hasRow(SpaceDocContentTables.CollectionContent, id)
+  ).toBe(false);
+  expect(
+    spaceDocContent.hasRow(SpaceDocContentTables.AnnotationContent, id)
+  ).toBe(false);
   expect(
     spaceArchive.hasRow(SpaceArchiveTables.DerivedContent, getDerivedId(on, id))
   ).toBe(false);

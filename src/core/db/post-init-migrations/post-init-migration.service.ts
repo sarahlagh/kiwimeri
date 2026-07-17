@@ -2,7 +2,7 @@ import { appConfig } from '@/config';
 import { SpaceType, StoreType } from '@/core/db/store-schema';
 import { Store } from 'tinybase/with-schemas';
 import { between, getVersionCode } from '../migrations/migration-utils';
-import { spaceArchive } from '../store';
+import { spaceArchive, spaceDocContent } from '../store';
 
 /** migrations that can be applied after schema */
 class PostInitMigrationService {
@@ -42,6 +42,7 @@ class PostInitMigrationService {
       const func = await import('./002-delete-orphaned-states');
       func.default(
         space as unknown as Store<never>,
+        spaceDocContent as unknown as Store<never>,
         spaceArchive as unknown as Store<never>
       );
     }

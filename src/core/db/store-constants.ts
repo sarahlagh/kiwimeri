@@ -16,13 +16,16 @@ export enum SpaceTables {
   ReplicaState = 'replica_state'
 }
 
+export enum SpaceDocContentTables {
+  CollectionContent = 'collection_content',
+  AnnotationContent = 'document_annotation_content'
+}
+
 export enum SpaceArchiveTables {
   History = 'history',
   HistoryContent = 'history_content',
   // TODO move away
-  DerivedContent = 'derived_content',
-  CollectionContent = 'collection_content',
-  AnnotationContent = 'document_annotation_content'
+  DerivedContent = 'derived_content'
 }
 
 export enum SpaceMetrics {
@@ -33,5 +36,6 @@ export type StoreQueriesId = 'store' | 'space' | 'spaceArchive';
 export enum SID {
   space = 'space',
   spaceArchive = 'spaceArchive',
+  spaceDocContent = 'spaceDocContent',
   store = 'store'
 }

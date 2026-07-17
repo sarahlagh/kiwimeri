@@ -1,6 +1,10 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
-import { space, spaceArchive } from '@/core/db/store';
-import { SpaceArchiveTables, SpaceTables } from '@/core/db/store-constants';
+import { space, spaceArchive, spaceDocContent } from '@/core/db/store';
+import {
+  SpaceArchiveTables,
+  SpaceDocContentTables,
+  SpaceTables
+} from '@/core/db/store-constants';
 import collectionService from '@/domain/collection/collection.service';
 import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-content';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
@@ -41,9 +45,9 @@ function assertDerivedTablesCleared(id: string) {
   expect(space.hasRow(SpaceTables.DerivedPreview, getDerivedId('a', id))).toBe(
     false
   );
-  expect(spaceArchive.hasRow(SpaceArchiveTables.AnnotationContent, id)).toBe(
-    false
-  );
+  expect(
+    spaceDocContent.hasRow(SpaceDocContentTables.AnnotationContent, id)
+  ).toBe(false);
   expect(
     spaceArchive.hasRow(
       SpaceArchiveTables.DerivedContent,

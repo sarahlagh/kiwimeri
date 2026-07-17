@@ -35,13 +35,13 @@ initGlobalTrans();
 
 beforeAll(async () => {
   syncService.start();
+  postInitMigrationService['enabled'] = false;
+  historyService['enabled'] = false;
 });
 afterAll(() => {
   //
 });
 beforeEach(() => {
-  postInitMigrationService['enabled'] = false;
-  historyService['enabled'] = false;
   startDbListeners();
   localChangesService.clear();
   notebooksService.initNotebooks();
@@ -51,4 +51,6 @@ afterEach(() => {
   stopDbListeners();
   nukeStorage();
   syncService.stop();
+  postInitMigrationService['enabled'] = false;
+  historyService['enabled'] = false;
 });

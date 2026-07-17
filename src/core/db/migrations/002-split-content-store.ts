@@ -28,10 +28,9 @@ const DP = _SpaceTables.DerivedPreview;
 // const CC = _SpaceArchiveTables.CollectionContent;
 // const AC = _SpaceArchiveTables.AnnotationContent;
 
-// TODO preview for annotations? go where?
-
 export default function Migration(
   _space: NoSchemaStore,
+  _spaceDocContent: NoSchemaStore,
   _spaceArchive: NoSchemaStore
 ) {
   // 0.4.3
@@ -43,7 +42,6 @@ export default function Migration(
   lastOpenedAtGoesToResumeState(_space);
   historyGoesToSpaceArchive(_space, _spaceArchive);
   // TODO
-  // history goes to space archive
   // collection content goes to content space
   // annotation content goes to content space
   // derived content goes to content space in same table
