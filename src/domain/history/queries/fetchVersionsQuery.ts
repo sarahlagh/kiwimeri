@@ -1,5 +1,5 @@
-import { SpaceQueryDefinition } from '@/core/db/queries-helper';
-import { SpaceTables } from '@/core/db/store-constants';
+import { SpaceArchiveQueryDefinition } from '@/core/db/queries-helper';
+import { SpaceArchiveTables } from '@/core/db/store-constants';
 import { Id } from 'tinybase/with-schemas';
 import {
   CollectionItemMetadataVersion,
@@ -11,13 +11,13 @@ export type VersionsWithContentQueryParam = {
   op?: CollectionItemVersionOp;
 };
 
-const fetchVersionsQuery = new SpaceQueryDefinition<
+const fetchVersionsQuery = new SpaceArchiveQueryDefinition<
   VersionsWithContentQueryParam,
   CollectionItemMetadataVersion,
-  SpaceTables.History
+  SpaceArchiveTables.History
 >(
   'fetchVersions',
-  SpaceTables.History,
+  SpaceArchiveTables.History,
   ({ select, where, param }) => {
     const params: VersionsWithContentQueryParam = {
       itemId: param('itemId') as string,

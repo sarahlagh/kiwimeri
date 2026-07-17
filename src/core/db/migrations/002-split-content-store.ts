@@ -4,6 +4,7 @@ enum _SpaceTables {
   Collection = 'collection',
   Stats = 'stats',
   ResumeState = 'collection_resume_state',
+  History = 'history',
   HistoryContent = 'history_content',
   Annotations = 'document_annotation',
   DerivedContent = 'derived_content',
@@ -18,6 +19,7 @@ enum _SpaceTables {
 
 // const C = _SpaceTables.Collection;
 // const A = _SpaceTables.Annotations;
+const H = _SpaceTables.History;
 const S = _SpaceTables.Stats;
 const RS = _SpaceTables.ResumeState;
 const HC = _SpaceTables.HistoryContent;
@@ -39,6 +41,7 @@ export default function Migration(
 
   // 0.4.4
   lastOpenedAtGoesToResumeState(_space);
+  historyGoesToSpaceArchive(_space, _spaceArchive);
   // TODO
   // history goes to space archive
   // collection content goes to content space
@@ -121,4 +124,11 @@ function lastOpenedAtGoesToResumeState(_space: NoSchemaStore) {
       _space.delRow(S, rowId);
     }
   });
+}
+
+function historyGoesToSpaceArchive(
+  _space: NoSchemaStore,
+  _spaceArchive: NoSchemaStore
+) {
+  _migrateTable(_space, _spaceArchive, H, H);
 }

@@ -49,7 +49,7 @@ describe('storage service', () => {
       const exportedTables = JSON.parse(exportedContent)[0];
       expect(exportedTables[SpaceTables.Collection]).toBeDefined();
       expect(exportedTables[SpaceTables.Annotations]).toBeDefined();
-      expect(exportedTables[SpaceTables.History]).toBeUndefined();
+      expect(exportedTables[SpaceArchiveTables.History]).toBeUndefined();
       expect(exportedTables[SpaceArchiveTables.HistoryContent]).toBeUndefined();
       expect(exportedTables[SpaceTables.Stats]).toBeUndefined();
       expect(spaceArchive.getRowCount(SpaceArchiveTables.HistoryContent)).toBe(
@@ -72,7 +72,7 @@ describe('storage service', () => {
       expect(spaceArchive.getRowCount(SpaceArchiveTables.DerivedContent)).toBe(
         2
       );
-      expect(space.getRowCount(SpaceTables.History)).toBe(1);
+      expect(spaceArchive.getRowCount(SpaceArchiveTables.History)).toBe(1);
       expect(spaceArchive.getRowCount(SpaceArchiveTables.HistoryContent)).toBe(
         1
       );
@@ -94,10 +94,10 @@ describe('storage service', () => {
       const exportedTables = JSON.parse(exportedContent)[0];
       expect(exportedTables[SpaceTables.Collection]).toBeDefined();
       expect(exportedTables[SpaceTables.Annotations]).toBeDefined();
-      expect(exportedTables[SpaceTables.History]).toBeDefined();
+      expect(exportedTables[SpaceArchiveTables.History]).toBeDefined();
       expect(exportedTables[SpaceArchiveTables.HistoryContent]).toBeDefined();
       expect(exportedTables[SpaceTables.Stats]).toBeDefined();
-      expect(space.getRowCount(SpaceTables.History)).toBe(2);
+      expect(spaceArchive.getRowCount(SpaceArchiveTables.History)).toBe(2);
       expect(spaceArchive.getRowCount(SpaceArchiveTables.HistoryContent)).toBe(
         2
       );
@@ -118,7 +118,7 @@ describe('storage service', () => {
       expect(spaceArchive.getRowCount(SpaceArchiveTables.DerivedContent)).toBe(
         2
       );
-      expect(space.getRowCount(SpaceTables.History)).toBe(3); // +1
+      expect(spaceArchive.getRowCount(SpaceArchiveTables.History)).toBe(3); // +1
       expect(spaceArchive.getRowCount(SpaceArchiveTables.HistoryContent)).toBe(
         2
       );
@@ -138,7 +138,7 @@ describe('storage service', () => {
 
       // update collection, leave annot untouched
       collectionService.setItemTitle(docId, 'new title');
-      expect(space.getRowCount(SpaceTables.History)).toBe(2);
+      expect(spaceArchive.getRowCount(SpaceArchiveTables.History)).toBe(2);
 
       storageService.restoreJson(exportedContent);
 
@@ -151,7 +151,7 @@ describe('storage service', () => {
       expect(spaceArchive.getRowCount(SpaceArchiveTables.DerivedContent)).toBe(
         2
       );
-      expect(space.getRowCount(SpaceTables.History)).toBe(2); // unchanged
+      expect(spaceArchive.getRowCount(SpaceArchiveTables.History)).toBe(2); // unchanged
       expect(spaceArchive.getRowCount(SpaceArchiveTables.HistoryContent)).toBe(
         2
       );
@@ -169,7 +169,7 @@ describe('storage service', () => {
 
       // update collection, leave annot untouched
       const docId2 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-      expect(space.getRowCount(SpaceTables.History)).toBe(3);
+      expect(spaceArchive.getRowCount(SpaceArchiveTables.History)).toBe(3);
 
       storageService.restoreJson(exportedContent);
 
@@ -182,7 +182,7 @@ describe('storage service', () => {
       expect(spaceArchive.getRowCount(SpaceArchiveTables.DerivedContent)).toBe(
         2
       );
-      expect(space.getRowCount(SpaceTables.History)).toBe(4); // + 1 deleted
+      expect(spaceArchive.getRowCount(SpaceArchiveTables.History)).toBe(4); // + 1 deleted
       expect(historyService.getLatestVersion(docId2)?.op).toBe('deleted');
       expect(spaceArchive.getRowCount(SpaceArchiveTables.HistoryContent)).toBe(
         3
@@ -201,7 +201,7 @@ describe('storage service', () => {
 
       // update collection, leave annot untouched
       collectionService.setItemTitle(docId, 'new title');
-      expect(space.getRowCount(SpaceTables.History)).toBe(2);
+      expect(spaceArchive.getRowCount(SpaceArchiveTables.History)).toBe(2);
 
       storageService.restoreJson(exportedContent);
 
@@ -214,7 +214,7 @@ describe('storage service', () => {
       expect(spaceArchive.getRowCount(SpaceArchiveTables.DerivedContent)).toBe(
         2
       );
-      expect(space.getRowCount(SpaceTables.History)).toBe(2); // unchanged
+      expect(spaceArchive.getRowCount(SpaceArchiveTables.History)).toBe(2); // unchanged
       expect(spaceArchive.getRowCount(SpaceArchiveTables.HistoryContent)).toBe(
         2
       );
@@ -228,12 +228,12 @@ describe('storage service', () => {
     it('should handle deleted rows with history and stats', () => {
       // create init data (1 doc 1 annot)
       initData();
-      expect(space.getRowCount(SpaceTables.History)).toBe(2);
+      expect(spaceArchive.getRowCount(SpaceArchiveTables.History)).toBe(2);
       const exportedContent = storageService.exportJson(true);
 
       // update collection, leave annot untouched
       const docId2 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-      expect(space.getRowCount(SpaceTables.History)).toBe(3);
+      expect(spaceArchive.getRowCount(SpaceArchiveTables.History)).toBe(3);
 
       storageService.restoreJson(exportedContent);
 
@@ -246,7 +246,7 @@ describe('storage service', () => {
       expect(spaceArchive.getRowCount(SpaceArchiveTables.DerivedContent)).toBe(
         2
       );
-      expect(space.getRowCount(SpaceTables.History)).toBe(2);
+      expect(spaceArchive.getRowCount(SpaceArchiveTables.History)).toBe(2);
       expect(historyService.getLatestVersion(docId2)).toBeUndefined();
       expect(spaceArchive.getRowCount(SpaceArchiveTables.HistoryContent)).toBe(
         2

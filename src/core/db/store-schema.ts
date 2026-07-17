@@ -36,7 +36,6 @@ export const storeTablesSchema = {
 
 export const spaceTablesSchema = {
   collection: collectionSchema,
-  history: historySchema,
   collection_resume_state: resumeStateSchema,
   stats: statsSchema,
   document_annotation: docAnnotationSchema,
@@ -49,9 +48,10 @@ export const spaceTablesSchema = {
 } as const satisfies Record<SpaceTables, unknown>;
 
 export const spaceArchiveTablesSchema = {
+  history: historySchema,
+  history_content: historyContentSchema,
   collection_content: contentSchema,
   document_annotation_content: contentSchema,
-  history_content: historyContentSchema,
   derived_content: derivedContentSchema
 } as const satisfies Record<SpaceArchiveTables, unknown>;
 
@@ -103,3 +103,4 @@ export type SpaceCellId<T extends SpaceTableId> = CellIdFromSchema<
 
 export type SpaceArchiveTablesType = typeof spaceArchiveTablesSchema;
 export type SpaceArchiveType = [SpaceArchiveTablesType, NoValuesSchema];
+export type SpaceArchiveTableId = TableIdFromSchema<SpaceArchiveTablesType>;

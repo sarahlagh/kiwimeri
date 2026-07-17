@@ -1,5 +1,5 @@
 import { DEFAULT_NOTEBOOK_ID, getGlobalTrans } from '@/constants';
-import { space } from '@/core/db/store';
+import { space, spaceArchive } from '@/core/db/store';
 import { CollectionItemType } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
 import { historyService } from '@/domain/history/history.service';
@@ -65,7 +65,7 @@ describe(`sync general test`, () => {
     expect(!resp.didPull);
     expect(!resp.didPush);
     expect(getRowCountInsideNotebook()).toBe(0);
-    expect(space.getRowCount('history')).toBe(0);
+    expect(spaceArchive.getRowCount('history')).toBe(0);
   });
 
   it('should pull everything on first pull if remote has content', async () => {

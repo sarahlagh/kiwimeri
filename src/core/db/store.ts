@@ -51,6 +51,7 @@ export const spaceMetrics = createMetrics(space);
 export const spaceArchive = rawSpaceArchive.setTablesSchema(
   spaceArchiveTablesSchema
 );
+export const spaceArchiveQueries = createQueries(spaceArchive);
 
 console.log('[db] stores initialized');
 

@@ -4,7 +4,6 @@ export enum StoreTables {
 
 export enum SpaceTables {
   Collection = 'collection',
-  History = 'history',
   ResumeState = 'collection_resume_state',
   Stats = 'stats',
   Annotations = 'document_annotation',
@@ -17,17 +16,19 @@ export enum SpaceTables {
 }
 
 export enum SpaceArchiveTables {
-  CollectionContent = 'collection_content',
-  AnnotationContent = 'document_annotation_content',
+  History = 'history',
   HistoryContent = 'history_content',
-  DerivedContent = 'derived_content'
+  // TODO move away
+  DerivedContent = 'derived_content',
+  CollectionContent = 'collection_content',
+  AnnotationContent = 'document_annotation_content'
 }
 
 export enum SpaceMetrics {
   latestCollectionChange = 'latestCollectionChange'
 }
 
-export type StoreQueriesId = 'store' | 'space'; // | 'spaceArchive';
+export type StoreQueriesId = 'store' | 'space' | 'spaceArchive';
 export enum SID {
   space = 'space',
   spaceArchive = 'spaceArchive',

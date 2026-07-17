@@ -1,6 +1,6 @@
 import { space, spaceArchive } from '@/core/db/store';
 import { SpaceArchiveTables, SpaceTables } from '@/core/db/store-constants';
-import { SpaceTablesType } from '@/core/db/store-schema';
+import { SpaceArchiveTablesType } from '@/core/db/store-schema';
 import {
   CollectionItem,
   CollectionItemSnapshotData,
@@ -25,7 +25,7 @@ import {
 import fetchVersionsQuery from './queries/fetchVersionsQuery';
 
 const C = SpaceTables.Collection;
-const H = SpaceTables.History;
+const H = SpaceArchiveTables.History;
 const HC = SpaceArchiveTables.HistoryContent;
 
 class CollectionHistoryService {
@@ -67,7 +67,10 @@ class CollectionHistoryService {
   }
 
   public getVersion(versionId: string) {
-    const versionRow = space.getRow(H, versionId) as CollectionItemVersionRow;
+    const versionRow = spaceArchive.getRow(
+      H,
+      versionId
+    ) as CollectionItemVersionRow;
     const contentRow = spaceArchive.getRow(
       HC,
       versionRow?.contentId || ''
@@ -144,7 +147,7 @@ class CollectionHistoryService {
   }
 
   public versionExists(id: string) {
-    return space.hasRow(H, id);
+    return spaceArchive.hasRow(H, id);
   }
 
   public restoreDocumentVersion(docId: string, versionId: string) {
@@ -193,9 +196,9 @@ class CollectionHistoryService {
 
   private saveSingleVersion(item: CollectionItem, op: CollectionItemVersionOp) {
     let versionId: string | undefined;
-    space.transaction(() => {
+    spaceArchive.transaction(() => {
       const contentId = this.getOrCreatedContentId(item);
-      versionId = space.addRow(H, {
+      versionId = spaceArchive.addRow(H, {
         op,
         itemId: item.id,
         createdAt: Date.now(),
@@ -229,9 +232,9 @@ class CollectionHistoryService {
     op: CollectionItemVersionOp
   ) {
     let versionId: string | undefined;
-    space.transaction(() => {
-      const contentId = space.getCell('history', newVersion.id, 'contentId');
-      versionId = space.addRow(H, {
+    spaceArchive.transaction(() => {
+      const contentId = spaceArchive.getCell(H, newVersion.id, 'contentId');
+      versionId = spaceArchive.addRow(H, {
         op,
         itemId: newVersion.itemId,
         createdAt: Date.now(),
@@ -254,12 +257,16 @@ class CollectionHistoryService {
   }
 
   private hardDeleteVersion(versionId: string) {
-    const contentId = space.getCell(H, versionId, 'contentId')?.toString();
+    const contentId = spaceArchive
+      .getCell(H, versionId, 'contentId')
+      ?.toString();
 
     // assuming there is no individual version delete for a doc
     // because otherwise should check if contentId is not used elsewhere
-    space.delRow(H, versionId);
-    if (contentId) spaceArchive.delRow(HC, contentId);
+    spaceArchive.transaction(() => {
+      spaceArchive.delRow(H, versionId);
+      if (contentId) spaceArchive.delRow(HC, contentId);
+    });
   }
 
   private saveVersionSync(id: string) {
@@ -296,7 +303,7 @@ class CollectionHistoryService {
   }
 
   private isContentIdUsed(
-    historyTable: Table<SpaceTablesType, SpaceTables.History>,
+    historyTable: Table<SpaceArchiveTablesType, SpaceArchiveTables.History>,
     contentId: Id
   ) {
     for (const rowId of Object.keys(historyTable)) {
@@ -311,8 +318,8 @@ class CollectionHistoryService {
     if (maxHistoryPerDoc <= 0) return;
     console.log('running history gc');
     const rankMap = new Map<string, number>();
-    const historyTable = space.getTable(H);
-    const rowIds = space.getSortedRowIds(H, 'createdAt', true);
+    const historyTable = spaceArchive.getTable(H);
+    const rowIds = spaceArchive.getSortedRowIds(H, 'createdAt', true);
     let count = 0;
 
     rowIds.forEach(rowId => {
@@ -325,7 +332,7 @@ class CollectionHistoryService {
       rankMap.set(itemId, rank);
       if (rank >= maxHistoryPerDoc) {
         count++;
-        space.delRow(H, rowId);
+        spaceArchive.delRow(H, rowId);
         delete historyTable[rowId];
         // query by contentId here
         if (!this.isContentIdUsed(historyTable, row.contentId!)) {
@@ -339,8 +346,8 @@ class CollectionHistoryService {
 
   public compact(skipDays = 0) {
     console.log('running history compaction');
-    const historyTable = space.getTable(H);
-    const rowIds = space.getSortedRowIds(H, 'createdAt', true);
+    const historyTable = spaceArchive.getTable(H);
+    const rowIds = spaceArchive.getSortedRowIds(H, 'createdAt', true);
     const itemMap = new Map<
       Id,
       Map<string, { rowId: string; createdAt: number }>
@@ -348,7 +355,7 @@ class CollectionHistoryService {
     const lastActiveDayMap = new Map<Id, number>();
     let count = 0;
 
-    space.transaction(() => {
+    spaceArchive.transaction(() => {
       rowIds.forEach(rowId => {
         const row = historyTable[rowId];
         const itemId = row.itemId as string;
@@ -372,7 +379,7 @@ class CollectionHistoryService {
         if (!dayMap.has(day)) {
           dayMap.set(day, { rowId, createdAt });
         } else {
-          space.delRow(H, rowId);
+          spaceArchive.delRow(H, rowId);
           delete historyTable[rowId];
           count++;
         }

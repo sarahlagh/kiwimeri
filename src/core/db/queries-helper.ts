@@ -13,9 +13,11 @@ import {
   Select,
   Where
 } from 'tinybase/with-schemas';
-import { spaceQueries, storeQueries } from './store';
+import { spaceArchiveQueries, spaceQueries, storeQueries } from './store';
 import { StoreQueriesId } from './store-constants';
 import {
+  SpaceArchiveTableId,
+  SpaceArchiveType,
   SpaceTableId,
   SpaceType,
   StoreTableId,
@@ -32,6 +34,8 @@ function getQueries(storeId: StoreQueriesId) {
       return storeQueries;
     case 'space':
       return spaceQueries;
+    case 'spaceArchive':
+      return spaceArchiveQueries;
   }
 }
 
@@ -201,6 +205,34 @@ export class SpaceQueryDefinition<
     public defaultDescending?: boolean
   ) {
     super('space', queryId, tableId, query, defaultSortBy, defaultDescending);
+  }
+}
+
+export class SpaceArchiveQueryDefinition<
+  ParamDef extends ParamValues,
+  QueryResult extends WithId<unknown>,
+  RootTableId extends SpaceArchiveTableId
+> extends TinybaseQueryDefinition<
+  SpaceArchiveType,
+  RootTableId,
+  ParamDef,
+  QueryResult
+> {
+  constructor(
+    public queryId: Id,
+    public tableId: RootTableId,
+    public query: QueryDefinition<SpaceArchiveType, RootTableId>,
+    public defaultSortBy?: SortCell<QueryResult>,
+    public defaultDescending?: boolean
+  ) {
+    super(
+      'spaceArchive',
+      queryId,
+      tableId,
+      query,
+      defaultSortBy,
+      defaultDescending
+    );
   }
 }
 

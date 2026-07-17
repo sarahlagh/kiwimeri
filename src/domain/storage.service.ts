@@ -30,7 +30,7 @@ import { AfterSyncChange } from './synchronization/merging/types';
 
 const C = SpaceTables.Collection;
 const A = SpaceTables.Annotations;
-const H = SpaceTables.History;
+const H = SpaceArchiveTables.History;
 const HC = SpaceArchiveTables.HistoryContent;
 const S = SpaceTables.Stats;
 const CollectionContent = SpaceArchiveTables.CollectionContent;
@@ -111,13 +111,13 @@ class StorageService {
         }
       ]);
     }
-    const space_content = spaceArchive.getContent();
+    const archive_content = spaceArchive.getContent();
     return JSON.stringify([
       {
         collection: content[0].collection,
         document_annotation: content[0].document_annotation,
-        history: content[0].history,
-        history_content: space_content[0].history_content,
+        history: archive_content[0].history,
+        history_content: archive_content[0].history_content,
         stats: content[0].stats
       }
     ]);
@@ -134,7 +134,7 @@ class StorageService {
     space.transaction(() => {
       this.setContent(tables, false);
       if (tables[H]) {
-        space.setTable(H, tables[H]);
+        spaceArchive.setTable(H, tables[H]);
       }
       if (tables[HC]) {
         spaceArchive.setTable(HC, tables[HC]);

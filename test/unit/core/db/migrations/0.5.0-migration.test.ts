@@ -62,8 +62,6 @@ async function migrateRawStore(
   };
 }
 
-// TODO test migration from 0.4.3 too
-
 describe('0.5.0 migration', () => {
   test.skip('regenerate 0.5.0 migration expected file', async () => {
     const migrationFixedVersion = '0.4.2';
