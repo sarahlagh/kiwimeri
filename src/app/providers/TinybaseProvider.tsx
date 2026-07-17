@@ -1,7 +1,7 @@
 import { appConfig } from '@/config';
 import {
   space,
-  spaceContent,
+  spaceArchive,
   spaceMetrics,
   spaceQueries,
   store,
@@ -23,7 +23,7 @@ const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
   const untypedSpace = space as unknown as Store;
   const untypedSpaceQueries = spaceQueries as unknown as Queries;
   const untypedSpaceMetrics = spaceMetrics as unknown as Metrics;
-  const untypedSpaceContent = spaceContent as unknown as Store;
+  const untypedSpaceArchive = spaceArchive as unknown as Store;
   const untypedStore = store as unknown as Store;
   const untypedStoreQueries = storeQueries as unknown as Queries;
 
@@ -35,7 +35,7 @@ const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
       storesById={{
         store: untypedStore,
         space: untypedSpace,
-        spaceContent: untypedSpaceContent
+        spaceArchive: untypedSpaceArchive
       }}
       queriesById={{ store: untypedStoreQueries, space: untypedSpaceQueries }}
       metricsById={{ space: untypedSpaceMetrics }}

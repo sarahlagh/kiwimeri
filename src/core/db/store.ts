@@ -4,9 +4,10 @@ import {
   createQueries,
   createStore
 } from 'tinybase/with-schemas';
+import { migrateArchiveDatabase } from './migrate-content-store';
 import { migrate } from './migrations/migrate';
 import {
-  spaceContentTablesSchema,
+  spaceArchiveTablesSchema,
   spaceTablesSchema,
   spaceValuesSchema,
   storeTablesSchema,
@@ -14,6 +15,8 @@ import {
 } from './store-schema';
 
 console.log('[db] create stores');
+await migrateArchiveDatabase(); // delete after 0.5.0
+
 const rawStore = createStore();
 const storePersister = createIndexedDbPersister(rawStore, 'kiwimeri-store');
 
@@ -21,20 +24,20 @@ const spaceName = `kiwimeri-space-default`;
 const rawSpace = createStore();
 const spacePersister = createIndexedDbPersister(rawSpace, spaceName);
 
-const spaceContentName = `kiwimeri-space-content-default`;
-const rawSpaceContent = createStore();
-const spaceContentPersister = createIndexedDbPersister(
-  rawSpaceContent,
-  spaceContentName
+const rawSpaceArchive = createStore();
+const spaceArchiveName = `kiwimeri-space-archive-default`;
+const spaceArchivePersister = createIndexedDbPersister(
+  rawSpaceArchive,
+  spaceArchiveName
 );
 
 await Promise.all([
   storePersister.load(),
   spacePersister.load(),
-  spaceContentPersister.load()
+  spaceArchivePersister.load()
 ]);
 console.log('[db] start to migrate stores');
-await migrate(rawStore, rawSpace, rawSpaceContent);
+await migrate(rawStore, rawSpace, rawSpaceArchive);
 console.log('[db] stores migrated');
 
 export const store = rawStore.setSchema(storeTablesSchema, storeValuesSchema);
@@ -45,8 +48,8 @@ export const space = rawSpace.setSchema(spaceTablesSchema, spaceValuesSchema);
 export const spaceQueries = createQueries(space);
 export const spaceMetrics = createMetrics(space);
 
-export const spaceContent = rawSpaceContent.setTablesSchema(
-  spaceContentTablesSchema
+export const spaceArchive = rawSpaceArchive.setTablesSchema(
+  spaceArchiveTablesSchema
 );
 
 console.log('[db] stores initialized');
@@ -65,19 +68,18 @@ spacePersister
     console.log('[space] auto save started');
   });
 
-// spaceContentPersister.save().then(() => console.log('[spaceContent] saved'));
-// TODO temporary
-spaceContentPersister
+// spaceTextPersister.save().then(() => console.log('[spaceText] saved'));
+spaceArchivePersister
   .save()
-  .then(() => spaceContentPersister.startAutoSave())
+  .then(() => spaceArchivePersister.startAutoSave())
   .then(() => {
-    console.log('[spaceContent] auto save started');
+    console.log('[spaceArchive] auto save started');
   });
 
 export async function destroyStore() {
   return Promise.all([
     storePersister.destroy(),
     spacePersister.destroy(),
-    spaceContentPersister.destroy()
+    spaceArchivePersister.destroy()
   ]);
 }

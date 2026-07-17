@@ -1,6 +1,6 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
-import { space, spaceContent } from '@/core/db/store';
-import { SpaceContentTables, SpaceTables } from '@/core/db/store-constants';
+import { space, spaceArchive } from '@/core/db/store';
+import { SpaceArchiveTables, SpaceTables } from '@/core/db/store-constants';
 import { setMetaField } from '@/core/db/types';
 import { CollectionItemType } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
@@ -409,8 +409,8 @@ describe('collection synchronizer', () => {
       expect(space.getRowCount(SpaceTables.Annotations)).toBe(1);
       expect(space.hasRow(SpaceTables.Annotations, notes[0].id));
       expect(
-        spaceContent.getCell(
-          SpaceContentTables.DerivedContent,
+        spaceArchive.getCell(
+          SpaceArchiveTables.DerivedContent,
           getDerivedId('a', notes[0].id),
           'plainText'
         )
@@ -667,8 +667,8 @@ describe('collection synchronizer', () => {
       expect(space.getRowCount(SpaceTables.Annotations)).toBe(1);
       expect(space.hasRow(SpaceTables.Annotations, notes[0].id));
       expect(
-        spaceContent.getCell(
-          SpaceContentTables.DerivedContent,
+        spaceArchive.getCell(
+          SpaceArchiveTables.DerivedContent,
           getDerivedId('a', notes[0].id),
           'plainText'
         )
@@ -708,15 +708,15 @@ describe('collection synchronizer', () => {
         space.hasRow(SpaceTables.Annotations, getDerivedId('a', notes[1].id))
       );
       expect(
-        spaceContent.getCell(
-          SpaceContentTables.DerivedContent,
+        spaceArchive.getCell(
+          SpaceArchiveTables.DerivedContent,
           getDerivedId('a', notes[0].id),
           'plainText'
         )
       ).toBe('test 2');
       expect(
-        spaceContent.getCell(
-          SpaceContentTables.DerivedContent,
+        spaceArchive.getCell(
+          SpaceArchiveTables.DerivedContent,
           getDerivedId('a', notes[1].id),
           'plainText'
         )

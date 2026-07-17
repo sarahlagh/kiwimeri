@@ -1,4 +1,4 @@
-import { space, spaceContent } from '@/core/db/store';
+import { space, spaceArchive } from '@/core/db/store';
 import collectionService from '@/domain/collection/collection.service';
 import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-content';
 import { getDerivedId } from '@/domain/collection/document-content';
@@ -43,7 +43,7 @@ describe('search service', () => {
         ?.toString();
       expect(minimized).toBeDefined();
       expect(
-        spaceContent.getCell(
+        spaceArchive.getCell(
           'derived_content',
           getDerivedId('c', docId),
           'plainText'

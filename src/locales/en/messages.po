@@ -198,7 +198,7 @@ msgstr "Conflicts"
 msgid "Content"
 msgstr "Content"
 
-#: src/features/collection-notes-ui/components/NotesMenu.tsx:57
+#: src/features/collection-notes-ui/components/NotesMenu.tsx:54
 msgid "create a note"
 msgstr "create a note"
 

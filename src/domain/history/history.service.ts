@@ -1,5 +1,5 @@
-import { space, spaceContent } from '@/core/db/store';
-import { SpaceContentTables, SpaceTables } from '@/core/db/store-constants';
+import { space, spaceArchive } from '@/core/db/store';
+import { SpaceArchiveTables, SpaceTables } from '@/core/db/store-constants';
 import { SpaceTablesType } from '@/core/db/store-schema';
 import {
   CollectionItem,
@@ -26,7 +26,7 @@ import fetchVersionsQuery from './queries/fetchVersionsQuery';
 
 const C = SpaceTables.Collection;
 const H = SpaceTables.History;
-const HC = SpaceContentTables.HistoryContent;
+const HC = SpaceArchiveTables.HistoryContent;
 
 class CollectionHistoryService {
   private enabled = true;
@@ -68,7 +68,7 @@ class CollectionHistoryService {
 
   public getVersion(versionId: string) {
     const versionRow = space.getRow(H, versionId) as CollectionItemVersionRow;
-    const contentRow = spaceContent.getRow(
+    const contentRow = spaceArchive.getRow(
       HC,
       versionRow?.contentId || ''
     ) as CollectionItemVersionContentRow;
@@ -208,10 +208,10 @@ class CollectionHistoryService {
 
   private getOrCreatedContentId(item: Pick<CollectionItem, 'id' | 'content'>) {
     const contentHash = `${getHash(item.id + item.content || '')}`;
-    if (spaceContent.hasRow(HC, contentHash)) {
+    if (spaceArchive.hasRow(HC, contentHash)) {
       return contentHash;
     }
-    spaceContent.setRow(HC, contentHash, {
+    spaceArchive.setRow(HC, contentHash, {
       content: item.content || ''
     });
     return contentHash;
@@ -259,7 +259,7 @@ class CollectionHistoryService {
     // assuming there is no individual version delete for a doc
     // because otherwise should check if contentId is not used elsewhere
     space.delRow(H, versionId);
-    if (contentId) spaceContent.delRow(HC, contentId);
+    if (contentId) spaceArchive.delRow(HC, contentId);
   }
 
   private saveVersionSync(id: string) {
@@ -330,7 +330,7 @@ class CollectionHistoryService {
         // query by contentId here
         if (!this.isContentIdUsed(historyTable, row.contentId!)) {
           // content is now unused
-          spaceContent.delRow(HC, row.contentId!);
+          spaceArchive.delRow(HC, row.contentId!);
         }
       }
     });
@@ -379,7 +379,7 @@ class CollectionHistoryService {
         // query by contentId here
         if (!this.isContentIdUsed(historyTable, row.contentId!)) {
           // content is now unused
-          spaceContent.delRow(HC, row.contentId!);
+          spaceArchive.delRow(HC, row.contentId!);
         }
       });
     });

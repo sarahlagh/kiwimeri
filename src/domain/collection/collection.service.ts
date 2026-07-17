@@ -1,6 +1,6 @@
 import { DEFAULT_ORDER, getGlobalTrans, ROOT_COLLECTION } from '@/constants';
-import { space, spaceContent } from '@/core/db/store';
-import { SpaceContentTables, SpaceTables } from '@/core/db/store-constants';
+import { space, spaceArchive } from '@/core/db/store';
+import { SpaceArchiveTables, SpaceTables } from '@/core/db/store-constants';
 import { SpaceTablesType } from '@/core/db/store-schema';
 import { DbSerializableData, setMetaField, WithId } from '@/core/db/types';
 import {
@@ -50,7 +50,7 @@ export const INITIAL_CONTENT_START = '{"root":{';
 const C = SpaceTables.Collection;
 const DerivedPreview = SpaceTables.DerivedPreview;
 const DerivedState = SpaceTables.DerivedState;
-const DerivedContent = SpaceContentTables.DerivedContent;
+const DerivedContent = SpaceArchiveTables.DerivedContent;
 
 class CollectionService {
   public getNewDocumentObj(parent: string) {
@@ -110,7 +110,7 @@ class CollectionService {
   }
 
   public getDocumentPlainText(id: string) {
-    return spaceContent.getCell(DerivedContent, id, 'plainText') || '';
+    return spaceArchive.getCell(DerivedContent, id, 'plainText') || '';
   }
 
   public getDocumentPreview(id: string) {

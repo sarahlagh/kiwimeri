@@ -1,5 +1,5 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
-import { space, spaceContent } from '@/core/db/store';
+import { space, spaceArchive } from '@/core/db/store';
 import { CollectionItem } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
 import { historyService } from '@/domain/history/history.service';
@@ -70,10 +70,10 @@ describe('collection history service', () => {
           });
           if (field !== 'content') {
             expect(versionData[field]).toBe(newValue);
-            expect(spaceContent.getRowCount('history_content')).toBe(1);
+            expect(spaceArchive.getRowCount('history_content')).toBe(1);
           } else {
             expect(version0.content).toBe(newValue);
-            expect(spaceContent.getRowCount('history_content')).toBe(2);
+            expect(spaceArchive.getRowCount('history_content')).toBe(2);
           }
         });
       }
@@ -388,11 +388,11 @@ describe('collection history service', () => {
       collectionService.setItemField(doc1, 'title', getNewValue('string'));
       vi.advanceTimersByTime(fakeTimersDelay);
       expect(historyService.getVersions(doc1)).toHaveLength(3);
-      expect(spaceContent.getRowCount('history_content')).toBe(3);
+      expect(spaceArchive.getRowCount('history_content')).toBe(3);
 
       historyService.gc();
       expect(historyService.getVersions(doc1)).toHaveLength(2);
-      expect(spaceContent.getRowCount('history_content')).toBe(2);
+      expect(spaceArchive.getRowCount('history_content')).toBe(2);
 
       // one more title version - one content is removed
       // TODO test not relevant anymore since title doesn't create a new version
@@ -402,7 +402,7 @@ describe('collection history service', () => {
 
       historyService.gc();
       expect(historyService.getVersions(doc1)).toHaveLength(2);
-      expect(spaceContent.getRowCount('history_content')).toBe(2);
+      expect(spaceArchive.getRowCount('history_content')).toBe(2);
     });
 
     it(`should not gc if setting is negative or zero`, () => {
@@ -418,11 +418,11 @@ describe('collection history service', () => {
       collectionService.setItemField(doc1, 'title', getNewValue('string'));
       vi.advanceTimersByTime(fakeTimersDelay);
       expect(historyService.getVersions(doc1)).toHaveLength(3);
-      expect(spaceContent.getRowCount('history_content')).toBe(3);
+      expect(spaceArchive.getRowCount('history_content')).toBe(3);
 
       historyService.gc();
       expect(historyService.getVersions(doc1)).toHaveLength(3);
-      expect(spaceContent.getRowCount('history_content')).toBe(3);
+      expect(spaceArchive.getRowCount('history_content')).toBe(3);
     });
   });
 
@@ -476,14 +476,14 @@ describe('collection history service', () => {
 
       expect(historyService.getVersions(doc1)).toHaveLength(8);
       expect(historyService.getVersions(doc2)).toHaveLength(12);
-      expect(spaceContent.getRowCount('history_content')).toBe(20);
+      expect(spaceArchive.getRowCount('history_content')).toBe(20);
 
       historyService.compact();
       const doc1Versions = historyService.getVersions(doc1);
       expect(doc1Versions).toHaveLength(4);
       const doc2Versions = historyService.getVersions(doc2);
       expect(doc2Versions).toHaveLength(5);
-      expect(spaceContent.getRowCount('history_content')).toBe(9);
+      expect(spaceArchive.getRowCount('history_content')).toBe(9);
     });
 
     it(`should not compact today's history`, () => {
@@ -497,11 +497,11 @@ describe('collection history service', () => {
       vi.advanceTimersByTime(fakeTimersDelay);
 
       expect(historyService.getVersions(doc1)).toHaveLength(4);
-      expect(spaceContent.getRowCount('history_content')).toBe(4);
+      expect(spaceArchive.getRowCount('history_content')).toBe(4);
 
       historyService.compact();
       expect(historyService.getVersions(doc1)).toHaveLength(4);
-      expect(spaceContent.getRowCount('history_content')).toBe(4);
+      expect(spaceArchive.getRowCount('history_content')).toBe(4);
     });
 
     it(`should not compact last active day`, () => {
@@ -515,23 +515,23 @@ describe('collection history service', () => {
       vi.advanceTimersByTime(fakeTimersDelay);
 
       expect(historyService.getVersions(doc1)).toHaveLength(4);
-      expect(spaceContent.getRowCount('history_content')).toBe(4);
+      expect(spaceArchive.getRowCount('history_content')).toBe(4);
 
       historyService.compact();
       expect(historyService.getVersions(doc1)).toHaveLength(4);
-      expect(spaceContent.getRowCount('history_content')).toBe(4);
+      expect(spaceArchive.getRowCount('history_content')).toBe(4);
 
       vi.setSystemTime(Date.now() + 3 * 86400000);
       historyService.compact(); // last active day unchanged
       expect(historyService.getVersions(doc1)).toHaveLength(4);
-      expect(spaceContent.getRowCount('history_content')).toBe(4);
+      expect(spaceArchive.getRowCount('history_content')).toBe(4);
 
       vi.advanceTimersByTime(fakeTimersDelay);
       collectionService.setItemField(doc1, 'content', getNewValue('lex'));
       vi.advanceTimersByTime(fakeTimersDelay);
       historyService.compact(); // today's the last active day
       expect(historyService.getVersions(doc1)).toHaveLength(2);
-      expect(spaceContent.getRowCount('history_content')).toBe(2);
+      expect(spaceArchive.getRowCount('history_content')).toBe(2);
     });
   });
 });

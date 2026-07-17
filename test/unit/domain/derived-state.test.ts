@@ -1,6 +1,6 @@
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
-import { space, spaceContent } from '@/core/db/store';
-import { SpaceContentTables, SpaceTables } from '@/core/db/store-constants';
+import { space, spaceArchive } from '@/core/db/store';
+import { SpaceArchiveTables, SpaceTables } from '@/core/db/store-constants';
 import { startDbListeners, stopDbListeners } from '@/core/db/store-listeners';
 import collectionService from '@/domain/collection/collection.service';
 import { minimizeContentForStorage } from '@/domain/collection/compress-file-content';
@@ -95,15 +95,15 @@ describe('derived state', () => {
 
     it(`should update path on setContent (pull)`, () => {
       createTestData();
-      const spaceContent = space.getContent();
+      const space_content = space.getContent();
       // add items locally
       collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
       notebooksService.addNotebook('N1');
 
       // pull - newest items are removed
-      space.setContent(spaceContent);
-      collectionService.backfillDerivedStates(spaceContent[0].collection);
+      space.setContent(space_content);
+      collectionService.backfillDerivedStates(space_content[0].collection);
 
       testExpectedPaths([
         ['0', 'F1', 'FF1', 'FFF1', 'D1'],
@@ -187,7 +187,7 @@ describe('derived state', () => {
     it(`should update plainText on saveItems (import)`, () => {
       createTestData();
 
-      expect(spaceContent.getCell('derived_content', 'c-D1', 'plainText')).toBe(
+      expect(spaceArchive.getCell('derived_content', 'c-D1', 'plainText')).toBe(
         shortContentPreview
       );
     });
@@ -197,7 +197,7 @@ describe('derived state', () => {
 
       collectionService.setItemLexicalContent('D1', shortContentUpdated);
 
-      expect(spaceContent.getCell('derived_content', 'c-D1', 'plainText')).toBe(
+      expect(spaceArchive.getCell('derived_content', 'c-D1', 'plainText')).toBe(
         shortContentPreviewUpdated
       );
     });
@@ -217,8 +217,8 @@ describe('derived state', () => {
       space.setContent(space_content);
 
       expect(
-        spaceContent.getCell(
-          SpaceContentTables.DerivedContent,
+        spaceArchive.getCell(
+          SpaceArchiveTables.DerivedContent,
           'c-D1',
           'plainText'
         )
@@ -231,7 +231,7 @@ describe('derived state', () => {
       createTestData();
 
       expect(
-        spaceContent.hasRow(SpaceContentTables.DerivedContent, 'c-D1')
+        spaceArchive.hasRow(SpaceArchiveTables.DerivedContent, 'c-D1')
       ).toBe(true);
 
       collectionService.deleteItem('FF1');
@@ -302,14 +302,14 @@ describe('derived state', () => {
       expectUpdatedAtRank(doc1Id, undefined);
       expectUpdatedAtRank(doc2Id, undefined);
       expectUpdatedAtRank(doc3Id, undefined);
-      const content = space.getContent();
+      const space_content = space.getContent();
       space.setContent([{}, {}]);
       startDbListeners();
 
       space.setContent([
         {
-          collection: content[0].collection,
-          derived_item_state: content[0].derived_item_state
+          collection: space_content[0].collection,
+          derived_item_state: space_content[0].derived_item_state
         },
         {}
       ]);

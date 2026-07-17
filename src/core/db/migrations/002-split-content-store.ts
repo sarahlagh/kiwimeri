@@ -9,7 +9,7 @@ enum _SpaceTables {
   DerivedState = 'derived_item_state'
 }
 
-// enum _SpaceContentTables {
+// enum _SpaceArchiveTables {
 //   CollectionContent = 'collection_content',
 //   AnnotationContent = 'document_annotation_content'
 // }
@@ -19,19 +19,19 @@ enum _SpaceTables {
 const HC = _SpaceTables.HistoryContent;
 const DC = _SpaceTables.DerivedContent;
 const DP = _SpaceTables.DerivedPreview;
-// const CC = _SpaceContentTables.CollectionContent;
-// const AC = _SpaceContentTables.AnnotationContent;
+// const CC = _SpaceArchiveTables.CollectionContent;
+// const AC = _SpaceArchiveTables.AnnotationContent;
 
 // TODO preview for annotations? go where?
 
 export default function Migration(
   _space: NoSchemaStore,
-  _spaceContent: NoSchemaStore
+  _spaceArchive: NoSchemaStore
 ) {
   addPreviewFieldFromPlainText(_space);
-  // contentFieldsGoToOtherSpace(_space, _spaceContent);
-  historyContentGoesToOtherSpace(_space, _spaceContent);
-  derivedContentGoesToOtherSpace(_space, _spaceContent);
+  // contentFieldsGoToOtherSpace(_space, _spaceArchive);
+  historyContentGoesToOtherSpace(_space, _spaceArchive);
+  derivedContentGoesToOtherSpace(_space, _spaceArchive);
 }
 
 function addPreviewFieldFromPlainText(_space: NoSchemaStore) {
@@ -44,14 +44,14 @@ function addPreviewFieldFromPlainText(_space: NoSchemaStore) {
 
 // function _contentGoesToOtherSpace(
 //   _space: NoSchemaStore,
-//   _spaceContent: NoSchemaStore,
+//   _spaceArchive: NoSchemaStore,
 //   oldTableId: string,
 //   newTableId: string
 // ) {
 //   _space.getRowIds(oldTableId).forEach(rowId => {
 //     const content = _space.getCell(oldTableId, rowId, 'content');
 //     const content_meta = _space.getCell(oldTableId, rowId, 'content_meta');
-//     _spaceContent.setRow(newTableId, rowId, {
+//     _spaceArchive.setRow(newTableId, rowId, {
 //       content,
 //       content_meta
 //     });
@@ -60,10 +60,10 @@ function addPreviewFieldFromPlainText(_space: NoSchemaStore) {
 
 // function contentFieldsGoToOtherSpace(
 //   _space: NoSchemaStore,
-//   _spaceContent: NoSchemaStore
+//   _spaceArchive: NoSchemaStore
 // ) {
-//   _contentGoesToOtherSpace(_space, _spaceContent, C, CC);
-//   _contentGoesToOtherSpace(_space, _spaceContent, A, AC);
+//   _contentGoesToOtherSpace(_space, _spaceArchive, C, CC);
+//   _contentGoesToOtherSpace(_space, _spaceArchive, A, AC);
 // }
 
 function _migrateTable(
@@ -86,14 +86,14 @@ function _migrateTable(
 
 function historyContentGoesToOtherSpace(
   _space: NoSchemaStore,
-  _spaceContent: NoSchemaStore
+  _spaceArchive: NoSchemaStore
 ) {
-  _migrateTable(_space, _spaceContent, HC, HC);
+  _migrateTable(_space, _spaceArchive, HC, HC);
 }
 
 function derivedContentGoesToOtherSpace(
   _space: NoSchemaStore,
-  _spaceContent: NoSchemaStore
+  _spaceArchive: NoSchemaStore
 ) {
-  _migrateTable(_space, _spaceContent, DC, DC);
+  _migrateTable(_space, _spaceArchive, DC, DC);
 }

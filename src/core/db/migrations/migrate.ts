@@ -7,7 +7,7 @@ export type NoSchemaStore = Store<NoSchemas>;
 async function migrateSpace(
   _store: NoSchemaStore,
   _space: NoSchemaStore,
-  _spaceContent: NoSchemaStore
+  _spaceArchive: NoSchemaStore
 ) {
   const runtimeVersion = appConfig.KIWIMERI_VERSION;
   const baseRuntimeVersion = runtimeVersion.split('~')[0];
@@ -30,14 +30,14 @@ async function migrateSpace(
   if (between(runtimeCode, 402, 501)) {
     console.log('[migration] 1 space migration to run: split content store');
     const func = await import('./002-split-content-store');
-    func.default(_space, _spaceContent);
+    func.default(_space, _spaceArchive);
   }
 }
 
 export async function migrate(
   _store: NoSchemaStore,
   _space: NoSchemaStore,
-  _spaceContent: NoSchemaStore
+  _spaceArchive: NoSchemaStore
 ) {
-  return migrateSpace(_store, _space, _spaceContent);
+  return migrateSpace(_store, _space, _spaceArchive);
 }

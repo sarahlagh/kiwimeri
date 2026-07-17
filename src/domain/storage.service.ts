@@ -1,6 +1,6 @@
 import { ANNOT_PREVIEW_SIZE, DOC_PREVIEW_SIZE } from '@/constants';
-import { space, spaceContent } from '@/core/db/store';
-import { SpaceContentTables, SpaceTables } from '@/core/db/store-constants';
+import { space, spaceArchive } from '@/core/db/store';
+import { SpaceArchiveTables, SpaceTables } from '@/core/db/store-constants';
 import {
   SpaceTableId,
   SpaceTablesType,
@@ -31,19 +31,19 @@ import { AfterSyncChange } from './synchronization/merging/types';
 const C = SpaceTables.Collection;
 const A = SpaceTables.Annotations;
 const H = SpaceTables.History;
-const HC = SpaceContentTables.HistoryContent;
+const HC = SpaceArchiveTables.HistoryContent;
 const S = SpaceTables.Stats;
-const CollectionContent = SpaceContentTables.CollectionContent;
+const CollectionContent = SpaceArchiveTables.CollectionContent;
 const DerivedPreview = SpaceTables.DerivedPreview;
 const DerivedState = SpaceTables.DerivedState;
-const DerivedContent = SpaceContentTables.DerivedContent;
-const AnnotationContent = SpaceContentTables.AnnotationContent;
+const DerivedContent = SpaceArchiveTables.DerivedContent;
+const AnnotationContent = SpaceArchiveTables.AnnotationContent;
 const ResumeState = SpaceTables.ResumeState;
 
 class StorageService {
   public nukeSpace() {
     space.setContent([{}, {}]);
-    spaceContent.setContent([{}, {}]);
+    spaceArchive.setContent([{}, {}]);
     notebooksService.initNotebooks();
     localChangesService.clear();
     tagsService.clear();
@@ -52,7 +52,7 @@ class StorageService {
   public backfillDerivedContent() {
     const collection = space.getTable(C);
     const annotations = space.getTable(A);
-    spaceContent.startTransaction();
+    spaceArchive.startTransaction();
     space.transaction(() => {
       space.getRowIds(C).forEach(rowId => {
         if (!collection[rowId].content) return;
@@ -62,7 +62,7 @@ class StorageService {
         space.setRow(SpaceTables.DerivedPreview, derivedId, {
           previewText
         });
-        spaceContent.setRow(SpaceContentTables.DerivedContent, derivedId, {
+        spaceArchive.setRow(SpaceArchiveTables.DerivedContent, derivedId, {
           plainText
         });
         statsOnPlainTextCallback(rowId, plainText);
@@ -75,12 +75,12 @@ class StorageService {
         space.setRow(SpaceTables.DerivedPreview, derivedId, {
           previewText
         });
-        spaceContent.setRow(SpaceContentTables.DerivedContent, derivedId, {
+        spaceArchive.setRow(SpaceArchiveTables.DerivedContent, derivedId, {
           plainText
         });
       });
     });
-    spaceContent.finishTransaction();
+    spaceArchive.finishTransaction();
   }
 
   public cleanupRow(rowId: string, on: SpaceTableId) {
@@ -89,15 +89,15 @@ class StorageService {
       derivedId = getDerivedId('c', rowId);
       space.delRow(DerivedState, rowId);
       space.delRow(ResumeState, rowId);
-      spaceContent.delRow(CollectionContent, rowId);
+      spaceArchive.delRow(CollectionContent, rowId);
     }
     if (on === SpaceTables.Annotations) {
       derivedId = getDerivedId('a', rowId);
-      spaceContent.delRow(AnnotationContent, rowId);
+      spaceArchive.delRow(AnnotationContent, rowId);
     }
     if (derivedId) {
       space.delRow(DerivedPreview, derivedId);
-      spaceContent.delRow(DerivedContent, derivedId);
+      spaceArchive.delRow(DerivedContent, derivedId);
     }
   }
 
@@ -111,7 +111,7 @@ class StorageService {
         }
       ]);
     }
-    const space_content = spaceContent.getContent();
+    const space_content = spaceArchive.getContent();
     return JSON.stringify([
       {
         collection: content[0].collection,
@@ -137,7 +137,7 @@ class StorageService {
         space.setTable(H, tables[H]);
       }
       if (tables[HC]) {
-        spaceContent.setTable(HC, tables[HC]);
+        spaceArchive.setTable(HC, tables[HC]);
       }
     });
     if (tables[S]) {

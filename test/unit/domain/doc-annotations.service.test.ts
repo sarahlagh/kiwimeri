@@ -1,6 +1,6 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
-import { space, spaceContent } from '@/core/db/store';
-import { SpaceContentTables, SpaceTables } from '@/core/db/store-constants';
+import { space, spaceArchive } from '@/core/db/store';
+import { SpaceArchiveTables, SpaceTables } from '@/core/db/store-constants';
 import collectionService from '@/domain/collection/collection.service';
 import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-content';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
@@ -41,12 +41,12 @@ function assertDerivedTablesCleared(id: string) {
   expect(space.hasRow(SpaceTables.DerivedPreview, getDerivedId('a', id))).toBe(
     false
   );
-  expect(spaceContent.hasRow(SpaceContentTables.AnnotationContent, id)).toBe(
+  expect(spaceArchive.hasRow(SpaceArchiveTables.AnnotationContent, id)).toBe(
     false
   );
   expect(
-    spaceContent.hasRow(
-      SpaceContentTables.DerivedContent,
+    spaceArchive.hasRow(
+      SpaceArchiveTables.DerivedContent,
       getDerivedId('a', id)
     )
   ).toBe(false);
@@ -111,8 +111,8 @@ describe('notes service', () => {
     annotsService.edit(noteId, JSON.parse(content));
 
     const note = space.getRow(SpaceTables.Annotations, noteId);
-    const derived = spaceContent.getRow(
-      SpaceContentTables.DerivedContent,
+    const derived = spaceArchive.getRow(
+      SpaceArchiveTables.DerivedContent,
       getDerivedId('a', noteId)
     );
     expect(unminimizeContentFromStorage(note.content)).toBe(content);

@@ -1,6 +1,6 @@
 import { DOC_PREVIEW_SIZE } from '@/constants';
-import { space, spaceContent } from '@/core/db/store';
-import { SpaceContentTables, SpaceTables } from '@/core/db/store-constants';
+import { space, spaceArchive } from '@/core/db/store';
+import { SpaceArchiveTables, SpaceTables } from '@/core/db/store-constants';
 import { SpaceCellId, SpaceTableId } from '@/core/db/store-schema';
 import { getPlainText } from '@/shared/misc/getPlainText';
 import { Id } from 'tinybase/with-schemas';
@@ -27,7 +27,7 @@ function addDerivedContentListener(
           _store.setRow(SpaceTables.DerivedPreview, derivedId, {
             previewText
           });
-          spaceContent.setRow(SpaceContentTables.DerivedContent, derivedId, {
+          spaceArchive.setRow(SpaceArchiveTables.DerivedContent, derivedId, {
             plainText
           });
           if (onPlainTextChange) onPlainTextChange(rowId, plainText);

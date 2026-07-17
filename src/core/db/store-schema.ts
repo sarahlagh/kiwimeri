@@ -15,7 +15,7 @@ import { replicaStatesSchema } from '@/domain/synchronization/replica-state';
 import { userPreferenceSchema } from '@/domain/user-preferences/user-preferences';
 import { NoValuesSchema } from 'tinybase/with-schemas';
 import {
-  SpaceContentTables,
+  SpaceArchiveTables,
   SpaceTables,
   StoreTables
 } from './store-constants';
@@ -48,12 +48,12 @@ export const spaceTablesSchema = {
   replica_state: replicaStatesSchema
 } as const satisfies Record<SpaceTables, unknown>;
 
-export const spaceContentTablesSchema = {
+export const spaceArchiveTablesSchema = {
   collection_content: contentSchema,
   document_annotation_content: contentSchema,
   history_content: historyContentSchema,
   derived_content: derivedContentSchema
-} as const satisfies Record<SpaceContentTables, unknown>;
+} as const satisfies Record<SpaceArchiveTables, unknown>;
 
 export const storeValuesSchema = {
   tempDoc: { type: 'string' }
@@ -101,5 +101,5 @@ export type SpaceCellId<T extends SpaceTableId> = CellIdFromSchema<
   T
 >;
 
-export type SpaceContentTablesType = typeof spaceContentTablesSchema;
-export type SpaceContentType = [SpaceContentTablesType, NoValuesSchema];
+export type SpaceArchiveTablesType = typeof spaceArchiveTablesSchema;
+export type SpaceArchiveType = [SpaceArchiveTablesType, NoValuesSchema];

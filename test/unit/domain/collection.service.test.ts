@@ -3,8 +3,8 @@ import {
   DEFAULT_ORDER,
   ROOT_COLLECTION
 } from '@/constants';
-import { space, spaceContent } from '@/core/db/store';
-import { SpaceContentTables, SpaceTables } from '@/core/db/store-constants';
+import { space, spaceArchive } from '@/core/db/store';
+import { SpaceArchiveTables, SpaceTables } from '@/core/db/store-constants';
 import { setMetaField } from '@/core/db/types';
 import {
   CollectionItemResetConflictFields,
@@ -44,14 +44,14 @@ function assertDerivedTablesAreCleared(on: 'c' | 'a', id: string) {
   );
   expect(space.hasRow(SpaceTables.DerivedState, id)).toBe(false);
   expect(space.hasRow(SpaceTables.ResumeState, id)).toBe(false);
-  expect(spaceContent.hasRow(SpaceContentTables.CollectionContent, id)).toBe(
+  expect(spaceArchive.hasRow(SpaceArchiveTables.CollectionContent, id)).toBe(
     false
   );
-  expect(spaceContent.hasRow(SpaceContentTables.AnnotationContent, id)).toBe(
+  expect(spaceArchive.hasRow(SpaceArchiveTables.AnnotationContent, id)).toBe(
     false
   );
   expect(
-    spaceContent.hasRow(SpaceContentTables.DerivedContent, getDerivedId(on, id))
+    spaceArchive.hasRow(SpaceArchiveTables.DerivedContent, getDerivedId(on, id))
   ).toBe(false);
 }
 
@@ -61,14 +61,14 @@ function assertDerivedTablesAreNotCleared(on: 'c' | 'a', id: string) {
   );
   expect(space.hasRow(SpaceTables.DerivedState, id)).toBe(on === 'c');
   expect(space.hasRow(SpaceTables.ResumeState, id)).toBe(on === 'c');
-  // expect(spaceContent.hasRow(SpaceContentTables.CollectionContent, id)).toBe(
+  // expect(spaceArchive.hasRow(SpaceArchiveTables.CollectionContent, id)).toBe(
   //   on === 'c'
   // );
-  // expect(spaceContent.hasRow(SpaceContentTables.AnnotationContent, id)).toBe(
+  // expect(spaceArchive.hasRow(SpaceArchiveTables.AnnotationContent, id)).toBe(
   //   on === 'a'
   // );
   expect(
-    spaceContent.hasRow(SpaceContentTables.DerivedContent, getDerivedId(on, id))
+    spaceArchive.hasRow(SpaceArchiveTables.DerivedContent, getDerivedId(on, id))
   ).toBe(true);
 }
 
@@ -438,7 +438,7 @@ describe('collection service', () => {
           const hashes = historyService.getVersions(id).map(v => v.hash);
           hashes.forEach(hash => {
             expect(
-              spaceContent.hasRow(SpaceContentTables.HistoryContent, hash)
+              spaceArchive.hasRow(SpaceArchiveTables.HistoryContent, hash)
             ).toBe(true);
           });
 
@@ -450,7 +450,7 @@ describe('collection service', () => {
           expect(historyService.getVersions(id)).toHaveLength(0);
           hashes.forEach(hash => {
             expect(
-              spaceContent.hasRow(SpaceContentTables.HistoryContent, hash)
+              spaceArchive.hasRow(SpaceArchiveTables.HistoryContent, hash)
             ).toBe(false);
           });
           expect(annotsService.exists(noteId)).toBe(false);

@@ -1,31 +1,31 @@
 import { Store } from 'tinybase/with-schemas';
-import { SpaceContentTables, SpaceTables } from '../store-constants';
+import { SpaceArchiveTables, SpaceTables } from '../store-constants';
 
 // TODO test that one
 
 export default function Migration(
   _space: Store<never>,
-  _spaceContent: Store<never>
+  _spaceArchive: Store<never>
 ) {
   rowIdForRowId(_space, SpaceTables.ResumeState);
   rowIdForRowId(_space, SpaceTables.DerivedState);
   rowIdForDerivedRowId(_space, SpaceTables.DerivedPreview);
   rowIdForContentRowId(
     _space,
-    _spaceContent,
+    _spaceArchive,
     SpaceTables.Collection,
-    SpaceContentTables.CollectionContent
+    SpaceArchiveTables.CollectionContent
   );
   rowIdForContentRowId(
     _space,
-    _spaceContent,
+    _spaceArchive,
     SpaceTables.Annotations,
-    SpaceContentTables.AnnotationContent
+    SpaceArchiveTables.AnnotationContent
   );
   rowIdForContentDerivedRowId(
     _space,
-    _spaceContent,
-    SpaceContentTables.DerivedContent
+    _spaceArchive,
+    SpaceArchiveTables.DerivedContent
   );
 }
 
@@ -67,16 +67,16 @@ function rowIdForDerivedRowId(_space: Store<never>, tableId: SpaceTables) {
 
 function rowIdForContentRowId(
   _space: Store<never>,
-  _spaceContent: Store<never>,
+  _spaceArchive: Store<never>,
   targetId: SpaceTables,
-  tableId: SpaceContentTables
+  tableId: SpaceArchiveTables
 ) {
   let count = 0;
-  const rowIds = _spaceContent.getRowIds(tableId);
-  _spaceContent.transaction(() => {
+  const rowIds = _spaceArchive.getRowIds(tableId);
+  _spaceArchive.transaction(() => {
     rowIds.forEach(rowId => {
       if (!_space.hasRow(targetId, rowId)) {
-        _spaceContent.delRow(tableId, rowId);
+        _spaceArchive.delRow(tableId, rowId);
         count++;
       }
     });
@@ -86,22 +86,22 @@ function rowIdForContentRowId(
 
 function rowIdForContentDerivedRowId(
   _space: Store<never>,
-  _spaceContent: Store<never>,
-  tableId: SpaceContentTables
+  _spaceArchive: Store<never>,
+  tableId: SpaceArchiveTables
 ) {
   let count = 0;
-  const rowIds = _spaceContent.getRowIds(tableId);
-  _spaceContent.transaction(() => {
+  const rowIds = _spaceArchive.getRowIds(tableId);
+  _spaceArchive.transaction(() => {
     rowIds.forEach(rowId => {
       const [on, itemId] = rowId.split('-');
       if (on === 'c') {
         if (!_space.hasRow(SpaceTables.Collection, itemId)) {
-          _spaceContent.delRow(tableId, rowId);
+          _spaceArchive.delRow(tableId, rowId);
           count++;
         }
       } else if (on === 'a') {
         if (!_space.hasRow(SpaceTables.Annotations, itemId)) {
-          _spaceContent.delRow(tableId, rowId);
+          _spaceArchive.delRow(tableId, rowId);
           count++;
         }
       }

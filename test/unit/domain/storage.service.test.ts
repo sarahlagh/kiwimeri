@@ -1,6 +1,6 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
-import { space, spaceContent } from '@/core/db/store';
-import { SpaceContentTables, SpaceTables } from '@/core/db/store-constants';
+import { space, spaceArchive } from '@/core/db/store';
+import { SpaceArchiveTables, SpaceTables } from '@/core/db/store-constants';
 import collectionService from '@/domain/collection/collection.service';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
@@ -50,9 +50,9 @@ describe('storage service', () => {
       expect(exportedTables[SpaceTables.Collection]).toBeDefined();
       expect(exportedTables[SpaceTables.Annotations]).toBeDefined();
       expect(exportedTables[SpaceTables.History]).toBeUndefined();
-      expect(exportedTables[SpaceContentTables.HistoryContent]).toBeUndefined();
+      expect(exportedTables[SpaceArchiveTables.HistoryContent]).toBeUndefined();
       expect(exportedTables[SpaceTables.Stats]).toBeUndefined();
-      expect(spaceContent.getRowCount(SpaceContentTables.HistoryContent)).toBe(
+      expect(spaceArchive.getRowCount(SpaceArchiveTables.HistoryContent)).toBe(
         2
       );
 
@@ -69,11 +69,11 @@ describe('storage service', () => {
       expect(space.getRowCount(SpaceTables.DerivedPreview)).toBe(2);
       expect(space.getRowCount(SpaceTables.LocalChanges)).toBe(2);
       expect(space.getRowCount(SpaceTables.ResumeState)).toBe(0);
-      expect(spaceContent.getRowCount(SpaceContentTables.DerivedContent)).toBe(
+      expect(spaceArchive.getRowCount(SpaceArchiveTables.DerivedContent)).toBe(
         2
       );
       expect(space.getRowCount(SpaceTables.History)).toBe(1);
-      expect(spaceContent.getRowCount(SpaceContentTables.HistoryContent)).toBe(
+      expect(spaceArchive.getRowCount(SpaceArchiveTables.HistoryContent)).toBe(
         1
       );
       expect(space.getRowCount(SpaceTables.Stats)).toBe(1);
@@ -95,10 +95,10 @@ describe('storage service', () => {
       expect(exportedTables[SpaceTables.Collection]).toBeDefined();
       expect(exportedTables[SpaceTables.Annotations]).toBeDefined();
       expect(exportedTables[SpaceTables.History]).toBeDefined();
-      expect(exportedTables[SpaceContentTables.HistoryContent]).toBeDefined();
+      expect(exportedTables[SpaceArchiveTables.HistoryContent]).toBeDefined();
       expect(exportedTables[SpaceTables.Stats]).toBeDefined();
       expect(space.getRowCount(SpaceTables.History)).toBe(2);
-      expect(spaceContent.getRowCount(SpaceContentTables.HistoryContent)).toBe(
+      expect(spaceArchive.getRowCount(SpaceArchiveTables.HistoryContent)).toBe(
         2
       );
 
@@ -115,11 +115,11 @@ describe('storage service', () => {
       expect(space.getRowCount(SpaceTables.DerivedPreview)).toBe(2);
       expect(space.getRowCount(SpaceTables.LocalChanges)).toBe(2);
       expect(space.getRowCount(SpaceTables.ResumeState)).toBe(0);
-      expect(spaceContent.getRowCount(SpaceContentTables.DerivedContent)).toBe(
+      expect(spaceArchive.getRowCount(SpaceArchiveTables.DerivedContent)).toBe(
         2
       );
       expect(space.getRowCount(SpaceTables.History)).toBe(3); // +1
-      expect(spaceContent.getRowCount(SpaceContentTables.HistoryContent)).toBe(
+      expect(spaceArchive.getRowCount(SpaceArchiveTables.HistoryContent)).toBe(
         2
       );
       expect(space.getRowCount(SpaceTables.Stats)).toBe(1); // unchanged
@@ -148,11 +148,11 @@ describe('storage service', () => {
       expect(space.getRowCount(SpaceTables.DerivedPreview)).toBe(2);
       expect(space.getRowCount(SpaceTables.LocalChanges)).toBe(1);
       expect(space.getRowCount(SpaceTables.ResumeState)).toBe(0);
-      expect(spaceContent.getRowCount(SpaceContentTables.DerivedContent)).toBe(
+      expect(spaceArchive.getRowCount(SpaceArchiveTables.DerivedContent)).toBe(
         2
       );
       expect(space.getRowCount(SpaceTables.History)).toBe(2); // unchanged
-      expect(spaceContent.getRowCount(SpaceContentTables.HistoryContent)).toBe(
+      expect(spaceArchive.getRowCount(SpaceArchiveTables.HistoryContent)).toBe(
         2
       );
       expect(space.getRowCount(SpaceTables.Stats)).toBe(1);
@@ -179,12 +179,12 @@ describe('storage service', () => {
       expect(space.getRowCount(SpaceTables.DerivedPreview)).toBe(2);
       expect(space.getRowCount(SpaceTables.LocalChanges)).toBe(1);
       expect(space.getRowCount(SpaceTables.ResumeState)).toBe(0);
-      expect(spaceContent.getRowCount(SpaceContentTables.DerivedContent)).toBe(
+      expect(spaceArchive.getRowCount(SpaceArchiveTables.DerivedContent)).toBe(
         2
       );
       expect(space.getRowCount(SpaceTables.History)).toBe(4); // + 1 deleted
       expect(historyService.getLatestVersion(docId2)?.op).toBe('deleted');
-      expect(spaceContent.getRowCount(SpaceContentTables.HistoryContent)).toBe(
+      expect(spaceArchive.getRowCount(SpaceArchiveTables.HistoryContent)).toBe(
         3
       );
       expect(space.getRowCount(SpaceTables.Stats)).toBe(1);
@@ -211,11 +211,11 @@ describe('storage service', () => {
       expect(space.getRowCount(SpaceTables.DerivedPreview)).toBe(2);
       expect(space.getRowCount(SpaceTables.LocalChanges)).toBe(1);
       expect(space.getRowCount(SpaceTables.ResumeState)).toBe(0);
-      expect(spaceContent.getRowCount(SpaceContentTables.DerivedContent)).toBe(
+      expect(spaceArchive.getRowCount(SpaceArchiveTables.DerivedContent)).toBe(
         2
       );
       expect(space.getRowCount(SpaceTables.History)).toBe(2); // unchanged
-      expect(spaceContent.getRowCount(SpaceContentTables.HistoryContent)).toBe(
+      expect(spaceArchive.getRowCount(SpaceArchiveTables.HistoryContent)).toBe(
         2
       );
       expect(space.getRowCount(SpaceTables.Stats)).toBe(1);
@@ -243,12 +243,12 @@ describe('storage service', () => {
       expect(space.getRowCount(SpaceTables.DerivedPreview)).toBe(2);
       expect(space.getRowCount(SpaceTables.LocalChanges)).toBe(1);
       expect(space.getRowCount(SpaceTables.ResumeState)).toBe(0);
-      expect(spaceContent.getRowCount(SpaceContentTables.DerivedContent)).toBe(
+      expect(spaceArchive.getRowCount(SpaceArchiveTables.DerivedContent)).toBe(
         2
       );
       expect(space.getRowCount(SpaceTables.History)).toBe(2);
       expect(historyService.getLatestVersion(docId2)).toBeUndefined();
-      expect(spaceContent.getRowCount(SpaceContentTables.HistoryContent)).toBe(
+      expect(spaceArchive.getRowCount(SpaceArchiveTables.HistoryContent)).toBe(
         2
       );
       expect(space.getRowCount(SpaceTables.Stats)).toBe(1);
