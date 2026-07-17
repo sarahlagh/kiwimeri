@@ -2,7 +2,6 @@ import { GET_DOCUMENT_ROUTE } from '@/app/routes';
 import { APPICONS } from '@/constants';
 import collectionService from '@/domain/collection/collection.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
-import { statsService } from '@/domain/stats/stats-service';
 import { SearchActionsToolbar } from '@/features/search';
 import { useHasLocalConflicts } from '@/features/synchronization-ui';
 import { onTitleChangeFn } from '@/shared/misc/onTitleChangeFn';
@@ -65,7 +64,7 @@ const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
     const resumeState = resumeService.getDocumentResumeState(docId);
 
     useEffect(() => {
-      statsService.updateGlobalStats(docId, { lastOpenedAt: Date.now() });
+      resumeService.setLastOpenedAt(docId, Date.now());
     }, [docId]);
 
     useEffect(() => {

@@ -8,16 +8,7 @@ import { historyService } from '@/domain/history/history.service';
 import { dateToStr } from '@/shared/misc/date-utils';
 import { getPlainText } from '@/shared/misc/getPlainText';
 import { countWords, n00 } from '@/shared/utils';
-import {
-  DataPoint,
-  DocumentContentStatsBag,
-  DocumentDatedStat,
-  DocumentGlobalStatsBag
-} from './stats';
-
-export type AllGlobalStatsBag = {
-  [key: string]: DocumentGlobalStatsBag; // key is the itemId
-};
+import { DataPoint, DocumentContentStatsBag, DocumentDatedStat } from './stats';
 
 export const trackedStats = [
   'lastWordCount',
@@ -64,18 +55,6 @@ class StatsService {
       date: result.date,
       values: result.contentStatsJson
     }));
-  }
-
-  public getAllGlobalStats(): AllGlobalStatsBag {
-    const result: AllGlobalStatsBag = {};
-    const table = space.getTable(S);
-    space.getSortedRowIds(S).forEach(rowId => {
-      const lastOpenedAt = table[rowId].lastOpenedAt;
-      if (lastOpenedAt === undefined) return;
-      const itemId = table[rowId].itemId!;
-      result[itemId] = { lastOpenedAt };
-    });
-    return result;
   }
 
   public updateStatsAtDate(
@@ -160,25 +139,6 @@ class StatsService {
     return { lastCharCount, lastWordCount, updatedAt };
   }
 
-  public updateGlobalStats(itemId: string, globalBag: DocumentGlobalStatsBag) {
-    const rowId = itemId;
-    space.setPartialRow('stats', rowId, {
-      itemId,
-      ...globalBag
-    });
-  }
-
-  public getGlobalStats(itemId: string) {
-    const globalStats: DocumentGlobalStatsBag = { lastOpenedAt: 0 };
-    const lastOpened = space
-      .getCell('stats', itemId, 'lastOpenedAt')
-      ?.valueOf();
-    if (lastOpened !== undefined) {
-      globalStats.lastOpenedAt = lastOpened as number;
-    }
-    return globalStats;
-  }
-
   public backfillStats(scope?: string) {
     const rows = collectionService.getAllChildren(scope || ROOT_COLLECTION);
 
@@ -189,9 +149,6 @@ class StatsService {
   }
 
   private backfillDocument(rowId: string) {
-    const globalBag = this.getGlobalStats(rowId);
-    let lastOpenedAt = globalBag.lastOpenedAt;
-
     // backfill stats from versions in reverse order
     const versionIds = historyService.getVersionIds(rowId, 'snapshot');
 
@@ -201,12 +158,6 @@ class StatsService {
       const content_meta = version.snapshotJson.content_meta!;
       const stats = this.buildStatsFromContentMeta(plain, content_meta);
       this.updateStatsAtDate(rowId, stats);
-      if (lastOpenedAt <= stats.updatedAt!) {
-        this.updateGlobalStats(rowId, {
-          lastOpenedAt: stats.updatedAt!
-        });
-        lastOpenedAt = stats.updatedAt!;
-      }
     }
   }
 

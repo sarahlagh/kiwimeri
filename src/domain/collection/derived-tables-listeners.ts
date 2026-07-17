@@ -5,6 +5,7 @@ import { SpaceCellId, SpaceTableId } from '@/core/db/store-schema';
 import { getPlainText } from '@/shared/misc/getPlainText';
 import { Id } from 'tinybase/with-schemas';
 import { statsOnPlainTextCallback } from '../stats/stats-on-change-callback';
+import { CollectionItemType } from './collection';
 import { DerivedPrefix, getDerivedId } from './document-content';
 
 const listeners: Id[] = [];
@@ -41,7 +42,8 @@ function addDerivedContentListener(
 function addDerivedRankListeners<T extends SpaceTableId>(
   tableId: T,
   cellId: SpaceCellId<T>,
-  rankColumn: SpaceCellId<SpaceTables.DerivedState>
+  rankColumn: SpaceCellId<SpaceTables.DerivedState>,
+  onlyDocuments: boolean
 ) {
   listeners.push(
     space.addTableListener(
@@ -52,6 +54,13 @@ function addDerivedRankListeners<T extends SpaceTableId>(
             .getSortedRowIds(tableId, cellId, false)
             .forEach((rowId, idx) => {
               if (!_space.hasRow(SpaceTables.Collection, rowId)) return;
+              if (
+                onlyDocuments &&
+                _space.getCell(SpaceTables.Collection, rowId, 'type') !==
+                  CollectionItemType.document
+              ) {
+                return;
+              }
               const existingRank = _space.getCell(
                 SpaceTables.DerivedState,
                 rowId,
@@ -75,11 +84,17 @@ function addDerivedRankListeners<T extends SpaceTableId>(
 }
 
 function addDerivedStateListeners() {
-  addDerivedRankListeners(SpaceTables.Collection, 'updatedAt', 'updatedAtRank');
   addDerivedRankListeners(
-    SpaceTables.Stats,
+    SpaceTables.Collection,
+    'updatedAt',
+    'updatedAtRank',
+    false
+  );
+  addDerivedRankListeners(
+    SpaceTables.ResumeState,
     'lastOpenedAt',
-    'lastOpenedAtRank'
+    'lastOpenedAtRank',
+    true
   );
 }
 

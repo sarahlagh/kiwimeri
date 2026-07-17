@@ -227,11 +227,6 @@ describe('stats service', () => {
       const dataPoints1 = statsService.getDataPoints(docId1);
       expect(dataPoints1).toHaveLength(1);
       expect(dataPoints1[0].values.lastWordCount).toBe(2);
-
-      expect(statsService.getGlobalStats(docId0).lastOpenedAt).toBe(0);
-      expect(statsService.getGlobalStats(docId1).lastOpenedAt).toBeGreaterThan(
-        0
-      );
     });
 
     it(`should backfill stats on space enabled`, () => {
@@ -256,43 +251,6 @@ describe('stats service', () => {
       const dataPoints1 = statsService.getDataPoints(docId1);
       expect(dataPoints1).toHaveLength(1);
       expect(dataPoints1[0].values.lastWordCount).toBe(2);
-
-      expect(statsService.getGlobalStats(docId0).lastOpenedAt).toBeGreaterThan(
-        0
-      );
-      expect(statsService.getGlobalStats(docId1).lastOpenedAt).toBeGreaterThan(
-        0
-      );
-    });
-
-    it(`should not override existing lastOpened on backfill`, () => {
-      const n1 = notebooksService.addNotebook('n1');
-      const docId0 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-      const docId1 = collectionService.addDocument(n1);
-      collectionService.setItemLexicalContent(
-        docId0,
-        JSON.parse(getNewContent('three little words'))
-      );
-      collectionService.setItemLexicalContent(
-        docId1,
-        JSON.parse(getNewContent('two words'))
-      );
-      vi.advanceTimersByTime(fakeTimersDelay);
-
-      const future = Date.now() + 500;
-      statsService.updateGlobalStats(docId1, {
-        lastOpenedAt: future
-      });
-
-      statsService.backfillStats(n1);
-
-      expect(statsService.getDataPoints(docId0)).toHaveLength(0);
-      const dataPoints1 = statsService.getDataPoints(docId1);
-      expect(dataPoints1).toHaveLength(1);
-      expect(dataPoints1[0].values.lastWordCount).toBe(2);
-
-      expect(statsService.getGlobalStats(docId0).lastOpenedAt).toBe(0);
-      expect(statsService.getGlobalStats(docId1).lastOpenedAt).toBe(future);
     });
   });
 });

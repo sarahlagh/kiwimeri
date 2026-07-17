@@ -5,7 +5,7 @@ import { startDbListeners, stopDbListeners } from '@/core/db/store-listeners';
 import collectionService from '@/domain/collection/collection.service';
 import { minimizeContentForStorage } from '@/domain/collection/compress-file-content';
 import notebooksService from '@/domain/collection/notebooks.service';
-import { statsService } from '@/domain/stats/stats-service';
+import { resumeService } from '@/domain/collection/resume-state.service';
 import storageService from '@/domain/storage.service';
 import { adv, oneDocument, oneFolder } from '@@/_setup/test.utils';
 import { describe, expect, it } from 'vitest';
@@ -265,16 +265,12 @@ describe('derived state', () => {
       adv(() => collectionService.setItemTitle(docId, 'yo'));
       const doc1 = oneDocument();
       adv(() => collectionService.saveItem(doc1, doc1.id));
-      adv(() =>
-        statsService.updateGlobalStats(docId, { lastOpenedAt: Date.now() })
-      );
+      adv(() => resumeService.setLastOpenedAt(docId, Date.now()));
       doc1.title = 'another';
       doc1.title = 'and another';
       const doc2 = oneDocument();
       adv(() => collectionService.saveItems([doc1, doc2]));
-      adv(() =>
-        statsService.updateGlobalStats(doc1.id, { lastOpenedAt: Date.now() })
-      );
+      adv(() => resumeService.setLastOpenedAt(doc1.id, Date.now()));
       adv(() => collectionService.deleteItem(docId));
       adv(() => collectionService.setItemTitle(doc1.id, 'yo'));
       expect(space.getRowCount(SpaceTables.Collection)).toBe(3); // doc1 + doc2 + notebook

@@ -8,82 +8,67 @@ import {
   SerializedSelection
 } from './resume-state';
 
+const RS = SpaceTables.ResumeState;
+
 class ResumeStateService {
   public setLastSelection(
     itemId: Id,
     lastSelection: SerializedSelection | null
   ) {
     if (!lastSelection) {
-      space.delCell(SpaceTables.ResumeState, itemId, 'lastSelection');
+      space.delCell(RS, itemId, 'lastSelection');
     } else {
-      space.setCell(
-        SpaceTables.ResumeState,
-        itemId,
-        'lastSelection',
-        lastSelection
-      );
+      space.setCell(RS, itemId, 'lastSelection', lastSelection);
     }
   }
 
   public setLastSelectedNote(itemId: Id, noteId: Id | null) {
     if (!noteId) {
-      space.delCell(SpaceTables.ResumeState, itemId, 'lastSelectedNoteId');
+      space.delCell(RS, itemId, 'lastSelectedNoteId');
     } else {
-      space.setCell(
-        SpaceTables.ResumeState,
-        itemId,
-        'lastSelectedNoteId',
-        noteId
-      );
+      space.setCell(RS, itemId, 'lastSelectedNoteId', noteId);
     }
   }
 
   public setLastDocument(document: Id | null | undefined) {
     const notebookId = notebooksService.getCurrentNotebook();
     if (!document) {
-      space.delCell(SpaceTables.ResumeState, notebookId, 'lastDocument');
+      space.delCell(RS, notebookId, 'lastDocument');
     } else {
-      space.setCell(
-        SpaceTables.ResumeState,
-        notebookId,
-        'lastDocument',
-        document
-      );
+      space.setCell(RS, notebookId, 'lastDocument', document);
     }
+  }
+
+  public setLastOpenedAt(itemId: Id, at: number) {
+    space.setCell(RS, itemId, 'lastOpenedAt', at);
   }
 
   public setLastFolder(folder: Id) {
     const notebookId = notebooksService.getCurrentNotebook();
-    space.setCell(SpaceTables.ResumeState, notebookId, 'lastFolder', folder);
+    space.setCell(RS, notebookId, 'lastFolder', folder);
   }
 
   public getDocumentResumeState(itemId: Id): DocumentResumeState | null {
-    if (!space.hasRow(SpaceTables.ResumeState, itemId)) {
+    if (!space.hasRow(RS, itemId)) {
       return null;
     }
-    return space.getRow(SpaceTables.ResumeState, itemId) as DocumentResumeState;
+    return space.getRow(RS, itemId) as DocumentResumeState;
   }
 
   public getNotebookResumeState(notebookId?: Id): NotebookResumeState | null {
     if (!notebookId) notebookId = notebooksService.getCurrentNotebook();
-    if (!space.hasRow(SpaceTables.ResumeState, notebookId)) {
+    if (!space.hasRow(RS, notebookId)) {
       return null;
     }
-    return space.getRow(
-      SpaceTables.ResumeState,
-      notebookId
-    ) as NotebookResumeState;
+    return space.getRow(RS, notebookId) as NotebookResumeState;
   }
 
   public getCurrentFolder() {
     const notebookId = notebooksService.getCurrentNotebook();
-    if (!space.hasRow(SpaceTables.ResumeState, notebookId)) {
+    if (!space.hasRow(RS, notebookId)) {
       return notebookId;
     }
-    return (
-      space.getCell(SpaceTables.ResumeState, notebookId, 'lastFolder') ||
-      notebookId
-    );
+    return space.getCell(RS, notebookId, 'lastFolder') || notebookId;
   }
 }
 

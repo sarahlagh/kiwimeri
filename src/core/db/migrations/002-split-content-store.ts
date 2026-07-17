@@ -2,6 +2,8 @@ import { NoSchemaStore } from './migrate';
 
 enum _SpaceTables {
   Collection = 'collection',
+  Stats = 'stats',
+  ResumeState = 'collection_resume_state',
   HistoryContent = 'history_content',
   Annotations = 'document_annotation',
   DerivedContent = 'derived_content',
@@ -16,6 +18,8 @@ enum _SpaceTables {
 
 // const C = _SpaceTables.Collection;
 // const A = _SpaceTables.Annotations;
+const S = _SpaceTables.Stats;
+const RS = _SpaceTables.ResumeState;
 const HC = _SpaceTables.HistoryContent;
 const DC = _SpaceTables.DerivedContent;
 const DP = _SpaceTables.DerivedPreview;
@@ -28,10 +32,20 @@ export default function Migration(
   _space: NoSchemaStore,
   _spaceArchive: NoSchemaStore
 ) {
+  // 0.4.3
   addPreviewFieldFromPlainText(_space);
-  // contentFieldsGoToOtherSpace(_space, _spaceArchive);
   historyContentGoesToOtherSpace(_space, _spaceArchive);
   derivedContentGoesToOtherSpace(_space, _spaceArchive);
+
+  // 0.4.4
+  lastOpenedAtGoesToResumeState(_space);
+  // TODO
+  // history goes to space archive
+  // collection content goes to content space
+  // annotation content goes to content space
+  // derived content goes to content space in same table
+
+  // contentFieldsGoToOtherSpace(_space, _spaceArchive);
 }
 
 function addPreviewFieldFromPlainText(_space: NoSchemaStore) {
@@ -96,4 +110,15 @@ function derivedContentGoesToOtherSpace(
   _spaceArchive: NoSchemaStore
 ) {
   _migrateTable(_space, _spaceArchive, DC, DC);
+}
+
+function lastOpenedAtGoesToResumeState(_space: NoSchemaStore) {
+  _space.getRowIds(S).forEach(rowId => {
+    if (_space.hasCell(S, rowId, 'lastOpenedAt')) {
+      const lastOpenedAt = _space.getCell(S, rowId, 'lastOpenedAt') as number;
+      const itemId = _space.getCell(S, rowId, 'itemId') as string;
+      _space.setCell(RS, itemId, 'lastOpenedAt', lastOpenedAt);
+      _space.delRow(S, rowId);
+    }
+  });
 }

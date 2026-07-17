@@ -1,19 +1,13 @@
-// TODO not a good name, and not a good place for it...
-export type DocumentGlobalStatsBag = {
-  lastOpenedAt: number;
-};
-
 export type DocumentStatRow = {
   itemId: string;
   date?: string;
   contentStatsJson?: DocumentContentStatsBag;
-} & Partial<DocumentGlobalStatsBag>;
+};
 
 export const statsSchema = {
   itemId: { type: 'string' },
   date: { type: 'string' },
-  contentStatsJson: { type: 'object' },
-  lastOpenedAt: { type: 'number' }
+  contentStatsJson: { type: 'object' }
 } as const satisfies Record<keyof DocumentStatRow, unknown>;
 
 export type DocumentContentStatsBag = {
@@ -31,7 +25,7 @@ export type DocumentDatedStat = DocumentStatRow & {
 
 export type DocumentAllStats = {
   [key: string]: DocumentContentStatsBag;
-} & DocumentGlobalStatsBag;
+};
 
 export type DataPoint = {
   date: string; // 2026-06-01
