@@ -237,7 +237,7 @@ describe('LocalChangesCard', () => {
     });
     await expectChangeInList(screen, localChanges);
     expect(getListItem(screen, localChanges[0].id)).toHaveTextContent(
-      'deleted item'
+      'deleted comment'
     );
   });
 
