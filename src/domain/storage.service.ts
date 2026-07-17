@@ -38,6 +38,7 @@ const DerivedPreview = SpaceTables.DerivedPreview;
 const DerivedState = SpaceTables.DerivedState;
 const DerivedContent = SpaceContentTables.DerivedContent;
 const AnnotationContent = SpaceContentTables.AnnotationContent;
+const ResumeState = SpaceTables.ResumeState;
 
 class StorageService {
   public nukeSpace() {
@@ -87,6 +88,7 @@ class StorageService {
     if (on === SpaceTables.Collection) {
       derivedId = getDerivedId('c', rowId);
       space.delRow(DerivedState, rowId);
+      space.delRow(ResumeState, rowId);
       spaceContent.delRow(CollectionContent, rowId);
     }
     if (on === SpaceTables.Annotations) {

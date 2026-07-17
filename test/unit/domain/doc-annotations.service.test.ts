@@ -10,7 +10,11 @@ import { LocalChangeType } from '@/domain/synchronization/local-changes';
 import localChangesService from '@/domain/synchronization/local-changes.service';
 import useNotesSort from '@/features/collection-notes-ui/hooks/useNotesSort';
 import fetchNotesQuery from '@/features/collection-notes-ui/queries/fetchNotesQuery';
-import { getNewContent, wrappedRenderHook } from '@@/_setup/test.utils';
+import {
+  getNewContent,
+  getNewParsedContent,
+  wrappedRenderHook
+} from '@@/_setup/test.utils';
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -31,6 +35,21 @@ function expectedLC(noteId: string, type: LocalChangeType, updated: number) {
     createdAt: updated,
     previousHash: 0
   };
+}
+
+function assertDerivedTablesCleared(id: string) {
+  expect(space.hasRow(SpaceTables.DerivedPreview, getDerivedId('a', id))).toBe(
+    false
+  );
+  expect(spaceContent.hasRow(SpaceContentTables.AnnotationContent, id)).toBe(
+    false
+  );
+  expect(
+    spaceContent.hasRow(
+      SpaceContentTables.DerivedContent,
+      getDerivedId('a', id)
+    )
+  ).toBe(false);
 }
 
 describe('notes service', () => {
@@ -110,12 +129,14 @@ describe('notes service', () => {
   it('should delete a note', () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     const noteId = docAnnotationsService.addNote(docId);
+    docAnnotationsService.edit(noteId, getNewParsedContent('test'));
     const updated = getDocUpdatedTs(docId);
     vi.advanceTimersByTime(100);
 
     docAnnotationsService.delete(noteId);
     expect(fetchNotesQuery.getResults({ parentId: docId })).toHaveLength(0);
     expect(getDocUpdatedTs(docId)).toBeGreaterThan(updated);
+    assertDerivedTablesCleared(noteId);
   });
 
   it('should sort by createdAt by default', () => {

@@ -3,6 +3,8 @@ import {
   DEFAULT_ORDER,
   ROOT_COLLECTION
 } from '@/constants';
+import { space, spaceContent } from '@/core/db/store';
+import { SpaceContentTables, SpaceTables } from '@/core/db/store-constants';
 import { setMetaField } from '@/core/db/types';
 import {
   CollectionItemResetConflictFields,
@@ -11,12 +13,17 @@ import {
 import { CollectionItemSort } from '@/domain/collection/collection-settings';
 import collectionService from '@/domain/collection/collection.service';
 import { minimizeContentForStorage } from '@/domain/collection/compress-file-content';
+import { docAnnotationsService } from '@/domain/collection/doc-annotations.service';
+import { getDerivedId } from '@/domain/collection/document-content';
 import notebooksService from '@/domain/collection/notebooks.service';
+import { resumeService } from '@/domain/collection/resume-state.service';
+import { historyService } from '@/domain/history/history.service';
 import {
   BROWSABLE_ITEM_TYPES,
   fakeTimersDelay,
   GET_NON_PARENT_UPDATABLE_FIELDS,
   getCollectionItem,
+  getNewParsedContent,
   getNewValue,
   markAsConflict,
   UPDATABLE_FIELDS
@@ -30,6 +37,40 @@ const shortContent = JSON.parse(
 const loremIpsum = JSON.parse(
   '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum\\"","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}'
 );
+
+function assertDerivedTablesAreCleared(on: 'c' | 'a', id: string) {
+  expect(space.hasRow(SpaceTables.DerivedPreview, getDerivedId(on, id))).toBe(
+    false
+  );
+  expect(space.hasRow(SpaceTables.DerivedState, id)).toBe(false);
+  expect(space.hasRow(SpaceTables.ResumeState, id)).toBe(false);
+  expect(spaceContent.hasRow(SpaceContentTables.CollectionContent, id)).toBe(
+    false
+  );
+  expect(spaceContent.hasRow(SpaceContentTables.AnnotationContent, id)).toBe(
+    false
+  );
+  expect(
+    spaceContent.hasRow(SpaceContentTables.DerivedContent, getDerivedId(on, id))
+  ).toBe(false);
+}
+
+function assertDerivedTablesAreNotCleared(on: 'c' | 'a', id: string) {
+  expect(space.hasRow(SpaceTables.DerivedPreview, getDerivedId(on, id))).toBe(
+    true
+  );
+  expect(space.hasRow(SpaceTables.DerivedState, id)).toBe(on === 'c');
+  expect(space.hasRow(SpaceTables.ResumeState, id)).toBe(on === 'c');
+  // expect(spaceContent.hasRow(SpaceContentTables.CollectionContent, id)).toBe(
+  //   on === 'c'
+  // );
+  // expect(spaceContent.hasRow(SpaceContentTables.AnnotationContent, id)).toBe(
+  //   on === 'a'
+  // );
+  expect(
+    spaceContent.hasRow(SpaceContentTables.DerivedContent, getDerivedId(on, id))
+  ).toBe(true);
+}
 
 describe('collection service', () => {
   beforeEach(() => {
@@ -355,6 +396,70 @@ describe('collection service', () => {
               expect(getCollectionItem(id).conflictId).toBeDefined();
             }
           });
+        });
+
+        it(`should soft delete an existing document and clear derived states`, () => {
+          historyService['enabled'] = true;
+          const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+          collectionService.setItemLexicalContent(
+            id,
+            getNewParsedContent('test')
+          );
+          const noteId = docAnnotationsService.addNote(id);
+          docAnnotationsService.edit(
+            noteId,
+            getNewParsedContent('another test')
+          );
+          resumeService.setLastSelectedNote(id, noteId);
+          vi.advanceTimersByTime(100);
+          assertDerivedTablesAreNotCleared('c', id);
+          assertDerivedTablesAreNotCleared('a', noteId);
+
+          collectionService.deleteItem(id);
+          const item = getCollectionItem(id);
+          expect(item.title).toBeUndefined();
+          expect(collectionService.itemExists(id)).toBe(false);
+          expect(historyService.getLatestVersion(id)?.op).toBe('deleted');
+          expect(docAnnotationsService.exists(noteId)).toBe(true);
+
+          assertDerivedTablesAreCleared('c', id);
+          assertDerivedTablesAreNotCleared('a', noteId);
+        });
+
+        it(`should hard delete an existing document and and clear derived states`, () => {
+          historyService['enabled'] = true;
+          const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+          collectionService.setItemLexicalContent(
+            id,
+            getNewParsedContent('test')
+          );
+          const noteId = docAnnotationsService.addNote(id);
+          resumeService.setLastSelectedNote(id, noteId);
+          vi.advanceTimersByTime(100);
+          assertDerivedTablesAreNotCleared('c', id);
+          assertDerivedTablesAreNotCleared('a', noteId);
+          const hashes = historyService.getVersions(id).map(v => v.hash);
+          hashes.forEach(hash => {
+            expect(
+              spaceContent.hasRow(SpaceContentTables.HistoryContent, hash)
+            ).toBe(true);
+          });
+
+          collectionService.deleteItem(id, { softDelete: false });
+
+          const item = getCollectionItem(id);
+          expect(item.title).toBeUndefined();
+          expect(collectionService.itemExists(id)).toBe(false);
+          expect(historyService.getVersions(id)).toHaveLength(0);
+          hashes.forEach(hash => {
+            expect(
+              spaceContent.hasRow(SpaceContentTables.HistoryContent, hash)
+            ).toBe(false);
+          });
+          expect(docAnnotationsService.exists(noteId)).toBe(false);
+
+          assertDerivedTablesAreCleared('c', id);
+          assertDerivedTablesAreCleared('a', noteId);
         });
       }
 

@@ -21,6 +21,9 @@ export function stopDbListeners() {
 
 export function disableListeners(callback: () => void) {
   stopDbListeners();
-  callback();
-  startDbListeners();
+  try {
+    callback();
+  } finally {
+    startDbListeners();
+  }
 }

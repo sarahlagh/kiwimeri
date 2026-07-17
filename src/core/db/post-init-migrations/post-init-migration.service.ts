@@ -2,6 +2,7 @@ import { appConfig } from '@/config';
 import { SpaceType, StoreType } from '@/core/db/store-schema';
 import { Store } from 'tinybase/with-schemas';
 import { between, getVersionCode } from '../migrations/migration-utils';
+import { spaceContent } from '../store';
 
 /** migrations that can be applied after schema */
 class PostInitMigrationService {
@@ -34,6 +35,15 @@ class PostInitMigrationService {
       console.log('[space] 1 migration to run: itemId backfill');
       const func = await import('./001-add-itemid-column');
       func.default(space);
+    }
+
+    if (between(to, 402, 501)) {
+      console.log('[space] 1 migration to run: gc orphaned states');
+      const func = await import('./002-delete-orphaned-states');
+      func.default(
+        space as unknown as Store<never>,
+        spaceContent as unknown as Store<never>
+      );
     }
   }
 }
