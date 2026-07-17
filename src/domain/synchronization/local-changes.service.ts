@@ -25,7 +25,7 @@ class LocalChangesService {
     on: LocalChangeOn,
     change: LocalChangeType,
     itemId: Id,
-    newData: DbSerializableData | undefined,
+    newData: unknown | undefined,
     props?: {
       field: AsId<T>;
       previousData: DbSerializableData | undefined;
