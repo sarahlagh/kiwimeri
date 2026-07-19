@@ -1,11 +1,7 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import Migration from '@/core/db/post-init-migrations/002-delete-orphaned-states';
-import { space, spaceArchive, spaceDocContent } from '@/core/db/store';
-import {
-  SpaceArchiveTables,
-  SpaceDocContentTables,
-  SpaceTables
-} from '@/core/db/store-constants';
+import { space, spaceDocContent } from '@/core/db/store';
+import { SpaceDocContentTables, SpaceTables } from '@/core/db/store-constants';
 import { disableListeners } from '@/core/db/store-listeners';
 import collectionService from '@/domain/collection/collection.service';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
@@ -29,9 +25,6 @@ function assertDerivedTablesAreCleared(on: 'c' | 'a', id: string) {
   expect(
     spaceDocContent.hasRow(SpaceDocContentTables.AnnotationContent, id)
   ).toBe(false);
-  expect(
-    spaceArchive.hasRow(SpaceArchiveTables.DerivedContent, getDerivedId(on, id))
-  ).toBe(false);
 }
 
 function assertDerivedTablesAreNotCleared(on: DerivedPrefix, id: string) {
@@ -40,15 +33,12 @@ function assertDerivedTablesAreNotCleared(on: DerivedPrefix, id: string) {
   );
   expect(space.hasRow(SpaceTables.DerivedState, id)).toBe(on === 'c');
   expect(space.hasRow(SpaceTables.ResumeState, id)).toBe(on === 'c');
-  // expect(spaceArchive.hasRow(SpaceArchiveTables.CollectionContent, id)).toBe(
-  //   on === 'c'
-  // );
-  // expect(spaceArchive.hasRow(SpaceArchiveTables.AnnotationContent, id)).toBe(
-  //   on === 'a'
-  // );
   expect(
-    spaceArchive.hasRow(SpaceArchiveTables.DerivedContent, getDerivedId(on, id))
-  ).toBe(true);
+    spaceDocContent.hasRow(SpaceDocContentTables.CollectionContent, id)
+  ).toBe(on === 'c');
+  expect(
+    spaceDocContent.hasRow(SpaceDocContentTables.AnnotationContent, id)
+  ).toBe(on === 'a');
 }
 
 describe('002-delete-orphaned-states', () => {
@@ -57,7 +47,7 @@ describe('002-delete-orphaned-states', () => {
   });
 
   it('should not throw on empty db', () => {
-    Migration(space as never, spaceDocContent as never, spaceArchive as never);
+    Migration(space as never, spaceDocContent as never);
     // should not throw
   });
 
@@ -68,11 +58,7 @@ describe('002-delete-orphaned-states', () => {
     annotsService.edit(noteId, getNewParsedContent('another test'));
     resumeService.setLastSelectedNote(id, noteId);
     disableListeners(() => {
-      Migration(
-        space as never,
-        spaceDocContent as never,
-        spaceArchive as never
-      );
+      Migration(space as never, spaceDocContent as never);
     });
 
     assertDerivedTablesAreNotCleared('c', id);
@@ -89,11 +75,7 @@ describe('002-delete-orphaned-states', () => {
     // orphan id
     disableListeners(() => {
       space.delRow(SpaceTables.Collection, id);
-      Migration(
-        space as never,
-        spaceDocContent as never,
-        spaceArchive as never
-      );
+      Migration(space as never, spaceDocContent as never);
     });
 
     assertDerivedTablesAreCleared('c', id);
@@ -110,11 +92,7 @@ describe('002-delete-orphaned-states', () => {
     // orphan id
     disableListeners(() => {
       space.delRow(SpaceTables.Annotations, noteId);
-      Migration(
-        space as never,
-        spaceDocContent as never,
-        spaceArchive as never
-      );
+      Migration(space as never, spaceDocContent as never);
     });
 
     assertDerivedTablesAreNotCleared('c', id);

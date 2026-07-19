@@ -1,16 +1,11 @@
 import { Store } from 'tinybase/with-schemas';
-import {
-  SpaceArchiveTables,
-  SpaceDocContentTables,
-  SpaceTables
-} from '../store-constants';
+import { SpaceDocContentTables, SpaceTables } from '../store-constants';
 
 // TODO test that one
 
 export default function Migration(
   _space: Store<never>,
-  _spaceDocContent: Store<never>,
-  _spaceArchive: Store<never>
+  _spaceDocContent: Store<never>
 ) {
   rowIdForRowId(_space, SpaceTables.ResumeState);
   rowIdForRowId(_space, SpaceTables.DerivedState);
@@ -26,11 +21,6 @@ export default function Migration(
     _spaceDocContent,
     SpaceTables.Annotations,
     SpaceDocContentTables.AnnotationContent
-  );
-  rowIdForContentDerivedRowId(
-    _space,
-    _spaceArchive,
-    SpaceArchiveTables.DerivedContent
   );
 }
 
@@ -84,33 +74,6 @@ function rowIdForContentRowId(
       if (!_space.hasRow(targetId, rowId)) {
         _spaceText.delRow(tableId, rowId);
         count++;
-      }
-    });
-  });
-  if (count > 0) console.log('table', tableId, `had ${count} to delete`);
-}
-
-function rowIdForContentDerivedRowId(
-  _space: Store<never>,
-  _spaceArchive: Store<never>,
-  tableId: SpaceArchiveTables
-) {
-  let count = 0;
-  const rowIds = _spaceArchive.getRowIds(tableId);
-  _spaceArchive.transaction(() => {
-    rowIds.forEach(rowId => {
-      const [on] = rowId.split('-');
-      const itemId = rowId.substring(2);
-      if (on === 'c') {
-        if (!_space.hasRow(SpaceTables.Collection, itemId)) {
-          _spaceArchive.delRow(tableId, rowId);
-          count++;
-        }
-      } else if (on === 'a') {
-        if (!_space.hasRow(SpaceTables.Annotations, itemId)) {
-          _spaceArchive.delRow(tableId, rowId);
-          count++;
-        }
       }
     });
   });

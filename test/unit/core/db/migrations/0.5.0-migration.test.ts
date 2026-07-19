@@ -17,6 +17,8 @@ const spaceArchiveMigrationFilename = (v: string) =>
   `${v}.space-archive-content.json`;
 
 const spaceMigrationExpectedFilename = '0.5.0.space-expected-content.json';
+const spaceDocContentMigrationExpectedFilename =
+  '0.5.0.space-doc-content-expected-content.json';
 const spaceArchiveMigrationExpectedFilename =
   '0.5.0.space-archive-expected-content.json';
 const storeMigrationExpectedFilename = '0.5.0.store-expected-content.json';
@@ -38,6 +40,7 @@ async function migrateRawStore(
   _spaceContent: any,
   _storeContent: any | null,
   _spaceArchiveContent: any | null,
+  _spaceDocContent: any | null,
   fixedVersion: string
 ) {
   appConfig.KIWIMERI_VERSION = fixedVersion;
@@ -49,6 +52,8 @@ async function migrateRawStore(
   if (_storeContent !== null) rawStore.setContent(_storeContent);
   if (_spaceArchiveContent !== null)
     rawSpaceArchive.setContent(_spaceArchiveContent);
+  if (_spaceDocContent !== null)
+    rawSpaceDocContent.setContent(_spaceDocContent);
   await migrate(rawStore, rawSpace, rawSpaceDocContent, rawSpaceArchive);
 
   const store = rawStore.setSchema(storeTablesSchema, storeValuesSchema);
@@ -77,10 +82,11 @@ describe('0.5.0 migration', () => {
     const preMigrationStoreContent = await getFileContent(
       storeMigrationFilename(migrationFixedVersion)
     );
-    const { spaceContent, spaceArchiveContent, storeContent } =
+    const { spaceContent, spaceArchiveContent, storeContent, spaceDocContent } =
       await migrateRawStore(
         preMigrationSpaceContent,
         preMigrationStoreContent,
+        null,
         null,
         migrationFixedVersion
       );
@@ -90,6 +96,10 @@ describe('0.5.0 migration', () => {
       spaceArchiveContent
     );
     await generateExpectedFile(storeMigrationExpectedFilename, storeContent);
+    await generateExpectedFile(
+      spaceDocContentMigrationExpectedFilename,
+      spaceDocContent
+    );
   });
 
   test('0.4.2 to 0.5.0 migration should be successful', async () => {
@@ -100,10 +110,11 @@ describe('0.5.0 migration', () => {
     const preMigrationStoreContent = await getFileContent(
       storeMigrationFilename(migrationFixedVersion)
     );
-    const { spaceContent, storeContent, spaceArchiveContent } =
+    const { spaceContent, storeContent, spaceDocContent, spaceArchiveContent } =
       await migrateRawStore(
         preMigrationSpaceContent,
         preMigrationStoreContent,
+        null,
         null,
         migrationFixedVersion
       );
@@ -122,20 +133,28 @@ describe('0.5.0 migration', () => {
     );
     expect(spaceArchiveContent).toEqual(expectedSpaceArchiveContent);
 
+    const expectedSpaceDocContentContent = await getFileContent(
+      spaceDocContentMigrationExpectedFilename
+    );
+    expect(spaceDocContent).toEqual(expectedSpaceDocContentContent);
+
     // should run a second time
     const {
       spaceContent: spaceContent2,
       storeContent: storeContent2,
-      spaceArchiveContent: spaceArchiveContent2
+      spaceArchiveContent: spaceArchiveContent2,
+      spaceDocContent: spaceDocContent2
     } = await migrateRawStore(
       spaceContent,
       storeContent,
       spaceArchiveContent,
+      spaceDocContent,
       migrationFixedVersion
     );
     expect(spaceContent2).toEqual(expectedSpaceContent);
     expect(storeContent2).toEqual(expectedStoreContent);
     expect(spaceArchiveContent2).toEqual(expectedSpaceArchiveContent);
+    expect(spaceDocContent2).toEqual(expectedSpaceDocContentContent);
   });
 
   test('0.4.3 to 0.5.0 migration should be successful', async () => {
@@ -149,11 +168,12 @@ describe('0.5.0 migration', () => {
     const preMigrationSpaceArchiveContent = await getFileContent(
       spaceArchiveMigrationFilename(migrationFixedVersion)
     );
-    const { spaceContent, storeContent, spaceArchiveContent } =
+    const { spaceContent, storeContent, spaceDocContent, spaceArchiveContent } =
       await migrateRawStore(
         preMigrationSpaceContent,
         preMigrationStoreContent,
         preMigrationSpaceArchiveContent,
+        null,
         migrationFixedVersion
       );
     const expectedSpaceContent = await getFileContent(
@@ -171,19 +191,27 @@ describe('0.5.0 migration', () => {
     );
     expect(spaceArchiveContent).toEqual(expectedSpaceArchiveContent);
 
+    const expectedSpaceDocContentContent = await getFileContent(
+      spaceDocContentMigrationExpectedFilename
+    );
+    expect(spaceDocContent).toEqual(expectedSpaceDocContentContent);
+
     // should run a second time
     const {
       spaceContent: spaceContent2,
       storeContent: storeContent2,
+      spaceDocContent: spaceDocContent2,
       spaceArchiveContent: spaceArchiveContent2
     } = await migrateRawStore(
       spaceContent,
       storeContent,
       spaceArchiveContent,
+      spaceDocContent,
       migrationFixedVersion
     );
     expect(spaceContent2).toEqual(expectedSpaceContent);
     expect(storeContent2).toEqual(expectedStoreContent);
+    expect(spaceDocContent2).toEqual(expectedSpaceDocContentContent);
     expect(spaceArchiveContent2).toEqual(expectedSpaceArchiveContent);
   });
 });

@@ -23,9 +23,7 @@ export enum SpaceDocContentTables {
 
 export enum SpaceArchiveTables {
   History = 'history',
-  HistoryContent = 'history_content',
-  // TODO move away
-  DerivedContent = 'derived_content'
+  HistoryContent = 'history_content'
 }
 
 export enum SpaceMetrics {

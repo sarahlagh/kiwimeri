@@ -1,6 +1,6 @@
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
-import { space, spaceArchive } from '@/core/db/store';
-import { SpaceArchiveTables, SpaceTables } from '@/core/db/store-constants';
+import { space, spaceDocContent } from '@/core/db/store';
+import { SpaceTables } from '@/core/db/store-constants';
 import { startDbListeners, stopDbListeners } from '@/core/db/store-listeners';
 import collectionService from '@/domain/collection/collection.service';
 import { minimizeContentForStorage } from '@/domain/collection/compress-file-content';
@@ -187,9 +187,9 @@ describe('derived state', () => {
     it(`should update plainText on saveItems (import)`, () => {
       createTestData();
 
-      expect(spaceArchive.getCell('derived_content', 'c-D1', 'plainText')).toBe(
-        shortContentPreview
-      );
+      expect(
+        spaceDocContent.getCell('collection_content', 'D1', 'plainText')
+      ).toBe(shortContentPreview);
     });
 
     it(`should update plainText on individual content change`, () => {
@@ -197,9 +197,9 @@ describe('derived state', () => {
 
       collectionService.setItemLexicalContent('D1', shortContentUpdated);
 
-      expect(spaceArchive.getCell('derived_content', 'c-D1', 'plainText')).toBe(
-        shortContentPreviewUpdated
-      );
+      expect(
+        spaceDocContent.getCell('collection_content', 'D1', 'plainText')
+      ).toBe(shortContentPreviewUpdated);
     });
 
     it(`should update plainText on pull`, () => {
@@ -217,11 +217,7 @@ describe('derived state', () => {
       space.setContent(space_content);
 
       expect(
-        spaceArchive.getCell(
-          SpaceArchiveTables.DerivedContent,
-          'c-D1',
-          'plainText'
-        )
+        spaceDocContent.getCell('collection_content', 'D1', 'plainText')
       ).toBeDefined();
     });
 
@@ -230,13 +226,11 @@ describe('derived state', () => {
       // F2 > FF2
       createTestData();
 
-      expect(
-        spaceArchive.hasRow(SpaceArchiveTables.DerivedContent, 'c-D1')
-      ).toBe(true);
+      expect(spaceDocContent.hasRow('collection_content', 'D1')).toBe(true);
 
       collectionService.deleteItem('FF1');
 
-      expect(space.hasRow(SpaceTables.DerivedState, 'c-D1')).toBe(false);
+      expect(space.hasRow(SpaceTables.DerivedPreview, 'c-D1')).toBe(false);
     });
   });
 

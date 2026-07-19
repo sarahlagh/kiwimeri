@@ -1,6 +1,5 @@
-import { SID, SpaceArchiveTables } from '@/core/db/store-constants';
-import { useSpaceArchiveCell } from '@/core/db/tinybase-hooks';
-import { getDerivedId } from '@/domain/collection/document-content';
+import { SID, SpaceDocContentTables } from '@/core/db/store-constants';
+import { useSpaceDocContentCell } from '@/core/db/tinybase-hooks';
 import { countWords } from '@/shared/utils';
 import { IonText } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
@@ -12,14 +11,14 @@ type WordCountProps = {
 // temp until we store it in model
 const WordCount = ({ id }: WordCountProps) => {
   // probably provide hook somewhere
-  const content = useSpaceArchiveCell<
-    SpaceArchiveTables.DerivedContent,
+  const content = useSpaceDocContentCell<
+    SpaceDocContentTables.CollectionContent,
     'plainText'
   >(
-    SpaceArchiveTables.DerivedContent,
-    getDerivedId('c', id),
+    SpaceDocContentTables.CollectionContent,
+    id,
     'plainText',
-    SID.spaceArchive
+    SID.spaceDocContent
   );
   const wordCount = content ? countWords(content) : 0;
 

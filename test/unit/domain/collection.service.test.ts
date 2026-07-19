@@ -54,9 +54,6 @@ function assertDerivedTablesAreCleared(on: 'c' | 'a', id: string) {
   expect(
     spaceDocContent.hasRow(SpaceDocContentTables.AnnotationContent, id)
   ).toBe(false);
-  expect(
-    spaceArchive.hasRow(SpaceArchiveTables.DerivedContent, getDerivedId(on, id))
-  ).toBe(false);
 }
 
 function assertDerivedTablesAreNotCleared(on: 'c' | 'a', id: string) {
@@ -65,15 +62,12 @@ function assertDerivedTablesAreNotCleared(on: 'c' | 'a', id: string) {
   );
   expect(space.hasRow(SpaceTables.DerivedState, id)).toBe(on === 'c');
   expect(space.hasRow(SpaceTables.ResumeState, id)).toBe(on === 'c');
-  // expect(spaceArchive.hasRow(SpaceArchiveTables.CollectionContent, id)).toBe(
-  //   on === 'c'
-  // );
-  // expect(spaceArchive.hasRow(SpaceArchiveTables.AnnotationContent, id)).toBe(
-  //   on === 'a'
-  // );
   expect(
-    spaceArchive.hasRow(SpaceArchiveTables.DerivedContent, getDerivedId(on, id))
-  ).toBe(true);
+    spaceDocContent.hasRow(SpaceDocContentTables.CollectionContent, id)
+  ).toBe(on === 'c');
+  expect(
+    spaceDocContent.hasRow(SpaceDocContentTables.AnnotationContent, id)
+  ).toBe(on === 'a');
 }
 
 describe('collection service', () => {

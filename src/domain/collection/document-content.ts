@@ -1,12 +1,10 @@
+import { SpaceDocContentTables } from '@/core/db/store-constants';
 import { MetaField } from '@/core/db/types';
 import { Id } from 'tinybase/with-schemas';
 
 export type ContentRow = {
   content: string;
   content_meta: MetaField;
-};
-
-export type DerivedContentRow = {
   plainText: string;
 };
 
@@ -16,18 +14,20 @@ export type DerivedPreviewRow = {
 
 export const contentSchema = {
   content: { type: 'string' },
-  content_meta: { type: 'object' }
+  content_meta: { type: 'object' },
+  plainText: { type: 'string' }
 } as const satisfies Record<keyof ContentRow, unknown>;
 
 export const derivedPreviewSchema = {
   previewText: { type: 'string' }
 } as const satisfies Record<keyof DerivedPreviewRow, unknown>;
 
-export const derivedContentSchema = {
-  plainText: { type: 'string' }
-} as const satisfies Record<keyof DerivedContentRow, unknown>;
-
 export type DerivedPrefix = 'c' | 'a';
 export function getDerivedId(on: DerivedPrefix, rowId: Id) {
   return `${on}-${rowId}`;
+}
+export function getDerivedTable(on: DerivedPrefix) {
+  return on === 'c'
+    ? SpaceDocContentTables.CollectionContent
+    : SpaceDocContentTables.AnnotationContent;
 }

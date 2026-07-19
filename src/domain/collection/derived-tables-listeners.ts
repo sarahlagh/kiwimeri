@@ -1,12 +1,16 @@
 import { DOC_PREVIEW_SIZE } from '@/constants';
-import { space, spaceArchive } from '@/core/db/store';
-import { SpaceArchiveTables, SpaceTables } from '@/core/db/store-constants';
+import { space, spaceDocContent } from '@/core/db/store';
+import { SpaceTables } from '@/core/db/store-constants';
 import { SpaceCellId, SpaceTableId } from '@/core/db/store-schema';
 import { getPlainText } from '@/shared/misc/getPlainText';
 import { Id } from 'tinybase/with-schemas';
 import { statsOnPlainTextCallback } from '../stats/stats-on-change-callback';
 import { CollectionItemType } from './collection';
-import { DerivedPrefix, getDerivedId } from './document-content';
+import {
+  DerivedPrefix,
+  getDerivedId,
+  getDerivedTable
+} from './document-content';
 
 const listeners: Id[] = [];
 
@@ -28,9 +32,8 @@ function addDerivedContentListener(
           _store.setRow(SpaceTables.DerivedPreview, derivedId, {
             previewText
           });
-          spaceArchive.setRow(SpaceArchiveTables.DerivedContent, derivedId, {
-            plainText
-          });
+          const derivedTable = getDerivedTable(l);
+          spaceDocContent.setCell(derivedTable, rowId, 'plainText', plainText);
           if (onPlainTextChange) onPlainTextChange(rowId, plainText);
         }
       },

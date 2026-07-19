@@ -3,7 +3,6 @@ import { derivedItemStateSchema } from '@/domain/collection/derived-item-state';
 import { docAnnotationSchema } from '@/domain/collection/document-annotations';
 import {
   contentSchema,
-  derivedContentSchema,
   derivedPreviewSchema
 } from '@/domain/collection/document-content';
 import { resumeStateSchema } from '@/domain/collection/resume-state';
@@ -58,8 +57,7 @@ export const spaceDocContentTablesSchema = {
 
 export const spaceArchiveTablesSchema = {
   history: historySchema,
-  history_content: historyContentSchema,
-  derived_content: derivedContentSchema
+  history_content: historyContentSchema
 } as const satisfies Record<SpaceArchiveTables, unknown>;
 
 export const storeValuesSchema = {
@@ -108,9 +106,10 @@ export type SpaceCellId<T extends SpaceTableId> = CellIdFromSchema<
   T
 >;
 
-export type SpaceTextTablesType = typeof spaceDocContentTablesSchema;
-export type SpaceTextType = [SpaceTextTablesType, NoValuesSchema];
-export type SpaceTextTableId = TableIdFromSchema<SpaceTextTablesType>;
+export type SpaceDocContentTablesType = typeof spaceDocContentTablesSchema;
+export type SpaceDocContentType = [SpaceDocContentTablesType, NoValuesSchema];
+export type SpaceDocContentTableId =
+  TableIdFromSchema<SpaceDocContentTablesType>;
 
 export type SpaceArchiveTablesType = typeof spaceArchiveTablesSchema;
 export type SpaceArchiveType = [SpaceArchiveTablesType, NoValuesSchema];

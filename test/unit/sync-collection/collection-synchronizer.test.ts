@@ -1,6 +1,6 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
-import { space, spaceArchive } from '@/core/db/store';
-import { SpaceArchiveTables, SpaceTables } from '@/core/db/store-constants';
+import { space, spaceDocContent } from '@/core/db/store';
+import { SpaceDocContentTables, SpaceTables } from '@/core/db/store-constants';
 import { setMetaField } from '@/core/db/types';
 import { CollectionItemType } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
@@ -409,9 +409,9 @@ describe('collection synchronizer', () => {
       expect(space.getRowCount(SpaceTables.Annotations)).toBe(1);
       expect(space.hasRow(SpaceTables.Annotations, notes[0].id));
       expect(
-        spaceArchive.getCell(
-          SpaceArchiveTables.DerivedContent,
-          getDerivedId('a', notes[0].id),
+        spaceDocContent.getCell(
+          SpaceDocContentTables.AnnotationContent,
+          notes[0].id,
           'plainText'
         )
       ).toBe('test');
@@ -667,9 +667,9 @@ describe('collection synchronizer', () => {
       expect(space.getRowCount(SpaceTables.Annotations)).toBe(1);
       expect(space.hasRow(SpaceTables.Annotations, notes[0].id));
       expect(
-        spaceArchive.getCell(
-          SpaceArchiveTables.DerivedContent,
-          getDerivedId('a', notes[0].id),
+        spaceDocContent.getCell(
+          SpaceDocContentTables.AnnotationContent,
+          notes[0].id,
           'plainText'
         )
       ).toBe('test');
@@ -708,16 +708,16 @@ describe('collection synchronizer', () => {
         space.hasRow(SpaceTables.Annotations, getDerivedId('a', notes[1].id))
       );
       expect(
-        spaceArchive.getCell(
-          SpaceArchiveTables.DerivedContent,
-          getDerivedId('a', notes[0].id),
+        spaceDocContent.getCell(
+          SpaceDocContentTables.AnnotationContent,
+          notes[0].id,
           'plainText'
         )
       ).toBe('test 2');
       expect(
-        spaceArchive.getCell(
-          SpaceArchiveTables.DerivedContent,
-          getDerivedId('a', notes[1].id),
+        spaceDocContent.getCell(
+          SpaceDocContentTables.AnnotationContent,
+          notes[1].id,
           'plainText'
         )
       ).toBe('other test');

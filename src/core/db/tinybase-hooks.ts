@@ -1,6 +1,11 @@
 import * as UiReact from 'tinybase/ui-react';
 import { WithSchemas } from 'tinybase/ui-react/with-schemas';
-import { SpaceArchiveType, SpaceType, StoreType } from './store-schema';
+import {
+  SpaceArchiveType,
+  SpaceDocContentType,
+  SpaceType,
+  StoreType
+} from './store-schema';
 
 export const {
   useCell: useStoreCell,
@@ -23,3 +28,6 @@ export const {
 
 export const { useCell: useSpaceArchiveCell, useRow: useSpaceArchiveRow } =
   UiReact as typeof UiReact & WithSchemas<SpaceArchiveType>;
+
+export const { useCell: useSpaceDocContentCell } = UiReact as typeof UiReact &
+  WithSchemas<SpaceDocContentType>;

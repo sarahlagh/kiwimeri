@@ -1,7 +1,7 @@
-import { space, spaceArchive } from '@/core/db/store';
+import { space, spaceDocContent } from '@/core/db/store';
+import { SpaceDocContentTables } from '@/core/db/store-constants';
 import collectionService from '@/domain/collection/collection.service';
 import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-content';
-import { getDerivedId } from '@/domain/collection/document-content';
 import { lexicalConfig } from '@/features/document-editor/wysiwyg-editor/lexical/lexical-config';
 import {
   searchLexicalService,
@@ -43,9 +43,9 @@ describe('search service', () => {
         ?.toString();
       expect(minimized).toBeDefined();
       expect(
-        spaceArchive.getCell(
-          'derived_content',
-          getDerivedId('c', docId),
+        spaceDocContent.getCell(
+          SpaceDocContentTables.CollectionContent,
+          docId,
           'plainText'
         )
       ).toBeDefined();

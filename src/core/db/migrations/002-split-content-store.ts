@@ -25,8 +25,8 @@ const RS = _SpaceTables.ResumeState;
 const HC = _SpaceTables.HistoryContent;
 const DC = _SpaceTables.DerivedContent;
 const DP = _SpaceTables.DerivedPreview;
-// const CC = _SpaceArchiveTables.CollectionContent;
-// const AC = _SpaceArchiveTables.AnnotationContent;
+const CollectionContent = 'collection_content';
+const AnnotationContent = 'document_annotation_content';
 
 export default function Migration(
   _space: NoSchemaStore,
@@ -36,15 +36,16 @@ export default function Migration(
   // 0.4.3
   addPreviewFieldFromPlainText(_space);
   historyContentGoesToOtherSpace(_space, _spaceArchive);
-  derivedContentGoesToOtherSpace(_space, _spaceArchive);
+  derivedContentGoesToArchive(_space, _spaceArchive);
 
   // 0.4.4
   lastOpenedAtGoesToResumeState(_space);
   historyGoesToSpaceArchive(_space, _spaceArchive);
+  derivedContentGoesToDocContent(_spaceArchive, _spaceDocContent);
+
   // TODO
   // collection content goes to content space
   // annotation content goes to content space
-  // derived content goes to content space in same table
 
   // contentFieldsGoToOtherSpace(_space, _spaceArchive);
 }
@@ -106,7 +107,7 @@ function historyContentGoesToOtherSpace(
   _migrateTable(_space, _spaceArchive, HC, HC);
 }
 
-function derivedContentGoesToOtherSpace(
+function derivedContentGoesToArchive(
   _space: NoSchemaStore,
   _spaceArchive: NoSchemaStore
 ) {
@@ -129,4 +130,30 @@ function historyGoesToSpaceArchive(
   _spaceArchive: NoSchemaStore
 ) {
   _migrateTable(_space, _spaceArchive, H, H);
+}
+
+function derivedContentGoesToDocContent(
+  _spaceArchive: NoSchemaStore,
+  _spaceDocContent: NoSchemaStore
+) {
+  _spaceArchive.getRowIds(DC).forEach(rowId => {
+    const [on] = rowId.split('-');
+    const itemId = rowId.substring(2) as string;
+    const plainText = _spaceArchive.getCell(DC, rowId, 'plainText') as string;
+    if (on === 'c') {
+      _spaceDocContent.setCell(
+        CollectionContent,
+        itemId,
+        'plainText',
+        plainText
+      );
+    } else if (on === 'a') {
+      _spaceDocContent.setCell(
+        AnnotationContent,
+        itemId,
+        'plainText',
+        plainText
+      );
+    }
+  });
 }

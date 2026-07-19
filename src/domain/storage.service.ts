@@ -40,7 +40,6 @@ const S = SpaceTables.Stats;
 const CollectionContent = SpaceDocContentTables.CollectionContent;
 const DerivedPreview = SpaceTables.DerivedPreview;
 const DerivedState = SpaceTables.DerivedState;
-const DerivedContent = SpaceArchiveTables.DerivedContent;
 const AnnotationContent = SpaceDocContentTables.AnnotationContent;
 const ResumeState = SpaceTables.ResumeState;
 
@@ -67,9 +66,12 @@ class StorageService {
         space.setRow(SpaceTables.DerivedPreview, derivedId, {
           previewText
         });
-        spaceArchive.setRow(SpaceArchiveTables.DerivedContent, derivedId, {
+        spaceDocContent.setCell(
+          SpaceDocContentTables.CollectionContent,
+          rowId,
+          'plainText',
           plainText
-        });
+        );
         statsOnPlainTextCallback(rowId, plainText);
       });
       space.getRowIds(SpaceTables.Annotations).forEach(rowId => {
@@ -80,9 +82,12 @@ class StorageService {
         space.setRow(SpaceTables.DerivedPreview, derivedId, {
           previewText
         });
-        spaceArchive.setRow(SpaceArchiveTables.DerivedContent, derivedId, {
+        spaceDocContent.setCell(
+          SpaceDocContentTables.AnnotationContent,
+          rowId,
+          'plainText',
           plainText
-        });
+        );
       });
     });
     spaceArchive.finishTransaction();
@@ -102,7 +107,6 @@ class StorageService {
     }
     if (derivedId) {
       space.delRow(DerivedPreview, derivedId);
-      spaceArchive.delRow(DerivedContent, derivedId);
     }
   }
 

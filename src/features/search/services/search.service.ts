@@ -1,6 +1,5 @@
 import { CollectionItemTypeValues } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
-import { getDerivedId } from '@/domain/collection/document-content';
 import notebooksService from '@/domain/collection/notebooks.service';
 import {
   DeepSearchOptions,
@@ -62,9 +61,7 @@ class CollectionContentSearchService {
     collectionService.getAllChildrenIds(searchOptions.scope).forEach(itemId => {
       const item = collectionService.getItem(itemId);
       const shortPath = collectionService.getBreadcrumb(itemId);
-      const plainText = collectionService.getDocumentPlainText(
-        getDerivedId('c', itemId)
-      );
+      const plainText = collectionService.getDocumentPlainText(itemId);
       if (!shortPath || !item) return;
       if (!searchOptions.searchInTitle && !plainText) return;
       const title = item.title?.toString() || '';
