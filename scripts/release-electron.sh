@@ -10,6 +10,8 @@ echo "building version $version"
 
 executable="kiwimeri-app-${version}.AppImage"
 
+sed -i 's/kiwimeri-local-app/kiwimeri-app/' electron/package.json
+
 if [ -f ".env.production.local" ]; then
     mv .env.production.local .env.production.local.bak
 fi
