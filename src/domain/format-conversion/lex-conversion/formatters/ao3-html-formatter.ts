@@ -39,9 +39,13 @@ export const AO3_HTML_PARAGRAPH_TRANSFORMER: KiwimeriLexTransformer = {
   ): string {
     return fullstr + paragraphAlignOpeningTag(ctx);
   },
-  postTransform: function (fullstr: string): string {
+  postTransform: function (
+    fullstr: string,
+    ctx: KiwimeriLexTransformerCtx
+  ): string {
+    const isEmpty = (ctx.elementNode?.children.length || 0) === 0;
     const tag = paragraphAlignClosingTag();
-    return fullstr + tag + '\n';
+    return `${fullstr}${isEmpty ? '&nbsp;' : ''}${tag}\n`;
   }
 };
 
