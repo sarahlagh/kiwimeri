@@ -1,4 +1,5 @@
 export enum StoreTables {
+  Profiles = 'profiles',
   Logs = 'logs'
 }
 

@@ -27,6 +27,9 @@ import {
 } from './types';
 
 export const storeTablesSchema = {
+  profiles: {
+    createdAt: { type: 'number' }
+  },
   logs: {
     ts: { type: 'number' },
     level: { type: 'string' },

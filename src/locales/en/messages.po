@@ -115,6 +115,10 @@ msgstr "Archive is empty"
 msgid "Are you sure?"
 msgstr "Are you sure?"
 
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:87
+msgid "cancel"
+msgstr "cancel"
+
 #: src/features/collection-history-ui/components/ManageHistoryModal.tsx:149
 #: src/features/document-editor/tags/ChooseTagsModal.tsx:100
 #: src/features/import-export/buttons/ExportItemsButton.tsx:103
@@ -124,6 +128,10 @@ msgstr "Are you sure?"
 #: src/shared/modals/ConfirmYesNoDialog.tsx:28
 msgid "Cancel"
 msgstr "Cancel"
+
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:39
+msgid "Change the current app profile here. Restart for this change to apply."
+msgstr "Change the current app profile here. Restart for this change to apply."
 
 #: src/features/stats-ui/components/ChartContainer.tsx:58
 msgid "Character Count"
@@ -198,6 +206,10 @@ msgstr "Conflicts"
 msgid "Content"
 msgstr "Content"
 
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:67
+msgid "Create a new profile"
+msgstr "Create a new profile"
+
 #: src/features/collection-notes-ui/components/NotesMenu.tsx:54
 msgid "create a note"
 msgstr "create a note"
@@ -220,6 +232,10 @@ msgstr "Creation Date"
 msgid "Current Notebook Settings ({notebookTitle})"
 msgstr "Current Notebook Settings ({notebookTitle})"
 
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:50
+msgid "Current profile"
+msgstr "Current profile"
+
 #: src/constants.ts:79
 msgid "Default"
 msgstr "Default"
@@ -235,6 +251,10 @@ msgstr "Delete All"
 #: src/features/collection-notes-ui/components/NotesActions.tsx:44
 msgid "Delete note"
 msgstr "Delete note"
+
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:104
+msgid "Delete profile"
+msgstr "Delete profile"
 
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:158
 msgid "deleted comment"
@@ -478,6 +498,10 @@ msgstr "Modified Date"
 msgid "Name"
 msgstr "Name"
 
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:74
+msgid "Name your new profile"
+msgstr "Name your new profile"
+
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:100
 msgid "new"
 msgstr "new"
@@ -526,6 +550,10 @@ msgstr "Notebooks found in the archive, they will be converted to folders"
 msgid "Number of versions"
 msgstr "Number of versions"
 
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:91
+msgid "ok"
+msgstr "ok"
+
 #: src/features/settings-ui/components/CurrentDeviceSettings.tsx:25
 msgid "Options for the currently selected device. These options are local-only."
 msgstr "Options for the currently selected device. These options are local-only."
@@ -551,6 +579,14 @@ msgstr "Path"
 #: src/features/synchronization-ui/settings-ui/components/providers/PCloudSettings.tsx:68
 msgid "PCloud Configuration"
 msgstr "PCloud Configuration"
+
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:78
+msgid "profile name"
+msgstr "profile name"
+
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:36
+msgid "Profile Settings"
+msgstr "Profile Settings"
 
 #: src/features/settings-ui/components/CurrentDeviceSettings.tsx:37
 msgid "Remember last route"
@@ -786,7 +822,7 @@ msgstr "Word Count"
 msgid "Word Count (Max)"
 msgstr "Word Count (Max)"
 
-#: src/features/document-editor/components/WordCount.tsx:31
+#: src/features/document-editor/components/WordCount.tsx:30
 #: src/features/stats-ui/components/ChartContainer.tsx:54
 #: src/features/stats-ui/components/ChartContainer.tsx:64
 msgid "words"

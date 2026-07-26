@@ -4,6 +4,7 @@ import { SpaceArchiveType, SpaceType, StoreType } from './store-schema';
 
 export const {
   useCell: useStoreCell,
+  useRowIds: useStoreRowIds,
   useRow: useStoreRow,
   useResultSortedRowIds: useStoreResultSortedRowIds,
   useRowCount: useStoreRowCount,

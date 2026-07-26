@@ -14,18 +14,27 @@ import {
   storeValuesSchema
 } from './store-schema';
 
-console.log('[db] create stores');
+export function getCurrentProfile() {
+  return localStorage.getItem('currentSpace') || 'default';
+}
+export function setCurrentProfile(profile: string) {
+  localStorage.setItem('currentSpace', profile);
+}
+
+const profile = getCurrentProfile();
+
+console.log(`[db] create stores for profile [${profile}]`);
 await migrateArchiveDatabase(); // delete after 0.5.0
 
 const rawStore = createStore();
 const storePersister = createIndexedDbPersister(rawStore, 'kiwimeri-store');
 
-const spaceName = `kiwimeri-space-default`;
+const spaceName = `kiwimeri-space-${profile}`;
 const rawSpace = createStore();
 const spacePersister = createIndexedDbPersister(rawSpace, spaceName);
 
 const rawSpaceArchive = createStore();
-const spaceArchiveName = `kiwimeri-space-archive-default`;
+const spaceArchiveName = `kiwimeri-space-archive-${profile}`;
 const spaceArchivePersister = createIndexedDbPersister(
   rawSpaceArchive,
   spaceArchiveName
