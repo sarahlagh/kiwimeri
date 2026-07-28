@@ -1,9 +1,17 @@
-// global main menu
-#root > ion-app > ion-menu {
-  margin-top: var(--ion-safe-area-top, var(--safe-area-inset-top, 0));
-  margin-bottom: var(--safe-area-inset-bottom, 0px);
-  margin-left: var(--safe-area-inset-left, 0px);
-  margin-right: var(--safe-area-inset-right, 0px);
+// global content & modals
+#root > ion-app > .ion-page,
+#root > ion-app > ion-modal {
+  padding-top: var(--safe-area-inset-top, 0px);
+  padding-bottom: var(--safe-area-inset-bottom, 0px);
+  padding-left: var(--safe-area-inset-left, 0px);
+  padding-right: var(--safe-area-inset-right, 0px);
+}
+
+// main menu
+#root > ion-app > ion-menu::part(container) {
+  top: var(--safe-area-inset-top, 0px);
+  bottom: var(--safe-area-inset-bottom, 0px);
+  height: unset;
 }
 
 // cancel global style with .ion-page to make it more specific
@@ -12,32 +20,4 @@
 }
 .ion-page ion-footer.footer-toolbar-padding ion-toolbar:last-of-type {
   padding-bottom: 0;
-}
-
-// reapply style only for main content
-#main-content {
-  margin-top: var(--ion-safe-area-top, var(--safe-area-inset-top, 0));
-  margin-bottom: var(
-    --keyboard-bottom-offset,
-    var(--safe-area-inset-bottom, 0px)
-  );
-  margin-left: var(--safe-area-inset-left, 0px);
-  margin-right: var(--safe-area-inset-right, 0px);
-}
-
-// for modals
-#root > ion-app > ion-modal {
-  margin-top: var(--ion-safe-area-top, var(--safe-area-inset-top, 0));
-  margin-bottom: var(
-    --keyboard-bottom-offset,
-    var(--safe-area-inset-bottom, 0px)
-  );
-  max-height: calc(
-    var(--viewport-height, var(--max-height, 0px)) - var(--safe-area-inset-top)
-  );
-}
-
-// nothing you can't fix with an !important -- for android 10
-ion-app.android > ion-modal.md.modal-default.hydrated.show-modal {
-  --ion-safe-area-top: inherit !important;
 }

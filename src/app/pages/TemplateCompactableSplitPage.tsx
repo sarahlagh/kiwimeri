@@ -1,4 +1,5 @@
 import MainHeader, { MainHeaderProps } from '@/app/components/MainHeader';
+import { MAIN_CONTENT_ID } from '@/constants';
 import useIsWideEnough from '@/shared/hooks/useIsWideEnough';
 import {
   IonContent,
@@ -46,7 +47,7 @@ const TemplateCompactableSplitPage = ({
   }, [menuRef.current]);
 
   return (
-    <IonPage>
+    <IonPage id={MAIN_CONTENT_ID}>
       {!isWideEnough && (
         <IonHeader>
           <MainHeader {...headerIfCompact}>

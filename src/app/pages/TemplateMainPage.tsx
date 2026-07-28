@@ -1,4 +1,5 @@
 import MainHeader, { MainHeaderProps } from '@/app/components/MainHeader';
+import { MAIN_CONTENT_ID } from '@/constants';
 import { IonHeader, IonPage } from '@ionic/react';
 import { ReactNode } from 'react';
 
@@ -13,7 +14,7 @@ const TemplateMainPage = ({
   children
 }: TemplateMainPageProps) => {
   return (
-    <IonPage>
+    <IonPage id={MAIN_CONTENT_ID}>
       <IonHeader>
         <MainHeader
           title={title}

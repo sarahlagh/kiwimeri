@@ -57,8 +57,8 @@ import {
   warningOutline
 } from 'ionicons/icons';
 
-/** @deprecated */
-export const DEFAULT_SPACE_ID = 'default';
+export const MAIN_CONTENT_ID = 'main-content';
+
 export const DEFAULT_NOTEBOOK_ID = '0';
 export const CONFLICTS_NOTEBOOK_ID = 'conflicts';
 

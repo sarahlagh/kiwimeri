@@ -1,13 +1,14 @@
+import { MAIN_CONTENT_ID } from '@/constants';
 import { IonApp, IonPage } from '@ionic/react';
 import Loading from '../components/Loading';
 
-const LoadingPage = () => {
+const LoadingApp = () => {
   return (
     <IonApp>
-      <IonPage id="main-content">
+      <IonPage id={MAIN_CONTENT_ID}>
         <Loading />
       </IonPage>
     </IonApp>
   );
 };
-export default LoadingPage;
+export default LoadingApp;

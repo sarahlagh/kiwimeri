@@ -1,10 +1,10 @@
+import { MAIN_CONTENT_ID } from '@/constants';
 import useAppInfo from '@/shared/hooks/useAppInfo';
 import useDeviceSetting from '@/shared/hooks/useDeviceSetting';
 import {
   IonHeader,
   IonIcon,
   IonMenu,
-  IonPage,
   IonTitle,
   IonToolbar
 } from '@ionic/react';
@@ -24,7 +24,7 @@ const MainLayout = () => {
 
   return (
     <>
-      <IonMenu menuId="main-menu" contentId="main-content">
+      <IonMenu menuId="main-menu" contentId={MAIN_CONTENT_ID}>
         <IonHeader>
           <IonToolbar style={{ paddingLeft: '16px' }}>
             <IonIcon
@@ -35,11 +35,9 @@ const MainLayout = () => {
             <IonTitle>{appName?.short_name}</IonTitle>
           </IonToolbar>
         </IonHeader>
-        <MainMenuList></MainMenuList>
+        <MainMenuList />
       </IonMenu>
-      <IonPage id="main-content">
-        <AppRouterOutlet></AppRouterOutlet>
-      </IonPage>
+      <AppRouterOutlet />
     </>
   );
 };

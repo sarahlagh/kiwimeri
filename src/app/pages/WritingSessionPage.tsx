@@ -1,3 +1,4 @@
+import { MAIN_CONTENT_ID } from '@/constants';
 import {
   IonButtons,
   IonHeader,
@@ -16,7 +17,7 @@ const WritingSession = lazy(() =>
 
 const WritingSessionPage = () => {
   return (
-    <IonPage>
+    <IonPage id={MAIN_CONTENT_ID}>
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">

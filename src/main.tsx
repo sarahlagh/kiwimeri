@@ -6,7 +6,7 @@ import { i18n } from '@lingui/core';
 import { initGlobalTrans } from './constants';
 import { messages as enMessages } from './locales/en/messages';
 
-import LoadingPage from './app/pages/LoadingPage';
+import LoadingApp from './app/pages/LoadingApp';
 
 import './core/infra/polyfills/prism-polyfill';
 
@@ -23,7 +23,7 @@ const container = document.getElementById('root');
 const root = createRoot(container!);
 root.render(
   <React.StrictMode>
-    <Suspense fallback={<LoadingPage />}>
+    <Suspense fallback={<LoadingApp />}>
       <App />
     </Suspense>
   </React.StrictMode>
