@@ -48,7 +48,8 @@ function rowIdForDerivedRowId(_space: Store<never>, tableId: SpaceTables) {
   const rowIds = _space.getRowIds(tableId);
   _space.transaction(() => {
     rowIds.forEach(rowId => {
-      const [on, itemId] = rowId.split('-');
+      const [on] = rowId.split('-');
+      const itemId = rowId.substring(2);
       if (on === 'c') {
         if (!_space.hasRow(SpaceTables.Collection, itemId)) {
           _space.delRow(tableId, rowId);
@@ -93,7 +94,8 @@ function rowIdForContentDerivedRowId(
   const rowIds = _spaceArchive.getRowIds(tableId);
   _spaceArchive.transaction(() => {
     rowIds.forEach(rowId => {
-      const [on, itemId] = rowId.split('-');
+      const [on] = rowId.split('-');
+      const itemId = rowId.substring(2);
       if (on === 'c') {
         if (!_space.hasRow(SpaceTables.Collection, itemId)) {
           _spaceArchive.delRow(tableId, rowId);
