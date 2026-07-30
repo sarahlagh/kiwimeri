@@ -2,13 +2,13 @@ import { META_JSON, ROOT_COLLECTION } from '@/constants';
 import { space } from '@/core/db/store';
 import { setMetaField } from '@/core/db/types';
 import {
+  BaseCollectionItem,
   CollectionItem,
   CollectionItemResult,
   CollectionItemType,
   CollectionItemTypeValues,
   CollectionItemUpdatableFields,
   CollectionItemUpdate,
-  CollectionItemWithContent,
   isDocument,
   isFolder,
   isNotebook,
@@ -64,7 +64,7 @@ class ImportService {
 
   // TODO less manual
   private fillInMeta(
-    item: CollectionItemWithContent,
+    item: BaseCollectionItem,
     meta: ZipParsedMetadata,
     parentItem?: CollectionItem,
     ignoreType = false

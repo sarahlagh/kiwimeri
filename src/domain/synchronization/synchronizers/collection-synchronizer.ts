@@ -1,19 +1,17 @@
 import { space, store } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { SpaceType } from '@/core/db/store-schema';
-import { AnyData, SerializableData, TypeWithId } from '@/core/db/types';
-import { CollectionItem } from '@/domain/collection/collection';
+import { AnyData } from '@/core/db/types';
 import {
   minimizeAnnotForStorage,
   MinimizedDocAnnotation,
   unminimizeAnnotFromStorage
 } from '@/domain/collection/compress-annotations';
 import {
-  MinKeys as ItemsMinKeys,
+  MinimizedCollectionItem,
   minimizeItemsForStorage,
   unminimizeItemsFromStorage
 } from '@/domain/collection/compress-collection';
-import { DocAnnotation } from '@/domain/collection/document-annotations';
 import { historyService } from '@/domain/history/history.service';
 import { conflictsService } from '@/domain/space-merging/conflicts-service';
 import {
@@ -31,8 +29,12 @@ import {
   collectionOrphanPolicy,
   noOrphanPolicy
 } from '@/domain/space-merging/merge-helpers/orphan-policies';
+import { toArray, toTable } from '@/domain/space-merging/merge-utils';
 import { storageService } from '@/domain/space-merging/storage.service';
-import { AfterMergeChange } from '@/domain/space-merging/types';
+import {
+  AfterMergeChange,
+  SpacePortableData
+} from '@/domain/space-merging/types';
 import {
   startLocalChangesListeners,
   stopLocalChangesListeners
@@ -47,17 +49,11 @@ import {
   minimizePrefsForStorage,
   unminimizePrefsFromStorage
 } from '@/domain/user-preferences/compress-user-prefs';
-import { UserPreference } from '@/domain/user-preferences/user-preferences';
-import { Table as UntypedTable } from 'tinybase';
 import { Content } from 'tinybase/store/with-schemas';
 import {
   CloudStorageSynchronizer,
   RemoteRepresentation
 } from './abstract-synchronizer';
-
-export type MinimizedCollectionItem = {
-  [key in ItemsMinKeys[number]]: SerializableData | undefined;
-};
 
 export type RemoteCollectionFileContent = {
   i: MinimizedCollectionItem[]; // the items
@@ -67,13 +63,7 @@ export type RemoteCollectionFileContent = {
   _v?: number; // the schema version (!= app version)
 };
 
-type RemoteContentRepresentation = {
-  items: CollectionItem[];
-  docAnnotations: DocAnnotation[];
-  userPrefs: UserPreference[];
-  lastRemoteChange: number;
-  schemaVersion: number;
-};
+type RemoteContentRepresentation = SpacePortableData;
 
 export const REMOTE_COLLECTION_SCHEMA_VERSION = 1; // increment each breaking change
 
@@ -129,10 +119,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     const localContent = space.getContent();
     try {
       // fetch remote if needed or use local content as comparison
-      const remoteContent = await this.resolveRemoteContent(
-        localContent,
-        force
-      );
+      const remoteContent = await this.resolveRemoteContent(force);
       // compute data to send - merge local and remote
       const { hasNewChanges, data } = this.computeDataToPush(
         localContent,
@@ -210,7 +197,6 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   }
 
   private async resolveRemoteContent(
-    localContent: Content<SpaceType>,
     force: boolean
   ): Promise<RemoteContentRepresentation> {
     if (!force) {
@@ -232,7 +218,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       }
     }
     // else, just return local content
-    return this.toRepresentationFromLocal(localContent);
+    return this.toRepresentationFromLocal();
   }
 
   private computeDataToPush(
@@ -241,7 +227,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     remoteContent: RemoteContentRepresentation,
     force: boolean
   ): { data: AnyData; hasNewChanges: boolean } {
-    let lastLocalChange = remoteContent.lastRemoteChange;
+    let lastLocalChange = remoteContent.lastChange;
     if (localChanges.length > 0) {
       lastLocalChange = Math.max(...localChanges.map(lc => lc.createdAt));
     }
@@ -251,7 +237,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       localContent,
       SpaceTables.Collection,
       localChanges,
-      remoteContent.items as TypeWithId[]
+      remoteContent.items
     );
 
     // merge annotations
@@ -259,7 +245,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       localContent,
       SpaceTables.Annotations,
       localChanges,
-      remoteContent.docAnnotations as TypeWithId[]
+      remoteContent.annots
     );
 
     // merge user prefs
@@ -267,7 +253,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       localContent,
       SpaceTables.UserPreference,
       localChanges,
-      remoteContent.userPrefs as TypeWithId[]
+      remoteContent.userPrefs
     );
 
     let data: RemoteCollectionFileContent;
@@ -278,7 +264,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
         lastLocalChange
       );
     } else {
-      const localContentRep = this.toRepresentationFromLocal(localContent);
+      const localContentRep = this.toRepresentationFromLocal();
       data = this.toFileContent(
         localContentRep,
         localContentRep.schemaVersion,
@@ -335,7 +321,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
           SpaceTables.Collection,
           res.newLocalContent,
           remoteContent.items,
-          remoteContent.lastRemoteChange,
+          remoteContent.lastChange,
           localChanges,
           collectionConflictPolicy,
           collectionOrphanPolicy,
@@ -345,8 +331,8 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
         applyLocalChangesToPull(
           SpaceTables.Annotations,
           res.newLocalContent,
-          remoteContent.docAnnotations,
-          remoteContent.lastRemoteChange,
+          remoteContent.annots,
+          remoteContent.lastChange,
           localChanges,
           annotsConflictPolicy,
           annotsOrphanPolicy,
@@ -356,8 +342,8 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
         applyLocalChangesToPull(
           SpaceTables.UserPreference,
           res.newLocalContent,
-          remoteContent.userPrefs as never[],
-          remoteContent.lastRemoteChange,
+          remoteContent.userPrefs,
+          remoteContent.lastChange,
           localChanges,
           noConflictPolicy,
           noOrphanPolicy,
@@ -385,40 +371,10 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     };
   }
 
-  private toMap<T>(obj?: UntypedTable) {
-    const map: Map<string, T> = new Map();
-    if (obj) {
-      Object.keys(obj).forEach(id => {
-        map.set(id, { ...(obj[id] as unknown as T), id });
-      });
-    }
-    return map;
-  }
-
-  private toRepresentationFromLocal(
-    localContent: Content<SpaceType>
-  ): RemoteContentRepresentation {
-    const collection = this.toMap<CollectionItem>(localContent[0].collection!);
-    const annotation = this.toMap<DocAnnotation>(
-      localContent[0].document_annotation
+  private toRepresentationFromLocal(): RemoteContentRepresentation {
+    return storageService.getSpaceRepresentation(
+      REMOTE_COLLECTION_SCHEMA_VERSION
     );
-    const userPreference = this.toMap<UserPreference>(
-      localContent[0].user_preference
-    );
-    const items = [...collection.values()].filter(v => !v.conflictId);
-    const docAnnotations = [...annotation.values()];
-    const userPrefs = [...userPreference.values()];
-    const lastRemoteChange = Math.max(
-      ...items.map(i => i.updatedAt),
-      ...docAnnotations.map(i => i.updatedAt)
-    );
-    return {
-      items,
-      docAnnotations,
-      userPrefs,
-      lastRemoteChange: lastRemoteChange,
-      schemaVersion: REMOTE_COLLECTION_SCHEMA_VERSION
-    };
   }
 
   private toRepresentation(
@@ -427,10 +383,10 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     const obj = data;
 
     return {
-      items: unminimizeItemsFromStorage(obj.i),
-      docAnnotations: unminimizeAnnotFromStorage(obj.a || []),
-      userPrefs: unminimizePrefsFromStorage(obj.o || []),
-      lastRemoteChange: obj.u,
+      items: toTable(unminimizeItemsFromStorage(obj.i)),
+      annots: toTable(unminimizeAnnotFromStorage(obj.a || [])),
+      userPrefs: toTable(unminimizePrefsFromStorage(obj.o || [])),
+      lastChange: obj.u,
       schemaVersion: obj._v || 0
     };
   }
@@ -441,11 +397,9 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     updated: number
   ): RemoteCollectionFileContent {
     return {
-      i: minimizeItemsForStorage(
-        remoteContent.items.map(item => ({ ...item }))
-      ) as MinimizedCollectionItem[],
-      a: minimizeAnnotForStorage(remoteContent.docAnnotations),
-      o: minimizePrefsForStorage(remoteContent.userPrefs),
+      i: minimizeItemsForStorage(toArray(remoteContent.items)),
+      a: minimizeAnnotForStorage(toArray(remoteContent.annots)),
+      o: minimizePrefsForStorage(toArray(remoteContent.userPrefs)),
       u: updated,
       _v: schemaVersion
     };

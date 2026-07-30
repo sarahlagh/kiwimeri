@@ -57,6 +57,25 @@ describe('collection synchronizer', () => {
     historyService['enabled'] = false;
   });
 
+  it('should trim ids and itemId from collection table in remote format', async () => {
+    const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+    const folId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+    await synchronizer.sync();
+    {
+      const { items } = driver.getParsedCollectionContent();
+      expect(Object.keys(items)).toHaveLength(3);
+      expect(items[DEFAULT_NOTEBOOK_ID]).toBeDefined();
+      expect((items[DEFAULT_NOTEBOOK_ID] as any).id).toBeUndefined();
+      expect((items[DEFAULT_NOTEBOOK_ID] as any).itemId).toBeUndefined();
+      expect(items[docId]).toBeDefined();
+      expect((items[docId] as any).id).toBeUndefined();
+      expect((items[docId] as any).itemId).toBeUndefined();
+      expect(items[folId]).toBeDefined();
+      expect((items[folId] as any).id).toBeUndefined();
+      expect((items[folId] as any).itemId).toBeUndefined();
+    }
+  });
+
   describe('should merge restored items', () => {
     it('should merge restored items', async () => {
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
@@ -66,9 +85,9 @@ describe('collection synchronizer', () => {
       );
       await synchronizer.push();
       {
-        const { content } = driver.getParsedCollectionContent();
-        expect(content).toHaveLength(2);
-        expect(content[1].id).toBe(docId);
+        const { items } = driver.getParsedCollectionContent();
+        expect(Object.keys(items)).toHaveLength(2);
+        expect(items[docId]).toBeDefined();
       }
 
       // delete & push
@@ -76,8 +95,8 @@ describe('collection synchronizer', () => {
       collectionService.deleteItem(docId);
       await synchronizer.sync();
       {
-        const { content } = driver.getParsedCollectionContent();
-        expect(content).toHaveLength(1);
+        const { items } = driver.getParsedCollectionContent();
+        expect(Object.keys(items)).toHaveLength(1);
       }
 
       // restore
@@ -93,9 +112,9 @@ describe('collection synchronizer', () => {
       // sync
       await synchronizer.sync();
       {
-        const { content } = driver.getParsedCollectionContent();
-        expect(content).toHaveLength(2);
-        expect(content[1].id).toBe(docId);
+        const { items } = driver.getParsedCollectionContent();
+        expect(Object.keys(items)).toHaveLength(2);
+        expect(items[docId]).toBeDefined();
       }
     });
 
@@ -107,9 +126,9 @@ describe('collection synchronizer', () => {
       );
       await synchronizer.push();
       {
-        const { content } = driver.getParsedCollectionContent();
-        expect(content).toHaveLength(2);
-        expect(content[1].id).toBe(docId);
+        const { items } = driver.getParsedCollectionContent();
+        expect(Object.keys(items)).toHaveLength(2);
+        expect(items[docId]).toBeDefined();
       }
 
       // delete, NOT push
@@ -131,9 +150,9 @@ describe('collection synchronizer', () => {
       // sync
       await synchronizer.sync();
       {
-        const { content } = driver.getParsedCollectionContent();
-        expect(content).toHaveLength(2);
-        expect(content[1].id).toBe(docId);
+        const { items } = driver.getParsedCollectionContent();
+        expect(Object.keys(items)).toHaveLength(2);
+        expect(items[docId]).toBeDefined();
       }
     });
 
@@ -145,9 +164,9 @@ describe('collection synchronizer', () => {
       );
       await synchronizer.push();
       {
-        const { content } = driver.getParsedCollectionContent();
-        expect(content).toHaveLength(2);
-        expect(content[1].id).toBe(docId);
+        const { items } = driver.getParsedCollectionContent();
+        expect(Object.keys(items)).toHaveLength(2);
+        expect(items[docId]).toBeDefined();
       }
 
       // update, NOT push
@@ -179,10 +198,9 @@ describe('collection synchronizer', () => {
       // sync
       await synchronizer.sync();
       {
-        const { content } = driver.getParsedCollectionContent();
-        expect(content).toHaveLength(2);
-        expect(content[1].id).toBe(docId);
-        expect(content[1].content).toBe(
+        const { items } = driver.getParsedCollectionContent();
+        expect(Object.keys(items)).toHaveLength(2);
+        expect(items[docId].content).toBe(
           minimizeContentForStorage(JSON.parse(getNewContent('test update')))
         );
       }
@@ -196,9 +214,9 @@ describe('collection synchronizer', () => {
       );
       await synchronizer.push();
       {
-        const { content } = driver.getParsedCollectionContent();
-        expect(content).toHaveLength(2);
-        expect(content[1].id).toBe(docId);
+        const { items } = driver.getParsedCollectionContent();
+        expect(Object.keys(items)).toHaveLength(2);
+        expect(items[docId]).toBeDefined();
       }
 
       // update, NOT push
@@ -211,14 +229,14 @@ describe('collection synchronizer', () => {
 
       // twist: remote update
       {
-        const { content } = driver.getParsedCollectionContent();
+        const { items } = driver.getParsedCollectionContent();
         collectionService.setUnsavedItemLexicalContent(
-          content[1],
+          items[docId],
           JSON.parse(getNewContent('remote update'))
         );
-        content[1].content_meta = setMetaField(Date.now());
-        content[1].updatedAt = Date.now();
-        driver.setCollectionContent(content, Date.now());
+        items[docId].content_meta = setMetaField(Date.now());
+        items[docId].updatedAt = Date.now();
+        driver.setCollectionContent(items, Date.now());
       }
 
       // delete, NOT push
@@ -242,10 +260,9 @@ describe('collection synchronizer', () => {
       // sync
       await synchronizer.sync();
       {
-        const { content } = driver.getParsedCollectionContent();
-        expect(content).toHaveLength(2);
-        expect(content[1].id).toBe(docId);
-        expect(content[1].content).toBe(
+        const { items } = driver.getParsedCollectionContent();
+        expect(Object.keys(items)).toHaveLength(2);
+        expect(items[docId].content).toBe(
           minimizeContentForStorage(JSON.parse(getNewContent('remote update')))
         );
       }
@@ -260,21 +277,21 @@ describe('collection synchronizer', () => {
       );
       await synchronizer.push();
       {
-        const { content } = driver.getParsedCollectionContent();
-        expect(content).toHaveLength(2);
-        expect(content[1].id).toBe(docId);
+        const { items } = driver.getParsedCollectionContent();
+        expect(Object.keys(items)).toHaveLength(2);
+        expect(items[docId]).toBeDefined();
       }
 
       // twist: remote update
       {
-        const { content } = driver.getParsedCollectionContent();
+        const { items } = driver.getParsedCollectionContent();
         collectionService.setUnsavedItemLexicalContent(
-          content[1],
+          items[docId],
           JSON.parse(getNewContent('remote update'))
         );
-        content[1].content_meta = setMetaField(Date.now());
-        content[1].updatedAt = Date.now();
-        driver.setCollectionContent(content, Date.now());
+        items[docId].content_meta = setMetaField(Date.now());
+        items[docId].updatedAt = Date.now();
+        driver.setCollectionContent(items, Date.now());
       }
 
       // update, NOT push
@@ -306,10 +323,10 @@ describe('collection synchronizer', () => {
       // sync
       await synchronizer.sync();
       {
-        const { content } = driver.getParsedCollectionContent();
-        expect(content).toHaveLength(2);
-        expect(content[1].id).toBe(docId);
-        expect(content[1].content).toBe(
+        const { items } = driver.getParsedCollectionContent();
+        expect(Object.keys(items)).toHaveLength(2);
+        expect(items[docId]).toBeDefined();
+        expect(items[docId].content).toBe(
           minimizeContentForStorage(JSON.parse(getNewContent('local update')))
         );
       }
@@ -324,18 +341,18 @@ describe('collection synchronizer', () => {
       );
       await synchronizer.push();
       {
-        const { content } = driver.getParsedCollectionContent();
-        expect(content).toHaveLength(2);
-        expect(content[1].id).toBe(docId);
+        const { items } = driver.getParsedCollectionContent();
+        expect(Object.keys(items)).toHaveLength(2);
+        expect(items[docId]).toBeDefined();
       }
 
       // twist: remote update on title
       {
-        const { content } = driver.getParsedCollectionContent();
-        content[1].title = 'remote title';
-        content[1].title_meta = setMetaField(Date.now());
-        content[1].updatedAt = Date.now();
-        driver.setCollectionContent(content, Date.now());
+        const { items } = driver.getParsedCollectionContent();
+        items[docId].title = 'remote title';
+        items[docId].title_meta = setMetaField(Date.now());
+        items[docId].updatedAt = Date.now();
+        driver.setCollectionContent(items, Date.now());
       }
 
       // update, NOT push
@@ -367,13 +384,13 @@ describe('collection synchronizer', () => {
       // sync
       await synchronizer.sync();
       {
-        const { content } = driver.getParsedCollectionContent();
-        expect(content).toHaveLength(2);
-        expect(content[1].id).toBe(docId);
-        expect(content[1].content).toBe(
+        const { items } = driver.getParsedCollectionContent();
+        expect(Object.keys(items)).toHaveLength(2);
+        expect(items[docId]).toBeDefined();
+        expect(items[docId].content).toBe(
           minimizeContentForStorage(JSON.parse(getNewContent('local update')))
         );
-        expect(content[1].title).not.toBe('remote title'); // remote change lost
+        expect(items[docId].title).not.toBe('remote title'); // remote change lost
       }
       expect(getLocalItemConflicts()).toHaveLength(0);
     });
@@ -386,11 +403,11 @@ describe('collection synchronizer', () => {
       annotsService.edit(noteId, JSON.parse(getNewContent('test')));
       await synchronizer.sync();
       {
-        const { content, annots: notes } = driver.getParsedCollectionContent();
-        expect(content).toHaveLength(2);
-        expect(content[1].id).toBe(docId);
-        expect(notes).toHaveLength(1);
-        expect(notes[0].id).toBe(noteId);
+        const { items, annots: notes } = driver.getParsedCollectionContent();
+        expect(Object.keys(items)).toHaveLength(2);
+        expect(items[docId]).toBeDefined();
+        expect(Object.keys(notes)).toHaveLength(1);
+        expect(notes[noteId]).toBeDefined();
       }
     });
 
@@ -449,14 +466,13 @@ describe('collection synchronizer', () => {
       // sync
       await synchronizer.sync();
       {
-        const { content, annots: newNotes } =
-          driver.getParsedCollectionContent();
-        expect(content).toHaveLength(2);
-        expect(content[1].id).toBe(docId);
-        expect(newNotes).toHaveLength(1);
-        expect(newNotes[0].id).toBe(noteId);
-        expect(newNotes[0].order).toBe(2);
-        expect(newNotes[0].content).toBe(
+        const { items, annots: newNotes } = driver.getParsedCollectionContent();
+        expect(Object.keys(items)).toHaveLength(2);
+        expect(items[docId]).toBeDefined();
+        expect(Object.keys(newNotes)).toHaveLength(1);
+        expect(newNotes[noteId]).toBeDefined();
+        expect(newNotes[noteId].order).toBe(2);
+        expect(newNotes[noteId].content).toBe(
           space.getCell(SpaceTables.Annotations, noteId, 'content')
         );
       }
@@ -496,16 +512,15 @@ describe('collection synchronizer', () => {
       expect(resp.didPull);
       expect(resp.didPush);
       {
-        const { content, annots: newNotes } =
-          driver.getParsedCollectionContent();
-        expect(content).toHaveLength(2);
-        expect(content[1].id).toBe(docId);
-        expect(newNotes).toHaveLength(1);
-        expect(newNotes[0].id).toBe(noteId);
-        expect(newNotes[0].content).toBe(
+        const { items, annots: newNotes } = driver.getParsedCollectionContent();
+        expect(Object.keys(items)).toHaveLength(2);
+        expect(items[docId]).toBeDefined();
+        expect(Object.keys(newNotes)).toHaveLength(1);
+        expect(newNotes[noteId]).toBeDefined();
+        expect(newNotes[noteId].content).toBe(
           space.getCell(SpaceTables.Annotations, noteId, 'content')
         );
-        expect(newNotes[0].content).toBe(
+        expect(newNotes[noteId].content).toBe(
           minimizeContentForStorage(JSON.parse(getNewContent('local')))
         );
         expect(!annotsService.isConflict(noteId));
@@ -548,16 +563,15 @@ describe('collection synchronizer', () => {
       expect(resp.didPull);
       expect(!resp.didPush);
       {
-        const { content, annots: newNotes } =
-          driver.getParsedCollectionContent();
-        expect(content).toHaveLength(2);
-        expect(content[1].id).toBe(docId);
-        expect(newNotes).toHaveLength(1);
-        expect(newNotes[0].id).toBe(noteId);
-        expect(newNotes[0].content).toBe(
+        const { items, annots: newNotes } = driver.getParsedCollectionContent();
+        expect(Object.keys(items)).toHaveLength(2);
+        expect(items[docId]).toBeDefined();
+        expect(Object.keys(newNotes)).toHaveLength(1);
+        expect(newNotes[noteId]).toBeDefined();
+        expect(newNotes[noteId].content).toBe(
           space.getCell(SpaceTables.Annotations, noteId, 'content')
         );
-        expect(newNotes[0].content).toBe(notes[0].content);
+        expect(newNotes[noteId].content).toBe(notes[0].content);
         expect(annotsService.isConflict(noteId));
       }
     });
@@ -728,8 +742,8 @@ describe('collection synchronizer', () => {
     it('should not push default user prefs', async () => {
       await synchronizer.sync();
       {
-        const { prefs } = driver.getParsedCollectionContent();
-        expect(prefs).toHaveLength(0);
+        const { userPrefs: prefs } = driver.getParsedCollectionContent();
+        expect(Object.keys(prefs)).toHaveLength(0);
       }
     });
 
@@ -737,10 +751,9 @@ describe('collection synchronizer', () => {
       userPrefs.set('defaultSortBy', 'manual');
       await synchronizer.sync();
       {
-        const { prefs } = driver.getParsedCollectionContent();
-        expect(prefs).toHaveLength(1);
-        expect(prefs[0]).toEqual({
-          id: 'defaultSortBy',
+        const { userPrefs: prefs } = driver.getParsedCollectionContent();
+        expect(Object.keys(prefs)).toHaveLength(1);
+        expect(prefs['defaultSortBy']).toEqual({
           value: { _v: 'manual' },
           updatedAt: Date.now()
         });
@@ -763,15 +776,13 @@ describe('collection synchronizer', () => {
       vi.advanceTimersByTime(100);
       await synchronizer.sync();
 
-      const { prefs } = driver.getParsedCollectionContent();
-      expect(prefs).toHaveLength(2);
-      expect(prefs[0]).toEqual({
-        id: 'defaultSortBy',
+      const { userPrefs: prefs } = driver.getParsedCollectionContent();
+      expect(Object.keys(prefs)).toHaveLength(2);
+      expect(prefs['defaultSortBy']).toEqual({
         value: { _v: 'manual' },
         updatedAt: before
       });
-      expect(prefs[1]).toEqual({
-        id: 'maxHistoryPerDoc',
+      expect(prefs['maxHistoryPerDoc']).toEqual({
         value: { _v: 127 },
         updatedAt: remotePrefs[0].updatedAt
       });
@@ -796,10 +807,9 @@ describe('collection synchronizer', () => {
       vi.advanceTimersByTime(100);
       await synchronizer.sync();
 
-      const { prefs } = driver.getParsedCollectionContent();
-      expect(prefs).toHaveLength(1);
-      expect(prefs[0]).toEqual({
-        id: 'defaultSortBy',
+      const { userPrefs: prefs } = driver.getParsedCollectionContent();
+      expect(Object.keys(prefs)).toHaveLength(1);
+      expect(prefs['defaultSortBy']).toEqual({
         value: { _v: 'manual' },
         updatedAt: before
       });
@@ -825,10 +835,9 @@ describe('collection synchronizer', () => {
 
       await synchronizer.sync();
 
-      const { prefs } = driver.getParsedCollectionContent();
-      expect(prefs).toHaveLength(1);
-      expect(prefs[0]).toEqual({
-        id: 'defaultSortBy',
+      const { userPrefs: prefs } = driver.getParsedCollectionContent();
+      expect(Object.keys(prefs)).toHaveLength(1);
+      expect(prefs['defaultSortBy']).toEqual({
         value: { _v: 'manual' },
         updatedAt: local
       });
@@ -874,9 +883,9 @@ describe('collection synchronizer', () => {
       expect(resp.didPull);
       expect(!resp.didPush);
       {
-        const { content } = driver.getParsedCollectionContent();
-        expect(content).toHaveLength(2);
-        expect(content[1].id).toBe(docId);
+        const { items } = driver.getParsedCollectionContent();
+        expect(Object.keys(items)).toHaveLength(2);
+        expect(items[docId]).toBeDefined();
         expect(collectionService.isItemConflict(docId));
       }
 
@@ -898,7 +907,7 @@ describe('collection synchronizer', () => {
           'createdAt',
           true
         );
-        expect(items).toHaveLength(2);
+        expect(Object.keys(items)).toHaveLength(2);
         const { result, unmount } = wrappedRenderHook(() =>
           useItemsConflictMixIn(items)
         );
@@ -949,16 +958,15 @@ describe('collection synchronizer', () => {
       expect(resp.didPull);
       expect(!resp.didPush);
       {
-        const { content, annots: newNotes } =
-          driver.getParsedCollectionContent();
-        expect(content).toHaveLength(2);
-        expect(content[1].id).toBe(docId);
-        expect(newNotes).toHaveLength(1);
-        expect(newNotes[0].id).toBe(noteId);
-        expect(newNotes[0].content).toBe(
+        const { items, annots: newNotes } = driver.getParsedCollectionContent();
+        expect(Object.keys(items)).toHaveLength(2);
+        expect(items[docId]).toBeDefined();
+        expect(Object.keys(newNotes)).toHaveLength(1);
+        expect(newNotes[noteId]).toBeDefined();
+        expect(newNotes[noteId].content).toBe(
           space.getCell(SpaceTables.Annotations, noteId, 'content')
         );
-        expect(newNotes[0].content).toBe(notes[0].content);
+        expect(newNotes[noteId].content).toBe(notes[0].content);
         expect(annotsService.isConflict(noteId));
       }
 
@@ -976,7 +984,7 @@ describe('collection synchronizer', () => {
           recursive: true,
           parentId: DEFAULT_NOTEBOOK_ID
         });
-        expect(items).toHaveLength(1);
+        expect(Object.keys(items)).toHaveLength(1);
         const { result, unmount } = wrappedRenderHook(() =>
           useItemsConflictMixIn(items)
         );
@@ -1044,16 +1052,15 @@ describe('collection synchronizer', () => {
       expect(resp.didPull);
       expect(!resp.didPush);
       {
-        const { content, annots: newNotes } =
-          driver.getParsedCollectionContent();
-        expect(content).toHaveLength(5);
-        expect(content[1].id).toBe(docWithNote);
-        expect(content[2].id).toBe(docInConflict);
-        expect(content[3].id).toBe(docExcluded);
+        const { items, annots: newNotes } = driver.getParsedCollectionContent();
+        expect(Object.keys(items)).toHaveLength(5);
+        expect(items[docWithNote]).toBeDefined();
+        expect(items[docInConflict]).toBeDefined();
+        expect(items[docExcluded]).toBeDefined();
         expect(collectionService.isItemConflict(docInConflict));
         expect(!collectionService.isItemConflict(docWithNote));
         expect(!collectionService.isItemConflict(docExcluded));
-        expect(newNotes[0].content).toBe(notes[0].content);
+        expect(newNotes[noteId].content).toBe(notes[0].content);
         expect(annotsService.isConflict(noteId));
       }
 
@@ -1076,7 +1083,7 @@ describe('collection synchronizer', () => {
           'createdAt',
           true
         );
-        expect(items).toHaveLength(3);
+        expect(Object.keys(items)).toHaveLength(3);
         expect(items.filter(i => i.id === docExcluded)).toHaveLength(0);
         const { result, unmount } = wrappedRenderHook(() =>
           useItemsConflictMixIn(items)
@@ -1187,7 +1194,7 @@ describe('collection synchronizer', () => {
       expect(resp.didPush).toBe(true);
 
       const content = await driver.getParsedCollectionContent();
-      expect(content._schemaVersion).toBe(REMOTE_COLLECTION_SCHEMA_VERSION);
+      expect(content.schemaVersion).toBe(REMOTE_COLLECTION_SCHEMA_VERSION);
     });
 
     test('client on newest version can force push to remote file with old version', async () => {
@@ -1203,7 +1210,7 @@ describe('collection synchronizer', () => {
       expect(resp.didPush).toBe(true);
 
       const content = await driver.getParsedCollectionContent();
-      expect(content._schemaVersion).toBe(REMOTE_COLLECTION_SCHEMA_VERSION);
+      expect(content.schemaVersion).toBe(REMOTE_COLLECTION_SCHEMA_VERSION);
     });
 
     test('client on old version cannot pull remote file on newest version', async () => {
@@ -1295,10 +1302,10 @@ describe('collection synchronizer', () => {
       const docId = collectionService.addDocument(folId);
       await synchronizer.sync();
 
-      const items = driver.getParsedCollectionContent().content;
+      const items = driver.getParsedCollectionContent().items;
       const fol2 = oneFolder();
-      items.push(fol2);
-      const fol1 = items.find(i => i.id === folId)!;
+      items[fol2.id] = fol2;
+      const fol1 = items[folId];
       fol1.parentId = fol2.id;
 
       await driver.setCollectionContent(items, fol2.updatedAt);
@@ -1309,8 +1316,8 @@ describe('collection synchronizer', () => {
         space.getCell(SpaceTables.DerivedState, fol2.id, 'fullPath')
       ).toEqual([DEFAULT_NOTEBOOK_ID, fol2.id]);
       expect(
-        space.getCell(SpaceTables.DerivedState, fol1.id, 'fullPath')
-      ).toEqual([DEFAULT_NOTEBOOK_ID, fol2.id, fol1.id]);
+        space.getCell(SpaceTables.DerivedState, folId, 'fullPath')
+      ).toEqual([DEFAULT_NOTEBOOK_ID, fol2.id, folId]);
       expect(
         space.getCell(SpaceTables.DerivedState, docId, 'fullPath')
       ).toEqual([DEFAULT_NOTEBOOK_ID, fol2.id, folId, docId]);

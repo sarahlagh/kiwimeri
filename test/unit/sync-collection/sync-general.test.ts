@@ -106,15 +106,19 @@ describe(`sync general test`, () => {
     expect(resp2.didPush);
 
     const remoteContent = await getRemoteContent();
-    expect(remoteContent.content).toHaveLength(5);
-    expect(remoteContent.content.map(r => r.type)).toEqual([
+    expect(Object.keys(remoteContent.items)).toHaveLength(5);
+    expect(
+      Object.keys(remoteContent.items).map(r => remoteContent.items[r].type)
+    ).toEqual([
       CollectionItemType.notebook,
       CollectionItemType.document,
       CollectionItemType.document,
       CollectionItemType.folder,
       CollectionItemType.folder
     ]);
-    expect(remoteContent.content.map(r => r.title)).toEqual([
+    expect(
+      Object.keys(remoteContent.items).map(r => remoteContent.items[r].title)
+    ).toEqual([
       getGlobalTrans().defaultNotebookName,
       'r1',
       'r2',

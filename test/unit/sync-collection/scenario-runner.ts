@@ -623,10 +623,13 @@ export class PullTestScenarioRunner {
       const localContent = space.getTable('collection');
       const itemIds = Object.keys(localContent);
       const remoteContent = await getRemoteContent();
-      expect(remoteContent.content).toHaveLength(itemIds.length);
-      remoteContent.content.forEach(i => {
-        expect(i).toEqual({ ...localContent[i.id!], id: i.id! });
-      });
+      expect(Object.keys(remoteContent.items)).toHaveLength(itemIds.length);
+      Object.keys(remoteContent.items)
+        .map(key => ({ ...remoteContent.items[key], itemId: key, id: key }))
+        .forEach(i => {
+          expect((remoteContent.items[i.id] as any).id).toBeUndefined();
+          expect(i).toEqual({ ...localContent[i.id!], id: i.id! });
+        });
     }
   }
 }

@@ -62,6 +62,7 @@ export type UserPreferenceValue<
     ? boolean
     : string;
 
+export type BaseUserPreference = UserPreferenceRow;
 export type UserPreference = WithId<UserPreferenceRow>;
 
 export type UserPrefUpdatableFieldEnum = keyof Pick<UserPreferenceRow, 'value'>;

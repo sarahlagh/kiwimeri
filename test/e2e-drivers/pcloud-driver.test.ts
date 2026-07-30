@@ -11,6 +11,7 @@ import {
   unminimizeAnnotFromStorage
 } from '@/domain/collection/compress-annotations';
 import {
+  MinimizedCollectionItem,
   minimizeItemsForStorage,
   unminimizeItemsFromStorage
 } from '@/domain/collection/compress-collection';
@@ -27,7 +28,6 @@ import { StoredStateInfo } from '@/domain/synchronization/replica-state';
 import replicaService from '@/domain/synchronization/replica.service';
 import { syncService } from '@/domain/synchronization/sync.service';
 import {
-  MinimizedCollectionItem,
   REMOTE_COLLECTION_SCHEMA_VERSION,
   RemoteCollectionFileContent
 } from '@/domain/synchronization/synchronizers/collection-synchronizer';

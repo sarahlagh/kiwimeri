@@ -4,6 +4,7 @@ import { SpaceDocContentTables, SpaceTables } from '@/core/db/store-constants';
 import { SpaceTablesType } from '@/core/db/store-schema';
 import { DbSerializableData, setMetaField, WithId } from '@/core/db/types';
 import {
+  BaseCollectionItem,
   CollectionItem,
   CollectionItemFieldEnum,
   CollectionItemHistorizableFields,
@@ -14,7 +15,6 @@ import {
   CollectionItemTypeValues,
   CollectionItemUpdatableFieldEnum,
   CollectionItemUpdate,
-  CollectionItemWithContent,
   isDocument,
   isFolder,
   isNotebook,
@@ -489,7 +489,7 @@ class CollectionService {
     return tmpTable;
   }
 
-  public saveItem(item: CollectionItemWithContent, id?: string) {
+  public saveItem(item: BaseCollectionItem, id?: string) {
     if (!id) {
       id = getUniqueId();
     }

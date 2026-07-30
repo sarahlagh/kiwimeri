@@ -1,11 +1,12 @@
 import { SpaceTableId, SpaceType } from '@/core/db/store-schema';
-import { MetaField, TypeWithId, WithId } from '@/core/db/types';
+import { MetaField } from '@/core/db/types';
 import {
   LocalChangeResult,
   LocalChangeType
 } from '@/domain/synchronization/local-changes';
 import { Table } from 'tinybase';
 import { Content, Id, Row } from 'tinybase/with-schemas';
+import { TableOf } from '../types';
 import { ConflictPolicy } from './conflict-policies';
 import { OrphanPolicy } from './orphan-policies';
 
@@ -15,51 +16,46 @@ type FieldWithMeta<R> = {
 }[StringKey<R>];
 type MetaKey<K extends string> = `${K}_meta`;
 
-export function applyLocalChangesToPush<R extends TypeWithId>(
+export function applyLocalChangesToPush<R>(
   localContent: Content<SpaceType>,
   tableId: SpaceTableId,
   allLocalChanges: LocalChangeResult[],
-  newRemoteItems: R[]
-): R[] {
+  newRemoteItems: TableOf<R>
+) {
   const dataTable = localContent[0][tableId]! as { [key: Id]: R };
   const localChanges = allLocalChanges.filter(lc => lc.on === tableId);
   if (localChanges.length > 0) {
     // reapply local changes
     for (const localChange of localChanges) {
-      const itemIdx = newRemoteItems.findIndex(
-        ri => ri.id === localChange.itemId
-      );
+      const itemExist = newRemoteItems[localChange.itemId] !== undefined;
       console.debug(
         '[collection][push] handling local change',
         localChange,
-        itemIdx
+        itemExist
       );
       if (
-        itemIdx === -1 &&
+        !itemExist &&
         localChange.change !== LocalChangeType.delete &&
         localChange.itemId in dataTable
       ) {
-        newRemoteItems.push({
-          ...dataTable[localChange.itemId],
-          id: localChange.itemId
-        });
+        newRemoteItems[localChange.itemId] = {
+          ...dataTable[localChange.itemId]
+        };
         continue;
       }
-      if (itemIdx > -1) {
+      if (itemExist) {
         if (localChange.change === LocalChangeType.update) {
           // local always wins
-          newRemoteItems[itemIdx] = {
+          newRemoteItems[localChange.itemId] = {
             ...dataTable[localChange.itemId],
             id: localChange.itemId
           };
         } else if (localChange.change === LocalChangeType.delete) {
-          newRemoteItems.splice(itemIdx, 1);
+          delete newRemoteItems[localChange.itemId];
         }
       }
     }
   }
-
-  return newRemoteItems;
 }
 
 function getRemoteUpdatedTS(
@@ -114,12 +110,11 @@ type ApplyLCResult = {
 };
 export function applyLocalChangesToPull<
   RootTableId extends SpaceTableId,
-  L extends Row<SpaceType[0], RootTableId>,
-  R extends WithId<L>
+  L extends Row<SpaceType[0], RootTableId>
 >(
   tableId: SpaceTableId,
   localContent: Content<SpaceType>,
-  remoteItems: R[],
+  remoteItems: TableOf<L>,
   lastRemoteChange: number,
   allLocalChanges: LocalChangeResult[],
   conflictPolicy: ConflictPolicy<L>,
@@ -137,8 +132,9 @@ export function applyLocalChangesToPull<
   ];
   newLocalContent[0][tableId] = {};
   // fill-in new collection with remote content
-  remoteItems.forEach(item => {
-    newLocalContent[0][tableId]![item.id] = { ...item, id: undefined };
+  Object.keys(remoteItems).forEach(itemId => {
+    const item = remoteItems[itemId];
+    newLocalContent[0][tableId]![itemId] = { ...item, id: undefined };
   });
   const newDataTable = newLocalContent[0][tableId]! as {
     [key: string]: L;

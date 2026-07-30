@@ -1,4 +1,4 @@
-import { AnyData } from '@/core/db/types';
+import { AnyData, SerializableData } from '@/core/db/types';
 import { CollectionItem } from '@/domain/collection/collection';
 import { minimizeKeys, unminimizeKeys } from '@/shared/utils';
 
@@ -53,10 +53,16 @@ keys.forEach(([v1, v2]) => {
   keysMapReverse.set(v2, v1);
 });
 
+export type MinimizedCollectionItem = {
+  [key in MinKeys[number]]: SerializableData | undefined;
+};
+
 export const minimizeItemsForStorage = (obj: CollectionItem[]) => {
   return obj
     .map(obj => ({ ...obj }))
-    .map(item => minimizeKeys(item, keysMap, new Map()));
+    .map(
+      item => minimizeKeys(item, keysMap, new Map()) as MinimizedCollectionItem
+    );
 };
 
 export const unminimizeItemsFromStorage = (

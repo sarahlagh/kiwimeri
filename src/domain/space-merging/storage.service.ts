@@ -14,13 +14,19 @@ import notebooksService from '@/domain/collection/notebooks.service';
 import localChangesService from '@/domain/synchronization/local-changes.service';
 import { getPlainText } from '@/shared/misc/getPlainText';
 import { cellEquals } from '@/shared/utils';
-import { Content, Table } from 'tinybase/with-schemas';
+import { Content, Id, Table } from 'tinybase/with-schemas';
 import {
+  BaseCollectionItem,
+  CollectionItemRow,
   CollectionItemType,
   CollectionItemUpdatableFields,
   isDocument
 } from '../collection/collection';
 import collectionService from '../collection/collection.service';
+import {
+  BaseDocAnnotation,
+  DocAnnotationRow
+} from '../collection/document-annotations';
 import { getDerivedId } from '../collection/document-content';
 import { resumeService } from '../collection/resume-state.service';
 import tagsService from '../collection/tags.service';
@@ -30,10 +36,15 @@ import {
   LocalChangeResult,
   LocalChangeType
 } from '../synchronization/local-changes';
-import { AfterMergeChange } from './types';
+import {
+  BaseUserPreference,
+  UserPreferenceRow
+} from '../user-preferences/user-preferences';
+import { AfterMergeChange, SpacePortableData, TableOf } from './types';
 
 const C = SpaceTables.Collection;
 const A = SpaceTables.Annotations;
+const UP = SpaceTables.UserPreference;
 const H = SpaceArchiveTables.History;
 const HC = SpaceArchiveTables.HistoryContent;
 const S = SpaceTables.Stats;
@@ -43,7 +54,54 @@ const DerivedState = SpaceTables.DerivedState;
 const AnnotationContent = SpaceDocContentTables.AnnotationContent;
 const ResumeState = SpaceTables.ResumeState;
 
+const LOCAL_COLLECTION_SCHEMA_VERSION = 1; // increment each breaking change
+
 class StorageService {
+  public getSpaceRepresentation(
+    schemaVersion = LOCAL_COLLECTION_SCHEMA_VERSION
+  ): SpacePortableData {
+    const localSpaceContent = space.getContent();
+    const items = this.toTable<BaseCollectionItem, CollectionItemRow>(
+      localSpaceContent[0][C],
+      row => ({ ...row, itemId: undefined })
+    );
+    const annots = this.toTable<BaseDocAnnotation, DocAnnotationRow>(
+      localSpaceContent[0][A]
+    );
+    const userPrefs = this.toTable<BaseUserPreference, UserPreferenceRow>(
+      localSpaceContent[0][UP]
+    );
+    const lastChange = Math.max(
+      ...Object.keys(items).map(rowId => items[rowId].updatedAt),
+      ...Object.keys(annots).map(rowId => annots[rowId].updatedAt),
+      ...Object.keys(userPrefs).map(rowId => userPrefs[rowId].updatedAt)
+    );
+
+    return {
+      items,
+      annots,
+      userPrefs,
+      lastChange,
+      schemaVersion
+    };
+  }
+
+  private toTable<T, U>(
+    arg: Table<SpaceTablesType, SpaceTableId, false> | undefined,
+    rowMapper?: (row: U, rowId: Id) => T
+  ): TableOf<T> {
+    const table: TableOf<T> = {};
+    if (arg) {
+      Object.keys(arg).forEach(rowId => {
+        const row = arg[rowId] as U;
+        table[rowId] = rowMapper
+          ? rowMapper(row, rowId)
+          : (row as unknown as T);
+      });
+    }
+    return table;
+  }
+
   public nukeSpace() {
     space.setContent([{}, {}]);
     spaceDocContent.setContent([{}, {}]);

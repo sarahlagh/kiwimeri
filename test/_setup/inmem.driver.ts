@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { AnyData } from '@/core/db/types';
-import { CollectionItem } from '@/domain/collection/collection';
+import {
+  BaseCollectionItem,
+  CollectionItem
+} from '@/domain/collection/collection';
 import {
   minimizeAnnotForStorage,
   unminimizeAnnotFromStorage
@@ -10,7 +13,12 @@ import {
   minimizeItemsForStorage,
   unminimizeItemsFromStorage
 } from '@/domain/collection/compress-collection';
-import { DocAnnotation } from '@/domain/collection/document-annotations';
+import {
+  BaseDocAnnotation,
+  DocAnnotation
+} from '@/domain/collection/document-annotations';
+import { toArray, toTable } from '@/domain/space-merging/merge-utils';
+import { SpacePortableData, TableOf } from '@/domain/space-merging/types';
 import { CloudStorageDriver } from '@/domain/synchronization/drivers/abstract.driver';
 import {
   DriverFileInfo,
@@ -24,7 +32,10 @@ import {
   minimizePrefsForStorage,
   unminimizePrefsFromStorage
 } from '@/domain/user-preferences/compress-user-prefs';
-import { UserPreference } from '@/domain/user-preferences/user-preferences';
+import {
+  BaseUserPreference,
+  UserPreference
+} from '@/domain/user-preferences/user-preferences';
 import { fastHash } from '@/shared/utils';
 
 type InMemDriverConfig = {
@@ -174,34 +185,42 @@ export class InMemDriver extends CloudStorageDriver {
   }
 
   public setCollectionContentWithAnnots(
-    items: CollectionItem[],
-    annots: DocAnnotation[],
+    items: TableOf<BaseCollectionItem> | CollectionItem[],
+    annots: TableOf<BaseDocAnnotation> | DocAnnotation[],
     updated: number
   ) {
+    const _itemsArr = Array.isArray(items) ? items : toArray(items);
+    const _annotsArr = Array.isArray(annots) ? annots : toArray(annots);
     return this.setContent({
-      i: minimizeItemsForStorage(items),
-      a: minimizeAnnotForStorage(annots),
+      i: minimizeItemsForStorage(_itemsArr),
+      a: minimizeAnnotForStorage(_annotsArr),
       u: updated,
       _v: REMOTE_COLLECTION_SCHEMA_VERSION
     } as RemoteCollectionFileContent);
   }
 
   public setCollectionContentWithPrefs(
-    items: CollectionItem[],
-    prefs: UserPreference[],
+    items: TableOf<BaseCollectionItem> | CollectionItem[],
+    prefs: TableOf<BaseUserPreference> | UserPreference[],
     updated: number
   ) {
+    const _itemsArr = Array.isArray(items) ? items : toArray(items);
+    const _prefsArr = Array.isArray(prefs) ? prefs : toArray(prefs);
     return this.setContent({
-      i: minimizeItemsForStorage(items),
-      o: minimizePrefsForStorage(prefs),
+      i: minimizeItemsForStorage(_itemsArr),
+      o: minimizePrefsForStorage(_prefsArr),
       u: updated,
       _v: REMOTE_COLLECTION_SCHEMA_VERSION
     } as RemoteCollectionFileContent);
   }
 
-  public setCollectionContent(items: CollectionItem[], updated: number) {
+  public setCollectionContent(
+    items: TableOf<BaseCollectionItem> | CollectionItem[],
+    updated: number
+  ) {
+    const _itemsArr = Array.isArray(items) ? items : toArray(items);
     return this.setContent({
-      i: minimizeItemsForStorage(items),
+      i: minimizeItemsForStorage(_itemsArr),
       u: updated,
       _v: REMOTE_COLLECTION_SCHEMA_VERSION
     } as RemoteCollectionFileContent);
@@ -212,21 +231,16 @@ export class InMemDriver extends CloudStorageDriver {
     return JSON.parse(this.collection.get(this.config.names[0])!) as T;
   }
 
-  public getParsedCollectionContent() {
+  public getParsedCollectionContent(): SpacePortableData {
     const obj = JSON.parse(
       this.collection.get(this.config.names[0]) || '{"i":[],"u":0}'
     ) as RemoteCollectionFileContent;
-    const unminimizedObj = {
-      ...obj,
-      i: unminimizeItemsFromStorage(obj.i),
-      a: unminimizeAnnotFromStorage(obj.a || []),
-      o: unminimizePrefsFromStorage(obj.o || [])
-    };
     return {
-      content: unminimizedObj.i,
-      annots: unminimizedObj.a,
-      prefs: unminimizedObj.o,
-      _schemaVersion: obj._v
+      items: toTable(unminimizeItemsFromStorage(obj.i)),
+      annots: toTable(unminimizeAnnotFromStorage(obj.a || [])),
+      userPrefs: toTable(unminimizePrefsFromStorage(obj.o || [])),
+      lastChange: obj.u,
+      schemaVersion: obj._v || REMOTE_COLLECTION_SCHEMA_VERSION
     };
   }
 }
