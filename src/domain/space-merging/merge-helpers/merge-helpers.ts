@@ -1,12 +1,17 @@
-import { SpaceTableId, SpaceType } from '@/core/db/store-schema';
+import { SpaceTableId } from '@/core/db/store-schema';
 import { MetaField } from '@/core/db/types';
 import {
   LocalChangeResult,
   LocalChangeType
 } from '@/domain/synchronization/local-changes';
 import { Table } from 'tinybase';
-import { Content, Id, Row } from 'tinybase/with-schemas';
-import { TableOf } from '../types';
+import { Id } from 'tinybase/with-schemas';
+import {
+  SpacePortableData,
+  SpacePortableDataKey,
+  SpacePortableDataTableType,
+  TableOf
+} from '../types';
 import { ConflictPolicy } from './conflict-policies';
 import { OrphanPolicy } from './orphan-policies';
 
@@ -17,12 +22,13 @@ type FieldWithMeta<R> = {
 type MetaKey<K extends string> = `${K}_meta`;
 
 export function applyLocalChangesToPush<R>(
-  localContent: Content<SpaceType>,
+  localContent: SpacePortableData,
   tableId: SpaceTableId,
+  itemsKey: keyof SpacePortableData,
   allLocalChanges: LocalChangeResult[],
   newRemoteItems: TableOf<R>
 ) {
-  const dataTable = localContent[0][tableId]! as { [key: Id]: R };
+  const dataTable = localContent[itemsKey]! as { [key: Id]: R };
   const localChanges = allLocalChanges.filter(lc => lc.on === tableId);
   if (localChanges.length > 0) {
     // reapply local changes
@@ -90,7 +96,7 @@ function getRemoteUpdatedTS(
 function checkOrphans<R>(
   newTableAfterPull: Table,
   orphanPolicy: OrphanPolicy<R>,
-  localContent: Content<SpaceType>
+  localContent: SpacePortableData
 ) {
   // check for orphans
   // not sure I can do this in one loop here - still, optimize?
@@ -105,40 +111,29 @@ function checkOrphans<R>(
 }
 
 type ApplyLCResult = {
-  newLocalContent: Content<SpaceType>;
+  newLocalContent: SpacePortableData;
   discardedChanges: LocalChangeResult[];
 };
 export function applyLocalChangesToPull<
-  RootTableId extends SpaceTableId,
-  L extends Row<SpaceType[0], RootTableId>
+  K extends SpacePortableDataKey,
+  R extends SpacePortableDataTableType<K>
 >(
   tableId: SpaceTableId,
-  localContent: Content<SpaceType>,
-  remoteItems: TableOf<L>,
-  lastRemoteChange: number,
+  itemsKey: K,
+  localContent: SpacePortableData,
+  remoteContent: SpacePortableData,
   allLocalChanges: LocalChangeResult[],
-  conflictPolicy: ConflictPolicy<L>,
-  orphanPolicy: OrphanPolicy<L>,
+  conflictPolicy: ConflictPolicy<R>,
+  orphanPolicy: OrphanPolicy<R>,
   force?: boolean
 ): ApplyLCResult {
-  const dataTable = (localContent[0][tableId] || {}) as {
-    [key: string]: L;
-  };
+  const dataTable = localContent[itemsKey] || {};
   const localChanges = allLocalChanges.filter(lc => lc.on === tableId);
   const discardedChanges: LocalChangeResult[] = [];
-  const newLocalContent: Content<SpaceType> = [
-    { ...localContent[0] }, // don't override other tables
-    localContent[1]
-  ];
-  newLocalContent[0][tableId] = {};
+  const newLocalContent: SpacePortableData = structuredClone(localContent);
   // fill-in new collection with remote content
-  Object.keys(remoteItems).forEach(itemId => {
-    const item = remoteItems[itemId];
-    newLocalContent[0][tableId]![itemId] = { ...item, id: undefined };
-  });
-  const newDataTable = newLocalContent[0][tableId]! as {
-    [key: string]: L;
-  };
+  newLocalContent[itemsKey] = structuredClone(remoteContent[itemsKey] || {});
+  const newDataTable = newLocalContent[itemsKey] as TableOf<R>;
 
   if (!force && localChanges.length > 0) {
     // reapply localChanges
@@ -146,9 +141,9 @@ export function applyLocalChangesToPull<
       const remoteUpdated = getRemoteUpdatedTS(
         localChange,
         newDataTable,
-        lastRemoteChange
+        remoteContent.lastChange
       );
-      const localItem = dataTable[localChange.itemId];
+      const localItem = dataTable[localChange.itemId] as R;
 
       // if added locally, add to newLocalContent
       if (localChange.change === LocalChangeType.add) {
@@ -158,8 +153,8 @@ export function applyLocalChangesToPull<
       } else if (localChange.createdAt > remoteUpdated) {
         // if is update
         if (localChange.change === LocalChangeType.update) {
-          const field = localChange.field as FieldWithMeta<L>;
-          const metaField = `${field}_meta` as MetaKey<typeof field> & keyof L;
+          const field = localChange.field as FieldWithMeta<R>;
+          const metaField = `${field}_meta` as MetaKey<typeof field> & keyof R;
 
           // if doesn't exist on remote (has been deleted?) recreate it
           if (!newDataTable[localChange.itemId]) {
@@ -203,7 +198,7 @@ export function applyLocalChangesToPull<
 type Chainable = (result: ApplyLCResult) => ApplyLCResult;
 
 export function chainMerge(
-  initialContent: Content<SpaceType>,
+  initialContent: SpacePortableData,
   chain: Chainable[]
 ) {
   const result: ApplyLCResult = {

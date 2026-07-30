@@ -26,6 +26,18 @@ export type SpacePortableData = {
   schemaVersion: number;
 };
 
+export type SpacePortableDataKey = Exclude<
+  keyof SpacePortableData,
+  'lastChange' | 'schemaVersion'
+>;
+
+export type SpacePortableDataTableType<K extends SpacePortableDataKey> =
+  K extends 'items'
+    ? BaseCollectionItem
+    : K extends 'annots'
+      ? BaseDocAnnotation
+      : BaseUserPreference;
+
 export type AfterMergeChange = {
   id: Id;
   type: CollectionItemType | DocAnnotationType;

@@ -4,7 +4,6 @@ import {
   ROOT_COLLECTION
 } from '@/constants';
 import { SpaceTables } from '@/core/db/store-constants';
-import { SpaceType } from '@/core/db/store-schema';
 import { CollectionItem } from '@/domain/collection/collection';
 import { DocAnnotation } from '@/domain/collection/document-annotations';
 import notebooksService from '@/domain/collection/notebooks.service';
@@ -14,14 +13,15 @@ import {
 } from '@/domain/synchronization/local-changes';
 import localChangesService from '@/domain/synchronization/local-changes.service';
 import { Row, Table } from 'tinybase/store';
-import { Content, Id } from 'tinybase/with-schemas';
+import { Id } from 'tinybase/with-schemas';
+import { SpacePortableData } from '../types';
 
 export abstract class OrphanPolicy<L> {
   constructor(protected on: LocalChangeOn) {}
   public abstract isOrphan(
     item: L,
     newTableAfterPull: Table,
-    localContent: Content<SpaceType>
+    localContent: SpacePortableData
   ): boolean;
   public abstract handleOrphan(id: Id, newTableAfterPull: Table): void;
 }
@@ -75,9 +75,9 @@ class AnnotsOrphanPolicy extends OrphanPolicy<DocAnnotation> {
   public isOrphan(
     item: DocAnnotation,
     newTableAfterPull: Table,
-    localContent: Content<SpaceType>
+    localContent: SpacePortableData
   ): boolean {
-    const newCollectionAfterPull = localContent[0].collection!;
+    const newCollectionAfterPull = localContent.items;
     return !newCollectionAfterPull[item.parentId];
   }
 

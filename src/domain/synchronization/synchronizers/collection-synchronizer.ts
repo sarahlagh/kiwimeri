@@ -1,6 +1,5 @@
-import { space, store } from '@/core/db/store';
+import { store } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
-import { SpaceType } from '@/core/db/store-schema';
 import { AnyData } from '@/core/db/types';
 import {
   minimizeAnnotForStorage,
@@ -49,7 +48,6 @@ import {
   minimizePrefsForStorage,
   unminimizePrefsFromStorage
 } from '@/domain/user-preferences/compress-user-prefs';
-import { Content } from 'tinybase/store/with-schemas';
 import {
   CloudStorageSynchronizer,
   RemoteRepresentation
@@ -116,13 +114,11 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       return { success: true, didPush };
     }
     this.ongoing = true;
-    const localContent = space.getContent();
     try {
       // fetch remote if needed or use local content as comparison
       const remoteContent = await this.resolveRemoteContent(force);
       // compute data to send - merge local and remote
       const { hasNewChanges, data } = this.computeDataToPush(
-        localContent,
         localChanges,
         remoteContent,
         force
@@ -155,7 +151,6 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     if (this.ongoing) return { success: false, didPull };
     this.ongoing = true;
     console.log(`[collection][pull] starting`);
-    const localContent = space.getContent();
     const localChanges = localChangesService.getLocalChanges();
     const lastPulled = this.getLastPulled(this.remote.id, COL);
 
@@ -169,7 +164,6 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
         resp.updatedRemoteState
       ) {
         this.applyMergeLocal(
-          localContent,
           localChanges,
           resp.data as RemoteCollectionFileContent,
           force
@@ -222,7 +216,6 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   }
 
   private computeDataToPush(
-    localContent: Content<SpaceType>,
     localChanges: LocalChangeResult[],
     remoteContent: RemoteContentRepresentation,
     force: boolean
@@ -231,11 +224,13 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     if (localChanges.length > 0) {
       lastLocalChange = Math.max(...localChanges.map(lc => lc.createdAt));
     }
+    const localContent = storageService.getSpaceRepresentation();
 
     // merge collection
     applyLocalChangesToPush(
       localContent,
       SpaceTables.Collection,
+      'items',
       localChanges,
       remoteContent.items
     );
@@ -244,6 +239,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     applyLocalChangesToPush(
       localContent,
       SpaceTables.Annotations,
+      'annots',
       localChanges,
       remoteContent.annots
     );
@@ -252,6 +248,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     applyLocalChangesToPush(
       localContent,
       SpaceTables.UserPreference,
+      'userPrefs',
       localChanges,
       remoteContent.userPrefs
     );
@@ -275,7 +272,6 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   }
 
   private applyMergeLocal(
-    localContent: Content<SpaceType>,
     localChanges: LocalChangeResult[],
     remoteContent: RemoteCollectionFileContent,
     force: boolean
@@ -287,7 +283,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     }
 
     const resp = this.computeDataToMergeLocally(
-      structuredClone(localContent),
+      storageService.getSpaceRepresentation(),
       localChanges,
       remoteContent,
       force
@@ -304,12 +300,12 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   }
 
   private computeDataToMergeLocally(
-    localContent: Content<SpaceType>,
+    localContent: SpacePortableData,
     localChanges: LocalChangeResult[],
     obj: RemoteCollectionFileContent,
     force: boolean
   ): {
-    content: Content<SpaceType>;
+    content: SpacePortableData;
     discardedChanges: LocalChangeResult[];
     changes: AfterMergeChange[];
   } {
@@ -319,9 +315,9 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       res =>
         applyLocalChangesToPull(
           SpaceTables.Collection,
+          'items',
           res.newLocalContent,
-          remoteContent.items,
-          remoteContent.lastChange,
+          remoteContent,
           localChanges,
           collectionConflictPolicy,
           collectionOrphanPolicy,
@@ -330,9 +326,9 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       res =>
         applyLocalChangesToPull(
           SpaceTables.Annotations,
+          'annots',
           res.newLocalContent,
-          remoteContent.annots,
-          remoteContent.lastChange,
+          remoteContent,
           localChanges,
           annotsConflictPolicy,
           annotsOrphanPolicy,
@@ -341,9 +337,9 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       res =>
         applyLocalChangesToPull(
           SpaceTables.UserPreference,
+          'userPrefs',
           res.newLocalContent,
-          remoteContent.userPrefs,
-          remoteContent.lastChange,
+          remoteContent,
           localChanges,
           noConflictPolicy,
           noOrphanPolicy,

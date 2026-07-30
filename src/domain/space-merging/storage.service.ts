@@ -61,6 +61,13 @@ class StorageService {
     schemaVersion = LOCAL_COLLECTION_SCHEMA_VERSION
   ): SpacePortableData {
     const localSpaceContent = space.getContent();
+    return this.buildSpaceRepresentation(localSpaceContent, schemaVersion);
+  }
+
+  private buildSpaceRepresentation(
+    localSpaceContent: Content<SpaceType>,
+    schemaVersion = LOCAL_COLLECTION_SCHEMA_VERSION
+  ): SpacePortableData {
     const items = this.toTable<BaseCollectionItem, CollectionItemRow>(
       localSpaceContent[0][C],
       row => ({ ...row, itemId: undefined })
@@ -77,13 +84,13 @@ class StorageService {
       ...Object.keys(userPrefs).map(rowId => userPrefs[rowId].updatedAt)
     );
 
-    return {
+    return structuredClone({
       items,
       annots,
       userPrefs,
       lastChange,
       schemaVersion
-    };
+    });
   }
 
   private toTable<T, U>(
@@ -191,15 +198,17 @@ class StorageService {
   }
 
   /// from restore button
+  // TODO note: keep accepting old raw format with if array...
   public restoreJson(content: string) {
-    const localContent = space.getContent();
     const json = JSON.parse(content);
     const [tables] = json;
+    const localContent = this.getSpaceRepresentation();
+    const newContent = this.buildSpaceRepresentation(json);
 
     localChangesService.clear();
 
     space.transaction(() => {
-      this.setContent(tables, false);
+      this.setContent(newContent, false);
       if (tables[H]) {
         spaceArchive.setTable(H, tables[H]);
       }
@@ -211,7 +220,13 @@ class StorageService {
       space.setTable(S, tables[S]);
     }
 
-    const changes = this.afterSyncHistChanges(json, localContent, [], true);
+    // TODO handle changes after restore
+    const changes = this.afterSyncHistChanges(
+      newContent,
+      localContent,
+      [],
+      true
+    );
     space.delTable(SpaceTables.ResumeState);
     this.handleHistory(changes);
     this.handleDeletedRows(changes);
@@ -219,18 +234,18 @@ class StorageService {
 
   /// from synchronizer
   public restoreContent(
-    content: Content<SpaceType, false>,
+    content: SpacePortableData,
     changes: AfterMergeChange[]
   ) {
-    this.setContent(content[0], true);
+    this.setContent(content, true);
     this.handleResumeState(changes);
     this.handleHistory(changes);
     this.handleDeletedRows(changes);
   }
 
   public afterSyncHistChanges(
-    newLocalContent: Content<SpaceType>,
-    localContent: Content<SpaceType>,
+    newLocalContent: SpacePortableData,
+    localContent: SpacePortableData,
     localChanges: LocalChangeResult[],
     force?: boolean
   ) {
@@ -238,31 +253,39 @@ class StorageService {
     let changes: AfterMergeChange[] = [];
     changes = [
       ...changes,
-      ...this.diffTable(C, newLocalContent, localContent, localChanges, force)
+      ...this.diffTable(
+        C,
+        'items',
+        newLocalContent,
+        localContent,
+        localChanges,
+        force
+      )
     ];
     return changes;
   }
 
   private diffTable(
     tableId: SpaceTableId,
-    newLocalContent: Content<SpaceType>,
-    localContent: Content<SpaceType>,
+    itemsKey: keyof SpacePortableData,
+    newLocalContent: SpacePortableData,
+    localContent: SpacePortableData,
     localChanges: LocalChangeResult[],
     force?: boolean
   ) {
     // TODO wait. same for annotations!!!!!!
     const changes: Map<string, AfterMergeChange> = new Map();
     const ids = new Set<string>([
-      ...Object.keys(newLocalContent[0][tableId]!),
-      ...Object.keys(localContent[0][tableId]!)
+      ...Object.keys(newLocalContent[itemsKey]),
+      ...Object.keys(localContent[itemsKey])
     ]);
     ids.forEach(id => {
       // TODO how do we handle local changes when force full?
       const localChange = localChanges.find(
         lc => lc.itemId === id && lc.on === tableId
       );
-      const newItem = newLocalContent[0].collection![id];
-      const oldItem = localContent[0].collection![id];
+      const newItem = newLocalContent.items[id];
+      const oldItem = localContent.items![id];
       if (newItem && !newItem.conflictId && !oldItem) {
         const type = newItem.type as CollectionItemType;
         // added by remote
@@ -316,19 +339,13 @@ class StorageService {
     return [...changes.values()];
   }
 
-  private setContent(
-    content: Content<SpaceType, false>[0],
-    withUserPrefs: boolean
-  ) {
+  private setContent(content: SpacePortableData, withUserPrefs: boolean) {
     space.transaction(() => {
-      this.setTable(SpaceTables.Collection, content[SpaceTables.Collection]);
-      collectionService.backfillDerivedStates(content[SpaceTables.Collection]);
-      this.setTable(SpaceTables.Annotations, content[SpaceTables.Annotations]);
+      this.setTable(SpaceTables.Collection, content.items);
+      collectionService.backfillDerivedStates(content.items);
+      this.setTable(SpaceTables.Annotations, content.annots);
       if (withUserPrefs) {
-        this.setTable(
-          SpaceTables.UserPreference,
-          content[SpaceTables.UserPreference]
-        );
+        this.setTable(SpaceTables.UserPreference, content.userPrefs);
       }
     });
   }
