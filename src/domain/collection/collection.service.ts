@@ -37,7 +37,7 @@ import { getUniqueId } from 'tinybase/common';
 import { Id, Ids } from 'tinybase/common/with-schemas';
 import { Table } from 'tinybase/with-schemas';
 import { historyService } from '../history/history.service';
-import { storageService } from '../profiles/storage.service';
+import { storageService } from '../space-merging/storage.service';
 import { annotsService } from './doc-annotations.service';
 
 export const initialContent = () => {

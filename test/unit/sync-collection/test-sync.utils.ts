@@ -5,13 +5,13 @@ import {
   startLocalChangesListeners,
   stopLocalChangesListeners
 } from '@/domain/synchronization/local-changes-listeners';
-import { CompositeSynchronizer } from '@/domain/synchronization/merging/synchronizers/composite-synchronizer';
 import remotesService from '@/domain/synchronization/remotes.service';
 import replicaService from '@/domain/synchronization/replica.service';
 import {
   SyncDirection,
   syncService
 } from '@/domain/synchronization/sync.service';
+import { CompositeSynchronizer } from '@/domain/synchronization/synchronizers/composite-synchronizer';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import { InMemDriver } from '@@/_setup/inmem.driver';
 import { fakeTimersDelay } from '@@/_setup/test.utils';

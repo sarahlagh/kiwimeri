@@ -8,14 +8,14 @@ import { minimizeContentForStorage } from '@/domain/collection/compress-file-con
 import { annotsService } from '@/domain/collection/doc-annotations.service';
 import { getDerivedId } from '@/domain/collection/document-content';
 import { historyService } from '@/domain/history/history.service';
-import { conflictsService } from '@/domain/synchronization/conflicts-service';
+import { conflictsService } from '@/domain/space-merging/conflicts-service';
 import { LocalChangeType } from '@/domain/synchronization/local-changes';
 import localChangesService from '@/domain/synchronization/local-changes.service';
 import {
   CollectionSynchronizer,
   REMOTE_COLLECTION_SCHEMA_VERSION,
   RemoteCollectionFileContent
-} from '@/domain/synchronization/merging/synchronizers/collection-synchronizer';
+} from '@/domain/synchronization/synchronizers/collection-synchronizer';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import useItemsConflictMixIn from '@/features/collection-browser/hooks/useItemsConflictMixIn';
 import fetchBrowsableItemsQuery from '@/features/collection-browser/queries/fetchBrowsableItemsQuery';

@@ -1,7 +1,7 @@
 import collectionService from '@/domain/collection/collection.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
-import { conflictsService } from '@/domain/synchronization/conflicts-service';
+import { conflictsService } from '@/domain/space-merging/conflicts-service';
 import fetchRemotesQuery from '@/domain/synchronization/queries/fetchRemotesQuery';
 import { DeepSearchButton } from '@/features/search';
 import {

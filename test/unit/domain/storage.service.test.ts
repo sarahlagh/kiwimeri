@@ -9,7 +9,7 @@ import collectionService from '@/domain/collection/collection.service';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { historyService } from '@/domain/history/history.service';
-import { storageService } from '@/domain/profiles/storage.service';
+import { storageService } from '@/domain/space-merging/storage.service';
 import { LocalChangeType } from '@/domain/synchronization/local-changes';
 import localChangesService from '@/domain/synchronization/local-changes.service';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';

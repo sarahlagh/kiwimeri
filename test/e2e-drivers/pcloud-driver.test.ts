@@ -17,21 +17,21 @@ import {
 import { annotsService } from '@/domain/collection/doc-annotations.service';
 import { DocAnnotation } from '@/domain/collection/document-annotations';
 import notebooksService from '@/domain/collection/notebooks.service';
-import { conflictsService } from '@/domain/synchronization/conflicts-service';
+import { conflictsService } from '@/domain/space-merging/conflicts-service';
 import { PCloudDriver } from '@/domain/synchronization/drivers/pcloud/pcloud.driver';
 import { LocalChangeType } from '@/domain/synchronization/local-changes';
 import localChangesService from '@/domain/synchronization/local-changes.service';
-import {
-  MinimizedCollectionItem,
-  REMOTE_COLLECTION_SCHEMA_VERSION,
-  RemoteCollectionFileContent
-} from '@/domain/synchronization/merging/synchronizers/collection-synchronizer';
-import { CompositeSynchronizer } from '@/domain/synchronization/merging/synchronizers/composite-synchronizer';
 import fetchRemotesQuery from '@/domain/synchronization/queries/fetchRemotesQuery';
 import remotesService from '@/domain/synchronization/remotes.service';
 import { StoredStateInfo } from '@/domain/synchronization/replica-state';
 import replicaService from '@/domain/synchronization/replica.service';
 import { syncService } from '@/domain/synchronization/sync.service';
+import {
+  MinimizedCollectionItem,
+  REMOTE_COLLECTION_SCHEMA_VERSION,
+  RemoteCollectionFileContent
+} from '@/domain/synchronization/synchronizers/collection-synchronizer';
+import { CompositeSynchronizer } from '@/domain/synchronization/synchronizers/composite-synchronizer';
 import { useSynchronizationStates } from '@/features/synchronization-ui';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {

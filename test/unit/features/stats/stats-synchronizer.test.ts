@@ -5,7 +5,7 @@ import {
   REMOTE_STATS_SCHEMA_VERSION,
   RemoteStatsFileContent,
   StatsSynchronizer
-} from '@/domain/synchronization/merging/synchronizers/stats-synchronizer';
+} from '@/domain/synchronization/synchronizers/stats-synchronizer';
 import { InMemDriver } from '@@/_setup/inmem.driver';
 import { fakeTimersDelay } from '@@/_setup/test.utils';
 import { describe, expect, test, vi } from 'vitest';

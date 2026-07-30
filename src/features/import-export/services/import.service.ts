@@ -18,7 +18,7 @@ import collectionService from '@/domain/collection/collection.service';
 import notebooksService from '@/domain/collection/notebooks.service';
 import formatConverter from '@/domain/format-conversion/format-converter.service';
 import { historyService } from '@/domain/history/history.service';
-import { storageService } from '@/domain/profiles/storage.service';
+import { storageService } from '@/domain/space-merging/storage.service';
 import { Unzipped, strFromU8, unzip } from 'fflate';
 import type { SerializedEditorState, SerializedLexicalNode } from 'lexical';
 import {

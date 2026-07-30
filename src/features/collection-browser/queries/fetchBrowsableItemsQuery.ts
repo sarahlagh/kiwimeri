@@ -3,7 +3,7 @@ import { SpaceQueryDefinition } from '@/core/db/queries-helper';
 import { SpaceTables } from '@/core/db/store-constants';
 import { CollectionItemTypeValues } from '@/domain/collection/collection';
 import { getDerivedId } from '@/domain/collection/document-content';
-import { conflictsService } from '@/domain/synchronization/conflicts-service';
+import { conflictsService } from '@/domain/space-merging/conflicts-service';
 import { BrowsableItemResult } from '../browsable-item';
 
 export type fetchBrowsableItemsQueryParam = {

@@ -1,6 +1,6 @@
 import { plt } from '@/core/infra/platform';
 import { CollectionItemType } from '@/domain/collection/collection';
-import { storageService } from '@/domain/profiles/storage.service';
+import { storageService } from '@/domain/space-merging/storage.service';
 import {
   ExportItemsButton,
   RestoreCollectionButton

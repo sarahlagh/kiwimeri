@@ -16,8 +16,8 @@ import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import { dateToStr } from '@/shared/misc/date-utils';
 import { Ids } from 'tinybase';
 import { getHash, Id, Table } from 'tinybase/with-schemas';
+import { AfterMergeChange } from '../space-merging/types';
 import { LocalChangeType } from '../synchronization/local-changes';
-import { AfterMergeChange } from '../synchronization/merging/types';
 import {
   CollectionItemMetadataVersion,
   CollectionItemVersion

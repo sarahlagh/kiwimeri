@@ -15,16 +15,32 @@ import {
 } from '@/domain/collection/compress-collection';
 import { DocAnnotation } from '@/domain/collection/document-annotations';
 import { historyService } from '@/domain/history/history.service';
-import { storageService } from '@/domain/profiles/storage.service';
+import { conflictsService } from '@/domain/space-merging/conflicts-service';
+import {
+  annotsConflictPolicy,
+  collectionConflictPolicy,
+  noConflictPolicy
+} from '@/domain/space-merging/merge-helpers/conflict-policies';
+import {
+  applyLocalChangesToPull,
+  applyLocalChangesToPush,
+  chainMerge
+} from '@/domain/space-merging/merge-helpers/merge-helpers';
+import {
+  annotsOrphanPolicy,
+  collectionOrphanPolicy,
+  noOrphanPolicy
+} from '@/domain/space-merging/merge-helpers/orphan-policies';
+import { storageService } from '@/domain/space-merging/storage.service';
+import { AfterMergeChange } from '@/domain/space-merging/types';
 import {
   startLocalChangesListeners,
   stopLocalChangesListeners
 } from '@/domain/synchronization//local-changes-listeners';
-import { conflictsService } from '@/domain/synchronization/conflicts-service';
 import { CloudStorageDriver } from '@/domain/synchronization/drivers/abstract.driver';
+import { SingleFileStorage } from '@/domain/synchronization/layouts/singlefile.filesystem';
 import { LocalChangeResult } from '@/domain/synchronization/local-changes';
 import localChangesService from '@/domain/synchronization/local-changes.service';
-import { SingleFileStorage } from '@/domain/synchronization/merging/layouts/singlefile.filesystem';
 import { ReplicaState } from '@/domain/synchronization/replica-state';
 import {
   MinimizedUserPref,
@@ -37,23 +53,7 @@ import { Content } from 'tinybase/store/with-schemas';
 import {
   CloudStorageSynchronizer,
   RemoteRepresentation
-} from '../abstract-synchronizer';
-import {
-  annotsConflictPolicy,
-  collectionConflictPolicy,
-  noConflictPolicy
-} from '../merge-helpers/conflict-policies';
-import {
-  applyLocalChangesToPull,
-  applyLocalChangesToPush,
-  chainMerge
-} from '../merge-helpers/merge-helpers';
-import {
-  annotsOrphanPolicy,
-  collectionOrphanPolicy,
-  noOrphanPolicy
-} from '../merge-helpers/orphan-policies';
-import { AfterMergeChange } from '../types';
+} from './abstract-synchronizer';
 
 export type MinimizedCollectionItem = {
   [key in ItemsMinKeys[number]]: SerializableData | undefined;

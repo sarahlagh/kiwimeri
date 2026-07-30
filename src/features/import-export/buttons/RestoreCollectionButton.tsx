@@ -1,4 +1,4 @@
-import { storageService } from '@/domain/profiles/storage.service';
+import { storageService } from '@/domain/space-merging/storage.service';
 import GenericImportFileButton, {
   ImportFileRejectReason,
   OnContentReadResponse

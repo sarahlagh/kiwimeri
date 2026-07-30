@@ -30,7 +30,7 @@ import {
   LocalChangeResult,
   LocalChangeType
 } from '../synchronization/local-changes';
-import { AfterMergeChange } from '../synchronization/merging/types';
+import { AfterMergeChange } from './types';
 
 const C = SpaceTables.Collection;
 const A = SpaceTables.Annotations;

@@ -7,9 +7,9 @@ import { plt } from '@/core/infra/platform';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import remotesService from '@/domain/synchronization/remotes.service';
 import { Id } from 'tinybase/with-schemas';
-import { CloudStorageSynchronizer } from './merging/abstract-synchronizer';
-import { CompositeSynchronizer } from './merging/synchronizers/composite-synchronizer';
 import { ConnectedRemote } from './replica-state';
+import { CloudStorageSynchronizer } from './synchronizers/abstract-synchronizer';
+import { CompositeSynchronizer } from './synchronizers/composite-synchronizer';
 
 const RPS = SpaceTables.ReplicaState;
 
