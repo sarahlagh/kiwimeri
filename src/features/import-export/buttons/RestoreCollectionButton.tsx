@@ -1,4 +1,4 @@
-import storageService from '@/domain/storage.service';
+import { storageService } from '@/domain/profiles/storage.service';
 import GenericImportFileButton, {
   ImportFileRejectReason,
   OnContentReadResponse

@@ -19,18 +19,18 @@ import {
   CollectionItemType,
   CollectionItemUpdatableFields,
   isDocument
-} from './collection/collection';
-import collectionService from './collection/collection.service';
-import { getDerivedId } from './collection/document-content';
-import { resumeService } from './collection/resume-state.service';
-import tagsService from './collection/tags.service';
-import { historyService } from './history/history.service';
-import { statsOnPlainTextCallback } from './stats/stats-on-change-callback';
+} from '../collection/collection';
+import collectionService from '../collection/collection.service';
+import { getDerivedId } from '../collection/document-content';
+import { resumeService } from '../collection/resume-state.service';
+import tagsService from '../collection/tags.service';
+import { historyService } from '../history/history.service';
+import { statsOnPlainTextCallback } from '../stats/stats-on-change-callback';
 import {
   LocalChangeResult,
   LocalChangeType
-} from './synchronization/local-changes';
-import { AfterSyncChange } from './synchronization/merging/types';
+} from '../synchronization/local-changes';
+import { AfterSyncChange } from '../synchronization/merging/types';
 
 const C = SpaceTables.Collection;
 const A = SpaceTables.Annotations;
@@ -324,5 +324,4 @@ class StorageService {
   }
 }
 
-const storageService = new StorageService();
-export default storageService;
+export const storageService = new StorageService();

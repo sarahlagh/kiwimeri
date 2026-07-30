@@ -37,7 +37,7 @@ import { getUniqueId } from 'tinybase/common';
 import { Id, Ids } from 'tinybase/common/with-schemas';
 import { Table } from 'tinybase/with-schemas';
 import { historyService } from '../history/history.service';
-import storageService from '../storage.service';
+import { storageService } from '../profiles/storage.service';
 import { annotsService } from './doc-annotations.service';
 
 export const initialContent = () => {
@@ -107,6 +107,10 @@ class CollectionService {
   // for tests
   public addNotebook(parent: string, title = '') {
     return notebooksService.addNotebook(title, parent);
+  }
+
+  public getDocumentContent(rowId: Id) {
+    return space.getCell(C, rowId, 'content') || null;
   }
 
   public getDocumentPlainText(id: string) {
@@ -247,10 +251,6 @@ class CollectionService {
     this.setItemField(rowId, 'title', title);
   }
 
-  public getItemContent(rowId: Id) {
-    return space.getCell(C, rowId, 'content') || null;
-  }
-
   public setItemLexicalContent(
     rowId: Id,
     content: SerializedEditorState,
@@ -275,10 +275,10 @@ class CollectionService {
     itemId: string,
     contentToAppend: SerializedEditorState
   ) {
-    if (!this.itemExists(itemId) || !this.getItemContent(itemId))
+    if (!this.itemExists(itemId) || !this.getDocumentContent(itemId))
       return contentToAppend;
     const existingContent = JSON.parse(
-      unminimizeContentFromStorage(this.getItemContent(itemId)!)
+      unminimizeContentFromStorage(this.getDocumentContent(itemId)!)
     ) as SerializedEditorState;
 
     const newChildren = [

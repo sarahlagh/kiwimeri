@@ -10,7 +10,7 @@ import {
   minimizeItemsForStorage,
   unminimizeItemsFromStorage
 } from '@/domain/collection/compress-collection';
-import { SyncableAnnotation } from '@/domain/collection/document-annotations';
+import { DocAnnotation } from '@/domain/collection/document-annotations';
 import { CloudStorageDriver } from '@/domain/synchronization/drivers/abstract.driver';
 import {
   DriverFileInfo,
@@ -24,7 +24,7 @@ import {
   minimizePrefsForStorage,
   unminimizePrefsFromStorage
 } from '@/domain/user-preferences/compress-user-prefs';
-import { SyncableUserPref } from '@/domain/user-preferences/user-preferences';
+import { UserPreference } from '@/domain/user-preferences/user-preferences';
 import { fastHash } from '@/shared/utils';
 
 type InMemDriverConfig = {
@@ -175,7 +175,7 @@ export class InMemDriver extends CloudStorageDriver {
 
   public setCollectionContentWithAnnots(
     items: CollectionItem[],
-    annots: SyncableAnnotation[],
+    annots: DocAnnotation[],
     updated: number
   ) {
     return this.setContent({
@@ -188,7 +188,7 @@ export class InMemDriver extends CloudStorageDriver {
 
   public setCollectionContentWithPrefs(
     items: CollectionItem[],
-    prefs: SyncableUserPref[],
+    prefs: UserPreference[],
     updated: number
   ) {
     return this.setContent({

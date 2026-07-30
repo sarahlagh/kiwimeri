@@ -6,7 +6,7 @@ import collectionService from '@/domain/collection/collection.service';
 import { minimizeContentForStorage } from '@/domain/collection/compress-file-content';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
-import storageService from '@/domain/storage.service';
+import { storageService } from '@/domain/profiles/storage.service';
 import { adv, oneDocument, oneFolder } from '@@/_setup/test.utils';
 import { describe, expect, it } from 'vitest';
 

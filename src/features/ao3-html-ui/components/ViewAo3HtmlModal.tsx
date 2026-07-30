@@ -20,7 +20,7 @@ import { ViewAo3HtmlModalProps } from './ViewAo3HtmlButton';
 const ViewAo3HtmlModal = ({ id, dismiss }: ViewAo3HtmlModalProps) => {
   const ref = useRef<HTMLIonTextareaElement>(null);
   const content = unminimizeContentFromStorage(
-    collectionService.getItemContent(id) || ''
+    collectionService.getDocumentContent(id) || ''
   );
   const ao3Html = formatConverter.to(content, AO3_HTML_FORMATTER);
   return (

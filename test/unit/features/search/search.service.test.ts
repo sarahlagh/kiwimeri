@@ -38,9 +38,7 @@ describe('search service', () => {
 
   describe('Search Lexical State', () => {
     beforeEach(() => {
-      const minimized = space
-        .getCell('collection', docId, 'content')
-        ?.toString();
+      const minimized = collectionService.getDocumentContent(docId);
       expect(minimized).toBeDefined();
       expect(
         spaceDocContent.getCell(

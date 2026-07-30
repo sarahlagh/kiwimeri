@@ -13,9 +13,9 @@ import {
   minimizeItemsForStorage,
   unminimizeItemsFromStorage
 } from '@/domain/collection/compress-collection';
-import { SyncableAnnotation } from '@/domain/collection/document-annotations';
+import { DocAnnotation } from '@/domain/collection/document-annotations';
 import { historyService } from '@/domain/history/history.service';
-import storageService from '@/domain/storage.service';
+import { storageService } from '@/domain/profiles/storage.service';
 import {
   startLocalChangesListeners,
   stopLocalChangesListeners
@@ -31,7 +31,7 @@ import {
   minimizePrefsForStorage,
   unminimizePrefsFromStorage
 } from '@/domain/user-preferences/compress-user-prefs';
-import { SyncableUserPref } from '@/domain/user-preferences/user-preferences';
+import { UserPreference } from '@/domain/user-preferences/user-preferences';
 import { Table as UntypedTable } from 'tinybase';
 import { Content } from 'tinybase/store/with-schemas';
 import {
@@ -69,8 +69,8 @@ export type RemoteCollectionFileContent = {
 
 type RemoteContentRepresentation = {
   items: CollectionItem[];
-  docAnnotations: SyncableAnnotation[];
-  userPrefs: SyncableUserPref[];
+  docAnnotations: DocAnnotation[];
+  userPrefs: UserPreference[];
   lastRemoteChange: number;
   schemaVersion: number;
 };
@@ -399,10 +399,10 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     localContent: Content<SpaceType>
   ): RemoteContentRepresentation {
     const collection = this.toMap<CollectionItem>(localContent[0].collection!);
-    const annotation = this.toMap<SyncableAnnotation>(
+    const annotation = this.toMap<DocAnnotation>(
       localContent[0].document_annotation
     );
-    const userPreference = this.toMap<SyncableUserPref>(
+    const userPreference = this.toMap<UserPreference>(
       localContent[0].user_preference
     );
     const items = [...collection.values()].filter(v => !v.conflictId);

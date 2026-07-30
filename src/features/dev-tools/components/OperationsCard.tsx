@@ -1,5 +1,5 @@
 import { space, store } from '@/core/db/store';
-import storageService from '@/domain/storage.service';
+import { storageService } from '@/domain/profiles/storage.service';
 import GenericExportFileButton from '@/shared/buttons/GenericExportFileButton';
 import GenericImportFileButton from '@/shared/buttons/GenericImportFileButton';
 import {

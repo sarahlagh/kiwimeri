@@ -15,7 +15,7 @@ import {
   unminimizeItemsFromStorage
 } from '@/domain/collection/compress-collection';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
-import { SyncableAnnotation } from '@/domain/collection/document-annotations';
+import { DocAnnotation } from '@/domain/collection/document-annotations';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { conflictsService } from '@/domain/synchronization/conflicts-service';
 import { PCloudDriver } from '@/domain/synchronization/drivers/pcloud/pcloud.driver';
@@ -62,7 +62,7 @@ const reInitRemoteData = async (items: CollectionItem[], updateTs?: number) => {
 
 const reInitRemoteDataWithAnnots = async (
   items: CollectionItem[],
-  annots?: SyncableAnnotation[],
+  annots?: DocAnnotation[],
   updateTs?: number
 ) => {
   const lastRemoteChange =
@@ -107,7 +107,7 @@ const getRemoteContent = async () => {
   const parsed = JSON.parse(content);
   return {
     items: unminimizeItemsFromStorage(parsed.i as CollectionItem[]),
-    notes: unminimizeAnnotFromStorage((parsed.a as SyncableAnnotation[]) || []),
+    notes: unminimizeAnnotFromStorage((parsed.a as DocAnnotation[]) || []),
     values: parsed.o as SpaceValuesType
   };
 };
@@ -690,9 +690,7 @@ describe.sequential(
           expect(resp?.notes).toHaveLength(1);
           expect(resp?.notes[0].id).toBe(noteId);
           expect(resp?.notes[0].order).toBe(2);
-          expect(resp?.notes[0].content).toBe(
-            space.getCell(SpaceTables.Annotations, noteId, 'content')
-          );
+          expect(resp?.notes[0].content).toBe(annotsService.getContent(noteId));
         }
       });
     });

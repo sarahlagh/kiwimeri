@@ -584,7 +584,7 @@ describe('collection service', () => {
     });
     it(`should sort according to the correct field`, () => {
       const { id: i1, item: item1 } =
-        collectionService.getNewFolderObj(DEFAULT_NOTEBOOK_ID);
+        collectionService.getNewDocumentObj(DEFAULT_NOTEBOOK_ID);
       item1.title = 'r1';
       item1.order = 2;
       collectionService.setUnsavedItemLexicalContent(item1, shortContent);

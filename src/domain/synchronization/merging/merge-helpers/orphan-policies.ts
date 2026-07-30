@@ -6,7 +6,7 @@ import {
 import { SpaceTables } from '@/core/db/store-constants';
 import { SpaceType } from '@/core/db/store-schema';
 import { CollectionItem } from '@/domain/collection/collection';
-import { SyncableAnnotation } from '@/domain/collection/document-annotations';
+import { DocAnnotation } from '@/domain/collection/document-annotations';
 import notebooksService from '@/domain/collection/notebooks.service';
 import {
   LocalChangeOn,
@@ -68,12 +68,12 @@ class CollectionOrphanPolicy extends OrphanPolicy<CollectionItem> {
 }
 export const collectionOrphanPolicy = new CollectionOrphanPolicy();
 
-class AnnotsOrphanPolicy extends OrphanPolicy<SyncableAnnotation> {
+class AnnotsOrphanPolicy extends OrphanPolicy<DocAnnotation> {
   constructor() {
     super(SpaceTables.Annotations);
   }
   public isOrphan(
-    item: SyncableAnnotation,
+    item: DocAnnotation,
     newTableAfterPull: Table,
     localContent: Content<SpaceType>
   ): boolean {

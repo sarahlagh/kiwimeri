@@ -55,6 +55,7 @@ export const itemTypes = ['n', 'f', 'd'] as const;
 export type CollectionItemTypeValues = (typeof itemTypes)[number];
 
 export type CollectionItem = WithId<CollectionItemRow>;
+export type CollectionItemWithContent = CollectionItemRow;
 
 export type CollectionItemFieldEnum = keyof Required<CollectionItemRow>;
 

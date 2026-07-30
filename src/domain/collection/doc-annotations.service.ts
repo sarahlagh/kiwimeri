@@ -7,7 +7,7 @@ import { genericReorder } from '@/shared/dnd/utils';
 import { SortableType } from '@/shared/misc/sort-filter/sort';
 import type { SerializedEditorState } from 'lexical';
 import { getUniqueId, Id } from 'tinybase/common';
-import storageService from '../storage.service';
+import { storageService } from '../profiles/storage.service';
 import { NotesSort } from './collection-settings';
 import { settingsService } from './collection-settings.service';
 import { DocAnnotationRow } from './document-annotations';

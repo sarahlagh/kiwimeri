@@ -1,6 +1,6 @@
 import { AnyData, SerializableData } from '@/core/db/types';
 import { minimizeKeys, unminimizeKeys } from '@/shared/utils';
-import { SyncableAnnotation } from './document-annotations';
+import { DocAnnotation } from './document-annotations';
 
 const keys = [
   ['id', 'i'],
@@ -28,16 +28,14 @@ keys.forEach(([v1, v2]) => {
   keysMapReverse.set(v2, v1);
 });
 
-export const minimizeAnnotForStorage = (obj: SyncableAnnotation[]) => {
+export const minimizeAnnotForStorage = (obj: DocAnnotation[]) => {
   return obj.map(
     item => minimizeKeys(item, keysMap, new Map()) as MinimizedDocAnnotation
   );
 };
 
-export const unminimizeAnnotFromStorage = (
-  obj: AnyData[]
-): SyncableAnnotation[] => {
+export const unminimizeAnnotFromStorage = (obj: AnyData[]): DocAnnotation[] => {
   return obj.map(
-    o => unminimizeKeys(o, keysMapReverse, new Map()) as SyncableAnnotation
+    o => unminimizeKeys(o, keysMapReverse, new Map()) as DocAnnotation
   );
 };

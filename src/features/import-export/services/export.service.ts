@@ -147,7 +147,7 @@ class ExportService {
     } else {
       opts = { ...this.opts, ...opts };
     }
-    const json = collectionService.getItemContent(id) || '';
+    const json = collectionService.getDocumentContent(id) || '';
     return this.getDocumentContentFormatted(json);
   }
 

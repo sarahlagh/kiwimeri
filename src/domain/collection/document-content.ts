@@ -1,10 +1,8 @@
 import { SpaceDocContentTables } from '@/core/db/store-constants';
-import { MetaField } from '@/core/db/types';
 import { Id } from 'tinybase/with-schemas';
 
 export type ContentRow = {
   content: string;
-  content_meta: MetaField;
   plainText: string;
 };
 
@@ -14,7 +12,6 @@ export type DerivedPreviewRow = {
 
 export const contentSchema = {
   content: { type: 'string' },
-  content_meta: { type: 'object' },
   plainText: { type: 'string' }
 } as const satisfies Record<keyof ContentRow, unknown>;
 

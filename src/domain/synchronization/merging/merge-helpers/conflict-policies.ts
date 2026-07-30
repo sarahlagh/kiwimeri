@@ -6,9 +6,9 @@ import {
   CollectionItemUpdatableFieldEnum
 } from '@/domain/collection/collection';
 import {
+  DocAnnotation,
   DocAnnotationUpdatableConflictFields,
-  DocAnnotationUpdatableFieldEnum,
-  SyncableAnnotation
+  DocAnnotationUpdatableFieldEnum
 } from '@/domain/collection/document-annotations';
 import { LocalChangeResult } from '@/domain/synchronization/local-changes';
 import { cellEquals } from '@/shared/utils';
@@ -59,11 +59,11 @@ class CollectionConflictPolicy extends ConflictPolicy<CollectionItem> {
 }
 export const collectionConflictPolicy = new CollectionConflictPolicy();
 
-class AnnotsConflictPolicy extends ConflictPolicy<SyncableAnnotation> {
+class AnnotsConflictPolicy extends ConflictPolicy<DocAnnotation> {
   public shouldCreateConflict(
     localChange: LocalChangeResult,
-    localItem: SyncableAnnotation | undefined,
-    remoteItem: SyncableAnnotation
+    localItem: DocAnnotation | undefined,
+    remoteItem: DocAnnotation
   ): boolean {
     const field = localChange.field as DocAnnotationUpdatableFieldEnum;
     return (
@@ -74,10 +74,7 @@ class AnnotsConflictPolicy extends ConflictPolicy<SyncableAnnotation> {
           (!remoteItem || localItem[field] !== remoteItem[field])))
     );
   }
-  public newConflict(
-    localChange: LocalChangeResult,
-    localItem: SyncableAnnotation
-  ) {
+  public newConflict(localChange: LocalChangeResult, localItem: DocAnnotation) {
     const ts = Date.now();
     return {
       ...{ ...localItem, id: getUniqueId() },

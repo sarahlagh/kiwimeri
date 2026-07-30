@@ -43,7 +43,7 @@ describe('collection history service', () => {
           const docUpdatedTime = Date.now();
           const newValue = getNewValue(valueType);
           collectionService.setItemField(docId, field, newValue);
-          const rowBefore = space.getRow('collection', docId);
+          const rowBefore = collectionService.getItem(docId);
           vi.advanceTimersByTime(100);
           const versions = historyService.getVersionIds(docId);
           expect(versions).toHaveLength(2);
@@ -89,7 +89,7 @@ describe('collection history service', () => {
           const docUpdatedTime = Date.now();
           const newValue = getNewValue(valueType);
           collectionService.setItemField(docId, field, newValue);
-          const rowBefore = space.getRow('collection', docId);
+          const rowBefore = collectionService.getItem(docId);
           vi.advanceTimersByTime(100);
           expect(historyService.getVersions(docId)).toHaveLength(1);
         });
@@ -176,12 +176,12 @@ describe('collection history service', () => {
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       expect(historyService.getVersions(docId)).toHaveLength(1);
       vi.advanceTimersByTime(100);
-      const itemBefore = space.getRow('collection', docId) as CollectionItem;
+      const itemBefore = collectionService.getItem(docId) as CollectionItem;
 
       const newValue = getNewValue('string') as string;
       collectionService.setItemTitle(docId, newValue);
       collectionService.setItemLexicalContent(docId, newContent('new 1'));
-      const newContentValue = space.getCell('collection', docId, 'content');
+      const newContentValue = collectionService.getDocumentContent(docId);
       vi.advanceTimersByTime(100);
       let versions = historyService.getVersionIds(docId);
       let version0 = historyService.getVersion(versions[0])!;
@@ -193,7 +193,7 @@ describe('collection history service', () => {
       localChangesService.clear();
 
       historyService.restoreDocumentVersion(docId, version1.id!);
-      const restoredItem = space.getRow('collection', docId) as CollectionItem;
+      const restoredItem = collectionService.getItem(docId) as CollectionItem;
       expect(restoredItem).toEqual({ ...itemBefore, updatedAt: Date.now() });
 
       versions = historyService.getVersionIds(docId);
@@ -220,11 +220,11 @@ describe('collection history service', () => {
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       expect(historyService.getVersions(docId)).toHaveLength(1);
       vi.advanceTimersByTime(100);
-      const itemBefore = space.getRow('collection', docId) as CollectionItem;
+      const itemBefore = collectionService.getItem(docId) as CollectionItem;
 
       // new change, creates version 1
       collectionService.setItemLexicalContent(docId, newContent('test 1'));
-      const newValue1 = space.getCell('collection', docId, 'content');
+      const newValue1 = collectionService.getDocumentContent(docId);
       vi.advanceTimersByTime(100);
       let versions = historyService.getVersionIds(docId);
       expect(versions).toHaveLength(2);
@@ -235,13 +235,13 @@ describe('collection history service', () => {
 
       // new change, not yet in version
       collectionService.setItemLexicalContent(docId, newContent('test 2'));
-      const newValue2 = space.getCell('collection', docId, 'content');
+      const newValue2 = collectionService.getDocumentContent(docId);
       versions = historyService.getVersionIds(docId);
       expect(versions).toHaveLength(2);
       vi.advanceTimersByTime(10);
 
       historyService.restoreDocumentVersion(docId, version1.id!);
-      const restoredItem = space.getRow('collection', docId) as CollectionItem;
+      const restoredItem = collectionService.getItem(docId) as CollectionItem;
       expect(restoredItem.title).toEqual(itemBefore.title);
 
       versions = historyService.getVersionIds(docId);
@@ -305,7 +305,7 @@ describe('collection history service', () => {
       expect(historyService.getVersions(docId)).toHaveLength(1);
       vi.advanceTimersByTime(100);
 
-      const item = space.getRow('collection', docId);
+      const item = collectionService.getItem(docId);
       // create conflict
       const ts = Date.now();
       const conflictId = space.addRow('collection', {
@@ -322,11 +322,7 @@ describe('collection history service', () => {
         conflictId,
         newContent('conflict resolution')
       );
-      const newContentValue = space.getCell(
-        'collection',
-        conflictId,
-        'content'
-      );
+      const newContentValue = collectionService.getDocumentContent(conflictId);
       vi.advanceTimersByTime(100);
 
       expect(collectionService.isItemConflict(conflictId)).toBe(false);
@@ -344,7 +340,7 @@ describe('collection history service', () => {
       expect(historyService.getVersions(docId)).toHaveLength(1);
       vi.advanceTimersByTime(100);
 
-      const item = space.getRow('collection', docId);
+      const item = collectionService.getItem(docId);
       // create conflict
       const ts = Date.now();
       const conflictId = space.addRow('collection', {

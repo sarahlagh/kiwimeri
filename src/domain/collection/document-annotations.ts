@@ -27,7 +27,8 @@ export const docAnnotationSchema = {
   conflictId: { type: 'string' }
 } as const satisfies Record<keyof DocAnnotationRow, unknown>;
 
-export type SyncableAnnotation = WithId<DocAnnotationRow>;
+export type DocAnnotation = WithId<DocAnnotationRow>;
+export type DocAnnotationWithContent = DocAnnotationRow;
 
 type DocAnnotationUpdate = Pick<DocAnnotationRow, 'content' | 'order'>;
 export type DocAnnotationLocalChange = LocalChangeRow<DocAnnotationUpdate>;

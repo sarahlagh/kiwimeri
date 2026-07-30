@@ -1,8 +1,6 @@
 import { Store } from 'tinybase/with-schemas';
 import { SpaceDocContentTables, SpaceTables } from '../store-constants';
 
-// TODO test that one
-
 export default function Migration(
   _space: Store<never>,
   _spaceDocContent: Store<never>

@@ -1,6 +1,6 @@
 import { AnyData, SerializableData } from '@/core/db/types';
 import { minimizeKeys, unminimizeKeys } from '@/shared/utils';
-import { SyncableUserPref, UserPreferenceRow } from './user-preferences';
+import { UserPreference, UserPreferenceRow } from './user-preferences';
 
 const keys = [
   ['id', 'i'],
@@ -30,8 +30,8 @@ export const minimizePrefsForStorage = (obj: UserPreferenceRow[]) => {
 
 export const unminimizePrefsFromStorage = (
   obj: AnyData[]
-): SyncableUserPref[] => {
+): UserPreference[] => {
   return obj.map(
-    o => unminimizeKeys(o, keysMapReverse, new Map()) as SyncableUserPref
+    o => unminimizeKeys(o, keysMapReverse, new Map()) as UserPreference
   );
 };

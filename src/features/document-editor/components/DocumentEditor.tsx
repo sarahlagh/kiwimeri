@@ -84,7 +84,7 @@ const DocumentEditor = forwardRef<
     setShowDocumentActions(showActions);
   }, [showActions]);
 
-  const content = collectionService.getItemContent(docId);
+  const content = collectionService.getDocumentContent(docId);
   const documentTitle = collectionService.getItemTitle(docId);
   const onTitleChange = onTitleChangeFn(docId);
 

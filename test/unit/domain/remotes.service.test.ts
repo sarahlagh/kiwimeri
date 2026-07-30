@@ -80,6 +80,13 @@ describe('remotes service', () => {
   });
 
   describe('update rank', () => {
+    beforeEach(() => {
+      fetchRemotesQuery.initQuery();
+    });
+    afterEach(() => {
+      fetchRemotesQuery.close();
+    });
+
     [
       { current: 0, next: 1, expected: [1, 0, 2, 3, 4] },
       { current: 0, next: 2, expected: [1, 2, 0, 3, 4] },
@@ -100,9 +107,10 @@ describe('remotes service', () => {
 
         remotesService.updateRemoteRank(current, next);
 
-        const { result } = wrappedRenderHook(() =>
+        const { result, unmount } = wrappedRenderHook(() =>
           useQueryResults(fetchRemotesQuery)
         );
+        unmount();
         expect(result.current).toHaveLength(5);
         expect(result.current.map(r => r.name)).toStrictEqual(
           expected.map(r => `test${r}`)

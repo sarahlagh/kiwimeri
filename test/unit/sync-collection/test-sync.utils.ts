@@ -1,5 +1,5 @@
 import { CollectionItem } from '@/domain/collection/collection';
-import { SyncableAnnotation } from '@/domain/collection/document-annotations';
+import { DocAnnotation } from '@/domain/collection/document-annotations';
 import { historyService } from '@/domain/history/history.service';
 import {
   startLocalChangesListeners,
@@ -53,7 +53,7 @@ export const reInitRemoteData = async (items: CollectionItem[]) => {
 
 export const reInitRemoteDataWithAnnots = async (
   items: CollectionItem[],
-  annots?: SyncableAnnotation[]
+  annots?: DocAnnotation[]
 ) => {
   vi.advanceTimersByTime(fakeTimersDelay);
   // parent update doesn't set the row update ts, so... parentId_meta ts might be > i.updated
