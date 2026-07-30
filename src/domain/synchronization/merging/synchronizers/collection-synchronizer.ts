@@ -53,7 +53,7 @@ import {
   collectionOrphanPolicy,
   noOrphanPolicy
 } from '../merge-helpers/orphan-policies';
-import { AfterSyncChange } from '../types';
+import { AfterMergeChange } from '../types';
 
 export type MinimizedCollectionItem = {
   [key in ItemsMinKeys[number]]: SerializableData | undefined;
@@ -325,7 +325,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   ): {
     content: Content<SpaceType>;
     discardedChanges: LocalChangeResult[];
-    changes: AfterSyncChange[];
+    changes: AfterMergeChange[];
   } {
     const remoteContent = this.toRepresentation(obj);
 

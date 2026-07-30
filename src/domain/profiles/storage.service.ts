@@ -30,7 +30,7 @@ import {
   LocalChangeResult,
   LocalChangeType
 } from '../synchronization/local-changes';
-import { AfterSyncChange } from '../synchronization/merging/types';
+import { AfterMergeChange } from '../synchronization/merging/types';
 
 const C = SpaceTables.Collection;
 const A = SpaceTables.Annotations;
@@ -162,7 +162,7 @@ class StorageService {
   /// from synchronizer
   public restoreContent(
     content: Content<SpaceType, false>,
-    changes: AfterSyncChange[]
+    changes: AfterMergeChange[]
   ) {
     this.setContent(content[0], true);
     this.handleResumeState(changes);
@@ -177,7 +177,7 @@ class StorageService {
     force?: boolean
   ) {
     // TODO wait. same for annotations!!!!!!
-    let changes: AfterSyncChange[] = [];
+    let changes: AfterMergeChange[] = [];
     changes = [
       ...changes,
       ...this.diffTable(C, newLocalContent, localContent, localChanges, force)
@@ -193,7 +193,7 @@ class StorageService {
     force?: boolean
   ) {
     // TODO wait. same for annotations!!!!!!
-    const changes: Map<string, AfterSyncChange> = new Map();
+    const changes: Map<string, AfterMergeChange> = new Map();
     const ids = new Set<string>([
       ...Object.keys(newLocalContent[0][tableId]!),
       ...Object.keys(localContent[0][tableId]!)
@@ -212,7 +212,6 @@ class StorageService {
           id,
           type,
           on: tableId,
-          parentId: newItem.parentId as string,
           change: LocalChangeType.add
         });
       } else if (
@@ -225,7 +224,6 @@ class StorageService {
           id,
           on: tableId,
           type: oldItem.type as CollectionItemType,
-          parentId: oldItem.parentId as string,
           change: LocalChangeType.delete
         });
       } else if (newItem && oldItem) {
@@ -249,7 +247,6 @@ class StorageService {
               id,
               type,
               on: tableId,
-              parentId: newItem.parentId as string,
               change: LocalChangeType.update,
               field
             });
@@ -290,22 +287,25 @@ class StorageService {
     }
   }
 
-  private handleResumeState(changes: AfterSyncChange[]) {
+  private handleResumeState(changes: AfterMergeChange[]) {
     // reset resume state if content has changed
     changes
       .filter(ch => isDocument(ch.type) && ch.field === 'content')
       .forEach(ch => resumeService.setLastSelection(ch.id, null));
   }
 
-  private handleHistory(changes: AfterSyncChange[]) {
+  private handleHistory(changes: AfterMergeChange[]) {
     // history must be updated
-    const docsMap = new Map<string, AfterSyncChange>();
+    const docsMap = new Map<string, AfterMergeChange>();
     changes
-      .filter(ch => isDocument({ type: ch.type }))
+      .filter(ch => isDocument(ch.type))
       .filter(
         ch =>
           !ch.field ||
-          collectionService.isHistorizableContentChange(ch.type, ch.field)
+          collectionService.isHistorizableContentChange(
+            CollectionItemType.document,
+            ch.field
+          )
       )
       .forEach(ch => docsMap.set(ch.id, ch));
 
@@ -315,7 +315,7 @@ class StorageService {
     historyService.gc();
   }
 
-  private handleDeletedRows(changes: AfterSyncChange[]) {
+  private handleDeletedRows(changes: AfterMergeChange[]) {
     changes
       .filter(ch => ch.change === LocalChangeType.delete)
       .forEach(ch => {

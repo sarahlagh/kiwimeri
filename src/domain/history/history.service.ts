@@ -17,7 +17,7 @@ import { dateToStr } from '@/shared/misc/date-utils';
 import { Ids } from 'tinybase';
 import { getHash, Id, Table } from 'tinybase/with-schemas';
 import { LocalChangeType } from '../synchronization/local-changes';
-import { AfterSyncChange } from '../synchronization/merging/types';
+import { AfterMergeChange } from '../synchronization/merging/types';
 import {
   CollectionItemMetadataVersion,
   CollectionItemVersion
@@ -294,7 +294,7 @@ class CollectionHistoryService {
     return result;
   }
 
-  public updateAfterSync(ch: AfterSyncChange) {
+  public updateAfterSync(ch: AfterMergeChange) {
     if (ch.change !== LocalChangeType.delete) {
       historyService.addVersion(ch.id, true);
     } else {
