@@ -54,14 +54,14 @@ export enum CollectionItemType {
 export const itemTypes = ['n', 'f', 'd'] as const;
 export type CollectionItemTypeValues = (typeof itemTypes)[number];
 
-export type CollectionItem = WithId<CollectionItemRow>;
-export type CollectionItemWithContent = CollectionItemRow;
+export type CollectionItemWithContent = Omit<CollectionItemRow, 'itemId'>;
+export type CollectionItem = WithId<CollectionItemWithContent>;
 
-export type CollectionItemFieldEnum = keyof Required<CollectionItemRow>;
+export type CollectionItemFieldEnum = keyof Required<CollectionItemWithContent>;
 
 export type CollectionItemUpdatableFieldEnum = keyof Required<
   Pick<
-    CollectionItem,
+    CollectionItemWithContent,
     'parentId' | 'title' | 'content' | 'tags' | 'order' | 'settings'
   >
 >;

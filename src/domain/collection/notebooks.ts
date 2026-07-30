@@ -4,7 +4,7 @@ import {
 } from '@/domain/collection/collection';
 import { Sort } from '@/shared/misc/sort-filter/sort';
 
-export interface Notebook extends CollectionItemRow {
+export interface Notebook extends Omit<CollectionItemRow, 'itemId'> {
   type: CollectionItemType.notebook;
 }
 

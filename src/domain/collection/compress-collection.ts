@@ -55,7 +55,7 @@ keys.forEach(([v1, v2]) => {
 
 export const minimizeItemsForStorage = (obj: CollectionItem[]) => {
   return obj
-    .map(obj => ({ ...obj, itemId: undefined }))
+    .map(obj => ({ ...obj }))
     .map(item => minimizeKeys(item, keysMap, new Map()));
 };
 
@@ -64,5 +64,5 @@ export const unminimizeItemsFromStorage = (
 ): CollectionItem[] => {
   return obj
     .map(o => unminimizeKeys(o, keysMapReverse, new Map()) as CollectionItem)
-    .map(o => ({ ...o, itemId: o.id! }));
+    .map(o => ({ ...o }));
 };

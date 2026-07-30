@@ -156,7 +156,7 @@ class CollectionHistoryService {
     if (!version) return;
 
     // copy version data to current collection item
-    const current = space.getRow(C, docId) as CollectionItem;
+    const current = collectionService.getItem(docId);
     collectionService.saveItem(
       {
         ...current,

@@ -4,11 +4,11 @@ import { setMetaField } from '@/core/db/types';
 import {
   CollectionItem,
   CollectionItemResult,
-  CollectionItemRow,
   CollectionItemType,
   CollectionItemTypeValues,
   CollectionItemUpdatableFields,
   CollectionItemUpdate,
+  CollectionItemWithContent,
   isDocument,
   isFolder,
   isNotebook,
@@ -64,7 +64,7 @@ class ImportService {
 
   // TODO less manual
   private fillInMeta(
-    item: CollectionItemRow,
+    item: CollectionItemWithContent,
     meta: ZipParsedMetadata,
     parentItem?: CollectionItem,
     ignoreType = false

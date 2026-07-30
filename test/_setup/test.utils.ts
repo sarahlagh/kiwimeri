@@ -50,7 +50,6 @@ export const oneDocument = (
   return {
     ...collectionService.getNewDocumentObj(parent).item,
     id,
-    itemId: id,
     title,
     title_meta: setMetaField(Date.now(), title)
   };
@@ -64,7 +63,6 @@ export const oneFolder = (
   return {
     ...collectionService.getNewFolderObj(parent).item,
     id,
-    itemId: id,
     title,
     title_meta: setMetaField(Date.now(), title)
   };
@@ -76,8 +74,7 @@ export const oneNotebook = (
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   return {
     ...notebooksService.getNewNotebookObj(ROOT_COLLECTION, title).item,
-    id,
-    itemId: id
+    id
   };
 };
 

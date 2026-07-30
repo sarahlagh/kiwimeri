@@ -7,7 +7,10 @@ import {
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { setMetaField } from '@/core/db/types';
-import { CollectionItemType } from '@/domain/collection/collection';
+import {
+  CollectionItemRow,
+  CollectionItemType
+} from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
 import { Notebook, NotebookSort } from '@/domain/collection/notebooks';
 import { resumeService } from '@/domain/collection/resume-state.service';
@@ -47,11 +50,12 @@ class NotebooksService {
 
   public addNotebook(title: string, parent: string = ROOT_COLLECTION) {
     const { item, id } = this.getNewNotebookObj(parent, title);
+    const row: CollectionItemRow = { ...item, itemId: id };
     space.transaction(() => {
       const tmpTable = space.getTable(SpaceTables.Collection);
-      tmpTable[id] = { ...item, itemId: id };
+      tmpTable[id] = row;
       collectionService.calcState(id, tmpTable);
-      space.setRow(C, id, item);
+      space.setRow(C, id, row);
     });
     return id!;
   }
@@ -61,7 +65,6 @@ class NotebooksService {
     const id = getUniqueId();
     const parent = _parent ? _parent : ROOT_COLLECTION;
     const item: Notebook = {
-      itemId: id,
       title: title || '',
       title_meta: setMetaField(now, title || ''),
       parentId: parent,

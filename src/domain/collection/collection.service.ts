@@ -14,6 +14,7 @@ import {
   CollectionItemTypeValues,
   CollectionItemUpdatableFieldEnum,
   CollectionItemUpdate,
+  CollectionItemWithContent,
   isDocument,
   isFolder,
   isNotebook,
@@ -121,11 +122,13 @@ class CollectionService {
     return space.getCell(DerivedPreview, id, 'previewText') || '';
   }
 
-  public getItem(id: string) {
-    return {
+  public getItem(id: string): CollectionItem {
+    const row = {
       ...space.getRow(C, id),
       id
-    } as CollectionItem;
+    };
+    delete row.itemId;
+    return row as CollectionItem;
   }
 
   public getBrowsableCollectionItems(
@@ -480,18 +483,18 @@ class CollectionService {
     });
   }
 
-  private getTempTable(item: WithId<CollectionItem>) {
+  private getTempTable(item: WithId<CollectionItemRow>) {
     const tmpTable = space.getTable(C);
     tmpTable[item.id] = item;
     return tmpTable;
   }
 
-  public saveItem(item: CollectionItemRow, id?: string) {
+  public saveItem(item: CollectionItemWithContent, id?: string) {
     if (!id) {
       id = getUniqueId();
     }
     space.transaction(() => {
-      const row = { ...item, itemId: id } as CollectionItem;
+      const row = { ...item, itemId: id } as CollectionItemRow;
       this.calcState(id, this.getTempTable({ ...row, id }));
       space.setRow(C, id, row);
       this.updateAllParentsInBreadcrumb(item.parentId);
@@ -516,7 +519,7 @@ class CollectionService {
       items.forEach(item => {
         const id = item.id || getUniqueId();
         const oldRow = tmpTable[id];
-        const newRow = { ...oldRow, ...item, itemId: id } as CollectionItem;
+        const newRow = { ...oldRow, ...item, itemId: id } as CollectionItemRow;
         tmpTable[id] = newRow;
         allIds.push(id);
         if (item.type === CollectionItemType.document) {
@@ -546,6 +549,9 @@ class CollectionService {
     if (!rowIds) rowIds = Object.keys(tmpTable);
     space.transaction(() => {
       rowIds.forEach(rowId => {
+        if (tmpTable[rowId].itemId !== rowId) {
+          space.setCell(C, rowId, 'itemId', rowId);
+        }
         this.calcState(rowId, tmpTable);
       });
     });
