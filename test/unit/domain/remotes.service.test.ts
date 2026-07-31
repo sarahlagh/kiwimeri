@@ -98,7 +98,6 @@ describe('remotes service', () => {
       { current: 3, next: 1, expected: [0, 3, 1, 2, 4] }
     ].forEach(({ current, next, expected }) => {
       it(`${current} -> ${next}`, async () => {
-        fetchRemotesQuery.initQuery();
         remotesService.addRemote('test3', 3, 'inmem');
         remotesService.addRemote('test2', 2, 'inmem');
         remotesService.addRemote('test0', 0, 'inmem');

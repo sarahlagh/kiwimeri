@@ -12,21 +12,21 @@ enum _SpaceTables {
   DerivedState = 'derived_item_state'
 }
 
-// enum _SpaceArchiveTables {
-//   CollectionContent = 'collection_content',
-//   AnnotationContent = 'document_annotation_content'
-// }
+enum SpaceDocContentTables {
+  CollectionContent = 'collection_content',
+  AnnotationContent = 'document_annotation_content'
+}
 
-// const C = _SpaceTables.Collection;
-// const A = _SpaceTables.Annotations;
+const C = _SpaceTables.Collection;
+const A = _SpaceTables.Annotations;
 const H = _SpaceTables.History;
 const S = _SpaceTables.Stats;
 const RS = _SpaceTables.ResumeState;
 const HC = _SpaceTables.HistoryContent;
 const DC = _SpaceTables.DerivedContent;
 const DP = _SpaceTables.DerivedPreview;
-const CollectionContent = 'collection_content';
-const AnnotationContent = 'document_annotation_content';
+const CollectionContent = SpaceDocContentTables.CollectionContent;
+const AnnotationContent = SpaceDocContentTables.AnnotationContent;
 
 export default function Migration(
   _space: NoSchemaStore,
@@ -42,12 +42,7 @@ export default function Migration(
   lastOpenedAtGoesToResumeState(_space);
   historyGoesToSpaceArchive(_space, _spaceArchive);
   derivedContentGoesToDocContent(_spaceArchive, _spaceDocContent);
-
-  // TODO
-  // collection content goes to content space
-  // annotation content goes to content space
-
-  // contentFieldsGoToOtherSpace(_space, _spaceArchive);
+  contentFieldsGoToOtherSpace(_space, _spaceDocContent);
 }
 
 function addPreviewFieldFromPlainText(_space: NoSchemaStore) {
@@ -57,30 +52,6 @@ function addPreviewFieldFromPlainText(_space: NoSchemaStore) {
     _space.setCell(DP, rowId, 'previewText', plainText.substring(0, 200));
   });
 }
-
-// function _contentGoesToOtherSpace(
-//   _space: NoSchemaStore,
-//   _spaceArchive: NoSchemaStore,
-//   oldTableId: string,
-//   newTableId: string
-// ) {
-//   _space.getRowIds(oldTableId).forEach(rowId => {
-//     const content = _space.getCell(oldTableId, rowId, 'content');
-//     const content_meta = _space.getCell(oldTableId, rowId, 'content_meta');
-//     _spaceArchive.setRow(newTableId, rowId, {
-//       content,
-//       content_meta
-//     });
-//   });
-// }
-
-// function contentFieldsGoToOtherSpace(
-//   _space: NoSchemaStore,
-//   _spaceArchive: NoSchemaStore
-// ) {
-//   _contentGoesToOtherSpace(_space, _spaceArchive, C, CC);
-//   _contentGoesToOtherSpace(_space, _spaceArchive, A, AC);
-// }
 
 function _migrateTable(
   _oldStore: NoSchemaStore,
@@ -156,4 +127,30 @@ function derivedContentGoesToDocContent(
       );
     }
   });
+}
+
+function _contentGoesToOtherSpace(
+  _space: NoSchemaStore,
+  _spaceDocContent: NoSchemaStore,
+  oldTableId: string,
+  newTableId: string
+) {
+  _space.getRowIds(oldTableId).forEach(rowId => {
+    const content = _space.getCell(oldTableId, rowId, 'content');
+    if (content) {
+      _spaceDocContent.setCell(newTableId, rowId, 'content', content);
+    }
+    const contentMeta = _space.getCell(oldTableId, rowId, 'content_meta');
+    if (contentMeta) {
+      _spaceDocContent.setCell(newTableId, rowId, 'content_meta', contentMeta);
+    }
+  });
+}
+
+function contentFieldsGoToOtherSpace(
+  _space: NoSchemaStore,
+  _spaceDocContent: NoSchemaStore
+) {
+  _contentGoesToOtherSpace(_space, _spaceDocContent, C, CollectionContent);
+  _contentGoesToOtherSpace(_space, _spaceDocContent, A, AnnotationContent);
 }

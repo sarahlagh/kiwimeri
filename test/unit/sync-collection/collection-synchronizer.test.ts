@@ -57,7 +57,7 @@ describe('collection synchronizer', () => {
     historyService['enabled'] = false;
   });
 
-  it('should trim ids and itemId from collection table in remote format', async () => {
+  it('should trim ids and itemId and previewText from collection table in remote format', async () => {
     const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     const folId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
     await synchronizer.sync();
@@ -67,13 +67,34 @@ describe('collection synchronizer', () => {
       expect(items[DEFAULT_NOTEBOOK_ID]).toBeDefined();
       expect((items[DEFAULT_NOTEBOOK_ID] as any).id).toBeUndefined();
       expect((items[DEFAULT_NOTEBOOK_ID] as any).itemId).toBeUndefined();
+      expect((items[DEFAULT_NOTEBOOK_ID] as any).previewText).toBeUndefined();
       expect(items[docId]).toBeDefined();
       expect((items[docId] as any).id).toBeUndefined();
       expect((items[docId] as any).itemId).toBeUndefined();
+      expect((items[docId] as any).previewText).toBeUndefined();
       expect(items[folId]).toBeDefined();
       expect((items[folId] as any).id).toBeUndefined();
       expect((items[folId] as any).itemId).toBeUndefined();
+      expect((items[folId] as any).previewText).toBeUndefined();
     }
+  });
+
+  it('should pull items and fill plainText', async () => {
+    const items = [oneNotebook(), oneDocument()];
+    items[1].content = getNewContent('test');
+    await driver.setCollectionContent(items, items[1].updatedAt);
+
+    await synchronizer.sync();
+
+    expect(space.getRowCount(SpaceTables.Collection)).toBe(2);
+    expect(space.hasRow(SpaceTables.Collection, items[1].id));
+    expect(
+      spaceDocContent.getCell(
+        SpaceDocContentTables.CollectionContent,
+        items[1].id,
+        'plainText'
+      )
+    ).toBe('test');
   });
 
   describe('should merge restored items', () => {
@@ -472,9 +493,7 @@ describe('collection synchronizer', () => {
         expect(Object.keys(newNotes)).toHaveLength(1);
         expect(newNotes[noteId]).toBeDefined();
         expect(newNotes[noteId].order).toBe(2);
-        expect(newNotes[noteId].content).toBe(
-          space.getCell(SpaceTables.Annotations, noteId, 'content')
-        );
+        expect(newNotes[noteId].content).toBe(annotsService.getContent(noteId));
       }
     });
 
@@ -517,9 +536,7 @@ describe('collection synchronizer', () => {
         expect(items[docId]).toBeDefined();
         expect(Object.keys(newNotes)).toHaveLength(1);
         expect(newNotes[noteId]).toBeDefined();
-        expect(newNotes[noteId].content).toBe(
-          space.getCell(SpaceTables.Annotations, noteId, 'content')
-        );
+        expect(newNotes[noteId].content).toBe(annotsService.getContent(noteId));
         expect(newNotes[noteId].content).toBe(
           minimizeContentForStorage(JSON.parse(getNewContent('local')))
         );
@@ -568,9 +585,7 @@ describe('collection synchronizer', () => {
         expect(items[docId]).toBeDefined();
         expect(Object.keys(newNotes)).toHaveLength(1);
         expect(newNotes[noteId]).toBeDefined();
-        expect(newNotes[noteId].content).toBe(
-          space.getCell(SpaceTables.Annotations, noteId, 'content')
-        );
+        expect(newNotes[noteId].content).toBe(annotsService.getContent(noteId));
         expect(newNotes[noteId].content).toBe(notes[0].content);
         expect(annotsService.isConflict(noteId));
       }
@@ -963,9 +978,7 @@ describe('collection synchronizer', () => {
         expect(items[docId]).toBeDefined();
         expect(Object.keys(newNotes)).toHaveLength(1);
         expect(newNotes[noteId]).toBeDefined();
-        expect(newNotes[noteId].content).toBe(
-          space.getCell(SpaceTables.Annotations, noteId, 'content')
-        );
+        expect(newNotes[noteId].content).toBe(annotsService.getContent(noteId));
         expect(newNotes[noteId].content).toBe(notes[0].content);
         expect(annotsService.isConflict(noteId));
       }

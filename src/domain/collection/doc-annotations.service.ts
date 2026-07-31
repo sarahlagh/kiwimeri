@@ -1,6 +1,6 @@
-import { space } from '@/core/db/store';
-import { SpaceTables } from '@/core/db/store-constants';
-import { setMetaField } from '@/core/db/types';
+import { space, spaceDocContent } from '@/core/db/store';
+import { SpaceDocContentTables, SpaceTables } from '@/core/db/store-constants';
+import { MetaField, setMetaField } from '@/core/db/types';
 import { initialContent } from '@/domain/collection/collection.service';
 import { minimizeContentForStorage } from '@/domain/collection/compress-file-content';
 import { genericReorder } from '@/shared/dnd/utils';
@@ -10,19 +10,20 @@ import { getUniqueId, Id } from 'tinybase/common';
 import { storageService } from '../space-merging/storage.service';
 import { NotesSort } from './collection-settings';
 import { settingsService } from './collection-settings.service';
-import { DocAnnotationRow } from './document-annotations';
+import { BaseDocAnnotation } from './document-annotations';
 import { getDerivedId } from './document-content';
 
 const A = SpaceTables.Annotations;
+const AC = SpaceDocContentTables.AnnotationContent;
 const C = SpaceTables.Collection;
 const DP = SpaceTables.DerivedPreview;
 
 class DocumentAnnotationsService {
-  public newNoteObj(itemId: Id): { item: DocAnnotationRow; id: Id } {
+  public newNoteObj(itemId: Id): { item: BaseDocAnnotation; id: Id } {
     const id = getUniqueId();
     const content = initialContent();
     const now = Date.now();
-    const note: DocAnnotationRow = {
+    const note: BaseDocAnnotation = {
       type: 'note',
       parentId: itemId,
       content,
@@ -35,34 +36,54 @@ class DocumentAnnotationsService {
 
   public addNote(docId: Id, order?: number) {
     const { item, id } = this.newNoteObj(docId);
+    const content = item.content;
+    const content_meta = item.content_meta;
     space.transaction(() => {
       space.setRow(A, id, { ...item, order });
       space.setCell(C, docId, 'updatedAt', Date.now());
     });
+    spaceDocContent.setPartialRow(AC, id, {
+      content,
+      content_meta
+    });
     return id;
   }
 
-  public saveNotes(docId: Id, notes: DocAnnotationRow[]) {
+  public saveNotes(docId: Id, notes: BaseDocAnnotation[]) {
+    const contents = new Map<
+      string,
+      { content: string; content_meta: MetaField }
+    >();
     space.transaction(() => {
       notes.forEach(note => {
-        space.setRow(A, getUniqueId(), { ...note, parentId: docId });
+        const id = getUniqueId();
+        contents.set(id, {
+          content: note.content,
+          content_meta: note.content_meta
+        });
+        space.setRow(A, id, { ...note, parentId: docId });
       });
-      space.setCell('collection', docId, 'updatedAt', Date.now());
+      space.setCell(C, docId, 'updatedAt', Date.now());
+    });
+    spaceDocContent.transaction(() => {
+      contents.forEach((partial, noteId) =>
+        spaceDocContent.setPartialRow(AC, noteId, partial)
+      );
     });
   }
 
   public edit(id: Id, content: SerializedEditorState) {
+    const now = Date.now();
     const contentStr = minimizeContentForStorage(content);
     space.transaction(() => {
-      const now = Date.now();
-      space.setPartialRow(A, id, {
-        content: contentStr,
-        content_meta: setMetaField(now, contentStr),
-        updatedAt: now
-      });
+      space.setCell(A, id, 'updatedAt', now);
       space.delCell(A, id, 'conflictId');
       const itemId = space.getCell(A, id, 'parentId');
       space.setCell(C, itemId!, 'updatedAt', now);
+    });
+    spaceDocContent.setPartialRow(AC, id, {
+      content: contentStr,
+      content_meta: setMetaField(now, contentStr)
     });
   }
 
@@ -113,7 +134,7 @@ class DocumentAnnotationsService {
   }
 
   public getContent(id: Id) {
-    return space.getCell(A, id, 'content');
+    return spaceDocContent.getCell(AC, id, 'content') || '';
   }
 
   public getPreview(id: Id) {

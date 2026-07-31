@@ -1,6 +1,7 @@
 import { APPICONS } from '@/constants';
 import { MetaField, metaSchemaDefault, WithId } from '@/core/db/types';
 import { CollectionItemSettings } from '@/domain/collection/collection-settings';
+import { ContentAddition } from './document-content';
 
 export type CollectionItemRow = {
   itemId: string;
@@ -9,8 +10,6 @@ export type CollectionItemRow = {
   type: CollectionItemTypeValues;
   title: string;
   title_meta: MetaField;
-  content?: string;
-  content_meta?: MetaField;
   tags?: string[];
   tags_meta?: MetaField;
   createdAt: number;
@@ -29,8 +28,6 @@ export const collectionSchema = {
   parentId: { type: 'string' },
   parentId_meta: { type: 'object', default: metaSchemaDefault },
   type: { type: 'string' },
-  content: { type: 'string' },
-  content_meta: { type: 'object' },
   tags: { type: 'array' },
   tags_meta: { type: 'object' },
   createdAt: { type: 'number' },
@@ -42,8 +39,6 @@ export const collectionSchema = {
   settings_meta: { type: 'object' }
 } as const satisfies Record<keyof CollectionItemRow, unknown>;
 
-export type SyncableItem = WithId<CollectionItemRow>;
-
 ////////////////////
 
 export enum CollectionItemType {
@@ -54,7 +49,8 @@ export enum CollectionItemType {
 export const itemTypes = ['n', 'f', 'd'] as const;
 export type CollectionItemTypeValues = (typeof itemTypes)[number];
 
-export type BaseCollectionItem = Omit<CollectionItemRow, 'itemId'>;
+export type BaseCollectionItem = Omit<CollectionItemRow, 'itemId'> &
+  Partial<ContentAddition>;
 export type CollectionItem = WithId<BaseCollectionItem>;
 
 export type CollectionItemFieldEnum = keyof Required<BaseCollectionItem>;

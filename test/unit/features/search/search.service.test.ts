@@ -1,5 +1,4 @@
 import { space, spaceDocContent } from '@/core/db/store';
-import { SpaceDocContentTables } from '@/core/db/store-constants';
 import collectionService from '@/domain/collection/collection.service';
 import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-content';
 import { lexicalConfig } from '@/features/document-editor/wysiwyg-editor/lexical/lexical-config';
@@ -32,21 +31,18 @@ describe('search service', () => {
   beforeEach(() => {
     space.transaction(() => {
       space.setJson(jsonCollection);
-      collectionService.backfillDerivedStates();
+      collectionService.backfillDerivedStates(
+        JSON.parse(jsonCollection)[0]['collection']
+      );
     });
+    spaceDocContent.setJson(jsonCollection);
   });
 
   describe('Search Lexical State', () => {
     beforeEach(() => {
       const minimized = collectionService.getDocumentContent(docId);
       expect(minimized).toBeDefined();
-      expect(
-        spaceDocContent.getCell(
-          SpaceDocContentTables.CollectionContent,
-          docId,
-          'plainText'
-        )
-      ).toBeDefined();
+      expect(collectionService.getDocumentPlainText(docId)).not.toBe('');
       const content = unminimizeContentFromStorage(minimized!);
       editor = createHeadlessEditor({
         nodes: lexicalConfig.nodes,
@@ -99,7 +95,7 @@ describe('search service', () => {
       expect(results[1].node.__text).toBe('din');
       expect(results[1].startOffset).toBe(0);
       expect(results[1].endOffset).toBe(3);
-      expect(results[2].node.__text).toBe('g 1');
+      expect(results[2].node.__text).toBe('g 1');
       expect(results[2].startOffset).toBe(0);
       expect(results[2].endOffset).toBe(1);
 
@@ -123,7 +119,7 @@ describe('search service', () => {
       expect(results[0].node.__text).toBe('din');
       expect(results[0].startOffset).toBe(0);
       expect(results[0].endOffset).toBe(3);
-      expect(results[1].node.__text).toBe('g 1');
+      expect(results[1].node.__text).toBe('g 1');
       expect(results[1].startOffset).toBe(0);
       expect(results[1].endOffset).toBe(1);
     });
@@ -168,7 +164,7 @@ describe('search service', () => {
       expect(results[1].node.__text).toBe('din');
       expect(results[1].startOffset).toBe(0);
       expect(results[1].endOffset).toBe(3);
-      expect(results[2].node.__text).toBe('g 1');
+      expect(results[2].node.__text).toBe('g 1');
       expect(results[2].startOffset).toBe(0);
       expect(results[2].endOffset).toBe(3);
       expect(results[3].node.__text).toBe('Lorem ipsum ');
@@ -290,7 +286,7 @@ describe('search service', () => {
     it('should replace non-breaking spaces by normal space', () => {
       const results = search('g 1');
       expect(results.length).toBe(1);
-      expect(results[0].node.__text).toBe('g 1');
+      expect(results[0].node.__text).toBe('g 1');
       expect(results[0].startOffset).toBe(0);
       expect(results[0].endOffset).toBe(3);
     });

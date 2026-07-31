@@ -6,10 +6,14 @@ import {
   SpaceTables
 } from '@/core/db/store-constants';
 import {
+  SpaceDocContentTableId,
+  SpaceDocContentTablesType,
+  SpaceDocContentType,
   SpaceTableId,
   SpaceTablesType,
   SpaceType
 } from '@/core/db/store-schema';
+import { MetaField } from '@/core/db/types';
 import notebooksService from '@/domain/collection/notebooks.service';
 import localChangesService from '@/domain/synchronization/local-changes.service';
 import { getPlainText } from '@/shared/misc/getPlainText';
@@ -27,7 +31,11 @@ import {
   BaseDocAnnotation,
   DocAnnotationRow
 } from '../collection/document-annotations';
-import { getDerivedId } from '../collection/document-content';
+import {
+  ContentRow,
+  getDerivedId,
+  getDerivedTable
+} from '../collection/document-content';
 import { resumeService } from '../collection/resume-state.service';
 import tagsService from '../collection/tags.service';
 import { historyService } from '../history/history.service';
@@ -40,7 +48,12 @@ import {
   BaseUserPreference,
   UserPreferenceRow
 } from '../user-preferences/user-preferences';
-import { AfterMergeChange, SpacePortableData, TableOf } from './types';
+import {
+  AfterMergeChange,
+  SpacePortableData,
+  SpacePortableDataKey,
+  TableOf
+} from './types';
 
 const C = SpaceTables.Collection;
 const A = SpaceTables.Annotations;
@@ -48,10 +61,10 @@ const UP = SpaceTables.UserPreference;
 const H = SpaceArchiveTables.History;
 const HC = SpaceArchiveTables.HistoryContent;
 const S = SpaceTables.Stats;
-const CollectionContent = SpaceDocContentTables.CollectionContent;
+const CC = SpaceDocContentTables.CollectionContent;
 const DerivedPreview = SpaceTables.DerivedPreview;
 const DerivedState = SpaceTables.DerivedState;
-const AnnotationContent = SpaceDocContentTables.AnnotationContent;
+const AC = SpaceDocContentTables.AnnotationContent;
 const ResumeState = SpaceTables.ResumeState;
 
 const LOCAL_COLLECTION_SCHEMA_VERSION = 1; // increment each breaking change
@@ -61,19 +74,27 @@ class StorageService {
     schemaVersion = LOCAL_COLLECTION_SCHEMA_VERSION
   ): SpacePortableData {
     const localSpaceContent = space.getContent();
-    return this.buildSpaceRepresentation(localSpaceContent, schemaVersion);
+    const localSpaceDocContentContent = spaceDocContent.getContent();
+    return this.buildSpaceRepresentation(
+      localSpaceContent,
+      localSpaceDocContentContent,
+      schemaVersion
+    );
   }
 
   private buildSpaceRepresentation(
     localSpaceContent: Content<SpaceType>,
+    localSpaceDocContentContent: Content<SpaceDocContentType>,
     schemaVersion = LOCAL_COLLECTION_SCHEMA_VERSION
   ): SpacePortableData {
     const items = this.toTable<BaseCollectionItem, CollectionItemRow>(
       localSpaceContent[0][C],
+      localSpaceDocContentContent[0][CC],
       row => ({ ...row, itemId: undefined })
     );
     const annots = this.toTable<BaseDocAnnotation, DocAnnotationRow>(
-      localSpaceContent[0][A]
+      localSpaceContent[0][A],
+      localSpaceDocContentContent[0][AC]
     );
     const userPrefs = this.toTable<BaseUserPreference, UserPreferenceRow>(
       localSpaceContent[0][UP]
@@ -95,15 +116,26 @@ class StorageService {
 
   private toTable<T, U>(
     arg: Table<SpaceTablesType, SpaceTableId, false> | undefined,
+    argContent?:
+      | Table<SpaceDocContentTablesType, SpaceDocContentTableId, false>
+      | undefined,
     rowMapper?: (row: U, rowId: Id) => T
   ): TableOf<T> {
     const table: TableOf<T> = {};
     if (arg) {
       Object.keys(arg).forEach(rowId => {
+        const contentRow = (
+          argContent ? argContent[rowId] : {}
+        ) as Partial<ContentRow>;
+        const contentAddition = {
+          content: contentRow?.content,
+          content_meta: contentRow?.content_meta
+        };
         const row = arg[rowId] as U;
-        table[rowId] = rowMapper
-          ? rowMapper(row, rowId)
-          : (row as unknown as T);
+        table[rowId] = {
+          ...contentAddition,
+          ...(rowMapper ? rowMapper(row, rowId) : (row as unknown as T))
+        };
       });
     }
     return table;
@@ -119,13 +151,13 @@ class StorageService {
   }
 
   public backfillDerivedContent() {
-    const collection = space.getTable(C);
-    const annotations = space.getTable(A);
+    const collectionContent = spaceDocContent.getTable(CC);
+    const annotationsContent = spaceDocContent.getTable(AC);
     spaceArchive.startTransaction();
     space.transaction(() => {
       space.getRowIds(C).forEach(rowId => {
-        if (!collection[rowId].content) return;
-        const plainText = getPlainText(collection[rowId].content);
+        if (!collectionContent[rowId].content) return;
+        const plainText = getPlainText(collectionContent[rowId].content);
         const previewText = plainText.substring(0, DOC_PREVIEW_SIZE);
         const derivedId = getDerivedId('c', rowId);
         space.setRow(SpaceTables.DerivedPreview, derivedId, {
@@ -137,11 +169,15 @@ class StorageService {
           'plainText',
           plainText
         );
-        statsOnPlainTextCallback(rowId, plainText);
+        statsOnPlainTextCallback(
+          rowId,
+          plainText,
+          collectionContent[rowId].content_meta as MetaField
+        );
       });
       space.getRowIds(SpaceTables.Annotations).forEach(rowId => {
-        if (!annotations[rowId].content) return;
-        const plainText = getPlainText(annotations[rowId].content);
+        if (!annotationsContent[rowId].content) return;
+        const plainText = getPlainText(annotationsContent[rowId].content);
         const previewText = plainText.substring(0, ANNOT_PREVIEW_SIZE);
         const derivedId = getDerivedId('a', rowId);
         space.setRow(SpaceTables.DerivedPreview, derivedId, {
@@ -164,11 +200,11 @@ class StorageService {
       derivedId = getDerivedId('c', rowId);
       space.delRow(DerivedState, rowId);
       space.delRow(ResumeState, rowId);
-      spaceDocContent.delRow(CollectionContent, rowId);
+      spaceDocContent.delRow(CC, rowId);
     }
     if (on === SpaceTables.Annotations) {
       derivedId = getDerivedId('a', rowId);
-      spaceDocContent.delRow(AnnotationContent, rowId);
+      spaceDocContent.delRow(AC, rowId);
     }
     if (derivedId) {
       space.delRow(DerivedPreview, derivedId);
@@ -177,23 +213,26 @@ class StorageService {
 
   public exportJson(withHistory: boolean) {
     const content = space.getContent();
+    const docContent = spaceDocContent.getContent();
+    const baseTables = {
+      collection: content[0].collection,
+      document_annotation: content[0].document_annotation,
+      collection_content: docContent[0].collection_content,
+      document_annotation_content: docContent[0].document_annotation_content
+    };
+    const baseValues = { schemaVersion: LOCAL_COLLECTION_SCHEMA_VERSION };
     if (!withHistory) {
-      return JSON.stringify([
-        {
-          collection: content[0].collection,
-          document_annotation: content[0].document_annotation
-        }
-      ]);
+      return JSON.stringify([baseTables, baseValues]);
     }
     const archive_content = spaceArchive.getContent();
     return JSON.stringify([
       {
-        collection: content[0].collection,
-        document_annotation: content[0].document_annotation,
+        ...baseTables,
         history: archive_content[0].history,
         history_content: archive_content[0].history_content,
         stats: content[0].stats
-      }
+      },
+      baseValues
     ]);
   }
 
@@ -203,7 +242,7 @@ class StorageService {
     const json = JSON.parse(content);
     const [tables] = json;
     const localContent = this.getSpaceRepresentation();
-    const newContent = this.buildSpaceRepresentation(json);
+    const newContent = this.buildSpaceRepresentation(json, json);
 
     localChangesService.clear();
 
@@ -221,12 +260,7 @@ class StorageService {
     }
 
     // TODO handle changes after restore
-    const changes = this.afterSyncHistChanges(
-      newContent,
-      localContent,
-      [],
-      true
-    );
+    const changes = this.afterMergeChanges(newContent, localContent, [], true);
     space.delTable(SpaceTables.ResumeState);
     this.handleHistory(changes);
     this.handleDeletedRows(changes);
@@ -241,9 +275,10 @@ class StorageService {
     this.handleResumeState(changes);
     this.handleHistory(changes);
     this.handleDeletedRows(changes);
+    // TODO handle state on added & deleted rows
   }
 
-  public afterSyncHistChanges(
+  public afterMergeChanges(
     newLocalContent: SpacePortableData,
     localContent: SpacePortableData,
     localChanges: LocalChangeResult[],
@@ -340,26 +375,58 @@ class StorageService {
   }
 
   private setContent(content: SpacePortableData, withUserPrefs: boolean) {
-    space.transaction(() => {
-      this.setTable(SpaceTables.Collection, content.items);
+    spaceDocContent.startTransaction();
+    space.startTransaction();
+    try {
+      this.setWithContent(structuredClone(content), 'items', C);
       collectionService.backfillDerivedStates(content.items);
-      this.setTable(SpaceTables.Annotations, content.annots);
+      this.setWithContent(structuredClone(content), 'annots', A);
+
       if (withUserPrefs) {
-        this.setTable(SpaceTables.UserPreference, content.userPrefs);
+        this.set(structuredClone(content), 'userPrefs', UP);
       }
+    } finally {
+      // TODO handle error
+      space.finishTransaction();
+      spaceDocContent.finishTransaction();
+    }
+  }
+
+  private setWithContent(
+    content: SpacePortableData,
+    itemsKey: SpacePortableDataKey,
+    tableId: SpaceTableId
+  ) {
+    this.clearTable(tableId);
+    Object.keys(content[itemsKey]).forEach(rowId => {
+      const row = content[itemsKey][rowId];
+      if ('content' in row && row.content) {
+        const contentTable = getDerivedTable(tableId);
+        if (contentTable) {
+          spaceDocContent.setPartialRow(contentTable, rowId, {
+            content: row.content,
+            content_meta: row.content_meta
+          });
+        }
+      }
+      space.setRow(tableId, rowId, row);
     });
   }
 
-  private setTable(
-    tableName: SpaceTableId,
-    table?: Table<SpaceTablesType, SpaceTableId, true>
+  private set(
+    content: SpacePortableData,
+    itemsKey: SpacePortableDataKey,
+    tableId: SpaceTableId
   ) {
-    if (table && Object.keys(table).length === 0) {
-      space.delTable(tableName);
-    }
-    if (table) {
-      space.setTable(tableName, table);
-    }
+    this.clearTable(tableId);
+    Object.keys(content[itemsKey]).forEach(rowId => {
+      const row = content[itemsKey][rowId];
+      space.setRow(tableId, rowId, row);
+    });
+  }
+
+  private clearTable(tableId: SpaceTableId) {
+    space.delTable(tableId);
   }
 
   private handleResumeState(changes: AfterMergeChange[]) {

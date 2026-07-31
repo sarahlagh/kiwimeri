@@ -1,7 +1,12 @@
 import { DOC_PREVIEW_SIZE } from '@/constants';
 import { space, spaceDocContent } from '@/core/db/store';
-import { SpaceTables } from '@/core/db/store-constants';
-import { SpaceCellId, SpaceTableId } from '@/core/db/store-schema';
+import { SpaceDocContentTables, SpaceTables } from '@/core/db/store-constants';
+import {
+  SpaceCellId,
+  SpaceDocContentTableId,
+  SpaceTableId
+} from '@/core/db/store-schema';
+import { MetaField } from '@/core/db/types';
 import { getPlainText } from '@/shared/misc/getPlainText';
 import { Id } from 'tinybase/with-schemas';
 import { statsOnPlainTextCallback } from '../stats/stats-on-change-callback';
@@ -15,12 +20,16 @@ import {
 const listeners: Id[] = [];
 
 function addDerivedContentListener(
-  tableId: SpaceTableId,
+  tableId: SpaceDocContentTableId,
   l: DerivedPrefix,
-  onPlainTextChange?: (rowId: string, plainText: string) => void
+  onPlainTextChange?: (
+    rowId: string,
+    plainText: string,
+    content_meta: MetaField
+  ) => void
 ) {
   listeners.push(
-    space.addCellListener(
+    spaceDocContent.addCellListener(
       tableId,
       null,
       'content',
@@ -29,12 +38,25 @@ function addDerivedContentListener(
           const plainText = getPlainText(newCell);
           const previewText = plainText.substring(0, DOC_PREVIEW_SIZE);
           const derivedId = getDerivedId(l, rowId);
-          _store.setRow(SpaceTables.DerivedPreview, derivedId, {
+          space.setRow(SpaceTables.DerivedPreview, derivedId, {
             previewText
           });
           const derivedTable = getDerivedTable(l);
-          spaceDocContent.setCell(derivedTable, rowId, 'plainText', plainText);
-          if (onPlainTextChange) onPlainTextChange(rowId, plainText);
+          if (derivedTable) {
+            spaceDocContent.setCell(
+              derivedTable,
+              rowId,
+              'plainText',
+              plainText
+            );
+            const content_meta = spaceDocContent.getCell(
+              derivedTable,
+              rowId,
+              'content_meta'
+            ) as MetaField;
+            if (onPlainTextChange)
+              onPlainTextChange(rowId, plainText, content_meta);
+          }
         }
       },
       true
@@ -103,15 +125,18 @@ function addDerivedStateListeners() {
 
 export function startDerivedTablesListeners() {
   addDerivedContentListener(
-    SpaceTables.Collection,
+    SpaceDocContentTables.CollectionContent,
     'c',
     statsOnPlainTextCallback
   );
-  addDerivedContentListener(SpaceTables.Annotations, 'a');
+  addDerivedContentListener(SpaceDocContentTables.AnnotationContent, 'a');
   addDerivedStateListeners();
 }
 
 export function stopDerivedTablesListeners() {
-  listeners.forEach(l => space.delListener(l));
+  listeners.forEach(l => {
+    space.delListener(l);
+    spaceDocContent.delListener(l);
+  });
   listeners.length = 0;
 }

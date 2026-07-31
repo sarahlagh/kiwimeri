@@ -1,6 +1,10 @@
-import { space } from '@/core/db/store';
-import { SpaceTables } from '@/core/db/store-constants';
-import { SpaceCellId, SpaceTableId } from '@/core/db/store-schema';
+import { space, spaceDocContent } from '@/core/db/store';
+import { SpaceDocContentTables, SpaceTables } from '@/core/db/store-constants';
+import {
+  SpaceCellId,
+  SpaceDocContentTableId,
+  SpaceTableId
+} from '@/core/db/store-schema';
 import { CollectionItemUpdatableFields } from '@/domain/collection/collection';
 import { DocAnnotationUpdatableFields } from '@/domain/collection/document-annotations';
 import { UserPrefUpdatableFields } from '@/domain/user-preferences/user-preferences';
@@ -97,13 +101,83 @@ function watchTable<T extends SpaceTableId>(
   );
 }
 
+function watchContentTable(
+  tableId: SpaceDocContentTableId,
+  onSpaceTable: SpaceTableId
+) {
+  // update / conflict listener
+  listeners.push(
+    spaceDocContent.addCellListener(
+      tableId,
+      null,
+      'content',
+      (_store, tableId, rowId, cellId, newCell, oldCell, getCellChange) => {
+        if (getCellChange && newCell && oldCell && newCell !== oldCell) {
+          if (getCellChange) {
+            const [conflictCellChanged, oldConflictCell, newConflictCell] =
+              getCellChange(tableId, rowId, 'conflictId' as never);
+            if (
+              conflictCellChanged &&
+              oldConflictCell !== undefined &&
+              newConflictCell === undefined
+            ) {
+              localChangesService.addManualLocalChange(
+                onSpaceTable,
+                LocalChangeType.add,
+                rowId,
+                _store.getRow(tableId, rowId)
+              );
+              return;
+            }
+            const [cellChanged, oldCell, newCell] = getCellChange(
+              tableId,
+              rowId,
+              'content'
+            );
+            if (cellChanged) {
+              localChangesService.addManualLocalChange(
+                onSpaceTable,
+                LocalChangeType.update,
+                rowId,
+                newCell,
+                {
+                  field: cellId,
+                  previousData: oldCell
+                }
+              );
+            }
+          }
+        }
+      },
+      true
+    )
+  );
+}
+
 export function startLocalChangesListeners() {
-  watchTable(SpaceTables.Collection, CollectionItemUpdatableFields);
-  watchTable(SpaceTables.Annotations, DocAnnotationUpdatableFields);
+  watchTable(
+    SpaceTables.Collection,
+    CollectionItemUpdatableFields.filter(f => f !== 'content')
+  );
+  watchContentTable(
+    SpaceDocContentTables.CollectionContent,
+    SpaceTables.Collection
+  );
+  watchTable(
+    SpaceTables.Annotations,
+    DocAnnotationUpdatableFields.filter(f => f !== 'content')
+  );
+  watchContentTable(
+    SpaceDocContentTables.AnnotationContent,
+    SpaceTables.Annotations
+  );
   watchTable(SpaceTables.UserPreference, UserPrefUpdatableFields);
 }
 
 export function stopLocalChangesListeners() {
-  listeners.forEach(l => space.delListener(l));
+  listeners.forEach(l => {
+    space.delListener(l);
+    spaceDocContent.delListener(l);
+  });
   listeners.length = 0;
 }

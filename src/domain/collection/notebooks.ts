@@ -1,10 +1,10 @@
 import {
-  CollectionItemRow,
+  BaseCollectionItem,
   CollectionItemType
 } from '@/domain/collection/collection';
 import { Sort } from '@/shared/misc/sort-filter/sort';
 
-export interface Notebook extends Omit<CollectionItemRow, 'itemId'> {
+export interface Notebook extends BaseCollectionItem {
   type: CollectionItemType.notebook;
 }
 

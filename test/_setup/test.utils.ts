@@ -15,7 +15,7 @@ import {
 } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
-import { DocAnnotationRow } from '@/domain/collection/document-annotations';
+import { DocAnnotation } from '@/domain/collection/document-annotations';
 import { Notebook } from '@/domain/collection/notebooks';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { renderHook } from '@testing-library/react';
@@ -44,7 +44,7 @@ export const fakeTimersDelay = 100;
 export const oneDocument = (
   title = 'new doc',
   parent = DEFAULT_NOTEBOOK_ID
-): WithId<CollectionItem> => {
+): CollectionItem => {
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   const id = getUniqueId();
   return {
@@ -78,7 +78,7 @@ export const oneNotebook = (
   };
 };
 
-export const oneNote = (docId: string): WithId<DocAnnotationRow> => {
+export const oneNote = (docId: string): DocAnnotation => {
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   const id = getUniqueId();
   return {
@@ -324,7 +324,7 @@ export const getRowIdsInsideNotebook = (notebook?: string) => {
 };
 
 export const getCollectionItem = (id: string) => {
-  return space.getRow('collection', id) as CollectionItem;
+  return collectionService.getItem(id);
 };
 
 export const getLocalItemField = (rowId: string, field: string) => {

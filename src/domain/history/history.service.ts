@@ -1,5 +1,5 @@
-import { space, spaceArchive } from '@/core/db/store';
-import { SpaceArchiveTables, SpaceTables } from '@/core/db/store-constants';
+import { spaceArchive } from '@/core/db/store';
+import { SpaceArchiveTables } from '@/core/db/store-constants';
 import { SpaceArchiveTablesType } from '@/core/db/store-schema';
 import {
   CollectionItem,
@@ -24,7 +24,6 @@ import {
 } from './history';
 import fetchVersionsQuery from './queries/fetchVersionsQuery';
 
-const C = SpaceTables.Collection;
 const H = SpaceArchiveTables.History;
 const HC = SpaceArchiveTables.HistoryContent;
 
@@ -270,8 +269,8 @@ class CollectionHistoryService {
   }
 
   private saveVersionSync(id: string) {
-    if (!space.hasRow(C, id)) return;
-    const current = space.getRow(C, id);
+    if (!collectionService.itemExists(id)) return;
+    const current = collectionService.getItem(id);
     this.saveVersionFromItem({ ...current, id } as CollectionItem);
   }
 

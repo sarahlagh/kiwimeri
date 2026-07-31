@@ -348,7 +348,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     ]);
 
     // check cell changes
-    const changes = storageService.afterSyncHistChanges(
+    const changes = storageService.afterMergeChanges(
       newLocalContent,
       localContent,
       localChanges,
@@ -376,14 +376,12 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   private toRepresentation(
     data: RemoteCollectionFileContent
   ): RemoteContentRepresentation {
-    const obj = data;
-
     return {
-      items: toTable(unminimizeItemsFromStorage(obj.i)),
-      annots: toTable(unminimizeAnnotFromStorage(obj.a || [])),
-      userPrefs: toTable(unminimizePrefsFromStorage(obj.o || [])),
-      lastChange: obj.u,
-      schemaVersion: obj._v || 0
+      items: toTable(unminimizeItemsFromStorage(data.i)),
+      annots: toTable(unminimizeAnnotFromStorage(data.a || [])),
+      userPrefs: toTable(unminimizePrefsFromStorage(data.o || [])),
+      lastChange: data.u,
+      schemaVersion: data._v || 0
     };
   }
 

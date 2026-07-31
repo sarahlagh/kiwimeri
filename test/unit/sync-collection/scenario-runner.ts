@@ -3,8 +3,8 @@ import {
   DEFAULT_NOTEBOOK_ID,
   ROOT_COLLECTION
 } from '@/constants';
-import { space } from '@/core/db/store';
-import { SpaceTables } from '@/core/db/store-constants';
+import { space, spaceDocContent } from '@/core/db/store';
+import { SpaceDocContentTables, SpaceTables } from '@/core/db/store-constants';
 import { DbSerializableData, MetaField, setMetaField } from '@/core/db/types';
 import {
   CollectionItem,
@@ -432,15 +432,18 @@ export class PullTestScenarioRunner {
     stats: MinStatItem
   ) {
     console.debug('common stats', id, stats);
-    const localTable = space.getTable('collection');
+    const localCollectionTable = space.getTable(SpaceTables.Collection);
+    const localCollectionContentTable = spaceDocContent.getTable(
+      SpaceDocContentTables.CollectionContent
+    );
     const relevantItem = this.relevantItems.find(i => i.id === id);
 
     if (stats.exists) {
-      expect(localTable[id]).toBeDefined();
-      const itemType = localTable[id]?.type?.toString();
+      expect(localCollectionTable[id]).toBeDefined();
+      const itemType = localCollectionTable[id]?.type?.toString();
       expect(itemType).toBe(type);
     } else {
-      expect(localTable[id]).toBeUndefined();
+      expect(localCollectionTable[id]).toBeUndefined();
     }
 
     const items = collectionService.getAllChildren(ROOT_COLLECTION);
@@ -467,7 +470,7 @@ export class PullTestScenarioRunner {
         );
       }
       if (stats.conflictHasParent) {
-        expect(localTable[stats.conflictHasParent]).toBeDefined();
+        expect(localCollectionTable[stats.conflictHasParent]).toBeDefined();
       }
       if (stats.conflictHasValue) {
         if (!this.testField) {
@@ -476,9 +479,11 @@ export class PullTestScenarioRunner {
         const expectedValue = relevantItem
           ? relevantItem[`${stats.conflictHasValue}Value`]
           : null;
-        expect(localTable[conflict!.id][this.testField.field]).toBe(
-          expectedValue?.value
-        );
+        const localValue =
+          this.testField.field !== 'content'
+            ? localCollectionTable[conflict!.id][this.testField.field]
+            : localCollectionContentTable[conflict!.id][this.testField.field];
+        expect(localValue).toBe(expectedValue?.value);
       }
     } else {
       expect(conflict).toBeUndefined();
@@ -492,14 +497,21 @@ export class PullTestScenarioRunner {
       if (!testField) {
         throw new Error('need a TestField to check field value');
       }
-      expect(localTable[id][testField.field]).toEqual(expectedValue?.value);
-      const json = localTable[id][`${testField.field}_meta`];
-      expect(json).toBeDefined();
-      const metaField = json as MetaField;
+      const localValue =
+        testField.field !== 'content'
+          ? localCollectionTable[id][testField.field]
+          : localCollectionContentTable[id][testField.field];
+      expect(localValue).toEqual(expectedValue?.value);
+      const localMeta =
+        testField.field !== 'content'
+          ? localCollectionTable[id][`${testField.field}_meta`]
+          : localCollectionContentTable[id][`${testField.field}_meta`];
+      expect(localMeta).toBeDefined();
+      const metaField = localMeta as MetaField;
       expect(metaField._u).toBe(expectedValue?.at);
     }
 
-    stats.otherAssert(localTable[id] as CollectionItem, relevantItem);
+    stats.otherAssert(localCollectionTable[id] as CollectionItem, relevantItem);
   }
 
   private assertParentIsAllowed(
@@ -620,15 +632,15 @@ export class PullTestScenarioRunner {
 
     if (resp.didPush) {
       // check remote content - should be identical to local
-      const localContent = space.getTable('collection');
-      const itemIds = Object.keys(localContent);
+      const localRowCount = space.getRowCount(SpaceTables.Collection);
       const remoteContent = await getRemoteContent();
-      expect(Object.keys(remoteContent.items)).toHaveLength(itemIds.length);
+      expect(Object.keys(remoteContent.items)).toHaveLength(localRowCount);
       Object.keys(remoteContent.items)
-        .map(key => ({ ...remoteContent.items[key], itemId: key, id: key }))
+        .map(key => ({ ...remoteContent.items[key], id: key }))
         .forEach(i => {
+          const localItem = collectionService.getItem(i.id);
           expect((remoteContent.items[i.id] as any).id).toBeUndefined();
-          expect(i).toEqual({ ...localContent[i.id!], id: i.id! });
+          expect(i).toEqual(localItem);
         });
     }
   }

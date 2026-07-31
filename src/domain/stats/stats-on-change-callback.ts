@@ -5,7 +5,11 @@ import { MetaField } from '@/core/db/types';
 import { settingsService } from '../collection/collection-settings.service';
 import { statsService } from './stats-service';
 
-export function statsOnPlainTextCallback(rowId: string, plainText: string) {
+export function statsOnPlainTextCallback(
+  rowId: string,
+  plainText: string,
+  content_meta: MetaField
+) {
   const parentId = space.getCell(SpaceTables.Collection, rowId, 'parentId')!;
   const breadcrumb = space.getCell(
     SpaceTables.DerivedState,
@@ -19,11 +23,6 @@ export function statsOnPlainTextCallback(rowId: string, plainText: string) {
 
   if (settingsService.getNotebookDefaultStatsEnabled(notebook) && plainText) {
     // stats
-    const content_meta = space.getCell(
-      SpaceTables.Collection,
-      rowId,
-      'content_meta'
-    ) as MetaField;
     statsService.updateStatsAtDate(
       rowId,
       statsService.buildStatsFromContentMeta(plainText, content_meta)

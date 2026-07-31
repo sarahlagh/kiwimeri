@@ -40,6 +40,7 @@ import { Table } from 'tinybase/with-schemas';
 import { historyService } from '../history/history.service';
 import { storageService } from '../space-merging/storage.service';
 import { annotsService } from './doc-annotations.service';
+import { getDerivedId } from './document-content';
 
 export const initialContent = () => {
   // 'empty' editor
@@ -49,6 +50,7 @@ export const initialContent = () => {
 export const INITIAL_CONTENT_START = '{"root":{';
 
 const C = SpaceTables.Collection;
+const CC = SpaceDocContentTables.CollectionContent;
 const DerivedPreview = SpaceTables.DerivedPreview;
 const DerivedState = SpaceTables.DerivedState;
 const CollectionContent = SpaceDocContentTables.CollectionContent;
@@ -58,8 +60,7 @@ class CollectionService {
     const id = getUniqueId();
     const now = Date.now();
     const content = initialContent();
-    const item: CollectionItemRow = {
-      itemId: id,
+    const item: BaseCollectionItem = {
       title: getGlobalTrans().newDocTitle,
       title_meta: setMetaField(now, getGlobalTrans().newDocTitle),
       parentId: parent,
@@ -84,8 +85,7 @@ class CollectionService {
   public getNewFolderObj(parent: string) {
     const now = Date.now();
     const id = getUniqueId();
-    const item: CollectionItemRow = {
-      itemId: id,
+    const item: BaseCollectionItem = {
       title: getGlobalTrans().newFolderTitle,
       title_meta: setMetaField(now, getGlobalTrans().newFolderTitle),
       parentId: parent,
@@ -111,7 +111,7 @@ class CollectionService {
   }
 
   public getDocumentContent(rowId: Id) {
-    return space.getCell(C, rowId, 'content') || null;
+    return spaceDocContent.getCell(CC, rowId, 'content') || '';
   }
 
   public getDocumentPlainText(id: string) {
@@ -119,12 +119,16 @@ class CollectionService {
   }
 
   public getDocumentPreview(id: string) {
-    return space.getCell(DerivedPreview, id, 'previewText') || '';
+    return (
+      space.getCell(DerivedPreview, getDerivedId('c', id), 'previewText') || ''
+    );
   }
 
   public getItem(id: string): CollectionItem {
     const row = {
       ...space.getRow(C, id),
+      content: spaceDocContent.getCell(CC, id, 'content'),
+      content_meta: spaceDocContent.getCell(CC, id, 'content_meta'),
       id
     };
     delete row.itemId;
@@ -391,21 +395,19 @@ class CollectionService {
     // title and content are real changes, order and settings are not (won't trigger an update ts)
     const isRowUpdateChange = this.shouldTriggerRowUpdatedChange(key);
     const isParentChange = key === 'parentId';
-    space.transaction(() => {
-      space.setCell(C, rowId, key, value as never);
-      space.setCell(
-        'collection',
-        rowId,
-        `${key}_meta`,
-        setMetaField(updated, `${value}`)
-      );
 
+    space.transaction(() => {
+      if (key !== 'content') {
+        space.setCell(C, rowId, key, value as never);
+        space.setCell(
+          C,
+          rowId,
+          `${key}_meta`,
+          setMetaField(updated, `${value}`)
+        );
+      }
       if (isRowUpdateChange) {
         space.setCell(C, rowId, 'updatedAt', updated);
-      }
-
-      if (!skipVersion && this.isHistorizableContentChange(type, key)) {
-        historyService.addVersion(rowId);
       }
 
       if (CollectionItemResetConflictFields.includes(key)) {
@@ -422,6 +424,12 @@ class CollectionService {
         this.updateAllParentsInBreadcrumb(this.getItemParent(rowId));
       }
     });
+    if (key === 'content') {
+      this.setRawContent(rowId, value as string, updated);
+    }
+    if (!skipVersion && this.isHistorizableContentChange(type, key)) {
+      historyService.addVersion(rowId);
+    }
     return true;
   }
 
@@ -441,7 +449,10 @@ class CollectionService {
   }
 
   public getItemField<T>(rowId: Id, key: CollectionItemFieldEnum) {
-    return space.getCell('collection', rowId, key) as T;
+    if (key === 'content') return this.getDocumentContent(rowId);
+    if (key === 'content_meta')
+      return spaceDocContent.getCell(CC, rowId, 'content_meta');
+    return space.getCell(C, rowId, key) as T;
   }
 
   private getPaths(
@@ -493,12 +504,17 @@ class CollectionService {
     if (!id) {
       id = getUniqueId();
     }
+    const content = item.content;
+    const content_updated = item.content_meta?._u;
     space.transaction(() => {
       const row = { ...item, itemId: id } as CollectionItemRow;
       this.calcState(id, this.getTempTable({ ...row, id }));
       space.setRow(C, id, row);
       this.updateAllParentsInBreadcrumb(item.parentId);
     });
+    if (content) {
+      this.setRawContent(id, content, content_updated || 0);
+    }
 
     // TODO not sure why transaction breaks addVersionFromItem here - try startTransaction / endTransaction instead?
     // TODO should probably check if a relevant field has been updated here
@@ -513,8 +529,9 @@ class CollectionService {
     bulk = false
   ) {
     const tmpTable = space.getTable(C);
-    const allDocIds: string[] = [];
+    const allDocs = new Map<string, string>();
     const allIds: string[] = [];
+    const now = Date.now();
     space.transaction(() => {
       items.forEach(item => {
         const id = item.id || getUniqueId();
@@ -523,7 +540,7 @@ class CollectionService {
         tmpTable[id] = newRow;
         allIds.push(id);
         if (item.type === CollectionItemType.document) {
-          allDocIds.push(id);
+          allDocs.set(id, item.content!);
         }
         space.setRow(C, id, newRow);
       });
@@ -535,10 +552,19 @@ class CollectionService {
         this.calcState(rowId, tmpTable);
       });
     });
+    spaceDocContent.transaction(() => {
+      allDocs.forEach((content, docId) => {
+        if (content) {
+          this.setRawContent(docId, content, now);
+        }
+      });
+    });
     if (!bulk) {
-      allDocIds.forEach(docId => historyService.addVersion(docId, true));
+      allDocs.forEach((content, docId) => {
+        historyService.addVersion(docId, true);
+      });
     }
-    return allDocIds;
+    return allDocs.keys();
   }
 
   public backfillDerivedStates(
@@ -576,6 +602,13 @@ class CollectionService {
       for (let i = 1; i < breadcrumb.length; i++) {
         space.setCell(C, breadcrumb[i], 'updatedAt', Date.now());
       }
+    });
+  }
+
+  private setRawContent(id: Id, content: string, updated: number) {
+    spaceDocContent.setPartialRow(CC, id, {
+      content,
+      content_meta: setMetaField(updated, content)
     });
   }
 }
