@@ -13,7 +13,7 @@ import {
   SpaceTablesType,
   SpaceType
 } from '@/core/db/store-schema';
-import { MetaField } from '@/core/db/types';
+import { AsId, MetaField } from '@/core/db/types';
 import notebooksService from '@/domain/collection/notebooks.service';
 import localChangesService from '@/domain/synchronization/local-changes.service';
 import { getPlainText } from '@/shared/misc/getPlainText';
@@ -23,13 +23,15 @@ import {
   BaseCollectionItem,
   CollectionItemRow,
   CollectionItemType,
+  CollectionItemUpdatableFieldEnum,
   CollectionItemUpdatableFields,
   isDocument
 } from '../collection/collection';
 import collectionService from '../collection/collection.service';
 import {
   BaseDocAnnotation,
-  DocAnnotationRow
+  DocAnnotationRow,
+  DocAnnotationUpdatableFields
 } from '../collection/document-annotations';
 import {
   ContentRow,
@@ -40,18 +42,18 @@ import { resumeService } from '../collection/resume-state.service';
 import tagsService from '../collection/tags.service';
 import { historyService } from '../history/history.service';
 import { statsOnPlainTextCallback } from '../stats/stats-on-change-callback';
-import {
-  LocalChangeResult,
-  LocalChangeType
-} from '../synchronization/local-changes';
+import { LocalChangeType } from '../synchronization/local-changes';
 import {
   BaseUserPreference,
-  UserPreferenceRow
+  UserPreferenceRow,
+  UserPrefUpdatableFields
 } from '../user-preferences/user-preferences';
 import {
   AfterMergeChange,
+  isUserPref,
   SpacePortableData,
   SpacePortableDataKey,
+  SpacePortableDataTableType,
   TableOf
 } from './types';
 
@@ -154,9 +156,11 @@ class StorageService {
     const collectionContent = spaceDocContent.getTable(CC);
     const annotationsContent = spaceDocContent.getTable(AC);
     spaceArchive.startTransaction();
-    space.transaction(() => {
+    space.startTransaction();
+    try {
+      // space.transaction(() => {
       space.getRowIds(C).forEach(rowId => {
-        if (!collectionContent[rowId].content) return;
+        if (!collectionContent[rowId]?.content) return;
         const plainText = getPlainText(collectionContent[rowId].content);
         const previewText = plainText.substring(0, DOC_PREVIEW_SIZE);
         const derivedId = getDerivedId('c', rowId);
@@ -176,7 +180,7 @@ class StorageService {
         );
       });
       space.getRowIds(SpaceTables.Annotations).forEach(rowId => {
-        if (!annotationsContent[rowId].content) return;
+        if (!annotationsContent[rowId]?.content) return;
         const plainText = getPlainText(annotationsContent[rowId].content);
         const previewText = plainText.substring(0, ANNOT_PREVIEW_SIZE);
         const derivedId = getDerivedId('a', rowId);
@@ -190,8 +194,11 @@ class StorageService {
           plainText
         );
       });
-    });
-    spaceArchive.finishTransaction();
+      // });
+    } finally {
+      space.finishTransaction();
+      spaceArchive.finishTransaction();
+    }
   }
 
   public cleanupRow(rowId: string, on: SpaceTableId) {
@@ -260,10 +267,10 @@ class StorageService {
     }
 
     // TODO handle changes after restore
-    const changes = this.afterMergeChanges(newContent, localContent, [], true);
+    const changes = this.afterMergeChanges(newContent, localContent);
     space.delTable(SpaceTables.ResumeState);
-    this.handleHistory(changes);
     this.handleDeletedRows(changes);
+    this.handleHistory(changes);
   }
 
   /// from synchronizer
@@ -273,18 +280,15 @@ class StorageService {
   ) {
     this.setContent(content, true);
     this.handleResumeState(changes);
-    this.handleHistory(changes);
     this.handleDeletedRows(changes);
-    // TODO handle state on added & deleted rows
+    this.handleHistory(changes);
   }
 
   public afterMergeChanges(
     newLocalContent: SpacePortableData,
-    localContent: SpacePortableData,
-    localChanges: LocalChangeResult[],
-    force?: boolean
+    localContent: SpacePortableData
+    // force?: boolean
   ) {
-    // TODO wait. same for annotations!!!!!!
     let changes: AfterMergeChange[] = [];
     changes = [
       ...changes,
@@ -293,22 +297,34 @@ class StorageService {
         'items',
         newLocalContent,
         localContent,
-        localChanges,
-        force
+        CollectionItemUpdatableFields
+      ),
+      ...this.diffTable(
+        A,
+        'annots',
+        newLocalContent,
+        localContent,
+        DocAnnotationUpdatableFields
+      ),
+      ...this.diffTable(
+        UP,
+        'userPrefs',
+        newLocalContent,
+        localContent,
+        UserPrefUpdatableFields
       )
     ];
     return changes;
   }
 
-  private diffTable(
+  private diffTable<K extends SpacePortableDataKey>(
     tableId: SpaceTableId,
-    itemsKey: keyof SpacePortableData,
+    itemsKey: K,
     newLocalContent: SpacePortableData,
     localContent: SpacePortableData,
-    localChanges: LocalChangeResult[],
-    force?: boolean
+    updatableFields: AsId<keyof SpacePortableDataTableType<K>>[]
+    // force?: boolean
   ) {
-    // TODO wait. same for annotations!!!!!!
     const changes: Map<string, AfterMergeChange> = new Map();
     const ids = new Set<string>([
       ...Object.keys(newLocalContent[itemsKey]),
@@ -316,46 +332,48 @@ class StorageService {
     ]);
     ids.forEach(id => {
       // TODO how do we handle local changes when force full?
-      const localChange = localChanges.find(
-        lc => lc.itemId === id && lc.on === tableId
-      );
-      const newItem = newLocalContent.items[id];
-      const oldItem = localContent.items![id];
-      if (newItem && !newItem.conflictId && !oldItem) {
-        const type = newItem.type as CollectionItemType;
-        // added by remote
-        changes.set(id, {
-          id,
-          type,
-          on: tableId,
-          change: LocalChangeType.add
-        });
+      // const localChange = localChanges.find(
+      //   lc => lc.itemId === id && lc.on === tableId
+      // );
+      const newItem = newLocalContent[itemsKey]
+        ? (newLocalContent[itemsKey][id] as SpacePortableDataTableType<K>)
+        : undefined;
+      const oldItem = localContent[itemsKey]
+        ? (localContent[itemsKey][id] as SpacePortableDataTableType<K>)
+        : undefined;
+      if (newItem && !oldItem) {
+        const isNotConflict =
+          isUserPref(newItem) || newItem.conflictId === undefined;
+        if (isNotConflict) {
+          const type = isUserPref(newItem) ? undefined : newItem.type;
+          // added by remote
+          changes.set(id, {
+            id,
+            type,
+            on: tableId,
+            change: LocalChangeType.add
+          });
+        }
       } else if (
         !newItem &&
-        oldItem &&
-        (force || localChange?.change !== LocalChangeType.add)
+        oldItem
+        // && (force || localChange?.change !== LocalChangeType.add)
       ) {
         // deleted by remote
+        const type = isUserPref(oldItem) ? undefined : oldItem.type;
         changes.set(id, {
           id,
           on: tableId,
-          type: oldItem.type as CollectionItemType,
+          type,
           change: LocalChangeType.delete
         });
       } else if (newItem && oldItem) {
-        const type = newItem.type as CollectionItemType;
-        const historizableFields = [...CollectionItemUpdatableFields].filter(
-          field => localChange?.field !== field
-        );
+        const type = isUserPref(newItem) ? undefined : newItem.type;
+        // const _fields = updatableFields.filter(
+        //   field => localChange?.field !== field
+        // );
 
-        // no local change, remote change on hist field                 => new version
-        // no local change, remote change on non hist field             => no new version
-        // local change, no remote change                               => no new version
-        // local change, remote change on hist field, local wins        => no new version
-        // local change, remote change on hist field, remote wins       => new version
-        // local change, remote change on non hist field, local wins    => no new version
-        // local change, remote change on non hist field, remote wins   => no new version
-        for (const field of historizableFields) {
+        for (const field of updatableFields) {
           // only create change for the first field
           // if local wins, mustn't have new version - won't happen if no local change
           if (!cellEquals(oldItem[field], newItem[field])) {
@@ -397,18 +415,20 @@ class StorageService {
     itemsKey: SpacePortableDataKey,
     tableId: SpaceTableId
   ) {
-    this.clearTable(tableId);
+    space.delTable(tableId);
+    const contentTable = getDerivedTable(tableId);
     Object.keys(content[itemsKey]).forEach(rowId => {
-      const row = content[itemsKey][rowId];
-      if ('content' in row && row.content) {
-        const contentTable = getDerivedTable(tableId);
-        if (contentTable) {
-          spaceDocContent.setPartialRow(contentTable, rowId, {
-            content: row.content,
-            content_meta: row.content_meta
-          });
-        }
+      const row = content[itemsKey][rowId] as
+        | BaseCollectionItem
+        | BaseDocAnnotation;
+      if (row.content !== undefined && contentTable) {
+        spaceDocContent.setPartialRow(contentTable, rowId, {
+          content: row.content,
+          content_meta: row.content_meta
+        });
       }
+      delete row.content;
+      delete row.content_meta;
       space.setRow(tableId, rowId, row);
     });
   }
@@ -418,15 +438,11 @@ class StorageService {
     itemsKey: SpacePortableDataKey,
     tableId: SpaceTableId
   ) {
-    this.clearTable(tableId);
+    space.delTable(tableId);
     Object.keys(content[itemsKey]).forEach(rowId => {
       const row = content[itemsKey][rowId];
       space.setRow(tableId, rowId, row);
     });
-  }
-
-  private clearTable(tableId: SpaceTableId) {
-    space.delTable(tableId);
   }
 
   private handleResumeState(changes: AfterMergeChange[]) {
@@ -436,7 +452,18 @@ class StorageService {
       .forEach(ch => resumeService.setLastSelection(ch.id, null));
   }
 
-  private handleHistory(changes: AfterMergeChange[]) {
+  private handleHistory(
+    changes: AfterMergeChange[]
+    // localChanges: LocalChangeResult[]
+  ) {
+    // no local change, remote change on hist field                 => new version
+    // no local change, remote change on non hist field             => no new version
+    // local change, no remote change                               => no new version
+    // local change, remote change on hist field, local wins        => no new version
+    // local change, remote change on hist field, remote wins       => new version
+    // local change, remote change on non hist field, local wins    => no new version
+    // local change, remote change on non hist field, remote wins   => no new version
+
     // history must be updated
     const docsMap = new Map<string, AfterMergeChange>();
     changes
@@ -446,7 +473,7 @@ class StorageService {
           !ch.field ||
           collectionService.isHistorizableContentChange(
             CollectionItemType.document,
-            ch.field
+            ch.field as CollectionItemUpdatableFieldEnum
           )
       )
       .forEach(ch => docsMap.set(ch.id, ch));

@@ -5,7 +5,7 @@ import { Id } from 'tinybase/with-schemas';
 
 export type ContentRow = {
   content: string;
-  content_meta?: MetaField;
+  content_meta: MetaField;
   plainText: string;
 };
 

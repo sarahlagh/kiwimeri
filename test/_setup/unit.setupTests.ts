@@ -15,6 +15,7 @@ import '@/core/infra/polyfills/log-polyfill';
 import { historyService } from '@/domain/history/history.service';
 import localChangesService from '@/domain/synchronization/local-changes.service';
 import { syncService } from '@/domain/synchronization/sync.service';
+import { cleanup } from '@testing-library/react';
 import { afterAll, afterEach, beforeAll, beforeEach, expect } from 'vitest';
 import { nukeStorage } from './test.utils';
 
@@ -53,4 +54,5 @@ afterEach(() => {
   syncService.stop();
   postInitMigrationService['enabled'] = false;
   historyService['enabled'] = false;
+  cleanup();
 });

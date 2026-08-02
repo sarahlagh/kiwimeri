@@ -136,7 +136,7 @@ class CollectionHistoryService {
     this.timeouts.set(id, timeout);
   }
 
-  public flushVersion(id: string) {
+  private flushVersion(id: string) {
     const existingTimeout = this.timeouts.get(id);
     if (existingTimeout) {
       clearTimeout(existingTimeout);

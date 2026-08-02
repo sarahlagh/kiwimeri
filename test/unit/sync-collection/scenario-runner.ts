@@ -509,6 +509,10 @@ export class PullTestScenarioRunner {
       expect(localMeta).toBeDefined();
       const metaField = localMeta as MetaField;
       expect(metaField._u).toBe(expectedValue?.at);
+
+      if (testField.field === 'content') {
+        expect(localCollectionContentTable[id].plainText).toBeDefined();
+      }
     }
 
     stats.otherAssert(localCollectionTable[id] as CollectionItem, relevantItem);

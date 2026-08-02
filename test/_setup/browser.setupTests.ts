@@ -28,6 +28,7 @@ import { historyService } from '@/domain/history/history.service';
 import { syncService } from '@/domain/synchronization/sync.service';
 import { setupIonicReact } from '@ionic/react';
 import { afterAll, afterEach, beforeAll, beforeEach } from 'vitest';
+import { cleanup } from 'vitest-browser-react';
 import { nukeStorage } from './test.utils';
 
 i18n.load('en', enMessages);
@@ -55,4 +56,5 @@ afterEach(() => {
   stopDbListeners();
   nukeStorage();
   syncService.stop();
+  cleanup();
 });

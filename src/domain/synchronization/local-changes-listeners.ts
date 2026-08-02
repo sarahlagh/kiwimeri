@@ -13,6 +13,7 @@ import { LocalChangeType } from './local-changes';
 import localChangesService from './local-changes.service';
 
 const listeners: Id[] = [];
+const contentListeners: Id[] = [];
 
 const WAS_ADDED = 1;
 const WAS_REMOVED = -1;
@@ -106,7 +107,7 @@ function watchContentTable(
   onSpaceTable: SpaceTableId
 ) {
   // update / conflict listener
-  listeners.push(
+  contentListeners.push(
     spaceDocContent.addCellListener(
       tableId,
       null,
@@ -177,6 +178,8 @@ export function startLocalChangesListeners() {
 export function stopLocalChangesListeners() {
   listeners.forEach(l => {
     space.delListener(l);
+  });
+  contentListeners.forEach(l => {
     spaceDocContent.delListener(l);
   });
   listeners.length = 0;

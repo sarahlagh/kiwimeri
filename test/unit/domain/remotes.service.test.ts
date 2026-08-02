@@ -9,6 +9,13 @@ import { wrappedRenderHook } from '@@/_setup/test.utils';
 import { describe, expect, it } from 'vitest';
 
 describe('remotes service', () => {
+  beforeEach(() => {
+    fetchRemotesQuery.initQuery();
+  });
+  afterEach(() => {
+    fetchRemotesQuery.close();
+  });
+
   it('should add a remote in db without testing connection', () => {
     remotesService.addRemote('test', 0, 'inmem');
     expect(space.getRowCount(SpaceTables.Remote)).toBe(1);
@@ -58,7 +65,6 @@ describe('remotes service', () => {
   });
 
   it('should sort remotes by rank', async () => {
-    fetchRemotesQuery.initQuery();
     remotesService.addRemote('test3', 3, 'inmem');
     remotesService.addRemote('test2', 2, 'inmem');
     remotesService.addRemote('test0', 0, 'inmem');
@@ -80,13 +86,6 @@ describe('remotes service', () => {
   });
 
   describe('update rank', () => {
-    beforeEach(() => {
-      fetchRemotesQuery.initQuery();
-    });
-    afterEach(() => {
-      fetchRemotesQuery.close();
-    });
-
     [
       { current: 0, next: 1, expected: [1, 0, 2, 3, 4] },
       { current: 0, next: 2, expected: [1, 2, 0, 3, 4] },
@@ -106,10 +105,9 @@ describe('remotes service', () => {
 
         remotesService.updateRemoteRank(current, next);
 
-        const { result, unmount } = wrappedRenderHook(() =>
+        const { result } = wrappedRenderHook(() =>
           useQueryResults(fetchRemotesQuery)
         );
-        unmount();
         expect(result.current).toHaveLength(5);
         expect(result.current.map(r => r.name)).toStrictEqual(
           expected.map(r => `test${r}`)

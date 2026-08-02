@@ -705,6 +705,77 @@ describe('collection synchronizer', () => {
     });
 
     it('should pull updated notes and fill plainText', async () => {
+      // spaceDocContent.addInvalidCellListener(
+      //   null,
+      //   null,
+      //   null,
+      //   (_store, tableId, rowId, cellId, invalidCells) => {
+      //     console.error('INVALID CELL', {
+      //       tableId,
+      //       rowId,
+      //       cellId,
+      //       invalidCells
+      //     });
+      //   }
+      // );
+
+      // spaceDocContent.addCellListener(
+      //   'document_annotation_content',
+      //   null,
+      //   'content',
+      //   (_store, tableId, rowId, cellId, newCell, oldCell) => {
+      //     console.debug('ANY CELL CHANGE ON DOC ANNOT CONTENT', {
+      //       tableId,
+      //       rowId,
+      //       cellId,
+      //       newCell,
+      //       oldCell
+      //     });
+      //   }
+      // );
+
+      // spaceDocContent.addCellListener(
+      //   'document_annotation_content',
+      //   null,
+      //   null,
+      //   (_store, tableId, rowId, cellId, newCell, oldCell) => {
+      //     console.debug('ANY CELL CHANGE ON DOC ANNOT', {
+      //       tableId,
+      //       rowId,
+      //       cellId,
+      //       newCell,
+      //       oldCell
+      //     });
+      //   }
+      // );
+
+      // spaceDocContent.addCellListener(
+      //   null,
+      //   null,
+      //   null,
+      //   (_store, tableId, rowId, cellId, newCell, oldCell) => {
+      //     console.debug('ANY CELL CHANGE', {
+      //       tableId,
+      //       rowId,
+      //       cellId,
+      //       newCell,
+      //       oldCell
+      //     });
+      //   }
+      // );
+
+      // spaceDocContent.addStartTransactionListener(() => {
+      //   console.debug('spaceDocContent transaction started');
+      // });
+
+      // spaceDocContent.addWillFinishTransactionListener(() => {
+      //   console.debug('spaceDocContent will finish');
+      // });
+
+      // spaceDocContent.addDidFinishTransactionListener(() => {
+      //   console.debug('spaceDocContent did finish');
+      // });
+
       const items = [oneNotebook(), oneDocument()];
       const notes = [oneNote(items[1].id!), oneNote(items[1].id!)];
       notes[0].content = getNewContent('test');
@@ -715,6 +786,32 @@ describe('collection synchronizer', () => {
         notes[0].updatedAt
       );
       await synchronizer.sync();
+
+      function assertPlainText(pt1: string, pt2: string) {
+        expect(space.getRowCount(SpaceTables.Annotations)).toBe(2);
+        expect(
+          space.hasRow(SpaceTables.Annotations, getDerivedId('a', notes[0].id))
+        );
+        expect(
+          space.hasRow(SpaceTables.Annotations, getDerivedId('a', notes[1].id))
+        );
+        expect(
+          spaceDocContent.getCell(
+            SpaceDocContentTables.AnnotationContent,
+            notes[0].id,
+            'plainText'
+          )
+        ).toBe(pt1);
+        expect(
+          spaceDocContent.getCell(
+            SpaceDocContentTables.AnnotationContent,
+            notes[1].id,
+            'plainText'
+          )
+        ).toBe(pt2);
+      }
+      assertPlainText('test', 'other test');
+
       vi.advanceTimersByTime(100);
 
       // update on remote again
@@ -728,28 +825,7 @@ describe('collection synchronizer', () => {
       );
 
       await synchronizer.sync();
-
-      expect(space.getRowCount(SpaceTables.Annotations)).toBe(2);
-      expect(
-        space.hasRow(SpaceTables.Annotations, getDerivedId('a', notes[0].id))
-      );
-      expect(
-        space.hasRow(SpaceTables.Annotations, getDerivedId('a', notes[1].id))
-      );
-      expect(
-        spaceDocContent.getCell(
-          SpaceDocContentTables.AnnotationContent,
-          notes[0].id,
-          'plainText'
-        )
-      ).toBe('test 2');
-      expect(
-        spaceDocContent.getCell(
-          SpaceDocContentTables.AnnotationContent,
-          notes[1].id,
-          'plainText'
-        )
-      ).toBe('other test');
+      assertPlainText('test 2', 'other test');
     });
   });
 

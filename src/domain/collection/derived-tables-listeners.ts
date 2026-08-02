@@ -18,6 +18,7 @@ import {
 } from './document-content';
 
 const listeners: Id[] = [];
+const contentListeners: Id[] = [];
 
 function addDerivedContentListener(
   tableId: SpaceDocContentTableId,
@@ -28,7 +29,7 @@ function addDerivedContentListener(
     content_meta: MetaField
   ) => void
 ) {
-  listeners.push(
+  contentListeners.push(
     spaceDocContent.addCellListener(
       tableId,
       null,
@@ -136,6 +137,8 @@ export function startDerivedTablesListeners() {
 export function stopDerivedTablesListeners() {
   listeners.forEach(l => {
     space.delListener(l);
+  });
+  contentListeners.forEach(l => {
     spaceDocContent.delListener(l);
   });
   listeners.length = 0;

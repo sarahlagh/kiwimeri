@@ -1,4 +1,4 @@
-import { space } from '@/core/db/store';
+import { space, spaceDocContent } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { SpaceTableId } from '@/core/db/store-schema';
 import { AsId, DbSerializableData } from '@/core/db/types';
@@ -6,6 +6,7 @@ import { getHash } from 'tinybase';
 import { Id } from 'tinybase/with-schemas';
 import collectionService from '../collection/collection.service';
 import { annotsService } from '../collection/doc-annotations.service';
+import { getDerivedTable } from '../collection/document-content';
 import { userPrefs } from '../user-preferences/user-preferences.service';
 import {
   LocalChangeOn,
@@ -138,12 +139,23 @@ class LocalChangesService {
       case LocalChangeType.update:
         if (localChange.field) {
           if (localChange.previousData) {
-            space.setCell(
-              on,
-              itemId,
-              localChange.field,
-              localChange.previousData._v as never
-            );
+            if (localChange.field !== 'content') {
+              space.setCell(
+                on,
+                itemId,
+                localChange.field,
+                localChange.previousData._v as never
+              );
+            } else {
+              const t = getDerivedTable(on);
+              if (t)
+                spaceDocContent.setCell(
+                  t,
+                  itemId,
+                  localChange.field,
+                  localChange.previousData._v as never
+                );
+            }
           } else {
             space.delCell(on, itemId, localChange.field);
           }

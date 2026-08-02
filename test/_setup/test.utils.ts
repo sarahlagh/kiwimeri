@@ -11,7 +11,9 @@ import {
   CollectionItemUpdatableConflictFields,
   CollectionItemUpdatableFieldEnum,
   CollectionItemUpdatableNonConflictFields,
-  CollectionItemUpdateChangeFields
+  CollectionItemUpdateChangeFields,
+  isFolder,
+  isNotebook
 } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
@@ -246,8 +248,13 @@ export const CONFLICT_CHANGES = UPDATABLE_FIELDS.filter(f =>
   remoteValueType: f.valueType
 }));
 
-const filterPerType = (field: string, type: string) => {
-  if (type === 'folder' || type === 'notebook') {
+export const filterPerType = (field: string, type: string) => {
+  if (
+    type === 'folder' ||
+    type === 'notebook' ||
+    isFolder(type) ||
+    isNotebook(type)
+  ) {
     return field !== 'content';
   }
   return true;

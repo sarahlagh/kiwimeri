@@ -24,7 +24,7 @@ type MetaKey<K extends string> = `${K}_meta`;
 export function applyLocalChangesToPush<R>(
   localContent: SpacePortableData,
   tableId: SpaceTableId,
-  itemsKey: keyof SpacePortableData,
+  itemsKey: SpacePortableDataKey,
   allLocalChanges: LocalChangeResult[],
   newRemoteItems: TableOf<R>
 ) {

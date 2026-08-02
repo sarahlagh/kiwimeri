@@ -1,7 +1,6 @@
 import {
   BaseCollectionItem,
-  CollectionItemType,
-  CollectionItemUpdatableFieldEnum
+  CollectionItemTypeValues
 } from '@/domain/collection/collection';
 import {
   BaseDocAnnotation,
@@ -40,8 +39,14 @@ export type SpacePortableDataTableType<K extends SpacePortableDataKey> =
 
 export type AfterMergeChange = {
   id: Id;
-  type: CollectionItemType | DocAnnotationType;
+  type?: CollectionItemTypeValues | DocAnnotationType;
   change: LocalChangeType;
   on: LocalChangeOn;
-  field?: CollectionItemUpdatableFieldEnum;
+  field?: string;
 };
+
+export function isUserPref(
+  input: BaseCollectionItem | BaseDocAnnotation | BaseUserPreference
+): input is BaseUserPreference {
+  return 'value' in input;
+}

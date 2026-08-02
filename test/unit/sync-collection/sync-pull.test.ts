@@ -2,7 +2,7 @@
 
 import { CollectionItemType } from '@/domain/collection/collection';
 import { SyncDirection } from '@/domain/synchronization/sync.service';
-import { oneNotebook } from '@@/_setup/test.utils';
+import { filterPerType, oneNotebook } from '@@/_setup/test.utils';
 import { afterEach, beforeEach, describe, it } from 'vitest';
 import { PullTestScenarioRunner } from './scenario-runner';
 import { scenarioMatrix } from './sync-pull.matrix';
@@ -57,7 +57,9 @@ function generateTestSuite(
               describe(`${prefix}: ${desc}`, () => {
                 // loop over fields
                 scenario.fields!.forEach(f => {
-                  // TODO check field applicable for type
+                  // filter out fields non applicable for type
+                  if (!filterPerType(f.field, type)) return;
+
                   it(`${prefix}: type: ${typeName} / field: ${f.field}`, async () => {
                     const runner = await new PullTestScenarioRunner(
                       scenario,

@@ -350,9 +350,7 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     // check cell changes
     const changes = storageService.afterMergeChanges(
       newLocalContent,
-      localContent,
-      localChanges,
-      force
+      localContent
     );
     console.debug(
       '[collection][pull] changes after sync',

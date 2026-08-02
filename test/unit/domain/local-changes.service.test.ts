@@ -287,7 +287,7 @@ describe('local changes for collection', () => {
     expect(localChanges).toHaveLength(3);
     expect(
       localChanges.map(lc => `${lc.itemId}-${lc.change}-${lc.field || ''}`)
-    ).toEqual([`${id2}-u-title`, `${id1}-u-content`, `${id3}-a-`]);
+    ).toEqual([`${id1}-u-content`, `${id2}-u-title`, `${id3}-a-`]);
     vi.useRealTimers();
   });
 });
