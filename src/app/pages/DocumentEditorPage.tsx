@@ -1,7 +1,7 @@
 import { APPICONS } from '@/constants';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
-import { KiwimeriEditorHandle } from '@/features/document-editor';
+import { ReloadableKiwimeriEditorHandle } from '@/features/document-editor';
 import { onTitleChangeFn } from '@/shared/misc/onTitleChangeFn';
 import { getSearchParams } from '@/shared/utils';
 import { IonButton, IonIcon } from '@ionic/react';
@@ -23,7 +23,7 @@ const CollectionItemBrowserList = lazy(() =>
 );
 
 const DocumentEditorPage = () => {
-  const editorRef = useRef<KiwimeriEditorHandle | null>(null);
+  const editorRef = useRef<ReloadableKiwimeriEditorHandle | null>(null);
   const location = useLocation();
   const searchParams = getSearchParams(location.search);
   const notebook = useCurrentNotebook();
@@ -74,6 +74,9 @@ const DocumentEditorPage = () => {
           editorRef.current?.focusEditor();
         }
       }}
+      onSync={resp => {
+        if (resp.success) editorRef.current?.refreshContent();
+      }}
       contentId="documentExplorer"
     >
       <Suspense>
@@ -82,7 +85,7 @@ const DocumentEditorPage = () => {
           docId={docId}
           showActions={showDocumentActions}
           query={searchParams.query}
-        ></DocumentEditor>
+        />
       </Suspense>
     </TemplateCompactableSplitPage>
   );

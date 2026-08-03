@@ -17,10 +17,21 @@ import {
   IonTitle,
   IonToolbar
 } from '@ionic/react';
-import { forwardRef, lazy, Suspense, useEffect, useState } from 'react';
+import {
+  forwardRef,
+  lazy,
+  Suspense,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState
+} from 'react';
 import { useNavigate } from 'react-router';
 import KiwimeriEditor from '../wysiwyg-editor/lexical/KiwimeriEditor';
-import { KiwimeriEditorHandle } from '../wysiwyg-editor/lexical/KiwimeriEditorHandle';
+import {
+  KiwimeriEditorHandle,
+  ReloadableKiwimeriEditorHandle
+} from '../wysiwyg-editor/lexical/KiwimeriEditorHandle';
 import { serializeSelection } from '../wysiwyg-editor/lexical/selection-serializer';
 import DocumentBottomSheet, { DocSheet } from './DocumentBottomSheet';
 import './DocumentEditor.scss';
@@ -37,166 +48,181 @@ interface DocumentEditorProps {
   query?: string;
 }
 
-const DocumentEditor = forwardRef<KiwimeriEditorHandle, DocumentEditorProps>(
-  function DocumentEditor(props, ref) {
-    const [uniqId, setUniqId] = useState(0);
+const DocumentEditor = forwardRef<
+  ReloadableKiwimeriEditorHandle,
+  DocumentEditorProps
+>(function DocumentEditor(props, ref) {
+  const [uniqId, setUniqId] = useState(0);
+  const editorRef = useRef<KiwimeriEditorHandle | null>(null);
 
-    const { docId, showActions = false, query } = { ...props };
-    const parentId = collectionService.getItemParent(docId);
-
-    const navigate = useNavigate();
-    const [showDocumentActions, setShowDocumentActions] =
-      useState<boolean>(false);
-    const [showBottomSheet, setShowBottomSheet] = useState(showActions);
-    const [bottomSheet, setBottomSheet] = useState<DocSheet>('info');
-    const [toggleSearch, setToggleSearch] = useState(false);
-    const [toggleSearchAutoFocus, setToggleSearchAutoFocus] = useState(true);
-    const hasConflicts = useHasLocalConflicts();
-    // TODO refactor
-    useEffect(() => {
-      setShowDocumentActions(showActions);
-    }, [showActions]);
-
-    const content = collectionService.getItemContent(docId);
-    const documentTitle = collectionService.getItemTitle(docId);
-    const onTitleChange = onTitleChangeFn(docId);
-
-    const resumeState = resumeService.getDocumentResumeState(docId);
-
-    useEffect(() => {
-      resumeService.setLastOpenedAt(docId, Date.now());
-    }, [docId]);
-
-    useEffect(() => {
-      if (query) {
-        setToggleSearch(query.length > 0);
-        setToggleSearchAutoFocus(false);
+  useImperativeHandle(
+    ref,
+    () => ({
+      focusEditor() {
+        editorRef.current?.focusEditor();
+      },
+      refreshContent() {
+        setUniqId(uniqId + 1); // force editor to reload content
       }
-    }, [query, docId]);
+    }),
+    [uniqId, setUniqId, editorRef]
+  );
 
-    return (
-      <>
-        <IonHeader>
-          {/*only visible in non compact mode*/}
-          <IonToolbar class="ion-hide-md-down">
-            <IonTitle>
-              <IonInput
-                class="invisible"
-                value={documentTitle}
-                onIonChange={(e: InputCustomEvent) => {
-                  if (typeof e.detail.value === 'string') {
-                    onTitleChange(e.detail.value || '');
-                  }
-                }}
-              ></IonInput>
-            </IonTitle>
-            <IonButton
-              slot="end"
-              fill="clear"
-              color={'dark'}
-              onClick={() => {
-                setShowDocumentActions(!showDocumentActions);
-                setToggleSearch(false);
+  const { docId, showActions = false, query } = { ...props };
+  const parentId = collectionService.getItemParent(docId);
+
+  const navigate = useNavigate();
+  const [showDocumentActions, setShowDocumentActions] =
+    useState<boolean>(false);
+  const [showBottomSheet, setShowBottomSheet] = useState(showActions);
+  const [bottomSheet, setBottomSheet] = useState<DocSheet>('info');
+  const [toggleSearch, setToggleSearch] = useState(false);
+  const [toggleSearchAutoFocus, setToggleSearchAutoFocus] = useState(true);
+  const hasConflicts = useHasLocalConflicts();
+  // TODO refactor
+  useEffect(() => {
+    setShowDocumentActions(showActions);
+  }, [showActions]);
+
+  const content = collectionService.getItemContent(docId);
+  const documentTitle = collectionService.getItemTitle(docId);
+  const onTitleChange = onTitleChangeFn(docId);
+
+  const resumeState = resumeService.getDocumentResumeState(docId);
+
+  useEffect(() => {
+    resumeService.setLastOpenedAt(docId, Date.now());
+  }, [docId]);
+
+  useEffect(() => {
+    if (query) {
+      setToggleSearch(query.length > 0);
+      setToggleSearchAutoFocus(false);
+    }
+  }, [query, docId]);
+
+  return (
+    <>
+      <IonHeader>
+        {/*only visible in non compact mode*/}
+        <IonToolbar class="ion-hide-md-down">
+          <IonTitle>
+            <IonInput
+              class="invisible"
+              value={documentTitle}
+              onIonChange={(e: InputCustomEvent) => {
+                if (typeof e.detail.value === 'string') {
+                  onTitleChange(e.detail.value || '');
+                }
               }}
-            >
-              <IonIcon icon={APPICONS.itemActions}></IonIcon>
-            </IonButton>
-          </IonToolbar>
-          {showDocumentActions && (
-            <Suspense>
-              <ActionsFromDocumentEditorToolbar
-                docId={docId}
-                onClose={(role, data) => {
-                  if (role === 'info' || role === 'stats') {
-                    setBottomSheet(role);
-                    setShowBottomSheet(true);
-                    setShowDocumentActions(false);
-                  } else if (role === 'restore') {
-                    setUniqId(uniqId + 1); // force editor to reload content
-                  } else if (role === 'group') {
-                    navigate(data!);
-                  } else {
-                    setShowDocumentActions(false);
-                  }
-                }}
-                onSearch={() => {
+            ></IonInput>
+          </IonTitle>
+          <IonButton
+            slot="end"
+            fill="clear"
+            color={'dark'}
+            onClick={() => {
+              setShowDocumentActions(!showDocumentActions);
+              setToggleSearch(false);
+            }}
+          >
+            <IonIcon icon={APPICONS.itemActions}></IonIcon>
+          </IonButton>
+        </IonToolbar>
+        {showDocumentActions && (
+          <Suspense>
+            <ActionsFromDocumentEditorToolbar
+              docId={docId}
+              onClose={(role, data) => {
+                if (role === 'info' || role === 'stats') {
+                  setBottomSheet(role);
+                  setShowBottomSheet(true);
                   setShowDocumentActions(false);
-                  setToggleSearch(true);
-                  setToggleSearchAutoFocus(true);
-                }}
-              />
-            </Suspense>
-          )}
-          {toggleSearch && (
-            <SearchActionsToolbar
-              searchText={query || ''}
-              setToggleSearch={setToggleSearch}
-              toggleSearchAutoFocus={toggleSearchAutoFocus}
-              onValue={val => {
-                navigate(GET_DOCUMENT_ROUTE(parentId, docId, val));
+                } else if (role === 'restore') {
+                  setUniqId(uniqId + 1); // force editor to reload content
+                } else if (role === 'group') {
+                  navigate(data!);
+                } else {
+                  setShowDocumentActions(false);
+                }
+              }}
+              onSearch={() => {
+                setShowDocumentActions(false);
+                setToggleSearch(true);
+                setToggleSearchAutoFocus(true);
               }}
             />
-          )}
-        </IonHeader>
-
-        <IonContent>
-          {content && (
-            <KiwimeriEditor
-              ref={ref}
-              additionalClassNames={'document-editor'}
-              id={`${docId}-${uniqId}`}
-              content={content}
-              selection={resumeState?.lastSelection || null}
-              enableToolbar={!showDocumentActions && !toggleSearch}
-              searchText={toggleSearch ? query : null}
-              ignoreSelectionChange={false}
-              onChange={(editorState, isSelectionChange) => {
-                if (!isSelectionChange) {
-                  collectionService.setItemLexicalContent(
-                    docId,
-                    editorState.toJSON()
-                  );
-                }
-                resumeService.setLastSelection(
-                  docId,
-                  serializeSelection(editorState)
-                );
-              }}
-            ></KiwimeriEditor>
-          )}
-        </IonContent>
-        {showBottomSheet && (
-          <DocumentBottomSheet
-            id={docId}
-            select={bottomSheet}
-            className={bottomSheet}
-            onCloseSelf={() => {
-              setShowBottomSheet(false);
+          </Suspense>
+        )}
+        {toggleSearch && (
+          <SearchActionsToolbar
+            searchText={query || ''}
+            setToggleSearch={setToggleSearch}
+            toggleSearchAutoFocus={toggleSearchAutoFocus}
+            onValue={val => {
+              navigate(GET_DOCUMENT_ROUTE(parentId, docId, val));
             }}
           />
         )}
-        <IonFab
-          className="document-editor-fab"
-          slot="fixed"
-          vertical="bottom"
-          horizontal="end"
-        >
-          {!showBottomSheet && (
-            <IonFabButton
-              color={hasConflicts ? 'warning' : 'primary'}
-              size="small"
-              onClick={() => {
-                setBottomSheet('notes');
-                setShowBottomSheet(true);
-              }}
-            >
-              <IonIcon icon={APPICONS.annotation}></IonIcon>
-            </IonFabButton>
-          )}
-        </IonFab>
-      </>
-    );
-  }
-);
+      </IonHeader>
+
+      <IonContent>
+        {content && (
+          <KiwimeriEditor
+            ref={editorRef}
+            additionalClassNames={'document-editor'}
+            id={`${docId}-${uniqId}`}
+            content={content}
+            selection={resumeState?.lastSelection || null}
+            enableToolbar={!showDocumentActions && !toggleSearch}
+            searchText={toggleSearch ? query : null}
+            ignoreSelectionChange={false}
+            onChange={(editorState, isSelectionChange) => {
+              if (!isSelectionChange) {
+                collectionService.setItemLexicalContent(
+                  docId,
+                  editorState.toJSON()
+                );
+              }
+              resumeService.setLastSelection(
+                docId,
+                serializeSelection(editorState)
+              );
+            }}
+          ></KiwimeriEditor>
+        )}
+      </IonContent>
+      {showBottomSheet && (
+        <DocumentBottomSheet
+          id={docId}
+          select={bottomSheet}
+          className={bottomSheet}
+          onCloseSelf={() => {
+            setShowBottomSheet(false);
+          }}
+        />
+      )}
+      <IonFab
+        className="document-editor-fab"
+        slot="fixed"
+        vertical="bottom"
+        horizontal="end"
+      >
+        {!showBottomSheet && (
+          <IonFabButton
+            color={hasConflicts ? 'warning' : 'primary'}
+            size="small"
+            onClick={() => {
+              setBottomSheet('notes');
+              setShowBottomSheet(true);
+            }}
+          >
+            <IonIcon icon={APPICONS.annotation}></IonIcon>
+          </IonFabButton>
+        )}
+      </IonFab>
+    </>
+  );
+});
 
 export default DocumentEditor;

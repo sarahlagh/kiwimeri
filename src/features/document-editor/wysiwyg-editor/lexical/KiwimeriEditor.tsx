@@ -80,7 +80,7 @@ const KiwimeriEditor = (
         editorRef.current?.focus();
       }
     }),
-    []
+    [editorRef]
   );
 
   const {

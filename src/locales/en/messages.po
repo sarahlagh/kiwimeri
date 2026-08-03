@@ -85,7 +85,7 @@ msgstr "add a note"
 msgid "Add config"
 msgstr "Add config"
 
-#: src/app/components/MainHeader.tsx:70
+#: src/app/components/MainHeader.tsx:72
 msgid "An error occurred during sync."
 msgstr "An error occurred during sync."
 
@@ -764,7 +764,7 @@ msgstr "timed session "
 msgid "Timed Writing"
 msgstr "Timed Writing"
 
-#: src/app/pages/WritingSessionPage.tsx:25
+#: src/app/pages/WritingSessionPage.tsx:26
 msgid "Timed Writing Session"
 msgstr "Timed Writing Session"
 

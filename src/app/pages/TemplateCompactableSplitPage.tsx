@@ -18,6 +18,7 @@ type TemplateCompactableSplitPageProps = {
   contentId: string;
   when?: string;
   onMenuClose?: (ev: MenuCustomEvent) => void;
+  onSync?: (resp: { success: boolean }) => void;
 } & {
   readonly children?: ReactNode;
 };
@@ -29,6 +30,7 @@ const TemplateCompactableSplitPage = ({
   when,
   contentId,
   onMenuClose,
+  onSync,
   children
 }: TemplateCompactableSplitPageProps) => {
   const isWideEnough = useIsWideEnough();
@@ -50,14 +52,16 @@ const TemplateCompactableSplitPage = ({
     <IonPage id={MAIN_CONTENT_ID}>
       {!isWideEnough && (
         <IonHeader>
-          <MainHeader {...headerIfCompact}>
+          <MainHeader {...headerIfCompact} onSync={onSync}>
             {headerIfCompact.children}
           </MainHeader>
         </IonHeader>
       )}
       {isWideEnough && (
         <IonHeader>
-          <MainHeader {...headerIfWide}>{headerIfWide.children}</MainHeader>
+          <MainHeader {...headerIfWide} onSync={onSync}>
+            {headerIfWide.children}
+          </MainHeader>
         </IonHeader>
       )}
 

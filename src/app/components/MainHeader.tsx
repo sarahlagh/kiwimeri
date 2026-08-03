@@ -26,6 +26,7 @@ export type MainHeaderProps = {
   title: string;
   editable?: boolean;
   onEdited?: (textEdited: string) => void;
+  onSync?: (resp: { success: boolean }) => void;
 } & IonicReactProps &
   React.HTMLAttributes<HTMLIonHeaderElement> & {
     readonly children?: ReactNode;
@@ -35,6 +36,7 @@ const MainHeader = ({
   title,
   editable = false,
   onEdited,
+  onSync,
   children,
   color
 }: MainHeaderProps) => {
@@ -70,6 +72,7 @@ const MainHeader = ({
       setToast(t`An error occurred during sync.`, 'danger');
     }
     setIsSyncing(false);
+    if (onSync) onSync(resp);
     const currentFolder = resumeService.getCurrentFolder();
     if (!collectionService.itemExists(currentFolder)) {
       console.debug('current folder deleted', currentFolder);
