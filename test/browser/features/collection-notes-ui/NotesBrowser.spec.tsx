@@ -240,7 +240,8 @@ describe('NotesBrowser', () => {
       .not.toBeInTheDocument();
     await expect.element(getNotePreview(screen, 'test 2')).toBeInTheDocument();
 
-    expect(annotsService.getContent(note1)).toBeUndefined();
+    expect(annotsService.getContent(note1)).toBe('');
+    expect(annotsService.getPreview(note1)).toBe('');
   });
 
   test('change notes sort order', async () => {

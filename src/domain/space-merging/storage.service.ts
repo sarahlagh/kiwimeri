@@ -323,7 +323,6 @@ class StorageService {
     newLocalContent: SpacePortableData,
     localContent: SpacePortableData,
     updatableFields: AsId<keyof SpacePortableDataTableType<K>>[]
-    // force?: boolean
   ) {
     const changes: Map<string, AfterMergeChange> = new Map();
     const ids = new Set<string>([
@@ -331,10 +330,6 @@ class StorageService {
       ...Object.keys(localContent[itemsKey])
     ]);
     ids.forEach(id => {
-      // TODO how do we handle local changes when force full?
-      // const localChange = localChanges.find(
-      //   lc => lc.itemId === id && lc.on === tableId
-      // );
       const newItem = newLocalContent[itemsKey]
         ? (newLocalContent[itemsKey][id] as SpacePortableDataTableType<K>)
         : undefined;
@@ -342,9 +337,9 @@ class StorageService {
         ? (localContent[itemsKey][id] as SpacePortableDataTableType<K>)
         : undefined;
       if (newItem && !oldItem) {
-        const isNotConflict =
-          isUserPref(newItem) || newItem.conflictId === undefined;
-        if (isNotConflict) {
+        const isConflict =
+          !isUserPref(newItem) && newItem.conflictId !== undefined;
+        if (!isConflict) {
           const type = isUserPref(newItem) ? undefined : newItem.type;
           // added by remote
           changes.set(id, {
@@ -354,11 +349,7 @@ class StorageService {
             change: LocalChangeType.add
           });
         }
-      } else if (
-        !newItem &&
-        oldItem
-        // && (force || localChange?.change !== LocalChangeType.add)
-      ) {
+      } else if (!newItem && oldItem) {
         // deleted by remote
         const type = isUserPref(oldItem) ? undefined : oldItem.type;
         changes.set(id, {
@@ -369,10 +360,6 @@ class StorageService {
         });
       } else if (newItem && oldItem) {
         const type = isUserPref(newItem) ? undefined : newItem.type;
-        // const _fields = updatableFields.filter(
-        //   field => localChange?.field !== field
-        // );
-
         for (const field of updatableFields) {
           // only create change for the first field
           // if local wins, mustn't have new version - won't happen if no local change
@@ -452,17 +439,11 @@ class StorageService {
       .forEach(ch => resumeService.setLastSelection(ch.id, null));
   }
 
-  private handleHistory(
-    changes: AfterMergeChange[]
-    // localChanges: LocalChangeResult[]
-  ) {
+  private handleHistory(changes: AfterMergeChange[]) {
     // no local change, remote change on hist field                 => new version
-    // no local change, remote change on non hist field             => no new version
     // local change, no remote change                               => no new version
     // local change, remote change on hist field, local wins        => no new version
     // local change, remote change on hist field, remote wins       => new version
-    // local change, remote change on non hist field, local wins    => no new version
-    // local change, remote change on non hist field, remote wins   => no new version
 
     // history must be updated
     const docsMap = new Map<string, AfterMergeChange>();
@@ -470,7 +451,7 @@ class StorageService {
       .filter(ch => isDocument(ch.type))
       .filter(
         ch =>
-          !ch.field ||
+          ch.field === undefined ||
           collectionService.isHistorizableContentChange(
             CollectionItemType.document,
             ch.field as CollectionItemUpdatableFieldEnum

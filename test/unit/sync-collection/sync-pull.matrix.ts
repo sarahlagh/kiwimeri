@@ -510,7 +510,13 @@ const scenarioMatrix: {
               hasVersions: f && historizableFields.includes(f) ? 2 : 1
             })
             .ifForcePull()
-            .theItem({ hasValue: 'init' })
+            .theItem({
+              hasValue: 'init'
+            })
+            .ifDocument()
+            .theItem({
+              hasVersions: f && historizableFields.includes(f) ? 3 : 1
+            })
       },
       {
         didPush: false,
@@ -614,11 +620,8 @@ const scenarioMatrix: {
             .theItem({
               hasConflict: true,
               hasValue: 'remote',
-              conflictHasValue: 'local'
-            })
-            .ifDocument()
-            .theItem({
-              hasVersions: f && historizableFields.includes(f) ? 2 : 1
+              conflictHasValue: 'local',
+              hasVersions: f && historizableFields.includes(f) ? 3 : 1
             })
             .ifForcePull()
             .theItem({ hasConflict: false })
@@ -762,6 +765,10 @@ const scenarioMatrix: {
             })
             .ifForcePull()
             .theItem({ hasValue: 'remote' })
+            .ifDocument()
+            .theItem({
+              hasVersions: f && historizableFields.includes(f) ? 3 : 1
+            })
       }
     ]
   },
@@ -1695,6 +1702,7 @@ const scenarioMatrix: {
             })
             .ifForcePull()
             .theItem({
+              hasVersions: 3, // local content was removed
               otherAssert: (item, rel) => {
                 const initTs = item!.parentId_meta._u;
                 const contentTs = item!.content_meta!._u;
@@ -1705,7 +1713,6 @@ const scenarioMatrix: {
               }
             })
       },
-
       {
         types: ['d'],
         description:
@@ -1737,7 +1744,7 @@ const scenarioMatrix: {
           b
             .theItem({
               hasConflict: true,
-              hasVersions: 3, // if document, order triggers no version
+              hasVersions: 3, // creation, local update, remote update
               otherAssert: (item, rel) => {
                 const initTs = item!.parentId_meta._u;
                 const contentTs = item!.content_meta!._u;

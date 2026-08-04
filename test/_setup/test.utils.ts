@@ -140,25 +140,41 @@ export type ValueType =
   | 'boolean'
   | 'settings';
 
-export type TestField = {
+export type CollectionTestField = {
   field: CollectionItemUpdatableFieldEnum;
   valueType: ValueType;
 };
+export type TestField = {
+  field: string;
+  valueType: ValueType;
+};
 
-export const parentField: TestField = { field: 'parentId', valueType: 'id' };
-export const titleField: TestField = { field: 'title', valueType: 'string' };
-export const contentField: TestField = { field: 'content', valueType: 'lex' };
-export const tagsField: TestField = {
+export const parentField: CollectionTestField = {
+  field: 'parentId',
+  valueType: 'id'
+};
+export const titleField: CollectionTestField = {
+  field: 'title',
+  valueType: 'string'
+};
+export const contentField: CollectionTestField = {
+  field: 'content',
+  valueType: 'lex'
+};
+export const tagsField: CollectionTestField = {
   field: 'tags',
   valueType: 'string_array'
 };
-export const orderField: TestField = { field: 'order', valueType: 'number' };
-export const settingsField: TestField = {
+export const orderField: CollectionTestField = {
+  field: 'order',
+  valueType: 'number'
+};
+export const settingsField: CollectionTestField = {
   field: 'settings',
   valueType: 'settings'
 };
 
-export const allNonParentUpdatableFields: TestField[] = [
+export const allNonParentUpdatableFields: CollectionTestField[] = [
   titleField,
   contentField,
   tagsField,
@@ -166,20 +182,19 @@ export const allNonParentUpdatableFields: TestField[] = [
   settingsField
 ];
 
-export const conflictFields: TestField[] = [titleField, contentField];
-export const historizableFields: TestField[] = [contentField];
+export const conflictFields: CollectionTestField[] = [titleField, contentField];
+export const historizableFields: CollectionTestField[] = [contentField];
 
-export const conflictNonHistorizableFields: TestField[] = conflictFields.filter(
-  f => !historizableFields.includes(f)
-);
+export const conflictNonHistorizableFields: CollectionTestField[] =
+  conflictFields.filter(f => !historizableFields.includes(f));
 
-export const nonConflictFields: TestField[] =
+export const nonConflictFields: CollectionTestField[] =
   allNonParentUpdatableFields.filter(f => !conflictFields.includes(f));
 
-export const nonHistorizableFields: TestField[] =
+export const nonHistorizableFields: CollectionTestField[] =
   allNonParentUpdatableFields.filter(f => !historizableFields.includes(f));
 
-export const allNonHistorizableNonConflictFields: TestField[] =
+export const allNonHistorizableNonConflictFields: CollectionTestField[] =
   allNonParentUpdatableFields.filter(
     f => nonConflictFields.includes(f) && nonHistorizableFields.includes(f)
   );

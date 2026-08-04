@@ -1,5 +1,5 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
-import { space } from '@/core/db/store';
+import { space, spaceDocContent } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { SerializableData } from '@/core/db/types';
 import { CollectionItemType } from '@/domain/collection/collection';
@@ -9,6 +9,7 @@ import {
   stopDerivedTablesListeners
 } from '@/domain/collection/derived-tables-listeners';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
+import { getDerivedTable } from '@/domain/collection/document-content';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { historyService } from '@/domain/history/history.service';
 import {
@@ -25,6 +26,7 @@ import {
   getNewParsedContent,
   getNewValue,
   markAsConflict,
+  TestField,
   UPDATABLE_FIELDS,
   ValueType
 } from '@@/_setup/test.utils';
@@ -333,11 +335,64 @@ describe('local changes listeners', () => {
       nonWatchedFields: [{ field: 'updatedAt', valueType: 'number' }]
     }
   ];
-  function getField(testField: { field: string; valueType: ValueType }) {
+  function getField(testField: TestField) {
     return testField.field as never;
   }
-  function getValue(testField: { field: string; valueType: ValueType }) {
+  function getValue(testField: TestField) {
     return getNewValue(testField.valueType) as never;
+  }
+
+  function createDataInDb(
+    tableId: never,
+    watchedFields: TestField[],
+    nonWatchedFields: TestField[]
+  ) {
+    const fakeRow = {};
+    const fakeContentRow = {};
+    fakeRow[getField(nonWatchedFields[0])] = getValue(nonWatchedFields[0]);
+    watchedFields.forEach(watchedField => {
+      if (watchedField.field === 'content') {
+        fakeContentRow[getField(watchedField)] = getValue(watchedField);
+      } else {
+        fakeRow[getField(watchedField)] = getValue(watchedField);
+      }
+    });
+    const testId = space.addRow(tableId, fakeRow)!;
+    const derivedTableId = getDerivedTable(tableId);
+    if (Object.keys(fakeContentRow).length > 0 && derivedTableId) {
+      spaceDocContent.setRow(derivedTableId, testId, fakeContentRow);
+    }
+    return testId;
+  }
+
+  function setFieldValue(
+    tableId: never,
+    testId: string,
+    wf: TestField,
+    value?: never
+  ) {
+    const derivedTableId = getDerivedTable(tableId);
+    const _value = value !== undefined ? value : getValue(wf);
+    if (wf.field === 'content' && derivedTableId) {
+      spaceDocContent.setCell(derivedTableId, testId, getField(wf), _value);
+    } else {
+      space.setCell(tableId, testId, getField(wf), _value);
+    }
+  }
+
+  function getFieldValue(tableId: never, testId: string, wf: TestField) {
+    const derivedTableId = getDerivedTable(tableId);
+    if (wf.field === 'content' && derivedTableId) {
+      return spaceDocContent.getCell(derivedTableId, testId, getField(wf));
+    } else {
+      return space.getCell(tableId, testId, getField(wf));
+    }
+  }
+
+  function delRow(tableId: never, testId: string) {
+    space.delRow(tableId, testId);
+    const derivedTableId = getDerivedTable(tableId);
+    if (derivedTableId) spaceDocContent.delRow(derivedTableId, testId);
   }
 
   watchedTables.forEach(
@@ -351,7 +406,11 @@ describe('local changes listeners', () => {
         });
 
         it(`should create a local change for new rows`, () => {
-          const testId0 = space.addRow(tableId, fakeRow);
+          const testId0 = createDataInDb(
+            tableId,
+            watchedFields,
+            nonWatchedFields
+          );
           space.setRow(tableId, 'testId1', fakeRow);
           space.setPartialRow(tableId, 'testId2', fakeRow);
           space.setCell(
@@ -428,7 +487,11 @@ describe('local changes listeners', () => {
         });
 
         it(`should cancel local change if added then deleted in same session`, () => {
-          const testId = space.addRow(tableId, fakeRow)!;
+          const testId = createDataInDb(
+            tableId,
+            watchedFields,
+            nonWatchedFields
+          );
           expect(localChangesService.getLocalChanges()).toHaveLength(1);
           space.delRow(tableId, testId);
           expect(localChangesService.getLocalChanges()).toHaveLength(0);
@@ -436,14 +499,22 @@ describe('local changes listeners', () => {
 
         it(`should cancel local change if added then deleted in same transaction`, () => {
           space.transaction(() => {
-            const testId = space.addRow(tableId, fakeRow)!;
+            const testId = createDataInDb(
+              tableId,
+              watchedFields,
+              nonWatchedFields
+            );
             space.delRow(tableId, testId);
           });
           expect(localChangesService.getLocalChanges()).toHaveLength(0);
         });
 
         it(`should only keep a single add change if updated in same session`, () => {
-          const testId = space.addRow(tableId, fakeRow)!;
+          const testId = createDataInDb(
+            tableId,
+            watchedFields,
+            nonWatchedFields
+          );
           expect(localChangesService.getLocalChanges()).toHaveLength(1);
           watchedFields.forEach(wf => {
             space.setCell(tableId, testId, getField(wf), getValue(wf));
@@ -455,17 +526,21 @@ describe('local changes listeners', () => {
         });
 
         it(`should cancel local change if updated then deleted in same session`, () => {
-          const testId = space.addRow(tableId, fakeRow)!;
+          const testId = createDataInDb(
+            tableId,
+            watchedFields,
+            nonWatchedFields
+          );
           localChangesService.clear(); // new session
 
           watchedFields.forEach(wf => {
-            space.setCell(tableId, testId, getField(wf), getValue(wf));
+            setFieldValue(tableId, testId, wf);
           });
           expect(localChangesService.getLocalChanges()).toHaveLength(
             watchedFields.length
           );
 
-          space.delRow(tableId, testId);
+          delRow(tableId, testId);
           const localChanges = localChangesService.getLocalChanges();
           expect(localChanges).toHaveLength(1);
           expect(localChanges[0].change).toEqual(LocalChangeType.delete);
@@ -475,7 +550,11 @@ describe('local changes listeners', () => {
         it.runIf(tableId !== SpaceTables.UserPreference)(
           `should create an add change if item was a conflict`,
           () => {
-            const testId = space.addRow(tableId, fakeRow)!;
+            const testId = createDataInDb(
+              tableId,
+              watchedFields,
+              nonWatchedFields
+            );
             localChangesService.clear();
             space.setCell(tableId, testId, 'conflictId', 'anyvalue' as never); // create conflict
             expect(localChangesService.getLocalChanges()).toHaveLength(0);
@@ -501,24 +580,17 @@ describe('local changes listeners', () => {
         it.runIf(watchedFields.length > 1)(
           `should keep only one local changes per field update`,
           () => {
-            const testId = space.addRow(tableId, fakeRow)!;
+            const testId = createDataInDb(
+              tableId,
+              watchedFields,
+              nonWatchedFields
+            );
             localChangesService.clear();
 
             for (let i = 0; i < 3; i++) {
-              space.setCell(
-                tableId,
-                testId,
-                getField(watchedFields[0]),
-                getValue(watchedFields[0])
-              );
+              setFieldValue(tableId, testId, watchedFields[0]);
             }
-
-            space.setCell(
-              tableId,
-              testId,
-              getField(watchedFields[1]),
-              getValue(watchedFields[1])
-            );
+            setFieldValue(tableId, testId, watchedFields[1]);
 
             const localChanges = localChangesService.getLocalChanges();
             expect(localChanges).toHaveLength(2);
@@ -532,7 +604,11 @@ describe('local changes listeners', () => {
         );
 
         it(`should cancel local change if deleted then restored in same session`, () => {
-          const testId = space.addRow(tableId, fakeRow)!;
+          const testId = createDataInDb(
+            tableId,
+            watchedFields,
+            nonWatchedFields
+          );
           localChangesService.clear();
           space.delRow(tableId, testId);
           expect(localChangesService.getLocalChanges()).toHaveLength(1);
@@ -614,10 +690,14 @@ describe('local changes listeners', () => {
 
         watchedFields.forEach(field => {
           it(`should create update local changes for field ${field.field}`, () => {
-            const testId = space.addRow(tableId, fakeRow)!;
+            const testId = createDataInDb(
+              tableId,
+              watchedFields,
+              nonWatchedFields
+            );
             localChangesService.clear();
 
-            space.setCell(tableId, testId, getField(field), getValue(field));
+            setFieldValue(tableId, testId, field);
             const localChanges = localChangesService.getLocalChanges();
             expect(localChanges).toHaveLength(1);
             expect(localChanges[0].change).toEqual(LocalChangeType.update);
@@ -626,16 +706,16 @@ describe('local changes listeners', () => {
           });
 
           it(`update change ${field.field} should be resettable`, () => {
-            const testId = space.addRow(tableId, fakeRow)!;
+            const testId = createDataInDb(
+              tableId,
+              watchedFields,
+              nonWatchedFields
+            );
             localChangesService.clear();
 
-            const previousValue = space.getCell(
-              tableId,
-              testId,
-              getField(field)
-            );
+            const previousValue = getFieldValue(tableId, testId, field);
             const newValue = getValue(field);
-            space.setCell(tableId, testId, getField(field), newValue);
+            setFieldValue(tableId, testId, field);
             expect(previousValue).not.toEqual(newValue);
             const changes = localChangesService.getLocalChanges();
             expect(changes).toHaveLength(1);
@@ -646,18 +726,22 @@ describe('local changes listeners', () => {
 
             localChangesService.reset(changes[0].id);
             expect(localChangesService.getLocalChanges()).toHaveLength(0);
-            expect(space.getCell(tableId, testId, getField(field))).toEqual(
+            expect(getFieldValue(tableId, testId, field)).toEqual(
               previousValue
             );
           });
 
           it(`should create only one update local changes for field ${field.field}`, () => {
-            const testId = space.addRow(tableId, fakeRow)!;
+            const testId = createDataInDb(
+              tableId,
+              watchedFields,
+              nonWatchedFields
+            );
             localChangesService.clear();
 
-            space.setCell(tableId, testId, getField(field), getValue(field));
-            space.setCell(tableId, testId, getField(field), getValue(field));
-            space.setCell(tableId, testId, getField(field), getValue(field));
+            setFieldValue(tableId, testId, field);
+            setFieldValue(tableId, testId, field);
+            setFieldValue(tableId, testId, field);
             const localChanges = localChangesService.getLocalChanges();
             expect(localChanges).toHaveLength(1);
             expect(localChanges[0].change).toEqual(LocalChangeType.update);
@@ -666,47 +750,51 @@ describe('local changes listeners', () => {
           });
 
           it(`should cancel local changes for ${field.field} if the value goes back to previous value`, () => {
-            const testId = space.addRow(tableId, fakeRow)!;
-            localChangesService.clear();
-            const previousValue = space.getCell(
+            const testId = createDataInDb(
               tableId,
-              testId,
-              getField(field)
+              watchedFields,
+              nonWatchedFields
             );
+            localChangesService.clear();
+            const previousValue = getFieldValue(tableId, testId, field);
+            setFieldValue(tableId, testId, field);
 
-            space.setCell(tableId, testId, getField(field), getValue(field));
             expect(localChangesService.getLocalChanges()).toHaveLength(1);
 
-            space.setCell(tableId, testId, getField(field), previousValue);
+            setFieldValue(tableId, testId, field, previousValue);
             expect(localChangesService.getLocalChanges()).toHaveLength(0);
           });
 
           it(`should cancel local changes for ${field.field} if the value eventually goes back to previous value`, () => {
-            const testId = space.addRow(tableId, fakeRow)!;
-            localChangesService.clear();
-            const previousValue = space.getCell(
+            const testId = createDataInDb(
               tableId,
-              testId,
-              getField(field)
+              watchedFields,
+              nonWatchedFields
             );
+            localChangesService.clear();
+            const previousValue = getFieldValue(tableId, testId, field);
 
-            space.setCell(tableId, testId, getField(field), getValue(field));
+            setFieldValue(tableId, testId, field);
             expect(localChangesService.getLocalChanges()).toHaveLength(1);
 
-            space.setCell(tableId, testId, getField(field), getValue(field));
+            setFieldValue(tableId, testId, field);
             expect(localChangesService.getLocalChanges()).toHaveLength(1);
 
-            space.setCell(tableId, testId, getField(field), previousValue);
+            setFieldValue(tableId, testId, field, previousValue);
             expect(localChangesService.getLocalChanges()).toHaveLength(0);
           });
         });
 
         nonWatchedFields.forEach(field => {
           it(`should not create update local changes for field ${field.field}`, () => {
-            const testId = space.addRow(tableId, fakeRow)!;
+            const testId = createDataInDb(
+              tableId,
+              watchedFields,
+              nonWatchedFields
+            );
             localChangesService.clear();
 
-            space.setCell(tableId, testId, getField(field), getValue(field));
+            setFieldValue(tableId, testId, field);
             const localChanges = localChangesService.getLocalChanges();
             expect(localChanges).toHaveLength(0);
           });

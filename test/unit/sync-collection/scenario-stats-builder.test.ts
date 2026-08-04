@@ -8,7 +8,7 @@ import {
   CollectionItemMetadataVersion,
   CollectionItemVersionOp
 } from '@/domain/history/history';
-import { parentField, TestField } from '@@/_setup/test.utils';
+import { CollectionTestField, parentField } from '@@/_setup/test.utils';
 import { describe, expect, it } from 'vitest';
 
 export type PullTestEndStatsItem = {
@@ -44,17 +44,17 @@ export type RelevantItem = {
   parentType: CollectionItemType;
   parentParentId: string;
   initValue?: {
-    field: TestField;
+    field: CollectionTestField;
     value: DbSerializableData;
     at: number;
   };
   localValue?: {
-    field: TestField;
+    field: CollectionTestField;
     value: DbSerializableData;
     at: number;
   };
   remoteValue?: {
-    field: TestField;
+    field: CollectionTestField;
     value: DbSerializableData;
     at: number;
   };
@@ -65,14 +65,14 @@ export class PullTestEndStatsBuilder {
   private forcePull = false;
   private type: CollectionItemType;
   private items: PullTestEndStatsItemGroup[] = [];
-  private testField?: TestField;
+  private testField?: CollectionTestField;
   private idx = -1;
   private skip = false;
   private forceOverrideOn = false;
 
   public constructor(
     type: CollectionItemType,
-    testField?: TestField,
+    testField?: CollectionTestField,
     forcePull?: boolean
   ) {
     this.type = type;

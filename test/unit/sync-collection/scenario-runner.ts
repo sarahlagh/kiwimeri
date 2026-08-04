@@ -23,11 +23,11 @@ import {
   syncService
 } from '@/domain/synchronization/sync.service';
 import {
+  CollectionTestField,
   createLocalItem,
   fakeTimersDelay,
   getNewValue,
-  oneNotebook,
-  TestField
+  oneNotebook
 } from '@@/_setup/test.utils';
 import { expect, vi } from 'vitest';
 import {
@@ -48,7 +48,7 @@ interface PullTestChangeScenario {
   applyInitValue?: boolean; // only used for ADD change
   where: 'local' | 'remote';
   newValue?: string;
-  forceField?: TestField;
+  forceField?: CollectionTestField;
   data?: Partial<Pick<CollectionItem, 'type' | 'parentId'>>; // for ADD change
 }
 
@@ -65,7 +65,7 @@ export interface PullTestScenario {
   types?: CollectionItemTypeValues[];
   initRemoteData?: ItemData[];
   initLocalData?: ItemData[];
-  fields?: TestField[];
+  fields?: CollectionTestField[];
   changesBeforePull: PullTestChangeScenario[];
   didPush?: boolean;
   didPull?: boolean;
@@ -73,7 +73,7 @@ export interface PullTestScenario {
   skipForcePush?: boolean;
   endStats: (
     b: PullTestEndStatsBuilder,
-    field?: TestField
+    field?: CollectionTestField
   ) => PullTestEndStatsBuilder;
   skip?: boolean; // for debug
 }
@@ -87,7 +87,7 @@ export class PullTestScenarioRunner {
   private readonly type: CollectionItemType;
   private forcePull = false;
   private forcePush = false;
-  private testField?: TestField;
+  private testField?: CollectionTestField;
 
   private remoteItems = new Map<string, CollectionItem>();
   private relevantItems: RelevantItem[] = []; // = new Map<string, RelevantItem>();
@@ -107,7 +107,7 @@ export class PullTestScenarioRunner {
     this.postStatsHadConflict = false;
   }
 
-  public withTestField(field: TestField) {
+  public withTestField(field: CollectionTestField) {
     this.testField = field;
     return this;
   }
@@ -489,6 +489,11 @@ export class PullTestScenarioRunner {
       expect(conflict).toBeUndefined();
     }
 
+    const item = {
+      ...localCollectionTable[id],
+      ...localCollectionContentTable[id]
+    };
+
     if (stats.hasValue) {
       const expectedValue = relevantItem
         ? relevantItem[`${stats.hasValue}Value`]
@@ -497,25 +502,18 @@ export class PullTestScenarioRunner {
       if (!testField) {
         throw new Error('need a TestField to check field value');
       }
-      const localValue =
-        testField.field !== 'content'
-          ? localCollectionTable[id][testField.field]
-          : localCollectionContentTable[id][testField.field];
+      const localValue = item[testField.field];
       expect(localValue).toEqual(expectedValue?.value);
-      const localMeta =
-        testField.field !== 'content'
-          ? localCollectionTable[id][`${testField.field}_meta`]
-          : localCollectionContentTable[id][`${testField.field}_meta`];
+      const localMeta = item[`${testField.field}_meta`];
       expect(localMeta).toBeDefined();
       const metaField = localMeta as MetaField;
       expect(metaField._u).toBe(expectedValue?.at);
 
       if (testField.field === 'content') {
-        expect(localCollectionContentTable[id].plainText).toBeDefined();
+        expect(item.plainText).toBeDefined();
       }
     }
-
-    stats.otherAssert(localCollectionTable[id] as CollectionItem, relevantItem);
+    stats.otherAssert(item as CollectionItem, relevantItem);
   }
 
   private assertParentIsAllowed(
