@@ -292,10 +292,6 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     stopLocalChangesListeners();
     storageService.restoreContent(resp.content, resp.changes);
     startLocalChangesListeners();
-    // this.setContent(resp.content);
-    // this.handleResumeState(resp.changes);
-    // this.handleHistory(resp.changes);
-    // this.handleDeletedRows(resp.changes);
     this.handleDiscardedChanges(resp.discardedChanges);
   }
 

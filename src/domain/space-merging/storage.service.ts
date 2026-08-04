@@ -1,4 +1,3 @@
-import { ANNOT_PREVIEW_SIZE, DOC_PREVIEW_SIZE } from '@/constants';
 import { space, spaceArchive, spaceDocContent } from '@/core/db/store';
 import {
   SpaceArchiveTables,
@@ -13,10 +12,9 @@ import {
   SpaceTablesType,
   SpaceType
 } from '@/core/db/store-schema';
-import { AsId, MetaField } from '@/core/db/types';
+import { AsId } from '@/core/db/types';
 import notebooksService from '@/domain/collection/notebooks.service';
 import localChangesService from '@/domain/synchronization/local-changes.service';
-import { getPlainText } from '@/shared/misc/getPlainText';
 import { cellEquals } from '@/shared/utils';
 import { Content, Id, Table } from 'tinybase/with-schemas';
 import {
@@ -28,6 +26,7 @@ import {
   isDocument
 } from '../collection/collection';
 import collectionService from '../collection/collection.service';
+import { annotsService } from '../collection/doc-annotations.service';
 import {
   BaseDocAnnotation,
   DocAnnotationRow,
@@ -37,7 +36,6 @@ import { ContentRow, getContentTable } from '../collection/document-content';
 import { resumeService } from '../collection/resume-state.service';
 import tagsService from '../collection/tags.service';
 import { historyService } from '../history/history.service';
-import { statsOnPlainTextCallback } from '../stats/stats-on-change-callback';
 import { LocalChangeType } from '../synchronization/local-changes';
 import {
   BaseUserPreference,
@@ -60,11 +58,7 @@ const H = SpaceArchiveTables.History;
 const HC = SpaceArchiveTables.HistoryContent;
 const S = SpaceTables.Stats;
 const CC = SpaceDocContentTables.CollectionContent;
-const CV = SpaceTables.CollectionItemView;
-const AV = SpaceTables.AnnotationView;
-const ProjectedState = SpaceTables.ProjectedState;
 const AC = SpaceDocContentTables.AnnotationContent;
-const ResumeState = SpaceTables.ResumeState;
 
 const LOCAL_COLLECTION_SCHEMA_VERSION = 1; // increment each breaking change
 
@@ -149,66 +143,6 @@ class StorageService {
     tagsService.clear();
   }
 
-  public backfillDerivedContent() {
-    const collectionContent = spaceDocContent.getTable(CC);
-    const annotationsContent = spaceDocContent.getTable(AC);
-    spaceArchive.startTransaction();
-    space.startTransaction();
-    try {
-      // space.transaction(() => {
-      space.getRowIds(C).forEach(rowId => {
-        if (!collectionContent[rowId]?.content) return;
-        const plainText = getPlainText(collectionContent[rowId].content);
-        const previewText = plainText.substring(0, DOC_PREVIEW_SIZE);
-        space.setRow(CV, rowId, {
-          previewText
-        });
-        spaceDocContent.setCell(
-          SpaceDocContentTables.CollectionContent,
-          rowId,
-          'plainText',
-          plainText
-        );
-        statsOnPlainTextCallback(
-          rowId,
-          plainText,
-          collectionContent[rowId].content_meta as MetaField
-        );
-      });
-      space.getRowIds(SpaceTables.Annotations).forEach(rowId => {
-        if (!annotationsContent[rowId]?.content) return;
-        const plainText = getPlainText(annotationsContent[rowId].content);
-        const previewText = plainText.substring(0, ANNOT_PREVIEW_SIZE);
-        space.setRow(AV, rowId, {
-          previewText
-        });
-        spaceDocContent.setCell(
-          SpaceDocContentTables.AnnotationContent,
-          rowId,
-          'plainText',
-          plainText
-        );
-      });
-      // });
-    } finally {
-      space.finishTransaction();
-      spaceArchive.finishTransaction();
-    }
-  }
-
-  public cleanupRow(rowId: string, on: SpaceTableId) {
-    if (on === SpaceTables.Collection) {
-      space.delRow(ProjectedState, rowId);
-      space.delRow(ResumeState, rowId);
-      space.delRow(CV, rowId);
-      spaceDocContent.delRow(CC, rowId);
-    }
-    if (on === SpaceTables.Annotations) {
-      space.delRow(AV, rowId);
-      spaceDocContent.delRow(AC, rowId);
-    }
-  }
-
   public exportJson(withHistory: boolean) {
     const content = space.getContent();
     const docContent = spaceDocContent.getContent();
@@ -257,7 +191,6 @@ class StorageService {
       space.setTable(S, tables[S]);
     }
 
-    // TODO handle changes after restore
     const changes = this.afterMergeChanges(newContent, localContent);
     space.delTable(SpaceTables.ResumeState);
     this.handleDeletedRows(changes);
@@ -278,7 +211,6 @@ class StorageService {
   public afterMergeChanges(
     newLocalContent: SpacePortableData,
     localContent: SpacePortableData
-    // force?: boolean
   ) {
     let changes: AfterMergeChange[] = [];
     changes = [
@@ -462,6 +394,15 @@ class StorageService {
       .forEach(ch => {
         this.cleanupRow(ch.id, ch.on);
       });
+  }
+
+  private cleanupRow(rowId: string, on: SpaceTableId) {
+    if (on === SpaceTables.Collection) {
+      collectionService.cleanupDeletedItem(rowId);
+    }
+    if (on === SpaceTables.Annotations) {
+      annotsService.cleanupDeletedAnnot(rowId);
+    }
   }
 }
 

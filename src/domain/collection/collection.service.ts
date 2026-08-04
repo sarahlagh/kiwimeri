@@ -38,7 +38,6 @@ import { getUniqueId } from 'tinybase/common';
 import { Id, Ids } from 'tinybase/common/with-schemas';
 import { Table } from 'tinybase/with-schemas';
 import { historyService } from '../history/history.service';
-import { storageService } from '../space-merging/storage.service';
 import { annotsService } from './doc-annotations.service';
 
 export const initialContent = () => {
@@ -51,6 +50,7 @@ export const INITIAL_CONTENT_START = '{"root":{';
 const C = SpaceTables.Collection;
 const CC = SpaceDocContentTables.CollectionContent;
 const CV = SpaceTables.CollectionItemView;
+const ResumeState = SpaceTables.ResumeState;
 const ProjectedState = SpaceTables.ProjectedState;
 const CollectionContent = SpaceDocContentTables.CollectionContent;
 
@@ -211,8 +211,15 @@ class CollectionService {
     }
     space.transaction(() => {
       space.delRow(C, rowId);
-      storageService.cleanupRow(rowId, C);
+      this.cleanupDeletedItem(rowId);
     });
+  }
+
+  public cleanupDeletedItem(rowId: Id) {
+    space.delRow(ProjectedState, rowId);
+    space.delRow(ResumeState, rowId);
+    space.delRow(CV, rowId);
+    spaceDocContent.delRow(CC, rowId);
   }
 
   public restoreItem(rowId: Id) {

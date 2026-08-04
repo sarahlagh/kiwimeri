@@ -7,7 +7,6 @@ import { genericReorder } from '@/shared/dnd/utils';
 import { SortableType } from '@/shared/misc/sort-filter/sort';
 import type { SerializedEditorState } from 'lexical';
 import { getUniqueId, Id } from 'tinybase/common';
-import { storageService } from '../space-merging/storage.service';
 import { NotesSort } from './collection-settings';
 import { settingsService } from './collection-settings.service';
 import { BaseDocAnnotation } from './document-annotations';
@@ -93,8 +92,13 @@ class DocumentAnnotationsService {
         space.setCell(C, itemId, 'updatedAt', Date.now());
       }
       space.delRow(A, id);
-      storageService.cleanupRow(id, A);
+      this.cleanupDeletedAnnot(id);
     });
+  }
+
+  public cleanupDeletedAnnot(rowId: Id) {
+    space.delRow(AV, rowId);
+    spaceDocContent.delRow(AC, rowId);
   }
 
   public deleteAll(parentId: Id) {
