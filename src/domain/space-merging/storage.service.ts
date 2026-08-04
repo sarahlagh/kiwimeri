@@ -33,11 +33,7 @@ import {
   DocAnnotationRow,
   DocAnnotationUpdatableFields
 } from '../collection/document-annotations';
-import {
-  ContentRow,
-  getDerivedId,
-  getDerivedTable
-} from '../collection/document-content';
+import { ContentRow, getContentTable } from '../collection/document-content';
 import { resumeService } from '../collection/resume-state.service';
 import tagsService from '../collection/tags.service';
 import { historyService } from '../history/history.service';
@@ -64,8 +60,9 @@ const H = SpaceArchiveTables.History;
 const HC = SpaceArchiveTables.HistoryContent;
 const S = SpaceTables.Stats;
 const CC = SpaceDocContentTables.CollectionContent;
-const DerivedPreview = SpaceTables.DerivedPreview;
-const DerivedState = SpaceTables.DerivedState;
+const CV = SpaceTables.CollectionItemView;
+const AV = SpaceTables.AnnotationView;
+const ProjectedState = SpaceTables.ProjectedState;
 const AC = SpaceDocContentTables.AnnotationContent;
 const ResumeState = SpaceTables.ResumeState;
 
@@ -163,8 +160,7 @@ class StorageService {
         if (!collectionContent[rowId]?.content) return;
         const plainText = getPlainText(collectionContent[rowId].content);
         const previewText = plainText.substring(0, DOC_PREVIEW_SIZE);
-        const derivedId = getDerivedId('c', rowId);
-        space.setRow(SpaceTables.DerivedPreview, derivedId, {
+        space.setRow(CV, rowId, {
           previewText
         });
         spaceDocContent.setCell(
@@ -183,8 +179,7 @@ class StorageService {
         if (!annotationsContent[rowId]?.content) return;
         const plainText = getPlainText(annotationsContent[rowId].content);
         const previewText = plainText.substring(0, ANNOT_PREVIEW_SIZE);
-        const derivedId = getDerivedId('a', rowId);
-        space.setRow(SpaceTables.DerivedPreview, derivedId, {
+        space.setRow(AV, rowId, {
           previewText
         });
         spaceDocContent.setCell(
@@ -202,19 +197,15 @@ class StorageService {
   }
 
   public cleanupRow(rowId: string, on: SpaceTableId) {
-    let derivedId;
     if (on === SpaceTables.Collection) {
-      derivedId = getDerivedId('c', rowId);
-      space.delRow(DerivedState, rowId);
+      space.delRow(ProjectedState, rowId);
       space.delRow(ResumeState, rowId);
+      space.delRow(CV, rowId);
       spaceDocContent.delRow(CC, rowId);
     }
     if (on === SpaceTables.Annotations) {
-      derivedId = getDerivedId('a', rowId);
+      space.delRow(AV, rowId);
       spaceDocContent.delRow(AC, rowId);
-    }
-    if (derivedId) {
-      space.delRow(DerivedPreview, derivedId);
     }
   }
 
@@ -384,7 +375,7 @@ class StorageService {
     space.startTransaction();
     try {
       this.setWithContent(structuredClone(content), 'items', C);
-      collectionService.backfillDerivedStates(content.items);
+      collectionService.backfillProjectedStates(content.items);
       this.setWithContent(structuredClone(content), 'annots', A);
 
       if (withUserPrefs) {
@@ -403,7 +394,7 @@ class StorageService {
     tableId: SpaceTableId
   ) {
     space.delTable(tableId);
-    const contentTable = getDerivedTable(tableId);
+    const contentTable = getContentTable(tableId);
     Object.keys(content[itemsKey]).forEach(rowId => {
       const row = content[itemsKey][rowId] as
         | BaseCollectionItem

@@ -4,20 +4,16 @@ import { space, spaceDocContent } from '@/core/db/store';
 import { SpaceDocContentTables, SpaceTables } from '@/core/db/store-constants';
 import { disableListeners } from '@/core/db/store-listeners';
 import collectionService from '@/domain/collection/collection.service';
+import { getViewTable } from '@/domain/collection/derived-item-state';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
-import {
-  DerivedPrefix,
-  getDerivedId
-} from '@/domain/collection/document-content';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { historyService } from '@/domain/history/history.service';
 import { getNewParsedContent } from '@@/_setup/test.utils';
 
-function assertDerivedTablesAreCleared(on: 'c' | 'a', id: string) {
-  expect(space.hasRow(SpaceTables.DerivedPreview, getDerivedId(on, id))).toBe(
-    false
-  );
-  expect(space.hasRow(SpaceTables.DerivedState, id)).toBe(false);
+function assertDerivedTablesAreCleared(on: SpaceTables, id: string) {
+  const viewTable = getViewTable(on)!;
+  expect(space.hasRow(viewTable, id)).toBe(false);
+  expect(space.hasRow(SpaceTables.ProjectedState, id)).toBe(false);
   expect(space.hasRow(SpaceTables.ResumeState, id)).toBe(false);
   expect(
     spaceDocContent.hasRow(SpaceDocContentTables.CollectionContent, id)
@@ -27,18 +23,21 @@ function assertDerivedTablesAreCleared(on: 'c' | 'a', id: string) {
   ).toBe(false);
 }
 
-function assertDerivedTablesAreNotCleared(on: DerivedPrefix, id: string) {
-  expect(space.hasRow(SpaceTables.DerivedPreview, getDerivedId(on, id))).toBe(
-    true
+function assertDerivedTablesAreNotCleared(on: SpaceTables, id: string) {
+  const viewTable = getViewTable(on)!;
+  expect(space.hasRow(viewTable, id)).toBe(true);
+  expect(space.hasRow(SpaceTables.ProjectedState, id)).toBe(
+    on === SpaceTables.Collection
   );
-  expect(space.hasRow(SpaceTables.DerivedState, id)).toBe(on === 'c');
-  expect(space.hasRow(SpaceTables.ResumeState, id)).toBe(on === 'c');
+  expect(space.hasRow(SpaceTables.ResumeState, id)).toBe(
+    on === SpaceTables.Collection
+  );
   expect(
     spaceDocContent.hasRow(SpaceDocContentTables.CollectionContent, id)
-  ).toBe(on === 'c');
+  ).toBe(on === SpaceTables.Collection);
   expect(
     spaceDocContent.hasRow(SpaceDocContentTables.AnnotationContent, id)
-  ).toBe(on === 'a');
+  ).toBe(on === SpaceTables.Annotations);
 }
 
 describe('002-delete-orphaned-states', () => {
@@ -61,8 +60,8 @@ describe('002-delete-orphaned-states', () => {
       Migration(space as never, spaceDocContent as never);
     });
 
-    assertDerivedTablesAreNotCleared('c', id);
-    assertDerivedTablesAreNotCleared('a', noteId);
+    assertDerivedTablesAreNotCleared(SpaceTables.Collection, id);
+    assertDerivedTablesAreNotCleared(SpaceTables.Annotations, noteId);
   });
 
   it('should clear orphaned items', () => {
@@ -78,8 +77,8 @@ describe('002-delete-orphaned-states', () => {
       Migration(space as never, spaceDocContent as never);
     });
 
-    assertDerivedTablesAreCleared('c', id);
-    assertDerivedTablesAreNotCleared('a', noteId);
+    assertDerivedTablesAreCleared(SpaceTables.Collection, id);
+    assertDerivedTablesAreNotCleared(SpaceTables.Annotations, noteId);
   });
 
   it('should clear orphaned annots', () => {
@@ -95,7 +94,7 @@ describe('002-delete-orphaned-states', () => {
       Migration(space as never, spaceDocContent as never);
     });
 
-    assertDerivedTablesAreNotCleared('c', id);
-    assertDerivedTablesAreCleared('a', noteId);
+    assertDerivedTablesAreNotCleared(SpaceTables.Collection, id);
+    assertDerivedTablesAreCleared(SpaceTables.Annotations, noteId);
   });
 });

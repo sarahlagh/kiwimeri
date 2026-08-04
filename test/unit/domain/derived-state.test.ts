@@ -56,13 +56,13 @@ describe('derived state', () => {
       // has at least one notebook
 
       // test path
-      expect(space.getRowIds(SpaceTables.DerivedState)).toHaveLength(1);
-      expect(space.getRowIds(SpaceTables.DerivedState)[0]).toBe(
+      expect(space.getRowIds(SpaceTables.ProjectedState)).toHaveLength(1);
+      expect(space.getRowIds(SpaceTables.ProjectedState)[0]).toBe(
         DEFAULT_NOTEBOOK_ID
       );
       expect(
         space.getCell(
-          SpaceTables.DerivedState,
+          SpaceTables.ProjectedState,
           DEFAULT_NOTEBOOK_ID,
           'shortPath'
         )
@@ -103,7 +103,7 @@ describe('derived state', () => {
 
       // pull - newest items are removed
       space.setContent(space_content);
-      collectionService.backfillDerivedStates(space_content[0].collection);
+      collectionService.backfillProjectedStates(space_content[0].collection);
 
       testExpectedPaths([
         ['0', 'F1', 'FF1', 'FFF1', 'D1'],
@@ -174,12 +174,12 @@ describe('derived state', () => {
 
       collectionService.deleteItem('FF1');
 
-      expect(space.hasRow(SpaceTables.DerivedState, 'F1')).toBe(true);
-      expect(space.hasRow(SpaceTables.DerivedState, 'FF1')).toBe(false);
-      expect(space.hasRow(SpaceTables.DerivedState, 'FFF1')).toBe(false);
-      expect(space.hasRow(SpaceTables.DerivedState, 'D1')).toBe(false);
-      expect(space.hasRow(SpaceTables.DerivedState, 'F2')).toBe(true);
-      expect(space.hasRow(SpaceTables.DerivedState, 'FF2')).toBe(true);
+      expect(space.hasRow(SpaceTables.ProjectedState, 'F1')).toBe(true);
+      expect(space.hasRow(SpaceTables.ProjectedState, 'FF1')).toBe(false);
+      expect(space.hasRow(SpaceTables.ProjectedState, 'FFF1')).toBe(false);
+      expect(space.hasRow(SpaceTables.ProjectedState, 'D1')).toBe(false);
+      expect(space.hasRow(SpaceTables.ProjectedState, 'F2')).toBe(true);
+      expect(space.hasRow(SpaceTables.ProjectedState, 'FF2')).toBe(true);
     });
   });
 
@@ -233,7 +233,7 @@ describe('derived state', () => {
 
       collectionService.deleteItem('FF1');
 
-      expect(space.hasRow(SpaceTables.DerivedPreview, 'c-D1')).toBe(false);
+      expect(space.hasRow(SpaceTables.CollectionItemView, 'D1')).toBe(false);
     });
   });
 
@@ -247,12 +247,12 @@ describe('derived state', () => {
 
     function expectUpdatedAtRank(rowId: string, rank?: number) {
       expect(
-        space.getCell(SpaceTables.DerivedState, rowId, 'updatedAtRank')
+        space.getCell(SpaceTables.CollectionItemView, rowId, 'updatedAtRank')
       ).toBe(rank);
     }
     function expectLastOpenedAtRank(rowId: string, rank?: number) {
       expect(
-        space.getCell(SpaceTables.DerivedState, rowId, 'lastOpenedAtRank')
+        space.getCell(SpaceTables.CollectionItemView, rowId, 'lastOpenedAtRank')
       ).toBe(rank);
     }
 
@@ -271,7 +271,7 @@ describe('derived state', () => {
       adv(() => collectionService.deleteItem(docId));
       adv(() => collectionService.setItemTitle(doc1.id, 'yo'));
       expect(space.getRowCount(SpaceTables.Collection)).toBe(3); // doc1 + doc2 + notebook
-      expect(space.hasRow(SpaceTables.DerivedState, docId)).toBe(false);
+      expect(space.hasRow(SpaceTables.ProjectedState, docId)).toBe(false);
       // doc2, doc1
 
       expectUpdatedAtRank(DEFAULT_NOTEBOOK_ID, 0);
@@ -302,11 +302,12 @@ describe('derived state', () => {
       space.setContent([
         {
           collection: space_content[0].collection,
-          derived_item_state: space_content[0].derived_item_state
+          collection_projected_state:
+            space_content[0].collection_projected_state
         },
         {}
       ]);
-      collectionService.backfillDerivedStates();
+      collectionService.backfillProjectedStates();
       expectUpdatedAtRank(doc1Id, 1);
       expectUpdatedAtRank(doc2Id, 2);
       expectUpdatedAtRank(doc3Id, 3);

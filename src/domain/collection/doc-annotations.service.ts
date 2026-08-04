@@ -11,12 +11,11 @@ import { storageService } from '../space-merging/storage.service';
 import { NotesSort } from './collection-settings';
 import { settingsService } from './collection-settings.service';
 import { BaseDocAnnotation } from './document-annotations';
-import { getDerivedId } from './document-content';
 
 const A = SpaceTables.Annotations;
 const AC = SpaceDocContentTables.AnnotationContent;
 const C = SpaceTables.Collection;
-const DP = SpaceTables.DerivedPreview;
+const AV = SpaceTables.AnnotationView;
 
 class DocumentAnnotationsService {
   public newNoteObj(itemId: Id): { item: BaseDocAnnotation; id: Id } {
@@ -138,7 +137,7 @@ class DocumentAnnotationsService {
   }
 
   public getPreview(id: Id) {
-    return space.getCell(DP, getDerivedId('a', id), 'previewText') || '';
+    return space.getCell(AV, id, 'previewText') || '';
   }
 
   public getAnnotInfo(id: Id) {

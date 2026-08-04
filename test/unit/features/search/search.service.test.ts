@@ -31,7 +31,7 @@ describe('search service', () => {
   beforeEach(() => {
     space.transaction(() => {
       space.setJson(jsonCollection);
-      collectionService.backfillDerivedStates(
+      collectionService.backfillProjectedStates(
         JSON.parse(jsonCollection)[0]['collection']
       );
     });

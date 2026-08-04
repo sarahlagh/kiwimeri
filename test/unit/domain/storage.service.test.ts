@@ -71,8 +71,9 @@ describe('storage service', () => {
 
       expect(space.getRowCount(SpaceTables.Collection)).toBe(2);
       expect(space.getRowCount(SpaceTables.Annotations)).toBe(1);
-      expect(space.getRowCount(SpaceTables.DerivedState)).toBe(2);
-      expect(space.getRowCount(SpaceTables.DerivedPreview)).toBe(2);
+      expect(space.getRowCount(SpaceTables.ProjectedState)).toBe(2);
+      expect(space.getRowCount(SpaceTables.CollectionItemView)).toBe(2); // all items have updatedAtRank so notebook + doc
+      expect(space.getRowCount(SpaceTables.AnnotationView)).toBe(1);
       expect(space.getRowCount(SpaceTables.LocalChanges)).toBe(2);
       expect(space.getRowCount(SpaceTables.ResumeState)).toBe(0);
       expect(
@@ -120,8 +121,9 @@ describe('storage service', () => {
 
       expect(space.getRowCount(SpaceTables.Collection)).toBe(2);
       expect(space.getRowCount(SpaceTables.Annotations)).toBe(1);
-      expect(space.getRowCount(SpaceTables.DerivedState)).toBe(2);
-      expect(space.getRowCount(SpaceTables.DerivedPreview)).toBe(2);
+      expect(space.getRowCount(SpaceTables.ProjectedState)).toBe(2);
+      expect(space.getRowCount(SpaceTables.CollectionItemView)).toBe(2); // all items have updatedAtRank so notebook + doc
+      expect(space.getRowCount(SpaceTables.AnnotationView)).toBe(1);
       expect(space.getRowCount(SpaceTables.LocalChanges)).toBe(2);
       expect(space.getRowCount(SpaceTables.ResumeState)).toBe(0);
       expect(
@@ -156,8 +158,9 @@ describe('storage service', () => {
 
       expect(space.getRowCount(SpaceTables.Collection)).toBe(2);
       expect(space.getRowCount(SpaceTables.Annotations)).toBe(1);
-      expect(space.getRowCount(SpaceTables.DerivedState)).toBe(2);
-      expect(space.getRowCount(SpaceTables.DerivedPreview)).toBe(2);
+      expect(space.getRowCount(SpaceTables.ProjectedState)).toBe(2);
+      expect(space.getRowCount(SpaceTables.CollectionItemView)).toBe(2); // all items have updatedAtRank so notebook + doc
+      expect(space.getRowCount(SpaceTables.AnnotationView)).toBe(1);
       expect(space.getRowCount(SpaceTables.LocalChanges)).toBe(1);
       expect(space.getRowCount(SpaceTables.ResumeState)).toBe(0);
       expect(
@@ -190,8 +193,9 @@ describe('storage service', () => {
 
       expect(space.getRowCount(SpaceTables.Collection)).toBe(2);
       expect(space.getRowCount(SpaceTables.Annotations)).toBe(1);
-      expect(space.getRowCount(SpaceTables.DerivedState)).toBe(2);
-      expect(space.getRowCount(SpaceTables.DerivedPreview)).toBe(2);
+      expect(space.getRowCount(SpaceTables.ProjectedState)).toBe(2);
+      expect(space.getRowCount(SpaceTables.CollectionItemView)).toBe(2); // all items have updatedAtRank so notebook + doc
+      expect(space.getRowCount(SpaceTables.AnnotationView)).toBe(1);
       expect(space.getRowCount(SpaceTables.LocalChanges)).toBe(1);
       expect(space.getRowCount(SpaceTables.ResumeState)).toBe(0);
       expect(
@@ -225,8 +229,9 @@ describe('storage service', () => {
 
       expect(space.getRowCount(SpaceTables.Collection)).toBe(2);
       expect(space.getRowCount(SpaceTables.Annotations)).toBe(1);
-      expect(space.getRowCount(SpaceTables.DerivedState)).toBe(2);
-      expect(space.getRowCount(SpaceTables.DerivedPreview)).toBe(2);
+      expect(space.getRowCount(SpaceTables.ProjectedState)).toBe(2);
+      expect(space.getRowCount(SpaceTables.CollectionItemView)).toBe(2); // all items have updatedAtRank so notebook + doc
+      expect(space.getRowCount(SpaceTables.AnnotationView)).toBe(1);
       expect(space.getRowCount(SpaceTables.LocalChanges)).toBe(1);
       expect(space.getRowCount(SpaceTables.ResumeState)).toBe(0);
       expect(
@@ -260,8 +265,9 @@ describe('storage service', () => {
 
       expect(space.getRowCount(SpaceTables.Collection)).toBe(2);
       expect(space.getRowCount(SpaceTables.Annotations)).toBe(1);
-      expect(space.getRowCount(SpaceTables.DerivedState)).toBe(2);
-      expect(space.getRowCount(SpaceTables.DerivedPreview)).toBe(2);
+      expect(space.getRowCount(SpaceTables.ProjectedState)).toBe(2);
+      expect(space.getRowCount(SpaceTables.CollectionItemView)).toBe(2); // all items have updatedAtRank so notebook + doc
+      expect(space.getRowCount(SpaceTables.AnnotationView)).toBe(1);
       expect(space.getRowCount(SpaceTables.LocalChanges)).toBe(1);
       expect(space.getRowCount(SpaceTables.ResumeState)).toBe(0);
       expect(

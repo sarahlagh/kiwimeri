@@ -6,8 +6,9 @@ export default function Migration(
   _spaceDocContent: Store<never>
 ) {
   rowIdForRowId(_space, SpaceTables.ResumeState);
-  rowIdForRowId(_space, SpaceTables.DerivedState);
-  rowIdForDerivedRowId(_space, SpaceTables.DerivedPreview);
+  rowIdForRowId(_space, SpaceTables.ProjectedState);
+  rowIdForRowId(_space, SpaceTables.CollectionItemView);
+  rowIdForRowId(_space, SpaceTables.AnnotationView, SpaceTables.Annotations);
   rowIdForContentRowId(
     _space,
     _spaceDocContent,
@@ -22,37 +23,18 @@ export default function Migration(
   );
 }
 
-function rowIdForRowId(_space: Store<never>, tableId: SpaceTables) {
+function rowIdForRowId(
+  _space: Store<never>,
+  tableId: SpaceTables,
+  inTableId: SpaceTables = SpaceTables.Collection
+) {
   let count = 0;
   const rowIds = _space.getRowIds(tableId);
   _space.transaction(() => {
     rowIds.forEach(rowId => {
-      if (!_space.hasRow(SpaceTables.Collection, rowId)) {
+      if (!_space.hasRow(inTableId, rowId)) {
         _space.delRow(tableId, rowId);
         count++;
-      }
-    });
-  });
-  if (count > 0) console.log('table', tableId, `had ${count} to delete`);
-}
-
-function rowIdForDerivedRowId(_space: Store<never>, tableId: SpaceTables) {
-  let count = 0;
-  const rowIds = _space.getRowIds(tableId);
-  _space.transaction(() => {
-    rowIds.forEach(rowId => {
-      const [on] = rowId.split('-');
-      const itemId = rowId.substring(2);
-      if (on === 'c') {
-        if (!_space.hasRow(SpaceTables.Collection, itemId)) {
-          _space.delRow(tableId, rowId);
-          count++;
-        }
-      } else if (on === 'a') {
-        if (!_space.hasRow(SpaceTables.Annotations, itemId)) {
-          _space.delRow(tableId, rowId);
-          count++;
-        }
       }
     });
   });

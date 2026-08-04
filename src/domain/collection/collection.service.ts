@@ -40,7 +40,6 @@ import { Table } from 'tinybase/with-schemas';
 import { historyService } from '../history/history.service';
 import { storageService } from '../space-merging/storage.service';
 import { annotsService } from './doc-annotations.service';
-import { getDerivedId } from './document-content';
 
 export const initialContent = () => {
   // 'empty' editor
@@ -51,8 +50,8 @@ export const INITIAL_CONTENT_START = '{"root":{';
 
 const C = SpaceTables.Collection;
 const CC = SpaceDocContentTables.CollectionContent;
-const DerivedPreview = SpaceTables.DerivedPreview;
-const DerivedState = SpaceTables.DerivedState;
+const CV = SpaceTables.CollectionItemView;
+const ProjectedState = SpaceTables.ProjectedState;
 const CollectionContent = SpaceDocContentTables.CollectionContent;
 
 class CollectionService {
@@ -119,9 +118,7 @@ class CollectionService {
   }
 
   public getDocumentPreview(id: string) {
-    return (
-      space.getCell(DerivedPreview, getDerivedId('c', id), 'previewText') || ''
-    );
+    return space.getCell(CV, id, 'previewText') || '';
   }
 
   public getItem(id: string): CollectionItem {
@@ -439,7 +436,7 @@ class CollectionService {
   ) {
     this.calcState(parent, tmpTable);
     // if has children, update their breadcrumbs too
-    const stateTable = space.getTable(DerivedState);
+    const stateTable = space.getTable(ProjectedState);
     Object.keys(stateTable).forEach(rowId => {
       const state = stateTable[rowId];
       if (state.fullPath?.includes(parent)) {
@@ -488,7 +485,7 @@ class CollectionService {
     table: Table<SpaceTablesType, SpaceTables.Collection>
   ) {
     const { fullPath, shortPath } = this.getPaths(id, table);
-    space.setPartialRow(DerivedState, id, {
+    space.setPartialRow(ProjectedState, id, {
       fullPath,
       shortPath
     });
@@ -567,7 +564,7 @@ class CollectionService {
     return allDocs.keys();
   }
 
-  public backfillDerivedStates(
+  public backfillProjectedStates(
     tmpTable?: Table<SpaceTablesType, SpaceTables.Collection>,
     rowIds?: Ids
   ) {
@@ -585,7 +582,7 @@ class CollectionService {
 
   public getBreadcrumb(rowId: string, includeAllNotebooks = false) {
     const breadcrumb = space.getCell(
-      DerivedState,
+      ProjectedState,
       rowId,
       includeAllNotebooks ? 'fullPath' : 'shortPath'
     );

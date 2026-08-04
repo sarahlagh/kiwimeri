@@ -9,7 +9,7 @@ import {
   stopDerivedTablesListeners
 } from '@/domain/collection/derived-tables-listeners';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
-import { getDerivedTable } from '@/domain/collection/document-content';
+import { getContentTable } from '@/domain/collection/document-content';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { historyService } from '@/domain/history/history.service';
 import {
@@ -358,7 +358,7 @@ describe('local changes listeners', () => {
       }
     });
     const testId = space.addRow(tableId, fakeRow)!;
-    const derivedTableId = getDerivedTable(tableId);
+    const derivedTableId = getContentTable(tableId);
     if (Object.keys(fakeContentRow).length > 0 && derivedTableId) {
       spaceDocContent.setRow(derivedTableId, testId, fakeContentRow);
     }
@@ -371,7 +371,7 @@ describe('local changes listeners', () => {
     wf: TestField,
     value?: never
   ) {
-    const derivedTableId = getDerivedTable(tableId);
+    const derivedTableId = getContentTable(tableId);
     const _value = value !== undefined ? value : getValue(wf);
     if (wf.field === 'content' && derivedTableId) {
       spaceDocContent.setCell(derivedTableId, testId, getField(wf), _value);
@@ -381,7 +381,7 @@ describe('local changes listeners', () => {
   }
 
   function getFieldValue(tableId: never, testId: string, wf: TestField) {
-    const derivedTableId = getDerivedTable(tableId);
+    const derivedTableId = getContentTable(tableId);
     if (wf.field === 'content' && derivedTableId) {
       return spaceDocContent.getCell(derivedTableId, testId, getField(wf));
     } else {
@@ -391,7 +391,7 @@ describe('local changes listeners', () => {
 
   function delRow(tableId: never, testId: string) {
     space.delRow(tableId, testId);
-    const derivedTableId = getDerivedTable(tableId);
+    const derivedTableId = getContentTable(tableId);
     if (derivedTableId) spaceDocContent.delRow(derivedTableId, testId);
   }
 

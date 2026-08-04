@@ -6,7 +6,6 @@ import { CollectionItemType } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
 import { minimizeContentForStorage } from '@/domain/collection/compress-file-content';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
-import { getDerivedId } from '@/domain/collection/document-content';
 import { historyService } from '@/domain/history/history.service';
 import { conflictsService } from '@/domain/space-merging/conflicts-service';
 import { LocalChangeType } from '@/domain/synchronization/local-changes';
@@ -789,12 +788,8 @@ describe('collection synchronizer', () => {
 
       function assertPlainText(pt1: string, pt2: string) {
         expect(space.getRowCount(SpaceTables.Annotations)).toBe(2);
-        expect(
-          space.hasRow(SpaceTables.Annotations, getDerivedId('a', notes[0].id))
-        );
-        expect(
-          space.hasRow(SpaceTables.Annotations, getDerivedId('a', notes[1].id))
-        );
+        expect(space.hasRow(SpaceTables.AnnotationView, notes[0].id));
+        expect(space.hasRow(SpaceTables.AnnotationView, notes[1].id));
         expect(
           spaceDocContent.getCell(
             SpaceDocContentTables.AnnotationContent,
@@ -1363,10 +1358,10 @@ describe('collection synchronizer', () => {
       await synchronizer.sync();
 
       expect(
-        space.getCell(SpaceTables.DerivedState, items[0].id!, 'fullPath')
+        space.getCell(SpaceTables.ProjectedState, items[0].id!, 'fullPath')
       ).toEqual([DEFAULT_NOTEBOOK_ID]);
       expect(
-        space.getCell(SpaceTables.DerivedState, items[1].id!, 'fullPath')
+        space.getCell(SpaceTables.ProjectedState, items[1].id!, 'fullPath')
       ).toEqual([DEFAULT_NOTEBOOK_ID, items[1].id]);
     });
 
@@ -1377,12 +1372,12 @@ describe('collection synchronizer', () => {
       await synchronizer.pull(true);
 
       expect(collectionService.itemExists(docId)).toBe(false);
-      expect(space.hasRow(SpaceTables.DerivedState, docId)).toBe(false);
+      expect(space.hasRow(SpaceTables.ProjectedState, docId)).toBe(false);
       expect(
-        space.getCell(SpaceTables.DerivedState, items[0].id!, 'fullPath')
+        space.getCell(SpaceTables.ProjectedState, items[0].id!, 'fullPath')
       ).toEqual([DEFAULT_NOTEBOOK_ID]);
       expect(
-        space.getCell(SpaceTables.DerivedState, items[1].id!, 'fullPath')
+        space.getCell(SpaceTables.ProjectedState, items[1].id!, 'fullPath')
       ).toEqual([DEFAULT_NOTEBOOK_ID, items[1].id]);
     });
 
@@ -1402,13 +1397,13 @@ describe('collection synchronizer', () => {
       await synchronizer.sync();
 
       expect(
-        space.getCell(SpaceTables.DerivedState, fol2.id, 'fullPath')
+        space.getCell(SpaceTables.ProjectedState, fol2.id, 'fullPath')
       ).toEqual([DEFAULT_NOTEBOOK_ID, fol2.id]);
       expect(
-        space.getCell(SpaceTables.DerivedState, folId, 'fullPath')
+        space.getCell(SpaceTables.ProjectedState, folId, 'fullPath')
       ).toEqual([DEFAULT_NOTEBOOK_ID, fol2.id, folId]);
       expect(
-        space.getCell(SpaceTables.DerivedState, docId, 'fullPath')
+        space.getCell(SpaceTables.ProjectedState, docId, 'fullPath')
       ).toEqual([DEFAULT_NOTEBOOK_ID, fol2.id, folId, docId]);
     });
   });

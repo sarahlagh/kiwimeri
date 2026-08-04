@@ -1,10 +1,11 @@
 import { collectionSchema } from '@/domain/collection/collection';
-import { derivedItemStateSchema } from '@/domain/collection/derived-item-state';
-import { docAnnotationSchema } from '@/domain/collection/document-annotations';
 import {
-  contentSchema,
-  derivedPreviewSchema
-} from '@/domain/collection/document-content';
+  annotationsViewSchema,
+  collectionItemViewSchema,
+  projectedItemStateSchema
+} from '@/domain/collection/derived-item-state';
+import { docAnnotationSchema } from '@/domain/collection/document-annotations';
+import { contentSchema } from '@/domain/collection/document-content';
 import { resumeStateSchema } from '@/domain/collection/resume-state';
 import { historyContentSchema, historySchema } from '@/domain/history/history';
 import { statsSchema } from '@/domain/stats/stats';
@@ -43,8 +44,9 @@ export const spaceTablesSchema = {
   stats: statsSchema,
   document_annotation: docAnnotationSchema,
   user_preference: userPreferenceSchema,
-  derived_item_state: derivedItemStateSchema,
-  derived_preview: derivedPreviewSchema,
+  collection_projected_state: projectedItemStateSchema,
+  collection_item_view: collectionItemViewSchema,
+  document_annotation_view: annotationsViewSchema,
   local_change: localChangesSchema,
   remote: remotesSchema,
   replica_state: replicaStatesSchema

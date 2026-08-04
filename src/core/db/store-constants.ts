@@ -9,8 +9,9 @@ export enum SpaceTables {
   Stats = 'stats',
   Annotations = 'document_annotation',
   UserPreference = 'user_preference',
-  DerivedState = 'derived_item_state',
-  DerivedPreview = 'derived_preview',
+  ProjectedState = 'collection_projected_state',
+  CollectionItemView = 'collection_item_view',
+  AnnotationView = 'document_annotation_view',
   LocalChanges = 'local_change',
   Remote = 'remote',
   ReplicaState = 'replica_state'

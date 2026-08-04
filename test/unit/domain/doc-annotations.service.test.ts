@@ -5,7 +5,6 @@ import collectionService from '@/domain/collection/collection.service';
 import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-content';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
 import { BaseDocAnnotation } from '@/domain/collection/document-annotations';
-import { getDerivedId } from '@/domain/collection/document-content';
 import { LocalChangeType } from '@/domain/synchronization/local-changes';
 import localChangesService from '@/domain/synchronization/local-changes.service';
 import useNotesSort from '@/features/collection-notes-ui/hooks/useNotesSort';
@@ -38,9 +37,7 @@ function expectedLC(noteId: string, type: LocalChangeType, updated: number) {
 }
 
 function assertDerivedTablesCleared(id: string) {
-  expect(space.hasRow(SpaceTables.DerivedPreview, getDerivedId('a', id))).toBe(
-    false
-  );
+  expect(space.hasRow(SpaceTables.AnnotationView, id)).toBe(false);
   expect(
     spaceDocContent.hasRow(SpaceDocContentTables.AnnotationContent, id)
   ).toBe(false);

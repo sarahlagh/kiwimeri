@@ -6,7 +6,7 @@ import { getHash } from 'tinybase';
 import { Id } from 'tinybase/with-schemas';
 import collectionService from '../collection/collection.service';
 import { annotsService } from '../collection/doc-annotations.service';
-import { getDerivedTable } from '../collection/document-content';
+import { getContentTable } from '../collection/document-content';
 import { userPrefs } from '../user-preferences/user-preferences.service';
 import {
   LocalChangeOn,
@@ -147,7 +147,7 @@ class LocalChangesService {
                 localChange.previousData._v as never
               );
             } else {
-              const t = getDerivedTable(on);
+              const t = getContentTable(on);
               if (t)
                 spaceDocContent.setCell(
                   t,

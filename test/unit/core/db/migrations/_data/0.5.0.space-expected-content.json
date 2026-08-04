@@ -172,25 +172,6 @@
       },
       "xtid1X1laW4E5oUI": { "lastOpenedAt": 1782124247325 }
     },
-    "derived_item_state": {
-      "0": { "fullPath": ["0"], "shortPath": ["0"] },
-      "h-MOhEAYItMcMOJb": {
-        "fullPath": ["0", "h-MOhEAYItMcMOJb"],
-        "shortPath": ["0", "h-MOhEAYItMcMOJb"]
-      },
-      "cZ6l5keLw_D7s9Yq": {
-        "fullPath": ["0", "cZ6l5keLw_D7s9Yq"],
-        "shortPath": ["0", "cZ6l5keLw_D7s9Yq"]
-      },
-      "-br8f-vij3m0LJ8k": {
-        "fullPath": ["0", "-br8f-vij3m0LJ8k"],
-        "shortPath": ["0", "-br8f-vij3m0LJ8k"]
-      },
-      "xtid1X1laW4E5oUI": {
-        "fullPath": ["0", "-br8f-vij3m0LJ8k", "xtid1X1laW4E5oUI"],
-        "shortPath": ["0", "-br8f-vij3m0LJ8k", "xtid1X1laW4E5oUI"]
-      }
-    },
     "local_change": {
       "collection-cZ6l5keLw_D7s9Yq-u-content": {
         "itemId": "cZ6l5keLw_D7s9Yq",
@@ -248,16 +229,37 @@
         "driver": "pcloud"
       }
     },
-    "derived_preview": {
-      "c-h-MOhEAYItMcMOJb": { "previewText": "" },
-      "c-cZ6l5keLw_D7s9Yq": {
+    "collection_projected_state": {
+      "0": { "fullPath": ["0"], "shortPath": ["0"] },
+      "h-MOhEAYItMcMOJb": {
+        "fullPath": ["0", "h-MOhEAYItMcMOJb"],
+        "shortPath": ["0", "h-MOhEAYItMcMOJb"]
+      },
+      "cZ6l5keLw_D7s9Yq": {
+        "fullPath": ["0", "cZ6l5keLw_D7s9Yq"],
+        "shortPath": ["0", "cZ6l5keLw_D7s9Yq"]
+      },
+      "-br8f-vij3m0LJ8k": {
+        "fullPath": ["0", "-br8f-vij3m0LJ8k"],
+        "shortPath": ["0", "-br8f-vij3m0LJ8k"]
+      },
+      "xtid1X1laW4E5oUI": {
+        "fullPath": ["0", "-br8f-vij3m0LJ8k", "xtid1X1laW4E5oUI"],
+        "shortPath": ["0", "-br8f-vij3m0LJ8k", "xtid1X1laW4E5oUI"]
+      }
+    },
+    "collection_item_view": {
+      "h-MOhEAYItMcMOJb": { "previewText": "" },
+      "cZ6l5keLw_D7s9Yq": {
         "previewText": "What is Lorem Ipsum? Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since 1966, when designers at Letraset and "
       },
-      "c-xtid1X1laW4E5oUI": { "previewText": "" },
-      "a-u0R3jqIujM3O_8IT": { "previewText": "https://www.lipsum.com/" },
-      "a-dfa7xjA21tkzBm44": { "previewText": "1" },
-      "a-0INbpodHu1NOc3hA": { "previewText": "2" },
-      "a-jjm_oGzicsvYfSGM": { "previewText": "3" }
+      "xtid1X1laW4E5oUI": { "previewText": "" }
+    },
+    "document_annotation_view": {
+      "u0R3jqIujM3O_8IT": { "previewText": "https://www.lipsum.com/" },
+      "dfa7xjA21tkzBm44": { "previewText": "1" },
+      "0INbpodHu1NOc3hA": { "previewText": "2" },
+      "jjm_oGzicsvYfSGM": { "previewText": "3" }
     }
   },
   {

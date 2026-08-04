@@ -17,8 +17,8 @@ import {
 import { CollectionItemSort } from '@/domain/collection/collection-settings';
 import collectionService from '@/domain/collection/collection.service';
 import { minimizeContentForStorage } from '@/domain/collection/compress-file-content';
+import { getViewTable } from '@/domain/collection/derived-item-state';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
-import { getDerivedId } from '@/domain/collection/document-content';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { historyService } from '@/domain/history/history.service';
@@ -42,11 +42,13 @@ const loremIpsum = JSON.parse(
   '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum\\"","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}'
 );
 
-function assertDerivedTablesAreCleared(on: 'c' | 'a', id: string) {
-  expect(space.hasRow(SpaceTables.DerivedPreview, getDerivedId(on, id))).toBe(
-    false
-  );
-  expect(space.hasRow(SpaceTables.DerivedState, id)).toBe(false);
+function assertDerivedTablesAreCleared(
+  on: SpaceTables.Collection | SpaceTables.Annotations,
+  id: string
+) {
+  const viewTable = getViewTable(on)!;
+  expect(space.hasRow(viewTable, id)).toBe(false);
+  expect(space.hasRow(SpaceTables.ProjectedState, id)).toBe(false);
   expect(space.hasRow(SpaceTables.ResumeState, id)).toBe(false);
   expect(
     spaceDocContent.hasRow(SpaceDocContentTables.CollectionContent, id)
@@ -56,18 +58,24 @@ function assertDerivedTablesAreCleared(on: 'c' | 'a', id: string) {
   ).toBe(false);
 }
 
-function assertDerivedTablesAreNotCleared(on: 'c' | 'a', id: string) {
-  expect(space.hasRow(SpaceTables.DerivedPreview, getDerivedId(on, id))).toBe(
-    true
+function assertDerivedTablesAreNotCleared(
+  on: SpaceTables.Collection | SpaceTables.Annotations,
+  id: string
+) {
+  const viewTable = getViewTable(on)!;
+  expect(space.hasRow(viewTable, id)).toBe(true);
+  expect(space.hasRow(SpaceTables.ProjectedState, id)).toBe(
+    on === SpaceTables.Collection
   );
-  expect(space.hasRow(SpaceTables.DerivedState, id)).toBe(on === 'c');
-  expect(space.hasRow(SpaceTables.ResumeState, id)).toBe(on === 'c');
+  expect(space.hasRow(SpaceTables.ResumeState, id)).toBe(
+    on === SpaceTables.Collection
+  );
   expect(
     spaceDocContent.hasRow(SpaceDocContentTables.CollectionContent, id)
-  ).toBe(on === 'c');
+  ).toBe(on === SpaceTables.Collection);
   expect(
     spaceDocContent.hasRow(SpaceDocContentTables.AnnotationContent, id)
-  ).toBe(on === 'a');
+  ).toBe(on === SpaceTables.Annotations);
 }
 
 describe('collection service', () => {
@@ -407,8 +415,8 @@ describe('collection service', () => {
           annotsService.edit(noteId, getNewParsedContent('another test'));
           resumeService.setLastSelectedNote(id, noteId);
           vi.advanceTimersByTime(100);
-          assertDerivedTablesAreNotCleared('c', id);
-          assertDerivedTablesAreNotCleared('a', noteId);
+          assertDerivedTablesAreNotCleared(SpaceTables.Collection, id);
+          assertDerivedTablesAreNotCleared(SpaceTables.Annotations, noteId);
 
           collectionService.deleteItem(id);
           const item = getCollectionItem(id);
@@ -417,8 +425,8 @@ describe('collection service', () => {
           expect(historyService.getLatestVersion(id)?.op).toBe('deleted');
           expect(annotsService.exists(noteId)).toBe(true);
 
-          assertDerivedTablesAreCleared('c', id);
-          assertDerivedTablesAreNotCleared('a', noteId);
+          assertDerivedTablesAreCleared(SpaceTables.Collection, id);
+          assertDerivedTablesAreNotCleared(SpaceTables.Annotations, noteId);
         });
 
         it(`should hard delete an existing document and and clear derived states`, () => {
@@ -431,8 +439,8 @@ describe('collection service', () => {
           const noteId = annotsService.addNote(id);
           resumeService.setLastSelectedNote(id, noteId);
           vi.advanceTimersByTime(100);
-          assertDerivedTablesAreNotCleared('c', id);
-          assertDerivedTablesAreNotCleared('a', noteId);
+          assertDerivedTablesAreNotCleared(SpaceTables.Collection, id);
+          assertDerivedTablesAreNotCleared(SpaceTables.Annotations, noteId);
           const hashes = historyService.getVersions(id).map(v => v.hash);
           hashes.forEach(hash => {
             expect(
@@ -453,8 +461,8 @@ describe('collection service', () => {
           });
           expect(annotsService.exists(noteId)).toBe(false);
 
-          assertDerivedTablesAreCleared('c', id);
-          assertDerivedTablesAreCleared('a', noteId);
+          assertDerivedTablesAreCleared(SpaceTables.Collection, id);
+          assertDerivedTablesAreCleared(SpaceTables.Annotations, noteId);
         });
       }
 

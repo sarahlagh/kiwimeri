@@ -11,18 +11,13 @@ import { getPlainText } from '@/shared/misc/getPlainText';
 import { Id } from 'tinybase/with-schemas';
 import { statsOnPlainTextCallback } from '../stats/stats-on-change-callback';
 import { CollectionItemType } from './collection';
-import {
-  DerivedPrefix,
-  getDerivedId,
-  getDerivedTable
-} from './document-content';
 
 const listeners: Id[] = [];
 const contentListeners: Id[] = [];
 
 function addDerivedContentListener(
-  tableId: SpaceDocContentTableId,
-  l: DerivedPrefix,
+  contentTableId: SpaceDocContentTableId,
+  viewTableId: SpaceTableId,
   onPlainTextChange?: (
     rowId: string,
     plainText: string,
@@ -31,33 +26,29 @@ function addDerivedContentListener(
 ) {
   contentListeners.push(
     spaceDocContent.addCellListener(
-      tableId,
+      contentTableId,
       null,
       'content',
       (_store, tableId, rowId, cellId, newCell, oldCell) => {
         if (newCell && newCell !== oldCell) {
           const plainText = getPlainText(newCell);
           const previewText = plainText.substring(0, DOC_PREVIEW_SIZE);
-          const derivedId = getDerivedId(l, rowId);
-          space.setRow(SpaceTables.DerivedPreview, derivedId, {
+          space.setRow(viewTableId, rowId, {
             previewText
           });
-          const derivedTable = getDerivedTable(l);
-          if (derivedTable) {
-            spaceDocContent.setCell(
-              derivedTable,
-              rowId,
-              'plainText',
-              plainText
-            );
-            const content_meta = spaceDocContent.getCell(
-              derivedTable,
-              rowId,
-              'content_meta'
-            ) as MetaField;
-            if (onPlainTextChange)
-              onPlainTextChange(rowId, plainText, content_meta);
-          }
+          spaceDocContent.setCell(
+            contentTableId,
+            rowId,
+            'plainText',
+            plainText
+          );
+          const content_meta = spaceDocContent.getCell(
+            contentTableId,
+            rowId,
+            'content_meta'
+          ) as MetaField;
+          if (onPlainTextChange)
+            onPlainTextChange(rowId, plainText, content_meta);
         }
       },
       true
@@ -65,10 +56,10 @@ function addDerivedContentListener(
   );
 }
 
-function addDerivedRankListeners<T extends SpaceTableId>(
+function addProjectedRankListeners<T extends SpaceTableId>(
   tableId: T,
   cellId: SpaceCellId<T>,
-  rankColumn: SpaceCellId<SpaceTables.DerivedState>,
+  rankColumn: SpaceCellId<SpaceTables.CollectionItemView>,
   onlyDocuments: boolean
 ) {
   listeners.push(
@@ -88,14 +79,14 @@ function addDerivedRankListeners<T extends SpaceTableId>(
                 return;
               }
               const existingRank = _space.getCell(
-                SpaceTables.DerivedState,
+                SpaceTables.CollectionItemView,
                 rowId,
                 rankColumn
               );
 
               if (idx !== existingRank) {
                 _space.setCell(
-                  SpaceTables.DerivedState,
+                  SpaceTables.CollectionItemView,
                   rowId,
                   rankColumn,
                   idx
@@ -109,14 +100,14 @@ function addDerivedRankListeners<T extends SpaceTableId>(
   );
 }
 
-function addDerivedStateListeners() {
-  addDerivedRankListeners(
+function addProjectedStateListeners() {
+  addProjectedRankListeners(
     SpaceTables.Collection,
     'updatedAt',
     'updatedAtRank',
     false
   );
-  addDerivedRankListeners(
+  addProjectedRankListeners(
     SpaceTables.ResumeState,
     'lastOpenedAt',
     'lastOpenedAtRank',
@@ -127,11 +118,14 @@ function addDerivedStateListeners() {
 export function startDerivedTablesListeners() {
   addDerivedContentListener(
     SpaceDocContentTables.CollectionContent,
-    'c',
+    SpaceTables.CollectionItemView,
     statsOnPlainTextCallback
   );
-  addDerivedContentListener(SpaceDocContentTables.AnnotationContent, 'a');
-  addDerivedStateListeners();
+  addDerivedContentListener(
+    SpaceDocContentTables.AnnotationContent,
+    SpaceTables.AnnotationView
+  );
+  addProjectedStateListeners();
 }
 
 export function stopDerivedTablesListeners() {

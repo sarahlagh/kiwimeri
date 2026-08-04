@@ -9,10 +9,13 @@ enum _SpaceTables {
   Annotations = 'document_annotation',
   DerivedContent = 'derived_content',
   DerivedPreview = 'derived_preview',
-  DerivedState = 'derived_item_state'
+  DerivedState = 'derived_item_state',
+  ProjectedState = 'collection_projected_state',
+  CollectionItemView = 'collection_item_view',
+  AnnotationView = 'document_annotation_view'
 }
 
-enum SpaceDocContentTables {
+enum _SpaceDocContentTables {
   CollectionContent = 'collection_content',
   AnnotationContent = 'document_annotation_content'
 }
@@ -23,10 +26,15 @@ const H = _SpaceTables.History;
 const S = _SpaceTables.Stats;
 const RS = _SpaceTables.ResumeState;
 const HC = _SpaceTables.HistoryContent;
-const DC = _SpaceTables.DerivedContent;
-const DP = _SpaceTables.DerivedPreview;
-const CollectionContent = SpaceDocContentTables.CollectionContent;
-const AnnotationContent = SpaceDocContentTables.AnnotationContent;
+const CC = _SpaceDocContentTables.CollectionContent;
+const AC = _SpaceDocContentTables.AnnotationContent;
+const ProjectedState = _SpaceTables.ProjectedState;
+const CV = _SpaceTables.CollectionItemView;
+const AV = _SpaceTables.AnnotationView;
+// previous tables
+const DerivedContent = _SpaceTables.DerivedContent;
+const DerivedPreview = _SpaceTables.DerivedPreview;
+const DerivedState = _SpaceTables.DerivedState;
 
 export default function Migration(
   _space: NoSchemaStore,
@@ -42,14 +50,27 @@ export default function Migration(
   lastOpenedAtGoesToResumeState(_space);
   historyGoesToSpaceArchive(_space, _spaceArchive);
   derivedContentGoesToDocContent(_spaceArchive, _spaceDocContent);
+
+  // 0.4.5
   contentFieldsGoToOtherSpace(_space, _spaceDocContent);
+  derivedStateBecomesProjectedState(_space);
+  splitDerivedPreviewInTwoViews(_space);
 }
 
 function addPreviewFieldFromPlainText(_space: NoSchemaStore) {
-  _space.getRowIds(DC).forEach(rowId => {
-    if (!_space.hasCell(DC, rowId, 'plainText')) return;
-    const plainText = _space.getCell(DC, rowId, 'plainText') as string;
-    _space.setCell(DP, rowId, 'previewText', plainText.substring(0, 200));
+  _space.getRowIds(DerivedContent).forEach(rowId => {
+    if (!_space.hasCell(DerivedContent, rowId, 'plainText')) return;
+    const plainText = _space.getCell(
+      DerivedContent,
+      rowId,
+      'plainText'
+    ) as string;
+    _space.setCell(
+      DerivedPreview,
+      rowId,
+      'previewText',
+      plainText.substring(0, 200)
+    );
   });
 }
 
@@ -82,7 +103,7 @@ function derivedContentGoesToArchive(
   _space: NoSchemaStore,
   _spaceArchive: NoSchemaStore
 ) {
-  _migrateTable(_space, _spaceArchive, DC, DC);
+  _migrateTable(_space, _spaceArchive, DerivedContent, DerivedContent);
 }
 
 function lastOpenedAtGoesToResumeState(_space: NoSchemaStore) {
@@ -107,24 +128,18 @@ function derivedContentGoesToDocContent(
   _spaceArchive: NoSchemaStore,
   _spaceDocContent: NoSchemaStore
 ) {
-  _spaceArchive.getRowIds(DC).forEach(rowId => {
+  _spaceArchive.getRowIds(DerivedContent).forEach(rowId => {
     const [on] = rowId.split('-');
     const itemId = rowId.substring(2) as string;
-    const plainText = _spaceArchive.getCell(DC, rowId, 'plainText') as string;
+    const plainText = _spaceArchive.getCell(
+      DerivedContent,
+      rowId,
+      'plainText'
+    ) as string;
     if (on === 'c') {
-      _spaceDocContent.setCell(
-        CollectionContent,
-        itemId,
-        'plainText',
-        plainText
-      );
+      _spaceDocContent.setCell(CC, itemId, 'plainText', plainText);
     } else if (on === 'a') {
-      _spaceDocContent.setCell(
-        AnnotationContent,
-        itemId,
-        'plainText',
-        plainText
-      );
+      _spaceDocContent.setCell(AC, itemId, 'plainText', plainText);
     }
   });
 }
@@ -151,6 +166,52 @@ function contentFieldsGoToOtherSpace(
   _space: NoSchemaStore,
   _spaceDocContent: NoSchemaStore
 ) {
-  _contentGoesToOtherSpace(_space, _spaceDocContent, C, CollectionContent);
-  _contentGoesToOtherSpace(_space, _spaceDocContent, A, AnnotationContent);
+  _contentGoesToOtherSpace(_space, _spaceDocContent, C, CC);
+  _contentGoesToOtherSpace(_space, _spaceDocContent, A, AC);
+}
+
+function renameTable(
+  _space: NoSchemaStore,
+  oldTable: string,
+  newTable: string
+) {
+  if (!_space.hasTable(oldTable)) {
+    return;
+  }
+  _space.getRowIds(oldTable).forEach(rowId => {
+    const row = _space.getRow(oldTable, rowId);
+    _space.setRow(newTable, rowId, row);
+  });
+}
+
+function derivedStateBecomesProjectedState(_space: NoSchemaStore) {
+  renameTable(_space, DerivedState, ProjectedState);
+}
+
+function splitDerivedPreviewInTwoViews(_space: NoSchemaStore) {
+  if (!_space.hasTable(DerivedPreview)) {
+    return;
+  }
+  _space.getRowIds(DerivedPreview).forEach(rowId => {
+    const row = _space.getRow(DerivedPreview, rowId);
+    const [on] = rowId.split('-');
+    const itemId = rowId.substring(2);
+    if (on === 'c') {
+      _space.setRow(CV, itemId, row);
+    } else if (on === 'a') {
+      _space.setRow(AV, itemId, row);
+    }
+  });
+  // rank goes to view too
+  _space.getRowIds(ProjectedState).forEach(rowId => {
+    const row = _space.getRow(ProjectedState, rowId);
+    const updatedAtRank = row.updatedAtRank;
+    const lastOpenedAtRank = row.lastOpenedAtRank;
+    if (updatedAtRank !== undefined) {
+      _space.setCell(CV, rowId, 'updatedAtRank', updatedAtRank);
+    }
+    if (lastOpenedAtRank !== undefined) {
+      _space.setCell(CV, rowId, 'lastOpenedAtRank', lastOpenedAtRank);
+    }
+  });
 }

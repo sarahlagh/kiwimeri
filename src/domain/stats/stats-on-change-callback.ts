@@ -12,7 +12,7 @@ export function statsOnPlainTextCallback(
 ) {
   const parentId = space.getCell(SpaceTables.Collection, rowId, 'parentId')!;
   const breadcrumb = space.getCell(
-    SpaceTables.DerivedState,
+    SpaceTables.ProjectedState,
     parentId,
     'shortPath'
   ) as string[];

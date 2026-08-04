@@ -173,7 +173,7 @@ describe.sequential(
       expect(spaceDocContent.getRowCount('collection_content')).toBeGreaterThan(
         0
       );
-      expect(space.getRowCount('derived_item_state')).toBeGreaterThan(0);
+      expect(space.getRowCount(SpaceTables.ProjectedState)).toBeGreaterThan(0);
     });
 
     it('should push new local items', async () => {
