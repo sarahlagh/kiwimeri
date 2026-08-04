@@ -18,7 +18,7 @@ import {
 import { annotsService } from '@/domain/collection/doc-annotations.service';
 import { DocAnnotation } from '@/domain/collection/document-annotations';
 import notebooksService from '@/domain/collection/notebooks.service';
-import { conflictsService } from '@/domain/space-merging/conflicts-service';
+import { conflictsService } from '@/domain/space-merging/conflicts.service';
 import { PCloudDriver } from '@/domain/synchronization/drivers/pcloud/pcloud.driver';
 import { LocalChangeType } from '@/domain/synchronization/local-changes';
 import localChangesService from '@/domain/synchronization/local-changes.service';

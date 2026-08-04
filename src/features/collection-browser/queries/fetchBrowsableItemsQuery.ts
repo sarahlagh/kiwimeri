@@ -2,7 +2,7 @@ import { DOC_PREVIEW_SIZE, ROOT_COLLECTION } from '@/constants';
 import { SpaceQueryDefinition } from '@/core/db/queries-helper';
 import { SpaceTables } from '@/core/db/store-constants';
 import { CollectionItemTypeValues } from '@/domain/collection/collection';
-import { conflictsService } from '@/domain/space-merging/conflicts-service';
+import { conflictsService } from '@/domain/space-merging/conflicts.service';
 import { BrowsableItemResult } from '../browsable-item';
 
 export type fetchBrowsableItemsQueryParam = {

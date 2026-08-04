@@ -1,5 +1,5 @@
 import { useQueryResults } from '@/core/db/queries-helper';
-import { conflictsService } from '@/domain/space-merging/conflicts-service';
+import { conflictsService } from '@/domain/space-merging/conflicts.service';
 import fetchAnnotsConflictsQuery from '@/domain/space-merging/queries/fetchAnnotsConflictsQuery';
 import { BrowsableItemResult } from '../browsable-item';
 

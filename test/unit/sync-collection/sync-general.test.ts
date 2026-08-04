@@ -3,7 +3,7 @@ import { space, spaceArchive } from '@/core/db/store';
 import { CollectionItemType } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
 import { historyService } from '@/domain/history/history.service';
-import { conflictsService } from '@/domain/space-merging/conflicts-service';
+import { conflictsService } from '@/domain/space-merging/conflicts.service';
 import { SingleFileStorage } from '@/domain/synchronization/layouts/singlefile.filesystem';
 import { LocalChangeType } from '@/domain/synchronization/local-changes';
 import localChangesService from '@/domain/synchronization/local-changes.service';
