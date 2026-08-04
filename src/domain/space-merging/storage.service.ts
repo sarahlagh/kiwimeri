@@ -176,8 +176,6 @@ class StorageService {
     const localContent = this.getSpaceRepresentation();
     const newContent = this.buildSpaceRepresentation(json, json);
 
-    localChangesService.clear();
-
     space.transaction(() => {
       this.setContent(newContent, false);
       if (tables[H]) {

@@ -66,6 +66,7 @@ describe('storage service', () => {
       storageService.nukeSpace();
       userPrefs.set('historyIdleTime', 0);
       userPrefs.set('statsEnabled', true);
+      localChangesService.clear();
 
       storageService.restoreJson(exportedContent);
 
@@ -116,6 +117,7 @@ describe('storage service', () => {
       storageService.nukeSpace();
       userPrefs.set('historyIdleTime', 0);
       userPrefs.set('statsEnabled', true);
+      localChangesService.clear();
 
       storageService.restoreJson(exportedContent);
 
@@ -149,19 +151,20 @@ describe('storage service', () => {
       // create init data (1 doc 1 annot)
       const { docId } = initData();
       const exportedContent = storageService.exportJson(false);
+      localChangesService.clear();
 
       // update collection, leave annot untouched
       collectionService.setItemTitle(docId, 'new title');
       expect(spaceArchive.getRowCount(SpaceArchiveTables.History)).toBe(2);
 
-      storageService.restoreJson(exportedContent);
+      storageService.restoreJson(exportedContent); // reverts change
 
       expect(space.getRowCount(SpaceTables.Collection)).toBe(2);
       expect(space.getRowCount(SpaceTables.Annotations)).toBe(1);
       expect(space.getRowCount(SpaceTables.ProjectedState)).toBe(2);
       expect(space.getRowCount(SpaceTables.CollectionItemView)).toBe(2); // all items have updatedAtRank so notebook + doc
       expect(space.getRowCount(SpaceTables.AnnotationView)).toBe(1);
-      expect(space.getRowCount(SpaceTables.LocalChanges)).toBe(1);
+      expect(space.getRowCount(SpaceTables.LocalChanges)).toBe(0);
       expect(space.getRowCount(SpaceTables.ResumeState)).toBe(0);
       expect(
         spaceDocContent.getRowCount(SpaceDocContentTables.CollectionContent)
@@ -174,15 +177,12 @@ describe('storage service', () => {
         2
       );
       expect(space.getRowCount(SpaceTables.Stats)).toBe(1);
-
-      const localChanges = localChangesService.getLocalChanges();
-      expect(localChanges[0].change).toBe(LocalChangeType.update);
-      expect(localChanges[0].itemId).toBe(docId);
     });
 
     it('should handle deleted rows without history and stats', () => {
       // create init data (1 doc 1 annot)
       initData();
+      localChangesService.clear();
       const exportedContent = storageService.exportJson(false);
 
       // update collection, leave annot untouched
@@ -196,7 +196,7 @@ describe('storage service', () => {
       expect(space.getRowCount(SpaceTables.ProjectedState)).toBe(2);
       expect(space.getRowCount(SpaceTables.CollectionItemView)).toBe(2); // all items have updatedAtRank so notebook + doc
       expect(space.getRowCount(SpaceTables.AnnotationView)).toBe(1);
-      expect(space.getRowCount(SpaceTables.LocalChanges)).toBe(1);
+      expect(space.getRowCount(SpaceTables.LocalChanges)).toBe(0);
       expect(space.getRowCount(SpaceTables.ResumeState)).toBe(0);
       expect(
         spaceDocContent.getRowCount(SpaceDocContentTables.CollectionContent)
@@ -210,15 +210,12 @@ describe('storage service', () => {
         3
       );
       expect(space.getRowCount(SpaceTables.Stats)).toBe(1);
-
-      const localChanges = localChangesService.getLocalChanges();
-      expect(localChanges[0].change).toBe(LocalChangeType.delete);
-      expect(localChanges[0].itemId).toBe(docId2);
     });
 
     it('should handle updated rows with history and stats', () => {
       // create init data (1 doc 1 annot)
       const { docId } = initData();
+      localChangesService.clear();
       const exportedContent = storageService.exportJson(true);
 
       // update collection, leave annot untouched
@@ -232,7 +229,7 @@ describe('storage service', () => {
       expect(space.getRowCount(SpaceTables.ProjectedState)).toBe(2);
       expect(space.getRowCount(SpaceTables.CollectionItemView)).toBe(2); // all items have updatedAtRank so notebook + doc
       expect(space.getRowCount(SpaceTables.AnnotationView)).toBe(1);
-      expect(space.getRowCount(SpaceTables.LocalChanges)).toBe(1);
+      expect(space.getRowCount(SpaceTables.LocalChanges)).toBe(0);
       expect(space.getRowCount(SpaceTables.ResumeState)).toBe(0);
       expect(
         spaceDocContent.getRowCount(SpaceDocContentTables.CollectionContent)
@@ -245,15 +242,12 @@ describe('storage service', () => {
         2
       );
       expect(space.getRowCount(SpaceTables.Stats)).toBe(1);
-
-      const localChanges = localChangesService.getLocalChanges();
-      expect(localChanges[0].change).toBe(LocalChangeType.update);
-      expect(localChanges[0].itemId).toBe(docId);
     });
 
     it('should handle deleted rows with history and stats', () => {
       // create init data (1 doc 1 annot)
       initData();
+      localChangesService.clear();
       expect(spaceArchive.getRowCount(SpaceArchiveTables.History)).toBe(2);
       const exportedContent = storageService.exportJson(true);
 
@@ -268,7 +262,7 @@ describe('storage service', () => {
       expect(space.getRowCount(SpaceTables.ProjectedState)).toBe(2);
       expect(space.getRowCount(SpaceTables.CollectionItemView)).toBe(2); // all items have updatedAtRank so notebook + doc
       expect(space.getRowCount(SpaceTables.AnnotationView)).toBe(1);
-      expect(space.getRowCount(SpaceTables.LocalChanges)).toBe(1);
+      expect(space.getRowCount(SpaceTables.LocalChanges)).toBe(0);
       expect(space.getRowCount(SpaceTables.ResumeState)).toBe(0);
       expect(
         spaceDocContent.getRowCount(SpaceDocContentTables.CollectionContent)
@@ -282,10 +276,6 @@ describe('storage service', () => {
         2
       );
       expect(space.getRowCount(SpaceTables.Stats)).toBe(1);
-
-      const localChanges = localChangesService.getLocalChanges();
-      expect(localChanges[0].change).toBe(LocalChangeType.delete);
-      expect(localChanges[0].itemId).toBe(docId2);
     });
     // TODO test that derived state / preview / content is really cleared
     // TODO after sync changes for annotations too!!
