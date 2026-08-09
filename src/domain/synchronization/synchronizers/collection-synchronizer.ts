@@ -1,3 +1,4 @@
+import { appConfig } from '@/config';
 import { store } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { AnyData } from '@/core/db/types';
@@ -12,7 +13,7 @@ import {
   unminimizeItemsFromStorage
 } from '@/domain/collection/compress-collection';
 import { historyService } from '@/domain/history/history.service';
-import { conflictsService } from '@/domain/space-merging/conflicts-service';
+import { conflictsService } from '@/domain/space-merging/conflicts.service';
 import {
   annotsConflictPolicy,
   collectionConflictPolicy,
@@ -59,6 +60,7 @@ export type RemoteCollectionFileContent = {
   o?: MinimizedUserPref[]; // the user preferences / options
   u: number; // last content change
   _v?: number; // the schema version (!= app version)
+  _av?: string; // the app version
 };
 
 type RemoteContentRepresentation = SpacePortableData;
@@ -389,7 +391,8 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       a: minimizeAnnotForStorage(toArray(remoteContent.annots)),
       o: minimizePrefsForStorage(toArray(remoteContent.userPrefs)),
       u: updated,
-      _v: schemaVersion
+      _v: schemaVersion,
+      _av: appConfig.KIWIMERI_VERSION
     };
   }
 

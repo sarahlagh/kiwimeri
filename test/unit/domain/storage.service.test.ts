@@ -45,6 +45,39 @@ describe('storage service', () => {
     userPrefs.set('statsEnabled', false);
   });
   describe('import / restore raw collection json', () => {
+    it('should throw if no schemaVersion and display_opts present', () => {
+      expect(() =>
+        storageService.restoreJson(JSON.stringify('invalid'))
+      ).toThrow();
+      expect(() => storageService.restoreJson(JSON.stringify({}))).toThrow();
+      expect(() => storageService.restoreJson(JSON.stringify([]))).toThrow();
+      expect(() =>
+        storageService.restoreJson(JSON.stringify([{ wrongTable: {} }]))
+      ).toThrow();
+      expect(() =>
+        storageService.restoreJson(
+          JSON.stringify([
+            {
+              collection: {
+                0: { display_opts: {} }
+              }
+            }
+          ])
+        )
+      ).toThrow();
+      expect(() =>
+        storageService.restoreJson(
+          JSON.stringify([
+            {
+              collection: {
+                0: { settings: {} }
+              }
+            }
+          ])
+        )
+      ).toThrow();
+    });
+
     it('should import then restore without history and stats', () => {
       // create init data (1 doc 1 annot)
       const { docId, noteId } = initData();
@@ -278,7 +311,6 @@ describe('storage service', () => {
       expect(space.getRowCount(SpaceTables.Stats)).toBe(1);
     });
     // TODO test that derived state / preview / content is really cleared
-    // TODO after sync changes for annotations too!!
   });
 
   describe('diff table', () => {

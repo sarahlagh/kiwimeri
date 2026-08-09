@@ -11,6 +11,11 @@ import {
   LocalChangeType
 } from '@/domain/synchronization/local-changes';
 import { Id } from 'tinybase/with-schemas';
+import {
+  CollectionItemVersionContentRow,
+  CollectionItemVersionRow
+} from '../history/history';
+import { DocumentStatRow } from '../stats/stats';
 import { BaseUserPreference } from '../user-preferences/user-preferences';
 
 export type TableOf<T> = {
@@ -23,6 +28,12 @@ export type SpacePortableData = {
   userPrefs: TableOf<BaseUserPreference>;
   lastChange: number;
   schemaVersion: number;
+};
+
+export type SpacePortableDataWithHistory = SpacePortableData & {
+  history?: TableOf<CollectionItemVersionRow>;
+  historyContent?: TableOf<CollectionItemVersionContentRow>;
+  stats?: TableOf<DocumentStatRow>;
 };
 
 export type SpacePortableDataKey = Exclude<
