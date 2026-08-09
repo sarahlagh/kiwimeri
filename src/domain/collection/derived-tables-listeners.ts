@@ -7,7 +7,6 @@ import { getPlainText } from '@/shared/misc/getPlainText';
 import { Id } from 'tinybase/with-schemas';
 import { statsOnPlainTextCallback } from '../stats/stats-on-change-callback';
 
-const listeners: Id[] = [];
 const contentListeners: Id[] = [];
 
 function addDerivedContentListener(
@@ -24,8 +23,8 @@ function addDerivedContentListener(
       contentTableId,
       null,
       'content',
-      (_store, tableId, rowId, cellId, newCell, oldCell) => {
-        if (newCell && newCell !== oldCell) {
+      (_store, tableId, rowId, cellId, newCell) => {
+        if (newCell) {
           const plainText = getPlainText(newCell);
           const previewText = plainText.substring(0, DOC_PREVIEW_SIZE);
           space.setRow(viewTableId, rowId, {
@@ -63,12 +62,15 @@ export function startDerivedTablesListeners() {
   );
 }
 
-export function stopDerivedTablesListeners() {
-  listeners.forEach(l => {
-    space.delListener(l);
+export function callDerivedTablesListeners() {
+  contentListeners.forEach(l => {
+    spaceDocContent.callListener(l);
   });
+}
+
+export function stopDerivedTablesListeners() {
   contentListeners.forEach(l => {
     spaceDocContent.delListener(l);
   });
-  listeners.length = 0;
+  contentListeners.length = 0;
 }

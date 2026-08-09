@@ -1,6 +1,7 @@
 import { appConfig } from '@/config';
 import { SpaceType, StoreType } from '@/core/db/store-schema';
 import collectionService from '@/domain/collection/collection.service';
+import { callDerivedTablesListeners } from '@/domain/collection/derived-tables-listeners';
 import { Store } from 'tinybase/with-schemas';
 import { between, getVersionCode } from '../migrations/migration-utils';
 import { spaceDocContent } from '../store';
@@ -32,19 +33,18 @@ class PostInitMigrationService {
     from: number,
     to: number
   ) {
-    if (from <= 306 && between(to, 306, 307)) {
-      console.log('[space] 1 migration to run: itemId backfill');
-      const func = await import('./001-add-itemid-column');
-      func.default(space);
-    }
-
-    if (between(to, 402, 501)) {
+    if (between(to, 402, 404)) {
       console.log('[space] 1 migration to run: gc orphaned states');
       const func = await import('./002-delete-orphaned-states');
       func.default(
         space as unknown as Store<never>,
         spaceDocContent as unknown as Store<never>
       );
+    }
+
+    if (between(to, 404, 405)) {
+      console.log('[space] 1 migration to run: backfill plaintext');
+      callDerivedTablesListeners();
 
       space.transaction(() => {
         collectionService.updateOpenedAtRank();
