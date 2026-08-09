@@ -111,7 +111,15 @@ class LocalChangesService {
     const table = space.getTable(LC);
     space.getSortedRowIds(LC, 'createdAt', true).forEach(rowId => {
       const row = table[rowId] as LocalChangeRow<never>;
-      results.push({ ...row, id: rowId });
+      const result: LocalChangeResult = {
+        id: rowId,
+        change: row.change,
+        createdAt: row.createdAt,
+        itemId: row.itemId,
+        on: row.on,
+        field: row.field
+      };
+      results.push(result);
     });
     return results;
   }
