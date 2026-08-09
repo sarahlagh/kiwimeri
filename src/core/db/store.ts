@@ -42,7 +42,7 @@ const spaceArchivePersister = createIndexedDbPersister(
 );
 
 const rawSpaceDocContentText = createStore();
-const spaceDocContentName = `kiwimeri-space-document-content-default`;
+const spaceDocContentName = `kiwimeri-space-document-content-${profile}`;
 const spaceDocContentPersister = createIndexedDbPersister(
   rawSpaceDocContentText,
   spaceDocContentName

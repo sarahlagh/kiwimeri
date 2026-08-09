@@ -18,7 +18,7 @@ export function statsOnPlainTextCallback(
   ) as string[];
   if (parentId === ROOT_COLLECTION) return; // mostly for tests, no document is supposed to be under root
   if (!breadcrumb || breadcrumb.length === 0)
-    throw new Error('undefined ancestry: ' + rowId);
+    throw new Error('undefined ancestry: ' + parentId);
   const notebook = breadcrumb[0];
 
   if (settingsService.getNotebookDefaultStatsEnabled(notebook) && plainText) {
