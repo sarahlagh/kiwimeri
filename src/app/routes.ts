@@ -19,13 +19,13 @@ export const WRITING_SESSION_ROUTE = '/write';
 // TODO use URLSearchParams
 
 export const GET_FOLDER_ROUTE = (parent: string, query?: string | null) =>
-  `${FOLDER_ROUTE}?folder=${parent}${query ? '&query=' + query : ''}`;
+  `${FOLDER_ROUTE}?folder=${parent}${query ? '&query=' + encodeURI(query) : ''}`;
 export const GET_DOCUMENT_ROUTE = (
   parent: string,
   id: string,
   query?: string | null
 ) =>
-  `${DOCUMENT_ROUTE}?folder=${parent}&document=${id}${query ? '&query=' + query : ''}`;
+  `${DOCUMENT_ROUTE}?folder=${parent}&document=${id}${query ? '&query=' + encodeURI(query) : ''}`;
 
 export const GET_ITEM_ROUTE = (
   parent: string,
@@ -67,4 +67,4 @@ export const GET_VERSIONED_ROUTE = (
   folder: string,
   query?: string | null
 ) =>
-  `${VERSION_ROUTE}?docVersion=${docVersion}&folder=${folder}&document=${docId}${query ? '&query=' + query : ''}`;
+  `${VERSION_ROUTE}?docVersion=${docVersion}&folder=${folder}&document=${docId}${query ? '&query=' + encodeURI(query) : ''}`;

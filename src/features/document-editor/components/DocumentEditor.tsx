@@ -70,6 +70,7 @@ const DocumentEditor = forwardRef<
 
   const { docId, showActions = false, query } = { ...props };
   const parentId = collectionService.getItemParent(docId);
+  const searchText = query ? decodeURI(query) : '';
 
   const navigate = useNavigate();
   const [showDocumentActions, setShowDocumentActions] =
@@ -95,11 +96,11 @@ const DocumentEditor = forwardRef<
   }, [docId]);
 
   useEffect(() => {
-    if (query) {
-      setToggleSearch(query.length > 0);
+    if (searchText) {
+      setToggleSearch(searchText.length > 0);
       setToggleSearchAutoFocus(false);
     }
-  }, [query, docId]);
+  }, [searchText, docId]);
 
   return (
     <>
@@ -130,7 +131,11 @@ const DocumentEditor = forwardRef<
           </IonButton>
         </IonToolbar>
         {showDocumentActions && (
-          <Suspense>
+          <Suspense
+            fallback={
+              <IonToolbar color="medium" style={{ height: 56 + 'px' }} />
+            }
+          >
             <ActionsFromDocumentEditorToolbar
               docId={docId}
               onClose={(role, data) => {
@@ -156,7 +161,7 @@ const DocumentEditor = forwardRef<
         )}
         {toggleSearch && (
           <SearchActionsToolbar
-            searchText={query || ''}
+            searchText={searchText}
             setToggleSearch={setToggleSearch}
             toggleSearchAutoFocus={toggleSearchAutoFocus}
             onValue={val => {
@@ -175,7 +180,7 @@ const DocumentEditor = forwardRef<
             content={content}
             selection={resumeState?.lastSelection || null}
             enableToolbar={!showDocumentActions && !toggleSearch}
-            searchText={toggleSearch ? query : null}
+            searchText={toggleSearch ? searchText : null}
             ignoreSelectionChange={false}
             onChange={(editorState, isSelectionChange) => {
               if (!isSelectionChange) {

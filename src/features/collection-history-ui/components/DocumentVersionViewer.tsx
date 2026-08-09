@@ -69,6 +69,7 @@ const DocumentVersionViewer = ({
     useState<boolean>(false);
   const [toggleSearch, setToggleSearch] = useState(false);
   const [toggleSearchAutoFocus, setToggleSearchAutoFocus] = useState(true);
+  const searchText = query ? decodeURI(query) : '';
   // TODO refactor
   useEffect(() => {
     setShowDocumentActions(showActions);
@@ -81,11 +82,11 @@ const DocumentVersionViewer = ({
   const parentId = collectionService.getItemParent(docId);
 
   useEffect(() => {
-    if (query) {
-      setToggleSearch(query.length > 0);
+    if (searchText) {
+      setToggleSearch(searchText.length > 0);
       setToggleSearchAutoFocus(false);
     }
-  }, [query, docId]);
+  }, [searchText, docId]);
 
   return (
     <>
@@ -125,7 +126,7 @@ const DocumentVersionViewer = ({
         )}
         {toggleSearch && (
           <SearchActionsToolbar
-            searchText={query || ''}
+            searchText={searchText}
             setToggleSearch={setToggleSearch}
             toggleSearchAutoFocus={toggleSearchAutoFocus}
             onValue={val => {
@@ -143,7 +144,7 @@ const DocumentVersionViewer = ({
               editable={false}
               enableToolbar={false}
               content={content}
-              searchText={toggleSearch ? query : null}
+              searchText={toggleSearch ? searchText : null}
             ></KiwimeriEditor>
           </Suspense>
         )}
