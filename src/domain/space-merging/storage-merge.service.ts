@@ -180,7 +180,7 @@ class StorageMergeService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private guessSchemaVersion(tables: any, values: any) {
+  private guessSchemaVersion(tables: any, values?: any) {
     // 0.4.1 => changes display_opts -> settings field among other, not accepted for restoreJson
     // 0.4.2 => no change on exported tables
     // 0.4.3 => moves history content to store but has no incidence on exported schema
@@ -188,7 +188,7 @@ class StorageMergeService {
     // 0.4.5 => content moved to CollectionContent & AnnotationContent tables
     //          + exports schemaVersion=2 and appVersion
     // oldest accepted version = 0.4.2 (assume schemaVersion=1)
-    let schemaVersion = values.schemaVersion;
+    let schemaVersion = values?.schemaVersion;
     // attempt to guess schemaVersion
     if (typeof schemaVersion === 'string') return 0;
     if (schemaVersion === undefined) {

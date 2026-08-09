@@ -21,9 +21,7 @@ const RestoreCollectionButton = ({
   const [alert] = useIonAlert();
 
   const onSingleJsonRead = async (content: string) => {
-    // TODO validate schema
-    const json = JSON.parse(content);
-    storageService.restoreJson(json);
+    storageService.restoreJson(content);
     return { confirm: true } as OnContentReadResponse;
   };
 
