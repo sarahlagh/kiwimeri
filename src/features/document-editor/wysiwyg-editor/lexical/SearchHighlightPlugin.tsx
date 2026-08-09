@@ -28,12 +28,13 @@ export function SearchHighlightPlugin({
     editor,
     searchText,
     (textNode, startOffset, endOffset) => {
-      editor.getElementByKey(textNode.getKey());
       const el = editor.getElementByKey(textNode.getKey());
+      const hasHighlight = textNode.hasFormat('highlight');
       if (!el) return;
+      const child = hasHighlight ? el.firstChild?.firstChild : el.firstChild;
       const range = new Range();
-      range.setStart(el.firstChild!, startOffset);
-      range.setEnd(el.firstChild!, endOffset);
+      range.setStart(child!, startOffset);
+      range.setEnd(child!, endOffset);
       ranges.push(range);
     }
   );
