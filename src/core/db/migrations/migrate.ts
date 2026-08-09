@@ -24,14 +24,12 @@ async function migrateSpace(
 
   if (between(runtimeCode, 400, 501)) {
     console.log('[migration] 1 space migration to run: post-refacto migration');
-    const func = await import('./001-refacto-migrations');
-    func.default(_store, _space);
-  }
+    const func1 = await import('./001-refacto-migrations');
+    func1.default(_store, _space);
 
-  if (between(runtimeCode, 402, 501)) {
     console.log('[migration] 1 space migration to run: split content store');
-    const func = await import('./002-split-content-store');
-    func.default(_space, _spaceDocContent, _spaceArchive);
+    const func2 = await import('./002-split-content-store');
+    func2.default(_space, _spaceDocContent, _spaceArchive);
   }
 }
 

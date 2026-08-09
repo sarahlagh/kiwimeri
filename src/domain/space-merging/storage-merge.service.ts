@@ -190,6 +190,7 @@ class StorageMergeService {
     // oldest accepted version = 0.4.2 (assume schemaVersion=1)
     let schemaVersion = values.schemaVersion;
     // attempt to guess schemaVersion
+    if (typeof schemaVersion === 'string') return 0;
     if (schemaVersion === undefined) {
       if (
         !tables.collection ||
