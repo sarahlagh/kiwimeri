@@ -552,7 +552,7 @@ msgstr "ok"
 msgid "Options for the currently selected device. These options are local-only."
 msgstr "Options for the currently selected device. These options are local-only."
 
-#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:36
+#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:33
 msgid "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 msgstr "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 
@@ -602,7 +602,7 @@ msgstr "Remote: <0>never</0>"
 msgid "Reorder"
 msgstr "Reorder"
 
-#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:266
+#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:269
 msgid "Reset All"
 msgstr "Reset All"
 
@@ -681,7 +681,7 @@ msgstr "sort notes"
 msgid "Space setting modified:"
 msgstr "Space setting modified:"
 
-#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:33
+#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:30
 msgid "Space Settings"
 msgstr "Space Settings"
 
@@ -725,7 +725,7 @@ msgstr "Text..."
 msgid "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 msgstr "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 
-#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:81
+#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:78
 msgid "The number of versions to keep per document. Set 0 for unlimited."
 msgstr "The number of versions to keep per document. Set 0 for unlimited."
 
@@ -742,8 +742,8 @@ msgid "This will delete your existing data. Are you sure?"
 msgstr "This will delete your existing data. Are you sure?"
 
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:261
-msgid "This will reset all values"
-msgstr "This will reset all values"
+msgid "This will reset all values that can be reset."
+msgstr "This will reset all values that can be reset."
 
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:244
 msgid "This will reset this change"
@@ -794,11 +794,11 @@ msgstr "Username"
 msgid "When enabled, when you open the app you will be redirected to the last document you were working on instead of the root of the current space."
 msgstr "When enabled, when you open the app you will be redirected to the last document you were working on instead of the root of the current space."
 
-#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:73
+#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:70
 msgid "When working on a document, a new version will be automatically at least every XX minutes"
 msgstr "When working on a document, a new version will be automatically at least every XX minutes"
 
-#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:65
+#: src/features/settings-ui/components/CurrentSpaceSettings.tsx:62
 msgid "When working on a document, a new version will be automatically if idle after XX seconds"
 msgstr "When working on a document, a new version will be automatically if idle after XX seconds"
 

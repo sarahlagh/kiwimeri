@@ -1,7 +1,8 @@
 import { settingsService } from '@/domain/collection/collection-settings.service';
 import { statsService } from '@/domain/stats/stats-service';
 import { userPreferenceDefinitions } from '@/domain/user-preferences/user-preferences';
-import usePrefState from '@/shared/hooks/usePrefState';
+import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
+import usePref from '@/shared/hooks/usePref';
 import useSpaceDefaultSettings from '@/shared/hooks/useSpaceDefaultSettings';
 import { cellEquals } from '@/shared/utils';
 import {
@@ -18,13 +19,9 @@ const CurrentSpaceSettings = () => {
   const _defaultSettings = useSpaceDefaultSettings();
   const { t, i18n } = useLingui();
 
-  const [maxHistoryPerDoc, setMaxHistoryPerDoc] =
-    usePrefState('maxHistoryPerDoc');
-
-  const [historyIdleTime, setHistoryIdleTime] = usePrefState('historyIdleTime');
-
-  const [historyMaxInterval, setHistoryMaxInterval] =
-    usePrefState('historyMaxInterval');
+  const maxHistoryPerDoc = usePref('maxHistoryPerDoc');
+  const historyIdleTime = usePref('historyIdleTime');
+  const historyMaxInterval = usePref('historyMaxInterval');
 
   return (
     <IonCard className="primary">
@@ -89,11 +86,11 @@ const CurrentSpaceSettings = () => {
           }}
           withOnChange={(key, val) => {
             if (key === 'historyIdleTime') {
-              setHistoryIdleTime((val as number) * 1000);
+              userPrefs.set('historyIdleTime', (val as number) * 1000);
             } else if (key === 'historyMaxInterval') {
-              setHistoryMaxInterval((val as number) * 60000);
+              userPrefs.set('historyMaxInterval', (val as number) * 60000);
             } else if (key === 'maxHistoryPerDoc') {
-              setMaxHistoryPerDoc(val as number);
+              userPrefs.set('maxHistoryPerDoc', val as number);
             }
           }}
         />

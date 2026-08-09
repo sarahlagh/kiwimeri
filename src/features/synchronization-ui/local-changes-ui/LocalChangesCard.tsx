@@ -258,7 +258,10 @@ const LocalChangesCard = () => {
               <DeleteButton
                 color="danger"
                 trigger={`del-clear`}
-                message={t`This will reset all values`}
+                message={t`This will reset all values that can be reset.`}
+                disabled={localChanges.every(
+                  lc => !localChangesService.canChangeBeReset(lc.id)
+                )}
                 onConfirm={() => {
                   localChangesService.resetAll();
                 }}
