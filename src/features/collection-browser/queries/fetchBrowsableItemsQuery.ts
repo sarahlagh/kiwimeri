@@ -35,7 +35,7 @@ const fetchBrowsableItemsQuery = new SpaceQueryDefinition<
 
     // works but only because stats and collection have same id for global stats
     join(SpaceTables.CollectionItemView, (getCell, itemId) => itemId).as(
-      'content'
+      'view'
     );
     join(SpaceTables.ProjectedState, (getCell, itemId) => itemId).as('state');
 
@@ -48,16 +48,14 @@ const fetchBrowsableItemsQuery = new SpaceQueryDefinition<
     select('conflictId');
     if (params.withPreview) {
       select(getCell =>
-        getCell('content', 'plainText')
-          ?.toString()
-          .substring(0, DOC_PREVIEW_SIZE)
+        getCell('view', 'plainText')?.toString().substring(0, DOC_PREVIEW_SIZE)
       ).as('previewText');
     }
     select('state', 'shortPath').as('breadcrumb');
-    select('state', 'updatedAtRank');
+    select('view', 'updatedAtRank');
 
     if (params.withLastOpenedAt) {
-      select('state', 'lastOpenedAtRank');
+      select('view', 'lastOpenedAtRank');
     }
 
     if (params.onlyConflicts) {

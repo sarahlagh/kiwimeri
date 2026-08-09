@@ -1,5 +1,6 @@
 import { appConfig } from '@/config';
 import { SpaceType, StoreType } from '@/core/db/store-schema';
+import collectionService from '@/domain/collection/collection.service';
 import { Store } from 'tinybase/with-schemas';
 import { between, getVersionCode } from '../migrations/migration-utils';
 import { spaceDocContent } from '../store';
@@ -44,6 +45,11 @@ class PostInitMigrationService {
         space as unknown as Store<never>,
         spaceDocContent as unknown as Store<never>
       );
+
+      space.transaction(() => {
+        collectionService.updateOpenedAtRank();
+        collectionService.updateUpdatedAtRank();
+      });
     }
   }
 }

@@ -39,10 +39,6 @@ class ResumeStateService {
     }
   }
 
-  public setLastOpenedAt(itemId: Id, at: number) {
-    space.setCell(RS, itemId, 'lastOpenedAt', at);
-  }
-
   public setLastFolder(folder: Id) {
     const notebookId = notebooksService.getCurrentNotebook();
     space.setCell(RS, notebookId, 'lastFolder', folder);

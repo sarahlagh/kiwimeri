@@ -5,7 +5,6 @@ import { startDbListeners, stopDbListeners } from '@/core/db/store-listeners';
 import collectionService from '@/domain/collection/collection.service';
 import { minimizeContentForStorage } from '@/domain/collection/compress-file-content';
 import notebooksService from '@/domain/collection/notebooks.service';
-import { resumeService } from '@/domain/collection/resume-state.service';
 import { storageService } from '@/domain/space-merging/storage.service';
 import { adv, oneDocument, oneFolder } from '@@/_setup/test.utils';
 import { describe, expect, it } from 'vitest';
@@ -262,12 +261,12 @@ describe('derived state', () => {
       adv(() => collectionService.setItemTitle(docId, 'yo'));
       const doc1 = oneDocument();
       adv(() => collectionService.saveItem(doc1, doc1.id));
-      adv(() => resumeService.setLastOpenedAt(docId, Date.now()));
+      adv(() => collectionService.setLastOpenedAt(docId, Date.now()));
       doc1.title = 'another';
       doc1.title = 'and another';
       const doc2 = oneDocument();
       adv(() => collectionService.saveItems([doc1, doc2]));
-      adv(() => resumeService.setLastOpenedAt(doc1.id, Date.now()));
+      adv(() => collectionService.setLastOpenedAt(doc1.id, Date.now()));
       adv(() => collectionService.deleteItem(docId));
       adv(() => collectionService.setItemTitle(doc1.id, 'yo'));
       expect(space.getRowCount(SpaceTables.Collection)).toBe(3); // doc1 + doc2 + notebook
@@ -278,13 +277,31 @@ describe('derived state', () => {
       expectLastOpenedAtRank(DEFAULT_NOTEBOOK_ID, undefined);
 
       expectUpdatedAtRank(doc2.id, 1);
-      expectLastOpenedAtRank(doc2.id, undefined);
+      expectLastOpenedAtRank(doc2.id, 1);
 
       expectUpdatedAtRank(doc1.id, 2);
-      expectLastOpenedAtRank(doc1.id, 1);
+      expectLastOpenedAtRank(doc1.id, 3);
 
       expectUpdatedAtRank(docId, undefined);
       expectLastOpenedAtRank(docId, undefined);
+    });
+
+    test('rank should be updated after restore json', () => {
+      stopDbListeners();
+      const doc1Id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const doc2Id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const doc3Id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      expectUpdatedAtRank(doc1Id, 1);
+      expectUpdatedAtRank(doc2Id, 2);
+      expectUpdatedAtRank(doc3Id, 3);
+      const json = storageService.exportJson(false);
+      space.setContent([{}, {}]);
+      startDbListeners();
+
+      storageService.restoreJson(json);
+      expectUpdatedAtRank(doc1Id, 1);
+      expectUpdatedAtRank(doc2Id, 2);
+      expectUpdatedAtRank(doc3Id, 3);
     });
 
     test('rank should be updated after sync', () => {
@@ -292,22 +309,18 @@ describe('derived state', () => {
       const doc1Id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       const doc2Id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       const doc3Id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-      expectUpdatedAtRank(doc1Id, undefined);
-      expectUpdatedAtRank(doc2Id, undefined);
-      expectUpdatedAtRank(doc3Id, undefined);
-      const space_content = space.getContent();
+      expectUpdatedAtRank(doc1Id, 1);
+      expectUpdatedAtRank(doc2Id, 2);
+      expectUpdatedAtRank(doc3Id, 3);
+      const data = storageService.getSpaceRepresentation();
       space.setContent([{}, {}]);
+      const dataBefore = storageService.getSpaceRepresentation();
       startDbListeners();
 
-      space.setContent([
-        {
-          collection: space_content[0].collection,
-          collection_projected_state:
-            space_content[0].collection_projected_state
-        },
-        {}
-      ]);
-      collectionService.backfillProjectedStates();
+      storageService.restoreContent(
+        data,
+        storageService.afterMergeChanges(data, dataBefore)
+      );
       expectUpdatedAtRank(doc1Id, 1);
       expectUpdatedAtRank(doc2Id, 2);
       expectUpdatedAtRank(doc3Id, 3);

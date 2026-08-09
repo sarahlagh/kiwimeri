@@ -1,16 +1,11 @@
 import { DOC_PREVIEW_SIZE } from '@/constants';
 import { space, spaceDocContent } from '@/core/db/store';
 import { SpaceDocContentTables, SpaceTables } from '@/core/db/store-constants';
-import {
-  SpaceCellId,
-  SpaceDocContentTableId,
-  SpaceTableId
-} from '@/core/db/store-schema';
+import { SpaceDocContentTableId, SpaceTableId } from '@/core/db/store-schema';
 import { MetaField } from '@/core/db/types';
 import { getPlainText } from '@/shared/misc/getPlainText';
 import { Id } from 'tinybase/with-schemas';
 import { statsOnPlainTextCallback } from '../stats/stats-on-change-callback';
-import { CollectionItemType } from './collection';
 
 const listeners: Id[] = [];
 const contentListeners: Id[] = [];
@@ -56,65 +51,6 @@ function addDerivedContentListener(
   );
 }
 
-function addProjectedRankListeners<T extends SpaceTableId>(
-  tableId: T,
-  cellId: SpaceCellId<T>,
-  rankColumn: SpaceCellId<SpaceTables.CollectionItemView>,
-  onlyDocuments: boolean
-) {
-  listeners.push(
-    space.addTableListener(
-      tableId,
-      _space => {
-        _space.transaction(() => {
-          _space
-            .getSortedRowIds(tableId, cellId, false)
-            .forEach((rowId, idx) => {
-              if (!_space.hasRow(SpaceTables.Collection, rowId)) return;
-              if (
-                onlyDocuments &&
-                _space.getCell(SpaceTables.Collection, rowId, 'type') !==
-                  CollectionItemType.document
-              ) {
-                return;
-              }
-              const existingRank = _space.getCell(
-                SpaceTables.CollectionItemView,
-                rowId,
-                rankColumn
-              );
-
-              if (idx !== existingRank) {
-                _space.setCell(
-                  SpaceTables.CollectionItemView,
-                  rowId,
-                  rankColumn,
-                  idx
-                );
-              }
-            });
-        });
-      },
-      true
-    )
-  );
-}
-
-function addProjectedStateListeners() {
-  addProjectedRankListeners(
-    SpaceTables.Collection,
-    'updatedAt',
-    'updatedAtRank',
-    false
-  );
-  addProjectedRankListeners(
-    SpaceTables.ResumeState,
-    'lastOpenedAt',
-    'lastOpenedAtRank',
-    true
-  );
-}
-
 export function startDerivedTablesListeners() {
   addDerivedContentListener(
     SpaceDocContentTables.CollectionContent,
@@ -125,7 +61,6 @@ export function startDerivedTablesListeners() {
     SpaceDocContentTables.AnnotationContent,
     SpaceTables.AnnotationView
   );
-  addProjectedStateListeners();
 }
 
 export function stopDerivedTablesListeners() {

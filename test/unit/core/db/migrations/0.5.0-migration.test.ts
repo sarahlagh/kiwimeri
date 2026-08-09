@@ -72,7 +72,7 @@ async function migrateRawStore(
 
 describe('0.5.0 migration', () => {
   test.skip('regenerate 0.5.0 migration expected file', async () => {
-    const fromVersion = '0.4.2';
+    const fromVersion = '0.4.0';
     const toVersion = '0.5.0';
     const preMigrationSpaceContent = await getFileContent(
       spaceMigrationFilename(fromVersion)

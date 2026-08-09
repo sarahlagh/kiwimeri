@@ -14,7 +14,6 @@ export type SerializedSelection = {
 export type DocumentResumeState = {
   lastSelection: SerializedSelection | null;
   lastSelectedNoteId: Id | null;
-  lastOpenedAt?: number;
 };
 
 export type NotebookResumeState = {
@@ -29,7 +28,6 @@ export const resumeStateSchema = {
   // document
   lastSelection: { type: 'object' },
   lastSelectedNoteId: { type: 'string' },
-  lastOpenedAt: { type: 'number' },
   // notebook
   lastFolder: { type: 'string' },
   lastDocument: { type: 'string' }

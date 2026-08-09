@@ -48,7 +48,6 @@ msgstr " (new)"
 msgid "-- conflict --"
 msgstr "-- conflict --"
 
-#. placeholder {0}: showFilters ? 'Hide' : 'Show'
 #: src/features/dev-tools/components/LogsCard.tsx:151
 msgid "{0} Filters"
 msgstr "{0} Filters"
@@ -218,7 +217,6 @@ msgstr "create a note"
 msgid "Created at"
 msgstr "Created at"
 
-#. placeholder {0}: dateToStr('relative', createdAt)
 #: src/features/collection-notes-ui/components/NotesActions.tsx:24
 msgid "Created at: {0}"
 msgstr "Created at: {0}"
@@ -365,12 +363,10 @@ msgstr "History save time (min)"
 msgid "Home"
 msgstr "Home"
 
-#. placeholder {0}: params.zipData.zipName
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:116
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
-#. placeholder {0}: params.zipData.zipName
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:109
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
@@ -435,12 +431,10 @@ msgstr "Less dangerous mode (session is still timed but you will not lose progre
 msgid "Link"
 msgstr "Link"
 
-#. placeholder {0}: localChanges.length
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:76
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
-#. placeholder {0}: dateToStr('datetime', lastLocalChange)
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:83
 msgid "Local:  {0}"
 msgstr "Local:  {0}"
@@ -596,7 +590,6 @@ msgstr "Remember last route"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
-#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:96
 msgid "Remote:  {0}"
 msgstr "Remote:  {0}"
@@ -784,7 +777,6 @@ msgstr "Track text statistics"
 msgid "Updated at"
 msgstr "Updated at"
 
-#. placeholder {0}: dateToStr('relative', updatedAt)
 #: src/features/collection-notes-ui/components/NotesActions.tsx:29
 msgid "Updated at: {0}"
 msgstr "Updated at: {0}"

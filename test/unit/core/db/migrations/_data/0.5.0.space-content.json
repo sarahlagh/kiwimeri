@@ -157,20 +157,14 @@
       "statsEnabled": { "value": { "_v": false }, "updatedAt": 1782124378070 }
     },
     "collection_resume_state": {
-      "0": { "lastOpenedAt": 1782124364272 },
       "cZ6l5keLw_D7s9Yq": {
         "lastSelectedNoteId": "u0R3jqIujM3O_8IT",
         "lastSelection": {
           "focus": { "index": 19, "offset": 750, "type": "text" },
           "format": 0
-        },
-        "lastOpenedAt": 1782124337812
+        }
       },
-      "h-MOhEAYItMcMOJb": {
-        "lastSelectedNoteId": "jjm_oGzicsvYfSGM",
-        "lastOpenedAt": 1782124251870
-      },
-      "xtid1X1laW4E5oUI": { "lastOpenedAt": 1782124247325 }
+      "h-MOhEAYItMcMOJb": { "lastSelectedNoteId": "jjm_oGzicsvYfSGM" }
     },
     "local_change": {
       "collection-cZ6l5keLw_D7s9Yq-u-content": {
@@ -249,11 +243,13 @@
       }
     },
     "collection_item_view": {
-      "h-MOhEAYItMcMOJb": { "previewText": "" },
+      "0": { "lastOpenedAt": 1782124364272 },
+      "h-MOhEAYItMcMOJb": { "previewText": "", "lastOpenedAt": 1782124251870 },
       "cZ6l5keLw_D7s9Yq": {
-        "previewText": "What is Lorem Ipsum? Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since 1966, when designers at Letraset and "
+        "previewText": "What is Lorem Ipsum? Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since 1966, when designers at Letraset and ",
+        "lastOpenedAt": 1782124337812
       },
-      "xtid1X1laW4E5oUI": { "previewText": "" }
+      "xtid1X1laW4E5oUI": { "previewText": "", "lastOpenedAt": 1782124247325 }
     },
     "document_annotation_view": {
       "u0R3jqIujM3O_8IT": { "previewText": "https://www.lipsum.com/" },

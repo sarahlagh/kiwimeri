@@ -55,6 +55,7 @@ export default function Migration(
   contentFieldsGoToOtherSpace(_space, _spaceDocContent);
   derivedStateBecomesProjectedState(_space);
   splitDerivedPreviewInTwoViews(_space);
+  lastOpenedAtGoesToView(_space);
 }
 
 function addPreviewFieldFromPlainText(_space: NoSchemaStore) {
@@ -212,6 +213,15 @@ function splitDerivedPreviewInTwoViews(_space: NoSchemaStore) {
     }
     if (lastOpenedAtRank !== undefined) {
       _space.setCell(CV, rowId, 'lastOpenedAtRank', lastOpenedAtRank);
+    }
+  });
+}
+
+function lastOpenedAtGoesToView(_space: NoSchemaStore) {
+  _space.getRowIds(RS).forEach(rowId => {
+    const lastOpenedAt = _space.getCell(RS, rowId, 'lastOpenedAt');
+    if (lastOpenedAt !== undefined) {
+      _space.setCell(CV, rowId, 'lastOpenedAt', lastOpenedAt);
     }
   });
 }

@@ -91,7 +91,7 @@ const DocumentEditor = forwardRef<
   const resumeState = resumeService.getDocumentResumeState(docId);
 
   useEffect(() => {
-    resumeService.setLastOpenedAt(docId, Date.now());
+    collectionService.setLastOpenedAt(docId, Date.now());
   }, [docId]);
 
   useEffect(() => {
