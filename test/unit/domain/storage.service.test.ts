@@ -87,7 +87,34 @@ describe('storage service', () => {
       const exportedContent = storageService.exportJson(false);
       const exportedTables = JSON.parse(exportedContent)[0];
       expect(exportedTables[SpaceTables.Collection]).toBeDefined();
+      expect(
+        exportedTables[SpaceDocContentTables.CollectionContent]
+      ).toBeDefined();
+      expect(
+        exportedTables[SpaceDocContentTables.CollectionContent][docId].plainText
+      ).toBeUndefined(); // plainText is excluded
+      expect(
+        exportedTables[SpaceDocContentTables.CollectionContent][docId].content
+      ).toBeDefined();
+      expect(
+        exportedTables[SpaceDocContentTables.CollectionContent][docId]
+          .content_meta
+      ).toBeDefined();
       expect(exportedTables[SpaceTables.Annotations]).toBeDefined();
+      expect(
+        exportedTables[SpaceDocContentTables.AnnotationContent]
+      ).toBeDefined();
+      expect(
+        exportedTables[SpaceDocContentTables.AnnotationContent][noteId]
+          .plainText
+      ).toBeUndefined(); // plainText is excluded
+      expect(
+        exportedTables[SpaceDocContentTables.AnnotationContent][noteId].content
+      ).toBeDefined();
+      expect(
+        exportedTables[SpaceDocContentTables.AnnotationContent][noteId]
+          .content_meta
+      ).toBeDefined();
       expect(exportedTables[SpaceArchiveTables.History]).toBeUndefined();
       expect(exportedTables[SpaceArchiveTables.HistoryContent]).toBeUndefined();
       expect(exportedTables[SpaceTables.Stats]).toBeUndefined();
@@ -113,9 +140,11 @@ describe('storage service', () => {
       expect(
         spaceDocContent.getRowCount(SpaceDocContentTables.CollectionContent)
       ).toBe(1);
+      expect(collectionService.getDocumentPlainText(docId)).toBe('doc');
       expect(
         spaceDocContent.getRowCount(SpaceDocContentTables.AnnotationContent)
       ).toBe(1);
+      expect(annotsService.getPreview(noteId)).toBe('annot');
       expect(spaceArchive.getRowCount(SpaceArchiveTables.History)).toBe(1);
       expect(spaceArchive.getRowCount(SpaceArchiveTables.HistoryContent)).toBe(
         1
@@ -287,6 +316,10 @@ describe('storage service', () => {
       // update collection, leave annot untouched
       const docId2 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       expect(spaceArchive.getRowCount(SpaceArchiveTables.History)).toBe(3);
+      expect(space.getRowCount(SpaceTables.ProjectedState)).toBe(3);
+      expect(space.getRowCount(SpaceTables.CollectionItemView)).toBe(3);
+      resumeService.setLastSelectedNote(docId2, 'id');
+      expect(space.getRowCount(SpaceTables.ResumeState)).toBe(3);
 
       storageService.restoreJson(exportedContent);
 
@@ -310,7 +343,231 @@ describe('storage service', () => {
       );
       expect(space.getRowCount(SpaceTables.Stats)).toBe(1);
     });
-    // TODO test that derived state / preview / content is really cleared
+  });
+
+  describe('import / restore raw collection json with local changes', () => {
+    it('should create local changes for added items', () => {
+      // create init data (1 doc 1 annot)
+      const { docId } = initData();
+      const exportedContent = storageService.exportJson(true); // content is 'doc'
+      collectionService.deleteItem(docId);
+      localChangesService.clear();
+
+      // restore
+      storageService.restoreJson(exportedContent);
+
+      const changes = localChangesService.getLocalChanges();
+      expect(changes).toHaveLength(1);
+      expect(changes[0].change).toBe(LocalChangeType.add);
+      expect(changes[0].itemId).toBe(docId);
+    });
+
+    it('should create local changes for added annots', () => {
+      // create init data (1 doc 1 annot)
+      const { noteId } = initData();
+      const exportedContent = storageService.exportJson(true); // content is 'doc'
+      annotsService.delete(noteId);
+      localChangesService.clear();
+
+      // restore
+      storageService.restoreJson(exportedContent);
+
+      const changes = localChangesService.getLocalChanges();
+      expect(changes).toHaveLength(1);
+      expect(changes[0].change).toBe(LocalChangeType.add);
+      expect(changes[0].itemId).toBe(noteId);
+    });
+
+    it('should create local changes for deleted items', () => {
+      // create init data (1 doc 1 annot)
+      initData();
+      const exportedContent = storageService.exportJson(true); // content is 'doc'
+      const docId2 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      localChangesService.clear();
+
+      // restore
+      storageService.restoreJson(exportedContent);
+
+      const changes = localChangesService.getLocalChanges();
+      expect(changes).toHaveLength(1);
+      expect(changes[0].change).toBe(LocalChangeType.delete);
+      expect(changes[0].itemId).toBe(docId2);
+    });
+
+    it('should create local changes for deleted annots', () => {
+      // create init data (1 doc 1 annot)
+      const { docId } = initData();
+      const exportedContent = storageService.exportJson(true); // content is 'doc'
+      const noteId2 = annotsService.addNote(docId);
+      localChangesService.clear();
+
+      // restore
+      storageService.restoreJson(exportedContent);
+
+      const changes = localChangesService.getLocalChanges();
+      expect(changes).toHaveLength(1);
+      expect(changes[0].change).toBe(LocalChangeType.delete);
+      expect(changes[0].itemId).toBe(noteId2);
+    });
+
+    it('should create local changes for updated fields on items', () => {
+      // create init data (1 doc 1 annot)
+      const { docId } = initData();
+      const exportedContent = storageService.exportJson(true); // content is 'doc'
+      collectionService.setItemLexicalContent(
+        docId,
+        getNewParsedContent('test 1')
+      );
+      localChangesService.clear();
+
+      // restore
+      storageService.restoreJson(exportedContent);
+
+      const changes = localChangesService.getLocalChanges();
+      expect(changes).toHaveLength(1);
+      expect(changes[0].change).toBe(LocalChangeType.update);
+      expect(changes[0].field).toBe('content');
+      expect(changes[0].itemId).toBe(docId);
+    });
+
+    it('should create local changes for updated fields on annots', () => {
+      // create init data (1 doc 1 annot)
+      const { noteId } = initData();
+      const exportedContent = storageService.exportJson(true); // content is 'doc'
+      annotsService.edit(noteId, getNewParsedContent('test 1'));
+      localChangesService.clear();
+
+      // restore
+      storageService.restoreJson(exportedContent);
+
+      const changes = localChangesService.getLocalChanges();
+      expect(changes).toHaveLength(1);
+      expect(changes[0].change).toBe(LocalChangeType.update);
+      expect(changes[0].field).toBe('content');
+      expect(changes[0].itemId).toBe(noteId);
+    });
+
+    it('should not reset local changes for added items', () => {
+      // create init data (1 doc 1 annot)
+      initData();
+      localChangesService.clear();
+      const folId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+      const exportedContent = storageService.exportJson(true);
+
+      storageService.restoreJson(exportedContent);
+
+      const changes = localChangesService.getLocalChanges();
+      expect(changes).toHaveLength(1);
+      expect(changes[0].change).toBe(LocalChangeType.add);
+      expect(changes[0].itemId).toBe(folId);
+    });
+
+    it('should not reset local changes for added annots', () => {
+      // create init data (1 doc 1 annot)
+      const { docId } = initData();
+      localChangesService.clear();
+      const noteId2 = annotsService.addNote(docId);
+      const exportedContent = storageService.exportJson(true);
+
+      storageService.restoreJson(exportedContent);
+
+      const changes = localChangesService.getLocalChanges();
+      expect(changes).toHaveLength(1);
+      expect(changes[0].change).toBe(LocalChangeType.add);
+      expect(changes[0].itemId).toBe(noteId2);
+    });
+
+    it('should not reset local changes for deleted items', () => {
+      // create init data (1 doc 1 annot)
+      const { docId } = initData();
+      localChangesService.clear();
+      collectionService.deleteItem(docId);
+      const exportedContent = storageService.exportJson(true);
+
+      storageService.restoreJson(exportedContent);
+
+      const changes = localChangesService.getLocalChanges();
+      expect(changes).toHaveLength(1);
+      expect(changes[0].change).toBe(LocalChangeType.delete);
+      expect(changes[0].itemId).toBe(docId);
+    });
+
+    it('should not reset local changes for deleted annots', () => {
+      // create init data (1 doc 1 annot)
+      const { noteId } = initData();
+      localChangesService.clear();
+      annotsService.delete(noteId);
+      const exportedContent = storageService.exportJson(true);
+
+      storageService.restoreJson(exportedContent);
+
+      const changes = localChangesService.getLocalChanges();
+      expect(changes).toHaveLength(1);
+      expect(changes[0].change).toBe(LocalChangeType.delete);
+      expect(changes[0].itemId).toBe(noteId);
+    });
+
+    it('should not reset local changes for updated fields on items', () => {
+      // create init data (1 doc 1 annot)
+      const { docId } = initData();
+      localChangesService.clear();
+      collectionService.setItemLexicalContent(
+        docId,
+        getNewParsedContent('test 1')
+      );
+      const exportedContent = storageService.exportJson(true); // content is 'doc'
+
+      // restore
+      storageService.restoreJson(exportedContent);
+
+      const changes = localChangesService.getLocalChanges();
+      expect(changes).toHaveLength(1);
+      expect(changes[0].change).toBe(LocalChangeType.update);
+      expect(changes[0].field).toBe('content');
+      expect(changes[0].itemId).toBe(docId);
+    });
+
+    it('should create local changes for updated fields on annots', () => {
+      // create init data (1 doc 1 annot)
+      const { noteId } = initData();
+      localChangesService.clear();
+      annotsService.edit(noteId, getNewParsedContent('test 1'));
+      const exportedContent = storageService.exportJson(true); // content is 'doc'
+
+      // restore
+      storageService.restoreJson(exportedContent);
+
+      const changes = localChangesService.getLocalChanges();
+      expect(changes).toHaveLength(1);
+      expect(changes[0].change).toBe(LocalChangeType.update);
+      expect(changes[0].field).toBe('content');
+      expect(changes[0].itemId).toBe(noteId);
+    });
+
+    it('should not cancel local changes for updated fields on items', () => {
+      // create init data (1 doc 1 annot)
+      const { docId } = initData();
+      localChangesService.clear();
+      collectionService.setItemLexicalContent(
+        docId,
+        getNewParsedContent('test 1')
+      );
+      const exportedContent = storageService.exportJson(true); // content is 'doc'
+
+      // restore
+      const newJson = JSON.parse(exportedContent);
+      newJson[0].collection[docId].content = getNewContent('test 2');
+      storageService.restoreJson(JSON.stringify(newJson));
+
+      const changes = localChangesService.getLocalChanges();
+      expect(changes).toHaveLength(1);
+      expect(changes[0].change).toBe(LocalChangeType.update);
+      expect(changes[0].field).toBe('content');
+      expect(changes[0].itemId).toBe(docId);
+
+      localChangesService.reset(changes[0].id);
+      expect(collectionService.getDocumentPlainText(docId)).toBe('doc');
+    });
   });
 
   describe('diff table', () => {

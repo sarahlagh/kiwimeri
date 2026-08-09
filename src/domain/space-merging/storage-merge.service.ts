@@ -140,7 +140,7 @@ class StorageMergeService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private trimPlainText(baseTables: any, tableId: string) {
+  private excludePlainText(baseTables: any, tableId: string) {
     if (baseTables[tableId])
       Object.keys(baseTables[tableId]).forEach(rowId => {
         delete baseTables[tableId]![rowId].plainText;
@@ -157,8 +157,8 @@ class StorageMergeService {
       document_annotation_content: docContent[0].document_annotation_content
     };
     // remove plainText
-    this.trimPlainText(baseTables, CC);
-    this.trimPlainText(baseTables, AC);
+    this.excludePlainText(baseTables, CC);
+    this.excludePlainText(baseTables, AC);
 
     const baseValues = {
       appVersion: appConfig.KIWIMERI_VERSION,
