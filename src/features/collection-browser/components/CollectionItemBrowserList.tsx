@@ -212,7 +212,9 @@ export const CollectionItemBrowserList = ({
 
   const [searchText, setSearchText] = useState<string | null>();
   const query =
-    searchText && searchText.length > 0 ? searchText : searchParams.query;
+    searchText && searchText.length > 0
+      ? searchText
+      : decodeURI(searchParams.query || '');
 
   return (
     <CollectionItemList
