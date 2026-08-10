@@ -82,11 +82,46 @@ app.on('activate', async function () {
 });
 
 // Place all ipc or other electron api calls and custom functionality under this line
-import fetch from 'electron-fetch';
 
+// NETWORK
+import fetch from 'electron-fetch';
 ipcMain.handle('capacitor:fetch', async (event, args) => {
   const [resource, config] = args;
   const res = await fetch(resource, config);
   const data = await res.json();
   return JSON.parse(JSON.stringify({ ...res, data })); // avoids 'An object could not be cloned' error
+});
+
+// FILESYSTEM
+import * as fs from 'fs';
+import * as path from 'path';
+const parentDirectoryPath = path.join(
+  app.getPath('appData'),
+  app.getName(),
+  'AppStorage'
+);
+
+function ensureDataDir() {
+  if (!fs.existsSync(parentDirectoryPath)) {
+    fs.mkdirSync(parentDirectoryPath, { recursive: true });
+    console.log('Directory created successfully:', parentDirectoryPath);
+  }
+}
+
+ipcMain.handle('capacitor:fs:readFile', async (event, args) => {
+  const [filename] = args;
+  const filePath = path.join(parentDirectoryPath, filename);
+  if (fs.existsSync(filePath)) {
+    const data = fs.readFileSync(filePath, 'utf-8');
+    return JSON.parse(data);
+  }
+  return {};
+});
+
+ipcMain.handle('capacitor:fs:writeFile', async (event, args) => {
+  const [filename, data] = args;
+  const filePath = path.join(parentDirectoryPath, filename);
+
+  ensureDataDir();
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
 });

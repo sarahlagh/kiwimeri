@@ -20,3 +20,5 @@ cd ..
 if [ -f ".env.production.local.bak" ]; then
     mv .env.production.local.bak .env.production.local
 fi
+
+cp -R android/environments/local/* android
