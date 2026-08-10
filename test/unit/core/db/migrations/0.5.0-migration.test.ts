@@ -1,5 +1,6 @@
 import { appConfig } from '@/config';
 import { migrate } from '@/core/db/migrations/migrate';
+import { postInitMigrationService } from '@/core/db/post-init-migrations/post-init-migration.service';
 import {
   spaceArchiveTablesSchema,
   spaceDocContentTablesSchema,
@@ -55,6 +56,10 @@ async function migrateRawStore(
 
   const store = rawStore.setSchema(storeTablesSchema, storeValuesSchema);
   const space = rawSpace.setSchema(spaceTablesSchema, spaceValuesSchema);
+  postInitMigrationService['enabled'] = true;
+  await postInitMigrationService.start(store, space);
+  space.setValue('appVersion', '0.5.0');
+
   const spaceDocContent = rawSpaceDocContent.setTablesSchema(
     spaceDocContentTablesSchema
   );
