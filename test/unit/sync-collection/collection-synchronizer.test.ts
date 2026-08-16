@@ -496,7 +496,7 @@ describe('collection synchronizer', () => {
       }
     });
 
-    it('should sync notes and let local win if more recent', async () => {
+    it('should sync notes and create conflict (local is more recent)', async () => {
       const items = [oneNotebook(), oneDocument()];
       const notes = [oneNote(items[1].id!)];
       const docId = items[1].id!;
@@ -536,14 +536,12 @@ describe('collection synchronizer', () => {
         expect(Object.keys(newNotes)).toHaveLength(1);
         expect(newNotes[noteId]).toBeDefined();
         expect(newNotes[noteId].content).toBe(annotsService.getContent(noteId));
-        expect(newNotes[noteId].content).toBe(
-          minimizeContentForStorage(JSON.parse(getNewContent('local')))
-        );
-        expect(!annotsService.isConflict(noteId));
+        expect(newNotes[noteId].content).toBe(notes[0].content);
+        expect(annotsService.isConflict(noteId));
       }
     });
 
-    it('should sync notes and create conflict', async () => {
+    it('should sync notes and create conflict (remote is more recent)', async () => {
       const items = [oneNotebook(), oneDocument()];
       const notes = [oneNote(items[1].id!)];
       const docId = items[1].id!;

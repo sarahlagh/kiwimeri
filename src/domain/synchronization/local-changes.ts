@@ -37,4 +37,5 @@ export type LocalChangeResult = {
   createdAt: number;
   change: LocalChangeType;
   field?: string;
+  previousHash?: number;
 };

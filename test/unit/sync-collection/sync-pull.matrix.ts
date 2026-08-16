@@ -6,11 +6,9 @@ import {
   allNonHistorizableNonConflictFields,
   allNonParentUpdatableFields,
   conflictFields,
-  conflictNonHistorizableFields,
   contentField,
   historizableFields,
   nonConflictFields,
-  nonHistorizableFields,
   orderField,
   parentField,
   tagsField,
@@ -280,10 +278,10 @@ const scenarioMatrix: {
       {
         types: ['d'],
         description:
-          'item deleted on remote, then updated locally on HISTORIZABLE field → local wins, item stays',
+          'item deleted on remote, then updated locally on CONFLICT field, item stays as conflict',
         initLocalData: [{ id: '#id', applyInitValue: true }],
         initRemoteData: [{ id: '#id', applyInitValue: true }],
-        fields: [...historizableFields],
+        fields: [...conflictFields],
         changesBeforePull: [
           { id: '#id', change: LocalChangeType.delete, where: 'remote' },
           { id: '#id', change: LocalChangeType.update, where: 'local' }
@@ -291,22 +289,24 @@ const scenarioMatrix: {
         endStats: b =>
           b
             .theItem({
-              hasValue: 'local'
+              hasConflict: true,
+              exists: false,
+              hasValue: null,
+              hasVersions: 3,
+              latestVersionsOp: ['deleted']
             })
-            .ifDocument()
-            .theItem({ hasVersions: 2 })
             .ifForcePull()
-            .theItem({ exists: false, hasValue: null })
-            .ifDocument()
-            .theItem({ hasVersions: 3, latestVersionsOp: ['deleted'] })
+            .theItem({
+              hasConflict: false
+            })
       },
       {
         types: ['d'],
         description:
-          'item deleted on remote, then updated locally on NON-HISTORIZABLE field → local wins, item stays',
+          'item deleted on remote, then updated locally on NON-CONFLICT field → local wins, item stays',
         initLocalData: [{ id: '#id', applyInitValue: true }],
         initRemoteData: [{ id: '#id', applyInitValue: true }],
-        fields: [...nonHistorizableFields],
+        fields: [...nonConflictFields],
         changesBeforePull: [
           { id: '#id', change: LocalChangeType.delete, where: 'remote' },
           { id: '#id', change: LocalChangeType.update, where: 'local' }
@@ -399,10 +399,10 @@ const scenarioMatrix: {
         didPush: false,
         types: ['n', 'f'],
         description:
-          'item updated locally (CONFLICT field), then deleted on remote → local change lost, item deleted (remote wins)',
+          'item updated locally, then deleted on remote → local change lost, item deleted (remote wins)',
         initLocalData: [{ id: '#id', applyInitValue: true }],
         initRemoteData: [{ id: '#id', applyInitValue: true }],
-        fields: [...conflictNonHistorizableFields],
+        fields: [...allNonHistorizableNonConflictFields],
         changesBeforePull: [
           { id: '#id', change: LocalChangeType.update, where: 'local' },
           { id: '#id', change: LocalChangeType.delete, where: 'remote' }
@@ -458,8 +458,7 @@ const scenarioMatrix: {
       },
       {
         types: ['d'],
-        description:
-          'item moved locally, then deleted on remote → conflict created',
+        description: 'item moved locally, then deleted on remote → remote wins',
         initLocalData: [{ id: '#id', applyInitValue: true }],
         initRemoteData: [{ id: '#id', applyInitValue: true }],
         fields: [parentField],
@@ -471,15 +470,11 @@ const scenarioMatrix: {
           b
             .theItem({
               exists: false,
-              hasConflict: true,
-              conflictHasValue: 'local',
+              hasConflict: false,
               hasVersions: 2,
               latestVersionsOp: ['deleted', 'snapshot']
             })
             .ifForcePull()
-            .theItem({
-              hasConflict: false
-            })
             .itsParent({
               exists: false
             })
@@ -573,28 +568,6 @@ const scenarioMatrix: {
             .theItem({
               hasVersions: f && historizableFields.includes(f) ? 2 : 1
             })
-      },
-      {
-        didPush: false,
-        types: ['n', 'f'],
-        description:
-          'same field (CONFLICTING) on item updated locally, then remotely with different value → remote change persists',
-        fields: [...conflictFields],
-        initLocalData: [{ id: '#id', applyInitValue: true }],
-        initRemoteData: [{ id: '#id', applyInitValue: true }],
-        changesBeforePull: [
-          {
-            id: '#id',
-            change: LocalChangeType.update,
-            where: 'local'
-          },
-          {
-            id: '#id',
-            change: LocalChangeType.update,
-            where: 'remote'
-          }
-        ],
-        endStats: b => b.theItem({ hasValue: 'remote' })
       },
       {
         types: ['d'],
@@ -714,7 +687,7 @@ const scenarioMatrix: {
         types: ['n', 'f'],
         description:
           'same field (NON-CONFLICTING) on item updated remotely, then locally with different value → local change persists',
-        fields: [...conflictFields],
+        fields: [...nonConflictFields],
         initLocalData: [{ id: '#id', applyInitValue: true }],
         initRemoteData: [{ id: '#id', applyInitValue: true }],
         changesBeforePull: [
@@ -738,7 +711,7 @@ const scenarioMatrix: {
       {
         types: ['d'],
         description:
-          'same field (CONFLICTING) on item updated remotely, then locally with different value → local change persists',
+          'same field (CONFLICTING) on item updated remotely, then locally with different value → conflict',
         fields: [...conflictFields],
         initLocalData: [{ id: '#id', applyInitValue: true }],
         initRemoteData: [{ id: '#id', applyInitValue: true }],
@@ -757,17 +730,13 @@ const scenarioMatrix: {
         endStats: (b, f) =>
           b
             .theItem({
-              hasValue: 'local'
-            })
-            .ifDocument()
-            .theItem({
-              hasVersions: f && historizableFields.includes(f) ? 2 : 1
+              hasValue: 'remote',
+              hasConflict: true,
+              hasVersions: f && historizableFields.includes(f) ? 3 : 1
             })
             .ifForcePull()
-            .theItem({ hasValue: 'remote' })
-            .ifDocument()
             .theItem({
-              hasVersions: f && historizableFields.includes(f) ? 3 : 1
+              hasConflict: false
             })
       }
     ]
@@ -854,20 +823,12 @@ const scenarioMatrix: {
             newValue: '#parentB'
           }
         ],
+        didPush: false,
         endStats: b =>
-          b
-            .theItem({
-              id: '#id',
-              hasValue: 'remote'
-            })
-            .ifDocument()
-            .theItem({
-              hasConflict: true,
-              conflictHasValue: 'local',
-              conflictHasParent: '#parentA'
-            })
-            .ifForcePull()
-            .theItem({ hasConflict: false })
+          b.theItem({
+            id: '#id',
+            hasValue: 'remote'
+          })
       },
       {
         types: ['f', 'n'],
@@ -1406,6 +1367,7 @@ const scenarioMatrix: {
             newValue: '#parentB'
           }
         ],
+        didPush: false,
         endStats: b => b.theItem({ id: '#id', hasValue: 'remote' })
       },
       {

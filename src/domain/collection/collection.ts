@@ -92,7 +92,7 @@ export type CollectionItemResult = Pick<
   };
 
 export const CollectionItemUpdatableConflictFields: CollectionItemUpdatableFieldEnum[] =
-  ['parentId', 'title', 'content'] as const;
+  ['content'] as const;
 
 export const CollectionItemUpdatableNonConflictFields: CollectionItemUpdatableFieldEnum[] =
   CollectionItemUpdatableFields.filter(

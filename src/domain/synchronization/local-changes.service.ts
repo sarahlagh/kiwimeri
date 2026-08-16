@@ -117,7 +117,8 @@ class LocalChangesService {
         createdAt: row.createdAt,
         itemId: row.itemId,
         on: row.on,
-        field: row.field
+        field: row.field,
+        previousHash: row.previousHash
       };
       results.push(result);
     });

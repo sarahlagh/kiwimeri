@@ -31,7 +31,8 @@ function expectedLC(noteId: string, type: LocalChangeType, updated: number) {
     on: SpaceTables.Annotations,
     itemId: noteId,
     change: type,
-    createdAt: updated
+    createdAt: updated,
+    previousHash: 0
   };
 }
 

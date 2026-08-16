@@ -182,11 +182,8 @@ export const allNonParentUpdatableFields: CollectionTestField[] = [
   settingsField
 ];
 
-export const conflictFields: CollectionTestField[] = [titleField, contentField];
+export const conflictFields: CollectionTestField[] = [contentField];
 export const historizableFields: CollectionTestField[] = [contentField];
-
-export const conflictNonHistorizableFields: CollectionTestField[] =
-  conflictFields.filter(f => !historizableFields.includes(f));
 
 export const nonConflictFields: CollectionTestField[] =
   allNonParentUpdatableFields.filter(f => !conflictFields.includes(f));
