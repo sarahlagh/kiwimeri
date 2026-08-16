@@ -1,5 +1,5 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
-import { useSpaceValue } from '@/core/db/tinybase-hooks';
+import { useSpaceValue } from '@/core/db/ui-hooks';
 
 export default function useCurrentNotebook() {
   return (

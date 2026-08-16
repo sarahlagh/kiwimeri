@@ -1,7 +1,7 @@
 import { GET_DOCUMENT_ROUTE } from '@/app/routes';
 import { store } from '@/core/db/store';
 import { SID } from '@/core/db/store-constants';
-import { useStoreValue } from '@/core/db/tinybase-hooks';
+import { useStoreValue } from '@/core/db/ui-hooks';
 import collectionService, {
   initialContent
 } from '@/domain/collection/collection.service';

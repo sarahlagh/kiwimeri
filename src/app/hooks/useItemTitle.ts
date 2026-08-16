@@ -1,6 +1,6 @@
 import { ROOT_COLLECTION } from '@/constants';
 import { SpaceTables } from '@/core/db/store-constants';
-import { useSpaceCell } from '@/core/db/tinybase-hooks';
+import { useSpaceCell } from '@/core/db/ui-hooks';
 import collectionService from '@/domain/collection/collection.service';
 import { Id } from 'tinybase/with-schemas';
 

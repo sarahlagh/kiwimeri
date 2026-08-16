@@ -1,6 +1,6 @@
 import { useQueryResults } from '@/core/db/queries-helper';
 import { SpaceTables } from '@/core/db/store-constants';
-import { useSpaceCell } from '@/core/db/tinybase-hooks';
+import { useSpaceCell } from '@/core/db/ui-hooks';
 import fetchRemotesQuery from '@/domain/synchronization/queries/fetchRemotesQuery';
 import { ReplicaStateRow } from '@/domain/synchronization/replica-state';
 

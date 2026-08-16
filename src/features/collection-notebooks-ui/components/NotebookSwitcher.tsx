@@ -1,7 +1,7 @@
 import { INIT_ROUTE } from '@/app/routes';
 import { APPICONS } from '@/constants';
 import { SpaceTables } from '@/core/db/store-constants';
-import { useSpaceCell } from '@/core/db/tinybase-hooks';
+import { useSpaceCell } from '@/core/db/ui-hooks';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { IonButton, IonIcon, useIonModal } from '@ionic/react';
 import { useNavigate } from 'react-router';

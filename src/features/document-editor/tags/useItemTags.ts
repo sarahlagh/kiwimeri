@@ -1,5 +1,5 @@
 import { SpaceTables } from '@/core/db/store-constants';
-import { useSpaceCell } from '@/core/db/tinybase-hooks';
+import { useSpaceCell } from '@/core/db/ui-hooks';
 import { Id } from 'tinybase/with-schemas';
 
 export default function useItemTags(rowId: Id) {

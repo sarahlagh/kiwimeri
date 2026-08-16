@@ -1,5 +1,5 @@
 import { SpaceTables } from '@/core/db/store-constants';
-import { useSpaceRowCount } from '@/core/db/tinybase-hooks';
+import { useSpaceRowCount } from '@/core/db/ui-hooks';
 import { useEffect, useState } from 'react';
 
 export default function useHasLocalChanges() {

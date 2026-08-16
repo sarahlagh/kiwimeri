@@ -1,5 +1,5 @@
 import { SID, SpaceArchiveTables } from '@/core/db/store-constants';
-import { useSpaceArchiveRow } from '@/core/db/tinybase-hooks';
+import { useSpaceArchiveRow } from '@/core/db/ui-hooks';
 import {
   CollectionItemVersion,
   CollectionItemVersionContentRow,

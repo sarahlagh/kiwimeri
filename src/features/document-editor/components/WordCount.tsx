@@ -1,5 +1,5 @@
 import { SID, SpaceDocContentTables } from '@/core/db/store-constants';
-import { useSpaceDocContentCell } from '@/core/db/tinybase-hooks';
+import { useSpaceDocContentCell } from '@/core/db/ui-hooks';
 import { countWords } from '@/shared/utils';
 import { IonText } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';

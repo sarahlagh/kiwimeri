@@ -1,5 +1,5 @@
 import { SpaceTables } from '@/core/db/store-constants';
-import { useSpaceCell } from '@/core/db/tinybase-hooks';
+import { useSpaceCell } from '@/core/db/ui-hooks';
 import { FolderSettings } from '@/domain/collection/collection-settings';
 import useNotebookDefaultSettings from '@/shared/hooks/useNotebookDefaultSettings';
 import { Id } from 'tinybase/with-schemas';

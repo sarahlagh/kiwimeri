@@ -1,6 +1,6 @@
 import { ANNOT_PREVIEW_SIZE } from '@/constants';
 import { SpaceTables } from '@/core/db/store-constants';
-import { useSpaceCell } from '@/core/db/tinybase-hooks';
+import { useSpaceCell } from '@/core/db/ui-hooks';
 import { Id } from 'tinybase/with-schemas';
 
 const useNotePreview = (rowId: Id) => {

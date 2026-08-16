@@ -1,5 +1,5 @@
 import { SpaceValue, SpaceValueType } from '@/core/db/store-schema';
-import { useSpaceValue } from '@/core/db/tinybase-hooks';
+import { useSpaceValue } from '@/core/db/ui-hooks';
 
 export default function useDeviceSetting<S extends SpaceValue>(
   setting: S
