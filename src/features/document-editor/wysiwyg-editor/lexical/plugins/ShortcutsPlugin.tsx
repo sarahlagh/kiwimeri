@@ -1,17 +1,16 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
-    COMMAND_PRIORITY_NORMAL,
-    FORMAT_TEXT_COMMAND,
-    KEY_DOWN_COMMAND
+  COMMAND_PRIORITY_NORMAL,
+  FORMAT_TEXT_COMMAND,
+  KEY_DOWN_COMMAND
 } from 'lexical';
 import { useEffect } from 'react';
 import {
-    ZOOM_IN_COMMAND,
-    ZOOM_OUT_COMMAND,
-    ZOOM_RESET_COMMAND
-} from './commands';
-import { ZOOM_INCREMENT } from './constants';
-
+  ZOOM_IN_COMMAND,
+  ZOOM_OUT_COMMAND,
+  ZOOM_RESET_COMMAND
+} from '../commands';
+import { ZOOM_INCREMENT } from '../constants';
 
 export default function ShortcutsPlugin() {
   const [editor] = useLexicalComposerContext();

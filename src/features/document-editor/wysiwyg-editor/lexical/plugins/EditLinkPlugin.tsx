@@ -19,8 +19,8 @@ import {
   TOGGLE_LINK_COMMAND
 } from '@lexical/link';
 import { $createTextNode, $getSelection, $isRangeSelection } from 'lexical';
-import { getSelectedNode } from './playground/utils/getSelectedNode';
-import { sanitizeUrl } from './playground/utils/url';
+import { getSelectedNode } from '../playground/utils/getSelectedNode';
+import { sanitizeUrl } from '../playground/utils/url';
 
 export default function EditLinkPlugin({
   isLinkEditMode,

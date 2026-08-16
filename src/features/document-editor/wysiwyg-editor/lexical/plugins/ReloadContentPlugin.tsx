@@ -12,8 +12,8 @@ import {
 } from '@lexical/react/LexicalHistoryPlugin';
 import { $setSelection } from 'lexical';
 import { useEffect, useState } from 'react';
-import { RELOAD_TAG, SELECTION_CHANGE_TAG } from './constants';
-import { deserializeSelection } from './selection-serializer';
+import { RELOAD_TAG, SELECTION_CHANGE_TAG } from '../constants';
+import { deserializeSelection } from '../selection-serializer';
 
 function getSafeContent(content: string) {
   if (content === '') content = initialContent();

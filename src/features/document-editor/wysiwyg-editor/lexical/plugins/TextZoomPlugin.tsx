@@ -7,7 +7,7 @@ import {
   ZOOM_IN_COMMAND,
   ZOOM_OUT_COMMAND,
   ZOOM_RESET_COMMAND
-} from './commands';
+} from '../commands';
 
 type StyleWithZoom = CSSStyleDeclaration & {
   zoom: string;

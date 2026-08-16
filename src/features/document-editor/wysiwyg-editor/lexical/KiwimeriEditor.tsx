@@ -27,9 +27,7 @@ import React, {
   useState
 } from 'react';
 import { FOCUS_TAG, RELOAD_TAG } from './constants';
-import EditLinkPlugin from './EditLinkPlugin';
 import { KiwimeriEditorHandle } from './KiwimeriEditorHandle';
-import { KiwimeriOnChangePlugin } from './KiwimeriOnChangePlugin';
 import KiwimeriToolbarPlugin, {
   ToolbarPluginProps
 } from './KiwimeriToolbarPlugin';
@@ -38,10 +36,12 @@ import { MARKDOWN_SHORTCUTS_TRANSFORMERS } from './playground/markdown-transform
 import AutoLinkPlugin from './playground/plugins/AutoLinkPlugin';
 import DebugTreeViewPlugin from './playground/plugins/DebugTreeViewPlugin';
 import { validateUrl } from './playground/utils/url';
-import ReloadContentPlugin from './ReloadContentPlugin';
-import { SearchHighlightPlugin } from './SearchHighlightPlugin';
-import ShortcutsPlugin from './ShortcutsPlugin';
-import TextZoomPlugin from './TextZoomPlugin';
+import EditLinkPlugin from './plugins/EditLinkPlugin';
+import { KiwimeriOnChangePlugin } from './plugins/KiwimeriOnChangePlugin';
+import ReloadContentPlugin from './plugins/ReloadContentPlugin';
+import { SearchHighlightPlugin } from './plugins/SearchHighlightPlugin';
+import ShortcutsPlugin from './plugins/ShortcutsPlugin';
+import TextZoomPlugin from './plugins/TextZoomPlugin';
 
 type KiwimeriEditorProps = {
   id?: string;
