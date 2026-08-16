@@ -12,13 +12,15 @@ export abstract class CloudStorageDriver {
     const { success: connected, filesInfo } =
       await this.fetchFilesInfo(fileRefs);
 
+    const config = this.getConfig();
     console.log(`[${this.driverName}] client initialized`, {
-      ...this.getConfig(),
-      password: '*******'
+      ...config,
+      password: '*******',
+      token: '*******'
     });
 
     return {
-      config: this.getConfig(),
+      config,
       connected,
       filesInfo
     };
