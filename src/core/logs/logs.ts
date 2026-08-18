@@ -17,3 +17,9 @@ export type AppLogResult = Required<AppLog> & {
   id: string;
   longLevelName: AppLogLevel;
 };
+
+export const logsSchema = {
+  ts: { type: 'number' },
+  level: { type: 'string' },
+  message: { type: 'string' }
+} as const satisfies Record<keyof AppLog, unknown>;

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { AppLogLevel } from './core/infra/log-model';
+import { AppLogLevel } from './core/logs/logs';
 
 // hack to override VITE_ vars with docker container env
 const dynConfig = {

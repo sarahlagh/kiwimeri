@@ -4,7 +4,7 @@ import { deviceSettings } from '@/domain/device-settings/device-settings.service
 import { dateToStr } from '@/shared/misc/date-utils';
 import { store } from '../db/store';
 import { StoreTables } from '../db/store-constants';
-import { AppLogLevel, AppLogResult } from './log-model';
+import { AppLogLevel, AppLogResult } from './logs';
 
 const MAX_STRING_LENGTH = 10000; // max length for a single arg
 
@@ -116,7 +116,7 @@ class AppLogService {
     }
   }
 
-  private stringify(message?: any): string {
+  public stringify(message?: any): string {
     const t = typeof message;
     if (message === null) {
       return 'null';

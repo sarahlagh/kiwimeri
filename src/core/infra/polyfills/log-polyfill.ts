@@ -1,7 +1,7 @@
 import { appConfig } from '@/config';
-import { appLog } from '@/core/infra/log';
-import { AppLogLevel } from '@/core/infra/log-model';
 import { plt } from '@/core/infra/platform';
+import { AppLogLevel } from '@/core/logs/logs';
+import { appLog } from '@/core/logs/logs.service';
 
 const logLevels = {
   trace: 1000,
