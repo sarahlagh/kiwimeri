@@ -1,8 +1,4 @@
-import {
-  INITIAL_CONTENT_START,
-  initialContent
-} from '@/domain/collection/collection.service';
-import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-content';
+import { initialContent } from '@/domain/collection/collection.service';
 import { SerializedSelection } from '@/domain/collection/resume-state';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
@@ -16,10 +12,8 @@ import { RELOAD_TAG, SELECTION_CHANGE_TAG } from '../constants';
 import { deserializeSelection } from '../selection-serializer';
 
 function getSafeContent(content: string) {
-  if (content === '') content = initialContent();
-  return content.startsWith(INITIAL_CONTENT_START)
-    ? content
-    : unminimizeContentFromStorage(content);
+  if (content === '') return initialContent();
+  return content;
 }
 
 export default function ReloadContentPlugin({

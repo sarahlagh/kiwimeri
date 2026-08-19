@@ -2,7 +2,6 @@ import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { space, spaceDocContent } from '@/core/db/store';
 import { SpaceDocContentTables, SpaceTables } from '@/core/db/store-constants';
 import collectionService from '@/domain/collection/collection.service';
-import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-content';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
 import { BaseDocAnnotation } from '@/domain/collection/document-annotations';
 import { LocalChangeType } from '@/domain/synchronization/local-changes';
@@ -107,7 +106,7 @@ describe('notes service', () => {
       SpaceDocContentTables.AnnotationContent,
       noteId
     );
-    expect(unminimizeContentFromStorage(noteContent)).toBe(content);
+    expect(noteContent).toBe(content);
     expect(derived.plainText).toBe('this is the content');
     expect(note.updatedAt).toBeGreaterThan(updated);
     expect(getDocUpdatedTs(docId)).toBeGreaterThan(updated);

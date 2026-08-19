@@ -8,6 +8,7 @@ import { historyService } from '@/domain/history/history.service';
 import { dateToStr } from '@/shared/misc/date-utils';
 import { getPlainText } from '@/shared/misc/getPlainText';
 import { countWords, n00 } from '@/shared/utils';
+import { unminimizeContentFromStorage } from '../collection/compress-file-content';
 import { DataPoint, DocumentContentStatsBag, DocumentDatedStat } from './stats';
 
 export const trackedStats = [
@@ -154,7 +155,7 @@ class StatsService {
 
     for (let i = versionIds.length - 1; i >= 0; i--) {
       const version = historyService.getVersion(versionIds[i])!;
-      const plain = getPlainText(version.content);
+      const plain = getPlainText(unminimizeContentFromStorage(version.content));
       const content_meta = version.snapshotJson.content_meta!;
       const stats = this.buildStatsFromContentMeta(plain, content_meta);
       this.updateStatsAtDate(rowId, stats);

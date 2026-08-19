@@ -3,7 +3,6 @@ import { space, spaceDocContent } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { startDbListeners, stopDbListeners } from '@/core/db/store-listeners';
 import collectionService from '@/domain/collection/collection.service';
-import { minimizeContentForStorage } from '@/domain/collection/compress-file-content';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { storageService } from '@/domain/space-merging/storage.service';
 import { adv, oneDocument, oneFolder } from '@@/_setup/test.utils';
@@ -30,7 +29,7 @@ const createTestData = () => {
   FFF1.id = 'FFF1';
   const D1 = oneDocument('D1', FFF1.id);
   D1.id = 'D1';
-  D1.content = minimizeContentForStorage(shortContent);
+  D1.content = JSON.stringify(shortContent);
   D1.tags = ['tag1'];
   const F2 = oneFolder('F2');
   F2.id = 'F2';

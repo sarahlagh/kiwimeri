@@ -1,6 +1,10 @@
 import { AnyData, SerializableData } from '@/core/db/types';
 import { CollectionItem } from '@/domain/collection/collection';
 import { minimizeKeys, unminimizeKeys } from '@/shared/utils';
+import {
+  minimizeContentForStorage,
+  unminimizeContentFromStorage
+} from './compress-file-content';
 
 const keys = [
   ['id', 'i'],
@@ -60,9 +64,12 @@ export type MinimizedCollectionItem = {
 export const minimizeItemsForStorage = (obj: CollectionItem[]) => {
   return obj
     .map(obj => ({ ...obj }))
-    .map(
-      item => minimizeKeys(item, keysMap, new Map()) as MinimizedCollectionItem
-    );
+    .map(item => {
+      if (item.content) {
+        item.content = minimizeContentForStorage(JSON.parse(item.content));
+      }
+      return minimizeKeys(item, keysMap, new Map()) as MinimizedCollectionItem;
+    });
 };
 
 export const unminimizeItemsFromStorage = (
@@ -70,5 +77,10 @@ export const unminimizeItemsFromStorage = (
 ): CollectionItem[] => {
   return obj
     .map(o => unminimizeKeys(o, keysMapReverse, new Map()) as CollectionItem)
-    .map(o => ({ ...o }));
+    .map(item => {
+      if (item.content) {
+        item.content = unminimizeContentFromStorage(item.content);
+      }
+      return item;
+    });
 };

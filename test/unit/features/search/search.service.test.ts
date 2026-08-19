@@ -8,7 +8,7 @@ import {
   searchService
 } from '@/features/search';
 import { createHeadlessEditor } from '@lexical/headless';
-import { readFile } from 'fs/promises';
+import { readFile, writeFile } from 'fs/promises';
 import { LexicalEditor, TextNode } from 'lexical';
 import { assert, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
@@ -38,12 +38,29 @@ describe('search service', () => {
     spaceDocContent.setJson(jsonCollection);
   });
 
+  test.skip('migrate test file', async () => {
+    const json = await readFile(
+      `${__dirname}/_data/searchme-collection.json`,
+      'utf8'
+    );
+    const json_content = JSON.parse(json);
+    const collection_content = json_content[0].collection_content;
+    Object.keys(collection_content).forEach(rowId => {
+      const content = collection_content[rowId].content;
+      collection_content[rowId].content = unminimizeContentFromStorage(content);
+    });
+    await writeFile(
+      `${__dirname}/_data/searchme-collection.json`,
+      JSON.stringify(json_content)
+    );
+  });
+
   describe('Search Lexical State', () => {
     beforeEach(() => {
       const minimized = collectionService.getDocumentContent(docId);
       expect(minimized).toBeDefined();
       expect(collectionService.getDocumentPlainText(docId)).not.toBe('');
-      const content = unminimizeContentFromStorage(minimized!);
+      const content = minimized!;
       editor = createHeadlessEditor({
         nodes: lexicalConfig.nodes,
         onError: () => {}

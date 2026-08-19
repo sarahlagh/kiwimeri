@@ -1,5 +1,6 @@
 import { useToastContext } from '@/app/context/ToastContext';
 import { APPICONS, DOC_PREVIEW_SIZE } from '@/constants';
+import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-content';
 import { CollectionItemVersion } from '@/domain/history/history';
 import { historyService } from '@/domain/history/history.service';
 import LoadingInline from '@/shared/components/LoadingInline';
@@ -92,7 +93,7 @@ const ManageHistoryModal = ({
     const version = historyService.getVersion(vId)!;
     return {
       ...version,
-      plainText: getPlainText(version.content)
+      plainText: getPlainText(unminimizeContentFromStorage(version.content))
     };
   });
   return (

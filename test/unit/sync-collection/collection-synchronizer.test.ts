@@ -4,7 +4,6 @@ import { SpaceDocContentTables, SpaceTables } from '@/core/db/store-constants';
 import { setMetaField } from '@/core/db/types';
 import { CollectionItemType } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
-import { minimizeContentForStorage } from '@/domain/collection/compress-file-content';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
 import { historyService } from '@/domain/history/history.service';
 import { conflictsService } from '@/domain/space-merging/conflicts.service';
@@ -220,9 +219,7 @@ describe('collection synchronizer', () => {
       {
         const { items } = driver.getParsedCollectionContent();
         expect(Object.keys(items)).toHaveLength(2);
-        expect(items[docId].content).toBe(
-          minimizeContentForStorage(JSON.parse(getNewContent('test update')))
-        );
+        expect(items[docId].content).toBe(getNewContent('test update'));
       }
     });
 
@@ -282,9 +279,7 @@ describe('collection synchronizer', () => {
       {
         const { items } = driver.getParsedCollectionContent();
         expect(Object.keys(items)).toHaveLength(2);
-        expect(items[docId].content).toBe(
-          minimizeContentForStorage(JSON.parse(getNewContent('remote update')))
-        );
+        expect(items[docId].content).toBe(getNewContent('remote update'));
       }
       expect(getLocalItemConflicts()).toHaveLength(0);
     });
@@ -346,9 +341,7 @@ describe('collection synchronizer', () => {
         const { items } = driver.getParsedCollectionContent();
         expect(Object.keys(items)).toHaveLength(2);
         expect(items[docId]).toBeDefined();
-        expect(items[docId].content).toBe(
-          minimizeContentForStorage(JSON.parse(getNewContent('local update')))
-        );
+        expect(items[docId].content).toBe(getNewContent('local update'));
       }
       expect(getLocalItemConflicts()).toHaveLength(0);
     });
@@ -407,9 +400,7 @@ describe('collection synchronizer', () => {
         const { items } = driver.getParsedCollectionContent();
         expect(Object.keys(items)).toHaveLength(2);
         expect(items[docId]).toBeDefined();
-        expect(items[docId].content).toBe(
-          minimizeContentForStorage(JSON.parse(getNewContent('local update')))
-        );
+        expect(items[docId].content).toBe(getNewContent('local update'));
         expect(items[docId].title).not.toBe('remote title'); // remote change lost
       }
       expect(getLocalItemConflicts()).toHaveLength(0);
@@ -561,9 +552,7 @@ describe('collection synchronizer', () => {
       });
 
       // update on remote
-      notes[0].content = minimizeContentForStorage(
-        JSON.parse(getNewContent('remote'))
-      );
+      notes[0].content = getNewContent('remote');
       notes[0].content_meta = setMetaField(Date.now());
       notes[0].updatedAt = Date.now();
       await driver.setCollectionContentWithAnnots(
@@ -955,9 +944,7 @@ describe('collection synchronizer', () => {
       });
 
       // update on remote
-      items[1].content = minimizeContentForStorage(
-        JSON.parse(getNewContent('remote'))
-      );
+      items[1].content = getNewContent('remote');
       items[1].content_meta = setMetaField(Date.now());
       items[1].updatedAt = Date.now();
       await driver.setCollectionContent(items, items[1].updatedAt);
@@ -1026,9 +1013,7 @@ describe('collection synchronizer', () => {
       });
 
       // update on remote
-      notes[0].content = minimizeContentForStorage(
-        JSON.parse(getNewContent('remote'))
-      );
+      notes[0].content = getNewContent('remote');
       notes[0].content_meta = setMetaField(Date.now());
       notes[0].updatedAt = Date.now();
       await driver.setCollectionContentWithAnnots(
@@ -1110,16 +1095,12 @@ describe('collection synchronizer', () => {
       });
 
       // update on remote
-      notes[0].content = minimizeContentForStorage(
-        JSON.parse(getNewContent('remote'))
-      );
+      notes[0].content = getNewContent('remote');
       notes[0].content_meta = setMetaField(Date.now());
       notes[0].updatedAt = Date.now();
 
       vi.advanceTimersByTime(100);
-      items[2].content = minimizeContentForStorage(
-        JSON.parse(getNewContent('remote'))
-      );
+      items[2].content = getNewContent('remote');
       items[2].content_meta = setMetaField(Date.now());
       items[2].updatedAt = Date.now();
 

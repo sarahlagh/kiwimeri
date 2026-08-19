@@ -25,10 +25,6 @@ import {
   CollectionItemSort
 } from '@/domain/collection/collection-settings';
 import { settingsService } from '@/domain/collection/collection-settings.service';
-import {
-  minimizeContentForStorage,
-  unminimizeContentFromStorage
-} from '@/domain/collection/compress-file-content';
 import notebooksService from '@/domain/collection/notebooks.service';
 import fetchItemsQuery from '@/domain/collection/queries/fetchItemsQuery';
 import { genericReorder } from '@/shared/dnd/utils';
@@ -44,8 +40,6 @@ export const initialContent = () => {
   // 'empty' editor
   return '{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1}],"direction":null,"format":"","indent":0,"type":"root","version":1}}';
 };
-
-export const INITIAL_CONTENT_START = '{"root":{';
 
 const C = SpaceTables.Collection;
 const CC = SpaceDocContentTables.CollectionContent;
@@ -268,19 +262,14 @@ class CollectionService {
     content: SerializedEditorState,
     skipVersion = false
   ) {
-    this.setItemField(
-      rowId,
-      'content',
-      minimizeContentForStorage(content),
-      skipVersion
-    );
+    this.setItemField(rowId, 'content', JSON.stringify(content), skipVersion);
   }
 
   public setUnsavedItemLexicalContent(
     item: Pick<CollectionItem, 'content'>,
     content: SerializedEditorState
   ) {
-    item.content = minimizeContentForStorage(content);
+    item.content = JSON.stringify(content);
   }
 
   public appendUnsavedLexicalContent(
@@ -290,7 +279,7 @@ class CollectionService {
     if (!this.itemExists(itemId) || !this.getDocumentContent(itemId))
       return contentToAppend;
     const existingContent = JSON.parse(
-      unminimizeContentFromStorage(this.getDocumentContent(itemId)!)
+      this.getDocumentContent(itemId)!
     ) as SerializedEditorState;
 
     const newChildren = [

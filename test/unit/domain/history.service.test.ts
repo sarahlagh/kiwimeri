@@ -2,6 +2,7 @@ import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { space, spaceArchive } from '@/core/db/store';
 import { CollectionItem } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
+import { minimizeContentForStorage } from '@/domain/collection/compress-file-content';
 import { historyService } from '@/domain/history/history.service';
 import { LocalChangeType } from '@/domain/synchronization/local-changes';
 import localChangesService from '@/domain/synchronization/local-changes.service';
@@ -72,7 +73,9 @@ describe('collection history service', () => {
             expect(versionData[field]).toBe(newValue);
             expect(spaceArchive.getRowCount('history_content')).toBe(1);
           } else {
-            expect(version0.content).toBe(newValue);
+            expect(version0.content).toBe(
+              minimizeContentForStorage(JSON.parse(newValue as string))
+            );
             expect(spaceArchive.getRowCount('history_content')).toBe(2);
           }
         });
@@ -189,7 +192,9 @@ describe('collection history service', () => {
       expect(versions).toHaveLength(2);
       expect(version0.snapshotJson.title).toBe(newValue);
       expect(version1.snapshotJson.title).toBe(itemBefore.title);
-      expect(version0.content).toBe(newContentValue);
+      expect(version0.content).toBe(
+        minimizeContentForStorage(JSON.parse(newContentValue))
+      );
       localChangesService.clear();
 
       historyService.restoreDocumentVersion(docId, version1.id!);
@@ -230,8 +235,12 @@ describe('collection history service', () => {
       expect(versions).toHaveLength(2);
       let version0 = historyService.getVersion(versions[0])!;
       let version1 = historyService.getVersion(versions[1])!;
-      expect(version0.content).toBe(newValue1);
-      expect(version1.content).toBe(itemBefore.content);
+      expect(version0.content).toBe(
+        minimizeContentForStorage(JSON.parse(newValue1))
+      );
+      expect(version1.content).toBe(
+        minimizeContentForStorage(JSON.parse(itemBefore.content!))
+      );
 
       // new change, not yet in version
       collectionService.setItemLexicalContent(docId, newContent('test 2'));
@@ -249,12 +258,18 @@ describe('collection history service', () => {
       version1 = historyService.getVersion(versions[1])!;
       const version2 = historyService.getVersion(versions[2])!;
       expect(versions).toHaveLength(4);
-      expect(version0.content).toBe(itemBefore.content);
+      expect(version0.content).toBe(
+        minimizeContentForStorage(JSON.parse(itemBefore.content!))
+      );
       expect(version0.snapshotJson.title).toBe(itemBefore.title);
       expect(version0.snapshotJson.updatedAt).toBe(itemBefore.updatedAt + 210);
-      expect(version1.content).toBe(newValue2);
+      expect(version1.content).toBe(
+        minimizeContentForStorage(JSON.parse(newValue2))
+      );
       expect(version1.snapshotJson.updatedAt).toBe(itemBefore.updatedAt + 200);
-      expect(version2.content).toBe(newValue1);
+      expect(version2.content).toBe(
+        minimizeContentForStorage(JSON.parse(newValue1))
+      );
       expect(version2.snapshotJson.updatedAt).toBe(itemBefore.updatedAt + 100);
       expect(
         historyService.getVersion(versions[3])!.snapshotJson.updatedAt
@@ -331,7 +346,7 @@ describe('collection history service', () => {
       expect(historyService.getVersions(conflictId)).toHaveLength(1);
       expect(historyService.getLatestVersion(conflictId)!.op).toBe('snapshot');
       expect(historyService.getLatestVersion(conflictId)!.content).toBe(
-        newContentValue
+        minimizeContentForStorage(JSON.parse(newContentValue))
       );
     });
 

@@ -2,7 +2,6 @@ import { space, spaceDocContent } from '@/core/db/store';
 import { SpaceDocContentTables, SpaceTables } from '@/core/db/store-constants';
 import { MetaField, setMetaField } from '@/core/db/types';
 import { initialContent } from '@/domain/collection/collection.service';
-import { minimizeContentForStorage } from '@/domain/collection/compress-file-content';
 import { genericReorder } from '@/shared/dnd/utils';
 import { SortableType } from '@/shared/misc/sort-filter/sort';
 import type { SerializedEditorState } from 'lexical';
@@ -72,7 +71,7 @@ class DocumentAnnotationsService {
 
   public edit(id: Id, content: SerializedEditorState) {
     const now = Date.now();
-    const contentStr = minimizeContentForStorage(content);
+    const contentStr = JSON.stringify(content);
     space.transaction(() => {
       space.setCell(A, id, 'updatedAt', now);
       space.delCell(A, id, 'conflictId');

@@ -26,6 +26,7 @@ import {
   isDocument
 } from '../collection/collection';
 import collectionService from '../collection/collection.service';
+import { unminimizeContentFromStorage } from '../collection/compress-file-content';
 import { annotsService } from '../collection/doc-annotations.service';
 import {
   BaseDocAnnotation,
@@ -65,8 +66,15 @@ const S = SpaceTables.Stats;
 const CC = SpaceDocContentTables.CollectionContent;
 const AC = SpaceDocContentTables.AnnotationContent;
 
-const LOCAL_COLLECTION_SCHEMA_VERSION = 2; // increment each breaking change
-const MIN_LOCAL_COLLECTION_SCHEMA_VERSION = 1;
+enum Versions {
+  INITIAL_0_4 = 0,
+  WITH_SETTINGS_AND_OBJS_1 = 1,
+  WITH_CONTENT_SEPARATE_2 = 2,
+  WITH_CONTENT_UNMINIFIED_3 = 3
+}
+
+const LOCAL_COLLECTION_SCHEMA_VERSION = Versions.WITH_CONTENT_UNMINIFIED_3; // increment each breaking change
+const MIN_LOCAL_COLLECTION_SCHEMA_VERSION = Versions.WITH_SETTINGS_AND_OBJS_1; // TODO stop supporting < 3 after 0.5
 
 class StorageMergeService {
   public getSpaceRepresentation(
@@ -181,28 +189,29 @@ class StorageMergeService {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private guessSchemaVersion(tables: any, values?: any) {
-    // 0.4.1 => changes display_opts -> settings field among other, not accepted for restoreJson
-    // 0.4.2 => no change on exported tables
+    // 0.4.1 => changes display_opts -> settings field among other, not accepted for restoreJson (schemaVersion=0)
+    // 0.4.2 => no change on exported tables (schemaVersion=1)
     // 0.4.3 => moves history content to store but has no incidence on exported schema
     // 0.4.4 => no change on exported tables
     // 0.4.5 => content moved to CollectionContent & AnnotationContent tables
-    //          + exports schemaVersion=2 and appVersion
-    // oldest accepted version = 0.4.2 (assume schemaVersion=1)
+    //          + exports schemaVersion=2 and appVersion (schemaVersion=2)
+    // 0.4.6 => content is no longer minimized (schemaVersion=3)
+    // oldest accepted version = 0.4.2 / 1
     let schemaVersion = values?.schemaVersion;
     // attempt to guess schemaVersion
-    if (typeof schemaVersion === 'string') return 0;
+    if (typeof schemaVersion === 'string') return Versions.INITIAL_0_4;
     if (schemaVersion === undefined) {
       if (
         !tables.collection ||
         tables.collection[DEFAULT_NOTEBOOK_ID].display_opts
       ) {
-        schemaVersion = 0;
+        schemaVersion = Versions.INITIAL_0_4;
       }
       if (
         tables.collection &&
         tables.collection[DEFAULT_NOTEBOOK_ID].settings !== undefined
       ) {
-        schemaVersion = 1;
+        schemaVersion = Versions.WITH_SETTINGS_AND_OBJS_1;
       }
     }
     return schemaVersion;
@@ -219,13 +228,34 @@ class StorageMergeService {
           tables[newTableId][rowId] = {
             content: tables[tableId][rowId].content,
             content_meta: tables[tableId][rowId].content_meta
-        };
-      }
-    });
+          };
+          delete tables[tableId][rowId].content;
+          delete tables[tableId][rowId].content_meta;
+        }
+      });
     }
     migrateContent(C, CC);
     migrateContent(A, AC);
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private unminimizeContent(tables: any) {
+    function unminimize(tableId: string) {
+      if (tables[tableId] === undefined) return; // skip
+      Object.keys(tables[tableId]).forEach(rowId => {
+        if (
+          tables[tableId][rowId].content &&
+          tables[tableId][rowId].content.startsWith('{"r":{')
+        ) {
+          tables[tableId][rowId].content = unminimizeContentFromStorage(
+            tables[tableId][rowId].content
+          );
+        }
+      });
+    }
+    // unminimize content for docs, annots
+    unminimize(CC);
+    unminimize(AC);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -238,9 +268,13 @@ class StorageMergeService {
       );
     }
 
-    if (schemaVersion === 1) {
+    if (schemaVersion === Versions.WITH_SETTINGS_AND_OBJS_1) {
       // from before change for content, migrate
       this.migrateContentToTable(tables);
+    }
+
+    if (schemaVersion < Versions.WITH_CONTENT_UNMINIFIED_3) {
+      this.unminimizeContent(tables);
     }
 
     const newContent: SpacePortableDataWithHistory =

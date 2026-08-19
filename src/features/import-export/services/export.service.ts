@@ -4,10 +4,7 @@ import {
   CollectionItemType,
   CollectionItemTypeValues
 } from '@/domain/collection/collection';
-import collectionService, {
-  INITIAL_CONTENT_START
-} from '@/domain/collection/collection.service';
-import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-content';
+import collectionService from '@/domain/collection/collection.service';
 import notebooksService from '@/domain/collection/notebooks.service';
 import formatConverter from '@/domain/format-conversion/format-converter.service';
 import { strToU8, zip } from 'fflate';
@@ -24,10 +21,7 @@ class ExportService {
   private readonly maxLength = 50;
 
   private getDocumentContentFormatted(storedJson: string) {
-    const content = storedJson.startsWith(INITIAL_CONTENT_START)
-      ? storedJson
-      : unminimizeContentFromStorage(storedJson);
-    return formatConverter.toMarkdown(content);
+    return formatConverter.toMarkdown(storedJson);
   }
 
   private getParentMeta(

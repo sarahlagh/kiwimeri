@@ -16,6 +16,10 @@ import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import { dateToStr } from '@/shared/misc/date-utils';
 import { Ids } from 'tinybase';
 import { getHash, Id, Table } from 'tinybase/with-schemas';
+import {
+  minimizeContentForStorage,
+  unminimizeContentFromStorage
+} from '../collection/compress-file-content';
 import { AfterMergeChange } from '../space-merging/types';
 import { LocalChangeType } from '../synchronization/local-changes';
 import {
@@ -161,7 +165,7 @@ class CollectionHistoryService {
         ...current,
         type: CollectionItemType.document,
         ...version.snapshotJson,
-        content: version.content,
+        content: unminimizeContentFromStorage(version.content),
         updatedAt: Date.now()
       },
       docId
@@ -214,7 +218,9 @@ class CollectionHistoryService {
       return contentHash;
     }
     spaceArchive.setRow(HC, contentHash, {
-      content: item.content || ''
+      content: item.content
+        ? minimizeContentForStorage(JSON.parse(item.content))
+        : ''
     });
     return contentHash;
   }

@@ -1,5 +1,9 @@
 import { AnyData, SerializableData } from '@/core/db/types';
 import { minimizeKeys, unminimizeKeys } from '@/shared/utils';
+import {
+  minimizeContentForStorage,
+  unminimizeContentFromStorage
+} from './compress-file-content';
 import { DocAnnotation } from './document-annotations';
 
 const keys = [
@@ -29,13 +33,23 @@ keys.forEach(([v1, v2]) => {
 });
 
 export const minimizeAnnotForStorage = (obj: DocAnnotation[]) => {
-  return obj.map(
-    item => minimizeKeys(item, keysMap, new Map()) as MinimizedDocAnnotation
-  );
+  return obj
+    .map(o => ({ ...o }))
+    .map(annot => {
+      if (annot.content) {
+        annot.content = minimizeContentForStorage(JSON.parse(annot.content));
+      }
+      return minimizeKeys(annot, keysMap, new Map()) as MinimizedDocAnnotation;
+    });
 };
 
 export const unminimizeAnnotFromStorage = (obj: AnyData[]): DocAnnotation[] => {
-  return obj.map(
-    o => unminimizeKeys(o, keysMapReverse, new Map()) as DocAnnotation
-  );
+  return obj
+    .map(o => unminimizeKeys(o, keysMapReverse, new Map()) as DocAnnotation)
+    .map(annot => {
+      if (annot.content) {
+        annot.content = unminimizeContentFromStorage(annot.content);
+      }
+      return annot;
+    });
 };

@@ -1,6 +1,5 @@
 import { APPICONS } from '@/constants';
 import collectionService from '@/domain/collection/collection.service';
-import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-content';
 import formatConverter from '@/domain/format-conversion/format-converter.service';
 import { AO3_HTML_FORMATTER } from '@/domain/format-conversion/lex-conversion/formatters/ao3-html-formatter';
 import {
@@ -19,9 +18,7 @@ import { ViewAo3HtmlModalProps } from './ViewAo3HtmlButton';
 
 const ViewAo3HtmlModal = ({ id, dismiss }: ViewAo3HtmlModalProps) => {
   const ref = useRef<HTMLIonTextareaElement>(null);
-  const content = unminimizeContentFromStorage(
-    collectionService.getDocumentContent(id) || ''
-  );
+  const content = collectionService.getDocumentContent(id) || '';
   const ao3Html = formatConverter.to(content, AO3_HTML_FORMATTER);
   return (
     <>

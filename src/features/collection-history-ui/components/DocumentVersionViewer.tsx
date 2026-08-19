@@ -2,6 +2,7 @@ import { GET_DOCUMENT_ROUTE, GET_VERSIONED_ROUTE } from '@/app/routes';
 import { APPICONS } from '@/constants';
 import { CollectionItemSnapshotData } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
+import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-content';
 import {} from '@/features/collection-item-actions';
 import { SearchActionsToolbar } from '@/features/search';
 import {
@@ -76,7 +77,9 @@ const DocumentVersionViewer = ({
   }, [showActions]);
 
   const versionedDoc = useVersion(docVersion);
-  const content = versionedDoc?.content;
+  const content = versionedDoc?.content
+    ? unminimizeContentFromStorage(versionedDoc.content)
+    : undefined;
   const versionData = versionedDoc?.snapshotJson;
   const documentTitle = versionData?.title;
   const parentId = collectionService.getItemParent(docId);

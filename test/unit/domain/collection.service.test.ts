@@ -16,7 +16,6 @@ import {
 } from '@/domain/collection/collection';
 import { CollectionItemSort } from '@/domain/collection/collection-settings';
 import collectionService from '@/domain/collection/collection.service';
-import { minimizeContentForStorage } from '@/domain/collection/compress-file-content';
 import { getViewTable } from '@/domain/collection/derived-item-state';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
 import notebooksService from '@/domain/collection/notebooks.service';
@@ -611,7 +610,7 @@ describe('collection service', () => {
         collectionService.getNewDocumentObj(DEFAULT_NOTEBOOK_ID);
       item3.title = 'r3';
       item3.order = 1;
-      item3.content = minimizeContentForStorage(shortContent);
+      item3.content = JSON.stringify(shortContent);
       item3.content_meta = setMetaField(Date.now());
       collectionService.setUnsavedItemLexicalContent(item3, shortContent);
       vi.advanceTimersByTime(fakeTimersDelay);

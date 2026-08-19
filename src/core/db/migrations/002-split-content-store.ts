@@ -1,3 +1,4 @@
+import { unminimizeContentFromStorage } from './002-compress-file-content';
 import { NoSchemaStore } from './migrate';
 
 enum _SpaceTables {
@@ -56,6 +57,9 @@ export default function Migration(
   derivedStateBecomesProjectedState(_space);
   splitDerivedPreviewInTwoViews(_space);
   lastOpenedAtGoesToView(_space);
+
+  // 0.4.6
+  stopMinimizingContent(_spaceDocContent);
 }
 
 function addPreviewFieldFromPlainText(_space: NoSchemaStore) {
@@ -224,4 +228,25 @@ function lastOpenedAtGoesToView(_space: NoSchemaStore) {
       _space.setCell(CV, rowId, 'lastOpenedAt', lastOpenedAt);
     }
   });
+}
+
+const INITIAL_CONTENT_START = '{"root":{';
+function _stopMinimizingContent(
+  _spaceDocContent: NoSchemaStore,
+  tableId: string
+) {
+  _spaceDocContent.getRowIds(tableId).forEach(rowId => {
+    const content = _spaceDocContent.getCell(
+      tableId,
+      rowId,
+      'content'
+    ) as string;
+    if (content.startsWith(INITIAL_CONTENT_START)) return;
+    const full = unminimizeContentFromStorage(content);
+    _spaceDocContent.setCell(tableId, rowId, 'content', full);
+  });
+}
+function stopMinimizingContent(_spaceDocContent: NoSchemaStore) {
+  _stopMinimizingContent(_spaceDocContent, CC);
+  _stopMinimizingContent(_spaceDocContent, AC);
 }
