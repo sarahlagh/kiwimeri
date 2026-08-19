@@ -213,22 +213,19 @@ class StorageMergeService {
     if (tables[CC] !== undefined) return; // skip
     tables[CC] = {};
     tables[AC] = {};
-    Object.keys(tables[C]).forEach(rowId => {
-      if (tables[C][rowId].content !== undefined) {
-        tables[CC] = {
-          content: tables[C].content,
-          content_meta: tables[C].content_meta
+    function migrateContent(tableId: string, newTableId: string) {
+      Object.keys(tables[tableId]).forEach(rowId => {
+        if (tables[tableId][rowId].content !== undefined) {
+          tables[newTableId][rowId] = {
+            content: tables[tableId][rowId].content,
+            content_meta: tables[tableId][rowId].content_meta
         };
       }
     });
-    Object.keys(tables[A]).forEach(rowId => {
-      if (tables[A][rowId].content !== undefined) {
-        tables[AC] = {
-          content: tables[C].content,
-          content_meta: tables[C].content_meta
-        };
-      }
-    });
+    }
+    migrateContent(C, CC);
+    migrateContent(A, AC);
+  }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
