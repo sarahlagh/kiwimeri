@@ -20,6 +20,7 @@ class AppConfig implements ImportMetaEnv {
   INTERNAL_HTTP_PROXY?: string;
   DEV_USE_HTTP_IF_POSSIBLE = false;
   WRITER_THROTTLE = 300;
+  WRITER_METADATA_THROTTLE = 2000;
   WRITER_DERIVED_STATS_THROTTLE = 5000;
   SCHEDULER_INTERVAL = 1000;
   /** @deprecated */

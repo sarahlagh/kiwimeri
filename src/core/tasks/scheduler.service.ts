@@ -6,6 +6,7 @@ import { StoreTables } from '../db/store-constants';
 import { AnyData } from '../db/types';
 import { appLog } from '../logs/logs.service';
 import { ScheduledTask, ScheduledTaskRow } from './tasks';
+import { registerGlobalTasks } from './tasks-registry';
 
 export type TaskCallback = (inputs?: AnyData) => void;
 const T = StoreTables.Tasks;
@@ -15,6 +16,7 @@ class TaskScheduler {
   private callbacks = new Map<string, TaskCallback>();
 
   public start() {
+    registerGlobalTasks();
     this.stop();
     this.id = setInterval(() => {
       const tasks = this.getTasks();
@@ -49,7 +51,9 @@ class TaskScheduler {
       scheduledAt: at,
       inputs
     };
-    const key = inputs ? `${getHash(JSON.stringify(inputs))}` : undefined;
+    const key = inputs
+      ? `${name}-${getHash(JSON.stringify(inputs))}`
+      : undefined;
     if (key && store.hasRow(T, key)) {
       return key;
     }

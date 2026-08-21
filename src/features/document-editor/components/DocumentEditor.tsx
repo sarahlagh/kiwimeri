@@ -184,7 +184,7 @@ const DocumentEditor = forwardRef<
             ignoreSelectionChange={false}
             onChange={(editorState, isSelectionChange) => {
               if (!isSelectionChange) {
-                collectionService.setItemLexicalContent(
+                collectionService.fastWriteDocument(
                   docId,
                   editorState.toJSON()
                 );
