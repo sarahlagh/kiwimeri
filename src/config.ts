@@ -3,12 +3,14 @@
 import { AppLogLevel } from './core/logs/logs';
 
 // hack to override VITE_ vars with docker container env
+const dynVal = '__dyn__';
 const dynConfig = {
-  VITE_IS_RELEASE: '__dyn__',
-  VITE_LOG_LEVEL: '__dyn__',
-  VITE_INTERNAL_HTTP_PROXY: '__dyn__',
-  VITE_DEV_USE_HTTP_IF_POSSIBLE: '__dyn__',
-  VITE_DEV_OVERRIDE_PLATFORM: '__dyn__'
+  VITE_IS_RELEASE: dynVal,
+  VITE_LOG_LEVEL: dynVal,
+  VITE_INTERNAL_HTTP_PROXY: dynVal,
+  VITE_DEV_USE_HTTP_IF_POSSIBLE: dynVal,
+  VITE_DEV_OVERRIDE_PLATFORM: dynVal,
+  VITE_DEV_ENABLE_INSPECTOR: dynVal
 } as any;
 
 class AppConfig implements ImportMetaEnv {
@@ -17,6 +19,9 @@ class AppConfig implements ImportMetaEnv {
   IS_RELEASE = false;
   INTERNAL_HTTP_PROXY?: string;
   DEV_USE_HTTP_IF_POSSIBLE = false;
+  WRITER_THROTTLE = 300;
+  WRITER_DERIVED_STATS_THROTTLE = 5000;
+  SCHEDULER_INTERVAL = 1000;
   /** @deprecated */
   DEV_OVERRIDE_PLATFORM?: 'web' | 'android' | 'electron';
   DEV_ENABLE_INSPECTOR = true;

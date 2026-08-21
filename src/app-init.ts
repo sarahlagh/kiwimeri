@@ -4,6 +4,7 @@ import { space, store } from './core/db/store';
 import { startDbListeners } from './core/db/store-listeners';
 import { networkService } from './core/infra/network.service';
 import { appLog } from './core/logs/logs.service';
+import { schedule } from './core/tasks/scheduler.service';
 import notebooksService from './domain/collection/notebooks.service';
 import { historyService } from './domain/history/history.service';
 import { syncService } from './domain/synchronization/sync.service';
@@ -15,6 +16,7 @@ export function appInit() {
     historyService['timeouts'].size
   );
 
+  schedule.start();
   if (navigator.storage && navigator.storage.persist) {
     navigator.storage.persist().then(isPersisted => {
       console.debug(`[app-init] persisted storage granted: ${isPersisted}`);

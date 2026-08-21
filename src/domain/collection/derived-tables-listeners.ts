@@ -1,8 +1,10 @@
+import { appConfig } from '@/config';
 import { DOC_PREVIEW_SIZE } from '@/constants';
 import { space, spaceDocContent } from '@/core/db/store';
 import { SpaceDocContentTables, SpaceTables } from '@/core/db/store-constants';
 import { SpaceDocContentTableId, SpaceTableId } from '@/core/db/store-schema';
 import { MetaField } from '@/core/db/types';
+import { schedule } from '@/core/tasks/scheduler.service';
 import { getPlainText } from '@/shared/misc/getPlainText';
 import { Id } from 'tinybase/with-schemas';
 import { statsOnPlainTextCallback } from '../stats/stats-on-change-callback';
@@ -24,26 +26,39 @@ function addDerivedContentListener(
       null,
       'content',
       (_store, tableId, rowId, cellId, newCell) => {
-        if (newCell) {
-          const plainText = getPlainText(newCell);
-          const previewText = plainText.substring(0, DOC_PREVIEW_SIZE);
-          space.setRow(viewTableId, rowId, {
-            previewText
-          });
-          spaceDocContent.setCell(
-            contentTableId,
-            rowId,
-            'plainText',
-            plainText
-          );
-          const content_meta = spaceDocContent.getCell(
-            contentTableId,
-            rowId,
-            'content_meta'
-          ) as MetaField;
-          if (onPlainTextChange)
-            onPlainTextChange(rowId, plainText, content_meta);
-        }
+        if (!newCell) return;
+        schedule.in(
+          appConfig.WRITER_DERIVED_STATS_THROTTLE,
+          inputs => {
+            if (!inputs) return;
+            const { tableId, viewTableId, rowId } = inputs;
+            const content = _store.getCell(tableId, rowId, 'content');
+            if (!content) return;
+            const plainText = getPlainText(content as string);
+            const previewText = plainText.substring(0, DOC_PREVIEW_SIZE);
+            space.setRow(viewTableId, rowId, {
+              previewText
+            });
+            spaceDocContent.setCell(
+              contentTableId,
+              rowId,
+              'plainText',
+              plainText
+            );
+            const content_meta = spaceDocContent.getCell(
+              contentTableId,
+              rowId,
+              'content_meta'
+            ) as MetaField;
+            if (onPlainTextChange)
+              onPlainTextChange(rowId, plainText, content_meta);
+          },
+          {
+            tableId,
+            viewTableId,
+            rowId
+          }
+        );
       },
       true
     )

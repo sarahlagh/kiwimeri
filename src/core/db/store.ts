@@ -27,24 +27,25 @@ const profile = getCurrentProfile();
 console.log(`[db] create stores for profile [${profile}]`);
 await migrateArchiveDatabase(); // delete after 0.5.0
 
+const spaceName = `kiwimeri-space-${profile}`;
+const spaceArchiveName = `kiwimeri-space-archive-${profile}`;
+const spaceDocContentName = `kiwimeri-space-document-content-${profile}`;
+
 const rawStore = createStore();
 const storePersister = createIndexedDbPersister(rawStore, 'kiwimeri-store');
 
-const spaceName = `kiwimeri-space-${profile}`;
 const rawSpace = createStore();
 const spacePersister = createIndexedDbPersister(rawSpace, spaceName);
 
 const rawSpaceArchive = createStore();
-const spaceArchiveName = `kiwimeri-space-archive-${profile}`;
 const spaceArchivePersister = createIndexedDbPersister(
   rawSpaceArchive,
   spaceArchiveName
 );
 
-const rawSpaceDocContentText = createStore();
-const spaceDocContentName = `kiwimeri-space-document-content-${profile}`;
+const rawSpaceDocContent = createStore();
 const spaceDocContentPersister = createIndexedDbPersister(
-  rawSpaceDocContentText,
+  rawSpaceDocContent,
   spaceDocContentName
 );
 
@@ -55,7 +56,7 @@ await Promise.all([
   spaceArchivePersister.load()
 ]);
 console.log('[db] start to migrate stores');
-await migrate(rawStore, rawSpace, rawSpaceDocContentText, rawSpaceArchive);
+await migrate(rawStore, rawSpace, rawSpaceDocContent, rawSpaceArchive);
 console.log('[db] stores migrated');
 
 export const store = rawStore.setSchema(storeTablesSchema, storeValuesSchema);
@@ -66,7 +67,7 @@ export const space = rawSpace.setSchema(spaceTablesSchema, spaceValuesSchema);
 export const spaceQueries = createQueries(space);
 export const spaceMetrics = createMetrics(space);
 
-export const spaceDocContent = rawSpaceDocContentText.setTablesSchema(
+export const spaceDocContent = rawSpaceDocContent.setTablesSchema(
   spaceDocContentTablesSchema
 );
 
@@ -90,7 +91,6 @@ spacePersister.startAutoSave().then(() => {
   console.log('[space] auto save started');
 });
 
-// TODO don't auto save
 spaceDocContentPersister.startAutoSave().then(() => {
   console.log('[spaceDocContent] auto save started');
 });

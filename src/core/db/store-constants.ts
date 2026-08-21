@@ -1,6 +1,7 @@
 export enum StoreTables {
   Profiles = 'profiles',
-  Logs = 'logs'
+  Logs = 'logs',
+  Tasks = 'tasks'
 }
 
 export enum SpaceTables {
