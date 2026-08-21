@@ -2,6 +2,7 @@ import { AnyObject } from 'tinybase/with-schemas';
 import { WithId } from '../db/types';
 
 export type ScheduledTaskRow = {
+  name: string;
   scheduledAt: number;
   createdAt: number;
   inputs?: AnyObject;
@@ -11,6 +12,7 @@ export type ScheduledTaskRow = {
 };
 
 export const tasksSchema = {
+  name: { type: 'string' },
   scheduledAt: { type: 'number' },
   createdAt: { type: 'number' },
   inputs: { type: 'object' },

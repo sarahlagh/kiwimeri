@@ -20,45 +20,37 @@ function addDerivedContentListener(
     content_meta: MetaField
   ) => void
 ) {
+  const taskName = 'calc_' + contentTableId;
+  schedule.register(taskName, inputs => {
+    if (!inputs) return;
+    const { rowId } = inputs;
+    const content = spaceDocContent.getCell(contentTableId, rowId, 'content');
+    if (!content) return;
+    const plainText = getPlainText(content as string);
+    const previewText = plainText.substring(0, DOC_PREVIEW_SIZE);
+    space.setRow(viewTableId, rowId, {
+      previewText
+    });
+    spaceDocContent.setCell(contentTableId, rowId, 'plainText', plainText);
+    const content_meta = spaceDocContent.getCell(
+      contentTableId,
+      rowId,
+      'content_meta'
+    ) as MetaField;
+    if (onPlainTextChange) onPlainTextChange(rowId, plainText, content_meta);
+  });
+
   contentListeners.push(
     spaceDocContent.addCellListener(
       contentTableId,
       null,
       'content',
       (_store, tableId, rowId, cellId, newCell) => {
+        // if (!newCell || cellEquals(newCell, oldCell)) return;
         if (!newCell) return;
-        schedule.in(
-          appConfig.WRITER_DERIVED_STATS_THROTTLE,
-          inputs => {
-            if (!inputs) return;
-            const { tableId, viewTableId, rowId } = inputs;
-            const content = _store.getCell(tableId, rowId, 'content');
-            if (!content) return;
-            const plainText = getPlainText(content as string);
-            const previewText = plainText.substring(0, DOC_PREVIEW_SIZE);
-            space.setRow(viewTableId, rowId, {
-              previewText
-            });
-            spaceDocContent.setCell(
-              contentTableId,
-              rowId,
-              'plainText',
-              plainText
-            );
-            const content_meta = spaceDocContent.getCell(
-              contentTableId,
-              rowId,
-              'content_meta'
-            ) as MetaField;
-            if (onPlainTextChange)
-              onPlainTextChange(rowId, plainText, content_meta);
-          },
-          {
-            tableId,
-            viewTableId,
-            rowId
-          }
-        );
+        schedule.in(appConfig.WRITER_DERIVED_STATS_THROTTLE, taskName, {
+          rowId
+        });
       },
       true
     )

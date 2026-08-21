@@ -22,7 +22,7 @@ class TaskScheduler {
       console.info('[scheduler] got', tasks.length, 'tasks to execute');
       tasks.forEach(task => {
         try {
-          this.flush(task.id);
+          this.flush(task.id, task.name, task.inputs);
         } catch (e) {
           store.setCell(T, task.id, 'error', appLog.stringify(e));
         }
@@ -34,12 +34,17 @@ class TaskScheduler {
     if (this.id) clearInterval(this.id);
   }
 
+  public register(name: string, callback: TaskCallback) {
+    this.callbacks.set(name, callback);
+  }
+
   public at(
     at: number, // absolute date
-    callback: TaskCallback,
+    name: string,
     inputs?: AnyObject
   ) {
     const task: ScheduledTaskRow = {
+      name,
       createdAt: Date.now(),
       scheduledAt: at,
       inputs
@@ -50,29 +55,30 @@ class TaskScheduler {
     }
     const rowId = key ? key : getUniqueId();
     store.setRow(T, rowId, { ...task });
-    this.callbacks.set(rowId, callback);
     return rowId;
   }
 
   public in(
     delay: number, // delay to add to now
-    callback: TaskCallback,
+    name: string,
     inputs?: AnyObject
   ) {
-    return this.at(Date.now() + delay, callback, inputs);
+    return this.at(Date.now() + delay, name, inputs);
   }
 
-  public flush(taskId: string) {
-    const cb = this.callbacks.get(taskId);
+  public flush(taskId: string, name?: string, inputs?: AnyObject) {
+    const _name = name ? name : store.getCell(T, taskId, 'name')!;
+    const cb = this.callbacks.get(_name);
     if (!cb) {
-      console.warn('task flushed with no callback', taskId);
+      console.warn('task flushed with no callback', taskId, _name);
     } else {
-      const inputs = store.getCell(T, taskId, 'inputs') as AnyData;
-      cb(inputs);
+      const _inputs = inputs
+        ? inputs
+        : (store.getCell(T, taskId, 'inputs') as AnyData);
+      cb(_inputs);
     }
     // on success // TODO keep, gc later
     store.delRow(T, taskId);
-    this.callbacks.delete(taskId);
   }
 
   private getTasks(date = Date.now(), all = false) {
