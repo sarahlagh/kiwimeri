@@ -1,9 +1,11 @@
 import { GET_DOCUMENT_ROUTE } from '@/app/routes';
 import { APPICONS } from '@/constants';
 import { SpaceTables } from '@/core/db/store-constants';
+import { schedule } from '@/core/tasks/scheduler.service';
+import { TaskNames } from '@/core/tasks/tasks-registry';
 import collectionService from '@/domain/collection/collection.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
-import { writer } from '@/domain/document_fast_write/document-writer.service';
+import { writer } from '@/domain/document-edits/document-edits.service';
 import { SearchActionsToolbar } from '@/features/search';
 import { useHasLocalConflicts } from '@/features/synchronization-ui';
 import { onTitleChangeFn } from '@/shared/misc/onTitleChangeFn';
@@ -34,7 +36,6 @@ import {
   KiwimeriEditorHandle,
   ReloadableKiwimeriEditorHandle
 } from '../wysiwyg-editor/lexical/KiwimeriEditorHandle';
-import { serializeSelection } from '../wysiwyg-editor/lexical/selection-serializer';
 import DocumentBottomSheet, { DocSheet } from './DocumentBottomSheet';
 import './DocumentEditor.scss';
 
@@ -95,6 +96,7 @@ const DocumentEditor = forwardRef<
 
   useEffect(() => {
     collectionService.setLastOpenedAt(docId, Date.now());
+    schedule.flushByName(TaskNames.FAST_WRITE);
   }, [docId]);
 
   useEffect(() => {

@@ -180,7 +180,7 @@ function exportNodeToJSON<SerializedNode extends SerializedLexicalNode>(
   return serializedNode;
 }
 
-export const serializeNode = (node: LexicalNode | null) => {
+export function serializeNode(node: LexicalNode | null) {
   if (!node || !(node instanceof ElementNode)) return null;
   return exportNodeToJSON(node);
-};
+}

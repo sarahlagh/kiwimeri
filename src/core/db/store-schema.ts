@@ -7,7 +7,7 @@ import {
 import { docAnnotationSchema } from '@/domain/collection/document-annotations';
 import { contentSchema } from '@/domain/collection/document-content';
 import { resumeStateSchema } from '@/domain/collection/resume-state';
-import { documentEditsSchema } from '@/domain/document_fast_write/document-edits';
+import { documentEditsSchema } from '@/domain/document-edits/document-edits';
 import { historyContentSchema, historySchema } from '@/domain/history/history';
 import { statsSchema } from '@/domain/stats/stats';
 import { localChangesSchema } from '@/domain/synchronization/local-changes';

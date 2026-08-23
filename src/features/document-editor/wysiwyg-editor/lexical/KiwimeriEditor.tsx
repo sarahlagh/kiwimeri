@@ -1,5 +1,6 @@
 import { plt } from '@/core/infra/platform';
 import { SerializedSelection } from '@/domain/collection/resume-state';
+import { LexicalDiff } from '@/domain/document-edits/document-edits';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
@@ -18,12 +19,7 @@ import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { SelectionAlwaysOnDisplay } from '@lexical/react/LexicalSelectionAlwaysOnDisplay';
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
 import { useLingui } from '@lingui/react/macro';
-import {
-  $getNodeByKey,
-  EditorState,
-  LexicalEditor,
-  SerializedLexicalNode
-} from 'lexical';
+import { $getNodeByKey, EditorState, LexicalEditor } from 'lexical';
 import React, {
   ForwardedRef,
   ReactNode,
@@ -63,7 +59,7 @@ type KiwimeriEditorProps = {
   onChange?: (
     editorState: EditorState,
     isSelectionChange: boolean,
-    blocksChanged: SerializedLexicalNode[],
+    blocksChanged: LexicalDiff[],
     hasDeletedNodes: boolean
   ) => void;
   debounce?: number;
@@ -160,13 +156,16 @@ const KiwimeriEditor = (
           skipTags={[FOCUS_TAG, RELOAD_TAG]}
           onChange={({ editorState, isSelectionChange, dirtyElements }) => {
             editorState.read(() => {
-              const blocksChanged: SerializedLexicalNode[] = [];
+              const blocksChanged: LexicalDiff[] = [];
               let hasDeletedNodes = false;
               for (const key of dirtyElements.keys()) {
                 if (key === 'root') continue;
-                const serializedNode = serializeNode($getNodeByKey(key));
+
+                const node = $getNodeByKey(key);
+                const serializedNode = serializeNode(node);
                 if (serializedNode) {
-                  blocksChanged.push(serializedNode);
+                  const idx = node!.getIndexWithinParent();
+                  blocksChanged.push({ block: serializedNode, idx });
                 } else {
                   hasDeletedNodes = true;
                   break;

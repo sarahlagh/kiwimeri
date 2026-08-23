@@ -1,8 +1,8 @@
+import { appConfig } from '@/config';
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { schedule } from '@/core/tasks/scheduler.service';
 import { TaskNames } from '@/core/tasks/tasks-registry';
-import { findIndexByPersistentId } from '@/features/document-editor/wysiwyg-editor/lexical/block-state';
 import type {
   EditorState,
   SerializedEditorState,
@@ -10,7 +10,7 @@ import type {
 } from 'lexical';
 import collectionService from '../collection/collection.service';
 import { annotsService } from '../collection/doc-annotations.service';
-import { DocumentEdit, DocumentEditRow } from './document-edits';
+import { DocumentEdit, DocumentEditRow, LexicalDiff } from './document-edits';
 
 const E = SpaceTables.DocumentEdits;
 
@@ -20,11 +20,9 @@ class DocumentWriterService {
     rowId: string,
     editorState: EditorState,
     isSelectionChange: boolean,
-    blocksChanged: SerializedLexicalNode[],
+    blocksChanged: LexicalDiff[],
     hasDeletedNodes: boolean
   ) {
-    // TODO
-    // console.debug('blocks changed', blocksChanged, hasDeletedNodes);
     if (isSelectionChange) return; // TODO
     if (blocksChanged.length === 0 && !hasDeletedNodes) return;
     space.addRow(E, {
@@ -36,7 +34,7 @@ class DocumentWriterService {
         : JSON.stringify(blocksChanged),
       isFullSnapshot: hasDeletedNodes
     });
-    schedule.in(1000, TaskNames.FAST_WRITE, {
+    schedule.in(appConfig.FAST_WRITE_THROTTLE, TaskNames.FAST_WRITE, {
       on,
       rowId
     });
@@ -50,19 +48,18 @@ class DocumentWriterService {
       if (edit.isFullSnapshot) {
         content = JSON.parse(edit.json);
       } else {
-        const diff = JSON.parse(edit.json) as SerializedLexicalNode[];
+        const diff = JSON.parse(edit.json) as LexicalDiff[];
+        diff.sort((da, db) => da.idx - db.idx);
         const editorState = content as SerializedEditorState;
-        const idx = findIndexByPersistentId(editorState, diff[0]);
-        if (idx !== undefined) {
-          for (let i = 0; i < diff.length; i++) {
-            editorState.root.children[idx + i] = diff[i];
+        diff.forEach(d => {
+          const existing = editorState.root.children[d.idx];
+          if (existing) {
+            editorState.root.children[d.idx] = d.block;
+          } else {
+            // if didn't exist insert in place
+            editorState.root.children.splice(d.idx, 0, d.block);
           }
-        } else {
-          // TODO error??
-          throw new Error(
-            `unable to reconcile document edit ${on} ${itemId} ${edit.id}`
-          );
-        }
+        });
       }
     });
 
@@ -89,6 +86,18 @@ class DocumentWriterService {
       });
     });
     return edits;
+  }
+
+  private findIndexByPersistentId(
+    editorState: SerializedEditorState,
+    serializedNode: SerializedLexicalNode | undefined
+  ) {
+    if (!serializedNode) return -1;
+    const persistentId = serializedNode.$?.persistentId;
+    if (!persistentId) return -1;
+    return editorState.root.children.findIndex(
+      p => p.$?.persistentId === persistentId
+    );
   }
 }
 

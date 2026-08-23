@@ -12,10 +12,12 @@ export type TaskCallback = (inputs?: AnyData) => void;
 const T = SpaceTables.Tasks;
 
 class TaskScheduler {
+  private enabled = true;
   private id: NodeJS.Timeout | null = null;
   private callbacks = new Map<string, TaskCallback>();
 
   public start() {
+    if (!this.enabled) return;
     registerGlobalTasks();
     this.stop();
     this.id = setInterval(() => {
@@ -45,6 +47,7 @@ class TaskScheduler {
     name: string,
     inputs?: AnyObject
   ) {
+    if (!this.enabled) return;
     const task: ScheduledTaskRow = {
       name,
       createdAt: Date.now(),
@@ -70,22 +73,27 @@ class TaskScheduler {
     return this.at(Date.now() + delay, name, inputs);
   }
 
-  public flush(taskId: string, name?: string, inputs?: AnyObject) {
-    const _name = name ? name : space.getCell(T, taskId, 'name')!;
-    const cb = this.callbacks.get(_name);
+  public flushByName(name: string) {
+    const task = this.getTasks(true).find(t => t.name === name);
+    if (task) {
+      const inputs = space.getCell(T, task.id, 'inputs');
+      this.flush(task.id, name, inputs);
+    }
+  }
+
+  private flush(taskId: string, name: string, inputs?: AnyObject) {
+    const cb = this.callbacks.get(name);
     if (!cb) {
-      console.warn('task flushed with no callback', taskId, _name);
+      console.warn('task flushed with no callback', taskId, name);
     } else {
-      const _inputs = inputs
-        ? inputs
-        : (space.getCell(T, taskId, 'inputs') as AnyData);
-      cb(_inputs);
+      cb(inputs);
     }
     // on success // TODO keep, gc later
     space.delRow(T, taskId);
   }
 
-  private getTasks(date = Date.now(), all = false) {
+  private getTasks(all = false) {
+    const date = Date.now();
     const results: ScheduledTask[] = [];
     const table = space.getTable(T);
     const rowIds = space.getSortedRowIds(T, 'scheduledAt', false);

@@ -1,5 +1,5 @@
 import collectionService from '@/domain/collection/collection.service';
-import { writer } from '@/domain/document_fast_write/document-writer.service';
+import { writer } from '@/domain/document-edits/document-edits.service';
 import { schedule } from './scheduler.service';
 
 export enum TaskNames {
