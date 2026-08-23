@@ -18,7 +18,12 @@ import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { SelectionAlwaysOnDisplay } from '@lexical/react/LexicalSelectionAlwaysOnDisplay';
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
 import { useLingui } from '@lingui/react/macro';
-import { EditorState, LexicalEditor } from 'lexical';
+import {
+  $getNodeByKey,
+  EditorState,
+  LexicalEditor,
+  SerializedLexicalNode
+} from 'lexical';
 import React, {
   ForwardedRef,
   ReactNode,
@@ -32,11 +37,13 @@ import KiwimeriToolbarPlugin, {
   ToolbarPluginProps
 } from './KiwimeriToolbarPlugin';
 import { lexicalConfig } from './lexical-config';
+import { serializeNode } from './node-serializer';
 import { MARKDOWN_SHORTCUTS_TRANSFORMERS } from './playground/markdown-transformers';
 import AutoLinkPlugin from './playground/plugins/AutoLinkPlugin';
 import DebugTreeViewPlugin from './playground/plugins/DebugTreeViewPlugin';
 import { validateUrl } from './playground/utils/url';
 import EditLinkPlugin from './plugins/EditLinkPlugin';
+import { EnforceStatePlugin } from './plugins/EnforceStatePlugin';
 import { KiwimeriOnChangePlugin } from './plugins/KiwimeriOnChangePlugin';
 import ReloadContentPlugin from './plugins/ReloadContentPlugin';
 import { SearchHighlightPlugin } from './plugins/SearchHighlightPlugin';
@@ -53,7 +60,12 @@ type KiwimeriEditorProps = {
   selection?: SerializedSelection | null;
   editable?: boolean;
   enableHistory?: boolean;
-  onChange?: (editorState: EditorState, isSelectionChange: boolean) => void;
+  onChange?: (
+    editorState: EditorState,
+    isSelectionChange: boolean,
+    blocksChanged: SerializedLexicalNode[],
+    hasDeletedNodes: boolean
+  ) => void;
   debounce?: number;
   additionalClassNames?: string;
   ignoreSelectionChange?: boolean;
@@ -146,11 +158,31 @@ const KiwimeriEditor = (
         <KiwimeriOnChangePlugin
           ignoreSelectionChange={ignoreSelectionChange}
           skipTags={[FOCUS_TAG, RELOAD_TAG]}
-          onChange={({ editorState, isSelectionChange }) => {
-            onChange(editorState, isSelectionChange);
+          onChange={({ editorState, isSelectionChange, dirtyElements }) => {
+            editorState.read(() => {
+              const blocksChanged: SerializedLexicalNode[] = [];
+              let hasDeletedNodes = false;
+              for (const key of dirtyElements.keys()) {
+                if (key === 'root') continue;
+                const serializedNode = serializeNode($getNodeByKey(key));
+                if (serializedNode) {
+                  blocksChanged.push(serializedNode);
+                } else {
+                  hasDeletedNodes = true;
+                  break;
+                }
+              }
+              onChange(
+                editorState,
+                isSelectionChange,
+                hasDeletedNodes ? [] : blocksChanged,
+                hasDeletedNodes
+              );
+            });
           }}
         />
       )}
+      <EnforceStatePlugin />
       {enableHistory && <HistoryPlugin externalHistoryState={history} />}
       <AutoFocusPlugin />
       <ListPlugin />

@@ -1,7 +1,9 @@
 import { GET_DOCUMENT_ROUTE } from '@/app/routes';
 import { APPICONS } from '@/constants';
+import { SpaceTables } from '@/core/db/store-constants';
 import collectionService from '@/domain/collection/collection.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
+import { writer } from '@/domain/document_fast_write/document-writer.service';
 import { SearchActionsToolbar } from '@/features/search';
 import { useHasLocalConflicts } from '@/features/synchronization-ui';
 import { onTitleChangeFn } from '@/shared/misc/onTitleChangeFn';
@@ -182,16 +184,19 @@ const DocumentEditor = forwardRef<
             enableToolbar={!showDocumentActions && !toggleSearch}
             searchText={toggleSearch ? searchText : null}
             ignoreSelectionChange={false}
-            onChange={(editorState, isSelectionChange) => {
-              if (!isSelectionChange) {
-                collectionService.fastWriteDocument(
-                  docId,
-                  editorState.toJSON()
-                );
-              }
-              resumeService.setLastSelection(
+            onChange={(
+              editorState,
+              isSelectionChange,
+              blocksChanged,
+              hasDeletedNodes
+            ) => {
+              writer.fastWrite(
+                SpaceTables.Collection,
                 docId,
-                serializeSelection(editorState)
+                editorState,
+                isSelectionChange,
+                blocksChanged,
+                hasDeletedNodes
               );
             }}
           ></KiwimeriEditor>

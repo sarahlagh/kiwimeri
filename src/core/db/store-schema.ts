@@ -7,6 +7,7 @@ import {
 import { docAnnotationSchema } from '@/domain/collection/document-annotations';
 import { contentSchema } from '@/domain/collection/document-content';
 import { resumeStateSchema } from '@/domain/collection/resume-state';
+import { documentEditsSchema } from '@/domain/document_fast_write/document-edits';
 import { historyContentSchema, historySchema } from '@/domain/history/history';
 import { statsSchema } from '@/domain/stats/stats';
 import { localChangesSchema } from '@/domain/synchronization/local-changes';
@@ -33,8 +34,7 @@ export const storeTablesSchema = {
   profiles: {
     createdAt: { type: 'number' }
   },
-  logs: logsSchema,
-  tasks: tasksSchema
+  logs: logsSchema
 } as const satisfies Record<StoreTables, unknown>;
 
 export const spaceTablesSchema = {
@@ -48,7 +48,9 @@ export const spaceTablesSchema = {
   document_annotation_view: annotationsViewSchema,
   local_change: localChangesSchema,
   remote: remotesSchema,
-  replica_state: replicaStatesSchema
+  replica_state: replicaStatesSchema,
+  tasks: tasksSchema,
+  document_edits: documentEditsSchema
 } as const satisfies Record<SpaceTables, unknown>;
 
 export const spaceDocContentTablesSchema = {

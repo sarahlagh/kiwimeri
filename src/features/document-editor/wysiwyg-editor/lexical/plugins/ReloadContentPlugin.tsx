@@ -9,7 +9,7 @@ import {
 import { $setSelection } from 'lexical';
 import { useEffect, useState } from 'react';
 import { RELOAD_TAG, SELECTION_CHANGE_TAG } from '../constants';
-import { deserializeSelection } from '../selection-serializer';
+import { deserializeSelection } from '../node-serializer';
 
 function getSafeContent(content: string) {
   if (content === '') return initialContent();

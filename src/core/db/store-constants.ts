@@ -1,7 +1,6 @@
 export enum StoreTables {
   Profiles = 'profiles',
-  Logs = 'logs',
-  Tasks = 'tasks'
+  Logs = 'logs'
 }
 
 export enum SpaceTables {
@@ -15,7 +14,9 @@ export enum SpaceTables {
   AnnotationView = 'document_annotation_view',
   LocalChanges = 'local_change',
   Remote = 'remote',
-  ReplicaState = 'replica_state'
+  ReplicaState = 'replica_state',
+  DocumentEdits = 'document_edits',
+  Tasks = 'tasks'
 }
 
 export enum SpaceDocContentTables {

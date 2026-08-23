@@ -10,7 +10,7 @@
  * imported from lexical source; modified to include skipTags, isSelectionChange var as output
  */
 
-import type { EditorState, LexicalEditor } from 'lexical';
+import type { UpdateListenerPayload } from 'lexical';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { HISTORY_MERGE_TAG } from 'lexical';
@@ -25,26 +25,19 @@ export function KiwimeriOnChangePlugin({
   skipTags?: string[];
   ignoreHistoryMergeTagChange?: boolean;
   ignoreSelectionChange?: boolean;
-  onChange: (change: {
-    editorState: EditorState;
+  onChange: (
+    change: UpdateListenerPayload & {
     isSelectionChange: boolean;
-    editor: LexicalEditor;
-    tags: Set<string>;
-  }) => void;
+    }
+  ) => void;
 }): null {
   const [editor] = useLexicalComposerContext();
 
   useLayoutEffect(() => {
     const skipTagsSet = new Set<string>(skipTags);
     if (onChange) {
-      return editor.registerUpdateListener(
-        ({
-          editorState,
-          dirtyElements,
-          dirtyLeaves,
-          prevEditorState,
-          tags
-        }) => {
+      return editor.registerUpdateListener(payload => {
+        const { dirtyElements, dirtyLeaves, prevEditorState, tags } = payload;
           const isSelectionChange =
             dirtyElements.size === 0 && dirtyLeaves.size === 0;
           if (
@@ -59,9 +52,7 @@ export function KiwimeriOnChangePlugin({
             return;
           }
 
-          onChange({ editorState, isSelectionChange, editor, tags });
-        }
-      );
+        onChange({ ...payload, isSelectionChange, tags });
     }
   }, [
     editor,

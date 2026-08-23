@@ -8,10 +8,15 @@ import {
   $getChildCaret,
   $getRoot,
   $getSelection,
+  $isElementNode,
   CaretDirection,
   EditorState,
+  ElementNode,
+  LexicalNode,
   NodeCaret,
   RangeSelection,
+  SerializedElementNode,
+  SerializedLexicalNode,
   TextNode
 } from 'lexical';
 
@@ -139,4 +144,43 @@ export const deserializeSelection = (
     }
   }
   return null;
+};
+
+function exportNodeToJSON<SerializedNode extends SerializedLexicalNode>(
+  node: LexicalNode
+): SerializedNode {
+  const serializedNode = node.exportJSON();
+  const nodeClass = node.constructor;
+
+  if (serializedNode.type !== nodeClass.getType()) {
+    throw new Error(
+      `LexicalNode: Node ${nodeClass.name} does not match the serialized type. Check if .exportJSON() is implemented and it is returning the correct type.`
+    );
+  }
+
+  if ($isElementNode(node)) {
+    const serializedChildren = (serializedNode as SerializedElementNode)
+      .children;
+    if (!Array.isArray(serializedChildren)) {
+      throw new Error(
+        `LexicalNode: Node %s is an element but .exportJSON() does not have a children array.`
+      );
+    }
+
+    const children = node.getChildren();
+
+    for (let i = 0; i < children.length; i++) {
+      const child = children[i];
+      const serializedChildNode = exportNodeToJSON(child);
+      serializedChildren.push(serializedChildNode);
+    }
+  }
+
+  // @ts-expect-error should have at least one element node
+  return serializedNode;
+}
+
+export const serializeNode = (node: LexicalNode | null) => {
+  if (!node || !(node instanceof ElementNode)) return null;
+  return exportNodeToJSON(node);
 };
