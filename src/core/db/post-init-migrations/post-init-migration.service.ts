@@ -1,6 +1,5 @@
 import { appConfig } from '@/config';
 import { SpaceType, StoreType } from '@/core/db/store-schema';
-import collectionService from '@/domain/collection/collection.service';
 import { callDerivedTablesListeners } from '@/domain/collection/derived-tables-listeners';
 import { Store } from 'tinybase/with-schemas';
 import { between, getVersionCode } from '../migrations/migration-utils';
@@ -45,11 +44,6 @@ class PostInitMigrationService {
     if (between(to, 404, 405)) {
       console.log('[space] 1 migration to run: backfill plaintext');
       callDerivedTablesListeners();
-
-      space.transaction(() => {
-        collectionService.updateOpenedAtRank();
-        collectionService.updateUpdatedAtRank();
-      });
     }
   }
 }

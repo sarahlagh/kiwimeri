@@ -44,6 +44,7 @@ const fetchBrowsableItemsQuery = new SpaceQueryDefinition<
     select('type');
     select('tags');
     select('createdAt');
+    select('updatedAt');
     select('order');
     select('conflictId');
     if (params.withPreview) {
@@ -52,10 +53,9 @@ const fetchBrowsableItemsQuery = new SpaceQueryDefinition<
       ).as('previewText');
     }
     select('state', 'shortPath').as('breadcrumb');
-    select('view', 'updatedAtRank');
 
     if (params.withLastOpenedAt) {
-      select('view', 'lastOpenedAtRank');
+      select('view', 'lastOpenedAt');
     }
 
     if (params.onlyConflicts) {

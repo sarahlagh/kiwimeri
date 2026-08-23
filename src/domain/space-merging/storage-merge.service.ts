@@ -445,7 +445,6 @@ class StorageMergeService {
       space.finishTransaction();
       spaceDocContent.finishTransaction();
     }
-    collectionService.updateUpdatedAtRank();
   }
 
   private setWithContent(

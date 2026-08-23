@@ -1,11 +1,10 @@
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { space, spaceDocContent } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
-import { startDbListeners, stopDbListeners } from '@/core/db/store-listeners';
 import collectionService from '@/domain/collection/collection.service';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { storageService } from '@/domain/space-merging/storage.service';
-import { adv, oneDocument, oneFolder } from '@@/_setup/test.utils';
+import { oneDocument, oneFolder } from '@@/_setup/test.utils';
 import { describe, expect, it } from 'vitest';
 
 const shortContentPreview = 'This is a short content';
@@ -232,97 +231,6 @@ describe('derived state', () => {
       collectionService.deleteItem('FF1');
 
       expect(space.hasRow(SpaceTables.CollectionItemView, 'D1')).toBe(false);
-    });
-  });
-
-  describe(`derived sorting ranks`, () => {
-    beforeEach(() => {
-      vi.useFakeTimers();
-    });
-    afterEach(() => {
-      vi.useRealTimers();
-    });
-
-    function expectUpdatedAtRank(rowId: string, rank?: number) {
-      expect(
-        space.getCell(SpaceTables.CollectionItemView, rowId, 'updatedAtRank')
-      ).toBe(rank);
-    }
-    function expectLastOpenedAtRank(rowId: string, rank?: number) {
-      expect(
-        space.getCell(SpaceTables.CollectionItemView, rowId, 'lastOpenedAtRank')
-      ).toBe(rank);
-    }
-
-    test('any update should set the updatedAtRank and lastOpenedAtRank columns', () => {
-      expect(space.getRowCount(SpaceTables.Collection)).toBe(1);
-      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-      adv(() => collectionService.setItemTitle(docId, 'yo'));
-      const doc1 = oneDocument();
-      adv(() => collectionService.saveItem(doc1, doc1.id));
-      adv(() => collectionService.setLastOpenedAt(docId, Date.now()));
-      doc1.title = 'another';
-      doc1.title = 'and another';
-      const doc2 = oneDocument();
-      adv(() => collectionService.saveItems([doc1, doc2]));
-      adv(() => collectionService.setLastOpenedAt(doc1.id, Date.now()));
-      adv(() => collectionService.deleteItem(docId));
-      adv(() => collectionService.setItemTitle(doc1.id, 'yo'));
-      expect(space.getRowCount(SpaceTables.Collection)).toBe(3); // doc1 + doc2 + notebook
-      expect(space.hasRow(SpaceTables.ProjectedState, docId)).toBe(false);
-      // doc2, doc1
-
-      expectUpdatedAtRank(DEFAULT_NOTEBOOK_ID, 0);
-      expectLastOpenedAtRank(DEFAULT_NOTEBOOK_ID, undefined);
-
-      expectUpdatedAtRank(doc2.id, 1);
-      expectLastOpenedAtRank(doc2.id, 1);
-
-      expectUpdatedAtRank(doc1.id, 2);
-      expectLastOpenedAtRank(doc1.id, 3);
-
-      expectUpdatedAtRank(docId, undefined);
-      expectLastOpenedAtRank(docId, undefined);
-    });
-
-    test('rank should be updated after restore json', () => {
-      stopDbListeners();
-      const doc1Id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-      const doc2Id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-      const doc3Id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-      expectUpdatedAtRank(doc1Id, 1);
-      expectUpdatedAtRank(doc2Id, 2);
-      expectUpdatedAtRank(doc3Id, 3);
-      const json = storageService.exportJson(false);
-      space.setContent([{}, {}]);
-      startDbListeners();
-
-      storageService.restoreJson(json);
-      expectUpdatedAtRank(doc1Id, 1);
-      expectUpdatedAtRank(doc2Id, 2);
-      expectUpdatedAtRank(doc3Id, 3);
-    });
-
-    test('rank should be updated after sync', () => {
-      stopDbListeners();
-      const doc1Id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-      const doc2Id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-      const doc3Id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-      expectUpdatedAtRank(doc1Id, 1);
-      expectUpdatedAtRank(doc2Id, 2);
-      expectUpdatedAtRank(doc3Id, 3);
-      const data = storageService.getSpaceRepresentation();
-      space.setContent([{}, {}]);
-      const dataBefore = storageService.getSpaceRepresentation();
-      startDbListeners();
-
-      storageService.restoreContent(
-        data,
-        storageService.afterMergeChanges(data, dataBefore)
-      );
-      expectUpdatedAtRank(doc1Id, 1);
-      expectUpdatedAtRank(doc2Id, 2);
-      expectUpdatedAtRank(doc3Id, 3);
     });
   });
 });

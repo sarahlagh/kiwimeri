@@ -223,7 +223,6 @@ class CollectionService {
     const latest = historyService.getLatestVersion(rowId);
     if (!latest || latest.op !== 'deleted') return;
     historyService.restoreDocumentVersion(rowId, latest.id);
-    this.updateUpdatedAtRank();
   }
 
   public itemExists(rowId: Id) {
@@ -440,7 +439,6 @@ class CollectionService {
     if (!skipVersion && this.isHistorizableContentChange(type, key)) {
       historyService.addVersion(rowId);
     }
-    this.updateUpdatedAtRank();
     return true;
   }
 
@@ -532,7 +530,6 @@ class CollectionService {
     if (isDocument(item)) {
       historyService.saveVersionFromItem({ ...item, id } as CollectionItem);
     }
-    this.updateUpdatedAtRank();
     return id;
   }
 
@@ -576,7 +573,6 @@ class CollectionService {
         historyService.addVersion(docId, true);
       });
     }
-    this.updateUpdatedAtRank();
     return allDocs.keys();
   }
 
@@ -627,27 +623,6 @@ class CollectionService {
 
   public setLastOpenedAt(itemId: Id, at: number) {
     space.setCell(CV, itemId, 'lastOpenedAt', at);
-    this.updateOpenedAtRank();
-  }
-
-  public updateOpenedAtRank() {
-    space.transaction(() => {
-      const view = space.getTable(CV);
-      space.getSortedRowIds(CV, 'lastOpenedAt', false).forEach((rowId, idx) => {
-        // only for documents
-        if (view[rowId].previewText !== undefined) {
-          space.setCell(CV, rowId, 'lastOpenedAtRank', idx);
-        }
-      });
-    });
-  }
-
-  public updateUpdatedAtRank() {
-    space.transaction(() => {
-      space.getSortedRowIds(C, 'updatedAt', false).forEach((rowId, idx) => {
-        space.setCell(CV, rowId, 'updatedAtRank', idx);
-      });
-    });
   }
 }
 

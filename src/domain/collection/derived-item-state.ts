@@ -11,15 +11,11 @@ export const projectedItemStateSchema = {
 } as const satisfies Record<keyof ProjectedItemStateRow, unknown>;
 
 export type ItemViewRow = {
-  updatedAtRank: number;
   lastOpenedAt: number;
-  lastOpenedAtRank?: number;
   previewText?: string;
 };
 export const collectionItemViewSchema = {
-  updatedAtRank: { type: 'number' },
   lastOpenedAt: { type: 'number' },
-  lastOpenedAtRank: { type: 'number' },
   previewText: { type: 'string' }
 } as const satisfies Record<keyof ItemViewRow, unknown>;
 

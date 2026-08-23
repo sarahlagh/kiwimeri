@@ -3,18 +3,10 @@ import { CollectionItemType } from '@/domain/collection/collection';
 import { settingsService } from '@/domain/collection/collection-settings.service';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { useEffect } from 'react';
-import {
-  BrowsableItemResult,
-  BrowsableItemSort,
-  fromCollectionItemSort
-} from '../browsable-item';
+import { BrowsableItemResult, BrowsableItemSort } from '../browsable-item';
 import fetchBrowsableItemsQuery from '../queries/fetchBrowsableItemsQuery';
 
-export const browserModes = [
-  'browser',
-  'updatedAtRank',
-  'lastOpenedAtRank'
-] as const;
+export const browserModes = ['browser', 'updatedAt', 'lastOpenedAt'] as const;
 export type BrowserQueryMode = (typeof browserModes)[number] | 'conflicts';
 
 export default function useCollectionItemBrowserListResults(
@@ -38,7 +30,7 @@ export default function useCollectionItemBrowserListResults(
         recursive: true,
         restrictType: CollectionItemType.document,
         onlyConflicts: mode === 'conflicts',
-        withLastOpenedAt: mode === 'lastOpenedAtRank'
+        withLastOpenedAt: mode === 'lastOpenedAt'
       };
     }
     fetchBrowsableItemsQuery.loadParams(opts);
@@ -50,7 +42,7 @@ export default function useCollectionItemBrowserListResults(
     if (userSort) {
       sort = userSort;
     } else {
-      sort = fromCollectionItemSort(settingsService.getNotebookDefaultSort());
+      sort = settingsService.getNotebookDefaultSort();
     }
   } else {
     sort = { by: mode, descending: true };

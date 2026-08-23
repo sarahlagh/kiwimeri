@@ -32,7 +32,7 @@ import {
   useState
 } from 'react';
 import { useNavigate } from 'react-router';
-import { BrowsableItemResult, fromCollectionItemSort } from '../browsable-item';
+import { BrowsableItemResult } from '../browsable-item';
 import useCollectionItemBrowserListResults, {
   browserModes,
   BrowserQueryMode
@@ -164,12 +164,12 @@ export const CollectionItemBrowserList = ({
   const openedDocument = searchParams?.document;
   const hasConflicts = useHasLocalConflicts();
 
-  const sort = fromCollectionItemSort(useFolderEffectiveSort(folder));
+  const sort = useFolderEffectiveSort(folder);
   const modeIdx = useNotebookLastBrowserMode();
 
   const modeTrans = new Map<BrowserQueryMode, string>();
-  modeTrans.set('updatedAtRank', t`Last updated documents`);
-  modeTrans.set('lastOpenedAtRank', t`Last consulted documents`);
+  modeTrans.set('updatedAt', t`Last updated documents`);
+  modeTrans.set('lastOpenedAt', t`Last consulted documents`);
   modeTrans.set('conflicts', t`Conflicts`);
 
   const currentMode = hasConflicts ? 'conflicts' : browserModes[modeIdx];
