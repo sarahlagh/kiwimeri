@@ -19,9 +19,8 @@ class AppConfig implements ImportMetaEnv {
   IS_RELEASE = false;
   INTERNAL_HTTP_PROXY?: string;
   DEV_USE_HTTP_IF_POSSIBLE = false;
-  WRITER_METADATA_THROTTLE = 2000;
   WRITER_DERIVED_STATS_THROTTLE = 5000;
-  FAST_WRITE_THROTTLE = 5000;
+  FAST_WRITE_THROTTLE = 2000;
   SCHEDULER_INTERVAL = 1000;
   /** @deprecated */
   DEV_OVERRIDE_PLATFORM?: 'web' | 'android' | 'electron';

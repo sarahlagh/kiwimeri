@@ -1,11 +1,8 @@
-import { appConfig } from '@/config';
 import { DEFAULT_ORDER, getGlobalTrans, ROOT_COLLECTION } from '@/constants';
 import { space, spaceDocContent } from '@/core/db/store';
 import { SpaceDocContentTables, SpaceTables } from '@/core/db/store-constants';
 import { SpaceTablesType } from '@/core/db/store-schema';
 import { DbSerializableData, setMetaField, WithId } from '@/core/db/types';
-import { schedule } from '@/core/tasks/scheduler.service';
-import { TaskNames } from '@/core/tasks/tasks-registry';
 import {
   BaseCollectionItem,
   CollectionItem,
@@ -375,24 +372,11 @@ class CollectionService {
     return CollectionItemHistorizableFields.includes(key);
   }
 
-  public fastWriteDocument(rowId: Id, content: SerializedEditorState) {
-    this.setRawContent(rowId, JSON.stringify(content), Date.now());
-    // schedule metadata update
-    schedule.in(
-      appConfig.WRITER_METADATA_THROTTLE,
-      TaskNames.FAST_WRITE_META_UPDATE,
-      {
-        rowId
-      }
-    );
-  }
-
   public setItemField(
     rowId: Id,
     key: CollectionItemUpdatableFieldEnum,
     value: DbSerializableData,
-    skipVersion = false,
-    metaOnly = false
+    skipVersion = false
   ) {
     const current = this.getItemField(rowId, key);
     if (cellEquals(current, value)) {
@@ -433,7 +417,7 @@ class CollectionService {
         this.updateAllParentsInBreadcrumb(this.getItemParent(rowId));
       }
     });
-    if (key === 'content' && !metaOnly) {
+    if (key === 'content') {
       this.setRawContent(rowId, value as string, updated);
     }
     if (!skipVersion && this.isHistorizableContentChange(type, key)) {
