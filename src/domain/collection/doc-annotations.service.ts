@@ -69,9 +69,10 @@ class DocumentAnnotationsService {
     });
   }
 
-  public edit(id: Id, content: SerializedEditorState) {
+  public edit(id: Id, content: SerializedEditorState | string) {
     const now = Date.now();
-    const contentStr = JSON.stringify(content);
+    const contentStr =
+      typeof content !== 'string' ? JSON.stringify(content) : content;
     space.transaction(() => {
       space.setCell(A, id, 'updatedAt', now);
       space.delCell(A, id, 'conflictId');

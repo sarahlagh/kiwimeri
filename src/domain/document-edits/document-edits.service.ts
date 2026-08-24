@@ -3,11 +3,7 @@ import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { schedule } from '@/core/tasks/scheduler.service';
 import { TaskNames } from '@/core/tasks/tasks-registry';
-import type {
-  EditorState,
-  SerializedEditorState,
-  SerializedLexicalNode
-} from 'lexical';
+import type { EditorState, SerializedEditorState } from 'lexical';
 import collectionService from '../collection/collection.service';
 import { annotsService } from '../collection/doc-annotations.service';
 import { DocumentEdit, DocumentEditRow, LexicalDiff } from './document-edits';
@@ -23,7 +19,7 @@ class DocumentWriterService {
     blocksChanged: LexicalDiff[],
     hasDeletedNodes: boolean
   ) {
-    if (isSelectionChange) return; // TODO
+    if (isSelectionChange) return;
     if (blocksChanged.length === 0 && !hasDeletedNodes) return;
     space.addRow(E, {
       on,
@@ -86,18 +82,6 @@ class DocumentWriterService {
       });
     });
     return edits;
-  }
-
-  private findIndexByPersistentId(
-    editorState: SerializedEditorState,
-    serializedNode: SerializedLexicalNode | undefined
-  ) {
-    if (!serializedNode) return -1;
-    const persistentId = serializedNode.$?.persistentId;
-    if (!persistentId) return -1;
-    return editorState.root.children.findIndex(
-      p => p.$?.persistentId === persistentId
-    );
   }
 }
 
