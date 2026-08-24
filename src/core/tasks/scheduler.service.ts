@@ -79,6 +79,9 @@ class TaskScheduler {
       this.flush(task.id, name, inputs);
     });
   }
+
+  public cancel(taskId: string) {
+    space.delRow(T, taskId);
   }
 
   private flush(taskId: string, name: string, inputs?: AnyObject) {

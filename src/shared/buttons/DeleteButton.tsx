@@ -1,5 +1,5 @@
 import { APPICONS } from '@/constants';
-import ConfirmYesNoDialog from '@/shared/modals/ConfirmYesNoDialog';
+import AreYouSureAlert from '@/shared/modals/AreYouSureAlert';
 import { IonButton, IonIcon } from '@ionic/react';
 import { ReactNode } from 'react';
 
@@ -40,7 +40,7 @@ const DeleteButton = ({
         {children}
         <IonIcon icon={APPICONS.deleteAction}></IonIcon>
       </IonButton>
-      <ConfirmYesNoDialog
+      <AreYouSureAlert
         trigger={trigger}
         message={message}
         onClose={confirmed => {

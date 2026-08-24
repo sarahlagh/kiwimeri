@@ -18,6 +18,7 @@ import ConfigCard from './ConfigCard';
 import LogsCard from './LogsCard';
 import OperationsCard from './OperationsCard';
 import QuickRestore from './QuickRestore';
+import TasksCard from './TasksCard';
 
 const DevTools = () => {
   const navigate = useNavigate();
@@ -66,6 +67,8 @@ const DevTools = () => {
       <ConfigCard />
 
       <QuickRestore />
+      <TasksCard />
+
       {!plt.isDev() && <LogsCard />}
 
       {!plt.isRelease() && <OperationsCard />}

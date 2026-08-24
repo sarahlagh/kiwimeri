@@ -17,7 +17,7 @@ import {
 import DeleteButton from '@/shared/buttons/DeleteButton';
 import useIsWideEnough from '@/shared/hooks/useIsWideEnough';
 import { dateToStr } from '@/shared/misc/date-utils';
-import ConfirmYesNoDialog from '@/shared/modals/ConfirmYesNoDialog';
+import AreYouSureAlert from '@/shared/modals/AreYouSureAlert';
 import {
   IonCard,
   IonCardContent,
@@ -239,7 +239,7 @@ const LocalChangesCard = () => {
                           slot="icon-only"
                           icon={APPICONS.deleteAction}
                         ></IonIcon>
-                        <ConfirmYesNoDialog
+                        <AreYouSureAlert
                           trigger={`lc-actions-${lc.id}`}
                           message={t`This will reset this change`}
                           onClose={confirmed => {

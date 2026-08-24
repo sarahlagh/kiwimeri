@@ -4,7 +4,7 @@ import {
   CollectionItemTypeValues
 } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
-import ConfirmYesNoDialog from '@/shared/modals/ConfirmYesNoDialog';
+import AreYouSureAlert from '@/shared/modals/AreYouSureAlert';
 import { IonButton, IonIcon } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
 import { Id } from 'tinybase/with-schemas';
@@ -30,7 +30,7 @@ const QuickUngroupButton = ({
       <IonButton fill="clear" id={trigger}>
         <IonIcon icon={APPICONS.ungroupAction}></IonIcon>
       </IonButton>
-      <ConfirmYesNoDialog
+      <AreYouSureAlert
         trigger={trigger}
         message={t`This will delete this folder and move all its items to the current one.`}
         onClose={confirmed => {

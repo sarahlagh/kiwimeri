@@ -4,7 +4,7 @@ import {
   SyncDirection,
   syncService
 } from '@/domain/synchronization/sync.service';
-import ConfirmYesNoDialog from '@/shared/modals/ConfirmYesNoDialog';
+import AreYouSureAlert from '@/shared/modals/AreYouSureAlert';
 import { IonButton, IonIcon } from '@ionic/react';
 import { Id } from 'tinybase/with-schemas';
 
@@ -77,7 +77,7 @@ const SyncRemoteButton = ({
       </IonButton>
 
       {askConfirm && (
-        <ConfirmYesNoDialog
+        <AreYouSureAlert
           trigger={trigger}
           onClose={confirmed => {
             if (confirmed) {

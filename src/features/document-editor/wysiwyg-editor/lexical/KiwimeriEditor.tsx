@@ -159,7 +159,6 @@ const KiwimeriEditor = (
               let hasDeletedNodes = false;
               for (const key of dirtyElements.keys()) {
                 if (key === 'root') continue;
-
                 const node = $getNodeByKey(key);
                 const serializedNode = serializeNode(node);
                 if (serializedNode) {

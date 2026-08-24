@@ -2,19 +2,19 @@ import { IonAlert } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
 import { useRef } from 'react';
 
-type ConfirmYesNoDialogProps = {
+type AreYouSureDialogProps = {
   trigger: string;
   onClose: (confirmed: boolean) => void;
   header?: string;
   message?: string;
 } & React.HTMLAttributes<HTMLIonAlertElement>;
 
-const ConfirmYesNoDialog = ({
+const AreYouSureAlert = ({
   trigger,
   onClose,
   header,
   message
-}: ConfirmYesNoDialogProps) => {
+}: AreYouSureDialogProps) => {
   const { t } = useLingui();
   const modal = useRef<HTMLIonModalElement>(null);
 
@@ -45,4 +45,4 @@ const ConfirmYesNoDialog = ({
     ></IonAlert>
   );
 };
-export default ConfirmYesNoDialog;
+export default AreYouSureAlert;

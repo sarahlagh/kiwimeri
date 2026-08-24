@@ -2,7 +2,7 @@ import { APPICONS } from '@/constants';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { dateToStr } from '@/shared/misc/date-utils';
-import ConfirmYesNoDialog from '@/shared/modals/ConfirmYesNoDialog';
+import AreYouSureAlert from '@/shared/modals/AreYouSureAlert';
 import { IonButton, IonButtons, IonIcon } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
@@ -44,7 +44,7 @@ const NoteActions = ({ docId, noteId }: NoteActionsProps) => {
               <IonButton id={delTrigger} aria-label={t`Delete note`}>
                 <IonIcon icon={APPICONS.deleteAction}></IonIcon>
               </IonButton>
-              <ConfirmYesNoDialog
+              <AreYouSureAlert
                 trigger={delTrigger}
                 onClose={confirmed => {
                   if (confirmed) {
