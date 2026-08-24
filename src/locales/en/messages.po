@@ -64,7 +64,7 @@ msgstr "{wordCount} words"
 msgid "a document"
 msgstr "a document"
 
-#: src/features/dev-tools/components/TasksCard.tsx:37
+#: src/features/dev-tools/components/TasksCard.tsx:39
 msgid "A document has pending changes"
 msgstr "A document has pending changes"
 
@@ -132,7 +132,7 @@ msgstr "cancel"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: src/features/dev-tools/components/TasksCard.tsx:134
+#: src/features/dev-tools/components/TasksCard.tsx:136
 msgid "Cancel Task"
 msgstr "Cancel Task"
 
@@ -173,7 +173,7 @@ msgstr "Choose a session length"
 msgid "Choose where to save your work"
 msgstr "Choose where to save your work"
 
-#: src/features/dev-tools/components/TasksCard.tsx:116
+#: src/features/dev-tools/components/TasksCard.tsx:118
 msgid "close"
 msgstr "close"
 
@@ -304,7 +304,7 @@ msgstr "Display options for the currently selected notebook. They can still be o
 msgid "Do you want to import your content inside a new folder?"
 msgstr "Do you want to import your content inside a new folder?"
 
-#: src/features/dev-tools/components/TasksCard.tsx:36
+#: src/features/dev-tools/components/TasksCard.tsx:37
 msgid "Document edits"
 msgstr "Document edits"
 
@@ -340,7 +340,7 @@ msgstr "Enter your search"
 msgid "Enter your username"
 msgstr "Enter your username"
 
-#: src/features/dev-tools/components/TasksCard.tsx:111
+#: src/features/dev-tools/components/TasksCard.tsx:113
 msgid "Error Details"
 msgstr "Error Details"
 
@@ -463,6 +463,10 @@ msgstr "Local:  {0}"
 msgid "Local: <0>never</0>"
 msgstr "Local: <0>never</0>"
 
+#: src/features/dev-tools/components/TasksCard.tsx:40
+msgid "Log Maintenance"
+msgstr "Log Maintenance"
+
 #: src/features/dev-tools/components/LogsCard.tsx:94
 msgid "Logs"
 msgstr "Logs"
@@ -544,7 +548,7 @@ msgstr "New tag"
 msgid "no"
 msgstr "no"
 
-#: src/features/dev-tools/components/TasksCard.tsx:63
+#: src/features/dev-tools/components/TasksCard.tsx:65
 msgid "No pending tasks"
 msgstr "No pending tasks"
 
@@ -606,7 +610,7 @@ msgstr "profile name"
 msgid "Profile Settings"
 msgstr "Profile Settings"
 
-#: src/features/dev-tools/components/TasksCard.tsx:93
+#: src/features/dev-tools/components/TasksCard.tsx:95
 msgid "Ran at:  {0} with errors"
 msgstr "Ran at:  {0} with errors"
 
@@ -655,11 +659,11 @@ msgstr "Save"
 msgid "Save your work"
 msgstr "Save your work"
 
-#: src/features/dev-tools/components/TasksCard.tsx:86
+#: src/features/dev-tools/components/TasksCard.tsx:88
 msgid "Scheduled at:  "
 msgstr "Scheduled at:  "
 
-#: src/features/dev-tools/components/TasksCard.tsx:56
+#: src/features/dev-tools/components/TasksCard.tsx:58
 msgid "Scheduled Tasks"
 msgstr "Scheduled Tasks"
 
@@ -692,7 +696,7 @@ msgstr "Server"
 msgid "Settings"
 msgstr "Settings"
 
-#: src/features/dev-tools/components/TasksCard.tsx:104
+#: src/features/dev-tools/components/TasksCard.tsx:106
 msgid "Show error details"
 msgstr "Show error details"
 

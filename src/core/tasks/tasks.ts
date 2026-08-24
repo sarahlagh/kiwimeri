@@ -6,8 +6,6 @@ export type ScheduledTaskRow = {
   scheduledAt: number;
   createdAt: number;
   inputs?: AnyObject;
-  //   completedAt: number;
-  // might need something about recurrence - if scheduler starts but recurring task not registered yet, don't just delete it?
   error?: string;
 };
 

@@ -1,6 +1,7 @@
 import { APPICONS } from '@/constants';
 import { useQueryResults } from '@/core/db/queries-helper';
 import { schedule } from '@/core/tasks/scheduler.service';
+import { TaskNames } from '@/core/tasks/tasks-registry';
 import useIsWideEnough from '@/shared/hooks/useIsWideEnough';
 import { dateToStr } from '@/shared/misc/date-utils';
 import AreYouSureAlert from '@/shared/modals/AreYouSureAlert';
@@ -32,10 +33,11 @@ function onRouteLeave() {
   fetchTasksQuery.close();
 }
 
-const TASKS_MSG: { [key: string]: MessageDescriptor } = {
-  fast_write: msg`Document edits`,
-  fast_write_description: msg`A document has pending changes`
-} as const;
+const TASKS_MSG: { [key: string]: MessageDescriptor } = {};
+TASKS_MSG[TaskNames.FAST_WRITE] = msg`Document edits`;
+TASKS_MSG[`${TaskNames.FAST_WRITE}_description`] =
+  msg`A document has pending changes`;
+TASKS_MSG[TaskNames.LOG_GC] = msg`Log Maintenance`;
 
 const TasksCard = () => {
   useEffect(() => {
@@ -84,7 +86,7 @@ const TasksCard = () => {
                   <span slot="end">
                     <i>
                       {isWideEnough && <Trans>Scheduled at: &nbsp;</Trans>}
-                      {dateToStr('time', task.scheduledAt)}
+                      {dateToStr('relative', task.scheduledAt)}
                     </i>
                   </span>
                 ) : (
@@ -92,7 +94,7 @@ const TasksCard = () => {
                     <i>
                       <Trans>
                         Ran at: &nbsp;
-                        {dateToStr('time', task.scheduledAt)} with errors
+                        {dateToStr('relative', task.scheduledAt)} with errors
                       </Trans>
                     </i>
                   </span>

@@ -3,23 +3,21 @@ import { getUniqueId } from 'tinybase';
 import { AnyObject, getHash } from 'tinybase/with-schemas';
 import { space } from '../db/store';
 import { SpaceTables } from '../db/store-constants';
-import { AnyData } from '../db/types';
 import { appLog } from '../logs/logs.service';
 import { ScheduledTask, ScheduledTaskRow } from './tasks';
-import { registerGlobalTasks } from './tasks-registry';
+import { TaskNames, taskRegistry } from './tasks-registry';
 
-export type TaskCallback = (inputs?: AnyData) => void;
 const T = SpaceTables.Tasks;
 
 class TaskScheduler {
   private enabled = true;
   private id: NodeJS.Timeout | null = null;
-  private callbacks = new Map<string, TaskCallback>();
 
   public start() {
     if (!this.enabled) return;
-    registerGlobalTasks();
     this.stop();
+    taskRegistry.init();
+    this.initRecurringTasks();
     this.id = setInterval(() => {
       const tasks = this.getTasks();
       if (tasks.length === 0) return;
@@ -37,12 +35,8 @@ class TaskScheduler {
     if (this.id) clearInterval(this.id);
   }
 
-  public register(name: string, callback: TaskCallback) {
-    this.callbacks.set(name, callback);
-  }
-
   public at(
-    at: number, // absolute date
+    atInMs: number, // absolute date
     name: string,
     inputs?: AnyObject
   ) {
@@ -50,7 +44,7 @@ class TaskScheduler {
     const task: ScheduledTaskRow = {
       name,
       createdAt: Date.now(),
-      scheduledAt: at,
+      scheduledAt: atInMs,
       inputs
     };
     const key = inputs
@@ -65,11 +59,27 @@ class TaskScheduler {
   }
 
   public in(
-    delay: number, // delay to add to now
+    delayInMs: number, // delay to add to now
     name: string,
     inputs?: AnyObject
   ) {
-    return this.at(Date.now() + delay, name, inputs);
+    return this.at(Date.now() + delayInMs, name, inputs);
+  }
+
+  private initRecurringTasks() {
+    this.startRecurring(TaskNames.LOG_GC, 3600_000); // every hour
+  }
+
+  private startRecurring(name: string, nextOccurence: number) {
+    const entry = taskRegistry.setRecurring(name, nextOccurence);
+    if (!entry || entry.nextOccurence === undefined) {
+      console.warn(`attempted to set recurrence on task`, name);
+      return;
+    }
+    const tasks = this.getTasks(true).filter(t => t.name === name);
+    if (tasks.length > 0) return; // already scheduled, do nothing
+    // only do something if this task has never been scheduled before
+    this.in(entry.nextOccurence, name);
   }
 
   public flushByName(name: string) {
@@ -81,17 +91,27 @@ class TaskScheduler {
   }
 
   public cancel(taskId: string) {
+    const name = space.getCell(T, taskId, 'name');
+    if (name) {
+      const nextOccurence = taskRegistry.getRecurring(name);
+      if (nextOccurence > 0) {
+        // cancelling recurring tasks should just set the next interval
+        this.in(nextOccurence, name);
+      }
+    }
     space.delRow(T, taskId);
   }
 
   private flush(taskId: string, name: string, inputs?: AnyObject) {
-    const cb = this.callbacks.get(name);
-    if (!cb) {
+    const entry = taskRegistry.get(name);
+    if (!entry) {
       console.warn('task flushed with no callback', taskId, name);
     } else {
-      cb(inputs);
+      entry.callback(inputs);
+      if (entry.nextOccurence || 0 > 0) {
+        this.in(entry.nextOccurence!, name, inputs);
+      }
     }
-    // on success // TODO keep, gc later
     space.delRow(T, taskId);
   }
 

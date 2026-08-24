@@ -3,7 +3,6 @@ import { postInitMigrationService } from './core/db/post-init-migrations/post-in
 import { space, store } from './core/db/store';
 import { startDbListeners } from './core/db/store-listeners';
 import { networkService } from './core/infra/network.service';
-import { appLog } from './core/logs/logs.service';
 import { schedule } from './core/tasks/scheduler.service';
 import notebooksService from './domain/collection/notebooks.service';
 import { historyService } from './domain/history/history.service';
@@ -43,7 +42,6 @@ export function appInit() {
     syncService.start();
     historyService.gc();
     historyService.compact();
-    appLog.gc(); // TODO run at interval
     console.debug('[app-init] app started');
   });
 }
