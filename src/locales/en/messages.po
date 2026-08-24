@@ -48,6 +48,7 @@ msgstr " (new)"
 msgid "-- conflict --"
 msgstr "-- conflict --"
 
+#. placeholder {0}: showFilters ? 'Hide' : 'Show'
 #: src/features/dev-tools/components/LogsCard.tsx:151
 msgid "{0} Filters"
 msgstr "{0} Filters"
@@ -100,7 +101,7 @@ msgstr "An error occurred! Please check the logs."
 msgid "AO3"
 msgstr "AO3"
 
-#: src/features/ao3-html-ui/components/ViewAo3HtmlModal.tsx:31
+#: src/features/ao3-html-ui/components/ViewAo3HtmlModal.tsx:28
 msgid "AO3 Viewer"
 msgstr "AO3 Viewer"
 
@@ -109,7 +110,7 @@ msgid "Archive is empty"
 msgstr "Archive is empty"
 
 #: src/features/collection-browser/components/CollectionItemList.tsx:76
-#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:146
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:147
 #: src/shared/modals/ConfirmYesNoDialog.tsx:24
 msgid "Are you sure?"
 msgstr "Are you sure?"
@@ -118,7 +119,7 @@ msgstr "Are you sure?"
 msgid "cancel"
 msgstr "cancel"
 
-#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:149
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:150
 #: src/features/document-editor/tags/ChooseTagsModal.tsx:100
 #: src/features/import-export/buttons/ExportItemsButton.tsx:103
 #: src/features/import-export/buttons/RestoreCollectionButton.tsx:57
@@ -185,7 +186,7 @@ msgstr "Config"
 msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
 
-#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:153
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:154
 #: src/features/collection-notebooks-ui/components/ManageNotebooksModal.tsx:104
 #: src/features/document-editor/tags/ChooseTagsModal.tsx:107
 #: src/features/import-export/buttons/ExportItemsButton.tsx:110
@@ -217,6 +218,7 @@ msgstr "create a note"
 msgid "Created at"
 msgstr "Created at"
 
+#. placeholder {0}: dateToStr('relative', createdAt)
 #: src/features/collection-notes-ui/components/NotesActions.tsx:24
 msgid "Created at: {0}"
 msgstr "Created at: {0}"
@@ -296,7 +298,7 @@ msgstr "Do you want to import your content inside a new folder?"
 msgid "Document grouped"
 msgstr "Document grouped"
 
-#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:103
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:104
 msgid "Document History"
 msgstr "Document History"
 
@@ -363,10 +365,12 @@ msgstr "History save time (min)"
 msgid "Home"
 msgstr "Home"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:116
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:109
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
@@ -427,14 +431,16 @@ msgstr "Leave empty for root"
 msgid "Less dangerous mode (session is still timed but you will not lose progress on pause)"
 msgstr "Less dangerous mode (session is still timed but you will not lose progress on pause)"
 
-#: src/features/document-editor/wysiwyg-editor/lexical/EditLinkPlugin.tsx:58
+#: src/features/document-editor/wysiwyg-editor/lexical/plugins/EditLinkPlugin.tsx:58
 msgid "Link"
 msgstr "Link"
 
+#. placeholder {0}: localChanges.length
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:76
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
+#. placeholder {0}: dateToStr('datetime', lastLocalChange)
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:83
 msgid "Local:  {0}"
 msgstr "Local:  {0}"
@@ -590,6 +596,7 @@ msgstr "Remember last route"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
+#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:96
 msgid "Remote:  {0}"
 msgstr "Remote:  {0}"
@@ -615,7 +622,7 @@ msgstr "Restore"
 msgid "Restore Collection"
 msgstr "Restore Collection"
 
-#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:145
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:146
 msgid "Restore Version"
 msgstr "Restore Version"
 
@@ -689,7 +696,7 @@ msgstr "Space Settings"
 msgid "Start Writing"
 msgstr "Start Writing"
 
-#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:160
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:161
 #: src/features/synchronization-ui/settings-ui/components/RemoteGenericSettings.tsx:60
 #: src/shared/buttons/GenericExportFileButton.tsx:47
 #: src/shared/buttons/GenericImportFileButton.tsx:47
@@ -713,11 +720,11 @@ msgstr "Syncing is disabled on the web version."
 msgid "Tags"
 msgstr "Tags"
 
-#: src/features/document-editor/wysiwyg-editor/lexical/EditLinkPlugin.tsx:44
+#: src/features/document-editor/wysiwyg-editor/lexical/plugins/EditLinkPlugin.tsx:44
 msgid "Text"
 msgstr "Text"
 
-#: src/features/document-editor/wysiwyg-editor/lexical/KiwimeriEditor.tsx:99
+#: src/features/document-editor/wysiwyg-editor/lexical/KiwimeriEditor.tsx:106
 msgid "Text..."
 msgstr "Text..."
 
@@ -777,6 +784,7 @@ msgstr "Track text statistics"
 msgid "Updated at"
 msgstr "Updated at"
 
+#. placeholder {0}: dateToStr('relative', updatedAt)
 #: src/features/collection-notes-ui/components/NotesActions.tsx:29
 msgid "Updated at: {0}"
 msgstr "Updated at: {0}"

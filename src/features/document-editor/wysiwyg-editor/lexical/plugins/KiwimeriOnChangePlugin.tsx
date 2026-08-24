@@ -27,7 +27,7 @@ export function KiwimeriOnChangePlugin({
   ignoreSelectionChange?: boolean;
   onChange: (
     change: UpdateListenerPayload & {
-    isSelectionChange: boolean;
+      isSelectionChange: boolean;
     }
   ) => void;
 }): null {
@@ -38,21 +38,22 @@ export function KiwimeriOnChangePlugin({
     if (onChange) {
       return editor.registerUpdateListener(payload => {
         const { dirtyElements, dirtyLeaves, prevEditorState, tags } = payload;
-          const isSelectionChange =
-            dirtyElements.size === 0 && dirtyLeaves.size === 0;
-          if (
-            (ignoreSelectionChange && isSelectionChange) ||
-            (ignoreHistoryMergeTagChange && tags.has(HISTORY_MERGE_TAG)) ||
-            prevEditorState.isEmpty()
-          ) {
-            return;
-          }
+        const isSelectionChange =
+          dirtyElements.size === 0 && dirtyLeaves.size === 0;
+        if (
+          (ignoreSelectionChange && isSelectionChange) ||
+          (ignoreHistoryMergeTagChange && tags.has(HISTORY_MERGE_TAG)) ||
+          prevEditorState.isEmpty()
+        ) {
+          return;
+        }
 
-          if (!tags.isDisjointFrom(skipTagsSet)) {
-            return;
-          }
+        if (!tags.isDisjointFrom(skipTagsSet)) {
+          return;
+        }
 
         onChange({ ...payload, isSelectionChange, tags });
+      });
     }
   }, [
     editor,
