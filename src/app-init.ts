@@ -40,8 +40,6 @@ export function appInit() {
 
     notebooksService.initNotebooks();
     syncService.start();
-    historyService.gc();
-    historyService.compact();
     console.debug('[app-init] app started');
   });
 }

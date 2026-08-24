@@ -68,6 +68,7 @@ class TaskScheduler {
 
   private initRecurringTasks() {
     this.startRecurring(TaskNames.LOG_GC, 3600_000); // every hour
+    this.startRecurring(TaskNames.HISTORY_GC, 3600_000 * 24); // every day
   }
 
   private startRecurring(name: string, nextOccurence: number) {

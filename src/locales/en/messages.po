@@ -132,7 +132,7 @@ msgstr "cancel"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: src/features/dev-tools/components/TasksCard.tsx:136
+#: src/features/dev-tools/components/TasksCard.tsx:137
 msgid "Cancel Task"
 msgstr "Cancel Task"
 
@@ -173,7 +173,7 @@ msgstr "Choose a session length"
 msgid "Choose where to save your work"
 msgstr "Choose where to save your work"
 
-#: src/features/dev-tools/components/TasksCard.tsx:118
+#: src/features/dev-tools/components/TasksCard.tsx:119
 msgid "close"
 msgstr "close"
 
@@ -304,10 +304,6 @@ msgstr "Display options for the currently selected notebook. They can still be o
 msgid "Do you want to import your content inside a new folder?"
 msgstr "Do you want to import your content inside a new folder?"
 
-#: src/features/dev-tools/components/TasksCard.tsx:37
-msgid "Document edits"
-msgstr "Document edits"
-
 #: src/features/collection-item-actions/buttons/QuickGroupButton.tsx:36
 msgid "Document grouped"
 msgstr "Document grouped"
@@ -340,7 +336,7 @@ msgstr "Enter your search"
 msgid "Enter your username"
 msgstr "Enter your username"
 
-#: src/features/dev-tools/components/TasksCard.tsx:113
+#: src/features/dev-tools/components/TasksCard.tsx:114
 msgid "Error Details"
 msgstr "Error Details"
 
@@ -374,6 +370,10 @@ msgstr "File not supported"
 #: src/domain/user-preferences/user-preferences.ts:26
 msgid "History idle time (s)"
 msgstr "History idle time (s)"
+
+#: src/features/dev-tools/components/TasksCard.tsx:41
+msgid "History Maintenance"
+msgstr "History Maintenance"
 
 #: src/domain/user-preferences/user-preferences.ts:31
 msgid "History save time (min)"
@@ -548,7 +548,7 @@ msgstr "New tag"
 msgid "no"
 msgstr "no"
 
-#: src/features/dev-tools/components/TasksCard.tsx:65
+#: src/features/dev-tools/components/TasksCard.tsx:66
 msgid "No pending tasks"
 msgstr "No pending tasks"
 
@@ -602,6 +602,10 @@ msgstr "Path"
 msgid "PCloud Configuration"
 msgstr "PCloud Configuration"
 
+#: src/features/dev-tools/components/TasksCard.tsx:37
+msgid "Pending Edits"
+msgstr "Pending Edits"
+
 #: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:78
 msgid "profile name"
 msgstr "profile name"
@@ -610,7 +614,7 @@ msgstr "profile name"
 msgid "Profile Settings"
 msgstr "Profile Settings"
 
-#: src/features/dev-tools/components/TasksCard.tsx:95
+#: src/features/dev-tools/components/TasksCard.tsx:96
 msgid "Ran at:  {0} with errors"
 msgstr "Ran at:  {0} with errors"
 
@@ -659,11 +663,11 @@ msgstr "Save"
 msgid "Save your work"
 msgstr "Save your work"
 
-#: src/features/dev-tools/components/TasksCard.tsx:88
+#: src/features/dev-tools/components/TasksCard.tsx:89
 msgid "Scheduled at:  "
 msgstr "Scheduled at:  "
 
-#: src/features/dev-tools/components/TasksCard.tsx:58
+#: src/features/dev-tools/components/TasksCard.tsx:59
 msgid "Scheduled Tasks"
 msgstr "Scheduled Tasks"
 
@@ -696,7 +700,7 @@ msgstr "Server"
 msgid "Settings"
 msgstr "Settings"
 
-#: src/features/dev-tools/components/TasksCard.tsx:106
+#: src/features/dev-tools/components/TasksCard.tsx:107
 msgid "Show error details"
 msgstr "Show error details"
 
