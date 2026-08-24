@@ -1,4 +1,6 @@
 import { AnyData } from '@/core/db/types';
+import { schedule } from '@/core/tasks/scheduler.service';
+import { TaskNames } from '@/core/tasks/tasks-registry';
 import { CloudStorageDriver } from '@/domain/synchronization/drivers/abstract.driver';
 import { driverFactory } from '@/domain/synchronization/drivers/driver-factory';
 import { ConnectedRemote } from '@/domain/synchronization/replica-state';
@@ -38,6 +40,7 @@ export class CompositeSynchronizer extends CloudStorageSynchronizer {
   }
 
   public async sync() {
+    schedule.flushByName(TaskNames.FAST_WRITE);
     if (this.statsEnabled) {
       setTimeout(async () => await this.statsSynchronizer.sync());
     }
@@ -45,6 +48,7 @@ export class CompositeSynchronizer extends CloudStorageSynchronizer {
   }
 
   public async push(force = false) {
+    schedule.flushByName(TaskNames.FAST_WRITE);
     if (this.statsEnabled && force) {
       setTimeout(async () => await this.statsSynchronizer.push(force));
     }
@@ -52,6 +56,7 @@ export class CompositeSynchronizer extends CloudStorageSynchronizer {
   }
 
   public async pull(force = false) {
+    schedule.flushByName(TaskNames.FAST_WRITE);
     if (this.statsEnabled && force) {
       setTimeout(async () => await this.statsSynchronizer.pull(force));
     }

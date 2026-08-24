@@ -1,4 +1,6 @@
 import { space, spaceArchive, spaceDocContent } from '@/core/db/store';
+import { schedule } from '@/core/tasks/scheduler.service';
+import { TaskNames } from '@/core/tasks/tasks-registry';
 import notebooksService from '@/domain/collection/notebooks.service';
 import localChangesService from '@/domain/synchronization/local-changes.service';
 import tagsService from '../collection/tags.service';
@@ -20,11 +22,13 @@ class StorageService {
   }
 
   public exportJson(withHistory: boolean) {
+    schedule.flushByName(TaskNames.FAST_WRITE);
     return storageMergeService.exportJson(withHistory);
   }
 
   /// from restore button
   public restoreJson(content: string) {
+    schedule.flushByName(TaskNames.FAST_WRITE);
     return storageMergeService.restoreJson(content);
   }
 

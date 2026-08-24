@@ -73,11 +73,12 @@ class TaskScheduler {
   }
 
   public flushByName(name: string) {
-    const task = this.getTasks(true).find(t => t.name === name);
-    if (task) {
+    const tasks = this.getTasks(true).filter(t => t.name === name);
+    tasks.forEach(task => {
       const inputs = space.getCell(T, task.id, 'inputs');
       this.flush(task.id, name, inputs);
-    }
+    });
+  }
   }
 
   private flush(taskId: string, name: string, inputs?: AnyObject) {
