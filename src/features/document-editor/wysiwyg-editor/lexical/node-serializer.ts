@@ -1,14 +1,13 @@
-import {
-  SerializedSelectedNode,
-  SerializedSelection
-} from '@/domain/collection/resume-state';
+import { SerializedSelection } from '@/domain/collection/resume-state';
 import {
   $caretFromPoint,
   $createRangeSelection,
   $getChildCaret,
+  $getNodeByKey,
   $getRoot,
   $getSelection,
   $isElementNode,
+  BaseSelection,
   CaretDirection,
   EditorState,
   ElementNode,
@@ -19,11 +18,6 @@ import {
   SerializedLexicalNode,
   TextNode
 } from 'lexical';
-
-const is = (node1: SerializedSelectedNode, node2: SerializedSelectedNode) =>
-  node1.index === node2.index &&
-  node1.offset === node2.offset &&
-  node1.type === node2.type;
 
 function* $iterCaretsDepthFirst<D extends CaretDirection>(
   startCaret: NodeCaret<D>
@@ -49,102 +43,6 @@ function* $iterCaretsDepthFirst<D extends CaretDirection>(
     }
   }
 }
-
-export const serializeSelection = (
-  editorState: EditorState
-): SerializedSelection | null => {
-  let serializedSelection: SerializedSelection | null = null;
-  editorState.read(() => {
-    const selection = $getSelection();
-    if (selection && selection.getStartEndPoints()) {
-      const rangeSelection = selection as RangeSelection;
-      const [start, end] = rangeSelection.getStartEndPoints()!;
-      const startCaret = $caretFromPoint(start, 'next');
-      const endCaret = $caretFromPoint(end, 'next');
-      let serializedAnchor: SerializedSelectedNode | undefined = undefined;
-      let serializedFocus: SerializedSelectedNode | undefined = undefined;
-      let index = 0;
-      for (const caret of $iterCaretsDepthFirst(
-        $getChildCaret($getRoot(), 'next')
-      )) {
-        if (caret.isSameNodeCaret(startCaret)) {
-          serializedAnchor = {
-            index,
-            offset: start.offset,
-            type: start.type
-          };
-        }
-        if (caret.isSameNodeCaret(endCaret)) {
-          serializedFocus = {
-            index,
-            offset: end.offset,
-            type: end.type
-          };
-          break;
-        }
-        index++;
-      }
-      if (serializedFocus) {
-        serializedSelection = {
-          focus: serializedFocus,
-          format: rangeSelection.format
-        };
-        // only serialize anchor if defined and different from focus
-        if (serializedAnchor && !is(serializedAnchor, serializedFocus)) {
-          serializedSelection.anchor = serializedAnchor;
-        }
-      }
-    }
-  });
-  return serializedSelection;
-};
-
-export const deserializeSelection = (
-  serializedSelection?: SerializedSelection | null
-) => {
-  if (!serializedSelection) return null;
-  let index = 0;
-  let anchorCaret: NodeCaret<'next'> | undefined = undefined;
-  let focusCaret: NodeCaret<'next'> | undefined = undefined;
-  const focusOffset = serializedSelection.focus.offset;
-  const anchorOffset = serializedSelection.anchor?.offset || focusOffset;
-  for (const caret of $iterCaretsDepthFirst(
-    $getChildCaret($getRoot(), 'next')
-  )) {
-    if (
-      serializedSelection.anchor &&
-      serializedSelection.anchor.index === index
-    ) {
-      anchorCaret = caret;
-    }
-    if (serializedSelection.focus.index === index) {
-      focusCaret = caret;
-      if (!serializedSelection.anchor) {
-        anchorCaret = caret;
-      }
-      break;
-    }
-    index++;
-  }
-  if (anchorCaret && focusCaret) {
-    if (serializedSelection.focus.type === 'text') {
-      const rangeSelection = $createRangeSelection();
-      const anchorNode = anchorCaret.origin as TextNode;
-      const focusNode = focusCaret.origin as TextNode;
-      rangeSelection.setTextNodeRange(
-        anchorNode,
-        anchorOffset,
-        focusNode,
-        focusOffset
-      );
-      rangeSelection.format = serializedSelection.format;
-      return rangeSelection;
-    } else if (serializedSelection.focus.type === 'element') {
-      return focusCaret.origin.selectStart();
-    }
-  }
-  return null;
-};
 
 function exportNodeToJSON<SerializedNode extends SerializedLexicalNode>(
   node: LexicalNode
@@ -183,4 +81,71 @@ function exportNodeToJSON<SerializedNode extends SerializedLexicalNode>(
 export function serializeNode(node: LexicalNode | null) {
   if (!node || !(node instanceof ElementNode)) return null;
   return exportNodeToJSON(node);
+}
+
+export function serializeSelection(
+  editorState: EditorState
+): SerializedSelection | null {
+  let serializedSelection: SerializedSelection | null = null;
+  editorState.read(() => {
+    const selection = $getSelection();
+    if (selection && selection.getStartEndPoints()) {
+      const rangeSelection = selection as RangeSelection;
+      const [, end] = rangeSelection.getStartEndPoints()!;
+      const endCaret = $caretFromPoint(end, 'next');
+      const block = endCaret.getParentAtCaret();
+      if (!block) return;
+      const blockNode = $getNodeByKey(block.getKey());
+      if (blockNode) {
+        serializedSelection = {
+          focus: {
+            blockIndex: block.getIndexWithinParent(),
+            leafIndex: end.getNode().getIndexWithinParent(),
+            offset: end.offset,
+            type: end.type
+          },
+          format: rangeSelection.format
+        };
+      }
+    }
+  });
+  return serializedSelection;
+}
+
+export function deserializeSelection(
+  serializedSelection?: SerializedSelection | null
+): BaseSelection | null {
+  if (!serializedSelection) return null;
+  if (serializedSelection.focus.type === 'text') {
+    const rangeSelection = $createRangeSelection();
+    const block = $getRoot().getChildren()[
+      serializedSelection.focus.blockIndex
+    ] as ElementNode;
+    if (block) {
+      let index = 0;
+      let focusCaret: NodeCaret<'next'> | undefined = undefined;
+      const focusOffset = serializedSelection.focus.offset;
+      for (const caret of $iterCaretsDepthFirst(
+        $getChildCaret(block, 'next')
+      )) {
+        if (serializedSelection.focus.leafIndex === index) {
+          focusCaret = caret;
+          break;
+        }
+        index++;
+      }
+      if (focusCaret) {
+        const focusNode = focusCaret.origin as TextNode;
+        rangeSelection.setTextNodeRange(
+          focusNode,
+          focusOffset,
+          focusNode,
+          focusOffset
+        );
+      }
+      rangeSelection.format = serializedSelection.format;
+    }
+    return rangeSelection;
+  }
+  return null;
 }

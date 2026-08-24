@@ -39,7 +39,6 @@ import AutoLinkPlugin from './playground/plugins/AutoLinkPlugin';
 import DebugTreeViewPlugin from './playground/plugins/DebugTreeViewPlugin';
 import { validateUrl } from './playground/utils/url';
 import EditLinkPlugin from './plugins/EditLinkPlugin';
-import { EnforceStatePlugin } from './plugins/EnforceStatePlugin';
 import { KiwimeriOnChangePlugin } from './plugins/KiwimeriOnChangePlugin';
 import ReloadContentPlugin from './plugins/ReloadContentPlugin';
 import { SearchHighlightPlugin } from './plugins/SearchHighlightPlugin';
@@ -181,7 +180,7 @@ const KiwimeriEditor = (
           }}
         />
       )}
-      <EnforceStatePlugin />
+      {/*<EnforceStatePlugin />*/}
       {enableHistory && <HistoryPlugin externalHistoryState={history} />}
       <AutoFocusPlugin />
       <ListPlugin />

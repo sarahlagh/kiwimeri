@@ -23,7 +23,6 @@ class TaskScheduler {
     this.id = setInterval(() => {
       const tasks = this.getTasks();
       if (tasks.length === 0) return;
-      console.info('[scheduler] got', tasks.length, 'tasks to execute');
       tasks.forEach(task => {
         try {
           this.flush(task.id, task.name, task.inputs);

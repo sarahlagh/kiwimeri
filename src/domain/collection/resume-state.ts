@@ -1,12 +1,12 @@
 import { Id } from 'tinybase/with-schemas';
 
 export type SerializedSelectedNode = {
-  index: number;
+  blockIndex: number;
+  leafIndex: number;
   offset: number;
   type: string;
 };
 export type SerializedSelection = {
-  anchor?: SerializedSelectedNode;
   focus: SerializedSelectedNode;
   format: number;
 };

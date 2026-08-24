@@ -36,6 +36,7 @@ import {
   KiwimeriEditorHandle,
   ReloadableKiwimeriEditorHandle
 } from '../wysiwyg-editor/lexical/KiwimeriEditorHandle';
+import { serializeSelection } from '../wysiwyg-editor/lexical/node-serializer';
 import DocumentBottomSheet, { DocSheet } from './DocumentBottomSheet';
 import './DocumentEditor.scss';
 
@@ -199,6 +200,10 @@ const DocumentEditor = forwardRef<
                 isSelectionChange,
                 blocksChanged,
                 hasDeletedNodes
+              );
+              resumeService.setLastSelection(
+                docId,
+                serializeSelection(editorState)
               );
             }}
           ></KiwimeriEditor>
