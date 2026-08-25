@@ -48,6 +48,10 @@ class TaskRegistry {
     });
   }
 
+  public clear() {
+    this.registry.clear();
+  }
+
   public get(name: string) {
     return this.registry.get(name);
   }

@@ -143,16 +143,6 @@ class AppLogService {
       return true;
     }
 
-    // Canvas and graphics contexts
-    if (
-      val instanceof CanvasRenderingContext2D ||
-      val instanceof WebGLRenderingContext ||
-      val instanceof ImageData ||
-      val instanceof OffscreenCanvas
-    ) {
-      return true;
-    }
-
     // Ionic/React DOM references
     if (
       val instanceof HTMLElement ||

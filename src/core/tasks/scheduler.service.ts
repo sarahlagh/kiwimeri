@@ -35,6 +35,7 @@ class TaskScheduler {
     if (this.id) {
       clearInterval(this.id);
       this.id = null;
+      taskRegistry.clear();
     }
   }
 
@@ -91,14 +92,10 @@ class TaskScheduler {
 
   private startRecurring(name: string, nextOccurence: number) {
     const entry = taskRegistry.setRecurring(name, nextOccurence);
-    if (!entry || entry.nextOccurence === undefined) {
-      console.warn(`attempted to set recurrence on task`, name);
-      return;
-    }
     const tasks = this.getTasks(true).filter(t => t.name === name);
     if (tasks.length > 0) return; // already scheduled, do nothing
     // only do something if this task has never been scheduled before
-    this.in(entry.nextOccurence, name);
+    this.in(entry.nextOccurence!, name);
   }
 
   public flushByName(name: string) {
