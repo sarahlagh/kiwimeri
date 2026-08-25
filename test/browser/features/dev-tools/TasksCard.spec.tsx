@@ -15,7 +15,7 @@ import {
   getCancelTaskButton,
   getCardTitle,
   getConfirmDeletionBtn,
-  getErrorDetailsButton,
+  getErrorDetailsButton as getDetailsButton,
   getListItem,
   slideOpen
 } from './TasksCard.locators';
@@ -38,7 +38,7 @@ async function expectItemIsOK(screen: RenderResult, task: TaskResult) {
     .element(getListItem(screen, task.id).getByText('with errors'))
     .not.toBeInTheDocument();
   await expect
-    .element(getErrorDetailsButton(screen, task.id))
+    .element(getDetailsButton(screen, task.id))
     .not.toBeInTheDocument();
 }
 
@@ -56,9 +56,7 @@ async function expectItemHasErrors(screen: RenderResult, task: TaskResult) {
   await expect
     .element(getListItem(screen, task.id).getByText('with errors'))
     .toBeInTheDocument();
-  await expect
-    .element(getErrorDetailsButton(screen, task.id))
-    .toBeInTheDocument();
+  await expect.element(getDetailsButton(screen, task.id)).toBeInTheDocument();
 }
 
 describe('TasksCard', () => {
@@ -104,6 +102,23 @@ describe('TasksCard', () => {
     await expectItemIsOK(screen, tasks[1]);
   });
 
+  test('click on info button shows inputs', async () => {
+    schedule.in(-1000, TaskNames.FAST_WRITE, { docId: '#id' })!;
+
+    const tasks = fetchTasksQuery.getResults({});
+    const screen = await render(<TasksCard />, {
+      wrapper: TestingProvider
+    });
+
+    const button = getDetailsButton(screen, tasks[0].id);
+    await expect.element(button).toBeVisible();
+
+    await button.click();
+
+    await expect.element(screen.locator.getByText(`#id`)).toBeVisible();
+    await expect.element(screen.locator.getByText(`close`)).toBeVisible();
+  });
+
   test('click on info button shows error description', async () => {
     const errorId = schedule.in(-1000, TaskNames.FAST_WRITE)!;
     space.setCell(SpaceTables.Tasks, errorId, 'error', 'error description');
@@ -113,7 +128,7 @@ describe('TasksCard', () => {
       wrapper: TestingProvider
     });
 
-    const button = getErrorDetailsButton(screen, tasks[0].id);
+    const button = getDetailsButton(screen, tasks[0].id);
     await expect.element(button).toBeVisible();
 
     await button.click();

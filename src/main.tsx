@@ -11,7 +11,8 @@ import LoadingApp from './app/pages/LoadingApp';
 import './core/infra/polyfills/prism-polyfill';
 
 setupIonicReact({
-  sanitizerEnabled: true
+  sanitizerEnabled: true,
+  innerHTMLTemplatesEnabled: true
 });
 i18n.load('en', enMessages);
 i18n.activate('en');

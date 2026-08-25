@@ -5,7 +5,7 @@ import { ParamValues } from 'tinybase/with-schemas';
 
 export type TaskResult = Pick<
   ScheduledTask,
-  'id' | 'name' | 'scheduledAt' | 'error'
+  'id' | 'name' | 'scheduledAt' | 'inputs' | 'error'
 >;
 
 const fetchTasksQuery = new SpaceQueryDefinition<
@@ -17,6 +17,7 @@ const fetchTasksQuery = new SpaceQueryDefinition<
   SpaceTables.Tasks,
   ({ select }) => {
     select('name');
+    select('inputs');
     select('scheduledAt');
     select('error');
   },

@@ -41,7 +41,6 @@ TASKS_MSG[TaskNames.HISTORY_SAVE] = msg`Pending Document Version`;
 TASKS_MSG[TaskNames.LOG_GC] = msg`Log Maintenance`;
 TASKS_MSG[TaskNames.HISTORY_GC] = msg`History Maintenance`;
 
-
 const TasksCard = () => {
   useEffect(() => {
     onRouteEnter();
@@ -103,19 +102,19 @@ const TasksCard = () => {
                   </span>
                 )}
                 <IonButtons slot="end">
-                  {task.error && (
+                  {(task.inputs || task.error) && (
                     <IonButton
                       id={`info_${task.id}`}
-                      aria-label={t`Show error details`}
+                      aria-label={t`Show details`}
                     >
                       <IonIcon icon={APPICONS.info} />
                     </IonButton>
                   )}
                 </IonButtons>
                 <IonAlert
-                  header={t`Error Details`}
+                  header={t`Task Details`}
                   trigger={`info_${task.id}`}
-                  message={task.error}
+                  message={t`Inputs: ${task.inputs ? JSON.stringify(task.inputs) : 'none'} </br> ${task.error ? task.error : ''}`}
                   buttons={[
                     {
                       text: t`close`

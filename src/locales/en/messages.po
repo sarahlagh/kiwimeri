@@ -132,7 +132,7 @@ msgstr "cancel"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: src/features/dev-tools/components/TasksCard.tsx:137
+#: src/features/dev-tools/components/TasksCard.tsx:138
 msgid "Cancel Task"
 msgstr "Cancel Task"
 
@@ -173,7 +173,7 @@ msgstr "Choose a session length"
 msgid "Choose where to save your work"
 msgstr "Choose where to save your work"
 
-#: src/features/dev-tools/components/TasksCard.tsx:119
+#: src/features/dev-tools/components/TasksCard.tsx:120
 msgid "close"
 msgstr "close"
 
@@ -336,10 +336,6 @@ msgstr "Enter your search"
 msgid "Enter your username"
 msgstr "Enter your username"
 
-#: src/features/dev-tools/components/TasksCard.tsx:114
-msgid "Error Details"
-msgstr "Error Details"
-
 #: src/shared/buttons/GenericExportFileButton.tsx:52
 msgid "Error writing to file"
 msgstr "Error writing to file"
@@ -371,7 +367,7 @@ msgstr "File not supported"
 msgid "History idle time (s)"
 msgstr "History idle time (s)"
 
-#: src/features/dev-tools/components/TasksCard.tsx:41
+#: src/features/dev-tools/components/TasksCard.tsx:42
 msgid "History Maintenance"
 msgstr "History Maintenance"
 
@@ -414,6 +410,10 @@ msgstr "Include metadata in zip"
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:92
 msgid "Incorrect Metadata"
 msgstr "Incorrect Metadata"
+
+#: src/features/dev-tools/components/TasksCard.tsx:117
+msgid "Inputs: {0} </br> {1}"
+msgstr "Inputs: {0} </br> {1}"
 
 #: src/features/dev-tools/components/ConfigCard.tsx:107
 msgid "Internal proxy"
@@ -463,7 +463,7 @@ msgstr "Local:  {0}"
 msgid "Local: <0>never</0>"
 msgstr "Local: <0>never</0>"
 
-#: src/features/dev-tools/components/TasksCard.tsx:40
+#: src/features/dev-tools/components/TasksCard.tsx:41
 msgid "Log Maintenance"
 msgstr "Log Maintenance"
 
@@ -548,7 +548,7 @@ msgstr "New tag"
 msgid "no"
 msgstr "no"
 
-#: src/features/dev-tools/components/TasksCard.tsx:66
+#: src/features/dev-tools/components/TasksCard.tsx:67
 msgid "No pending tasks"
 msgstr "No pending tasks"
 
@@ -602,6 +602,10 @@ msgstr "Path"
 msgid "PCloud Configuration"
 msgstr "PCloud Configuration"
 
+#: src/features/dev-tools/components/TasksCard.tsx:40
+msgid "Pending Document Version"
+msgstr "Pending Document Version"
+
 #: src/features/dev-tools/components/TasksCard.tsx:37
 msgid "Pending Edits"
 msgstr "Pending Edits"
@@ -614,7 +618,7 @@ msgstr "profile name"
 msgid "Profile Settings"
 msgstr "Profile Settings"
 
-#: src/features/dev-tools/components/TasksCard.tsx:96
+#: src/features/dev-tools/components/TasksCard.tsx:97
 msgid "Ran at:  {0} with errors"
 msgstr "Ran at:  {0} with errors"
 
@@ -663,11 +667,11 @@ msgstr "Save"
 msgid "Save your work"
 msgstr "Save your work"
 
-#: src/features/dev-tools/components/TasksCard.tsx:89
+#: src/features/dev-tools/components/TasksCard.tsx:90
 msgid "Scheduled at:  "
 msgstr "Scheduled at:  "
 
-#: src/features/dev-tools/components/TasksCard.tsx:59
+#: src/features/dev-tools/components/TasksCard.tsx:60
 msgid "Scheduled Tasks"
 msgstr "Scheduled Tasks"
 
@@ -700,9 +704,9 @@ msgstr "Server"
 msgid "Settings"
 msgstr "Settings"
 
-#: src/features/dev-tools/components/TasksCard.tsx:107
-msgid "Show error details"
-msgstr "Show error details"
+#: src/features/dev-tools/components/TasksCard.tsx:108
+msgid "Show details"
+msgstr "Show details"
 
 #: src/features/collection-browser/components/SortFilter.tsx:59
 #: src/shared/misc/sort-filter/GenericSortFilter.tsx:65
@@ -760,6 +764,10 @@ msgstr "Syncing is disabled on the web version."
 #: src/features/document-editor/components/DocumentGeneralInfo.tsx:34
 msgid "Tags"
 msgstr "Tags"
+
+#: src/features/dev-tools/components/TasksCard.tsx:115
+msgid "Task Details"
+msgstr "Task Details"
 
 #: src/features/document-editor/wysiwyg-editor/lexical/plugins/EditLinkPlugin.tsx:44
 msgid "Text"
