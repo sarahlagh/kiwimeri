@@ -1,7 +1,7 @@
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { schedule } from '@/core/tasks/scheduler.service';
-import { TaskNames } from '@/core/tasks/tasks-registry';
+import { TaskNames, taskRegistry } from '@/core/tasks/tasks-registry';
 import TasksCard from '@/features/dev-tools/components/TasksCard';
 import fetchTasksQuery, {
   TaskResult
@@ -11,11 +11,11 @@ import { describe, expect, test } from 'vitest';
 import { render, RenderResult } from 'vitest-browser-react';
 import { TestingProvider } from '../../TestingProvider';
 import {
-  getAreYouSureConfirm,
   getCancelTaskButton,
   getCardTitle,
-  getConfirmDeletionBtn,
+  getConfirmAlertBtn,
   getErrorDetailsButton as getDetailsButton,
+  getFlushTaskButton,
   getListItem,
   slideOpen
 } from './TasksCard.locators';
@@ -139,6 +139,27 @@ describe('TasksCard', () => {
     await expect.element(screen.locator.getByText(`close`)).toBeVisible();
   });
 
+  test('rows without error have the flush task button in sliding element', async () => {
+    schedule.in(3600000, TaskNames.FAST_WRITE);
+    const errorId = schedule.in(-1000, TaskNames.FAST_WRITE)!;
+    space.setCell(SpaceTables.Tasks, errorId, 'error', 'error description');
+
+    const tasks = fetchTasksQuery.getResults({});
+    const screen = await render(<TasksCard />, {
+      wrapper: TestingProvider
+    });
+
+    // button is not visible for errors
+    expect(tasks[0].error).toBeDefined();
+    await slideOpen(screen, tasks[0].id);
+    const flushTaskBtn0 = getFlushTaskButton(screen, tasks[0].id);
+    await expect.element(flushTaskBtn0).not.toBeInTheDocument();
+    // but it is for the others
+    await slideOpen(screen, tasks[1].id);
+    const flushTaskBtn = getFlushTaskButton(screen, tasks[1].id);
+    await expect.element(flushTaskBtn).toBeVisible();
+  });
+
   test('all rows have cancel task button in sliding element', async () => {
     schedule.in(3600000, TaskNames.FAST_WRITE);
     const errorId = schedule.in(-1000, TaskNames.FAST_WRITE)!;
@@ -159,7 +180,11 @@ describe('TasksCard', () => {
   });
 
   test('click on delete button cancels task', async () => {
-    schedule.in(3600000, TaskNames.FAST_WRITE);
+    let executed = false;
+    taskRegistry.register('test', () => {
+      executed = true;
+    });
+    schedule.in(3600000, 'test');
 
     const tasks = fetchTasksQuery.getResults({});
     const screen = await render(<TasksCard />, {
@@ -174,13 +199,41 @@ describe('TasksCard', () => {
     // click on one
     await cancelTaskBtn!.click();
 
-    await expect.element(getAreYouSureConfirm(screen)).toBeVisible();
-
-    const confirmBtn = getConfirmDeletionBtn(screen);
+    const confirmBtn = getConfirmAlertBtn(screen);
     await expect.element(confirmBtn).toBeVisible();
     await confirmBtn.click();
 
-    await expect.element(getAreYouSureConfirm(screen)).not.toBeVisible();
+    await expect.element(confirmBtn).not.toBeInTheDocument();
     expect(space.hasRow(SpaceTables.Tasks, tasks[0].id)).toBeFalsy();
+    expect(executed).toBe(false);
+  });
+
+  test('click on flush button executes task', async () => {
+    let executed = false;
+    taskRegistry.register('test', () => {
+      executed = true;
+    });
+    schedule.in(3600000, 'test');
+
+    const tasks = fetchTasksQuery.getResults({});
+    const screen = await render(<TasksCard />, {
+      wrapper: TestingProvider
+    });
+
+    await slideOpen(screen, tasks[0].id);
+
+    const flushTaskBtn = getFlushTaskButton(screen, tasks[0].id);
+    await expect.element(flushTaskBtn).toBeInTheDocument();
+
+    // click on one
+    await flushTaskBtn!.click();
+
+    const confirmBtn = getConfirmAlertBtn(screen);
+    await expect.element(confirmBtn).toBeVisible();
+    await confirmBtn.click();
+
+    await expect.element(confirmBtn).not.toBeInTheDocument();
+    expect(space.hasRow(SpaceTables.Tasks, tasks[0].id)).toBeFalsy();
+    expect(executed).toBe(true);
   });
 });

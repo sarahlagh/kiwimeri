@@ -8,6 +8,13 @@ export function getListItem(screen: RenderResult, taskId: string) {
   return screen.locator.getByTestId(`task-${taskId}`).getByRole('listitem');
 }
 
+export function getFlushTaskButton(screen: RenderResult, taskId: string) {
+  return screen.locator
+    .getByTestId(`task-${taskId}`)
+    .getByRole('button', { name: 'Run Now' })
+    .first();
+}
+
 export function getCancelTaskButton(screen: RenderResult, taskId: string) {
   return screen.locator
     .getByTestId(`task-${taskId}`)
@@ -23,11 +30,7 @@ export function getErrorDetailsButton(screen: RenderResult, taskId: string) {
     .first();
 }
 
-export function getAreYouSureConfirm(screen: RenderResult) {
-  return screen.locator.getByText(`Are you sure?`);
-}
-
-export function getConfirmDeletionBtn(screen: RenderResult) {
+export function getConfirmAlertBtn(screen: RenderResult) {
   return screen.locator.getByRole('button', { name: 'confirm' });
 }
 

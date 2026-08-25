@@ -11,6 +11,7 @@ import {
   arrowUp,
   bugOutline,
   caretBackCircleOutline,
+  caretForwardCircleOutline,
   chatbubbleEllipsesOutline,
   checkmarkOutline,
   chevronCollapseOutline,
@@ -142,7 +143,8 @@ export const APPICONS = {
   expand: chevronExpandOutline,
   collapse: chevronCollapseOutline,
   expandCard: chevronUpOutline,
-  collapseCard: chevronDownOutline
+  collapseCard: chevronDownOutline,
+  runNow: caretForwardCircleOutline
 };
 
 // for where using lingui macros isn't possible

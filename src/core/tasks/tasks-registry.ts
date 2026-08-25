@@ -67,7 +67,7 @@ class TaskRegistry {
     return entry?.nextOccurence || 0;
   }
 
-  private register(name: string, callback: TaskCallback) {
+  public register(name: string, callback: TaskCallback) {
     this.registry.set(name, {
       callback
     });

@@ -122,6 +122,16 @@ const TasksCard = () => {
                   ]}
                 />
                 <AreYouSureAlert
+                  message={t`This will execute the task immediately`}
+                  trigger={`flush_${task.id}`}
+                  onClose={(confirmed: boolean) => {
+                    if (confirmed) {
+                      schedule.flushTask(task.id);
+                    }
+                  }}
+                />
+                <AreYouSureAlert
+                  message={t`This will cancel the task`}
                   trigger={`del_${task.id}`}
                   onClose={(confirmed: boolean) => {
                     if (confirmed) {
@@ -131,7 +141,19 @@ const TasksCard = () => {
                 />
               </IonItem>
               <IonItemOptions>
-                <IonItemOption color="danger" id={`task-actions-${task.id}`}>
+                {!task.error && (
+                  <IonItemOption color="success">
+                    <IonButtons>
+                      <IonButton
+                        id={`flush_${task.id}`}
+                        aria-label={t`Run Now`}
+                      >
+                        <IonIcon icon={APPICONS.runNow} />
+                      </IonButton>
+                    </IonButtons>
+                  </IonItemOption>
+                )}
+                <IonItemOption color="danger">
                   <IonButtons>
                     <IonButton
                       id={`del_${task.id}`}

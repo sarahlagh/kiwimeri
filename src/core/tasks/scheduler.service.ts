@@ -109,6 +109,14 @@ class TaskScheduler {
     });
   }
 
+  public flushTask(taskId: string) {
+    const name = space.getCell(T, taskId, 'name');
+    if (name) {
+      const inputs = space.getCell(T, taskId, 'inputs');
+      this.flush(taskId, name, inputs);
+    }
+  }
+
   public cancel(taskId: string) {
     const name = space.getCell(T, taskId, 'name');
     if (name) {
@@ -146,10 +154,6 @@ class TaskScheduler {
       results.push({ id: rowId, ...row });
     }
     return results;
-  }
-
-  public getCreatedAt(taskId: string) {
-    return space.getCell(T, taskId, 'createdAt')!;
   }
 }
 
