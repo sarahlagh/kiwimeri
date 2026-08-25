@@ -15,7 +15,13 @@ import { SpacePortableData } from '@/domain/space-merging/types';
 import { LocalChangeType } from '@/domain/synchronization/local-changes';
 import localChangesService from '@/domain/synchronization/local-changes.service';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
-import { adv, getNewContent, getNewParsedContent } from '@@/_setup/test.utils';
+import {
+  adv,
+  getNewContent,
+  getNewParsedContent,
+  setupTasksSheduleAndHistory,
+  teardownTasksScheduleAndHistory
+} from '@@/_setup/test.utils';
 
 function initData() {
   const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
@@ -34,13 +40,13 @@ function initData() {
 describe('storage service', () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    historyService['enabled'] = true;
     userPrefs.set('historyIdleTime', 0);
     userPrefs.set('statsEnabled', true);
+    setupTasksSheduleAndHistory();
   });
   afterEach(() => {
     vi.useRealTimers();
-    historyService['enabled'] = false;
+    teardownTasksScheduleAndHistory();
     userPrefs.set('historyIdleTime', null);
     userPrefs.set('statsEnabled', false);
   });

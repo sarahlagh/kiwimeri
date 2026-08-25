@@ -1,7 +1,9 @@
 import TinybaseProvider from '@/app/providers/TinybaseProvider';
+import { appConfig } from '@/config';
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { space, spaceArchive, spaceDocContent, store } from '@/core/db/store';
 import { DbSerializableData, setMetaField, WithId } from '@/core/db/types';
+import { schedule } from '@/core/tasks/scheduler.service';
 import {
   CollectionItem,
   CollectionItemFieldEnum,
@@ -20,9 +22,20 @@ import { annotsService } from '@/domain/collection/doc-annotations.service';
 import { DocAnnotation } from '@/domain/collection/document-annotations';
 import { Notebook } from '@/domain/collection/notebooks';
 import notebooksService from '@/domain/collection/notebooks.service';
+import { historyService } from '@/domain/history/history.service';
 import { renderHook } from '@testing-library/react';
 import { getUniqueId } from 'tinybase/with-schemas';
 import { expect, vi } from 'vitest';
+
+export function setupTasksSheduleAndHistory(scheduleInterval = 25) {
+  historyService['enabled'] = true;
+  appConfig.SCHEDULER_INTERVAL = scheduleInterval;
+  schedule.start();
+}
+export function teardownTasksScheduleAndHistory() {
+  historyService['enabled'] = false;
+  schedule.stop();
+}
 
 export function wrappedRenderHook<Result, Props>(
   render: (initialProps: Props) => Result

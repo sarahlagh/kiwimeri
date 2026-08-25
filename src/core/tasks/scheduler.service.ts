@@ -32,7 +32,10 @@ class TaskScheduler {
   }
 
   public stop() {
-    if (this.id) clearInterval(this.id);
+    if (this.id) {
+      clearInterval(this.id);
+      this.id = null;
+    }
   }
 
   public at(
@@ -40,19 +43,19 @@ class TaskScheduler {
     name: string,
     inputs?: AnyObject
   ) {
-    if (!this.enabled) return;
-    const task: ScheduledTaskRow = {
-      name,
-      createdAt: Date.now(),
-      scheduledAt: atInMs,
-      inputs
-    };
+    if (!this.enabled) return null;
     const key = inputs
       ? `${name}-${getHash(JSON.stringify(inputs))}`
       : undefined;
     if (key && space.hasRow(T, key)) {
       return key;
     }
+    const task: ScheduledTaskRow = {
+      name,
+      createdAt: Date.now(),
+      scheduledAt: atInMs,
+      inputs
+    };
     const rowId = key ? key : getUniqueId();
     space.setRow(T, rowId, { ...task });
     return rowId;
@@ -64,6 +67,21 @@ class TaskScheduler {
     inputs?: AnyObject
   ) {
     return this.at(Date.now() + delayInMs, name, inputs);
+  }
+
+  public hasTask(name: string, inputs?: AnyObject) {
+    const rowId = inputs ? `${name}-${getHash(JSON.stringify(inputs))}` : name;
+    return space.hasRow(T, rowId) ? rowId : null;
+  }
+
+  public debounce(debounceInMs: number, name: string, inputs?: AnyObject) {
+    const rowId = inputs ? `${name}-${getHash(JSON.stringify(inputs))}` : name;
+    if (space.hasRow(T, rowId)) {
+      // const scheduledAt = space.getCell(T, rowId, 'scheduledAt')!;
+      space.setCell(T, rowId, 'scheduledAt', Date.now() + debounceInMs);
+      return rowId;
+    }
+    return this.in(debounceInMs, name, inputs);
   }
 
   private initRecurringTasks() {
@@ -128,6 +146,10 @@ class TaskScheduler {
       results.push({ id: rowId, ...row });
     }
     return results;
+  }
+
+  public getCreatedAt(taskId: string) {
+    return space.getCell(T, taskId, 'createdAt')!;
   }
 }
 

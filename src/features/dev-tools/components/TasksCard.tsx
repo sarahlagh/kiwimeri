@@ -37,8 +37,10 @@ const TASKS_MSG: { [key: string]: MessageDescriptor } = {};
 TASKS_MSG[TaskNames.FAST_WRITE] = msg`Pending Edits`;
 TASKS_MSG[`${TaskNames.FAST_WRITE}_description`] =
   msg`A document has pending changes`;
+TASKS_MSG[TaskNames.HISTORY_SAVE] = msg`Pending Document Version`;
 TASKS_MSG[TaskNames.LOG_GC] = msg`Log Maintenance`;
 TASKS_MSG[TaskNames.HISTORY_GC] = msg`History Maintenance`;
+
 
 const TasksCard = () => {
   useEffect(() => {

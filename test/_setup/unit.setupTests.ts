@@ -12,6 +12,7 @@ import { initGlobalTrans } from '@/constants';
 import { postInitMigrationService } from '@/core/db/post-init-migrations/post-init-migration.service';
 import { startDbListeners, stopDbListeners } from '@/core/db/store-listeners';
 import '@/core/infra/polyfills/log-polyfill';
+import { schedule } from '@/core/tasks/scheduler.service';
 import { historyService } from '@/domain/history/history.service';
 import localChangesService from '@/domain/synchronization/local-changes.service';
 import { syncService } from '@/domain/synchronization/sync.service';
@@ -50,6 +51,7 @@ beforeEach(() => {
 });
 afterEach(() => {
   stopDbListeners();
+  schedule.stop();
   nukeStorage();
   syncService.stop();
   postInitMigrationService['enabled'] = false;

@@ -8,6 +8,7 @@ import { appLog } from '../logs/logs.service';
 
 export enum TaskNames {
   FAST_WRITE = 'fast_write',
+  HISTORY_SAVE = 'history_save',
   LOG_GC = 'log_gc',
   HISTORY_GC = 'history_gc'
 }
@@ -30,6 +31,11 @@ class TaskRegistry {
       } else {
         annotsService.edit(rowId, content);
       }
+    });
+
+    this.register(TaskNames.HISTORY_SAVE, inputs => {
+      const { docId } = inputs!;
+      historyService.saveVersionSync(docId);
     });
 
     this.register(TaskNames.LOG_GC, () => {

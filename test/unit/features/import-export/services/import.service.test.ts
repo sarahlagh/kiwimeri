@@ -21,7 +21,12 @@ import {
 import importService from '@/features/import-export/services/import.service';
 import { validateMetadataFile } from '@/features/import-export/services/metadata-validation';
 
-import { createInitLocalData, getNewContent } from '@@/_setup/test.utils';
+import {
+  createInitLocalData,
+  getNewContent,
+  setupTasksSheduleAndHistory,
+  teardownTasksScheduleAndHistory
+} from '@@/_setup/test.utils';
 import { readFile } from 'fs/promises';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -64,11 +69,11 @@ describe('import service', () => {
     vi.useFakeTimers();
     vi.advanceTimersByTime(2000);
     userPrefs.set('historyIdleTime', 50);
-    historyService['enabled'] = true;
+    setupTasksSheduleAndHistory();
   });
   afterEach(() => {
+    teardownTasksScheduleAndHistory();
     vi.useRealTimers();
-    historyService['enabled'] = false;
   });
 
   describe('finding duplicates', () => {

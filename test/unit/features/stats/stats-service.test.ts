@@ -3,11 +3,15 @@ import { spaceQueries } from '@/core/db/store';
 import { settingsService } from '@/domain/collection/collection-settings.service';
 import collectionService from '@/domain/collection/collection.service';
 import notebooksService from '@/domain/collection/notebooks.service';
-import { historyService } from '@/domain/history/history.service';
 import { DataPoint, DocumentContentStatsBag } from '@/domain/stats/stats';
 import { statsService } from '@/domain/stats/stats-service';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
-import { fakeTimersDelay, getNewContent } from '@@/_setup/test.utils';
+import {
+  fakeTimersDelay,
+  getNewContent,
+  setupTasksSheduleAndHistory,
+  teardownTasksScheduleAndHistory
+} from '@@/_setup/test.utils';
 import {
   afterEach,
   beforeAll,
@@ -200,11 +204,11 @@ describe('stats service', () => {
 
   describe(`backfilling`, () => {
     beforeEach(() => {
-      historyService['enabled'] = true;
       userPrefs.set('historyIdleTime', 50);
+      setupTasksSheduleAndHistory();
     });
     afterEach(() => {
-      historyService['enabled'] = false;
+      teardownTasksScheduleAndHistory();
     });
 
     it(`should backfill stats on notebook enabled`, () => {

@@ -1,6 +1,5 @@
 import { CollectionItem } from '@/domain/collection/collection';
 import { DocAnnotation } from '@/domain/collection/document-annotations';
-import { historyService } from '@/domain/history/history.service';
 import {
   startLocalChangesListeners,
   stopLocalChangesListeners
@@ -14,7 +13,11 @@ import {
 import { CompositeSynchronizer } from '@/domain/synchronization/synchronizers/composite-synchronizer';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import { InMemDriver } from '@@/_setup/inmem.driver';
-import { fakeTimersDelay } from '@@/_setup/test.utils';
+import {
+  fakeTimersDelay,
+  setupTasksSheduleAndHistory,
+  teardownTasksScheduleAndHistory
+} from '@@/_setup/test.utils';
 import { expect, vi } from 'vitest';
 
 export let driver: InMemDriver;
@@ -34,16 +37,17 @@ export const testSyncBeforeEach = async () => {
     'driver'
   ] as InMemDriver;
   vi.useFakeTimers();
-  historyService['enabled'] = true;
   userPrefs.set('historyIdleTime', 0);
+  setupTasksSheduleAndHistory();
   startLocalChangesListeners();
 };
 
 export const testSyncAfterEach = () => {
   iPull = 0;
   iPush = 0;
+  teardownTasksScheduleAndHistory();
   vi.useRealTimers();
-  historyService['enabled'] = false;
+  userPrefs.set('historyIdleTime', null);
   // expect(countOrphans()).toBe(0);
 };
 

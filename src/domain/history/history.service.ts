@@ -1,6 +1,8 @@
 import { spaceArchive } from '@/core/db/store';
 import { SpaceArchiveTables } from '@/core/db/store-constants';
 import { SpaceArchiveTablesType } from '@/core/db/store-schema';
+import { schedule } from '@/core/tasks/scheduler.service';
+import { TaskNames } from '@/core/tasks/tasks-registry';
 import {
   CollectionItem,
   CollectionItemSnapshotData,
@@ -33,7 +35,6 @@ const HC = SpaceArchiveTables.HistoryContent;
 
 class CollectionHistoryService {
   private enabled = true;
-  private timeouts = new Map<string, NodeJS.Timeout>();
 
   public getVersions(
     itemId: string,
@@ -99,10 +100,10 @@ class CollectionHistoryService {
   }
 
   // TODO later: check version snapshot (don't create duplicates)
-  public addVersion(id: string, sync = false) {
+  public addVersion(docId: string, sync = false) {
     if (!this.enabled) return;
     if (sync) {
-      this.flushVersion(id);
+      this.flushVersion(docId);
       return;
     }
 
@@ -110,41 +111,29 @@ class CollectionHistoryService {
     const idleDelay = userPrefs.get('historyIdleTime');
     const maxInterval = userPrefs.get('historyMaxInterval');
 
-    const existingTimeout = this.timeouts.get(id);
-    if (existingTimeout) {
-      clearTimeout(existingTimeout);
-
+    const inputs = { docId };
+    let taskId = schedule.hasTask(TaskNames.HISTORY_SAVE, inputs);
+    if (taskId) {
       // force periodic checkpoint during long continuous writing
-      const lastVersion = this.getLatestVersion(id)?.createdAt || null;
+      const lastVersion = this.getLatestVersion(docId)?.createdAt || null;
       if (lastVersion != null && now - lastVersion >= maxInterval) {
-        this.flushVersion(id);
+        this.flushVersion(docId, taskId);
         return;
       }
     }
 
-    const timeout = setTimeout(() => {
-      const lastChange = collectionService.getItem(id)?.updatedAt || 0;
-      if (lastChange == null) {
-        this.timeouts.delete(id);
-        return;
-      }
-
-      const idleFor = Date.now() - lastChange;
-      if (idleFor >= idleDelay) {
-        this.flushVersion(id);
-      } else {
-        this.addVersion(id); // reschedule
-      }
-    }, idleDelay);
-
-    this.timeouts.set(id, timeout);
+    // if tasks already exists, set it to execute at now + idleDelay
+    taskId = schedule.debounce(idleDelay, TaskNames.HISTORY_SAVE, inputs);
+    if (!taskId) {
+      console.warn('scheduler is not enabled');
+      this.flushVersion(docId);
+      return;
+    }
   }
 
-  private flushVersion(id: string) {
-    const existingTimeout = this.timeouts.get(id);
-    if (existingTimeout) {
-      clearTimeout(existingTimeout);
-      this.timeouts.delete(id);
+  private flushVersion(id: string, taskId?: string | null) {
+    if (taskId) {
+      schedule.cancel(taskId);
     }
     this.saveVersionSync(id);
   }
@@ -274,21 +263,16 @@ class CollectionHistoryService {
     });
   }
 
-  private saveVersionSync(id: string) {
+  public saveVersionSync(id: string) {
     if (!collectionService.itemExists(id)) return;
     const current = collectionService.getItem(id);
     this.saveVersionFromItem({ ...current, id } as CollectionItem);
   }
 
-  // when leaving app, must save pending timeouts
   public saveNow() {
     if (!this.enabled) return;
-    console.debug('force saving current tasks', this.timeouts.size);
-    this.timeouts.forEach((t, id) => {
-      clearTimeout(t);
-      this.saveVersionSync(id);
-    });
-    this.timeouts.clear();
+    console.debug('force saving current tasks');
+    schedule.flushByName(TaskNames.HISTORY_SAVE);
   }
 
   public disableForBulk<T>(callback: () => T) {

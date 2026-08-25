@@ -12,7 +12,9 @@ import {
   GET_HISTORIZABLE_UPDATE_FIELDS,
   GET_NON_HISTORIZABLE_UPDATE_FIELDS,
   getNewContent,
-  getNewValue
+  getNewValue,
+  setupTasksSheduleAndHistory,
+  teardownTasksScheduleAndHistory
 } from '@@/_setup/test.utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -22,12 +24,12 @@ const newContent = (text: string) => JSON.parse(getNewContent(text));
 
 describe('collection history service', () => {
   beforeEach(() => {
-    historyService['enabled'] = true;
     vi.useFakeTimers();
+    setupTasksSheduleAndHistory();
     userPrefs.set('historyIdleTime', idleTime);
   });
   afterEach(() => {
-    historyService['enabled'] = false;
+    teardownTasksScheduleAndHistory();
     vi.useRealTimers();
     userPrefs.set('historyIdleTime', null);
     userPrefs.set('maxHistoryPerDoc', null);
@@ -45,7 +47,7 @@ describe('collection history service', () => {
           const newValue = getNewValue(valueType);
           collectionService.setItemField(docId, field, newValue);
           const rowBefore = collectionService.getItem(docId);
-          vi.advanceTimersByTime(100);
+          vi.advanceTimersByTime(150);
           const versions = historyService.getVersionIds(docId);
           expect(versions).toHaveLength(2);
           const version0 = historyService.getVersion(versions[0])!;
@@ -168,10 +170,9 @@ describe('collection history service', () => {
       userPrefs.set('historyIdleTime', 30);
       userPrefs.set('historyMaxInterval', 100);
 
-      vi.advanceTimersByTime(200);
       collectionService.setItemLexicalContent(docId, newContent('new 1'));
       expect(historyService.getVersions(docId)).toHaveLength(1); // new version not flushed but pending
-      vi.advanceTimersByTime(30);
+      vi.advanceTimersByTime(50);
       expect(historyService.getVersions(docId)).toHaveLength(2); // flushed
     });
 
