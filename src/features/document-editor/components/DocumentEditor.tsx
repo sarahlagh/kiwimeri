@@ -193,18 +193,16 @@ const DocumentEditor = forwardRef<
               blocksChanged,
               hasDeletedNodes
             ) => {
-              writer.fastWrite(
-                SpaceTables.Collection,
-                docId,
-                editorState,
-                isSelectionChange,
-                blocksChanged,
-                hasDeletedNodes
-              );
-              resumeService.setLastSelection(
-                docId,
-                serializeSelection(editorState)
-              );
+              if (!isSelectionChange) {
+                writer.fastWrite(
+                  SpaceTables.Collection,
+                  docId,
+                  editorState,
+                  isSelectionChange,
+                  blocksChanged,
+                  hasDeletedNodes
+                );
+              }
             }}
           ></KiwimeriEditor>
         )}

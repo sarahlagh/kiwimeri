@@ -19,7 +19,7 @@ import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { SelectionAlwaysOnDisplay } from '@lexical/react/LexicalSelectionAlwaysOnDisplay';
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
 import { useLingui } from '@lingui/react/macro';
-import { $getNodeByKey, EditorState, LexicalEditor } from 'lexical';
+import { EditorState, LexicalEditor } from 'lexical';
 import React, {
   ForwardedRef,
   ReactNode,
@@ -33,7 +33,7 @@ import KiwimeriToolbarPlugin, {
   ToolbarPluginProps
 } from './KiwimeriToolbarPlugin';
 import { lexicalConfig } from './lexical-config';
-import { serializeNode } from './node-serializer';
+import { getChangedBlocks } from './node-serializer';
 import { MARKDOWN_SHORTCUTS_TRANSFORMERS } from './playground/markdown-transformers';
 import AutoLinkPlugin from './playground/plugins/AutoLinkPlugin';
 import DebugTreeViewPlugin from './playground/plugins/DebugTreeViewPlugin';
@@ -153,25 +153,13 @@ const KiwimeriEditor = (
         <KiwimeriOnChangePlugin
           ignoreSelectionChange={ignoreSelectionChange}
           skipTags={[FOCUS_TAG, RELOAD_TAG]}
-          onChange={({ editorState, isSelectionChange, dirtyElements }) => {
-            editorState.read(() => {
-              const blocksChanged: LexicalDiff[] = [];
-              let hasDeletedNodes = false;
-              for (const key of dirtyElements.keys()) {
-                if (key === 'root') continue;
-                const node = $getNodeByKey(key);
-                const serializedNode = serializeNode(node);
-                if (serializedNode) {
-                  const idx = node!.getIndexWithinParent();
-                  blocksChanged.push({ block: serializedNode, idx });
-                } else {
-                  hasDeletedNodes = true;
-                  break;
-                }
-              }
+          onChange={payload => {
+            payload.editorState.read(() => {
+              const { blocksChanged, hasDeletedNodes } =
+                getChangedBlocks(payload);
               onChange(
-                editorState,
-                isSelectionChange,
+                payload.editorState,
+                payload.isSelectionChange,
                 hasDeletedNodes ? [] : blocksChanged,
                 hasDeletedNodes
               );

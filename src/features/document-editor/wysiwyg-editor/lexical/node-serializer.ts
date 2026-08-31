@@ -1,4 +1,6 @@
 import { SerializedSelection } from '@/domain/collection/resume-state';
+import { LexicalDiff } from '@/domain/document-edits/document-edits';
+import { $isHorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode';
 import {
   $caretFromPoint,
   $createRangeSelection,
@@ -7,6 +9,7 @@ import {
   $getRoot,
   $getSelection,
   $isElementNode,
+  $isRootNode,
   BaseSelection,
   CaretDirection,
   EditorState,
@@ -16,7 +19,8 @@ import {
   RangeSelection,
   SerializedElementNode,
   SerializedLexicalNode,
-  TextNode
+  TextNode,
+  UpdateListenerPayload
 } from 'lexical';
 
 function* $iterCaretsDepthFirst<D extends CaretDirection>(
@@ -78,9 +82,43 @@ function exportNodeToJSON<SerializedNode extends SerializedLexicalNode>(
   return serializedNode;
 }
 
-export function serializeNode(node: LexicalNode | null) {
-  if (!node || !(node instanceof ElementNode)) return null;
+export function serializeNode(node: LexicalNode) {
   return exportNodeToJSON(node);
+}
+
+export function getChangedBlocks({
+  dirtyElements,
+  dirtyLeaves
+}: UpdateListenerPayload) {
+  const blocksChanged: LexicalDiff[] = [];
+  let hasDeletedNodes = false;
+  for (const key of dirtyElements.keys()) {
+    if (key === 'root') continue;
+    const node = $getNodeByKey(key);
+    if (node === null) {
+      hasDeletedNodes = true;
+      break;
+    }
+    if (!$isRootNode(node?.getParent())) continue; // only care for top level blocks
+    const serializedNode = serializeNode(node);
+    const idx = node!.getIndexWithinParent();
+    blocksChanged.push({ block: serializedNode, idx });
+  }
+  for (const key of dirtyLeaves.keys()) {
+    const node = $getNodeByKey(key);
+    if (!node) console.debug('a leaf has been deleted', key);
+    if ($isHorizontalRuleNode(node)) {
+      const serializedNode = serializeNode(node);
+      if (serializedNode) {
+        const idx = node!.getIndexWithinParent();
+        blocksChanged.push({ block: serializedNode, idx });
+      } else {
+        hasDeletedNodes = true;
+        break;
+      }
+    }
+  }
+  return { blocksChanged, hasDeletedNodes };
 }
 
 export function serializeSelection(

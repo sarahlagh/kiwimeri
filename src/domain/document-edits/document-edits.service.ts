@@ -36,10 +36,10 @@ class DocumentWriterService {
     });
   }
 
-  public reconcile(on: string, itemId: string) {
-    const edits = this.getEdits(on, itemId);
-    let content = JSON.parse(this.getContent(on, itemId));
-
+  private reconcileEdits(
+    edits: DocumentEdit[],
+    content: SerializedEditorState
+  ) {
     edits.forEach(edit => {
       if (edit.isFullSnapshot) {
         content = JSON.parse(edit.json);
@@ -58,11 +58,19 @@ class DocumentWriterService {
         });
       }
     });
+    return JSON.stringify(content);
+  }
 
+  public reconcile(on: string, itemId: string) {
+    const edits = this.getEdits(on, itemId);
+    const content = this.reconcileEdits(
+      edits,
+      JSON.parse(this.getContent(on, itemId))
+    );
     space.transaction(() => {
       edits.forEach(e => space.delRow(E, e.id));
     });
-    return JSON.stringify(content);
+    return content;
   }
 
   private getContent(on: string, itemId: string) {
