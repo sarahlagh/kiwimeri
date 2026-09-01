@@ -80,6 +80,9 @@ const KiwimeriEditor = (
   useImperativeHandle(
     ref,
     () => ({
+      getEditor() {
+        return editorRef.current;
+      },
       focusEditor() {
         // note: this resumes the selection on small screens, but also triggers keyboard on small screen + android
         // this is annoying, but no known workarounds at this time

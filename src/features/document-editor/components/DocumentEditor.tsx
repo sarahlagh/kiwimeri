@@ -62,6 +62,9 @@ const DocumentEditor = forwardRef<
   useImperativeHandle(
     ref,
     () => ({
+      getEditor() {
+        return editorRef.current?.getEditor() || null;
+      },
       focusEditor() {
         editorRef.current?.focusEditor();
       },

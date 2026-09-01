@@ -66,9 +66,7 @@ describe('search service', () => {
         onError: () => {}
       });
       const state = editor.parseEditorState(content);
-      editor.update(() => {
-        editor.setEditorState(state);
-      });
+      editor.setEditorState(state);
     });
 
     function search(searchText: string, searchOptions?: SearchOptions) {

@@ -24,6 +24,7 @@ import { Notebook } from '@/domain/collection/notebooks';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { historyService } from '@/domain/history/history.service';
 import { renderHook } from '@testing-library/react';
+import { SerializedEditorState } from 'lexical';
 import { getUniqueId } from 'tinybase/with-schemas';
 import { expect, vi } from 'vitest';
 
@@ -502,3 +503,10 @@ export const createInitLocalData = (initData: Partial<CollectionItem>[]) => {
   }
   return { ids, initialItems };
 };
+
+export class FakeState {
+  constructor(private state: SerializedEditorState) {}
+  toJSON() {
+    return this.state;
+  }
+}

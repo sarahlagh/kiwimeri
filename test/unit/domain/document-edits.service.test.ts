@@ -1,6 +1,5 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { SpaceTables } from '@/core/db/store-constants';
-import { schedule } from '@/core/tasks/scheduler.service';
 import collectionService, {
   initialContent
 } from '@/domain/collection/collection.service';
@@ -8,6 +7,7 @@ import { LexicalDiff } from '@/domain/document-edits/document-edits';
 import { writer } from '@/domain/document-edits/document-edits.service';
 import { ensurePersistentId } from '@/features/document-editor/wysiwyg-editor/lexical/block-state';
 import { lexicalConfig } from '@/features/document-editor/wysiwyg-editor/lexical/lexical-config';
+import { FakeState } from '@@/_setup/test.utils';
 import { createHeadlessEditor } from '@lexical/headless';
 import {
   EditorState,
@@ -109,16 +109,8 @@ const twoParagraphsRoot = JSON.stringify({
   }
 });
 
-class FakeState {
-  constructor(private state: SerializedEditorState) {}
-  toJSON() {
-    return this.state;
-  }
-}
-
 describe(`document fast-write edits service`, () => {
   beforeAll(() => {
-    schedule['enabled'] = false;
     editor = createHeadlessEditor({
       nodes: lexicalConfig.nodes,
       onError: () => {}
@@ -131,9 +123,7 @@ describe(`document fast-write edits service`, () => {
   describe('from single block paragraph', () => {
     beforeEach(() => {
       const state = editor.parseEditorState(singleParagraphRoot);
-      editor.update(() => {
-        editor.setEditorState(state);
-      });
+      editor.setEditorState(state);
     });
 
     it('should edit a single paragraph node in-place', () => {
@@ -297,9 +287,7 @@ describe(`document fast-write edits service`, () => {
   describe('from two blocks paragraph', () => {
     beforeEach(() => {
       const state = editor.parseEditorState(twoParagraphsRoot);
-      editor.update(() => {
-        editor.setEditorState(state);
-      });
+      editor.setEditorState(state);
     });
 
     it('should edit a single paragraph node in-place', () => {
@@ -375,9 +363,7 @@ describe(`document fast-write edits service`, () => {
   describe('with lists', () => {
     beforeEach(() => {
       const state = editor.parseEditorState(initialContent());
-      editor.update(() => {
-        editor.setEditorState(state);
-      });
+      editor.setEditorState(state);
     });
 
     test('should turn a paragraph into a list block', () => {
