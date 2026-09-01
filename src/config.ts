@@ -40,6 +40,13 @@ class AppConfig implements ImportMetaEnv {
               ? metaEnv[k] === 'true'
               : defaultConfig[finalKey];
         }
+        // transform number into correct type
+        if (typeof defaultConfig[finalKey] === 'number') {
+          viteAppConfig[k] =
+            metaEnv[k] !== undefined
+              ? parseInt(metaEnv[k])
+              : defaultConfig[finalKey];
+        }
       }
       transformedConfig[finalKey] = viteAppConfig[k];
     });
