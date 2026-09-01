@@ -36,14 +36,15 @@ const NoteEditor = ({ noteId, editable = true }: NoteEditorProps) => {
         blocksChanged,
         hasDeletedNodes
       ) => {
-        writer.fastWrite(
-          SpaceTables.Annotations,
-          noteId,
-          editorState,
-          isSelectionChange,
-          blocksChanged,
-          hasDeletedNodes
-        );
+        if (!isSelectionChange) {
+          writer.fastWrite(
+            SpaceTables.Annotations,
+            noteId,
+            editorState,
+            blocksChanged,
+            hasDeletedNodes
+          );
+        }
       }}
     />
   );

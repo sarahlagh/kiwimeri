@@ -15,11 +15,9 @@ class DocumentWriterService {
     on: string,
     rowId: string,
     editorState: EditorState,
-    isSelectionChange: boolean,
     blocksChanged: LexicalDiff[],
     hasDeletedNodes: boolean
   ) {
-    if (isSelectionChange) return;
     if (blocksChanged.length === 0 && !hasDeletedNodes) return;
     space.addRow(E, {
       on,

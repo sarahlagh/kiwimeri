@@ -198,11 +198,14 @@ const DocumentEditor = forwardRef<
                   SpaceTables.Collection,
                   docId,
                   editorState,
-                  isSelectionChange,
                   blocksChanged,
                   hasDeletedNodes
                 );
               }
+              resumeService.setLastSelection(
+                docId,
+                serializeSelection(editorState)
+              );
             }}
           ></KiwimeriEditor>
         )}

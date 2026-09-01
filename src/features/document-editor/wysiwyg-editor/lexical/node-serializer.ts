@@ -1,6 +1,5 @@
 import { SerializedSelection } from '@/domain/collection/resume-state';
 import { LexicalDiff } from '@/domain/document-edits/document-edits';
-import { $isHorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode';
 import {
   $caretFromPoint,
   $createRangeSelection,
@@ -88,7 +87,8 @@ export function serializeNode(node: LexicalNode) {
 
 export function getChangedBlocks({
   dirtyElements,
-  dirtyLeaves
+  dirtyLeaves,
+  prevEditorState
 }: UpdateListenerPayload) {
   const blocksChanged: LexicalDiff[] = [];
   let hasDeletedNodes = false;
@@ -106,17 +106,20 @@ export function getChangedBlocks({
   }
   for (const key of dirtyLeaves.keys()) {
     const node = $getNodeByKey(key);
-    if (!node) console.debug('a leaf has been deleted', key);
-    if ($isHorizontalRuleNode(node)) {
-      const serializedNode = serializeNode(node);
-      if (serializedNode) {
-        const idx = node!.getIndexWithinParent();
-        blocksChanged.push({ block: serializedNode, idx });
-      } else {
+    if (!node) {
+      const previousNode = prevEditorState._nodeMap.get(key);
+      // TODO not ideal
+      if (previousNode?.__parent === 'root') {
         hasDeletedNodes = true;
         break;
       }
+      continue;
     }
+    // node is not null
+    if (!$isRootNode(node.getParent())) continue; // only care for top level blocks
+    const serializedNode = serializeNode(node);
+    const idx = node!.getIndexWithinParent();
+    blocksChanged.push({ block: serializedNode, idx });
   }
   return { blocksChanged, hasDeletedNodes };
 }

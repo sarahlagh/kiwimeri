@@ -305,6 +305,7 @@ class CollectionHistoryService {
   public gc() {
     const maxHistoryPerDoc = userPrefs.get('maxHistoryPerDoc');
     if (maxHistoryPerDoc <= 0) return;
+    schedule.flushByName(TaskNames.HISTORY_SAVE);
     console.log('running history gc');
     const rankMap = new Map<string, number>();
     const historyTable = spaceArchive.getTable(H);
