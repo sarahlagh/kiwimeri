@@ -18,6 +18,7 @@ import {
   IonItemOption,
   IonItemOptions,
   IonItemSliding,
+  IonLabel,
   IonList
 } from '@ionic/react';
 import { i18n, MessageDescriptor } from '@lingui/core';
@@ -73,34 +74,43 @@ const TasksCard = () => {
                 {task.error && isWideEnough && (
                   <IonIcon icon={APPICONS.warning} />
                 )}
-                {TASKS_MSG[task.name]
-                  ? i18n._(TASKS_MSG[task.name])
-                  : task.name}{' '}
-                &nbsp;
-                {isWideEnough && (
-                  <i>
-                    {TASKS_MSG[`${task.name}_description`]
-                      ? i18n._(TASKS_MSG[`${task.name}_description`])
-                      : ''}
-                  </i>
-                )}
-                {!task.error ? (
-                  <span slot="end">
-                    <i>
-                      {isWideEnough && <Trans>Scheduled at: &nbsp;</Trans>}
-                      {dateToStr('relative', task.scheduledAt)}
-                    </i>
-                  </span>
-                ) : (
-                  <span slot="end">
-                    <i>
-                      <Trans>
-                        Ran at: &nbsp;
-                        {dateToStr('relative', task.scheduledAt)} with errors
-                      </Trans>
-                    </i>
-                  </span>
-                )}
+                <IonLabel>
+                  <h3>
+                    {TASKS_MSG[task.name]
+                      ? i18n._(TASKS_MSG[task.name])
+                      : task.name}
+                  </h3>
+                  <p>
+                    {isWideEnough && (
+                      <i>
+                        {TASKS_MSG[`${task.name}_description`]
+                          ? i18n._(TASKS_MSG[`${task.name}_description`])
+                          : ''}
+                      </i>
+                    )}
+                  </p>
+                  <p>
+                    {!task.error ? (
+                      <span>
+                        <i>
+                          {isWideEnough && <Trans>Scheduled at: &nbsp;</Trans>}
+                          {dateToStr('relative', task.scheduledAt)}
+                        </i>
+                      </span>
+                    ) : (
+                      <span>
+                        <i>
+                          <Trans>
+                            Ran at: &nbsp;
+                            {dateToStr('relative', task.scheduledAt)} with
+                            errors
+                          </Trans>
+                        </i>
+                      </span>
+                    )}
+                  </p>
+                </IonLabel>
+
                 <IonButtons slot="end">
                   {(task.inputs || task.error) && (
                     <IonButton
@@ -112,7 +122,11 @@ const TasksCard = () => {
                   )}
                 </IonButtons>
                 <IonAlert
-                  header={t`Task Details`}
+                  header={
+                    TASKS_MSG[task.name]
+                      ? i18n._(TASKS_MSG[task.name])
+                      : task.name
+                  }
                   trigger={`info_${task.id}`}
                   message={t`Inputs: ${task.inputs ? JSON.stringify(task.inputs) : 'none'} </br> ${task.error ? task.error : ''}`}
                   buttons={[

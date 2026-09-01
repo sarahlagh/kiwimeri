@@ -28,7 +28,7 @@ const PCloudSettings = ({
 }: PCloudSettingsProps) => {
   const { t } = useLingui();
   const [checking, setChecking] = useState(false);
-  const syncConf = remote.config as PCloudConf;
+  const syncConf = (remote.config as PCloudConf) || {};
 
   const onChange = async (
     key: keyof PCloudConf | 'name',

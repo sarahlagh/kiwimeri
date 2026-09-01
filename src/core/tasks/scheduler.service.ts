@@ -78,7 +78,6 @@ class TaskScheduler {
   public debounce(debounceInMs: number, name: string, inputs?: AnyObject) {
     const rowId = inputs ? `${name}-${getHash(JSON.stringify(inputs))}` : name;
     if (space.hasRow(T, rowId)) {
-      // const scheduledAt = space.getCell(T, rowId, 'scheduledAt')!;
       space.setCell(T, rowId, 'scheduledAt', Date.now() + debounceInMs);
       return rowId;
     }
