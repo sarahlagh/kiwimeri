@@ -41,17 +41,32 @@ const PLAIN_TEXT: KiwimeriTextElementParser = {
   tokenize: nextText => {
     // regex to stop token at [*_~<\n] but not escaped [*_~<\n] (* will match but \* won't)
     const endOfText = nextText.match(STOP_TOKEN_REGEX);
-    // special case for links
+    // special case for links & autolinks: must detect if they are present within paragraph
+    // but stopping at [ or http can't be done via STOP_TOKEN_REGEX
     const link = nextText.match(LINK_REGEX);
+    const autolink = nextText.match(AUTOLINK_REGEX);
     const linkIdx = link ? nextText.indexOf(link[0]) : nextText.length + 1;
+    const autolinkIdx = autolink
+      ? nextText.indexOf(autolink[0])
+      : nextText.length + 1;
 
-    if (endOfText && endOfText.length > 0 && endOfText[0].length < linkIdx) {
+    if (
+      endOfText &&
+      endOfText.length > 0 &&
+      endOfText[0].length < linkIdx &&
+      endOfText[0].length < autolinkIdx
+    ) {
       // remove trailing special chars BUT avoid escaped ones dammit
       return endOfText[0].replaceAll(AVOID_ESCAPED_CHARS_REGEX, '');
     }
     if (link && linkIdx < nextText.length) {
       return nextText
         .substring(0, nextText.indexOf(link[0]))
+        .replaceAll(AVOID_ESCAPED_CHARS_REGEX, '');
+    }
+    if (autolink && autolinkIdx < nextText.length) {
+      return nextText
+        .substring(0, nextText.indexOf(autolink[0]))
         .replaceAll(AVOID_ESCAPED_CHARS_REGEX, '');
     }
     return nextText;

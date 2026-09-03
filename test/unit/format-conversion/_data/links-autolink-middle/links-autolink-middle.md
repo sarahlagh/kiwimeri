@@ -1,0 +1,6 @@
+an autolink <https://github.com/example/1>
+
+an unlinked one https://github.com/example/2 and another https://github.com/example/3
+
+and another <test@provider.com> and another test@provider2.com and a third test@provider3.com
+
