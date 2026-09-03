@@ -64,7 +64,7 @@ type KiwimeriEditorProps = {
   debounce?: number;
   additionalClassNames?: string;
   ignoreSelectionChange?: boolean;
-} & Omit<ToolbarPluginProps, 'setIsLinkEditMode'> & {
+} & Omit<ToolbarPluginProps, 'setIsLinkEditMode' | 'setIsComposerEditable'> & {
     readonly children?: ReactNode;
   };
 
@@ -72,10 +72,26 @@ const KiwimeriEditor = (
   props: KiwimeriEditorProps,
   ref: ForwardedRef<KiwimeriEditorHandle>
 ) => {
+  const {
+    enableToolbar,
+    children,
+    id,
+    content,
+    onChange,
+    enableDebugTreeView = true,
+    editable = true,
+    enableHistory = true,
+    searchText,
+    additionalClassNames,
+    ignoreSelectionChange = true
+  } = props;
+
   const { t } = useLingui();
   const [isLinkEditMode, setIsLinkEditMode] = useState(false);
+  const [isComposerEditable, setIsComposerEditable] = useState(editable);
   const [history, setHistory] = useState(createEmptyHistoryState());
   const editorRef = useRef<LexicalEditor | null>(null);
+  const placeholder = t`Text...`;
 
   useImperativeHandle(
     ref,
@@ -93,38 +109,24 @@ const KiwimeriEditor = (
     [editorRef]
   );
 
-  const {
-    enableToolbar,
-    children,
-    id,
-    content,
-    onChange,
-    enableDebugTreeView = true,
-    editable = true,
-    enableHistory = true,
-    searchText,
-    additionalClassNames,
-    ignoreSelectionChange = true
-  } = props;
-  const placeholder = t`Text...`;
-
   return (
     <LexicalComposer
       initialConfig={{
         ...lexicalConfig,
-        editable
+        editable: isComposerEditable
       }}
     >
       {enableToolbar && (
         <KiwimeriToolbarPlugin
           setIsLinkEditMode={setIsLinkEditMode}
+          setIsComposerEditable={setIsComposerEditable}
           {...props}
         />
       )}
       <RichTextPlugin
         contentEditable={
           <ContentEditable
-            contentEditable={editable}
+            contentEditable={isComposerEditable}
             className={
               'editor-input' +
               (enableToolbar ? ' editor-toolbar' : '') +

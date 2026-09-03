@@ -147,11 +147,13 @@ function TextFormatToolbarButton({
 export type ToolbarPluginProps = {
   zoomIncrement?: number;
   setIsLinkEditMode: Dispatch<boolean>; // TODO refacto
+  setIsComposerEditable: Dispatch<boolean>; // TODO refacto
 };
 
 export default function ToolbarPlugin({
   zoomIncrement = ZOOM_INCREMENT,
-  setIsLinkEditMode
+  setIsLinkEditMode,
+  setIsComposerEditable
 }: ToolbarPluginProps) {
   const [editor] = useLexicalComposerContext();
   const toolbarRef = useRef(null);
@@ -265,8 +267,9 @@ export default function ToolbarPlugin({
         icon="writer/book.svg"
         isActive={!isEditable}
         onClick={() => {
-          editor.setEditable(!editor.isEditable());
-          setIsEditable(editor.isEditable());
+          editor.setEditable(!isEditable);
+          setIsEditable(!isEditable);
+          setIsComposerEditable(!isEditable);
         }}
       />
       <ToolbarButton
