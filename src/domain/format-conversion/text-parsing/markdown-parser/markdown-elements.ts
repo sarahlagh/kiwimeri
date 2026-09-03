@@ -41,9 +41,18 @@ const PLAIN_TEXT: KiwimeriTextElementParser = {
   tokenize: nextText => {
     // regex to stop token at [*_~<\n] but not escaped [*_~<\n] (* will match but \* won't)
     const endOfText = nextText.match(STOP_TOKEN_REGEX);
-    if (endOfText && endOfText.length > 0) {
+    // special case for links
+    const link = nextText.match(LINK_REGEX);
+    const linkIdx = link ? nextText.indexOf(link[0]) : nextText.length + 1;
+
+    if (endOfText && endOfText.length > 0 && endOfText[0].length < linkIdx) {
       // remove trailing special chars BUT avoid escaped ones dammit
       return endOfText[0].replaceAll(AVOID_ESCAPED_CHARS_REGEX, '');
+    }
+    if (link && linkIdx < nextText.length) {
+      return nextText
+        .substring(0, nextText.indexOf(link[0]))
+        .replaceAll(AVOID_ESCAPED_CHARS_REGEX, '');
     }
     return nextText;
   },
@@ -242,13 +251,13 @@ const BREAK_LIST_ITEMS_ELEMENTS = [
   NUMBERED_LIST_ITEM
 ];
 
-const LINK_REGEX = /\[(.*)\]\((.*?)(?: ["'](.*)["'])?\)/g;
+const LINK_REGEX = /\[([^\]]*)\]\((.*?)(?: ["']([^"']*)["'])?\)/g;
 const LINK: KiwimeriTextElementParser = {
   name: 'link',
   type: 'text',
   tokenize: nextText => {
     const link = nextText.match(LINK_REGEX);
-    if (link) {
+    if (link && nextText.startsWith(link[0])) {
       return link[0];
     }
     return null;
@@ -292,7 +301,7 @@ const AUTOLINK: KiwimeriTextElementParser = {
   type: 'text',
   tokenize: nextText => {
     const autolink = nextText.match(AUTOLINK_REGEX);
-    if (autolink) {
+    if (autolink && nextText.startsWith(autolink[0])) {
       return autolink[0];
     }
     return null;

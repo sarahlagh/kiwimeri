@@ -8,6 +8,12 @@
   "[java][bat]": {
     "editor.formatOnSave": false
   },
+  "[markdown]": {
+    "editor.formatOnSave": false
+  },
+  "[plaintext]": {
+    "editor.formatOnSave": false
+  },
   "search.exclude": {
     "**/node_modules": true,
     "**/bower_components": true,

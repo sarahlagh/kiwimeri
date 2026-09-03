@@ -34,6 +34,7 @@ const examples = [
   { name: 'lists-text-align' },
   { name: 'links-manual', alt: true },
   { name: 'links-manual-text-format' },
+  { name: 'links-manual-middle' },
   { name: 'links-autolink' }
 ];
 
