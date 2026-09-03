@@ -15,6 +15,7 @@ import {
   KiwimeriEditor,
   ReloadableKiwimeriEditorHandle
 } from '@/features/document-editor';
+import { compareLexicalStates } from '@@/_setup/test.utils';
 import { $getRoot } from 'lexical';
 import React from 'react';
 import { TestingProvider } from '../../TestingProvider';
@@ -58,14 +59,6 @@ async function renderDocumentEditor(docId: string) {
       return editor;
     }
   };
-}
-
-function compareStates(value: string, expected: any) {
-  const valueObj = JSON.parse(value, (key, val) => {
-    if (key === 'direction') return 'ltr';
-    return val;
-  });
-  expect(valueObj).toEqual(expected);
 }
 
 describe('KiwimeriEditor', () => {
@@ -161,24 +154,28 @@ describe('DocumentEditor', () => {
           mutate.forEach(m => {
             editor.update(
               () => {
-                m($getRoot(), editor);
+                m($getRoot());
               },
               { discrete: true }
             );
           });
 
-          compareStates(collectionService.getDocumentContent(docId), content);
+          compareLexicalStates(
+            collectionService.getDocumentContent(docId),
+            content
+          );
           const edits = writer['getEdits']('collection', docId);
-          expect(edits).toHaveLength(idx > 0 ? 1 : 0); // first scenario is nothing scenario so, no edits
-          if (edits[0]) {
-            expect(edits[0].isFullSnapshot).toBe(
-              isFullSnapshot !== undefined ? isFullSnapshot : false
+          expect(edits).toHaveLength(idx > 0 ? mutate.length : 0); // first scenario is nothing scenario so, no edits
+
+          edits.forEach((edit, idx) => {
+            expect(edit.isFullSnapshot).toBe(
+              isFullSnapshot !== undefined ? isFullSnapshot === idx : false
             );
-          }
+          });
 
           vi.advanceTimersByTime(appConfig.FAST_WRITE_THROTTLE); // flush
 
-          compareStates(
+          compareLexicalStates(
             collectionService.getDocumentContent(docId),
             nextContent
           );

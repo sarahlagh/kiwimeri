@@ -510,3 +510,11 @@ export class FakeState {
     return this.state;
   }
 }
+
+export function compareLexicalStates(value: string, expected: any) {
+  const valueObj = JSON.parse(value, (key, val) => {
+    if (key === 'direction') return 'ltr';
+    return val;
+  });
+  expect(valueObj).toEqual(expected);
+}
