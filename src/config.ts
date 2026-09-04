@@ -20,6 +20,7 @@ class AppConfig implements ImportMetaEnv {
   INTERNAL_HTTP_PROXY?: string;
   DEV_USE_HTTP_IF_POSSIBLE = false;
   FAST_WRITE_THROTTLE = 3000;
+  NATIVE_SAVE_THROTTLE = 30000;
   SCHEDULER_INTERVAL = 1000;
   APP_DIR_NAME = 'Kiwimeri';
   /** @deprecated */

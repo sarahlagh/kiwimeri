@@ -26,9 +26,9 @@ class TaskRegistry {
   private registry = new Map<string, RegistryEntry>();
 
   public init() {
-    if (!plt.isWeb()) {
-      this.register(TaskNames.NATIVE_STORE_SAVE, () => {
-        triggerNativeSave();
+    if (plt.hasNativeSupport()) {
+      this.register(TaskNames.NATIVE_STORE_SAVE, inputs => {
+        triggerNativeSave(inputs?.storeId);
       });
     }
 

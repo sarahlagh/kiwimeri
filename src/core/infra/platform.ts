@@ -28,6 +28,10 @@ class PlatformService {
       : Capacitor.getPlatform();
   }
 
+  public hasNativeSupport() {
+    return !this.isWeb();
+  }
+
   public hasHighlightSupport() {
     return CSS.highlights !== undefined;
   }

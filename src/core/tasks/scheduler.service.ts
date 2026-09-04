@@ -3,7 +3,6 @@ import { getUniqueId } from 'tinybase';
 import { AnyObject, getHash } from 'tinybase/with-schemas';
 import { space } from '../db/store';
 import { SpaceTables } from '../db/store-constants';
-import { plt } from '../infra/platform';
 import { appLog } from '../logs/logs.service';
 import { ScheduledTask, ScheduledTaskRow } from './tasks';
 import { TaskNames, taskRegistry } from './tasks-registry';
@@ -86,9 +85,6 @@ class TaskScheduler {
   }
 
   private initRecurringTasks() {
-    if (!plt.isWeb()) {
-      this.startRecurring(TaskNames.NATIVE_STORE_SAVE, 30_000); // every 30 seconds
-    }
     this.startRecurring(TaskNames.LOG_GC, 3600_000); // every hour
     this.startRecurring(TaskNames.HISTORY_GC, 3600_000 * 24); // every day
   }

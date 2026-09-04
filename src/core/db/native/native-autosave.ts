@@ -1,6 +1,7 @@
 import { getNativePersisters } from '../store';
+import { SID } from '../store-constants';
 
-export function triggerNativeSave() {
+export function triggerNativeSave(storeId?: SID) {
   const {
     nativeStorePersister,
     nativeSpacePersister,
@@ -16,17 +17,35 @@ export function triggerNativeSave() {
     return; // either they're all null or they're all defined
   }
 
-  console.info('start native storage backup...');
-  Promise.all([
-    nativeStorePersister.save(),
-    nativeSpacePersister.save(),
-    nativeSpaceDocContentPersister.save(),
-    nativeSpaceArchivePersister.save()
-  ])
+  const log = `[${storeId ? storeId : 'all'}]`;
+  console.info(log, 'start native storage backup...');
+  const promises: Promise<unknown>[] = [];
+  if (!storeId) {
+    promises.push(nativeStorePersister.save());
+    promises.push(nativeSpacePersister.save());
+    promises.push(nativeSpaceDocContentPersister.save());
+    promises.push(nativeSpaceArchivePersister.save());
+  } else {
+    switch (storeId) {
+      case SID.store:
+        promises.push(nativeStorePersister.save());
+        break;
+      case SID.space:
+        promises.push(nativeSpacePersister.save());
+        break;
+      case SID.spaceDocContent:
+        promises.push(nativeSpaceDocContentPersister.save());
+        break;
+      case SID.spaceArchive:
+        promises.push(nativeSpaceArchivePersister.save());
+        break;
+    }
+  }
+  Promise.all(promises)
     .then(() => {
-      console.info('native storage backup done');
+      console.info(log, 'native storage backup done');
     })
     .catch(e => {
-      console.error('caught error saving to native store', e);
+      console.error(log, 'caught error saving to native store', e);
     });
 }
