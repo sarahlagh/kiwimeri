@@ -20,8 +20,7 @@ export function createElectronFSBackupPersister(
   return createCustomPersister(
     _store,
     async () => {
-      const data = await electronAPI.readFile(filename);
-      return data;
+      return await electronAPI.readFile(filename);
     },
     async getContent => {
       await electronAPI.writeFile(

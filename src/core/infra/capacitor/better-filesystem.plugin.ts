@@ -18,6 +18,11 @@ export interface BetterFilesystemPlugin {
     /** only applicable on android if requestFilePicker == false: whether existing files should be overwritten - false by default */
     overwrite?: boolean;
   }): Promise<{ success: boolean; streamId?: number }>;
+
+  readFile(data: {
+    fileName: string;
+    appDir: string;
+  }): Promise<{ content: string | null }>;
 }
 
 export class WebBetterFilesystem
@@ -40,6 +45,10 @@ export class WebBetterFilesystem
     window.URL.revokeObjectURL(url);
     a.remove();
     return { success: true };
+  }
+
+  readFile(): Promise<{ content: string | null }> {
+    throw new Error('readFile not available for web');
   }
 }
 

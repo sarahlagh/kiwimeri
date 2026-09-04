@@ -1,8 +1,37 @@
+import { appConfig } from '@/config';
 import BetterFilesystem from '@/core/infra/capacitor/better-filesystem.plugin';
 import { plt } from '@/core/infra/platform';
 import { strFromU8 } from 'fflate';
 
-class FilesystemService {
+type OptionsBag = {
+  requestFilePicker?: boolean;
+  appDir?: string;
+  overwrite?: boolean;
+};
+
+export class FilesystemService {
+  async silentWriteFile(
+    fileName: string,
+    content: string | Uint8Array<ArrayBufferLike>,
+    mimeType = 'application/json'
+  ) {
+    const optsBag: OptionsBag = {
+      requestFilePicker: false,
+      overwrite: true,
+      appDir: appConfig.APP_DIR_NAME
+    };
+    if (plt.isAndroid()) {
+      return this.startStreaming(fileName, content, mimeType, optsBag);
+    }
+
+    return BetterFilesystem.exportToFile({
+      fileName,
+      mimeType,
+      content,
+      ...optsBag
+    });
+  }
+
   async exportToFile(
     fileName: string,
     content: string | Uint8Array<ArrayBufferLike>,
@@ -22,7 +51,8 @@ class FilesystemService {
   private async startStreaming(
     fileName: string,
     content: string | Uint8Array<ArrayBufferLike>,
-    mimeType = 'application/json'
+    mimeType = 'application/json',
+    optsBag?: OptionsBag
   ) {
     if (typeof content === 'string') {
       return this.sendDataInChunk(
@@ -30,13 +60,19 @@ class FilesystemService {
         content,
         mimeType,
         false,
-        chunk => chunk as string
+        chunk => chunk as string,
+        optsBag
       );
     }
 
     // TODO empty zips are read as invalid?
-    return this.sendDataInChunk(fileName, content, mimeType, true, chunk =>
-      btoa(strFromU8(chunk as Uint8Array<ArrayBufferLike>, true))
+    return this.sendDataInChunk(
+      fileName,
+      content,
+      mimeType,
+      true,
+      chunk => btoa(strFromU8(chunk as Uint8Array<ArrayBufferLike>, true)),
+      optsBag
     );
   }
 
@@ -45,7 +81,8 @@ class FilesystemService {
     content: string | Uint8Array<ArrayBufferLike>,
     mimeType: string,
     isBase64: boolean,
-    getChunkAsString: (chunk: string | Uint8Array<ArrayBuffer>) => string
+    getChunkAsString: (chunk: string | Uint8Array<ArrayBuffer>) => string,
+    optsBag?: OptionsBag
   ) {
     console.debug('send binary data as base64', mimeType, content.length);
     let pos = 0;
@@ -68,7 +105,8 @@ class FilesystemService {
         content: chunk,
         isBase64,
         streamId,
-        eof
+        eof,
+        ...optsBag
       });
       pos = end;
       console.debug('success', resp.success);
@@ -80,7 +118,11 @@ class FilesystemService {
     return { success: true };
   }
 
-  async readFile(file: File): Promise<ArrayBuffer> {
+  async readFile(fileName: string, appDir = appConfig.APP_DIR_NAME) {
+    return (await BetterFilesystem.readFile({ fileName, appDir })).content;
+  }
+
+  async readFileBlob(file: File): Promise<ArrayBuffer> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.addEventListener(

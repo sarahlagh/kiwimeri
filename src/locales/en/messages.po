@@ -65,7 +65,7 @@ msgstr "{wordCount} words"
 msgid "a document"
 msgstr "a document"
 
-#: src/features/dev-tools/components/TasksCard.tsx:40
+#: src/features/dev-tools/components/TasksCard.tsx:41
 msgid "A document has pending changes"
 msgstr "A document has pending changes"
 
@@ -133,7 +133,7 @@ msgstr "cancel"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: src/features/dev-tools/components/TasksCard.tsx:174
+#: src/features/dev-tools/components/TasksCard.tsx:175
 msgid "Cancel Task"
 msgstr "Cancel Task"
 
@@ -174,7 +174,7 @@ msgstr "Choose a session length"
 msgid "Choose where to save your work"
 msgstr "Choose where to save your work"
 
-#: src/features/dev-tools/components/TasksCard.tsx:134
+#: src/features/dev-tools/components/TasksCard.tsx:135
 msgid "close"
 msgstr "close"
 
@@ -369,7 +369,7 @@ msgstr "File not supported"
 msgid "History idle time (s)"
 msgstr "History idle time (s)"
 
-#: src/features/dev-tools/components/TasksCard.tsx:43
+#: src/features/dev-tools/components/TasksCard.tsx:44
 msgid "History Maintenance"
 msgstr "History Maintenance"
 
@@ -417,7 +417,7 @@ msgstr "Incorrect Metadata"
 
 #. placeholder {0}: task.inputs ? JSON.stringify(task.inputs) : 'none'
 #. placeholder {1}: task.error ? task.error : ''
-#: src/features/dev-tools/components/TasksCard.tsx:131
+#: src/features/dev-tools/components/TasksCard.tsx:132
 msgid "Inputs: {0} </br> {1}"
 msgstr "Inputs: {0} </br> {1}"
 
@@ -471,7 +471,7 @@ msgstr "Local:  {0}"
 msgid "Local: <0>never</0>"
 msgstr "Local: <0>never</0>"
 
-#: src/features/dev-tools/components/TasksCard.tsx:42
+#: src/features/dev-tools/components/TasksCard.tsx:43
 msgid "Log Maintenance"
 msgstr "Log Maintenance"
 
@@ -528,6 +528,10 @@ msgstr "Name"
 msgid "Name your new profile"
 msgstr "Name your new profile"
 
+#: src/features/dev-tools/components/TasksCard.tsx:38
+msgid "Native Storage"
+msgstr "Native Storage"
+
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:100
 msgid "new"
 msgstr "new"
@@ -556,7 +560,7 @@ msgstr "New tag"
 msgid "no"
 msgstr "no"
 
-#: src/features/dev-tools/components/TasksCard.tsx:68
+#: src/features/dev-tools/components/TasksCard.tsx:69
 msgid "No pending tasks"
 msgstr "No pending tasks"
 
@@ -610,11 +614,11 @@ msgstr "Path"
 msgid "PCloud Configuration"
 msgstr "PCloud Configuration"
 
-#: src/features/dev-tools/components/TasksCard.tsx:41
+#: src/features/dev-tools/components/TasksCard.tsx:42
 msgid "Pending Document Version"
 msgstr "Pending Document Version"
 
-#: src/features/dev-tools/components/TasksCard.tsx:38
+#: src/features/dev-tools/components/TasksCard.tsx:39
 msgid "Pending Edits"
 msgstr "Pending Edits"
 
@@ -627,7 +631,7 @@ msgid "Profile Settings"
 msgstr "Profile Settings"
 
 #. placeholder {0}: dateToStr('relative', task.scheduledAt)
-#: src/features/dev-tools/components/TasksCard.tsx:103
+#: src/features/dev-tools/components/TasksCard.tsx:104
 msgid "Ran at:  {0} with errors"
 msgstr "Ran at:  {0} with errors"
 
@@ -669,7 +673,7 @@ msgstr "Restore Collection"
 msgid "Restore Version"
 msgstr "Restore Version"
 
-#: src/features/dev-tools/components/TasksCard.tsx:163
+#: src/features/dev-tools/components/TasksCard.tsx:164
 msgid "Run Now"
 msgstr "Run Now"
 
@@ -681,11 +685,11 @@ msgstr "Save"
 msgid "Save your work"
 msgstr "Save your work"
 
-#: src/features/dev-tools/components/TasksCard.tsx:96
+#: src/features/dev-tools/components/TasksCard.tsx:97
 msgid "Scheduled at:  "
 msgstr "Scheduled at:  "
 
-#: src/features/dev-tools/components/TasksCard.tsx:61
+#: src/features/dev-tools/components/TasksCard.tsx:62
 msgid "Scheduled Tasks"
 msgstr "Scheduled Tasks"
 
@@ -718,7 +722,7 @@ msgstr "Server"
 msgid "Settings"
 msgstr "Settings"
 
-#: src/features/dev-tools/components/TasksCard.tsx:118
+#: src/features/dev-tools/components/TasksCard.tsx:119
 msgid "Show details"
 msgstr "Show details"
 
@@ -783,7 +787,7 @@ msgstr "Tags"
 msgid "Text"
 msgstr "Text"
 
-#: src/features/document-editor/wysiwyg-editor/lexical/KiwimeriEditor.tsx:106
+#: src/features/document-editor/wysiwyg-editor/lexical/KiwimeriEditor.tsx:94
 msgid "Text..."
 msgstr "Text..."
 
@@ -799,7 +803,7 @@ msgstr "The number of versions to keep per document. Set 0 for unlimited."
 msgid "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page and the Settings page."
 msgstr "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page and the Settings page."
 
-#: src/features/dev-tools/components/TasksCard.tsx:148
+#: src/features/dev-tools/components/TasksCard.tsx:149
 msgid "This will cancel the task"
 msgstr "This will cancel the task"
 
@@ -811,7 +815,7 @@ msgstr "This will delete this folder and move all its items to the current one."
 msgid "This will delete your existing data. Are you sure?"
 msgstr "This will delete your existing data. Are you sure?"
 
-#: src/features/dev-tools/components/TasksCard.tsx:139
+#: src/features/dev-tools/components/TasksCard.tsx:140
 msgid "This will execute the task immediately"
 msgstr "This will execute the task immediately"
 

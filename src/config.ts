@@ -21,6 +21,7 @@ class AppConfig implements ImportMetaEnv {
   DEV_USE_HTTP_IF_POSSIBLE = false;
   FAST_WRITE_THROTTLE = 3000;
   SCHEDULER_INTERVAL = 1000;
+  APP_DIR_NAME = 'Kiwimeri';
   /** @deprecated */
   DEV_OVERRIDE_PLATFORM?: 'web' | 'android' | 'electron';
   DEV_ENABLE_INSPECTOR = true;

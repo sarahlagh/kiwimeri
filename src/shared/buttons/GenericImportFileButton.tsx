@@ -81,7 +81,7 @@ const GenericImportFileButton = ({
       };
 
       import('@/core/infra/filesystem.service')
-        .then(m => m.default.readFile(file))
+        .then(m => m.default.readFileBlob(file))
         .then(async content => {
           if (onContentRead) {
             await readContent(onContentRead(content, file));

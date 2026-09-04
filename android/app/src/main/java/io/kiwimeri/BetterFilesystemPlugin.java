@@ -2,7 +2,10 @@ package io.kiwimeri;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.util.Base64;
@@ -21,9 +24,11 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -85,6 +90,44 @@ public class BetterFilesystemPlugin extends Plugin {
         }
     }
 
+    @PluginMethod()
+    public void readFile(PluginCall call) {
+        String fileName = call.getString("fileName");
+        String appDir = call.getString("appDir");
+        if (fileName == null || appDir == null) {
+            call.reject("parameters fileName and appDir are mandatory");
+            return;
+        }
+        File androidDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
+        if (!androidDir.exists()) {
+            call.reject("Invalid directory");
+            return;
+        }
+        File parent = new File(androidDir, appDir);
+        File file = new File(parent, fileName);
+        if (!file.getParentFile().exists() || !file.exists()) {
+            call.resolve(new JSObject().put("content", null));
+            return;
+        }
+        Uri uri = Uri.fromFile(file);
+        call.resolve(new JSObject().put("content", readFileContent(uri, getContext())));
+    }
+
+    private String readFileContent(Uri fileUri, Context context) {
+        StringBuilder textBuilder = new StringBuilder();
+        ContentResolver cr = context.getContentResolver();
+        try (InputStream in = cr.openInputStream(fileUri);) {
+            int c = 0;
+            while ((c = in.read()) != -1) {
+                textBuilder.append((char) c);
+            }
+        } catch (Throwable e) {
+            Logger.error(e.getMessage());
+            return null;
+        }
+        return textBuilder.toString();
+    }
+
     @ActivityCallback
     private void filePickerCallback(PluginCall call, ActivityResult result) {
         if (call == null) {
@@ -139,6 +182,8 @@ public class BetterFilesystemPlugin extends Plugin {
             if (file.exists() && !overwrite) { // if file with same name exist, try to create a copy
                 File copy = getCopy(fileName, parent);
                 out = new FileOutputStream(copy, true);
+            } else if (file.exists() && overwrite) {
+                out = new FileOutputStream(file, false);
             } else {
                 out = new FileOutputStream(file, true);
             }
