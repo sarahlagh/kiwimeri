@@ -1,4 +1,8 @@
-import { $createLinkNode, AutoLinkNode } from '@lexical/link';
+import {
+  $createAutoLinkNode,
+  $createLinkNode,
+  AutoLinkNode
+} from '@lexical/link';
 import {
   $createListItemNode,
   $createListNode,
@@ -17,6 +21,7 @@ import {
   $createTextNode,
   $isLineBreakNode,
   ElementNode,
+  ParagraphNode,
   RootNode
 } from 'lexical';
 
@@ -408,7 +413,6 @@ const quotesTests: FastWriteScenario[] = [
   }
 ];
 
-// TODO
 const linksTests: FastWriteScenario[] = [
   {
     initial: 'link',
@@ -443,6 +447,19 @@ const linksTests: FastWriteScenario[] = [
     ]
   },
   {
+    initial: 'hello [link](https://example.com)',
+    next: 'hello ',
+    desc: 'remove link',
+    isFullSnapshot: 0,
+    mutate: [
+      root => {
+        const paragraph = root.getFirstChildOrThrow() as ElementNode;
+        const link = paragraph.getChildAtIndex(1);
+        link?.remove();
+      }
+    ]
+  },
+  {
     initial: '<https://example.com>',
     next: 'https://example.com',
     desc: 'set isUnlinked=true to autolink',
@@ -465,26 +482,233 @@ const linksTests: FastWriteScenario[] = [
         link.setIsUnlinked(false);
       }
     ]
+  },
+  {
+    initial: 'hello ',
+    next: 'hello <https://example.com>',
+    desc: 'add autolink',
+    mutate: [
+      root => {
+        const paragraph = root.getFirstChildOrThrow() as ElementNode;
+        const link = $createAutoLinkNode('https://example.com');
+        link.append($createTextNode('https://example.com'));
+        paragraph.append(link);
+      }
+    ]
+  },
+  {
+    initial: 'hello <https://example.com>',
+    next: 'hello ',
+    desc: 'remove autolink',
+    isFullSnapshot: 0,
+    mutate: [
+      root => {
+        const paragraph = root.getFirstChildOrThrow() as ElementNode;
+        const link = paragraph.getChildAtIndex(1);
+        link?.remove();
+      }
+    ]
   }
-  // {
-  //   initial: 'hello ',
-  //   next: 'hello <https://example.com>',
-  //   desc: 'add autolink',
-  //   mutate: [
-  //     root => {
-  //       const paragraph = root.getFirstChildOrThrow() as ElementNode;
-  //       const link = $createAutoLinkNode('https://example.com', {
-  //         rel: 'noreferrer'
-  //       });
-  //       // link.append($createTextNode('link'));
-  //       paragraph.append(link);
-  //     }
-  //   ]
-  // }
 ];
 
-const textAlignTests: FastWriteScenario[] = [];
-const multipleMutationsTests: FastWriteScenario[] = [];
+const textAlignTests: FastWriteScenario[] = [
+  {
+    initial: 'text',
+    next: '<p style="text-align: center;">text</p>',
+    desc: 'add text-align to paragraph',
+    mutate: [
+      root => {
+        const paragraph = root.getFirstChildOrThrow() as ElementNode;
+        paragraph.setFormat('center');
+      }
+    ]
+  },
+  {
+    initial: '<p style="text-align: center;">text</p>',
+    next: '<p style="text-align: right;">text</p>',
+    desc: 'change paragraph alignment',
+    mutate: [
+      root => {
+        const paragraph = root.getFirstChildOrThrow() as ElementNode;
+        paragraph.setFormat('right');
+      }
+    ]
+  },
+  {
+    initial: '<p style="text-align: center;">text</p>',
+    next: 'text',
+    desc: 'remove paragraph text align',
+    mutate: [
+      root => {
+        const paragraph = root.getFirstChildOrThrow() as ElementNode;
+        paragraph.setFormat('');
+      }
+    ]
+  }
+];
+
+const multipleMutationsTests: FastWriteScenario[] = [
+  {
+    initial: 'te',
+    next: 'text',
+    desc: 'multiple edits to same block',
+    mutate: [
+      root => {
+        const paragraph = root.getFirstChildOrThrow() as ParagraphNode;
+        const text = paragraph.getFirstChildOrThrow();
+        text.replace($createTextNode('tex'));
+      },
+      root => {
+        const paragraph = root.getFirstChildOrThrow() as ParagraphNode;
+        const text = paragraph.getFirstChildOrThrow();
+        text.replace($createTextNode('text'));
+      }
+    ]
+  },
+  {
+    initial: 'line 1\n\nline 2\n\nline 3',
+    next: 'line 10\n\nline 20\n\nline 30',
+    desc: 'edits to different blocks',
+    mutate: [
+      root => {
+        const paragraph = root.getChildAtIndex(1) as ParagraphNode;
+        const text = paragraph.getFirstChildOrThrow();
+        text.replace($createTextNode('line 20'));
+      },
+      root => {
+        const paragraph = root.getChildAtIndex(2) as ParagraphNode;
+        const text = paragraph.getFirstChildOrThrow();
+        text.replace($createTextNode('line 30'));
+      },
+      root => {
+        const paragraph = root.getChildAtIndex(0) as ParagraphNode;
+        const text = paragraph.getFirstChildOrThrow();
+        text.replace($createTextNode('line 10'));
+      }
+    ]
+  },
+  {
+    initial: 'line 1\n\nline 2\n\nline 3',
+    next: 'line 1\n\nline 30',
+    desc: 'deleted element shifts order',
+    isFullSnapshot: 1,
+    mutate: [
+      root => {
+        const paragraph = root.getChildAtIndex(2) as ParagraphNode;
+        const text = paragraph.getFirstChildOrThrow();
+        text.replace($createTextNode('line 30'));
+      },
+      root => {
+        const paragraph = root.getChildAtIndex(1) as ParagraphNode;
+        paragraph.remove();
+      }
+    ]
+  },
+  {
+    initial: 'line 1\n\nline 3',
+    next: 'line 1\n\nline 2\n\nline 30',
+    desc: 'added elements shifts order',
+    mutate: [
+      root => {
+        const paragraph = root.getChildAtIndex(1) as ParagraphNode;
+        const text = paragraph.getFirstChildOrThrow();
+        text.replace($createTextNode('line 30'));
+      },
+      root => {
+        const paragraph = root.getChildAtIndex(0) as ParagraphNode;
+        const newParagraph = $createParagraphNode();
+        newParagraph.append($createTextNode('line 2'));
+        paragraph.insertAfter(newParagraph);
+      }
+    ]
+  },
+  {
+    initial: 'line 1',
+    next: 'line 1\n\nline 2\n\nline 3',
+    desc: 'multiple added elements in a row, in order',
+    mutate: [
+      root => {
+        const paragraph = root.getChildAtIndex(0) as ParagraphNode;
+        const newParagraph = $createParagraphNode();
+        newParagraph.append($createTextNode('line 2'));
+        paragraph.insertAfter(newParagraph);
+      },
+      root => {
+        const paragraph = root.getChildAtIndex(1) as ParagraphNode;
+        const newParagraph = $createParagraphNode();
+        newParagraph.append($createTextNode('line 3'));
+        paragraph.insertAfter(newParagraph);
+      }
+    ]
+  },
+  {
+    initial: 'line 1',
+    next: 'line 1\n\nline 2\n\nline 3',
+    desc: 'multiple added elements in a row, in disorder',
+    mutate: [
+      root => {
+        const paragraph = root.getChildAtIndex(0) as ParagraphNode;
+        const newParagraph = $createParagraphNode();
+        newParagraph.append($createTextNode('line 3'));
+        paragraph.insertAfter(newParagraph);
+      },
+      root => {
+        const paragraph = root.getChildAtIndex(0) as ParagraphNode;
+        const newParagraph = $createParagraphNode();
+        newParagraph.append($createTextNode('line 2'));
+        paragraph.insertAfter(newParagraph);
+      }
+    ]
+  },
+  {
+    initial: 'line 1\n\nline 2\n\nline 3',
+    next: 'line 1\n\nline 30',
+    desc: 'deleted element followed by mutation',
+    isFullSnapshot: 0,
+    mutate: [
+      root => {
+        const paragraph = root.getChildAtIndex(1) as ParagraphNode;
+        paragraph.remove();
+      },
+      root => {
+        const paragraph = root.getChildAtIndex(1) as ParagraphNode;
+        const text = paragraph.getFirstChildOrThrow();
+        text.replace($createTextNode('line 30'));
+      }
+    ]
+  },
+  {
+    initial: 'line 1\n\nline 2\n\nline 3',
+    next: 'line 1\n\nline 3',
+    desc: 'mutation followed by deletion of same block',
+    isFullSnapshot: 1,
+    mutate: [
+      root => {
+        const paragraph = root.getChildAtIndex(1) as ParagraphNode;
+        paragraph.getFirstChildOrThrow().replace($createTextNode('line 20'));
+      },
+      root => {
+        root.getChildAtIndex(1)?.remove();
+      }
+    ]
+  },
+  {
+    initial: 'line 1\n\nline 2',
+    next: 'line 1\n\nline 3',
+    desc: 'deletion followed by insertion at same index',
+    isFullSnapshot: 0,
+    mutate: [
+      root => {
+        root.getChildAtIndex(1)?.remove();
+      },
+      root => {
+        const paragraph = $createParagraphNode();
+        paragraph.append($createTextNode('line 3'));
+        root.append(paragraph);
+      }
+    ]
+  }
+];
 
 export const fastWriteScenarios: FastWriteScenario[] = [
   {

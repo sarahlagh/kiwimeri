@@ -9,10 +9,14 @@
     "editor.formatOnSave": false
   },
   "[markdown]": {
-    "editor.formatOnSave": false
+    "editor.formatOnSave": false,
+    "files.insertFinalNewline": false,
+    "files.trimFinalNewlines": false
   },
   "[plaintext]": {
-    "editor.formatOnSave": false
+    "editor.formatOnSave": false,
+    "files.insertFinalNewline": false,
+    "files.trimFinalNewlines": false
   },
   "search.exclude": {
     "**/node_modules": true,
@@ -20,6 +24,7 @@
     "**/*.code-search": true,
     "**/android": true,
     "**/electron": true,
+    "src/locales/": true,
     "yarn.lock": true
   },
   "vitest.configSearchPatternInclude": "vite.config.ts"
