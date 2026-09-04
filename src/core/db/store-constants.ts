@@ -2,6 +2,7 @@ export enum StoreTables {
   Profiles = 'profiles',
   Logs = 'logs'
 }
+export const NATIVE_STORE_EXCLUDE = [StoreTables.Logs];
 
 export enum SpaceTables {
   Collection = 'collection',

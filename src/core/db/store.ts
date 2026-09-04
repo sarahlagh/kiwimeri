@@ -1,4 +1,3 @@
-import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db/with-schemas';
 import {
   createMetrics,
   createQueries,
@@ -6,6 +5,8 @@ import {
 } from 'tinybase/with-schemas';
 import { migrateArchiveDatabase } from './migrate-content-store';
 import { migrate } from './migrations/migrate';
+import { createNativeDbPersister } from './native/native-db-persister';
+import { NATIVE_STORE_EXCLUDE } from './store-constants';
 import {
   spaceArchiveTablesSchema,
   spaceDocContentTablesSchema,
@@ -23,31 +24,32 @@ export function setCurrentProfile(profile: string) {
 }
 
 const profile = getCurrentProfile();
-
-console.log(`[db] create stores for profile [${profile}]`);
-await migrateArchiveDatabase(); // delete after 0.5.0
-
 const spaceName = `kiwimeri-space-${profile}`;
 const spaceArchiveName = `kiwimeri-space-archive-${profile}`;
 const spaceDocContentName = `kiwimeri-space-document-content-${profile}`;
 
+console.log(`[db] create stores for profile [${profile}]`);
+await migrateArchiveDatabase(); // delete after 0.5.0
+
 const rawStore = createStore();
-const storePersister = createIndexedDbPersister(rawStore, 'kiwimeri-store');
+const { main: storePersister, native: nativeStorePersister } =
+  createNativeDbPersister(rawStore, 'kiwimeri-store', NATIVE_STORE_EXCLUDE);
 
 const rawSpace = createStore();
-const spacePersister = createIndexedDbPersister(rawSpace, spaceName);
+const { main: spacePersister, native: nativeSpacePersister } =
+  createNativeDbPersister(rawSpace, spaceName);
 
 const rawSpaceArchive = createStore();
-const spaceArchivePersister = createIndexedDbPersister(
-  rawSpaceArchive,
-  spaceArchiveName
-);
+const { main: spaceArchivePersister, native: nativeSpaceArchivePersister } =
+  createNativeDbPersister(rawSpaceArchive, spaceArchiveName);
 
 const rawSpaceDocContent = createStore();
-const spaceDocContentPersister = createIndexedDbPersister(
-  rawSpaceDocContent,
-  spaceDocContentName
-);
+const {
+  main: spaceDocContentPersister,
+  native: nativeSpaceDocContentPersister
+} = createNativeDbPersister(rawSpaceDocContent, spaceDocContentName);
+
+// LOAD
 
 await Promise.all([
   storePersister.load(),
@@ -55,9 +57,25 @@ await Promise.all([
   spaceDocContentPersister.load(),
   spaceArchivePersister.load()
 ]);
+
+// if stores are empty, try loading the native one
+if (rawSpace.getTableIds().length === 0 && nativeSpacePersister) {
+  console.log('[db] empty stores detected, checking native source');
+  await Promise.all([
+    nativeStorePersister?.load(),
+    nativeSpacePersister.load(),
+    nativeSpaceDocContentPersister?.load(),
+    nativeSpaceArchivePersister?.load()
+  ]);
+}
+
+// MIGRATE
+
 console.log('[db] start to migrate stores');
 await migrate(rawStore, rawSpace, rawSpaceDocContent, rawSpaceArchive);
 console.log('[db] stores migrated');
+
+// APPLY SCHEMA
 
 export const store = rawStore.setSchema(storeTablesSchema, storeValuesSchema);
 export const storeQueries = createQueries(store);
@@ -78,32 +96,23 @@ export const spaceArchiveQueries = createQueries(spaceArchive);
 
 console.log('[db] stores initialized');
 
+// START
+
 await Promise.all([
-  storePersister.save(),
-  spacePersister.save(),
-  spaceDocContentPersister.save(),
-  spaceArchivePersister.save()
-]);
-storePersister.startAutoSave().then(() => {
-  console.log('[store] auto save started');
-});
-spacePersister.startAutoSave().then(() => {
-  console.log('[space] auto save started');
+  storePersister.startAutoSave(),
+  spacePersister.startAutoSave(),
+  spaceDocContentPersister.startAutoSave(),
+  spaceArchivePersister.startAutoSave()
+]).then(() => {
+  console.log('[db] auto save started');
 });
 
-spaceDocContentPersister.startAutoSave().then(() => {
-  console.log('[spaceDocContent] auto save started');
-});
-
-spaceArchivePersister.startAutoSave().then(() => {
-  console.log('[spaceArchive] auto save started');
-});
-
-export async function destroyStore() {
-  return Promise.all([
-    storePersister.destroy(),
-    spacePersister.destroy(),
-    spaceDocContentPersister.destroy(),
-    spaceArchivePersister.destroy()
-  ]);
+// start native persisters outside of this file
+export function getNativePersisters() {
+  return {
+    nativeStorePersister,
+    nativeSpacePersister,
+    nativeSpaceDocContentPersister,
+    nativeSpaceArchivePersister
+  };
 }

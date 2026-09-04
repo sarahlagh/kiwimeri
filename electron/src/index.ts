@@ -123,5 +123,5 @@ ipcMain.handle('capacitor:fs:writeFile', async (event, args) => {
   const filePath = path.join(parentDirectoryPath, filename);
 
   ensureDataDir();
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+  fs.writeFileSync(filePath, JSON.stringify(data), 'utf-8');
 });

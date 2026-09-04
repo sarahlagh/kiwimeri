@@ -43,7 +43,7 @@ setupIonicReact({
 beforeAll(async () => {
   postInitMigrationService['enabled'] = false;
   historyService['enabled'] = false;
-  syncService.start();
+  syncService.initStatusListeners();
 });
 afterAll(() => {
   //

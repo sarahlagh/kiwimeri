@@ -35,6 +35,7 @@ function onRouteLeave() {
 }
 
 const TASKS_MSG: { [key: string]: MessageDescriptor } = {};
+TASKS_MSG[TaskNames.NATIVE_STORE_SAVE] = msg`Native Storage`;
 TASKS_MSG[TaskNames.FAST_WRITE] = msg`Pending Edits`;
 TASKS_MSG[`${TaskNames.FAST_WRITE}_description`] =
   msg`A document has pending changes`;

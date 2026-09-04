@@ -2,11 +2,14 @@ import collectionService from '@/domain/collection/collection.service';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
 import { writer } from '@/domain/document-edits/document-edits.service';
 import { historyService } from '@/domain/history/history.service';
+import { triggerNativeSave } from '../db/native/native-autosave';
 import { SpaceTables } from '../db/store-constants';
 import { AnyData } from '../db/types';
+import { plt } from '../infra/platform';
 import { appLog } from '../logs/logs.service';
 
 export enum TaskNames {
+  NATIVE_STORE_SAVE = 'native_store_save',
   FAST_WRITE = 'fast_write',
   HISTORY_SAVE = 'history_save',
   LOG_GC = 'log_gc',
@@ -23,6 +26,12 @@ class TaskRegistry {
   private registry = new Map<string, RegistryEntry>();
 
   public init() {
+    if (!plt.isWeb()) {
+      this.register(TaskNames.NATIVE_STORE_SAVE, () => {
+        triggerNativeSave();
+      });
+    }
+
     this.register(TaskNames.FAST_WRITE, inputs => {
       const { on, rowId } = inputs!;
       const content = writer.reconcile(on, rowId);

@@ -36,7 +36,7 @@ i18n.activate('en');
 initGlobalTrans();
 
 beforeAll(async () => {
-  syncService.start();
+  syncService.initStatusListeners();
   postInitMigrationService['enabled'] = false;
   historyService['enabled'] = false;
 });

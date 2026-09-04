@@ -26,7 +26,7 @@ export function appInit() {
     networkService.init(initialStatus);
 
     notebooksService.initNotebooks();
-    syncService.start();
+    syncService.initStatusListeners();
     console.debug('[app-init] app started');
   });
 }

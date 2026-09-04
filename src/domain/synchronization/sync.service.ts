@@ -6,7 +6,7 @@ import replicaService from './replica.service';
 export type SyncDirection = 'sync' | 'force-push' | 'force-pull';
 
 class SyncService {
-  public start() {
+  public initStatusListeners() {
     if (deviceSettings.isSyncEnabled()) {
       networkService.onStatusUp(
         '[storage reinit]',
