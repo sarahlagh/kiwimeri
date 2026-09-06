@@ -209,7 +209,7 @@ describe('derived state', () => {
       // reset
       const _spaceContent = space.getContent();
       const _spaceDocContentContent = spaceDocContent.getContent();
-      storageService.nukeSpace();
+      storageService.resetSpace();
 
       // pull
       // TODO not real test

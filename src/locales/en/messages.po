@@ -119,7 +119,7 @@ msgstr "Archive is empty"
 msgid "Are you sure?"
 msgstr "Are you sure?"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:87
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:85
 msgid "cancel"
 msgstr "cancel"
 
@@ -138,8 +138,8 @@ msgid "Cancel Task"
 msgstr "Cancel Task"
 
 #: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:39
-msgid "Change the current app profile here. Restart for this change to apply."
-msgstr "Change the current app profile here. Restart for this change to apply."
+msgid "Change the current app profile here."
+msgstr "Change the current app profile here."
 
 #: src/features/stats-ui/components/ChartContainer.tsx:58
 msgid "Character Count"
@@ -218,7 +218,7 @@ msgstr "Conflicts"
 msgid "Content"
 msgstr "Content"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:67
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:65
 msgid "Create a new profile"
 msgstr "Create a new profile"
 
@@ -244,7 +244,7 @@ msgstr "Creation Date"
 msgid "Current Notebook Settings ({notebookTitle})"
 msgstr "Current Notebook Settings ({notebookTitle})"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:50
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:47
 msgid "Current profile"
 msgstr "Current profile"
 
@@ -264,7 +264,7 @@ msgstr "Delete All"
 msgid "Delete note"
 msgstr "Delete note"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:104
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:102
 msgid "Delete profile"
 msgstr "Delete profile"
 
@@ -524,7 +524,7 @@ msgstr "Modified Date"
 msgid "Name"
 msgstr "Name"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:74
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:72
 msgid "Name your new profile"
 msgstr "Name your new profile"
 
@@ -584,7 +584,7 @@ msgstr "Notebooks found in the archive, they will be converted to folders"
 msgid "Number of versions"
 msgstr "Number of versions"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:91
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:89
 msgid "ok"
 msgstr "ok"
 
@@ -622,7 +622,7 @@ msgstr "Pending Document Version"
 msgid "Pending Edits"
 msgstr "Pending Edits"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:78
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:76
 msgid "profile name"
 msgstr "profile name"
 

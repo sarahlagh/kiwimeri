@@ -129,7 +129,7 @@ describe('storage service', () => {
       );
 
       // del data to test restore
-      storageService.nukeSpace();
+      storageService.resetSpace();
       userPrefs.set('historyIdleTime', 0);
       userPrefs.set('statsEnabled', true);
       localChangesService.clear();
@@ -182,7 +182,7 @@ describe('storage service', () => {
       );
 
       // del data to test restore
-      storageService.nukeSpace();
+      storageService.resetSpace();
       userPrefs.set('historyIdleTime', 0);
       userPrefs.set('statsEnabled', true);
       localChangesService.clear();
@@ -607,13 +607,13 @@ describe('storage service', () => {
     });
 
     it('should handle added rows', () => {
-      storageService.nukeSpace();
+      storageService.resetSpace();
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
       annotsService.addNote(docId);
       const dataAfter = storageService.getSpaceRepresentation();
 
-      storageService.nukeSpace();
+      storageService.resetSpace();
 
       const dataBefore = storageService.getSpaceRepresentation();
       const changes = storageService.afterMergeChanges(dataAfter, dataBefore);
@@ -623,14 +623,14 @@ describe('storage service', () => {
     });
 
     it('should handle conflict rows', () => {
-      storageService.nukeSpace();
+      storageService.resetSpace();
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       space.setCell(SpaceTables.Collection, docId, 'conflictId', 'other-id');
       collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
       annotsService.addNote(docId);
       const dataAfter = storageService.getSpaceRepresentation();
 
-      storageService.nukeSpace();
+      storageService.resetSpace();
 
       const dataBefore = storageService.getSpaceRepresentation();
       const changes = storageService.afterMergeChanges(dataAfter, dataBefore);
@@ -641,7 +641,7 @@ describe('storage service', () => {
     });
 
     it('should handle deleted rows', () => {
-      storageService.nukeSpace();
+      storageService.resetSpace();
       const dataBefore = storageService.getSpaceRepresentation();
 
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
@@ -656,7 +656,7 @@ describe('storage service', () => {
     });
 
     it('should handle updated items', () => {
-      storageService.nukeSpace();
+      storageService.resetSpace();
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
       annotsService.addNote(docId);
@@ -683,7 +683,7 @@ describe('storage service', () => {
     });
 
     it('should handle updated annots', () => {
-      storageService.nukeSpace();
+      storageService.resetSpace();
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
       const noteId = annotsService.addNote(docId);
@@ -707,7 +707,7 @@ describe('storage service', () => {
     });
 
     it('should handle updated user prefs', () => {
-      storageService.nukeSpace();
+      storageService.resetSpace();
       userPrefs.set('maxHistoryPerDoc', 100);
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       collectionService.addFolder(DEFAULT_NOTEBOOK_ID);

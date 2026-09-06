@@ -66,7 +66,9 @@ if (rawSpace.getTableIds().length === 0 && nativeSpacePersister) {
     nativeSpacePersister.load(),
     nativeSpaceDocContentPersister?.load(),
     nativeSpaceArchivePersister?.load()
-  ]);
+  ]).then(() => {
+    console.log('[db] done');
+  });
 }
 
 // MIGRATE

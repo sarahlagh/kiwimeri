@@ -1,4 +1,4 @@
-import { space, store } from '@/core/db/store';
+import { getNativePersisters, space, store } from '@/core/db/store';
 import { storageService } from '@/domain/space-merging/storage.service';
 import GenericExportFileButton from '@/shared/buttons/GenericExportFileButton';
 import GenericImportFileButton from '@/shared/buttons/GenericImportFileButton';
@@ -17,24 +17,24 @@ const OperationsCard = () => {
         <IonCardTitle>Operations</IonCardTitle>
       </IonCardHeader>
 
-      <IonButtons>
+      <IonButtons style={{ overflowX: 'auto' }}>
         <IonButton
           fill="clear"
           onClick={() => {
-            store.setContent([{}, {}]);
+            storageService.nukeStorage();
           }}
           color="danger"
         >
-          nuke store
+          nuke storage
         </IonButton>
         <IonButton
           fill="clear"
           onClick={() => {
-            storageService.nukeSpace();
+            storageService.resetSpace();
           }}
           color="danger"
         >
-          nuke space
+          reset space
         </IonButton>
         <GenericExportFileButton
           fill="clear"
@@ -78,6 +78,28 @@ const OperationsCard = () => {
             return { confirm: true };
           }}
         />
+        <IonButton
+          color={'danger'}
+          onClick={async () => {
+            console.debug('start loading native data');
+            const {
+              nativeStorePersister,
+              nativeSpacePersister,
+              nativeSpaceDocContentPersister,
+              nativeSpaceArchivePersister
+            } = getNativePersisters();
+            await Promise.all([
+              nativeStorePersister?.load(),
+              nativeSpacePersister?.load(),
+              nativeSpaceDocContentPersister?.load(),
+              nativeSpaceArchivePersister?.load()
+            ]).then(() => {
+              console.debug('load native data done');
+            });
+          }}
+        >
+          LOAD NATIVE
+        </IonButton>
       </IonButtons>
     </IonCard>
   );

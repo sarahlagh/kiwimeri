@@ -1,4 +1,5 @@
-import { space, spaceArchive, spaceDocContent } from '@/core/db/store';
+import { space, spaceArchive, spaceDocContent, store } from '@/core/db/store';
+import { startDbListeners, stopDbListeners } from '@/core/db/store-listeners';
 import { schedule } from '@/core/tasks/scheduler.service';
 import { TaskNames } from '@/core/tasks/tasks-registry';
 import notebooksService from '@/domain/collection/notebooks.service';
@@ -12,7 +13,16 @@ class StorageService {
     return storageMergeService.getSpaceRepresentation(schemaVersion);
   }
 
-  public nukeSpace() {
+  public nukeStorage() {
+    stopDbListeners();
+    store.setContent([{}, {}]);
+    space.setContent([{}, {}]);
+    spaceDocContent.setContent([{}, {}]);
+    spaceArchive.setContent([{}, {}]);
+    startDbListeners();
+  }
+
+  public resetSpace() {
     space.setContent([{}, {}]);
     spaceDocContent.setContent([{}, {}]);
     spaceArchive.setContent([{}, {}]);

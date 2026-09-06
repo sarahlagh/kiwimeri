@@ -740,7 +740,7 @@ class ImportService {
     const firstNotebookTitle = firstLevel[0].title;
     const firstNotebookCreated = firstLevel[0].createdAt;
 
-    storageService.nukeSpace();
+    storageService.resetSpace();
     const notebook = notebooksService.getCurrentNotebook();
     firstLevel[0].title = collectionService.getItemTitle(notebook);
 
