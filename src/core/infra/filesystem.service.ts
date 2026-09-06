@@ -120,11 +120,20 @@ export class FilesystemService {
     asBase64 = false,
     appDir = appConfig.APP_DIR_NAME
   ) {
-    const rawContent = (await this.readDataInChunk(fileName, asBase64, appDir))
-      .content;
-    if (!rawContent) return null;
-    if (asBase64) return atob(rawContent); // TODO to u8
-    return rawContent;
+    // only stream on android
+    if (plt.isAndroid()) {
+      const rawContent = await this.readDataInChunk(fileName, asBase64, appDir);
+      if (!rawContent) return null;
+      if (asBase64) return atob(rawContent); // TODO to u8
+      return rawContent;
+    }
+
+    const resp = await BetterFilesystem.readFile({
+      fileName,
+      appDir,
+      asBase64
+    });
+    return resp.content;
   }
 
   private async readDataInChunk(
@@ -143,13 +152,13 @@ export class FilesystemService {
         streamId
       });
       if (!resp.content) {
-        return { content: null };
+        return null;
       }
       content += resp.content;
       streamId = resp.streamId;
       eof = resp.eof;
     } while (!eof);
-    return { content };
+    return content;
   }
 
   async readFileBlob(file: File): Promise<ArrayBuffer> {

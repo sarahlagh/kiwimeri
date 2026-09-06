@@ -11,19 +11,20 @@ export interface BetterFilesystemPlugin {
     eof?: boolean;
     /** only applicable on android: if content should be decoded as base64 - false by default */
     isBase64?: boolean;
-    /** only applicable on android: if the app should open a file picker - true by default */
+    /** only applicable on android/electron: if the app should open a file picker - true by default */
     requestFilePicker?: boolean;
-    /** only applicable on android if requestFilePicker == false: an optional parent directory under Documents where to write the file */
+    /** only applicable on android/electron if requestFilePicker == false: an optional parent directory under Documents where to write the file */
     appDir?: string;
-    /** only applicable on android if requestFilePicker == false: whether existing files should be overwritten - false by default */
+    /** only applicable on android/electron if requestFilePicker == false: whether existing files should be overwritten - false by default */
     overwrite?: boolean;
   }): Promise<{ success: boolean; streamId?: number }>;
 
   readFile(data: {
     fileName: string;
     appDir: string;
+    /** only applicable on android: the identifier for streaming */
     streamId?: number;
-    /** should be true if file is binary; false if text */
+    /** only applicable on android: should be true if file is binary; false if text */
     asBase64?: boolean;
   }): Promise<{
     content: string | null;
@@ -54,15 +55,62 @@ export class WebBetterFilesystem
     return { success: true };
   }
 
-  readFile(): Promise<never> {
+  readFile(): Promise<{
+    content: string | null;
+    eof: boolean;
+    streamId?: number;
+  }> {
     throw new Error('readFile not available for web');
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const electronAPI = (window as any).electronAPI;
+
+export class ElectronBetterFilesystem
+  extends WebBetterFilesystem
+  implements BetterFilesystemPlugin
+{
+  async exportToFile(data: {
+    fileName: string;
+    mimeType: string;
+    content: string | Uint8Array<ArrayBufferLike>;
+    requestFilePicker?: boolean;
+    appDir?: string;
+    overwrite?: boolean;
+  }) {
+    if (data.requestFilePicker !== false) {
+      return super.exportToFile(data);
+    }
+    // TODO: overwrite, appDir, binary as base64, catch error
+    await electronAPI.writeFile(data.fileName, data.content);
+    return { success: true };
+  }
+
+  async readFile(data?: {
+    fileName: string;
+    appDir: string;
+    streamId?: number;
+  }): Promise<{
+    content: string | null;
+    eof: boolean;
+    streamId?: number;
+  }> {
+    // TODO handle binary file
+    // TODO: appDir, catch error
+    const content = await electronAPI.readFile(data?.fileName);
+    return {
+      content,
+      eof: true
+    };
   }
 }
 
 const BetterFilesystem = registerPlugin<BetterFilesystemPlugin>(
   'BetterFilesystem',
   {
-    web: () => new WebBetterFilesystem()
+    web: () => new WebBetterFilesystem(),
+    electron: () => new ElectronBetterFilesystem()
   }
 );
 

@@ -8,15 +8,20 @@ import { messages as enMessages } from './locales/en/messages';
 
 import LoadingApp from './app/pages/LoadingApp';
 
+import { appConfig } from './config';
+import { plt } from './core/infra/platform';
 import './core/infra/polyfills/prism-polyfill';
 
 setupIonicReact({
   sanitizerEnabled: true,
   innerHTMLTemplatesEnabled: true
 });
-i18n.load('en', enMessages);
-i18n.activate('en');
+i18n.load(appConfig.DEFAULT_LANG, enMessages);
+i18n.activate(appConfig.DEFAULT_LANG);
 initGlobalTrans();
+
+/* need to import plt before App */
+console.log('detected platform', plt.getPlatform());
 
 const App = lazy(() => import('./App'));
 

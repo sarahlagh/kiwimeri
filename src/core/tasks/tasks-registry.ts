@@ -2,7 +2,7 @@ import collectionService from '@/domain/collection/collection.service';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
 import { writer } from '@/domain/document-edits/document-edits.service';
 import { historyService } from '@/domain/history/history.service';
-import { triggerNativeSave } from '../db/native/native-autosave';
+import { triggerNativeSave } from '../db/native/trigger-native-save';
 import { SpaceTables } from '../db/store-constants';
 import { AnyData } from '../db/types';
 import { plt } from '../infra/platform';

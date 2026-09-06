@@ -5,7 +5,10 @@ import {
 } from 'tinybase/with-schemas';
 import { migrateArchiveDatabase } from './migrate-content-store';
 import { migrate } from './migrations/migrate';
-import { createNativeDbPersister } from './native/native-db-persister';
+import {
+  createNativeDbPersister,
+  loadFsService
+} from './native/native-db-persister';
 import { NATIVE_STORE_EXCLUDE } from './store-constants';
 import {
   spaceArchiveTablesSchema,
@@ -61,6 +64,7 @@ await Promise.all([
 // if stores are empty, try loading the native one
 if (rawSpace.getTableIds().length === 0 && nativeSpacePersister) {
   console.log('[db] empty stores detected, checking native source');
+  await loadFsService();
   await Promise.all([
     nativeStorePersister?.load(),
     nativeSpacePersister.load(),

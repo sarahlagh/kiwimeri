@@ -23,6 +23,7 @@ class AppConfig implements ImportMetaEnv {
   NATIVE_SAVE_THROTTLE = 30000;
   SCHEDULER_INTERVAL = 1000;
   APP_DIR_NAME = 'Kiwimeri';
+  DEFAULT_LANG = 'en';
   /** @deprecated */
   DEV_OVERRIDE_PLATFORM?: 'web' | 'android' | 'electron';
   DEV_ENABLE_INSPECTOR = true;
