@@ -21,7 +21,7 @@ export class FilesystemService {
       appDir: appConfig.APP_DIR_NAME
     };
     if (plt.isAndroid()) {
-      return this.startStreaming(fileName, content, mimeType, optsBag);
+      return this.streamDataToWrite(fileName, content, mimeType, optsBag);
     }
 
     return BetterFilesystem.exportToFile({
@@ -38,7 +38,7 @@ export class FilesystemService {
     mimeType = 'application/json'
   ) {
     if (plt.isAndroid()) {
-      return this.startStreaming(fileName, content, mimeType);
+      return this.streamDataToWrite(fileName, content, mimeType);
     }
 
     return BetterFilesystem.exportToFile({
@@ -48,7 +48,7 @@ export class FilesystemService {
     });
   }
 
-  private async startStreaming(
+  private async streamDataToWrite(
     fileName: string,
     content: string | Uint8Array<ArrayBufferLike>,
     mimeType = 'application/json',
@@ -84,7 +84,6 @@ export class FilesystemService {
     getChunkAsString: (chunk: string | Uint8Array<ArrayBuffer>) => string,
     optsBag?: OptionsBag
   ) {
-    console.debug('send binary data as base64', mimeType, content.length);
     let pos = 0;
     let streamId: number | undefined = undefined;
     do {
@@ -97,7 +96,6 @@ export class FilesystemService {
           : Math.min(pos + 150000, content.length);
       const chunk = getChunkAsString(content.slice(pos, end));
       const eof = end >= content.length;
-      console.debug('send chunk', 'pos', pos, end - pos, eof, streamId);
 
       const resp = await BetterFilesystem.exportToFile({
         fileName,
@@ -109,7 +107,6 @@ export class FilesystemService {
         ...optsBag
       });
       pos = end;
-      console.debug('success', resp.success);
       if (!resp.success) {
         return { success: false };
       }
@@ -118,8 +115,41 @@ export class FilesystemService {
     return { success: true };
   }
 
-  async readFile(fileName: string, appDir = appConfig.APP_DIR_NAME) {
-    return (await BetterFilesystem.readFile({ fileName, appDir })).content;
+  async readFile(
+    fileName: string,
+    asBase64 = false,
+    appDir = appConfig.APP_DIR_NAME
+  ) {
+    const rawContent = (await this.readDataInChunk(fileName, asBase64, appDir))
+      .content;
+    if (!rawContent) return null;
+    if (asBase64) return atob(rawContent); // TODO to u8
+    return rawContent;
+  }
+
+  private async readDataInChunk(
+    fileName: string,
+    asBase64: boolean,
+    appDir: string
+  ) {
+    let content = '';
+    let eof = false;
+    let streamId: number | undefined = undefined;
+    do {
+      const resp = await BetterFilesystem.readFile({
+        fileName,
+        appDir,
+        asBase64,
+        streamId
+      });
+      if (!resp.content) {
+        return { content: null };
+      }
+      content += resp.content;
+      streamId = resp.streamId;
+      eof = resp.eof;
+    } while (!eof);
+    return { content };
   }
 
   async readFileBlob(file: File): Promise<ArrayBuffer> {

@@ -22,7 +22,14 @@ export interface BetterFilesystemPlugin {
   readFile(data: {
     fileName: string;
     appDir: string;
-  }): Promise<{ content: string | null }>;
+    streamId?: number;
+    /** should be true if file is binary; false if text */
+    asBase64?: boolean;
+  }): Promise<{
+    content: string | null;
+    eof: boolean;
+    streamId?: number;
+  }>;
 }
 
 export class WebBetterFilesystem
@@ -47,7 +54,7 @@ export class WebBetterFilesystem
     return { success: true };
   }
 
-  readFile(): Promise<{ content: string | null }> {
+  readFile(): Promise<never> {
     throw new Error('readFile not available for web');
   }
 }

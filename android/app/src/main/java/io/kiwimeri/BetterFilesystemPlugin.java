@@ -2,8 +2,6 @@ package io.kiwimeri;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -24,7 +22,7 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
 
-import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -44,7 +42,12 @@ public class BetterFilesystemPlugin extends Plugin {
 
     private static class StreamedFile {
         OutputStream out;
+        InputStream in;
+        int readOffset;
+        long fileLength;
     }
+    private static record Chunk(String chunk, boolean eof) {}
+
     private int idCount = 1;
     private static final Map<Integer, StreamedFile> streamedFiles = new HashMap<>();
 
@@ -94,10 +97,22 @@ public class BetterFilesystemPlugin extends Plugin {
     public void readFile(PluginCall call) {
         String fileName = call.getString("fileName");
         String appDir = call.getString("appDir");
+        Integer streamId = call.getInt("streamId");
         if (fileName == null || appDir == null) {
             call.reject("parameters fileName and appDir are mandatory");
             return;
         }
+        // is already streaming
+        if (streamId != null) {
+            Logger.debug("existing streamId = " + streamId);
+            if (!streamedFiles.containsKey(streamId)) {
+                call.reject("invalid streamId");
+                return;
+            }
+            readFileChunk(call, streamId, streamedFiles.get(streamId));
+            return;
+        }
+        // else start streaming
         File androidDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
         if (!androidDir.exists()) {
             call.reject("Invalid directory");
@@ -106,26 +121,17 @@ public class BetterFilesystemPlugin extends Plugin {
         File parent = new File(androidDir, appDir);
         File file = new File(parent, fileName);
         if (!file.getParentFile().exists() || !file.exists()) {
-            call.resolve(new JSObject().put("content", null));
+            call.resolve(new JSObject().put("content", null).put("eof", true));
             return;
         }
         Uri uri = Uri.fromFile(file);
-        call.resolve(new JSObject().put("content", readFileContent(uri, getContext())));
-    }
-
-    private String readFileContent(Uri fileUri, Context context) {
-        StringBuilder textBuilder = new StringBuilder();
-        ContentResolver cr = context.getContentResolver();
-        try (InputStream in = cr.openInputStream(fileUri);) {
-            int c = 0;
-            while ((c = in.read()) != -1) {
-                textBuilder.append((char) c);
-            }
-        } catch (Throwable e) {
-            Logger.error(e.getMessage());
-            return null;
+        try {
+            streamId = this.openStream(getContext().getContentResolver().openInputStream(uri), file.length());
+            readFileChunk(call, streamId, streamedFiles.get(streamId));
+        } catch (IOException e) {
+            Logger.error("Error reading file", e);
+            call.reject(e.getMessage());
         }
-        return textBuilder.toString();
     }
 
     @ActivityCallback
@@ -247,6 +253,51 @@ public class BetterFilesystemPlugin extends Plugin {
         streamedFile.out = out;
         streamedFiles.put(streamId, streamedFile);
         return streamId;
+    }
+
+    private int openStream(InputStream in, long fileLength) {
+        int streamId = idCount++;
+        StreamedFile streamedFile = new StreamedFile();
+        streamedFile.in = in;
+        streamedFile.readOffset = 0;
+        streamedFile.fileLength = fileLength;
+        streamedFiles.put(streamId, streamedFile);
+        return streamId;
+    }
+
+    private void readFileChunk(PluginCall call, int streamId, StreamedFile streamedFile) {
+        try {
+            boolean asBase64 = Boolean.TRUE.equals(call.getBoolean("asBase64", false));
+            Chunk chunk = readIn(streamedFile, asBase64);
+            if (chunk.eof) {
+                streamedFile.in.close();
+                streamedFiles.remove(streamId);
+                Logger.debug("successfully removed streamId = " + streamId);
+            }
+            call.resolve(new JSObject()
+                    .put("content", chunk.chunk)
+                    .put("eof", chunk.eof)
+                    .put("streamId", streamId));
+        } catch (Throwable e) {
+            Logger.error("Error writing to file", e);
+            try { streamedFile.in.close(); } catch (Exception e2) { /* ignore */ }
+            streamedFiles.remove(streamId);
+            call.reject(e.getMessage());
+        }
+    }
+
+    private static final int CHUNK_SIZE = 3000000;
+    private Chunk readIn(StreamedFile streamedFile, boolean asBase64) throws IOException {
+        long fileLength = streamedFile.fileLength;
+        int offset = streamedFile.readOffset;
+        int size = Math.toIntExact(Math.min(CHUNK_SIZE, fileLength - offset));
+        byte[] arr = new byte[size];
+        streamedFile.in.read(arr, 0, size);
+        streamedFile.readOffset += size;
+        if (asBase64) {
+            return new Chunk(Base64.encodeToString(arr, Base64.NO_WRAP), fileLength - streamedFile.readOffset <= 0);
+        }
+        return new Chunk(new String(arr), fileLength - streamedFile.readOffset <= 0);
     }
 
     private boolean isStoragePermissionGranted() {
