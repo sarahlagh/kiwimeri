@@ -19,9 +19,7 @@ function addTablesListener<S extends OptionalSchemas>(
   tableIds.forEach(tableId => {
     const id = _store.addTableListener(
       tableId,
-      () => {
-        schedule.in(DELAY, TaskNames.NATIVE_STORE_SAVE, { storeId });
-      },
+      () => schedule.in(DELAY, TaskNames.NATIVE_STORE_SAVE, { storeId }),
       isMutator
     );
     listeners.push([storeId, id]);
@@ -44,9 +42,11 @@ export function startStoreChangesListeners() {
   ]);
   addTablesListener(SID.spaceArchive, spaceArchive, ['history']);
 
-  const id = space.addValuesListener(() => {
-    schedule.in(DELAY, TaskNames.NATIVE_STORE_SAVE, { storeId: SID.space });
-  }, true);
+  const id = space.addValuesListener(
+    () =>
+      schedule.in(DELAY, TaskNames.NATIVE_STORE_SAVE, { storeId: SID.space }),
+    true
+  );
   listeners.push([SID.space, id]);
 }
 

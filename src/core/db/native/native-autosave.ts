@@ -18,7 +18,7 @@ export function triggerNativeSave(storeId?: SID) {
   }
 
   const log = `[${storeId ? storeId : 'all'}]`;
-  console.info(log, 'start native storage backup...');
+  console.log(log, 'start native storage backup...');
   const promises: Promise<unknown>[] = [];
   if (!storeId) {
     promises.push(nativeStorePersister.save());
@@ -43,7 +43,7 @@ export function triggerNativeSave(storeId?: SID) {
   }
   Promise.all(promises)
     .then(() => {
-      console.info(log, 'native storage backup done');
+      console.log(log, 'native storage backup done');
     })
     .catch(e => {
       console.error(log, 'caught error saving to native store', e);

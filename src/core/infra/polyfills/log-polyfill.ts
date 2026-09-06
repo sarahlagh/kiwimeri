@@ -28,6 +28,7 @@ if (!plt.isDev()) {
   console.trace = fnFactory(originalConsole.trace, 'trace');
   console.debug = fnFactory(originalConsole.debug, 'debug');
   console.log = fnFactory(originalConsole.log, 'info');
+  console.info = fnFactory(originalConsole.info, 'info');
   console.warn = fnFactory(originalConsole.warn, 'warn');
   console.error = fnFactory(originalConsole.error, 'error');
 }
