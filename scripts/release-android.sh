@@ -10,6 +10,12 @@ if [ -f ".env.production.local" ]; then
     mv .env.production.local .env.production.local.bak
 fi
 
+if [ "$target" == "prod" ]; then
+    sed -i -r "s/VITE_APP_DIR_NAME='(.*)'/VITE_APP_DIR_NAME='Kiwimeri'/" .env.production 
+elif [ "$target" == "beta" ]; then
+    sed -i -r "s/VITE_APP_DIR_NAME='(.*)'/VITE_APP_DIR_NAME='KiwimeriBeta'/" .env.production 
+fi
+
 echo "building the app for production"
 
 npx ionic cap build android --no-open --prod
@@ -22,3 +28,4 @@ if [ -f ".env.production.local.bak" ]; then
 fi
 
 cp -R android/environments/local/* android
+sed -i -r "s/VITE_APP_DIR_NAME='(.*)'/VITE_APP_DIR_NAME='Kiwimeri'/" .env.production 
