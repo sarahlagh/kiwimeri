@@ -36,10 +36,7 @@ const ProfileSwitcherSettings = () => {
           <Trans>Profile Settings</Trans>
         </IonCardTitle>
         <IonCardSubtitle>
-          <Trans>
-            Change the current app profile here. Restart for this change to
-            apply.
-          </Trans>
+          <Trans>Change the current app profile here.</Trans>
         </IonCardSubtitle>
       </IonCardHeader>
 
@@ -53,6 +50,7 @@ const ProfileSwitcherSettings = () => {
                 const newValue = e.detail.value as string;
                 setCurrentProfile(newValue);
                 setSelectedProfile(newValue);
+                location.reload();
               }}
             >
               {availableProfiles.map(name => (
