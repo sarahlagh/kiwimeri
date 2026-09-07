@@ -2,6 +2,7 @@ import collectionService from '@/domain/collection/collection.service';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
 import { writer } from '@/domain/document-edits/document-edits.service';
 import { historyService } from '@/domain/history/history.service';
+import { clearNativeDbBackups } from '../db/native/native-db-persister';
 import { triggerNativeSave } from '../db/native/trigger-native-save';
 import { SpaceTables } from '../db/store-constants';
 import { AnyData } from '../db/types';
@@ -13,7 +14,8 @@ export enum TaskNames {
   FAST_WRITE = 'fast_write',
   HISTORY_SAVE = 'history_save',
   LOG_GC = 'log_gc',
-  HISTORY_GC = 'history_gc'
+  HISTORY_GC = 'history_gc',
+  DELETE_NATIVE_BACKUPS = 'delete_native_backups'
 }
 
 export type TaskCallback = (inputs?: AnyData) => void;
@@ -29,6 +31,13 @@ class TaskRegistry {
     if (plt.hasNativeSupport()) {
       this.register(TaskNames.NATIVE_STORE_SAVE, inputs => {
         triggerNativeSave(inputs?.storeId);
+      });
+      this.register(TaskNames.DELETE_NATIVE_BACKUPS, inputs => {
+        const profileName = inputs?.profileName;
+        if (!profileName) return;
+        setTimeout(async () => {
+          await clearNativeDbBackups(profileName);
+        });
       });
     }
 

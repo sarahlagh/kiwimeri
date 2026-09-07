@@ -35,11 +35,18 @@ export interface BetterFilesystemPlugin {
   renameFile(data: {
     fileName: string;
     newFileName: string;
+    /** only applicable on android: an optional parent directory under Documents where the file is located */
     appDir: string;
     // overwrite?: boolean;
   }): Promise<{
     success: boolean;
   }>;
+
+  deleteFile(data: {
+    fileName: string;
+    /** only applicable on android: an optional parent directory under Documents where the file is located */
+    appDir: string;
+  }): Promise<{ success: boolean }>;
 }
 
 export class WebBetterFilesystem
@@ -78,6 +85,13 @@ export class WebBetterFilesystem
     success: boolean;
   }> {
     throw new Error('renameFile not available for web');
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  deleteFile(data: never): Promise<{
+    success: boolean;
+  }> {
+    throw new Error('deleteFile not available for web');
   }
 }
 
@@ -145,6 +159,18 @@ export class ElectronBetterFilesystem
       return { success: true };
     } catch (e) {
       console.error('error renaming file', e);
+      return { success: false };
+    }
+  }
+
+  async deleteFile(data: { fileName: string; appDir: string }): Promise<{
+    success: boolean;
+  }> {
+    try {
+      electronAPI.deleteFile(data.fileName, data.appDir);
+      return { success: true };
+    } catch (e) {
+      console.error('error deleting file', e);
       return { success: false };
     }
   }

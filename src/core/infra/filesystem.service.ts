@@ -161,24 +161,6 @@ export class FilesystemService {
     return content;
   }
 
-  async readFileBlob(file: File): Promise<ArrayBuffer> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.addEventListener(
-        'load',
-        () => {
-          if (reader.result === null) {
-            reject();
-          } else {
-            resolve(reader.result as ArrayBuffer);
-          }
-        },
-        false
-      );
-      reader.readAsArrayBuffer(file);
-    });
-  }
-
   async renameFile(
     fileName: string,
     newFileName: string,
@@ -187,6 +169,13 @@ export class FilesystemService {
     return await BetterFilesystem.renameFile({
       fileName,
       newFileName,
+      appDir
+    });
+  }
+
+  async deleteFile(fileName: string, appDir = appConfig.APP_DIR_NAME) {
+    return await BetterFilesystem.deleteFile({
+      fileName,
       appDir
     });
   }

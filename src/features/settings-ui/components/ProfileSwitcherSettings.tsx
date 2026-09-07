@@ -1,5 +1,6 @@
 import { APPICONS } from '@/constants';
 import { getCurrentProfile, setCurrentProfile } from '@/core/db/store';
+import { plt } from '@/core/infra/platform';
 import { profileService } from '@/domain/profiles/profile.service';
 import {
   IonAlert,
@@ -36,7 +37,13 @@ const ProfileSwitcherSettings = () => {
           <Trans>Profile Settings</Trans>
         </IonCardTitle>
         <IonCardSubtitle>
-          <Trans>Change the current app profile here.</Trans>
+          <Trans>Manage your app profiles here.</Trans>
+          {plt.hasNativeSupport() && (
+            <Trans>
+              &nbsp;Note that profiles have backups that may be kept kept up to
+              one day after the profile is deleted.
+            </Trans>
+          )}
         </IonCardSubtitle>
       </IonCardHeader>
 

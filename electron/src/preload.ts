@@ -11,5 +11,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   writeFile: (filename, data) =>
     ipcRenderer.invoke('capacitor:fs:writeFile', [filename, data]),
   renameFile: (filename, newFileName) =>
-    ipcRenderer.invoke('capacitor:fs:renameFile', [filename, newFileName])
+    ipcRenderer.invoke('capacitor:fs:renameFile', [filename, newFileName]),
+  deleteFile: filename =>
+    ipcRenderer.invoke('capacitor:fs:deleteFile', [filename])
 });

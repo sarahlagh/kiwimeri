@@ -32,6 +32,24 @@ type GenericImportFileButtonProps = {
   React.HTMLAttributes<HTMLIonButtonElement> &
   React.HTMLAttributes<HTMLIonIconElement>;
 
+async function readFileBlob(file: File): Promise<ArrayBuffer> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener(
+      'load',
+      () => {
+        if (reader.result === null) {
+          reject();
+        } else {
+          resolve(reader.result as ArrayBuffer);
+        }
+      },
+      false
+    );
+    reader.readAsArrayBuffer(file);
+  });
+}
+
 const GenericImportFileButton = ({
   label,
   icon,
@@ -80,17 +98,15 @@ const GenericImportFileButton = ({
           });
       };
 
-      import('@/core/infra/filesystem.service')
-        .then(m => m.default.readFileBlob(file))
-        .then(async content => {
-          if (onContentRead) {
-            await readContent(onContentRead(content, file));
-          } else if (onContentReadAsString) {
-            await readContent(
-              onContentReadAsString(new TextDecoder().decode(content), file)
-            );
-          }
-        });
+      readFileBlob(file).then(async content => {
+        if (onContentRead) {
+          await readContent(onContentRead(content, file));
+        } else if (onContentReadAsString) {
+          await readContent(
+            onContentReadAsString(new TextDecoder().decode(content), file)
+          );
+        }
+      });
     }
   };
 

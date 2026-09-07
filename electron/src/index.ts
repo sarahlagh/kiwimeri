@@ -115,7 +115,7 @@ ipcMain.handle('capacitor:fs:readFile', async (event, args) => {
     const data = fs.readFileSync(filePath, 'utf-8');
     return JSON.parse(data);
   }
-  return {};
+  return null;
 });
 
 ipcMain.handle('capacitor:fs:writeFile', async (event, args) => {
@@ -133,4 +133,12 @@ ipcMain.handle('capacitor:fs:renameFile', async (event, args) => {
 
   ensureDataDir();
   fs.renameSync(filePath, newFilePath);
+});
+
+ipcMain.handle('capacitor:fs:deleteFile', async (event, args) => {
+  const [filename] = args;
+  const filePath = path.join(parentDirectoryPath, filename);
+
+  ensureDataDir();
+  fs.rmSync(filePath, { force: true });
 });

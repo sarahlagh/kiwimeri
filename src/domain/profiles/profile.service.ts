@@ -1,5 +1,8 @@
 import { getCurrentProfile, store } from '@/core/db/store';
 import { StoreTables } from '@/core/db/store-constants';
+import { plt } from '@/core/infra/platform';
+import { schedule } from '@/core/tasks/scheduler.service';
+import { TaskNames } from '@/core/tasks/tasks-registry';
 
 class ProfileService {
   public createProfile(profileName: string) {
@@ -22,6 +25,14 @@ class ProfileService {
       );
       await this.deleteDatabase(`kiwimeri-space-archive-${profileName}`);
     });
+    // schedule in a day: hard deletion of the profile backups
+    // leaves a day to recreate the profile without losing data
+    // TODO don't hardcode the delay
+    if (plt.hasNativeSupport()) {
+      schedule.in(3600000 * 24, TaskNames.DELETE_NATIVE_BACKUPS, {
+        profileName
+      });
+    }
   }
 
   private deleteDatabase(name: string): Promise<void> {

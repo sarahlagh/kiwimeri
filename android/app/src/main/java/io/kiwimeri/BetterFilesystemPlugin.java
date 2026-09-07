@@ -156,6 +156,26 @@ public class BetterFilesystemPlugin extends Plugin {
         call.resolve(new JSObject().put("success", res));
     }
 
+    @PluginMethod
+    public void deleteFile(PluginCall call) {
+        String fileName = call.getString("fileName");
+        String appDir = call.getString("appDir");
+        if (fileName == null || appDir == null) {
+            call.reject("parameters fileName and appDir are mandatory");
+            return;
+        }
+        File androidDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
+        if (!androidDir.exists()) {
+            call.reject("Invalid directory");
+            return;
+        }
+        File parent = new File(androidDir, appDir);
+        File file = new File(parent, fileName);
+
+        boolean res = file.delete();
+        call.resolve(new JSObject().put("success", res));
+    }
+
     @ActivityCallback
     private void filePickerCallback(PluginCall call, ActivityResult result) {
         if (call == null) {

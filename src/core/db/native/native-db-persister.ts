@@ -32,7 +32,11 @@ function createNativeFSBackupPersister(
     async () => {
       await loadFsService();
       const content = await filesystemService!.readFile(fileName);
-      if (content === null) return undefined;
+      if (content === null) {
+        console.log('no native backup found', fileName);
+        return undefined;
+      }
+      console.log('native backup found', fileName);
       return JSON.parse(content);
     },
     async getContent => {
@@ -71,4 +75,19 @@ export function createNativeDbPersister(
     main: createIndexedDbPersister(_store as unknown as UntypedStore, name),
     native
   };
+}
+
+export async function clearNativeDbBackups(profile: string) {
+  if (!plt.hasNativeSupport()) return;
+  console.log('deleting native backup files for', profile);
+  await loadFsService();
+  const spaceName = `kiwimeri-space-${profile}-backup.json`;
+  const spaceArchiveName = `kiwimeri-space-archive-${profile}-backup.json`;
+  const spaceDocContentName = `kiwimeri-space-document-content-${profile}-backup.json`;
+  await Promise.all([
+    filesystemService!.deleteFile(spaceName),
+    filesystemService!.deleteFile(spaceArchiveName),
+    filesystemService!.deleteFile(spaceDocContentName)
+  ]);
+  console.log('deleting native backup files for', profile, 'done');
 }

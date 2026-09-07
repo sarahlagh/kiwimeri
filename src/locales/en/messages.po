@@ -44,6 +44,10 @@ msgstr "Manual"
 msgid " (new)"
 msgstr " (new)"
 
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:42
+msgid " Note that profiles have backups that may be kept kept up to one day after the profile is deleted."
+msgstr " Note that profiles have backups that may be kept kept up to one day after the profile is deleted."
+
 #: src/features/collection-notes-ui/components/NotesMenuPreview.tsx:41
 msgid "-- conflict --"
 msgstr "-- conflict --"
@@ -93,7 +97,7 @@ msgstr "Add config"
 msgid "An error occurred during sync."
 msgstr "An error occurred during sync."
 
-#: src/shared/buttons/GenericImportFileButton.tsx:46
+#: src/shared/buttons/GenericImportFileButton.tsx:64
 msgid "An error occurred loading the file"
 msgstr "An error occurred loading the file"
 
@@ -119,7 +123,7 @@ msgstr "Archive is empty"
 msgid "Are you sure?"
 msgstr "Are you sure?"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:85
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:92
 msgid "cancel"
 msgstr "cancel"
 
@@ -133,13 +137,9 @@ msgstr "cancel"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: src/features/dev-tools/components/TasksCard.tsx:175
+#: src/features/dev-tools/components/TasksCard.tsx:176
 msgid "Cancel Task"
 msgstr "Cancel Task"
-
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:39
-msgid "Change the current app profile here."
-msgstr "Change the current app profile here."
 
 #: src/features/stats-ui/components/ChartContainer.tsx:58
 msgid "Character Count"
@@ -174,7 +174,7 @@ msgstr "Choose a session length"
 msgid "Choose where to save your work"
 msgstr "Choose where to save your work"
 
-#: src/features/dev-tools/components/TasksCard.tsx:135
+#: src/features/dev-tools/components/TasksCard.tsx:136
 msgid "close"
 msgstr "close"
 
@@ -218,7 +218,7 @@ msgstr "Conflicts"
 msgid "Content"
 msgstr "Content"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:65
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:72
 msgid "Create a new profile"
 msgstr "Create a new profile"
 
@@ -244,7 +244,7 @@ msgstr "Creation Date"
 msgid "Current Notebook Settings ({notebookTitle})"
 msgstr "Current Notebook Settings ({notebookTitle})"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:47
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:54
 msgid "Current profile"
 msgstr "Current profile"
 
@@ -264,7 +264,7 @@ msgstr "Delete All"
 msgid "Delete note"
 msgstr "Delete note"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:102
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:109
 msgid "Delete profile"
 msgstr "Delete profile"
 
@@ -361,7 +361,7 @@ msgstr "Export"
 msgid "Export Options"
 msgstr "Export Options"
 
-#: src/shared/buttons/GenericImportFileButton.tsx:48
+#: src/shared/buttons/GenericImportFileButton.tsx:66
 msgid "File not supported"
 msgstr "File not supported"
 
@@ -417,7 +417,7 @@ msgstr "Incorrect Metadata"
 
 #. placeholder {0}: task.inputs ? JSON.stringify(task.inputs) : 'none'
 #. placeholder {1}: task.error ? task.error : ''
-#: src/features/dev-tools/components/TasksCard.tsx:132
+#: src/features/dev-tools/components/TasksCard.tsx:133
 msgid "Inputs: {0} </br> {1}"
 msgstr "Inputs: {0} </br> {1}"
 
@@ -479,6 +479,10 @@ msgstr "Log Maintenance"
 msgid "Logs"
 msgstr "Logs"
 
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:40
+msgid "Manage your app profiles here."
+msgstr "Manage your app profiles here."
+
 #: src/features/collection-browser/components/SortFilter.tsx:51
 msgid "Manual"
 msgstr "Manual"
@@ -524,7 +528,7 @@ msgstr "Modified Date"
 msgid "Name"
 msgstr "Name"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:72
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:79
 msgid "Name your new profile"
 msgstr "Name your new profile"
 
@@ -560,7 +564,7 @@ msgstr "New tag"
 msgid "no"
 msgstr "no"
 
-#: src/features/dev-tools/components/TasksCard.tsx:69
+#: src/features/dev-tools/components/TasksCard.tsx:70
 msgid "No pending tasks"
 msgstr "No pending tasks"
 
@@ -584,7 +588,7 @@ msgstr "Notebooks found in the archive, they will be converted to folders"
 msgid "Number of versions"
 msgstr "Number of versions"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:89
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:96
 msgid "ok"
 msgstr "ok"
 
@@ -622,16 +626,20 @@ msgstr "Pending Document Version"
 msgid "Pending Edits"
 msgstr "Pending Edits"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:76
+#: src/features/dev-tools/components/TasksCard.tsx:45
+msgid "Profile Cleanup"
+msgstr "Profile Cleanup"
+
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:83
 msgid "profile name"
 msgstr "profile name"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:36
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:37
 msgid "Profile Settings"
 msgstr "Profile Settings"
 
 #. placeholder {0}: dateToStr('relative', task.scheduledAt)
-#: src/features/dev-tools/components/TasksCard.tsx:104
+#: src/features/dev-tools/components/TasksCard.tsx:105
 msgid "Ran at:  {0} with errors"
 msgstr "Ran at:  {0} with errors"
 
@@ -673,7 +681,7 @@ msgstr "Restore Collection"
 msgid "Restore Version"
 msgstr "Restore Version"
 
-#: src/features/dev-tools/components/TasksCard.tsx:164
+#: src/features/dev-tools/components/TasksCard.tsx:165
 msgid "Run Now"
 msgstr "Run Now"
 
@@ -685,11 +693,11 @@ msgstr "Save"
 msgid "Save your work"
 msgstr "Save your work"
 
-#: src/features/dev-tools/components/TasksCard.tsx:97
+#: src/features/dev-tools/components/TasksCard.tsx:98
 msgid "Scheduled at:  "
 msgstr "Scheduled at:  "
 
-#: src/features/dev-tools/components/TasksCard.tsx:62
+#: src/features/dev-tools/components/TasksCard.tsx:63
 msgid "Scheduled Tasks"
 msgstr "Scheduled Tasks"
 
@@ -722,7 +730,7 @@ msgstr "Server"
 msgid "Settings"
 msgstr "Settings"
 
-#: src/features/dev-tools/components/TasksCard.tsx:119
+#: src/features/dev-tools/components/TasksCard.tsx:120
 msgid "Show details"
 msgstr "Show details"
 
@@ -762,7 +770,7 @@ msgstr "Start Writing"
 #: src/features/collection-history-ui/components/ManageHistoryModal.tsx:161
 #: src/features/synchronization-ui/settings-ui/components/RemoteGenericSettings.tsx:60
 #: src/shared/buttons/GenericExportFileButton.tsx:47
-#: src/shared/buttons/GenericImportFileButton.tsx:47
+#: src/shared/buttons/GenericImportFileButton.tsx:65
 msgid "Success!"
 msgstr "Success!"
 
@@ -803,7 +811,7 @@ msgstr "The number of versions to keep per document. Set 0 for unlimited."
 msgid "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page and the Settings page."
 msgstr "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page and the Settings page."
 
-#: src/features/dev-tools/components/TasksCard.tsx:149
+#: src/features/dev-tools/components/TasksCard.tsx:150
 msgid "This will cancel the task"
 msgstr "This will cancel the task"
 
@@ -815,7 +823,7 @@ msgstr "This will delete this folder and move all its items to the current one."
 msgid "This will delete your existing data. Are you sure?"
 msgstr "This will delete your existing data. Are you sure?"
 
-#: src/features/dev-tools/components/TasksCard.tsx:140
+#: src/features/dev-tools/components/TasksCard.tsx:141
 msgid "This will execute the task immediately"
 msgstr "This will execute the task immediately"
 
