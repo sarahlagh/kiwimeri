@@ -26,6 +26,7 @@ function createNativeFSBackupPersister(
   excludeTables: string[]
 ) {
   const fileName = `${name}-backup.json`;
+  const tmpFileName = `${fileName}.tmp`;
   return createCustomPersister(
     _store,
     async () => {
@@ -37,11 +38,14 @@ function createNativeFSBackupPersister(
     async getContent => {
       await loadFsService();
       const content = removeExcludedTables(getContent(), excludeTables);
-      await filesystemService!.silentWriteFile(
-        fileName,
+      const { success } = await filesystemService!.silentWriteFile(
+        tmpFileName,
         JSON.stringify(content),
         'application/json'
       );
+      if (success) {
+        await filesystemService!.renameFile(tmpFileName, fileName);
+      }
     },
     // addPersisterListener: no need for polling the native source
     () => 0,

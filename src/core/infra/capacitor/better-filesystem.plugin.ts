@@ -31,6 +31,15 @@ export interface BetterFilesystemPlugin {
     eof: boolean;
     streamId?: number;
   }>;
+
+  renameFile(data: {
+    fileName: string;
+    newFileName: string;
+    appDir: string;
+    // overwrite?: boolean;
+  }): Promise<{
+    success: boolean;
+  }>;
 }
 
 export class WebBetterFilesystem
@@ -55,12 +64,20 @@ export class WebBetterFilesystem
     return { success: true };
   }
 
-  readFile(): Promise<{
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  readFile(data: never): Promise<{
     content: string | null;
     eof: boolean;
     streamId?: number;
   }> {
     throw new Error('readFile not available for web');
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  renameFile(data: never): Promise<{
+    success: boolean;
+  }> {
+    throw new Error('renameFile not available for web');
   }
 }
 
@@ -82,12 +99,17 @@ export class ElectronBetterFilesystem
     if (data.requestFilePicker !== false) {
       return super.exportToFile(data);
     }
-    // TODO: overwrite, appDir, binary as base64, catch error
-    await electronAPI.writeFile(data.fileName, data.content);
-    return { success: true };
+    // TODO: overwrite, appDir, binary as base64
+    try {
+      await electronAPI.writeFile(data.fileName, data.content);
+      return { success: true };
+    } catch (e) {
+      console.error('error writing to file', e);
+      return { success: false };
+    }
   }
 
-  async readFile(data?: {
+  async readFile(data: {
     fileName: string;
     appDir: string;
     streamId?: number;
@@ -96,13 +118,35 @@ export class ElectronBetterFilesystem
     eof: boolean;
     streamId?: number;
   }> {
-    // TODO handle binary file
-    // TODO: appDir, catch error
-    const content = await electronAPI.readFile(data?.fileName);
-    return {
-      content,
-      eof: true
-    };
+    // TODO appDir, handle binary file
+    try {
+      const content = await electronAPI.readFile(data.fileName);
+      return {
+        content,
+        eof: true
+      };
+    } catch (e) {
+      console.error('error reading file', e);
+      return { content: null, eof: true };
+    }
+  }
+
+  async renameFile(data: {
+    fileName: string;
+    newFileName: string;
+    appDir: string;
+    // overwrite?: boolean;
+  }): Promise<{
+    success: boolean;
+  }> {
+    try {
+      // TODO appDir, overwrite
+      electronAPI.renameFile(data.fileName, data.newFileName);
+      return { success: true };
+    } catch (e) {
+      console.error('error renaming file', e);
+      return { success: false };
+    }
   }
 }
 

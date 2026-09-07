@@ -178,6 +178,18 @@ export class FilesystemService {
       reader.readAsArrayBuffer(file);
     });
   }
+
+  async renameFile(
+    fileName: string,
+    newFileName: string,
+    appDir = appConfig.APP_DIR_NAME
+  ) {
+    return await BetterFilesystem.renameFile({
+      fileName,
+      newFileName,
+      appDir
+    });
+  }
 }
 
 const filesystemService = new FilesystemService();

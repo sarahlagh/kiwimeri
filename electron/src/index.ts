@@ -125,3 +125,12 @@ ipcMain.handle('capacitor:fs:writeFile', async (event, args) => {
   ensureDataDir();
   fs.writeFileSync(filePath, JSON.stringify(data), 'utf-8');
 });
+
+ipcMain.handle('capacitor:fs:renameFile', async (event, args) => {
+  const [filename, newFileName] = args;
+  const filePath = path.join(parentDirectoryPath, filename);
+  const newFilePath = path.join(parentDirectoryPath, newFileName);
+
+  ensureDataDir();
+  fs.renameSync(filePath, newFilePath);
+});

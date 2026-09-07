@@ -134,6 +134,28 @@ public class BetterFilesystemPlugin extends Plugin {
         }
     }
 
+    @PluginMethod
+    public void renameFile(PluginCall call) {
+        String fileName = call.getString("fileName");
+        String newFileName = call.getString("newFileName");
+        String appDir = call.getString("appDir");
+        if (fileName == null || newFileName == null || appDir == null) {
+            call.reject("parameters fileName, newFileName and appDir are mandatory");
+            return;
+        }
+        File androidDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
+        if (!androidDir.exists()) {
+            call.reject("Invalid directory");
+            return;
+        }
+        File parent = new File(androidDir, appDir);
+        File file = new File(parent, fileName);
+        File newFile = new File(parent, newFileName);
+        // TODO overwrite too
+        boolean res = file.renameTo(newFile);
+        call.resolve(new JSObject().put("success", res));
+    }
+
     @ActivityCallback
     private void filePickerCallback(PluginCall call, ActivityResult result) {
         if (call == null) {

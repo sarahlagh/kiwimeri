@@ -9,5 +9,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.invoke('capacitor:fetch', [resource, config]),
   readFile: filename => ipcRenderer.invoke('capacitor:fs:readFile', [filename]),
   writeFile: (filename, data) =>
-    ipcRenderer.invoke('capacitor:fs:writeFile', [filename, data])
+    ipcRenderer.invoke('capacitor:fs:writeFile', [filename, data]),
+  renameFile: (filename, newFileName) =>
+    ipcRenderer.invoke('capacitor:fs:renameFile', [filename, newFileName])
 });
