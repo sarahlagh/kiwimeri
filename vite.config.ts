@@ -101,6 +101,17 @@ const vitestConfig = vitestDefineConfig({
             instances: [{ browser: 'chromium' } /*{ browser: 'firefox' }*/]
           }
         }
+      },
+      {
+        extends: true,
+        test: {
+          name: 'native',
+          include: ['test/native/**/*.{test,spec}.{ts,tsx}'],
+          globals: true,
+          environment: 'jsdom',
+          globalSetup: ['./test/_setup/globalSetup.ts'],
+          setupFiles: ['./test/native/native.setupMocks.ts']
+        }
       }
     ]
   }

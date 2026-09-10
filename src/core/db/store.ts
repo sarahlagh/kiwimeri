@@ -1,14 +1,14 @@
 import {
+  createNativeDbPersister,
+  loadFsService
+} from '@/core/db/native/native-db-persister';
+import {
   createMetrics,
   createQueries,
   createStore
 } from 'tinybase/with-schemas';
 import { migrateArchiveDatabase } from './migrate-content-store';
 import { migrate } from './migrations/migrate';
-import {
-  createNativeDbPersister,
-  loadFsService
-} from './native/native-db-persister';
 import { NATIVE_STORE_EXCLUDE } from './store-constants';
 import {
   spaceArchiveTablesSchema,

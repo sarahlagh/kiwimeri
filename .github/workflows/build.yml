@@ -44,6 +44,7 @@ jobs:
         run: |
           cp .env.ci .env
           yarn test:unit
+          yarn test:native
 
   browser-tests:
     name: Browser Tests

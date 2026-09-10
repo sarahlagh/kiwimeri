@@ -8,7 +8,6 @@ import { SID } from '../store-constants';
 import { TableIdFromSchema } from '../types';
 
 const listeners: [SID, Id][] = [];
-const DELAY = appConfig.NATIVE_SAVE_THROTTLE;
 
 function addTablesListener<S extends OptionalSchemas>(
   storeId: SID,
@@ -19,7 +18,12 @@ function addTablesListener<S extends OptionalSchemas>(
   tableIds.forEach(tableId => {
     const id = _store.addTableListener(
       tableId,
-      () => schedule.in(DELAY, TaskNames.NATIVE_STORE_SAVE, { storeId }),
+      () =>
+        schedule.in(
+          appConfig.NATIVE_SAVE_THROTTLE,
+          TaskNames.NATIVE_STORE_SAVE,
+          { storeId }
+        ),
       isMutator
     );
     listeners.push([storeId, id]);
@@ -44,7 +48,9 @@ export function startStoreChangesListeners() {
 
   const id = space.addValuesListener(
     () =>
-      schedule.in(DELAY, TaskNames.NATIVE_STORE_SAVE, { storeId: SID.space }),
+      schedule.in(appConfig.NATIVE_SAVE_THROTTLE, TaskNames.NATIVE_STORE_SAVE, {
+        storeId: SID.space
+      }),
     true
   );
   listeners.push([SID.space, id]);

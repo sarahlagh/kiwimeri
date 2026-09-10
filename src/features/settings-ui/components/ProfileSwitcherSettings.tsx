@@ -1,8 +1,6 @@
 import { APPICONS } from '@/constants';
 import { getCurrentProfile, setCurrentProfile } from '@/core/db/store';
 import { plt } from '@/core/infra/platform';
-import { schedule } from '@/core/tasks/scheduler.service';
-import { TaskNames } from '@/core/tasks/tasks-registry';
 import { profileService } from '@/domain/profiles/profile.service';
 import {
   IonAlert,
@@ -100,13 +98,6 @@ const ProfileSwitcherSettings = () => {
                     const profileName = value?.profileName;
                     if (availableProfiles.includes(profileName)) return; // ignore if already exists
                     profileService.createProfile(profileName);
-                    const wasDeleted = schedule.hasTask(
-                      TaskNames.DELETE_NATIVE_BACKUPS,
-                      { profileName }
-                    );
-                    if (wasDeleted) {
-                      schedule.cancel(wasDeleted);
-                    }
                   }
                 }
               ]}

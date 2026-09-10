@@ -5,7 +5,10 @@ import { createCustomPersister, Persister } from 'tinybase/persisters';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db';
 import { NoSchemas, Store } from 'tinybase/with-schemas';
 
-function removeExcludedTables(content: Content, excludeTables: string[]) {
+export function removeExcludedTables(
+  content: Content,
+  excludeTables: string[]
+) {
   excludeTables.forEach(tableId => {
     delete content[0][tableId];
   });

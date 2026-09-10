@@ -15,6 +15,7 @@
     "test": "vitest",
     "coverage": "vitest unit --coverage",
     "test:unit": "vitest --project unit",
+    "test:native": "vitest --project native",
     "test:e2e": "concurrently \"docker compose up nginx -d\" \"vitest --project e2e\"",
     "test:browser": "vitest --project browser --browser.headless",
     "test:browser:ui": "vitest --project browser",
