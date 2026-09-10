@@ -1,7 +1,7 @@
 import { getNativePersisters } from '../store';
 import { SID } from '../store-constants';
 
-export function triggerNativeSave(storeId?: SID) {
+export async function triggerNativeSave(storeId?: SID) {
   const {
     nativeStorePersister,
     nativeSpacePersister,
@@ -41,7 +41,7 @@ export function triggerNativeSave(storeId?: SID) {
         break;
     }
   }
-  Promise.all(promises)
+  return Promise.all(promises)
     .then(() => {
       console.log(log, 'native storage backup done');
     })

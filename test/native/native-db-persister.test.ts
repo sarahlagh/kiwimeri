@@ -19,7 +19,7 @@ import { Content } from 'tinybase';
 
 declare global {
   interface Window {
-    contentMap: Map<string, Content>;
+    nativeContentMap: Map<string, Content>;
   }
 }
 
@@ -37,6 +37,7 @@ describe('native db persister test', () => {
   beforeEach(() => {
     stopDbListeners();
     appConfig.NATIVE_SAVE_THROTTLE = 100;
+    appConfig.DELETE_NATIVE_BACKUPS_DELAY = 10000;
     appConfig.SCHEDULER_INTERVAL = 50;
     space.delTable(SpaceTables.Tasks);
     notebooksService.initNotebooks();
@@ -47,7 +48,8 @@ describe('native db persister test', () => {
   });
   afterEach(() => {
     stopDbListeners();
-    window.contentMap.clear();
+    window.nativeContentMap.clear();
+    window.mainContentMap.clear();
     schedule.stop();
     historyService['enabled'] = false;
     nukeStorage();
@@ -62,7 +64,7 @@ describe('native db persister test', () => {
   describe('what triggers a native backup', () => {
     test('editing the collection triggers a native backup', () => {
       expect(hasTaskByName(TaskNames.NATIVE_STORE_SAVE)).toBe(false);
-      expect(window.contentMap.size).toBe(0);
+      expect(window.nativeContentMap.size).toBe(0);
 
       collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       expect(hasTaskByName(TaskNames.NATIVE_STORE_SAVE)).toBe(true);
@@ -70,10 +72,10 @@ describe('native db persister test', () => {
       vi.advanceTimersByTime(200);
       expect(hasTaskByName(TaskNames.NATIVE_STORE_SAVE)).toBe(false);
 
-      expect(window.contentMap.size).toBe(2);
-      expect(window.contentMap.has('kiwimeri-space-default')).toBe(true);
+      expect(window.nativeContentMap.size).toBe(2);
+      expect(window.nativeContentMap.has('kiwimeri-space-default')).toBe(true);
       expect(
-        window.contentMap.has('kiwimeri-space-document-content-default')
+        window.nativeContentMap.has('kiwimeri-space-document-content-default')
       ).toBe(true);
     });
 
@@ -89,10 +91,10 @@ describe('native db persister test', () => {
       vi.advanceTimersByTime(200);
       expect(hasTaskByName(TaskNames.NATIVE_STORE_SAVE)).toBe(false);
 
-      expect(window.contentMap.size).toBe(2);
-      expect(window.contentMap.has('kiwimeri-space-default')).toBe(true);
+      expect(window.nativeContentMap.size).toBe(2);
+      expect(window.nativeContentMap.has('kiwimeri-space-default')).toBe(true);
       expect(
-        window.contentMap.has('kiwimeri-space-document-content-default')
+        window.nativeContentMap.has('kiwimeri-space-document-content-default')
       ).toBe(true);
     });
 
@@ -104,10 +106,10 @@ describe('native db persister test', () => {
       vi.advanceTimersByTime(200);
       expect(hasTaskByName(TaskNames.NATIVE_STORE_SAVE)).toBe(false);
 
-      expect(window.contentMap.size).toBe(2);
-      expect(window.contentMap.has('kiwimeri-space-default')).toBe(true);
+      expect(window.nativeContentMap.size).toBe(2);
+      expect(window.nativeContentMap.has('kiwimeri-space-default')).toBe(true);
       expect(
-        window.contentMap.has('kiwimeri-space-document-content-default')
+        window.nativeContentMap.has('kiwimeri-space-document-content-default')
       ).toBe(true);
     });
 
@@ -119,14 +121,14 @@ describe('native db persister test', () => {
       vi.advanceTimersByTime(200);
       expect(hasTaskByName(TaskNames.NATIVE_STORE_SAVE)).toBe(false);
 
-      expect(window.contentMap.size).toBe(1);
-      expect(window.contentMap.has('kiwimeri-space-default')).toBe(true);
+      expect(window.nativeContentMap.size).toBe(1);
+      expect(window.nativeContentMap.has('kiwimeri-space-default')).toBe(true);
     });
 
     test('editing the history triggers a native backup', () => {
       historyService['enabled'] = true;
       expect(hasTaskByName(TaskNames.NATIVE_STORE_SAVE)).toBe(false);
-      expect(window.contentMap.size).toBe(0);
+      expect(window.nativeContentMap.size).toBe(0);
 
       collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       expect(hasTaskByName(TaskNames.NATIVE_STORE_SAVE)).toBe(true);
@@ -134,19 +136,19 @@ describe('native db persister test', () => {
       vi.advanceTimersByTime(200);
       expect(hasTaskByName(TaskNames.NATIVE_STORE_SAVE)).toBe(false);
 
-      expect(window.contentMap.size).toBe(3);
-      expect(window.contentMap.has('kiwimeri-space-default')).toBe(true);
+      expect(window.nativeContentMap.size).toBe(3);
+      expect(window.nativeContentMap.has('kiwimeri-space-default')).toBe(true);
       expect(
-        window.contentMap.has('kiwimeri-space-document-content-default')
+        window.nativeContentMap.has('kiwimeri-space-document-content-default')
       ).toBe(true);
-      expect(window.contentMap.has('kiwimeri-space-archive-default')).toBe(
-        true
-      );
+      expect(
+        window.nativeContentMap.has('kiwimeri-space-archive-default')
+      ).toBe(true);
     });
 
     test('editing a user pref triggers a native backup', () => {
       expect(hasTaskByName(TaskNames.NATIVE_STORE_SAVE)).toBe(false);
-      expect(window.contentMap.size).toBe(0);
+      expect(window.nativeContentMap.size).toBe(0);
 
       userPrefs.set('statsEnabled', !userPrefs.getDefault('statsEnabled'));
       expect(hasTaskByName(TaskNames.NATIVE_STORE_SAVE)).toBe(true);
@@ -154,13 +156,13 @@ describe('native db persister test', () => {
       vi.advanceTimersByTime(200);
       expect(hasTaskByName(TaskNames.NATIVE_STORE_SAVE)).toBe(false);
 
-      expect(window.contentMap.size).toBe(1);
-      expect(window.contentMap.has('kiwimeri-space-default')).toBe(true);
+      expect(window.nativeContentMap.size).toBe(1);
+      expect(window.nativeContentMap.has('kiwimeri-space-default')).toBe(true);
     });
 
     test('editing a remote triggers a native backup', () => {
       expect(hasTaskByName(TaskNames.NATIVE_STORE_SAVE)).toBe(false);
-      expect(window.contentMap.size).toBe(0);
+      expect(window.nativeContentMap.size).toBe(0);
 
       remotesService.addRemote('pcloud', 0, 'pcloud');
       expect(hasTaskByName(TaskNames.NATIVE_STORE_SAVE)).toBe(true);
@@ -168,13 +170,13 @@ describe('native db persister test', () => {
       vi.advanceTimersByTime(200);
       expect(hasTaskByName(TaskNames.NATIVE_STORE_SAVE)).toBe(false);
 
-      expect(window.contentMap.size).toBe(1);
-      expect(window.contentMap.has('kiwimeri-space-default')).toBe(true);
+      expect(window.nativeContentMap.size).toBe(1);
+      expect(window.nativeContentMap.has('kiwimeri-space-default')).toBe(true);
     });
 
     test('adding a profile triggers a native backup', () => {
       expect(hasTaskByName(TaskNames.NATIVE_STORE_SAVE)).toBe(false);
-      expect(window.contentMap.size).toBe(0);
+      expect(window.nativeContentMap.size).toBe(0);
 
       profileService.createProfile('test');
       expect(hasTaskByName(TaskNames.NATIVE_STORE_SAVE)).toBe(true);
@@ -182,13 +184,13 @@ describe('native db persister test', () => {
       vi.advanceTimersByTime(200);
       expect(hasTaskByName(TaskNames.NATIVE_STORE_SAVE)).toBe(false);
 
-      expect(window.contentMap.size).toBe(1);
-      expect(window.contentMap.has('kiwimeri-store')).toBe(true);
+      expect(window.nativeContentMap.size).toBe(1);
+      expect(window.nativeContentMap.has('kiwimeri-store')).toBe(true);
     });
 
     test('other edits do not trigger a native backup', () => {
       expect(hasTaskByName(TaskNames.NATIVE_STORE_SAVE)).toBe(false);
-      expect(window.contentMap.size).toBe(0);
+      expect(window.nativeContentMap.size).toBe(0);
 
       schedule.in(10, TaskNames.DELETE_NATIVE_BACKUPS); // add task
       store.addRow(StoreTables.Logs, {
@@ -197,7 +199,7 @@ describe('native db persister test', () => {
         ts: Date.now()
       }); // add log
       expect(hasTaskByName(TaskNames.NATIVE_STORE_SAVE)).toBe(false);
-      expect(window.contentMap.size).toBe(0);
+      expect(window.nativeContentMap.size).toBe(0);
     });
   });
 
@@ -212,10 +214,14 @@ describe('native db persister test', () => {
     vi.advanceTimersByTime(200);
     expect(hasTaskByName(TaskNames.NATIVE_STORE_SAVE)).toBe(false);
 
-    expect(window.contentMap.size).toBe(1);
-    expect(window.contentMap.has('kiwimeri-store'));
-    expect(window.contentMap.get('kiwimeri-store')![0].profiles).toBeDefined();
-    expect(window.contentMap.get('kiwimeri-store')![0].logs).toBeUndefined();
+    expect(window.nativeContentMap.size).toBe(1);
+    expect(window.nativeContentMap.has('kiwimeri-store'));
+    expect(
+      window.nativeContentMap.get('kiwimeri-store')![0].profiles
+    ).toBeDefined();
+    expect(
+      window.nativeContentMap.get('kiwimeri-store')![0].logs
+    ).toBeUndefined();
   });
 
   test('deleting a profile creates a delete backup task', () => {
@@ -234,5 +240,25 @@ describe('native db persister test', () => {
     // recreate it
     profileService.createProfile('new');
     expect(hasTaskByName(TaskNames.DELETE_NATIVE_BACKUPS)).toBe(false);
+  });
+
+  test('delete backup task deletes the native backups', () => {
+    profileService.createProfile('new');
+    window.nativeContentMap.clear();
+    window.nativeContentMap.set('kiwimeri-store', [{}, {}]);
+    window.nativeContentMap.set('kiwimeri-space-new', [{}, {}]);
+    window.nativeContentMap.set('kiwimeri-space-document-content-new', [
+      {},
+      {}
+    ]);
+    window.nativeContentMap.set('kiwimeri-space-archive-new', [{}, {}]);
+
+    profileService.deleteProfile('new');
+    expect(hasTaskByName(TaskNames.DELETE_NATIVE_BACKUPS)).toBe(true);
+    vi.advanceTimersByTime(100000);
+
+    expect(hasTaskByName(TaskNames.DELETE_NATIVE_BACKUPS)).toBe(false);
+    expect(window.nativeContentMap.size).toBe(1);
+    expect(window.nativeContentMap.has('kiwimeri-store')).toBe(true);
   });
 });
