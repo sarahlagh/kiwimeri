@@ -63,14 +63,18 @@ await Promise.all([
 
 // if stores are empty, try loading the native one
 if (rawSpace.getTableIds().length === 0 && nativeSpacePersister) {
-  console.log('[db] empty stores detected, checking native source');
+  console.log('[db] empty space detected, checking native source');
   await loadFsService();
-  await Promise.all([
-    nativeStorePersister?.load(),
+  const promises = [
     nativeSpacePersister.load(),
     nativeSpaceDocContentPersister?.load(),
     nativeSpaceArchivePersister?.load()
-  ]).then(() => {
+  ];
+  if (rawStore.getTableIds().length === 0) {
+    console.log('[db] empty store detected, checking native source');
+    promises.push(nativeStorePersister?.load());
+  }
+  await Promise.all(promises).then(() => {
     console.log('[db] done');
   });
 }

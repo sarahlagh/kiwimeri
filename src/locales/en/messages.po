@@ -44,7 +44,7 @@ msgstr "Manual"
 msgid " (new)"
 msgstr " (new)"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:42
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:44
 msgid " Note that profiles have backups that may be kept kept up to one day after the profile is deleted."
 msgstr " Note that profiles have backups that may be kept kept up to one day after the profile is deleted."
 
@@ -123,7 +123,7 @@ msgstr "Archive is empty"
 msgid "Are you sure?"
 msgstr "Are you sure?"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:92
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:94
 msgid "cancel"
 msgstr "cancel"
 
@@ -218,7 +218,7 @@ msgstr "Conflicts"
 msgid "Content"
 msgstr "Content"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:72
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:74
 msgid "Create a new profile"
 msgstr "Create a new profile"
 
@@ -244,7 +244,7 @@ msgstr "Creation Date"
 msgid "Current Notebook Settings ({notebookTitle})"
 msgstr "Current Notebook Settings ({notebookTitle})"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:54
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:56
 msgid "Current profile"
 msgstr "Current profile"
 
@@ -264,7 +264,7 @@ msgstr "Delete All"
 msgid "Delete note"
 msgstr "Delete note"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:109
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:118
 msgid "Delete profile"
 msgstr "Delete profile"
 
@@ -353,7 +353,7 @@ msgstr "EU"
 #: src/features/import-export/buttons/ImportExportCollectionSettings.tsx:59
 #: src/features/import-export/buttons/ImportExportCollectionSettings.tsx:73
 #: src/features/import-export/buttons/ImportExportCollectionSettings.tsx:87
-#: src/features/import-export/buttons/ImportExportStoreSettings.tsx:78
+#: src/features/import-export/buttons/ImportExportStoreSettings.tsx:81
 msgid "Export"
 msgstr "Export"
 
@@ -391,7 +391,7 @@ msgstr "Import {0}.zip in a new Notebook"
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
 
-#: src/features/import-export/buttons/ImportExportStoreSettings.tsx:59
+#: src/features/import-export/buttons/ImportExportStoreSettings.tsx:62
 msgid "Import & export your app settings"
 msgstr "Import & export your app settings"
 
@@ -479,7 +479,7 @@ msgstr "Log Maintenance"
 msgid "Logs"
 msgstr "Logs"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:40
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:42
 msgid "Manage your app profiles here."
 msgstr "Manage your app profiles here."
 
@@ -491,7 +491,7 @@ msgstr "Manual"
 msgid "Manual Order"
 msgstr "Manual Order"
 
-#: src/features/import-export/buttons/ImportExportStoreSettings.tsx:62
+#: src/features/import-export/buttons/ImportExportStoreSettings.tsx:65
 msgid "Manually backup or restore your app settings"
 msgstr "Manually backup or restore your app settings"
 
@@ -528,7 +528,7 @@ msgstr "Modified Date"
 msgid "Name"
 msgstr "Name"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:79
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:81
 msgid "Name your new profile"
 msgstr "Name your new profile"
 
@@ -588,7 +588,7 @@ msgstr "Notebooks found in the archive, they will be converted to folders"
 msgid "Number of versions"
 msgstr "Number of versions"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:96
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:98
 msgid "ok"
 msgstr "ok"
 
@@ -630,11 +630,11 @@ msgstr "Pending Edits"
 msgid "Profile Cleanup"
 msgstr "Profile Cleanup"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:83
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:85
 msgid "profile name"
 msgstr "profile name"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:37
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:39
 msgid "Profile Settings"
 msgstr "Profile Settings"
 
@@ -668,7 +668,7 @@ msgstr "Reorder"
 msgid "Reset All"
 msgstr "Reset All"
 
-#: src/features/import-export/buttons/ImportExportStoreSettings.tsx:88
+#: src/features/import-export/buttons/ImportExportStoreSettings.tsx:91
 #: src/features/import-export/buttons/RestoreCollectionButton.tsx:84
 msgid "Restore"
 msgstr "Restore"
@@ -807,7 +807,7 @@ msgstr "The following file(s) with matching title(s) have been detected inside t
 msgid "The number of versions to keep per document. Set 0 for unlimited."
 msgstr "The number of versions to keep per document. Set 0 for unlimited."
 
-#: src/features/import-export/buttons/ImportExportStoreSettings.tsx:66
+#: src/features/import-export/buttons/ImportExportStoreSettings.tsx:69
 msgid "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page and the Settings page."
 msgstr "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page and the Settings page."
 

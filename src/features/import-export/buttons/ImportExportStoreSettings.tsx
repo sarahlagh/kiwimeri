@@ -14,6 +14,8 @@ import {
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 
+const SETTINGS_SCHEMA_VERSION = 1;
+
 const ImportExportStoreSettings = () => {
   const { t } = useLingui();
 
@@ -36,7 +38,8 @@ const ImportExportStoreSettings = () => {
     const valuesToExport = {
       ...values,
       appVersion: undefined,
-      currentNotebook: undefined
+      currentNotebook: undefined,
+      schemaVersion: SETTINGS_SCHEMA_VERSION
     };
     return JSON.stringify([
       {
