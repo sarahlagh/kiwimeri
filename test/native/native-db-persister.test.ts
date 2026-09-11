@@ -15,7 +15,7 @@ import { profileService } from '@/domain/profiles/profile.service';
 import remotesService from '@/domain/synchronization/remotes.service';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import { getNewParsedContent, nukeStorage } from '@@/_setup/test.utils';
-import { Content } from 'tinybase';
+import { Content, getUniqueId } from 'tinybase';
 
 declare global {
   interface Window {
@@ -45,6 +45,7 @@ describe('native db persister test', () => {
     vi.useFakeTimers();
     schedule['initRecurringTasks'] = function () {}; // don't define log gc & history gc
     schedule.start();
+    window.nativeContentMap.clear();
   });
   afterEach(() => {
     stopDbListeners();
@@ -79,11 +80,12 @@ describe('native db persister test', () => {
       ).toBe(true);
     });
 
-    test('editing the document content triggers a native backup', () => {
+    test('editing the document content triggers a native backup', async () => {
       // edit document (cheating with notebook to avoid having to create a doc beforehand)
+      vi.advanceTimersByTime(200); // make sure notebook updatedAt != new updatedAt
       collectionService.setItemLexicalContent(
         DEFAULT_NOTEBOOK_ID,
-        getNewParsedContent('test'),
+        getNewParsedContent(getUniqueId()),
         true // skip version
       );
       expect(hasTaskByName(TaskNames.NATIVE_STORE_SAVE)).toBe(true);

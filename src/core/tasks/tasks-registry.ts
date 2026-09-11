@@ -29,9 +29,9 @@ class TaskRegistry {
 
   public init() {
     if (plt.hasNativeSupport()) {
-      this.register(TaskNames.NATIVE_STORE_SAVE, inputs => {
-        triggerNativeSave(inputs?.storeId);
-      });
+      this.register(TaskNames.NATIVE_STORE_SAVE, inputs =>
+        triggerNativeSave(inputs?.storeId)
+      );
       this.register(TaskNames.DELETE_NATIVE_BACKUPS, inputs => {
         const profileName = inputs?.profileName;
         if (!profileName) return;
