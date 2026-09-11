@@ -104,11 +104,13 @@ describe('DocumentEditor', () => {
   describe('onChange & fastWrite', () => {
     beforeEach(() => {
       vi.useFakeTimers();
+      appConfig.ENABLE_FAST_WRITE = true;
       appConfig.SCHEDULER_INTERVAL = 50;
       appConfig.FAST_WRITE_THROTTLE = 100;
       schedule.start();
     });
     afterEach(() => {
+      appConfig.ENABLE_FAST_WRITE = false;
       schedule.stop();
       vi.useRealTimers();
     });

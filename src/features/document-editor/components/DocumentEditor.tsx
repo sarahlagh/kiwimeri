@@ -1,4 +1,5 @@
 import { GET_DOCUMENT_ROUTE } from '@/app/routes';
+import { appConfig } from '@/config';
 import { APPICONS } from '@/constants';
 import { SpaceTables } from '@/core/db/store-constants';
 import { schedule } from '@/core/tasks/scheduler.service';
@@ -197,13 +198,20 @@ const DocumentEditor = forwardRef<
               hasDeletedNodes
             ) => {
               if (!isSelectionChange) {
-                writer.fastWrite(
-                  SpaceTables.Collection,
-                  docId,
-                  editorState,
-                  blocksChanged,
-                  hasDeletedNodes
-                );
+                if (appConfig.ENABLE_FAST_WRITE) {
+                  writer.fastWrite(
+                    SpaceTables.Collection,
+                    docId,
+                    editorState,
+                    blocksChanged,
+                    hasDeletedNodes
+                  );
+                } else {
+                  collectionService.setItemLexicalContent(
+                    docId,
+                    editorState.toJSON()
+                  );
+                }
               }
               resumeService.setLastSelection(
                 docId,
