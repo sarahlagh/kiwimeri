@@ -3,6 +3,7 @@ import { schedule } from '@/core/tasks/scheduler.service';
 import { TaskNames } from '@/core/tasks/tasks-registry';
 import { initialContent } from '@/domain/collection/collection.service';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
+import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { writer } from '@/domain/document-edits/document-edits.service';
 import { KiwimeriEditor } from '@/features/document-editor';
 import type { EditorState } from 'lexical';
@@ -37,13 +38,21 @@ const NoteEditor = ({ noteId, editable = true }: NoteEditorProps) => {
         hasDeletedNodes
       ) => {
         if (!isSelectionChange) {
-          writer.fastWrite(
-            SpaceTables.Annotations,
-            noteId,
-            editorState,
-            blocksChanged,
-            hasDeletedNodes
-          );
+          if (deviceSettings.isFastWriteEnabled()) {
+            writer.fastWrite(
+              SpaceTables.Annotations,
+              noteId,
+              editorState,
+              blocksChanged,
+              hasDeletedNodes
+            );
+          }
+          if (
+            deviceSettings.isFastWriteWatchMode() ||
+            !deviceSettings.isFastWriteEnabled()
+          ) {
+            annotsService.edit(noteId, editorState.toJSON());
+          }
         }
       }}
     />

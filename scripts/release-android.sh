@@ -14,7 +14,6 @@ if [ "$target" = "prod" ]; then
     sed -i -r "s/VITE_APP_DIR_NAME='(.*)'/VITE_APP_DIR_NAME='Kiwimeri'/" .env.production 
 elif [ "$target" = "beta" ]; then
     sed -i -r "s/VITE_APP_DIR_NAME='(.*)'/VITE_APP_DIR_NAME='KiwimeriBeta'/" .env.production 
-    sed -i -r "s/VITE_ENABLE_FAST_WRITE=false/VITE_ENABLE_FAST_WRITE=true/" .env.production 
 fi
 
 echo "building the app for production"
@@ -30,4 +29,3 @@ fi
 
 cp -R android/environments/local/* android
 sed -i -r "s/VITE_APP_DIR_NAME='(.*)'/VITE_APP_DIR_NAME='Kiwimeri'/" .env.production 
-sed -i -r "s/VITE_ENABLE_FAST_WRITE=true/VITE_ENABLE_FAST_WRITE=false/" .env.production 

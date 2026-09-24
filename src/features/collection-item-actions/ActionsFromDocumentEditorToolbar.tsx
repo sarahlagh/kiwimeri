@@ -3,6 +3,7 @@ import { APPICONS } from '@/constants';
 import { CollectionItemType } from '@/domain/collection/collection';
 import { settingsService } from '@/domain/collection/collection-settings.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
+import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { ViewAo3HtmlButton } from '@/features/ao3-html-ui';
 import { ManageHistoryButton } from '@/features/collection-history-ui';
 import { ExportItemsButton } from '@/features/import-export';
@@ -12,6 +13,7 @@ import CloseDocumentButton from './buttons/CloseDocumentButton';
 import DeleteItemButton from './buttons/DeleteItemButton';
 import MoveFolderButton from './buttons/MoveFolderButton';
 import QuickGroupButton from './buttons/QuickGroupButton';
+import DebugFastWriteButton from './fast-write-debug/DebugFastWriteButton';
 
 export type ActionsFromDocumentEditorToolbarProps = {
   docId: string;
@@ -34,6 +36,11 @@ const ActionsFromDocumentEditorToolbar = ({
   return (
     <IonToolbar color="medium" style={{ height: 56 + 'px' }}>
       <IonButtons slot="end" style={{ overflowX: 'auto' }}>
+        {deviceSettings.isFastWriteEnabled() &&
+          deviceSettings.isFastWriteWatchMode() && (
+            <DebugFastWriteButton id={docId} />
+          )}
+
         <MoveFolderButton id={docId} onClose={onClose} />
         <ExportItemsButton id={docId} type={type} onClose={onClose} />
         <ViewAo3HtmlButton id={docId} onClose={onClose} />

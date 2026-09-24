@@ -1,10 +1,6 @@
-import collectionService from '@/domain/collection/collection.service';
-import { annotsService } from '@/domain/collection/doc-annotations.service';
-import { writer } from '@/domain/document-edits/document-edits.service';
 import { historyService } from '@/domain/history/history.service';
 import { clearNativeDbBackups } from '../db/native/native-db-persister';
 import { triggerNativeSave } from '../db/native/trigger-native-save';
-import { SpaceTables } from '../db/store-constants';
 import { AnyData } from '../db/types';
 import { plt } from '../infra/platform';
 import { appLog } from '../logs/logs.service';
@@ -41,15 +37,21 @@ class TaskRegistry {
       });
     }
 
-    this.register(TaskNames.FAST_WRITE, inputs => {
-      const { on, rowId } = inputs!;
-      const content = writer.reconcile(on, rowId);
-      if (on === SpaceTables.Collection) {
-        collectionService.setItemField(rowId, 'content', content, false);
-      } else {
-        annotsService.edit(rowId, content);
-      }
-    });
+    // this.register(TaskNames.FAST_WRITE, inputs => {
+    //   const { on, rowId } = inputs!;
+    //   const isWatchMode = deviceSettings.isFastWriteWatchMode();
+    //   const reconciledContent = writer.reconcile(on, rowId, !isWatchMode);
+    //   if (isWatchMode) {
+    //     const content = writer.getContent(on, rowId);
+    //     if (content !== reconciledContent) {
+    //       // TODO
+    //       console.error('error during reconciliation', on, rowId);
+    //     }
+    //     writer.clear(on, rowId);
+    //   } else {
+    //     writer.writeContent(on, rowId, reconciledContent);
+    //   }
+    // });
 
     this.register(TaskNames.HISTORY_SAVE, inputs => {
       const { docId } = inputs!;

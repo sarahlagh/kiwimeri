@@ -24,6 +24,14 @@ class DeviceSettingService {
   public isSyncEnabled() {
     return !plt.isWeb() || deviceSettings.getInternalProxy()?.length || 0 > 0;
   }
+
+  public isFastWriteEnabled() {
+    return space.getValue('enableFastWrite');
+  }
+
+  public isFastWriteWatchMode() {
+    return space.getValue('fastWriteMode') === 'watch';
+  }
 }
 
 export const deviceSettings = new DeviceSettingService();

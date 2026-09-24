@@ -1,6 +1,11 @@
+import { useToastContext } from '@/app/context/ToastContext';
+import { AnyData, AnySerializableData } from '@/core/db/types';
 import { plt } from '@/core/infra/platform';
+import { TaskNames, taskRegistry } from '@/core/tasks/tasks-registry';
 import { SerializedSelection } from '@/domain/collection/resume-state';
+import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { LexicalDiff } from '@/domain/document-edits/document-edits';
+import { writer } from '@/domain/document-edits/document-edits.service';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
@@ -23,6 +28,7 @@ import { EditorState, LexicalEditor } from 'lexical';
 import React, {
   ForwardedRef,
   ReactNode,
+  useEffect,
   useImperativeHandle,
   useRef,
   useState
@@ -59,7 +65,8 @@ type KiwimeriEditorProps = {
     editorState: EditorState,
     isSelectionChange: boolean,
     blocksChanged: LexicalDiff[],
-    hasDeletedNodes: boolean
+    hasDeletedNodes: boolean,
+    payload: AnySerializableData
   ) => void;
   debounce?: number;
   additionalClassNames?: string;
@@ -92,6 +99,7 @@ const KiwimeriEditor = (
   const [history, setHistory] = useState(createEmptyHistoryState());
   const editorRef = useRef<LexicalEditor | null>(null);
   const placeholder = t`Text...`;
+  const { setToast } = useToastContext();
 
   useImperativeHandle(
     ref,
@@ -108,6 +116,32 @@ const KiwimeriEditor = (
     }),
     [editorRef]
   );
+
+  useEffect(() => {
+    taskRegistry.register(TaskNames.FAST_WRITE, inputs => {
+      const { on, rowId } = inputs!;
+      const isWatchMode = deviceSettings.isFastWriteWatchMode();
+      console.debug('FAST_WRITE', isWatchMode);
+      const reconciledContent = writer.reconcile(on, rowId, !isWatchMode);
+      if (isWatchMode) {
+        const content = writer.getContent(on, rowId);
+        if (content !== reconciledContent) {
+          try {
+            setToast('error during reconciliation', 'danger');
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          } catch (e) {
+            /* */
+          }
+          console.error('error during reconciliation', on, rowId);
+        } else {
+          console.debug('RECONCILIATION OK');
+          writer.clear(on, rowId);
+        }
+      } else {
+        writer.writeContent(on, rowId, reconciledContent);
+      }
+    });
+  }, []);
 
   return (
     <LexicalComposer
@@ -166,7 +200,8 @@ const KiwimeriEditor = (
                 payload.editorState,
                 payload.isSelectionChange,
                 hasDeletedNodes ? [] : blocksChanged,
-                hasDeletedNodes
+                hasDeletedNodes,
+                payload as AnyData
               );
             });
           }}

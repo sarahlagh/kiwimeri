@@ -1,11 +1,11 @@
 import { GET_DOCUMENT_ROUTE } from '@/app/routes';
-import { appConfig } from '@/config';
 import { APPICONS } from '@/constants';
 import { SpaceTables } from '@/core/db/store-constants';
 import { schedule } from '@/core/tasks/scheduler.service';
 import { TaskNames } from '@/core/tasks/tasks-registry';
 import collectionService from '@/domain/collection/collection.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
+import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { writer } from '@/domain/document-edits/document-edits.service';
 import { SearchActionsToolbar } from '@/features/search';
 import { useHasLocalConflicts } from '@/features/synchronization-ui';
@@ -195,18 +195,24 @@ const DocumentEditor = forwardRef<
               editorState,
               isSelectionChange,
               blocksChanged,
-              hasDeletedNodes
+              hasDeletedNodes,
+              payload
             ) => {
               if (!isSelectionChange) {
-                if (appConfig.ENABLE_FAST_WRITE) {
+                if (deviceSettings.isFastWriteEnabled()) {
                   writer.fastWrite(
                     SpaceTables.Collection,
                     docId,
                     editorState,
                     blocksChanged,
-                    hasDeletedNodes
+                    hasDeletedNodes,
+                    deviceSettings.isFastWriteWatchMode() ? payload : undefined
                   );
-                } else {
+                }
+                if (
+                  deviceSettings.isFastWriteWatchMode() ||
+                  !deviceSettings.isFastWriteEnabled()
+                ) {
                   collectionService.setItemLexicalContent(
                     docId,
                     editorState.toJSON()

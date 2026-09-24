@@ -8,6 +8,7 @@ export type DocumentEditRow = {
   createdAt: number;
   json: string;
   isFullSnapshot: boolean;
+  debugPayload?: string;
 };
 
 export const documentEditsSchema = {
@@ -15,7 +16,8 @@ export const documentEditsSchema = {
   itemId: { type: 'string' },
   createdAt: { type: 'number' },
   json: { type: 'string' },
-  isFullSnapshot: { type: 'boolean' }
+  isFullSnapshot: { type: 'boolean' },
+  debugPayload: { type: 'string' }
 } as const satisfies Record<keyof DocumentEditRow, unknown>;
 
 export type DocumentEdit = WithId<DocumentEditRow>;

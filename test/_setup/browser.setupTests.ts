@@ -24,6 +24,7 @@ import { initGlobalTrans } from '@/constants';
 import { postInitMigrationService } from '@/core/db/post-init-migrations/post-init-migration.service';
 import { startDbListeners, stopDbListeners } from '@/core/db/store-listeners';
 import '@/core/infra/polyfills/log-polyfill';
+import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { historyService } from '@/domain/history/history.service';
 import { syncService } from '@/domain/synchronization/sync.service';
 import { setupIonicReact } from '@ionic/react';
@@ -44,6 +45,7 @@ beforeAll(async () => {
   postInitMigrationService['enabled'] = false;
   historyService['enabled'] = false;
   syncService.initStatusListeners();
+  deviceSettings.set('enableFastWrite', false);
 });
 afterAll(() => {
   //

@@ -1,6 +1,7 @@
 import { appConfig } from '@/config';
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
+import { AnyData } from '@/core/db/types';
 import { schedule } from '@/core/tasks/scheduler.service';
 import { TaskNames } from '@/core/tasks/tasks-registry';
 import type { EditorState, SerializedEditorState } from 'lexical';
@@ -16,7 +17,8 @@ class DocumentWriterService {
     rowId: string,
     editorState: EditorState,
     blocksChanged: LexicalDiff[],
-    hasDeletedNodes: boolean
+    hasDeletedNodes: boolean,
+    originalPayload?: AnyData
   ) {
     if (blocksChanged.length === 0 && !hasDeletedNodes) return;
     space.addRow(E, {
@@ -26,7 +28,10 @@ class DocumentWriterService {
       json: hasDeletedNodes
         ? JSON.stringify(editorState.toJSON())
         : JSON.stringify(blocksChanged),
-      isFullSnapshot: hasDeletedNodes
+      isFullSnapshot: hasDeletedNodes,
+      debugPayload: originalPayload
+        ? JSON.stringify(originalPayload)
+        : undefined
     });
     schedule.in(appConfig.FAST_WRITE_THROTTLE, TaskNames.FAST_WRITE, {
       on,
@@ -59,25 +64,34 @@ class DocumentWriterService {
     return JSON.stringify(content);
   }
 
-  public reconcile(on: string, itemId: string) {
+  public reconcile(on: string, itemId: string, doClear = true) {
     const edits = this.getEdits(on, itemId);
     const content = this.reconcileEdits(
       edits,
       JSON.parse(this.getContent(on, itemId))
     );
-    space.transaction(() => {
-      edits.forEach(e => space.delRow(E, e.id));
-    });
+    if (doClear) {
+      space.transaction(() => {
+        edits.forEach(e => space.delRow(E, e.id));
+      });
+    }
     return content;
   }
 
-  private getContent(on: string, itemId: string) {
+  public clear(on: string, itemId: string) {
+    const edits = this.getEdits(on, itemId);
+    space.transaction(() => {
+      edits.forEach(e => space.delRow(E, e.id));
+    });
+  }
+
+  public getContent(on: string, itemId: string) {
     return on === SpaceTables.Collection
       ? collectionService.getDocumentContent(itemId)
       : annotsService.getContent(itemId);
   }
 
-  private getEdits(on: string, itemId: string): DocumentEdit[] {
+  public getEdits(on: string, itemId: string): DocumentEdit[] {
     const table = space.getTable(E);
     const edits: DocumentEdit[] = [];
     space.getSortedRowIds(E, 'createdAt').forEach(rowId => {
@@ -88,6 +102,14 @@ class DocumentWriterService {
       });
     });
     return edits;
+  }
+
+  public writeContent(on: string, itemId: string, content: string) {
+    if (on === SpaceTables.Collection) {
+      collectionService.setItemField(itemId, 'content', content, false);
+    } else {
+      annotsService.edit(itemId, content);
+    }
   }
 }
 
