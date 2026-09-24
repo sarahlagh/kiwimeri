@@ -6,7 +6,7 @@ import {
 import { userPreferenceDefinitions } from '@/domain/user-preferences/user-preferences';
 
 import { useLingui } from '@lingui/react/macro';
-import EditConfigList, { ConfigRowType } from './EditConfigList';
+import { ConfigRowType, EditConfigList } from './EditConfigList';
 
 type GenericCollectionSettingsProps = {
   defaultSettings: SpaceSettings;

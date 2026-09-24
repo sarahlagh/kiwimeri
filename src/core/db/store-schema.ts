@@ -1,3 +1,4 @@
+import { appConfig } from '@/config';
 import { collectionSchema } from '@/domain/collection/collection';
 import {
   annotationsViewSchema,
@@ -75,11 +76,13 @@ export const spaceValuesSchema = {
   exportIncludeMetadata: { type: 'boolean', default: true },
   theme: { type: 'string', default: 'dark' },
   maxLogHistory: { type: 'number', default: 500 },
-  internalProxy: { type: 'string' },
+  internalProxy: { type: 'string', default: appConfig.INTERNAL_HTTP_PROXY },
   defaultTimedDuration: { type: 'number', default: 10 },
   defaultTimedMode: { type: 'string', default: 'dangerous' },
   rememberLastRoute: { type: 'boolean', default: true },
-  resumeLastSelection: { type: 'boolean', default: true }
+  resumeLastSelection: { type: 'boolean', default: true },
+  enableFastWrite: { type: 'boolean', default: false },
+  fastWriteMode: { type: 'string', default: 'watch' }
 } as const;
 
 // types

@@ -21,6 +21,7 @@ export const {
   useRow: useSpaceRow,
   useRowCount: useSpaceRowCount,
   useValue: useSpaceValue,
+  useValues: useSpaceValues,
   useResultSortedRowIds: useSpaceResultSortedRowIds,
   useMetric: useSpaceMetric,
   useCellState: useSpaceCellState

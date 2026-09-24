@@ -1,3 +1,4 @@
+import { SpaceValue } from '@/core/db/store-schema';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import useDeviceSetting from '@/shared/hooks/useDeviceSetting';
 import {
@@ -8,7 +9,7 @@ import {
   IonCardTitle
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
-import EditConfigList from './EditConfigList';
+import { EditConfigList } from './EditConfigList';
 
 const CurrentDeviceSettings = () => {
   const defaultRememberLastRoute = useDeviceSetting('rememberLastRoute');
@@ -49,11 +50,7 @@ const CurrentDeviceSettings = () => {
             resumeLastSelection: defaultResumeLastSelection
           }}
           onChange={(key, val) => {
-            if (key === 'rememberLastRoute') {
-              deviceSettings.set('rememberLastRoute', val as boolean);
-            } else if (key === 'resumeLastSelection') {
-              deviceSettings.set('resumeLastSelection', val as boolean);
-            }
+            deviceSettings.set(key as SpaceValue, val);
           }}
         />
       </IonCardContent>

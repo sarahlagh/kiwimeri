@@ -24,6 +24,7 @@ export type ConfigRowType = {
   max?: number;
   values?: { val: string; label: string }[];
   if?: (state: AnySerializableData) => boolean;
+  onChange?: () => Promise<void>;
 };
 
 const ConfigValue = ({
@@ -131,7 +132,8 @@ type EditConfigListProps = {
   onChange: (key: string, val: SerializableData) => void;
   onClear?: (key: string) => void;
 };
-const EditConfigList = ({
+
+export const EditConfigList = ({
   rows,
   initialState,
   onChange,
@@ -160,9 +162,12 @@ const EditConfigList = ({
               row={v}
               val={initialState[v.key]!}
               small={!mqm}
-              onChange={onChange}
+              onChange={(key, val) => {
+                onChange(key, val);
+                if (v.onChange) v.onChange();
+              }}
               disabled={disabled}
-            ></ConfigValue>
+            />
             {onClear && (
               <IonButton
                 slot="end"
@@ -180,4 +185,3 @@ const EditConfigList = ({
     </IonList>
   );
 };
-export default EditConfigList;

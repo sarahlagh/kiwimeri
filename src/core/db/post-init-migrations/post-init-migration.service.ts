@@ -43,6 +43,13 @@ class PostInitMigrationService {
       console.log('[space] 1 migration to run: backfill plaintext');
       callDerivedTablesListeners();
     }
+
+    if (between(to, 407, 599)) {
+      console.log('[space] 1 migration to run: default value for proxy');
+      if (_space.getValue('internalProxy') === '') {
+        _space.delValue('internalProxy');
+      }
+    }
   }
 }
 
