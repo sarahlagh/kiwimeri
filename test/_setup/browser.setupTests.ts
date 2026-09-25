@@ -28,15 +28,9 @@ import { deviceSettings } from '@/domain/device-settings/device-settings.service
 import { historyService } from '@/domain/history/history.service';
 import { syncService } from '@/domain/synchronization/sync.service';
 import { setupIonicReact } from '@ionic/react';
-import { afterAll, afterEach, beforeAll, beforeEach } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, vi } from 'vitest';
 import { cleanup } from 'vitest-browser-react';
 import { nukeStorage } from './test.utils';
-
-declare global {
-  interface Window {
-    navigateToList: string[];
-  }
-}
 
 i18n.load('en', enMessages);
 i18n.activate('en');
@@ -59,11 +53,11 @@ afterAll(() => {
 beforeEach(() => {
   notebooksService.initNotebooks();
   startDbListeners();
-  window.navigateToList.length = 0;
 });
-afterEach(() => {
+afterEach(async () => {
   stopDbListeners();
   nukeStorage();
   syncService.stop();
-  cleanup();
+  await cleanup();
+  vi.clearAllMocks();
 });

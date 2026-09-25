@@ -93,10 +93,7 @@ const vitestConfig = vitestDefineConfig({
           name: 'browser',
           include: ['test/browser/**/*.{test,spec}.{ts,tsx}'],
           globalSetup: ['./test/_setup/globalSetup.ts'],
-          setupFiles: [
-            './test/_setup/browser.setupMocks.ts',
-            './test/_setup/browser.setupTests.ts'
-          ],
+          setupFiles: ['./test/_setup/browser.setupTests.ts'],
           browser: {
             enabled: true,
             provider: playwright(),

@@ -22,4 +22,15 @@ describe('App', () => {
       )
       .toBeVisible();
   });
+
+  test('renders without acknowledged notifications', async () => {
+    const notifId = notifsSvc.send('info', 'test notification')!;
+    notifsSvc.ack(notifId);
+    const screen = await render(<App />);
+
+    expect(screen.baseElement).toBeDefined();
+    await expect
+      .element(screen.locator.getByRole('status'))
+      .not.toBeInTheDocument();
+  });
 });

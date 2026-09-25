@@ -29,6 +29,7 @@ export async function slideOpen(screen: RenderResult, key: string) {
     .getByTestId(`notif-${key}`)
     .element() as HTMLIonItemSlidingElement;
   await slidingItem.open('end');
+  return slidingItem;
 }
 
 export function getAckBtn(screen: RenderResult, key: string) {

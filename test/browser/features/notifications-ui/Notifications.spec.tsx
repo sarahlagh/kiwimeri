@@ -23,6 +23,29 @@ import {
   slideOpen
 } from './Notifications.locators';
 
+/// setup mocks
+import * as reactRouter from 'react-router';
+import { NavigateOptions } from 'react-router';
+
+vi.mock('react-router', { spy: true });
+
+const navigateToList: string[] = [];
+
+const mockNavigateFunction: reactRouter.NavigateFunction = (
+  to: reactRouter.To | number,
+  options?: NavigateOptions
+) => {
+  if (typeof to === 'string') {
+    navigateToList.push(to);
+  }
+};
+
+vi.mocked(reactRouter.useNavigate).mockImplementation(
+  () => mockNavigateFunction
+);
+
+/// test suite
+
 async function expectInList(
   screen: RenderResult,
   notifs: AppNotificationResult[]
@@ -38,11 +61,10 @@ async function expectInList(
 
 describe('Notifications', () => {
   beforeEach(() => {
-    vi.useFakeTimers();
+    navigateToList.length = 0;
     fetchNotificationsQuery.initQuery({ all: true });
   });
   afterEach(() => {
-    vi.useRealTimers();
     fetchNotificationsQuery.close();
   });
 
@@ -68,232 +90,250 @@ describe('Notifications', () => {
     await expectInList(screen, notifs);
   });
 
-  test('click on info shows context and acknowledged timestamp', async () => {
-    const notifId = notifsSvc.send('error', 'test error notif', {
-      ctx: 'test'
-    })!;
-    vi.advanceTimersByTime(100);
-    const now = Date.now();
-    notifsSvc.ack(notifId);
-    const notifs = fetchNotificationsQuery.getResults({ all: true });
-    expect(notifs).toHaveLength(1);
-    const notif = notifs[0];
-
-    const screen = await render(<Notifications />, {
-      wrapper: TestingProvider
+  describe('Info Alert', () => {
+    beforeEach(() => {
+      vi.useFakeTimers({
+        toFake: [
+          'setTimeout',
+          'clearTimeout',
+          'setInterval',
+          'clearInterval',
+          'Date'
+        ]
+      });
     });
-    await expectInList(screen, notifs);
+    afterEach(() => {
+      vi.clearAllTimers();
+      vi.useRealTimers();
+    });
 
-    const infoBtn = getInfoButton(screen, notif.id);
-    await expect.element(infoBtn).toBeInTheDocument();
+    test('click on info shows context and acknowledged timestamp', async () => {
+      const notifId = notifsSvc.send('error', 'test error notif', {
+        ctx: 'test'
+      })!;
+      vi.advanceTimersByTime(100);
+      const now = Date.now();
+      notifsSvc.ack(notifId);
+      const notifs = fetchNotificationsQuery.getResults({ all: true });
+      expect(notifs).toHaveLength(1);
+      const notif = notifs[0];
 
-    await infoBtn.click();
+      const screen = await render(<Notifications />, {
+        wrapper: TestingProvider
+      });
+      await expectInList(screen, notifs);
 
-    await expect.element(getInfoAlert(screen)).toBeInTheDocument();
-    const acknowledgedAt = getInfoAlertAcknowledgedAt(screen);
-    const context = getInfoAlertContext(screen);
+      const infoBtn = getInfoButton(screen, notif.id);
+      await expect.element(infoBtn).toBeInTheDocument();
 
-    await expect.element(acknowledgedAt).toBeInTheDocument();
-    await expect.element(context).toBeInTheDocument();
-    expect((acknowledgedAt.element() as HTMLElement).textContent).toBe(
-      `Acknowledged at: ${dateToStr('datetime', now)} </br> Context: {"ctx":"test"}`
-    );
+      await infoBtn.click();
+
+      await expect.element(getInfoAlert(screen)).toBeInTheDocument();
+      const acknowledgedAt = getInfoAlertAcknowledgedAt(screen);
+      const context = getInfoAlertContext(screen);
+
+      await expect.element(acknowledgedAt).toBeInTheDocument();
+      await expect.element(context).toBeInTheDocument();
+      expect((acknowledgedAt.element() as HTMLElement).textContent).toBe(
+        `Acknowledged at: ${dateToStr('datetime', now)} </br> Context: {"ctx":"test"}`
+      );
+    });
+
+    test('click on info correctly renders missing acknowledged timestamp', async () => {
+      notifsSvc.send('error', 'test error notif', {
+        ctx: 'test'
+      });
+      const notifs = fetchNotificationsQuery.getResults({ all: true });
+      const notif = notifs[0];
+
+      const screen = await render(<Notifications />, {
+        wrapper: TestingProvider
+      });
+      await getInfoButton(screen, notif.id).click();
+
+      await expect.element(getInfoAlert(screen)).toBeInTheDocument();
+      const acknowledgedAt = getInfoAlertAcknowledgedAt(screen);
+
+      expect((acknowledgedAt.element() as HTMLElement).textContent).toBe(
+        `Acknowledged at: never </br> Context: {"ctx":"test"}`
+      );
+    });
+
+    test('click on info correctly renders missing context', async () => {
+      notifsSvc.send('error', 'test error notif');
+      const notifs = fetchNotificationsQuery.getResults({ all: true });
+      const notif = notifs[0];
+
+      const screen = await render(<Notifications />, {
+        wrapper: TestingProvider
+      });
+      await getInfoButton(screen, notif.id).click();
+
+      await expect.element(getInfoAlert(screen)).toBeInTheDocument();
+      const acknowledgedAt = getInfoAlertAcknowledgedAt(screen);
+
+      expect((acknowledgedAt.element() as HTMLElement).textContent).toBe(
+        `Acknowledged at: never </br> Context: none`
+      );
+    });
+
+    test('click on info offers Open Document button if context allows it (document)', async () => {
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      notifsSvc.send('error', 'test error notif', {
+        rowId: docId,
+        on: SpaceTables.Collection
+      });
+      const notifs = fetchNotificationsQuery.getResults({ all: true });
+      const notif = notifs[0];
+
+      const screen = await render(<Notifications />, {
+        wrapper: TestingProvider
+      });
+      await getInfoButton(screen, notif.id).click();
+
+      const openDocumentBtn = getInfoAlertOpenDocumentBtn(screen);
+      await expect.element(openDocumentBtn).toBeInTheDocument();
+
+      await openDocumentBtn.click();
+
+      expect(navigateToList).toHaveLength(1);
+      expect(navigateToList[0]).toBe(`/document?folder=0&document=${docId}`);
+    });
+
+    test('click on info offers Open Document button if context allows it (annotation)', async () => {
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const annotId = annotsService.addNote(docId);
+
+      notifsSvc.send('error', 'test error notif', {
+        rowId: annotId,
+        on: SpaceTables.Annotations
+      });
+      const notifs = fetchNotificationsQuery.getResults({ all: true });
+      const notif = notifs[0];
+
+      const screen = await render(<Notifications />, {
+        wrapper: TestingProvider
+      });
+      await getInfoButton(screen, notif.id).click();
+
+      const openDocumentBtn = getInfoAlertOpenDocumentBtn(screen);
+      await expect.element(openDocumentBtn).toBeInTheDocument();
+      await openDocumentBtn.click();
+
+      expect(navigateToList).toHaveLength(1);
+      expect(navigateToList[0]).toBe(`/document?folder=0&document=${docId}`);
+    });
+
+    test('click on info does not offer Open Document button if context missing', async () => {
+      notifsSvc.send('error', 'test error notif');
+      const notifs = fetchNotificationsQuery.getResults({ all: true });
+      const notif = notifs[0];
+
+      const screen = await render(<Notifications />, {
+        wrapper: TestingProvider
+      });
+      await getInfoButton(screen, notif.id).click();
+
+      const openDocumentBtn = getInfoAlertOpenDocumentBtn(screen);
+      await expect.element(openDocumentBtn).not.toBeInTheDocument();
+    });
+
+    test('click on info does not offer Open Document button if context has no relevant info', async () => {
+      notifsSvc.send('error', 'test error notif', { ctx: 'test' });
+      const notifs = fetchNotificationsQuery.getResults({ all: true });
+      const notif = notifs[0];
+
+      const screen = await render(<Notifications />, {
+        wrapper: TestingProvider
+      });
+      await getInfoButton(screen, notif.id).click();
+
+      const openDocumentBtn = getInfoAlertOpenDocumentBtn(screen);
+      await expect.element(openDocumentBtn).not.toBeInTheDocument();
+    });
+
+    test('click on info does not offer Open Document button if context "rowId" value is missing', async () => {
+      notifsSvc.send('error', 'test error notif', {
+        on: SpaceTables.Collection
+      });
+      const notifs = fetchNotificationsQuery.getResults({ all: true });
+      const notif = notifs[0];
+
+      const screen = await render(<Notifications />, {
+        wrapper: TestingProvider
+      });
+      await getInfoButton(screen, notif.id).click();
+
+      const openDocumentBtn = getInfoAlertOpenDocumentBtn(screen);
+      await expect.element(openDocumentBtn).not.toBeInTheDocument();
+    });
+
+    test('click on info does not offer Open Document button if context "on" value is wrong', async () => {
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      notifsSvc.send('error', 'test error notif', {
+        rowId: docId,
+        on: SpaceTables.Tasks
+      });
+      const notifs = fetchNotificationsQuery.getResults({ all: true });
+      const notif = notifs[0];
+
+      const screen = await render(<Notifications />, {
+        wrapper: TestingProvider
+      });
+      await getInfoButton(screen, notif.id).click();
+
+      const openDocumentBtn = getInfoAlertOpenDocumentBtn(screen);
+      await expect.element(openDocumentBtn).not.toBeInTheDocument();
+    });
   });
 
-  test('click on info correctly renders missing acknowledged timestamp', async () => {
-    notifsSvc.send('error', 'test error notif', {
-      ctx: 'test'
-    });
-    const notifs = fetchNotificationsQuery.getResults({ all: true });
-    const notif = notifs[0];
+  describe('Sliding Items', () => {
+    test('slide to acknowlege a non-acknowledged notification', async () => {
+      notifsSvc.send('error', 'test error notif');
+      const start = Date.now();
 
-    const screen = await render(<Notifications />, {
-      wrapper: TestingProvider
-    });
-    await getInfoButton(screen, notif.id).click();
+      const notifs = fetchNotificationsQuery.getResults({ all: true });
+      expect(notifs).toHaveLength(1);
+      const notifId = notifs[0].id;
 
-    await expect.element(getInfoAlert(screen)).toBeInTheDocument();
-    const acknowledgedAt = getInfoAlertAcknowledgedAt(screen);
+      const screen = await render(<Notifications />, {
+        wrapper: TestingProvider
+      });
 
-    expect((acknowledgedAt.element() as HTMLElement).textContent).toBe(
-      `Acknowledged at: never </br> Context: {"ctx":"test"}`
-    );
-  });
+      await slideOpen(screen, notifId);
 
-  test('click on info correctly renders missing context', async () => {
-    notifsSvc.send('error', 'test error notif');
-    const notifs = fetchNotificationsQuery.getResults({ all: true });
-    const notif = notifs[0];
+      await expect
+        .element(getUnAckBtn(screen, notifId))
+        .not.toBeInTheDocument();
+      const ackBtn = getAckBtn(screen, notifId);
+      await expect.element(ackBtn).toBeInTheDocument();
 
-    const screen = await render(<Notifications />, {
-      wrapper: TestingProvider
-    });
-    await getInfoButton(screen, notif.id).click();
-
-    await expect.element(getInfoAlert(screen)).toBeInTheDocument();
-    const acknowledgedAt = getInfoAlertAcknowledgedAt(screen);
-
-    expect((acknowledgedAt.element() as HTMLElement).textContent).toBe(
-      `Acknowledged at: never </br> Context: none`
-    );
-  });
-
-  test('click on info offers Open Document button if context allows it (document)', async () => {
-    const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    notifsSvc.send('error', 'test error notif', {
-      rowId: docId,
-      on: SpaceTables.Collection
-    });
-    const notifs = fetchNotificationsQuery.getResults({ all: true });
-    const notif = notifs[0];
-
-    const screen = await render(<Notifications />, {
-      wrapper: TestingProvider
-    });
-    await getInfoButton(screen, notif.id).click();
-
-    const openDocumentBtn = getInfoAlertOpenDocumentBtn(screen);
-    await expect.element(openDocumentBtn).toBeInTheDocument();
-
-    await openDocumentBtn.click();
-
-    expect(window.navigateToList).toHaveLength(1);
-    expect(window.navigateToList[0]).toBe(
-      `/document?folder=0&document=${docId}`
-    );
-  });
-
-  test('click on info offers Open Document button if context allows it (annotation)', async () => {
-    const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const annotId = annotsService.addNote(docId);
-
-    notifsSvc.send('error', 'test error notif', {
-      rowId: annotId,
-      on: SpaceTables.Annotations
-    });
-    const notifs = fetchNotificationsQuery.getResults({ all: true });
-    const notif = notifs[0];
-
-    const screen = await render(<Notifications />, {
-      wrapper: TestingProvider
-    });
-    await getInfoButton(screen, notif.id).click();
-
-    const openDocumentBtn = getInfoAlertOpenDocumentBtn(screen);
-    await expect.element(openDocumentBtn).toBeInTheDocument();
-    await openDocumentBtn.click();
-
-    expect(window.navigateToList).toHaveLength(1);
-    expect(window.navigateToList[0]).toBe(
-      `/document?folder=0&document=${docId}`
-    );
-  });
-
-  test('click on info does not offer Open Document button if context missing', async () => {
-    notifsSvc.send('error', 'test error notif');
-    const notifs = fetchNotificationsQuery.getResults({ all: true });
-    const notif = notifs[0];
-
-    const screen = await render(<Notifications />, {
-      wrapper: TestingProvider
-    });
-    await getInfoButton(screen, notif.id).click();
-
-    const openDocumentBtn = getInfoAlertOpenDocumentBtn(screen);
-    await expect.element(openDocumentBtn).not.toBeInTheDocument();
-  });
-
-  test('click on info does not offer Open Document button if context has no relevant info', async () => {
-    notifsSvc.send('error', 'test error notif', { ctx: 'test' });
-    const notifs = fetchNotificationsQuery.getResults({ all: true });
-    const notif = notifs[0];
-
-    const screen = await render(<Notifications />, {
-      wrapper: TestingProvider
-    });
-    await getInfoButton(screen, notif.id).click();
-
-    const openDocumentBtn = getInfoAlertOpenDocumentBtn(screen);
-    await expect.element(openDocumentBtn).not.toBeInTheDocument();
-  });
-
-  test('click on info does not offer Open Document button if context "rowId" value is missing', async () => {
-    notifsSvc.send('error', 'test error notif', {
-      on: SpaceTables.Collection
-    });
-    const notifs = fetchNotificationsQuery.getResults({ all: true });
-    const notif = notifs[0];
-
-    const screen = await render(<Notifications />, {
-      wrapper: TestingProvider
-    });
-    await getInfoButton(screen, notif.id).click();
-
-    const openDocumentBtn = getInfoAlertOpenDocumentBtn(screen);
-    await expect.element(openDocumentBtn).not.toBeInTheDocument();
-  });
-
-  test('click on info does not offer Open Document button if context "on" value is wrong', async () => {
-    const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    notifsSvc.send('error', 'test error notif', {
-      rowId: docId,
-      on: SpaceTables.Tasks
-    });
-    const notifs = fetchNotificationsQuery.getResults({ all: true });
-    const notif = notifs[0];
-
-    const screen = await render(<Notifications />, {
-      wrapper: TestingProvider
-    });
-    await getInfoButton(screen, notif.id).click();
-
-    const openDocumentBtn = getInfoAlertOpenDocumentBtn(screen);
-    await expect.element(openDocumentBtn).not.toBeInTheDocument();
-  });
-
-  test('slide to acknowlege a non-acknowledged notification', async () => {
-    notifsSvc.send('error', 'test error notif');
-
-    const notifs = fetchNotificationsQuery.getResults({ all: true });
-    expect(notifs).toHaveLength(1);
-    const notifId = notifs[0].id;
-
-    const screen = await render(<Notifications />, {
-      wrapper: TestingProvider
+      await ackBtn.click();
+      await expect.element(getUnAckBtn(screen, notifId)).toBeInTheDocument();
+      expect(
+        store.getCell(StoreTables.Notifications, notifId, 'ackAt')
+      ).toBeGreaterThan(start);
     });
 
-    await slideOpen(screen, notifId);
+    test('slide to un-acknowlege an acknowledged notification', async () => {
+      const notifId = notifsSvc.send('error', 'test error notif')!;
+      notifsSvc.ack(notifId);
 
-    await expect.element(getUnAckBtn(screen, notifId)).not.toBeInTheDocument();
-    const ackBtn = getAckBtn(screen, notifId);
-    await expect.element(ackBtn).toBeInTheDocument();
+      const screen = await render(<Notifications />, {
+        wrapper: TestingProvider
+      });
 
-    await ackBtn.click();
-    await expect.element(getUnAckBtn(screen, notifId)).toBeInTheDocument();
-    expect(store.getCell(StoreTables.Notifications, notifId, 'ackAt')).toBe(
-      Date.now()
-    );
-  });
+      await slideOpen(screen, notifId);
 
-  test('slide to un-acknowlege an acknowledged notification', async () => {
-    const notifId = notifsSvc.send('error', 'test error notif')!;
-    notifsSvc.ack(notifId);
-    vi.advanceTimersByTime(100);
+      await expect.element(getAckBtn(screen, notifId)).not.toBeInTheDocument();
+      const unAckBtn = getUnAckBtn(screen, notifId);
+      await expect.element(unAckBtn).toBeInTheDocument();
 
-    const screen = await render(<Notifications />, {
-      wrapper: TestingProvider
+      await unAckBtn.click();
+      await expect.element(getAckBtn(screen, notifId)).toBeInTheDocument();
+      expect(
+        store.getCell(StoreTables.Notifications, notifId, 'ackAt')
+      ).toBeUndefined();
     });
-
-    await slideOpen(screen, notifId);
-
-    await expect.element(getAckBtn(screen, notifId)).not.toBeInTheDocument();
-    const unAckBtn = getUnAckBtn(screen, notifId);
-    await expect.element(unAckBtn).toBeInTheDocument();
-
-    await unAckBtn.click();
-    await expect.element(getAckBtn(screen, notifId)).toBeInTheDocument();
-    expect(
-      store.getCell(StoreTables.Notifications, notifId, 'ackAt')
-    ).toBeUndefined();
   });
 });
