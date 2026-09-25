@@ -13,6 +13,7 @@ export enum TaskNames {
   FAST_WRITE = 'fast_write',
   HISTORY_SAVE = 'history_save',
   LOG_GC = 'log_gc',
+  NOTIFS_GC = 'notifs_gc',
   HISTORY_GC = 'history_gc',
   DELETE_NATIVE_BACKUPS = 'delete_native_backups'
 }
@@ -74,6 +75,10 @@ class TaskRegistry {
     this.register(TaskNames.HISTORY_GC, () => {
       historyService.gc();
       historyService.compact();
+    });
+
+    this.register(TaskNames.NOTIFS_GC, () => {
+      notifsSvc.gc();
     });
   }
 

@@ -32,7 +32,24 @@ class AppNotificationService {
     }
   }
 
-  // TODO gc
+  public gc() {
+    console.log('running notifications gc');
+    const now = Date.now();
+    let count = 0;
+    store.transaction(() => {
+      const table = store.getTable(N);
+      store.getRowIds(N).forEach(rowId => {
+        if (
+          table[rowId].ackAt !== undefined &&
+          now - table[rowId].ackAt > 3600_000
+        ) {
+          store.delRow(N, rowId);
+          count++;
+        }
+      });
+    });
+    console.log('notifications gc done, deleted', count);
+  }
 }
 
 export const notifsSvc = new AppNotificationService();
