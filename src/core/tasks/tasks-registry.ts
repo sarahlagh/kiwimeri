@@ -1,9 +1,12 @@
+import { deviceSettings } from '@/domain/device-settings/device-settings.service';
+import { writer } from '@/domain/document-edits/document-edits.service';
 import { historyService } from '@/domain/history/history.service';
 import { clearNativeDbBackups } from '../db/native/native-db-persister';
 import { triggerNativeSave } from '../db/native/trigger-native-save';
 import { AnyData } from '../db/types';
 import { plt } from '../infra/platform';
 import { appLog } from '../logs/logs.service';
+import { notifsSvc } from '../notifications/notifications.service';
 
 export enum TaskNames {
   NATIVE_STORE_SAVE = 'native_store_save',
@@ -37,21 +40,27 @@ class TaskRegistry {
       });
     }
 
-    // this.register(TaskNames.FAST_WRITE, inputs => {
-    //   const { on, rowId } = inputs!;
-    //   const isWatchMode = deviceSettings.isFastWriteWatchMode();
-    //   const reconciledContent = writer.reconcile(on, rowId, !isWatchMode);
-    //   if (isWatchMode) {
-    //     const content = writer.getContent(on, rowId);
-    //     if (content !== reconciledContent) {
-    //       // TODO
-    //       console.error('error during reconciliation', on, rowId);
-    //     }
-    //     writer.clear(on, rowId);
-    //   } else {
-    //     writer.writeContent(on, rowId, reconciledContent);
-    //   }
-    // });
+    this.register(TaskNames.FAST_WRITE, inputs => {
+      const { on, rowId } = inputs!;
+      const isWatchMode = deviceSettings.isFastWriteWatchMode();
+      console.debug('FAST_WRITE', isWatchMode);
+      const reconciledContent = writer.reconcile(on, rowId, !isWatchMode);
+      if (isWatchMode) {
+        const content = writer.getContent(on, rowId);
+        if (content !== reconciledContent) {
+          notifsSvc.send('error', 'error during reconciliation', {
+            on,
+            rowId
+          });
+          console.error('error during reconciliation', on, rowId);
+        } else {
+          console.debug('RECONCILIATION OK');
+          writer.clear(on, rowId);
+        }
+      } else {
+        writer.writeContent(on, rowId, reconciledContent);
+      }
+    });
 
     this.register(TaskNames.HISTORY_SAVE, inputs => {
       const { docId } = inputs!;

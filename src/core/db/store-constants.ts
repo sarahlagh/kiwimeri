@@ -1,6 +1,7 @@
 export enum StoreTables {
   Profiles = 'profiles',
-  Logs = 'logs'
+  Logs = 'logs',
+  Notifications = 'notifications'
 }
 export const NATIVE_STORE_EXCLUDE = [StoreTables.Logs];
 

@@ -17,6 +17,7 @@ import { replicaStatesSchema } from '@/domain/synchronization/replica-state';
 import { userPreferenceSchema } from '@/domain/user-preferences/user-preferences';
 import { NoValuesSchema } from 'tinybase/with-schemas';
 import { logsSchema } from '../logs/logs';
+import { notificationsSchema } from '../notifications/notifications';
 import { tasksSchema } from '../tasks/tasks';
 import {
   SpaceArchiveTables,
@@ -35,7 +36,8 @@ export const storeTablesSchema = {
   profiles: {
     createdAt: { type: 'number' }
   },
-  logs: logsSchema
+  logs: logsSchema,
+  notifications: notificationsSchema
 } as const satisfies Record<StoreTables, unknown>;
 
 export const spaceTablesSchema = {

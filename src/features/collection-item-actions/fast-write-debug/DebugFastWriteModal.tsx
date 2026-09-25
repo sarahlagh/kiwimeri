@@ -67,14 +67,16 @@ const DebugFastWriteModal = ({ id, onClose }: DebugFastWriteModalProps) => {
         <IonToolbar>
           <IonButtons slot="end">
             <GenericExportFileButton
+              label="Export json"
+              icon={null}
               getFileTitle={`debug-fast-write-${id}.json`}
               getFileContent={async () => {
                 return JSON.stringify(
                   {
                     edits,
                     content,
-                    markdown,
                     reconciledContent,
+                    markdown,
                     reconciledMarkdown
                   },
                   null,
@@ -82,13 +84,30 @@ const DebugFastWriteModal = ({ id, onClose }: DebugFastWriteModalProps) => {
                 );
               }}
             />
+            <GenericExportFileButton
+              label="Export text"
+              icon={null}
+              getFileTitle={`debug-fast-write-${id}.txt`}
+              getFileContent={async () => {
+                return (
+                  `${JSON.stringify(edits)}\n\n` +
+                  `content: ${JSON.stringify(content)}\n\n` +
+                  `reconciled content: ${JSON.stringify(reconciledContent)}\n\n` +
+                  `==================================================================================================\n\n` +
+                  `${markdown}\n\n\n` +
+                  `==================================================================================================\n\n` +
+                  `${reconciledMarkdown}\n\n\n`
+                );
+              }}
+            />
             <IonButton
+              color={'primary'}
               onClick={() => {
                 writer.clear('collection', id);
                 setEdits([]);
               }}
             >
-              <IonIcon icon={APPICONS.deleteAction}></IonIcon>
+              Clear
             </IonButton>
           </IonButtons>
         </IonToolbar>

@@ -9,6 +9,11 @@ interface ToastContextSpec {
   };
 
   setToast: (message: string, color?: string) => Promise<void>;
+  setPersistentToast: (
+    message: string,
+    color?: string,
+    onDidDismiss?: HookOverlayOptions['onDidDismiss']
+  ) => Promise<void>;
 }
 
 const ToastContext = createContext<ToastContextSpec | undefined>(undefined);
