@@ -11,7 +11,7 @@ class AppNotificationService {
     message: string,
     context?: AppNotificationCtx
   ) {
-    store.addRow(N, {
+    return store.addRow(N, {
       createdAt: Date.now(),
       profile: getCurrentProfile(),
       level,

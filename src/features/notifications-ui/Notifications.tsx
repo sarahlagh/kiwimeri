@@ -60,7 +60,7 @@ const Notifications = () => {
   return (
     <IonList>
       {notifications.map(notif => (
-        <IonItemSliding key={notif.id}>
+        <IonItemSliding key={notif.id} data-testid={`notif-${notif.id}`}>
           <IonItem
             color={
               notif.ackAt === undefined
@@ -127,7 +127,7 @@ const Notifications = () => {
               <IonButtons>
                 {notif.ackAt === undefined && (
                   <IonButton
-                    aria-label={t`Acknowledge`}
+                    aria-label={t`Mark read`}
                     onClick={() => {
                       notifsSvc.ack(notif.id);
                     }}
