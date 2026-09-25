@@ -13,6 +13,8 @@ import {
   caretBackCircleOutline,
   caretForwardCircleOutline,
   chatbubbleEllipsesOutline,
+  checkmarkDoneCircleOutline,
+  checkmarkDoneOutline,
   checkmarkOutline,
   chevronCollapseOutline,
   chevronDownOutline,
@@ -43,6 +45,7 @@ import {
   moonOutline,
   moonSharp,
   moveOutline,
+  notificationsOutline,
   optionsOutline,
   pricetagsOutline,
   pushOutline,
@@ -144,7 +147,10 @@ export const APPICONS = {
   collapse: chevronCollapseOutline,
   expandCard: chevronUpOutline,
   collapseCard: chevronDownOutline,
-  runNow: caretForwardCircleOutline
+  runNow: caretForwardCircleOutline,
+  notificationsPage: notificationsOutline,
+  checkAction: checkmarkDoneOutline,
+  uncheckAction: checkmarkDoneCircleOutline
 };
 
 // for where using lingui macros isn't possible

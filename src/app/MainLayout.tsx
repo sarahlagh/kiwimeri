@@ -1,9 +1,10 @@
 import { MAIN_CONTENT_ID } from '@/constants';
 import { useQueryResults } from '@/core/db/queries-helper';
-import { AppNotificationLevel } from '@/core/notifications/notifications';
+import { getNotificationColor } from '@/core/notifications/notifications';
 import { notifsSvc } from '@/core/notifications/notifications.service';
 import useAppInfo from '@/shared/hooks/useAppInfo';
 import useDeviceSetting from '@/shared/hooks/useDeviceSetting';
+import useGenericQueryInstance from '@/shared/hooks/useGenericQueryInstance';
 import {
   IonHeader,
   IonIcon,
@@ -17,22 +18,16 @@ import MainMenuList from './components/MainMenuList';
 import { useToastContext } from './context/ToastContext';
 import fetchNotificationsQuery from './queries/fetchNotificationsQuery';
 
-function getNotificationColor(level: AppNotificationLevel) {
-  switch (level) {
-    case 'error':
-      return 'danger';
-    case 'warning':
-      return 'warning';
-    case 'info':
-      return 'success';
-  }
-}
-
 const MainLayout = () => {
   const appName = useAppInfo();
   const theme = useDeviceSetting('theme');
   const { setPersistentToast } = useToastContext();
-  const notifications = useQueryResults(fetchNotificationsQuery);
+  const notifQuery = useGenericQueryInstance(
+    'MainLayout',
+    fetchNotificationsQuery,
+    { all: false }
+  );
+  const notifications = useQueryResults(notifQuery);
 
   useEffect(() => {
     document.documentElement.classList.toggle(
@@ -42,7 +37,7 @@ const MainLayout = () => {
   }, [theme]);
 
   useEffect(() => {
-    fetchNotificationsQuery.initQuery();
+    fetchNotificationsQuery.initQuery({ all: true });
   }, []);
 
   useEffect(() => {

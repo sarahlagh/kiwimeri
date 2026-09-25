@@ -42,6 +42,7 @@ TASKS_MSG[`${TaskNames.FAST_WRITE}_description`] =
 TASKS_MSG[TaskNames.HISTORY_SAVE] = msg`Pending Document Version`;
 TASKS_MSG[TaskNames.LOG_GC] = msg`Log Maintenance`;
 TASKS_MSG[TaskNames.HISTORY_GC] = msg`History Maintenance`;
+TASKS_MSG[TaskNames.NOTIFS_GC] = msg`Notification Maintenance`;
 TASKS_MSG[TaskNames.DELETE_NATIVE_BACKUPS] = msg`Profile Cleanup`;
 
 const TasksCard = () => {

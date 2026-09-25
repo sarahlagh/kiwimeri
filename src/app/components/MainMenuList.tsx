@@ -5,12 +5,14 @@ import {
   DEV_TOOLS_ROUTE,
   GET_ITEM_ROUTE,
   isCollectionRoute,
+  NOTIFICATIONS_ROUTE,
   SETTINGS_ROUTE,
   SYNCHRONIZATION_ROUTE,
   WRITING_SESSION_ROUTE
 } from '@/app/routes';
 import { appConfig } from '@/config';
 import { APPICONS } from '@/constants';
+import { useQueryResults } from '@/core/db/queries-helper';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { NotebookSwitcher } from '@/features/collection-notebooks-ui';
@@ -29,6 +31,7 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
+import fetchNotificationsQuery from '../queries/fetchNotificationsQuery';
 
 interface AppPage {
   key: string;
@@ -44,6 +47,7 @@ const MainMenuList = () => {
   const navigate = useNavigate();
   const theme = useDeviceSetting('theme');
   const showDevTools = useShowDevTools();
+  const notifications = useQueryResults(fetchNotificationsQuery);
 
   function isActive(appPage: AppPage) {
     if (appPage.isActive) {
@@ -85,6 +89,14 @@ const MainMenuList = () => {
       icon: APPICONS.synchronizationPage
     }
   ];
+  if (notifications.length > 0) {
+    appPages.push({
+      key: 'notifications',
+      title: t`Notifications`,
+      url: NOTIFICATIONS_ROUTE,
+      icon: APPICONS.notificationsPage
+    });
+  }
   if (showDevTools) {
     appPages.push({
       key: 'devtools',

@@ -8,6 +8,7 @@ export const INIT_ROUTE = '/';
 
 export const SETTINGS_ROUTE = '/settings';
 export const SYNCHRONIZATION_ROUTE = '/synchronization';
+export const NOTIFICATIONS_ROUTE = '/notifications';
 export const DEV_TOOLS_ROUTE = '/devtools';
 
 export const FOLDER_ROUTE = '/collection';

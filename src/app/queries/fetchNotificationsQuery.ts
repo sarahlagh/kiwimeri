@@ -2,24 +2,35 @@ import { StoreQueryDefinition } from '@/core/db/queries-helper';
 import { getCurrentProfile } from '@/core/db/store';
 import { StoreTables } from '@/core/db/store-constants';
 import { AppNotificationResult } from '@/core/notifications/notifications';
-import { ParamValues } from 'tinybase/with-schemas';
+
+type NotificationsQueryParam = {
+  all?: boolean;
+};
 
 const fetchNotificationsQuery = new StoreQueryDefinition<
-  ParamValues,
+  NotificationsQueryParam,
   AppNotificationResult,
   StoreTables.Notifications
 >(
   'fetchNotificationsQuery',
   StoreTables.Notifications,
-  ({ select, where }) => {
+  ({ select, where, param }) => {
+    const params: NotificationsQueryParam = {
+      all: param('all') as boolean
+    };
+
     select('createdAt');
     select('level');
     select('message');
     select('context');
+    select('ackAt');
     where('profile', getCurrentProfile());
-    where(getTableCell => {
-      return getTableCell('ackAt') === undefined;
-    });
+
+    if (!params.all) {
+      where(getTableCell => {
+        return getTableCell('ackAt') === undefined;
+      });
+    }
   },
   'createdAt',
   false

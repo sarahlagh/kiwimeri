@@ -1,13 +1,16 @@
 import { Id } from 'tinybase/with-schemas';
 import { getCurrentProfile, store } from '../db/store';
 import { StoreTables } from '../db/store-constants';
-import { AnyData } from '../db/types';
-import { AppNotificationLevel } from './notifications';
+import { AppNotificationCtx, AppNotificationLevel } from './notifications';
 
 const N = StoreTables.Notifications;
 
 class AppNotificationService {
-  public send(level: AppNotificationLevel, message: string, context?: AnyData) {
+  public send(
+    level: AppNotificationLevel,
+    message: string,
+    context?: AppNotificationCtx
+  ) {
     store.addRow(N, {
       createdAt: Date.now(),
       profile: getCurrentProfile(),
@@ -20,6 +23,12 @@ class AppNotificationService {
   public ack(notifId: Id) {
     if (store.hasRow(N, notifId)) {
       store.setCell(N, notifId, 'ackAt', Date.now());
+    }
+  }
+
+  public unAck(notifId: Id) {
+    if (store.hasRow(N, notifId)) {
+      store.delCell(N, notifId, 'ackAt');
     }
   }
 

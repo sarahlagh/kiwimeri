@@ -84,6 +84,14 @@ msgstr "a notebook"
 msgid "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 msgstr "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 
+#: src/features/notifications-ui/Notifications.tsx:130
+msgid "Acknowledge"
+msgstr "Acknowledge"
+
+#: src/features/notifications-ui/Notifications.tsx:89
+msgid "Acknowledged at: {0} </br> Context: {1}"
+msgstr "Acknowledged at: {0} </br> Context: {1}"
+
 #: src/features/collection-notes-ui/components/NotesMenu.tsx:36
 msgid "add a note"
 msgstr "add a note"
@@ -136,7 +144,7 @@ msgstr "cancel"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: src/features/dev-tools/components/TasksCard.tsx:176
+#: src/features/dev-tools/components/TasksCard.tsx:177
 msgid "Cancel Task"
 msgstr "Cancel Task"
 
@@ -173,7 +181,8 @@ msgstr "Choose a session length"
 msgid "Choose where to save your work"
 msgstr "Choose where to save your work"
 
-#: src/features/dev-tools/components/TasksCard.tsx:136
+#: src/features/dev-tools/components/TasksCard.tsx:137
+#: src/features/notifications-ui/Notifications.tsx:120
 msgid "close"
 msgstr "close"
 
@@ -181,11 +190,11 @@ msgstr "close"
 msgid "Close"
 msgstr "Close"
 
-#: src/constants.ts:85
+#: src/constants.ts:88
 msgid "collection"
 msgstr "collection"
 
-#: src/app/components/MainMenuList.tsx:61
+#: src/app/components/MainMenuList.tsx:65
 msgid "Collection"
 msgstr "Collection"
 
@@ -208,7 +217,7 @@ msgstr "Configure where to synchronize your collection"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/constants.ts:81
+#: src/constants.ts:84
 #: src/features/collection-browser/components/CollectionItemBrowserList.tsx:173
 msgid "Conflicts"
 msgstr "Conflicts"
@@ -250,7 +259,7 @@ msgstr "Current profile"
 msgid "Debug"
 msgstr "Debug"
 
-#: src/constants.ts:80
+#: src/constants.ts:83
 msgid "Default"
 msgstr "Default"
 
@@ -278,7 +287,7 @@ msgstr "deleted comment"
 msgid "deleted item"
 msgstr "deleted item"
 
-#: src/app/components/MainMenuList.tsx:91
+#: src/app/components/MainMenuList.tsx:103
 #: src/app/pages/DevToolsPage.tsx:21
 msgid "Dev Tools"
 msgstr "Dev Tools"
@@ -391,7 +400,7 @@ msgstr "History Maintenance"
 msgid "History save time (min)"
 msgstr "History save time (min)"
 
-#: src/constants.ts:79
+#: src/constants.ts:82
 msgid "Home"
 msgstr "Home"
 
@@ -427,7 +436,7 @@ msgstr "Include metadata in zip"
 msgid "Incorrect Metadata"
 msgstr "Incorrect Metadata"
 
-#: src/features/dev-tools/components/TasksCard.tsx:133
+#: src/features/dev-tools/components/TasksCard.tsx:134
 msgid "Inputs: {0} </br> {1}"
 msgstr "Inputs: {0} </br> {1}"
 
@@ -507,6 +516,10 @@ msgstr "Manually backup or restore your app settings"
 msgid "Manually backup or restore your collection in the format of your choice"
 msgstr "Manually backup or restore your collection in the format of your choice"
 
+#: src/features/notifications-ui/Notifications.tsx:140
+msgid "Mark unread"
+msgstr "Mark unread"
+
 #: src/features/import-export/buttons/ImportExportCollectionSettings.tsx:82
 msgid "Markdown (Kiwimeri flavor)"
 msgstr "Markdown (Kiwimeri flavor)"
@@ -548,11 +561,11 @@ msgstr "Native Storage"
 msgid "new"
 msgstr "new"
 
-#: src/constants.ts:82
+#: src/constants.ts:85
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:83
+#: src/constants.ts:86
 msgid "New folder"
 msgstr "New folder"
 
@@ -576,7 +589,7 @@ msgstr "no"
 msgid "No pending edits"
 msgstr "No pending edits"
 
-#: src/features/dev-tools/components/TasksCard.tsx:70
+#: src/features/dev-tools/components/TasksCard.tsx:71
 msgid "No pending tasks"
 msgstr "No pending tasks"
 
@@ -596,6 +609,15 @@ msgstr "Notebook Selection"
 msgid "Notebooks found in the archive, they will be converted to folders"
 msgstr "Notebooks found in the archive, they will be converted to folders"
 
+#: src/features/dev-tools/components/TasksCard.tsx:45
+msgid "Notification Maintenance"
+msgstr "Notification Maintenance"
+
+#: src/app/components/MainMenuList.tsx:95
+#: src/app/pages/NotificationsPage.tsx:15
+msgid "Notifications"
+msgstr "Notifications"
+
 #: src/domain/user-preferences/user-preferences.ts:36
 msgid "Number of versions"
 msgstr "Number of versions"
@@ -603,6 +625,10 @@ msgstr "Number of versions"
 #: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:96
 msgid "ok"
 msgstr "ok"
+
+#: src/features/notifications-ui/Notifications.tsx:94
+msgid "Open document"
+msgstr "Open document"
 
 #: src/features/settings-ui/components/CurrentDeviceSettings.tsx:26
 msgid "Options for the currently selected device. These options are local-only."
@@ -638,7 +664,7 @@ msgstr "Pending Document Version"
 msgid "Pending Edits"
 msgstr "Pending Edits"
 
-#: src/features/dev-tools/components/TasksCard.tsx:45
+#: src/features/dev-tools/components/TasksCard.tsx:46
 msgid "Profile Cleanup"
 msgstr "Profile Cleanup"
 
@@ -650,7 +676,7 @@ msgstr "profile name"
 msgid "Profile Settings"
 msgstr "Profile Settings"
 
-#: src/features/dev-tools/components/TasksCard.tsx:105
+#: src/features/dev-tools/components/TasksCard.tsx:106
 msgid "Ran at:  {0} with errors"
 msgstr "Ran at:  {0} with errors"
 
@@ -691,7 +717,7 @@ msgstr "Restore Collection"
 msgid "Restore Version"
 msgstr "Restore Version"
 
-#: src/features/dev-tools/components/TasksCard.tsx:165
+#: src/features/dev-tools/components/TasksCard.tsx:166
 msgid "Run Now"
 msgstr "Run Now"
 
@@ -703,11 +729,11 @@ msgstr "Save"
 msgid "Save your work"
 msgstr "Save your work"
 
-#: src/features/dev-tools/components/TasksCard.tsx:98
+#: src/features/dev-tools/components/TasksCard.tsx:99
 msgid "Scheduled at:  "
 msgstr "Scheduled at:  "
 
-#: src/features/dev-tools/components/TasksCard.tsx:63
+#: src/features/dev-tools/components/TasksCard.tsx:64
 msgid "Scheduled Tasks"
 msgstr "Scheduled Tasks"
 
@@ -735,12 +761,13 @@ msgstr "Select item tags"
 msgid "Server"
 msgstr "Server"
 
-#: src/app/components/MainMenuList.tsx:77
+#: src/app/components/MainMenuList.tsx:81
 #: src/app/pages/SettingsPage.tsx:15
 msgid "Settings"
 msgstr "Settings"
 
-#: src/features/dev-tools/components/TasksCard.tsx:120
+#: src/features/dev-tools/components/TasksCard.tsx:121
+#: src/features/notifications-ui/Notifications.tsx:82
 msgid "Show details"
 msgstr "Show details"
 
@@ -788,7 +815,7 @@ msgstr "Success!"
 msgid "Switch info"
 msgstr "Switch info"
 
-#: src/app/components/MainMenuList.tsx:83
+#: src/app/components/MainMenuList.tsx:87
 #: src/app/pages/SynchronizationPage.tsx:15
 msgid "Synchronization & Backup"
 msgstr "Synchronization & Backup"
@@ -821,7 +848,7 @@ msgstr "The number of versions to keep per document. Set 0 for unlimited."
 msgid "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page and the Settings page."
 msgstr "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page and the Settings page."
 
-#: src/features/dev-tools/components/TasksCard.tsx:150
+#: src/features/dev-tools/components/TasksCard.tsx:151
 msgid "This will cancel the task"
 msgstr "This will cancel the task"
 
@@ -833,7 +860,7 @@ msgstr "This will delete this folder and move all its items to the current one."
 msgid "This will delete your existing data. Are you sure?"
 msgstr "This will delete your existing data. Are you sure?"
 
-#: src/features/dev-tools/components/TasksCard.tsx:141
+#: src/features/dev-tools/components/TasksCard.tsx:142
 msgid "This will execute the task immediately"
 msgstr "This will execute the task immediately"
 
@@ -849,7 +876,7 @@ msgstr "This will reset this change"
 msgid "timed session "
 msgstr "timed session "
 
-#: src/app/components/MainMenuList.tsx:71
+#: src/app/components/MainMenuList.tsx:75
 msgid "Timed Writing"
 msgstr "Timed Writing"
 
