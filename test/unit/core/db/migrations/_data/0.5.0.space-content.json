@@ -268,6 +268,9 @@
     "defaultTimedMode": "less-dangerous",
     "rememberLastRoute": true,
     "resumeLastSelection": true,
-    "showDevTools": false
+    "showDevTools": false,
+    "internalProxy": "http://localhost:8888",
+    "enableFastWrite": false,
+    "fastWriteMode": "watch"
   }
 ]

@@ -106,12 +106,14 @@ describe('DocumentEditor', () => {
     beforeEach(() => {
       vi.useFakeTimers();
       deviceSettings.set('enableFastWrite', true);
+      deviceSettings.set('fastWriteMode', 'run');
       appConfig.SCHEDULER_INTERVAL = 50;
       appConfig.FAST_WRITE_THROTTLE = 100;
       schedule.start();
     });
     afterEach(() => {
       deviceSettings.set('enableFastWrite', false);
+      deviceSettings.set('fastWriteMode', 'watch');
       schedule.stop();
       vi.useRealTimers();
     });
