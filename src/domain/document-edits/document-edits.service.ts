@@ -23,7 +23,7 @@ class DocumentWriterService {
   ) {
     if (deviceSettings.isFastWriteEnabled()) {
       writer.fastWrite(
-        SpaceTables.Collection,
+        on,
         rowId,
         editorState,
         blocksChanged,

@@ -1,5 +1,6 @@
 import { GET_FOLDER_ROUTE } from '@/app/routes';
 import { APPICONS } from '@/constants';
+import { SpaceTables } from '@/core/db/store-constants';
 import { CollectionItemType } from '@/domain/collection/collection';
 import { settingsService } from '@/domain/collection/collection-settings.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
@@ -38,7 +39,7 @@ const ActionsFromDocumentEditorToolbar = ({
       <IonButtons slot="end" style={{ overflowX: 'auto' }}>
         {deviceSettings.isFastWriteEnabled() &&
           deviceSettings.isFastWriteWatchMode() && (
-            <DebugFastWriteButton on="collection" id={docId} />
+            <DebugFastWriteButton on={SpaceTables.Collection} id={docId} />
           )}
 
         <MoveFolderButton id={docId} onClose={onClose} />

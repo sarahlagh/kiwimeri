@@ -238,7 +238,7 @@ msgid "Created at"
 msgstr "Created at"
 
 #. placeholder {0}: dateToStr('relative', createdAt)
-#: src/features/collection-notes-ui/components/NotesActions.tsx:26
+#: src/features/collection-notes-ui/components/NotesActions.tsx:27
 msgid "Created at: {0}"
 msgstr "Created at: {0}"
 
@@ -267,7 +267,7 @@ msgstr "Default sort field"
 msgid "Delete All"
 msgstr "Delete All"
 
-#: src/features/collection-notes-ui/components/NotesActions.tsx:46
+#: src/features/collection-notes-ui/components/NotesActions.tsx:47
 msgid "Delete note"
 msgstr "Delete note"
 
@@ -817,7 +817,7 @@ msgstr "Start Writing"
 msgid "Success!"
 msgstr "Success!"
 
-#: src/features/collection-notes-ui/components/NotesActions.tsx:59
+#: src/features/collection-notes-ui/components/NotesActions.tsx:60
 msgid "Switch info"
 msgstr "Switch info"
 
@@ -894,7 +894,7 @@ msgstr "Timed Writing Session"
 msgid "Title"
 msgstr "Title"
 
-#: src/features/collection-notes-ui/components/NotesActions.tsx:39
+#: src/features/collection-notes-ui/components/NotesActions.tsx:40
 msgid "Toggle actions"
 msgstr "Toggle actions"
 
@@ -907,7 +907,7 @@ msgid "Updated at"
 msgstr "Updated at"
 
 #. placeholder {0}: dateToStr('relative', updatedAt)
-#: src/features/collection-notes-ui/components/NotesActions.tsx:31
+#: src/features/collection-notes-ui/components/NotesActions.tsx:32
 msgid "Updated at: {0}"
 msgstr "Updated at: {0}"
 

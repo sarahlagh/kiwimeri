@@ -1,4 +1,5 @@
 import { APPICONS } from '@/constants';
+import { SpaceTables } from '@/core/db/store-constants';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
@@ -65,7 +66,10 @@ const NoteActions = ({ docId, noteId }: NoteActionsProps) => {
               </IonButton>
               {deviceSettings.isFastWriteEnabled() &&
                 deviceSettings.isFastWriteWatchMode() && (
-                  <DebugFastWriteButton on="annotations" id={docId} />
+                  <DebugFastWriteButton
+                    on={SpaceTables.Annotations}
+                    id={noteId}
+                  />
                 )}
             </>
           )}

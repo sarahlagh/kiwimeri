@@ -64,7 +64,7 @@ class TaskRegistry {
         notifsSvc.send('error', 'unexpected error writing document', {
           on,
           rowId,
-          e
+          e: appLog.stringify(e)
         });
         console.error('unexpected error writing document', on, rowId, e);
       }

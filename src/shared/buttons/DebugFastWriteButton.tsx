@@ -18,13 +18,13 @@ const DebugFastWriteButton = ({ id, on }: DebugFastWriteButtonProps) => {
   const { t } = useLingui();
   const { setToast } = useToastContext();
 
-  const edits = writer.getEdits('collection', id);
+  const edits = writer.getEdits(on, id);
   const content = writer.getContent(on, id);
   const markdown = formatConverter.toMarkdown(content);
   let reconciledContent = '';
   let reconciledMarkdown = '';
   try {
-    reconciledContent = writer.reconcile('collection', id, false);
+    reconciledContent = writer.reconcile(on, id, false);
     reconciledMarkdown = formatConverter.toMarkdown(reconciledContent);
   } catch (e) {
     console.error(e);
@@ -80,7 +80,7 @@ const DebugFastWriteButton = ({ id, on }: DebugFastWriteButtonProps) => {
             text: `clear edits`,
             role: 'destructive',
             handler() {
-              writer.clear('collection', id);
+              writer.clear(on, id);
             }
           },
           {
