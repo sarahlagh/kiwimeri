@@ -45,7 +45,6 @@ class TaskRegistry {
       const { on, rowId } = inputs!;
       try {
         const isWatchMode = deviceSettings.isFastWriteWatchMode();
-        console.debug('FAST_WRITE', isWatchMode);
         const reconciledContent = writer.reconcile(on, rowId, !isWatchMode);
         if (isWatchMode) {
           const content = writer.getContent(on, rowId);
@@ -56,7 +55,6 @@ class TaskRegistry {
             });
             console.error('error during reconciliation', on, rowId);
           } else {
-            console.debug('RECONCILIATION OK');
             writer.clear(on, rowId);
           }
         } else {
@@ -68,6 +66,7 @@ class TaskRegistry {
           rowId,
           e
         });
+        console.error('unexpected error writing document', on, rowId, e);
       }
     });
 
