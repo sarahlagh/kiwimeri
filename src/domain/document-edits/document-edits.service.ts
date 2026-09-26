@@ -7,11 +7,42 @@ import { TaskNames } from '@/core/tasks/tasks-registry';
 import type { EditorState, SerializedEditorState } from 'lexical';
 import collectionService from '../collection/collection.service';
 import { annotsService } from '../collection/doc-annotations.service';
+import { deviceSettings } from '../device-settings/device-settings.service';
 import { DocumentEdit, DocumentEditRow, LexicalDiff } from './document-edits';
 
 const E = SpaceTables.DocumentEdits;
 
 class DocumentWriterService {
+  public fastWriteOrCommit(
+    on: string,
+    rowId: string,
+    editorState: EditorState,
+    blocksChanged: LexicalDiff[],
+    hasDeletedNodes: boolean,
+    originalPayload?: AnyData
+  ) {
+    if (deviceSettings.isFastWriteEnabled()) {
+      writer.fastWrite(
+        SpaceTables.Collection,
+        rowId,
+        editorState,
+        blocksChanged,
+        hasDeletedNodes,
+        deviceSettings.isFastWriteWatchMode() ? originalPayload : undefined
+      );
+    }
+    if (
+      deviceSettings.isFastWriteWatchMode() ||
+      !deviceSettings.isFastWriteEnabled()
+    ) {
+      if (on === SpaceTables.Collection) {
+        collectionService.setItemLexicalContent(rowId, editorState.toJSON());
+      } else {
+        annotsService.edit(rowId, editorState.toJSON());
+      }
+    }
+  }
+
   public fastWrite(
     on: string,
     rowId: string,

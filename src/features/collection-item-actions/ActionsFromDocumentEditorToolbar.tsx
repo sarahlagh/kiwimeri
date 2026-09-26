@@ -8,12 +8,12 @@ import { ViewAo3HtmlButton } from '@/features/ao3-html-ui';
 import { ManageHistoryButton } from '@/features/collection-history-ui';
 import { ExportItemsButton } from '@/features/import-export';
 import { SearchButton } from '@/features/search';
+import DebugFastWriteButton from '@/shared/buttons/DebugFastWriteButton';
 import { IonButton, IonButtons, IonIcon, IonToolbar } from '@ionic/react';
 import CloseDocumentButton from './buttons/CloseDocumentButton';
 import DeleteItemButton from './buttons/DeleteItemButton';
 import MoveFolderButton from './buttons/MoveFolderButton';
 import QuickGroupButton from './buttons/QuickGroupButton';
-import DebugFastWriteButton from './fast-write-debug/DebugFastWriteButton';
 
 export type ActionsFromDocumentEditorToolbarProps = {
   docId: string;
@@ -38,7 +38,7 @@ const ActionsFromDocumentEditorToolbar = ({
       <IonButtons slot="end" style={{ overflowX: 'auto' }}>
         {deviceSettings.isFastWriteEnabled() &&
           deviceSettings.isFastWriteWatchMode() && (
-            <DebugFastWriteButton id={docId} />
+            <DebugFastWriteButton on="collection" id={docId} />
           )}
 
         <MoveFolderButton id={docId} onClose={onClose} />

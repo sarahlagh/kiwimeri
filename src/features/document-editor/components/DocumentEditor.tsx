@@ -199,25 +199,14 @@ const DocumentEditor = forwardRef<
               payload
             ) => {
               if (!isSelectionChange) {
-                if (deviceSettings.isFastWriteEnabled()) {
-                  writer.fastWrite(
-                    SpaceTables.Collection,
-                    docId,
-                    editorState,
-                    blocksChanged,
-                    hasDeletedNodes,
-                    deviceSettings.isFastWriteWatchMode() ? payload : undefined
-                  );
-                }
-                if (
-                  deviceSettings.isFastWriteWatchMode() ||
-                  !deviceSettings.isFastWriteEnabled()
-                ) {
-                  collectionService.setItemLexicalContent(
-                    docId,
-                    editorState.toJSON()
-                  );
-                }
+                writer.fastWriteOrCommit(
+                  SpaceTables.Collection,
+                  docId,
+                  editorState,
+                  blocksChanged,
+                  hasDeletedNodes,
+                  deviceSettings.isFastWriteWatchMode() ? payload : undefined
+                );
               }
               resumeService.setLastSelection(
                 docId,

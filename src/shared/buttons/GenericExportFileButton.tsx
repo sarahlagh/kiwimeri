@@ -32,7 +32,6 @@ const GenericExportFileButton = ({
   fill
 }: GenericExportFileButtonProps) => {
   const { t } = useLingui();
-
   const { setToast } = useToastContext();
 
   const exportContent = (

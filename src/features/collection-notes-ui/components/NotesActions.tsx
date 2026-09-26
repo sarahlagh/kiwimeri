@@ -1,6 +1,8 @@
 import { APPICONS } from '@/constants';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
+import { deviceSettings } from '@/domain/device-settings/device-settings.service';
+import DebugFastWriteButton from '@/shared/buttons/DebugFastWriteButton';
 import { dateToStr } from '@/shared/misc/date-utils';
 import AreYouSureAlert from '@/shared/modals/AreYouSureAlert';
 import { IonButton, IonButtons, IonIcon } from '@ionic/react';
@@ -61,6 +63,10 @@ const NoteActions = ({ docId, noteId }: NoteActionsProps) => {
               >
                 <IonIcon icon={APPICONS.info}></IonIcon>
               </IonButton>
+              {deviceSettings.isFastWriteEnabled() &&
+                deviceSettings.isFastWriteWatchMode() && (
+                  <DebugFastWriteButton on="annotations" id={docId} />
+                )}
             </>
           )}
         </IonButtons>

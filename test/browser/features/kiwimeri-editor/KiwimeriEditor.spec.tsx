@@ -186,6 +186,8 @@ describe('DocumentEditor', () => {
       expect(
         schedule['getTasks'](true).filter(t => t.name === TaskNames.FAST_WRITE)
       ).toHaveLength(1);
+
+      expect(spyOnWriteContent).not.toHaveBeenCalled();
     });
 
     test('fastWrite enabled in watch mode => reconciliation clears on OK', async () => {
@@ -298,10 +300,11 @@ describe('DocumentEditor', () => {
       expect(
         schedule['getTasks'](true).filter(t => t.name === TaskNames.FAST_WRITE)
       ).toHaveLength(1);
+      expect(spyOnWriteContent).not.toHaveBeenCalled();
 
       vi.advanceTimersByTime(200);
 
-      expect(spyOnWriteContent).toHaveBeenCalled();
+      expect(spyOnWriteContent).toHaveBeenCalledTimes(1);
       expect(fetchNotificationsQuery.getResults({ all: true })).toHaveLength(0);
 
       const content = formatConverter.fromMarkdown('line 1').obj!;

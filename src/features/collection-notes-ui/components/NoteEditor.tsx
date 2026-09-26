@@ -35,24 +35,18 @@ const NoteEditor = ({ noteId, editable = true }: NoteEditorProps) => {
         editorState: EditorState,
         isSelectionChange,
         blocksChanged,
-        hasDeletedNodes
+        hasDeletedNodes,
+        payload
       ) => {
         if (!isSelectionChange) {
-          if (deviceSettings.isFastWriteEnabled()) {
-            writer.fastWrite(
-              SpaceTables.Annotations,
-              noteId,
-              editorState,
-              blocksChanged,
-              hasDeletedNodes
-            );
-          }
-          if (
-            deviceSettings.isFastWriteWatchMode() ||
-            !deviceSettings.isFastWriteEnabled()
-          ) {
-            annotsService.edit(noteId, editorState.toJSON());
-          }
+          writer.fastWriteOrCommit(
+            SpaceTables.Annotations,
+            noteId,
+            editorState,
+            blocksChanged,
+            hasDeletedNodes,
+            deviceSettings.isFastWriteWatchMode() ? payload : undefined
+          );
         }
       }}
     />
