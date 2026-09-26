@@ -1764,7 +1764,7 @@
   resolved "https://registry.yarnpkg.com/@standard-schema/spec/-/spec-1.1.0.tgz#a79b55dbaf8604812f52d140b2c9ab41bc150bb8"
   integrity sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==
 
-"@stencil/core@^4.0.3", "@stencil/core@^4.43.5", "@stencil/core@^4.44.2":
+"@stencil/core@^4.43.5", "@stencil/core@^4.44.2":
   version "4.45.1"
   resolved "https://registry.yarnpkg.com/@stencil/core/-/core-4.45.1.tgz#04d51b9ae1559d992fd31f3c6e269688f197e396"
   integrity sha512-/b8CItmSwOzZwafxXwomJnN9X/Ic/Fxum9ka/RDHmADVf4DA4152uY7zitzLV+vk8JdXxKA7FKyLT3GKNo9R3A==
@@ -3822,14 +3822,7 @@ inquirer@^7.0.0:
     strip-ansi "^6.0.0"
     through "^2.3.6"
 
-ionicons@^7.0.0:
-  version "7.4.0"
-  resolved "https://registry.yarnpkg.com/ionicons/-/ionicons-7.4.0.tgz#9c285aaa8089befbd6c5a89ae13292d364cd9ace"
-  integrity sha512-ZK94MMqgzMCPPMhmk8Ouu6goyVHFIlw/ACP6oe3FrikcI0N7CX0xcwVaEbUc0G/v3W0shI93vo+9ve/KpvcNhQ==
-  dependencies:
-    "@stencil/core" "^4.0.3"
-
-ionicons@^8.0.13, ionicons@^8.1.0:
+ionicons@^8.0.0, ionicons@^8.0.13, ionicons@^8.1.0:
   version "8.1.0"
   resolved "https://registry.yarnpkg.com/ionicons/-/ionicons-8.1.0.tgz#b800f612ea846cc6983bd78a18e3f05ccf7efaa5"
   integrity sha512-XSM2gYWTXxSYTwjmKWAoy4yR7AbAFDjpc5ZIivAiGXskM0fe5CdMPfs6InQRUcrYtVb2WZ/0HQ1/jeh3JW78SA==
@@ -5897,7 +5890,7 @@ vite@6.4.2:
   optionalDependencies:
     fsevents "~2.3.3"
 
-vitest-browser-react@^2.2.0:
+vitest-browser-react@^2.3.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/vitest-browser-react/-/vitest-browser-react-2.3.0.tgz#8fd981cc2858ea44ee204e1222c43c0069310ad2"
   integrity sha512-S5vdGHHA93j2Z6dbmIJI1wtxT3AXPTRlmC1Meo+ekG011yNnEutMAnHrwyj8qFlGhgBYA8ENGK6+o1Q+vnFz6A==

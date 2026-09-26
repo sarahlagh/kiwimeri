@@ -45,7 +45,7 @@
     "@lingui/react": "^5.2.0",
     "diff": "^8.0.3",
     "fflate": "^0.8.2",
-    "ionicons": "^7.0.0",
+    "ionicons": "^8.0.0",
     "lexical": "^0.41.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -92,7 +92,7 @@
     "typescript-eslint": "^8.70.1",
     "vite": "6.4.2",
     "vitest": "^4.1.11",
-    "vitest-browser-react": "^2.2.0"
+    "vitest-browser-react": "^2.3.0"
   },
   "sideEffects": [
     "src/core/infra/polyfills/*.ts"
