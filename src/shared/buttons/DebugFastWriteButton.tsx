@@ -42,12 +42,14 @@ const DebugFastWriteButton = ({ id, on }: DebugFastWriteButtonProps) => {
       </IonButton>
       <IonAlert
         trigger={`debug_btn`}
+        message={`nb of edits: ${edits.length}`}
         buttons={[
           {
             text: `export data`,
             handler() {
               const fileContent =
                 `${JSON.stringify(edits)}\n\n` +
+                `nb of edits: ${edits.length}\n\n` +
                 `content: ${JSON.stringify(content)}\n\n` +
                 `reconciled content: ${JSON.stringify(reconciledContent)}\n\n` +
                 `==================================================================================================\n\n` +

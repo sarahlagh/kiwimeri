@@ -92,6 +92,14 @@ export function getChangedBlocks({
 }: UpdateListenerPayload) {
   const blocksChanged: LexicalDiff[] = [];
   let hasDeletedNodes = false;
+  if (
+    dirtyElements.size == 1 &&
+    dirtyElements.get('root') === true &&
+    dirtyLeaves.size === 0
+  ) {
+    // can happen on undo / redo
+    hasDeletedNodes = true;
+  }
   for (const key of dirtyElements.keys()) {
     if (key === 'root') continue;
     const node = $getNodeByKey(key);
