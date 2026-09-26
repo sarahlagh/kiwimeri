@@ -13,33 +13,6 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#. js-lingui-explicit-id
-#: src/shared/misc/sort-filter/GenericSortFilter.tsx:44
-#: src/shared/misc/sort-filter/GenericSortFilter.tsx:45
-msgid "Creation Date"
-msgstr "Creation Date"
-
-#. js-lingui-explicit-id
-#: src/shared/misc/sort-filter/GenericSortFilter.tsx:46
-#: src/shared/misc/sort-filter/GenericSortFilter.tsx:47
-msgid "Last Updated"
-msgstr "Last Updated"
-
-#. js-lingui-explicit-id
-#: src/shared/misc/sort-filter/GenericSortFilter.tsx:48
-msgid "Title"
-msgstr "Title"
-
-#. js-lingui-explicit-id
-#: src/shared/misc/sort-filter/GenericSortFilter.tsx:49
-msgid "Content"
-msgstr "Content"
-
-#. js-lingui-explicit-id
-#: src/shared/misc/sort-filter/GenericSortFilter.tsx:50
-msgid "Manual"
-msgstr "Manual"
-
 #: src/features/timed-writing/components/SaveSessionModal.tsx:68
 msgid " (new)"
 msgstr " (new)"
@@ -52,7 +25,6 @@ msgstr " Note that profiles have backups that may be kept kept up to one day af
 msgid "-- conflict --"
 msgstr "-- conflict --"
 
-#. placeholder {0}: showFilters ? 'Hide' : 'Show'
 #: src/features/dev-tools/components/LogsCard.tsx:151
 msgid "{0} Filters"
 msgstr "{0} Filters"
@@ -85,8 +57,6 @@ msgstr "a notebook"
 msgid "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 msgstr "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 
-#. placeholder {0}: notif.ackAt !== undefined ? dateToStr('datetime', notif.ackAt) : 'never'
-#. placeholder {1}: notif.context ? JSON.stringify(notif.context) : 'none'
 #: src/features/notifications-ui/Notifications.tsx:89
 msgid "Acknowledged at: {0} </br> Context: {1}"
 msgstr "Acknowledged at: {0} </br> Context: {1}"
@@ -222,6 +192,7 @@ msgid "Conflicts"
 msgstr "Conflicts"
 
 #: src/features/collection-browser/components/SortFilter.tsx:50
+#: src/shared/misc/sort-filter/GenericSortFilter.tsx:49
 msgid "Content"
 msgstr "Content"
 
@@ -237,13 +208,13 @@ msgstr "create a note"
 msgid "Created at"
 msgstr "Created at"
 
-#. placeholder {0}: dateToStr('relative', createdAt)
 #: src/features/collection-notes-ui/components/NotesActions.tsx:27
 msgid "Created at: {0}"
 msgstr "Created at: {0}"
 
 #: src/features/collection-browser/components/SortFilter.tsx:47
 #: src/features/settings-ui/components/GenericCollectionSettings.tsx:35
+#: src/shared/misc/sort-filter/GenericSortFilter.tsx:46
 msgid "Creation Date"
 msgstr "Creation Date"
 
@@ -401,12 +372,10 @@ msgstr "History save time (min)"
 msgid "Home"
 msgstr "Home"
 
-#. placeholder {0}: params.zipData.zipName
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:116
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
-#. placeholder {0}: params.zipData.zipName
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:109
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
@@ -435,8 +404,6 @@ msgstr "Include metadata in zip"
 msgid "Incorrect Metadata"
 msgstr "Incorrect Metadata"
 
-#. placeholder {0}: task.inputs ? JSON.stringify(task.inputs) : 'none'
-#. placeholder {1}: task.error ? task.error : ''
 #: src/features/dev-tools/components/TasksCard.tsx:134
 msgid "Inputs: {0} </br> {1}"
 msgstr "Inputs: {0} </br> {1}"
@@ -458,6 +425,7 @@ msgid "Last consulted documents"
 msgstr "Last consulted documents"
 
 #: src/features/collection-browser/components/SortFilter.tsx:48
+#: src/shared/misc/sort-filter/GenericSortFilter.tsx:47
 msgid "Last Updated"
 msgstr "Last Updated"
 
@@ -477,12 +445,10 @@ msgstr "Less dangerous mode (session is still timed but you will not lose progre
 msgid "Link"
 msgstr "Link"
 
-#. placeholder {0}: localChanges.length
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:76
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
-#. placeholder {0}: dateToStr('datetime', lastLocalChange)
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:83
 msgid "Local:  {0}"
 msgstr "Local:  {0}"
@@ -504,6 +470,7 @@ msgid "Manage your app profiles here."
 msgstr "Manage your app profiles here."
 
 #: src/features/collection-browser/components/SortFilter.tsx:51
+#: src/shared/misc/sort-filter/GenericSortFilter.tsx:50
 msgid "Manual"
 msgstr "Manual"
 
@@ -679,7 +646,6 @@ msgstr "profile name"
 msgid "Profile Settings"
 msgstr "Profile Settings"
 
-#. placeholder {0}: dateToStr('relative', task.scheduledAt)
 #: src/features/dev-tools/components/TasksCard.tsx:106
 msgid "Ran at:  {0} with errors"
 msgstr "Ran at:  {0} with errors"
@@ -692,7 +658,6 @@ msgstr "Remember last route"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
-#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:96
 msgid "Remote:  {0}"
 msgstr "Remote:  {0}"
@@ -777,7 +742,7 @@ msgid "Show details"
 msgstr "Show details"
 
 #: src/features/collection-browser/components/SortFilter.tsx:59
-#: src/shared/misc/sort-filter/GenericSortFilter.tsx:65
+#: src/shared/misc/sort-filter/GenericSortFilter.tsx:69
 msgid "Sort"
 msgstr "Sort"
 
@@ -785,7 +750,7 @@ msgstr "Sort"
 msgid "Sort descending by default"
 msgstr "Sort descending by default"
 
-#: src/shared/misc/sort-filter/GenericSortFilter.tsx:82
+#: src/shared/misc/sort-filter/GenericSortFilter.tsx:86
 msgid "Sort direction"
 msgstr "Sort direction"
 
@@ -891,6 +856,7 @@ msgid "Timed Writing Session"
 msgstr "Timed Writing Session"
 
 #: src/features/collection-browser/components/SortFilter.tsx:49
+#: src/shared/misc/sort-filter/GenericSortFilter.tsx:48
 msgid "Title"
 msgstr "Title"
 
@@ -906,7 +872,6 @@ msgstr "Track text statistics"
 msgid "Updated at"
 msgstr "Updated at"
 
-#. placeholder {0}: dateToStr('relative', updatedAt)
 #: src/features/collection-notes-ui/components/NotesActions.tsx:32
 msgid "Updated at: {0}"
 msgstr "Updated at: {0}"

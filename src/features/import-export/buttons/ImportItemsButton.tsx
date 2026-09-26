@@ -72,9 +72,7 @@ const ImportItemsButton = ({
   const [singleDuplicates, setSingleDuplicates] = useState<
     CollectionItemResult[]
   >([]);
-  const [params, setParams] = useState<
-    Partial<MultipleImportModalParams> | undefined
-  >(undefined);
+  const [params, setParams] = useState<MultipleImportModalParams>();
 
   const [presentSingle, dismissSingle] = useIonModal(
     ConfirmFileImportModalWrapped,
@@ -90,7 +88,7 @@ const ImportItemsButton = ({
   const [presentMultiple, dismissMultiple] = useIonModal(
     ConfirmMultipleImportModalWrapped,
     {
-      params,
+      params: params!,
       parent,
       onClose: (confirm: boolean, zipMerge?: ZipMergeResult) => {
         dismissMultiple({ confirm, zipMerge });

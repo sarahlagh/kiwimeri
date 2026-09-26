@@ -95,7 +95,7 @@ const DocumentVersionViewer = ({
     <>
       <IonHeader>
         {/*only visible in non compact mode*/}
-        <IonToolbar class="ion-hide-md-down" color="tertiary">
+        <IonToolbar className="ion-hide-md-down" color="tertiary">
           <IonTitle>
             <IonLabel>{documentTitle}</IonLabel>
           </IonTitle>

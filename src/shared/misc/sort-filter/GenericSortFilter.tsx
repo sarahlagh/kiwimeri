@@ -8,21 +8,22 @@ import {
   IonSelect,
   IonSelectOption
 } from '@ionic/react';
-import { i18n } from '@lingui/core';
+import { i18n, MessageDescriptor } from '@lingui/core';
+import { msg } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react/macro';
 import { ReactNode } from 'react';
 import GenericSearchInline, {
   GenericSearchInlineProps
 } from './GenericSearchInline';
 
-type SortProps<SortType> = {
+type SortProps<SortType extends string> = {
   sortEnabled: true;
   sort: Sort<SortType>;
   onSortChange: (sort?: Sort<SortType>) => void;
   allowedSorts: readonly SortType[];
 };
 
-type GenericSortProps<SortType> =
+type GenericSortProps<SortType extends string> =
   | {
       sortEnabled: false;
     }
@@ -34,22 +35,25 @@ type SearchProps =
       searchEnabled: true;
     } & GenericSearchInlineProps);
 
-export type GenericSortFilterProps<SortType> = GenericSortProps<SortType> &
-  SearchProps &
-  React.HTMLAttributes<HTMLIonToolbarElement> & {
-    readonly children?: ReactNode;
-  };
+export type GenericSortFilterProps<SortType extends string> =
+  GenericSortProps<SortType> &
+    SearchProps &
+    React.HTMLAttributes<HTMLIonToolbarElement> & {
+      readonly children?: ReactNode;
+    };
 
-const valuesTransMap = new Map<string, string>();
-valuesTransMap.set('createdAt', i18n._('Creation Date'));
-valuesTransMap.set('createdAt', i18n._(`Creation Date`));
-valuesTransMap.set('updatedAt', i18n._(`Last Updated`));
-valuesTransMap.set('updatedAt', i18n._(`Last Updated`));
-valuesTransMap.set('title', i18n._(`Title`));
-valuesTransMap.set('previewText', i18n._(`Content`));
-valuesTransMap.set('order', i18n._(`Manual`));
+const valuesTransMap = new Map<string, MessageDescriptor>();
+valuesTransMap.set('createdAt', msg`Creation Date`);
+valuesTransMap.set('updatedAt', msg`Last Updated`);
+valuesTransMap.set('title', msg`Title`);
+valuesTransMap.set('previewText', msg`Content`);
+valuesTransMap.set('order', msg`Manual`);
 
-const GenericSortFilter = <SortType,>(
+function getI18nValue<SortType extends string>(sort: SortType) {
+  return valuesTransMap.has(sort) ? i18n._(valuesTransMap.get(sort)!) : sort;
+}
+
+const GenericSortFilter = <SortType extends string>(
   props: GenericSortFilterProps<SortType>
 ) => {
   const { t } = useLingui();
@@ -57,22 +61,22 @@ const GenericSortFilter = <SortType,>(
 
   // TODO opt to keep folders at top
   return (
-    <IonList class="inner-list">
+    <IonList className="inner-list">
       {sortEnabled && props.sort && (
         <IonItem className="inner-item-slim">
           <IonSelect
             style={{ marginLeft: 6 }}
             label={t`Sort`}
             value={props.sort.by}
-            placeholder={valuesTransMap.get(props.sort.by as string)}
+            placeholder={getI18nValue(props.sort.by)}
             onIonChange={e => {
               props.sort.by = e.detail.value;
               props.onSortChange(props.sort);
             }}
           >
-            {props.allowedSorts.map(sort => (
-              <IonSelectOption key={sort as string} value={sort}>
-                {valuesTransMap.get(sort as string)}
+            {props.allowedSorts.map(sortBy => (
+              <IonSelectOption key={sortBy as string} value={sortBy}>
+                {getI18nValue(sortBy)}
               </IonSelectOption>
             ))}
           </IonSelect>

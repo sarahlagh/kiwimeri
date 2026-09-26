@@ -82,7 +82,7 @@ const CollectionItemBrowserListToolbar = ({
     : null;
 
   return (
-    <IonList class="inner-list">
+    <IonList className="inner-list">
       <SortFilterInlineList
         id={folderId}
         sortEnabled={mode === 'browser' && openFilters}

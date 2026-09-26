@@ -118,7 +118,7 @@ const InfoBtn = ({ v }: { v: ConfigRowType }) => {
             <IonIcon icon={APPICONS.info}></IonIcon>
           </IonButton>
           <IonPopover trigger={`trigger-${v.key}`} triggerAction="click">
-            <IonContent class="ion-padding">{v.description}</IonContent>
+            <IonContent className="ion-padding">{v.description}</IonContent>
           </IonPopover>
         </>
       )}{' '}
@@ -150,7 +150,7 @@ export const EditConfigList = ({
             className={disabled ? 'item-interactive-disabled' : undefined}
           >
             <IonLabel
-              class="ion-hide-sm-down"
+              className="ion-hide-sm-down"
               slot="start"
               style={{ lineHeight: '30px', maxHeight: '30px', display: 'flex' }}
             >

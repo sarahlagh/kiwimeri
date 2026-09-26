@@ -1,6 +1,6 @@
 import { Id } from 'tinybase/with-schemas';
 
-export type Sort<SortType> = {
+export type Sort<SortType extends string> = {
   by: SortType;
   descending: boolean;
 };

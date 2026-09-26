@@ -46,7 +46,7 @@ const WritingSession = () => {
   const tempDoc = useStoreValue('tempDoc', SID.store);
 
   const [present, dismiss] = useIonModal(SaveSessionModal, {
-    onClose: (payload: SavePayload) => {
+    onClose: (payload?: SavePayload) => {
       if (payload) {
         store.delValue('tempDoc');
         setOngoing(false);

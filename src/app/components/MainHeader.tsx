@@ -89,7 +89,7 @@ const MainHeader = ({
       {!editable && <IonTitle>{title}</IonTitle>}
       {editable && (
         <IonInput
-          class="invisible"
+          className="invisible"
           value={title}
           onIonChange={(e: InputCustomEvent) => {
             if (onEdited && typeof e.detail.value === 'string') {

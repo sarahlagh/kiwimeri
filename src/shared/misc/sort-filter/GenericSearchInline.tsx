@@ -31,7 +31,7 @@ const GenericSearchInline = ({
       <IonInput
         ref={refInput}
         style={{ marginLeft: 8 }}
-        class="invisible"
+        className="invisible"
         value={searchText}
         onIonInput={(e: InputCustomEvent) => {
           onSearch(e.detail.value || '');

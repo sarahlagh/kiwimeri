@@ -115,10 +115,10 @@ const DocumentEditor = forwardRef<
     <>
       <IonHeader>
         {/*only visible in non compact mode*/}
-        <IonToolbar class="ion-hide-md-down">
+        <IonToolbar className="ion-hide-md-down">
           <IonTitle>
             <IonInput
-              class="invisible"
+              className="invisible"
               value={documentTitle}
               onIonChange={(e: InputCustomEvent) => {
                 if (typeof e.detail.value === 'string') {
