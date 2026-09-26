@@ -6,13 +6,13 @@ import { I18nProvider } from '@lingui/react';
 import { BrowserRouter } from 'react-router';
 
 export const TestingProvider = ({ children }: any) => (
-  <BrowserRouter>
-    <I18nProvider i18n={i18n}>
-      <TinybaseProvider>
-        <ToastProvider>
+  <I18nProvider i18n={i18n}>
+    <TinybaseProvider>
+      <ToastProvider>
+        <BrowserRouter>
           <IonApp>{children}</IonApp>
-        </ToastProvider>
-      </TinybaseProvider>
-    </I18nProvider>
-  </BrowserRouter>
+        </BrowserRouter>
+      </ToastProvider>
+    </TinybaseProvider>
+  </I18nProvider>
 );
