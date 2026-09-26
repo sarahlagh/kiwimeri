@@ -14,6 +14,7 @@ import collectionService, {
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { writer } from '@/domain/document-edits/document-edits.service';
 import formatConverter from '@/domain/format-conversion/format-converter.service';
+import { ActionsFromDocumentEditorToolbar } from '@/features/collection-item-actions';
 import '@/features/collection-notes-ui/components/NotesBrowser.scss';
 import {
   DocumentEditor,
@@ -406,4 +407,65 @@ describe('DocumentEditor', () => {
       }
     );
   });
+
+  describe('fast write debug button visibility in actions', () => {
+    test('fast write debug button is visible if fast write enabled and in watch mode', async () => {
+      deviceSettings.set('enableFastWrite', true);
+      deviceSettings.set('fastWriteMode', 'watch');
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const screen = await render(
+        <ActionsFromDocumentEditorToolbar
+          docId={docId}
+          onClose={() => {}}
+          onSearch={() => {}}
+        />,
+        {
+          wrapper: TestingProvider
+        }
+      );
+      await expect
+        .element(screen.getByRole('button', { name: 'Fast Write Debug Btn' }))
+        .toBeVisible();
+    });
+
+    test('fast write debug button is not visible if fast write enabled and in run mode', async () => {
+      deviceSettings.set('enableFastWrite', true);
+      deviceSettings.set('fastWriteMode', 'run');
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const screen = await render(
+        <ActionsFromDocumentEditorToolbar
+          docId={docId}
+          onClose={() => {}}
+          onSearch={() => {}}
+        />,
+        {
+          wrapper: TestingProvider
+        }
+      );
+      await expect
+        .element(screen.getByRole('button', { name: 'Fast Write Debug Btn' }))
+        .not.toBeInTheDocument();
+    });
+
+    test('fast write debug button is not visible if fast write not enabled', async () => {
+      deviceSettings.set('enableFastWrite', false);
+      deviceSettings.set('fastWriteMode', 'watch');
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const screen = await render(
+        <ActionsFromDocumentEditorToolbar
+          docId={docId}
+          onClose={() => {}}
+          onSearch={() => {}}
+        />,
+        {
+          wrapper: TestingProvider
+        }
+      );
+      await expect
+        .element(screen.getByRole('button', { name: 'Fast Write Debug Btn' }))
+        .not.toBeInTheDocument();
+    });
+  });
 });
+
+// TODO test NoteEditor

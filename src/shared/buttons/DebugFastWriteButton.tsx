@@ -1,6 +1,7 @@
 import { useToastContext } from '@/app/context/ToastContext';
 import { APPICONS } from '@/constants';
 import { plt } from '@/core/infra/platform';
+import { appLog } from '@/core/logs/logs.service';
 import { writer } from '@/domain/document-edits/document-edits.service';
 import formatConverter from '@/domain/format-conversion/format-converter.service';
 import { IonAlert, IonButton, IonIcon } from '@ionic/react';
@@ -27,13 +28,16 @@ const DebugFastWriteButton = ({ id, on }: DebugFastWriteButtonProps) => {
     reconciledMarkdown = formatConverter.toMarkdown(reconciledContent);
   } catch (e) {
     console.error(e);
-    reconciledContent = 'error';
-    reconciledMarkdown = 'error';
+    reconciledMarkdown = appLog.stringify(e);
   }
 
   return (
     <>
-      <IonButton expand="block" id="debug_btn">
+      <IonButton
+        expand="block"
+        id="debug_btn"
+        aria-label="Fast Write Debug Btn"
+      >
         <IonIcon icon={APPICONS.devToolsPage}></IonIcon>
       </IonButton>
       <IonAlert

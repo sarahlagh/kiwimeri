@@ -43,23 +43,31 @@ class TaskRegistry {
 
     this.register(TaskNames.FAST_WRITE, inputs => {
       const { on, rowId } = inputs!;
-      const isWatchMode = deviceSettings.isFastWriteWatchMode();
-      console.debug('FAST_WRITE', isWatchMode);
-      const reconciledContent = writer.reconcile(on, rowId, !isWatchMode);
-      if (isWatchMode) {
-        const content = writer.getContent(on, rowId);
-        if (content !== reconciledContent) {
-          notifsSvc.send('error', 'error during reconciliation', {
-            on,
-            rowId
-          });
-          console.error('error during reconciliation', on, rowId);
+      try {
+        const isWatchMode = deviceSettings.isFastWriteWatchMode();
+        console.debug('FAST_WRITE', isWatchMode);
+        const reconciledContent = writer.reconcile(on, rowId, !isWatchMode);
+        if (isWatchMode) {
+          const content = writer.getContent(on, rowId);
+          if (content !== reconciledContent) {
+            notifsSvc.send('error', 'error during reconciliation', {
+              on,
+              rowId
+            });
+            console.error('error during reconciliation', on, rowId);
+          } else {
+            console.debug('RECONCILIATION OK');
+            writer.clear(on, rowId);
+          }
         } else {
-          console.debug('RECONCILIATION OK');
-          writer.clear(on, rowId);
+          writer.writeContent(on, rowId, reconciledContent);
         }
-      } else {
-        writer.writeContent(on, rowId, reconciledContent);
+      } catch (e) {
+        notifsSvc.send('error', 'unexpected error writing document', {
+          on,
+          rowId,
+          e
+        });
       }
     });
 
