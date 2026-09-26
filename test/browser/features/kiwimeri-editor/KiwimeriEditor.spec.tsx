@@ -1,9 +1,13 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 
+import fetchNotificationsQuery from '@/app/queries/fetchNotificationsQuery';
 import { appConfig } from '@/config';
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
+import { space } from '@/core/db/store';
+import { SpaceTables } from '@/core/db/store-constants';
 import { schedule } from '@/core/tasks/scheduler.service';
+import { TaskNames } from '@/core/tasks/tasks-registry';
 import collectionService, {
   initialContent
 } from '@/domain/collection/collection.service';
@@ -17,7 +21,7 @@ import {
   ReloadableKiwimeriEditorHandle
 } from '@/features/document-editor';
 import { compareLexicalStates } from '@@/_setup/test.utils';
-import { $getRoot } from 'lexical';
+import { $createTextNode, $getRoot, ElementNode } from 'lexical';
 import React from 'react';
 import { TestingProvider } from '../../TestingProvider';
 import {
@@ -25,6 +29,12 @@ import {
   getContentEditorElement
 } from './KiwimeriEditor.locators';
 import { fastWriteScenarios } from './fast-writes.scenarios';
+
+/// setup mocks
+vi.mock('@/domain/document-edits/document-edits.service', { spy: true });
+let spyOnWriteContent = vi.spyOn(writer, 'writeContent');
+
+/// test suite
 
 type Props = {
   content?: string;
@@ -102,7 +112,212 @@ describe('DocumentEditor', () => {
     await expect.element(getContentEditor(screen)).toBeInTheDocument();
   });
 
-  describe('onChange & fastWrite', () => {
+  describe('fastWrite modes', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+      appConfig.SCHEDULER_INTERVAL = 50;
+      appConfig.FAST_WRITE_THROTTLE = 100;
+      schedule.start();
+      spyOnWriteContent = vi.spyOn(writer, 'writeContent');
+    });
+    afterEach(() => {
+      deviceSettings.set('enableFastWrite', false);
+      deviceSettings.clear('fastWriteMode');
+      schedule.stop();
+      vi.useRealTimers();
+    });
+
+    test('fastWrite disabled => each mutation is commited', async () => {
+      deviceSettings.set('enableFastWrite', false);
+      deviceSettings.set('fastWriteMode', 'run');
+
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const { getLexicalEditor } = await renderDocumentEditor(docId);
+      const editor = getLexicalEditor();
+      editor.update(
+        () => {
+          const root = $getRoot();
+          const paragraph = root.getChildAtIndex(0) as ElementNode;
+          paragraph?.append($createTextNode('line 1'));
+          root.append(paragraph);
+        },
+        { discrete: true }
+      );
+
+      const content = formatConverter.fromMarkdown('line 1').obj!;
+      compareLexicalStates(
+        collectionService.getDocumentContent(docId),
+        content
+      );
+      const edits = writer['getEdits']('collection', docId);
+      expect(edits).toHaveLength(0);
+      expect(
+        schedule['getTasks'](true).filter(t => t.name === TaskNames.FAST_WRITE)
+      ).toHaveLength(0);
+
+      expect(spyOnWriteContent).not.toHaveBeenCalled();
+    });
+
+    test('fastWrite enabled in watch mode => each mutation is commited but edits are on', async () => {
+      deviceSettings.set('enableFastWrite', true);
+      deviceSettings.set('fastWriteMode', 'watch');
+
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const { getLexicalEditor } = await renderDocumentEditor(docId);
+      const editor = getLexicalEditor();
+      editor.update(
+        () => {
+          const root = $getRoot();
+          const paragraph = root.getChildAtIndex(0) as ElementNode;
+          paragraph?.append($createTextNode('line 1'));
+          root.append(paragraph);
+        },
+        { discrete: true }
+      );
+
+      const content = formatConverter.fromMarkdown('line 1').obj!;
+      compareLexicalStates(
+        collectionService.getDocumentContent(docId),
+        content
+      );
+      const edits = writer['getEdits']('collection', docId);
+      expect(edits).toHaveLength(1);
+      expect(edits[0].debugPayload).toBeDefined();
+      expect(
+        schedule['getTasks'](true).filter(t => t.name === TaskNames.FAST_WRITE)
+      ).toHaveLength(1);
+    });
+
+    test('fastWrite enabled in watch mode => reconciliation clears on OK', async () => {
+      deviceSettings.set('enableFastWrite', true);
+      deviceSettings.set('fastWriteMode', 'watch');
+
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const { getLexicalEditor } = await renderDocumentEditor(docId);
+      const editor = getLexicalEditor();
+      editor.update(
+        () => {
+          const root = $getRoot();
+          const paragraph = root.getChildAtIndex(0) as ElementNode;
+          paragraph?.append($createTextNode('line 1'));
+          root.append(paragraph);
+        },
+        { discrete: true }
+      );
+
+      vi.advanceTimersByTime(200);
+
+      expect(spyOnWriteContent).not.toHaveBeenCalled();
+      expect(fetchNotificationsQuery.getResults({ all: true })).toHaveLength(0);
+
+      const content = formatConverter.fromMarkdown('line 1').obj!;
+      compareLexicalStates(
+        collectionService.getDocumentContent(docId),
+        content
+      );
+      const edits = writer['getEdits']('collection', docId);
+      expect(edits).toHaveLength(0);
+      expect(
+        schedule['getTasks'](true).filter(t => t.name === TaskNames.FAST_WRITE)
+      ).toHaveLength(0);
+    });
+
+    test('fastWrite enabled in watch mode => reconciliation does not clear and sends notif on KO', async () => {
+      deviceSettings.set('enableFastWrite', true);
+      deviceSettings.set('fastWriteMode', 'watch');
+
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const { getLexicalEditor } = await renderDocumentEditor(docId);
+      const editor = getLexicalEditor();
+      editor.update(
+        () => {
+          const root = $getRoot();
+          const paragraph = root.getChildAtIndex(0) as ElementNode;
+          paragraph?.append($createTextNode('line 1'));
+          root.append(paragraph);
+        },
+        { discrete: true }
+      );
+
+      // tamper with edit for the test
+      const tamperedJson =
+        '[{"block":{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"tampered line","type":"text","version":1}],"direction":null,"format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""},"idx":0}]';
+      space.setCell(
+        SpaceTables.DocumentEdits,
+        writer['getEdits']('collection', docId)[0].id,
+        'json',
+        tamperedJson
+      );
+
+      vi.advanceTimersByTime(200);
+
+      expect(spyOnWriteContent).not.toHaveBeenCalled();
+      expect(fetchNotificationsQuery.getResults({ all: true })).toHaveLength(1);
+
+      // content is still ok
+      const content = formatConverter.fromMarkdown('line 1').obj!;
+      compareLexicalStates(
+        collectionService.getDocumentContent(docId),
+        content
+      );
+
+      // edits have not been cleared
+      const edits = writer['getEdits']('collection', docId);
+      expect(edits).toHaveLength(1);
+
+      // but no task left
+      expect(
+        schedule['getTasks'](true).filter(t => t.name === TaskNames.FAST_WRITE)
+      ).toHaveLength(0);
+    });
+
+    test('fastWrite enabled in run mode => only edits are on and reconciliation writes content', async () => {
+      deviceSettings.set('enableFastWrite', true);
+      deviceSettings.set('fastWriteMode', 'run');
+
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const { getLexicalEditor } = await renderDocumentEditor(docId);
+      const editor = getLexicalEditor();
+      editor.update(
+        () => {
+          const root = $getRoot();
+          const paragraph = root.getChildAtIndex(0) as ElementNode;
+          paragraph?.append($createTextNode('line 1'));
+          root.append(paragraph);
+        },
+        { discrete: true }
+      );
+
+      expect(collectionService.getDocumentContent(docId)).toEqual(
+        initialContent()
+      );
+      const edits = writer['getEdits']('collection', docId);
+      expect(edits).toHaveLength(1);
+      expect(edits[0].debugPayload).toBeUndefined();
+
+      expect(
+        schedule['getTasks'](true).filter(t => t.name === TaskNames.FAST_WRITE)
+      ).toHaveLength(1);
+
+      vi.advanceTimersByTime(200);
+
+      expect(spyOnWriteContent).toHaveBeenCalled();
+      expect(fetchNotificationsQuery.getResults({ all: true })).toHaveLength(0);
+
+      const content = formatConverter.fromMarkdown('line 1').obj!;
+      compareLexicalStates(
+        collectionService.getDocumentContent(docId),
+        content
+      );
+      expect(writer['getEdits']('collection', docId)).toHaveLength(0);
+
+      expect(
+        schedule['getTasks'](true).filter(t => t.name === TaskNames.FAST_WRITE)
+      ).toHaveLength(0);
+    });
+  });
+
+  describe('onChange & fastWrite enabled in run mode', () => {
     beforeEach(() => {
       vi.useFakeTimers();
       deviceSettings.set('enableFastWrite', true);
@@ -113,7 +328,7 @@ describe('DocumentEditor', () => {
     });
     afterEach(() => {
       deviceSettings.set('enableFastWrite', false);
-      deviceSettings.set('fastWriteMode', 'watch');
+      deviceSettings.clear('fastWriteMode');
       schedule.stop();
       vi.useRealTimers();
     });

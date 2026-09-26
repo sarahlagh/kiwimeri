@@ -13,6 +13,10 @@ class DeviceSettingService {
     space.setValue(setting, value!);
   }
 
+  public clear<S extends SpaceValue>(setting: S) {
+    space.delValue(setting);
+  }
+
   public setTheme(theme: Theme) {
     space.setValue('theme', theme);
   }

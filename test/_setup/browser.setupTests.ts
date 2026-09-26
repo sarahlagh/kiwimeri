@@ -59,5 +59,5 @@ afterEach(async () => {
   nukeStorage();
   syncService.stop();
   await cleanup();
-  vi.clearAllMocks();
+  vi.restoreAllMocks();
 });
