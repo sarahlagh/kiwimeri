@@ -51,7 +51,7 @@ const SortFilter = ({
   valuesTransMap.set('order', t`Manual`);
   // TODO opt to keep folders at top
   return (
-    <IonList class="inner-list">
+    <IonList className="inner-list">
       {sortEnabled && (
         <IonItem className="inner-item-slim">
           <IonSelect

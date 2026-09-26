@@ -208,7 +208,7 @@ const ConfirmMultipleImportModal = ({
                 <IonInput
                   id="new-folder-name"
                   label={t`New folder name: `}
-                  class="invisible"
+                  className="invisible"
                   value={newFolderName}
                   onIonChange={(e: InputCustomEvent) => {
                     if (e.detail.value) {
@@ -226,7 +226,7 @@ const ConfirmMultipleImportModal = ({
                 <IonInput
                   id="new-notebook-name"
                   label={t`New notebook name: `}
-                  class="invisible"
+                  className="invisible"
                   value={newFolderName}
                   onIonChange={(e: InputCustomEvent) => {
                     if (e.detail.value) {

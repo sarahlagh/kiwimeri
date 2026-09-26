@@ -187,7 +187,7 @@ const CollectionItemListItem = ({
         )}
       {renaming && (
         <IonInput
-          class="invisible"
+          className="invisible"
           ref={renameInputRef}
           value={item.title}
           onIonChange={(e: InputCustomEvent) => {
@@ -280,7 +280,7 @@ const CollectionItemList = ({
 
   return (
     <>
-      {header && <IonHeader class="subheader">{header}</IonHeader>}
+      {header && <IonHeader className="subheader">{header}</IonHeader>}
       <IonContent>
         <SortableList
           items={finalItems}

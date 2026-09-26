@@ -245,7 +245,7 @@ const DeepSearchButton = ({
   const searchParams = getSearchParams(location.search);
   const [present, dismiss] = useIonModal(DeepSearchModal, {
     query: searchParams.query,
-    dismiss: (data: DismissData) => dismiss(data)
+    dismiss: (data?: DismissData) => dismiss(data)
   });
 
   return (

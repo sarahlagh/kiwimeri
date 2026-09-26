@@ -271,8 +271,11 @@ describe('NotesBrowser', () => {
     await expect.element(getSortSwitchDirectionBtn(screen)).toBeInTheDocument();
 
     // open the select
-    const selectedSort = screen.locator.getByPlaceholder('Creation Date');
+    const selectedSort = document.querySelector(
+      'ion-select'
+    ) as HTMLIonSelectElement;
     await expect.element(selectedSort).toBeInTheDocument();
+    expect((selectedSort.lastChild as any).value).toBe('createdAt');
     await selectedSort.click();
 
     const confirmButton = screen.locator.getByRole('button', {
@@ -296,10 +299,15 @@ describe('NotesBrowser', () => {
     await radioManual.click();
     await confirmButton.click();
 
+    // still need to dismiss the popover
+    await expect.element(selectedSort).toBeInTheDocument();
+    expect((selectedSort.lastChild as any).value).toBe('order');
+
+    const popover = document.querySelector(
+      'ion-popover'
+    ) as HTMLIonPopoverElement;
+    await popover.dismiss();
     await expect.element(selectedSort).not.toBeInTheDocument();
-    await expect
-      .element(screen.locator.getByPlaceholder('Manual'))
-      .toBeInTheDocument();
 
     // check sort order changed
     const itemsAfter = document.querySelectorAll('ion-item');
