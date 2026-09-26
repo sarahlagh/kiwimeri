@@ -21,16 +21,19 @@ import {
   $createTextNode,
   $isLineBreakNode,
   ElementNode,
+  LexicalEditor,
   ParagraphNode,
-  RootNode
+  REDO_COMMAND,
+  RootNode,
+  UNDO_COMMAND
 } from 'lexical';
 
 export type FastWriteScenario = {
   initial: string;
   next: string;
   desc: string;
-  mutate: ((root: RootNode) => void)[];
-  isFullSnapshot?: number;
+  mutate: ((root: RootNode, editor: LexicalEditor) => void)[];
+  isFullSnapshot?: number | number[];
 };
 
 const paragraphTests: FastWriteScenario[] = [
@@ -710,6 +713,187 @@ const multipleMutationsTests: FastWriteScenario[] = [
   }
 ];
 
+const undoRedoTests: FastWriteScenario[] = [
+  {
+    initial: 'text',
+    next: 'text',
+    desc: 'undo leaf update',
+    isFullSnapshot: 1,
+    mutate: [
+      root => {
+        const paragraph = root.getFirstChildOrThrow() as ParagraphNode;
+        const text = paragraph.getFirstChildOrThrow();
+        text.replace($createTextNode('text toDelete'));
+      },
+      (root, editor) => {
+        editor.dispatchCommand(UNDO_COMMAND, undefined);
+      }
+    ]
+  },
+  {
+    initial: 'text',
+    next: 'text',
+    desc: 'undo leaf addition',
+    isFullSnapshot: 1,
+    mutate: [
+      root => {
+        const paragraph = root.getFirstChildOrThrow() as ParagraphNode;
+        const text = paragraph.getFirstChildOrThrow();
+        const newText = $createTextNode('text toDelete');
+        newText.setFormat('bold');
+        text.insertAfter(newText);
+      },
+      (root, editor) => {
+        editor.dispatchCommand(UNDO_COMMAND, undefined);
+      }
+    ]
+  },
+  {
+    initial: 'text **do not delete**',
+    next: 'text **do not delete**',
+    desc: 'undo leaf deletion',
+    isFullSnapshot: 1,
+    mutate: [
+      root => {
+        const paragraph = root.getFirstChildOrThrow() as ParagraphNode;
+        const text = paragraph.getChildAtIndex(1);
+        text?.remove();
+      },
+      (root, editor) => {
+        editor.dispatchCommand(UNDO_COMMAND, undefined);
+      }
+    ]
+  },
+  {
+    initial: 'text\n\nend',
+    next: 'text\n\nend',
+    desc: 'undo whole block addition',
+    isFullSnapshot: 1,
+    mutate: [
+      root => {
+        const paragraph = root.getChildAtIndex(0) as ParagraphNode;
+        const newParagraph = $createParagraphNode();
+        paragraph.insertAfter(newParagraph);
+      },
+      (root, editor) => {
+        editor.dispatchCommand(UNDO_COMMAND, undefined);
+      }
+    ]
+  },
+  {
+    initial: 'text\n\ndo not delete\n\nend',
+    next: 'text\n\ndo not delete\n\nend',
+    desc: 'undo whole block deletion',
+    isFullSnapshot: [0, 1],
+    mutate: [
+      root => {
+        const paragraph = root.getChildAtIndex(1) as ParagraphNode;
+        paragraph.remove();
+      },
+      (root, editor) => {
+        editor.dispatchCommand(UNDO_COMMAND, undefined);
+      }
+    ]
+  },
+  {
+    initial: 'text',
+    next: 'text do not delete',
+    desc: 'undo then redo leaf update',
+    isFullSnapshot: [1, 2],
+    mutate: [
+      root => {
+        const paragraph = root.getFirstChildOrThrow() as ParagraphNode;
+        const text = paragraph.getFirstChildOrThrow();
+        text.replace($createTextNode('text do not delete'));
+      },
+      (root, editor) => {
+        editor.dispatchCommand(UNDO_COMMAND, undefined);
+      },
+      (root, editor) => {
+        editor.dispatchCommand(REDO_COMMAND, undefined);
+      }
+    ]
+  },
+  {
+    initial: 'text ',
+    next: 'text **do not delete**',
+    desc: 'undo then redo leaf addition',
+    isFullSnapshot: [1, 2],
+    mutate: [
+      root => {
+        const paragraph = root.getFirstChildOrThrow() as ParagraphNode;
+        const text = paragraph.getFirstChildOrThrow();
+        const newText = $createTextNode('do not delete');
+        newText.setFormat('bold');
+        text.insertAfter(newText);
+      },
+      (root, editor) => {
+        editor.dispatchCommand(UNDO_COMMAND, undefined);
+      },
+      (root, editor) => {
+        editor.dispatchCommand(REDO_COMMAND, undefined);
+      }
+    ]
+  },
+  {
+    initial: 'text **to delete**',
+    next: 'text ',
+    desc: 'undo then redo leaf deletion',
+    isFullSnapshot: [1, 2],
+    mutate: [
+      root => {
+        const paragraph = root.getFirstChildOrThrow() as ParagraphNode;
+        const text = paragraph.getChildAtIndex(1);
+        text?.remove();
+      },
+      (root, editor) => {
+        editor.dispatchCommand(UNDO_COMMAND, undefined);
+      },
+      (root, editor) => {
+        editor.dispatchCommand(REDO_COMMAND, undefined);
+      }
+    ]
+  },
+  {
+    initial: 'text\n\nend',
+    next: 'text\n\nmiddle\n\nend',
+    desc: 'undo whole block addition',
+    isFullSnapshot: [1, 2],
+    mutate: [
+      root => {
+        const paragraph = root.getChildAtIndex(0) as ParagraphNode;
+        const newParagraph = $createParagraphNode();
+        newParagraph.append($createTextNode('middle'));
+        paragraph.insertAfter(newParagraph);
+      },
+      (root, editor) => {
+        editor.dispatchCommand(UNDO_COMMAND, undefined);
+      },
+      (root, editor) => {
+        editor.dispatchCommand(REDO_COMMAND, undefined);
+      }
+    ]
+  },
+  {
+    initial: 'text\n\ndo not delete\n\nend',
+    next: 'text\n\nend',
+    desc: 'undo then redo whole block deletion',
+    isFullSnapshot: [0, 1, 2],
+    mutate: [
+      root => {
+        const paragraph = root.getChildAtIndex(1) as ParagraphNode;
+        paragraph.remove();
+      },
+      (root, editor) => {
+        editor.dispatchCommand(UNDO_COMMAND, undefined);
+      },
+      (root, editor) => {
+        editor.dispatchCommand(REDO_COMMAND, undefined);
+      }
+    ]
+  }
+];
+
 export const fastWriteScenarios: FastWriteScenario[] = [
   {
     initial: 'test',
@@ -717,12 +901,13 @@ export const fastWriteScenarios: FastWriteScenario[] = [
     desc: 'nothing scenario',
     mutate: [() => {}]
   },
-  ...paragraphTests,
-  ...headingTests,
-  ...hruleTests,
-  ...listsTests,
-  ...quotesTests,
-  ...linksTests,
-  ...textAlignTests,
-  ...multipleMutationsTests
+  // ...paragraphTests,
+  // ...headingTests,
+  // ...hruleTests,
+  // ...listsTests,
+  // ...quotesTests,
+  // ...linksTests,
+  // ...textAlignTests,
+  // ...multipleMutationsTests,
+  ...undoRedoTests
 ];

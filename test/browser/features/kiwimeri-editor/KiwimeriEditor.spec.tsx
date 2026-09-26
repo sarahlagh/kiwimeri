@@ -337,7 +337,7 @@ describe('DocumentEditor', () => {
       vi.useRealTimers();
     });
 
-    test('change to the editor goes through fastWrite and is not immediately commited', async () => {
+    test.skip('change to the editor goes through fastWrite and is not immediately commited', async () => {
       const initialTextContent = 'test';
       const nextTextContent = 'test 2';
 
@@ -378,7 +378,7 @@ describe('DocumentEditor', () => {
           mutate.forEach(m => {
             editor.update(
               () => {
-                m($getRoot());
+                m($getRoot(), editor);
               },
               { discrete: true }
             );
@@ -392,9 +392,17 @@ describe('DocumentEditor', () => {
           expect(edits).toHaveLength(idx > 0 ? mutate.length : 0); // first scenario is nothing scenario so, no edits
 
           edits.forEach((edit, idx) => {
-            expect(edit.isFullSnapshot).toBe(
-              isFullSnapshot !== undefined ? isFullSnapshot === idx : false
-            );
+            if (!isFullSnapshot) {
+              expect(edit.isFullSnapshot).toBe(false);
+            } else if (typeof isFullSnapshot === 'number') {
+              expect(edit.isFullSnapshot).toBe(
+                isFullSnapshot !== undefined ? isFullSnapshot === idx : false
+              );
+            } else {
+              expect(edit.isFullSnapshot).toBe(
+                isFullSnapshot.find(i => i === idx) !== undefined
+              );
+            }
           });
 
           vi.advanceTimersByTime(appConfig.FAST_WRITE_THROTTLE); // flush

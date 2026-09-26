@@ -52,6 +52,7 @@ msgstr " Note that profiles have backups that may be kept kept up to one day af
 msgid "-- conflict --"
 msgstr "-- conflict --"
 
+#. placeholder {0}: showFilters ? 'Hide' : 'Show'
 #: src/features/dev-tools/components/LogsCard.tsx:151
 msgid "{0} Filters"
 msgstr "{0} Filters"
@@ -84,6 +85,8 @@ msgstr "a notebook"
 msgid "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 msgstr "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 
+#. placeholder {0}: notif.ackAt !== undefined ? dateToStr('datetime', notif.ackAt) : 'never'
+#. placeholder {1}: notif.context ? JSON.stringify(notif.context) : 'none'
 #: src/features/notifications-ui/Notifications.tsx:89
 msgid "Acknowledged at: {0} </br> Context: {1}"
 msgstr "Acknowledged at: {0} </br> Context: {1}"
@@ -234,6 +237,7 @@ msgstr "create a note"
 msgid "Created at"
 msgstr "Created at"
 
+#. placeholder {0}: dateToStr('relative', createdAt)
 #: src/features/collection-notes-ui/components/NotesActions.tsx:26
 msgid "Created at: {0}"
 msgstr "Created at: {0}"
@@ -397,10 +401,12 @@ msgstr "History save time (min)"
 msgid "Home"
 msgstr "Home"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:116
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
+#. placeholder {0}: params.zipData.zipName
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:109
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
@@ -429,6 +435,8 @@ msgstr "Include metadata in zip"
 msgid "Incorrect Metadata"
 msgstr "Incorrect Metadata"
 
+#. placeholder {0}: task.inputs ? JSON.stringify(task.inputs) : 'none'
+#. placeholder {1}: task.error ? task.error : ''
 #: src/features/dev-tools/components/TasksCard.tsx:134
 msgid "Inputs: {0} </br> {1}"
 msgstr "Inputs: {0} </br> {1}"
@@ -469,10 +477,12 @@ msgstr "Less dangerous mode (session is still timed but you will not lose progre
 msgid "Link"
 msgstr "Link"
 
+#. placeholder {0}: localChanges.length
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:76
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
+#. placeholder {0}: dateToStr('datetime', lastLocalChange)
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:83
 msgid "Local:  {0}"
 msgstr "Local:  {0}"
@@ -669,6 +679,7 @@ msgstr "profile name"
 msgid "Profile Settings"
 msgstr "Profile Settings"
 
+#. placeholder {0}: dateToStr('relative', task.scheduledAt)
 #: src/features/dev-tools/components/TasksCard.tsx:106
 msgid "Ran at:  {0} with errors"
 msgstr "Ran at:  {0} with errors"
@@ -681,6 +692,7 @@ msgstr "Remember last route"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
+#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:96
 msgid "Remote:  {0}"
 msgstr "Remote:  {0}"
@@ -894,6 +906,7 @@ msgstr "Track text statistics"
 msgid "Updated at"
 msgstr "Updated at"
 
+#. placeholder {0}: dateToStr('relative', updatedAt)
 #: src/features/collection-notes-ui/components/NotesActions.tsx:31
 msgid "Updated at: {0}"
 msgstr "Updated at: {0}"
