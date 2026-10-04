@@ -8,8 +8,7 @@ import { useLingui } from '@lingui/react/macro';
 type GenericExportFileButtonProps = {
   getFileTitle: string | (() => string);
   getFileContent:
-    | string
-    | (() => Promise<string | Uint8Array<ArrayBufferLike>>);
+    string | (() => Promise<string | Uint8Array<ArrayBufferLike>>);
   onDone?: () => void;
   confirm?: () => Promise<boolean>;
   getFileMime?: string | (() => string);

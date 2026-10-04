@@ -55,11 +55,7 @@ export type SerializableDataType = 'string' | 'number' | 'boolean';
 export type SerializableData = string | number | boolean;
 
 export type DbSerializableData =
-  | string
-  | number
-  | boolean
-  | AnyObject
-  | AnyArray;
+  string | number | boolean | AnyObject | AnyArray;
 
 export interface AnySerializableData {
   [k: string]: SerializableData;

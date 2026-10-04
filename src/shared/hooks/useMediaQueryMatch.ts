@@ -1,12 +1,7 @@
 import { useCallback, useSyncExternalStore } from 'react';
 
 type Breakpoints =
-  | 'xs'
-  | 'sm'
-  | 'md'
-  | 'lg'
-  | 'xl'
-  | { customMediaQuery: string };
+  'xs' | 'sm' | 'md' | 'lg' | 'xl' | { customMediaQuery: string };
 
 // Convert breakpoints to actual CSS media query string
 const getMediaQuery = (breakpoint: Breakpoints): string => {

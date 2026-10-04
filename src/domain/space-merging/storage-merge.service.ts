@@ -456,8 +456,7 @@ class StorageMergeService {
     const contentTable = getContentTable(tableId);
     Object.keys(content[itemsKey]).forEach(rowId => {
       const row = content[itemsKey][rowId] as
-        | BaseCollectionItem
-        | BaseDocAnnotation;
+        BaseCollectionItem | BaseDocAnnotation;
       if (row.content !== undefined && contentTable) {
         spaceDocContent.setPartialRow(contentTable, rowId, {
           content: row.content,
