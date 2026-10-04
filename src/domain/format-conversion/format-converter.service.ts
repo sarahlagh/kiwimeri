@@ -36,8 +36,8 @@ class FormatConversionService {
     return parser.parse(text, opts);
   }
 
-  public fromMarkdown(markdown: string) {
-    return this.from(markdown, MARKDOWN_PARSER);
+  public fromMarkdown(markdown: string, opts?: unknown) {
+    return this.from(markdown, MARKDOWN_PARSER, opts);
   }
 }
 

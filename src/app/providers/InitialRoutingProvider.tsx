@@ -30,6 +30,7 @@ const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
       resumeService.setLastFolder(folder);
       resumeService.setLastDocument(searchParams.document);
     }
+    // eslint-disable-next-line @eslint-react/exhaustive-deps
   }, [folder, searchParams.document]);
 
   if (location.pathname === INIT_ROUTE) {

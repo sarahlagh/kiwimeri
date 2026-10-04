@@ -23,8 +23,8 @@ import {
   IonToolbar
 } from '@ionic/react';
 import {
-  forwardRef,
   lazy,
+  RefObject,
   Suspense,
   useEffect,
   useImperativeHandle,
@@ -51,17 +51,15 @@ interface DocumentEditorProps {
   docId: string;
   showActions?: boolean;
   query?: string;
+  ref: RefObject<ReloadableKiwimeriEditorHandle | null>;
 }
 
-const DocumentEditor = forwardRef<
-  ReloadableKiwimeriEditorHandle,
-  DocumentEditorProps
->(function DocumentEditor(props, ref) {
+const DocumentEditor = (props: DocumentEditorProps) => {
   const [uniqId, setUniqId] = useState(0);
   const editorRef = useRef<KiwimeriEditorHandle | null>(null);
 
   useImperativeHandle(
-    ref,
+    props.ref,
     () => ({
       getEditor() {
         return editorRef.current?.getEditor() || null;
@@ -90,6 +88,7 @@ const DocumentEditor = forwardRef<
   const hasConflicts = useHasLocalConflicts();
   // TODO refactor
   useEffect(() => {
+    // eslint-disable-next-line @eslint-react/set-state-in-effect
     setShowDocumentActions(showActions);
   }, [showActions]);
 
@@ -106,7 +105,9 @@ const DocumentEditor = forwardRef<
 
   useEffect(() => {
     if (searchText) {
+      // eslint-disable-next-line @eslint-react/set-state-in-effect
       setToggleSearch(searchText.length > 0);
+      // eslint-disable-next-line @eslint-react/set-state-in-effect
       setToggleSearchAutoFocus(false);
     }
   }, [searchText, docId]);
@@ -247,6 +248,6 @@ const DocumentEditor = forwardRef<
       </IonFab>
     </>
   );
-});
+};
 
 export default DocumentEditor;

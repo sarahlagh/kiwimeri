@@ -16,7 +16,7 @@ const AreYouSureAlert = ({
   message
 }: AreYouSureDialogProps) => {
   const { t } = useLingui();
-  const modal = useRef<HTMLIonModalElement>(null);
+  const modalRef = useRef<HTMLIonModalElement>(null);
 
   return (
     <IonAlert
@@ -28,7 +28,7 @@ const AreYouSureAlert = ({
           text: t`Cancel`,
           role: 'cancel',
           handler: () => {
-            modal.current?.dismiss();
+            modalRef.current?.dismiss();
             onClose(false);
           }
         },
@@ -36,7 +36,7 @@ const AreYouSureAlert = ({
           text: t`Confirm`,
           role: 'confirm',
           handler: () => {
-            modal.current?.dismiss(null, 'confirm');
+            modalRef.current?.dismiss(null, 'confirm');
             onClose(true);
           }
         }

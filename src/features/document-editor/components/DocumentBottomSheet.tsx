@@ -22,11 +22,12 @@ const NotesBrowser = lazy(() =>
   }))
 );
 
+const DocumentGeneralInfo = lazy(() => import('./DocumentGeneralInfo'));
+
 const DocumentBottomSheetSwitcher = ({
   id,
   select
 }: DocumentBottomSheetProps) => {
-  const DocumentGeneralInfo = lazy(() => import('./DocumentGeneralInfo'));
   switch (select) {
     case 'info':
     default:

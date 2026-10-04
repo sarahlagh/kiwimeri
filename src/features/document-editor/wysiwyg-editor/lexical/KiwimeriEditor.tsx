@@ -21,9 +21,9 @@ import { SelectionAlwaysOnDisplay } from '@lexical/react/LexicalSelectionAlwaysO
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
 import { useLingui } from '@lingui/react/macro';
 import { EditorState, LexicalEditor } from 'lexical';
-import React, {
-  ForwardedRef,
+import {
   ReactNode,
+  RefObject,
   useImperativeHandle,
   useRef,
   useState
@@ -68,13 +68,12 @@ type KiwimeriEditorProps = {
   ignoreSelectionChange?: boolean;
 } & Omit<ToolbarPluginProps, 'setIsLinkEditMode' | 'setIsComposerEditable'> & {
     readonly children?: ReactNode;
+    ref?: RefObject<KiwimeriEditorHandle | null>;
   };
 
-const KiwimeriEditor = (
-  props: KiwimeriEditorProps,
-  ref: ForwardedRef<KiwimeriEditorHandle>
-) => {
+const KiwimeriEditor = (props: KiwimeriEditorProps) => {
   const {
+    ref,
     enableToolbar,
     children,
     id,
@@ -91,7 +90,7 @@ const KiwimeriEditor = (
   const { t } = useLingui();
   const [isLinkEditMode, setIsLinkEditMode] = useState(false);
   const [isComposerEditable, setIsComposerEditable] = useState(editable);
-  const [history, setHistory] = useState(createEmptyHistoryState());
+  const [history, setHistory] = useState(() => createEmptyHistoryState());
   const editorRef = useRef<LexicalEditor | null>(null);
   const placeholder = t`Text...`;
 
@@ -204,6 +203,4 @@ const KiwimeriEditor = (
     </LexicalComposer>
   );
 };
-export default React.forwardRef<KiwimeriEditorHandle, KiwimeriEditorProps>(
-  KiwimeriEditor
-);
+export default KiwimeriEditor;

@@ -22,8 +22,6 @@ export const NetworkStatusProvider = ({
   }, [setStatus]);
 
   return (
-    <NetworkStatusContext.Provider value={{ status }}>
-      {children}
-    </NetworkStatusContext.Provider>
+    <NetworkStatusContext value={{ status }}>{children}</NetworkStatusContext>
   );
 };

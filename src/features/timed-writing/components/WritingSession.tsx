@@ -60,6 +60,7 @@ const WritingSession = () => {
 
   useEffect(() => {
     if (tempDoc) {
+      // eslint-disable-next-line @eslint-react/set-state-in-effect
       setOngoing(true);
     }
   }, [tempDoc]);

@@ -359,7 +359,6 @@ describe.sequential(
 
       const now = Date.now();
       vi.useFakeTimers();
-      let lastRemoteChange = now;
 
       // // modify remote and local
 
@@ -383,7 +382,6 @@ describe.sequential(
       const idx = content!.findIndex(c => c.id === idDeleteRemote);
       expect(idx).not.toBe(-1);
       content!.splice(idx, 1);
-      lastRemoteChange = Date.now();
 
       // update content remotely on same as local
       vi.setSystemTime(now + 8000);
@@ -393,13 +391,11 @@ describe.sequential(
         'content',
         getNewContent('newRemoteContent')
       );
-      lastRemoteChange = Date.now();
 
       // update title remotely on same as local
       const idUpdateTitleLocal = idFolders[0];
       vi.setSystemTime(now + 9000);
       updateOnRemote(content!, idUpdateTitleLocal, 'title', 'newRemoteTitle');
-      lastRemoteChange = Date.now();
 
       // update parent remotely on different id
       const idUpdateParentRemote = idFolders[1];
@@ -410,13 +406,11 @@ describe.sequential(
         'content',
         getNewContent('newRemoteContent')
       );
-      lastRemoteChange = Date.now();
 
       // create remotely
       vi.setSystemTime(now + 11000);
       const newRemoteItem = oneFolder('r100');
       content!.push(newRemoteItem as CollectionItem);
-      lastRemoteChange = Date.now();
 
       // create locally
       vi.setSystemTime(now + 12000);
@@ -426,7 +420,6 @@ describe.sequential(
       const idUpdateTitleRemote = idFolders[2];
       vi.setSystemTime(now + 13000);
       updateOnRemote(content!, idUpdateTitleRemote, 'title', 'newRemoteTitle');
-      lastRemoteChange = Date.now();
 
       // update content remotely on different id as local
       const idUpdateContentRemote = idDocuments[3];
@@ -437,7 +430,6 @@ describe.sequential(
         'content',
         getNewContent('newRemoteContent')
       );
-      lastRemoteChange = Date.now();
 
       // update content locally on merge id
       const idUpdateTitleMerge = idDocuments[4];
@@ -451,7 +443,6 @@ describe.sequential(
       // // update title remotely on merge id
       vi.setSystemTime(now + 16000);
       updateOnRemote(content!, idUpdateTitleMerge, 'title', 'newRemoteTitle');
-      lastRemoteChange = Date.now();
 
       // update title locally
       vi.setSystemTime(now + 17000);
@@ -470,11 +461,10 @@ describe.sequential(
         'parentId',
         newRemoteItem.id!
       );
-      lastRemoteChange = Date.now();
 
       // update remote
       vi.useRealTimers();
-      await reInitRemoteData(content!, lastRemoteChange);
+      await reInitRemoteData(content!, Date.now());
 
       // pull
       await syncService.pull();

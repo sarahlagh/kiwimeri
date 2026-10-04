@@ -28,7 +28,7 @@ export default function ReloadContentPlugin({
   setHistory: React.Dispatch<React.SetStateAction<HistoryState>>;
 }) {
   const [editor] = useLexicalComposerContext();
-  const [historyMap] = useState<Map<string, HistoryState>>(new Map());
+  const [historyMap] = useState<Map<string, HistoryState>>(() => new Map());
 
   // history per document
   useEffect(() => {
@@ -67,6 +67,9 @@ export default function ReloadContentPlugin({
     return () => {
       cancelled = true;
     };
+    // plugin should only be fired when id change, that is, the first time a document is navigated to
+    // subsequent changes by lexical (content & serializedSelection) are handled by the onChange plugin
+    // eslint-disable-next-line @eslint-react/exhaustive-deps
   }, [editor, id]); // re-run the hook on document change
 
   return null;

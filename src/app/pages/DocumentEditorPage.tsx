@@ -1,10 +1,8 @@
-import { APPICONS } from '@/constants';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
 import { ReloadableKiwimeriEditorHandle } from '@/features/document-editor';
 import { onTitleChangeFn } from '@/shared/misc/onTitleChangeFn';
 import { getSearchParams } from '@/shared/utils';
-import { IonButton, IonIcon } from '@ionic/react';
 import { lazy, Suspense, useRef, useState } from 'react';
 import { useLocation } from 'react-router';
 import useItemTitle from '../hooks/useItemTitle';
@@ -37,25 +35,14 @@ const DocumentEditorPage = () => {
   const onTitleChange = onTitleChangeFn(docId);
   const onFolderTitleChange = onTitleChangeFn(parent);
 
-  const CollectionItemActionsMenu = () => {
-    return (
-      <IonButton
-        onClick={() => {
-          setShowDocumentActions(!showDocumentActions);
-        }}
-      >
-        <IonIcon icon={APPICONS.itemActions}></IonIcon>
-      </IonButton>
-    );
-  };
-
   return (
     <TemplateCompactableSplitPage
       headerIfCompact={{
         title,
         editable: true,
         onEdited: onTitleChange,
-        children: <CollectionItemActionsMenu />
+        showActions: true,
+        onActionsClick: () => setShowDocumentActions(!showDocumentActions)
       }}
       headerIfWide={{
         title: folderTitle, // to replace with breadcrumb

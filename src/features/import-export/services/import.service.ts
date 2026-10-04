@@ -48,13 +48,8 @@ class ImportService {
     removeFirstFolder: false
   };
 
-  public parseNonLexicalContent(content: string, opts?: ZipParseOptions) {
+  public parseNonLexicalContent(content: string) {
     // TODO get format as input
-    if (!opts) {
-      opts = this.defaultOpts;
-    } else {
-      opts = { ...this.defaultOpts, ...opts };
-    }
     const { obj, errors } = formatConverter.fromMarkdown(content);
     if (errors?.length || 0 > 0) {
       return { errors };
@@ -137,16 +132,12 @@ class ImportService {
     unzipped: Unzipped,
     itemKey: string,
     items: Map<string, CollectionItem>,
-    errors: ZipParseError[],
-    opts: ZipParseOptions
+    errors: ZipParseError[]
   ) {
     const item = items.get(itemKey)!;
     try {
       const content = strFromU8(unzipped[itemKey]);
-      const { doc, errors: parseErrors } = this.parseNonLexicalContent(
-        content,
-        opts
-      );
+      const { doc, errors: parseErrors } = this.parseNonLexicalContent(content);
       if (parseErrors?.length || 0 > 0) {
         console.error(parseErrors);
         errors.push({
@@ -363,7 +354,7 @@ class ImportService {
       } else if (currentName !== META_JSON || opts.ignoreMetadata) {
         // is document & not meta.json
         items.set(itemKey, item);
-        this.parseItemContent(unzipped, itemKey, items, errors, opts);
+        this.parseItemContent(unzipped, itemKey, items, errors);
 
         if (!opts.ignoreMetadata && metaMap.has(itemKey)) {
           const meta = metaMap.get(itemKey)!;
@@ -541,7 +532,7 @@ class ImportService {
     const duplicates = this.findDuplicates(parent, firstLevelItems);
     const newItems = [...items];
     const updatedItems: CollectionItemUpdate[] = [];
-    let firstLevel: ZipMergeFistLevel[] = [];
+    let firstLevel: ZipMergeFistLevel[];
 
     // if no duplicates, or option to create new without overwrite:
     if (duplicates.length === 0 || !options.overwrite) {

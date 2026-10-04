@@ -48,7 +48,7 @@ const MainLayout = () => {
         () => notifsSvc.ack(notifications[0].id)
       );
     }
-  }, [notifications]);
+  }, [notifications, setPersistentToast]);
 
   return (
     <>

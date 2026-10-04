@@ -84,29 +84,92 @@ export default function EditLinkPlugin({
     { linkUrl, linkText, isAutoLinkUnlinked, isAutoLink }
   );
 
-  const readExistingLink = () => {
-    editor.read(() => {
-      const selection = $getSelection();
-      if ($isRangeSelection(selection)) {
-        const node = getSelectedNode(selection);
-        const parent = node.getParent();
-        if ($isLinkNode(parent)) {
-          setLinkUrl(parent.getURL());
-          setIsAutoLink($isAutoLinkNode(parent));
-          if ($isAutoLinkNode(parent)) {
-            setIsAutoLinkUnlinked(parent.getIsUnlinked());
-          }
-        } else {
-          setLinkUrl('');
-          setIsAutoLink(false);
-          setIsAutoLinkUnlinked(false);
-        }
-        setLinkText(selection.getTextContent() || node.getTextContent());
-      }
-    });
-  };
-
   useEffect(() => {
+    const readExistingLink = () => {
+      editor.read(() => {
+        const selection = $getSelection();
+        if ($isRangeSelection(selection)) {
+          const node = getSelectedNode(selection);
+          const parent = node.getParent();
+          if ($isLinkNode(parent)) {
+            setLinkUrl(parent.getURL());
+            setIsAutoLink($isAutoLinkNode(parent));
+            if ($isAutoLinkNode(parent)) {
+              setIsAutoLinkUnlinked(parent.getIsUnlinked());
+            }
+          } else {
+            setLinkUrl('');
+            setIsAutoLink(false);
+            setIsAutoLinkUnlinked(false);
+          }
+          setLinkText(selection.getTextContent() || node.getTextContent());
+        }
+      });
+    };
+
+    const handleLinkSubmission = (newLinkUrl: string, newLinkText: string) => {
+      const undoLink = newLinkUrl === '';
+      const url = sanitizeUrl(newLinkUrl);
+      editor.update(() => {
+        editor.dispatchCommand(
+          TOGGLE_LINK_COMMAND,
+          undoLink
+            ? null
+            : {
+                url,
+                title: newLinkText
+              }
+        );
+        // if link not deleted and text changed, update text
+        if (newLinkUrl !== '' && newLinkText !== '') {
+          const textNode = $createTextNode(newLinkText);
+          const selection = $getSelection();
+          if ($isRangeSelection(selection)) {
+            const node = getSelectedNode(selection);
+            node.replace(textNode);
+          }
+        }
+      });
+    };
+
+    const handleAutoLinkSubmission = (
+      newLinkUrl: string,
+      newLinkText: string
+    ) => {
+      const toggleLink = newLinkUrl === '';
+      const url = sanitizeUrl(newLinkUrl);
+      editor.update(() => {
+        if (toggleLink) {
+          // why doesn't TOGGLE_LINK_COMMAND work?
+          const selection = $getSelection();
+          if ($isRangeSelection(selection)) {
+            const nodes = selection.extract();
+            nodes.forEach(node => {
+              const parent = node.getParent();
+              if ($isAutoLinkNode(parent)) {
+                // invert the value
+                parent.setIsUnlinked(!parent.getIsUnlinked());
+                parent.markDirty();
+              }
+            });
+          }
+        }
+        if (newLinkText !== '') {
+          const selection = $getSelection();
+          if (!$isRangeSelection(selection)) return;
+          const node = getSelectedNode(selection);
+          const parent = node.getParent();
+          if ($isAutoLinkNode(parent)) {
+            const linkNode = $createLinkNode(url);
+            parent.replace(linkNode);
+            linkNode.clear();
+            const textNode = $createTextNode(newLinkText);
+            linkNode.append(textNode);
+            textNode.selectEnd();
+          }
+        }
+      });
+    };
     readExistingLink();
     if (isLinkEditMode) {
       present({
@@ -130,71 +193,7 @@ export default function EditLinkPlugin({
         cssClass: 'larger-width'
       });
     }
-  }, [isLinkEditMode]);
-
-  const handleLinkSubmission = (newLinkUrl: string, newLinkText: string) => {
-    const undoLink = newLinkUrl === '';
-    const url = sanitizeUrl(newLinkUrl);
-    editor.update(() => {
-      editor.dispatchCommand(
-        TOGGLE_LINK_COMMAND,
-        undoLink
-          ? null
-          : {
-              url,
-              title: newLinkText
-            }
-      );
-      // if link not deleted and text changed, update text
-      if (newLinkUrl !== '' && newLinkText !== '') {
-        const textNode = $createTextNode(newLinkText);
-        const selection = $getSelection();
-        if ($isRangeSelection(selection)) {
-          const node = getSelectedNode(selection);
-          node.replace(textNode);
-        }
-      }
-    });
-  };
-
-  const handleAutoLinkSubmission = (
-    newLinkUrl: string,
-    newLinkText: string
-  ) => {
-    const toggleLink = newLinkUrl === '';
-    const url = sanitizeUrl(newLinkUrl);
-    editor.update(() => {
-      if (toggleLink) {
-        // why doesn't TOGGLE_LINK_COMMAND work?
-        const selection = $getSelection();
-        if ($isRangeSelection(selection)) {
-          const nodes = selection.extract();
-          nodes.forEach(node => {
-            const parent = node.getParent();
-            if ($isAutoLinkNode(parent)) {
-              // invert the value
-              parent.setIsUnlinked(!parent.getIsUnlinked());
-              parent.markDirty();
-            }
-          });
-        }
-      }
-      if (newLinkText !== '') {
-        const selection = $getSelection();
-        if (!$isRangeSelection(selection)) return;
-        const node = getSelectedNode(selection);
-        const parent = node.getParent();
-        if ($isAutoLinkNode(parent)) {
-          const linkNode = $createLinkNode(url);
-          parent.replace(linkNode);
-          linkNode.clear();
-          const textNode = $createTextNode(newLinkText);
-          linkNode.append(textNode);
-          textNode.selectEnd();
-        }
-      }
-    });
-  };
+  }, [editor, isLinkEditMode, present, setIsLinkEditMode]);
 
   return null;
 }

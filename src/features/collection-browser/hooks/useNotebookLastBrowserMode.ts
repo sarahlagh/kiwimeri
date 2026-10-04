@@ -7,8 +7,9 @@ import { Id } from 'tinybase/with-schemas';
 export default function useNotebookLastBrowserMode(
   notebook?: Id
 ): Required<NotebookSettings>['browserMode'] {
+  const currentNotebook = useCurrentNotebook();
   if (!notebook) {
-    notebook = useCurrentNotebook();
+    notebook = currentNotebook;
   }
   const cellValue = useSpaceCell<SpaceTables.Collection, 'settings'>(
     SpaceTables.Collection,

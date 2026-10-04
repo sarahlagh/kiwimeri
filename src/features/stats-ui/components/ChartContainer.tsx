@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from 'react';
 import TimeChart from './charts/TimeChart';
 
 import { Theme } from '@/domain/device-settings/device-settings';
-import { DataPoint } from '@/domain/stats/stats';
 import {
   TrackedStats,
   statsService,
@@ -21,13 +20,9 @@ type ChartContainerProps = {
 const ChartContainer = ({ id }: ChartContainerProps) => {
   const { t } = useLingui();
   const theme = useDeviceSetting('theme') as Theme;
-  const [stats, setStats] = useState<DataPoint[]>();
   const [statKey, setStatKey] = useState<TrackedStats>('lastWordCount');
   const [size, setSize] = useState<{ width: number; height: number }>();
-
-  useEffect(() => {
-    setStats(statsService.getDataPoints(id));
-  }, [id]);
+  const stats = statsService.getDataPoints(id);
 
   const ref = useRef<HTMLDivElement | null>(null);
 
@@ -39,7 +34,7 @@ const ChartContainer = ({ id }: ChartContainerProps) => {
     });
     resizeObserver.observe(el);
     return () => resizeObserver.disconnect();
-  }, [ref.current]);
+  }, []);
 
   const seriesByKey: {
     [key in TrackedStats]: {

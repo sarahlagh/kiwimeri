@@ -179,7 +179,7 @@ export const CollectionItemBrowserList = ({
     sort
   );
 
-  const [itemRenaming, setItemRenaming] = useState<string | undefined>(
+  const [renamingItemId, setRenamingItemId] = useState<string | undefined>(
     undefined
   );
   const [selectedItem, setSelectedItem] = useState<BrowsableItemResult | null>(
@@ -187,7 +187,8 @@ export const CollectionItemBrowserList = ({
   );
 
   useEffect(() => {
-    setItemRenaming(undefined);
+    // eslint-disable-next-line @eslint-react/set-state-in-effect
+    setRenamingItemId(undefined);
   }, [folder]);
 
   const [presentActions, dismissActions] = useIonPopover(
@@ -196,7 +197,7 @@ export const CollectionItemBrowserList = ({
       id: selectedItem?.id,
       onClose: (role: string, data?: string) => {
         if (role === 'rename') {
-          setItemRenaming(data);
+          setRenamingItemId(data);
         }
         if (role === 'delete') {
           navigate(data!);
@@ -246,17 +247,17 @@ export const CollectionItemBrowserList = ({
           : GET_ITEM_ROUTE(item.id, openedDocument, query)
       }
       actionsIcon={APPICONS.itemActions}
-      itemRenaming={itemRenaming}
+      itemRenaming={renamingItemId}
       onClickActions={(event, item) => {
         setSelectedItem(item);
-        setItemRenaming(undefined);
+        setRenamingItemId(undefined);
         presentActions({
           event,
           alignment: 'end'
         });
       }}
       onRenamingDone={() => {
-        setItemRenaming(undefined);
+        setRenamingItemId(undefined);
       }}
       footer={
         <CollectionItemBrowserListToolbar

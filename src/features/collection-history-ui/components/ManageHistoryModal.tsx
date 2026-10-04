@@ -21,7 +21,7 @@ import {
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { ChangeObject, diffChars } from 'diff';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ManageHistoryModalProps } from './ManageHistoryButton';
 
 // TODO diff can't show style differences
@@ -52,20 +52,26 @@ const VersionPreview = ({
 }) => {
   const [diff, setDiff] = useState<ChangeObject<string>[] | null>(null);
   const style = isActive ? { fontWeight: 'bold' } : {};
-  if (lastPlainText) {
-    setTimeout(() => {
+  useEffect(() => {
+    if (!lastPlainText) return;
+    const timeout = setTimeout(() => {
       diffChars(lastPlainText, plainText, {
         callback: result => {
           setDiff(result);
         }
       });
+      return () => clearTimeout(timeout);
     });
+  }, [lastPlainText, plainText]);
+
+  if (lastPlainText) {
     if (diff === null) return <LoadingInline />;
     return (
       <IonLabel style={style}>
         {dateToStr('relative', version.snapshotJson.updatedAt)}
         <p>
           {diff.map((part, idx) => (
+            // eslint-disable-next-line @eslint-react/no-array-index-key
             <DiffFragment part={part} key={idx} />
           ))}
         </p>

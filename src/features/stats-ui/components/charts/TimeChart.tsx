@@ -117,7 +117,7 @@ const TimeChart = ({
 
     const data = [timestamps, ...values];
     return { options, data };
-  }, [rawData, series]);
+  }, [height, rawData, series, showGrid, theme, width]);
 
   return <UplotReact data={data as AlignedData} options={options} />;
 };

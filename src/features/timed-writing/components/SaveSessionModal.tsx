@@ -1,3 +1,4 @@
+/* eslint-disable @eslint-react/set-state-in-effect */
 import { useQueryResults } from '@/core/db/queries-helper';
 import { store } from '@/core/db/store';
 import {
@@ -61,7 +62,7 @@ const SaveSessionModal = ({ onClose }: SaveSessionModalProps) => {
         setItem({ ...previewItem, id });
       }
     }
-  });
+  }, [tempItem, parent, t, item]);
 
   const finalItems =
     item && item.id === tempItem?.id

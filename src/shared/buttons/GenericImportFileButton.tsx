@@ -64,11 +64,11 @@ const GenericImportFileButton = ({
   const errorMessage = t`An error occurred loading the file`;
   const successMessage = t`Success!`;
   const notSupportedMessage = t`File not supported`;
-  const importElement = React.useRef(null);
+  const importElementRef = React.useRef(null);
 
   function importFile() {
-    if (importElement.current) {
-      const current = importElement.current as HTMLInputElement;
+    if (importElementRef.current) {
+      const current = importElementRef.current as HTMLInputElement;
       current.click();
     }
   }
@@ -122,7 +122,7 @@ const GenericImportFileButton = ({
       {label !== null && label}
       {icon !== null && <IonIcon icon={icon || APPICONS.import}></IonIcon>}
       <input
-        ref={importElement}
+        ref={importElementRef}
         onChange={onImportFileRead}
         type="file"
         className="ion-hide"

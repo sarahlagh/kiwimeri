@@ -25,7 +25,7 @@ import { Fragment, ReactNode, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { BrowsableItemResult } from '../browsable-item';
 import useItemsConflictMixIn from '../hooks/useItemsConflictMixIn';
-import './CollectionItemList.css';
+import './CollectionItemList.scss';
 
 // TODO: tech debt - rewrite props, confirm code
 
@@ -108,15 +108,18 @@ const CollectionItemListItem = ({
   confirm
 }: CollectionItemListSingleItemProps) => {
   const labelRef = useRef<HTMLIonLabelElement>(null);
-  const inputRenaming = useRef<HTMLIonInputElement>(null);
+  const renameInputRef = useRef<HTMLIonInputElement>(null);
   const [renaming, setRenaming] = useState<boolean>(false);
   const navigate = useNavigate();
+
   useEffect(() => {
+    // eslint-disable-next-line @eslint-react/set-state-in-effect
     setRenaming(itemRenaming === item.id);
+    // eslint-disable-next-line @eslint-react/exhaustive-deps
   }, [itemRenaming]);
 
-  if (inputRenaming.current) {
-    inputRenaming.current.setFocus();
+  if (renameInputRef.current) {
+    renameInputRef.current.setFocus();
   }
 
   const url = getUrl && !renaming ? getUrl(item) : undefined;
@@ -185,7 +188,7 @@ const CollectionItemListItem = ({
       {renaming && (
         <IonInput
           class="invisible"
-          ref={inputRenaming}
+          ref={renameInputRef}
           value={item.title}
           onIonChange={(e: InputCustomEvent) => {
             if (itemRenaming && e.detail.value) {

@@ -1,3 +1,4 @@
+/* eslint-disable @eslint-react/set-state-in-effect */
 import { APPICONS } from '@/constants';
 import { KiwimeriEditor } from '@/features/document-editor';
 import {
@@ -40,7 +41,7 @@ const ClockTicking = ({
     return () => {
       clearInterval(interval);
     };
-  }, [startedAt]);
+  }, [duration, startedAt]);
 
   return <IonProgressBar color={color} value={progress} />;
 };
@@ -67,27 +68,27 @@ const OngoingSession = ({
   const [wordCount, setWordCount] = useState(0);
   const [indicator, setIndicator] = useState<string | undefined>(undefined);
 
-  const onNextTick = () => {
-    if (startedAt === null || updatedAt === null) return;
-    const now = Date.now();
-    const idle = now - updatedAt;
-    setColor(undefined);
-    setWarnClass('');
-    if (now - startedAt > duration) {
-      return 'success';
-    }
-    if (mode !== 'dangerous') return 'continue';
-    if (idle > WARN_TIME && idle < MAX_IDLE) {
-      setColor('danger');
-      setWarnClass(`warn${Math.ceil((MAX_IDLE - idle) / 1000)}`);
-    }
-    if (idle > MAX_IDLE) {
-      return 'fail';
-    }
-    return 'continue';
-  };
   useEffect(() => {
     if (endedAt !== null || startedAt === null) return;
+    const onNextTick = () => {
+      if (startedAt === null || updatedAt === null) return;
+      const now = Date.now();
+      const idle = now - updatedAt;
+      setColor(undefined);
+      setWarnClass('');
+      if (now - startedAt > duration) {
+        return 'success';
+      }
+      if (mode !== 'dangerous') return 'continue';
+      if (idle > WARN_TIME && idle < MAX_IDLE) {
+        setColor('danger');
+        setWarnClass(`warn${Math.ceil((MAX_IDLE - idle) / 1000)}`);
+      }
+      if (idle > MAX_IDLE) {
+        return 'fail';
+      }
+      return 'continue';
+    };
     const nextTick = (clearTimer = true) => {
       const status = onNextTick();
       if (status !== 'continue') {
@@ -110,7 +111,7 @@ const OngoingSession = ({
     return () => {
       clearInterval(timeout);
     };
-  }, [updatedAt]);
+  }, [duration, editorState, endedAt, mode, onEnd, startedAt, updatedAt]);
 
   return (
     <>

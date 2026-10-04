@@ -72,7 +72,7 @@ class ExportService {
         if (fileTree[itemKey]) {
           itemKey = `${title} (${idx}).md`;
         }
-        const docResp = this.getSingleDocumentContent(item.id, opts);
+        const docResp = this.getSingleDocumentContent(item.id);
         fileTree[itemKey] = [strToU8(docResp)];
         if (opts.includeMetadata) {
           const metaId = item.parentId;
@@ -135,12 +135,7 @@ class ExportService {
     });
   }
 
-  public getSingleDocumentContent(id: string, opts?: ZipExportOptions): string {
-    if (!opts) {
-      opts = this.opts;
-    } else {
-      opts = { ...this.opts, ...opts };
-    }
+  public getSingleDocumentContent(id: string): string {
     const json = collectionService.getDocumentContent(id) || '';
     return this.getDocumentContentFormatted(json);
   }

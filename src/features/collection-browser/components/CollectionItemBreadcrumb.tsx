@@ -28,9 +28,12 @@ const CollectionItemBreadcrumb = ({
 
   useEffect(() => {
     if (folder !== ROOT_COLLECTION && !breadcrumb.find(b => b === folder)) {
+      // eslint-disable-next-line @eslint-react/set-state-in-effect
       setBreadcrumb(collectionService.getBreadcrumb(folder));
+      // eslint-disable-next-line @eslint-react/set-state-in-effect
       setMaxBreadcrumbs(3);
     }
+    // eslint-disable-next-line @eslint-react/exhaustive-deps
   }, [folder]);
 
   const checkedBreadcrumb = breadcrumb.filter(id =>

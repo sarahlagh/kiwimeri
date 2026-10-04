@@ -31,8 +31,8 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
     });
 
   return (
-    <ToastContext.Provider value={{ present, setToast, setPersistentToast }}>
+    <ToastContext value={{ present, setToast, setPersistentToast }}>
       {children}
-    </ToastContext.Provider>
+    </ToastContext>
   );
 };

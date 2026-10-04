@@ -142,7 +142,7 @@ export class FilesystemService {
     appDir: string
   ) {
     let content = '';
-    let eof = false;
+    let eof;
     let streamId: number | undefined = undefined;
     do {
       const resp = await BetterFilesystem.readFile({

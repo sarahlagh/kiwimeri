@@ -40,7 +40,7 @@ msgstr "Content"
 msgid "Manual"
 msgstr "Manual"
 
-#: src/features/timed-writing/components/SaveSessionModal.tsx:68
+#: src/features/timed-writing/components/SaveSessionModal.tsx:69
 msgid " (new)"
 msgstr " (new)"
 
@@ -52,8 +52,7 @@ msgstr " Note that profiles have backups that may be kept kept up to one day af
 msgid "-- conflict --"
 msgstr "-- conflict --"
 
-#. placeholder {0}: showFilters ? 'Hide' : 'Show'
-#: src/features/dev-tools/components/LogsCard.tsx:151
+#: src/features/dev-tools/components/LogsCard.tsx:154
 msgid "{0} Filters"
 msgstr "{0} Filters"
 
@@ -61,7 +60,7 @@ msgstr "{0} Filters"
 msgid "{v} minutes"
 msgstr "{v} minutes"
 
-#: src/features/timed-writing/components/OngoingSession.tsx:159
+#: src/features/timed-writing/components/OngoingSession.tsx:160
 msgid "{wordCount} words"
 msgstr "{wordCount} words"
 
@@ -81,12 +80,10 @@ msgstr "a folder"
 msgid "a notebook"
 msgstr "a notebook"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:234
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:242
 msgid "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 msgstr "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 
-#. placeholder {0}: notif.ackAt !== undefined ? dateToStr('datetime', notif.ackAt) : 'never'
-#. placeholder {1}: notif.context ? JSON.stringify(notif.context) : 'none'
 #: src/features/notifications-ui/Notifications.tsx:89
 msgid "Acknowledged at: {0} </br> Context: {1}"
 msgstr "Acknowledged at: {0} </br> Context: {1}"
@@ -99,7 +96,7 @@ msgstr "add a note"
 msgid "Add config"
 msgstr "Add config"
 
-#: src/app/components/MainHeader.tsx:72
+#: src/app/components/MainHeader.tsx:76
 msgid "An error occurred during sync."
 msgstr "An error occurred during sync."
 
@@ -119,12 +116,12 @@ msgstr "AO3"
 msgid "AO3 Viewer"
 msgstr "AO3 Viewer"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:159
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:167
 msgid "Archive is empty"
 msgstr "Archive is empty"
 
 #: src/features/collection-browser/components/CollectionItemList.tsx:76
-#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:147
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:153
 #: src/shared/modals/AreYouSureAlert.tsx:24
 msgid "Are you sure?"
 msgstr "Are you sure?"
@@ -133,12 +130,12 @@ msgstr "Are you sure?"
 msgid "cancel"
 msgstr "cancel"
 
-#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:150
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:156
 #: src/features/document-editor/tags/ChooseTagsModal.tsx:100
-#: src/features/import-export/buttons/ExportItemsButton.tsx:103
+#: src/features/import-export/buttons/ExportItemsButton.tsx:102
 #: src/features/import-export/buttons/RestoreCollectionButton.tsx:57
 #: src/features/import-export/modals/ConfirmFileImportModal.tsx:74
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:334
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:342
 #: src/shared/modals/AreYouSureAlert.tsx:28
 msgid "Cancel"
 msgstr "Cancel"
@@ -147,16 +144,16 @@ msgstr "Cancel"
 msgid "Cancel Task"
 msgstr "Cancel Task"
 
-#: src/features/stats-ui/components/ChartContainer.tsx:58
+#: src/features/stats-ui/components/ChartContainer.tsx:53
 msgid "Character Count"
 msgstr "Character Count"
 
-#: src/features/stats-ui/components/ChartContainer.tsx:68
+#: src/features/stats-ui/components/ChartContainer.tsx:63
 msgid "Character Count (Max)"
 msgstr "Character Count (Max)"
 
-#: src/features/stats-ui/components/ChartContainer.tsx:59
-#: src/features/stats-ui/components/ChartContainer.tsx:69
+#: src/features/stats-ui/components/ChartContainer.tsx:54
+#: src/features/stats-ui/components/ChartContainer.tsx:64
 msgid "characters"
 msgstr "characters"
 
@@ -176,7 +173,7 @@ msgstr "Choose a new folder"
 msgid "Choose a session length"
 msgstr "Choose a session length"
 
-#: src/features/timed-writing/components/SaveSessionModal.tsx:75
+#: src/features/timed-writing/components/SaveSessionModal.tsx:76
 msgid "Choose where to save your work"
 msgstr "Choose where to save your work"
 
@@ -185,7 +182,7 @@ msgstr "Choose where to save your work"
 msgid "close"
 msgstr "close"
 
-#: src/features/timed-writing/components/SaveSessionModal.tsx:108
+#: src/features/timed-writing/components/SaveSessionModal.tsx:109
 msgid "Close"
 msgstr "Close"
 
@@ -205,13 +202,13 @@ msgstr "Config"
 msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
 
-#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:154
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:160
 #: src/features/collection-notebooks-ui/components/ManageNotebooksModal.tsx:104
 #: src/features/document-editor/tags/ChooseTagsModal.tsx:107
-#: src/features/import-export/buttons/ExportItemsButton.tsx:110
+#: src/features/import-export/buttons/ExportItemsButton.tsx:109
 #: src/features/import-export/buttons/RestoreCollectionButton.tsx:64
 #: src/features/import-export/modals/ConfirmFileImportModal.tsx:77
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:340
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:348
 #: src/shared/modals/AreYouSureAlert.tsx:36
 msgid "Confirm"
 msgstr "Confirm"
@@ -237,7 +234,6 @@ msgstr "create a note"
 msgid "Created at"
 msgstr "Created at"
 
-#. placeholder {0}: dateToStr('relative', createdAt)
 #: src/features/collection-notes-ui/components/NotesActions.tsx:27
 msgid "Created at: {0}"
 msgstr "Created at: {0}"
@@ -263,7 +259,7 @@ msgstr "Default"
 msgid "Default sort field"
 msgstr "Default sort field"
 
-#: src/features/dev-tools/components/LogsCard.tsx:148
+#: src/features/dev-tools/components/LogsCard.tsx:151
 msgid "Delete All"
 msgstr "Delete All"
 
@@ -301,7 +297,7 @@ msgstr "Device Settings"
 msgid "Device Token"
 msgstr "Device Token"
 
-#: src/features/timed-writing/components/OngoingSession.tsx:178
+#: src/features/timed-writing/components/OngoingSession.tsx:179
 msgid "Discard"
 msgstr "Discard"
 
@@ -313,7 +309,7 @@ msgstr "Dismiss"
 msgid "Display options for the currently selected notebook. They can still be overriden per folder."
 msgstr "Display options for the currently selected notebook. They can still be overriden per folder."
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:177
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:185
 msgid "Do you want to import your content inside a new folder?"
 msgstr "Do you want to import your content inside a new folder?"
 
@@ -321,11 +317,11 @@ msgstr "Do you want to import your content inside a new folder?"
 msgid "Document grouped"
 msgstr "Document grouped"
 
-#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:104
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:110
 msgid "Document History"
 msgstr "Document History"
 
-#: src/features/dev-tools/components/LogsCard.tsx:136
+#: src/features/dev-tools/components/LogsCard.tsx:139
 msgid "Download Logs"
 msgstr "Download Logs"
 
@@ -358,7 +354,7 @@ msgstr "Enter your username"
 msgid "Error writing to file"
 msgstr "Error writing to file"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:169
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:177
 msgid "Errors have been detected on the following files:"
 msgstr "Errors have been detected on the following files:"
 
@@ -373,7 +369,7 @@ msgstr "EU"
 msgid "Export"
 msgstr "Export"
 
-#: src/features/import-export/buttons/ExportItemsButton.tsx:88
+#: src/features/import-export/buttons/ExportItemsButton.tsx:87
 msgid "Export Options"
 msgstr "Export Options"
 
@@ -401,13 +397,11 @@ msgstr "History save time (min)"
 msgid "Home"
 msgstr "Home"
 
-#. placeholder {0}: params.zipData.zipName
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:116
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:124
 msgid "Import {0}.zip in a new Notebook"
 msgstr "Import {0}.zip in a new Notebook"
 
-#. placeholder {0}: params.zipData.zipName
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:109
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:117
 msgid "Import {0}.zip in folder {parentName}"
 msgstr "Import {0}.zip in folder {parentName}"
 
@@ -427,16 +421,14 @@ msgstr "Import file in folder {folderName}"
 msgid "In descending order"
 msgstr "In descending order"
 
-#: src/features/import-export/buttons/ExportItemsButton.tsx:91
+#: src/features/import-export/buttons/ExportItemsButton.tsx:90
 msgid "Include metadata in zip"
 msgstr "Include metadata in zip"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:92
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:100
 msgid "Incorrect Metadata"
 msgstr "Incorrect Metadata"
 
-#. placeholder {0}: task.inputs ? JSON.stringify(task.inputs) : 'none'
-#. placeholder {1}: task.error ? task.error : ''
 #: src/features/dev-tools/components/TasksCard.tsx:134
 msgid "Inputs: {0} </br> {1}"
 msgstr "Inputs: {0} </br> {1}"
@@ -477,12 +469,10 @@ msgstr "Less dangerous mode (session is still timed but you will not lose progre
 msgid "Link"
 msgstr "Link"
 
-#. placeholder {0}: localChanges.length
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:76
 msgid "Local Changes ({0})"
 msgstr "Local Changes ({0})"
 
-#. placeholder {0}: dateToStr('datetime', lastLocalChange)
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:83
 msgid "Local:  {0}"
 msgstr "Local:  {0}"
@@ -495,7 +485,7 @@ msgstr "Local: <0>never</0>"
 msgid "Log Maintenance"
 msgstr "Log Maintenance"
 
-#: src/features/dev-tools/components/LogsCard.tsx:94
+#: src/features/dev-tools/components/LogsCard.tsx:87
 msgid "Logs"
 msgstr "Logs"
 
@@ -535,15 +525,15 @@ msgstr "Markdown (Kiwimeri flavor)"
 msgid "Max log history"
 msgstr "Max log history"
 
-#: src/features/timed-writing/components/SaveSessionModal.tsx:137
+#: src/features/timed-writing/components/SaveSessionModal.tsx:138
 msgid "Merge"
 msgstr "Merge"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:100
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:108
 msgid "merged"
 msgstr "merged"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:137
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:145
 msgid "Metadata found in the archive"
 msgstr "Metadata found in the archive"
 
@@ -564,7 +554,7 @@ msgstr "Name your new profile"
 msgid "Native Storage"
 msgstr "Native Storage"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:100
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:108
 msgid "new"
 msgstr "new"
 
@@ -576,11 +566,11 @@ msgstr "New document"
 msgid "New folder"
 msgstr "New folder"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:202
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:210
 msgid "New folder name: "
 msgstr "New folder name: "
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:220
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:228
 msgid "New notebook name: "
 msgstr "New notebook name: "
 
@@ -608,7 +598,7 @@ msgstr "Not Found"
 msgid "Notebook Selection"
 msgstr "Notebook Selection"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:147
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:155
 msgid "Notebooks found in the archive, they will be converted to folders"
 msgstr "Notebooks found in the archive, they will be converted to folders"
 
@@ -641,7 +631,7 @@ msgstr "Options for the currently selected device. These options are local-only.
 msgid "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 msgstr "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:95
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:103
 msgid "Parsing Error"
 msgstr "Parsing Error"
 
@@ -679,7 +669,6 @@ msgstr "profile name"
 msgid "Profile Settings"
 msgstr "Profile Settings"
 
-#. placeholder {0}: dateToStr('relative', task.scheduledAt)
 #: src/features/dev-tools/components/TasksCard.tsx:106
 msgid "Ran at:  {0} with errors"
 msgstr "Ran at:  {0} with errors"
@@ -692,7 +681,6 @@ msgstr "Remember last route"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
-#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
 #: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:96
 msgid "Remote:  {0}"
 msgstr "Remote:  {0}"
@@ -718,7 +706,7 @@ msgstr "Restore"
 msgid "Restore Collection"
 msgstr "Restore Collection"
 
-#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:146
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:152
 msgid "Restore Version"
 msgstr "Restore Version"
 
@@ -726,11 +714,11 @@ msgstr "Restore Version"
 msgid "Run Now"
 msgstr "Run Now"
 
-#: src/features/timed-writing/components/SaveSessionModal.tsx:135
+#: src/features/timed-writing/components/SaveSessionModal.tsx:136
 msgid "Save"
 msgstr "Save"
 
-#: src/features/timed-writing/components/OngoingSession.tsx:173
+#: src/features/timed-writing/components/OngoingSession.tsx:174
 msgid "Save your work"
 msgstr "Save your work"
 
@@ -809,7 +797,7 @@ msgstr "Space Settings"
 msgid "Start Writing"
 msgstr "Start Writing"
 
-#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:161
+#: src/features/collection-history-ui/components/ManageHistoryModal.tsx:167
 #: src/features/synchronization-ui/settings-ui/components/RemoteGenericSettings.tsx:60
 #: src/shared/buttons/DebugFastWriteButton.tsx:70
 #: src/shared/buttons/GenericExportFileButton.tsx:46
@@ -838,7 +826,7 @@ msgstr "Tags"
 msgid "Text"
 msgstr "Text"
 
-#: src/features/document-editor/wysiwyg-editor/lexical/KiwimeriEditor.tsx:96
+#: src/features/document-editor/wysiwyg-editor/lexical/KiwimeriEditor.tsx:95
 msgid "Text..."
 msgstr "Text..."
 
@@ -878,7 +866,7 @@ msgstr "This will reset all values that can be reset."
 msgid "This will reset this change"
 msgstr "This will reset this change"
 
-#: src/features/timed-writing/components/SaveSessionModal.tsx:58
+#: src/features/timed-writing/components/SaveSessionModal.tsx:59
 msgid "timed session "
 msgstr "timed session "
 
@@ -906,7 +894,6 @@ msgstr "Track text statistics"
 msgid "Updated at"
 msgstr "Updated at"
 
-#. placeholder {0}: dateToStr('relative', updatedAt)
 #: src/features/collection-notes-ui/components/NotesActions.tsx:32
 msgid "Updated at: {0}"
 msgstr "Updated at: {0}"
@@ -936,21 +923,21 @@ msgstr "When working on a document, a new version will be automatically if idle 
 msgid "Word count"
 msgstr "Word count"
 
-#: src/features/stats-ui/components/ChartContainer.tsx:53
+#: src/features/stats-ui/components/ChartContainer.tsx:48
 msgid "Word Count"
 msgstr "Word Count"
 
-#: src/features/stats-ui/components/ChartContainer.tsx:63
+#: src/features/stats-ui/components/ChartContainer.tsx:58
 msgid "Word Count (Max)"
 msgstr "Word Count (Max)"
 
 #: src/features/document-editor/components/WordCount.tsx:30
-#: src/features/stats-ui/components/ChartContainer.tsx:54
-#: src/features/stats-ui/components/ChartContainer.tsx:64
+#: src/features/stats-ui/components/ChartContainer.tsx:49
+#: src/features/stats-ui/components/ChartContainer.tsx:59
 msgid "words"
 msgstr "words"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:251
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:259
 msgid "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 msgstr "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 

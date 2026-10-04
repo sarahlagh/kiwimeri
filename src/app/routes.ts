@@ -54,7 +54,7 @@ export const GET_UNKNOWN_ITEM_ROUTE = (
       route = GET_FOLDER_ROUTE(itemId, query);
       break;
     case CollectionItemType.document:
-      // eslint-disable-next-line no-case-declarations
+       
       parent = collectionService.getItemParent(itemId);
       route = GET_DOCUMENT_ROUTE(parent, itemId, query);
       break;

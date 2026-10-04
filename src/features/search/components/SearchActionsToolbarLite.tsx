@@ -17,16 +17,16 @@ const SearchActionsToolbarLite = ({
   toggleSearchAutoFocus = true,
   onValue
 }: SearchActionsToolbarLiteProps) => {
-  const refInput = useRef<HTMLIonInputElement>(null);
+  const inputRef = useRef<HTMLIonInputElement>(null);
   useEffect(() => {
-    if (toggleSearchAutoFocus && refInput.current) {
-      setTimeout(() => refInput.current!.setFocus());
-    }
-  }, [refInput, toggleSearchAutoFocus]);
+    if (!toggleSearchAutoFocus || !inputRef.current) return;
+    const timeout = setTimeout(() => inputRef.current!.setFocus());
+    return () => clearTimeout(timeout);
+  }, [toggleSearchAutoFocus]);
   return (
     <>
       <IonInput
-        ref={refInput}
+        ref={inputRef}
         style={{ marginLeft: 8 }}
         class="invisible"
         value={searchText}

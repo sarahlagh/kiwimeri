@@ -1,3 +1,4 @@
+import { APPICONS } from '@/constants';
 import collectionService from '@/domain/collection/collection.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
@@ -10,7 +11,9 @@ import {
 } from '@/features/synchronization-ui';
 import {
   InputCustomEvent,
+  IonButton,
   IonButtons,
+  IonIcon,
   IonInput,
   IonMenuButton,
   IonTitle,
@@ -18,7 +21,7 @@ import {
 } from '@ionic/react';
 import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactProps';
 import { useLingui } from '@lingui/react/macro';
-import { ReactNode, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { useToastContext } from '../context/ToastContext';
 
@@ -27,18 +30,19 @@ export type MainHeaderProps = {
   editable?: boolean;
   onEdited?: (textEdited: string) => void;
   onSync?: (resp: { success: boolean }) => void;
+  showActions?: boolean;
+  onActionsClick?: () => void;
 } & IonicReactProps &
-  React.HTMLAttributes<HTMLIonHeaderElement> & {
-    readonly children?: ReactNode;
-  };
+  Omit<React.HTMLAttributes<HTMLIonHeaderElement>, 'children'>;
 
 const MainHeader = ({
   title,
   editable = false,
   onEdited,
   onSync,
-  children,
-  color
+  color,
+  showActions,
+  onActionsClick
 }: MainHeaderProps) => {
   const { t } = useLingui();
   const navigate = useNavigate();
@@ -112,7 +116,11 @@ const MainHeader = ({
             onSyncEnd={onSyncEnd}
           />
         )}
-        {children}
+        {showActions && (
+          <IonButton onClick={onActionsClick}>
+            <IonIcon icon={APPICONS.itemActions}></IonIcon>
+          </IonButton>
+        )}
       </IonButtons>
     </IonToolbar>
   );

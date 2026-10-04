@@ -139,7 +139,7 @@ export const EditConfigList = ({
   onChange,
   onClear
 }: EditConfigListProps) => {
-  const mqm = useMediaQueryMatch('sm');
+  const isNotSmall = useMediaQueryMatch('sm');
   return (
     <IonList>
       {rows.map(v => {
@@ -161,7 +161,7 @@ export const EditConfigList = ({
               key={v.key}
               row={v}
               val={initialState[v.key]!}
-              small={!mqm}
+              small={!isNotSmall}
               onChange={(key, val) => {
                 onChange(key, val);
                 if (v.onChange) v.onChange();

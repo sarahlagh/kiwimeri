@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useSyncExternalStore } from 'react';
 
 type Breakpoints =
   | 'xs'
@@ -31,28 +31,24 @@ const getMediaQuery = (breakpoint: Breakpoints): string => {
 };
 
 export const useMediaQueryMatch = (breakpoint: Breakpoints): boolean => {
-  const [isMediaMatch, setIsMediaMatch] = useState<boolean>(
-    () =>
-      typeof window !== 'undefined' &&
-      window.matchMedia(getMediaQuery(breakpoint)).matches
+  const subscribe = useCallback(
+    (onStoreChange: () => void) => {
+      if (typeof window === 'undefined') {
+        return () => {};
+      }
+      const mediaQueryList = window.matchMedia(getMediaQuery(breakpoint));
+      mediaQueryList.addEventListener('change', onStoreChange);
+      return () => {
+        mediaQueryList.removeEventListener('change', onStoreChange);
+      };
+    },
+    [breakpoint]
   );
-
-  useEffect(() => {
+  const getSnapshot = useCallback(() => {
     if (typeof window === 'undefined') {
-      return;
+      return false;
     }
-    const mediaQueryList = window.matchMedia(getMediaQuery(breakpoint));
-    const handleMediaQueryChange = (e: MediaQueryListEvent): void => {
-      setIsMediaMatch(e.matches);
-    };
-
-    setIsMediaMatch(mediaQueryList.matches);
-
-    mediaQueryList.addEventListener('change', handleMediaQueryChange);
-    return () => {
-      mediaQueryList.removeEventListener('change', handleMediaQueryChange);
-    };
+    return window.matchMedia(getMediaQuery(breakpoint)).matches;
   }, [breakpoint]);
-
-  return isMediaMatch;
+  return useSyncExternalStore(subscribe, getSnapshot);
 };

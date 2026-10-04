@@ -184,7 +184,7 @@ export class PCloudDriver extends CloudStorageDriver {
     if (!this.config) {
       throw new Error('uninitialized pcloud config');
     }
-    let res: PCloudListResponse | null = null;
+    let res: PCloudListResponse | null;
     if (fileRef.providerid) {
       res = await this.getFetch<PCloudListResponse>('renamefile', {
         fileid: fileRef.providerid,

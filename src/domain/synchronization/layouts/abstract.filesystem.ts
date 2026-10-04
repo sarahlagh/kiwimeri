@@ -5,7 +5,7 @@ import {
   DriverFileInfo,
   FileReference
 } from '@/domain/synchronization/drivers/types';
-// eslint-disable-next-line no-restricted-imports
+ 
 import { ReplicaRemoteState, ReplicaState } from '../replica-state';
 
 export abstract class CloudStorageFilesystemV2 {

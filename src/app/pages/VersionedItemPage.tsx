@@ -1,10 +1,8 @@
 import { GET_DOCUMENT_ROUTE, VERSION_ROUTE } from '@/app/routes';
-import { APPICONS } from '@/constants';
 import { historyService } from '@/domain/history/history.service';
 import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
 import { getSearchParams } from '@/shared/utils';
-import { IonButton, IonIcon } from '@ionic/react';
-import { lazy, Suspense, useCallback, useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { Navigate, useLocation } from 'react-router';
 import useItemTitle from '../hooks/useItemTitle';
 import NotFoundPage from './NotFoundPage';
@@ -35,18 +33,6 @@ const VersionedItemPage = () => {
   const title = useItemTitle(docId || '');
   const folderTitle = useItemTitle(parentFolder || '');
 
-  const CollectionItemActionsMenu = useCallback(() => {
-    return (
-      <IonButton
-        onClick={() => {
-          setShowDocumentActions(!showDocumentActions);
-        }}
-      >
-        <IonIcon icon={APPICONS.itemActions}></IonIcon>
-      </IonButton>
-    );
-  }, [showDocumentActions, setShowDocumentActions]);
-
   if (location.pathname !== VERSION_ROUTE && docId) {
     // TODO shouldn't be needed - check why
     return (
@@ -67,7 +53,8 @@ const VersionedItemPage = () => {
       headerIfCompact={{
         title,
         editable: false,
-        children: <CollectionItemActionsMenu />,
+        showActions: true,
+        onActionsClick: () => setShowDocumentActions(!showDocumentActions),
         color: 'tertiary'
       }}
       headerIfWide={{

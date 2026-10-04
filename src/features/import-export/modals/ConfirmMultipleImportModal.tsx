@@ -23,9 +23,9 @@ import {
 import { i18n } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ConfirmMultipleImportModalProps } from '../buttons/ImportItemsButton';
-import { ZipMergeResult, ZipParseError } from '../model/model-import';
+import { ZipParseError } from '../model/model-import';
 import importService from '../services/import.service';
 
 export const ARIA_DESCRIPTIONS_PER_TYPE = new Map<
@@ -58,7 +58,6 @@ const ConfirmMultipleImportModal = ({
   const [newFolderName, setNewFolderName] = useState<string | undefined>();
   const [removeFirstFolder, setRemoveFirstFolder] = useState<boolean>(false);
   const [overwrite, setOverwrite] = useState<boolean>(false);
-  const [zipMerge, setZipMerge] = useState<ZipMergeResult | null | undefined>();
 
   const isEmpty = params.zipData.items.length === 0;
   const disableConfirm = params.zipData.errors.length > 0 || isEmpty;
@@ -66,15 +65,9 @@ const ConfirmMultipleImportModal = ({
   const effectiveParent = params.createNotebook ? ROOT_COLLECTION : parent;
   const itemsInCollection =
     collectionService.getBrowsableCollectionItems(effectiveParent);
-  const newFirstLevel = [
-    ...itemsInCollection.filter(
-      item => !zipMerge?.firstLevel.find(i => i.id === item.id)
-    ),
-    ...(zipMerge?.firstLevel || [])
-  ].sort((i1, i2) => i1.createdAt - i2.createdAt); // TODO adjust according to setting
 
-  useEffect(() => {
-    setZipMerge(
+  const zipMerge = useMemo(
+    () =>
       importService.mergeZipItems(effectiveParent, params.zipData, {
         createNotebook: params.createNotebook,
         removeNotebooks: true,
@@ -82,9 +75,24 @@ const ConfirmMultipleImportModal = ({
         overwrite,
         newFolderName,
         removeFirstFolder
-      })
-    );
-  }, [createNewFolder, newFolderName, removeFirstFolder, overwrite]);
+      }),
+    [
+      createNewFolder,
+      effectiveParent,
+      newFolderName,
+      overwrite,
+      removeFirstFolder,
+      params.createNotebook,
+      params.zipData
+    ]
+  );
+
+  const newFirstLevel = [
+    ...itemsInCollection.filter(
+      item => !zipMerge?.firstLevel.find(i => i.id === item.id)
+    ),
+    ...(zipMerge?.firstLevel || [])
+  ].sort((i1, i2) => i1.createdAt - i2.createdAt); // TODO adjust according to setting
 
   const getErrorLabel = (e: ZipParseError) => {
     switch (e.family) {

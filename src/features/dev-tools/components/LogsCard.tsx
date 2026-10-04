@@ -16,7 +16,7 @@ import {
   IonText
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { createRef, RefObject, useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import fetchLogsQuery from '../queries/fetchLogsQuery';
 
 function onRouteEnter() {
@@ -24,6 +24,22 @@ function onRouteEnter() {
 }
 function onRouteLeave() {
   fetchLogsQuery.close();
+}
+
+function getColor(
+  level: AppLogLevel
+): (import('@ionic/core').Color & string) | undefined {
+  switch (level) {
+    case 'error':
+      return 'danger';
+    case 'warn':
+      return 'warning';
+    case 'debug':
+      return 'tertiary';
+    case 'trace':
+      return 'dark';
+  }
+  return undefined;
 }
 
 const LogsCard = () => {
@@ -38,6 +54,7 @@ const LogsCard = () => {
   const filters = Object.keys(stateMap).filter(
     k => stateMap[k as AppLogLevel]
   ) as AppLogLevel[];
+  const lastLogRef = useRef<HTMLIonTextElement>(null);
   const [showFilters, setShowFilters] = useState(false);
   const logs = useQueryResults(fetchLogsQuery, 'ts', false).filter(l =>
     filters ? filters.includes(l.longLevelName) : true
@@ -50,42 +67,18 @@ const LogsCard = () => {
     };
   }, []);
 
-  function getColor(
-    level: AppLogLevel
-  ): (import('@ionic/core').Color & string) | undefined {
-    switch (level) {
-      case 'error':
-        return 'danger';
-      case 'warn':
-        return 'warning';
-      case 'debug':
-        return 'tertiary';
-      case 'trace':
-        return 'dark';
-    }
-    return undefined;
-  }
-
-  const refs = logs.reduce(
-    (acc, log) => {
-      acc[log.id] = createRef();
-      return acc;
-    },
-    {} as {
-      [key: string]: RefObject<HTMLIonTextElement | null>;
-    }
-  );
-
-  // scroll to last
-  setTimeout(() => {
-    const last = logs[logs.length - 1];
-    if (last && refs[last.id] && refs[last.id].current) {
-      refs[last.id].current?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
-      });
-    }
-  }, 50);
+  useEffect(() => {
+    // scroll to last
+    const timeout = setTimeout(() => {
+      if (lastLogRef.current) {
+        lastLogRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+      return () => clearTimeout(timeout);
+    }, 50);
+  }, [logs]);
 
   return (
     <IonCard>
@@ -96,10 +89,20 @@ const LogsCard = () => {
       </IonCardHeader>
       <IonCardContent>
         <IonList style={{ maxHeight: '400px', overflowY: 'auto' }}>
-          {logs.map(log => {
+          {logs.map((log, i) => {
             const color = getColor(log.longLevelName);
+            if (i === logs.length - 1) {
+              return (
+                <IonText color={color} key={log.id} ref={lastLogRef}>
+                  <p>
+                    {dateToStr('time', log.ts)} &nbsp;
+                    {log.message}
+                  </p>
+                </IonText>
+              );
+            }
             return (
-              <IonText color={color} key={log.id} ref={refs[log.id]}>
+              <IonText color={color} key={log.id}>
                 <p>
                   {dateToStr('time', log.ts)} &nbsp;
                   {log.message}

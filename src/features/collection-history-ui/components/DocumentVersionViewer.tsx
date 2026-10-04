@@ -73,6 +73,7 @@ const DocumentVersionViewer = ({
   const searchText = query ? decodeURI(query) : '';
   // TODO refactor
   useEffect(() => {
+    // eslint-disable-next-line @eslint-react/set-state-in-effect
     setShowDocumentActions(showActions);
   }, [showActions]);
 
@@ -86,7 +87,9 @@ const DocumentVersionViewer = ({
 
   useEffect(() => {
     if (searchText) {
+      // eslint-disable-next-line @eslint-react/set-state-in-effect
       setToggleSearch(searchText.length > 0);
+      // eslint-disable-next-line @eslint-react/set-state-in-effect
       setToggleSearchAutoFocus(false);
     }
   }, [searchText, docId]);

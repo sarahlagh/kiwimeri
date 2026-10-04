@@ -19,8 +19,8 @@ type QuickGroupButtonProps = {
 
 const QuickGroupButton = ({ id, type, onClose }: QuickGroupButtonProps) => {
   const { t } = useLingui();
-  if (type !== CollectionItemType.document) return <></>;
   const { setToast } = useToastContext();
+  if (type !== CollectionItemType.document) return <></>;
   return (
     <IonButton
       fill="clear"

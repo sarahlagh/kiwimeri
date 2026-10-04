@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { getGlobalTrans } from '@/constants';
 import {
   CollectionItemType,
@@ -69,7 +68,7 @@ const ExportItemsButton = ({
       );
     }
     if (type !== CollectionItemType.folder) {
-      const docResp = exportService.getSingleDocumentContent(id, opts);
+      const docResp = exportService.getSingleDocumentContent(id);
       if (typeof docResp === 'string') {
         return docResp;
       }

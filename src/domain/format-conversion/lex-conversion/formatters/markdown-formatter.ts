@@ -70,8 +70,8 @@ const genericTextFormatTransform = function (
   mdPrefix: string,
   mdSuffix: string
 ): string {
-  let wasAppliedBefore = false;
-  let stillAppliedAfter = false;
+  let wasAppliedBefore;
+  let stillAppliedAfter;
   let prefix = mdPrefix;
   let suffix = mdSuffix;
   if (ctx.parent && 'children' in ctx.parent) {

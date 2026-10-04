@@ -425,7 +425,7 @@ describe('import service', () => {
     jsonTestCases: string[]
   ) => {
     for (const jsonName of jsonTestCases) {
-      let json = '';
+      let json;
       try {
         json = await readFile(
           `${__dirname}/../_data/${parentDir}/test_descriptors/${jsonName}.json`,

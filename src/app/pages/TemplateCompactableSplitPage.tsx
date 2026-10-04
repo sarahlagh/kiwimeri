@@ -46,22 +46,18 @@ const TemplateCompactableSplitPage = ({
         menu.removeEventListener('ionDidClose', onMenuClose);
       }
     };
-  }, [menuRef.current]);
+  }, [onMenuClose]);
 
   return (
     <IonPage id={MAIN_CONTENT_ID}>
       {!isWideEnough && (
         <IonHeader>
-          <MainHeader {...headerIfCompact} onSync={onSync}>
-            {headerIfCompact.children}
-          </MainHeader>
+          <MainHeader {...headerIfCompact} onSync={onSync} />
         </IonHeader>
       )}
       {isWideEnough && (
         <IonHeader>
-          <MainHeader {...headerIfWide} onSync={onSync}>
-            {headerIfWide.children}
-          </MainHeader>
+          <MainHeader {...headerIfWide} onSync={onSync} />
         </IonHeader>
       )}
 
