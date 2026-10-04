@@ -24,8 +24,8 @@ describe('notebooks service', () => {
     const n2 = notebooksService.addNotebook('non default notebook 2', n1);
     expect(notebooksService.getNotebooks()).toHaveLength(2);
     expect(notebooksService.getNotebooks(n1)).toHaveLength(1);
-    expect(collectionService.itemExists(n1!));
-    expect(collectionService.itemExists(n2!));
+    expect(collectionService.itemExists(n1!)).toBe(true);
+    expect(collectionService.itemExists(n2!)).toBe(true);
   });
 
   it(`should update notebook title`, () => {

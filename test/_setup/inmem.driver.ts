@@ -113,9 +113,6 @@ export class InMemDriver extends CloudStorageDriver {
   }
 
   public async pushFile(fileRef: FileReference, content: string) {
-    if (this.config.failOnPush) {
-      return { success: false };
-    }
     this.clearMap(fileRef.filename, true);
     this.collection.set(fileRef.filename, content);
     const hash = `${fastHash(content)}`;
@@ -126,7 +123,7 @@ export class InMemDriver extends CloudStorageDriver {
     });
     console.debug('[inmem] pushFile', updated, hash);
     return {
-      success: true,
+      success: this.config.failOnPush !== true,
       driverInfo: {
         filename: fileRef.filename,
         providerid: fileRef.providerid || fileRef.filename,

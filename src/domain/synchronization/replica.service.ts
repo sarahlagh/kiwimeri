@@ -46,7 +46,7 @@ class ReplicaService {
 
   public async push(remoteId: Id, force = false) {
     const synchronizer = this.synchronizers.get(remoteId);
-    if (!synchronizer) return { success: false };
+    if (!synchronizer) return { success: false, didPush: false };
     return synchronizer.push(force);
   }
 

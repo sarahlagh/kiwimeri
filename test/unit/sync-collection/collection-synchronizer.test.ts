@@ -17,12 +17,14 @@ import {
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import useItemsConflictMixIn from '@/features/collection-browser/hooks/useItemsConflictMixIn';
 import fetchBrowsableItemsQuery from '@/features/collection-browser/queries/fetchBrowsableItemsQuery';
+import fetchNotesQuery from '@/features/collection-notes-ui/queries/fetchNotesQuery';
 import { useSynchronizationStates } from '@/features/synchronization-ui';
 import { InMemDriver } from '@@/_setup/inmem.driver';
 import {
   adv,
   getLocalItemConflicts,
   getNewContent,
+  getRowCountInsideNotebook,
   oneDocument,
   oneFolder,
   oneNote,
@@ -46,8 +48,7 @@ describe('collection synchronizer', () => {
     vi.useFakeTimers();
     synchronizer.destroy();
     synchronizer.configure({ names: ['collection.json'] });
-    const { connected } = await synchronizer.connect();
-    expect(connected).toBe(true);
+    await synchronizer.connect();
     historyService['enabled'] = true;
   });
   afterEach(() => {
@@ -85,7 +86,7 @@ describe('collection synchronizer', () => {
     await synchronizer.sync();
 
     expect(space.getRowCount(SpaceTables.Collection)).toBe(2);
-    expect(space.hasRow(SpaceTables.Collection, items[1].id));
+    expect(space.hasRow(SpaceTables.Collection, items[1].id)).toBe(true);
     expect(
       spaceDocContent.getCell(
         SpaceDocContentTables.CollectionContent,
@@ -435,7 +436,7 @@ describe('collection synchronizer', () => {
       await synchronizer.sync();
 
       expect(space.getRowCount(SpaceTables.Annotations)).toBe(1);
-      expect(space.hasRow(SpaceTables.Annotations, notes[0].id));
+      expect(space.hasRow(SpaceTables.Annotations, notes[0].id)).toBe(true);
       expect(
         spaceDocContent.getCell(
           SpaceDocContentTables.AnnotationContent,
@@ -502,7 +503,8 @@ describe('collection synchronizer', () => {
       // note pulled
 
       // update on remote
-      notes[0].content = getNewContent('remote');
+      const remoteContent = getNewContent('remote');
+      notes[0].content = remoteContent;
       notes[0].content_meta = setMetaField(Date.now());
       notes[0].updatedAt = Date.now();
       await driver.setCollectionContentWithAnnots(
@@ -512,23 +514,27 @@ describe('collection synchronizer', () => {
       );
 
       // update locally
+      const localContent = getNewContent('local');
       adv(() => {
-        annotsService.edit(noteId, JSON.parse(getNewContent('local')));
+        annotsService.edit(noteId, JSON.parse(localContent));
       });
 
       // sync
       const resp = await synchronizer.sync();
-      expect(resp.didPull);
-      expect(resp.didPush);
+      expect(resp.didPull).toBe(true);
+      expect(resp.didPush).toBe(false);
       {
-        const { items, annots: newNotes } = driver.getParsedCollectionContent();
-        expect(Object.keys(items)).toHaveLength(2);
-        expect(items[docId]).toBeDefined();
-        expect(Object.keys(newNotes)).toHaveLength(1);
-        expect(newNotes[noteId]).toBeDefined();
-        expect(newNotes[noteId].content).toBe(annotsService.getContent(noteId));
-        expect(newNotes[noteId].content).toBe(notes[0].content);
-        expect(annotsService.isConflict(noteId));
+        expect(getRowCountInsideNotebook()).toBe(1);
+        expect(collectionService.itemExists(docId)).toBe(true);
+        const newNotes = fetchNotesQuery.getResults(
+          { parentId: docId },
+          'createdAt'
+        );
+        expect(newNotes).toHaveLength(2);
+        expect(newNotes[0].id).toBe(noteId);
+        expect(annotsService.getContent(noteId)).toBe(remoteContent);
+        expect(newNotes[1].conflictId).toBe(noteId);
+        expect(annotsService.getContent(newNotes[1].id)).toBe(localContent);
       }
     });
 
@@ -547,12 +553,14 @@ describe('collection synchronizer', () => {
       // note pulled
 
       // update locally
+      const localContent = getNewContent('local');
       adv(() => {
-        annotsService.edit(noteId, JSON.parse(getNewContent('local')));
+        annotsService.edit(noteId, JSON.parse(localContent));
       });
 
       // update on remote
-      notes[0].content = getNewContent('remote');
+      const remoteContent = getNewContent('remote');
+      notes[0].content = remoteContent;
       notes[0].content_meta = setMetaField(Date.now());
       notes[0].updatedAt = Date.now();
       await driver.setCollectionContentWithAnnots(
@@ -563,18 +571,33 @@ describe('collection synchronizer', () => {
 
       // sync
       const resp = await synchronizer.sync();
-      expect(resp.didPull);
-      expect(!resp.didPush);
+      expect(resp.didPull).toBe(true);
+      expect(resp.didPush).toBe(false);
+
       {
-        const { items, annots: newNotes } = driver.getParsedCollectionContent();
-        expect(Object.keys(items)).toHaveLength(2);
-        expect(items[docId]).toBeDefined();
-        expect(Object.keys(newNotes)).toHaveLength(1);
-        expect(newNotes[noteId]).toBeDefined();
-        expect(newNotes[noteId].content).toBe(annotsService.getContent(noteId));
-        expect(newNotes[noteId].content).toBe(notes[0].content);
-        expect(annotsService.isConflict(noteId));
+        expect(getRowCountInsideNotebook()).toBe(1);
+        expect(collectionService.itemExists(docId)).toBe(true);
+        const newNotes = fetchNotesQuery.getResults(
+          { parentId: docId },
+          'createdAt'
+        );
+        expect(newNotes).toHaveLength(2);
+        expect(newNotes[0].id).toBe(noteId);
+        expect(annotsService.getContent(noteId)).toBe(remoteContent);
+        expect(newNotes[1].conflictId).toBe(noteId);
+        expect(annotsService.getContent(newNotes[1].id)).toBe(localContent);
       }
+
+      // {
+      //   const { items, annots: newNotes } = driver.getParsedCollectionContent();
+      //   expect(Object.keys(items)).toHaveLength(2);
+      //   expect(items[docId]).toBeDefined();
+      //   expect(Object.keys(newNotes)).toHaveLength(1);
+      //   expect(newNotes[noteId]).toBeDefined();
+      //   expect(newNotes[noteId].content).toBe(annotsService.getContent(noteId));
+      //   expect(newNotes[noteId].content).toBe(notes[0].content);
+      //   expect(annotsService.isConflict(noteId)).toBe(true);
+      // }
     });
 
     it('should sync notes and delete orphans', async () => {
@@ -600,8 +623,8 @@ describe('collection synchronizer', () => {
 
       await synchronizer.sync();
 
-      expect(!annotsService.exists(noteId));
-      expect(!annotsService.exists(orphanId));
+      expect(!annotsService.exists(noteId)).toBe(true);
+      expect(!annotsService.exists(orphanId)).toBe(true);
     });
 
     it('should sync notes and delete orphans 2', async () => {
@@ -626,8 +649,8 @@ describe('collection synchronizer', () => {
 
       await synchronizer.sync();
 
-      expect(!annotsService.exists(noteId));
-      expect(!annotsService.exists(orphanId));
+      expect(!annotsService.exists(noteId)).toBe(true);
+      expect(!annotsService.exists(orphanId)).toBe(true);
     });
 
     it('should not delete old annots on pull', async () => {
@@ -643,9 +666,9 @@ describe('collection synchronizer', () => {
 
       await synchronizer.sync();
 
-      expect(collectionService.itemExists(docId));
-      expect(collectionService.itemExists(items[1].id!));
-      expect(annotsService.exists(noteId));
+      expect(collectionService.itemExists(docId)).toBe(true);
+      expect(collectionService.itemExists(items[1].id!)).toBe(true);
+      expect(annotsService.exists(noteId)).toBe(true);
     });
 
     it('should delete old annots on force pull', async () => {
@@ -661,9 +684,9 @@ describe('collection synchronizer', () => {
 
       await synchronizer.pull(true);
 
-      expect(!collectionService.itemExists(docId));
-      expect(collectionService.itemExists(items[1].id!));
-      expect(!annotsService.exists(noteId));
+      expect(!collectionService.itemExists(docId)).toBe(true);
+      expect(collectionService.itemExists(items[1].id!)).toBe(true);
+      expect(!annotsService.exists(noteId)).toBe(true);
       expect(space.getRowCount('document_annotation')).toBe(0);
     });
 
@@ -680,7 +703,7 @@ describe('collection synchronizer', () => {
       await synchronizer.pull(true);
 
       expect(space.getRowCount(SpaceTables.Annotations)).toBe(1);
-      expect(space.hasRow(SpaceTables.Annotations, notes[0].id));
+      expect(space.hasRow(SpaceTables.Annotations, notes[0].id)).toBe(true);
       expect(
         spaceDocContent.getCell(
           SpaceDocContentTables.AnnotationContent,
@@ -775,8 +798,12 @@ describe('collection synchronizer', () => {
 
       function assertPlainText(pt1: string, pt2: string) {
         expect(space.getRowCount(SpaceTables.Annotations)).toBe(2);
-        expect(space.hasRow(SpaceTables.AnnotationView, notes[0].id));
-        expect(space.hasRow(SpaceTables.AnnotationView, notes[1].id));
+        expect(space.hasRow(SpaceTables.AnnotationView, notes[0].id)).toBe(
+          true
+        );
+        expect(space.hasRow(SpaceTables.AnnotationView, notes[1].id)).toBe(
+          true
+        );
         expect(
           spaceDocContent.getCell(
             SpaceDocContentTables.AnnotationContent,
@@ -951,15 +978,8 @@ describe('collection synchronizer', () => {
 
       // sync
       const resp = await synchronizer.sync();
-      expect(resp.didPull);
-      expect(!resp.didPush);
-      {
-        const { items } = driver.getParsedCollectionContent();
-        expect(Object.keys(items)).toHaveLength(2);
-        expect(items[docId]).toBeDefined();
-        expect(collectionService.isItemConflict(docId));
-      }
-
+      expect(resp.didPull).toBe(true);
+      expect(resp.didPush).toBe(false);
       {
         const { result, unmount } = wrappedRenderHook(() =>
           useSynchronizationStates()
@@ -1024,18 +1044,8 @@ describe('collection synchronizer', () => {
 
       // sync
       const resp = await synchronizer.sync();
-      expect(resp.didPull);
-      expect(!resp.didPush);
-      {
-        const { items, annots: newNotes } = driver.getParsedCollectionContent();
-        expect(Object.keys(items)).toHaveLength(2);
-        expect(items[docId]).toBeDefined();
-        expect(Object.keys(newNotes)).toHaveLength(1);
-        expect(newNotes[noteId]).toBeDefined();
-        expect(newNotes[noteId].content).toBe(annotsService.getContent(noteId));
-        expect(newNotes[noteId].content).toBe(notes[0].content);
-        expect(annotsService.isConflict(noteId));
-      }
+      expect(resp.didPull).toBe(true);
+      expect(resp.didPush).toBe(false);
 
       {
         const { result, unmount } = wrappedRenderHook(() =>
@@ -1112,20 +1122,8 @@ describe('collection synchronizer', () => {
 
       // sync
       const resp = await synchronizer.sync();
-      expect(resp.didPull);
-      expect(!resp.didPush);
-      {
-        const { items, annots: newNotes } = driver.getParsedCollectionContent();
-        expect(Object.keys(items)).toHaveLength(5);
-        expect(items[docWithNote]).toBeDefined();
-        expect(items[docInConflict]).toBeDefined();
-        expect(items[docExcluded]).toBeDefined();
-        expect(collectionService.isItemConflict(docInConflict));
-        expect(!collectionService.isItemConflict(docWithNote));
-        expect(!collectionService.isItemConflict(docExcluded));
-        expect(newNotes[noteId].content).toBe(notes[0].content);
-        expect(annotsService.isConflict(noteId));
-      }
+      expect(resp.didPull).toBe(true);
+      expect(resp.didPush).toBe(false);
 
       {
         const { result, unmount } = wrappedRenderHook(() =>

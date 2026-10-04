@@ -256,9 +256,9 @@ describe('notes service', () => {
     const note1 = annotsService.addNote(docId);
     space.setCell(SpaceTables.Annotations, note1, 'conflictId', 'conflict-id');
 
-    expect(annotsService.isConflict(note1));
+    expect(annotsService.isConflict(note1)).toBe(true);
 
     annotsService.edit(note1, JSON.parse(getNewContent('test')));
-    expect(!annotsService.isConflict(note1));
+    expect(!annotsService.isConflict(note1)).toBe(true);
   });
 });

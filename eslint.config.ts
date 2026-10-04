@@ -1,6 +1,7 @@
 import eslintReact from '@eslint-react/eslint-plugin';
 import css from '@eslint/css';
 import js from '@eslint/js';
+import vitest from '@vitest/eslint-plugin';
 import { defineConfig } from 'eslint/config';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
@@ -89,6 +90,14 @@ export default defineConfig([
       'no-restricted-imports': 'off',
       'no-restricted-syntax': 'off'
     }
+  },
+
+  {
+    files: ['test/**/*.{js,ts,jsx,tsx}', '**/*.{test,spec}.{js,ts,jsx,tsx}'],
+    plugins: {
+      vitest
+    },
+    extends: [vitest.configs.recommended]
   },
 
   {

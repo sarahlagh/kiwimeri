@@ -135,7 +135,9 @@ describe.sequential(
       });
       await syncService.reinit(true);
       const remotes = fetchRemotesQuery.getResults({});
+      // eslint-disable-next-line vitest/no-standalone-expect
       expect(remotes).toHaveLength(1);
+      // eslint-disable-next-line vitest/no-standalone-expect
       expect(remotes[0].connected).toBeTruthy();
       const keys = replicaService['synchronizers'].keys();
       synchronizer = replicaService['synchronizers'].get(
@@ -155,6 +157,7 @@ describe.sequential(
         await driver.deleteFile({ filename: 'stats.json' });
       }
       await remotesService.delRemote(remotesService.getRemotes()[0].id);
+      // eslint-disable-next-line vitest/no-standalone-expect
       expect(countOrphans()).toBe(0);
     });
 
@@ -285,8 +288,8 @@ describe.sequential(
 
       await amount(100);
       const { success, didPull } = await syncService.sync('sync');
-      expect(success);
-      expect(didPull);
+      expect(success).toBe(true);
+      expect(didPull).toBe(true);
       expect(getRowCountInsideNotebook()).toBe(3);
 
       // update locally
@@ -471,29 +474,29 @@ describe.sequential(
 
       // now check
 
-      expect(collectionService.itemExists(idDocuments[0]));
-      expect(collectionService.itemExists(idFolders[0]));
-      expect(collectionService.itemExists(idDocuments[1]));
-      expect(collectionService.itemExists(idFolders[1]));
+      expect(collectionService.itemExists(idDocuments[0])).toBe(true);
+      expect(collectionService.itemExists(idFolders[0])).toBe(true);
+      expect(collectionService.itemExists(idDocuments[1])).toBe(true);
+      expect(collectionService.itemExists(idFolders[1])).toBe(true);
       expect(collectionService.itemExists(idDocuments[2])).toBe(false); // deleted remotely
-      expect(collectionService.itemExists(idFolders[2]));
-      expect(collectionService.itemExists(idDocuments[3]));
-      expect(collectionService.itemExists(idFolders[3]));
-      expect(collectionService.itemExists(idDocuments[4]));
-      expect(collectionService.itemExists(idFolders[4]));
+      expect(collectionService.itemExists(idFolders[2])).toBe(true);
+      expect(collectionService.itemExists(idDocuments[3])).toBe(true);
+      expect(collectionService.itemExists(idFolders[3])).toBe(true);
+      expect(collectionService.itemExists(idDocuments[4])).toBe(true);
+      expect(collectionService.itemExists(idFolders[4])).toBe(true);
       expect(collectionService.itemExists(idDocuments[5])).toBe(false); // deleted locally
-      expect(collectionService.itemExists(idFolders[5]));
-      expect(collectionService.itemExists(idDocuments[6]));
-      expect(collectionService.itemExists(idFolders[6]));
-      expect(collectionService.itemExists(idDocuments[7]));
-      expect(collectionService.itemExists(idFolders[7]));
-      expect(collectionService.itemExists(idDocuments[8]));
-      expect(collectionService.itemExists(idFolders[8]));
-      expect(collectionService.itemExists(idDocuments[9]));
-      expect(collectionService.itemExists(idFolders[9]));
+      expect(collectionService.itemExists(idFolders[5])).toBe(true);
+      expect(collectionService.itemExists(idDocuments[6])).toBe(true);
+      expect(collectionService.itemExists(idFolders[6])).toBe(true);
+      expect(collectionService.itemExists(idDocuments[7])).toBe(true);
+      expect(collectionService.itemExists(idFolders[7])).toBe(true);
+      expect(collectionService.itemExists(idDocuments[8])).toBe(true);
+      expect(collectionService.itemExists(idFolders[8])).toBe(true);
+      expect(collectionService.itemExists(idDocuments[9])).toBe(true);
+      expect(collectionService.itemExists(idFolders[9])).toBe(true);
       // check items created are still there
-      expect(collectionService.itemExists(newLocalItem));
-      expect(collectionService.itemExists(newRemoteItem.id!));
+      expect(collectionService.itemExists(newLocalItem)).toBe(true);
+      expect(collectionService.itemExists(newRemoteItem.id!)).toBe(true);
       // in total
       expect(getRowCountInsideNotebook()).toBe(22); // 20 + 2 added -2 deleted + 2 conflicts
       expect(notebooksService.getNotebooks()).toHaveLength(2);
@@ -646,7 +649,7 @@ describe.sequential(
         await amount(100);
 
         expect(space.getRowCount(SpaceTables.Annotations)).toBe(1);
-        expect(space.hasRow(SpaceTables.Annotations, notes[0].id));
+        expect(space.hasRow(SpaceTables.Annotations, notes[0].id)).toBe(true);
       });
 
       test('synchronizer should merge notes', async () => {

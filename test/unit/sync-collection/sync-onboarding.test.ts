@@ -22,9 +22,9 @@ describe(`sync onboarding test`, () => {
     await syncService.reinit(true);
 
     const { success, didPull, didPush } = await syncService_sync('sync');
-    expect(success);
-    expect(!didPull);
-    expect(didPush);
+    expect(success).toBe(true);
+    expect(!didPull).toBe(true);
+    expect(didPush).toBe(true);
   });
 
   test('after adding a first remote, if the remote location already exists, pull should work', async () => {
@@ -47,9 +47,9 @@ describe(`sync onboarding test`, () => {
     compositeSynchronizer['collectionSynchronizer']['driver'] = driver;
 
     const { success, didPull, didPush } = await syncService_sync('sync');
-    expect(success);
-    expect(!didPull); // should fail
-    expect(didPush);
+    expect(success).toBe(true);
+    expect(!didPull).toBe(true); // should fail
+    expect(didPush).toBe(true);
 
     driver.close();
   });

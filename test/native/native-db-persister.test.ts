@@ -217,7 +217,7 @@ describe('native db persister test', () => {
     expect(hasTaskByName(TaskNames.NATIVE_STORE_SAVE)).toBe(false);
 
     expect(window.nativeContentMap.size).toBe(1);
-    expect(window.nativeContentMap.has('kiwimeri-store'));
+    expect(window.nativeContentMap.has('kiwimeri-store')).toBe(true);
     expect(
       window.nativeContentMap.get('kiwimeri-store')![0].profiles
     ).toBeDefined();

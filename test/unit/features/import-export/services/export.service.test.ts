@@ -1,3 +1,4 @@
+/* eslint-disable vitest/no-conditional-expect */
 import { DEFAULT_NOTEBOOK_ID, getGlobalTrans, META_JSON } from '@/constants';
 import { CollectionItemType } from '@/domain/collection/collection';
 import { settingsService } from '@/domain/collection/collection-settings.service';
@@ -95,7 +96,6 @@ describe('export service', () => {
             // expect(docs.length).toBe(1);
 
             const docMeta = meta.files![docs[0]];
-            expect(docMeta);
             expect(docMeta).toBeDefined();
             expect(docMeta.createdAt).toBe(Date.now());
             expect(docMeta.updatedAt).toBe(Date.now());
@@ -110,7 +110,7 @@ describe('export service', () => {
       it('should export a single document as a single file', () => {
         const id = newDoc(DEFAULT_NOTEBOOK_ID, 'this is the document content');
 
-        const content = exportService.getSingleDocumentContent(id, opts);
+        const content = exportService.getSingleDocumentContent(id);
         expect(content).toBe('this is the document content\n\n');
       });
 

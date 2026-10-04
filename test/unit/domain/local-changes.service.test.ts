@@ -221,7 +221,7 @@ describe('local changes for collection', () => {
 
     const changes = localChangesService.getLocalChanges();
     expect(changes).toHaveLength(1);
-    expect(annotsService.exists(noteId)); // not deleted, saved for gc
+    expect(annotsService.exists(noteId)).toBe(true); // not deleted, saved for gc
 
     expect(historyService.getVersions(id)).toHaveLength(2);
     expect(localChangesService.canChangeBeReset(changes[0].id)).toBe(true);

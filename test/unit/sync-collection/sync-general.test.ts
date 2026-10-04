@@ -59,11 +59,11 @@ describe(`sync general test`, () => {
   beforeEach(testSyncBeforeEach);
   afterEach(testSyncAfterEach);
 
-  it('should do nothing on first pull if remote has nothing', async () => {
+  it('should push on first pull if remote has nothing', async () => {
     const resp = await syncService_sync('sync');
-    expect(resp.success);
-    expect(!resp.didPull);
-    expect(!resp.didPush);
+    expect(resp.success).toBe(true);
+    expect(resp.didPull).toBe(false);
+    expect(resp.didPush).toBe(true);
     expect(getRowCountInsideNotebook()).toBe(0);
     expect(spaceArchive.getRowCount('history')).toBe(0);
   });
@@ -76,9 +76,9 @@ describe(`sync general test`, () => {
       oneNotebook()
     ]);
     const resp = await syncService_sync('sync');
-    expect(resp.success);
-    expect(resp.didPull);
-    expect(!resp.didPush);
+    expect(resp.success).toBe(true);
+    expect(resp.didPull).toBe(true);
+    expect(resp.didPush).toBe(true);
     expect(getRowCountInsideNotebook()).toBe(3);
     checkHistory(2);
   });
@@ -93,17 +93,17 @@ describe(`sync general test`, () => {
     await reInitRemoteData(remoteData);
 
     const resp1 = await syncService_sync('sync');
-    expect(resp1.success);
-    expect(resp1.didPull);
-    expect(!resp1.didPush);
+    expect(resp1.success).toBe(true);
+    expect(resp1.didPull).toBe(true);
+    expect(resp1.didPush).toBe(true);
 
     expect(getRowCountInsideNotebook()).toBe(3);
     adv(() => collectionService.addFolder(DEFAULT_NOTEBOOK_ID));
 
     const resp2 = await syncService_sync('sync');
-    expect(resp2.success);
-    expect(!resp2.didPull);
-    expect(resp2.didPush);
+    expect(resp2.success).toBe(true);
+    expect(resp2.didPull).toBe(false);
+    expect(resp2.didPush).toBe(true);
 
     const remoteContent = await getRemoteContent();
     expect(Object.keys(remoteContent.items)).toHaveLength(5);
@@ -138,9 +138,9 @@ describe(`sync general test`, () => {
     await syncService.reinit();
     // now pull
     const resp = await syncService_sync('sync');
-    expect(resp.success);
-    expect(resp.didPull);
-    expect(resp.didPush);
+    expect(resp.success).toBe(true);
+    expect(resp.didPull).toBe(true);
+    expect(resp.didPush).toBe(true);
     // both items are kept
     expect(getRowCountInsideNotebook()).toBe(2);
   });
@@ -158,10 +158,9 @@ describe(`sync general test`, () => {
     expect(result.current.isSyncEnabled).toBe(false);
     unmount();
     // calling the method won't succeed on push
-    const { success, didPull, didPush } = await syncService.sync('sync');
-    expect(success);
-    expect(didPull);
-    expect(!didPush);
+    const { success, didPush } = await syncService.push();
+    expect(success).toBe(true);
+    expect(didPush).toBe(false);
     conflictsService.closeConflictQueries();
   });
 
@@ -172,8 +171,8 @@ describe(`sync general test`, () => {
     adv(() => space.setCell('collection', id, 'conflictId', 'fakeId'));
     // calling the method won't succeed on push
     const { success, didPush } = await syncService.sync('force-push');
-    expect(success);
-    expect(!didPush);
+    expect(success).toBe(true);
+    expect(!didPush).toBe(true);
   });
 
   it('should erase conflicts on force pull', async () => {
@@ -183,13 +182,13 @@ describe(`sync general test`, () => {
 
     // artificially create a conflict
     adv(() => space.setCell('collection', id, 'conflictId', 'fakeId'));
-    expect(collectionService.isItemConflict(id));
+    expect(collectionService.isItemConflict(id)).toBe(true);
     // calling the method will overwrite
     const { success, didPull } = await syncService.sync('force-pull');
-    expect(success);
-    expect(didPull);
+    expect(success).toBe(true);
+    expect(didPull).toBe(true);
 
-    expect(!collectionService.isItemConflict(id));
+    expect(collectionService.isItemConflict(id)).toBe(false);
   });
 
   it('should allow sync once all conflicts are solved', async () => {
@@ -201,7 +200,7 @@ describe(`sync general test`, () => {
 
     // artificially create a conflict
     adv(() => space.setCell('collection', id, 'conflictId', 'fakeId'));
-    expect(collectionService.isItemConflict(id));
+    expect(collectionService.isItemConflict(id)).toBe(true);
 
     {
       const { result, unmount } = wrappedRenderHook(() =>
@@ -213,7 +212,7 @@ describe(`sync general test`, () => {
 
     // solve conflict
     adv(() => collectionService.setItemTitle(id, 'test'));
-    expect(!collectionService.isItemConflict(id));
+    expect(collectionService.isItemConflict(id)).toBe(false);
     const lc = localChangesService
       .getLocalChanges()
       .find(lc => lc.itemId === id);
@@ -242,8 +241,10 @@ describe(`filesystem test`, () => {
     const { success, didPush } = await filesystem.acceptsChanges({
       test: 'ok'
     });
-    expect([...driver['collection'].keys()].some(k => k.endsWith('.part')));
-    expect(!success);
-    expect(didPush);
+    expect(!success).toBe(true);
+    expect(didPush).toBe(true);
+    expect(
+      [...driver['collection'].keys()].some(k => k.endsWith('.part'))
+    ).toBe(true);
   });
 });

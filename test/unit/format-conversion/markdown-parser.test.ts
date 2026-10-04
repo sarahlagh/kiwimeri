@@ -47,6 +47,68 @@ describe('parser', () => {
       expect(resp.obj!.root.children[0].type).toBe('horizontalrule');
       expect(resp.obj!.root.children[1].type).toBe('horizontalrule');
     });
+
+    it(`should match the end of content`, () => {
+      const parser = new MarkdownParser();
+      const resp = parser.parse('---');
+      expect(resp.errors).toBeUndefined();
+      expect(resp.obj).toBeDefined();
+      expect(resp.obj!.root).toBeDefined();
+      expect(resp.obj!.root.children).toHaveLength(1);
+      expect(resp.obj!.root.children[0].type).toBe('horizontalrule');
+    });
+
+    it(`a hrule should be preceded by \\n\\n`, () => {
+      const parser = new MarkdownParser();
+      const resp = parser.parse(
+        'this will produce a single paragraph with --- left in text\n---'
+      );
+      expect(resp.errors).toBeUndefined();
+      expect(resp.obj).toBeDefined();
+      expect(resp.obj!.root).toBeDefined();
+      expect(resp.obj!.root.children).toHaveLength(1);
+      expect(resp.obj!.root.children[0].type).toBe('paragraph');
+      const paragraph = resp.obj!.root.children[0] as SerializedElementNode;
+      expect(paragraph.children).toHaveLength(3);
+      expect((paragraph.children[2] as SerializedTextNode).text).toBe('---');
+    });
+
+    it(`a hrule should end with \\n or \\n\\n`, () => {
+      const parser = new MarkdownParser();
+      const resp = parser.parse('---\nthis will be a paragraph');
+      expect(resp.errors).toBeUndefined();
+      expect(resp.obj).toBeDefined();
+      expect(resp.obj!.root).toBeDefined();
+      expect(resp.obj!.root.children).toHaveLength(2);
+      expect(resp.obj!.root.children[0].type).toBe('horizontalrule');
+      const paragraph = resp.obj!.root.children[1] as SerializedElementNode;
+      expect(paragraph.children).toHaveLength(1);
+      expect((paragraph.children[0] as SerializedTextNode).text).toBe(
+        'this will be a paragraph'
+      );
+    });
+
+    it(`two adjacent hrules may be separated by \\n\\n`, () => {
+      const parser = new MarkdownParser();
+      const resp = parser.parse('---\n\n---');
+      expect(resp.errors).toBeUndefined();
+      expect(resp.obj).toBeDefined();
+      expect(resp.obj!.root).toBeDefined();
+      expect(resp.obj!.root.children).toHaveLength(2);
+      expect(resp.obj!.root.children[0].type).toBe('horizontalrule');
+      expect(resp.obj!.root.children[1].type).toBe('horizontalrule');
+    });
+
+    it(`two adjacent hrules may be separated by \\n`, () => {
+      const parser = new MarkdownParser();
+      const resp = parser.parse('---\n---');
+      expect(resp.errors).toBeUndefined();
+      expect(resp.obj).toBeDefined();
+      expect(resp.obj!.root).toBeDefined();
+      expect(resp.obj!.root.children).toHaveLength(2);
+      expect(resp.obj!.root.children[0].type).toBe('horizontalrule');
+      expect(resp.obj!.root.children[1].type).toBe('horizontalrule');
+    });
   });
 
   describe(`should return parsing errors`, () => {
@@ -232,70 +294,6 @@ describe('parser', () => {
     });
   });
 
-  describe(`should parse horizontal rules`, () => {
-    it(`should match the end of content`, () => {
-      const parser = new MarkdownParser();
-      const resp = parser.parse('---');
-      expect(resp.errors).toBeUndefined();
-      expect(resp.obj).toBeDefined();
-      expect(resp.obj!.root).toBeDefined();
-      expect(resp.obj!.root.children).toHaveLength(1);
-      expect(resp.obj!.root.children[0].type).toBe('horizontalrule');
-    });
-
-    it(`a hrule should be preceded by \\n\\n`, () => {
-      const parser = new MarkdownParser();
-      const resp = parser.parse(
-        'this will produce a single paragraph with --- left in text\n---'
-      );
-      expect(resp.errors).toBeUndefined();
-      expect(resp.obj).toBeDefined();
-      expect(resp.obj!.root).toBeDefined();
-      expect(resp.obj!.root.children).toHaveLength(1);
-      expect(resp.obj!.root.children[0].type).toBe('paragraph');
-      const paragraph = resp.obj!.root.children[0] as SerializedElementNode;
-      expect(paragraph.children).toHaveLength(3);
-      expect((paragraph.children[2] as SerializedTextNode).text).toBe('---');
-    });
-
-    it(`a hrule should end with \\n or \\n\\n`, () => {
-      const parser = new MarkdownParser();
-      const resp = parser.parse('---\nthis will be a paragraph');
-      expect(resp.errors).toBeUndefined();
-      expect(resp.obj).toBeDefined();
-      expect(resp.obj!.root).toBeDefined();
-      expect(resp.obj!.root.children).toHaveLength(2);
-      expect(resp.obj!.root.children[0].type).toBe('horizontalrule');
-      const paragraph = resp.obj!.root.children[1] as SerializedElementNode;
-      expect(paragraph.children).toHaveLength(1);
-      expect((paragraph.children[0] as SerializedTextNode).text).toBe(
-        'this will be a paragraph'
-      );
-    });
-
-    it(`two adjacent hrules may be separated by \\n\\n`, () => {
-      const parser = new MarkdownParser();
-      const resp = parser.parse('---\n\n---');
-      expect(resp.errors).toBeUndefined();
-      expect(resp.obj).toBeDefined();
-      expect(resp.obj!.root).toBeDefined();
-      expect(resp.obj!.root.children).toHaveLength(2);
-      expect(resp.obj!.root.children[0].type).toBe('horizontalrule');
-      expect(resp.obj!.root.children[1].type).toBe('horizontalrule');
-    });
-
-    it(`two adjacent hrules may be separated by \\n`, () => {
-      const parser = new MarkdownParser();
-      const resp = parser.parse('---\n---');
-      expect(resp.errors).toBeUndefined();
-      expect(resp.obj).toBeDefined();
-      expect(resp.obj!.root).toBeDefined();
-      expect(resp.obj!.root.children).toHaveLength(2);
-      expect(resp.obj!.root.children[0].type).toBe('horizontalrule');
-      expect(resp.obj!.root.children[1].type).toBe('horizontalrule');
-    });
-  });
-
   describe(`should parse list blocks`, () => {
     it(`an escaped - will not result in a listitem`, () => {
       const parser = new MarkdownParser();
@@ -404,7 +402,7 @@ describe('parser', () => {
       expect(resp.obj!.root.children).toHaveLength(1);
       expect(resp.obj!.root.children[0].type).toBe('paragraph');
       const paragraph = resp.obj!.root.children[0] as SerializedElementNode;
-      expect(paragraph.format === 'center');
+      expect(paragraph.format === 'center').toBe(true);
       expect((paragraph.children[0] as SerializedTextNode).text).toBe('text');
       expect((paragraph.children[1] as SerializedTextNode).text).toBe(
         ' and text'
@@ -422,7 +420,7 @@ describe('parser', () => {
       expect(resp.obj!.root.children).toHaveLength(1);
       expect(resp.obj!.root.children[0].type).toBe('paragraph');
       const paragraph = resp.obj!.root.children[0] as SerializedElementNode;
-      expect(paragraph.format === 'center');
+      expect(paragraph.format === 'center').toBe(true);
       expect((paragraph.children[0] as SerializedTextNode).text).toBe(
         'a paragraph'
       );
@@ -443,7 +441,7 @@ describe('parser', () => {
       expect(resp.obj!.root.children).toHaveLength(1);
       expect(resp.obj!.root.children[0].type).toBe('paragraph');
       const paragraph = resp.obj!.root.children[0] as SerializedElementNode;
-      expect(paragraph.format === 'right');
+      expect(paragraph.format === 'right').toBe(true);
       expect((paragraph.children[0] as SerializedTextNode).text).toBe(
         'a paragraph'
       );
@@ -468,7 +466,7 @@ describe('parser', () => {
       expect(resp.obj!.root.children).toHaveLength(1);
       expect(resp.obj!.root.children[0].type).toBe('heading');
       const heading = resp.obj!.root.children[0] as SerializedElementNode;
-      expect(heading.format === 'right');
+      expect(heading.format === 'right').toBe(true);
     });
 
     it(`should take the last text-align in a multiline header even if nothing on the first`, () => {
@@ -482,7 +480,7 @@ describe('parser', () => {
       expect(resp.obj!.root.children).toHaveLength(1);
       expect(resp.obj!.root.children[0].type).toBe('heading');
       const heading = resp.obj!.root.children[0] as SerializedElementNode;
-      expect(heading.format === 'right');
+      expect(heading.format === 'right').toBe(true);
     });
 
     it(`should parse malformed headers as paragraph`, () => {
@@ -496,7 +494,7 @@ describe('parser', () => {
       expect(resp.obj!.root.children).toHaveLength(1);
       expect(resp.obj!.root.children[0].type).toBe('paragraph');
       const heading = resp.obj!.root.children[0] as SerializedElementNode;
-      expect(heading.format === 'right');
+      expect(heading.format === 'right').toBe(true);
       expect((heading.children[0] as SerializedTextNode).text).toBe(
         '# malformed header'
       );
@@ -511,7 +509,7 @@ describe('parser', () => {
       expect(resp.obj!.root.children).toHaveLength(1);
       expect(resp.obj!.root.children[0].type).toBe('paragraph');
       const paragraph = resp.obj!.root.children[0] as SerializedElementNode;
-      expect(paragraph.format === 'center');
+      expect(paragraph.format === 'center').toBe(true);
       expect(paragraph.children).toHaveLength(0);
     });
 
@@ -524,7 +522,7 @@ describe('parser', () => {
       expect(resp.obj!.root.children).toHaveLength(1);
       expect(resp.obj!.root.children[0].type).toBe('paragraph');
       const paragraph = resp.obj!.root.children[0] as SerializedElementNode;
-      expect(paragraph.format === 'center');
+      expect(paragraph.format === 'center').toBe(true);
       expect(paragraph.children).toHaveLength(1);
       expect(paragraph.children[0].type).toBe('linebreak');
     });
@@ -538,7 +536,7 @@ describe('parser', () => {
       expect(resp.obj!.root.children).toHaveLength(2);
       expect(resp.obj!.root.children[0].type).toBe('paragraph');
       const paragraph1 = resp.obj!.root.children[0] as SerializedElementNode;
-      expect(paragraph1.format === 'center');
+      expect(paragraph1.format === 'center').toBe(true);
       expect(paragraph1.children).toHaveLength(0);
       expect(resp.obj!.root.children[1].type).toBe('paragraph');
       const paragraph2 = resp.obj!.root.children[1] as SerializedElementNode;
@@ -556,13 +554,13 @@ describe('parser', () => {
       expect(resp.obj!.root.children).toHaveLength(1);
       expect(resp.obj!.root.children[0].type).toBe('paragraph');
       const paragraph = resp.obj!.root.children[0] as SerializedElementNode;
-      expect(paragraph.format === 'center');
+      expect(paragraph.format === 'center').toBe(true);
       expect(paragraph.children).toHaveLength(2);
       expect(paragraph.children[0].type).toBe('linebreak');
       expect(paragraph.children[1].type).toBe('text');
     });
 
-    it(`text-align can be anywhere in a block but can break into multiple paragraphs`, () => {
+    it(`text-align can be anywhere in a block but cannot span multiple blocks`, () => {
       const parser = new MarkdownParser();
       const resp = parser.parse(
         '<p style="text-align: center;">\n\n\n</p> now what?'
@@ -573,15 +571,15 @@ describe('parser', () => {
       expect(resp.obj!.root.children).toHaveLength(3);
       expect(resp.obj!.root.children[0].type).toBe('paragraph');
       const paragraph1 = resp.obj!.root.children[0] as SerializedElementNode;
-      expect(paragraph1.format === 'center');
+      expect(paragraph1.format === 'center').toBe(true);
       expect(paragraph1.children).toHaveLength(0);
 
       const paragraph2 = resp.obj!.root.children[1] as SerializedElementNode;
-      expect(paragraph2.format === 'center');
+      expect(paragraph2.format === 'center').toBe(false);
       expect(paragraph2.children).toHaveLength(0);
 
       const paragraph3 = resp.obj!.root.children[2] as SerializedElementNode;
-      expect(paragraph3.format === '');
+      expect(paragraph3.format === '').toBe(true);
       expect(paragraph3.children[0].type).toBe('text');
     });
   });

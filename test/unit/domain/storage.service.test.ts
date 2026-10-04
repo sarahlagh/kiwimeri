@@ -533,7 +533,7 @@ describe('storage service', () => {
       expect(changes[0].itemId).toBe(docId);
     });
 
-    it('should create local changes for updated fields on annots', () => {
+    it('should create local changes for updated fields on annots both on local and json', () => {
       // create init data (1 doc 1 annot)
       const { noteId } = initData();
       localChangesService.clear();
@@ -618,8 +618,8 @@ describe('storage service', () => {
       const dataBefore = storageService.getSpaceRepresentation();
       const changes = storageService.afterMergeChanges(dataAfter, dataBefore);
       expect(changes).toHaveLength(3);
-      expect(changes.every(ch => ch.change === LocalChangeType.add));
-      expect(changes.every(ch => ch.id !== DEFAULT_NOTEBOOK_ID));
+      expect(changes.every(ch => ch.change === LocalChangeType.add)).toBe(true);
+      expect(changes.every(ch => ch.id !== DEFAULT_NOTEBOOK_ID)).toBe(true);
     });
 
     it('should handle conflict rows', () => {
@@ -635,24 +635,28 @@ describe('storage service', () => {
       const dataBefore = storageService.getSpaceRepresentation();
       const changes = storageService.afterMergeChanges(dataAfter, dataBefore);
       expect(changes).toHaveLength(2);
-      expect(changes.every(ch => ch.change === LocalChangeType.add));
-      expect(changes.every(ch => ch.id !== DEFAULT_NOTEBOOK_ID));
-      expect(changes.every(ch => ch.type !== CollectionItemType.document));
+      expect(changes.every(ch => ch.change === LocalChangeType.add)).toBe(true);
+      expect(changes.every(ch => ch.id !== DEFAULT_NOTEBOOK_ID)).toBe(true);
+      expect(changes.every(ch => ch.type !== CollectionItemType.document)).toBe(
+        true
+      );
     });
 
     it('should handle deleted rows', () => {
       storageService.resetSpace();
-      const dataBefore = storageService.getSpaceRepresentation();
+      const dataAfter = storageService.getSpaceRepresentation();
 
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
       annotsService.addNote(docId);
-      const dataAfter = storageService.getSpaceRepresentation();
+      const dataBefore = storageService.getSpaceRepresentation();
 
       const changes = storageService.afterMergeChanges(dataAfter, dataBefore);
       expect(changes).toHaveLength(3);
-      expect(changes.every(ch => ch.change === LocalChangeType.delete));
-      expect(changes.every(ch => ch.id !== DEFAULT_NOTEBOOK_ID));
+      expect(changes.every(ch => ch.change === LocalChangeType.delete)).toBe(
+        true
+      );
+      expect(changes.every(ch => ch.id !== DEFAULT_NOTEBOOK_ID)).toBe(true);
     });
 
     it('should handle updated items', () => {
