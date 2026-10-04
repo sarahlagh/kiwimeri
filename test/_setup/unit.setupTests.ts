@@ -47,6 +47,7 @@ beforeEach(() => {
   startDbListeners();
   localChangesService.clear();
   notebooksService.initNotebooks();
+  // eslint-disable-next-line vitest/no-standalone-expect
   expect(notebooksService.getCurrentNotebook()).toBe('0');
 });
 afterEach(() => {

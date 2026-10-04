@@ -1,3 +1,4 @@
+/* eslint-disable vitest/no-standalone-expect */
 import {
   CONFLICTS_NOTEBOOK_ID,
   DEFAULT_NOTEBOOK_ID,

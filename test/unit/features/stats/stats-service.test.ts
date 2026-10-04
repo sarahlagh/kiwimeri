@@ -3,7 +3,7 @@ import { spaceQueries } from '@/core/db/store';
 import { settingsService } from '@/domain/collection/collection-settings.service';
 import collectionService from '@/domain/collection/collection.service';
 import notebooksService from '@/domain/collection/notebooks.service';
-import { DataPoint, DocumentContentStatsBag } from '@/domain/stats/stats';
+import { DataPoint } from '@/domain/stats/stats';
 import { statsService } from '@/domain/stats/stats-service';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import {
@@ -71,7 +71,7 @@ describe('stats service', () => {
     );
   });
 
-  it.skip(`should sample stats per last n days test`, async () => {
+  it.todo(`should sample stats per last n days test`, async () => {
     const nDays = 30;
 
     const queryName = 'GetStatsForItemSince';
@@ -108,16 +108,10 @@ describe('stats service', () => {
     const results = spaceQueries
       .getResultSortedRowIds(queryName, 'date', true)
       .map(rowId => {
-        const resultRow = spaceQueries.getResultRow(queryName, rowId) as {
-          itemId: string;
-          date: string;
-          contentStatsJson: string;
-        };
+        const resultRow = spaceQueries.getResultRow(queryName, rowId);
         return {
           date: resultRow.date,
-          values: JSON.parse(
-            resultRow.contentStatsJson
-          ) as DocumentContentStatsBag
+          values: resultRow.contentStatsJson
         };
       });
 

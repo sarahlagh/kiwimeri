@@ -77,17 +77,21 @@ const upgradeZip = async (parentDir: string, zipName: string) => {
 
 const topLevelDirs = ['zips_with_meta', 'zips_without_meta', 'malformed'];
 
+// not a test, a way to update test metadata on schema change
+// eslint-disable-next-line vitest/no-disabled-tests
 describe.skip('update zip metadata', async () => {
   for (const parentDir of topLevelDirs) {
     const zips = await readdir(`${__dirname}/../_data/${parentDir}`);
     zips
       .filter(z => z.endsWith('.zip'))
       .forEach(zipName => {
+        // eslint-disable-next-line vitest/expect-expect
         test(`migrate ${parentDir}/${zipName}`, async () => {
           console.debug('migrating', parentDir, zipName);
           await upgradeZip(parentDir, zipName);
         });
 
+        // eslint-disable-next-line vitest/no-disabled-tests
         test.skip(`commit ${parentDir}/${zipName}`, async () => {
           const migratedName = `${__dirname}/../_data/${parentDir}/${zipName.replace('.zip', '')}_migrated.zip`;
           const realName = `${__dirname}/../_data/${parentDir}/${zipName}`;

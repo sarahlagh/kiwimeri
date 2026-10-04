@@ -20,7 +20,7 @@ describe('settings service', () => {
   });
 
   // TODO actually merge into one method
-  it.skip('should override space settings per folder', () => {
+  it.todo('should override space settings per folder', () => {
     const currentNotebook = notebooksService.getCurrentNotebook();
     const folderId = collectionService.addFolder(currentNotebook);
 

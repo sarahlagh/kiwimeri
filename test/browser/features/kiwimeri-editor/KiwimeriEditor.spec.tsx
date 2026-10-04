@@ -1,3 +1,4 @@
+/* eslint-disable vitest/no-conditional-expect */
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 
@@ -337,7 +338,7 @@ describe('DocumentEditor', () => {
       vi.useRealTimers();
     });
 
-    test.skip('change to the editor goes through fastWrite and is not immediately commited', async () => {
+    test('change to the editor goes through fastWrite and is not immediately commited', async () => {
       const initialTextContent = 'test';
       const nextTextContent = 'test 2';
 

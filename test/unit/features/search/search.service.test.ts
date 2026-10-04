@@ -38,6 +38,8 @@ describe('search service', () => {
     spaceDocContent.setJson(jsonCollection);
   });
 
+  // only run if schema change
+  // eslint-disable-next-line vitest/no-disabled-tests
   test.skip('migrate test file', async () => {
     const json = await readFile(
       `${__dirname}/_data/searchme-collection.json`,
@@ -58,7 +60,9 @@ describe('search service', () => {
   describe('Search Lexical State', () => {
     beforeEach(() => {
       const minimized = collectionService.getDocumentContent(docId);
+      // eslint-disable-next-line vitest/no-standalone-expect
       expect(minimized).toBeDefined();
+      // eslint-disable-next-line vitest/no-standalone-expect
       expect(collectionService.getDocumentPlainText(docId)).not.toBe('');
       const content = minimized!;
       editor = createHeadlessEditor({

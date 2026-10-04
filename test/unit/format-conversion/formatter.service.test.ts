@@ -63,11 +63,13 @@ describe('format conversion service', () => {
         const inlined = formatConverter.toPlainText(json, {
           inline: true
         });
+        let _expectedInline;
         if (!expectedInline) {
-          expect(inlined).toBe(expected.replaceAll(/\n+/g, ' ').trimEnd());
+          _expectedInline = expected.replaceAll(/\n+/g, ' ').trimEnd();
         } else {
-          expect(inlined).toBe(expectedInline);
+          _expectedInline = expectedInline;
         }
+        expect(inlined).toBe(_expectedInline);
       });
     });
   });

@@ -33,6 +33,7 @@ describe('stats synchronizer', () => {
     statsSynchronizer.destroy();
     statsSynchronizer.configure({ names: ['stats.json'] });
     const { connected } = await statsSynchronizer.connect();
+    // eslint-disable-next-line vitest/no-standalone-expect
     expect(connected).toBe(true);
   });
   afterEach(() => {

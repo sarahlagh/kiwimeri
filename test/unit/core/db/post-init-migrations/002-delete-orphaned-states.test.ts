@@ -1,3 +1,4 @@
+/* eslint-disable vitest/expect-expect */
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import Migration from '@/core/db/post-init-migrations/002-delete-orphaned-states';
 import { space, spaceDocContent } from '@/core/db/store';

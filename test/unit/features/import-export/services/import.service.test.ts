@@ -484,11 +484,11 @@ describe('import service', () => {
                             scenario.errors
                           );
 
-                          if (options.ignoreMetadata === true) {
-                            expect(zipParsedData.hasMetadata).toBe(false);
-                          } else {
-                            expect(zipParsedData.hasMetadata).toBe(hasMetadata);
-                          }
+                          expect(zipParsedData.hasMetadata).toBe(
+                            options.ignoreMetadata === true
+                              ? false
+                              : hasMetadata
+                          );
 
                           const zipMerge = importService.mergeZipItems(
                             scenario.mergeInto || DEFAULT_NOTEBOOK_ID,
@@ -497,6 +497,7 @@ describe('import service', () => {
                           );
 
                           if (scenario.errors.length > 0) {
+                            // eslint-disable-next-line vitest/no-conditional-expect
                             expect(zipMerge).toBeNull();
                             return;
                           }

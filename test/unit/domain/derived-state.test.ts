@@ -3,7 +3,6 @@ import { space, spaceDocContent } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import collectionService from '@/domain/collection/collection.service';
 import notebooksService from '@/domain/collection/notebooks.service';
-import { storageService } from '@/domain/space-merging/storage.service';
 import { oneDocument, oneFolder } from '@@/_setup/test.utils';
 import { describe, expect, it } from 'vitest';
 
@@ -66,6 +65,7 @@ describe('derived state', () => {
       ).toEqual([DEFAULT_NOTEBOOK_ID]);
     });
 
+    // eslint-disable-next-line vitest/expect-expect
     it(`should create correct item states on saveItems`, () => {
       createTestData();
 
@@ -75,6 +75,7 @@ describe('derived state', () => {
       ]);
     });
 
+    // eslint-disable-next-line vitest/expect-expect
     it(`should update path on individual parent change`, () => {
       // F1 > FF1 > FFF1 > D1
       // F2 > FF2
@@ -90,6 +91,7 @@ describe('derived state', () => {
       ]);
     });
 
+    // eslint-disable-next-line vitest/expect-expect
     it(`should update path on setContent (pull)`, () => {
       createTestData();
       const space_content = space.getContent();
@@ -197,28 +199,6 @@ describe('derived state', () => {
       expect(
         spaceDocContent.getCell('collection_content', 'D1', 'plainText')
       ).toBe(shortContentPreviewUpdated);
-    });
-
-    it.skip(`should update plainText on pull`, () => {
-      createTestData();
-      // update items locally
-      collectionService.setItemTitle('D1', 'D1 updated');
-      collectionService.addItemTag('D1', 'tag1');
-      collectionService.setItemLexicalContent('D1', shortContent);
-
-      // reset
-      const _spaceContent = space.getContent();
-      const _spaceDocContentContent = spaceDocContent.getContent();
-      storageService.resetSpace();
-
-      // pull
-      // TODO not real test
-      space.setContent(_spaceContent);
-      spaceDocContent.setContent(_spaceDocContentContent);
-
-      expect(
-        spaceDocContent.getCell('collection_content', 'D1', 'plainText')
-      ).toBeDefined();
     });
 
     it(`should delete plainText on item deletion`, () => {

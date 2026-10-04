@@ -60,6 +60,7 @@ function generateTestSuite(
                   // filter out fields non applicable for type
                   if (!filterPerType(f.field, type)) return;
 
+                  // eslint-disable-next-line vitest/expect-expect
                   it(`${prefix}: type: ${typeName} / field: ${f.field}`, async () => {
                     const runner = await new PullTestScenarioRunner(
                       scenario,
@@ -84,6 +85,7 @@ function generateTestSuite(
               });
             } else {
               // simple test without loop
+              // eslint-disable-next-line vitest/expect-expect
               it(`${prefix}: ${desc}`, async () => {
                 const runner = await new PullTestScenarioRunner(
                   scenario,

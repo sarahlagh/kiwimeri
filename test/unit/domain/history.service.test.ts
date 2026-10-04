@@ -1,3 +1,4 @@
+/* eslint-disable vitest/no-conditional-expect */
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { space, spaceArchive } from '@/core/db/store';
 import { CollectionItem } from '@/domain/collection/collection';

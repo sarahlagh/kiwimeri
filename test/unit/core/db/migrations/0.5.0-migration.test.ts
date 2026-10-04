@@ -76,6 +76,7 @@ async function migrateRawStore(
 }
 
 describe('0.5.0 migration', () => {
+  // eslint-disable-next-line vitest/no-disabled-tests
   test.skip('regenerate 0.5.0 migration expected file', async () => {
     const fromVersion = '0.4.0';
     const toVersion = '0.5.0';
@@ -222,14 +223,6 @@ describe('0.5.0 migration', () => {
 });
 
 describe('restore json versioning', () => {
-  test('migration from 0.4.0 json is not allowed', async () => {
-    const fromVersion = '0.4.0';
-    const json = await getFileContent(spaceMigrationFilename(fromVersion));
-    expect(() => storageService.restoreJson(JSON.stringify(json))).toThrow(
-      'Version mismatch on schemaVersion: expected at least 1, got 0'
-    );
-  });
-
   test('migration from 0.4.0 json is not allowed', async () => {
     const fromVersion = '0.4.0';
     const json = await getFileContent(spaceMigrationFilename(fromVersion));
