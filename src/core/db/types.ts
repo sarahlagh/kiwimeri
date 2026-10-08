@@ -4,8 +4,11 @@ import {
   Id,
   OptionalTablesSchema,
   OptionalValuesSchema,
+  TablesSchema,
   Value
 } from 'tinybase/with-schemas';
+
+export type SingleTableSchema = TablesSchema[''];
 
 export type AsId<Key> = Exclude<Key & Id, number>;
 

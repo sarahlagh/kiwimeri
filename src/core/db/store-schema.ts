@@ -8,6 +8,11 @@ import {
 import { docAnnotationSchema } from '@/domain/collection/document-annotations';
 import { contentSchema } from '@/domain/collection/document-content';
 import { resumeStateSchema } from '@/domain/collection/resume-state';
+import {
+  fastWriteModeValues,
+  themeValues,
+  timedModeValues
+} from '@/domain/device-settings/device-settings';
 import { documentEditsSchema } from '@/domain/document-edits/document-edits';
 import { historyContentSchema, historySchema } from '@/domain/history/history';
 import { statsSchema } from '@/domain/stats/stats';
@@ -15,7 +20,7 @@ import { localChangesSchema } from '@/domain/synchronization/local-changes';
 import { remotesSchema } from '@/domain/synchronization/remotes';
 import { replicaStatesSchema } from '@/domain/synchronization/replica-state';
 import { userPreferenceSchema } from '@/domain/user-preferences/user-preferences';
-import { NoValuesSchema } from 'tinybase/with-schemas';
+import { NoValuesSchema, ValueSchema } from 'tinybase/with-schemas';
 import { logsSchema } from '../logs/logs';
 import { notificationsSchema } from '../notifications/notifications';
 import { tasksSchema } from '../tasks/tasks';
@@ -28,6 +33,7 @@ import {
 import {
   CellIdFromSchema,
   DefaultedValueFromSchema,
+  SingleTableSchema,
   TableIdFromSchema,
   ValueIdFromSchema
 } from './types';
@@ -38,7 +44,7 @@ export const storeTablesSchema = {
   },
   logs: logsSchema,
   notifications: notificationsSchema
-} as const satisfies Record<StoreTables, unknown>;
+} as const satisfies Record<StoreTables, SingleTableSchema>;
 
 export const spaceTablesSchema = {
   collection: collectionSchema,
@@ -54,21 +60,21 @@ export const spaceTablesSchema = {
   replica_state: replicaStatesSchema,
   tasks: tasksSchema,
   document_edits: documentEditsSchema
-} as const satisfies Record<SpaceTables, unknown>;
+} as const satisfies Record<SpaceTables, SingleTableSchema>;
 
 export const spaceDocContentTablesSchema = {
   collection_content: contentSchema,
   document_annotation_content: contentSchema
-} as const satisfies Record<SpaceDocContentTables, unknown>;
+} as const satisfies Record<SpaceDocContentTables, SingleTableSchema>;
 
 export const spaceArchiveTablesSchema = {
   history: historySchema,
   history_content: historyContentSchema
-} as const satisfies Record<SpaceArchiveTables, unknown>;
+} as const satisfies Record<SpaceArchiveTables, SingleTableSchema>;
 
 export const storeValuesSchema = {
   tempDoc: { type: 'string' }
-} as const;
+} as const satisfies Record<string, ValueSchema>;
 
 export const spaceValuesSchema = {
   appVersion: { type: 'string', default: '' },
@@ -76,19 +82,22 @@ export const spaceValuesSchema = {
   showDevTools: { type: 'boolean', default: false },
   globalZoom: { type: 'number', default: 1 },
   exportIncludeMetadata: { type: 'boolean', default: true },
-  theme: { type: 'string', default: 'dark' },
+  theme: { enum: themeValues, default: 'dark' },
   maxLogHistory: { type: 'number', default: 500 },
   internalProxy: {
     type: 'string',
     default: appConfig.INTERNAL_HTTP_PROXY || ''
   },
   defaultTimedDuration: { type: 'number', default: 10 },
-  defaultTimedMode: { type: 'string', default: 'dangerous' },
+  defaultTimedMode: {
+    enum: timedModeValues,
+    default: 'dangerous'
+  },
   rememberLastRoute: { type: 'boolean', default: true },
   resumeLastSelection: { type: 'boolean', default: true },
   enableFastWrite: { type: 'boolean', default: false },
-  fastWriteMode: { type: 'string', default: 'watch' }
-} as const;
+  fastWriteMode: { enum: fastWriteModeValues, default: 'watch' }
+} as const satisfies Record<string, ValueSchema>;
 
 // types
 

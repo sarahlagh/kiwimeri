@@ -1,6 +1,7 @@
 import { APPICONS } from '@/constants';
 import { MetaField, metaSchemaDefault, WithId } from '@/core/db/types';
 import { CollectionItemSettings } from '@/domain/collection/collection-settings';
+import { CellSchema } from 'tinybase/with-schemas';
 import { ContentAddition } from './document-content';
 
 export type CollectionItemRow = {
@@ -37,7 +38,7 @@ export const collectionSchema = {
   order_meta: { type: 'object' },
   settings: { type: 'object' },
   settings_meta: { type: 'object' }
-} as const satisfies Record<keyof CollectionItemRow, unknown>;
+} as const satisfies Record<keyof CollectionItemRow, CellSchema>;
 
 ////////////////////
 

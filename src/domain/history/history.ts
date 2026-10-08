@@ -1,5 +1,5 @@
 import { WithId } from '@/core/db/types';
-import { Id } from 'tinybase/with-schemas';
+import { CellSchema, Id } from 'tinybase/with-schemas';
 import { CollectionItemSnapshotData } from '../collection/collection';
 
 export type CollectionItemVersionOp = 'snapshot' | 'deleted';
@@ -21,11 +21,11 @@ export const historySchema = {
   createdAt: { type: 'number' },
   snapshotJson: { type: 'object' },
   contentId: { type: 'string' }
-} as const satisfies Record<keyof CollectionItemVersionRow, unknown>;
+} as const satisfies Record<keyof CollectionItemVersionRow, CellSchema>;
 
 export const historyContentSchema = {
   content: { type: 'string' }
-} as const satisfies Record<keyof CollectionItemVersionContentRow, unknown>;
+} as const satisfies Record<keyof CollectionItemVersionContentRow, CellSchema>;
 
 export type CollectionItemVersion = CollectionItemMetadataVersion &
   CollectionItemVersionContentRow;

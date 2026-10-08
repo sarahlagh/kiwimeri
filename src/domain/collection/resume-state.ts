@@ -1,4 +1,4 @@
-import { Id } from 'tinybase/with-schemas';
+import { CellSchema, Id } from 'tinybase/with-schemas';
 
 export type SerializedSelectedNode = {
   blockIndex: number;
@@ -31,4 +31,4 @@ export const resumeStateSchema = {
   // notebook
   lastFolder: { type: 'string' },
   lastDocument: { type: 'string' }
-} as const satisfies Record<keyof CollectionResumeStateRow, unknown>;
+} as const satisfies Record<keyof CollectionResumeStateRow, CellSchema>;

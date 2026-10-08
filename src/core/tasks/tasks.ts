@@ -1,4 +1,4 @@
-import { AnyObject } from 'tinybase/with-schemas';
+import { AnyObject, CellSchema } from 'tinybase/with-schemas';
 import { WithId } from '../db/types';
 
 export type ScheduledTaskRow = {
@@ -15,6 +15,6 @@ export const tasksSchema = {
   createdAt: { type: 'number' },
   inputs: { type: 'object' },
   error: { type: 'string' }
-} as const satisfies Record<keyof ScheduledTaskRow, unknown>;
+} as const satisfies Record<keyof ScheduledTaskRow, CellSchema>;
 
 export type ScheduledTask = WithId<ScheduledTaskRow>;

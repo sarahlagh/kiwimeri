@@ -1,5 +1,6 @@
 import { SpaceTableId } from '@/core/db/store-schema';
 import { AsId, DbSerializableData } from '@/core/db/types';
+import { CellSchema } from 'tinybase/with-schemas';
 
 export enum LocalChangeType {
   add = 'a',
@@ -28,7 +29,7 @@ export const localChangesSchema = {
   field: { type: 'string' },
   previousData: { type: 'object' },
   previousHash: { type: 'number' }
-} as const satisfies Record<keyof LocalChangeRow<unknown>, unknown>;
+} as const satisfies Record<keyof LocalChangeRow<unknown>, CellSchema>;
 
 export type LocalChangeResult = {
   id: string;

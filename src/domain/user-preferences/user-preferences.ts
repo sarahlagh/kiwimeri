@@ -1,5 +1,6 @@
 import { WithId } from '@/core/db/types';
 import { msg } from '@lingui/core/macro';
+import { CellSchema } from 'tinybase/with-schemas';
 
 export type UserPreferenceKey =
   | 'defaultSortBy'
@@ -51,7 +52,7 @@ export type UserPreferenceRow = {
 export const userPreferenceSchema = {
   value: { type: 'object' },
   updatedAt: { type: 'number' }
-} as const satisfies Record<keyof UserPreferenceRow, unknown>;
+} as const satisfies Record<keyof UserPreferenceRow, CellSchema>;
 
 export type UserPreferenceValue<
   P extends UserPreferenceKey,

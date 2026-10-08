@@ -1,4 +1,5 @@
 import { MetaField, metaSchemaDefault, WithId } from '@/core/db/types';
+import { CellSchema } from 'tinybase/with-schemas';
 import { LocalChangeRow } from '../synchronization/local-changes';
 import { ContentAddition } from './document-content';
 
@@ -22,7 +23,7 @@ export const docAnnotationSchema = {
   order: { type: 'number', default: -1 },
   order_meta: { type: 'object', default: metaSchemaDefault },
   conflictId: { type: 'string' }
-} as const satisfies Record<keyof DocAnnotationRow, unknown>;
+} as const satisfies Record<keyof DocAnnotationRow, CellSchema>;
 
 export type BaseDocAnnotation = DocAnnotationRow & ContentAddition;
 export type DocAnnotation = WithId<BaseDocAnnotation>;

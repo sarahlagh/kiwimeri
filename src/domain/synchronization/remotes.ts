@@ -1,4 +1,5 @@
 import { AnyData, WithId } from '@/core/db/types';
+import { CellSchema } from 'tinybase/with-schemas';
 import { DriverNames } from './drivers/types';
 
 export type RemoteRow = {
@@ -13,6 +14,6 @@ export const remotesSchema = {
   rank: { type: 'number' },
   driver: { type: 'string' },
   config: { type: 'object' }
-} as const satisfies Record<keyof RemoteRow, unknown>;
+} as const satisfies Record<keyof RemoteRow, CellSchema>;
 
 export type Remote = WithId<RemoteRow>;

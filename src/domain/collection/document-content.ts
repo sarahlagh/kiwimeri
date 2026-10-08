@@ -1,6 +1,7 @@
 import { SpaceDocContentTables, SpaceTables } from '@/core/db/store-constants';
 import { SpaceTableId } from '@/core/db/store-schema';
 import { MetaField } from '@/core/db/types';
+import { CellSchema } from 'tinybase/with-schemas';
 
 export type ContentRow = {
   content: string;
@@ -14,7 +15,7 @@ export const contentSchema = {
   content: { type: 'string' },
   content_meta: { type: 'object' },
   plainText: { type: 'string' }
-} as const satisfies Record<keyof ContentRow, unknown>;
+} as const satisfies Record<keyof ContentRow, CellSchema>;
 
 export function getContentTable(on: SpaceTableId) {
   if (on === SpaceTables.Collection)

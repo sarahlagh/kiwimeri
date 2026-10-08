@@ -1,6 +1,7 @@
 import { SpaceTables } from '@/core/db/store-constants';
 import { WithId } from '@/core/db/types';
 import type { SerializedLexicalNode } from 'lexical';
+import { CellSchema } from 'tinybase/with-schemas';
 
 export type DocumentEditRow = {
   on: SpaceTables.Collection | SpaceTables.Annotations;
@@ -18,7 +19,7 @@ export const documentEditsSchema = {
   json: { type: 'string' },
   isFullSnapshot: { type: 'boolean' },
   debugPayload: { type: 'string' }
-} as const satisfies Record<keyof DocumentEditRow, unknown>;
+} as const satisfies Record<keyof DocumentEditRow, CellSchema>;
 
 export type DocumentEdit = WithId<DocumentEditRow>;
 

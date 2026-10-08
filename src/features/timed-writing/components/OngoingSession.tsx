@@ -16,9 +16,9 @@ import type { EditorState } from 'lexical';
 import { useEffect, useState } from 'react';
 import KeystrokeListenerPlugin from './KeystrokeListenerPlugin';
 
+import { TimedSessionMode } from '@/domain/device-settings/device-settings';
 import formatConverter from '@/domain/format-conversion/format-converter.service';
 import { countWords } from '@/shared/utils';
-import { SessionMode } from '../mode';
 import './OngoingSession.scss';
 
 const WARN_TIME = 2000;
@@ -54,7 +54,7 @@ const OngoingSession = ({
   onSave
 }: {
   duration: number;
-  mode: SessionMode;
+  mode: TimedSessionMode;
   initValue: string;
   onEnd: (content?: string) => void;
   onSave: (content: string) => void;

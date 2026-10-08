@@ -1,3 +1,5 @@
+import { CellSchema } from 'tinybase/with-schemas';
+
 export type DocumentStatRow = {
   itemId: string;
   date?: string;
@@ -8,7 +10,7 @@ export const statsSchema = {
   itemId: { type: 'string' },
   date: { type: 'string' },
   contentStatsJson: { type: 'object' }
-} as const satisfies Record<keyof DocumentStatRow, unknown>;
+} as const satisfies Record<keyof DocumentStatRow, CellSchema>;
 
 export type DocumentContentStatsBag = {
   lastWordCount?: number;

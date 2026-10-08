@@ -1,3 +1,4 @@
+import { TimedSessionMode } from '@/domain/device-settings/device-settings';
 import {
   IonButton,
   IonCard,
@@ -15,7 +16,6 @@ import {
 } from '@ionic/react';
 import { Trans } from '@lingui/react/macro';
 import { useState } from 'react';
-import { SessionMode } from '../mode';
 
 export const StartPanel = ({
   duration: initDuration,
@@ -23,11 +23,11 @@ export const StartPanel = ({
   onStart
 }: {
   duration: number;
-  mode: SessionMode;
-  onStart: (duration: number, mode: SessionMode) => void;
+  mode: TimedSessionMode;
+  onStart: (duration: number, mode: TimedSessionMode) => void;
 }) => {
   const [duration, setDuration] = useState<number>(initDuration);
-  const [mode, setMode] = useState<SessionMode>(initMode);
+  const [mode, setMode] = useState<TimedSessionMode>(initMode);
   const options = [5, 10, 15, 20, 25];
   // TODO allow custom time
   return (
