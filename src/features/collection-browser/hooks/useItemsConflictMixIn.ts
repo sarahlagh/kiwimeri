@@ -5,14 +5,15 @@ import { BrowsableItemResult } from '../browsable-item';
 
 export default function useItemsConflictMixIn(items: BrowsableItemResult[]) {
   const annotsConflicts = useQueryResults(fetchAnnotsConflictsQuery);
+  const inputs = conflictsService.conflictsToQueryInputs([], annotsConflicts);
 
   return items.map(item => ({
     ...item,
     isConflict: item.conflictId !== undefined,
     hasAnnotsConflicts: conflictsService.itemHasConflicts(
       item.id,
-      [],
-      annotsConflicts
+      inputs.itemsConflicts,
+      inputs.annotsConflicts
     ).hasAnnotsConflicts
   }));
 }

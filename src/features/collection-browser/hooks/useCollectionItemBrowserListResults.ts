@@ -2,6 +2,9 @@ import { useQueryResults } from '@/core/db/queries-helper';
 import { CollectionItemType } from '@/domain/collection/collection';
 import { settingsService } from '@/domain/collection/collection-settings.service';
 import notebooksService from '@/domain/collection/notebooks.service';
+import { conflictsService } from '@/domain/space-merging/conflicts.service';
+import fetchAnnotsConflictsQuery from '@/domain/space-merging/queries/fetchAnnotsConflictsQuery';
+import fetchItemsConflictsQuery from '@/domain/space-merging/queries/fetchItemsConflictsQuery';
 import { useEffect } from 'react';
 import { BrowsableItemResult, BrowsableItemSort } from '../browsable-item';
 import fetchBrowsableItemsQuery from '../queries/fetchBrowsableItemsQuery';
@@ -15,26 +18,34 @@ export default function useCollectionItemBrowserListResults(
   userSort?: BrowsableItemSort,
   limit?: number
 ): BrowsableItemResult[] {
+  const itemsConflicts = useQueryResults(fetchItemsConflictsQuery);
+  const annotsConflicts = useQueryResults(fetchAnnotsConflictsQuery);
   useEffect(() => {
     const notebook = notebooksService.getCurrentNotebook();
     let opts;
     if (mode === 'browser') {
       opts = {
         parentId: parent || notebook,
-        recursive: false,
-        onlyConflicts: false
+        recursive: false
       };
     } else {
+      const inputs = conflictsService.conflictsToQueryInputs(
+        itemsConflicts,
+        annotsConflicts
+      );
       opts = {
         parentId: notebook,
         recursive: true,
         restrictType: CollectionItemType.document,
-        onlyConflicts: mode === 'conflicts',
+        itemsConflicts:
+          mode === 'conflicts' ? inputs.itemsConflicts : undefined,
+        annotsConflicts:
+          mode === 'conflicts' ? inputs.annotsConflicts : undefined,
         withLastOpenedAt: mode === 'lastOpenedAt'
       };
     }
     fetchBrowsableItemsQuery.loadParams(opts);
-  }, [mode, parent]);
+  }, [mode, parent, itemsConflicts, annotsConflicts]);
 
   let sort: BrowsableItemSort;
   //   let limit;

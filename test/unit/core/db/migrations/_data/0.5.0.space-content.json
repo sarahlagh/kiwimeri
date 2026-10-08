@@ -79,14 +79,16 @@
         "createdAt": 1780926256062,
         "updatedAt": 1782124241739,
         "order": 0,
-        "parentId": "cZ6l5keLw_D7s9Yq"
+        "parentId": "cZ6l5keLw_D7s9Yq",
+        "order_meta": { "u": 0 }
       },
       "dfa7xjA21tkzBm44": {
         "type": "note",
         "createdAt": 1780926364978,
         "updatedAt": 1780926370105,
         "order": 0,
-        "parentId": "h-MOhEAYItMcMOJb"
+        "parentId": "h-MOhEAYItMcMOJb",
+        "order_meta": { "u": 0 }
       },
       "0INbpodHu1NOc3hA": {
         "type": "note",

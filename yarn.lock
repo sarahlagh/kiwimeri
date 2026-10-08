@@ -5663,10 +5663,10 @@ through@^2.3.6:
   dependencies:
     esm "^3.2.25"
 
-tinybase@^8.0.0:
-  version "8.5.0"
-  resolved "https://registry.yarnpkg.com/tinybase/-/tinybase-8.5.0.tgz#66b0cc5a3c1393c4bc2e7133ea251f985d7f8c70"
-  integrity sha512-4PSCmCVH2Eq5LK7vHI1h4HoVWDYwhwH+js6qS1wmgGoYxmSn16icGvHM4/GOOWGCRYwVJ46Ve3UbiDkFL+3O6Q==
+tinybase@^10.0.0:
+  version "10.0.1"
+  resolved "https://registry.yarnpkg.com/tinybase/-/tinybase-10.0.1.tgz#a0d4c294cb10827cfca03e84d6bf194f742f334f"
+  integrity sha512-i3HnJcq1NhUmtPuao0wag362F7uaEZLNCVLD89nyrA23jMQRwHkRKcfnE1StsnQE+sxN0hIr7oJbuVYP9D1CkA==
 
 tinybench@^2.9.0:
   version "2.9.0"

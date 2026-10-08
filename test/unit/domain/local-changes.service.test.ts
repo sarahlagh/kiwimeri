@@ -369,7 +369,7 @@ describe('local changes listeners', () => {
     tableId: never,
     testId: string,
     wf: TestField,
-    value?: never
+    value?: unknown
   ) {
     const derivedTableId = getContentTable(tableId);
     const _value = value !== undefined ? value : getValue(wf);

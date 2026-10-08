@@ -104,15 +104,15 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
     let didPush = false;
     if (this.ongoing) return { success: false, didPush };
     console.log(`[collection][push] starting`);
-    const localChanges = localChangesService.getLocalChanges();
-    if (localChanges.length === 0 && !force) {
-      console.log(`[collection][push] nothing to push`);
-      return { success: true, didPush };
-    }
     if (conflictsService.getHasLocalConflicts()) {
       console.log(
         `[collection][push] found local conflicts; pushing is not allowed`
       );
+      return { success: true, didPush };
+    }
+    const localChanges = localChangesService.getLocalChanges();
+    if (localChanges.length === 0 && !force) {
+      console.log(`[collection][push] nothing to push`);
       return { success: true, didPush };
     }
     this.ongoing = true;

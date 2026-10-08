@@ -23,7 +23,6 @@ export default function useFetchBrowsableItemsQueryParamsState<
     setParams({
       parentId: parent,
       recursive: false,
-      onlyConflicts: false,
       restrictTypes
     });
   };

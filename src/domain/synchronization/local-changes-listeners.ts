@@ -5,6 +5,7 @@ import {
   SpaceDocContentTableId,
   SpaceTableId
 } from '@/core/db/store-schema';
+import { DbSerializableData } from '@/core/db/types';
 import { CollectionItemUpdatableFields } from '@/domain/collection/collection';
 import { DocAnnotationUpdatableFields } from '@/domain/collection/document-annotations';
 import { UserPrefUpdatableFields } from '@/domain/user-preferences/user-preferences';
@@ -90,7 +91,7 @@ function watchTable<T extends SpaceTableId>(
                 newCell,
                 {
                   field: cellId,
-                  previousData: oldCell
+                  previousData: oldCell as DbSerializableData
                 }
               );
             }

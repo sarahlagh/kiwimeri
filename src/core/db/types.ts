@@ -8,9 +8,11 @@ import {
 } from 'tinybase/with-schemas';
 
 export type AsId<Key> = Exclude<Key & Id, number>;
+
 export type TableIdFromSchema<Schema extends OptionalTablesSchema> = AsId<
   keyof Schema
 >;
+
 export type ValueIdFromSchema<Schema extends OptionalValuesSchema> = AsId<
   keyof Schema
 >;
@@ -20,19 +22,41 @@ export type ValueIsDefaultedFromSchema<
   ValueId extends ValueIdFromSchema<Schema>,
   Then,
   Else
+> = Schema[ValueId] extends { default: infer Default }
+  ? [Default] extends [Value<Schema, ValueId>]
+    ? Then
+    : Else
+  : Else;
+
+export type ValueIsRequiredFromSchema<
+  Schema extends OptionalValuesSchema,
+  ValueId extends ValueIdFromSchema<Schema>,
+  Then,
+  Else
 > = Schema[ValueId] extends {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  default: infer _;
+  required: true;
 }
   ? Then
   : Else;
+
+export type ValueIsPresentFromSchema<
+  Schema extends OptionalValuesSchema,
+  ValueId extends ValueIdFromSchema<Schema>,
+  Then,
+  Else
+> = ValueIsDefaultedFromSchema<
+  Schema,
+  ValueId,
+  Then,
+  ValueIsRequiredFromSchema<Schema, ValueId, Then, Else>
+>;
 
 export type DefaultedValueFromSchema<
   Schema extends OptionalValuesSchema,
   ValueId extends ValueIdFromSchema<Schema>
 > =
   | Value<Schema, ValueId>
-  | ValueIsDefaultedFromSchema<Schema, ValueId, never, undefined>;
+  | ValueIsPresentFromSchema<Schema, ValueId, never, undefined>;
 
 export type CellIdFromSchema<
   Schema extends OptionalTablesSchema,

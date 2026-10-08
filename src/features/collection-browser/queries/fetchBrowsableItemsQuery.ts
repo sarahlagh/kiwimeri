@@ -10,7 +10,8 @@ export type fetchBrowsableItemsQueryParam = {
   recursive?: boolean;
   restrictType?: CollectionItemTypeValues;
   restrictTypes?: CollectionItemTypeValues[];
-  onlyConflicts?: boolean;
+  itemsConflicts?: string[];
+  annotsConflicts?: string[];
   withPreview?: boolean;
   withLastOpenedAt?: boolean;
 };
@@ -28,7 +29,8 @@ const fetchBrowsableItemsQuery = new SpaceQueryDefinition<
       recursive: param('recursive') as boolean,
       restrictType: param('restrictType') as CollectionItemTypeValues,
       restrictTypes: param('restrictTypes') as CollectionItemTypeValues[],
-      onlyConflicts: param('onlyConflicts') as boolean,
+      itemsConflicts: param('itemsConflicts') as string[],
+      annotsConflicts: param('annotsConflicts') as string[],
       withPreview: param('withPreview') as boolean,
       withLastOpenedAt: param('withLastOpenedAt') as boolean
     };
@@ -58,13 +60,12 @@ const fetchBrowsableItemsQuery = new SpaceQueryDefinition<
       select('view', 'lastOpenedAt');
     }
 
-    if (params.onlyConflicts) {
-      // !! not reactive if conflicts are solved
-      const { itemsConflicts, annotsConflicts } =
-        conflictsService.getConflicts();
+    if (params.itemsConflicts || params.annotsConflicts) {
       where(getCell => {
         const id = getCell('itemId')!;
         const isConflict = getCell('conflictId') !== undefined;
+        const itemsConflicts = params.itemsConflicts || [];
+        const annotsConflicts = params.annotsConflicts || [];
         const { hasConflict, hasAnnotsConflicts: hasNoteConflicts } =
           conflictsService.itemHasConflicts(
             id,

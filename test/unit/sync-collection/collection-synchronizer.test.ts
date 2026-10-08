@@ -985,12 +985,16 @@ describe('collection synchronizer', () => {
           useSynchronizationStates()
         );
         expect(result.current.isSyncEnabled).toBe(false);
+        expect(result.current.hasConflicts).toBe(true);
         unmount();
       }
       {
+        const { itemsConflicts, annotsConflicts } =
+          conflictsService.getConflictItemIds();
         const items = fetchBrowsableItemsQuery.getResults(
           {
-            onlyConflicts: true,
+            itemsConflicts,
+            annotsConflicts,
             restrictType: CollectionItemType.document,
             recursive: true,
             parentId: DEFAULT_NOTEBOOK_ID
@@ -998,7 +1002,7 @@ describe('collection synchronizer', () => {
           'createdAt',
           true
         );
-        expect(Object.keys(items)).toHaveLength(2);
+        expect(items).toHaveLength(2);
         const { result, unmount } = wrappedRenderHook(() =>
           useItemsConflictMixIn(items)
         );
@@ -1055,13 +1059,16 @@ describe('collection synchronizer', () => {
         unmount();
       }
       {
+        const { itemsConflicts, annotsConflicts } =
+          conflictsService.getConflictItemIds();
         const items = fetchBrowsableItemsQuery.getResults({
-          onlyConflicts: true,
+          itemsConflicts,
+          annotsConflicts,
           restrictType: CollectionItemType.document,
           recursive: true,
           parentId: DEFAULT_NOTEBOOK_ID
         });
-        expect(Object.keys(items)).toHaveLength(1);
+        expect(items).toHaveLength(1);
         const { result, unmount } = wrappedRenderHook(() =>
           useItemsConflictMixIn(items)
         );
@@ -1134,9 +1141,12 @@ describe('collection synchronizer', () => {
       }
 
       {
+        const { itemsConflicts, annotsConflicts } =
+          conflictsService.getConflictItemIds();
         const items = fetchBrowsableItemsQuery.getResults(
           {
-            onlyConflicts: true,
+            itemsConflicts,
+            annotsConflicts,
             restrictType: CollectionItemType.document,
             recursive: true,
             parentId: DEFAULT_NOTEBOOK_ID
@@ -1144,7 +1154,7 @@ describe('collection synchronizer', () => {
           'createdAt',
           true
         );
-        expect(Object.keys(items)).toHaveLength(3);
+        expect(items).toHaveLength(3);
         expect(items.filter(i => i.id === docExcluded)).toHaveLength(0);
         const { result, unmount } = wrappedRenderHook(() =>
           useItemsConflictMixIn(items)

@@ -28,19 +28,29 @@ class ConflictsService {
     return { itemsConflicts, annotsConflicts };
   }
 
+  public getConflictItemIds() {
+    const { itemsConflicts, annotsConflicts } = this.getConflicts();
+    return this.conflictsToQueryInputs(itemsConflicts, annotsConflicts);
+  }
+
+  public conflictsToQueryInputs(
+    itemConflicts: CollectionItemConflictResult[],
+    annotConflicts: AnnotationConflictResult[]
+  ) {
+    return {
+      itemsConflicts: itemConflicts.map(c => c.conflictId),
+      annotsConflicts: annotConflicts.map(a => a.parentId)
+    };
+  }
+
   public itemHasConflicts(
     id: Id,
-    itemsConflicts?: CollectionItemConflictResult[],
-    annotsConflicts?: AnnotationConflictResult[]
+    conflictIds: string[],
+    conflictsIdsFromAnnots: string[]
   ) {
-    if (!itemsConflicts || !annotsConflicts) {
-      itemsConflicts = fetchItemsConflictsQuery.getResults({});
-      annotsConflicts = fetchAnnotsConflictsQuery.getResults({});
-    }
-    const hasConflict =
-      itemsConflicts.filter(c => c.conflictId === id).length > 0;
+    const hasConflict = conflictIds.filter(c => c === id).length > 0;
     const hasAnnotsConflicts =
-      annotsConflicts.filter(c => c.parentId === id).length > 0;
+      conflictsIdsFromAnnots.filter(c => c === id).length > 0;
     return { hasConflict, hasAnnotsConflicts };
   }
 }
