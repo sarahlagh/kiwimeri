@@ -13,6 +13,8 @@ import {
   IonSelect,
   IonSelectOption
 } from '@ionic/react';
+import { i18n, MessageDescriptor } from '@lingui/core';
+import { msg } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react/macro';
 import { ReactNode } from 'react';
 
@@ -29,6 +31,13 @@ export type SortFilterProps = {
     readonly children?: ReactNode;
   };
 
+const valuesTransMap = new Map<CollectionItemSortType, MessageDescriptor>();
+valuesTransMap.set('createdAt', msg`Creation Date`);
+valuesTransMap.set('updatedAt', msg`Last Updated`);
+valuesTransMap.set('title', msg`Title`);
+valuesTransMap.set('previewText', msg`Content`);
+valuesTransMap.set('order', msg`Manual`);
+
 const SortFilter = ({
   currentSort,
   onSortChange,
@@ -43,12 +52,6 @@ const SortFilter = ({
   const { t } = useLingui();
   const sort = { ...currentSort };
 
-  const valuesTransMap = new Map<CollectionItemSortType, string>();
-  valuesTransMap.set('createdAt', t`Creation Date`);
-  valuesTransMap.set('updatedAt', t`Last Updated`);
-  valuesTransMap.set('title', t`Title`);
-  valuesTransMap.set('previewText', t`Content`);
-  valuesTransMap.set('order', t`Manual`);
   // TODO opt to keep folders at top
   return (
     <IonList className="inner-list">
@@ -58,7 +61,7 @@ const SortFilter = ({
             style={{ marginLeft: 6 }}
             label={t`Sort`}
             value={currentSort.by}
-            placeholder={valuesTransMap.get(currentSort.by)}
+            placeholder={i18n._(valuesTransMap.get(currentSort.by)!)}
             onIonChange={e => {
               sort.by = e.detail.value;
               onSortChange(sort);
@@ -66,7 +69,7 @@ const SortFilter = ({
           >
             {choices.map(sort => (
               <IonSelectOption key={sort} value={sort}>
-                {valuesTransMap.get(sort)}
+                {i18n._(valuesTransMap.get(sort)!)}
               </IonSelectOption>
             ))}
           </IonSelect>

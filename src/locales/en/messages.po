@@ -6,6 +6,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: @lingui/cli\n"
 "Language: en\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
 
 #: src/features/timed-writing/components/SaveSessionModal.tsx:69
 msgid " (new)"
@@ -184,11 +190,11 @@ msgid "Confirm"
 msgstr "Confirm"
 
 #: src/constants.ts:84
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:173
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:160
 msgid "Conflicts"
 msgstr "Conflicts"
 
-#: src/features/collection-browser/components/SortFilter.tsx:50
+#: src/features/collection-browser/components/SortFilter.tsx:38
 #: src/shared/misc/sort-filter/GenericSortFilter.tsx:49
 msgid "Content"
 msgstr "Content"
@@ -210,7 +216,7 @@ msgstr "Created at"
 msgid "Created at: {0}"
 msgstr "Created at: {0}"
 
-#: src/features/collection-browser/components/SortFilter.tsx:47
+#: src/features/collection-browser/components/SortFilter.tsx:35
 #: src/features/settings-ui/components/GenericCollectionSettings.tsx:35
 #: src/shared/misc/sort-filter/GenericSortFilter.tsx:46
 msgid "Creation Date"
@@ -354,6 +360,10 @@ msgstr "Fast Write Mode"
 msgid "File not supported"
 msgstr "File not supported"
 
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:100
+msgid "go to current folder"
+msgstr "go to current folder"
+
 #: src/domain/user-preferences/user-preferences.ts:26
 msgid "History idle time (s)"
 msgstr "History idle time (s)"
@@ -422,16 +432,16 @@ msgstr "Kiwimeri format (content only)"
 msgid "Kiwimeri format (with history & stats)"
 msgstr "Kiwimeri format (with history & stats)"
 
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:172
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:159
 msgid "Last consulted documents"
 msgstr "Last consulted documents"
 
-#: src/features/collection-browser/components/SortFilter.tsx:48
+#: src/features/collection-browser/components/SortFilter.tsx:36
 #: src/shared/misc/sort-filter/GenericSortFilter.tsx:47
 msgid "Last Updated"
 msgstr "Last Updated"
 
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:171
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:158
 msgid "Last updated documents"
 msgstr "Last updated documents"
 
@@ -473,7 +483,7 @@ msgstr "Logs"
 msgid "Manage your app profiles here."
 msgstr "Manage your app profiles here."
 
-#: src/features/collection-browser/components/SortFilter.tsx:51
+#: src/features/collection-browser/components/SortFilter.tsx:39
 #: src/shared/misc/sort-filter/GenericSortFilter.tsx:50
 msgid "Manual"
 msgstr "Manual"
@@ -747,7 +757,11 @@ msgstr "Settings"
 msgid "Show details"
 msgstr "Show details"
 
-#: src/features/collection-browser/components/SortFilter.tsx:59
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:113
+msgid "show search sort filters"
+msgstr "show search sort filters"
+
+#: src/features/collection-browser/components/SortFilter.tsx:62
 #: src/shared/misc/sort-filter/GenericSortFilter.tsx:69
 msgid "Sort"
 msgstr "Sort"
@@ -861,7 +875,7 @@ msgstr "Timed Writing"
 msgid "Timed Writing Session"
 msgstr "Timed Writing Session"
 
-#: src/features/collection-browser/components/SortFilter.tsx:49
+#: src/features/collection-browser/components/SortFilter.tsx:37
 #: src/shared/misc/sort-filter/GenericSortFilter.tsx:48
 msgid "Title"
 msgstr "Title"
@@ -869,6 +883,10 @@ msgstr "Title"
 #: src/features/collection-notes-ui/components/NotesActions.tsx:40
 msgid "Toggle actions"
 msgstr "Toggle actions"
+
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:121
+msgid "toggle browser mode"
+msgstr "toggle browser mode"
 
 #: src/domain/user-preferences/user-preferences.ts:41
 msgid "Track text statistics"

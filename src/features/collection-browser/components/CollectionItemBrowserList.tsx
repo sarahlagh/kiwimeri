@@ -6,7 +6,6 @@ import {
   IonIcon,
   IonItem,
   IonLabel,
-  IonList,
   IonToolbar,
   useIonPopover
 } from '@ionic/react';
@@ -22,6 +21,8 @@ import { settingsService } from '@/domain/collection/collection-settings.service
 import notebooksService from '@/domain/collection/notebooks.service';
 
 import { useHasLocalConflicts } from '@/features/synchronization-ui';
+import { i18n, MessageDescriptor } from '@lingui/core';
+import { msg } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react/macro';
 import {
   Dispatch,
@@ -75,6 +76,7 @@ const CollectionItemBrowserListToolbar = ({
   searchText?: string | null;
   setSearchText: Dispatch<SetStateAction<string | undefined | null>>;
 }) => {
+  const { t } = useLingui();
   const navigate = useNavigate();
   const [openFilters, setOpenFilters] = useState(false);
   const openedDocumentFolder = openedDocument
@@ -82,82 +84,84 @@ const CollectionItemBrowserListToolbar = ({
     : null;
 
   return (
-    <IonList className="inner-list">
-      <SortFilterInlineList
-        id={folderId}
-        sortEnabled={mode === 'browser' && openFilters}
-        searchEnabled={openFilters}
-        searchText={searchText || ''}
-        onSearch={val => {
-          setSearchText(val);
-        }}
-      >
-        <IonItem lines="none">
-          <IonToolbar>
-            <IonButtons slot="start">
-              <IonButton
-                disabled={folderId === openedDocumentFolder || !openedDocument}
-                onClick={() => {
-                  if (openedDocumentFolder) {
-                    navigate(
-                      GET_ITEM_ROUTE(openedDocumentFolder, openedDocument)
-                    );
-                  }
-                }}
-              >
-                <IonIcon icon={APPICONS.goToCurrentFolder}></IonIcon>
-              </IonButton>
-              <IonButton
-                disabled={mode !== 'browser'}
-                onClick={() => setOpenFilters(!openFilters)}
-              >
-                <IonIcon icon={APPICONS.sortFilter}></IonIcon>
-              </IonButton>
+    <SortFilterInlineList
+      id={folderId}
+      sortEnabled={mode === 'browser' && openFilters}
+      searchEnabled={openFilters}
+      searchText={searchText || ''}
+      onSearch={val => {
+        setSearchText(val);
+      }}
+    >
+      <IonItem lines="none">
+        <IonToolbar>
+          <IonButtons slot="start">
+            <IonButton
+              aria-label={t`go to current folder`}
+              disabled={folderId === openedDocumentFolder || !openedDocument}
+              onClick={() => {
+                if (openedDocumentFolder) {
+                  navigate(
+                    GET_ITEM_ROUTE(openedDocumentFolder, openedDocument)
+                  );
+                }
+              }}
+            >
+              <IonIcon icon={APPICONS.goToCurrentFolder}></IonIcon>
+            </IonButton>
+            <IonButton
+              aria-label={t`show search sort filters`}
+              disabled={mode !== 'browser'}
+              onClick={() => setOpenFilters(!openFilters)}
+            >
+              <IonIcon icon={APPICONS.sortFilter}></IonIcon>
+            </IonButton>
 
-              <IonButton
-                disabled={mode === 'conflicts'}
-                onClick={() => {
-                  setOpenFilters(false);
-                  nextMode();
-                }}
-              >
-                <IonIcon icon={APPICONS.circleOptions}></IonIcon>
-              </IonButton>
-            </IonButtons>
+            <IonButton
+              aria-label={t`toggle browser mode`}
+              disabled={mode === 'conflicts'}
+              onClick={() => {
+                setOpenFilters(false);
+                nextMode();
+              }}
+            >
+              <IonIcon icon={APPICONS.circleOptions}></IonIcon>
+            </IonButton>
+          </IonButtons>
 
-            <IonButtons slot="end">
-              <ExportItemsButton
-                type={CollectionItemType.folder}
-                id={folderId}
-              />
-              <ImportItemsButton parent={folderId} />
+          <IonButtons slot="end">
+            <ExportItemsButton type={CollectionItemType.folder} id={folderId} />
+            <ImportItemsButton parent={folderId} />
 
-              <IonButton
-                onClick={() => {
-                  collectionService.addFolder(folderId);
-                }}
-              >
-                <IonIcon aria-hidden="true" icon={APPICONS.addFolder} />
-              </IonButton>
-              <IonButton
-                onClick={() => {
-                  collectionService.addDocument(folderId);
-                }}
-              >
-                <IonIcon aria-hidden="true" icon={APPICONS.addDocument} />
-              </IonButton>
-            </IonButtons>
-          </IonToolbar>
-        </IonItem>
-      </SortFilterInlineList>
-    </IonList>
+            <IonButton
+              onClick={() => {
+                collectionService.addFolder(folderId);
+              }}
+            >
+              <IonIcon aria-hidden="true" icon={APPICONS.addFolder} />
+            </IonButton>
+            <IonButton
+              onClick={() => {
+                collectionService.addDocument(folderId);
+              }}
+            >
+              <IonIcon aria-hidden="true" icon={APPICONS.addDocument} />
+            </IonButton>
+          </IonButtons>
+        </IonToolbar>
+      </IonItem>
+    </SortFilterInlineList>
   );
 };
+
+const modeTrans = new Map<BrowserQueryMode, MessageDescriptor>();
+modeTrans.set('updatedAt', msg`Last updated documents`);
+modeTrans.set('lastOpenedAt', msg`Last consulted documents`);
+modeTrans.set('conflicts', msg`Conflicts`);
 
 export const CollectionItemBrowserList = ({
   parent: folder
 }: CollectionItemBrowserListProps) => {
-  const { t } = useLingui();
   const navigate = useNavigate();
   const location = useLocation();
   const searchParams = getSearchParams(location.search);
@@ -166,11 +170,6 @@ export const CollectionItemBrowserList = ({
 
   const sort = useFolderEffectiveSort(folder);
   const modeIdx = useNotebookLastBrowserMode();
-
-  const modeTrans = new Map<BrowserQueryMode, string>();
-  modeTrans.set('updatedAt', t`Last updated documents`);
-  modeTrans.set('lastOpenedAt', t`Last consulted documents`);
-  modeTrans.set('conflicts', t`Conflicts`);
 
   const currentMode = hasConflicts ? 'conflicts' : browserModes[modeIdx];
   const items: BrowsableItemResult[] = useCollectionItemBrowserListResults(
@@ -229,11 +228,9 @@ export const CollectionItemBrowserList = ({
               }}
             ></CollectionItemBreadcrumb>
           ) : (
-            <>
-              <IonLabel style={{ lineHeight: '36px', marginLeft: '18px' }}>
-                <i>{modeTrans.get(currentMode)}</i>
-              </IonLabel>
-            </>
+            <IonLabel style={{ lineHeight: '36px', marginLeft: '18px' }}>
+              <i>{i18n._(modeTrans.get(currentMode)!)}</i>
+            </IonLabel>
           )}
         </>
       }

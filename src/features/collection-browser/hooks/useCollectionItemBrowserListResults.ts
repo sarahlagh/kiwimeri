@@ -1,3 +1,4 @@
+import { ROOT_COLLECTION } from '@/constants';
 import { useQueryResults } from '@/core/db/queries-helper';
 import { CollectionItemType } from '@/domain/collection/collection';
 import { settingsService } from '@/domain/collection/collection-settings.service';
@@ -34,7 +35,7 @@ export default function useCollectionItemBrowserListResults(
         annotsConflicts
       );
       opts = {
-        parentId: notebook,
+        parentId: mode === 'conflicts' ? ROOT_COLLECTION : notebook,
         recursive: true,
         restrictType: CollectionItemType.document,
         itemsConflicts:
