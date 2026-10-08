@@ -234,7 +234,7 @@ msgstr "Current profile"
 msgid "Default"
 msgstr "Default"
 
-#: src/domain/user-preferences/user-preferences.ts:16
+#: src/domain/user-preferences/user-preferences.ts:17
 msgid "Default sort field"
 msgstr "Default sort field"
 
@@ -364,7 +364,7 @@ msgstr "File not supported"
 msgid "go to current folder"
 msgstr "go to current folder"
 
-#: src/domain/user-preferences/user-preferences.ts:26
+#: src/domain/user-preferences/user-preferences.ts:27
 msgid "History idle time (s)"
 msgstr "History idle time (s)"
 
@@ -372,7 +372,7 @@ msgstr "History idle time (s)"
 msgid "History Maintenance"
 msgstr "History Maintenance"
 
-#: src/domain/user-preferences/user-preferences.ts:31
+#: src/domain/user-preferences/user-preferences.ts:32
 msgid "History save time (min)"
 msgstr "History save time (min)"
 
@@ -602,7 +602,7 @@ msgstr "Notification Maintenance"
 msgid "Notifications"
 msgstr "Notifications"
 
-#: src/domain/user-preferences/user-preferences.ts:36
+#: src/domain/user-preferences/user-preferences.ts:37
 msgid "Number of versions"
 msgstr "Number of versions"
 
@@ -766,7 +766,7 @@ msgstr "show search sort filters"
 msgid "Sort"
 msgstr "Sort"
 
-#: src/domain/user-preferences/user-preferences.ts:21
+#: src/domain/user-preferences/user-preferences.ts:22
 msgid "Sort descending by default"
 msgstr "Sort descending by default"
 
@@ -888,7 +888,7 @@ msgstr "Toggle actions"
 msgid "toggle browser mode"
 msgstr "toggle browser mode"
 
-#: src/domain/user-preferences/user-preferences.ts:41
+#: src/domain/user-preferences/user-preferences.ts:42
 msgid "Track text statistics"
 msgstr "Track text statistics"
 
