@@ -17,7 +17,7 @@ export type DocAnnotationRow = {
 
 export const docAnnotationSchema = {
   parentId: { type: 'string' },
-  type: { type: 'string' },
+  type: { type: 'string' }, // later have an enum
   createdAt: { type: 'number', default: 0 },
   updatedAt: { type: 'number', default: 0 },
   order: { type: 'number', default: -1 },

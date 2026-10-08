@@ -7,8 +7,8 @@ export enum LocalChangeType {
   update = 'u',
   delete = 'd'
 }
-
-export type LocalChangeTypeValues = 'a' | 'u' | 'd';
+const changeTypeValues = ['a', 'u', 'd'] as const;
+export type LocalChangeTypeValues = typeof LocalChangeType;
 export type LocalChangeOn = SpaceTableId;
 
 export interface LocalChangeRow<T> {
@@ -24,8 +24,8 @@ export interface LocalChangeRow<T> {
 export const localChangesSchema = {
   itemId: { type: 'string' },
   createdAt: { type: 'number' },
-  change: { type: 'string' },
-  on: { type: 'string' },
+  change: { enum: changeTypeValues },
+  on: { type: 'string' }, // TODO enum
   field: { type: 'string' },
   previousData: { type: 'object' },
   previousHash: { type: 'number' }

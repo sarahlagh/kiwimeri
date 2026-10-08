@@ -2,7 +2,8 @@ import { WithId } from '@/core/db/types';
 import { CellSchema, Id } from 'tinybase/with-schemas';
 import { CollectionItemSnapshotData } from '../collection/collection';
 
-export type CollectionItemVersionOp = 'snapshot' | 'deleted';
+const opValues = ['snapshot', 'deleted'] as const;
+export type CollectionItemVersionOp = (typeof opValues)[number];
 
 export type CollectionItemVersionRow = {
   itemId: string;
@@ -17,7 +18,7 @@ export type CollectionItemVersionContentRow = {
 
 export const historySchema = {
   itemId: { type: 'string' },
-  op: { type: 'string' },
+  op: { enum: opValues },
   createdAt: { type: 'number' },
   snapshotJson: { type: 'object' },
   contentId: { type: 'string' }

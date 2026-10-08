@@ -4,6 +4,14 @@ import { CollectionItemSettings } from '@/domain/collection/collection-settings'
 import { CellSchema } from 'tinybase/with-schemas';
 import { ContentAddition } from './document-content';
 
+export enum CollectionItemType {
+  notebook = 'n',
+  folder = 'f',
+  document = 'd'
+}
+export const itemTypes = ['n', 'f', 'd'] as const;
+export type CollectionItemTypeValues = (typeof itemTypes)[number];
+
 export type CollectionItemRow = {
   itemId: string;
   parentId: string;
@@ -28,7 +36,7 @@ export const collectionSchema = {
   title_meta: { type: 'object', default: metaSchemaDefault },
   parentId: { type: 'string' },
   parentId_meta: { type: 'object', default: metaSchemaDefault },
-  type: { type: 'string' },
+  type: { enum: itemTypes },
   tags: { type: 'array' },
   tags_meta: { type: 'object' },
   createdAt: { type: 'number' },
@@ -41,14 +49,6 @@ export const collectionSchema = {
 } as const satisfies Record<keyof CollectionItemRow, CellSchema>;
 
 ////////////////////
-
-export enum CollectionItemType {
-  notebook = 'n',
-  folder = 'f',
-  document = 'd'
-}
-export const itemTypes = ['n', 'f', 'd'] as const;
-export type CollectionItemTypeValues = (typeof itemTypes)[number];
 
 export type BaseCollectionItem = Omit<CollectionItemRow, 'itemId'> &
   Partial<ContentAddition>;

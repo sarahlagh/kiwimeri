@@ -13,7 +13,7 @@ export type DocumentEditRow = {
 };
 
 export const documentEditsSchema = {
-  on: { type: 'string' },
+  on: { type: 'string' }, // TODO enum
   itemId: { type: 'string' },
   createdAt: { type: 'number' },
   json: { type: 'string' },
