@@ -18,7 +18,9 @@ const viteConfig = defineConfig({
     chunkSizeWarningLimit: 1050,
     rollupOptions: {
       treeshake: {
-        preset: 'smallest'
+        moduleSideEffects: [
+          { test: /^src\/core\/infra\/polyfills/, sideEffects: true }
+        ]
       }
     }
   },
@@ -28,14 +30,7 @@ const viteConfig = defineConfig({
       '@@': path.resolve(__dirname, 'test/')
     }
   },
-  plugins: [
-    react({
-      babel: {
-        plugins: ['@lingui/babel-plugin-lingui-macro']
-      }
-    }),
-    lingui()
-  ]
+  plugins: [react(), lingui({ macroTransform: true })]
 });
 if (process.env.ANALYZE) {
   viteConfig.plugins?.push(

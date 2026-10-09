@@ -3,7 +3,6 @@ import { APPICONS } from '@/constants';
 import { CollectionItemSnapshotData } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
 import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-content';
-import {} from '@/features/collection-item-actions';
 import { SearchActionsToolbar } from '@/features/search';
 import {
   IonButton,
