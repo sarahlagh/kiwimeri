@@ -10,7 +10,6 @@ import LoadingApp from './app/pages/LoadingApp';
 
 import { appConfig } from './config';
 import { plt } from './core/infra/platform';
-import './core/infra/polyfills/prism-polyfill';
 
 setupIonicReact({
   sanitizerEnabled: true,

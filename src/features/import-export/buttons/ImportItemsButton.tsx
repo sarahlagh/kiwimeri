@@ -4,7 +4,7 @@ import {
 } from '@/domain/collection/collection';
 import { OverlayEventDetail } from '@ionic/core/components';
 import { useIonModal } from '@ionic/react';
-import type { SerializedEditorState, SerializedLexicalNode } from 'lexical';
+import type { SerializedEditorState } from 'lexical';
 import { lazy, useState } from 'react';
 
 import { GET_ITEM_ROUTE } from '@/app/routes';
@@ -113,7 +113,7 @@ const ImportItemsButton = ({
       return { confirm: false } as OnContentReadResponse;
     }
     const onContentReadConfirm = (
-      lexical: SerializedEditorState<SerializedLexicalNode>,
+      lexical: SerializedEditorState,
       fileName: string,
       item?: CollectionItemResult
     ) => {
