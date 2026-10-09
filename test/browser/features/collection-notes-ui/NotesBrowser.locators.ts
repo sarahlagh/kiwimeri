@@ -42,13 +42,15 @@ export function getSwitchNoteInfoBtn(screen: RenderResult) {
 
 export function getCreatedAtNoteInfo(screen: RenderResult, createdAt: number) {
   return screen.locator.getByText(
-    `Created at: ${dateToStr('date', createdAt)}`
+    `Created at: ${dateToStr('date', createdAt)}`,
+    { exact: false }
   );
 }
 
 export function getUpdatedAtNoteInfo(screen: RenderResult, updatedAt: number) {
   return screen.locator.getByText(
-    `Updated at: ${dateToStr('date', updatedAt)}`
+    `Updated at: ${dateToStr('date', updatedAt)}`,
+    { exact: false }
   );
 }
 

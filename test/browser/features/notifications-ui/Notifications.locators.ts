@@ -13,11 +13,11 @@ export function getInfoAlert(screen: RenderResult) {
 }
 
 export function getInfoAlertAcknowledgedAt(screen: RenderResult) {
-  return getInfoAlert(screen).getByText('Acknowledged at:');
+  return getInfoAlert(screen).getByText('Acknowledged at:', { exact: false });
 }
 
 export function getInfoAlertContext(screen: RenderResult) {
-  return getInfoAlert(screen).getByText('Context:');
+  return getInfoAlert(screen).getByText('Context:', { exact: false });
 }
 
 export function getInfoAlertOpenDocumentBtn(screen: RenderResult) {

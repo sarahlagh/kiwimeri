@@ -121,9 +121,9 @@ const getConflicts = () => {
   return conflicts;
 };
 
-describe.sequential(
+describe(
   'CollectionSynchronizer with PCloud',
-  { timeout: 10000 },
+  { concurrent: false, timeout: 10000 },
   () => {
     beforeEach(async () => {
       fetchRemotesQuery.initQuery();

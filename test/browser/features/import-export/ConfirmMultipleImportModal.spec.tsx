@@ -127,7 +127,7 @@ describe('ConfirmMultipleImportModal', () => {
       await expect.element(getModalTitle(screen)).toBeInTheDocument();
       await expect
         .element(getModalTitle(screen))
-        .toHaveTextContent('Import Simple.zip in folder');
+        .toHaveTextContent('Import Simple.zip in folder Default');
 
       expectShowMetadataInfo(screen, false);
       expectShowNotebooksWarning(screen, false);
@@ -201,7 +201,7 @@ describe('ConfirmMultipleImportModal', () => {
       await expect.element(getModalTitle(screen)).toBeInTheDocument();
       await expect
         .element(getModalTitle(screen))
-        .toHaveTextContent('Import Simple.zip in folder');
+        .toHaveTextContent('Import Simple.zip in folder Default');
 
       expectShowMetadataInfo(screen, true);
       expectShowNotebooksWarning(screen, false);
@@ -276,7 +276,7 @@ describe('ConfirmMultipleImportModal', () => {
       await expect.element(getModalTitle(screen)).toBeInTheDocument();
       await expect
         .element(getModalTitle(screen))
-        .toHaveTextContent('Import SimpleLayer.zip in folder');
+        .toHaveTextContent('Import SimpleLayer.zip in folder Default');
 
       expectShowMetadataInfo(screen, false);
       expectShowNotebooksWarning(screen, false);
@@ -350,7 +350,7 @@ describe('ConfirmMultipleImportModal', () => {
       await expect.element(getModalTitle(screen)).toBeInTheDocument();
       await expect
         .element(getModalTitle(screen))
-        .toHaveTextContent('Import SimpleLayer.zip in folder');
+        .toHaveTextContent('Import SimpleLayer.zip in folder Default');
 
       expectShowMetadataInfo(screen, true);
       expectShowNotebooksWarning(screen, false);
@@ -425,7 +425,7 @@ describe('ConfirmMultipleImportModal', () => {
       await expect.element(getModalTitle(screen)).toBeInTheDocument();
       await expect
         .element(getModalTitle(screen))
-        .toHaveTextContent('Import Empty.zip in folder');
+        .toHaveTextContent('Import Empty.zip in folder Default');
 
       expectShowMetadataInfo(screen, true);
       expectShowNotebooksWarning(screen, false);
@@ -482,7 +482,7 @@ describe('ConfirmMultipleImportModal', () => {
       await expect.element(getModalTitle(screen)).toBeInTheDocument();
       await expect
         .element(getModalTitle(screen))
-        .toHaveTextContent('Import SpaceMalformed.zip in folder');
+        .toHaveTextContent('Import SpaceMalformed.zip in folder Default');
 
       expectShowMetadataInfo(screen, true);
       expectShowNotebooksWarning(screen, true);
@@ -653,7 +653,7 @@ describe('ConfirmMultipleImportModal', () => {
       await expect.element(getModalTitle(screen)).toBeInTheDocument();
       await expect
         .element(getModalTitle(screen))
-        .toHaveTextContent('Import Simple.zip in folder');
+        .toHaveTextContent('Import Simple.zip in folder Default');
 
       expectShowMetadataInfo(screen, false);
       expectShowNotebooksWarning(screen, false);
@@ -742,7 +742,7 @@ describe('ConfirmMultipleImportModal', () => {
       await expect.element(getModalTitle(screen)).toBeInTheDocument();
       await expect
         .element(getModalTitle(screen))
-        .toHaveTextContent('Import Simple.zip in folder');
+        .toHaveTextContent('Import Simple.zip in folder Default');
 
       expectShowMetadataInfo(screen, true);
       expectShowNotebooksWarning(screen, false);
@@ -829,7 +829,7 @@ describe('ConfirmMultipleImportModal', () => {
       await expect.element(getModalTitle(screen)).toBeInTheDocument();
       await expect
         .element(getModalTitle(screen))
-        .toHaveTextContent('Import SimpleLayer.zip in folder');
+        .toHaveTextContent('Import SimpleLayer.zip in folder Default');
 
       expectShowMetadataInfo(screen, false);
       expectShowNotebooksWarning(screen, false);
@@ -916,7 +916,7 @@ describe('ConfirmMultipleImportModal', () => {
       await expect.element(getModalTitle(screen)).toBeInTheDocument();
       await expect
         .element(getModalTitle(screen))
-        .toHaveTextContent('Import SimpleLayer.zip in folder');
+        .toHaveTextContent('Import SimpleLayer.zip in folder Default');
 
       expectShowMetadataInfo(screen, true);
       expectShowNotebooksWarning(screen, false);

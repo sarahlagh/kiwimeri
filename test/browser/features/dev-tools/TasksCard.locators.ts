@@ -31,7 +31,7 @@ export function getErrorDetailsButton(screen: RenderResult, taskId: string) {
 }
 
 export function getConfirmAlertBtn(screen: RenderResult) {
-  return screen.locator.getByRole('button', { name: 'confirm' });
+  return screen.locator.getByRole('button', { name: 'Confirm' });
 }
 
 export async function slideOpen(screen: RenderResult, taskId: string) {

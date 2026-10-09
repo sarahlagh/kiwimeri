@@ -77,10 +77,10 @@
     "@typescript-eslint/eslint-plugin": "^8.24.1",
     "@typescript-eslint/parser": "^8.24.1",
     "@vitejs/plugin-react": "^6.1.2",
-    "@vitest/browser-playwright": "^4.1.11",
-    "@vitest/coverage-v8": "^4.1.11",
+    "@vitest/browser-playwright": "^5.0.3",
+    "@vitest/coverage-v8": "^5.0.3",
     "@vitest/eslint-plugin": "^1.6.27",
-    "@vitest/ui": "^4.1.11",
+    "@vitest/ui": "^5.0.3",
     "concurrently": "^9.1.2",
     "eslint": "^10",
     "eslint-plugin-lingui": "^0.16.0",
@@ -94,7 +94,7 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.70.1",
     "vite": "^8.3.4",
-    "vitest": "^4.1.11",
+    "vitest": "^5.0.3",
     "vitest-browser-react": "^2.3.0"
   },
   "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610"

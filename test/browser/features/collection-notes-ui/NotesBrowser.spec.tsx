@@ -279,7 +279,7 @@ describe('NotesBrowser', () => {
     await selectedSort.click();
 
     const confirmButton = screen.locator.getByRole('button', {
-      name: 'Ok'
+      name: 'OK'
     });
     await expect.element(confirmButton).toBeInTheDocument();
 

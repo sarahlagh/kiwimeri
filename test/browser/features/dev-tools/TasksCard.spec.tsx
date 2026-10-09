@@ -7,8 +7,9 @@ import fetchTasksQuery, {
   TaskResult
 } from '@/features/dev-tools/queries/fetchTasksQuery';
 import { dateToStr } from '@/shared/misc/date-utils';
-import { describe, expect, test } from 'vitest';
+import { beforeEach, describe, expect, test } from 'vitest';
 import { render, RenderResult } from 'vitest-browser-react';
+import { page } from 'vitest/browser';
 import { TestingProvider } from '../../TestingProvider';
 import {
   getCancelTaskButton,
@@ -30,7 +31,8 @@ async function expectItemIsOK(screen: RenderResult, task: TaskResult) {
   await expect
     .element(
       getListItem(screen, task.id).getByText(
-        dateToStr('time', task.scheduledAt)
+        dateToStr('relative', task.scheduledAt),
+        { exact: false }
       )
     )
     .toBeInTheDocument();
@@ -44,22 +46,29 @@ async function expectItemIsOK(screen: RenderResult, task: TaskResult) {
 
 async function expectItemHasErrors(screen: RenderResult, task: TaskResult) {
   await expect
-    .element(getListItem(screen, task.id).getByText('Ran at'))
+    .element(getListItem(screen, task.id).getByText('Ran at', { exact: false }))
     .toBeInTheDocument();
   await expect
     .element(
       getListItem(screen, task.id).getByText(
-        dateToStr('time', task.scheduledAt)
+        dateToStr('time', task.scheduledAt),
+        { exact: false }
       )
     )
     .toBeInTheDocument();
   await expect
-    .element(getListItem(screen, task.id).getByText('with errors'))
+    .element(
+      getListItem(screen, task.id).getByText('with errors', { exact: false })
+    )
     .toBeInTheDocument();
   await expect.element(getDetailsButton(screen, task.id)).toBeInTheDocument();
 }
 
 describe('TasksCard', () => {
+  beforeEach(() => {
+    page.viewport(1112, 834);
+  });
+
   test('renders an empty card', async () => {
     const screen = await render(<TasksCard />, {
       wrapper: TestingProvider
@@ -115,7 +124,9 @@ describe('TasksCard', () => {
 
     await button.click();
 
-    await expect.element(screen.locator.getByText(`#id`)).toBeVisible();
+    await expect
+      .element(screen.locator.getByText(`#id`, { exact: false }))
+      .toBeVisible();
     await expect.element(screen.locator.getByText(`close`)).toBeVisible();
   });
 
@@ -134,7 +145,7 @@ describe('TasksCard', () => {
     await button.click();
 
     await expect
-      .element(screen.locator.getByText(`error description`))
+      .element(screen.locator.getByText(`error description`, { exact: false }))
       .toBeVisible();
     await expect.element(screen.locator.getByText(`close`)).toBeVisible();
   });

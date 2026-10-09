@@ -5,11 +5,11 @@ export function getCardTitle(screen: RenderResult, n: number) {
 }
 
 export function getCardLocalDate(screen: RenderResult, full?: string) {
-  return screen.locator.getByText(`Local: ` + (full || ''));
+  return screen.locator.getByText(`Local: ` + (full || ''), { exact: false });
 }
 
 export function getCardLocalRemote(screen: RenderResult, full?: string) {
-  return screen.locator.getByText(`Remote: ` + (full || ''));
+  return screen.locator.getByText(`Remote: ` + (full || ''), { exact: false });
 }
 
 export function getListItem(screen: RenderResult, key: string) {

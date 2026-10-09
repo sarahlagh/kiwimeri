@@ -33,5 +33,6 @@ yarn-error.log*
 
 # vitest report
 html
+.vitest/
 .vitest-attachments/
 **/__screenshots__/

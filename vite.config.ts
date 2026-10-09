@@ -93,7 +93,7 @@ const vitestConfig = vitestDefineConfig({
             enabled: true,
             provider: playwright(),
             // https://vitest.dev/config/browser/playwright
-            instances: [{ browser: 'chromium' } /*{ browser: 'firefox' }*/]
+            instances: [{ browser: 'chromium' }]
           }
         }
       },

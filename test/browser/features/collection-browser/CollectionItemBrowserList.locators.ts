@@ -17,9 +17,7 @@ export function getListItems(screen: RenderResult) {
 }
 
 export function getListItemWithText(screen: RenderResult, text: string) {
-  return getMainList(screen)
-    .getByRole('listitem')
-    .filter({ hasText: text, exact: true });
+  return getMainList(screen).getByRole('listitem').filter({ hasText: text });
 }
 
 export function getHeaderForUpdatedAtMode(screen: RenderResult) {
