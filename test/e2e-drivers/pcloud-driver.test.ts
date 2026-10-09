@@ -1,5 +1,5 @@
 import { appConfig } from '@/config';
-import { DEFAULT_NOTEBOOK_ID, getGlobalTrans } from '@/constants';
+import { DEFAULT_NOTEBOOK_ID, tt } from '@/constants';
 import { space, spaceDocContent } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { SpaceValuesType } from '@/core/db/store-schema';
@@ -209,7 +209,7 @@ describe.sequential(
       const content = (await getRemoteContent())?.items;
       expect(content).toHaveLength(5); // items + notebook
       expect(content!.map(r => r.title)).toEqual([
-        getGlobalTrans().defaultNotebookName,
+        tt('defaultNotebookName'),
         'new',
         'r2',
         'r3',

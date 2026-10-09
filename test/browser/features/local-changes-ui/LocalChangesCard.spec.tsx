@@ -1,4 +1,4 @@
-import { DEFAULT_NOTEBOOK_ID, getGlobalTrans } from '@/constants';
+import { DEFAULT_NOTEBOOK_ID, tt } from '@/constants';
 import collectionService from '@/domain/collection/collection.service';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
 import notebooksService from '@/domain/collection/notebooks.service';
@@ -50,7 +50,7 @@ describe('LocalChangesCard', () => {
     });
     await expectChangeInList(screen, localChanges);
     expect(getListItem(screen, localChanges[0].id)).toHaveTextContent(
-      getGlobalTrans().newDocTitle
+      tt('newDocTitle')
     );
   });
 
@@ -69,7 +69,7 @@ describe('LocalChangesCard', () => {
     });
     await expectChangeInList(screen, localChanges);
     expect(getListItem(screen, localChanges[0].id)).toHaveTextContent(
-      getGlobalTrans().newDocTitle
+      tt('newDocTitle')
     );
   });
 
@@ -99,7 +99,7 @@ describe('LocalChangesCard', () => {
     });
     await expectChangeInList(screen, localChanges);
     expect(getListItem(screen, localChanges[0].id)).toHaveTextContent(
-      getGlobalTrans().newFolderTitle
+      tt('newFolderTitle')
     );
   });
 

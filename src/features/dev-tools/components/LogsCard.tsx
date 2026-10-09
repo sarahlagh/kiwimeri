@@ -151,7 +151,11 @@ const LogsCard = () => {
           <Trans>Delete All</Trans>
         </IonButton>
         <IonButton slot="end" onClick={() => setShowFilters(!showFilters)}>
-          <Trans>{showFilters ? 'Hide' : 'Show'} Filters</Trans>
+          {showFilters ? (
+            <Trans>Hide Filters</Trans>
+          ) : (
+            <Trans>Show Filters</Trans>
+          )}
         </IonButton>
       </IonItem>
     </IonCard>

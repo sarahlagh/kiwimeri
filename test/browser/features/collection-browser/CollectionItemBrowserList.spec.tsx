@@ -4,8 +4,8 @@ import { render } from 'vitest-browser-react';
 import {
   CONFLICT_STR,
   DEFAULT_NOTEBOOK_ID,
-  getGlobalTrans,
-  ROOT_COLLECTION
+  ROOT_COLLECTION,
+  tt
 } from '@/constants';
 import { settingsService } from '@/domain/collection/collection-settings.service';
 import collectionService from '@/domain/collection/collection.service';
@@ -147,10 +147,10 @@ describe('CollectionItemBrowserList', () => {
       const listitems = getListItems(screen);
       await expect.element(listitems).toHaveLength(3);
       await expect
-        .element(screen.getByText(getGlobalTrans().newFolderTitle))
+        .element(screen.getByText(tt('newFolderTitle')))
         .toBeInTheDocument();
       await expect
-        .element(screen.getByText(getGlobalTrans().newDocTitle))
+        .element(screen.getByText(tt('newDocTitle')))
         .toBeInTheDocument();
       await expect.element(screen.getByText('Other Doc')).toBeInTheDocument();
     });
@@ -179,7 +179,7 @@ describe('CollectionItemBrowserList', () => {
         }
       );
 
-      const docRow = getListItemWithText(screen, getGlobalTrans().newDocTitle);
+      const docRow = getListItemWithText(screen, tt('newDocTitle'));
       await expect.element(docRow).toBeInTheDocument();
       await (docRow.element() as HTMLIonItemElement).click();
 
@@ -201,10 +201,7 @@ describe('CollectionItemBrowserList', () => {
         }
       );
 
-      const folderRow = getListItemWithText(
-        screen,
-        getGlobalTrans().newFolderTitle
-      );
+      const folderRow = getListItemWithText(screen, tt('newFolderTitle'));
       await expect.element(folderRow).toBeInTheDocument();
       await (folderRow.element() as HTMLIonItemElement).click();
 
@@ -243,7 +240,7 @@ describe('CollectionItemBrowserList', () => {
         .element(getListItemWithText(screen, 'Doc Under Folder With Annot'))
         .toBeInTheDocument();
       await expect
-        .element(getListItemWithText(screen, getGlobalTrans().newDocTitle))
+        .element(getListItemWithText(screen, tt('newDocTitle')))
         .toBeInTheDocument();
     });
 
@@ -278,7 +275,7 @@ describe('CollectionItemBrowserList', () => {
         .element(getListItemWithText(screen, 'Doc Under Folder With Annot'))
         .toBeInTheDocument();
       await expect
-        .element(getListItemWithText(screen, getGlobalTrans().newDocTitle))
+        .element(getListItemWithText(screen, tt('newDocTitle')))
         .toBeInTheDocument();
     });
 
@@ -393,13 +390,11 @@ describe('CollectionItemBrowserList', () => {
 
       // only documents in conflict are shown
       await expect
-        .element(
-          screen.getByText(getGlobalTrans().newDocTitle, { exact: true })
-        )
+        .element(screen.getByText(tt('newDocTitle'), { exact: true }))
         .toBeInTheDocument();
       await expect
         .element(
-          screen.getByText(CONFLICT_STR + getGlobalTrans().newDocTitle, {
+          screen.getByText(CONFLICT_STR + tt('newDocTitle'), {
             exact: true
           })
         )
@@ -422,7 +417,7 @@ describe('CollectionItemBrowserList', () => {
 
       // folders and documents not in conflict are not shown
       await expect
-        .element(screen.getByText(getGlobalTrans().newFolderTitle))
+        .element(screen.getByText(tt('newFolderTitle')))
         .not.toBeInTheDocument();
       await expect
         .element(screen.getByText('Other Doc'))
@@ -440,7 +435,7 @@ describe('CollectionItemBrowserList', () => {
       await expect.element(getFooter(screen)).toBeInTheDocument();
       await expect.element(getMainList(screen)).toBeInTheDocument();
 
-      const docRow = getListItemWithText(screen, getGlobalTrans().newDocTitle);
+      const docRow = getListItemWithText(screen, tt('newDocTitle'));
       await expect.element(docRow).toHaveLength(2); // FIXME even with exact: true, still matches the conflict
 
       const btns = docRow.elements() as HTMLIonItemElement[];
@@ -472,13 +467,11 @@ describe('CollectionItemBrowserList', () => {
 
       await expect.element(getListItems(screen)).toHaveLength(3);
       await expect
-        .element(
-          screen.getByText(getGlobalTrans().newDocTitle, { exact: true })
-        )
+        .element(screen.getByText(tt('newDocTitle'), { exact: true }))
         .not.toBeInTheDocument();
       await expect
         .element(
-          screen.getByText(CONFLICT_STR + getGlobalTrans().newDocTitle, {
+          screen.getByText(CONFLICT_STR + tt('newDocTitle'), {
             exact: true
           })
         )

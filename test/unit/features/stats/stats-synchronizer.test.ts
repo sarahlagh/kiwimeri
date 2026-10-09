@@ -58,7 +58,7 @@ describe('stats synchronizer', () => {
     vi.advanceTimersByTime(1000);
 
     const resp2 = await statsSynchronizer.push();
-    expect(resp2.didPush).toBe(false);
+    expect(resp2.didPush).toBe(false); // TODO why flaky???????????
     expect(resp2.success).toBe(true);
   });
 

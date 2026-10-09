@@ -25,11 +25,6 @@ msgstr " Note that profiles have backups that may be kept kept up to one day af
 msgid "-- conflict --"
 msgstr "-- conflict --"
 
-#. placeholder {0}: showFilters ? 'Hide' : 'Show'
-#: src/features/dev-tools/components/LogsCard.tsx:154
-msgid "{0} Filters"
-msgstr "{0} Filters"
-
 #: src/features/timed-writing/components/StartPanel.tsx:75
 msgid "{v} minutes"
 msgstr "{v} minutes"
@@ -54,15 +49,13 @@ msgstr "a folder"
 msgid "a notebook"
 msgstr "a notebook"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:242
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:243
 msgid "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 msgstr "A single folder has been detected inside your archive, would you like to remove it and only import its content?"
 
-#. placeholder {0}: notif.ackAt !== undefined ? dateToStr('datetime', notif.ackAt) : 'never'
-#. placeholder {1}: notif.context ? JSON.stringify(notif.context) : 'none'
-#: src/features/notifications-ui/Notifications.tsx:89
-msgid "Acknowledged at: {0} </br> Context: {1}"
-msgstr "Acknowledged at: {0} </br> Context: {1}"
+#: src/features/notifications-ui/Notifications.tsx:92
+msgid "Acknowledged at: {ackAt} </br> Context: {contextStr}"
+msgstr "Acknowledged at: {ackAt} </br> Context: {contextStr}"
 
 #: src/features/collection-notes-ui/components/NotesMenu.tsx:36
 msgid "add a note"
@@ -92,7 +85,7 @@ msgstr "AO3"
 msgid "AO3 Viewer"
 msgstr "AO3 Viewer"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:167
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:168
 msgid "Archive is empty"
 msgstr "Archive is empty"
 
@@ -110,13 +103,13 @@ msgstr "cancel"
 #: src/features/document-editor/tags/ChooseTagsModal.tsx:100
 #: src/features/import-export/buttons/ExportItemsButton.tsx:102
 #: src/features/import-export/buttons/RestoreCollectionButton.tsx:57
-#: src/features/import-export/modals/ConfirmFileImportModal.tsx:74
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:342
+#: src/features/import-export/modals/ConfirmFileImportModal.tsx:73
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:343
 #: src/shared/modals/AreYouSureAlert.tsx:28
 msgid "Cancel"
 msgstr "Cancel"
 
-#: src/features/dev-tools/components/TasksCard.tsx:177
+#: src/features/dev-tools/components/TasksCard.tsx:192
 msgid "Cancel Task"
 msgstr "Cancel Task"
 
@@ -153,8 +146,8 @@ msgstr "Choose a session length"
 msgid "Choose where to save your work"
 msgstr "Choose where to save your work"
 
-#: src/features/dev-tools/components/TasksCard.tsx:137
-#: src/features/notifications-ui/Notifications.tsx:120
+#: src/features/dev-tools/components/TasksCard.tsx:152
+#: src/features/notifications-ui/Notifications.tsx:123
 msgid "close"
 msgstr "close"
 
@@ -162,7 +155,7 @@ msgstr "close"
 msgid "Close"
 msgstr "Close"
 
-#: src/constants.ts:88
+#: src/constants.ts:154
 msgid "collection"
 msgstr "collection"
 
@@ -183,13 +176,13 @@ msgstr "Configure where to synchronize your collection"
 #: src/features/document-editor/tags/ChooseTagsModal.tsx:107
 #: src/features/import-export/buttons/ExportItemsButton.tsx:109
 #: src/features/import-export/buttons/RestoreCollectionButton.tsx:64
-#: src/features/import-export/modals/ConfirmFileImportModal.tsx:77
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:348
+#: src/features/import-export/modals/ConfirmFileImportModal.tsx:76
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:349
 #: src/shared/modals/AreYouSureAlert.tsx:36
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/constants.ts:84
+#: src/constants.ts:151
 #: src/features/collection-browser/components/CollectionItemBrowserList.tsx:160
 msgid "Conflicts"
 msgstr "Conflicts"
@@ -211,10 +204,9 @@ msgstr "create a note"
 msgid "Created at"
 msgstr "Created at"
 
-#. placeholder {0}: dateToStr('relative', createdAt)
-#: src/features/collection-notes-ui/components/NotesActions.tsx:27
-msgid "Created at: {0}"
-msgstr "Created at: {0}"
+#: src/features/collection-notes-ui/components/NotesActions.tsx:28
+msgid "Created at: {relativeCreatedAt}"
+msgstr "Created at: {relativeCreatedAt}"
 
 #: src/features/collection-browser/components/SortFilter.tsx:35
 #: src/features/settings-ui/components/GenericCollectionSettings.tsx:35
@@ -230,7 +222,7 @@ msgstr "Current Notebook Settings ({notebookTitle})"
 msgid "Current profile"
 msgstr "Current profile"
 
-#: src/constants.ts:83
+#: src/constants.ts:150
 msgid "Default"
 msgstr "Default"
 
@@ -242,7 +234,7 @@ msgstr "Default sort field"
 msgid "Delete All"
 msgstr "Delete All"
 
-#: src/features/collection-notes-ui/components/NotesActions.tsx:47
+#: src/features/collection-notes-ui/components/NotesActions.tsx:54
 msgid "Delete note"
 msgstr "Delete note"
 
@@ -250,11 +242,11 @@ msgstr "Delete note"
 msgid "Delete profile"
 msgstr "Delete profile"
 
-#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:158
+#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:167
 msgid "deleted comment"
 msgstr "deleted comment"
 
-#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:155
+#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:164
 msgid "deleted item"
 msgstr "deleted item"
 
@@ -288,7 +280,7 @@ msgstr "Dismiss"
 msgid "Display options for the currently selected notebook. They can still be overriden per folder."
 msgstr "Display options for the currently selected notebook. They can still be overriden per folder."
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:185
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:186
 msgid "Do you want to import your content inside a new folder?"
 msgstr "Do you want to import your content inside a new folder?"
 
@@ -333,7 +325,7 @@ msgstr "Enter your username"
 msgid "Error writing to file"
 msgstr "Error writing to file"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:177
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:178
 msgid "Errors have been detected on the following files:"
 msgstr "Errors have been detected on the following files:"
 
@@ -364,6 +356,10 @@ msgstr "File not supported"
 msgid "go to current folder"
 msgstr "go to current folder"
 
+#: src/features/dev-tools/components/LogsCard.tsx:155
+msgid "Hide Filters"
+msgstr "Hide Filters"
+
 #: src/domain/user-preferences/user-preferences.ts:27
 msgid "History idle time (s)"
 msgstr "History idle time (s)"
@@ -376,19 +372,17 @@ msgstr "History Maintenance"
 msgid "History save time (min)"
 msgstr "History save time (min)"
 
-#: src/constants.ts:82
+#: src/constants.ts:149
 msgid "Home"
 msgstr "Home"
 
-#. placeholder {0}: params.zipData.zipName
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:124
-msgid "Import {0}.zip in a new Notebook"
-msgstr "Import {0}.zip in a new Notebook"
+msgid "Import {zipName}.zip in a new Notebook"
+msgstr "Import {zipName}.zip in a new Notebook"
 
-#. placeholder {0}: params.zipData.zipName
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:117
-msgid "Import {0}.zip in folder {parentName}"
-msgstr "Import {0}.zip in folder {parentName}"
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:116
+msgid "Import {zipName}.zip in folder {parentName}"
+msgstr "Import {zipName}.zip in folder {parentName}"
 
 #: src/features/import-export/buttons/ImportExportStoreSettings.tsx:62
 msgid "Import & export your app settings"
@@ -398,7 +392,7 @@ msgstr "Import & export your app settings"
 msgid "Import & export your collection"
 msgstr "Import & export your collection"
 
-#: src/features/import-export/modals/ConfirmFileImportModal.tsx:37
+#: src/features/import-export/modals/ConfirmFileImportModal.tsx:36
 msgid "Import file in folder {folderName}"
 msgstr "Import file in folder {folderName}"
 
@@ -410,15 +404,13 @@ msgstr "In descending order"
 msgid "Include metadata in zip"
 msgstr "Include metadata in zip"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:100
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:99
 msgid "Incorrect Metadata"
 msgstr "Incorrect Metadata"
 
-#. placeholder {0}: task.inputs ? JSON.stringify(task.inputs) : 'none'
-#. placeholder {1}: task.error ? task.error : ''
-#: src/features/dev-tools/components/TasksCard.tsx:134
-msgid "Inputs: {0} </br> {1}"
-msgstr "Inputs: {0} </br> {1}"
+#: src/features/dev-tools/components/TasksCard.tsx:149
+msgid "Inputs: {inputsStr} </br> {errorMsg}"
+msgstr "Inputs: {inputsStr} </br> {errorMsg}"
 
 #: src/features/dev-tools/components/ConfigCard.tsx:42
 msgid "Internal proxy"
@@ -457,17 +449,15 @@ msgstr "Less dangerous mode (session is still timed but you will not lose progre
 msgid "Link"
 msgstr "Link"
 
-#. placeholder {0}: localChanges.length
-#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:76
-msgid "Local Changes ({0})"
-msgstr "Local Changes ({0})"
+#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:77
+msgid "Local Changes ({nbOfChanges})"
+msgstr "Local Changes ({nbOfChanges})"
 
-#. placeholder {0}: dateToStr('datetime', lastLocalChange)
-#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:83
-msgid "Local:  {0}"
-msgstr "Local:  {0}"
+#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:86
+msgid "Local:  {lastLocalChange}"
+msgstr "Local:  {lastLocalChange}"
 
-#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:87
+#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:93
 msgid "Local: <0>never</0>"
 msgstr "Local: <0>never</0>"
 
@@ -500,11 +490,11 @@ msgstr "Manually backup or restore your app settings"
 msgid "Manually backup or restore your collection in the format of your choice"
 msgstr "Manually backup or restore your collection in the format of your choice"
 
-#: src/features/notifications-ui/Notifications.tsx:130
+#: src/features/notifications-ui/Notifications.tsx:133
 msgid "Mark read"
 msgstr "Mark read"
 
-#: src/features/notifications-ui/Notifications.tsx:140
+#: src/features/notifications-ui/Notifications.tsx:143
 msgid "Mark unread"
 msgstr "Mark unread"
 
@@ -520,11 +510,11 @@ msgstr "Max log history"
 msgid "Merge"
 msgstr "Merge"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:108
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:107
 msgid "merged"
 msgstr "merged"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:145
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:146
 msgid "Metadata found in the archive"
 msgstr "Metadata found in the archive"
 
@@ -545,23 +535,27 @@ msgstr "Name your new profile"
 msgid "Native Storage"
 msgstr "Native Storage"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:108
+#: src/features/notifications-ui/Notifications.tsx:61
+msgid "never"
+msgstr "never"
+
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:107
 msgid "new"
 msgstr "new"
 
-#: src/constants.ts:85
+#: src/constants.ts:152
 msgid "New document"
 msgstr "New document"
 
-#: src/constants.ts:86
+#: src/constants.ts:153
 msgid "New folder"
 msgstr "New folder"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:210
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:211
 msgid "New folder name: "
 msgstr "New folder name: "
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:228
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:229
 msgid "New notebook name: "
 msgstr "New notebook name: "
 
@@ -573,13 +567,18 @@ msgstr "New tag"
 msgid "no"
 msgstr "no"
 
-#: src/features/dev-tools/components/TasksCard.tsx:71
+#: src/features/dev-tools/components/TasksCard.tsx:72
 msgid "No pending tasks"
 msgstr "No pending tasks"
 
 #: src/features/document-editor/tags/ChooseTagsModal.tsx:53
 msgid "No tag yet"
 msgstr "No tag yet"
+
+#: src/features/dev-tools/components/TasksCard.tsx:59
+#: src/features/notifications-ui/Notifications.tsx:62
+msgid "none"
+msgstr "none"
 
 #: src/app/components/NotFound.tsx:4
 msgid "Not Found"
@@ -589,7 +588,7 @@ msgstr "Not Found"
 msgid "Notebook Selection"
 msgstr "Notebook Selection"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:155
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:156
 msgid "Notebooks found in the archive, they will be converted to folders"
 msgstr "Notebooks found in the archive, they will be converted to folders"
 
@@ -610,7 +609,7 @@ msgstr "Number of versions"
 msgid "ok"
 msgstr "ok"
 
-#: src/features/notifications-ui/Notifications.tsx:94
+#: src/features/notifications-ui/Notifications.tsx:97
 msgid "Open document"
 msgstr "Open document"
 
@@ -622,7 +621,7 @@ msgstr "Options for the currently selected device. These options are local-only.
 msgid "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 msgstr "Options for the currently selected space. Some can still be overriden per notebook and per folder."
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:103
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:102
 msgid "Parsing Error"
 msgstr "Parsing Error"
 
@@ -660,10 +659,9 @@ msgstr "profile name"
 msgid "Profile Settings"
 msgstr "Profile Settings"
 
-#. placeholder {0}: dateToStr('relative', task.scheduledAt)
-#: src/features/dev-tools/components/TasksCard.tsx:106
-msgid "Ran at:  {0} with errors"
-msgstr "Ran at:  {0} with errors"
+#: src/features/dev-tools/components/TasksCard.tsx:116
+msgid "Ran at:  {relativeDate} with errors"
+msgstr "Ran at:  {relativeDate} with errors"
 
 #: src/features/settings-ui/components/CurrentDeviceSettings.tsx:38
 msgid "Remember last route"
@@ -673,12 +671,11 @@ msgstr "Remember last route"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
-#. placeholder {0}: dateToStr('datetime', lastRemoteChange)
-#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:96
-msgid "Remote:  {0}"
-msgstr "Remote:  {0}"
+#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:102
+msgid "Remote:  {lastRemoteChange}"
+msgstr "Remote:  {lastRemoteChange}"
 
-#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:100
+#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:109
 msgid "Remote: <0>never</0>"
 msgstr "Remote: <0>never</0>"
 
@@ -686,7 +683,7 @@ msgstr "Remote: <0>never</0>"
 msgid "Reorder"
 msgstr "Reorder"
 
-#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:269
+#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:278
 msgid "Reset All"
 msgstr "Reset All"
 
@@ -703,7 +700,7 @@ msgstr "Restore Collection"
 msgid "Restore Version"
 msgstr "Restore Version"
 
-#: src/features/dev-tools/components/TasksCard.tsx:166
+#: src/features/dev-tools/components/TasksCard.tsx:181
 msgid "Run Now"
 msgstr "Run Now"
 
@@ -715,11 +712,11 @@ msgstr "Save"
 msgid "Save your work"
 msgstr "Save your work"
 
-#: src/features/dev-tools/components/TasksCard.tsx:99
-msgid "Scheduled at:  "
-msgstr "Scheduled at:  "
+#: src/features/dev-tools/components/TasksCard.tsx:101
+msgid "Scheduled at:  {relativeDate}"
+msgstr "Scheduled at:  {relativeDate}"
 
-#: src/features/dev-tools/components/TasksCard.tsx:64
+#: src/features/dev-tools/components/TasksCard.tsx:65
 msgid "Scheduled Tasks"
 msgstr "Scheduled Tasks"
 
@@ -752,10 +749,14 @@ msgstr "Server"
 msgid "Settings"
 msgstr "Settings"
 
-#: src/features/dev-tools/components/TasksCard.tsx:121
-#: src/features/notifications-ui/Notifications.tsx:82
+#: src/features/dev-tools/components/TasksCard.tsx:136
+#: src/features/notifications-ui/Notifications.tsx:85
 msgid "Show details"
 msgstr "Show details"
+
+#: src/features/dev-tools/components/LogsCard.tsx:157
+msgid "Show Filters"
+msgstr "Show Filters"
 
 #: src/features/collection-browser/components/CollectionItemBrowserList.tsx:113
 msgid "show search sort filters"
@@ -782,7 +783,7 @@ msgstr "Sort items by..."
 msgid "sort notes"
 msgstr "sort notes"
 
-#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:211
+#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:220
 msgid "Space setting modified:"
 msgstr "Space setting modified:"
 
@@ -802,7 +803,7 @@ msgstr "Start Writing"
 msgid "Success!"
 msgstr "Success!"
 
-#: src/features/collection-notes-ui/components/NotesActions.tsx:60
+#: src/features/collection-notes-ui/components/NotesActions.tsx:67
 msgid "Switch info"
 msgstr "Switch info"
 
@@ -827,7 +828,7 @@ msgstr "Text"
 msgid "Text..."
 msgstr "Text..."
 
-#: src/features/import-export/modals/ConfirmFileImportModal.tsx:47
+#: src/features/import-export/modals/ConfirmFileImportModal.tsx:46
 msgid "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 msgstr "The following file(s) with matching title(s) have been detected inside the folder. Select one to overwrite with the import. Leave unselected to create a new document."
 
@@ -839,7 +840,7 @@ msgstr "The number of versions to keep per document. Set 0 for unlimited."
 msgid "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page and the Settings page."
 msgstr "This is different than the import / export of the collection. Your collection consists of your files and folders, and can be configured to synchronize with a cloud provider. The app settings consist of anything configured in this page and the Settings page."
 
-#: src/features/dev-tools/components/TasksCard.tsx:151
+#: src/features/dev-tools/components/TasksCard.tsx:166
 msgid "This will cancel the task"
 msgstr "This will cancel the task"
 
@@ -851,15 +852,15 @@ msgstr "This will delete this folder and move all its items to the current one."
 msgid "This will delete your existing data. Are you sure?"
 msgstr "This will delete your existing data. Are you sure?"
 
-#: src/features/dev-tools/components/TasksCard.tsx:142
+#: src/features/dev-tools/components/TasksCard.tsx:157
 msgid "This will execute the task immediately"
 msgstr "This will execute the task immediately"
 
-#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:261
+#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:270
 msgid "This will reset all values that can be reset."
 msgstr "This will reset all values that can be reset."
 
-#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:244
+#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:253
 msgid "This will reset this change"
 msgstr "This will reset this change"
 
@@ -880,7 +881,7 @@ msgstr "Timed Writing Session"
 msgid "Title"
 msgstr "Title"
 
-#: src/features/collection-notes-ui/components/NotesActions.tsx:40
+#: src/features/collection-notes-ui/components/NotesActions.tsx:47
 msgid "Toggle actions"
 msgstr "Toggle actions"
 
@@ -896,10 +897,9 @@ msgstr "Track text statistics"
 msgid "Updated at"
 msgstr "Updated at"
 
-#. placeholder {0}: dateToStr('relative', updatedAt)
-#: src/features/collection-notes-ui/components/NotesActions.tsx:32
-msgid "Updated at: {0}"
-msgstr "Updated at: {0}"
+#: src/features/collection-notes-ui/components/NotesActions.tsx:36
+msgid "Updated at: {relativeUpdatedAt}"
+msgstr "Updated at: {relativeUpdatedAt}"
 
 #: src/features/synchronization-ui/settings-ui/components/providers/PCloudSettings.tsx:93
 msgid "US"
@@ -940,7 +940,7 @@ msgstr "Word Count (Max)"
 msgid "words"
 msgstr "words"
 
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:259
+#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:260
 msgid "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 msgstr "Would you like to merge the content of your archive with your existing collection? If yes, folders will be merged, and documents will be overwritten. If no, new items will be created."
 

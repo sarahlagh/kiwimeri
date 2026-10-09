@@ -1,4 +1,4 @@
-import { APPICONS, getGlobalTrans, ROOT_COLLECTION } from '@/constants';
+import { APPICONS, ROOT_COLLECTION, tt } from '@/constants';
 import {
   APPICONS_PER_TYPE,
   CollectionItemType,
@@ -21,7 +21,7 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { i18n } from '@lingui/core';
-import { msg } from '@lingui/core/macro';
+import { msg, ph } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useMemo, useState } from 'react';
 import { ConfirmMultipleImportModalProps } from '../buttons/ImportItemsButton';
@@ -51,8 +51,7 @@ const ConfirmMultipleImportModal = ({
   onClose
 }: ConfirmMultipleImportModalProps) => {
   const { t } = useLingui();
-  const parentName =
-    collectionService.getItemTitle(parent) || getGlobalTrans().homeTitle;
+  const parentName = collectionService.getItemTitle(parent) || tt('homeTitle');
 
   const [createNewFolder, setCreateNewFolder] = useState<boolean>(false);
   const [newFolderName, setNewFolderName] = useState<string | undefined>();
@@ -115,14 +114,16 @@ const ConfirmMultipleImportModal = ({
           {!params.createNotebook && (
             <IonTitle data-testid="modal-title">
               <Trans>
-                Import {params.zipData.zipName}.zip in folder {parentName}
+                Import {ph({ zipName: params.zipData.zipName })}.zip in folder{' '}
+                {parentName}
               </Trans>
             </IonTitle>
           )}
           {params.createNotebook && (
             <IonTitle data-testid="modal-title">
               <Trans>
-                Import {params.zipData.zipName}.zip in a new Notebook
+                Import {ph({ zipName: params.zipData.zipName })}.zip in a new
+                Notebook
               </Trans>
             </IonTitle>
           )}

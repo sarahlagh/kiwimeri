@@ -100,11 +100,6 @@ describe('ConfirmMultipleImportModal', () => {
     node.removeChild(first!);
 
     const el = node as HTMLElement;
-    console.log('node=', el.outerHTML);
-    // console.log('firstChild nodeName=', el?.nodeName);
-    // console.log('firstChild outerHTML=', el?.outerHTML);
-    // console.log('firstChild textContent=', el?.textContent);
-    // console.log('shadow text=', el?.shadowRoot?.textContent);
 
     if (status) {
       expect(

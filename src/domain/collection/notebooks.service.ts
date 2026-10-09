@@ -1,8 +1,8 @@
 import {
   DEFAULT_NOTEBOOK_ID,
   DEFAULT_ORDER,
-  getGlobalTrans,
-  ROOT_COLLECTION
+  ROOT_COLLECTION,
+  tt
 } from '@/constants';
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
@@ -36,7 +36,7 @@ class NotebooksService {
   private addDefaultNotebook() {
     const { item } = this.getNewNotebookObj(
       ROOT_COLLECTION,
-      getGlobalTrans().defaultNotebookName
+      tt('defaultNotebookName')
     );
     const id = DEFAULT_NOTEBOOK_ID;
     const row = { ...item, itemId: id };

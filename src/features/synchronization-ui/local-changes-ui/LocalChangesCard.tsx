@@ -32,6 +32,7 @@ import {
   IonList,
   IonText
 } from '@ionic/react';
+import { ph } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
@@ -73,7 +74,9 @@ const LocalChangesCard = () => {
     <IonCard>
       <IonCardHeader>
         <IonCardTitle>
-          <Trans>Local Changes ({localChanges.length})</Trans>
+          <Trans>
+            Local Changes ({ph({ nbOfChanges: localChanges.length })})
+          </Trans>
         </IonCardTitle>
       </IonCardHeader>
       <IonCardContent>
@@ -81,7 +84,10 @@ const LocalChangesCard = () => {
           <IonLabel slot="start" style={{ fontWeight: weightLocal }}>
             {lastLocalChange > 0 ? (
               <Trans>
-                Local:&nbsp; {dateToStr('datetime', lastLocalChange)}
+                Local:&nbsp;{' '}
+                {ph({
+                  lastLocalChange: dateToStr('datetime', lastLocalChange)
+                })}
               </Trans>
             ) : (
               <Trans>
@@ -94,7 +100,10 @@ const LocalChangesCard = () => {
           <IonLabel slot="end" style={{ fontWeight: weightRemote }}>
             {lastRemoteChange > 0 ? (
               <Trans>
-                Remote:&nbsp; {dateToStr('datetime', lastRemoteChange)}
+                Remote:&nbsp;{' '}
+                {ph({
+                  lastRemoteChange: dateToStr('datetime', lastRemoteChange)
+                })}
               </Trans>
             ) : (
               <Trans>

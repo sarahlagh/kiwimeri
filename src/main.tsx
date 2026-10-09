@@ -3,7 +3,6 @@ import { createRoot } from 'react-dom/client';
 
 import { setupIonicReact } from '@ionic/react';
 import { i18n } from '@lingui/core';
-import { initGlobalTrans } from './constants';
 import { messages as enMessages } from './locales/en/messages';
 
 import LoadingApp from './app/pages/LoadingApp';
@@ -17,7 +16,6 @@ setupIonicReact({
 });
 i18n.load(appConfig.DEFAULT_LANG, enMessages);
 i18n.activate(appConfig.DEFAULT_LANG);
-initGlobalTrans();
 
 /* need to import plt before App */
 console.log('detected platform', plt.getPlatform());

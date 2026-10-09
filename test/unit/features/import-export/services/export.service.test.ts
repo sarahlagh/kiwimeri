@@ -1,5 +1,5 @@
 /* eslint-disable vitest/no-conditional-expect */
-import { DEFAULT_NOTEBOOK_ID, getGlobalTrans, META_JSON } from '@/constants';
+import { DEFAULT_NOTEBOOK_ID, META_JSON, tt } from '@/constants';
 import { CollectionItemType } from '@/domain/collection/collection';
 import { settingsService } from '@/domain/collection/collection-settings.service';
 import collectionService from '@/domain/collection/collection.service';
@@ -62,7 +62,7 @@ describe('export service', () => {
             expect(meta.title).toBeDefined();
           }
           if (metaType === CollectionItemType.notebook) {
-            expect(meta.title).not.toBe(getGlobalTrans().homeTitle);
+            expect(meta.title).not.toBe(tt('homeTitle'));
             expect(meta.title).not.toBe('');
           }
           if (metaType === CollectionItemType.folder) {

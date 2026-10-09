@@ -25,6 +25,7 @@ import {
   IonLabel,
   IonList
 } from '@ionic/react';
+import { ph } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react/macro';
 import { useNavigate } from 'react-router';
 
@@ -57,6 +58,8 @@ const Notifications = () => {
     'createdAt',
     true
   );
+  const neverLabel = t`never`;
+  const noneLabel = t`none`;
   return (
     <IonList>
       {notifications.map(notif => (
@@ -86,7 +89,7 @@ const Notifications = () => {
             <IonAlert
               header={notif.message}
               trigger={`info_${notif.id}`}
-              message={t`Acknowledged at: ${notif.ackAt !== undefined ? dateToStr('datetime', notif.ackAt) : 'never'} </br> Context: ${notif.context ? JSON.stringify(notif.context) : 'none'}`}
+              message={t`Acknowledged at: ${ph({ ackAt: notif.ackAt !== undefined ? dateToStr('datetime', notif.ackAt) : neverLabel })} </br> Context: ${ph({ contextStr: notif.context ? JSON.stringify(notif.context) : noneLabel })}`}
               buttons={[
                 ...(canOpenDocument(notif)
                   ? [

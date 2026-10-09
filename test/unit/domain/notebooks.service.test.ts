@@ -1,4 +1,4 @@
-import { getGlobalTrans, ROOT_COLLECTION } from '@/constants';
+import { ROOT_COLLECTION, tt } from '@/constants';
 import { MetaField } from '@/core/db/types';
 import collectionService from '@/domain/collection/collection.service';
 import notebooksService from '@/domain/collection/notebooks.service';
@@ -16,7 +16,7 @@ describe('notebooks service', () => {
     const notebooks = notebooksService.getNotebooks();
     expect(notebooks).toHaveLength(1);
     expect(notebooks[0].parentId).toBe(ROOT_COLLECTION);
-    expect(notebooks[0].title).toBe(getGlobalTrans().defaultNotebookName);
+    expect(notebooks[0].title).toBe(tt('defaultNotebookName'));
   });
 
   it(`should add more notebooks`, () => {

@@ -1,4 +1,4 @@
-import { DEFAULT_NOTEBOOK_ID, getGlobalTrans } from '@/constants';
+import { DEFAULT_NOTEBOOK_ID, tt } from '@/constants';
 import { space, spaceArchive } from '@/core/db/store';
 import { CollectionItemType } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
@@ -118,13 +118,7 @@ describe(`sync general test`, () => {
     ]);
     expect(
       Object.keys(remoteContent.items).map(r => remoteContent.items[r].title)
-    ).toEqual([
-      getGlobalTrans().defaultNotebookName,
-      'r1',
-      'r2',
-      'r3',
-      'New folder'
-    ]);
+    ).toEqual([tt('defaultNotebookName'), 'r1', 'r2', 'r3', 'New folder']);
     expect(getRowCountInsideNotebook()).toBe(4);
     checkHistory(2);
   });

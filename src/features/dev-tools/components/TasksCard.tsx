@@ -22,7 +22,7 @@ import {
   IonList
 } from '@ionic/react';
 import { i18n, MessageDescriptor } from '@lingui/core';
-import { msg } from '@lingui/core/macro';
+import { msg, ph } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useEffect } from 'react';
 import fetchTasksQuery from '../queries/fetchTasksQuery';
@@ -56,6 +56,7 @@ const TasksCard = () => {
   const { t } = useLingui();
   const isWideEnough = useIsWideEnough();
   const tasks = useQueryResults(fetchTasksQuery);
+  const noneLabel = t`none`;
 
   return (
     <IonCard>
@@ -96,8 +97,17 @@ const TasksCard = () => {
                     {!task.error ? (
                       <span>
                         <i>
-                          {isWideEnough && <Trans>Scheduled at: &nbsp;</Trans>}
-                          {dateToStr('relative', task.scheduledAt)}
+                          {isWideEnough && (
+                            <Trans>
+                              Scheduled at: &nbsp;
+                              {ph({
+                                relativeDate: dateToStr(
+                                  'relative',
+                                  task.scheduledAt
+                                )
+                              })}
+                            </Trans>
+                          )}
                         </i>
                       </span>
                     ) : (
@@ -105,8 +115,13 @@ const TasksCard = () => {
                         <i>
                           <Trans>
                             Ran at: &nbsp;
-                            {dateToStr('relative', task.scheduledAt)} with
-                            errors
+                            {ph({
+                              relativeDate: dateToStr(
+                                'relative',
+                                task.scheduledAt
+                              )
+                            })}{' '}
+                            with errors
                           </Trans>
                         </i>
                       </span>
@@ -131,7 +146,7 @@ const TasksCard = () => {
                       : task.name
                   }
                   trigger={`info_${task.id}`}
-                  message={t`Inputs: ${task.inputs ? JSON.stringify(task.inputs) : 'none'} </br> ${task.error ? task.error : ''}`}
+                  message={t`Inputs: ${ph({ inputsStr: task.inputs ? JSON.stringify(task.inputs) : noneLabel })} </br> ${ph({ errorMsg: task.error ? task.error : '' })}`}
                   buttons={[
                     {
                       text: t`close`

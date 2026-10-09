@@ -1,4 +1,4 @@
-import { DEFAULT_ORDER, getGlobalTrans, ROOT_COLLECTION } from '@/constants';
+import { DEFAULT_ORDER, ROOT_COLLECTION, tt } from '@/constants';
 import { space, spaceDocContent } from '@/core/db/store';
 import { SpaceDocContentTables, SpaceTables } from '@/core/db/store-constants';
 import { SpaceTablesType } from '@/core/db/store-schema';
@@ -54,8 +54,8 @@ class CollectionService {
     const now = Date.now();
     const content = initialContent();
     const item: BaseCollectionItem = {
-      title: getGlobalTrans().newDocTitle,
-      title_meta: setMetaField(now, getGlobalTrans().newDocTitle),
+      title: tt('newDocTitle'),
+      title_meta: setMetaField(now, tt('newDocTitle')),
       parentId: parent,
       parentId_meta: setMetaField(now, parent),
       content,
@@ -79,8 +79,8 @@ class CollectionService {
     const now = Date.now();
     const id = getUniqueId();
     const item: BaseCollectionItem = {
-      title: getGlobalTrans().newFolderTitle,
-      title_meta: setMetaField(now, getGlobalTrans().newFolderTitle),
+      title: tt('newFolderTitle'),
+      title_meta: setMetaField(now, tt('newFolderTitle')),
       parentId: parent,
       parentId_meta: setMetaField(now, parent),
       createdAt: now,
@@ -248,7 +248,7 @@ class CollectionService {
   public getItemTitleOrDefault(parentId: Id, title?: string) {
     const parentType = this.getItemType(parentId);
     const isItemHomeFolder = isNotebook(parentType);
-    const defaultValue = isItemHomeFolder ? getGlobalTrans().homeTitle : '';
+    const defaultValue = isItemHomeFolder ? tt('homeTitle') : '';
     return title || defaultValue;
   }
 

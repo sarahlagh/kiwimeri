@@ -1,4 +1,4 @@
-import { getGlobalTrans } from '@/constants';
+import { tt } from '@/constants';
 import {
   CollectionItemType,
   CollectionItemTypeValues
@@ -40,7 +40,7 @@ const ExportItemsButton = ({
 
   const getFileTitle = () => {
     if (id === 'space') {
-      return `${getGlobalTrans().defaultExportSpaceFilename}.zip`;
+      return `${tt('defaultExportSpaceFilename')}.zip`;
     }
     if (!id || id === notebook) {
       return `${collectionService.getItemTitle(notebook)}.zip`;

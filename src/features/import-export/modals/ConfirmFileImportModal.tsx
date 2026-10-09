@@ -1,4 +1,4 @@
-import { APPICONS, getGlobalTrans } from '@/constants';
+import { APPICONS, tt } from '@/constants';
 import { CollectionItemResult } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
 import {
@@ -26,8 +26,7 @@ const ConfirmFileImportModal = ({
 }: ConfirmFileImportModalProps) => {
   const [item, setItem] = useState<CollectionItemResult | undefined>(undefined);
 
-  const folderName =
-    collectionService.getItemTitle(folder) || getGlobalTrans().homeTitle;
+  const folderName = collectionService.getItemTitle(folder) || tt('homeTitle');
 
   return (
     <>

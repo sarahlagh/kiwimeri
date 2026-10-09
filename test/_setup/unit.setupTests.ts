@@ -8,7 +8,6 @@ import { messages as enMessages } from '@/locales/en/messages';
 import { i18n } from '@lingui/core';
 
 // allow the log level to be applied to tests
-import { initGlobalTrans } from '@/constants';
 import { postInitMigrationService } from '@/core/db/post-init-migrations/post-init-migration.service';
 import { startDbListeners, stopDbListeners } from '@/core/db/store-listeners';
 import '@/core/infra/polyfills/log-polyfill';
@@ -33,7 +32,6 @@ window.matchMedia =
 
 i18n.load('en', enMessages);
 i18n.activate('en');
-initGlobalTrans();
 
 beforeAll(async () => {
   syncService.initStatusListeners();

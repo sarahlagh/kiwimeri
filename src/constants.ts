@@ -1,4 +1,4 @@
-import { i18n } from '@lingui/core';
+import { MessageDescriptor, i18n } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
 import {
   add,
@@ -78,15 +78,6 @@ export const DOC_PREVIEW_SIZE = 200;
 /** @deprecated */
 export const DEFAULT_ORDER = 9999;
 
-// messages
-export const ROOT_FOLDER_TITLE = msg`Home`;
-export const DEFAULT_NOTEBOOK_NAME = msg`Default`;
-export const CONFLICTS_NOTEBOOK_NAME = msg`Conflicts`;
-export const NEW_DOC_TITLE = msg`New document`;
-export const NEW_FOLDER_TITLE = msg`New folder`;
-
-export const DEFAULT_EXPORT_SPACE_FILENAME = msg`collection`;
-
 // icons
 export const APPICONS = {
   collectionPage: folderSharp,
@@ -154,20 +145,18 @@ export const APPICONS = {
 };
 
 // for where using lingui macros isn't possible
-const I18N = {
-  homeTitle: '',
-  defaultNotebookName: '',
-  conflictsNotebookName: '',
-  newDocTitle: '',
-  newFolderTitle: '',
-  defaultExportSpaceFilename: ''
-};
-export function initGlobalTrans() {
-  I18N.homeTitle = i18n._(ROOT_FOLDER_TITLE);
-  I18N.defaultNotebookName = i18n._(DEFAULT_NOTEBOOK_NAME);
-  I18N.conflictsNotebookName = i18n._(CONFLICTS_NOTEBOOK_NAME);
-  I18N.newDocTitle = i18n._(NEW_DOC_TITLE);
-  I18N.newFolderTitle = i18n._(NEW_FOLDER_TITLE);
-  I18N.defaultExportSpaceFilename = i18n._(DEFAULT_EXPORT_SPACE_FILENAME);
+export const GLOBAL_MESSAGES = {
+  homeTitle: msg`Home`,
+  defaultNotebookName: msg`Default`,
+  conflictsNotebookName: msg`Conflicts`,
+  newDocTitle: msg`New document`,
+  newFolderTitle: msg`New folder`,
+  defaultExportSpaceFilename: msg`collection`
+} as const;
+
+export function tt(m: MessageDescriptor | keyof typeof GLOBAL_MESSAGES) {
+  if (typeof m === 'string') {
+    return i18n._(GLOBAL_MESSAGES[m]);
+  }
+  return i18n._(m);
 }
-export const getGlobalTrans = () => ({ ...I18N });

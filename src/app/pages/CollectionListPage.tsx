@@ -1,4 +1,4 @@
-import { getGlobalTrans } from '@/constants';
+import { tt } from '@/constants';
 import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
 import { onTitleChangeFn } from '@/shared/misc/onTitleChangeFn';
 import { getSearchParams } from '@/shared/utils';
@@ -20,7 +20,7 @@ const CollectionListPage = () => {
   const parent = searchParams?.folder || notebook;
   const folderTitle = useItemTitle(parent);
 
-  const title = notebook !== parent ? folderTitle : getGlobalTrans().homeTitle;
+  const title = notebook !== parent ? folderTitle : tt('homeTitle');
   const onFolderTitleChange = onTitleChangeFn(parent);
 
   return (

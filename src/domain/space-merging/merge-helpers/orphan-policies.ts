@@ -1,8 +1,4 @@
-import {
-  CONFLICTS_NOTEBOOK_ID,
-  getGlobalTrans,
-  ROOT_COLLECTION
-} from '@/constants';
+import { CONFLICTS_NOTEBOOK_ID, ROOT_COLLECTION, tt } from '@/constants';
 import { SpaceTables } from '@/core/db/store-constants';
 import { CollectionItem } from '@/domain/collection/collection';
 import { DocAnnotation } from '@/domain/collection/document-annotations';
@@ -40,7 +36,7 @@ class CollectionOrphanPolicy extends OrphanPolicy<CollectionItem> {
     if (!newCollectionAfterPull[CONFLICTS_NOTEBOOK_ID]) {
       const { item: conflictsNotebook } = notebooksService.getNewNotebookObj(
         ROOT_COLLECTION,
-        getGlobalTrans().conflictsNotebookName
+        tt('conflictsNotebookName')
       );
       localChangesService.addManualLocalChange(
         SpaceTables.Collection,

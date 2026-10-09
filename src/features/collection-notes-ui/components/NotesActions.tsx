@@ -7,6 +7,7 @@ import DebugFastWriteButton from '@/shared/buttons/DebugFastWriteButton';
 import { dateToStr } from '@/shared/misc/date-utils';
 import AreYouSureAlert from '@/shared/modals/AreYouSureAlert';
 import { IonButton, IonButtons, IonIcon } from '@ionic/react';
+import { ph } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 
@@ -24,12 +25,18 @@ const NoteActions = ({ docId, noteId }: NoteActionsProps) => {
         <div className="note-info">
           {showCreatedAt && (
             <p>
-              <Trans>Created at: {dateToStr('relative', createdAt)}</Trans>{' '}
+              <Trans>
+                Created at:{' '}
+                {ph({ relativeCreatedAt: dateToStr('relative', createdAt) })}
+              </Trans>{' '}
             </p>
           )}
           {!showCreatedAt && (
             <p>
-              <Trans>Updated at: {dateToStr('relative', updatedAt)}</Trans>
+              <Trans>
+                Updated at:{' '}
+                {ph({ relativeUpdatedAt: dateToStr('relative', updatedAt) })}
+              </Trans>
             </p>
           )}
         </div>

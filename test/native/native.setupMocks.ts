@@ -1,6 +1,11 @@
+import { messages as enMessages } from '@/locales/en/messages';
+import { i18n } from '@lingui/core';
 import { Content, Store as UntypedStore } from 'tinybase';
 import { createCustomPersister } from 'tinybase/persisters';
 import { IndexedDbPersister } from 'tinybase/persisters/persister-indexed-db';
+
+i18n.load('en', enMessages);
+i18n.activate('en');
 
 const nativeContentMap = new Map<string, Content>();
 vi.stubGlobal('nativeContentMap', nativeContentMap);
