@@ -1,11 +1,19 @@
+import {
+  INSERT_CHECK_LIST_COMMAND,
+  INSERT_ORDERED_LIST_COMMAND,
+  INSERT_UNORDERED_LIST_COMMAND,
+  REMOVE_LIST_COMMAND
+} from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $createHeadingNode, HeadingTagType } from '@lexical/rich-text';
 import { $setBlocksType } from '@lexical/selection';
+import { useLingui } from '@lingui/react/macro';
 import {
   $createParagraphNode,
   $getSelection,
-  $setSelection,
-  ElementNode
+  ElementNode,
+  LexicalCommand,
+  LexicalEditor
 } from 'lexical';
 import useIsComposerEditable from '../hooks/useIsComposerEditable';
 import { ToolbarButton } from './buttons';
@@ -34,9 +42,9 @@ function SetBlockTypeToolbarButton({
       onClick={() => {
         editor.update(() => {
           const selection = $getSelection();
-          const newBlock = !isActive ? createBlock() : $createParagraphNode();
-          $setBlocksType(selection, () => newBlock);
-          $setSelection(newBlock.select());
+          $setBlocksType(selection, () =>
+            !isActive ? createBlock() : $createParagraphNode()
+          );
         });
       }}
     />
@@ -52,10 +60,11 @@ function HeadingToolbarButton({
   isDisabled: boolean;
   isActive: boolean;
 }) {
+  const { t } = useLingui();
   const tag = `h${level}` as HeadingTagType;
   return (
     <SetBlockTypeToolbarButton
-      ariaLabel={`Header ${level}`}
+      ariaLabel={t`Header ${level}`}
       icon={`writer/type-${tag}.svg`}
       isDisabled={isDisabled}
       isActive={isActive}
@@ -64,35 +73,97 @@ function HeadingToolbarButton({
   );
 }
 
-export const BlockFormatSection = () => {
+function ListToolbarButton({
+  editor,
+  ariaLabel,
+  icon,
+  isDisabled,
+  isActive,
+  command
+}: {
+  editor: LexicalEditor;
+  ariaLabel: string;
+  icon: string;
+  isDisabled: boolean;
+  isActive: boolean;
+  command: LexicalCommand<void>;
+}) {
+  return (
+    <ToolbarButton
+      ariaLabel={ariaLabel}
+      icon={icon}
+      isActive={isActive}
+      disabled={isDisabled}
+      onClick={() => {
+        editor.dispatchCommand(
+          !isActive ? command : REMOVE_LIST_COMMAND,
+          undefined
+        );
+      }}
+    />
+  );
+}
+
+export const BlockFormatSection = ({ editor }: { editor: LexicalEditor }) => {
   const { toolbarState } = useToolbarState();
   const isEditable = useIsComposerEditable();
+  const { t } = useLingui();
+  const states = {
+    isH1:
+      toolbarState.blockType === 'heading' && toolbarState.headingTag === 'h1',
+    isH2:
+      toolbarState.blockType === 'heading' && toolbarState.headingTag === 'h2',
+    isH3:
+      toolbarState.blockType === 'heading' && toolbarState.headingTag === 'h3',
+    isUnorderedList:
+      toolbarState.blockType === 'list' && toolbarState.listType === 'bullet',
+    isOrderedList:
+      toolbarState.blockType === 'list' && toolbarState.listType === 'number',
+    isCheckedList:
+      toolbarState.blockType === 'list' && toolbarState.listType === 'check'
+  };
 
   return (
     <>
       <HeadingToolbarButton
         level={1}
         isDisabled={!isEditable}
-        isActive={
-          toolbarState.blockType === 'heading' &&
-          toolbarState.headingTag === 'h1'
-        }
+        isActive={states.isH1}
       />
       <HeadingToolbarButton
         level={2}
         isDisabled={!isEditable}
-        isActive={
-          toolbarState.blockType === 'heading' &&
-          toolbarState.headingTag === 'h2'
-        }
+        isActive={states.isH2}
       />
       <HeadingToolbarButton
         level={3}
         isDisabled={!isEditable}
-        isActive={
-          toolbarState.blockType === 'heading' &&
-          toolbarState.headingTag === 'h3'
-        }
+        isActive={states.isH3}
+      />
+
+      <ListToolbarButton
+        editor={editor}
+        ariaLabel={t`Insert Unordered List`}
+        icon="writer/list-ul.svg"
+        isActive={states.isUnorderedList}
+        isDisabled={!isEditable}
+        command={INSERT_UNORDERED_LIST_COMMAND}
+      />
+      <ListToolbarButton
+        editor={editor}
+        ariaLabel={t`Insert Ordered List`}
+        icon="writer/list-ol.svg"
+        isActive={states.isOrderedList}
+        isDisabled={!isEditable}
+        command={INSERT_ORDERED_LIST_COMMAND}
+      />
+      <ListToolbarButton
+        editor={editor}
+        ariaLabel={t`Insert Checked List`}
+        icon="writer/list-check.svg"
+        isActive={states.isCheckedList}
+        isDisabled={!isEditable}
+        command={INSERT_CHECK_LIST_COMMAND}
       />
     </>
   );

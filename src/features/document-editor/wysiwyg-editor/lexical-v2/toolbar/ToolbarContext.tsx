@@ -1,7 +1,8 @@
+import { ListType } from '@lexical/list';
 import { HeadingTagType } from '@lexical/rich-text';
 import { createContext, ReactNode, use, useCallback, useState } from 'react';
 
-type SupportedBlockType = 'paragraph' | 'heading';
+type SupportedBlockType = 'paragraph' | 'heading' | 'list';
 
 type ToolbarState = {
   isBold: boolean;
@@ -11,6 +12,7 @@ type ToolbarState = {
   isHighlight: boolean;
   blockType: SupportedBlockType;
   headingTag?: HeadingTagType;
+  listType?: ListType;
 };
 
 const INITIAL_TOOLBAR_STATE: ToolbarState = {

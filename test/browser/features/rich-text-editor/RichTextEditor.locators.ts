@@ -1,3 +1,4 @@
+import { ListType } from '@lexical/list';
 import { HeadingTagType } from '@lexical/rich-text';
 import { TextFormatType } from 'lexical';
 import { expect } from 'vitest';
@@ -46,4 +47,19 @@ export function getInsertHRBtn(screen: RenderResult) {
 
 export function getHeadingBtn(screen: RenderResult, tag: HeadingTagType) {
   return getToolbar(screen).getByLabelText('Header ' + tag[1]);
+}
+
+export function getListBtn(screen: RenderResult, type: ListType) {
+  let label;
+  switch (type) {
+    case 'bullet':
+      label = 'Unordered';
+      break;
+    case 'number':
+      label = 'Ordered';
+      break;
+    case 'check':
+      label = 'Checked';
+  }
+  return getToolbar(screen).getByLabelText(`Insert ${label} List`);
 }

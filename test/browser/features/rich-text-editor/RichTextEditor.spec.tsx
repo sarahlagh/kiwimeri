@@ -6,7 +6,8 @@ import RichTextEditor, {
 import { RichTextEditorHandle } from '@/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditorHandle';
 import { getNewContent, getNewParsedContent } from '@@/_setup/test.utils';
 import { TestingProvider } from '@@/browser/TestingProvider';
-import { HeadingTagType } from '@lexical/rich-text';
+import { ListNode, ListType } from '@lexical/list';
+import { HeadingNode, HeadingTagType } from '@lexical/rich-text';
 import {
   $createParagraphNode,
   $createTextNode,
@@ -26,10 +27,13 @@ import {
   getEditorTextContent,
   getHeadingBtn,
   getInsertHRBtn,
+  getListBtn,
   getTextFormatBtn,
   getToggleReadModeBtn,
   getToolbar
 } from './RichTextEditor.locators';
+
+const expectedNumberOfBtns = 13;
 
 async function renderEditor(props: RichTextEditorProps) {
   const ref = createRef<RichTextEditorHandle>();
@@ -123,7 +127,7 @@ describe('RichTextEditor', () => {
       await expect.element(getToggleReadModeBtn(screen)).toBeInTheDocument();
 
       const toolbarBtns = getAllToolbarBtns(screen);
-      expect(toolbarBtns).toHaveLength(10);
+      expect(toolbarBtns).toHaveLength(expectedNumberOfBtns);
       for (const btn of toolbarBtns) {
         expect(btn).not.toBeDisabled();
       }
@@ -141,7 +145,7 @@ describe('RichTextEditor', () => {
         .not.toBeInTheDocument();
 
       const toolbarBtns = getAllToolbarBtns(screen);
-      expect(toolbarBtns).toHaveLength(9);
+      expect(toolbarBtns).toHaveLength(expectedNumberOfBtns - 1);
       for (const btn of toolbarBtns) {
         expect(btn).toBeDisabled();
       }
@@ -167,7 +171,7 @@ describe('RichTextEditor', () => {
         'false'
       );
       const toolbarBtns = getAllToolbarBtns(screen);
-      expect(toolbarBtns).toHaveLength(10);
+      expect(toolbarBtns).toHaveLength(expectedNumberOfBtns);
       for (const btn of toolbarBtns) {
         if (btn.ariaLabel === 'Read Mode') continue;
         expect(btn).toBeDisabled();
@@ -186,6 +190,39 @@ describe('RichTextEditor', () => {
   });
 
   describe('toolbar', () => {
+    function selectTextAtParagraph(editor: LexicalEditor, index = 0) {
+      editor.update(
+        () => {
+          const root = $getRoot();
+          const paragraph = root.getChildAtIndex(index) as ElementNode;
+          const text = paragraph.getAllTextNodes()[0] as TextNode;
+          $setSelection(text.select(2, 2));
+        },
+        { discrete: true }
+      );
+    }
+    function createSecondParagraphAndSetCaretAtFirst(editor: LexicalEditor) {
+      editor.update(
+        () => {
+          const root = $getRoot();
+          const paragraph = root.getFirstChildOrThrow() as ElementNode;
+          const text = paragraph.getFirstChildOrThrow() as TextNode;
+          const secondParagraph = $createParagraphNode();
+          secondParagraph.append($createTextNode('text'));
+          root.append(secondParagraph);
+          $setSelection(text.select(2, 2));
+        },
+        { discrete: true }
+      );
+    }
+    function getBlockType(editor: LexicalEditor, index = 0) {
+      return editor.read(() => {
+        const root = $getRoot();
+        const block = root.getChildAtIndex(index);
+        return block?.getType();
+      });
+    }
+
     describe('text format buttons', () => {
       function selectAndSetTextFormat(
         editor: LexicalEditor,
@@ -344,27 +381,13 @@ describe('RichTextEditor', () => {
       const editor = screen.getLexicalEditor();
 
       // select
-      editor.update(
-        () => {
-          const root = $getRoot();
-          const paragraph = root.getFirstChildOrThrow() as ElementNode;
-          const text = paragraph.getFirstChildOrThrow() as TextNode;
-          $setSelection(text.select(0, 4));
-        },
-        { discrete: true }
-      );
+      selectTextAtParagraph(editor);
 
       const btn = getInsertHRBtn(screen);
       await expect.element(btn).toBeInTheDocument();
       await btn.click();
 
-      expect(
-        editor.read(() => {
-          const root = $getRoot();
-          const hr = root.getChildAtIndex(1);
-          return hr?.getType();
-        })
-      ).toBe('horizontalrule');
+      expect(getBlockType(editor, 1)).toBe('horizontalrule');
     });
 
     describe('block heading buttons', () => {
@@ -374,15 +397,7 @@ describe('RichTextEditor', () => {
           const editor = screen.getLexicalEditor();
 
           // set caret at text
-          editor.update(
-            () => {
-              const root = $getRoot();
-              const paragraph = root.getFirstChildOrThrow() as ElementNode;
-              const text = paragraph.getFirstChildOrThrow() as TextNode;
-              $setSelection(text.select(2, 2));
-            },
-            { discrete: true }
-          );
+          selectTextAtParagraph(editor);
 
           const btn = getHeadingBtn(screen, tag as HeadingTagType);
           await expect.element(btn).toBeInTheDocument();
@@ -390,13 +405,15 @@ describe('RichTextEditor', () => {
 
           await btn.click();
 
+          expect(getBlockType(editor)).toBe('heading');
+
           expect(
             editor.read(() => {
               const root = $getRoot();
               const block = root.getChildAtIndex(0);
-              return block?.getType();
+              return (block as HeadingNode)?.getTag();
             })
-          ).toBe('heading');
+          ).toBe(tag);
 
           await expect.element(btn).toHaveClass('active');
         });
@@ -405,46 +422,68 @@ describe('RichTextEditor', () => {
           const screen = await renderEditor({ initialState });
           const editor = screen.getLexicalEditor();
           // set caret at text
-          editor.update(
-            () => {
-              const root = $getRoot();
-              const paragraph = root.getFirstChildOrThrow() as ElementNode;
-              const text = paragraph.getFirstChildOrThrow() as TextNode;
-              const secondParagraph = $createParagraphNode();
-              secondParagraph.append($createTextNode('text'));
-              root.append(secondParagraph);
-              $setSelection(text.select(2, 2));
-            },
-            { discrete: true }
-          );
+          createSecondParagraphAndSetCaretAtFirst(editor);
           const btn = getHeadingBtn(screen, tag as HeadingTagType);
           await expect.element(btn).toBeInTheDocument();
           await btn.click();
 
           // select second text paragraph
-          editor.update(
-            () => {
-              const root = $getRoot();
-              const paragraph = root.getChildAtIndex(1) as ElementNode;
-              const text = paragraph.getFirstChildOrThrow() as TextNode;
-              $setSelection(text.select(1, 1));
-            },
-            { discrete: true }
-          );
+          selectTextAtParagraph(editor, 1);
 
           await expect.element(btn).not.toHaveClass('active');
 
           // select heading again
-          editor.update(
-            () => {
-              const root = $getRoot();
-              const paragraph = root.getFirstChildOrThrow() as ElementNode;
-              const text = paragraph.getFirstChildOrThrow() as TextNode;
-              $setSelection(text.select(3, 3));
-            },
-            { discrete: true }
-          );
+          selectTextAtParagraph(editor, 0);
 
+          await expect.element(btn).toHaveClass('active');
+        });
+      });
+    });
+
+    describe('block list buttons', () => {
+      ['bullet', 'number', 'check'].forEach(listType => {
+        test(`${listType} list btn on paragraph creates list block`, async () => {
+          const screen = await renderEditor({ initialState });
+          const editor = screen.getLexicalEditor();
+
+          // set caret at text
+          createSecondParagraphAndSetCaretAtFirst(editor);
+
+          const btn = getListBtn(screen, listType as ListType);
+          await expect.element(btn).toBeInTheDocument();
+          await expect.element(btn).not.toHaveClass('active');
+
+          await btn.click();
+
+          expect(getBlockType(editor)).toBe('list');
+
+          expect(
+            editor.read(() => {
+              const root = $getRoot();
+              const block = root.getChildAtIndex(0);
+              return (block as ListNode)?.getListType();
+            })
+          ).toBe(listType);
+
+          await expect.element(btn).toHaveClass('active');
+        });
+
+        test(`${listType} list block under selection propagates to the toolbar`, async () => {
+          const screen = await renderEditor({ initialState });
+          const editor = screen.getLexicalEditor();
+
+          createSecondParagraphAndSetCaretAtFirst(editor);
+
+          const btn = getListBtn(screen, listType as ListType);
+          await expect.element(btn).toBeInTheDocument();
+          await btn.click();
+
+          // select second text paragraph
+          selectTextAtParagraph(editor, 1);
+          await expect.element(btn).not.toHaveClass('active');
+
+          // select list again
+          selectTextAtParagraph(editor, 0);
           await expect.element(btn).toHaveClass('active');
         });
       });

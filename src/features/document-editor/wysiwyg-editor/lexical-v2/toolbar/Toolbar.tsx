@@ -1,5 +1,7 @@
+import { $isListNode, ListNode } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $isHeadingNode } from '@lexical/rich-text';
+import { $getNearestNodeOfType } from '@lexical/utils';
 import {
   $findMatchingParent,
   $getSelection,
@@ -8,6 +10,7 @@ import {
   $onUpdate,
   COMMAND_PRIORITY_CRITICAL,
   LexicalNode,
+  mergeRegister,
   SELECTION_CHANGE_COMMAND
 } from 'lexical';
 import { useCallback, useEffect } from 'react';
@@ -36,13 +39,12 @@ function $findTopLevelElement(node: LexicalNode) {
 
 const Toolbar = () => {
   const [editor] = useLexicalComposerContext();
+
   const { updateToolbarState } = useToolbarState();
 
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
     const isRange = $isRangeSelection(selection);
-    // const isNodeSelection = $isNodeSelection(selection);
-    console.debug('UPDATED TOOLBAR', isRange);
 
     // block type
     if (isRange) {
@@ -52,12 +54,24 @@ const Toolbar = () => {
       const elementDOM = editor.getElementByKey(elementKey);
       if (elementDOM !== null) {
         const isHeading = $isHeadingNode(element);
-        if (isHeading) {
+        const isList = $isListNode(element);
+        if (isList) {
+          const parentList = $getNearestNodeOfType<ListNode>(
+            anchorNode,
+            ListNode
+          );
+          updateToolbarState('blockType', 'list');
+          updateToolbarState(
+            'listType',
+            parentList ? parentList.getListType() : element.getListType()
+          );
+        } else if (isHeading) {
           updateToolbarState('blockType', 'heading');
           updateToolbarState('headingTag', element.getTag());
         } else {
           updateToolbarState('blockType', 'paragraph');
           updateToolbarState('headingTag', undefined);
+          updateToolbarState('listType', undefined);
         }
       }
     }
@@ -80,13 +94,20 @@ const Toolbar = () => {
   }, [editor, updateToolbarState]);
 
   useEffect(() => {
-    return editor.registerCommand(
-      SELECTION_CHANGE_COMMAND,
-      (_payload, newEditor) => {
-        $onUpdate(() => newEditor.read('latest', $updateToolbar));
-        return false;
-      },
-      COMMAND_PRIORITY_CRITICAL
+    return mergeRegister(
+      editor.registerUpdateListener(({ editorState }) => {
+        editorState.read(() => {
+          $updateToolbar();
+        });
+      }),
+      editor.registerCommand(
+        SELECTION_CHANGE_COMMAND,
+        () => {
+          $onUpdate(() => editor.read('latest', $updateToolbar));
+          return false;
+        },
+        COMMAND_PRIORITY_CRITICAL
+      )
     );
   }, [editor, $updateToolbar]);
 
@@ -94,9 +115,9 @@ const Toolbar = () => {
     <div className="toolbar" role="toolbar">
       <GlobalEditorSection />
       <Divider />
-      <BlockFormatSection />
-      <Divider />
       <TextFormatSection />
+      <Divider />
+      <BlockFormatSection editor={editor} />
       <Divider />
       <InsertBlocksSection />
     </div>

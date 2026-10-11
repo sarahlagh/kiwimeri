@@ -2,7 +2,6 @@ import { ClipboardDOMImportExtension } from '@lexical/clipboard';
 import {
   AutoFocusExtension,
   ClickAfterLastBlockExtension,
-  EditorStateExtension,
   HMRExtension,
   HorizontalRuleExtension,
   InitialStateExtension,
@@ -11,6 +10,7 @@ import {
   TabIndentationExtension
 } from '@lexical/extension';
 import { HistoryExtension } from '@lexical/history';
+import { CheckListExtension, ListExtension } from '@lexical/list';
 import { TreeViewExtension } from '@lexical/react/TreeViewExtension';
 import { RichTextExtension } from '@lexical/rich-text';
 import { configExtension, defineExtension } from 'lexical';
@@ -20,11 +20,12 @@ export const appExtension = defineExtension({
   dependencies: [
     configExtension(HMRExtension, { hot: import.meta.hot ?? null }),
     RichTextExtension,
-    EditorStateExtension,
     HistoryExtension,
     SelectBlockExtension,
     SelectionAlwaysOnDisplayExtension,
     HorizontalRuleExtension,
+    ListExtension,
+    CheckListExtension,
     InitialStateExtension,
     ClipboardDOMImportExtension,
     AutoFocusExtension,
