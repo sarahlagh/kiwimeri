@@ -1,6 +1,6 @@
 import { ListType } from '@lexical/list';
 import { HeadingTagType } from '@lexical/rich-text';
-import { TextFormatType } from 'lexical';
+import { ElementFormatType, TextFormatType } from 'lexical';
 import { expect } from 'vitest';
 import { RenderResult } from 'vitest-browser-react';
 
@@ -66,4 +66,11 @@ export function getListBtn(screen: RenderResult, type: ListType) {
 
 export function getQuoteBtn(screen: RenderResult) {
   return getToolbar(screen).getByLabelText('Block Quote');
+}
+
+export function getTextAlignBtn(
+  screen: RenderResult,
+  format: ElementFormatType
+) {
+  return getToolbar(screen).getByLabelText('Align ' + format);
 }

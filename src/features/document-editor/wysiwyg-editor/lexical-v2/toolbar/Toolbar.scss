@@ -49,8 +49,8 @@
   button.toolbar-item:disabled {
     cursor: not-allowed;
 
-    i.format {
-      opacity: 0.2;
+    ion-icon {
+      opacity: 0.4;
     }
   }
   button.toolbar-item.spaced {

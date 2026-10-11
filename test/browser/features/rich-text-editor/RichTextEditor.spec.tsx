@@ -13,6 +13,7 @@ import {
   $createTextNode,
   $getRoot,
   $setSelection,
+  ElementFormatType,
   ElementNode,
   LexicalEditor,
   TextFormatType,
@@ -29,12 +30,13 @@ import {
   getInsertHRBtn,
   getListBtn,
   getQuoteBtn,
+  getTextAlignBtn,
   getTextFormatBtn,
   getToggleReadModeBtn,
   getToolbar
 } from './RichTextEditor.locators';
 
-const expectedNumberOfBtns = 14;
+const expectedNumberOfBtns = 18;
 
 async function renderEditor(props: RichTextEditorProps) {
   const ref = createRef<RichTextEditorHandle>();
@@ -526,6 +528,87 @@ describe('RichTextEditor', () => {
         // select quote again
         selectTextAtParagraph(editor, 0);
         await expect.element(btn).toHaveClass('active');
+      });
+    });
+
+    describe('text align buttons', () => {
+      function getBlockFormatType(editor: LexicalEditor, index = 0) {
+        return editor.read(() => {
+          const root = $getRoot();
+          const block = root.getChildAtIndex(index);
+          return (block as ElementNode).getFormatType();
+        });
+      }
+
+      test(`left text-align btn on paragraph adds text-align`, async () => {
+        const screen = await renderEditor({ initialState });
+        const editor = screen.getLexicalEditor();
+
+        // set caret at text
+        selectTextAtParagraph(editor);
+        const rightBtn = getTextAlignBtn(screen, 'right');
+        await expect.element(rightBtn).toBeInTheDocument();
+        await rightBtn.click();
+
+        const btn = getTextAlignBtn(screen, 'left');
+        await expect.element(btn).toBeInTheDocument();
+        await expect.element(btn).not.toHaveClass('active');
+
+        await btn.click();
+
+        expect(getBlockFormatType(editor)).toBe('left');
+
+        await expect.element(btn).toHaveClass('active');
+      });
+
+      ['right', 'center', 'justify'].forEach(elementFormat => {
+        test(`${elementFormat} text-align btn on paragraph adds text-align`, async () => {
+          const screen = await renderEditor({ initialState });
+          const editor = screen.getLexicalEditor();
+
+          // set caret at text
+          selectTextAtParagraph(editor);
+
+          const btn = getTextAlignBtn(
+            screen,
+            elementFormat as ElementFormatType
+          );
+          await expect.element(btn).toBeInTheDocument();
+          await expect.element(btn).not.toHaveClass('active');
+
+          await btn.click();
+
+          expect(getBlockFormatType(editor)).toBe(elementFormat);
+
+          await expect.element(btn).toHaveClass('active');
+        });
+
+        test(`${elementFormat} heading block under selection propagates to the toolbar`, async () => {
+          const screen = await renderEditor({ initialState });
+          const editor = screen.getLexicalEditor();
+          // set caret at text
+          createSecondParagraphAndSetCaretAtFirst(editor);
+          const leftBtn = getTextAlignBtn(screen, 'left');
+          const btn = getTextAlignBtn(
+            screen,
+            elementFormat as ElementFormatType
+          );
+          await expect.element(leftBtn).toBeInTheDocument();
+          await expect.element(btn).toBeInTheDocument();
+          await btn.click();
+
+          // select second text paragraph
+          selectTextAtParagraph(editor, 1);
+
+          await expect.element(leftBtn).toHaveClass('active');
+          await expect.element(btn).not.toHaveClass('active');
+
+          // select first paragraph again
+          selectTextAtParagraph(editor, 0);
+
+          await expect.element(leftBtn).not.toHaveClass('active');
+          await expect.element(btn).toHaveClass('active');
+        });
       });
     });
   });

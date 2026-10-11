@@ -1,5 +1,6 @@
 import { ListType } from '@lexical/list';
 import { HeadingTagType } from '@lexical/rich-text';
+import { ElementFormatType } from 'lexical';
 import { createContext, ReactNode, use, useCallback, useState } from 'react';
 
 type ToolbarState = {
@@ -11,6 +12,7 @@ type ToolbarState = {
   blockType: string;
   headingTag?: HeadingTagType;
   listType?: ListType;
+  elementFormat: ElementFormatType; // text-align
 };
 
 const INITIAL_TOOLBAR_STATE: ToolbarState = {
@@ -19,7 +21,8 @@ const INITIAL_TOOLBAR_STATE: ToolbarState = {
   isItalic: false,
   isStrikethrough: false,
   isUnderline: false,
-  blockType: 'paragraph'
+  blockType: 'paragraph',
+  elementFormat: 'left'
 };
 
 type ToolbarContextSpec = {

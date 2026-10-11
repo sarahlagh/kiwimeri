@@ -5,6 +5,7 @@ import { $getNearestNodeOfType } from '@lexical/utils';
 import {
   $findMatchingParent,
   $getSelection,
+  $isElementNode,
   $isRangeSelection,
   $isRootOrShadowRoot,
   $onUpdate,
@@ -18,6 +19,7 @@ import { BlockFormatSection } from './BlockFormatSection';
 import { Divider } from './buttons';
 import { GlobalEditorSection } from './GlobalEditorSection';
 import { InsertBlocksSection } from './InsertBlocksSection';
+import { TextAlignSection } from './TextAlignSection';
 import { TextFormatSection } from './TextFormatSection';
 import './Toolbar.scss';
 import { useToolbarState } from './ToolbarContext';
@@ -73,6 +75,11 @@ const Toolbar = () => {
           updateToolbarState('headingTag', undefined);
           updateToolbarState('listType', undefined);
         }
+
+        updateToolbarState(
+          'elementFormat',
+          $isElementNode(element) ? element.getFormatType() || 'left' : 'left'
+        );
       }
     }
 
@@ -117,9 +124,11 @@ const Toolbar = () => {
       <Divider />
       <TextFormatSection />
       <Divider />
-      <BlockFormatSection editor={editor} />
+      <TextAlignSection />
       <Divider />
       <InsertBlocksSection />
+      <Divider />
+      <BlockFormatSection editor={editor} />
     </div>
   );
 };
