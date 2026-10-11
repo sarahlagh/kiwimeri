@@ -41,7 +41,6 @@ const Toolbar = () => {
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
     const isRange = $isRangeSelection(selection);
-    console.debug('UPDATE TOOLBAR', selection, isRange);
 
     // block type
     if (isRange) {

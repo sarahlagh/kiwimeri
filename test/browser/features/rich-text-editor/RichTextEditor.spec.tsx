@@ -21,6 +21,7 @@ import {
   getContentEditor,
   getContentEditorElement,
   getEditorTextContent,
+  getInsertHRBtn,
   getTextFormatBtn,
   getToggleReadModeBtn,
   getToolbar
@@ -54,6 +55,8 @@ function reRenderEditor(
 }
 
 describe('RichTextEditor', () => {
+  const initialState = getNewContent('hello world');
+
   test('renders an empty editor', async () => {
     const screen = await renderEditor({});
     await expect.element(screen.baseElement).toBeDefined();
@@ -106,8 +109,6 @@ describe('RichTextEditor', () => {
   });
 
   describe('is composer editable state', () => {
-    const initialState = getNewContent('hello world');
-
     test('editable=true propagates to the composer and the toolbar', async () => {
       const screen = await renderEditor({ editable: true, initialState });
       expect(await getEditorTextContent(screen)).toBe('hello world');
@@ -180,64 +181,124 @@ describe('RichTextEditor', () => {
     });
   });
 
-  describe('text format toolbar buttons', () => {
-    const initialState = getNewContent('hello world');
+  describe('toolbar', () => {
+    describe('text format toolbar buttons', () => {
+      function selectAndSetTextFormat(
+        editor: LexicalEditor,
+        format: TextFormatType
+      ) {
+        editor.update(
+          () => {
+            const root = $getRoot();
+            const paragraph = root.getFirstChildOrThrow() as ElementNode;
+            const text = paragraph.getFirstChildOrThrow() as TextNode;
+            $setSelection(text.select(2));
+          },
+          { discrete: true }
+        );
+        editor.update(
+          () => {
+            const root = $getRoot();
+            const paragraph = root.getFirstChildOrThrow() as ElementNode;
+            const text = paragraph.getFirstChildOrThrow() as TextNode;
+            text.setFormat(format);
+          },
+          { discrete: true }
+        );
+      }
 
-    function setTextFormatAndSelect(
-      editor: LexicalEditor,
-      format: TextFormatType
-    ) {
-      editor.update(
-        () => {
+      function hasTextFormat(editor: LexicalEditor, type: TextFormatType) {
+        return editor.read(() => {
           const root = $getRoot();
           const paragraph = root.getFirstChildOrThrow() as ElementNode;
           const text = paragraph.getFirstChildOrThrow() as TextNode;
-          text.setFormat(format);
-        },
-        { discrete: true }
-      );
-      editor.update(
-        () => {
-          const root = $getRoot();
-          const paragraph = root.getFirstChildOrThrow() as ElementNode;
-          const text = paragraph.getFirstChildOrThrow() as TextNode;
-          $setSelection(text.select(2));
-        },
-        { discrete: true }
-      );
-    }
+          return text.hasFormat(type);
+        });
+      }
 
-    function hasTextFormat(editor: LexicalEditor, type: TextFormatType) {
-      return editor.read(() => {
-        const root = $getRoot();
-        const paragraph = root.getFirstChildOrThrow() as ElementNode;
-        const text = paragraph.getFirstChildOrThrow() as TextNode;
-        return text.hasFormat(type);
+      const supportedFormats: TextFormatType[] = [
+        'bold',
+        'underline',
+        'strikethrough',
+        'italic',
+        'highlight'
+      ];
+
+      supportedFormats.forEach(type => {
+        test(`${type} text format under selection propagates to the toolbar`, async () => {
+          const screen = await renderEditor({ initialState });
+          expect(await getEditorTextContent(screen)).toBe('hello world');
+          const btn = getTextFormatBtn(screen, type);
+          await expect.element(btn).not.toHaveClass('active');
+
+          const editor = screen.getLexicalEditor();
+          selectAndSetTextFormat(editor, type);
+
+          await expect.element(btn).toHaveClass('active');
+        });
+
+        test(`${type} btn propagates format to selection`, async () => {
+          const screen = await renderEditor({ initialState });
+          expect(await getEditorTextContent(screen)).toBe('hello world');
+          const editor = screen.getLexicalEditor();
+
+          editor.update(
+            () => {
+              const root = $getRoot();
+              const paragraph = root.getFirstChildOrThrow() as ElementNode;
+              const text = paragraph.getFirstChildOrThrow() as TextNode;
+              $setSelection(text.select(0, 4));
+            },
+            { discrete: true }
+          );
+
+          const btn = getTextFormatBtn(screen, type);
+          await expect.element(btn).not.toHaveClass('active');
+
+          await btn.click();
+
+          await expect.element(btn).toHaveClass('active');
+          expect(hasTextFormat(editor, type)).toBe(true);
+        });
       });
-    }
 
-    const supportedFormats: TextFormatType[] = [
-      'bold',
-      'underline',
-      'strikethrough',
-      'italic',
-      'highlight'
-    ];
-
-    supportedFormats.forEach(type => {
-      test(`${type} text format under selection propagates to the toolbar`, async () => {
+      test(`multiple text formats under selection propagate to the toolbar`, async () => {
         const screen = await renderEditor({ initialState });
         expect(await getEditorTextContent(screen)).toBe('hello world');
-        const btn = getTextFormatBtn(screen, type);
-        await expect.element(btn).not.toHaveClass('active');
+        const boldBtn = getTextFormatBtn(screen, 'bold');
+        const italicBtn = getTextFormatBtn(screen, 'italic');
+        const underlineBtn = getTextFormatBtn(screen, 'underline');
+        await expect.element(boldBtn).not.toHaveClass('active');
+        await expect.element(italicBtn).not.toHaveClass('active');
+        await expect.element(underlineBtn).not.toHaveClass('active');
 
         const editor = screen.getLexicalEditor();
-        setTextFormatAndSelect(editor, type);
+        editor.update(
+          () => {
+            const root = $getRoot();
+            const paragraph = root.getFirstChildOrThrow() as ElementNode;
+            const text = paragraph.getFirstChildOrThrow() as TextNode;
+            text.toggleFormat('bold');
+            text.toggleFormat('underline');
+          },
+          { discrete: true }
+        );
+        editor.update(
+          () => {
+            const root = $getRoot();
+            const paragraph = root.getFirstChildOrThrow() as ElementNode;
+            const text = paragraph.getFirstChildOrThrow() as TextNode;
+            $setSelection(text.select(2));
+          },
+          { discrete: true }
+        );
 
-        await expect.element(btn).toHaveClass('active');
+        await expect.element(boldBtn).toHaveClass('active');
+        await expect.element(italicBtn).not.toHaveClass('active');
+        await expect.element(underlineBtn).toHaveClass('active');
       });
 
-      test(`${type} btn propagates format to selection`, async () => {
+      test(`format btn toggle format to selection`, async () => {
         const screen = await renderEditor({ initialState });
         expect(await getEditorTextContent(screen)).toBe('hello world');
         const editor = screen.getLexicalEditor();
@@ -252,57 +313,33 @@ describe('RichTextEditor', () => {
           { discrete: true }
         );
 
-        const btn = getTextFormatBtn(screen, type);
-        await expect.element(btn).not.toHaveClass('active');
+        const boldBtn = getTextFormatBtn(screen, 'bold');
+        const italicBtn = getTextFormatBtn(screen, 'italic');
+        const underlineBtn = getTextFormatBtn(screen, 'underline');
+        await expect.element(boldBtn).not.toHaveClass('active');
+        await expect.element(italicBtn).not.toHaveClass('active');
+        await expect.element(underlineBtn).not.toHaveClass('active');
 
-        await btn.click();
+        await boldBtn.click();
+        await underlineBtn.click();
 
-        await expect.element(btn).toHaveClass('active');
-        expect(hasTextFormat(editor, type)).toBe(true);
+        await expect.element(boldBtn).toHaveClass('active');
+        expect(hasTextFormat(editor, 'bold')).toBe(true);
+
+        await expect.element(italicBtn).not.toHaveClass('active');
+        expect(hasTextFormat(editor, 'italic')).toBe(false);
+
+        await expect.element(underlineBtn).toHaveClass('active');
+        expect(hasTextFormat(editor, 'underline')).toBe(true);
       });
     });
 
-    test(`multiple text formats under selection propagate to the toolbar`, async () => {
-      const screen = await renderEditor({ initialState });
-      expect(await getEditorTextContent(screen)).toBe('hello world');
-      const boldBtn = getTextFormatBtn(screen, 'bold');
-      const italicBtn = getTextFormatBtn(screen, 'italic');
-      const underlineBtn = getTextFormatBtn(screen, 'underline');
-      await expect.element(boldBtn).not.toHaveClass('active');
-      await expect.element(italicBtn).not.toHaveClass('active');
-      await expect.element(underlineBtn).not.toHaveClass('active');
-
-      const editor = screen.getLexicalEditor();
-      editor.update(
-        () => {
-          const root = $getRoot();
-          const paragraph = root.getFirstChildOrThrow() as ElementNode;
-          const text = paragraph.getFirstChildOrThrow() as TextNode;
-          text.toggleFormat('bold');
-          text.toggleFormat('underline');
-        },
-        { discrete: true }
-      );
-      editor.update(
-        () => {
-          const root = $getRoot();
-          const paragraph = root.getFirstChildOrThrow() as ElementNode;
-          const text = paragraph.getFirstChildOrThrow() as TextNode;
-          $setSelection(text.select(2));
-        },
-        { discrete: true }
-      );
-
-      await expect.element(boldBtn).toHaveClass('active');
-      await expect.element(italicBtn).not.toHaveClass('active');
-      await expect.element(underlineBtn).toHaveClass('active');
-    });
-
-    test(`format btn toggle format to selection`, async () => {
+    test('horizontal rule btn inserts it under selected paragraph', async () => {
       const screen = await renderEditor({ initialState });
       expect(await getEditorTextContent(screen)).toBe('hello world');
       const editor = screen.getLexicalEditor();
 
+      // select
       editor.update(
         () => {
           const root = $getRoot();
@@ -313,28 +350,19 @@ describe('RichTextEditor', () => {
         { discrete: true }
       );
 
-      const boldBtn = getTextFormatBtn(screen, 'bold');
-      const italicBtn = getTextFormatBtn(screen, 'italic');
-      const underlineBtn = getTextFormatBtn(screen, 'underline');
-      await expect.element(boldBtn).not.toHaveClass('active');
-      await expect.element(italicBtn).not.toHaveClass('active');
-      await expect.element(underlineBtn).not.toHaveClass('active');
+      const btn = getInsertHRBtn(screen);
+      await expect.element(btn).toBeInTheDocument();
+      await btn.click();
 
-      await boldBtn.click();
-      await underlineBtn.click();
-
-      await expect.element(boldBtn).toHaveClass('active');
-      expect(hasTextFormat(editor, 'bold')).toBe(true);
-
-      await expect.element(italicBtn).not.toHaveClass('active');
-      expect(hasTextFormat(editor, 'italic')).toBe(false);
-
-      await expect.element(underlineBtn).toHaveClass('active');
-      expect(hasTextFormat(editor, 'underline')).toBe(true);
+      expect(
+        editor.read(() => {
+          const root = $getRoot();
+          const hr = root.getChildAtIndex(1);
+          return hr?.getType();
+        })
+      ).toBe('horizontalrule');
     });
   });
-
-  test.todo('horizontal rule btn inserts it under selected paragraph');
 
   // TODO test heading toolbar state?
 });

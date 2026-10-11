@@ -38,3 +38,7 @@ export function getToggleReadModeBtn(screen: RenderResult) {
 export function getTextFormatBtn(screen: RenderResult, format: TextFormatType) {
   return getToolbar(screen).getByLabelText('Format ' + format);
 }
+
+export function getInsertHRBtn(screen: RenderResult) {
+  return getToolbar(screen).getByLabelText('Insert Horizontal Bar');
+}
