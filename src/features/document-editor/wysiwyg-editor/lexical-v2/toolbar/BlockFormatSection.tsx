@@ -2,15 +2,19 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { $createHeadingNode, HeadingTagType } from '@lexical/rich-text';
 import { $setBlocksType } from '@lexical/selection';
 import { $createParagraphNode, $getSelection, ElementNode } from 'lexical';
+import useIsComposerEditable from '../hooks/useIsComposerEditable';
 import { ToolbarButton } from './buttons';
+import { useToolbarState } from './ToolbarContext';
 
 function SetBlockTypeToolbarButton({
   createBlock,
+  isDisabled,
   isActive,
   icon,
   ariaLabel
 }: {
   createBlock: () => ElementNode;
+  isDisabled: boolean;
   isActive: boolean;
   icon: string;
   ariaLabel: string;
@@ -19,6 +23,7 @@ function SetBlockTypeToolbarButton({
   return (
     <ToolbarButton
       ariaLabel={ariaLabel}
+      disabled={isDisabled}
       icon={icon}
       isActive={isActive}
       onClick={() => {
@@ -35,9 +40,11 @@ function SetBlockTypeToolbarButton({
 
 function HeadingToolbarButton({
   level,
+  isDisabled,
   isActive
 }: {
   level: number;
+  isDisabled: boolean;
   isActive: boolean;
 }) {
   const tag = `h${level}` as HeadingTagType;
@@ -45,6 +52,7 @@ function HeadingToolbarButton({
     <SetBlockTypeToolbarButton
       ariaLabel={`Header ${level}`}
       icon={`writer/type-${tag}.svg`}
+      isDisabled={isDisabled}
       isActive={isActive}
       createBlock={() => $createHeadingNode(tag)}
     />
@@ -52,29 +60,35 @@ function HeadingToolbarButton({
 }
 
 export const BlockFormatSection = () => {
-  // const [editor] = useLexicalComposerContext();
-  // const editorState = useSignalValue(
-  //   useExtensionDependency(EditorStateExtension).output
-  // );
-  // const states = editorState.read(
-  //   () => {
-  //     const selection = $getSelection();
-  //     const isRange = $isRangeSelection(selection);
-  //     return {
-  //       isBold: isRange && selection.hasFormat('bold'),
-  //       isItalic: isRange && selection.hasFormat('italic'),
-  //       isStrikethrough: isRange && selection.hasFormat('strikethrough'),
-  //       isUnderline: isRange && selection.hasFormat('underline'),
-  //       isHighlight: isRange && selection.hasFormat('highlight')
-  //     };
-  //   },
-  //   { editor }
-  // );
+  const { toolbarState } = useToolbarState();
+  const isEditable = useIsComposerEditable();
+
   return (
     <>
-      <HeadingToolbarButton level={1} isActive={false} />
-      <HeadingToolbarButton level={2} isActive={false} />
-      <HeadingToolbarButton level={3} isActive={false} />
+      <HeadingToolbarButton
+        level={1}
+        isDisabled={!isEditable}
+        isActive={
+          toolbarState.blockType === 'heading' &&
+          toolbarState.headingTag === 'h1'
+        }
+      />
+      <HeadingToolbarButton
+        level={2}
+        isDisabled={!isEditable}
+        isActive={
+          toolbarState.blockType === 'heading' &&
+          toolbarState.headingTag === 'h2'
+        }
+      />
+      <HeadingToolbarButton
+        level={3}
+        isDisabled={!isEditable}
+        isActive={
+          toolbarState.blockType === 'heading' &&
+          toolbarState.headingTag === 'h3'
+        }
+      />
     </>
   );
 };

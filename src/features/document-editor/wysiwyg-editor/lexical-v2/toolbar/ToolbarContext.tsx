@@ -1,4 +1,7 @@
+import { HeadingTagType } from '@lexical/rich-text';
 import { createContext, ReactNode, use, useCallback, useState } from 'react';
+
+type SupportedBlockType = 'paragraph' | 'heading';
 
 type ToolbarState = {
   isBold: boolean;
@@ -6,14 +9,17 @@ type ToolbarState = {
   isStrikethrough: boolean;
   isUnderline: boolean;
   isHighlight: boolean;
+  blockType: SupportedBlockType;
+  headingTag?: HeadingTagType;
 };
 
-const INITIAL_TOOLBAR_STATE: Required<ToolbarState> = {
+const INITIAL_TOOLBAR_STATE: ToolbarState = {
   isBold: false,
   isHighlight: false,
   isItalic: false,
   isStrikethrough: false,
-  isUnderline: false
+  isUnderline: false,
+  blockType: 'paragraph'
 };
 
 type ToolbarContextSpec = {

@@ -6,6 +6,7 @@ import { $setSelection, SerializedEditorState } from 'lexical';
 import { useEffect } from 'react';
 import { RELOAD_TAG, SELECTION_CHANGE_TAG } from '../constants';
 import { deserializeSelection } from '../node-serializer';
+import { useEditorContext } from '../RichTextEditor';
 import { CustomInitialEditorStateType } from '../types';
 
 function getParseableState(
@@ -57,6 +58,13 @@ export default function ReloadEditorStatePlugin({
     // listening to change on serializedSelection isn't needed
     // eslint-disable-next-line @eslint-react/exhaustive-deps
   }, [editor, parseableState]);
+
+  // set updatable state
+  const { isEditableStateUpdatable, setIsComposerEditable } =
+    useEditorContext();
+  useEffect(() => {
+    setIsComposerEditable(isEditableStateUpdatable);
+  }, [isEditableStateUpdatable, setIsComposerEditable]);
 
   return null;
 }

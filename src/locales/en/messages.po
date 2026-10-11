@@ -352,7 +352,7 @@ msgstr "Fast Write Mode"
 msgid "File not supported"
 msgstr "File not supported"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/TextFormatSection.tsx:25
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/TextFormatSection.tsx:21
 msgid "Format {formatType}"
 msgstr "Format {formatType}"
 
@@ -416,7 +416,7 @@ msgstr "Incorrect Metadata"
 msgid "Inputs: {inputsStr} </br> {errorMsg}"
 msgstr "Inputs: {inputsStr} </br> {errorMsg}"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/InsertBlocksSection.tsx:12
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/InsertBlocksSection.tsx:14
 msgid "Insert Horizontal Bar"
 msgstr "Insert Horizontal Bar"
 
@@ -671,7 +671,7 @@ msgstr "Profile Settings"
 msgid "Ran at:  {relativeDate} with errors"
 msgstr "Ran at:  {relativeDate} with errors"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:23
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:16
 msgid "Read Mode"
 msgstr "Read Mode"
 
@@ -712,7 +712,7 @@ msgstr "Restore Collection"
 msgid "Restore Version"
 msgstr "Restore Version"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor.tsx:40
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor.tsx:61
 msgid "Rich text editor\""
 msgstr "Rich text editor\""
 
@@ -840,7 +840,7 @@ msgstr "Tags"
 msgid "Text"
 msgstr "Text"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor.tsx:28
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor.tsx:43
 #: src/features/document-editor/wysiwyg-editor/lexical/KiwimeriEditor.tsx:95
 msgid "Text..."
 msgstr "Text..."
