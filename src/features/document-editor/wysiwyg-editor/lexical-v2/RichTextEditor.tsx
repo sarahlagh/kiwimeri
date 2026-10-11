@@ -11,7 +11,7 @@ import Toolbar from './toolbar/Toolbar';
 import { ToolbarContextProvider } from './toolbar/ToolbarContext';
 import { CustomInitialEditorStateType } from './types';
 
-type RichTextEditorProps = {
+export type RichTextEditorProps = {
   initialState?: CustomInitialEditorStateType;
   editable?: boolean;
   enableToolbar?: boolean;

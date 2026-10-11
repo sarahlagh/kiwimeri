@@ -146,13 +146,7 @@ export const NON_NOTEBOOK_ITEM_TYPES: ItemTypesType[] = ITEM_TYPES.filter(
 );
 
 export type ValueType =
-  | 'id'
-  | 'string'
-  | 'lex'
-  | 'number'
-  | 'string_array'
-  | 'boolean'
-  | 'settings';
+  'id' | 'string' | 'lex' | 'number' | 'string_array' | 'boolean' | 'settings';
 
 export type CollectionTestField = {
   field: CollectionItemUpdatableFieldEnum;
@@ -215,7 +209,7 @@ export const getNewContent = (text: string) => {
 };
 
 export const getNewParsedContent = (text: string) => {
-  return JSON.parse(getNewContent(text));
+  return JSON.parse(getNewContent(text)) as SerializedEditorState;
 };
 
 export const getNewValue = (

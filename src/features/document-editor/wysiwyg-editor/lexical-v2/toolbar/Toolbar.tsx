@@ -95,7 +95,7 @@ const Toolbar = () => {
   // }, [editor, $updateToolbar]);
 
   return (
-    <div className="toolbar">
+    <div className="toolbar" role="toolbar">
       <GlobalEditorSection />
       <Divider />
       <BlockFormatSection />
