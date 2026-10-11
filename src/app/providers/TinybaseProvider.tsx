@@ -52,7 +52,7 @@ const TinybaseProvider = ({ children }: { readonly children: ReactNode }) => {
       }}
       metricsById={{ space: untypedSpaceMetrics }}
     >
-      {appConfig.DEV_ENABLE_INSPECTOR && (
+      {appConfig.DEV_ENABLE_TINYBASE_INSPECTOR && (
         <Suspense>
           <Inspector />
         </Suspense>

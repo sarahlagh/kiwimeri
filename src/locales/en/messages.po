@@ -352,6 +352,10 @@ msgstr "Fast Write Mode"
 msgid "File not supported"
 msgstr "File not supported"
 
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/TextFormatSection.tsx:25
+msgid "Format {formatType}"
+msgstr "Format {formatType}"
+
 #: src/features/collection-browser/components/CollectionItemBrowserList.tsx:100
 msgid "go to current folder"
 msgstr "go to current folder"
@@ -411,6 +415,10 @@ msgstr "Incorrect Metadata"
 #: src/features/dev-tools/components/TasksCard.tsx:149
 msgid "Inputs: {inputsStr} </br> {errorMsg}"
 msgstr "Inputs: {inputsStr} </br> {errorMsg}"
+
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/InsertBlocksSection.tsx:12
+msgid "Insert Horizontal Bar"
+msgstr "Insert Horizontal Bar"
 
 #: src/features/dev-tools/components/ConfigCard.tsx:42
 msgid "Internal proxy"
@@ -663,6 +671,10 @@ msgstr "Profile Settings"
 msgid "Ran at:  {relativeDate} with errors"
 msgstr "Ran at:  {relativeDate} with errors"
 
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:23
+msgid "Read Mode"
+msgstr "Read Mode"
+
 #: src/features/settings-ui/components/CurrentDeviceSettings.tsx:38
 msgid "Remember last route"
 msgstr "Remember last route"
@@ -699,6 +711,10 @@ msgstr "Restore Collection"
 #: src/features/collection-history-ui/components/ManageHistoryModal.tsx:152
 msgid "Restore Version"
 msgstr "Restore Version"
+
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor.tsx:40
+msgid "Rich text editor\""
+msgstr "Rich text editor\""
 
 #: src/features/dev-tools/components/TasksCard.tsx:181
 msgid "Run Now"
@@ -824,6 +840,7 @@ msgstr "Tags"
 msgid "Text"
 msgstr "Text"
 
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor.tsx:28
 #: src/features/document-editor/wysiwyg-editor/lexical/KiwimeriEditor.tsx:95
 msgid "Text..."
 msgstr "Text..."

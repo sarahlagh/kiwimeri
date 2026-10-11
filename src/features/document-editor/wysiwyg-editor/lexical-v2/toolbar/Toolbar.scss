@@ -1,0 +1,94 @@
+.toolbar {
+  display: flex;
+  margin-bottom: 0px;
+  padding: 0px;
+  background: var(--ion-background-color, #fff);
+  border-bottom: 1px solid var(--ion-color-light-shade);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+
+  padding: 4px;
+  vertical-align: middle;
+  overflow-x: auto;
+
+  button.toolbar-item {
+    border: 0;
+    display: flex;
+    background: none;
+    border-radius: 10px;
+    padding: 8px;
+    cursor: pointer;
+    vertical-align: middle;
+
+    i.format {
+      background-size: contain;
+      display: inline-block;
+      height: 18px;
+      width: 18px;
+      margin-top: 2px;
+      vertical-align: -0.25em;
+      display: flex;
+      opacity: 0.6;
+    }
+
+    .text {
+      display: flex;
+      line-height: 20px;
+      width: 200px;
+      vertical-align: middle;
+      font-size: 14px;
+      color: #777;
+      text-overflow: ellipsis;
+      width: 70px;
+      overflow: hidden;
+      height: 20px;
+      text-align: left;
+    }
+  }
+  button.toolbar-item:disabled {
+    cursor: not-allowed;
+
+    i.format {
+      opacity: 0.2;
+    }
+  }
+  button.toolbar-item.spaced {
+    margin-right: 2px;
+  }
+  button.toolbar-item.active {
+    background-color: rgba(223, 232, 250, 0.3);
+    i {
+      opacity: 1;
+    }
+  }
+
+  .divider {
+    width: 1px;
+    background-color: var(--ion-color-dark);
+    opacity: 0.1;
+    margin: 0 4px;
+  }
+
+  ion-icon {
+    font-size: 16px;
+    color: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.54);
+    border-bottom: 1px solid transparent;
+  }
+}
+
+.android .toolbar {
+  height: 50px;
+}
+
+.android .toolbar ion-icon {
+  font-size: 24px;
+}
+
+/* the hover glitch */
+.toolbar .toolbar-item:hover:not([disabled]) ion-icon {
+  border-bottom: 1px solid;
+}
+.android .toolbar .toolbar-item:hover:not([disabled]) ion-icon {
+  border-bottom: 1px solid transparent; /* same as regular */
+}

@@ -10,7 +10,8 @@ const dynConfig = {
   VITE_INTERNAL_HTTP_PROXY: dynVal,
   VITE_DEV_USE_HTTP_IF_POSSIBLE: dynVal,
   VITE_DEV_OVERRIDE_PLATFORM: dynVal,
-  VITE_DEV_ENABLE_INSPECTOR: dynVal
+  VITE_DEV_ENABLE_TINYBASE_INSPECTOR: dynVal,
+  VITE_DEV_ENABLE_LEXICAL_DEBUG_TREE: dynVal
 } as any;
 
 class AppConfig implements ImportMetaEnv {
@@ -25,9 +26,10 @@ class AppConfig implements ImportMetaEnv {
   SCHEDULER_INTERVAL = 1000;
   APP_DIR_NAME = 'Kiwimeri';
   DEFAULT_LANG = 'en';
+  DEV_ENABLE_TINYBASE_INSPECTOR = false;
+  DEV_ENABLE_LEXICAL_DEBUG_TREE = false;
   /** @deprecated */
   DEV_OVERRIDE_PLATFORM?: 'web' | 'android' | 'electron';
-  DEV_ENABLE_INSPECTOR = true;
 
   constructor(metaEnv: ImportMetaEnv) {
     // transform VITE_ env from .env file
