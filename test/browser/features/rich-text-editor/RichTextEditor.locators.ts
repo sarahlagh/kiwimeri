@@ -1,3 +1,4 @@
+import { HeadingTagType } from '@lexical/rich-text';
 import { TextFormatType } from 'lexical';
 import { expect } from 'vitest';
 import { RenderResult } from 'vitest-browser-react';
@@ -41,4 +42,8 @@ export function getTextFormatBtn(screen: RenderResult, format: TextFormatType) {
 
 export function getInsertHRBtn(screen: RenderResult) {
   return getToolbar(screen).getByLabelText('Insert Horizontal Bar');
+}
+
+export function getHeadingBtn(screen: RenderResult, tag: HeadingTagType) {
+  return getToolbar(screen).getByLabelText('Header ' + tag[1]);
 }

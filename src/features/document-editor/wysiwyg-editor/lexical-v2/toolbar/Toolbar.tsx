@@ -41,6 +41,8 @@ const Toolbar = () => {
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
     const isRange = $isRangeSelection(selection);
+    // const isNodeSelection = $isNodeSelection(selection);
+    console.debug('UPDATED TOOLBAR', isRange);
 
     // block type
     if (isRange) {
@@ -87,11 +89,6 @@ const Toolbar = () => {
       COMMAND_PRIORITY_CRITICAL
     );
   }, [editor, $updateToolbar]);
-  // useEffect(() => {
-  //   editor.read('latest', () => {
-  //     $updateToolbar();
-  //   });
-  // }, [editor, $updateToolbar]);
 
   return (
     <div className="toolbar" role="toolbar">

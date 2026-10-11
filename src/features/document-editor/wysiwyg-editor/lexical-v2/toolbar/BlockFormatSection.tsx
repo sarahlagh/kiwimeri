@@ -1,7 +1,12 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $createHeadingNode, HeadingTagType } from '@lexical/rich-text';
 import { $setBlocksType } from '@lexical/selection';
-import { $createParagraphNode, $getSelection, ElementNode } from 'lexical';
+import {
+  $createParagraphNode,
+  $getSelection,
+  $setSelection,
+  ElementNode
+} from 'lexical';
 import useIsComposerEditable from '../hooks/useIsComposerEditable';
 import { ToolbarButton } from './buttons';
 import { useToolbarState } from './ToolbarContext';
@@ -29,9 +34,9 @@ function SetBlockTypeToolbarButton({
       onClick={() => {
         editor.update(() => {
           const selection = $getSelection();
-          $setBlocksType(selection, () =>
-            !isActive ? createBlock() : $createParagraphNode()
-          );
+          const newBlock = !isActive ? createBlock() : $createParagraphNode();
+          $setBlocksType(selection, () => newBlock);
+          $setSelection(newBlock.select());
         });
       }}
     />

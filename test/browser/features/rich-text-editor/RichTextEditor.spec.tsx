@@ -6,7 +6,10 @@ import RichTextEditor, {
 import { RichTextEditorHandle } from '@/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditorHandle';
 import { getNewContent, getNewParsedContent } from '@@/_setup/test.utils';
 import { TestingProvider } from '@@/browser/TestingProvider';
+import { HeadingTagType } from '@lexical/rich-text';
 import {
+  $createParagraphNode,
+  $createTextNode,
   $getRoot,
   $setSelection,
   ElementNode,
@@ -21,6 +24,7 @@ import {
   getContentEditor,
   getContentEditorElement,
   getEditorTextContent,
+  getHeadingBtn,
   getInsertHRBtn,
   getTextFormatBtn,
   getToggleReadModeBtn,
@@ -182,7 +186,7 @@ describe('RichTextEditor', () => {
   });
 
   describe('toolbar', () => {
-    describe('text format toolbar buttons', () => {
+    describe('text format buttons', () => {
       function selectAndSetTextFormat(
         editor: LexicalEditor,
         format: TextFormatType
@@ -362,7 +366,88 @@ describe('RichTextEditor', () => {
         })
       ).toBe('horizontalrule');
     });
-  });
 
-  // TODO test heading toolbar state?
+    describe('block heading buttons', () => {
+      ['h1', 'h2', 'h3'].forEach(tag => {
+        test(`${tag} heading btn on paragraph creates heading block`, async () => {
+          const screen = await renderEditor({ initialState });
+          const editor = screen.getLexicalEditor();
+
+          // set caret at text
+          editor.update(
+            () => {
+              const root = $getRoot();
+              const paragraph = root.getFirstChildOrThrow() as ElementNode;
+              const text = paragraph.getFirstChildOrThrow() as TextNode;
+              $setSelection(text.select(2, 2));
+            },
+            { discrete: true }
+          );
+
+          const btn = getHeadingBtn(screen, tag as HeadingTagType);
+          await expect.element(btn).toBeInTheDocument();
+          await expect.element(btn).not.toHaveClass('active');
+
+          await btn.click();
+
+          expect(
+            editor.read(() => {
+              const root = $getRoot();
+              const block = root.getChildAtIndex(0);
+              return block?.getType();
+            })
+          ).toBe('heading');
+
+          await expect.element(btn).toHaveClass('active');
+        });
+
+        test(`${tag} heading block under selection propagates to the toolbar`, async () => {
+          const screen = await renderEditor({ initialState });
+          const editor = screen.getLexicalEditor();
+          // set caret at text
+          editor.update(
+            () => {
+              const root = $getRoot();
+              const paragraph = root.getFirstChildOrThrow() as ElementNode;
+              const text = paragraph.getFirstChildOrThrow() as TextNode;
+              const secondParagraph = $createParagraphNode();
+              secondParagraph.append($createTextNode('text'));
+              root.append(secondParagraph);
+              $setSelection(text.select(2, 2));
+            },
+            { discrete: true }
+          );
+          const btn = getHeadingBtn(screen, tag as HeadingTagType);
+          await expect.element(btn).toBeInTheDocument();
+          await btn.click();
+
+          // select second text paragraph
+          editor.update(
+            () => {
+              const root = $getRoot();
+              const paragraph = root.getChildAtIndex(1) as ElementNode;
+              const text = paragraph.getFirstChildOrThrow() as TextNode;
+              $setSelection(text.select(1, 1));
+            },
+            { discrete: true }
+          );
+
+          await expect.element(btn).not.toHaveClass('active');
+
+          // select heading again
+          editor.update(
+            () => {
+              const root = $getRoot();
+              const paragraph = root.getFirstChildOrThrow() as ElementNode;
+              const text = paragraph.getFirstChildOrThrow() as TextNode;
+              $setSelection(text.select(3, 3));
+            },
+            { discrete: true }
+          );
+
+          await expect.element(btn).toHaveClass('active');
+        });
+      });
+    });
+  });
 });
