@@ -63,3 +63,7 @@ export function getListBtn(screen: RenderResult, type: ListType) {
   }
   return getToolbar(screen).getByLabelText(`Insert ${label} List`);
 }
+
+export function getQuoteBtn(screen: RenderResult) {
+  return getToolbar(screen).getByLabelText('Block Quote');
+}

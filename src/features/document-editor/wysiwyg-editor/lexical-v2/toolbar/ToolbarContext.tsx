@@ -2,15 +2,13 @@ import { ListType } from '@lexical/list';
 import { HeadingTagType } from '@lexical/rich-text';
 import { createContext, ReactNode, use, useCallback, useState } from 'react';
 
-type SupportedBlockType = 'paragraph' | 'heading' | 'list';
-
 type ToolbarState = {
   isBold: boolean;
   isItalic: boolean;
   isStrikethrough: boolean;
   isUnderline: boolean;
   isHighlight: boolean;
-  blockType: SupportedBlockType;
+  blockType: string;
   headingTag?: HeadingTagType;
   listType?: ListType;
 };

@@ -5,7 +5,11 @@ import {
   REMOVE_LIST_COMMAND
 } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $createHeadingNode, HeadingTagType } from '@lexical/rich-text';
+import {
+  $createHeadingNode,
+  $createQuoteNode,
+  HeadingTagType
+} from '@lexical/rich-text';
 import { $setBlocksType } from '@lexical/selection';
 import { useLingui } from '@lingui/react/macro';
 import {
@@ -120,7 +124,8 @@ export const BlockFormatSection = ({ editor }: { editor: LexicalEditor }) => {
     isOrderedList:
       toolbarState.blockType === 'list' && toolbarState.listType === 'number',
     isCheckedList:
-      toolbarState.blockType === 'list' && toolbarState.listType === 'check'
+      toolbarState.blockType === 'list' && toolbarState.listType === 'check',
+    isBlockQuote: toolbarState.blockType === 'quote'
   };
 
   return (
@@ -164,6 +169,14 @@ export const BlockFormatSection = ({ editor }: { editor: LexicalEditor }) => {
         isActive={states.isCheckedList}
         isDisabled={!isEditable}
         command={INSERT_CHECK_LIST_COMMAND}
+      />
+
+      <SetBlockTypeToolbarButton
+        ariaLabel={t`Block Quote`}
+        icon="writer/quote.svg"
+        isActive={states.isBlockQuote}
+        isDisabled={!isEditable}
+        createBlock={() => $createQuoteNode()}
       />
     </>
   );

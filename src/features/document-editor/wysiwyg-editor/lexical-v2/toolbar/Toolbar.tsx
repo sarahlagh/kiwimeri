@@ -69,7 +69,7 @@ const Toolbar = () => {
           updateToolbarState('blockType', 'heading');
           updateToolbarState('headingTag', element.getTag());
         } else {
-          updateToolbarState('blockType', 'paragraph');
+          updateToolbarState('blockType', element.getType());
           updateToolbarState('headingTag', undefined);
           updateToolbarState('listType', undefined);
         }

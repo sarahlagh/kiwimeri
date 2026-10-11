@@ -28,12 +28,13 @@ import {
   getHeadingBtn,
   getInsertHRBtn,
   getListBtn,
+  getQuoteBtn,
   getTextFormatBtn,
   getToggleReadModeBtn,
   getToolbar
 } from './RichTextEditor.locators';
 
-const expectedNumberOfBtns = 13;
+const expectedNumberOfBtns = 14;
 
 async function renderEditor(props: RichTextEditorProps) {
   const ref = createRef<RichTextEditorHandle>();
@@ -486,6 +487,45 @@ describe('RichTextEditor', () => {
           selectTextAtParagraph(editor, 0);
           await expect.element(btn).toHaveClass('active');
         });
+      });
+    });
+
+    describe('quote button', () => {
+      test(`quote btn on paragraph creates quote block`, async () => {
+        const screen = await renderEditor({ initialState });
+        const editor = screen.getLexicalEditor();
+
+        // set caret at text
+        createSecondParagraphAndSetCaretAtFirst(editor);
+
+        const btn = getQuoteBtn(screen);
+        await expect.element(btn).toBeInTheDocument();
+        await expect.element(btn).not.toHaveClass('active');
+
+        await btn.click();
+
+        expect(getBlockType(editor)).toBe('quote');
+
+        await expect.element(btn).toHaveClass('active');
+      });
+
+      test(`quote block under selection propagates to the toolbar`, async () => {
+        const screen = await renderEditor({ initialState });
+        const editor = screen.getLexicalEditor();
+
+        createSecondParagraphAndSetCaretAtFirst(editor);
+
+        const btn = getQuoteBtn(screen);
+        await expect.element(btn).toBeInTheDocument();
+        await btn.click();
+
+        // select second text paragraph
+        selectTextAtParagraph(editor, 1);
+        await expect.element(btn).not.toHaveClass('active');
+
+        // select quote again
+        selectTextAtParagraph(editor, 0);
+        await expect.element(btn).toHaveClass('active');
       });
     });
   });
