@@ -1,3 +1,4 @@
+import { TextFormatType } from 'lexical';
 import { expect } from 'vitest';
 import { RenderResult } from 'vitest-browser-react';
 
@@ -26,10 +27,14 @@ export function getToolbar(screen: RenderResult) {
   return screen.locator.getByRole('toolbar');
 }
 
+export function getAllToolbarBtns(screen: RenderResult) {
+  return getToolbar(screen).getByRole('button').elements();
+}
+
 export function getToggleReadModeBtn(screen: RenderResult) {
   return getToolbar(screen).getByLabelText('Read Mode');
 }
 
-export function getAllToolbarBtns(screen: RenderResult) {
-  return getToolbar(screen).getByRole('button').elements();
+export function getTextFormatBtn(screen: RenderResult, format: TextFormatType) {
+  return getToolbar(screen).getByLabelText('Format ' + format);
 }

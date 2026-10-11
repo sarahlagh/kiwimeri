@@ -1,12 +1,24 @@
 import { appConfig } from '@/config';
 import { ExtensionComponent } from '@lexical/react/ExtensionComponent';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
+import { EditorRefPlugin } from '@lexical/react/LexicalEditorRefPlugin';
 import { LexicalExtensionComposer } from '@lexical/react/LexicalExtensionComposer';
 import { TreeViewExtension } from '@lexical/react/TreeViewExtension';
 import { useLingui } from '@lingui/react/macro';
-import { createContext, Dispatch, SetStateAction, use, useState } from 'react';
+import { LexicalEditor } from 'lexical';
+import {
+  createContext,
+  Dispatch,
+  RefObject,
+  SetStateAction,
+  use,
+  useImperativeHandle,
+  useRef,
+  useState
+} from 'react';
 import { appExtension } from './app-extension';
 import ReloadEditorStatePlugin from './legacy-plugins/ReloadEditorStatePlugin';
+import { RichTextEditorHandle } from './RichTextEditorHandle';
 import Toolbar from './toolbar/Toolbar';
 import { ToolbarContextProvider } from './toolbar/ToolbarContext';
 import { CustomInitialEditorStateType } from './types';
@@ -36,11 +48,25 @@ const RichTextEditor = ({
   initialState,
   editable = true,
   enableToolbar = true,
-  enableDebugTree = false
-}: RichTextEditorProps) => {
+  enableDebugTree = false,
+  ref
+}: RichTextEditorProps & {
+  ref?: RefObject<RichTextEditorHandle | null>;
+}) => {
   const { t } = useLingui();
   const [isComposerEditable, setIsComposerEditable] = useState(editable);
+  const editorRef = useRef<LexicalEditor | null>(null);
   const placeholder = t`Text...`;
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      getEditor() {
+        return editorRef.current;
+      }
+    }),
+    [editorRef]
+  );
 
   return (
     <EditorContext
@@ -69,6 +95,7 @@ const RichTextEditor = ({
               )}
             </div>
           </div>
+          <EditorRefPlugin editorRef={editorRef} />
           <ReloadEditorStatePlugin initialState={initialState} />
         </ToolbarContextProvider>
       </LexicalExtensionComposer>
