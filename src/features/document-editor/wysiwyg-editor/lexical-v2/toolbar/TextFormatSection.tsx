@@ -1,15 +1,8 @@
-import { EditorStateExtension } from '@lexical/extension';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { useExtensionDependency } from '@lexical/react/useExtensionComponent';
-import { useSignalValue } from '@lexical/react/useExtensionSignalValue';
 import { useLingui } from '@lingui/react/macro';
-import {
-  $getSelection,
-  $isRangeSelection,
-  FORMAT_TEXT_COMMAND,
-  TextFormatType
-} from 'lexical';
+import { FORMAT_TEXT_COMMAND, TextFormatType } from 'lexical';
 import { ToolbarButton } from './buttons';
+import { useToolbarState } from './ToolbarContext';
 
 function TextFormatToolbarButton({
   formatType,
@@ -33,39 +26,29 @@ function TextFormatToolbarButton({
 }
 
 export const TextFormatSection = () => {
-  const [editor] = useLexicalComposerContext();
-  const editorState = useSignalValue(
-    useExtensionDependency(EditorStateExtension).output
-  );
-  const states = editorState.read(
-    () => {
-      const selection = $getSelection();
-      const isRange = $isRangeSelection(selection);
-      return {
-        isBold: isRange && selection.hasFormat('bold'),
-        isItalic: isRange && selection.hasFormat('italic'),
-        isStrikethrough: isRange && selection.hasFormat('strikethrough'),
-        isUnderline: isRange && selection.hasFormat('underline'),
-        isHighlight: isRange && selection.hasFormat('highlight')
-      };
-    },
-    { editor }
-  );
+  const { toolbarState } = useToolbarState();
+
   return (
     <>
-      <TextFormatToolbarButton formatType="bold" isActive={states.isBold} />
-      <TextFormatToolbarButton formatType="italic" isActive={states.isItalic} />
+      <TextFormatToolbarButton
+        formatType="bold"
+        isActive={toolbarState.isBold}
+      />
+      <TextFormatToolbarButton
+        formatType="italic"
+        isActive={toolbarState.isItalic}
+      />
       <TextFormatToolbarButton
         formatType="strikethrough"
-        isActive={states.isStrikethrough}
+        isActive={toolbarState.isStrikethrough}
       />
       <TextFormatToolbarButton
         formatType="underline"
-        isActive={states.isUnderline}
+        isActive={toolbarState.isUnderline}
       />
       <TextFormatToolbarButton
         formatType="highlight"
-        isActive={states.isHighlight}
+        isActive={toolbarState.isHighlight}
       />
     </>
   );
