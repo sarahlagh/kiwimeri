@@ -8,16 +8,13 @@ import { useLingui } from '@lingui/react/macro';
 import { LexicalEditor } from 'lexical';
 import {
   createContext,
-  Dispatch,
   RefObject,
-  SetStateAction,
   use,
   useImperativeHandle,
-  useRef,
-  useState
+  useRef
 } from 'react';
 import { appExtension } from './app-extension';
-import ReloadEditorStatePlugin from './legacy-plugins/ReloadEditorStatePlugin';
+import ReloadEditorPlugin from './legacy-plugins/ReloadEditorPlugin';
 import { RichTextEditorHandle } from './RichTextEditorHandle';
 import Toolbar from './toolbar/Toolbar';
 import { ToolbarContextProvider } from './toolbar/ToolbarContext';
@@ -31,9 +28,7 @@ export type RichTextEditorProps = {
 };
 
 type EditorContextSpec = {
-  isEditableStateUpdatable: boolean;
-  isComposerEditable: boolean;
-  setIsComposerEditable: Dispatch<SetStateAction<boolean>>;
+  globalEditable: boolean;
 };
 
 const EditorContext = createContext<EditorContextSpec | undefined>(undefined);
@@ -54,7 +49,6 @@ const RichTextEditor = ({
   ref?: RefObject<RichTextEditorHandle | null>;
 }) => {
   const { t } = useLingui();
-  const [isComposerEditable, setIsComposerEditable] = useState(editable);
   const editorRef = useRef<LexicalEditor | null>(null);
   const placeholder = t`Text...`;
 
@@ -71,9 +65,7 @@ const RichTextEditor = ({
   return (
     <EditorContext
       value={{
-        isEditableStateUpdatable: editable,
-        isComposerEditable,
-        setIsComposerEditable
+        globalEditable: editable
       }}
     >
       <LexicalExtensionComposer extension={appExtension} contentEditable={null}>
@@ -82,7 +74,6 @@ const RichTextEditor = ({
             {enableToolbar && <Toolbar />}
             <div className="editor-inner">
               <ContentEditable
-                contentEditable={isComposerEditable}
                 className="editor-input"
                 aria-label={t`Rich text editor"`}
                 aria-placeholder={placeholder}
@@ -96,7 +87,10 @@ const RichTextEditor = ({
             </div>
           </div>
           <EditorRefPlugin editorRef={editorRef} />
-          <ReloadEditorStatePlugin initialState={initialState} />
+          <ReloadEditorPlugin
+            initialState={initialState}
+            globalEditable={editable}
+          />
         </ToolbarContextProvider>
       </LexicalExtensionComposer>
     </EditorContext>

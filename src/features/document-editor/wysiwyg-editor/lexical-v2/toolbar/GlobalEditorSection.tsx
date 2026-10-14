@@ -1,23 +1,23 @@
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
 import { useLingui } from '@lingui/react/macro';
 import { useEditorContext } from '../RichTextEditor';
 import { ToolbarButton } from './buttons';
 
 export const GlobalEditorSection = () => {
   const { t } = useLingui();
-  const {
-    isEditableStateUpdatable,
-    isComposerEditable,
-    setIsComposerEditable
-  } = useEditorContext();
+  const [editor] = useLexicalComposerContext();
+  const { globalEditable } = useEditorContext();
+  const isComposerEditable = useLexicalEditable();
   return (
     <>
-      {isEditableStateUpdatable && (
+      {globalEditable && (
         <ToolbarButton
           ariaLabel={t`Read Mode`}
           icon="writer/book.svg"
           isActive={!isComposerEditable}
           onClick={() => {
-            setIsComposerEditable(!isComposerEditable);
+            editor.setEditable(!isComposerEditable);
           }}
         />
       )}

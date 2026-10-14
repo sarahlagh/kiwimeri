@@ -5,6 +5,7 @@ import {
   REMOVE_LIST_COMMAND
 } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
 import {
   $createHeadingNode,
   $createQuoteNode,
@@ -19,7 +20,6 @@ import {
   LexicalCommand,
   LexicalEditor
 } from 'lexical';
-import useIsComposerEditable from '../hooks/useIsComposerEditable';
 import { ToolbarButton } from './buttons';
 import { useToolbarState } from './ToolbarContext';
 
@@ -110,7 +110,7 @@ function ListToolbarButton({
 
 export const BlockFormatSection = ({ editor }: { editor: LexicalEditor }) => {
   const { toolbarState } = useToolbarState();
-  const isEditable = useIsComposerEditable();
+  const isEditable = useLexicalEditable();
   const { t } = useLingui();
   const states = {
     isH1:

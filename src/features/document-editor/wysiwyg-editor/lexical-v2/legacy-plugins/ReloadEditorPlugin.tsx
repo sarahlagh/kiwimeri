@@ -6,7 +6,6 @@ import { $setSelection, SerializedEditorState } from 'lexical';
 import { useEffect } from 'react';
 import { RELOAD_TAG, SELECTION_CHANGE_TAG } from '../constants';
 import { deserializeSelection } from '../node-serializer';
-import { useEditorContext } from '../RichTextEditor';
 import { CustomInitialEditorStateType } from '../types';
 
 function getParseableState(
@@ -19,10 +18,12 @@ function getParseableState(
   return content.toJSON();
 }
 
-export default function ReloadEditorStatePlugin({
+export default function ReloadEditorPlugin({
+  globalEditable = true,
   initialState,
   serializedSelection
 }: {
+  globalEditable?: boolean;
   initialState?: CustomInitialEditorStateType;
   serializedSelection?: SerializedSelection | null;
 }) {
@@ -60,11 +61,9 @@ export default function ReloadEditorStatePlugin({
   }, [editor, parseableState]);
 
   // set updatable state
-  const { isEditableStateUpdatable, setIsComposerEditable } =
-    useEditorContext();
   useEffect(() => {
-    setIsComposerEditable(isEditableStateUpdatable);
-  }, [isEditableStateUpdatable, setIsComposerEditable]);
+    editor.setEditable(globalEditable)
+  }, [globalEditable, editor]);
 
   return null;
 }

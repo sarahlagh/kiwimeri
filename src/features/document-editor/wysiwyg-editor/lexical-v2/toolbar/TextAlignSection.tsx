@@ -1,13 +1,13 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
 import { useLingui } from '@lingui/react/macro';
 import { FORMAT_ELEMENT_COMMAND } from 'lexical';
-import useIsComposerEditable from '../hooks/useIsComposerEditable';
 import { ToolbarButton } from './buttons';
 import { useToolbarState } from './ToolbarContext';
 
 export const TextAlignSection = () => {
   const [editor] = useLexicalComposerContext();
-  const isEditable = useIsComposerEditable();
+  const isEditable = useLexicalEditable();
   const { toolbarState } = useToolbarState();
   const { t } = useLingui();
   return (
