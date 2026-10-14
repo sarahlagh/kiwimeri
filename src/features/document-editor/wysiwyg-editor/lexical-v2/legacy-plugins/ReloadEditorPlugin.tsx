@@ -62,7 +62,7 @@ export default function ReloadEditorPlugin({
 
   // set updatable state
   useEffect(() => {
-    editor.setEditable(globalEditable)
+    editor.setEditable(globalEditable);
   }, [globalEditable, editor]);
 
   return null;

@@ -1,11 +1,24 @@
 import { $isListNode, ListNode } from '@lexical/list';
-import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { ReactExtension } from "@lexical/react/ReactExtension";
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { ReactExtension } from '@lexical/react/ReactExtension';
 import { $isHeadingNode } from '@lexical/rich-text';
 import { $getNearestNodeOfType } from '@lexical/utils';
-import { $findMatchingParent, $getSelection, $isElementNode, $isRangeSelection, $isRootOrShadowRoot, $onUpdate, COMMAND_PRIORITY_CRITICAL, configExtension, defineExtension, LexicalNode, mergeRegister, SELECTION_CHANGE_COMMAND } from "lexical";
-import { useCallback, useEffect } from "react";
-import { useEditorContext } from "../EditorContext";
+import {
+  $findMatchingParent,
+  $getSelection,
+  $isElementNode,
+  $isRangeSelection,
+  $isRootOrShadowRoot,
+  $onUpdate,
+  COMMAND_PRIORITY_CRITICAL,
+  configExtension,
+  defineExtension,
+  LexicalNode,
+  mergeRegister,
+  SELECTION_CHANGE_COMMAND
+} from 'lexical';
+import { useCallback, useEffect } from 'react';
+import { useEditorContext } from '../EditorContext';
 
 function $findTopLevelElement(node: LexicalNode) {
   let topLevelElement =
@@ -106,13 +119,13 @@ function SetSelectionContextWrapper() {
 }
 
 const SetSelectionContextExtension = defineExtension({
-    name: '@kiwimeri/rich-text/set-selection-context',
-    namespace: 'react-rich',
-    dependencies: [
-        configExtension(ReactExtension, {
-            decorators: [<SetSelectionContextWrapper key='' />]
-        })
-    ]
+  name: '@kiwimeri/rich-text/set-selection-context',
+  namespace: 'react-rich',
+  dependencies: [
+    configExtension(ReactExtension, {
+      decorators: [<SetSelectionContextWrapper key="" />]
+    })
+  ]
 });
 
 export default SetSelectionContextExtension;
