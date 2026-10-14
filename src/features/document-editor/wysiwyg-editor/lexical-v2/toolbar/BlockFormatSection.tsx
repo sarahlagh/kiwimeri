@@ -108,7 +108,8 @@ function ListToolbarButton({
   );
 }
 
-export const BlockFormatSection = ({ editor }: { editor: LexicalEditor }) => {
+export const BlockFormatSection = () => {
+  const [editor] = useLexicalComposerContext();
   const { selectionContext: selection } = useEditorContext();
   const isEditable = useLexicalEditable();
   const { t } = useLingui();

@@ -45,8 +45,8 @@ const RichTextEditor = ({
   );
 
   return (
-    <LexicalExtensionComposer extension={appExtension} contentEditable={null}>
-      <EditorContextProvider globalEditable={editable}>
+    <EditorContextProvider globalEditable={editable}>
+      <LexicalExtensionComposer extension={appExtension} contentEditable={null}>
         <div className="editor-container">
           {enableToolbar && <Toolbar />}
           <div className="editor-inner">
@@ -68,8 +68,8 @@ const RichTextEditor = ({
           initialState={initialState}
           globalEditable={editable}
         />
-      </EditorContextProvider>
-    </LexicalExtensionComposer>
+      </LexicalExtensionComposer>
+    </EditorContextProvider>
   );
 };
 
