@@ -15,6 +15,7 @@ import {
   SELECTION_CHANGE_COMMAND
 } from 'lexical';
 import { useCallback, useEffect } from 'react';
+import { useEditorContext } from '../EditorContext';
 import { BlockFormatSection } from './BlockFormatSection';
 import { Divider } from './buttons';
 import { GlobalEditorSection } from './GlobalEditorSection';
@@ -22,7 +23,6 @@ import { InsertBlocksSection } from './InsertBlocksSection';
 import { TextAlignSection } from './TextAlignSection';
 import { TextFormatSection } from './TextFormatSection';
 import './Toolbar.scss';
-import { useToolbarState } from './ToolbarContext';
 
 function $findTopLevelElement(node: LexicalNode) {
   let topLevelElement =
@@ -42,7 +42,7 @@ function $findTopLevelElement(node: LexicalNode) {
 const Toolbar = () => {
   const [editor] = useLexicalComposerContext();
 
-  const { updateToolbarState } = useToolbarState();
+  const { updateSelectionContext } = useEditorContext();
 
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -62,21 +62,21 @@ const Toolbar = () => {
             anchorNode,
             ListNode
           );
-          updateToolbarState('blockType', 'list');
-          updateToolbarState(
+          updateSelectionContext('blockType', 'list');
+          updateSelectionContext(
             'listType',
             parentList ? parentList.getListType() : element.getListType()
           );
         } else if (isHeading) {
-          updateToolbarState('blockType', 'heading');
-          updateToolbarState('headingTag', element.getTag());
+          updateSelectionContext('blockType', 'heading');
+          updateSelectionContext('headingTag', element.getTag());
         } else {
-          updateToolbarState('blockType', element.getType());
-          updateToolbarState('headingTag', undefined);
-          updateToolbarState('listType', undefined);
+          updateSelectionContext('blockType', element.getType());
+          updateSelectionContext('headingTag', undefined);
+          updateSelectionContext('listType', undefined);
         }
 
-        updateToolbarState(
+        updateSelectionContext(
           'elementFormat',
           $isElementNode(element) ? element.getFormatType() || 'left' : 'left'
         );
@@ -84,21 +84,24 @@ const Toolbar = () => {
     }
 
     // text format
-    updateToolbarState('isBold', isRange && selection.hasFormat('bold'));
-    updateToolbarState('isItalic', isRange && selection.hasFormat('italic'));
-    updateToolbarState(
+    updateSelectionContext('isBold', isRange && selection.hasFormat('bold'));
+    updateSelectionContext(
+      'isItalic',
+      isRange && selection.hasFormat('italic')
+    );
+    updateSelectionContext(
       'isStrikethrough',
       isRange && selection.hasFormat('strikethrough')
     );
-    updateToolbarState(
+    updateSelectionContext(
       'isUnderline',
       isRange && selection.hasFormat('underline')
     );
-    updateToolbarState(
+    updateSelectionContext(
       'isHighlight',
       isRange && selection.hasFormat('highlight')
     );
-  }, [editor, updateToolbarState]);
+  }, [editor, updateSelectionContext]);
 
   useEffect(() => {
     return mergeRegister(

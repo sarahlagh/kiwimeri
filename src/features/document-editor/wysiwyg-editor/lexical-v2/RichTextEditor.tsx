@@ -6,18 +6,12 @@ import { LexicalExtensionComposer } from '@lexical/react/LexicalExtensionCompose
 import { TreeViewExtension } from '@lexical/react/TreeViewExtension';
 import { useLingui } from '@lingui/react/macro';
 import { LexicalEditor } from 'lexical';
-import {
-  createContext,
-  RefObject,
-  use,
-  useImperativeHandle,
-  useRef
-} from 'react';
+import { RefObject, useImperativeHandle, useRef } from 'react';
 import { appExtension } from './app-extension';
+import { EditorContextProvider } from './EditorContext';
 import ReloadEditorPlugin from './legacy-plugins/ReloadEditorPlugin';
 import { RichTextEditorHandle } from './RichTextEditorHandle';
 import Toolbar from './toolbar/Toolbar';
-import { ToolbarContextProvider } from './toolbar/ToolbarContext';
 import { CustomInitialEditorStateType } from './types';
 
 export type RichTextEditorProps = {
@@ -25,18 +19,6 @@ export type RichTextEditorProps = {
   editable?: boolean;
   enableToolbar?: boolean;
   enableDebugTree?: boolean;
-};
-
-type EditorContextSpec = {
-  globalEditable: boolean;
-};
-
-const EditorContext = createContext<EditorContextSpec | undefined>(undefined);
-export const useEditorContext = () => {
-  const context = use(EditorContext);
-  if (!context)
-    throw new Error('useEditorContext must be used within the RichTextEditor');
-  return context;
 };
 
 const RichTextEditor = ({
@@ -63,37 +45,31 @@ const RichTextEditor = ({
   );
 
   return (
-    <EditorContext
-      value={{
-        globalEditable: editable
-      }}
-    >
-      <LexicalExtensionComposer extension={appExtension} contentEditable={null}>
-        <ToolbarContextProvider>
-          <div className="editor-container">
-            {enableToolbar && <Toolbar />}
-            <div className="editor-inner">
-              <ContentEditable
-                className="editor-input"
-                aria-label={t`Rich text editor"`}
-                aria-placeholder={placeholder}
-                placeholder={
-                  <div className="editor-placeholder">{placeholder}</div>
-                }
-              />
-              {appConfig.DEV_ENABLE_LEXICAL_DEBUG_TREE && enableDebugTree && (
-                <ExtensionComponent lexical:extension={TreeViewExtension} />
-              )}
-            </div>
+    <LexicalExtensionComposer extension={appExtension} contentEditable={null}>
+      <EditorContextProvider globalEditable={editable}>
+        <div className="editor-container">
+          {enableToolbar && <Toolbar />}
+          <div className="editor-inner">
+            <ContentEditable
+              className="editor-input"
+              aria-label={t`Rich text editor"`}
+              aria-placeholder={placeholder}
+              placeholder={
+                <div className="editor-placeholder">{placeholder}</div>
+              }
+            />
+            {appConfig.DEV_ENABLE_LEXICAL_DEBUG_TREE && enableDebugTree && (
+              <ExtensionComponent lexical:extension={TreeViewExtension} />
+            )}
           </div>
-          <EditorRefPlugin editorRef={editorRef} />
-          <ReloadEditorPlugin
-            initialState={initialState}
-            globalEditable={editable}
-          />
-        </ToolbarContextProvider>
-      </LexicalExtensionComposer>
-    </EditorContext>
+        </div>
+        <EditorRefPlugin editorRef={editorRef} />
+        <ReloadEditorPlugin
+          initialState={initialState}
+          globalEditable={editable}
+        />
+      </EditorContextProvider>
+    </LexicalExtensionComposer>
   );
 };
 

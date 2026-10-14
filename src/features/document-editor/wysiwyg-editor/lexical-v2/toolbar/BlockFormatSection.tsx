@@ -20,8 +20,8 @@ import {
   LexicalCommand,
   LexicalEditor
 } from 'lexical';
+import { useEditorContext } from '../EditorContext';
 import { ToolbarButton } from './buttons';
-import { useToolbarState } from './ToolbarContext';
 
 function SetBlockTypeToolbarButton({
   createBlock,
@@ -109,23 +109,20 @@ function ListToolbarButton({
 }
 
 export const BlockFormatSection = ({ editor }: { editor: LexicalEditor }) => {
-  const { toolbarState } = useToolbarState();
+  const { selectionContext: selection } = useEditorContext();
   const isEditable = useLexicalEditable();
   const { t } = useLingui();
   const states = {
-    isH1:
-      toolbarState.blockType === 'heading' && toolbarState.headingTag === 'h1',
-    isH2:
-      toolbarState.blockType === 'heading' && toolbarState.headingTag === 'h2',
-    isH3:
-      toolbarState.blockType === 'heading' && toolbarState.headingTag === 'h3',
+    isH1: selection.blockType === 'heading' && selection.headingTag === 'h1',
+    isH2: selection.blockType === 'heading' && selection.headingTag === 'h2',
+    isH3: selection.blockType === 'heading' && selection.headingTag === 'h3',
     isUnorderedList:
-      toolbarState.blockType === 'list' && toolbarState.listType === 'bullet',
+      selection.blockType === 'list' && selection.listType === 'bullet',
     isOrderedList:
-      toolbarState.blockType === 'list' && toolbarState.listType === 'number',
+      selection.blockType === 'list' && selection.listType === 'number',
     isCheckedList:
-      toolbarState.blockType === 'list' && toolbarState.listType === 'check',
-    isBlockQuote: toolbarState.blockType === 'quote'
+      selection.blockType === 'list' && selection.listType === 'check',
+    isBlockQuote: selection.blockType === 'quote'
   };
 
   return (

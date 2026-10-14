@@ -2,8 +2,8 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
 import { useLingui } from '@lingui/react/macro';
 import { FORMAT_TEXT_COMMAND, TextFormatType } from 'lexical';
+import { useEditorContext } from '../EditorContext';
 import { ToolbarButton } from './buttons';
-import { useToolbarState } from './ToolbarContext';
 
 function TextFormatToolbarButton({
   formatType,
@@ -30,7 +30,7 @@ function TextFormatToolbarButton({
 }
 
 export const TextFormatSection = () => {
-  const { toolbarState } = useToolbarState();
+  const { selectionContext: selection } = useEditorContext();
   const isEditable = useLexicalEditable();
 
   return (
@@ -38,27 +38,27 @@ export const TextFormatSection = () => {
       <TextFormatToolbarButton
         formatType="bold"
         isDisabled={!isEditable}
-        isActive={toolbarState.isBold}
+        isActive={selection.isBold}
       />
       <TextFormatToolbarButton
         formatType="italic"
         isDisabled={!isEditable}
-        isActive={toolbarState.isItalic}
+        isActive={selection.isItalic}
       />
       <TextFormatToolbarButton
         formatType="strikethrough"
         isDisabled={!isEditable}
-        isActive={toolbarState.isStrikethrough}
+        isActive={selection.isStrikethrough}
       />
       <TextFormatToolbarButton
         formatType="underline"
         isDisabled={!isEditable}
-        isActive={toolbarState.isUnderline}
+        isActive={selection.isUnderline}
       />
       <TextFormatToolbarButton
         formatType="highlight"
         isDisabled={!isEditable}
-        isActive={toolbarState.isHighlight}
+        isActive={selection.isHighlight}
       />
     </>
   );
