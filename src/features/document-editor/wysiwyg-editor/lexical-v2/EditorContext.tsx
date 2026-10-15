@@ -1,4 +1,5 @@
 import { ListType } from '@lexical/list';
+import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
 import { HeadingTagType } from '@lexical/rich-text';
 import { ElementFormatType } from 'lexical';
 import { createContext, ReactNode, use, useCallback, useState } from 'react';
@@ -74,10 +75,11 @@ export const EditorContextProvider = ({
 
 export const useEditorContext = () => {
   const context = use(EditorContext);
+  const isEditable = useLexicalEditable();
   if (context === undefined) {
     throw new Error(
       'useEditorContext must be used within a EditorContextProvider'
     );
   }
-  return context;
+  return {...context, isEditable};
 };

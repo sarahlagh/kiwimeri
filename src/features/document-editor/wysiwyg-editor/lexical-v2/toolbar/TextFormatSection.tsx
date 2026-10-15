@@ -1,5 +1,4 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
 import { useLingui } from '@lingui/react/macro';
 import { FORMAT_TEXT_COMMAND, TextFormatType } from 'lexical';
 import { useEditorContext } from '../EditorContext';
@@ -30,9 +29,7 @@ function TextFormatToolbarButton({
 }
 
 export const TextFormatSection = () => {
-  const { selectionContext: selection } = useEditorContext();
-  const isEditable = useLexicalEditable();
-
+  const { selectionContext: selection, isEditable } = useEditorContext();
   return (
     <>
       <TextFormatToolbarButton

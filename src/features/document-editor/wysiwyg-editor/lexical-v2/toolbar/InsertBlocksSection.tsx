@@ -1,12 +1,12 @@
 import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/extension';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
 import { useLingui } from '@lingui/react/macro';
+import { useEditorContext } from '../EditorContext';
 import { ToolbarButton } from './buttons';
 
 export const InsertBlocksSection = () => {
   const [editor] = useLexicalComposerContext();
-  const isEditable = useLexicalEditable();
+  const { isEditable } = useEditorContext();
   const { t } = useLingui();
   return (
     <>
