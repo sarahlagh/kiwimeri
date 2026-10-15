@@ -19,7 +19,7 @@ import {
   TextFormatType,
   TextNode
 } from 'lexical';
-import { createRef } from 'react';
+import { createRef, useState } from 'react';
 import { render } from 'vitest-browser-react';
 import {
   getAllToolbarBtns,
@@ -37,6 +37,34 @@ import {
 } from './RichTextEditor.locators';
 
 const expectedNumberOfBtns = 18;
+
+const state1 = getNewContent('state 1');
+const state2 = getNewContent('state 2');
+const ParentComponent = () => {
+  const [initialState, setInitialState] = useState(state1);
+  const [editable, setEditable] = useState(true);
+  return (
+    <div>
+      <button
+        data-testid="test-btn-initialstate"
+        onClick={() => {
+          setInitialState(initialState === state1 ? state2 : state1);
+        }}
+      >
+        state
+      </button>
+      <button
+        data-testid="test-btn-editable"
+        onClick={() => {
+          setEditable(!editable);
+        }}
+      >
+        state
+      </button>
+      <RichTextEditor editable={editable} initialState={initialState} enableDebugTree={false} />
+    </div>
+  );
+};
 
 async function renderEditor(props: RichTextEditorProps) {
   const ref = createRef<RichTextEditorHandle>();
@@ -56,13 +84,6 @@ async function renderEditor(props: RichTextEditorProps) {
       return editor;
     }
   };
-}
-
-function reRenderEditor(
-  rerender: (ui: React.ReactNode) => Promise<void>,
-  props: RichTextEditorProps
-) {
-  return rerender(<RichTextEditor {...props} />);
 }
 
 describe('RichTextEditor', () => {
@@ -103,16 +124,17 @@ describe('RichTextEditor', () => {
     });
 
     test('a change of initialState triggers a reload', async () => {
-      const screen = await renderEditor({
-        initialState: getNewContent('state 1')
+      const screen = await render(<ParentComponent />, {
+        wrapper: TestingProvider
       });
 
       const textContent1 = await getEditorTextContent(screen);
       expect(textContent1).toBe('state 1');
 
-      await reRenderEditor(screen.rerender, {
-        initialState: getNewContent('state 2')
-      });
+      // change to state 2
+      const btn = screen.getByTestId('test-btn-initialstate');
+      await expect.element(btn).toBeInTheDocument();
+      await btn.click();
 
       const textContent2 = await getEditorTextContent(screen);
       expect(textContent2).toBe('state 2');
@@ -152,6 +174,29 @@ describe('RichTextEditor', () => {
       for (const btn of toolbarBtns) {
         expect(btn).toBeDisabled();
       }
+    });
+
+    test('a change of editable triggers a reload', async () => {
+      const screen = await render(<ParentComponent />, {
+        wrapper: TestingProvider
+      });
+
+      expect(getContentEditorElement(screen)).toHaveAttribute(
+        'contenteditable',
+        'true'
+      );
+
+      const btn = screen.getByTestId('test-btn-editable');
+      await expect.element(btn).toBeInTheDocument();
+      await btn.click();
+
+      expect(getContentEditorElement(screen)).toHaveAttribute(
+        'contenteditable',
+        'false'
+      );
+      await expect
+        .element(getToggleReadModeBtn(screen))
+        .not.toBeInTheDocument();
     });
 
     test('toggle read btn propagates to the composer and the toolbar', async () => {
