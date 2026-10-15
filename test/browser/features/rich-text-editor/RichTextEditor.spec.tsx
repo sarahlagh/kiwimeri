@@ -349,6 +349,30 @@ describe('RichTextEditor', () => {
           await expect.element(btn).toHaveClass('active');
           expect(hasTextFormat(editor, type)).toBe(true);
         });
+
+        test(`${type} btn propagates format to node at selection even if no range`, async () => {
+         const screen = await renderEditor({ initialState });
+          expect(await getEditorTextContent(screen)).toBe('hello world');
+          const editor = screen.getLexicalEditor();
+
+          editor.update(
+            () => {
+              const root = $getRoot();
+              const paragraph = root.getFirstChildOrThrow() as ElementNode;
+              const text = paragraph.getFirstChildOrThrow() as TextNode;
+              $setSelection(text.select(4, 4));
+            },
+            { discrete: true }
+          );
+
+          const btn = getTextFormatBtn(screen, type);
+          await expect.element(btn).not.toHaveClass('active');
+
+          await btn.click();
+
+          await expect.element(btn).toHaveClass('active');
+          expect(hasTextFormat(editor, type)).toBe(true); 
+        })
       });
 
       test(`multiple text formats under selection propagate to the toolbar`, async () => {

@@ -5,6 +5,7 @@ import { ElementFormatType } from 'lexical';
 import { createContext, ReactNode, use, useCallback, useState } from 'react';
 
 type SelectionContext = {
+  isTextOrElementSelection: boolean; // not just a cursor
   isBold: boolean;
   isItalic: boolean;
   isStrikethrough: boolean;
@@ -17,6 +18,7 @@ type SelectionContext = {
 };
 
 const INITIAL_SELECTION_CONTEXT: SelectionContext = {
+  isTextOrElementSelection: false,
   isBold: false,
   isHighlight: false,
   isItalic: false,

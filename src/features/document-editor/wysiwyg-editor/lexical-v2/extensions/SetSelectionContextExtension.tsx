@@ -45,7 +45,9 @@ function SetSelectionContextWrapper() {
 
     // block type
     if (isRange) {
+      const startEndPoints = selection.getStartEndPoints();
       const anchorNode = selection.anchor.getNode();
+      updateSelectionContext('isTextOrElementSelection', startEndPoints && !startEndPoints[0].is(startEndPoints[1]));
       const element = $findTopLevelElement(anchorNode);
       const elementKey = element.getKey();
       const elementDOM = editor.getElementByKey(elementKey);
@@ -76,6 +78,8 @@ function SetSelectionContextWrapper() {
           $isElementNode(element) ? element.getFormatType() || 'left' : 'left'
         );
       }
+    } else {
+      updateSelectionContext('isTextOrElementSelection', false);
     }
 
     // text format
