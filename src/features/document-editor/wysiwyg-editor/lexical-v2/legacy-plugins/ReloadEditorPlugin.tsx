@@ -5,8 +5,8 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { $setSelection, SerializedEditorState } from 'lexical';
 import { useEffect } from 'react';
 import { RELOAD_TAG, SELECTION_CHANGE_TAG } from '../constants';
-import { deserializeSelection } from '../node-serializer';
 import { CustomInitialEditorStateType } from '../types';
+import { deserializeSelection } from '../utils/node-serializer';
 
 function getParseableState(
   content?: CustomInitialEditorStateType
