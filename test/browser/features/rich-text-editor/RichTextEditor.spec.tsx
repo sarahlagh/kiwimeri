@@ -36,7 +36,7 @@ import {
   getToolbar
 } from './RichTextEditor.locators';
 
-const expectedNumberOfBtns = 18;
+const expectedNumberOfBtns = 19;
 
 const state1 = getNewContent('state 1');
 const state2 = getNewContent('state 2');

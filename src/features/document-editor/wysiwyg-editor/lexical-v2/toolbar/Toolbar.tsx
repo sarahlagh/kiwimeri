@@ -2,6 +2,7 @@ import { BlockFormatSection } from './BlockFormatSection';
 import { Divider } from './buttons';
 import { GlobalEditorSection } from './GlobalEditorSection';
 import { InsertBlocksSection } from './InsertBlocksSection';
+import { OtherSection } from './OtherSection';
 import { TextAlignSection } from './TextAlignSection';
 import { TextFormatSection } from './TextFormatSection';
 import './Toolbar.scss';
@@ -18,6 +19,8 @@ const Toolbar = () => {
       <InsertBlocksSection />
       <Divider />
       <BlockFormatSection />
+      <Divider />
+      <OtherSection />
     </div>
   );
 };

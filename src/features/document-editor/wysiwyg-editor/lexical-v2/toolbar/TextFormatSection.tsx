@@ -1,7 +1,14 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useLingui } from '@lingui/react/macro';
-import { $getSelection, $isRangeSelection, $isTextNode, FORMAT_TEXT_COMMAND, TextFormatType } from 'lexical';
+import {
+  $getSelection,
+  $isRangeSelection,
+  $isTextNode,
+  FORMAT_TEXT_COMMAND,
+  TextFormatType
+} from 'lexical';
 import { useEditorContext } from '../EditorContext';
+import { getSelectedNode } from '../utils/getSelectedNode';
 import { ToolbarButton } from './buttons';
 
 function TextFormatToolbarButton({
@@ -14,7 +21,7 @@ function TextFormatToolbarButton({
   isActive: boolean;
 }) {
   const [editor] = useLexicalComposerContext();
-  const {selectionContext: selection } = useEditorContext();
+  const { selectionContext: selection } = useEditorContext();
   const { t } = useLingui();
   return (
     <ToolbarButton
@@ -30,13 +37,13 @@ function TextFormatToolbarButton({
             const selection = $getSelection();
             const isRange = $isRangeSelection(selection);
             if (selection && isRange) {
-              const pointAtCaret = selection.getStartEndPoints()[0]; // start and end are the same here
-              const nodeAtCaret = pointAtCaret.getNode();
-              if ($isTextNode(nodeAtCaret)) {
-                nodeAtCaret.toggleFormat(formatType);
+              const node = getSelectedNode(selection);
+              if ($isTextNode(node)) {
+                node.toggleFormat(formatType);
+                node.selectNext(); // to toggle recalc of editor context
               }
             }
-          })
+          });
         }
       }}
     />

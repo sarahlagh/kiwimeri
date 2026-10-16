@@ -14,6 +14,7 @@ import { CheckListExtension, ListExtension } from '@lexical/list';
 import { TreeViewExtension } from '@lexical/react/TreeViewExtension';
 import { RichTextExtension } from '@lexical/rich-text';
 import { configExtension, defineExtension } from 'lexical';
+import CustomLinkExtension from './extensions/LinkExtension';
 import SetSelectionContextExtension from './extensions/SetSelectionContextExtension';
 import Theme from './theme/Theme';
 
@@ -33,7 +34,8 @@ export const appExtension = defineExtension({
     ClickAfterLastBlockExtension,
     TabIndentationExtension,
     TreeViewExtension,
-    SetSelectionContextExtension
+    SetSelectionContextExtension,
+    CustomLinkExtension
   ],
   name: '@kiwimeri/rich-text',
   namespace: 'react-rich',

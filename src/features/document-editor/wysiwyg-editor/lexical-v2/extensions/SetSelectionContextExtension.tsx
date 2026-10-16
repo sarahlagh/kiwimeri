@@ -1,3 +1,4 @@
+import { $isAutoLinkNode, $isLinkNode } from '@lexical/link';
 import { $isListNode, ListNode } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { ReactExtension } from '@lexical/react/ReactExtension';
@@ -18,7 +19,8 @@ import {
   SELECTION_CHANGE_COMMAND
 } from 'lexical';
 import { useCallback, useEffect } from 'react';
-import { useEditorContext } from '../EditorContext';
+import { EditorContextType, useEditorContext } from '../EditorContext';
+import { getSelectedNode } from '../utils/getSelectedNode';
 
 function $findTopLevelElement(node: LexicalNode) {
   let topLevelElement =
@@ -44,10 +46,21 @@ function SetSelectionContextWrapper() {
     const isRange = $isRangeSelection(selection);
 
     // block type
+    const linkContext: EditorContextType['selectionContext']['linkContext'] = {
+      isLink: false,
+      isAutoLink: false,
+      isAutoLinkUnlinked: false
+    };
     if (isRange) {
       const startEndPoints = selection.getStartEndPoints();
+      const isTextOrElementSelection =
+        startEndPoints && !startEndPoints[0].is(startEndPoints[1]);
+      updateSelectionContext(
+        'isTextOrElementSelection',
+        isTextOrElementSelection
+      );
+
       const anchorNode = selection.anchor.getNode();
-      updateSelectionContext('isTextOrElementSelection', startEndPoints && !startEndPoints[0].is(startEndPoints[1]));
       const element = $findTopLevelElement(anchorNode);
       const elementKey = element.getKey();
       const elementDOM = editor.getElementByKey(elementKey);
@@ -78,9 +91,28 @@ function SetSelectionContextWrapper() {
           $isElementNode(element) ? element.getFormatType() || 'left' : 'left'
         );
       }
+
+      // links
+      const node = getSelectedNode(selection);
+      const parent = node.getParent();
+      const isLink = $isLinkNode(parent);
+      const isAutoLink = $isAutoLinkNode(parent);
+      linkContext.isLink = isLink;
+      linkContext.isAutoLink = isAutoLink;
+      if (isAutoLink) {
+        linkContext.isAutoLinkUnlinked = parent.getIsUnlinked();
+      }
+      if (isLink) {
+        linkContext.linkUrl = parent.getURL();
+      }
+      if (isTextOrElementSelection || isLink) {
+        linkContext.linkText =
+          selection.getTextContent() || node.getTextContent();
+      }
     } else {
       updateSelectionContext('isTextOrElementSelection', false);
     }
+    updateSelectionContext('linkContext', linkContext);
 
     // text format
     updateSelectionContext('isBold', isRange && selection.hasFormat('bold'));

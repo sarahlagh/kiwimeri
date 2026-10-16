@@ -1,4 +1,3 @@
-import { appConfig } from '@/config';
 import { ExtensionComponent } from '@lexical/react/ExtensionComponent';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { EditorRefPlugin } from '@lexical/react/LexicalEditorRefPlugin';
@@ -58,7 +57,7 @@ const RichTextEditor = ({
                 <div className="editor-placeholder">{placeholder}</div>
               }
             />
-            {appConfig.DEV_ENABLE_LEXICAL_DEBUG_TREE && enableDebugTree && (
+            {enableDebugTree && (
               <ExtensionComponent lexical:extension={TreeViewExtension} />
             )}
           </div>
