@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@capacitor-community/electron": "^5.0.1",
-    "@capacitor/android": "^8.2.0",
+    "@capacitor/android": "^8.4.3",
     "@capacitor/app": "^8.0.1",
     "@capacitor/core": "^8.2.0",
     "@capacitor/filesystem": "^8.0.0",
@@ -43,7 +43,7 @@
     "@lexical/react": "^0.41.0",
     "@lingui/react": "^5.2.0",
     "diff": "^8.0.3",
-    "fflate": "^0.8.2",
+    "fflate": "^0.8.3",
     "ionicons": "^7.0.0",
     "lexical": "^0.41.0",
     "react": "^19.0.0",
@@ -87,7 +87,7 @@
     "sass": "^1.86.3",
     "typescript": "^6.0.3",
     "vite": "6.4.2",
-    "vitest": "^4.1.6",
+    "vitest": "^5.0.5",
     "vitest-browser-react": "^2.2.0"
   },
   "sideEffects": [
