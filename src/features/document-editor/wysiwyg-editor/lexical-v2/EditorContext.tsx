@@ -2,7 +2,7 @@ import { ListType } from '@lexical/list';
 import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
 import { HeadingTagType } from '@lexical/rich-text';
 import { ElementFormatType } from 'lexical';
-import { createContext, ReactNode, use, useCallback, useState } from 'react';
+import { createContext, ReactNode, use, useCallback, useReducer } from 'react';
 
 type LinkContext = {
   isLink: boolean;
@@ -64,19 +64,18 @@ export const EditorContextProvider = ({
   globalEditable: boolean;
   readonly children?: ReactNode;
 }) => {
-  const [selectionContext, setSelectionContext] = useState(
+  const [selectionContext, dispatch] = useReducer(
+    (state, action) => ({ ...state, ...action }),
     INITIAL_SELECTION_CONTEXT
   );
-
   const updateSelectionContext = useCallback(
     <Key extends SelectionContextKey>(
       key: Key,
       value: SelectionContextValue<Key>
     ) => {
-      setSelectionContext(prev => ({
-        ...prev,
-        [key]: value
-      }));
+      const action: Partial<SelectionContext> = {};
+      action[key] = value;
+      dispatch(action);
     },
     []
   );
