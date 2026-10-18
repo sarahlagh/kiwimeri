@@ -157,9 +157,12 @@ const OpenLinkModalPlugin = () => {
             }
           }}
         ></IonInput>
-        {(linkContext.isAutoLink || payloadRef.current.linkUrl !== '') && (
+        {(linkContext.isAutoLink ||
+          (payloadRef.current.linkUrl &&
+            payloadRef.current.linkUrl !== '')) && (
           <IonButton
             fill="clear"
+            aria-label={t`Toggle`}
             onClick={() => {
               payloadRef.current.changed = true;
               delete payloadRef.current.linkUrl;
@@ -183,6 +186,7 @@ const OpenLinkModalPlugin = () => {
       OPEN_LINK_MODAL_COMMAND,
       () => {
         present({
+          htmlAttributes: { role: 'dialog' },
           cssClass: 'larger-width',
           onDidDismiss() {
             if (payloadRef.current.changed) {

@@ -1,10 +1,15 @@
 import { describe, expect, test } from 'vitest';
 
+import formatConverter from '@/domain/format-conversion/format-converter.service';
 import RichTextEditor, {
   RichTextEditorProps
 } from '@/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor';
 import { RichTextEditorHandle } from '@/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditorHandle';
-import { getNewContent, getNewParsedContent } from '@@/_setup/test.utils';
+import {
+  expectLexicalStatesToBeEqual,
+  getNewContent,
+  getNewParsedContent
+} from '@@/_setup/test.utils';
 import { TestingProvider } from '@@/browser/TestingProvider';
 import { ListNode, ListType } from '@lexical/list';
 import { HeadingNode, HeadingTagType } from '@lexical/rich-text';
@@ -22,12 +27,18 @@ import {
 import { createRef, useState } from 'react';
 import { render } from 'vitest-browser-react';
 import {
+  dismissModal,
   getAllToolbarBtns,
   getContentEditor,
   getContentEditorElement,
   getEditorTextContent,
   getHeadingBtn,
   getInsertHRBtn,
+  getLinkBtn,
+  getLinkModal,
+  getLinkModalTextInput,
+  getLinkModalToggleBtn,
+  getLinkModalUrlInput,
   getListBtn,
   getQuoteBtn,
   getTextAlignBtn,
@@ -61,7 +72,11 @@ const ParentComponent = () => {
       >
         state
       </button>
-      <RichTextEditor editable={editable} initialState={initialState} enableDebugTree={false} />
+      <RichTextEditor
+        editable={editable}
+        initialState={initialState}
+        enableDebugTree={false}
+      />
     </div>
   );
 };
@@ -238,13 +253,24 @@ describe('RichTextEditor', () => {
   });
 
   describe('toolbar', () => {
-    function selectTextAtParagraph(editor: LexicalEditor, index = 0) {
+    function putCaretAtParagraph(editor: LexicalEditor, index = 0) {
       editor.update(
         () => {
           const root = $getRoot();
           const paragraph = root.getChildAtIndex(index) as ElementNode;
           const text = paragraph.getAllTextNodes()[0] as TextNode;
           $setSelection(text.select(2, 2));
+        },
+        { discrete: true }
+      );
+    }
+    function selectTextAtParagraph(editor: LexicalEditor, index = 0) {
+      editor.update(
+        () => {
+          const root = $getRoot();
+          const paragraph = root.getChildAtIndex(index) as ElementNode;
+          const text = paragraph.getAllTextNodes()[0] as TextNode;
+          $setSelection(text.select(0, 3));
         },
         { discrete: true }
       );
@@ -351,7 +377,7 @@ describe('RichTextEditor', () => {
         });
 
         test(`${type} btn propagates format to node at selection even if no range`, async () => {
-         const screen = await renderEditor({ initialState });
+          const screen = await renderEditor({ initialState });
           expect(await getEditorTextContent(screen)).toBe('hello world');
           const editor = screen.getLexicalEditor();
 
@@ -371,8 +397,8 @@ describe('RichTextEditor', () => {
           await btn.click();
 
           await expect.element(btn).toHaveClass('active');
-          expect(hasTextFormat(editor, type)).toBe(true); 
-        })
+          expect(hasTextFormat(editor, type)).toBe(true);
+        });
       });
 
       test(`multiple text formats under selection propagate to the toolbar`, async () => {
@@ -453,7 +479,7 @@ describe('RichTextEditor', () => {
       const editor = screen.getLexicalEditor();
 
       // select
-      selectTextAtParagraph(editor);
+      putCaretAtParagraph(editor);
 
       const btn = getInsertHRBtn(screen);
       await expect.element(btn).toBeInTheDocument();
@@ -469,7 +495,7 @@ describe('RichTextEditor', () => {
           const editor = screen.getLexicalEditor();
 
           // set caret at text
-          selectTextAtParagraph(editor);
+          putCaretAtParagraph(editor);
 
           const btn = getHeadingBtn(screen, tag as HeadingTagType);
           await expect.element(btn).toBeInTheDocument();
@@ -500,12 +526,12 @@ describe('RichTextEditor', () => {
           await btn.click();
 
           // select second text paragraph
-          selectTextAtParagraph(editor, 1);
+          putCaretAtParagraph(editor, 1);
 
           await expect.element(btn).not.toHaveClass('active');
 
           // select heading again
-          selectTextAtParagraph(editor, 0);
+          putCaretAtParagraph(editor, 0);
 
           await expect.element(btn).toHaveClass('active');
         });
@@ -551,11 +577,11 @@ describe('RichTextEditor', () => {
           await btn.click();
 
           // select second text paragraph
-          selectTextAtParagraph(editor, 1);
+          putCaretAtParagraph(editor, 1);
           await expect.element(btn).not.toHaveClass('active');
 
           // select list again
-          selectTextAtParagraph(editor, 0);
+          putCaretAtParagraph(editor, 0);
           await expect.element(btn).toHaveClass('active');
         });
       });
@@ -591,11 +617,11 @@ describe('RichTextEditor', () => {
         await btn.click();
 
         // select second text paragraph
-        selectTextAtParagraph(editor, 1);
+        putCaretAtParagraph(editor, 1);
         await expect.element(btn).not.toHaveClass('active');
 
         // select quote again
-        selectTextAtParagraph(editor, 0);
+        putCaretAtParagraph(editor, 0);
         await expect.element(btn).toHaveClass('active');
       });
     });
@@ -614,7 +640,7 @@ describe('RichTextEditor', () => {
         const editor = screen.getLexicalEditor();
 
         // set caret at text
-        selectTextAtParagraph(editor);
+        putCaretAtParagraph(editor);
         const rightBtn = getTextAlignBtn(screen, 'right');
         await expect.element(rightBtn).toBeInTheDocument();
         await rightBtn.click();
@@ -636,7 +662,7 @@ describe('RichTextEditor', () => {
           const editor = screen.getLexicalEditor();
 
           // set caret at text
-          selectTextAtParagraph(editor);
+          putCaretAtParagraph(editor);
 
           const btn = getTextAlignBtn(
             screen,
@@ -667,17 +693,657 @@ describe('RichTextEditor', () => {
           await btn.click();
 
           // select second text paragraph
-          selectTextAtParagraph(editor, 1);
+          putCaretAtParagraph(editor, 1);
 
           await expect.element(leftBtn).toHaveClass('active');
           await expect.element(btn).not.toHaveClass('active');
 
           // select first paragraph again
-          selectTextAtParagraph(editor, 0);
+          putCaretAtParagraph(editor, 0);
 
           await expect.element(leftBtn).not.toHaveClass('active');
           await expect.element(btn).toHaveClass('active');
         });
+      });
+    });
+
+    describe('links and autolinks', () => {
+      describe('links', () => {
+        test('link btn on selected non link text opens the link modal', async () => {
+          const screen = await renderEditor({ initialState });
+          const editor = screen.getLexicalEditor();
+          // set caret at text
+          selectTextAtParagraph(editor);
+
+          // click on link btn
+          const linkBtn = getLinkBtn(screen);
+          await expect.element(linkBtn).toBeInTheDocument();
+          await expect.element(linkBtn).not.toHaveClass('active');
+          await linkBtn.click();
+
+          // check modal
+          await expect.element(getLinkModal(screen)).toBeInTheDocument();
+
+          const textInput = getLinkModalTextInput(screen);
+          await expect.element(textInput).toBeInTheDocument();
+          await expect.element(textInput).toHaveValue('hel');
+
+          const urlInput = getLinkModalUrlInput(screen);
+          await expect.element(urlInput).toBeInTheDocument();
+          await expect.element(urlInput).toHaveValue('');
+
+          const toggleBtn = getLinkModalToggleBtn(screen);
+          await expect.element(toggleBtn).not.toBeInTheDocument();
+        });
+
+        test('link btn on selected non link text opens the link modal - nothing happens if closed without change', async () => {
+          const screen = await renderEditor({ initialState });
+          const editor = screen.getLexicalEditor();
+          // set caret at text
+          selectTextAtParagraph(editor);
+
+          // click on link btn
+          const linkBtn = getLinkBtn(screen);
+          await expect.element(linkBtn).toBeInTheDocument();
+          await expect.element(linkBtn).not.toHaveClass('active');
+          await linkBtn.click();
+
+          // dismiss modal
+          await expect.element(getLinkModal(screen)).toBeInTheDocument();
+          await dismissModal(screen);
+
+          await expect.element(getLinkModal(screen)).not.toBeInTheDocument();
+
+          // nothing changed
+          expectLexicalStatesToBeEqual(
+            JSON.stringify(editor.getEditorState().toJSON()),
+            JSON.parse(initialState)
+          );
+        });
+
+        test('link btn on selected non link text opens the link modal - text change without a url does nothing', async () => {
+          const screen = await renderEditor({ initialState });
+          const editor = screen.getLexicalEditor();
+          // set caret at text
+          selectTextAtParagraph(editor);
+
+          // click on link btn
+          const linkBtn = getLinkBtn(screen);
+          await expect.element(linkBtn).toBeInTheDocument();
+          await expect.element(linkBtn).not.toHaveClass('active');
+          await linkBtn.click();
+
+          await expect.element(getLinkModal(screen)).toBeInTheDocument();
+
+          // change text
+          const textInput = getLinkModalTextInput(screen);
+          await expect.element(textInput).toBeInTheDocument();
+          await textInput.fill('helllll');
+
+          await dismissModal(screen);
+
+          // nothing has changed
+          expectLexicalStatesToBeEqual(
+            JSON.stringify(editor.getEditorState().toJSON()),
+            JSON.parse(initialState)
+          );
+        });
+
+        test('link btn on selected non link text opens the link modal - url change creates the link', async () => {
+          const screen = await renderEditor({ initialState });
+          const editor = screen.getLexicalEditor();
+          // set caret at text
+          selectTextAtParagraph(editor);
+
+          // click on link btn
+          const linkBtn = getLinkBtn(screen);
+          await expect.element(linkBtn).toBeInTheDocument();
+          await expect.element(linkBtn).not.toHaveClass('active');
+          await linkBtn.click();
+
+          await expect.element(getLinkModal(screen)).toBeInTheDocument();
+
+          // change url
+          const urlInput = getLinkModalUrlInput(screen);
+          await expect.element(urlInput).toBeInTheDocument();
+          await urlInput.fill('https://lexical.dev/');
+
+          await dismissModal(screen);
+
+          // link has been created
+          expectLexicalStatesToBeEqual(
+            JSON.stringify(editor.getEditorState().toJSON()),
+            formatConverter.fromMarkdown(
+              '[hel](https://lexical.dev/ "hel")lo world'
+            ).obj!
+          );
+        });
+
+        test('link btn on selected non link text opens the link modal - url and text changes create the link', async () => {
+          const screen = await renderEditor({ initialState });
+          const editor = screen.getLexicalEditor();
+          // set caret at text
+          selectTextAtParagraph(editor);
+
+          // click on link btn
+          const linkBtn = getLinkBtn(screen);
+          await expect.element(linkBtn).toBeInTheDocument();
+          await expect.element(linkBtn).not.toHaveClass('active');
+          await linkBtn.click();
+
+          await expect.element(getLinkModal(screen)).toBeInTheDocument();
+
+          // change text
+          const textInput = getLinkModalTextInput(screen);
+          await expect.element(textInput).toBeInTheDocument();
+          await textInput.fill('hellll');
+
+          // change url
+          const urlInput = getLinkModalUrlInput(screen);
+          await expect.element(urlInput).toBeInTheDocument();
+          await urlInput.fill('https://lexical.dev/');
+
+          await dismissModal(screen);
+
+          // link has been created
+          expectLexicalStatesToBeEqual(
+            JSON.stringify(editor.getEditorState().toJSON()),
+            formatConverter.fromMarkdown(
+              '[hellll](https://lexical.dev/ "hellll")lo world'
+            ).obj!
+          );
+        });
+
+        const initialStateWithLink = formatConverter.fromMarkdown(
+          '[hello](https://lexical.dev/ "hello") world'
+        ).obj!;
+
+        test('caret on existing link opens the modal with text and url filled', async () => {
+          const screen = await renderEditor({
+            initialState: initialStateWithLink
+          });
+          const editor = screen.getLexicalEditor();
+          // set caret at text
+          putCaretAtParagraph(editor);
+
+          // click on link btn
+          const linkBtn = getLinkBtn(screen);
+          await expect.element(linkBtn).toBeInTheDocument();
+          await expect.element(linkBtn).toHaveClass('active');
+          await linkBtn.click();
+
+          // check modal
+          await expect.element(getLinkModal(screen)).toBeInTheDocument();
+
+          const textInput = getLinkModalTextInput(screen);
+          await expect.element(textInput).toBeInTheDocument();
+          await expect.element(textInput).toHaveValue('hello');
+
+          const urlInput = getLinkModalUrlInput(screen);
+          await expect.element(urlInput).toBeInTheDocument();
+          await expect.element(urlInput).toHaveValue('https://lexical.dev/');
+
+          const toggleBtn = getLinkModalToggleBtn(screen);
+          await expect.element(toggleBtn).toBeInTheDocument();
+        });
+
+        test('caret on existing link opens the modal - nothing happens if closed without change', async () => {
+          const screen = await renderEditor({
+            initialState: initialStateWithLink
+          });
+          const editor = screen.getLexicalEditor();
+          // set caret at text
+          putCaretAtParagraph(editor);
+
+          // click on link btn
+          const linkBtn = getLinkBtn(screen);
+          await expect.element(linkBtn).toBeInTheDocument();
+          await linkBtn.click();
+
+          // check modal
+          await expect.element(getLinkModal(screen)).toBeInTheDocument();
+          await dismissModal(screen);
+
+          await expect.element(getLinkModal(screen)).not.toBeInTheDocument();
+
+          // nothing changed
+          expectLexicalStatesToBeEqual(
+            JSON.stringify(editor.getEditorState().toJSON()),
+            initialStateWithLink
+          );
+        });
+
+        test('caret on existing link opens the modal - text change updates the link', async () => {
+          const screen = await renderEditor({
+            initialState: initialStateWithLink
+          });
+          const editor = screen.getLexicalEditor();
+          // set caret at text
+          putCaretAtParagraph(editor);
+
+          // click on link btn
+          const linkBtn = getLinkBtn(screen);
+          await expect.element(linkBtn).toBeInTheDocument();
+          await linkBtn.click();
+
+          // check modal
+          await expect.element(getLinkModal(screen)).toBeInTheDocument();
+
+          // change text
+          const textInput = getLinkModalTextInput(screen);
+          await expect.element(textInput).toBeInTheDocument();
+          await textInput.fill('helllllo');
+
+          await dismissModal(screen);
+
+          // link has been updated
+          expectLexicalStatesToBeEqual(
+            JSON.stringify(editor.getEditorState().toJSON()),
+            formatConverter.fromMarkdown(
+              '[helllllo](https://lexical.dev/ "helllllo") world'
+            ).obj!
+          );
+        });
+
+        test('caret on existing link opens the modal - url change updates the link', async () => {
+          const screen = await renderEditor({
+            initialState: initialStateWithLink
+          });
+          const editor = screen.getLexicalEditor();
+          // set caret at text
+          putCaretAtParagraph(editor);
+
+          // click on link btn
+          const linkBtn = getLinkBtn(screen);
+          await expect.element(linkBtn).toBeInTheDocument();
+          await linkBtn.click();
+
+          // check modal
+          await expect.element(getLinkModal(screen)).toBeInTheDocument();
+
+          // change url
+          const urlInput = getLinkModalUrlInput(screen);
+          await expect.element(urlInput).toBeInTheDocument();
+          await urlInput.fill('https://play.qobuz.com/');
+
+          await dismissModal(screen);
+
+          // link has been updated
+          expectLexicalStatesToBeEqual(
+            JSON.stringify(editor.getEditorState().toJSON()),
+            formatConverter.fromMarkdown(
+              '[hello](https://play.qobuz.com/ "hello") world'
+            ).obj!
+          );
+        });
+
+        test('caret on existing link opens the modal - url and text changes update the link', async () => {
+          const screen = await renderEditor({
+            initialState: initialStateWithLink
+          });
+          const editor = screen.getLexicalEditor();
+          // set caret at text
+          putCaretAtParagraph(editor);
+
+          // click on link btn
+          const linkBtn = getLinkBtn(screen);
+          await expect.element(linkBtn).toBeInTheDocument();
+          await linkBtn.click();
+
+          // check modal
+          await expect.element(getLinkModal(screen)).toBeInTheDocument();
+
+          // change text
+          const textInput = getLinkModalTextInput(screen);
+          await expect.element(textInput).toBeInTheDocument();
+          await textInput.fill('helllllo');
+
+          // change url
+          const urlInput = getLinkModalUrlInput(screen);
+          await expect.element(urlInput).toBeInTheDocument();
+          await urlInput.fill('https://play.qobuz.com/');
+
+          await dismissModal(screen);
+
+          // link has been updated
+          expectLexicalStatesToBeEqual(
+            JSON.stringify(editor.getEditorState().toJSON()),
+            formatConverter.fromMarkdown(
+              '[helllllo](https://play.qobuz.com/ "helllllo") world'
+            ).obj!
+          );
+        });
+
+        test('caret on existing link opens the modal - clear button deletes the link', async () => {
+          const screen = await renderEditor({
+            initialState: initialStateWithLink
+          });
+          const editor = screen.getLexicalEditor();
+          // set caret at text
+          putCaretAtParagraph(editor);
+
+          // click on link btn
+          const linkBtn = getLinkBtn(screen);
+          await expect.element(linkBtn).toBeInTheDocument();
+          await linkBtn.click();
+
+          // check modal
+          await expect.element(getLinkModal(screen)).toBeInTheDocument();
+
+          // click clear button
+          const btn = getLinkModalToggleBtn(screen);
+          await expect.element(btn).toBeInTheDocument();
+          await btn.click();
+
+          await expect.element(getLinkModal(screen)).not.toBeInTheDocument();
+
+          // link has been deleted
+          expectLexicalStatesToBeEqual(
+            JSON.stringify(editor.getEditorState().toJSON()),
+            formatConverter.fromMarkdown('hello world').obj!
+          );
+        });
+
+        // TODO selection on link does the same thing...
+        // what if selection is a subpart of a an existing link
+        // what if selection includes a link? bug here
+
+        test.todo(
+          'link btn on non link caret opens the link modal with the word under cursor',
+          async () => {}
+        );
+      });
+
+      describe('autolinks', () => {
+        test('autolink is automatically created on paste', async () => {
+          const screen = await renderEditor({ initialState });
+          const textbox = getContentEditor(screen);
+          const editor = screen.getLexicalEditor();
+
+          await expect.element(textbox).toBeInTheDocument();
+          await textbox.fill('https://lexical.dev/');
+
+          // autolink has been created
+          expectLexicalStatesToBeEqual(
+            JSON.stringify(editor.getEditorState().toJSON()),
+            formatConverter.fromMarkdown('<https://lexical.dev/>').obj!
+          );
+
+          // set caret at text
+          putCaretAtParagraph(editor);
+          await expect.element(getLinkBtn(screen)).toHaveClass('active');
+        });
+
+        const initialStateWithAutoLink = formatConverter.fromMarkdown(
+          '<https://lexical.dev/> world'
+        ).obj!;
+
+        const initialStateWithUnlinkedAutoLink = formatConverter.fromMarkdown(
+          'https://lexical.dev/ world'
+        ).obj!;
+
+        test('caret on existing autolink opens the modal with text and url filled', async () => {
+          const screen = await renderEditor({
+            initialState: initialStateWithAutoLink
+          });
+          const editor = screen.getLexicalEditor();
+          // set caret at text
+          putCaretAtParagraph(editor);
+
+          // click on link btn
+          const linkBtn = getLinkBtn(screen);
+          await expect.element(linkBtn).toBeInTheDocument();
+          await expect.element(linkBtn).toHaveClass('active');
+          await linkBtn.click();
+
+          // check modal
+          await expect.element(getLinkModal(screen)).toBeInTheDocument();
+
+          const textInput = getLinkModalTextInput(screen);
+          await expect.element(textInput).toBeInTheDocument();
+          await expect.element(textInput).toHaveValue('https://lexical.dev/');
+
+          const urlInput = getLinkModalUrlInput(screen);
+          await expect.element(urlInput).toBeInTheDocument();
+          await expect.element(urlInput).toHaveValue('https://lexical.dev/');
+
+          const toggleBtn = getLinkModalToggleBtn(screen);
+          await expect.element(toggleBtn).toBeInTheDocument();
+        });
+
+        test('caret on existing unlinked autolink opens the modal with text and url filled', async () => {
+          const screen = await renderEditor({
+            initialState: initialStateWithUnlinkedAutoLink
+          });
+          const editor = screen.getLexicalEditor();
+          // set caret at text
+          putCaretAtParagraph(editor);
+
+          // click on link btn
+          const linkBtn = getLinkBtn(screen);
+          await expect.element(linkBtn).toBeInTheDocument();
+          await expect.element(linkBtn).toHaveClass('active');
+          await linkBtn.click();
+
+          // check modal
+          await expect.element(getLinkModal(screen)).toBeInTheDocument();
+
+          const textInput = getLinkModalTextInput(screen);
+          await expect.element(textInput).toBeInTheDocument();
+          await expect.element(textInput).toHaveValue('https://lexical.dev/');
+
+          const urlInput = getLinkModalUrlInput(screen);
+          await expect.element(urlInput).toBeInTheDocument();
+          await expect.element(urlInput).toHaveValue('https://lexical.dev/');
+
+          const toggleBtn = getLinkModalToggleBtn(screen);
+          await expect.element(toggleBtn).toBeInTheDocument();
+        });
+
+        test('caret on existing autolink opens the link modal - nothing happens if closed without change', async () => {
+          const screen = await renderEditor({
+            initialState: initialStateWithAutoLink
+          });
+          const editor = screen.getLexicalEditor();
+          // set caret at text
+          putCaretAtParagraph(editor);
+
+          // click on link btn
+          const linkBtn = getLinkBtn(screen);
+          await expect.element(linkBtn).toBeInTheDocument();
+          await linkBtn.click();
+
+          // check modal
+          await expect.element(getLinkModal(screen)).toBeInTheDocument();
+          await dismissModal(screen);
+
+          await expect.element(getLinkModal(screen)).not.toBeInTheDocument();
+
+          // nothing changed
+          expectLexicalStatesToBeEqual(
+            JSON.stringify(editor.getEditorState().toJSON()),
+            initialStateWithAutoLink
+          );
+        });
+
+        test('caret on existing autolink opens the modal - text change turns the autolink to link', async () => {
+          const screen = await renderEditor({
+            initialState: initialStateWithAutoLink
+          });
+          const editor = screen.getLexicalEditor();
+          // set caret at text
+          putCaretAtParagraph(editor);
+
+          // click on link btn
+          const linkBtn = getLinkBtn(screen);
+          await expect.element(linkBtn).toBeInTheDocument();
+          await linkBtn.click();
+
+          // check modal
+          await expect.element(getLinkModal(screen)).toBeInTheDocument();
+
+          // change text
+          const textInput = getLinkModalTextInput(screen);
+          await expect.element(textInput).toBeInTheDocument();
+          await textInput.fill('hello');
+
+          await dismissModal(screen);
+
+          // link has been updated
+          expectLexicalStatesToBeEqual(
+            JSON.stringify(editor.getEditorState().toJSON()),
+            formatConverter.fromMarkdown(
+              '[hello](https://lexical.dev/) world',
+              { relAsNoReferrer: false }
+            ).obj!
+          );
+        });
+
+        test('caret on existing autolink opens the modal - url change turns the autolink to link', async () => {
+          const screen = await renderEditor({
+            initialState: initialStateWithAutoLink
+          });
+          const editor = screen.getLexicalEditor();
+          // set caret at text
+          putCaretAtParagraph(editor);
+
+          // click on link btn
+          const linkBtn = getLinkBtn(screen);
+          await expect.element(linkBtn).toBeInTheDocument();
+          await linkBtn.click();
+
+          // check modal
+          await expect.element(getLinkModal(screen)).toBeInTheDocument();
+
+          // change url
+          const urlInput = getLinkModalUrlInput(screen);
+          await expect.element(urlInput).toBeInTheDocument();
+          await urlInput.fill('https://play.qobuz.com/');
+
+          await dismissModal(screen);
+
+          // link has been updated
+          console.debug(
+            'new state!!!!!!!',
+            JSON.stringify(editor.getEditorState().toJSON())
+          );
+          const obj = formatConverter.fromMarkdown(
+            '[https://lexical.dev/](https://play.qobuz.com/) world',
+            { relAsNoReferrer: false }
+          ).obj!;
+          expectLexicalStatesToBeEqual(
+            JSON.stringify(editor.getEditorState().toJSON()),
+            obj
+          );
+        });
+
+        test('caret on existing autolink opens the modal - url and text changes update the link', async () => {
+          const screen = await renderEditor({
+            initialState: initialStateWithAutoLink
+          });
+          const editor = screen.getLexicalEditor();
+          // set caret at text
+          putCaretAtParagraph(editor);
+
+          // click on link btn
+          const linkBtn = getLinkBtn(screen);
+          await expect.element(linkBtn).toBeInTheDocument();
+          await linkBtn.click();
+
+          // check modal
+          await expect.element(getLinkModal(screen)).toBeInTheDocument();
+
+          // change text
+          const textInput = getLinkModalTextInput(screen);
+          await expect.element(textInput).toBeInTheDocument();
+          await textInput.fill('hello');
+
+          // change url
+          const urlInput = getLinkModalUrlInput(screen);
+          await expect.element(urlInput).toBeInTheDocument();
+          await urlInput.fill('https://play.qobuz.com/');
+
+          await dismissModal(screen);
+
+          // link has been updated
+          expectLexicalStatesToBeEqual(
+            JSON.stringify(editor.getEditorState().toJSON()),
+            formatConverter.fromMarkdown(
+              '[hello](https://play.qobuz.com/) world',
+              { relAsNoReferrer: false }
+            ).obj!
+          );
+        });
+
+        test('caret on existing autolink opens the modal - clear button unlinks the autolink', async () => {
+          const screen = await renderEditor({
+            initialState: initialStateWithAutoLink
+          });
+          const editor = screen.getLexicalEditor();
+          // set caret at text
+          putCaretAtParagraph(editor);
+
+          // click on link btn
+          const linkBtn = getLinkBtn(screen);
+          await expect.element(linkBtn).toBeInTheDocument();
+          await linkBtn.click();
+
+          // check modal
+          await expect.element(getLinkModal(screen)).toBeInTheDocument();
+
+          // click clear button
+          const btn = getLinkModalToggleBtn(screen);
+          await expect.element(btn).toBeInTheDocument();
+          await btn.click();
+
+          await expect.element(getLinkModal(screen)).not.toBeInTheDocument();
+
+          // link has been unlinked
+          expectLexicalStatesToBeEqual(
+            JSON.stringify(editor.getEditorState().toJSON()),
+            formatConverter.fromMarkdown('https://lexical.dev/ world').obj!
+          );
+
+          // still counts as a link
+          await expect.element(linkBtn).toHaveClass('active');
+        });
+
+        test('caret on unlinked autolink opens the modal - clear button relinks it', async () => {
+          const screen = await renderEditor({
+            initialState: initialStateWithUnlinkedAutoLink
+          });
+          const editor = screen.getLexicalEditor();
+          // set caret at text
+          putCaretAtParagraph(editor);
+
+          // click on link btn
+          const linkBtn = getLinkBtn(screen);
+          await expect.element(linkBtn).toBeInTheDocument();
+          await linkBtn.click();
+
+          // check modal
+          await expect.element(getLinkModal(screen)).toBeInTheDocument();
+
+          // click clear button
+          const btn = getLinkModalToggleBtn(screen);
+          await expect.element(btn).toBeInTheDocument();
+          await btn.click();
+
+          await expect.element(getLinkModal(screen)).not.toBeInTheDocument();
+
+          // autolink has been linked
+          expectLexicalStatesToBeEqual(
+            JSON.stringify(editor.getEditorState().toJSON()),
+            formatConverter.fromMarkdown('<https://lexical.dev/> world').obj!
+          );
+
+          // still counts as a link
+          await expect.element(linkBtn).toHaveClass('active');
+        });
+
+        // TODO selection on antolink does the same thing...
+        // what if selection is a subpart of a an existing antolink
+        // what if selection includes an antolink?
       });
     });
   });

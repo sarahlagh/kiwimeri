@@ -3,12 +3,20 @@ import { KiwimeriTextLexer } from '../text-lexer';
 import { KiwimeriTextParser } from '../text-parser';
 import { MarkdownLexer } from './markdown-lexer';
 
+export type MarkdownParserOpts = {
+  /** adds rel: noreferrer to links instead of null */
+  relAsNoReferrer?: boolean;
+};
+
 export class MarkdownParser extends KiwimeriTextParser {
-  protected getLexer(text: string, opts?: unknown): KiwimeriTextLexer {
+  protected getLexer(
+    text: string,
+    opts?: MarkdownParserOpts
+  ): KiwimeriTextLexer {
     return new MarkdownLexer(text, opts);
   }
 
-  parseText(text: string, opts?: unknown) {
+  parseText(text: string, opts?: MarkdownParserOpts) {
     const ctx = new KiwimeriParserContext();
     const lexer = this.getLexer(text, opts);
 

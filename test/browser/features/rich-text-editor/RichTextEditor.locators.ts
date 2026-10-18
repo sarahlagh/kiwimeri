@@ -74,3 +74,27 @@ export function getTextAlignBtn(
 ) {
   return getToolbar(screen).getByLabelText('Align ' + format);
 }
+
+export function getLinkBtn(screen: RenderResult) {
+  return getToolbar(screen).getByLabelText('Toggle link');
+}
+
+export function getLinkModal(screen: RenderResult) {
+  return screen.getByRole('dialog');
+}
+
+export async function dismissModal(screen: RenderResult) {
+  await (getLinkModal(screen).element() as HTMLIonPopoverElement).dismiss();
+}
+
+export function getLinkModalTextInput(screen: RenderResult) {
+  return getLinkModal(screen).getByLabelText('Text');
+}
+
+export function getLinkModalUrlInput(screen: RenderResult) {
+  return getLinkModal(screen).getByLabelText('Link');
+}
+
+export function getLinkModalToggleBtn(screen: RenderResult) {
+  return getLinkModal(screen).getByLabelText('Toggle');
+}

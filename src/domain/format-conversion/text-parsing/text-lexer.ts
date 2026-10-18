@@ -51,4 +51,8 @@ export abstract class KiwimeriTextLexer {
     this.tempText = undefined;
     return resp;
   }
+
+  public getOpts() {
+    return structuredClone(this.opts);
+  }
 }

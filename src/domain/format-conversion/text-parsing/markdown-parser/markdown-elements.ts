@@ -14,7 +14,7 @@ import type {
   KiwimeriTextElementParser
 } from '../types';
 import { getTextAlign } from './markdown-blocks';
-import { MarkdownParser } from './markdown-parser';
+import { MarkdownParser, MarkdownParserOpts } from './markdown-parser';
 
 export const ESCAPE_CHARS = '*_~<=';
 export const EXTENDED_ESCAPE_CHARS = '#>-'; // only necessary at the start of a line
@@ -277,7 +277,8 @@ const LINK: KiwimeriTextElementParser = {
     }
     return null;
   },
-  parse: token => {
+  parse: (token, ctx, lexer) => {
+    const opts = lexer.getOpts() as MarkdownParserOpts;
     const [, text, url, title] = [...token.matchAll(LINK_REGEX)][0];
     const node: SerializedLinkNode = {
       type: 'link',
@@ -287,13 +288,18 @@ const LINK: KiwimeriTextElementParser = {
       indent: 0,
       url,
       title: title ? title : null,
-      rel: 'noreferrer',
+      rel: opts?.relAsNoReferrer !== false ? 'noreferrer' : null,
       target: null,
       children: []
     };
-    const textNodes = new MarkdownParser().parseText(text);
+    const textNodes = new MarkdownParser().parseText(text, opts);
     if (textNodes) {
-      node.children = textNodes;
+      if (textNodes[0].type === 'autolink') {
+        // text is an url
+        node.children = (textNodes[0] as SerializedAutoLinkNode).children;
+      } else {
+        node.children = textNodes;
+      }
       return node;
     }
     return null;

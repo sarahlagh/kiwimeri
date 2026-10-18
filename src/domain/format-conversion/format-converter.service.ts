@@ -5,7 +5,10 @@ import {
   PlainTextFormatterOpts
 } from './lex-conversion/formatters/plain-text-formatter';
 import { KiwimeriLexConverter } from './lex-conversion/lex-converter';
-import { MARKDOWN_PARSER } from './text-parsing/markdown-parser/markdown-parser';
+import {
+  MARKDOWN_PARSER,
+  MarkdownParserOpts
+} from './text-parsing/markdown-parser/markdown-parser';
 import { KiwimeriTextParser } from './text-parsing/text-parser';
 
 class FormatConversionService {
@@ -36,7 +39,7 @@ class FormatConversionService {
     return parser.parse(text, opts);
   }
 
-  public fromMarkdown(markdown: string, opts?: unknown) {
+  public fromMarkdown(markdown: string, opts?: MarkdownParserOpts) {
     return this.from(markdown, MARKDOWN_PARSER, opts);
   }
 }

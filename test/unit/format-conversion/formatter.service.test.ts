@@ -36,7 +36,8 @@ const examples = [
   { name: 'links-manual-text-format' },
   { name: 'links-manual-middle' },
   { name: 'links-autolink' },
-  { name: 'links-autolink-middle' }
+  { name: 'links-autolink-middle' },
+  { name: 'links-with-url-as-text' }
 ];
 
 describe('format conversion service', () => {

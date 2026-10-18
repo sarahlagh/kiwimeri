@@ -22,7 +22,7 @@ import {
   KiwimeriEditor,
   ReloadableKiwimeriEditorHandle
 } from '@/features/document-editor';
-import { compareLexicalStates } from '@@/_setup/test.utils';
+import { expectLexicalStatesToBeEqual } from '@@/_setup/test.utils';
 import { $createTextNode, $getRoot, ElementNode } from 'lexical';
 import React from 'react';
 import { TestingProvider } from '../../TestingProvider';
@@ -147,7 +147,7 @@ describe('DocumentEditor', () => {
       );
 
       const content = formatConverter.fromMarkdown('line 1').obj!;
-      compareLexicalStates(
+      expectLexicalStatesToBeEqual(
         collectionService.getDocumentContent(docId),
         content
       );
@@ -178,7 +178,7 @@ describe('DocumentEditor', () => {
       );
 
       const content = formatConverter.fromMarkdown('line 1').obj!;
-      compareLexicalStates(
+      expectLexicalStatesToBeEqual(
         collectionService.getDocumentContent(docId),
         content
       );
@@ -215,7 +215,7 @@ describe('DocumentEditor', () => {
       expect(fetchNotificationsQuery.getResults({ all: true })).toHaveLength(0);
 
       const content = formatConverter.fromMarkdown('line 1').obj!;
-      compareLexicalStates(
+      expectLexicalStatesToBeEqual(
         collectionService.getDocumentContent(docId),
         content
       );
@@ -260,7 +260,7 @@ describe('DocumentEditor', () => {
 
       // content is still ok
       const content = formatConverter.fromMarkdown('line 1').obj!;
-      compareLexicalStates(
+      expectLexicalStatesToBeEqual(
         collectionService.getDocumentContent(docId),
         content
       );
@@ -310,7 +310,7 @@ describe('DocumentEditor', () => {
       expect(fetchNotificationsQuery.getResults({ all: true })).toHaveLength(0);
 
       const content = formatConverter.fromMarkdown('line 1').obj!;
-      compareLexicalStates(
+      expectLexicalStatesToBeEqual(
         collectionService.getDocumentContent(docId),
         content
       );
@@ -385,7 +385,7 @@ describe('DocumentEditor', () => {
             );
           });
 
-          compareLexicalStates(
+          expectLexicalStatesToBeEqual(
             collectionService.getDocumentContent(docId),
             content
           );
@@ -408,7 +408,7 @@ describe('DocumentEditor', () => {
 
           vi.advanceTimersByTime(appConfig.FAST_WRITE_THROTTLE); // flush
 
-          compareLexicalStates(
+          expectLexicalStatesToBeEqual(
             collectionService.getDocumentContent(docId),
             nextContent
           );

@@ -505,7 +505,7 @@ export class FakeState {
   }
 }
 
-export function compareLexicalStates(value: string, expected: any) {
+export function expectLexicalStatesToBeEqual(value: string, expected: any) {
   const valueObj = JSON.parse(value, (key, val) => {
     if (key === 'direction') return 'ltr';
     return val;

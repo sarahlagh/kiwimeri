@@ -1,0 +1,3 @@
+a link https://lexical.dev/ with url as text
+
+a link https://lexical.dev/ with url as text but without title
