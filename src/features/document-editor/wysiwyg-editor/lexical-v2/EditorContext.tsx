@@ -2,7 +2,7 @@ import { ListType } from '@lexical/list';
 import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
 import { HeadingTagType } from '@lexical/rich-text';
 import { ElementFormatType } from 'lexical';
-import { createContext, ReactNode, use, useCallback, useReducer } from 'react';
+import { createContext, ReactNode, use, useCallback, useState } from 'react';
 
 type LinkContext = {
   isLink: boolean;
@@ -49,6 +49,7 @@ type SelectionContextValue<Key extends SelectionContextKey> =
 type EditorContextSpec = {
   globalEditable: boolean;
   selectionContext: SelectionContext;
+  setSelectionContext: (selectionContext: SelectionContext) => void;
   updateSelectionContext<Key extends SelectionContextKey>(
     key: Key,
     value: SelectionContextValue<Key>
@@ -64,8 +65,7 @@ export const EditorContextProvider = ({
   globalEditable: boolean;
   readonly children?: ReactNode;
 }) => {
-  const [selectionContext, dispatch] = useReducer(
-    (state, action) => ({ ...state, ...action }),
+  const [selectionContext, setSelectionContext] = useState(
     INITIAL_SELECTION_CONTEXT
   );
   const updateSelectionContext = useCallback(
@@ -73,15 +73,18 @@ export const EditorContextProvider = ({
       key: Key,
       value: SelectionContextValue<Key>
     ) => {
-      const action: Partial<SelectionContext> = {};
-      action[key] = value;
-      dispatch(action);
+      setSelectionContext(prev => ({ ...prev, [key]: value }));
     },
     []
   );
   return (
     <EditorContext
-      value={{ globalEditable, selectionContext, updateSelectionContext }}
+      value={{
+        globalEditable,
+        selectionContext,
+        setSelectionContext,
+        updateSelectionContext
+      }}
     >
       {children}
     </EditorContext>
@@ -100,3 +103,7 @@ export const useEditorContext = (): EditorContextType => {
   }
   return { ...context, isEditable };
 };
+
+export function newInitialSelectionContext() {
+  return structuredClone(INITIAL_SELECTION_CONTEXT);
+}

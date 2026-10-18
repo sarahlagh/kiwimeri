@@ -51,7 +51,7 @@ const RichTextEditor = ({
           <div className="editor-inner">
             <ContentEditable
               className="editor-input"
-              aria-label={t`Rich text editor"`}
+              aria-label={t`Rich text editor`}
               aria-placeholder={placeholder}
               placeholder={
                 <div className="editor-placeholder">{placeholder}</div>

@@ -19,7 +19,7 @@ import {
   SELECTION_CHANGE_COMMAND
 } from 'lexical';
 import { useCallback, useEffect } from 'react';
-import { EditorContextType, useEditorContext } from '../EditorContext';
+import { newInitialSelectionContext, useEditorContext } from '../EditorContext';
 import { getSelectedNode } from '../utils/getSelectedNode';
 
 function $findTopLevelElement(node: LexicalNode) {
@@ -39,26 +39,20 @@ function $findTopLevelElement(node: LexicalNode) {
 
 function SetSelectionContextWrapper() {
   const [editor] = useLexicalComposerContext();
-  const { updateSelectionContext } = useEditorContext();
+  const { setSelectionContext } = useEditorContext();
 
   const $updateSelectionContext = useCallback(() => {
     const selection = $getSelection();
     const isRange = $isRangeSelection(selection);
+    const newSelectionContext = newInitialSelectionContext();
 
     // block type
-    const linkContext: EditorContextType['selectionContext']['linkContext'] = {
-      isLink: false,
-      isAutoLink: false,
-      isAutoLinkUnlinked: false
-    };
     if (isRange) {
       const startEndPoints = selection.getStartEndPoints();
       const isTextOrElementSelection =
         startEndPoints && !startEndPoints[0].is(startEndPoints[1]);
-      updateSelectionContext(
-        'isTextOrElementSelection',
-        isTextOrElementSelection
-      );
+
+      newSelectionContext.isTextOrElementSelection = isTextOrElementSelection;
 
       const anchorNode = selection.anchor.getNode();
       const element = $findTopLevelElement(anchorNode);
@@ -72,24 +66,19 @@ function SetSelectionContextWrapper() {
             anchorNode,
             ListNode
           );
-          updateSelectionContext('blockType', 'list');
-          updateSelectionContext(
-            'listType',
-            parentList ? parentList.getListType() : element.getListType()
-          );
+          newSelectionContext.blockType = 'list';
+          newSelectionContext.listType = parentList
+            ? parentList.getListType()
+            : element.getListType();
         } else if (isHeading) {
-          updateSelectionContext('blockType', 'heading');
-          updateSelectionContext('headingTag', element.getTag());
+          newSelectionContext.blockType = 'heading';
+          newSelectionContext.headingTag = element.getTag();
         } else {
-          updateSelectionContext('blockType', element.getType());
-          updateSelectionContext('headingTag', undefined);
-          updateSelectionContext('listType', undefined);
+          newSelectionContext.blockType = element.getType();
         }
-
-        updateSelectionContext(
-          'elementFormat',
-          $isElementNode(element) ? element.getFormatType() || 'left' : 'left'
-        );
+        newSelectionContext.elementFormat = $isElementNode(element)
+          ? element.getFormatType() || 'left'
+          : 'left';
       }
 
       // links
@@ -97,42 +86,33 @@ function SetSelectionContextWrapper() {
       const parent = node.getParent();
       const isLink = $isLinkNode(parent);
       const isAutoLink = $isAutoLinkNode(parent);
-      linkContext.isLink = isLink;
-      linkContext.isAutoLink = isAutoLink;
+      newSelectionContext.linkContext.isLink = isLink;
+      newSelectionContext.linkContext.isAutoLink = isAutoLink;
       if (isAutoLink) {
-        linkContext.isAutoLinkUnlinked = parent.getIsUnlinked();
+        newSelectionContext.linkContext.isAutoLinkUnlinked =
+          parent.getIsUnlinked();
       }
       if (isLink) {
-        linkContext.linkUrl = parent.getURL();
+        newSelectionContext.linkContext.linkUrl = parent.getURL();
       }
       if (isTextOrElementSelection || isLink) {
-        linkContext.linkText =
+        newSelectionContext.linkContext.linkText =
           selection.getTextContent() || node.getTextContent();
       }
-    } else {
-      updateSelectionContext('isTextOrElementSelection', false);
     }
-    updateSelectionContext('linkContext', linkContext);
 
     // text format
-    updateSelectionContext('isBold', isRange && selection.hasFormat('bold'));
-    updateSelectionContext(
-      'isItalic',
-      isRange && selection.hasFormat('italic')
-    );
-    updateSelectionContext(
-      'isStrikethrough',
-      isRange && selection.hasFormat('strikethrough')
-    );
-    updateSelectionContext(
-      'isUnderline',
-      isRange && selection.hasFormat('underline')
-    );
-    updateSelectionContext(
-      'isHighlight',
-      isRange && selection.hasFormat('highlight')
-    );
-  }, [editor, updateSelectionContext]);
+    newSelectionContext.isBold = isRange && selection.hasFormat('bold');
+    newSelectionContext.isItalic = isRange && selection.hasFormat('italic');
+    newSelectionContext.isStrikethrough =
+      isRange && selection.hasFormat('strikethrough');
+    newSelectionContext.isUnderline =
+      isRange && selection.hasFormat('underline');
+    newSelectionContext.isHighlight =
+      isRange && selection.hasFormat('highlight');
+
+    setSelectionContext(newSelectionContext);
+  }, [editor, setSelectionContext]);
 
   useEffect(() => {
     return mergeRegister(

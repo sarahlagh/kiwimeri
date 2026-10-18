@@ -17,16 +17,21 @@ import {
   $createParagraphNode,
   $createTextNode,
   $getRoot,
+  $getSelection,
+  $isRangeSelection,
   $setSelection,
   ElementFormatType,
   ElementNode,
   LexicalEditor,
+  PointType,
   TextFormatType,
   TextNode
 } from 'lexical';
 import { createRef, useState } from 'react';
 import { render } from 'vitest-browser-react';
+import { Locator } from 'vitest/browser';
 import {
+  clickOnEditor,
   dismissModal,
   getAllToolbarBtns,
   getContentEditor,
@@ -253,24 +258,33 @@ describe('RichTextEditor', () => {
   });
 
   describe('toolbar', () => {
-    function putCaretAtParagraph(editor: LexicalEditor, index = 0) {
+    function putCaretAtParagraph(
+      editor: LexicalEditor,
+      index = 0,
+      textNodeIdx = 0,
+      offset = 2
+    ) {
       editor.update(
         () => {
           const root = $getRoot();
           const paragraph = root.getChildAtIndex(index) as ElementNode;
-          const text = paragraph.getAllTextNodes()[0] as TextNode;
-          $setSelection(text.select(2, 2));
+          const text = paragraph.getAllTextNodes()[textNodeIdx] as TextNode;
+          $setSelection(text.select(offset, offset));
         },
         { discrete: true }
       );
     }
-    function selectTextAtParagraph(editor: LexicalEditor, index = 0) {
+    function selectTextAtParagraph(
+      editor: LexicalEditor,
+      index = 0,
+      offsets = [0, 3]
+    ) {
       editor.update(
         () => {
           const root = $getRoot();
           const paragraph = root.getChildAtIndex(index) as ElementNode;
           const text = paragraph.getAllTextNodes()[0] as TextNode;
-          $setSelection(text.select(0, 3));
+          $setSelection(text.select(...offsets));
         },
         { discrete: true }
       );
@@ -296,6 +310,82 @@ describe('RichTextEditor', () => {
         return block?.getType();
       });
     }
+
+    test('selection change updates the toolbar', async () => {
+      const screen = await renderEditor({
+        initialState: formatConverter.fromMarkdown(
+          'hello **world** with <u>formats</u>\n\n' +
+            '# heading\n\n' +
+            '[hello](https://lexical.dev/ "hello") world with links\n\n' +
+            '<p style="text-align: center;">center text</p>'
+        ).obj!
+      });
+      const editor = screen.getLexicalEditor();
+
+      const caretPositions: {
+        line: number;
+        offset: number;
+        expected: { offset: number; activeButton: Locator };
+      }[] = [
+        {
+          line: 1,
+          offset: 7,
+          expected: {
+            offset: 1,
+            activeButton: getTextFormatBtn(screen, 'bold')
+          }
+        },
+        {
+          line: 1,
+          offset: 20,
+          expected: {
+            offset: 3,
+            activeButton: getTextFormatBtn(screen, 'underline')
+          }
+        },
+        {
+          line: 2,
+          offset: 4,
+          expected: {
+            offset: 4,
+            activeButton: getHeadingBtn(screen, 'h1')
+          }
+        },
+        {
+          line: 3,
+          offset: 3,
+          expected: { offset: 3, activeButton: getLinkBtn(screen) }
+        },
+        {
+          line: 4,
+          offset: 5,
+          expected: {
+            offset: 5,
+            activeButton: getTextAlignBtn(screen, 'center')
+          }
+        }
+      ];
+
+      let previousBtn: Locator | null = null;
+      for (const caret of caretPositions) {
+        await clickOnEditor(screen, caret.line, caret.offset);
+        // check selection
+        const selection = editor.read(() => $getSelection());
+        expect($isRangeSelection(selection)).toBe(true);
+        const points = selection!.getStartEndPoints()!;
+        expect(points[0].is(points[1])).toBe(true);
+        expect(points[0].offset).toBe(caret.expected.offset);
+
+        await expect.element(caret.expected.activeButton).toHaveClass('active');
+
+        if (previousBtn !== null) {
+          // eslint-disable-next-line vitest/no-conditional-expect
+          await expect.element(previousBtn).not.toHaveClass('active');
+        }
+
+        previousBtn = caret.expected.activeButton;
+      }
+    });
 
     describe('text format buttons', () => {
       function selectAndSetTextFormat(
@@ -1048,6 +1138,94 @@ describe('RichTextEditor', () => {
         // what if selection is a subpart of a an existing link
         // what if selection includes a link? bug here
 
+        test('selecting an existing link opens the modal - text and link change update the link', async () => {
+          const screen = await renderEditor({
+            initialState: initialStateWithLink
+          });
+          const editor = screen.getLexicalEditor();
+          selectTextAtParagraph(editor, 0, [0, 5]);
+
+          // click on link btn
+          const linkBtn = getLinkBtn(screen);
+          await expect.element(linkBtn).toBeInTheDocument();
+          await expect.element(linkBtn).toHaveClass('active');
+          await linkBtn.click();
+
+          // check modal
+          await expect.element(getLinkModal(screen)).toBeInTheDocument();
+
+          const textInput = getLinkModalTextInput(screen);
+          await expect.element(textInput).toBeInTheDocument();
+          await expect.element(textInput).toHaveValue('hello');
+          await textInput.fill('helllllo');
+
+          const urlInput = getLinkModalUrlInput(screen);
+          await expect.element(urlInput).toBeInTheDocument();
+          await expect.element(urlInput).toHaveValue('https://lexical.dev/');
+          await urlInput.fill('https://play.qobuz.com/');
+
+          const toggleBtn = getLinkModalToggleBtn(screen);
+          await expect.element(toggleBtn).toBeInTheDocument();
+
+          await dismissModal(screen);
+
+          // link has been updated
+          expectLexicalStatesToBeEqual(
+            JSON.stringify(editor.getEditorState().toJSON()),
+            formatConverter.fromMarkdown(
+              '[helllllo](https://play.qobuz.com/ "helllllo") world'
+            ).obj!
+          );
+        });
+
+        test.todo(
+          'selecting around an existing link opens the modal - text and link change update the link',
+          async () => {
+            const screen = await renderEditor({
+              initialState: initialStateWithLink
+            });
+            const editor = screen.getLexicalEditor();
+            selectTextAtParagraph(editor, 0, [0, 8]); // bigger selection than existing link
+
+            // click on link btn
+            const linkBtn = getLinkBtn(screen);
+            await expect.element(linkBtn).toBeInTheDocument();
+            await expect.element(linkBtn).toHaveClass('active');
+            await linkBtn.click();
+
+            // check modal
+            await expect.element(getLinkModal(screen)).toBeInTheDocument();
+
+            const textInput = getLinkModalTextInput(screen);
+            await expect.element(textInput).toBeInTheDocument();
+            await expect.element(textInput).toHaveValue('hello');
+            await textInput.fill('helllllo');
+
+            const urlInput = getLinkModalUrlInput(screen);
+            await expect.element(urlInput).toBeInTheDocument();
+            await expect.element(urlInput).toHaveValue('https://lexical.dev/');
+            await urlInput.fill('https://play.qobuz.com/');
+
+            const toggleBtn = getLinkModalToggleBtn(screen);
+            await expect.element(toggleBtn).toBeInTheDocument();
+
+            await dismissModal(screen);
+
+            // link has been updated
+            expectLexicalStatesToBeEqual(
+              JSON.stringify(editor.getEditorState().toJSON()),
+              formatConverter.fromMarkdown(
+                '[helllllo](https://play.qobuz.com/ "helllllo") world'
+              ).obj!
+            );
+          }
+        );
+
+        test.todo(
+          'selecting inside an existing link opens the modal - text and link change update the link',
+          async () => {}
+        );
+
         test.todo(
           'link btn on non link caret opens the link modal with the word under cursor',
           async () => {}
@@ -1223,10 +1401,6 @@ describe('RichTextEditor', () => {
           await dismissModal(screen);
 
           // link has been updated
-          console.debug(
-            'new state!!!!!!!',
-            JSON.stringify(editor.getEditorState().toJSON())
-          );
           const obj = formatConverter.fromMarkdown(
             '[https://lexical.dev/](https://play.qobuz.com/) world',
             { relAsNoReferrer: false }
@@ -1347,4 +1521,188 @@ describe('RichTextEditor', () => {
       });
     });
   });
+});
+
+// only test the clickOnEditor method
+describe('clickOnEditor', () => {
+  const initialState = formatConverter.fromMarkdown(
+    'hello **world** with <u>formats</u>\n\n' +
+      '# heading\n\n' +
+      '[hello](https://lexical.dev/ "hello") world with links https://github.com\n\n' +
+      '<p style="text-align: center;">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>\n\n' +
+      '- with a list\n' +
+      '- of *course*'
+  ).obj!;
+
+  type Scenario = {
+    skip?: boolean;
+    desc: string;
+    line: number;
+    offset: number;
+    expected: {
+      offset: number;
+      textContent?: string;
+      wordUnderCursor?: string;
+    };
+  };
+  const scenarios: Scenario[] = [
+    {
+      desc: 'w in first line',
+      line: 1,
+      offset: 7,
+      expected: { offset: 1, textContent: 'world' }
+    },
+    {
+      desc: 'r in first line',
+      line: 1,
+      offset: 20,
+      expected: { offset: 3, textContent: 'formats' }
+    },
+    {
+      desc: 'd in second line (heading)',
+      line: 2,
+      offset: 4,
+      expected: { offset: 4, textContent: 'heading' }
+    },
+    {
+      desc: 'l in third line (link)',
+      line: 3,
+      offset: 3,
+      expected: { offset: 3, textContent: 'hello' }
+    },
+    {
+      desc: 's in third line (link)',
+      line: 3,
+      offset: 22,
+      expected: {
+        offset: 17,
+        textContent: ' world with links '
+      }
+    },
+    {
+      desc: 't in third line (link)',
+      line: 3,
+      offset: 26,
+      expected: {
+        offset: 3,
+        textContent: 'https://github.com'
+      }
+    },
+    {
+      desc: 'somewhere in fourth line (centered)',
+      line: 4,
+      offset: 583,
+      expected: {
+        offset: 583,
+        wordUnderCursor: 'minima '
+      }
+    },
+    {
+      desc: 'somewhere else in fourth line (centered)',
+      line: 4,
+      offset: 784,
+      expected: {
+        offset: 784,
+        wordUnderCursor: 'molestiae '
+      }
+    },
+    {
+      desc: 'on first list item',
+      line: 5,
+      offset: 6,
+      expected: {
+        offset: 6,
+        textContent: 'with a list'
+      }
+    },
+    {
+      desc: 'on second list item',
+      line: 5,
+      offset: 17,
+      expected: {
+        offset: 3,
+        textContent: 'course'
+      }
+    }
+  ];
+
+  const debugScenarios: Omit<Scenario, 'expected'>[] = [
+    ...scenarios,
+    {
+      desc: 'on second list item',
+      line: 5,
+      offset: 17
+    }
+  ];
+
+  function getWordUnderCursor(point: PointType) {
+    const textContent = point.getNode().getTextContent();
+    const whitespaceBefore =
+      textContent.substring(0, point.offset).lastIndexOf(' ') + 1;
+    let whitespaceAfter = textContent.substring(point.offset).indexOf(' ') + 1;
+    if (whitespaceAfter === 0) whitespaceAfter = textContent.length - 1;
+    const wordUnderCursor = textContent.substring(
+      whitespaceBefore,
+      point.offset + whitespaceAfter
+    );
+    return wordUnderCursor;
+  }
+
+  scenarios.forEach(({ desc, line, offset: char, expected, skip }) => {
+    if (skip === true) return;
+    test(`${desc}`, async () => {
+      const screen = await renderEditor({
+        initialState
+      });
+      const editor = screen.getLexicalEditor();
+
+      await clickOnEditor(screen, line, char);
+      editor.read(() => {
+        const selection = $getSelection();
+        expect($isRangeSelection(selection)).toBe(true);
+        const points = selection!.getStartEndPoints()!;
+        expect(points[0].is(points[1])).toBe(true);
+        expect(points[0].offset).toBe(expected.offset);
+        if (expected.textContent) {
+          // eslint-disable-next-line vitest/no-conditional-expect
+          expect(points[0].getNode().getTextContent()).toBe(
+            expected.textContent
+          );
+        }
+        if (expected.wordUnderCursor) {
+          // eslint-disable-next-line vitest/no-conditional-expect
+          expect(getWordUnderCursor(points[0])).toBe(expected.wordUnderCursor);
+        }
+      });
+    });
+  });
+
+  const { line, offset: char } = debugScenarios[scenarios.length + 0];
+  // eslint-disable-next-line vitest/no-disabled-tests
+  test.skip(`debug scenario`, async () => {
+    const screen = await renderEditor({
+      initialState
+    });
+    const editor = screen.getLexicalEditor();
+
+    await clickOnEditor(screen, line, char);
+    getContentEditorElement(screen).addEventListener('click', event => {
+      console.debug('clicked', event.clientX, event.clientY);
+      editor.read(() => {
+        const selection = $getSelection();
+        if ($isRangeSelection(selection)) {
+          const points = selection.getStartEndPoints();
+          console.debug('point', points[0].offset);
+          const wordUnderCursor = getWordUnderCursor(points[0]);
+          console.debug('word under cursor', `'${wordUnderCursor}'`);
+        }
+      });
+    });
+
+    // always false to give time to click
+    await expect
+      .element(getToggleReadModeBtn(screen), { timeout: 10000000000 })
+      .toHaveClass('active');
+  });
+  // });
 });
