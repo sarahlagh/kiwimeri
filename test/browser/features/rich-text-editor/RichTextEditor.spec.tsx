@@ -258,22 +258,7 @@ describe('RichTextEditor', () => {
   });
 
   describe('toolbar', () => {
-    function putCaretAtParagraph(
-      editor: LexicalEditor,
-      index = 0,
-      textNodeIdx = 0,
-      offset = 2
-    ) {
-      editor.update(
-        () => {
-          const root = $getRoot();
-          const paragraph = root.getChildAtIndex(index) as ElementNode;
-          const text = paragraph.getAllTextNodes()[textNodeIdx] as TextNode;
-          $setSelection(text.select(offset, offset));
-        },
-        { discrete: true }
-      );
-    }
+    // TODO replace by clickOnEditor-like method
     function selectTextAtParagraph(
       editor: LexicalEditor,
       index = 0,
@@ -298,7 +283,7 @@ describe('RichTextEditor', () => {
           const secondParagraph = $createParagraphNode();
           secondParagraph.append($createTextNode('text'));
           root.append(secondParagraph);
-          $setSelection(text.select(2, 2));
+          $setSelection(text.select(2, 2)); // TODO replace by clickOnEditor
         },
         { discrete: true }
       );
@@ -569,7 +554,7 @@ describe('RichTextEditor', () => {
       const editor = screen.getLexicalEditor();
 
       // select
-      putCaretAtParagraph(editor);
+      await clickOnEditor(screen, 1, 2);
 
       const btn = getInsertHRBtn(screen);
       await expect.element(btn).toBeInTheDocument();
@@ -585,7 +570,7 @@ describe('RichTextEditor', () => {
           const editor = screen.getLexicalEditor();
 
           // set caret at text
-          putCaretAtParagraph(editor);
+          await clickOnEditor(screen, 1, 2);
 
           const btn = getHeadingBtn(screen, tag as HeadingTagType);
           await expect.element(btn).toBeInTheDocument();
@@ -616,12 +601,12 @@ describe('RichTextEditor', () => {
           await btn.click();
 
           // select second text paragraph
-          putCaretAtParagraph(editor, 1);
+          await clickOnEditor(screen, 2, 2);
 
           await expect.element(btn).not.toHaveClass('active');
 
           // select heading again
-          putCaretAtParagraph(editor, 0);
+          await clickOnEditor(screen, 1, 2);
 
           await expect.element(btn).toHaveClass('active');
         });
@@ -667,11 +652,11 @@ describe('RichTextEditor', () => {
           await btn.click();
 
           // select second text paragraph
-          putCaretAtParagraph(editor, 1);
+          await clickOnEditor(screen, 2, 2);
           await expect.element(btn).not.toHaveClass('active');
 
           // select list again
-          putCaretAtParagraph(editor, 0);
+          await clickOnEditor(screen, 1, 2);
           await expect.element(btn).toHaveClass('active');
         });
       });
@@ -707,11 +692,11 @@ describe('RichTextEditor', () => {
         await btn.click();
 
         // select second text paragraph
-        putCaretAtParagraph(editor, 1);
+        await clickOnEditor(screen, 2, 2);
         await expect.element(btn).not.toHaveClass('active');
 
         // select quote again
-        putCaretAtParagraph(editor, 0);
+        await clickOnEditor(screen, 1, 2);
         await expect.element(btn).toHaveClass('active');
       });
     });
@@ -730,7 +715,7 @@ describe('RichTextEditor', () => {
         const editor = screen.getLexicalEditor();
 
         // set caret at text
-        putCaretAtParagraph(editor);
+        await clickOnEditor(screen, 1, 2);
         const rightBtn = getTextAlignBtn(screen, 'right');
         await expect.element(rightBtn).toBeInTheDocument();
         await rightBtn.click();
@@ -752,7 +737,7 @@ describe('RichTextEditor', () => {
           const editor = screen.getLexicalEditor();
 
           // set caret at text
-          putCaretAtParagraph(editor);
+          await clickOnEditor(screen, 1, 2);
 
           const btn = getTextAlignBtn(
             screen,
@@ -783,13 +768,13 @@ describe('RichTextEditor', () => {
           await btn.click();
 
           // select second text paragraph
-          putCaretAtParagraph(editor, 1);
+          await clickOnEditor(screen, 2, 2);
 
           await expect.element(leftBtn).toHaveClass('active');
           await expect.element(btn).not.toHaveClass('active');
 
           // select first paragraph again
-          putCaretAtParagraph(editor, 0);
+          await clickOnEditor(screen, 1, 2);
 
           await expect.element(leftBtn).not.toHaveClass('active');
           await expect.element(btn).toHaveClass('active');
@@ -954,7 +939,7 @@ describe('RichTextEditor', () => {
           });
           const editor = screen.getLexicalEditor();
           // set caret at text
-          putCaretAtParagraph(editor);
+          await clickOnEditor(screen, 1, 2);
 
           // click on link btn
           const linkBtn = getLinkBtn(screen);
@@ -983,7 +968,7 @@ describe('RichTextEditor', () => {
           });
           const editor = screen.getLexicalEditor();
           // set caret at text
-          putCaretAtParagraph(editor);
+          await clickOnEditor(screen, 1, 2);
 
           // click on link btn
           const linkBtn = getLinkBtn(screen);
@@ -1009,7 +994,7 @@ describe('RichTextEditor', () => {
           });
           const editor = screen.getLexicalEditor();
           // set caret at text
-          putCaretAtParagraph(editor);
+          await clickOnEditor(screen, 1, 2);
 
           // click on link btn
           const linkBtn = getLinkBtn(screen);
@@ -1041,7 +1026,7 @@ describe('RichTextEditor', () => {
           });
           const editor = screen.getLexicalEditor();
           // set caret at text
-          putCaretAtParagraph(editor);
+          await clickOnEditor(screen, 1, 2);
 
           // click on link btn
           const linkBtn = getLinkBtn(screen);
@@ -1073,7 +1058,7 @@ describe('RichTextEditor', () => {
           });
           const editor = screen.getLexicalEditor();
           // set caret at text
-          putCaretAtParagraph(editor);
+          await clickOnEditor(screen, 1, 2);
 
           // click on link btn
           const linkBtn = getLinkBtn(screen);
@@ -1110,7 +1095,7 @@ describe('RichTextEditor', () => {
           });
           const editor = screen.getLexicalEditor();
           // set caret at text
-          putCaretAtParagraph(editor);
+          await clickOnEditor(screen, 1, 2);
 
           // click on link btn
           const linkBtn = getLinkBtn(screen);
@@ -1248,7 +1233,7 @@ describe('RichTextEditor', () => {
           );
 
           // set caret at text
-          putCaretAtParagraph(editor);
+          await clickOnEditor(screen, 1, 2);
           await expect.element(getLinkBtn(screen)).toHaveClass('active');
         });
 
@@ -1266,7 +1251,7 @@ describe('RichTextEditor', () => {
           });
           const editor = screen.getLexicalEditor();
           // set caret at text
-          putCaretAtParagraph(editor);
+          await clickOnEditor(screen, 1, 2);
 
           // click on link btn
           const linkBtn = getLinkBtn(screen);
@@ -1295,7 +1280,7 @@ describe('RichTextEditor', () => {
           });
           const editor = screen.getLexicalEditor();
           // set caret at text
-          putCaretAtParagraph(editor);
+          await clickOnEditor(screen, 1, 2);
 
           // click on link btn
           const linkBtn = getLinkBtn(screen);
@@ -1324,7 +1309,7 @@ describe('RichTextEditor', () => {
           });
           const editor = screen.getLexicalEditor();
           // set caret at text
-          putCaretAtParagraph(editor);
+          await clickOnEditor(screen, 1, 2);
 
           // click on link btn
           const linkBtn = getLinkBtn(screen);
@@ -1350,7 +1335,7 @@ describe('RichTextEditor', () => {
           });
           const editor = screen.getLexicalEditor();
           // set caret at text
-          putCaretAtParagraph(editor);
+          await clickOnEditor(screen, 1, 2);
 
           // click on link btn
           const linkBtn = getLinkBtn(screen);
@@ -1383,7 +1368,7 @@ describe('RichTextEditor', () => {
           });
           const editor = screen.getLexicalEditor();
           // set caret at text
-          putCaretAtParagraph(editor);
+          await clickOnEditor(screen, 1, 2);
 
           // click on link btn
           const linkBtn = getLinkBtn(screen);
@@ -1417,7 +1402,7 @@ describe('RichTextEditor', () => {
           });
           const editor = screen.getLexicalEditor();
           // set caret at text
-          putCaretAtParagraph(editor);
+          await clickOnEditor(screen, 1, 2);
 
           // click on link btn
           const linkBtn = getLinkBtn(screen);
@@ -1455,7 +1440,7 @@ describe('RichTextEditor', () => {
           });
           const editor = screen.getLexicalEditor();
           // set caret at text
-          putCaretAtParagraph(editor);
+          await clickOnEditor(screen, 1, 2);
 
           // click on link btn
           const linkBtn = getLinkBtn(screen);
@@ -1488,7 +1473,7 @@ describe('RichTextEditor', () => {
           });
           const editor = screen.getLexicalEditor();
           // set caret at text
-          putCaretAtParagraph(editor);
+          await clickOnEditor(screen, 1, 2);
 
           // click on link btn
           const linkBtn = getLinkBtn(screen);
@@ -1531,7 +1516,9 @@ describe('clickOnEditor', () => {
       '[hello](https://lexical.dev/ "hello") world with links https://github.com\n\n' +
       '<p style="text-align: center;">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>\n\n' +
       '- with a list\n' +
-      '- of *course*'
+      '- of *course*\n\n' +
+      '> and a quote\n' +
+      '> second ~~row~~'
   ).obj!;
 
   type Scenario = {
@@ -1623,15 +1610,33 @@ describe('clickOnEditor', () => {
         offset: 3,
         textContent: 'course'
       }
+    },
+    {
+      desc: 'd in first row of quote',
+      line: 6,
+      offset: 3,
+      expected: {
+        offset: 3,
+        textContent: 'and a quote'
+      }
+    },
+    {
+      desc: 'c in second row of quote',
+      line: 7,
+      offset: 3,
+      expected: {
+        offset: 3,
+        textContent: 'second '
+      }
     }
   ];
 
   const debugScenarios: Omit<Scenario, 'expected'>[] = [
     ...scenarios,
     {
-      desc: 'on second list item',
+      desc: 'd in quote',
       line: 5,
-      offset: 17
+      offset: 3
     }
   ];
 

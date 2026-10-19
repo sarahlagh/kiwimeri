@@ -76,14 +76,20 @@ export async function clickOnEditor(
   const rect = range.getBoundingClientRect();
   const position = { x: rect.left + rect.width, y: rect.top + rect.height };
 
-  // for list items
   if (node.parentElement?.parentElement) {
     const style = window.getComputedStyle(
       node.parentElement.parentElement,
       null
     );
-    const marginTop = style.getPropertyValue('margin-top');
-    position.y -= parseInt(marginTop.replace('px', '')); // remove margin
+    const marginTop = parseInt(
+      style.getPropertyValue('margin-top').replace('px', '')
+    );
+    position.y -= marginTop; // > 0 for listitems
+
+    const isBlockquote = style.getPropertyValue('border-left-width') !== '0px'; // > 0 for blockquotes
+    if (isBlockquote) {
+      position.y -= 10; // whatever
+    }
   }
 
   await userEvent.click(screen.baseElement, {
