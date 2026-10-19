@@ -9,6 +9,7 @@ import { ListNode, ListType } from '@lexical/list';
 import { HeadingNode, HeadingTagType } from '@lexical/rich-text';
 import {
   $createParagraphNode,
+  $createRangeSelection,
   $createTextNode,
   $getRoot,
   $getSelection,
@@ -53,9 +54,34 @@ describe('RichTextEditor Toolbar', () => {
       () => {
         const root = $getRoot();
         const paragraph = root.getChildAtIndex(index) as ElementNode;
-        const text = paragraph.getAllTextNodes()[0] as TextNode;
-        // $setSelection(paragraph.select(...offsets));
-        $setSelection(text.select(...offsets));
+        const [start, end] = offsets;
+        let i = 0;
+        let startNode, endNode, startOffset, endOffset;
+        for (const node of paragraph.getAllTextNodes()) {
+          const textNode = node as TextNode;
+          const textLength = textNode.getTextContent().length;
+          i += textLength;
+          if (i < start) continue;
+          if (!startNode) {
+            startNode = node;
+            startOffset = start - (i - textLength);
+          }
+          if (i < end) continue;
+          endNode = node;
+          endOffset = end - (i - textLength);
+          break;
+        }
+        if (!startNode || !endNode) {
+          throw new Error('invalid selection');
+        }
+        const newSelection = $createRangeSelection();
+        newSelection.setTextNodeRange(
+          startNode,
+          startOffset!,
+          endNode,
+          endOffset!
+        );
+        $setSelection(newSelection);
       },
       { discrete: true }
     );
@@ -899,10 +925,6 @@ describe('RichTextEditor Toolbar', () => {
         );
       });
 
-      // TODO selection on link does the same thing...
-      // what if selection is a subpart of a an existing link
-      // what if selection includes a link? bug here
-
       test('selecting an existing link opens the modal - text and link change update the link', async () => {
         const screen = await renderEditor({
           initialState: initialStateWithLink
@@ -943,53 +965,203 @@ describe('RichTextEditor Toolbar', () => {
         );
       });
 
-      test.todo(
-        'selecting around an existing link opens the modal - text and link change update the link',
-        async () => {
-          const screen = await renderEditor({
-            initialState: initialStateWithLink
-          });
-          const editor = screen.getLexicalEditor();
-          selectTextAtParagraph(editor, 0, [0, 8]); // bigger selection than existing link
+      test('selecting around an existing link opens the modal - text change updates the link', async () => {
+        const screen = await renderEditor({
+          initialState: initialStateWithLink
+        });
+        const editor = screen.getLexicalEditor();
+        selectTextAtParagraph(editor, 0, [0, 8]); // bigger selection than existing link
 
-          // click on link btn
-          const linkBtn = getLinkBtn(screen);
-          await expect.element(linkBtn).toBeInTheDocument();
-          await expect.element(linkBtn).toHaveClass('active');
-          await linkBtn.click();
+        // click on link btn
+        const linkBtn = getLinkBtn(screen);
+        await expect.element(linkBtn).toBeInTheDocument();
+        await expect.element(linkBtn).not.toHaveClass('active');
+        await linkBtn.click();
 
-          // check modal
-          await expect.element(getLinkModal(screen)).toBeInTheDocument();
+        // check modal
+        await expect.element(getLinkModal(screen)).toBeInTheDocument();
 
-          const textInput = getLinkModalTextInput(screen);
-          await expect.element(textInput).toBeInTheDocument();
-          await expect.element(textInput).toHaveValue('hello wo');
-          await textInput.fill('helllllowo');
+        const textInput = getLinkModalTextInput(screen);
+        await expect.element(textInput).toBeInTheDocument();
+        await expect.element(textInput).toHaveValue('hello wo');
+        await textInput.fill('helllllowo');
 
-          const urlInput = getLinkModalUrlInput(screen);
-          await expect.element(urlInput).toBeInTheDocument();
-          await expect.element(urlInput).toHaveValue('https://lexical.dev/');
-          await urlInput.fill('https://play.qobuz.com/');
+        const urlInput = getLinkModalUrlInput(screen);
+        await expect.element(urlInput).toBeInTheDocument();
+        await expect.element(urlInput).toHaveValue('https://lexical.dev/');
 
-          const toggleBtn = getLinkModalToggleBtn(screen);
-          await expect.element(toggleBtn).toBeInTheDocument();
+        const toggleBtn = getLinkModalToggleBtn(screen);
+        await expect.element(toggleBtn).toBeInTheDocument();
 
-          await dismissModal(screen);
+        await dismissModal(screen);
 
-          // link has been updated
-          expectLexicalStatesToBeEqual(
-            JSON.stringify(editor.getEditorState().toJSON()),
-            formatConverter.fromMarkdown(
-              '[helllllowo](https://play.qobuz.com/ "helllllowo")rld'
-            ).obj!
-          );
-        }
-      );
+        // link has been updated
+        expectLexicalStatesToBeEqual(
+          JSON.stringify(editor.getEditorState().toJSON()),
+          formatConverter.fromMarkdown(
+            '[helllllowo](https://lexical.dev/ "helllllowo")rld'
+          ).obj!
+        );
+      });
 
-      test.todo(
-        'selecting inside an existing link opens the modal - text and link change update the link',
-        async () => {}
-      );
+      test('selecting around an existing link opens the modal - link change updates the link', async () => {
+        const screen = await renderEditor({
+          initialState: initialStateWithLink
+        });
+        const editor = screen.getLexicalEditor();
+        selectTextAtParagraph(editor, 0, [0, 8]); // bigger selection than existing link
+
+        // click on link btn
+        const linkBtn = getLinkBtn(screen);
+        await expect.element(linkBtn).toBeInTheDocument();
+        await expect.element(linkBtn).not.toHaveClass('active');
+        await linkBtn.click();
+
+        // check modal
+        await expect.element(getLinkModal(screen)).toBeInTheDocument();
+
+        const textInput = getLinkModalTextInput(screen);
+        await expect.element(textInput).toBeInTheDocument();
+        await expect.element(textInput).toHaveValue('hello wo');
+
+        const urlInput = getLinkModalUrlInput(screen);
+        await expect.element(urlInput).toBeInTheDocument();
+        await expect.element(urlInput).toHaveValue('https://lexical.dev/');
+        await urlInput.fill('https://play.qobuz.com/');
+
+        const toggleBtn = getLinkModalToggleBtn(screen);
+        await expect.element(toggleBtn).toBeInTheDocument();
+
+        await dismissModal(screen);
+
+        // link has been updated
+        expectLexicalStatesToBeEqual(
+          JSON.stringify(editor.getEditorState().toJSON()),
+          formatConverter.fromMarkdown(
+            '[hello wo](https://play.qobuz.com/ "hello wo")rld'
+          ).obj!
+        );
+      });
+
+      test('selecting around an existing link opens the modal - text and link change update the link', async () => {
+        const screen = await renderEditor({
+          initialState: initialStateWithLink
+        });
+        const editor = screen.getLexicalEditor();
+        selectTextAtParagraph(editor, 0, [0, 8]); // bigger selection than existing link
+
+        // click on link btn
+        const linkBtn = getLinkBtn(screen);
+        await expect.element(linkBtn).toBeInTheDocument();
+        await expect.element(linkBtn).not.toHaveClass('active');
+        await linkBtn.click();
+
+        // check modal
+        await expect.element(getLinkModal(screen)).toBeInTheDocument();
+
+        const textInput = getLinkModalTextInput(screen);
+        await expect.element(textInput).toBeInTheDocument();
+        await expect.element(textInput).toHaveValue('hello wo');
+        await textInput.fill('helllllowo');
+
+        const urlInput = getLinkModalUrlInput(screen);
+        await expect.element(urlInput).toBeInTheDocument();
+        await expect.element(urlInput).toHaveValue('https://lexical.dev/');
+        await urlInput.fill('https://play.qobuz.com/');
+
+        const toggleBtn = getLinkModalToggleBtn(screen);
+        await expect.element(toggleBtn).toBeInTheDocument();
+
+        await dismissModal(screen);
+
+        // link has been updated
+        expectLexicalStatesToBeEqual(
+          JSON.stringify(editor.getEditorState().toJSON()),
+          formatConverter.fromMarkdown(
+            '[helllllowo](https://play.qobuz.com/ "helllllowo")rld'
+          ).obj!
+        );
+      });
+
+      test('selecting partially around an existing link opens the modal - text and link change update the link', async () => {
+        const screen = await renderEditor({
+          initialState: initialStateWithLink
+        });
+        const editor = screen.getLexicalEditor();
+        selectTextAtParagraph(editor, 0, [3, 8]); // half-selects link
+
+        // click on link btn
+        const linkBtn = getLinkBtn(screen);
+        await expect.element(linkBtn).toBeInTheDocument();
+        await expect.element(linkBtn).toHaveClass('active');
+        await linkBtn.click();
+
+        // check modal
+        await expect.element(getLinkModal(screen)).toBeInTheDocument();
+
+        const textInput = getLinkModalTextInput(screen);
+        await expect.element(textInput).toBeInTheDocument();
+        await expect.element(textInput).toHaveValue('lo wo');
+        await textInput.fill('helllllowo');
+
+        const urlInput = getLinkModalUrlInput(screen);
+        await expect.element(urlInput).toBeInTheDocument();
+        await expect.element(urlInput).toHaveValue('https://lexical.dev/');
+        await urlInput.fill('https://play.qobuz.com/');
+
+        const toggleBtn = getLinkModalToggleBtn(screen);
+        await expect.element(toggleBtn).toBeInTheDocument();
+
+        await dismissModal(screen);
+
+        // link has been updated
+        expectLexicalStatesToBeEqual(
+          JSON.stringify(editor.getEditorState().toJSON()),
+          formatConverter.fromMarkdown(
+            '[helllllowo](https://play.qobuz.com/ "helllllowo")rld'
+          ).obj!
+        );
+      });
+
+      test('selecting inside an existing link opens the modal - text and link change update the link', async () => {
+        const screen = await renderEditor({
+          initialState: initialStateWithLink
+        });
+        const editor = screen.getLexicalEditor();
+        selectTextAtParagraph(editor, 0, [1, 4]); // selects inside link
+
+        // click on link btn
+        const linkBtn = getLinkBtn(screen);
+        await expect.element(linkBtn).toBeInTheDocument();
+        await expect.element(linkBtn).toHaveClass('active');
+        await linkBtn.click();
+
+        // check modal
+        await expect.element(getLinkModal(screen)).toBeInTheDocument();
+
+        const textInput = getLinkModalTextInput(screen);
+        await expect.element(textInput).toBeInTheDocument();
+        await expect.element(textInput).toHaveValue('ell'); // should be full link text no?
+        await textInput.fill('helllllowo');
+
+        const urlInput = getLinkModalUrlInput(screen);
+        await expect.element(urlInput).toBeInTheDocument();
+        await expect.element(urlInput).toHaveValue('https://lexical.dev/');
+        await urlInput.fill('https://play.qobuz.com/');
+
+        const toggleBtn = getLinkModalToggleBtn(screen);
+        await expect.element(toggleBtn).toBeInTheDocument();
+
+        await dismissModal(screen);
+
+        // link has been updated
+        expectLexicalStatesToBeEqual(
+          JSON.stringify(editor.getEditorState().toJSON()),
+          formatConverter.fromMarkdown(
+            '[helllllowo](https://play.qobuz.com/ "helllllowo") world'
+          ).obj!
+        );
+      });
 
       test.todo(
         'link btn on non link caret opens the link modal with the word under cursor',
@@ -1283,5 +1455,7 @@ describe('RichTextEditor Toolbar', () => {
       // what if selection is a subpart of a an existing antolink
       // what if selection includes an antolink?
     });
+
+    test.todo('selecting multiple links disables the btn', async () => {});
   });
 });

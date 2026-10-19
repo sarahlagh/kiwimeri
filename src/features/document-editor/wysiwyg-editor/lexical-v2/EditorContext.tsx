@@ -4,14 +4,6 @@ import { HeadingTagType } from '@lexical/rich-text';
 import { ElementFormatType } from 'lexical';
 import { createContext, ReactNode, use, useCallback, useState } from 'react';
 
-type LinkContext = {
-  isLink: boolean;
-  isAutoLink: boolean;
-  isAutoLinkUnlinked: boolean;
-  linkUrl?: string;
-  linkText?: string;
-};
-
 type SelectionContext = {
   isTextOrElementSelection: boolean; // not just a cursor
   isBold: boolean;
@@ -23,7 +15,14 @@ type SelectionContext = {
   headingTag?: HeadingTagType;
   listType?: ListType;
   elementFormat: ElementFormatType; // text-align
-  linkContext: LinkContext;
+  links: {
+    isLink: boolean;
+    isAutoLink: boolean;
+    isAutoLinkUnlinked: boolean;
+    linkUrl?: string;
+    linkText?: string;
+    hasMultipleLinks: boolean;
+  };
 };
 
 const INITIAL_SELECTION_CONTEXT: SelectionContext = {
@@ -35,10 +34,11 @@ const INITIAL_SELECTION_CONTEXT: SelectionContext = {
   isUnderline: false,
   blockType: 'paragraph',
   elementFormat: 'left',
-  linkContext: {
+  links: {
     isLink: false,
     isAutoLink: false,
-    isAutoLinkUnlinked: false
+    isAutoLinkUnlinked: false,
+    hasMultipleLinks: false
   }
 };
 

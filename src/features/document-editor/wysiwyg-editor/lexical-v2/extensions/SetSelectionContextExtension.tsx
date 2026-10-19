@@ -82,34 +82,39 @@ function SetSelectionContextWrapper() {
       }
 
       // links
-      const node = getSelectedNode(selection);
+      const linkNodes = selection.getNodes().filter(n => {
+        const parent = n.getParent();
+        return $isLinkNode(parent) || $isAutoLinkNode(parent);
+      });
+      newSelectionContext.links.hasMultipleLinks = linkNodes.length > 1;
+
+      const node =
+        linkNodes.length === 1 ? linkNodes[0] : getSelectedNode(selection);
       const parent = node.getParent();
       const isLink = $isLinkNode(parent);
       const isAutoLink = $isAutoLinkNode(parent);
-      newSelectionContext.linkContext.isLink = isLink;
-      newSelectionContext.linkContext.isAutoLink = isAutoLink;
+      newSelectionContext.links.isLink = isLink;
+      newSelectionContext.links.isAutoLink = isAutoLink;
       if (isAutoLink) {
-        newSelectionContext.linkContext.isAutoLinkUnlinked =
-          parent.getIsUnlinked();
+        newSelectionContext.links.isAutoLinkUnlinked = parent.getIsUnlinked();
       }
       if (isLink) {
-        newSelectionContext.linkContext.linkUrl = parent.getURL();
+        newSelectionContext.links.linkUrl = parent.getURL();
       }
-      if (isTextOrElementSelection || isLink) {
-        newSelectionContext.linkContext.linkText =
-          selection.getTextContent() || node.getTextContent();
-      }
-    }
+      if (isTextOrElementSelection) {
+        newSelectionContext.links.linkText = selection.getTextContent();
+      } else if (isLink) {
+        newSelectionContext.links.linkText = parent.getTextContent();
+      } // TODO else grab word under cursor
 
-    // text format
-    newSelectionContext.isBold = isRange && selection.hasFormat('bold');
-    newSelectionContext.isItalic = isRange && selection.hasFormat('italic');
-    newSelectionContext.isStrikethrough =
-      isRange && selection.hasFormat('strikethrough');
-    newSelectionContext.isUnderline =
-      isRange && selection.hasFormat('underline');
-    newSelectionContext.isHighlight =
-      isRange && selection.hasFormat('highlight');
+      // text format
+      newSelectionContext.isBold = selection.hasFormat('bold');
+      newSelectionContext.isItalic = selection.hasFormat('italic');
+      newSelectionContext.isStrikethrough =
+        selection.hasFormat('strikethrough');
+      newSelectionContext.isUnderline = selection.hasFormat('underline');
+      newSelectionContext.isHighlight = selection.hasFormat('highlight');
+    }
 
     setSelectionContext(newSelectionContext);
   }, [editor, setSelectionContext]);

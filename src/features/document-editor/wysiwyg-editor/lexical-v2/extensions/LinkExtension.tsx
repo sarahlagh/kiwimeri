@@ -55,40 +55,49 @@ export const OPEN_LINK_MODAL_COMMAND: LexicalCommand<void> = createCommand(
 
 const handleLinkSubmission = (
   editor: LexicalEditor,
-  newLinkUrl?: string | null,
-  newLinkText?: string | null
+  payload: {
+    isTextOrElementSelection: boolean;
+    linkUrl?: string | null;
+    linkText?: string | null;
+  }
 ) => {
-  const undoLink = !newLinkUrl;
-  editor.update(() => {
-    editor.dispatchCommand(
-      TOGGLE_LINK_COMMAND,
-      undoLink
-        ? null
-        : {
-            url: sanitizeUrl(newLinkUrl),
-            title: newLinkText
-          }
-    );
-    // if link not deleted and text changed, update text
-    if (!undoLink && newLinkUrl !== '' && newLinkText && newLinkText !== '') {
-      const textNode = $createTextNode(newLinkText);
+  editor.dispatchCommand(
+    TOGGLE_LINK_COMMAND,
+    payload.linkUrl
+      ? {
+          url: sanitizeUrl(payload.linkUrl),
+          title: payload.linkText
+        }
+      : null
+  );
+  // if link not deleted and text changed, update text
+  if (
+    payload.linkUrl &&
+    payload.linkUrl !== '' &&
+    payload.linkText &&
+    payload.linkText !== ''
+  ) {
+    editor.update(() => {
+      const textNode = $createTextNode(payload.linkText!);
       const selection = $getSelection();
       if ($isRangeSelection(selection)) {
         const node = getSelectedNode(selection);
         node.replace(textNode);
       }
-    }
-  });
+    });
+  }
 };
 
 const handleAutoLinkSubmission = (
   editor: LexicalEditor,
-  newLinkUrl?: string | null,
-  newLinkText?: string | null
+  payload: {
+    isTextOrElementSelection: boolean;
+    linkUrl?: string | null;
+    linkText?: string | null;
+  }
 ) => {
-  const toggleLink = !newLinkUrl;
   editor.update(() => {
-    if (toggleLink) {
+    if (!payload.linkUrl) {
       const selection = $getSelection();
       if ($isRangeSelection(selection)) {
         const nodes = selection.extract();
@@ -101,8 +110,8 @@ const handleAutoLinkSubmission = (
           }
         });
       }
-    } else if (newLinkText && newLinkText !== '') {
-      const url = sanitizeUrl(newLinkUrl);
+    } else if (payload.linkText && payload.linkText !== '') {
+      const url = sanitizeUrl(payload.linkUrl);
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return;
       const node = getSelectedNode(selection);
@@ -111,7 +120,7 @@ const handleAutoLinkSubmission = (
         const linkNode = $createLinkNode(url);
         parent.replace(linkNode);
         linkNode.clear();
-        const textNode = $createTextNode(newLinkText);
+        const textNode = $createTextNode(payload.linkText);
         linkNode.append(textNode);
         textNode.selectEnd();
       }
@@ -122,13 +131,19 @@ const handleAutoLinkSubmission = (
 const OpenLinkModalPlugin = () => {
   const [editor] = useLexicalComposerContext();
   const { selectionContext: selection } = useEditorContext();
-  const linkContext = selection.linkContext;
+  const linkContext = selection.links;
   const { t } = useLingui();
   const payloadRef = useRef<{
+    changed: boolean;
+    isTextOrElementSelection: boolean;
     linkText?: string;
     linkUrl?: string;
-    changed: boolean;
-  }>({ changed: false });
+  }>({
+    isTextOrElementSelection: false,
+    changed: false
+  });
+  payloadRef.current.isTextOrElementSelection =
+    selection.isTextOrElementSelection;
   payloadRef.current.linkText = linkContext.linkText;
   payloadRef.current.linkUrl = linkContext.linkUrl;
   const [present, dismiss] = useIonPopover(
@@ -191,27 +206,22 @@ const OpenLinkModalPlugin = () => {
           onDidDismiss() {
             if (payloadRef.current.changed) {
               if (linkContext.isAutoLink) {
-                handleAutoLinkSubmission(
-                  editor,
-                  payloadRef.current.linkUrl,
-                  payloadRef.current.linkText
-                );
+                handleAutoLinkSubmission(editor, payloadRef.current);
               } else {
-                handleLinkSubmission(
-                  editor,
-                  payloadRef.current.linkUrl,
-                  payloadRef.current.linkText
-                );
+                handleLinkSubmission(editor, payloadRef.current);
               }
             }
-            payloadRef.current = { changed: false };
+            payloadRef.current = {
+              changed: false,
+              isTextOrElementSelection: selection.isTextOrElementSelection
+            };
           }
         });
         return false;
       },
       COMMAND_PRIORITY_EDITOR
     );
-  }, [editor, present, linkContext]);
+  }, [editor, present, linkContext, selection.isTextOrElementSelection]);
 
   return null;
 };
