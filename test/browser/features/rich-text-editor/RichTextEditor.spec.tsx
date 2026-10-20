@@ -13,7 +13,7 @@ import {
   getToggleReadModeBtn,
   getToolbar
 } from './RichTextEditor.locators';
-import { renderEditor } from './utils.test';
+import { renderEditor } from './utils';
 
 const expectedNumberOfBtns = 19;
 

@@ -1,4 +1,5 @@
 import {
+  $createAutoLinkNode,
   $createLinkNode,
   $isAutoLinkNode,
   AutoLinkExtension,
@@ -35,7 +36,7 @@ import { createLinkMatcherWithRegExp } from '@lexical/react/LexicalAutoLinkPlugi
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { ReactExtension } from '@lexical/react/ReactExtension';
 import { useLingui } from '@lingui/react/macro';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useEditorContext } from '../EditorContext';
 import { getSelectedNode } from '../utils/getSelectedNode';
 import { sanitizeUrl } from '../utils/url';
@@ -53,13 +54,26 @@ export const OPEN_LINK_MODAL_COMMAND: LexicalCommand<void> = createCommand(
   'OPEN_LINK_MODAL_COMMAND'
 );
 
+type ModalResultPayload = {
+  textChanged: boolean;
+  urlChanged: boolean;
+  isTextOrElementSelection: boolean;
+  linkText?: string;
+  linkUrl?: string;
+};
+
+// function getLinkParentNode(selection: RangeSelection) {
+//   const nodes = selection.extract().filter(n => {
+//     const parent = n.getParent();
+//     return $isLinkNode(parent) || $isAutoLinkNode(parent);
+//   });
+//   // should always have one node, and should always have the same parent
+//   return nodes[0].getParent() as AutoLinkNode;
+// }
+
 const handleLinkSubmission = (
   editor: LexicalEditor,
-  payload: {
-    isTextOrElementSelection: boolean;
-    linkUrl?: string | null;
-    linkText?: string | null;
-  }
+  payload: ModalResultPayload
 ) => {
   editor.dispatchCommand(
     TOGGLE_LINK_COMMAND,
@@ -90,34 +104,43 @@ const handleLinkSubmission = (
 
 const handleAutoLinkSubmission = (
   editor: LexicalEditor,
-  payload: {
-    isTextOrElementSelection: boolean;
-    linkUrl?: string | null;
-    linkText?: string | null;
-  }
+  payload: ModalResultPayload
 ) => {
+  console.debug('payload', payload);
   editor.update(() => {
+    const selection = $getSelection();
+    if (!$isRangeSelection(selection)) return;
     if (!payload.linkUrl) {
-      const selection = $getSelection();
-      if ($isRangeSelection(selection)) {
-        const nodes = selection.extract();
-        nodes.forEach(node => {
-          const parent = node.getParent();
-          if ($isAutoLinkNode(parent)) {
-            // invert the value
-            parent.setIsUnlinked(!parent.getIsUnlinked());
-            parent.markDirty();
-          }
-        });
-      }
-    } else if (payload.linkText && payload.linkText !== '') {
-      const url = sanitizeUrl(payload.linkUrl);
-      const selection = $getSelection();
-      if (!$isRangeSelection(selection)) return;
+      // toggle unlinked
       const node = getSelectedNode(selection);
       const parent = node.getParent();
       if ($isAutoLinkNode(parent)) {
-        const linkNode = $createLinkNode(url);
+        // invert the value
+        parent.setIsUnlinked(!parent.getIsUnlinked());
+        parent.markDirty();
+      }
+    } else if (payload.urlChanged && payload.linkUrl !== '') {
+      const url = sanitizeUrl(payload.linkUrl);
+      const node = getSelectedNode(selection);
+      const parent = node.getParent();
+      if ($isAutoLinkNode(parent)) {
+        const linkNode = $createAutoLinkNode(url, {
+          isUnlinked: parent.getIsUnlinked()
+        });
+        const textNode = $createTextNode(url);
+        linkNode.append(textNode);
+        parent?.replace(linkNode);
+        textNode.select();
+      }
+    }
+    if (!payload.textChanged) return;
+    const newSelection = $getSelection();
+    if (!$isRangeSelection(newSelection)) return;
+    if (payload.linkText && payload.linkText !== '') {
+      const node = getSelectedNode(newSelection);
+      const parent = node.getParent();
+      if ($isAutoLinkNode(parent)) {
+        const linkNode = $createLinkNode(parent.getURL());
         parent.replace(linkNode);
         linkNode.clear();
         const textNode = $createTextNode(payload.linkText);
@@ -133,14 +156,11 @@ const OpenLinkModalPlugin = () => {
   const { selectionContext: selection } = useEditorContext();
   const linkContext = selection.links;
   const { t } = useLingui();
-  const payloadRef = useRef<{
-    changed: boolean;
-    isTextOrElementSelection: boolean;
-    linkText?: string;
-    linkUrl?: string;
-  }>({
+  const [textWillChange, setTextWillChange] = useState(false);
+  const payloadRef = useRef<ModalResultPayload>({
     isTextOrElementSelection: false,
-    changed: false
+    textChanged: false,
+    urlChanged: false
   });
   payloadRef.current.isTextOrElementSelection =
     selection.isTextOrElementSelection;
@@ -152,13 +172,25 @@ const OpenLinkModalPlugin = () => {
         <IonInput
           label={t`Text`}
           value={payloadRef.current.linkText}
+          disabled={linkContext.isAutoLink && textWillChange !== true}
           onIonInput={(e: InputCustomEvent) => {
             if (e.detail.value) {
-              payloadRef.current.changed = true;
+              payloadRef.current.textChanged = true;
               payloadRef.current.linkText = e.detail.value;
             }
           }}
-        ></IonInput>
+        />
+        {linkContext.isAutoLink && (
+          <IonButton
+            fill="clear"
+            aria-label={t`Edit text`}
+            onClick={() => {
+              setTextWillChange(true);
+            }}
+          >
+            <IonIcon icon={APPICONS.renameAction}></IonIcon>
+          </IonButton>
+        )}
       </IonItem>
       <IonItem className="inner-item">
         <IonInput
@@ -167,11 +199,11 @@ const OpenLinkModalPlugin = () => {
           value={payloadRef.current.linkUrl}
           onIonInput={(e: InputCustomEvent) => {
             if (e.detail.value) {
-              payloadRef.current.changed = true;
+              payloadRef.current.urlChanged = true;
               payloadRef.current.linkUrl = e.detail.value;
             }
           }}
-        ></IonInput>
+        />
         {(linkContext.isAutoLink ||
           (payloadRef.current.linkUrl &&
             payloadRef.current.linkUrl !== '')) && (
@@ -179,7 +211,7 @@ const OpenLinkModalPlugin = () => {
             fill="clear"
             aria-label={t`Toggle`}
             onClick={() => {
-              payloadRef.current.changed = true;
+              payloadRef.current.urlChanged = true;
               delete payloadRef.current.linkUrl;
               dismiss();
             }}
@@ -204,7 +236,10 @@ const OpenLinkModalPlugin = () => {
           htmlAttributes: { role: 'dialog' },
           cssClass: 'larger-width',
           onDidDismiss() {
-            if (payloadRef.current.changed) {
+            if (
+              payloadRef.current.textChanged ||
+              payloadRef.current.urlChanged
+            ) {
               if (linkContext.isAutoLink) {
                 handleAutoLinkSubmission(editor, payloadRef.current);
               } else {
@@ -212,9 +247,11 @@ const OpenLinkModalPlugin = () => {
               }
             }
             payloadRef.current = {
-              changed: false,
+              textChanged: false,
+              urlChanged: false,
               isTextOrElementSelection: selection.isTextOrElementSelection
             };
+            setTextWillChange(false);
           }
         });
         return false;

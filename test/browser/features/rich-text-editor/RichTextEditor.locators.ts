@@ -3,7 +3,6 @@ import { HeadingTagType } from '@lexical/rich-text';
 import { ElementFormatType, TextFormatType } from 'lexical';
 import { expect } from 'vitest';
 import { RenderResult } from 'vitest-browser-react';
-import { userEvent } from 'vitest/browser';
 
 // content editor
 
@@ -22,79 +21,6 @@ export async function getEditorTextContent(screen: RenderResult) {
   const el = composer.element() as HTMLElement;
   expect(el.children).toHaveLength(1);
   return el.children[0].textContent;
-}
-
-function findNodeAtLine(screen: RenderResult, nthLine: number) {
-  const rootChildren = getContentEditor(screen).element().children;
-  return rootChildren[nthLine - 1];
-}
-
-type Resp = {
-  node: ChildNode | null;
-  offset: number;
-};
-function findNodeAtChar(
-  element: Element | ChildNode,
-  offset: number,
-  range?: Resp
-): Resp {
-  let count = offset;
-  if (!range) range = { node: null, offset: 0 };
-  for (const child of element.childNodes) {
-    if (child.nodeType === Node.TEXT_NODE && child.textContent) {
-      if (count > child.textContent.length) {
-        count -= child.textContent.length;
-      } else {
-        range.node = child;
-        range.offset = count;
-        return range;
-      }
-    } else {
-      findNodeAtChar(child, count, range);
-      if (range.node) return range;
-      if (child.textContent) count -= child.textContent.length;
-    }
-  }
-  return range;
-}
-
-export async function clickOnEditor(
-  screen: RenderResult,
-  nthLine: number,
-  nthChar: number
-) {
-  const line = findNodeAtLine(screen, nthLine);
-  const { node, offset } = findNodeAtChar(line, nthChar);
-  if (!node) {
-    throw new Error(`could not find node at {${nthLine}, ${nthChar}`);
-  }
-  const range = document.createRange();
-  range.selectNodeContents(line);
-  range.setStart(node, 0);
-  range.setEnd(node, offset);
-  range.collapse(false);
-  const rect = range.getBoundingClientRect();
-  const position = { x: rect.left + rect.width, y: rect.top + rect.height };
-
-  if (node.parentElement?.parentElement) {
-    const style = window.getComputedStyle(
-      node.parentElement.parentElement,
-      null
-    );
-    const marginTop = parseInt(
-      style.getPropertyValue('margin-top').replace('px', '')
-    );
-    position.y -= marginTop; // > 0 for listitems
-
-    const isBlockquote = style.getPropertyValue('border-left-width') !== '0px'; // > 0 for blockquotes
-    if (isBlockquote) {
-      position.y -= 10; // whatever
-    }
-  }
-
-  await userEvent.click(screen.baseElement, {
-    position
-  });
 }
 
 // toolbar
@@ -171,4 +97,8 @@ export function getLinkModalUrlInput(screen: RenderResult) {
 
 export function getLinkModalToggleBtn(screen: RenderResult) {
   return getLinkModal(screen).getByLabelText('Toggle');
+}
+
+export function getLinkModalTextEditBtn(screen: RenderResult) {
+  return getLinkModal(screen).getByLabelText('Edit text');
 }

@@ -1,38 +1,11 @@
 import formatConverter from '@/domain/format-conversion/format-converter.service';
-import RichTextEditor, {
-  RichTextEditorProps
-} from '@/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor';
-import { RichTextEditorHandle } from '@/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditorHandle';
-import { TestingProvider } from '@@/browser/TestingProvider';
 import { $getSelection, $isRangeSelection, PointType } from 'lexical';
-import { createRef } from 'react';
 import { describe, expect, test } from 'vitest';
-import { render } from 'vitest-browser-react';
 import {
-  clickOnEditor,
   getContentEditorElement,
   getToggleReadModeBtn
 } from './RichTextEditor.locators';
-
-export async function renderEditor(props: RichTextEditorProps) {
-  const ref = createRef<RichTextEditorHandle>();
-  const screen = await render(
-    <RichTextEditor {...props} enableDebugTree={false} ref={ref} />,
-    {
-      wrapper: TestingProvider
-    }
-  );
-  return {
-    ...screen,
-    getLexicalEditor() {
-      const editor = ref.current?.getEditor();
-      if (!editor) {
-        throw new Error('Lexical editor not initialized');
-      }
-      return editor;
-    }
-  };
-}
+import { clickOnEditor, renderEditor } from './utils';
 
 // only test the clickOnEditor method
 describe('clickOnEditor', () => {

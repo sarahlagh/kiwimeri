@@ -4,7 +4,7 @@ import { KiwimeriTextParser } from '../text-parser';
 import { MarkdownLexer } from './markdown-lexer';
 
 export type MarkdownParserOpts = {
-  /** adds rel: noreferrer to links instead of null */
+  /** adds rel: noreferrer to links instead of null (default: true) */
   relAsNoReferrer?: boolean;
 };
 
