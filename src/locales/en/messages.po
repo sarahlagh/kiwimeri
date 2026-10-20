@@ -726,6 +726,10 @@ msgstr "Remote:  {lastRemoteChange}"
 msgid "Remote: <0>never</0>"
 msgstr "Remote: <0>never</0>"
 
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/OtherSection.tsx:36
+msgid "Remove format"
+msgstr "Remove format"
+
 #: src/features/synchronization-ui/settings-ui/components/RemotesSettings.tsx:113
 msgid "Reorder"
 msgstr "Reorder"
@@ -946,7 +950,7 @@ msgstr "Toggle actions"
 msgid "toggle browser mode"
 msgstr "toggle browser mode"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/OtherSection.tsx:21
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/OtherSection.tsx:28
 msgid "Toggle link"
 msgstr "Toggle link"
 

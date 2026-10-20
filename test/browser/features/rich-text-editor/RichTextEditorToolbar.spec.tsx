@@ -1,11 +1,15 @@
 import { describe, expect, test } from 'vitest';
 
 import formatConverter from '@/domain/format-conversion/format-converter.service';
-import { getNewContent } from '@@/_setup/test.utils';
+import {
+  expectLexicalStatesToBeEqual,
+  getNewContent
+} from '@@/_setup/test.utils';
 import { ListNode, ListType } from '@lexical/list';
-import { HeadingNode, HeadingTagType } from '@lexical/rich-text';
+import { HeadingNode, HeadingTagType, QuoteNode } from '@lexical/rich-text';
 import {
   $createParagraphNode,
+  $createRangeSelection,
   $createTextNode,
   $getRoot,
   $getSelection,
@@ -25,6 +29,7 @@ import {
   getLinkBtn,
   getListBtn,
   getQuoteBtn,
+  getRemoveFormatBtn,
   getTextAlignBtn,
   getTextFormatBtn
 } from './RichTextEditor.locators';
@@ -533,5 +538,54 @@ describe('RichTextEditor Toolbar', () => {
         await expect.element(btn).toHaveClass('active');
       });
     });
+  });
+
+  test('remove format button clears', async () => {
+    const screen = await renderEditor({
+      initialState: formatConverter.fromMarkdown(
+        'hello **world** with <u>formats</u>\n\n' +
+          '# heading\n\n' +
+          '[hel*lo*](https://lexical.dev/ "hello") world with links https://github.com\n\n' +
+          '<p style="text-align: center;">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>\n\n' +
+          '- with a list\n' +
+          '- of *course*\n\n' +
+          '> and a quote\n' +
+          '> second ~~row~~'
+      ).obj!
+    });
+
+    // select all except last ~~row~~
+    const editor = screen.getLexicalEditor();
+    editor.update(
+      () => {
+        const root = $getRoot();
+        const firstBlock = root.getFirstChildOrThrow() as ElementNode;
+        const textNode1 = firstBlock.getFirstChildOrThrow() as TextNode;
+        const lastBlock = root.getLastChildOrThrow() as QuoteNode;
+        const textNode2 = lastBlock.getFirstChildOrThrow() as TextNode;
+        const selection = $createRangeSelection();
+        selection.setTextNodeRange(textNode1, 2, textNode2, 2);
+        $setSelection(selection);
+      },
+      { discrete: true }
+    );
+
+    const btn = getRemoveFormatBtn(screen);
+    await expect.element(btn).toBeInTheDocument();
+    await btn.click();
+
+    expectLexicalStatesToBeEqual(
+      JSON.stringify(editor.getEditorState().toJSON()),
+      formatConverter.fromMarkdown(
+        'hello world with formats\n\n' +
+          'heading\n\n' +
+          '[hello](https://lexical.dev/ "hello") world with links https://github.com\n\n' +
+          'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?\n\n' +
+          'with a list\n\n' +
+          'of course\n\n' +
+          'and a quote\n\n' +
+          'second ~~row~~'
+      ).obj!
+    );
   });
 });

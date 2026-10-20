@@ -75,6 +75,10 @@ export function getTextAlignBtn(
   return getToolbar(screen).getByLabelText('Align ' + format);
 }
 
+export function getRemoveFormatBtn(screen: RenderResult) {
+  return getToolbar(screen).getByLabelText('Remove format');
+}
+
 export function getLinkBtn(screen: RenderResult) {
   return getToolbar(screen).getByLabelText('Toggle link');
 }

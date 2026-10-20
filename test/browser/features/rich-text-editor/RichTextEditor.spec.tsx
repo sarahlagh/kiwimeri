@@ -15,7 +15,7 @@ import {
 } from './RichTextEditor.locators';
 import { renderEditor } from './utils';
 
-const expectedNumberOfBtns = 19;
+const expectedNumberOfBtns = 20;
 
 const state1 = getNewContent('state 1');
 const state2 = getNewContent('state 2');

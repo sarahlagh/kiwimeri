@@ -1,5 +1,12 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { $setBlocksType } from '@lexical/selection';
 import { useLingui } from '@lingui/react/macro';
+import {
+  $createParagraphNode,
+  $getSelection,
+  $isRangeSelection,
+  $isTextNode
+} from 'lexical';
 import { useEditorContext } from '../EditorContext';
 import { OPEN_LINK_MODAL_COMMAND } from '../extensions/LinkExtension';
 import { ToolbarButton } from './buttons';
@@ -22,6 +29,26 @@ export const OtherSection = () => {
         icon="writer/link-45deg.svg"
         onClick={() => {
           editor.dispatchCommand(OPEN_LINK_MODAL_COMMAND);
+        }}
+      />
+      <ToolbarButton
+        disabled={!isEditable}
+        ariaLabel={t`Remove format`}
+        icon="writer/x-square.svg"
+        onClick={() => {
+          editor.update(() => {
+            const selection = $getSelection();
+            if ($isRangeSelection(selection)) {
+              selection.getNodes().forEach(node => {
+                if ($isTextNode(node)) {
+                  node.setFormat(0);
+                  const block = node.getTopLevelElement();
+                  block?.setFormat('');
+                }
+              });
+            }
+            $setBlocksType(selection, () => $createParagraphNode());
+          });
         }}
       />
     </>
