@@ -97,8 +97,17 @@ const handleLinkSubmission = (
       const textNode = $createTextNode(payload.linkText!);
       const selection = $getSelection();
       if ($isRangeSelection(selection)) {
-        const node = getSelectedNode(selection);
-        node.replace(textNode);
+        const parent = getLinkParentNode(selection);
+        if ($isLinkNode(parent)) {
+          const linkNode = $createLinkNode(parent.getURL(), {
+            title: parent.getTitle(),
+            rel: parent.getRel()
+          });
+          parent.replace(linkNode);
+          linkNode.clear();
+          linkNode.append(textNode);
+          textNode.selectEnd();
+        }
       }
     });
   }

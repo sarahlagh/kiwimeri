@@ -3,12 +3,15 @@ import {
   expectLexicalStatesToBeEqual,
   getNewContent
 } from '@@/_setup/test.utils';
+import { AutoLinkNode, SerializedAutoLinkNode } from '@lexical/link';
 import {
   $createRangeSelection,
   $getRoot,
   $setSelection,
   ElementNode,
+  FORMAT_TEXT_COMMAND,
   LexicalEditor,
+  SerializedParagraphNode,
   TextNode
 } from 'lexical';
 import { describe, expect, test } from 'vitest';
@@ -306,7 +309,7 @@ describe('LinkExtension', () => {
     });
 
     const initialStateWithLink = formatConverter.fromMarkdown(
-      'hh [hello](https://lexical.dev/ "hello") world'
+      'hh [he*ll*o](https://lexical.dev/ "hello") world'
     ).obj!;
 
     test('caret on existing link opens the modal with text and url filled', async () => {
@@ -490,7 +493,7 @@ describe('LinkExtension', () => {
       // link has been deleted
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        formatConverter.fromMarkdown('hh hello world').obj!
+        formatConverter.fromMarkdown('hh he*ll*o world').obj!
       );
     });
 
@@ -810,10 +813,31 @@ describe('LinkExtension', () => {
       'https://lexical.dev/ world'
     ).obj!;
 
+    // limitation with markdown parser, can't parse auto links with format, to fix later
+    function addFormatToAutoLink(editor: LexicalEditor) {
+      editor.update(
+        () => {
+          const root = $getRoot();
+          const paragraph = root.getFirstChildOrThrow() as ElementNode;
+          const autolink = paragraph.getFirstChildOrThrow() as AutoLinkNode;
+          const textNode = autolink.getFirstChildOrThrow() as TextNode;
+          const selection = $createRangeSelection();
+          selection.setTextNodeRange(textNode, 9, textNode, 16);
+          $setSelection(selection);
+          editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
+          $setSelection(null);
+        },
+        { discrete: true }
+      );
+      return editor.getEditorState().toJSON();
+    }
+
     test('caret on existing autolink opens the modal with text and url filled', async () => {
       const screen = await renderEditor({
         initialState: initialStateWithAutoLink
       });
+      const editor = screen.getLexicalEditor();
+      addFormatToAutoLink(editor);
       // set caret at text
       await clickOnEditor(screen, 1, 2);
 
@@ -846,6 +870,9 @@ describe('LinkExtension', () => {
       const screen = await renderEditor({
         initialState: initialStateWithUnlinkedAutoLink
       });
+      const editor = screen.getLexicalEditor();
+      addFormatToAutoLink(editor);
+
       // set caret at text
       await clickOnEditor(screen, 1, 2);
 
@@ -879,6 +906,7 @@ describe('LinkExtension', () => {
         initialState: initialStateWithAutoLink
       });
       const editor = screen.getLexicalEditor();
+      const initialState = addFormatToAutoLink(editor);
       // set caret at text
       await clickOnEditor(screen, 1, 2);
 
@@ -896,7 +924,7 @@ describe('LinkExtension', () => {
       // nothing changed
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        initialStateWithAutoLink
+        initialState
       );
     });
 
@@ -905,6 +933,7 @@ describe('LinkExtension', () => {
         initialState: initialStateWithAutoLink
       });
       const editor = screen.getLexicalEditor();
+      addFormatToAutoLink(editor);
       // set caret at text
       await clickOnEditor(screen, 1, 2);
 
@@ -938,6 +967,7 @@ describe('LinkExtension', () => {
         initialState: initialStateWithAutoLink
       });
       const editor = screen.getLexicalEditor();
+      addFormatToAutoLink(editor);
       // set caret at text
       await clickOnEditor(screen, 1, 2);
 
@@ -977,6 +1007,7 @@ describe('LinkExtension', () => {
         initialState: initialStateWithAutoLink
       });
       const editor = screen.getLexicalEditor();
+      addFormatToAutoLink(editor);
       // set caret at text
       await clickOnEditor(screen, 1, 2);
 
@@ -1021,6 +1052,7 @@ describe('LinkExtension', () => {
         initialState: initialStateWithAutoLink
       });
       const editor = screen.getLexicalEditor();
+      const initialState = addFormatToAutoLink(editor);
       // set caret at text
       await clickOnEditor(screen, 1, 2);
 
@@ -1040,9 +1072,13 @@ describe('LinkExtension', () => {
       await expect.element(getLinkModal(screen)).not.toBeInTheDocument();
 
       // link has been unlinked
+      (
+        (initialState.root.children[0] as SerializedParagraphNode)
+          .children[0] as SerializedAutoLinkNode
+      ).isUnlinked = true;
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        formatConverter.fromMarkdown('https://lexical.dev/ world').obj!
+        initialState
       );
 
       // still counts as a link
@@ -1054,6 +1090,7 @@ describe('LinkExtension', () => {
         initialState: initialStateWithUnlinkedAutoLink
       });
       const editor = screen.getLexicalEditor();
+      const initialState = addFormatToAutoLink(editor);
       // set caret at text
       await clickOnEditor(screen, 1, 2);
 
@@ -1073,9 +1110,13 @@ describe('LinkExtension', () => {
       await expect.element(getLinkModal(screen)).not.toBeInTheDocument();
 
       // autolink has been linked
+      (
+        (initialState.root.children[0] as SerializedParagraphNode)
+          .children[0] as SerializedAutoLinkNode
+      ).isUnlinked = false;
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        formatConverter.fromMarkdown('<https://lexical.dev/> world').obj!
+        initialState
       );
 
       // still counts as a link
@@ -1087,6 +1128,7 @@ describe('LinkExtension', () => {
         initialState: initialStateWithAutoLink
       });
       const editor = screen.getLexicalEditor();
+      addFormatToAutoLink(editor);
       selectTextAtParagraph(editor, 0, [0, 20]);
 
       // click on link btn

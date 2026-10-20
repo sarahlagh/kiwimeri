@@ -37,6 +37,7 @@ const examples = [
   { name: 'links-manual-middle' },
   { name: 'links-autolink' },
   { name: 'links-autolink-middle' },
+  // { name: 'links-autolink-text-format' }, // FIXME known limitation for now
   { name: 'links-with-url-as-text' }
 ];
 

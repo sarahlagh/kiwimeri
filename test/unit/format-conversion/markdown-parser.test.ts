@@ -583,6 +583,4 @@ describe('parser', () => {
       expect(paragraph3.children[0].type).toBe('text');
     });
   });
-
-  // TODO links with text format
 });
