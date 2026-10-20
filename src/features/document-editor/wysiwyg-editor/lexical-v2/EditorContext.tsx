@@ -6,6 +6,7 @@ import { createContext, ReactNode, use, useCallback, useState } from 'react';
 
 type SelectionContext = {
   isTextOrElementSelection: boolean; // not just a cursor
+  isSelectionOverMultipleBlocks: boolean;
   isBold: boolean;
   isItalic: boolean;
   isStrikethrough: boolean;
@@ -27,6 +28,7 @@ type SelectionContext = {
 
 const INITIAL_SELECTION_CONTEXT: SelectionContext = {
   isTextOrElementSelection: false,
+  isSelectionOverMultipleBlocks: false,
   isBold: false,
   isHighlight: false,
   isItalic: false,

@@ -12,7 +12,11 @@ export const OtherSection = () => {
   return (
     <>
       <ToolbarButton
-        disabled={!isEditable || linkContext.hasMultipleLinks}
+        disabled={
+          !isEditable ||
+          linkContext.hasMultipleLinks ||
+          selection.isSelectionOverMultipleBlocks
+        }
         isActive={linkContext.isLink || linkContext.isAutoLink}
         ariaLabel={t`Toggle link`}
         icon="writer/link-45deg.svg"

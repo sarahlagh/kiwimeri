@@ -51,6 +51,16 @@ function SetSelectionContextWrapper() {
       const startEndPoints = selection.getStartEndPoints();
       const isTextOrElementSelection =
         startEndPoints && !startEndPoints[0].is(startEndPoints[1]);
+      if (isTextOrElementSelection) {
+        const startParents = startEndPoints[0].getNode().getParents();
+        const endParents = startEndPoints[1].getNode().getParents();
+        // remove the root element
+        startParents.pop();
+        endParents.pop();
+        newSelectionContext.isSelectionOverMultipleBlocks = !startParents[
+          startParents.length - 1
+        ].is(endParents[endParents.length - 1]);
+      }
 
       newSelectionContext.isTextOrElementSelection = isTextOrElementSelection;
 
@@ -82,15 +92,20 @@ function SetSelectionContextWrapper() {
       }
 
       // links
-      const linkNodes = selection.getNodes().filter(n => {
-        const parent = n.getParent();
-        return $isLinkNode(parent) || $isAutoLinkNode(parent);
-      });
-      newSelectionContext.links.hasMultipleLinks = linkNodes.length > 1;
+      const linkNodes = new Set(
+        selection
+          .getNodes()
+          .map(n => n.getParent())
+          .filter(parent => {
+            return $isLinkNode(parent) || $isAutoLinkNode(parent);
+          })
+      );
+      newSelectionContext.links.hasMultipleLinks = linkNodes.size > 1;
 
-      const node =
-        linkNodes.length === 1 ? linkNodes[0] : getSelectedNode(selection);
-      const parent = node.getParent();
+      const parent =
+        linkNodes.size === 1
+          ? [...linkNodes][0]
+          : getSelectedNode(selection).getParent();
       const isLink = $isLinkNode(parent);
       const isAutoLink = $isAutoLinkNode(parent);
       newSelectionContext.links.isLink = isLink;

@@ -2,6 +2,7 @@ import {
   $createAutoLinkNode,
   $createLinkNode,
   $isAutoLinkNode,
+  $isLinkNode,
   AutoLinkExtension,
   LinkExtension,
   TOGGLE_LINK_COMMAND
@@ -15,7 +16,8 @@ import {
   createCommand,
   defineExtension,
   LexicalCommand,
-  LexicalEditor
+  LexicalEditor,
+  RangeSelection
 } from 'lexical';
 
 import { APPICONS } from '@/constants';
@@ -62,14 +64,14 @@ type ModalResultPayload = {
   linkUrl?: string;
 };
 
-// function getLinkParentNode(selection: RangeSelection) {
-//   const nodes = selection.extract().filter(n => {
-//     const parent = n.getParent();
-//     return $isLinkNode(parent) || $isAutoLinkNode(parent);
-//   });
-//   // should always have one node, and should always have the same parent
-//   return nodes[0].getParent() as AutoLinkNode;
-// }
+function getLinkParentNode(selection: RangeSelection) {
+  const nodes = selection.extract().filter(n => {
+    const parent = n.getParent();
+    return $isLinkNode(parent) || $isAutoLinkNode(parent);
+  });
+  // should always have one node, and should always have the same parent
+  return nodes[0]?.getParent();
+}
 
 const handleLinkSubmission = (
   editor: LexicalEditor,
@@ -106,7 +108,6 @@ const handleAutoLinkSubmission = (
   editor: LexicalEditor,
   payload: ModalResultPayload
 ) => {
-  console.debug('payload', payload);
   editor.update(() => {
     const selection = $getSelection();
     if (!$isRangeSelection(selection)) return;
@@ -121,8 +122,7 @@ const handleAutoLinkSubmission = (
       }
     } else if (payload.urlChanged && payload.linkUrl !== '') {
       const url = sanitizeUrl(payload.linkUrl);
-      const node = getSelectedNode(selection);
-      const parent = node.getParent();
+      const parent = getLinkParentNode(selection);
       if ($isAutoLinkNode(parent)) {
         const linkNode = $createAutoLinkNode(url, {
           isUnlinked: parent.getIsUnlinked()
@@ -137,8 +137,7 @@ const handleAutoLinkSubmission = (
     const newSelection = $getSelection();
     if (!$isRangeSelection(newSelection)) return;
     if (payload.linkText && payload.linkText !== '') {
-      const node = getSelectedNode(newSelection);
-      const parent = node.getParent();
+      const parent = getLinkParentNode(newSelection);
       if ($isAutoLinkNode(parent)) {
         const linkNode = $createLinkNode(parent.getURL());
         parent.replace(linkNode);
