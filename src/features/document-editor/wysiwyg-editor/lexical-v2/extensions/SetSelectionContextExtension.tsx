@@ -16,6 +16,7 @@ import {
   defineExtension,
   LexicalNode,
   mergeRegister,
+  RangeSelection,
   SELECTION_CHANGE_COMMAND
 } from 'lexical';
 import { useCallback, useEffect } from 'react';
@@ -35,6 +36,23 @@ function $findTopLevelElement(node: LexicalNode) {
     topLevelElement = node.getTopLevelElementOrThrow();
   }
   return topLevelElement;
+}
+
+function findWordUnderCursor(
+  selection: RangeSelection
+): [number, number, string] | undefined {
+  const [, end] = selection.getStartEndPoints()!;
+  const node = end.getNode();
+  const idx = end.offset;
+  const textContent = node.getTextContent();
+  const m1 = textContent.substring(0, idx).matchAll(/(\W)/g).toArray();
+  const m2 = textContent.substring(idx).match(/(\W)/);
+  const idx1 =
+    m1[m1.length - 1]?.index !== undefined ? m1[m1.length - 1].index + 1 : 0;
+  const idx2 = m2?.index !== undefined ? idx + m2.index : textContent.length;
+  const wordUnderCursor = textContent.substring(idx1, idx2);
+  if (wordUnderCursor.length > 0) return [idx1, idx2, wordUnderCursor];
+  return undefined;
 }
 
 function SetSelectionContextWrapper() {
@@ -60,6 +78,8 @@ function SetSelectionContextWrapper() {
         newSelectionContext.isSelectionOverMultipleBlocks = !startParents[
           startParents.length - 1
         ].is(endParents[endParents.length - 1]);
+      } else {
+        newSelectionContext.wordUnderCursor = findWordUnderCursor(selection);
       }
 
       newSelectionContext.isTextOrElementSelection = isTextOrElementSelection;
@@ -120,7 +140,7 @@ function SetSelectionContextWrapper() {
         newSelectionContext.links.linkText = selection.getTextContent();
       } else if (isLink) {
         newSelectionContext.links.linkText = parent.getTextContent();
-      } // TODO else grab word under cursor
+      }
 
       // text format
       newSelectionContext.isBold = selection.hasFormat('bold');

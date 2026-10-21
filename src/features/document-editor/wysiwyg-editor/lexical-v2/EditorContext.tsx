@@ -7,6 +7,7 @@ import { createContext, ReactNode, use, useCallback, useState } from 'react';
 type SelectionContext = {
   isTextOrElementSelection: boolean; // not just a cursor
   isSelectionOverMultipleBlocks: boolean;
+  wordUnderCursor?: [number, number, string];
   isBold: boolean;
   isItalic: boolean;
   isStrikethrough: boolean;
@@ -94,6 +95,11 @@ export const EditorContextProvider = ({
 };
 
 export type EditorContextType = EditorContextSpec & { isEditable: boolean };
+
+export type ReadOnlyEditorContext = Omit<
+  EditorContextType,
+  'setSelectionContext' | 'updateSelectionContext'
+>;
 
 export const useEditorContext = (): EditorContextType => {
   const context = use(EditorContext);

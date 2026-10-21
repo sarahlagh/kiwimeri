@@ -34,6 +34,7 @@ export const appExtension = defineExtension({
     ClickAfterLastBlockExtension,
     TabIndentationExtension,
     TreeViewExtension,
+    // custom extensions
     SetSelectionContextExtension,
     CustomLinkExtension
   ],

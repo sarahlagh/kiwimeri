@@ -10,20 +10,28 @@ import { getContentEditor } from './RichTextEditor.locators';
 
 export async function renderEditor(props: RichTextEditorProps) {
   const ref = createRef<RichTextEditorHandle>();
-  const screen = await render(
-    <RichTextEditor {...props} enableDebugTree={false} ref={ref} />,
-    {
-      wrapper: TestingProvider
-    }
+  const reactNode = (
+    <RichTextEditor {...props} enableDebugTree={false} ref={ref} />
   );
+  const screen = await render(reactNode, {
+    wrapper: TestingProvider
+  });
   return {
     ...screen,
+    reactNode,
     getLexicalEditor() {
       const editor = ref.current?.getEditor();
       if (!editor) {
         throw new Error('Lexical editor not initialized');
       }
       return editor;
+    },
+    getEditorContext() {
+      const context = ref.current?.getEditorContext();
+      if (!context) {
+        throw new Error('EditorContext not initialized');
+      }
+      return context;
     }
   };
 }

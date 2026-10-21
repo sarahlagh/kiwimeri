@@ -7,7 +7,8 @@ import { useLingui } from '@lingui/react/macro';
 import { LexicalEditor } from 'lexical';
 import { RefObject, useImperativeHandle, useRef } from 'react';
 import { appExtension } from './app-extension';
-import { EditorContextProvider } from './EditorContext';
+import { EditorContextProvider, ReadOnlyEditorContext } from './EditorContext';
+import EditorContextRefPlugin from './legacy-plugins/EditorContextRefPlugin';
 import ReloadEditorPlugin from './legacy-plugins/ReloadEditorPlugin';
 import { RichTextEditorHandle } from './RichTextEditorHandle';
 import Toolbar from './toolbar/Toolbar';
@@ -31,6 +32,7 @@ const RichTextEditor = ({
 }) => {
   const { t } = useLingui();
   const editorRef = useRef<LexicalEditor | null>(null);
+  const contextRef = useRef<ReadOnlyEditorContext | null>(null);
   const placeholder = t`Text...`;
 
   useImperativeHandle(
@@ -38,6 +40,9 @@ const RichTextEditor = ({
     () => ({
       getEditor() {
         return editorRef.current;
+      },
+      getEditorContext() {
+        return contextRef.current;
       }
     }),
     [editorRef]
@@ -63,6 +68,7 @@ const RichTextEditor = ({
           </div>
         </div>
         <EditorRefPlugin editorRef={editorRef} />
+        <EditorContextRefPlugin contextRef={contextRef} />
         <ReloadEditorPlugin
           initialState={initialState}
           globalEditable={editable}
