@@ -1,3 +1,4 @@
+/* eslint-disable vitest/no-conditional-expect */
 import { describe, expect, test } from 'vitest';
 
 import formatConverter from '@/domain/format-conversion/format-converter.service';
@@ -309,6 +310,323 @@ describe('RichTextEditor Toolbar', () => {
 
       await expect.element(underlineBtn).toHaveClass('active');
       expect(hasTextFormat(editor, 'underline')).toBe(true);
+    });
+
+    describe(`apply format on word under cursor`, () => {
+      const initialState = formatConverter.fromMarkdown(
+        'hello **world** <u>with formats</u>\n\n' +
+          '# heading\n\n' +
+          '[hel*lo*](https://lexical.dev/ "hello") world with links https://gith*ub*.com, end\n\n' +
+          '<p style="text-align: center;">Sed ut perspiciatis unde omnis iste natus error. sit volup*tatem accusan*tium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia conseq**uun**tur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>\n\n' +
+          '- with a list\n' +
+          '- of *course*\n\n' +
+          '> and a quote\n' +
+          '> second ~~row~~'
+      ).obj!;
+
+      type Scenario = {
+        skip?: boolean;
+        desc: string;
+        line: number;
+        offset: number;
+        formatType: TextFormatType;
+        additionalExpectedTypes?: TextFormatType[];
+        expectedBlock: string;
+        wordUnderCursor: string | null;
+      };
+
+      const firstBlock: Scenario[] = [
+        {
+          desc: 'hello in first line',
+          line: 1,
+          offset: 1,
+          formatType: 'bold',
+          wordUnderCursor: 'hello',
+          expectedBlock: '**hello** **world** <u>with formats</u>\n\n'
+        },
+        {
+          desc: 'world in first line',
+          line: 1,
+          offset: 7,
+          formatType: 'highlight',
+          additionalExpectedTypes: ['bold'],
+          wordUnderCursor: 'world',
+          expectedBlock: 'hello **==world==** <u>with formats</u>\n\n'
+        },
+        {
+          desc: 'formats in first line',
+          line: 1,
+          offset: 20,
+          formatType: 'italic',
+          additionalExpectedTypes: ['underline'],
+          wordUnderCursor: 'formats',
+          expectedBlock: 'hello **world** <u>with *formats*</u>\n\n'
+        }
+      ];
+      const secondBlock: Scenario[] = [
+        {
+          desc: 'heading in second line',
+          line: 2,
+          offset: 3,
+          formatType: 'bold',
+          wordUnderCursor: 'heading',
+          expectedBlock: '# **heading**\n\n'
+        }
+      ];
+      const thirdBlock: Scenario[] = [
+        {
+          desc: '[hel]lo in third line',
+          line: 3,
+          offset: 1,
+          formatType: 'bold',
+          wordUnderCursor: 'hel',
+          expectedBlock:
+            '[**hel**_lo_](https://lexical.dev/ "hello") world with links https://gith_ub_.com, end\n\n'
+        },
+        {
+          desc: 'hel[lo] in third line',
+          line: 3,
+          offset: 4,
+          formatType: 'strikethrough',
+          wordUnderCursor: 'lo',
+          expectedBlock:
+            '[hel*~~lo~~*](https://lexical.dev/ "hello") world with links https://gith*ub*.com, end\n\n'
+        },
+        {
+          desc: 'links in third line',
+          line: 3,
+          offset: 17,
+          formatType: 'italic',
+          wordUnderCursor: 'links',
+          expectedBlock:
+            '[hel*lo*](https://lexical.dev/ "hello") world with *links* https://gith*ub*.com, end\n\n'
+        },
+        {
+          // skip: true, // parser won't handle correctly **https**://gith*ub*.com
+          desc: 'https in third line',
+          line: 3,
+          offset: 24,
+          formatType: 'bold',
+          wordUnderCursor: 'https',
+          expectedBlock:
+            '[hel*lo*](https://lexical.dev/ "hello") world with links **https**://gith*ub*.com, end\n\n'
+        },
+        {
+          desc: '// in third line',
+          line: 3,
+          offset: 30,
+          formatType: 'bold',
+          wordUnderCursor: null,
+          expectedBlock:
+            '[hel*lo*](https://lexical.dev/ "hello") world with links https://gith*ub*.com, end\n\n'
+        },
+        {
+          desc: '[gith]ub in third line',
+          line: 3,
+          offset: 32,
+          formatType: 'underline',
+          wordUnderCursor: 'gith',
+          expectedBlock:
+            '[hel*lo*](https://lexical.dev/ "hello") world with links https://<u>gith</u>*ub*.com, end\n\n'
+        },
+        {
+          desc: 'gith[ub] in third line',
+          line: 3,
+          offset: 36,
+          formatType: 'underline',
+          additionalExpectedTypes: ['italic'],
+          wordUnderCursor: 'ub',
+          expectedBlock:
+            '[hel*lo*](https://lexical.dev/ "hello") world with links https://gith*<u>ub</u>*.com, end\n\n'
+        },
+        {
+          desc: ', in third line',
+          line: 3,
+          offset: 42,
+          formatType: 'bold',
+          wordUnderCursor: null,
+          expectedBlock:
+            '[hel*lo*](https://lexical.dev/ "hello") world with links https://gith*ub*.com, end\n\n'
+        },
+        {
+          desc: 'end in third line',
+          line: 3,
+          offset: 44,
+          formatType: 'highlight',
+          wordUnderCursor: 'end',
+          expectedBlock:
+            '[hel*lo*](https://lexical.dev/ "hello") world with links https://gith*ub*.com, ==end==\n\n'
+        }
+      ];
+      const fourthBlock: Scenario[] = [
+        {
+          desc: '1st perspiciatis in fourth line',
+          line: 4,
+          offset: 9,
+          formatType: 'italic',
+          wordUnderCursor: 'perspiciatis',
+          expectedBlock:
+            '<p style="text-align: center;">Sed ut *perspiciatis* unde omnis iste natus error. sit volup*tatem accusan*tium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia conseq**uun**tur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>\n\n'
+        },
+        {
+          desc: 'after . in fourth line',
+          line: 4,
+          offset: 48,
+          formatType: 'bold',
+          wordUnderCursor: null,
+          expectedBlock:
+            '<p style="text-align: center;">Sed ut perspiciatis unde omnis iste natus error. sit volup*tatem accusan*tium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia conseq**uun**tur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>\n\n'
+        },
+        {
+          desc: '[volup]tatem in fourth line',
+          line: 4,
+          offset: 54,
+          formatType: 'bold',
+          wordUnderCursor: 'volup',
+          expectedBlock:
+            '<p style="text-align: center;">Sed ut perspiciatis unde omnis iste natus error. sit __volup__*tatem accusan*tium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia conseq**uun**tur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>\n\n'
+        },
+        {
+          desc: 'volup[tatem] in fourth line',
+          line: 4,
+          offset: 59,
+          formatType: 'bold',
+          wordUnderCursor: 'tatem',
+          expectedBlock:
+            '<p style="text-align: center;">Sed ut perspiciatis unde omnis iste natus error. sit volup*__tatem__ accusan*tium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia conseq**uun**tur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>\n\n'
+        }
+      ];
+      const fifthBlock: Scenario[] = [
+        {
+          desc: 'with on first list item',
+          line: 5,
+          offset: 0,
+          formatType: 'bold',
+          wordUnderCursor: 'with',
+          expectedBlock: '- **with** a list\n' + '- of *course*\n\n'
+        },
+        {
+          desc: 'course on second list item',
+          line: 5,
+          offset: 15,
+          formatType: 'strikethrough',
+          additionalExpectedTypes: ['italic'],
+          wordUnderCursor: 'course',
+          expectedBlock: '- with a list\n' + '- of *~~course~~*\n\n'
+        }
+      ];
+      const sixthAndSeventhBlock: Scenario[] = [
+        {
+          desc: 'a(0) in first row of quote',
+          line: 6,
+          offset: 4,
+          formatType: 'bold',
+          wordUnderCursor: 'a',
+          expectedBlock: '> and **a** quote\n'
+        },
+        {
+          desc: 'row in second row of quote',
+          line: 7,
+          offset: 8,
+          formatType: 'highlight',
+          additionalExpectedTypes: ['strikethrough'],
+          wordUnderCursor: 'row',
+          expectedBlock: '> second ~~==row==~~\n'
+        }
+      ];
+
+      const scenarios: Scenario[] = [
+        ...firstBlock,
+        ...secondBlock,
+        // ...thirdBlock // TODO
+        ...fourthBlock,
+        ...fifthBlock, // list
+        ...sixthAndSeventhBlock // quote
+      ];
+
+      scenarios.forEach(
+        ({
+          desc,
+          line,
+          offset: char,
+          wordUnderCursor,
+          formatType,
+          expectedBlock: expectedLine,
+          skip
+        }) => {
+          if (skip === true) return;
+          test(`${desc}`, async () => {
+            const screen = await renderEditor({
+              initialState
+            });
+            const editor = screen.getLexicalEditor();
+            const context = screen.getEditorContext();
+            await clickOnEditor(screen, line, char);
+
+            if (wordUnderCursor !== null) {
+              expect(context.selectionContext.wordUnderCursor).toBeDefined();
+              expect(context.selectionContext.wordUnderCursor![2]).toBe(
+                wordUnderCursor
+              );
+            } else {
+              expect(context.selectionContext.wordUnderCursor).toBeUndefined();
+            }
+
+            // apply format
+            const btn = getTextFormatBtn(screen, formatType);
+            await expect.element(btn).not.toHaveClass('active');
+            await btn.click();
+
+            await clickOnEditor(screen, line, char);
+
+            if (wordUnderCursor !== null) {
+              await expect.element(btn).toHaveClass('active');
+            } else {
+              await expect.element(btn).not.toHaveClass('active');
+            }
+
+            expectLexicalStatesToBeEqual(
+              JSON.stringify({
+                ...editor.getEditorState().toJSON().root.children[line - 1],
+                textFormat: 0
+              }),
+              {
+                ...formatConverter.fromMarkdown(expectedLine, {
+                  relAsNoReferrer: false
+                }).obj!.root.children[0],
+                textFormat: 0
+              }
+            );
+          });
+        }
+      );
+
+      scenarios
+        .filter(scenario => scenario.additionalExpectedTypes)
+        .forEach(
+          ({ desc, line, offset: char, additionalExpectedTypes, skip }) => {
+            if (skip === true) return;
+            test(`toggle off ${desc}`, async () => {
+              const screen = await renderEditor({
+                initialState
+              });
+              const editor = screen.getLexicalEditor();
+              const context = screen.getEditorContext();
+              await clickOnEditor(screen, line, char);
+              const formatType = additionalExpectedTypes![0];
+
+              const btn = getTextFormatBtn(screen, formatType);
+              await expect.element(btn).toHaveClass('active');
+              await btn.click();
+
+              await clickOnEditor(screen, line, char);
+
+              await expect.element(btn).not.toHaveClass('active');
+
+              // TODO check state
+            });
+          }
+        );
     });
   });
 

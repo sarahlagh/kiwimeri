@@ -370,7 +370,7 @@ msgstr "Fast Write Mode"
 msgid "File not supported"
 msgstr "File not supported"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/TextFormatSection.tsx:28
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/TextFormatSection.tsx:66
 msgid "Format {formatType}"
 msgstr "Format {formatType}"
 
@@ -751,7 +751,7 @@ msgstr "Restore Collection"
 msgid "Restore Version"
 msgstr "Restore Version"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor.tsx:57
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor.tsx:62
 msgid "Rich text editor"
 msgstr "Rich text editor"
 
@@ -880,7 +880,7 @@ msgstr "Tags"
 msgid "Text"
 msgstr "Text"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor.tsx:37
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor.tsx:39
 #: src/features/document-editor/wysiwyg-editor/lexical/KiwimeriEditor.tsx:95
 msgid "Text..."
 msgstr "Text..."
