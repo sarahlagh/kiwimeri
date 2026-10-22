@@ -15,6 +15,7 @@ import { TreeViewExtension } from '@lexical/react/TreeViewExtension';
 import { RichTextExtension } from '@lexical/rich-text';
 import { configExtension, defineExtension } from 'lexical';
 import CustomLinkExtension from './extensions/LinkExtension';
+import RegisterCommandsExtension from './extensions/RegisterCommandsExtension';
 import SetSelectionContextExtension from './extensions/SetSelectionContextExtension';
 import Theme from './theme/Theme';
 
@@ -35,6 +36,7 @@ export const appExtension = defineExtension({
     TabIndentationExtension,
     TreeViewExtension,
     // custom extensions
+    RegisterCommandsExtension,
     SetSelectionContextExtension,
     CustomLinkExtension
   ],

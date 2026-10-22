@@ -1,12 +1,6 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $setBlocksType } from '@lexical/selection';
 import { useLingui } from '@lingui/react/macro';
-import {
-  $createParagraphNode,
-  $getSelection,
-  $isRangeSelection,
-  $isTextNode
-} from 'lexical';
+import { REMOVE_FORMAT_COMMAND } from '../commands/remove-format-command';
 import { useEditorContext } from '../EditorContext';
 import { OPEN_LINK_MODAL_COMMAND } from '../extensions/LinkExtension';
 import { ToolbarButton } from './buttons';
@@ -36,19 +30,7 @@ export const OtherSection = () => {
         ariaLabel={t`Remove format`}
         icon="writer/x-square.svg"
         onClick={() => {
-          editor.update(() => {
-            const selection = $getSelection();
-            if ($isRangeSelection(selection)) {
-              selection.getNodes().forEach(node => {
-                if ($isTextNode(node)) {
-                  node.setFormat(0);
-                  const block = node.getTopLevelElement();
-                  block?.setFormat('');
-                }
-              });
-            }
-            $setBlocksType(selection, () => $createParagraphNode());
-          });
+          editor.dispatchCommand(REMOVE_FORMAT_COMMAND);
         }}
       />
     </>
