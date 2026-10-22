@@ -14,7 +14,9 @@ import type {
   KiwimeriTextElementParser
 } from '../types';
 import { getTextAlign } from './markdown-blocks';
-import { MarkdownParser, MarkdownParserOpts } from './markdown-parser';
+import { getOpts, MarkdownParser, MarkdownParserOpts } from './markdown-parser';
+
+type O = MarkdownParserOpts;
 
 export const ESCAPE_CHARS = '*_~<=';
 export const EXTENDED_ESCAPE_CHARS = '#>-'; // only necessary at the start of a line
@@ -23,6 +25,9 @@ const STOP_TOKEN_REGEX = new RegExp(
   `^(([\\\\][${ESCAPE_CHARS}\n]|[^${ESCAPE_CHARS}\n])*)[${ESCAPE_CHARS}\n]`,
   'g'
 );
+
+/** this means those chars have to be escaped, to test */
+const SUPPORTED_FORMAT_CHARS_IN_URL = new RegExp(`[*_~=]`, 'g');
 
 // same as old /(\**|_*|~*|<*|=*|\n*)$/g
 const AVOID_ESCAPED_CHARS_REGEX = new RegExp(
@@ -35,12 +40,17 @@ const UNESCAPE_REGEX = new RegExp(
   'g'
 );
 
-const PLAIN_TEXT: KiwimeriTextElementParser = {
+const PLAIN_TEXT: KiwimeriTextElementParser<O> = {
   name: 'plain_text',
   type: 'text',
-  tokenize: nextText => {
+  tokenize: (nextText, block, isStartOfLine, opts) => {
     // regex to stop token at [*_~<\n] but not escaped [*_~<\n] (* will match but \* won't)
     const endOfText = nextText.match(STOP_TOKEN_REGEX);
+    if (getOpts(opts).noAutoLinks === true) {
+      return endOfText
+        ? endOfText[0].replaceAll(AVOID_ESCAPED_CHARS_REGEX, '')
+        : nextText;
+    }
     // special case for links & autolinks: must detect if they are present within paragraph
     // but stopping at [ or http can't be done via STOP_TOKEN_REGEX
     const link = nextText.match(LINK_REGEX);
@@ -99,7 +109,7 @@ const PLAIN_TEXT: KiwimeriTextElementParser = {
 
 const BOLD_PREDICATE = (nextText: string) =>
   nextText.startsWith('**') || nextText.startsWith('__');
-const BOLD: KiwimeriTextElementParser = {
+const BOLD: KiwimeriTextElementParser<O> = {
   name: 'bold',
   type: 'keyword',
   tokenize: nextText =>
@@ -110,7 +120,7 @@ const BOLD: KiwimeriTextElementParser = {
 
 const ITALIC_PREDICATE = (nextText: string) =>
   nextText.startsWith('*') || nextText.startsWith('_');
-const ITALIC: KiwimeriTextElementParser = {
+const ITALIC: KiwimeriTextElementParser<O> = {
   name: 'italic',
   type: 'keyword',
   tokenize: nextText => (ITALIC_PREDICATE(nextText) ? nextText[0] : null),
@@ -120,7 +130,7 @@ const ITALIC: KiwimeriTextElementParser = {
 
 const STRIKETHROUGH_PREDICTATE = (nextText: string) =>
   nextText.startsWith('~~');
-const STRIKETHROUGH: KiwimeriTextElementParser = {
+const STRIKETHROUGH: KiwimeriTextElementParser<O> = {
   name: 'strikethrough',
   type: 'keyword',
   tokenize: nextText => (STRIKETHROUGH_PREDICTATE(nextText) ? '~~' : null),
@@ -130,7 +140,7 @@ const STRIKETHROUGH: KiwimeriTextElementParser = {
 
 const UNDERLINE_PREDICTATE = (nextText: string) =>
   nextText.startsWith('<u>') || nextText.startsWith('</u>');
-const UNDERLINE: KiwimeriTextElementParser = {
+const UNDERLINE: KiwimeriTextElementParser<O> = {
   name: 'underline',
   type: 'keyword',
   tokenize: nextText => {
@@ -144,7 +154,7 @@ const UNDERLINE: KiwimeriTextElementParser = {
 
 const HIGHLIGHT_PREDICTATE = (nextText: string) =>
   nextText.startsWith('==') && !nextText.startsWith('===');
-const HIGHLIGHT: KiwimeriTextElementParser = {
+const HIGHLIGHT: KiwimeriTextElementParser<O> = {
   name: 'highlight',
   type: 'keyword',
   tokenize: nextText => (HIGHLIGHT_PREDICTATE(nextText) ? '==' : null),
@@ -152,7 +162,7 @@ const HIGHLIGHT: KiwimeriTextElementParser = {
   textFormat: IS_HIGHLIGHT
 };
 
-const TEXT_ALIGN: KiwimeriTextElementParser = {
+const TEXT_ALIGN: KiwimeriTextElementParser<O> = {
   name: 'text_align',
   type: 'keyword',
   tokenize: nextText => {
@@ -175,7 +185,7 @@ const TEXT_ALIGN: KiwimeriTextElementParser = {
   }
 };
 
-const UNORDERED_LIST_ITEM: KiwimeriTextElementParser = {
+const UNORDERED_LIST_ITEM: KiwimeriTextElementParser<O> = {
   name: 'unordered_list_item',
   type: 'keyword',
   tokenize: (nextText, block, isStartOfLine) => {
@@ -185,7 +195,7 @@ const UNORDERED_LIST_ITEM: KiwimeriTextElementParser = {
     }
     return null;
   },
-  captures: (resp: KiwimeriLexerResponse) =>
+  captures: (resp: KiwimeriLexerResponse<O>) =>
     (resp.elemParser && BREAK_LIST_ITEMS_ELEMENTS.includes(resp.elemParser)) ||
     false,
   parse: (token, ctx) => {
@@ -205,7 +215,7 @@ const UNORDERED_LIST_ITEM: KiwimeriTextElementParser = {
 };
 
 export const CHECKED_LIST_ITEM_REGEX = /^-\s?\[([x\s]?)\]\s/gi;
-const CHECKED_LIST_ITEM: KiwimeriTextElementParser = {
+const CHECKED_LIST_ITEM: KiwimeriTextElementParser<O> = {
   ...UNORDERED_LIST_ITEM,
   name: 'checked_list_item',
   tokenize: (nextText, block, isStartOfLine) => {
@@ -225,7 +235,7 @@ const CHECKED_LIST_ITEM: KiwimeriTextElementParser = {
   }
 };
 
-const NUMBERED_LIST_ITEM: KiwimeriTextElementParser = {
+const NUMBERED_LIST_ITEM: KiwimeriTextElementParser<O> = {
   ...UNORDERED_LIST_ITEM,
   name: 'ordered_list_item',
   tokenize: (nextText, block, isStartOfLine) => {
@@ -237,7 +247,7 @@ const NUMBERED_LIST_ITEM: KiwimeriTextElementParser = {
   }
 };
 
-const SIMPLE_LINEBREAK: KiwimeriTextElementParser = {
+const SIMPLE_LINEBREAK: KiwimeriTextElementParser<O> = {
   name: 'linebreak',
   type: 'text',
   tokenize: nextText =>
@@ -267,7 +277,7 @@ const BREAK_LIST_ITEMS_ELEMENTS = [
 ];
 
 const LINK_REGEX = /\[([^\]]*)\]\((.*?)(?: ["']([^"']*)["'])?\)/g;
-const LINK: KiwimeriTextElementParser = {
+const LINK: KiwimeriTextElementParser<O> = {
   name: 'link',
   type: 'text',
   tokenize: nextText => {
@@ -317,48 +327,48 @@ const AUTOLINK_REGEX = new RegExp(
   'g'
 );
 
-const AUTOLINK: KiwimeriTextElementParser = {
+const AUTOLINK: KiwimeriTextElementParser<O> = {
   name: 'autolink',
   type: 'text',
-  tokenize: nextText => {
+  tokenize: (nextText, block, isStartOfLine, opts) => {
+    if (getOpts(opts).noAutoLinks === true) return null;
     const autolink = nextText.match(AUTOLINK_REGEX);
     if (autolink && nextText.startsWith(autolink[0])) {
       return autolink[0];
     }
     return null;
   },
-  parse: token => {
+  parse: (token, ctx, lexer) => {
+    const opts = lexer.getOpts() as MarkdownParserOpts;
     const [, url] = [...token.matchAll(AUTOLINK_REGEX)][0];
     const isMail = token.match(EMAIL_REGEX);
+    const cleanedUrl = url.replaceAll(SUPPORTED_FORMAT_CHARS_IN_URL, '');
     const node: SerializedAutoLinkNode = {
       type: 'autolink',
       version: 1,
       format: '',
       direction: 'ltr',
       indent: 0,
-      url: !isMail ? url : `mailto:${url}`,
+      url: !isMail ? cleanedUrl : `mailto:${cleanedUrl}`,
       rel: null,
       target: null,
       title: null,
       isUnlinked: !token.startsWith('<'),
       children: []
     };
-    const textNode: SerializedTextNode = {
-      type: 'text',
-      version: 1,
-      format: 0,
-      text: url,
-      detail: 0,
-      mode: 'normal',
-      style: ''
-    };
-    node.children.push(textNode);
+    const textNodes = new MarkdownParser().parseText(url, {
+      ...opts,
+      noAutoLinks: true
+    });
+    if (textNodes) {
+      node.children = textNodes;
+    }
     return node;
   }
 };
 
 // lexer order
-export const MARKDOWN_ELEMENTS: KiwimeriTextElementParser[] = [
+export const MARKDOWN_ELEMENTS: KiwimeriTextElementParser<O>[] = [
   BOLD,
   ITALIC,
   STRIKETHROUGH,

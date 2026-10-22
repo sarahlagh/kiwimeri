@@ -8,30 +8,30 @@ export type KiwimeriLexTransformerCtx = {
   indexInLine: number;
 };
 
-export type KiwimeriLexTransformer = {
+export type KiwimeriLexTransformer<O> = {
   type: string; // node type
   handles?: (ctx: KiwimeriLexTransformerCtx) => boolean;
   transform?: (
     text: string,
     ctx: KiwimeriLexTransformerCtx,
-    opts?: unknown
+    opts?: O
   ) => string;
   preTransform?: (
     fullstr: string,
     ctx: KiwimeriLexTransformerCtx,
-    opts?: unknown
+    opts?: O
   ) => string;
   postTransform?: (
     fullstr: string,
     ctx: KiwimeriLexTransformerCtx,
-    opts?: unknown
+    opts?: O
   ) => string;
 };
 
-export class KiwimeriLexConverter {
-  constructor(protected transformers: KiwimeriLexTransformer[]) {}
+export class KiwimeriLexConverter<O> {
+  constructor(protected transformers: KiwimeriLexTransformer<O>[]) {}
 
-  public parseSimpleLexNode(node: SerializedLexicalNode, opts?: unknown) {
+  public parseSimpleLexNode(node: SerializedLexicalNode, opts?: O) {
     return this.parseLexNode(null, 0, 0, node, opts);
   }
 
@@ -40,7 +40,7 @@ export class KiwimeriLexConverter {
     indexInParent: number,
     indexInLine: number,
     node: SerializedLexicalNode,
-    opts?: unknown
+    opts?: O
   ) {
     const ctx: KiwimeriLexTransformerCtx = {
       node,
@@ -93,10 +93,10 @@ export class KiwimeriLexConverter {
   }
 
   private applyTransformers(
-    transformers: KiwimeriLexTransformer[],
+    transformers: KiwimeriLexTransformer<O>[],
     ctx: KiwimeriLexTransformerCtx,
     text: string,
-    opts?: unknown
+    opts?: O
   ) {
     let newText = text;
     transformers.forEach(transformer => {
@@ -108,11 +108,11 @@ export class KiwimeriLexConverter {
   }
 
   private applyTransformersOnNode(
-    transformers: KiwimeriLexTransformer[],
+    transformers: KiwimeriLexTransformer<O>[],
     method: 'preTransform' | 'postTransform',
     ctx: KiwimeriLexTransformerCtx,
     text: string,
-    opts?: unknown
+    opts?: O
   ) {
     let newText = text;
     transformers.forEach(transformer => {

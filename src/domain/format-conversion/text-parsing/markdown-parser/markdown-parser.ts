@@ -6,19 +6,31 @@ import { MarkdownLexer } from './markdown-lexer';
 export type MarkdownParserOpts = {
   /** adds rel: noreferrer to links instead of null (default: true) */
   relAsNoReferrer?: boolean;
+  /** if true, urls will be treated as text (default: false) */
+  noAutoLinks?: boolean;
 };
 
-export class MarkdownParser extends KiwimeriTextParser {
-  protected getLexer(
+const defaultOpts: Required<MarkdownParserOpts> = {
+  relAsNoReferrer: true,
+  noAutoLinks: false
+};
+
+export const getOpts = (
+  opts?: MarkdownParserOpts
+): Required<MarkdownParserOpts> =>
+  opts ? { ...defaultOpts, ...opts } : defaultOpts;
+
+export class MarkdownParser extends KiwimeriTextParser<MarkdownParserOpts> {
+  protected getNewLexer(
     text: string,
     opts?: MarkdownParserOpts
-  ): KiwimeriTextLexer {
+  ): KiwimeriTextLexer<MarkdownParserOpts> {
     return new MarkdownLexer(text, opts);
   }
 
   parseText(text: string, opts?: MarkdownParserOpts) {
     const ctx = new KiwimeriParserContext();
-    const lexer = this.getLexer(text, opts);
+    const lexer = this.getNewLexer(text, opts);
 
     if (!lexer.nextBlock()) return null;
     const { token, blockParser } = lexer.consumeBlock()!;

@@ -1,5 +1,8 @@
 import { type SerializedEditorState } from 'lexical';
-import { MARKDOWN_FORMATTER } from './lex-conversion/formatters/markdown-formatter';
+import {
+  MARKDOWN_FORMATTER,
+  MarkdownFormatterOpts
+} from './lex-conversion/formatters/markdown-formatter';
 import {
   PLAIN_TEXT_FORMATTER,
   PlainTextFormatterOpts
@@ -12,10 +15,10 @@ import {
 import { KiwimeriTextParser } from './text-parsing/text-parser';
 
 class FormatConversionService {
-  public to(
+  public to<O>(
     lex: string,
-    formatter: KiwimeriLexConverter,
-    opts?: unknown
+    formatter: KiwimeriLexConverter<O>,
+    opts?: O
   ): string {
     try {
       const obj: SerializedEditorState = JSON.parse(lex);
@@ -31,8 +34,8 @@ class FormatConversionService {
     return this.to(lex, PLAIN_TEXT_FORMATTER, opts);
   }
 
-  public toMarkdown(lex: string) {
-    return this.to(lex, MARKDOWN_FORMATTER);
+  public toMarkdown(lex: string, opts?: MarkdownFormatterOpts) {
+    return this.to(lex, MARKDOWN_FORMATTER, opts);
   }
 
   public from(text: string, parser: KiwimeriTextParser, opts?: unknown) {

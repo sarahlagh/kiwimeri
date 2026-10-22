@@ -31,7 +31,7 @@ const paragraphAlignClosingTag = () => {
   return '</p>';
 };
 
-export const AO3_HTML_PARAGRAPH_TRANSFORMER: KiwimeriLexTransformer = {
+export const AO3_HTML_PARAGRAPH_TRANSFORMER: KiwimeriLexTransformer<unknown> = {
   type: 'paragraph',
   preTransform: function (
     fullstr: string,
@@ -83,7 +83,7 @@ const genericTextFormatTransform = function (
   return `${prefix}${text}${suffix}`;
 };
 
-export const AO3_HTML_BOLD_TRANSFORMER: KiwimeriLexTransformer = {
+export const AO3_HTML_BOLD_TRANSFORMER: KiwimeriLexTransformer<unknown> = {
   type: 'text',
   handles: ({ node }) =>
     ((node as SerializedTextNode).format & IS_BOLD) === IS_BOLD,
@@ -91,7 +91,7 @@ export const AO3_HTML_BOLD_TRANSFORMER: KiwimeriLexTransformer = {
     genericTextFormatTransform(text, ctx, IS_BOLD, '<strong>', '</strong>')
 };
 
-export const AO3_HTML_ITALIC_TRANSFORMER: KiwimeriLexTransformer = {
+export const AO3_HTML_ITALIC_TRANSFORMER: KiwimeriLexTransformer<unknown> = {
   type: 'text',
   handles: ({ node }) =>
     ((node as SerializedTextNode).format & IS_ITALIC) === IS_ITALIC,
@@ -99,7 +99,7 @@ export const AO3_HTML_ITALIC_TRANSFORMER: KiwimeriLexTransformer = {
     genericTextFormatTransform(text, ctx, IS_ITALIC, '<em>', '</em>')
 };
 
-export const AO3_HTML_UNDERLINE_TRANSFORMER: KiwimeriLexTransformer = {
+export const AO3_HTML_UNDERLINE_TRANSFORMER: KiwimeriLexTransformer<unknown> = {
   type: 'text',
   handles: ({ node }) =>
     ((node as SerializedTextNode).format & IS_UNDERLINE) === IS_UNDERLINE,
@@ -107,58 +107,60 @@ export const AO3_HTML_UNDERLINE_TRANSFORMER: KiwimeriLexTransformer = {
     genericTextFormatTransform(text, ctx, IS_UNDERLINE, '<u>', '</u>')
 };
 
-export const AO3_HTML_STRIKETHROUGH_TRANSFORMER: KiwimeriLexTransformer = {
-  type: 'text',
-  handles: ({ node }) =>
-    ((node as SerializedTextNode).format & IS_STRIKETHROUGH) ===
-    IS_STRIKETHROUGH,
-  transform: (text: string, ctx: KiwimeriLexTransformerCtx) =>
-    genericTextFormatTransform(
-      text,
-      ctx,
+export const AO3_HTML_STRIKETHROUGH_TRANSFORMER: KiwimeriLexTransformer<unknown> =
+  {
+    type: 'text',
+    handles: ({ node }) =>
+      ((node as SerializedTextNode).format & IS_STRIKETHROUGH) ===
       IS_STRIKETHROUGH,
-      '<strike>',
-      '</strike>~'
-    )
-};
+    transform: (text: string, ctx: KiwimeriLexTransformerCtx) =>
+      genericTextFormatTransform(
+        text,
+        ctx,
+        IS_STRIKETHROUGH,
+        '<strike>',
+        '</strike>~'
+      )
+  };
 
-export const AO3_HTML_HEADING_TEXT_TRANSFORMER: KiwimeriLexTransformer = {
-  type: 'text',
-  handles: (ctx: KiwimeriLexTransformerCtx) => ctx.parent?.type === 'heading',
-  transform: (text: string, ctx: KiwimeriLexTransformerCtx) => {
-    if (ctx.indexInLine > 0) {
-      return text;
+export const AO3_HTML_HEADING_TEXT_TRANSFORMER: KiwimeriLexTransformer<unknown> =
+  {
+    type: 'text',
+    handles: (ctx: KiwimeriLexTransformerCtx) => ctx.parent?.type === 'heading',
+    transform: (text: string, ctx: KiwimeriLexTransformerCtx) => {
+      if (ctx.indexInLine > 0) {
+        return text;
+      }
+      let lvl = 1;
+      if ('tag' in ctx.parent!) {
+        lvl = Number((ctx.parent.tag as string).slice(1));
+      }
+      return `<h${lvl}>${text}</h${lvl}>`;
     }
-    let lvl = 1;
-    if ('tag' in ctx.parent!) {
-      lvl = Number((ctx.parent.tag as string).slice(1));
-    }
-    return `<h${lvl}>${text}</h${lvl}>`;
-  }
-};
+  };
 
-export const AO3_HTML_HEADING_TRANSFORMER: KiwimeriLexTransformer = {
+export const AO3_HTML_HEADING_TRANSFORMER: KiwimeriLexTransformer<unknown> = {
   type: 'heading',
   postTransform: function (fullstr: string) {
     return fullstr + '\n';
   }
 };
 
-export const AO3_HTML_LINEBREAK_TRANSFORMER: KiwimeriLexTransformer = {
+export const AO3_HTML_LINEBREAK_TRANSFORMER: KiwimeriLexTransformer<unknown> = {
   type: 'linebreak',
   transform: function (): string {
     return '<br />';
   }
 };
 
-export const AO3_HTML_HRULE_TRANSFORMER: KiwimeriLexTransformer = {
+export const AO3_HTML_HRULE_TRANSFORMER: KiwimeriLexTransformer<unknown> = {
   type: 'horizontalrule',
   transform: function (): string {
     return '<hr />\n';
   }
 };
 
-export const AO3_HTML_QUOTE_TRANSFORMER: KiwimeriLexTransformer = {
+export const AO3_HTML_QUOTE_TRANSFORMER: KiwimeriLexTransformer<unknown> = {
   type: 'quote',
   preTransform: function (
     fullstr: string,
@@ -172,7 +174,7 @@ export const AO3_HTML_QUOTE_TRANSFORMER: KiwimeriLexTransformer = {
   }
 };
 
-export const AO3_HTML_TRANSFORMERS: KiwimeriLexTransformer[] = [
+export const AO3_HTML_TRANSFORMERS: KiwimeriLexTransformer<unknown>[] = [
   AO3_HTML_PARAGRAPH_TRANSFORMER,
   AO3_HTML_BOLD_TRANSFORMER,
   AO3_HTML_ITALIC_TRANSFORMER,

@@ -19,30 +19,31 @@ export type KiwimeriTextBlockParser = {
   ) => string | null;
 };
 
-export type KiwimeriTextElementParser = {
+export type KiwimeriTextElementParser<O> = {
   name?: string;
   type: KiwimeriLexerResponseType;
   tokenize: (
     nextText: string,
     block: KiwimeriParserTextBlock,
-    isStartOfLine: boolean
+    isStartOfLine: boolean,
+    opts?: O
   ) => string | null;
   matches?: (nextText: string) => boolean;
   textFormat?: number;
   parse?: (
     token: string,
     ctx: KiwimeriParserContext,
-    lexer: KiwimeriTextLexer
+    lexer: KiwimeriTextLexer<O>
   ) => SerializedLexicalNode | null;
-  captures?: (resp: KiwimeriLexerResponse) => boolean;
+  captures?: (resp: KiwimeriLexerResponse<O>) => boolean;
 };
 
 export type KiwimeriLexerResponseType = 'text' | 'keyword';
-export type KiwimeriLexerResponse = {
+export type KiwimeriLexerResponse<O> = {
   token: string;
   type: KiwimeriLexerResponseType;
   blockParser?: KiwimeriTextBlockParser;
-  elemParser?: KiwimeriTextElementParser;
+  elemParser?: KiwimeriTextElementParser<O>;
 };
 
 export type KiwimeriParserError = {

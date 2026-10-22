@@ -2,10 +2,11 @@ import { KiwimeriTextLexer } from '../text-lexer';
 import { KiwimeriLexerResponse, KiwimeriParserTextBlock } from '../types';
 import { MARKDOWN_BLOCKS, PARAGRAPH } from './markdown-blocks';
 import { MARKDOWN_ELEMENTS } from './markdown-elements';
+import { MarkdownParserOpts } from './markdown-parser';
 
-export class MarkdownLexer extends KiwimeriTextLexer {
+export class MarkdownLexer extends KiwimeriTextLexer<MarkdownParserOpts> {
   // blocks: paragraph, quote, heading, list, horizontalrule
-  protected _nextBlock(): KiwimeriLexerResponse | null {
+  protected _nextBlock(): KiwimeriLexerResponse<MarkdownParserOpts> | null {
     if (this.blockIdx > this.text.length - 1) {
       return null;
     }
@@ -52,7 +53,7 @@ export class MarkdownLexer extends KiwimeriTextLexer {
   // texts: text, linebreak, listitem
   protected _nextText(
     block: KiwimeriParserTextBlock
-  ): KiwimeriLexerResponse | null {
+  ): KiwimeriLexerResponse<MarkdownParserOpts> | null {
     if (this.textIdx > block.text.length - 1) {
       return null;
     }
@@ -65,7 +66,8 @@ export class MarkdownLexer extends KiwimeriTextLexer {
       const token = elemParser.tokenize(
         nextText,
         block,
-        this.isStartOfLine(block.text)
+        this.isStartOfLine(block.text),
+        this.opts
       );
       if (token) {
         return {

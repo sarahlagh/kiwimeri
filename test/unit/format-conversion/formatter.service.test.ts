@@ -37,7 +37,11 @@ const examples = [
   { name: 'links-manual-middle' },
   { name: 'links-autolink' },
   { name: 'links-autolink-middle' },
-  // { name: 'links-autolink-text-format' }, // FIXME known limitation for now
+  {
+    name: 'links-autolink-text-format',
+    opts: { useUnderscoreForBoldAndItalics: true }
+  },
+  // { name: 'links-autolink-text-format-expended' }, // FIXME known limitation for now: [*~_=] are allowed in urls
   { name: 'links-with-url-as-text' }
 ];
 
@@ -77,7 +81,7 @@ describe('format conversion service', () => {
   });
 
   describe('should generate markdown from lexical', () => {
-    examples.forEach(({ name }) => {
+    examples.forEach(({ name, opts }) => {
       it(`should generate markdown from lexical (${name})`, async () => {
         const json = await readFile(
           `${__dirname}/_data/${name}/${name}.json`,
@@ -87,14 +91,14 @@ describe('format conversion service', () => {
           `${__dirname}/_data/${name}/${name}.md`,
           'utf8'
         );
-        const markdown = formatConverter.toMarkdown(json);
+        const markdown = formatConverter.toMarkdown(json, opts);
         expect(markdown).toBe(expected);
       });
     });
   });
 
   describe('should generate lexical from markdown', () => {
-    examples.forEach(({ name, alt }) => {
+    examples.forEach(({ name, alt, opts }) => {
       it(`should generate correct lexical from markdown (${name})`, async () => {
         const json = await readFile(
           `${__dirname}/_data/${name}/${name}.json`,
@@ -121,7 +125,8 @@ describe('format conversion service', () => {
         );
         const lexical = formatConverter.fromMarkdown(markdown);
         const markdownAgain = formatConverter.toMarkdown(
-          JSON.stringify(lexical.obj)
+          JSON.stringify(lexical.obj),
+          opts
         );
         expect(markdownAgain).toBe(markdown);
       });

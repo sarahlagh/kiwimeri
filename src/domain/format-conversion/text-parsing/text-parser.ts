@@ -17,10 +17,10 @@ import {
 // TODO add option about line endings
 // TODO add option to care about textFormat propagation...
 
-export abstract class KiwimeriTextParser {
+export abstract class KiwimeriTextParser<O> {
   constructor() {}
 
-  protected abstract getLexer(text: string, opts?: unknown): KiwimeriTextLexer;
+  protected abstract getNewLexer(text: string, opts?: O): KiwimeriTextLexer<O>;
 
   protected error(ctx: KiwimeriParserContext): KiwimeriParserError[] {
     const lines = ctx.blocks
@@ -36,10 +36,10 @@ export abstract class KiwimeriTextParser {
     ];
   }
 
-  protected parseElem(
-    elemParser: KiwimeriTextElementParser | null,
-    lexResponse: KiwimeriLexerResponse,
-    lexer: KiwimeriTextLexer,
+  protected parseElem<O>(
+    elemParser: KiwimeriTextElementParser<O> | null,
+    lexResponse: KiwimeriLexerResponse<O>,
+    lexer: KiwimeriTextLexer<O>,
     ctx: KiwimeriParserContext
   ) {
     const currentBlock = ctx.lastBlock!;
@@ -82,7 +82,7 @@ export abstract class KiwimeriTextParser {
   }
 
   protected handleBlock(
-    lexer: KiwimeriTextLexer,
+    lexer: KiwimeriTextLexer<O>,
     block: KiwimeriParserTextBlock,
     ctx: KiwimeriParserContext
   ): { errors?: KiwimeriParserError[] } {
@@ -108,7 +108,7 @@ export abstract class KiwimeriTextParser {
     return {};
   }
 
-  public parse(text: string, opts?: unknown): KiwimeriParserResponse {
+  public parse(text: string, opts?: O): KiwimeriParserResponse {
     const root: SerializedRootNode = {
       type: 'root',
       version: 1,
@@ -118,7 +118,7 @@ export abstract class KiwimeriTextParser {
       children: []
     };
     const ctx = new KiwimeriParserContext();
-    const lexer = this.getLexer(text, opts);
+    const lexer = this.getNewLexer(text, opts);
 
     while (lexer.nextBlock() !== null) {
       const { token, blockParser } = lexer.consumeBlock()!;

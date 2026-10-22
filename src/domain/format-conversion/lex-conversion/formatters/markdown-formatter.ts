@@ -22,6 +22,20 @@ import {
   KiwimeriLexTransformerCtx
 } from '../lex-converter';
 
+export type MarkdownFormatterOpts = {
+  /** if true, uses _ instead of * to render bold and italic (default: false) */
+  useUnderscoreForBoldAndItalics: boolean;
+};
+
+type O = MarkdownFormatterOpts;
+
+const defaultOpts: Required<O> = {
+  useUnderscoreForBoldAndItalics: false
+};
+
+const getOpts = (opts?: O): Required<O> =>
+  opts ? { ...defaultOpts, ...opts } : defaultOpts;
+
 const paragraphAlignOpeningTag = (ctx: KiwimeriLexTransformerCtx) => {
   const blockNode = ctx.elementNode ? ctx.elementNode : ctx.parent;
   if (blockNode) {
@@ -44,18 +58,12 @@ const paragraphAlignClosingTag = (ctx: KiwimeriLexTransformerCtx) => {
   return '';
 };
 
-export const MARKDOWN_PARAGRAPH_TRANSFORMER: KiwimeriLexTransformer = {
+export const MARKDOWN_PARAGRAPH_TRANSFORMER: KiwimeriLexTransformer<O> = {
   type: 'paragraph',
-  preTransform: function (
-    fullstr: string,
-    ctx: KiwimeriLexTransformerCtx
-  ): string {
+  preTransform: function (fullstr, ctx): string {
     return fullstr + paragraphAlignOpeningTag(ctx);
   },
-  postTransform: function (
-    fullstr: string,
-    ctx: KiwimeriLexTransformerCtx
-  ): string {
+  postTransform: function (fullstr, ctx): string {
     const tag = paragraphAlignClosingTag(ctx);
     const close =
       ctx.elementNode!.children.length > 0 || tag !== '' ? '\n\n' : '\n';
@@ -104,10 +112,10 @@ const EXTENDED_ESCAPE_CHARS_REGEX = new RegExp(
 );
 
 // escape markdown chars with \
-export const MARKDOWN_TEXT_TRANSFORMER: KiwimeriLexTransformer = {
+export const MARKDOWN_TEXT_TRANSFORMER: KiwimeriLexTransformer<O> = {
   type: 'text',
   handles: () => true,
-  transform: (text: string, ctx) => {
+  transform: (text, ctx) => {
     text = text.replaceAll(ESCAPE_CHARS_REGEX, '\\$1');
     if (ctx.indexInLine === 0) {
       return text.replaceAll(EXTENDED_ESCAPE_CHARS_REGEX, '\\$1');
@@ -116,51 +124,55 @@ export const MARKDOWN_TEXT_TRANSFORMER: KiwimeriLexTransformer = {
   }
 };
 
-export const MARKDOWN_BOLD_TRANSFORMER: KiwimeriLexTransformer = {
+export const MARKDOWN_BOLD_TRANSFORMER: KiwimeriLexTransformer<O> = {
   type: 'text',
   handles: ({ node }) =>
     ((node as SerializedTextNode).format & IS_BOLD) === IS_BOLD,
-  transform: (text: string, ctx: KiwimeriLexTransformerCtx) =>
-    genericTextFormatTransform(text, ctx, IS_BOLD, '**', '**')
+  transform: (text, ctx, opts) =>
+    getOpts(opts).useUnderscoreForBoldAndItalics
+      ? genericTextFormatTransform(text, ctx, IS_BOLD, '__', '__')
+      : genericTextFormatTransform(text, ctx, IS_BOLD, '**', '**')
 };
 
-export const MARKDOWN_ITALIC_TRANSFORMER: KiwimeriLexTransformer = {
+export const MARKDOWN_ITALIC_TRANSFORMER: KiwimeriLexTransformer<O> = {
   type: 'text',
   handles: ({ node }) =>
     ((node as SerializedTextNode).format & IS_ITALIC) === IS_ITALIC,
-  transform: (text: string, ctx: KiwimeriLexTransformerCtx) =>
-    genericTextFormatTransform(text, ctx, IS_ITALIC, '*', '*')
+  transform: (text, ctx, opts) =>
+    getOpts(opts).useUnderscoreForBoldAndItalics
+      ? genericTextFormatTransform(text, ctx, IS_ITALIC, '_', '_')
+      : genericTextFormatTransform(text, ctx, IS_ITALIC, '*', '*')
 };
 
-export const MARKDOWN_UNDERLINE_TRANSFORMER: KiwimeriLexTransformer = {
+export const MARKDOWN_UNDERLINE_TRANSFORMER: KiwimeriLexTransformer<O> = {
   type: 'text',
   handles: ({ node }) =>
     ((node as SerializedTextNode).format & IS_UNDERLINE) === IS_UNDERLINE,
-  transform: (text: string, ctx: KiwimeriLexTransformerCtx) =>
+  transform: (text, ctx) =>
     genericTextFormatTransform(text, ctx, IS_UNDERLINE, '<u>', '</u>')
 };
 
-export const MARKDOWN_STRIKETHROUGH_TRANSFORMER: KiwimeriLexTransformer = {
+export const MARKDOWN_STRIKETHROUGH_TRANSFORMER: KiwimeriLexTransformer<O> = {
   type: 'text',
   handles: ({ node }) =>
     ((node as SerializedTextNode).format & IS_STRIKETHROUGH) ===
     IS_STRIKETHROUGH,
-  transform: (text: string, ctx: KiwimeriLexTransformerCtx) =>
+  transform: (text, ctx) =>
     genericTextFormatTransform(text, ctx, IS_STRIKETHROUGH, '~~', '~~')
 };
 
-export const MARKDOWN_HIGHLIGHT_TRANSFORMER: KiwimeriLexTransformer = {
+export const MARKDOWN_HIGHLIGHT_TRANSFORMER: KiwimeriLexTransformer<O> = {
   type: 'text',
   handles: ({ node }) =>
     ((node as SerializedTextNode).format & IS_HIGHLIGHT) === IS_HIGHLIGHT,
-  transform: (text: string, ctx: KiwimeriLexTransformerCtx) =>
+  transform: (text, ctx) =>
     genericTextFormatTransform(text, ctx, IS_HIGHLIGHT, '==', '==')
 };
 
-export const MARKDOWN_HEADING_TEXT_TRANSFORMER: KiwimeriLexTransformer = {
+export const MARKDOWN_HEADING_TEXT_TRANSFORMER: KiwimeriLexTransformer<O> = {
   type: 'text',
-  handles: (ctx: KiwimeriLexTransformerCtx) => ctx.parent?.type === 'heading',
-  transform: (text: string, ctx: KiwimeriLexTransformerCtx) => {
+  handles: ctx => ctx.parent?.type === 'heading',
+  transform: (text, ctx) => {
     if (ctx.indexInLine > 0) {
       return text;
     }
@@ -175,31 +187,31 @@ export const MARKDOWN_HEADING_TEXT_TRANSFORMER: KiwimeriLexTransformer = {
   }
 };
 
-export const MARKDOWN_HEADING_TRANSFORMER: KiwimeriLexTransformer = {
+export const MARKDOWN_HEADING_TRANSFORMER: KiwimeriLexTransformer<O> = {
   type: 'heading',
-  postTransform: function (fullstr: string) {
+  postTransform: function (fullstr) {
     return fullstr + '\n\n';
   }
 };
 
-export const MARKDOWN_LINEBREAK_TRANSFORMER: KiwimeriLexTransformer = {
+export const MARKDOWN_LINEBREAK_TRANSFORMER: KiwimeriLexTransformer<O> = {
   type: 'linebreak',
   transform: function (): string {
     return '\n';
   }
 };
 
-export const MARKDOWN_HRULE_TRANSFORMER: KiwimeriLexTransformer = {
+export const MARKDOWN_HRULE_TRANSFORMER: KiwimeriLexTransformer<O> = {
   type: 'horizontalrule',
   transform: function (): string {
     return '---\n\n';
   }
 };
 
-export const MARKDOWN_QUOTE_TEXT_TRANSFORMER: KiwimeriLexTransformer = {
+export const MARKDOWN_QUOTE_TEXT_TRANSFORMER: KiwimeriLexTransformer<O> = {
   type: 'text',
-  handles: (ctx: KiwimeriLexTransformerCtx) => ctx.parent?.type === 'quote',
-  transform: (text: string, ctx: KiwimeriLexTransformerCtx) => {
+  handles: ctx => ctx.parent?.type === 'quote',
+  transform: (text, ctx) => {
     if (ctx.indexInParent > 0 && ctx.indexInLine == 0) {
       return '  ' + text;
     }
@@ -207,18 +219,12 @@ export const MARKDOWN_QUOTE_TEXT_TRANSFORMER: KiwimeriLexTransformer = {
   }
 };
 
-export const MARKDOWN_QUOTE_TRANSFORMER: KiwimeriLexTransformer = {
+export const MARKDOWN_QUOTE_TRANSFORMER: KiwimeriLexTransformer<O> = {
   type: 'quote',
-  preTransform: function (
-    fullstr: string,
-    ctx: KiwimeriLexTransformerCtx
-  ): string {
+  preTransform: function (fullstr, ctx): string {
     return fullstr + '> ' + paragraphAlignOpeningTag(ctx);
   },
-  postTransform: function (
-    fullstr: string,
-    ctx: KiwimeriLexTransformerCtx
-  ): string {
+  postTransform: function (fullstr, ctx): string {
     const close = paragraphAlignClosingTag(ctx);
     // check if it's the last children
     if (ctx.parent && 'children' in ctx.parent) {
@@ -235,7 +241,7 @@ export const MARKDOWN_QUOTE_TRANSFORMER: KiwimeriLexTransformer = {
   }
 };
 
-export const MARKDOWN_LIST_TRANSFORMERS: KiwimeriLexTransformer[] = [
+export const MARKDOWN_LIST_TRANSFORMERS: KiwimeriLexTransformer<O>[] = [
   {
     type: 'linebreak',
     handles: ({ parent }) => {
@@ -247,7 +253,7 @@ export const MARKDOWN_LIST_TRANSFORMERS: KiwimeriLexTransformer[] = [
   },
   {
     type: 'listitem',
-    preTransform(fullstr, ctx: KiwimeriLexTransformerCtx) {
+    preTransform(fullstr, ctx) {
       let value = 1;
       if ('value' in ctx.elementNode!) {
         value = ctx.elementNode.value as number;
@@ -282,12 +288,9 @@ export const MARKDOWN_LIST_TRANSFORMERS: KiwimeriLexTransformer[] = [
   }
 ];
 
-export const MARKDOWN_LINKS_TRANSFORMER: KiwimeriLexTransformer = {
+export const MARKDOWN_LINKS_TRANSFORMER: KiwimeriLexTransformer<O> = {
   type: 'link',
-  postTransform: function (
-    fullstr: string,
-    ctx: KiwimeriLexTransformerCtx
-  ): string {
+  postTransform: function (fullstr, ctx): string {
     const { title, url } = ctx.node as unknown as {
       title?: string | null;
       url: string;
@@ -297,15 +300,15 @@ export const MARKDOWN_LINKS_TRANSFORMER: KiwimeriLexTransformer = {
   }
 };
 
-export const MARKDOWN_AUTOLINKS_TRANSFORMER: KiwimeriLexTransformer = {
+export const MARKDOWN_AUTOLINKS_TRANSFORMER: KiwimeriLexTransformer<O> = {
   type: 'autolink',
   handles: ctx => 'isUnlinked' in ctx.node && ctx.node.isUnlinked === false,
-  postTransform: function (fullstr: string): string {
+  postTransform: function (fullstr): string {
     return `<${fullstr}>`;
   }
 };
 
-export const MARKDOWN_TRANSFORMERS: KiwimeriLexTransformer[] = [
+export const MARKDOWN_TRANSFORMERS: KiwimeriLexTransformer<O>[] = [
   MARKDOWN_TEXT_TRANSFORMER,
   MARKDOWN_HEADING_TEXT_TRANSFORMER,
   MARKDOWN_QUOTE_TEXT_TRANSFORMER,
