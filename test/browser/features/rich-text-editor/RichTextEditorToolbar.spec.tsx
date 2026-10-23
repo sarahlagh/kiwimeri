@@ -316,7 +316,7 @@ describe('RichTextEditor Toolbar', () => {
       const initialState = formatConverter.fromMarkdown(
         'hello **world** <u>with formats</u>\n\n' +
           '# heading\n\n' +
-          '[hel*lo*](https://lexical.dev/ "hello") world with links https://gith*ub*.com, end\n\n' +
+          '[hel_lo_](https://lexical.dev/ "hello") world with links https://gith_ub_.com, end\n\n' +
           '<p style="text-align: center;">Sed ut perspiciatis unde omnis iste natus error. sit volup*tatem accusan*tium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia conseq**uun**tur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>\n\n' +
           '- with a list\n' +
           '- of *course*\n\n' +
@@ -381,7 +381,7 @@ describe('RichTextEditor Toolbar', () => {
           formatType: 'bold',
           wordUnderCursor: 'hel',
           expectedBlock:
-            '[**hel**_lo_](https://lexical.dev/ "hello") world with links https://gith_ub_.com, end\n\n'
+            '[__hel___lo_](https://lexical.dev/ "hello") world with links https://gith_ub_.com, end\n\n'
         },
         {
           desc: 'hel[lo] in third line',
@@ -390,7 +390,7 @@ describe('RichTextEditor Toolbar', () => {
           formatType: 'strikethrough',
           wordUnderCursor: 'lo',
           expectedBlock:
-            '[hel*~~lo~~*](https://lexical.dev/ "hello") world with links https://gith*ub*.com, end\n\n'
+            '[hel_~~lo~~_](https://lexical.dev/ "hello") world with links https://gith_ub_.com, end\n\n'
         },
         {
           desc: 'links in third line',
@@ -399,17 +399,17 @@ describe('RichTextEditor Toolbar', () => {
           formatType: 'italic',
           wordUnderCursor: 'links',
           expectedBlock:
-            '[hel*lo*](https://lexical.dev/ "hello") world with *links* https://gith*ub*.com, end\n\n'
+            '[hel_lo_](https://lexical.dev/ "hello") world with *links* https://gith_ub_.com, end\n\n'
         },
         {
-          // skip: true, // parser won't handle correctly **https**://gith*ub*.com
+          skip: true, // skipped due to parser problem
           desc: 'https in third line',
           line: 3,
           offset: 24,
           formatType: 'bold',
           wordUnderCursor: 'https',
           expectedBlock:
-            '[hel*lo*](https://lexical.dev/ "hello") world with links **https**://gith*ub*.com, end\n\n'
+            '[hel_lo_](https://lexical.dev/ "hello") world with links __https__://gith_ub_.com, end\n\n'
         },
         {
           desc: '// in third line',
@@ -418,18 +418,20 @@ describe('RichTextEditor Toolbar', () => {
           formatType: 'bold',
           wordUnderCursor: null,
           expectedBlock:
-            '[hel*lo*](https://lexical.dev/ "hello") world with links https://gith*ub*.com, end\n\n'
+            '[hel_lo_](https://lexical.dev/ "hello") world with links https://gith_ub_.com, end\n\n'
         },
         {
+          skip: true, // skipped due to parser problem
           desc: '[gith]ub in third line',
           line: 3,
           offset: 32,
           formatType: 'underline',
           wordUnderCursor: 'gith',
           expectedBlock:
-            '[hel*lo*](https://lexical.dev/ "hello") world with links https://<u>gith</u>*ub*.com, end\n\n'
+            '[hel_lo_](https://lexical.dev/ "hello") world with links https://<u>gith</u>_ub_.com, end\n\n'
         },
         {
+          skip: true, // skipped due to parser problem
           desc: 'gith[ub] in third line',
           line: 3,
           offset: 36,
@@ -437,7 +439,7 @@ describe('RichTextEditor Toolbar', () => {
           additionalExpectedTypes: ['italic'],
           wordUnderCursor: 'ub',
           expectedBlock:
-            '[hel*lo*](https://lexical.dev/ "hello") world with links https://gith*<u>ub</u>*.com, end\n\n'
+            '[hel_lo_](https://lexical.dev/ "hello") world with links https://gith*<u>ub</u>*.com, end\n\n'
         },
         {
           desc: ', in third line',
@@ -446,7 +448,7 @@ describe('RichTextEditor Toolbar', () => {
           formatType: 'bold',
           wordUnderCursor: null,
           expectedBlock:
-            '[hel*lo*](https://lexical.dev/ "hello") world with links https://gith*ub*.com, end\n\n'
+            '[hel_lo_](https://lexical.dev/ "hello") world with links https://gith_ub_.com, end\n\n'
         },
         {
           desc: 'end in third line',
@@ -455,7 +457,7 @@ describe('RichTextEditor Toolbar', () => {
           formatType: 'highlight',
           wordUnderCursor: 'end',
           expectedBlock:
-            '[hel*lo*](https://lexical.dev/ "hello") world with links https://gith*ub*.com, ==end==\n\n'
+            '[hel_lo_](https://lexical.dev/ "hello") world with links https://gith_ub_.com, ==end==\n\n'
         }
       ];
       const fourthBlock: Scenario[] = [
@@ -538,7 +540,7 @@ describe('RichTextEditor Toolbar', () => {
       const scenarios: Scenario[] = [
         ...firstBlock,
         ...secondBlock,
-        // ...thirdBlock // TODO
+        ...thirdBlock, // links
         ...fourthBlock,
         ...fifthBlock, // list
         ...sixthAndSeventhBlock // quote
@@ -551,7 +553,7 @@ describe('RichTextEditor Toolbar', () => {
           offset: char,
           wordUnderCursor,
           formatType,
-          expectedBlock: expectedLine,
+          expectedBlock,
           skip
         }) => {
           if (skip === true) return;
@@ -591,9 +593,8 @@ describe('RichTextEditor Toolbar', () => {
                 textFormat: 0
               }),
               {
-                ...formatConverter.fromMarkdown(expectedLine, {
-                  relAsNoReferrer: false
-                }).obj!.root.children[0],
+                ...formatConverter.fromMarkdown(expectedBlock).obj!.root
+                  .children[0],
                 textFormat: 0
               }
             );
@@ -610,8 +611,6 @@ describe('RichTextEditor Toolbar', () => {
               const screen = await renderEditor({
                 initialState
               });
-              const editor = screen.getLexicalEditor();
-              const context = screen.getEditorContext();
               await clickOnEditor(screen, line, char);
               const formatType = additionalExpectedTypes![0];
 
