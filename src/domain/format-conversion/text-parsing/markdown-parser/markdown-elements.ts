@@ -26,9 +26,6 @@ const STOP_TOKEN_REGEX = new RegExp(
   'g'
 );
 
-/** this means those chars have to be escaped, to test */
-const SUPPORTED_FORMAT_CHARS_IN_URL = new RegExp(`[*_~=]`, 'g');
-
 // same as old /(\**|_*|~*|<*|=*|\n*)$/g
 const AVOID_ESCAPED_CHARS_REGEX = new RegExp(
   `(\\${ESCAPE_CHARS.split('').join('*|')}|\n*)$`,
@@ -342,14 +339,13 @@ const AUTOLINK: KiwimeriTextElementParser<O> = {
     const opts = lexer.getOpts() as MarkdownParserOpts;
     const [, url] = [...token.matchAll(AUTOLINK_REGEX)][0];
     const isMail = token.match(EMAIL_REGEX);
-    const cleanedUrl = url.replaceAll(SUPPORTED_FORMAT_CHARS_IN_URL, '');
     const node: SerializedAutoLinkNode = {
       type: 'autolink',
       version: 1,
       format: '',
       direction: 'ltr',
       indent: 0,
-      url: !isMail ? cleanedUrl : `mailto:${cleanedUrl}`,
+      url: !isMail ? url : `mailto:${url}`,
       rel: null,
       target: null,
       title: null,
@@ -361,7 +357,13 @@ const AUTOLINK: KiwimeriTextElementParser<O> = {
       noAutoLinks: true
     });
     if (textNodes) {
+      let cleanedUrl = '';
+      for (const textNode of textNodes) {
+        if (textNode.type === 'text')
+          cleanedUrl = `${cleanedUrl}${(textNode as SerializedTextNode).text}`;
+      }
       node.children = textNodes;
+      node.url = !isMail ? cleanedUrl : `mailto:${cleanedUrl}`;
     }
     return node;
   }

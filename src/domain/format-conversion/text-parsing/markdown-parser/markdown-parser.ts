@@ -29,7 +29,7 @@ export class MarkdownParser extends KiwimeriTextParser<MarkdownParserOpts> {
   }
 
   parseText(text: string, opts?: MarkdownParserOpts) {
-    const ctx = new KiwimeriParserContext();
+    const ctx = new KiwimeriParserContext<MarkdownParserOpts>();
     const lexer = this.getNewLexer(text, opts);
 
     if (!lexer.nextBlock()) return null;

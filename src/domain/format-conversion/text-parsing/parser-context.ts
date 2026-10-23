@@ -11,34 +11,34 @@ import {
   KiwimeriTextElementParser
 } from './types';
 
-export class KiwimeriParserContext {
-  blockParser: KiwimeriTextBlockParser | null = null;
+export class KiwimeriParserContext<O> {
+  blockParser: KiwimeriTextBlockParser<O> | null = null;
   blocks: KiwimeriParserTextBlock[] = []; // currently only used for getting line in error
   elements: {
-    lex: KiwimeriLexerResponse;
+    lex: KiwimeriLexerResponse<O>;
     node: SerializedLexicalNode | null;
   }[] = [];
   lastBlock: KiwimeriParserTextBlock | null = null;
   lastText: {
-    lex: KiwimeriLexerResponse;
+    lex: KiwimeriLexerResponse<O>;
     node: SerializedLexicalNode | null;
   } | null = null;
   lastKeyword: {
-    lex: KiwimeriLexerResponse;
+    lex: KiwimeriLexerResponse<O>;
     node: SerializedLexicalNode | null;
   } | null = null;
   activeFormats: Set<number> = new Set();
-  nextText: KiwimeriLexerResponse | null = null;
+  nextText: KiwimeriLexerResponse<O> | null = null;
   paragraphAlign: ElementFormatType | null = null;
   capture: {
     node: SerializedElementNode;
-    parser: KiwimeriTextElementParser;
+    parser: KiwimeriTextElementParser<O>;
   }[] = [];
 
   indexInBlock: number = 0;
   indexInLine: number = 0;
 
-  constructor(oth?: KiwimeriParserContext) {
+  constructor(oth?: KiwimeriParserContext<O>) {
     if (oth) {
       this.blockParser = oth.blockParser;
       this.blocks = [...oth.blocks];
@@ -60,7 +60,10 @@ export class KiwimeriParserContext {
     this.lastBlock = this.blocks[this.blocks.length - 1];
   }
 
-  addElement(lex: KiwimeriLexerResponse, node: SerializedLexicalNode | null) {
+  addElement(
+    lex: KiwimeriLexerResponse<O>,
+    node: SerializedLexicalNode | null
+  ) {
     this.elements.push({ lex, node });
     const keywords = this.elements.filter(el => el.lex.type === 'keyword');
     this.lastKeyword =
@@ -109,7 +112,7 @@ export class KiwimeriParserContext {
     );
   }
 
-  captureEnds(lexResponse: KiwimeriLexerResponse) {
+  captureEnds(lexResponse: KiwimeriLexerResponse<O>) {
     return (
       this.getCapture() && this.getCapture()!.parser.captures!(lexResponse)
     );
@@ -117,7 +120,7 @@ export class KiwimeriParserContext {
 
   addCapture(capture: {
     node: SerializedElementNode;
-    parser: KiwimeriTextElementParser;
+    parser: KiwimeriTextElementParser<O>;
   }) {
     this.capture.push(capture);
   }

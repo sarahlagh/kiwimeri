@@ -38,7 +38,7 @@ class FormatConversionService {
     return this.to(lex, MARKDOWN_FORMATTER, opts);
   }
 
-  public from(text: string, parser: KiwimeriTextParser, opts?: unknown) {
+  public from<O>(text: string, parser: KiwimeriTextParser<O>, opts?: O) {
     return parser.parse(text, opts);
   }
 

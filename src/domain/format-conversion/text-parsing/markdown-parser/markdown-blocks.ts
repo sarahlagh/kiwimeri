@@ -12,6 +12,9 @@ import type {
 } from 'lexical';
 import type { KiwimeriTextBlockParser } from '../types';
 import { CHECKED_LIST_ITEM_REGEX } from './markdown-elements';
+import { MarkdownParserOpts } from './markdown-parser';
+
+type O = MarkdownParserOpts;
 
 const baseElementNode = (type: string): SerializedElementNode => {
   return {
@@ -53,7 +56,7 @@ const matches = (text: string, regex: RegExp, group = 0) => {
 };
 
 const HEADING_REGEX = /^(#{1,6}) /g;
-const HEADING: KiwimeriTextBlockParser = {
+const HEADING: KiwimeriTextBlockParser<O> = {
   name: 'heading',
   tokenize: nextBlock =>
     nextBlock.match(HEADING_REGEX) ? endOfBlock(nextBlock, true) : null,
@@ -77,7 +80,7 @@ const HEADING: KiwimeriTextBlockParser = {
 
 const QUOTE_REGEX = /^> (?:(?:.|\n)*?\n)(?:(?=>)|\n)/g;
 const QUOTE_PREFIX = '> ';
-const QUOTE: KiwimeriTextBlockParser = {
+const QUOTE: KiwimeriTextBlockParser<O> = {
   name: 'quote',
   tokenize: nextBlock =>
     matches(nextBlock, QUOTE_REGEX) ||
@@ -100,7 +103,7 @@ const QUOTE: KiwimeriTextBlockParser = {
 
 const HRULE_PREFIX = '---';
 const HRULE_PREFIX_ALT = '***';
-const HRULE: KiwimeriTextBlockParser = {
+const HRULE: KiwimeriTextBlockParser<O> = {
   name: 'hrule',
   tokenize: nextBlock =>
     nextBlock.startsWith(HRULE_PREFIX) || nextBlock.startsWith(HRULE_PREFIX_ALT)
@@ -119,7 +122,7 @@ const HRULE: KiwimeriTextBlockParser = {
 
 const LIST_PREDICATE = (token: string) =>
   token.match(/^-{1}/g) || token.match(/^\d+\. /g);
-const LIST: KiwimeriTextBlockParser = {
+const LIST: KiwimeriTextBlockParser<O> = {
   name: 'list',
   tokenize: nextBlock =>
     LIST_PREDICATE(nextBlock) ? endOfBlock(nextBlock, true) : null,
@@ -139,7 +142,7 @@ const LIST: KiwimeriTextBlockParser = {
 };
 
 /* note: unable to make the difference between a shift-enter (produces linebreak) and enter (produces paragraph) */
-const EMPTY_PARAGRAPH: KiwimeriTextBlockParser = {
+const EMPTY_PARAGRAPH: KiwimeriTextBlockParser<O> = {
   name: 'empty_paragraph',
   tokenize: nextBlock => {
     if (nextBlock.match(/^\n+/g)) return '\n';
@@ -164,7 +167,7 @@ export const getTextAlign = (token: string) => {
   return '';
 };
 
-export const PARAGRAPH: KiwimeriTextBlockParser = {
+export const PARAGRAPH: KiwimeriTextBlockParser<O> = {
   name: 'paragraph',
   tokenize: nextBlock => {
     return endOfBlock(nextBlock, true);
@@ -181,7 +184,7 @@ export const PARAGRAPH: KiwimeriTextBlockParser = {
   }
 };
 
-export const MARKDOWN_BLOCKS: KiwimeriTextBlockParser[] = [
+export const MARKDOWN_BLOCKS: KiwimeriTextBlockParser<O>[] = [
   HEADING,
   QUOTE,
   HRULE,

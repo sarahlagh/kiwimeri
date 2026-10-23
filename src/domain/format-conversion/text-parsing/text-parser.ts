@@ -22,7 +22,7 @@ export abstract class KiwimeriTextParser<O> {
 
   protected abstract getNewLexer(text: string, opts?: O): KiwimeriTextLexer<O>;
 
-  protected error(ctx: KiwimeriParserContext): KiwimeriParserError[] {
+  protected error(ctx: KiwimeriParserContext<O>): KiwimeriParserError[] {
     const lines = ctx.blocks
       .map(block => block.text.replace(/[^\n]/g, '').length)
       .reduce((a, c) => a + c, 0);
@@ -40,7 +40,7 @@ export abstract class KiwimeriTextParser<O> {
     elemParser: KiwimeriTextElementParser<O> | null,
     lexResponse: KiwimeriLexerResponse<O>,
     lexer: KiwimeriTextLexer<O>,
-    ctx: KiwimeriParserContext
+    ctx: KiwimeriParserContext<O>
   ) {
     const currentBlock = ctx.lastBlock!;
     ctx.mergeFormat(elemParser?.textFormat);
@@ -84,7 +84,7 @@ export abstract class KiwimeriTextParser<O> {
   protected handleBlock(
     lexer: KiwimeriTextLexer<O>,
     block: KiwimeriParserTextBlock,
-    ctx: KiwimeriParserContext
+    ctx: KiwimeriParserContext<O>
   ): { errors?: KiwimeriParserError[] } {
     ctx = ctx.copy(block);
     ctx.indexInBlock = 0;
@@ -117,7 +117,7 @@ export abstract class KiwimeriTextParser<O> {
       indent: 0,
       children: []
     };
-    const ctx = new KiwimeriParserContext();
+    const ctx = new KiwimeriParserContext<O>();
     const lexer = this.getNewLexer(text, opts);
 
     while (lexer.nextBlock() !== null) {

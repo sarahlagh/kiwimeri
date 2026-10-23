@@ -8,13 +8,13 @@ export type KiwimeriParserTextBlock = {
   blockData?: unknown;
 };
 
-export type KiwimeriTextBlockParser = {
+export type KiwimeriTextBlockParser<O> = {
   name?: string;
   tokenize: (nextBlock: string) => string | null;
   parse: (token: string) => KiwimeriParserTextBlock | null;
   transformChild?: (
     text: string,
-    ctx: KiwimeriParserContext,
+    ctx: KiwimeriParserContext<O>,
     blockData: unknown
   ) => string | null;
 };
@@ -32,7 +32,7 @@ export type KiwimeriTextElementParser<O> = {
   textFormat?: number;
   parse?: (
     token: string,
-    ctx: KiwimeriParserContext,
+    ctx: KiwimeriParserContext<O>,
     lexer: KiwimeriTextLexer<O>
   ) => SerializedLexicalNode | null;
   captures?: (resp: KiwimeriLexerResponse<O>) => boolean;
@@ -42,7 +42,7 @@ export type KiwimeriLexerResponseType = 'text' | 'keyword';
 export type KiwimeriLexerResponse<O> = {
   token: string;
   type: KiwimeriLexerResponseType;
-  blockParser?: KiwimeriTextBlockParser;
+  blockParser?: KiwimeriTextBlockParser<O>;
   elemParser?: KiwimeriTextElementParser<O>;
 };
 
