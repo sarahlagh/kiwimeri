@@ -2,11 +2,18 @@ import formatConverter from '@/domain/format-conversion/format-converter.service
 import { readFile } from 'fs/promises';
 import { describe, expect, it } from 'vitest';
 
-const examples = [
+type Example = {
+  name: string;
+  altMarkdown?: boolean;
+  altHtml?: boolean;
+  opts?: any;
+};
+
+const examples: Example[] = [
   { name: 'text' },
   { name: 'text-escaped' },
-  { name: 'text-format', alt: true },
-  { name: 'text-format-nested', alt: true },
+  { name: 'text-format', altMarkdown: true },
+  { name: 'text-format-nested', altMarkdown: true },
   { name: 'paragraph' },
   { name: 'paragraph-linebreaks' },
   { name: 'paragraph-text-align' },
@@ -17,22 +24,22 @@ const examples = [
   { name: 'headings' },
   { name: 'headings-linebreaks' },
   { name: 'headings-text-align' },
-  { name: 'headings-text-align-linebreaks', alt: true },
-  { name: 'quotes', alt: true },
-  { name: 'quotes-linebreaks', alt: true },
+  { name: 'headings-text-align-linebreaks', altMarkdown: true },
+  { name: 'quotes', altMarkdown: true },
+  { name: 'quotes-linebreaks', altMarkdown: true },
   { name: 'quotes-paragraph-break' },
   { name: 'quotes-text-align' },
-  { name: 'horizontal-rule', alt: true },
+  { name: 'horizontal-rule', altMarkdown: true },
   { name: 'horizontal-rule-paragraph-break' },
-  { name: 'lists-unordered', alt: true },
-  { name: 'lists-unordered-linebreaks', alt: true },
-  { name: 'lists-ordered', alt: true },
-  { name: 'lists-ordered-linebreaks', alt: true },
-  { name: 'lists-check', alt: true },
+  { name: 'lists-unordered', altMarkdown: true },
+  { name: 'lists-unordered-linebreaks', altMarkdown: true },
+  { name: 'lists-ordered', altMarkdown: true },
+  { name: 'lists-ordered-linebreaks', altMarkdown: true },
+  { name: 'lists-check', altMarkdown: true },
   { name: 'lists-check-linebreaks' },
   { name: 'lists-paragraph-break' },
   { name: 'lists-text-align' },
-  { name: 'links-manual', alt: true },
+  { name: 'links-manual', altMarkdown: true },
   { name: 'links-manual-text-format' },
   { name: 'links-manual-middle' },
   { name: 'links-autolink' },
@@ -80,8 +87,8 @@ describe('format conversion service', () => {
     });
   });
 
-  describe('should generate markdown from lexical', () => {
-    examples.forEach(({ name, opts }) => {
+  describe('should handle markdown', () => {
+    examples.forEach(({ name, altMarkdown: alt, opts }) => {
       it(`should generate markdown from lexical (${name})`, async () => {
         const json = await readFile(
           `${__dirname}/_data/${name}/${name}.json`,
@@ -94,11 +101,7 @@ describe('format conversion service', () => {
         const markdown = formatConverter.toMarkdown(json, opts);
         expect(markdown).toBe(expected);
       });
-    });
-  });
 
-  describe('should generate lexical from markdown', () => {
-    examples.forEach(({ name, alt, opts }) => {
       it(`should generate correct lexical from markdown (${name})`, async () => {
         const json = await readFile(
           `${__dirname}/_data/${name}/${name}.json`,
@@ -142,6 +145,51 @@ describe('format conversion service', () => {
             'utf8'
           );
           const lexical = formatConverter.fromMarkdown(markdown);
+          const expectedObj = JSON.parse(json, (key, val) => {
+            if (key === 'direction') return 'ltr';
+            return val;
+          });
+          expect(lexical.obj).toEqual(expectedObj);
+        });
+      }
+    });
+  });
+
+  describe('should handle simple html', () => {
+    let i = 0;
+    examples.forEach(({ name, altHtml: alt }) => {
+      if (i++ > 20) return;
+      it(`should generate correct lexical from simple html (${name})`, async () => {
+        const json = await readFile(
+          `${__dirname}/_data/${name}/${name}.json`,
+          'utf8'
+        );
+        const simpleHtml = await readFile(
+          `${__dirname}/_data/${name}/${name}.html`,
+          'utf8'
+        );
+        const lexical = formatConverter.fromSimpleHtml(simpleHtml);
+
+        // direction is a mess to predict, exclude from comparison
+        const expectedObj = JSON.parse(json, (key, val) => {
+          if (key === 'direction') return 'ltr';
+          return val;
+        });
+        if (lexical.errors) console.error(lexical.errors);
+        expect(lexical.obj).toEqual(expectedObj);
+      });
+
+      if (alt === true) {
+        it(`should generate lexical from simple html (${name}, alt)`, async () => {
+          const json = await readFile(
+            `${__dirname}/_data/${name}/${name}.json`,
+            'utf8'
+          );
+          const simpleHtml = await readFile(
+            `${__dirname}/_data/${name}/${name}.alt.html`,
+            'utf8'
+          );
+          const lexical = formatConverter.fromSimpleHtml(simpleHtml);
           const expectedObj = JSON.parse(json, (key, val) => {
             if (key === 'direction') return 'ltr';
             return val;

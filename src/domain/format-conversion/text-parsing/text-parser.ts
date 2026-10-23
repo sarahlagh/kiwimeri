@@ -46,8 +46,8 @@ export abstract class KiwimeriTextParser<O> {
     ctx.mergeFormat(elemParser?.textFormat);
 
     let elemToken: string | null = lexResponse.token;
-    if (ctx.blockParser?.transformChild) {
-      elemToken = ctx.blockParser!.transformChild(
+    if (ctx.blockParser?.postTokenizeChild) {
+      elemToken = ctx.blockParser!.postTokenizeChild(
         lexResponse.token,
         ctx,
         currentBlock.blockData
@@ -89,6 +89,9 @@ export abstract class KiwimeriTextParser<O> {
     ctx = ctx.copy(block);
     ctx.indexInBlock = 0;
     ctx.indexInLine = 0;
+    if (ctx.blockParser?.preTokenizeChild) {
+      ctx.blockParser.preTokenizeChild(block, ctx);
+    }
     while (lexer.nextText(block) !== null) {
       const lexResponse = lexer.consumeText(block);
       if (lexResponse === null) {

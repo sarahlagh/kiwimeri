@@ -12,6 +12,10 @@ import {
   MARKDOWN_PARSER,
   MarkdownParserOpts
 } from './text-parsing/markdown-parser/markdown-parser';
+import {
+  SIMPLE_HTML_PARSER,
+  SimpleHtmlParserOpts
+} from './text-parsing/simple-html-parser/simple-html-parser';
 import { KiwimeriTextParser } from './text-parsing/text-parser';
 
 class FormatConversionService {
@@ -44,6 +48,10 @@ class FormatConversionService {
 
   public fromMarkdown(markdown: string, opts?: MarkdownParserOpts) {
     return this.from(markdown, MARKDOWN_PARSER, opts);
+  }
+
+  public fromSimpleHtml(html: string, opts?: SimpleHtmlParserOpts) {
+    return this.from(html, SIMPLE_HTML_PARSER, opts);
   }
 }
 

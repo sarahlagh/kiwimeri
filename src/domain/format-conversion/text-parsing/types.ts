@@ -12,7 +12,13 @@ export type KiwimeriTextBlockParser<O> = {
   name?: string;
   tokenize: (nextBlock: string) => string | null;
   parse: (token: string) => KiwimeriParserTextBlock | null;
-  transformChild?: (
+  /* happens after block parse and before element tokenize */
+  preTokenizeChild?: (
+    block: KiwimeriParserTextBlock,
+    ctx: KiwimeriParserContext<O>
+  ) => void;
+  /* happens after block parse and before element tokenize */
+  postTokenizeChild?: (
     text: string,
     ctx: KiwimeriParserContext<O>,
     blockData: unknown
@@ -28,7 +34,7 @@ export type KiwimeriTextElementParser<O> = {
     isStartOfLine: boolean,
     opts?: O
   ) => string | null;
-  matches?: (nextText: string) => boolean;
+  // matches?: (nextText: string) => boolean;
   textFormat?: number;
   parse?: (
     token: string,
