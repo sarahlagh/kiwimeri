@@ -22,6 +22,11 @@ import { annotsService } from '@/domain/collection/doc-annotations.service';
 import { DocAnnotation } from '@/domain/collection/document-annotations';
 import { Notebook } from '@/domain/collection/notebooks';
 import notebooksService from '@/domain/collection/notebooks.service';
+import formatConverter from '@/domain/format-conversion/format-converter.service';
+import {
+  SIMPLE_HTML_PARSER,
+  SimpleHtmlParserOpts
+} from '@/domain/format-conversion/text-parsing/simple-html-parser/simple-html-parser';
 import { historyService } from '@/domain/history/history.service';
 import { renderHook } from '@testing-library/react';
 import { SerializedEditorState } from 'lexical';
@@ -511,4 +516,8 @@ export function expectLexicalStatesToBeEqual(value: string, expected: any) {
     return val;
   });
   expect(valueObj).toEqual(expected);
+}
+
+export function fromSimpleHTML(text: string, opts?: SimpleHtmlParserOpts) {
+  return formatConverter.from(text, SIMPLE_HTML_PARSER, opts);
 }

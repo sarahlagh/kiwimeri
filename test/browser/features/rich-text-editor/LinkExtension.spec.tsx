@@ -1,17 +1,14 @@
-import formatConverter from '@/domain/format-conversion/format-converter.service';
 import {
   expectLexicalStatesToBeEqual,
+  fromSimpleHTML,
   getNewContent
 } from '@@/_setup/test.utils';
-import { AutoLinkNode, SerializedAutoLinkNode } from '@lexical/link';
 import {
   $createRangeSelection,
   $getRoot,
   $setSelection,
   ElementNode,
-  FORMAT_TEXT_COMMAND,
   LexicalEditor,
-  SerializedParagraphNode,
   TextNode
 } from 'lexical';
 import { describe, expect, test } from 'vitest';
@@ -75,11 +72,12 @@ describe('LinkExtension', () => {
   describe('what disables the open modal link btn', () => {
     test('selecting multiple links disables the btn', async () => {
       const screen = await renderEditor({
-        initialState: formatConverter.fromMarkdown(
-          'autolink1 https://lexical.dev/ autolink2 https://github.com end\n' +
-            'link1 [link1](https://lexical.dev/) link1 [link2](https://github.com/) end'
+        initialState: fromSimpleHTML(
+          '<p>autolink1 <autolink unlinked>https://lexical.dev/</autolink> autolink2 <autolink unlinked>https://github.com</autolink> end<br/>' +
+            'link1 <a href="https://lexical.dev/">link1</a> link1 <a href="https://github.com/">link2</a> end</p>'
         ).obj!
       });
+
       const editor = screen.getLexicalEditor();
 
       const linkBtn = getLinkBtn(screen);
@@ -104,9 +102,9 @@ describe('LinkExtension', () => {
 
     test('selecting over multiple blocks disables the btn', async () => {
       const screen = await renderEditor({
-        initialState: formatConverter.fromMarkdown(
-          'autolink1 https://lexical.dev/ autolink2 https://github.com end\n\n' +
-            'link1 [link1](https://lexical.dev/) link1 [link2](https://github.com/) end'
+        initialState: fromSimpleHTML(
+          '<p>autolink1 <autolink unlinked>https://lexical.dev/</autolink> autolink2 <autolink unlinked>https://github.com</autolink> end</p>' +
+            '<p>link1 <a href="https://lexical.dev/">link1</a> link1 <a href="https://github.com/">link2</a> end</p>'
         ).obj!
       });
       const editor = screen.getLexicalEditor();
@@ -135,8 +133,8 @@ describe('LinkExtension', () => {
 
     test('selecting links with multiple nodes does not disable the btn', async () => {
       const screen = await renderEditor({
-        initialState: formatConverter.fromMarkdown(
-          'autolink1 https://*lexical*.dev/ link1 [li*n*k1](https://lexical.dev/)'
+        initialState: fromSimpleHTML(
+          '<p>autolink1 <autolink unlinked>https://<i>lexical</i>.dev/</autolink> link1 <a href="https://lexical.dev/">li<i>n</i>k1</a></p>'
         ).obj!
       });
       const editor = screen.getLexicalEditor();
@@ -265,8 +263,8 @@ describe('LinkExtension', () => {
       // link has been created
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        formatConverter.fromMarkdown(
-          '[hel](https://lexical.dev/ "hel")lo world'
+        fromSimpleHTML(
+          '<p><a title="hel" href="https://lexical.dev/">hel</a>lo world</p>'
         ).obj!
       );
     });
@@ -302,14 +300,14 @@ describe('LinkExtension', () => {
       // link has been created
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        formatConverter.fromMarkdown(
-          '[hellll](https://lexical.dev/ "hellll")lo world'
+        fromSimpleHTML(
+          '<p><a title="hellll" href="https://lexical.dev/">hellll</a>lo world</p>'
         ).obj!
       );
     });
 
-    const initialStateWithLink = formatConverter.fromMarkdown(
-      'hh [he*ll*o](https://lexical.dev/ "hello") world'
+    const initialStateWithLink = fromSimpleHTML(
+      '<p>hh <a title="hello" href="https://lexical.dev/">he<i>ll</i>o</a> world</p>'
     ).obj!;
 
     test('caret on existing link opens the modal with text and url filled', async () => {
@@ -392,8 +390,8 @@ describe('LinkExtension', () => {
       // link has been updated
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        formatConverter.fromMarkdown(
-          'hh [helllllo](https://lexical.dev/ "helllllo") world'
+        fromSimpleHTML(
+          '<p>hh <a title="helllllo" href="https://lexical.dev/">helllllo</a> world</p>'
         ).obj!
       );
     });
@@ -424,8 +422,8 @@ describe('LinkExtension', () => {
       // link has been updated
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        formatConverter.fromMarkdown(
-          'hh [hello](https://play.qobuz.com/ "hello") world'
+        fromSimpleHTML(
+          '<p>hh <a title="hello" href="https://play.qobuz.com/">hello</a> world</p>'
         ).obj!
       );
     });
@@ -461,8 +459,8 @@ describe('LinkExtension', () => {
       // link has been updated
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        formatConverter.fromMarkdown(
-          'hh [helllllo](https://play.qobuz.com/ "helllllo") world'
+        fromSimpleHTML(
+          '<p>hh <a title="helllllo" href="https://play.qobuz.com/">helllllo</a> world</p>'
         ).obj!
       );
     });
@@ -493,7 +491,7 @@ describe('LinkExtension', () => {
       // link has been deleted
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        formatConverter.fromMarkdown('hh he*ll*o world').obj!
+        fromSimpleHTML('<p>hh he<i>ll</i>o world</p>').obj!
       );
     });
 
@@ -531,8 +529,8 @@ describe('LinkExtension', () => {
       // link has been updated
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        formatConverter.fromMarkdown(
-          'hh [helllllo](https://play.qobuz.com/ "helllllo") world'
+        fromSimpleHTML(
+          '<p>hh <a title="helllllo" href="https://play.qobuz.com/">helllllo</a> world</p>'
         ).obj!
       );
     });
@@ -570,8 +568,8 @@ describe('LinkExtension', () => {
       // link has been updated
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        formatConverter.fromMarkdown(
-          '[helllllowo](https://lexical.dev/ "helllllowo")orld'
+        fromSimpleHTML(
+          '<p><a title="helllllowo" href="https://lexical.dev/">helllllowo</a>orld</p>'
         ).obj!
       );
     });
@@ -609,8 +607,8 @@ describe('LinkExtension', () => {
       // link has been updated
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        formatConverter.fromMarkdown(
-          '[hh hello w](https://play.qobuz.com/ "hh hello w")orld'
+        fromSimpleHTML(
+          '<p><a title="hh hello w" href="https://play.qobuz.com/">hh hello w</a>orld</p>'
         ).obj!
       );
     });
@@ -649,8 +647,8 @@ describe('LinkExtension', () => {
       // link has been updated
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        formatConverter.fromMarkdown(
-          '[helllllowo](https://play.qobuz.com/ "helllllowo")orld'
+        fromSimpleHTML(
+          '<p><a title="helllllowo" href="https://play.qobuz.com/">helllllowo</a>orld</p>'
         ).obj!
       );
     });
@@ -689,8 +687,8 @@ describe('LinkExtension', () => {
       // link has been updated
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        formatConverter.fromMarkdown(
-          '[helllllowo](https://play.qobuz.com/ "helllllowo") world'
+        fromSimpleHTML(
+          '<p><a title="helllllowo" href="https://play.qobuz.com/">helllllowo</a> world</p>'
         ).obj!
       );
     });
@@ -729,8 +727,8 @@ describe('LinkExtension', () => {
       // link has been updated
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        formatConverter.fromMarkdown(
-          'hh [helllllowo](https://play.qobuz.com/ "helllllowo")rld'
+        fromSimpleHTML(
+          '<p>hh <a title="helllllowo" href="https://play.qobuz.com/">helllllowo</a>rld</p>'
         ).obj!
       );
     });
@@ -771,8 +769,8 @@ describe('LinkExtension', () => {
       // link has been updated
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        formatConverter.fromMarkdown(
-          'hh [helllllowo](https://play.qobuz.com/ "helllllowo") world'
+        fromSimpleHTML(
+          '<p>hh <a title="helllllowo" href="https://play.qobuz.com/">helllllowo</a> world</p>'
         ).obj!
       );
     });
@@ -797,7 +795,7 @@ describe('LinkExtension', () => {
       // autolink has been created
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        formatConverter.fromMarkdown('<https://lexical.dev/>').obj!
+        fromSimpleHTML('<p><autolink>https://lexical.dev/</autolink></p>').obj!
       );
 
       // set caret at text
@@ -805,39 +803,19 @@ describe('LinkExtension', () => {
       await expect.element(getLinkBtn(screen)).toHaveClass('active');
     });
 
-    const initialStateWithAutoLink = formatConverter.fromMarkdown(
-      '<https://lexical.dev/> world'
+    const initialStateWithAutoLink = fromSimpleHTML(
+      '<p><autolink>https://<b>lexical</b>.dev/</autolink> world</p>'
     ).obj!;
 
-    const initialStateWithUnlinkedAutoLink = formatConverter.fromMarkdown(
-      'https://lexical.dev/ world'
+    const initialStateWithUnlinkedAutoLink = fromSimpleHTML(
+      '<p><autolink unlinked>https://lexical.dev/</autolink> world</p>'
     ).obj!;
-
-    // limitation with markdown parser, can't parse auto links with format, to fix later
-    function addFormatToAutoLink(editor: LexicalEditor) {
-      editor.update(
-        () => {
-          const root = $getRoot();
-          const paragraph = root.getFirstChildOrThrow() as ElementNode;
-          const autolink = paragraph.getFirstChildOrThrow() as AutoLinkNode;
-          const textNode = autolink.getFirstChildOrThrow() as TextNode;
-          const selection = $createRangeSelection();
-          selection.setTextNodeRange(textNode, 9, textNode, 16);
-          $setSelection(selection);
-          editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
-          $setSelection(null);
-        },
-        { discrete: true }
-      );
-      return editor.getEditorState().toJSON();
-    }
 
     test('caret on existing autolink opens the modal with text and url filled', async () => {
       const screen = await renderEditor({
         initialState: initialStateWithAutoLink
       });
       const editor = screen.getLexicalEditor();
-      addFormatToAutoLink(editor);
       // set caret at text
       await clickOnEditor(screen, 1, 2);
 
@@ -871,7 +849,6 @@ describe('LinkExtension', () => {
         initialState: initialStateWithUnlinkedAutoLink
       });
       const editor = screen.getLexicalEditor();
-      addFormatToAutoLink(editor);
 
       // set caret at text
       await clickOnEditor(screen, 1, 2);
@@ -906,7 +883,6 @@ describe('LinkExtension', () => {
         initialState: initialStateWithAutoLink
       });
       const editor = screen.getLexicalEditor();
-      const initialState = addFormatToAutoLink(editor);
       // set caret at text
       await clickOnEditor(screen, 1, 2);
 
@@ -924,7 +900,7 @@ describe('LinkExtension', () => {
       // nothing changed
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        initialState
+        initialStateWithAutoLink
       );
     });
 
@@ -933,7 +909,6 @@ describe('LinkExtension', () => {
         initialState: initialStateWithAutoLink
       });
       const editor = screen.getLexicalEditor();
-      addFormatToAutoLink(editor);
       // set caret at text
       await clickOnEditor(screen, 1, 2);
 
@@ -953,8 +928,8 @@ describe('LinkExtension', () => {
       await dismissModal(screen);
 
       // link has been updated
-      const obj = formatConverter.fromMarkdown(
-        '<https://play.qobuz.com/> world'
+      const obj = fromSimpleHTML(
+        '<p><autolink>https://play.qobuz.com/</autolink> world</p>'
       ).obj!;
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
@@ -967,7 +942,6 @@ describe('LinkExtension', () => {
         initialState: initialStateWithAutoLink
       });
       const editor = screen.getLexicalEditor();
-      addFormatToAutoLink(editor);
       // set caret at text
       await clickOnEditor(screen, 1, 2);
 
@@ -996,9 +970,12 @@ describe('LinkExtension', () => {
       // link has been updated
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        formatConverter.fromMarkdown('[hello](https://lexical.dev/) world', {
-          relAsNoReferrer: false
-        }).obj!
+        fromSimpleHTML(
+          '<p><a href="https://lexical.dev/">hello</a> world</p>',
+          {
+            relAsNoReferrer: false
+          }
+        ).obj!
       );
     });
 
@@ -1007,7 +984,6 @@ describe('LinkExtension', () => {
         initialState: initialStateWithAutoLink
       });
       const editor = screen.getLexicalEditor();
-      addFormatToAutoLink(editor);
       // set caret at text
       await clickOnEditor(screen, 1, 2);
 
@@ -1041,9 +1017,12 @@ describe('LinkExtension', () => {
       // link has been updated
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        formatConverter.fromMarkdown('[hello](https://play.qobuz.com/) world', {
-          relAsNoReferrer: false
-        }).obj!
+        fromSimpleHTML(
+          '<p><a href="https://play.qobuz.com/">hello</a> world</p>',
+          {
+            relAsNoReferrer: false
+          }
+        ).obj!
       );
     });
 
@@ -1052,7 +1031,6 @@ describe('LinkExtension', () => {
         initialState: initialStateWithAutoLink
       });
       const editor = screen.getLexicalEditor();
-      const initialState = addFormatToAutoLink(editor);
       // set caret at text
       await clickOnEditor(screen, 1, 2);
 
@@ -1072,13 +1050,11 @@ describe('LinkExtension', () => {
       await expect.element(getLinkModal(screen)).not.toBeInTheDocument();
 
       // link has been unlinked
-      (
-        (initialState.root.children[0] as SerializedParagraphNode)
-          .children[0] as SerializedAutoLinkNode
-      ).isUnlinked = true;
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        initialState
+        fromSimpleHTML(
+          '<p><autolink unlinked>https://<b>lexical</b>.dev/</autolink> world</p>'
+        ).obj!
       );
 
       // still counts as a link
@@ -1090,7 +1066,6 @@ describe('LinkExtension', () => {
         initialState: initialStateWithUnlinkedAutoLink
       });
       const editor = screen.getLexicalEditor();
-      const initialState = addFormatToAutoLink(editor);
       // set caret at text
       await clickOnEditor(screen, 1, 2);
 
@@ -1110,13 +1085,10 @@ describe('LinkExtension', () => {
       await expect.element(getLinkModal(screen)).not.toBeInTheDocument();
 
       // autolink has been linked
-      (
-        (initialState.root.children[0] as SerializedParagraphNode)
-          .children[0] as SerializedAutoLinkNode
-      ).isUnlinked = false;
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        initialState
+        fromSimpleHTML('<p><autolink>https://lexical.dev/</autolink> world</p>')
+          .obj!
       );
 
       // still counts as a link
@@ -1128,7 +1100,6 @@ describe('LinkExtension', () => {
         initialState: initialStateWithAutoLink
       });
       const editor = screen.getLexicalEditor();
-      addFormatToAutoLink(editor);
       selectTextAtParagraph(editor, 0, [0, 20]);
 
       // click on link btn
@@ -1157,12 +1128,15 @@ describe('LinkExtension', () => {
       // autolink has been updated
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        formatConverter.fromMarkdown('<https://play.qobuz.com/> world').obj!
+        fromSimpleHTML(
+          '<p><autolink>https://play.qobuz.com/</autolink> world</p>'
+        ).obj!
       );
     });
 
-    const initialStateWithUnlinkedAutoLinkSurrounded =
-      formatConverter.fromMarkdown('hello https://le*xi*cal.dev/ world').obj!;
+    const initialStateWithUnlinkedAutoLinkSurrounded = fromSimpleHTML(
+      '<p>hello <autolink unlinked>https://le<i>xi</i>cal.dev/</autolink> world</p>'
+    ).obj!;
 
     test('selecting around an existing autolink opens the modal - link change updates the link', async () => {
       const screen = await renderEditor({
@@ -1199,8 +1173,9 @@ describe('LinkExtension', () => {
       // link has been updated
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        formatConverter.fromMarkdown('hello <https://play.qobuz.com/> world')
-          .obj!
+        fromSimpleHTML(
+          '<p>hello <autolink unlinked>https://play.qobuz.com/</autolink> world</p>'
+        ).obj!
       );
     });
 
@@ -1246,8 +1221,8 @@ describe('LinkExtension', () => {
       // link has been updated
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        formatConverter.fromMarkdown(
-          'hello [helllllowo](https://lexical.dev/) world',
+        fromSimpleHTML(
+          '<p>hello <a href="https://lexical.dev/">helllllowo</a> world</p>',
           { relAsNoReferrer: false }
         ).obj!
       );
@@ -1296,8 +1271,8 @@ describe('LinkExtension', () => {
       // link has been updated
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        formatConverter.fromMarkdown(
-          'hello [helllllowo](https://play.qobuz.com/) world',
+        fromSimpleHTML(
+          '<p>hello <a href="https://play.qobuz.com/">helllllowo</a> world</p>',
           { relAsNoReferrer: false }
         ).obj!
       );
@@ -1344,8 +1319,8 @@ describe('LinkExtension', () => {
       // link has been updated
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        formatConverter.fromMarkdown(
-          'hello [helllllowo](https://play.qobuz.com/) world',
+        fromSimpleHTML(
+          '<p>hello <a href="https://play.qobuz.com/">helllllowo</a> world</p>',
           { relAsNoReferrer: false }
         ).obj!
       );
@@ -1392,8 +1367,8 @@ describe('LinkExtension', () => {
       // link has been updated
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        formatConverter.fromMarkdown(
-          'hello [helllllowo](https://play.qobuz.com/) world',
+        fromSimpleHTML(
+          '<p>hello <a href="https://play.qobuz.com/">helllllowo</a> world</p>',
           { relAsNoReferrer: false }
         ).obj!
       );
@@ -1440,8 +1415,8 @@ describe('LinkExtension', () => {
       // link has been updated
       expectLexicalStatesToBeEqual(
         JSON.stringify(editor.getEditorState().toJSON()),
-        formatConverter.fromMarkdown(
-          'hello [helllllowo](https://play.qobuz.com/) world',
+        fromSimpleHTML(
+          '<p>hello <a href="https://play.qobuz.com/">helllllowo</a> world</p>',
           { relAsNoReferrer: false }
         ).obj!
       );

@@ -1,17 +1,19 @@
-import formatConverter from '@/domain/format-conversion/format-converter.service';
 import { EditorContextType } from '@/features/document-editor/wysiwyg-editor/lexical-v2/EditorContext';
+import { fromSimpleHTML } from '@@/_setup/test.utils';
 import { describe, expect, test } from 'vitest';
 import { clickOnEditor, renderEditor } from './utils';
 
-const initialState = formatConverter.fromMarkdown(
-  'hello **world** with <u>formats</u>.\n\n' +
-    '# heading!\n\n' +
-    '[hel*lo*](https://lexical.dev/ "hello") world with links https://gith*ub*.com, end\n\n' +
-    '<p style="text-align: center;">Sed ut perspiciatis unde omnis iste natus error. sit volup*tat*em, accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia conseq**uun**tur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>\n\n' +
-    '- with a list\n' +
-    '- of *course*\n\n' +
-    '> and a quote\n' +
-    '> second ~~row~~'
+const initialState = fromSimpleHTML(
+  '<p>hello <b>world</b> with <u>formats</u></p>' +
+    '<h1>heading!</h1>' +
+    '<p><a href="https://lexical.dev/" title="hello">hel<i>lo</i></a> world with links <autolink unlinked>https://gith<i>ub</i>.com</autolink>, end</p>' +
+    '<p style="text-align: center;">Sed ut perspiciatis unde omnis iste natus error. sit volup<i>tat</i>em, accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia conseq<b>uun</b>tur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>' +
+    '<ul>' +
+    '<li>with a list</li>' +
+    '<li>of <i>course</i></li>' +
+    '</ul>' +
+    '<blockquote>and a quote</blockquote>' +
+    '<blockquote>second <strike>row</strike></blockquote>'
 ).obj!;
 
 describe('RichTextEditor EditorContext', () => {

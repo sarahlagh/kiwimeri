@@ -1,9 +1,9 @@
 /* eslint-disable vitest/no-conditional-expect */
 import { describe, expect, test } from 'vitest';
 
-import formatConverter from '@/domain/format-conversion/format-converter.service';
 import {
   expectLexicalStatesToBeEqual,
+  fromSimpleHTML,
   getNewContent
 } from '@@/_setup/test.utils';
 import { ListNode, ListType } from '@lexical/list';
@@ -63,10 +63,10 @@ describe('RichTextEditor Toolbar', () => {
 
   test('selection change updates the toolbar', async () => {
     const screen = await renderEditor({
-      initialState: formatConverter.fromMarkdown(
-        'hello **world** with <u>formats</u>\n\n' +
-          '# heading\n\n' +
-          '[hello](https://lexical.dev/ "hello") world with links\n\n' +
+      initialState: fromSimpleHTML(
+        '<p>hello <b>world</b> with <u>formats</u></p>' +
+          '<h1>heading</h1>' +
+          '<p><a href="https://lexical.dev/" title="hello">hello</a> world with links</p>' +
           '<p style="text-align: center;">center text</p>'
       ).obj!
     });
@@ -313,15 +313,17 @@ describe('RichTextEditor Toolbar', () => {
     });
 
     describe(`apply format on word under cursor`, () => {
-      const initialState = formatConverter.fromMarkdown(
-        'hello **world** <u>with formats</u>\n\n' +
-          '# heading\n\n' +
-          '[hel_lo_](https://lexical.dev/ "hello") world with links https://gith_ub_.com, end\n\n' +
-          '<p style="text-align: center;">Sed ut perspiciatis unde omnis iste natus error. sit volup*tatem accusan*tium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia conseq**uun**tur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>\n\n' +
-          '- with a list\n' +
-          '- of *course*\n\n' +
-          '> and a quote\n' +
-          '> second ~~row~~'
+      const initialState = fromSimpleHTML(
+        '<p>hello <b>world</b> <u>with formats</u></p>' +
+          '<h1>heading</h1>' +
+          '<p><a href="https://lexical.dev/" title="hello">hel<i>lo</i></a> world with links <autolink unlinked>https://gith<i>ub</i>.com</autolink>, end</p>' +
+          '<p style="text-align: center;">Sed ut perspiciatis unde omnis iste natus error. sit volup<i>tatem accusan</i>tium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia conseq<b>uun</b>tur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>' +
+          '<ul>' +
+          '<li>with a list</li>' +
+          '<li>of <i>course</i></li>' +
+          '</ul>' +
+          '<blockquote>and a quote</blockquote>' +
+          '<blockquote>second <strike>row</strike></blockquote>'
       ).obj!;
 
       type Scenario = {
@@ -342,7 +344,7 @@ describe('RichTextEditor Toolbar', () => {
           offset: 1,
           formatType: 'bold',
           wordUnderCursor: 'hello',
-          expectedBlock: '**hello** **world** <u>with formats</u>\n\n'
+          expectedBlock: '<p><b>hello</b> <b>world</b> <u>with formats</u></p>'
         },
         {
           desc: 'world in first line',
@@ -351,7 +353,8 @@ describe('RichTextEditor Toolbar', () => {
           formatType: 'highlight',
           additionalExpectedTypes: ['bold'],
           wordUnderCursor: 'world',
-          expectedBlock: 'hello **==world==** <u>with formats</u>\n\n'
+          expectedBlock:
+            '<p>hello <b><mark>world</mark></b> <u>with formats</u></p>\n\n'
         },
         {
           desc: 'formats in first line',
@@ -360,7 +363,7 @@ describe('RichTextEditor Toolbar', () => {
           formatType: 'italic',
           additionalExpectedTypes: ['underline'],
           wordUnderCursor: 'formats',
-          expectedBlock: 'hello **world** <u>with *formats*</u>\n\n'
+          expectedBlock: '<p>hello <b>world</b> <u>with <i>formats</i></u></p>'
         }
       ];
       const secondBlock: Scenario[] = [
@@ -370,7 +373,7 @@ describe('RichTextEditor Toolbar', () => {
           offset: 3,
           formatType: 'bold',
           wordUnderCursor: 'heading',
-          expectedBlock: '# **heading**\n\n'
+          expectedBlock: '<h1><b>heading</b></h1>'
         }
       ];
       const thirdBlock: Scenario[] = [
@@ -381,7 +384,7 @@ describe('RichTextEditor Toolbar', () => {
           formatType: 'bold',
           wordUnderCursor: 'hel',
           expectedBlock:
-            '[__hel___lo_](https://lexical.dev/ "hello") world with links https://gith_ub_.com, end\n\n'
+            '<p><a href="https://lexical.dev/" title="hello"><b>hel</b><i>lo</i></a> world with links <autolink unlinked>https://gith<i>ub</i>.com</autolink>, end</p>'
         },
         {
           desc: 'hel[lo] in third line',
@@ -390,7 +393,7 @@ describe('RichTextEditor Toolbar', () => {
           formatType: 'strikethrough',
           wordUnderCursor: 'lo',
           expectedBlock:
-            '[hel_~~lo~~_](https://lexical.dev/ "hello") world with links https://gith_ub_.com, end\n\n'
+            '<p><a href="https://lexical.dev/" title="hello">hel<i><strike>lo</strike></i></a> world with links <autolink unlinked>https://gith<i>ub</i>.com</autolink>, end</p>'
         },
         {
           desc: 'links in third line',
@@ -399,7 +402,7 @@ describe('RichTextEditor Toolbar', () => {
           formatType: 'italic',
           wordUnderCursor: 'links',
           expectedBlock:
-            '[hel_lo_](https://lexical.dev/ "hello") world with *links* https://gith_ub_.com, end\n\n'
+            '<p><a href="https://lexical.dev/" title="hello">hel<i>lo</i></a> world with <i>links</i> <autolink unlinked>https://gith<i>ub</i>.com</autolink>, end</p>'
         },
         {
           skip: true, // skipped due to parser problem
@@ -409,7 +412,8 @@ describe('RichTextEditor Toolbar', () => {
           formatType: 'bold',
           wordUnderCursor: 'https',
           expectedBlock:
-            '[hel_lo_](https://lexical.dev/ "hello") world with links __https__://gith_ub_.com, end\n\n'
+            '<p><a href="https://lexical.dev/" title="hello">hel<i>lo</i></a> world with links <autolink unlinked>https://gith<i>ub</i>.com</autolink>, end</p>'
+          // '[hel_lo_](https://lexical.dev/ "hello") world with links __https__://gith_ub_.com, end\n\n'
         },
         {
           desc: '// in third line',
@@ -418,7 +422,7 @@ describe('RichTextEditor Toolbar', () => {
           formatType: 'bold',
           wordUnderCursor: null,
           expectedBlock:
-            '[hel_lo_](https://lexical.dev/ "hello") world with links https://gith_ub_.com, end\n\n'
+            '<p><a href="https://lexical.dev/" title="hello">hel<i>lo</i></a> world with links <autolink unlinked>https://gith<i>ub</i>.com</autolink>, end</p>'
         },
         {
           skip: true, // skipped due to parser problem
@@ -428,7 +432,8 @@ describe('RichTextEditor Toolbar', () => {
           formatType: 'underline',
           wordUnderCursor: 'gith',
           expectedBlock:
-            '[hel_lo_](https://lexical.dev/ "hello") world with links https://<u>gith</u>_ub_.com, end\n\n'
+            '<p><a href="https://lexical.dev/" title="hello">hel<i>lo</i></a> world with links <autolink unlinked>https://gith<i>ub</i>.com</autolink>, end</p>'
+          // '[hel_lo_](https://lexical.dev/ "hello") world with links https://<u>gith</u>_ub_.com, end\n\n'
         },
         {
           skip: true, // skipped due to parser problem
@@ -439,7 +444,8 @@ describe('RichTextEditor Toolbar', () => {
           additionalExpectedTypes: ['italic'],
           wordUnderCursor: 'ub',
           expectedBlock:
-            '[hel_lo_](https://lexical.dev/ "hello") world with links https://gith*<u>ub</u>*.com, end\n\n'
+            '<p><a href="https://lexical.dev/" title="hello">hel<i>lo</i></a> world with links <autolink unlinked>https://gith<i>ub</i>.com</autolink>, end</p>'
+          // '[hel_lo_](https://lexical.dev/ "hello") world with links https://gith*<u>ub</u>*.com, end\n\n'
         },
         {
           desc: ', in third line',
@@ -448,7 +454,7 @@ describe('RichTextEditor Toolbar', () => {
           formatType: 'bold',
           wordUnderCursor: null,
           expectedBlock:
-            '[hel_lo_](https://lexical.dev/ "hello") world with links https://gith_ub_.com, end\n\n'
+            '<p><a href="https://lexical.dev/" title="hello">hel<i>lo</i></a> world with links <autolink unlinked>https://gith<i>ub</i>.com</autolink>, end</p>'
         },
         {
           desc: 'end in third line',
@@ -457,7 +463,7 @@ describe('RichTextEditor Toolbar', () => {
           formatType: 'highlight',
           wordUnderCursor: 'end',
           expectedBlock:
-            '[hel_lo_](https://lexical.dev/ "hello") world with links https://gith_ub_.com, ==end==\n\n'
+            '<p><a href="https://lexical.dev/" title="hello">hel<i>lo</i></a> world with links <autolink unlinked>https://gith<i>ub</i>.com</autolink>, <mark>end</mark></p>'
         }
       ];
       const fourthBlock: Scenario[] = [
@@ -468,7 +474,7 @@ describe('RichTextEditor Toolbar', () => {
           formatType: 'italic',
           wordUnderCursor: 'perspiciatis',
           expectedBlock:
-            '<p style="text-align: center;">Sed ut *perspiciatis* unde omnis iste natus error. sit volup*tatem accusan*tium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia conseq**uun**tur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>\n\n'
+            '<p style="text-align: center;">Sed ut <i>perspiciatis</i> unde omnis iste natus error. sit volup<i>tatem accusan</i>tium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia conseq<b>uun</b>tur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>'
         },
         {
           desc: 'after . in fourth line',
@@ -477,7 +483,7 @@ describe('RichTextEditor Toolbar', () => {
           formatType: 'bold',
           wordUnderCursor: null,
           expectedBlock:
-            '<p style="text-align: center;">Sed ut perspiciatis unde omnis iste natus error. sit volup*tatem accusan*tium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia conseq**uun**tur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>\n\n'
+            '<p style="text-align: center;">Sed ut perspiciatis unde omnis iste natus error. sit volup<i>tatem accusan</i>tium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia conseq<b>uun</b>tur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>'
         },
         {
           desc: '[volup]tatem in fourth line',
@@ -486,7 +492,7 @@ describe('RichTextEditor Toolbar', () => {
           formatType: 'bold',
           wordUnderCursor: 'volup',
           expectedBlock:
-            '<p style="text-align: center;">Sed ut perspiciatis unde omnis iste natus error. sit __volup__*tatem accusan*tium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia conseq**uun**tur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>\n\n'
+            '<p style="text-align: center;">Sed ut perspiciatis unde omnis iste natus error. sit <b>volup</b><i>tatem accusan</i>tium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia conseq<b>uun</b>tur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>'
         },
         {
           desc: 'volup[tatem] in fourth line',
@@ -495,7 +501,7 @@ describe('RichTextEditor Toolbar', () => {
           formatType: 'bold',
           wordUnderCursor: 'tatem',
           expectedBlock:
-            '<p style="text-align: center;">Sed ut perspiciatis unde omnis iste natus error. sit volup*__tatem__ accusan*tium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia conseq**uun**tur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>\n\n'
+            '<p style="text-align: center;">Sed ut perspiciatis unde omnis iste natus error. sit volup<i><b>tatem</b> accusan</i>tium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia conseq<b>uun</b>tur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>'
         }
       ];
       const fifthBlock: Scenario[] = [
@@ -505,7 +511,8 @@ describe('RichTextEditor Toolbar', () => {
           offset: 0,
           formatType: 'bold',
           wordUnderCursor: 'with',
-          expectedBlock: '- **with** a list\n' + '- of *course*\n\n'
+          expectedBlock:
+            '<ul><li><b>with</b> a list</li><li>of <i>course</i></li></ul>'
         },
         {
           desc: 'course on second list item',
@@ -514,7 +521,8 @@ describe('RichTextEditor Toolbar', () => {
           formatType: 'strikethrough',
           additionalExpectedTypes: ['italic'],
           wordUnderCursor: 'course',
-          expectedBlock: '- with a list\n' + '- of *~~course~~*\n\n'
+          expectedBlock:
+            '<ul><li>with a list</li><li>of <i><strike>course</strike></i></li></ul>'
         }
       ];
       const sixthAndSeventhBlock: Scenario[] = [
@@ -524,7 +532,7 @@ describe('RichTextEditor Toolbar', () => {
           offset: 4,
           formatType: 'bold',
           wordUnderCursor: 'a',
-          expectedBlock: '> and **a** quote\n'
+          expectedBlock: '<blockquote>and <b>a</b> quote</blockquote>'
         },
         {
           desc: 'row in second row of quote',
@@ -533,7 +541,8 @@ describe('RichTextEditor Toolbar', () => {
           formatType: 'highlight',
           additionalExpectedTypes: ['strikethrough'],
           wordUnderCursor: 'row',
-          expectedBlock: '> second ~~==row==~~\n'
+          expectedBlock:
+            '<blockquote>second <mark><strike>row</strike></mark></blockquote>'
         }
       ];
 
@@ -593,8 +602,7 @@ describe('RichTextEditor Toolbar', () => {
                 textFormat: 0
               }),
               {
-                ...formatConverter.fromMarkdown(expectedBlock).obj!.root
-                  .children[0],
+                ...fromSimpleHTML(expectedBlock).obj!.root.children[0],
                 textFormat: 0
               }
             );
@@ -859,15 +867,17 @@ describe('RichTextEditor Toolbar', () => {
 
   test('remove format button clears', async () => {
     const screen = await renderEditor({
-      initialState: formatConverter.fromMarkdown(
-        'hello **world** with <u>formats</u>\n\n' +
-          '# heading\n\n' +
-          '[hel*lo*](https://lexical.dev/ "hello") world with links https://github.com\n\n' +
-          '<p style="text-align: center;">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>\n\n' +
-          '- with a list\n' +
-          '- of *course*\n\n' +
-          '> and a quote\n' +
-          '> second ~~row~~'
+      initialState: fromSimpleHTML(
+        '<p>hello <b>world</b> with <u>formats</u></p>' +
+          '<h1>heading</h1>' +
+          '<p><a href="https://lexical.dev/" title="hello">hel<i>lo</i></a> world with links <autolink unlinked>https://gith<i>ub</i>.com</autolink></p>' +
+          '<p style="text-align: center;">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>' +
+          '<ul>' +
+          '<li>with a list</li>' +
+          '<li>of <i>course</i></li>' +
+          '</ul>' +
+          '<blockquote>and a quote</blockquote>' +
+          '<blockquote>second <strike>row</strike></blockquote>'
       ).obj!
     });
 
@@ -893,15 +903,15 @@ describe('RichTextEditor Toolbar', () => {
 
     expectLexicalStatesToBeEqual(
       JSON.stringify(editor.getEditorState().toJSON()),
-      formatConverter.fromMarkdown(
-        'hello world with formats\n\n' +
-          'heading\n\n' +
-          '[hello](https://lexical.dev/ "hello") world with links https://github.com\n\n' +
-          'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?\n\n' +
-          'with a list\n\n' +
-          'of course\n\n' +
-          'and a quote\n\n' +
-          'second ~~row~~'
+      fromSimpleHTML(
+        '<p>hello world with formats</p>' +
+          '<p>heading</p>' +
+          '<p><a href="https://lexical.dev/" title="hello">hello</a> world with links <autolink unlinked>https://github.com</autolink></p>' +
+          '<p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>' +
+          '<p>with a list</p>' +
+          '<p>of course</p>' +
+          '<p>and a quote</p>' +
+          '<p>second <strike>row</strike></p>'
       ).obj!
     );
   });
