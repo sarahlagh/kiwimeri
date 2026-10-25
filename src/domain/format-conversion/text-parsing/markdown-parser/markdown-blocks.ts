@@ -71,7 +71,7 @@ const HEADING: KiwimeriTextBlockParser<O> = {
     }
     return null;
   },
-  transformChild: (text, ctx, blockData) => {
+  postTokenizeChild: (text, ctx, blockData) => {
     const lvl = (blockData as { lvl: number }).lvl;
     const transformed = text.replace('#'.repeat(lvl) + ' ', '');
     return transformed.length > 0 ? transformed : null;
@@ -92,7 +92,7 @@ const QUOTE: KiwimeriTextBlockParser<O> = {
       text
     };
   },
-  transformChild: (text, ctx) => {
+  postTokenizeChild: (text, ctx) => {
     if (text === '\n') return text;
     if (ctx.indexInLine > 0) {
       return text.replace(QUOTE_PREFIX, '');
@@ -160,7 +160,7 @@ const EMPTY_PARAGRAPH: KiwimeriTextBlockParser<O> = {
 };
 
 export const getTextAlign = (token: string) => {
-  const textAlign = /text-align: ([a-z]+);/g.exec(token);
+  const textAlign = /text-align: ([a-z]+);?/g.exec(token);
   if (textAlign && textAlign.length > 0) {
     return textAlign[1] as ElementFormatType;
   }

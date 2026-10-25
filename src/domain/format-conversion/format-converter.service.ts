@@ -12,7 +12,7 @@ import {
   MARKDOWN_PARSER,
   MarkdownParserOpts
 } from './text-parsing/markdown-parser/markdown-parser';
-import { KiwimeriTextParser } from './text-parsing/text-parser';
+import { KiwimeriTextParserBase } from './text-parsing/text-parser';
 
 class FormatConversionService {
   public to<O>(
@@ -38,7 +38,7 @@ class FormatConversionService {
     return this.to(lex, MARKDOWN_FORMATTER, opts);
   }
 
-  public from<O>(text: string, parser: KiwimeriTextParser<O>, opts?: O) {
+  public from<O>(text: string, parser: KiwimeriTextParserBase<O>, opts?: O) {
     return parser.parse(text, opts);
   }
 

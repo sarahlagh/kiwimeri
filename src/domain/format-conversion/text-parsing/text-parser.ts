@@ -16,8 +16,13 @@ import {
 // TODO add option to stick to classic markdown (no text align, <u>...)
 // TODO add option about line endings
 // TODO add option to care about textFormat propagation...
+export interface KiwimeriTextParserBase<O> {
+  parse(text: string, opts?: O): KiwimeriParserResponse;
+}
 
-export abstract class KiwimeriTextParser<O> {
+export abstract class KiwimeriTextParser<
+  O
+> implements KiwimeriTextParserBase<O> {
   constructor() {}
 
   protected abstract getNewLexer(text: string, opts?: O): KiwimeriTextLexer<O>;
@@ -30,8 +35,8 @@ export abstract class KiwimeriTextParser<O> {
       {
         line: lines,
         blockPreview: ctx.lastBlock!.text,
-        lastKeyword: ctx.lastKeyword?.lex.token || null,
-        lastText: ctx.lastText?.lex.token || null
+        lastKeyword: ctx.lastKeyword?.lex?.token || null,
+        lastText: ctx.lastText?.lex?.token || null
       }
     ];
   }
@@ -46,8 +51,8 @@ export abstract class KiwimeriTextParser<O> {
     ctx.mergeFormat(elemParser?.textFormat);
 
     let elemToken: string | null = lexResponse.token;
-    if (ctx.blockParser?.transformChild) {
-      elemToken = ctx.blockParser!.transformChild(
+    if (ctx.blockParser?.postTokenizeChild) {
+      elemToken = ctx.blockParser!.postTokenizeChild(
         lexResponse.token,
         ctx,
         currentBlock.blockData
@@ -89,6 +94,9 @@ export abstract class KiwimeriTextParser<O> {
     ctx = ctx.copy(block);
     ctx.indexInBlock = 0;
     ctx.indexInLine = 0;
+    if (ctx.blockParser?.preTokenizeChild) {
+      ctx.blockParser.preTokenizeChild(block, ctx);
+    }
     while (lexer.nextText(block) !== null) {
       const lexResponse = lexer.consumeText(block);
       if (lexResponse === null) {

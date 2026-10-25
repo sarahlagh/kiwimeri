@@ -12,19 +12,20 @@ import {
 } from './types';
 
 export class KiwimeriParserContext<O> {
+  opts?: Required<O>;
   blockParser: KiwimeriTextBlockParser<O> | null = null;
   blocks: KiwimeriParserTextBlock[] = []; // currently only used for getting line in error
   elements: {
-    lex: KiwimeriLexerResponse<O>;
+    lex: KiwimeriLexerResponse<O> | null;
     node: SerializedLexicalNode | null;
   }[] = [];
   lastBlock: KiwimeriParserTextBlock | null = null;
   lastText: {
-    lex: KiwimeriLexerResponse<O>;
+    lex: KiwimeriLexerResponse<O> | null;
     node: SerializedLexicalNode | null;
   } | null = null;
   lastKeyword: {
-    lex: KiwimeriLexerResponse<O>;
+    lex: KiwimeriLexerResponse<O> | null;
     node: SerializedLexicalNode | null;
   } | null = null;
   activeFormats: Set<number> = new Set();
@@ -40,6 +41,7 @@ export class KiwimeriParserContext<O> {
 
   constructor(oth?: KiwimeriParserContext<O>) {
     if (oth) {
+      this.opts = oth.opts;
       this.blockParser = oth.blockParser;
       this.blocks = [...oth.blocks];
       this.lastBlock = oth.lastBlock;
@@ -61,14 +63,14 @@ export class KiwimeriParserContext<O> {
   }
 
   addElement(
-    lex: KiwimeriLexerResponse<O>,
+    lex: KiwimeriLexerResponse<O> | null,
     node: SerializedLexicalNode | null
   ) {
     this.elements.push({ lex, node });
-    const keywords = this.elements.filter(el => el.lex.type === 'keyword');
+    const keywords = this.elements.filter(el => el.lex?.type === 'keyword');
     this.lastKeyword =
       keywords.length > 0 ? keywords[keywords.length - 1] : null;
-    const nonKeywords = this.elements.filter(el => el.lex.type !== 'keyword');
+    const nonKeywords = this.elements.filter(el => el.lex?.type !== 'keyword');
     this.lastText =
       nonKeywords.length > 0 ? nonKeywords[nonKeywords.length - 1] : null;
   }

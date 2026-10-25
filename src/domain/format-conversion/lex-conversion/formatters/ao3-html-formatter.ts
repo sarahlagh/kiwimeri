@@ -119,7 +119,7 @@ export const AO3_HTML_STRIKETHROUGH_TRANSFORMER: KiwimeriLexTransformer<unknown>
         ctx,
         IS_STRIKETHROUGH,
         '<strike>',
-        '</strike>~'
+        '</strike>'
       )
   };
 

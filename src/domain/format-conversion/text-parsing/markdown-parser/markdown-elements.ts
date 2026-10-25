@@ -111,7 +111,6 @@ const BOLD: KiwimeriTextElementParser<O> = {
   type: 'keyword',
   tokenize: nextText =>
     BOLD_PREDICATE(nextText) ? nextText.substring(0, 2) : null,
-  matches: BOLD_PREDICATE,
   textFormat: IS_BOLD
 };
 
@@ -121,7 +120,6 @@ const ITALIC: KiwimeriTextElementParser<O> = {
   name: 'italic',
   type: 'keyword',
   tokenize: nextText => (ITALIC_PREDICATE(nextText) ? nextText[0] : null),
-  matches: ITALIC_PREDICATE,
   textFormat: IS_ITALIC
 };
 
@@ -131,12 +129,9 @@ const STRIKETHROUGH: KiwimeriTextElementParser<O> = {
   name: 'strikethrough',
   type: 'keyword',
   tokenize: nextText => (STRIKETHROUGH_PREDICTATE(nextText) ? '~~' : null),
-  matches: STRIKETHROUGH_PREDICTATE,
   textFormat: IS_STRIKETHROUGH
 };
 
-const UNDERLINE_PREDICTATE = (nextText: string) =>
-  nextText.startsWith('<u>') || nextText.startsWith('</u>');
 const UNDERLINE: KiwimeriTextElementParser<O> = {
   name: 'underline',
   type: 'keyword',
@@ -145,7 +140,6 @@ const UNDERLINE: KiwimeriTextElementParser<O> = {
     if (nextText.startsWith('</u>')) return '</u>';
     return null;
   },
-  matches: UNDERLINE_PREDICTATE,
   textFormat: IS_UNDERLINE
 };
 
@@ -155,7 +149,6 @@ const HIGHLIGHT: KiwimeriTextElementParser<O> = {
   name: 'highlight',
   type: 'keyword',
   tokenize: nextText => (HIGHLIGHT_PREDICTATE(nextText) ? '==' : null),
-  matches: HIGHLIGHT_PREDICTATE,
   textFormat: IS_HIGHLIGHT
 };
 

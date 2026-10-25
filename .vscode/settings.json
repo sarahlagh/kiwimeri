@@ -18,6 +18,11 @@
     "files.insertFinalNewline": false,
     "files.trimFinalNewlines": false
   },
+  "[html]": {
+    "editor.formatOnSave": false,
+    "files.insertFinalNewline": false,
+    "files.trimFinalNewlines": false
+  },
   "search.exclude": {
     "**/node_modules": true,
     "**/bower_components": true,
