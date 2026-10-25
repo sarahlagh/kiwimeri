@@ -129,7 +129,6 @@ describe('RichTextEditor Toolbar', () => {
       await expect.element(caret.expected.activeButton).toHaveClass('active');
 
       if (previousBtn !== null) {
-        // eslint-disable-next-line vitest/no-conditional-expect
         await expect.element(previousBtn).not.toHaveClass('active');
       }
 
@@ -334,6 +333,7 @@ describe('RichTextEditor Toolbar', () => {
         formatType: TextFormatType;
         additionalExpectedTypes?: TextFormatType[];
         expectedBlock: string;
+        expectedBlockIfToggledOff?: string;
         wordUnderCursor: string | null;
       };
 
@@ -354,7 +354,8 @@ describe('RichTextEditor Toolbar', () => {
           additionalExpectedTypes: ['bold'],
           wordUnderCursor: 'world',
           expectedBlock:
-            '<p>hello <b><mark>world</mark></b> <u>with formats</u></p>\n\n'
+            '<p>hello <b><mark>world</mark></b> <u>with formats</u></p>',
+          expectedBlockIfToggledOff: '<p>hello world <u>with formats</u></p>'
         },
         {
           desc: 'formats in first line',
@@ -363,7 +364,9 @@ describe('RichTextEditor Toolbar', () => {
           formatType: 'italic',
           additionalExpectedTypes: ['underline'],
           wordUnderCursor: 'formats',
-          expectedBlock: '<p>hello <b>world</b> <u>with <i>formats</i></u></p>'
+          expectedBlock: '<p>hello <b>world</b> <u>with <i>formats</i></u></p>',
+          expectedBlockIfToggledOff:
+            '<p>hello <b>world</b> <u>with </u>formats</p>'
         }
       ];
       const secondBlock: Scenario[] = [
@@ -398,22 +401,20 @@ describe('RichTextEditor Toolbar', () => {
         {
           desc: 'links in third line',
           line: 3,
-          offset: 17,
+          offset: 18,
           formatType: 'italic',
           wordUnderCursor: 'links',
           expectedBlock:
             '<p><a href="https://lexical.dev/" title="hello">hel<i>lo</i></a> world with <i>links</i> <autolink unlinked>https://gith<i>ub</i>.com</autolink>, end</p>'
         },
         {
-          skip: true, // skipped due to parser problem
           desc: 'https in third line',
           line: 3,
           offset: 24,
           formatType: 'bold',
           wordUnderCursor: 'https',
           expectedBlock:
-            '<p><a href="https://lexical.dev/" title="hello">hel<i>lo</i></a> world with links <autolink unlinked>https://gith<i>ub</i>.com</autolink>, end</p>'
-          // '[hel_lo_](https://lexical.dev/ "hello") world with links __https__://gith_ub_.com, end\n\n'
+            '<p><a href="https://lexical.dev/" title="hello">hel<i>lo</i></a> world with links <autolink unlinked><b>https</b>://gith<i>ub</i>.com</autolink>, end</p>'
         },
         {
           desc: '// in third line',
@@ -425,18 +426,15 @@ describe('RichTextEditor Toolbar', () => {
             '<p><a href="https://lexical.dev/" title="hello">hel<i>lo</i></a> world with links <autolink unlinked>https://gith<i>ub</i>.com</autolink>, end</p>'
         },
         {
-          skip: true, // skipped due to parser problem
           desc: '[gith]ub in third line',
           line: 3,
           offset: 32,
           formatType: 'underline',
           wordUnderCursor: 'gith',
           expectedBlock:
-            '<p><a href="https://lexical.dev/" title="hello">hel<i>lo</i></a> world with links <autolink unlinked>https://gith<i>ub</i>.com</autolink>, end</p>'
-          // '[hel_lo_](https://lexical.dev/ "hello") world with links https://<u>gith</u>_ub_.com, end\n\n'
+            '<p><a href="https://lexical.dev/" title="hello">hel<i>lo</i></a> world with links <autolink unlinked>https://<u>gith</u><i>ub</i>.com</autolink>, end</p>'
         },
         {
-          skip: true, // skipped due to parser problem
           desc: 'gith[ub] in third line',
           line: 3,
           offset: 36,
@@ -444,8 +442,9 @@ describe('RichTextEditor Toolbar', () => {
           additionalExpectedTypes: ['italic'],
           wordUnderCursor: 'ub',
           expectedBlock:
-            '<p><a href="https://lexical.dev/" title="hello">hel<i>lo</i></a> world with links <autolink unlinked>https://gith<i>ub</i>.com</autolink>, end</p>'
-          // '[hel_lo_](https://lexical.dev/ "hello") world with links https://gith*<u>ub</u>*.com, end\n\n'
+            '<p><a href="https://lexical.dev/" title="hello">hel<i>lo</i></a> world with links <autolink unlinked>https://gith<i><u>ub</u></i>.com</autolink>, end</p>',
+          expectedBlockIfToggledOff:
+            '<p><a href="https://lexical.dev/" title="hello">hel<i>lo</i></a> world with links <autolink unlinked>https://github.com</autolink>, end</p>'
         },
         {
           desc: ', in third line',
@@ -522,14 +521,16 @@ describe('RichTextEditor Toolbar', () => {
           additionalExpectedTypes: ['italic'],
           wordUnderCursor: 'course',
           expectedBlock:
-            '<ul><li>with a list</li><li>of <i><strike>course</strike></i></li></ul>'
+            '<ul><li>with a list</li><li>of <i><strike>course</strike></i></li></ul>',
+          expectedBlockIfToggledOff:
+            '<ul><li>with a list</li><li>of course</li></ul>'
         }
       ];
       const sixthAndSeventhBlock: Scenario[] = [
         {
           desc: 'a(0) in first row of quote',
           line: 6,
-          offset: 4,
+          offset: 5,
           formatType: 'bold',
           wordUnderCursor: 'a',
           expectedBlock: '<blockquote>and <b>a</b> quote</blockquote>'
@@ -542,7 +543,8 @@ describe('RichTextEditor Toolbar', () => {
           additionalExpectedTypes: ['strikethrough'],
           wordUnderCursor: 'row',
           expectedBlock:
-            '<blockquote>second <mark><strike>row</strike></mark></blockquote>'
+            '<blockquote>second <mark><strike>row</strike></mark></blockquote>',
+          expectedBlockIfToggledOff: '<blockquote>second row</blockquote>'
         }
       ];
 
@@ -606,19 +608,45 @@ describe('RichTextEditor Toolbar', () => {
                 textFormat: 0
               }
             );
+
+            if (wordUnderCursor === null) return; // no need to test toggle off if nothing happened
+
+            // toggle off
+            await btn.click();
+            await expect.element(btn).not.toHaveClass('active');
+
+            // check state
+            expectLexicalStatesToBeEqual(
+              JSON.stringify({
+                ...editor.getEditorState().toJSON().root.children[line - 1]
+              }),
+              initialState.root.children[line - 1]
+            );
           });
         }
       );
 
       scenarios
-        .filter(scenario => scenario.additionalExpectedTypes)
+        .filter(
+          scenario =>
+            scenario.additionalExpectedTypes &&
+            scenario.expectedBlockIfToggledOff
+        )
         .forEach(
-          ({ desc, line, offset: char, additionalExpectedTypes, skip }) => {
+          ({
+            desc,
+            line,
+            offset: char,
+            additionalExpectedTypes,
+            expectedBlockIfToggledOff,
+            skip
+          }) => {
             if (skip === true) return;
             test(`toggle off ${desc}`, async () => {
               const screen = await renderEditor({
                 initialState
               });
+              const editor = screen.getLexicalEditor();
               await clickOnEditor(screen, line, char);
               const formatType = additionalExpectedTypes![0];
 
@@ -630,7 +658,18 @@ describe('RichTextEditor Toolbar', () => {
 
               await expect.element(btn).not.toHaveClass('active');
 
-              // TODO check state
+              // check state
+              expectLexicalStatesToBeEqual(
+                JSON.stringify({
+                  ...editor.getEditorState().toJSON().root.children[line - 1],
+                  textFormat: 0
+                }),
+                {
+                  ...fromSimpleHTML(expectedBlockIfToggledOff!).obj!.root
+                    .children[0],
+                  textFormat: 0
+                }
+              );
             });
           }
         );
