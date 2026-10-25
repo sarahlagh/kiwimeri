@@ -39,7 +39,8 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { ReactExtension } from '@lexical/react/ReactExtension';
 import { useLingui } from '@lingui/react/macro';
 import { useEffect, useRef, useState } from 'react';
-import { useEditorContext } from '../EditorContext';
+import { CREATE_LINK_AT_WORD_UNDER_CURSOR_COMMAND } from '../commands/word-under-cursor-commands';
+import { EditorContextType, useEditorContext } from '../EditorContext';
 import { getSelectedNode } from '../utils/getSelectedNode';
 import { sanitizeUrl } from '../utils/url';
 
@@ -62,6 +63,8 @@ type ModalResultPayload = {
   isTextOrElementSelection: boolean;
   linkText?: string;
   linkUrl?: string;
+  isTextWordUnderCursor?: boolean;
+  wordUnderCursor?: EditorContextType['selectionContext']['wordUnderCursor'];
 };
 
 function getLinkParentNode(selection: RangeSelection) {
@@ -78,11 +81,14 @@ const handleLinkSubmission = (
   payload: ModalResultPayload
 ) => {
   editor.dispatchCommand(
-    TOGGLE_LINK_COMMAND,
+    payload.isTextWordUnderCursor !== true
+      ? TOGGLE_LINK_COMMAND
+      : CREATE_LINK_AT_WORD_UNDER_CURSOR_COMMAND,
     payload.linkUrl
       ? {
           url: sanitizeUrl(payload.linkUrl),
-          title: payload.linkText
+          title: payload.linkText,
+          wordUnderCursor: payload.wordUnderCursor
         }
       : null
   );
@@ -172,8 +178,13 @@ const OpenLinkModalPlugin = () => {
   });
   payloadRef.current.isTextOrElementSelection =
     selection.isTextOrElementSelection;
-  payloadRef.current.linkText = linkContext.linkText;
   payloadRef.current.linkUrl = linkContext.linkUrl;
+  payloadRef.current.linkText =
+    linkContext.linkText ||
+    (selection.wordUnderCursor ? selection.wordUnderCursor[2] : '');
+  payloadRef.current.wordUnderCursor = selection.wordUnderCursor;
+  payloadRef.current.isTextWordUnderCursor =
+    !linkContext.isLink && !linkContext.linkText;
   const [present, dismiss] = useIonPopover(
     <IonList lines="none" className="inner-list">
       <IonItem className="inner-item">

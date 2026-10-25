@@ -1,7 +1,7 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useLingui } from '@lingui/react/macro';
 import { FORMAT_TEXT_COMMAND, TextFormatType } from 'lexical';
-import { FORMAT_WORD_UNDER_CURSOR_COMMAND } from '../commands/format-word-under-cursor-command';
+import { FORMAT_WORD_UNDER_CURSOR_COMMAND } from '../commands/word-under-cursor-commands';
 import { useEditorContext } from '../EditorContext';
 import { ToolbarButton } from './buttons';
 

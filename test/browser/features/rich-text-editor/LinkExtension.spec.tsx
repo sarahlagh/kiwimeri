@@ -775,10 +775,156 @@ describe('LinkExtension', () => {
       );
     });
 
-    test.todo(
-      'link btn on non link caret opens the link modal with the word under cursor',
-      async () => {}
-    );
+    test('link btn on non link caret opens the link modal with the word under cursor', async () => {
+      const screen = await renderEditor({
+        initialState: initialStateWithoutLink
+      });
+      // set caret at text
+      await clickOnEditor(screen, 1, 7);
+
+      // click on link btn
+      const linkBtn = getLinkBtn(screen);
+      await expect.element(linkBtn).toBeInTheDocument();
+      await expect.element(linkBtn).not.toHaveClass('active');
+      await linkBtn.click();
+
+      // check modal
+      await expect.element(getLinkModal(screen)).toBeInTheDocument();
+
+      const textInput = getLinkModalTextInput(screen);
+      await expect.element(textInput).toBeInTheDocument();
+      await expect.element(textInput).toHaveValue('world');
+
+      const urlInput = getLinkModalUrlInput(screen);
+      await expect.element(urlInput).toBeInTheDocument();
+      await expect.element(urlInput).toHaveValue('');
+
+      const toggleBtn = getLinkModalToggleBtn(screen);
+      await expect.element(toggleBtn).not.toBeInTheDocument();
+    });
+
+    test('link btn on non link caret opens the modal - text change does nothing', async () => {
+      const screen = await renderEditor({
+        initialState: initialStateWithoutLink
+      });
+      const editor = screen.getLexicalEditor();
+      // set caret at text
+      await clickOnEditor(screen, 1, 7);
+
+      // click on link btn
+      const linkBtn = getLinkBtn(screen);
+      await expect.element(linkBtn).toBeInTheDocument();
+      await expect.element(linkBtn).not.toHaveClass('active');
+      await linkBtn.click();
+
+      // check modal
+      await expect.element(getLinkModal(screen)).toBeInTheDocument();
+
+      const textInput = getLinkModalTextInput(screen);
+      await expect.element(textInput).toBeInTheDocument();
+      await expect.element(textInput).toHaveValue('world');
+
+      await textInput.fill('other text');
+
+      const urlInput = getLinkModalUrlInput(screen);
+      await expect.element(urlInput).toBeInTheDocument();
+      await expect.element(urlInput).toHaveValue('');
+
+      const toggleBtn = getLinkModalToggleBtn(screen);
+      await expect.element(toggleBtn).not.toBeInTheDocument();
+
+      await dismissModal(screen);
+
+      // link has not been created
+      expectLexicalStatesToBeEqual(
+        JSON.stringify(editor.getEditorState().toJSON()),
+        JSON.parse(initialStateWithoutLink)
+      );
+    });
+
+    test('link btn on non link caret opens the modal - link change creates the link', async () => {
+      const screen = await renderEditor({
+        initialState: initialStateWithoutLink
+      });
+      const editor = screen.getLexicalEditor();
+      // set caret at text
+      await clickOnEditor(screen, 1, 7);
+
+      // click on link btn
+      const linkBtn = getLinkBtn(screen);
+      await expect.element(linkBtn).toBeInTheDocument();
+      await expect.element(linkBtn).not.toHaveClass('active');
+      await linkBtn.click();
+
+      // check modal
+      await expect.element(getLinkModal(screen)).toBeInTheDocument();
+
+      const textInput = getLinkModalTextInput(screen);
+      await expect.element(textInput).toBeInTheDocument();
+      await expect.element(textInput).toHaveValue('world');
+
+      const urlInput = getLinkModalUrlInput(screen);
+      await expect.element(urlInput).toBeInTheDocument();
+      await expect.element(urlInput).toHaveValue('');
+
+      const toggleBtn = getLinkModalToggleBtn(screen);
+      await expect.element(toggleBtn).not.toBeInTheDocument();
+
+      await urlInput.fill('https://play.qobuz.com/');
+
+      await dismissModal(screen);
+
+      // link has been created
+      expectLexicalStatesToBeEqual(
+        JSON.stringify(editor.getEditorState().toJSON()),
+        fromSimpleHTML(
+          '<p>hello <a title="world" href="https://play.qobuz.com/">world</a></p>'
+        ).obj!
+      );
+    });
+
+    test('link btn on non link caret opens the modal - text and link changes create the link', async () => {
+      const screen = await renderEditor({
+        initialState: initialStateWithoutLink
+      });
+      const editor = screen.getLexicalEditor();
+      // set caret at text
+      await clickOnEditor(screen, 1, 7);
+
+      // click on link btn
+      const linkBtn = getLinkBtn(screen);
+      await expect.element(linkBtn).toBeInTheDocument();
+      await expect.element(linkBtn).not.toHaveClass('active');
+      await linkBtn.click();
+
+      // check modal
+      await expect.element(getLinkModal(screen)).toBeInTheDocument();
+
+      const textInput = getLinkModalTextInput(screen);
+      await expect.element(textInput).toBeInTheDocument();
+      await expect.element(textInput).toHaveValue('world');
+
+      await textInput.fill('other text');
+
+      const urlInput = getLinkModalUrlInput(screen);
+      await expect.element(urlInput).toBeInTheDocument();
+      await expect.element(urlInput).toHaveValue('');
+
+      const toggleBtn = getLinkModalToggleBtn(screen);
+      await expect.element(toggleBtn).not.toBeInTheDocument();
+
+      await urlInput.fill('https://play.qobuz.com/');
+
+      await dismissModal(screen);
+
+      // link has been created
+      expectLexicalStatesToBeEqual(
+        JSON.stringify(editor.getEditorState().toJSON()),
+        fromSimpleHTML(
+          '<p>hello <a title="other text" href="https://play.qobuz.com/">other text</a></p>'
+        ).obj!
+      );
+    });
   });
 
   describe('autolinks', () => {

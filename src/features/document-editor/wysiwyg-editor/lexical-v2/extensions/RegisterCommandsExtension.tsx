@@ -1,6 +1,9 @@
 import { defineExtension, mergeRegister } from 'lexical';
-import { registerFormatWordUnderCursorCommand } from '../commands/format-word-under-cursor-command';
 import { registerRemoveFormatCommand } from '../commands/remove-format-command';
+import {
+  registerFormatWordUnderCursorCommand,
+  registerLinkAtWordUnderCursorCommand
+} from '../commands/word-under-cursor-commands';
 
 const RegisterCommandsExtension = defineExtension({
   name: '@kiwimeri/rich-text/register-commands',
@@ -8,7 +11,8 @@ const RegisterCommandsExtension = defineExtension({
   register(editor) {
     return mergeRegister(
       registerFormatWordUnderCursorCommand(editor),
-      registerRemoveFormatCommand(editor)
+      registerRemoveFormatCommand(editor),
+      registerLinkAtWordUnderCursorCommand(editor)
     );
   }
 });
