@@ -5,6 +5,7 @@ import { $setSelection, HISTORIC_TAG, SerializedEditorState } from 'lexical';
 import { RefObject, useEffect } from 'react';
 import { RELOAD_TAG, SELECTION_CHANGE_TAG } from '../constants';
 import { useEditorContext } from '../EditorContext';
+import { ZOOM_TO_COMMAND } from '../extensions/ZoomExtension';
 import {
   CustomInitialEditorStateType,
   RichTextEditorInitialData
@@ -85,6 +86,13 @@ export default function ReloadInitialConfigPlugin(
   useEffect(() => {
     editor.setEditable(globalEditable);
   }, [globalEditable, editor]);
+
+  useEffect(() => {
+    if (data.zoomLevel !== undefined) {
+      editor.dispatchCommand(ZOOM_TO_COMMAND, data.zoomLevel);
+    }
+    // eslint-disable-next-line @eslint-react/exhaustive-deps
+  }, [editor]);
 
   return null;
 }

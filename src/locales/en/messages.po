@@ -706,11 +706,11 @@ msgstr "Profile Settings"
 msgid "Ran at:  {relativeDate} with errors"
 msgstr "Ran at:  {relativeDate} with errors"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:25
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:26
 msgid "Read Mode"
 msgstr "Read Mode"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:58
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:59
 msgid "Redo"
 msgstr "Redo"
 
@@ -755,7 +755,7 @@ msgstr "Restore Collection"
 msgid "Restore Version"
 msgstr "Restore Version"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor.tsx:77
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor.tsx:75
 msgid "Rich text editor"
 msgstr "Rich text editor"
 
@@ -884,7 +884,7 @@ msgstr "Tags"
 msgid "Text"
 msgstr "Text"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor.tsx:48
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor.tsx:47
 #: src/features/document-editor/wysiwyg-editor/lexical/KiwimeriEditor.tsx:95
 msgid "Text..."
 msgstr "Text..."
@@ -962,7 +962,7 @@ msgstr "Toggle link"
 msgid "Track text statistics"
 msgstr "Track text statistics"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:50
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:51
 msgid "Undo"
 msgstr "Undo"
 
@@ -1025,10 +1025,10 @@ msgstr "yes"
 msgid "You have not configured any remote yet."
 msgstr "You have not configured any remote yet."
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:34
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:35
 msgid "Zoom In"
 msgstr "Zoom In"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:42
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:43
 msgid "Zoom Out"
 msgstr "Zoom Out"

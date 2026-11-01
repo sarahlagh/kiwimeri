@@ -15,4 +15,5 @@ export type RichTextEditorInitialData = {
   historyId?: string;
   serializedSelection?: SerializedSelection | null;
   resumeLastSelection?: boolean;
+  zoomLevel?: number;
 };

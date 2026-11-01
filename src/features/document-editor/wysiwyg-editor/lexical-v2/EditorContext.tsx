@@ -63,7 +63,6 @@ type SelectionContextValue<Key extends SelectionContextKey> =
 type EditorContextSpec = {
   globalEditable: boolean;
   historyId?: string;
-  zoomLevel: number;
   historyState: HistoryState;
   selectionContext: SelectionContext;
   setSelectionContext: (selectionContext: SelectionContext) => void;
@@ -71,26 +70,22 @@ type EditorContextSpec = {
     key: Key,
     value: SelectionContextValue<Key>
   ): void;
-  setZoomLevel: (zoomLevel: number) => void;
 };
 
 const EditorContext = createContext<EditorContextSpec | undefined>(undefined);
 
 export const EditorContextProvider = ({
   globalEditable = true,
-  globalZoom = 1,
   historyId,
   children
 }: {
   historyId?: string;
-  globalZoom?: number;
   globalEditable: boolean;
   readonly children?: ReactNode;
 }) => {
   const [selectionContext, setSelectionContext] = useState(
     INITIAL_SELECTION_CONTEXT
   );
-  const [zoomLevel, setZoomLevel] = useState(globalZoom);
 
   const key = historyId || '';
   const historyMapRef = useRef<Map<string, HistoryState>>(new Map());
@@ -113,8 +108,6 @@ export const EditorContextProvider = ({
         historyId,
         historyState: historyMapRef.current.get(key)!,
         selectionContext,
-        zoomLevel,
-        setZoomLevel,
         setSelectionContext,
         updateSelectionContext
       }}

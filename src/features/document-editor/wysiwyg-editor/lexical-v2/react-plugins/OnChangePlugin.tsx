@@ -1,8 +1,9 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { useExtensionSignalValue } from '@lexical/react/useExtensionSignalValue';
 import { HISTORY_MERGE_TAG, UpdateListenerPayload } from 'lexical';
 import { RefObject, useEffect, useLayoutEffect } from 'react';
 import { FOCUS_TAG, RELOAD_TAG } from '../constants';
-import { useEditorContext } from '../EditorContext';
+import ZoomExtension from '../extensions/ZoomExtension';
 
 export type OnChangePluginPayload = UpdateListenerPayload & {
   isSelectionChange: boolean;
@@ -20,7 +21,7 @@ const skipTagsSet = new Set<string>([FOCUS_TAG, RELOAD_TAG]);
 
 export default function OnChangePlugin(data: OnChangePluginProps) {
   const [editor] = useLexicalComposerContext();
-  const { zoomLevel } = useEditorContext();
+  const zoomLevel = useExtensionSignalValue(ZoomExtension, 'zoomSignal');
   const onZoomChange = data.onZoomChange;
 
   // onChange
@@ -46,6 +47,5 @@ export default function OnChangePlugin(data: OnChangePluginProps) {
   useEffect(() => {
     if (onZoomChange) onZoomChange(zoomLevel);
   }, [onZoomChange, zoomLevel]);
-
   return null;
 }
