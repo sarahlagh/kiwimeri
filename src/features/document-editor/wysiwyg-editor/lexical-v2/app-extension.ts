@@ -15,6 +15,7 @@ import { RichTextExtension } from '@lexical/rich-text';
 import { configExtension, defineExtension } from 'lexical';
 import CustomLinkExtension from './extensions/LinkExtension';
 import RegisterCommandsExtension from './extensions/RegisterCommandsExtension';
+import { SearchExtension } from './extensions/SearchExtension';
 import SetSelectionContextExtension from './extensions/SetSelectionContextExtension';
 import { ZoomExtension } from './extensions/ZoomExtension';
 import Theme from './theme/Theme';
@@ -38,7 +39,8 @@ export const appExtension = defineExtension({
     RegisterCommandsExtension,
     SetSelectionContextExtension,
     CustomLinkExtension,
-    ZoomExtension
+    ZoomExtension,
+    SearchExtension
   ],
   name: '@kiwimeri/rich-text',
   namespace: 'react-rich',

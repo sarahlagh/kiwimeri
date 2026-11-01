@@ -7,7 +7,7 @@ import { RenderResult } from 'vitest-browser-react';
 // content editor
 
 export function getContentEditor(screen: RenderResult) {
-  return screen.locator.getByRole('textbox');
+  return screen.locator.getByRole('textbox', { name: 'Rich text editor' });
 }
 
 export function getContentEditorElement(screen: RenderResult) {

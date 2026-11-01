@@ -8,6 +8,7 @@ import { LexicalEditor } from 'lexical';
 import { RefObject, useImperativeHandle, useRef } from 'react';
 import { appExtension } from './app-extension';
 import { EditorContextProvider, ReadOnlyEditorContext } from './EditorContext';
+import { SearchExtension } from './extensions/SearchExtension';
 import EditorContextRefPlugin from './react-plugins/EditorContextRefPlugin';
 import OnChangePlugin, {
   OnChangePluginPayload
@@ -18,6 +19,7 @@ import Toolbar from './toolbar/Toolbar';
 import { RichTextEditorInitialData } from './types';
 
 export type RichTextEditorProps = RichTextEditorInitialData & {
+  searchText?: string;
   enableToolbar?: boolean;
   enableDebugTree?: boolean;
   ignoreSelectionChange?: boolean;
@@ -37,6 +39,7 @@ const RichTextEditor = ({
   globalEditable = true,
   enableToolbar = true,
   enableDebugTree = false,
+  searchText,
   ref
 }: RichTextEditorProps & {
   ref?: RefObject<RichTextEditorHandle | null>;
@@ -101,6 +104,10 @@ const RichTextEditor = ({
             if (onChange) onChange(payload);
           }}
           onZoomChange={onZoomChange}
+        />
+        <ExtensionComponent
+          lexical:extension={SearchExtension}
+          searchText={searchText}
         />
       </LexicalExtensionComposer>
     </EditorContextProvider>
