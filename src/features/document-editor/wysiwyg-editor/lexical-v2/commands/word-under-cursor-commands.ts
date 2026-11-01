@@ -33,7 +33,7 @@ function splitNodeBetween(node: TextNode, indexes: WordUnderCursor) {
 
 function doSomethingUnderCursor(
   editor: LexicalEditor,
-  wordUnderCursor: WordUnderCursor,
+  wordUnderCursor: WordUnderCursor | null,
   callback: (
     node: TextNode,
     selection: RangeSelection,
@@ -91,7 +91,7 @@ type CommandPayload = {
   url: string;
 } & LinkAttributes;
 
-export const CREATE_LINK_AT_WORD_UNDER_CURSOR_COMMAND: LexicalCommand<CommandPayload> =
+export const CREATE_LINK_AT_WORD_UNDER_CURSOR_COMMAND: LexicalCommand<CommandPayload | null> =
   createCommand('CREATE_LINK_AT_WORD_UNDER_CURSOR_COMMAND');
 
 export function registerLinkAtWordUnderCursorCommand(editor: LexicalEditor) {
@@ -100,7 +100,7 @@ export function registerLinkAtWordUnderCursorCommand(editor: LexicalEditor) {
     payload => {
       doSomethingUnderCursor(
         editor,
-        payload.wordUnderCursor,
+        payload?.wordUnderCursor || null,
         (node, selection, isNewNode) => {
           if (isNewNode) {
             node.select();

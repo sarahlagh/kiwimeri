@@ -9,21 +9,29 @@ import { RefObject, useImperativeHandle, useRef } from 'react';
 import { appExtension } from './app-extension';
 import { EditorContextProvider, ReadOnlyEditorContext } from './EditorContext';
 import EditorContextRefPlugin from './react-plugins/EditorContextRefPlugin';
-import ReloadEditorPlugin from './react-plugins/ReloadEditorPlugin';
+import OnChangePlugin, {
+  OnChangePluginPayload
+} from './react-plugins/OnChangePlugin';
+import ReloadInitialConfigPlugin from './react-plugins/ReloadInitialConfigPlugin';
 import { RichTextEditorHandle } from './RichTextEditorHandle';
 import Toolbar from './toolbar/Toolbar';
-import { CustomInitialEditorStateType } from './types';
+import { RichTextEditorInitialData } from './types';
 
-export type RichTextEditorProps = {
-  initialState?: CustomInitialEditorStateType;
-  editable?: boolean;
+export type RichTextEditorProps = RichTextEditorInitialData & {
   enableToolbar?: boolean;
   enableDebugTree?: boolean;
+  ignoreSelectionChange?: boolean;
+  onChange?: (payload: OnChangePluginPayload) => void;
 };
 
 const RichTextEditor = ({
+  onChange,
   initialState,
-  editable = true,
+  serializedSelection,
+  historyId,
+  resumeLastSelection = false,
+  ignoreSelectionChange = true,
+  globalEditable = true,
   enableToolbar = true,
   enableDebugTree = false,
   ref
@@ -34,6 +42,8 @@ const RichTextEditor = ({
   const editorRef = useRef<LexicalEditor | null>(null);
   const contextRef = useRef<ReadOnlyEditorContext | null>(null);
   const placeholder = t`Text...`;
+
+  const isReloadingRef = useRef(true);
 
   useImperativeHandle(
     ref,
@@ -49,7 +59,10 @@ const RichTextEditor = ({
   );
 
   return (
-    <EditorContextProvider globalEditable={editable}>
+    <EditorContextProvider
+      globalEditable={globalEditable}
+      historyId={historyId}
+    >
       <LexicalExtensionComposer extension={appExtension} contentEditable={null}>
         <div className="editor-container">
           {enableToolbar && <Toolbar />}
@@ -69,9 +82,20 @@ const RichTextEditor = ({
         </div>
         <EditorRefPlugin editorRef={editorRef} />
         <EditorContextRefPlugin contextRef={contextRef} />
-        <ReloadEditorPlugin
+        <ReloadInitialConfigPlugin
+          isReloadingRef={isReloadingRef}
           initialState={initialState}
-          globalEditable={editable}
+          globalEditable={globalEditable}
+          serializedSelection={serializedSelection}
+          historyId={historyId}
+          resumeLastSelection={resumeLastSelection}
+        />
+        <OnChangePlugin
+          isReloadingRef={isReloadingRef}
+          ignoreSelectionChange={ignoreSelectionChange}
+          onChange={payload => {
+            if (onChange) onChange(payload);
+          }}
         />
       </LexicalExtensionComposer>
     </EditorContextProvider>

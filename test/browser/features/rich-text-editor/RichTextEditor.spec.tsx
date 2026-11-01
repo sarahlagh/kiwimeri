@@ -15,7 +15,7 @@ import {
 } from './RichTextEditor.locators';
 import { renderEditor } from './utils';
 
-const expectedNumberOfBtns = 20;
+const expectedNumberOfBtns = 22;
 
 const state1 = getNewContent('state 1');
 const state2 = getNewContent('state 2');
@@ -42,7 +42,7 @@ const ParentComponent = () => {
         state
       </button>
       <RichTextEditor
-        editable={editable}
+        globalEditable={editable}
         initialState={initialState}
         enableDebugTree={false}
       />
@@ -107,7 +107,7 @@ describe('RichTextEditor', () => {
 
   describe('is composer editable state', () => {
     test('editable=true propagates to the composer and the toolbar', async () => {
-      const screen = await renderEditor({ editable: true, initialState });
+      const screen = await renderEditor({ globalEditable: true, initialState });
       expect(await getEditorTextContent(screen)).toBe('hello world');
       expect(getContentEditorElement(screen)).toHaveAttribute(
         'contenteditable',
@@ -123,7 +123,10 @@ describe('RichTextEditor', () => {
     });
 
     test('editable=false propagates to the composer and the toolbar', async () => {
-      const screen = await renderEditor({ editable: false, initialState });
+      const screen = await renderEditor({
+        globalEditable: false,
+        initialState
+      });
       expect(await getEditorTextContent(screen)).toBe('hello world');
       expect(getContentEditorElement(screen)).toHaveAttribute(
         'contenteditable',
@@ -164,7 +167,7 @@ describe('RichTextEditor', () => {
     });
 
     test('toggle read btn propagates to the composer and the toolbar', async () => {
-      const screen = await renderEditor({ editable: true, initialState });
+      const screen = await renderEditor({ globalEditable: true, initialState });
       expect(await getEditorTextContent(screen)).toBe('hello world');
       expect(getContentEditorElement(screen)).toHaveAttribute(
         'contenteditable',

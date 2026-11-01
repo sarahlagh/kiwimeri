@@ -9,7 +9,6 @@ import {
   SelectionAlwaysOnDisplayExtension,
   TabIndentationExtension
 } from '@lexical/extension';
-import { HistoryExtension } from '@lexical/history';
 import { CheckListExtension, ListExtension } from '@lexical/list';
 import { TreeViewExtension } from '@lexical/react/TreeViewExtension';
 import { RichTextExtension } from '@lexical/rich-text';
@@ -23,7 +22,6 @@ export const appExtension = defineExtension({
   dependencies: [
     configExtension(HMRExtension, { hot: import.meta.hot ?? null }),
     RichTextExtension,
-    HistoryExtension,
     SelectBlockExtension,
     SelectionAlwaysOnDisplayExtension,
     HorizontalRuleExtension,

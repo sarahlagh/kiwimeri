@@ -1,8 +1,19 @@
 import { ListType } from '@lexical/list';
+import {
+  createEmptyHistoryState,
+  HistoryState
+} from '@lexical/react/LexicalHistoryPlugin';
 import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
 import { HeadingTagType } from '@lexical/rich-text';
 import { ElementFormatType } from 'lexical';
-import { createContext, ReactNode, use, useCallback, useState } from 'react';
+import {
+  createContext,
+  ReactNode,
+  use,
+  useCallback,
+  useRef,
+  useState
+} from 'react';
 
 type SelectionContext = {
   isTextOrElementSelection: boolean; // not just a cursor
@@ -51,6 +62,8 @@ type SelectionContextValue<Key extends SelectionContextKey> =
 
 type EditorContextSpec = {
   globalEditable: boolean;
+  historyId?: string;
+  historyState: HistoryState;
   selectionContext: SelectionContext;
   setSelectionContext: (selectionContext: SelectionContext) => void;
   updateSelectionContext<Key extends SelectionContextKey>(
@@ -63,14 +76,22 @@ const EditorContext = createContext<EditorContextSpec | undefined>(undefined);
 
 export const EditorContextProvider = ({
   globalEditable = true,
+  historyId,
   children
 }: {
+  historyId?: string;
   globalEditable: boolean;
   readonly children?: ReactNode;
 }) => {
   const [selectionContext, setSelectionContext] = useState(
     INITIAL_SELECTION_CONTEXT
   );
+
+  const key = historyId || '';
+  const historyMapRef = useRef<Map<string, HistoryState>>(new Map());
+  if (!historyMapRef.current.has(key)) {
+    historyMapRef.current.set(key, createEmptyHistoryState());
+  }
   const updateSelectionContext = useCallback(
     <Key extends SelectionContextKey>(
       key: Key,
@@ -84,6 +105,8 @@ export const EditorContextProvider = ({
     <EditorContext
       value={{
         globalEditable,
+        historyId,
+        historyState: historyMapRef.current.get(key)!,
         selectionContext,
         setSelectionContext,
         updateSelectionContext

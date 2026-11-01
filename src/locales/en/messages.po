@@ -310,7 +310,7 @@ msgstr "Document History"
 msgid "Download Logs"
 msgstr "Download Logs"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/extensions/LinkExtension.tsx:194
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/extensions/LinkExtension.tsx:205
 msgid "Edit text"
 msgstr "Edit text"
 
@@ -370,7 +370,7 @@ msgstr "Fast Write Mode"
 msgid "File not supported"
 msgstr "File not supported"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/TextFormatSection.tsx:66
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/TextFormatSection.tsx:22
 msgid "Format {formatType}"
 msgstr "Format {formatType}"
 
@@ -487,7 +487,7 @@ msgstr "Leave empty for root"
 msgid "Less dangerous mode (session is still timed but you will not lose progress on pause)"
 msgstr "Less dangerous mode (session is still timed but you will not lose progress on pause)"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/extensions/LinkExtension.tsx:205
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/extensions/LinkExtension.tsx:216
 #: src/features/document-editor/wysiwyg-editor/lexical/plugins/EditLinkPlugin.tsx:58
 msgid "Link"
 msgstr "Link"
@@ -706,9 +706,13 @@ msgstr "Profile Settings"
 msgid "Ran at:  {relativeDate} with errors"
 msgstr "Ran at:  {relativeDate} with errors"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:14
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:18
 msgid "Read Mode"
 msgstr "Read Mode"
+
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:35
+msgid "Redo"
+msgstr "Redo"
 
 #: src/features/settings-ui/components/CurrentDeviceSettings.tsx:38
 msgid "Remember last route"
@@ -726,7 +730,7 @@ msgstr "Remote:  {lastRemoteChange}"
 msgid "Remote: <0>never</0>"
 msgstr "Remote: <0>never</0>"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/OtherSection.tsx:36
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/OtherSection.tsx:30
 msgid "Remove format"
 msgstr "Remove format"
 
@@ -751,7 +755,7 @@ msgstr "Restore Collection"
 msgid "Restore Version"
 msgstr "Restore Version"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor.tsx:62
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor.tsx:72
 msgid "Rich text editor"
 msgstr "Rich text editor"
 
@@ -875,12 +879,12 @@ msgstr "Syncing is disabled on the web version."
 msgid "Tags"
 msgstr "Tags"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/extensions/LinkExtension.tsx:181
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/extensions/LinkExtension.tsx:192
 #: src/features/document-editor/wysiwyg-editor/lexical/plugins/EditLinkPlugin.tsx:44
 msgid "Text"
 msgstr "Text"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor.tsx:39
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor.tsx:44
 #: src/features/document-editor/wysiwyg-editor/lexical/KiwimeriEditor.tsx:95
 msgid "Text..."
 msgstr "Text..."
@@ -938,7 +942,7 @@ msgstr "Timed Writing Session"
 msgid "Title"
 msgstr "Title"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/extensions/LinkExtension.tsx:220
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/extensions/LinkExtension.tsx:231
 msgid "Toggle"
 msgstr "Toggle"
 
@@ -950,13 +954,17 @@ msgstr "Toggle actions"
 msgid "toggle browser mode"
 msgstr "toggle browser mode"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/OtherSection.tsx:28
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/OtherSection.tsx:22
 msgid "Toggle link"
 msgstr "Toggle link"
 
 #: src/domain/user-preferences/user-preferences.ts:42
 msgid "Track text statistics"
 msgstr "Track text statistics"
+
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:27
+msgid "Undo"
+msgstr "Undo"
 
 #: src/features/document-editor/components/DocumentGeneralInfo.tsx:26
 msgid "Updated at"
