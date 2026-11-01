@@ -59,6 +59,12 @@ const RichTextEditor = ({
       },
       getEditorContext() {
         return contextRef.current;
+      },
+      focusEditor() {
+        // note: this resumes the selection on small screens, but also triggers keyboard on small screen + android
+        // this is annoying, but no known workarounds at this time
+        // this will not be called on wide screens so not an issue there
+        editorRef.current?.focus();
       }
     }),
     [editorRef]
