@@ -3,7 +3,7 @@ import { useExtensionSignalValue } from '@lexical/react/useExtensionSignalValue'
 import { HISTORY_MERGE_TAG, UpdateListenerPayload } from 'lexical';
 import { RefObject, useEffect, useLayoutEffect } from 'react';
 import { FOCUS_TAG, RELOAD_TAG } from '../constants';
-import ZoomExtension from '../extensions/ZoomExtension';
+import { ZoomExtension } from '../extensions/ZoomExtension';
 
 export type OnChangePluginPayload = UpdateListenerPayload & {
   isSelectionChange: boolean;

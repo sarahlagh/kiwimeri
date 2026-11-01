@@ -27,6 +27,9 @@ function zoomTo(
   editor: LexicalEditor,
   setZoomLevel: (zoomLevel: number) => void
 ) {
+  if (MIN_ZOOM - ZOOM_INCREMENT >= zoom || zoom >= MAX_ZOOM + ZOOM_INCREMENT) {
+    return false;
+  }
   const editorElement = editor.getRootElement();
   if (editorElement) {
     const style = editorElement.style as StyleWithZoom;
@@ -47,19 +50,19 @@ const keyboardShortcutsHandler = (
     case '=':
     case '+':
       payload.preventDefault();
-      return editor.dispatchCommand(ZOOM_IN_COMMAND, ZOOM_INCREMENT);
+      return editor.dispatchCommand(ZOOM_IN_COMMAND, null);
     case '-':
       payload.preventDefault();
-      return editor.dispatchCommand(ZOOM_OUT_COMMAND, ZOOM_INCREMENT);
+      return editor.dispatchCommand(ZOOM_OUT_COMMAND, null);
     case '0':
       payload.preventDefault();
-      return editor.dispatchCommand(ZOOM_RESET_COMMAND, undefined);
+      return editor.dispatchCommand(ZOOM_RESET_COMMAND, null);
     default:
       return false;
   }
 };
 
-const ZoomExtension = defineExtension({
+export const ZoomExtension = defineExtension({
   name: '@kiwimeri/rich-text/zoom',
   namespace: 'react-rich',
   build() {
@@ -97,5 +100,3 @@ const ZoomExtension = defineExtension({
     );
   }
 });
-
-export default ZoomExtension;

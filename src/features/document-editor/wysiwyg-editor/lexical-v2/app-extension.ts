@@ -16,7 +16,7 @@ import { configExtension, defineExtension } from 'lexical';
 import CustomLinkExtension from './extensions/LinkExtension';
 import RegisterCommandsExtension from './extensions/RegisterCommandsExtension';
 import SetSelectionContextExtension from './extensions/SetSelectionContextExtension';
-import ZoomExtension from './extensions/ZoomExtension';
+import { ZoomExtension } from './extensions/ZoomExtension';
 import Theme from './theme/Theme';
 
 export const appExtension = defineExtension({

@@ -19,7 +19,7 @@ import {
 } from './RichTextEditor.locators';
 import { renderEditor } from './utils';
 
-const expectedNumberOfBtns = 22;
+const expectedNumberOfBtns = 24;
 
 const state1 = getNewContent('state 1');
 const state2 = getNewContent('state 2');
@@ -67,7 +67,10 @@ const ParentComponent = ({
 
 function filterToolbarBtns(toolbarBtns: (HTMLElement | SVGElement)[]) {
   return toolbarBtns.filter(
-    btn => btn.ariaLabel !== 'Undo' && btn.ariaLabel !== 'Redo'
+    btn =>
+      btn.ariaLabel !== 'Undo' &&
+      btn.ariaLabel !== 'Redo' &&
+      !btn.ariaLabel?.startsWith('Zoom')
   );
 }
 
@@ -160,7 +163,8 @@ describe('RichTextEditor', () => {
 
       const toolbarBtns = getAllToolbarBtns(screen);
       expect(toolbarBtns).toHaveLength(expectedNumberOfBtns - 1);
-      for (const btn of toolbarBtns) {
+      const filteredBtns = filterToolbarBtns(toolbarBtns);
+      for (const btn of filteredBtns) {
         expect(btn).toBeDisabled();
       }
     });
@@ -210,7 +214,8 @@ describe('RichTextEditor', () => {
       const toolbarBtns = getAllToolbarBtns(screen);
       expect(toolbarBtns).toHaveLength(expectedNumberOfBtns);
       for (const btn of toolbarBtns) {
-        if (btn.ariaLabel === 'Read Mode') continue;
+        if (btn.ariaLabel === 'Read Mode' || btn.ariaLabel?.startsWith('Zoom'))
+          continue;
         expect(btn).toBeDisabled();
       }
 
@@ -396,7 +401,7 @@ describe('RichTextEditor', () => {
       expect(onChangeFired).toBe(1);
       expect(screen.getEditorContext()!.historyState).toBeDefined();
       expect(screen.getEditorContext()!.historyState.redoStack).toHaveLength(0);
-      expect(screen.getEditorContext()!.historyState.undoStack).toHaveLength(1);
+      expect(screen.getEditorContext()!.historyState.undoStack).toHaveLength(1); // TODO flaky...
 
       onChangeFired = 0;
       await btn.click();

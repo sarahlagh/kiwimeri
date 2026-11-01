@@ -87,6 +87,14 @@ export function getRedoBtn(screen: RenderResult) {
   return getToolbar(screen).getByLabelText('Redo');
 }
 
+export function getZoomInBtn(screen: RenderResult) {
+  return getToolbar(screen).getByLabelText('Zoom In');
+}
+
+export function getZoomOutBtn(screen: RenderResult) {
+  return getToolbar(screen).getByLabelText('Zoom Out');
+}
+
 // links
 
 export function getLinkBtn(screen: RenderResult) {
