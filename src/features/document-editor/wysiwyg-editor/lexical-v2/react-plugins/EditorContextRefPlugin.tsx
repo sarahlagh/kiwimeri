@@ -16,6 +16,7 @@ const EditorContextRefPlugin = ({
   contextRef.current.isEditable = context.isEditable;
   contextRef.current.selectionContext = context.selectionContext;
   contextRef.current.historyState = context.historyState;
+  contextRef.current.zoomLevel = context.zoomLevel;
   return null;
 };
 

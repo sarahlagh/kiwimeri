@@ -1,7 +1,8 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { HISTORY_MERGE_TAG, UpdateListenerPayload } from 'lexical';
-import { RefObject, useLayoutEffect } from 'react';
+import { RefObject, useEffect, useLayoutEffect } from 'react';
 import { FOCUS_TAG, RELOAD_TAG } from '../constants';
+import { useEditorContext } from '../EditorContext';
 
 export type OnChangePluginPayload = UpdateListenerPayload & {
   isSelectionChange: boolean;
@@ -12,12 +13,15 @@ type OnChangePluginProps = {
   ignoreHistoryMergeTagChange?: boolean;
   ignoreSelectionChange?: boolean;
   onChange: (change: OnChangePluginPayload) => void;
+  onZoomChange?: (zoomLevel: number) => void;
 };
 
 const skipTagsSet = new Set<string>([FOCUS_TAG, RELOAD_TAG]);
 
 export default function OnChangePlugin(data: OnChangePluginProps) {
   const [editor] = useLexicalComposerContext();
+  const { zoomLevel } = useEditorContext();
+  const onZoomChange = data.onZoomChange;
 
   // onChange
   useLayoutEffect(() => {
@@ -38,6 +42,10 @@ export default function OnChangePlugin(data: OnChangePluginProps) {
       if (data.onChange) data.onChange({ ...payload, isSelectionChange, tags });
     });
   }, [editor, data]);
+
+  useEffect(() => {
+    if (onZoomChange) onZoomChange(zoomLevel);
+  }, [onZoomChange, zoomLevel]);
 
   return null;
 }

@@ -22,10 +22,14 @@ export type RichTextEditorProps = RichTextEditorInitialData & {
   enableDebugTree?: boolean;
   ignoreSelectionChange?: boolean;
   onChange?: (payload: OnChangePluginPayload) => void;
+  zoomLevel?: number;
+  onZoomChange?: (zoomLevel: number) => void;
 };
 
 const RichTextEditor = ({
   onChange,
+  zoomLevel,
+  onZoomChange,
   initialState,
   serializedSelection,
   historyId,
@@ -62,6 +66,7 @@ const RichTextEditor = ({
     <EditorContextProvider
       globalEditable={globalEditable}
       historyId={historyId}
+      globalZoom={zoomLevel}
     >
       <LexicalExtensionComposer extension={appExtension} contentEditable={null}>
         <div className="editor-container">
@@ -96,6 +101,7 @@ const RichTextEditor = ({
           onChange={payload => {
             if (onChange) onChange(payload);
           }}
+          onZoomChange={onZoomChange}
         />
       </LexicalExtensionComposer>
     </EditorContextProvider>
