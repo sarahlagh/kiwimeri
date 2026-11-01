@@ -14,6 +14,7 @@ import { TreeViewExtension } from '@lexical/react/TreeViewExtension';
 import { RichTextExtension } from '@lexical/rich-text';
 import { configExtension, defineExtension } from 'lexical';
 import CustomLinkExtension from './extensions/LinkExtension';
+import { MarkdownShortcutsExtension } from './extensions/MarkdownShortcutsExtension';
 import RegisterCommandsExtension from './extensions/RegisterCommandsExtension';
 import { SearchExtension } from './extensions/SearchExtension';
 import SetSelectionContextExtension from './extensions/SetSelectionContextExtension';
@@ -40,7 +41,8 @@ export const appExtension = defineExtension({
     SetSelectionContextExtension,
     CustomLinkExtension,
     ZoomExtension,
-    SearchExtension
+    SearchExtension,
+    MarkdownShortcutsExtension
   ],
   name: '@kiwimeri/rich-text',
   namespace: 'react-rich',
