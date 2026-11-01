@@ -5,7 +5,7 @@ import { LexicalExtensionComposer } from '@lexical/react/LexicalExtensionCompose
 import { TreeViewExtension } from '@lexical/react/TreeViewExtension';
 import { useLingui } from '@lingui/react/macro';
 import { LexicalEditor } from 'lexical';
-import { RefObject, useImperativeHandle, useRef } from 'react';
+import { Key, RefObject, useImperativeHandle, useRef } from 'react';
 import { appExtension } from './app-extension';
 import { EditorContextProvider, ReadOnlyEditorContext } from './EditorContext';
 import { SearchExtension } from './extensions/SearchExtension';
@@ -23,8 +23,10 @@ export type RichTextEditorProps = RichTextEditorInitialData & {
   enableToolbar?: boolean;
   enableDebugTree?: boolean;
   ignoreSelectionChange?: boolean;
+  additionalClassNames?: string;
   onChange?: (payload: OnChangePluginPayload) => void;
   onZoomChange?: (zoomLevel: number) => void;
+  reloadKey?: Key;
 };
 
 const RichTextEditor = ({
@@ -40,7 +42,9 @@ const RichTextEditor = ({
   enableToolbar = true,
   enableDebugTree = false,
   searchText,
-  ref
+  additionalClassNames,
+  ref,
+  reloadKey
 }: RichTextEditorProps & {
   ref?: RefObject<RichTextEditorHandle | null>;
 }) => {
@@ -80,7 +84,11 @@ const RichTextEditor = ({
           {enableToolbar && <Toolbar />}
           <div className="editor-inner">
             <ContentEditable
-              className="editor-input"
+              className={
+                'editor-input' +
+                (enableToolbar ? ' editor-toolbar' : '') +
+                (additionalClassNames ? ` ${additionalClassNames}` : '')
+              }
               aria-label={t`Rich text editor`}
               aria-placeholder={placeholder}
               placeholder={
@@ -102,6 +110,7 @@ const RichTextEditor = ({
           historyId={historyId}
           resumeLastSelection={resumeLastSelection}
           zoomLevel={zoomLevel}
+          reloadKey={reloadKey}
         />
         <OnChangePlugin
           isReloadingRef={isReloadingRef}

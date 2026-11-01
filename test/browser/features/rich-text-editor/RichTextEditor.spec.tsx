@@ -3,7 +3,11 @@ import { describe, expect, test } from 'vitest';
 import { OnChangePluginPayload } from '@/features/document-editor/wysiwyg-editor/lexical-v2/react-plugins/OnChangePlugin';
 import RichTextEditor from '@/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor';
 import { RichTextEditorHandle } from '@/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditorHandle';
-import { getNewContent, getNewParsedContent } from '@@/_setup/test.utils';
+import {
+  amount,
+  getNewContent,
+  getNewParsedContent
+} from '@@/_setup/test.utils';
 import { TestingProvider } from '@@/browser/TestingProvider';
 import { createRef, RefObject, useState } from 'react';
 import { render } from 'vitest-browser-react';
@@ -26,6 +30,7 @@ const state2 = getNewContent('state 2');
 
 const parentSwitchBtnId = 'test-btn-initialstate';
 const parentToggleEditableBtnId = 'test-btn-editable';
+const updateKeyId = 'test-btn-trigger-key';
 const ParentComponent = ({
   onChange,
   ref
@@ -33,6 +38,7 @@ const ParentComponent = ({
   onChange?: (payload: OnChangePluginPayload) => void;
   ref?: RefObject<RichTextEditorHandle | null>;
 }) => {
+  const [key, setKey] = useState(0);
   const [initialState, setInitialState] = useState(state1);
   const [editable, setEditable] = useState(true);
   return (
@@ -53,6 +59,14 @@ const ParentComponent = ({
       >
         state
       </button>
+      <button
+        data-testid={updateKeyId}
+        onClick={() => {
+          setKey(key + 1);
+        }}
+      >
+        key
+      </button>
       <RichTextEditor
         globalEditable={editable}
         initialState={initialState}
@@ -60,6 +74,7 @@ const ParentComponent = ({
         onChange={onChange}
         historyId={initialState === state1 ? 'state1' : 'state2'}
         ref={ref}
+        reloadKey={key}
       />
     </div>
   );
@@ -408,6 +423,36 @@ describe('RichTextEditor', () => {
       expect(onChangeFired).toBe(0);
       expect(screen.getEditorContext()!.historyState.redoStack).toHaveLength(1);
       expect(screen.getEditorContext()!.historyState.undoStack).toHaveLength(2);
+    });
+
+    test('reloadKey triggers a refresh', async () => {
+      let onChangeFired = 0;
+      const screen = await renderParent(() => {
+        onChangeFired++;
+      });
+      let textContent = await getEditorTextContent(screen);
+      expect(textContent).toBe('state 1');
+      expect(onChangeFired).toBe(0);
+
+      // make some modif
+      await getContentEditor(screen).fill('new state 1');
+      onChangeFired = 0;
+
+      expect(screen.getEditorContext()!.historyState.redoStack).toHaveLength(0);
+      expect(screen.getEditorContext()!.historyState.undoStack).toHaveLength(1);
+
+      const btn = screen.getByTestId(updateKeyId);
+      await expect.element(btn).toBeInTheDocument();
+      await btn.click();
+
+      expect(onChangeFired).toBe(0);
+      textContent = await getEditorTextContent(screen);
+
+      await amount(100);
+
+      expect(screen.getEditorContext()!.historyState.redoStack).toHaveLength(0);
+      expect(screen.getEditorContext()!.historyState.undoStack).toHaveLength(2);
+      expect(textContent).toBe('state 1');
     });
   });
 });

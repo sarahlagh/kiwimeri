@@ -2,7 +2,7 @@ import { initialContent } from '@/domain/collection/collection.service';
 import { registerHistory } from '@lexical/history';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $setSelection, HISTORIC_TAG, SerializedEditorState } from 'lexical';
-import { RefObject, useEffect } from 'react';
+import { Key, RefObject, useEffect, useRef } from 'react';
 import { RELOAD_TAG, SELECTION_CHANGE_TAG } from '../constants';
 import { useEditorContext } from '../EditorContext';
 import { ZOOM_TO_COMMAND } from '../extensions/ZoomExtension';
@@ -14,6 +14,7 @@ import { deserializeSelection } from '../utils/node-serializer';
 
 type ReloadInitialConfigPluginProps = {
   isReloadingRef: RefObject<boolean>;
+  reloadKey?: Key;
 } & RichTextEditorInitialData;
 
 function getParseableState(
@@ -30,13 +31,15 @@ export default function ReloadInitialConfigPlugin(
   data: ReloadInitialConfigPluginProps
 ) {
   const [editor] = useLexicalComposerContext();
-  const parseableState = getParseableState(data.initialState);
   const globalEditable =
     data.globalEditable !== undefined ? data.globalEditable : true;
   const { historyState } = useEditorContext();
+  const initialReloadRef = useRef(data.reloadKey);
 
   // set editor state
   useEffect(() => {
+    initialReloadRef.current = data.reloadKey;
+    const parseableState = getParseableState(data.initialState);
     const newState = editor.parseEditorState(parseableState);
     let cancelled = false;
 
@@ -80,7 +83,17 @@ export default function ReloadInitialConfigPlugin(
     };
     // listening to change on serializedSelection isn't needed
     // eslint-disable-next-line @eslint-react/exhaustive-deps
-  }, [editor, data.historyId, parseableState]);
+  }, [editor, data.historyId, data.initialState]);
+
+  useEffect(() => {
+    if (initialReloadRef.current === data.reloadKey) return;
+    const parseableState = getParseableState(data.initialState);
+    const newState = editor.parseEditorState(parseableState);
+    editor.setEditorState(newState, {
+      tag: RELOAD_TAG
+    });
+    // eslint-disable-next-line @eslint-react/exhaustive-deps
+  }, [editor, data.reloadKey]);
 
   // set updatable state
   useEffect(() => {
