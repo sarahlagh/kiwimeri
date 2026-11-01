@@ -79,6 +79,16 @@ export function getRemoveFormatBtn(screen: RenderResult) {
   return getToolbar(screen).getByLabelText('Remove format');
 }
 
+export function getUndoBtn(screen: RenderResult) {
+  return getToolbar(screen).getByLabelText('Undo');
+}
+
+export function getRedoBtn(screen: RenderResult) {
+  return getToolbar(screen).getByLabelText('Redo');
+}
+
+// links
+
 export function getLinkBtn(screen: RenderResult) {
   return getToolbar(screen).getByLabelText('Toggle link');
 }

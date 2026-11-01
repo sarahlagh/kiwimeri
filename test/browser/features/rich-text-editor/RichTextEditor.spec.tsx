@@ -1,17 +1,21 @@
 import { describe, expect, test } from 'vitest';
 
+import { OnChangePluginPayload } from '@/features/document-editor/wysiwyg-editor/lexical-v2/react-plugins/OnChangePlugin';
 import RichTextEditor from '@/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor';
+import { RichTextEditorHandle } from '@/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditorHandle';
 import { getNewContent, getNewParsedContent } from '@@/_setup/test.utils';
 import { TestingProvider } from '@@/browser/TestingProvider';
-import { useState } from 'react';
+import { createRef, RefObject, useState } from 'react';
 import { render } from 'vitest-browser-react';
 import {
   getAllToolbarBtns,
   getContentEditor,
   getContentEditorElement,
   getEditorTextContent,
+  getRedoBtn,
   getToggleReadModeBtn,
-  getToolbar
+  getToolbar,
+  getUndoBtn
 } from './RichTextEditor.locators';
 import { renderEditor } from './utils';
 
@@ -20,13 +24,21 @@ const expectedNumberOfBtns = 22;
 const state1 = getNewContent('state 1');
 const state2 = getNewContent('state 2');
 
-const ParentComponent = () => {
+const parentSwitchBtnId = 'test-btn-initialstate';
+const parentToggleEditableBtnId = 'test-btn-editable';
+const ParentComponent = ({
+  onChange,
+  ref
+}: {
+  onChange?: (payload: OnChangePluginPayload) => void;
+  ref?: RefObject<RichTextEditorHandle | null>;
+}) => {
   const [initialState, setInitialState] = useState(state1);
   const [editable, setEditable] = useState(true);
   return (
     <div>
       <button
-        data-testid="test-btn-initialstate"
+        data-testid={parentSwitchBtnId}
         onClick={() => {
           setInitialState(initialState === state1 ? state2 : state1);
         }}
@@ -34,7 +46,7 @@ const ParentComponent = () => {
         state
       </button>
       <button
-        data-testid="test-btn-editable"
+        data-testid={parentToggleEditableBtnId}
         onClick={() => {
           setEditable(!editable);
         }}
@@ -45,10 +57,19 @@ const ParentComponent = () => {
         globalEditable={editable}
         initialState={initialState}
         enableDebugTree={false}
+        onChange={onChange}
+        historyId={initialState === state1 ? 'state1' : 'state2'}
+        ref={ref}
       />
     </div>
   );
 };
+
+function filterToolbarBtns(toolbarBtns: (HTMLElement | SVGElement)[]) {
+  return toolbarBtns.filter(
+    btn => btn.ariaLabel !== 'Undo' && btn.ariaLabel !== 'Redo'
+  );
+}
 
 describe('RichTextEditor', () => {
   const initialState = getNewContent('hello world');
@@ -96,7 +117,7 @@ describe('RichTextEditor', () => {
       expect(textContent1).toBe('state 1');
 
       // change to state 2
-      const btn = screen.getByTestId('test-btn-initialstate');
+      const btn = screen.getByTestId(parentSwitchBtnId);
       await expect.element(btn).toBeInTheDocument();
       await btn.click();
 
@@ -117,7 +138,8 @@ describe('RichTextEditor', () => {
 
       const toolbarBtns = getAllToolbarBtns(screen);
       expect(toolbarBtns).toHaveLength(expectedNumberOfBtns);
-      for (const btn of toolbarBtns) {
+      const toolbarBtnFiltered = filterToolbarBtns(toolbarBtns);
+      for (const btn of toolbarBtnFiltered) {
         expect(btn).not.toBeDisabled();
       }
     });
@@ -153,7 +175,7 @@ describe('RichTextEditor', () => {
         'true'
       );
 
-      const btn = screen.getByTestId('test-btn-editable');
+      const btn = screen.getByTestId(parentToggleEditableBtnId);
       await expect.element(btn).toBeInTheDocument();
       await btn.click();
 
@@ -198,9 +220,189 @@ describe('RichTextEditor', () => {
         'contenteditable',
         'true'
       );
-      for (const btn of toolbarBtns) {
+      const toolbarBtnFiltered = filterToolbarBtns(toolbarBtns);
+      for (const btn of toolbarBtnFiltered) {
         expect(btn).not.toBeDisabled();
       }
+    });
+  });
+
+  describe('history stack', () => {
+    async function renderParent(onChange?: () => void) {
+      const ref = createRef<RichTextEditorHandle>();
+      const screen = await render(
+        <ParentComponent ref={ref} onChange={onChange} />,
+        {
+          wrapper: TestingProvider
+        }
+      );
+      return {
+        ...screen,
+        getEditorContext: () => {
+          return ref.current?.getEditorContext();
+        }
+      };
+    }
+
+    test('interaction with the editor creates a history entry and onChange event', async () => {
+      let onChangeFired = 0;
+      const screen = await renderParent(() => {
+        onChangeFired++;
+      });
+
+      // make some modif
+      await getContentEditor(screen).fill('new state 1');
+      await getContentEditor(screen).fill('new state 2');
+
+      expect(onChangeFired).toBe(2);
+      expect(screen.getEditorContext()).toBeDefined();
+      const context = screen.getEditorContext()!;
+      expect(context.historyState).toBeDefined();
+      expect(context.historyState.redoStack).toHaveLength(0);
+      expect(context.historyState.undoStack).toHaveLength(2);
+    });
+
+    test('a change of initialState creates a separate history stack and no onChange event', async () => {
+      let onChangeFired = 0;
+      const screen = await renderParent(() => {
+        onChangeFired++;
+      });
+
+      // make some modif
+      await getContentEditor(screen).fill('new state 1');
+      await getContentEditor(screen).fill('new state 2');
+      onChangeFired = 0;
+
+      // change to state 2
+      const btn = screen.getByTestId(parentSwitchBtnId);
+      await expect.element(btn).toBeInTheDocument();
+      await btn.click();
+
+      expect(onChangeFired).toBe(0);
+      expect(screen.getEditorContext()).toBeDefined();
+      const context = screen.getEditorContext()!;
+      expect(context.historyState).toBeDefined();
+      expect(context.historyState.redoStack).toHaveLength(0);
+      expect(context.historyState.undoStack).toHaveLength(0);
+    });
+
+    test('can click on undo', async () => {
+      let onChangeFired = 0;
+      const screen = await renderParent(() => {
+        onChangeFired++;
+      });
+
+      const undoBtn = getUndoBtn(screen);
+      const redoBtn = getRedoBtn(screen);
+      await expect(undoBtn).toBeDisabled();
+      await expect(redoBtn).toBeDisabled();
+
+      // make some modif
+      await getContentEditor(screen).fill('new state 1');
+      await getContentEditor(screen).fill('new state 2');
+      expect(onChangeFired).toBe(2);
+
+      await expect(undoBtn).not.toBeDisabled();
+      await expect(redoBtn).toBeDisabled();
+
+      // undo last
+      await undoBtn.click();
+      await expect(redoBtn).not.toBeDisabled();
+      expect(onChangeFired).toBe(3);
+
+      const textContent = await getEditorTextContent(screen);
+      expect(textContent).toBe('new state 1');
+
+      await undoBtn.click();
+      await expect(undoBtn).toBeDisabled();
+      await expect(redoBtn).not.toBeDisabled();
+      expect(onChangeFired).toBe(4);
+    });
+
+    test('can click on redo', async () => {
+      let onChangeFired = 0;
+      const screen = await renderParent(() => {
+        onChangeFired++;
+      });
+
+      const undoBtn = getUndoBtn(screen);
+      const redoBtn = getRedoBtn(screen);
+      await expect(undoBtn).toBeDisabled();
+      await expect(redoBtn).toBeDisabled();
+
+      // make some modif
+      await getContentEditor(screen).fill('new state 1');
+      await getContentEditor(screen).fill('new state 2');
+      expect(onChangeFired).toBe(2);
+
+      await expect(undoBtn).not.toBeDisabled();
+      await expect(redoBtn).toBeDisabled();
+
+      // undo last
+      await undoBtn.click();
+      await expect(undoBtn).not.toBeDisabled();
+      await expect(redoBtn).not.toBeDisabled();
+      expect(onChangeFired).toBe(3);
+
+      await redoBtn.click();
+      await expect(undoBtn).not.toBeDisabled();
+      await expect(redoBtn).toBeDisabled();
+      expect(onChangeFired).toBe(4);
+    });
+
+    test('cannot click on undo redo if read mode', async () => {
+      const screen = await renderParent();
+
+      const undoBtn = getUndoBtn(screen);
+      const redoBtn = getRedoBtn(screen);
+      // make some modif
+      await getContentEditor(screen).fill('new state 1');
+      await getContentEditor(screen).fill('new state 2');
+      await undoBtn.click();
+      await expect(undoBtn).not.toBeDisabled();
+      await expect(redoBtn).not.toBeDisabled();
+
+      await getToggleReadModeBtn(screen).click();
+      await expect(undoBtn).toBeDisabled();
+      await expect(redoBtn).toBeDisabled();
+
+      await getToggleReadModeBtn(screen).click();
+      await expect(undoBtn).not.toBeDisabled();
+      await expect(redoBtn).not.toBeDisabled();
+    });
+
+    test('can switch between documents', async () => {
+      let onChangeFired = 0;
+      const screen = await renderParent(() => {
+        onChangeFired++;
+      });
+
+      // make some modif
+      await getContentEditor(screen).fill('new state 1');
+      await getContentEditor(screen).fill('new state 2');
+      await getContentEditor(screen).fill('new state 3');
+      await getUndoBtn(screen).click();
+      expect(screen.getEditorContext()!.historyState.redoStack).toHaveLength(1);
+      expect(screen.getEditorContext()!.historyState.undoStack).toHaveLength(2);
+      onChangeFired = 0;
+
+      // change to state 2
+      const btn = screen.getByTestId(parentSwitchBtnId);
+      await expect.element(btn).toBeInTheDocument();
+      await btn.click();
+
+      await getContentEditor(screen).fill('new state a');
+
+      expect(onChangeFired).toBe(1);
+      expect(screen.getEditorContext()!.historyState).toBeDefined();
+      expect(screen.getEditorContext()!.historyState.redoStack).toHaveLength(0);
+      expect(screen.getEditorContext()!.historyState.undoStack).toHaveLength(1);
+
+      onChangeFired = 0;
+      await btn.click();
+      expect(onChangeFired).toBe(0);
+      expect(screen.getEditorContext()!.historyState.redoStack).toHaveLength(1);
+      expect(screen.getEditorContext()!.historyState.undoStack).toHaveLength(2);
     });
   });
 });

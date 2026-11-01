@@ -1,3 +1,5 @@
+import '@/core/infra/polyfills/log-polyfill';
+
 import '@ionic/react/css/core.css';
 /* Basic CSS for apps built with Ionic */
 import '@ionic/react/css/normalize.css';

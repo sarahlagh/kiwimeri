@@ -1,3 +1,4 @@
+import '@/core/infra/polyfills/log-polyfill';
 // jest-dom adds custom jest matchers for asserting on DOM nodes.
 // allows you to do things like:
 // expect(element).toHaveTextContent(/react/i)
@@ -10,7 +11,6 @@ import { i18n } from '@lingui/core';
 // allow the log level to be applied to tests
 import { postInitMigrationService } from '@/core/db/post-init-migrations/post-init-migration.service';
 import { startDbListeners, stopDbListeners } from '@/core/db/store-listeners';
-import '@/core/infra/polyfills/log-polyfill';
 import { schedule } from '@/core/tasks/scheduler.service';
 import { historyService } from '@/domain/history/history.service';
 import localChangesService from '@/domain/synchronization/local-changes.service';
