@@ -393,7 +393,7 @@ describe('DocumentEditor', () => {
           expect(edits).toHaveLength(idx > 0 ? mutate.length : 0); // first scenario is nothing scenario so, no edits
 
           edits.forEach((edit, idx) => {
-            if (!isFullSnapshot) {
+            if (isFullSnapshot === undefined) {
               expect(edit.isFullSnapshot).toBe(false);
             } else if (typeof isFullSnapshot === 'number') {
               expect(edit.isFullSnapshot).toBe(

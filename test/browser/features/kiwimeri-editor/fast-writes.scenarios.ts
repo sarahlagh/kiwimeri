@@ -901,13 +901,13 @@ export const fastWriteScenarios: FastWriteScenario[] = [
     desc: 'nothing scenario',
     mutate: [() => {}]
   },
-  // ...paragraphTests,
-  // ...headingTests,
-  // ...hruleTests,
-  // ...listsTests,
-  // ...quotesTests,
-  // ...linksTests,
-  // ...textAlignTests,
-  // ...multipleMutationsTests,
+  ...paragraphTests,
+  ...headingTests,
+  ...hruleTests,
+  ...listsTests,
+  ...quotesTests,
+  ...linksTests,
+  ...textAlignTests,
+  ...multipleMutationsTests,
   ...undoRedoTests
 ];
