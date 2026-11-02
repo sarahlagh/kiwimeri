@@ -1,4 +1,7 @@
 import { signal } from '@lexical/extension';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { ReactExtension } from '@lexical/react/ReactExtension';
+import { useExtensionSignalValue } from '@lexical/react/useExtensionSignalValue';
 import {
   COMMAND_PRIORITY_LOW,
   COMMAND_PRIORITY_NORMAL,
@@ -8,6 +11,7 @@ import {
   LexicalEditor,
   mergeRegister
 } from 'lexical';
+import { useEffect } from 'react';
 
 export const ZOOM_TO_COMMAND = createCommand<number>('ZOOM_TO_COMMAND');
 export const ZOOM_IN_COMMAND = createCommand('ZOOM_IN_COMMAND');
@@ -62,12 +66,39 @@ const keyboardShortcutsHandler = (
   }
 };
 
+function ZoomExtensionWrapper({
+  initialZoom,
+  onZoomChange
+}: {
+  initialZoom?: number;
+  onZoomChange?: (zoom: number) => void;
+}) {
+  const [editor] = useLexicalComposerContext();
+  const currentZoom = useExtensionSignalValue(ZoomExtension, 'zoomSignal');
+
+  // on init, apply once
+  useEffect(() => {
+    if (initialZoom !== undefined) {
+      editor.dispatchCommand(ZOOM_TO_COMMAND, initialZoom);
+    }
+    // eslint-disable-next-line @eslint-react/exhaustive-deps
+  }, [editor]);
+
+  // on change
+  useEffect(() => {
+    if (onZoomChange) onZoomChange(currentZoom);
+  }, [onZoomChange, currentZoom]);
+
+  return null;
+}
+
 export const ZoomExtension = defineExtension({
   name: '@kiwimeri/rich-text/zoom',
   namespace: 'react-rich',
   build() {
-    return { zoomSignal: signal(1) };
+    return { zoomSignal: signal(1), Component: ZoomExtensionWrapper };
   },
+  dependencies: [ReactExtension],
   register(editor, config, state) {
     const { zoomSignal } = state.getOutput();
     const setZoomLevel = (zoom: number) => (zoomSignal.value = zoom);

@@ -9,6 +9,7 @@ import { Key, RefObject, useImperativeHandle, useRef } from 'react';
 import { appExtension } from './app-extension';
 import { EditorContextProvider, ReadOnlyEditorContext } from './EditorContext';
 import { SearchExtension } from './extensions/SearchExtension';
+import { ZoomExtension } from './extensions/ZoomExtension';
 import EditorContextRefPlugin from './react-plugins/EditorContextRefPlugin';
 import OnChangePlugin, {
   OnChangePluginPayload
@@ -109,7 +110,6 @@ const RichTextEditor = ({
           serializedSelection={serializedSelection}
           historyId={historyId}
           resumeLastSelection={resumeLastSelection}
-          zoomLevel={zoomLevel}
           reloadKey={reloadKey}
         />
         <OnChangePlugin
@@ -118,6 +118,10 @@ const RichTextEditor = ({
           onChange={payload => {
             if (onChange) onChange(payload);
           }}
+        />
+        <ExtensionComponent
+          lexical:extension={ZoomExtension}
+          initialZoom={zoomLevel}
           onZoomChange={onZoomChange}
         />
         <ExtensionComponent
