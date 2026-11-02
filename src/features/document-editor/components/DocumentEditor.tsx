@@ -205,7 +205,7 @@ const DocumentEditor = (props: DocumentEditorProps) => {
             searchText={toggleSearch ? searchText : undefined}
             ignoreSelectionChange={false}
             resumeLastSelection={deviceSettings.get('resumeLastSelection')}
-            zoomLevel={deviceSettings.get('globalZoom')}
+            initialZoom={deviceSettings.get('globalZoom')}
             onZoomChange={zoomLevel => {
               deviceSettings.set('globalZoom', zoomLevel);
             }}

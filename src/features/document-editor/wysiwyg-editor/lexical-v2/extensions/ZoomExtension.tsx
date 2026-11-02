@@ -1,7 +1,4 @@
 import { signal } from '@lexical/extension';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { ReactExtension } from '@lexical/react/ReactExtension';
-import { useSignalValue } from '@lexical/react/useExtensionSignalValue';
 import {
   COMMAND_PRIORITY_LOW,
   COMMAND_PRIORITY_NORMAL,
@@ -9,11 +6,13 @@ import {
   defineExtension,
   KEY_DOWN_COMMAND,
   LexicalEditor,
-  mergeRegister
+  mergeRegister,
+  safeCast
 } from 'lexical';
-import { useEffect } from 'react';
 
-export const ZOOM_TO_COMMAND = createCommand<number>('ZOOM_TO_COMMAND');
+export const ZOOM_TO_COMMAND = createCommand<
+  number | { zoom: number; isInitialZoom: true }
+>('ZOOM_TO_COMMAND');
 export const ZOOM_IN_COMMAND = createCommand('ZOOM_IN_COMMAND');
 export const ZOOM_OUT_COMMAND = createCommand('ZOOM_OUT_COMMAND');
 export const ZOOM_RESET_COMMAND = createCommand('ZOOM_RESET_COMMAND');
@@ -22,8 +21,6 @@ const ZOOM_INCREMENT = 0.05;
 export const MAX_ZOOM = 3;
 export const MIN_ZOOM = 0.5;
 
-const zoomSignal = signal(1);
-
 type StyleWithZoom = CSSStyleDeclaration & {
   zoom: string;
 };
@@ -31,7 +28,8 @@ type StyleWithZoom = CSSStyleDeclaration & {
 function zoomTo(
   zoom: number,
   editor: LexicalEditor,
-  setZoomLevel: (zoomLevel: number) => void
+  setZoomLevel: (zoomLevel: number, skipListener: boolean) => void,
+  skipListener = false
 ) {
   if (MIN_ZOOM - ZOOM_INCREMENT >= zoom || zoom >= MAX_ZOOM + ZOOM_INCREMENT) {
     return false;
@@ -41,7 +39,7 @@ function zoomTo(
     const style = editorElement.style as StyleWithZoom;
     style.zoom = `${zoom}`;
   }
-  setZoomLevel(zoom);
+  setZoomLevel(zoom, skipListener);
   return false;
 }
 
@@ -68,56 +66,45 @@ const keyboardShortcutsHandler = (
   }
 };
 
-function ZoomExtensionWrapper({
-  initialZoom,
-  onZoomChange
-}: {
-  initialZoom?: number;
+type ZoomExtensionConfig = {
+  initialZoom: number;
   onZoomChange?: (zoom: number) => void;
-}) {
-  const [editor] = useLexicalComposerContext();
-  const currentZoom = useSignalValue(zoomSignal);
+};
 
-  // on init, apply once
-  useEffect(() => {
-    if (initialZoom !== undefined) {
-      editor.dispatchCommand(ZOOM_TO_COMMAND, initialZoom);
-    }
-    // eslint-disable-next-line @eslint-react/exhaustive-deps
-  }, [editor]);
-
-  // on change
-  useEffect(() => {
-    if (onZoomChange) onZoomChange(currentZoom);
-  }, [onZoomChange, currentZoom]);
-
-  return null;
-}
+const initialConfig: ZoomExtensionConfig = { initialZoom: 1 };
 
 export const ZoomExtension = defineExtension({
   name: '@kiwimeri/rich-text/zoom',
   namespace: 'react-rich',
-  build() {
-    return { zoomSignal, Component: ZoomExtensionWrapper };
+  config: safeCast<ZoomExtensionConfig>(initialConfig),
+  build(editor, config) {
+    return { zoom: signal(config.initialZoom) };
   },
-  dependencies: [ReactExtension],
   register(editor, config, state) {
-    const { zoomSignal } = state.getOutput();
-    const setZoomLevel = (zoom: number) => (zoomSignal.value = zoom);
+    const { zoom } = state.getOutput();
+    const setZoomLevel = (value: number, skipListener: boolean) => {
+      zoom.value = value;
+      if (config.onZoomChange && !skipListener) config.onZoomChange(value);
+    };
     return mergeRegister(
       editor.registerCommand(
         ZOOM_TO_COMMAND,
-        zoom => zoomTo(zoom, editor, setZoomLevel),
+        zoom => {
+          if (typeof zoom === 'number') {
+            return zoomTo(zoom, editor, setZoomLevel);
+          }
+          return zoomTo(zoom.zoom, editor, setZoomLevel, true); // on init skip onZoomChange
+        },
         COMMAND_PRIORITY_LOW
       ),
       editor.registerCommand(
         ZOOM_IN_COMMAND,
-        () => zoomTo(zoomSignal.peek() + ZOOM_INCREMENT, editor, setZoomLevel),
+        () => zoomTo(zoom.peek() + ZOOM_INCREMENT, editor, setZoomLevel),
         COMMAND_PRIORITY_LOW
       ),
       editor.registerCommand(
         ZOOM_OUT_COMMAND,
-        () => zoomTo(zoomSignal.peek() - ZOOM_INCREMENT, editor, setZoomLevel),
+        () => zoomTo(zoom.peek() - ZOOM_INCREMENT, editor, setZoomLevel),
         COMMAND_PRIORITY_LOW
       ),
       editor.registerCommand(
@@ -131,5 +118,15 @@ export const ZoomExtension = defineExtension({
         COMMAND_PRIORITY_NORMAL
       )
     );
+  },
+  afterRegistration(editor, config) {
+    return editor.registerRootListener(rootElement => {
+      if (rootElement !== null) {
+        editor.dispatchCommand(ZOOM_TO_COMMAND, {
+          zoom: config.initialZoom,
+          isInitialZoom: true
+        });
+      }
+    });
   }
 });

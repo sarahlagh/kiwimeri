@@ -17,7 +17,7 @@ export const GlobalEditorSection = () => {
   const { t } = useLingui();
   const [editor] = useLexicalComposerContext();
   const { globalEditable, isEditable } = useEditorContext();
-  const zoomLevel = useExtensionSignalValue(ZoomExtension, 'zoomSignal');
+  const zoomLevel = useExtensionSignalValue(ZoomExtension, 'zoom');
   const { canUndo, canRedo } = useExtensionSignalValue(
     HistoryExtension,
     'canUndoRedoSignal'

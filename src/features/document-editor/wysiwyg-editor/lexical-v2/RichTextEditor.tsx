@@ -5,12 +5,10 @@ import { LexicalExtensionComposer } from '@lexical/react/LexicalExtensionCompose
 import { TreeViewExtension } from '@lexical/react/TreeViewExtension';
 import { useLingui } from '@lingui/react/macro';
 import { LexicalEditor } from 'lexical';
-import { Key, RefObject, useImperativeHandle, useRef } from 'react';
-import { appExtension } from './app-extension';
+import { Key, RefObject, useImperativeHandle, useMemo, useRef } from 'react';
+import { AppExtensionConfig, buildAppExtension } from './app-extension';
 import { EditorContextProvider, ReadOnlyEditorContext } from './EditorContext';
-import { HistoryExtension } from './extensions/HistoryExtension';
 import { SearchExtension } from './extensions/SearchExtension';
-import { ZoomExtension } from './extensions/ZoomExtension';
 import EditorContextRefPlugin from './react-plugins/EditorContextRefPlugin';
 import OnChangePlugin, {
   OnChangePluginPayload
@@ -20,22 +18,20 @@ import { RichTextEditorHandle } from './RichTextEditorHandle';
 import Toolbar from './toolbar/Toolbar';
 import { RichTextEditorInitialData } from './types';
 
-export type RichTextEditorProps = RichTextEditorInitialData & {
-  zoomLevel?: number;
-  searchText?: string;
-  enableToolbar?: boolean;
-  enableHistory?: boolean;
-  enableDebugTree?: boolean;
-  ignoreSelectionChange?: boolean;
-  additionalClassNames?: string;
-  onChange?: (payload: OnChangePluginPayload) => void;
-  onZoomChange?: (zoomLevel: number) => void;
-  reloadKey?: Key;
-};
+export type RichTextEditorProps = RichTextEditorInitialData &
+  AppExtensionConfig & {
+    searchText?: string;
+    enableToolbar?: boolean;
+    enableDebugTree?: boolean;
+    ignoreSelectionChange?: boolean;
+    additionalClassNames?: string;
+    onChange?: (payload: OnChangePluginPayload) => void;
+    reloadKey?: Key;
+  };
 
 const RichTextEditor = ({
   onChange,
-  zoomLevel,
+  initialZoom,
   onZoomChange,
   initialState,
   serializedSelection,
@@ -79,6 +75,17 @@ const RichTextEditor = ({
     [editorRef, contextRef]
   );
 
+  const appExtension = useMemo(
+    () =>
+      buildAppExtension({
+        historyId,
+        enableHistory,
+        initialZoom,
+        onZoomChange
+      }),
+    [historyId, enableHistory, initialZoom, onZoomChange]
+  );
+
   return (
     <EditorContextProvider globalEditable={globalEditable}>
       <LexicalExtensionComposer extension={appExtension} contentEditable={null}>
@@ -119,16 +126,6 @@ const RichTextEditor = ({
           onChange={payload => {
             if (onChange) onChange(payload);
           }}
-        />
-        <ExtensionComponent
-          lexical:extension={HistoryExtension}
-          historyId={historyId}
-          enabled={enableHistory}
-        />
-        <ExtensionComponent
-          lexical:extension={ZoomExtension}
-          initialZoom={zoomLevel}
-          onZoomChange={onZoomChange}
         />
         <ExtensionComponent
           lexical:extension={SearchExtension}
