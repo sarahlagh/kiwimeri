@@ -37,12 +37,15 @@ import {
 import { createLinkMatcherWithRegExp } from '@lexical/react/LexicalAutoLinkPlugin';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { ReactExtension } from '@lexical/react/ReactExtension';
+import { useExtensionSignalValue } from '@lexical/react/useExtensionSignalValue';
 import { useLingui } from '@lingui/react/macro';
 import { useEffect, useRef, useState } from 'react';
 import { CREATE_LINK_AT_WORD_UNDER_CURSOR_COMMAND } from '../commands/word-under-cursor-commands';
-import { EditorContextType, useEditorContext } from '../EditorContext';
 import { getSelectedNode } from '../utils/getSelectedNode';
 import { sanitizeUrl } from '../utils/url';
+import SelectionContextExtension, {
+  SelectionContext
+} from './SelectionContextExtension';
 
 const MATCHERS = [
   createLinkMatcherWithRegExp(URL_REGEX, text => {
@@ -64,7 +67,7 @@ type ModalResultPayload = {
   linkText?: string;
   linkUrl?: string;
   isTextWordUnderCursor?: boolean;
-  wordUnderCursor?: EditorContextType['selectionContext']['wordUnderCursor'];
+  wordUnderCursor?: SelectionContext['wordUnderCursor'];
 };
 
 function getLinkParentNode(selection: RangeSelection) {
@@ -167,7 +170,10 @@ const handleAutoLinkSubmission = (
 
 const OpenLinkModalPlugin = () => {
   const [editor] = useLexicalComposerContext();
-  const { selectionContext: selection } = useEditorContext();
+  const selection = useExtensionSignalValue(
+    SelectionContextExtension,
+    'selectionContext'
+  );
   const linkContext = selection.links;
   const { t } = useLingui();
   const [textWillChange, setTextWillChange] = useState(false);

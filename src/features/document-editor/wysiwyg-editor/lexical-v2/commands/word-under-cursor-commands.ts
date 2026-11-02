@@ -11,11 +11,9 @@ import {
   TextNode,
   createCommand
 } from 'lexical';
-import { EditorContextType } from '../EditorContext';
+import { SelectionContext } from '../extensions/SelectionContextExtension';
 
-type WordUnderCursor = Required<
-  EditorContextType['selectionContext']
->['wordUnderCursor'];
+type WordUnderCursor = Required<SelectionContext>['wordUnderCursor'];
 
 function splitNodeBetween(node: TextNode, indexes: WordUnderCursor) {
   const [start, end, word] = indexes;

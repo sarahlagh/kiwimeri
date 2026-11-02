@@ -34,7 +34,7 @@ import {
   getTextAlignBtn,
   getTextFormatBtn
 } from './RichTextEditor.locators';
-import { clickOnEditor, renderEditor } from './utils';
+import { clickOnEditor, getSelectionContext, renderEditor } from './utils';
 
 const initialState = getNewContent('hello world');
 
@@ -573,16 +573,16 @@ describe('RichTextEditor Toolbar', () => {
               initialState
             });
             const editor = screen.getLexicalEditor();
-            const context = screen.getEditorContext();
             await clickOnEditor(screen, line, char);
 
+            const selectionContext = getSelectionContext(editor);
             if (wordUnderCursor !== null) {
-              expect(context.selectionContext.wordUnderCursor).toBeDefined();
-              expect(context.selectionContext.wordUnderCursor![2]).toBe(
+              expect(selectionContext.wordUnderCursor).toBeDefined();
+              expect(selectionContext.wordUnderCursor![2]).toBe(
                 wordUnderCursor
               );
             } else {
-              expect(context.selectionContext.wordUnderCursor).toBeUndefined();
+              expect(selectionContext.wordUnderCursor).toBeUndefined();
             }
 
             // apply format

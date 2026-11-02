@@ -3,7 +3,7 @@ import { useExtensionSignalValue } from '@lexical/react/useExtensionSignalValue'
 import { useLingui } from '@lingui/react/macro';
 import { REDO_COMMAND, UNDO_COMMAND } from 'lexical';
 import { useEditorContext } from '../EditorContext';
-import { HistoryExtension } from '../extensions/HistoryExtension';
+import { HistoryExtension } from '../extensions/HistoryExtension2';
 import {
   MAX_ZOOM,
   MIN_ZOOM,
@@ -20,7 +20,7 @@ export const GlobalEditorSection = () => {
   const zoomLevel = useExtensionSignalValue(ZoomExtension, 'zoom');
   const { canUndo, canRedo } = useExtensionSignalValue(
     HistoryExtension,
-    'canUndoRedoSignal'
+    'canUndoRedo'
   );
 
   return (

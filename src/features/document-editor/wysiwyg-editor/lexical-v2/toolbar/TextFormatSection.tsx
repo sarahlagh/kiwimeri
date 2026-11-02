@@ -1,21 +1,27 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { useExtensionSignalValue } from '@lexical/react/useExtensionSignalValue';
 import { useLingui } from '@lingui/react/macro';
-import { FORMAT_TEXT_COMMAND, TextFormatType } from 'lexical';
+import { FORMAT_TEXT_COMMAND, LexicalEditor, TextFormatType } from 'lexical';
 import { FORMAT_WORD_UNDER_CURSOR_COMMAND } from '../commands/word-under-cursor-commands';
 import { useEditorContext } from '../EditorContext';
+import SelectionContextExtension, {
+  SelectionContext
+} from '../extensions/SelectionContextExtension';
 import { ToolbarButton } from './buttons';
 
 function TextFormatToolbarButton({
   formatType,
   isDisabled,
-  isActive
+  isActive,
+  editor,
+  selectionContext
 }: {
   formatType: TextFormatType;
   isDisabled: boolean;
   isActive: boolean;
+  editor: LexicalEditor;
+  selectionContext: SelectionContext;
 }) {
-  const [editor] = useLexicalComposerContext();
-  const { selectionContext } = useEditorContext();
   const { t } = useLingui();
   return (
     <ToolbarButton
@@ -38,33 +44,48 @@ function TextFormatToolbarButton({
 }
 
 export const TextFormatSection = () => {
-  const { selectionContext: selection, isEditable } = useEditorContext();
+  const [editor] = useLexicalComposerContext();
+  const selection = useExtensionSignalValue(
+    SelectionContextExtension,
+    'selectionContext'
+  );
+  const { isEditable } = useEditorContext();
   return (
     <>
       <TextFormatToolbarButton
         formatType="bold"
         isDisabled={!isEditable}
         isActive={selection.isBold}
+        editor={editor}
+        selectionContext={selection}
       />
       <TextFormatToolbarButton
         formatType="italic"
         isDisabled={!isEditable}
         isActive={selection.isItalic}
+        editor={editor}
+        selectionContext={selection}
       />
       <TextFormatToolbarButton
         formatType="strikethrough"
         isDisabled={!isEditable}
         isActive={selection.isStrikethrough}
+        editor={editor}
+        selectionContext={selection}
       />
       <TextFormatToolbarButton
         formatType="underline"
         isDisabled={!isEditable}
         isActive={selection.isUnderline}
+        editor={editor}
+        selectionContext={selection}
       />
       <TextFormatToolbarButton
         formatType="highlight"
         isDisabled={!isEditable}
         isActive={selection.isHighlight}
+        editor={editor}
+        selectionContext={selection}
       />
     </>
   );

@@ -1,8 +1,11 @@
+import SelectionContextExtension from '@/features/document-editor/wysiwyg-editor/lexical-v2/extensions/SelectionContextExtension';
 import RichTextEditor, {
   RichTextEditorProps
 } from '@/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor';
 import { RichTextEditorHandle } from '@/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditorHandle';
 import { TestingProvider } from '@@/browser/TestingProvider';
+import { $getExtensionOutput } from '@lexical/extension';
+import { LexicalEditor } from 'lexical';
 import { createRef } from 'react';
 import { render, RenderResult } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
@@ -25,13 +28,6 @@ export async function renderEditor(props: RichTextEditorProps) {
         throw new Error('Lexical editor not initialized');
       }
       return editor;
-    },
-    getEditorContext() {
-      const context = ref.current?.getEditorContext();
-      if (!context) {
-        throw new Error('EditorContext not initialized');
-      }
-      return context;
     }
   };
 }
@@ -106,5 +102,12 @@ export async function clickOnEditor(
 
   await userEvent.click(screen.baseElement, {
     position
+  });
+}
+
+export function getSelectionContext(editor: LexicalEditor) {
+  return editor.read(() => {
+    const output = $getExtensionOutput(SelectionContextExtension);
+    return output.selectionContext.peek();
   });
 }

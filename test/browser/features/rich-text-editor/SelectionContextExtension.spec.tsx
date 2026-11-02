@@ -1,7 +1,7 @@
-import { EditorContextType } from '@/features/document-editor/wysiwyg-editor/lexical-v2/EditorContext';
+import { SelectionContext } from '@/features/document-editor/wysiwyg-editor/lexical-v2/extensions/SelectionContextExtension';
 import { fromSimpleHTML } from '@@/_setup/test.utils';
 import { describe, expect, test } from 'vitest';
-import { clickOnEditor, renderEditor } from './utils';
+import { clickOnEditor, getSelectionContext, renderEditor } from './utils';
 
 const initialState = fromSimpleHTML(
   '<p>hello <b>world</b> with <u>formats</u></p>' +
@@ -16,13 +16,13 @@ const initialState = fromSimpleHTML(
     '<blockquote>second <strike>row</strike></blockquote>'
 ).obj!;
 
-describe('RichTextEditor EditorContext', () => {
+describe('SelectionContextExtension', () => {
   type Scenario = {
     skip?: boolean;
     desc: string;
     line: number;
     offset: number;
-  } & Partial<EditorContextType['selectionContext']>;
+  } & Partial<SelectionContext>;
 
   const firstBlock: Scenario[] = [
     {
@@ -196,11 +196,12 @@ describe('RichTextEditor EditorContext', () => {
       const screen = await renderEditor({
         initialState
       });
-      const context = screen.getEditorContext();
+      const editor = screen.getLexicalEditor();
 
       await clickOnEditor(screen, line, char);
 
-      expect(context.selectionContext.wordUnderCursor).toEqual(wordUnderCursor);
+      const selectionContext = getSelectionContext(editor);
+      expect(selectionContext.wordUnderCursor).toEqual(wordUnderCursor);
     });
   });
 });

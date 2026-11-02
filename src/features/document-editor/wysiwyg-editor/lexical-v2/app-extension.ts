@@ -4,7 +4,6 @@ import {
   ClickAfterLastBlockExtension,
   HMRExtension,
   HorizontalRuleExtension,
-  InitialStateExtension,
   SelectBlockExtension,
   SelectionAlwaysOnDisplayExtension,
   TabIndentationExtension
@@ -13,12 +12,12 @@ import { CheckListExtension, ListExtension } from '@lexical/list';
 import { TreeViewExtension } from '@lexical/react/TreeViewExtension';
 import { RichTextExtension } from '@lexical/rich-text';
 import { configExtension, defineExtension } from 'lexical';
-import { HistoryExtension as CustomHistoryExtension } from './extensions/HistoryExtension';
+import { HistoryExtension as CustomHistoryExtension } from './extensions/HistoryExtension2';
 import CustomLinkExtension from './extensions/LinkExtension';
 import { MarkdownShortcutsExtension } from './extensions/MarkdownShortcutsExtension';
 import RegisterCommandsExtension from './extensions/RegisterCommandsExtension';
 import { SearchExtension } from './extensions/SearchExtension';
-import SetSelectionContextExtension from './extensions/SetSelectionContextExtension';
+import SelectionContextExtension from './extensions/SelectionContextExtension';
 import { ZoomExtension } from './extensions/ZoomExtension';
 import Theme from './theme/Theme';
 
@@ -39,14 +38,13 @@ export const buildAppExtension = (config: AppExtensionConfig) =>
       HorizontalRuleExtension,
       ListExtension,
       CheckListExtension,
-      InitialStateExtension,
       ClipboardDOMImportExtension,
       AutoFocusExtension,
       ClickAfterLastBlockExtension,
       TabIndentationExtension,
       TreeViewExtension,
       // custom extensions
-      SetSelectionContextExtension,
+      SelectionContextExtension,
       configExtension(CustomHistoryExtension, {
         enabled: config.enableHistory,
         historyId: config.historyId

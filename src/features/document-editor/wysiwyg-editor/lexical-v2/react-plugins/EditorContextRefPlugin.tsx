@@ -14,7 +14,6 @@ const EditorContextRefPlugin = ({
   }
   contextRef.current.globalEditable = context.globalEditable;
   contextRef.current.isEditable = context.isEditable;
-  contextRef.current.selectionContext = context.selectionContext;
   return null;
 };
 
