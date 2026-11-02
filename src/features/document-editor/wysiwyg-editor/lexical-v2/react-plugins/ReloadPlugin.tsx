@@ -9,7 +9,7 @@ import {
 } from '../types';
 import { deserializeSelection } from '../utils/node-serializer';
 
-type ReloadInitialConfigPluginProps = {
+type ReloadPluginProps = {
   isReloadingRef: RefObject<boolean>;
   reloadKey?: Key;
 } & RichTextEditorInitialData;
@@ -24,9 +24,7 @@ function getParseableState(
   return content.toJSON();
 }
 
-export default function ReloadInitialConfigPlugin(
-  data: ReloadInitialConfigPluginProps
-) {
+export default function ReloadPlugin(data: ReloadPluginProps) {
   const [editor] = useLexicalComposerContext();
   const globalEditable =
     data.globalEditable !== undefined ? data.globalEditable : true;

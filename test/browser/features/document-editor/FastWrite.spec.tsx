@@ -17,20 +17,14 @@ import { writer } from '@/domain/document-edits/document-edits.service';
 import formatConverter from '@/domain/format-conversion/format-converter.service';
 import { ActionsFromDocumentEditorToolbar } from '@/features/collection-item-actions';
 import '@/features/collection-notes-ui/components/NotesBrowser.scss';
-import {
-  DocumentEditor,
-  KiwimeriEditor,
-  ReloadableKiwimeriEditorHandle
-} from '@/features/document-editor';
+import { DocumentEditor } from '@/features/document-editor';
+import { DocumentEditorHandle } from '@/features/document-editor/components/DocumentEditor';
 import { expectLexicalStatesToBeEqual } from '@@/_setup/test.utils';
-import { $createTextNode, $getRoot, ElementNode } from 'lexical';
+import { $createTextNode, $getEditor, $getRoot, ElementNode } from 'lexical';
 import React from 'react';
 import { TestingProvider } from '../../TestingProvider';
-import {
-  getContentEditor,
-  getContentEditorElement
-} from './KiwimeriEditor.locators';
-import { fastWriteScenarios } from './fast-writes.scenarios';
+import { getContentEditor } from '../rich-text-editor/RichTextEditor.locators';
+import { fastWriteScenarios } from './FastWrite.scenarios';
 
 /// setup mocks
 vi.mock('@/domain/document-edits/document-edits.service', { spy: true });
@@ -38,27 +32,8 @@ let spyOnWriteContent = vi.spyOn(writer, 'writeContent');
 
 /// test suite
 
-type Props = {
-  content?: string;
-  enableToolbar?: boolean;
-};
-
-const defaults: Required<Props> = {
-  content: initialContent(),
-  enableToolbar: true
-};
-
-function renderEditor(props: Props) {
-  return render(
-    <KiwimeriEditor {...props} {...defaults} enableDebugTreeView={false} />,
-    {
-      wrapper: TestingProvider
-    }
-  );
-}
-
 async function renderDocumentEditor(docId: string) {
-  const ref = React.createRef<ReloadableKiwimeriEditorHandle>();
+  const ref = React.createRef<DocumentEditorHandle>();
   const screen = await render(<DocumentEditor docId={docId} ref={ref} />, {
     wrapper: TestingProvider
   });
@@ -69,51 +44,14 @@ async function renderDocumentEditor(docId: string) {
       if (!editor) {
         throw new Error('Lexical editor not initialized');
       }
+      const editorState = editor.read(() => editor.getEditorState());
+      console.debug(editorState.toJSON());
       return editor;
     }
   };
 }
 
-describe('KiwimeriEditor', () => {
-  test('renders an empty editor', async () => {
-    const screen = await renderEditor({});
-    await expect.element(screen.baseElement).toBeDefined();
-    await expect.element(getContentEditor(screen)).toBeInTheDocument();
-  });
-
-  test('fill simple paragraph', async () => {
-    const screen = await renderEditor({});
-    const editor = getContentEditor(screen);
-    await editor.fill('test');
-
-    const el = editor.element() as HTMLElement;
-    expect(el.children).toHaveLength(1);
-    expect(el.children[0].textContent).toBe('test');
-  });
-});
-
-describe('DocumentEditor', () => {
-  test('renders an empty editor', async () => {
-    const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const { screen } = await renderDocumentEditor(docId);
-    await expect.element(screen.baseElement).toBeDefined();
-    await expect.element(getContentEditor(screen)).toBeInTheDocument();
-  });
-
-  test('fill simple paragraph', async () => {
-    const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-    const content = formatConverter.fromMarkdown('test').obj!;
-    collectionService.setItemLexicalContent(docId, content);
-
-    const { screen } = await renderDocumentEditor(docId);
-    const el = getContentEditorElement(screen);
-    expect(el.children).toHaveLength(1);
-    expect(el.children[0].textContent).toBe('test');
-
-    await expect.element(screen.baseElement).toBeDefined();
-    await expect.element(getContentEditor(screen)).toBeInTheDocument();
-  });
-
+describe('Fast Write', () => {
   describe('fastWrite modes', () => {
     beforeEach(() => {
       vi.useFakeTimers();
@@ -365,21 +303,22 @@ describe('DocumentEditor', () => {
       );
     });
 
+    // const HISTORY_DELAY = 150;
     fastWriteScenarios.forEach(
       ({ initial, next, desc, mutate, isFullSnapshot }, idx) => {
         test(`fastWrite scenario #${idx}: ${desc}`, async () => {
           const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
           const content = formatConverter.fromMarkdown(initial).obj!;
-          collectionService.setItemLexicalContent(docId, content);
+          const nextContent = formatConverter.fromMarkdown(next).obj!;
+          collectionService.setItemLexicalContent(docId, content, true);
 
           const { getLexicalEditor } = await renderDocumentEditor(docId);
           const editor = getLexicalEditor();
-          const nextContent = formatConverter.fromMarkdown(next).obj!;
 
           mutate.forEach(m => {
             editor.update(
               () => {
-                m($getRoot(), editor);
+                m($getRoot(), $getEditor());
               },
               { discrete: true }
             );

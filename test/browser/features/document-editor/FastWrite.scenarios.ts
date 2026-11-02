@@ -1,3 +1,4 @@
+import { $createHorizontalRuleNode } from '@lexical/extension';
 import {
   $createAutoLinkNode,
   $createLinkNode,
@@ -9,7 +10,6 @@ import {
   ListItemNode,
   ListNode
 } from '@lexical/list';
-import { $createHorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode';
 import {
   $createHeadingNode,
   $createQuoteNode,

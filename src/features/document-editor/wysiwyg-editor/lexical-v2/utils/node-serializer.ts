@@ -47,7 +47,7 @@ function* $iterCaretsDepthFirst<D extends CaretDirection>(
   }
 }
 
-function exportNodeToJSON<SerializedNode extends SerializedLexicalNode>(
+function $exportNodeToJSON<SerializedNode extends SerializedLexicalNode>(
   node: LexicalNode
 ): SerializedNode {
   const serializedNode = node.exportJSON();
@@ -72,7 +72,7 @@ function exportNodeToJSON<SerializedNode extends SerializedLexicalNode>(
 
     for (let i = 0; i < children.length; i++) {
       const child = children[i];
-      const serializedChildNode = exportNodeToJSON(child);
+      const serializedChildNode = $exportNodeToJSON(child);
       serializedChildren.push(serializedChildNode);
     }
   }
@@ -81,11 +81,11 @@ function exportNodeToJSON<SerializedNode extends SerializedLexicalNode>(
   return serializedNode;
 }
 
-export function serializeNode(node: LexicalNode) {
-  return exportNodeToJSON(node);
+export function $serializeNode(node: LexicalNode) {
+  return $exportNodeToJSON(node);
 }
 
-export function getChangedBlocks({
+export function $getChangedBlocks({
   dirtyElements,
   dirtyLeaves,
   prevEditorState
@@ -108,7 +108,7 @@ export function getChangedBlocks({
       break;
     }
     if (!$isRootNode(node?.getParent())) continue; // only care for top level blocks
-    const serializedNode = serializeNode(node);
+    const serializedNode = $serializeNode(node);
     const idx = node!.getIndexWithinParent();
     blocksChanged.push({ block: serializedNode, idx });
   }
@@ -125,11 +125,14 @@ export function getChangedBlocks({
     }
     // node is not null
     if (!$isRootNode(node.getParent())) continue; // only care for top level blocks
-    const serializedNode = serializeNode(node);
+    const serializedNode = $serializeNode(node);
     const idx = node!.getIndexWithinParent();
     blocksChanged.push({ block: serializedNode, idx });
   }
-  return { blocksChanged, hasDeletedNodes };
+  return {
+    blocksChanged: hasDeletedNodes ? [] : blocksChanged,
+    hasDeletedNodes
+  };
 }
 
 export function serializeSelection(

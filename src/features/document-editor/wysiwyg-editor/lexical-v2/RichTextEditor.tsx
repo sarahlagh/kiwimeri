@@ -15,12 +15,13 @@ import EditorContextRefPlugin from './react-plugins/EditorContextRefPlugin';
 import OnChangePlugin, {
   OnChangePluginPayload
 } from './react-plugins/OnChangePlugin';
-import ReloadInitialConfigPlugin from './react-plugins/ReloadInitialConfigPlugin';
+import ReloadPlugin from './react-plugins/ReloadPlugin';
 import { RichTextEditorHandle } from './RichTextEditorHandle';
 import Toolbar from './toolbar/Toolbar';
 import { RichTextEditorInitialData } from './types';
 
 export type RichTextEditorProps = RichTextEditorInitialData & {
+  zoomLevel?: number;
   searchText?: string;
   enableToolbar?: boolean;
   enableHistory?: boolean;
@@ -75,14 +76,11 @@ const RichTextEditor = ({
         editorRef.current?.focus();
       }
     }),
-    [editorRef]
+    [editorRef, contextRef]
   );
 
   return (
-    <EditorContextProvider
-      globalEditable={globalEditable}
-      // historyId={historyId}
-    >
+    <EditorContextProvider globalEditable={globalEditable}>
       <LexicalExtensionComposer extension={appExtension} contentEditable={null}>
         <div className="editor-container">
           {enableToolbar && <Toolbar />}
@@ -106,14 +104,14 @@ const RichTextEditor = ({
         </div>
         <EditorRefPlugin editorRef={editorRef} />
         <EditorContextRefPlugin contextRef={contextRef} />
-        <ReloadInitialConfigPlugin
+        <ReloadPlugin
           isReloadingRef={isReloadingRef}
           initialState={initialState}
           globalEditable={globalEditable}
           serializedSelection={serializedSelection}
-          historyId={historyId}
           resumeLastSelection={resumeLastSelection}
           reloadKey={reloadKey}
+          historyId={historyId}
         />
         <OnChangePlugin
           isReloadingRef={isReloadingRef}

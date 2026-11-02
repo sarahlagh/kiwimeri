@@ -1,6 +1,6 @@
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
-import { ReloadableKiwimeriEditorHandle } from '@/features/document-editor';
+import { DocumentEditorHandle } from '@/features/document-editor';
 import { onTitleChangeFn } from '@/shared/misc/onTitleChangeFn';
 import { getSearchParams } from '@/shared/utils';
 import { lazy, Suspense, useRef, useState } from 'react';
@@ -21,7 +21,7 @@ const CollectionItemBrowserList = lazy(() =>
 );
 
 const DocumentEditorPage = () => {
-  const editorRef = useRef<ReloadableKiwimeriEditorHandle | null>(null);
+  const editorRef = useRef<DocumentEditorHandle | null>(null);
   const location = useLocation();
   const searchParams = getSearchParams(location.search);
   const notebook = useCurrentNotebook();

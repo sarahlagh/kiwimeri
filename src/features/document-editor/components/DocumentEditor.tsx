@@ -26,17 +26,16 @@ import {
   lazy,
   RefObject,
   Suspense,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useRef,
   useState
 } from 'react';
 import { useNavigate } from 'react-router';
-import KiwimeriEditor from '../wysiwyg-editor/lexical/KiwimeriEditor';
-import {
-  KiwimeriEditorHandle,
-  ReloadableKiwimeriEditorHandle
-} from '../wysiwyg-editor/lexical/KiwimeriEditorHandle';
+import RichTextEditor from '../wysiwyg-editor/lexical-v2/RichTextEditor';
+import { RichTextEditorHandle } from '../wysiwyg-editor/lexical-v2/RichTextEditorHandle';
+import { $getChangedBlocks } from '../wysiwyg-editor/lexical-v2/utils/node-serializer';
 import { serializeSelection } from '../wysiwyg-editor/lexical/node-serializer';
 import DocumentBottomSheet, { DocSheet } from './DocumentBottomSheet';
 import './DocumentEditor.scss';
@@ -47,16 +46,28 @@ const ActionsFromDocumentEditorToolbar = lazy(() =>
   }))
 );
 
+export type DocumentEditorHandle = {
+  refreshContent: () => void;
+} & RichTextEditorHandle;
+
 interface DocumentEditorProps {
   docId: string;
   showActions?: boolean;
   query?: string;
-  ref: RefObject<ReloadableKiwimeriEditorHandle | null>;
+  ref: RefObject<DocumentEditorHandle | null>;
 }
 
 const DocumentEditor = (props: DocumentEditorProps) => {
-  const [uniqId, setUniqId] = useState(0);
-  const editorRef = useRef<KiwimeriEditorHandle | null>(null);
+  const editorRef = useRef<RichTextEditorHandle | null>(null);
+  const contentRef = useRef('');
+  const [key, setKey] = useState(0);
+
+  const { docId, showActions = false, query } = { ...props };
+
+  const refreshContent = useCallback(() => {
+    contentRef.current = collectionService.getDocumentContent(docId);
+    setKey(key + 1);
+  }, [key, setKey, docId]);
 
   useImperativeHandle(
     props.ref,
@@ -67,14 +78,14 @@ const DocumentEditor = (props: DocumentEditorProps) => {
       focusEditor() {
         editorRef.current?.focusEditor();
       },
-      refreshContent() {
-        setUniqId(uniqId + 1); // force editor to reload content
-      }
+      getEditorContext() {
+        return editorRef.current?.getEditorContext() || null;
+      },
+      refreshContent
     }),
-    [uniqId, setUniqId, editorRef]
+    [editorRef, refreshContent]
   );
 
-  const { docId, showActions = false, query } = { ...props };
   const parentId = collectionService.getItemParent(docId);
   const searchText = query ? decodeURI(query) : '';
 
@@ -92,7 +103,7 @@ const DocumentEditor = (props: DocumentEditorProps) => {
     setShowDocumentActions(showActions);
   }, [showActions]);
 
-  const content = collectionService.getDocumentContent(docId);
+  contentRef.current = collectionService.getDocumentContent(docId);
   const documentTitle = collectionService.getItemTitle(docId);
   const onTitleChange = onTitleChangeFn(docId);
 
@@ -154,7 +165,7 @@ const DocumentEditor = (props: DocumentEditorProps) => {
                   setShowBottomSheet(true);
                   setShowDocumentActions(false);
                 } else if (role === 'restore') {
-                  setUniqId(uniqId + 1); // force editor to reload content
+                  refreshContent();
                 } else if (role === 'group') {
                   navigate(data!);
                 } else {
@@ -182,39 +193,43 @@ const DocumentEditor = (props: DocumentEditorProps) => {
       </IonHeader>
 
       <IonContent>
-        {content && (
-          <KiwimeriEditor
+        {contentRef.current && (
+          <RichTextEditor
             ref={editorRef}
+            reloadKey={key}
             additionalClassNames={'document-editor'}
-            id={`${docId}-${uniqId}`}
-            content={content}
-            selection={resumeState?.lastSelection || null}
+            historyId={docId}
+            initialState={contentRef.current}
+            serializedSelection={resumeState?.lastSelection || null}
             enableToolbar={!showDocumentActions && !toggleSearch}
-            searchText={toggleSearch ? searchText : null}
+            searchText={toggleSearch ? searchText : undefined}
             ignoreSelectionChange={false}
-            onChange={(
-              editorState,
-              isSelectionChange,
-              blocksChanged,
-              hasDeletedNodes,
-              payload
-            ) => {
-              if (!isSelectionChange) {
+            resumeLastSelection={deviceSettings.get('resumeLastSelection')}
+            zoomLevel={deviceSettings.get('globalZoom')}
+            onZoomChange={zoomLevel => {
+              deviceSettings.set('globalZoom', zoomLevel);
+            }}
+            onChange={payload => {
+              if (!payload.isSelectionChange) {
+                const { blocksChanged, hasDeletedNodes } =
+                  payload.editorState.read(() => {
+                    return $getChangedBlocks(payload);
+                  });
                 writer.fastWriteOrCommit(
                   SpaceTables.Collection,
                   docId,
-                  editorState,
+                  payload.editorState,
                   blocksChanged,
                   hasDeletedNodes,
-                  deviceSettings.isFastWriteWatchMode() ? payload : undefined
+                  payload
                 );
               }
               resumeService.setLastSelection(
                 docId,
-                serializeSelection(editorState)
+                serializeSelection(payload.editorState)
               );
             }}
-          ></KiwimeriEditor>
+          />
         )}
       </IonContent>
       {showBottomSheet && (

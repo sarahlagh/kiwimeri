@@ -12,8 +12,7 @@ export type CustomInitialEditorStateType =
 export type RichTextEditorInitialData = {
   initialState?: CustomInitialEditorStateType;
   globalEditable?: boolean;
-  historyId?: string;
   serializedSelection?: SerializedSelection | null;
   resumeLastSelection?: boolean;
-  zoomLevel?: number;
+  historyId?: string;
 };
