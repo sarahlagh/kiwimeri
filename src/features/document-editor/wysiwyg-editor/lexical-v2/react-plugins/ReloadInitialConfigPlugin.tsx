@@ -1,10 +1,8 @@
 import { initialContent } from '@/domain/collection/collection.service';
-import { registerHistory } from '@lexical/history';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $setSelection, HISTORIC_TAG, SerializedEditorState } from 'lexical';
 import { Key, RefObject, useEffect, useRef } from 'react';
 import { RELOAD_TAG, SELECTION_CHANGE_TAG } from '../constants';
-import { useEditorContext } from '../EditorContext';
 import {
   CustomInitialEditorStateType,
   RichTextEditorInitialData
@@ -32,7 +30,6 @@ export default function ReloadInitialConfigPlugin(
   const [editor] = useLexicalComposerContext();
   const globalEditable =
     data.globalEditable !== undefined ? data.globalEditable : true;
-  const { historyState } = useEditorContext();
   const initialReloadRef = useRef(data.reloadKey);
 
   // set editor state
@@ -67,18 +64,8 @@ export default function ReloadInitialConfigPlugin(
       });
     });
 
-    const cleanup = registerHistory(
-      editor,
-      historyState,
-      100, // delay
-      () => Date.now(),
-      undefined, // onHistoryStateChange
-      100 // maxDepth
-    );
-
     return () => {
       cancelled = true;
-      cleanup();
     };
     // listening to change on serializedSelection isn't needed
     // eslint-disable-next-line @eslint-react/exhaustive-deps

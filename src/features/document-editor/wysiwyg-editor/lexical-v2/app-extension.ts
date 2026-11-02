@@ -13,6 +13,7 @@ import { CheckListExtension, ListExtension } from '@lexical/list';
 import { TreeViewExtension } from '@lexical/react/TreeViewExtension';
 import { RichTextExtension } from '@lexical/rich-text';
 import { configExtension, defineExtension } from 'lexical';
+import { HistoryExtension } from './extensions/HistoryExtension';
 import CustomLinkExtension from './extensions/LinkExtension';
 import { MarkdownShortcutsExtension } from './extensions/MarkdownShortcutsExtension';
 import RegisterCommandsExtension from './extensions/RegisterCommandsExtension';
@@ -39,6 +40,7 @@ export const appExtension = defineExtension({
     // custom extensions
     RegisterCommandsExtension,
     SetSelectionContextExtension,
+    HistoryExtension,
     CustomLinkExtension,
     ZoomExtension,
     SearchExtension,

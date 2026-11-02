@@ -8,6 +8,7 @@ import { LexicalEditor } from 'lexical';
 import { Key, RefObject, useImperativeHandle, useRef } from 'react';
 import { appExtension } from './app-extension';
 import { EditorContextProvider, ReadOnlyEditorContext } from './EditorContext';
+import { HistoryExtension } from './extensions/HistoryExtension';
 import { SearchExtension } from './extensions/SearchExtension';
 import { ZoomExtension } from './extensions/ZoomExtension';
 import EditorContextRefPlugin from './react-plugins/EditorContextRefPlugin';
@@ -22,6 +23,7 @@ import { RichTextEditorInitialData } from './types';
 export type RichTextEditorProps = RichTextEditorInitialData & {
   searchText?: string;
   enableToolbar?: boolean;
+  enableHistory?: boolean;
   enableDebugTree?: boolean;
   ignoreSelectionChange?: boolean;
   additionalClassNames?: string;
@@ -41,6 +43,7 @@ const RichTextEditor = ({
   ignoreSelectionChange = true,
   globalEditable = true,
   enableToolbar = true,
+  enableHistory = true,
   enableDebugTree = false,
   searchText,
   additionalClassNames,
@@ -78,7 +81,7 @@ const RichTextEditor = ({
   return (
     <EditorContextProvider
       globalEditable={globalEditable}
-      historyId={historyId}
+      // historyId={historyId}
     >
       <LexicalExtensionComposer extension={appExtension} contentEditable={null}>
         <div className="editor-container">
@@ -118,6 +121,11 @@ const RichTextEditor = ({
           onChange={payload => {
             if (onChange) onChange(payload);
           }}
+        />
+        <ExtensionComponent
+          lexical:extension={HistoryExtension}
+          historyId={historyId}
+          enabled={enableHistory}
         />
         <ExtensionComponent
           lexical:extension={ZoomExtension}

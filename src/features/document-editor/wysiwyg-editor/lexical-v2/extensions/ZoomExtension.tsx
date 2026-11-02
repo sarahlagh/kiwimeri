@@ -1,7 +1,7 @@
 import { signal } from '@lexical/extension';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { ReactExtension } from '@lexical/react/ReactExtension';
-import { useExtensionSignalValue } from '@lexical/react/useExtensionSignalValue';
+import { useSignalValue } from '@lexical/react/useExtensionSignalValue';
 import {
   COMMAND_PRIORITY_LOW,
   COMMAND_PRIORITY_NORMAL,
@@ -21,6 +21,8 @@ export const ZOOM_RESET_COMMAND = createCommand('ZOOM_RESET_COMMAND');
 const ZOOM_INCREMENT = 0.05;
 export const MAX_ZOOM = 3;
 export const MIN_ZOOM = 0.5;
+
+const zoomSignal = signal(1);
 
 type StyleWithZoom = CSSStyleDeclaration & {
   zoom: string;
@@ -74,7 +76,7 @@ function ZoomExtensionWrapper({
   onZoomChange?: (zoom: number) => void;
 }) {
   const [editor] = useLexicalComposerContext();
-  const currentZoom = useExtensionSignalValue(ZoomExtension, 'zoomSignal');
+  const currentZoom = useSignalValue(zoomSignal);
 
   // on init, apply once
   useEffect(() => {
@@ -96,7 +98,7 @@ export const ZoomExtension = defineExtension({
   name: '@kiwimeri/rich-text/zoom',
   namespace: 'react-rich',
   build() {
-    return { zoomSignal: signal(1), Component: ZoomExtensionWrapper };
+    return { zoomSignal, Component: ZoomExtensionWrapper };
   },
   dependencies: [ReactExtension],
   register(editor, config, state) {

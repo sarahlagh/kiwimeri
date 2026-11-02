@@ -23,6 +23,10 @@ import {
 } from './RichTextEditor.locators';
 import { renderEditor } from './utils';
 
+import { HistoryExtension } from '@/features/document-editor/wysiwyg-editor/lexical-v2/extensions/HistoryExtension';
+import { $getExtensionOutput } from '@lexical/extension';
+import { LexicalEditor } from 'lexical';
+
 const expectedNumberOfBtns = 24;
 
 const state1 = getNewContent('state 1');
@@ -258,10 +262,19 @@ describe('RichTextEditor', () => {
       );
       return {
         ...screen,
-        getEditorContext: () => {
-          return ref.current?.getEditorContext();
+        getEditor() {
+          if (!ref.current?.getEditor() || !ref.current.getEditor())
+            throw new Error('editor not initialized');
+          return ref.current.getEditor()!;
         }
       };
+    }
+
+    function getHistoryState(editor: LexicalEditor) {
+      return editor.read(() => {
+        const output = $getExtensionOutput(HistoryExtension);
+        return output.historyStateSignal.peek();
+      });
     }
 
     test('interaction with the editor creates a history entry and onChange event', async () => {
@@ -275,11 +288,13 @@ describe('RichTextEditor', () => {
       await getContentEditor(screen).fill('new state 2');
 
       expect(onChangeFired).toBe(2);
-      expect(screen.getEditorContext()).toBeDefined();
-      const context = screen.getEditorContext()!;
-      expect(context.historyState).toBeDefined();
-      expect(context.historyState.redoStack).toHaveLength(0);
-      expect(context.historyState.undoStack).toHaveLength(2);
+
+      const editor = screen.getEditor();
+      const historyState = getHistoryState(editor);
+
+      expect(historyState).toBeDefined();
+      expect(historyState!.redoStack).toHaveLength(0);
+      expect(historyState!.undoStack).toHaveLength(2);
     });
 
     test('a change of initialState creates a separate history stack and no onChange event', async () => {
@@ -299,11 +314,13 @@ describe('RichTextEditor', () => {
       await btn.click();
 
       expect(onChangeFired).toBe(0);
-      expect(screen.getEditorContext()).toBeDefined();
-      const context = screen.getEditorContext()!;
-      expect(context.historyState).toBeDefined();
-      expect(context.historyState.redoStack).toHaveLength(0);
-      expect(context.historyState.undoStack).toHaveLength(0);
+
+      const editor = screen.getEditor();
+      const historyState = getHistoryState(editor);
+
+      expect(historyState).toBeDefined();
+      expect(historyState!.redoStack).toHaveLength(0);
+      expect(historyState!.undoStack).toHaveLength(0);
     });
 
     test('can click on undo', async () => {
@@ -402,8 +419,11 @@ describe('RichTextEditor', () => {
       await getContentEditor(screen).fill('new state 2');
       await getContentEditor(screen).fill('new state 3');
       await getUndoBtn(screen).click();
-      expect(screen.getEditorContext()!.historyState.redoStack).toHaveLength(1);
-      expect(screen.getEditorContext()!.historyState.undoStack).toHaveLength(2);
+      const editor = screen.getEditor();
+      let historyState = getHistoryState(editor);
+      expect(historyState).toBeDefined();
+      expect(historyState!.redoStack).toHaveLength(1);
+      expect(historyState!.undoStack).toHaveLength(2);
       onChangeFired = 0;
 
       // change to state 2
@@ -414,15 +434,19 @@ describe('RichTextEditor', () => {
       await getContentEditor(screen).fill('new state a');
 
       expect(onChangeFired).toBe(1);
-      expect(screen.getEditorContext()!.historyState).toBeDefined();
-      expect(screen.getEditorContext()!.historyState.redoStack).toHaveLength(0);
-      expect(screen.getEditorContext()!.historyState.undoStack).toHaveLength(1); // TODO flaky...
+      historyState = getHistoryState(editor);
+      expect(historyState).toBeDefined();
+      expect(historyState!.redoStack).toHaveLength(0);
+      expect(historyState!.undoStack).toHaveLength(1); // TODO flaky...
 
       onChangeFired = 0;
       await btn.click();
+
       expect(onChangeFired).toBe(0);
-      expect(screen.getEditorContext()!.historyState.redoStack).toHaveLength(1);
-      expect(screen.getEditorContext()!.historyState.undoStack).toHaveLength(2);
+      historyState = getHistoryState(editor);
+      expect(historyState).toBeDefined();
+      expect(historyState!.redoStack).toHaveLength(1);
+      expect(historyState!.undoStack).toHaveLength(2);
     });
 
     test('reloadKey triggers a refresh', async () => {
@@ -438,8 +462,11 @@ describe('RichTextEditor', () => {
       await getContentEditor(screen).fill('new state 1');
       onChangeFired = 0;
 
-      expect(screen.getEditorContext()!.historyState.redoStack).toHaveLength(0);
-      expect(screen.getEditorContext()!.historyState.undoStack).toHaveLength(1);
+      const editor = screen.getEditor();
+      let historyState = getHistoryState(editor);
+      expect(historyState).toBeDefined();
+      expect(historyState!.redoStack).toHaveLength(0);
+      expect(historyState!.undoStack).toHaveLength(1);
 
       const btn = screen.getByTestId(updateKeyId);
       await expect.element(btn).toBeInTheDocument();
@@ -450,8 +477,10 @@ describe('RichTextEditor', () => {
 
       await amount(100);
 
-      expect(screen.getEditorContext()!.historyState.redoStack).toHaveLength(0);
-      expect(screen.getEditorContext()!.historyState.undoStack).toHaveLength(2);
+      historyState = getHistoryState(editor);
+      expect(historyState).toBeDefined();
+      expect(historyState!.redoStack).toHaveLength(0);
+      expect(historyState!.undoStack).toHaveLength(2);
       expect(textContent).toBe('state 1');
     });
   });
