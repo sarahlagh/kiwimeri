@@ -54,10 +54,7 @@ async function renderParent() {
     wrapper: TestingProvider
   });
   return {
-    ...screen,
-    getEditorContext: () => {
-      return ref.current?.getEditorContext();
-    }
+    ...screen
   };
 }
 

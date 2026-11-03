@@ -78,9 +78,6 @@ const DocumentEditor = (props: DocumentEditorProps) => {
       focusEditor() {
         editorRef.current?.focusEditor();
       },
-      getEditorContext() {
-        return editorRef.current?.getEditorContext() || null;
-      },
       refreshContent
     }),
     [editorRef, refreshContent]

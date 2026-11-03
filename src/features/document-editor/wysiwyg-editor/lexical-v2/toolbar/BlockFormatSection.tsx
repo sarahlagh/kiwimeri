@@ -5,7 +5,6 @@ import {
   REMOVE_LIST_COMMAND
 } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { useExtensionSignalValue } from '@lexical/react/useExtensionSignalValue';
 import {
   $createHeadingNode,
   $createQuoteNode,
@@ -20,8 +19,8 @@ import {
   LexicalCommand,
   LexicalEditor
 } from 'lexical';
-import { useEditorContext } from '../EditorContext';
-import SelectionContextExtension from '../extensions/SelectionContextExtension';
+import { useIsEditable } from '../extensions/ReloadConfigExtension';
+import { useSelectionContext } from '../extensions/SelectionContextExtension';
 import { ToolbarButton } from './buttons';
 
 function SetBlockTypeToolbarButton({
@@ -111,11 +110,8 @@ function ListToolbarButton({
 
 export const BlockFormatSection = () => {
   const [editor] = useLexicalComposerContext();
-  const { isEditable } = useEditorContext();
-  const selection = useExtensionSignalValue(
-    SelectionContextExtension,
-    'selectionContext'
-  );
+  const { isEditable } = useIsEditable();
+  const selection = useSelectionContext();
   const { t } = useLingui();
   const states = {
     isH1: selection.blockType === 'heading' && selection.headingTag === 'h1',

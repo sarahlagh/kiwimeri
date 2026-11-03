@@ -4,6 +4,7 @@ import {
   LexicalEditor,
   SerializedEditorState
 } from 'lexical';
+import { Key } from 'react';
 
 export type CustomInitialEditorStateType =
   | SerializedEditorState
@@ -15,4 +16,5 @@ export type RichTextEditorInitialData = {
   serializedSelection?: SerializedSelection | null;
   resumeLastSelection?: boolean;
   historyId?: string;
+  reloadKey?: Key;
 };

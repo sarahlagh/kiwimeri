@@ -1,4 +1,4 @@
-import SelectionContextExtension from '@/features/document-editor/wysiwyg-editor/lexical-v2/extensions/SelectionContextExtension';
+import { SelectionContextExtension } from '@/features/document-editor/wysiwyg-editor/lexical-v2/extensions/SelectionContextExtension';
 import RichTextEditor, {
   RichTextEditorProps
 } from '@/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor';

@@ -1,6 +1,7 @@
 import { Signal, signal } from '@lexical/extension';
 import { $isAutoLinkNode, $isLinkNode } from '@lexical/link';
 import { $isListNode, ListNode, ListType } from '@lexical/list';
+import { useExtensionSignalValue } from '@lexical/react/useExtensionSignalValue';
 import { $isHeadingNode, HeadingTagType } from '@lexical/rich-text';
 import { $getNearestNodeOfType } from '@lexical/utils';
 import {
@@ -191,7 +192,7 @@ function $updateSelectionContext(
   selectionContextSignal.value = newSelectionContext;
 }
 
-const SelectionContextExtension = defineExtension({
+export const SelectionContextExtension = defineExtension({
   name: '@kiwimeri/rich-text/selection-context',
   namespace: 'react-rich',
   build() {
@@ -227,4 +228,6 @@ const SelectionContextExtension = defineExtension({
   }
 });
 
-export default SelectionContextExtension;
+export function useSelectionContext() {
+  return useExtensionSignalValue(SelectionContextExtension, 'selectionContext');
+}

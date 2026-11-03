@@ -1,11 +1,11 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { useExtensionSignalValue } from '@lexical/react/useExtensionSignalValue';
 import { useLingui } from '@lingui/react/macro';
 import { FORMAT_TEXT_COMMAND, LexicalEditor, TextFormatType } from 'lexical';
 import { FORMAT_WORD_UNDER_CURSOR_COMMAND } from '../commands/word-under-cursor-commands';
-import { useEditorContext } from '../EditorContext';
-import SelectionContextExtension, {
-  SelectionContext
+import { useIsEditable } from '../extensions/ReloadConfigExtension';
+import {
+  SelectionContext,
+  useSelectionContext
 } from '../extensions/SelectionContextExtension';
 import { ToolbarButton } from './buttons';
 
@@ -45,11 +45,8 @@ function TextFormatToolbarButton({
 
 export const TextFormatSection = () => {
   const [editor] = useLexicalComposerContext();
-  const selection = useExtensionSignalValue(
-    SelectionContextExtension,
-    'selectionContext'
-  );
-  const { isEditable } = useEditorContext();
+  const selection = useSelectionContext();
+  const { isEditable } = useIsEditable();
   return (
     <>
       <TextFormatToolbarButton

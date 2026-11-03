@@ -37,14 +37,14 @@ import {
 import { createLinkMatcherWithRegExp } from '@lexical/react/LexicalAutoLinkPlugin';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { ReactExtension } from '@lexical/react/ReactExtension';
-import { useExtensionSignalValue } from '@lexical/react/useExtensionSignalValue';
 import { useLingui } from '@lingui/react/macro';
 import { useEffect, useRef, useState } from 'react';
 import { CREATE_LINK_AT_WORD_UNDER_CURSOR_COMMAND } from '../commands/word-under-cursor-commands';
 import { getSelectedNode } from '../utils/getSelectedNode';
 import { sanitizeUrl } from '../utils/url';
-import SelectionContextExtension, {
-  SelectionContext
+import {
+  SelectionContext,
+  useSelectionContext
 } from './SelectionContextExtension';
 
 const MATCHERS = [
@@ -170,10 +170,7 @@ const handleAutoLinkSubmission = (
 
 const OpenLinkModalPlugin = () => {
   const [editor] = useLexicalComposerContext();
-  const selection = useExtensionSignalValue(
-    SelectionContextExtension,
-    'selectionContext'
-  );
+  const selection = useSelectionContext();
   const linkContext = selection.links;
   const { t } = useLingui();
   const [textWillChange, setTextWillChange] = useState(false);

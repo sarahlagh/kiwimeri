@@ -11,7 +11,6 @@ import { deserializeSelection } from '../utils/node-serializer';
 
 type ReloadPluginProps = {
   isReloadingRef: RefObject<boolean>;
-  reloadKey?: Key;
 } & RichTextEditorInitialData;
 
 function getParseableState(

@@ -1,18 +1,14 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { useExtensionSignalValue } from '@lexical/react/useExtensionSignalValue';
 import { useLingui } from '@lingui/react/macro';
 import { FORMAT_ELEMENT_COMMAND } from 'lexical';
-import { useEditorContext } from '../EditorContext';
-import SelectionContextExtension from '../extensions/SelectionContextExtension';
+import { useIsEditable } from '../extensions/ReloadConfigExtension';
+import { useSelectionContext } from '../extensions/SelectionContextExtension';
 import { ToolbarButton } from './buttons';
 
 export const TextAlignSection = () => {
   const [editor] = useLexicalComposerContext();
-  const { isEditable } = useEditorContext();
-  const selection = useExtensionSignalValue(
-    SelectionContextExtension,
-    'selectionContext'
-  );
+  const { isEditable } = useIsEditable();
+  const selection = useSelectionContext();
   const { t } = useLingui();
   return (
     <>

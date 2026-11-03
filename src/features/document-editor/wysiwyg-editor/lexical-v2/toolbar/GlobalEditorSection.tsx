@@ -2,8 +2,8 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { useExtensionSignalValue } from '@lexical/react/useExtensionSignalValue';
 import { useLingui } from '@lingui/react/macro';
 import { REDO_COMMAND, UNDO_COMMAND } from 'lexical';
-import { useEditorContext } from '../EditorContext';
 import { HistoryExtension } from '../extensions/HistoryExtension2';
+import { useIsEditable } from '../extensions/ReloadConfigExtension';
 import {
   MAX_ZOOM,
   MIN_ZOOM,
@@ -16,7 +16,7 @@ import { ToolbarButton } from './buttons';
 export const GlobalEditorSection = () => {
   const { t } = useLingui();
   const [editor] = useLexicalComposerContext();
-  const { globalEditable, isEditable } = useEditorContext();
+  const { globalEditable, isEditable } = useIsEditable();
   const zoomLevel = useExtensionSignalValue(ZoomExtension, 'zoom');
   const { canUndo, canRedo } = useExtensionSignalValue(
     HistoryExtension,

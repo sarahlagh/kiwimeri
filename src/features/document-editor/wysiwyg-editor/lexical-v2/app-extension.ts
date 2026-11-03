@@ -16,17 +16,18 @@ import { HistoryExtension as CustomHistoryExtension } from './extensions/History
 import CustomLinkExtension from './extensions/LinkExtension';
 import { MarkdownShortcutsExtension } from './extensions/MarkdownShortcutsExtension';
 import RegisterCommandsExtension from './extensions/RegisterCommandsExtension';
+import { ReloadConfigExtension } from './extensions/ReloadConfigExtension';
 import { SearchExtension } from './extensions/SearchExtension';
-import SelectionContextExtension from './extensions/SelectionContextExtension';
+import { SelectionContextExtension } from './extensions/SelectionContextExtension';
 import { ZoomExtension } from './extensions/ZoomExtension';
 import Theme from './theme/Theme';
+import { RichTextEditorInitialData } from './types';
 
 export type AppExtensionConfig = {
   enableHistory?: boolean;
-  historyId?: string;
   initialZoom?: number;
   onZoomChange?: (zoomLevel: number) => void;
-};
+} & RichTextEditorInitialData;
 
 export const buildAppExtension = (config: AppExtensionConfig) =>
   defineExtension({
@@ -44,16 +45,17 @@ export const buildAppExtension = (config: AppExtensionConfig) =>
       TabIndentationExtension,
       TreeViewExtension,
       // custom extensions
-      SelectionContextExtension,
+      configExtension(ReloadConfigExtension, config),
       configExtension(CustomHistoryExtension, {
         enabled: config.enableHistory,
         historyId: config.historyId
       }),
-      RegisterCommandsExtension,
       configExtension(ZoomExtension, {
         initialZoom: config.initialZoom,
         onZoomChange: config.onZoomChange
       }),
+      RegisterCommandsExtension,
+      SelectionContextExtension,
       CustomLinkExtension,
       SearchExtension,
       MarkdownShortcutsExtension

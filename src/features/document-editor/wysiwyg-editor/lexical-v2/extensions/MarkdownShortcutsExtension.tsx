@@ -51,6 +51,6 @@ export const TRANSFORMERS: Transformer[] = [
 ];
 
 export const MarkdownShortcutsExtension = defineExtension({
-  name: '@lexical/examples/dom-import/MarkdownShortcuts',
+  name: '@kiwimeri/rich-text/MarkdownShortcuts',
   register: editor => registerMarkdownShortcuts(editor, TRANSFORMERS)
 });
