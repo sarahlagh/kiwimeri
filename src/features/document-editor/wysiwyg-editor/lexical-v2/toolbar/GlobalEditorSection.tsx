@@ -5,11 +5,9 @@ import { REDO_COMMAND, UNDO_COMMAND } from 'lexical';
 import { HistoryExtension } from '../extensions/HistoryExtension2';
 import { useIsEditable } from '../extensions/ReloadConfigExtension';
 import {
-  MAX_ZOOM,
-  MIN_ZOOM,
+  useCanZoomSignals,
   ZOOM_IN_COMMAND,
-  ZOOM_OUT_COMMAND,
-  ZoomExtension
+  ZOOM_OUT_COMMAND
 } from '../extensions/ZoomExtension';
 import { ToolbarButton } from './buttons';
 
@@ -17,7 +15,7 @@ export const GlobalEditorSection = () => {
   const { t } = useLingui();
   const [editor] = useLexicalComposerContext();
   const { globalEditable, isEditable } = useIsEditable();
-  const zoomLevel = useExtensionSignalValue(ZoomExtension, 'zoom');
+  const { canZoomIn, canZoomOut } = useCanZoomSignals();
   const { canUndo, canRedo } = useExtensionSignalValue(
     HistoryExtension,
     'canUndoRedo'
@@ -38,7 +36,7 @@ export const GlobalEditorSection = () => {
       <ToolbarButton
         ariaLabel={t`Zoom In`}
         icon="writer/zoom-in.svg"
-        disabled={zoomLevel >= MAX_ZOOM}
+        disabled={!canZoomIn}
         onClick={() => {
           editor.dispatchCommand(ZOOM_IN_COMMAND, null);
         }}
@@ -46,7 +44,7 @@ export const GlobalEditorSection = () => {
       <ToolbarButton
         ariaLabel={t`Zoom Out`}
         icon="writer/zoom-out.svg"
-        disabled={zoomLevel <= MIN_ZOOM}
+        disabled={!canZoomOut}
         onClick={() => {
           editor.dispatchCommand(ZOOM_OUT_COMMAND, null);
         }}

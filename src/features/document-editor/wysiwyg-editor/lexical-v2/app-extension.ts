@@ -14,7 +14,7 @@ import { RichTextExtension } from '@lexical/rich-text';
 import { configExtension, defineExtension } from 'lexical';
 import { HistoryExtension as CustomHistoryExtension } from './extensions/HistoryExtension2';
 import CustomLinkExtension from './extensions/LinkExtension';
-import { MarkdownShortcutsExtension } from './extensions/MarkdownShortcutsExtension';
+import { MarkdownShortcutsExtension as CustomMarkdownShortcutsExtension } from './extensions/MarkdownShortcutsExtension';
 import RegisterCommandsExtension from './extensions/RegisterCommandsExtension';
 import { ReloadConfigExtension } from './extensions/ReloadConfigExtension';
 import { SearchExtension } from './extensions/SearchExtension';
@@ -29,10 +29,14 @@ export type AppExtensionConfig = {
   onZoomChange?: (zoomLevel: number) => void;
 } & RichTextEditorInitialData;
 
+const enableHMR = import.meta.hot && import.meta.env.TEST !== 'true';
+
 export const buildAppExtension = (config: AppExtensionConfig) =>
   defineExtension({
     dependencies: [
-      configExtension(HMRExtension, { hot: import.meta.hot ?? null }),
+      configExtension(HMRExtension, {
+        hot: enableHMR ? import.meta.hot : null
+      }),
       RichTextExtension,
       SelectBlockExtension,
       SelectionAlwaysOnDisplayExtension,
@@ -50,15 +54,15 @@ export const buildAppExtension = (config: AppExtensionConfig) =>
         enabled: config.enableHistory,
         historyId: config.historyId
       }),
+      SelectionContextExtension,
+      RegisterCommandsExtension,
       configExtension(ZoomExtension, {
         initialZoom: config.initialZoom,
         onZoomChange: config.onZoomChange
       }),
-      RegisterCommandsExtension,
-      SelectionContextExtension,
       CustomLinkExtension,
       SearchExtension,
-      MarkdownShortcutsExtension
+      CustomMarkdownShortcutsExtension
     ],
     name: '@kiwimeri/rich-text',
     namespace: 'react-rich',

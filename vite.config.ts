@@ -56,6 +56,10 @@ const vitestConfig = vitestDefineConfig({
         'src/locales/**'
       ]
     },
+    env: {
+      TEST: 'true'
+    },
+    globalSetup: ['./test/_setup/globalSetup.ts'],
     projects: [
       {
         extends: true,
@@ -64,7 +68,6 @@ const vitestConfig = vitestDefineConfig({
           include: ['test/unit/**/*.{test,spec}.{ts,tsx}'],
           globals: true,
           environment: 'jsdom',
-          globalSetup: ['./test/_setup/globalSetup.ts'],
           setupFiles: [
             './test/_setup/unit.setupMocks.ts',
             './test/_setup/unit.setupTests.ts'
@@ -78,7 +81,6 @@ const vitestConfig = vitestDefineConfig({
           include: ['test/e2e-drivers/**/*.{test,spec}.{ts,tsx}'],
           globals: true,
           environment: 'jsdom',
-          globalSetup: ['./test/_setup/globalSetup.ts'],
           setupFiles: ['./test/_setup/unit.setupTests.ts']
         }
       },
@@ -87,7 +89,6 @@ const vitestConfig = vitestDefineConfig({
         test: {
           name: 'browser',
           include: ['test/browser/**/*.{test,spec}.{ts,tsx}'],
-          globalSetup: ['./test/_setup/globalSetup.ts'],
           setupFiles: ['./test/_setup/browser.setupTests.ts'],
           browser: {
             enabled: true,
@@ -104,7 +105,6 @@ const vitestConfig = vitestDefineConfig({
           include: ['test/native/**/*.{test,spec}.{ts,tsx}'],
           globals: true,
           environment: 'jsdom',
-          globalSetup: ['./test/_setup/globalSetup.ts'],
           setupFiles: ['./test/native/native.setupMocks.ts']
         }
       }

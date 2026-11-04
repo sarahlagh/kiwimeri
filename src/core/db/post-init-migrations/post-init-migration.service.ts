@@ -45,9 +45,14 @@ class PostInitMigrationService {
     }
 
     if (between(to, 407, 599)) {
-      console.log('[space] 1 migration to run: default value for proxy');
+      console.log(
+        '[space] 1 migration to run: default value for proxy and zoom'
+      );
       if (_space.getValue('internalProxy') === '') {
         _space.delValue('internalProxy');
+      }
+      if (space.getValue('globalZoom') < 50) {
+        space.delValue('globalZoom');
       }
     }
   }

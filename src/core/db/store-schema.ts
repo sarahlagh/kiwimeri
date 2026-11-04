@@ -80,7 +80,7 @@ export const spaceValuesSchema = {
   appVersion: { type: 'string', default: '' },
   currentNotebook: { type: 'string' },
   showDevTools: { type: 'boolean', default: false },
-  globalZoom: { type: 'number', default: 1 },
+  globalZoom: { type: 'number', default: 100 },
   exportIncludeMetadata: { type: 'boolean', default: true },
   theme: { enum: themeValues, default: 'dark' },
   maxLogHistory: { type: 'number', default: 500 },

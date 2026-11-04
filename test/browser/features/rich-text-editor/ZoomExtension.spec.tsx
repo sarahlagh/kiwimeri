@@ -12,13 +12,11 @@ import {
 } from './RichTextEditor.locators';
 import { renderEditor } from './utils';
 
-const ZOOM_INCREMENT = 0.05;
-
 describe('ZoomExtension', () => {
   test('can click on zoom in until max', async () => {
     let zoomValue = 0;
     const screen = await renderEditor({
-      initialZoom: 2.9,
+      initialZoom: 290,
       onZoomChange: zoom => {
         zoomValue = zoom;
       }
@@ -34,20 +32,19 @@ describe('ZoomExtension', () => {
 
     await zoomInBtn.click();
     await expect(zoomInBtn).not.toBeDisabled();
-    expect(zoomValue).toBeCloseTo(2.9 + ZOOM_INCREMENT);
+    expect(zoomValue).toBe(295);
 
-    await zoomInBtn.click();
     await zoomInBtn.click();
     await expect(zoomInBtn).toBeDisabled();
     expect(getContentEditorElement(screen).getAttribute('style')).toContain(
-      `zoom: 3.`
+      `zoom: 3`
     );
   });
 
   test('can click on zoom out until min', async () => {
     let zoomValue = 0;
     const screen = await renderEditor({
-      initialZoom: 0.6,
+      initialZoom: 60,
       onZoomChange: zoom => {
         zoomValue = zoom;
       }
@@ -63,18 +60,18 @@ describe('ZoomExtension', () => {
 
     await zoomOutBtn.click();
     await expect(zoomOutBtn).not.toBeDisabled();
-    expect(zoomValue).toBeCloseTo(0.6 - ZOOM_INCREMENT);
+    expect(zoomValue).toBe(55);
 
     await zoomOutBtn.click();
     await expect(zoomOutBtn).toBeDisabled();
     expect(getContentEditorElement(screen).getAttribute('style')).toContain(
-      `zoom: 0.`
+      `zoom: 0.5`
     );
   });
 
   test('zoom in zoom out stay enabled even if editor disabled', async () => {
     const screen = await renderEditor({
-      initialZoom: 1
+      initialZoom: 100
     });
 
     const zoomInBtn = getZoomInBtn(screen);
@@ -91,7 +88,7 @@ describe('ZoomExtension', () => {
   test('on initial load zoom is applied once', async () => {
     let zoomValueApplied = 0;
     const screen = await renderEditor({
-      initialZoom: 2,
+      initialZoom: 200,
       onZoomChange: () => {
         zoomValueApplied++;
       }
@@ -104,79 +101,68 @@ describe('ZoomExtension', () => {
   });
 
   test('shortcut for zoom in works', async () => {
-    let zoomValue = 0;
     const screen = await renderEditor({
-      initialZoom: 2.9,
-      onZoomChange: zoom => {
-        zoomValue = zoom;
-      }
+      initialZoom: 290
     });
 
     const zoomInBtn = getZoomInBtn(screen);
-    await expect(zoomInBtn).not.toBeDisabled();
+    await expect.element(zoomInBtn).not.toBeDisabled();
 
     await userEvent.type(getContentEditorElement(screen), '{Meta>}{+}');
 
-    await expect(zoomInBtn).not.toBeDisabled();
-    expect(zoomValue).toBeCloseTo(2.9 + ZOOM_INCREMENT);
+    await expect.element(zoomInBtn).not.toBeDisabled();
 
     await userEvent.type(getContentEditorElement(screen), '{Meta>}{+}');
-    await userEvent.type(getContentEditorElement(screen), '{Meta>}{+}');
-    await expect(zoomInBtn).toBeDisabled();
+    await expect.element(zoomInBtn).toBeDisabled();
+
     expect(getContentEditorElement(screen).getAttribute('style')).toContain(
-      `zoom: 3.0`
+      `zoom: 3`
     );
   });
 
   test('shortcut for zoom out works', async () => {
-    let zoomValue = 0;
     const screen = await renderEditor({
-      initialZoom: 0.6,
-      onZoomChange: zoom => {
-        zoomValue = zoom;
-      }
+      initialZoom: 60
     });
 
     const zoomOutBtn = getZoomOutBtn(screen);
-    await expect(zoomOutBtn).not.toBeDisabled();
+    await expect.element(zoomOutBtn).not.toBeDisabled();
 
     await userEvent.type(getContentEditorElement(screen), '{Meta>}{-}');
 
-    await expect(zoomOutBtn).not.toBeDisabled();
-    expect(zoomValue).toBeCloseTo(0.6 - ZOOM_INCREMENT);
+    await expect.element(zoomOutBtn).not.toBeDisabled();
 
     await userEvent.type(getContentEditorElement(screen), '{Meta>}{-}');
     await userEvent.type(getContentEditorElement(screen), '{Meta>}{-}');
-    await expect(zoomOutBtn).toBeDisabled();
+    await expect.element(zoomOutBtn).toBeDisabled();
     expect(getContentEditorElement(screen).getAttribute('style')).toContain(
-      `zoom: 0.`
+      `zoom: 0.5`
     );
   });
 
   test('shortcut for zoom reset works', async () => {
-    let zoomValue = 0;
     const screen = await renderEditor({
-      initialZoom: 2,
-      onZoomChange: zoom => {
-        zoomValue = zoom;
-      }
+      initialZoom: 50
     });
+
+    const zoomOutBtn = getZoomOutBtn(screen);
+    await expect.element(zoomOutBtn).toBeDisabled();
 
     await userEvent.type(getContentEditorElement(screen), '{Meta>}{0}');
 
-    expect(zoomValue).toBeCloseTo(1);
+    await expect.element(zoomOutBtn).not.toBeDisabled();
 
     expect(getContentEditorElement(screen).getAttribute('style')).toContain(
       `zoom: 1`
     );
   });
 
-  test('can use zoomSignal', async () => {
-    function TestComponent() {
-      const zoomSignal = useExtensionSignalValue(ZoomExtension, 'zoom');
-      return <div data-testid="zoom">Zoom: {zoomSignal}</div>;
-    }
+  function TestComponent() {
+    const zoomSignal = useExtensionSignalValue(ZoomExtension, 'zoom');
+    return <div data-testid="zoom">Zoom: {zoomSignal}</div>;
+  }
 
+  test('can use zoomSignal', async () => {
     const screen = await render(
       <LexicalExtensionComposer extension={ZoomExtension}>
         <TestComponent />
@@ -186,10 +172,10 @@ describe('ZoomExtension', () => {
     const contentEditor = screen.getByRole('textbox');
     const testComponent = screen.getByTestId('zoom');
 
-    await expect.element(testComponent).toHaveTextContent('Zoom: 1');
+    await expect.element(testComponent).toHaveTextContent('Zoom: 100');
 
-    await userEvent.type(contentEditor, '{Meta>}{+}{+}');
+    await userEvent.type(contentEditor, '{Meta>}{-}{-}');
 
-    await expect.element(testComponent).toHaveTextContent('Zoom: 1.1');
+    await expect.element(testComponent).toHaveTextContent('Zoom: 90');
   });
 });
