@@ -2,15 +2,16 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { useLingui } from '@lingui/react/macro';
 import { REDO_COMMAND, UNDO_COMMAND } from 'lexical';
 import { ZOOM_IN_COMMAND, ZOOM_OUT_COMMAND } from '../extensions/ZoomExtension';
-import { useCanUndoRedo, useCanZoomSignals, useIsEditable } from '../hooks';
+import { useCanZoomSignals, useIsEditable } from '../hooks';
+import { useGlobalReactContext } from '../react/GlobalReactContext';
 import { ToolbarButton } from './buttons';
 
 export const GlobalEditorSection = () => {
   const { t } = useLingui();
   const [editor] = useLexicalComposerContext();
+  const { canRedo, canUndo, historyEnabled } = useGlobalReactContext();
   const { globalEditable, isEditable } = useIsEditable();
   const { canZoomIn, canZoomOut } = useCanZoomSignals();
-  const { canUndo, canRedo } = useCanUndoRedo();
 
   return (
     <>
@@ -40,22 +41,26 @@ export const GlobalEditorSection = () => {
           editor.dispatchCommand(ZOOM_OUT_COMMAND, null);
         }}
       />
-      <ToolbarButton
-        ariaLabel={t`Undo`}
-        icon="writer/arrow-counterclockwise.svg"
-        disabled={!isEditable || !canUndo}
-        onClick={() => {
-          editor.dispatchCommand(UNDO_COMMAND);
-        }}
-      />
-      <ToolbarButton
-        ariaLabel={t`Redo`}
-        icon="writer/arrow-clockwise.svg"
-        disabled={!isEditable || !canRedo}
-        onClick={() => {
-          editor.dispatchCommand(REDO_COMMAND);
-        }}
-      />
+      {historyEnabled && (
+        <>
+          <ToolbarButton
+            ariaLabel={t`Undo`}
+            icon="writer/arrow-counterclockwise.svg"
+            disabled={!isEditable || !canUndo}
+            onClick={() => {
+              editor.dispatchCommand(UNDO_COMMAND);
+            }}
+          />
+          <ToolbarButton
+            ariaLabel={t`Redo`}
+            icon="writer/arrow-clockwise.svg"
+            disabled={!isEditable || !canRedo}
+            onClick={() => {
+              editor.dispatchCommand(REDO_COMMAND);
+            }}
+          />
+        </>
+      )}
     </>
   );
 };

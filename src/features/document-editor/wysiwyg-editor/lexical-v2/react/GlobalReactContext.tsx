@@ -9,6 +9,7 @@ type UpdatableGlobalReactContextSpec = {
 
 type GlobalReactContextSpec = UpdatableGlobalReactContextSpec & {
   globalEditable: boolean;
+  historyEnabled: boolean;
   updateContext: (update: UpdatableGlobalReactContextSpec) => void;
 };
 
@@ -30,9 +31,11 @@ const GlobalReactContext = createContext<GlobalReactContextSpec | undefined>(
 
 export const GlobalReactContextProvider = ({
   globalEditable = true,
+  historyEnabled = true,
   children
 }: {
   globalEditable: boolean;
+  historyEnabled: boolean;
   readonly children?: ReactNode;
 }) => {
   const [globalContext, dispatch] = useReducer(
@@ -43,6 +46,7 @@ export const GlobalReactContextProvider = ({
     <GlobalReactContext
       value={{
         globalEditable,
+        historyEnabled,
         ...globalContext,
         updateContext: dispatch
       }}

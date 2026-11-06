@@ -202,6 +202,7 @@ const DocumentEditor = (props: DocumentEditorProps) => {
             historyId={docId}
             initialState={contentRef.current}
             serializedSelection={resumeState?.lastSelection || null}
+            enableHistory={true}
             enableToolbar={!showDocumentActions && !toggleSearch}
             searchText={toggleSearch ? searchText : undefined}
             ignoreSelectionChange={false}

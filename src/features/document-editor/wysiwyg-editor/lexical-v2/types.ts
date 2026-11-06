@@ -17,4 +17,5 @@ export type RichTextEditorInitialData = {
   resumeLastSelection?: boolean;
   historyId?: string;
   reloadKey?: Key;
+  enableHistory?: boolean;
 };

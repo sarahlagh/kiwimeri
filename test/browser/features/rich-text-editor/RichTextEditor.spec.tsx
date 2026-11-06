@@ -11,6 +11,7 @@ import {
 import { TestingProvider } from '@@/browser/TestingProvider';
 import { createRef, RefObject, useState } from 'react';
 import { render } from 'vitest-browser-react';
+import { userEvent } from 'vitest/browser';
 import {
   getAllToolbarBtns,
   getContentEditor,
@@ -23,8 +24,6 @@ import {
   getUndoBtn
 } from './RichTextEditor.locators';
 import { renderEditor } from './utils';
-
-// import { HistoryExtension } from '@/features/document-editor/wysiwyg-editor/lexical-v2/extensions/HistoryExtension';
 
 const expectedNumberOfBtns = 24;
 
@@ -347,6 +346,36 @@ describe('RichTextEditor', () => {
       expect(onChangeFired).toBe(4);
     });
 
+    test('shortcut for undo works', async () => {
+      let onChangeFired = 0;
+      const screen = await renderParent(() => {
+        onChangeFired++;
+      });
+      const composer = getContentEditor(screen);
+
+      const undoBtn = getUndoBtn(screen);
+      const redoBtn = getRedoBtn(screen);
+      await expect(undoBtn).toBeDisabled();
+      await expect(redoBtn).toBeDisabled();
+
+      // make some modif
+      await getContentEditor(screen).fill('new state 1');
+      await getContentEditor(screen).fill('new state 2');
+      expect(onChangeFired).toBe(2);
+
+      // undo last
+      await userEvent.type(getContentEditorElement(screen), '{Control>}{z}');
+      await expect(redoBtn).not.toBeDisabled();
+      expect(getEditorElementTextContent(composer)).toBe('new state 1');
+      expect(onChangeFired).toBe(3);
+
+      await userEvent.type(getContentEditorElement(screen), '{Control>}{z}');
+      await expect(undoBtn).toBeDisabled();
+      await expect(redoBtn).not.toBeDisabled();
+      expect(getEditorElementTextContent(composer)).toBe('state 1');
+      expect(onChangeFired).toBe(4);
+    });
+
     test('can click on redo', async () => {
       let onChangeFired = 0;
       const screen = await renderParent(() => {
@@ -375,6 +404,40 @@ describe('RichTextEditor', () => {
       expect(onChangeFired).toBe(3);
 
       await redoBtn.click();
+      await expect(undoBtn).not.toBeDisabled();
+      await expect(redoBtn).toBeDisabled();
+      expect(getEditorElementTextContent(composer)).toBe('new state 2');
+      expect(onChangeFired).toBe(4);
+    });
+
+    test('shortcut for redo works', async () => {
+      let onChangeFired = 0;
+      const screen = await renderParent(() => {
+        onChangeFired++;
+      });
+      const composer = getContentEditor(screen);
+
+      const undoBtn = getUndoBtn(screen);
+      const redoBtn = getRedoBtn(screen);
+      await expect(undoBtn).toBeDisabled();
+      await expect(redoBtn).toBeDisabled();
+
+      // make some modif
+      await getContentEditor(screen).fill('new state 1');
+      await getContentEditor(screen).fill('new state 2');
+      expect(onChangeFired).toBe(2);
+
+      await expect(undoBtn).not.toBeDisabled();
+      await expect(redoBtn).toBeDisabled();
+
+      // undo last
+      await userEvent.type(getContentEditorElement(screen), '{Control>}{z}');
+      await expect(undoBtn).not.toBeDisabled();
+      await expect(redoBtn).not.toBeDisabled();
+      expect(getEditorElementTextContent(composer)).toBe('new state 1');
+      expect(onChangeFired).toBe(3);
+
+      await userEvent.type(getContentEditorElement(screen), '{Control>}{y}');
       await expect(undoBtn).not.toBeDisabled();
       await expect(redoBtn).toBeDisabled();
       expect(getEditorElementTextContent(composer)).toBe('new state 2');
@@ -493,6 +556,23 @@ describe('RichTextEditor', () => {
         expect(canRedoLength).toBe(0);
         expect(canUndoLength).toBe(2);
       }
+    });
+
+    test('history can be disabled', async () => {
+      const screen = await renderEditor({ enableHistory: false });
+      const composer = getContentEditor(screen);
+      const undoBtn = getUndoBtn(screen);
+      const redoBtn = getRedoBtn(screen);
+      await expect.element(undoBtn).not.toBeInTheDocument();
+      await expect.element(redoBtn).not.toBeInTheDocument();
+
+      await getContentEditor(screen).fill('new state 1');
+      await getContentEditor(screen).fill('new state 2');
+
+      // try to undo last
+      await userEvent.type(getContentEditorElement(screen), '{Control>}{z}');
+      // didn't work
+      expect(getEditorElementTextContent(composer)).toBe('new state 2');
     });
   });
 });

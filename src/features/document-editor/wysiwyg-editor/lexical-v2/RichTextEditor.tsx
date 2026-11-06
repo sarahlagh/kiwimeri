@@ -22,7 +22,6 @@ import { RichTextEditorInitialData } from './types';
 export type RichTextEditorProps = AppExtensionConfig &
   RichTextEditorInitialData & {
     searchText?: string;
-    enableHistory?: boolean;
     enableToolbar?: boolean;
     enableOnChange?: boolean;
     enableDebugTree?: boolean;
@@ -47,6 +46,7 @@ const RichTextEditor = (
     globalEditable = true,
     ignoreSelectionChange = true,
     enableToolbar = true,
+    enableHistory = true,
     enableDebugTree = false,
     enableOnChange = true,
     resumeLastSelection = false,
@@ -83,7 +83,10 @@ const RichTextEditor = (
 
   return (
     <LexicalExtensionComposer extension={appExtension} contentEditable={null}>
-      <GlobalReactContextProvider globalEditable={globalEditable}>
+      <GlobalReactContextProvider
+        globalEditable={globalEditable}
+        historyEnabled={enableHistory}
+      >
         <div className="editor-container">
           {enableToolbar && <Toolbar />}
           <div className="editor-inner">
@@ -122,6 +125,7 @@ const RichTextEditor = (
           reloadKey={props.reloadKey}
           resumeLastSelection={resumeLastSelection}
           serializedSelection={props.serializedSelection}
+          enableHistory={enableHistory}
         />
         <ExtensionComponent
           lexical:extension={ReactSearchExtension}

@@ -75,6 +75,12 @@ export default function ReloadPlugin(data: ReloadPluginProps) {
       });
     });
 
+    if (data.enableHistory === false) {
+      return () => {
+        cancelled = true;
+      };
+    }
+
     const historyId = data.historyId || '';
     if (!historyStoreRef.current.has(historyId)) {
       historyStoreRef.current.set(historyId, createEmptyHistoryState());
