@@ -5,7 +5,13 @@ import { LexicalExtensionComposer } from '@lexical/react/LexicalExtensionCompose
 import { TreeViewExtension } from '@lexical/react/TreeViewExtension';
 import { useLingui } from '@lingui/react/macro';
 import { LexicalEditor } from 'lexical';
-import { RefObject, useImperativeHandle, useMemo, useRef } from 'react';
+import {
+  ReactNode,
+  RefObject,
+  useImperativeHandle,
+  useMemo,
+  useRef
+} from 'react';
 import { AppExtensionConfig, buildAppExtension } from './app-extension';
 import { ReactSearchExtension } from './extensions/ReactSearchExtension';
 import {
@@ -28,6 +34,8 @@ export type RichTextEditorProps = AppExtensionConfig &
     ignoreSelectionChange?: boolean;
     additionalClassNames?: string;
     onChange?: (payload: OnChangePluginPayload) => void;
+  } & {
+    readonly children?: ReactNode;
   };
 
 const RichTextEditor = (
@@ -43,7 +51,7 @@ const RichTextEditor = (
 
   const {
     onChange,
-    globalEditable = true,
+    editable: globalEditable = true,
     ignoreSelectionChange = true,
     enableToolbar = true,
     enableHistory = true,
@@ -52,7 +60,8 @@ const RichTextEditor = (
     resumeLastSelection = false,
     searchText,
     additionalClassNames,
-    ref
+    ref,
+    children
   } = props;
 
   useImperativeHandle(
@@ -119,7 +128,7 @@ const RichTextEditor = (
         />
         <ReloadPlugin
           isReloadingRef={isReloadingRef}
-          globalEditable={globalEditable}
+          editable={globalEditable}
           historyId={props.historyId}
           initialState={props.initialState}
           reloadKey={props.reloadKey}
@@ -131,6 +140,7 @@ const RichTextEditor = (
           lexical:extension={ReactSearchExtension}
           searchText={searchText}
         />
+        {children}
       </GlobalReactContextProvider>
     </LexicalExtensionComposer>
   );

@@ -45,7 +45,7 @@ const NoteEditor = ({ noteId, editable = true }: NoteEditorProps) => {
     <RichTextEditor
       additionalClassNames={classNames}
       historyId={noteId}
-      globalEditable={editable}
+      editable={editable}
       initialState={content}
       enableHistory={true}
       enableToolbar={false}

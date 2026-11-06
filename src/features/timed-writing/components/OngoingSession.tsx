@@ -1,6 +1,6 @@
 /* eslint-disable @eslint-react/set-state-in-effect */
 import { APPICONS } from '@/constants';
-import { KiwimeriEditor } from '@/features/document-editor';
+import { RichTextEditor } from '@/features/document-editor';
 import {
   IonButton,
   IonButtons,
@@ -14,11 +14,11 @@ import {
 import { Trans } from '@lingui/react/macro';
 import type { EditorState } from 'lexical';
 import { useEffect, useState } from 'react';
-import KeystrokeListenerPlugin from './KeystrokeListenerPlugin';
 
 import { TimedSessionMode } from '@/domain/device-settings/device-settings';
 import formatConverter from '@/domain/format-conversion/format-converter.service';
 import { countWords } from '@/shared/utils';
+import KeystrokeListenerPlugin from './KeystrokeListenerPlugin';
 import './OngoingSession.scss';
 
 const WARN_TIME = 2000;
@@ -119,12 +119,13 @@ const OngoingSession = ({
         <ClockTicking startedAt={startedAt} duration={duration} color={color} />
       )}
       <IonContent>
-        <KiwimeriEditor
+        <RichTextEditor
           additionalClassNames={'timed-writing ' + warnClass}
-          content={initValue}
+          initialState={initValue}
           enableToolbar={false}
-          enableDebugTreeView={false}
+          enableDebugTree={false}
           enableHistory={false}
+          ignoreSelectionChange={true}
         >
           <KeystrokeListenerPlugin
             onWritingKey={editorState => {
@@ -150,7 +151,7 @@ const OngoingSession = ({
               }
             }}
           />
-        </KiwimeriEditor>
+        </RichTextEditor>
       </IonContent>
 
       <IonFooter>

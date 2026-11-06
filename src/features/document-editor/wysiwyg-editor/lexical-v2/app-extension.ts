@@ -21,7 +21,6 @@ import { ZoomExtension } from './extensions/ZoomExtension';
 import Theme from './theme/Theme';
 
 export type AppExtensionConfig = {
-  globalEditable?: boolean;
   initialZoom?: number;
   onZoomChange?: (zoomLevel: number) => void;
 };

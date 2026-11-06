@@ -3,6 +3,7 @@ import { APPICONS } from '@/constants';
 import { CollectionItemSnapshotData } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
 import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-content';
+import { RichTextEditor } from '@/features/document-editor';
 import { SearchActionsToolbar } from '@/features/search';
 import {
   IonButton,
@@ -23,12 +24,6 @@ import useVersion from '../hooks/useVersion';
 const ActionsFromDocumentVersionViewerToolbar = lazy(() =>
   import('@/features/collection-item-actions').then(m => ({
     default: m.ActionsFromDocumentVersionViewerToolbar
-  }))
-);
-
-const KiwimeriEditor = lazy(() =>
-  import('@/features/document-editor').then(m => ({
-    default: m.KiwimeriEditor
   }))
 );
 
@@ -143,15 +138,15 @@ const DocumentVersionViewer = ({
 
       <IonContent>
         {content && (
-          <Suspense>
-            <KiwimeriEditor
-              id={docVersion}
-              editable={false}
-              enableToolbar={false}
-              content={content}
-              searchText={toggleSearch ? searchText : null}
-            ></KiwimeriEditor>
-          </Suspense>
+          <RichTextEditor
+            historyId={docVersion}
+            editable={false}
+            enableToolbar={false}
+            enableHistory={false}
+            enableOnChange={false}
+            initialState={content}
+            searchText={toggleSearch ? searchText : undefined}
+          />
         )}
       </IonContent>
       {versionData && <DocumentVersionFooter versionData={versionData} />}

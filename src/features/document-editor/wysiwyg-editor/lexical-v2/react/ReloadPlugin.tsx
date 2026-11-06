@@ -39,8 +39,7 @@ export default function ReloadPlugin(data: ReloadPluginProps) {
   const { updateContext } = useGlobalReactContext();
   const historyStoreRef = useRef(new Map<string, HistoryState>());
   const initialReloadRef = useRef(data.reloadKey);
-  const globalEditable =
-    data.globalEditable !== undefined ? data.globalEditable : true;
+  const globalEditable = data.editable !== undefined ? data.editable : true;
 
   // set editor state
   useEffect(() => {
