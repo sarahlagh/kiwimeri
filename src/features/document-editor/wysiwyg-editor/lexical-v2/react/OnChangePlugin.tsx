@@ -17,7 +17,6 @@ type OnChangePluginProps = {
 
 const skipTagsSet = new Set<string>([FOCUS_TAG, RELOAD_TAG]);
 
-// TODO move to extension
 export default function OnChangePlugin(data: OnChangePluginProps) {
   const [editor] = useLexicalComposerContext();
 

@@ -81,7 +81,7 @@ function exportNodeToJSON<SerializedNode extends SerializedLexicalNode>(
   return serializedNode;
 }
 
-export function serializeNode(node: LexicalNode) {
+function serializeNode(node: LexicalNode) {
   return exportNodeToJSON(node);
 }
 

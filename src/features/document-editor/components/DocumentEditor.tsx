@@ -34,10 +34,13 @@ import {
   useState
 } from 'react';
 import { useNavigate } from 'react-router';
+import { OnChangePluginPayload } from '../wysiwyg-editor/lexical-v2/react/OnChangePlugin';
 import RichTextEditor from '../wysiwyg-editor/lexical-v2/RichTextEditor';
 import { RichTextEditorHandle } from '../wysiwyg-editor/lexical-v2/RichTextEditorHandle';
-import { $getChangedBlocks } from '../wysiwyg-editor/lexical-v2/utils/node-serializer';
-import { serializeSelection } from '../wysiwyg-editor/lexical/node-serializer';
+import {
+  getChangedBlocks,
+  serializeSelection
+} from '../wysiwyg-editor/lexical-v2/utils/node-serializer';
 import DocumentBottomSheet, { DocSheet } from './DocumentBottomSheet';
 import './DocumentEditor.scss';
 
@@ -128,6 +131,27 @@ const DocumentEditor = (props: DocumentEditorProps) => {
     }
   }, [searchText, docId]);
 
+  const onChange: (change: OnChangePluginPayload) => void = useCallback(
+    payload => {
+      if (!payload.isSelectionChange) {
+        const { blocksChanged, hasDeletedNodes } = getChangedBlocks(payload);
+        writer.fastWriteOrCommit(
+          SpaceTables.Collection,
+          docId,
+          payload.editorState,
+          blocksChanged,
+          hasDeletedNodes,
+          payload
+        );
+      }
+      resumeService.setLastSelection(
+        docId,
+        serializeSelection(payload.editorState)
+      );
+    },
+    [docId]
+  );
+
   return (
     <>
       <IonHeader>
@@ -214,26 +238,7 @@ const DocumentEditor = (props: DocumentEditorProps) => {
             resumeLastSelection={deviceSettings.get('resumeLastSelection')}
             initialZoom={deviceSettings.get('globalZoom')}
             onZoomChange={onZoomChange}
-            onChange={payload => {
-              if (!payload.isSelectionChange) {
-                const { blocksChanged, hasDeletedNodes } =
-                  payload.editorState.read(() => {
-                    return $getChangedBlocks(payload);
-                  });
-                writer.fastWriteOrCommit(
-                  SpaceTables.Collection,
-                  docId,
-                  payload.editorState,
-                  blocksChanged,
-                  hasDeletedNodes,
-                  payload
-                );
-              }
-              resumeService.setLastSelection(
-                docId,
-                serializeSelection(payload.editorState)
-              );
-            }}
+            onChange={onChange}
           />
         )}
       </IonContent>

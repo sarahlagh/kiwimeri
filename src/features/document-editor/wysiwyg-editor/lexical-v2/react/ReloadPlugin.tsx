@@ -93,6 +93,12 @@ export default function ReloadPlugin(data: ReloadPluginProps) {
         1000, // delay
         () => Date.now(),
         historyState => {
+          console.debug(
+            '[HISTORY] redo',
+            historyState.redoStack.length,
+            'undo',
+            historyState.undoStack.length
+          );
           updateContext({
             canRedo: historyState.redoStack.length > 0,
             canRedoLength: historyState.redoStack.length,

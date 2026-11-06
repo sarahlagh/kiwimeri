@@ -85,7 +85,7 @@ export function $serializeNode(node: LexicalNode) {
   return $exportNodeToJSON(node);
 }
 
-export function $getChangedBlocks({
+function $getChangedBlocks({
   dirtyElements,
   dirtyLeaves,
   prevEditorState
@@ -133,6 +133,12 @@ export function $getChangedBlocks({
     blocksChanged: hasDeletedNodes ? [] : blocksChanged,
     hasDeletedNodes
   };
+}
+
+export function getChangedBlocks(payload: UpdateListenerPayload) {
+  return payload.editorState.read(() => {
+    return $getChangedBlocks(payload);
+  });
 }
 
 export function serializeSelection(

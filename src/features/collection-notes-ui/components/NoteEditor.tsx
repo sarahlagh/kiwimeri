@@ -1,13 +1,15 @@
 import { SpaceTables } from '@/core/db/store-constants';
 import { schedule } from '@/core/tasks/scheduler.service';
 import { TaskNames } from '@/core/tasks/tasks-registry';
-import { initialContent } from '@/domain/collection/collection.service';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { writer } from '@/domain/document-edits/document-edits.service';
-import { KiwimeriEditor } from '@/features/document-editor';
-import type { EditorState } from 'lexical';
-import { useEffect } from 'react';
+import {
+  getChangedBlocks,
+  OnChangePluginPayload,
+  RichTextEditor
+} from '@/features/document-editor';
+import { useCallback, useEffect } from 'react';
 
 type NoteEditorProps = {
   noteId: string;
@@ -23,32 +25,34 @@ const NoteEditor = ({ noteId, editable = true }: NoteEditorProps) => {
   useEffect(() => {
     schedule.flushByName(TaskNames.FAST_WRITE);
   }, [noteId]);
+  const onChange: (change: OnChangePluginPayload) => void = useCallback(
+    payload => {
+      if (!payload.isSelectionChange) {
+        const { blocksChanged, hasDeletedNodes } = getChangedBlocks(payload);
+        writer.fastWriteOrCommit(
+          SpaceTables.Annotations,
+          noteId,
+          payload.editorState,
+          blocksChanged,
+          hasDeletedNodes,
+          deviceSettings.isFastWriteWatchMode() ? payload : undefined
+        );
+      }
+    },
+    [noteId]
+  );
   return (
-    <KiwimeriEditor
-      id={noteId}
+    <RichTextEditor
       additionalClassNames={classNames}
-      editable={editable}
-      content={content || initialContent()}
+      historyId={noteId}
+      globalEditable={editable}
+      initialState={content}
+      enableHistory={true}
       enableToolbar={false}
-      enableDebugTreeView={false}
-      onChange={(
-        editorState: EditorState,
-        isSelectionChange,
-        blocksChanged,
-        hasDeletedNodes,
-        payload
-      ) => {
-        if (!isSelectionChange) {
-          writer.fastWriteOrCommit(
-            SpaceTables.Annotations,
-            noteId,
-            editorState,
-            blocksChanged,
-            hasDeletedNodes,
-            deviceSettings.isFastWriteWatchMode() ? payload : undefined
-          );
-        }
-      }}
+      enableDebugTree={false}
+      ignoreSelectionChange={false}
+      resumeLastSelection={false}
+      onChange={onChange}
     />
   );
 };
