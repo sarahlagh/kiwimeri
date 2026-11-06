@@ -2,11 +2,8 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { useLingui } from '@lingui/react/macro';
 import { FORMAT_TEXT_COMMAND, LexicalEditor, TextFormatType } from 'lexical';
 import { FORMAT_WORD_UNDER_CURSOR_COMMAND } from '../commands/word-under-cursor-commands';
-import { useIsEditable } from '../extensions/ReloadConfigExtension';
-import {
-  SelectionContext,
-  useSelectionContext
-} from '../extensions/SelectionContextExtension';
+import { SelectionContext } from '../extensions/SelectionContextExtension';
+import { useIsEditable, useSelectionContext } from '../hooks';
 import { ToolbarButton } from './buttons';
 
 function TextFormatToolbarButton({

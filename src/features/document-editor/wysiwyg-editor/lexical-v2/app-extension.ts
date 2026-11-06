@@ -12,22 +12,19 @@ import { CheckListExtension, ListExtension } from '@lexical/list';
 import { TreeViewExtension } from '@lexical/react/TreeViewExtension';
 import { RichTextExtension } from '@lexical/rich-text';
 import { configExtension, defineExtension } from 'lexical';
-import { HistoryExtension as CustomHistoryExtension } from './extensions/HistoryExtension2';
-import CustomLinkExtension from './extensions/LinkExtension';
 import { MarkdownShortcutsExtension as CustomMarkdownShortcutsExtension } from './extensions/MarkdownShortcutsExtension';
+import ReactLinkExtension from './extensions/ReactLinkExtension';
+import { ReactSearchExtension } from './extensions/ReactSearchExtension';
 import RegisterCommandsExtension from './extensions/RegisterCommandsExtension';
-import { ReloadConfigExtension } from './extensions/ReloadConfigExtension';
-import { SearchExtension } from './extensions/SearchExtension';
 import { SelectionContextExtension } from './extensions/SelectionContextExtension';
 import { ZoomExtension } from './extensions/ZoomExtension';
 import Theme from './theme/Theme';
-import { RichTextEditorInitialData } from './types';
 
 export type AppExtensionConfig = {
-  enableHistory?: boolean;
+  globalEditable?: boolean;
   initialZoom?: number;
   onZoomChange?: (zoomLevel: number) => void;
-} & RichTextEditorInitialData;
+};
 
 const enableHMR = import.meta.hot && import.meta.env.TEST !== 'true';
 
@@ -49,19 +46,14 @@ export const buildAppExtension = (config: AppExtensionConfig) =>
       TabIndentationExtension,
       TreeViewExtension,
       // custom extensions
-      configExtension(ReloadConfigExtension, config),
-      configExtension(CustomHistoryExtension, {
-        enabled: config.enableHistory,
-        historyId: config.historyId
-      }),
       SelectionContextExtension,
       RegisterCommandsExtension,
       configExtension(ZoomExtension, {
         initialZoom: config.initialZoom,
         onZoomChange: config.onZoomChange
       }),
-      CustomLinkExtension,
-      SearchExtension,
+      ReactLinkExtension,
+      ReactSearchExtension,
       CustomMarkdownShortcutsExtension
     ],
     name: '@kiwimeri/rich-text',

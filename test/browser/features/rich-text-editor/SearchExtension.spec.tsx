@@ -1,4 +1,4 @@
-import { CONTENT_SEARCH_RESULTS_HIGHLIGHT_KEY } from '@/features/document-editor/wysiwyg-editor/lexical-v2/extensions/SearchExtension';
+import { CONTENT_SEARCH_RESULTS_HIGHLIGHT_KEY } from '@/features/document-editor/wysiwyg-editor/lexical-v2/extensions/ReactSearchExtension';
 import RichTextEditor from '@/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor';
 import { RichTextEditorHandle } from '@/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditorHandle';
 import { fromSimpleHTML } from '@@/_setup/test.utils';

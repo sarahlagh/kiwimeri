@@ -164,7 +164,7 @@ export function serializeSelection(
   return serializedSelection;
 }
 
-export function deserializeSelection(
+export function $deserializeSelection(
   serializedSelection?: SerializedSelection | null
 ): BaseSelection | null {
   if (!serializedSelection) return null;

@@ -19,8 +19,7 @@ import {
   LexicalCommand,
   LexicalEditor
 } from 'lexical';
-import { useIsEditable } from '../extensions/ReloadConfigExtension';
-import { useSelectionContext } from '../extensions/SelectionContextExtension';
+import { useIsEditable, useSelectionContext } from '../hooks';
 import { ToolbarButton } from './buttons';
 
 function SetBlockTypeToolbarButton({

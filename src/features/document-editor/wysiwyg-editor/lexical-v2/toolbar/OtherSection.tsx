@@ -1,9 +1,8 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useLingui } from '@lingui/react/macro';
 import { REMOVE_FORMAT_COMMAND } from '../commands/remove-format-command';
-import { OPEN_LINK_MODAL_COMMAND } from '../extensions/LinkExtension';
-import { useIsEditable } from '../extensions/ReloadConfigExtension';
-import { useSelectionContext } from '../extensions/SelectionContextExtension';
+import { OPEN_LINK_MODAL_COMMAND } from '../extensions/ReactLinkExtension';
+import { useIsEditable, useSelectionContext } from '../hooks';
 import { ToolbarButton } from './buttons';
 
 export const OtherSection = () => {

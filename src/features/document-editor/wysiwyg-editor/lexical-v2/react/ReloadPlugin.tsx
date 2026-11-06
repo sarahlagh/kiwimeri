@@ -1,13 +1,24 @@
 import { initialContent } from '@/domain/collection/collection.service';
+import {
+  createEmptyHistoryState,
+  HistoryState,
+  registerHistory
+} from '@lexical/history';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $setSelection, HISTORIC_TAG, SerializedEditorState } from 'lexical';
-import { Key, RefObject, useEffect, useRef } from 'react';
+import {
+  $setSelection,
+  HISTORIC_TAG,
+  mergeRegister,
+  SerializedEditorState
+} from 'lexical';
+import { RefObject, useEffect, useRef } from 'react';
 import { RELOAD_TAG, SELECTION_CHANGE_TAG } from '../constants';
 import {
   CustomInitialEditorStateType,
   RichTextEditorInitialData
 } from '../types';
-import { deserializeSelection } from '../utils/node-serializer';
+import { $deserializeSelection } from '../utils/node-serializer';
+import { useGlobalReactContext } from './GlobalReactContext';
 
 type ReloadPluginProps = {
   isReloadingRef: RefObject<boolean>;
@@ -25,9 +36,11 @@ function getParseableState(
 
 export default function ReloadPlugin(data: ReloadPluginProps) {
   const [editor] = useLexicalComposerContext();
+  const { updateContext } = useGlobalReactContext();
+  const historyStoreRef = useRef(new Map<string, HistoryState>());
+  const initialReloadRef = useRef(data.reloadKey);
   const globalEditable =
     data.globalEditable !== undefined ? data.globalEditable : true;
-  const initialReloadRef = useRef(data.reloadKey);
 
   // set editor state
   useEffect(() => {
@@ -37,6 +50,7 @@ export default function ReloadPlugin(data: ReloadPluginProps) {
     let cancelled = false;
 
     queueMicrotask(() => {
+      console.debug('[RELOAD] reloading', data.historyId);
       data.isReloadingRef.current = true;
       editor.setEditorState(newState, {
         tag: HISTORIC_TAG // ideally I'd send both HISTORIC_TAG and RELOAD_TAG, but not possible
@@ -49,7 +63,7 @@ export default function ReloadPlugin(data: ReloadPluginProps) {
 
         editor.update(
           () => {
-            const selection = deserializeSelection(data.serializedSelection);
+            const selection = $deserializeSelection(data.serializedSelection);
             if (!selection) return;
             $setSelection(selection);
           },
@@ -61,9 +75,31 @@ export default function ReloadPlugin(data: ReloadPluginProps) {
       });
     });
 
-    return () => {
-      cancelled = true;
-    };
+    const historyId = data.historyId || '';
+    if (!historyStoreRef.current.has(historyId)) {
+      historyStoreRef.current.set(historyId, createEmptyHistoryState());
+    }
+    const historyState = historyStoreRef.current.get(historyId)!;
+    return mergeRegister(
+      registerHistory(
+        editor,
+        historyState,
+        1000, // delay
+        () => Date.now(),
+        historyState => {
+          updateContext({
+            canRedo: historyState.redoStack.length > 0,
+            canRedoLength: historyState.redoStack.length,
+            canUndo: historyState.undoStack.length > 0,
+            canUndoLength: historyState.undoStack.length
+          });
+        },
+        100 // maxDepth
+      ),
+      () => () => {
+        cancelled = true;
+      }
+    );
     // listening to change on serializedSelection isn't needed
     // eslint-disable-next-line @eslint-react/exhaustive-deps
   }, [editor, data.historyId, data.initialState]);

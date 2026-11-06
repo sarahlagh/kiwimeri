@@ -44,7 +44,7 @@ export function SearchResultWrapper({ searchText }: SearchConfig) {
   return null;
 }
 
-export const SearchExtension = defineExtension({
+export const ReactSearchExtension = defineExtension({
   name: '@kiwimeri/rich-text/search',
   namespace: 'react-rich',
   dependencies: [ReactExtension],

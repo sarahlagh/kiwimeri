@@ -7,21 +7,29 @@ import { useLingui } from '@lingui/react/macro';
 import { LexicalEditor } from 'lexical';
 import { RefObject, useImperativeHandle, useMemo, useRef } from 'react';
 import { AppExtensionConfig, buildAppExtension } from './app-extension';
-import { SearchExtension } from './extensions/SearchExtension';
-import OnChangePlugin, {
-  OnChangePluginPayload
-} from './react-plugins/OnChangePlugin';
+import { ReactSearchExtension } from './extensions/ReactSearchExtension';
+import {
+  GlobalReactContextProvider,
+  ReadOnlyGlobalReactContext
+} from './react/GlobalReactContext';
+import GlobalReactContextRefPlugin from './react/GlobalReactContextRefPlugin';
+import OnChangePlugin, { OnChangePluginPayload } from './react/OnChangePlugin';
+import ReloadPlugin from './react/ReloadPlugin';
 import { RichTextEditorHandle } from './RichTextEditorHandle';
 import Toolbar from './toolbar/Toolbar';
+import { RichTextEditorInitialData } from './types';
 
-export type RichTextEditorProps = AppExtensionConfig & {
-  searchText?: string;
-  enableToolbar?: boolean;
-  enableDebugTree?: boolean;
-  ignoreSelectionChange?: boolean;
-  additionalClassNames?: string;
-  onChange?: (payload: OnChangePluginPayload) => void;
-};
+export type RichTextEditorProps = AppExtensionConfig &
+  RichTextEditorInitialData & {
+    searchText?: string;
+    enableHistory?: boolean;
+    enableToolbar?: boolean;
+    enableOnChange?: boolean;
+    enableDebugTree?: boolean;
+    ignoreSelectionChange?: boolean;
+    additionalClassNames?: string;
+    onChange?: (payload: OnChangePluginPayload) => void;
+  };
 
 const RichTextEditor = (
   props: RichTextEditorProps & {
@@ -30,13 +38,18 @@ const RichTextEditor = (
 ) => {
   const { t } = useLingui();
   const editorRef = useRef<LexicalEditor | null>(null);
+  const contextRef = useRef<ReadOnlyGlobalReactContext | null>(null);
+  const isReloadingRef = useRef(false);
   const placeholder = t`Text...`;
 
   const {
     onChange,
+    globalEditable = true,
     ignoreSelectionChange = true,
     enableToolbar = true,
     enableDebugTree = false,
+    enableOnChange = true,
+    resumeLastSelection = false,
     searchText,
     additionalClassNames,
     ref
@@ -48,6 +61,9 @@ const RichTextEditor = (
       getEditor() {
         return editorRef.current;
       },
+      getContext() {
+        return contextRef.current;
+      },
       focusEditor() {
         // note: this resumes the selection on small screens, but also triggers keyboard on small screen + android
         // this is annoying, but no known workarounds at this time
@@ -55,44 +71,63 @@ const RichTextEditor = (
         editorRef.current?.focus();
       }
     }),
-    [editorRef]
+    [editorRef, contextRef]
   );
 
-  const appExtension = useMemo(() => buildAppExtension(props), [props]);
+  const appExtension = useMemo(() => {
+    return buildAppExtension({
+      initialZoom: props.initialZoom,
+      onZoomChange: props.onZoomChange
+    });
+  }, [props.initialZoom, props.onZoomChange]);
 
   return (
     <LexicalExtensionComposer extension={appExtension} contentEditable={null}>
-      <div className="editor-container">
-        {enableToolbar && <Toolbar />}
-        <div className="editor-inner">
-          <ContentEditable
-            className={
-              'editor-input' +
-              (enableToolbar ? ' editor-toolbar' : '') +
-              (additionalClassNames ? ` ${additionalClassNames}` : '')
-            }
-            aria-label={t`Rich text editor`}
-            aria-placeholder={placeholder}
-            placeholder={
-              <div className="editor-placeholder">{placeholder}</div>
-            }
-          />
-          {enableDebugTree && (
-            <ExtensionComponent lexical:extension={TreeViewExtension} />
-          )}
+      <GlobalReactContextProvider globalEditable={globalEditable}>
+        <div className="editor-container">
+          {enableToolbar && <Toolbar />}
+          <div className="editor-inner">
+            <ContentEditable
+              className={
+                'editor-input' +
+                (enableToolbar ? ' editor-toolbar' : '') +
+                (additionalClassNames ? ` ${additionalClassNames}` : '')
+              }
+              aria-label={t`Rich text editor`}
+              aria-placeholder={placeholder}
+              placeholder={
+                <div className="editor-placeholder">{placeholder}</div>
+              }
+            />
+            {enableDebugTree && (
+              <ExtensionComponent lexical:extension={TreeViewExtension} />
+            )}
+          </div>
         </div>
-      </div>
-      <EditorRefPlugin editorRef={editorRef} />
-      <OnChangePlugin
-        ignoreSelectionChange={ignoreSelectionChange}
-        onChange={payload => {
-          if (onChange) onChange(payload);
-        }}
-      />
-      <ExtensionComponent
-        lexical:extension={SearchExtension}
-        searchText={searchText}
-      />
+        <EditorRefPlugin editorRef={editorRef} />
+        <GlobalReactContextRefPlugin contextRef={contextRef} />
+        <OnChangePlugin
+          isReloadingRef={isReloadingRef}
+          enabled={enableOnChange}
+          ignoreSelectionChange={ignoreSelectionChange}
+          onChange={payload => {
+            if (onChange) onChange(payload);
+          }}
+        />
+        <ReloadPlugin
+          isReloadingRef={isReloadingRef}
+          globalEditable={globalEditable}
+          historyId={props.historyId}
+          initialState={props.initialState}
+          reloadKey={props.reloadKey}
+          resumeLastSelection={resumeLastSelection}
+          serializedSelection={props.serializedSelection}
+        />
+        <ExtensionComponent
+          lexical:extension={ReactSearchExtension}
+          searchText={searchText}
+        />
+      </GlobalReactContextProvider>
     </LexicalExtensionComposer>
   );
 };

@@ -40,12 +40,10 @@ import { ReactExtension } from '@lexical/react/ReactExtension';
 import { useLingui } from '@lingui/react/macro';
 import { useEffect, useRef, useState } from 'react';
 import { CREATE_LINK_AT_WORD_UNDER_CURSOR_COMMAND } from '../commands/word-under-cursor-commands';
+import { useSelectionContext } from '../hooks';
 import { getSelectedNode } from '../utils/getSelectedNode';
 import { sanitizeUrl } from '../utils/url';
-import {
-  SelectionContext,
-  useSelectionContext
-} from './SelectionContextExtension';
+import { SelectionContext } from './SelectionContextExtension';
 
 const MATCHERS = [
   createLinkMatcherWithRegExp(URL_REGEX, text => {
@@ -285,7 +283,7 @@ const OpenLinkModalPlugin = () => {
   return null;
 };
 
-const CustomLinkExtension = defineExtension({
+const ReactLinkExtension = defineExtension({
   name: '@kiwimeri/rich-text/links',
   namespace: 'react-rich',
   dependencies: [
@@ -299,4 +297,4 @@ const CustomLinkExtension = defineExtension({
   ]
 });
 
-export default CustomLinkExtension;
+export default ReactLinkExtension;

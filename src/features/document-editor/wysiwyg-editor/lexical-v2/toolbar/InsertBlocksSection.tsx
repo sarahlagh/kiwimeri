@@ -1,7 +1,7 @@
 import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/extension';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useLingui } from '@lingui/react/macro';
-import { useIsEditable } from '../extensions/ReloadConfigExtension';
+import { useIsEditable } from '../hooks';
 import { ToolbarButton } from './buttons';
 
 export const InsertBlocksSection = () => {

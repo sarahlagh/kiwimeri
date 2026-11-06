@@ -59,19 +59,19 @@ msgstr "add a note"
 msgid "Add config"
 msgstr "Add config"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/TextAlignSection.tsx:23
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/TextAlignSection.tsx:24
 msgid "Align center"
 msgstr "Align center"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/TextAlignSection.tsx:41
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/TextAlignSection.tsx:42
 msgid "Align justify"
 msgstr "Align justify"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/TextAlignSection.tsx:14
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/TextAlignSection.tsx:15
 msgid "Align left"
 msgstr "Align left"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/TextAlignSection.tsx:32
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/TextAlignSection.tsx:33
 msgid "Align right"
 msgstr "Align right"
 
@@ -105,7 +105,7 @@ msgstr "Archive is empty"
 msgid "Are you sure?"
 msgstr "Are you sure?"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/BlockFormatSection.tsx:171
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/BlockFormatSection.tsx:172
 msgid "Block Quote"
 msgstr "Block Quote"
 
@@ -310,7 +310,7 @@ msgstr "Document History"
 msgid "Download Logs"
 msgstr "Download Logs"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/extensions/LinkExtension.tsx:205
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/extensions/ReactLinkExtension.tsx:206
 msgid "Edit text"
 msgstr "Edit text"
 
@@ -370,7 +370,7 @@ msgstr "Fast Write Mode"
 msgid "File not supported"
 msgstr "File not supported"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/TextFormatSection.tsx:22
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/TextFormatSection.tsx:25
 msgid "Format {formatType}"
 msgstr "Format {formatType}"
 
@@ -438,7 +438,7 @@ msgstr "Incorrect Metadata"
 msgid "Inputs: {inputsStr} </br> {errorMsg}"
 msgstr "Inputs: {inputsStr} </br> {errorMsg}"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/BlockFormatSection.tsx:163
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/BlockFormatSection.tsx:164
 msgid "Insert Checked List"
 msgstr "Insert Checked List"
 
@@ -446,11 +446,11 @@ msgstr "Insert Checked List"
 msgid "Insert Horizontal Bar"
 msgstr "Insert Horizontal Bar"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/BlockFormatSection.tsx:155
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/BlockFormatSection.tsx:156
 msgid "Insert Ordered List"
 msgstr "Insert Ordered List"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/BlockFormatSection.tsx:147
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/BlockFormatSection.tsx:148
 msgid "Insert Unordered List"
 msgstr "Insert Unordered List"
 
@@ -487,7 +487,7 @@ msgstr "Leave empty for root"
 msgid "Less dangerous mode (session is still timed but you will not lose progress on pause)"
 msgstr "Less dangerous mode (session is still timed but you will not lose progress on pause)"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/extensions/LinkExtension.tsx:216
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/extensions/ReactLinkExtension.tsx:217
 #: src/features/document-editor/wysiwyg-editor/lexical/plugins/EditLinkPlugin.tsx:58
 msgid "Link"
 msgstr "Link"
@@ -706,11 +706,11 @@ msgstr "Profile Settings"
 msgid "Ran at:  {relativeDate} with errors"
 msgstr "Ran at:  {relativeDate} with errors"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:27
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:19
 msgid "Read Mode"
 msgstr "Read Mode"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:60
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:52
 msgid "Redo"
 msgstr "Redo"
 
@@ -730,7 +730,7 @@ msgstr "Remote:  {lastRemoteChange}"
 msgid "Remote: <0>never</0>"
 msgstr "Remote: <0>never</0>"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/OtherSection.tsx:30
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/OtherSection.tsx:31
 msgid "Remove format"
 msgstr "Remove format"
 
@@ -755,7 +755,7 @@ msgstr "Restore Collection"
 msgid "Restore Version"
 msgstr "Restore Version"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor.tsx:78
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor.tsx:96
 msgid "Rich text editor"
 msgstr "Rich text editor"
 
@@ -879,12 +879,12 @@ msgstr "Syncing is disabled on the web version."
 msgid "Tags"
 msgstr "Tags"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/extensions/LinkExtension.tsx:192
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/extensions/ReactLinkExtension.tsx:193
 #: src/features/document-editor/wysiwyg-editor/lexical/plugins/EditLinkPlugin.tsx:44
 msgid "Text"
 msgstr "Text"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor.tsx:50
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor.tsx:43
 #: src/features/document-editor/wysiwyg-editor/lexical/KiwimeriEditor.tsx:95
 msgid "Text..."
 msgstr "Text..."
@@ -942,7 +942,7 @@ msgstr "Timed Writing Session"
 msgid "Title"
 msgstr "Title"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/extensions/LinkExtension.tsx:231
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/extensions/ReactLinkExtension.tsx:232
 msgid "Toggle"
 msgstr "Toggle"
 
@@ -954,7 +954,7 @@ msgstr "Toggle actions"
 msgid "toggle browser mode"
 msgstr "toggle browser mode"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/OtherSection.tsx:22
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/OtherSection.tsx:23
 msgid "Toggle link"
 msgstr "Toggle link"
 
@@ -962,7 +962,7 @@ msgstr "Toggle link"
 msgid "Track text statistics"
 msgstr "Track text statistics"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:52
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:44
 msgid "Undo"
 msgstr "Undo"
 
@@ -1025,10 +1025,10 @@ msgstr "yes"
 msgid "You have not configured any remote yet."
 msgstr "You have not configured any remote yet."
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:36
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:28
 msgid "Zoom In"
 msgstr "Zoom In"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:44
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:36
 msgid "Zoom Out"
 msgstr "Zoom Out"

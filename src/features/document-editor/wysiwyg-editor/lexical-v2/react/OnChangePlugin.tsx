@@ -1,6 +1,6 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { HISTORY_MERGE_TAG, UpdateListenerPayload } from 'lexical';
-import { useLayoutEffect } from 'react';
+import { RefObject, useLayoutEffect } from 'react';
 import { FOCUS_TAG, RELOAD_TAG } from '../constants';
 
 export type OnChangePluginPayload = UpdateListenerPayload & {
@@ -8,6 +8,8 @@ export type OnChangePluginPayload = UpdateListenerPayload & {
 };
 
 type OnChangePluginProps = {
+  isReloadingRef: RefObject<boolean>;
+  enabled?: boolean;
   ignoreHistoryMergeTagChange?: boolean;
   ignoreSelectionChange?: boolean;
   onChange: (change: OnChangePluginPayload) => void;
@@ -15,11 +17,13 @@ type OnChangePluginProps = {
 
 const skipTagsSet = new Set<string>([FOCUS_TAG, RELOAD_TAG]);
 
+// TODO move to extension
 export default function OnChangePlugin(data: OnChangePluginProps) {
   const [editor] = useLexicalComposerContext();
 
   // onChange
   useLayoutEffect(() => {
+    if (data.enabled === false) return;
     return editor.registerUpdateListener(payload => {
       const { dirtyElements, dirtyLeaves, prevEditorState, tags } = payload;
       const isSelectionChange =
@@ -28,8 +32,10 @@ export default function OnChangePlugin(data: OnChangePluginProps) {
         (data.ignoreSelectionChange && isSelectionChange) ||
         (data.ignoreHistoryMergeTagChange && tags.has(HISTORY_MERGE_TAG)) ||
         prevEditorState.isEmpty() ||
-        !tags.isDisjointFrom(skipTagsSet)
+        !tags.isDisjointFrom(skipTagsSet) ||
+        data.isReloadingRef.current
       ) {
+        console.debug('[ONCHANGE] ignored event', tags);
         return;
       }
 

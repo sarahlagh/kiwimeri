@@ -545,7 +545,7 @@ describe('LinkExtension', () => {
       // click on link btn
       const linkBtn = getLinkBtn(screen);
       await expect.element(linkBtn).toBeInTheDocument();
-      await expect.element(linkBtn).not.toHaveClass('active');
+      await expect.element(linkBtn).toHaveClass('active');
       await linkBtn.click();
 
       // check modal
@@ -584,7 +584,7 @@ describe('LinkExtension', () => {
       // click on link btn
       const linkBtn = getLinkBtn(screen);
       await expect.element(linkBtn).toBeInTheDocument();
-      await expect.element(linkBtn).not.toHaveClass('active');
+      await expect.element(linkBtn).toHaveClass('active');
       await linkBtn.click();
 
       // check modal
@@ -623,7 +623,7 @@ describe('LinkExtension', () => {
       // click on link btn
       const linkBtn = getLinkBtn(screen);
       await expect.element(linkBtn).toBeInTheDocument();
-      await expect.element(linkBtn).not.toHaveClass('active');
+      await expect.element(linkBtn).toHaveClass('active');
       await linkBtn.click();
 
       // check modal
@@ -1294,7 +1294,7 @@ describe('LinkExtension', () => {
       // click on link btn
       const linkBtn = getLinkBtn(screen);
       await expect.element(linkBtn).toBeInTheDocument();
-      await expect.element(linkBtn).not.toHaveClass('active');
+      await expect.element(linkBtn).toHaveClass('active');
       await linkBtn.click();
 
       // check modal
@@ -1335,7 +1335,7 @@ describe('LinkExtension', () => {
       // click on link btn
       const linkBtn = getLinkBtn(screen);
       await expect.element(linkBtn).toBeInTheDocument();
-      await expect.element(linkBtn).not.toHaveClass('active');
+      await expect.element(linkBtn).toHaveClass('active');
       await linkBtn.click();
 
       // check modal
@@ -1384,7 +1384,7 @@ describe('LinkExtension', () => {
       // click on link btn
       const linkBtn = getLinkBtn(screen);
       await expect.element(linkBtn).toBeInTheDocument();
-      await expect.element(linkBtn).not.toHaveClass('active');
+      await expect.element(linkBtn).toHaveClass('active');
       await linkBtn.click();
 
       // check modal

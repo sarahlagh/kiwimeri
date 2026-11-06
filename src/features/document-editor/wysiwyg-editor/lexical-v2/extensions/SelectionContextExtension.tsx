@@ -1,7 +1,6 @@
 import { Signal, signal } from '@lexical/extension';
 import { $isAutoLinkNode, $isLinkNode } from '@lexical/link';
 import { $isListNode, ListNode, ListType } from '@lexical/list';
-import { useExtensionSignalValue } from '@lexical/react/useExtensionSignalValue';
 import { $isHeadingNode, HeadingTagType } from '@lexical/rich-text';
 import { $getNearestNodeOfType } from '@lexical/utils';
 import {
@@ -227,7 +226,3 @@ export const SelectionContextExtension = defineExtension({
     );
   }
 });
-
-export function useSelectionContext() {
-  return useExtensionSignalValue(SelectionContextExtension, 'selectionContext');
-}

@@ -1,8 +1,7 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useLingui } from '@lingui/react/macro';
 import { FORMAT_ELEMENT_COMMAND } from 'lexical';
-import { useIsEditable } from '../extensions/ReloadConfigExtension';
-import { useSelectionContext } from '../extensions/SelectionContextExtension';
+import { useIsEditable, useSelectionContext } from '../hooks';
 import { ToolbarButton } from './buttons';
 
 export const TextAlignSection = () => {

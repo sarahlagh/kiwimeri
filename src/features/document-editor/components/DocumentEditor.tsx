@@ -48,13 +48,17 @@ const ActionsFromDocumentEditorToolbar = lazy(() =>
 
 export type DocumentEditorHandle = {
   refreshContent: () => void;
-} & RichTextEditorHandle;
+} & Omit<RichTextEditorHandle, 'getContext'>;
 
 interface DocumentEditorProps {
   docId: string;
   showActions?: boolean;
   query?: string;
   ref: RefObject<DocumentEditorHandle | null>;
+}
+
+function onZoomChange(zoomLevel: number) {
+  deviceSettings.set('globalZoom', zoomLevel);
 }
 
 const DocumentEditor = (props: DocumentEditorProps) => {
@@ -203,9 +207,7 @@ const DocumentEditor = (props: DocumentEditorProps) => {
             ignoreSelectionChange={false}
             resumeLastSelection={deviceSettings.get('resumeLastSelection')}
             initialZoom={deviceSettings.get('globalZoom')}
-            onZoomChange={zoomLevel => {
-              deviceSettings.set('globalZoom', zoomLevel);
-            }}
+            onZoomChange={onZoomChange}
             onChange={payload => {
               if (!payload.isSelectionChange) {
                 const { blocksChanged, hasDeletedNodes } =
@@ -228,6 +230,7 @@ const DocumentEditor = (props: DocumentEditorProps) => {
             }}
           />
         )}
+        <IonButton onClick={refreshContent}>refresh</IonButton>
       </IonContent>
       {showBottomSheet && (
         <DocumentBottomSheet

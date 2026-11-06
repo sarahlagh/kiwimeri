@@ -3,6 +3,7 @@ import { HeadingTagType } from '@lexical/rich-text';
 import { ElementFormatType, TextFormatType } from 'lexical';
 import { expect } from 'vitest';
 import { RenderResult } from 'vitest-browser-react';
+import { Locator } from 'vitest/browser';
 
 // content editor
 
@@ -14,13 +15,16 @@ export function getContentEditorElement(screen: RenderResult) {
   return getContentEditor(screen).element() as HTMLElement;
 }
 
-export async function getEditorTextContent(screen: RenderResult) {
-  const composer = getContentEditor(screen);
-  await expect.element(composer).toBeInTheDocument();
-
+export function getEditorElementTextContent(composer: Locator) {
   const el = composer.element() as HTMLElement;
   expect(el.children).toHaveLength(1);
   return el.children[0].textContent;
+}
+
+export async function getEditorTextContent(screen: RenderResult) {
+  const composer = getContentEditor(screen);
+  await expect.element(composer).toBeInTheDocument();
+  return getEditorElementTextContent(composer);
 }
 
 // toolbar

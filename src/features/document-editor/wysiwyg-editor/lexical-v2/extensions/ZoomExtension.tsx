@@ -1,5 +1,4 @@
 import { batch, signal } from '@lexical/extension';
-import { useExtensionSignalValue } from '@lexical/react/useExtensionSignalValue';
 import {
   COMMAND_PRIORITY_LOW,
   COMMAND_PRIORITY_NORMAL,
@@ -144,9 +143,3 @@ export const ZoomExtension = defineExtension({
     });
   }
 });
-
-export function useCanZoomSignals() {
-  const canZoomIn = useExtensionSignalValue(ZoomExtension, 'canZoomIn');
-  const canZoomOut = useExtensionSignalValue(ZoomExtension, 'canZoomOut');
-  return { canZoomIn, canZoomOut };
-}
