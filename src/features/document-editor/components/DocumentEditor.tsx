@@ -1,4 +1,5 @@
 import { GET_DOCUMENT_ROUTE } from '@/app/routes';
+import { appConfig } from '@/config';
 import { APPICONS } from '@/constants';
 import { SpaceTables } from '@/core/db/store-constants';
 import { schedule } from '@/core/tasks/scheduler.service';
@@ -48,7 +49,7 @@ const ActionsFromDocumentEditorToolbar = lazy(() =>
 
 export type DocumentEditorHandle = {
   refreshContent: () => void;
-} & Omit<RichTextEditorHandle, 'getContext'>;
+} & RichTextEditorHandle;
 
 interface DocumentEditorProps {
   docId: string;
@@ -78,6 +79,9 @@ const DocumentEditor = (props: DocumentEditorProps) => {
     () => ({
       getEditor() {
         return editorRef.current?.getEditor() || null;
+      },
+      getContext() {
+        return editorRef.current?.getContext() || null;
       },
       focusEditor() {
         editorRef.current?.focusEditor();
@@ -204,6 +208,7 @@ const DocumentEditor = (props: DocumentEditorProps) => {
             serializedSelection={resumeState?.lastSelection || null}
             enableHistory={true}
             enableToolbar={!showDocumentActions && !toggleSearch}
+            enableDebugTree={appConfig.DEV_ENABLE_LEXICAL_DEBUG_TREE}
             searchText={toggleSearch ? searchText : undefined}
             ignoreSelectionChange={false}
             resumeLastSelection={deviceSettings.get('resumeLastSelection')}
@@ -231,7 +236,6 @@ const DocumentEditor = (props: DocumentEditorProps) => {
             }}
           />
         )}
-        <IonButton onClick={refreshContent}>refresh</IonButton>
       </IonContent>
       {showBottomSheet && (
         <DocumentBottomSheet

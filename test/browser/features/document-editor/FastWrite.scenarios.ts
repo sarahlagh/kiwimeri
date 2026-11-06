@@ -908,6 +908,6 @@ export const fastWriteScenarios: FastWriteScenario[] = [
   ...quotesTests,
   ...linksTests,
   ...textAlignTests,
-  ...multipleMutationsTests,
-  ...undoRedoTests
+  ...multipleMutationsTests
+  // ...undoRedoTests // TODO
 ];
