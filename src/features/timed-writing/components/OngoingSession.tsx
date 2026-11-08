@@ -50,18 +50,20 @@ const OngoingSession = ({
   duration,
   mode,
   initValue,
+  initHasEnded = false,
   onEnd,
   onSave
 }: {
   duration: number;
   mode: TimedSessionMode;
   initValue: string;
+  initHasEnded?: boolean;
   onEnd: (content?: string) => void;
   onSave: (content: string) => void;
 }) => {
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [updatedAt, setUpdatedAt] = useState<number | null>(null);
-  const [endedAt, setEndedAt] = useState<number | null>(null);
+  const [hasEnded, setHasEnded] = useState<boolean>(initHasEnded);
   const [editorState, setEditorState] = useState<EditorState | null>(null);
   const [color, setColor] = useState<string | undefined>(undefined);
   const [warnClass, setWarnClass] = useState<string>('');
@@ -69,7 +71,7 @@ const OngoingSession = ({
   const [indicator, setIndicator] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    if (endedAt !== null || startedAt === null) return;
+    if (hasEnded || startedAt === null) return;
     const onNextTick = () => {
       if (startedAt === null || updatedAt === null) return;
       const now = Date.now();
@@ -93,8 +95,7 @@ const OngoingSession = ({
       const status = onNextTick();
       if (status !== 'continue') {
         if (clearTimer) clearInterval(timeout);
-        const now = Date.now();
-        setEndedAt(now);
+        setHasEnded(true);
         if (status === 'success' && editorState) {
           const lex = JSON.stringify(editorState.toJSON());
           onEnd(lex);
@@ -111,11 +112,11 @@ const OngoingSession = ({
     return () => {
       clearInterval(timeout);
     };
-  }, [duration, editorState, endedAt, mode, onEnd, startedAt, updatedAt]);
+  }, [duration, editorState, hasEnded, mode, onEnd, startedAt, updatedAt]);
 
   return (
     <>
-      {startedAt && !endedAt && (
+      {startedAt && !hasEnded && (
         <ClockTicking startedAt={startedAt} duration={duration} color={color} />
       )}
       <IonContent>
@@ -134,7 +135,7 @@ const OngoingSession = ({
                 setIndicator('');
               }, 250);
               setEditorState(editorState);
-              if (!endedAt) {
+              if (!hasEnded) {
                 setUpdatedAt(Date.now());
                 if (!startedAt) {
                   setStartedAt(Date.now());
@@ -156,7 +157,7 @@ const OngoingSession = ({
 
       <IonFooter>
         <IonToolbar color={color}>
-          {endedAt && (
+          {hasEnded && (
             <IonLabel style={{ paddingLeft: '10px' }}>
               <Trans>{wordCount} words</Trans>
             </IonLabel>
@@ -167,7 +168,7 @@ const OngoingSession = ({
               color={indicator}
               icon={APPICONS.indicator}
             />
-            {endedAt && (
+            {hasEnded && (
               <IonButton
                 onClick={() => {
                   const content = editorState?.toJSON();

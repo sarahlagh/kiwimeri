@@ -23,7 +23,7 @@ msgstr "-- conflict --"
 msgid "{v} minutes"
 msgstr "{v} minutes"
 
-#: src/features/timed-writing/components/OngoingSession.tsx:161
+#: src/features/timed-writing/components/OngoingSession.tsx:162
 msgid "{wordCount} words"
 msgstr "{wordCount} words"
 
@@ -282,7 +282,7 @@ msgstr "Device Settings"
 msgid "Device Token"
 msgstr "Device Token"
 
-#: src/features/timed-writing/components/OngoingSession.tsx:184
+#: src/features/timed-writing/components/OngoingSession.tsx:185
 msgid "Discard"
 msgstr "Discard"
 
@@ -767,7 +767,7 @@ msgstr "Run Now"
 msgid "Save"
 msgstr "Save"
 
-#: src/features/timed-writing/components/OngoingSession.tsx:179
+#: src/features/timed-writing/components/OngoingSession.tsx:180
 msgid "Save your work"
 msgstr "Save your work"
 

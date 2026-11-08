@@ -1,7 +1,5 @@
 import { GET_DOCUMENT_ROUTE } from '@/app/routes';
 import { store } from '@/core/db/store';
-import { SID } from '@/core/db/store-constants';
-import { useStoreValue } from '@/core/db/ui-hooks';
 import collectionService, {
   initialContent
 } from '@/domain/collection/collection.service';
@@ -10,7 +8,7 @@ import { deviceSettings } from '@/domain/device-settings/device-settings.service
 import { historyService } from '@/domain/history/history.service';
 import useDeviceSetting from '@/shared/hooks/useDeviceSetting';
 import { useIonModal } from '@ionic/react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import OngoingSession from './OngoingSession';
 import SaveSessionModal, { SavePayload } from './SaveSessionModal';
@@ -40,10 +38,10 @@ function saveTempDocument(payload: SavePayload) {
 
 const WritingSession = () => {
   const navigate = useNavigate();
-  const [ongoing, setOngoing] = useState<boolean>(false);
+  const tempDoc = store.getValue('tempDoc');
+  const [ongoing, setOngoing] = useState<boolean>(tempDoc !== undefined);
   const duration = useDeviceSetting('defaultTimedDuration');
   const mode = useDeviceSetting('defaultTimedMode') as TimedSessionMode;
-  const tempDoc = useStoreValue('tempDoc', SID.store);
 
   const [present, dismiss] = useIonModal(SaveSessionModal, {
     onClose: (payload?: SavePayload) => {
@@ -57,13 +55,6 @@ const WritingSession = () => {
       dismiss();
     }
   });
-
-  useEffect(() => {
-    if (tempDoc) {
-      // eslint-disable-next-line @eslint-react/set-state-in-effect
-      setOngoing(true);
-    }
-  }, [tempDoc]);
 
   if (!ongoing) {
     return (
@@ -83,7 +74,8 @@ const WritingSession = () => {
     <OngoingSession
       duration={duration * 60000}
       mode={mode}
-      initValue={tempDoc?.toString() || initialContent()}
+      initValue={tempDoc || initialContent()}
+      initHasEnded={tempDoc !== undefined}
       onEnd={content => {
         if (content) {
           // immediately save to temp value in tinybase, then on user choice, properly create doc

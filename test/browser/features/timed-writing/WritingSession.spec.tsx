@@ -405,7 +405,7 @@ describe('WritingSession', () => {
         .not.toBeInTheDocument();
       const progressBar = getProgressBar(screen);
       const textbox = getContentEditor(screen);
-      vi.advanceTimersByTime(60000);
+      vi.advanceTimersByTime(65000);
       await expect.element(textbox).toBeInTheDocument();
       await expect.element(progressBar).not.toBeInTheDocument();
 
@@ -452,6 +452,9 @@ describe('WritingSession', () => {
         store.getValue('tempDoc') as string,
         getNewParsedContent('abc def ghi')
       );
+
+      await userEvent.type(textbox, 'e');
+      await expect.element(textbox).toHaveFocus();
     });
 
     test('in save modal chose can chose to create a new document under current folder', async () => {
@@ -680,9 +683,8 @@ describe('WritingSession', () => {
         await expect
           .element(screen.getByText('Choose a session length'))
           .not.toBeInTheDocument();
-        // FIXME actually start a new session, bug (sort of)
-        // await expect.element(getSaveBtn(screen)).toBeInTheDocument();
-        // await expect.element(getWordCountLabel(screen, 2)).toBeInTheDocument();
+        await expect.element(getSaveBtn(screen)).toBeInTheDocument();
+        await expect.element(getWordCountLabel(screen, 2)).toBeInTheDocument();
       }
     });
 
