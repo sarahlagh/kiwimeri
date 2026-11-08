@@ -23,7 +23,7 @@ function saveTempDocument(payload: SavePayload) {
       payload.content
     );
     const id = collectionService.saveItem(payload.newItem);
-    return { id, parent: payload.newItem.parentId };
+    return { id, parentId: payload.newItem.parentId };
   } else {
     collectionService.setItemLexicalContent(
       payload.existingItem!.id,
@@ -33,7 +33,7 @@ function saveTempDocument(payload: SavePayload) {
     historyService.addVersion(payload.existingItem!.id, true);
     return {
       id: payload.existingItem!.id,
-      parent: payload.existingItem!.parentId
+      parentId: payload.existingItem!.parentId
     };
   }
 }
@@ -51,8 +51,8 @@ const WritingSession = () => {
         store.delValue('tempDoc');
         setOngoing(false);
 
-        const { id, parent } = saveTempDocument(payload);
-        navigate(GET_DOCUMENT_ROUTE(parent, id));
+        const { id, parentId } = saveTempDocument(payload);
+        navigate(GET_DOCUMENT_ROUTE(parentId, id));
       }
       dismiss();
     }

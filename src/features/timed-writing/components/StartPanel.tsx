@@ -14,7 +14,7 @@ import {
   IonRadioGroup,
   IonToggle
 } from '@ionic/react';
-import { Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 
 export const StartPanel = ({
@@ -26,6 +26,7 @@ export const StartPanel = ({
   mode: TimedSessionMode;
   onStart: (duration: number, mode: TimedSessionMode) => void;
 }) => {
+  const { t } = useLingui();
   const [duration, setDuration] = useState<number>(initDuration);
   const [mode, setMode] = useState<TimedSessionMode>(initMode);
   const options = [5, 10, 15, 20, 25];
@@ -57,6 +58,7 @@ export const StartPanel = ({
             </IonLabel>
             <IonToggle
               slot="end"
+              aria-label={t`Session Mode`}
               checked={mode === 'less-dangerous'}
               onIonChange={e => {
                 setMode(e.detail.checked ? 'less-dangerous' : 'dangerous');

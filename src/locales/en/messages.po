@@ -19,11 +19,11 @@ msgstr " Note that profiles have backups that may be kept kept up to one day af
 msgid "-- conflict --"
 msgstr "-- conflict --"
 
-#: src/features/timed-writing/components/StartPanel.tsx:75
+#: src/features/timed-writing/components/StartPanel.tsx:77
 msgid "{v} minutes"
 msgstr "{v} minutes"
 
-#: src/features/timed-writing/components/OngoingSession.tsx:160
+#: src/features/timed-writing/components/OngoingSession.tsx:161
 msgid "{wordCount} words"
 msgstr "{wordCount} words"
 
@@ -144,7 +144,7 @@ msgstr "characters"
 msgid "Choose"
 msgstr "Choose"
 
-#: src/features/timed-writing/components/StartPanel.tsx:41
+#: src/features/timed-writing/components/StartPanel.tsx:42
 msgid "Choose a length for your writing session. Once you start, you must keep writing or all progress will be lost. You will have the option to save your work in a new document once you finish. This feature is inspired by Squibler's Most Dangerous Writing App (https://www.squibler.io/dangerous-writing-prompt-app)."
 msgstr "Choose a length for your writing session. Once you start, you must keep writing or all progress will be lost. You will have the option to save your work in a new document once you finish. This feature is inspired by Squibler's Most Dangerous Writing App (https://www.squibler.io/dangerous-writing-prompt-app)."
 
@@ -152,7 +152,7 @@ msgstr "Choose a length for your writing session. Once you start, you must keep 
 msgid "Choose a new folder"
 msgstr "Choose a new folder"
 
-#: src/features/timed-writing/components/StartPanel.tsx:38
+#: src/features/timed-writing/components/StartPanel.tsx:39
 msgid "Choose a session length"
 msgstr "Choose a session length"
 
@@ -282,7 +282,7 @@ msgstr "Device Settings"
 msgid "Device Token"
 msgstr "Device Token"
 
-#: src/features/timed-writing/components/OngoingSession.tsx:179
+#: src/features/timed-writing/components/OngoingSession.tsx:184
 msgid "Discard"
 msgstr "Discard"
 
@@ -483,7 +483,7 @@ msgstr "Last updated documents"
 msgid "Leave empty for root"
 msgstr "Leave empty for root"
 
-#: src/features/timed-writing/components/StartPanel.tsx:53
+#: src/features/timed-writing/components/StartPanel.tsx:54
 msgid "Less dangerous mode (session is still timed but you will not lose progress on pause)"
 msgstr "Less dangerous mode (session is still timed but you will not lose progress on pause)"
 
@@ -706,11 +706,11 @@ msgstr "Profile Settings"
 msgid "Ran at:  {relativeDate} with errors"
 msgstr "Ran at:  {relativeDate} with errors"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:19
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:20
 msgid "Read Mode"
 msgstr "Read Mode"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:52
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:55
 msgid "Redo"
 msgstr "Redo"
 
@@ -755,7 +755,7 @@ msgstr "Restore Collection"
 msgid "Restore Version"
 msgstr "Restore Version"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor.tsx:96
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor.tsx:108
 msgid "Rich text editor"
 msgstr "Rich text editor"
 
@@ -767,7 +767,7 @@ msgstr "Run Now"
 msgid "Save"
 msgstr "Save"
 
-#: src/features/timed-writing/components/OngoingSession.tsx:174
+#: src/features/timed-writing/components/OngoingSession.tsx:179
 msgid "Save your work"
 msgstr "Save your work"
 
@@ -802,6 +802,10 @@ msgstr "Select item tags"
 #: src/features/synchronization-ui/settings-ui/components/providers/PCloudSettings.tsx:77
 msgid "Server"
 msgstr "Server"
+
+#: src/features/timed-writing/components/StartPanel.tsx:61
+msgid "Session Mode"
+msgstr "Session Mode"
 
 #: src/app/components/MainMenuList.tsx:81
 #: src/app/pages/SettingsPage.tsx:15
@@ -850,7 +854,7 @@ msgstr "Space setting modified:"
 msgid "Space Settings"
 msgstr "Space Settings"
 
-#: src/features/timed-writing/components/StartPanel.tsx:82
+#: src/features/timed-writing/components/StartPanel.tsx:84
 msgid "Start Writing"
 msgstr "Start Writing"
 
@@ -884,7 +888,7 @@ msgstr "Tags"
 msgid "Text"
 msgstr "Text"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor.tsx:43
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor.tsx:50
 #: src/features/document-editor/wysiwyg-editor/lexical/KiwimeriEditor.tsx:95
 msgid "Text..."
 msgstr "Text..."
@@ -962,7 +966,7 @@ msgstr "Toggle link"
 msgid "Track text statistics"
 msgstr "Track text statistics"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:44
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:47
 msgid "Undo"
 msgstr "Undo"
 
@@ -1025,10 +1029,10 @@ msgstr "yes"
 msgid "You have not configured any remote yet."
 msgstr "You have not configured any remote yet."
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:28
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:29
 msgid "Zoom In"
 msgstr "Zoom In"
 
-#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:36
+#: src/features/document-editor/wysiwyg-editor/lexical-v2/toolbar/GlobalEditorSection.tsx:37
 msgid "Zoom Out"
 msgstr "Zoom Out"

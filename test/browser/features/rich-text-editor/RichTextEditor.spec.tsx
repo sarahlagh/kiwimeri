@@ -70,7 +70,7 @@ const ParentComponent = ({
         key
       </button>
       <RichTextEditor
-        globalEditable={editable}
+        editable={editable}
         initialState={initialState}
         enableDebugTree={false}
         onChange={onChange}
@@ -148,7 +148,7 @@ describe('RichTextEditor', () => {
 
   describe('is composer editable state', () => {
     test('editable=true propagates to the composer and the toolbar', async () => {
-      const screen = await renderEditor({ globalEditable: true, initialState });
+      const screen = await renderEditor({ editable: true, initialState });
       expect(await getEditorTextContent(screen)).toBe('hello world');
       expect(getContentEditorElement(screen)).toHaveAttribute(
         'contenteditable',
@@ -166,7 +166,7 @@ describe('RichTextEditor', () => {
 
     test('editable=false propagates to the composer and the toolbar', async () => {
       const screen = await renderEditor({
-        globalEditable: false,
+        editable: false,
         initialState
       });
       expect(await getEditorTextContent(screen)).toBe('hello world');
@@ -210,7 +210,7 @@ describe('RichTextEditor', () => {
     });
 
     test('toggle read btn propagates to the composer and the toolbar', async () => {
-      const screen = await renderEditor({ globalEditable: true, initialState });
+      const screen = await renderEditor({ editable: true, initialState });
       expect(await getEditorTextContent(screen)).toBe('hello world');
       expect(getContentEditorElement(screen)).toHaveAttribute(
         'contenteditable',
@@ -574,5 +574,9 @@ describe('RichTextEditor', () => {
       // didn't work
       expect(getEditorElementTextContent(composer)).toBe('new state 2');
     });
+  });
+
+  describe('on change', () => {
+    test.todo('on change can be disabled');
   });
 });

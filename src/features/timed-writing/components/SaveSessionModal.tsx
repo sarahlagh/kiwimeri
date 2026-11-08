@@ -49,20 +49,20 @@ const SaveSessionModal = ({ onClose }: SaveSessionModalProps) => {
     'SaveSessionModal',
     resumeService.getCurrentFolder()
   );
-  const [parent, setParent] = useFetchBrowsableItemsQueryParamsState(query);
+  const [parentId, setParentId] = useFetchBrowsableItemsQueryParamsState(query);
   const items = useQueryResults(query);
 
   useEffect(() => {
-    if (tempItem === null) {
+    if (tempItem === null && parentId !== undefined) {
       const { item: previewItem, id } =
-        collectionService.getNewDocumentObj(parent);
+        collectionService.getNewDocumentObj(parentId);
       previewItem.title = t`timed session ` + dateToStr('iso');
       setTempItem({ ...previewItem, id });
       if (item === null) {
         setItem({ ...previewItem, id });
       }
     }
-  }, [tempItem, parent, t, item]);
+  }, [tempItem, parentId, t, item]);
 
   const finalItems =
     item && item.id === tempItem?.id
@@ -77,9 +77,9 @@ const SaveSessionModal = ({ onClose }: SaveSessionModalProps) => {
         </IonTitle>
         <CollectionItemBreadcrumb
           minBreadcrumb={0}
-          folder={parent}
+          folder={parentId}
           onClick={item => {
-            setParent(item);
+            setParentId(item);
           }}
         />
       </IonHeader>
@@ -87,7 +87,7 @@ const SaveSessionModal = ({ onClose }: SaveSessionModalProps) => {
         items={finalItems}
         onSelectedItem={selected => {
           if (selected.type === CollectionItemType.folder) {
-            setParent(selected.id);
+            setParentId(selected.id);
           } else if (selected.id === item?.id) {
             // unselect document
             setItem(tempItem);
@@ -96,7 +96,7 @@ const SaveSessionModal = ({ onClose }: SaveSessionModalProps) => {
           }
         }}
         selected={item?.id}
-      ></CollectionItemList>
+      />
 
       <IonFooter>
         <IonToolbar>
@@ -119,7 +119,7 @@ const SaveSessionModal = ({ onClose }: SaveSessionModalProps) => {
                   content: JSON.parse(content!)
                 };
                 if (item.id === tempItem?.id) {
-                  payload.newItem = tempItem;
+                  payload.newItem = { ...tempItem, parentId };
                 } else {
                   payload.existingItem = item;
                   // merge existing content with new

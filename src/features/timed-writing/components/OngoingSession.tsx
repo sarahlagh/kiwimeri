@@ -131,7 +131,7 @@ const OngoingSession = ({
             onWritingKey={editorState => {
               setIndicator('primary');
               setTimeout(() => {
-                setIndicator(undefined);
+                setIndicator('');
               }, 250);
               setEditorState(editorState);
               if (!endedAt) {
@@ -162,7 +162,11 @@ const OngoingSession = ({
             </IonLabel>
           )}
           <IonButtons slot="end">
-            <IonIcon color={indicator} icon={APPICONS.indicator}></IonIcon>
+            <IonIcon
+              data-testid={'indicator-icon'}
+              color={indicator}
+              icon={APPICONS.indicator}
+            />
             {endedAt && (
               <IonButton
                 onClick={() => {

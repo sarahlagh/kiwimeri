@@ -303,7 +303,6 @@ describe('Fast Write', () => {
       );
     });
 
-    // const HISTORY_DELAY = 150;
     fastWriteScenarios.forEach(
       ({ initial, next, desc, mutate, isFullSnapshot }, idx) => {
         test(`fastWrite scenario #${idx}: ${desc}`, async () => {
