@@ -3,7 +3,7 @@ import { Capacitor } from '@capacitor/core';
 
 class PlatformService {
   public isAndroid() {
-    return Capacitor.getPlatform() === 'android';
+    return this.getPlatform() === 'android';
   }
 
   public isDev() {
