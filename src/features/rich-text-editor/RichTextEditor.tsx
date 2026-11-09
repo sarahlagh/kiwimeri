@@ -131,7 +131,7 @@ const RichTextEditor = (
           initialState={props.initialState}
           reloadKey={props.reloadKey}
           resumeLastSelection={resumeLastSelection}
-          serializedSelection={props.serializedSelection}
+          initialSelection={props.initialSelection}
           enableHistory={enableHistory}
         />
         <ExtensionComponent

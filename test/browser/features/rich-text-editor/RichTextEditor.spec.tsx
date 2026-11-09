@@ -1,5 +1,7 @@
 import { describe, expect, test } from 'vitest';
 
+import { SerializedSelection } from '@/domain/collection/resume-state';
+import { serializeSelection } from '@/features/rich-text-editor';
 import { OnChangePluginPayload } from '@/features/rich-text-editor/react/OnChangePlugin';
 import RichTextEditor from '@/features/rich-text-editor/RichTextEditor';
 import { RichTextEditorHandle } from '@/features/rich-text-editor/RichTextEditorHandle';
@@ -9,6 +11,7 @@ import {
   getNewParsedContent
 } from '@@/_setup/test.utils';
 import { TestingProvider } from '@@/browser/TestingProvider';
+import { $getSelection } from 'lexical';
 import { createRef, RefObject, useState } from 'react';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
@@ -35,10 +38,14 @@ const parentToggleEditableBtnId = 'test-btn-editable';
 const updateKeyId = 'test-btn-trigger-key';
 const ParentComponent = ({
   onChange,
-  ref
+  ref,
+  ignoreSelectionChange = true,
+  serializedSelection
 }: {
   onChange?: (payload: OnChangePluginPayload) => void;
   ref?: RefObject<RichTextEditorHandle | null>;
+  ignoreSelectionChange?: boolean;
+  serializedSelection?: SerializedSelection;
 }) => {
   const [key, setKey] = useState(0);
   const [initialState, setInitialState] = useState(state1);
@@ -74,6 +81,8 @@ const ParentComponent = ({
         initialState={initialState}
         enableDebugTree={false}
         onChange={onChange}
+        ignoreSelectionChange={ignoreSelectionChange}
+        initialSelection={serializedSelection}
         historyId={initialState === state1 ? 'state1' : 'state2'}
         ref={ref}
         reloadKey={key}
@@ -249,11 +258,122 @@ describe('RichTextEditor', () => {
     });
   });
 
+  describe('initial selection', () => {
+    test('renders with an initial selection', async () => {
+      const initialState = getNewContent('hello world');
+      const initialSelection = JSON.parse(
+        '{"focus":{"blockIndex":0,"leafIndex":0,"offset":4,"type":"text"},"format":0}'
+      );
+      const screen = await renderEditor({
+        initialState,
+        initialSelection,
+        resumeLastSelection: true
+      });
+      const textContent = await getEditorTextContent(screen);
+      expect(textContent).toBe('hello world');
+
+      const selection = screen.getLexicalEditor().read(() => $getSelection());
+      expect(selection).toBeDefined();
+      expect(
+        serializeSelection(screen.getLexicalEditor().getEditorState())
+      ).toEqual(initialSelection);
+    });
+
+    test('resumeLastSelection flag disables resuming selection even if exists', async () => {
+      const initialState = getNewContent('hello world');
+      const initialSelection = JSON.parse(
+        '{"focus":{"blockIndex":0,"leafIndex":0,"offset":4,"type":"text"},"format":0}'
+      );
+      const screen = await renderEditor({
+        initialState,
+        initialSelection,
+        resumeLastSelection: false
+      });
+      const textContent = await getEditorTextContent(screen);
+      expect(textContent).toBe('hello world');
+
+      const selection = screen.getLexicalEditor().read(() => $getSelection());
+      expect(selection).toBeNull();
+      expect(
+        serializeSelection(screen.getLexicalEditor().getEditorState())
+      ).toBeNull();
+    });
+
+    test('resumeLastSelection flag is ignored if no selection to resume', async () => {
+      const initialState = getNewContent('hello world');
+      const screen = await renderEditor({
+        initialState,
+        resumeLastSelection: true
+      });
+      const textContent = await getEditorTextContent(screen);
+      expect(textContent).toBe('hello world');
+
+      const selection = screen.getLexicalEditor().read(() => $getSelection());
+      expect(selection).toBeNull();
+      expect(
+        serializeSelection(screen.getLexicalEditor().getEditorState())
+      ).toBeNull();
+    });
+
+    test('out of range selection does not fail rendering', async () => {
+      const initialState = getNewContent('hello world');
+      const initialSelection = JSON.parse(
+        '{"focus":{"blockIndex":3,"leafIndex":52,"offset":4,"type":"text"},"format":0}'
+      );
+      const screen = await renderEditor({
+        initialState,
+        initialSelection,
+        resumeLastSelection: false
+      });
+      const textContent = await getEditorTextContent(screen);
+      expect(textContent).toBe('hello world');
+
+      const selection = screen.getLexicalEditor().read(() => $getSelection());
+      expect(selection).toBeNull();
+      expect(
+        serializeSelection(screen.getLexicalEditor().getEditorState())
+      ).toBeNull();
+    });
+
+    test('invalid selection does not fail rendering', async () => {
+      const initialState = getNewContent('hello world');
+      const initialSelection = JSON.parse(
+        '{"focus":{"blockIe":"text"},"format":0}' // invalid
+      );
+      const screen = await renderEditor({
+        initialState,
+        initialSelection,
+        resumeLastSelection: false
+      });
+      const textContent = await getEditorTextContent(screen);
+      expect(textContent).toBe('hello world');
+
+      const selection = screen.getLexicalEditor().read(() => $getSelection());
+      expect(selection).toBeNull();
+      expect(
+        serializeSelection(screen.getLexicalEditor().getEditorState())
+      ).toBeNull();
+    });
+  });
+
   describe('history stack', () => {
-    async function renderParent(onChange?: () => void) {
+    async function renderParent({
+      ignoreSelectionChange,
+      onChange,
+      serializedSelection
+    }: {
+      ignoreSelectionChange?: boolean;
+      onChange?: (payload: OnChangePluginPayload) => void;
+      serializedSelection?: SerializedSelection;
+    }) {
       const ref = createRef<RichTextEditorHandle>();
       const screen = await render(
-        <ParentComponent ref={ref} onChange={onChange} />,
+        <ParentComponent
+          ref={ref}
+          onChange={onChange}
+          ignoreSelectionChange={ignoreSelectionChange}
+          serializedSelection={serializedSelection}
+        />,
         {
           wrapper: TestingProvider
         }
@@ -275,8 +395,10 @@ describe('RichTextEditor', () => {
 
     test('interaction with the editor creates a history entry and onChange event', async () => {
       let onChangeFired = 0;
-      const screen = await renderParent(() => {
-        onChangeFired++;
+      const screen = await renderParent({
+        onChange: () => {
+          onChangeFired++;
+        }
       });
 
       // make some modif
@@ -292,8 +414,10 @@ describe('RichTextEditor', () => {
 
     test('a change of initialState creates a separate history stack and no onChange event', async () => {
       let onChangeFired = 0;
-      const screen = await renderParent(() => {
-        onChangeFired++;
+      const screen = await renderParent({
+        onChange: () => {
+          onChangeFired++;
+        }
       });
 
       // make some modif
@@ -315,8 +439,10 @@ describe('RichTextEditor', () => {
 
     test('can click on undo', async () => {
       let onChangeFired = 0;
-      const screen = await renderParent(() => {
-        onChangeFired++;
+      const screen = await renderParent({
+        onChange: () => {
+          onChangeFired++;
+        }
       });
       const composer = getContentEditor(screen);
 
@@ -348,8 +474,10 @@ describe('RichTextEditor', () => {
 
     test('shortcut for undo works', async () => {
       let onChangeFired = 0;
-      const screen = await renderParent(() => {
-        onChangeFired++;
+      const screen = await renderParent({
+        onChange: () => {
+          onChangeFired++;
+        }
       });
       const composer = getContentEditor(screen);
 
@@ -378,8 +506,10 @@ describe('RichTextEditor', () => {
 
     test('can click on redo', async () => {
       let onChangeFired = 0;
-      const screen = await renderParent(() => {
-        onChangeFired++;
+      const screen = await renderParent({
+        onChange: () => {
+          onChangeFired++;
+        }
       });
       const composer = getContentEditor(screen);
 
@@ -412,8 +542,10 @@ describe('RichTextEditor', () => {
 
     test('shortcut for redo works', async () => {
       let onChangeFired = 0;
-      const screen = await renderParent(() => {
-        onChangeFired++;
+      const screen = await renderParent({
+        onChange: () => {
+          onChangeFired++;
+        }
       });
       const composer = getContentEditor(screen);
 
@@ -445,7 +577,7 @@ describe('RichTextEditor', () => {
     });
 
     test('cannot click on undo redo if read mode', async () => {
-      const screen = await renderParent();
+      const screen = await renderParent({});
 
       const undoBtn = getUndoBtn(screen);
       const redoBtn = getRedoBtn(screen);
@@ -465,67 +597,78 @@ describe('RichTextEditor', () => {
       await expect(redoBtn).not.toBeDisabled();
     });
 
-    test('can switch between documents', async () => {
-      let onChangeFired = 0;
-      const screen = await renderParent(() => {
-        onChangeFired++;
+    [true, false].forEach(ignoreSelectionChange => {
+      test(`can switch between documents with${ignoreSelectionChange ? 'out' : ''} selection resume`, async () => {
+        let onChangeFired = 0;
+        const screen = await renderParent({
+          ignoreSelectionChange,
+          serializedSelection: JSON.parse(
+            '{"focus":{"blockIndex":0,"leafIndex":0,"offset":4,"type":"text"},"format":0}'
+          ),
+          onChange: ({ isSelectionChange }) => {
+            if (!isSelectionChange) onChangeFired++;
+          }
+        });
+        const composer = getContentEditor(screen);
+        const undoBtn = getUndoBtn(screen);
+
+        // make some modif
+        await getContentEditor(screen).fill('new state 1');
+        await getContentEditor(screen).fill('new state 2');
+        await getContentEditor(screen).fill('new state 3');
+        await getContentEditor(screen).fill('new state 4');
+        // await clickOnEditor(screen, 1, 1);
+        await undoBtn.click();
+
+        expect(getEditorElementTextContent(composer)).toBe('new state 3');
+
+        {
+          const { canRedoLength, canUndoLength } = screen.getContext();
+          expect(canRedoLength).toBe(1);
+          expect(canUndoLength).toBe(3);
+        }
+        onChangeFired = 0;
+
+        // change to state 2
+        const btn = screen.getByTestId(parentSwitchBtnId);
+        await expect.element(btn).toBeInTheDocument();
+        await btn.click();
+
+        await getContentEditor(screen).fill('new state a');
+        await getContentEditor(screen).fill('new state b');
+        await getContentEditor(screen).fill('new state c');
+        await undoBtn.click();
+        await undoBtn.click();
+
+        expect(getEditorElementTextContent(composer)).toBe('new state a');
+
+        expect(onChangeFired).toBe(5);
+        {
+          const { canRedoLength, canUndoLength } = screen.getContext();
+          expect(canRedoLength).toBe(2);
+          expect(canUndoLength).toBe(1); // flaky?
+        }
+        onChangeFired = 0;
+        await btn.click();
+
+        expect(onChangeFired).toBe(0);
+        {
+          const { canRedoLength, canUndoLength } = screen.getContext();
+          expect(canRedoLength).toBe(1);
+          expect(canUndoLength).toBe(3);
+        }
+
+        await getRedoBtn(screen).click();
+        expect(getEditorElementTextContent(composer)).toBe('new state 4');
       });
-      const composer = getContentEditor(screen);
-      const undoBtn = getUndoBtn(screen);
-
-      // make some modif
-      await getContentEditor(screen).fill('new state 1');
-      await getContentEditor(screen).fill('new state 2');
-      await getContentEditor(screen).fill('new state 3');
-      await getContentEditor(screen).fill('new state 4');
-      await undoBtn.click();
-
-      expect(getEditorElementTextContent(composer)).toBe('new state 3');
-
-      {
-        const { canRedoLength, canUndoLength } = screen.getContext();
-        expect(canRedoLength).toBe(1);
-        expect(canUndoLength).toBe(3);
-      }
-      onChangeFired = 0;
-
-      // change to state 2
-      const btn = screen.getByTestId(parentSwitchBtnId);
-      await expect.element(btn).toBeInTheDocument();
-      await btn.click();
-
-      await getContentEditor(screen).fill('new state a');
-      await getContentEditor(screen).fill('new state b');
-      await getContentEditor(screen).fill('new state c');
-      await undoBtn.click();
-      await undoBtn.click();
-
-      expect(getEditorElementTextContent(composer)).toBe('new state a');
-
-      expect(onChangeFired).toBe(5);
-      {
-        const { canRedoLength, canUndoLength } = screen.getContext();
-        expect(canRedoLength).toBe(2);
-        expect(canUndoLength).toBe(1); // flaky?
-      }
-      onChangeFired = 0;
-      await btn.click();
-
-      expect(onChangeFired).toBe(0);
-      {
-        const { canRedoLength, canUndoLength } = screen.getContext();
-        expect(canRedoLength).toBe(1);
-        expect(canUndoLength).toBe(3);
-      }
-
-      await getRedoBtn(screen).click();
-      expect(getEditorElementTextContent(composer)).toBe('new state 4');
     });
 
     test('reloadKey triggers a refresh', async () => {
       let onChangeFired = 0;
-      const screen = await renderParent(() => {
-        onChangeFired++;
+      const screen = await renderParent({
+        onChange: () => {
+          onChangeFired++;
+        }
       });
       let textContent = await getEditorTextContent(screen);
       expect(textContent).toBe('state 1');

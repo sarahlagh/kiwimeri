@@ -62,12 +62,12 @@ export default function ReloadPlugin(data: ReloadPluginProps) {
 
         editor.update(
           () => {
-            const selection = $deserializeSelection(data.serializedSelection);
+            const selection = $deserializeSelection(data.initialSelection);
             if (!selection) return;
             $setSelection(selection);
           },
           {
-            tag: [SELECTION_CHANGE_TAG, RELOAD_TAG, HISTORIC_TAG],
+            tag: [SELECTION_CHANGE_TAG, RELOAD_TAG],
             discrete: true
           }
         );
@@ -107,7 +107,7 @@ export default function ReloadPlugin(data: ReloadPluginProps) {
         },
         100 // maxDepth
       ),
-      () => () => {
+      () => {
         cancelled = true;
       }
     );
@@ -117,6 +117,7 @@ export default function ReloadPlugin(data: ReloadPluginProps) {
 
   useEffect(() => {
     if (initialReloadRef.current === data.reloadKey) return;
+    console.debug('[RELOAD] reloadKey triggered');
     const parseableState = getParseableState(data.initialState);
     const newState = editor.parseEditorState(parseableState);
     editor.setEditorState(newState, {

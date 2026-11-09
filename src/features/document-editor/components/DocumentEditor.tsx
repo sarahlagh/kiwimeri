@@ -230,7 +230,7 @@ const DocumentEditor = (props: DocumentEditorProps) => {
             additionalClassNames={'document-editor'}
             historyId={docId}
             initialState={contentRef.current}
-            serializedSelection={resumeState?.lastSelection || null}
+            initialSelection={resumeState?.lastSelection || null}
             enableHistory={true}
             enableToolbar={!showDocumentActions && !toggleSearch}
             enableDebugTree={appConfig.DEV_ENABLE_LEXICAL_DEBUG_TREE}
