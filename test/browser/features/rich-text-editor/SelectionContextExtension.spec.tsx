@@ -1,4 +1,4 @@
-import { SelectionContext } from '@/features/document-editor/wysiwyg-editor/lexical-v2/extensions/SelectionContextExtension';
+import { SelectionContext } from '@/features/rich-text-editor/extensions/SelectionContextExtension';
 import { fromSimpleHTML } from '@@/_setup/test.utils';
 import { describe, expect, test } from 'vitest';
 import { clickOnEditor, getSelectionContext, renderEditor } from './utils';

@@ -3,7 +3,7 @@ import { APPICONS } from '@/constants';
 import { CollectionItemSnapshotData } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
 import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-content';
-import { RichTextEditor } from '@/features/document-editor';
+import { RichTextEditor } from '@/features/rich-text-editor';
 import { SearchActionsToolbar } from '@/features/search';
 import {
   IonButton,

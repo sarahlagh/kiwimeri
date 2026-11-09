@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest';
 
-import { OnChangePluginPayload } from '@/features/document-editor/wysiwyg-editor/lexical-v2/react/OnChangePlugin';
-import RichTextEditor from '@/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor';
-import { RichTextEditorHandle } from '@/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditorHandle';
+import { OnChangePluginPayload } from '@/features/rich-text-editor/react/OnChangePlugin';
+import RichTextEditor from '@/features/rich-text-editor/RichTextEditor';
+import { RichTextEditorHandle } from '@/features/rich-text-editor/RichTextEditorHandle';
 import {
   amount,
   getNewContent,

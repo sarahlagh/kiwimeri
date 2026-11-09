@@ -1,6 +1,6 @@
-import { CONTENT_SEARCH_RESULTS_HIGHLIGHT_KEY } from '@/features/document-editor/wysiwyg-editor/lexical-v2/extensions/ReactSearchExtension';
-import RichTextEditor from '@/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor';
-import { RichTextEditorHandle } from '@/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditorHandle';
+import { CONTENT_SEARCH_RESULTS_HIGHLIGHT_KEY } from '@/features/rich-text-editor/extensions/ReactSearchExtension';
+import RichTextEditor from '@/features/rich-text-editor/RichTextEditor';
+import { RichTextEditorHandle } from '@/features/rich-text-editor/RichTextEditorHandle';
 import { fromSimpleHTML } from '@@/_setup/test.utils';
 import { TestingProvider } from '@@/browser/TestingProvider';
 import { createRef, RefObject, useState } from 'react';

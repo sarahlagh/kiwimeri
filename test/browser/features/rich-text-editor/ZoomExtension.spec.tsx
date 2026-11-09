@@ -1,4 +1,4 @@
-import { ZoomExtension } from '@/features/document-editor/wysiwyg-editor/lexical-v2/extensions/ZoomExtension';
+import { ZoomExtension } from '@/features/rich-text-editor/extensions/ZoomExtension';
 import { LexicalExtensionComposer } from '@lexical/react/LexicalExtensionComposer';
 import { useExtensionSignalValue } from '@lexical/react/useExtensionSignalValue';
 import { describe, expect, test } from 'vitest';

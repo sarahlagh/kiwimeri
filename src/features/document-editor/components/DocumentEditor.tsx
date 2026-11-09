@@ -34,13 +34,14 @@ import {
   useState
 } from 'react';
 import { useNavigate } from 'react-router';
-import { OnChangePluginPayload } from '../wysiwyg-editor/lexical-v2/react/OnChangePlugin';
-import RichTextEditor from '../wysiwyg-editor/lexical-v2/RichTextEditor';
-import { RichTextEditorHandle } from '../wysiwyg-editor/lexical-v2/RichTextEditorHandle';
+
 import {
   getChangedBlocks,
+  OnChangePluginPayload,
+  RichTextEditor,
+  RichTextEditorHandle,
   serializeSelection
-} from '../wysiwyg-editor/lexical-v2/utils/node-serializer';
+} from '@/features/rich-text-editor';
 import DocumentBottomSheet, { DocSheet } from './DocumentBottomSheet';
 import './DocumentEditor.scss';
 

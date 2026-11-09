@@ -9,7 +9,6 @@ export type OnChangePluginPayload = UpdateListenerPayload & {
 
 type OnChangePluginProps = {
   isReloadingRef: RefObject<boolean>;
-  enabled?: boolean;
   ignoreHistoryMergeTagChange?: boolean;
   ignoreSelectionChange?: boolean;
   onChange: (change: OnChangePluginPayload) => void;
@@ -22,7 +21,6 @@ export default function OnChangePlugin(data: OnChangePluginProps) {
 
   // onChange
   useLayoutEffect(() => {
-    if (data.enabled === false) return;
     return editor.registerUpdateListener(payload => {
       const { dirtyElements, dirtyLeaves, prevEditorState, tags } = payload;
       const isSelectionChange =
@@ -39,7 +37,7 @@ export default function OnChangePlugin(data: OnChangePluginProps) {
       }
 
       console.debug('[ONCHANGE] got event');
-      if (data.onChange) data.onChange({ ...payload, isSelectionChange, tags });
+      data.onChange({ ...payload, isSelectionChange, tags });
     });
   }, [editor, data]);
 

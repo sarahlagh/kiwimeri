@@ -1,6 +1,6 @@
 /* eslint-disable @eslint-react/set-state-in-effect */
 import { APPICONS } from '@/constants';
-import { RichTextEditor } from '@/features/document-editor';
+import { RichTextEditor } from '@/features/rich-text-editor';
 import {
   IonButton,
   IonButtons,

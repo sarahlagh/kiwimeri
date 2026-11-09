@@ -1,8 +1,8 @@
-import { SelectionContextExtension } from '@/features/document-editor/wysiwyg-editor/lexical-v2/extensions/SelectionContextExtension';
+import { SelectionContextExtension } from '@/features/rich-text-editor/extensions/SelectionContextExtension';
 import RichTextEditor, {
   RichTextEditorProps
-} from '@/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditor';
-import { RichTextEditorHandle } from '@/features/document-editor/wysiwyg-editor/lexical-v2/RichTextEditorHandle';
+} from '@/features/rich-text-editor/RichTextEditor';
+import { RichTextEditorHandle } from '@/features/rich-text-editor/RichTextEditorHandle';
 import { TestingProvider } from '@@/browser/TestingProvider';
 import { $getExtensionOutput } from '@lexical/extension';
 import { LexicalEditor } from 'lexical';

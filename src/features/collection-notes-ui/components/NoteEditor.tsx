@@ -8,7 +8,7 @@ import {
   getChangedBlocks,
   OnChangePluginPayload,
   RichTextEditor
-} from '@/features/document-editor';
+} from '@/features/rich-text-editor';
 import { useCallback, useEffect } from 'react';
 
 type NoteEditorProps = {

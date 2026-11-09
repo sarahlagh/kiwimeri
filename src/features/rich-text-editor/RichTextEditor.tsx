@@ -56,7 +56,6 @@ const RichTextEditor = (
     enableToolbar = true,
     enableHistory = true,
     enableDebugTree = false,
-    enableOnChange = true,
     resumeLastSelection = false,
     searchText,
     additionalClassNames,
@@ -118,14 +117,13 @@ const RichTextEditor = (
         </div>
         <EditorRefPlugin editorRef={editorRef} />
         <GlobalReactContextRefPlugin contextRef={contextRef} />
-        <OnChangePlugin
-          isReloadingRef={isReloadingRef}
-          enabled={enableOnChange}
-          ignoreSelectionChange={ignoreSelectionChange}
-          onChange={payload => {
-            if (onChange) onChange(payload);
-          }}
-        />
+        {onChange && (
+          <OnChangePlugin
+            isReloadingRef={isReloadingRef}
+            ignoreSelectionChange={ignoreSelectionChange}
+            onChange={onChange}
+          />
+        )}
         <ReloadPlugin
           isReloadingRef={isReloadingRef}
           editable={globalEditable}
