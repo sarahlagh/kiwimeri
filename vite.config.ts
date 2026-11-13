@@ -26,8 +26,8 @@ const viteConfig = defineConfig({
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src/'),
-      '@@': path.resolve(__dirname, 'test/')
+      '@': path.resolve(import.meta.dirname, 'src/'),
+      '@@': path.resolve(import.meta.dirname, 'test/')
     }
   },
   plugins: [react(), lingui({ macroTransform: true })]

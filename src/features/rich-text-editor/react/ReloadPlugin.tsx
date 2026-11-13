@@ -1,3 +1,4 @@
+import { appConfig } from '@/config';
 import { initialContent } from '@/domain/collection/collection.service';
 import {
   createEmptyHistoryState,
@@ -5,13 +6,8 @@ import {
   registerHistory
 } from '@lexical/history';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import {
-  $setSelection,
-  HISTORIC_TAG,
-  mergeRegister,
-  SerializedEditorState
-} from 'lexical';
-import { RefObject, useEffect, useRef } from 'react';
+import { $setSelection, SerializedEditorState } from 'lexical';
+import { RefObject, useCallback, useEffect, useRef } from 'react';
 import { RELOAD_TAG, SELECTION_CHANGE_TAG } from '../constants';
 import {
   CustomInitialEditorStateType,
@@ -21,7 +17,7 @@ import { $deserializeSelection } from '../utils/node-serializer';
 import { useGlobalReactContext } from './GlobalReactContext';
 
 type ReloadPluginProps = {
-  isReloadingRef: RefObject<boolean>;
+  historyStoreRef: RefObject<Map<string, HistoryState>>; // must live outside of the editor
 } & RichTextEditorInitialData;
 
 function getParseableState(
@@ -35,11 +31,24 @@ function getParseableState(
 }
 
 export default function ReloadPlugin(data: ReloadPluginProps) {
+  const { enableHistory = true } = data;
   const [editor] = useLexicalComposerContext();
   const { updateContext } = useGlobalReactContext();
-  const historyStoreRef = useRef(new Map<string, HistoryState>());
+  const historyStoreRef = data.historyStoreRef;
   const initialReloadRef = useRef(data.reloadKey);
   const globalEditable = data.editable !== undefined ? data.editable : true;
+
+  const onHistoryChange = useCallback(
+    (historyState: HistoryState) => {
+      updateContext({
+        canRedo: historyState.redoStack.length > 0,
+        canRedoLength: historyState.redoStack.length,
+        canUndo: historyState.undoStack.length > 0,
+        canUndoLength: historyState.undoStack.length
+      });
+    },
+    [updateContext]
+  );
 
   // set editor state
   useEffect(() => {
@@ -47,77 +56,71 @@ export default function ReloadPlugin(data: ReloadPluginProps) {
     const parseableState = getParseableState(data.initialState);
     const newState = editor.parseEditorState(parseableState);
     let cancelled = false;
-
-    queueMicrotask(() => {
-      console.debug('[RELOAD] reloading', data.historyId);
-      data.isReloadingRef.current = true;
-      editor.setEditorState(newState, {
-        tag: HISTORIC_TAG // ideally I'd send both HISTORIC_TAG and RELOAD_TAG, but not possible
-      });
-      data.isReloadingRef.current = false;
-
-      if (!data.resumeLastSelection) return;
-      requestAnimationFrame(() => {
-        if (cancelled) return;
-
-        editor.update(
-          () => {
-            const selection = $deserializeSelection(data.initialSelection);
-            if (!selection) return;
-            $setSelection(selection);
-          },
-          {
-            tag: [SELECTION_CHANGE_TAG, RELOAD_TAG],
-            discrete: true
-          }
-        );
-      });
-    });
-
-    if (data.enableHistory === false) {
-      return () => {
-        cancelled = true;
-      };
-    }
+    let unregisterHistory = () => {};
 
     const historyId = data.historyId || '';
     if (!historyStoreRef.current.has(historyId)) {
       historyStoreRef.current.set(historyId, createEmptyHistoryState());
     }
     const historyState = historyStoreRef.current.get(historyId)!;
-    return mergeRegister(
-      registerHistory(
-        editor,
-        historyState,
-        1000, // delay
-        () => Date.now(),
-        historyState => {
-          console.debug(
-            '[HISTORY] redo',
-            historyState.redoStack.length,
-            'undo',
-            historyState.undoStack.length
+
+    queueMicrotask(() => {
+      if (cancelled) return;
+      try {
+        editor.setEditorState(newState, {
+          tag: RELOAD_TAG
+        });
+        if (enableHistory) {
+          historyState.current = {
+            editor,
+            editorState: editor.getEditorState()
+          };
+          unregisterHistory = registerHistory(
+            editor,
+            historyState,
+            appConfig.LEXICAL_HISTORY_DELAY,
+            () => Date.now(),
+            onHistoryChange,
+            appConfig.LEXICAL_HISTORY_MAX_DEPTH
           );
-          updateContext({
-            canRedo: historyState.redoStack.length > 0,
-            canRedoLength: historyState.redoStack.length,
-            canUndo: historyState.undoStack.length > 0,
-            canUndoLength: historyState.undoStack.length
-          });
-        },
-        100 // maxDepth
-      ),
-      () => {
-        cancelled = true;
+        }
+      } catch (e) {
+        console.error('unexpected error loading state', e);
+        return;
       }
-    );
+
+      if (!data.resumeLastSelection) return;
+      requestAnimationFrame(() => {
+        if (cancelled) return;
+        try {
+          editor.update(
+            () => {
+              const selection = $deserializeSelection(data.initialSelection);
+              if (!selection) return;
+              $setSelection(selection);
+            },
+            {
+              tag: [SELECTION_CHANGE_TAG, RELOAD_TAG],
+              discrete: true
+            }
+          );
+        } catch (e) {
+          console.error('unable to set selection', e);
+        }
+      });
+    });
+
+    return () => {
+      cancelled = true;
+      unregisterHistory();
+    };
     // listening to change on serializedSelection isn't needed
     // eslint-disable-next-line @eslint-react/exhaustive-deps
   }, [editor, data.historyId, data.initialState]);
 
+  // reload key
   useEffect(() => {
     if (initialReloadRef.current === data.reloadKey) return;
-    console.debug('[RELOAD] reloadKey triggered');
     const parseableState = getParseableState(data.initialState);
     const newState = editor.parseEditorState(parseableState);
     editor.setEditorState(newState, {

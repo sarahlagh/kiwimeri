@@ -40,7 +40,7 @@ export const GlobalReactContextProvider = ({
 }) => {
   const [globalContext, dispatch] = useReducer(
     (state, action) => ({ ...state, ...action }),
-    INITIAL_CONTEXT
+    { ...INITIAL_CONTEXT }
   );
   return (
     <GlobalReactContext

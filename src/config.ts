@@ -28,6 +28,8 @@ class AppConfig implements ImportMetaEnv {
   DEFAULT_LANG = 'en';
   DEV_ENABLE_TINYBASE_INSPECTOR = false;
   DEV_ENABLE_LEXICAL_DEBUG_TREE = false;
+  LEXICAL_HISTORY_DELAY = 1000;
+  LEXICAL_HISTORY_MAX_DEPTH = 100;
   /** @deprecated */
   DEV_OVERRIDE_PLATFORM?: 'web' | 'android' | 'electron';
 

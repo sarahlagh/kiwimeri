@@ -2,6 +2,7 @@ import { ExtensionComponent } from '@lexical/react/ExtensionComponent';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { EditorRefPlugin } from '@lexical/react/LexicalEditorRefPlugin';
 import { LexicalExtensionComposer } from '@lexical/react/LexicalExtensionComposer';
+import { HistoryState } from '@lexical/react/LexicalHistoryPlugin';
 import { TreeViewExtension } from '@lexical/react/TreeViewExtension';
 import { useLingui } from '@lingui/react/macro';
 import { LexicalEditor } from 'lexical';
@@ -46,7 +47,7 @@ const RichTextEditor = (
   const { t } = useLingui();
   const editorRef = useRef<LexicalEditor | null>(null);
   const contextRef = useRef<ReadOnlyGlobalReactContext | null>(null);
-  const isReloadingRef = useRef(false);
+  const historyStoreRef = useRef(new Map<string, HistoryState>());
   const placeholder = t`Text...`;
 
   const {
@@ -90,11 +91,11 @@ const RichTextEditor = (
   }, [props.initialZoom, props.onZoomChange]);
 
   return (
-    <LexicalExtensionComposer extension={appExtension} contentEditable={null}>
-      <GlobalReactContextProvider
-        globalEditable={globalEditable}
-        historyEnabled={enableHistory}
-      >
+    <GlobalReactContextProvider
+      globalEditable={globalEditable}
+      historyEnabled={enableHistory}
+    >
+      <LexicalExtensionComposer extension={appExtension} contentEditable={null}>
         <div className="editor-container">
           {enableToolbar && <Toolbar />}
           <div className="editor-inner">
@@ -119,13 +120,12 @@ const RichTextEditor = (
         <GlobalReactContextRefPlugin contextRef={contextRef} />
         {onChange && (
           <OnChangePlugin
-            isReloadingRef={isReloadingRef}
             ignoreSelectionChange={ignoreSelectionChange}
             onChange={onChange}
           />
         )}
         <ReloadPlugin
-          isReloadingRef={isReloadingRef}
+          historyStoreRef={historyStoreRef}
           editable={globalEditable}
           historyId={props.historyId}
           initialState={props.initialState}
@@ -139,8 +139,8 @@ const RichTextEditor = (
           searchText={searchText}
         />
         {children}
-      </GlobalReactContextProvider>
-    </LexicalExtensionComposer>
+      </LexicalExtensionComposer>
+    </GlobalReactContextProvider>
   );
 };
 

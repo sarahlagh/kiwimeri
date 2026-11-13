@@ -1,15 +1,12 @@
-import { describe, expect, test } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
+import { appConfig } from '@/config';
 import { SerializedSelection } from '@/domain/collection/resume-state';
 import { serializeSelection } from '@/features/rich-text-editor';
 import { OnChangePluginPayload } from '@/features/rich-text-editor/react/OnChangePlugin';
 import RichTextEditor from '@/features/rich-text-editor/RichTextEditor';
 import { RichTextEditorHandle } from '@/features/rich-text-editor/RichTextEditorHandle';
-import {
-  amount,
-  getNewContent,
-  getNewParsedContent
-} from '@@/_setup/test.utils';
+import { getNewContent, getNewParsedContent } from '@@/_setup/test.utils';
 import { TestingProvider } from '@@/browser/TestingProvider';
 import { $getSelection } from 'lexical';
 import { createRef, RefObject, useState } from 'react';
@@ -40,14 +37,15 @@ const ParentComponent = ({
   onChange,
   ref,
   ignoreSelectionChange = true,
-  serializedSelection
+  initialSelection
 }: {
   onChange?: (payload: OnChangePluginPayload) => void;
   ref?: RefObject<RichTextEditorHandle | null>;
   ignoreSelectionChange?: boolean;
-  serializedSelection?: SerializedSelection;
+  initialSelection?: SerializedSelection;
 }) => {
   const [key, setKey] = useState(0);
+  const [docId, setDocId] = useState('state1');
   const [initialState, setInitialState] = useState(state1);
   const [editable, setEditable] = useState(true);
   return (
@@ -55,7 +53,8 @@ const ParentComponent = ({
       <button
         data-testid={parentSwitchBtnId}
         onClick={() => {
-          setInitialState(initialState === state1 ? state2 : state1);
+          setDocId(() => (docId === 'state1' ? 'state2' : 'state1'));
+          setInitialState(() => (docId === 'state1' ? state2 : state1));
         }}
       >
         state
@@ -82,8 +81,8 @@ const ParentComponent = ({
         enableDebugTree={false}
         onChange={onChange}
         ignoreSelectionChange={ignoreSelectionChange}
-        initialSelection={serializedSelection}
-        historyId={initialState === state1 ? 'state1' : 'state2'}
+        initialSelection={initialSelection}
+        historyId={docId}
         ref={ref}
         reloadKey={key}
       />
@@ -357,14 +356,31 @@ describe('RichTextEditor', () => {
   });
 
   describe('history stack', () => {
+    beforeEach(() => {
+      appConfig.LEXICAL_HISTORY_DELAY = 10;
+      vi.useFakeTimers({
+        toFake: [
+          'setTimeout',
+          'clearTimeout',
+          'setInterval',
+          'clearInterval',
+          'queueMicrotask',
+          'Date'
+        ]
+      });
+    });
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
     async function renderParent({
       ignoreSelectionChange,
       onChange,
-      serializedSelection
+      initialSelection
     }: {
       ignoreSelectionChange?: boolean;
       onChange?: (payload: OnChangePluginPayload) => void;
-      serializedSelection?: SerializedSelection;
+      initialSelection?: SerializedSelection;
     }) {
       const ref = createRef<RichTextEditorHandle>();
       const screen = await render(
@@ -372,12 +388,13 @@ describe('RichTextEditor', () => {
           ref={ref}
           onChange={onChange}
           ignoreSelectionChange={ignoreSelectionChange}
-          serializedSelection={serializedSelection}
+          initialSelection={initialSelection}
         />,
         {
           wrapper: TestingProvider
         }
       );
+      await vi.runAllTimersAsync();
       return {
         ...screen,
         getEditor() {
@@ -403,13 +420,22 @@ describe('RichTextEditor', () => {
 
       // make some modif
       await getContentEditor(screen).fill('new state 1');
+      vi.advanceTimersByTime(100);
+      expect(onChangeFired).toBe(1);
+      {
+        const { canRedoLength, canUndoLength } = screen.getContext();
+        expect(canRedoLength).toBe(0);
+        expect(canUndoLength).toBe(1);
+      }
+
       await getContentEditor(screen).fill('new state 2');
-
+      vi.advanceTimersByTime(100);
       expect(onChangeFired).toBe(2);
-
-      const { canRedoLength, canUndoLength } = screen.getContext();
-      expect(canRedoLength).toBe(0);
-      expect(canUndoLength).toBe(2);
+      {
+        const { canRedoLength, canUndoLength } = screen.getContext();
+        expect(canRedoLength).toBe(0);
+        expect(canUndoLength).toBe(2);
+      }
     });
 
     test('a change of initialState creates a separate history stack and no onChange event', async () => {
@@ -422,13 +448,16 @@ describe('RichTextEditor', () => {
 
       // make some modif
       await getContentEditor(screen).fill('new state 1');
+      vi.advanceTimersByTime(100);
       await getContentEditor(screen).fill('new state 2');
+      vi.advanceTimersByTime(100);
       onChangeFired = 0;
 
       // change to state 2
       const btn = screen.getByTestId(parentSwitchBtnId);
       await expect.element(btn).toBeInTheDocument();
       await btn.click();
+      await vi.runAllTimersAsync();
 
       expect(onChangeFired).toBe(0);
 
@@ -453,7 +482,9 @@ describe('RichTextEditor', () => {
 
       // make some modif
       await getContentEditor(screen).fill('new state 1');
+      vi.advanceTimersByTime(100);
       await getContentEditor(screen).fill('new state 2');
+      vi.advanceTimersByTime(100);
       expect(onChangeFired).toBe(2);
 
       await expect(undoBtn).not.toBeDisabled();
@@ -488,7 +519,9 @@ describe('RichTextEditor', () => {
 
       // make some modif
       await getContentEditor(screen).fill('new state 1');
+      vi.advanceTimersByTime(100);
       await getContentEditor(screen).fill('new state 2');
+      vi.advanceTimersByTime(100);
       expect(onChangeFired).toBe(2);
 
       // undo last
@@ -520,7 +553,9 @@ describe('RichTextEditor', () => {
 
       // make some modif
       await getContentEditor(screen).fill('new state 1');
+      vi.advanceTimersByTime(100);
       await getContentEditor(screen).fill('new state 2');
+      vi.advanceTimersByTime(100);
       expect(onChangeFired).toBe(2);
 
       await expect(undoBtn).not.toBeDisabled();
@@ -547,6 +582,7 @@ describe('RichTextEditor', () => {
           onChangeFired++;
         }
       });
+      await vi.runAllTimersAsync();
       const composer = getContentEditor(screen);
 
       const undoBtn = getUndoBtn(screen);
@@ -556,7 +592,9 @@ describe('RichTextEditor', () => {
 
       // make some modif
       await getContentEditor(screen).fill('new state 1');
+      vi.advanceTimersByTime(100);
       await getContentEditor(screen).fill('new state 2');
+      vi.advanceTimersByTime(100);
       expect(onChangeFired).toBe(2);
 
       await expect(undoBtn).not.toBeDisabled();
@@ -583,7 +621,9 @@ describe('RichTextEditor', () => {
       const redoBtn = getRedoBtn(screen);
       // make some modif
       await getContentEditor(screen).fill('new state 1');
+      vi.advanceTimersByTime(100);
       await getContentEditor(screen).fill('new state 2');
+      vi.advanceTimersByTime(100);
       await undoBtn.click();
       await expect(undoBtn).not.toBeDisabled();
       await expect(redoBtn).not.toBeDisabled();
@@ -602,7 +642,7 @@ describe('RichTextEditor', () => {
         let onChangeFired = 0;
         const screen = await renderParent({
           ignoreSelectionChange,
-          serializedSelection: JSON.parse(
+          initialSelection: JSON.parse(
             '{"focus":{"blockIndex":0,"leafIndex":0,"offset":4,"type":"text"},"format":0}'
           ),
           onChange: ({ isSelectionChange }) => {
@@ -613,11 +653,14 @@ describe('RichTextEditor', () => {
         const undoBtn = getUndoBtn(screen);
 
         // make some modif
-        await getContentEditor(screen).fill('new state 1');
-        await getContentEditor(screen).fill('new state 2');
-        await getContentEditor(screen).fill('new state 3');
-        await getContentEditor(screen).fill('new state 4');
-        // await clickOnEditor(screen, 1, 1);
+        await composer.fill('new state 1');
+        vi.advanceTimersByTime(100);
+        await composer.fill('new state 2');
+        vi.advanceTimersByTime(100);
+        await composer.fill('new state 3');
+        vi.advanceTimersByTime(100);
+        await composer.fill('new state 4');
+        vi.advanceTimersByTime(100);
         await undoBtn.click();
 
         expect(getEditorElementTextContent(composer)).toBe('new state 3');
@@ -633,11 +676,40 @@ describe('RichTextEditor', () => {
         const btn = screen.getByTestId(parentSwitchBtnId);
         await expect.element(btn).toBeInTheDocument();
         await btn.click();
+        await vi.runAllTimersAsync();
 
-        await getContentEditor(screen).fill('new state a');
-        await getContentEditor(screen).fill('new state b');
-        await getContentEditor(screen).fill('new state c');
+        {
+          const { canRedoLength, canUndoLength } = screen.getContext();
+          expect(canRedoLength).toBe(0);
+          expect(canUndoLength).toBe(0);
+        }
+        expect(getEditorElementTextContent(composer)).toBe('state 2');
+        await expect.element(undoBtn).toBeDisabled();
+        await composer.fill('new state a');
+        await expect.element(undoBtn).not.toBeDisabled();
+        {
+          const { canRedoLength, canUndoLength } = screen.getContext();
+          expect(canRedoLength).toBe(0);
+          expect(canUndoLength).toBe(1);
+        }
+        await composer.fill('new state b');
+        {
+          const { canRedoLength, canUndoLength } = screen.getContext();
+          expect(canRedoLength).toBe(0);
+          expect(canUndoLength).toBe(2);
+        }
+        await composer.fill('new state c');
+        {
+          const { canRedoLength, canUndoLength } = screen.getContext();
+          expect(canRedoLength).toBe(0);
+          expect(canUndoLength).toBe(3);
+        }
         await undoBtn.click();
+        {
+          const { canRedoLength, canUndoLength } = screen.getContext();
+          expect(canRedoLength).toBe(1);
+          expect(canUndoLength).toBe(2);
+        }
         await undoBtn.click();
 
         expect(getEditorElementTextContent(composer)).toBe('new state a');
@@ -646,10 +718,11 @@ describe('RichTextEditor', () => {
         {
           const { canRedoLength, canUndoLength } = screen.getContext();
           expect(canRedoLength).toBe(2);
-          expect(canUndoLength).toBe(1); // flaky?
+          expect(canUndoLength).toBe(1);
         }
         onChangeFired = 0;
         await btn.click();
+        await vi.runAllTimersAsync();
 
         expect(onChangeFired).toBe(0);
         {
@@ -676,6 +749,7 @@ describe('RichTextEditor', () => {
 
       // make some modif
       await getContentEditor(screen).fill('new state 1');
+      vi.advanceTimersByTime(100);
       onChangeFired = 0;
 
       {
@@ -687,11 +761,10 @@ describe('RichTextEditor', () => {
       const btn = screen.getByTestId(updateKeyId);
       await expect.element(btn).toBeInTheDocument();
       await btn.click();
+      await vi.runAllTimersAsync();
 
       expect(onChangeFired).toBe(0);
       textContent = await getEditorTextContent(screen);
-
-      await amount(100);
 
       expect(textContent).toBe('state 1');
       {
@@ -709,17 +782,15 @@ describe('RichTextEditor', () => {
       await expect.element(undoBtn).not.toBeInTheDocument();
       await expect.element(redoBtn).not.toBeInTheDocument();
 
-      await getContentEditor(screen).fill('new state 1');
-      await getContentEditor(screen).fill('new state 2');
+      await composer.fill('new state 1');
+      vi.advanceTimersByTime(100);
+      await composer.fill('new state 2');
+      vi.advanceTimersByTime(100);
 
       // try to undo last
       await userEvent.type(getContentEditorElement(screen), '{Control>}{z}');
       // didn't work
       expect(getEditorElementTextContent(composer)).toBe('new state 2');
     });
-  });
-
-  describe('on change', () => {
-    test.todo('on change can be disabled');
   });
 });

@@ -1,6 +1,6 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { HISTORY_MERGE_TAG, UpdateListenerPayload } from 'lexical';
-import { RefObject, useLayoutEffect } from 'react';
+import { useLayoutEffect } from 'react';
 import { FOCUS_TAG, RELOAD_TAG } from '../constants';
 
 export type OnChangePluginPayload = UpdateListenerPayload & {
@@ -8,7 +8,6 @@ export type OnChangePluginPayload = UpdateListenerPayload & {
 };
 
 type OnChangePluginProps = {
-  isReloadingRef: RefObject<boolean>;
   ignoreHistoryMergeTagChange?: boolean;
   ignoreSelectionChange?: boolean;
   onChange: (change: OnChangePluginPayload) => void;
@@ -29,8 +28,7 @@ export default function OnChangePlugin(data: OnChangePluginProps) {
         (data.ignoreSelectionChange && isSelectionChange) ||
         (data.ignoreHistoryMergeTagChange && tags.has(HISTORY_MERGE_TAG)) ||
         prevEditorState.isEmpty() ||
-        !tags.isDisjointFrom(skipTagsSet) ||
-        data.isReloadingRef.current
+        !tags.isDisjointFrom(skipTagsSet)
       ) {
         console.debug('[ONCHANGE] ignored event', tags);
         return;
