@@ -5,14 +5,11 @@ import collectionService, {
 } from '@/domain/collection/collection.service';
 import { LexicalDiff } from '@/domain/document-edits/document-edits';
 import { writer } from '@/domain/document-edits/document-edits.service';
-import { ensurePersistentId } from '@/features/document-editor/wysiwyg-editor/lexical/block-state';
-import { lexicalConfig } from '@/features/document-editor/wysiwyg-editor/lexical/lexical-config';
 import { FakeState } from '@@/_setup/test.utils';
 import { createHeadlessEditor } from '@lexical/headless';
 import {
   EditorState,
   LexicalEditor,
-  ParagraphNode,
   SerializedEditorState,
   SerializedLexicalNode
 } from 'lexical';
@@ -112,11 +109,8 @@ const twoParagraphsRoot = JSON.stringify({
 describe(`document fast-write edits service`, () => {
   beforeAll(() => {
     editor = createHeadlessEditor({
-      nodes: lexicalConfig.nodes,
+      nodes: [],
       onError: () => {}
-    });
-    editor.registerNodeTransform(ParagraphNode, node => {
-      ensurePersistentId(node);
     });
   });
 

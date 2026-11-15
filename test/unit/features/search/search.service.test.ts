@@ -1,13 +1,17 @@
 import { space, spaceDocContent } from '@/core/db/store';
 import collectionService from '@/domain/collection/collection.service';
 import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-content';
-import { lexicalConfig } from '@/features/document-editor/wysiwyg-editor/lexical/lexical-config';
 import {
   searchLexicalService,
   SearchOptions,
   searchService
 } from '@/features/search';
+import { HorizontalRuleNode } from '@lexical/extension';
 import { createHeadlessEditor } from '@lexical/headless';
+import { AutoLinkNode, LinkNode } from '@lexical/link';
+import { ListItemNode, ListNode } from '@lexical/list';
+import { MarkNode } from '@lexical/mark';
+import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import { readFile, writeFile } from 'fs/promises';
 import { LexicalEditor, TextNode } from 'lexical';
 import { assert, beforeAll, beforeEach, describe, expect, it } from 'vitest';
@@ -66,7 +70,16 @@ describe('search service', () => {
       expect(collectionService.getDocumentPlainText(docId)).not.toBe('');
       const content = minimized!;
       editor = createHeadlessEditor({
-        nodes: lexicalConfig.nodes,
+        nodes: [
+          MarkNode,
+          HeadingNode,
+          QuoteNode,
+          LinkNode,
+          AutoLinkNode,
+          ListNode,
+          ListItemNode,
+          HorizontalRuleNode
+        ],
         onError: () => {}
       });
       const state = editor.parseEditorState(content);
