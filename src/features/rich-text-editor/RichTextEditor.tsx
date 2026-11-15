@@ -11,7 +11,6 @@ import {
   OnChangeExtensionPropsBridge,
   OnChangePluginPayload
 } from './extensions/OnChangeExtension';
-import { ReactSearchExtension } from './extensions/ReactSearchExtension';
 import { ZoomExtensionPropsBridge } from './extensions/ZoomExtension';
 import {
   EditorInstanceContextProvider,
@@ -19,6 +18,7 @@ import {
 } from './react/EditorInstanceContext';
 import EditorInstanceContextRefPlugin from './react/EditorInstanceContextRefPlugin';
 import ReloadPlugin from './react/ReloadPlugin';
+import { SearchPlugin } from './react/SearchPlugin';
 import { RichTextEditorHandle } from './RichTextEditorHandle';
 import Toolbar from './toolbar/Toolbar';
 import { RichTextEditorInitialData } from './types';
@@ -129,9 +129,10 @@ const RichTextEditor = (
           initialZoom={props.initialZoom}
           onZoomChange={props.onZoomChange}
         />
-        <ExtensionComponent
-          lexical:extension={ReactSearchExtension}
+        <SearchPlugin
           searchText={searchText}
+          historyId={props.historyId}
+          reloadKey={props.reloadKey}
         />
         {children}
       </LexicalExtensionComposer>

@@ -15,7 +15,6 @@ import { configExtension, defineExtension } from 'lexical';
 import { MarkdownShortcutsExtension as CustomMarkdownShortcutsExtension } from './extensions/MarkdownShortcutsExtension';
 import { OnChangeExtension } from './extensions/OnChangeExtension';
 import ReactLinkExtension from './extensions/ReactLinkExtension';
-import { ReactSearchExtension } from './extensions/ReactSearchExtension';
 import RegisterCommandsExtension from './extensions/RegisterCommandsExtension';
 import { SelectionContextExtension } from './extensions/SelectionContextExtension';
 import { ZoomExtension } from './extensions/ZoomExtension';
@@ -45,7 +44,6 @@ export const appExtension = defineExtension({
     OnChangeExtension,
     ZoomExtension,
     ReactLinkExtension,
-    ReactSearchExtension,
     CustomMarkdownShortcutsExtension
   ],
   name: '@kiwimeri/rich-text',

@@ -30,6 +30,7 @@ class AppConfig implements ImportMetaEnv {
   DEV_ENABLE_LEXICAL_DEBUG_TREE = false;
   LEXICAL_HISTORY_DELAY = 1000;
   LEXICAL_HISTORY_MAX_DEPTH = 100;
+  LEXICAL_SEARCH_DELAY = 3000;
   /** @deprecated */
   DEV_OVERRIDE_PLATFORM?: 'web' | 'android' | 'electron';
 

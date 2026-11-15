@@ -2,8 +2,10 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { appConfig } from '@/config';
 import { SerializedSelection } from '@/domain/collection/resume-state';
-import { serializeSelection } from '@/features/rich-text-editor';
-import { OnChangePluginPayload } from '@/features/rich-text-editor/react/OnChangePlugin';
+import {
+  OnChangePluginPayload,
+  serializeSelection
+} from '@/features/rich-text-editor';
 import RichTextEditor from '@/features/rich-text-editor/RichTextEditor';
 import { RichTextEditorHandle } from '@/features/rich-text-editor/RichTextEditorHandle';
 import { getNewContent, getNewParsedContent } from '@@/_setup/test.utils';

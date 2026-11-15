@@ -1,10 +1,11 @@
-import { CONTENT_SEARCH_RESULTS_HIGHLIGHT_KEY } from '@/features/rich-text-editor/extensions/ReactSearchExtension';
+import { appConfig } from '@/config';
+import { CONTENT_SEARCH_RESULTS_HIGHLIGHT_KEY } from '@/features/rich-text-editor/react/SearchPlugin';
 import RichTextEditor from '@/features/rich-text-editor/RichTextEditor';
 import { RichTextEditorHandle } from '@/features/rich-text-editor/RichTextEditorHandle';
 import { fromSimpleHTML } from '@@/_setup/test.utils';
 import { TestingProvider } from '@@/browser/TestingProvider';
 import { createRef, RefObject, useState } from 'react';
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { getContentEditorElement } from './RichTextEditor.locators';
@@ -59,7 +60,7 @@ async function renderParent() {
   };
 }
 
-describe('SearchExtension', () => {
+describe('SearchPlugin', () => {
   test('do nothing if no searchText', async () => {
     const screen = await renderParent();
 
@@ -89,20 +90,39 @@ describe('SearchExtension', () => {
     ).toBeDefined();
   });
 
-  test.todo('highlight updates if editor content changes', async () => {
-    const screen = await renderParent();
-    const searchInput = screen.getByTestId(searchInputId);
-    await searchInput.fill('world');
-    await expect.element(screen.baseElement).toBeInTheDocument();
-    let highlight = CSS.highlights.get(CONTENT_SEARCH_RESULTS_HIGHLIGHT_KEY);
-    expect(highlight).toBeDefined();
-    const lengthBefore = [...highlight!.entries()].length;
+  test('highlight updates if editor content changes', async () => {
+    try {
+      appConfig.LEXICAL_SEARCH_DELAY = 100;
+      vi.useFakeTimers({
+        toFake: [
+          'setTimeout',
+          'clearTimeout',
+          'setInterval',
+          'clearInterval',
+          'queueMicrotask',
+          'Date'
+        ]
+      });
+      const screen = await renderParent();
+      vi.runAllTimersAsync();
+      const searchInput = screen.getByTestId(searchInputId);
+      await searchInput.fill('world');
+      vi.advanceTimersByTime(500);
 
-    await userEvent.fill(getContentEditorElement(screen), 'hello world');
+      await expect.element(screen.baseElement).toBeInTheDocument();
+      let highlight = CSS.highlights.get(CONTENT_SEARCH_RESULTS_HIGHLIGHT_KEY);
+      expect(highlight).toBeDefined();
+      const lengthBefore = [...highlight!.entries()].length;
 
-    highlight = CSS.highlights.get(CONTENT_SEARCH_RESULTS_HIGHLIGHT_KEY);
-    expect(highlight).toBeDefined();
-    expect([...highlight!.entries()].length).not.toBe(lengthBefore);
+      await userEvent.fill(getContentEditorElement(screen), 'hello world');
+      vi.advanceTimersByTime(500);
+
+      highlight = CSS.highlights.get(CONTENT_SEARCH_RESULTS_HIGHLIGHT_KEY);
+      expect(highlight).toBeDefined();
+      expect([...highlight!.entries()].length).not.toBe(lengthBefore);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   describe('search text', () => {
