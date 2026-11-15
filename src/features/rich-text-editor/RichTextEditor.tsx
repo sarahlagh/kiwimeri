@@ -7,6 +7,10 @@ import { useLingui } from '@lingui/react/macro';
 import { LexicalEditor } from 'lexical';
 import { ReactNode, RefObject, useImperativeHandle, useRef } from 'react';
 import { appExtension } from './app-extension';
+import {
+  OnChangeExtensionPropsBridge,
+  OnChangePluginPayload
+} from './extensions/OnChangeExtension';
 import { ReactSearchExtension } from './extensions/ReactSearchExtension';
 import { ZoomExtensionPropsBridge } from './extensions/ZoomExtension';
 import {
@@ -14,7 +18,6 @@ import {
   ReadOnlyEditorInstanceContext
 } from './react/EditorInstanceContext';
 import EditorInstanceContextRefPlugin from './react/EditorInstanceContextRefPlugin';
-import OnChangePlugin, { OnChangePluginPayload } from './react/OnChangePlugin';
 import ReloadPlugin from './react/ReloadPlugin';
 import { RichTextEditorHandle } from './RichTextEditorHandle';
 import Toolbar from './toolbar/Toolbar';
@@ -107,7 +110,7 @@ const RichTextEditor = (
         <EditorRefPlugin editorRef={editorRef} />
         <EditorInstanceContextRefPlugin contextRef={contextRef} />
         {onChange && (
-          <OnChangePlugin
+          <OnChangeExtensionPropsBridge
             ignoreSelectionChange={ignoreSelectionChange}
             onChange={onChange}
           />

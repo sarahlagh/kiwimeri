@@ -13,6 +13,7 @@ import { TreeViewExtension } from '@lexical/react/TreeViewExtension';
 import { RichTextExtension } from '@lexical/rich-text';
 import { configExtension, defineExtension } from 'lexical';
 import { MarkdownShortcutsExtension as CustomMarkdownShortcutsExtension } from './extensions/MarkdownShortcutsExtension';
+import { OnChangeExtension } from './extensions/OnChangeExtension';
 import ReactLinkExtension from './extensions/ReactLinkExtension';
 import { ReactSearchExtension } from './extensions/ReactSearchExtension';
 import RegisterCommandsExtension from './extensions/RegisterCommandsExtension';
@@ -41,6 +42,7 @@ export const appExtension = defineExtension({
     // custom extensions
     SelectionContextExtension,
     RegisterCommandsExtension,
+    OnChangeExtension,
     ZoomExtension,
     ReactLinkExtension,
     ReactSearchExtension,

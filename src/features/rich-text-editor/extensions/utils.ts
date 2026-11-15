@@ -8,3 +8,5 @@ export function mergeConfig<T extends object>(config: T, override: T) {
   });
   return merged;
 }
+
+export function noop() {}

@@ -11,6 +11,7 @@ import {
   safeCast
 } from 'lexical';
 import { useLayoutEffect } from 'react';
+import { noop } from './utils';
 
 export const ZOOM_TO_COMMAND = createCommand<
   number | { zoom: number; isInitialZoom: true }
@@ -73,7 +74,7 @@ type ZoomExtensionConfig = {
 
 const initialConfig: ZoomExtensionConfig = {
   initialZoom: 100,
-  onZoomChange() {}
+  onZoomChange: noop
 };
 
 function canZoomInZoomOut(value: number) {
@@ -161,14 +162,11 @@ export const ZoomExtension = defineExtension({
   }
 });
 
-type ZoomExtensionPropsBridgeProps = {
-  initialZoom?: number;
-  onZoomChange?: (zoom: number) => void;
-};
+type ExtensionBridgeProps = Partial<ZoomExtensionConfig>;
 export const ZoomExtensionPropsBridge = ({
   initialZoom,
   onZoomChange
-}: ZoomExtensionPropsBridgeProps) => {
+}: ExtensionBridgeProps) => {
   const { output } = useExtensionDependency(ZoomExtension);
 
   useLayoutEffect(() => {
