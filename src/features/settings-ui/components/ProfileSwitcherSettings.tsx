@@ -1,5 +1,4 @@
 import { APPICONS } from '@/constants';
-import { getCurrentProfile, setCurrentProfile } from '@/core/db/store';
 import { plt } from '@/core/infra/platform';
 import { profileService } from '@/domain/profiles/profile.service';
 import {
@@ -23,7 +22,7 @@ import useProfiles from '../hooks/useProfiles';
 
 const ProfileSwitcherSettings = () => {
   const { t } = useLingui();
-  const profile = getCurrentProfile();
+  const profile = plt.getCurrentProfile();
   const [selectedProfile, setSelectedProfile] = useState(profile);
   const availableProfiles = useProfiles();
   const deletableProfiles = availableProfiles.filter(
@@ -55,7 +54,7 @@ const ProfileSwitcherSettings = () => {
               value={selectedProfile}
               onIonChange={e => {
                 const newValue = e.detail.value as string;
-                setCurrentProfile(newValue);
+                plt.setCurrentProfile(newValue);
                 setSelectedProfile(newValue);
                 location.reload();
               }}

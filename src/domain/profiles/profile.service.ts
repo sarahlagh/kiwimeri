@@ -1,5 +1,5 @@
 import { appConfig } from '@/config';
-import { getCurrentProfile, store } from '@/core/db/store';
+import { store } from '@/core/db/store';
 import { StoreTables } from '@/core/db/store-constants';
 import { plt } from '@/core/infra/platform';
 import { schedule } from '@/core/tasks/scheduler.service';
@@ -19,7 +19,7 @@ class ProfileService {
   }
 
   public deleteProfile(profileName: string) {
-    const current = getCurrentProfile();
+    const current = plt.getCurrentProfile();
     if (profileName === current || profileName === 'default') return;
     store.delRow(StoreTables.Profiles, profileName);
     // delete the db too!!

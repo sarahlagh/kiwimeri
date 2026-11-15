@@ -1,5 +1,5 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
-import { setCurrentProfile } from '@/core/db/store';
+import { plt } from '@/core/infra/platform';
 import { readFile } from 'fs/promises';
 import { Content } from 'tinybase';
 
@@ -95,7 +95,7 @@ describe('reloading into different profiles', () => {
   beforeEach(() => {
     vi.resetModules();
     vi.useFakeTimers();
-    setCurrentProfile('default');
+    plt.setCurrentProfile('default');
   });
   afterEach(async () => {
     (await nukeStorage)();
@@ -110,7 +110,7 @@ describe('reloading into different profiles', () => {
       createdAt: Date.now()
     });
     vi.resetModules();
-    setCurrentProfile('test');
+    plt.setCurrentProfile('test');
 
     const module = await getStoreModule();
 
@@ -130,7 +130,7 @@ describe('reloading into different profiles', () => {
     )();
     expect(window.nativeContentMap.size).toBe(8); // 4 read + 4 set
     vi.resetModules();
-    setCurrentProfile('test');
+    plt.setCurrentProfile('test');
 
     const module = await getStoreModule();
     await (
@@ -171,7 +171,7 @@ describe('reloading into different profiles', () => {
     });
     window.nativeContentMap.clear();
     vi.resetModules();
-    setCurrentProfile('test');
+    plt.setCurrentProfile('test');
 
     const content = await getFileContent('0.5.0.space-content.json');
     window.nativeContentMap.set('kiwimeri-space-test', content);

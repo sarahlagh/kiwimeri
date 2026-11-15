@@ -7,6 +7,7 @@ import {
   createQueries,
   createStore
 } from 'tinybase/with-schemas';
+import { plt } from '../infra/platform';
 import { migrateArchiveDatabase } from './migrate-content-store';
 import { migrate } from './migrations/migrate';
 import { NATIVE_STORE_EXCLUDE } from './store-constants';
@@ -19,14 +20,7 @@ import {
   storeValuesSchema
 } from './store-schema';
 
-export function getCurrentProfile() {
-  return localStorage.getItem('currentSpace') || 'default';
-}
-export function setCurrentProfile(profile: string) {
-  localStorage.setItem('currentSpace', profile);
-}
-
-const profile = getCurrentProfile();
+const profile = plt.getCurrentProfile();
 const spaceName = `kiwimeri-space-${profile}`;
 const spaceArchiveName = `kiwimeri-space-archive-${profile}`;
 const spaceDocContentName = `kiwimeri-space-document-content-${profile}`;

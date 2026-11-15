@@ -35,6 +35,14 @@ class PlatformService {
   public hasHighlightSupport() {
     return CSS.highlights !== undefined;
   }
+
+  public getCurrentProfile() {
+    return localStorage.getItem('currentSpace') || 'default';
+  }
+
+  public setCurrentProfile(profile: string) {
+    localStorage.setItem('currentSpace', profile);
+  }
 }
 
 export const plt = new PlatformService();

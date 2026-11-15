@@ -1,6 +1,7 @@
 import { Id } from 'tinybase/with-schemas';
-import { getCurrentProfile, store } from '../db/store';
+import { store } from '../db/store';
 import { StoreTables } from '../db/store-constants';
+import { plt } from '../infra/platform';
 import { AppNotificationCtx, AppNotificationLevel } from './notifications';
 
 const N = StoreTables.Notifications;
@@ -13,7 +14,7 @@ class AppNotificationService {
   ) {
     return store.addRow(N, {
       createdAt: Date.now(),
-      profile: getCurrentProfile(),
+      profile: plt.getCurrentProfile(),
       level,
       message,
       context

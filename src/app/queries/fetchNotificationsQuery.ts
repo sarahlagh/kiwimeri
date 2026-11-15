@@ -1,6 +1,6 @@
 import { StoreQueryDefinition } from '@/core/db/queries-helper';
-import { getCurrentProfile } from '@/core/db/store';
 import { StoreTables } from '@/core/db/store-constants';
+import { plt } from '@/core/infra/platform';
 import { AppNotificationResult } from '@/core/notifications/notifications';
 
 type NotificationsQueryParam = {
@@ -24,7 +24,7 @@ const fetchNotificationsQuery = new StoreQueryDefinition<
     select('message');
     select('context');
     select('ackAt');
-    where('profile', getCurrentProfile());
+    where('profile', plt.getCurrentProfile());
 
     if (!params.all) {
       where(getTableCell => {
