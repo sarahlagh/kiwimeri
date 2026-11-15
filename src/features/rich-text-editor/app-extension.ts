@@ -20,42 +20,33 @@ import { SelectionContextExtension } from './extensions/SelectionContextExtensio
 import { ZoomExtension } from './extensions/ZoomExtension';
 import Theme from './theme/Theme';
 
-export type AppExtensionConfig = {
-  initialZoom?: number;
-  onZoomChange?: (zoomLevel: number) => void;
-};
-
 const enableHMR = import.meta.hot && import.meta.env.TEST !== 'true';
 
-export const buildAppExtension = (config: AppExtensionConfig) =>
-  defineExtension({
-    dependencies: [
-      configExtension(HMRExtension, {
-        hot: enableHMR ? import.meta.hot : null
-      }),
-      RichTextExtension,
-      SelectBlockExtension,
-      SelectionAlwaysOnDisplayExtension,
-      HorizontalRuleExtension,
-      ListExtension,
-      CheckListExtension,
-      ClipboardDOMImportExtension,
-      AutoFocusExtension,
-      ClickAfterLastBlockExtension,
-      TabIndentationExtension,
-      TreeViewExtension,
-      // custom extensions
-      SelectionContextExtension,
-      RegisterCommandsExtension,
-      configExtension(ZoomExtension, {
-        initialZoom: config.initialZoom,
-        onZoomChange: config.onZoomChange
-      }),
-      ReactLinkExtension,
-      ReactSearchExtension,
-      CustomMarkdownShortcutsExtension
-    ],
-    name: '@kiwimeri/rich-text',
-    namespace: 'react-rich',
-    theme: Theme
-  });
+export const appExtension = defineExtension({
+  dependencies: [
+    configExtension(HMRExtension, {
+      hot: enableHMR ? import.meta.hot : null
+    }),
+    RichTextExtension,
+    SelectBlockExtension,
+    SelectionAlwaysOnDisplayExtension,
+    HorizontalRuleExtension,
+    ListExtension,
+    CheckListExtension,
+    ClipboardDOMImportExtension,
+    AutoFocusExtension,
+    ClickAfterLastBlockExtension,
+    TabIndentationExtension,
+    TreeViewExtension,
+    // custom extensions
+    SelectionContextExtension,
+    RegisterCommandsExtension,
+    ZoomExtension,
+    ReactLinkExtension,
+    ReactSearchExtension,
+    CustomMarkdownShortcutsExtension
+  ],
+  name: '@kiwimeri/rich-text',
+  namespace: 'react-rich',
+  theme: Theme
+});

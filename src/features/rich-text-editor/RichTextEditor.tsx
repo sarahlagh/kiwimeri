@@ -6,15 +6,10 @@ import { HistoryState } from '@lexical/react/LexicalHistoryPlugin';
 import { TreeViewExtension } from '@lexical/react/TreeViewExtension';
 import { useLingui } from '@lingui/react/macro';
 import { LexicalEditor } from 'lexical';
-import {
-  ReactNode,
-  RefObject,
-  useImperativeHandle,
-  useMemo,
-  useRef
-} from 'react';
-import { AppExtensionConfig, buildAppExtension } from './app-extension';
+import { ReactNode, RefObject, useImperativeHandle, useRef } from 'react';
+import { appExtension } from './app-extension';
 import { ReactSearchExtension } from './extensions/ReactSearchExtension';
+import { ZoomExtensionPropsBridge } from './extensions/ZoomExtension';
 import {
   GlobalReactContextProvider,
   ReadOnlyGlobalReactContext
@@ -26,18 +21,19 @@ import { RichTextEditorHandle } from './RichTextEditorHandle';
 import Toolbar from './toolbar/Toolbar';
 import { RichTextEditorInitialData } from './types';
 
-export type RichTextEditorProps = AppExtensionConfig &
-  RichTextEditorInitialData & {
-    searchText?: string;
-    enableToolbar?: boolean;
-    enableOnChange?: boolean;
-    enableDebugTree?: boolean;
-    ignoreSelectionChange?: boolean;
-    additionalClassNames?: string;
-    onChange?: (payload: OnChangePluginPayload) => void;
-  } & {
-    readonly children?: ReactNode;
-  };
+export type RichTextEditorProps = RichTextEditorInitialData & {
+  searchText?: string;
+  enableToolbar?: boolean;
+  enableOnChange?: boolean;
+  enableDebugTree?: boolean;
+  ignoreSelectionChange?: boolean;
+  additionalClassNames?: string;
+  initialZoom?: number;
+  onZoomChange?: (zoomLevel: number) => void;
+  onChange?: (payload: OnChangePluginPayload) => void;
+} & {
+  readonly children?: ReactNode;
+};
 
 const RichTextEditor = (
   props: RichTextEditorProps & {
@@ -83,13 +79,6 @@ const RichTextEditor = (
     [editorRef, contextRef]
   );
 
-  const appExtension = useMemo(() => {
-    return buildAppExtension({
-      initialZoom: props.initialZoom,
-      onZoomChange: props.onZoomChange
-    });
-  }, [props.initialZoom, props.onZoomChange]);
-
   return (
     <GlobalReactContextProvider
       globalEditable={globalEditable}
@@ -133,6 +122,10 @@ const RichTextEditor = (
           resumeLastSelection={resumeLastSelection}
           initialSelection={props.initialSelection}
           enableHistory={enableHistory}
+        />
+        <ZoomExtensionPropsBridge
+          initialZoom={props.initialZoom}
+          onZoomChange={props.onZoomChange}
         />
         <ExtensionComponent
           lexical:extension={ReactSearchExtension}

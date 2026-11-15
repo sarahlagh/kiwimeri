@@ -1,4 +1,5 @@
-import { batch, signal } from '@lexical/extension';
+import { batch, effect, namedSignals, signal } from '@lexical/extension';
+import { useExtensionDependency } from '@lexical/react/useExtensionComponent';
 import {
   COMMAND_PRIORITY_LOW,
   COMMAND_PRIORITY_NORMAL,
@@ -9,6 +10,7 @@ import {
   mergeRegister,
   safeCast
 } from 'lexical';
+import { useLayoutEffect } from 'react';
 
 export const ZOOM_TO_COMMAND = createCommand<
   number | { zoom: number; isInitialZoom: true }
@@ -40,7 +42,7 @@ function zoomTo(
     style.zoom = `${zoom / 100}`;
   }
   setZoomLevel(zoom, skipListener);
-  return false;
+  return true;
 }
 
 const keyboardShortcutsHandler = (
@@ -66,10 +68,13 @@ const keyboardShortcutsHandler = (
 
 type ZoomExtensionConfig = {
   initialZoom: number;
-  onZoomChange?: (zoom: number) => void;
+  onZoomChange: (zoom: number) => void;
 };
 
-const initialConfig: ZoomExtensionConfig = { initialZoom: 100 };
+const initialConfig: ZoomExtensionConfig = {
+  initialZoom: 100,
+  onZoomChange() {}
+};
 
 function canZoomInZoomOut(value: number) {
   const canZoomIn = value < MAX_ZOOM;
@@ -82,14 +87,16 @@ export const ZoomExtension = defineExtension({
   namespace: 'react-rich',
   config: safeCast<ZoomExtensionConfig>(initialConfig),
   build(editor, config) {
-    const { canZoomIn: initialCanZoomIn, canZoomOut: initialCanZoomOut } =
-      canZoomInZoomOut(config.initialZoom);
-    const canZoomIn = signal(initialCanZoomIn);
-    const canZoomOut = signal(initialCanZoomOut);
-    return { zoom: signal(config.initialZoom), canZoomIn, canZoomOut };
+    const { canZoomIn, canZoomOut } = canZoomInZoomOut(config.initialZoom);
+    return {
+      zoom: signal(config.initialZoom),
+      canZoomIn: signal(canZoomIn),
+      canZoomOut: signal(canZoomOut),
+      ...namedSignals(config)
+    };
   },
   register(editor, config, state) {
-    const { zoom, canZoomIn, canZoomOut } = state.getOutput();
+    const { zoom, canZoomIn, canZoomOut, onZoomChange } = state.getOutput();
     const setZoomLevel = (value: number, skipListener: boolean) =>
       batch(() => {
         const { canZoomIn: canZoomInValue, canZoomOut: canZoomOutValue } =
@@ -97,7 +104,7 @@ export const ZoomExtension = defineExtension({
         zoom.value = value;
         canZoomIn.value = canZoomInValue;
         canZoomOut.value = canZoomOutValue;
-        if (config.onZoomChange && !skipListener) config.onZoomChange(value);
+        if (!skipListener) onZoomChange.value(value);
       });
     return mergeRegister(
       editor.registerCommand(
@@ -132,14 +139,51 @@ export const ZoomExtension = defineExtension({
       )
     );
   },
-  afterRegistration(editor, config) {
-    return editor.registerRootListener(rootElement => {
-      if (rootElement !== null) {
+  afterRegistration(editor, config, state) {
+    const { initialZoom } = state.getOutput();
+    function applyInitialZoom(
+      rootElement: HTMLElement | null,
+      initialValue: number
+    ) {
+      if (rootElement) {
         editor.dispatchCommand(ZOOM_TO_COMMAND, {
-          zoom: config.initialZoom,
+          zoom: initialValue,
           isInitialZoom: true
         });
       }
-    });
+    }
+    return mergeRegister(
+      editor.registerRootListener(rootListener =>
+        applyInitialZoom(rootListener, initialZoom.peek())
+      ),
+      effect(() => applyInitialZoom(editor.getRootElement(), initialZoom.value))
+    );
   }
 });
+
+type ZoomExtensionPropsBridgeProps = {
+  initialZoom?: number;
+  onZoomChange?: (zoom: number) => void;
+};
+export const ZoomExtensionPropsBridge = ({
+  initialZoom,
+  onZoomChange
+}: ZoomExtensionPropsBridgeProps) => {
+  const { output } = useExtensionDependency(ZoomExtension);
+
+  useLayoutEffect(() => {
+    batch(() => {
+      if (
+        initialZoom !== undefined &&
+        initialZoom !== output.initialZoom.peek()
+      ) {
+        output.initialZoom.value = initialZoom;
+      }
+      if (onZoomChange) {
+        output.onZoomChange.value = onZoomChange;
+      }
+    });
+  }, [output, initialZoom, onZoomChange]);
+
+  return null;
+};
