@@ -11,10 +11,10 @@ import { appExtension } from './app-extension';
 import { ReactSearchExtension } from './extensions/ReactSearchExtension';
 import { ZoomExtensionPropsBridge } from './extensions/ZoomExtension';
 import {
-  GlobalReactContextProvider,
-  ReadOnlyGlobalReactContext
-} from './react/GlobalReactContext';
-import GlobalReactContextRefPlugin from './react/GlobalReactContextRefPlugin';
+  EditorInstanceContextProvider,
+  ReadOnlyEditorInstanceContext
+} from './react/EditorInstanceContext';
+import EditorInstanceContextRefPlugin from './react/EditorInstanceContextRefPlugin';
 import OnChangePlugin, { OnChangePluginPayload } from './react/OnChangePlugin';
 import ReloadPlugin from './react/ReloadPlugin';
 import { RichTextEditorHandle } from './RichTextEditorHandle';
@@ -42,7 +42,7 @@ const RichTextEditor = (
 ) => {
   const { t } = useLingui();
   const editorRef = useRef<LexicalEditor | null>(null);
-  const contextRef = useRef<ReadOnlyGlobalReactContext | null>(null);
+  const contextRef = useRef<ReadOnlyEditorInstanceContext | null>(null);
   const historyStoreRef = useRef(new Map<string, HistoryState>());
   const placeholder = t`Text...`;
 
@@ -80,7 +80,7 @@ const RichTextEditor = (
   );
 
   return (
-    <GlobalReactContextProvider
+    <EditorInstanceContextProvider
       globalEditable={globalEditable}
       historyEnabled={enableHistory}
     >
@@ -106,7 +106,7 @@ const RichTextEditor = (
           </div>
         </div>
         <EditorRefPlugin editorRef={editorRef} />
-        <GlobalReactContextRefPlugin contextRef={contextRef} />
+        <EditorInstanceContextRefPlugin contextRef={contextRef} />
         {onChange && (
           <OnChangePlugin
             ignoreSelectionChange={ignoreSelectionChange}
@@ -133,7 +133,7 @@ const RichTextEditor = (
         />
         {children}
       </LexicalExtensionComposer>
-    </GlobalReactContextProvider>
+    </EditorInstanceContextProvider>
   );
 };
 

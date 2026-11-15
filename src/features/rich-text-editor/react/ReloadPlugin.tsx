@@ -14,7 +14,7 @@ import {
   RichTextEditorInitialData
 } from '../types';
 import { $deserializeSelection } from '../utils/node-serializer';
-import { useGlobalReactContext } from './GlobalReactContext';
+import { useEditorInstanceContext } from './EditorInstanceContext';
 
 type ReloadPluginProps = {
   historyStoreRef: RefObject<Map<string, HistoryState>>; // must live outside of the editor
@@ -33,7 +33,7 @@ function getParseableState(
 export default function ReloadPlugin(data: ReloadPluginProps) {
   const { enableHistory = true } = data;
   const [editor] = useLexicalComposerContext();
-  const { updateContext } = useGlobalReactContext();
+  const { updateContext } = useEditorInstanceContext();
   const historyStoreRef = data.historyStoreRef;
   const initialReloadRef = useRef(data.reloadKey);
   const globalEditable = data.editable !== undefined ? data.editable : true;

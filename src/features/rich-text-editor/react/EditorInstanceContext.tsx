@@ -1,35 +1,35 @@
 import { createContext, ReactNode, use, useReducer } from 'react';
 
-type UpdatableGlobalReactContextSpec = {
+type UpdatableEditorInstanceContextSpec = {
   canUndo: boolean;
   canRedo: boolean;
   canUndoLength: number;
   canRedoLength: number;
 };
 
-type GlobalReactContextSpec = UpdatableGlobalReactContextSpec & {
+type EditorInstanceContextSpec = UpdatableEditorInstanceContextSpec & {
   globalEditable: boolean;
   historyEnabled: boolean;
-  updateContext: (update: UpdatableGlobalReactContextSpec) => void;
+  updateContext: (update: UpdatableEditorInstanceContextSpec) => void;
 };
 
-export type ReadOnlyGlobalReactContext = Omit<
-  GlobalReactContextSpec,
+export type ReadOnlyEditorInstanceContext = Omit<
+  EditorInstanceContextSpec,
   'updateContext'
 >;
 
-const INITIAL_CONTEXT: UpdatableGlobalReactContextSpec = {
+const INITIAL_CONTEXT: UpdatableEditorInstanceContextSpec = {
   canRedo: false,
   canRedoLength: 0,
   canUndo: false,
   canUndoLength: 0
 };
 
-const GlobalReactContext = createContext<GlobalReactContextSpec | undefined>(
-  undefined
-);
+const EditorInstanceContext = createContext<
+  EditorInstanceContextSpec | undefined
+>(undefined);
 
-export const GlobalReactContextProvider = ({
+export const EditorInstanceContextProvider = ({
   globalEditable = true,
   historyEnabled = true,
   children
@@ -43,7 +43,7 @@ export const GlobalReactContextProvider = ({
     { ...INITIAL_CONTEXT }
   );
   return (
-    <GlobalReactContext
+    <EditorInstanceContext
       value={{
         globalEditable,
         historyEnabled,
@@ -52,15 +52,15 @@ export const GlobalReactContextProvider = ({
       }}
     >
       {children}
-    </GlobalReactContext>
+    </EditorInstanceContext>
   );
 };
 
-export const useGlobalReactContext = (): GlobalReactContextSpec => {
-  const context = use(GlobalReactContext);
+export const useEditorInstanceContext = (): EditorInstanceContextSpec => {
+  const context = use(EditorInstanceContext);
   if (context === undefined) {
     throw new Error(
-      'useGlobalReactContext must be used within a GlobalReactContextProvider'
+      'useEditorInstanceContext must be used within a EditorInstanceContextProvider'
     );
   }
   return context;

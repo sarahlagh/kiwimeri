@@ -3,13 +3,13 @@ import { useLingui } from '@lingui/react/macro';
 import { REDO_COMMAND, UNDO_COMMAND } from 'lexical';
 import { ZOOM_IN_COMMAND, ZOOM_OUT_COMMAND } from '../extensions/ZoomExtension';
 import { useCanZoomSignals, useIsEditable } from '../hooks';
-import { useGlobalReactContext } from '../react/GlobalReactContext';
+import { useEditorInstanceContext } from '../react/EditorInstanceContext';
 import { ToolbarButton } from './buttons';
 
 export const GlobalEditorSection = () => {
   const { t } = useLingui();
   const [editor] = useLexicalComposerContext();
-  const { canRedo, canUndo, historyEnabled } = useGlobalReactContext();
+  const { canRedo, canUndo, historyEnabled } = useEditorInstanceContext();
   const { globalEditable, isEditable } = useIsEditable();
   const { canZoomIn, canZoomOut } = useCanZoomSignals();
 

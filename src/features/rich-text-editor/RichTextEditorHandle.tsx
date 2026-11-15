@@ -1,8 +1,8 @@
 import type { LexicalEditor } from 'lexical';
-import { ReadOnlyGlobalReactContext } from './react/GlobalReactContext';
+import { ReadOnlyEditorInstanceContext } from './react/EditorInstanceContext';
 
 export type RichTextEditorHandle = {
   getEditor: () => LexicalEditor | null;
-  getContext: () => ReadOnlyGlobalReactContext | null;
+  getContext: () => ReadOnlyEditorInstanceContext | null;
   focusEditor: () => void;
 };
