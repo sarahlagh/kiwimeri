@@ -11,10 +11,15 @@ import { render, RenderResult } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { getContentEditor } from './RichTextEditor.locators';
 
-export async function renderEditor(props: RichTextEditorProps) {
+export async function renderEditor(props: Partial<RichTextEditorProps>) {
   const ref = createRef<RichTextEditorHandle>();
   const reactNode = (
-    <RichTextEditor {...props} enableDebugTree={false} ref={ref} />
+    <RichTextEditor
+      instanceType="test"
+      {...props}
+      enableDebugTree={false}
+      ref={ref}
+    />
   );
   const screen = await render(reactNode, {
     wrapper: TestingProvider

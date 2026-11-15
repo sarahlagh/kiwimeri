@@ -28,6 +28,7 @@ import '@/core/infra/polyfills/log-polyfill';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { historyService } from '@/domain/history/history.service';
 import { syncService } from '@/domain/synchronization/sync.service';
+import { historyStore } from '@/features/rich-text-editor/history-store';
 import { setupIonicReact } from '@ionic/react';
 import { afterAll, afterEach, beforeAll, beforeEach, vi } from 'vitest';
 import { cleanup } from 'vitest-browser-react';
@@ -57,6 +58,7 @@ beforeEach(() => {
 afterEach(async () => {
   stopDbListeners();
   nukeStorage();
+  historyStore.clear();
   syncService.stop();
   await cleanup();
   vi.restoreAllMocks();

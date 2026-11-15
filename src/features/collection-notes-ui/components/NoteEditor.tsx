@@ -44,6 +44,7 @@ const NoteEditor = ({ noteId, editable = true }: NoteEditorProps) => {
   return (
     <RichTextEditor
       additionalClassNames={classNames}
+      instanceType={'NoteEditor'}
       historyId={noteId}
       editable={editable}
       initialState={content}

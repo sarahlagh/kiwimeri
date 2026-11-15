@@ -2,7 +2,6 @@ import { ExtensionComponent } from '@lexical/react/ExtensionComponent';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { EditorRefPlugin } from '@lexical/react/LexicalEditorRefPlugin';
 import { LexicalExtensionComposer } from '@lexical/react/LexicalExtensionComposer';
-import { HistoryState } from '@lexical/react/LexicalHistoryPlugin';
 import { TreeViewExtension } from '@lexical/react/TreeViewExtension';
 import { useLingui } from '@lingui/react/macro';
 import { LexicalEditor } from 'lexical';
@@ -43,7 +42,6 @@ const RichTextEditor = (
   const { t } = useLingui();
   const editorRef = useRef<LexicalEditor | null>(null);
   const contextRef = useRef<ReadOnlyEditorInstanceContext | null>(null);
-  const historyStoreRef = useRef(new Map<string, HistoryState>());
   const placeholder = t`Text...`;
 
   const {
@@ -90,7 +88,8 @@ const RichTextEditor = (
           <div className="editor-inner">
             <ContentEditable
               className={
-                'editor-input' +
+                'editor-input ' +
+                props.instanceType +
                 (enableToolbar ? ' editor-toolbar' : '') +
                 (additionalClassNames ? ` ${additionalClassNames}` : '')
               }
@@ -114,7 +113,7 @@ const RichTextEditor = (
           />
         )}
         <ReloadPlugin
-          historyStoreRef={historyStoreRef}
+          instanceType={props.instanceType}
           editable={globalEditable}
           historyId={props.historyId}
           initialState={props.initialState}

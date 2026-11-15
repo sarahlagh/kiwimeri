@@ -76,6 +76,7 @@ const ParentComponent = ({
         key
       </button>
       <RichTextEditor
+        instanceType="test"
         editable={editable}
         initialState={initialState}
         enableDebugTree={false}
@@ -791,6 +792,70 @@ describe('RichTextEditor', () => {
       await userEvent.type(getContentEditorElement(screen), '{Control>}{z}');
       // didn't work
       expect(getEditorElementTextContent(composer)).toBe('new state 2');
+    });
+
+    function ParentWithTwoEditors() {
+      return (
+        <>
+          <RichTextEditor
+            instanceType="type1"
+            historyId="1"
+            enableDebugTree={false}
+          />
+          <RichTextEditor
+            instanceType="type2"
+            historyId="2"
+            enableDebugTree={false}
+          />
+        </>
+      );
+    }
+    test(`two types of editors do not overwrite each other's history stack`, async () => {
+      {
+        const screen = await render(<ParentWithTwoEditors />, {
+          wrapper: TestingProvider
+        });
+        await vi.runAllTimersAsync();
+
+        const composers = screen.locator
+          .getByRole('textbox', { name: 'Rich text editor' })
+          .all();
+        expect(composers).toHaveLength(2);
+        const [composer1, composer2] = composers;
+
+        await composer1.fill('type1 value 1');
+        vi.advanceTimersByTime(100);
+        await composer1.fill('type1 value 1');
+        vi.advanceTimersByTime(100);
+
+        await composer2.fill('type2 value 1');
+        vi.advanceTimersByTime(100);
+        await composer2.fill('type2 value 2');
+        vi.advanceTimersByTime(100);
+        await composer2.fill('type2 value 3');
+        vi.advanceTimersByTime(100);
+
+        screen.unmount();
+      }
+      {
+        const screen = await render(<ParentWithTwoEditors />, {
+          wrapper: TestingProvider
+        });
+        await vi.runAllTimersAsync();
+        const composers = screen.locator
+          .getByRole('textbox', { name: 'Rich text editor' })
+          .all();
+        const [composer1, composer2] = composers;
+
+        // 1 undo on composer 1
+        await userEvent.type(composer1.element(), '{Control>}{z}');
+        // 2 undo on composer 2
+        await userEvent.type(composer2.element(), '{Control>}{z}');
+        await userEvent.type(composer2.element(), '{Control>}{z}');
+
+        expect(getEditorElementTextContent(composer1)).toBe('type1 value 1');
+        expect(getEditorElementTextContent(composer2)).toBe('type2 value 1');
+      }
     });
   });
 });

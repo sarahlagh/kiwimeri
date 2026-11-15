@@ -139,6 +139,7 @@ const DocumentVersionViewer = ({
       <IonContent>
         {content && (
           <RichTextEditor
+            instanceType="DocumentVersionViewer"
             historyId={docVersion}
             editable={false}
             enableToolbar={false}

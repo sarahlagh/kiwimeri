@@ -1,14 +1,11 @@
 import { appConfig } from '@/config';
 import { initialContent } from '@/domain/collection/collection.service';
-import {
-  createEmptyHistoryState,
-  HistoryState,
-  registerHistory
-} from '@lexical/history';
+import { HistoryState, registerHistory } from '@lexical/history';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $setSelection, SerializedEditorState } from 'lexical';
-import { RefObject, useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { RELOAD_TAG, SELECTION_CHANGE_TAG } from '../constants';
+import { historyStore } from '../history-store';
 import {
   CustomInitialEditorStateType,
   RichTextEditorInitialData
@@ -16,9 +13,7 @@ import {
 import { $deserializeSelection } from '../utils/node-serializer';
 import { useEditorInstanceContext } from './EditorInstanceContext';
 
-type ReloadPluginProps = {
-  historyStoreRef: RefObject<Map<string, HistoryState>>; // must live outside of the editor
-} & RichTextEditorInitialData;
+type ReloadPluginProps = {} & RichTextEditorInitialData;
 
 function getParseableState(
   content?: CustomInitialEditorStateType
@@ -31,10 +26,9 @@ function getParseableState(
 }
 
 export default function ReloadPlugin(data: ReloadPluginProps) {
-  const { enableHistory = true } = data;
+  const { enableHistory = true, instanceType } = data;
   const [editor] = useLexicalComposerContext();
   const { updateContext } = useEditorInstanceContext();
-  const historyStoreRef = data.historyStoreRef;
   const initialReloadRef = useRef(data.reloadKey);
   const globalEditable = data.editable !== undefined ? data.editable : true;
 
@@ -50,6 +44,12 @@ export default function ReloadPlugin(data: ReloadPluginProps) {
     [updateContext]
   );
 
+  useEffect(() => {
+    if (enableHistory) {
+      historyStore.applyNewEditor(editor, instanceType);
+    }
+  }, [editor, enableHistory, instanceType]);
+
   // set editor state
   useEffect(() => {
     initialReloadRef.current = data.reloadKey;
@@ -59,10 +59,7 @@ export default function ReloadPlugin(data: ReloadPluginProps) {
     let unregisterHistory = () => {};
 
     const historyId = data.historyId || '';
-    if (!historyStoreRef.current.has(historyId)) {
-      historyStoreRef.current.set(historyId, createEmptyHistoryState());
-    }
-    const historyState = historyStoreRef.current.get(historyId)!;
+    const historyState = historyStore.get(historyId, instanceType);
 
     queueMicrotask(() => {
       if (cancelled) return;

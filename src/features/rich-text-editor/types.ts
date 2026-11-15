@@ -11,6 +11,7 @@ export type CustomInitialEditorStateType =
   | Exclude<InitialEditorStateType, (editor: LexicalEditor) => void>;
 
 export type RichTextEditorInitialData = {
+  instanceType: string;
   initialState?: CustomInitialEditorStateType;
   editable?: boolean;
   initialSelection?: SerializedSelection | null;

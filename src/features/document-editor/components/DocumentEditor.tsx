@@ -226,6 +226,7 @@ const DocumentEditor = (props: DocumentEditorProps) => {
         {contentRef.current && (
           <RichTextEditor
             ref={editorRef}
+            instanceType="DocumentEditor"
             reloadKey={key}
             additionalClassNames={'document-editor'}
             historyId={docId}

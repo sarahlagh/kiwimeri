@@ -39,6 +39,7 @@ const ParentComponent = ({
         }}
       />
       <RichTextEditor
+        instanceType="test"
         initialState={initialState}
         enableDebugTree={false}
         ref={ref}

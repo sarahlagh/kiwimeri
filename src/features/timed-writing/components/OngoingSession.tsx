@@ -121,6 +121,7 @@ const OngoingSession = ({
       )}
       <IonContent>
         <RichTextEditor
+          instanceType="TimedWriting"
           additionalClassNames={'timed-writing ' + warnClass}
           initialState={initValue}
           enableToolbar={false}
