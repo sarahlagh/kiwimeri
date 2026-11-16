@@ -1,3 +1,5 @@
+import { CellSchema } from 'tinybase/with-schemas';
+
 export type AppLogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error';
 export const appLevels: AppLogLevel[] = [
   'trace',
@@ -22,4 +24,4 @@ export const logsSchema = {
   ts: { type: 'number' },
   level: { type: 'string' },
   message: { type: 'string' }
-} as const satisfies Record<keyof AppLog, unknown>;
+} as const satisfies Record<keyof AppLog, CellSchema>;

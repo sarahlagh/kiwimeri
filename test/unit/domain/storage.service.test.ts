@@ -158,6 +158,7 @@ describe('storage service', () => {
       expect(space.getRowCount(SpaceTables.Stats)).toBe(1);
 
       const localChanges = localChangesService.getLocalChanges();
+      expect(localChanges).toHaveLength(2);
       expect(localChanges[0].change).toBe(LocalChangeType.add);
       expect(localChanges[0].itemId).toBe(noteId);
       expect(localChanges[1].change).toBe(LocalChangeType.add);
@@ -209,6 +210,7 @@ describe('storage service', () => {
       expect(space.getRowCount(SpaceTables.Stats)).toBe(1); // unchanged
 
       const localChanges = localChangesService.getLocalChanges();
+      expect(localChanges).toHaveLength(2);
       expect(localChanges[0].change).toBe(LocalChangeType.add);
       expect(localChanges[0].itemId).toBe(noteId);
       expect(localChanges[1].change).toBe(LocalChangeType.add);
@@ -224,6 +226,7 @@ describe('storage service', () => {
       // update collection, leave annot untouched
       collectionService.setItemTitle(docId, 'new title');
       expect(spaceArchive.getRowCount(SpaceArchiveTables.History)).toBe(2);
+      expect(localChangesService.getLocalChanges()).toHaveLength(1);
 
       storageService.restoreJson(exportedContent); // reverts change
 
@@ -245,6 +248,8 @@ describe('storage service', () => {
         2
       );
       expect(space.getRowCount(SpaceTables.Stats)).toBe(1);
+
+      expect(localChangesService.getLocalChanges()).toHaveLength(0);
     });
 
     it('should handle deleted rows without history and stats', () => {
@@ -256,6 +261,7 @@ describe('storage service', () => {
       // update collection, leave annot untouched
       const docId2 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       expect(spaceArchive.getRowCount(SpaceArchiveTables.History)).toBe(3);
+      expect(localChangesService.getLocalChanges()).toHaveLength(1);
 
       storageService.restoreJson(exportedContent);
 
@@ -278,6 +284,7 @@ describe('storage service', () => {
         3
       );
       expect(space.getRowCount(SpaceTables.Stats)).toBe(1);
+      expect(localChangesService.getLocalChanges()).toHaveLength(0);
     });
 
     it('should handle updated rows with history and stats', () => {
@@ -289,6 +296,7 @@ describe('storage service', () => {
       // update collection, leave annot untouched
       collectionService.setItemTitle(docId, 'new title');
       expect(spaceArchive.getRowCount(SpaceArchiveTables.History)).toBe(2);
+      expect(localChangesService.getLocalChanges()).toHaveLength(1);
 
       storageService.restoreJson(exportedContent);
 
@@ -310,6 +318,7 @@ describe('storage service', () => {
         2
       );
       expect(space.getRowCount(SpaceTables.Stats)).toBe(1);
+      expect(localChangesService.getLocalChanges()).toHaveLength(0);
     });
 
     it('should handle deleted rows with history and stats', () => {
@@ -326,6 +335,7 @@ describe('storage service', () => {
       expect(space.getRowCount(SpaceTables.CollectionItemView)).toBe(2);
       resumeService.setLastSelectedNote(docId2, 'id');
       expect(space.getRowCount(SpaceTables.ResumeState)).toBe(3);
+      expect(localChangesService.getLocalChanges()).toHaveLength(1);
 
       storageService.restoreJson(exportedContent);
 
@@ -348,6 +358,7 @@ describe('storage service', () => {
         2
       );
       expect(space.getRowCount(SpaceTables.Stats)).toBe(1);
+      expect(localChangesService.getLocalChanges()).toHaveLength(0);
     });
   });
 

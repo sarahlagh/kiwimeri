@@ -1,4 +1,4 @@
-import { Id } from 'tinybase/with-schemas';
+import { CellSchema, Id } from 'tinybase/with-schemas';
 import { SpaceTables } from '../db/store-constants';
 import { AnyData, WithId } from '../db/types';
 
@@ -26,7 +26,7 @@ export const notificationsSchema = {
   message: { type: 'string' },
   context: { type: 'object' },
   ackAt: { type: 'number' }
-} as const satisfies Record<keyof AppNotification, unknown>;
+} as const satisfies Record<keyof AppNotification, CellSchema>;
 
 export function getNotificationColor(level: AppNotificationLevel) {
   switch (level) {

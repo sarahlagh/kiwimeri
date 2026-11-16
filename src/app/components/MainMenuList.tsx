@@ -31,6 +31,7 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
+import { useMemo } from 'react';
 import fetchNotificationsQuery from '../queries/fetchNotificationsQuery';
 
 interface AppPage {
@@ -48,6 +49,7 @@ const MainMenuList = () => {
   const theme = useDeviceSetting('theme');
   const showDevTools = useShowDevTools();
   const notifications = useQueryResults(fetchNotificationsQuery);
+  const isCollectionRouteActive = isCollectionRoute(location.pathname);
 
   function isActive(appPage: AppPage) {
     if (appPage.isActive) {
@@ -59,52 +61,55 @@ const MainMenuList = () => {
     );
   }
 
-  const appPages: AppPage[] = [
-    {
-      key: 'collection',
-      title: t`Collection`,
-      url: GET_ITEM_ROUTE(
-        `${resumeService.getNotebookResumeState()?.lastFolder}`,
-        `${resumeService.getNotebookResumeState()?.lastDocument}`
-      ),
-      icon: APPICONS.collectionPage,
-      isActive: () => isCollectionRoute(location.pathname)
-    },
-    {
-      key: 'write-session',
-      title: t`Timed Writing`,
-      url: WRITING_SESSION_ROUTE,
-      icon: APPICONS.timedWriting
-    },
-    {
-      key: 'settings',
-      title: t`Settings`,
-      url: SETTINGS_ROUTE,
-      icon: APPICONS.settingsPage
-    },
-    {
-      key: 'sync',
-      title: t`Synchronization & Backup`,
-      url: SYNCHRONIZATION_ROUTE,
-      icon: APPICONS.synchronizationPage
+  const appPages: AppPage[] = useMemo(() => {
+    const pages = [
+      {
+        key: 'collection',
+        title: t`Collection`,
+        url: GET_ITEM_ROUTE(
+          `${resumeService.getNotebookResumeState()?.lastFolder}`,
+          `${resumeService.getNotebookResumeState()?.lastDocument}`
+        ),
+        icon: APPICONS.collectionPage,
+        isActive: () => isCollectionRouteActive
+      },
+      {
+        key: 'write-session',
+        title: t`Timed Writing`,
+        url: WRITING_SESSION_ROUTE,
+        icon: APPICONS.timedWriting
+      },
+      {
+        key: 'settings',
+        title: t`Settings`,
+        url: SETTINGS_ROUTE,
+        icon: APPICONS.settingsPage
+      },
+      {
+        key: 'sync',
+        title: t`Synchronization & Backup`,
+        url: SYNCHRONIZATION_ROUTE,
+        icon: APPICONS.synchronizationPage
+      }
+    ];
+    if (notifications.length > 0) {
+      pages.push({
+        key: 'notifications',
+        title: t`Notifications`,
+        url: NOTIFICATIONS_ROUTE,
+        icon: APPICONS.notificationsPage
+      });
     }
-  ];
-  if (notifications.length > 0) {
-    appPages.push({
-      key: 'notifications',
-      title: t`Notifications`,
-      url: NOTIFICATIONS_ROUTE,
-      icon: APPICONS.notificationsPage
-    });
-  }
-  if (showDevTools) {
-    appPages.push({
-      key: 'devtools',
-      title: t`Dev Tools`,
-      url: DEV_TOOLS_ROUTE,
-      icon: APPICONS.devToolsPage
-    });
-  }
+    if (showDevTools) {
+      pages.push({
+        key: 'devtools',
+        title: t`Dev Tools`,
+        url: DEV_TOOLS_ROUTE,
+        icon: APPICONS.devToolsPage
+      });
+    }
+    return pages;
+  }, [isCollectionRouteActive, notifications.length, showDevTools, t]);
 
   return (
     <>
