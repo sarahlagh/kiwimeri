@@ -56,10 +56,7 @@ function validateMetadataSettings(
   }
 }
 
-export function validateMetadataFile(
-  value: unknown,
-  root = true
-): asserts value is ZipMetadata {
+function validateMetadataFile(value: unknown): asserts value is ZipMetadata {
   if (!isObject(value) || Array.isArray(value)) {
     throw new Error('parsing error: metadata must be an object');
   }
@@ -84,15 +81,30 @@ export function validateMetadataFile(
   if ('order' in value && typeof value.order !== 'number') {
     throw new Error('parsing error: order is not a number');
   }
-  if (root && 'settings' in value) {
+}
+
+export function validateRootMetadataFile(
+  value: unknown
+): asserts value is RootZipMetadata {
+  if (!isObject(value) || Array.isArray(value)) {
+    throw new Error('parsing error: metadata must be an object');
+  }
+  if (value.schemaVersion === undefined) {
+    value.schemaVersion = Versions.INITIAL_0;
+  }
+  if (typeof value.schemaVersion !== 'number') {
+    throw new Error('parsing error: schemaVersion must be a number');
+  }
+  validateMetadataFile(value);
+  if ('settings' in value) {
     validateMetadataSettings(value.settings);
   }
-  if (root && 'files' in value) {
+  if ('files' in value) {
     if (!isObject(value.files) || Array.isArray(value.files)) {
       throw new Error('parsing error: files must be an object');
     }
     Object.keys(value.files).forEach(f => {
-      validateMetadataFile((value.files as never)[f], false);
+      validateMetadataFile((value.files as never)[f]);
     });
   }
 }

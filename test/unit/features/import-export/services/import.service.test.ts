@@ -19,7 +19,7 @@ import {
   ZipParseError
 } from '@/features/import-export/model/model-import';
 import importService from '@/features/import-export/services/import.service';
-import { validateMetadataFile } from '@/features/import-export/services/metadata-validation';
+import { validateRootMetadataFile } from '@/features/import-export/services/metadata-validation';
 
 import {
   createInitLocalData,
@@ -489,6 +489,12 @@ describe('import service', () => {
                               ? false
                               : hasMetadata
                           );
+                          if (zipParsedData.rootMeta) {
+                            // eslint-disable-next-line vitest/no-conditional-expect
+                            expect(
+                              zipParsedData.rootMeta.schemaVersion
+                            ).toBeDefined();
+                          }
 
                           const zipMerge = importService.mergeZipItems(
                             scenario.mergeInto || DEFAULT_NOTEBOOK_ID,
@@ -539,6 +545,7 @@ describe('import service', () => {
       'Empty.zip',
       'Simple.zip',
       'SimpleLayer.zip',
+      'SimpleLayerVersion0.zip',
       'SimpleWithDuplicates.zip',
       'SimpleSub.zip',
       'SimpleSubPartialMeta.zip',
@@ -712,27 +719,27 @@ describe('import service', () => {
 
   describe('parse schema', () => {
     it('should validate empty json', () => {
-      expect(() => validateMetadataFile({})).not.toThrow();
+      expect(() => validateRootMetadataFile({})).not.toThrow();
     });
 
     it('should validate partial file', () => {
       expect(() =>
-        validateMetadataFile({
+        validateRootMetadataFile({
           type: CollectionItemType.document
         })
       ).not.toThrow();
       expect(() =>
-        validateMetadataFile({
+        validateRootMetadataFile({
           title: 'test'
         })
       ).not.toThrow();
       expect(() =>
-        validateMetadataFile({
+        validateRootMetadataFile({
           tags: ['test']
         })
       ).not.toThrow();
       expect(() =>
-        validateMetadataFile({
+        validateRootMetadataFile({
           settings: {
             sort: {
               by: 'previewText',
@@ -745,33 +752,35 @@ describe('import service', () => {
 
     it('should ignore unknown fields', () => {
       expect(() =>
-        validateMetadataFile({
+        validateRootMetadataFile({
           notAField: 'yes'
         })
       ).not.toThrow();
     });
 
     it('should not validate invalid types', () => {
-      expect(() => validateMetadataFile('test')).toThrow();
-      expect(() => validateMetadataFile(10)).toThrow();
-      expect(() => validateMetadataFile(true)).toThrow();
-      expect(() => validateMetadataFile([])).toThrow();
-      expect(() => validateMetadataFile(null)).toThrow();
+      expect(() => validateRootMetadataFile('test')).toThrow();
+      expect(() => validateRootMetadataFile(10)).toThrow();
+      expect(() => validateRootMetadataFile(true)).toThrow();
+      expect(() => validateRootMetadataFile([])).toThrow();
+      expect(() => validateRootMetadataFile(null)).toThrow();
     });
 
     it('should not validate invalid files map', () => {
-      expect(() => validateMetadataFile({ files: null })).toThrow();
-      expect(() => validateMetadataFile({ files: 'test' })).toThrow();
-      expect(() => validateMetadataFile({ files: [] })).toThrow();
+      expect(() => validateRootMetadataFile({ files: null })).toThrow();
+      expect(() => validateRootMetadataFile({ files: 'test' })).toThrow();
+      expect(() => validateRootMetadataFile({ files: [] })).toThrow();
       expect(() =>
-        validateMetadataFile({ files: { filename: 'invalid' } })
+        validateRootMetadataFile({ files: { filename: 'invalid' } })
       ).toThrow();
       expect(() =>
-        validateMetadataFile({ files: { filename: null } })
+        validateRootMetadataFile({ files: { filename: null } })
       ).toThrow();
-      expect(() => validateMetadataFile({ files: { filename: [] } })).toThrow();
       expect(() =>
-        validateMetadataFile({
+        validateRootMetadataFile({ files: { filename: [] } })
+      ).toThrow();
+      expect(() =>
+        validateRootMetadataFile({
           files: {
             filename: {
               type: 'invalid'
@@ -780,7 +789,7 @@ describe('import service', () => {
         })
       ).toThrow();
       expect(() =>
-        validateMetadataFile({
+        validateRootMetadataFile({
           files: {
             filename: {
               type: 'd'
@@ -792,52 +801,52 @@ describe('import service', () => {
 
     it('should not validate invalid known fields', () => {
       expect(() =>
-        validateMetadataFile({
+        validateRootMetadataFile({
           title: 10
         })
       ).toThrow();
       expect(() =>
-        validateMetadataFile({
+        validateRootMetadataFile({
           type: 'p'
         })
       ).toThrow();
       expect(() =>
-        validateMetadataFile({
+        validateRootMetadataFile({
           tags: 'not an array'
         })
       ).toThrow();
       expect(() =>
-        validateMetadataFile({
+        validateRootMetadataFile({
           tags: null
         })
       ).toThrow();
       expect(() =>
-        validateMetadataFile({
+        validateRootMetadataFile({
           tags: [0, 1, 3]
         })
       ).toThrow();
       expect(() =>
-        validateMetadataFile({
+        validateRootMetadataFile({
           settings: null
         })
       ).toThrow();
       expect(() =>
-        validateMetadataFile({
+        validateRootMetadataFile({
           settings: {}
         })
       ).toThrow();
       expect(() =>
-        validateMetadataFile({
+        validateRootMetadataFile({
           settings: { sort: {} }
         })
       ).toThrow();
       expect(() =>
-        validateMetadataFile({
+        validateRootMetadataFile({
           settings: { sort: { by: 'invalid' } }
         })
       ).toThrow();
       expect(() =>
-        validateMetadataFile({
+        validateRootMetadataFile({
           settings: { sort: { descending: 'ok' } }
         })
       ).toThrow();
@@ -845,7 +854,7 @@ describe('import service', () => {
 
     it('should not validate settings with by: order and descending: true', () => {
       expect(() =>
-        validateMetadataFile({
+        validateRootMetadataFile({
           settings: {
             sort: {
               by: 'order',

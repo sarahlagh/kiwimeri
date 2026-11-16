@@ -167,6 +167,42 @@
           "expected": {}
         }
       ]
+    },
+    {
+      "zipName": "MetaInvalidSchemaVersion.zip",
+      "description": "MetaInvalidSchemaVersion.zip",
+      "initData": [],
+      "scenarios": [
+        {
+          "description": "and default options",
+          "options": [{}],
+          "errors": [
+            {
+              "family": "parse_error",
+              "path": "meta.json"
+            }
+          ],
+          "expected": {}
+        }
+      ]
+    },
+    {
+      "zipName": "MetaInvalidSettingsSort.zip",
+      "description": "MetaInvalidSettingsSort.zip",
+      "initData": [],
+      "scenarios": [
+        {
+          "description": "and default options",
+          "options": [{}],
+          "errors": [
+            {
+              "family": "parse_error",
+              "path": "meta.json"
+            }
+          ],
+          "expected": {}
+        }
+      ]
     }
   ]
 }

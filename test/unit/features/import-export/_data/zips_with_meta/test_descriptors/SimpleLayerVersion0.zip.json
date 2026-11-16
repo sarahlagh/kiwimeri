@@ -1,0 +1,147 @@
+{
+  "zipName": "SimpleLayerVersion0.zip",
+  "testCases": [
+    {
+      "description": "with no init data",
+      "initData": [],
+      "scenarios": [
+        {
+          "description": "and removeFirstFolder=true and createNotebook=false",
+          "options": [
+            {
+              "removeFirstFolder": true,
+              "createNotebook": false,
+              "createNewFolder": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#id",
+                "title": "New folder",
+                "parentId": "0",
+                "type": "f",
+                "createdAt": 1753088490685,
+                "updatedAt": 1753088490685
+              },
+              {
+                "title": "Simple",
+                "parentId": "#id",
+                "type": "d",
+                "content": "__defined__",
+                "createdAt": 1753088495423,
+                "updatedAt": 1753088495423
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "New folder",
+                "type": "f",
+                "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and removeFirstFolder=true and createNewFolder=true",
+          "options": [
+            {
+              "removeFirstFolder": true,
+              "createNewFolder": true
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#id",
+                "title": "New folder",
+                "parentId": "0",
+                "createdAt": 1753088490685,
+                "updatedAt": 1753088490685,
+                "type": "f"
+              },
+              {
+                "title": "Simple",
+                "parentId": "#id",
+                "type": "d",
+                "content": "__defined__",
+                "createdAt": 1753088495423,
+                "updatedAt": 1753088495423
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "New folder",
+                "type": "f",
+                "status": "new"
+              }
+            ]
+          }
+        },
+        {
+          "description": "and createNotebook=true",
+          "options": [
+            {
+              "createNotebook": true,
+              "removeFirstFolder": false,
+              "createNewFolder": true
+            },
+            {
+              "createNotebook": true,
+              "removeFirstFolder": false,
+              "createNewFolder": false
+            },
+            {
+              "createNotebook": true,
+              "removeFirstFolder": true,
+              "createNewFolder": true
+            },
+            {
+              "createNotebook": true,
+              "removeFirstFolder": true,
+              "createNewFolder": false
+            }
+          ],
+          "expected": {
+            "newItems": [
+              {
+                "id": "#notebook",
+                "title": "New folder",
+                "type": "n",
+                "createdAt": 1753088490685,
+                "updatedAt": 1753088490685
+              },
+              {
+                "id": "#id2",
+                "title": "Simple Original",
+                "parentId": "#notebook",
+                "type": "f",
+                "createdAt": 1753088495423,
+                "updatedAt": 1753088495423,
+                "order": 1,
+                "settings": {
+                  "sort": { "descending": true, "by": "lastActivityAt" }
+                }
+              },
+              {
+                "title": "Simple",
+                "parentId": "#id2",
+                "type": "d",
+                "content": "__defined__",
+                "createdAt": 1753088495423,
+                "updatedAt": 1753088495423
+              }
+            ],
+            "firstLevel": [
+              {
+                "title": "New folder",
+                "type": "n",
+                "status": "new"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

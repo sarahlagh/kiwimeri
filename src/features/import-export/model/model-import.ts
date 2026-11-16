@@ -25,7 +25,7 @@ export type ZipParsedData = {
   hasOneFolder: boolean;
   hasNotebooks: boolean;
   hasMetadata: boolean;
-  rootMeta?: ZipParsedMetadata;
+  rootMeta?: ZipParsedRootMetadata;
   errors: ZipParseError[];
 };
 
@@ -53,6 +53,9 @@ export type ZipMergeOptions = {
 
 export type ZipImportOptions = ZipParseOptions & ZipMergeOptions;
 
+export type ZipParsedRootMetadata = ZipParsedMetadata & {
+  schemaVersion: number;
+};
 export type ZipParsedMetadata = {
   parentKey?: string;
   files?: {

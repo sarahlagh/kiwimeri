@@ -29,9 +29,10 @@ import {
   ZipParseError,
   ZipParseOptions,
   ZipParsedData,
-  ZipParsedMetadata
+  ZipParsedMetadata,
+  ZipParsedRootMetadata
 } from '../model/model-import';
-import { validateMetadataFile } from './metadata-validation';
+import { validateRootMetadataFile } from './metadata-validation';
 
 class ImportService {
   private readonly zipRoot = 'zip-root';
@@ -96,7 +97,6 @@ class ImportService {
     }
     if (meta.settings) {
       item.settings = meta.settings;
-      // TODO should version schema
       if ((item.settings.sort?.by as string) === 'updatedAt') {
         item.settings.sort!.by = 'lastActivityAt';
       }
@@ -172,8 +172,8 @@ class ImportService {
       // handle meta.json
       const origMeta = JSON.parse(strFromU8(unzipped[itemKey]));
       // use zod to validate schema
-      validateMetadataFile(origMeta);
-      const meta: ZipParsedMetadata = {
+      validateRootMetadataFile(origMeta);
+      const meta: ZipParsedRootMetadata = {
         parentKey: parentPath,
         ...origMeta
       };
@@ -308,7 +308,7 @@ class ImportService {
     }
 
     const finalZipName = zipName.replace(/(.*)\.(zip|ZIP)$/g, '$1');
-    const metaMap = new Map<string, ZipParsedMetadata>();
+    const metaMap = new Map<string, ZipParsedRootMetadata>();
     const levelMap = new Map<string, string[]>();
     const items = new Map<string, CollectionItem>();
     const errors: ZipParseError[] = [];
@@ -590,7 +590,7 @@ class ImportService {
     parent: string,
     zipName: string,
     options: ZipMergeOptions,
-    rootMeta?: ZipParsedMetadata
+    rootMeta?: ZipParsedRootMetadata
   ) {
     const firstLayer = items.filter(item => item.parentId === parent);
     const { item, id } =
