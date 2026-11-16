@@ -2,6 +2,7 @@ import TinybaseProvider from '@/app/providers/TinybaseProvider';
 import { appConfig } from '@/config';
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { space, spaceArchive, spaceDocContent, store } from '@/core/db/store';
+import { SpaceTables } from '@/core/db/store-constants';
 import { DbSerializableData, setMetaField, WithId } from '@/core/db/types';
 import { schedule } from '@/core/tasks/scheduler.service';
 import {
@@ -357,6 +358,17 @@ export const getRowIdsInsideNotebook = (notebook?: string) => {
 
 export const getCollectionItem = (id: string) => {
   return collectionService.getItem(id);
+};
+
+export const getCollectionItemWithExtra = (id: string) => {
+  return {
+    ...collectionService.getItem(id),
+    lastActivityAt: space.getCell(
+      SpaceTables.ProjectedState,
+      id,
+      'lastActivityAt'
+    )
+  };
 };
 
 export const getLocalItemField = (rowId: string, field: string) => {

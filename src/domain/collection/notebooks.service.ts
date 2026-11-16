@@ -43,9 +43,10 @@ class NotebooksService {
     space.transaction(() => {
       const tmpTable = space.getTable(SpaceTables.Collection);
       tmpTable[id] = row;
-      collectionService.calcState(id, tmpTable);
+      collectionService.calcBreadcrumbs(id, tmpTable);
       space.setRow(C, id, row);
     });
+    collectionService.updateAllActivityAt(id);
   }
 
   public addNotebook(title: string, parent: string = ROOT_COLLECTION) {
@@ -54,9 +55,10 @@ class NotebooksService {
     space.transaction(() => {
       const tmpTable = space.getTable(SpaceTables.Collection);
       tmpTable[id] = row;
-      collectionService.calcState(id, tmpTable);
+      collectionService.calcBreadcrumbs(id, tmpTable);
       space.setRow(C, id, row);
     });
+    collectionService.updateAllActivityAt(id);
     return id!;
   }
 
@@ -69,8 +71,8 @@ class NotebooksService {
       title_meta: setMetaField(now, title || ''),
       parentId: parent,
       parentId_meta: setMetaField(now, parent),
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
+      createdAt: now,
+      updatedAt: now,
       type: CollectionItemType.notebook,
       order: DEFAULT_ORDER, // TODO dynamic order
       order_meta: setMetaField(now, 0)

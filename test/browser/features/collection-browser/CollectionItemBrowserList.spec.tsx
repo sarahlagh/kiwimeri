@@ -60,7 +60,7 @@ let annotId: string;
 const documents: Ids = [];
 
 const BROWSER_MODE_IDX = browserModes.indexOf('browser');
-const UPDATED_AT_MODE_IDX = browserModes.indexOf('updatedAt');
+const UPDATED_AT_MODE_IDX = browserModes.indexOf('lastActivityAt');
 const LAST_OPENED_AT_MODE_IDX = browserModes.indexOf('lastOpenedAt');
 
 describe('CollectionItemBrowserList', () => {

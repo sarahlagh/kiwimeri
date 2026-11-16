@@ -155,7 +155,7 @@ const CollectionItemBrowserListToolbar = ({
 };
 
 const modeLabels = defineI18nMap<BrowserQueryMode>([
-  ['updatedAt', msg`Last updated documents`],
+  ['lastActivityAt', msg`Last updated documents`],
   ['lastOpenedAt', msg`Last consulted documents`],
   ['conflicts', msg`Conflicts`]
 ]);

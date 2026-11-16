@@ -1,9 +1,10 @@
 import { CollectionItem } from '@/domain/collection/collection';
+import { LastActivityAt } from '@/domain/collection/derived-item-state';
 import { Sort } from '@/shared/misc/sort-filter/sort';
 
 export const browserSortBy = [
   'createdAt',
-  'updatedAt',
+  'lastActivityAt',
   'title',
   'previewText',
   'order',
@@ -15,15 +16,9 @@ export type BrowsableItemSort = Sort<BrowsableItemSortType>;
 
 export type BrowsableItemResult = Pick<
   CollectionItem,
-  | 'parentId'
-  | 'title'
-  | 'type'
-  | 'tags'
-  | 'createdAt'
-  | 'updatedAt'
-  | 'order'
-  | 'conflictId'
+  'parentId' | 'title' | 'type' | 'tags' | 'createdAt' | 'order' | 'conflictId'
 > &
+  LastActivityAt &
   Required<Pick<CollectionItem, 'id'>> & {
     lastOpenedAt?: number;
     previewText?: string;

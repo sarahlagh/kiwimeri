@@ -33,7 +33,7 @@ export type SortFilterProps = {
 
 const sortLabels = defineI18nMap<CollectionItemSortType>([
   ['createdAt', msg`Creation Date`],
-  ['updatedAt', msg`Last Updated`],
+  ['lastActivityAt', msg`Last Updated`],
   ['title', msg`Title`],
   ['previewText', msg`Content`],
   ['order', msg`Manual`]

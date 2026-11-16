@@ -27,6 +27,7 @@ import {
   fakeTimersDelay,
   GET_NON_PARENT_UPDATABLE_FIELDS,
   getCollectionItem,
+  getCollectionItemWithExtra,
   getNewParsedContent,
   getNewValue,
   markAsConflict,
@@ -135,7 +136,7 @@ describe('collection service', () => {
           const item = getCollectionItem(id);
           expect(item[field]).toEqual(newVal);
           const meta = item[`${field}_meta`]!;
-          if (collectionService.shouldTriggerRowUpdatedChange(field)) {
+          if (collectionService.shouldTriggerActivityChange(field)) {
             expect(item.createdAt).toBeLessThan(item.updatedAt);
             expect(meta._u).toBe(item.updatedAt);
           } else {
@@ -158,22 +159,26 @@ describe('collection service', () => {
           expect(item[field]).toEqual(newVal);
 
           const meta = item[`${field}_meta`]!;
-          if (collectionService.shouldTriggerRowUpdatedChange(field)) {
+          if (collectionService.shouldTriggerActivityChange(field)) {
             expect(item.createdAt).toBeLessThan(item.updatedAt);
             expect(meta._u).toBe(item.updatedAt);
 
-            const folderO = getCollectionItem(folderIdO);
-            const folder1 = getCollectionItem(folderId1);
-            const folder2 = getCollectionItem(folderId2);
-            const folder3 = getCollectionItem(folderId3);
+            const folderO = getCollectionItemWithExtra(folderIdO);
+            const folder1 = getCollectionItemWithExtra(folderId1);
+            const folder2 = getCollectionItemWithExtra(folderId2);
+            const folder3 = getCollectionItemWithExtra(folderId3);
 
             expect(folderO.updatedAt).toBe(now); // this one is untouched
+            expect(folderO.lastActivityAt).toBe(now);
             expect(folderO.parentId_meta._u).toBe(now);
-            expect(folder1.updatedAt).toBe(now + 100);
+            expect(folder1.updatedAt).toBe(folder1.createdAt);
+            expect(folder1.lastActivityAt).toBe(now + 100);
             expect(folder1.parentId_meta._u).toBe(now);
-            expect(folder2.updatedAt).toBe(now + 100);
+            expect(folder2.updatedAt).toBe(folder2.createdAt);
+            expect(folder2.lastActivityAt).toBe(now + 100);
             expect(folder2.parentId_meta._u).toBe(now);
-            expect(folder3.updatedAt).toBe(now + 100);
+            expect(folder3.updatedAt).toBe(folder3.createdAt);
+            expect(folder3.lastActivityAt).toBe(now + 100);
             expect(folder3.parentId_meta._u).toBe(now);
           } else {
             expect(item.createdAt).toBe(item.updatedAt);
@@ -283,18 +288,21 @@ describe('collection service', () => {
         expect(item.title).toBeUndefined();
         expect(collectionService.itemExists(id)).toBe(false);
 
-        const folderO = getCollectionItem(folderIdO);
-        const folder1 = getCollectionItem(folderId1);
-        const folder2 = getCollectionItem(folderId2);
-        const folder3 = getCollectionItem(folderId3);
+        const folderO = getCollectionItemWithExtra(folderIdO);
+        const folder1 = getCollectionItemWithExtra(folderId1);
+        const folder2 = getCollectionItemWithExtra(folderId2);
+        const folder3 = getCollectionItemWithExtra(folderId3);
 
         expect(folderO.updatedAt).toBe(now); // this one is untouched
         expect(folderO.parentId_meta._u).toBe(now);
-        expect(folder1.updatedAt).toBe(now + 100);
+        expect(folder1.updatedAt).toBe(folder1.createdAt);
+        expect(folder1.lastActivityAt).toBe(now + 100);
         expect(folder1.parentId_meta._u).toBe(now);
-        expect(folder2.updatedAt).toBe(now + 100);
+        expect(folder2.updatedAt).toBe(folder2.createdAt);
+        expect(folder2.lastActivityAt).toBe(now + 100);
         expect(folder2.parentId_meta._u).toBe(now);
-        expect(folder3.updatedAt).toBe(now + 100);
+        expect(folder3.updatedAt).toBe(folder3.createdAt);
+        expect(folder3.lastActivityAt).toBe(now + 100);
         expect(folder3.parentId_meta._u).toBe(now);
       });
 
@@ -616,6 +624,7 @@ describe('collection service', () => {
       collectionService.setUnsavedItemLexicalContent(item3, shortContent);
       vi.advanceTimersByTime(fakeTimersDelay);
       collectionService.saveItem(item3, i3);
+      vi.advanceTimersByTime(fakeTimersDelay);
 
       collectionService.setItemField(i2, 'tags', 'test'); // update
 
@@ -640,7 +649,7 @@ describe('collection service', () => {
       expect(
         collectionService
           .getBrowsableCollectionItems(DEFAULT_NOTEBOOK_ID, {
-            by: 'updatedAt',
+            by: 'lastActivityAt',
             descending: false
           })
           .map(i => `${i.title}`)
@@ -649,7 +658,7 @@ describe('collection service', () => {
       expect(
         collectionService
           .getBrowsableCollectionItems(DEFAULT_NOTEBOOK_ID, {
-            by: 'updatedAt',
+            by: 'lastActivityAt',
             descending: true
           })
           .map(i => `${i.title}`)
@@ -833,3 +842,5 @@ describe('collection service', () => {
     });
   });
 });
+
+// TODO if folder renamed, its lastActivityAt < updatedAt, must test sorting ok

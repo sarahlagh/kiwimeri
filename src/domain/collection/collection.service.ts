@@ -179,7 +179,6 @@ class CollectionService {
     const itemType = this.getItemType(rowId);
     const wasFolder = isFolder(itemType);
     const wasDocument = isDocument(itemType);
-    this.updateAllParentsInBreadcrumb(parent);
     if (wasFolder) {
       const children = this.getBrowsableCollectionItems(rowId);
       console.debug(`folder to delete had ${children.length} children`);
@@ -204,6 +203,7 @@ class CollectionService {
       }
     }
     space.transaction(() => {
+      this.updateAllActivityAt(parent);
       space.delRow(C, rowId);
       this.cleanupDeletedItem(rowId);
     });
@@ -360,7 +360,7 @@ class CollectionService {
     return isConflict;
   }
 
-  public shouldTriggerRowUpdatedChange(key: CollectionItemUpdatableFieldEnum) {
+  public shouldTriggerActivityChange(key: CollectionItemUpdatableFieldEnum) {
     return CollectionItemRowUpdateChangeFields.includes(key);
   }
 
@@ -386,7 +386,7 @@ class CollectionService {
     const type = this.getItemType(rowId);
     const updated = Date.now();
     // title and content are real changes, order and settings are not (won't trigger an update ts)
-    const isRowUpdateChange = this.shouldTriggerRowUpdatedChange(key);
+    const isRowUpdateChange = this.shouldTriggerActivityChange(key);
     const isParentChange = key === 'parentId';
 
     space.transaction(() => {
@@ -412,11 +412,10 @@ class CollectionService {
         tmpTable[rowId].parentId = value as string;
         this.propagateBreadcrumbChange(rowId, tmpTable);
       }
-
-      if (isRowUpdateChange) {
-        this.updateAllParentsInBreadcrumb(this.getItemParent(rowId));
-      }
     });
+    if (isRowUpdateChange) {
+      this.updateAllActivityAt(rowId, updated);
+    }
     if (key === 'content') {
       this.setRawContent(rowId, value as string, updated);
     }
@@ -430,13 +429,13 @@ class CollectionService {
     parent: string,
     tmpTable: Table<SpaceTablesType, SpaceTables.Collection>
   ) {
-    this.calcState(parent, tmpTable);
+    this.calcBreadcrumbs(parent, tmpTable);
     // if has children, update their breadcrumbs too
     const stateTable = space.getTable(ProjectedState);
     Object.keys(stateTable).forEach(rowId => {
       const state = stateTable[rowId];
       if (state.fullPath?.includes(parent)) {
-        this.calcState(rowId, tmpTable);
+        this.calcBreadcrumbs(rowId, tmpTable);
       }
     });
   }
@@ -476,7 +475,7 @@ class CollectionService {
     return { fullPath, shortPath };
   }
 
-  public calcState(
+  public calcBreadcrumbs(
     id: Id,
     table: Table<SpaceTablesType, SpaceTables.Collection>
   ) {
@@ -485,6 +484,7 @@ class CollectionService {
       fullPath,
       shortPath
     });
+    return { fullPath, shortPath };
   }
 
   private getTempTable(item: WithId<CollectionItemRow>) {
@@ -501,10 +501,10 @@ class CollectionService {
     const content_updated = item.content_meta?._u;
     space.transaction(() => {
       const row = { ...item, itemId: id } as CollectionItemRow;
-      this.calcState(id, this.getTempTable({ ...row, id }));
+      this.calcBreadcrumbs(id, this.getTempTable({ ...row, id }));
       space.setRow(C, id, row);
-      this.updateAllParentsInBreadcrumb(item.parentId);
     });
+    this.updateAllActivityAt(id);
     if (content) {
       this.setRawContent(id, content, content_updated || 0);
     }
@@ -537,14 +537,11 @@ class CollectionService {
         }
         space.setRow(C, id, newRow);
       });
-      // can probably optimize
-      allIds.forEach(rowId => this.calcState(rowId, tmpTable));
-
-      // backfill all for now- should optimize
-      Object.keys(tmpTable).forEach(rowId => {
-        this.calcState(rowId, tmpTable);
-      });
+      // backfill all for now - should optimize
+      this.backfillProjectedStates(tmpTable, Object.keys(tmpTable));
     });
+    // TODO should optimize
+    this.updateAllActivityAtBulk(allIds);
     spaceDocContent.transaction(() => {
       allDocs.forEach((content, docId) => {
         if (content) {
@@ -571,7 +568,7 @@ class CollectionService {
         if (tmpTable[rowId].itemId !== rowId) {
           space.setCell(C, rowId, 'itemId', rowId);
         }
-        this.calcState(rowId, tmpTable);
+        this.calcBreadcrumbs(rowId, tmpTable);
       });
     });
   }
@@ -586,15 +583,21 @@ class CollectionService {
     return [];
   }
 
-  private updateAllParentsInBreadcrumb(folder: string) {
-    if (folder === ROOT_COLLECTION) {
-      return;
-    }
-    const breadcrumb = this.getBreadcrumb(folder, true);
+  public updateAllActivityAt(id: string, now = Date.now()) {
+    const breadcrumb = this.getBreadcrumb(id, true);
     space.transaction(() => {
-      for (let i = 1; i < breadcrumb.length; i++) {
-        space.setCell(C, breadcrumb[i], 'updatedAt', Date.now());
+      space.setCell(ProjectedState, id, 'lastActivityAt', now);
+      for (let i = 0; i < breadcrumb.length; i++) {
+        space.setCell(ProjectedState, breadcrumb[i], 'lastActivityAt', now);
       }
+    });
+  }
+
+  public updateAllActivityAtBulk(itemIds: string[]) {
+    space.transaction(() => {
+      itemIds.forEach(id => {
+        this.updateAllActivityAt(id);
+      });
     });
   }
 

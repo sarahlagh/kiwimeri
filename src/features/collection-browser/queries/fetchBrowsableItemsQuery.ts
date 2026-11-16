@@ -46,7 +46,7 @@ const fetchBrowsableItemsQuery = new SpaceQueryDefinition<
     select('type');
     select('tags');
     select('createdAt');
-    select('updatedAt');
+    select('state', 'lastActivityAt').as('lastActivityAt');
     select('order');
     select('conflictId');
     if (params.withPreview) {

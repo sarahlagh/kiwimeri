@@ -25,7 +25,7 @@ describe('settings service', () => {
     const folderId = collectionService.addFolder(currentNotebook);
 
     settingsService.setSpaceDefaultSort({
-      by: 'updatedAt',
+      by: 'lastActivityAt',
       descending: true
     });
 
@@ -57,7 +57,7 @@ describe('settings service', () => {
   it('should override space settings sort per notebook', () => {
     const currentNotebook = notebooksService.getCurrentNotebook();
     settingsService.setSpaceDefaultSort({
-      by: 'updatedAt',
+      by: 'lastActivityAt',
       descending: true
     });
 
@@ -76,7 +76,7 @@ describe('settings service', () => {
   it('should use space settings sort as fallback', () => {
     const currentNotebook = notebooksService.getCurrentNotebook();
     settingsService.setSpaceDefaultSort({
-      by: 'updatedAt',
+      by: 'lastActivityAt',
       descending: true
     });
     settingsService.setNotebookDefaultSort(currentNotebook, {
@@ -86,7 +86,7 @@ describe('settings service', () => {
 
     const defaultSort = settingsService.getNotebookDefaultSort('another');
     expect(defaultSort).toEqual({
-      by: 'updatedAt',
+      by: 'lastActivityAt',
       descending: true
     });
   });

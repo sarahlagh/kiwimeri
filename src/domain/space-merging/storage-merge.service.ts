@@ -304,9 +304,10 @@ class StorageMergeService {
     const json = JSON.parse(content);
     const localContent = this.getSpaceRepresentation();
     const newContent = this.parseAndValidate(json);
+    const changes = this.afterMergeChanges(newContent, localContent);
 
     space.transaction(() => {
-      this.setContent(newContent, false);
+      this.setContent(newContent, changes, false);
       if (newContent.history) {
         spaceArchive.setTable(H, newContent.history);
       }
@@ -318,7 +319,6 @@ class StorageMergeService {
       space.setTable(S, newContent.stats);
     }
 
-    const changes = this.afterMergeChanges(newContent, localContent);
     space.delTable(SpaceTables.ResumeState);
     this.handleDeletedRows(changes);
     this.handleHistory(changes);
@@ -329,7 +329,7 @@ class StorageMergeService {
     content: SpacePortableData,
     changes: AfterMergeChange[]
   ) {
-    this.setContent(content, true);
+    this.setContent(content, changes, true);
     this.handleResumeState(changes);
     this.handleDeletedRows(changes);
     this.handleHistory(changes);
@@ -429,7 +429,11 @@ class StorageMergeService {
     return [...changes.values()];
   }
 
-  private setContent(content: SpacePortableData, withUserPrefs: boolean) {
+  private setContent(
+    content: SpacePortableData,
+    changes: AfterMergeChange[],
+    withUserPrefs: boolean
+  ) {
     spaceDocContent.startTransaction();
     space.startTransaction();
     try {
@@ -444,6 +448,12 @@ class StorageMergeService {
       // TODO handle error
       space.finishTransaction();
       spaceDocContent.finishTransaction();
+
+      // TODO should optimize
+      const collectionIds = changes
+        .filter(ch => ch.on === C && ch.change !== LocalChangeType.delete)
+        .map(ch => ch.id);
+      collectionService.updateAllActivityAtBulk(collectionIds);
     }
   }
 

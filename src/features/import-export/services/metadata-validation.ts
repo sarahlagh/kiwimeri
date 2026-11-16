@@ -30,7 +30,7 @@ function validateMetadataSettings(
   if (
     !('by' in sort) ||
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    !Object.values(docSortBy).includes(sort.by as any)
+    !Object.values([...docSortBy, 'updatedAt']).includes(sort.by as any)
   ) {
     throw new Error('parsing error: settings.sort.by must be a sort field');
   }

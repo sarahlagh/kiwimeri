@@ -10,7 +10,7 @@ export interface Notebook extends BaseCollectionItem {
 
 export const notebookSortBy = [
   'createdAt',
-  'updatedAt',
+  'lastActivityAt',
   'title',
   'order'
 ] as const;

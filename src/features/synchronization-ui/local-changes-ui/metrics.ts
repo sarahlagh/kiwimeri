@@ -7,7 +7,7 @@ export function initLatestUpdateMetrics() {
       SpaceMetrics.latestCollectionChange,
       SpaceTables.Collection,
       'max',
-      'updatedAt'
+      'updatedAt' // no need to look at lastActivityAt
     );
   }
   if (!spaceMetrics.hasMetric(SpaceMetrics.latestAnnotationChange)) {

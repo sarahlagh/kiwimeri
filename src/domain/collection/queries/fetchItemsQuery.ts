@@ -34,6 +34,7 @@ const fetchItemsQuery = new SpaceQueryDefinition<
   select('tags');
   select('createdAt');
   select('updatedAt');
+  select('state', 'lastActivityAt');
   select('order');
   select('conflictId');
   select('settings');

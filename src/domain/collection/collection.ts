@@ -2,6 +2,7 @@ import { APPICONS } from '@/constants';
 import { MetaField, metaSchemaDefault, WithId } from '@/core/db/types';
 import { CollectionItemSettings } from '@/domain/collection/collection-settings';
 import { CellSchema } from 'tinybase/with-schemas';
+import { LastActivityAt } from './derived-item-state';
 import { ContentAddition } from './document-content';
 
 export enum CollectionItemType {
@@ -87,6 +88,7 @@ export type CollectionItemResult = Pick<
   | 'settings'
   | 'conflictId'
 > &
+  LastActivityAt &
   Required<Pick<CollectionItem, 'id'>> & {
     breadcrumb?: string[];
     previewText?: string;

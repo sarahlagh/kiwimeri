@@ -4,7 +4,7 @@ import { Sort } from '@/shared/misc/sort-filter/sort';
 
 export const docSortBy = [
   'createdAt',
-  'updatedAt',
+  'lastActivityAt',
   'title',
   'previewText',
   'order'

@@ -120,7 +120,7 @@
                 "updatedAt": 1753088495423,
                 "order": 1,
                 "settings": {
-                  "sort": { "descending": true, "by": "updatedAt" }
+                  "sort": { "descending": true, "by": "lastActivityAt" }
                 }
               },
               {

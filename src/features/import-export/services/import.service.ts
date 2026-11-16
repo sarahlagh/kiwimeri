@@ -96,6 +96,10 @@ class ImportService {
     }
     if (meta.settings) {
       item.settings = meta.settings;
+      // TODO should version schema
+      if ((item.settings.sort?.by as string) === 'updatedAt') {
+        item.settings.sort!.by = 'lastActivityAt';
+      }
     }
   }
 

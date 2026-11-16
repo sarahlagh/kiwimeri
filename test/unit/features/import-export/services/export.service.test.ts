@@ -157,7 +157,7 @@ describe('export service', () => {
       it(`should export a folder with several levels as a zip`, () => {
         const fId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
         settingsService.setFolderSettings(fId, {
-          sort: { by: 'updatedAt', descending: true }
+          sort: { by: 'lastActivityAt', descending: true }
         });
         newDoc(fId, 'this is the document content');
         const fId2 = collectionService.addFolder(fId);
@@ -182,7 +182,7 @@ describe('export service', () => {
           expect(meta).toBeDefined();
           expect(meta!.settings).toBeDefined();
           expect(meta!.settings!.sort).toBeDefined();
-          expect(meta!.settings!.sort!.by).toBe('updatedAt');
+          expect(meta!.settings!.sort!.by).toBe('lastActivityAt');
           expect(meta!.settings!.sort!.descending).toBe(true);
         }
       });

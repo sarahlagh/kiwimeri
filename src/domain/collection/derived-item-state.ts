@@ -2,13 +2,18 @@ import { SpaceTables } from '@/core/db/store-constants';
 import { SpaceTableId } from '@/core/db/store-schema';
 import { CellSchema } from 'tinybase/with-schemas';
 
-export type ProjectedItemStateRow = {
+export type LastActivityAt = {
+  lastActivityAt: number;
+};
+
+export type ProjectedItemStateRow = LastActivityAt & {
   shortPath: string[];
   fullPath: string[];
 };
 export const projectedItemStateSchema = {
   shortPath: { type: 'array' },
-  fullPath: { type: 'array' }
+  fullPath: { type: 'array' },
+  lastActivityAt: { type: 'number' }
 } as const satisfies Record<keyof ProjectedItemStateRow, CellSchema>;
 
 export type ItemViewRow = {

@@ -10,7 +10,11 @@ import { useEffect } from 'react';
 import { BrowsableItemResult, BrowsableItemSort } from '../browsable-item';
 import fetchBrowsableItemsQuery from '../queries/fetchBrowsableItemsQuery';
 
-export const browserModes = ['browser', 'updatedAt', 'lastOpenedAt'] as const;
+export const browserModes = [
+  'browser',
+  'lastActivityAt',
+  'lastOpenedAt'
+] as const;
 export type BrowserQueryMode = (typeof browserModes)[number] | 'conflicts';
 
 export default function useCollectionItemBrowserListResults(

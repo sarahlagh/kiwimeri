@@ -585,7 +585,7 @@ describe('import service', () => {
       const fSettings = space.getCell('collection', fId, 'settings');
       const dSettings = space.getCell('collection', dId, 'settings');
       expect(fSettings).toEqual({
-        sort: { by: 'updatedAt', descending: true },
+        sort: { by: 'lastActivityAt', descending: true },
         statsEnabled: true
       });
       expect(dSettings).toEqual({

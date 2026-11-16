@@ -59,7 +59,7 @@ const SaveSessionModal = ({ onClose }: SaveSessionModalProps) => {
       previewItem.title = t`timed session ` + dateToStr('iso');
       setTempItem({ ...previewItem, id });
       if (item === null) {
-        setItem({ ...previewItem, id });
+        setItem({ ...previewItem, id, lastActivityAt: previewItem.updatedAt });
       }
     }
   }, [tempItem, parentId, t, item]);
@@ -90,7 +90,10 @@ const SaveSessionModal = ({ onClose }: SaveSessionModalProps) => {
             setParentId(selected.id);
           } else if (selected.id === item?.id) {
             // unselect document
-            setItem(tempItem);
+            setItem({
+              ...tempItem,
+              lastActivityAt: tempItem?.updatedAt || 0
+            } as BrowsableItemResult);
           } else {
             setItem(selected);
           }
