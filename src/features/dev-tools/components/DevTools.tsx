@@ -1,6 +1,6 @@
 import { GET_FOLDER_ROUTE } from '@/app/routes';
 import { appConfig } from '@/config';
-import { plt } from '@/core/infra/platform';
+import { plt } from '@/core/infra/platform.service';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import useIsWideEnough from '@/shared/hooks/useIsWideEnough';

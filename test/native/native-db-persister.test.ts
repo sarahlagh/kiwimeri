@@ -3,7 +3,7 @@ import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { getNativePersisters, space, store } from '@/core/db/store';
 import { SpaceTables, StoreTables } from '@/core/db/store-constants';
 import { startDbListeners, stopDbListeners } from '@/core/db/store-listeners';
-import { plt } from '@/core/infra/platform';
+import { plt } from '@/core/infra/platform.service';
 import { schedule } from '@/core/tasks/scheduler.service';
 import { TaskNames } from '@/core/tasks/tasks-registry';
 import collectionService from '@/domain/collection/collection.service';

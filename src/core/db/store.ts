@@ -7,7 +7,7 @@ import {
   createQueries,
   createStore
 } from 'tinybase/with-schemas';
-import { plt } from '../infra/platform';
+import { plt } from '../infra/platform.service';
 import { migrateArchiveDatabase } from './migrate-content-store';
 import { migrate } from './migrations/migrate';
 import { NATIVE_STORE_EXCLUDE } from './store-constants';

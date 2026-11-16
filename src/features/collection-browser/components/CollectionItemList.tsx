@@ -1,5 +1,5 @@
 import { APPICONS, CONFLICT_STR } from '@/constants';
-import { plt } from '@/core/infra/platform';
+import { plt } from '@/core/infra/platform.service';
 import {
   APPICONS_PER_TYPE,
   CollectionItemType

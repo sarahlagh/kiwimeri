@@ -2,7 +2,7 @@ import { SID } from '@/core/db/store-constants';
 import { SpaceValue } from '@/core/db/store-schema';
 import { AnySerializableData, SerializableData } from '@/core/db/types';
 import { useSpaceValues } from '@/core/db/ui-hooks';
-import { plt } from '@/core/infra/platform';
+import { plt } from '@/core/infra/platform.service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { syncService } from '@/domain/synchronization/sync.service';
 import { ConfigRowType, EditConfigList } from '@/features/settings-ui';

@@ -1,7 +1,7 @@
 import { Id } from 'tinybase/with-schemas';
 import { store } from '../db/store';
 import { StoreTables } from '../db/store-constants';
-import { plt } from '../infra/platform';
+import { plt } from '../infra/platform.service';
 import { AppNotificationCtx, AppNotificationLevel } from './notifications';
 
 const N = StoreTables.Notifications;

@@ -13,7 +13,7 @@ vi.stubGlobal('nativeContentMap', nativeContentMap);
 const mainContentMap = new Map<string, Content>();
 vi.stubGlobal('mainContentMap', mainContentMap);
 
-vi.mock(import('@/core/infra/platform'), async importOriginal => {
+vi.mock(import('@/core/infra/platform.service'), async importOriginal => {
   const originalModule = await importOriginal();
   vi.spyOn(originalModule.plt, 'hasNativeSupport').mockReturnValue(true);
   return {

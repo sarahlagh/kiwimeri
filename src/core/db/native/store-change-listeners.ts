@@ -1,5 +1,5 @@
 import { appConfig } from '@/config';
-import { plt } from '@/core/infra/platform';
+import { plt } from '@/core/infra/platform.service';
 import { schedule } from '@/core/tasks/scheduler.service';
 import { TaskNames } from '@/core/tasks/tasks-registry';
 import { Id, OptionalSchemas, Store } from 'tinybase/with-schemas';

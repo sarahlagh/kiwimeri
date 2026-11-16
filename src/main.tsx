@@ -8,7 +8,7 @@ import { messages as enMessages } from './locales/en/messages';
 import LoadingApp from './app/pages/LoadingApp';
 
 import { appConfig } from './config';
-import { plt } from './core/infra/platform';
+import { plt } from './core/infra/platform.service';
 
 setupIonicReact({
   sanitizerEnabled: true,

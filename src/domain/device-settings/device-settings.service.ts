@@ -1,7 +1,7 @@
 import { appConfig } from '@/config';
 import { space } from '@/core/db/store';
 import { SpaceValue, SpaceValueType } from '@/core/db/store-schema';
-import { plt } from '@/core/infra/platform';
+import { plt } from '@/core/infra/platform.service';
 import { Theme } from './device-settings';
 
 class DeviceSettingService {

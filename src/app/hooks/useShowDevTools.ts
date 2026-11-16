@@ -1,4 +1,4 @@
-import { plt } from '@/core/infra/platform';
+import { plt } from '@/core/infra/platform.service';
 import useDeviceSetting from '@/shared/hooks/useDeviceSetting';
 
 export default function useShowDevTools() {

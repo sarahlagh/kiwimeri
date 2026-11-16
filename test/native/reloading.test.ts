@@ -1,5 +1,5 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
-import { plt } from '@/core/infra/platform';
+import { plt } from '@/core/infra/platform.service';
 import { readFile } from 'fs/promises';
 import { Content } from 'tinybase';
 

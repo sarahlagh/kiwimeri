@@ -4,7 +4,7 @@ import { historyService } from '@/domain/history/history.service';
 import { clearNativeDbBackups } from '../db/native/native-db-persister';
 import { triggerNativeSave } from '../db/native/trigger-native-save';
 import { AnyData } from '../db/types';
-import { plt } from '../infra/platform';
+import { plt } from '../infra/platform.service';
 import { appLog } from '../logs/logs.service';
 import { notifsSvc } from '../notifications/notifications.service';
 

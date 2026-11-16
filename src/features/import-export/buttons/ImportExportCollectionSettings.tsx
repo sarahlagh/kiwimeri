@@ -1,4 +1,4 @@
-import { plt } from '@/core/infra/platform';
+import { plt } from '@/core/infra/platform.service';
 import { CollectionItemType } from '@/domain/collection/collection';
 import { storageService } from '@/domain/space-merging/storage.service';
 import {

@@ -1,5 +1,5 @@
 import { appConfig } from '@/config';
-import { plt } from '@/core/infra/platform';
+import { plt } from '@/core/infra/platform.service';
 import { searchLexicalService } from '@/features/search';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { LexicalEditor, mergeRegister } from 'lexical';

@@ -3,7 +3,7 @@ import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { AnyData } from '@/core/db/types';
 import { networkService } from '@/core/infra/network.service';
-import { plt } from '@/core/infra/platform';
+import { plt } from '@/core/infra/platform.service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import remotesService from '@/domain/synchronization/remotes.service';
 import { Id } from 'tinybase/with-schemas';

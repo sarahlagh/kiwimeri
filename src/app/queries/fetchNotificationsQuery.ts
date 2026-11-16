@@ -1,6 +1,6 @@
 import { StoreQueryDefinition } from '@/core/db/queries-helper';
 import { StoreTables } from '@/core/db/store-constants';
-import { plt } from '@/core/infra/platform';
+import { plt } from '@/core/infra/platform.service';
 import { AppNotificationResult } from '@/core/notifications/notifications';
 
 type NotificationsQueryParam = {

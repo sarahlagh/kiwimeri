@@ -27,7 +27,7 @@ import TinybaseProvider from './app/providers/TinybaseProvider';
 import { ToastProvider } from './app/providers/ToastProvider';
 
 import { BrowserRouter } from 'react-router';
-import { plt } from './core/infra/platform';
+import { plt } from './core/infra/platform.service';
 import './core/infra/polyfills/capacitor-http-fetch-polyfill';
 import './core/infra/polyfills/log-polyfill';
 

@@ -1,7 +1,7 @@
 import { appConfig } from '@/config';
 import { store } from '@/core/db/store';
 import { StoreTables } from '@/core/db/store-constants';
-import { plt } from '@/core/infra/platform';
+import { plt } from '@/core/infra/platform.service';
 import { schedule } from '@/core/tasks/scheduler.service';
 import { TaskNames } from '@/core/tasks/tasks-registry';
 

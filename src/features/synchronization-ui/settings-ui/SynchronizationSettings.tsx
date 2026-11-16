@@ -1,4 +1,4 @@
-import { plt } from '@/core/infra/platform';
+import { plt } from '@/core/infra/platform.service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { OperationsCard } from '@/features/dev-tools';
 

@@ -1,5 +1,5 @@
 import type { FilesystemService } from '@/core/infra/filesystem.service';
-import { plt } from '@/core/infra/platform';
+import { plt } from '@/core/infra/platform.service';
 import { Content, Store as UntypedStore } from 'tinybase';
 import { createCustomPersister, Persister } from 'tinybase/persisters';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db';

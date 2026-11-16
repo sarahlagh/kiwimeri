@@ -1,5 +1,5 @@
 import { APPICONS } from '@/constants';
-import { plt } from '@/core/infra/platform';
+import { plt } from '@/core/infra/platform.service';
 import { IonButton, IonIcon } from '@ionic/react';
 
 type SearchButtonProps = {

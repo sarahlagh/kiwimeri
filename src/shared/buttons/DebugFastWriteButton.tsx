@@ -1,6 +1,6 @@
 import { useToastContext } from '@/app/context/ToastContext';
 import { APPICONS } from '@/constants';
-import { plt } from '@/core/infra/platform';
+import { plt } from '@/core/infra/platform.service';
 import { appLog } from '@/core/logs/logs.service';
 import { writer } from '@/domain/document-edits/document-edits.service';
 import formatConverter from '@/domain/format-conversion/format-converter.service';

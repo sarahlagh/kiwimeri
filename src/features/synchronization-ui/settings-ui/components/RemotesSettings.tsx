@@ -1,6 +1,6 @@
 import { APPICONS } from '@/constants';
 import { useQueryResults } from '@/core/db/queries-helper';
-import { plt } from '@/core/infra/platform';
+import { plt } from '@/core/infra/platform.service';
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
 import { PCloudConf } from '@/domain/synchronization/drivers/pcloud/pcloud.driver';
 import fetchRemotesQuery from '@/domain/synchronization/queries/fetchRemotesQuery';

@@ -1,6 +1,6 @@
 import { appConfig } from '@/config';
 import BetterFilesystem from '@/core/infra/capacitor/better-filesystem.plugin';
-import { plt } from '@/core/infra/platform';
+import { plt } from '@/core/infra/platform.service';
 import { strFromU8 } from 'fflate';
 
 type OptionsBag = {

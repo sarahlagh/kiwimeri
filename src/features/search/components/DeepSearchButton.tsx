@@ -1,6 +1,6 @@
 import { GET_UNKNOWN_ITEM_ROUTE } from '@/app/routes';
 import { APPICONS } from '@/constants';
-import { plt } from '@/core/infra/platform';
+import { plt } from '@/core/infra/platform.service';
 import { APPICONS_PER_TYPE } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
 import {

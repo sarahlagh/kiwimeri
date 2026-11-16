@@ -1,5 +1,5 @@
 import { appConfig } from '@/config';
-import { plt } from '@/core/infra/platform';
+import { plt } from '@/core/infra/platform.service';
 import { AppLogLevel } from '@/core/logs/logs';
 import { appLog } from '@/core/logs/logs.service';
 

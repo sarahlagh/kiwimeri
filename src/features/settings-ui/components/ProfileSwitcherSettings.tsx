@@ -1,5 +1,5 @@
 import { APPICONS } from '@/constants';
-import { plt } from '@/core/infra/platform';
+import { plt } from '@/core/infra/platform.service';
 import { profileService } from '@/domain/profiles/profile.service';
 import {
   IonAlert,
