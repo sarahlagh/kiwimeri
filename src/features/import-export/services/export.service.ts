@@ -9,10 +9,14 @@ import notebooksService from '@/domain/collection/notebooks.service';
 import formatConverter from '@/domain/format-conversion/format-converter.service';
 import { strToU8, zip } from 'fflate';
 import {
+  RootZipMetadata,
   ZipExportOptions,
   ZipFileTree,
   ZipMetadata
 } from '../model/model-export';
+import { IMPORT_EXPORT_SCHEMA_VERSION } from './metadata-validation';
+
+const schemaVersion = IMPORT_EXPORT_SCHEMA_VERSION;
 
 class ExportService {
   private readonly opts: ZipExportOptions = {
@@ -60,7 +64,7 @@ class ExportService {
     opts: ZipExportOptions,
     folderType?: CollectionItemTypeValues
   ) {
-    const meta = new Map<string, ZipMetadata>();
+    const meta = new Map<string, RootZipMetadata>();
     const items = collectionService.getBrowsableCollectionItems(folderId);
 
     // create text files
@@ -77,7 +81,8 @@ class ExportService {
         if (opts.includeMetadata) {
           const metaId = item.parentId;
           if (!meta.has(metaId)) {
-            meta.set(metaId, this.getParentMeta(folderId, folderType, true));
+            const parentMeta = this.getParentMeta(folderId, folderType, true);
+            meta.set(metaId, { ...parentMeta, schemaVersion });
           }
           meta.get(metaId)!.files![itemKey] = this.getFileMeta(item);
         }
@@ -106,7 +111,8 @@ class ExportService {
 
     const metaId = folderId;
     if (!meta.has(metaId)) {
-      meta.set(metaId, this.getParentMeta(folderId, folderType));
+      const parentMeta = this.getParentMeta(folderId, folderType);
+      meta.set(metaId, { ...parentMeta, schemaVersion });
     }
 
     if (opts.includeMetadata && meta.has(metaId)) {

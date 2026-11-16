@@ -1,6 +1,16 @@
 import { CollectionItemType, itemTypes } from '@/domain/collection/collection';
 import { docSortBy } from '@/domain/collection/collection-settings';
-import { ZipMetadata } from '../model/model-export';
+import { RootZipMetadata, ZipMetadata } from '../model/model-export';
+
+enum Versions {
+  INITIAL_0 = 0,
+  WITH_ACTIVITY_AT_1 = 1
+}
+/**
+ * <=0.4.8 => settings.sort.by accepts updatedAt, schemaVersion is undefined (schemaVersion=0)
+ *   0.5.0 => settings.sort.by accepts lastActivityAt, auto converts updatedAt (schemaVersion=1)
+ */
+export const IMPORT_EXPORT_SCHEMA_VERSION = Versions.WITH_ACTIVITY_AT_1; // increment each breaking change
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;

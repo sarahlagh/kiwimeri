@@ -9,6 +9,9 @@ export type ZipExportOptions = {
   includeMetadata?: boolean;
 };
 
+export type RootZipMetadata = ZipMetadata & {
+  schemaVersion: number;
+};
 export type ZipMetadata = Partial<
   Pick<
     CollectionItem,

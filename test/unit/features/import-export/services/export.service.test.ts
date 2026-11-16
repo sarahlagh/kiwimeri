@@ -6,6 +6,7 @@ import collectionService from '@/domain/collection/collection.service';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
 import notebooksService from '@/domain/collection/notebooks.service';
 import {
+  RootZipMetadata,
   ZipExportOptions,
   ZipFileTree,
   ZipMetadata
@@ -13,6 +14,7 @@ import {
 import exportService from '@/features/import-export/services/export.service';
 
 import formatConverter from '@/domain/format-conversion/format-converter.service';
+import { IMPORT_EXPORT_SCHEMA_VERSION } from '@/features/import-export/services/metadata-validation';
 import { strFromU8 } from 'fflate';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -51,7 +53,8 @@ describe('export service', () => {
           expect(zipContent[META_JSON]).toBeDefined();
           const meta = JSON.parse(
             strFromU8(zipContent[META_JSON][0])
-          ) as ZipMetadata;
+          ) as RootZipMetadata;
+          expect(meta.schemaVersion).toBe(IMPORT_EXPORT_SCHEMA_VERSION);
           if (!isRoot) {
             expect(meta.type).toBe(metaType);
           } else {
@@ -82,6 +85,7 @@ describe('export service', () => {
             filesInZip.forEach(fileInZip => {
               const metaFile = meta.files![fileInZip];
               expect(metaFile).toBeDefined();
+              expect((metaFile as any).schemaVersion).toBeUndefined();
               expect(metaFile.createdAt).toBe(Date.now());
               expect(metaFile.updatedAt).toBe(Date.now());
               expect(metaFile.type).toBe(CollectionItemType.document);
