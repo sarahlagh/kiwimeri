@@ -22,7 +22,7 @@ async function migrateSpace(
     func.default(_space);
   }
 
-  if (between(runtimeCode, 400, 501)) {
+  if (between(runtimeCode, 400, 599)) {
     console.log('[migration] 1 space migration to run: post-refacto migration');
     const func1 = await import('./001-refacto-migrations');
     func1.default(_store, _space);

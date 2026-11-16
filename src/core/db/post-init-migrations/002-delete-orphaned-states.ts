@@ -1,9 +1,10 @@
 import { Store } from 'tinybase/with-schemas';
 import { SpaceDocContentTables, SpaceTables } from '../store-constants';
+import { SpaceDocContentType, SpaceType } from '../store-schema';
 
 export default function Migration(
-  _space: Store<never>,
-  _spaceDocContent: Store<never>
+  _space: Store<SpaceType>,
+  _spaceDocContent: Store<SpaceDocContentType>
 ) {
   rowIdForRowId(_space, SpaceTables.ResumeState);
   rowIdForRowId(_space, SpaceTables.ProjectedState);
@@ -24,7 +25,7 @@ export default function Migration(
 }
 
 function rowIdForRowId(
-  _space: Store<never>,
+  _space: Store<SpaceType>,
   tableId: SpaceTables,
   inTableId: SpaceTables = SpaceTables.Collection
 ) {
@@ -42,8 +43,8 @@ function rowIdForRowId(
 }
 
 function rowIdForContentRowId(
-  _space: Store<never>,
-  _spaceText: Store<never>,
+  _space: Store<SpaceType>,
+  _spaceText: Store<SpaceDocContentType>,
   targetId: SpaceTables,
   tableId: SpaceDocContentTables
 ) {

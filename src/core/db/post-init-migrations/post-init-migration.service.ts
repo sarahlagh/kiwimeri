@@ -32,28 +32,33 @@ class PostInitMigrationService {
     from: number,
     to: number
   ) {
-    const _space = space as unknown as Store<never>;
     if (between(to, 402, 404)) {
       console.log('[space] 1 migration to run: gc orphaned states');
       const func = await import('./002-delete-orphaned-states');
-      func.default(_space, spaceDocContent as unknown as Store<never>);
+      func.default(space, spaceDocContent);
     }
 
-    if (between(to, 404, 405)) {
+    if (between(to, 404, 501)) {
       console.log('[space] 1 migration to run: backfill plaintext');
       callDerivedTablesListeners();
     }
 
-    if (between(to, 407, 599)) {
+    if (between(to, 400, 599)) {
       console.log(
         '[space] 1 migration to run: default value for proxy and zoom'
       );
-      if (_space.getValue('internalProxy') === '') {
-        _space.delValue('internalProxy');
+      if (space.getValue('internalProxy') === '') {
+        space.delValue('internalProxy');
       }
       if (space.getValue('globalZoom') < 50) {
         space.delValue('globalZoom');
       }
+    }
+
+    if (between(to, 400, 599)) {
+      console.log('[space] 1 migration to run: backfill lastActivityAt');
+      const func = await import('./003-backfill-lastActivityAt');
+      func.default(space);
     }
   }
 }

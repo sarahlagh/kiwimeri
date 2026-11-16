@@ -53,7 +53,7 @@
         "type": "f",
         "order": 9999,
         "order_meta": { "_u": 1780926457044 },
-        "settings": { "sort": { "by": "updatedAt", "descending": false } },
+        "settings": { "sort": { "by": "lastActivityAt", "descending": false } },
         "settings_meta": { "_u": 1780926689771 },
         "parentId": "0",
         "parentId_meta": { "_u": 1780926457044 },
@@ -226,22 +226,30 @@
       }
     },
     "collection_projected_state": {
-      "0": { "fullPath": ["0"], "shortPath": ["0"] },
+      "0": {
+        "fullPath": ["0"],
+        "shortPath": ["0"],
+        "lastActivityAt": 1780926700174
+      },
       "h-MOhEAYItMcMOJb": {
         "fullPath": ["0", "h-MOhEAYItMcMOJb"],
-        "shortPath": ["0", "h-MOhEAYItMcMOJb"]
+        "shortPath": ["0", "h-MOhEAYItMcMOJb"],
+        "lastActivityAt": 1780926410096
       },
       "cZ6l5keLw_D7s9Yq": {
         "fullPath": ["0", "cZ6l5keLw_D7s9Yq"],
-        "shortPath": ["0", "cZ6l5keLw_D7s9Yq"]
+        "shortPath": ["0", "cZ6l5keLw_D7s9Yq"],
+        "lastActivityAt": 1782124333143
       },
       "-br8f-vij3m0LJ8k": {
         "fullPath": ["0", "-br8f-vij3m0LJ8k"],
-        "shortPath": ["0", "-br8f-vij3m0LJ8k"]
+        "shortPath": ["0", "-br8f-vij3m0LJ8k"],
+        "lastActivityAt": 1780926689771
       },
       "xtid1X1laW4E5oUI": {
         "fullPath": ["0", "-br8f-vij3m0LJ8k", "xtid1X1laW4E5oUI"],
-        "shortPath": ["0", "-br8f-vij3m0LJ8k", "xtid1X1laW4E5oUI"]
+        "shortPath": ["0", "-br8f-vij3m0LJ8k", "xtid1X1laW4E5oUI"],
+        "lastActivityAt": 1780926465066
       }
     },
     "collection_item_view": {
@@ -262,7 +270,7 @@
   },
   {
     "appVersion": "0.5.0",
-    "globalZoom": 1,
+    "globalZoom": 100,
     "exportIncludeMetadata": true,
     "theme": "dark",
     "maxLogHistory": 500,
