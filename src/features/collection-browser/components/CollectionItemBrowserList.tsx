@@ -21,7 +21,7 @@ import { settingsService } from '@/domain/collection/collection-settings.service
 import notebooksService from '@/domain/collection/notebooks.service';
 
 import { useHasLocalConflicts } from '@/features/synchronization-ui';
-import { i18n, MessageDescriptor } from '@lingui/core';
+import { defineI18nMap } from '@/shared/misc/i18n-utils';
 import { msg } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react/macro';
 import {
@@ -154,15 +154,17 @@ const CollectionItemBrowserListToolbar = ({
   );
 };
 
-const modeTrans = new Map<BrowserQueryMode, MessageDescriptor>();
-modeTrans.set('updatedAt', msg`Last updated documents`);
-modeTrans.set('lastOpenedAt', msg`Last consulted documents`);
-modeTrans.set('conflicts', msg`Conflicts`);
+const modeLabels = defineI18nMap<BrowserQueryMode>([
+  ['updatedAt', msg`Last updated documents`],
+  ['lastOpenedAt', msg`Last consulted documents`],
+  ['conflicts', msg`Conflicts`]
+]);
 
 export const CollectionItemBrowserList = ({
   parent: folder
 }: CollectionItemBrowserListProps) => {
   const navigate = useNavigate();
+  const { i18n } = useLingui();
   const location = useLocation();
   const searchParams = getSearchParams(location.search);
   const openedDocument = searchParams?.document;
@@ -226,10 +228,10 @@ export const CollectionItemBrowserList = ({
               onClick={item => {
                 navigate(GET_ITEM_ROUTE(item, openedDocument, query));
               }}
-            ></CollectionItemBreadcrumb>
+            />
           ) : (
             <IonLabel style={{ lineHeight: '36px', marginLeft: '18px' }}>
-              <i>{i18n._(modeTrans.get(currentMode)!)}</i>
+              <i>{modeLabels.get(i18n, currentMode)}</i>
             </IonLabel>
           )}
         </>

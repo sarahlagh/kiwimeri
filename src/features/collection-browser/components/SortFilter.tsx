@@ -5,6 +5,7 @@ import {
   docSortBy
 } from '@/domain/collection/collection-settings';
 import { SearchActionsToolbarLite } from '@/features/search';
+import { defineI18nMap } from '@/shared/misc/i18n-utils';
 import {
   IonButton,
   IonIcon,
@@ -13,7 +14,6 @@ import {
   IonSelect,
   IonSelectOption
 } from '@ionic/react';
-import { i18n, MessageDescriptor } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react/macro';
 import { ReactNode } from 'react';
@@ -31,12 +31,13 @@ export type SortFilterProps = {
     readonly children?: ReactNode;
   };
 
-const valuesTransMap = new Map<CollectionItemSortType, MessageDescriptor>();
-valuesTransMap.set('createdAt', msg`Creation Date`);
-valuesTransMap.set('updatedAt', msg`Last Updated`);
-valuesTransMap.set('title', msg`Title`);
-valuesTransMap.set('previewText', msg`Content`);
-valuesTransMap.set('order', msg`Manual`);
+const sortLabels = defineI18nMap<CollectionItemSortType>([
+  ['createdAt', msg`Creation Date`],
+  ['updatedAt', msg`Last Updated`],
+  ['title', msg`Title`],
+  ['previewText', msg`Content`],
+  ['order', msg`Manual`]
+]);
 
 const SortFilter = ({
   currentSort,
@@ -49,7 +50,7 @@ const SortFilter = ({
   toggleSearchAutoFocus,
   children
 }: SortFilterProps) => {
-  const { t } = useLingui();
+  const { t, i18n } = useLingui();
   const sort = { ...currentSort };
 
   // TODO opt to keep folders at top
@@ -61,7 +62,7 @@ const SortFilter = ({
             style={{ marginLeft: 6 }}
             label={t`Sort`}
             value={currentSort.by}
-            placeholder={i18n._(valuesTransMap.get(currentSort.by)!)}
+            placeholder={sortLabels.get(i18n, currentSort.by)}
             onIonChange={e => {
               sort.by = e.detail.value;
               onSortChange(sort);
@@ -69,7 +70,7 @@ const SortFilter = ({
           >
             {choices.map(sort => (
               <IonSelectOption key={sort} value={sort}>
-                {i18n._(valuesTransMap.get(sort)!)}
+                {sortLabels.get(i18n, sort)}
               </IonSelectOption>
             ))}
           </IonSelect>

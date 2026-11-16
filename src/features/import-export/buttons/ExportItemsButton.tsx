@@ -1,4 +1,3 @@
-import { tt } from '@/constants';
 import {
   CollectionItemType,
   CollectionItemTypeValues
@@ -10,6 +9,7 @@ import GenericExportFileButton from '@/shared/buttons/GenericExportFileButton';
 import { useIonAlert } from '@ionic/react';
 import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactProps';
 import { useLingui } from '@lingui/react/macro';
+import { useCallback } from 'react';
 import { ZipExportOptions } from '../model/model-export';
 
 type ExportItemsButtonProps = {
@@ -30,7 +30,7 @@ const ExportItemsButton = ({
   color,
   onClose
 }: ExportItemsButtonProps) => {
-  const { t } = useLingui();
+  const { t, i18n } = useLingui();
   const [alert] = useIonAlert();
 
   const notebook = notebooksService.getCurrentNotebook();
@@ -38,9 +38,9 @@ const ExportItemsButton = ({
   const getFileMime =
     type !== CollectionItemType.folder ? 'text/markdown' : 'application/zip';
 
-  const getFileTitle = () => {
+  const getFileTitle = useCallback(() => {
     if (id === 'space') {
-      return `${tt('defaultExportSpaceFilename')}.zip`;
+      return `${i18n._('defaultExportSpaceFilename')}.zip`;
     }
     if (!id || id === notebook) {
       return `${collectionService.getItemTitle(notebook)}.zip`;
@@ -50,7 +50,7 @@ const ExportItemsButton = ({
       return `${fileTitle}.zip`;
     }
     return `${fileTitle}.md`;
-  };
+  }, [i18n, id, notebook, type]);
 
   const getFileContent: () => Promise<
     string | Uint8Array<ArrayBufferLike>

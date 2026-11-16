@@ -1,4 +1,4 @@
-import { APPICONS, tt } from '@/constants';
+import { APPICONS } from '@/constants';
 import { CollectionItemResult } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
 import {
@@ -15,7 +15,7 @@ import {
   IonTitle,
   IonToolbar
 } from '@ionic/react';
-import { Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 import { ConfirmFileImportModalProps } from '../buttons/ImportItemsButton';
 
@@ -24,9 +24,11 @@ const ConfirmFileImportModal = ({
   duplicates,
   onClose
 }: ConfirmFileImportModalProps) => {
+  const { i18n } = useLingui();
   const [item, setItem] = useState<CollectionItemResult | undefined>(undefined);
 
-  const folderName = collectionService.getItemTitle(folder) || tt('homeTitle');
+  const folderName =
+    collectionService.getItemTitle(folder) || i18n._('homeTitle');
 
   return (
     <>

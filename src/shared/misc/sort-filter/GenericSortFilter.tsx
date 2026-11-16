@@ -8,10 +8,10 @@ import {
   IonSelect,
   IonSelectOption
 } from '@ionic/react';
-import { i18n, MessageDescriptor } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react/macro';
 import { ReactNode } from 'react';
+import { defineI18nMap } from '../i18n-utils';
 import GenericSearchInline, {
   GenericSearchInlineProps
 } from './GenericSearchInline';
@@ -42,21 +42,18 @@ export type GenericSortFilterProps<SortType extends string> =
       readonly children?: ReactNode;
     };
 
-const valuesTransMap = new Map<string, MessageDescriptor>();
-valuesTransMap.set('createdAt', msg`Creation Date`);
-valuesTransMap.set('updatedAt', msg`Last Updated`);
-valuesTransMap.set('title', msg`Title`);
-valuesTransMap.set('previewText', msg`Content`);
-valuesTransMap.set('order', msg`Manual`);
-
-function getI18nValue<SortType extends string>(sort: SortType) {
-  return valuesTransMap.has(sort) ? i18n._(valuesTransMap.get(sort)!) : sort;
-}
+const sortLabels = defineI18nMap([
+  ['createdAt', msg`Creation Date`],
+  ['updatedAt', msg`Last Updated`],
+  ['title', msg`Title`],
+  ['previewText', msg`Content`],
+  ['order', msg`Manual`]
+]);
 
 const GenericSortFilter = <SortType extends string>(
   props: GenericSortFilterProps<SortType>
 ) => {
-  const { t } = useLingui();
+  const { t, i18n } = useLingui();
   const { sortEnabled, searchEnabled, children } = props;
 
   // TODO opt to keep folders at top
@@ -68,7 +65,7 @@ const GenericSortFilter = <SortType extends string>(
             style={{ marginLeft: 6 }}
             label={t`Sort`}
             value={props.sort.by}
-            placeholder={getI18nValue(props.sort.by)}
+            placeholder={sortLabels.get(i18n, props.sort.by)}
             onIonChange={e => {
               props.sort.by = e.detail.value;
               props.onSortChange(props.sort);
@@ -76,7 +73,7 @@ const GenericSortFilter = <SortType extends string>(
           >
             {props.allowedSorts.map(sortBy => (
               <IonSelectOption key={sortBy as string} value={sortBy}>
-                {getI18nValue(sortBy)}
+                {sortLabels.get(i18n, sortBy)}
               </IonSelectOption>
             ))}
           </IonSelect>

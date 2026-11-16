@@ -4,6 +4,7 @@ import { schedule } from '@/core/tasks/scheduler.service';
 import { TaskNames } from '@/core/tasks/tasks-registry';
 import useIsWideEnough from '@/shared/hooks/useIsWideEnough';
 import { dateToStr } from '@/shared/misc/date-utils';
+import { defineI18nMap } from '@/shared/misc/i18n-utils';
 import AreYouSureAlert from '@/shared/modals/AreYouSureAlert';
 import {
   IonAlert,
@@ -21,7 +22,6 @@ import {
   IonLabel,
   IonList
 } from '@ionic/react';
-import { i18n, MessageDescriptor } from '@lingui/core';
 import { msg, ph } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useEffect } from 'react';
@@ -34,16 +34,16 @@ function onRouteLeave() {
   fetchTasksQuery.close();
 }
 
-const TASKS_MSG: { [key: string]: MessageDescriptor } = {};
-TASKS_MSG[TaskNames.NATIVE_STORE_SAVE] = msg`Native Storage`;
-TASKS_MSG[TaskNames.FAST_WRITE] = msg`Pending Edits`;
-TASKS_MSG[`${TaskNames.FAST_WRITE}_description`] =
-  msg`A document has pending changes`;
-TASKS_MSG[TaskNames.HISTORY_SAVE] = msg`Pending Document Version`;
-TASKS_MSG[TaskNames.LOG_GC] = msg`Log Maintenance`;
-TASKS_MSG[TaskNames.HISTORY_GC] = msg`History Maintenance`;
-TASKS_MSG[TaskNames.NOTIFS_GC] = msg`Notification Maintenance`;
-TASKS_MSG[TaskNames.DELETE_NATIVE_BACKUPS] = msg`Profile Cleanup`;
+const tasksLabels = defineI18nMap([
+  [TaskNames.NATIVE_STORE_SAVE, msg`Native Storage`],
+  [TaskNames.FAST_WRITE, msg`Pending Edits`],
+  [`${TaskNames.FAST_WRITE}_description`, msg`A document has pending changes`],
+  [TaskNames.HISTORY_SAVE, msg`Pending Document Version`],
+  [TaskNames.LOG_GC, msg`Log Maintenance`],
+  [TaskNames.HISTORY_GC, msg`History Maintenance`],
+  [TaskNames.NOTIFS_GC, msg`Notification Maintenance`],
+  [TaskNames.DELETE_NATIVE_BACKUPS, msg`Profile Cleanup`]
+]);
 
 const TasksCard = () => {
   useEffect(() => {
@@ -53,7 +53,7 @@ const TasksCard = () => {
     };
   }, []);
 
-  const { t } = useLingui();
+  const { t, i18n } = useLingui();
   const isWideEnough = useIsWideEnough();
   const tasks = useQueryResults(fetchTasksQuery);
   const noneLabel = t`none`;
@@ -79,17 +79,14 @@ const TasksCard = () => {
                   <IonIcon icon={APPICONS.warning} />
                 )}
                 <IonLabel>
-                  <h3>
-                    {TASKS_MSG[task.name]
-                      ? i18n._(TASKS_MSG[task.name])
-                      : task.name}
-                  </h3>
+                  <h3>{tasksLabels.get(i18n, task.name)}</h3>
                   <p>
                     {isWideEnough && (
                       <i>
-                        {TASKS_MSG[`${task.name}_description`]
-                          ? i18n._(TASKS_MSG[`${task.name}_description`])
-                          : ''}
+                        {tasksLabels.getOrBlank(
+                          i18n,
+                          `${task.name}_description`
+                        )}
                       </i>
                     )}
                   </p>
@@ -97,17 +94,8 @@ const TasksCard = () => {
                     {!task.error ? (
                       <span>
                         <i>
-                          {isWideEnough && (
-                            <Trans>
-                              Scheduled at: &nbsp;
-                              {ph({
-                                relativeDate: dateToStr(
-                                  'relative',
-                                  task.scheduledAt
-                                )
-                              })}
-                            </Trans>
-                          )}
+                          {isWideEnough && <Trans>Scheduled at: &nbsp;</Trans>}
+                          {dateToStr('relative', task.scheduledAt)}
                         </i>
                       </span>
                     ) : (
@@ -140,11 +128,7 @@ const TasksCard = () => {
                   )}
                 </IonButtons>
                 <IonAlert
-                  header={
-                    TASKS_MSG[task.name]
-                      ? i18n._(TASKS_MSG[task.name])
-                      : task.name
-                  }
+                  header={tasksLabels.get(i18n, task.name)}
                   trigger={`info_${task.id}`}
                   message={t`Inputs: ${ph({ inputsStr: task.inputs ? JSON.stringify(task.inputs) : noneLabel })} </br> ${ph({ errorMsg: task.error ? task.error : '' })}`}
                   buttons={[

@@ -1,10 +1,11 @@
-import { APPICONS, ROOT_COLLECTION, tt } from '@/constants';
+import { APPICONS, ROOT_COLLECTION } from '@/constants';
 import {
   APPICONS_PER_TYPE,
   CollectionItemType,
   CollectionItemTypeValues
 } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
+import { defineI18nMap } from '@/shared/misc/i18n-utils';
 import {
   InputCustomEvent,
   IonButton,
@@ -20,38 +21,27 @@ import {
   IonToggle,
   IonToolbar
 } from '@ionic/react';
-import { i18n } from '@lingui/core';
 import { msg, ph } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { ConfirmMultipleImportModalProps } from '../buttons/ImportItemsButton';
 import { ZipParseError } from '../model/model-import';
 import importService from '../services/import.service';
 
-export const ARIA_DESCRIPTIONS_PER_TYPE = new Map<
-  CollectionItemTypeValues,
-  string
->();
-ARIA_DESCRIPTIONS_PER_TYPE.set(
-  CollectionItemType.document,
-  i18n._(msg`a document`)
-);
-ARIA_DESCRIPTIONS_PER_TYPE.set(
-  CollectionItemType.folder,
-  i18n._(msg`a folder`)
-);
-ARIA_DESCRIPTIONS_PER_TYPE.set(
-  CollectionItemType.notebook,
-  i18n._(msg`a notebook`)
-);
+export const ariaDescLabels = defineI18nMap<CollectionItemTypeValues>([
+  [CollectionItemType.document, msg`a document`],
+  [CollectionItemType.folder, msg`a folder`],
+  [CollectionItemType.notebook, msg`a notebook`]
+]);
 
 const ConfirmMultipleImportModal = ({
   params,
   parent,
   onClose
 }: ConfirmMultipleImportModalProps) => {
-  const { t } = useLingui();
-  const parentName = collectionService.getItemTitle(parent) || tt('homeTitle');
+  const { t, i18n } = useLingui();
+  const parentName =
+    collectionService.getItemTitle(parent) || i18n._('homeTitle');
 
   const [createNewFolder, setCreateNewFolder] = useState<boolean>(false);
   const [newFolderName, setNewFolderName] = useState<string | undefined>();
@@ -93,19 +83,25 @@ const ConfirmMultipleImportModal = ({
     ...(zipMerge?.firstLevel || [])
   ].sort((i1, i2) => i1.createdAt - i2.createdAt); // TODO adjust according to setting
 
-  const getErrorLabel = (e: ZipParseError) => {
-    switch (e.family) {
-      case 'incorrect_meta':
-        return t`Incorrect Metadata`;
-      case 'parse_error':
-      default:
-        return t`Parsing Error`;
-    }
-  };
+  const getErrorLabel = useCallback(
+    (e: ZipParseError) => {
+      switch (e.family) {
+        case 'incorrect_meta':
+          return t`Incorrect Metadata`;
+        case 'parse_error':
+        default:
+          return t`Parsing Error`;
+      }
+    },
+    [t]
+  );
 
-  const getStatusLabel = (status: 'new' | 'merged') => {
-    return status === 'new' ? t`new` : t`merged`;
-  };
+  const getStatusLabel = useCallback(
+    (status: 'new' | 'merged') => {
+      return status === 'new' ? t`new` : t`merged`;
+    },
+    [t]
+  );
 
   return (
     <>
@@ -295,7 +291,7 @@ const ConfirmMultipleImportModal = ({
                   slot="start"
                   className="slim"
                   color={color}
-                  aria-description={ARIA_DESCRIPTIONS_PER_TYPE.get(item.type)}
+                  aria-description={ariaDescLabels.get(i18n, item.type)}
                   icon={APPICONS_PER_TYPE.get(item.type)}
                 />
                 <IonLabel color={color}>{item.title}</IonLabel>

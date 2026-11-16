@@ -8,7 +8,7 @@ import {
 import collectionService from '@/domain/collection/collection.service';
 import notebooksService from '@/domain/collection/notebooks.service';
 import ConfirmMultipleImportModal, {
-  ARIA_DESCRIPTIONS_PER_TYPE
+  ariaDescLabels
 } from '@/features/import-export/modals/ConfirmMultipleImportModal';
 
 import {
@@ -17,6 +17,7 @@ import {
   ZipMergeResult
 } from '@/features/import-export/model/model-import';
 import importService from '@/features/import-export/services/import.service';
+import { i18n } from '@lingui/core';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { server } from 'vitest/browser';
@@ -95,7 +96,7 @@ describe('ConfirmMultipleImportModal', () => {
     expect(node.hasChildNodes()).toBe(true);
     const first = node.firstChild;
     expect((first as HTMLElement).outerHTML).toContain(
-      `aria-description="${ARIA_DESCRIPTIONS_PER_TYPE.get(itemType)}"`
+      `aria-description="${ariaDescLabels.get(i18n, itemType)}"`
     );
     node.removeChild(first!);
 
