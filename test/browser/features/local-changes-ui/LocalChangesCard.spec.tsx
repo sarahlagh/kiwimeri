@@ -7,8 +7,9 @@ import localChangesService from '@/domain/synchronization/local-changes.service'
 import { userPreferenceDefinitions } from '@/domain/user-preferences/user-preferences';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import LocalChangesCard from '@/features/synchronization-ui/local-changes-ui/LocalChangesCard';
+import { dateToStr } from '@/shared/misc/date-utils';
 import { getNewContent } from '@@/_setup/test.utils';
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { render, RenderResult } from 'vitest-browser-react';
 import { TestingProvider } from '../../TestingProvider';
 import {
@@ -253,5 +254,30 @@ describe('LocalChangesCard', () => {
     expect(getListItem(screen, localChanges[0].id)).toHaveTextContent(
       'Space setting modified: Track text statistics'
     );
+  });
+
+  test('lastLocalChange is the max of collection, annotation and user prefs tables', async () => {
+    try {
+      vi.useFakeTimers();
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      vi.advanceTimersByTime(60000);
+      annotsService.addNote(docId);
+      vi.advanceTimersByTime(60000);
+      userPrefs.set(
+        'statsEnabled',
+        !userPreferenceDefinitions['statsEnabled'].default
+      );
+
+      const screen = await render(<LocalChangesCard />, {
+        wrapper: TestingProvider
+      });
+      const lastLocalChange = getCardLocalDate(screen);
+      await expect.element(lastLocalChange).toBeInTheDocument();
+      expect(lastLocalChange).toHaveTextContent(
+        `Local: ${dateToStr('datetime', Date.now())}`
+      );
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

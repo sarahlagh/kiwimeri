@@ -38,19 +38,16 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import useLatestUpdatedAt from '../hooks/useLatestUpdatedAt';
 import usePrimaryLastRemoteChange from '../hooks/usePrimaryLastRemoteChange';
-import {
-  closeLatestCollectionUpdateMetric,
-  initLatestCollectionUpdateMetric
-} from './metrics';
+import { closeLatestUpdateMetrics, initLatestUpdateMetrics } from './metrics';
 import fetchLocalChangesQuery from './queries/fetchLocalChangesQuery';
 
 function onRouteEnter() {
   fetchLocalChangesQuery.initQuery();
-  initLatestCollectionUpdateMetric();
+  initLatestUpdateMetrics();
 }
 function onRouteLeave() {
   fetchLocalChangesQuery.close();
-  closeLatestCollectionUpdateMetric();
+  closeLatestUpdateMetrics();
 }
 
 const LocalChangesCard = () => {
@@ -161,10 +158,14 @@ const LocalChangesCard = () => {
                             icon={APPICONS.warning}
                           ></IonIcon>
                           {lc.on === SpaceTables.Collection && (
-                            <IonText>{t`deleted item`}</IonText>
+                            <IonText>
+                              <Trans>deleted item</Trans>
+                            </IonText>
                           )}
                           {lc.on === SpaceTables.Annotations && (
-                            <IonText>{t`deleted comment`}</IonText>
+                            <IonText>
+                              <Trans>deleted comment</Trans>
+                            </IonText>
                           )}
                         </>
                       )}
@@ -217,7 +218,7 @@ const LocalChangesCard = () => {
                           ></IonIcon>
                           <IonText>
                             <i>
-                              <Trans>Space setting modified:</Trans>{' '}
+                              <Trans>Space setting modified: &nbsp;</Trans>
                               {i18n._(
                                 userPreferenceDefinitions[
                                   lc.itemId as UserPreferenceKey

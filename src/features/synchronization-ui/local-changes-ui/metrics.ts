@@ -1,7 +1,7 @@
 import { spaceMetrics } from '@/core/db/store';
 import { SpaceMetrics, SpaceTables } from '@/core/db/store-constants';
 
-export function initLatestCollectionUpdateMetric() {
+export function initLatestUpdateMetrics() {
   if (!spaceMetrics.hasMetric(SpaceMetrics.latestCollectionChange)) {
     spaceMetrics.setMetricDefinition(
       SpaceMetrics.latestCollectionChange,
@@ -10,8 +10,26 @@ export function initLatestCollectionUpdateMetric() {
       'updatedAt'
     );
   }
+  if (!spaceMetrics.hasMetric(SpaceMetrics.latestAnnotationChange)) {
+    spaceMetrics.setMetricDefinition(
+      SpaceMetrics.latestAnnotationChange,
+      SpaceTables.Annotations,
+      'max',
+      'updatedAt'
+    );
+  }
+  if (!spaceMetrics.hasMetric(SpaceMetrics.latestUserPrefChange)) {
+    spaceMetrics.setMetricDefinition(
+      SpaceMetrics.latestUserPrefChange,
+      SpaceTables.UserPreference,
+      'max',
+      'updatedAt'
+    );
+  }
 }
 
-export function closeLatestCollectionUpdateMetric() {
+export function closeLatestUpdateMetrics() {
   spaceMetrics.delMetricDefinition(SpaceMetrics.latestCollectionChange);
+  spaceMetrics.delMetricDefinition(SpaceMetrics.latestAnnotationChange);
+  spaceMetrics.delMetricDefinition(SpaceMetrics.latestUserPrefChange);
 }

@@ -32,7 +32,9 @@ export enum SpaceArchiveTables {
 }
 
 export enum SpaceMetrics {
-  latestCollectionChange = 'latestCollectionChange'
+  latestCollectionChange = 'latestCollectionChange',
+  latestAnnotationChange = 'latestAnnotationChange',
+  latestUserPrefChange = 'latestUserPrefChange'
 }
 
 export type StoreQueriesId = 'store' | 'space' | 'spaceArchive';
