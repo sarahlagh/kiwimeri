@@ -9,6 +9,7 @@ import {
   storeTablesSchema,
   storeValuesSchema
 } from '@/core/db/store-schema';
+import collectionService from '@/domain/collection/collection.service';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
 import { storageService } from '@/domain/space-merging/storage.service';
 import { readFile, writeFile } from 'fs/promises';
@@ -239,5 +240,8 @@ describe('restore json versioning', () => {
     expect(annotsService.getPreview('u0R3jqIujM3O_8IT')).toBe(
       'https://www.lipsum.com/'
     );
+    expect(
+      collectionService.getItemField('-br8f-vij3m0LJ8k', 'settings')
+    ).toEqual({ sort: { by: 'lastActivityAt', descending: false } });
   });
 });

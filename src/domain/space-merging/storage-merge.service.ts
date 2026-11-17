@@ -70,10 +70,11 @@ enum Versions {
   INITIAL_0_4 = 0,
   WITH_SETTINGS_AND_OBJS_1 = 1,
   WITH_CONTENT_SEPARATE_2 = 2,
-  WITH_CONTENT_UNMINIFIED_3 = 3
+  WITH_CONTENT_UNMINIFIED_3 = 3,
+  WITH_SORT_LAST_ACTIVITY_AT = 4
 }
 
-const LOCAL_COLLECTION_SCHEMA_VERSION = Versions.WITH_CONTENT_UNMINIFIED_3; // increment each breaking change
+const LOCAL_COLLECTION_SCHEMA_VERSION = Versions.WITH_SORT_LAST_ACTIVITY_AT; // increment each breaking change
 const MIN_LOCAL_COLLECTION_SCHEMA_VERSION = Versions.WITH_SETTINGS_AND_OBJS_1; // TODO stop supporting < 3 after 0.5
 
 class StorageMergeService {
@@ -196,6 +197,7 @@ class StorageMergeService {
     // 0.4.5 => content moved to CollectionContent & AnnotationContent tables
     //          + exports schemaVersion=2 and appVersion (schemaVersion=2)
     // 0.4.6 => content is no longer minimized (schemaVersion=3)
+    // 0.5.0 => sort.by no longer accepts updatedAt, becomes lastActivityAt (schemaVersion=4)
     // oldest accepted version = 0.4.2 / 1
     let schemaVersion = values?.schemaVersion;
     // attempt to guess schemaVersion
@@ -259,6 +261,17 @@ class StorageMergeService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private migrateSortUpdatedAt(tables: any) {
+    if (tables[C] === undefined) return; // skip
+    Object.keys(tables[C]).forEach(rowId => {
+      const row = tables[C][rowId];
+      if (row.settings?.sort && row.settings.sort.by === 'updatedAt') {
+        row.settings.sort.by = 'lastActivityAt';
+      }
+    });
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private parseAndValidate(json: any): SpacePortableDataWithHistory {
     const [tables, values] = json;
     const schemaVersion = this.guessSchemaVersion(tables, values);
@@ -275,6 +288,10 @@ class StorageMergeService {
 
     if (schemaVersion < Versions.WITH_CONTENT_UNMINIFIED_3) {
       this.unminimizeContent(tables);
+    }
+
+    if (schemaVersion < Versions.WITH_SORT_LAST_ACTIVITY_AT) {
+      this.migrateSortUpdatedAt(tables);
     }
 
     const newContent: SpacePortableDataWithHistory =
